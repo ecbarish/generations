@@ -1,0 +1,262 @@
+{
+  "palette": "docs/art/starfall/palette.gpl",
+  "tile_size": 16,
+  "file": "props.png",
+  "atlas_size": [
+    112,
+    96
+  ],
+  "origin": "local top-left inside each rect; footprint_rect is the placement base",
+  "pieces": {
+    "barrel": {
+      "size": [
+        16,
+        16
+      ],
+      "footprint_rect": [
+        3,
+        10,
+        10,
+        5
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 1,
+      "solid": true,
+      "name": "barrel",
+      "file": "props.png",
+      "rect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "crate": {
+      "size": [
+        16,
+        16
+      ],
+      "footprint_rect": [
+        2,
+        10,
+        12,
+        5
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 1,
+      "solid": true,
+      "name": "crate",
+      "file": "props.png",
+      "rect": [
+        16,
+        0,
+        16,
+        16
+      ]
+    },
+    "firewood": {
+      "size": [
+        16,
+        16
+      ],
+      "footprint_rect": [
+        2,
+        11,
+        12,
+        4
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 1,
+      "solid": true,
+      "name": "firewood",
+      "file": "props.png",
+      "rect": [
+        32,
+        0,
+        16,
+        16
+      ]
+    },
+    "lantern-unlit": {
+      "size": [
+        16,
+        32
+      ],
+      "footprint_rect": [
+        6,
+        26,
+        4,
+        6
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 2,
+      "solid": true,
+      "glass_rect": [
+        6,
+        5,
+        4,
+        4
+      ],
+      "state": "unlit",
+      "name": "lantern-unlit",
+      "file": "props.png",
+      "rect": [
+        0,
+        16,
+        16,
+        32
+      ]
+    },
+    "lantern-lit": {
+      "size": [
+        16,
+        32
+      ],
+      "footprint_rect": [
+        6,
+        26,
+        4,
+        6
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 2,
+      "solid": true,
+      "glass_rect": [
+        6,
+        5,
+        4,
+        4
+      ],
+      "state": "lit",
+      "name": "lantern-lit",
+      "file": "props.png",
+      "rect": [
+        16,
+        16,
+        16,
+        32
+      ]
+    },
+    "cart": {
+      "size": [
+        32,
+        24
+      ],
+      "footprint_rect": [
+        0,
+        8,
+        32,
+        16
+      ],
+      "footprint_tiles": [
+        2,
+        1
+      ],
+      "height_tiles": 1.5,
+      "solid": true,
+      "name": "cart",
+      "file": "props.png",
+      "rect": [
+        32,
+        16,
+        32,
+        24
+      ]
+    },
+    "bunting": {
+      "size": [
+        64,
+        16
+      ],
+      "footprint_rect": [
+        0,
+        0,
+        64,
+        4
+      ],
+      "footprint_tiles": [
+        4,
+        1
+      ],
+      "height_tiles": 1,
+      "solid": false,
+      "note": "Decorative. Do not block walking.",
+      "name": "bunting",
+      "file": "props.png",
+      "rect": [
+        48,
+        0,
+        64,
+        16
+      ]
+    },
+    "plot": {
+      "size": [
+        48,
+        48
+      ],
+      "footprint_rect": [
+        0,
+        0,
+        48,
+        48
+      ],
+      "footprint_tiles": [
+        3,
+        3
+      ],
+      "height_tiles": 0,
+      "solid": false,
+      "solid_rects": [
+        [
+          3,
+          8,
+          5,
+          11
+        ],
+        [
+          40,
+          8,
+          5,
+          11
+        ],
+        [
+          3,
+          37,
+          5,
+          11
+        ],
+        [
+          40,
+          37,
+          5,
+          11
+        ]
+      ],
+      "note": "Placement envelope. Walk the mud; only the stakes are solid.",
+      "name": "plot",
+      "file": "props.png",
+      "rect": [
+        0,
+        48,
+        48,
+        48
+      ]
+    }
+  }
+}

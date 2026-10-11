@@ -33,6 +33,7 @@ function choiceLabel(c, life) {
   return escapeStory(title) + (!choiceReady(c, life) ? '<span class="choice-why">' + escapeStory(typeof c.why === 'function' ? c.why(life) : c.why) + '</span>' : '');
 }
 function run(id) {
+  D.el.querySelector('[data-between-shortcut]')?.remove();
   const n = NODES[id], life = S.life; if (!n || !life) return;
   prepareLife(life);
   life.at = id;
@@ -80,7 +81,19 @@ function toBetween(ending, learned) {
   }
   lines.push(...archivistMemories(S.mem));
   S.met = true; save();
-  D.play(lines, () => chooseWorld());
+  D.el.querySelector('[data-between-shortcut]')?.remove();
+  D.play(lines, () => { D.el.querySelector('[data-between-shortcut]')?.remove(); chooseWorld(); });
+  if (!ending) {
+    const intro = sceneState, shortcut = document.createElement('button');
+    shortcut.type = 'button'; shortcut.className = 'hbtn between-shortcut';
+    shortcut.dataset.betweenShortcut = ''; shortcut.textContent = 'Choose a world';
+    shortcut.setAttribute('aria-label', 'Skip the introduction and choose a world');
+    shortcut.addEventListener('click', e => {
+      e.stopPropagation();
+      if (sceneState === intro && !S.life && panel().hidden) D.skip();
+    });
+    D.el.querySelector('.dlg-body').append(shortcut);
+  }
 }
 const panel = () => document.getElementById('choose');
 function overlay(html) { const p = panel(); p.innerHTML = html; p.hidden = false; p.setAttribute('role','dialog'); p.setAttribute('aria-label',p.querySelector('h2')?.textContent || 'Choose your life'); p.querySelector('button:not([disabled])')?.focus(); }
