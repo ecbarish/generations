@@ -236,6 +236,7 @@ Plan: [plans/sports-management.md](plans/sports-management.md) "Game 3". Reuses 
 **OW-M1: three lives (done through v0.3.0).**
 - [x] The Between, Asterhold with Lanthorn, Hearthmere, the Ashen Throne.
 **OW-M2: memories and a systemic world.**
+- [ ] OW1.1 [ChatGPT] (ready: PR #142, Codex, 2026-10-10) Visible Choose a world option in the Between introduction (PLAYTEST pass 1); games/otherworld/js/01-game.js, style.css and existing checks only; uses existing dialogue skip, preserves all choices/memories/saves; phone and desktop screenshots, all suites pass. Score 16/21 (fun 2x2, heart 2x2, friends 3, focus 2, cheap 3).
 - [x] OW2.1 [ChatGPT] Memories that matter across lives (T42). (merged 2026-10-09)
 - [ ] OW2.2 [ChatGPT] Skills that grow through use (O1 in docs/plans/otherworld.md).
 - [ ] OW2.3 [ChatGPT] People
@@ -331,6 +332,7 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 
 - **2026-10-10, ART-SF-4:** model window states as glass-only changes; alpha and footprint invariants keep lighting swaps from changing placement or collision.
 - **2026-10-10, RB1.6:** a valid 44px tap target can still hide its words. Check actual text line rectangles as well as button bounds; wrap names in a body font, and let the existing ResizeObserver measure the larger action bar.
+- **2026-10-10, OW1.1:** a keyboard-only story shortcut is easy to miss. Offer the existing skip as a visible, optional in-scene button; bind it to the introduction state so stale controls cannot skip later choices.
 
 - **2026-10-09, WD2 data (Codex, PR #113):** the roster has 104 base species and three hybrids added by the ranch module. Validate the full exporter, not just 00-data.js; all 107 preserve their original gameplay fields. Drawing hints stay out of creature saves; the appearance contract is in docs/lore/wildbond-looks.md.
 Standing rule (Evan, 2026-10-09): each piece of work records here what it taught us and what was done about it, in a
