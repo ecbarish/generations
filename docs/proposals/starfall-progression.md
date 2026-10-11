@@ -1,6 +1,6 @@
 # Starfall progression: what exists, what's missing, small next steps
 
-Grok for Adam (abarish-dev, guest), 2026-10-11. **An audit and proposal only; nothing here is built.** Adam asked
+Grok for Adam (abarish-dev, guest), 2026-10-11. **A planning document; nothing here is built yet.** Tickets SF2.9 to SF2.17 in DEVELOPMENT-PATH. Adam asked
 (PR #179) to first say which of his five goals already exist in the Godot Starfall (`starfall-godot/`), then outline
 small playable steps. The experience he wants: *"We helped this person blossom, we've grown together, and there are
 still exciting people and possibilities to discover."*
@@ -87,7 +87,7 @@ newcomer and a new plot.
 **Small next steps**
 1. **Each class has a speciality on the board** (new, small). Every job lists who suits it ("good for: archers,
    thieves"). A suited adventurer gets better odds and it's shown on the request. Recruits bring a *new kind* of
-   strength instead of more of the same, and the favourites stay best at their own work. Score 16/21: fun 2, Evan 2,
+   strength instead of more of the same, and the favourites stay best at their own work. Score 15/21: fun 2, Evan 2,
    friends 2, focus 2, cheap 3.
 2. **Newcomers start near your team's level, never above your best** (a fix). They arrive at the level of your
    middle adventurer and bring a trait. That keeps them exciting without making favourites look small. Pair with
@@ -137,13 +137,40 @@ newcomer and a new plot.
 2. **Every unlock changes the town** (rule for new work). Each hire, rank or mastery rank adds something you can see or
    do: a lit post, a new stall, a new request type. Make it part of the "done when" of every SF task.
 
-## Suggested order (small PRs)
+## Adam's priorities (2026-10-11)
+
+> After that [darkness step 1], add the in-world goal guidance and build station mastery. Then prioritise meaningful
+> adventurer investment and lasting partnerships: equipment, training, trust and veteran opportunities should help
+> early recruits blossom. New recruits should offer different specialities rather than simply replace our favourites
+> with higher numbers. Please turn these into separate small tickets, show the next unlocks inside the game, and test
+> the 150-second day pacing during normal play. I want satisfying progression and earned convenience, without
+> mandatory daily chores.
+
+**The rule for every ticket below: no mandatory daily chores, and convenience is earned.** Hand work is always worth
+doing and better than the hire, but skipping it never breaks anything. Hires, tools and mastery are earned conveniences
+that take repetition away; they never take choices away.
+
+## The order (one small PR each)
+
+| Order | ID | Ticket | Score |
+|---|---|---|---|
+| 1 | SF2.9 | Darkness, step 1: a visible small creature through an unlit section, at most one incident a night ([starfall-darkness.md](starfall-darkness.md)) | 14 |
+| 2 | SF2.10 | In-world goal guidance: a goal line and the next unlocks shown in the game | 18 |
+| 3 | SF2.11 | Station mastery ranks (a wider band, a technique with a choice, a tool) | 18 |
+| 4 | SF2.12 | The hire works at your mastery rank | 14 |
+| 5 | SF2.13 | Trust per adventurer | 17 |
+| 6 | SF2.14 | Veteran requests (asked for by name) | 17 |
+| 7 | SF2.15 | Signature moves through training and equipment | 15 |
+| 8 | SF2.16 | Recruit specialities, not bigger numbers (and newcomers near your team's level) | 15 |
+| (now) | SF2.17 | Day-pacing check of the 150-second day in normal play ([measurement](../measurements/starfall-day-pacing.md)) | 14 |
+
+## Suggested order before Adam's decision (kept for the record)
 
 1. **Goal line and Next list** (goal 5), 18/21.
 2. **Mastery ranks per station, with one technique and one tool** (goal 4), 18/21. Start with the counter.
 3. **Trust per adventurer** (goal 2), 17/21, then **veteran requests** (goal 1), 17/21.
-4. **Class specialities on the board** (goal 3), 16/21, with newcomers starting near your team's level.
-5. Darkness with consequences (Adam's #179 note): see [starfall-darkness.md](starfall-darkness.md), option A, 15/21.
+4. **Class specialities on the board** (goal 3), 15/21, with newcomers starting near your team's level.
+5. Darkness with consequences (Adam's #179 note): see [starfall-darkness.md](starfall-darkness.md), option A, 14/21.
 
 None of these has an SF ID yet. They'd sit under SF-M2 (people and stakes) as new lines, except veteran requests,
 which lead into SF4.1 (expeditions). Planning (Claude) or Adam decides IDs and order. SF3.1 seasons and SF3.4 festivals
