@@ -70,16 +70,15 @@ func capture(size: Vector2i, label: String, opening: bool) -> void:
 	game._update_ui()
 	game.queue_redraw()
 	await settle()
-	var transform: Transform2D = game.get_screen_transform()
 	var origin: Vector2 = Vector2(DisplayServer.window_get_position())
 	var hall := Rect2(Vector2(game.HALL_DOOR.x - 3, game.HALL_DOOR.y - 4) * game.TILE, game.F_HALL[0].get_size())
 	var inn := Rect2(Vector2(game.INN_DOOR.x - 2, game.INN_DOOR.y - 4) * game.TILE, game.F_INN[0].get_size())
-	var frame := {"size": [size.x, size.y], "label": label, "landmarks": []}
+	var frame := {"size": [size.x, size.y], "label": label, "coordinate_space": "logical viewport", "landmarks": []}
 	var logical: Transform2D = game.get_viewport().get_canvas_transform()
 	for landmark in [hall, inn]:
-		var a: Vector2 = transform * landmark.position - origin
-		var b: Vector2 = transform * landmark.end - origin
-		var fits := Rect2(Vector2.ZERO, Vector2(size)).encloses(Rect2(a, b - a))
+		var a: Vector2 = logical * landmark.position
+		var b: Vector2 = logical * landmark.end
+		var fits := game.get_viewport().get_visible_rect().encloses(Rect2(a, b - a))
 		frame.landmarks.append({"top_left": [a.x, a.y], "bottom_right": [b.x, b.y], "fits": fits})
 		if opening and not baseline:
 			check(fits, "%s %s complete landmark" % [size, label])
