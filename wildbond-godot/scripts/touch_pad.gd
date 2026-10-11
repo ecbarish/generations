@@ -5,7 +5,7 @@ extends Control
 ## (the book, battles, shops) is tapped directly, so the pad only shows while you walk and talk.
 ## Shown on touch screens, or always, or never (the Settings page, settings.gd "Phone buttons").
 
-const PAD := Vector2(38, 176)                  # the pad's middle
+const PAD := Vector2(80, 184)                  # between Larkhaven's lower doors; full hit circle stays on screen
 const PAD_R := 32.0                            # how far from the middle a thumb still counts
 const ARM := 12.0
 const BTN := Vector2(344, 178)

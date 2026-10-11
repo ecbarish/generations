@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 const root = path.resolve(__dirname, '..');
 const out = path.join(root, 'preview-review');
 fs.mkdirSync(path.join(out, 'screens'), { recursive: true });
-const report = { checks: [], consoles: [], screenshots: [] };
+const report = { checks: [], consoles: [], screenshots: [], doors: [], pad: [] };
 const check = (ok, label) => { assert(ok, label); report.checks.push(label); console.log('PASS ' + label); };
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
@@ -21,8 +21,9 @@ const server = http.createServer((req, res) => {
   fs.createReadStream(file).pipe(res);
 });
 
-async function open(browser, size, fixture, before = false) {
-  const context = await browser.newContext({ viewport: size, hasTouch: size.width === 667, isMobile: size.width === 667 });
+async function open(browser, size, fixture, before = false, options = {}) {
+  const phone = options.phone ?? size.width <= 960;
+  const context = await browser.newContext({ viewport: size, hasTouch: phone, isMobile: phone });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
@@ -40,6 +41,7 @@ async function open(browser, size, fixture, before = false) {
     let source = fs.readFileSync(path.join(root, 'play/wildbond/index.html'), 'utf8');
     let hook = 'window.__reviewEngine = engine;';
     if (fixture) hook += `engine.preloadFile(new TextEncoder().encode(${JSON.stringify(JSON.stringify(fixture))}), '/userfs/godot/app_userdata/Wildbond (Godot trial)/journey.json');`;
+    if (options.settings) hook += `engine.preloadFile(new TextEncoder().encode(${JSON.stringify(options.settings)}), '/userfs/godot/app_userdata/Wildbond (Godot trial)/settings.cfg');`;
     source = source.replace('const engine = new Engine(GODOT_CONFIG);', 'const engine = new Engine(GODOT_CONFIG);' + hook);
     assert(source.includes('__reviewEngine'), 'Review override attached to exported shell');
     route.fulfill({ contentType: 'text/html', body: source });
@@ -128,6 +130,131 @@ async function continueJourney(page) {
   await page.waitForTimeout(600);
   await press(page, 'Enter'); // Welcome back.
   await page.waitForTimeout(700);
+}
+
+// No game-method or PCK overrides: only a synthetic old-format save establishes
+// the initial location. Each exit and re-entry continues the prior real arrival.
+// The 24x14 maps clamp the camera to y=108..116 on the 384x216 canvas.
+function screenPoint(size, x, y) {
+  const scale = Math.max(1, Math.floor(Math.min(size.width / 384, size.height / 216)));
+  return { x: (size.width - 384 * scale) / 2 + x * scale, y: (size.height - 216 * scale) / 2 + y * scale };
+}
+function tilePoint(size, tile, player) {
+  const cameraY = Math.max(108, Math.min(116, player.y * 16 + 8));
+  return screenPoint(size, tile[0] * 16 + 8, tile[1] * 16 + 8 - (cameraY - 108));
+}
+async function pointInput(page, method, point) {
+  if (method === 'touch') await page.touchscreen.tap(point.x, point.y);
+  else await page.mouse.click(point.x, point.y);
+}
+const settingsText = buttons => `[settings]\nmusic=3\nambience=4\neffects=5\ntext=0\npace=1\nbuttons=${buttons}\n`;
+async function readSettings(page) {
+  return page.evaluate(() => globalThis.__reviewFS.readFile('/userfs/godot/app_userdata/Wildbond (Godot trial)/settings.cfg', { encoding: 'utf8' }));
+}
+async function browserStored(page, test, label) {
+  let stored;
+  for (let i = 0; i < 30; i++) {
+    stored = await page.evaluate(() => new Promise((resolve, reject) => {
+      const request = indexedDB.open('/userfs');
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const db = request.result;
+        const tx = db.transaction('FILE_DATA', 'readonly');
+        const entry = tx.objectStore('FILE_DATA').get('/userfs/godot/app_userdata/Wildbond (Godot trial)/journey.json');
+        entry.onerror = () => { db.close(); reject(entry.error); };
+        entry.onsuccess = () => { const bytes = entry.result?.contents; db.close(); resolve(bytes ? JSON.parse(new TextDecoder().decode(bytes)) : null); };
+      };
+    }));
+    if (stored && test(stored)) { check(true, label); return stored; }
+    await page.waitForTimeout(500);
+  }
+  throw new Error(label + ': last IndexedDB save ' + JSON.stringify(stored));
+}
+async function reloadWithoutFixtures(page) {
+  await page.unroute('**/play/wildbond/');
+  await page.reload();
+  await page.waitForFunction(() => !document.querySelector('#status'), null, { timeout: 90000 });
+  await page.waitForTimeout(900);
+  await continueJourney(page);
+}
+async function reviewDoors(browser, legacy) {
+  const buildings = { inn: [4, 4], shop: [7, 10], pip_home: [13, 4], gran_home: [2, 10], barn: [18, 4] };
+  const sizes = [{ width: 1920, height: 1080 }, { width: 812, height: 375 }, { width: 844, height: 390 }, { width: 960, height: 540 }];
+  for (const size of sizes) {
+    const phone = size.width <= 960;
+    const method = phone ? 'touch' : 'mouse';
+    const tag = `${size.width}x${size.height}`;
+    for (const [building, door] of Object.entries(buildings)) {
+      const fixture = structuredClone(legacy);
+      Object.assign(fixture, { map: 'larkhaven', x: door[0], y: door[1] + 2 });
+      fixture.story['arr:larkhaven'] = true;
+      const current = await open(browser, size, fixture, false, { phone, settings: settingsText(0) });
+      const { page } = current;
+      try {
+        await continueJourney(page);
+        let previous = await persisted(page, d => d.saved !== fixture.saved && d.map === 'larkhaven' && d.x === fixture.x && d.y === fixture.y, `${tag}/${building}: legacy starting position loads`);
+        if (phone) {
+          // A genuine first touch activates Auto without a direction or world tap.
+          const center = screenPoint(size, 80, 184);
+          await page.touchscreen.tap(center.x, center.y);
+          await page.waitForTimeout(400);
+        }
+        await shot(page, `doors-${tag}-${building}-before`);
+        for (const phase of ['entry', 'exit', 'reentry']) {
+          const exiting = phase === 'exit';
+          const goal = exiting ? [11, building === 'barn' ? 12 : 11] : door;
+          const expected = exiting ? { map: 'larkhaven', x: door[0], y: door[1] + 1 } : { map: building, x: 11, y: building === 'barn' ? 11 : 10 };
+          const point = tilePoint(size, goal, previous);
+          const before = { map: previous.map, x: previous.x, y: previous.y, partner: previous.partner };
+          await pointInput(page, method, point);
+          const arrived = await persisted(page, d => d.map === expected.map && d.x === expected.x && d.y === expected.y, `${tag}/${building}/${method}: ${phase} reaches the exact landing`);
+          check(arrived.partner === legacy.partner && arrived.team[0].sp === legacy.team[0].sp && arrived.team[0].lvl === 30 && arrived.bag.coins === 321 && arrived.bag.lures === 17, `${tag}/${building}/${phase}: partner, creature and possessions survive`);
+          report.doors.push({ size, building, method, phase, before, goal, screenPoint: point, after: { map: arrived.map, x: arrived.x, y: arrived.y, partner: arrived.partner }, phoneMode: 'auto' });
+          await shot(page, `doors-${tag}-${building}-${phase}`);
+          previous = arrived;
+        }
+        await browserStored(page, d => d.map === building && d.partner === legacy.partner, `${tag}/${building}: real browser storage has the entered room`);
+        await reloadWithoutFixtures(page);
+        const loaded = await persisted(page, d => d.map === building && d.partner === legacy.partner, `${tag}/${building}: fixture-free reload preserves room and partner`);
+        check(loaded.bag.coins === 321 && loaded.bag.lures === 17, `${tag}/${building}: reload preserves possessions`);
+        check(await readSettings(page) === settingsText(0), `${tag}/${building}: existing phone and sound settings survive`);
+        check(current.errors.length === 0, `${tag}/${building}: no browser or game-script errors`);
+      } finally { await current.context.close(); }
+    }
+    if (phone) await reviewPad(browser, size, legacy);
+  }
+  check(report.doors.length === 60, 'all five buildings complete entry, exit and re-entry at all four view sizes');
+}
+async function reviewPad(browser, size, legacy) {
+  const tag = `${size.width}x${size.height}`;
+  const fixture = structuredClone(legacy);
+  Object.assign(fixture, { map: 'larkhaven', x: 10, y: 8 });
+  fixture.story['arr:larkhaven'] = true;
+  const current = await open(browser, size, fixture, false, { phone: true, settings: settingsText(0) });
+  const { page } = current;
+  try {
+    await continueJourney(page);
+    let previous = await persisted(page, d => d.saved !== fixture.saved && d.map === 'larkhaven' && d.x === 10 && d.y === 8, `${tag}: pad fixture loads`);
+    const center = screenPoint(size, 80, 184);
+    await page.touchscreen.tap(center.x, center.y);
+    const session = await page.context().newCDPSession(page);
+    for (const [name, dx, dy] of [['right', 1, 0], ['down', 0, 1], ['left', -1, 0], ['up', 0, -1]]) {
+      const point = screenPoint(size, 80 + dx * 12, 184 + dy * 12);
+      await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: point.x, y: point.y }] });
+      await page.waitForTimeout(120);
+      await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      const expected = { x: previous.x + dx, y: previous.y + dy };
+      const arrived = await persisted(page, d => d.map === 'larkhaven' && d.x === expected.x && d.y === expected.y, `${tag}: visible Auto pad moves ${name}`);
+      await page.waitForTimeout(5500);
+      const released = await readSave(page);
+      check(released.x === expected.x && released.y === expected.y, `${tag}: releasing ${name} stops movement and leaks no world tap`);
+      report.pad.push({ size, name, before: { x: previous.x, y: previous.y }, after: expected, releaseVerified: true, phoneMode: 'auto' });
+      await shot(page, `pad-${tag}-${name}`);
+      previous = arrived;
+    }
+    await session.detach();
+    check(current.errors.length === 0, `${tag}: phone pad has no browser or script errors`);
+  } finally { await current.context.close(); }
 }
 
 (async () => {
@@ -232,6 +359,7 @@ async function continueJourney(page) {
     await shot(opening.page, 'phone-rotated-back');
     check(opening.errors.length === 0, 'new journey responds for a minute and survives portrait/landscape rotation without script/page errors');
     await opening.context.close();
+    await reviewDoors(browser, fixtures.barn);
     console.log('WEB REVIEW PASSED: ' + report.checks.length + ' checks, ' + report.screenshots.length + ' screenshots');
   } finally {
     fs.writeFileSync(path.join(out, 'web-review.json'), JSON.stringify(report, null, 2) + '\n');
@@ -239,3 +367,4 @@ async function continueJourney(page) {
     server.close();
   }
 })().catch(e => { console.error(e); server.close(); process.exitCode = 1; });
+
