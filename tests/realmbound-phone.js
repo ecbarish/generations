@@ -15,6 +15,13 @@ async function checkRealmPhone(frame) {
   check(rect('#fieldDock').bottom<=height+1,label+' dock stays on screen');
   const bar=rect('.abar');check(bar.left>=0&&bar.right<=width+1,label+' action bar fits horizontally');
   check(bar.bottom<=rect('.xp').top+1,label+' action bar clears XP and dock');
+  for(const ability of d.querySelectorAll('#slots .ab')){
+   const name=ability.querySelector('.ic'),r=name.getBoundingClientRect(),b=ability.getBoundingClientRect();
+   check(parseFloat(w.getComputedStyle(name).fontSize)>=14,label+' readable name: '+name.textContent);
+   const range=d.createRange();range.selectNodeContents(name);
+   check([...range.getClientRects()].every(line=>line.left>=b.left+1&&line.right<=b.right-1&&line.top>=b.top+1&&line.bottom<=b.bottom-1),label+' full name fits: '+name.textContent);
+   check(b.left>=bar.left&&b.right<=bar.right,label+' ability stays inside bar: '+name.textContent);
+  }
   if(width<=700){
    check([...d.querySelectorAll('#slots button')].every(el=>el.getBoundingClientRect().width>=44&&el.getBoundingClientRect().height>=44),label+' abilities have 44px tap targets');
    check([...d.querySelectorAll('#fieldDock button')].filter(el=>!el.hidden).every(el=>el.getBoundingClientRect().height>=44),label+' dock has 44px tap targets');

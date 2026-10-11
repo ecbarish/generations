@@ -7,7 +7,7 @@ body:
     id: game
     attributes:
       label: Which game?
-      options: [Wildbond, Wildbond (Godot preview), Realmbound, Starfall Guild, Starfall (Godot preview), Otherworld, Diamond Career, Diamond Manager, Storm Front, Lighthouse Watch, Primordial, The arcade homepage, Other]
+      options: [Wildbond, Wildbond (Godot preview), Realmbound, Starfall Guild, Starfall (Godot preview), Otherworld, Diamond Career, Diamond Manager, Storm Front, Lighthouse Watch, "Brisket's Crossing", Primordial, The arcade homepage, Other]
     validations: { required: true }
   - type: input
     id: context

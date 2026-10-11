@@ -7,41 +7,72 @@ extends Node2D
 
 const Figures := preload("res://scripts/figures.gd")
 const SafeSave := preload("res://scripts/safe_save.gd")
-const FLOOR := preload("res://assets/env/floor.png")
-const NATURE := preload("res://assets/env/nature.png")
-const HOUSE := preload("res://assets/env/house.png")
 const TILE := 16
-const HALL_SPRITE := Rect2(400, 224, 64, 80)   # the big timber hall in house.png (4x5 tiles, door in the 2nd column)
+const F_GROUND := preload("res://assets/env/frontier/ground.png")       # ART-SF-1 .. 5, see assets/env/frontier/*.md
+const F_PALISADE := preload("res://assets/env/frontier/palisade.png")
+const F_TOWER := [preload("res://assets/env/frontier/watchtower-unlit.png"), preload("res://assets/env/frontier/watchtower-lit.png")]
+const F_PINES := preload("res://assets/env/frontier/pines.png")
+const F_HALL := [preload("res://assets/env/frontier/guild_hall.png"), preload("res://assets/env/frontier/guild_hall-lit.png")]
+const F_INN := [preload("res://assets/env/frontier/inn.png"), preload("res://assets/env/frontier/inn-lit.png")]
+const F_WELL := preload("res://assets/env/frontier/well.png")
+const F_BOARD := preload("res://assets/env/frontier/board.png")
+const F_GATE := preload("res://assets/env/frontier/gate-west.png")     # ART-SF-7: the gate seen side-on, for the west wall
+## (ART-SF-7: the smithy and tavern drawn two tiles wide to fit a plot; the 4-wide smithy.png and tavern.png stay unused)
+const F_BUILT := { "smithy": preload("res://assets/env/frontier/smithy-2.png"), "tavern": preload("res://assets/env/frontier/tavern-2.png"),
+	"apothecary": preload("res://assets/env/frontier/apothecary.png"), "healer": preload("res://assets/env/frontier/healer.png"),
+	"yard": preload("res://assets/env/frontier/yard.png") }
+## How many tiles wide each finished building stands (its art's footprint); all are two tiles deep on their plot except
+## the training yard, whose fenced picture is three deep: its top row is the row above the plot, and it blocks that too.
+const BUILT_H := { "yard": 3 }
+const BUILT_W := { "smithy": 2, "tavern": 2, "apothecary": 2, "healer": 3, "yard": 4 }
+## palisade.png pieces by which neighbours they join (north 1, east 2, south 4, west 8): rects from stockade.json
+const PALISADE := { 10: Rect2(0, 0, 16, 32), 5: Rect2(16, 0, 16, 32), 3: Rect2(32, 0, 16, 32), 6: Rect2(48, 0, 16, 32),
+	12: Rect2(0, 32, 16, 32), 9: Rect2(16, 32, 16, 32), 2: Rect2(32, 32, 16, 32), 8: Rect2(48, 32, 16, 32),
+	1: Rect2(0, 64, 16, 32), 4: Rect2(16, 64, 16, 32), 0: Rect2(32, 64, 16, 32) }
+const HALL_GLASS := [Vector2(15, 56), Vector2(29, 56), Vector2(61, 56), Vector2(75, 56)]   # glass_rects in hall-inn.json
+const INN_GLASS := [Vector2(11, 36), Vector2(29, 36), Vector2(47, 36), Vector2(11, 60), Vector2(45, 60)]
+const PINE_48 := Rect2(64, 0, 32, 48)
+const PINE_32 := Rect2(32, 16, 24, 32)
+const STUMP := Rect2(16, 64, 16, 16)
+const FERN := Rect2(32, 64, 16, 16)
 
-# the town: T trees, , grass, f flowers, . path, r roof, # wall, D door, c the inn's counter, B the guild board, E the gate
+# the town (SF2.6, a frontier stockade, drawn with the ART-SF pieces in assets/env/frontier): T the pine forest outside,
+# P the palisade, S stakes where the wall will go next, G the gate's posts and E the way through them (west wall), . the mud road, q the packed-earth
+# square, , moss, k ferns, u stumps, r roof and # wall (a building's footprint), D door, c the inn's counter, B the guild
+# board, W the well, w the watchtower. The map is wider and taller than the screen; the camera follows you (it scrolls).
 const MAP := [
-	"TTTTTTTTTTTTTTTTTTTTTTTT",
-	"T,,,,,,f,,,,,,,,,,,,,,,T",
-	"T,rrrrr,,,,,,,,,rrrrr,,T",
-	"T,rrrrr,,,,,,,,,rrrrr,,T",
-	"T,##D##,,,,,,,,,##D##,,T",
-	"T,,,.,,,,,,,,,,,,,.,,,,T",
-	"T,,c.,,,,B,,,,,,,,.,,,,T",
-	"T,,,...................E",
-	"T,f,,,,,,,..,,,,,,.....E",
-	"T,pp,,,,,,..,,,,,,,ppf,T",
-	"T,pp,,,,,,..,,,,,,,pp,,T",
-	"T,,f,,,,,,..,,,,,,,f,,,T",
-	"T,,,,,,,,,,,,,,,,,,,,,,T",
-	"TTTTTTTTTTTTTTTTTTTTTTTT",
+	"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+	"TPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPSTT",
+	"TP,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,STT",
+	"TP,,,,k,,rrrrrr,u,,,,,,,,,,,,u,,,,,,k,,,,STT",
+	"TP,,,,,,,rrrrrr,,,rrrr,,,,,,,,,,,,,,,,u,,STT",
+	"TP,,,,,,,###D##,,,rrrr,,,,,,,,,,,,,,,,,,,STT",
+	"TP,ww,,qqqqqqqqqq,##D#,,,,,,,,,,,,,,,,,,,STT",
+	"TP,ww,,BBqqqqqqqq,,,.,,,,,,,,,,,,,,,,k,,,STT",
+	"TG,,,,,qqqqqqqqqq,,c.,,,,,,,,,,,,,,,,,,,,STT",
+	"TE.......................................STT",
+	"TG,,,,,qqqqqqqqqq,,,,,,,,,,,,,,,,,,,,,,,,STT",
+	"TP,,,,,qqqqqqqqqq,,,,,,,,,,,,,,,,,,,,,,,,STT",
+	"TP,,,,,qqqqWWqqqq,,,,,,,,,,,,,,,,,,,,,,,,STT",
+	"TP,k,u,qqqqqqqqqq,,,,,k,,,,,,,k,,,,,,,,u,STT",
+	"TP,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,STT",
+	"TP,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,STT",
+	"TPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPSTT",
+	"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
 ]
-const SOLID := "Trc#BD"
-const INN_DOOR := Vector2i(4, 4)
-const HALL_DOOR := Vector2i(18, 4)
-const COUNTER := Vector2i(3, 6)
-const SERVE_AT := Vector2i(2, 6)          # behind the counter
-const ORDER_AT := Vector2i(4, 6)          # where a hungry adventurer waits
-const BOARD := Vector2i(9, 6)
-const READ_AT := Vector2i(9, 7)           # in front of the board
-const GATE := Vector2i(23, 7)
-const INN_STEP := Vector2i(4, 5)          # the inn's doorstep
-const BRYN_HOME := Vector2i(6, 5)
-const TOWN_AREA := Rect2i(6, 8, 11, 4)    # where adventurers potter about between jobs
+const SOLID := "TPSGrc#BDWwu"
+const INN_DOOR := Vector2i(20, 6)
+const HALL_DOOR := Vector2i(12, 5)
+const COUNTER := Vector2i(19, 8)
+const SERVE_AT := Vector2i(18, 8)          # behind the counter
+const ORDER_AT := Vector2i(20, 8)          # where a hungry adventurer waits
+const BOARD := Vector2i(7, 7)
+const READ_AT := Vector2i(7, 8)           # in front of the board
+const GATE := Vector2i(1, 9)
+const GATE_IN := Vector2i(2, 9)           # just inside the gate, where people come and go
+const INN_STEP := Vector2i(20, 7)          # the inn's doorstep
+const BRYN_HOME := Vector2i(22, 7)
+const TOWN_AREA := Rect2i(13, 11, 8, 2)    # where adventurers potter about between jobs
 const DAY_SECONDS := 150.0
 const MEAL := 8
 const WAGE := 10
@@ -49,7 +80,8 @@ const HIRE_AFTER := 10                     # meals you serve yourself before Bry
 const PATIENCE := 22.0                     # how long a hungry adventurer waits at the counter
 const MAX_POSTED := 2
 ## Cleared plots (p on the map, 2x2) where the town can grow; each keeps its anchor (top left) tile.
-const PLOTS := { "west": Vector2i(2, 9), "east": Vector2i(19, 9), "north": Vector2i(11, 2), "south": Vector2i(14, 10) }
+## (SF2.6: the plots keep their names, so old saves keep their buildings; they now line the road east of the inn.)
+const PLOTS := { "west": Vector2i(24, 6), "east": Vector2i(32, 6), "north": Vector2i(24, 12), "south": Vector2i(32, 12) }
 const PLOT_RANK := { "west": 0, "east": 0, "north": 1, "south": 2 }   # Hob stakes out more ground as the town grows
 ## What can stand on a plot. Each does one clear thing for your adventurers.
 const BUILDINGS := {
@@ -133,7 +165,7 @@ class Mover:
 		tile = t
 		pos = Vector2(t) * 16.0
 
-var me := Mover.new("me", Vector2i(11, 9))
+var me := Mover.new("me", Vector2i(14, 10))
 var bryn := Mover.new("bryn", BRYN_HOME)
 var heroes: Array[Mover] = []
 var coins := 100
@@ -304,7 +336,18 @@ func tile_at(p: Vector2i) -> String:
 func solid(p: Vector2i) -> bool:
 	if tile_at(p) in SOLID:
 		return true
-	return (plot_at(p) != "" and built.has(plot_at(p))) or _prop_at(p) != ""
+	if (plot_at(p) != "" and built.has(plot_at(p))) or _prop_at(p) != "":
+		return true
+	for k in built:                              # a finished building stands on its art's full footprint (SF2.6)
+		if _plot_done(k) and PLOTS.has(k) and built_rect(k).has_point(p):
+			return true
+	return false
+
+## The ground a finished building stands on: its art's footprint, bottom-left on the plot's bottom-left.
+func built_rect(k: String) -> Rect2i:
+	var w := int(BUILT_W.get(built[k].what, 2))
+	var h := int(BUILT_H.get(built[k].what, 2))
+	return Rect2i(PLOTS[k] + Vector2i(0, 2 - h), Vector2i(w, h))
 
 ## The plot a tile belongs to ("" if none).
 func plot_at(p: Vector2i) -> String:
@@ -655,14 +698,14 @@ func _hero(h: Mover, dt: float) -> void:
 					send(h, _step_of(finished("apothecary")))
 				else:
 					a.state = "leaving"
-					send(h, GATE + Vector2i.LEFT)
+					send(h, GATE_IN)
 		"to_apoth":
 			var shop := _step_of(finished("apothecary"))
 			if h.path.is_empty():
 				if h.tile == shop or (h.tile - shop).length() <= 1.01:
 					buy_tonic(h)
 					a.state = "leaving"
-					send(h, GATE + Vector2i.LEFT)
+					send(h, GATE_IN)
 				elif a.timer <= 0.0:
 					a.timer = 1.0
 					send(h, shop)
@@ -684,13 +727,13 @@ func _hero(h: Mover, dt: float) -> void:
 						a.state = "town"
 		"leaving":
 			if h.path.is_empty():
-				if h.tile == GATE + Vector2i.LEFT:
+				if h.tile == GATE_IN:
 					h.where = "away"
 					a.state = "away"
 					a.timer = float(job_of(a.job).time)
 				elif a.timer <= 0.0:
 					a.timer = 1.0
-					send(h, GATE + Vector2i.LEFT)
+					send(h, GATE_IN)
 		"away":
 			if a.timer <= 0.0:
 				_come_home(h)
@@ -713,12 +756,12 @@ func _hero(h: Mover, dt: float) -> void:
 						a.state = "town"
 		"quitting":
 			if h.path.is_empty():
-				if h.tile == GATE + Vector2i.LEFT:
+				if h.tile == GATE_IN:
 					h.where = "gone"
 					a.state = "gone"
 				elif a.timer <= 0.0:
 					a.timer = 1.0
-					send(h, GATE + Vector2i.LEFT)
+					send(h, GATE_IN)
 		"to_counter":
 			if h.path.is_empty() and a.timer <= 0.0:
 				a.timer = 0.6
@@ -794,7 +837,7 @@ func _come_home(h: Mover) -> void:
 		if j.id in HERB_JOBS:
 			herbs += 1 + rng.randi() % 2                 # they pick what grows out there on the way home
 	h.where = "town"
-	h.tile = GATE + Vector2i.LEFT
+	h.tile = GATE_IN
 	h.pos = Vector2(h.tile) * TILE
 	h.path.clear()
 	if won:
@@ -1071,7 +1114,7 @@ func finish_piece(h: Mover, hits: int, by_hand: bool) -> void:
 	a.timer = 2.0
 	if by_hand and pieces >= SMITH_AFTER and garrick.where == "gone":
 		garrick.where = "town"                         # word gets round: a smith walks in through the gate
-		garrick.tile = GATE + Vector2i.LEFT
+		garrick.tile = GATE_IN
 		garrick.pos = Vector2(garrick.tile) * TILE
 		bark(garrick, "Is this where the guildmaster works the forge? I'd like a word.")
 		send(garrick, forge_at() + Vector2i.RIGHT)
@@ -1171,7 +1214,7 @@ func _brew(dt: float) -> void:
 		caption_t = 5.0
 		if batches >= BREW_AFTER and fen.where == "gone":
 			fen.where = "town"                       # word gets round: someone who wants to learn walks in
-			fen.tile = GATE + Vector2i.LEFT
+			fen.tile = GATE_IN
 			fen.pos = Vector2(fen.tile) * TILE
 			bark(fen, "Is this where the tonics come from? I've walked two days to ask something.")
 			send(fen, _pot_at() + Vector2i.RIGHT)
@@ -1199,7 +1242,7 @@ func _check_rank() -> void:
 	caption_t = 8.0
 	if rank - 1 < NEWCOMERS.size():
 		var s: Array = NEWCOMERS[rank - 1]
-		var m := Mover.new("hero%d" % heroes.size(), GATE + Vector2i.LEFT)
+		var m := Mover.new("hero%d" % heroes.size(), GATE_IN)
 		var c: Dictionary = CLASSES[s[1]]
 		var mx := int(c.hp * (1.0 + 0.2 * (s[2] - 1)))
 		m.a = { "name": s[0], "cls": s[1], "lvl": s[2], "xp": 0, "hp": mx, "max": mx, "morale": 7, "state": "town", "job": "", "timer": 3.0, "hair": HAIR[(heroes.size() * 4 + 1) % HAIR.size()], "purse": 30, "gear": 0, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [], "asked": false }
@@ -1323,7 +1366,7 @@ func _judge_day() -> String:
 			h.a.timer = 0.0
 			bark(h, "I'm sorry, guildmaster. My heart's not in it any more.")
 			feel(h, "heartbreak", 7.0)
-			send(h, GATE + Vector2i.LEFT)
+			send(h, GATE_IN)
 			out += " %s has packed up and gone; if Starfall does better, they may come back." % h.a.name
 			break
 	if good_days >= 2:
@@ -1337,7 +1380,7 @@ func _judge_day() -> String:
 		visitors.append(v[0])
 		var c: Dictionary = CLASSES[v[1]]
 		var mx := int(c.hp * (1.0 + 0.2 * (int(v[2]) - 1)))
-		var m := Mover.new("hero%d" % heroes.size(), GATE + Vector2i.LEFT)
+		var m := Mover.new("hero%d" % heroes.size(), GATE_IN)
 		m.a = { "name": v[0], "cls": v[1], "lvl": v[2], "xp": 0, "hp": mx, "max": mx, "morale": 8, "state": "town", "job": "", "timer": 3.0, "hair": HAIR[(heroes.size() * 4 + 3) % HAIR.size()], "purse": 50, "gear": 1, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [v[3]], "asked": false }
 		_dress(m)
 		heroes.append(m)
@@ -1349,7 +1392,7 @@ func _judge_day() -> String:
 ## Someone who left walks back in through the gate, ready to try again.
 func _return(h: Mover, line: String) -> void:
 	h.where = "town"
-	h.tile = GATE + Vector2i.LEFT
+	h.tile = GATE_IN
 	h.pos = Vector2(h.tile) * TILE
 	h.path.clear()
 	h.a.state = "town"
@@ -1527,7 +1570,7 @@ func drink(h: Mover, quality: int, by_hand := false) -> void:
 		pours += 1
 		if pours >= POUR_AFTER and tamsin.where == "gone" or (pours >= POUR_AFTER and tamsin.tile == Vector2i(-5, -5)):
 			tamsin.where = "town"                    # word gets round: a barkeep walks in through the gate
-			tamsin.tile = GATE + Vector2i.LEFT
+			tamsin.tile = GATE_IN
 			tamsin.pos = Vector2(tamsin.tile) * TILE
 			bark(tamsin, "Who's been pouring at that tap? You've a light hand. Can I have a word?")
 			send(tamsin, _tap_at() + Vector2i.RIGHT)
@@ -1564,28 +1607,6 @@ func _tavern_evening() -> String:
 			out += " You couldn't pay Tamsin; she'll wait by the tavern until you can."
 	return out
 
-## The tavern: a timber taproom with a hanging mug sign, warm windows in the evening, and shutters when it's closed.
-func _draw_tavern(o: Vector2) -> void:
-	draw_rect(Rect2(o + Vector2(1, 9), Vector2(30, 22)), Figures.OUTLINE)
-	draw_rect(Rect2(o + Vector2(2, 10), Vector2(28, 20)), Color("9a6a42"))
-	for i in 7:
-		draw_rect(Rect2(o + Vector2(2, 11 + i * 3), Vector2(28, 1)), Color("7a5236"))
-	for i in 8:                                                                       # a red tiled roof
-		draw_rect(Rect2(o + Vector2(-1 + i, 10 - i), Vector2(34 - i * 2, 2)), Color("a84a3a").darkened(0.03 * i))
-	draw_rect(Rect2(o + Vector2(3, 20), Vector2(9, 11)), Figures.OUTLINE)             # the door, at the step
-	draw_rect(Rect2(o + Vector2(4, 21), Vector2(7, 10)), Color("5a3a1e"))
-	for wx in [15, 23]:
-		var lit := evening() and not tavern_shut
-		draw_rect(Rect2(o + Vector2(wx, 16), Vector2(6, 6)), Color("f2c84a") if lit else Color("4a4a5a"))
-		if tavern_shut:
-			draw_line(o + Vector2(wx, 16), o + Vector2(wx + 6, 22), Color("6b4a2a"), 2.0)
-			draw_line(o + Vector2(wx + 6, 16), o + Vector2(wx, 22), Color("6b4a2a"), 2.0)
-	draw_rect(Rect2(o + Vector2(26, 2), Vector2(1, 6)), Color("4e3220"))               # the sign: a mug
-	draw_rect(Rect2(o + Vector2(23, 7), Vector2(7, 7)), Figures.OUTLINE)
-	draw_rect(Rect2(o + Vector2(24, 8), Vector2(5, 5)), Color("d8a868"))
-	draw_rect(Rect2(o + Vector2(25, 9), Vector2(3, 3)), Color("f4ecd8"))
-
-## The pour, close up: a mug filling, with the gold band where to stop.
 func _draw_pour(font: Font, to_screen: Transform2D) -> void:
 	var p: Vector2 = to_screen * (Vector2(_tap_at()) * TILE + Vector2(8, -30))
 	var r := Rect2(Vector2(clampf(p.x - 12, 4, 350), maxf(16.0, p.y)), Vector2(24, 30))
@@ -1704,29 +1725,56 @@ func _note_rect(i: int) -> Rect2:
 	return Rect2(38 + i * (w + 6.0), 46, w, 120)
 
 # ---------------------------------------------------------------- drawing the town
-func _tex(tex: Texture2D, cell: Vector2i, size: Vector2i, at: Vector2) -> void:
-	draw_texture_rect_region(tex, Rect2(at, Vector2(size) * 16.0), Rect2(Vector2(cell) * 16.0, Vector2(size) * 16.0))
-
 func _is_path(x: int, y: int) -> bool:
-	return tile_at(Vector2i(x, y)) in ".E"
+	return tile_at(Vector2i(x, y)) in ".E" and x > 0
 
 func _draw() -> void:
 	for y in MAP.size():
 		for x in MAP[0].length():
 			_ground(x, y, MAP[y][x])
-	# the inn (a cottage), the Guild Hall (the big timber hall) and the trees
-	_tex(HOUSE, Vector2i(0, 0), Vector2i(4, 3), Vector2(INN_DOOR.x - 1, INN_DOOR.y - 2) * TILE)
-	draw_texture_rect_region(HOUSE, Rect2(Vector2(HALL_DOOR.x - 1, HALL_DOOR.y - 4) * TILE, HALL_SPRITE.size), HALL_SPRITE)
-	_inn_sign()
+	for y in MAP.size():                         # the stockade: palisade pieces joined to their neighbours, stakes beyond
+		for x in MAP[0].length():
+			var ch: String = MAP[y][x]
+			if ch == "P":
+				var m := (1 if tile_at(Vector2i(x, y - 1)) in "PG" else 0) | (2 if tile_at(Vector2i(x + 1, y)) == "P" else 0) \
+					| (4 if tile_at(Vector2i(x, y + 1)) in "PG" else 0) | (8 if tile_at(Vector2i(x - 1, y)) == "P" else 0)
+				draw_texture_rect_region(F_PALISADE, Rect2(Vector2(x, y - 1) * TILE, Vector2(16, 32)), PALISADE.get(m, PALISADE[10]))
+			elif ch == "G" and tile_at(Vector2i(x, y + 1)) == "E":
+				draw_texture(F_GATE, Vector2(x, y - 2) * TILE)    # posts, beam and the open leaves (footprint: this tile to y + 2)
+			elif ch == "S":
+				draw_texture_rect_region(F_PALISADE, Rect2(Vector2(x, y - 1) * TILE, Vector2(16, 32)), PALISADE[0])
+			elif ch == "u":
+				draw_texture_rect_region(F_PINES, Rect2(Vector2(x, y) * TILE, Vector2(16, 16)), STUMP)
+			elif ch == "k":
+				draw_texture_rect_region(F_PINES, Rect2(Vector2(x, y) * TILE, Vector2(16, 16)), FERN)
+	var lit := 1 if evening() else 0
+	_glow.clear()
+	var tower_at := Vector2(3, 8 - 5) * TILE
+	draw_texture(F_TOWER[lit], tower_at)                                        # the watchtower by the gate (footprint 2x2 at 3,6)
+	var hall_at := Vector2(HALL_DOOR.x - 3, HALL_DOOR.y - 4) * TILE
+	draw_texture(F_HALL[lit], hall_at)                                          # the Guild Hall faces the square
+	var resting := heroes.any(func(h): return h.where == "inside")
+	var inn_lit := 1 if lit == 1 or resting else 0
+	var inn_at := Vector2(INN_DOOR.x - 2, INN_DOOR.y - 4) * TILE
+	draw_texture(F_INN[inn_lit], inn_at)
+	if lit == 1:                                 # lamps and windows stay bright under the evening tint (drawn again over it)
+		_glow.append([F_TOWER[1], Rect2(13, 16, 5, 7), tower_at])
+		for g in HALL_GLASS:
+			_glow.append([F_HALL[1], Rect2(g, Vector2(6, 6)), hall_at])
+	if inn_lit == 1:
+		for g in INN_GLASS:
+			_glow.append([F_INN[1], Rect2(g, Vector2(6, 6)), inn_at])
+	draw_texture(F_WELL, Vector2(11, 12 - 1) * TILE)
 	for k in PLOTS:
 		_draw_plot(k)
 	_counter_draw()
 	_board_draw()
-	for y in MAP.size():
+	for y in MAP.size():                         # the pines outside the wall, darker and denser than Wildbond's trees
 		for x in MAP[0].length():
 			if MAP[y][x] == "T" and (x + y) % 2 == 0:
-				_tex(NATURE, Vector2i(0 if (x * 3 + y) % 4 < 2 else 2, 0), Vector2i(2, 2), Vector2(x - 0.5, y - (1.5 if tile_at(Vector2i(x, y - 1)) == "T" else 0.25)) * TILE)
-	_gate_draw()
+				var big := (x * 7 + y * 3) % 3 != 0 and y < MAP.size() - 1   # (smaller pines below the south wall)
+				var r: Rect2 = PINE_48 if big else PINE_32
+				draw_texture_rect_region(F_PINES, Rect2(Vector2(x, y + 1) * TILE - Vector2(r.size.x / 2.0 - 8.0, r.size.y), r.size), r)
 	var list := people().filter(func(m): return m.where == "town")
 	list.sort_custom(func(a, b): return a.pos.y < b.pos.y)
 	for i in list.size():
@@ -1740,6 +1788,7 @@ func _draw() -> void:
 			draw_texture(_emote(feel), m.pos + Vector2(1, -19 + sin(t * 4.0) * 1.0))
 		if not m.a.is_empty() and badly_hurt(m):
 			draw_rect(Rect2(m.pos + Vector2(4, -3), Vector2(8, 2)), Color("f4f0e8"))      # a bandage round the head
+	_evening_tint()
 	_lit_windows()
 	if good_days >= 2:
 		_bunting_draw()
@@ -1751,23 +1800,16 @@ func _look(m: Mover) -> Dictionary:
 	return out
 
 func _ground(x: int, y: int, ch: String) -> void:
-	var o := Vector2(x, y) * TILE
+	# ART-SF-1 ground.png: 0-3 moss, 4 + road mask (n1 e2 s4 w8) mud road, 20-23 packed earth
 	var n := (x * 7 + y * 13) % 9
-	_tex(FLOOR, Vector2i(11 + (n if n < 5 else 0), 12), Vector2i.ONE, o)
+	var idx := n % 4
 	if _is_path(x, y):
-		var up := _is_path(x, y - 1); var down := _is_path(x, y + 1); var left := _is_path(x - 1, y); var right := _is_path(x + 1, y)
-		var cell := Vector2i(12, 8)
-		if (up or down) and (left or right):
-			cell = Vector2i(11 if not left else (13 if not right else 12), 7 if not up else (9 if not down else 8))
-		_tex(FLOOR, cell, Vector2i.ONE, o)
-	elif ch == "f":
-		_tex(NATURE, [Vector2i(0, 11), Vector2i(3, 11), Vector2i(6, 11)][n % 3], Vector2i.ONE, o)
-	elif ch == "T":
-		_tex(NATURE, Vector2i(1, 10), Vector2i.ONE, o)
-	elif ch in "r#":
-		_tex(NATURE, Vector2i(0, 10), Vector2i.ONE, o)                 # garden bushes; the buildings stand over them
-	elif ch == "p" and not _plot_done(plot_at(Vector2i(x, y))):
-		_tex(FLOOR, Vector2i(12, 8), Vector2i.ONE, o)                  # cleared, trodden ground (grass grows back round a finished building)
+		idx = 4 + (1 if _is_path(x, y - 1) else 0) + (2 if _is_path(x + 1, y) else 0) + (4 if _is_path(x, y + 1) else 0) + (8 if _is_path(x - 1, y) else 0)
+	elif ch in "qWBc":
+		idx = 20 + n % 4
+	elif ch == "p" or (plot_at(Vector2i(x, y)) != "" and not _plot_done(plot_at(Vector2i(x, y)))):
+		idx = 20 + n % 4                         # cleared, trodden ground while a plot waits or goes up
+	draw_texture_rect_region(F_GROUND, Rect2(Vector2(x, y) * TILE, Vector2(16, 16)), Rect2((idx % 8) * 16, (idx / 8) * 16, 16, 16))
 
 ## A plot: staked out and roped while it waits; scaffolding while Hob's crew work; then the building itself.
 func _draw_plot(k: String) -> void:
@@ -1776,8 +1818,7 @@ func _draw_plot(k: String) -> void:
 	var o := Vector2(PLOTS[k]) * TILE
 	var wood := Color("6b4a2a")
 	if not _plot_done(k):
-		for c in [Vector2.ZERO, Vector2(16, 0), Vector2(0, 16), Vector2(16, 16)]:
-			_tex(FLOOR, Vector2i(12, 8), Vector2i.ONE, o + c)     # cleared, trodden ground while it waits or goes up
+		pass                                     # (the ground under it is drawn as cleared, trodden earth)
 	else:
 		_doorstep(k)
 	if not built.has(k):
@@ -1802,32 +1843,41 @@ func _draw_plot(k: String) -> void:
 		if int(t * 4.0) % 2 == 0:
 			draw_rect(Rect2(o + Vector2(20, 6 + int(t * 8.0) % 3), Vector2(3, 2)), Color("8a8a84"))   # a hammer at work
 		return
-	if b.what == "smithy":
-		_draw_smithy(o)
-	elif b.what == "tavern":
-		_draw_tavern(o)
-	elif b.what == "apothecary":
-		_draw_apothecary(o)
-	elif b.what == "healer":
-		draw_rect(Rect2(o + Vector2(1, 9), Vector2(30, 22)), Figures.OUTLINE)
-		draw_rect(Rect2(o + Vector2(2, 10), Vector2(28, 20)), Color("eadcc0"))           # whitewashed walls
-		for i in 8:                                                                      # a green thatched roof
-			draw_rect(Rect2(o + Vector2(-1 + i, 10 - i), Vector2(34 - i * 2, 2)), Color("5d8a4a").darkened(0.03 * i))
-		draw_rect(Rect2(o + Vector2(3, 20), Vector2(9, 11)), Figures.OUTLINE)            # the door, at the step
-		draw_rect(Rect2(o + Vector2(4, 21), Vector2(7, 10)), Color("7a5236"))
-		draw_rect(Rect2(o + Vector2(17, 16), Vector2(8, 6)), Color("f2d24a") if heroes.any(func(h): return h.where == "healer") else Color("5a6a7a"))
-		for i in 3:                                                                      # herbs drying under the eaves
-			draw_rect(Rect2(o + Vector2(15 + i * 4, 11), Vector2(2, 4)), [Color("6aa84a"), Color("a8c868"), Color("4a8a5a")][i])
-	else:
-		for x in [1, 29]:
-			for y in [4, 26]:
-				draw_rect(Rect2(o + Vector2(x, y), Vector2(2, 5)), wood)
-		draw_line(o + Vector2(2, 6), o + Vector2(30, 6), wood, 1.0)
-		for d in [Vector2(8, 8), Vector2(20, 12)]:                                       # straw dummies on posts
-			draw_rect(Rect2(o + d + Vector2(2, 8), Vector2(2, 10)), wood)
-			draw_rect(Rect2(o + d + Vector2(-1, 0), Vector2(8, 10)), Figures.OUTLINE)
-			draw_rect(Rect2(o + d, Vector2(6, 8)), Color("d8b860"))
-			draw_rect(Rect2(o + d + Vector2(0, 3), Vector2(6, 1)), Color("a08040"))
+	_draw_built(k, b.what, o)
+
+## A finished building: its ART-SF-5 picture standing on the plot (bottom edge on the plot's bottom edge, left edges
+## together), with the little bits that show what's going on inside drawn over it.
+func _draw_built(_k: String, what: String, o: Vector2) -> void:
+	var tex: Texture2D = F_BUILT[what]
+	var at := o + Vector2(0, 32 - tex.get_height())
+	draw_texture(tex, at)
+	match what:
+		"smithy":                                # the forge breathing through the open front, smoke from the chimney
+			var a := Vector2(_step_of(_k) + Vector2i.RIGHT) * TILE                    # and the anvil by the door, where you work
+			draw_rect(Rect2(a + Vector2(9, 6), Vector2(7, 3)), Figures.OUTLINE)
+			draw_rect(Rect2(a + Vector2(11, 9), Vector2(3, 4)), Figures.OUTLINE)
+			draw_rect(Rect2(a + Vector2(10, 7), Vector2(5, 1)), Color("9198a0"))
+			draw_rect(Rect2(a + Vector2(9, 13), Vector2(7, 2)), Color("3e3833"))
+			var glow := 0.75 + 0.25 * sin(t * 5.0)
+			draw_rect(Rect2(at + Vector2(8, 41), Vector2(7, 5)), Color(1.0, 0.45 * glow + 0.2, 0.1, 0.8))
+			_glow.append([Rect2(at + Vector2(8, 41), Vector2(7, 5)), Color(1.0, 0.45 * glow + 0.2, 0.1, 0.8)])
+			for i in 3:
+				var ph := fmod(t * (0.6 if forge.is_empty() and smith_t == 0.0 else 1.2) + i * 0.33, 1.0)
+				draw_circle(at + Vector2(24 + sin(t + i) * 2.0, -ph * 14.0), 2.0 + ph * 3.0, Color(0.72, 0.71, 0.67, 0.5 * (1.0 - ph)))
+		"tavern":
+			if tavern_shut:                      # boarded up until you open it again
+				var d := at + Vector2(10, 30)
+				draw_line(d, d + Vector2(12, 20), Color("4a3122"), 2.0)
+				draw_line(d + Vector2(12, 0), d + Vector2(0, 20), Color("4a3122"), 2.0)
+		"apothecary":
+			for i in mini(stock, TONIC_MAX):         # tonics on the shelf, in the bottle window
+				draw_rect(Rect2(at + Vector2(24 + (i % 3) * 2, 35 + (i / 3) * 4), Vector2(1, 3)), Color("8a5aa8") if i % 2 == 0 else Color("f2d080"))
+			if brewing > 0.0:
+				var ph := fmod(t, 1.0)
+				draw_circle(at + Vector2(16, 20 - ph * 10.0), 2.0 + ph * 2.0, Color(0.85, 0.8, 0.9, 0.5 * (1.0 - ph)))
+		"healer":
+			if heroes.any(func(h): return h.where == "healer"):
+				draw_rect(Rect2(at + Vector2(36, 26), Vector2(5, 4)), Color("f2d080"))   # a lamp lit for someone resting
 
 func _counter_draw() -> void:
 	# a plank counter under a striped awning, a pot of stew steaming on it
@@ -1847,38 +1897,51 @@ func _counter_draw() -> void:
 		draw_circle(o + Vector2(8 + sin(t * 2.0 + k) * 2.0, -ph * 10.0), 1.5 + ph * 2.0, Color(1, 1, 1, 0.35 * (1.0 - ph)))
 
 func _board_draw() -> void:
-	# the guild board on two posts, with a paper pinned up for each notice you've posted
-	var o := Vector2(BOARD) * TILE
-	draw_rect(Rect2(o + Vector2(2, 6), Vector2(2, 10)), Color("4e3220"))
-	draw_rect(Rect2(o + Vector2(12, 6), Vector2(2, 10)), Color("4e3220"))
-	draw_rect(Rect2(o + Vector2(-1, -5), Vector2(18, 14)), Figures.OUTLINE)
-	draw_rect(Rect2(o + Vector2(0, -4), Vector2(16, 12)), Color("7a5236"))
+	# the job board (ART-SF-5), with a paper pinned up for each notice you've posted
+	var o := Vector2(BOARD.x, BOARD.y - 1) * TILE
+	draw_texture(F_BOARD, o)
 	for i in posted.size():
-		var p := o + Vector2(2 + i * 7, -2)
-		draw_rect(Rect2(p, Vector2(5, 7)), Color("f2e6c8"))
-		draw_rect(Rect2(p + Vector2(2, 0), Vector2(1, 1)), Color("c84a3a"))
-		draw_rect(Rect2(p + Vector2(1, 3), Vector2(3, 1)), Color("8a6e50"))
+		var p := o + Vector2(6 + i * 9, 12)
+		draw_rect(Rect2(p, Vector2(6, 8)), Color("f2e6c8"))
+		draw_rect(Rect2(p + Vector2(2, 0), Vector2(2, 1)), Color("8c2f2f"))
+		draw_rect(Rect2(p + Vector2(1, 3), Vector2(4, 1)), Color("735c42"))
 
 func _inn_sign() -> void:
-	var o := Vector2(INN_DOOR) * TILE + Vector2(18, -6)
-	draw_rect(Rect2(o, Vector2(1, 6)), Color("4e3220"))
-	draw_rect(Rect2(o + Vector2(-4, 5), Vector2(9, 7)), Figures.OUTLINE)
-	draw_rect(Rect2(o + Vector2(-3, 6), Vector2(7, 5)), Color("d8a868"))
-	draw_rect(Rect2(o + Vector2(-1, 7), Vector2(3, 3)), Color("f2d24a"))        # a lantern on the sign
+	pass                                         # the inn's own picture has its hanging sign (SF2.6)
 
 func _gate_draw() -> void:
-	# two posts and a crossbar where the road leaves town
-	var o := Vector2(GATE.x, GATE.y - 1) * TILE
-	draw_rect(Rect2(o + Vector2(2, 2), Vector2(3, 46)), Color("4e3220"))
-	draw_rect(Rect2(o + Vector2(0, 0), Vector2(16, 3)), Color("6b4a2a"))
+	pass                                         # the gate is the gap in the west wall, capped by the palisade's ends
+
+## Evening (SF2.6 follow-up): a gentle cool tint over the town as the day ends, per docs/art/starfall.md's "cool
+## daylight; warm lamplight ... brighter at night". It only changes the picture, never the day: it fades in over the
+## second half of the day and out again early next morning. Lamps, lit windows and the forge are drawn again on top.
+const DUSK_COLOUR := Color(0.07, 0.1, 0.2)
+const DUSK_MAX := 0.36
+var _glow: Array = []                            # [texture, source rect, where] or [Rect2, Color]: light drawn over the tint
+
+func dusk() -> float:
+	var f := day_t / DAY_SECONDS
+	if f < 0.06 and day > 1:
+		return 1.0 - f / 0.06                    # night lifting in the first moments of a new day
+	return clampf((f - 0.5) / 0.3, 0.0, 1.0)
+
+func _evening_tint() -> void:
+	var a := DUSK_MAX * dusk()
+	if a <= 0.0:
+		return
+	draw_rect(Rect2(Vector2(-64, -64), Vector2(MAP[0].length(), MAP.size()) * TILE + Vector2(128, 128)), Color(DUSK_COLOUR, a))
+	for g in _glow:
+		if g[0] is Texture2D:
+			draw_texture_rect_region(g[0], Rect2(g[2] + g[1].position, g[1].size), g[1])
+		else:
+			draw_rect(g[0], g[1])
 
 func _lit_windows() -> void:
-	# a warm window upstairs for each adventurer resting in the inn
+	# a sleepy "z" at an upstairs window of the inn for each adventurer resting there
 	var resting := heroes.filter(func(h): return h.where == "inside").size()
-	for i in resting:
-		var o := Vector2(INN_DOOR.x - 1, INN_DOOR.y - 2) * TILE + Vector2(8 + i * 14, 18)
-		draw_rect(Rect2(o, Vector2(5, 4)), Color("f2c84a"))
-		draw_string(ThemeDB.fallback_font, o + Vector2(6, -1 - fmod(t, 1.5) * 3.0), "z", HORIZONTAL_ALIGNMENT_LEFT, -1, 6, Color(1, 1, 1, 0.8))
+	for i in mini(resting, 3):
+		var o := Vector2(INN_DOOR.x - 2, INN_DOOR.y - 4) * TILE + Vector2(17 + i * 18, 35)
+		draw_string(ThemeDB.fallback_font, o + Vector2(0, -1 - fmod(t, 1.5) * 3.0), "z", HORIZONTAL_ALIGNMENT_LEFT, -1, 6, Color(1, 1, 1, 0.8))
 
 # ---------------------------------------------------------------- the screen's words: the status line, bubbles, the board
 func _make_ui() -> void:
@@ -2097,6 +2160,7 @@ func _load() -> bool:
 		garrick.pos = Vector2(garrick.tile) * TILE
 	_place_ama()
 	me.tile = Vector2i(int(d.me[0]), int(d.me[1]))
+	me.tile = open_near(me.tile)                 # a save from the old map may stand where a wall or building is now
 	me.pos = Vector2(me.tile) * TILE
 	heroes.clear()
 	for i in d.heroes.size():
@@ -2132,61 +2196,23 @@ func _load() -> bool:
 	say("", "Welcome back to Starfall, guildmaster. Day %d." % day)
 	return true
 
-# ---------------------------------------------------------------- the smithy and the apothecary, drawn
-## The smithy: stone walls, a slate roof, a chimney breathing smoke, the forge glowing through the open front, and the
-## anvil out by the door where you work.
-func _draw_smithy(o: Vector2) -> void:
-	var stone := Color("8a8a84")
-	draw_rect(Rect2(o + Vector2(1, 9), Vector2(30, 22)), Figures.OUTLINE)
-	draw_rect(Rect2(o + Vector2(2, 10), Vector2(28, 20)), stone)
-	for r in 4:                                                                      # the stone courses
-		for c in 4:
-			draw_rect(Rect2(o + Vector2(2 + c * 7 + (r % 2) * 3, 11 + r * 5), Vector2(6, 1)), stone.darkened(0.18))
-	for i in 7:                                                                      # a dark slate roof
-		draw_rect(Rect2(o + Vector2(-1 + i, 9 - i), Vector2(34 - i * 2, 2)), Color("4a4e58").lightened(0.03 * i))
-	draw_rect(Rect2(o + Vector2(23, -4), Vector2(5, 10)), Figures.OUTLINE)            # the chimney
-	draw_rect(Rect2(o + Vector2(24, -3), Vector2(3, 9)), Color("6a6a66"))
-	for k in 3:                                                                      # smoke, thicker while the forge works
-		var ph := fmod(t * (0.6 if forge.is_empty() and smith_t == 0.0 else 1.2) + k * 0.33, 1.0)
-		draw_circle(o + Vector2(25.5 + sin(t + k) * 2.0, -5 - ph * 14.0), 1.5 + ph * 2.5, Color(0.8, 0.8, 0.8, 0.4 * (1.0 - ph)))
-	draw_rect(Rect2(o + Vector2(3, 20), Vector2(9, 11)), Figures.OUTLINE)            # the door, at the step
-	draw_rect(Rect2(o + Vector2(4, 21), Vector2(7, 10)), Color("5a3e26"))
-	var glow := 0.75 + 0.25 * sin(t * 5.0)
-	draw_rect(Rect2(o + Vector2(15, 18), Vector2(13, 9)), Figures.OUTLINE)           # the forge's mouth
-	draw_rect(Rect2(o + Vector2(16, 19), Vector2(11, 7)), Color(1.0, 0.45 * glow + 0.2, 0.1))
-	draw_rect(Rect2(o + Vector2(17, 23), Vector2(9, 3)), Color("f2d24a"))
-	var a := Vector2(_step_of(_plot_of(o)) + Vector2i.RIGHT) * TILE                   # the anvil by the door
-	draw_rect(Rect2(a + Vector2(9, 6), Vector2(7, 3)), Figures.OUTLINE)
-	draw_rect(Rect2(a + Vector2(11, 9), Vector2(3, 4)), Figures.OUTLINE)
-	draw_rect(Rect2(a + Vector2(10, 7), Vector2(5, 1)), Color("9aa0aa"))
-	draw_rect(Rect2(a + Vector2(9, 13), Vector2(7, 2)), Color("3a3a40"))
-
-## The apothecary: a timber shop with a violet awning, herbs drying, a pot that steams while you brew, and a shelf in
-## the window with a bottle for each tonic.
-func _draw_apothecary(o: Vector2) -> void:
-	draw_rect(Rect2(o + Vector2(1, 9), Vector2(30, 22)), Figures.OUTLINE)
-	draw_rect(Rect2(o + Vector2(2, 10), Vector2(28, 20)), Color("c8a878"))
-	for x in [9, 19]:
-		draw_rect(Rect2(o + Vector2(x, 10), Vector2(1, 20)), Color("8a6a44"))       # timber framing
-	for i in 7:                                                                      # a mossy shingle roof
-		draw_rect(Rect2(o + Vector2(-1 + i, 9 - i), Vector2(34 - i * 2, 2)), Color("6a5a7a").lightened(0.03 * i))
-	draw_rect(Rect2(o + Vector2(3, 20), Vector2(9, 11)), Figures.OUTLINE)            # the door, at the step
-	draw_rect(Rect2(o + Vector2(4, 21), Vector2(7, 10)), Color("5a3e5a"))
-	draw_rect(Rect2(o + Vector2(13, 13), Vector2(17, 2)), Figures.OUTLINE)           # a striped violet awning
-	for k in 4:
-		draw_rect(Rect2(o + Vector2(14 + k * 4, 13), Vector2(4, 2)), Color("8a5aa8") if k % 2 == 0 else Color("e8dcf0"))
-	draw_rect(Rect2(o + Vector2(14, 16), Vector2(15, 10)), Figures.OUTLINE)          # the window and its shelf
-	draw_rect(Rect2(o + Vector2(15, 17), Vector2(13, 8)), Color("3a3046"))
-	draw_rect(Rect2(o + Vector2(15, 22), Vector2(13, 1)), Color("8a6a44"))
-	for i in stock:
-		var b := o + Vector2(15 + (i % 6) * 2, 19)
-		draw_rect(Rect2(b, Vector2(1, 3)), [Color("6ad08a"), Color("e8a84a"), Color("8ab8f0")][i % 3])
-	for i in mini(herbs, 5):                                                         # herbs hung to dry under the eaves
-		draw_rect(Rect2(o + Vector2(3 + i * 3, 11), Vector2(2, 4)), [Color("6aa84a"), Color("a8c868"), Color("4a8a5a")][i % 3])
-	if brewing > 0.0:
-		for k in 3:
-			var ph := fmod(t * 1.3 + k * 0.33, 1.0)
-			draw_circle(o + Vector2(21 + sin(t * 3.0 + k) * 2.0, 14 - ph * 16.0), 1.5 + ph * 2.0, Color(0.75, 0.9, 0.75, 0.5 * (1.0 - ph)))
+## The nearest open tile to p (searching outward), for a saved spot that the new town (SF2.6) has built over.
+func open_near(p: Vector2i) -> Vector2i:
+	if walkable(p, me) and tile_at(p) != "E":
+		return p
+	var seen := { p: true }
+	var todo: Array[Vector2i] = [p]
+	while not todo.is_empty():
+		var c: Vector2i = todo.pop_front()
+		for d in [Vector2i.DOWN, Vector2i.RIGHT, Vector2i.UP, Vector2i.LEFT]:
+			var n: Vector2i = c + d
+			if seen.has(n) or n.x < 0 or n.y < 0 or n.x >= MAP[0].length() or n.y >= MAP.size():
+				continue
+			seen[n] = true
+			if walkable(n, me) and tile_at(n) != "E" and not route(n, INN_STEP, me).is_empty():
+				return n
+			todo.append(n)
+	return INN_STEP + Vector2i.DOWN
 
 func _plot_of(o: Vector2) -> String:
 	for k in PLOTS:
@@ -2262,6 +2288,8 @@ func _doorstep(k: String) -> void:
 		draw_rect(Rect2(s + st - Vector2(1, 1), Vector2(7, 5)), Color(0, 0, 0, 0.35))
 		draw_rect(Rect2(s + st, Vector2(5, 3)), Color("b8b0a0"))
 		draw_rect(Rect2(s + st, Vector2(5, 1)), Color("d8d0c0"))
+	if int(BUILT_W.get(built[k].what, 2)) > 2:
+		return                                   # the building's picture stands over that tile (SF2.6)
 	var o := Vector2(PLOTS[k] + Vector2i(2, 1)) * TILE
 	draw_rect(Rect2(o + Vector2(2, 13), Vector2(12, 3)), Color(0, 0, 0, 0.22))           # its shadow on the grass
 	match built[k].what:
