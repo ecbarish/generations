@@ -72,7 +72,35 @@ static func run(host: Node, check: Callable) -> void:
 	game.trans_t = 0.1
 	game._tap(Vector2(4, 4) * game.TILE + Vector2(8, 8))
 	check.call(game.walk_to.is_empty(), "WB-DOOR-TAP: a transition blocks repeated door input")
+	pad_checks(game, check)
 	game.free()
+
+static func pad_checks(game: Node, check: Callable) -> void:
+	# The pad keeps its generous hit size, with its entire circle inside the canvas.
+	var pad = game.touch
+	check.call(pad.PAD_R == 32.0 and pad.ARM == 12.0, "WB-DOOR-TAP: phone arrows and hit radius are not shrunk")
+	check.call(pad.PAD.x - pad.PAD_R >= 0 and pad.PAD.y - pad.PAD_R >= 0 and pad.PAD.x + pad.PAD_R <= 384 and pad.PAD.y + pad.PAD_R <= 216, "WB-DOOR-TAP: entire pad hit region fits the game canvas")
+	pad.mode = "on"
+	pad.pad_on = true
+	pad.btn_on = false
+	pad.refresh()
+	for door_center in [Vector2(40, 160), Vector2(120, 160)]:
+		for corner in [Vector2(-8, -8), Vector2(8, -8), Vector2(-8, 8), Vector2(8, 8), Vector2.ZERO]:
+			check.call(not pad._on_pad(door_center + corner), "WB-DOOR-TAP: the full lower doorway %s stays clear at %s" % [door_center, corner])
+	var directions := {"move_up": Vector2.UP, "move_down": Vector2.DOWN, "move_left": Vector2.LEFT, "move_right": Vector2.RIGHT}
+	for action in directions:
+		var press := InputEventScreenTouch.new()
+		press.index = 17
+		press.position = pad.PAD + directions[action] * pad.ARM
+		press.pressed = true
+		pad._input(press)
+		check.call(pad.held == action and Input.is_action_pressed(action), "WB-DOOR-TAP: moved pad still holds %s" % action)
+		press.pressed = false
+		pad._input(press)
+		check.call(pad.held == "" and not Input.is_action_pressed(action), "WB-DOOR-TAP: moved pad releases %s" % action)
+	pad.mode = "off"
+	pad.refresh()
+	check.call(not pad.visible and not pad._on_pad(pad.PAD), "WB-DOOR-TAP: Never still hides and disables the moved pad")
 
 static func place(game: Node, map_id: String, at: Vector2i) -> void:
 	game._set_map(map_id)

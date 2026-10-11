@@ -39,7 +39,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
-- Wildbond (2026-10-11, WB-DOOR-TAP): clicking or tapping Larkhaven's inn, shop and both homes now queues entry just like the barn. Door collisions, walking distance, keyboard controls and saves are unchanged; source fix only, web preview not re-exported.
+- Wildbond (2026-10-11, WB-DOOR-TAP): clicking or tapping Larkhaven's inn, shop and both homes now queues entry just like the barn. The full-size phone directional pad is moved between the lower doorways so it no longer covers Nora's entrance. Door collisions, walking distance, keyboard controls, phone preferences and saves are unchanged; source fix only, web preview not re-exported.
 
 - Wildbond (2026-10-11, keys in the game): the opening's notes now name the controls for whatever you're playing on (keys, a gamepad or a phone): how to walk, talk and open your field book (Playtester's note).
 - Wildbond (2026-10-11, the reveal): after the wild bond, three old pages turn up one after another beside Orri, Ceryn and Sivet. Once you've read all three and won the league, Toren and Isolde wait by Hollowecho's cave with copies, and the valley's deepest secret is told. Depth comes back to the world: shadows fall long from then on, and each Warden has something new to say.
