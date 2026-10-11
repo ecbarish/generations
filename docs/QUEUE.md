@@ -116,7 +116,7 @@ DM2 and Diamond Manager v0.4.0 (#172), OW1.1, WD2's data half (#113), X2 links (
 | 7 | **Realmbound battlegrounds plan** (RB2.1) | PROJECTS.md R3 | `docs/proposals/` | A plan only; Evan decides before any build |
 | 8 | **Otherworld: skills that grow with use** (OW2.2) | docs/plans/otherworld.md O1 | `games/otherworld/` | As the plan says; `tests/otherworld.html` passes |
 | 9 | **The next cabinet's polish from playtests** (AC-x) | docs/PLAYTEST.md pass 2 | that cabinet's folder | Each cabinet scores 17+ in the next playtest |
-| 10 | **Little Ranch: the singing flowers, then LR4-LR8 in order** (LR3) | docs/proposals/little-ranch-next.md; DEVELOPMENT-PATH "Family games" | `games/little-ranch/`, `tests/little-ranch.html` | Each step one PR, works on phone and tablet with no reading and nothing to fail; a "tried with a toddler" note |
+| 10 | **Little Ranch: the singing flowers, then LR4-LR8 in order; the Paint Shed (LR9) alongside** (LR3) | docs/proposals/little-ranch-next.md; DEVELOPMENT-PATH "Family games" | `games/little-ranch/`, `tests/little-ranch.html` | Each step one PR, works on phone and tablet with no reading and nothing to fail; a "tried with a toddler" note |
 | 11 | **Game boxes** (AR2.3, V3) | docs/VISION.md | `launcher/`, `index.html` | A box picture per game in the hall |
 | 12 | **Newcomer playtests** (X1) | Lane X below | issues only | as Lane X says |
 | 13 | **The hall, upgraded** (AR2.13) | docs/SITE-AND-GUIDES.md; PROJECTS.md L8 | `launcher/launcher.js`, `index.html` | Started in #201 (fixed-size cabinets, a scrolling hall grouped by kind, no hall on phones). Still to do: a sign over each group, other visitors walking, a nicer Classic corner; `node tools/launcher-checks.cjs` passes; screenshots at 375 px and desktop |
