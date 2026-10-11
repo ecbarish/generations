@@ -102,6 +102,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-11 Claude (Wildbond builder): WB-KEYS (QUEUE H2, the playtest pass 2 blocker): Wildbond shows its keys in the world the first times they matter (arrows over your head, the Talk key and word beside you, J beside the bag); gamepad buttons on a gamepad; nothing extra on a phone. Checks and screenshots in docs/screenshots/wildbond-keys/.
 
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request ("do your suggestions"), merged SF2.18 no mandatory chores (#187, `a0e4787`) and SF2.20 Tamsin easier to reach (#190, `fa44b3a`). Adam dropped SF2.19 (extra board pins measured worse; #189 closed). The pacing re-measure is in docs/measurements/starfall-day-pacing.md. Then rebuilt play/starfall/ from `fa44b3a` (pack only, 3,252,424 bytes) in the PR that carries this line.
 - 2026-10-11 Claude (Priorities and direction): refreshed the shared docs after Evan heard they were stale. QUEUE's Heavy lifting (12 builds) and road ahead (12 tasks) rebuilt from what is really open; 11 merged path lines ticked; new WB-KEYS, LR3, AC-x; PRIORITIES section 4 and this Up next rewritten.
