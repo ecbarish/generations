@@ -200,6 +200,8 @@ creatures as monsters. Built as first-person grid delves (docs/proposals/new-gam
 - [ ] SF4.2 [Claude] Phone controls and settings; Starfall guide [any]; trailer.
 
 ### Realmbound (browser)
+- [ ] RB1.9 [ChatGPT] Third-person 3D inn trial (built: Codex, PR #159, 2026-10-10; awaiting review). Evan asked for a modern Pokemon-like third-person presentation. Isolated prototype, original procedural stylized models, honest character/furniture dimensions, walk/orbit/collision, a substantial contained hearth, real light/shadow geometry, phone and ultrawide checks. Files: experiments/realmbound-3d/, tests/realmbound-3d.cjs, docs/proposals/realmbound-3d.md, screenshots and handoff. No production renderer, saves, shared engines or Godot edits. Score 18/21 (Fun 3x2, Heart 3x2, Notice 3, Focus 2, Cheap 1).
+
 **RB-M1: in the game window.**
 - [x] Part 1 (T38).
 - [x] RB1.2 [ChatGPT] Part 2: pages become places (T41). (merged 2026-10-09)
@@ -443,3 +445,8 @@ line or two, with the page that holds the detail.
 
 - **2026-10-10, MAP-AUDIT:** grid-only door floods miss renderer-defined roof collision; compare actual tap routing with movement predicates and keep visual review separate (#147 / #149 / #150).
 - **2026-10-10, WB-ROOF-149:** test one accepted tap through completion without automatic retries; otherwise a helper can hide planned routes that cross movement collision. #154.
+- **2026-10-10, RB1.9 (Codex):** convincing perspective is not a nearly completed 3D port. An isolated physical-scale trial separates camera/art judgement from save and gameplay risk; camera collision also needs room bounds when rays pass through open doorways.
+
+- **2026-10-10, RB1.9 character follow-up (Codex):** animation phase should follow travelled distance, not held input; use foot placement rather than whole-leg swinging to prevent skating and floor penetration. Interpreting palette colours in the renderer's linear space prevents washed-out materials.
+
+- **2026-10-10, RB1.9 equipment follow-up (Codex):** visible gear needs stable item-type IDs and joint attachment points before higher-detail art. Inspect screenshots as well as checking meshes exist: a replaced scale component can accidentally stretch chest armour over a face. Keep prop dimensions, collisions and interactions separate from replaceable art.

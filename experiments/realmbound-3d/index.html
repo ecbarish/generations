@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Realmbound — Third-person inn trial</title><link rel="stylesheet" href="trial.css"></head>
+<body><main id="world" aria-label="Walkable Realmbound inn"><canvas id="scene" aria-label="Third-person 3D inn"></canvas>
+<header><a href="../../games/realmbound/">← Realmbound</a><div><strong>The Lantern Rest</strong><span>Third-person art trial · No progress saved</span></div><button id="outfits">Outfits</button><button id="reset">Reset view</button></header>
+<div id="loading" role="status">Lighting the hearth…</div>
+<div id="help">Walk: WASD / arrows · Look: drag · Zoom: wheel<br>Walk up to Merran or the door. Press E or tap Interact.</div>
+<div id="controls"><div id="pad" aria-label="Movement"><button data-key="ArrowUp" aria-label="Walk forward">▲</button><button data-key="ArrowLeft" aria-label="Walk left">◀</button><button data-key="ArrowDown" aria-label="Walk back">▼</button><button data-key="ArrowRight" aria-label="Walk right">▶</button></div><button id="interact">Interact</button></div>
+<div id="notice" role="status"></div></main>
+<script src="../../shared/dialogue.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" crossorigin="anonymous" onerror="document.querySelector('#loading').textContent='The 3D library could not load. This trial needs an internet connection. The existing Realmbound game remains available above.'"></script><script src="characters.js"></script><script src="gear.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js" crossorigin="anonymous"></script><script src="trial.js"></script><script src="asset-trial.js"></script></body></html>

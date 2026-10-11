@@ -81,6 +81,12 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 |---|---|---|
 | RB1.8 | Directional people and visible silhouette shadows | ready: Codex, PR #155, 2026-10-10 |
 
+## Realmbound third-person trial
+
+| ID | Project | Status |
+|---|---|---|
+| RB1.9 | A walkable stylized 3D inn, isolated from the live game | ready: Codex, PR #159, 2026-10-10 |
+
 ## How to use this list
 
 - **Pick** any project whose status is `open` and whose dependencies are done, in the focus order of

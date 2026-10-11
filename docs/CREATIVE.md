@@ -99,3 +99,8 @@ What it touches: files, saves (new fields and defaults), shared systems.
 Smallest first version: what ships first, and how we'll know it works.
 Open questions for Evan: ...
 ```
+
+
+## Visible progression and improving assets (Evan, 2026-10-10)
+
+Equipment must appear on the character, not only as inventory text. Build characters, creatures, buildings, props and effects with stable identities, measured scale, interaction/collision anchors and replaceable art, so detail and animation can improve together toward a much higher-definition world. Preserve readability, the game's identity and playable performance. Realmbound's first implementation and upgrade contract: [visible equipment and assets](proposals/realmbound-assets.md). Other engines should implement equivalent attachment and replacement contracts within their own lanes.
