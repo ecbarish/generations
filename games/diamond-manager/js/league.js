@@ -107,8 +107,11 @@ function plateAppearance(r,b,p,glove) {
   return y<hr?4 : y<hr+.02?3 : y<hr+.22?2 : 1;
 }
 
-/* Rest: a pitcher who threw 50 or more pitches needs four days off, 25 or more needs a day off. key counts days. */
-function rested(p,key) { const r=p.rest; return !r||key===undefined||key-r.day>=(r.pitches>=50?4:r.pitches>=25?2:1); }
+/* Rest, the way big-league clubs handle it: a starter who went deep (75 pitches or more) takes four days off and pitches
+   every fifth day; 45 or more means two days off, 25 or more one day; a short relief outing can go again tomorrow.
+   key counts days. */
+function restDays(pitches) { return pitches>=75?5:pitches>=45?3:pitches>=25?2:1; }
+function rested(p,key) { const r=p.rest; return !r||key===undefined||key-r.day>=restDays(r.pitches); }
 function starterOf(club,key) { const ps=pitchers(club).slice().sort((a,b)=>overall(b)-overall(a)).slice(0,5);
   for(let k=0;k<ps.length;k++){ const p=ps[(club.rot+k)%ps.length]; if(rested(p,key)) return p; } return ps[club.rot%ps.length]; }
 function dayKey(L) { return L.season*100+(L.phase==='final'&&L.final?30+L.final.games.length:L.day); }

@@ -1,7 +1,7 @@
 'use strict';
 /* Diamond Manager: the screen. The field fills the window; the scoreboard, the play-by-play and Iona's notes sit on
    it; the front office is a clipboard opened over the field. */
-const VERSION='0.5.0';
+const VERSION='0.5.1';
 const $=s=>document.querySelector(s);
 Arcade.validators[DM.key]=validLeague;
 let L=migrateLeague(loadLeague(localStorage, Arcade.backups(DM.key))), view=null, tab='roster', trade={club:1,give:[],get:[],answer:''}, finder={pos:'any',shop:0,want:null,deal:null,offers:null}, flash='';
@@ -194,7 +194,7 @@ function rosterTab(){
    line.map((p,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(p.name)+'</td><td>'+p.pos+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td>'+ceilCell(p)+ratingCells(p)+seasonCell(p)+'<td><button data-up="'+i+'" aria-label="Move '+esc(p.name)+' up" '+(i?'':'disabled')+'>▲</button><button data-down="'+i+'" aria-label="Move '+esc(p.name)+' down" '+(i<8?'':'disabled')+'>▼</button></td>'+contractCell(p)+'</tr>').join('')+
    bench.map(p=>'<tr><td>Bench</td><td>'+esc(p.name)+'</td><td>'+p.pos+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td>'+ceilCell(p)+ratingCells(p)+seasonCell(p)+'<td><button data-start="'+p.id+'">Start for №9</button></td>'+contractCell(p)+'</tr>').join('')+'</table></div>'+
    '<p><button data-auto>Let Iona set the order</button></p>'+
-   '<h3>Pitchers</h3><p class="small">The five best pitchers start in turn. Stuff gets strikeouts, Control avoids walks, Stamina lets a starter throw more pitches before tiring; Iona will ask you about a tired pitcher during games you watch. A pitcher who threw 50 pitches needs four days of rest; 25 pitches, a day.</p><div class="scroll-x"><table class="tbl"><tr><th>Pitcher</th><th>Age</th><th>Overall</th><th>Ceiling</th><th>Stuff</th><th>Control</th><th>Stamina</th><th class="hide-sm">This season</th><th>Contract</th><th></th></tr>'+
+   '<h3>Pitchers</h3><p class="small">The five best pitchers start in turn. Stuff gets strikeouts, Control avoids walks, Stamina lets a starter throw more pitches before tiring; Iona will ask you about a tired pitcher during games you watch. Starters usually throw 90 to 120 pitches, then rest four days and start again on the fifth. A reliever who threw 45 pitches rests two days, 25 pitches one day; a short outing can pitch again tomorrow.</p><div class="scroll-x"><table class="tbl"><tr><th>Pitcher</th><th>Age</th><th>Overall</th><th>Ceiling</th><th>Stuff</th><th>Control</th><th>Stamina</th><th class="hide-sm">This season</th><th>Contract</th><th></th></tr>'+
    pitchers(c).sort((a,b)=>overall(b)-overall(a)).map(p=>'<tr><td>'+esc(p.name)+(rested(p,dayKey(L))?'':' <span class="small">resting today</span>')+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td>'+ceilCell(p)+ratingCells(p)+seasonCell(p)+contractCell(p)+'</tr>').join('')+'</table></div>'+
    '<p class="small">Letting a player go in the middle of a contract costs half a season\'s salary from the club\'s cash.</p>';
 }
