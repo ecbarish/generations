@@ -174,11 +174,15 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
 - [x] Art review of ART-SF-1 to 7 and SF2.6 (Art direction thread, 2026-10-11): passed. In the game Starfall now reads as a
   log-walled frontier town and can't be mistaken for Larkhaven (the GR-5 check); the pieces keep the palette, the shake
   roofs, the sizes and distinct silhouettes. Fixed in review: the food counter's awning and wood moved onto Starfall's
-  palette. Follow-ups: ART-SF-8 and SF2.6c below.
+  palette; and, after Evan spotted it, the hall's and inn's doors now sit centred on their map tile (so the inn's path
+  meets the door) and stand on a plank step to the ground instead of floating on the stone base. Follow-ups: ART-SF-8 and
+  SF2.6c below.
 - [ ] ART-SF-8 [any] Dress the square and roads: the square is one plain packed-earth rectangle. Add worn ruts and
   puddles, grass tufts along the edges, a bench and a hitching post, and place ART-SF-6's barrels, crates and firewood
   by the buildings that would use them (inn, tavern, smithy). Pictures in `starfall-godot/assets/env/frontier/`,
-  placement in main.gd. Done when the opening screenshot reads lived-in, every building is still reachable, and the
+  placement in main.gd. Also give the apothecary, healer and tavern doors a step down to the ground, as the
+  hall and inn now have (Evan saw the inn's door floating above its stone base on 2026-10-11; fixed for those two in
+  tools/art/starfall_hall_inn.py). Done when the opening screenshot reads lived-in, every building is still reachable, and the
   Starfall checks pass.
 - [ ] SF2.6c [any] Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
   and banner, the most recognisable parts. Start the player (or the camera) so both buildings show whole. Also delete
@@ -367,7 +371,8 @@ line or two, with the page that holds the detail.
 - **2026-10-11, Starfall art review (Claude, Art direction thread):** seven drawing tasks written as specs (size, footprint,
   palette, contact sheet) were all built by Evan's dad's AIs within a day and fit together without redrawing: a tight
   spec is what lets other assistants make art that matches. What slipped was the space between the pieces (a bare
-  square, the opening view) and one older code-drawn piece off the palette; next time a set of tasks includes one for
+  square, the opening view) and one older code-drawn piece off the palette, and doors drawn between two tiles
+  (a door must be centred on the map tile you walk through, and touch the ground); next time a set of tasks includes one for
   dressing the scene and one for the first screen. Tasks ART-SF-8, SF2.6c.
 - **2026-10-09, Art direction (Claude, Art direction thread, formerly Game assets):** borrowed art made Starfall and
   Wildbond look like one game, and free packs can't carry a future 3D or first-person game. Actioned: one arcade-wide

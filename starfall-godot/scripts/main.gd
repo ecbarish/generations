@@ -29,8 +29,8 @@ const BUILT_W := { "smithy": 2, "tavern": 2, "apothecary": 2, "healer": 3, "yard
 const PALISADE := { 10: Rect2(0, 0, 16, 32), 5: Rect2(16, 0, 16, 32), 3: Rect2(32, 0, 16, 32), 6: Rect2(48, 0, 16, 32),
 	12: Rect2(0, 32, 16, 32), 9: Rect2(16, 32, 16, 32), 2: Rect2(32, 32, 16, 32), 8: Rect2(48, 32, 16, 32),
 	1: Rect2(0, 64, 16, 32), 4: Rect2(16, 64, 16, 32), 0: Rect2(32, 64, 16, 32) }
-const HALL_GLASS := [Vector2(15, 56), Vector2(29, 56), Vector2(61, 56), Vector2(75, 56)]   # glass_rects in hall-inn.json
-const INN_GLASS := [Vector2(11, 36), Vector2(29, 36), Vector2(47, 36), Vector2(11, 60), Vector2(45, 60)]
+const HALL_GLASS := [Vector2(13, 56), Vector2(29, 56), Vector2(67, 56), Vector2(77, 56)]   # glass_rects in hall-inn.json
+const INN_GLASS := [Vector2(11, 36), Vector2(29, 36), Vector2(47, 36), Vector2(23, 60), Vector2(49, 60)]
 const PINE_48 := Rect2(64, 0, 32, 48)
 const PINE_32 := Rect2(32, 16, 24, 32)
 const STUMP := Rect2(16, 64, 16, 16)
@@ -1725,8 +1725,8 @@ func _note_rect(i: int) -> Rect2:
 	return Rect2(38 + i * (w + 6.0), 46, w, 120)
 
 # ---------------------------------------------------------------- drawing the town
-func _is_path(x: int, y: int) -> bool:
-	return tile_at(Vector2i(x, y)) in ".E" and x > 0
+func _is_path(x: int, y: int) -> bool:          # a door counts, so a path runs right up to its step
+	return tile_at(Vector2i(x, y)) in ".ED" and x > 0
 
 func _draw() -> void:
 	for y in MAP.size():
