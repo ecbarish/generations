@@ -18,8 +18,8 @@ const DM = {
   upgrades: {
     seats:    {name:'Seats', what:'More seats: more people can come to each home game.', cost:[300,600,1000,1500]},
     lights:   {name:'Lights', what:'Bright towers: night games draw a bigger crowd.', cost:[400,800,1200]},
-    training: {name:'Training rooms', what:'Players aged 27 or younger grow one extra point a season per level.', cost:[350,700,1100]},
-    scouting: {name:'Scouting office', what:'Better free agents turn up each offseason.', cost:[300,650,1000]},
+    training: {name:'Training rooms', what:'Players aged 27 or younger grow two extra points a season per level.', cost:[350,700,1100]},
+    scouting: {name:'Scouting office', what:'The two standout free agents each winter are better, and so is the rest of the market.', cost:[300,650,1000]},
     clubhouse:{name:'Clubhouse', what:'Happier players ask 5% less to stay, per level.', cost:[300,600,900]}
   },
   ticket: 20, words: [[80,'Star'],[70,'Excellent'],[62,'Good'],[54,'Solid'],[46,'Fair'],[0,'Raw']]
@@ -48,21 +48,22 @@ function makePlayer(r, id, level, pitcher, pos) {
 function newLeague(seed=1) {
   const L={game:'diamond-manager', schema:1, seed:seed>>>0, nextId:1, season:1, day:0, cash:600, phase:'season',
     clubs:[], schedule:[], results:[], log:[], inbox:[], freeAgents:[], upgrades:{seats:0,lights:0,training:0,scouting:0,clubhouse:0},
-    speed:1, intro:true, history:[], final:null, offer:null, sound:0};
+    speed:1, intro:true, history:[], final:null, offer:null, sound:0, dmb:true};
   DM.clubs.forEach((c,i)=>{
-    const club={name:c.name, short:c.short, w:0, l:0, rs:0, ra:0, budget:i===0?7500:13500, players:[], lineup:[], rot:0};
+    const club={name:c.name, short:c.short, w:0, l:0, rs:0, ra:0, budget:i===0?10500:13500, players:[], lineup:[], rot:0};
     DM.batPos.forEach(pos=>club.players.push(makePlayer(L,L.nextId++,c.level,false,pos)));
     for(let k=0;k<6;k++) club.players.push(makePlayer(L,L.nextId++,c.level,true));
     club.players.push(makePlayer(L,L.nextId++,c.level-4,false,DM.batPos[ri(L,0,7)]));
     fitPayroll(L,club); setLineup(club); L.clubs.push(club);
   });
   L.schedule=makeSchedule(DM.seasonGames);
-  fillFreeAgents(L, 8);
+  fillFreeAgents(L, 8); addStandouts(L);
   return L;
 }
 /* AI clubs, and the opening rosters, keep their payroll inside their budget by trimming salaries. */
 function fitPayroll(L,club) { let over=payroll(club)-club.budget; if(over<=0)return; const f=club.budget/payroll(club); club.players.forEach(p=>p.salary=Math.max(200,Math.round(p.salary*f/10)*10)); }
-function payroll(club) { return club.players.reduce((n,p)=>n+p.salary,0); }
+// League-minimum players (bargains) don't count against the owner's budget, so a roster can always be filled.
+function payroll(club) { return club.players.reduce((n,p)=>n+(p.bargain?0:p.salary),0); }
 function batters(club) { return club.players.filter(p=>!p.pitcher); }
 function pitchers(club) { return club.players.filter(p=>p.pitcher); }
 /* Keep the chosen order; add any missing batters by overall; drop anyone who left. */
@@ -190,18 +191,19 @@ function endSeason(L) {
   L.history.push({season:L.season, w:you.w, l:you.l, place:standings(L).findIndex(s=>s.i===DM.you)+1, final:inFinal, champion:champ, championName:L.clubs[L.final.champion].name});
   const prev=L.history.length>1?L.history[L.history.length-2].w:null;
   // A climbing club earns a little too, so a GM who improves a losing team sees the budget grow (playtest DM2).
-  const raise=champ?1000:inFinal?600:you.w>you.l?300:prev!==null&&you.w>prev?200:0; you.budget=Math.min(18000,you.budget+raise);
+  const raise=champ?1500:inFinal?900:you.w>you.l?600:prev!==null&&you.w>prev?400:0; you.budget=Math.min(18000,you.budget+raise);
   L.report={raise, grew:[], slipped:[], expiring:[], left:[]};
   L.clubs.forEach((c,ci)=>{
-    for(const p of c.players){ const before=overall(p); develop(L,p,ci===DM.you?L.upgrades.training:1); const d=overall(p)-before;
+    for(const p of c.players){ const before=overall(p); develop(L,p,ci===DM.you?L.upgrades.training*2:1); const d=overall(p)-before;
       if(ci===DM.you){ if(d>=2)L.report.grew.push({name:p.name,d}); if(d<=-2)L.report.slipped.push({name:p.name,d}); }
       p.years--; p.season=null; }
     if(ci!==DM.you){ // Other clubs keep players worth their price and let the rest go.
-      c.players=c.players.filter(p=>{ if(p.years>0)return true; if(p.age<36&&overall(p)>=48){p.salary=askSalary(p);p.years=ri(L,1,3);return true;} if(p.age<36)L.freeAgents.push(p); return false; });
+      c.players=c.players.filter(p=>{ if(p.years>0)return true; if(p.age<36&&overall(p)>=48){p.salary=askSalary(p);p.years=ri(L,1,3);p.bargain=false;return true;} if(p.age<36){p.bargain=false;p.salary=askSalary(p);p.years=ri(L,1,2);L.freeAgents.push(p);} return false; });
     } else L.report.expiring=c.players.filter(p=>p.years<=0).map(p=>p.id);
   });
   fillFreeAgents(L, 8);
   L.clubs.forEach((c,ci)=>{ if(ci!==DM.you){ refill(L,c); fitPayroll(L,c); } setLineup(c); });
+  L.freeAgents=L.freeAgents.filter(p=>!p.star); addStandouts(L); ensureBargains(L);
 }
 function develop(L,p,training) {
   const base=p.age<=24?ri(L,2,5):p.age<=27?ri(L,0,3):p.age<=30?ri(L,-1,1):p.age<=33?ri(L,-3,0):ri(L,-5,-1);
@@ -213,6 +215,18 @@ function fillFreeAgents(L,n) {
   const lvl=50+L.upgrades.scouting*3;
   while(L.freeAgents.length<n){ const pitcher=rnd(L)<.4; const p=makePlayer(L,L.nextId++,lvl,pitcher,DM.batPos[ri(L,0,8)]); p.salary=askSalary(p); p.years=ri(L,1,3); L.freeAgents.push(p); }
   L.freeAgents.sort((a,b)=>overall(b)-overall(a)); L.freeAgents=L.freeAgents.slice(0,12);
+  ensureBargains(L);
+}
+/* Bargains: two cheap batters and two cheap pitchers are always available, so any roster can be filled. */
+function ensureBargains(L) {
+  for(const pitcher of [false,true]) while(L.freeAgents.filter(p=>p.bargain&&p.pitcher===pitcher).length<2){
+    const p=makePlayer(L,L.nextId++,44,pitcher,DM.batPos[ri(L,0,8)]); p.salary=220; p.years=1; p.bargain=true; L.freeAgents.push(p); }
+}
+/* Each winter (and the first spring) two standouts reach the market: clearly better than a typical player and
+   asking real money. Signing one is the general manager's biggest single lever (playtest DM2, ticket DM-B). */
+function addStandouts(L) {
+  for(const pitcher of [false,true]){ const p=makePlayer(L,L.nextId++,62+L.upgrades.scouting*2,pitcher,DM.batPos[ri(L,0,8)]);
+    p.age=ri(L,24,29); p.salary=askSalary(p); p.years=ri(L,2,3); p.star=true; L.freeAgents.unshift(p); }
 }
 function refill(L,c) {
   const need=()=>batters(c).length<DM.minBatters?'b':pitchers(c).length<DM.minPitchers?'p':null; let guard=0;
@@ -233,23 +247,25 @@ function rosterOk(c) { return batters(c).length>=DM.minBatters && pitchers(c).le
 /* Contracts and free agents. Every function returns '' on success or a sentence saying why not. */
 function resign(L,id) {
   const c=L.clubs[DM.you], p=c.players.find(x=>x.id===id); if(!p||p.years>0) return 'That contract is not ending.';
-  const ask=askSalary(p,L.upgrades.clubhouse); if(payroll(c)-p.salary+ask>c.budget) return p.name+' asks '+money(ask)+' a season; that would put the payroll over the owner\'s budget.';
-  p.salary=ask; p.years=p.age>=32?1:2; return '';
+  const ask=askSalary(p,L.upgrades.clubhouse); if(payroll(c)-(p.bargain?0:p.salary)+ask>c.budget) return p.name+' asks '+money(ask)+' a season; that would put the payroll over the owner\'s budget.';
+  p.salary=ask; p.years=p.age>=32?1:2; p.bargain=false; return '';
 }
 function release(L,id) {
   const c=L.clubs[DM.you], p=c.players.find(x=>x.id===id); if(!p) return 'Nobody by that name.';
   const after=c.players.filter(x=>x!==p);
-  if(!p.pitcher&&batters(c).length<=DM.minBatters) return 'You need at least nine batters. Sign one first.';
-  if(p.pitcher&&pitchers(c).length<=DM.minPitchers) return 'You need at least five pitchers. Sign one first.';
+  // An ending contract can always be let go (the season won't start until the roster is legal again), so a tight
+  // budget never leaves the general manager stuck with a player they can neither keep nor release (DM-B).
+  if(p.years>0&&!p.pitcher&&batters(c).length<=DM.minBatters) return 'You need at least nine batters. Sign one first.';
+  if(p.years>0&&p.pitcher&&pitchers(c).length<=DM.minPitchers) return 'You need at least five pitchers. Sign one first.';
   // Letting someone go mid-contract costs half of one season's salary; an expiring contract costs nothing.
   const cost=p.years>0?Math.round(p.salary/2):0; if(cost>L.cash) return 'Letting '+p.name+' go costs '+money(cost)+' and the club has '+money(L.cash)+'.';
-  L.cash-=cost; c.players=after; if(p.age<36){p.salary=askSalary(p);p.years=ri(L,1,2);L.freeAgents.push(p);} setLineup(c); return '';
+  L.cash-=cost; c.players=after; if(p.age<36){p.salary=askSalary(p);p.years=ri(L,1,2);p.bargain=false;L.freeAgents.push(p);} setLineup(c); return '';
 }
 function signFree(L,id) {
   const c=L.clubs[DM.you], i=L.freeAgents.findIndex(x=>x.id===id); if(i<0) return 'That player has signed elsewhere.';
   const p=L.freeAgents[i]; if(c.players.length>=DM.rosterMax) return 'The roster is full ('+DM.rosterMax+'). Let someone go first.';
-  if(payroll(c)+p.salary>c.budget) return p.name+' wants '+money(p.salary)+' a season; that would put the payroll over the owner\'s budget of '+money(c.budget)+'.';
-  L.freeAgents.splice(i,1); c.players.push(p); setLineup(c); return '';
+  if(!p.bargain&&payroll(c)+p.salary>c.budget) return p.name+' wants '+money(p.salary)+' a season; that would put the payroll over the owner\'s budget of '+money(c.budget)+'.';
+  L.freeAgents.splice(i,1); c.players.push(p); if(p.bargain)ensureBargains(L); setLineup(c); return '';
 }
 function buyUpgrade(L,k) {
   const u=DM.upgrades[k], lv=L.upgrades[k]; if(!u) return 'Unknown upgrade.'; if(lv>=u.cost.length) return 'Already as good as it gets.';
@@ -342,4 +358,7 @@ function loadLeague(storage, backups) {
   for (const b of backups) { try { const parsed = JSON.parse(b.data); if (validLeague(parsed)) return parsed; } catch (_) {} }
   return null;
 }
-function migrateLeague(o) { if(!validLeague(o)) return newLeague((Date.now()>>>0)||1); return Object.assign({speed:1,intro:false,log:[],history:[],inbox:[],sound:0},o); }
+function migrateLeague(o) { if(!validLeague(o)) return newLeague((Date.now()>>>0)||1); const L=Object.assign({speed:1,intro:false,log:[],history:[],inbox:[],sound:0},o);
+  // DM-B (v0.2.0): the owner found $3M more for the Lanterns, and the market gained standouts and league-minimum players.
+  if(!L.dmb){ L.dmb=true; L.clubs[DM.you].budget=Math.min(18000,L.clubs[DM.you].budget+3000); if(!L.freeAgents.some(p=>p.star))addStandouts(L); ensureBargains(L); }
+  return L; }

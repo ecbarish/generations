@@ -21,7 +21,7 @@ function diamondManagerChecks(){
   check('Releasing mid-contract costs half a season; expiring costs nothing',()=>{const L=d.newLeague(2),c=L.clubs[0];c.players.push(clone(c.players[0]));const p=c.players[c.players.length-1];p.id=9999;p.years=2;p.salary=400;L.cash=1000;assert(d.release(L,9999)===''&&L.cash===800,'paid');return true;});
   check('Every fifth day another club may offer a trade, and declining changes nothing',()=>{const L=d.newLeague(14);let seen=0;for(let i=0;i<30&&L.phase==='season';i++){d.playDay(L);if(L.offer){seen++;const before=JSON.stringify(L.clubs);d.answerOffer(L,false);assert(JSON.stringify(L.clubs)===before,'declined');}}return seen>0;});
   check('Two seasons in a row keep legal rosters for every club',()=>{const L=season(d.newLeague(41));L.clubs[0].budget=1e6;for(const p of L.clubs[0].players.filter(p=>p.years<=0))d.resign(L,p.id);assert(d.startSeason(L),'second season');season(L);return L.clubs.slice(1).every(c=>d.rosterOk(c))&&L.history.length===2;});
-  check('The owner raises the budget for a better losing season, not for a worse one',()=>{const L=season(d.newLeague(51)),c=L.clubs[0];c.budget=1e6;for(const p of c.players.filter(p=>p.years<=0))d.resign(L,p.id);c.budget=7500;assert(d.startSeason(L),'second season');season(L);const h=L.history;const r=L.report.raise;const winning=h[1].w>h[1].l,better=h[1].w>h[0].w;if(h[1].final)return r>=600;if(winning)return r===300;return better?r===200:r===0;});
+  check('The owner raises the budget for a better losing season, not for a worse one',()=>{const L=season(d.newLeague(51)),c=L.clubs[0];c.budget=1e6;for(const p of c.players.filter(p=>p.years<=0))d.resign(L,p.id);c.budget=10500;assert(d.startSeason(L),'second season');season(L);const h=L.history;const r=L.report.raise;const winning=h[1].w>h[1].l,better=h[1].w>h[0].w;if(h[1].final)return r>=900;if(winning)return r===600;return better?r===400:r===0;});
   check('Saves round-trip, and a different game\'s save becomes a new league',()=>{const L=d.newLeague(3);d.playDay(L);const back=d.migrateLeague(clone(L));return JSON.stringify(back.clubs)===JSON.stringify(L.clubs)&&d.validLeague(back)&&!d.validLeague({game:'diamond-career'})&&d.migrateLeague({game:'wildbond'}).season===1;});
   check('Structurally damaged imports are refused without throwing',()=>{
     const changes=[L=>L.clubs[0]={},L=>L.clubs[0].lineup[1]=L.clubs[0].lineup[0],L=>L.clubs[0].players[0].contact=null,L=>L.day=30,L=>L.schedule[0][0]=[0,0],L=>L.upgrades.seats=99,L=>L.speed=0,L=>L.freeAgents.push(clone(L.clubs[0].players[0]))];
@@ -36,5 +36,21 @@ function diamondManagerChecks(){
   });
   check('A full season remains a valid save at every phase',()=>{const L=d.newLeague(2);while(L.phase==='season'){d.playDay(L);assert(d.validLeague(L),'season');}while(L.phase==='final'){d.playFinalGame(L);assert(d.validLeague(L),'final/offseason');}return true;});
   check('Blocked browser storage still permits a new league',()=>d.loadLeague({getItem(){throw Error('blocked');}},[])===null);
+  check('Managing matters: signing free agents, setting the order and building the park beats doing nothing (DM-B)',()=>{
+    const O=d.overall,fill=(L,c)=>{for(const pit of [false,true]){let g=0;while(c.players.filter(p=>p.pitcher===pit).length<(pit?5:9)&&g++<10){const ch=L.freeAgents.filter(f=>f.pitcher===pit).sort((a,b)=>(b.bargain?1:0)-(a.bargain?1:0)||a.salary-b.salary)[0];if(!ch||d.signFree(L,ch.id))break;}}};
+    const manage=L=>{const c=L.clubs[0];for(const p of c.players.filter(p=>p.years<=0)){if(!(O(p)>=52&&!d.resign(L,p.id)))d.release(L,p.id);}fill(L,c);
+      for(let k=0;k<10;k++){let did=false;for(const f of L.freeAgents.slice().sort((a,b)=>O(b)-O(a))){const same=c.players.filter(p=>p.pitcher===f.pitcher).sort((a,b)=>O(a)-O(b)),worst=same[0];if(O(f)<O(worst)+3)continue;
+        if(c.players.length<d.DM.rosterMax&&d.payroll(c)+f.salary<=c.budget){if(!d.signFree(L,f.id)){did=true;break;}}
+        if(d.payroll(c)-worst.salary+f.salary<=c.budget&&same.length>(f.pitcher?5:9)-1){if(!d.release(L,worst.id)&&!d.signFree(L,f.id)){did=true;break;}fill(L,c);}}if(!did)break;}
+      fill(L,c);d.autoLineup(c);for(const k of ['training','seats','lights','scouting','clubhouse','training','seats'])d.buyUpgrade(L,k);};
+    let lazy=0,busy=0,finals=0;const N=12;
+    for(let i=1;i<=N;i++)for(const active of [false,true]){const L=d.newLeague(i*97);for(let s=0;s<2;s++){if(active)manage(L);while(L.phase==='season'){d.playDay(L);if(L.offer)d.answerOffer(L,false);}while(L.phase==='final')d.playFinalGame(L);
+      const h=L.history[L.history.length-1];if(active){busy+=h.w;if(h.final)finals++;}else lazy+=h.w;
+      if(!active)for(const p of L.clubs[0].players.filter(p=>p.years<=0))if(d.resign(L,p.id))d.release(L,p.id);
+      if(!d.startSeason(L)){manage(L);assert(d.startSeason(L),'a legal roster is always reachable');}}}
+    const gap=(busy-lazy)/(N*2);assert(gap>=2.5,'active manager only '+gap.toFixed(1)+' wins a season ahead');return finals>0;});
+  check('League-minimum players are always on the market and never break the budget',()=>{const L=d.newLeague(77),c=L.clubs[0];c.budget=d.payroll(c);const b=L.freeAgents.find(p=>p.bargain&&!p.pitcher);assert(b&&d.signFree(L,b.id)===''&&d.payroll(c)<=c.budget,'bargain signs');return L.freeAgents.filter(p=>p.bargain&&!p.pitcher).length===2&&L.freeAgents.filter(p=>p.bargain&&p.pitcher).length===2;});
+  check('An ending contract can always be let go, even below nine batters',()=>{const L=d.newLeague(78),c=L.clubs[0];const bs=c.players.filter(p=>!p.pitcher);while(bs.length>9){d.release(L,bs.pop().id);}L.cash=1e6;while(d.batters(c).length>9)d.release(L,d.batters(c)[0].id);const p=d.batters(c)[0];p.years=0;return d.release(L,p.id)===''&&d.batters(c).length===8;});
+  check('Old saves get the bigger budget and the new market once',()=>{const L=d.newLeague(79);delete L.dmb;L.freeAgents=L.freeAgents.filter(p=>!p.star&&!p.bargain);const b=L.clubs[0].budget;const a=d.migrateLeague(clone(L));const again=d.migrateLeague(clone(a));return a.clubs[0].budget===b+3000&&again.clubs[0].budget===b+3000&&a.freeAgents.some(p=>p.star)&&a.freeAgents.some(p=>p.bargain);});
   return out;
 }

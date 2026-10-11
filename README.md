@@ -39,6 +39,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Diamond Manager v0.2.0 (2026-10-11, DM-B): your choices now matter. The playtest found that an active manager won no more than one who did nothing. Now the owner's budget starts at $10.5M (old saves get +$3M once), two standout free agents reach the market every winter, league-minimum players are always available and do not count against the budget (so a roster can always be filled), training rooms add two points a level, the owner rewards climbing seasons more, and Iona gives her opinion on trade offers. Fixed: a player from another club could arrive with an already-ended contract. In 24 simulated leagues an active manager now wins about 4 to 5 more games a season and reaches the final about one season in five. 27 checks.
 - Little Ranch v0.1.1 (2026-10-10, LR2): feeding works again after switching to and from Peekaboo, and rotating/resizing the screen keeps the baby and active toys in place. Existing sound preferences are preserved. [Review and before/after captures](docs/screenshots/little-ranch-lr2/README.md).
 - **2026-10-10, RB1.9 (pending review):** An isolated third-person 3D Lantern Rest trial with original procedural people/furniture, a following camera, real shadows and modular eight-slot equipment previews. Existing Realmbound gameplay and saves are untouched. No version bump.
 

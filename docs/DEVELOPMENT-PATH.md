@@ -358,6 +358,11 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - **2026-10-09, WD2 data (Codex, PR #113):** the roster has 104 base species and three hybrids added by the ranch module. Validate the full exporter, not just 00-data.js; all 107 preserve their original gameplay fields. Drawing hints stay out of creature saves; the appearance contract is in docs/lore/wildbond-looks.md.
 Standing rule (Evan, 2026-10-09): each piece of work records here what it taught us and what was done about it, in a
 line or two, with the page that holds the detail.
+- **2026-10-11, DM-B (Claude, sports thread):** a management game must be tested by simulating a manager, not only
+  by playing it: a policy that signs, orders and builds won no more games than doing nothing until money and the market
+  gave it room. The check now pins the gap (an active manager at least 2.5 wins a season ahead), and the simulation
+  found two real traps (an ended contract arriving by trade or free agency; a roster you could neither fill nor
+  release), both fixed.
 - **2026-10-09, Art direction (Claude, Art direction thread, formerly Game assets):** borrowed art made Starfall and
   Wildbond look like one game, and free packs can't carry a future 3D or first-person game. Actioned: one arcade-wide
   art guide (docs/art/README.md: ten shared rules, a palette per game, footprints and heights in data, a drawing-task

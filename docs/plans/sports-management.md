@@ -75,7 +75,7 @@ side panel. Text is in full words.
   Play two full seasons as a first-timer on desktop and a phone-sized window. Write
   docs/playtests/diamond-manager-1.md: what was unclear in the first five minutes, any number that felt wrong (a
   .400 hitter, a 20-1 club), screenshots. Fix the top three problems; add a check for any balance fix.
-- [ ] **DM-B** [any] **Make the general manager's choices matter** (from DM2): today a sensible active manager wins no
+- [x] **DM-B** [Claude, done 2026-10-11, v0.2.0] **Make the general manager's choices matter** (from DM2): today a sensible active manager wins no
   more than a hands-off one over two seasons. Target 3 to 5 more wins a season and a final by about season 3; options
   in docs/playtests/diamond-manager-1.md. Add a simulation check for the gap.
 - [ ] **DM3** [any] **Hiring coaches**: two coach slots (hitting, pitching), three candidates each offseason with a

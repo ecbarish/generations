@@ -1,7 +1,7 @@
 'use strict';
 /* Diamond Manager: the screen. The field fills the window; the scoreboard, the play-by-play and Iona's notes sit on
    it; the front office is a clipboard opened over the field. */
-const VERSION='0.1.0';
+const VERSION='0.2.0';
 const $=s=>document.querySelector(s);
 Arcade.validators[DM.key]=validLeague;
 let L=migrateLeague(loadLeague(localStorage, Arcade.backups(DM.key))), view=null, tab='roster', trade={club:1,give:[],get:[],answer:''}, flash='';
@@ -87,7 +87,7 @@ function afterGameNote(g){
 function showOffseasonOrNext(){
   if(L.offer){ const o=L.offer, them=club(o.club), give=pl(you(),o.give), get=pl(them,o.get);
     if(!give||!get){ L.offer=null; return showOffseasonOrNext(); }
-    return note('<div class="who">A call from the '+esc(them.name)+'</div><h2>A trade offer</h2><p>They offer <b>'+esc(get.name)+'</b> ('+desc(get)+') for your <b>'+esc(give.name)+'</b> ('+desc(give)+').</p>',
+    return note('<div class="who">A call from the '+esc(them.name)+'</div><h2>A trade offer</h2><p>They offer <b>'+esc(get.name)+'</b> ('+desc(get)+') for your <b>'+esc(give.name)+'</b> ('+desc(give)+').</p><p class="who">Iona</p><p>'+esc(ionaOnTrade(give,get))+'</p>',
       '<button class="primary" id="n-yes">Accept the trade</button><button id="n-no">No, thank you</button>'); }
   if(L.phase==='offseason'&&L.report&&!L.report.seen){ const r=L.report, h=L.history[L.history.length-1]; L.report.seen=true; save();
     return note('<div class="who">The owner\'s office</div><h2>Season '+h.season+' is over</h2><p>The Lanterns finished '+h.w+'-'+h.l+', '+nth(h.place)+' of 6. '+esc(h.championName)+' '+(h.champion?'(that is us!)':'')+' won the final.</p>'+
@@ -97,6 +97,11 @@ function showOffseasonOrNext(){
       '<button class="primary" id="n-office">Open the front office</button><button id="n-ok">Later</button>'); }
   closeNote(); render();
 }
+/* Iona's honest read of an offer: today's quality first, then age, so the general manager has a second opinion. */
+function ionaOnTrade(give,get){ const d=overall(get)-overall(give), young=get.age<give.age-3, old=get.age>give.age+3;
+  if(d>=3) return 'This helps us now: '+get.name+' is the better player today.'+(old?' The catch: '+get.name+' is older, so the edge may not last.':'');
+  if(d<=-3) return 'This helps them. '+give.name+' is the better player'+(young?', though '+get.name+' is younger and may grow.':'. I would say no.');
+  return 'About even today.'+(young?' '+get.name+' is younger, so it could tilt our way.':old?' '+get.name+' is older, so it could tilt their way.':' Take it if you want the change.'); }
 function desc(p){ return (p.pitcher?'pitcher':p.pos)+', overall '+overall(p)+', age '+p.age+', '+money(p.salary)+' a season'; }
 function introNote(){
   note('<div class="who">Iona Vale, field manager</div><h2>Welcome to Lamplight Field</h2><p>The owner hired you as general manager of the Brackenport Lanterns, the worst club in the league. I run the dugout; you build the team.</p>'+
@@ -140,8 +145,8 @@ function tradeTab(){
    '<p><button id="trade-ask">Ask what they think</button> <button class="primary" id="trade-do">Propose the trade</button></p>';
 }
 function freeTab(){
-  return '<p>Players without a club. They sign for the salary shown, as long as the payroll stays inside the owner\'s budget ('+money(payroll(you()))+' of '+money(you().budget)+'). A better Scouting office brings better players each offseason.</p><div class="scroll-x"><table class="tbl"><tr><th>Player</th><th>Pos</th><th>Age</th><th>Overall</th><th>Ratings</th><th>Asks</th><th></th></tr>'+
-   L.freeAgents.map(p=>'<tr><td>'+esc(p.name)+'</td><td>'+(p.pitcher?'P':p.pos)+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td><td class="small">'+(p.pitcher?'Stuff '+p.stuff+', Control '+p.control+', Stamina '+p.stamina:'Contact '+p.contact+', Power '+p.power+', Eye '+p.eye+', Glove '+p.glove)+'</td><td>'+money(p.salary)+' × '+p.years+' yr</td><td><button class="primary" data-sign="'+p.id+'">Sign</button></td></tr>').join('')+'</table></div>';
+  return '<p>Players without a club. They sign for the salary shown, as long as the payroll stays inside the owner\'s budget ('+money(payroll(you()))+' of '+money(you().budget)+'). Each winter two <b>standouts</b> arrive, the best players on the market; a better Scouting office makes them better still. <b>League minimum</b> players are always there and do not count against the budget, so you can always fill the roster.</p><div class="scroll-x"><table class="tbl"><tr><th>Player</th><th>Pos</th><th>Age</th><th>Overall</th><th>Ratings</th><th>Asks</th><th></th></tr>'+
+   L.freeAgents.map(p=>'<tr><td>'+esc(p.name)+(p.star?' <b class="small">Standout</b>':p.bargain?' <span class="small">League minimum</span>':'')+'</td><td>'+(p.pitcher?'P':p.pos)+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td><td class="small">'+(p.pitcher?'Stuff '+p.stuff+', Control '+p.control+', Stamina '+p.stamina:'Contact '+p.contact+', Power '+p.power+', Eye '+p.eye+', Glove '+p.glove)+'</td><td>'+money(p.salary)+' × '+p.years+' yr</td><td><button class="primary" data-sign="'+p.id+'">Sign</button></td></tr>').join('')+'</table></div>';
 }
 function parkTab(){
   return '<p>The club\'s cash comes from the gate at home games: more wins and a better park bring bigger crowds. Upgrades show on the field.</p><p>Last home crowd: '+(()=>{const g=gateMoney(L);return g.crowd.toLocaleString()+' of '+g.cap.toLocaleString()+' seats ('+money(g.money)+' a game at '+'$'+DM.ticket+' a ticket)';})()+'. Cash: <b>'+money(L.cash)+'</b>.</p>'+
