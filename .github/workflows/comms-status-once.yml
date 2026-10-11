@@ -1,0 +1,27 @@
+name: comms status once
+on:
+  push:
+    branches: [guest/comms-status]
+    paths:
+      - .github/workflows/comms-status-once.yml
+      - .github/workflows/comms_status_once.py
+permissions:
+  contents: write
+jobs:
+  notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: guest/comms-status
+          fetch-depth: 1
+      - name: insert notes
+        run: python3 .github/workflows/comms_status_once.py
+      - name: commit and drop the helper
+        run: |
+          git config user.name "abarish-dev"
+          git config user.email "319211409+abarish-dev@users.noreply.github.com"
+          git add docs/COMMS.md START-HERE.md
+          git rm -f .github/workflows/comms-status-once.yml .github/workflows/comms_status_once.py
+          git commit -m "COMMS: Ember Bricks is claimed; #177 is merged; #183 is the preview"
+          git push origin HEAD:guest/comms-status
