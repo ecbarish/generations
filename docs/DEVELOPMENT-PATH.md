@@ -110,13 +110,13 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 - [x] WS6 [ChatGPT] (T51, merged 2026-10-09; placed in Godot by WS5) Festival writing: lines, keepsake names, a short tradition for each festival in docs/lore/.
 **WB-M4: the ending.**
 - [x] WB4.1 [Claude] The league: Wren at the gate, four courts, Champion Avenne. *Done 2026-10-09: from Farwatch with all eight badges; five stone courts with banners (a gold mark once won); Nelva explains and heals; the battles, lines and teams from the game data; healed between rooms; a loss starts the courts again (Wren stays beaten); the Champion brings the homecoming lines. The Spire stays closed (WB5.1).*
-- [ ] WB4.2 [Claude] The wild bond's
+- [ ] WB4.2 [Claude] (claimed 2026-10-11 by the Wildbond builder thread, with WB4.3 part 2: placing T58) The wild bond's
   discovery (WG4) and the first-person glimpse.
 - [ ] WB4.3 [Claude] The homecoming ending, colour and depth restored. *Part 1 done 2026-10-09: after the Champion, Maren and Isolde come to the league gate and Avenne walks down (T54 staging), the ending and the quiet-down lines play, and every Warden welcomes the Champion on return. Left: the deeper reveal (waits on Evan's choice of the final truth, docs/proposals/wildbond-final-reveals.md, and WB4.4b).*
 - [ ] WB4.4 [ChatGPT] (T58 writing ready: PR #101, Codex, 2026-10-09; Claude places approved reveal) (WB4.4a: T53 and T54 merged 2026-10-09 and placed; WB4.4b, the full mystery payoff, waits on Evan's choice in docs/proposals/wildbond-final-reveals.md) The ending's text and every thread's payoff, written from the ledger, for Claude to place.
 
 **WB-D: deeper play (from the game review, docs/proposals/game-review-2026-10-09.md; before 2.0, order in PRIORITIES.md).**
-- [ ] WD1 [Claude] Numbers off the screen (GR-4): remove the Badges/Lures/Coins/Wilddex line; a readable arrival name.
+- [x] WD1 [Claude] **Done 2026-10-09 in PR #91** (satchel icon and Satchel page; large place names on arrival). Numbers off the screen (GR-4): remove the Badges/Lures/Coins/Wilddex line; a readable arrival name.
 - [ ] WD2 [ChatGPT data, Claude drawing] (data built: Codex, PR #113; drawing remains open) Creatures that look different (GR-1): per-species look features in data;
   parts drawn in figures.gd; 4-5 new body shapes. *Part 1 done 2026-10-09: serpent, turtle, moth and tree-folk shapes for twelve species (figures.gd `SHAPE_FOR`; a `shape` field in the data overrides it). Data half built in PR #113: all 107 browser species have shape + head/back/tail/pattern hints, including hybrids. Left: Claude draws the parts; a fish shape with WB5.7.*
 - [ ] WD3 [Claude, ChatGPT data] Battles with real choices (GR-2): about 60 moves, family signature moves, a few
@@ -144,7 +144,7 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
   (docs/learning/godot-practices.md rule 2), so on-screen buttons, a gamepad and rebinding all come free.
 - [x] WB6.2 [Claude] **Done 2026-10-09** (`settings.gd`, the book's Settings page). Settings in the game window (sound, music, text size,
   battle speed). Start with Music, Ambience and Effects sound buses (godot-practices.md rule 3).
-- [x] WB6.3 [Claude] **Done 2026-10-09** (`turn_card.gd`). A phone held upright gets a "Turn your phone sideways" card and the game holds still (Playtester, PR #111). Learned: with `canvas_items` stretch and `keep` aspect, portrait leaves a thin strip, so no portrait layout is worth building; pausing the tree with the card set to `PROCESS_MODE_ALWAYS` freezes battles and walks cleanly.
+- [x] WB6.2b [Claude] **Done 2026-10-09** (`turn_card.gd`; renamed from a clashing WB6.3). A phone held upright gets a "Turn your phone sideways" card and the game holds still (Playtester, PR #111). Learned: with `canvas_items` stretch and `keep` aspect, portrait leaves a thin strip, so no portrait layout is worth building; pausing the tree with the card set to `PROCESS_MODE_ALWAYS` freezes battles and walks cleanly.
 - [ ] WB6.3 [Claude] Import a browser Wildbond save into the new version.
 - [x] WB6.4 [any] A Wildbond guide (first steps, the element chart, the ranch), now that systems are settling. (merged: PR #127, 2026-10-09)
 - [ ] WB6.5 [Claude] A Wildbond trailer and store-style page; Windows build and web build published.
