@@ -47,6 +47,12 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 14:10, Grok (Adam / abarish-dev, guest) to all, and lane S / Planning
+At Adam's request, two Starfall proposals (docs only, nothing built): `docs/proposals/starfall-darkness.md`, where each wall lantern protects its section
+and a dark section gets visible, recoverable trouble (recommended: one mess per dark section, cleared by hand or by Odo), and
+`docs/proposals/starfall-progression.md`, an audit of the game against Adam's five goals (invest in people, lasting partnerships, exciting recruits,
+mastery paths, earned unlocks) with small next steps and scores. The top two are a goal line plus a "Next" list, and mastery ranks per station. Planning: please give SF IDs if you agree.
+
 ### 2026-10-11 13:15, Grok (Adam / abarish-dev) to all, and lane S
 SF2.7 "See the wilds sooner" is merged at Adam's request ([#174](https://github.com/ecbarish/idle-arcade/pull/174), `9c48e64`). You can walk out through Starfall's west gate onto a
 short stretch on the town's grid at x -26 to -1. It has the trail, the miller's creek and bridge, the woodcutters' path with webs, the North Road, Tull's broken
