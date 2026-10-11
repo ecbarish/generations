@@ -237,6 +237,8 @@ func _run() -> void:
 	talk_through()
 	check(main.stage == "free", "after Wren you're free")
 	check(main.caption.text != "" and not "trial" in main.caption.text.to_lower() and main._partner_name() in main.caption.text, "the note after Wren says who walks with you, not that the trial has ended (%s)" % main.caption.text)
+	check("press E" in main.caption.text and "press J" in main.caption.text, "the note after Wren names the keys to talk and to open the field book (Playtester)")
+	check(main.keys_for("walk") != "" and main.keys_for("talk") != "" and main.keys_for("book") != "", "every control has words for the device in use")
 	var before: Vector2i = main.me.tile
 	for d in [Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP]:
 		if main.walkable(main.me.tile + d):
@@ -1244,6 +1246,8 @@ func _run() -> void:
 	main.battle.visible = false
 	main.battle.state = ""
 	preload("res://tests/battle_choices.gd").run(main, check)
+	preload("res://tests/wild_bond.gd").run(main, check)
+	preload("res://tests/reveal.gd").run(main, check)
 	# ---- every door and road out has a tile in front of it you can stand on and reach (Adam, 2026-10-10)
 	var blocked := door_problems()
 	for problem in blocked:

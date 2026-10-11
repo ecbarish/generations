@@ -79,6 +79,18 @@ var max_level := 15                           # the level cap (main.gd sets it f
 var bag: Dictionary = { "lures": 0, "berries": 0 }  # the satchel (main.gd owns it): lures for Bond, berries for Bag
 var caught: Array = []                        # creatures that chose you in this battle
 var cap: Dictionary = {}                      # the calm meter while you Bond: { u, pos, dir, zone }
+## The wild bond (WB4.2; docs/proposals/creature-catalogue-and-evolution.md §5): never taught, never in a menu until it
+## happens. Your last creature standing, badly hurt, trusting you completely (Bonded), in a battle that matters (a
+## tamer, or a wild foe well above it), once a day: it looks back at you, and "Stand with it" takes Run's place.
+## You become one for a short while; it can turn a lost battle, but afterwards you are both spent.
+const JOIN_TIME := 14.0                        # battle seconds the joining lasts
+var bond_ok := true                            # main.gd: false once it has happened today (or in the demo)
+var tamer_look: Dictionary = {}                # main.gd: how you look, for the joined form
+var looked_back := false                       # the creature has looked back at you this battle
+var bond_used := false                         # the joining happened in this battle (main.gd reads it)
+var joined: Dictionary = {}                    # the unit you are joined with, while it lasts
+var joined_t := 0.0
+var flood_t := -1.0                            # colour flooding the field as you join (seconds since)
 
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
@@ -111,6 +123,11 @@ func open(battle_kind: String, team: Array, foe_team: Array, who: String) -> voi
 	caught.clear()
 	cap = {}
 	fx.clear()
+	looked_back = false
+	bond_used = false
+	joined = {}
+	joined_t = 0.0
+	flood_t = -1.0
 	var names := ", ".join(foes.map(func(u): return "%s (Lv %d)" % [u.c.name, u.c.lvl]))
 	say("A wild %s appeared!" % names if kind == "wild" else "%s sends out %s!" % [trainer, names])
 	_go_to("fog_in")
@@ -143,6 +160,8 @@ func _process(dt: float) -> void:
 		u.shown = move_toward(u.shown, float(u.c.hp), dt * maxf(8.0, u.st.hp * 0.8))   # health bars drain smoothly
 		u.lunge = maxf(0.0, u.lunge - dt)
 		u.hit = maxf(0.0, u.hit - dt)
+	if flood_t >= 0.0:
+		flood_t += dt
 	for f in floats: f.age += dt
 	floats = floats.filter(func(f): return f.age < 1.0)
 	for s in sparks: s.age += dt
@@ -173,6 +192,11 @@ func _process(dt: float) -> void:
 	queue_redraw()
 
 func _tick(h: float) -> void:
+	if not joined.is_empty():
+		joined_t -= h
+		if joined_t <= 0.0 or joined.c.hp <= 0:
+			_unjoin()
+			return
 	order_t += h
 	if order_t >= 5.0:
 		order_t = 0.0
@@ -221,6 +245,11 @@ func _tick(h: float) -> void:
 						say("%s catches its breath." % u.c.name)
 					continue
 				u.breath = false
+				if can_join(u) and not looked_back:
+					looked_back = true                 # the moment holds: it looks back at you, then your choice
+					say("%s looks back at you." % u.c.name)
+					_beat(1.6)
+					return
 				wait_u = u
 				menu_i = 0
 				_go_to("choose")
@@ -351,7 +380,9 @@ func _hurt(u: Dictionary, d: int, crit: bool, el) -> void:
 # ---------------------------------------------------------------- your choices
 func _choose(i: int) -> void:
 	_sfx("pick", -6.0)
-	match MENU[i]:
+	match menu_word(i):
+		"Stand with it":
+			_join(wait_u)
 		"Fight":
 			move_i = 0
 			_go_to("moves")
@@ -408,6 +439,51 @@ func _choose(i: int) -> void:
 				_end("fled")
 			else:
 				say("%s blocks the way: \"No running from a tamer battle!\"" % trainer)
+
+## A menu slot's word: Run's slot becomes "Stand with it" while the wild bond is within reach.
+func menu_word(i: int) -> String:
+	if MENU[i] == "Run" and not wait_u.is_empty() and can_join(wait_u):
+		return "Stand with it"
+	return MENU[i]
+
+## Whether the wild bond can happen for this creature now (the conditions are never shown as a list).
+func can_join(u: Dictionary) -> bool:
+	if not bond_ok or bond_used or u.is_empty() or u.side != "a" or u.c.hp <= 0:
+		return false
+	var standing := living("a")
+	if standing.size() != 1 or standing[0] != u or R.bond_lvl(u.c) < R.BOND.size() - 1:
+		return false
+	if float(u.c.hp) / u.st.hp > 0.3:
+		return false
+	if kind != "wild":
+		return true                                 # a tamer, a Warden, the league, the Spire: it matters
+	return foes.any(func(f): return f.c.hp > 0 and f.c.lvl >= u.c.lvl + 3)   # a wild foe clearly stronger
+
+func _join(u: Dictionary) -> void:
+	bond_used = true
+	joined = u
+	u.joined = true
+	joined_t = JOIN_TIME
+	flood_t = 0.0
+	u.c.hp = maxi(u.c.hp, roundi(u.st.hp * 0.6))
+	u.dots.clear()
+	u.status.clear()
+	floats.append({ "u": u, "txt": "+%d" % (u.c.hp), "col": Color("ffe08a"), "age": 0.0 })
+	wait_u = {}
+	u.atb = R.ACT_AT * 0.8
+	say("You stand with %s. Colour floods the field, and the two of you become one." % u.c.name)
+	_sfx("levelup")
+	_beat(2.2)
+
+func _unjoin() -> void:
+	var u: Dictionary = joined
+	joined = {}
+	u.erase("joined")
+	orders = 0.0                                   # both of you are spent: your orders too
+	if u.c.hp > 0:
+		u.c.hp = maxi(1, mini(u.c.hp, roundi(u.st.hp * 0.15)))
+		say("The joining fades. You and %s are both spent." % u.c.name)
+	_beat(1.4)
 
 ## The orders you know: Rally, your family's order, then what people have taught you.
 func known_orders() -> Array:
@@ -697,6 +773,13 @@ func _draw() -> void:
 		var rx := 50.0 if side == "f" else 62.0
 		_ellipse(c, rx, rx * 0.22, Color(0.25, 0.4, 0.2, 0.55))
 		_ellipse(c + Vector2(0, -1), rx - 4, rx * 0.22 - 3, Color(0.45, 0.65, 0.32, 0.6))
+	# the wild bond: colour floods out from your partner across the whole field, and stays warm while you're joined
+	if flood_t >= 0.0 and (not joined.is_empty() or flood_t < 3.0):
+		var from := _spot(joined) if not joined.is_empty() else Vector2(100, 150)
+		var grow := clampf(flood_t / 1.2, 0.0, 1.0)
+		var warm := (0.34 * (1.0 - grow) + 0.12) if not joined.is_empty() else 0.12 * (1.0 - (flood_t - 2.2) / 0.8)
+		for k in 4:
+			_ellipse(from, 30.0 + grow * 420.0 * (k + 1) / 4.0, (30.0 + grow * 420.0 * (k + 1) / 4.0) * 0.55, Color(1.0, 0.82, 0.45, maxf(0.0, warm) * 0.5))
 	# the creatures
 	var order: Array = foes + allies
 	order.sort_custom(func(a, b): return _spot(a).y < _spot(b).y)       # back to front
@@ -717,6 +800,9 @@ func _draw() -> void:
 			look.gear = u.c.gear
 		var pose := { "wag": [1, 0, -1, 0][int(t * 6.0) % 4], "blink": fmod(t + at.x, 3.1) < 0.12, "ears_up": true,
 			"crouch": 1 if u == wait_u else 0, "walking": u.lunge > 0.0, "frame": int(t * 12.0) % 4 }
+		if u.get("joined", false):
+			_draw_joined(u, at, pose, look)
+			continue
 		draw_set_transform(at - Vector2(9, 12) * sc, 0, Vector2(sc, sc))
 		Figures.creature(self, Vector2.ZERO, u.side == "a", pose, look)
 		draw_set_transform(Vector2.ZERO)
@@ -769,8 +855,11 @@ func _draw() -> void:
 				var r := _menu_rect(i)
 				var on := i == menu_i
 				draw_rect(r, INK if on else Color("e8dcc4"))
-				var dim: bool = (MENU[i] == "Guard" and orders < 1) or (MENU[i] == "Orders" and orders < 1) or (MENU[i] in ["Run", "Bond"] and kind != "wild") or (MENU[i] == "Bond" and int(bag.get("lures", 0)) <= 0) or (MENU[i] == "Bag" and int(bag.get("berries", 0)) <= 0)
-				_text(MENU[i], r.position + Vector2(0, 12), 8, (PAPER if on else INK) if not dim else Color("9a8a7a"), r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+				var word := menu_word(i)
+				var dim: bool = (word == "Guard" and orders < 1) or (word == "Orders" and orders < 1) or (word in ["Run", "Bond"] and kind != "wild") or (word == "Bond" and int(bag.get("lures", 0)) <= 0) or (word == "Bag" and int(bag.get("berries", 0)) <= 0)
+				if word == "Stand with it" and not on:
+					draw_rect(r, Color("f2d080"))         # lamplight: the one new thing on the page
+				_text(word, r.position + Vector2(0, 11 if word.length() > 7 else 12), 6 if word.length() > 7 else 8, (PAPER if on else INK) if not dim else Color("9a8a7a"), r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 		"moves":
 			var mv := R.moves_of(wait_u.c)
 			for i in mv.size():
@@ -837,6 +926,25 @@ func _draw() -> void:
 			var cy := fmod(k * 37.0, 230.0)
 			draw_circle(Vector2(cx, cy), 60.0 + 30.0 * fog, Color(0.72, 0.74, 0.76, clampf(fog, 0.0, 1.0) * 0.5))
 		draw_rect(Rect2(0, 0, 384, 216), Color(0.7, 0.72, 0.74, clampf(fog, 0.0, 1.0)))
+
+## The joined form (the wild bond): you and your partner as one, you standing within its shape like living armour,
+## a lamplight edge around you both and motes of colour rising. Larger than either of you alone.
+func _draw_joined(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictionary) -> void:
+	var glow := 0.5 + 0.5 * sin(t * 4.0)
+	for k in 3:                                  # a lamplight halo, brightest at the heart
+		_ellipse(at + Vector2(0, -30), 58.0 - k * 14.0 + glow * 3.0, 50.0 - k * 12.0 + glow * 3.0, Color(1.0, 0.86, 0.52, 0.16 + k * 0.08))
+	var sc := 4.6
+	draw_set_transform(at - Vector2(9, 12) * sc, 0, Vector2(sc, sc))
+	Figures.creature(self, Vector2.ZERO, true, pose, look)
+	draw_set_transform(Vector2.ZERO)
+	if not tamer_look.is_empty():
+		draw_set_transform(at + Vector2(-26, -70), 0, Vector2(2.4, 2.4))   # you, within its shape, facing the foe with it
+		Figures.person(self, Vector2.ZERO, Vector2i.RIGHT, false, 0, false, tamer_look)
+		draw_set_transform(Vector2.ZERO)
+	for k in 9:
+		var ph := fmod(t * 0.7 + k * 0.37, 1.0)
+		var mx := at.x - 44.0 + fmod(k * 23.0, 88.0)
+		draw_rect(Rect2(mx, at.y - 10.0 - ph * 80.0, 2, 2), Color(1.0, 0.9, 0.55, 1.0 - ph))
 
 func _ellipse(c: Vector2, rx: float, ry: float, col: Color) -> void:
 	var pts := PackedVector2Array()

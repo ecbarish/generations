@@ -80,7 +80,7 @@ order of discovery after the wild bond is found (WB4.2) and before the reveal. T
   slept to heal, and the warm pocket is its rest. It can wake after the league (a hook for WB5.4).
 - **Older ledger notes** below that list candidates or a lost fight are superseded by the final truth above.
 Next: ChatGPT writes the observations' text and the reveal (T58), Claude places them in Godot (WB4.3 part 2).
-## T58 writing handoff (Codex, 2026-10-09; not yet placed)
+## T58 writing handoff (Codex, 2026-10-09; placed in Godot 2026-10-11, PR #170: wildbond-godot/data/wildbond-reveal.json is a copy of the pack, keep them in step)
 
 [Pack](wildbond-reveal.json), [placement contract](wildbond-reveal.md), PR #101. The approved observations now have inspection text: Orri's restraint commands (coercion rather than shelter), Ceryn's ordered survey entries (loss before approach/joining; Rysa's last local pallor remains true), Sivet's paired leaves and four shared copies (freely arriving watcher turned by the separate shape; joining stops its spread; common witness roots). All heritages receive every piece. Toren and Isolde connect Evan's chosen truth at the warm pocket; the partner leaves and returns freely. Four depth-return lines and eight Warden responses follow only when the engine implements that event. No new villain names, dates or ancient hierarchy. Old pair's fate, surviving fragments, Veilmote's nests and Tobin's sighting stay open. These are authored data, not a claim of placement.
 

@@ -75,7 +75,7 @@ side panel. Text is in full words.
   Play two full seasons as a first-timer on desktop and a phone-sized window. Write
   docs/playtests/diamond-manager-1.md: what was unclear in the first five minutes, any number that felt wrong (a
   .400 hitter, a 20-1 club), screenshots. Fix the top three problems; add a check for any balance fix.
-- [ ] **DM-B** [any] **Make the general manager's choices matter** (from DM2): today a sensible active manager wins no
+- [x] **DM-B** [Claude, done 2026-10-11, v0.2.0] **Make the general manager's choices matter** (from DM2): today a sensible active manager wins no
   more than a hands-off one over two seasons. Target 3 to 5 more wins a season and a final by about season 3; options
   in docs/playtests/diamond-manager-1.md. Add a simulation check for the gap.
 - [ ] **DM3** [any] **Hiring coaches**: two coach slots (hitting, pitching), three candidates each offseason with a
@@ -86,8 +86,19 @@ side panel. Text is in full words.
   mood changes the asking price by the stated amount.
 - [ ] **DM5** [any] **The ballpark you see grow**: draw each upgrade on the field (bigger stands, light towers,
   scoreboard, flags for titles). Screenshots required. Uses the shared look (shared/engine.js drawing helpers).
-- [ ] **DM6** [any] **A draft and a farm club**: three young prospects each offseason, a five-man farm club, call-ups.
-  Checks: prospects grow faster than veterans; roster size limits hold.
+- [x] **DM6** [Claude, done 2026-10-11, v0.3.0] **A draft and player development** (Evan: "we need to add the draft and the
+  development of players"): ceilings, growth toward them (faster when playing every day), scouting precision, a
+  three-round draft of 24 prospects (worst first), a six-player farm club, call-ups and send-downs. 37 checks.
+- [x] **DM-T** [Claude, done 2026-10-11, v0.4.0] **Trading and a trade finder** (Evan: "We also need trading and trade
+  finder"): find the cheapest deal for any player, shop one of ours to every club, "What would make it work?" in the
+  trade table, prospects tradeable, ceilings in trade value. Later ideas for any assistant: trading draft picks and
+  cash, other clubs trading with each other, a trade deadline.
+- [ ] **DM-B2** [any] **Keep the league in balance over many seasons**: in a six-season simulation the other clubs'
+  average overall climbs from about 56 to 64 (it climbed to 62 before DM6 too), while the free-agent market stays at
+  level 50, so a hands-off club falls to about 5 wins. Make free agents and standouts track the league's average
+  (or slow the other clubs' growth) so the market stays useful; keep the gap check passing and add a check that the
+  league average stays within about 4 points over six seasons. Harness idea: the gap check in
+  tests/diamond-manager-checks.js, run for six seasons.
 - [ ] **DM7** [any] **Records and history**: season-by-season table, league awards (best hitter, best pitcher),
   club records, a trophy case in the clubhouse.
 - [ ] **DM8** [Claude or any, later] **Step into the big moment** (optional): in close late innings, offer the old

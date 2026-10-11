@@ -189,6 +189,8 @@ func _ready() -> void:
 		DATA.SPECIES[k] = ej.data.species[k]
 	DATA["EVOS"] = ej.data.evos
 	R.DATA = DATA
+	var rj: JSON = load("res://data/wildbond-reveal.json")   # T58: the evidence and the reveal (docs/lore/wildbond-reveal.md)
+	REVEAL = rj.data
 	_build_homes()
 	R.prepare_move_choices()
 	pup.look = CREATURE_LOOKS.pup
@@ -342,7 +344,7 @@ func _after_talk() -> void:
 		"signed":
 			stage = "to_barn"
 			maren.path = route(maren.tile, BARN_DOOR + Vector2i(1, 1))   # beside the barn door, not in front of it
-			caption.text = "Follow Maren to her barn, the big wooden one at the top right, and walk in through its door."
+			caption.text = "Follow Maren to her barn, the big wooden one at the top right, and walk in through its door. Walk with %s." % keys_for("walk")
 		"barn_meet":
 			stage = "barn_choose"
 			caption.text = "Walk up to one of the three and %s to meet it properly." % how("Enter", "Meet")
@@ -368,7 +370,7 @@ func _after_talk() -> void:
 			bonded[partner.id] = true
 			seen[rival_c.sp] = true
 			wren.path = route(wren.tile, Vector2i(10, 0))        # off to Thornwood, already running
-			caption.text = "%s walks with you now. The north road leads to Thornwood." % _partner_name()
+			caption.text = "%s walks with you now. The north road leads to Thornwood. To talk to someone, stand beside them and %s; your field book: %s." % [_partner_name(), keys_for("talk"), keys_for("book")]
 
 func _on_signed(look: Dictionary) -> void:
 	# the ink dries and colour runs into you: you are the one bright thing in the faded valley
@@ -610,7 +612,7 @@ func actors() -> Array:
 
 func walkable(p: Vector2i) -> bool:
 	var ch := tile_at(p)
-	if solid(ch) or _under_roof(p):
+	if solid(ch) or _under_roof(p) or not _evidence_at(p).is_empty():
 		return false
 	if ch == "D" and not (p == BARN_DOOR and stage not in ["intro", "maren_walks", "maren_talks", "register", "signed"]):
 		return false                           # other people's houses stay shut in the trial
@@ -702,6 +704,7 @@ func _switch() -> void:
 	if trans_to != "league":
 		guests.clear()                               # the homecoming guests go home
 	_set_map(trans_to)
+	_stage_reveal()
 	if trans_to == "barn":
 		me.tile = BARN_EXIT + Vector2i.UP
 		me.face = Vector2i.UP
@@ -766,6 +769,8 @@ func _process(dt: float) -> void:
 	_music_tick(dt)
 	_ambience_tick(dt)
 	_thumbs_tick()
+	battle.bond_ok = bond_day != _today() and not demo   # the wild bond: once a day (battle.gd can_join)
+	battle.tamer_look = my_look
 	fade_in = min(1.0, fade_in + dt * 0.7)
 	var door_dark := 0.0
 	if trans_t >= 0.0:
@@ -1171,12 +1176,17 @@ func _draw() -> void:
 				draw_rect(Rect2(io + Vector2(2, 0), Vector2(4, 3)), Figures.OUTLINE)
 				draw_rect(Rect2(io + Vector2(3, 1), Vector2(2, 2)), Color("e0b070"))
 				draw_rect(Rect2(io + Vector2(2, 3), Vector2(4, 1)), Color("8a5a2a"))
+	for e in EVIDENCE:
+		if e.where == map_name and _evidence_shown(e):
+			_draw_evidence(e)
 	# people and creatures, back to front; you (once signed) and your partner are drawn in colour on their own layer
 	var list := actors()
 	list.sort_custom(func(a, b): return a.pos.y < b.pos.y)
 	for i in list.size():
 		var m: Mover = list[i]
 		draw_rect(Rect2(m.pos + Vector2(3, 14), Vector2(10, 2)), Color(0, 0, 0, 0.25))   # a soft shadow
+		if story_done.has("depthReturns") and not indoors():
+			_long_shadow(m.pos + Vector2(8, 15), 7.0, 9.0)     # depth has returned: shadows fall away from the light
 		if not _is_painted(m):
 			_draw_actor(self, m, i)
 	if map_name == "emberfall":
@@ -1747,6 +1757,25 @@ func _fill(s: String) -> String:
 	return s.replace("{name}", my_look.get("name", "Tamer")).replace("{starter}", _partner_name()).replace("{rival}", rival_c.get("name", "its partner"))
 
 func _on_battle(result: String) -> void:
+	var joined: bool = battle.bond_used
+	_on_battle_result(result)
+	if joined:
+		bond_day = _today()
+		if not story_done.has("wildBond"):
+			story_done["wildBond"] = true
+			for l in WILD_BOND_FIRST:
+				say(l[0], _fill(l[1]))
+
+## The first time the wild bond happens (WB4.2): it is named only now, after it has happened.
+const WILD_BOND_FIRST := [
+	["", "Your heart is still racing. For a moment there were not two of you, but one."],
+	["", "The old stories have a name for that: the wild bond. A tamer and a creature who trust each other completely, becoming one at the edge of defeat. Nobody alive has seen it. Until now."],
+]
+
+func _today() -> String:
+	return "%d:%d" % [cal.year(), cal.day()]
+
+func _on_battle_result(result: String) -> void:
 	if battle_story.begins_with("story:"):
 		var sid := battle_story.substr(6)
 		battle_story = ""
@@ -1787,7 +1816,7 @@ func _on_battle(result: String) -> void:
 		say("maren", _fill("There, all patched up. Losing your first battle is a fine tradition, {name}. Wren lost theirs to a goose."))
 		say("wren", "That goose was a professional.")
 
-## Water (the pack's water tiles, CC0): open water with now and then a lily pad or a glint, and a sandy shore with a dark
+## Water (Wildbond's own water tiles, tools/paint_tiles.gd): open water with now and then a lily pad or a glint, and a sandy shore with a dark
 ## edge drawn wherever the water meets land.
 ## Stillreed's own look (WB3.1): the current running south down the river, cattails where the banks meet the water,
 ## windfall under the orchard trees and a coil of ferry rope at the landing. All on the ground; nothing blocks the way.
@@ -3034,6 +3063,19 @@ var taught: Array = []                       # orders you've been taught (saved)
 
 ## Talking to someone beside you: a trainer you've beaten, a Warden, or a sign in front of you.
 func _talk_here() -> bool:
+	var ev := _evidence_ahead()
+	if not ev.is_empty():
+		_read_evidence(ev)
+		return true
+	for g in guests:
+		if g.where == map_name and g.id in ["toren", "isolde"] and map_name == REVEAL_SPOT.where and (me.tile - g.tile).length() <= 1.01:
+			g.face = me.tile - g.tile
+			if _reveal_ready():
+				_reveal()
+			else:
+				for l in REVEAL.get("wardenAfter", {}).get(g.id, []):
+					say(l[0], _fill(l[1]))
+			return true
 	for n in npcs:
 		if n.where == map_name and (me.tile - n.tile).length() <= 1.01:
 			var info: Dictionary = npc_info[n.id]
@@ -3050,6 +3092,10 @@ func _talk_here() -> bool:
 			elif info.warden and info.beaten and story_done.has("leagueEnding") and not story_done.has("championGreeting:" + n.id) and info.data.get("byStory", {}).has("leagueEnding"):
 				story_done["championGreeting:" + n.id] = true
 				for l in info.data.byStory.leagueEnding:      # first return: the Champion welcome remains a conversation
+					say(l[0], _fill(l[1]))
+			elif info.warden and info.beaten and story_done.has("depthReturns") and not story_done.has("wardenAfter:" + n.id) and REVEAL.get("wardenAfter", {}).has(n.id):
+				story_done["wardenAfter:" + n.id] = true   # after the reveal, each Warden says what has come back (T58)
+				for l in REVEAL.wardenAfter[n.id]:
 					say(l[0], _fill(l[1]))
 			elif info.warden and info.beaten and story_done.has("leagueEnding"):
 				_start_warden_rematch(n)
@@ -3125,7 +3171,7 @@ func save_game() -> void:
 		"badges": badges, "seen": seen, "bonded": bonded, "items": got_items, "beaten": beaten,
 		"restore": restore.map(func(r): return { "where": r.where, "x": r.at.x, "y": r.at.y, "goal": r.goal }),
 		"explored": explored_in, "story": story_done, "retry": story_retry, "egg": egg, "gear": gear_owned, "taught": taught, "letter": [letter_steps, letters], "calendar": cal.to_dict(), "festival": { "done": fest_done, "keep": keepsakes, "flowers": flowers }, "league": league_room,
-		"spire": { "floor": spire_floor, "best": spire_best, "active": spire_active }, "rematches": rematch_wins,
+		"spire": { "floor": spire_floor, "best": spire_best, "active": spire_active }, "rematches": rematch_wins, "bondDay": bond_day,
 		"map": map_name, "x": me.tile.x, "y": me.tile.y, "partner": partner.id if partner else "" }
 	SafeSave.write(save_path, d)                 # a spare file first, the last good save kept as a backup
 
@@ -3181,6 +3227,7 @@ func _load_game() -> bool:
 	spire_best = int(sz.get("best", 0))
 	spire_active = bool(sz.get("active", false)) and story_done.has("leagueEnding")
 	rematch_wins = d.get("rematches", {})
+	bond_day = str(d.get("bondDay", ""))
 	var fz: Dictionary = d.get("festival", {})
 	fest_done = fz.get("done", {})
 	keepsakes = fz.get("keep", {})
@@ -3250,6 +3297,7 @@ func _open_book() -> void:
 ## you up for a rematch, an old guardian stepping out of the trees or the surf. Wardens are met in person instead.
 var explored_in := {}                        # area -> times explored
 var story_done := {}                         # story id -> true
+var bond_day := ""                           # the day the wild bond last happened (once a day; "" = not today)
 var story_retry := {}                        # story id -> explorations to wait before it can come again
 
 func level_cap() -> int:
@@ -3844,7 +3892,9 @@ func action_word() -> String:
 	if stage != "free":
 		return ""
 	var near := func(m) -> bool: return m.where == map_name and (me.tile - m.tile).length() <= 1.01
-	if npcs.any(near) or _near_keeper() != "" or (maren.where == map_name and near.call(maren)):
+	if not _evidence_ahead().is_empty():
+		return "Look"
+	if npcs.any(near) or guests.any(near) or _near_keeper() != "" or (maren.where == map_name and near.call(maren)):
 		return "Talk"
 	if ranch_movers.any(near):
 		return "Greet"
@@ -3858,6 +3908,107 @@ func action_word() -> String:
 		return "Use"
 	if tile_at(me.tile + me.face) in ["P", "q"]:
 		return "Read"
+	if not _evidence_ahead().is_empty():
+		return "Look"
+	return ""
+
+# ---------------------------------------------------------------- the reveal (WB4.3 part 2, from ChatGPT's T58)
+## After the wild bond has happened, three things that were always there can be looked at, one after another, each
+## beside the person who keeps it (docs/lore/wildbond-reveal.md). Once all three are seen and the league is won,
+## Toren and Isolde wait by Hollowecho's warm stones with copies, and the valley remembers itself whole.
+var REVEAL: Dictionary = {}                     # data/wildbond-reveal.json (a copy of docs/lore/wildbond-reveal.json)
+const EVIDENCE := [
+	{ "id": "restraintRubbing", "where": "hollowecho", "at": Vector2i(6, 4), "next": "Ceryn keeps the lookout's old records in Farwatch Reach." },
+	{ "id": "missingShoreSurvey", "where": "farwatch", "at": Vector2i(17, 3), "next": "Sivet keeps the ferry's old tally leaves in Stillreed Basin." },
+	{ "id": "pairedFerryLeaf", "where": "stillreed", "at": Vector2i(9, 6), "next": "" },
+]
+const REVEAL_SPOT := { "where": "hollowecho", "toren": Vector2i(18, 7), "isolde": Vector2i(20, 7) }   # either side of the cave mouth (19, 8)
+
+func _observation(id: String) -> Dictionary:
+	for o in REVEAL.get("observations", []):
+		if o.id == id:
+			return o
+	return {}
+
+## A piece of evidence can be looked at once the wild bond has happened and the one before it has been seen.
+func _evidence_shown(e: Dictionary) -> bool:
+	if not story_done.has("wildBond"):
+		return false
+	var i := EVIDENCE.find(e)
+	return i == 0 or story_done.has("saw:" + str(EVIDENCE[i - 1].id))
+
+func _evidence_at(p: Vector2i) -> Dictionary:
+	for e in EVIDENCE:
+		if e.where == map_name and e.at == p and _evidence_shown(e):
+			return e
+	return {}
+
+func _evidence_ahead() -> Dictionary:
+	if stage != "free" or not lines.is_empty():
+		return {}
+	return _evidence_at(me.tile + me.face)
+
+## Looking at it: what you see (always, as often as you like), then what its keeper says.
+func _read_evidence(e: Dictionary) -> void:
+	var o := _observation(e.id)
+	for l in o.get("inspection", []):
+		say(l[0], _fill(l[1]))
+	for l in o.get("ownerLines", []):                # its keeper, if they're here, says what it means to them
+		if npcs.any(func(n): return n.id == l[0] and n.where == map_name):
+			say(l[0], _fill(l[1]))
+	if not story_done.has("saw:" + str(e.id)):
+		story_done["saw:" + str(e.id)] = true
+		if str(e.next) != "":
+			say("", e.next)
+
+func _reveal_ready() -> bool:
+	return story_done.has("wildBond") and story_done.has("leagueEnding") and not story_done.has("rememberedWhole") \
+		and EVIDENCE.all(func(e): return story_done.has("saw:" + str(e.id)))
+
+## Toren and Isolde by the warm stones while the reveal waits (and afterwards, until you leave Hollowecho).
+func _stage_reveal() -> void:
+	if map_name != REVEAL_SPOT.where or not (_reveal_ready() or story_done.has("rememberedWhole")):
+		return
+	if guests.any(func(g): return g.id == "toren"):
+		return
+	for g in [["toren", Vector2i.RIGHT], ["isolde", Vector2i.LEFT]]:
+		var mv := Mover.new(g[0], map_name, REVEAL_SPOT[g[0]])
+		mv.face = g[1]
+		mv.right = mv.face.x >= 0
+		guests.append(mv)
+
+func _reveal() -> void:
+	story_done["rememberedWhole"] = true       # nothing is saved while the lines play, so a closed game replays it
+	story_done["depthReturns"] = true
+	for l in REVEAL.reveal.get("lines", []):
+		say(l[0], _fill(l[1]))
+	for l in REVEAL.get("depthRestoration", {}).get("lines", []):
+		say(l[0], _fill(l[1]))
+
+## A sheet or leaf laid on a flat stone, off the path, with a faint glint so it can be noticed.
+func _draw_evidence(e: Dictionary) -> void:
+	var o := Vector2(e.at) * TILE
+	draw_rect(Rect2(o + Vector2(1, 8), Vector2(14, 7)), Figures.OUTLINE)
+	draw_rect(Rect2(o + Vector2(2, 9), Vector2(12, 5)), Color("8f8a80"))           # the stone
+	draw_rect(Rect2(o + Vector2(2, 9), Vector2(12, 1)), Color("aca698"))
+	draw_rect(Rect2(o + Vector2(4, 5), Vector2(9, 6)), Figures.OUTLINE)
+	draw_rect(Rect2(o + Vector2(5, 6), Vector2(7, 4)), Color("efe6cf"))            # the sheet
+	draw_rect(Rect2(o + Vector2(6, 7), Vector2(4, 1)), Color("8a7a60"))
+	if not story_done.has("saw:" + str(e.id)) and fmod(t, 2.4) < 0.3:
+		draw_rect(Rect2(o + Vector2(11, 4), Vector2(2, 2)), Color("f2d080"))       # a glint until it has been read
+
+## Depth come back (the reveal): a long soft shadow falling to the bottom right, away from the light at the top left.
+func _long_shadow(foot: Vector2, w: float, l: float) -> void:
+	var pts := PackedVector2Array([foot + Vector2(-w / 2, 0), foot + Vector2(w / 2, 0), foot + Vector2(w / 2 + l, l * 0.45), foot + Vector2(-w / 2 + l, l * 0.45)])
+	draw_colored_polygon(pts, Color(0.1, 0.08, 0.14, 0.18))
+
+## The controls in words for the device in use (Playtester, 2026-10-11: "the keys are never shown inside the game").
+func keys_for(what: String) -> String:
+	var use := HowTo.in_use()
+	match what:
+		"walk": return { "touch": "the pad in the corner, or tap where to go", "pad": "the left stick" }.get(use, "the arrow keys or W A S D")
+		"talk": return { "touch": "tap Talk", "pad": "press A" }.get(use, "press E")
+		"book": return { "touch": "tap the bag at the top right", "pad": "press Y" }.get(use, "press J")
 	return ""
 
 ## How to press: "tap Meet" on a phone, a key on a computer (for the few hints that name a control).

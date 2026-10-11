@@ -110,13 +110,13 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 - [x] WS6 [ChatGPT] (T51, merged 2026-10-09; placed in Godot by WS5) Festival writing: lines, keepsake names, a short tradition for each festival in docs/lore/.
 **WB-M4: the ending.**
 - [x] WB4.1 [Claude] The league: Wren at the gate, four courts, Champion Avenne. *Done 2026-10-09: from Farwatch with all eight badges; five stone courts with banners (a gold mark once won); Nelva explains and heals; the battles, lines and teams from the game data; healed between rooms; a loss starts the courts again (Wren stays beaten); the Champion brings the homecoming lines. The Spire stays closed (WB5.1).*
-- [ ] WB4.2 [Claude] The wild bond's
-  discovery (WG4) and the first-person glimpse.
-- [ ] WB4.3 [Claude] The homecoming ending, colour and depth restored. *Part 1 done 2026-10-09: after the Champion, Maren and Isolde come to the league gate and Avenne walks down (T54 staging), the ending and the quiet-down lines play, and every Warden welcomes the Champion on return. Left: the deeper reveal (waits on Evan's choice of the final truth, docs/proposals/wildbond-final-reveals.md, and WB4.4b).*
-- [ ] WB4.4 [ChatGPT] (T58 writing ready: PR #101, Codex, 2026-10-09; Claude places approved reveal) (WB4.4a: T53 and T54 merged 2026-10-09 and placed; WB4.4b, the full mystery payoff, waits on Evan's choice in docs/proposals/wildbond-final-reveals.md) The ending's text and every thread's payoff, written from the ledger, for Claude to place.
+- [ ] WB4.2 [Claude] (claimed 2026-10-11 by the Wildbond builder thread, with WB4.3 part 2: placing T58) The wild bond's
+  discovery (WG4) and the first-person glimpse. *Part 1 done 2026-10-11 (battle.gd `can_join`/`_join`, tests/wild_bond.gd): your last creature standing, badly hurt, Bonded, in a battle that matters (a tamer, or a wild foe 3+ levels above), once a game day: it looks back at you, Run's slot becomes "Stand with it", colour floods the field, you fight as one for 14 battle seconds (hits x1.6, takes x0.6, faster), then both are spent (its health low, your orders gone). Named only afterwards, the first time (`story_done.wildBond`; save field `bondDay`). Left: a fused form per family (now you stand within its shape), the field book page, people reacting, the scattered legends in the areas, the first-person glimpse, a challenge-mode switch.*
+- [ ] WB4.3 [Claude] The homecoming ending, colour and depth restored. *Part 1 done 2026-10-09: after the Champion, Maren and Isolde come to the league gate and Avenne walks down (T54 staging), the ending and the quiet-down lines play, and every Warden welcomes the Champion on return. Part 2 done 2026-10-11 (PR #170; main.gd "the reveal", tests/reveal.gd): T58 placed. After the wild bond, Orri's rubbing (Hollowecho), Ceryn's survey (Farwatch) and Sivet's ferry leaf (Stillreed) appear one after another beside their keepers, re-readable; once all three are seen and the league is won, Toren and Isolde wait either side of Hollowecho's cave mouth, the reveal and depth's return play, long shadows fall from then on, and each Warden has one after-line. Left: the partner's walk-away-and-back as real movement (now narrated), Maren's and Wren's optional `tell` lines, a notebook page of what was seen, depth beyond shadows.*
+- [ ] WB4.4 [ChatGPT] (T58 writing placed in Godot 2026-10-11, PR #170) (WB4.4a: T53 and T54 merged 2026-10-09 and placed; WB4.4b, the full mystery payoff, waits on Evan's choice in docs/proposals/wildbond-final-reveals.md) The ending's text and every thread's payoff, written from the ledger, for Claude to place.
 
 **WB-D: deeper play (from the game review, docs/proposals/game-review-2026-10-09.md; before 2.0, order in PRIORITIES.md).**
-- [ ] WD1 [Claude] Numbers off the screen (GR-4): remove the Badges/Lures/Coins/Wilddex line; a readable arrival name.
+- [x] WD1 [Claude] **Done 2026-10-09 in PR #91** (satchel icon and Satchel page; large place names on arrival). Numbers off the screen (GR-4): remove the Badges/Lures/Coins/Wilddex line; a readable arrival name.
 - [ ] WD2 [ChatGPT data, Claude drawing] (data built: Codex, PR #113; drawing remains open) Creatures that look different (GR-1): per-species look features in data;
   parts drawn in figures.gd; 4-5 new body shapes. *Part 1 done 2026-10-09: serpent, turtle, moth and tree-folk shapes for twelve species (figures.gd `SHAPE_FOR`; a `shape` field in the data overrides it). Data half built in PR #113: all 107 browser species have shape + head/back/tail/pattern hints, including hybrids. Left: Claude draws the parts; a fish shape with WB5.7.*
 - [ ] WD3 [Claude, ChatGPT data] Battles with real choices (GR-2): about 60 moves, family signature moves, a few
@@ -144,7 +144,7 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
   (docs/learning/godot-practices.md rule 2), so on-screen buttons, a gamepad and rebinding all come free.
 - [x] WB6.2 [Claude] **Done 2026-10-09** (`settings.gd`, the book's Settings page). Settings in the game window (sound, music, text size,
   battle speed). Start with Music, Ambience and Effects sound buses (godot-practices.md rule 3).
-- [x] WB6.3 [Claude] **Done 2026-10-09** (`turn_card.gd`). A phone held upright gets a "Turn your phone sideways" card and the game holds still (Playtester, PR #111). Learned: with `canvas_items` stretch and `keep` aspect, portrait leaves a thin strip, so no portrait layout is worth building; pausing the tree with the card set to `PROCESS_MODE_ALWAYS` freezes battles and walks cleanly.
+- [x] WB6.2b [Claude] **Done 2026-10-09** (`turn_card.gd`; renamed from a clashing WB6.3). A phone held upright gets a "Turn your phone sideways" card and the game holds still (Playtester, PR #111). Learned: with `canvas_items` stretch and `keep` aspect, portrait leaves a thin strip, so no portrait layout is worth building; pausing the tree with the card set to `PROCESS_MODE_ALWAYS` freezes battles and walks cleanly.
 - [ ] WB6.3 [Claude] Import a browser Wildbond save into the new version.
 - [x] WB6.4 [any] A Wildbond guide (first steps, the element chart, the ranch), now that systems are settling. (merged: PR #127, 2026-10-09)
 - [ ] WB6.5 [Claude] A Wildbond trailer and store-style page; Windows build and web build published.
@@ -244,9 +244,9 @@ contracts, hiring, stadium upgrades, watching games) and plan a Retro Bowl-style
 deliverables with their details: [plans/sports-management.md](plans/sports-management.md). The old DC2-DC4 career
 deliverables are retired; the batting prototype stays in games/diamond-career/ off the shelf.
 - [x] DM1 [Claude] The first playable season (v0.1.0, PR #110).
-- [ ] DM2 [any] Playability pass: two seasons as a first-timer, desktop and phone, fix the top three problems.
+- [x] DM2 [any] Playability pass (docs/playtests/diamond-manager-1.md). - [x] DM-B [Claude] Choices matter (v0.2.0).
 - [ ] DM3 [any] Hiring coaches. - [ ] DM4 [any] Player morale and stories. - [ ] DM5 [any] The ballpark you see grow.
-- [ ] DM6 [any] A draft and a farm club. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
+- [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [ ] DM-B2 [any] Keep the league in balance over many seasons. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
 
 ### Lantern Bowl (browser; American football in the Retro Bowl spirit, our own code and art)
 Evan said yes 2026-10-09. Plan: [plans/sports-management.md](plans/sports-management.md) "Game 2".
@@ -351,6 +351,7 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 
 ## Part 4: what we've learned and actioned (newest first; every piece of work adds a line)
 
+- **2026-10-11, the wild bond and the reveal (Claude, Wildbond builder, PR #170):** an emergent moment that gates story (the reveal waits on the wild bond, as T58's contract asks) needs a way to be reached by every player: the Spire and rematches give hard battles late, but a player who never lets a Bonded partner stand alone may never see it. Watch for this in playtests; if it bites, a Warden can hint at it rather than the gate opening without it. A scene that sets its flags as it starts is safe because nothing saves while lines are playing, so a closed game replays it. Writing packs kept outside the Godot project need a copy inside it (data/wildbond-reveal.json); note the pair in both places.
 - 2026-10-10 (AC2.1): fit a fixed arcade world with one scale and invert the same viewport for taps; test render transforms and real screen targets across resize/DPR so a visual fix cannot silently break aim.
 
 - **2026-10-10, AC3:** a log has to carry the mule before the lane moves, or the log slides out from under them the same tick. A full set of lanterns rebuilds faster lanes. Open water and a cart each cost a life.
@@ -378,6 +379,19 @@ line or two, with the page that holds the detail.
   square, the opening view) and one older code-drawn piece off the palette, and doors drawn between two tiles
   (a door must be centred on the map tile you walk through, and touch the ground); next time a set of tasks includes one for
   dressing the scene and one for the first screen. Tasks ART-SF-8, SF2.6c.
+- **2026-10-11, DM-T (Claude, sports thread):** a trade finder needs no new rules, only a search over the existing
+  judge (every suggested deal is checked by the same function that answers a hand-built proposal), so it can never
+  offer something the other club would refuse; a check pins that and that no single cheaper player would do.
+- **2026-10-11, DM6 (Claude, sports thread):** growth needs a ceiling, or every young player becomes a star and the
+  league inflates. Ceilings plus "plays every day grows faster" turn the farm club and the batting order into real
+  choices. A six-season simulation showed the league still inflates (it did before DM6 too) while the market stays put;
+  actioned as ticket DM-B2 in plans/sports-management.md. A send-down must keep the salary on the payroll, or the
+  farm becomes a way around the budget (caught in review, now a check).
+- **2026-10-11, DM-B (Claude, sports thread):** a management game must be tested by simulating a manager, not only
+  by playing it: a policy that signs, orders and builds won no more games than doing nothing until money and the market
+  gave it room. The check now pins the gap (an active manager at least 2.5 wins a season ahead), and the simulation
+  found two real traps (an ended contract arriving by trade or free agency; a roster you could neither fill nor
+  release), both fixed.
 - **2026-10-09, Art direction (Claude, Art direction thread, formerly Game assets):** borrowed art made Starfall and
   Wildbond look like one game, and free packs can't carry a future 3D or first-person game. Actioned: one arcade-wide
   art guide (docs/art/README.md: ten shared rules, a palette per game, footprints and heights in data, a drawing-task
