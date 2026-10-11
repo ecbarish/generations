@@ -7,6 +7,9 @@ any AI that is building (Evan, 2026-10-09).
 
 ## The short version
 
+**Decided (Evan, 2026-10-11): the Paint Shed comes first** of the new places. The Little Wagon and the Snack Kitchen
+follow; the ranch's own steps (LR3 onward) continue alongside.
+
 1. **One place, not more icons.** A toddler can't find her way around the arcade, but she already knows Little Ranch.
    So the new toddler games become **places inside Little Ranch**: from the ranch she taps a picture (a wagon, a
    kitchen door, a paint pot) and goes there with the same baby friends. One icon for her to find; every toy shares
@@ -52,9 +55,9 @@ kept only on that device. Lovely, but it asks the browser for the microphone, so
 
 | Toy | Proven | Fits | Two birds | Different | Buildable | Short sessions | Score | Verdict |
 |---|---|---|---|---|---|---|---|---|
-| The Little Wagon | 3 | 3 | 3 | 3 | 2 | 3 | **17** | First new place |
-| The Snack Kitchen | 3 | 3 | 2 | 3 | 3 | 3 | **17** | Second new place |
-| The Paint Shed | 3 | 3 | 2 | 2 | 3 | 3 | **16** | Third |
+| The Little Wagon | 3 | 3 | 3 | 3 | 2 | 3 | **17** | Next after the Paint Shed |
+| The Snack Kitchen | 3 | 3 | 2 | 3 | 3 | 3 | **17** | Then |
+| The Paint Shed | 3 | 3 | 2 | 2 | 3 | 3 | **16** | **First new place (Evan's pick)** |
 | Shape puzzle | 3 | 2 | 1 | 2 | 3 | 3 | 14 | Wait (better at 3½-4) |
 
 ### The Little Wagon: 17/18
