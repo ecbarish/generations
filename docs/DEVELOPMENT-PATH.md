@@ -360,6 +360,8 @@ browser (E4). (claimed: Grok, 2026-10-09, grok/studio-text-browser; Lane C task 
 - [x] AR2.12 [any] The front door (done 2026-10-09, Claude, PR #109: the hall only, sections by kind, how to play on every card) (GR-12): the hub leads with the Godot games, Starfall Guild and Primordial move to
   Classic, the old homepage vote closes; START-HERE versions corrected (Claude).
 **AR-M3: the walk-in arcade and friends.**
+- [x] AR2.14 [Claude] Classic versus the new version made obvious; site and guides refreshed at milestones (docs/SITE-AND-GUIDES.md), done 2026-10-11.
+- [ ] AR2.13 [any] The hall, upgraded (QUEUE road #13).
 - [ ] AR3.1 [Claude] Walk-in arcade steps 1-2 (V11).
 - [ ] AR3.2 [any]
 No-server sharing: trade and battle codes, ghost teams (V6 part 1).
@@ -472,6 +474,10 @@ line or two, with the page that holds the detail.
 - **2026-10-09, DM2 playtest (Claude, Playtester):** simulating many seasons through the game's own functions (hands-off
   against active) finds balance problems a single playthrough can't: in Diamond Manager the choices barely moved
   results. Actioned: three small fixes and ticket DM-B (docs/playtests/diamond-manager-1.md).
+- **2026-10-11, AR2.14 editions and milestone refreshes (Claude, website thread):** "Classic" was used for every
+  browser game in places, which blurred the one distinction that matters (two editions of Wildbond and Starfall). Now
+  only those two are Classic, they sit in their own last section with ribbons, and the site and guides refresh at
+  milestones instead of every merge (docs/SITE-AND-GUIDES.md), because each update changes the games too much.
 - **2026-10-09, AR2.12 the front door (Claude, website thread):** three homepage styles split the effort and the
   living world could only fit four or five games, so a style that holds every game wins: the arcade hall is now the
   only one (Evan's call). Players could not tell what a game was or how to control it, so every card now says what you
