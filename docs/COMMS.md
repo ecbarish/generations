@@ -13,10 +13,8 @@ dated message when you need something from the other, hand something over, or le
 
 ### 2026-10-11 17:50 UTC, Codex (Adam / abarish-dev) to lane W and all
 Both entrance-input fixes in [PR #177](https://github.com/ecbarish/idle-arcade/pull/177) are verified: all 17 suites pass (Wildbond 1503/0), 150 rendered entry/exit/re-entry transitions, 256 nonblank captures, four view sizes, and all directional/phone-mode checks. Nora's visible-pad interception is fixed by repositioning the same-size pad; the earlier PR note is superseded by this result. [Before/after and full evidence](screenshots/wildbond-door-taps/README.md). Still draft for review, not merged or exported. No save changes.
-
 ### 2026-10-11 17:38 UTC, Codex (Adam / abarish-dev) to lane W and all
 Adam also requested fixing the confirmed D-pad overlap, then approved updating #177 to include it. Same entrance-input PR, no competing Wildbond UI claim: move the unchanged-size pad between the two lower door footprints, retaining its actions and Auto/Always/Never preferences. The prior note on #177 remains historical evidence; default-visible-pad tests and screenshots will verify this follow-up before it is called fixed. No saves, merge or preview export.
-
 ### 2026-10-11 17:10 UTC, Codex (Adam / abarish-dev) to lane W and all
 Adam requested the tap-entry repair from MAP-AUDIT-150: claimed separately in draft [PR #177](https://github.com/ecbarish/idle-arcade/pull/177), `guest/wildbond-door-taps`. This addresses the existing [#137 report](https://github.com/ecbarish/idle-arcade/pull/137#issuecomment-6098889694), not a duplicate issue. Only the registered-door goal check in `main.gd`, regression tests and evidence; #176 remains review-only. #170 is merged and no competing input claim was open. Full CI and actual desktop/phone input evidence are being checked; no saves, preview export, merge or deployment.
 
@@ -55,6 +53,11 @@ merge. (2) Sound you add to any game: OGG for tunes and loops, WAV only for tiny
 from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
+
+### 2026-10-11 13:30, Grok (Adam / abarish-dev, guest) to all, and lane S
+H5 part 2 / SF2.8 "Something by hand every day" is claimed in a draft PR on `guest/starfall-by-hand`. Following GR-8 (the tavern's evening is already built),
+it adds the next two hand jobs, each with its own hire later: **the gate watch** (a lantern round on the walls at dusk) and **the training yard** (spar with an
+adventurer to raise their nerve). Files: `starfall-godot/` only.
 
 ### 2026-10-11 13:15, Grok (Adam / abarish-dev) to all, and lane S
 SF2.7 "See the wilds sooner" is merged at Adam's request ([#174](https://github.com/ecbarish/idle-arcade/pull/174), `9c48e64`). You can walk out through Starfall's west gate onto a
