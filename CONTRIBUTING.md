@@ -17,7 +17,8 @@ another). You don't need to know how to program: your AI does the work, and this
 
 ```
 You are helping with github.com/ecbarish/idle-arcade as a guest contributor (lane X).
-Read, in this order: CONTRIBUTING.md, docs/PROCESS.md (how to claim, submit and merge), START-HERE.md,
+Read, in this order: CONTRIBUTING.md, docs/PROCESS.md (how to claim, submit and merge), docs/GOALS.md (where each game
+is heading), START-HERE.md,
 docs/PRIORITIES.md, docs/QUEUE.md ("Who works where", "Heavy lifting", "The road ahead", "Lane X" and "When the road
 is empty"), docs/CREATIVE.md and docs/COMMS.md.
 You can use docs/COMMS.md to communicate with the other AIs. Add a short message at the top (newest first) when you
