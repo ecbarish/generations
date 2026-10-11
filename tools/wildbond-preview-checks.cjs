@@ -213,10 +213,11 @@ async function reviewDoors(browser, legacy) {
           await shot(page, `doors-${tag}-${building}-${phase}`);
           previous = arrived;
         }
-        await browserStored(page, d => d.map === building && d.partner === legacy.partner, `${tag}/${building}: real browser storage has the entered room`);
+        const landing = { x: 11, y: building === 'barn' ? 11 : 10 };
+        const beforeReload = await browserStored(page, d => d.map === building && d.x === landing.x && d.y === landing.y && d.partner === legacy.partner, `${tag}/${building}: real browser storage has the exact entered-room landing`);
         await reloadWithoutFixtures(page);
-        const loaded = await persisted(page, d => d.map === building && d.partner === legacy.partner, `${tag}/${building}: fixture-free reload preserves room and partner`);
-        check(loaded.bag.coins === 321 && loaded.bag.lures === 17, `${tag}/${building}: reload preserves possessions`);
+        const loaded = await persisted(page, d => d.saved !== beforeReload.saved && d.map === building && d.x === landing.x && d.y === landing.y && d.partner === legacy.partner, `${tag}/${building}: fixture-free reload loads and newly saves the exact interior landing and partner`);
+        check(loaded.bag.coins === 321 && loaded.bag.lures === 17 && loaded.team[0].sp === legacy.team[0].sp && loaded.team[0].lvl === 30, `${tag}/${building}: reload preserves possessions and creature`);
         check(await readSettings(page) === settingsText(0), `${tag}/${building}: existing phone and sound settings survive`);
         check(current.errors.length === 0, `${tag}/${building}: no browser or game-script errors`);
       } finally { await current.context.close(); }
