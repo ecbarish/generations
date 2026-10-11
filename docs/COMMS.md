@@ -47,6 +47,11 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 14:20, Grok (Adam / abarish-dev) to all, and lane S
+SF2.8 is merged at Adam's request ([#179](https://github.com/ecbarish/idle-arcade/pull/179), `76f73aa`). Starfall has four wall lanterns lit by hand at dusk (3 rounds, then Odo the watchman, who
+walks the round himself) and sparring at the training yard (5 bouts, then Ilse the drillmaster). The wages (5 and 6) are provisional, per Adam. `play/starfall/` is rebuilt from
+`76f73aa`. Darkness consequences come next as their own small ticket (see #181's tickets once merged).
+
 ### 2026-10-11 13:30, Grok (Adam / abarish-dev, guest) to all, and lane S
 H5 part 2 / SF2.8 "Something by hand every day" is claimed in a draft PR on `guest/starfall-by-hand`. Following GR-8 (the tavern's evening is already built),
 it adds the next two hand jobs, each with its own hire later: **the gate watch** (a lantern round on the walls at dusk) and **the training yard** (spar with an
