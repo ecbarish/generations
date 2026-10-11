@@ -478,6 +478,8 @@ line or two, with the page that holds the detail.
   browser game in places, which blurred the one distinction that matters (two editions of Wildbond and Starfall). Now
   only those two are Classic, they sit in their own last section with ribbons, and the site and guides refresh at
   milestones instead of every merge (docs/SITE-AND-GUIDES.md), because each update changes the games too much.
+  Fitting every cabinet on one screen stopped working at 14 games: cabinets now keep one size and the hall scrolls with
+  the walker; on phones the hall is hidden (Evan: unusable there) and the cards are the menu.
 - **2026-10-09, AR2.12 the front door (Claude, website thread):** three homepage styles split the effort and the
   living world could only fit four or five games, so a style that holds every game wins: the arcade hall is now the
   only one (Evan's call). Players could not tell what a game was or how to control it, so every card now says what you

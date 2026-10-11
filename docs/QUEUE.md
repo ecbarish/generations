@@ -119,7 +119,7 @@ DM2 and Diamond Manager v0.4.0 (#172), OW1.1, WD2's data half (#113), X2 links (
 | 10 | **Little Ranch, the next small step** (LR3) | docs/proposals/games-for-everyone.md; docs/PLAYTEST.md | `games/little-ranch/` | One new gentle thing to do, no reading, nothing to fail; a parent-tested note |
 | 11 | **Game boxes** (AR2.3, V3) | docs/VISION.md | `launcher/`, `index.html` | A box picture per game in the hall |
 | 12 | **Newcomer playtests** (X1) | Lane X below | issues only | as Lane X says |
-| 13 | **The hall, upgraded** (AR2.13) | docs/SITE-AND-GUIDES.md; PROJECTS.md L8 | `launcher/launcher.js`, `index.html` | Cabinets grouped on the floor by kind (a Classic corner at the end), a sign over each group, room for 20+ games on a phone (scroll the hall or two rows), other visitors walking; `node tools/launcher-checks.cjs` passes; screenshots at 375 px and desktop |
+| 13 | **The hall, upgraded** (AR2.13) | docs/SITE-AND-GUIDES.md; PROJECTS.md L8 | `launcher/launcher.js`, `index.html` | Started in #201 (fixed-size cabinets, a scrolling hall grouped by kind, no hall on phones). Still to do: a sign over each group, other visitors walking, a nicer Classic corner; `node tools/launcher-checks.cjs` passes; screenshots at 375 px and desktop |
 
 **Godot work is open to any AI too** (Evan, 2026-10-09: "Yes, with checks"). Rules for it: claim the deliverable as
 above (the Wildbond builder and Starfall threads check the open PR list too); keep to the files the deliverable needs;

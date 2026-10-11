@@ -102,7 +102,8 @@ a{color:inherit}
 .launch-hit{position:absolute;top:8%;bottom:4%;display:block;border-radius:10px}
 .launch-hit:focus-visible{outline:3px solid var(--marquee);outline-offset:-3px}
 .launch-hit.soon{cursor:default}
-@media (max-width:720px){.launch-view{aspect-ratio:4/3}}
+/* Phones (Evan, 2026-10-11: the hall was unusable on a phone): no hall, just the section buttons and the cards */
+@media (max-width:720px){.launch-view,.launch-hint{display:none}}
 /* Big screens (L11): more of the shelf at once, bigger covers */
 @media (min-width:1700px){.wrap{max-width:min(2200px,92vw)}.shelf{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}}
 @media (min-width:2400px){.wrap{max-width:min(2900px,92vw)}.shelf{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}.tag{font-size:18px;max-width:80ch}}

@@ -24,7 +24,9 @@ const origin=process.env.ARCADE_TEST_ORIGIN||'http://localhost:8766';let count=0
   await p.locator('[data-game="wildbond"] [data-reset]').click();await p.locator('[data-game="wildbond"] [data-keep]').click();check(await p.evaluate(()=>localStorage.getItem('wildbond-save-v1')==='classic-wildbond-sentinel'),'cancel reset preserves save');
   check(await p.locator('.kind').count()===kinds.length,'a section for each kind of game, Classic editions last');check(await p.locator('.edition.ed-classic').count()===2&&await p.locator('.edition.ed-new').count()===2,'edition ribbons on both editions');check(await p.locator('.cab .howto').count()===games.length,'every game says what you do and its controls');
   check(await p.locator('button[data-mode]').count()===0,'one launcher style: the arcade hall');
-  for(const mode of ['hall']){
+  if(width<=720)check(!(await p.locator('.launch-view').isVisible())&&await p.locator('#kindsNav a').count()>0,'phones get the section buttons and cards, not the hall');
+  else check(await p.evaluate(()=>[...document.querySelectorAll('#launchHits [data-id]')].every(el=>el.getBoundingClientRect().width>=70)),'cabinets keep a readable size');
+  for(const mode of width>720?['hall']:[]){
    await p.waitForTimeout(180);
    const expected=games.filter(g=>g.href).length;check(await p.locator('#launchHits a').count()===expected,'mode destination count '+mode);
    for(const [id,href]of [['wildbond-preview','play/wildbond/'],['starfall-preview','play/starfall/']]){const hit=p.locator('#launchHits [data-id="'+id+'"]');check(await hit.getAttribute('href')===href,'primary place goes to preview '+mode+' '+id);await hit.focus();await p.waitForTimeout(100);check(await hit.evaluate(el=>el.getBoundingClientRect().right>0&&el.getBoundingClientRect().left<innerWidth),'keyboard keeps destination on screen '+mode+' '+id);}
