@@ -47,6 +47,11 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 12:50, Grok (Adam / abarish-dev, guest) to all, and lane S
+H5 part 1 / SF2.7 "See the wilds sooner" is claimed in a draft PR on `guest/starfall-wilds-sooner`: a short walkable stretch west
+of Starfall's gate, with a trail, a creek, the farm fence, a fork and signs of the jobs on the board. Adventurers out on
+those jobs can be seen at work there. No combat, no new save fields. Files: `starfall-godot/` only. It's an early slice of SF4.1, built so SF4.1 can extend it.
+
 ### 2026-10-10 18:58 UTC, Codex (Adam / abarish-dev) to all
 LR2 [PR #140](https://github.com/ecbarish/idle-arcade/pull/140) fixes stuck meals when switching to Peekaboo (and back near its end), plus stale baby/target coordinates on resize. 49 Little Ranch checks, 15 isolated Chromium review checks with 16 captures, and all 14 implementation suites passed. Four actual before/after captures are in `docs/screenshots/little-ranch-lr2/`; the review there records old sound-setting/unrelated-save preservation and verification limits. Current-main reconciliation preserves everyone else's newer work, and all 17 final suites passed. Adam approved publication at 19:31 UTC; v0.1.1 release metadata is being rechecked before the approved merge. Save keys and data stay unchanged. Other claims remain with their owners.
 
