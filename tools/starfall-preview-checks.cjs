@@ -7,6 +7,7 @@ const report = {checks:[], screenshots:[], errors:[], saves:[], started:new Date
 const check = (ok, message) => {assert(ok, message); report.checks.push(message); console.log('PASS', message); write();};
 function write(){fs.writeFileSync(path.join(out,'web-review.json'),JSON.stringify(report,null,2));}
 const server=http.createServer((req,res)=>{
+  if(req.url==='/__review_blank__'){res.setHeader('Content-Type','text/html');return res.end('<!doctype html><title>Review storage setup</title>');}
   let file=path.join(root,decodeURIComponent(new URL(req.url,'http://localhost').pathname));
   if(!file.startsWith(root+path.sep)){res.writeHead(403);return res.end();}
   if(fs.existsSync(file)&&fs.statSync(file).isDirectory())file=path.join(file,'index.html');
@@ -20,7 +21,8 @@ async function open(browser,size,{fixture=null,before=false,instrument=true}={})
   const page=await context.newPage();page.setDefaultTimeout(20000);page.setDefaultNavigationTimeout(30000);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   page.on('console',m=>{if(/SCRIPT ERROR|Parse Error|Failed to load script|Aborted\(/.test(m.text()))errors.push(m.text());});
-  await page.addInitScript(()=>{localStorage.setItem('starfall-guild-save-v1','classic-starfall-sentinel');localStorage.setItem('unrelated-sentinel','keep');});
+  await page.goto(`http://127.0.0.1:${server.address().port}/__review_blank__`);
+  await page.evaluate(()=>{localStorage.setItem('starfall-guild-save-v1','classic-starfall-sentinel');localStorage.setItem('unrelated-sentinel','keep');});
   if(instrument)await page.route('**/play/starfall/index.js',route=>{
     const code=fs.readFileSync(path.join(root,'play/starfall/index.js'),'utf8');
     assert(code.includes('var FS={'));return route.fulfill({contentType:'text/javascript',body:code.replace('var FS={','var FS=globalThis.__reviewFS={')});
@@ -49,7 +51,7 @@ async function stored(page){return page.evaluate(p=>new Promise((resolve,reject)
     file.onerror=()=>{clearTimeout(timer);db.close();reject(file.error)};
   };
 }),savePath);}
-async function waitSave(page,test,label,browser=false){let last;for(let i=0;i<40;i++){last=await (browser?stored(page):readSave(page));if(last&&test(last)){check(true,label);report.saves.push({label,me:last.me,coins:last.coins,day:last.day,built:last.built});write();return last;}await page.waitForTimeout(300);}throw Error(label+': '+JSON.stringify(last));}
+async function waitSave(page,test,label,browser=false){let last;for(let i=0;i<40;i++){last=await (browser?stored(page):readSave(page));if(last&&test(last)){check(true,label);report.saves.push({label,me:last.me,coins:last.coins,day:last.day,day_t:last.day_t,built:last.built});write();return last;}await page.waitForTimeout(300);}throw Error(label+': '+JSON.stringify(last));}
 async function verifySentinels(page,label){check(await page.evaluate(()=>localStorage.getItem('starfall-guild-save-v1')==='classic-starfall-sentinel'&&localStorage.getItem('unrelated-sentinel')==='keep'),label+' keeps Classic/unrelated storage');}
 async function targetPoint(page,size,tile,me){
   const box=await page.locator('#canvas').boundingBox();

@@ -589,4 +589,4 @@ line or two, with the page that holds the detail.
 
 ## Starfall opening preview release
 
-- [ ] SF-PREVIEW-200 [any] (claimed: Codex for Adam / abarish-dev, 2026-10-11, guest/starfall-opening-preview) Rebuild and publish the approved SF2.6c source `0af5b92cf4ae03fbbb2dd83bf67b0e06332e38fd`; preserve the existing engine, verify exact-pack browser opening and old-save reloads, then compare live Pages bytes. No unmerged #195 changes or unrelated releases.
+- [x] SF-PREVIEW-200 [any] Built and browser-verified 2026-10-11, Codex for Adam / abarish-dev, [PR #206](https://github.com/ecbarish/idle-arcade/pull/206). Exact merged source `0af5b92`; 54 browser checks, 17 nonblank captures, fresh nondefault-position reloads and previous-source saved towns. Engine and save format unchanged. Final latest-head CI, merge and live-hash confirmation gate publication; see [release record](research/starfall-preview-opening.md).

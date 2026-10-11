@@ -2,8 +2,11 @@ name: Starfall web preview review
 on:
   pull_request:
     paths: ['tools/starfall-preview-*', '.github/workflows/starfall-preview.yml', 'play/starfall/**']
+  push:
+    branches: [main]
+    paths: ['play/starfall/**', '.github/workflows/starfall-preview.yml']
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: starfall-preview-${{ github.ref }}
   cancel-in-progress: true
@@ -31,20 +34,12 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
           if ! command -v identify >/dev/null; then sudo apt-get update -qq; sudo apt-get install -y --no-install-recommends imagemagick; fi
-      - name: Export only the exact merged Starfall pack
+      - name: Verify committed reviewed bytes and retain the real previous pack
         run: |
           set -euo pipefail
           git fetch --depth=1 origin "$SOURCE_COMMIT"
-          test "$(git rev-parse HEAD:starfall-godot)" = "$(git rev-parse "$SOURCE_COMMIT:starfall-godot")"
-          "$GODOT" --version | grep '^4.7.2.stable'
-          mkdir -p preview-review
-          git rev-parse HEAD > preview-review/checkout-sha.txt
-          cp play/starfall/index.pck "$RUNNER_TEMP/starfall-before.pck"
-          sha256sum play/starfall/index.wasm play/starfall/index.js > preview-review/engine-before.sha256
-          timeout 180 "$GODOT" --headless --path starfall-godot --editor --import --quit
-          timeout 180 "$GODOT" --headless --path starfall-godot --export-pack Web ../play/starfall/index.pck
-          sha256sum -c preview-review/engine-before.sha256
-          python3 tools/starfall-preview-manifest.py stage --source "$SOURCE_COMMIT"
+          python3 tools/starfall-preview-manifest.py verify --source "$SOURCE_COMMIT"
+          git show "$SOURCE_COMMIT:play/starfall/index.pck" > "$RUNNER_TEMP/starfall-before.pck"
       - name: Generate legacy town with the previous shipped source
         run: |
           set -euo pipefail
@@ -60,26 +55,6 @@ jobs:
           set -euo pipefail
           timeout --signal=TERM --kill-after=15s 12m node tools/starfall-preview-checks.cjs |& tee preview-review/runtime.log
           python3 tools/starfall-preview-validate.py
-      - name: Store reviewed bytes as unreferenced Git blobs
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          python3 - <<'PY'
-          import base64, hashlib, json, os, urllib.request
-          from pathlib import Path
-          files = [Path('play/starfall') / n for n in ['index.pck', 'index.html', 'build.json']]
-          files += [Path('preview-review/screens') / n for n in ['1920x1080-fresh-ready.png', '812x375-fresh-ready.png', '812x375-legacy-after.png']]
-          results = []
-          for p in files:
-              data = p.read_bytes()
-              req = urllib.request.Request('https://api.github.com/repos/ecbarish/idle-arcade/git/blobs', data=json.dumps({'content': base64.b64encode(data).decode(), 'encoding': 'base64'}).encode(), headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json'}, method='POST')
-              with urllib.request.urlopen(req, timeout=120) as response:
-                  blob = json.load(response)
-              item = {'path': str(p), 'sha': blob['sha'], 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
-              results.append(item)
-              print('PREVIEW_BLOB ' + json.dumps(item))
-          Path('preview-review/blobs.json').write_text(json.dumps(results, indent=2) + '\n')
-          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -89,3 +64,22 @@ jobs:
             play/starfall/index.pck
             play/starfall/index.html
             play/starfall/build.json
+
+  verify-live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify reviewed bytes on official Pages
+        env:
+          LIVE_PREVIEW_URL: https://ecbarish.github.io/idle-arcade/play/starfall/
+        run: python3 tools/starfall-preview-live.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: starfall-live-verification
+          path: preview-review/live-verification.json
+          if-no-files-found: error
