@@ -59,6 +59,7 @@ func run() -> void:
 	game.day_t = game.DAY_SECONDS * 0.20
 	root.mode = Window.MODE_WINDOWED
 	root.borderless = true
+	root.min_size = Vector2i(1, 1)
 	root.position = Vector2i.ZERO
 	# Preserve the shipped project's content scaling and camera limits.
 	# Only the real native window changes between desktop and phone sizes.
@@ -155,7 +156,7 @@ func capture(state: Dictionary, requested: Vector2i, target: Dictionary) -> void
 	var world_foot: Vector2 = game.me.pos + Vector2(8, 16)
 	var screen_xform: Transform2D = game.get_screen_transform()
 	var frame := {
-		"id": stem, "file": file, "state": state.id, "rank": state.rank,
+		"id": stem, "file": stem + ".png", "state": state.id, "rank": state.rank,
 		"buildings": state.buildings.duplicate(true), "target": target.id, "purpose": target.purpose,
 		"player_tile": xy(tile), "player_foot_world_px": xy(world_foot),
 		"player_foot_capture_px": xy(screen_xform * world_foot - Vector2(win_pos)),
