@@ -31,25 +31,31 @@
   function glow(x, y, r, col, a) { const g = cx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); cx.save(); cx.globalAlpha = a; cx.fillStyle = g; cx.fillRect(x - r, y - r, r * 2, r * 2); cx.restore(); }
 
   /* ===================== the arcade hall ===================== */
-  const HALL = { x: .1, target: null, go: null, dir: 1, keys: {} }, CABS = playable.concat(A.GAMES.filter(g => !g.href));
+  const kindAt = g => { const i = (window.ArcadeKinds || []).findIndex(k => k.id === g.kind); return i < 0 ? 99 : i; };
+  /* Evan (2026-10-11): squeezing every cabinet onto one screen made them tiny. Cabinets now keep one readable size and
+     stand in a row longer than the screen; the view follows you as you walk (HALL.x and the camera are in pixels). */
+  const HALL = { x: 0, cam: 0, target: null, go: null, dir: 1, keys: {} }, CABS = playable.concat(A.GAMES.filter(g => !g.href)).map((g, i) => [g, i]).sort((m, n) => kindAt(m[0]) - kindAt(n[0]) || m[1] - n[1]).map(m => m[0]); // grouped like the sections below, Classics last
   const screens = {};
-  function cabX(i) { return W * (.1 + i * (.8 / Math.max(1, CABS.length - 1))); }
+  const cabW = () => Math.max(70, Math.min(150, H * .26)), gap = () => cabW() * 1.55, margin = () => Math.max(cabW() * 1.2, W * .12);
+  function cabX(i) { return margin() + i * gap(); } // in hall pixels
+  const hallLen = () => Math.max(W, cabX(CABS.length - 1) + margin());
   function hall(t, dt) {
-    const floor = H * .82, p = Math.max(2, Math.round(H / 120));
-    R(0, 0, W, floor, '#1c1630'); for (let x = 0; x < W; x += p * 8) R(x, 0, p * 4, floor, '#201a36'); // striped wallpaper
+    const floor = H * .82, p = Math.max(2, Math.round(H / 120)), cam = HALL.cam;
+    R(0, 0, W, floor, '#1c1630'); for (let x = -((cam * .5) % (p * 8)); x < W; x += p * 8) R(x, 0, p * 4, floor, '#201a36'); // striped wallpaper, half-speed
     R(0, floor - p * 3, W, p * 3, '#3a2a50');
     const g = cx.createLinearGradient(0, floor, 0, H); g.addColorStop(0, '#2a1838'); g.addColorStop(1, '#140c1e'); cx.fillStyle = g; cx.fillRect(0, floor, W, H - floor);
-    const carpet = ['#ff6fa8', '#7ab8ff', '#ffcf4d', '#7fe0a0']; for (let i = 0; i < 40; i++) { const x = (i * 97) % W, y = floor + p * 2 + ((i * 53) % Math.max(1, H - floor - p * 4)); R(x, y, p * 3, p, carpet[i % 4]); R(x + p, y - p, p, p * 3, carpet[i % 4]); }
+    const carpet = ['#ff6fa8', '#7ab8ff', '#ffcf4d', '#7fe0a0'], span = hallLen(); for (let i = 0; i < 40 * Math.ceil(span / Math.max(1, W)); i++) { const x = (i * 97) % span - cam; if (x < -20 || x > W + 20) continue; const y = floor + p * 2 + ((i * 53) % Math.max(1, H - floor - p * 4)); R(x, y, p * 3, p, carpet[i % 4]); R(x + p, y - p, p, p * 3, carpet[i % 4]); }
     // neon sign
     cx.save(); cx.font = `${Math.max(14, Math.round(H / 10))}px Bungee, Impact, sans-serif`; cx.textAlign = 'center'; cx.textBaseline = 'top';
     const flick = reduce ? 1 : (Math.sin(t * 23) > -.95 ? 1 : .4); cx.shadowColor = '#ff6fa8'; cx.shadowBlur = 18 * flick; cx.fillStyle = `rgba(255,111,168,${.9 * flick})`; cx.fillText('IDLE ARCADE', W / 2, H * .05); cx.restore();
     const lights = [{ x: W / 2, y: H * .1, r: H * .3, col: '#ff6fa8' }];
     for (let i = 0; i < 5; i++) { const lx = W * (.1 + i * .2); R(lx - p * 3, 0, p * 6, p * 2, '#5a4a70'); lights.push({ x: lx, y: p * 3, r: H * .35, col: '#ffe8c0' }); }
     CABS.forEach((gm, i) => {
-      const x = cabX(i), cw = Math.min(W * .12, H * .36, W * .8 / Math.max(1,CABS.length-1) * .82), ch = H * .52, top = floor - ch, on = hover === gm.id, col = { 'wildbond-preview': '#2f7a52', 'starfall-preview': '#3a4a8a', primordial: '#1e5a60', 'starfall-guild': '#3a4a8a', realmbound: '#4a2a6a', wildbond: '#2f7a52', baseball: '#5a5a5a', otherworld: '#4a3a7a' }[gm.id] || '#444';
+      const x = cabX(i) - cam, cw = cabW(), ch = H * .52; if (x < -cw || x > W + cw) return;
+      const top = floor - ch, on = hover === gm.id, col = { 'wildbond-preview': '#2f7a52', 'starfall-preview': '#3a4a8a', primordial: '#1e5a60', 'starfall-guild': '#3a4a8a', realmbound: '#4a2a6a', wildbond: '#2f7a52', baseball: '#5a5a5a', otherworld: '#4a3a7a' }[gm.id] || '#444';
       R(x - cw / 2, top, cw, ch, col); R(x - cw / 2 - p, top, p, ch, '#00000055'); R(x - cw / 2, top, cw, p * 6, '#0a0a12');
       cx.save(); cx.font = `${Math.max(9, Math.round(cw / 9))}px Bungee, Impact, sans-serif`; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillStyle = gm.href ? '#ffcf4d' : '#8a8aa0';
-      cx.fillText(gm.title.toUpperCase().slice(0, 14), x, top + p * 3, cw * .94); // squeezed to fit narrow phone cabinets cx.restore();
+      cx.fillText(gm.title.toUpperCase(), x, top + p * 3, cw * .94); // squeezed to fit narrow phone cabinets cx.restore();
       const sw = cw * .8, sh = ch * .38, sx = x - sw / 2, sy = top + p * 9;
       let s = screens[gm.id]; if (!s) { s = screens[gm.id] = document.createElement('canvas'); s.width = 160; s.height = 90; }
       const sc = s.getContext('2d'), photo = document.querySelector('[data-game="'+gm.id+'"] .cover img'); if (photo && photo.complete && photo.naturalWidth) sc.drawImage(photo,0,0,160,90); else if (gm.href && A.covers[gm.cover]) A.covers[gm.cover](sc, 160, 90, reduce ? 0 : t); else { sc.fillStyle = '#111'; sc.fillRect(0, 0, 160, 90); for (let k = 0; k < 160; k++) { sc.fillStyle = `rgba(255,255,255,${Math.random() * .25})`; sc.fillRect(Math.random() * 160, Math.random() * 90, 2, 1); }
@@ -60,12 +66,16 @@
       if (on) { glow(x, sy + sh / 2, cw, gm.href ? '#ffcf4d' : '#888', .35); label(x, top - p * 2, gm.title, gm.href ? prog(gm.id) : 'Coming soon', '#ffcf4d'); }
     });
     // you: walk to the cabinet you chose, or with the arrow keys
-    const speed = W * .35, k = HALL.keys; let vx = (k.right ? 1 : 0) - (k.left ? 1 : 0);
-    if (vx) HALL.target = null; else if (HALL.target !== null) { const d = HALL.target - HALL.x * W; if (Math.abs(d) < 4) { const gm = HALL.go; HALL.target = null; if (gm && gm.href) location.href = gm.href; } else vx = Math.sign(d); }
-    HALL.x = Math.max(.03, Math.min(.97, HALL.x + vx * speed * dt / Math.max(1, W))); if (vx) HALL.dir = vx;
-    const near = CABS.reduce((best, gm, i) => Math.abs(cabX(i) - HALL.x * W) < Math.abs(cabX(best.i) - HALL.x * W) ? { gm, i } : best, { gm: CABS[0], i: 0 });
-    if (Math.abs(cabX(near.i) - HALL.x * W) >= W * .05) hover = null; else { hover = near.gm.id; if (hint) hint.textContent = near.gm.href ? 'Press Enter (or tap) to play ' + near.gm.title : near.gm.title + ' is coming soon'; }
-    walker(HALL.x * W, floor + p * 2, p * 1.4, HALL.dir, vx && !reduce ? Math.floor(t * 8) % 2 : 0);
+    const speed = Math.max(260, gap() * 3), k = HALL.keys; let vx = (k.right ? 1 : 0) - (k.left ? 1 : 0);
+    if (vx) HALL.target = null; else if (HALL.target !== null) { const d = HALL.target - HALL.x; if (Math.abs(d) < 6) { const gm = HALL.go; HALL.target = null; if (gm && gm.href) location.href = gm.href; } else { vx = Math.sign(d); if (Math.abs(d) < speed * dt) HALL.x = HALL.target - vx * speed * dt; } }
+    HALL.x = Math.max(cabW() * .4, Math.min(hallLen() - cabW() * .4, HALL.x + vx * speed * dt)); if (vx) HALL.dir = vx;
+    HALL.cam = Math.max(0, Math.min(hallLen() - W, HALL.x - W / 2)); placeHits();
+    const near = CABS.reduce((best, gm, i) => Math.abs(cabX(i) - HALL.x) < Math.abs(cabX(best.i) - HALL.x) ? { gm, i } : best, { gm: CABS[0], i: 0 });
+    if (Math.abs(cabX(near.i) - HALL.x) >= gap() * .4) hover = null; else { hover = near.gm.id; if (hint) hint.textContent = near.gm.href ? 'Press Enter (or tap) to play ' + near.gm.title : near.gm.title + ' is coming soon'; }
+    walker(HALL.x - cam, floor + p * 2, p * 1.4, HALL.dir, vx && !reduce ? Math.floor(t * 8) % 2 : 0);
+    // more cabinets beyond the edge: a soft arrow on that side
+    cx.save(); cx.fillStyle = 'rgba(255,207,77,.75)'; cx.font = `${Math.round(H / 9)}px Bungee, Impact, sans-serif`; cx.textBaseline = 'middle';
+    if (cam > 4) { cx.textAlign = 'left'; cx.fillText('‹', p * 3, floor - H * .3); } if (cam < hallLen() - W - 4) { cx.textAlign = 'right'; cx.fillText('›', W - p * 3, floor - H * .3); } cx.restore();
     AMB.lights(cx, W, H, t, { dark: .8, max: .5, lights, tint: '#0a0614' });
     LT.bloom(cx, cv, W, H, { day: false });
   }
@@ -78,14 +88,17 @@
 
   /* ===================== links over each cabinet, input, the loop ===================== */
   function layoutHits() {
-    const w = Math.min(.12, H * .36 / Math.max(1, W), .8 / Math.max(1, CABS.length - 1) * .82) + .01;
-    hits.innerHTML = CABS.map((g, i) => { const x = cabX(i) / Math.max(1, W), pos = `left:${(x - w / 2) * 100}%;width:${w * 100}%`;
-      return g.href ? `<a class="launch-hit" href="${g.href}" data-id="${g.id}" style="${pos}" aria-label="${g.title}: ${prog(g.id)}"></a>`
-        : `<span class="launch-hit soon" data-id="${g.id}" style="${pos}" aria-label="${g.title}: coming soon" role="img"></span>`; }).join('');
+    hits.innerHTML = CABS.map(g => g.href ? `<a class="launch-hit" href="${g.href}" data-id="${g.id}" aria-label="${g.title}: ${prog(g.id)}"></a>`
+      : `<span class="launch-hit soon" data-id="${g.id}" aria-label="${g.title}: coming soon" role="img"></span>`).join('');
+    placeHits();
+  }
+  function placeHits() { // each link sits over its cabinet as the view scrolls
+    const w = cabW() + 8; hits.querySelectorAll('[data-id]').forEach((h, i) => { h.style.left = (cabX(i) - HALL.cam - w / 2) + 'px'; h.style.width = w + 'px'; });
+    cv.parentElement.scrollLeft = 0; // focus may scroll the clipped view; the camera owns scrolling
   }
   const xOf = id => cabX(CABS.findIndex(g => g.id === id));
   hits.addEventListener('focusin', e => { // keyboard: tabbing to a cabinet brings you to it
-    const h = e.target.closest('[data-id]'); if (!h) return; hover = h.dataset.id; HALL.x = xOf(hover) / Math.max(1, W);
+    const h = e.target.closest('[data-id]'); if (!h) return; hover = h.dataset.id; HALL.x = xOf(hover); HALL.target = null; HALL.cam = Math.max(0, Math.min(hallLen() - W, HALL.x - W / 2)); placeHits();
   });
   hits.addEventListener('click', e => { // a tap walks you there first, then you go in
     const h = e.target.closest('[data-id]'); if (!h || e.detail === 0) return; e.preventDefault();
@@ -103,6 +116,6 @@
     requestAnimationFrame(frame);
   }
   if (hint) hint.textContent = 'Walk with ← → or tap a cabinet';
-  addEventListener('resize', size); size(); requestAnimationFrame(frame);
+  addEventListener('resize', size); size(); HALL.x = cabX(0); requestAnimationFrame(frame);
   window.__launcher = { CABS, hall: HALL };
 })();

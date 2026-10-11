@@ -39,6 +39,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Arcade v1.6.0 (2026-10-11, AR2.14): Classic versus the new version made obvious. Wildbond Classic and Starfall Guild Classic sit together in a last "Classic editions" section with a tan Classic ribbon and a link to their new version; the new versions carry a green "New version" ribbon. The guides page says which edition each guide covers and when it was last checked; the Diamond Career guide moves to "Older guides". The site and guides now refresh at milestones (docs/SITE-AND-GUIDES.md). The hall's cabinets keep one readable size in a row that scrolls as you walk, grouped like the sections with the Classics last; phones skip the hall and go straight to the section buttons and cards.
 - Wildbond (2026-10-11, WB-DOOR-TAP): clicking or tapping Larkhaven's inn, shop and both homes now queues entry just like the barn. The full-size phone directional pad is moved between the lower doorways so it no longer covers Nora's entrance. Door collisions, walking distance, keyboard controls, phone preferences and saves are unchanged; source fix only, web preview not re-exported.
 
 - Wildbond (2026-10-11, keys in the game): the opening's notes now name the controls for whatever you're playing on (keys, a gamepad or a phone): how to walk, talk and open your field book (Playtester's note).

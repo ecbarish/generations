@@ -6,9 +6,10 @@ const origin=process.env.ARCADE_TEST_ORIGIN||'http://localhost:8766';let count=0
   const c=await b.newContext({viewport:{width,height},reducedMotion:'reduce',serviceWorkers:'block'}),p=await c.newPage(),errors=[],engineRequests=[];p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>{if(/\.(wasm|pck)(\?|$)/.test(r.url()))engineRequests.push(r.url())});
   await p.addInitScript(()=>{const index={wildbond:{summary:'Classic eight badges',detail:'League cleared',last:1},'starfall-guild':{summary:'Classic winter guild',detail:'Season 4',last:1},'wildbond-preview':{summary:'Wrong shared progress',detail:'Must never be shown',last:1},'starfall-preview':{summary:'Wrong shared progress',detail:'Must never be shown',last:1}};localStorage.setItem('arcade-index-v1',JSON.stringify(index));localStorage.setItem('wildbond-save-v1','classic-wildbond-sentinel');localStorage.setItem('starfall-guild-save-v1','classic-starfall-sentinel');localStorage.setItem('unrelated-sentinel','keep');});
   await p.goto(origin+'/');await p.waitForFunction(()=>window.ARCADE);
-  const games=await p.evaluate(()=>window.ArcadeGames);
+  const games=await p.evaluate(()=>window.ArcadeGames),kinds=await p.evaluate(()=>window.ArcadeKinds.map(k=>k.id));const window_kinds_ok=g=>kinds.includes(g.kind);
   check(new Set(games.map(g=>g.id)).size===games.length,'catalogue IDs are distinct');
-  check(games.every(g=>g.goal&&g.controls&&['adventure','build','sports','story','different'].includes(g.kind)),'every catalogue game has a valid kind, goal and controls');
+  check(games.every(g=>g.goal&&g.controls&&window_kinds_ok(g)),'every catalogue game has a valid kind, goal and controls');
+  check(games.filter(g=>g.edition==='classic').every(g=>g.kind==='classic'&&games.some(o=>o.id===g.newer&&o.edition==='new')),'each Classic sits in Classic editions and links its new version');
   check(await p.locator('.cab').count()===games.length,'every distinct game/edition has a card');
   for(const game of games.filter(g=>g.href)){const response=await p.request.get(origin+'/'+game.href);check(response.ok(),'play target exists: '+game.id);}
   for(const [id,target,classic]of [['wildbond-preview','play/wildbond/','wildbond'],['starfall-preview','play/starfall/','starfall-guild']]){
@@ -21,9 +22,11 @@ const origin=process.env.ARCADE_TEST_ORIGIN||'http://localhost:8766';let count=0
   }
   check(!await p.locator('#shelf').innerText().then(s=>s.includes('Wrong shared progress')),'no mixed save display');
   await p.locator('[data-game="wildbond"] [data-reset]').click();await p.locator('[data-game="wildbond"] [data-keep]').click();check(await p.evaluate(()=>localStorage.getItem('wildbond-save-v1')==='classic-wildbond-sentinel'),'cancel reset preserves save');
-  check(await p.locator('.kind').count()===5,'five sections by kind of game');check(await p.locator('.cab .howto').count()===games.length,'every game says what you do and its controls');
+  check(await p.locator('.kind').count()===kinds.length,'a section for each kind of game, Classic editions last');check(await p.locator('.edition.ed-classic').count()===2&&await p.locator('.edition.ed-new').count()===2,'edition ribbons on both editions');check(await p.locator('.cab .howto').count()===games.length,'every game says what you do and its controls');
   check(await p.locator('button[data-mode]').count()===0,'one launcher style: the arcade hall');
-  for(const mode of ['hall']){
+  if(width<=720)check(!(await p.locator('.launch-view').isVisible())&&await p.locator('#kindsNav a').count()>0,'phones get the section buttons and cards, not the hall');
+  else check(await p.evaluate(()=>[...document.querySelectorAll('#launchHits [data-id]')].every(el=>el.getBoundingClientRect().width>=70)),'cabinets keep a readable size');
+  for(const mode of width>720?['hall']:[]){
    await p.waitForTimeout(180);
    const expected=games.filter(g=>g.href).length;check(await p.locator('#launchHits a').count()===expected,'mode destination count '+mode);
    for(const [id,href]of [['wildbond-preview','play/wildbond/'],['starfall-preview','play/starfall/']]){const hit=p.locator('#launchHits [data-id="'+id+'"]');check(await hit.getAttribute('href')===href,'primary place goes to preview '+mode+' '+id);await hit.focus();await p.waitForTimeout(100);check(await hit.evaluate(el=>el.getBoundingClientRect().right>0&&el.getBoundingClientRect().left<innerWidth),'keyboard keeps destination on screen '+mode+' '+id);}
