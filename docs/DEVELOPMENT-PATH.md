@@ -186,7 +186,7 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
   hall and inn now have (Evan saw the inn's door floating above its stone base on 2026-10-11; fixed for those two in
   tools/art/starfall_hall_inn.py). Done when the opening screenshot reads lived-in, every building is still reachable, and the
   Starfall checks pass.
-- [ ] SF2.6c [any] Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
+- [x] SF2.6c [any] (merged 2026-10-11: [PR #200](https://github.com/ecbarish/idle-arcade/pull/200), Codex for Adam / abarish-dev; full roofs, 227 native checks, 32 rendered captures and 501 layout checks) Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
   and banner, the most recognisable parts. Start the player (or the camera) so both buildings show whole. Also delete
   the unused Ninja Adventure tiles in `starfall-godot/assets/env/` (house.png, nature.png, floor.png and their .import
   files; nothing loads them) and update CREDITS.md (the pack's music and sounds stay). Done when a day-one screenshot
@@ -360,6 +360,8 @@ browser (E4). (claimed: Grok, 2026-10-09, grok/studio-text-browser; Lane C task 
 - [x] AR2.12 [any] The front door (done 2026-10-09, Claude, PR #109: the hall only, sections by kind, how to play on every card) (GR-12): the hub leads with the Godot games, Starfall Guild and Primordial move to
   Classic, the old homepage vote closes; START-HERE versions corrected (Claude).
 **AR-M3: the walk-in arcade and friends.**
+- [x] AR2.14 [Claude] Classic versus the new version made obvious; site and guides refreshed at milestones (docs/SITE-AND-GUIDES.md), done 2026-10-11.
+- [ ] AR2.13 [any] The hall, upgraded (QUEUE road #13).
 - [ ] AR3.1 [Claude] Walk-in arcade steps 1-2 (V11).
 - [ ] AR3.2 [any]
 No-server sharing: trade and battle codes, ghost teams (V6 part 1).
@@ -368,8 +370,19 @@ No-server sharing: trade and battle codes, ghost teams (V6 part 1).
 **Little Ranch (browser), a toy for ages 2-4.**
 - [x] LR2 [any] Repair interrupted feeding and preserve active play through resize/rotation. Scope: Little Ranch game/test files, isolated read-only browser-review script/workflow, screenshots and brief process notes. Done when repeat/interruption and phone-to-ultrawide checks pass with sound preferences unchanged. Score: 18/21. (v0.1.1 release: [PR #140](https://github.com/ecbarish/idle-arcade/pull/140), Codex for Adam / abarish-dev, 2026-10-10; 49 game checks, 15 Chromium review checks and all 17 current-main suites passed; version-only release metadata is rechecked before merge)
 - [x] LR1 [any] The smallest test: one baby creature, three actions (feed, bubbles, peekaboo) and a bedtime
-- [ ] LR3 [any] The next small step: one new gentle thing to do with the baby creature, no reading, nothing to fail; a parent-tested note in the PR. (QUEUE road 10, added 2026-10-11)
   ending; no reading, no failing, no links or purchases, a grown-up lock. Shares the baby-form drawings W9/W10 needs. (claimed: Grok for Adam / abarish-dev, 2026-10-09, guest/little-ranch)
+Next steps, from docs/proposals/little-ranch-next.md (PR #203, 2026-10-11; Evan: "a big hit with my daughter"). Each is one PR on `games/little-ranch/` with checks in `tests/little-ranch.html`, a README changelog line and a "tried with a toddler" note; the toddler rules in games-for-everyone.md hold for every step. Done when the step works on a phone and a tablet with no reading and nothing to fail.
+- [ ] LR3 [any] The singing flowers: a row of big flowers; tap one and it sings its own note and bobs; the baby dances. (QUEUE road 10)
+- [ ] LR4 [any] A second friend: a baby Pebblit (or Glowmote) visits some days; both can be fed and bubbled; they nuzzle.
+- [ ] LR5 [any] Rain and rainbows: tap the cloud for soft rain and puddles to splash; tap the sun for a rainbow.
+- [ ] LR6 [any] The hat basket: tap the basket and the baby tries on the next hat.
+- [ ] LR7 [any] The bedtime routine: teeth, a drink of water, goodnight to each friend, then the lullaby.
+- [ ] LR8 [any] Spoken words: names, colours and "night night" in the browser's voice (no microphone; recording a parent's voice needs Evan's yes).
+Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the barn picture leads home; never a separate icon on the homepage). **Evan picked the Paint Shed first (2026-10-11)**, then the Little Wagon, then the Snack Kitchen; LR3-LR8 continue alongside.
+- [ ] LR9 [any] The Paint Shed (16/18, Evan's pick): reached by a paint-drip picture sign; one creature outline, four fat paint pots, tap to fill a part, sparkles when every part is coloured, the painted baby walks out in its colours until bedtime.
+- [ ] LR10 [any] The Little Wagon (17/18): load two babies, one ride with three things to tap and one colour gate where any car gets a cheer.
+- [ ] LR11 [any] The Snack Kitchen (17/18): four foods, one bowl, one baby who loves berries and pulls funny faces at the rest.
+(The shape puzzle, 14/18, waits until she is 3½ to 4.)
 **The Arcade Cabinets (browser), original single-screen games in the 1978-85 style.**
 - [x] AC1 [any] Storm Front (the Space Invaders shape, Evan's pick): one cabinet, original name and art, one PR. (built: Codex for Adam / abarish-dev, guest/storm-front, PR #119; awaiting review)
 - [x] AC2 [any] Lighthouse Watch (the Missile Command shape). (built: Grok for Adam / abarish-dev, PR #145, merged 2026-10-10; v0.1.0)
@@ -412,6 +425,8 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - [x] SCENE-PLAN [any] (ready: PR #151, Codex, 2026-10-10) Shared scene/interior design outline requested by Evan: docs/plans/scene-layout-pass.md; distinct Larkhaven home briefs, entrance/input/visual checks and independently claimable follow-ups. Complements MAP-AUDIT #147; no engine or art edits. Done when the brief and COMMS handoff are published. Score 18/21 (fun 3x2, heart 2x2, friends 3, focus 2, cheap 3). (merged: PR #151; ticked 2026-10-11 by lane P)
 
 ## Part 4: what we've learned and actioned (newest first; every piece of work adds a line)
+
+- **2026-10-11, SF2.6c:** frame the whole landmark texture, not only its collision footprint, and reserve space for screen text. A fresh spawn plus a one-tile northern margin fixes the first view without moving existing saves; verify actual renderer captures and service routes at every supported shape. [Evidence](screenshots/starfall-opening-view/README.md).
 
 - **2026-10-11, AC3 Ember Bricks:** the Breakout shape is its own cabinet and its own pull request. Leave the shared AC3 checkbox open until that cabinet is merged too.
 
@@ -472,6 +487,12 @@ line or two, with the page that holds the detail.
 - **2026-10-09, DM2 playtest (Claude, Playtester):** simulating many seasons through the game's own functions (hands-off
   against active) finds balance problems a single playthrough can't: in Diamond Manager the choices barely moved
   results. Actioned: three small fixes and ticket DM-B (docs/playtests/diamond-manager-1.md).
+- **2026-10-11, AR2.14 editions and milestone refreshes (Claude, website thread):** "Classic" was used for every
+  browser game in places, which blurred the one distinction that matters (two editions of Wildbond and Starfall). Now
+  only those two are Classic, they sit in their own last section with ribbons, and the site and guides refresh at
+  milestones instead of every merge (docs/SITE-AND-GUIDES.md), because each update changes the games too much.
+  Fitting every cabinet on one screen stopped working at 14 games: cabinets now keep one size and the hall scrolls with
+  the walker; on phones the hall is hidden (Evan: unusable there) and the cards are the menu.
 - **2026-10-09, AR2.12 the front door (Claude, website thread):** three homepage styles split the effort and the
   living world could only fit four or five games, so a style that holds every game wins: the arcade hall is now the
   only one (Evan's call). Players could not tell what a game was or how to control it, so every card now says what you
@@ -563,3 +584,9 @@ line or two, with the page that holds the detail.
 ## Wildbond doorway preview release record
 
 - [x] WB-PREVIEW-177 [any] Built and browser-verified 2026-10-11, Adam / abarish-dev, [PR #183](https://github.com/ecbarish/idle-arcade/pull/183). Exact merged source `480dfc4`; 353 browser checks, 119 captures, 60 door transitions, 20 fresh-save reloads and 12 pad hold/release cases. Unchanged engine and save format. Final latest-head CI, merge and live hash confirmation gate publication; see [release record](research/wildbond-preview-door-release.md).
+
+
+
+## Starfall opening preview release
+
+- [x] SF-PREVIEW-200 [any] Built and browser-verified 2026-10-11, Codex for Adam / abarish-dev, [PR #206](https://github.com/ecbarish/idle-arcade/pull/206). Exact merged source `0af5b92`; 54 browser checks, 17 nonblank captures, fresh nondefault-position reloads and previous-source saved towns. Engine and save format unchanged. Final latest-head CI, merge and live-hash confirmation gate publication; see [release record](research/starfall-preview-opening.md).

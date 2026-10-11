@@ -1,0 +1,781 @@
+{
+	"captures": [
+		{
+			"file": "1920x1080-welcome.png",
+			"label": "welcome",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"file": "1920x1080-ready.png",
+			"label": "ready",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"file": "1920x1080-board.png",
+			"label": "board",
+			"landmarks": [
+				{
+					"bottom_right": [
+						312.0,
+						68.0
+					],
+					"fits": false,
+					"top_left": [
+						216.0,
+						-12.0
+					]
+				},
+				{
+					"bottom_right": [
+						424.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						360.0,
+						4.0
+					]
+				}
+			],
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"file": "1920x1080-inn.png",
+			"label": "inn",
+			"landmarks": [
+				{
+					"bottom_right": [
+						104.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						8.0,
+						4.0
+					]
+				},
+				{
+					"bottom_right": [
+						216.0,
+						100.0
+					],
+					"fits": true,
+					"top_left": [
+						152.0,
+						20.0
+					]
+				}
+			],
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"file": "1920x1080-counter.png",
+			"label": "counter",
+			"landmarks": [
+				{
+					"bottom_right": [
+						136.0,
+						68.0
+					],
+					"fits": false,
+					"top_left": [
+						40.0,
+						-12.0
+					]
+				},
+				{
+					"bottom_right": [
+						248.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						184.0,
+						4.0
+					]
+				}
+			],
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"file": "1920x1080-return.png",
+			"label": "return",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"file": "1366x768-welcome.png",
+			"label": "welcome",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				1366,
+				768
+			]
+		},
+		{
+			"file": "1366x768-ready.png",
+			"label": "ready",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				1366,
+				768
+			]
+		},
+		{
+			"file": "1366x768-board.png",
+			"label": "board",
+			"landmarks": [
+				{
+					"bottom_right": [
+						312.0,
+						68.0
+					],
+					"fits": false,
+					"top_left": [
+						216.0,
+						-12.0
+					]
+				},
+				{
+					"bottom_right": [
+						424.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						360.0,
+						4.0
+					]
+				}
+			],
+			"size": [
+				1366,
+				768
+			]
+		},
+		{
+			"file": "1366x768-inn.png",
+			"label": "inn",
+			"landmarks": [
+				{
+					"bottom_right": [
+						104.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						8.0,
+						4.0
+					]
+				},
+				{
+					"bottom_right": [
+						216.0,
+						100.0
+					],
+					"fits": true,
+					"top_left": [
+						152.0,
+						20.0
+					]
+				}
+			],
+			"size": [
+				1366,
+				768
+			]
+		},
+		{
+			"file": "1366x768-counter.png",
+			"label": "counter",
+			"landmarks": [
+				{
+					"bottom_right": [
+						136.0,
+						68.0
+					],
+					"fits": false,
+					"top_left": [
+						40.0,
+						-12.0
+					]
+				},
+				{
+					"bottom_right": [
+						248.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						184.0,
+						4.0
+					]
+				}
+			],
+			"size": [
+				1366,
+				768
+			]
+		},
+		{
+			"file": "1366x768-return.png",
+			"label": "return",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				1366,
+				768
+			]
+		},
+		{
+			"file": "812x375-welcome.png",
+			"label": "welcome",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				812,
+				375
+			]
+		},
+		{
+			"file": "812x375-ready.png",
+			"label": "ready",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				812,
+				375
+			]
+		},
+		{
+			"file": "812x375-board.png",
+			"label": "board",
+			"landmarks": [
+				{
+					"bottom_right": [
+						312.0,
+						68.0
+					],
+					"fits": false,
+					"top_left": [
+						216.0,
+						-12.0
+					]
+				},
+				{
+					"bottom_right": [
+						424.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						360.0,
+						4.0
+					]
+				}
+			],
+			"size": [
+				812,
+				375
+			]
+		},
+		{
+			"file": "812x375-inn.png",
+			"label": "inn",
+			"landmarks": [
+				{
+					"bottom_right": [
+						104.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						8.0,
+						4.0
+					]
+				},
+				{
+					"bottom_right": [
+						216.0,
+						100.0
+					],
+					"fits": true,
+					"top_left": [
+						152.0,
+						20.0
+					]
+				}
+			],
+			"size": [
+				812,
+				375
+			]
+		},
+		{
+			"file": "812x375-counter.png",
+			"label": "counter",
+			"landmarks": [
+				{
+					"bottom_right": [
+						136.0,
+						68.0
+					],
+					"fits": false,
+					"top_left": [
+						40.0,
+						-12.0
+					]
+				},
+				{
+					"bottom_right": [
+						248.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						184.0,
+						4.0
+					]
+				}
+			],
+			"size": [
+				812,
+				375
+			]
+		},
+		{
+			"file": "812x375-return.png",
+			"label": "return",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				812,
+				375
+			]
+		},
+		{
+			"file": "3440x1440-welcome.png",
+			"label": "welcome",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				3440,
+				1440
+			]
+		},
+		{
+			"file": "3440x1440-ready.png",
+			"label": "ready",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				3440,
+				1440
+			]
+		},
+		{
+			"file": "3440x1440-board.png",
+			"label": "board",
+			"landmarks": [
+				{
+					"bottom_right": [
+						312.0,
+						68.0
+					],
+					"fits": false,
+					"top_left": [
+						216.0,
+						-12.0
+					]
+				},
+				{
+					"bottom_right": [
+						424.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						360.0,
+						4.0
+					]
+				}
+			],
+			"size": [
+				3440,
+				1440
+			]
+		},
+		{
+			"file": "3440x1440-inn.png",
+			"label": "inn",
+			"landmarks": [
+				{
+					"bottom_right": [
+						104.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						8.0,
+						4.0
+					]
+				},
+				{
+					"bottom_right": [
+						216.0,
+						100.0
+					],
+					"fits": true,
+					"top_left": [
+						152.0,
+						20.0
+					]
+				}
+			],
+			"size": [
+				3440,
+				1440
+			]
+		},
+		{
+			"file": "3440x1440-counter.png",
+			"label": "counter",
+			"landmarks": [
+				{
+					"bottom_right": [
+						136.0,
+						68.0
+					],
+					"fits": false,
+					"top_left": [
+						40.0,
+						-12.0
+					]
+				},
+				{
+					"bottom_right": [
+						248.0,
+						84.0
+					],
+					"fits": true,
+					"top_left": [
+						184.0,
+						4.0
+					]
+				}
+			],
+			"size": [
+				3440,
+				1440
+			]
+		},
+		{
+			"file": "3440x1440-return.png",
+			"label": "return",
+			"landmarks": [
+				{
+					"bottom_right": [
+						184.0,
+						112.0
+					],
+					"fits": true,
+					"top_left": [
+						88.0,
+						32.0
+					]
+				},
+				{
+					"bottom_right": [
+						296.0,
+						128.0
+					],
+					"fits": true,
+					"top_left": [
+						232.0,
+						48.0
+					]
+				}
+			],
+			"size": [
+				3440,
+				1440
+			]
+		}
+	],
+	"display": "X11",
+	"engine": "4.7.2-stable (official)",
+	"errors": [],
+	"passed": true,
+	"source": "714ff51079f10b7fa8b00d7628e00e309518a4a6",
+	"spawn": [
+		15,
+		5
+	]
+}
