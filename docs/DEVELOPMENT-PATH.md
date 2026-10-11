@@ -551,3 +551,8 @@ line or two, with the page that holds the detail.
 ## Maintenance
 
 - [x] **FB-17 [any]: onboarding instructions cleanup** (ready: PR #168, Codex / Adam, 2026-10-10). Files: START-HERE.md and task/status notes only. Repair the broken old-save rule, refer test coverage to the runner, and align claim/merge instructions with PROCESS.md. Done when links resolve and the diff changes documentation only. (merged: PR #168)
+
+
+## Wildbond doorway preview release record
+
+- [x] WB-PREVIEW-177 [any] Built and browser-verified 2026-10-11, Adam / abarish-dev, [PR #183](https://github.com/ecbarish/idle-arcade/pull/183). Exact merged source `480dfc4`; 353 browser checks, 119 captures, 60 door transitions, 20 fresh-save reloads and 12 pad hold/release cases. Unchanged engine and save format. Final latest-head CI, merge and live hash confirmation gate publication; see [release record](research/wildbond-preview-door-release.md).
