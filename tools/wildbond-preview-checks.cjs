@@ -304,7 +304,7 @@ async function reviewPad(browser, size, legacy) {
       await page.waitForFunction(() => !document.querySelector('#status'), null, { timeout: 90000 });
       await page.waitForTimeout(900);
       await continueJourney(page);
-      const reloaded = await readSave(page);
+      const reloaded = await persisted(page, d => d.saved !== selected.saved && d.map === selected.map && d.x === selected.x && d.y === selected.y, 'chosen-move journey is loaded and newly saved after fixture-free reload at ' + tag);
       check(JSON.stringify(reloaded.team[0].moves) === JSON.stringify(selected.team[0].moves), 'chosen moves survive a browser reload at ' + tag);
       check(current.errors.length === 0, 'no script or page errors in the workbench/reload flow at ' + tag);
       await current.context.close();
