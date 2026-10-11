@@ -236,7 +236,7 @@ deliverables are retired; the batting prototype stays in games/diamond-career/ o
 - [x] DM1 [Claude] The first playable season (v0.1.0, PR #110).
 - [x] DM2 [any] Playability pass (docs/playtests/diamond-manager-1.md). - [x] DM-B [Claude] Choices matter (v0.2.0).
 - [ ] DM3 [any] Hiring coaches. - [ ] DM4 [any] Player morale and stories. - [ ] DM5 [any] The ballpark you see grow.
-- [x] DM6 [Claude] The draft and player development (v0.3.0). - [ ] DM-B2 [any] Keep the league in balance over many seasons. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
+- [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [ ] DM-B2 [any] Keep the league in balance over many seasons. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
 
 ### Lantern Bowl (browser; American football in the Retro Bowl spirit, our own code and art)
 Evan said yes 2026-10-09. Plan: [plans/sports-management.md](plans/sports-management.md) "Game 2".
@@ -358,6 +358,9 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - **2026-10-09, WD2 data (Codex, PR #113):** the roster has 104 base species and three hybrids added by the ranch module. Validate the full exporter, not just 00-data.js; all 107 preserve their original gameplay fields. Drawing hints stay out of creature saves; the appearance contract is in docs/lore/wildbond-looks.md.
 Standing rule (Evan, 2026-10-09): each piece of work records here what it taught us and what was done about it, in a
 line or two, with the page that holds the detail.
+- **2026-10-11, DM-T (Claude, sports thread):** a trade finder needs no new rules, only a search over the existing
+  judge (every suggested deal is checked by the same function that answers a hand-built proposal), so it can never
+  offer something the other club would refuse; a check pins that and that no single cheaper player would do.
 - **2026-10-11, DM6 (Claude, sports thread):** growth needs a ceiling, or every young player becomes a star and the
   league inflates. Ceilings plus "plays every day grows faster" turn the farm club and the batting order into real
   choices. A six-season simulation showed the league still inflates (it did before DM6 too) while the market stays put;

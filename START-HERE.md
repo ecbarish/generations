@@ -106,6 +106,7 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-11 Claude (sports thread): DM-T, Diamond Manager v0.4.0: trade finder (find a deal, shop a player, what would make it work), prospects tradeable; 41 checks.
 - 2026-10-11 Claude (sports thread): DM6, Diamond Manager v0.3.0: the draft (three rounds, worst first), ceilings and growth, a six-player farm club with call-ups and send-downs; 37 checks. Next for any assistant: DM-B2 (league balance over many seasons), DM3 coaches, LB0/LB1 football.
 - 2026-10-11 Claude (sports thread): DM-B, Diamond Manager v0.2.0: managing now matters (bigger budget, standouts, league-minimum players, faster training, Iona on trades); 27 checks. Next for any assistant: DM3 coaches, LB0/LB1 football (docs/plans/sports-management.md).
 - 2026-10-10 — Codex (Adam / abarish-dev): LR2 [PR #140](https://github.com/ecbarish/idle-arcade/pull/140) repairs meals interrupted by Peekaboo and keeps the baby/toys aligned through rotation. 49 browser checks, repeated saved-sound compatibility, before/after captures and all 14 implementation suites passed; reconciled with current main and all 17 suites passed. Adam approved publication; v0.1.1 release metadata is being rechecked before the approved merge. No save changes.

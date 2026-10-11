@@ -1,10 +1,10 @@
 'use strict';
 /* Diamond Manager: the screen. The field fills the window; the scoreboard, the play-by-play and Iona's notes sit on
    it; the front office is a clipboard opened over the field. */
-const VERSION='0.3.0';
+const VERSION='0.4.0';
 const $=s=>document.querySelector(s);
 Arcade.validators[DM.key]=validLeague;
-let L=migrateLeague(loadLeague(localStorage, Arcade.backups(DM.key))), view=null, tab='roster', trade={club:1,give:[],get:[],answer:''}, flash='';
+let L=migrateLeague(loadLeague(localStorage, Arcade.backups(DM.key))), view=null, tab='roster', trade={club:1,give:[],get:[],answer:''}, finder={pos:'any',shop:0,want:null,deal:null,offers:null}, flash='';
 const SPEEDS=[[1,'Normal speed',900],[2,'Fast',300],[3,'Very fast',90]];
 
 function save(){ Arcade.save(DM.key,L); const y=L.clubs[DM.you];
@@ -115,7 +115,7 @@ function introNote(){
 /* ---------- The front office ---------- */
 const TABS=[['roster','Roster and lineup'],['trades','Trades'],['free','Free agents'],['farm','Farm and draft'],['park','Ballpark'],['league','League']];
 function openOffice(t){ if(t)tab=t; $('#office').hidden=false; closeNote(); renderOffice(); $('#close-office').focus(); }
-function closeOffice(){ $('#office').hidden=true; flash=''; render(); }
+function closeOffice(){ $('#office').hidden=true; flash=''; finder.want=null; finder.deal=null; finder.offers=null; render(); }
 function renderOffice(){
   $('#tabs').innerHTML=TABS.map(([k,n])=>'<button role="tab" data-tab="'+k+'" aria-selected="'+(k===tab)+'">'+n+'</button>').join('');
   const m=flash?'<div class="msg'+(flash.startsWith('✓')?' ok':'')+'" role="status">'+esc(flash)+'</div>':'';
@@ -139,14 +139,31 @@ function rosterTab(){
    pitchers(c).sort((a,b)=>overall(b)-overall(a)).map(p=>'<tr><td>'+esc(p.name)+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td>'+ceilCell(p)+ratingCells(p)+contractCell(p)+'</tr>').join('')+'</table></div>'+
    '<p class="small">Letting a player go in the middle of a contract costs half a season\'s salary from the club\'s cash.</p>';
 }
-function pickList(c,side,ids){ return c.players.slice().sort((a,b)=>(a.pitcher-b.pitcher)||overall(b)-overall(a)).map(p=>'<label class="pick"><input type="checkbox" data-pick="'+side+'" value="'+p.id+'" '+(ids.includes(p.id)?'checked':'')+'> '+esc(p.name)+' <span class="small">'+(p.pitcher?'P':p.pos)+', overall '+overall(p)+', age '+p.age+', '+money(p.salary)+'</span></label>').join(''); }
+function pickList(c,side,ids){ return c.players.concat(c.farm||[]).sort((a,b)=>(!!a.prospect-!!b.prospect)||(a.pitcher-b.pitcher)||overall(b)-overall(a)).map(p=>'<label class="pick"><input type="checkbox" data-pick="'+side+'" value="'+p.id+'" '+(ids.includes(p.id)?'checked':'')+'> '+esc(p.name)+' <span class="small">'+(p.prospect?'farm club, ':'')+(p.pitcher?'P':p.pos)+', overall '+overall(p)+(p.age<=27?', ceiling '+ceilText(p):'')+', age '+p.age+', '+money(p.salary)+'</span></label>').join(''); }
+const names=(c,ids)=>ids.map(id=>esc(clubPlayer(c,id).name)).join(' and ');
+/* A found deal, written out, with buttons to make it or to load it into the trade table. */
+function dealHTML(d){ if(!d) return ''; if(d.none) return '<div class="msg" role="status">'+esc(d.none)+'</div>';
+  const them=club(d.club); return '<div class="msg ok" role="status">The '+esc(them.name)+' would trade <b>'+names(them,d.get)+'</b> for <b>'+names(you(),d.give)+'</b>.<br>Iona: '+esc(ionaOnDeal(d))+'<div class="row"><button class="primary" data-deal-do>Make this trade</button> <button data-deal-load>Change it in the trade table</button></div></div>'; }
+function ionaOnDeal(d){ const g=d.give.map(id=>clubPlayer(you(),id)), t=d.get.map(id=>clubPlayer(club(d.club),id));
+  const best=a=>Math.max(...a.map(overall)); return d.give.length>1||d.get.length>1?(best(t)>best(g)?'We get the best player in the deal.':'We give up the best player in the deal.'):ionaOnTrade(g[0],t[0]); }
 function tradeTab(){
-  const them=club(trade.club);
-  return '<p>Pick a club, tick the players you would give and the players you want, then ask. Their general manager says yes or tells you how far apart you are. Young, highly rated players on fair salaries are worth the most.</p>'+
+  const them=club(trade.club), mine=you().players.concat(you().farm||[]).sort((a,b)=>overall(b)-overall(a));
+  const POS=[['any','Anyone'],['bat','Any batter'],['P','Pitchers']].concat(DM.batPos.map(p=>[p,p]));
+  const fits=p=>finder.pos==='any'||(finder.pos==='bat'?!p.pitcher:finder.pos==='P'?p.pitcher:p.pos===finder.pos&&!p.pitcher);
+  const market=[]; L.clubs.forEach((c,ci)=>{ if(ci!==DM.you) for(const p of c.players.concat(c.farm||[])) if(fits(p)) market.push({p,ci}); });
+  market.sort((a,b)=>overall(b.p)-overall(a.p));
+  return '<h3>Trade finder</h3><p>Press <b>Find a deal</b> on a player you want and Iona works out the cheapest offer that club would take, from our roster or our farm club. Or shop one of our players and hear the best each club would give.</p>'+
+   '<p><label>Looking for <select id="find-pos">'+POS.map(([k,n])=>'<option value="'+k+'" '+(k===finder.pos?'selected':'')+'>'+n+'</option>').join('')+'</select></label></p>'+
+   (finder.want?dealHTML(finder.deal):'')+
+   '<div class="scroll-x"><table class="tbl"><tr><th>Player</th><th>Club</th><th>Pos</th><th class="hide-sm">Age</th><th>Overall</th><th class="hide-sm">Ceiling</th><th class="hide-sm">Salary</th><th></th></tr>'+
+   market.slice(0,12).map(({p,ci})=>'<tr'+(finder.want===p.id?' class="you"':'')+'><td>'+esc(p.name)+(p.prospect?' <span class="small">farm club</span>':'')+'</td><td>'+esc(club(ci).short)+'</td><td>'+(p.pitcher?'P':p.pos)+'</td><td class="hide-sm">'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td><td class="small hide-sm">'+ceilText(p)+'</td><td class="hide-sm">'+money(p.salary)+'</td><td><button data-find="'+p.id+'" data-find-club="'+ci+'">Find a deal</button></td></tr>').join('')+'</table></div>'+
+   '<p><label>Shop <select id="shop-pick">'+mine.map(p=>'<option value="'+p.id+'" '+(p.id===finder.shop?'selected':'')+'>'+esc(p.name)+' ('+(p.pitcher?'P':p.pos)+', overall '+overall(p)+(p.prospect?', farm club':'')+')</option>').join('')+'</select></label> <button id="shop-go">Hear offers</button></p>'+
+   (finder.offers?(finder.offers.length?'<div class="scroll-x"><table class="tbl"><tr><th>Club</th><th>Would give</th><th>Pos</th><th class="hide-sm">Age</th><th>Overall</th><th class="hide-sm">Ceiling</th><th></th></tr>'+finder.offers.map((o,i)=>{const p=clubPlayer(club(o.club),o.get);return '<tr><td>'+esc(club(o.club).short)+'</td><td>'+esc(p.name)+(p.prospect?' <span class="small">farm club</span>':'')+'</td><td>'+(p.pitcher?'P':p.pos)+'</td><td class="hide-sm">'+p.age+'</td><td class="ovr">'+overall(p)+'</td><td class="small hide-sm">'+ceilText(p)+'</td><td><button class="primary" data-offer="'+i+'">Accept</button></td></tr>';}).join('')+'</table></div>':'<div class="msg" role="status">No club would make a one-for-one trade for that player that fits both rosters and budgets.</div>'):'')+
+   '<h3>Build your own trade</h3><p>Pick a club, tick the players you would give and the players you want, then ask. Their general manager says yes or tells you how far apart you are. Young, highly rated players on fair salaries are worth the most, and so are prospects with a high ceiling.</p>'+
    '<p><label>Trade with <select id="trade-club">'+L.clubs.map((c,i)=>i===DM.you?'':'<option value="'+i+'" '+(i===trade.club?'selected':'')+'>'+esc(c.name)+' ('+c.w+'-'+c.l+')</option>').join('')+'</select></label></p>'+
    '<div class="cols"><div><h3>You give</h3>'+pickList(you(),'give',trade.give)+'</div><div><h3>You get, from the '+esc(them.short)+'</h3>'+pickList(them,'get',trade.get)+'</div></div>'+
    (trade.answer?'<div class="msg" role="status">'+esc(trade.answer)+'</div>':'')+
-   '<p><button id="trade-ask">Ask what they think</button> <button class="primary" id="trade-do">Propose the trade</button></p>';
+   '<p><button id="trade-ask">Ask what they think</button> <button id="trade-fill">What would make it work?</button> <button class="primary" id="trade-do">Propose the trade</button></p>';
 }
 function freeTab(){
   return '<p>Players without a club. They sign for the salary shown, as long as the payroll stays inside the owner\'s budget ('+money(payroll(you()))+' of '+money(you().budget)+'). Each winter two <b>standouts</b> arrive, the best players on the market; a better Scouting office makes them better still. <b>League minimum</b> players are always there and do not count against the budget, so you can always fill the roster.</p><div class="scroll-x"><table class="tbl"><tr><th>Player</th><th>Pos</th><th>Age</th><th>Overall</th><th>Ratings</th><th>Asks</th><th></th></tr>'+
@@ -226,12 +243,21 @@ document.addEventListener('click',async e=>{
   else if(b.dataset.draftPass!==undefined){ r=draftPass(L)||'✓ We passed.'+(L.draft.done?' The draft is over.':''); }
   else if(b.dataset.draftAuto!==undefined){ const before=(c.farm||[]).length; draftAuto(L); const got=(c.farm||[]).slice(before).map(p=>p.name); r='✓ '+(got.length?'Iona drafted '+got.join(', ')+'.':'Iona passed: the farm club is full.')+' The draft is over.'; }
   else if(b.dataset.upPark){ r=buyUpgrade(L,b.dataset.upPark)||'✓ The '+DM.upgrades[b.dataset.upPark].name.toLowerCase()+' are built.'; }
+  else if(b.dataset.find){ const ci=Number(b.dataset.findClub), id=Number(b.dataset.find), g=findDeal(L,ci,id); finder.want=id;
+    finder.deal=g?{club:ci,give:g,get:[id]}:{none:'Nothing we have would get '+clubPlayer(club(ci),id).name+' without breaking our budget or roster rules. Free up money or roster room, or build up the farm club.'}; r=''; }
+  else if(b.dataset.dealDo!==undefined){ const d=finder.deal; const x=doTrade(L,d.club,d.give,d.get); r=x||'✓ Done. '+names(you(),d.get)+' joined us.'; finder.want=null; finder.deal=null; finder.offers=null; }
+  else if(b.dataset.dealLoad!==undefined){ const d=finder.deal; trade={club:d.club,give:d.give.slice(),get:d.get.slice(),answer:''}; finder.want=null; finder.deal=null; r=''; }
+  else if(b.id==='shop-go'){ finder.shop=Number($('#shop-pick').value); finder.offers=shopPlayer(L,finder.shop); r=''; }
+  else if(b.dataset.offer){ const o=finder.offers[Number(b.dataset.offer)], p=clubPlayer(club(o.club),o.get); const x=doTrade(L,o.club,[finder.shop],[o.get]); r=x||'✓ Done. '+p.name+' joined us.'; finder.offers=null; }
+  else if(b.id==='trade-fill'){ const g=completeDeal(L,trade.club,trade.give,trade.get); if(!trade.get.length) trade.answer='Tick at least one player you want first.'; else if(!g) trade.answer='Nothing more we could add would make it work. Try asking for less, or check the budget and roster limits.'; else { const added=g.filter(id=>!trade.give.includes(id)); trade.give=g; trade.answer=added.length?'They would also want '+names(you(),added)+'. Those are ticked now; propose it if you agree.':'They would already take that. Propose it.'; } r=''; }
   else if(b.id==='trade-ask'){ trade.answer=judgeTrade(L,trade.club,trade.give,trade.get).why; r=''; }
   else if(b.id==='trade-do'){ const x=doTrade(L,trade.club,trade.give,trade.get); trade.answer=x||'Done. The new players are on your roster.'; if(!x){trade.give=[];trade.get=[];} r=''; }
   if(r!==null){ if(r)flash=r; save(); render(); }
 });
 document.addEventListener('change',e=>{
-  if(e.target.id==='trade-club'){ trade={club:Number(e.target.value),give:trade.give,get:[],answer:''}; renderOffice(); }
+  if(e.target.id==='find-pos'){ finder.pos=e.target.value; finder.want=null; finder.deal=null; renderOffice(); }
+  else if(e.target.id==='shop-pick'){ finder.shop=Number(e.target.value); finder.offers=null; renderOffice(); }
+  else if(e.target.id==='trade-club'){ trade={club:Number(e.target.value),give:trade.give,get:[],answer:''}; renderOffice(); }
   else if(e.target.dataset.pick){ const k=e.target.dataset.pick, id=Number(e.target.value); trade[k]=e.target.checked?trade[k].concat(id):trade[k].filter(x=>x!==id); trade.answer=''; }
 });
 document.addEventListener('keydown',e=>{
@@ -254,4 +280,4 @@ let fieldSize=null;
 function frame(now){ stepWatch(now); const e=view?view.g.events[view.i]:null; fieldSize=drawField($('#field'),L,e); requestAnimationFrame(frame); }
 render(); requestAnimationFrame(frame);
 if(L.intro) introNote(); else showOffseasonOrNext();
-if(location.hostname==='localhost') window.__dm={get L(){return L;},set L(v){L=v;render();},DM,newLeague,playGame,playDay,playFinalGame,recordGame,standings,overall,askSalary,payroll,batters,pitchers,setLineup,autoLineup,makeSchedule,plateAppearance,gateMoney,endSeason,canStartSeason,startSeason,resign,release,signFree,buyUpgrade,worth,judgeTrade,doTrade,aiOffer,answerOffer,validLeague,loadLeague,migrateLeague,rosterOk,render,potentialFor,scoutCeiling,makeProspect,develop,playsDaily,startDraft,draftPick,draftPass,draftAuto,callUp,sendDown,releaseFarm,FARM_MAX};
+if(location.hostname==='localhost') window.__dm={get L(){return L;},set L(v){L=v;render();},DM,newLeague,playGame,playDay,playFinalGame,recordGame,standings,overall,askSalary,payroll,batters,pitchers,setLineup,autoLineup,makeSchedule,plateAppearance,gateMoney,endSeason,canStartSeason,startSeason,resign,release,signFree,buyUpgrade,worth,judgeTrade,doTrade,aiOffer,answerOffer,validLeague,loadLeague,migrateLeague,rosterOk,render,potentialFor,findDeal,completeDeal,shopPlayer,tradeRating,clubPlayer,scoutCeiling,makeProspect,develop,playsDaily,startDraft,draftPick,draftPass,draftAuto,callUp,sendDown,releaseFarm,FARM_MAX};

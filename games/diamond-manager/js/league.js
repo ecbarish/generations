@@ -324,16 +324,23 @@ function buyUpgrade(L,k) {
   L.cash-=u.cost[lv]; L.upgrades[k]++; if(k==='scouting')fillFreeAgents(L,L.freeAgents.length); return '';
 }
 
-/* Trades. A player's worth to another club: quality, youth, and how fair the salary is. */
-function worth(p) { const o=overall(p), age=p.age<=26?1.2:p.age<=30?1:p.age<=33?.75:.5; return Math.max(5,Math.round(Math.pow(Math.max(0,o-38),1.6)*age - (p.salary-askSalary(p))/40)); }
+/* Trades. A player's worth to another club: quality (for a young player, partly the ceiling too), youth, and how fair
+   the salary is. Farm club prospects can be traded; they join the other club's farm club. */
+function tradeRating(p) { const o=overall(p); return p.age<=27&&(p.pot||o)>o ? o+((p.pot||o)-o)*.5 : o; }
+function worth(p) { const o=tradeRating(p), age=p.age<=26?1.2:p.age<=30?1:p.age<=33?.75:.5; return Math.max(5,Math.round(Math.pow(Math.max(0,o-38),1.6)*age - (p.prospect&&!p.sent?0:(p.salary-askSalary(p))/40))); }
+function clubPlayer(c,id) { return c.players.find(p=>p.id===id)||(c.farm||[]).find(p=>p.id===id); }
+function afterTrade(c,out,inn) { const farmIn=inn.filter(p=>p.prospect), rosterIn=inn.filter(p=>!p.prospect);
+  return {players:c.players.filter(p=>!out.includes(p)).concat(rosterIn), farm:(c.farm||[]).filter(p=>!out.includes(p)).concat(farmIn)}; }
 function judgeTrade(L,other,give,get) {
   const you=L.clubs[DM.you], them=L.clubs[other]; if(!them||other===DM.you) return {ok:false,why:'Pick a club to trade with.'};
-  const gp=give.map(id=>you.players.find(p=>p.id===id)).filter(Boolean), tp=get.map(id=>them.players.find(p=>p.id===id)).filter(Boolean);
+  const gp=give.map(id=>clubPlayer(you,id)).filter(Boolean), tp=get.map(id=>clubPlayer(them,id)).filter(Boolean);
   if(!gp.length||!tp.length) return {ok:false,why:'Choose at least one player from each side.'};
-  const after=(c,out,inn)=>{const x={players:c.players.filter(p=>!out.includes(p)).concat(inn)};return x;};
-  const ya=after(you,gp,tp), ta=after(them,tp,gp);
+  if(gp.length!==give.length||tp.length!==get.length) return {ok:false,why:'Some of those players are no longer with those clubs.'};
+  const ya=afterTrade(you,gp,tp), ta=afterTrade(them,tp,gp);
   if(!rosterOk(ya)) return {ok:false,why:'After this trade your roster would not have nine batters and five pitchers (or would pass '+DM.rosterMax+' players).'};
   if(!rosterOk(ta)) return {ok:false,why:them.short+' would be left without nine batters and five pitchers.'};
+  if(ya.farm.length>FARM_MAX) return {ok:false,why:'Our farm club would have more than '+FARM_MAX+' players.'};
+  if(ta.farm.length>FARM_MAX) return {ok:false,why:them.short+' have no room on their farm club.'};
   if(payroll(ya)>you.budget) return {ok:false,why:'Your payroll would go over the owner\'s budget of '+money(you.budget)+'.'};
   if(payroll(ta)>them.budget+500) return {ok:false,why:them.short+' can\'t take on that much salary.'};
   const g=gp.reduce((n,p)=>n+worth(p),0), t=tp.reduce((n,p)=>n+worth(p),0);
@@ -344,11 +351,30 @@ function judgeTrade(L,other,give,get) {
 function doTrade(L,other,give,get) {
   const j=judgeTrade(L,other,give,get); if(!j.ok) return j.why;
   const you=L.clubs[DM.you], them=L.clubs[other];
-  const gp=you.players.filter(p=>give.includes(p.id)), tp=them.players.filter(p=>get.includes(p.id));
-  you.players=you.players.filter(p=>!gp.includes(p)).concat(tp); them.players=them.players.filter(p=>!tp.includes(p)).concat(gp);
+  const gp=give.map(id=>clubPlayer(you,id)), tp=get.map(id=>clubPlayer(them,id));
+  const ya=afterTrade(you,gp,tp), ta=afterTrade(them,tp,gp);
+  you.players=ya.players; you.farm=ya.farm; them.players=ta.players; them.farm=ta.farm;
   setLineup(you); setLineup(them); L.log.push('Season '+L.season+', day '+L.day+': traded '+gp.map(p=>p.name).join(', ')+' to '+them.short+' for '+tp.map(p=>p.name).join(', ')+'.');
   return '';
 }
+/* The trade finder. completeDeal adds the least valuable one or two of our players (roster or farm) that turn a
+   proposal into one the other club accepts, or returns null. findDeal asks it for a player we want. shopPlayer asks
+   every club for the best player they would give for one of ours. */
+function completeDeal(L,other,give,get) {
+  const you=L.clubs[DM.you]; if(give.length&&judgeTrade(L,other,give,get).ok) return give.slice();
+  const pool=you.players.concat(you.farm||[]).filter(p=>!give.includes(p.id)).sort((a,b)=>worth(a)-worth(b));
+  let best=null, bestW=Infinity;
+  for(const a of pool){ const w=worth(a); if(w>=bestW) break; const ids=give.concat(a.id); if(judgeTrade(L,other,ids,get).ok){ best=ids; bestW=w; break; } }
+  for(let i=0;i<pool.length;i++) for(let k=i+1;k<pool.length;k++){ const w=worth(pool[i])+worth(pool[k]); if(w>=bestW) break;
+    const ids=give.concat(pool[i].id,pool[k].id); if(judgeTrade(L,other,ids,get).ok){ best=ids; bestW=w; } }
+  return best;
+}
+function findDeal(L,other,targetId) { return completeDeal(L,other,[],[targetId]); }
+function shopPlayer(L,id) { const out=[];
+  L.clubs.forEach((c,ci)=>{ if(ci===DM.you) return;
+    const best=c.players.concat(c.farm||[]).slice().sort((a,b)=>worth(b)-worth(a)).find(p=>judgeTrade(L,ci,[id],[p.id]).ok);
+    if(best) out.push({club:ci,get:best.id}); });
+  return out.sort((a,b)=>worth(clubPlayer(L.clubs[b.club],b.get))-worth(clubPlayer(L.clubs[a.club],a.get))); }
 /* Every fifth day another club may call with an offer that slightly favours them. */
 function aiOffer(L) {
   const you=L.clubs[DM.you], mine=you.players.slice().sort((a,b)=>worth(b)-worth(a)).slice(0,10);

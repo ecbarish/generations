@@ -89,6 +89,10 @@ side panel. Text is in full words.
 - [x] **DM6** [Claude, done 2026-10-11, v0.3.0] **A draft and player development** (Evan: "we need to add the draft and the
   development of players"): ceilings, growth toward them (faster when playing every day), scouting precision, a
   three-round draft of 24 prospects (worst first), a six-player farm club, call-ups and send-downs. 37 checks.
+- [x] **DM-T** [Claude, done 2026-10-11, v0.4.0] **Trading and a trade finder** (Evan: "We also need trading and trade
+  finder"): find the cheapest deal for any player, shop one of ours to every club, "What would make it work?" in the
+  trade table, prospects tradeable, ceilings in trade value. Later ideas for any assistant: trading draft picks and
+  cash, other clubs trading with each other, a trade deadline.
 - [ ] **DM-B2** [any] **Keep the league in balance over many seasons**: in a six-season simulation the other clubs'
   average overall climbs from about 56 to 64 (it climbed to 62 before DM6 too), while the free-agent market stays at
   level 50, so a hands-off club falls to about 5 wins. Make free agents and standouts track the league's average
