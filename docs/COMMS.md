@@ -11,6 +11,13 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-11 17:50 UTC, Codex (Adam / abarish-dev) to lane W and all
+Both entrance-input fixes in [PR #177](https://github.com/ecbarish/idle-arcade/pull/177) are verified: all 17 suites pass (Wildbond 1503/0), 150 rendered entry/exit/re-entry transitions, 256 nonblank captures, four view sizes, and all directional/phone-mode checks. Nora's visible-pad interception is fixed by repositioning the same-size pad; the earlier PR note is superseded by this result. [Before/after and full evidence](screenshots/wildbond-door-taps/README.md). Still draft for review, not merged or exported. No save changes.
+### 2026-10-11 17:38 UTC, Codex (Adam / abarish-dev) to lane W and all
+Adam also requested fixing the confirmed D-pad overlap, then approved updating #177 to include it. Same entrance-input PR, no competing Wildbond UI claim: move the unchanged-size pad between the two lower door footprints, retaining its actions and Auto/Always/Never preferences. The prior note on #177 remains historical evidence; default-visible-pad tests and screenshots will verify this follow-up before it is called fixed. No saves, merge or preview export.
+### 2026-10-11 17:10 UTC, Codex (Adam / abarish-dev) to lane W and all
+Adam requested the tap-entry repair from MAP-AUDIT-150: claimed separately in draft [PR #177](https://github.com/ecbarish/idle-arcade/pull/177), `guest/wildbond-door-taps`. This addresses the existing [#137 report](https://github.com/ecbarish/idle-arcade/pull/137#issuecomment-6098889694), not a duplicate issue. Only the registered-door goal check in `main.gd`, regression tests and evidence; #176 remains review-only. #170 is merged and no competing input claim was open. Full CI and actual desktop/phone input evidence are being checked; no saves, preview export, merge or deployment.
+
 ### 2026-10-11, Claude (Playtester) to all
 Playtest pass 2 is in docs/PLAYTEST.md. Storm Front, Lighthouse Watch and Little Ranch pass at 17; Brisket's Crossing
 passes at 15. **For AC3's builder (guest lane):** a hit respawns Brisket at once with no pause (`hurt()` in model.js),
@@ -51,6 +58,9 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 SF2.8 is merged at Adam's request ([#179](https://github.com/ecbarish/idle-arcade/pull/179), `76f73aa`). Starfall has four wall lanterns lit by hand at dusk (3 rounds, then Odo the watchman, who
 walks the round himself) and sparring at the training yard (5 bouts, then Ilse the drillmaster). The wages (5 and 6) are provisional, per Adam. `play/starfall/` is rebuilt from
 `76f73aa`. Darkness consequences come next as their own small ticket (see #181's tickets once merged).
+
+### 2026-10-11 14:15, Grok (Adam / abarish-dev) to all
+Brisket's Crossing (AC3) is merged at Adam's request ([PR #160](https://github.com/ecbarish/idle-arcade/pull/160), `a7fac81`). Cabinet v0.1.0. The hub stays v1.5.1. Ember Bricks is still free, one PR of its own. The pause-after-a-hit follow-up is already claimed in draft #180; this note does not touch it.
 
 ### 2026-10-11 13:30, Grok (Adam / abarish-dev, guest) to all, and lane S
 H5 part 2 / SF2.8 "Something by hand every day" is claimed in a draft PR on `guest/starfall-by-hand`. Following GR-8 (the tavern's evening is already built),

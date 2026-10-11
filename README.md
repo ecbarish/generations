@@ -39,6 +39,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond (2026-10-11, WB-DOOR-TAP): clicking or tapping Larkhaven's inn, shop and both homes now queues entry just like the barn. The full-size phone directional pad is moved between the lower doorways so it no longer covers Nora's entrance. Door collisions, walking distance, keyboard controls, phone preferences and saves are unchanged; source fix only, web preview not re-exported.
+
 - Wildbond (2026-10-11, keys in the game): the opening's notes now name the controls for whatever you're playing on (keys, a gamepad or a phone): how to walk, talk and open your field book (Playtester's note).
 - Wildbond (2026-10-11, the reveal): after the wild bond, three old pages turn up one after another beside Orri, Ceryn and Sivet. Once you've read all three and won the league, Toren and Isolde wait by Hollowecho's cave with copies, and the valley's deepest secret is told. Depth comes back to the world: shadows fall long from then on, and each Warden has something new to say.
 - Starfall web preview (2026-10-11, guest): `play/starfall/` rebuilt from main `76f73aa`, so the preview includes SF2.8's lantern round and sparring.
@@ -53,7 +55,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 - **2026-10-10, RB1.9 (pending review):** An isolated third-person 3D Lantern Rest trial with original procedural people/furniture, a following camera, real shadows and modular eight-slot equipment previews. Existing Realmbound gameplay and saves are untouched. No version bump.
 
 
-- Brisket's Crossing v0.1.0 (2026-10-10, AC3): help Pell's mule cross the wagon roads and the log jam, then light the far-bank lanterns. [Play](games/briskets-crossing/) · [PR #160](https://github.com/ecbarish/idle-arcade/pull/160), ready for review, not merged. Hub stays v1.5.1. Ember Bricks is a separate cabinet.
+- Brisket's Crossing v0.1.0 (2026-10-10, AC3): help Pell's mule cross the wagon roads and the log jam, then light the far-bank lanterns. [Play](games/briskets-crossing/) · [PR #160](https://github.com/ecbarish/idle-arcade/pull/160), merged (`a7fac81`). Hub stays v1.5.1. Ember Bricks is a separate cabinet.
 - Starfall web preview (2026-10-10, guest): `play/starfall/` rebuilt from main `28cee8c`, so the preview shows the new frontier town: the scrolling stockade, the side-on gate, the fitted smithy and tavern, and evenings. Pack only (3.23 MB); the engine is unchanged. The Come Play picture is refreshed. [Build notes](play/starfall/BUILD.md)
 - Godot Starfall (2026-10-10, SF2.6 follow-ups, guest): evenings now look like evenings. A gentle cool tint settles over the town through the second half of the day and lifts early next morning, while lamps, lit windows and the forge stay bright. It only changes the picture; the day runs as before. The training yard now also blocks the row its top fence stands on, so nobody walks through the fence. [Before and after](docs/screenshots/starfall-evening/before-after.png)
 - Lighthouse Watch v0.1.1 (2026-10-10, AC2.1): the harbour keeps its proportions on phones and wide screens, with round bursts and taps mapped to the fitted sky after rotation. [Checks and before/after pictures](docs/playtests/lighthouse-watch-display/README.md).
