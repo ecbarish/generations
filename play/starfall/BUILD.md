@@ -1,8 +1,8 @@
-# Starfall preview: 2026-10-10
+# Starfall preview: 2026-10-11
 
-This pack is built from main `28cee8c`. It includes SF2.6 "Starfall's own place" (the frontier stockade town that scrolls,
-drawn with the ART-SF pictures), ART-SF-7 (the side-on west gate, plus a smithy and tavern sized to fit their plots), the evening tint and the yard's
-footprint.
+This pack is built from main `9c48e64`. It includes SF2.6 "Starfall's own place" (the frontier stockade town that scrolls,
+drawn with the ART-SF pictures), ART-SF-7 (the side-on west gate, plus a smithy and tavern sized to fit their plots), the evening tint, the yard's
+footprint, and SF2.7 "See the wilds sooner" (the short stretch outside the west gate).
 
 Only `index.pck` and its byte count in `index.html` were rebuilt, following the Wildbond preview's pack-only refresh
 (play/wildbond/BUILD.md). The Godot 4.7.2 engine (`index.js`, `index.wasm`) and the other shell files are unchanged.
@@ -14,4 +14,4 @@ To refresh the pack, import the project once with Godot 4.7.2, then run:
     Godot --headless --path starfall-godot --export-pack Web ../play/starfall/index.pck
 
 Then update `"index.pck"` in `fileSizes` in `index.html` to the new byte count. Checked by loading the preview in headless
-Chrome with SwiftShader: it starts, the new town draws and Bryn's welcome appears, with no console errors.
+Chrome with SwiftShader: it starts, the town draws and Bryn's welcome appears, with no console errors, and you can walk out of the west gate onto the trail.
