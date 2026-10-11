@@ -1,0 +1,55 @@
+name: Starfall opening view
+on:
+  pull_request:
+    paths:
+      - 'starfall-godot/**'
+      - 'tools/audit/starfall_opening_view.gd'
+      - 'tools/audit/validate_starfall_opening.py'
+      - '.github/workflows/starfall-opening-view.yml'
+permissions:
+  contents: read
+concurrency:
+  group: starfall-opening-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rendered-opening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install official renderer and display tools
+        run: |
+          set -euo pipefail
+          curl --fail --retry 2 -sSLo "$RUNNER_TEMP/godot.zip" https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends xvfb libgl1-mesa-dri imagemagick
+      - name: Capture actual before and after opening views
+        env:
+          # Fixed pre-SF2.6c witness: later Starfall PRs must not lose the reproduced before view.
+          BASE_SHA: 4e5b83b0ed31f21b823e69694a415ac2c2b3b26f
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          git worktree add --detach "$RUNNER_TEMP/sf-before" "$BASE_SHA"
+          mkdir -p opening-review/{before,after}
+          for side in before after; do
+            project="$PWD/starfall-godot"; baseline=0; sha="$(git rev-parse HEAD)"
+            if [ "$side" = before ]; then project="$RUNNER_TEMP/sf-before/starfall-godot"; baseline=1; sha="$BASE_SHA"; fi
+            timeout 180 "$GODOT" --headless --path "$project" --editor --import --quit
+            SOURCE_SHA="$sha" OPENING_BASELINE="$baseline" OPENING_OUTPUT="$PWD/opening-review/$side" timeout 240 xvfb-run -a -s '-screen 0 3500x1600x24' "$GODOT" --path "$project" --audio-driver Dummy --rendering-method gl_compatibility --script "$PWD/tools/audit/starfall_opening_view.gd" |& tee "opening-review/$side/render.log"
+          done
+      - name: Check every construction layout and reject blank captures
+        run: |
+          set -euo pipefail
+          AUDIT_OUTPUT="$PWD/opening-review/reachability.json" "$GODOT" --headless --path starfall-godot --script "$PWD/tools/audit/starfall_maps.gd"
+          python3 tools/audit/validate_starfall_opening.py opening-review
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: starfall-opening-review
+          path: opening-review/
+          if-no-files-found: error
