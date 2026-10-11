@@ -63,6 +63,12 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 | WB4.4b-reveal | Three observations and the final truth (T58) | M | ready: PR #101, Codex, 2026-10-09 | Approved account and observations; data only for Claude to place |
 | WB4.4b-audit | Clue fit and three late observations (T55) | S | ready: PR #82, Codex, 2026-10-09 | Writer doc first; no reveal text before Claude review |
 
+## Scene and interior design pass
+
+| ID | Project | Size | Status | Notes |
+|---|---|---|---|---|
+| SCENE-PLAN | Shared interior and entrance outline | S | ready: PR #151, Codex, 2026-10-10 | Evan requested; docs only, complements MAP-AUDIT #147 |
+
 ## How to use this list
 
 - **Pick** any project whose status is `open` and whose dependencies are done, in the focus order of

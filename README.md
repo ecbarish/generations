@@ -53,9 +53,15 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 - Realmbound (2026-10-10): full ability names are larger on phones, desktop and ultrawide; wrapping keeps them readable, with separate shortcuts and cooldown counts.
 - Otherworld (2026-10-10): choose a world directly from the Archivist's introduction, or keep reading; world, gift and name decisions remain yours.
 
+- Design (2026-10-10): shared scene/interior layout outline, distinct Larkhaven home briefs, real entrance-input checks and small follow-up tasks for any assistant.
+
+- Tell us (2026-10-10, AR2.11): every browser game's ⚙ Settings now has a "Tell us" row (Share feedback, Report a bug, Suggest an idea) that opens a GitHub issue with the game and version filled in, plus a ten-minute playtest script on [Come Play](playtest.html#script). Little Ranch stays without links on purpose.
+- Lighthouse Watch (2026-10-10, AC2): the second arcade cabinet, in the missile-defence shape. Storm sparks fall on four harbour boats; tap the sky (or aim and fire) to burst them with the lighthouse beam. Nights speed up, sparks split from night 3, a lost boat comes back every third night, three initials on a local high-score board, two-player turns. [games/lighthouse-watch/](games/lighthouse-watch/)
 - Godot Wildbond (2026-10-10, WB-PREVIEW): refreshed playable web pack with battle practice, the Thornwood trail, Lighthouse Spire and Champion rematches; updated guide and verified old journeys, browser reloads and phone-to-ultrawide screens. [Build notes](play/wildbond/BUILD.md).
 
 - Godot Wildbond (2026-10-10, WB2.4 / H8, guest): the last two homes in Larkhaven. Two new cottages you can walk into, like the inn and the shop: Pip's home, where his mum is (and something Pip left by the window for you), and his gran's cottage by Juniper's, where she hums the harvest tune (and a jar of berries she picked too many of). Old saves standing where a cottage now is step out in front of its door.
+- 2026-10-10: ART-SF-6 — original frontier props (barrel, crate, firewood, lantern, cart, bunting, empty plot) on one indexed sheet, with footprint metadata and a scale contact scene; assets only.
+
 - 2026-10-10: ART-SF-5 — original frontier shops, well, job board and training yard, with footprint metadata and silhouette/contact review; assets only.
 
 - 2026-10-10: ART-SF-4 — original Guild Hall and two-storey Inn, lit/unlit windows, stone footprints and scale contact sheet; art assets for review.
