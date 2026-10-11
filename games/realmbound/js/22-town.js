@@ -13,7 +13,7 @@
    town works exactly as before. */
 const TOWN_TILES = { ',': {}, f: {}, '.': {}, _: {}, r: {}, '~': { solid: 1 }, T: { solid: 1 }, '#': { solid: 1 }, '=': { solid: 1 }, L: { solid: 1 },
   O: { solid: 1 }, F: { solid: 1 }, Y: { solid: 1 }, H: { solid: 1 }, B: { solid: 1 },
-  s: {}, K: { solid: 1 }, E: { solid: 1 }, A: { solid: 1 }, Q: { solid: 1 }, D: { door: 1 }, P: { sign: 1, solid: 1 }, C: { sign: 1, solid: 1 }, J: { sign: 1, solid: 1 }, G: { exit: 1 } };
+  s: {}, U: { solid: 1 }, V: { solid: 1 }, K: { solid: 1 }, E: { solid: 1 }, A: { solid: 1 }, Q: { solid: 1 }, D: { door: 1 }, P: { sign: 1, solid: 1 }, C: { sign: 1, solid: 1 }, J: { sign: 1, solid: 1 }, G: { exit: 1 } };
 const TOWN_W = 28, TOWN_H = 16;
 /* buildings: their footprint, the door on the bottom row (facing the street) and what it opens */
 const TOWN_BUILDINGS = [
@@ -222,6 +222,10 @@ function townStand(c, ch, left, base, s, t, x, y, pass) {
     if (y === 0 && x % 3 === 2) { R(3.6, 7, .8, 1.6, '#efe6cc'); R(3.7, 8.6, .6, .8, '#ffd36a'); }
     return; }
   if(ch==='K'){R(1,0,6,3,P.stoneDk);R(2,3,4,5,P.stone);R(3,5,2,1,'#b6bdaf');return;}
+  // Inn furniture occupies its own solid cell; the centre runner stays clear for arrivals.
+  if(ch==='U'){R(.7,0,6.6,6,P.woodDk);R(1,5.5,6,1,P.wood);R(1.2,.5,5.6,4.6,'#976d45');R(3.8,.5,.4,4.6,P.woodDk);R(3,2.3,.5,.6,'#d6af69');R(4.5,2.3,.5,.6,'#d6af69');R(1.4,6,4.8,.6,'#ded4b7');R(1.8,6.6,4,.6,'#b7b99d');return;}
+  if(ch==='V'){R(1.3,0,.7,2,P.woodDk);R(6,0,.7,2,P.woodDk);R(1,2,6,1,P.wood);R(1.2,3,5.6,.8,'#9c5740');R(1.3,3,.7,3.5,P.woodDk);R(6,3,.7,3.5,P.woodDk);R(1.3,5,5.4,.7,P.wood);return;}
+  if(ch==='E'&&TOWN.inside==='inn'){R(.7,0,6.6,1.5,P.woodDk);R(1,1.5,6,5.5,'#d6c8a7');R(1,5.4,6,1.6,P.woodDk);R(1.6,5.6,4.8,1,'#f0e5ca');R(1.2,1.7,5.6,3.7,'#567879');R(1.2,2.2,5.6,.5,'#adc1ae');R(1.2,4.6,5.6,.5,'#adc1ae');R(1.3,0,.7,1,P.woodDk);R(6,0,.7,1,P.woodDk);return;}
   if(ch==='E'){R(.4,0,7.2,2,P.woodDk);R(.8,2,6.4,1,'#ede4cb');R(1,3,6,1.4,'#537d86');R(1,3.4,6,1,'#759b9c');return;}
   if(ch==='A'){R(2,0,4,2,'#333943');R(3,2,2,3,'#555e69');R(.5,5,7,1.4,'#9ba7b3');return;}
   if(ch==='Q'){R(1,0,.8,7,P.woodDk);R(6,0,.8,7,P.woodDk);R(1,6,6,1,P.wood);R(3,2,.5,5,'#b7bec8');R(2,3,3,.5,'#b7bec8');return;}
@@ -275,7 +279,7 @@ function drawTown(t) {
   if(inside==='stable'){const mount=activeMount();things.push({x:3,y:3,draw(c,left,base,s){drawBeast(c,left+s*.15,base-s,s/16,mount?mount.col:'#937455',mount?mount.kind:'horse',true,t);}});}
   things.push({ x: p.fx, y: p.fy, draw(c, left, base, s) { const pp = s / 11; drawHero(left + s * .14, base - 13 * pp, pp, t, c); } });
   const view = { rows: TOWN.map.rows, px: p.fx, py: p.fy, flat: townFlat, under: inside ? '_' : ',', stand: townStand, things,
-    stands: { T: 1, '#': 1, D: 1, L: 1, P: 1, O: 1, '=': 1, F: 1, Y: 1, H: 1, B: 1, C: 1, J: 1, K: 1, E: 1, A: 1, Q: 1 }, noShadow: { '#': 1, D: 1, H: 1 } };
+    stands: { T: 1, '#': 1, D: 1, L: 1, P: 1, O: 1, '=': 1, F: 1, Y: 1, H: 1, B: 1, C: 1, J: 1, K: 1, E: 1, A: 1, Q: 1, U: 1, V: 1 }, noShadow: { '#': 1, D: 1, H: 1 } };
   if (inside) Object.assign(view, { sky: ['#1a1008', '#2a1a10'], hill: '#2a1a10', edgeFill: '#1a1008', haze: '#2a1a10', dof: false, horizon: .12, zoom: 5.2,
     skyDraw: (g, w, hh) => { g.fillStyle = '#20140c'; g.fillRect(0, 0, w, hh); g.fillStyle = '#2a1a10'; for (let x = 0; x < w; x += 24) g.fillRect(x, 0, 4, hh); } });
   else { const sky = [Ambience.mix(z.sky[0], '#070b22', night * .85), Ambience.mix(z.sky[1], '#2e3868', night * .8)];

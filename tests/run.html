@@ -16,6 +16,7 @@ body{font:16px system-ui,sans-serif;background:#131820;color:#e8edf5;max-width:9
 <ol id="results"></ol>
 <details><summary>Test game</summary><div id="game"></div></details>
 <script src="realmbound-phone.js"></script>
+<script src="realmbound-inn-layout.js"></script>
 <script>
 'use strict';
 const button=document.querySelector('#run'),summary=document.querySelector('#summary'),results=document.querySelector('#results');
@@ -36,7 +37,7 @@ button.addEventListener('click',async()=>{
     // the existing debug hook inside this test iframe only, leaving the game source unchanged.
     if(!w.__rb){const hook=bootText.split('\n').find(line=>line.startsWith("if(location.hostname==='localhost')window.__rb="));if(!hook)throw Error('Existing test hook was not found.');w.eval(hook.slice(hook.indexOf('window.__rb=')));}
     const scenarios=w.eval('(function(){const module={exports:null};\n'+scenarioText+'\nreturn module.exports;})()');
-    const checks=scenarios();checks.push(...await checkRealmPhone(frame));for(const label of checks)result(true,label);
+    const checks=scenarios();checks.push(...await checkRealmPhone(frame),...checkRealmInnLayout(frame));for(const label of checks)result(true,label);
     summary.textContent='PASS — '+checks.length+' scenario checks.';summary.className='pass';
   }catch(error){result(false,error.message);summary.textContent='FAIL — '+error.message;summary.className='fail';}
   finally{

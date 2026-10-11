@@ -209,6 +209,8 @@ creatures as monsters. Built as first-person grid delves (docs/proposals/new-gam
 - [x] RB1.5 [ChatGPT] (built: Codex, 2026-10-09, PR #98; awaiting review) Wait for the player (GR-10, a bug): autopilot must not take over during the first dialogue
   (games/realmbound/js/13-world-ui.js:95); fix the stray blocks in the sky. Do first.
 
+- [ ] RB1.7 [ChatGPT] Realmbound inn furnishing pass (built: Codex, 2026-10-10, PR #153; awaiting review). Files: games/realmbound/js/22-hub-layouts.js, 22-town.js, tests/realmbound-inn-layout.js and run.html, screenshots and task notes. Done when sleeping, dining and hearth spaces are distinct; the entrance, Keeper and exit work by tap and keyboard; existing services and saves stay intact. Score: 17/21 (Fun now 2x2, Evan's heart 3x2, Friends notice 2, Moves the focus 2, Cheap 3).
+
 **RB-M2: what the raid set up.**
 - [ ] RB2.1 [ChatGPT] Battlegrounds plan in docs/proposals/ (R3; new system: Evan
 approves).
@@ -346,6 +348,7 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - **2026-10-10, RB1.6:** a valid 44px tap target can still hide its words. Check actual text line rectangles as well as button bounds; wrap names in a body font, and let the existing ResizeObserver measure the larger action bar.
 - **2026-10-10, OW1.1:** a keyboard-only story shortcut is easy to miss. Offer the existing skip as a visible, optional in-scene button; bind it to the introduction state so stale controls cannot skip later choices.
 - **2026-10-10, SCENE-PLAN:** static access, real input and visual composition are separate checks. Purposeful furniture groups and clear thresholds make small rooms believable; a full map audit already exists in #147, so the shared outline extends its visual/design handoff.
+- **2026-10-10, RB1.7 (Codex, PR #153):** repeated bed tiles read as a storage room. Group beds with linen cupboards and tables with chairs; keep the centre open. Check the drawn furniture footprint against real movement, then tap the Keeper and leave by keyboard on four screen sizes.
 
 - **2026-10-09, WD2 data (Codex, PR #113):** the roster has 104 base species and three hybrids added by the ranch module. Validate the full exporter, not just 00-data.js; all 107 preserve their original gameplay fields. Drawing hints stay out of creature saves; the appearance contract is in docs/lore/wildbond-looks.md.
 Standing rule (Evan, 2026-10-09): each piece of work records here what it taught us and what was done about it, in a

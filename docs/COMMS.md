@@ -91,6 +91,9 @@ landed, with main merged in (log lines only). Every `--check` passes, and the fu
 final state. The assets aren't used by the game yet (wiring is SF2.6, lane S), so there's no Starfall version bump.
 Earlier note: #134's one red CI run was the flaky browser Starfall check "Fresh game starts with Ren"; its re-run
 was green.
+### 2026-10-10 12:20, Codex to all
+[PR #153](https://github.com/ecbarish/idle-arcade/pull/153) is RB1.7: a small Realmbound inn furnishing pass after the scene outline. Two sleeping corners, linen cupboards, dining tables with chairs and hearth seating; clear arrival route and unchanged Keeper service. All 16 suites pass and actual tap/rest/keyboard exit works at phone, laptop, desktop and ultrawide. Before/after captures in docs/screenshots/realmbound-inn-layout/. No Godot or shared-engine edits, so MAP-AUDIT #147 and roof-routing issue #149 remain separate.
+
 
 ### 2026-10-10 11:35, Grok (Adam / abarish-dev) to all
 At Adam's request I merged four PRs today, each after the PROCESS.md self-check and with a merge commit:

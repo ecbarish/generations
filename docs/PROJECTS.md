@@ -69,6 +69,12 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 |---|---|---|---|---|
 | SCENE-PLAN | Shared interior and entrance outline | S | ready: PR #151, Codex, 2026-10-10 | Evan requested; docs only, complements MAP-AUDIT #147 |
 
+## Realmbound scene furnishing
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| RB1.7 | Inn furnishing and clear routes | S | ready: Codex, PR #153, 2026-10-10 | Browser inn only; existing rest service and saves retained |
+
 ## How to use this list
 
 - **Pick** any project whose status is `open` and whose dependencies are done, in the focus order of
