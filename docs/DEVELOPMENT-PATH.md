@@ -76,7 +76,8 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 - [ ] WB2.2 [Claude] Depth step 1 (WG6): ground heights, object footprints and heights (part 1 done 2026-10-08: the colour layer drawn in true depth order, people in front of you faded as the world is). Part 2 done 2026-10-09: trees beside open ground stand at their true height and their crowns pass in front of you (see-through, faded like the world: shaders/canopy.gdshader), never over a sign or an item. Left: ground heights, footprints and heights on objects (houses and rocks).
 - [ ] WB2.3 [Claude] Variety pass (WG7) (done 2026-10-08: an animated effect per element in battle; waves and wind under the music. Tried the pack's water ripples: opaque tiles, rejected). Left: waterfalls, edge
   tiles.
-- [ ] WB-DOOR-TAP [any] (verified: draft PR #177, Adam / abarish-dev, 2026-10-11) Fix the registered-door tap rejection reported on #137; main.gd and native input regressions, with desktop/phone entry, exit and re-entry evidence for all five Larkhaven buildings. Also clear the confirmed Nora doorway/D-pad overlap at Adam's explicit request; retain button size, actions and preferences. Keep keyboard, state restrictions, camera transforms and saves unchanged; no preview export or merge.
+- [x] WB-DOOR-TAP [any] **Done 2026-10-11:** [PR #177](https://github.com/ecbarish/idle-arcade/pull/177) merged as `480dfc4`; all five doors accept tap routes and the full-size phone pad clears Nora's doorway. All 17 suites and 150 rendered transitions pass. Keyboard, state restrictions, preferences and saves unchanged. Preview release: #183.
+- [x] WB-PREVIEW-177 [any] **Built and verified 2026-10-11:** [PR #183](https://github.com/ecbarish/idle-arcade/pull/183), Adam / abarish-dev. Exact pack from merged `480dfc4` passes 353 Chromium checks and 119 captures, including 60 door transitions, 20 fresh-save reloads and 12 pad hold/release cases. Engine unchanged. Final committed-pack CI and live hash confirmation are release gates; see play/wildbond/BUILD.md.
 - [x] WB2.4 [Claude] Interiors: the inn, the shop and two homes in Larkhaven, walkable (inn and shop done 2026-10-08, with Old Ned and Juniper; both homes done 2026-10-10: Pip's home with Mira and Nora's cottage, Grok for Adam / abarish-dev, PR #137, H8; the pack's unused Interior tileset has furniture, floors and walls: docs/learning/assets.md).
 - [x] WB2.5 [Claude] Maren's letter and the field book's "where next" hint (WG8): done 2026-10-08.
 - [x] WB2.6 [ChatGPT] (done, merged 2026-10-09; T45) Lore: a heritage line for every Warden and townsperson in areas 1-4 (data in the browser game,
@@ -194,8 +195,53 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
 - [x] ART-SF-6 [any] ([PR #148](https://github.com/ecbarish/idle-arcade/pull/148), Adam / abarish-dev, merged 2026-10-11) Loose props: barrel, crate, firewood, lit/unlit lantern, 2×1 cart, bunting and a 48×48 staked plot on props.png; footprint metadata and a contact scene on ART-SF-1 ground; art review before integration.
 - [ ] WB-ROOF-149 [any] (claimed: Adam / abarish-dev, 2026-10-10) Fix #149: tap routes avoid roof collision while preserving doors and NPC avoidance; wildbond-godot/scripts/main.gd and native tests; done when both witnessed taps and existing transition checks pass.
 - [x] SF2.7 [Claude] See the wilds sooner (GR-7): a small walkable stretch past the gate (an early piece of SF4.1). (claimed: Grok for Adam / abarish-dev, 2026-10-11, guest/starfall-wilds-sooner, H5 part 1) Built in #174: a 26×18 stretch west of the gate on the town's grid (x -26 to -1); SF4.1 can extend it west or add camps there. Merged 2026-10-11 (`9c48e64`); play/starfall/ rebuilt to include it.
-- [ ] SF2.8 [Claude] Something by hand every day (GR-8): the next jobs to master, then hire. (claimed: Grok for Adam / abarish-dev, 2026-10-11, guest/starfall-by-hand, H5 part 2)
+- [x] SF2.8 [Claude] Something by hand every day (GR-8): the next jobs to master, then hire. (claimed: Grok for Adam / abarish-dev, 2026-10-11, guest/starfall-by-hand, H5 part 2) Merged 2026-10-11 ([PR #179](https://github.com/ecbarish/idle-arcade/pull/179), `76f73aa`): the gate watch (lantern round, then Odo, who walks it) and sparring at the yard (then Ilse). Darkness consequences are a separate follow-up.
 - [x] SF2.5 [Claude] Hire the apothecary's apprentice once you've brewed enough (the same "master it, then hire" rule). *Done 2026-10-09: after four batches by hand Fen walks in; six coins a day; brews whenever there are herbs and room on the shelf; leaves the pot to you if unpaid.*
+
+**SF-M2b: progression (Adam, 2026-10-11; docs/proposals/starfall-progression.md).** Rule for all of these: no
+mandatory daily chores; convenience is earned. Files for each: `starfall-godot/scripts/main.gd`,
+`starfall-godot/tests/run_tests.gd` (plus `data/stories.json` where noted); new save fields default for old saves.
+- [ ] SF2.9 [any] Darkness, step 1 (docs/proposals/starfall-darkness.md, Adam's decision): on a night with an unlit wall
+  section, sometimes (start ~1 in 3) a small creature is seen slipping in through that section to the nearest building.
+  At most one incident in the whole town per night, and each lantern protects only its own section. Next morning there's
+  a mess with tracks to the wall, a report line, and that building works a little worse until it's cleared with one E
+  press or by Odo on his round. Gone after a day; no combat. Done when: all lit means no incident; a dark section is the
+  only way in; there's never more than one a night; a hand clear and an Odo clear both work; old saves load; screenshot.
+  Score 14/21 (fun 2, Evan 2, friends 2, focus 2, cheap 2).
+- [ ] SF2.10 [any] In-world goal guidance: a goal line under the status bar naming the nearest unlock with its count, in
+  the world's words ("Walk the walls 2 more nights: someone might ask to keep watch"; "4 more jobs: Starfall becomes a
+  Village"), plus a "Next" list of the three nearest unlocks (ranks, hires, plots, story beats). Done when: it always shows
+  a reachable next step, updates as counts change, works on phone width, and is checked for each kind of unlock. Fixes the
+  COMMS lane S "no goal line" note. Score 18/21 (fun 2, Evan 3, friends 3, focus 2, cheap 3).
+- [ ] SF2.11 [any] Station mastery ranks: counter, forge, pot, tap, lantern round and yard each earn named ranks at 10/25/50
+  uses. Rank 1 widens the gold band (less fiddly), rank 2 adds a technique with a choice (for example a stew that lifts
+  spirits or one that heals), and rank 3 brings a tool drawn in the world that makes one press do more. Start with the
+  counter; one station per PR is fine. Done when: ranks save, each rank visibly changes the station, and hand play stays
+  better than the hire. Score 18/21 (fun 3, Evan 3, friends 2, focus 2, cheap 2).
+- [ ] SF2.12 [any] The hire works at your rank: Bryn, Garrick, Fen, Tamsin, Odo and Ilse work at the mastery rank you
+  reached before hiring them, so mastering first makes the helper better. Done when it's checked per hire. Score 14/21
+  (fun 2, Evan 2, friends 1, focus 2, cheap 3).
+- [ ] SF2.13 [any] Trust per adventurer: +1 for each thing you do by hand for them (a meal, a pour, a piece forged, a
+  bout, a story talk), shown as marks on their card. It gates later story beats (with jobs) and gives one high-trust perk
+  (they'll take a job a step harder for you). Uses `data/stories.json`. Done when: trust saves and defaults to 0, and
+  shows; gating and the perk are checked. Score 17/21 (fun 2, Evan 3, friends 2, focus 2, cheap 3).
+- [ ] SF2.14 [any] Veteran requests: at level 5 or 10 jobs done, a few danger-5 requests on the board ask for that
+  adventurer by name and only they can take them. Each pays more and leaves a visible change in town (a trophy over the
+  hall door, a new carter route). Done when: early recruits get them, a higher-level newcomer can't take theirs, and the
+  change shows. Score 17/21 (fun 3, Evan 3, friends 1, focus 2, cheap 2).
+- [ ] SF2.15 [any] Signature moves through training and equipment: at a level, with training-yard bouts and good gear, each
+  member learns one move tied to their class and story (Aki's guard halves the hurt on a failed job; Ren's map shortens
+  trips). It's shown on their card and announced in town. Done when: each starting member has one, it's earned (not given),
+  and it's checked. Score 15/21 (fun 2, Evan 3, friends 1, focus 2, cheap 2).
+- [ ] SF2.16 [any] Recruit specialities, not bigger numbers: each job lists who suits it ("good for: archers, thieves"),
+  and suited adventurers get better odds. Newcomers and visitors arrive near your team's middle level, never above your
+  best, each bringing a trait. Done when: every class suits at least one job, favourites stay best at their own work,
+  and relationships (trust, stories) are untouched by new arrivals. Score 15/21 (fun 2, Evan 2, friends 2, focus 2,
+  cheap 3).
+- [x] SF2.17 [any] Day-pacing check: measure the 150-second day in normal play (hand jobs per day, chores vs bonuses,
+  time to each hire and rank, active vs idle income) with a scripted player; recommendations only, no numbers changed.
+  (Grok for Adam / abarish-dev, 2026-10-11: docs/measurements/starfall-day-pacing.md.) Score 14/21 (fun 2, Evan 2,
+  friends 2, focus 2, cheap 2).
 
 **SF-M3: seasons.**
 - [ ] SF3.1 [Claude] Seasons as chapters (SV2), the first one ending in a festival.
@@ -314,7 +360,7 @@ No-server sharing: trade and battle codes, ghost teams (V6 part 1).
 - [x] AC1 [any] Storm Front (the Space Invaders shape, Evan's pick): one cabinet, original name and art, one PR. (built: Codex for Adam / abarish-dev, guest/storm-front, PR #119; awaiting review)
 - [x] AC2 [any] Lighthouse Watch (the Missile Command shape). (built: Grok for Adam / abarish-dev, PR #145, merged 2026-10-10; v0.1.0)
 - [x] AC2.1 [any] Lighthouse Watch display and controls polish: uniform harbour scale, taps mapped after resize, phone pause/rotation checks and before/after captures. Files: `games/lighthouse-watch/`, `tests/lighthouse-watch.html`, evidence in `docs/playtests/lighthouse-watch-display/`; done when circles remain round and aiming/menus/scores pass on phone and desktop. Score 16/21 (fun 2×2, heart 2×2, friends 3, focus 2, cheap 3). (built: Codex for Adam / abarish-dev, PR #163; v0.1.1 release)
-- [ ] AC3 [any] Brisket's Crossing (the Frogger shape) and Ember Bricks (the Breakout shape), one PR each. Brisket's Crossing is draft PR #160 (ready for review, not merged). Ember Bricks is still free.
+- [ ] AC3 [any] Brisket's Crossing (the Frogger shape) and Ember Bricks (the Breakout shape), one PR each. Brisket's Crossing is merged ([PR #160](https://github.com/ecbarish/idle-arcade/pull/160), `a7fac81`). Ember Bricks is still free.
 
 ### Parked (Evan decides when)
 Primordial beyond light polish, a second sport. Proposals welcome; no builds.
@@ -351,6 +397,8 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - [ ] SCENE-PLAN [any] (ready: PR #151, Codex, 2026-10-10) Shared scene/interior design outline requested by Evan: docs/plans/scene-layout-pass.md; distinct Larkhaven home briefs, entrance/input/visual checks and independently claimable follow-ups. Complements MAP-AUDIT #147; no engine or art edits. Done when the brief and COMMS handoff are published. Score 18/21 (fun 3x2, heart 2x2, friends 3, focus 2, cheap 3).
 
 ## Part 4: what we've learned and actioned (newest first; every piece of work adds a line)
+
+- **2026-10-11, AC3 merge:** a status line that still says "not merged" after the merge is wrong; correct it, and leave the checkbox open while the other cabinet on that line is unbuilt.
 
 - **2026-10-11, the wild bond and the reveal (Claude, Wildbond builder, PR #170):** an emergent moment that gates story (the reveal waits on the wild bond, as T58's contract asks) needs a way to be reached by every player: the Spire and rematches give hard battles late, but a player who never lets a Bonded partner stand alone may never see it. Watch for this in playtests; if it bites, a Warden can hint at it rather than the gate opening without it. A scene that sets its flags as it starts is safe because nothing saves while lines are playing, so a closed game replays it. Writing packs kept outside the Godot project need a copy inside it (data/wildbond-reveal.json); note the pair in both places.
 - 2026-10-10 (AC2.1): fit a fixed arcade world with one scale and invert the same viewport for taps; test render transforms and real screen targets across resize/DPR so a visual fix cannot silently break aim.

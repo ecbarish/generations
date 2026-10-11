@@ -2,9 +2,12 @@ name: Wildbond web preview review
 on:
   pull_request:
     paths: ['tools/wildbond-preview-*', '.github/workflows/wildbond-preview.yml', 'play/wildbond/**']
+  push:
+    branches: [main]
+    paths: ['play/wildbond/**', '.github/workflows/wildbond-preview.yml']
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: wildbond-preview-${{ github.ref }}
   cancel-in-progress: true
@@ -31,20 +34,12 @@ jobs:
           echo "GODOT=$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
-      - name: Export only the merged game pack, retaining the existing engine
+      - name: Verify the exact committed pack and retain the previous preview
         run: |
           set -euo pipefail
           git fetch --depth=1 origin "$SOURCE_COMMIT"
-          test "$(git rev-parse HEAD:wildbond-godot)" = "$(git rev-parse "$SOURCE_COMMIT:wildbond-godot")"
-          "$GODOT" --version | grep '^4.7.2.stable'
-          mkdir -p preview-review
-          git rev-parse HEAD | tee preview-review/checkout-sha.txt
-          cp play/wildbond/index.pck "$RUNNER_TEMP/wildbond-before.pck"
-          sha256sum play/wildbond/index.wasm play/wildbond/index.js > preview-review/engine-before.sha256
-          timeout 180 "$GODOT" --headless --path wildbond-godot --editor --import --quit
-          timeout 180 "$GODOT" --headless --path wildbond-godot --export-pack Web ../play/wildbond/index.pck
-          sha256sum -c preview-review/engine-before.sha256
-          python3 tools/wildbond-preview-manifest.py stage --source "$SOURCE_COMMIT"
+          python3 tools/wildbond-preview-manifest.py verify --source "$SOURCE_COMMIT"
+          git show "$SOURCE_COMMIT:play/wildbond/index.pck" > "$RUNNER_TEMP/wildbond-before.pck"
       - name: Generate saves with the real pre-WD3 writer
         run: |
           set -euo pipefail
@@ -58,28 +53,6 @@ jobs:
         env:
           BEFORE_PACK: ${{ runner.temp }}/wildbond-before.pck
         run: node tools/wildbond-preview-checks.cjs
-      - name: Store the tested pack and selected evidence as unreferenced Git blobs
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          python3 - <<'PYBLOBS'
-          import base64, hashlib, json, os, urllib.request
-          from pathlib import Path
-          files = [Path('play/wildbond') / name for name in ['index.pck', 'index.html', 'build.json']]
-          for size in ['1920x1080', '812x375']:
-              files += sorted(Path('preview-review/screens').glob('doors-' + size + '-*-entry.png'))
-          files += [Path('preview-review/screens/doors-812x375-gran_home-before.png')]
-          manifest = []
-          for p in files:
-              data = p.read_bytes()
-              request = urllib.request.Request('https://api.github.com/repos/ecbarish/idle-arcade/git/blobs', data=json.dumps({'content': base64.b64encode(data).decode(), 'encoding': 'base64'}).encode(), headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json'}, method='POST')
-              with urllib.request.urlopen(request, timeout=120) as response:
-                  blob = json.load(response)
-              entry = {'path': str(p), 'sha': blob['sha'], 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
-              manifest.append(entry)
-              print('PREVIEW_BLOB ' + json.dumps(entry))
-          Path('preview-review/blobs.json').write_text(json.dumps(manifest, indent=2) + '\n')
-          PYBLOBS
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -90,3 +63,21 @@ jobs:
             play/wildbond/index.html
             play/wildbond/build.json
 
+  verify-live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Wait for the exact reviewed bytes on the official Pages preview
+        env:
+          LIVE_PREVIEW_URL: https://ecbarish.github.io/idle-arcade/play/wildbond/
+        run: python3 tools/wildbond-preview-live.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wildbond-live-verification
+          path: preview-review/live-verification.json
+          if-no-files-found: error
