@@ -1,0 +1,2051 @@
+{
+  "findings": [],
+  "maps": [
+    {
+      "doors": [
+        {
+          "at": [
+            4,
+            4
+          ],
+          "front": [
+            4,
+            5
+          ],
+          "front_reachable": true,
+          "roof": false
+        },
+        {
+          "at": [
+            18,
+            4
+          ],
+          "front": [
+            18,
+            5
+          ],
+          "front_reachable": true,
+          "roof": false
+        },
+        {
+          "at": [
+            7,
+            10
+          ],
+          "front": [
+            7,
+            11
+          ],
+          "front_reachable": true,
+          "roof": false
+        }
+      ],
+      "exits": [
+        {
+          "at": [
+            10,
+            0
+          ],
+          "reachable": true,
+          "tile": "N"
+        },
+        {
+          "at": [
+            11,
+            0
+          ],
+          "reachable": true,
+          "tile": "N"
+        }
+      ],
+      "grid": [
+        "##########oo#####RRRR###",
+        "#ooooooooooo#ooooRRRRoo#",
+        "#o#RRRRooooooooo#RRRRoo#",
+        "#o#RRRRooooooooo#RRRRoo#",
+        "#o##?##ooooooooo##?##oo#",
+        "#oooooooooooooooooooooo#",
+        "#oooooooooooooooooooooo#",
+        "#oooooooooooooooooooooo#",
+        "#oooo#RRRRooo#######ooo#",
+        "#oooo#RRRRooo#ooooo#ooo#",
+        "#oooo##?##ooo#ooooo#ooo#",
+        "#oooooooooooo###o###ooo#",
+        "#oooooooooooooooooooooo#",
+        "########################"
+      ],
+      "map": "larkhaven",
+      "reachable_cells": 199,
+      "roof_on_open_tiles": [
+        [
+          17,
+          1
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          19,
+          1
+        ],
+        [
+          20,
+          1
+        ]
+      ],
+      "route_roof_witness": {
+        "blocked": [
+          [
+            17,
+            1
+          ],
+          [
+            18,
+            1
+          ],
+          [
+            19,
+            1
+          ],
+          [
+            20,
+            1
+          ]
+        ],
+        "first_blocked_walkable": false,
+        "from": [
+          15,
+          3
+        ],
+        "goal_walkable": true,
+        "route": [
+          [
+            15,
+            2
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            17,
+            1
+          ],
+          [
+            18,
+            1
+          ],
+          [
+            19,
+            1
+          ],
+          [
+            20,
+            1
+          ],
+          [
+            21,
+            1
+          ],
+          [
+            21,
+            2
+          ],
+          [
+            21,
+            3
+          ]
+        ],
+        "tap_queued_route": [
+          [
+            15,
+            2
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            17,
+            1
+          ],
+          [
+            18,
+            1
+          ],
+          [
+            19,
+            1
+          ],
+          [
+            20,
+            1
+          ],
+          [
+            21,
+            1
+          ],
+          [
+            21,
+            2
+          ],
+          [
+            21,
+            3
+          ]
+        ],
+        "to": [
+          21,
+          3
+        ]
+      },
+      "size": [
+        24,
+        14
+      ],
+      "start": [
+        11,
+        7
+      ],
+      "targets": [
+        {
+          "at": [
+            22,
+            12
+          ],
+          "id": "lh1",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            9,
+            11
+          ],
+          "id": "maren",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            21,
+            7
+          ],
+          "id": "pip",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            12,
+            1
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            10,
+            1
+          ],
+          "from": "thornwood_route",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            13,
+            0
+          ],
+          "reachable": true,
+          "tile": "N"
+        },
+        {
+          "at": [
+            14,
+            0
+          ],
+          "reachable": true,
+          "tile": "N"
+        },
+        {
+          "at": [
+            29,
+            10
+          ],
+          "reachable": true,
+          "tile": "E"
+        },
+        {
+          "at": [
+            13,
+            17
+          ],
+          "reachable": true,
+          "tile": "S"
+        },
+        {
+          "at": [
+            14,
+            17
+          ],
+          "reachable": true,
+          "tile": "S"
+        }
+      ],
+      "grid": [
+        "#############oo###############",
+        "############ooooo#############",
+        "############ooooo#############",
+        "###########ooooo##############",
+        "###oooooooooooo###############",
+        "###ooooooooooo################",
+        "###ooooooooooo################",
+        "###oooooooooooo###############",
+        "###ooooooo#ooooo##############",
+        "############ooooo#ooooooooo###",
+        "#############ooooooooooooooooo",
+        "##############ooooooooooooo###",
+        "#####?????####ooooooooooooo###",
+        "#############oooooooooooooo###",
+        "############ooooo#############",
+        "#############oooo#############",
+        "############ooooo#############",
+        "#############oo###############"
+      ],
+      "map": "thornwood_route",
+      "reachable_cells": 162,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        30,
+        18
+      ],
+      "start": [
+        13,
+        16
+      ],
+      "targets": [
+        {
+          "at": [
+            8,
+            5
+          ],
+          "id": "tw1",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            14,
+            7
+          ],
+          "id": "bram",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            12,
+            15
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            13,
+            16
+          ],
+          "from": "larkhaven",
+          "kind": "arrival",
+          "reachable": true
+        },
+        {
+          "at": [
+            13,
+            1
+          ],
+          "from": "thornwood",
+          "kind": "arrival",
+          "reachable": true
+        },
+        {
+          "at": [
+            28,
+            10
+          ],
+          "from": "thornwood_grove",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            13,
+            0
+          ],
+          "reachable": true,
+          "tile": "N"
+        },
+        {
+          "at": [
+            14,
+            0
+          ],
+          "reachable": true,
+          "tile": "N"
+        },
+        {
+          "at": [
+            13,
+            15
+          ],
+          "reachable": true,
+          "tile": "S"
+        },
+        {
+          "at": [
+            14,
+            15
+          ],
+          "reachable": true,
+          "tile": "S"
+        }
+      ],
+      "grid": [
+        "#############oo###############",
+        "############oooo##############",
+        "##oooo###ooooooooo##ooooo#####",
+        "#oooooooooooooooooooooooooooo#",
+        "#ooooooo##ooooooo##oooooooooo#",
+        "#oooooo###ooooooo###ooooooooo#",
+        "#oooooooooooooooooooooooooooo#",
+        "#####oooooooooooooooooooooo###",
+        "#####oooooooooooooooooooooooo#",
+        "####ooooooooooooooooo###ooooo#",
+        "#oooooooooooooooooooooooooooo#",
+        "##ooooooooooooooooooooooooo###",
+        "##ooooooooooooooooooooooooo###",
+        "###ooooooooo#oooooooooooo#####",
+        "#############oo###############",
+        "#############oo###############"
+      ],
+      "map": "thornwood",
+      "reachable_cells": 297,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        30,
+        16
+      ],
+      "start": [
+        13,
+        14
+      ],
+      "targets": [
+        {
+          "at": [
+            27,
+            10
+          ],
+          "id": "tw2",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            5,
+            9
+          ],
+          "id": "tw3",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            16,
+            6
+          ],
+          "id": "lise",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            12,
+            13
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            13,
+            1
+          ],
+          "from": "saltmarsh",
+          "kind": "arrival",
+          "reachable": true
+        },
+        {
+          "at": [
+            13,
+            14
+          ],
+          "from": "thornwood_route",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            0,
+            8
+          ],
+          "reachable": true,
+          "tile": "W"
+        }
+      ],
+      "grid": [
+        "##########################",
+        "##########################",
+        "##########################",
+        "####ooooooooooooooo#######",
+        "####ooooooooooooooo#######",
+        "####ooooooooooooooo#######",
+        "####ooooooooooooo#oooo####",
+        "####oooooooooooooooooo####",
+        "oooooooooooooooooooooo####",
+        "####oooooooooooooooooo####",
+        "####oooooooooooooooooo####",
+        "####oooooooooooooooooo####",
+        "####oooooooooooooooooo####",
+        "##########################",
+        "##########################",
+        "##########################"
+      ],
+      "map": "thornwood_grove",
+      "reachable_cells": 174,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        26,
+        16
+      ],
+      "start": [
+        1,
+        8
+      ],
+      "targets": [
+        {
+          "at": [
+            20,
+            11
+          ],
+          "id": "twg1",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            17,
+            6
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            1,
+            8
+          ],
+          "from": "thornwood_route",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            29,
+            8
+          ],
+          "reachable": true,
+          "tile": "E"
+        },
+        {
+          "at": [
+            29,
+            9
+          ],
+          "reachable": true,
+          "tile": "E"
+        },
+        {
+          "at": [
+            13,
+            13
+          ],
+          "reachable": true,
+          "tile": "S"
+        },
+        {
+          "at": [
+            14,
+            13
+          ],
+          "reachable": true,
+          "tile": "S"
+        }
+      ],
+      "grid": [
+        "##############################",
+        "##############################",
+        "########oooooo################",
+        "#####oooooooooooooo###########",
+        "oooooooooooooooooooooooooooooo",
+        "ooooooo##ooooooooooooooooo##oo",
+        "oooooooooooooooooooooooooooooo",
+        "oooooooooooooooooooooooooooo##",
+        "oooooooooooooooooooooooooooooo",
+        "oooooooo##oooooooooooooooooooo",
+        "#oooooooooooooooooooooooooo###",
+        "##oooooooooo#oooooooooooo#####",
+        "#############oo###############",
+        "#############oo###############"
+      ],
+      "map": "saltmarsh",
+      "reachable_cells": 244,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        30,
+        14
+      ],
+      "start": [
+        13,
+        12
+      ],
+      "targets": [
+        {
+          "at": [
+            2,
+            4
+          ],
+          "id": "sm1",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            27,
+            6
+          ],
+          "id": "sm2",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            10,
+            11
+          ],
+          "id": "sm3",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            6,
+            3
+          ],
+          "id": "tobin",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            16,
+            7
+          ],
+          "id": "cato",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            22,
+            9
+          ],
+          "id": "marit",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            12,
+            11
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            13,
+            12
+          ],
+          "from": "thornwood",
+          "kind": "arrival",
+          "reachable": true
+        },
+        {
+          "at": [
+            28,
+            8
+          ],
+          "from": "emberfall",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            13,
+            0
+          ],
+          "reachable": true,
+          "tile": "N"
+        },
+        {
+          "at": [
+            14,
+            0
+          ],
+          "reachable": true,
+          "tile": "N"
+        },
+        {
+          "at": [
+            0,
+            8
+          ],
+          "reachable": true,
+          "tile": "W"
+        },
+        {
+          "at": [
+            0,
+            9
+          ],
+          "reachable": true,
+          "tile": "W"
+        }
+      ],
+      "grid": [
+        "#############oo###############",
+        "########oooo#oo######oooo#####",
+        "####ooooooooooo####oooooooo###",
+        "##ooooooooooooooooooooooooooo#",
+        "#ooooooo##oooo##oooooooooooo##",
+        "#oooooo###oooo##oooooooooooo##",
+        "#ooooooooooooooooooooooooooo##",
+        "#o#ooooooooooooooooooooooooo##",
+        "oooooooooooooooooooooooooooo##",
+        "oooooooooooooooooooooooooooo##",
+        "#ooooooooooooo##ooooooooooo###",
+        "##ooooooooooooo##oooooooooo###",
+        "####oooooo#########oooo#######",
+        "##############################"
+      ],
+      "map": "emberfall",
+      "reachable_cells": 269,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        30,
+        14
+      ],
+      "start": [
+        1,
+        8
+      ],
+      "targets": [
+        {
+          "at": [
+            12,
+            3
+          ],
+          "id": "ef1",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            27,
+            6
+          ],
+          "id": "ef2",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            26,
+            11
+          ],
+          "id": "ef3",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            10,
+            7
+          ],
+          "id": "orsk",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            17,
+            10
+          ],
+          "id": "sela",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            2,
+            7
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            1,
+            8
+          ],
+          "from": "saltmarsh",
+          "kind": "arrival",
+          "reachable": true
+        },
+        {
+          "at": [
+            13,
+            1
+          ],
+          "from": "cloudglass",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            28,
+            8
+          ],
+          "reachable": true,
+          "tile": "E"
+        },
+        {
+          "at": [
+            29,
+            8
+          ],
+          "reachable": true,
+          "tile": "E"
+        },
+        {
+          "at": [
+            13,
+            13
+          ],
+          "reachable": true,
+          "tile": "S"
+        },
+        {
+          "at": [
+            14,
+            13
+          ],
+          "reachable": true,
+          "tile": "S"
+        }
+      ],
+      "grid": [
+        "##############################",
+        "###oooo#####oooooo####ooooo###",
+        "##ooooooooooooooooooooooooooo#",
+        "#oooooooooooooooooooooooooo###",
+        "#ooooo##oooooooooooo##oooooo##",
+        "##oo###oooooooooooooo###oooo##",
+        "#ooooooooooooooooooooooooooo##",
+        "#ooooo##oooooooooooo##oooooo##",
+        "##oooooooooooooooooooooooooooo",
+        "#ooooooooo##oooo##oooooooooo##",
+        "##oooooooooo#ooooooooooooo####",
+        "###oooooooooooooooooooooo#####",
+        "#############oo###############",
+        "#############oo###############"
+      ],
+      "map": "cloudglass",
+      "reachable_cells": 261,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        30,
+        14
+      ],
+      "start": [
+        13,
+        12
+      ],
+      "targets": [
+        {
+          "at": [
+            2,
+            8
+          ],
+          "id": "cg1",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            27,
+            8
+          ],
+          "id": "cg2",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            3,
+            2
+          ],
+          "id": "cg3",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            8,
+            8
+          ],
+          "id": "ilka",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            15,
+            5
+          ],
+          "id": "teodor",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            12,
+            10
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            13,
+            12
+          ],
+          "from": "emberfall",
+          "kind": "arrival",
+          "reachable": true
+        },
+        {
+          "at": [
+            27,
+            8
+          ],
+          "from": "stillreed",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            0,
+            8
+          ],
+          "reachable": true,
+          "tile": "W"
+        },
+        {
+          "at": [
+            29,
+            9
+          ],
+          "reachable": true,
+          "tile": "E"
+        }
+      ],
+      "grid": [
+        "##############################",
+        "#ooooooooooo###oooooooooooooo#",
+        "#ooooooooooo###oooo#o#o#o#ooo#",
+        "#ooooooooooo###oooo#o#o#o#ooo#",
+        "#oooooooooooooooooooooooooooo#",
+        "#ooooooooooo###oooooooooooooo#",
+        "#ooooooooooo###oooooooooooooo#",
+        "#ooooooooooo###oooooooooooooo#",
+        "ooo#oooooooooo#oooooooooooooo#",
+        "#ooooooooooooooooooooooooooooo",
+        "#ooooooooooo###oooooooooooooo#",
+        "#ooooooooooo###oooooooooooooo#",
+        "#ooooooooooo###oooooooooooooo#",
+        "##############################"
+      ],
+      "map": "stillreed",
+      "reachable_cells": 301,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        30,
+        14
+      ],
+      "start": [
+        1,
+        8
+      ],
+      "targets": [
+        {
+          "at": [
+            4,
+            3
+          ],
+          "id": "sr1",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            24,
+            6
+          ],
+          "id": "sr2",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            27,
+            11
+          ],
+          "id": "sr3",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            8,
+            5
+          ],
+          "id": "evren",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            21,
+            10
+          ],
+          "id": "tavil",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            10,
+            6
+          ],
+          "id": "sivet",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            12,
+            7
+          ],
+          "kind": "sign"
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            3,
+            8
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            1,
+            8
+          ],
+          "from": "cloudglass",
+          "kind": "arrival",
+          "reachable": true
+        },
+        {
+          "at": [
+            28,
+            9
+          ],
+          "from": "hollowecho",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            0,
+            9
+          ],
+          "reachable": true,
+          "tile": "W"
+        },
+        {
+          "at": [
+            29,
+            9
+          ],
+          "reachable": true,
+          "tile": "E"
+        }
+      ],
+      "grid": [
+        "##############################",
+        "#oRRRRRooo#####ooooo#######oo#",
+        "#oRRRRRooo#####ooooo#######oo#",
+        "#o##o##ooo#####ooooo##ooo##oo#",
+        "#oooooooooo###ooooooo#ooo#ooo#",
+        "#oooooo#ooooooooooooooooooooo#",
+        "#oooooooooooooooooooooooooooo#",
+        "#oooooooooooooooooooooooooooo#",
+        "#ooooooo#####ooooo#o##ooooooo#",
+        "oooooooo#####ooooo#oo#oooooooo",
+        "#ooooooo#####ooooo#oo#oo###oo#",
+        "#oooooooo###oooooo####oo###oo#",
+        "#oooooooooooooooooooooooooooo#",
+        "##############################"
+      ],
+      "map": "hollowecho",
+      "reachable_cells": 250,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        30,
+        14
+      ],
+      "start": [
+        1,
+        9
+      ],
+      "targets": [
+        {
+          "at": [
+            3,
+            5
+          ],
+          "id": "he1",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            19,
+            10
+          ],
+          "id": "he2",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            27,
+            8
+          ],
+          "id": "he3",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            6,
+            6
+          ],
+          "id": "veslin",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            16,
+            6
+          ],
+          "id": "narro",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            5,
+            5
+          ],
+          "id": "orri",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            7,
+            5
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            1,
+            9
+          ],
+          "from": "stillreed",
+          "kind": "arrival",
+          "reachable": true
+        },
+        {
+          "at": [
+            28,
+            9
+          ],
+          "from": "sunthread",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            0,
+            9
+          ],
+          "reachable": true,
+          "tile": "W"
+        },
+        {
+          "at": [
+            29,
+            9
+          ],
+          "reachable": true,
+          "tile": "E"
+        }
+      ],
+      "grid": [
+        "##############################",
+        "#oooooooooooooooooo#RRRRRRRRo#",
+        "#ooooooooo#oooooooo#RRRRRRRRo#",
+        "#oooooooo##oooooooo########oo#",
+        "#oooooooooooooooooooooooooo#o#",
+        "#oooooooooooooooo#ooooooooooo#",
+        "#oooooooooooooooooooooooooooo#",
+        "#oooooooooooooooooooooooooooo#",
+        "#oooooooooooooooooooooooo#ooo#",
+        "oooooooooooooooooooooo#o#ooooo",
+        "#ooooooo###oooooooooooooooo#o#",
+        "#ooooooooooooo####ooooooooooo#",
+        "#oooooooooooooooooooooooooooo#",
+        "##############################"
+      ],
+      "map": "sunthread",
+      "reachable_cells": 296,
+      "roof_on_open_tiles": [
+        [
+          27,
+          1
+        ],
+        [
+          27,
+          2
+        ]
+      ],
+      "route_roof_witness": {
+        "blocked": [
+          [
+            27,
+            2
+          ]
+        ],
+        "first_blocked_walkable": false,
+        "from": [
+          27,
+          3
+        ],
+        "goal_walkable": true,
+        "route": [
+          [
+            27,
+            2
+          ],
+          [
+            28,
+            2
+          ]
+        ],
+        "tap_queued_route": [
+          [
+            27,
+            2
+          ],
+          [
+            28,
+            2
+          ]
+        ],
+        "to": [
+          28,
+          2
+        ]
+      },
+      "size": [
+        30,
+        14
+      ],
+      "start": [
+        1,
+        9
+      ],
+      "targets": [
+        {
+          "at": [
+            3,
+            4
+          ],
+          "id": "st1",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            14,
+            10
+          ],
+          "id": "st2",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            26,
+            11
+          ],
+          "id": "st3",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            8,
+            6
+          ],
+          "id": "mirel",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            19,
+            7
+          ],
+          "id": "aldren",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            21,
+            4
+          ],
+          "id": "pell",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            22,
+            5
+          ],
+          "id": "nesla",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            17,
+            5
+          ],
+          "kind": "sign"
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            27,
+            4
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            1,
+            9
+          ],
+          "from": "hollowecho",
+          "kind": "arrival",
+          "reachable": true
+        },
+        {
+          "at": [
+            28,
+            9
+          ],
+          "from": "farwatch",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            12,
+            0
+          ],
+          "reachable": true,
+          "tile": "N"
+        },
+        {
+          "at": [
+            0,
+            9
+          ],
+          "reachable": true,
+          "tile": "W"
+        }
+      ],
+      "grid": [
+        "############o#################",
+        "#ooooooRRRRooooooooooo########",
+        "#ooooooRRRRooooooooooo########",
+        "#oooooo####ooooooooooooo######",
+        "#oooooooooo#oooooooooooo######",
+        "#oooooooooo#oo#ooooooooo######",
+        "#ooooooooooooooooooooooo######",
+        "#ooooooooooooooo#ooooooo######",
+        "#ooooooooooooooo#oooooo#######",
+        "oooooooooooooooooooooooooooo##",
+        "#oooRRRRRooooooooooooooooooo##",
+        "#ooo#####ooooooooooooooo######",
+        "#oo#oooooooooooo#ooooooo######",
+        "##############################"
+      ],
+      "map": "farwatch",
+      "reachable_cells": 252,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        30,
+        14
+      ],
+      "start": [
+        1,
+        9
+      ],
+      "targets": [
+        {
+          "at": [
+            3,
+            4
+          ],
+          "id": "fw1",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            12,
+            10
+          ],
+          "id": "fw2",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "at": [
+            26,
+            10
+          ],
+          "id": "fw3",
+          "kind": "item",
+          "reachable": true
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            9,
+            6
+          ],
+          "id": "delka",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            20,
+            8
+          ],
+          "id": "sivren",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            18,
+            3
+          ],
+          "id": "ceryn",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            14,
+            5
+          ],
+          "kind": "sign"
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            23,
+            8
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            1,
+            9
+          ],
+          "from": "sunthread",
+          "kind": "arrival",
+          "reachable": true
+        },
+        {
+          "at": [
+            12,
+            1
+          ],
+          "from": "league",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            0,
+            15
+          ],
+          "reachable": true,
+          "tile": "W"
+        },
+        {
+          "at": [
+            3,
+            17
+          ],
+          "reachable": true,
+          "tile": "S"
+        }
+      ],
+      "grid": [
+        "########################################",
+        "########################################",
+        "########################################",
+        "#ooooRRRRRooRRRRRooRRRRRooRRRRRooRRRRRo#",
+        "#oooo#####oo#####oo#####oo#####oo#####o#",
+        "#oooooooooooooooooooooooooooooooooooooo#",
+        "#oooooooooooooooooooooooooooooooooooooo#",
+        "#oooooooooooooooooooooooooooooooooooooo#",
+        "#oooooooooooooooooooooooooooooooooooooo#",
+        "#oooooooooooooooooooooooooooooooooooooo#",
+        "#oooooooooooooooooooooooooooooooooooooo#",
+        "#oooooo#oooooo#oooooo#oooooo#oooooo#ooo#",
+        "#oooooooooooooooooooooooooooooooooooooo#",
+        "#ooooooo#######oooooooo########oooooooo#",
+        "#ooooooo#######oooooooo########oooooooo#",
+        "ooooo####oooooooooooooooooooooooo####oo#",
+        "#oooooooooooooooooooooooooooooooooooooo#",
+        "###o####################################"
+      ],
+      "map": "league",
+      "reachable_cells": 441,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        40,
+        18
+      ],
+      "start": [
+        3,
+        16
+      ],
+      "targets": [
+        {
+          "adjacent_reachable": true,
+          "at": [
+            3,
+            12
+          ],
+          "id": "wren",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            4,
+            15
+          ],
+          "id": "nelva",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            7,
+            6
+          ],
+          "id": "edrin",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            14,
+            6
+          ],
+          "id": "maela",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            21,
+            6
+          ],
+          "id": "corven",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            28,
+            6
+          ],
+          "id": "liora",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            35,
+            6
+          ],
+          "id": "avenne",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            7,
+            11
+          ],
+          "kind": "sign"
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            14,
+            11
+          ],
+          "kind": "sign"
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            21,
+            11
+          ],
+          "kind": "sign"
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            28,
+            11
+          ],
+          "kind": "sign"
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            35,
+            11
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            3,
+            16
+          ],
+          "from": "farwatch",
+          "kind": "arrival",
+          "reachable": true
+        },
+        {
+          "at": [
+            1,
+            15
+          ],
+          "from": "spire",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            18,
+            14
+          ],
+          "reachable": true,
+          "tile": "E"
+        }
+      ],
+      "grid": [
+        "###################",
+        "###################",
+        "###ooo#######ooo###",
+        "###ooo#######ooo###",
+        "###ooooooooooooo###",
+        "###ooooooooooooo###",
+        "###ooooooooooooo###",
+        "###ooooooooooooo###",
+        "###ooooooooooooo###",
+        "###ooooooooooooo###",
+        "###ooooooooooooo###",
+        "###oooo#ooo#oooo###",
+        "###ooooooooooooo###",
+        "###o####ooo####o###",
+        "###oooooooooooooooo",
+        "###ooooooooooooo###",
+        "###################",
+        "###################"
+      ],
+      "map": "spire",
+      "reachable_cells": 161,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        19,
+        18
+      ],
+      "start": [
+        9,
+        14
+      ],
+      "targets": [
+        {
+          "adjacent_reachable": true,
+          "at": [
+            5,
+            14
+          ],
+          "id": "orla",
+          "kind": "npc",
+          "under_roof": false
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            7,
+            11
+          ],
+          "kind": "sign"
+        },
+        {
+          "adjacent_reachable": true,
+          "at": [
+            11,
+            11
+          ],
+          "kind": "sign"
+        },
+        {
+          "at": [
+            17,
+            14
+          ],
+          "from": "league",
+          "kind": "arrival",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            11,
+            12
+          ],
+          "reachable": true,
+          "tile": "d"
+        }
+      ],
+      "grid": [
+        "########################",
+        "########################",
+        "########################",
+        "###ooo#ooo#ooo#ooo#oo###",
+        "#ooooo#ooo#ooo#ooo#oooo#",
+        "#oooooooooooooooooooooo#",
+        "#oooooooooooooooooooooo#",
+        "##oooooooooooooooooooo##",
+        "##oooooooooooooooooooo##",
+        "##ooooooooooooooooooooo#",
+        "###oooooooooooooooooo###",
+        "#oooooooooooooooooooooo#",
+        "###########o############",
+        "########################"
+      ],
+      "map": "barn",
+      "reachable_cells": 178,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        24,
+        14
+      ],
+      "start": [
+        11,
+        11
+      ],
+      "targets": []
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            11,
+            11
+          ],
+          "reachable": true,
+          "tile": "d"
+        }
+      ],
+      "grid": [
+        "########################",
+        "########################",
+        "########################",
+        "######oooooooooooo######",
+        "#####ooooooooooooo######",
+        "#####ooo#####oooooo#####",
+        "#####oooooooooooooo#####",
+        "#####oo#ooooooo#ooo#####",
+        "#####oooooooooooooo#####",
+        "#####oo#ooooooo#ooo#####",
+        "#####oooooooooooooo#####",
+        "###########o############",
+        "########################",
+        "########################"
+      ],
+      "map": "inn",
+      "reachable_cells": 101,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        24,
+        14
+      ],
+      "start": [
+        11,
+        10
+      ],
+      "targets": [
+        {
+          "at": [
+            10,
+            6
+          ],
+          "kind": "keeper-front",
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "doors": [],
+      "exits": [
+        {
+          "at": [
+            11,
+            11
+          ],
+          "reachable": true,
+          "tile": "d"
+        }
+      ],
+      "grid": [
+        "########################",
+        "########################",
+        "########################",
+        "#######oooooooooo#######",
+        "#######oooooooooo#######",
+        "######ooo######ooo######",
+        "######oooooooooooo######",
+        "#######oooooooooo#######",
+        "#######ooooooooooo######",
+        "######oooooooooooo######",
+        "######oooooooooooo######",
+        "###########o############",
+        "########################",
+        "########################"
+      ],
+      "map": "shop",
+      "reachable_cells": 84,
+      "roof_on_open_tiles": [],
+      "route_roof_witness": {},
+      "size": [
+        24,
+        14
+      ],
+      "start": [
+        11,
+        10
+      ],
+      "targets": [
+        {
+          "at": [
+            11,
+            6
+          ],
+          "kind": "keeper-front",
+          "reachable": true
+        }
+      ]
+    }
+  ]
+}

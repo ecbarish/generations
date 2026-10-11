@@ -7,6 +7,13 @@
    Ridge), light scatters in it, low sun throws light shafts, and the colour of the hour grades the whole scene.
    Graphics: High (soft silhouettes, bloom) or Low (simple shadows) from the header; Low is picked for slow devices. */
 const LT = Light.create({ reduce: () => reduce, quality: () => gfxQuality() });
+/* Walkable scenes need silhouettes even on Low: keep fog/bloom quality separate.
+   The shared Medium caster skips blur and the Low ellipse fallback; reuse its mask canvas. */
+const REALM_SILHOUETTE = Light.create({ reduce: () => reduce, quality: 'medium' });
+const REALM_WALK_LIGHT = {
+  cast(c,draw,box,base,st,o){REALM_SILHOUETTE.cast(c,draw,box,base,st,o);},
+  contact(c,x,y,w,st,k){LT.contact(c,x,y,w*.34,st,(k===undefined?1:k)*.45);}
+};
 function gfxQuality() { if (S.gfx) return S.gfx; const slow = (navigator.hardwareConcurrency || 8) <= 4 || Math.min(screen.width, screen.height) < 500; return slow ? 'low' : 'high'; }
 function cycleGfx() { S.gfx = gfxQuality() === 'high' ? 'low' : 'high'; renderGfxBtn(); save(); }
 function renderGfxBtn() { const b = $('#gfxBtn'); if (b) b.textContent = 'Graphics: ' + (gfxQuality() === 'high' ? 'High' : 'Low'); }

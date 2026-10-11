@@ -50,7 +50,7 @@ func hero(name: String) -> Variant:
 func _run() -> void:
 	main.rng.seed = 2026
 	# ---- the town at the start
-	check(main.MAP.all(func(r): return r.length() == 24), "the town map is 24 tiles wide on every row")
+	check(main.MAP.all(func(r): return r.length() == main.MAP[0].length()), "the town map is the same width on every row")
 	check(main.heroes.size() == 3 and main.coins == 100 and main.day == 1, "three adventurers, 100 coins, day one")
 	check(main.notices.size() == 3 and main.posted.is_empty(), "three requests on the board, none pinned yet")
 	check(not main.lines.is_empty() and main.lines.any(func(l): return l.who == "bryn"), "Bryn welcomes you")
@@ -192,7 +192,7 @@ func _run() -> void:
 	tick(0.1)
 	check(not main.hired and "couldn't pay" in main.caption.text, "can't pay her wages: Bryn goes back to her own kitchen")
 	# ---- building on a plot: Hob's plans, coins, scaffolding, then the building
-	check(not main.solid(main.PLOTS.west) and main.plot_at(Vector2i(3, 10)) == "west", "the west plot is open ground, staked out")
+	check(not main.solid(main.PLOTS.west) and main.plot_at(main.PLOTS.west + Vector2i(1, 1)) == "west", "the west plot is open ground, staked out")
 	check(walk_to(main.PLOTS.west + Vector2i(2, 0)), "you can walk up to the plot")
 	check(main.use() and main.build_plot == "west" and main.plans().has("healer") and main.plans().has("yard"), "using it opens Hob's plans: the healer's hut, a training yard, a smithy, an apothecary")
 	main.coins = 50
@@ -561,6 +561,22 @@ func _run() -> void:
 	check(main.finished("healer") == "west" and main.finished("yard") == "east" and main.ama.where == "town" and main.rank >= 1, "with its buildings, Ama, and its rank")
 	check(main.finished("smithy") == "north" and main.smith_hired and main.garrick.where == "town" and main.stock == 2 and main.herbs > 0, "and its smithy, Garrick, the apothecary's shelf and herbs")
 	check(main.good_days == 4 and main.visitors.size() == 2, "and how the town has been doing, and who has come")
+	# a save from before SF2.6 (the old one-screen map): you may have stood where a wall or building is now
+	var old_save: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(main.save_path))
+	old_save.me = [10, 3]                         # under the Guild Hall's roof in the new town
+	var f := FileAccess.open(main.save_path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(old_save))
+	f.close()
+	check(main._load() and main.walkable(main.me.tile, main.me) and not main.route(main.me.tile, main.INN_STEP, main.me).is_empty(), "an old save standing where the Guild Hall is now loads you onto open ground nearby (%s)" % main.me.tile)
+	check(main.finished("healer") == "west" and main.finished("smithy") == "north", "and keeps every building on its plot")
+	var stuck := []
+	for y in range(1, 13):
+		for x in range(1, 23):                        # every spot on the old 24 by 14 map
+			var at: Vector2i = main.open_near(Vector2i(x, y))
+			if not main.walkable(at, main.me) or (at != main.INN_STEP and main.route(at, main.INN_STEP, main.me).is_empty()):
+				stuck.append(Vector2i(x, y))
+	check(stuck.is_empty(), "wherever an old save stood, you land somewhere you can walk from (stuck: %s)" % str(stuck))
+	main.save_game()
 	# a save cut off half-way (a crash, a closed tab) never costs the town: the backup is read instead
 	main.save_game()
 	check(FileAccess.file_exists(main.save_path + ".bak") and not FileAccess.file_exists(main.save_path + ".tmp"), "the last good save is kept as a backup")
@@ -616,5 +632,84 @@ func _run() -> void:
 		if not ResourceLoader.exists("res://assets/emote/%s.png" % id):
 			missing_feel.append(id)
 	check(missing_feel.is_empty(), "every feeling has its picture (missing: %s)" % ", ".join(missing_feel))
+	_own_place()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
+
+## SF2.6, Starfall's own place: a frontier stockade drawn with the ART-SF pieces, a town that scrolls, and every
+## building, door and service spot still reachable whatever stands on the plots.
+func _own_place() -> void:
+	var w: int = main.MAP[0].length() * main.TILE
+	var h: int = main.MAP.size() * main.TILE
+	var screen := Vector2(384, 216)
+	check(w > screen.x and h > screen.y and main.cam.limit_right == w and main.cam.limit_bottom == h, "the town is bigger than the screen and the camera scrolls over all of it (%dx%d)" % [w, h])
+	check(main.tile_at(main.GATE) == "E" and main.GATE.x == 1 and main.tile_at(main.GATE + Vector2i.UP) == "G" and main.tile_at(main.GATE + Vector2i.DOWN) == "G" and main.solid(main.GATE + Vector2i.UP), "the gate stands in the west wall: two posts with the way out between them")
+	var walled := true
+	for y in main.MAP.size():
+		for x in main.MAP[0].length():
+			var edge: bool = x <= 1 or y <= 1 or x >= main.MAP[0].length() - 3 or y >= main.MAP.size() - 2
+			if edge and main.MAP[y][x] in ".,qk":
+				walled = false
+	check(walled, "a palisade (and stakes where it will grow) all the way round; the only way out is the gate")
+	var src := FileAccess.get_file_as_string("res://scripts/main.gd")
+	check(not "assets/env/house.png" in src and not "assets/env/nature.png" in src and not "assets/env/floor.png" in src and "assets/env/frontier/" in src, "the town is drawn from Starfall's own frontier pictures, not the borrowed cottage pack")
+	check(main.F_BUILT.smithy.get_width() == 32 and main.F_BUILT.tavern.get_width() == 32 and main.BUILT_W.smithy == 2 and main.BUILT_W.tavern == 2, "the smithy and tavern pictures fit their two-tile plots, and block only that (ART-SF-7)")
+	var keep_day: float = main.day_t
+	main.day_t = main.DAY_SECONDS * 0.3
+	var noon: float = main.dusk()
+	main.day_t = main.DAY_SECONDS * 0.95
+	var late: float = main.dusk()
+	main.day_t = keep_day
+	check(noon == 0.0 and late > 0.9 and main.DUSK_MAX <= 0.4, "evening brings a gentle tint over the town; midday has none")
+	check(main.evening() == (main.day_t >= main.DAY_SECONDS * 0.55), "the tint changes only the picture: evening still starts when it did")
+	var keep_east: Variant = main.built.get("east")
+	main.built["east"] = { "what": "yard", "left": 0.0 }
+	var yr: Rect2i = main.built_rect("east")
+	check(yr.size == Vector2i(4, 3) and yr.position == main.PLOTS.east + Vector2i(0, -1) and main.solid(main.PLOTS.east + Vector2i(3, -1)), "the training yard blocks the ground its fence stands on, the row above its plot included")
+	main.built.erase("east")
+	if keep_east != null:
+		main.built["east"] = keep_east
+	check(main.F_GATE.get_size() == Vector2(32, 80), "the west gate has its own side-on picture (ART-SF-7)")
+	for tex in [main.F_GROUND, main.F_PALISADE, main.F_HALL[0], main.F_INN[1], main.F_WELL, main.F_BOARD, main.F_BUILT.smithy]:
+		check(tex != null and tex.get_width() > 0, "a frontier picture loads: %s" % tex.resource_path.get_file())
+	var keep_built: Dictionary = main.built
+	var keep_rank: int = main.rank
+	var keep_me: Vector2i = main.me.tile
+	var keep_where := {}
+	for m in main.people():
+		keep_where[m] = m.where
+		if m != main.me:
+			m.where = "gone"                          # an empty town: only walls and buildings can be in the way
+	main.rank = 2
+	var start := Vector2i(14, 10)
+	var unreachable := []
+	for what in main.BUILT_W:                         # every kind of building on every plot at once, the widest case
+		main.built = {}
+		for k in main.PLOTS:
+			main.built[k] = { "what": what, "left": 0.0 }
+		var spots := { "the inn's step": main.INN_STEP, "the counter": main.ORDER_AT, "behind the counter": main.SERVE_AT,
+			"the board": main.READ_AT, "the Guild Hall's step": main.HALL_DOOR + Vector2i.DOWN, "the gate": main.GATE_IN }
+		for k in main.PLOTS:
+			for i in 3:                                   # the doorstep, the work spot beside it, and where a helper waits
+				spots["%s %s +%d" % [k, what, i]] = main._step_of(k) + Vector2i(i, 0)
+		for name in spots:
+			var at: Vector2i = spots[name]
+			if main.solid(at) or (at != start and main.route(start, at, main.me).is_empty()):
+				unreachable.append(name)
+	check(unreachable.is_empty(), "every building's door and work spot can be walked to, whatever stands on the plots (not: %s)" % str(unreachable))
+	var doors := []
+	for y in main.MAP.size():
+		for x in main.MAP[0].length():
+			var front := Vector2i(x, y) + (Vector2i.DOWN if main.MAP[y][x] == "D" else Vector2i.RIGHT)
+			if main.MAP[y][x] in "DE" and (main.solid(front) or main.route(start, front, main.me).is_empty()):
+				doors.append(Vector2i(x, y))
+	check(doors.is_empty(), "every door and the gate have open, reachable ground in front (blocked: %s)" % str(doors))
+	main.built = {}
+	for k in main.PLOTS:                              # and nothing standing on a plot blocks the road through town
+		main.built[k] = { "what": "smithy", "left": 0.0 }
+	check(not main.route(main.GATE_IN, Vector2i(40, 10), main.me).is_empty(), "the road runs east from the gate to the far end of town")
+	main.built = keep_built
+	main.rank = keep_rank
+	main.me.tile = keep_me
+	for m in keep_where:
+		m.where = keep_where[m]
