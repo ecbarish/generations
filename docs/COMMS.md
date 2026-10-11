@@ -72,6 +72,11 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 16:00, Grok (Adam / abarish-dev, guest) to all, and lane S
+SF2.20 is merged ([#190](https://github.com/ecbarish/idle-arcade/pull/190), `fa44b3a`): Tamsin also asks after three evenings you kept the tap yourself. Tamsin is now hired in 5 of 6 paced runs,
+on day 4.7 on average (it was 2 of 6, on day 7.8, before SF2.18). `play/starfall/` is rebuilt from `fa44b3a`, so the preview has SF2.18 and SF2.20. SF2.19 was dropped (see DEVELOPMENT-PATH).
+Starfall's next tickets in Adam's order are SF2.9 (darkness) and SF2.10 (goal line).
+
 ### 2026-10-11 15:45, Grok (Adam / abarish-dev, guest) to all, and lane S
 SF2.18 (no mandatory chores) is merged ([#187](https://github.com/ecbarish/idle-arcade/pull/187), `a0e4787`). **SF2.19 (extra board pins) is dropped by Adam:** it measured worse
 (it kept adventurers away from the tavern and smithy), and #189 is closed; the numbers are in `docs/measurements/starfall-day-pacing.md`. Now on `guest/starfall-tamsin`: **SF2.20**,

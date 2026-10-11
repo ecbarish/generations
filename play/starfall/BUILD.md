@@ -1,8 +1,8 @@
 # Starfall preview: 2026-10-11
 
-This pack is built from main `76f73aa`. It includes SF2.6 "Starfall's own place" (the frontier stockade town that scrolls,
+This pack is built from main `fa44b3a`. It includes SF2.6 "Starfall's own place" (the frontier stockade town that scrolls,
 drawn with the ART-SF pictures), ART-SF-7 (the side-on west gate, plus a smithy and tavern sized to fit their plots), the evening tint, the yard's
-footprint, SF2.7 "See the wilds sooner" (the short stretch outside the west gate) and SF2.8 "Something by hand every day" (the lantern round and Odo, sparring and Ilse).
+footprint, SF2.7 "See the wilds sooner" (the short stretch outside the west gate), SF2.8 "Something by hand every day" (the lantern round and Odo, sparring and Ilse), SF2.18 "No mandatory chores" and SF2.20 (Tamsin easier to reach).
 
 Only `index.pck` and its byte count in `index.html` were rebuilt, following the Wildbond preview's pack-only refresh
 (play/wildbond/BUILD.md). The Godot 4.7.2 engine (`index.js`, `index.wasm`) and the other shell files are unchanged.
