@@ -81,6 +81,11 @@ of what we have). Anyone, Evan included, can add to either. The flow:
 then everyone (START-HERE question 1, default (a)). The game is already playable start to finish, so what is left is
 what a player *feels*, in this order:
 
+**Where it stands (2026-10-11):** done: 1 (WD1, #91), 6 (WB6.1-6.2, #107), 7 (WB5.1, #129), Thornwood in 8 (#128), the
+Larkhaven homes in 10, the guide in 11 (#127). Mostly done: 3 (WB4.3 parts 1-2, #170; the rest stays with the Wildbond
+builder). Next for helpers: QUEUE.md "Heavy lifting", which starts with the two playtest pass 2 blockers (Starfall's goal
+line, Wildbond's keys in game).
+
 1. **Numbers off the screen** (WD1, game review GR-4, scored 19/21): the stat line goes; a readable arrival name.
 2. **Pacing and rough edges from a full playthrough** (ChatGPT's T56 pacing diagnosis, PR #83; then fixes).
 3. **The ending finished** (WB4.3 with ChatGPT's WB4.4b, now that Evan chose the final truth).
@@ -102,17 +107,16 @@ After-league life (contests, ranch jobs, roaming legendaries, baby forms, and no
 after 2.0 unless Evan moves it up. Evan likes these "better as features" ideas (2026-10-09). First in WB-M5: **races and contests at the ranch** (WB5.2; scored 17/18 by the New
 game ideas thread), then **Saltmarsh fishing** (WB5.7, 16/18).
 
-**Starfall (second slot), in order:** SF2.5 the apprentice; **its own place** (SF2.6, GR-5, 18/21: a frontier
-stockade and road layout instead of Larkhaven's, before seasons); **see the wilds sooner** (SF2.7, GR-7, 16/21: a
-small walkable stretch past the gate); SF3.1 seasons as chapters (with T57's outlines, PR #84); **something by hand
-every day** (SF2.8, GR-8, 14/21); SF3.4 festivals on the shared calendar; then SF4.1 expeditions, built as **first-person grid delves** (16/18; a
-one-PR prototype first, and the cheapest step toward first person, V10).
+**Starfall (second slot), in order (refreshed 2026-10-11):** done: SF2.5 the apprentice, SF2.6 its own place
+(#157), SF2.7 the wilds (#174), SF2.8 by hand (#179), SF2.17 the day-pacing check. Next: **SF2.10 the goal line**
+(playtest pass 2 says Starfall fails without it), SF2.18 no mandatory chores (#187), SF2.6c and ART-SF-8 the town's
+best side and square, then SF2.9 and SF2.11 to SF2.16 (darkness and progression, Adam's plan in #181), SF3.1 seasons as
+chapters, SF3.4 festivals, then SF4.1 expeditions as **first-person grid delves** (16/18; a one-PR prototype first).
 
-**ChatGPT's order:** first the Realmbound bug where autopilot takes over during the opening dialogue (RB1.5, GR-10;
-bugs jump the queue); then flagship support (WB4.4b, pacing fixes data, species look features for WD2, WB3.6 trainer
-teams and new moves for WD3, WB5.6 catalogue only when asked); then the arcade's front door (AR2.12, GR-12) and "Tell
-us" feedback in every game (AR2.11, GR-9, 14/21 each); then Realmbound (RB1.4 phone pass, RB2.2 second raid tier, RB2.1 battlegrounds proposal), then
-keep-alive work for Diamond Manager (DM2) and Otherworld.
+**Browser order (ChatGPT and any AI; refreshed 2026-10-11):** done: RB1.4 to RB1.9, AR2.11, AR2.12, OW1.1, WD2's
+data. Next: WD3's move data (feeds the battles), then Diamond Manager DM3, DM4, DM-B2, DM7 (after v0.5.0, #175), Lantern
+Bowl LB0-LB1, Realmbound RB2.2 and the RB2.1 plan, Otherworld OW2.2, cabinet and Little Ranch polish from playtests. The
+live list is QUEUE.md "The road ahead".
 
 ## 5. When to re-rank
 
@@ -121,6 +125,7 @@ keep-alive work for Diamond Manager (DM2) and Otherworld.
 - Each re-rank is one dated line in the log below.
 
 ## Log
+
 
 - 2026-10-09 Claude: first version. Flagship Wildbond (Godot), second Starfall village, ChatGPT's own Realmbound;
   Diamond Career and Otherworld to keep-alive until Evan says otherwise. Asked Evan to confirm the focus.
@@ -150,3 +155,5 @@ keep-alive work for Diamond Manager (DM2) and Otherworld.
   replaces Diamond Career) and a Retro Bowl-style football game goes ahead (Lantern Bowl). Diamond Manager stays
   keep-alive plus DM2; Lantern Bowl LB0-LB1 may start now, LB2 onward waits for a focus slot
   (docs/plans/sports-management.md).
+- 2026-10-11: refreshed against what merged (#128 to #187): done items marked, Starfall and browser orders rewritten, the
+  two playtest pass 2 blockers put first for helpers.

@@ -65,21 +65,18 @@ and "Up next". Ask me only about the "Questions for Evan".
   catalogue and evolution, depth and first person one day (the fading took depth as well as colour). Ledger:
   `docs/lore/wildbond-threads.md`.
 
-## Up next (take the first one that isn't claimed; mark it "claimed by <who>, <date>" when you start)
+## Up next (refreshed 2026-10-11; the live lists are in QUEUE.md)
 
-**Focus first: [docs/PRIORITIES.md](docs/PRIORITIES.md)** (2026-10-09) says which games are being built now
-(flagship Wildbond in Godot, second the Starfall village, ChatGPT's own Realmbound) and the order inside each.
-**The lanes in [docs/QUEUE.md](docs/QUEUE.md) are what to do next** (its "current goal" was rewritten 2026-10-08). **When a lane runs
-out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) supplies the next task**: the whole path for every game,
-67 deliverables with owners, no assistant is ever "finished".
+**How to work:** [docs/PROCESS.md](docs/PROCESS.md): pick, claim with a draft PR, build, self-check, merge. Any AI may do
+any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (Godot builds) and "The road ahead"
+(browser), in [docs/PRIORITIES.md](docs/PRIORITIES.md) order; past the end, PROCESS.md "When you get ahead of the road".
 
-- **Claude (Lane B):** review and merge ChatGPT's PRs first. Then, in order: WG1 tamer abilities with heritages; WG6
-  depth step 1 (ground heights, footprints, and the fix for the colour layer drawing you over people in front of you);
-  WG7 the variety pass (animated water, interiors, battle effects, sounds, edge tiles); WG2 the areas after Stillreed (Stillreed done 2026-10-09: Hollow Echo next, see DEVELOPMENT-PATH WB3.2) and the
-  rest; SV1 Starfall members' stories; SV3 failing and excelling. After big steps, re-export `play/` and
-  refresh the Come Play pictures.
-- **ChatGPT (Lane A):** T41 Realmbound part 2 (pages become places); T42 Otherworld memories that matter (toward a systemic world); T43 the catalogue reaches Realmbound; T44 accessibility. (Done 2026-10-08: T36 Diamond Career in the game window; T37 catalogue batch 2; T38
-  Realmbound in the game window; T39 Hearthmere; T40 Wildbond clues for areas 5-8; the Ashen Throne.)
+- **First, the two playtest pass 2 blockers:** Starfall's goal line and controls (SF2.10, H1) and Wildbond's keys in
+  game (WB-KEYS, H2).
+- **Waiting to merge (check them, self-check, merge):** Diamond Manager v0.5.0 (#175), Ember Bricks (#185). Drafts in
+  progress: #176, #180, #183, #187.
+- **Claude threads:** the Wildbond builder keeps the ending's rest (WB4.3) and the creature drawing (WD2); everyone
+  else reviews merged work and keeps these lists current.
 - **Anyone:** bugs from friends first (GitHub issues, or Evan's messages).
 
 ## Questions for Evan (work continues on the defaults until he answers)
@@ -106,6 +103,7 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-11 Claude (Priorities and direction): refreshed the shared docs after Evan heard they were stale. QUEUE's Heavy lifting (12 builds) and road ahead (12 tasks) rebuilt from what is really open; 11 merged path lines ticked; new WB-KEYS, LR3, AC-x; PRIORITIES section 4 and this Up next rewritten.
 - 2026-10-11 Grok (Adam / abarish-dev, guest): COMMS catch-up only. Ember Bricks is claimed in ready #185 (not free, not merged; hub stays v1.5.1; #180 untouched). #177 merged (`480dfc4`); its preview is draft #183. #181 and #182 are merged.
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request, Starfall planning docs (#181): the darkness proposal updated with Adam's decision (one visible creature, at most one incident a night), the progression audit with his priority order, tickets SF2.9 to SF2.17 in DEVELOPMENT-PATH, and the SF2.17 day-pacing measurement (docs/measurements/starfall-day-pacing.md; no game numbers changed).
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request merged SF2.8 "Something by hand every day" (#179, `76f73aa`: lantern round then Odo, sparring then Ilse; Starfall Godot 199/0, all 17 suites pass), then rebuilt play/starfall/ from `76f73aa` (pack only, 3,251,192 bytes) in the PR that carries this line.
