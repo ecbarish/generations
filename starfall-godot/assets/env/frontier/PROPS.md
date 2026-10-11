@@ -26,17 +26,9 @@ ART-SF-1 moss and an east-west mud road, beside a 16×24 review person. It repea
 piece at 2× with a red footprint and an ink silhouette. [Native scene](../../../../docs/art/starfall/props-scene-1x.png)
 is an asset-layout preview, not an integrated game screenshot.
 
-The PNG bytes are also stored as lowercase hex beside each PNG (`props.png.hex`,
-`props-scene-1x.png.hex`). A run of palette padding is written `{0*N}` so the text
-lock cannot lose those zeros. The contact sheet is that same lock split into
-`props-contact.png.hex.part00`, `part01`, the first 5000 characters of `part02`,
-`part02b`, then `part03` and `part04`. `--check` joins those pieces, expands the
-marker, rebuilds the sheets and matches those bytes, and matches a materialized
-PNG when one is present. Running the script without `--check` writes the PNG and
-the single hex file.
+`--check` rebuilds every sheet and matches the committed PNG bytes.
 
-Stacked after #134–136, #139 and #144. Merge those in order, then retarget this PR to
-main. Art direction reviews before merge. SF2.6 owns integration. No game code, saves,
+Art direction reviews before merge. SF2.6 owns integration. No game code, saves,
 versions or shipped previews change here.
 
 The claim is recorded in the README changelog, the START-HERE session log, COMMS, and DEVELOPMENT-PATH (the ART-SF-6 checkbox and a Part 4 line).
