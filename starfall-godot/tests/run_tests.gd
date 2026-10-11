@@ -111,7 +111,7 @@ func _run() -> void:
 		if taker.where == "town":
 			break
 	check(taker.where == "town" and int(taker.a.hp) == int(taker.a.max), "rested, they come back out good as new")
-	# ---- nobody serving: they give up and go hungry
+	# ---- nobody serving: they help themselves from the stew pot (SF2.18; it used to cost them spirits)
 	var waiter: Variant = main.heroes[2] if main.heroes[2] != taker else main.heroes[1]
 	walk_to(Vector2i(11, 10))
 	waiter.a.state = "to_counter"
@@ -123,7 +123,7 @@ func _run() -> void:
 		tick(0.1)
 		if waiter.a.state != "to_counter":
 			break
-	check(waiter.a.state == "to_rest" and int(waiter.a.morale) == morale0 - 1, "left waiting too long, they give up grumbling (spirits drop)")
+	check(waiter.a.state == "to_rest" and int(waiter.a.morale) == morale0, "left waiting too long, they ladle their own from the stew pot (spirits don't drop)")
 	# ---- a disastrous job: never fatal
 	var brave: Variant = hero("Ren")
 	brave.a.lvl = 1
@@ -635,6 +635,7 @@ func _run() -> void:
 	_own_place()
 	_wilds()
 	_by_hand()
+	_no_chores()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -966,3 +967,103 @@ func _by_hand() -> void:
 	main.lines.clear()
 	main.me.tile = main.GATE_IN
 	main.me.pos = Vector2(main.me.tile) * main.TILE
+
+## SF2.18: no mandatory chores. Skipping a hand job never starves or stalls anyone; hand work stays the better choice.
+func _no_chores() -> void:
+	main.lines.clear()
+	main.then_do = Callable()
+	var keep_hired: bool = main.hired
+	main.hired = false
+	var h = main.heroes[0]
+	h.where = "town"
+	h.a.state = "to_counter"
+	h.tile = main.ORDER_AT
+	h.pos = Vector2(h.tile) * main.TILE
+	h.path.clear()
+	h.a.morale = 5
+	main.queue.clear()
+	main.queue.append(h)
+	h.a.waited = main.PATIENCE + 0.01
+	main.today = { "done": 3, "failed": 0, "meals": 0, "earned": 0, "unfed": 0 }
+	var c0: int = main.coins
+	main._counter(0.05)
+	check(int(h.a.morale) == 5 and main.coins == c0 + main.POT_MEAL and int(main.today.get("pot", 0)) == 1 and h.a.state == "to_rest" and main.queue.is_empty(),
+		"nobody at the counter: they help themselves from the stew pot, fed but plain (no lost spirits)")
+	check(main._judge_day() != "bad" and int(main.today.get("unfed", 0)) == 0, "a pot supper doesn't count as going hungry")
+	check(main.MEAL > main.POT_MEAL, "a meal served by hand is worth more than the pot (%d > %d coins, and +1 spirits)" % [main.MEAL, main.POT_MEAL])
+	main.hired = keep_hired
+	# the lantern round: lit from the walk, one short loop off the road
+	main.day_t = main.DAY_SECONDS * 0.7
+	var keep_odo: bool = main.odo_hired
+	main.odo_hired = false
+	main.lamps = [false, false, false, false]
+	var loop := [main.READ_AT, Vector2i(5, 9), Vector2i(28, 5), Vector2i(37, 9), Vector2i(20, 12)]
+	var tiles := 0
+	for i in range(1, loop.size()):
+		tiles += main.route(loop[i - 1], loop[i], main.me).size()
+		main.me.tile = loop[i]
+		main._light_near()
+	var secs: float = float(tiles) / float(main.me.speed)
+	check(not main.lamps.has(false), "walking a loop past the walls at dusk lights all four lanterns, no stopping needed")
+	check(secs >= 10.0 and secs <= 20.0, "the round, from the board past all four walls, takes about 15 to 20 seconds (%.1f s)" % secs)
+	main.lamps = [false, false, false, false]
+	main.me.tile = Vector2i(14, 9)
+	main._light_near()
+	check(not main.lamps.has(true), "the square itself is out of reach of the wall lanterns: it's still a round you choose to walk")
+	main.day_t = main.DAY_SECONDS * 0.2
+	main.me.tile = Vector2i(5, 9)
+	main._light_near()
+	check(not main.lamps[0], "in daylight walking past doesn't light them")
+	main.odo_hired = keep_odo
+	main.lamps = [false, false, false, false]
+	# sparring past full spirits becomes practice; by hand beats Ilse
+	h.a.state = "town"
+	h.a.morale = 10
+	var keep_lvl = h.a.lvl
+	var keep_xp = h.a.xp
+	h.a.lvl = 9                                  # far from the next level, so the practice shows as plain xp
+	h.a.xp = 0
+	main.spar = { "h": h }
+	main.finish_spar((main.SPAR_BAND.x + main.SPAR_BAND.y) / 2.0)
+	var got_clean := int(h.a.xp)
+	check(int(h.a.morale) == 10 and got_clean == 2 * main.SPAR_XP, "a clean bout at full spirits gives practice instead (%d xp)" % got_clean)
+	h.a.morale = 10
+	h.a.xp = 0
+	var keep_ilse: bool = main.ilse_hired
+	main.ilse_hired = true
+	main.coins += main.ILSE_WAGE
+	for o in main.heroes:
+		if o != h:
+			o.a.morale = 10
+			o.a.sparred = main.day
+	h.a.sparred = -1
+	main._yard_morning()
+	var got_ilse := int(h.a.xp)
+	h.a.lvl = keep_lvl
+	h.a.xp = keep_xp
+	check(got_ilse == main.SPAR_XP and got_clean > got_ilse, "Ilse's drill at full spirits gives practice too, less than a bout by hand (%d < %d)" % [got_ilse, got_clean])
+	main.ilse_hired = keep_ilse
+	# the board: standing in front of it no longer blocks anyone
+	main.me.tile = main.READ_AT
+	main.me.pos = Vector2(main.READ_AT) * main.TILE
+	main.me.path.clear()
+	main.walk_to.clear()
+	var r = main.heroes[1]
+	r.where = "town"
+	r.a.state = "to_board"
+	r.a.job = main.JOBS[0].id
+	r.a.timer = 0.0
+	r.a.hp = r.a.max
+	r.tile = Vector2i(14, 9)
+	r.pos = Vector2(r.tile) * main.TILE
+	r.path.clear()
+	main.send(r, main.read_spot(r))
+	var read := false
+	for i in 300:
+		main._process(0.05)
+		main.me.tile = main.READ_AT
+		main.me.pos = Vector2(main.READ_AT) * main.TILE
+		if r.a.state in ["leaving", "to_apoth"]:
+			read = true
+			break
+	check(read and main.READ_AT != r.tile, "with you standing in front of the board, an adventurer reads it from beside you and takes the job")

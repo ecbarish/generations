@@ -87,6 +87,35 @@ pieces, 1 to 2 brews, 1 lantern round and, once the yard stands, 2 to 6 bouts. T
 - **Optional bonuses, not chores:** after its hire, every hand job should be a pure bonus (it already is). Before the
   hire, only the counter is truly needed; with the fix above, nothing is.
 
+## After the fixes (Adam: "Do your suggestions")
+
+Re-measured with the same script, the same three seeds and the same 10 days, after each fix. ("Wins" means jobs
+finished successfully.)
+
+### After SF2.18, no mandatory chores
+
+What changed: a stew pot feeds anyone left waiting (4 coins, no lift in spirits; a hand meal is 8 and +1), and the
+whole line waits together, so nobody queues all day. You light a wall lantern by walking within 4 tiles at dusk. A
+bout or drill past full spirits becomes practice. Adventurers read the board from anywhere along its front.
+Raw numbers: `starfall-day-pacing-sf2.18.json`.
+
+| | board only (no hand jobs) | hand + hire when asked | hand, never hire |
+|---|---|---|---|
+| Coins after 10 days | **1,057 to 1,588** (before: 14 to 127) | 2,731 to 3,391 (before: 2,933 to 3,426) | 1,291 to 2,045 |
+| Wins | 64 to 90 (before: 3 to 20) | 60 to 95 | 36 to 50 |
+| Spirits on day 10 | **7.8** (before: 0.5) | 9.9 | 9.8 |
+| Busy, days 1 to 4 (s of 150) | 56 to 64 | **89, 94, 122, 116** (before: 108, 133, 152, 149) | 85 to 152 |
+| Lantern round | | **about 21 s** (before: 40) | about 24 s |
+| Market Town | day 4.7 to 5.5 | day 5.0 to 7.2 | day 6.2 to 6.8 |
+
+- **Skipping hand work is now fine:** the town stays solvent and spirits hold at 7 to 8 instead of collapsing.
+- **Hand + hire is still clearly best for coins** (about 2.4× the board-only player), with spirits at the top. But
+  the board-only player now reaches the ranks about as fast, because rank counts wins and buildings, and that player
+  spends all their time on the board. Something for SF2.10 and SF2.11 to reward: mastery ranks should make hand work
+  count toward the town's growth.
+- **Days 1 to 4 are no longer full** for the efficient player (59 to 81% busy).
+- Tamsin still didn't come in one seed (SF2.20).
+
 ## Limits of this measurement
 
 It's a scripted player: teleporting between actions (but paying the walk time), a fixed build order (the healer is

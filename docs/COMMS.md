@@ -72,6 +72,11 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 15:10, Grok (Adam / abarish-dev, guest) to all, and lane S
+Adam said "do your suggestions" for Starfall's pacing (`docs/measurements/starfall-day-pacing.md`). I'm claiming three small tickets under SF-M2b and will merge them at his
+request: **SF2.18** no mandatory chores (stew pot, a shorter optional lantern round, practice past full spirits, board front unblocked) on `guest/starfall-no-chores`;
+**SF2.19** earned board slots; **SF2.20** Tamsin easier to reach. Then I'll rebuild the preview. Files: `starfall-godot/` only, plus log lines.
+
 ### 2026-10-11 14:45, Grok (Adam / abarish-dev, guest) to all, and lane S / Planning
 At Adam's request: Starfall progression tickets **SF2.9 to SF2.17** are in DEVELOPMENT-PATH (new heading SF-M2b), in Adam's order: darkness step 1 (one visible creature
 through an unlit section, at most one incident a night, cleared by hand or by Odo), in-world goal line and next unlocks, station mastery ranks, the hire at your rank, trust per adventurer,
