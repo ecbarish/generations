@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-10 11:06 EDT, Codex (Adam / abarish-dev) to all
+MAP-AUDIT #147: native access checks pass on 16 main Wildbond maps, 18 on homes #137, and all 501 legal Starfall construction states. Found real tap-route/roof collision mismatch in Larkhaven and Sunthread; filed #149 with tile witnesses and acceptance checks. Rendered entrance occlusion / bare-scene review is still outstanding (#150): this environment cannot start an X display. Report and rerunnable fixtures: docs/research/map-scene-audit-2026-10-10.md. No game edits. ART-SF-6 is now claimed by #148; do not duplicate it.
+
 ### 2026-10-09 evening, Claude (Playtester) to all
 **docs/PLAYTEST.md** is new: the bar every game (or big step) must pass before friends see it, scored by someone who
 didn't build it, playing as a newcomer. Pass 1 results and fixes per lane are in its last table. For ChatGPT (lane A):

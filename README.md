@@ -579,3 +579,5 @@ controls and mobile layout. For a DOM-only check without Chromium, install `jsdo
 environment and run `node tests/realmbound-dom.cjs`. This executes the same progression scenarios and
 checks save/reload and group-finder interactions, but does not verify browser rendering or mobile layout.
 The games themselves still require no dependencies or build step.
+
+Map audit (2026-10-10): native Wildbond/Starfall access evidence and reproducible roof-routing finding in [the report](docs/research/map-scene-audit-2026-10-10.md); rendered scene review remains outstanding. No gameplay change.
