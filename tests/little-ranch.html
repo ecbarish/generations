@@ -34,7 +34,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.1.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.1.1');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -64,6 +64,45 @@ document.querySelector('#run').onclick = async () => {
     LR.advance(3); S().bubbles.length = 0; tap(baby()); check('Tapping the baby makes it giggle', S().baby.act === 'giggle' && S().acts === 6);
     LR.advance(1); const sparks = S().fx.length; tap({ x: L().home.x - L().size * 3, y: L().ground * .4 }); check('A tap on empty sky still answers (a sparkle)', S().fx.length > sparks);
 
+    // ---- choosing a different toy must not leave a meal stuck forever
+    for (const eating of [false, true]) {
+      LR.newVisit(); tap(L().bowl); if (eating) LR.advance(1.5);
+      tap({ x: L().bush.x, y: L().bush.y - L().R * .4 }); LR.advance(8);
+      const cancelled = S().bowl.food === 0 && S().acts === 1;
+      tap(L().bowl); LR.advance(5);
+      tap(L().bowl); LR.advance(5);
+      check(`Interrupt ${eating ? 'eating' : 'the walk to food'} with peekaboo: two later meals both finish`, cancelled && S().acts === 3 && S().bowl.food === 0 && S().baby.act === null);
+    }
+
+    LR.newVisit(); LR.act.peek(); LR.advance(2); LR.act.peek(); LR.advance(1.3);
+    tap(L().bowl); LR.advance(5); tap(L().bowl); LR.advance(5);
+    check('Switching from the end of peekaboo to feeding never replaces the meal with a trip home', S().acts === 2 && S().bowl.food === 0 && S().baby.act === null);
+
+    // ---- changing canvas size preserves the baby, its destination and active toys
+    const sizes = [[3440,1440],[375,812],[667,375],[1920,1080],[320,568],[1366,768],[375,812]];
+    for (const phase of ['idle', 'walking to food', 'eating', 'hiding', 'returning home', 'sleeping', 'bathing', 'dragging']) {
+      LR.newVisit();
+      if (phase === 'walking to food' || phase === 'eating') { tap(L().bowl); LR.advance(phase === 'eating' ? 1.5 : .01); }
+      if (phase === 'hiding' || phase === 'returning home') { LR.act.peek(); LR.advance(2); if (phase === 'returning home') { LR.act.peek(); LR.advance(1.45); } }
+      if (phase === 'sleeping') { LR.bedtime(); LR.advance(12); }
+      if (phase === 'bathing') { LR.act.bath(); LR.advance(.7); }
+      if (phase === 'dragging') { pid++; ev(cv, 'pointerdown', LR.toScreen(L().sponge)); ev(cv, 'pointermove', LR.toScreen(baby())); }
+      let fits = true;
+      for (const [width, height] of sizes) {
+        frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150);
+        const b = S().baby, l = L(), box = cv.getBoundingClientRect(), p = LR.toScreen({x:b.x,y:l.home.y});
+        const margin = l.size * 1.35 / cv.width * box.width;
+        fits = fits && Number.isFinite(b.x) && (b.tx === null || Number.isFinite(b.tx)) && p.x - margin >= box.left && p.x + margin <= box.right;
+        if (b.act === 'eat') fits = fits && Math.abs(b.x - l.bowl.x - l.size * 1.3) < .001;
+        if (b.act === 'hide' || b.act === 'peek') fits = fits && Math.abs(b.x - l.bush.x) < .001;
+        if (phase === 'dragging') fits = fits && !!S().sponge.drag && Number.isFinite(S().sponge.x) && Number.isFinite(S().sponge.y);
+      }
+      if (phase === 'dragging') { ev(cv, 'pointermove', LR.toScreen(baby())); ev(cv, 'pointerup', LR.toScreen(baby())); }
+      LR.advance(9);
+      const expectedActs = ['walking to food','eating','hiding','returning home','bathing','dragging'].includes(phase) ? 1 : 0;
+      check(`Resize while ${phase}: the baby stays visible and the activity finishes once`, fits && S().acts === expectedActs && Math.abs(S().baby.x - L().home.x) < .001 && S().bowl.food === 0 && !S().sponge.drag && !S().sponge.auto && (phase !== 'sleeping' || S().mode === 'sleep'));
+    }
+
     // ---- nothing to fail: a toddler bashing the screen
     LR.newVisit(); let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     for (let i = 0; i < 300; i++) { const p = { x: rnd() * L().home.x * 2, y: rnd() * L().home.y * 1.3 };
@@ -88,3 +127,4 @@ document.querySelector('#run').onclick = async () => {
   finally { if (frame) frame.remove(); if (keep === null) localStorage.removeItem(PREF); else localStorage.setItem(PREF, keep); button.disabled = false; }
 };
 </script></body></html>
+

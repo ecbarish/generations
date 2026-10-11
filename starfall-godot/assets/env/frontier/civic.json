@@ -1,0 +1,330 @@
+{
+  "palette": "docs/art/starfall/palette.gpl",
+  "tile_size": 16,
+  "origin": "local top-left; footprint_rect is placement base; explicit solid_rects/fence_segments override full solidity",
+  "pieces": {
+    "smithy": {
+      "file": "smithy.png",
+      "size": [
+        64,
+        56
+      ],
+      "footprint_rect": [
+        0,
+        24,
+        64,
+        32
+      ],
+      "footprint_tiles": [
+        4,
+        2
+      ],
+      "height_tiles": 3,
+      "solid": true,
+      "door_rect": null,
+      "open_front_rect": [
+        8,
+        31,
+        31,
+        21
+      ],
+      "forge_rect": [
+        11,
+        37,
+        12,
+        11
+      ],
+      "smoke_anchor": [
+        51,
+        0
+      ],
+      "smoke_note": "Emitter anchor only; smoke belongs to engine, not baked pixels."
+    },
+    "apothecary": {
+      "file": "apothecary.png",
+      "size": [
+        32,
+        56
+      ],
+      "footprint_rect": [
+        0,
+        24,
+        32,
+        32
+      ],
+      "footprint_tiles": [
+        2,
+        2
+      ],
+      "height_tiles": 3,
+      "solid": true,
+      "door_rect": [
+        10,
+        33,
+        12,
+        20
+      ],
+      "herb_rack_rect": [
+        2,
+        31,
+        7,
+        9
+      ],
+      "bottle_window_rect": [
+        23,
+        33,
+        7,
+        9
+      ]
+    },
+    "healer": {
+      "file": "healer.png",
+      "size": [
+        48,
+        48
+      ],
+      "footprint_rect": [
+        0,
+        16,
+        48,
+        32
+      ],
+      "footprint_tiles": [
+        3,
+        2
+      ],
+      "height_tiles": 2.5,
+      "solid": true,
+      "door_rect": [
+        18,
+        25,
+        12,
+        20
+      ],
+      "cloth_rect": [
+        17,
+        23,
+        14,
+        7
+      ],
+      "bench_rect": [
+        3,
+        36,
+        12,
+        9
+      ],
+      "herb_bed_rect": [
+        34,
+        36,
+        11,
+        9
+      ]
+    },
+    "tavern": {
+      "file": "tavern.png",
+      "size": [
+        64,
+        56
+      ],
+      "footprint_rect": [
+        0,
+        24,
+        64,
+        32
+      ],
+      "footprint_tiles": [
+        4,
+        2
+      ],
+      "height_tiles": 3,
+      "solid": true,
+      "door_rect": [
+        27,
+        30,
+        12,
+        20
+      ],
+      "porch_rect": [
+        0,
+        26,
+        64,
+        28
+      ],
+      "tankard_sign_rect": [
+        54,
+        21,
+        10,
+        10
+      ]
+    },
+    "well": {
+      "file": "well.png",
+      "size": [
+        32,
+        32
+      ],
+      "footprint_rect": [
+        0,
+        16,
+        32,
+        16
+      ],
+      "footprint_tiles": [
+        2,
+        1
+      ],
+      "height_tiles": 1.5,
+      "solid": true,
+      "door_rect": null,
+      "collision_shape": "alpha within footprint_rect"
+    },
+    "board": {
+      "file": "board.png",
+      "size": [
+        32,
+        32
+      ],
+      "footprint_rect": [
+        0,
+        16,
+        32,
+        16
+      ],
+      "footprint_tiles": [
+        2,
+        1
+      ],
+      "height_tiles": 2,
+      "solid": true,
+      "door_rect": null,
+      "solid_rects": [
+        [
+          3,
+          24,
+          3,
+          8
+        ],
+        [
+          26,
+          24,
+          3,
+          8
+        ]
+      ],
+      "interaction_rect": [
+        2,
+        8,
+        28,
+        17
+      ]
+    },
+    "yard": {
+      "file": "yard.png",
+      "size": [
+        64,
+        48
+      ],
+      "footprint_rect": [
+        0,
+        0,
+        64,
+        48
+      ],
+      "footprint_tiles": [
+        4,
+        3
+      ],
+      "height_tiles": 1.5,
+      "solid": false,
+      "door_rect": null,
+      "solid_rects": [
+        [
+          0,
+          0,
+          5,
+          8
+        ],
+        [
+          59,
+          0,
+          5,
+          8
+        ],
+        [
+          0,
+          40,
+          5,
+          8
+        ],
+        [
+          59,
+          40,
+          5,
+          8
+        ],
+        [
+          18,
+          40,
+          5,
+          8
+        ],
+        [
+          41,
+          40,
+          5,
+          8
+        ],
+        [
+          20,
+          8,
+          9,
+          25
+        ],
+        [
+          40,
+          10,
+          16,
+          22
+        ]
+      ],
+      "fence_segments": [
+        [
+          2,
+          4,
+          61,
+          4
+        ],
+        [
+          2,
+          4,
+          2,
+          44
+        ],
+        [
+          61,
+          4,
+          61,
+          44
+        ],
+        [
+          2,
+          44,
+          20,
+          44
+        ],
+        [
+          43,
+          44,
+          61,
+          44
+        ]
+      ],
+      "entry_rect": [
+        23,
+        40,
+        18,
+        8
+      ]
+    }
+  }
+}

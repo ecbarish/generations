@@ -40,7 +40,7 @@ footer{margin-top:30px;color:var(--muted);font-size:14px;max-width:80ch}
 <body>
 <a class="skip" href="#games">Skip to the games</a>
 <div class="wrap">
-<nav aria-label="Page"><a href="index.html">← The arcade</a><a href="#wildbond">Wildbond</a><a href="#realmbound">Realmbound</a><a href="#diamond">Diamond Manager</a><a href="#more">More games</a><a href="#elements">Element chart</a><a href="#feedback">Tell us</a></nav>
+<nav aria-label="Page"><a href="index.html">← The arcade</a><a href="#wildbond">Wildbond</a><a href="#realmbound">Realmbound</a><a href="#diamond">Diamond Manager</a><a href="#more">More games</a><a href="#elements">Element chart</a><a href="#script">10-minute playtest</a><a href="#feedback">Tell us</a></nav>
 
 <header>
 <span class="eyebrow">Idle Arcade · made by Evan, with AI helpers</span>
@@ -103,7 +103,7 @@ footer{margin-top:30px;color:var(--muted);font-size:14px;max-width:80ch}
 <div class="cols">
 <div><h3>How to play</h3><ol><li>Press <b>Play ball</b> (or Space) to watch the next game. Speed it up or skip to the final score.</li><li>Open the <b>Front office</b> (or F) to change the team.</li><li>Every player has ratings from 0 to 99. Better ratings win more.</li></ol></div>
 <div><h3>What you'll do</h3><ul><li>Trade with five rival clubs; they say yes or how far apart you are.</li><li>Sign free agents inside the owner's budget.</li><li>Spend the gate money on seats, lights, training rooms and more.</li></ul></div>
-<div><h3>Tell us</h3><p>Is it clear what to do? Did a number feel wrong? The Feedback button in the game goes straight to us.</p></div>
+<div><h3>Tell us</h3><p>Is it clear what to do? Did a number feel wrong? The Feedback button or Tell us in ⚙ Settings goes straight to us.</p></div>
 </div>
 <a class="play" href="games/diamond-manager/index.html">Play Diamond Manager →</a><a class="alt" href="games/diamond-career/index.html">The old batting prototype</a>
 </section>
@@ -112,7 +112,7 @@ footer{margin-top:30px;color:var(--muted);font-size:14px;max-width:80ch}
 <h2 id="more-h">More in the works</h2>
 <div class="cols">
 <div><h3>Otherworld <span class="tag">Prototype</span></h3><p>Live one life in another world, with a gift that changes the choices you see. Three worlds so far: Asterhold, whose town changes with what you do; Hearthmere, a shuttered lakeside inn and a long winter; and the Ashen Throne. When a life ends, you keep a memory into the next.</p><a class="play" href="games/otherworld/index.html">Play Otherworld →</a></div>
-<div><h3>Starfall <span class="tag">Preview</span></h3><img class="hero-shot" src="images/play/sf-town.png" alt="Starfall town: an inn, a guild hall, a smithy, an apothecary, a healer's hut and a training yard" loading="lazy"><p>Run a frontier guild town: post jobs on the board, serve stew at the counter, work the forge, and grow from a hamlet into a market town as your adventurers grow. Walk with the arrows, WASD or a click; Enter or E to use the board, the counter and the forge; M for music, N for sound effects. <a class="play" href="play/starfall/">Play the new Starfall (preview) →</a> An older version is <a href="games/starfall-guild/index.html">here</a>.</p></div>
+<div><h3>Starfall <span class="tag">Preview</span></h3><img class="hero-shot" src="images/play/sf-town.png" alt="Starfall, a log-walled frontier town: the inn, a tavern, a stone smithy, a healer's hut and a training yard along a mud road inside the palisade" loading="lazy"><p>Run a frontier guild town: post jobs on the board, serve stew at the counter, work the forge, and grow from a hamlet into a market town as your adventurers grow. Walk with the arrows, WASD or a click; Enter or E to use the board, the counter and the forge; M for music, N for sound effects. <a class="play" href="play/starfall/">Play the new Starfall (preview) →</a> An older version is <a href="games/starfall-guild/index.html">here</a>.</p></div>
 <div><h3>And later</h3><p>A walk-in arcade where your characters meet, a shared catalogue of creatures across games, and more sports careers. Every game is playable on its own, in one light, shared universe.</p></div>
 </div>
 </section>
@@ -123,9 +123,19 @@ footer{margin-top:30px;color:var(--muted);font-size:14px;max-width:80ch}
 <div class="chart"><table id="chart"><caption class="muted" style="caption-side:bottom;padding-top:8px">Attacking element (rows) against the defender's element (columns).</caption></table></div>
 </section>
 
+<section class="game" id="script" aria-labelledby="ps-h">
+<h2 id="ps-h">The ten-minute playtest</h2>
+<p class="lede">Got ten minutes? Pick one game, play until the stopping point, then answer three questions. No need to finish anything or be good at it. Where you got stuck is exactly what we want to hear.</p>
+<div class="cols">
+<div><h3>1. Pick one and play until…</h3><ul><li><b>Wildbond:</b> you've chosen a partner in Maren's barn and battled Wren.</li><li><b>Realmbound:</b> you've made a hero and finished the first quest.</li><li><b>Diamond Manager:</b> you've played a week of games and made one change in the Front office.</li><li><b>Storm Front:</b> three runs, or one with a friend taking turns.</li></ul></div>
+<div><h3>2. Answer three questions</h3><ol><li>What was the best moment?</li><li>Where were you stuck, confused or bored?</li><li>Would you play again tomorrow? Why, or why not?</li></ol></div>
+<div><h3>3. Send it</h3><p>Open <b>⚙ Settings</b> in the game and choose <b>Tell us → Share feedback</b>. The game and version are filled in for you. No GitHub account? Message Evan your three answers; a screenshot helps.</p></div>
+</div>
+</section>
+
 <section class="game" id="feedback" aria-labelledby="fb-h">
 <h2 id="fb-h">Tell us what you think</h2>
-<p>One good moment and one rough edge is the most helpful thing you can send. Each game has a <b>Feedback</b> button in its top bar that fills in the version and where you are. Or just message Evan: a screenshot and a sentence is perfect.</p>
+<p>One good moment and one rough edge is the most helpful thing you can send. Each game has <b>Tell us</b> in its ⚙ Settings (and many have a <b>Feedback</b> button in the top bar) that fills in the game, version and where you are. Or just message Evan: a screenshot and a sentence is perfect.</p>
 <a class="alt" href="https://github.com/ecbarish/idle-arcade/issues/new?template=feedback.yml">Share feedback (GitHub account)</a><a class="alt" href="https://github.com/ecbarish/idle-arcade/issues/new?template=bug.yml">Report a bug</a>
 <p class="muted">Your saves stay in your browser and are never sent anywhere. Each game has a "Your save" button to download a backup.</p>
 </section>

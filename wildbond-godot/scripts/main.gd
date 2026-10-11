@@ -20,7 +20,7 @@ const Book := preload("res://scripts/book.gd")
 const Calendar := preload("res://scripts/calendar.gd")
 ## Larkhaven's doors in the Godot version: the inn (rest) and the shop counter. (The browser puts the shop where Maren's
 ## barn stands here; the tall barn only fits top right.)
-const DOORS := { Vector2i(4, 4): "inn", Vector2i(7, 10): "shop" }
+const DOORS := { Vector2i(4, 4): "inn", Vector2i(7, 10): "shop", Vector2i(13, 4): "pip_home", Vector2i(2, 10): "gran_home" }
 const R := preload("res://scripts/rules.gd")
 const SafeSave := preload("res://scripts/safe_save.gd")
 const TILE := 16
@@ -189,6 +189,7 @@ func _ready() -> void:
 		DATA.SPECIES[k] = ej.data.species[k]
 	DATA["EVOS"] = ej.data.evos
 	R.DATA = DATA
+	_build_homes()
 	R.prepare_move_choices()
 	pup.look = CREATURE_LOOKS.pup
 	pup.home = PADDOCK
@@ -441,8 +442,9 @@ func indoors() -> bool:
 
 # ---------------------------------------------------------------- Larkhaven's inn and shop, walked into (WB2.4)
 ## Rooms you walk into from their doors in town, like Maren's barn. X dark, W wall, , floor, c counter, t table,
-## s shelf, h hearth, k crates, d the door out. Each keeper stands behind the counter: walk up and press E.
-const ROOM_SOLID := "XWcthsk"
+## s shelf, h hearth, k crates, b bed, d the door out. Each keeper stands behind the counter: walk up and press E.
+## The two homes (WB2.4) have no counter: the person who lives there is by the hearth; something to find lies on the floor.
+const ROOM_SOLID := "XWcthskb"
 const INTERIORS := {
 	"inn": { "name": "The Larkhaven Inn", "door": Vector2i(4, 4), "exit": Vector2i(11, 11), "keeper": "ned", "keeper_at": Vector2i(10, 4),
 		"rows": [
@@ -478,7 +480,68 @@ const INTERIORS := {
 			"XXXXXXXXXXXXXXXXXXXXXXXX",
 			"XXXXXXXXXXXXXXXXXXXXXXXX",
 		] },
+	# Pip's family home, top of the lane by the signpost: his mum Mira at home, and something Pip left by the window for you
+	"pip_home": { "name": "Pip's home", "door": Vector2i(13, 4), "exit": Vector2i(11, 11), "keeper": "pip_mum", "keeper_at": Vector2i(12, 4),
+		"find": { "id": "home_pip", "at": Vector2i(15, 8), "give": { "lures": 2 }, "who": "pip_mum",
+			"line": "Pip left those by the window for you. He says Champions share. Don't tell him I told you he was saving them." },
+		"rows": [
+			"XXXXXXXXXXXXXXXXXXXXXXXX",
+			"XXXXXXXWWWWWWWWWWXXXXXXX",
+			"XXXXXXXWWWWWWWWWWXXXXXXX",
+			"XXXXXXXh,,,,,,,,bXXXXXXX",
+			"XXXXXXX,,,,,,,,,bXXXXXXX",
+			"XXXXXXX,,,t,,,,,,XXXXXXX",
+			"XXXXXXX,,,,,,,,,,XXXXXXX",
+			"XXXXXXXs,,,,,,,,,XXXXXXX",
+			"XXXXXXXs,,,,,,,,,XXXXXXX",
+			"XXXXXXX,,,,,,,,,,XXXXXXX",
+			"XXXXXXX,,,,,,,,,,XXXXXXX",
+			"XXXXXXXWWWWdWWWWWXXXXXXX",
+			"XXXXXXXXXXXXXXXXXXXXXXXX",
+			"XXXXXXXXXXXXXXXXXXXXXXXX",
+		] },
+	# Nora's cottage (Pip's gran), beside Juniper's: she keeps the harvest hum, and a jar of berries she picked too many of
+	"gran_home": { "name": "Nora's cottage", "door": Vector2i(2, 10), "exit": Vector2i(11, 11), "keeper": "pip_gran", "keeper_at": Vector2i(9, 4),
+		"find": { "id": "home_gran", "at": Vector2i(14, 9), "give": { "berries": 3 }, "who": "pip_gran",
+			"line": "Take those berries for your partner, dear. I picked far too many again." },
+		"rows": [
+			"XXXXXXXXXXXXXXXXXXXXXXXX",
+			"XXXXXXXWWWWWWWWWWXXXXXXX",
+			"XXXXXXXWWWWWWWWWWXXXXXXX",
+			"XXXXXXXh,,,,,,,,sXXXXXXX",
+			"XXXXXXX,,,,,,,,,sXXXXXXX",
+			"XXXXXXX,,,,,,,,,,XXXXXXX",
+			"XXXXXXX,,,,,t,,,,XXXXXXX",
+			"XXXXXXX,,,,,,,,,,XXXXXXX",
+			"XXXXXXXb,,,,,,,,,XXXXXXX",
+			"XXXXXXXb,,,,,,,,,XXXXXXX",
+			"XXXXXXX,,,,,,,,,,XXXXXXX",
+			"XXXXXXXWWWWdWWWWWXXXXXXX",
+			"XXXXXXXXXXXXXXXXXXXXXXXX",
+			"XXXXXXXXXXXXXXXXXXXXXXXX",
+		] },
 }
+
+## The two homes stand on the Larkhaven map from the browser game's data, so they are added here (doors and front walls)
+## rather than in data/wildbond.json, and a fresh export keeps them. Roofs come from buildings(), as for every cottage.
+func _build_homes() -> void:
+	var rows: Array = DATA.MAPS.larkhaven.rows
+	for room in INTERIORS:
+		if not room.ends_with("_home"):
+			continue
+		var d: Vector2i = INTERIORS[room].door
+		var row: String = rows[d.y]
+		rows[d.y] = row.substr(0, d.x - 1) + "#D##" + row.substr(d.x + 3)
+
+## An old save made before the homes may stand where a new cottage is now: step out in front of its door instead.
+func _off_new_homes(map: String, p: Vector2i) -> Vector2i:
+	if map != "larkhaven":
+		return p
+	for room in INTERIORS:
+		var d: Vector2i = INTERIORS[room].door
+		if room.ends_with("_home") and p.x >= d.x - 1 and p.x <= d.x + 2 and p.y >= d.y - 2 and p.y <= d.y:
+			return d + Vector2i.DOWN
+	return p
 var keepers: Array = []                      # Old Ned and Juniper, behind their counters
 func _make_keepers() -> void:
 	for room in INTERIORS:
@@ -490,6 +553,10 @@ const KEEPER_LOOKS := {
 		"legs": Color("4a3e34"), "shoes": Color("3a2a1e"), "style": "short", "body": "broad" },
 	"juniper": { "name": "Juniper", "skin": Color("c88a64"), "hair": Color("3a2a22"), "shirt": Color("4a7a5a"), "apron": Color("d8c8a4"),
 		"legs": Color("3a3040"), "shoes": Color("2a2228"), "style": "bun", "body": "narrow" },
+	"pip_mum": { "name": "Mira", "skin": Color("e0a878"), "hair": Color("8a5a2a"), "shirt": Color("a85a4a"), "apron": Color("e8dcc4"),
+		"legs": Color("4a4048"), "shoes": Color("3a2a22"), "style": "ponytail", "body": "narrow" },
+	"pip_gran": { "name": "Nora", "skin": Color("e0a878"), "hair": Color("e4e0d8"), "shirt": Color("6a7a9a"), "apron": Color("e8dcc4"),
+		"legs": Color("4a4048"), "shoes": Color("3a2a22"), "style": "bun", "body": "narrow" },
 }
 
 ## Walking up to a keeper's counter and pressing E: Old Ned rests your team, Juniper sets out her goods.
@@ -510,6 +577,22 @@ func _keeper_talk(who: String) -> void:
 			"Back again? Good. A tamer who rests is a tamer who comes home.",
 			"Maren says you're doing her proud. Don't tell her I told you."][int(t) % 3])
 		say("", "You rest a while at the Larkhaven Inn. Your team is fully healed.")
+	elif who == "pip_mum":
+		if not story_done.has("met:pip_mum"):           # the first visit: she says who she is (story_done is already saved)
+			story_done["met:pip_mum"] = true
+			say("pip_mum", "Oh, hello! I'm Mira, Pip's mum. Come in, come in. Mind the boots.")
+		if badges.has("thorn"):
+			say("pip_mum", "Pip keeps telling me everything's brighter. Nonsense, of course.")
+			say("", "She smooths her good scarf as she says it.")
+		else:
+			say("pip_mum", ["Pip's out by the paddock again, I expect. He says he'll be Champion before Wren. I say he'll be in for supper.",
+				"Mind the step, love. Pip leaves his boots wherever his feet stop."][int(t) % 2])
+	elif who == "pip_gran":
+		if not story_done.has("met:pip_gran"):
+			story_done["met:pip_gran"] = true
+			say("pip_gran", "I'm Nora, dear. Pip's gran. Everyone calls me Gran, Pip included, so you might as well.")
+		say("pip_gran", "Sit a moment. Do you know the harvest hum? Pip thinks I made up the last bit. I didn't. My mother hummed it just the same.")
+		say("", "She hums it for you, slowly, while the kettle warms.")
 	else:
 		say("juniper", "Welcome in! Lures for bonding, berries for a tired team. Have a look.")
 		then_do = func():
@@ -2423,6 +2506,16 @@ func _draw_water(x: int, y: int, o: Vector2, n: int) -> void:
 ## in the browser game): a wild creature (62%), a small find (14%), or a moment in the woods.
 func _arrived(p: Vector2i) -> void:
 	_festival_tick()
+	if INTERIORS.has(map_name) and stage == "free" and INTERIORS[map_name].has("find"):
+		var f: Dictionary = INTERIORS[map_name].find
+		if p == f.at and not got_items.has(f.id):      # something to find at home: kept in the same list as items outdoors
+			got_items[f.id] = true
+			var found: Array = []
+			for k in f.give:
+				bag[k] = int(bag.get(k, 0)) + int(f.give[k])
+				found.append("%d %s" % [int(f.give[k]), k])
+			say("", "You found %s!" % R.words(found))
+			say(f.who, f.line)
 	if indoors() or stage != "free":
 		return
 	if map_name != "larkhaven":
@@ -3119,7 +3212,7 @@ func _load_game() -> bool:
 	maren.tile = BARN_DOOR + Vector2i(1, 1)
 	maren.pos = Vector2(maren.tile) * TILE
 	fade_in = 1.0
-	_go(d.map, Vector2i(int(d.x), int(d.y)), Vector2i.DOWN)
+	_go(d.map, _off_new_homes(str(d.map), Vector2i(int(d.x), int(d.y))), Vector2i.DOWN)
 	trans_t = 0.29
 	say("", "Welcome back, %s." % my_look.get("name", "tamer"))
 	return true
@@ -3903,6 +3996,27 @@ func _draw_room() -> void:
 				"d":
 					draw_rect(Rect2(o + Vector2(1, 0), Vector2(14, 16)), Color("2a1c12"))
 					draw_rect(Rect2(o + Vector2(1, 9), Vector2(14, 7)), Color("6a9a48").darkened(0.2))   # town outside
+				"b":
+					var head: bool = y == 0 or rows[y - 1][x] != "b"                                   # a bed: pillow at the head, quilt below
+					draw_rect(Rect2(o + Vector2(1, 0 if not head else 1), Vector2(14, 16 if not head else 15)), Figures.OUTLINE)
+					draw_rect(Rect2(o + Vector2(2, 0 if not head else 2), Vector2(12, 15 if not head else 13)), WOOD)
+					if head:
+						draw_rect(Rect2(o + Vector2(3, 3), Vector2(10, 5)), Color("efe6d4"))
+						draw_rect(Rect2(o + Vector2(3, 10), Vector2(10, 6)), Color("7a8ac0"))
+					else:
+						draw_rect(Rect2(o + Vector2(3, 0), Vector2(10, 13)), Color("7a8ac0"))
+						for k in 3:
+							draw_rect(Rect2(o + Vector2(3, 2 + k * 4), Vector2(10, 1)), Color("7a8ac0").darkened(0.2))
+	var home_find: Dictionary = INTERIORS[map_name].get("find", {})
+	if not home_find.is_empty() and not got_items.has(home_find.id):          # something to find: a little cloth pouch, as outdoors
+		var io := Vector2(home_find.at) * TILE + Vector2(4, 5 + sin(t * 2.0) * 0.5)
+		draw_rect(Rect2(io + Vector2(0, 2), Vector2(8, 8)), Figures.OUTLINE)
+		draw_rect(Rect2(io + Vector2(1, 3), Vector2(6, 6)), Color("c8925a"))
+		draw_rect(Rect2(io + Vector2(2, 0), Vector2(4, 3)), Figures.OUTLINE)
+		draw_rect(Rect2(io + Vector2(3, 1), Vector2(2, 2)), Color("e0b070"))
+		draw_rect(Rect2(io + Vector2(2, 3), Vector2(4, 1)), Color("8a5a2a"))
+	if not map_name in ["inn", "shop"]:
+		return                                                       # homes have no sign over the door
 	# the room's name on a board over the counter
 	var at: Vector2i = INTERIORS[map_name].keeper_at
 	var bo := Vector2(at.x - 1, 1) * TILE + Vector2(0, 6)
