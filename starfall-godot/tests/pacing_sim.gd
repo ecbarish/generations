@@ -24,6 +24,8 @@ func _go() -> void:
 	var pol: Array = ["board", "hand", "hand_nohire"]
 	var seeds: Array = [11, 22, 33]
 	var ua := OS.get_cmdline_user_args()
+	if ua.size() == 1:                           # "-- 6": six seeds (11 to 66)
+		seeds = range(1, int(ua[0]) + 1).map(func(i): return i * 11)
 	if ua.size() >= 2:
 		pol = [ua[0]]
 		seeds = [int(ua[1])]

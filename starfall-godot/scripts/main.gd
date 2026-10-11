@@ -257,6 +257,7 @@ var pours := 0                              # drinks you've poured by hand, all 
 var pour := {}                              # while you're at the tap: { fill: 0..1, on: pouring }
 var tavern_shut := false                    # left unserved two evenings running, the tavern closes until you open it
 var tavern_quiet := 0                       # evenings in a row nobody was served
+var kept := 0                               # evenings you kept the tap yourself, all time (SF2.20)
 var lamps: Array = [false, false, false, false]   # the wall lanterns lit tonight (SF2.8, the gate watch)
 var rounds := 0                             # lantern rounds you've walked yourself, all time
 var odo := Mover.new("odo", Vector2i(-5, -5))   # a night watchman, once you've shown the round is worth walking
@@ -1545,6 +1546,7 @@ func _fen_tick(dt: float) -> void:
 # ---------------------------------------------------------------- the tavern (SF2.3): pour by hand, then hire Tamsin
 const DRINK := 5                            # what a drink costs an adventurer, from their own savings
 const POUR_AFTER := 6                       # drinks you pour yourself before Tamsin asks for the tap
+const KEPT_AFTER := 3                       # ...or evenings you kept the tap yourself (poured at least one), for a quiet tavern (SF2.20)
 const TAMSIN_WAGE := 8
 const FULL := Vector2(0.78, 0.95)           # stop pouring with the mug in this band: a good pour
 
@@ -1660,12 +1662,18 @@ func drink(h: Mover, quality: int, by_hand := false) -> void:
 	bark(h, ["Just right. Thank you.", "That's a proper pour!", "Ahh. Now I can sleep."][clampi(quality, 0, 2)] if quality >= 2 else ["Bit of foam. Still good.", "Cheers, guildmaster."][rng.randi() % 2])
 	if by_hand:
 		pours += 1
-		if pours >= POUR_AFTER and tamsin.where == "gone" or (pours >= POUR_AFTER and tamsin.tile == Vector2i(-5, -5)):
-			tamsin.where = "town"                    # word gets round: a barkeep walks in through the gate
-			tamsin.tile = GATE_IN
-			tamsin.pos = Vector2(tamsin.tile) * TILE
-			bark(tamsin, "Who's been pouring at that tap? You've a light hand. Can I have a word?")
-			send(tamsin, _tap_at() + Vector2i.RIGHT)
+		today["kept"] = true
+		if pours >= POUR_AFTER:
+			_tamsin_arrives()
+
+## Word gets round that someone keeps a good tap: a barkeep walks in through the gate (once).
+func _tamsin_arrives() -> void:
+	if tamsin.where == "gone" or tamsin.tile == Vector2i(-5, -5):
+		tamsin.where = "town"
+		tamsin.tile = GATE_IN
+		tamsin.pos = Vector2(tamsin.tile) * TILE
+		bark(tamsin, "Who's been pouring at that tap? You've a light hand. Can I have a word?")
+		send(tamsin, _tap_at() + Vector2i.RIGHT)
 
 func talk_tamsin() -> void:
 	tamsin.face = me.tile - tamsin.tile
@@ -1682,6 +1690,10 @@ func _tavern_evening() -> String:
 		return ""
 	var out := ""
 	var drinks := int(today.get("drinks", 0))
+	if today.get("kept", false):
+		kept += 1
+		if kept >= KEPT_AFTER and not tamsin_hired:
+			_tamsin_arrives()
 	if drinks > 0:
 		out += " Drinks poured: %d." % drinks
 		tavern_quiet = 0
@@ -2535,7 +2547,7 @@ func save_game() -> void:
 	var d := { "v": 1, "coins": coins, "day": day, "day_t": day_t, "meals": meals, "hired": hired, "offered": bryn_offered,
 		"notices": notices, "posted": posted, "today": today, "me": [me.tile.x, me.tile.y],
 		"built": built, "jobs": total_jobs, "rank": rank, "herbs": herbs, "stock": stock, "price": price_i,
-		"pieces": pieces, "smith": smith_hired, "apprentice": { "batches": batches, "hired": fen_hired, "here": fen.where == "town" }, "tavern": { "pours": pours, "hired": tamsin_hired, "here": tamsin.where == "town", "shut": tavern_shut, "quiet": tavern_quiet }, "garrick": garrick.where == "town", "good": good_days, "bad": bad_days, "visitors": visitors,
+		"pieces": pieces, "smith": smith_hired, "apprentice": { "batches": batches, "hired": fen_hired, "here": fen.where == "town" }, "tavern": { "pours": pours, "hired": tamsin_hired, "here": tamsin.where == "town", "shut": tavern_shut, "quiet": tavern_quiet, "kept": kept }, "garrick": garrick.where == "town", "good": good_days, "bad": bad_days, "visitors": visitors,
 		"watch": { "lamps": lamps, "rounds": rounds, "hired": odo_hired, "here": odo.where == "town" },
 		"drill": { "spars": spars, "hired": ilse_hired, "here": ilse.where == "town" },
 		"heroes": heroes.map(func(h): return h.a) }
@@ -2575,6 +2587,7 @@ func _load() -> bool:
 	tamsin_hired = bool(tv.get("hired", false))
 	tavern_shut = bool(tv.get("shut", false))
 	tavern_quiet = int(tv.get("quiet", 0))
+	kept = int(tv.get("kept", 0))                  # (SF2.20: older saves start at none)
 	if tv.get("here", false) and finished("tavern") != "":
 		tamsin.where = "town"
 		tamsin.tile = _tap_at() + (Vector2i.ZERO if tamsin_hired else Vector2i.RIGHT)
