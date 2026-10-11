@@ -186,7 +186,7 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
   hall and inn now have (Evan saw the inn's door floating above its stone base on 2026-10-11; fixed for those two in
   tools/art/starfall_hall_inn.py). Done when the opening screenshot reads lived-in, every building is still reachable, and the
   Starfall checks pass.
-- [ ] SF2.6c [any] (claimed: Codex for Adam / abarish-dev, 2026-10-11, guest/starfall-opening-view; implemented and visually verified in [PR #200](https://github.com/ecbarish/idle-arcade/pull/200); awaiting final CI/review, not merged) Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
+- [x] SF2.6c [any] (merged 2026-10-11: [PR #200](https://github.com/ecbarish/idle-arcade/pull/200), Codex for Adam / abarish-dev; full roofs, 227 native checks, 32 rendered captures and 501 layout checks) Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
   and banner, the most recognisable parts. Start the player (or the camera) so both buildings show whole. Also delete
   the unused Ninja Adventure tiles in `starfall-godot/assets/env/` (house.png, nature.png, floor.png and their .import
   files; nothing loads them) and update CREDITS.md (the pack's music and sounds stay). Done when a day-one screenshot
@@ -585,3 +585,8 @@ line or two, with the page that holds the detail.
 
 - [x] WB-PREVIEW-177 [any] Built and browser-verified 2026-10-11, Adam / abarish-dev, [PR #183](https://github.com/ecbarish/idle-arcade/pull/183). Exact merged source `480dfc4`; 353 browser checks, 119 captures, 60 door transitions, 20 fresh-save reloads and 12 pad hold/release cases. Unchanged engine and save format. Final latest-head CI, merge and live hash confirmation gate publication; see [release record](research/wildbond-preview-door-release.md).
 
+
+
+## Starfall opening preview release
+
+- [ ] SF-PREVIEW-200 [any] (claimed: Codex for Adam / abarish-dev, 2026-10-11, guest/starfall-opening-preview) Rebuild and publish the approved SF2.6c source `0af5b92cf4ae03fbbb2dd83bf67b0e06332e38fd`; preserve the existing engine, verify exact-pack browser opening and old-save reloads, then compare live Pages bytes. No unmerged #195 changes or unrelated releases.
