@@ -79,22 +79,24 @@ async function reload(page){await page.unroute('**/play/starfall/');await page.r
     if(size.width<=960)await p.touchscreen.tap(at.x,at.y);else await p.mouse.click(at.x,at.y);
     await waitSave(p,d=>JSON.stringify(d.me)==='[15,5]',tag+' real pointer returns to opening');
     await shot(p,tag+'-returned');
-    await waitSave(p,d=>JSON.stringify(d.me)==='[15,5]',tag+' fresh position reaches IndexedDB',true);
+    await p.keyboard.down('ArrowRight');await p.waitForTimeout(300);await p.keyboard.up('ArrowRight');
+    const away=await waitSave(p,d=>d.me[0]>15&&d.me[1]===5,tag+' saves a nondefault position before reload');
+    const persisted=await waitSave(p,d=>JSON.stringify(d.me)===JSON.stringify(away.me)&&d.day_t>=away.day_t,tag+' nondefault position reaches IndexedDB',true);
     await reload(p);
-    await waitSave(p,d=>JSON.stringify(d.me)==='[15,5]'&&d.coins===100,tag+' fixture-free reload keeps new town');
+    await waitSave(p,d=>JSON.stringify(d.me)===JSON.stringify(away.me)&&d.coins===100&&d.day_t>persisted.day_t+0.5,tag+' fixture-free reload newly saves nondefault position');
     await verifySentinels(p,tag);check(g.errors.length===0,tag+' has no runtime errors');await g.context.close();
   }
   for(const size of [{width:1920,height:1080},{width:812,height:375}]){
     const tag=`${size.width}x${size.height}`;
     const old=await open(browser,size,{fixture:legacy,before:true});await dismiss(old.page,1);
-    await waitSave(old.page,d=>d.coins===321&&JSON.stringify(d.me)==='[14,10]',tag+' previous pack loads legacy town');
+    await waitSave(old.page,d=>d.coins===321&&JSON.stringify(d.me)==='[14,10]'&&d.day_t>legacy.day_t+0.5,tag+' previous pack loads legacy town');
     await shot(old.page,tag+'-legacy-before');await old.context.close();
     const current=await open(browser,size,{fixture:legacy});await dismiss(current.page,1);
     const matches=d=>d.coins===321&&d.day===7&&d.meals===12&&d.rank===1&&JSON.stringify(d.me)==='[14,10]'&&d.built.west.what==='healer'&&d.heroes.length===3;
-    await waitSave(current.page,matches,tag+' refreshed pack preserves legacy position/progress');
+    const loaded=await waitSave(current.page,d=>matches(d)&&d.day_t>legacy.day_t+0.5,tag+' refreshed pack newly saves legacy position/progress');
     await shot(current.page,tag+'-legacy-after');
-    await waitSave(current.page,matches,tag+' legacy town reaches IndexedDB',true);
-    await reload(current.page);await waitSave(current.page,matches,tag+' fixture-free reload keeps legacy town');
+    const persisted=await waitSave(current.page,d=>matches(d)&&d.day_t>=loaded.day_t,tag+' newly saved legacy town reaches IndexedDB',true);
+    await reload(current.page);await waitSave(current.page,d=>matches(d)&&d.day_t>persisted.day_t+0.5,tag+' fixture-free reload newly saves legacy town');
     await verifySentinels(current.page,tag+' legacy');check(current.errors.length===0,tag+' legacy has no runtime errors');await current.context.close();
   }
   report.passed=true;write();console.log('STARFALL_WEB_PASS',report.checks.length,'checks',report.screenshots.length,'screenshots');
