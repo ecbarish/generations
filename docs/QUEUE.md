@@ -39,35 +39,35 @@ more in another lane's files: ask that lane in COMMS, or keep it to a few lines 
 One page for every AI and thread: pick, claim with a draft pull request **before** building, build, submit (mark it
 ready), and merging: any AI may do any step, including merging its own pull request straight away, after a written self-check.
 
-## Heavy lifting (for the AIs with the most usage: Evan's dad's AIs first; Evan, 2026-10-09)
+## Heavy lifting (for the AIs with the most usage: Evan's dad's AIs first; refreshed 2026-10-11)
 
-Evan: "my dad's AIs have much more usage available, so we can steer them to a lot of the heavy lifting since we're
-running out of usage for this week." These are the **big builds**, in the order that matters most. They are Godot
-work: follow the Godot rules under "The road ahead" (all checks green, old saves load, screenshots, a reviewer
-merges). Before starting, check the open pull request list: the Wildbond builder thread is on the ending (WB4.3) and
-creature drawing (WD2), and phone controls and settings (WB6.1-6.2) shipped in #107; don't take those. One task per pull
-request; split a big one into steps ("WD4a: Thornwood's route") and open the next when the first is in review.
+Evan: "my dad's AIs have much more usage available, so we can steer them to a lot of the heavy lifting." These are the
+**big builds**, in the order that matters most. They are Godot work: follow the Godot rules under "The road ahead"
+(all checks green, old saves load, screenshots, the self-check in docs/PROCESS.md). Before starting, check the open
+pull request list. One task per pull request; split a big one into steps and open the next when the first is merged.
+
+**Done since the last refresh:** WB5.1 the Spire (#129), WD4a Thornwood (#128), WB2.4 the homes, SF2.6 Starfall's own
+place (#157), SF2.7 the wilds (#174), SF2.8 by hand (#179), WB-DOOR-TAP (#177), WB4.2 part 1 and WB4.3 part 2 (#170).
+**Claimed now:** SF2.18 no mandatory chores (#187, draft), the Wildbond doorway preview (#183, draft).
 
 | # | Big build (path ID) | Read first | Files | Done when |
 |---|---|---|---|---|
-| H1 | **Battles with real choices** (WD3) | docs/proposals/game-review-2026-10-09.md GR-2; `wildbond-godot/scripts/rules.gd`, `battle.gd` | Wildbond data and battle scripts | About 60 moves (from 22), a signature move per creature family, a few statuses (sleep, burn, guard...), each Warden fights with a plan; the pacing check (WB3.6b, about 12 wins a level) still holds; new checks for every status |
-| H2 | **Thornwood you can explore** (WD4a) | GR-3; docs/proposals/depth-and-first-person.md (maps are data) | `wildbond-godot/` Thornwood map data and scenes | Thornwood becomes a route, the settlement and one hidden pocket, with one spot you come back to with the right creature; old saves load in the right place; screenshots |
-| H3 | **The Lighthouse Spire and rematches** (WB5.1) | docs/wildbond-plan.md; browser Wildbond's Spire (`games/wildbond/`) | `wildbond-godot/` | The Spire opens after the Champion; floors of trainers; Wardens offer stronger rematches; checks |
-| H4 | **Starfall's own place** (SF2.6) | GR-5; docs/art/starfall.md (the look, using the ART-SF pieces above); docs/plans/starfall-village.md | `starfall-godot/` | A frontier stockade look and road layout instead of Larkhaven's, a map that scrolls; every building still reachable; old saves load; screenshots |
-| H5 | **See the wilds sooner** (SF2.7), then **something by hand every day** (SF2.8) | GR-7, GR-8 | `starfall-godot/` | A small walkable stretch past the gate; the next jobs to master, then hire (the "master it, then hire" rule) |
-| H6 | **The rest of the areas you can explore** (WD4b onward) | as H2 | as H2 | One area per pull request, in journey order |
-| H7 | **The Unbound appear** (WB3.7) | docs/lore/wildbond-threads.md (check every line against it), docs/proposals/reputation-and-consequence.md | `wildbond-godot/` | First encounters and a choice to help or oppose; reputation begins; no new canon without the Design decisions thread (docs/DECISIONS.md) |
-| H8 | **The last two homes in Larkhaven** (WB2.4, homes left) | DEVELOPMENT-PATH WB2.4; the inn and shop interiors as the pattern | `wildbond-godot/` interior scenes | Two homes you can walk into, each with a person who lives there and something to find; screenshots |
-| H9 | **Bring a browser save across** (WB6.3) | DEVELOPMENT-PATH WB6.3; browser Wildbond's save format (`games/wildbond/`) | `wildbond-godot/` save code | A browser Wildbond save loads into the Godot game with its creatures and progress; a check with a sample save |
-| H10 | **Ranch jobs** (WB5.3) | docs/proposals/ (ranch jobs, W5/WG8); the "master it, then hire" rule | `wildbond-godot/` ranch | Creatures take jobs you've done by hand yourself; active play stays worth at least as much; checks |
-| H11 | **Starfall's first season** (SF3.1, after SF2.6-2.8) | docs/plans/starfall-village.md | `starfall-godot/` | The first season as a chapter, ending in a festival; old saves load; screenshots |
+| H1 | **Starfall says what to do next** (SF2.10; playtest pass 2 blocker: Starfall scored 11) | DEVELOPMENT-PATH SF2.10; docs/PLAYTEST.md pass 2 | `starfall-godot/` | A goal line naming the nearest unlock with its count, and the controls on screen after the opening; a newcomer replay scores 15+ |
+| H2 | **Wildbond shows its keys in game** (WB-KEYS; playtest pass 2) | docs/PLAYTEST.md pass 2; `controls.gd`, `touch_pad.gd` | `wildbond-godot/` | The first time each action matters, the key (or the pad button on a phone) appears in the world; a newcomer never needs the website to play |
+| H3 | **Battles with real choices** (WD3) | docs/proposals/game-review-2026-10-09.md GR-2; `rules.gd`, `battle.gd` | Wildbond data and battle scripts | About 60 moves (from 22), a signature move per family, a few statuses, each Warden fights with a plan; the pacing check (WB3.6b) still holds; checks for every status |
+| H4 | **Saltmarsh you can explore** (WD4b, then one area per PR in journey order: Emberfall, Cloudglass, ...) | GR-3; WD4a (#128) as the pattern | `wildbond-godot/` map data and scenes | A route, the settlement and one hidden pocket, with a spot you come back to with the right creature; old saves load in the right place; screenshots |
+| H5 | **Open on Starfall's best side, and dress the square** (SF2.6c, then ART-SF-8) | DEVELOPMENT-PATH SF-M2; docs/art/starfall.md | `starfall-godot/`, `starfall-godot/assets/env/frontier/` | As those two lines say; screenshots before and after |
+| H6 | **Starfall progression, in order** (SF2.9 darkness, SF2.11 mastery ranks, SF2.12 hires at your rank, SF2.13 trust, SF2.14 veteran requests, SF2.15 signature moves, SF2.16 recruit specialities) | docs/proposals/starfall-darkness.md; each SF line in DEVELOPMENT-PATH | `starfall-godot/` | One ID per PR, as its line says; the day-pacing check (SF2.17) still holds |
+| H7 | **Bring a browser save across** (WB6.3) | browser Wildbond's save format (`games/wildbond/`) | `wildbond-godot/` save code | A browser save loads into the Godot game with its creatures and progress; a check with a sample save |
+| H8 | **Ranch jobs** (WB5.3) | the "master it, then hire" rule | `wildbond-godot/` ranch | Creatures take jobs you've done by hand; active play stays worth at least as much; checks |
+| H9 | **Races and contests at the ranch** (WB5.2, 17/18) | docs/proposals/new-game-ideas.md | `wildbond-godot/` ranch | One race and one contest, with rematches; checks |
+| H10 | **Fishing at Saltmarsh** (WB5.7, 16/18; after H4's Saltmarsh) | docs/proposals/new-game-ideas.md | `wildbond-godot/` | A fishing spot and a fish body shape (with WD2); checks |
+| H11 | **Starfall's first season** (SF3.1, after H6) | docs/plans/starfall-village.md | `starfall-godot/` | The first season as a chapter, ending in a festival; old saves load; screenshots |
+| H12 | **The Unbound appear** (WB3.7) | docs/lore/wildbond-threads.md, docs/proposals/reputation-and-consequence.md | `wildbond-godot/` | First encounters and a choice to help or oppose; ask the Design decisions thread (docs/DECISIONS.md) before any new canon |
 
-**Keep this list at least 10 open builds deep.** Lane P refills it from PRIORITIES.md whenever a build merges or is
-claimed; any Claude thread that notices it under 10 adds the next items from PRIORITIES.md section 4 and the Starfall
-order.
-
-Browser work for any AI is in "The road ahead" below. Claude's own threads keep to planning, reviews, the ending
-and the creature drawing while Claude's usage is low.
+**Keep this list at least 10 open builds deep.** Any AI that finds it under 10 adds the next open items from
+PRIORITIES.md section 4 and the Starfall order. The Wildbond builder thread keeps the ending (WB4.3's rest) and the
+creature drawing (WD2's drawing half).
 
 ## Art tasks (our own art; any AI may claim; reviewed by the Art direction thread)
 
@@ -94,37 +94,38 @@ thread reviewed them on 2026-10-11 (passed). **Open:** ART-SF-8 (dress the squar
 town's best side, drop unused pack tiles); specs in DEVELOPMENT-PATH.md under SF-M2. One task per PR. Other games get
 their sheet first, then tasks here.
 
-## The road ahead (ready to claim by any AI; Evan, 2026-10-09)
+## The road ahead (browser work, ready to claim by any AI; refreshed 2026-10-11)
 
-Evan: "we are nearing our cap on Claude, so if we lay out a strong road in front of us we can use our other helpers
-to push us along." These tasks need **no Godot** and are open to **any** AI (ChatGPT/Codex, Evan's dad's AIs,
-Claude). (Done and removed: RB1.5, Codex, PR #98.) Take the first one no open pull request names, claim it (docs/PROCESS.md), build it, open the PR;
-any AI merges after the self-check in docs/PROCESS.md. Each line names its spec; read it first.
+These tasks need **no Godot** and are open to **any** AI. Take the first one no open pull request names, claim it, build
+it, then self-check and merge (docs/PROCESS.md). Each line names its spec; read it first.
+
+**Done since the last refresh:** AC1 Storm Front, AC2 Lighthouse Watch, Brisket's Crossing (#160), LR1 and LR2 Little
+Ranch, AR2.11 "Tell us", AR2.12 the front door, RB1.4 to RB1.9 (Realmbound phone, abilities, inn, facing, 3D trial),
+DM2 and Diamond Manager v0.4.0 (#172), OW1.1, WD2's data half (#113), X2 links (#158), X3 Otherworld text (#104).
+**Claimed now:** AC3 Ember Bricks (#185), AC3.1 Brisket polish (#180), Diamond Manager v0.5.0 (#175), MAP-AUDIT-150
+(#176).
 
 | # | Task (path ID) | Spec | Files | Done when |
 |---|---|---|---|---|
-| 1 | **Storm Front cabinet** (AC1) | docs/proposals/games-for-everyone.md | new folder only, plus one launcher link | Plays start to finish on desktop and phone, original name and art, high score saved; a small test page |
-| 2 | **Little Ranch, smallest test** (LR1) | docs/proposals/games-for-everyone.md | new folder only, plus one launcher link | One creature, feed, bubbles, peekaboo, bedtime; no reading needed, nothing to fail, no links out, grown-up lock |
-| 3 | **"Tell us" in every game** (AR2.11) | game review GR-9; docs/FEEDBACK.md | settings of each browser game, `playtest.html` | Opens a prefilled GitHub issue (game, version); a 10-minute playtest script on Come Play |
-| 4 | **The front door** (AR2.12; done by Claude, PR #109; next steps for the hall in PROJECTS.md L8) | game review GR-12 | `index.html`, `launcher/` | The hub leads with the Godot previews; Starfall Guild and Primordial under Classic; the old homepage vote closed (docs/VOTES.md) |
-| 5 | **Creature looks as data** (WD2, data half) | game review GR-1 | browser Wildbond data, exported with `tools/godot-export` | Every species has look features (ears, tail, pattern, horns...) in data; Claude draws them later |
-| 6 | **More moves** (WD3, data half) | game review GR-2 | browser Wildbond data | About 60 moves, a signature move per family, a few statuses, balanced with the pacing sim; Claude wires battles later |
-| 7 | **Lighthouse Watch cabinet** (AC2) | games-for-everyone.md | as AC1 | As AC1 |
-| 8 | **Brisket's Crossing, then Ember Bricks** (AC3) | games-for-everyone.md | as AC1 | As AC1, one PR each |
-| 9 | **Realmbound phone pass** (RB1.4) | PROJECTS.md L3 | `games/realmbound/` | Plays at 375 px wide with no sideways scroll; `tests/run.html` passes |
-| 10 | **Realmbound second raid tier** (RB2.2) | PROJECTS.md R7 | `games/realmbound/` | Data and encounters, balanced; checks |
-| 11 | **Diamond Manager: playability pass** (DM2; replaces the retired DC2.1) | docs/plans/sports-management.md | `games/diamond-manager/` | Two seasons played as a first-timer on desktop and phone, a short playtest note, the top three problems fixed; `tests/diamond-manager.html` passes |
-| 12 | **Newcomer playtests** (X1) and **link check** (X2), **Otherworld text sweep** (X3) | Lane X below | see Lane X | see Lane X |
-| 13 | **A Wildbond guide** (WB6.4) | `guides/` style | `guides/` | First steps, the element chart, the ranch, with real screenshots from `play/wildbond/` |
+| 1 | **More moves as data** (WD3 data half; feeds H3) | game review GR-2 | browser Wildbond data, exported with `tools/godot-export` | About 60 moves, a signature move per family, a few statuses, balanced with the pacing sim |
+| 2 | **Diamond Manager: hiring coaches** (DM3) | docs/plans/sports-management.md | `games/diamond-manager/` | As the plan says; `tests/diamond-manager.html` passes; after #175 merges |
+| 3 | **Diamond Manager: morale and stories** (DM4) | as above | as above | As above |
+| 4 | **Diamond Manager: a league that stays balanced** (DM-B2), then **records and history** (DM7) | as above | as above | One PR each |
+| 5 | **Lantern Bowl pitch** (LB0), then **the shared sports office** (LB1) | plans/sports-management.md "Game 2" | `docs/plans/`, `shared/sports-office.js` | A one-page pitch with three mock screens; then the office code shared with Diamond Manager, its tests passing |
+| 6 | **Realmbound second raid tier** (RB2.2) | PROJECTS.md R7 | `games/realmbound/` | Data and encounters, balanced; `tests/run.html` passes |
+| 7 | **Realmbound battlegrounds plan** (RB2.1) | PROJECTS.md R3 | `docs/proposals/` | A plan only; Evan decides before any build |
+| 8 | **Otherworld: skills that grow with use** (OW2.2) | docs/plans/otherworld.md O1 | `games/otherworld/` | As the plan says; `tests/otherworld.html` passes |
+| 9 | **The next cabinet's polish from playtests** (AC-x) | docs/PLAYTEST.md pass 2 | that cabinet's folder | Each cabinet scores 17+ in the next playtest |
+| 10 | **Little Ranch, the next small step** (LR3) | docs/proposals/games-for-everyone.md; docs/PLAYTEST.md | `games/little-ranch/` | One new gentle thing to do, no reading, nothing to fail; a parent-tested note |
+| 11 | **Game boxes** (AR2.3, V3) | docs/VISION.md | `launcher/`, `index.html` | A box picture per game in the hall |
+| 12 | **Newcomer playtests** (X1) | Lane X below | issues only | as Lane X says |
 
 **Godot work is open to any AI too** (Evan, 2026-10-09: "Yes, with checks"). Rules for it: claim the deliverable as
 above (the Wildbond builder and Starfall threads check the open PR list too); keep to the files the deliverable needs;
 install Godot 4.7.2 (`docs/learning/`, or let GitHub do it) and run `node tools/run-all-checks.cjs`, which runs both
 Godot suites; **old saves must load** (add a check); add checks for what you build; for anything visual, put a
 screenshot in the PR; the GitHub "checks" tick must be green, and any AI merges after the self-check in docs/PROCESS.md. Take
-Godot deliverables from PRIORITIES.md section 4 in order (WD2 drawing, WD3 battles, WB6.1-6.2 phone and settings,
-SF2.6-2.8 Starfall), never one the Wildbond builder or Starfall thread has open. Lane P refills this table as tasks
-merge.
+Godot deliverables from "Heavy lifting" above, in order, never one another open PR names.
 
 ## When the road is empty, or everything is waiting on review
 
@@ -294,9 +295,9 @@ draft pull request titled with the ID). Any AI merges after the self-check in do
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| X1 | **Play a game's first 20 minutes as a newcomer** and file what's confusing or broken as GitHub issues (the Bug and Feedback forms), with screenshots | open | No code. Any game on the arcade; Wildbond and Starfall previews first. One issue per problem |
-| X2 | **Broken links and pictures** (AR2.4): check every link and image in `guides/` and `playtest.html`, fix the broken ones | open | Only those files. Say in the PR how you checked |
-| X3 | **Player-text sweep of Otherworld** (D1): fix names and wording in `games/otherworld/js/` that break docs/CREATIVE.md "Writing for players" | open | Text only, no rules or numbers; `tests/otherworld.html` must still pass (`node tools/run-all-checks.cjs`) |
+| X1 | **Play a game's first 20 minutes as a newcomer** and file what's confusing or broken as GitHub issues (the Bug and Feedback forms), with screenshots | open (draft #114 went stale; take it after a comment there) | No code. Any game on the arcade; Wildbond and Starfall previews first. One issue per problem |
+| X2 | **Broken links and pictures** (AR2.4): check every link and image in `guides/` and `playtest.html`, fix the broken ones | done (#158) | Only those files. Say in the PR how you checked |
+| X3 | **Player-text sweep of Otherworld** (D1): fix names and wording in `games/otherworld/js/` that break docs/CREATIVE.md "Writing for players" | done (#104) | Text only, no rules or numbers; `tests/otherworld.html` must still pass (`node tools/run-all-checks.cjs`) |
 
 ## Lane D: the local helper (Ollama on Evan's PC; small, checkable jobs only)
 
