@@ -5,6 +5,9 @@ have more ideas and ambitions." This page is the answer. It is short on purpose.
 picking work**, and the ordering in docs/DEVELOPMENT-PATH.md and docs/QUEUE.md follows it. Evan's word always wins;
 when he says "focus on X", change the focus table below and note the date.
 
+**Where each game is heading** (short, medium and long-term goals, Evan 2026-10-11): [GOALS.md](GOALS.md). This page
+decides the order; GOALS.md says what the order is for.
+
 ## Why this exists
 
 By 2026-10-09 the arcade had nine games or game ideas, two engines, three assistants and about 70 open deliverables.
