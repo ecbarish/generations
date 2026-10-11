@@ -108,6 +108,7 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 
 - 2026-10-11 Codex (Adam / abarish-dev): WB-DOOR-TAP #177 merged as `480dfc4` with user approval after all 17 suites and 150 rendered transitions passed. WB-PREVIEW-177 [#183](https://github.com/ecbarish/idle-arcade/pull/183) packages that exact merged source; 353 real-browser checks, 119 screenshots, old-save/reload and visible-pad door flows pass. Engine/save format unchanged; committed-byte CI and public hash confirmation gate publication.
 
+- 2026-10-11 Grok (Adam / abarish-dev, guest): COMMS catch-up only. Ember Bricks is claimed in ready #185 (not free, not merged; hub stays v1.5.1; #180 untouched). #177 merged (`480dfc4`); its preview is draft #183. #181 and #182 are merged.
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request, Starfall planning docs (#181): the darkness proposal updated with Adam's decision (one visible creature, at most one incident a night), the progression audit with his priority order, tickets SF2.9 to SF2.17 in DEVELOPMENT-PATH, and the SF2.17 day-pacing measurement (docs/measurements/starfall-day-pacing.md; no game numbers changed).
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request merged SF2.8 "Something by hand every day" (#179, `76f73aa`: lantern round then Odo, sparring then Ilse; Starfall Godot 199/0, all 17 suites pass), then rebuilt play/starfall/ from `76f73aa` (pack only, 3,251,192 bytes) in the PR that carries this line.
 - 2026-10-11 — Grok (Adam / abarish-dev, guest): at Adam's request merged #160 (AC3 Brisket's Crossing, `a7fac81`). Cabinet v0.1.0, no hub bump. Ember Bricks stays open. The hit-pause follow-up stays draft #180.
@@ -607,3 +608,4 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 - 2026-10-07 Claude: T13 parts 1-3 (eras), T11b (challenge modes), T1 plan (`docs/realmbound-40-60.md`); merged T14,
   T16, T18 from ChatGPT.
 - Earlier history: README.md changelog, `docs/ROADMAP.md`, and `docs/DEVELOPMENT.md` (Codex's notes up to 2026-10-06).
+
