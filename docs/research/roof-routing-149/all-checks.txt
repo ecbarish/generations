@@ -1,0 +1,19 @@
+browser: /root/.cache/ms-playwright/chromium_headless_shell-1194/chrome-linux/headless_shell
+ok    tests/run.html  PASS — 8529 scenario checks.  (30s)
+ok    tests/wildbond.html  PASS — 3254 checks.  (6s)
+ok    tests/starfall.html  PASS — 48 checks.  (1s)
+ok    tests/sound.html  PASS — 21 shared sound checks.  (0s)
+ok    tests/offline.html  PASS: 15 checks passed, 0 failed.  (7s)
+ok    tests/diamond.html  PASS — 122 checks.  (2s)
+ok    tests/diamond-manager.html  PASS — 23 checks.  (1s)
+ok    tests/otherworld.html  PASS — 1895 checks.  (38s)
+ok    tests/runner-safety.html  PASS — 35 save-safety checks.  (57s)
+ok    tests/studio.html  PASS — 43 Studio checks.  (21s)
+ok    tests/storm-front.html  PASS — 38 checks.  (4s)
+ok    tests/lighthouse-watch.html  PASS — 45 checks.  (5s)
+ok    tests/little-ranch.html  PASS — 38 Little Ranch checks.  (7s)
+ok    tests/tell-us.html  PASS — 149 checks.  (8s)
+ok    wildbond-godot  checks: 1292 passed, 0 failed
+ok    starfall-godot  checks: 130 passed, 0 failed
+
+All 16 suites pass.

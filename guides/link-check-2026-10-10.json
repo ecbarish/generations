@@ -1,0 +1,615 @@
+{
+  "source_revision": "a925437a372c3e66d251b49389792adb8cafe7ed",
+  "pages": 7,
+  "views": [
+    {
+      "page": "guides/diamond-career.html",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "images": [
+        {
+          "src": "/guides/images/diamond-field.png",
+          "width": 1366,
+          "height": 768
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "guides/index.html",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "images": [],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "guides/otherworld.html",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "images": [
+        {
+          "src": "/guides/images/otherworld-dialogue.png",
+          "width": 1366,
+          "height": 768
+        },
+        {
+          "src": "/docs/screenshots/otherworld-ashen/oath-broken-1366.png",
+          "width": 1366,
+          "height": 768
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "guides/realmbound-tips.html",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "images": [
+        {
+          "src": "/guides/images/realmbound-road.png",
+          "width": 1366,
+          "height": 768
+        },
+        {
+          "src": "/guides/images/realmbound-hearth.png",
+          "width": 1366,
+          "height": 768
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "guides/realmbound.html",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "images": [
+        {
+          "src": "/guides/images/realmbound-hearth.png",
+          "width": 1366,
+          "height": 768
+        },
+        {
+          "src": "/guides/images/realmbound-fenwatch.png",
+          "width": 2106,
+          "height": 904
+        },
+        {
+          "src": "/guides/images/realmbound-commission.png",
+          "width": 2106,
+          "height": 904
+        },
+        {
+          "src": "/guides/images/realmbound-road.png",
+          "width": 1366,
+          "height": 768
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "guides/wildbond.html",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "images": [
+        {
+          "src": "/guides/images/wildbond-opening.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-partner.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-colour.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-battle.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-fieldbook.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-barn.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-workbench.png",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "src": "/guides/images/wildbond-team.png",
+          "width": 960,
+          "height": 540
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "playtest.html",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "images": [
+        {
+          "src": "/images/play/wb-barn.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/images/play/wb-battle.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/images/play/wb-faded.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/images/play/wb-coast.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/images/play/wb-nursery.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/images/play/wb-gear.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/guides/images/realmbound-road.png",
+          "width": 1366,
+          "height": 768
+        },
+        {
+          "src": "/guides/images/realmbound-hearth.png",
+          "width": 1366,
+          "height": 768
+        },
+        {
+          "src": "/images/play/sf-town.png",
+          "width": 1536,
+          "height": 864
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "guides/diamond-career.html",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "images": [
+        {
+          "src": "/guides/images/diamond-field.png",
+          "width": 1366,
+          "height": 768
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "guides/index.html",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "images": [],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "guides/otherworld.html",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "images": [
+        {
+          "src": "/guides/images/otherworld-dialogue.png",
+          "width": 1366,
+          "height": 768
+        },
+        {
+          "src": "/docs/screenshots/otherworld-ashen/oath-broken-1366.png",
+          "width": 1366,
+          "height": 768
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "guides/realmbound-tips.html",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "images": [
+        {
+          "src": "/guides/images/realmbound-road.png",
+          "width": 1366,
+          "height": 768
+        },
+        {
+          "src": "/guides/images/realmbound-hearth.png",
+          "width": 1366,
+          "height": 768
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "guides/realmbound.html",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "images": [
+        {
+          "src": "/guides/images/realmbound-hearth.png",
+          "width": 1366,
+          "height": 768
+        },
+        {
+          "src": "/guides/images/realmbound-fenwatch.png",
+          "width": 2106,
+          "height": 904
+        },
+        {
+          "src": "/guides/images/realmbound-commission.png",
+          "width": 2106,
+          "height": 904
+        },
+        {
+          "src": "/guides/images/realmbound-road.png",
+          "width": 1366,
+          "height": 768
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "guides/wildbond.html",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "images": [
+        {
+          "src": "/guides/images/wildbond-opening.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-partner.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-colour.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-battle.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-fieldbook.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-barn.png",
+          "width": 960,
+          "height": 540
+        },
+        {
+          "src": "/guides/images/wildbond-workbench.png",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "src": "/guides/images/wildbond-team.png",
+          "width": 960,
+          "height": 540
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    },
+    {
+      "page": "playtest.html",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "images": [
+        {
+          "src": "/images/play/wb-barn.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/images/play/wb-battle.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/images/play/wb-faded.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/images/play/wb-coast.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/images/play/wb-nursery.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/images/play/wb-gear.png",
+          "width": 1536,
+          "height": 864
+        },
+        {
+          "src": "/guides/images/realmbound-road.png",
+          "width": 1366,
+          "height": 768
+        },
+        {
+          "src": "/guides/images/realmbound-hearth.png",
+          "width": 1366,
+          "height": 768
+        },
+        {
+          "src": "/images/play/sf-town.png",
+          "width": 1536,
+          "height": 864
+        }
+      ],
+      "overflow": false,
+      "page_errors": [],
+      "http_errors": []
+    }
+  ],
+  "local_http_targets": [
+    {
+      "path": "/guides/guide.css",
+      "status": 200
+    },
+    {
+      "path": "/guides/diamond-career.html",
+      "status": 200
+    },
+    {
+      "path": "/index.html",
+      "status": 200
+    },
+    {
+      "path": "/guides/index.html",
+      "status": 200
+    },
+    {
+      "path": "/games/diamond-career/",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/diamond-field.png",
+      "status": 200
+    },
+    {
+      "path": "/guides/realmbound.html",
+      "status": 200
+    },
+    {
+      "path": "/guides/otherworld.html",
+      "status": 200
+    },
+    {
+      "path": "/guides/realmbound-tips.html",
+      "status": 200
+    },
+    {
+      "path": "/guides/wildbond.html",
+      "status": 200
+    },
+    {
+      "path": "/games/otherworld/",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/otherworld-dialogue.png",
+      "status": 200
+    },
+    {
+      "path": "/docs/screenshots/otherworld-ashen/oath-broken-1366.png",
+      "status": 200
+    },
+    {
+      "path": "/games/realmbound/",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/realmbound-road.png",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/realmbound-hearth.png",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/realmbound-fenwatch.png",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/realmbound-commission.png",
+      "status": 200
+    },
+    {
+      "path": "/docs/lore/realmbound.md",
+      "status": 200
+    },
+    {
+      "path": "/play/wildbond/",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/wildbond-opening.png",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/wildbond-partner.png",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/wildbond-colour.png",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/wildbond-battle.png",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/wildbond-fieldbook.png",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/wildbond-barn.png",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/wildbond-workbench.png",
+      "status": 200
+    },
+    {
+      "path": "/guides/images/wildbond-team.png",
+      "status": 200
+    },
+    {
+      "path": "/playtest.html",
+      "status": 200
+    },
+    {
+      "path": "/images/play/trailer.mp4",
+      "status": 200
+    },
+    {
+      "path": "/images/play/wb-barn.png",
+      "status": 200
+    },
+    {
+      "path": "/images/play/wb-battle.png",
+      "status": 200
+    },
+    {
+      "path": "/images/play/wb-faded.png",
+      "status": 200
+    },
+    {
+      "path": "/images/play/wb-coast.png",
+      "status": 200
+    },
+    {
+      "path": "/images/play/wb-nursery.png",
+      "status": 200
+    },
+    {
+      "path": "/images/play/wb-gear.png",
+      "status": 200
+    },
+    {
+      "path": "/games/wildbond/index.html",
+      "status": 200
+    },
+    {
+      "path": "/games/realmbound/index.html",
+      "status": 200
+    },
+    {
+      "path": "/games/diamond-manager/index.html",
+      "status": 200
+    },
+    {
+      "path": "/games/diamond-career/index.html",
+      "status": 200
+    },
+    {
+      "path": "/games/otherworld/index.html",
+      "status": 200
+    },
+    {
+      "path": "/images/play/sf-town.png",
+      "status": 200
+    },
+    {
+      "path": "/play/starfall/",
+      "status": 200
+    },
+    {
+      "path": "/games/starfall-guild/index.html",
+      "status": 200
+    },
+    {
+      "path": "/credits.html",
+      "status": 200
+    }
+  ],
+  "failures": []
+}

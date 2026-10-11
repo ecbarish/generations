@@ -56,16 +56,16 @@ const REALM_ROAD_HD=World.hd({src:16});
 function drawRealmRoad(t){
  if(!realmRoadActive())return;const r=REALM_ROAD,p=REALM_ROAD_WALK;
  TOWN.pal=townPal();const z=ZONES[H().zone],night=realmNight(),inside=r.inside;
- const people=realmRoadPeople(),things=people.map(n=>({x:n.at[0],y:n.at[1],draw(c,left,base,s){const q=s/11;drawPerson(left+s*.14,base-13*q,q,n.look,reduce?0:t,c);}}));
- things.push({x:p.fx,y:p.fy,draw(c,left,base,s){const q=s/11;drawHero(left+s*.14,base-13*q,q,reduce?0:t,c);}});
+ const people=realmRoadPeople(),things=people.map(n=>({x:n.at[0],y:n.at[1],draw(c,left,base,s){const q=s/11;drawPerson(left+s*.14,base-13*q,q,{...n.look,dir:n.dir||'down'},reduce?0:t,c);}}));
+ things.push({x:p.fx,y:p.fy,draw(c,left,base,s){const q=s/11;drawHero(left+s*.14,base-13*q,q,reduce?0:t,c,{dir:r.pos.dir,moving:!p.arrived()});}});
  const stand=(c,ch,left,base,s,tt,x,y,pass)=>{
   if(ch==='I'||ch==='D'){const u=s/8,depth=6-y;c.fillStyle='#c9b596';c.fillRect(left,base-8*u,s,8*u);c.fillStyle='#673b31';c.fillRect(left,base-(11+depth*2)*u,s,(3+depth*2)*u);c.fillStyle='#ad7354';c.fillRect(left,base-(11+depth*2)*u,s,u);if(y===6){c.fillStyle=ch==='D'?'#543321':'#edc675';c.fillRect(left+2*u,base-6*u,4*u,5*u);if(ch==='D')label(c,'Lantern Rest',left+s/2,base-13*u,s);}return;}
-  if(ch==='#'){c.fillStyle='#493426';c.fillRect(left,base-s*1.4,s,s*1.4);return;}
-  townStand(c,ch,left,base,s,tt,x,y,pass);
+  if(ch==='#'){if(x===0||x===REALM_ROAD_INN.rows[0].length-1){drawRoomSideWall(c,x,y,{rows:REALM_ROAD_INN.rows,pos:{x:p.fx,y:p.fy},horizon:.2});return;}c.fillStyle='#493426';c.fillRect(left,base-s*1.4,s,s*1.4);return;}
+  townStand(c,ch,left,base,s,tt,x,y,pass,inside?REALM_ROAD_INN.rows:REALM_ROAD_MAP.rows);
  };
- const view={rows:inside?REALM_ROAD_INN.rows:REALM_ROAD_MAP.rows,px:p.fx,py:p.fy,flat:townFlat,stand,things,under:inside?'_':',',stands:{T:1,I:1,F:1,B:1,P:1,H:1,'#':1,D:1},noShadow:{I:1,'#':1},sky:inside?['#241a16','#483123']:z.sky,hill:inside?'#35271d':z.hill,edgeFill:inside?'#211710':TOWN.pal.treeDk,haze:inside?'#4e3524':z.sky[1],zoom:inside?5.2:4.4,dof:false,lt:LT,sun:inside?Object.assign(LT.time(.75),{elev:0}):realmSun()};
+ const view={rows:inside?REALM_ROAD_INN.rows:REALM_ROAD_MAP.rows,px:p.fx,py:p.fy,flat:townFlat,stand,things,under:inside?'_':',',stands:{T:1,I:1,F:1,B:1,P:1,H:1,'#':1,D:1},noShadow:{I:1,'#':1,H:1},sky:inside?['#241a16','#483123']:z.sky,hill:inside?'#35271d':z.hill,edgeFill:inside?'#211710':TOWN.pal.treeDk,haze:inside?'#4e3524':z.sky[1],zoom:inside?REALM_ROOM_ZOOM:4.4,dof:false,lamps:inside?[{x:5,y:2.9,h:.55,reach:5}]:[{x:8.5,y:6.8,h:.8,reach:4},{x:18.5,y:9.8,h:.4,reach:6.5}],lt:REALM_WALK_LIGHT,sun:inside?Object.assign(LT.time(.75),{elev:0}):realmSun()};
  r.cam=REALM_ROAD_HD.draw(cx,PW,PH,reduce?0:t,view);
- const lights=[];for(const [x,y]of inside?[[4,2],[6,3]]:[[8,6],[18,9],[27,3]]){const q=r.cam.fwd(x+.5,y+.8);if(q)lights.push({x:q[0],y:q[1]-q[2]*.4,r:q[2]*2.7,col:'#ffc878'});}
+ const lights=[];for(const [x,y,h]of inside?[[5,2.9,.55],[6.5,3.8,.4]]:[[8.5,6.8,.4],[18.5,9.8,.4],[27.5,3.8,.4]]){const q=r.cam.fwd(x,y);if(q)lights.push({x:q[0],y:q[1]-q[2]*h,r:q[2]*2.7,col:'#ffc878'});}
  LT.fog(cx,PW,PH,reduce?0:t,{ground:PH,top:PH*.3,density:inside?.12:.18,col:inside?'#b38551':(ZONE_LIGHT[H().zone]?.col||'#d0d6d1'),lights});
  AMB.lights(cx,PW,PH,reduce?0:t,{dark:inside?.65:night,max:.45,tint:inside?'#21130d':'#101b2a',lights});
 }

@@ -620,7 +620,7 @@ func walkable(p: Vector2i) -> bool:
 	return true
 
 func route(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
-	# shortest walk on the grid (people only step on open tiles)
+	# shortest walk on the grid; roofs block planned steps just as they block movement
 	var prev := { from: from }
 	var queue: Array[Vector2i] = [from]
 	while not queue.is_empty():
@@ -629,7 +629,7 @@ func route(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
 			break
 		for d in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
 			var n: Vector2i = c + d
-			if prev.has(n) or solid(tile_at(n)) or (tile_at(n) == "D" and n != to) or (n != to and _someone_standing(n)):
+			if prev.has(n) or solid(tile_at(n)) or _under_roof(n) or (tile_at(n) == "D" and n != to) or (n != to and _someone_standing(n)):
 				continue
 			prev[n] = c
 			queue.append(n)
