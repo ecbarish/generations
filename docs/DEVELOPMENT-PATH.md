@@ -84,6 +84,17 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
   exported to Godot), recorded in the thread ledger.
 - [x] WB2.7 [Claude] Bring T37's fourteen creatures into Godot (WG9): done 2026-10-09 (exported; all use existing body types; 107 species).
 
+**WB-C: creatures worth raising (Evan, 2026-10-11; spec: docs/wildbond-creatures.md, list: docs/wildbond-creatures/catalog.md).**
+Target about 150 species in about 70 lines; most new species are new stages of today's 74 loners; six showpiece lines.
+- [ ] CR1 [any] Sizes and tiers in the data (`size`, `tier` on every species) and creatures drawn at their size in battle and when following you (spec 4.4). Screenshots small beside huge.
+- [ ] CR2 [ChatGPT / writer] The six showpiece lines (spec 3): the three starter lines promoted, new Stone, Gale and Radiant lines, a slow growth rate, guardians raised to 560-600; pacing check (WB3.6b) holds.
+- [ ] CR3 [any, one region per PR] Grow the loners into lines: about 58 of the 74 creatures that never evolve get a baby form, an adult form or both, in journey order (Thornwood first).
+- [ ] CR4 [any] The evolution moment: the light, the silhouette growing, the new form at full size, someone who notices; the full version for showpieces.
+- [ ] CR5 [any] Two more branching lines with unused conditions (time of day, weather, what it ate).
+- [ ] CR6 [any] World-fit audit: every creature in solid black by shape; fix look-alikes; each region's size and shape spread (spec 4.2, 4.7).
+- [ ] CR7 [any] Rare spawns for showpieces: a hidden pocket or rare-condition spawn per region, hinted by someone there.
+- [ ] CR8 [any] New shapes: fish and a winged drake first, then rabbit-kind, beetle, owl (one per PR, screenshots).
+
 **WB-M3: the rest of the valley (areas 5-8).**
 - [ ] WB3.1 [Claude] Stillreed Basin in Godot (map, ferry, trainers, Warden), with its own furniture, sound and music. *Step 1 done 2026-10-09: the area is walkable with its wooden footbridges, trainers, Warden, river ambience and the Boat tune; step 2: the moored ferry skiff and its mooring sign (readable), the river flowing under the bridges. Step 3: its own touches: the current running down the river, cattails on the banks, windfall under the orchard, a coil of ferry rope, dragonflies. Still to do (later, with the story): a ferry ride once the rope is mended.*
 - [x] WB3.2 [Claude] Hollowecho Hills. *Done 2026-10-09 from ChatGPT's brief (docs/lore/wildbond-hollowecho-brief.md): walkable with Veslin, Narro, Orri (byBadge and heritage lines from data), Warden Senna and her gate; the bell house with two swaying bells, the tool roll, the survey cord and chalk arrows, Senna's resting stones, cave mouths, grey-green hill stone, low mist, the Quiet tune. Not done: Undertone's reunion staging and the answering-bell moment (story beats, later); Senna's team levels left as the data has them (58-60; the lore paragraph says 60-63).*
@@ -412,6 +423,8 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - [x] SCENE-PLAN [any] (ready: PR #151, Codex, 2026-10-10) Shared scene/interior design outline requested by Evan: docs/plans/scene-layout-pass.md; distinct Larkhaven home briefs, entrance/input/visual checks and independently claimable follow-ups. Complements MAP-AUDIT #147; no engine or art edits. Done when the brief and COMMS handoff are published. Score 18/21 (fun 3x2, heart 2x2, friends 3, focus 2, cheap 3). (merged: PR #151; ticked 2026-10-11 by lane P)
 
 ## Part 4: what we've learned and actioned (newest first; every piece of work adds a line)
+
+- **2026-10-11, creature catalogue (Wildbond builder):** counting the data showed the real gap: 74 of 89 lines never evolve and every creature is drawn the same size. Growing existing creatures into lines beats adding loners, and the catalogue is now generated from the data (`tools/wildbond-catalog.cjs`, checked by run-all-checks) so it can't go stale.
 
 - **2026-10-11, WB-KEYS:** a caption that names the keys is easy to miss; a small key drawn beside you, with the word it does, at the moment it matters, is not. Keep such hints in the world, count uses and let them step aside (an older save starts as already knowing). Put the hint beside the player, never over the person you're about to talk to.
 
