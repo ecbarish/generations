@@ -39,6 +39,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Godot Starfall (2026-10-11, SF2.10): Starfall says what to do next. After the opening a goal line under the status bar names the nearest thing within reach (pin a request, serve meals until Bryn offers, the next rank, an empty plot, someone waiting for a word, a member's story, the next helper to earn) and counts down as you play; G or a tap on it lists the next three. The keys are shown the first time you need them and go once used. Old saves skip the key hints. 230 checks pass; web preview rebuilt.
 - Wildbond (2026-10-11, WB-DOOR-TAP): clicking or tapping Larkhaven's inn, shop and both homes now queues entry just like the barn. The full-size phone directional pad is moved between the lower doorways so it no longer covers Nora's entrance. Door collisions, walking distance, keyboard controls, phone preferences and saves are unchanged; source fix only, web preview not re-exported.
 
 - Wildbond (2026-10-11, keys in the game): the opening's notes now name the controls for whatever you're playing on (keys, a gamepad or a phone): how to walk, talk and open your field book (Playtester's note).

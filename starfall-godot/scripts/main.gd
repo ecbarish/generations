@@ -262,6 +262,10 @@ var lamps: Array = [false, false, false, false]   # the wall lanterns lit tonigh
 var rounds := 0                             # lantern rounds you've walked yourself, all time
 var odo := Mover.new("odo", Vector2i(-5, -5))   # a night watchman, once you've shown the round is worth walking
 var odo_hired := false
+var hints := {}                             # the controls a newcomer has already been shown and used (SF2.10)
+var steps_walked := 0                       # steps taken while the walking hint is up
+var goals_hint_t := 0.0                    # the last hint (G for goals) goes by itself after a while
+var show_next := false                      # G or a tap on the goal line: the three nearest goals
 var spars := 0                              # spars you've fought yourself at the training yard, all time
 var spar := {}                              # while you're sparring: { fill: 0..1, on, h: the adventurer }
 var ilse := Mover.new("ilse", Vector2i(-5, -5))   # a drillmaster, once you've shown the yard is worth running
@@ -274,6 +278,9 @@ var cam: Camera2D
 var ui: CanvasLayer
 var status: Label
 var caption: Label
+var goal: Label
+var next_list: Label
+var hint: Label
 var caption_t := 0.0
 var bubble: PanelContainer
 var bubble_text: Label
@@ -485,6 +492,10 @@ func _process(dt: float) -> void:
 		f.t -= dt
 	feels = feels.filter(func(f): return f.t > 0.0)
 	caption_t = maxf(0.0, caption_t - dt)
+	if hints.get("use", false) and not hints.get("goals", false):
+		goals_hint_t += dt
+		if goals_hint_t >= 12.0:
+			hints["goals"] = true
 	_autosave(dt)
 	_update_ui()
 	cam.position = me.pos + Vector2(8, 8)
@@ -505,6 +516,9 @@ func _walk(m: Mover, dt: float) -> void:
 		m.tile = nxt
 		m.path.pop_front()
 		if m == me:
+			steps_walked += 1
+			if steps_walked >= 3:
+				hints["walk"] = true
 			_arrived()
 
 func _blocked_by_other(p: Vector2i, who: Mover) -> bool:
@@ -562,6 +576,12 @@ func _arrived() -> void:
 
 ## Enter, Space or E: talk to whoever is beside you, read the board, or serve at the counter.
 func use() -> bool:
+	var did := _use()
+	if did:
+		hints["use"] = true                      # the "E to use" hint has done its job
+	return did
+
+func _use() -> bool:
 	if me.tile.x < 0:                            # outside the gate there's nobody to serve; read the waymarkers
 		for d in [me.face, Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]:
 			if MARKERS.has(me.tile + d):
@@ -651,6 +671,11 @@ func _unhandled_input(e: InputEvent) -> void:
 		music_on = not music_on                  # M: music on or off
 		get_viewport().set_input_as_handled()
 		return
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_G:
+		show_next = not show_next                # G: the three nearest goals after this one
+		hints["goals"] = true
+		get_viewport().set_input_as_handled()
+		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_N:
 		sfx.on = not sfx.on                      # N: sound effects on or off
 		get_viewport().set_input_as_handled()
@@ -692,7 +717,11 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		if not lines.is_empty():
 			advance()
+		elif e.position.y < 22.0 * get_viewport().get_visible_rect().size.y / 216.0 and goal.text != "":
+			show_next = not show_next            # tap the goal line for the next few
+			hints["goals"] = true
 		else:
+			hints["use"] = true                  # on a phone, a tap walks up and uses things
 			tap(get_global_mouse_position())
 		get_viewport().set_input_as_handled()
 
@@ -2392,6 +2421,31 @@ func _make_ui() -> void:
 	status.add_theme_color_override("font_outline_color", Color("1a1e24"))
 	status.add_theme_constant_override("outline_size", 3)
 	ui.add_child(status)
+	goal = Label.new()                          # the next thing to do, in the world's words (SF2.10)
+	goal.position = Vector2(6, 13)
+	goal.size = Vector2(372, 10)
+	goal.clip_text = true
+	goal.add_theme_font_size_override("font_size", 7)
+	goal.add_theme_color_override("font_color", Color("f2d24a"))
+	goal.add_theme_color_override("font_outline_color", Color("1a1e24"))
+	goal.add_theme_constant_override("outline_size", 3)
+	ui.add_child(goal)
+	next_list = Label.new()
+	next_list.position = Vector2(10, 23)
+	next_list.add_theme_font_size_override("font_size", 7)
+	next_list.add_theme_color_override("font_color", Color("f4efe4"))
+	next_list.add_theme_color_override("font_outline_color", Color("1a1e24"))
+	next_list.add_theme_constant_override("outline_size", 3)
+	ui.add_child(next_list)
+	hint = Label.new()                          # the controls, the first time they're needed
+	hint.position = Vector2(8, 178)
+	hint.size = Vector2(368, 12)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 7)
+	hint.add_theme_color_override("font_color", Color("bfe3ff"))
+	hint.add_theme_color_override("font_outline_color", Color("1a1e24"))
+	hint.add_theme_constant_override("outline_size", 3)
+	ui.add_child(hint)
 	caption = Label.new()
 	caption.position = Vector2(8, 192)
 	caption.size = Vector2(368, 20)
@@ -2436,6 +2490,13 @@ func _update_ui() -> void:
 		status.text += "   Tonics %d" % stock
 	if caption_t <= 0.0:
 		caption.text = ""
+	var busy := not lines.is_empty() or board_open or shelf_open or build_plot != "" or not story_pick.is_empty()
+	var g := goals()
+	goal.text = "" if busy or g.is_empty() else "Next: " + str(g[0].text)
+	next_list.visible = show_next and not busy and g.size() > 1
+	if next_list.visible:
+		next_list.text = "\n".join(g.slice(1, 4).map(func(x): return "then: " + str(x.text)))
+	hint.text = "" if busy else control_hint()
 	var to_screen := get_viewport().get_canvas_transform()
 	bubble.visible = not lines.is_empty() and not board_open and not shelf_open and build_plot == ""
 	if bubble.visible:
@@ -2549,7 +2610,7 @@ func save_game() -> void:
 		"built": built, "jobs": total_jobs, "rank": rank, "herbs": herbs, "stock": stock, "price": price_i,
 		"pieces": pieces, "smith": smith_hired, "apprentice": { "batches": batches, "hired": fen_hired, "here": fen.where == "town" }, "tavern": { "pours": pours, "hired": tamsin_hired, "here": tamsin.where == "town", "shut": tavern_shut, "quiet": tavern_quiet, "kept": kept }, "garrick": garrick.where == "town", "good": good_days, "bad": bad_days, "visitors": visitors,
 		"watch": { "lamps": lamps, "rounds": rounds, "hired": odo_hired, "here": odo.where == "town" },
-		"drill": { "spars": spars, "hired": ilse_hired, "here": ilse.where == "town" },
+		"drill": { "spars": spars, "hired": ilse_hired, "here": ilse.where == "town" }, "hints": hints,
 		"heroes": heroes.map(func(h): return h.a) }
 	SafeSave.write(save_path, d)                 # a spare file first, the last good save kept as a backup
 
@@ -2610,6 +2671,7 @@ func _load() -> bool:
 		ilse.where = "town"
 		ilse.tile = _drill_at()
 		ilse.pos = Vector2(ilse.tile) * TILE
+	hints = d.get("hints", { "walk": true, "use": true, "goals": true })   # (a town saved before SF2.10 knows its way around)
 	good_days = int(d.get("good", 0))
 	bad_days = int(d.get("bad", 0))
 	visitors = Array(d.get("visitors", []))
@@ -2825,6 +2887,76 @@ var story_note := ""
 func _load_stories() -> void:
 	var d = JSON.parse_string(FileAccess.get_file_as_string("res://data/stories.json")) if FileAccess.file_exists("res://data/stories.json") else null
 	stories = d if d is Dictionary else {}
+
+# ---------------------------------------------------------------- what to do next (SF2.10)
+## The goals within reach, nearest first: { text, left } where left is roughly how many things are still to do. Ranks,
+## hires (master it, then hire), empty plots, members' stories and the first steps all take part. Never empty: a
+## grown town still has its board to keep busy.
+func goals() -> Array:
+	var out: Array = []
+	if total_jobs == 0 and posted.is_empty():
+		out.append({ "text": "Pin a request on the guild board; your adventurers choose the work.", "left": 0 })
+	elif total_jobs == 0:
+		out.append({ "text": "Your adventurers are out on the job. They'll come home hungry: be at the counter.", "left": 1 })
+	for h in heroes:
+		if h.where == "town" and story_ready(h):
+			out.append({ "text": "%s wants a word with you (the \"!\" over their head)." % h.a.name, "left": 0 })
+			break
+	var waiting := [[garrick, smith_hired, "Garrick is waiting by the smithy for a word."], [fen, fen_hired, "Fen is waiting by the apothecary for a word."],
+		[tamsin, tamsin_hired, "Tamsin is waiting by the tavern for a word."], [odo, odo_hired, "Odo is waiting by the gate for a word."],
+		[ilse, ilse_hired, "Ilse is waiting by the training yard for a word."]]
+	for w in waiting:
+		if w[0].where == "town" and not w[1]:
+			out.append({ "text": w[2], "left": 0 })
+	if not hired:
+		if meals >= HIRE_AFTER:
+			out.append({ "text": "Talk to Bryn at the inn: she'll take the counter off your hands.", "left": 0 })
+		else:
+			var n := HIRE_AFTER - meals
+			out.append({ "text": "Serve %d more %s at the counter: Bryn might take it over." % [n, "meal" if n == 1 else "meals"], "left": n })
+	if rank + 1 < RANKS.size():
+		var nxt: Dictionary = RANKS[rank + 1]
+		var built_n := 0
+		for k in built:
+			if float(built[k].left) <= 0.0:
+				built_n += 1
+		var jobs_left := maxi(0, int(nxt.jobs) - total_jobs)
+		var build_left := maxi(0, int(nxt.built) - built_n)
+		var parts: Array = []
+		if jobs_left > 0:
+			parts.append("%d more %s done" % [jobs_left, "job" if jobs_left == 1 else "jobs"])
+		if build_left > 0:
+			parts.append("%d more %s" % [build_left, "building" if build_left == 1 else "buildings"])
+		if not parts.is_empty():
+			out.append({ "text": "%s: Starfall becomes a %s." % [" and ".join(parts), RANKS[rank + 1].name], "left": jobs_left + build_left * 3 })
+	if not plans().is_empty():
+		for k in PLOTS:
+			if int(PLOT_RANK[k]) <= rank and not built.has(k):
+				out.append({ "text": "Hob has an empty plot to the %s: walk up to it to see what could stand there." % k, "left": 2 })
+				break
+	var crafts := [
+		[finished("smithy") != "" and garrick.where == "gone", SMITH_AFTER - pieces, "Forge %d more %s: a smith might ask for the forge.", "piece", "pieces"],
+		[finished("apothecary") != "" and fen.where == "gone", BREW_AFTER - batches, "Brew %d more %s: someone might ask to learn the pot.", "batch", "batches"],
+		[finished("tavern") != "" and tamsin.where == "gone", mini(POUR_AFTER - pours, (KEPT_AFTER - kept) * 2), "Pour %d more %s at the tavern: a barkeep might ask for the tap.", "drink", "drinks"],
+		[odo.where == "gone", ROUNDS_AFTER - rounds, "Walk the walls %d more %s, lighting the lanterns: someone might ask to keep watch.", "night", "nights"],
+		[finished("yard") != "" and ilse.where == "gone", SPARS_AFTER - spars, "Spar %d more %s at the yard: a drillmaster might ask for it.", "time", "times"]]
+	for c in crafts:
+		if c[0] and int(c[1]) > 0:
+			out.append({ "text": str(c[2]) % [int(c[1]), c[3] if int(c[1]) == 1 else c[4]], "left": int(c[1]) })
+	if out.is_empty():
+		out.append({ "text": "Keep the board full and your adventurers fed; Starfall's name is spreading.", "left": 99 })
+	out.sort_custom(func(a, b): return int(a.left) < int(b.left))
+	return out
+
+## The controls, shown the first time they're needed and gone once used: walking, then using things, then the goals.
+func control_hint() -> String:
+	if not hints.get("walk", false):
+		return "Arrow keys or WASD to walk, or tap where you want to go."
+	if not hints.get("use", false):
+		return "E, Space or Enter: talk to people and use things (the board, the counter). Or tap them."
+	if not hints.get("goals", false):
+		return "G, or tap the goal line at the top, for the next few goals. M: music. N: sounds."
+	return ""
 
 func story_ready(h: Mover) -> bool:
 	var a: Dictionary = h.a

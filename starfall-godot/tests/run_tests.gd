@@ -57,6 +57,15 @@ func _run() -> void:
 	talk_through()
 	tick(1.0)
 	check(main.heroes.all(func(h): return h.a.state == "town"), "with nothing pinned up, everyone waits in town")
+	# ---- what to do next, and the controls (SF2.10)
+	main._update_ui()
+	check(main.goal.text.begins_with("Next: Pin a request on the guild board"), "after the opening, a goal line says what to do first")
+	check("WASD" in main.hint.text, "and the walking keys are shown")
+	check(main.goals().size() >= 3, "there's more than one goal in reach, for the Next list")
+	main.lines.append({ "who": "", "text": "x" })
+	main._update_ui()
+	check(main.goal.text == "" and main.hint.text == "", "both step aside while someone is talking")
+	main.lines.clear()
 	# ---- the guild board
 	check(walk_to(main.READ_AT), "you can walk up to the board")
 	check(main.use() and main.board_open, "using it opens the board, close up")
@@ -547,6 +556,64 @@ func _run() -> void:
 	main.tamsin.where = "gone"
 	main.today = { "done": 0, "failed": 0, "meals": 0, "earned": 0 }
 	main.day_t = 0.0
+	# ---- the goal line follows the town (SF2.10): ranks, hires, plots, stories, always something reachable
+	main._update_ui()
+	check("E, Space or Enter" not in main.hint.text and "WASD" not in main.hint.text, "after walking and using things, those hints are gone")
+	var keep := { "meals": main.meals, "hired": main.hired, "rank": main.rank, "jobs": main.total_jobs, "built": main.built.duplicate(true),
+		"pieces": main.pieces, "batches": main.batches, "rounds": main.rounds, "spars": main.spars, "pours": main.pours,
+		"g": main.garrick.where, "f": main.fen.where, "o": main.odo.where, "i": main.ilse.where, "t": main.tamsin.where, "posted": main.posted.duplicate() }
+	var goal_texts := func() -> String: return " | ".join(main.goals().map(func(x): return str(x.text)))
+	main.hired = false
+	main.meals = 7
+	check("Serve 3 more meals at the counter" in goal_texts.call(), "Bryn: meals left to serve")
+	main.meals = 8
+	check("Serve 2 more meals" in goal_texts.call(), "the count goes down as you serve")
+	main.meals = main.HIRE_AFTER
+	check(main.goals().any(func(x): return str(x.text).begins_with("Talk to Bryn") and int(x.left) == 0), "then: talk to Bryn, first in line")
+	main.hired = true
+	main.rank = 0
+	main.total_jobs = 2
+	main.built = {}
+	check("4 more jobs done and 1 more building: Starfall becomes a Village" in goal_texts.call(), "the next rank, with what it still needs")
+	check("empty plot" in goal_texts.call(), "an empty plot, and where to see Hob's plans")
+	main.built = { "west": { "what": "smithy", "left": 0.0 } }
+	main.garrick.where = "gone"
+	main.pieces = 2
+	check("Forge 3 more pieces" in goal_texts.call(), "a hire to earn at the smithy")
+	main.garrick.where = "town"
+	main.smith_hired = false
+	check(str(main.goals()[0].text).begins_with("Garrick is waiting"), "someone waiting for a word comes first")
+	main.smith_hired = true
+	main.odo.where = "gone"
+	main.rounds = 1
+	check("Walk the walls 2 more nights" in goal_texts.call(), "the night watch, counted in nights")
+	var aki: Variant = hero("Aki")
+	var aki_keep: Dictionary = aki.a.duplicate(true)
+	aki.a.beat = 0
+	aki.a.morale = 8
+	aki.a.state = "town"
+	aki.a.jobs_done = 99
+	aki.where = "town"
+	check(main.story_ready(aki) and "Aki wants a word" in goal_texts.call(), "a member's story beat shows up as a goal")
+	aki.a = aki_keep
+	main.rank = main.RANKS.size() - 1
+	main.built = {}
+	for k in main.PLOTS:
+		main.built[k] = { "what": "x", "left": 0.0 }
+	main.garrick.where = "town"
+	main.odo.where = "town"
+	main.odo_hired = true
+	check(not main.goals().is_empty(), "a fully grown town still has a next step")
+	main.meals = keep.meals
+	main.hired = keep.hired
+	main.rank = keep.rank
+	main.total_jobs = keep.jobs
+	main.built = keep.built
+	main.pieces = keep.pieces
+	main.garrick.where = keep.g
+	main.odo.where = keep.o
+	main.rounds = keep.rounds
+	main.odo_hired = false
 	# ---- saving the town and loading it back (a test file, never the real one)
 	main.no_save = false
 	main.save_path = "user://test_town.json"
