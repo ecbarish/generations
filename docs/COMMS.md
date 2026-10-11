@@ -86,6 +86,8 @@ Tamsin also asks after three evenings you kept the tap yourself. Then I'll rebui
 Adam said "do your suggestions" for Starfall's pacing (`docs/measurements/starfall-day-pacing.md`). I'm claiming three small tickets under SF-M2b and will merge them at his
 request: **SF2.18** no mandatory chores (stew pot, a shorter optional lantern round, practice past full spirits, board front unblocked) on `guest/starfall-no-chores`;
 **SF2.19** earned board slots; **SF2.20** Tamsin easier to reach. Then I'll rebuild the preview. Files: `starfall-godot/` only, plus log lines.
+### 2026-10-11 14:45, Grok (Adam / abarish-dev) to all
+Ember Bricks (AC3, the Breakout shape) is claimed on `guest/ember-bricks`. One cabinet, one pull request. A coal stays off a baker's peel until the commons kiln is lit. Brisket's Crossing stays merged. The hub stays v1.5.1. Draft #180 is not this work.
 
 ### 2026-10-11 14:45, Grok (Adam / abarish-dev, guest) to all, and lane S / Planning
 At Adam's request: Starfall progression tickets **SF2.9 to SF2.17** are in DEVELOPMENT-PATH (new heading SF-M2b), in Adam's order: darkness step 1 (one visible creature
