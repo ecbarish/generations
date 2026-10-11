@@ -634,6 +634,7 @@ func _run() -> void:
 	check(missing_feel.is_empty(), "every feeling has its picture (missing: %s)" % ", ".join(missing_feel))
 	_own_place()
 	_wilds()
+	_by_hand()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -783,6 +784,146 @@ func _wilds() -> void:
 	check(main._load() and main.me.tile == Vector2i(-10, 9), "a save made out on the trail loads you there")
 	main.SafeSave.remove(main.save_path)
 	main.no_save = true
+	main.lines.clear()
+	main.me.tile = main.GATE_IN
+	main.me.pos = Vector2(main.me.tile) * main.TILE
+
+## SF2.8, something by hand every day: the gate watch's lantern round and sparring at the training yard, each mastered
+## by hand and then offered to a hire, the hire taking over, hand play worth at least the hire, and old saves defaulting.
+func _by_hand() -> void:
+	var keep_built: Dictionary = main.built.duplicate(true)
+	var keep_coins: int = main.coins
+	var keep_day_t: float = main.day_t
+	main.lines.clear()
+	main.then_do = Callable()
+	# the gate watch: lanterns are lit at dusk, not in the day
+	main.day_t = main.DAY_SECONDS * 0.2
+	main.me.tile = main.LANTERNS[0] + Vector2i.RIGHT
+	main.use()
+	check(not main.lamps[0] and main.lines.size() == 1, "in daylight a wall lantern stays cold")
+	main.lines.clear()
+	check(main.F_PROPS.get_width() > 0, "the lanterns' picture (ART-SF-6) loads")
+	var unreachable := []
+	for l in main.LANTERNS:
+		var ok := false
+		for d in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+			if not main.solid(l + d) and not main.route(main.GATE_IN, l + d, main.me).is_empty():
+				ok = true
+		if not ok:
+			unreachable.append(l)
+	check(unreachable.is_empty(), "every wall lantern can be walked up to (not: %s)" % str(unreachable))
+	main.day_t = main.DAY_SECONDS * 0.7
+	var hero = main.heroes[0]
+	hero.where = "town"
+	hero.a.state = "town"
+	hero.a.morale = 4
+	for r in main.ROUNDS_AFTER:
+		for i in main.LANTERNS.size():
+			main.me.tile = main.LANTERNS[i] + (Vector2i.RIGHT if i == 0 else (Vector2i.DOWN if i == 1 else (Vector2i.LEFT if i == 2 else Vector2i.UP)))
+			main.lines.clear()
+			main.use()
+		if r == 0:
+			check(not main.lamps.has(false) and main.rounds == 1, "walking to all four lanterns at dusk walks the round")
+			var c0: int = main.coins
+			main.today.earned = 0
+			var out: String = main._watch_night()
+			check(main.coins == c0 + main.LAMP_MONEY and int(hero.a.morale) == 5 and "lamp money" in out, "a round walked by hand: lamp money, and adventurers at home sleep easy (+1 nerve)")
+			check(main.lamps.count(true) == 0, "the lamps go out for the next day")
+			check(main.odo.where == "gone", "one round isn't enough for a watchman to ask")
+		else:
+			main._watch_night()
+	check(main.rounds == main.ROUNDS_AFTER and main.odo.where == "town", "after %d rounds by hand, Odo the watchman comes asking" % main.ROUNDS_AFTER)
+	main.odo.tile = main.ODO_AT
+	main.odo.path.clear()
+	main.me.tile = main.ODO_AT + Vector2i.RIGHT
+	main.lines.clear()
+	main.use()
+	talk_through()
+	check(main.odo_hired, "talk to Odo and he takes the round")
+	main.day_t = main.DAY_SECONDS * 0.7
+	tick(0.1)
+	check(not main.lamps.has(false), "with Odo hired, the walls are lit at dusk without you")
+	hero.a.morale = 4
+	var c1: int = main.coins
+	main._watch_night()
+	var auto_coins: int = main.coins - c1
+	check(int(hero.a.morale) == 5 and auto_coins == -main.ODO_WAGE, "Odo's round: adventurers sleep easy, and Odo is paid")
+	check(main.LAMP_MONEY > auto_coins, "walking the round yourself is worth more than Odo's (lamp money, no wage)")
+	# the training yard
+	main.built = { "east": { "what": "yard", "left": 0.0 } }
+	var step: Vector2i = main._step_of("east")
+	main.me.tile = step
+	main.me.path.clear()
+	for h in main.heroes:
+		h.where = "town"
+		h.a.state = "town"
+		h.a.erase("sparred")
+		h.a.morale = 5
+	main.heroes[1].a.morale = 2
+	main.lines.clear()
+	check(main.spar_partner() == main.heroes[1], "the least sure adventurer at home is first to spar")
+	main.use()
+	check(not main.spar.is_empty() and main.spar.h == main.heroes[1], "at the yard, E starts a bout with them")
+	main.spar_press()
+	tick(1.0)
+	check(not main.spar.is_empty(), "the swing keeps going; there's no failing by waiting")
+	main.finish_spar((main.SPAR_BAND.x + main.SPAR_BAND.y) / 2.0)
+	check(int(main.heroes[1].a.morale) == 4 and main.spars == 1, "a clean bout raises nerve by two")
+	check(main.spar_partner() != main.heroes[1], "one bout each a day")
+	var hand_total := 2
+	for k in main.SPARS_AFTER - 1:
+		var h = main.spar_partner()
+		if h == null:
+			for x in main.heroes:
+				x.a.erase("sparred")
+			h = main.spar_partner()
+		main.spar = { "fill": 0.0, "on": true, "h": h, "dir": 1.0 }
+		var before := int(h.a.morale)
+		main.finish_spar(0.05)
+		if k == 0:
+			check(int(h.a.morale) == mini(10, before + 1), "a scrappy bout still raises nerve by one")
+		hand_total += int(h.a.morale) - before
+	check(main.spars == main.SPARS_AFTER and main.ilse.where == "town", "after %d bouts by hand, Ilse the drillmaster comes asking" % main.SPARS_AFTER)
+	main.ilse.tile = main._drill_at()
+	main.ilse.path.clear()
+	main.me.tile = main.ilse.tile + Vector2i.DOWN
+	main.lines.clear()
+	main.use()
+	talk_through()
+	check(main.ilse_hired, "talk to Ilse and she takes the yard")
+	for x in main.heroes:
+		x.a.erase("sparred")
+		x.a.morale = 5
+	main.coins = 100
+	var nerve_before := 0
+	for x in main.heroes:
+		nerve_before += int(x.a.morale)
+	var said: String = main._yard_morning()
+	var nerve_auto := -nerve_before
+	for x in main.heroes:
+		nerve_auto += int(x.a.morale)
+	check(nerve_auto == 1 and main.coins == 100 - main.ILSE_WAGE and "Ilse paid" in said, "Ilse drills the one who needs it most each morning (+1 nerve), and is paid")
+	check(2 * main.heroes.size() > nerve_auto and hand_total > nerve_auto, "a day of sparring yourself (up to +2 for every adventurer) is worth more than Ilse's drill (+1 for one)")
+	# saves
+	main.no_save = false
+	main.save_path = "user://test_by_hand.json"
+	main.save_game()
+	var d: Dictionary = main.SafeSave.read(main.save_path)
+	check(int(d.watch.rounds) == main.ROUNDS_AFTER and bool(d.watch.hired) and int(d.drill.spars) == main.SPARS_AFTER and bool(d.drill.hired), "the watch and the yard are saved")
+	main.odo_hired = false
+	main.ilse_hired = false
+	check(main._load() and main.odo_hired and main.ilse_hired and main.odo.where == "town" and main.ilse.where == "town", "and load back, Odo and Ilse at their posts")
+	d.erase("watch")
+	d.erase("drill")
+	main.SafeSave.write(main.save_path, d)
+	main.odo.where = "gone"
+	main.ilse.where = "gone"
+	check(main._load() and main.rounds == 0 and not main.odo_hired and main.spars == 0 and not main.ilse_hired and main.lamps.count(true) == 0 and main.odo.where == "gone", "a save from before the watch and the yard loads with none of it")
+	main.SafeSave.remove(main.save_path)
+	main.no_save = true
+	main.built = keep_built
+	main.coins = keep_coins
+	main.day_t = keep_day_t
 	main.lines.clear()
 	main.me.tile = main.GATE_IN
 	main.me.pos = Vector2(main.me.tile) * main.TILE
