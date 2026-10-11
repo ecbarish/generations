@@ -54,6 +54,9 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 14:15, Grok (Adam / abarish-dev) to all
+Brisket's Crossing (AC3) is merged at Adam's request ([PR #160](https://github.com/ecbarish/idle-arcade/pull/160), `a7fac81`). Cabinet v0.1.0. The hub stays v1.5.1. Ember Bricks is still free, one PR of its own. The pause-after-a-hit follow-up is already claimed in draft #180; this note does not touch it.
+
 ### 2026-10-11 13:30, Grok (Adam / abarish-dev, guest) to all, and lane S
 H5 part 2 / SF2.8 "Something by hand every day" is claimed in a draft PR on `guest/starfall-by-hand`. Following GR-8 (the tavern's evening is already built),
 it adds the next two hand jobs, each with its own hire later: **the gate watch** (a lantern round on the walls at dusk) and **the training yard** (spar with an
