@@ -4,7 +4,7 @@
 // See docs/PLAYTEST.md for how the scorecard uses it.
 const { chromium } = require('playwright');
 const S = process.argv[2] || "playtest-shots"; require("fs").mkdirSync(S, {recursive: true});
-const pages = [['hub','/'],['realmbound','/games/realmbound/'],['diamond','/games/diamond-career/'],['otherworld','/games/otherworld/'],['primordial','/games/primordial/'],['starfall-guild','/games/starfall-guild/'],['wildbond-classic','/games/wildbond/'],['wildbond-godot','/play/wildbond/'],['starfall-godot','/play/starfall/'],['playtest','/playtest.html']];
+const pages = [['hub','/'],['realmbound','/games/realmbound/'],['diamond','/games/diamond-career/'],['otherworld','/games/otherworld/'],['primordial','/games/primordial/'],['starfall-guild','/games/starfall-guild/'],['wildbond-classic','/games/wildbond/'],['wildbond-godot','/play/wildbond/'],['starfall-godot','/play/starfall/'],['playtest','/playtest.html'],['diamond-manager','/games/diamond-manager/'],['storm-front','/games/storm-front/'],['lighthouse-watch','/games/lighthouse-watch/'],['briskets-crossing','/games/briskets-crossing/'],['little-ranch','/games/little-ranch/']];
 (async()=>{
   const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
   for (const [vp,w,h,mob] of [['desk',1280,800,false],['phone',390,844,true]]) {
