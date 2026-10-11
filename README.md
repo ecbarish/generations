@@ -39,6 +39,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Godot Starfall (2026-10-11, SF2.6c): new towns open beside the Guild Hall with both full roofs and the banner in view. Removed three unused pack tiles; music and sounds remain. Existing towns keep their saved position and progress. [Before/after and checks](docs/screenshots/starfall-opening-view/README.md). Source change only; the web preview is not rebuilt by this PR.
+
 - Wildbond (2026-10-11, WB-DOOR-TAP): clicking or tapping Larkhaven's inn, shop and both homes now queues entry just like the barn. The full-size phone directional pad is moved between the lower doorways so it no longer covers Nora's entrance. Door collisions, walking distance, keyboard controls, phone preferences and saves are unchanged; source fix only, web preview not re-exported.
 
 - Wildbond (2026-10-11, keys in the game): the opening's notes now name the controls for whatever you're playing on (keys, a gamepad or a phone): how to walk, talk and open your field book (Playtester's note).

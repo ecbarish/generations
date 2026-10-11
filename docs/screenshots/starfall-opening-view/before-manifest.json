@@ -1,0 +1,269 @@
+{
+	"captures": [
+		{
+			"file": "1920x1080-welcome.png",
+			"label": "welcome",
+			"landmarks": [
+				{
+					"bottom_right": [
+						200.0,
+						36.0
+					],
+					"fits": false,
+					"top_left": [
+						104.0,
+						-44.0
+					]
+				},
+				{
+					"bottom_right": [
+						312.0,
+						52.0
+					],
+					"fits": false,
+					"top_left": [
+						248.0,
+						-28.0
+					]
+				}
+			],
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"file": "1920x1080-ready.png",
+			"label": "ready",
+			"landmarks": [
+				{
+					"bottom_right": [
+						200.0,
+						36.0
+					],
+					"fits": false,
+					"top_left": [
+						104.0,
+						-44.0
+					]
+				},
+				{
+					"bottom_right": [
+						312.0,
+						52.0
+					],
+					"fits": false,
+					"top_left": [
+						248.0,
+						-28.0
+					]
+				}
+			],
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"file": "1366x768-welcome.png",
+			"label": "welcome",
+			"landmarks": [
+				{
+					"bottom_right": [
+						200.0,
+						36.0
+					],
+					"fits": false,
+					"top_left": [
+						104.0,
+						-44.0
+					]
+				},
+				{
+					"bottom_right": [
+						312.0,
+						52.0
+					],
+					"fits": false,
+					"top_left": [
+						248.0,
+						-28.0
+					]
+				}
+			],
+			"size": [
+				1366,
+				768
+			]
+		},
+		{
+			"file": "1366x768-ready.png",
+			"label": "ready",
+			"landmarks": [
+				{
+					"bottom_right": [
+						200.0,
+						36.0
+					],
+					"fits": false,
+					"top_left": [
+						104.0,
+						-44.0
+					]
+				},
+				{
+					"bottom_right": [
+						312.0,
+						52.0
+					],
+					"fits": false,
+					"top_left": [
+						248.0,
+						-28.0
+					]
+				}
+			],
+			"size": [
+				1366,
+				768
+			]
+		},
+		{
+			"file": "812x375-welcome.png",
+			"label": "welcome",
+			"landmarks": [
+				{
+					"bottom_right": [
+						200.0,
+						36.0
+					],
+					"fits": false,
+					"top_left": [
+						104.0,
+						-44.0
+					]
+				},
+				{
+					"bottom_right": [
+						312.0,
+						52.0
+					],
+					"fits": false,
+					"top_left": [
+						248.0,
+						-28.0
+					]
+				}
+			],
+			"size": [
+				812,
+				375
+			]
+		},
+		{
+			"file": "812x375-ready.png",
+			"label": "ready",
+			"landmarks": [
+				{
+					"bottom_right": [
+						200.0,
+						36.0
+					],
+					"fits": false,
+					"top_left": [
+						104.0,
+						-44.0
+					]
+				},
+				{
+					"bottom_right": [
+						312.0,
+						52.0
+					],
+					"fits": false,
+					"top_left": [
+						248.0,
+						-28.0
+					]
+				}
+			],
+			"size": [
+				812,
+				375
+			]
+		},
+		{
+			"file": "3440x1440-welcome.png",
+			"label": "welcome",
+			"landmarks": [
+				{
+					"bottom_right": [
+						200.0,
+						36.0
+					],
+					"fits": false,
+					"top_left": [
+						104.0,
+						-44.0
+					]
+				},
+				{
+					"bottom_right": [
+						312.0,
+						52.0
+					],
+					"fits": false,
+					"top_left": [
+						248.0,
+						-28.0
+					]
+				}
+			],
+			"size": [
+				3440,
+				1440
+			]
+		},
+		{
+			"file": "3440x1440-ready.png",
+			"label": "ready",
+			"landmarks": [
+				{
+					"bottom_right": [
+						200.0,
+						36.0
+					],
+					"fits": false,
+					"top_left": [
+						104.0,
+						-44.0
+					]
+				},
+				{
+					"bottom_right": [
+						312.0,
+						52.0
+					],
+					"fits": false,
+					"top_left": [
+						248.0,
+						-28.0
+					]
+				}
+			],
+			"size": [
+				3440,
+				1440
+			]
+		}
+	],
+	"display": "X11",
+	"engine": "4.7.2-stable (official)",
+	"errors": [],
+	"passed": true,
+	"source": "4e5b83b0ed31f21b823e69694a415ac2c2b3b26f",
+	"spawn": [
+		14,
+		10
+	]
+}

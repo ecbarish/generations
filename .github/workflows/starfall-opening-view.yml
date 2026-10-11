@@ -29,7 +29,8 @@ jobs:
           sudo apt-get install -y --no-install-recommends xvfb libgl1-mesa-dri imagemagick
       - name: Capture actual before and after opening views
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          # Fixed pre-SF2.6c witness: later Starfall PRs must not lose the reproduced before view.
+          BASE_SHA: 4e5b83b0ed31f21b823e69694a415ac2c2b3b26f
           LIBGL_ALWAYS_SOFTWARE: '1'
         run: |
           set -euo pipefail
