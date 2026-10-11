@@ -1249,6 +1249,7 @@ func _run() -> void:
 	for problem in blocked:
 		print("  door check: " + problem)
 	check(blocked.is_empty(), "every door, doorway and road out has an open, reachable tile in front of it (%d problems)" % blocked.size())
+	preload("res://tests/roof_routes.gd").run(main, check)
 	# ---- the done line
 	print("Wildbond Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)

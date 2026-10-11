@@ -4,6 +4,18 @@ Every outlined project in one place, so Evan can hand work to any assistant (Cla
 and they can carry it to launch. START-HERE.md says what is happening *right now*; this file says *everything there
 is to do*. Ground rules for how assistants work, and how much creative freedom they have: [CREATIVE.md](CREATIVE.md).
 
+## Realmbound readability
+
+| ID | Project | Size | Status | Notes |
+|---|---|---|---|---|
+| RB1.6 | Readable ability names | S | ready: PR #141, Codex, 2026-10-10 | PLAYTEST pass 1; action bar only, no gameplay or saves |
+
+## Otherworld opening polish
+
+| ID | Project | Size | Status | Notes |
+|---|---|---|---|---|
+| OW1.1 | Visible introduction shortcut | S | ready: PR #142, Codex, 2026-10-10 | PLAYTEST pass 1; story and saves unchanged |
+
 ## Realmbound road approach
 
 | ID | Project | Size | Status | Notes |
@@ -50,6 +62,18 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 | WB3.6-pacing | Final-four-area and league pacing (T56) | S | ready: PR #83, Codex, 2026-10-09 | Diagnostic copies of current Godot rules/battles; report before tuning |
 | WB4.4b-reveal | Three observations and the final truth (T58) | M | ready: PR #101, Codex, 2026-10-09 | Approved account and observations; data only for Claude to place |
 | WB4.4b-audit | Clue fit and three late observations (T55) | S | ready: PR #82, Codex, 2026-10-09 | Writer doc first; no reveal text before Claude review |
+
+## Scene and interior design pass
+
+| ID | Project | Size | Status | Notes |
+|---|---|---|---|---|
+| SCENE-PLAN | Shared interior and entrance outline | S | ready: PR #151, Codex, 2026-10-10 | Evan requested; docs only, complements MAP-AUDIT #147 |
+
+## Realmbound scene furnishing
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| RB1.7 | Inn furnishing and clear routes | S | ready: Codex, PR #153, 2026-10-10 | Browser inn only; existing rest service and saves retained |
 
 ## Realmbound facing and shadows
 
