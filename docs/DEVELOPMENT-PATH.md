@@ -374,9 +374,8 @@ No-server sharing: trade and battle codes, ghost teams (V6 part 1).
 - [x] AC1 [any] Storm Front (the Space Invaders shape, Evan's pick): one cabinet, original name and art, one PR. (built: Codex for Adam / abarish-dev, guest/storm-front, PR #119; awaiting review)
 - [x] AC2 [any] Lighthouse Watch (the Missile Command shape). (built: Grok for Adam / abarish-dev, PR #145, merged 2026-10-10; v0.1.0)
 - [x] AC2.1 [any] Lighthouse Watch display and controls polish: uniform harbour scale, taps mapped after resize, phone pause/rotation checks and before/after captures. Files: `games/lighthouse-watch/`, `tests/lighthouse-watch.html`, evidence in `docs/playtests/lighthouse-watch-display/`; done when circles remain round and aiming/menus/scores pass on phone and desktop. Score 16/21 (fun 2×2, heart 2×2, friends 3, focus 2, cheap 3). (built: Codex for Adam / abarish-dev, PR #163; v0.1.1 release)
-- [ ] AC3 [any] Brisket's Crossing (the Frogger shape) and Ember Bricks (the Breakout shape), one PR each. Brisket's Crossing is merged ([PR #160](https://github.com/ecbarish/idle-arcade/pull/160), `a7fac81`). Ember Bricks is still free.
 - [ ] AC-x [any] Cabinet polish from playtests (docs/PLAYTEST.md pass 2): one cabinet per PR (AC1.1, AC2.2, ...), until each scores 17+. (QUEUE road 9, added 2026-10-11)
-- [ ] AC3 [any] Brisket's Crossing (the Frogger shape) and Ember Bricks (the Breakout shape), one PR each. Brisket's Crossing is merged ([PR #160](https://github.com/ecbarish/idle-arcade/pull/160), `a7fac81`). Ember Bricks is claimed (Grok for Adam / abarish-dev, 2026-10-11, `guest/ember-bricks`).
+- [x] AC3 [any] Brisket's Crossing (the Frogger shape) and Ember Bricks (the Breakout shape), one PR each. Brisket's Crossing is merged ([PR #160](https://github.com/ecbarish/idle-arcade/pull/160), `a7fac81`). Ember Bricks is merged ([PR #185](https://github.com/ecbarish/idle-arcade/pull/185), Grok for Adam / abarish-dev, 2026-10-11).
 
 ### Parked (Evan decides when)
 Primordial beyond light polish, a second sport. Proposals welcome; no builds.
