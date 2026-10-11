@@ -5,7 +5,8 @@ extends SceneTree
 ## Policies: "board" (pins jobs, answers stories, builds; no hand jobs), "hand" (does every hand job, hires as soon as
 ## asked), "hand_nohire" (does every hand job, never hires).
 const DT := 0.05
-const IDLE_AT := Vector2i(28, 4)
+const IDLE_AT := Vector2i(12, 14)           # a quiet corner, out of everyone's way and out of the lanterns' reach
+const LAMP_LOOP := [Vector2i(5, 9), Vector2i(28, 5), Vector2i(37, 9), Vector2i(20, 12)]   # SF2.18: lit by walking within reach
 const DAYS := 10
 const SKILL := 0.7             # how often a normal player stops a timing game in the gold
 const BUILD_ORDER := [["smithy", "west"], ["tavern", "east"], ["apothecary", "north"], ["yard", "south"]]
@@ -102,7 +103,7 @@ func run(policy: String, seed: int) -> Dictionary:
 			days.append({ "day": d_prev, "coins": main.coins, "jobs": main.total_jobs, "rank": main.RANKS[main.rank].name,
 				"meals_hand": main.meals - int(prev.meals), "pours": main.pours - int(prev.pours), "pieces": main.pieces - int(prev.pieces),
 				"batches": main.batches - int(prev.batches), "spars": main.spars - int(prev.spars), "rounds": main.rounds - int(prev.rounds),
-				"busy_s": snappedf(b - day_start_busy, 0.1), "heroes": main.heroes.size(),
+				"busy_s": snappedf(b - day_start_busy, 0.1), "heroes": main.heroes.size(), "pot": int(main.today.get("pot", 0)), "unfed": int(main.today.get("unfed", 0)),
 				"morale": snappedf(main.heroes.reduce(func(acc, h): return acc + int(h.a.morale), 0) / float(main.heroes.size()), 0.1),
 				"good": main.good_days, "bad": main.bad_days })
 			prev = { "meals": main.meals, "pours": main.pours, "pieces": main.pieces, "batches": main.batches, "spars": main.spars, "rounds": main.rounds }
@@ -186,8 +187,12 @@ func act(policy: String, hand: bool, hires: bool) -> bool:
 		if m.evening() and not m.odo_hired and m.lamps.has(false):
 			for i in m.LANTERNS.size():
 				if not m.lamps[i]:
-					spend("lanterns", m.LAMP_STANDS[i], 0.8)
-					m.light_lamp(i)
+					if m.get_script().get_script_constant_map().has("REACH"):
+						spend("lanterns", LAMP_LOOP[i], 0.0)
+						m._light_near()
+					else:
+						spend("lanterns", m.LAMP_STANDS[i], 0.8)
+						m.light_lamp(i)
 			return true
 		# a bout at the yard
 		if m.finished("yard") != "" and not m.ilse_hired and m.spar_partner() != null:
