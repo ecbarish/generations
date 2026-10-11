@@ -39,6 +39,20 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Little Ranch v0.1.1 (2026-10-10, LR2): feeding works again after switching to and from Peekaboo, and rotating/resizing the screen keeps the baby and active toys in place. Existing sound preferences are preserved. [Review and before/after captures](docs/screenshots/little-ranch-lr2/README.md).
+
+- Brisket's Crossing v0.1.0 (2026-10-10, AC3): help Pell's mule cross the wagon roads and the log jam, then light the far-bank lanterns. [Play](games/briskets-crossing/) · [PR #160](https://github.com/ecbarish/idle-arcade/pull/160), ready for review, not merged. Hub stays v1.5.1. Ember Bricks is a separate cabinet.
+- Starfall web preview (2026-10-10, guest): `play/starfall/` rebuilt from main `28cee8c`, so the preview shows the new frontier town: the scrolling stockade, the side-on gate, the fitted smithy and tavern, and evenings. Pack only (3.23 MB); the engine is unchanged. The Come Play picture is refreshed. [Build notes](play/starfall/BUILD.md)
+- Godot Starfall (2026-10-10, SF2.6 follow-ups, guest): evenings now look like evenings. A gentle cool tint settles over the town through the second half of the day and lifts early next morning, while lamps, lit windows and the forge stay bright. It only changes the picture; the day runs as before. The training yard now also blocks the row its top fence stands on, so nobody walks through the fence. [Before and after](docs/screenshots/starfall-evening/before-after.png)
+- Lighthouse Watch v0.1.1 (2026-10-10, AC2.1): the harbour keeps its proportions on phones and wide screens, with round bursts and taps mapped to the fitted sky after rotation. [Checks and before/after pictures](docs/playtests/lighthouse-watch-display/README.md).
+
+- Godot Starfall (2026-10-10, ART-SF-7, guest): the west gate is now a real gate. It has two posts on stone footings, a beam overhead and its two doors standing open inside the town; before, it was just a gap in the palisade. The smithy and tavern are redrawn two tiles wide, so they fit their plots instead of spilling over. The smithy gets back its water barrel and grindstone by the door. [Before and after](docs/screenshots/starfall-gate-fit/before-after.png)
+- Godot Starfall (2026-10-10, SF2.6 / H4, guest): Starfall's own place. The town is now a log-walled frontier stockade drawn with its own ART-SF pictures instead of Larkhaven's cottages: pines outside, a palisade with the gate in the west wall and a watchtower beside it, and a mud road running east past the square with the Guild Hall, the job board and the well, then the Lantern Inn and the plots. The map is bigger than the screen and scrolls as you walk. Finished buildings use their new pictures and footprints. Old saves keep every building, and if you were standing where a wall is now, you start on open ground nearby. [Screenshots](docs/screenshots/starfall-own-place/)
+- Arcade v1.5.1 (2026-10-10, AR2.11, Tell us): every browser game's ⚙ Settings now has a "Tell us" row (Share feedback, Report a bug, Suggest an idea) that opens a GitHub issue with the game and version filled in, plus a ten-minute playtest script on [Come Play](playtest.html#script). Little Ranch stays without links on purpose. Lighthouse Watch joined it after both merged.
+- Lighthouse Watch v0.1.0 (2026-10-10, AC2): the second arcade cabinet, in the missile-defence shape. Storm sparks fall on four harbour boats; tap the sky (or aim and fire) to burst them with the lighthouse beam. Nights speed up, sparks split from night 3, a lost boat comes back every third night, three initials on a local high-score board, two-player turns. [games/lighthouse-watch/](games/lighthouse-watch/)
+- Realmbound (2026-10-10): full ability names are larger on phones, desktop and ultrawide; wrapping keeps them readable, with separate shortcuts and cooldown counts.
+- Otherworld (2026-10-10): choose a world directly from the Archivist's introduction, or keep reading; world, gift and name decisions remain yours.
+
 - Design (2026-10-10): shared scene/interior layout outline, distinct Larkhaven home briefs, real entrance-input checks and small follow-up tasks for any assistant.
 
 - Tell us (2026-10-10, AR2.11): every browser game's ⚙ Settings now has a "Tell us" row (Share feedback, Report a bug, Suggest an idea) that opens a GitHub issue with the game and version filled in, plus a ten-minute playtest script on [Come Play](playtest.html#script). Little Ranch stays without links on purpose.
@@ -46,6 +60,18 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 - Godot Wildbond (2026-10-10, WB-PREVIEW): refreshed playable web pack with battle practice, the Thornwood trail, Lighthouse Spire and Champion rematches; updated guide and verified old journeys, browser reloads and phone-to-ultrawide screens. [Build notes](play/wildbond/BUILD.md).
 
 - Godot Wildbond (2026-10-10, WB2.4 / H8, guest): the last two homes in Larkhaven. Two new cottages you can walk into, like the inn and the shop: Pip's home, where his mum is (and something Pip left by the window for you), and his gran's cottage by Juniper's, where she hums the harvest tune (and a jar of berries she picked too many of). Old saves standing where a cottage now is step out in front of its door.
+- 2026-10-10: ART-SF-6 — original frontier props (barrel, crate, firewood, lantern, cart, bunting, empty plot) on one indexed sheet, with footprint metadata and a scale contact scene; assets only.
+
+- 2026-10-10: ART-SF-5 — original frontier shops, well, job board and training yard, with footprint metadata and silhouette/contact review; assets only.
+
+- 2026-10-10: ART-SF-4 — original Guild Hall and two-storey Inn, lit/unlit windows, stone footprints and scale contact sheet; art assets for review.
+
+- 2026-10-10: ART-SF-3 — original pine forest edge, three tree sizes and clearing props, with footprint metadata and a scale contact sheet; asset review only.
+
+- Starfall art (2026-10-10, ART-SF-2): original palisade runs, corners, ends and stakes, open/shut gate and lit/unlit watchtower, with footprints and a scale contact scene. Game integration remains SF2.6.
+
+- Starfall art (2026-10-10, ART-SF-1): original frontier ground atlas, with moss variants, joining mud roads, packed earth and stone footings. Scale/contact patch and rerunnable generator; game integration remains SF2.6.
+
 - Little Ranch v0.1.0 (2026-10-09, LR1, the smallest test): a toy for ages 2 to 4. A baby Cindercub to feed, bathe in bubbles and play peekaboo with behind the bush, until it yawns, the sky turns orange and it curls up to a lullaby. No reading, nothing to lose, no links out; grown-ups hold the corner lock for three seconds to leave or turn the sound off.
 - Diamond Manager (2026-10-09, DM2 playtest): people on the field grow with the screen, Iona's welcome says how much budget room you have, and the owner now rewards a better losing season. Report: [docs/playtests/diamond-manager-1.md](docs/playtests/diamond-manager-1.md).
 - Godot Wildbond (2026-10-09, WB5.1): the Lighthouse Spire opens after the Champion. Orla runs escalating three-partner floors from level 75 upward, with a full rest every fifth floor and the best floor saved; every defeated Warden also offers progressively stronger Champion rematches without re-awarding badges.
@@ -559,3 +585,5 @@ controls and mobile layout. For a DOM-only check without Chromium, install `jsdo
 environment and run `node tests/realmbound-dom.cjs`. This executes the same progression scenarios and
 checks save/reload and group-finder interactions, but does not verify browser rendering or mobile layout.
 The games themselves still require no dependencies or build step.
+
+Map audit (2026-10-10): native Wildbond/Starfall access evidence and reproducible roof-routing finding in [the report](docs/research/map-scene-audit-2026-10-10.md); rendered scene review remains outstanding. No gameplay change.

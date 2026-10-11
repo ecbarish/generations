@@ -1,0 +1,320 @@
+{
+  "palette": "docs/art/starfall/palette.gpl",
+  "tile_size": 16,
+  "origin": "sprite coordinates start at top-left; footprint_rect defines world placement and collision",
+  "palisade": {
+    "file": "palisade.png",
+    "pieces": [
+      {
+        "name": "straight-h",
+        "rect": [
+          0,
+          0,
+          16,
+          32
+        ],
+        "footprint_rect": [
+          0,
+          16,
+          16,
+          16
+        ],
+        "footprint_tiles": [
+          1,
+          1
+        ],
+        "height_tiles": 2,
+        "connections": 10,
+        "solid": true
+      },
+      {
+        "name": "straight-v",
+        "rect": [
+          16,
+          0,
+          16,
+          32
+        ],
+        "footprint_rect": [
+          0,
+          16,
+          16,
+          16
+        ],
+        "footprint_tiles": [
+          1,
+          1
+        ],
+        "height_tiles": 2,
+        "connections": 5,
+        "solid": true
+      },
+      {
+        "name": "corner-ne",
+        "rect": [
+          32,
+          0,
+          16,
+          32
+        ],
+        "footprint_rect": [
+          0,
+          16,
+          16,
+          16
+        ],
+        "footprint_tiles": [
+          1,
+          1
+        ],
+        "height_tiles": 2,
+        "connections": 3,
+        "solid": true
+      },
+      {
+        "name": "corner-se",
+        "rect": [
+          48,
+          0,
+          16,
+          32
+        ],
+        "footprint_rect": [
+          0,
+          16,
+          16,
+          16
+        ],
+        "footprint_tiles": [
+          1,
+          1
+        ],
+        "height_tiles": 2,
+        "connections": 6,
+        "solid": true
+      },
+      {
+        "name": "corner-sw",
+        "rect": [
+          0,
+          32,
+          16,
+          32
+        ],
+        "footprint_rect": [
+          0,
+          16,
+          16,
+          16
+        ],
+        "footprint_tiles": [
+          1,
+          1
+        ],
+        "height_tiles": 2,
+        "connections": 12,
+        "solid": true
+      },
+      {
+        "name": "corner-nw",
+        "rect": [
+          16,
+          32,
+          16,
+          32
+        ],
+        "footprint_rect": [
+          0,
+          16,
+          16,
+          16
+        ],
+        "footprint_tiles": [
+          1,
+          1
+        ],
+        "height_tiles": 2,
+        "connections": 9,
+        "solid": true
+      },
+      {
+        "name": "end-east",
+        "rect": [
+          32,
+          32,
+          16,
+          32
+        ],
+        "footprint_rect": [
+          0,
+          16,
+          16,
+          16
+        ],
+        "footprint_tiles": [
+          1,
+          1
+        ],
+        "height_tiles": 2,
+        "connections": 2,
+        "solid": true
+      },
+      {
+        "name": "end-west",
+        "rect": [
+          48,
+          32,
+          16,
+          32
+        ],
+        "footprint_rect": [
+          0,
+          16,
+          16,
+          16
+        ],
+        "footprint_tiles": [
+          1,
+          1
+        ],
+        "height_tiles": 2,
+        "connections": 8,
+        "solid": true
+      },
+      {
+        "name": "end-north",
+        "rect": [
+          0,
+          64,
+          16,
+          32
+        ],
+        "footprint_rect": [
+          0,
+          16,
+          16,
+          16
+        ],
+        "footprint_tiles": [
+          1,
+          1
+        ],
+        "height_tiles": 2,
+        "connections": 1,
+        "solid": true
+      },
+      {
+        "name": "end-south",
+        "rect": [
+          16,
+          64,
+          16,
+          32
+        ],
+        "footprint_rect": [
+          0,
+          16,
+          16,
+          16
+        ],
+        "footprint_tiles": [
+          1,
+          1
+        ],
+        "height_tiles": 2,
+        "connections": 4,
+        "solid": true
+      },
+      {
+        "name": "stakes",
+        "rect": [
+          32,
+          64,
+          16,
+          32
+        ],
+        "footprint_rect": [
+          0,
+          16,
+          16,
+          16
+        ],
+        "footprint_tiles": [
+          1,
+          1
+        ],
+        "height_tiles": 2,
+        "connections": 0,
+        "solid": false
+      }
+    ]
+  },
+  "gate": {
+    "size": [
+      48,
+      48
+    ],
+    "footprint_tiles": [
+      3,
+      1
+    ],
+    "footprint_rect": [
+      0,
+      32,
+      48,
+      16
+    ],
+    "height_tiles": 3,
+    "states": {
+      "open": {
+        "file": "gate-open.png",
+        "solid_rects": [
+          [
+            0,
+            32,
+            8,
+            16
+          ],
+          [
+            40,
+            32,
+            8,
+            16
+          ]
+        ]
+      },
+      "shut": {
+        "file": "gate-shut.png",
+        "solid_rects": [
+          [
+            0,
+            32,
+            48,
+            16
+          ]
+        ]
+      }
+    }
+  },
+  "watchtower": {
+    "size": [
+      32,
+      80
+    ],
+    "footprint_tiles": [
+      2,
+      2
+    ],
+    "footprint_rect": [
+      0,
+      48,
+      32,
+      32
+    ],
+    "height_tiles": 5,
+    "states": {
+      "lit": "watchtower-lit.png",
+      "unlit": "watchtower-unlit.png"
+    }
+  }
+}

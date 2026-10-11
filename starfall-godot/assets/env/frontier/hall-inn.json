@@ -1,0 +1,191 @@
+{
+  "palette": "docs/art/starfall/palette.gpl",
+  "tile_size": 16,
+  "origin": "sprite top-left; footprint_rect is the visible stone base; height is world geometry, independent of canvas height",
+  "buildings": {
+    "guild_hall": {
+      "size": [
+        96,
+        80
+      ],
+      "footprint_rect": [
+        0,
+        32,
+        96,
+        48
+      ],
+      "footprint_tiles": [
+        6,
+        3
+      ],
+      "height_tiles": 4,
+      "door_rect": [
+        42,
+        54,
+        12,
+        20
+      ],
+      "windows": [
+        {
+          "frame_rect": [
+            14,
+            55,
+            8,
+            8
+          ],
+          "glass_rect": [
+            15,
+            56,
+            6,
+            6
+          ]
+        },
+        {
+          "frame_rect": [
+            28,
+            55,
+            8,
+            8
+          ],
+          "glass_rect": [
+            29,
+            56,
+            6,
+            6
+          ]
+        },
+        {
+          "frame_rect": [
+            60,
+            55,
+            8,
+            8
+          ],
+          "glass_rect": [
+            61,
+            56,
+            6,
+            6
+          ]
+        },
+        {
+          "frame_rect": [
+            74,
+            55,
+            8,
+            8
+          ],
+          "glass_rect": [
+            75,
+            56,
+            6,
+            6
+          ]
+        }
+      ],
+      "states": {
+        "unlit": "guild_hall.png",
+        "lit": "guild_hall-lit.png"
+      }
+    },
+    "inn": {
+      "size": [
+        64,
+        80
+      ],
+      "footprint_rect": [
+        0,
+        32,
+        64,
+        48
+      ],
+      "footprint_tiles": [
+        4,
+        3
+      ],
+      "height_tiles": 4.5,
+      "door_rect": [
+        26,
+        54,
+        12,
+        20
+      ],
+      "windows": [
+        {
+          "frame_rect": [
+            10,
+            35,
+            8,
+            8
+          ],
+          "glass_rect": [
+            11,
+            36,
+            6,
+            6
+          ]
+        },
+        {
+          "frame_rect": [
+            28,
+            35,
+            8,
+            8
+          ],
+          "glass_rect": [
+            29,
+            36,
+            6,
+            6
+          ]
+        },
+        {
+          "frame_rect": [
+            46,
+            35,
+            8,
+            8
+          ],
+          "glass_rect": [
+            47,
+            36,
+            6,
+            6
+          ]
+        },
+        {
+          "frame_rect": [
+            10,
+            59,
+            8,
+            8
+          ],
+          "glass_rect": [
+            11,
+            60,
+            6,
+            6
+          ]
+        },
+        {
+          "frame_rect": [
+            44,
+            59,
+            8,
+            8
+          ],
+          "glass_rect": [
+            45,
+            60,
+            6,
+            6
+          ]
+        }
+      ],
+      "states": {
+        "unlit": "inn.png",
+        "lit": "inn-lit.png"
+      }
+    }
+  }
+}

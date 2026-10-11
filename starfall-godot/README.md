@@ -10,7 +10,9 @@ use it.
 
 ## What's in it
 - **The town:** the Guild Hall, the Lantern Inn with its counter (a striped awning and a pot of stew), the guild board,
-  and the east gate to the wilds. Built from the same free tiles and parts-built people as Wildbond's Godot version.
+  a well and a watchtower inside a log palisade, with the gate to the wilds in the west wall (SF2.6). The town is bigger
+  than the screen and scrolls as you walk. Drawn with Starfall's own frontier pictures (`assets/env/frontier/`, ART-SF);
+  the people are the same parts-built people as Wildbond's Godot version.
 - **The guild board:** three requests from the farms each day (Easy, Risky, Dangerous, Deadly). Pin up to two. Your
   adventurers (Aki the Swordsman, Ren the Mage, Yuna the Cleric) choose for themselves by their level and their nerve; a
   bold one may take a job a step too hard.
@@ -49,7 +51,7 @@ use it.
 - **Saving:** the town saves itself every few seconds and when you close the window (user://starfall.json).
 
 ## For assistants
-- `scripts/main.gd`: the whole town (map, people, adventurers' decisions, the counter, Bryn, the board, saving).
+- `scripts/main.gd`: the whole town (the frontier stockade map, drawn from `assets/env/frontier/` (SF2.6), people, adventurers' decisions, the counter, Bryn, the board, saving).
   `scripts/figures.gd` is copied from wildbond-godot (keep them in step until shared code has its own home).
 - **Checks:** `Godot_v4.7.2-stable_win64_console.exe --headless --path starfall-godot --script res://tests/run_tests.gd`
   (96 checks on 2026-10-08). Run the game with `-- --no-save` to try it without touching the real town (add `--built`
