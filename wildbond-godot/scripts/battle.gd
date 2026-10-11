@@ -84,7 +84,8 @@ var cap: Dictionary = {}                      # the calm meter while you Bond: {
 ## tamer, or a wild foe well above it), once a day: it looks back at you, and "Stand with it" takes Run's place.
 ## You become one for a short while; it can turn a lost battle, but afterwards you are both spent.
 const JOIN_TIME := 14.0                        # battle seconds the joining lasts
-var bond_ok := true                            # main.gd: false once it has happened today (or in the demo)
+var bond_ok := true                            # main.gd: false before the fourth badge, once it has happened today, or in the demo
+var big_fight := false                         # main.gd: a Warden, the league, the Spire or a rematch
 var tamer_look: Dictionary = {}                # main.gd: how you look, for the joined form
 var looked_back := false                       # the creature has looked back at you this battle
 var bond_used := false                         # the joining happened in this battle (main.gd reads it)
@@ -455,9 +456,13 @@ func can_join(u: Dictionary) -> bool:
 		return false
 	if float(u.c.hp) / u.st.hp > 0.3:
 		return false
-	if kind != "wild":
-		return true                                 # a tamer, a Warden, the league, the Spire: it matters
-	return foes.any(func(f): return f.c.hp > 0 and f.c.lvl >= u.c.lvl + 3)   # a wild foe clearly stronger
+	# a harder foe, never an easy one (Evan, 2026-10-11): a Warden, the league, the Spire or a rematch whose creatures
+	# are at least your partner's level, or any foe clearly stronger (three levels or more above it)
+	var top := 0
+	for f in foes:
+		if f.c.hp > 0:
+			top = maxi(top, f.c.lvl)
+	return (big_fight and top >= u.c.lvl) or top >= u.c.lvl + 3
 
 func _join(u: Dictionary) -> void:
 	bond_used = true

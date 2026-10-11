@@ -769,7 +769,9 @@ func _process(dt: float) -> void:
 	_music_tick(dt)
 	_ambience_tick(dt)
 	_thumbs_tick()
-	battle.bond_ok = bond_day != _today() and not demo   # the wild bond: once a day (battle.gd can_join)
+	# the wild bond (battle.gd can_join): only well into the journey (four badges), once a day, in the battles that matter
+	battle.bond_ok = bond_day != _today() and not demo and badges.size() >= BOND_BADGES
+	battle.big_fight = battle_story.begins_with("story:") or battle_story.begins_with("league:") or battle_story.begins_with("spire:") or battle_story.begins_with("rematch:")
 	battle.tamer_look = my_look
 	fade_in = min(1.0, fade_in + dt * 0.7)
 	var door_dark := 0.0
@@ -1765,6 +1767,8 @@ func _on_battle(result: String) -> void:
 			story_done["wildBond"] = true
 			for l in WILD_BOND_FIRST:
 				say(l[0], _fill(l[1]))
+
+const BOND_BADGES := 4                       # the wild bond can't happen before the fourth badge (Evan, 2026-10-11)
 
 ## The first time the wild bond happens (WB4.2): it is named only now, after it has happened.
 const WILD_BOND_FIRST := [

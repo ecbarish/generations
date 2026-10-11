@@ -13,12 +13,19 @@ static func run(main: Node, check: Callable) -> void:
 	var me := R.make("cindercub", 30, {}, rng)
 	me.bond = R.BOND[R.BOND.size() - 1][1]
 	var foe := R.make("ripplet", 30, {}, rng)
-	b.open("trainer", [me], [foe], "Test Tamer")
+	b.open("trainer", [me], [foe], "Warden Test")
 	b.bond_ok = true
+	b.big_fight = true
 	var u: Dictionary = b.allies[0]
 	check.call(not b.can_join(u), "the wild bond: not while your partner is still strong")
 	u.c.hp = roundi(u.st.hp * 0.2)
-	check.call(b.can_join(u), "the wild bond: your last partner, badly hurt, Bonded, in a tamer battle")
+	check.call(b.can_join(u), "the wild bond: your last partner, badly hurt, Bonded, against a Warden at least its level")
+	b.big_fight = false
+	check.call(not b.can_join(u), "the wild bond: never against an ordinary tamer who is no stronger (Evan: a harder foe)")
+	b.big_fight = true
+	foe.lvl = 27
+	check.call(not b.can_join(u), "the wild bond: not even against a Warden whose creatures are below your partner's level")
+	foe.lvl = 30
 	me.bond = R.BOND[R.BOND.size() - 2][1]
 	check.call(not b.can_join(u), "the wild bond: not without complete trust")
 	me.bond = R.BOND[R.BOND.size() - 1][1]
@@ -26,10 +33,12 @@ static func run(main: Node, check: Callable) -> void:
 	check.call(not b.can_join(u), "the wild bond: only once a day")
 	b.bond_ok = true
 	b.kind = "wild"
+	b.big_fight = false
 	check.call(not b.can_join(u), "the wild bond: never against an ordinary wild creature (it can't be farmed)")
 	foe.lvl = 34
 	check.call(b.can_join(u), "the wild bond: against a wild foe clearly stronger, yes")
 	b.kind = "trainer"
+	b.big_fight = true
 	var friend := R.make("ripplet", 30, {}, rng)
 	b.allies.append(b.unit(friend, "a"))
 	check.call(not b.can_join(u), "the wild bond: not while another partner still stands")
@@ -67,8 +76,17 @@ static func run(main: Node, check: Callable) -> void:
 	check.call(main.story_done.has("wildBond") and main.bond_day == main._today(), "the wild bond: the first time is remembered, and it waits for tomorrow")
 	check.call(main.lines.any(func(l): return "the wild bond" in str(l.text)), "the wild bond: only now, afterwards, is it named")
 	main.lines.clear()
+	var keep_badges: Array = main.badges.duplicate()
+	main.badges = ["a", "b", "c", "d"]
 	main._process(0.0)
 	check.call(not b.bond_ok, "the wild bond: the next battle today can't join again")
+	main.bond_day = ""
+	main._process(0.0)
+	check.call(b.bond_ok, "the wild bond: tomorrow, with four badges, it can happen again")
+	main.badges = ["a", "b", "c"]
+	main._process(0.0)
+	check.call(not b.bond_ok, "the wild bond: never before the fourth badge (further into the story)")
+	main.badges = keep_badges
 	main.story_done = keep_story
 	main.bond_day = keep_day
 	main.lines.clear()
