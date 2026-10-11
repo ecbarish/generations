@@ -304,7 +304,9 @@ async function reviewPad(browser, size, legacy) {
       await page.waitForFunction(() => !document.querySelector('#status'), null, { timeout: 90000 });
       await page.waitForTimeout(900);
       await continueJourney(page);
-      const reloaded = await persisted(page, d => d.saved !== selected.saved && d.map === selected.map && d.x === selected.x && d.y === selected.y, 'chosen-move journey is loaded and newly saved after fixture-free reload at ' + tag);
+      // _load_game uses _go; _switch always places barn arrivals at BARN_EXIT
+      // (11,12) + UP, including reloads. Bench coordinates are not retained.
+      const reloaded = await persisted(page, d => d.saved !== selected.saved && d.map === 'barn' && d.x === 11 && d.y === 11, 'chosen-move journey is loaded and newly saved at the authored barn landing after fixture-free reload at ' + tag);
       check(JSON.stringify(reloaded.team[0].moves) === JSON.stringify(selected.team[0].moves), 'chosen moves survive a browser reload at ' + tag);
       check(current.errors.length === 0, 'no script or page errors in the workbench/reload flow at ' + tag);
       await current.context.close();
