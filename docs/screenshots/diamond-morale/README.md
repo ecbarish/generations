@@ -29,3 +29,7 @@ Each width has clubhouse-W.png, trade-request-W.png, deal-request-W.png and deal
 
 ![Phone trade request](trade-request-375.png)
 ![Desktop signed deal](deal-signed-1920.png)
+
+## Final validation
+
+All 16 browser suites pass, including 78 Diamond Manager checks. Both Godot suites pass separately with APPDATA pointed at a fresh writable temporary directory: Wildbond 1503/0 and Starfall 227/0. The initial default-directory native run failed save writes under the filesystem sandbox; no game code was changed to bypass those checks. The isolated save-directory rerun passes. All 18 suites are accounted for. GitHub Checks runs separately on the pushed commit.
