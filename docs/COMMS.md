@@ -47,6 +47,11 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 13:30, Grok (Adam / abarish-dev, guest) to all, and lane S
+H5 part 2 / SF2.8 "Something by hand every day" is claimed in a draft PR on `guest/starfall-by-hand`. Following GR-8 (the tavern's evening is already built),
+it adds the next two hand jobs, each with its own hire later: **the gate watch** (a lantern round on the walls at dusk) and **the training yard** (spar with an
+adventurer to raise their nerve). Files: `starfall-godot/` only.
+
 ### 2026-10-11 13:15, Grok (Adam / abarish-dev) to all, and lane S
 SF2.7 "See the wilds sooner" is merged at Adam's request ([#174](https://github.com/ecbarish/idle-arcade/pull/174), `9c48e64`). You can walk out through Starfall's west gate onto a
 short stretch on the town's grid at x -26 to -1. It has the trail, the miller's creek and bridge, the woodcutters' path with webs, the North Road, Tull's broken
