@@ -153,7 +153,7 @@ function showOffseasonOrNext(){
     return note('<div class="who">The owner\'s office</div><h2>Season '+h.season+' is over</h2><p>The Lanterns finished '+h.w+'-'+h.l+', '+nth(h.place)+' of 6. '+esc(h.championName)+' '+(h.champion?'(that is us!)':'')+' won the final.</p>'+
       '<p>'+(r.raise?'The owner raises the payroll budget by '+money(r.raise)+'.':'The owner keeps the payroll budget where it is. A winning season earns a raise.')+'</p>'+
       (r.grew.length?'<p>Grew over the winter: '+r.grew.map(x=>esc(x.name)+(x.farm?' on the farm':'')+' (+'+x.d+')').join(', ')+'.</p>':'')+(r.left.length?'<p>Too old for the farm club now, so they left: '+r.left.map(esc).join(', ')+'.</p>':'')+(r.slipped.length?'<p>Slipped with age: '+r.slipped.map(x=>esc(x.name)+' ('+x.d+')').join(', ')+'.</p>':'')+
-      (r.expiring.length?'<p><b>'+r.expiring.length+' contract'+(r.expiring.length>1?'s end':' ends')+'.</b> Re-sign or let go in the front office before the new season.</p>':'')+'<p>New free agents are waiting.'+(L.draft&&!L.draft.done?' <b>The draft is on, and we pick '+nth(L.draft.pick+1)+'.</b>':'')+'</p>',
+      (r.expiring.length?'<p><b>'+r.expiring.length+' contract'+(r.expiring.length>1?'s end':' ends')+'.</b> Re-sign or let go in the front office before the new season.</p>':'')+(r.coaching?.length?'<h3>What our coaches added</h3>'+coachingReport(r):'')+'<p>New free agents are waiting.'+(L.draft&&!L.draft.done?' <b>The draft is on, and we pick '+nth(L.draft.pick+1)+'.</b>':'')+'</p>',
       '<button class="primary" id="n-office">Open the front office</button><button id="n-ok">Later</button>'); }
   closeNote(); render();
 }
@@ -172,14 +172,16 @@ function introNote(){
 }
 
 /* ---------- The front office ---------- */
-const TABS=[['roster','Roster and lineup'],['trades','Trades'],['free','Free agents'],['farm','Farm and draft'],['stats','Stats'],['park','Ballpark'],['league','League']];
+const TABS=[['roster','Roster and lineup'],['trades','Trades'],['free','Free agents'],['farm','Farm and draft'],['stats','Stats'],['coaches','Coaches'],['park','Ballpark'],['league','League']];
 function openOffice(t){ if(t)tab=t; $('#office').hidden=false; closeNote(); renderOffice(); $('#close-office').focus(); }
 function closeOffice(){ $('#office').hidden=true; flash=''; finder.want=null; finder.deal=null; finder.offers=null; render(); }
 function renderOffice(){
   $('#tabs').innerHTML=TABS.map(([k,n])=>'<button role="tab" data-tab="'+k+'" aria-selected="'+(k===tab)+'">'+n+'</button>').join('');
   const m=flash?'<div class="msg'+(flash.startsWith('✓')?' ok':'')+'" role="status">'+esc(flash)+'</div>':'';
-  $('#office-body').innerHTML=m+({roster:rosterTab,trades:tradeTab,free:freeTab,farm:farmTab,stats:statsTab,park:parkTab,league:leagueTab}[tab])();
+  $('#office-body').innerHTML=m+({coaches:coachesTab,roster:rosterTab,trades:tradeTab,free:freeTab,farm:farmTab,stats:statsTab,park:parkTab,league:leagueTab}[tab])();
 }
+function coachesTab(){let html='<p>Iona: A good teacher helps players grow into their promise. Coaches work with the roster and farm club. Age and player ceilings still apply.</p><p>Staff salaries come from cash, separate from player payroll. Pay once when signing, for next season only; no automatic renewal.</p>';for(const role of ['hitting','pitching']){const c=L.coaches?.[role];html+='<h3>'+ (role==='hitting'?'Hitting':'Pitching')+' coach</h3>';if(c){html+='<p><b>'+esc(c.name)+'</b> · '+money(c.salary)+' paid for season '+c.season+'. '+coachDescription(c)+'</p>';continue;}const candidates=coachCandidates(L,role);html+=candidates.length?'<div class="coach-grid">'+candidates.map(c=>'<article class="coach-card"><h4>'+esc(c.name)+'</h4><p>'+coachDescription(c)+'</p><p><b>'+money(c.salary)+'</b> for season '+c.season+'</p><button data-coach-role="'+role+'" data-coach="'+c.id+'" '+(L.cash<c.salary?'disabled':'')+'>Hire '+esc(c.name)+'</button></article>').join('')+'</div>':'<p>This job is open. Three candidates will visit during the offseason.</p>';}if(L.report?.coaching?.length)html+='<h3>Last winter’s coaching</h3>'+coachingReport(L.report);return html;}
+function coachingReport(r){const labels={contact:'Contact',power:'Power',eye:'Eye',glove:'Glove',stuff:'Stuff',control:'Control',stamina:'Stamina'};return '<ul>'+r.coaching.map(x=>'<li>'+esc(x.name)+': '+Object.entries(x.gains).filter(([k,n])=>labels[k]&&Number.isInteger(n)&&n>0&&n<=2).map(([k,n])=>labels[k]+' +'+n).join(', ')+' from '+esc(x.coach)+'.</li>').join('')+'</ul>';}
 function ratingCells(p){ return p.pitcher?'<td>'+p.stuff+'</td><td>'+p.control+'</td><td>'+p.stamina+'</td>':'<td>'+p.contact+'</td><td>'+p.power+'</td><td>'+p.eye+'</td><td>'+p.glove+'</td><td class="hide-sm">'+spd(p)+'</td>'; }
 /* The ceiling the scouts see: exact with a good Scouting office, rounded ("about 70") without one. */
 function ceilText(p){ if(p.age>27) return '-'; const v=scoutCeiling(L,p); return (L.upgrades.scouting>=2?'':'about ')+v; }
@@ -333,6 +335,7 @@ document.addEventListener('click',async e=>{
   else if(b.dataset.auto!==undefined){ autoLineup(c); r='✓ Iona set the order: best on-base hitters first, power in the middle.'; }
   else if(b.dataset.resign){ const p=pl(c,Number(b.dataset.resign)); r=resign(L,Number(b.dataset.resign))||'✓ '+p.name+' signed again.'; }
   else if(b.dataset.release){ const p=pl(c,Number(b.dataset.release)); if(!await confirmRelease(p))return; r=release(L,Number(b.dataset.release))||'✓ '+p.name+' has left the club.'; }
+  else if(b.dataset.coach){ r=hireCoach(L,b.dataset.coachRole,b.dataset.coach)||'The coach joins us for next season.'; }
   else if(b.dataset.sign){ const p=L.freeAgents.find(x=>x.id===Number(b.dataset.sign)); r=signFree(L,Number(b.dataset.sign))||'✓ '+p.name+' joins the Lanterns.'; }
   else if(b.dataset.senddown){ const p=pl(c,Number(b.dataset.senddown)); r=sendDown(L,p.id)||'✓ '+p.name+' goes to the farm club to play every day.'; }
   else if(b.dataset.callup){ const p=c.farm.find(x=>x.id===Number(b.dataset.callup)); r=callUp(L,p.id)||'✓ '+p.name+' joins the Lanterns.'; }
@@ -381,4 +384,4 @@ let fieldSize=null;
 function frame(now){ stepWatch(now); fieldSize=drawField($('#field'),L,view?view.scene:null); requestAnimationFrame(frame); }
 render(); requestAnimationFrame(frame);
 if(L.intro) introNote(); else if(L.live) watch(L.live.g,false); else showOffseasonOrNext();
-if(location.hostname==='localhost') window.__dm={get L(){return L;},set L(v){L=v;render();},DM,newLeague,playGame,playDay,playFinalGame,recordGame,standings,overall,askSalary,payroll,batters,pitchers,setLineup,autoLineup,makeSchedule,plateAppearance,gateMoney,endSeason,canStartSeason,startSeason,resign,release,signFree,buyUpgrade,worth,judgeTrade,doTrade,aiOffer,answerOffer,validLeague,loadLeague,migrateLeague,rosterOk,render,potentialFor,defensiveSub,sendRunner,rested,starterOf,dayKey,newGame,stepGame,finishGame,startDay,finishDay,startFinalGame,finishFinalGame,changePitcher,pinchHit,pinchRun,answerAsk,benchOf,bullpenOf,effective,pitchLimit,boxScore,speedFor,findDeal,completeDeal,shopPlayer,tradeRating,clubPlayer,scoutCeiling,makeProspect,develop,playsDaily,startDraft,draftPick,draftPass,draftAuto,callUp,sendDown,releaseFarm,FARM_MAX};
+if(location.hostname==='localhost') window.__dm={get L(){return L;},set L(v){L=v;render();},DM,coachCandidates,hireCoach,coachingGain,validCoachState,newLeague,playGame,playDay,playFinalGame,recordGame,standings,overall,askSalary,payroll,batters,pitchers,setLineup,autoLineup,makeSchedule,plateAppearance,gateMoney,endSeason,canStartSeason,startSeason,resign,release,signFree,buyUpgrade,worth,judgeTrade,doTrade,aiOffer,answerOffer,validLeague,loadLeague,migrateLeague,rosterOk,render,potentialFor,defensiveSub,sendRunner,rested,starterOf,dayKey,newGame,stepGame,finishGame,startDay,finishDay,startFinalGame,finishFinalGame,changePitcher,pinchHit,pinchRun,answerAsk,benchOf,bullpenOf,effective,pitchLimit,boxScore,speedFor,findDeal,completeDeal,shopPlayer,tradeRating,clubPlayer,scoutCeiling,makeProspect,develop,playsDaily,startDraft,draftPick,draftPass,draftAuto,callUp,sendDown,releaseFarm,FARM_MAX};

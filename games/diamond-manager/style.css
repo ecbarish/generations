@@ -41,3 +41,6 @@ dialog{background:#173e41;color:var(--ink);border:2px solid #86a28c;border-radiu
 #note .tbl th{color:var(--muted);border-color:#5d8682}#note .tbl td{border-color:#2f5759}#note .tbl.box td,#note .tbl.box th{padding:3px 6px;text-align:right}#note .tbl.box td:first-child,#note .tbl.box th:first-child{text-align:left}
 .leaders{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 14px}.leaders h4{margin:6px 0 2px}.leaders ol{list-style:none;padding:0;margin:0;font-size:14px}.leaders li.us{font-weight:700}
 #note .tbl.box{width:auto;min-width:60%}
+
+/* DM3: readable coach interviews inside the front-office clipboard. */
+.coach-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.coach-card{border:1px solid #b9a47e;border-radius:8px;padding:12px;background:#fff8e8}.coach-card h4{margin:0 0 8px}.coach-card p{margin:8px 0}.coach-card button{width:100%;min-height:44px}
