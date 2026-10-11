@@ -6,4 +6,4 @@ Arrows or A/D move the peel. Space or W sends the coal. P pauses. On-screen butt
 
 Built like the other cabinets: shared arcade sound, text size and reduced-motion settings, optional scanlines. Art and tune are original code; no third-party assets. Does not read or change other games' saves. Brisket's Crossing is a separate cabinet.
 
-Checks: `node tools/ember-model-checks.cjs` and `node tools/run-all-checks.cjs ember-bricks`.
+Checks: `node tools/ember-model-checks.cjs` and `node tools/run-all-checks.cjs ember-bricks`. Draft [pull request #185](https://github.com/ecbarish/idle-arcade/pull/185). Not merged.
