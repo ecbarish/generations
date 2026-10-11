@@ -189,6 +189,7 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
   the unused Ninja Adventure tiles in `starfall-godot/assets/env/` (house.png, nature.png, floor.png and their .import
   files; nothing loads them) and update CREDITS.md (the pack's music and sounds stay). Done when a day-one screenshot
   shows both roofs and the checks pass.
+- [ ] MAP-AUDIT-150 [any] (claimed: Codex for Adam / abarish-dev, 2026-10-11, guest/map-audit-rendered-150) Complete issue #150 using actual Godot renderer captures at desktop and phone sizes, review all Wildbond maps/interiors and Starfall empty/completed plots, rerun current access fixtures, and record reproduced findings. Review only; no game fixes or preview exports.
 - [ ] MAP-AUDIT [any] (claimed: Adam / abarish-dev, 2026-10-10) Audit current Wildbond/Starfall map and interior reachability, entrance occlusion and scene furnishing; reproduce findings and file fix tickets; no game edits.
 - [x] ART-SF-6 [any] ([PR #148](https://github.com/ecbarish/idle-arcade/pull/148), Adam / abarish-dev, merged 2026-10-11) Loose props: barrel, crate, firewood, lit/unlit lantern, 2×1 cart, bunting and a 48×48 staked plot on props.png; footprint metadata and a contact scene on ART-SF-1 ground; art review before integration.
 - [ ] WB-ROOF-149 [any] (claimed: Adam / abarish-dev, 2026-10-10) Fix #149: tap routes avoid roof collision while preserving doors and NPC avoidance; wildbond-godot/scripts/main.gd and native tests; done when both witnessed taps and existing transition checks pass.
