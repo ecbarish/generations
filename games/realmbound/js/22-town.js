@@ -211,12 +211,20 @@ function townFlat(g, ch, X, Y, s, t, x, y) {
 function buildingAt(x, y) { return townBuildings().find(b => x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h); }
 /* labels don't cast shadows */
 function label(c, text, cxp, y, s) { if (TOWN.pass === 'shadow') return; const sz = Math.max(9, Math.round(s * .28)); c.font = `700 ${sz}px Alegreya Sans, sans-serif`; c.textAlign = 'center'; c.fillStyle = 'rgba(0,0,0,.55)'; c.fillText(text, cxp + 1, y + 1); c.fillStyle = '#ffe9b0'; c.fillText(text, cxp, y); c.textAlign = 'left'; }
-function townStand(c, ch, left, base, s, t, x, y, pass) {
+// A run of hearth tiles is one fireplace, not a row of separate chimneys.
+function realmHearthSpan(rows,x,y){
+ const row=rows[y]||'';let start=x,end=x;
+ while(row[start-1]==='H')start--;
+ while(row[end+1]==='H')end++;
+ return {start,end,width:end-start+1};
+}
+function townStand(c, ch, left, base, s, t, x, y, pass, rows=TOWN.map.rows) {
   TOWN.pass = pass;
   const P = TOWN.pal, u = s / 8, R = (a, b, w, h, col) => { c.fillStyle = col; c.fillRect(Math.floor(left + a * u), Math.floor(base - (b + h) * u), Math.ceil(w * u), Math.ceil(h * u)); };
   const night = realmNight(), camp = townKind() === 'camp' && !TOWN.inside, px = Math.max(2, Math.round(u));
   if (ch === 'T') { const sw = reduce ? 0 : Math.sin(t * 1.3 + x) * .3; R(3, 0, 2, 4.5, '#5a3c22'); R(-.3, 4, 8.6, 5.4, P.treeDk); R(.2, 4.4, 7.6, 4.8, P.tree); R(.8 + sw, 8.8, 6.4, 3.2, P.treeDk); R(1.2 + sw, 9.1, 5.6, 2.7, P.tree); R(2 + sw * 1.5, 11.6, 4, 2, P.treeDk); R(2.4 + sw * 1.5, 11.8, 3.2, 1.6, P.tree); return; }
-  if (TOWN.inside && ch === '#') { // the hall's walls: panelled wood, banners on the back wall, candles
+  if (TOWN.inside && ch === '#') {
+    if(x===0||x===TOWN.map.rows[0].length-1){drawRoomSideWall(c,x,y,{rows:TOWN.map.rows,pos:{x:TOWN_WALK.fx,y:TOWN_WALK.fy},horizon:.12});return;} // the hall's walls: panelled wood, banners on the back wall, candles
     R(0, 0, 8, 14, P.woodDk); R(0, 0, 8, 1.2, '#3a2414'); R(0, 6, 8, .6, '#3a2414');
     if (inGuildHall() && y === 0 && x % 3 === 1) { R(2.4, 6.6, 3.2, 6, '#2a4a8a'); R(2.4, 6.4, 3.2, .5, '#f2c14e'); R(3.6, 8.5, .8, 2, '#f2c14e'); }
     if (y === 0 && x % 3 === 2) { R(3.6, 7, .8, 1.6, '#efe6cc'); R(3.7, 8.6, .6, .8, '#ffd36a'); }
@@ -229,8 +237,17 @@ function townStand(c, ch, left, base, s, t, x, y, pass) {
   if(ch==='E'){R(.4,0,7.2,2,P.woodDk);R(.8,2,6.4,1,'#ede4cb');R(1,3,6,1.4,'#537d86');R(1,3.4,6,1,'#759b9c');return;}
   if(ch==='A'){R(2,0,4,2,'#333943');R(3,2,2,3,'#555e69');R(.5,5,7,1.4,'#9ba7b3');return;}
   if(ch==='Q'){R(1,0,.8,7,P.woodDk);R(6,0,.8,7,P.woodDk);R(1,6,6,1,P.wood);R(3,2,.5,5,'#b7bec8');R(2,3,3,.5,'#b7bec8');return;}
-  if (ch === 'H') { R(0, 0, 8, 12, '#6a6a70'); R(.6, 0, 6.8, 11, '#8a8a90'); R(1.6, 0, 4.8, 5, '#1a1410');
-    if (x % 2 === 0) TOWN.hearth = AMB.fire(c, left + s, base - u * .5, px, t, { id: 'hearth', size: 1.4, smoke: false }); return; }
+  if(ch==='H'){
+    const hearth=realmHearthSpan(rows,x,y);if(x!==hearth.end)return;
+    const origin=(hearth.start-x)*8,width=hearth.width*8;
+    R(origin,0,width,18,'#626269');R(origin+.6,0,width-1.2,17,'#88878b');
+    R(origin+2,0,width-4,12,'#1a1410');
+    R(origin-.4,12,width+.8,1.4,'#a49d94');R(origin,13.4,width,.6,'#504c4c');
+    R(origin-.5,0,width+1,1,'#aaa295');
+    c.save();c.beginPath();c.rect(left+(origin+2)*u,base-12*u,(width-4)*u,11*u);c.clip();
+    TOWN.hearth=AMB.fire(c,left+(origin+width/2)*u,base-u*1.5,Math.max(1,Math.round(u*.65)),t,{id:'hearth',size:1.4,smoke:false,embers:false});
+    c.restore();return;
+  }
   if (ch === 'B') { R(-.2, 2.2, 8.4, 1.4, P.wood); R(-.2, 3.6, 8.4, .4, '#c8985a'); R(.6, 0, .8, 2.2, P.woodDk); R(6.6, 0, .8, 2.2, P.woodDk);
     if (x % 3 === 0) { R(2.4, 3.6, 1.4, 1.2, '#d8d8d8'); R(5, 3.6, 1.2, 1.6, '#a0703a'); } return; }
   if (ch === 'C') { R(.8, 0, 6.4, 4, '#6a4426'); R(.8, 4, 6.4, 1.6, '#8a5a30'); R(.8, 2.6, 6.4, .5, '#f2c14e'); R(3.6, 2, .8, 1.6, '#f2c14e'); label(c, 'Chest', left + s / 2, base - 7 * u, s); return; }
@@ -274,20 +291,20 @@ function drawTown(t) {
   if (!TOWN.on) { TOWN.on = true; townEnter(); }
   TOWN_WALK.tick(dt); townAutoTick(); TOWN.pal = townPal(); TOWN.hearth = TOWN.firepit = null;
   const z = ZONES[h.zone], night = realmNight(), wk = zoneWeather(h.zone), W = AMB_WEATHER[wk] || {}, p = TOWN_WALK, people = townPeople(), inside = TOWN.inside;
-  const things = people.map(n => ({ x: n.at[0], y: n.at[1], draw(c, left, base, s) { const pp = s / 11; drawPerson(left + s * .14, base - 13 * pp, pp, { race: n.look.race, cls: n.look.cls, hair: n.look.hair }, t + n.at[0], c); } }));
+  const things = people.map(n => ({ x: n.at[0], y: n.at[1], draw(c, left, base, s) { const pp = s / 11; drawPerson(left + s * .14, base - 13 * pp, pp, { race: n.look.race, cls: n.look.cls, hair: n.look.hair, dir: n.dir || 'down' }, t + n.at[0], c); } }));
   for (const n of people) if (n.mule) things.push({ x: n.mule[0], y: n.mule[1], draw(c, left, base, s) { const pp = s / 16; drawBeast(c, left + s * .3, base - 14 * pp, pp, '#7a5a3a', 'horse', true, t * .5); } });
   if(inside==='stable'){const mount=activeMount();things.push({x:3,y:3,draw(c,left,base,s){drawBeast(c,left+s*.15,base-s,s/16,mount?mount.col:'#937455',mount?mount.kind:'horse',true,t);}});}
-  things.push({ x: p.fx, y: p.fy, draw(c, left, base, s) { const pp = s / 11; drawHero(left + s * .14, base - 13 * pp, pp, t, c); } });
+  things.push({ x: p.fx, y: p.fy, draw(c, left, base, s) { const pp = s / 11; drawHero(left + s * .14, base - 13 * pp, pp, t, c, {dir:TOWN.pos.dir,moving:!p.arrived()}); } });
   const view = { rows: TOWN.map.rows, px: p.fx, py: p.fy, flat: townFlat, under: inside ? '_' : ',', stand: townStand, things,
     stands: { T: 1, '#': 1, D: 1, L: 1, P: 1, O: 1, '=': 1, F: 1, Y: 1, H: 1, B: 1, C: 1, J: 1, K: 1, E: 1, A: 1, Q: 1, U: 1, V: 1 }, noShadow: { '#': 1, D: 1, H: 1 } };
-  if (inside) Object.assign(view, { sky: ['#1a1008', '#2a1a10'], hill: '#2a1a10', edgeFill: '#1a1008', haze: '#2a1a10', dof: false, horizon: .12, zoom: 5.2,
+  if (inside) Object.assign(view, { sky: ['#1a1008', '#2a1a10'], hill: '#2a1a10', edgeFill: '#1a1008', haze: '#2a1a10', dof: false, horizon: .12, zoom: REALM_ROOM_ZOOM,
     skyDraw: (g, w, hh) => { g.fillStyle = '#20140c'; g.fillRect(0, 0, w, hh); g.fillStyle = '#2a1a10'; for (let x = 0; x < w; x += 24) g.fillRect(x, 0, 4, hh); } });
   else { const sky = [Ambience.mix(z.sky[0], '#070b22', night * .85), Ambience.mix(z.sky[1], '#2e3868', night * .8)];
     Object.assign(view, { sky, hill: TOWN.pal.treeDk, edgeFill: TOWN.pal.treeDk, haze: sky[1],
       skyDraw: (g, w, hh, tt) => AMB.sky(g, w, hh, tt, { top: z.sky[0], bottom: z.sky[1], h: hh, night, clouds: { n: 4, speed: 6 }, storm: W.storm ? 1 : W.rain ? .45 : 0, px: 2 }) }); }
   const sun = inside ? Object.assign(LT.time(.75), { elev: 0 }) : realmSun(), camp = townKind() === 'camp' && !inside, lamps = [];
-  TOWN.map.rows.forEach((r, y) => [...r].forEach((ch, x) => { if (ch === 'L') lamps.push({ x: x + .5, y: y + .9, h: 1.3, reach: 4 }); else if (ch === 'F') lamps.push({ x: x + .5, y: y + .9, h: .4, reach: 6.5 }); else if (ch === 'H' && x % 2 === 0) lamps.push({ x, y: y + 1.2, h: .5, reach: 8 }); }));
-  Object.assign(view, { lt: LT, sun, lamps, noCast: { H: 1, F: 1, L: camp ? 1 : 0 } }); // shadows from the sun, moon, lamps and fires (23-light.js)
+  TOWN.map.rows.forEach((r, y) => [...r].forEach((ch, x) => { if (ch === 'L') lamps.push({ x: x + .5, y: y + .9, h: 1.3, reach: 4 }); else if (ch === 'F') lamps.push({ x: x + .5, y: y + .9, h: .4, reach: 6.5 }); else if(ch==='H'){const hearth=realmHearthSpan(TOWN.map.rows,x,y);if(x===hearth.end)lamps.push({x:hearth.start+hearth.width/2,y:y+.9,h:.55,reach:5});} }));
+  Object.assign(view, { lt: REALM_WALK_LIGHT, sun, lamps, noCast: { H: 1, F: 1, L: camp ? 1 : 0 } }); // shadows from the sun, moon, lamps and fires (23-light.js)
   TOWN.cam = TOWN_HD.draw(cx, PW, PH, t, view);
   // light: lamps, torches, windows, doors, the firepit and hearth, you; weather outdoors only
   const lights = [], at = (x, y) => TOWN.cam.fwd(x, y);

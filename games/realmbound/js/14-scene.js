@@ -4,7 +4,7 @@ const cv=$('#scene'),cx=cv.getContext('2d');let PW=0,PH=0;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function resize(){const r=cv.getBoundingClientRect();const d=Math.min(2,devicePixelRatio||1);PW=r.width;PH=r.height;cv.width=Math.round(PW*d);cv.height=Math.round(PH*d);cx.setTransform(d,0,0,d,0,0);cx.imageSmoothingEnabled=false;}
 if(window.ResizeObserver)new ResizeObserver(resize).observe(cv);else addEventListener('resize',resize);
-function drawHero(x,y,p,t,g){g=g||cx; // g: the canvas to draw on (the light engine redraws sprites as shadows)
+function drawHero(x,y,p,t,g,pose){g=g||cx;if(pose){const h=H();return drawFacingPerson(x,y,p,{race:h.race,cls:h.cls,hair:RACES[h.race].hair,...pose},t,g);} // g: the canvas to draw on (the light engine redraws sprites as shadows)
 const h=H(),r=RACES[h.race],K=CLASSES[h.cls];const q=(gx,gy,w,hh,c)=>{g.fillStyle=c;g.fillRect(Math.round(x+gx*p),Math.round(y+gy*p),Math.ceil(w*p),Math.ceil(hh*p));};
   const sit=C.phase==='rest'||(C.phase==='intown'&&!TOWN.on);const dy=sit?3:0; // in a walkable town (22-town.js) you stand and walk
   if(C.phase==='dead')g.globalAlpha=.4;
@@ -24,13 +24,48 @@ function drawMob(m,x,y,p,t,g){g=g||cx;const sc=m.elite?1.45:1;p*=sc;const q=(gx,
   else{q(0,0,5,4,c);q(1,2,1,1,'#ff4a3a');q(3,2,1,1,'#ff4a3a');q(-1,4,7,6,c);q(-2,4,1,4,c);q(6,4,1,4,c);q(0,10,2,3+b,c);q(3,10,2,3-b,c);q(-3,1,1,8,'#7a5a3a');}
   if(m.elite){g.strokeStyle='#f2c14e';g.lineWidth=2;g.strokeRect(x-6*p,y-2*p,18*p,17*p);}}
 /* Companions and other adventurers */
-function drawPerson(x,y,p,o,t,g){g=g||cx;const r=RACES[o.race],K=CLASSES[o.cls];const q=(gx,gy,w,hh,c)=>{g.fillStyle=c;g.fillRect(Math.round(x+gx*p),Math.round(y+gy*p),Math.ceil(w*p),Math.ceil(hh*p));};
+function drawPerson(x,y,p,o,t,g){g=g||cx;if(o.dir)return drawFacingPerson(x,y,p,o,t,g);const r=RACES[o.race],K=CLASSES[o.cls];const q=(gx,gy,w,hh,c)=>{g.fillStyle=c;g.fillRect(Math.round(x+gx*p),Math.round(y+gy*p),Math.ceil(w*p),Math.ceil(hh*p));};
   if(o.dead)g.globalAlpha=.3;const b=!reduce&&!o.dead&&Math.sin(t*6)>0?1:0;
   q(2,10,1,3,'#2b2b3a');q(5,10,1,3,'#2b2b3a');q(1,5-b*.2,6,5,K.col);q(1,9,6,1,'#3a2a1a');q(0,6,1,3,K.col);q(7,6,1,3,K.col);
   q(1,1,6,4,r.skin);q(2,3,1,1,'#111');q(5,3,1,1,'#111');q(1,0,6,1,o.hair);q(0,1,1,2,o.hair);q(7,1,1,2,o.hair);if(r.tusks){q(2,4,1,1,'#fff');q(5,4,1,1,'#fff');}if(r.ears){q(-1,2,1,1,r.skin);q(8,2,1,1,r.skin);}
   if(o.cls==='warrior'){q(-1,5,2,4,'#9aa5b5');q(8,2,1,6,'#dfe6ee');}else if(o.cls==='rogue')q(8,6,2,1,'#dfe6ee');else if(o.cls==='hunter'){q(9,2,1,6,'#8a5a2b');q(8,2,1,6,'#e8e4d4');}
   else{q(8,-1,1,11,'#8a5a2b');q(7,-2,3,2,o.cls==='mage'?'#69ccf0':'#f2c14e');}
   g.globalAlpha=1;}
+/* Four views for walkers; combat keeps its existing presentation. No pose is saved. */
+function drawFacingPerson(x,y,p,o,t,g){
+ g=g||cx;const r=RACES[o.race],K=CLASSES[o.cls],dir=o.dir||'down',side=dir==='left'||dir==='right',back=dir==='up',hair=o.hair||r.hair;
+ const stride=!reduce&&o.moving&&!o.dead?(Math.sin(t*9)>0?1:-1):0;
+ const q=(a,b,w,h,col)=>{g.fillStyle=col;const xx=dir==='left'?8-a-w:a;g.fillRect(Math.round(x+xx*p),Math.round(y+b*p),Math.ceil(w*p),Math.ceil(h*p));};
+ g.save();if(o.dead)g.globalAlpha*=.3;
+ for(const [a,phase]of side?[[3,1],[5,-1]]:[[2,1],[5,-1]]){const lift=stride===phase?1:0;q(a,10,1,3-lift,'#353540');q(a-.2,12-lift,1.5,1,'#49382b');}
+ q(side?2:1,5,side?4:6,5,K.col);q(side?2:1,9,side?4:6,1,'#49382b');q(side?2:1,5,1,4,'rgba(0,0,0,.22)');
+ if(side){q(3,6+stride*.4,1,3,K.col);q(3,8+stride*.4,1,1,r.skin);}
+ else{q(0,6+stride*.4,1,3,K.col);q(7,6-stride*.4,1,3,K.col);q(0,8+stride*.4,1,1,r.skin);q(7,8-stride*.4,1,1,r.skin);}
+ if(back){q(1,0,6,4,hair);q(0,1,1,3,hair);q(7,1,1,3,hair);q(2,4,4,1,r.skin);q(2,5,4,1,'rgba(0,0,0,.2)');}
+ else if(side){q(3,1,3,4,r.skin);q(6,2,1,2,r.skin);q(5,2,1,1,'#111');q(2,0,4,1,hair);q(2,1,2,3,hair);q(3,2,1,1,r.skin);if(r.beard)q(4,4,3,1,hair);if(r.tusks)q(6,4,1,1,'#fff');}
+ else{q(1,1,6,4,r.skin);q(2,3,1,1,'#111');q(5,3,1,1,'#111');q(1,0,6,1,hair);q(0,1,1,2,hair);q(7,1,1,2,hair);if(r.beard)q(1,4,6,1,hair);if(r.tusks){q(2,4,1,1,'#fff');q(5,4,1,1,'#fff');}}
+ if(r.ears){if(side)q(2,2,1,1,r.skin);else{q(-1,2,1,1,r.skin);q(8,2,1,1,r.skin);}}
+ if(back)q(2,6,4,.5,'rgba(255,255,255,.18)');
+ if(o.cls==='warrior'){q(side?1:-1,5,2,4,'#8895a8');q(side?6:8,2,1,6,'#dfe6ee');q(side?5:7,7,3,.6,'#8a5a2b');}
+ else if(o.cls==='rogue')q(side?6:8,7,2,.7,'#dfe6ee');
+ else if(o.cls==='hunter'){q(side?6:9,2,1,6,'#8a5a2b');q(side?5:8,2,.5,6,'#e8e4d4');}
+ else{q(side?6:8,-1,1,11,'#8a5a2b');q(side?5:7,-2,3,2,o.cls==='mage'?'#69ccf0':'#f2c14e');}
+ g.restore();
+}
+const REALM_ROOM_ZOOM=6.2;
+/* Side walls are planes joined at shared corners, not front-facing tile billboards. */
+function realmSideWallPoints(x,y,room,height){
+ const yh=PH*room.horizon,F=PH/REALM_ROOM_ZOOM*4.2,K=(PH*.8-yh)*4.2,wx=x===0?1:room.rows[0].length-1;
+ const at=(wy,h)=>{const d=4.2+room.pos.y+.5-wy;if(d<.45)return null;const s=F/d;return [PW/2+(wx-room.pos.x-.5)*s,yh+K/d-h*s];};
+ const points=[at(y,height),at(y+1,height),at(y+1,0),at(y,0)];return points.every(Boolean)?points:null;
+}
+function drawRoomSideWall(g,x,y,room){
+ const points=realmSideWallPoints(x,y,room,1.75);if(!points)return;
+ const face=(ps,col)=>{g.fillStyle=col;g.beginPath();ps.forEach((p,i)=>i?g.lineTo(...p):g.moveTo(...p));g.closePath();g.fill();};
+ g.save();face(points,TOWN.pal.woodDk);
+ for(const h of [.12,.8,1.65]){const band=realmSideWallPoints(x,y,room,h),top=realmSideWallPoints(x,y,room,h+.06);if(band&&top)face([top[0],top[1],band[1],band[0]],'#3a2414');}
+ g.restore();
+}
 /* One beast drawer for wild beasts, pets and portraits. Faces left unless right=true. */
 function drawBeast(c,x,y,p,col,fam,right,t){
   c.save();c.translate(x,y);if(right){c.translate(6*p,0);c.scale(-1,1);}

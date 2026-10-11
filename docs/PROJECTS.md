@@ -75,6 +75,12 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 |---|---|---|---|---|
 | RB1.7 | Inn furnishing and clear routes | S | ready: Codex, PR #153, 2026-10-10 | Browser inn only; existing rest service and saves retained |
 
+## Realmbound facing and shadows
+
+| ID | Project | Status |
+|---|---|---|
+| RB1.8 | Directional people and visible silhouette shadows | ready: Codex, PR #155, 2026-10-10 |
+
 ## How to use this list
 
 - **Pick** any project whose status is `open` and whose dependencies are done, in the focus order of

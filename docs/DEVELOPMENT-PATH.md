@@ -211,6 +211,7 @@ creatures as monsters. Built as first-person grid delves (docs/proposals/new-gam
   (games/realmbound/js/13-world-ui.js:95); fix the stray blocks in the sky. Do first.
 
 - [ ] RB1.7 [ChatGPT] Realmbound inn furnishing pass (built: Codex, 2026-10-10, PR #153; awaiting review). Files: games/realmbound/js/22-hub-layouts.js, 22-town.js, tests/realmbound-inn-layout.js and run.html, screenshots and task notes. Done when sleeping, dining and hearth spaces are distinct; the entrance, Keeper and exit work by tap and keyboard; existing services and saves stay intact. Score: 17/21 (Fun now 2x2, Evan's heart 3x2, Friends notice 2, Moves the focus 2, Cheap 3).
+- [ ] RB1.8 [ChatGPT] Facing people and object-shaped shadows (built: Codex, 2026-10-10, PR #155; awaiting review). Evan's request: four-direction walking sprites and quieter foot contact shadows so existing silhouette casts read clearly, including Low quality. Files: browser Realmbound scene/town/road/light code, focused rendering checks and their run.html hookup, screenshots and notes; no shared engine or Godot edits, saves or versions. Done when walking away hides the face, NPC facing is respected, sun/lamp casts retain object shapes, side walls join as planes, a substantial flame fits a generous hearth opening, room framing is a little steeper, and all suites pass. Score 19/21 (Fun 3x2, Evan's heart 3x2, Friends notice 3, Focus 2, Cheap 2).
 
 **RB-M2: what the raid set up.**
 - [ ] RB2.1 [ChatGPT] Battlegrounds plan in docs/proposals/ (R3; new system: Evan
@@ -343,6 +344,7 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - **2026-10-10, AC3:** a log has to carry the mule before the lane moves, or the log slides out from under them the same tick. A full set of lanterns rebuilds faster lanes. Open water and a cart each cost a life.
 - **2026-10-10, ART-SF-6:** a lantern's lit state may change only the glass pixels; bunting and an empty plot are placement envelopes, not solid blocks.
 
+- **2026-10-10, RB1.8 (Codex, PR #155):** walkers already had directions, but drawing ignored them. Low graphics replaced silhouette casts with ellipses; Realmbound now uses unblurred casts and smaller contacts. Side walls need connected projected corners rather than upright tile rectangles; size the hearth around a substantial flame instead of shrinking the flame to conceal a proportion problem.
 - **2026-10-10, ART-SF-5:** a yard's footprint is a placement envelope, not a solid block; record individual props/fence segments and keep the entry clear.
 
 - **2026-10-10, ART-SF-4:** model window states as glass-only changes; alpha and footprint invariants keep lighting swaps from changing placement or collision.
