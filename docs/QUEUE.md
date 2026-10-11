@@ -89,8 +89,10 @@ with the ID).
 | ART-SF-5 | **Smithy, apothecary, healer, tavern** (sizes in starfall.md), plus well, job board, training yard | as above | one PNG per building, `well.png`, `board.png`, `yard.png` | Each building recognisable by its silhouette alone (fill them in ink and check); footprints marked |
 | ART-SF-6 | **Props**: barrels, crates, firewood, lantern post lit and unlit, cart, bunting, an empty plot's stakes and string | as above | `props.png` | Props scattered on the test patch from ART-SF-1 |
 
-Order: 1 to 3 first (they change the whole screen), then 4 to 6. One task per PR. Other games get their sheet first,
-then tasks here.
+**Done:** ART-SF-1 to 7 were built by Adam's AIs (PRs #134-#162) and wired in by SF2.6 (#157); the Art direction
+thread reviewed them on 2026-10-11 (passed). **Open:** ART-SF-8 (dress the square and roads) and SF2.6c (open on the
+town's best side, drop unused pack tiles); specs in DEVELOPMENT-PATH.md under SF-M2. One task per PR. Other games get
+their sheet first, then tasks here.
 
 ## The road ahead (ready to claim by any AI; Evan, 2026-10-09)
 

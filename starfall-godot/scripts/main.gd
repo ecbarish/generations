@@ -1880,17 +1880,17 @@ func _draw_built(_k: String, what: String, o: Vector2) -> void:
 				draw_rect(Rect2(at + Vector2(36, 26), Vector2(5, 4)), Color("f2d080"))   # a lamp lit for someone resting
 
 func _counter_draw() -> void:
-	# a plank counter under a striped awning, a pot of stew steaming on it
+	# a plank counter under a striped awning, a pot of stew steaming on it (Starfall palette, docs/art/starfall.md)
 	var o := Vector2(COUNTER) * TILE
 	draw_rect(Rect2(o + Vector2(-1, -9), Vector2(18, 4)), Figures.OUTLINE)
 	for k in 4:
-		draw_rect(Rect2(o + Vector2(k * 4, -8), Vector2(4, 2)), Color("c84a3a") if k % 2 == 0 else Color("f2e6c8"))
-	draw_rect(Rect2(o + Vector2(0, -6), Vector2(1, 10)), Color("6b4a2a"))
-	draw_rect(Rect2(o + Vector2(15, -6), Vector2(1, 10)), Color("6b4a2a"))
+		draw_rect(Rect2(o + Vector2(k * 4, -8), Vector2(4, 2)), Color("8c2f2f") if k % 2 == 0 else Color("a07a50"))
+	draw_rect(Rect2(o + Vector2(0, -6), Vector2(1, 10)), Color("6a4a32"))
+	draw_rect(Rect2(o + Vector2(15, -6), Vector2(1, 10)), Color("6a4a32"))
 	draw_rect(Rect2(o + Vector2(-1, 3), Vector2(18, 10)), Figures.OUTLINE)
-	draw_rect(Rect2(o + Vector2(0, 4), Vector2(16, 8)), Color("a0703a"))
-	draw_rect(Rect2(o + Vector2(0, 4), Vector2(16, 2)), Color("c8925a"))
-	draw_rect(Rect2(o + Vector2(5, 0), Vector2(6, 4)), Color("3a3a40"))                # the pot
+	draw_rect(Rect2(o + Vector2(0, 4), Vector2(16, 8)), Color("8c6644"))
+	draw_rect(Rect2(o + Vector2(0, 4), Vector2(16, 2)), Color("a07a50"))
+	draw_rect(Rect2(o + Vector2(5, 0), Vector2(6, 4)), Color("4e535a"))                # the pot
 	draw_rect(Rect2(o + Vector2(6, 0), Vector2(4, 1)), Color("d8a050"))
 	for k in 2:
 		var ph := fmod(t * 0.5 + k * 0.5, 1.0)

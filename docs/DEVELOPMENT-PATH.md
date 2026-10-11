@@ -171,17 +171,23 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
 - [x] ART-SF-7 [any] (Grok for Adam / abarish-dev, [PR #162](https://github.com/ecbarish/idle-arcade/pull/162) merged 2026-10-10; score 13/21: fun 1, Evan 2, friends 2, focus 2, cheap 3) SF2.6 follow-ups: a side-on west-wall gate picture in ART-SF-2's style, wired in place of the gap; smithy and tavern pictures redrawn 2 tiles wide to fit their plots, footprints matching (4-wide originals kept). Files: tools/art/, starfall-godot/assets/env/frontier/, starfall-godot/scripts/main.gd, tests. Done when: art --check passes; gate and fitted buildings in game; every door/plot reachable; screenshots.
 - [x] SF2.6 [Claude] Its own place (GR-5): a frontier stockade look and road layout instead of Larkhaven's; a map
   that scrolls. (Grok for Adam / abarish-dev, H4; [PR #157](https://github.com/ecbarish/idle-arcade/pull/157) merged 2026-10-10; follow-ups all done 2026-10-10: west gate and fitted smithy/tavern in ART-SF-7 #162, evening tint and yard footprint #165, play/starfall rebuilt #166) Before SF3.1. *The look is set (2026-10-09): docs/art/starfall.md (palette, sizes, footprints, mock-up); the
+- [x] Art review of ART-SF-1 to 7 and SF2.6 (Art direction thread, 2026-10-11): passed. In the game Starfall now reads as a
+  log-walled frontier town and can't be mistaken for Larkhaven (the GR-5 check); the pieces keep the palette, the shake
+  roofs, the sizes and distinct silhouettes. Fixed in review: the food counter's awning and wood moved onto Starfall's
+  palette. Follow-ups: ART-SF-8 and SF2.6c below.
+- [ ] ART-SF-8 [any] Dress the square and roads: the square is one plain packed-earth rectangle. Add worn ruts and
+  puddles, grass tufts along the edges, a bench and a hitching post, and place ART-SF-6's barrels, crates and firewood
+  by the buildings that would use them (inn, tavern, smithy). Pictures in `starfall-godot/assets/env/frontier/`,
+  placement in main.gd. Done when the opening screenshot reads lived-in, every building is still reachable, and the
+  Starfall checks pass.
+- [ ] SF2.6c [any] Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
+  and banner, the most recognisable parts. Start the player (or the camera) so both buildings show whole. Also delete
+  the unused Ninja Adventure tiles in `starfall-godot/assets/env/` (house.png, nature.png, floor.png and their .import
+  files; nothing loads them) and update CREDITS.md (the pack's music and sounds stay). Done when a day-one screenshot
+  shows both roofs and the checks pass.
 - [ ] MAP-AUDIT [any] (claimed: Adam / abarish-dev, 2026-10-10) Audit current Wildbond/Starfall map and interior reachability, entrance occlusion and scene furnishing; reproduce findings and file fix tickets; no game edits.
-- [ ] ART-SF-1 [any] (art review: [PR #134](https://github.com/ecbarish/idle-arcade/pull/134), Adam / abarish-dev, 2026-10-10) Starfall frontier ground: 16 px moss variants, joining mud roads, packed-earth square and stone footing; palette-only atlas plus scale/contact patch; art review before SF2.6 integration.
-- [ ] ART-SF-2 [any] (art review: [PR #135](https://github.com/ecbarish/idle-arcade/pull/135), Adam / abarish-dev, 2026-10-10) Frontier palisade, open/shut gate and lit/unlit watchtower; approved palette, footprint metadata and scale contact sheet; art review before SF2.6 integration.
-- [ ] ART-SF-3 [any] (art review: [PR #136](https://github.com/ecbarish/idle-arcade/pull/136), Adam / abarish-dev, 2026-10-10) Pine edge: three pine sizes, stumps, ferns and rocks; palette-only pines.png and sideways-tiling forest_edge.png, footprint metadata and contact scene behind ART-SF-2 palisade; art review before integration.
-- [ ] ART-SF-4 [any] (art review: [PR #139](https://github.com/ecbarish/idle-arcade/pull/139), Adam / abarish-dev, 2026-10-10) Guild Hall 96×80 and Inn 64×80: original log walls and shake roofs, banner/sign, lit and unlit windows, footprint metadata and contact scene; art review before SF2.6 integration.
-- [ ] ART-SF-5 [any] (art review: [PR #144](https://github.com/ecbarish/idle-arcade/pull/144), Adam / abarish-dev, 2026-10-10) Smithy, apothecary, healer and tavern, plus well, job board and training yard; original palette art, silhouette/contact review and footprint metadata; no integration.
-- [ ] ART-SF-6 [any] (art review: [PR #148](https://github.com/ecbarish/idle-arcade/pull/148), Adam / abarish-dev, 2026-10-10) Loose props: barrel, crate, firewood, lit/unlit lantern, 2×1 cart, bunting and a 48×48 staked plot on props.png; footprint metadata and a contact scene on ART-SF-1 ground; art review before integration.
+- [x] ART-SF-6 [any] ([PR #148](https://github.com/ecbarish/idle-arcade/pull/148), Adam / abarish-dev, merged 2026-10-11) Loose props: barrel, crate, firewood, lit/unlit lantern, 2×1 cart, bunting and a 48×48 staked plot on props.png; footprint metadata and a contact scene on ART-SF-1 ground; art review before integration.
 - [ ] WB-ROOF-149 [any] (claimed: Adam / abarish-dev, 2026-10-10) Fix #149: tap routes avoid roof collision while preserving doors and NPC avoidance; wildbond-godot/scripts/main.gd and native tests; done when both witnessed taps and existing transition checks pass.
-- [ ] SF2.6 [Claude] Its own place (GR-5): a frontier stockade look and road layout instead of Larkhaven's; a map
-  that scrolls. Before SF3.1. *The look is set (2026-10-09): docs/art/starfall.md (palette, sizes, footprints, mock-up); the
-  pictures are tasks ART-SF-1 to 6 in QUEUE.md for any AI; wiring them in and the scrolling map stay here.*
 - [ ] SF2.7 [Claude] See the wilds sooner (GR-7): a small walkable stretch past the gate (an early piece of SF4.1).
 - [ ] SF2.8 [Claude] Something by hand every day (GR-8): the next jobs to master, then hire.
 - [x] SF2.5 [Claude] Hire the apothecary's apprentice once you've brewed enough (the same "master it, then hire" rule). *Done 2026-10-09: after four batches by hand Fen walks in; six coins a day; brews whenever there are herbs and room on the shelf; leaves the pot to you if unpaid.*
@@ -358,6 +364,11 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - **2026-10-09, WD2 data (Codex, PR #113):** the roster has 104 base species and three hybrids added by the ranch module. Validate the full exporter, not just 00-data.js; all 107 preserve their original gameplay fields. Drawing hints stay out of creature saves; the appearance contract is in docs/lore/wildbond-looks.md.
 Standing rule (Evan, 2026-10-09): each piece of work records here what it taught us and what was done about it, in a
 line or two, with the page that holds the detail.
+- **2026-10-11, Starfall art review (Claude, Art direction thread):** seven drawing tasks written as specs (size, footprint,
+  palette, contact sheet) were all built by Evan's dad's AIs within a day and fit together without redrawing: a tight
+  spec is what lets other assistants make art that matches. What slipped was the space between the pieces (a bare
+  square, the opening view) and one older code-drawn piece off the palette; next time a set of tasks includes one for
+  dressing the scene and one for the first screen. Tasks ART-SF-8, SF2.6c.
 - **2026-10-09, Art direction (Claude, Art direction thread, formerly Game assets):** borrowed art made Starfall and
   Wildbond look like one game, and free packs can't carry a future 3D or first-person game. Actioned: one arcade-wide
   art guide (docs/art/README.md: ten shared rules, a palette per game, footprints and heights in data, a drawing-task
