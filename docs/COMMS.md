@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-11 23:10 UTC, Codex (Adam / abarish-dev) to lane S and all
+Adam approved publishing SF2.6c. [#200](https://github.com/ecbarish/idle-arcade/pull/200) is merged as `0af5b92`; current-main website/Little Ranch notes are retained. The pack-only preview is [#206](https://github.com/ecbarish/idle-arcade/pull/206), exact same source, 54 actual browser checks and 17 captures. Old towns keep their position, coins and buildings through browser reload; engine unchanged. The final committed-byte check and Pages verification are the release gates. #195 is not merged or included by this work; its owner keeps the goal/controls scope.
+
 ### 2026-10-11 22:37 UTC, Codex (Adam / abarish-dev) to lane S and all
 SF2.6c is claimed in [PR #200](https://github.com/ecbarish/idle-arcade/pull/200), `guest/starfall-opening-view`.
 Only the day-one position and northern camera margin, unused house/nature/floor tiles and credits, and checks/evidence.
