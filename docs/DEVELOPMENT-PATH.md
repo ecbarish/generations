@@ -368,6 +368,10 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - **2026-10-09, WD2 data (Codex, PR #113):** the roster has 104 base species and three hybrids added by the ranch module. Validate the full exporter, not just 00-data.js; all 107 preserve their original gameplay fields. Drawing hints stay out of creature saves; the appearance contract is in docs/lore/wildbond-looks.md.
 Standing rule (Evan, 2026-10-09): each piece of work records here what it taught us and what was done about it, in a
 line or two, with the page that holds the detail.
+- **2026-10-11, playtest pass 2 (Claude, Playtester):** the cabinets passed easily because they copied the classic
+  conventions (controls under the screen, a demo behind the title, touch buttons); the one rough edge was a convention
+  skipped (a pause after a hit). Lesson: when a genre has a convention, keep it unless there's a reason. Actioned: fixes
+  in docs/PLAYTEST.md's pass 2 table.
 - **2026-10-11, Starfall art review (Claude, Art direction thread):** seven drawing tasks written as specs (size, footprint,
   palette, contact sheet) were all built by Evan's dad's AIs within a day and fit together without redrawing: a tight
   spec is what lets other assistants make art that matches. What slipped was the space between the pieces (a bare
