@@ -39,6 +39,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond (2026-10-11, the wild bond): the legend the game is named after can now happen. When your last creature is badly hurt, trusts you completely and the battle matters, it looks back at you and one new choice appears: "Stand with it". You fight as one for a short while, then you are both spent. Nothing explains it beforehand; it is named only after the first time.
 - Little Ranch v0.1.1 (2026-10-10, LR2): feeding works again after switching to and from Peekaboo, and rotating/resizing the screen keeps the baby and active toys in place. Existing sound preferences are preserved. [Review and before/after captures](docs/screenshots/little-ranch-lr2/README.md).
 - **2026-10-10, RB1.9 (pending review):** An isolated third-person 3D Lantern Rest trial with original procedural people/furniture, a following camera, real shadows and modular eight-slot equipment previews. Existing Realmbound gameplay and saves are untouched. No version bump.
 

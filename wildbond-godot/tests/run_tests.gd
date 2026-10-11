@@ -1244,6 +1244,7 @@ func _run() -> void:
 	main.battle.visible = false
 	main.battle.state = ""
 	preload("res://tests/battle_choices.gd").run(main, check)
+	preload("res://tests/wild_bond.gd").run(main, check)
 	# ---- every door and road out has a tile in front of it you can stand on and reach (Adam, 2026-10-10)
 	var blocked := door_problems()
 	for problem in blocked:

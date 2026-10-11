@@ -766,6 +766,8 @@ func _process(dt: float) -> void:
 	_music_tick(dt)
 	_ambience_tick(dt)
 	_thumbs_tick()
+	battle.bond_ok = bond_day != _today() and not demo   # the wild bond: once a day (battle.gd can_join)
+	battle.tamer_look = my_look
 	fade_in = min(1.0, fade_in + dt * 0.7)
 	var door_dark := 0.0
 	if trans_t >= 0.0:
@@ -1747,6 +1749,25 @@ func _fill(s: String) -> String:
 	return s.replace("{name}", my_look.get("name", "Tamer")).replace("{starter}", _partner_name()).replace("{rival}", rival_c.get("name", "its partner"))
 
 func _on_battle(result: String) -> void:
+	var joined: bool = battle.bond_used
+	_on_battle_result(result)
+	if joined:
+		bond_day = _today()
+		if not story_done.has("wildBond"):
+			story_done["wildBond"] = true
+			for l in WILD_BOND_FIRST:
+				say(l[0], _fill(l[1]))
+
+## The first time the wild bond happens (WB4.2): it is named only now, after it has happened.
+const WILD_BOND_FIRST := [
+	["", "Your heart is still racing. For a moment there were not two of you, but one."],
+	["", "The old stories have a name for that: the wild bond. A tamer and a creature who trust each other completely, becoming one at the edge of defeat. Nobody alive has seen it. Until now."],
+]
+
+func _today() -> String:
+	return "%d:%d" % [cal.year(), cal.day()]
+
+func _on_battle_result(result: String) -> void:
 	if battle_story.begins_with("story:"):
 		var sid := battle_story.substr(6)
 		battle_story = ""
@@ -1787,7 +1808,7 @@ func _on_battle(result: String) -> void:
 		say("maren", _fill("There, all patched up. Losing your first battle is a fine tradition, {name}. Wren lost theirs to a goose."))
 		say("wren", "That goose was a professional.")
 
-## Water (the pack's water tiles, CC0): open water with now and then a lily pad or a glint, and a sandy shore with a dark
+## Water (Wildbond's own water tiles, tools/paint_tiles.gd): open water with now and then a lily pad or a glint, and a sandy shore with a dark
 ## edge drawn wherever the water meets land.
 ## Stillreed's own look (WB3.1): the current running south down the river, cattails where the banks meet the water,
 ## windfall under the orchard trees and a coil of ferry rope at the landing. All on the ground; nothing blocks the way.
@@ -3125,7 +3146,7 @@ func save_game() -> void:
 		"badges": badges, "seen": seen, "bonded": bonded, "items": got_items, "beaten": beaten,
 		"restore": restore.map(func(r): return { "where": r.where, "x": r.at.x, "y": r.at.y, "goal": r.goal }),
 		"explored": explored_in, "story": story_done, "retry": story_retry, "egg": egg, "gear": gear_owned, "taught": taught, "letter": [letter_steps, letters], "calendar": cal.to_dict(), "festival": { "done": fest_done, "keep": keepsakes, "flowers": flowers }, "league": league_room,
-		"spire": { "floor": spire_floor, "best": spire_best, "active": spire_active }, "rematches": rematch_wins,
+		"spire": { "floor": spire_floor, "best": spire_best, "active": spire_active }, "rematches": rematch_wins, "bondDay": bond_day,
 		"map": map_name, "x": me.tile.x, "y": me.tile.y, "partner": partner.id if partner else "" }
 	SafeSave.write(save_path, d)                 # a spare file first, the last good save kept as a backup
 
@@ -3181,6 +3202,7 @@ func _load_game() -> bool:
 	spire_best = int(sz.get("best", 0))
 	spire_active = bool(sz.get("active", false)) and story_done.has("leagueEnding")
 	rematch_wins = d.get("rematches", {})
+	bond_day = str(d.get("bondDay", ""))
 	var fz: Dictionary = d.get("festival", {})
 	fest_done = fz.get("done", {})
 	keepsakes = fz.get("keep", {})
@@ -3250,6 +3272,7 @@ func _open_book() -> void:
 ## you up for a rematch, an old guardian stepping out of the trees or the surf. Wardens are met in person instead.
 var explored_in := {}                        # area -> times explored
 var story_done := {}                         # story id -> true
+var bond_day := ""                           # the day the wild bond last happened (once a day; "" = not today)
 var story_retry := {}                        # story id -> explorations to wait before it can come again
 
 func level_cap() -> int:

@@ -309,6 +309,8 @@ static func damage(att: Dictionary, def: Dictionary, mv: Dictionary, mult: float
 	var adv := advantage(el, def.c)
 	d *= (1.2 if el != null and el == sp(att.c).el else 1.0) * adv * (0.85 + roll * 0.15) * mult
 	if att.buff.get("dmg", 0.0) > 0: d *= 1.25
+	if att.get("joined", false): d *= 1.6                 # the wild bond (battle.gd _join): one form, both strengths
+	if def.get("joined", false): d *= 0.6
 	d *= Effects.modifier(att, def, mv)
 	if def.buff.get("guard", 0.0) > 0 and not mv.get("pierce", false) and not mv.get("breakGuard", false): d *= 0.5 if def.side == "a" and def.buff.get("guardCmd", 0) else 0.6
 	if "ferocious" in att.c.traits: d *= 1.1
@@ -405,7 +407,7 @@ static func move_info(m: String) -> String:
 static func atb_rate(u: Dictionary) -> float:
 	if Effects.active(u, "sleep"):
 		return 0.0
-	return (0.65 if Effects.active(u, "rooted") else 1.0) * (u.st.spd + 40.0) / 100.0 * (1.3 if u.buff.get("haste", 0.0) > 0 else 1.0) * (0.6 if u.buff.get("slow", 0.0) > 0 else 1.0) * (1.1 if "swift" in u.c.traits else 1.0)
+	return (1.35 if u.get("joined", false) else 1.0) * (0.65 if Effects.active(u, "rooted") else 1.0) * (u.st.spd + 40.0) / 100.0 * (1.3 if u.buff.get("haste", 0.0) > 0 else 1.0) * (0.6 if u.buff.get("slow", 0.0) > 0 else 1.0) * (1.1 if "swift" in u.c.traits else 1.0)
 
 ## A wild creature's rarity (Creatures.rollRarity): boost raises the odds (lures, traits, a Long Road lowers them).
 static func roll_rarity(boost: float, rng: RandomNumberGenerator) -> int:
