@@ -956,8 +956,10 @@ func _tap(at: Vector2) -> void:
 				goal = _stand_by(m.tile)               # walk up beside it
 	if goal == me.tile:
 		return
+	# Match _step's registered entrance rule without making door tiles walkable.
+	var registered_door := map_name == "larkhaven" and stage == "free" and DOORS.has(goal)
 	var r := route(me.tile, goal)
-	if r.is_empty() or not (walkable(goal) or (partner and goal == partner.tile) or goal == BARN_DOOR or goal == BARN_EXIT):
+	if r.is_empty() or not (registered_door or walkable(goal) or (partner and goal == partner.tile) or goal == BARN_DOOR or goal == BARN_EXIT):
 		meet_after = null
 		return
 	walk_to = r

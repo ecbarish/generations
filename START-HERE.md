@@ -106,6 +106,8 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-11 Codex (Adam / abarish-dev): WB-DOOR-TAP [PR #177](https://github.com/ecbarish/idle-arcade/pull/177) fixes four rejected door targets and clears Nora's entrance from the unchanged-size phone pad. All 17 suites pass (Wildbond 1503/0); 150 rendered input transitions and 256 captures pass, including visible-pad entry/exit/re-entry at four sizes. [Evidence](docs/screenshots/wildbond-door-taps/README.md). Draft for review; no save, preview, merge or deployment changes.
+
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request built and merged SF2.7 "See the wilds sooner" (#174, `9c48e64`): a short stretch outside Starfall's west gate (trail, creek, Tull's field, North Road, waymarkers; adventurers on those jobs seen at work). Starfall Godot 167/0, all 17 suites pass. Then rebuilt play/starfall/ from `9c48e64` (pack only, 3,241,944 bytes) in the PR that carries this line.
 - 2026-10-11 Claude (Playtester thread): playtest pass 2 (docs/PLAYTEST.md). The four new games pass (Storm Front, Lighthouse Watch and Little Ranch 17, Brisket's Crossing 15, with a no-pause-after-a-hit fix wanted). The Starfall village is still below the bar (no goal line or controls). Wildbond is better (its own village, tap to walk) but still shows no keys in game.
 - 2026-10-11 Claude (Art direction thread): reviewed ART-SF-1 to 7 and SF2.6 in the game: passed (Starfall no longer looks like Larkhaven). Moved the food counter onto Starfall's palette; new tasks ART-SF-8 (dress the square) and SF2.6c (day-one view shows the hall and inn roofs; drop unused pack tiles) in DEVELOPMENT-PATH.
