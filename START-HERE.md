@@ -103,6 +103,8 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-11, Codex:** DM-B2 six-season league/market balance in PR #208, stacked after #207 and #196. Reproducible 12-seed before/after report in docs/diamond-manager-balance.md; no versions, Godot or shared office changes.
+
 - **2026-10-11, Codex:** DM4 player morale and named Iona stories in PR #207, stacked after coaches #196. Playing time, results, contracts, optional deals/trades and recovery; 78 Diamond Manager checks and four-size UI/reload evidence. No version or Godot changes.
 
 - **2026-10-11, Codex:** DM3 coach hiring/development in PR #196: two roles, six winter candidates, seasonal cash salaries and exact visible player gains; old saves and phone/laptop/desktop/ultrawide flows checked. No versions, Godot or other games changed.
