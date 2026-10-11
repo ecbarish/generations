@@ -55,6 +55,9 @@ func capture() -> void:
  names.append_array(main.INTERIORS.keys())
  for size in [Vector2i(1920,1080),Vector2i(812,375)]:
   root.size=size
+  main.restore.clear()
+  for name in names:
+   main.restore.append({"where":name,"at":Vector2(192,108),"r":5000.0,"goal":5000.0})
   for name in names:
    var p:=Vector2i(11,10)
    if name in main.BUILT:
@@ -86,6 +89,7 @@ func capture() -> void:
      await shot("barn-service-%d-%d"%[at.x,at.y],size,{"kind":"stall trough workbench"})
   # Faded colour is a distinct renderer state, not a photo filter.
   main.spilled=false
+  main.restore.clear()
   for name in main.BUILT:
    var start=main.DATA.MAPS[name].start
    place_at(name,Vector2i(int(start[0]),int(start[1])))
