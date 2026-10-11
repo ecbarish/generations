@@ -18,8 +18,8 @@ const DM = {
   upgrades: {
     seats:    {name:'Seats', what:'More seats: more people can come to each home game.', cost:[300,600,1000,1500]},
     lights:   {name:'Lights', what:'Bright towers: night games draw a bigger crowd.', cost:[400,800,1200]},
-    training: {name:'Training rooms', what:'Players aged 27 or younger grow one extra point a season per level.', cost:[350,700,1100]},
-    scouting: {name:'Scouting office', what:'Better free agents turn up each offseason.', cost:[300,650,1000]},
+    training: {name:'Training rooms', what:'Players aged 27 or younger grow two extra points a season per level.', cost:[350,700,1100]},
+    scouting: {name:'Scouting office', what:'The two standout free agents each winter are better, and so is the rest of the market.', cost:[300,650,1000]},
     clubhouse:{name:'Clubhouse', what:'Happier players ask 5% less to stay, per level.', cost:[300,600,900]}
   },
   ticket: 20, words: [[80,'Star'],[70,'Excellent'],[62,'Good'],[54,'Solid'],[46,'Fair'],[0,'Raw']]
@@ -43,26 +43,35 @@ function makePlayer(r, id, level, pitcher, pos) {
   const p={id, name:DM.first[ri(r,0,DM.first.length-1)]+' '+DM.last[ri(r,0,DM.last.length-1)], age, pitcher:!!pitcher};
   if(pitcher) Object.assign(p,{pos:'P',stuff:g(),control:g(),stamina:g()});
   else Object.assign(p,{pos,contact:g(),power:g(),eye:g(),glove:g()});
-  p.salary=askSalary(p); p.years=ri(r,1,3); return p;
+  p.salary=askSalary(p); p.years=ri(r,1,3); p.pot=potentialFor(r,p); return p;
 }
+/* Potential: the best overall a player can reach. Young players have room to grow; veterans are what they are. */
+function potentialFor(r,p) { const o=overall(p); return Math.min(92, o+(p.age<=24?ri(r,3,18):p.age<=27?ri(r,0,8):0)); }
+/* What the club's scouts can tell about a ceiling: to the nearest 10 with no Scouting office, to the nearest 5 at
+   level 1, exact from level 2. */
+function scoutCeiling(L,p) { const lv=L.upgrades.scouting, step=lv>=2?1:lv===1?5:10; return Math.round((p.pot||overall(p))/step)*step; }
+function makeProspect(r,id) { const pitcher=rnd(r)<.4, p=makePlayer(r,id,ri(r,36,46),pitcher,DM.batPos[ri(r,0,8)]);
+  p.age=ri(r,18,21); p.pot=Math.min(86,overall(p)+ri(r,6,30)); p.salary=150; p.years=3; p.prospect=true; return p; }
 function newLeague(seed=1) {
   const L={game:'diamond-manager', schema:1, seed:seed>>>0, nextId:1, season:1, day:0, cash:600, phase:'season',
     clubs:[], schedule:[], results:[], log:[], inbox:[], freeAgents:[], upgrades:{seats:0,lights:0,training:0,scouting:0,clubhouse:0},
-    speed:1, intro:true, history:[], final:null, offer:null, sound:0};
+    speed:1, intro:true, history:[], final:null, offer:null, sound:0, dmb:true, dmc:true, draft:null};
   DM.clubs.forEach((c,i)=>{
-    const club={name:c.name, short:c.short, w:0, l:0, rs:0, ra:0, budget:i===0?7500:13500, players:[], lineup:[], rot:0};
+    const club={name:c.name, short:c.short, w:0, l:0, rs:0, ra:0, budget:i===0?10500:13500, players:[], lineup:[], rot:0};
     DM.batPos.forEach(pos=>club.players.push(makePlayer(L,L.nextId++,c.level,false,pos)));
     for(let k=0;k<6;k++) club.players.push(makePlayer(L,L.nextId++,c.level,true));
     club.players.push(makePlayer(L,L.nextId++,c.level-4,false,DM.batPos[ri(L,0,7)]));
-    fitPayroll(L,club); setLineup(club); L.clubs.push(club);
+    fitPayroll(L,club); setLineup(club); club.farm=[makeProspect(L,L.nextId++),makeProspect(L,L.nextId++)]; L.clubs.push(club);
   });
   L.schedule=makeSchedule(DM.seasonGames);
-  fillFreeAgents(L, 8);
+  fillFreeAgents(L, 8); addStandouts(L);
   return L;
 }
 /* AI clubs, and the opening rosters, keep their payroll inside their budget by trimming salaries. */
 function fitPayroll(L,club) { let over=payroll(club)-club.budget; if(over<=0)return; const f=club.budget/payroll(club); club.players.forEach(p=>p.salary=Math.max(200,Math.round(p.salary*f/10)*10)); }
-function payroll(club) { return club.players.reduce((n,p)=>n+p.salary,0); }
+// League-minimum players (bargains) don't count against the owner's budget, so a roster can always be filled.
+/* Players sent down to the farm club on a big-league contract still draw that salary. */
+function payroll(club) { return club.players.concat(club.farm||[]).reduce((n,p)=>n+(p.bargain||(p.prospect&&!p.sent)?0:p.salary),0); }
 function batters(club) { return club.players.filter(p=>!p.pitcher); }
 function pitchers(club) { return club.players.filter(p=>p.pitcher); }
 /* Keep the chosen order; add any missing batters by overall; drop anyone who left. */
@@ -190,29 +199,85 @@ function endSeason(L) {
   L.history.push({season:L.season, w:you.w, l:you.l, place:standings(L).findIndex(s=>s.i===DM.you)+1, final:inFinal, champion:champ, championName:L.clubs[L.final.champion].name});
   const prev=L.history.length>1?L.history[L.history.length-2].w:null;
   // A climbing club earns a little too, so a GM who improves a losing team sees the budget grow (playtest DM2).
-  const raise=champ?1000:inFinal?600:you.w>you.l?300:prev!==null&&you.w>prev?200:0; you.budget=Math.min(18000,you.budget+raise);
+  const raise=champ?1500:inFinal?900:you.w>you.l?600:prev!==null&&you.w>prev?400:0; you.budget=Math.min(18000,you.budget+raise);
   L.report={raise, grew:[], slipped:[], expiring:[], left:[]};
   L.clubs.forEach((c,ci)=>{
-    for(const p of c.players){ const before=overall(p); develop(L,p,ci===DM.you?L.upgrades.training:1); const d=overall(p)-before;
-      if(ci===DM.you){ if(d>=2)L.report.grew.push({name:p.name,d}); if(d<=-2)L.report.slipped.push({name:p.name,d}); }
-      p.years--; p.season=null; }
+    const tr=ci===DM.you?L.upgrades.training*2:1, daily=new Set(c.players.filter(p=>playsDaily(c,p)));
+    for(const p of c.players.concat(c.farm||[])){ const before=overall(p), farm=(c.farm||[]).includes(p); develop(L,p,tr,farm||daily.has(p)); const d=overall(p)-before;
+      if(ci===DM.you){ if(d>=2)L.report.grew.push({name:p.name,d,farm}); if(d<=-2)L.report.slipped.push({name:p.name,d}); }
+      if(!farm||p.sent)p.years--; if(farm&&p.sent&&p.years<=0){p.sent=false;p.salary=150;p.years=3;} p.season=null; }
+    // The farm club is for players 25 and under; older ones leave for free agency.
+    c.farm=(c.farm||[]).filter(p=>{ if(p.age<=25)return true; p.prospect=false; p.sent=false; p.salary=askSalary(p); p.years=ri(L,1,2); L.freeAgents.push(p); if(ci===DM.you)L.report.left.push(p.name); return false; });
+    if(ci!==DM.you){ // Other clubs call up farm players who are ready.
+      for(const p of c.farm.slice().sort((a,b)=>overall(b)-overall(a))) if(overall(p)>=52&&c.players.length<DM.rosterMax){ c.farm.splice(c.farm.indexOf(p),1); p.prospect=false; c.players.push(p); } }
     if(ci!==DM.you){ // Other clubs keep players worth their price and let the rest go.
-      c.players=c.players.filter(p=>{ if(p.years>0)return true; if(p.age<36&&overall(p)>=48){p.salary=askSalary(p);p.years=ri(L,1,3);return true;} if(p.age<36)L.freeAgents.push(p); return false; });
+      c.players=c.players.filter(p=>{ if(p.years>0)return true; if(p.age<36&&overall(p)>=48){p.salary=askSalary(p);p.years=ri(L,1,3);p.bargain=false;return true;} if(p.age<36){p.bargain=false;p.salary=askSalary(p);p.years=ri(L,1,2);L.freeAgents.push(p);} return false; });
     } else L.report.expiring=c.players.filter(p=>p.years<=0).map(p=>p.id);
   });
   fillFreeAgents(L, 8);
   L.clubs.forEach((c,ci)=>{ if(ci!==DM.you){ refill(L,c); fitPayroll(L,c); } setLineup(c); });
+  L.freeAgents=L.freeAgents.filter(p=>!p.star); addStandouts(L); ensureBargains(L);
+  startDraft(L);
 }
-function develop(L,p,training) {
-  const base=p.age<=24?ri(L,2,5):p.age<=27?ri(L,0,3):p.age<=30?ri(L,-1,1):p.age<=33?ri(L,-3,0):ri(L,-5,-1);
-  const bonus=p.age<=27?training:0;
-  for(const k of p.pitcher?['stuff','control','stamina']:['contact','power','eye','glove']) p[k]=clamp(p[k]+base+bonus+ri(L,-1,1),20,99);
+/* The draft: each winter 24 young prospects, three rounds, the club with the worst record picks first in every round.
+   Other clubs pick the best ceiling their scouts see; the Lanterns choose for themselves (or let Iona). */
+const FARM_MAX=6;
+function startDraft(L) {
+  const order=standings(L).map(s=>s.i).reverse(), pool=[]; for(let i=0;i<24;i++) pool.push(makeProspect(L,L.nextId++));
+  L.draft={pool, order:order.concat(order,order), pick:0, picks:[], done:false}; runDraft(L);
+}
+function draftTo(L,ci,p) { const c=L.clubs[ci], d=L.draft; d.pool.splice(d.pool.indexOf(p),1); c.farm=c.farm||[]; c.farm.push(p);
+  if(ci!==DM.you&&c.farm.length>FARM_MAX){ c.farm.sort((a,b)=>b.pot-a.pot); c.farm.length=FARM_MAX; }
+  d.picks.push({club:ci,id:p.id,name:p.name,round:Math.floor(d.pick/6)+1}); d.pick++; }
+function runDraft(L) { const d=L.draft; if(!d||d.done) return;
+  while(d.pick<d.order.length&&d.order[d.pick]!==DM.you){ const best=d.pool.slice().sort((a,b)=>(b.pot+(b.id%7)-3)-(a.pot+(a.id%7)-3))[0]; draftTo(L,d.order[d.pick],best); }
+  if(d.pick>=d.order.length) d.done=true; }
+function draftPick(L,id) { const d=L.draft; if(!d||d.done) return 'The draft is over.'; if(d.order[d.pick]!==DM.you) return 'It is not our pick.';
+  const p=d.pool.find(x=>x.id===id); if(!p) return 'That prospect is gone.';
+  if((L.clubs[DM.you].farm||[]).length>=FARM_MAX) return 'The farm club is full ('+FARM_MAX+'). Call someone up or let one go first, or pass.';
+  draftTo(L,DM.you,p); runDraft(L); return ''; }
+function draftPass(L) { const d=L.draft; if(!d||d.done||d.order[d.pick]!==DM.you) return 'It is not our pick.'; d.picks.push({club:DM.you,id:0,name:'(passed)',round:Math.floor(d.pick/6)+1}); d.pick++; runDraft(L); return ''; }
+/* Iona picks the highest ceiling the club's scouts can see, and passes when the farm club is full. */
+function draftAuto(L) { const d=L.draft; let g=0; while(d&&!d.done&&g++<10){ if((L.clubs[DM.you].farm||[]).length>=FARM_MAX){draftPass(L);continue;}
+  const best=d.pool.slice().sort((a,b)=>scoutCeiling(L,b)-scoutCeiling(L,a)||overall(b)-overall(a))[0]; draftPick(L,best.id); } return ''; }
+function callUp(L,id) { const c=L.clubs[DM.you], p=(c.farm||[]).find(x=>x.id===id); if(!p) return 'That player is not on the farm club.';
+  if(c.players.length>=DM.rosterMax) return 'The roster is full ('+DM.rosterMax+'). Let someone go or send someone down first.';
+  if(!p.sent&&payroll(c)+p.salary>c.budget) return 'The rookie salary would put the payroll over budget.';
+  c.farm.splice(c.farm.indexOf(p),1); p.prospect=false; p.sent=false; c.players.push(p); setLineup(c); return ''; }
+function sendDown(L,id) { const c=L.clubs[DM.you], p=c.players.find(x=>x.id===id); if(!p) return 'Nobody by that name.';
+  if(p.age>25) return 'Only players 25 and under can go to the farm club.'; if((c.farm||[]).length>=FARM_MAX) return 'The farm club is full ('+FARM_MAX+').';
+  if(!p.pitcher&&batters(c).length<=DM.minBatters) return 'You need at least nine batters on the roster.'; if(p.pitcher&&pitchers(c).length<=DM.minPitchers) return 'You need at least five pitchers on the roster.';
+  c.players.splice(c.players.indexOf(p),1); c.farm=c.farm||[]; c.farm.push(p); p.prospect=true; p.sent=true; setLineup(c); return ''; }
+function releaseFarm(L,id) { const c=L.clubs[DM.you], i=(c.farm||[]).findIndex(x=>x.id===id); if(i<0) return 'That player is not on the farm club.'; c.farm.splice(i,1); return ''; }
+/* Growth: young players climb toward their potential, faster when they play every day (in the lineup, in the top five
+   arms, or on the farm club) and with training rooms; past 30 they slip. Training also lifts a young ceiling a little. */
+function develop(L,p,training,playing) {
+  const o=overall(p), room=Math.max(0,(p.pot||o)-o); let base;
+  if(p.age<=27){ base=Math.min(room+1, ri(L,0,2)+Math.ceil(room/6)+(playing&&p.age<=25&&room>0?1:0)) + (room>0?training:0); p.pot=Math.min(92,(p.pot||o)+Math.ceil(training/2)); }
+  else base=p.age<=30?ri(L,-1,1):p.age<=33?ri(L,-3,0):ri(L,-5,-1);
+  const keys=p.pitcher?['stuff','control','stamina']:['contact','power','eye','glove'];
+  for(const k of keys) p[k]=clamp(p[k]+base+ri(L,-1,1),20,99);
+  for(let g=0;g<20&&p.age<=27&&overall(p)>p.pot+1;g++) for(const k of keys) p[k]=clamp(p[k]-1,20,99);
+  if(p.age>27) p.pot=Math.max(overall(p),Math.min(p.pot||0,overall(p)+2));
   p.age++;
 }
+function playsDaily(c,p) { return p.pitcher ? pitchers(c).sort((a,b)=>overall(b)-overall(a)).slice(0,5).includes(p) : c.lineup.includes(p.id); }
 function fillFreeAgents(L,n) {
   const lvl=50+L.upgrades.scouting*3;
   while(L.freeAgents.length<n){ const pitcher=rnd(L)<.4; const p=makePlayer(L,L.nextId++,lvl,pitcher,DM.batPos[ri(L,0,8)]); p.salary=askSalary(p); p.years=ri(L,1,3); L.freeAgents.push(p); }
   L.freeAgents.sort((a,b)=>overall(b)-overall(a)); L.freeAgents=L.freeAgents.slice(0,12);
+  ensureBargains(L);
+}
+/* Bargains: two cheap batters and two cheap pitchers are always available, so any roster can be filled. */
+function ensureBargains(L) {
+  for(const pitcher of [false,true]) while(L.freeAgents.filter(p=>p.bargain&&p.pitcher===pitcher).length<2){
+    const p=makePlayer(L,L.nextId++,44,pitcher,DM.batPos[ri(L,0,8)]); p.salary=220; p.years=1; p.bargain=true; L.freeAgents.push(p); }
+}
+/* Each winter (and the first spring) two standouts reach the market: clearly better than a typical player and
+   asking real money. Signing one is the general manager's biggest single lever (playtest DM2, ticket DM-B). */
+function addStandouts(L) {
+  for(const pitcher of [false,true]){ const p=makePlayer(L,L.nextId++,62+L.upgrades.scouting*2,pitcher,DM.batPos[ri(L,0,8)]);
+    p.age=ri(L,24,29); p.salary=askSalary(p); p.years=ri(L,2,3); p.star=true; L.freeAgents.unshift(p); }
 }
 function refill(L,c) {
   const need=()=>batters(c).length<DM.minBatters?'b':pitchers(c).length<DM.minPitchers?'p':null; let guard=0;
@@ -221,10 +286,10 @@ function refill(L,c) {
     c.players.push(L.freeAgents.splice(i,1)[0]); }
 }
 /* The next season starts once every expiring contract has an answer. */
-function canStartSeason(L) { return L.phase==='offseason' && L.clubs[DM.you].players.every(p=>p.years>0) && rosterOk(L.clubs[DM.you]) && payroll(L.clubs[DM.you])<=L.clubs[DM.you].budget; }
+function canStartSeason(L) { return L.phase==='offseason' && (!L.draft||L.draft.done) && L.clubs[DM.you].players.every(p=>p.years>0) && rosterOk(L.clubs[DM.you]) && payroll(L.clubs[DM.you])<=L.clubs[DM.you].budget; }
 function startSeason(L) {
   if(!canStartSeason(L)) return false;
-  L.season++; L.day=0; L.results=[]; L.final=null; L.phase='season'; L.report=null; L.offer=null;
+  L.season++; L.day=0; L.results=[]; L.final=null; L.phase='season'; L.report=null; L.offer=null; L.draft=null;
   L.clubs.forEach(c=>{c.w=0;c.l=0;c.rs=0;c.ra=0;c.rot=0;});
   return true;
 }
@@ -233,23 +298,25 @@ function rosterOk(c) { return batters(c).length>=DM.minBatters && pitchers(c).le
 /* Contracts and free agents. Every function returns '' on success or a sentence saying why not. */
 function resign(L,id) {
   const c=L.clubs[DM.you], p=c.players.find(x=>x.id===id); if(!p||p.years>0) return 'That contract is not ending.';
-  const ask=askSalary(p,L.upgrades.clubhouse); if(payroll(c)-p.salary+ask>c.budget) return p.name+' asks '+money(ask)+' a season; that would put the payroll over the owner\'s budget.';
-  p.salary=ask; p.years=p.age>=32?1:2; return '';
+  const ask=askSalary(p,L.upgrades.clubhouse); if(payroll(c)-(p.bargain?0:p.salary)+ask>c.budget) return p.name+' asks '+money(ask)+' a season; that would put the payroll over the owner\'s budget.';
+  p.salary=ask; p.years=p.age>=32?1:2; p.bargain=false; return '';
 }
 function release(L,id) {
   const c=L.clubs[DM.you], p=c.players.find(x=>x.id===id); if(!p) return 'Nobody by that name.';
   const after=c.players.filter(x=>x!==p);
-  if(!p.pitcher&&batters(c).length<=DM.minBatters) return 'You need at least nine batters. Sign one first.';
-  if(p.pitcher&&pitchers(c).length<=DM.minPitchers) return 'You need at least five pitchers. Sign one first.';
+  // An ending contract can always be let go (the season won't start until the roster is legal again), so a tight
+  // budget never leaves the general manager stuck with a player they can neither keep nor release (DM-B).
+  if(p.years>0&&!p.pitcher&&batters(c).length<=DM.minBatters) return 'You need at least nine batters. Sign one first.';
+  if(p.years>0&&p.pitcher&&pitchers(c).length<=DM.minPitchers) return 'You need at least five pitchers. Sign one first.';
   // Letting someone go mid-contract costs half of one season's salary; an expiring contract costs nothing.
   const cost=p.years>0?Math.round(p.salary/2):0; if(cost>L.cash) return 'Letting '+p.name+' go costs '+money(cost)+' and the club has '+money(L.cash)+'.';
-  L.cash-=cost; c.players=after; if(p.age<36){p.salary=askSalary(p);p.years=ri(L,1,2);L.freeAgents.push(p);} setLineup(c); return '';
+  L.cash-=cost; c.players=after; if(p.age<36){p.salary=askSalary(p);p.years=ri(L,1,2);p.bargain=false;L.freeAgents.push(p);} setLineup(c); return '';
 }
 function signFree(L,id) {
   const c=L.clubs[DM.you], i=L.freeAgents.findIndex(x=>x.id===id); if(i<0) return 'That player has signed elsewhere.';
   const p=L.freeAgents[i]; if(c.players.length>=DM.rosterMax) return 'The roster is full ('+DM.rosterMax+'). Let someone go first.';
-  if(payroll(c)+p.salary>c.budget) return p.name+' wants '+money(p.salary)+' a season; that would put the payroll over the owner\'s budget of '+money(c.budget)+'.';
-  L.freeAgents.splice(i,1); c.players.push(p); setLineup(c); return '';
+  if(!p.bargain&&payroll(c)+p.salary>c.budget) return p.name+' wants '+money(p.salary)+' a season; that would put the payroll over the owner\'s budget of '+money(c.budget)+'.';
+  L.freeAgents.splice(i,1); c.players.push(p); if(p.bargain)ensureBargains(L); setLineup(c); return '';
 }
 function buyUpgrade(L,k) {
   const u=DM.upgrades[k], lv=L.upgrades[k]; if(!u) return 'Unknown upgrade.'; if(lv>=u.cost.length) return 'Already as good as it gets.';
@@ -257,16 +324,23 @@ function buyUpgrade(L,k) {
   L.cash-=u.cost[lv]; L.upgrades[k]++; if(k==='scouting')fillFreeAgents(L,L.freeAgents.length); return '';
 }
 
-/* Trades. A player's worth to another club: quality, youth, and how fair the salary is. */
-function worth(p) { const o=overall(p), age=p.age<=26?1.2:p.age<=30?1:p.age<=33?.75:.5; return Math.max(5,Math.round(Math.pow(Math.max(0,o-38),1.6)*age - (p.salary-askSalary(p))/40)); }
+/* Trades. A player's worth to another club: quality (for a young player, partly the ceiling too), youth, and how fair
+   the salary is. Farm club prospects can be traded; they join the other club's farm club. */
+function tradeRating(p) { const o=overall(p); return p.age<=27&&(p.pot||o)>o ? o+((p.pot||o)-o)*.5 : o; }
+function worth(p) { const o=tradeRating(p), age=p.age<=26?1.2:p.age<=30?1:p.age<=33?.75:.5; return Math.max(5,Math.round(Math.pow(Math.max(0,o-38),1.6)*age - (p.prospect&&!p.sent?0:(p.salary-askSalary(p))/40))); }
+function clubPlayer(c,id) { return c.players.find(p=>p.id===id)||(c.farm||[]).find(p=>p.id===id); }
+function afterTrade(c,out,inn) { const farmIn=inn.filter(p=>p.prospect), rosterIn=inn.filter(p=>!p.prospect);
+  return {players:c.players.filter(p=>!out.includes(p)).concat(rosterIn), farm:(c.farm||[]).filter(p=>!out.includes(p)).concat(farmIn)}; }
 function judgeTrade(L,other,give,get) {
   const you=L.clubs[DM.you], them=L.clubs[other]; if(!them||other===DM.you) return {ok:false,why:'Pick a club to trade with.'};
-  const gp=give.map(id=>you.players.find(p=>p.id===id)).filter(Boolean), tp=get.map(id=>them.players.find(p=>p.id===id)).filter(Boolean);
+  const gp=give.map(id=>clubPlayer(you,id)).filter(Boolean), tp=get.map(id=>clubPlayer(them,id)).filter(Boolean);
   if(!gp.length||!tp.length) return {ok:false,why:'Choose at least one player from each side.'};
-  const after=(c,out,inn)=>{const x={players:c.players.filter(p=>!out.includes(p)).concat(inn)};return x;};
-  const ya=after(you,gp,tp), ta=after(them,tp,gp);
+  if(gp.length!==give.length||tp.length!==get.length) return {ok:false,why:'Some of those players are no longer with those clubs.'};
+  const ya=afterTrade(you,gp,tp), ta=afterTrade(them,tp,gp);
   if(!rosterOk(ya)) return {ok:false,why:'After this trade your roster would not have nine batters and five pitchers (or would pass '+DM.rosterMax+' players).'};
   if(!rosterOk(ta)) return {ok:false,why:them.short+' would be left without nine batters and five pitchers.'};
+  if(ya.farm.length>FARM_MAX) return {ok:false,why:'Our farm club would have more than '+FARM_MAX+' players.'};
+  if(ta.farm.length>FARM_MAX) return {ok:false,why:them.short+' have no room on their farm club.'};
   if(payroll(ya)>you.budget) return {ok:false,why:'Your payroll would go over the owner\'s budget of '+money(you.budget)+'.'};
   if(payroll(ta)>them.budget+500) return {ok:false,why:them.short+' can\'t take on that much salary.'};
   const g=gp.reduce((n,p)=>n+worth(p),0), t=tp.reduce((n,p)=>n+worth(p),0);
@@ -277,11 +351,30 @@ function judgeTrade(L,other,give,get) {
 function doTrade(L,other,give,get) {
   const j=judgeTrade(L,other,give,get); if(!j.ok) return j.why;
   const you=L.clubs[DM.you], them=L.clubs[other];
-  const gp=you.players.filter(p=>give.includes(p.id)), tp=them.players.filter(p=>get.includes(p.id));
-  you.players=you.players.filter(p=>!gp.includes(p)).concat(tp); them.players=them.players.filter(p=>!tp.includes(p)).concat(gp);
+  const gp=give.map(id=>clubPlayer(you,id)), tp=get.map(id=>clubPlayer(them,id));
+  const ya=afterTrade(you,gp,tp), ta=afterTrade(them,tp,gp);
+  you.players=ya.players; you.farm=ya.farm; them.players=ta.players; them.farm=ta.farm;
   setLineup(you); setLineup(them); L.log.push('Season '+L.season+', day '+L.day+': traded '+gp.map(p=>p.name).join(', ')+' to '+them.short+' for '+tp.map(p=>p.name).join(', ')+'.');
   return '';
 }
+/* The trade finder. completeDeal adds the least valuable one or two of our players (roster or farm) that turn a
+   proposal into one the other club accepts, or returns null. findDeal asks it for a player we want. shopPlayer asks
+   every club for the best player they would give for one of ours. */
+function completeDeal(L,other,give,get) {
+  const you=L.clubs[DM.you]; if(give.length&&judgeTrade(L,other,give,get).ok) return give.slice();
+  const pool=you.players.concat(you.farm||[]).filter(p=>!give.includes(p.id)).sort((a,b)=>worth(a)-worth(b));
+  let best=null, bestW=Infinity;
+  for(const a of pool){ const w=worth(a); if(w>=bestW) break; const ids=give.concat(a.id); if(judgeTrade(L,other,ids,get).ok){ best=ids; bestW=w; break; } }
+  for(let i=0;i<pool.length;i++) for(let k=i+1;k<pool.length;k++){ const w=worth(pool[i])+worth(pool[k]); if(w>=bestW) break;
+    const ids=give.concat(pool[i].id,pool[k].id); if(judgeTrade(L,other,ids,get).ok){ best=ids; bestW=w; } }
+  return best;
+}
+function findDeal(L,other,targetId) { return completeDeal(L,other,[],[targetId]); }
+function shopPlayer(L,id) { const out=[];
+  L.clubs.forEach((c,ci)=>{ if(ci===DM.you) return;
+    const best=c.players.concat(c.farm||[]).slice().sort((a,b)=>worth(b)-worth(a)).find(p=>judgeTrade(L,ci,[id],[p.id]).ok);
+    if(best) out.push({club:ci,get:best.id}); });
+  return out.sort((a,b)=>worth(clubPlayer(L.clubs[b.club],b.get))-worth(clubPlayer(L.clubs[a.club],a.get))); }
 /* Every fifth day another club may call with an offer that slightly favours them. */
 function aiOffer(L) {
   const you=L.clubs[DM.you], mine=you.players.slice().sort((a,b)=>worth(b)-worth(a)).slice(0,10);
@@ -308,15 +401,17 @@ function validLeague(o) {
     const ids = new Set();
     const player = p => {
       if (!p || !int(p.id) || p.id < 1 || ids.has(p.id) || typeof p.name !== 'string' || typeof p.pitcher !== 'boolean' ||
-          !int(p.age) || p.age < 1 || !number(p.salary) || p.salary < 0 || !int(p.years)) return false;
+          !int(p.age) || p.age < 1 || !number(p.salary) || p.salary < 0 || !int(p.years) || (p.pot !== undefined && !number(p.pot))) return false;
       ids.add(p.id);
       return (p.pitcher ? ['stuff','control','stamina'] : ['contact','power','eye','glove']).every(k => number(p[k]) && p[k] >= 0 && p[k] <= 99);
     };
     for (const c of o.clubs) {
       if (!c || typeof c.name !== 'string' || typeof c.short !== 'string' || !number(c.budget) || !int(c.rot) || c.rot < 0 ||
           !['w','l','rs','ra'].every(k => number(c[k]) && c[k] >= 0) || !Array.isArray(c.players) || !c.players.every(player) || !rosterOk(c)) return false;
+      if (c.farm !== undefined && (!Array.isArray(c.farm) || c.farm.length > 8 || !c.farm.every(player))) return false;
       if (!Array.isArray(c.lineup) || c.lineup.length !== 9 || new Set(c.lineup).size !== 9 || !c.lineup.every(id => c.players.some(p => p.id === id && !p.pitcher))) return false;
     }
+    if (o.draft && (!Array.isArray(o.draft.pool) || !o.draft.pool.every(player) || !Array.isArray(o.draft.order) || !o.draft.order.every(team) || !int(o.draft.pick) || o.draft.pick < 0 || o.draft.pick > o.draft.order.length || !Array.isArray(o.draft.picks))) return false;
     if (!o.freeAgents.every(player) || [...ids].some(id => id >= o.nextId)) return false;
     if (!o.schedule.every(day => Array.isArray(day) && day.length === 3 && day.every(pair => Array.isArray(pair) && pair.length === 2 && pair.every(team) && pair[0] !== pair[1]) && new Set(day.flat()).size === 6)) return false;
     if (o.phase !== 'season') {
@@ -342,4 +437,10 @@ function loadLeague(storage, backups) {
   for (const b of backups) { try { const parsed = JSON.parse(b.data); if (validLeague(parsed)) return parsed; } catch (_) {} }
   return null;
 }
-function migrateLeague(o) { if(!validLeague(o)) return newLeague((Date.now()>>>0)||1); return Object.assign({speed:1,intro:false,log:[],history:[],inbox:[],sound:0},o); }
+function migrateLeague(o) { if(!validLeague(o)) return newLeague((Date.now()>>>0)||1); const L=Object.assign({speed:1,intro:false,log:[],history:[],inbox:[],sound:0},o);
+  // DM-B (v0.2.0): the owner found $3M more for the Lanterns, and the market gained standouts and league-minimum players.
+  if(!L.dmb){ L.dmb=true; L.clubs[DM.you].budget=Math.min(18000,L.clubs[DM.you].budget+3000); if(!L.freeAgents.some(p=>p.star))addStandouts(L); ensureBargains(L); }
+  // Draft and development (v0.3.0): everyone gets a ceiling, every club a farm club.
+  if(!L.dmc){ L.dmc=true; const r={seed:(L.seed^0x5eed)>>>0}; for(const c of L.clubs){ for(const p of c.players)if(p.pot===undefined)p.pot=potentialFor(r,p); c.farm=c.farm||[]; }
+    for(const p of L.freeAgents)if(p.pot===undefined)p.pot=potentialFor(r,p); if(L.phase==='offseason'&&!L.draft)L.draft={pool:[],order:[],pick:0,picks:[],done:true}; }
+  return L; }

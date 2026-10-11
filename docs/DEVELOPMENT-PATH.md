@@ -244,9 +244,9 @@ contracts, hiring, stadium upgrades, watching games) and plan a Retro Bowl-style
 deliverables with their details: [plans/sports-management.md](plans/sports-management.md). The old DC2-DC4 career
 deliverables are retired; the batting prototype stays in games/diamond-career/ off the shelf.
 - [x] DM1 [Claude] The first playable season (v0.1.0, PR #110).
-- [ ] DM2 [any] Playability pass: two seasons as a first-timer, desktop and phone, fix the top three problems.
+- [x] DM2 [any] Playability pass (docs/playtests/diamond-manager-1.md). - [x] DM-B [Claude] Choices matter (v0.2.0).
 - [ ] DM3 [any] Hiring coaches. - [ ] DM4 [any] Player morale and stories. - [ ] DM5 [any] The ballpark you see grow.
-- [ ] DM6 [any] A draft and a farm club. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
+- [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [ ] DM-B2 [any] Keep the league in balance over many seasons. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
 
 ### Lantern Bowl (browser; American football in the Retro Bowl spirit, our own code and art)
 Evan said yes 2026-10-09. Plan: [plans/sports-management.md](plans/sports-management.md) "Game 2".
@@ -379,6 +379,19 @@ line or two, with the page that holds the detail.
   square, the opening view) and one older code-drawn piece off the palette, and doors drawn between two tiles
   (a door must be centred on the map tile you walk through, and touch the ground); next time a set of tasks includes one for
   dressing the scene and one for the first screen. Tasks ART-SF-8, SF2.6c.
+- **2026-10-11, DM-T (Claude, sports thread):** a trade finder needs no new rules, only a search over the existing
+  judge (every suggested deal is checked by the same function that answers a hand-built proposal), so it can never
+  offer something the other club would refuse; a check pins that and that no single cheaper player would do.
+- **2026-10-11, DM6 (Claude, sports thread):** growth needs a ceiling, or every young player becomes a star and the
+  league inflates. Ceilings plus "plays every day grows faster" turn the farm club and the batting order into real
+  choices. A six-season simulation showed the league still inflates (it did before DM6 too) while the market stays put;
+  actioned as ticket DM-B2 in plans/sports-management.md. A send-down must keep the salary on the payroll, or the
+  farm becomes a way around the budget (caught in review, now a check).
+- **2026-10-11, DM-B (Claude, sports thread):** a management game must be tested by simulating a manager, not only
+  by playing it: a policy that signs, orders and builds won no more games than doing nothing until money and the market
+  gave it room. The check now pins the gap (an active manager at least 2.5 wins a season ahead), and the simulation
+  found two real traps (an ended contract arriving by trade or free agency; a roster you could neither fill nor
+  release), both fixed.
 - **2026-10-09, Art direction (Claude, Art direction thread, formerly Game assets):** borrowed art made Starfall and
   Wildbond look like one game, and free packs can't carry a future 3D or first-person game. Actioned: one arcade-wide
   art guide (docs/art/README.md: ten shared rules, a palette per game, footprints and heights in data, a drawing-task
