@@ -42,9 +42,12 @@ function makePlayer(r, id, level, pitcher, pos) {
   const age=ri(r,21,34), g=()=>clamp(Math.round(level+(rnd(r)+rnd(r)-1)*14),25,92);
   const p={id, name:DM.first[ri(r,0,DM.first.length-1)]+' '+DM.last[ri(r,0,DM.last.length-1)], age, pitcher:!!pitcher};
   if(pitcher) Object.assign(p,{pos:'P',stuff:g(),control:g(),stamina:g()});
-  else Object.assign(p,{pos,contact:g(),power:g(),eye:g(),glove:g()});
+  else Object.assign(p,{pos,contact:g(),power:g(),eye:g(),glove:g(),speed:speedFor(id,age)});
   p.salary=askSalary(p); p.years=ri(r,1,3); p.pot=potentialFor(r,p); return p;
 }
+/* Speed (batters only) takes extra bases and makes a pinch runner; it is not part of overall. Drawn from the id so old
+   saves can be given the same number. */
+function speedFor(id,age) { return clamp(32+((Math.imul(id,2654435761)>>>0)%46)-Math.max(0,age-28)*2,25,90); }
 /* Potential: the best overall a player can reach. Young players have room to grow; veterans are what they are. */
 function potentialFor(r,p) { const o=overall(p); return Math.min(92, o+(p.age<=24?ri(r,3,18):p.age<=27?ri(r,0,8):0)); }
 /* What the club's scouts can tell about a ceiling: to the nearest 10 with no Scouting office, to the nearest 5 at
@@ -55,7 +58,7 @@ function makeProspect(r,id) { const pitcher=rnd(r)<.4, p=makePlayer(r,id,ri(r,36
 function newLeague(seed=1) {
   const L={game:'diamond-manager', schema:1, seed:seed>>>0, nextId:1, season:1, day:0, cash:600, phase:'season',
     clubs:[], schedule:[], results:[], log:[], inbox:[], freeAgents:[], upgrades:{seats:0,lights:0,training:0,scouting:0,clubhouse:0},
-    speed:1, intro:true, history:[], final:null, offer:null, sound:0, dmb:true, dmc:true, draft:null};
+    speed:1, intro:true, history:[], final:null, offer:null, sound:0, dmb:true, dmc:true, dmd:true, draft:null, live:null};
   DM.clubs.forEach((c,i)=>{
     const club={name:c.name, short:c.short, w:0, l:0, rs:0, ra:0, budget:i===0?10500:13500, players:[], lineup:[], rot:0};
     DM.batPos.forEach(pos=>club.players.push(makePlayer(L,L.nextId++,c.level,false,pos)));
@@ -103,56 +106,12 @@ function plateAppearance(r,b,p,glove) {
   const hr=clamp(.10+(b.power-50)*.0045-(p.stuff-50)*.001,.02,.3), y=rnd(r);
   return y<hr?4 : y<hr+.02?3 : y<hr+.22?2 : 1;
 }
-const PLAY_WORDS={walk:'walks',k:'strikes out',out:['grounds out','flies out','lines out','pops up'],1:['singles to left','singles up the middle','singles to right'],2:['doubles into the gap','doubles down the line'],3:['triples to the corner'],4:['homers!','hits a home run!']};
-function pickWord(r,k){const w=PLAY_WORDS[k];return Array.isArray(w)?w[Math.floor(rnd(r)*w.length)]:w;}
 
-function bullpen(club,starter) { const ps=pitchers(club).filter(p=>p.id!==starter.id); const avg=k=>ps.reduce((n,p)=>n+p[k],0)/Math.max(1,ps.length);
-  return {name:'the bullpen', stuff:Math.round(avg('stuff'))-3, control:Math.round(avg('control'))-3, stamina:60, pen:true}; }
-function starterOf(club) { const ps=pitchers(club).slice().sort((a,b)=>overall(b)-overall(a)).slice(0,5); return ps[club.rot%ps.length]; }
-/* A full game. Returns the score, the box lines and a play-by-play event list with the state after each event. */
-function playGame(L,home,away,seed) {
-  const r={seed:seed>>>0}, teams=[L.clubs[away],L.clubs[home]], idx=[away,home];
-  const by=(c,id)=>c.players.find(p=>p.id===id);
-  const g={home,away,score:[0,0],line:[[],[]],hits:[0,0],order:[0,0],events:[],box:{},final:false};
-  const st=teams.map(starterOf), arms=st.slice(), faced=[0,0];
-  const glove=teams.map(c=>c.lineup.reduce((n,id)=>n+by(c,id).glove,0)/9);
-  const stat=id=>g.box[id]||(g.box[id]={ab:0,h:0,hr:0,rbi:0,bb:0,k:0});
-  for(let inning=1;inning<=15;inning++){
-    for(let half=0;half<2;half++){
-      if(inning>=9&&half===1&&g.score[1]>g.score[0]) break;
-      const bat=teams[half], def=1-half; let outs=0, bases=[null,null,null], runs=0;
-      g.events.push({t:(half?'Bottom':'Top')+' of the '+nth(inning)+'. '+bat.short+' batting.',inning,half,outs,bases:[0,0,0],score:g.score.slice(),head:true});
-      while(outs<3){
-        if(arms[def]!==null&&!arms[def].pen&&faced[def]>=16+Math.round(arms[def].stamina/5)){
-          arms[def]=bullpen(teams[def],st[def]);
-          g.events.push({t:teams[def].short+' go to the bullpen.',inning,half,outs,bases:bases.map(b=>b?1:0),score:g.score.slice()});
-        }
-        const b=by(bat,bat.lineup[g.order[half]]), p=arms[def]; g.order[half]=(g.order[half]+1)%9; faced[def]++;
-        const res=plateAppearance(r,b,p,glove[def]), s=stat(b.id); let scored=0;
-        if(res==='walk'){ s.bb++; if(bases[0]){ if(bases[1]){ if(bases[2])scored++; bases[2]=bases[1]; } bases[1]=bases[0]; } bases[0]=b.id; }
-        else if(res==='k'||res==='out'){ s.ab++; if(res==='k')s.k++; outs++;
-          // A fly ball with a runner on third and fewer than two outs brings him home.
-          if(res==='out'&&outs<3&&bases[2]&&rnd(r)<.35){ scored++; bases[2]=null; } }
-        else { s.ab++; s.h++; g.hits[half]++; if(res===4)s.hr++;
-          for(let i=2;i>=0;i--){ const id=bases[i]; if(!id)continue; bases[i]=null; const extra=(res<3&&i+res===2&&rnd(r)<.55)?1:0; if(i+res+extra>=3)scored++; else bases[i+res+extra]=id; }
-          if(res===4)scored++; else bases[res-1]=b.id; }
-        s.rbi+=scored; g.score[half]+=scored; runs+=scored;
-        const who=b.name.split(' ')[1]||b.name;
-        let text=b.name+' '+pickWord(r,res)+(scored?' '+(scored===1?'A run scores.':scored+' runs score.'):'');
-        if(res==='k'&&!p.pen) text=b.name+' strikes out against '+p.name+'.';
-        g.events.push({t:text,inning,half,outs,bases:bases.map(x=>x?1:0),score:g.score.slice(),runs:scored,res,who});
-        if(inning>=9&&half===1&&g.score[1]>g.score[0]) break;
-      }
-      g.line[half].push(runs);
-    }
-    if(inning>=9&&g.score[0]!==g.score[1]) break;
-  }
-  if(g.score[0]===g.score[1]) { // Fifteen innings is enough for a summer evening: the home club wins a tie on its last turn.
-    g.score[1]++; g.line[1][g.line[1].length-1]++; g.events.push({t:'A wild pitch brings the winning run home in the fifteenth.',inning:15,half:1,outs:2,bases:[0,0,0],score:g.score.slice(),runs:1});
-  }
-  g.final=true; g.starters=st.map(p=>p.id); g.winner=g.score[1]>g.score[0]?home:away;
-  return g;
-}
+/* Rest: a pitcher who threw 50 or more pitches needs four days off, 25 or more needs a day off. key counts days. */
+function rested(p,key) { const r=p.rest; return !r||key===undefined||key-r.day>=(r.pitches>=50?4:r.pitches>=25?2:1); }
+function starterOf(club,key) { const ps=pitchers(club).slice().sort((a,b)=>overall(b)-overall(a)).slice(0,5);
+  for(let k=0;k<ps.length;k++){ const p=ps[(club.rot+k)%ps.length]; if(rested(p,key)) return p; } return ps[club.rot%ps.length]; }
+function dayKey(L) { return L.season*100+(L.phase==='final'&&L.final?30+L.final.games.length:L.day); }
 function nth(n){return n+(n%10===1&&n!==11?'st':n%10===2&&n!==12?'nd':n%10===3&&n!==13?'rd':'th');}
 
 /* Record a played game into the standings and the season stats. */
@@ -161,38 +120,47 @@ function recordGame(L,g) {
   h.rs+=g.score[1]; h.ra+=g.score[0]; a.rs+=g.score[0]; a.ra+=g.score[1];
   if(g.winner===g.home){h.w++;a.l++;}else{a.w++;h.l++;}
   h.rot++; a.rot++;
-  for(const c of [h,a]) for(const p of c.players){ const s=g.box[p.id]; if(!s)continue; p.season=p.season||{ab:0,h:0,hr:0,rbi:0,bb:0,k:0,g:0};
-    for(const k in s)p.season[k]+=s[k]; p.season.g++; }
+  for(const c of [h,a]) for(const p of c.players){ const s=g.box[p.id], ps=g.pbox&&g.pbox[p.id]; if(!s&&!ps) continue; p.season=p.season||{g:0}; if(ps&&g.key!==undefined) p.rest={day:g.key,pitches:ps.pitches};
+    for(const k in s||ps) p.season[k]=(p.season[k]||0)+(s||ps)[k]; p.season.g=(p.season.g||0)+1;
+    if(ps){ if(g.starters&&g.starters.includes(p.id)) p.season.gs=(p.season.gs||0)+1; if(g.decision&&g.decision.w===p.id) p.season.w=(p.season.w||0)+1; if(g.decision&&g.decision.l===p.id) p.season.l=(p.season.l||0)+1; } }
 }
 function gateMoney(L) {
   const you=L.clubs[DM.you], gp=you.w+you.l, pct=gp?you.w/gp:.5, cap=6000+3000*L.upgrades.seats;
   const demand=Math.round(3500+pct*7000+L.upgrades.lights*1500+(L.history.length?L.history.filter(h=>h.champion).length*800:0));
   const crowd=Math.min(cap,demand); return {crowd, cap, money:Math.round(crowd*DM.ticket/1000)};
 }
-/* Play the day: our game is returned for watching, every other game is simulated at once. */
-function playDay(L) {
-  if(L.phase!=='season') return null;
-  const today=L.schedule[L.day]; let ours=null;
-  today.forEach(([h,a],i)=>{ const g=playGame(L,h,a,(L.seed^(L.day*977+i*131+L.season*7919))>>>0); recordGame(L,g); if(h===DM.you||a===DM.you)ours=g; });
-  const gate=ours.home===DM.you?gateMoney(L):null; if(gate)L.cash+=gate.money;
-  const res={day:L.day+1, home:ours.home, away:ours.away, score:ours.score, won:ours.winner===DM.you, gate};
-  L.results.push(res); L.day++;
+/* A day of the season. startDay sets up our game (L.live) for watching and managing; finishDay records it, plays the
+   other games and moves the season on. playDay does both at once, with Iona managing (Sim this game, the tests). */
+function daySeed(L,i) { return (L.seed^(L.day*977+i*131+L.season*7919))>>>0; }
+function startDay(L,manage) {
+  if(L.phase!=='season'||L.live) return null; const today=L.schedule[L.day], i=today.findIndex(m=>m.includes(DM.you)), [h,a]=today[i];
+  const g=newGame(L,h,a,daySeed(L,i),manage?(h===DM.you?1:0):-1); L.live={g,final:false}; return g; }
+function finishDay(L) {
+  const g=L.live&&L.live.g; if(!g||!g.done||L.live.final) return null; L.live=null;
+  L.schedule[L.day].forEach(([h,a],i)=>{ recordGame(L, h===g.home&&a===g.away ? g : playGame(L,h,a,daySeed(L,i),true)); });
+  L.lastBox=boxScore(L,g);
+  const gate=g.home===DM.you?gateMoney(L):null; if(gate)L.cash+=gate.money;
+  L.results.push({day:L.day+1, home:g.home, away:g.away, score:g.score, won:g.winner===DM.you, gate}); L.day++;
   if(L.day%5===0&&!L.offer) L.offer=aiOffer(L);
   if(L.day>=DM.seasonGames) startFinal(L);
-  return ours;
+  return g;
 }
+function playDay(L) { const g=startDay(L,false); if(!g) return null; finishGame(L,g); return finishDay(L); }
 function standings(L) { return L.clubs.map((c,i)=>({i,c})).sort((a,b)=>(b.c.w-a.c.w)||((b.c.rs-b.c.ra)-(a.c.rs-a.c.ra))||a.i-b.i); }
 function startFinal(L) { const s=standings(L); L.phase='final'; L.final={teams:[s[0].i,s[1].i],wins:[0,0],games:[]}; }
 /* Best of three; the first-placed club is at home in games one and three. */
-function playFinalGame(L) {
-  const f=L.final; if(L.phase!=='final')return null; const n=f.games.length, top=f.teams[0], other=f.teams[1];
-  const [h,a]=n===1?[other,top]:[top,other];
-  const g=playGame(L,h,a,(L.seed^(L.season*31337+n*101))>>>0);
-  f.wins[g.winner===top?0:1]++; f.games.push({home:h,away:a,score:g.score,winner:g.winner});
-  if(h===DM.you){ const gate=gateMoney(L); L.cash+=gate.money*2; }
+function startFinalGame(L,manage) {
+  const f=L.final; if(L.phase!=='final'||L.live) return null; const n=f.games.length, top=f.teams[0], other=f.teams[1];
+  const [h,a]=n===1?[other,top]:[top,other], g=newGame(L,h,a,(L.seed^(L.season*31337+n*101))>>>0,manage&&f.teams.includes(DM.you)?(h===DM.you?1:0):-1);
+  L.live={g,final:true}; return g; }
+function finishFinalGame(L) {
+  const g=L.live&&L.live.g, f=L.final; if(!g||!g.done||!L.live.final) return null; L.live=null; const top=f.teams[0], other=f.teams[1];
+  f.wins[g.winner===top?0:1]++; f.games.push({home:g.home,away:g.away,score:g.score,winner:g.winner}); L.lastBox=boxScore(L,g);
+  if(g.home===DM.you){ const gate=gateMoney(L); L.cash+=gate.money*2; }
   if(f.wins[0]===2||f.wins[1]===2){ f.champion=f.wins[0]===2?top:other; L.phase='offseason'; endSeason(L); }
   return g;
 }
+function playFinalGame(L) { const g=startFinalGame(L,false); if(!g) return null; finishGame(L,g); return finishFinalGame(L); }
 /* The offseason: owner's budget, aging, contracts, free agents. */
 function endSeason(L) {
   const you=L.clubs[DM.you], champ=L.final.champion===DM.you, inFinal=L.final.teams.includes(DM.you);
@@ -205,6 +173,7 @@ function endSeason(L) {
     const tr=ci===DM.you?L.upgrades.training*2:1, daily=new Set(c.players.filter(p=>playsDaily(c,p)));
     for(const p of c.players.concat(c.farm||[])){ const before=overall(p), farm=(c.farm||[]).includes(p); develop(L,p,tr,farm||daily.has(p)); const d=overall(p)-before;
       if(ci===DM.you){ if(d>=2)L.report.grew.push({name:p.name,d,farm}); if(d<=-2)L.report.slipped.push({name:p.name,d}); }
+      if(p.season&&p.season.g){ p.last=Object.assign({year:L.season},p.season); p.career=p.career||{}; for(const k in p.season) p.career[k]=(p.career[k]||0)+p.season[k]; }
       if(!farm||p.sent)p.years--; if(farm&&p.sent&&p.years<=0){p.sent=false;p.salary=150;p.years=3;} p.season=null; }
     // The farm club is for players 25 and under; older ones leave for free agency.
     c.farm=(c.farm||[]).filter(p=>{ if(p.age<=25)return true; p.prospect=false; p.sent=false; p.salary=askSalary(p); p.years=ri(L,1,2); L.freeAgents.push(p); if(ci===DM.you)L.report.left.push(p.name); return false; });
@@ -421,6 +390,10 @@ function validLeague(o) {
       if (o.phase === 'offseason' && (!team(f.champion) || !f.teams.includes(f.champion))) return false;
     }
     if (o.offer && (!team(o.offer.club) || o.offer.club === DM.you)) return false;
+    if (o.live) { const g = o.live.g, has = (side, id) => o.clubs[side ? g.home : g.away].players.some(p => p.id === id);
+      if (!g || !team(g.home) || !team(g.away) || g.home === g.away || !Array.isArray(g.lineup) || !g.lineup.every((l, side) => Array.isArray(l) && l.length === 9 && l.every(id => has(side, id))) ||
+          !Array.isArray(g.pitcher) || !g.pitcher.every((id, side) => has(side, id)) || !Array.isArray(g.bases) || g.bases.length !== 3 || !Array.isArray(g.events) ||
+          !int(g.inning) || g.inning < 1 || g.inning > 15 || ![0,1].includes(g.half) || !Array.isArray(g.score) || !g.box || !g.pbox) return false; }
     if (o.report && (!Array.isArray(o.history) || !o.history.length || !['grew','slipped','expiring'].every(k => Array.isArray(o.report[k])))) return false;
     return true;
   } catch (_) { return false; }
@@ -443,4 +416,7 @@ function migrateLeague(o) { if(!validLeague(o)) return newLeague((Date.now()>>>0
   // Draft and development (v0.3.0): everyone gets a ceiling, every club a farm club.
   if(!L.dmc){ L.dmc=true; const r={seed:(L.seed^0x5eed)>>>0}; for(const c of L.clubs){ for(const p of c.players)if(p.pot===undefined)p.pot=potentialFor(r,p); c.farm=c.farm||[]; }
     for(const p of L.freeAgents)if(p.pot===undefined)p.pot=potentialFor(r,p); if(L.phase==='offseason'&&!L.draft)L.draft={pool:[],order:[],pick:0,picks:[],done:true}; }
+  // The game, pitch by pitch (v0.5.0): batters get a speed rating.
+  if(!L.dmd){ L.dmd=true; const all=L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?L.draft.pool:[]); for(const p of all) if(!p.pitcher&&p.speed===undefined) p.speed=speedFor(p.id,p.age); }
+  if(L.lastBox&&!(Array.isArray(L.lastBox.bat)&&Array.isArray(L.lastBox.pit))) delete L.lastBox;
   return L; }

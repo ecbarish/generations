@@ -306,7 +306,7 @@ deliverables are retired; the batting prototype stays in games/diamond-career/ o
 - [x] DM1 [Claude] The first playable season (v0.1.0, PR #110).
 - [x] DM2 [any] Playability pass (docs/playtests/diamond-manager-1.md). - [x] DM-B [Claude] Choices matter (v0.2.0).
 - [ ] DM3 [any] Hiring coaches. - [ ] DM4 [any] Player morale and stories. - [ ] DM5 [any] The ballpark you see grow.
-- [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [ ] DM-B2 [any] Keep the league in balance over many seasons. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
+- [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [x] DM-G [Claude] Pitch-by-pitch game, in-game moves, box scores, stats (v0.5.0). - [ ] DM-B2 [any] Keep the league in balance over many seasons. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
 
 ### Lantern Bowl (browser; American football in the Retro Bowl spirit, our own code and art)
 Evan said yes 2026-10-09. Plan: [plans/sports-management.md](plans/sports-management.md) "Game 2".
@@ -443,6 +443,11 @@ line or two, with the page that holds the detail.
   square, the opening view) and one older code-drawn piece off the palette, and doors drawn between two tiles
   (a door must be centred on the map tile you walk through, and touch the ground); next time a set of tasks includes one for
   dressing the scene and one for the first screen. Tasks ART-SF-8, SF2.6c.
+- **2026-10-11, DM-G (Claude, sports thread):** "watching" a sports sim means seeing it, not reading it. To add pitches
+  and fielders without breaking a balanced simulation, the result of each plate appearance still comes from the tested
+  ratings formula and the pitches are written to fit it (four balls end a walk, three strikes a strikeout); the run and
+  batting numbers stayed within a few percent. A game is a plain saved object stepped one pitch at a time, so the
+  player can be asked between batters and a game left halfway resumes.
 - **2026-10-11, DM-T (Claude, sports thread):** a trade finder needs no new rules, only a search over the existing
   judge (every suggested deal is checked by the same function that answers a hand-built proposal), so it can never
   offer something the other club would refuse; a check pins that and that no single cheaper player would do.
