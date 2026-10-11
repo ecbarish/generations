@@ -636,6 +636,7 @@ func _run() -> void:
 	_wilds()
 	_by_hand()
 	_no_chores()
+	_tamsin_kept()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -1067,3 +1068,44 @@ func _no_chores() -> void:
 			read = true
 			break
 	check(read and main.READ_AT != r.tile, "with you standing in front of the board, an adventurer reads it from beside you and takes the job")
+
+## SF2.20: a quiet tavern still gets its barkeep: Tamsin also asks after three evenings you kept the tap yourself.
+func _tamsin_kept() -> void:
+	var keep := [main.pours, main.kept, main.tamsin.where, main.tamsin.tile, main.tamsin_hired, main.today.duplicate()]
+	var keep_built: Dictionary = main.built.duplicate(true)
+	main.built["east"] = { "what": "tavern", "left": 0.0 }
+	main.tamsin.where = "gone"
+	main.tamsin_hired = false
+	main.pours = 3                                      # only three drinks ever poured: under POUR_AFTER
+	main.kept = 0
+	for n in main.KEPT_AFTER:
+		main.today = { "done": 0, "failed": 0, "meals": 0, "earned": 0, "drinks": 1, "kept": true }
+		main._tavern_evening()
+		if n < main.KEPT_AFTER - 1:
+			check(main.tamsin.where == "gone", "Tamsin isn't here yet after %d evening(s) kept" % (n + 1))
+	check(main.tamsin.where == "town" and main.pours < main.POUR_AFTER, "after three evenings you kept the tap yourself, Tamsin walks in, even with few drinks poured")
+	main.tamsin.where = "gone"
+	main.kept = 0
+	main.today = { "done": 0, "failed": 0, "meals": 0, "earned": 0, "drinks": 2 }
+	main._tavern_evening()
+	check(main.kept == 0, "an evening Tamsin or nobody poured doesn't count: you master it first")
+	main.no_save = false
+	main.save_path = "user://test_tamsin.json"
+	main.kept = 2
+	main.save_game()
+	main.kept = 0
+	check(main._load() and main.kept == 2, "evenings kept are saved and load back")
+	var d: Dictionary = main.SafeSave.read(main.save_path)
+	d.tavern.erase("kept")
+	main.SafeSave.write(main.save_path, d)
+	main.kept = 5
+	check(main._load() and main.kept == 0, "a save from before SF2.20 loads with no evenings kept")
+	main.SafeSave.remove(main.save_path)
+	main.no_save = true
+	main.pours = keep[0]
+	main.kept = keep[1]
+	main.tamsin.where = keep[2]
+	main.tamsin.tile = keep[3]
+	main.tamsin_hired = keep[4]
+	main.today = keep[5]
+	main.built = keep_built

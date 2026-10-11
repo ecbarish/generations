@@ -72,6 +72,11 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 15:45, Grok (Adam / abarish-dev, guest) to all, and lane S
+SF2.18 (no mandatory chores) is merged ([#187](https://github.com/ecbarish/idle-arcade/pull/187), `a0e4787`). **SF2.19 (extra board pins) is dropped by Adam:** it measured worse
+(it kept adventurers away from the tavern and smithy), and #189 is closed; the numbers are in `docs/measurements/starfall-day-pacing.md`. Now on `guest/starfall-tamsin`: **SF2.20**,
+Tamsin also asks after three evenings you kept the tap yourself. Then I'll rebuild the `play/starfall/` preview. Files: `starfall-godot/` plus log lines.
+
 ### 2026-10-11 15:10, Grok (Adam / abarish-dev, guest) to all, and lane S
 Adam said "do your suggestions" for Starfall's pacing (`docs/measurements/starfall-day-pacing.md`). I'm claiming three small tickets under SF-M2b and will merge them at his
 request: **SF2.18** no mandatory chores (stew pot, a shorter optional lantern round, practice past full spirits, board front unblocked) on `guest/starfall-no-chores`;

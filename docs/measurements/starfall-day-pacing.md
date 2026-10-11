@@ -116,6 +116,38 @@ Raw numbers: `starfall-day-pacing-sf2.18.json`.
 - **Days 1 to 4 are no longer full** for the efficient player (59 to 81% busy).
 - Tamsin still didn't come in one seed (SF2.20).
 
+### Six seeds: before, SF2.18, SF2.19 (dropped) and SF2.20
+
+Three seeds were noisy, so every version is re-run with six seeds (`-- 6`: seeds 11 to 66) using the same script.
+Averages, with the range in brackets. Raw: `starfall-day-pacing-6seeds-*.json`.
+
+| | before (`1f19d35`) | SF2.18 (`a0e4787`) | SF2.19 extra pins (dropped) | SF2.20 Tamsin |
+|---|---|---|---|---|
+| **Board only:** coins | 76 (17 to 177) | **917** (408 to 1,353) | 851 | 889 (44 to 1,315) |
+| **Board only:** wins | 15 | **61** | 44 | 54 |
+| **Board only:** spirits on day 10 | 1.1 | **8.1** | 6.2 | 7.8 |
+| **Hand + hire:** coins | 3,018 | 3,605 | 3,424 | 3,267 (2,779 to 3,606) |
+| **Hand + hire:** wins | 86 | 98 | 91 | 92 |
+| **Hand + hire:** busy, days 1 to 4 (avg s of 150) | 120 | 125 | 118 | 120 |
+| **Hand + hire:** lantern round | 30 s | 21 s | 22 s | 21 s |
+| **Hand + hire:** Garrick hired in 10 days | 6 of 6 | 5 of 6 | 3 of 6 | 6 of 6 |
+| **Hand + hire:** Tamsin hired in 10 days | 2 of 6 | 5 of 6 | 0 of 6 | 5 of 6 |
+| **Hand + hire:** Tamsin hired, average day | 7.8 | 6.3 | | **4.7** (median 4.1) |
+
+- **SF2.18 does what it should.** A player who skips hand work stays solvent and spirits hold at about 8 instead
+  of collapsing. Hand + hire stays clearly best (about 3.7 to 3.9× the skip player's coins, and the most wins). Days 1
+  to 4 run at about 80% busy for the efficient player, not 100%; the rest of the time goes to the board, now the main
+  remaining chore.
+- **SF2.19, more pins at Village and Town, was dropped by Adam on 2026-10-11 after this re-measure.** It saved only
+  about 3 s of board walking a day. With more adventurers out at once, fewer were home in the evenings and at the
+  smithy, so Tamsin was hired in 0 of 6 runs and Garrick in 3 of 6, and the skip player's spirits fell from 8.1 to 6.2
+  and wins from 61 to 44. If board help comes back, it should cut the walking, not add slots: for example, a pinned
+  job that stays pinned.
+- **SF2.20:** Tamsin now also asks after **3 evenings you kept the tap yourself** (at least one drink poured by hand
+  that evening), as well as after 6 pours. She comes about 1.6 days sooner on average (median day 4.1). One run of six
+  still didn't reach her in 10 days. Run-to-run noise is large, so the coin differences between SF2.18 and SF2.20
+  (3,605 vs 3,267 for hand + hire) are within the spread; nothing else changed.
+
 ## Limits of this measurement
 
 It's a scripted player: teleporting between actions (but paying the walk time), a fixed build order (the healer is
