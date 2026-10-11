@@ -204,7 +204,7 @@ class Mover:
 		tile = t
 		pos = Vector2(t) * 16.0
 
-var me := Mover.new("me", Vector2i(14, 10))
+var me := Mover.new("me", Vector2i(15, 5))    # SF2.6c: beside the hall, with both roofs in the first view
 var bryn := Mover.new("bryn", BRYN_HOME)
 var heroes: Array[Mover] = []
 var coins := 100
@@ -310,7 +310,7 @@ func _ready() -> void:
 		no_save = true                           # recordings and tries never touch the real town (-- --no-save)
 	cam = Camera2D.new()
 	cam.limit_left = -WILDS_W * TILE                 # the stretch outside the gate (SF2.7)
-	cam.limit_top = 0
+	cam.limit_top = -TILE                          # a little sky above the roofs, clear of the status/goal lines
 	cam.limit_right = MAP[0].length() * TILE
 	cam.limit_bottom = MAP.size() * TILE
 	cam.position_smoothing_enabled = true

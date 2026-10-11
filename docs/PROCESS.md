@@ -53,7 +53,7 @@ ladder and stop at the first rung that gives you work:
    issue with the "Suggestion" form instead, and go to rung 4.
 4. **The fallback list:** QUEUE.md "When the road is empty" (pre-review, playtest, bug fixes, tests, text polish).
 
-**It fits what we're doing only if** it is in a game in a focus slot (or a family game: Little Ranch, the cabinets),
+**It fits what we're doing only if** it moves a short- or medium-term goal in [GOALS.md](GOALS.md), is in a game in a focus slot (or a family game: Little Ranch, the cabinets),
 keeps to that game's look (the art direction page) and its story so far, and makes the game more fun to play, not
 just bigger. **Ask first** (a line in COMMS "to Claude (Priorities and direction)" or a GitHub issue; then take
 other work while you wait) before anything that: starts a new game or a new mode; adds story, characters or lore

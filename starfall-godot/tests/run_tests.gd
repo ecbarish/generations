@@ -49,6 +49,7 @@ func hero(name: String) -> Variant:
 
 func _run() -> void:
 	main.rng.seed = 2026
+	_opening_view()
 	# ---- the town at the start
 	check(main.MAP.all(func(r): return r.length() == main.MAP[0].length()), "the town map is the same width on every row")
 	check(main.heroes.size() == 3 and main.coins == 100 and main.day == 1, "three adventurers, 100 coins, day one")
@@ -628,6 +629,10 @@ func _run() -> void:
 	check(main.finished("healer") == "west" and main.finished("yard") == "east" and main.ama.where == "town" and main.rank >= 1, "with its buildings, Ama, and its rank")
 	check(main.finished("smithy") == "north" and main.smith_hired and main.garrick.where == "town" and main.stock == 2 and main.herbs > 0, "and its smithy, Garrick, the apothecary's shelf and herbs")
 	check(main.good_days == 4 and main.visitors.size() == 2, "and how the town has been doing, and who has come")
+	var saved_opening: Dictionary = main.SafeSave.read(main.save_path)
+	saved_opening.me = [14, 10]                 # the pre-SF2.6c day-one square position
+	main.SafeSave.write(main.save_path, saved_opening)
+	check(main._load() and main.me.tile == Vector2i(14, 10) and main.coins == 77, "SF2.6c keeps an existing town's position and progress")
 	# a save from before SF2.6 (the old one-screen map): you may have stood where a wall or building is now
 	var old_save: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(main.save_path))
 	old_save.me = [10, 3]                         # under the Guild Hall's roof in the new town
@@ -1176,3 +1181,19 @@ func _tamsin_kept() -> void:
 	main.tamsin_hired = keep[4]
 	main.today = keep[5]
 	main.built = keep_built
+
+## SF2.6c: the fresh opening fits both landmarks; existing towns keep their saved position.
+func _opening_view() -> void:
+	check(main.me.tile == Vector2i(15, 5) and main.walkable(main.me.tile, main.me), "the new guildmaster starts on open ground beside the hall")
+	var half := Vector2(192, 108)
+	var center: Vector2 = main.me.pos + Vector2(8, 8)
+	center.y = clampf(center.y, main.cam.limit_top + half.y, main.cam.limit_bottom - half.y)
+	var visible := Rect2(center - half, half * 2)
+	var hall := Rect2(Vector2(main.HALL_DOOR.x - 3, main.HALL_DOOR.y - 4) * main.TILE, main.F_HALL[0].get_size())
+	var inn := Rect2(Vector2(main.INN_DOOR.x - 2, main.INN_DOOR.y - 4) * main.TILE, main.F_INN[0].get_size())
+	check(visible.encloses(hall) and visible.encloses(inn), "both complete landmark textures fit in the opening camera")
+	check(hall.position.y - visible.position.y >= 28 and inn.position.y - visible.position.y >= 28, "roofs leave room for status and SF2.10's goal line")
+	for target in [main.READ_AT, main.SERVE_AT, main.HALL_DOOR + Vector2i.DOWN, main.INN_STEP, main.GATE]:
+		check(not main.route(main.me.tile, target, main.me).is_empty(), "the opening reaches service/door %s" % target)
+	for name in ["house", "nature", "floor"]:
+		check(not FileAccess.file_exists("res://assets/env/%s.png" % name) and not FileAccess.file_exists("res://assets/env/%s.png.import" % name), "unused %s tile and import are removed" % name)
