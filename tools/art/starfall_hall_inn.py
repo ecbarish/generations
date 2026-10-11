@@ -60,8 +60,13 @@ def window(d,x,y,lit):
     d.line((x,y+8,x+7,y+8),fill=C['plank'])
 
 
-def door(d,x,y,double=False):
-    # Exactly 12x20, including outline; fits a normal 16x24 person.
+def door(d,x,y,double=False,step=False):
+    # Exactly 12x20, including outline; fits a normal 16x24 person. With step, (x, y) is where the step's top sits:
+    # a plank step laid across the stone footing to the ground, and the door stands on it instead of floating.
+    if step:
+        d.rectangle((x-1,y+17,x+12,y+19),fill=C['plank'],outline=C['ink'])
+        d.line((x,y+18,x+11,y+18),fill=C['log_l'])
+        y-=3
     d.rectangle((x,y,x+11,y+19),fill=C['log_d'],outline=C['ink'])
     for dx in (2,5,8):d.line((x+dx,y+1,x+dx,y+18),fill=C['log'])
     if double:
@@ -76,8 +81,9 @@ def building(kind,lit):
     im=ground.image((width,80));d=ImageDraw.Draw(im);foundation(d,width)
     if kind=='guild_hall':
         logs(d,(3,40,92,75));roof(d,width,5,48)
-        windows=[(14,55),(28,55),(60,55),(74,55)]
-        door_rect=[42,54,12,20];door(d,*door_rect[:2],double=True)
+        # The door is centred on the footprint's fourth tile (x 48-63), the door tile in the game's map.
+        windows=[(12,55),(28,55),(66,55),(76,55)]
+        door_rect=[50,57,12,20];door(d,door_rect[0],60,double=True,step=True)
         # Banner and pole distinct from roof colour; guild blue only on cloth.
         d.rectangle((85,4,87,64),fill=C['ink']);d.line((86,5,86,63),fill=C['plank'])
         d.polygon([(87,7),(94,7),(94,28),(91,25),(87,28)],fill=C['guild'],outline=C['ink'])
@@ -87,8 +93,9 @@ def building(kind,lit):
         logs(d,(3,23,60,75));roof(d,width,0,29)
         d.rectangle((4,49,59,52),fill=C['log_d'],outline=C['ink'])
         d.line((5,50,58,50),fill=C['log_l'])
-        windows=[(10,35),(28,35),(46,35),(10,59),(44,59)]
-        door_rect=[26,54,12,20];door(d,*door_rect[:2])
+        # The door is centred on the footprint's third tile (x 32-47), the door tile in the game's map.
+        windows=[(10,35),(28,35),(46,35),(22,59),(48,59)]
+        door_rect=[34,57,12,20];door(d,door_rect[0],60,step=True)
         # Hanging bed sign on a timber bracket; no player-facing tiny text.
         d.line((55,29,63,29),fill=C['ink']);d.line((56,30,62,30),fill=C['plank'])
         d.line((62,30,62,34),fill=C['ink'])
@@ -122,7 +129,7 @@ def scene(assets,lit):
     stockade.paste(im,assets['guild_hall'+suffix],(64,63))
     stockade.paste(im,assets['inn'+suffix],(240,63))
     # Each person stands just outside the threshold, leaving the door visible.
-    for x in (100,262):stockade.paste(im,person(),(x,149))
+    for x in (108,270):stockade.paste(im,person(),(x,152))
     return im
 
 
@@ -156,6 +163,7 @@ def validate(assets,meta):
         a=assets[kind+'.png'];b=assets[kind+'-lit.png']
         assert list(a.size)==e['size'] and b.size==a.size
         assert e['door_rect'][2:]==[12,20]
+        dx=e['door_rect'][0];assert (dx+6)%16 in (7,8) and e['door_rect'][1]+e['door_rect'][3]==77, 'Door centred on a tile, standing on its step'
         fx,fy,fw,fh=e['footprint_rect'];assert [fw//16,fh//16]==e['footprint_tiles']
         assert 0<=fx and 0<=fy and fx+fw<=a.width and fy+fh<=a.height
         assert all(a.getpixel((x,79))!=0 for x in range(a.width)), 'Base must span footprint'
