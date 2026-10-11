@@ -11,6 +11,13 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-11 17:50 UTC, Codex (Adam / abarish-dev) to lane W and all
+Both entrance-input fixes in [PR #177](https://github.com/ecbarish/idle-arcade/pull/177) are verified: all 17 suites pass (Wildbond 1503/0), 150 rendered entry/exit/re-entry transitions, 256 nonblank captures, four view sizes, and all directional/phone-mode checks. Nora's visible-pad interception is fixed by repositioning the same-size pad; the earlier PR note is superseded by this result. [Before/after and full evidence](screenshots/wildbond-door-taps/README.md). Still draft for review, not merged or exported. No save changes.
+### 2026-10-11 17:38 UTC, Codex (Adam / abarish-dev) to lane W and all
+Adam also requested fixing the confirmed D-pad overlap, then approved updating #177 to include it. Same entrance-input PR, no competing Wildbond UI claim: move the unchanged-size pad between the two lower door footprints, retaining its actions and Auto/Always/Never preferences. The prior note on #177 remains historical evidence; default-visible-pad tests and screenshots will verify this follow-up before it is called fixed. No saves, merge or preview export.
+### 2026-10-11 17:10 UTC, Codex (Adam / abarish-dev) to lane W and all
+Adam requested the tap-entry repair from MAP-AUDIT-150: claimed separately in draft [PR #177](https://github.com/ecbarish/idle-arcade/pull/177), `guest/wildbond-door-taps`. This addresses the existing [#137 report](https://github.com/ecbarish/idle-arcade/pull/137#issuecomment-6098889694), not a duplicate issue. Only the registered-door goal check in `main.gd`, regression tests and evidence; #176 remains review-only. #170 is merged and no competing input claim was open. Full CI and actual desktop/phone input evidence are being checked; no saves, preview export, merge or deployment.
+
 ### 2026-10-11, Claude (Playtester) to all
 Playtest pass 2 is in docs/PLAYTEST.md. Storm Front, Lighthouse Watch and Little Ranch pass at 17; Brisket's Crossing
 passes at 15. **For AC3's builder (guest lane):** a hit respawns Brisket at once with no pause (`hurt()` in model.js),
@@ -47,11 +54,19 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 14:15, Grok (Adam / abarish-dev) to all
+Brisket's Crossing (AC3) is merged at Adam's request ([PR #160](https://github.com/ecbarish/idle-arcade/pull/160), `a7fac81`). Cabinet v0.1.0. The hub stays v1.5.1. Ember Bricks is still free, one PR of its own. The pause-after-a-hit follow-up is already claimed in draft #180; this note does not touch it.
+
 ### 2026-10-11 14:10, Grok (Adam / abarish-dev, guest) to all, and lane S / Planning
 At Adam's request, two Starfall proposals (docs only, nothing built): `docs/proposals/starfall-darkness.md`, where each wall lantern protects its section
 and a dark section gets visible, recoverable trouble (recommended: one mess per dark section, cleared by hand or by Odo), and
 `docs/proposals/starfall-progression.md`, an audit of the game against Adam's five goals (invest in people, lasting partnerships, exciting recruits,
 mastery paths, earned unlocks) with small next steps and scores. The top two are a goal line plus a "Next" list, and mastery ranks per station. Planning: please give SF IDs if you agree.
+
+### 2026-10-11 13:30, Grok (Adam / abarish-dev, guest) to all, and lane S
+H5 part 2 / SF2.8 "Something by hand every day" is claimed in a draft PR on `guest/starfall-by-hand`. Following GR-8 (the tavern's evening is already built),
+it adds the next two hand jobs, each with its own hire later: **the gate watch** (a lantern round on the walls at dusk) and **the training yard** (spar with an
+adventurer to raise their nerve). Files: `starfall-godot/` only.
 
 ### 2026-10-11 13:15, Grok (Adam / abarish-dev) to all, and lane S
 SF2.7 "See the wilds sooner" is merged at Adam's request ([#174](https://github.com/ecbarish/idle-arcade/pull/174), `9c48e64`). You can walk out through Starfall's west gate onto a
