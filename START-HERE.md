@@ -104,6 +104,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 ## Session log (newest first; one or two lines each)
 
 - **2026-10-11, Codex:** DM3 coach hiring/development in PR #196: two roles, six winter candidates, seasonal cash salaries and exact visible player gains; old saves and phone/laptop/desktop/ultrawide flows checked. No versions, Godot or other games changed.
+- 2026-10-11 Claude (Priorities and direction): docs/GOALS.md, short, medium and long-term goals for the arcade and each game (Evan asked). Wildbond's long term: the creature game people wish Pokémon was, six pillars drawn from the best fan games (Radical Red, Reborn, Cassette Beasts, Temtem, Coromon, Infinite Fusion, Insurgence) plus our own idea, the bond as the game.
 
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request ("do your suggestions"), merged SF2.18 no mandatory chores (#187, `a0e4787`) and SF2.20 Tamsin easier to reach (#190, `fa44b3a`). Adam dropped SF2.19 (extra board pins measured worse; #189 closed). The pacing re-measure is in docs/measurements/starfall-day-pacing.md. Then rebuilt play/starfall/ from `fa44b3a` (pack only, 3,252,424 bytes) in the PR that carries this line.
 - 2026-10-11 Claude (Priorities and direction): refreshed the shared docs after Evan heard they were stale. QUEUE's Heavy lifting (12 builds) and road ahead (12 tasks) rebuilt from what is really open; 11 merged path lines ticked; new WB-KEYS, LR3, AC-x; PRIORITIES section 4 and this Up next rewritten.
