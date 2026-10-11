@@ -7,6 +7,7 @@ extends SceneTree
 
 const SIZES := [Vector2i(1920, 1080), Vector2i(812, 375)]
 const METHODS := ["mouse", "touch", "keyboard"]
+const PHONE_SIZES := [Vector2i(1920, 1080), Vector2i(812, 375), Vector2i(844, 390), Vector2i(960, 540)]
 const BUILDINGS := {
 	"inn": Vector2i(4, 4),
 	"shop": Vector2i(7, 10),
@@ -16,6 +17,7 @@ const BUILDINGS := {
 }
 const DT := 1.0 / 60.0
 const MAX_FRAMES := 240
+const PAD_DIRECTIONS := {"move_up": Vector2i.UP, "move_down": Vector2i.DOWN, "move_left": Vector2i.LEFT, "move_right": Vector2i.RIGHT}
 
 class InputWitness extends Node2D:
 	var events: Array = []
@@ -48,7 +50,8 @@ var folder := ""
 var failures: Array = []
 var cases: Array = []
 var captures: Array = []
-var phone_diagnostics: Array = []
+var pad_checks: Array = []
+var settings_checks: Array = []
 var current_case := ""
 var active_key := 0
 
@@ -113,10 +116,10 @@ func dismiss_arrival_dialogue() -> int:
 	check(main.lines.is_empty(), "Arrival dialogue did not close through normal interact input")
 	return count
 
-func place_initial(door: Vector2i) -> void:
+func place_initial(door: Vector2i, start_override := Vector2i(-1, -1)) -> void:
 	# Position each independent scenario once. Exit and re-entry never teleport.
 	main._set_map("larkhaven")
-	var start := door + Vector2i(0, 2)
+	var start := door + Vector2i(0, 2) if start_override.x < 0 else start_override
 	main.me.where = "larkhaven"
 	main.me.tile = start
 	main.me.pos = Vector2(start) * main.TILE
@@ -210,7 +213,7 @@ func shot(label: String, requested: Vector2i) -> void:
 	captures.append(record)
 	print("DOOR_CAPTURE ", filename)
 
-func transition(method: String, destination: String, goal: Vector2i, phase: String, size: Vector2i) -> bool:
+func transition(method: String, destination: String, goal: Vector2i, phase: String, size: Vector2i, suite := "core") -> bool:
 	await dismiss_arrival_dialogue()
 	await refresh_render()
 	var before := state()
@@ -223,13 +226,17 @@ func transition(method: String, destination: String, goal: Vector2i, phase: Stri
 	var screen: Vector2 = root.get_screen_transform() * viewport
 	var expected_route: Array = main.route(main.me.tile, goal)
 	var record := {
-		"case": current_case, "method": method, "phase": phase, "expected_map": destination,
+		"case": current_case, "suite": suite, "method": method, "phase": phase, "expected_map": destination,
 		"size": xy(Vector2(size)), "goal": xy(Vector2(goal)), "world_target": xy(world),
 		"viewport_target": xy(viewport), "screen_target": xy(screen),
 		"before": before, "route_candidate": tiles(expected_route),
 		"goal_walkable": main.walkable(goal), "touch_buttons_visible": main.touch.visible,
 		"phone_buttons_setting": main.settings.buttons(),
+		"target_hits_pad": main.touch._on_pad(viewport), "target_hits_button": main.touch._on_btn(viewport),
 	}
+	if suite == "visible-auto-pad":
+		check(main.touch.visible and main.settings.buttons() == "auto", "Default phone controls were not visible")
+		check(not main.touch._on_pad(viewport) and not main.touch._on_btn(viewport), "Visible phone controls cover a required door target")
 	check(Rect2(Vector2.ZERO, Vector2(size)).has_point(screen), "Target falls outside rendered window")
 	check(root.position == Vector2i.ZERO, "Input fixture requires window origin (0,0)")
 	if method != "keyboard":
@@ -310,76 +317,106 @@ func transition(method: String, destination: String, goal: Vector2i, phase: Stri
 	write_report()
 	return arrived
 
-func phone_diagnostic(building: String, size: Vector2i, already_touched: bool) -> void:
-	# Separately observe the normal auto-pad state. An intercepted tap is a reported
-	# UI limitation, never counted as a successful door regression. No UI fix here.
-	current_case = "%dx%d/%s/touch-auto-%s" % [size.x, size.y, building, "settled" if already_touched else "first"]
-	var door: Vector2i = BUILDINGS[building]
-	main.settings.values.buttons = 0
-	main.touch.touched = already_touched
-	place_initial(door)
-	await shot(current_case.replace("/", "-") + "-before", size)
-	var world: Vector2 = Vector2(door) * main.TILE + Vector2(8, 8)
+func set_phone_mode(value: int, touched: bool) -> void:
+	main.settings.values.buttons = value
+	main.touch.touched = touched
+	main._thumbs_tick()
+
+func settings_check(size: Vector2i, label: String, value: int, touched: bool, visible: bool) -> void:
+	current_case = "%dx%d/settings/%s" % [size.x, size.y, label]
+	set_phone_mode(value, touched)
+	check(main.touch.visible == visible, "Phone button setting changed its visibility behavior")
+	check(main.settings.keep == false and main.no_save, "Fixture enabled saved settings or game writes")
+	settings_checks.append({"case": current_case, "size": xy(Vector2(size)), "label": label, "setting": main.settings.buttons(), "touched": main.touch.touched, "visible": main.touch.visible, "expected_visible": visible})
+	await shot(current_case.replace("/", "-"), size)
+
+func phone_settings(size: Vector2i) -> void:
+	place_initial(Vector2i.ZERO, Vector2i(11, 7))
+	check(not DisplayServer.is_touchscreen_available(), "Auto fresh-touch visibility test requires the documented Xvfb desktop environment")
+	await settings_check(size, "auto-untouched", 0, false, false)
+	var world: Vector2 = main.me.pos + Vector2(8, 8)
 	var viewport: Vector2 = main.get_global_transform_with_canvas() * world
 	var screen: Vector2 = root.get_screen_transform() * viewport
-	var pad_hit: bool = main.touch._on_pad(viewport)
-	var button_hit: bool = main.touch._on_btn(viewport)
-	var before := state()
-	var controls_visible: bool = main.touch.visible
-	var pointer_preflight := await position_pointer(screen, viewport, world)
+	await position_pointer(screen, viewport, world)
+	pointer_event("touch", screen, true)
+	pointer_event("touch", screen, false)
+	check(main.touch.touched, "Actual screen touch did not activate the auto phone setting")
+	await settings_check(size, "auto-after-touch", 0, main.touch.touched, true)
+	await settings_check(size, "on", 1, false, true)
+	await settings_check(size, "off", 2, true, false)
+
+func pad_control(size: Vector2i, direction: Vector2i, action: String) -> void:
+	current_case = "%dx%d/pad/%s" % [size.x, size.y, action]
+	place_initial(Vector2i.ZERO, Vector2i(11, 7))
+	set_phone_mode(0, true)
+	await refresh_render()
+	var viewport: Vector2 = main.touch.PAD + Vector2(direction) * main.touch.ARM
+	var screen: Vector2 = root.get_screen_transform() * viewport
+	var world: Vector2 = main.get_global_transform_with_canvas().affine_inverse() * viewport
+	var preflight := await position_pointer(screen, viewport, world)
+	var start: Vector2i = main.me.tile
+	var position_before: Vector2 = main.me.pos
 	witness.events.clear()
 	witness.observing = true
 	pointer_event("touch", screen, true)
-	pointer_event("touch", screen, false)
-	var queued := tiles(main.walk_to)
-	await process_frame  # Also deliver any deferred phone Interact action.
-	var reached_unhandled := false
-	for event in witness.events:
-		if event.kind == "InputEventMouseButton" and event.pressed and event.phase == "unhandled_input":
-			reached_unhandled = true
-	var input_events := witness.events.duplicate(true)
-	witness.observing = false
-	var arrived := false
-	for frame in MAX_FRAMES:
+	check(main.touch.held == action and Input.is_action_pressed(action), "D-pad press did not hold the requested direction")
+	check(main.walk_to.is_empty(), "D-pad press leaked into tap-to-walk")
+	for frame in 10:
 		main._process(DT)
-		if main.map_name == building and main.trans_t < 0.0:
-			arrived = true
-			break
-		if main.walk_to.is_empty() and main.me.path.is_empty() and main.trans_t < 0.0:
-			break
 		await process_frame
-	var status := "entered" if arrived else "failed-other"
-	if not arrived and not reached_unhandled and (pad_hit or button_hit):
-		status = "intercepted-by-phone-controls"
-	check(status != "failed-other", "Default phone diagnostic failed for a reason other than a verified control hit")
-	check(main.get_global_mouse_position().distance_to(world) < 0.5 or arrived, "Phone diagnostic input transform was wrong")
-	phone_diagnostics.append({
-		"case": current_case, "building": building, "size": xy(Vector2(size)),
-		"phone_buttons_setting": "auto", "previous_touch": already_touched,
-		"controls_visible_before": controls_visible, "target_hits_pad": pad_hit, "target_hits_button": button_hit,
-		"screen_target": xy(screen), "viewport_target": xy(viewport), "world_target": xy(world),
-		"mouse_reached_unhandled_input": reached_unhandled, "queued_at_input": queued,
-		"input_events": input_events, "arrived": arrived, "status": status,
-		"pointer_preflight": pointer_preflight,
-		"before": before, "after": state(),
-	})
-	await shot(current_case.replace("/", "-") + "-after", size)
+	var moved_while_held: bool = main.me.pos.distance_to(position_before) > 0.5
+	check(moved_while_held, "Held D-pad direction did not move the player")
+	await shot(current_case.replace("/", "-") + "-held", size)
+	pointer_event("touch", screen, false)
+	check(main.touch.held == "" and main.touch.pad_finger == -1, "D-pad release retained a held finger")
+	for a in ["move_up", "move_down", "move_left", "move_right"]:
+		check(not Input.is_action_pressed(a), "D-pad release left a movement action pressed")
+	for frame in 45:
+		main._process(DT)
+		await process_frame
+	check(main.me.tile == start + direction and main.me.path.is_empty(), "Release did not finish exactly the committed step and stop")
+	var leaked := false
+	for event in witness.events:
+		if event.kind == "InputEventMouseButton" and event.phase == "unhandled_input" and event.pressed:
+			leaked = true
+	check(not leaked, "Emulated D-pad click reached the world tap handler")
+	witness.observing = false
+	pad_checks.append({"case": current_case, "kind": "hold-release", "size": xy(Vector2(size)), "action": action, "direction": xy(Vector2(direction)), "pad_center": xy(main.touch.PAD), "pad_radius": main.touch.PAD_R, "viewport_target": xy(viewport), "screen_target": xy(screen), "world_target": xy(world), "pointer_preflight": preflight, "start": xy(Vector2(start)), "after": state(), "moved_while_held": moved_while_held, "released": main.touch.held == "", "world_tap_leaked": leaked, "input_events": witness.events.duplicate(true)})
+	await shot(current_case.replace("/", "-") + "-released", size)
 	write_report()
-	print("PHONE_AUTO_DIAGNOSTIC ", current_case, ": ", status)
+
+func pad_hide_releases(size: Vector2i) -> void:
+	current_case = "%dx%d/pad/hide-releases" % [size.x, size.y]
+	place_initial(Vector2i.ZERO, Vector2i(11, 7))
+	set_phone_mode(1, false)
+	await refresh_render()
+	var viewport: Vector2 = main.touch.PAD + Vector2.UP * main.touch.ARM
+	var screen: Vector2 = root.get_screen_transform() * viewport
+	var world: Vector2 = main.get_global_transform_with_canvas().affine_inverse() * viewport
+	var preflight := await position_pointer(screen, viewport, world)
+	pointer_event("touch", screen, true)
+	check(Input.is_action_pressed("move_up"), "Always-visible pad did not activate")
+	await shot(current_case.replace("/", "-") + "-held", size)
+	set_phone_mode(2, true)
+	var released: bool = not Input.is_action_pressed("move_up") and main.touch.held == "" and main.touch.pad_finger == -1
+	check(released and not main.touch.visible, "Hiding phone controls failed to release the held direction")
+	pointer_event("touch", screen, false)
+	pad_checks.append({"case": current_case, "kind": "hide-release", "size": xy(Vector2(size)), "released": released, "visible": main.touch.visible, "pad_center": xy(main.touch.PAD), "pad_radius": main.touch.PAD_R, "viewport_target": xy(viewport), "screen_target": xy(screen), "world_target": xy(world), "pointer_preflight": preflight})
+	await shot(current_case.replace("/", "-") + "-hidden", size)
 
 func write_report() -> void:
 	var report := {
 		"schema": 1, "source_sha": OS.get_environment("SOURCE_SHA"),
 		"engine": Engine.get_version_info(), "display_server": DisplayServer.get_name(),
 		"input_method": "Input.parse_input_event with physical keys or camera/stretch-transformed screen coordinates; X11 pointer positioned and independently verified with Input.warp_mouse before pointer injection",
-		"touch_method": "InputEventScreenTouch, engine emulate_mouse_from_touch, normal touch-pad listener and unhandled-input pipeline; Phone buttons: Never",
-		"scope_note": "Direct tap-to-walk with the supported Phone buttons: Never setting. Visible corner D-pad occlusion is a separate UI concern; physical mobile-browser behavior is not tested.",
+		"touch_method": "InputEventScreenTouch, engine emulate_mouse_from_touch, normal touch-pad listener and unhandled-input pipeline; separate Never and visible Auto suites",
+		"scope_note": "Strict direct-door taps with both Never and visible Auto phone controls, plus D-pad and settings checks. Desktop X11 touch injection does not test physical mobile browsers.",
 		"fixture": "Authored _skip_opening; no_save and settings.keep=false before scene enters tree; actors retained; only initial approach positioning",
 		"emulate_mouse_from_touch": Input.is_emulating_mouse_from_touch(),
 		"emulate_touch_from_mouse": Input.is_emulating_touch_from_mouse(),
 		"cases": cases, "captures": captures, "failures": failures,
-		"phone_diagnostics": phone_diagnostics,
-		"expected_transitions": SIZES.size() * METHODS.size() * BUILDINGS.size() * 3,
+		"pad_checks": pad_checks, "settings_checks": settings_checks,
+		"expected_transitions": SIZES.size() * METHODS.size() * BUILDINGS.size() * 3 + PHONE_SIZES.size() * BUILDINGS.size() * 3,
 	}
 	var file := FileAccess.open(folder + "/manifest.json", FileAccess.WRITE)
 	if file == null:
@@ -430,13 +467,26 @@ func run() -> void:
 				if not await transition(method, "larkhaven", exit_tile, "exit", size):
 					continue
 				await transition(method, building, door, "reentry", size)
-	for size in SIZES:
+	for size in PHONE_SIZES:
 		root.size = size
 		await wait_frames(8)
 		for building in BUILDINGS:
-			for already_touched in [false, true]:
-				await phone_diagnostic(building, size, already_touched)
-	check(cases.size() == SIZES.size() * METHODS.size() * BUILDINGS.size() * 3, "Some transition cases were never reached")
+			current_case = "%dx%d/%s/touch-auto" % [size.x, size.y, building]
+			set_phone_mode(0, true)
+			var door: Vector2i = BUILDINGS[building]
+			place_initial(door)
+			await shot(current_case.replace("/", "-") + "-approach", size)
+			if not await transition("touch", building, door, "entry", size, "visible-auto-pad"):
+				continue
+			var exit_tile: Vector2i = main.BARN_EXIT if building == "barn" else main.INTERIORS[building].exit
+			if not await transition("touch", "larkhaven", exit_tile, "exit", size, "visible-auto-pad"):
+				continue
+			await transition("touch", building, door, "reentry", size, "visible-auto-pad")
+		await phone_settings(size)
+		for action in PAD_DIRECTIONS:
+			await pad_control(size, PAD_DIRECTIONS[action], action)
+		await pad_hide_releases(size)
+	check(cases.size() == SIZES.size() * METHODS.size() * BUILDINGS.size() * 3 + PHONE_SIZES.size() * BUILDINGS.size() * 3, "Some transition cases were never reached")
 	write_report()
 	print("DOOR_INPUT_REVIEW: ", cases.size(), " transitions, ", captures.size(), " captures, ", failures.size(), " failures")
 	main.queue_free()

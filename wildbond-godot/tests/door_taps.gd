@@ -84,7 +84,9 @@ static func pad_checks(game: Node, check: Callable) -> void:
 	pad.pad_on = true
 	pad.btn_on = false
 	pad.refresh()
-	for door_center in [Vector2(40, 160), Vector2(120, 160)]:
+	for door_center in [Vector2(40, 160), Vector2(120, 160), Vector2(40, 168), Vector2(120, 168)]:
+		var nearest := Vector2(clampf(pad.PAD.x, door_center.x - 8, door_center.x + 8), clampf(pad.PAD.y, door_center.y - 8, door_center.y + 8))
+		check.call(pad.PAD.distance_to(nearest) > pad.PAD_R, "WB-DOOR-TAP: pad hit circle does not intersect doorway rectangle at %s" % door_center)
 		for corner in [Vector2(-8, -8), Vector2(8, -8), Vector2(-8, 8), Vector2(8, 8), Vector2.ZERO]:
 			check.call(not pad._on_pad(door_center + corner), "WB-DOOR-TAP: the full lower doorway %s stays clear at %s" % [door_center, corner])
 	var directions := {"move_up": Vector2.UP, "move_down": Vector2.DOWN, "move_left": Vector2.LEFT, "move_right": Vector2.RIGHT}
