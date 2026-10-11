@@ -27,7 +27,7 @@ Google Fonts source revision: `5e8a3ba899557829a76cfdac30fa512bda91d7ca` (notice
 
 ## Renderer
 
-**three.js r134**, copyright © 2010–2021 three.js authors, MIT License. Wildbond's Diorama loads the unmodified library from [cdnjs](https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js); its offline fallback is the existing HD-2D renderer. The isolated Realmbound third-person inn trial also uses this same pinned library; all trial models/textures are original procedural code. [Version-specific source notice](https://raw.githubusercontent.com/mrdoob/three.js/r134/LICENSE) · [Full local MIT notice](licenses/three-r134-MIT.txt).
+**three.js r134**, copyright © 2010–2021 three.js authors, MIT License. Wildbond's Diorama loads the unmodified library from [cdnjs](https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js); its offline fallback is the existing HD-2D renderer. The isolated Realmbound third-person inn trial also uses this same pinned library (plus its GLTFLoader); its default characters and textures are original procedural code, and its optional comparison uses the Quaternius models credited below. [Version-specific source notice](https://raw.githubusercontent.com/mrdoob/three.js/r134/LICENSE) · [Full local MIT notice](licenses/three-r134-MIT.txt).
 
 ## Maintaining the credits
 
@@ -55,3 +55,12 @@ and *Audio/Jingles* (LevelUp1, Success1, Secret1, GameOver), renamed by meaning;
 second or longer are stored as OGG Vorbis. `starfall-godot/assets/emote/` and `wildbond-godot/assets/emote/` hold
 emotes from *Ui/Emote*, unchanged and renamed by meaning. The pack's 53-colour palette is copied (enlarged, and as a
 palette file) in `docs/learning/art/` for drawing our own art to match.
+
+## Realmbound 3D trial: Quaternius characters
+
+Models and animations by **Quaternius** (https://quaternius.com), CC0 1.0 (public domain dedication; attribution not
+required, given with thanks). Downloaded free from the creator on 2026-10-10: [Universal Base Characters](https://quaternius.itch.io/universal-base-characters),
+[Modular Character Outfits: Fantasy](https://quaternius.itch.io/modular-character-outfits-fantasy) and
+[Universal Animation Library](https://quaternius.itch.io/universal-animation-library) (Standard versions). Used only in
+`experiments/realmbound-3d/` (`?characters=quaternius`); licence copy and the list of adapted parts in
+`experiments/realmbound-3d/assets/quaternius/`.
