@@ -1,0 +1,30 @@
+name: Little Ranch browser review
+on:
+  pull_request:
+    paths:
+      - 'games/little-ranch/**'
+      - 'tests/little-ranch.html'
+      - 'tools/playtest/little-ranch-review.cjs'
+      - '.github/workflows/little-ranch-review.yml'
+permissions:
+  contents: read
+jobs:
+  browser-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - run: node tools/playtest/little-ranch-review.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: little-ranch-browser-review
+          path: little-ranch-review/
+          retention-days: 14

@@ -408,5 +408,27 @@ function otherworldChecks() {
       ow.save();const before=JSON.stringify(l);ow.S=fresh();ow.load();ow.run(ow.S.life.at);return before===JSON.stringify(ow.S.life);
     }finally{ow.S=old;}
   });
+  check('Between introduction offers a visible shortcut without choosing a world or gift',()=>{
+    const old=ow.S;try{ow.S=fresh();panel().hidden=true;toBetween(null,[]);
+      const b=ow.D.el.querySelector('[data-between-shortcut]');if(!b||b.textContent!=='Choose a world')return false;
+      b.click();return !panel().hidden&&panel().querySelectorAll('[data-world]').length===3&&!ow.S.life&&ow.S.met&&ow.D.el.hidden&&!ow.D.el.querySelector('[data-between-shortcut]');
+    }finally{ow.S=old;panel().hidden=true;}
+  });
+  check('reading the introduction normally still reaches the same world choices',()=>{
+    const old=ow.S;try{ow.S=fresh();panel().hidden=true;toBetween(null,[]);for(let i=0;i<30;i++)ow.D.advance();
+      return !panel().hidden&&panel().querySelectorAll('[data-world]').length===3&&!ow.S.life&&!ow.D.el.querySelector('[data-between-shortcut]');
+    }finally{ow.S=old;panel().hidden=true;}
+  });
+  check('returning to the Between keeps memories and endings when taking the shortcut',()=>{
+    const old=ow.S;try{ow.S={...fresh(),met:true,mem:{tide:true},lives:[{ending:'e_death_tide',world:'asterhold'}]};panel().hidden=true;
+      const before=JSON.stringify(ow.S);toBetween(null,[]);ow.D.el.querySelector('[data-between-shortcut]').click();return JSON.stringify(ow.S)===before&&!panel().hidden;
+    }finally{ow.S=old;panel().hidden=true;}
+  });
+  check('a stale introduction shortcut cannot skip a live story or its choices',()=>{
+    const old=ow.S;try{ow.S=fresh();panel().hidden=true;toBetween(null,[]);const b=ow.D.el.querySelector('[data-between-shortcut]');
+      const l=mf('ashen',{},'return');ow.S={...fresh(),life:l};ow.run('s_stair');const before=sceneState;b.click();
+      return sceneState===before&&!ow.D.el.querySelector('[data-between-shortcut]')&&!ow.D.el.classList.contains('asking');
+    }finally{ow.S=old;panel().hidden=true;}
+  });
   return out;
 }

@@ -1,0 +1,398 @@
+{
+  "tile_size": 16,
+  "columns": 8,
+  "rows": 4,
+  "palette": "docs/art/starfall/palette.gpl",
+  "road_bits": {
+    "north": 1,
+    "east": 2,
+    "south": 4,
+    "west": 8
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "moss-0",
+      "rect": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 1,
+      "name": "moss-1",
+      "rect": [
+        16,
+        0,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 2,
+      "name": "moss-2",
+      "rect": [
+        32,
+        0,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 3,
+      "name": "moss-3",
+      "rect": [
+        48,
+        0,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 4,
+      "name": "road-0",
+      "rect": [
+        64,
+        0,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 5,
+      "name": "road-1",
+      "rect": [
+        80,
+        0,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 6,
+      "name": "road-2",
+      "rect": [
+        96,
+        0,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 7,
+      "name": "road-3",
+      "rect": [
+        112,
+        0,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 8,
+      "name": "road-4",
+      "rect": [
+        0,
+        16,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 9,
+      "name": "road-5",
+      "rect": [
+        16,
+        16,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 10,
+      "name": "road-6",
+      "rect": [
+        32,
+        16,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 11,
+      "name": "road-7",
+      "rect": [
+        48,
+        16,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 12,
+      "name": "road-8",
+      "rect": [
+        64,
+        16,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 13,
+      "name": "road-9",
+      "rect": [
+        80,
+        16,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 14,
+      "name": "road-10",
+      "rect": [
+        96,
+        16,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 15,
+      "name": "road-11",
+      "rect": [
+        112,
+        16,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 16,
+      "name": "road-12",
+      "rect": [
+        0,
+        32,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 17,
+      "name": "road-13",
+      "rect": [
+        16,
+        32,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 18,
+      "name": "road-14",
+      "rect": [
+        32,
+        32,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 19,
+      "name": "road-15",
+      "rect": [
+        48,
+        32,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 20,
+      "name": "earth-0",
+      "rect": [
+        64,
+        32,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 21,
+      "name": "earth-1",
+      "rect": [
+        80,
+        32,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 22,
+      "name": "earth-2",
+      "rect": [
+        96,
+        32,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 23,
+      "name": "earth-3",
+      "rect": [
+        112,
+        32,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 24,
+      "name": "stone-left",
+      "rect": [
+        0,
+        48,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 25,
+      "name": "stone-middle",
+      "rect": [
+        16,
+        48,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 26,
+      "name": "stone-right",
+      "rect": [
+        32,
+        48,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 27,
+      "name": "stone-top",
+      "rect": [
+        48,
+        48,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 28,
+      "name": "stone-vertical",
+      "rect": [
+        64,
+        48,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 29,
+      "name": "stone-bottom",
+      "rect": [
+        80,
+        48,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 30,
+      "name": "stone-block-a",
+      "rect": [
+        96,
+        48,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    },
+    {
+      "index": 31,
+      "name": "stone-block-b",
+      "rect": [
+        112,
+        48,
+        16,
+        16
+      ],
+      "solid": false,
+      "height_tiles": 0
+    }
+  ]
+}

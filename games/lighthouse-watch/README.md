@@ -7,3 +7,7 @@ Tap or click the sky to fire there. Arrows or W/A/S/D aim, Space fires, P pauses
 Built like Storm Front (AC1): same cabinet layout, shared arcade sound, text size and reduced-motion settings, optional scanlines. Art and tune are original code; no third-party assets. Does not read or change other games' saves.
 
 Checks: `node tools/run-all-checks.cjs lighthouse-watch` (tests/lighthouse-watch.html): real controls, tap-to-fire, scoring, turns, score saving, phone and desktop layouts, gamepad.
+
+## Changelog
+
+- v0.1.1 (2026-10-10, AC2.1): the harbour keeps its proportions on rectangular screens; taps match the fitted sky after resize and rotation. Cabinet margins ignore taps. Verified pause/controls and unchanged v1 scores; 87 checks and nine touch/DPR cases. [Before/after evidence](../../docs/playtests/lighthouse-watch-display/README.md).
