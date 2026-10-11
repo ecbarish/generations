@@ -50,7 +50,7 @@ const MAP := [
 	"TP,ww,,qqqqqqqqqq,##D#,,,,,,,,,,,,,,,,,,,STT",
 	"TP,ww,,BBqqqqqqqq,,,.,,,,,,,,,,,,,,,,k,,,STT",
 	"TG,,,,,qqqqqqqqqq,,c.,,,,,,,,,,,,,,,,,,,,STT",
-	"TE.......................................STT",
+	"EE.......................................STT",
 	"TG,,,,,qqqqqqqqqq,,,,,,,,,,,,,,,,,,,,,,,,STT",
 	"TP,,,,,qqqqqqqqqq,,,,,,,,,,,,,,,,,,,,,,,,STT",
 	"TP,,,,,qqqqWWqqqq,,,,,,,,,,,,,,,,,,,,,,,,STT",
@@ -60,7 +60,44 @@ const MAP := [
 	"TPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPSTT",
 	"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
 ]
-const SOLID := "TPSGrc#BDWwu"
+## SF2.7, see the wilds sooner (GR-7; an early piece of SF4.1): a short stretch outside the west gate, west of the
+## town on the same grid, at x -26 to -1 (so nothing in town moves and old saves are untouched). The trail from the gate
+## crosses the miller's creek (~, bridge =) to the woodcutters' path, a branch runs north to the North Road, and another
+## south to Tull's turnip field (F fence, v turnips). n waymarkers, o rocks, u stumps, k ferns, l a lantern post,
+## h firewood, m a broken cart (ART-SF-6 props). Adventurers out on a job here can be seen at work.
+const WILDS := [
+	"TTTTTTTTTTTTTTTTTTTTTTTTTT",
+	"TTTTTTTTTTTTTTTTTTTTTTTTTT",
+	"TTTT,TT~,,,,,.,,,,,,TT,TTT",
+	"TTT,,,,~,,,,n.,,,,,,,,,,TT",
+	"TT,,,,,~,,o,,.,,,,,k,,,,,,",
+	"TT,,,,,~,,,,,.,,o,,,,,,,,,",
+	"TT,,,o,~,k,,,.,,,,,,,o,,u,",
+	"TT,,,,,~,,,,,.,,,,,,,,,,,,",
+	"TT,,k,,~n,,,,.n,,,,,,,h,l,",
+	"TT.....=..................",
+	"TT,,,,,~,,mm,,,,,,.,u,,,,,",
+	"TT,k,,,~,,,,,,,k,,.,,,,u,,",
+	"TT,,o,,~,,,,,,,,,n.,,,u,,,",
+	"TT,,,,,~,,,kFFFFFF,,FFFFF,",
+	"TTT,,,,~,k,,vvvvvvvvvvvvvT",
+	"TTTT,,,~,,,,vvvvvvvvvvvvvT",
+	"TTTTTTTTTTTTTTTTTTTTTTTTTT",
+	"TTTTTTTTTTTTTTTTTTTTTTTTTT",
+]
+const WILDS_W := 26
+## Where each job on the board is done, if it's on this stretch (the rest are further out, past the North Road).
+const JOB_SPOTS := { "slimes": Vector2i(-18, 12), "boar": Vector2i(-7, 14), "webs": Vector2i(-23, 9), "wolves": Vector2i(-13, 3) }
+const MARKERS := {
+	Vector2i(-12, 8): "A waymarker. North: the North Road, where carters hear wolves at dusk. West, over the creek: the woodcutters' path. South: Tull's farm.",
+	Vector2i(-18, 8): "The miller's creek. Something has left a shiny trail along the bank, and the ducks won't come near it.",
+	Vector2i(-9, 12): "Tull's turnip field. The fence is snapped and the rows are dug up. Big hoofprints in the mud.",
+	Vector2i(-14, 3): "The North Road runs on to the far farms, the old quarry and the barrow hill. That's adventurers' work; your guild is waiting in town.",
+}
+const F_PROPS := preload("res://assets/env/frontier/props.png")     # ART-SF-6
+const ROCK := Rect2(64, 64, 16, 16)
+
+const SOLID := "TPSGrc#BDWwu~Fonmhl"
 const INN_DOOR := Vector2i(20, 6)
 const HALL_DOOR := Vector2i(12, 5)
 const COUNTER := Vector2i(19, 8)
@@ -250,7 +287,7 @@ func _ready() -> void:
 	if "--no-save" in OS.get_cmdline_user_args():
 		no_save = true                           # recordings and tries never touch the real town (-- --no-save)
 	cam = Camera2D.new()
-	cam.limit_left = 0
+	cam.limit_left = -WILDS_W * TILE                 # the stretch outside the gate (SF2.7)
 	cam.limit_top = 0
 	cam.limit_right = MAP[0].length() * TILE
 	cam.limit_bottom = MAP.size() * TILE
@@ -328,6 +365,8 @@ func _new_notices() -> void:
 
 # ---------------------------------------------------------------- the map
 func tile_at(p: Vector2i) -> String:
+	if p.x < 0 and p.x >= -WILDS_W and p.y >= 0 and p.y < WILDS.size():
+		return WILDS[p.y][p.x + WILDS_W]       # the stretch outside the west gate (SF2.7)
 	if p.y < 0 or p.y >= MAP.size() or p.x < 0 or p.x >= MAP[0].length():
 		return "T"
 	return MAP[p.y][p.x]
@@ -480,9 +519,9 @@ func _player(_dt: float) -> void:
 func step(d: Vector2i) -> void:
 	me.face = d
 	var to := me.tile + d
-	if to == GATE or tile_at(to) == "E":
-		say("", "The wilds start past the gate. Your adventurers go out there; a guildmaster's place is in town.")
-		return
+	if to.x == -1 and me.tile.x == 0:
+		caption.text = "Outside the gate: the trail to the miller's creek, Tull's farm and the North Road."
+		caption_t = 5.0
 	if to == INN_DOOR:
 		say("", "The Lantern Inn. Your adventurers sleep upstairs when they're hurt or tired. The counter outside is yours to run.")
 		return
@@ -505,6 +544,13 @@ func _arrived() -> void:
 
 ## Enter, Space or E: talk to whoever is beside you, read the board, or serve at the counter.
 func use() -> bool:
+	if me.tile.x < 0:                            # outside the gate there's nobody to serve; read the waymarkers
+		for d in [me.face, Vector2i.UP, Vector2i.LEFT, Vector2i.RIGHT, Vector2i.DOWN]:
+			if MARKERS.has(me.tile + d):
+				me.face = d
+				say("", MARKERS[me.tile + d])
+				return true
+		return false
 	if fen.where == "town" and not fen_hired and (me.tile - fen.tile).length() <= 1.01:
 		talk_fen()
 		return true
@@ -1724,14 +1770,83 @@ func _note_rect(i: int) -> Rect2:
 	var w := (308.0 - 6.0 * (n - 1)) / n
 	return Rect2(38 + i * (w + 6.0), 46, w, 120)
 
+# ---------------------------------------------------------------- the stretch outside the gate (SF2.7)
+## Where an adventurer out on a job can be seen, or (0, 0) if they aren't out on this stretch.
+func away_spot(h: Mover) -> Vector2i:
+	if h.where != "away" or h.a.is_empty() or not JOB_SPOTS.has(str(h.a.get("job", ""))):
+		return Vector2i.ZERO
+	return JOB_SPOTS[str(h.a.job)]
+
+func _draw_wilds() -> void:
+	var water := Color("3b5f6e"); var water_l := Color("5f8a96"); var wood := Color("6a4a32"); var plank := Color("a07a50")
+	for y in WILDS.size():
+		for x in range(-WILDS_W, 0):
+			var ch := tile_at(Vector2i(x, y))
+			var o := Vector2(x, y) * TILE
+			match ch:
+				"~", "=":
+					draw_rect(Rect2(o + Vector2(1, 0), Vector2(14, 16)), water)
+					draw_rect(Rect2(o + Vector2(0, 0), Vector2(1, 16)), Color("5a4734")); draw_rect(Rect2(o + Vector2(15, 0), Vector2(1, 16)), Color("5a4734"))
+					var ph := fmod(t * 0.6 + y * 0.37, 1.0)
+					draw_rect(Rect2(o + Vector2(4 + (y % 3) * 2, ph * 14.0), Vector2(4, 1)), water_l)
+					if ch == "=":                    # a plank bridge
+						for k in 4:
+							draw_rect(Rect2(o + Vector2(-1, 1 + k * 4), Vector2(18, 3)), plank)
+							draw_rect(Rect2(o + Vector2(-1, 3 + k * 4), Vector2(18, 1)), wood)
+				"F":                                 # Tull's fence, posts and two rails
+					draw_rect(Rect2(o + Vector2(0, 5), Vector2(16, 2)), wood); draw_rect(Rect2(o + Vector2(0, 10), Vector2(16, 2)), wood)
+					draw_rect(Rect2(o + Vector2(6, 2), Vector2(3, 13)), Figures.OUTLINE); draw_rect(Rect2(o + Vector2(7, 3), Vector2(1, 11)), plank)
+				"v":                                 # turnip rows, some dug up
+					if posmod(x * 5 + y, 4) != 0:
+						draw_rect(Rect2(o + Vector2(5, 8), Vector2(6, 5)), Color("d8c8b0")); draw_rect(Rect2(o + Vector2(6, 4), Vector2(4, 4)), Color("71904f"))
+					else:
+						draw_rect(Rect2(o + Vector2(4, 8), Vector2(8, 4)), Color("5a4734"))
+				"n":                                 # a waymarker: a post and a plank
+					draw_rect(Rect2(o + Vector2(7, 4), Vector2(2, 12)), Figures.OUTLINE)
+					draw_rect(Rect2(o + Vector2(1, 2), Vector2(14, 7)), Figures.OUTLINE); draw_rect(Rect2(o + Vector2(2, 3), Vector2(12, 5)), plank)
+					draw_rect(Rect2(o + Vector2(4, 5), Vector2(8, 1)), wood)
+				"o":
+					draw_texture_rect_region(F_PINES, Rect2(o, Vector2(16, 16)), ROCK)
+				"u":
+					draw_texture_rect_region(F_PINES, Rect2(o, Vector2(16, 16)), STUMP)
+				"k":
+					draw_texture_rect_region(F_PINES, Rect2(o, Vector2(16, 16)), FERN)
+				"h":
+					draw_texture_rect_region(F_PROPS, Rect2(o, Vector2(16, 16)), Rect2(32, 0, 16, 16))
+				"l":                                 # the lantern post outside the gate, lit in the evening
+					var r := Rect2(16 if evening() else 0, 16, 16, 32)
+					draw_texture_rect_region(F_PROPS, Rect2(o - Vector2(0, 16), Vector2(16, 32)), r)
+				"m":
+					if tile_at(Vector2i(x - 1, y)) != "m":
+						draw_texture_rect_region(F_PROPS, Rect2(o - Vector2(0, 8), Vector2(32, 24)), Rect2(32, 16, 32, 24))
+	# signs of what's out here: webs on the trees at the end of the woodcutters' path, hoofprints by the broken fence,
+	# a slime's shiny trail on the creek bank, eyes in the trees up the North Road at dusk
+	var web := Color(0.85, 0.85, 0.82, 0.8)
+	for c in [Vector2(-24, 8), Vector2(-24, 10), Vector2(-25, 9)]:
+		var o: Vector2 = c * TILE + Vector2(8, 8)
+		for k in 6:
+			var a := k * PI / 3.0
+			draw_line(o, o + Vector2(cos(a), sin(a)) * 7.0, web, 1.0)
+		draw_arc(o, 4.0, 0, TAU, 8, web, 1.0)
+	for k in 5:
+		var o := Vector2(-8 + k * 0.6, 12 + (k % 2) * 0.4) * TILE + Vector2(4, 6)
+		draw_rect(Rect2(o, Vector2(2, 2)), Color("4a3122")); draw_rect(Rect2(o + Vector2(3, 0), Vector2(2, 2)), Color("4a3122"))
+	for k in 4:
+		draw_rect(Rect2(Vector2(-18, 10 + k) * TILE + Vector2(2, 4 + k * 2), Vector2(3, 1)), Color(0.75, 0.95, 0.7, 0.7))
+	if evening():
+		for e in [Vector2(-14, 1), Vector2(-12, 1)]:
+			var o: Vector2 = e * TILE + Vector2(5, 10)
+			draw_rect(Rect2(o, Vector2(1, 1)), Color("f2d080")); draw_rect(Rect2(o + Vector2(3, 0), Vector2(1, 1)), Color("f2d080"))
+
 # ---------------------------------------------------------------- drawing the town
 func _is_path(x: int, y: int) -> bool:          # a door counts, so a path runs right up to its step
-	return tile_at(Vector2i(x, y)) in ".ED" and x > 0
+	return tile_at(Vector2i(x, y)) in ".ED="        # (the trail runs on through the gate and over the bridge, SF2.7)
 
 func _draw() -> void:
 	for y in MAP.size():
-		for x in MAP[0].length():
-			_ground(x, y, MAP[y][x])
+		for x in range(-WILDS_W, MAP[0].length()):
+			_ground(x, y, tile_at(Vector2i(x, y)))
+	_draw_wilds()
 	for y in MAP.size():                         # the stockade: palisade pieces joined to their neighbours, stakes beyond
 		for x in MAP[0].length():
 			var ch: String = MAP[y][x]
@@ -1758,6 +1873,7 @@ func _draw() -> void:
 	var inn_at := Vector2(INN_DOOR.x - 2, INN_DOOR.y - 4) * TILE
 	draw_texture(F_INN[inn_lit], inn_at)
 	if lit == 1:                                 # lamps and windows stay bright under the evening tint (drawn again over it)
+		_glow.append([F_PROPS, Rect2(21, 17, 7, 8), Vector2(-2, 8) * TILE + Vector2(-16, -32)])   # the lantern outside the gate
 		_glow.append([F_TOWER[1], Rect2(13, 16, 5, 7), tower_at])
 		for g in HALL_GLASS:
 			_glow.append([F_HALL[1], Rect2(g, Vector2(6, 6)), hall_at])
@@ -1770,12 +1886,21 @@ func _draw() -> void:
 	_counter_draw()
 	_board_draw()
 	for y in MAP.size():                         # the pines outside the wall, darker and denser than Wildbond's trees
-		for x in MAP[0].length():
-			if MAP[y][x] == "T" and (x + y) % 2 == 0:
-				var big := (x * 7 + y * 3) % 3 != 0 and y < MAP.size() - 1   # (smaller pines below the south wall)
+		for x in range(-WILDS_W, MAP[0].length()):
+			if tile_at(Vector2i(x, y)) == "T" and posmod(x + y, 2) == 0:
+				var big := posmod(x * 7 + y * 3, 3) != 0 and y < MAP.size() - 1   # (smaller pines below the south wall)
 				var r: Rect2 = PINE_48 if big else PINE_32
 				draw_texture_rect_region(F_PINES, Rect2(Vector2(x, y + 1) * TILE - Vector2(r.size.x / 2.0 - 8.0, r.size.y), r.size), r)
 	var list := people().filter(func(m): return m.where == "town")
+	var out_here := {}
+	for h in heroes:                             # out on a job on this stretch: seen at work there (drawn only)
+		var spot := away_spot(h)
+		if spot.x < 0:
+			var n: int = out_here.get(spot, 0)
+			out_here[spot] = n + 1
+			h.pos = Vector2(spot + Vector2i(n, 0)) * TILE
+			h.face = Vector2i.LEFT
+			list.append(h)
 	list.sort_custom(func(a, b): return a.pos.y < b.pos.y)
 	for i in list.size():
 		var m: Mover = list[i]
@@ -1801,11 +1926,11 @@ func _look(m: Mover) -> Dictionary:
 
 func _ground(x: int, y: int, ch: String) -> void:
 	# ART-SF-1 ground.png: 0-3 moss, 4 + road mask (n1 e2 s4 w8) mud road, 20-23 packed earth
-	var n := (x * 7 + y * 13) % 9
+	var n := posmod(x * 7 + y * 13, 9)
 	var idx := n % 4
 	if _is_path(x, y):
 		idx = 4 + (1 if _is_path(x, y - 1) else 0) + (2 if _is_path(x + 1, y) else 0) + (4 if _is_path(x, y + 1) else 0) + (8 if _is_path(x - 1, y) else 0)
-	elif ch in "qWBc":
+	elif ch in "qWBcv":
 		idx = 20 + n % 4
 	elif ch == "p" or (plot_at(Vector2i(x, y)) != "" and not _plot_done(plot_at(Vector2i(x, y)))):
 		idx = 20 + n % 4                         # cleared, trodden ground while a plot waits or goes up
@@ -1929,7 +2054,7 @@ func _evening_tint() -> void:
 	var a := DUSK_MAX * dusk()
 	if a <= 0.0:
 		return
-	draw_rect(Rect2(Vector2(-64, -64), Vector2(MAP[0].length(), MAP.size()) * TILE + Vector2(128, 128)), Color(DUSK_COLOUR, a))
+	draw_rect(Rect2(Vector2(-64 - WILDS_W * TILE, -64), Vector2(MAP[0].length() + WILDS_W, MAP.size()) * TILE + Vector2(128, 128)), Color(DUSK_COLOUR, a))
 	for g in _glow:
 		if g[0] is Texture2D:
 			draw_texture_rect_region(g[0], Rect2(g[2] + g[1].position, g[1].size), g[1])
@@ -2206,7 +2331,7 @@ func open_near(p: Vector2i) -> Vector2i:
 		var c: Vector2i = todo.pop_front()
 		for d in [Vector2i.DOWN, Vector2i.RIGHT, Vector2i.UP, Vector2i.LEFT]:
 			var n: Vector2i = c + d
-			if seen.has(n) or n.x < 0 or n.y < 0 or n.x >= MAP[0].length() or n.y >= MAP.size():
+			if seen.has(n) or n.x < -WILDS_W or n.y < 0 or n.x >= MAP[0].length() or n.y >= MAP.size():
 				continue
 			seen[n] = true
 			if walkable(n, me) and tile_at(n) != "E" and not route(n, INN_STEP, me).is_empty():
