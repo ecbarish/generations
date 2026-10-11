@@ -32,13 +32,13 @@
     '.arc-set{width:min(460px,100%);max-height:88vh;overflow:auto;background:#1a1f2c;color:#eef1f7;border:1px solid #3a4560;border-radius:14px;padding:16px 18px;font:calc(15px * var(--arc-text,1))/1.45 system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 12px 40px rgba(0,0,0,.5)}' +
     '.arc-set h2{margin:0 0 10px;font-size:calc(19px * var(--arc-text,1))}.arc-set-row{margin:12px 0}.arc-set-row>div:first-child{font-weight:600;margin-bottom:6px}' +
     '.arc-set-opts{display:flex;flex-wrap:wrap;gap:6px}.arc-set-opts button{font:inherit;font-size:inherit;min-height:40px;padding:6px 12px;border-radius:8px;border:1px solid #47526d;background:#232a3a;color:#eef1f7;cursor:pointer}' +
-    '.arc-set-opts button[aria-pressed="true"]{background:#f2c14e;color:#1a1020;border-color:#f2c14e;font-weight:700}.arc-set-opts button:focus-visible,.arc-set-x:focus-visible{outline:2px solid #8be0d6;outline-offset:2px}' +
+    '.arc-set-opts a{display:inline-flex;align-items:center;min-height:40px;padding:6px 12px;border-radius:8px;border:1px solid #47526d;background:#232a3a;color:#eef1f7;text-decoration:none}.arc-set-opts a:focus-visible{outline:2px solid #8be0d6;outline-offset:2px}.arc-set-note a{color:#8be0d6}.arc-set-opts button[aria-pressed="true"]{background:#f2c14e;color:#1a1020;border-color:#f2c14e;font-weight:700}.arc-set-opts button:focus-visible,.arc-set-x:focus-visible{outline:2px solid #8be0d6;outline-offset:2px}' +
     '.arc-set-note{font-size:calc(13px * var(--arc-text,1));opacity:1;margin:4px 0 0}.arc-set-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px}' +
     '.arc-set-x{font:inherit;min-height:40px;padding:6px 14px;border-radius:8px;border:0;background:#f2c14e;color:#1a1020;font-weight:700;cursor:pointer}';
   /* Phones and touch screens (L3, 2026-10-07): every button, menu and tab at least 40px tall so a thumb hits it;
      desktop layouts are unchanged. Every game loads this file, so one rule covers the arcade. */
   css += '@media (max-width:720px),(pointer:coarse){button,select,.tgl,.arc-file,a.home,a.btn{min-height:40px}button{min-width:40px}' +
-    'a.home{display:inline-flex;align-items:center;padding-inline:10px}.arc-set-opts button{min-height:44px}}';
+    'a.home{display:inline-flex;align-items:center;padding-inline:10px}.arc-set-opts button,.arc-set-opts a{min-height:44px}}';
   var st = document.createElement('style'); st.textContent = css; (document.head || document.documentElement).appendChild(st);
 
   function create(o) {
@@ -63,6 +63,12 @@
           r.options.map(function (op, j) { return '<button type="button" data-r="' + i + '" data-o="' + j + '" aria-pressed="' + (String(op[0]) === String(cur)) + '">' + op[1] + '</button>'; }).join('') +
           '</div>' + (r.note ? '<p class="arc-set-note">' + r.note + '</p>' : '') + '</div>';
       });
+      // "Tell us" (AR2.11): only when the game registered with shared/feedback.js; links are built fresh on open
+      var fb = o.tellUs !== false && window.Feedback && window.Feedback.current;
+      if (fb) h += '<div class="arc-set-row arc-tell"><div>Tell us</div><div class="arc-set-opts">' + window.Feedback.forms.map(function (f) {
+        return '<a href="' + esc(window.Feedback.link(f.form)) + '" target="_blank" rel="noopener" data-tell="' + f.form + '">' + f.text + '</a>'; }).join('') +
+        '</div><p class="arc-set-note">Opens a GitHub issue with the game and version filled in. Nothing from your save is sent.' +
+        (window.Feedback.playtest ? ' No GitHub account, or ten minutes to spare? <a href="' + esc(window.Feedback.playtest) + '" target="_blank" rel="noopener">Try the playtest</a>.' : '') + '</p></div>';
       h += '<div class="arc-set-foot">' + (needReload ? '<button type="button" class="arc-set-x" data-reload>Reload now</button>' : '<span></span>') + '<button type="button" class="arc-set-x" data-close>Done</button></div>';
       box.innerHTML = h;
     }
@@ -89,6 +95,7 @@
     if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
     return { open: open, close: close, button: btn, refresh: function () { if (!bg.hidden) render(); } };
   }
+  function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
   function trapTab(e, box) {
     if (e.key !== 'Tab') return;
     var targets = Array.from(box.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex="0"]')).filter(function (el) { return !el.closest('[inert]') && el.getClientRects().length; });
