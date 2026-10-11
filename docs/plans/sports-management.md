@@ -86,8 +86,15 @@ side panel. Text is in full words.
   mood changes the asking price by the stated amount.
 - [ ] **DM5** [any] **The ballpark you see grow**: draw each upgrade on the field (bigger stands, light towers,
   scoreboard, flags for titles). Screenshots required. Uses the shared look (shared/engine.js drawing helpers).
-- [ ] **DM6** [any] **A draft and a farm club**: three young prospects each offseason, a five-man farm club, call-ups.
-  Checks: prospects grow faster than veterans; roster size limits hold.
+- [x] **DM6** [Claude, done 2026-10-11, v0.3.0] **A draft and player development** (Evan: "we need to add the draft and the
+  development of players"): ceilings, growth toward them (faster when playing every day), scouting precision, a
+  three-round draft of 24 prospects (worst first), a six-player farm club, call-ups and send-downs. 37 checks.
+- [ ] **DM-B2** [any] **Keep the league in balance over many seasons**: in a six-season simulation the other clubs'
+  average overall climbs from about 56 to 64 (it climbed to 62 before DM6 too), while the free-agent market stays at
+  level 50, so a hands-off club falls to about 5 wins. Make free agents and standouts track the league's average
+  (or slow the other clubs' growth) so the market stays useful; keep the gap check passing and add a check that the
+  league average stays within about 4 points over six seasons. Harness idea: the gap check in
+  tests/diamond-manager-checks.js, run for six seasons.
 - [ ] **DM7** [any] **Records and history**: season-by-season table, league awards (best hitter, best pitcher),
   club records, a trophy case in the clubhouse.
 - [ ] **DM8** [Claude or any, later] **Step into the big moment** (optional): in close late innings, offer the old

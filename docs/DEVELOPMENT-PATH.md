@@ -234,9 +234,9 @@ contracts, hiring, stadium upgrades, watching games) and plan a Retro Bowl-style
 deliverables with their details: [plans/sports-management.md](plans/sports-management.md). The old DC2-DC4 career
 deliverables are retired; the batting prototype stays in games/diamond-career/ off the shelf.
 - [x] DM1 [Claude] The first playable season (v0.1.0, PR #110).
-- [ ] DM2 [any] Playability pass: two seasons as a first-timer, desktop and phone, fix the top three problems.
+- [x] DM2 [any] Playability pass (docs/playtests/diamond-manager-1.md). - [x] DM-B [Claude] Choices matter (v0.2.0).
 - [ ] DM3 [any] Hiring coaches. - [ ] DM4 [any] Player morale and stories. - [ ] DM5 [any] The ballpark you see grow.
-- [ ] DM6 [any] A draft and a farm club. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
+- [x] DM6 [Claude] The draft and player development (v0.3.0). - [ ] DM-B2 [any] Keep the league in balance over many seasons. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
 
 ### Lantern Bowl (browser; American football in the Retro Bowl spirit, our own code and art)
 Evan said yes 2026-10-09. Plan: [plans/sports-management.md](plans/sports-management.md) "Game 2".
@@ -358,6 +358,11 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - **2026-10-09, WD2 data (Codex, PR #113):** the roster has 104 base species and three hybrids added by the ranch module. Validate the full exporter, not just 00-data.js; all 107 preserve their original gameplay fields. Drawing hints stay out of creature saves; the appearance contract is in docs/lore/wildbond-looks.md.
 Standing rule (Evan, 2026-10-09): each piece of work records here what it taught us and what was done about it, in a
 line or two, with the page that holds the detail.
+- **2026-10-11, DM6 (Claude, sports thread):** growth needs a ceiling, or every young player becomes a star and the
+  league inflates. Ceilings plus "plays every day grows faster" turn the farm club and the batting order into real
+  choices. A six-season simulation showed the league still inflates (it did before DM6 too) while the market stays put;
+  actioned as ticket DM-B2 in plans/sports-management.md. A send-down must keep the salary on the payroll, or the
+  farm becomes a way around the budget (caught in review, now a check).
 - **2026-10-11, DM-B (Claude, sports thread):** a management game must be tested by simulating a manager, not only
   by playing it: a policy that signs, orders and builds won no more games than doing nothing until money and the market
   gave it room. The check now pins the gap (an active manager at least 2.5 wins a season ahead), and the simulation

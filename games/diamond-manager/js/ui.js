@@ -1,7 +1,7 @@
 'use strict';
 /* Diamond Manager: the screen. The field fills the window; the scoreboard, the play-by-play and Iona's notes sit on
    it; the front office is a clipboard opened over the field. */
-const VERSION='0.2.0';
+const VERSION='0.3.0';
 const $=s=>document.querySelector(s);
 Arcade.validators[DM.key]=validLeague;
 let L=migrateLeague(loadLeague(localStorage, Arcade.backups(DM.key))), view=null, tab='roster', trade={club:1,give:[],get:[],answer:''}, flash='';
@@ -39,6 +39,7 @@ function actionsHTML(){
   return m+office+'<button class="primary" id="a-season" '+(ok?'':'disabled')+'>Start season '+(L.season+1)+'</button>'+(ok?'':'<div class="money">'+startBlock()+'</div>');
 }
 function startBlock(){ const c=you(); const n=c.players.filter(p=>p.years<=0).length;
+  if(L.draft&&!L.draft.done) return 'The draft is waiting for our pick. Open the front office, Farm and draft.';
   if(n) return n+' contract'+(n>1?'s are':' is')+' ending. Open the front office, Roster, to re-sign or let go.';
   if(!rosterOk(c)) return 'You need nine batters and five pitchers (and at most '+DM.rosterMax+' players).';
   if(payroll(c)>c.budget) return 'The payroll is over the owner\'s budget.'; return ''; }
@@ -92,8 +93,8 @@ function showOffseasonOrNext(){
   if(L.phase==='offseason'&&L.report&&!L.report.seen){ const r=L.report, h=L.history[L.history.length-1]; L.report.seen=true; save();
     return note('<div class="who">The owner\'s office</div><h2>Season '+h.season+' is over</h2><p>The Lanterns finished '+h.w+'-'+h.l+', '+nth(h.place)+' of 6. '+esc(h.championName)+' '+(h.champion?'(that is us!)':'')+' won the final.</p>'+
       '<p>'+(r.raise?'The owner raises the payroll budget by '+money(r.raise)+'.':'The owner keeps the payroll budget where it is. A winning season earns a raise.')+'</p>'+
-      (r.grew.length?'<p>Grew over the winter: '+r.grew.map(x=>esc(x.name)+' (+'+x.d+')').join(', ')+'.</p>':'')+(r.slipped.length?'<p>Slipped with age: '+r.slipped.map(x=>esc(x.name)+' ('+x.d+')').join(', ')+'.</p>':'')+
-      (r.expiring.length?'<p><b>'+r.expiring.length+' contract'+(r.expiring.length>1?'s end':' ends')+'.</b> Re-sign or let go in the front office before the new season.</p>':'')+'<p>New free agents are waiting.</p>',
+      (r.grew.length?'<p>Grew over the winter: '+r.grew.map(x=>esc(x.name)+(x.farm?' on the farm':'')+' (+'+x.d+')').join(', ')+'.</p>':'')+(r.left.length?'<p>Too old for the farm club now, so they left: '+r.left.map(esc).join(', ')+'.</p>':'')+(r.slipped.length?'<p>Slipped with age: '+r.slipped.map(x=>esc(x.name)+' ('+x.d+')').join(', ')+'.</p>':'')+
+      (r.expiring.length?'<p><b>'+r.expiring.length+' contract'+(r.expiring.length>1?'s end':' ends')+'.</b> Re-sign or let go in the front office before the new season.</p>':'')+'<p>New free agents are waiting.'+(L.draft&&!L.draft.done?' <b>The draft is on, and we pick '+nth(L.draft.pick+1)+'.</b>':'')+'</p>',
       '<button class="primary" id="n-office">Open the front office</button><button id="n-ok">Later</button>'); }
   closeNote(); render();
 }
@@ -112,27 +113,30 @@ function introNote(){
 }
 
 /* ---------- The front office ---------- */
-const TABS=[['roster','Roster and lineup'],['trades','Trades'],['free','Free agents'],['park','Ballpark'],['league','League']];
+const TABS=[['roster','Roster and lineup'],['trades','Trades'],['free','Free agents'],['farm','Farm and draft'],['park','Ballpark'],['league','League']];
 function openOffice(t){ if(t)tab=t; $('#office').hidden=false; closeNote(); renderOffice(); $('#close-office').focus(); }
 function closeOffice(){ $('#office').hidden=true; flash=''; render(); }
 function renderOffice(){
   $('#tabs').innerHTML=TABS.map(([k,n])=>'<button role="tab" data-tab="'+k+'" aria-selected="'+(k===tab)+'">'+n+'</button>').join('');
   const m=flash?'<div class="msg'+(flash.startsWith('✓')?' ok':'')+'" role="status">'+esc(flash)+'</div>':'';
-  $('#office-body').innerHTML=m+({roster:rosterTab,trades:tradeTab,free:freeTab,park:parkTab,league:leagueTab}[tab])();
+  $('#office-body').innerHTML=m+({roster:rosterTab,trades:tradeTab,free:freeTab,farm:farmTab,park:parkTab,league:leagueTab}[tab])();
 }
 function ratingCells(p){ return p.pitcher?'<td>'+p.stuff+'</td><td>'+p.control+'</td><td>'+p.stamina+'</td>':'<td>'+p.contact+'</td><td>'+p.power+'</td><td>'+p.eye+'</td><td>'+p.glove+'</td>'; }
+/* The ceiling the scouts see: exact with a good Scouting office, rounded ("about 70") without one. */
+function ceilText(p){ if(p.age>27) return '-'; const v=scoutCeiling(L,p); return (L.upgrades.scouting>=2?'':'about ')+v; }
+function ceilCell(p){ return '<td class="small">'+ceilText(p)+'</td>'; }
 function seasonCell(p){ const s=p.season; if(!s||!s.g)return '<td class="small hide-sm">-</td>'; return p.pitcher?'<td class="small hide-sm">'+s.g+' games</td>':'<td class="small hide-sm">'+(s.ab?(s.h/s.ab).toFixed(3).replace(/^0/,''):'.000')+', '+s.hr+' HR, '+s.rbi+' RBI</td>'; }
-function contractCell(p){ if(p.years>0) return '<td>'+money(p.salary)+' × '+p.years+' yr</td><td><button data-release="'+p.id+'">Let go</button></td>';
+function contractCell(p){ if(p.years>0) return '<td>'+money(p.salary)+' × '+p.years+' yr</td><td><button data-release="'+p.id+'">Let go</button>'+(p.age<=25?' <button data-senddown="'+p.id+'">To the farm</button>':'')+'</td>';
   return '<td><b>Ending</b></td><td><button class="primary" data-resign="'+p.id+'">Re-sign for '+money(askSalary(p,L.upgrades.clubhouse))+'</button> <button data-release="'+p.id+'">Let go</button></td>'; }
 function rosterTab(){
   const c=you(), line=c.lineup.map(id=>pl(c,id)), bench=batters(c).filter(p=>!c.lineup.includes(p.id));
-  return '<p>Payroll <b>'+money(payroll(c))+'</b> of the owner\'s budget of <b>'+money(c.budget)+'</b>. Roster '+c.players.length+' of '+DM.rosterMax+'. Ratings run from 0 to 99; overall is shown in bold.</p>'+
-   '<h3>Batting order</h3><p class="small">The top of the order bats most. Contact makes hits, Power makes extra bases and home runs, Eye draws walks, Glove stops the other side\'s hits.</p><div class="scroll-x"><table class="tbl"><tr><th>#</th><th>Batter</th><th>Pos</th><th>Age</th><th>Overall</th><th>Contact</th><th>Power</th><th>Eye</th><th>Glove</th><th class="hide-sm">This season</th><th>Order</th><th>Contract</th><th></th></tr>'+
-   line.map((p,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(p.name)+'</td><td>'+p.pos+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td>'+ratingCells(p)+seasonCell(p)+'<td><button data-up="'+i+'" aria-label="Move '+esc(p.name)+' up" '+(i?'':'disabled')+'>▲</button><button data-down="'+i+'" aria-label="Move '+esc(p.name)+' down" '+(i<8?'':'disabled')+'>▼</button></td>'+contractCell(p)+'</tr>').join('')+
-   bench.map(p=>'<tr><td>Bench</td><td>'+esc(p.name)+'</td><td>'+p.pos+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td>'+ratingCells(p)+seasonCell(p)+'<td><button data-start="'+p.id+'">Start for №9</button></td>'+contractCell(p)+'</tr>').join('')+'</table></div>'+
+  return '<p>Payroll <b>'+money(payroll(c))+'</b> of the owner\'s budget of <b>'+money(c.budget)+'</b>. Roster '+c.players.length+' of '+DM.rosterMax+'. Ratings run from 0 to 99; overall is shown in bold. <b>Ceiling</b> is the best a young player can become, as far as the scouts can tell; they grow toward it each winter, faster when they play every day.</p>'+
+   '<h3>Batting order</h3><p class="small">The top of the order bats most. Contact makes hits, Power makes extra bases and home runs, Eye draws walks, Glove stops the other side\'s hits.</p><div class="scroll-x"><table class="tbl"><tr><th>#</th><th>Batter</th><th>Pos</th><th>Age</th><th>Overall</th><th>Ceiling</th><th>Contact</th><th>Power</th><th>Eye</th><th>Glove</th><th class="hide-sm">This season</th><th>Order</th><th>Contract</th><th></th></tr>'+
+   line.map((p,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(p.name)+'</td><td>'+p.pos+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td>'+ceilCell(p)+ratingCells(p)+seasonCell(p)+'<td><button data-up="'+i+'" aria-label="Move '+esc(p.name)+' up" '+(i?'':'disabled')+'>▲</button><button data-down="'+i+'" aria-label="Move '+esc(p.name)+' down" '+(i<8?'':'disabled')+'>▼</button></td>'+contractCell(p)+'</tr>').join('')+
+   bench.map(p=>'<tr><td>Bench</td><td>'+esc(p.name)+'</td><td>'+p.pos+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td>'+ceilCell(p)+ratingCells(p)+seasonCell(p)+'<td><button data-start="'+p.id+'">Start for №9</button></td>'+contractCell(p)+'</tr>').join('')+'</table></div>'+
    '<p><button data-auto>Let Iona set the order</button></p>'+
-   '<h3>Pitchers</h3><p class="small">The five best pitchers start in turn. Stuff gets strikeouts, Control avoids walks, Stamina keeps a starter in the game longer before the bullpen takes over.</p><div class="scroll-x"><table class="tbl"><tr><th>Pitcher</th><th>Age</th><th>Overall</th><th>Stuff</th><th>Control</th><th>Stamina</th><th>Contract</th><th></th></tr>'+
-   pitchers(c).sort((a,b)=>overall(b)-overall(a)).map(p=>'<tr><td>'+esc(p.name)+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td>'+ratingCells(p)+contractCell(p)+'</tr>').join('')+'</table></div>'+
+   '<h3>Pitchers</h3><p class="small">The five best pitchers start in turn. Stuff gets strikeouts, Control avoids walks, Stamina keeps a starter in the game longer before the bullpen takes over.</p><div class="scroll-x"><table class="tbl"><tr><th>Pitcher</th><th>Age</th><th>Overall</th><th>Ceiling</th><th>Stuff</th><th>Control</th><th>Stamina</th><th>Contract</th><th></th></tr>'+
+   pitchers(c).sort((a,b)=>overall(b)-overall(a)).map(p=>'<tr><td>'+esc(p.name)+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td>'+ceilCell(p)+ratingCells(p)+contractCell(p)+'</tr>').join('')+'</table></div>'+
    '<p class="small">Letting a player go in the middle of a contract costs half a season\'s salary from the club\'s cash.</p>';
 }
 function pickList(c,side,ids){ return c.players.slice().sort((a,b)=>(a.pitcher-b.pitcher)||overall(b)-overall(a)).map(p=>'<label class="pick"><input type="checkbox" data-pick="'+side+'" value="'+p.id+'" '+(ids.includes(p.id)?'checked':'')+'> '+esc(p.name)+' <span class="small">'+(p.pitcher?'P':p.pos)+', overall '+overall(p)+', age '+p.age+', '+money(p.salary)+'</span></label>').join(''); }
@@ -148,6 +152,21 @@ function freeTab(){
   return '<p>Players without a club. They sign for the salary shown, as long as the payroll stays inside the owner\'s budget ('+money(payroll(you()))+' of '+money(you().budget)+'). Each winter two <b>standouts</b> arrive, the best players on the market; a better Scouting office makes them better still. <b>League minimum</b> players are always there and do not count against the budget, so you can always fill the roster.</p><div class="scroll-x"><table class="tbl"><tr><th>Player</th><th>Pos</th><th>Age</th><th>Overall</th><th>Ratings</th><th>Asks</th><th></th></tr>'+
    L.freeAgents.map(p=>'<tr><td>'+esc(p.name)+(p.star?' <b class="small">Standout</b>':p.bargain?' <span class="small">League minimum</span>':'')+'</td><td>'+(p.pitcher?'P':p.pos)+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td><td class="small">'+(p.pitcher?'Stuff '+p.stuff+', Control '+p.control+', Stamina '+p.stamina:'Contact '+p.contact+', Power '+p.power+', Eye '+p.eye+', Glove '+p.glove)+'</td><td>'+money(p.salary)+' × '+p.years+' yr</td><td><button class="primary" data-sign="'+p.id+'">Sign</button></td></tr>').join('')+'</table></div>';
 }
+function farmTab(){
+  const c=you(), farm=c.farm||[], d=L.draft, live=d&&!d.done, row=(p,btns)=>'<tr><td>'+esc(p.name)+'</td><td>'+(p.pitcher?'P':p.pos)+'</td><td>'+p.age+'</td><td class="ovr">'+overall(p)+' <span class="small">'+word(overall(p))+'</span></td><td><b>'+ceilText(p)+'</b></td><td class="small hide-sm">'+(p.pitcher?'Stuff '+p.stuff+', Control '+p.control+', Stamina '+p.stamina:'Contact '+p.contact+', Power '+p.power+', Eye '+p.eye+', Glove '+p.glove)+'</td><td>'+btns+'</td></tr>';
+  const head='<tr><th>Player</th><th>Pos</th><th>Age</th><th>Overall</th><th>Ceiling</th><th class="hide-sm">Ratings</th><th></th></tr>';
+  let h='';
+  if(live){ const n=d.pick+1, rd=Math.floor(d.pick/6)+1, others=d.picks.filter(x=>x.club!==DM.you).slice(-5);
+    h+='<h3>The draft, round '+rd+' of 3</h3><p><b>We are on the clock: pick '+n+' of '+d.order.length+'.</b> The club with the worst record picks first in every round. Young prospects start on the farm club, cost nothing against the budget, and grow toward their ceiling. '+(L.upgrades.scouting>=2?'Our scouts can read each ceiling exactly.':'With '+(L.upgrades.scouting?'a small':'no')+' Scouting office our scouts can only guess ceilings to the nearest '+(L.upgrades.scouting?5:10)+'; building it up sharpens their eye.')+'</p>'+
+      (others.length?'<p class="small">Just taken: '+others.map(x=>esc(x.name)+' ('+esc(club(x.club).short)+')').join(', ')+'.</p>':'')+
+      '<p><button class="primary" data-draft-auto>Let Iona pick for us</button> <button data-draft-pass>Pass this pick</button></p>'+
+      '<div class="scroll-x"><table class="tbl">'+head+d.pool.slice().sort((a,b)=>scoutCeiling(L,b)-scoutCeiling(L,a)||overall(b)-overall(a)).map(p=>row(p,'<button class="primary" data-draft="'+p.id+'" '+(farm.length>=FARM_MAX?'disabled':'')+'>Pick</button>')).join('')+'</table></div>'; }
+  else if(d&&d.done&&d.picks.some(x=>x.club===DM.you&&x.id)) h+='<p>This winter we drafted '+d.picks.filter(x=>x.club===DM.you&&x.id).map(x=>esc(x.name)+' (round '+x.round+')').join(', ')+'.</p>';
+  else h+='<p class="small">The draft happens every winter, after the final.</p>';
+  h+='<h3>Farm club ('+farm.length+' of '+FARM_MAX+')</h3><p class="small">Farm players play every day, so they grow quickly. Call one up when ready (the rookie salary is '+money(150)+' and counts against the budget once they join the Lanterns). Players 25 and under on the roster can be sent down to play every day (their contract still counts against the budget); past 25, farm players leave for free agency.</p>'+
+    (farm.length?'<div class="scroll-x"><table class="tbl">'+head+farm.slice().sort((a,b)=>overall(b)-overall(a)).map(p=>row(p,'<button class="primary" data-callup="'+p.id+'">Call up</button> <button data-farm-go="'+p.id+'">Let go</button>')).join('')+'</table></div>':'<p>Nobody on the farm club yet.</p>');
+  return h;
+}
 function parkTab(){
   return '<p>The club\'s cash comes from the gate at home games: more wins and a better park bring bigger crowds. Upgrades show on the field.</p><p>Last home crowd: '+(()=>{const g=gateMoney(L);return g.crowd.toLocaleString()+' of '+g.cap.toLocaleString()+' seats ('+money(g.money)+' a game at '+'$'+DM.ticket+' a ticket)';})()+'. Cash: <b>'+money(L.cash)+'</b>.</p>'+
    '<div class="upg">'+Object.entries(DM.upgrades).map(([k,u])=>{const lv=L.upgrades[k],max=u.cost.length;return '<div><h3>'+u.name+'</h3><div class="dots" aria-label="Level '+lv+' of '+max+'">'+'●'.repeat(lv)+'○'.repeat(max-lv)+'</div><p class="small">'+u.what+'</p>'+(lv<max?'<button class="primary" data-up-park="'+k+'" '+(L.cash>=u.cost[lv]?'':'disabled')+'>Build for '+money(u.cost[lv])+'</button>':'<b>Finished</b>')+'</div>';}).join('')+'</div>';
@@ -162,9 +181,10 @@ function leagueTab(){
 }
 
 /* Confirmation stays inside the game, with the cost visible before choosing. */
-function confirmRelease(p) {
+function confirmRelease(p) { return confirmAsk('Let ' + p.name + ' go? ' + (p.years > 0 ? 'The club pays ' + money(Math.round(p.salary / 2)) + ' to end the contract.' : 'The contract is ending, so there is no release fee.')); }
+function confirmAsk(text) {
   const dialog = $('#decision-dialog');
-  $('#decision-text').textContent = 'Let ' + p.name + ' go? ' + (p.years > 0 ? 'The club pays ' + money(Math.round(p.salary / 2)) + ' to end the contract.' : 'The contract is ending, so there is no release fee.');
+  $('#decision-text').textContent = text;
   return new Promise(resolve => {
     const finish = yes => { dialog.close(); dialog.removeEventListener('cancel', cancel); $('#decision-yes').onclick = null; $('#decision-no').onclick = null; resolve(yes); };
     const cancel = e => { e.preventDefault(); finish(false); };
@@ -199,6 +219,12 @@ document.addEventListener('click',async e=>{
   else if(b.dataset.resign){ const p=pl(c,Number(b.dataset.resign)); r=resign(L,Number(b.dataset.resign))||'✓ '+p.name+' signed again.'; }
   else if(b.dataset.release){ const p=pl(c,Number(b.dataset.release)); if(!await confirmRelease(p))return; r=release(L,Number(b.dataset.release))||'✓ '+p.name+' has left the club.'; }
   else if(b.dataset.sign){ const p=L.freeAgents.find(x=>x.id===Number(b.dataset.sign)); r=signFree(L,Number(b.dataset.sign))||'✓ '+p.name+' joins the Lanterns.'; }
+  else if(b.dataset.senddown){ const p=pl(c,Number(b.dataset.senddown)); r=sendDown(L,p.id)||'✓ '+p.name+' goes to the farm club to play every day.'; }
+  else if(b.dataset.callup){ const p=c.farm.find(x=>x.id===Number(b.dataset.callup)); r=callUp(L,p.id)||'✓ '+p.name+' joins the Lanterns.'; }
+  else if(b.dataset.farmGo){ const p=c.farm.find(x=>x.id===Number(b.dataset.farmGo)); if(!await confirmAsk('Let '+p.name+' go from the farm club? Another club may sign them.'))return; r=releaseFarm(L,p.id)||'✓ '+p.name+' has left the farm club.'; }
+  else if(b.dataset.draft){ const p=L.draft.pool.find(x=>x.id===Number(b.dataset.draft)); r=draftPick(L,p.id)||'✓ We drafted '+p.name+'.'+(L.draft.done?' The draft is over.':''); }
+  else if(b.dataset.draftPass!==undefined){ r=draftPass(L)||'✓ We passed.'+(L.draft.done?' The draft is over.':''); }
+  else if(b.dataset.draftAuto!==undefined){ const before=(c.farm||[]).length; draftAuto(L); const got=(c.farm||[]).slice(before).map(p=>p.name); r='✓ '+(got.length?'Iona drafted '+got.join(', ')+'.':'Iona passed: the farm club is full.')+' The draft is over.'; }
   else if(b.dataset.upPark){ r=buyUpgrade(L,b.dataset.upPark)||'✓ The '+DM.upgrades[b.dataset.upPark].name.toLowerCase()+' are built.'; }
   else if(b.id==='trade-ask'){ trade.answer=judgeTrade(L,trade.club,trade.give,trade.get).why; r=''; }
   else if(b.id==='trade-do'){ const x=doTrade(L,trade.club,trade.give,trade.get); trade.answer=x||'Done. The new players are on your roster.'; if(!x){trade.give=[];trade.get=[];} r=''; }
@@ -228,4 +254,4 @@ let fieldSize=null;
 function frame(now){ stepWatch(now); const e=view?view.g.events[view.i]:null; fieldSize=drawField($('#field'),L,e); requestAnimationFrame(frame); }
 render(); requestAnimationFrame(frame);
 if(L.intro) introNote(); else showOffseasonOrNext();
-if(location.hostname==='localhost') window.__dm={get L(){return L;},set L(v){L=v;render();},DM,newLeague,playGame,playDay,playFinalGame,recordGame,standings,overall,askSalary,payroll,batters,pitchers,setLineup,autoLineup,makeSchedule,plateAppearance,gateMoney,endSeason,canStartSeason,startSeason,resign,release,signFree,buyUpgrade,worth,judgeTrade,doTrade,aiOffer,answerOffer,validLeague,loadLeague,migrateLeague,rosterOk,render};
+if(location.hostname==='localhost') window.__dm={get L(){return L;},set L(v){L=v;render();},DM,newLeague,playGame,playDay,playFinalGame,recordGame,standings,overall,askSalary,payroll,batters,pitchers,setLineup,autoLineup,makeSchedule,plateAppearance,gateMoney,endSeason,canStartSeason,startSeason,resign,release,signFree,buyUpgrade,worth,judgeTrade,doTrade,aiOffer,answerOffer,validLeague,loadLeague,migrateLeague,rosterOk,render,potentialFor,scoutCeiling,makeProspect,develop,playsDaily,startDraft,draftPick,draftPass,draftAuto,callUp,sendDown,releaseFarm,FARM_MAX};
