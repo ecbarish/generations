@@ -241,6 +241,19 @@ mandatory daily chores; convenience is earned. Files for each: `starfall-godot/s
   time to each hire and rank, active vs idle income) with a scripted player; recommendations only, no numbers changed.
   (Grok for Adam / abarish-dev, 2026-10-11: docs/measurements/starfall-day-pacing.md.) Score 14/21 (fun 2, Evan 2,
   friends 2, focus 2, cheap 2).
+- [ ] SF2.18 [any] No mandatory chores (SF2.17's findings; Adam: "Do your suggestions"): if nobody cooks, adventurers
+  help themselves from a stew pot (fed, half the coins, no lift in spirits, so cooking by hand stays better); at dusk
+  you light a wall lantern just by walking within 4 tiles (the round is a ~15 to 20 s loop off the road; Odo still walks
+  it; still optional); a bout or drill past full spirits becomes practice xp (hand > Ilse); adventurers read the board
+  from anywhere along its front, so standing there doesn't block them. Files: `starfall-godot/scripts/main.gd`,
+  `tests/run_tests.gd`. Done when: checked; pacing re-measured. (Claimed: Grok for Adam / abarish-dev,
+  guest/starfall-no-chores.) Score 16/21 (fun 2, Evan 2, friends 2, focus 3, cheap 3).
+- [ ] SF2.19 [any] Earned board help: more pin slots as the town grows (an earned unlock, not a purchase), shown in the
+  board view. Files: as SF2.18. Done when: the slots grow with rank, old saves load, checked, pacing re-measured. Score
+  15/21 (fun 2, Evan 2, friends 2, focus 2, cheap 3).
+- [ ] SF2.20 [any] Tamsin easier to reach: her offer comes from tavern evenings you keep, not only drinks poured, so a
+  quiet tavern still gets there. Files: as SF2.18. Done when: checked, pacing re-measured. Score 14/21 (fun 2, Evan 2,
+  friends 1, focus 2, cheap 3).
 
 **SF-M3: seasons.**
 - [ ] SF3.1 [Claude] Seasons as chapters (SV2), the first one ending in a festival.
