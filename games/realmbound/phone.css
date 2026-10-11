@@ -32,3 +32,23 @@
  .abar{max-height:32dvh}.abar .modehint{display:none}
  .scene .dlg{max-height:calc(100% - var(--field-controls-top) - 62px)}
 }
+
+.abar{flex-wrap:wrap;justify-content:center}
+.abar>.slots{flex-wrap:wrap;justify-content:center;min-width:0;max-width:100%}
+/* RB1.6: names are the abilities' primary visual, not miniature icons. */
+.abar .ab{width:104px;min-height:72px;height:auto;flex-shrink:0;padding:17px 6px 8px}
+.abar .ab .ic{font-family:var(--f-body);font-size:calc(15px * var(--arc-text,1));font-weight:800;line-height:1.15;padding:0;overflow-wrap:anywhere}
+.abar .ab .key{font-family:var(--f-body);font-size:12px;line-height:1;top:3px;left:5px;z-index:1}
+.abar .ab .cdn{inset:auto 3px 2px auto;min-width:20px;border-radius:3px;background:#18130d;z-index:1;font-size:14px}
+.abar .ab .cdn:empty{display:none}
+.abar .ab.special{width:auto;min-width:104px}
+@media(min-width:1700px){
+ .abar .ab{width:124px;min-height:82px}
+ .abar .ab .ic{font-size:calc(18px * var(--arc-text,1))}
+}
+@media(max-width:700px){
+ .abar>.slots{width:100%;align-items:stretch}
+ .abar .ab{width:calc((100% - 8px)/3);min-height:68px}
+ .abar .ab .ic{font-size:calc(14px * var(--arc-text,1))}
+ .abar .ab.special{width:calc((100% - 8px)/3);min-width:0}
+}

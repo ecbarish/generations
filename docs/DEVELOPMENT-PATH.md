@@ -196,6 +196,7 @@ creatures as monsters. Built as first-person grid delves (docs/proposals/new-gam
 - [x] RB1.3 [ChatGPT] (done, merged 2026-10-09; T48) Part 3: the road between towns as a walkable stretch at key points (an inn on the road, a
   camp), keeping auto-combat where it already lives.
 - [x] RB1.4 [ChatGPT] Phone pass for the new layout (L3 part 2). (built: Codex for Adam / abarish-dev, 2026-10-09, PR #116; awaiting review)
+- [ ] RB1.6 [ChatGPT] (ready: PR #141, Codex, 2026-10-10) Readable ability names (PLAYTEST pass 1): action-bar styles and tests/realmbound-phone.js only; full names in a body font, phone-safe wrapping and visible shortcuts/cooldowns; screenshots at 375, 1280 and 3440, all suites pass. Score 17/21 (fun 2x2, heart 2x2, friends 3, focus 3, cheap 3).
 - [x] RB1.5 [ChatGPT] (built: Codex, 2026-10-09, PR #98; awaiting review) Wait for the player (GR-10, a bug): autopilot must not take over during the first dialogue
   (games/realmbound/js/13-world-ui.js:95); fix the stray blocks in the sky. Do first.
 
@@ -329,6 +330,7 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - **2026-10-10, ART-SF-5:** a yard's footprint is a placement envelope, not a solid block; record individual props/fence segments and keep the entry clear.
 
 - **2026-10-10, ART-SF-4:** model window states as glass-only changes; alpha and footprint invariants keep lighting swaps from changing placement or collision.
+- **2026-10-10, RB1.6:** a valid 44px tap target can still hide its words. Check actual text line rectangles as well as button bounds; wrap names in a body font, and let the existing ResizeObserver measure the larger action bar.
 
 - **2026-10-09, WD2 data (Codex, PR #113):** the roster has 104 base species and three hybrids added by the ranch module. Validate the full exporter, not just 00-data.js; all 107 preserve their original gameplay fields. Drawing hints stay out of creature saves; the appearance contract is in docs/lore/wildbond-looks.md.
 Standing rule (Evan, 2026-10-09): each piece of work records here what it taught us and what was done about it, in a
