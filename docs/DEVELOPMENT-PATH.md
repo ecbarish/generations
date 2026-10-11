@@ -370,8 +370,19 @@ No-server sharing: trade and battle codes, ghost teams (V6 part 1).
 **Little Ranch (browser), a toy for ages 2-4.**
 - [x] LR2 [any] Repair interrupted feeding and preserve active play through resize/rotation. Scope: Little Ranch game/test files, isolated read-only browser-review script/workflow, screenshots and brief process notes. Done when repeat/interruption and phone-to-ultrawide checks pass with sound preferences unchanged. Score: 18/21. (v0.1.1 release: [PR #140](https://github.com/ecbarish/idle-arcade/pull/140), Codex for Adam / abarish-dev, 2026-10-10; 49 game checks, 15 Chromium review checks and all 17 current-main suites passed; version-only release metadata is rechecked before merge)
 - [x] LR1 [any] The smallest test: one baby creature, three actions (feed, bubbles, peekaboo) and a bedtime
-- [ ] LR3 [any] The next small step: one new gentle thing to do with the baby creature, no reading, nothing to fail; a parent-tested note in the PR. (QUEUE road 10, added 2026-10-11)
   ending; no reading, no failing, no links or purchases, a grown-up lock. Shares the baby-form drawings W9/W10 needs. (claimed: Grok for Adam / abarish-dev, 2026-10-09, guest/little-ranch)
+Next steps, from docs/proposals/little-ranch-next.md (PR #203, 2026-10-11; Evan: "a big hit with my daughter"). Each is one PR on `games/little-ranch/` with checks in `tests/little-ranch.html`, a README changelog line and a "tried with a toddler" note; the toddler rules in games-for-everyone.md hold for every step. Done when the step works on a phone and a tablet with no reading and nothing to fail.
+- [ ] LR3 [any] The singing flowers: a row of big flowers; tap one and it sings its own note and bobs; the baby dances. (QUEUE road 10)
+- [ ] LR4 [any] A second friend: a baby Pebblit (or Glowmote) visits some days; both can be fed and bubbled; they nuzzle.
+- [ ] LR5 [any] Rain and rainbows: tap the cloud for soft rain and puddles to splash; tap the sun for a rainbow.
+- [ ] LR6 [any] The hat basket: tap the basket and the baby tries on the next hat.
+- [ ] LR7 [any] The bedtime routine: teeth, a drink of water, goodnight to each friend, then the lullaby.
+- [ ] LR8 [any] Spoken words: names, colours and "night night" in the browser's voice (no microphone; recording a parent's voice needs Evan's yes).
+Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the barn picture leads home; never a separate icon on the homepage). **Waits for Evan to pick the first place** (recommended: the Little Wagon); take LR3-LR8 until then.
+- [ ] LR9 [any] The Little Wagon (17/18): load two babies, one ride with three things to tap and one colour gate where any car gets a cheer.
+- [ ] LR10 [any] The Snack Kitchen (17/18): four foods, one bowl, one baby who loves berries and pulls funny faces at the rest.
+- [ ] LR11 [any] The Paint Shed (16/18): one outline, four fat paint pots, tap to fill a part, the painted baby walks out.
+(The shape puzzle, 14/18, waits until she is 3½ to 4.)
 **The Arcade Cabinets (browser), original single-screen games in the 1978-85 style.**
 - [x] AC1 [any] Storm Front (the Space Invaders shape, Evan's pick): one cabinet, original name and art, one PR. (built: Codex for Adam / abarish-dev, guest/storm-front, PR #119; awaiting review)
 - [x] AC2 [any] Lighthouse Watch (the Missile Command shape). (built: Grok for Adam / abarish-dev, PR #145, merged 2026-10-10; v0.1.0)
