@@ -39,6 +39,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond (2026-10-11, keys in the game): the opening's notes now name the controls for whatever you're playing on (keys, a gamepad or a phone): how to walk, talk and open your field book (Playtester's note).
 - Wildbond (2026-10-11, the reveal): after the wild bond, three old pages turn up one after another beside Orri, Ceryn and Sivet. Once you've read all three and won the league, Toren and Isolde wait by Hollowecho's cave with copies, and the valley's deepest secret is told. Depth comes back to the world: shadows fall long from then on, and each Warden has something new to say.
 - Wildbond (2026-10-11, the wild bond): the legend the game is named after can now happen. When your last creature is badly hurt, trusts you completely and the battle matters, it looks back at you and one new choice appears: "Stand with it". You fight as one for a short while, then you are both spent. Nothing explains it beforehand; it is named only after the first time.
 - Little Ranch v0.1.1 (2026-10-10, LR2): feeding works again after switching to and from Peekaboo, and rotating/resizing the screen keeps the baby and active toys in place. Existing sound preferences are preserved. [Review and before/after captures](docs/screenshots/little-ranch-lr2/README.md).

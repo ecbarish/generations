@@ -344,7 +344,7 @@ func _after_talk() -> void:
 		"signed":
 			stage = "to_barn"
 			maren.path = route(maren.tile, BARN_DOOR + Vector2i(1, 1))   # beside the barn door, not in front of it
-			caption.text = "Follow Maren to her barn, the big wooden one at the top right, and walk in through its door."
+			caption.text = "Follow Maren to her barn, the big wooden one at the top right, and walk in through its door. Walk with %s." % keys_for("walk")
 		"barn_meet":
 			stage = "barn_choose"
 			caption.text = "Walk up to one of the three and %s to meet it properly." % how("Enter", "Meet")
@@ -370,7 +370,7 @@ func _after_talk() -> void:
 			bonded[partner.id] = true
 			seen[rival_c.sp] = true
 			wren.path = route(wren.tile, Vector2i(10, 0))        # off to Thornwood, already running
-			caption.text = "%s walks with you now. The north road leads to Thornwood." % _partner_name()
+			caption.text = "%s walks with you now. The north road leads to Thornwood. To talk to someone, stand beside them and %s; your field book: %s." % [_partner_name(), keys_for("talk"), keys_for("book")]
 
 func _on_signed(look: Dictionary) -> void:
 	# the ink dries and colour runs into you: you are the one bright thing in the faded valley
@@ -4001,6 +4001,15 @@ func _draw_evidence(e: Dictionary) -> void:
 func _long_shadow(foot: Vector2, w: float, l: float) -> void:
 	var pts := PackedVector2Array([foot + Vector2(-w / 2, 0), foot + Vector2(w / 2, 0), foot + Vector2(w / 2 + l, l * 0.45), foot + Vector2(-w / 2 + l, l * 0.45)])
 	draw_colored_polygon(pts, Color(0.1, 0.08, 0.14, 0.18))
+
+## The controls in words for the device in use (Playtester, 2026-10-11: "the keys are never shown inside the game").
+func keys_for(what: String) -> String:
+	var use := HowTo.in_use()
+	match what:
+		"walk": return { "touch": "the pad in the corner, or tap where to go", "pad": "the left stick" }.get(use, "the arrow keys or W A S D")
+		"talk": return { "touch": "tap Talk", "pad": "press A" }.get(use, "press E")
+		"book": return { "touch": "tap the bag at the top right", "pad": "press Y" }.get(use, "press J")
+	return ""
 
 ## How to press: "tap Meet" on a phone, a key on a computer (for the few hints that name a control).
 func how(key: String, word: String) -> String:
