@@ -32,6 +32,7 @@ func place_at(name: String, p: Vector2i) -> void:
 func capture() -> void:
  folder=OS.get_environment("REVIEW_OUTPUT")
  DirAccess.make_dir_recursive_absolute(folder)
+ main._skip_opening()
  main.set_process(false)
  main.battle.set_process(false)
  main.stage="free"
@@ -122,13 +123,16 @@ func capture() -> void:
     for n in names:main.restore.append({"where":n,"at":Vector2(192,108),"r":5000.0,"goal":5000.0})
     if method=="key-action":Input.action_press("move_up")
     else:main._tap(Vector2(door)*main.TILE+Vector2(8,8))
+    var queued: Array=main.walk_to.map(func(v):return xy(v))
+    var route_candidate: Array=main.route(main.me.tile,door).map(func(v):return xy(v))
+    var goal_walkable: bool=main.walkable(door)
     for frame in 120:
      main._process(1.0/60.0)
      if method=="key-action" and frame==1:Input.action_release("move_up")
      if main.map_name==destination and main.trans_t<0.0:break
     Input.action_release("move_up")
     var arrived: bool=main.map_name==destination
-    await shot("%s-%s-entry"%[destination,method],size,{"kind":"engine entry transition","method":method,"expected":destination,"arrived":arrived,"door":xy(door)})
+    await shot("%s-%s-entry"%[destination,method],size,{"kind":"engine entry transition","method":method,"expected":destination,"arrived":arrived,"door":xy(door),"from":xy(door+Vector2i.DOWN),"queued_at_input":queued,"route_candidate":route_candidate,"goal_walkable":goal_walkable})
     if arrived:
      main.lines.clear()
      var exit_tile: Vector2i=main.BARN_EXIT if destination=="barn" else main.INTERIORS[destination].exit
