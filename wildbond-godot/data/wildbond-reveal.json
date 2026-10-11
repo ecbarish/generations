@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 1,
+  "sourceRevision": "4d92886",
+  "status": "writing-handoff",
+  "observations": [
+    {
+      "id": "restraintRubbing",
+      "area": "hollowecho",
+      "owner": "orri",
+      "title": "The Unanswered Command",
+      "inspection": [
+        [
+          "",
+          "A second rubbing lies beside the small paw and two hands. Its border is the same split loop."
+        ],
+        [
+          "",
+          "Inside a ring of restraints: \"Stand where we set you. Answer only when commanded. Give no bond.\""
+        ],
+        [
+          "",
+          "The watcher faces out of the ring. The hands on this sheet pull tight; the small paw is nowhere beside them."
+        ]
+      ],
+      "ownerLines": [
+        [
+          "orri",
+          "The first hands held a paw. These hands hold it down. Same border, different work. Please do not mistake one for the other."
+        ]
+      ],
+      "tell": {
+        "maren": [
+          [
+            "maren",
+            "We tie shelter ropes so someone has a place to rest. A knot that takes their choice away is another thing."
+          ]
+        ],
+        "wren": [
+          [
+            "wren",
+            "I copied the commands exactly. Whoever wrote them wanted an answer, but would not listen. That feels like the missing bit."
+          ]
+        ]
+      }
+    },
+    {
+      "id": "missingShoreSurvey",
+      "area": "farwatch",
+      "owner": "ceryn",
+      "title": "Before the Joined Shadow",
+      "inspection": [
+        [
+          "",
+          "A survey sheet rests beside the painted inlet. Three entries follow one another down the edge."
+        ],
+        [
+          "",
+          "First: \"The shore loses its colour and its remembered shape. The measuring stones remain.\""
+        ],
+        [
+          "",
+          "Next: \"A tamer and a creature approach together. Their shadows are separate.\""
+        ],
+        [
+          "",
+          "Last: \"Two figures, one shadow. The last colour leaves this inlet.\" The rest of the sheet is missing."
+        ]
+      ],
+      "ownerLines": [
+        [
+          "ceryn",
+          "Rysa kept the last witness. This is an earlier hand. The shore was already going before those two came together. Both saw truly."
+        ]
+      ],
+      "tell": {
+        "maren": [
+          [
+            "maren",
+            "People remember the brightest moment. A quieter thing can have begun long before it. Keep both accounts on the table."
+          ]
+        ],
+        "wren": [
+          [
+            "wren",
+            "I had the bright part underlined. Now I am drawing an arrow back. The trouble was there before the light."
+          ]
+        ]
+      }
+    },
+    {
+      "id": "pairedFerryLeaf",
+      "area": "stillreed",
+      "owner": "sivet",
+      "title": "The Friend Between Them",
+      "inspection": [
+        [
+          "",
+          "Two surviving leaves share the ferry tally border. On the first, a tamer, a partner and the watcher share food beneath a shelter."
+        ],
+        [
+          "",
+          "The watcher comes toward an open hand. No rope holds it there."
+        ],
+        [
+          "",
+          "On the next leaf, the same watcher stands inside the restraint ring. A separate dark shape bends behind it."
+        ],
+        [
+          "",
+          "The shore is rubbed pale as the shape spreads. The two familiar figures stand facing their friend."
+        ],
+        [
+          "",
+          "Two figures, one shadow. At that mark the spreading shape stops. The next part of the leaf is torn away."
+        ],
+        [
+          "",
+          "Four witness copies lie beside it. Each keeps a different stretch; laid together, their folds meet at the same shelter knot."
+        ]
+      ],
+      "ownerLines": [
+        [
+          "sivet",
+          "They crossed with a friend before they faced it. Four copies, four pieces of that night. None of them kept what happened after."
+        ]
+      ],
+      "tell": {
+        "maren": [
+          [
+            "maren",
+            "Four tellings at one supper. They were holding different edges of the same cloth. I wish someone had kept the middle with them."
+          ]
+        ],
+        "wren": [
+          [
+            "wren",
+            "They had to face someone who used to sit beside them. I do not think winning made that easy. I hope they found each other again."
+          ]
+        ]
+      }
+    }
+  ],
+  "reveal": {
+    "id": "rememberedWhole",
+    "area": "hollowecho",
+    "title": "Room for Each Other",
+    "cast": [
+      "toren",
+      "isolde"
+    ],
+    "lines": [
+      [
+        "",
+        "Toren waits beside the warm stones. Isolde sets the rubbing, the survey and the ferry leaves between you."
+      ],
+      [
+        "toren",
+        "I thought the watcher had failed us, or slept through the trouble. These pages show how little I knew."
+      ],
+      [
+        "isolde",
+        "The watcher was their friend. It came freely to their shelter, before anyone drew that circle."
+      ],
+      [
+        "",
+        "Your partner noses your open hand. You leave it open."
+      ],
+      [
+        "toren",
+        "That older order would take no bond. They wanted the watcher, and other powerful creatures, to obey without choosing."
+      ],
+      [
+        "isolde",
+        "Their ritual gave their contempt a shape. Something that fed on memory. The world began to forget itself."
+      ],
+      [
+        "toren",
+        "Colour. The depth of a valley. A shore that the stones still measured, but nobody could remember whole."
+      ],
+      [
+        "isolde",
+        "It broke the watcher and hid behind it. The pair came to stop it, and found their friend standing against them."
+      ],
+      [
+        "toren",
+        "The joining was not the beginning of the loss. Ceryn kept the earlier entries. Rysa kept the last pallor. Both are true."
+      ],
+      [
+        "isolde",
+        "Two figures, one shadow. Their bond stopped what was eating the world. It could not undo all that was already taken."
+      ],
+      [
+        "toren",
+        "After it was freed, the watcher served no one. It slept here to heal. This warmth is its rest, not its prison."
+      ],
+      [
+        "isolde",
+        "The four family tales kept four parts of one night. Different roads, back to one older people. None of us owns the whole."
+      ],
+      [
+        "toren",
+        "The Unbound of today saw the joining and blamed the bond. Their fear of captivity is fair. Their answer leaves everyone alone."
+      ],
+      [
+        "isolde",
+        "The old order wanted servants. The present Unbound want no ties at all. Neither leaves room for friends who choose each other."
+      ],
+      [
+        "",
+        "Your partner steps away to sniff the stones. Then it comes back, brushing your knee. Nobody calls it."
+      ],
+      [
+        "toren",
+        "There. Not a command. Not a creature left by itself. A friend with somewhere it wants to return."
+      ],
+      [
+        "isolde",
+        "What became of the old pair? The leaf ends. Whether any hungry pieces remain, we cannot tell from these pages."
+      ],
+      [
+        "toren",
+        "The nests Veilmote keeps warm, and what Tobin saw before: other questions. We will not fill those spaces with a good guess."
+      ],
+      [
+        "isolde",
+        "You need not become one shadow to stay beside each other. You have been teaching the world that all along."
+      ]
+    ]
+  },
+  "depthRestoration": {
+    "id": "roomReturns",
+    "lines": [
+      [
+        "",
+        "Your partner settles beside you. For a moment you listen to two breaths, taking their own time."
+      ],
+      [
+        "",
+        "The far ridge draws away. A stone at your feet has a back, a side, a hollow where rain could rest."
+      ],
+      [
+        "",
+        "Warmth slips between the stones instead of lying flat across them. Your shadows turn with the ground."
+      ],
+      [
+        "",
+        "The world remembers room for you both. You can stand beside each other without becoming the same."
+      ]
+    ]
+  },
+  "wardenAfter": {
+    "isolde": [
+      [
+        "isolde",
+        "There is room beneath the branches again. Bring your friend. We can sit without stepping on each other."
+      ]
+    ],
+    "nerys": [
+      [
+        "nerys",
+        "The shore has its hollows back. I can watch the water return without pretending it has forgotten every storm."
+      ]
+    ],
+    "toren": [
+      [
+        "toren",
+        "The warm stones still shelter a sleeper. We know more now. That does not give us the right to wake it."
+      ]
+    ],
+    "vessa": [
+      [
+        "vessa",
+        "Look beneath that cloud. A valley, not a picture of one. I had missed the distance without knowing its name."
+      ]
+    ],
+    "olan": [
+      [
+        "olan",
+        "The reeds have space between them again. Sit by me awhile. We will hear what comes through."
+      ]
+    ],
+    "senna": [
+      [
+        "senna",
+        "The bell has somewhere for its echo to go. Leave a little silence after it. Listen."
+      ]
+    ],
+    "halen": [
+      [
+        "halen",
+        "A woven thing needs the spaces too. Pull every thread tight and there is nowhere left to breathe."
+      ]
+    ],
+    "rysa": [
+      [
+        "rysa",
+        "My witness kept the end of that night. Your pages kept the beginning. I am glad we made room for both."
+      ]
+    ]
+  }
+}

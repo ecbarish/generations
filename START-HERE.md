@@ -106,7 +106,7 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 
 ## Session log (newest first; one or two lines each)
 
-- 2026-10-11 Claude (Wildbond builder thread, lane W): WB4.2 part 1, the wild bond in battle (battle.gd `can_join`/`_join`, tests/wild_bond.gd, PR #170). Next in the same PR: WB4.3 part 2, placing T58 (the three pieces of evidence beside Orri, Ceryn and Sivet, the reveal at Hollowecho, depth returning, the Wardens' after-lines; docs/lore/wildbond-reveal.md).
+- 2026-10-11 Claude (Wildbond builder thread, lane W): WB4.2 part 1, the wild bond in battle (battle.gd `can_join`/`_join`, tests/wild_bond.gd, PR #170). Then WB4.3 part 2 in the same PR: T58 placed (evidence beside Orri, Ceryn and Sivet; the reveal by Hollowecho's cave mouth; long shadows once depth returns; each Warden's after-line; tests/reveal.gd). Left for lane W: the fused form per family and the wild bond's field book page and legends (WB4.2), the partner's walk in the reveal, Maren's and Wren's tell lines.
 - 2026-10-10 — Codex (Adam / abarish-dev): LR2 [PR #140](https://github.com/ecbarish/idle-arcade/pull/140) repairs meals interrupted by Peekaboo and keeps the baby/toys aligned through rotation. 49 browser checks, repeated saved-sound compatibility, before/after captures and all 14 implementation suites passed; reconciled with current main and all 17 suites passed. Adam approved publication; v0.1.1 release metadata is being rechecked before the approved merge. No save changes.
 - **2026-10-10, Codex:** PR #159: fuller arm/torso mesh volume with unchanged bone lengths/head, reversible earlier builds, matched volume evidence and 72 asset checks; rigid shoulder pad excluded from body inflation. No purchases, Godot or production/save changes.
 
