@@ -186,7 +186,7 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
   hall and inn now have (Evan saw the inn's door floating above its stone base on 2026-10-11; fixed for those two in
   tools/art/starfall_hall_inn.py). Done when the opening screenshot reads lived-in, every building is still reachable, and the
   Starfall checks pass.
-- [ ] SF2.6c [any] Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
+- [ ] SF2.6c [any] (claimed: Codex for Adam / abarish-dev, 2026-10-11, guest/starfall-opening-view) Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
   and banner, the most recognisable parts. Start the player (or the camera) so both buildings show whole. Also delete
   the unused Ninja Adventure tiles in `starfall-godot/assets/env/` (house.png, nature.png, floor.png and their .import
   files; nothing loads them) and update CREDITS.md (the pack's music and sounds stay). Done when a day-one screenshot
