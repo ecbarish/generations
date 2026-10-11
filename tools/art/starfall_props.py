@@ -20,35 +20,6 @@ CELLS = {
 ATLAS = (112, 96)
 
 
-def pack_hex(text):
-    """Palette padding is a long zero run. Store it as {0*N} so a text commit
-    cannot shorten it. --check expands the marker before comparing bytes."""
-    import re
-    return re.sub(r'0{16,}', lambda m: '{0*%d}' % len(m.group(0)), text)
-
-
-def read_packed(hex_path):
-    """Packed hex, or the same text split into `.part*` files joined in order.
-
-    Contact part02 is only its first 5000 characters; part02b is the rest.
-    """
-    parts = sorted(hex_path.parent.glob(hex_path.name + '.part*'))
-    if parts:
-        chunks = []
-        for part in parts:
-            text = part.read_text()
-            if part.name.endswith('.part02'):
-                text = text[:5000]
-            chunks.append(text)
-        return ''.join(chunks)
-    return hex_path.read_text()
-
-
-def unpack_hex(text):
-    import re
-    return re.sub(r'\{0\*(\d+)\}', lambda m: '0' * int(m.group(1)), text)
-
-
 def new(size):
     im = ground.image(size)
     return im, ImageDraw.Draw(im)
@@ -340,24 +311,11 @@ def main():
         buf = BytesIO()
         im.save(buf, format='PNG', transparency=0)
         data = buf.getvalue()
-        text = data.hex() + '\n'
-        packed = pack_hex(text)
-        # Packed hex is the committed byte copy. This writer can only push text,
-        # and a PNG signature is not valid UTF-8, so --check locks the exact PNG
-        # bytes in the .hex file. A long zero run is written as {0*N}. Running
-        # without --check also writes the real PNG.
-        hex_path = Path(str(path) + '.hex')
         if args.check:
-            found = read_packed(hex_path)
-            if hex_path.exists() and list(hex_path.parent.glob(hex_path.name + '.part*')):
-                assert unpack_hex(hex_path.read_text()) == text, f'Stale art bytes: {hex_path}'
-            assert unpack_hex(found) == text, f'Stale art bytes: {hex_path}'
-            if path.exists():
-                assert path.read_bytes() == data, f'Stale art: {path}'
+            assert path.read_bytes() == data, f'Stale art: {path}'
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
-            hex_path.write_text(packed)
     path = ASSETS / 'props.json'
     data = json.dumps(meta, indent=2) + '\n'
     if args.check:
