@@ -29,8 +29,8 @@ const BUILT_W := { "smithy": 2, "tavern": 2, "apothecary": 2, "healer": 3, "yard
 const PALISADE := { 10: Rect2(0, 0, 16, 32), 5: Rect2(16, 0, 16, 32), 3: Rect2(32, 0, 16, 32), 6: Rect2(48, 0, 16, 32),
 	12: Rect2(0, 32, 16, 32), 9: Rect2(16, 32, 16, 32), 2: Rect2(32, 32, 16, 32), 8: Rect2(48, 32, 16, 32),
 	1: Rect2(0, 64, 16, 32), 4: Rect2(16, 64, 16, 32), 0: Rect2(32, 64, 16, 32) }
-const HALL_GLASS := [Vector2(15, 56), Vector2(29, 56), Vector2(61, 56), Vector2(75, 56)]   # glass_rects in hall-inn.json
-const INN_GLASS := [Vector2(11, 36), Vector2(29, 36), Vector2(47, 36), Vector2(11, 60), Vector2(45, 60)]
+const HALL_GLASS := [Vector2(13, 56), Vector2(29, 56), Vector2(67, 56), Vector2(77, 56)]   # glass_rects in hall-inn.json
+const INN_GLASS := [Vector2(11, 36), Vector2(29, 36), Vector2(47, 36), Vector2(23, 60), Vector2(49, 60)]
 const PINE_48 := Rect2(64, 0, 32, 48)
 const PINE_32 := Rect2(32, 16, 24, 32)
 const STUMP := Rect2(16, 64, 16, 16)
@@ -1725,8 +1725,8 @@ func _note_rect(i: int) -> Rect2:
 	return Rect2(38 + i * (w + 6.0), 46, w, 120)
 
 # ---------------------------------------------------------------- drawing the town
-func _is_path(x: int, y: int) -> bool:
-	return tile_at(Vector2i(x, y)) in ".E" and x > 0
+func _is_path(x: int, y: int) -> bool:          # a door counts, so a path runs right up to its step
+	return tile_at(Vector2i(x, y)) in ".ED" and x > 0
 
 func _draw() -> void:
 	for y in MAP.size():
@@ -1880,17 +1880,17 @@ func _draw_built(_k: String, what: String, o: Vector2) -> void:
 				draw_rect(Rect2(at + Vector2(36, 26), Vector2(5, 4)), Color("f2d080"))   # a lamp lit for someone resting
 
 func _counter_draw() -> void:
-	# a plank counter under a striped awning, a pot of stew steaming on it
+	# a plank counter under a striped awning, a pot of stew steaming on it (Starfall palette, docs/art/starfall.md)
 	var o := Vector2(COUNTER) * TILE
 	draw_rect(Rect2(o + Vector2(-1, -9), Vector2(18, 4)), Figures.OUTLINE)
 	for k in 4:
-		draw_rect(Rect2(o + Vector2(k * 4, -8), Vector2(4, 2)), Color("c84a3a") if k % 2 == 0 else Color("f2e6c8"))
-	draw_rect(Rect2(o + Vector2(0, -6), Vector2(1, 10)), Color("6b4a2a"))
-	draw_rect(Rect2(o + Vector2(15, -6), Vector2(1, 10)), Color("6b4a2a"))
+		draw_rect(Rect2(o + Vector2(k * 4, -8), Vector2(4, 2)), Color("8c2f2f") if k % 2 == 0 else Color("a07a50"))
+	draw_rect(Rect2(o + Vector2(0, -6), Vector2(1, 10)), Color("6a4a32"))
+	draw_rect(Rect2(o + Vector2(15, -6), Vector2(1, 10)), Color("6a4a32"))
 	draw_rect(Rect2(o + Vector2(-1, 3), Vector2(18, 10)), Figures.OUTLINE)
-	draw_rect(Rect2(o + Vector2(0, 4), Vector2(16, 8)), Color("a0703a"))
-	draw_rect(Rect2(o + Vector2(0, 4), Vector2(16, 2)), Color("c8925a"))
-	draw_rect(Rect2(o + Vector2(5, 0), Vector2(6, 4)), Color("3a3a40"))                # the pot
+	draw_rect(Rect2(o + Vector2(0, 4), Vector2(16, 8)), Color("8c6644"))
+	draw_rect(Rect2(o + Vector2(0, 4), Vector2(16, 2)), Color("a07a50"))
+	draw_rect(Rect2(o + Vector2(5, 0), Vector2(6, 4)), Color("4e535a"))                # the pot
 	draw_rect(Rect2(o + Vector2(6, 0), Vector2(4, 1)), Color("d8a050"))
 	for k in 2:
 		var ph := fmod(t * 0.5 + k * 0.5, 1.0)
