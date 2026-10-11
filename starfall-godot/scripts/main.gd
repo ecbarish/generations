@@ -105,6 +105,7 @@ const SERVE_AT := Vector2i(18, 8)          # behind the counter
 const ORDER_AT := Vector2i(20, 8)          # where a hungry adventurer waits
 const BOARD := Vector2i(7, 7)
 const READ_AT := Vector2i(7, 8)           # in front of the board
+const READ_SPOTS := [Vector2i(7, 8), Vector2i(8, 8), Vector2i(6, 8)]   # anywhere along the front will do (SF2.18)
 const GATE := Vector2i(1, 9)
 const GATE_IN := Vector2i(2, 9)           # just inside the gate, where people come and go
 const INN_STEP := Vector2i(20, 7)          # the inn's doorstep
@@ -115,6 +116,7 @@ const MEAL := 8
 const WAGE := 10
 const HIRE_AFTER := 10                     # meals you serve yourself before Bryn offers to take over
 const PATIENCE := 22.0                     # how long a hungry adventurer waits at the counter
+const POT_MEAL := 4                        # what they leave for helping themselves from the stew pot instead (SF2.18)
 const MAX_POSTED := 2
 ## Cleared plots (p on the map, 2x2) where the town can grow; each keeps its anchor (top left) tile.
 ## (SF2.6: the plots keep their names, so old saves keep their buildings; they now line the road east of the inn.)
@@ -514,6 +516,7 @@ func _blocked_by_other(p: Vector2i, who: Mover) -> bool:
 func _player(_dt: float) -> void:
 	if board_open or shelf_open or not spar.is_empty() or not forge.is_empty() or brewing > 0.0 or build_plot != "" or not lines.is_empty() or not me.path.is_empty() or me.pos.distance_to(Vector2(me.tile) * TILE) > 0.5:
 		return
+	_light_near()
 	var d := Vector2i.ZERO
 	if Input.is_action_pressed("ui_up") or Input.is_physical_key_pressed(KEY_W): d = Vector2i.UP
 	elif Input.is_action_pressed("ui_down") or Input.is_physical_key_pressed(KEY_S): d = Vector2i.DOWN
@@ -728,7 +731,7 @@ func _hero(h: Mover, dt: float) -> void:
 				a.job = job
 				posted.erase(job)
 				a.state = "to_board"
-				send(h, READ_AT)
+				send(h, read_spot(h))
 			elif wants_drink(h) and rng.randf() < 0.5:
 				a.state = "to_tavern"                    # evening: a drink at the tavern before bed
 				a.waited = 0.0
@@ -762,10 +765,10 @@ func _hero(h: Mover, dt: float) -> void:
 				a.state = "town"
 				a.timer = 0.5
 		"to_board":
-			if h.path.is_empty() and h.tile != READ_AT and a.timer <= 0.0:
+			if h.path.is_empty() and not h.tile in READ_SPOTS and a.timer <= 0.0:
 				a.timer = 1.0
-				send(h, READ_AT)                     # try again if someone was in the way
-			elif h.tile == READ_AT and h.path.is_empty():
+				send(h, read_spot(h))                # try again (another spot) if someone was in the way
+			elif h.tile in READ_SPOTS and h.path.is_empty():
 				var j := job_of(a.job)
 				bark(h, "%s? I'll take it." % j.name)
 				if wants_tonic(h):
@@ -885,6 +888,13 @@ func _pick_job(h: Mover) -> String:
 			best_reward = int(j.reward)
 	return best
 
+## Where to stand to read the board: the first spot along its front that nobody is standing on.
+func read_spot(h: Mover) -> Vector2i:
+	for p in READ_SPOTS:
+		if not _blocked_by_other(p, h):
+			return p
+	return READ_AT
+
 func job_of(id: String) -> Dictionary:
 	for j in JOBS:
 		if j.id == id:
@@ -956,7 +966,8 @@ func _counter(dt: float) -> void:
 	if h.tile != ORDER_AT or not h.path.is_empty():
 		return
 	h.face = Vector2i.LEFT
-	h.a.waited = float(h.a.get("waited", 0.0)) + dt
+	for w in queue:                            # everyone in the line is waiting, not only the one at the front (SF2.18)
+		w.a.waited = float(w.a.get("waited", 0.0)) + dt
 	if hired and bryn.tile == SERVE_AT and bryn.path.is_empty():
 		serve_t += dt
 		if serve_t >= 2.5:
@@ -964,9 +975,13 @@ func _counter(dt: float) -> void:
 			serve(h, false)
 		return
 	if float(h.a.waited) > PATIENCE:
-		h.a.morale = maxi(0, int(h.a.morale) - 1)
-		bark(h, "Nobody's cooking? Fine. Dry bread it is.")
-		today["unfed"] = int(today.get("unfed", 0)) + 1
+		# nobody at the counter: they help themselves from the stew pot (SF2.18). Fed, but plain: half the coins and
+		# no lift in spirits, so cooking by hand (or Bryn) stays better, and skipping it never starves anyone.
+		coins += POT_MEAL
+		today.earned += POT_MEAL
+		today["pot"] = int(today.get("pot", 0)) + 1
+		bark(h, ["Nobody at the counter? I'll help myself from the pot.", "Pot stew again. It's filling, I suppose.",
+			"I'll ladle my own. Coins in the jar."][rng.randi() % 3])
 		_to_bed(h)
 
 func serve(h: Mover, by_hand: bool) -> void:
@@ -1702,6 +1717,7 @@ func _draw_pour(font: Font, to_screen: Transform2D) -> void:
 ## home to raise their nerve; after a few spars Ilse, a drillmaster, offers to run the yard. Walking the round or
 ## sparring yourself is always worth more than the hire (lamp money on top; a spar with everyone, not just one).
 const LANTERNS := [Vector2i(1, 12), Vector2i(28, 1), Vector2i(41, 9), Vector2i(20, 16)]   # on the west, north, east and south walls
+const REACH := 4                           # at dusk you light a wall lantern just by walking within this many tiles (SF2.18)
 const LAMP_STANDS := [Vector2i(2, 12), Vector2i(28, 2), Vector2i(40, 9), Vector2i(20, 15)]   # where you stand to light each
 const ODO_AT := Vector2i(5, 8)             # the watchman's post, at the foot of the watchtower
 const ROUNDS_AFTER := 3                     # rounds you walk yourself before Odo asks for the job
@@ -1734,6 +1750,16 @@ func light_lamp(i: int) -> void:
 			odo.pos = Vector2(odo.tile) * TILE
 			bark(odo, "You're the one who walks the walls at night? Guildmaster, can I have a word?")
 			send(odo, ODO_AT)
+
+## At dusk, walking near an unlit wall lantern lights it with the taper, no stopping needed (SF2.18): the round is a
+## short loop off the road rather than four trips to the walls. Odo still walks to each one.
+func _light_near() -> void:
+	if odo_hired or not evening() or not lamps.has(false):
+		return
+	for i in LANTERNS.size():
+		var d: Vector2i = (me.tile - LANTERNS[i]).abs()
+		if not lamps[i] and maxi(d.x, d.y) <= REACH:
+			light_lamp(i)
 
 func talk_odo() -> void:
 	odo.face = me.tile - odo.tile
@@ -1871,12 +1897,15 @@ func finish_spar(fill: float) -> void:
 	if str(h.a.state) == "sparring":
 		h.a.state = "town"
 		h.a.timer = 1.5
-	h.a.morale = mini(10, int(h.a.morale) + (2 if clean else 1))
+	var practised := _lift(h, 2 if clean else 1)
 	h.a.sparred = day
 	if clean:
 		sfx.play("success")
 		feel(h, "heart", 4.0)
-	bark(h, "Good bout. I feel steadier." if clean else "Scrappy, but I'll take it.")
+	if practised > 0:
+		bark(h, "Good bout. I learned something there." if clean else "Scrappy, but I picked up a trick.")
+	else:
+		bark(h, "Good bout. I feel steadier." if clean else "Scrappy, but I'll take it.")
 	spars += 1
 	if spars >= SPARS_AFTER and ilse.where == "gone":
 		ilse.where = "town"                          # word gets round: a drillmaster walks in through the gate
@@ -1884,6 +1913,17 @@ func finish_spar(fill: float) -> void:
 		ilse.pos = Vector2(ilse.tile) * TILE
 		bark(ilse, "Who's been running drills at that yard? Guildmaster, a word?")
 		send(ilse, _drill_at())
+
+const SPAR_XP := 3                          # practice for each point of spirits past full (SF2.18)
+
+## Raise spirits by n; any part past full becomes practice instead. Returns the practice given.
+func _lift(h: Mover, n: int) -> int:
+	var room := 10 - int(h.a.morale)
+	h.a.morale = mini(10, int(h.a.morale) + n)
+	var xp := maxi(0, n - maxi(0, room)) * SPAR_XP
+	if xp > 0:
+		gain_xp(h, xp)
+	return xp
 
 func talk_ilse() -> void:
 	ilse.face = me.tile - ilse.tile
@@ -1907,7 +1947,7 @@ func _yard_morning() -> String:
 	var out := " Ilse paid."
 	var h := spar_partner()
 	if h != null:
-		h.a.morale = mini(10, int(h.a.morale) + 1)
+		_lift(h, 1)
 		out += " She'll drill %s at first light." % h.a.name
 	return out
 
