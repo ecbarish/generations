@@ -119,8 +119,54 @@ wants one layout, with games grouped by kind. (Website thread.)
 | Realmbound: larger ability labels | A ChatGPT (with the game-window move) | Low |
 | Wildbond Classic and Otherworld: a shorter opening, or an offer to skip it on the first screen | A ChatGPT | Low |
 
+## Pass 2: 2026-10-11 (Claude, Playtester thread)
+
+The same method as pass 1, now with 15 pages (`tools/playtest/first-look.cjs` includes the new games). No page threw an
+error or scrolled sideways on a phone. I played the four new games from a fresh save and re-checked the pass 1 fixes.
+Diamond Manager was scored in [playtests/diamond-manager-1.md](playtests/diamond-manager-1.md) (15, passes).
+
+| Game | What | How | Loop | See | Fun | Phone | Total | Verdict |
+|---|---|---|---|---|---|---|---|---|
+| Storm Front | 3 | 3 | 3 | 3 | 2 | 3 | 17 | **Passes.** Controls under the screen, touch buttons, a demo behind the title; a minute's play reached 1,210 points |
+| Lighthouse Watch | 3 | 3 | 3 | 3 | 2 | 3 | 17 | **Passes.** Reached night 2; the initials board works |
+| Brisket's Crossing | 3 | 2 | 3 | 2 | 2 | 3 | 15 | **Passes, two fixes wanted** (below) |
+| Little Ranch | 3 | 3 | 2 | 3 | 3 | 3 | 17 | **Passes.** Every tap does something; 60 random "toddler" taps opened nothing and broke nothing |
+| Diamond Manager | 3 | 3 | 3 | 2 | 2 | 2 | 15 | Passes; active management doesn't pay yet (ticket DM-B) |
+| Wildbond (Godot) | 3 | 2 | 2 | 3 | 2 | 2 | 14 | Better: its own village (slate cottages, a red barn), click or tap to walk, a "turn your phone sideways" card |
+| Starfall village (Godot) | 1 | 2 | 2 | 3 | 2 | 1 | 11 | **Still not passing.** A new frontier town of its own, but still no goal or controls on screen after the opening |
+
+Little Ranch's loop is a 2 because my run didn't reach bedtime (about a dozen actions or six minutes), not because
+anything failed.
+
+**What landed from pass 1:** Wildbond and Starfall no longer share a village. Wildbond has click-to-walk and the
+sideways card, and Evan's see-through roofs have a fix merged (PR #154; not re-tested here). The homepage is one page
+with games grouped by kind (Adventures, Build and manage, Sports, Stories, Something different) in a walk-in cabinet
+hall, with "Press Enter (or tap) to play". Realmbound's readable ability labels (PR #141) and Otherworld's opening
+choice (PR #142) are merged; I haven't re-scored them.
+
+**Still open from pass 1:** the controls are still not shown inside either Godot game (Wildbond's launcher card has
+them; Starfall's goal line is still missing). These two are now the top fixes in the arcade.
+
+### Brisket's Crossing: two fixes
+
+1. **A hit sends Brisket straight back to the start with no pause.** `hurt()` in `games/briskets-crossing/model.js`
+   calls `respawn()` at once, so a player still holding Up hops straight back into the same wagon. Random play lost
+   all three lives in about three seconds. The classic fix: a short beat (about a second) where Brisket is knocked
+   over and input is ignored, then "Ready" again.
+2. **The arrow keys don't start a run.** After "One player" a second panel waits for a click on "Lead Brisket out".
+   Space or an arrow there should start it too, as in the other cabinets. Also, the mule is about 35 pixels on a
+   1280-pixel screen; a little bigger would help, so it matches the wagons.
+
+## Fixes handed out after pass 2
+
+| Fix | Lane / thread | Priority |
+|---|---|---|
+| Show walk, talk and field-book keys in the game the first time they're needed | W Wildbond builder | High |
+| Starfall: a goal line after the opening, and the controls on screen | S Starfall | High (blocks the bar) |
+| Brisket's Crossing: a knocked-over beat after a hit; Space or arrows start a run; a bigger mule | Whoever built AC3 (guest lane), via COMMS | Medium |
+| Diamond Manager: make the GM's choices matter (DM-B) | Baseball and football management | Medium |
+
 ## Next pass
 
-Re-run after each of the fixes above lands, and before any new game (Storm Front, Little Ranch, the football game)
-goes on the website. Pass 2 should finish one full loop in each Godot preview and play Diamond's replacement as soon as
-it has a first version.
+Re-score Starfall once its goal line lands, finish one full loop in each Godot preview, and score Lantern Bowl (the
+football game) and any new cabinet before it goes on the website.

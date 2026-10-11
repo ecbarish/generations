@@ -110,13 +110,13 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 - [x] WS6 [ChatGPT] (T51, merged 2026-10-09; placed in Godot by WS5) Festival writing: lines, keepsake names, a short tradition for each festival in docs/lore/.
 **WB-M4: the ending.**
 - [x] WB4.1 [Claude] The league: Wren at the gate, four courts, Champion Avenne. *Done 2026-10-09: from Farwatch with all eight badges; five stone courts with banners (a gold mark once won); Nelva explains and heals; the battles, lines and teams from the game data; healed between rooms; a loss starts the courts again (Wren stays beaten); the Champion brings the homecoming lines. The Spire stays closed (WB5.1).*
-- [ ] WB4.2 [Claude] The wild bond's
-  discovery (WG4) and the first-person glimpse.
-- [ ] WB4.3 [Claude] The homecoming ending, colour and depth restored. *Part 1 done 2026-10-09: after the Champion, Maren and Isolde come to the league gate and Avenne walks down (T54 staging), the ending and the quiet-down lines play, and every Warden welcomes the Champion on return. Left: the deeper reveal (waits on Evan's choice of the final truth, docs/proposals/wildbond-final-reveals.md, and WB4.4b).*
-- [ ] WB4.4 [ChatGPT] (T58 writing ready: PR #101, Codex, 2026-10-09; Claude places approved reveal) (WB4.4a: T53 and T54 merged 2026-10-09 and placed; WB4.4b, the full mystery payoff, waits on Evan's choice in docs/proposals/wildbond-final-reveals.md) The ending's text and every thread's payoff, written from the ledger, for Claude to place.
+- [ ] WB4.2 [Claude] (claimed 2026-10-11 by the Wildbond builder thread, with WB4.3 part 2: placing T58) The wild bond's
+  discovery (WG4) and the first-person glimpse. *Part 1 done 2026-10-11 (battle.gd `can_join`/`_join`, tests/wild_bond.gd): your last creature standing, badly hurt, Bonded, in a battle that matters (a tamer, or a wild foe 3+ levels above), once a game day: it looks back at you, Run's slot becomes "Stand with it", colour floods the field, you fight as one for 14 battle seconds (hits x1.6, takes x0.6, faster), then both are spent (its health low, your orders gone). Named only afterwards, the first time (`story_done.wildBond`; save field `bondDay`). Left: a fused form per family (now you stand within its shape), the field book page, people reacting, the scattered legends in the areas, the first-person glimpse, a challenge-mode switch.*
+- [ ] WB4.3 [Claude] The homecoming ending, colour and depth restored. *Part 1 done 2026-10-09: after the Champion, Maren and Isolde come to the league gate and Avenne walks down (T54 staging), the ending and the quiet-down lines play, and every Warden welcomes the Champion on return. Part 2 done 2026-10-11 (PR #170; main.gd "the reveal", tests/reveal.gd): T58 placed. After the wild bond, Orri's rubbing (Hollowecho), Ceryn's survey (Farwatch) and Sivet's ferry leaf (Stillreed) appear one after another beside their keepers, re-readable; once all three are seen and the league is won, Toren and Isolde wait either side of Hollowecho's cave mouth, the reveal and depth's return play, long shadows fall from then on, and each Warden has one after-line. Left: the partner's walk-away-and-back as real movement (now narrated), Maren's and Wren's optional `tell` lines, a notebook page of what was seen, depth beyond shadows.*
+- [ ] WB4.4 [ChatGPT] (T58 writing placed in Godot 2026-10-11, PR #170) (WB4.4a: T53 and T54 merged 2026-10-09 and placed; WB4.4b, the full mystery payoff, waits on Evan's choice in docs/proposals/wildbond-final-reveals.md) The ending's text and every thread's payoff, written from the ledger, for Claude to place.
 
 **WB-D: deeper play (from the game review, docs/proposals/game-review-2026-10-09.md; before 2.0, order in PRIORITIES.md).**
-- [ ] WD1 [Claude] Numbers off the screen (GR-4): remove the Badges/Lures/Coins/Wilddex line; a readable arrival name.
+- [x] WD1 [Claude] **Done 2026-10-09 in PR #91** (satchel icon and Satchel page; large place names on arrival). Numbers off the screen (GR-4): remove the Badges/Lures/Coins/Wilddex line; a readable arrival name.
 - [ ] WD2 [ChatGPT data, Claude drawing] (data built: Codex, PR #113; drawing remains open) Creatures that look different (GR-1): per-species look features in data;
   parts drawn in figures.gd; 4-5 new body shapes. *Part 1 done 2026-10-09: serpent, turtle, moth and tree-folk shapes for twelve species (figures.gd `SHAPE_FOR`; a `shape` field in the data overrides it). Data half built in PR #113: all 107 browser species have shape + head/back/tail/pattern hints, including hybrids. Left: Claude draws the parts; a fish shape with WB5.7.*
 - [ ] WD3 [Claude, ChatGPT data] Battles with real choices (GR-2): about 60 moves, family signature moves, a few
@@ -144,7 +144,7 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
   (docs/learning/godot-practices.md rule 2), so on-screen buttons, a gamepad and rebinding all come free.
 - [x] WB6.2 [Claude] **Done 2026-10-09** (`settings.gd`, the book's Settings page). Settings in the game window (sound, music, text size,
   battle speed). Start with Music, Ambience and Effects sound buses (godot-practices.md rule 3).
-- [x] WB6.3 [Claude] **Done 2026-10-09** (`turn_card.gd`). A phone held upright gets a "Turn your phone sideways" card and the game holds still (Playtester, PR #111). Learned: with `canvas_items` stretch and `keep` aspect, portrait leaves a thin strip, so no portrait layout is worth building; pausing the tree with the card set to `PROCESS_MODE_ALWAYS` freezes battles and walks cleanly.
+- [x] WB6.2b [Claude] **Done 2026-10-09** (`turn_card.gd`; renamed from a clashing WB6.3). A phone held upright gets a "Turn your phone sideways" card and the game holds still (Playtester, PR #111). Learned: with `canvas_items` stretch and `keep` aspect, portrait leaves a thin strip, so no portrait layout is worth building; pausing the tree with the card set to `PROCESS_MODE_ALWAYS` freezes battles and walks cleanly.
 - [ ] WB6.3 [Claude] Import a browser Wildbond save into the new version.
 - [x] WB6.4 [any] A Wildbond guide (first steps, the element chart, the ranch), now that systems are settling. (merged: PR #127, 2026-10-09)
 - [ ] WB6.5 [Claude] A Wildbond trailer and store-style page; Windows build and web build published.
@@ -171,17 +171,27 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
 - [x] ART-SF-7 [any] (Grok for Adam / abarish-dev, [PR #162](https://github.com/ecbarish/idle-arcade/pull/162) merged 2026-10-10; score 13/21: fun 1, Evan 2, friends 2, focus 2, cheap 3) SF2.6 follow-ups: a side-on west-wall gate picture in ART-SF-2's style, wired in place of the gap; smithy and tavern pictures redrawn 2 tiles wide to fit their plots, footprints matching (4-wide originals kept). Files: tools/art/, starfall-godot/assets/env/frontier/, starfall-godot/scripts/main.gd, tests. Done when: art --check passes; gate and fitted buildings in game; every door/plot reachable; screenshots.
 - [x] SF2.6 [Claude] Its own place (GR-5): a frontier stockade look and road layout instead of Larkhaven's; a map
   that scrolls. (Grok for Adam / abarish-dev, H4; [PR #157](https://github.com/ecbarish/idle-arcade/pull/157) merged 2026-10-10; follow-ups all done 2026-10-10: west gate and fitted smithy/tavern in ART-SF-7 #162, evening tint and yard footprint #165, play/starfall rebuilt #166) Before SF3.1. *The look is set (2026-10-09): docs/art/starfall.md (palette, sizes, footprints, mock-up); the
+- [x] Art review of ART-SF-1 to 7 and SF2.6 (Art direction thread, 2026-10-11): passed. In the game Starfall now reads as a
+  log-walled frontier town and can't be mistaken for Larkhaven (the GR-5 check); the pieces keep the palette, the shake
+  roofs, the sizes and distinct silhouettes. Fixed in review: the food counter's awning and wood moved onto Starfall's
+  palette; and, after Evan spotted it, the hall's and inn's doors now sit centred on their map tile (so the inn's path
+  meets the door) and stand on a plank step to the ground instead of floating on the stone base. Follow-ups: ART-SF-8 and
+  SF2.6c below.
+- [ ] ART-SF-8 [any] Dress the square and roads: the square is one plain packed-earth rectangle. Add worn ruts and
+  puddles, grass tufts along the edges, a bench and a hitching post, and place ART-SF-6's barrels, crates and firewood
+  by the buildings that would use them (inn, tavern, smithy). Pictures in `starfall-godot/assets/env/frontier/`,
+  placement in main.gd. Also give the apothecary, healer and tavern doors a step down to the ground, as the
+  hall and inn now have (Evan saw the inn's door floating above its stone base on 2026-10-11; fixed for those two in
+  tools/art/starfall_hall_inn.py). Done when the opening screenshot reads lived-in, every building is still reachable, and the
+  Starfall checks pass.
+- [ ] SF2.6c [any] Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
+  and banner, the most recognisable parts. Start the player (or the camera) so both buildings show whole. Also delete
+  the unused Ninja Adventure tiles in `starfall-godot/assets/env/` (house.png, nature.png, floor.png and their .import
+  files; nothing loads them) and update CREDITS.md (the pack's music and sounds stay). Done when a day-one screenshot
+  shows both roofs and the checks pass.
 - [ ] MAP-AUDIT [any] (claimed: Adam / abarish-dev, 2026-10-10) Audit current Wildbond/Starfall map and interior reachability, entrance occlusion and scene furnishing; reproduce findings and file fix tickets; no game edits.
-- [ ] ART-SF-1 [any] (art review: [PR #134](https://github.com/ecbarish/idle-arcade/pull/134), Adam / abarish-dev, 2026-10-10) Starfall frontier ground: 16 px moss variants, joining mud roads, packed-earth square and stone footing; palette-only atlas plus scale/contact patch; art review before SF2.6 integration.
-- [ ] ART-SF-2 [any] (art review: [PR #135](https://github.com/ecbarish/idle-arcade/pull/135), Adam / abarish-dev, 2026-10-10) Frontier palisade, open/shut gate and lit/unlit watchtower; approved palette, footprint metadata and scale contact sheet; art review before SF2.6 integration.
-- [ ] ART-SF-3 [any] (art review: [PR #136](https://github.com/ecbarish/idle-arcade/pull/136), Adam / abarish-dev, 2026-10-10) Pine edge: three pine sizes, stumps, ferns and rocks; palette-only pines.png and sideways-tiling forest_edge.png, footprint metadata and contact scene behind ART-SF-2 palisade; art review before integration.
-- [ ] ART-SF-4 [any] (art review: [PR #139](https://github.com/ecbarish/idle-arcade/pull/139), Adam / abarish-dev, 2026-10-10) Guild Hall 96×80 and Inn 64×80: original log walls and shake roofs, banner/sign, lit and unlit windows, footprint metadata and contact scene; art review before SF2.6 integration.
-- [ ] ART-SF-5 [any] (art review: [PR #144](https://github.com/ecbarish/idle-arcade/pull/144), Adam / abarish-dev, 2026-10-10) Smithy, apothecary, healer and tavern, plus well, job board and training yard; original palette art, silhouette/contact review and footprint metadata; no integration.
-- [ ] ART-SF-6 [any] (art review: [PR #148](https://github.com/ecbarish/idle-arcade/pull/148), Adam / abarish-dev, 2026-10-10) Loose props: barrel, crate, firewood, lit/unlit lantern, 2×1 cart, bunting and a 48×48 staked plot on props.png; footprint metadata and a contact scene on ART-SF-1 ground; art review before integration.
+- [x] ART-SF-6 [any] ([PR #148](https://github.com/ecbarish/idle-arcade/pull/148), Adam / abarish-dev, merged 2026-10-11) Loose props: barrel, crate, firewood, lit/unlit lantern, 2×1 cart, bunting and a 48×48 staked plot on props.png; footprint metadata and a contact scene on ART-SF-1 ground; art review before integration.
 - [ ] WB-ROOF-149 [any] (claimed: Adam / abarish-dev, 2026-10-10) Fix #149: tap routes avoid roof collision while preserving doors and NPC avoidance; wildbond-godot/scripts/main.gd and native tests; done when both witnessed taps and existing transition checks pass.
-- [ ] SF2.6 [Claude] Its own place (GR-5): a frontier stockade look and road layout instead of Larkhaven's; a map
-  that scrolls. Before SF3.1. *The look is set (2026-10-09): docs/art/starfall.md (palette, sizes, footprints, mock-up); the
-  pictures are tasks ART-SF-1 to 6 in QUEUE.md for any AI; wiring them in and the scrolling map stay here.*
 - [ ] SF2.7 [Claude] See the wilds sooner (GR-7): a small walkable stretch past the gate (an early piece of SF4.1).
 - [ ] SF2.8 [Claude] Something by hand every day (GR-8): the next jobs to master, then hire.
 - [x] SF2.5 [Claude] Hire the apothecary's apprentice once you've brewed enough (the same "master it, then hire" rule). *Done 2026-10-09: after four batches by hand Fen walks in; six coins a day; brews whenever there are herbs and room on the shelf; leaves the pot to you if unpaid.*
@@ -341,6 +351,7 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 
 ## Part 4: what we've learned and actioned (newest first; every piece of work adds a line)
 
+- **2026-10-11, the wild bond and the reveal (Claude, Wildbond builder, PR #170):** an emergent moment that gates story (the reveal waits on the wild bond, as T58's contract asks) needs a way to be reached by every player: the Spire and rematches give hard battles late, but a player who never lets a Bonded partner stand alone may never see it. Watch for this in playtests; if it bites, a Warden can hint at it rather than the gate opening without it. A scene that sets its flags as it starts is safe because nothing saves while lines are playing, so a closed game replays it. Writing packs kept outside the Godot project need a copy inside it (data/wildbond-reveal.json); note the pair in both places.
 - 2026-10-10 (AC2.1): fit a fixed arcade world with one scale and invert the same viewport for taps; test render transforms and real screen targets across resize/DPR so a visual fix cannot silently break aim.
 
 - **2026-10-10, AC3:** a log has to carry the mule before the lane moves, or the log slides out from under them the same tick. A full set of lanterns rebuilds faster lanes. Open water and a cart each cost a life.
@@ -358,6 +369,16 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - **2026-10-09, WD2 data (Codex, PR #113):** the roster has 104 base species and three hybrids added by the ranch module. Validate the full exporter, not just 00-data.js; all 107 preserve their original gameplay fields. Drawing hints stay out of creature saves; the appearance contract is in docs/lore/wildbond-looks.md.
 Standing rule (Evan, 2026-10-09): each piece of work records here what it taught us and what was done about it, in a
 line or two, with the page that holds the detail.
+- **2026-10-11, playtest pass 2 (Claude, Playtester):** the cabinets passed easily because they copied the classic
+  conventions (controls under the screen, a demo behind the title, touch buttons); the one rough edge was a convention
+  skipped (a pause after a hit). Lesson: when a genre has a convention, keep it unless there's a reason. Actioned: fixes
+  in docs/PLAYTEST.md's pass 2 table.
+- **2026-10-11, Starfall art review (Claude, Art direction thread):** seven drawing tasks written as specs (size, footprint,
+  palette, contact sheet) were all built by Evan's dad's AIs within a day and fit together without redrawing: a tight
+  spec is what lets other assistants make art that matches. What slipped was the space between the pieces (a bare
+  square, the opening view) and one older code-drawn piece off the palette, and doors drawn between two tiles
+  (a door must be centred on the map tile you walk through, and touch the ground); next time a set of tasks includes one for
+  dressing the scene and one for the first screen. Tasks ART-SF-8, SF2.6c.
 - **2026-10-11, DM-T (Claude, sports thread):** a trade finder needs no new rules, only a search over the existing
   judge (every suggested deal is checked by the same function that answers a hand-built proposal), so it can never
   offer something the other club would refuse; a check pins that and that no single cheaper player would do.
