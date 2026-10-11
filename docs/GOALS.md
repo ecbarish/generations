@@ -105,7 +105,7 @@ is what the real games should be."
 | Term | Goal | Path IDs |
 |---|---|---|
 | Short | **Polish from playtests**: Brisket's Crossing's pause and keyboard start (#180), each cabinet to 17+; Little Ranch's singing flowers and a second baby friend (Evan: "a big hit with my daughter"). | AC3.1, AC-x, LR3, LR4 |
-| Medium | **A full row of cabinets and a toy a toddler asks for by name**: six to eight cabinets with shared high scores; Little Ranch with a few baby creatures, weather, hats, a bedtime routine parents trust, and its first places to visit (the Little Wagon, the Snack Kitchen, the Paint Shed), all inside one safe toy. | AC-x, LR5-LR11 |
+| Medium | **A full row of cabinets and a toy a toddler asks for by name**: six to eight cabinets with shared high scores; Little Ranch with a few baby creatures, weather, hats, a bedtime routine parents trust, and its first places to visit (the Paint Shed, the Little Wagon, the Snack Kitchen), all inside one safe toy. | AC-x, LR5-LR11 |
 | Long | **The walk-in arcade**: you walk into a room and pick a cabinet (V11), and Little Ranch's babies grow up into Wildbond's creatures. | AR3.1 |
 
 ## Realmbound and Otherworld (keep alive)

@@ -161,3 +161,4 @@ live list is QUEUE.md "The road ahead".
 - 2026-10-11: refreshed against what merged (#128 to #187): done items marked, Starfall and browser orders rewritten, the
   two playtest pass 2 blockers put first for helpers.
 - 2026-10-11 Lane P: Little Ranch plan (PR #203) folded in: LR3-LR8 and places LR9-LR11 in the family slot (one toy, no new homepage icons); the first place waits for Evan's pick, the Little Wagon recommended.
+- 2026-10-11 Evan picked the Paint Shed as Little Ranch's first new place (LR9), then the Little Wagon (LR10) and the Snack Kitchen (LR11).
