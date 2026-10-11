@@ -1702,6 +1702,7 @@ func _draw_pour(font: Font, to_screen: Transform2D) -> void:
 ## home to raise their nerve; after a few spars Ilse, a drillmaster, offers to run the yard. Walking the round or
 ## sparring yourself is always worth more than the hire (lamp money on top; a spar with everyone, not just one).
 const LANTERNS := [Vector2i(1, 12), Vector2i(28, 1), Vector2i(41, 9), Vector2i(20, 16)]   # on the west, north, east and south walls
+const LAMP_STANDS := [Vector2i(2, 12), Vector2i(28, 2), Vector2i(40, 9), Vector2i(20, 15)]   # where you stand to light each
 const ODO_AT := Vector2i(5, 8)             # the watchman's post, at the foot of the watchtower
 const ROUNDS_AFTER := 3                     # rounds you walk yourself before Odo asks for the job
 const ODO_WAGE := 5
@@ -1746,9 +1747,28 @@ func talk_odo() -> void:
 		odo_hired = true
 		say("", "Odo takes the taper and his post by the watchtower. He'll light the walls every dusk, for five coins at the end of each day.")
 
+## Odo walks the round at dusk: to each unlit lantern in turn (west, north, east, south), lighting it as he gets
+## there, then back to his post by the watchtower.
 func _watch_tick(_dt: float) -> void:
-	if odo_hired and odo.where == "town" and evening() and lamps.has(false):
-		lamps = [true, true, true, true]             # Odo walks the round at dusk
+	if not odo_hired or odo.where != "town" or not odo.path.is_empty():
+		return
+	var i := odo_next()
+	if not evening() or i < 0:
+		if odo.tile != ODO_AT and int(t * 10) % 10 == 0:
+			send(odo, ODO_AT)
+		return
+	if odo.tile == LAMP_STANDS[i]:
+		lamps[i] = true
+		odo.face = LANTERNS[i] - odo.tile
+		sfx.play("success", -12.0)
+		if odo_next() < 0:
+			bark(odo, "All four walls lit.")
+	elif int(t * 10) % 5 == 0:
+		send(odo, LAMP_STANDS[i])
+
+## The next lantern on Odo's round still to light, or -1.
+func odo_next() -> int:
+	return lamps.find(false)
 
 ## At nightfall: a lit round in the report, then the lamps go out for the next day.
 func _watch_night() -> String:
@@ -1794,11 +1814,15 @@ func _use_yard() -> void:
 	if h == null:
 		say("", "The training yard. Nobody's at home to spar with just now, or they've all had a bout today.")
 		return
-	spar = { "fill": 0.0, "on": false, "h": h, "dir": 1.0 }
-	send(h, me.tile + Vector2i.RIGHT)
+	spar = { "fill": 0.0, "on": false, "h": h, "dir": 1.0, "ready": false, "wait": 0.0 }
+	h.a.state = "sparring"                       # (stops what they were doing and comes over)
+	h.path.clear()
+	for d in [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.DOWN, Vector2i.UP]:
+		if (h.tile - me.tile).length() <= 1.01 or send(h, me.tile + d):
+			break
 	bark(h, "A bout? Go easy, guildmaster.")
-	caption.text = "Spar with %s: press E to swing, and E again to stop in the gold for a clean bout." % h.a.name
-	caption_t = 6.0
+	caption.text = "%s is coming over to spar." % h.a.name
+	caption_t = 4.0
 
 func spar_partner() -> Mover:
 	var best: Mover = null
@@ -1809,8 +1833,8 @@ func spar_partner() -> Mover:
 	return best
 
 func spar_press() -> void:
-	if spar.is_empty():
-		return
+	if spar.is_empty() or not spar.ready:
+		return                                   # (the meter waits for your partner to get here)
 	if not spar.on:
 		spar.on = true
 		sfx.play("talk", -4.0)
@@ -1818,6 +1842,19 @@ func spar_press() -> void:
 	finish_spar(float(spar.fill))
 
 func _spar_tick(dt: float) -> void:
+	if not spar.is_empty() and not spar.ready:
+		var p: Mover = spar.h
+		spar.wait = float(spar.wait) + dt
+		if p.path.is_empty() and (p.tile - me.tile).length() > 1.01 and float(spar.wait) <= 8.0 and int(t * 10) % 5 == 0:
+			for d in [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.DOWN, Vector2i.UP]:   # someone in the way: try another side
+				if not _standing(me.tile + d, p) and send(p, me.tile + d):
+					break
+		if p.path.is_empty() and ((p.tile - me.tile).length() <= 1.01 or float(spar.wait) > 8.0):
+			spar.ready = true                        # they're here (or stuck: spar where they stand rather than wait for ever)
+			p.face = me.tile - p.tile
+			me.face = p.tile - me.tile
+			caption.text = "Spar with %s: press E to swing, and E again to stop in the gold for a clean bout." % p.a.name
+			caption_t = 6.0
 	if not spar.is_empty() and spar.on:
 		spar.fill = float(spar.fill) + dt * 0.7 * float(spar.dir)
 		if float(spar.fill) >= 1.0 or float(spar.fill) <= 0.0:
@@ -1831,6 +1868,9 @@ func finish_spar(fill: float) -> void:
 	var h: Mover = spar.h
 	spar = {}
 	var clean := fill >= SPAR_BAND.x and fill <= SPAR_BAND.y
+	if str(h.a.state) == "sparring":
+		h.a.state = "town"
+		h.a.timer = 1.5
 	h.a.morale = mini(10, int(h.a.morale) + (2 if clean else 1))
 	h.a.sparred = day
 	if clean:
@@ -1874,6 +1914,9 @@ func _yard_morning() -> String:
 func _draw_spar(font: Font, to_screen: Transform2D) -> void:
 	var p: Vector2 = to_screen * (Vector2(me.tile) * TILE + Vector2(8, -30))
 	var r := Rect2(Vector2(clampf(p.x - 40, 4, 320), maxf(16.0, p.y)), Vector2(80, 10))
+	if not spar.ready:
+		board_view.draw_string(font, r.position + Vector2(0, -5), "Waiting for %s" % spar.h.a.name, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 7, Color.WHITE)
+		return
 	board_view.draw_rect(r.grow(2), Figures.OUTLINE)
 	board_view.draw_rect(r, Color("3a2a22"))
 	board_view.draw_rect(Rect2(r.position + Vector2(r.size.x * SPAR_BAND.x, 0), Vector2(r.size.x * (SPAR_BAND.y - SPAR_BAND.x), r.size.y)), Color(0.95, 0.8, 0.3, 0.55))
@@ -2538,6 +2581,8 @@ func _load() -> bool:
 		a.tonic = bool(a.get("tonic", false))
 		a.beat = int(a.get("beat", 0))
 		a.jobs_done = int(a.get("jobs_done", 0))
+		if str(a.get("state", "")) == "sparring":
+			a.state = "town"                         # (a bout isn't saved: saved mid-bout, they're just at home)
 		a.traits = Array(a.get("traits", []))
 		a.asked = false
 		var m := Mover.new("hero%d" % i, TOWN_AREA.position + Vector2i(i * 3 + 1, i % 2))

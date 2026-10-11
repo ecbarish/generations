@@ -840,9 +840,28 @@ func _by_hand() -> void:
 	main.use()
 	talk_through()
 	check(main.odo_hired, "talk to Odo and he takes the round")
-	main.day_t = main.DAY_SECONDS * 0.7
-	tick(0.1)
-	check(not main.lamps.has(false), "with Odo hired, the walls are lit at dusk without you")
+	main.day_t = main.DAY_SECONDS * 0.56
+	main.me.tile = main.INN_STEP + Vector2i(1, 2)
+	main.me.pos = Vector2(main.me.tile) * main.TILE
+	tick(0.5)
+	check(main.lamps.count(true) == 0 and not main.odo.path.is_empty(), "at dusk Odo sets off on his round; the lamps aren't lit by magic")
+	var order := []
+	var seen_at := []
+	for i in 1600:
+		tick(0.05)
+		for k in 4:
+			if main.lamps[k] and not order.has(k):
+				order.append(k)
+				seen_at.append(main.odo.tile == main.LAMP_STANDS[k])
+		if order.size() == 4:
+			break
+	check(order == [0, 1, 2, 3] and not seen_at.has(false), "he walks the walls and lights each lantern as he reaches it, west, north, east, south (%s)" % str(order))
+	check(main.evening() and main.day_t < main.DAY_SECONDS, "and finishes the round well before the night is over")
+	for i in 600:
+		tick(0.05)
+		if main.odo.tile == main.ODO_AT:
+			break
+	check(main.odo.tile == main.ODO_AT, "then goes back to his post by the watchtower")
 	hero.a.morale = 4
 	var c1: int = main.coins
 	main._watch_night()
@@ -862,8 +881,18 @@ func _by_hand() -> void:
 	main.heroes[1].a.morale = 2
 	main.lines.clear()
 	check(main.spar_partner() == main.heroes[1], "the least sure adventurer at home is first to spar")
+	main.heroes[1].tile = step + Vector2i(-6, 1)
+	main.heroes[1].pos = Vector2(main.heroes[1].tile) * main.TILE
+	main.heroes[1].path.clear()
 	main.use()
-	check(not main.spar.is_empty() and main.spar.h == main.heroes[1], "at the yard, E starts a bout with them")
+	check(not main.spar.is_empty() and main.spar.h == main.heroes[1], "at the yard, E calls them over for a bout")
+	main.spar_press()
+	check(not main.spar.ready and not main.spar.on, "the meter waits until they arrive (E does nothing yet)")
+	for i in 400:
+		tick(0.05)
+		if main.spar.ready:
+			break
+	check(main.spar.ready and (main.heroes[1].tile - main.me.tile).length() <= 1.01, "they walk over, and the bout starts once they're beside you")
 	main.spar_press()
 	tick(1.0)
 	check(not main.spar.is_empty(), "the swing keeps going; there's no failing by waiting")
@@ -904,6 +933,15 @@ func _by_hand() -> void:
 		nerve_auto += int(x.a.morale)
 	check(nerve_auto == 1 and main.coins == 100 - main.ILSE_WAGE and "Ilse paid" in said, "Ilse drills the one who needs it most each morning (+1 nerve), and is paid")
 	check(2 * main.heroes.size() > nerve_auto and hand_total > nerve_auto, "a day of sparring yourself (up to +2 for every adventurer) is worth more than Ilse's drill (+1 for one)")
+	main.coins = 0
+	main._watch_night()
+	main._yard_morning()
+	check(main.rounds == main.ROUNDS_AFTER and main.spars == main.SPARS_AFTER and main.odo.where == "town" and main.ilse.where == "town",
+		"unpaid, Odo and Ilse stop working but stay in town to be taken on again; the rounds and bouts you earned stay earned")
+	main.odo_hired = true
+	main.ilse_hired = true
+	main.coins = 100
+	main.heroes[2].a.state = "sparring"
 	# saves
 	main.no_save = false
 	main.save_path = "user://test_by_hand.json"
@@ -913,6 +951,7 @@ func _by_hand() -> void:
 	main.odo_hired = false
 	main.ilse_hired = false
 	check(main._load() and main.odo_hired and main.ilse_hired and main.odo.where == "town" and main.ilse.where == "town", "and load back, Odo and Ilse at their posts")
+	check(str(main.heroes[2].a.state) == "town", "someone saved mid-bout loads at home, not stuck sparring")
 	d.erase("watch")
 	d.erase("drill")
 	main.SafeSave.write(main.save_path, d)
