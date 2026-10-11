@@ -161,9 +161,9 @@ Manager, not copied), so both games improve together.
 
 ### The road
 
-- [ ] **LB0** [any] One-page pitch with three mock screens (the field, a play call, the office) in
+- [ ] **LB0** [any] (claimed: Claude, 2026-10-11) One-page pitch with three mock screens (the field, a play call, the office) in
   docs/plans/lantern-bowl.md, checked by the Design decisions thread for anything too close to Retro Bowl's look.
-- [ ] **LB1** [any] Extract the office code from Diamond Manager into `shared/sports-office.js` with no behaviour
+- [ ] **LB1** [any] (claimed: Claude, 2026-10-11, after LB0) Extract the office code from Diamond Manager into `shared/sports-office.js` with no behaviour
   change (all Diamond Manager checks still pass). Make it sport-neutral (positions, rating names and the game
   simulation passed in), since hockey and later sports reuse it.
 - [ ] **LB2** [any] **One drive, playable**: field, four play calls, the passing moment, first downs, a touchdown.
