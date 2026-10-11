@@ -186,7 +186,7 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
   hall and inn now have (Evan saw the inn's door floating above its stone base on 2026-10-11; fixed for those two in
   tools/art/starfall_hall_inn.py). Done when the opening screenshot reads lived-in, every building is still reachable, and the
   Starfall checks pass.
-- [ ] SF2.6c [any] Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
+- [ ] SF2.6c [any] (claimed: Codex for Adam / abarish-dev, 2026-10-11, guest/starfall-opening-view; implemented and visually verified in [PR #200](https://github.com/ecbarish/idle-arcade/pull/200); awaiting final CI/review, not merged) Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
   and banner, the most recognisable parts. Start the player (or the camera) so both buildings show whole. Also delete
   the unused Ninja Adventure tiles in `starfall-godot/assets/env/` (house.png, nature.png, floor.png and their .import
   files; nothing loads them) and update CREDITS.md (the pack's music and sounds stay). Done when a day-one screenshot
@@ -426,6 +426,8 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 
 ## Part 4: what we've learned and actioned (newest first; every piece of work adds a line)
 
+- **2026-10-11, SF2.6c:** frame the whole landmark texture, not only its collision footprint, and reserve space for screen text. A fresh spawn plus a one-tile northern margin fixes the first view without moving existing saves; verify actual renderer captures and service routes at every supported shape. [Evidence](screenshots/starfall-opening-view/README.md).
+
 - **2026-10-11, AC3 Ember Bricks:** the Breakout shape is its own cabinet and its own pull request. Leave the shared AC3 checkbox open until that cabinet is merged too.
 
 - **2026-10-11, AC3 merge:** a status line that still says "not merged" after the merge is wrong; correct it, and leave the checkbox open while the other cabinet on that line is unbuilt.
@@ -582,3 +584,4 @@ line or two, with the page that holds the detail.
 ## Wildbond doorway preview release record
 
 - [x] WB-PREVIEW-177 [any] Built and browser-verified 2026-10-11, Adam / abarish-dev, [PR #183](https://github.com/ecbarish/idle-arcade/pull/183). Exact merged source `480dfc4`; 353 browser checks, 119 captures, 60 door transitions, 20 fresh-save reloads and 12 pad hold/release cases. Unchanged engine and save format. Final latest-head CI, merge and live hash confirmation gate publication; see [release record](research/wildbond-preview-door-release.md).
+
