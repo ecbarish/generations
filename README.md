@@ -39,6 +39,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond (2026-10-11, WB-DOOR-TAP): clicking or tapping Larkhaven's inn, shop and both homes now queues entry just like the barn. Door collisions, walking distance, keyboard controls and saves are unchanged; source fix only, web preview not re-exported.
+
 - Wildbond (2026-10-11, keys in the game): the opening's notes now name the controls for whatever you're playing on (keys, a gamepad or a phone): how to walk, talk and open your field book (Playtester's note).
 - Wildbond (2026-10-11, the reveal): after the wild bond, three old pages turn up one after another beside Orri, Ceryn and Sivet. Once you've read all three and won the league, Toren and Isolde wait by Hollowecho's cave with copies, and the valley's deepest secret is told. Depth comes back to the world: shadows fall long from then on, and each Warden has something new to say.
 - Godot Starfall (2026-10-11, SF2.7 / H5 part 1, guest): you can walk out of the west gate now. Outside is a short stretch of frontier: the trail crosses the miller's creek to the woodcutters' path (strung with webs), a branch runs up to the North Road, another down to Tull's broken fence and dug-up turnips, and waymarkers say what's been seen. Adventurers out on those jobs can be seen at work there. Walk back in the same way. No fighting; the guild's work is still in town.

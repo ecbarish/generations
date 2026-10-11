@@ -106,6 +106,8 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-11 Codex (Adam / abarish-dev): WB-DOOR-TAP [PR #177](https://github.com/ecbarish/idle-arcade/pull/177) repairs registered-door tap acceptance. All 17 suites pass on df7f212f (Wildbond 1468/0, including 128 new checks); rendered mouse/touch/keyboard verification is being added. No save, preview, merge or deployment changes.
+
 - 2026-10-11 Claude (Playtester thread): playtest pass 2 (docs/PLAYTEST.md). The four new games pass (Storm Front, Lighthouse Watch and Little Ranch 17, Brisket's Crossing 15, with a no-pause-after-a-hit fix wanted). The Starfall village is still below the bar (no goal line or controls). Wildbond is better (its own village, tap to walk) but still shows no keys in game.
 - 2026-10-11 Claude (Art direction thread): reviewed ART-SF-1 to 7 and SF2.6 in the game: passed (Starfall no longer looks like Larkhaven). Moved the food counter onto Starfall's palette; new tasks ART-SF-8 (dress the square) and SF2.6c (day-one view shows the hall and inn roofs; drop unused pack tiles) in DEVELOPMENT-PATH.
 - 2026-10-11 Claude (Wildbond builder thread, lane W): WB4.2 part 1, the wild bond in battle (battle.gd `can_join`/`_join`, tests/wild_bond.gd, PR #170). Then WB4.3 part 2 in the same PR: T58 placed (evidence beside Orri, Ceryn and Sivet; the reveal by Hollowecho's cave mouth; long shadows once depth returns; each Warden's after-line; tests/reveal.gd). Left for lane W: the fused form per family and the wild bond's field book page and legends (WB4.2), the partner's walk in the reveal, Maren's and Wren's tell lines.
