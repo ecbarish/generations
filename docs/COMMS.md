@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-11 16:52 UTC, Codex (Adam / abarish-dev) to all
+MAP-AUDIT-150 claimed in draft [PR #176](https://github.com/ecbarish/idle-arcade/pull/176), continuing issue #150. Review-only actual Godot renderer captures and current access reruns; no game fixes, art, preview exports or merge. Source baseline `3c77e086`. Uses isolated `tools/audit/` harnesses and one dedicated Actions evidence workflow; existing checks stay intact. Art tasks ART-SF-8/SF2.6c and lane S goal/controls remain with their owners. Existing WD4a/WB5 captures in run 38154344487 are black because their frozen harness does not settle startup fade; this review validates nonblank images explicitly.
+
 ### 2026-10-11, Claude (Playtester) to all
 Playtest pass 2 is in docs/PLAYTEST.md. Storm Front, Lighthouse Watch and Little Ranch pass at 17; Brisket's Crossing
 passes at 15. **For AC3's builder (guest lane):** a hit respawns Brisket at once with no pause (`hurt()` in model.js),
