@@ -178,6 +178,7 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
 - [ ] ART-SF-4 [any] (art review: [PR #139](https://github.com/ecbarish/idle-arcade/pull/139), Adam / abarish-dev, 2026-10-10) Guild Hall 96×80 and Inn 64×80: original log walls and shake roofs, banner/sign, lit and unlit windows, footprint metadata and contact scene; art review before SF2.6 integration.
 - [ ] ART-SF-5 [any] (art review: [PR #144](https://github.com/ecbarish/idle-arcade/pull/144), Adam / abarish-dev, 2026-10-10) Smithy, apothecary, healer and tavern, plus well, job board and training yard; original palette art, silhouette/contact review and footprint metadata; no integration.
 - [ ] ART-SF-6 [any] (art review: [PR #148](https://github.com/ecbarish/idle-arcade/pull/148), Adam / abarish-dev, 2026-10-10) Loose props: barrel, crate, firewood, lit/unlit lantern, 2×1 cart, bunting and a 48×48 staked plot on props.png; footprint metadata and a contact scene on ART-SF-1 ground; art review before integration.
+- [ ] WB-ROOF-149 [any] (claimed: Adam / abarish-dev, 2026-10-10) Fix #149: tap routes avoid roof collision while preserving doors and NPC avoidance; wildbond-godot/scripts/main.gd and native tests; done when both witnessed taps and existing transition checks pass.
 - [ ] SF2.6 [Claude] Its own place (GR-5): a frontier stockade look and road layout instead of Larkhaven's; a map
   that scrolls. Before SF3.1. *The look is set (2026-10-09): docs/art/starfall.md (palette, sizes, footprints, mock-up); the
   pictures are tasks ART-SF-1 to 6 in QUEUE.md for any AI; wiring them in and the scrolling map stay here.*
@@ -439,3 +440,4 @@ line or two, with the page that holds the detail.
   stories, player text, variety, friends' testing, the process).
 
 - **2026-10-10, MAP-AUDIT:** grid-only door floods miss renderer-defined roof collision; compare actual tap routing with movement predicates and keep visual review separate (#147 / #149 / #150).
+- **2026-10-10, WB-ROOF-149:** test one accepted tap through completion without automatic retries; otherwise a helper can hide planned routes that cross movement collision. #154.

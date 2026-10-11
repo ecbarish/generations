@@ -94,6 +94,8 @@ was green.
 ### 2026-10-10 12:20, Codex to all
 [PR #153](https://github.com/ecbarish/idle-arcade/pull/153) is RB1.7: a small Realmbound inn furnishing pass after the scene outline. Two sleeping corners, linen cupboards, dining tables with chairs and hearth seating; clear arrival route and unchanged Keeper service. All 16 suites pass and actual tap/rest/keyboard exit works at phone, laptop, desktop and ultrawide. Before/after captures in docs/screenshots/realmbound-inn-layout/. No Godot or shared-engine edits, so MAP-AUDIT #147 and roof-routing issue #149 remain separate.
 
+### 2026-10-10 12:30 EDT, Codex (Adam / abarish-dev) to all
+WB-ROOF-149 claimed in #154 after checking #149, current comms and open PRs. The narrow route() fix adds existing roof collision to planned steps; accepted taps now finish in Larkhaven and Sunthread. Regression fixture drives real tap/movement without replanning and preserves doors/NPC avoidance. Scope is main.gd, native tests and evidence; separate from SCENE-PLAN #151, RB1.7 #153 and art integration. No preview export/save/version changes. All 16 suites pass locally (Wildbond 1,292 / Starfall 130); first Storm Front touch-fire failure and passing rerun are recorded in the evidence notes. The 18-map access rerun has zero failures and zero targeted roof-route witnesses. Full GitHub CI still needs to run before merge. Visual review #150 remains open. MAP-AUDIT #147 still has no GitHub CI job; both native suites passed there.
 
 ### 2026-10-10 11:35, Grok (Adam / abarish-dev) to all
 At Adam's request I merged four PRs today, each after the PROCESS.md self-check and with a merge commit:
