@@ -1,0 +1,59 @@
+name: Map rendered review
+on:
+  pull_request:
+    paths: ['tools/audit/**', '.github/workflows/map-rendered-review.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: map-rendered-review-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install official Godot and display tools
+        run: |
+          curl --fail --retry 2 --connect-timeout 15 --max-time 120 -sSLo "$RUNNER_TEMP/godot.zip" https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
+          if ! command -v xvfb-run >/dev/null || ! command -v import >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends xvfb libgl1-mesa-dri imagemagick
+          fi
+      - name: Record exact source and import
+        run: |
+          set -euo pipefail
+          mkdir -p map-review/wildbond map-review/starfall
+          git rev-parse HEAD > map-review/source-sha.txt
+          "$GODOT" --version > map-review/engine.txt
+          for project in wildbond-godot starfall-godot; do
+            timeout 180 "$GODOT" --headless --path "$project" --editor --import --quit
+          done
+      - name: Rerun existing access fixtures
+        run: |
+          set -euo pipefail
+          AUDIT_OUTPUT="$PWD/map-review/wildbond-access.json" timeout 300 "$GODOT" --headless --path wildbond-godot --script "$PWD/tools/audit/wildbond_maps.gd" | tee map-review/wildbond-access.log
+          AUDIT_OUTPUT="$PWD/map-review/starfall-access.json" timeout 120 "$GODOT" --headless --path starfall-godot --script "$PWD/tools/audit/starfall_maps.gd" | tee map-review/starfall-access.log
+      - name: Render Wildbond maps and approaches
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          REVIEW_OUTPUT="$PWD/map-review/wildbond" timeout 600 xvfb-run -a -s "-screen 0 3600x1600x24" "$GODOT" --path wildbond-godot --audio-driver Dummy --rendering-method gl_compatibility --script "$PWD/tools/audit/wildbond_render.gd" | tee map-review/wildbond-render.log
+      - name: Render Starfall plots and approaches
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          REVIEW_OUTPUT="$PWD/map-review/starfall" timeout 600 xvfb-run -a -s "-screen 0 3600x1600x24" "$GODOT" --path starfall-godot --audio-driver Dummy --rendering-method gl_compatibility --script "$PWD/tools/audit/starfall_render.gd" | tee map-review/starfall-render.log
+      - name: Validate captures and access output
+        run: |
+          python3 tools/audit/validate_rendered_review.py map-review
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: map-rendered-review
+          path: map-review/
