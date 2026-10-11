@@ -209,7 +209,7 @@ function releaseFarm(L,id) { const c=L.clubs[DM.you], i=(c.farm||[]).findIndex(x
    arms, or on the farm club) and with training rooms; past 30 they slip. Training also lifts a young ceiling a little. */
 function develop(L,p,training,playing,coach=null) {
   const o=overall(p), room=Math.max(0,(p.pot||o)-o); let base;
-  if(p.age<=27){ base=Math.min(room, ri(L,0,2)+Math.ceil(room/6)+(playing&&p.age<=25&&room>0?1:0)) + (room>0?training:0); p.pot=Math.min(92,(p.pot||o)+Math.ceil(training/2)); }
+  if(p.age<=27){ base=Math.min(room, ri(L,0,2)+Math.ceil(room/10)+(playing&&p.age<=25&&room>0?1:0)) + (room>0?training:0); p.pot=Math.min(92,(p.pot||o)+Math.ceil(training/2)); }
   else base=p.age<=30?ri(L,-1,1):p.age<=33?ri(L,-3,0):ri(L,-5,-1);
   const keys=p.pitcher?['stuff','control','stamina']:['contact','power','eye','glove'];
   for(const k of keys) p[k]=clamp(p[k]+base+ri(L,-1,1),20,99);
