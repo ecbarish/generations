@@ -7,8 +7,9 @@ and what's next". Update it before you stop (see "Before you stop").
 
 ```
 Repo: github.com/ecbarish/idle-arcade. Read START-HERE.md first and follow it.
-Take the first unclaimed task in "Up next", do it, test it as the file says, then update START-HERE.md
-("Where we are", "Up next", "Session log") before you stop. Ask me only about the "Questions for Evan".
+Read docs/COMMS.md and docs/PROCESS.md, check open PR titles before claiming a task from docs/QUEUE.md,
+then build and test it. Add your START-HERE Session log line before you stop. Planning owns "Where we are"
+and "Up next". Ask me only about the "Questions for Evan".
 ```
 
 ## Rules (short version; HANDOFF.md has the full list)
@@ -18,10 +19,11 @@ Take the first unclaimed task in "Up next", do it, test it as the file says, the
 - **Browser games: plain HTML/JS, no build step.** Run `powershell -ExecutionPolicy Bypass -File serve.ps1` (or
   `python -m http.server 8765`) in the repo folder and open http://localhost:8765/. **Godot games** (`wildbond-godot/`,
   `starfall-godot/`, Claude's): Godot 4.7.2 in `C:\Users\evanb\Godot`; their web previews live in `play/` (see play/README.md).
-- **Tests must stay all-pass:** the eight browser pages in `tests/` (run, wildbond, starfall, sound, offline, diamond,
-  otherworld, runner-safety; click **Run checks**) and, for the Godot games, `tests/run_tests.gd` in each project.
-  **`node tools/run-all-checks.cjs` runs all ten at once**, and GitHub runs it on every push and pull request: never
-  merge a red cross. Add checks for what you build. How we build (saves, sound formats, Godot structure): docs/learning/. After merging, `git grep -n "^- **Old saves must keep loading.** New save fields need defaults (Wildbond `fresh()`/`load()`, Realmbound `migrate()`).
+- **Tests must stay all-pass:** run `node tools/run-all-checks.cjs` for every browser test page and both Godot
+  suites (install Godot or set `GODOT` to its console executable). The current suite list is in
+  [tools/run-all-checks.cjs](tools/run-all-checks.cjs); GitHub runs it on every push and pull request. Never merge
+  a failing check. Add checks for what you build. How we build: [docs/learning/](docs/learning/).
+- **Old saves must keep loading.** New save fields need defaults (Wildbond `fresh()`/`load()`, Realmbound `migrate()`).
 - **Small playable steps,** each with a line in README.md's changelog.
 - **Save your work to GitHub at the end of every step** (commit and push). Never leave finished work only on one
   computer or only in one assistant's sandbox.
@@ -30,14 +32,14 @@ Take the first unclaimed task in "Up next", do it, test it as the file says, the
 
 ## How work moves
 
-- **Claude** works directly on `main` in `C:\Users\evanb\OneDrive\Desktop\idle-arcade` and pushes.
-- **ChatGPT/Codex** works in its own clone or a cloud task (never switches branches in that Desktop folder), on a
-  branch `codex/<topic>`, opens a pull request and does not merge it.
-- **Whoever is next with repo access** (normally Claude) reviews `codex/*` branches: check the author email, read
-  the diff, run both test pages, merge with `git merge --no-ff`, push, and note it in the Session log.
-- **If Claude is unavailable,** Codex may merge its own PR after both test pages pass, and should say so in the
-  Session log so Claude can double-check later. Design calls normally made by Claude (marked *design* below) can be
-  made by Codex using the defaults written here; record any decision in the Session log.
+[docs/PROCESS.md](docs/PROCESS.md) is the current rulebook for every assistant and contributor.
+
+- Work in your own clone on a `codex/<topic>`, `claude/<topic>` or `guest/<topic>` branch; never push straight to `main`.
+- Read COMMS and check open PR titles, then publish a small claim commit and open a draft PR whose title starts
+  with the task ID **before building**. One task per PR.
+- Run the task's checks, include screenshots for visual changes, describe the result, and mark the PR ready.
+- Any AI may merge a ready PR after every PROCESS self-check line passes on the latest commit and the self-check
+  is recorded in a PR comment. Use a merge commit, record the release/session notes and tick the completed task.
 
 ## Where we are (rewritten 2026-10-08, night)
 
@@ -97,10 +99,9 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 
 ## Before you stop (every session, even a short one)
 
-1. Commit and push everything that works. Half-done work goes on a branch (`claude/<topic>` or `codex/<topic>`),
-   pushed, never left uncommitted.
-2. Update this file: "Where we are" if something shipped, "Up next" (tick, re-order or add tasks, with enough detail
-   that someone with no memory of today could do them), and add a dated line to the Session log.
+1. Commit and push everything that works to your task branch; keep unfinished work in its draft PR.
+2. Add your dated Session log line and update your task status. Planning owns "Where we are" and "Up next";
+   report changes it needs through COMMS.
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
@@ -114,6 +115,7 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 
 - **2026-10-10, Codex:** RB1.9: isolated third-person 3D Realmbound inn trial, PR #159. Plan in docs/proposals/realmbound-3d.md; all 17 suites and 146 dedicated checks pass; jointed characters, planted feet, conversation facing and modular eight-slot equipment previews added; asset upgrade contract recorded. No live game, saves, versions or Godot edits.
 
+- 2026-10-10 — Codex (Adam): FB-17 [PR #168](https://github.com/ecbarish/idle-arcade/pull/168) repairs the broken old-save rule and aligns onboarding claim/merge instructions with PROCESS.md. Test coverage now points to the runner instead of stale counts. Documentation only; local links and diff checked.
 
 - 2026-10-10 — Grok (Adam / abarish-dev, guest): AC3 Brisket's Crossing is draft [PR #160](https://github.com/ecbarish/idle-arcade/pull/160) (Frogger shape, original art, v0.1.0). Ready for review, not merged. Ember Bricks stays a separate unclaimed cabinet. No hub version bump.
 - 2026-10-10 — Grok (Adam / abarish-dev, guest): at Adam's request merged #165 (Starfall evening tint + yard footprint, `28cee8c`) and #166 (play/starfall rebuilt, `d146ce9`), each after a self-check (checks green; Starfall Godot 152/0; full suite 16/16 with Godot; preview verified in headless Chrome).

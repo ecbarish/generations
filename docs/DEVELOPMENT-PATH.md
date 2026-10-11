@@ -450,3 +450,6 @@ line or two, with the page that holds the detail.
 - **2026-10-10, RB1.9 character follow-up (Codex):** animation phase should follow travelled distance, not held input; use foot placement rather than whole-leg swinging to prevent skating and floor penetration. Interpreting palette colours in the renderer's linear space prevents washed-out materials.
 
 - **2026-10-10, RB1.9 equipment follow-up (Codex):** visible gear needs stable item-type IDs and joint attachment points before higher-detail art. Inspect screenshots as well as checking meshes exist: a replaced scale component can accidentally stretch chest armour over a face. Keep prop dimensions, collisions and interactions separate from replaceable art.
+## Maintenance
+
+- [ ] **FB-17 [any]: onboarding instructions cleanup** (ready: PR #168, Codex / Adam, 2026-10-10). Files: START-HERE.md and task/status notes only. Repair the broken old-save rule, refer test coverage to the runner, and align claim/merge instructions with PROCESS.md. Done when links resolve and the diff changes documentation only.
