@@ -1,0 +1,250 @@
+{
+  "tile_size": 16,
+  "palette": "docs/art/starfall/palette.gpl",
+  "sprites": [
+    {
+      "name": "pine-16",
+      "rect": [
+        0,
+        32,
+        16,
+        16
+      ],
+      "footprint_rect": [
+        6,
+        12,
+        4,
+        4
+      ],
+      "footprint_tiles": [
+        0.25,
+        0.25
+      ],
+      "height_tiles": 1.0,
+      "solid": true
+    },
+    {
+      "name": "pine-32",
+      "rect": [
+        32,
+        16,
+        24,
+        32
+      ],
+      "footprint_rect": [
+        9,
+        28,
+        6,
+        4
+      ],
+      "footprint_tiles": [
+        0.375,
+        0.25
+      ],
+      "height_tiles": 2.0,
+      "solid": true
+    },
+    {
+      "name": "pine-48",
+      "rect": [
+        64,
+        0,
+        32,
+        48
+      ],
+      "footprint_rect": [
+        12,
+        44,
+        8,
+        4
+      ],
+      "footprint_tiles": [
+        0.5,
+        0.25
+      ],
+      "height_tiles": 3.0,
+      "solid": true
+    },
+    {
+      "name": "stump-small",
+      "rect": [
+        0,
+        64,
+        16,
+        16
+      ],
+      "footprint_rect": [
+        4,
+        10,
+        8,
+        4
+      ],
+      "footprint_tiles": [
+        0.5,
+        0.25
+      ],
+      "height_tiles": 1,
+      "solid": true
+    },
+    {
+      "name": "stump-wide",
+      "rect": [
+        16,
+        64,
+        16,
+        16
+      ],
+      "footprint_rect": [
+        2,
+        10,
+        12,
+        4
+      ],
+      "footprint_tiles": [
+        0.75,
+        0.25
+      ],
+      "height_tiles": 1,
+      "solid": true
+    },
+    {
+      "name": "fern",
+      "rect": [
+        32,
+        64,
+        16,
+        16
+      ],
+      "footprint_rect": [
+        2,
+        12,
+        12,
+        2
+      ],
+      "footprint_tiles": [
+        0.75,
+        0.125
+      ],
+      "height_tiles": 1,
+      "solid": false
+    },
+    {
+      "name": "fern-low",
+      "rect": [
+        48,
+        64,
+        16,
+        16
+      ],
+      "footprint_rect": [
+        2,
+        12,
+        12,
+        2
+      ],
+      "footprint_tiles": [
+        0.75,
+        0.125
+      ],
+      "height_tiles": 1,
+      "solid": false
+    },
+    {
+      "name": "rock-small",
+      "rect": [
+        64,
+        64,
+        16,
+        16
+      ],
+      "footprint_rect": [
+        3,
+        11,
+        11,
+        4
+      ],
+      "footprint_tiles": [
+        0.6875,
+        0.25
+      ],
+      "height_tiles": 1,
+      "solid": true
+    },
+    {
+      "name": "rock-large",
+      "rect": [
+        80,
+        64,
+        16,
+        16
+      ],
+      "footprint_rect": [
+        1,
+        11,
+        15,
+        4
+      ],
+      "footprint_tiles": [
+        0.9375,
+        0.25
+      ],
+      "height_tiles": 1,
+      "solid": true
+    }
+  ],
+  "origin": "rect addresses atlas; footprint_rect is local to extracted sprite; fractional tiles match visible bases",
+  "forest_edge": {
+    "file": "forest_edge.png",
+    "size": [
+      128,
+      64
+    ],
+    "repeat_axis": "x",
+    "period_px": 128,
+    "solid": false,
+    "height_tiles": 3,
+    "note": "Decorative backdrop only. Place individual pine trunks for collision; crowns are not solid.",
+    "placements": [
+      {
+        "sprite": "pine-48",
+        "x": -6,
+        "y": 4
+      },
+      {
+        "sprite": "pine-32",
+        "x": 17,
+        "y": 12
+      },
+      {
+        "sprite": "pine-48",
+        "x": 31,
+        "y": 10
+      },
+      {
+        "sprite": "pine-32",
+        "x": 53,
+        "y": 17
+      },
+      {
+        "sprite": "pine-48",
+        "x": 65,
+        "y": 6
+      },
+      {
+        "sprite": "pine-48",
+        "x": 87,
+        "y": 11
+      },
+      {
+        "sprite": "pine-32",
+        "x": 108,
+        "y": 15
+      },
+      {
+        "sprite": "pine-16",
+        "x": 120,
+        "y": 44
+      }
+    ]
+  }
+}

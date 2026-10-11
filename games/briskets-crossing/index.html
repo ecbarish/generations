@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Brisket's Crossing · Idle Arcade</title><link rel="stylesheet" href="style.css"></head><body>
+<main class="cabinet">
+<header><a class="home" href="../../index.html" aria-label="Back to the arcade">← Arcade</a><h1>Brisket's Crossing</h1><div id="settingsMount"><button id="sound" aria-label="Change sound setting">Sound off</button></div></header>
+<section class="screen" aria-label="Brisket's Crossing arcade cabinet">
+<canvas id="sea" tabindex="0" role="img" aria-label="Pell's mule Brisket crossing wagon roads and a log river to deliver lanterns." aria-describedby="controlsHint"></canvas>
+<div class="hud" aria-live="off"><span><small id="playerLabel">PLAYER 1</small><b id="score">000000</b></span><span class="best"><small>CROSSING BEST</small><b id="best">000000</b></span><span class="right"><small id="wave">RUN 01</small><b id="lives" aria-label="Three lives">◆ ◆ ◆</b></span></div>
+<div id="curtain" class="curtain"><section id="panel" class="panel" role="dialog" aria-labelledby="panelTitle"></section></div>
+<div class="notice" id="notice" role="status" aria-live="polite"></div>
+<button id="pause" class="pause" hidden aria-label="Pause game">Ⅱ Pause</button>
+</section>
+<footer><div class="touch-controls" role="group" aria-label="Touch controls"><button data-hold="left" aria-label="Hop left">◀</button><button data-hold="up" aria-label="Hop toward the lanterns">▲</button><button data-hold="down" aria-label="Hop back">▼</button><button data-hold="right" aria-label="Hop right">▶</button></div><p id="controlsHint">Arrows or W A S D hop · Space hops toward the lanterns · P pauses<br><span>Touch buttons or a gamepad work too. Tap the road Brisket should hop toward.</span></p></footer>
+</main>
+<script src="../../shared/engine.js"></script><script src="../../shared/settings.js"></script><script src="../../shared/sound.js"></script><script src="../../shared/feedback.js"></script><script src="model.js"></script><script src="game.js"></script></body></html>

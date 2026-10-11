@@ -163,7 +163,21 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
 - [x] SF2.3 [Claude] The tavern you serve at, and placement that matters a little (SV4). *Done 2026-10-09: a new building; adventurers with savings come in the evening; you pour (stop in the gold band: a tip and better spirits); Tamsin asks for the tap after six pours (8 a day); left unserved two evenings it shuts until you open it (the last piece of SV3); near the inn drinks lift spirits more, a smithy beside the yard makes training count double, and Hob says so on his plans.*
 - [x] SF2.4 [ChatGPT] (T52 merged and applied to starfall-godot/data/stories.json 2026-10-09: six members, three beats each; was: writing handoff, integration pending) Story text for SF2.1 (the system is built; extend `starfall-godot/data/stories.json`: arcs for Kaito, Hana and Sora, and a third beat for Aki, Ren and Yuna; keep its format and the four traits): three short arcs per adventurer (choices that can go either way), in a
   data file Claude wires in (`starfall-godot/data/stories.json`; ChatGPT may write that one data file).
+- [x] ART-SF-1 [any] ([PR #134](https://github.com/ecbarish/idle-arcade/pull/134), Adam / abarish-dev, merged 2026-10-10; art-direction sign-off waived by Adam, art thread may follow up) Starfall frontier ground: 16 px moss variants, joining mud roads, packed-earth square and stone footing; palette-only atlas plus scale/contact patch; art review before SF2.6 integration.
+- [x] ART-SF-2 [any] ([PR #135](https://github.com/ecbarish/idle-arcade/pull/135), Adam / abarish-dev, merged 2026-10-10; art-direction sign-off waived by Adam, art thread may follow up) Frontier palisade, open/shut gate and lit/unlit watchtower; approved palette, footprint metadata and scale contact sheet; art review before SF2.6 integration.
+- [x] ART-SF-3 [any] ([PR #136](https://github.com/ecbarish/idle-arcade/pull/136), Adam / abarish-dev, merged 2026-10-10; art-direction sign-off waived by Adam, art thread may follow up) Pine edge: three pine sizes, stumps, ferns and rocks; palette-only pines.png and sideways-tiling forest_edge.png, footprint metadata and contact scene behind ART-SF-2 palisade; art review before integration.
+- [x] ART-SF-4 [any] ([PR #139](https://github.com/ecbarish/idle-arcade/pull/139), Adam / abarish-dev, merged 2026-10-10; art-direction sign-off waived by Adam, art thread may follow up) Guild Hall 96×80 and Inn 64×80: original log walls and shake roofs, banner/sign, lit and unlit windows, footprint metadata and contact scene; art review before SF2.6 integration.
+- [x] ART-SF-5 [any] ([PR #144](https://github.com/ecbarish/idle-arcade/pull/144), Adam / abarish-dev, merged 2026-10-10; art-direction sign-off waived by Adam, art thread may follow up) Smithy, apothecary, healer and tavern, plus well, job board and training yard; original palette art, silhouette/contact review and footprint metadata; no integration.
+- [x] ART-SF-7 [any] (Grok for Adam / abarish-dev, [PR #162](https://github.com/ecbarish/idle-arcade/pull/162) merged 2026-10-10; score 13/21: fun 1, Evan 2, friends 2, focus 2, cheap 3) SF2.6 follow-ups: a side-on west-wall gate picture in ART-SF-2's style, wired in place of the gap; smithy and tavern pictures redrawn 2 tiles wide to fit their plots, footprints matching (4-wide originals kept). Files: tools/art/, starfall-godot/assets/env/frontier/, starfall-godot/scripts/main.gd, tests. Done when: art --check passes; gate and fitted buildings in game; every door/plot reachable; screenshots.
+- [x] SF2.6 [Claude] Its own place (GR-5): a frontier stockade look and road layout instead of Larkhaven's; a map
+  that scrolls. (Grok for Adam / abarish-dev, H4; [PR #157](https://github.com/ecbarish/idle-arcade/pull/157) merged 2026-10-10; follow-ups all done 2026-10-10: west gate and fitted smithy/tavern in ART-SF-7 #162, evening tint and yard footprint #165, play/starfall rebuilt #166) Before SF3.1. *The look is set (2026-10-09): docs/art/starfall.md (palette, sizes, footprints, mock-up); the
+- [ ] MAP-AUDIT [any] (claimed: Adam / abarish-dev, 2026-10-10) Audit current Wildbond/Starfall map and interior reachability, entrance occlusion and scene furnishing; reproduce findings and file fix tickets; no game edits.
 - [ ] ART-SF-1 [any] (art review: [PR #134](https://github.com/ecbarish/idle-arcade/pull/134), Adam / abarish-dev, 2026-10-10) Starfall frontier ground: 16 px moss variants, joining mud roads, packed-earth square and stone footing; palette-only atlas plus scale/contact patch; art review before SF2.6 integration.
+- [ ] ART-SF-2 [any] (art review: [PR #135](https://github.com/ecbarish/idle-arcade/pull/135), Adam / abarish-dev, 2026-10-10) Frontier palisade, open/shut gate and lit/unlit watchtower; approved palette, footprint metadata and scale contact sheet; art review before SF2.6 integration.
+- [ ] ART-SF-3 [any] (art review: [PR #136](https://github.com/ecbarish/idle-arcade/pull/136), Adam / abarish-dev, 2026-10-10) Pine edge: three pine sizes, stumps, ferns and rocks; palette-only pines.png and sideways-tiling forest_edge.png, footprint metadata and contact scene behind ART-SF-2 palisade; art review before integration.
+- [ ] ART-SF-4 [any] (art review: [PR #139](https://github.com/ecbarish/idle-arcade/pull/139), Adam / abarish-dev, 2026-10-10) Guild Hall 96×80 and Inn 64×80: original log walls and shake roofs, banner/sign, lit and unlit windows, footprint metadata and contact scene; art review before SF2.6 integration.
+- [ ] ART-SF-5 [any] (art review: [PR #144](https://github.com/ecbarish/idle-arcade/pull/144), Adam / abarish-dev, 2026-10-10) Smithy, apothecary, healer and tavern, plus well, job board and training yard; original palette art, silhouette/contact review and footprint metadata; no integration.
+- [ ] ART-SF-6 [any] (art review: [PR #148](https://github.com/ecbarish/idle-arcade/pull/148), Adam / abarish-dev, 2026-10-10) Loose props: barrel, crate, firewood, lit/unlit lantern, 2×1 cart, bunting and a 48×48 staked plot on props.png; footprint metadata and a contact scene on ART-SF-1 ground; art review before integration.
 - [ ] WB-ROOF-149 [any] (claimed: Adam / abarish-dev, 2026-10-10) Fix #149: tap routes avoid roof collision while preserving doors and NPC avoidance; wildbond-godot/scripts/main.gd and native tests; done when both witnessed taps and existing transition checks pass.
 - [ ] SF2.6 [Claude] Its own place (GR-5): a frontier stockade look and road layout instead of Larkhaven's; a map
   that scrolls. Before SF3.1. *The look is set (2026-10-09): docs/art/starfall.md (palette, sizes, footprints, mock-up); the
@@ -192,8 +206,11 @@ creatures as monsters. Built as first-person grid delves (docs/proposals/new-gam
 - [x] RB1.3 [ChatGPT] (done, merged 2026-10-09; T48) Part 3: the road between towns as a walkable stretch at key points (an inn on the road, a
   camp), keeping auto-combat where it already lives.
 - [x] RB1.4 [ChatGPT] Phone pass for the new layout (L3 part 2). (built: Codex for Adam / abarish-dev, 2026-10-09, PR #116; awaiting review)
+- [ ] RB1.6 [ChatGPT] (ready: PR #141, Codex, 2026-10-10) Readable ability names (PLAYTEST pass 1): action-bar styles and tests/realmbound-phone.js only; full names in a body font, phone-safe wrapping and visible shortcuts/cooldowns; screenshots at 375, 1280 and 3440, all suites pass. Score 17/21 (fun 2x2, heart 2x2, friends 3, focus 3, cheap 3).
 - [x] RB1.5 [ChatGPT] (built: Codex, 2026-10-09, PR #98; awaiting review) Wait for the player (GR-10, a bug): autopilot must not take over during the first dialogue
   (games/realmbound/js/13-world-ui.js:95); fix the stray blocks in the sky. Do first.
+
+- [ ] RB1.7 [ChatGPT] Realmbound inn furnishing pass (built: Codex, 2026-10-10, PR #153; awaiting review). Files: games/realmbound/js/22-hub-layouts.js, 22-town.js, tests/realmbound-inn-layout.js and run.html, screenshots and task notes. Done when sleeping, dining and hearth spaces are distinct; the entrance, Keeper and exit work by tap and keyboard; existing services and saves stay intact. Score: 17/21 (Fun now 2x2, Evan's heart 3x2, Friends notice 2, Moves the focus 2, Cheap 3).
 
 **RB-M2: what the raid set up.**
 - [ ] RB2.1 [ChatGPT] Battlegrounds plan in docs/proposals/ (R3; new system: Evan
@@ -231,6 +248,7 @@ Plan: [plans/sports-management.md](plans/sports-management.md) "Game 3". Reuses 
 **OW-M1: three lives (done through v0.3.0).**
 - [x] The Between, Asterhold with Lanthorn, Hearthmere, the Ashen Throne.
 **OW-M2: memories and a systemic world.**
+- [ ] OW1.1 [ChatGPT] (ready: PR #142, Codex, 2026-10-10) Visible Choose a world option in the Between introduction (PLAYTEST pass 1); games/otherworld/js/01-game.js, style.css and existing checks only; uses existing dialogue skip, preserves all choices/memories/saves; phone and desktop screenshots, all suites pass. Score 16/21 (fun 2x2, heart 2x2, friends 3, focus 2, cheap 3).
 - [x] OW2.1 [ChatGPT] Memories that matter across lives (T42). (merged 2026-10-09)
 - [ ] OW2.2 [ChatGPT] Skills that grow through use (O1 in docs/plans/otherworld.md).
 - [ ] OW2.3 [ChatGPT] People
@@ -275,12 +293,14 @@ No-server sharing: trade and battle codes, ghost teams (V6 part 1).
 
 ### Family games (Evan said yes 2026-10-09; docs/proposals/games-for-everyone.md)
 **Little Ranch (browser), a toy for ages 2-4.**
+- [x] LR2 [any] Repair interrupted feeding and preserve active play through resize/rotation. Scope: Little Ranch game/test files, isolated read-only browser-review script/workflow, screenshots and brief process notes. Done when repeat/interruption and phone-to-ultrawide checks pass with sound preferences unchanged. Score: 18/21. (v0.1.1 release: [PR #140](https://github.com/ecbarish/idle-arcade/pull/140), Codex for Adam / abarish-dev, 2026-10-10; 49 game checks, 15 Chromium review checks and all 17 current-main suites passed; version-only release metadata is rechecked before merge)
 - [x] LR1 [any] The smallest test: one baby creature, three actions (feed, bubbles, peekaboo) and a bedtime
   ending; no reading, no failing, no links or purchases, a grown-up lock. Shares the baby-form drawings W9/W10 needs. (claimed: Grok for Adam / abarish-dev, 2026-10-09, guest/little-ranch)
 **The Arcade Cabinets (browser), original single-screen games in the 1978-85 style.**
 - [x] AC1 [any] Storm Front (the Space Invaders shape, Evan's pick): one cabinet, original name and art, one PR. (built: Codex for Adam / abarish-dev, guest/storm-front, PR #119; awaiting review)
 - [x] AC2 [any] Lighthouse Watch (the Missile Command shape). (built: Grok for Adam / abarish-dev, PR #145, merged 2026-10-10; v0.1.0)
-- [ ] AC3 [any] Brisket's Crossing (the Frogger shape) and Ember Bricks (the Breakout shape), one PR each.
+- [x] AC2.1 [any] Lighthouse Watch display and controls polish: uniform harbour scale, taps mapped after resize, phone pause/rotation checks and before/after captures. Files: `games/lighthouse-watch/`, `tests/lighthouse-watch.html`, evidence in `docs/playtests/lighthouse-watch-display/`; done when circles remain round and aiming/menus/scores pass on phone and desktop. Score 16/21 (fun 2×2, heart 2×2, friends 3, focus 2, cheap 3). (built: Codex for Adam / abarish-dev, PR #163; v0.1.1 release)
+- [ ] AC3 [any] Brisket's Crossing (the Frogger shape) and Ember Bricks (the Breakout shape), one PR each. Brisket's Crossing is draft PR #160 (ready for review, not merged). Ember Bricks is still free.
 
 ### Parked (Evan decides when)
 Primordial beyond light polish, a second sport. Proposals welcome; no builds.
@@ -314,7 +334,22 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
   the game.
 - **Small local-helper jobs** (Lane D), checked by a person.
 
+- [ ] SCENE-PLAN [any] (ready: PR #151, Codex, 2026-10-10) Shared scene/interior design outline requested by Evan: docs/plans/scene-layout-pass.md; distinct Larkhaven home briefs, entrance/input/visual checks and independently claimable follow-ups. Complements MAP-AUDIT #147; no engine or art edits. Done when the brief and COMMS handoff are published. Score 18/21 (fun 3x2, heart 2x2, friends 3, focus 2, cheap 3).
+
 ## Part 4: what we've learned and actioned (newest first; every piece of work adds a line)
+
+- 2026-10-10 (AC2.1): fit a fixed arcade world with one scale and invert the same viewport for taps; test render transforms and real screen targets across resize/DPR so a visual fix cannot silently break aim.
+
+- **2026-10-10, AC3:** a log has to carry the mule before the lane moves, or the log slides out from under them the same tick. A full set of lanterns rebuilds faster lanes. Open water and a cart each cost a life.
+- **2026-10-10, ART-SF-6:** a lantern's lit state may change only the glass pixels; bunting and an empty plot are placement envelopes, not solid blocks.
+
+- **2026-10-10, ART-SF-5:** a yard's footprint is a placement envelope, not a solid block; record individual props/fence segments and keep the entry clear.
+
+- **2026-10-10, ART-SF-4:** model window states as glass-only changes; alpha and footprint invariants keep lighting swaps from changing placement or collision.
+- **2026-10-10, RB1.6:** a valid 44px tap target can still hide its words. Check actual text line rectangles as well as button bounds; wrap names in a body font, and let the existing ResizeObserver measure the larger action bar.
+- **2026-10-10, OW1.1:** a keyboard-only story shortcut is easy to miss. Offer the existing skip as a visible, optional in-scene button; bind it to the introduction state so stale controls cannot skip later choices.
+- **2026-10-10, SCENE-PLAN:** static access, real input and visual composition are separate checks. Purposeful furniture groups and clear thresholds make small rooms believable; a full map audit already exists in #147, so the shared outline extends its visual/design handoff.
+- **2026-10-10, RB1.7 (Codex, PR #153):** repeated bed tiles read as a storage room. Group beds with linen cupboards and tables with chairs; keep the centre open. Check the drawn furniture footprint against real movement, then tap the Keeper and leave by keyboard on four screen sizes.
 
 - **2026-10-09, WD2 data (Codex, PR #113):** the roster has 104 base species and three hybrids added by the ranch module. Validate the full exporter, not just 00-data.js; all 107 preserve their original gameplay fields. Drawing hints stay out of creature saves; the appearance contract is in docs/lore/wildbond-looks.md.
 Standing rule (Evan, 2026-10-09): each piece of work records here what it taught us and what was done about it, in a
@@ -404,4 +439,5 @@ line or two, with the page that holds the detail.
 - **2026-10-07 to 10-09, earlier lessons:** recorded in docs/PROJECTS.md "Read first" (the game window, depth, woven
   stories, player text, variety, friends' testing, the process).
 
+- **2026-10-10, MAP-AUDIT:** grid-only door floods miss renderer-defined roof collision; compare actual tap routing with movement predicates and keep visual review separate (#147 / #149 / #150).
 - **2026-10-10, WB-ROOF-149:** test one accepted tap through completion without automatic retries; otherwise a helper can hide planned routes that cross movement collision. #154.
