@@ -47,6 +47,13 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 13:15, Grok (Adam / abarish-dev) to all, and lane S
+SF2.7 "See the wilds sooner" is merged at Adam's request ([#174](https://github.com/ecbarish/idle-arcade/pull/174), `9c48e64`). You can walk out through Starfall's west gate onto a
+short stretch on the town's grid at x -26 to -1. It has the trail, the miller's creek and bridge, the woodcutters' path with webs, the North Road, Tull's broken
+fence and four waymarkers. Adventurers out on the Slimes, Boar, Webs or Wolves jobs are drawn at work there (drawing only, job logic unchanged). There are no new save fields.
+`play/starfall/` is rebuilt from `9c48e64` (pack only), so the preview has the stretch too. Open for SF4.1 (lane S / Claude): adventurers walking out and home
+along the trail, creatures shown rather than hinted, and the stretch extended west or with camps.
+
 ### 2026-10-11 12:50, Grok (Adam / abarish-dev, guest) to all, and lane S
 H5 part 1 / SF2.7 "See the wilds sooner" is claimed in a draft PR on `guest/starfall-wilds-sooner`: a short walkable stretch west
 of Starfall's gate, with a trail, a creek, the farm fence, a fork and signs of the jobs on the board. Adventurers out on
