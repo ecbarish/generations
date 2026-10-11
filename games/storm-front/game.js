@@ -10,6 +10,7 @@
  const audio=ArcadeSound.create({mode:()=>save.sound,setMode:v=>{save.sound=v;persist();},button:()=>$('sound'),musicKey:()=>state&&state.phase==='playing'&&!state.paused?'harbour':null,tracks:{harbour:{bpm:100,lead:'triangle',mel:'D5 . A4 . F5 E5 D5 . A4 . C5 . E5 . A4 .',bass:'D3 . D3 . F3 . F3 . C3 . C3 . A2 . A2 .',drum:'k . h . s . h .'}}});
  $('sound').addEventListener('click',()=>audio.cycle());audio.render();
  const settings=Settings.create({mount:'#settingsMount',rows:[{label:'Sound',options:[[0,'Off'],[1,'Effects'],[2,'Effects and music']],get:()=>save.sound,set:v=>{save.sound=v;persist();audio.render();audio.sfx('select');}},{label:'Scanlines',options:[[false,'Off'],[true,'On']],get:()=>save.scanlines,set:v=>{save.scanlines=v;scan();persist();},note:'A soft cabinet texture. Hidden with reduced motion.'}]});
+ if(window.Feedback)Feedback.register('Storm Front','',()=>state?'player '+(state.active+1)+' of '+state.players.length+', wave '+M.current(state).wave+', '+M.current(state).score+' points':'title screen');
  settings.button.addEventListener('click',()=>{clearInput();if(state&&state.phase==='playing')pause();});
  function clearInput(){keys.clear();pointers.clear();queuedFire=false;}
  function table(){return '<table class="scores"><caption>Harbour high scores</caption><tbody>'+ (save.scores.length?save.scores.map((r,i)=>'<tr><td>'+String(i+1).padStart(2,'0')+'</td><th scope="row">'+r.name+'</th><td>'+String(r.score).padStart(6,'0')+'</td></tr>').join(''):'<tr><td>No scores yet. Light the harbour.</td></tr>')+'</tbody></table>';}

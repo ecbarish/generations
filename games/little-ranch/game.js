@@ -7,7 +7,7 @@
    the corner button for three seconds). Art and sounds are drawn and made in code. Only the sound choice is stored
    (little-ranch-settings-v1); there is no save. Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.1.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000;
+  const VERSION = '0.1.1', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000;
   const cv = document.getElementById('ranch'), cx = cv.getContext('2d');
   const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, k) => a + (b - a) * k;
@@ -51,11 +51,30 @@
   }
   function layout() {
     const r = cv.getBoundingClientRect(), cssW = Math.max(1, r.width || innerWidth), cssH = Math.max(1, r.height || innerHeight);
+    const old = L, oldW = W, oldH = H;
     S = Math.max(2, Math.round(Math.min(cssW, cssH) / 190)); W = Math.ceil(cssW / S); H = Math.ceil(cssH / S);
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     const U = Math.min(W, H * 1.15), wide = W > H * 1.3, sp = wide ? Math.min(W * .3, U * 1.1) : W * .28; // big screens: things spread out
     L = { U, R: U * .14, ground: H * .56, size: U * .17,
       home: { x: W / 2, y: H * .76 }, bowl: { x: W / 2 - sp, y: H * .84 }, sponge: { x: W / 2 + sp, y: H * .86 }, bush: { x: W / 2 + sp * .8, y: H * .6 }, sun: { x: W * .22, y: H * .17 } };
+    if (st && old.U && (W !== oldW || H !== oldH)) {
+      // Keep progress between the same places, rather than keeping obsolete canvas pixels.
+      // The eating spot includes the baby's size, so a plain width ratio is not enough.
+      const moveX = x => {
+        const left = x < old.home.x;
+        const from = left ? old.bowl.x + old.size * 1.3 : old.bush.x;
+        const to = left ? L.bowl.x + L.size * 1.3 : L.bush.x;
+        return L.home.x + (x - old.home.x) * (to - L.home.x) / (from - old.home.x);
+      };
+      st.baby.x = moveX(st.baby.x);
+      if (st.baby.tx !== null) st.baby.tx = moveX(st.baby.tx);
+      const sx = W / oldW, sy = H / oldH, sz = L.U / old.U;
+      const s = st.sponge;
+      if (s.drag || s.auto) { s.x *= sx; s.y *= sy; }
+      if (s.drag) { s.drag.x *= sx; s.drag.y *= sy; s.drag.moved *= sz; }
+      for (const u of st.bubbles) { u.x *= sx; u.y *= sy; u.r *= sz; }
+      for (const f of st.fx) { f.x *= sx; f.y *= sy; f.vx *= sx; f.vy *= sy; }
+    }
     if (st && !st.sponge.drag && !st.sponge.auto) { st.sponge.x = L.sponge.x; st.sponge.y = L.sponge.y; }
   }
   const busy = () => !!(st.baby.act || st.baby.tx !== null);
@@ -68,7 +87,7 @@
 
   const act = {
     feed() { if (st.baby.act === 'eat' || st.bowl.food > 0) { fx('spark', L.bowl.x, L.bowl.y - L.R * .5); return; }
-      st.bowl.food = 1; sfx('plink'); if (st.baby.act === 'hide') st.baby.act = null;
+      st.bowl.food = 1; sfx('plink'); if (st.baby.act === 'hide' || st.baby.act === 'peek') st.baby.act = null;
       go(L.bowl.x + L.size * 1.3, () => { st.baby.dir = -1; st.baby.act = 'eat'; st.baby.at = st.t; }); },
     scrub(p) { // the sponge is on the baby: bubbles
       const b = st.baby; if (b.act === 'hide' || b.act === 'peek' || b.act === 'sleep') return;
@@ -78,6 +97,7 @@
     peek() { const b = st.baby;
       if (b.act === 'hide') { b.act = 'peek'; b.at = st.t; st.bush.shake = 1; sfx('boo'); return; }
       if (b.act === 'peek') return; st.bush.shake = 1; sfx('rustle'); b.act = null;
+      st.bowl.food = 0; // Peekaboo replaces the meal, including a walk toward the bowl.
       go(L.bush.x, () => { b.act = 'hide'; b.at = st.t; }); },
     tickle() { const b = st.baby; if (b.act || b.tx !== null) { sfx('giggle'); return; } b.act = 'giggle'; b.at = st.t; sfx('giggle'); done(); },
     sparkle(p) { fx('spark', p.x, p.y); sfx('note'); }
@@ -245,3 +265,4 @@
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();
+

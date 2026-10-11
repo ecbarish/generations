@@ -1,0 +1,71 @@
+name: Wildbond web preview review
+on:
+  pull_request:
+    paths: ['tools/wildbond-preview-*', '.github/workflows/wildbond-preview.yml', 'play/wildbond/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: wildbond-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  web-review:
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 132 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/wildbond-preview-integration'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install the exporter and browser
+        run: |
+          set -euo pipefail
+          curl --fail --retry 2 --connect-timeout 15 --max-time 120 -sSLo "$RUNNER_TEMP/godot.zip" https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify the exact shipped pack and retain the previous preview
+        run: |
+          set -euo pipefail
+          mkdir -p preview-review
+          python - <<'PYVERIFY'
+          import hashlib, json, re, subprocess
+          from pathlib import Path
+          manifest = json.loads(Path('play/wildbond/build.json').read_text())
+          tree = subprocess.check_output(['git', 'rev-parse', 'HEAD:wildbond-godot'], text=True).strip()
+          assert tree == manifest['source_tree'], 'Game source differs from the reviewed pack'
+          for name, digest in manifest['sha256'].items():
+              assert hashlib.sha256(Path('play/wildbond', name).read_bytes()).hexdigest() == digest, name + ' digest mismatch'
+          size = int(re.search(r'"index.pck"\s*:\s*(\d+)', Path('play/wildbond/index.html').read_text())[1])
+          assert size == Path('play/wildbond/index.pck').stat().st_size
+          Path('preview-review/build.json').write_text(json.dumps(manifest, indent=2) + '\n')
+          print('Verified committed pack, shell, unchanged engine and source tree')
+          PYVERIFY
+          git fetch --depth=1 origin 0bc8e7b84deaadd72cb2555cc4941078ce89e310
+          git show FETCH_HEAD:play/wildbond/index.pck > "$RUNNER_TEMP/wildbond-before.pck"
+      - name: Generate saves with the real pre-WD3 writer
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin 26bd1a6f5a3d8c3f7d4160c940b4de0641dd2dcf
+          git worktree add "$RUNNER_TEMP/wildbond-legacy" FETCH_HEAD
+          cp tools/wildbond-preview-fixtures.gd "$RUNNER_TEMP/wildbond-legacy/wildbond-godot/tests/preview-fixtures.gd"
+          timeout 120 "$GODOT" --headless --path "$RUNNER_TEMP/wildbond-legacy/wildbond-godot" --editor --import --quit
+          timeout 60 "$GODOT" --headless --path "$RUNNER_TEMP/wildbond-legacy/wildbond-godot" --script res://tests/preview-fixtures.gd
+          cp -r "$RUNNER_TEMP/wildbond-legacy/wildbond-godot/frames/preview-fixtures" preview-review/fixtures
+      - name: Play the committed web pack, load legacy saves, and capture it
+        env:
+          BEFORE_PACK: ${{ runner.temp }}/wildbond-before.pck
+        run: node tools/wildbond-preview-checks.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wildbond-web-review
+          path: |
+            preview-review/
+            play/wildbond/index.pck
+            play/wildbond/index.html

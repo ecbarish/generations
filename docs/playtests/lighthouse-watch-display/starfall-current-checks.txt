@@ -1,0 +1,3 @@
+ok    starfall-godot  checks: 152 passed, 0 failed
+
+All 1 suites pass.

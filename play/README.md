@@ -10,3 +10,5 @@ rebuilt pack adds 20 MB to the repository's history forever (docs/learning/web-a
 The engine file (index.wasm, about 38 MB) is the same for both and between rebuilds, so git stores it once; only
 index.pck (the game itself) changes. Windows downloads go to `Desktop\Game builds\` (not in the repo): export with
 `--export-release "Windows"` and zip the folder.
+
+Wildbond’s 2026-10-10 pack refresh and exact-build verification are documented in [wildbond/BUILD.md](wildbond/BUILD.md).

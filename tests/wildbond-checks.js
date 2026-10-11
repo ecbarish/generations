@@ -983,11 +983,11 @@ function wildbondChecks() {
     return /(Tank|Bruiser|Caster|Skirmisher|All-rounder)<\/b>/.test(html) && /Power <b>/.test(html) && /cmoves/.test(html);
   });
   // L1 shared settings (shared/settings.js + js/18-settings.js)
-  check('the Settings panel offers sound, graphics, view, text size and motion', () => {
+  check('the Settings panel offers sound, graphics, view, text size, motion and Tell us', () => {
     const b = document.querySelector('.arc-set-btn'); if (!b) return false; b.click();
     const labels = [...document.querySelectorAll('.arc-set-row>div:first-child')].map(d => d.textContent).join();
     document.querySelector('.arc-set [data-close]').click();
-    return labels === 'Battle style,Sound,Graphics,View distance,Text size,Motion' && document.querySelector('.arc-set-bg').hidden;
+    return labels === 'Battle style,Sound,Graphics,View distance,Text size,Motion,Tell us' && document.querySelector('.arc-set-bg').hidden;
   });
   check('text size scales the panels, never the scene canvas', () => {
     const keep = localStorage.getItem('arcade-settings-v1'), root = document.documentElement;
