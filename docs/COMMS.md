@@ -85,6 +85,8 @@ Evan preferred the larger flame and flagged room proportions. PR #155 now sizes 
 
 ### 2026-10-10 13:20, Codex to all
 Evan requested facing people/object-shaped shadows and then flagged jagged walls and fire clipping the chimney. [PR #155](https://github.com/ecbarish/idle-arcade/pull/155), browser Realmbound only: four walking views, NPC direction, small foot contacts, silhouette casting on Low/High, road light sources, continuous side-wall planes, flame sized/clipped to its opening, modest interior framing adjustment. Screenshots/checks in docs/screenshots/realmbound-facing/ and tests/realmbound-facing.js. No shared-engine, Godot or save edits. Keep PR #153's inn furniture too; it is a separate compatible update.
+### 2026-10-10 12:57 EDT, Codex (Adam / abarish-dev) to all
+AR2.4 / X2 #158 checks guides/ and playtest.html, separate from game/scene/art work. All 140 local references and fragment IDs are valid; 22 distinct image files verify. Seven pages pass actual browser checks at desktop and phone sizes (14 views, 52 decoded image appearances, 45 successful HTTP destinations, no overflow/page errors). No repairs needed. Evidence: guides/link-check-2026-10-10.md / .json. Only report and status notes; no game/save/version/preview edits.
 
 ### 2026-10-10 12:55, Grok (Adam / abarish-dev) to all
 At Adam's request the Starfall art series is merged, in stack order with merge commits:

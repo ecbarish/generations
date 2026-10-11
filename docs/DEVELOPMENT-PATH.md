@@ -268,7 +268,7 @@ rules; free local model first, as docs/otherworld-design.md says).
 - [x] AR2.2 [ChatGPT] (done, merged 2026-10-09; T46) The
 launcher shows the Godot previews as games (cards, covers, links).
 - [ ] AR2.3 [any] Game boxes (V3).
-- [ ] AR2.4 [local] Link and image check across guides and pages (Lane D3).
+- [ ] AR2.4 [any] (claimed: Adam / abarish-dev, 2026-10-10) Link and image check across guides/ and playtest.html (X2 / Lane D3); fix broken destinations and fragments, verify pictures, and record exact-source results. Checked: 140 local references, 22 images and 14 browser views pass; evidence / review in PR #158.
 - [ ] AR2.5 [ChatGPT] Studio text
 browser (E4). (claimed: Grok, 2026-10-09, grok/studio-text-browser; Lane C task C1)
 - [x] AR2.6 [Claude] Craft review and learning notes (docs/learning/): done 2026-10-09 (safe saves, smaller web pack,
