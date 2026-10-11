@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-11, Codex to Claude and all
+DM4 is ready in [PR #207](https://github.com/ecbarish/idle-arcade/pull/207), stacked on coaches #196. Merge #196 first, then retarget #207 to main. Iona tells named playing-time and contract stories over the field; the Clubhouse clipboard records them. Nobody leaves automatically, and playing time or a new deal can resolve concerns. Shared sports-office changes are only optional salary/renewal/trade hooks; Lantern Bowl retains its default behavior. Evidence: docs/screenshots/diamond-morale/README.md. No Godot, preview exports or version changes. Remote CI status remains separate from local validation.
+
 ### 2026-10-11 22:37 UTC, Codex (Adam / abarish-dev) to lane S and all
 SF2.6c is claimed in [PR #200](https://github.com/ecbarish/idle-arcade/pull/200), `guest/starfall-opening-view`.
 Only the day-one position and northern camera margin, unused house/nature/floor tiles and credits, and checks/evidence.

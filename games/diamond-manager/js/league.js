@@ -34,7 +34,7 @@ function makePlayer(r, id, level, pitcher, pos) {
   const p={id, name:DM.first[ri(r,0,DM.first.length-1)]+' '+DM.last[ri(r,0,DM.last.length-1)], age, pitcher:!!pitcher};
   if(pitcher) Object.assign(p,{pos:'P',stuff:g(),control:g(),stamina:g()});
   else Object.assign(p,{pos,contact:g(),power:g(),eye:g(),glove:g(),speed:speedFor(id,age)});
-  p.salary=askSalary(p); p.years=ri(r,1,3); p.pot=potentialFor(r,p); return p;
+  p.morale=freshMorale(); p.salary=askSalary(p); p.years=ri(r,1,3); p.pot=potentialFor(r,p); return p;
 }
 /* Speed (batters only) takes extra bases and makes a pinch runner; it is not part of overall. Drawn from the id so old
    saves can be given the same number. */
@@ -97,6 +97,7 @@ function dayKey(L) { return L.season*100+(L.phase==='final'&&L.final?30+L.final.
 
 /* Record a played game into the standings and the season stats. */
 function recordGame(L,g) {
+  recordMood(L,g);
   const h=L.clubs[g.home], a=L.clubs[g.away];
   h.rs+=g.score[1]; h.ra+=g.score[0]; a.rs+=g.score[0]; a.ra+=g.score[1];
   if(g.winner===g.home){h.w++;a.l++;}else{a.w++;h.l++;}
@@ -263,6 +264,7 @@ function validLeague(o) {
     const player = p => {
       if (!p || !int(p.id) || p.id < 1 || ids.has(p.id) || typeof p.name !== 'string' || typeof p.pitcher !== 'boolean' ||
           !int(p.age) || p.age < 1 || !number(p.salary) || p.salary < 0 || !int(p.years) || (p.pot !== undefined && !number(p.pot))) return false;
+      if(!validMorale(p.morale)) return false;
       ids.add(p.id);
       return (p.pitcher ? ['stuff','control','stamina'] : ['contact','power','eye','glove']).every(k => number(p[k]) && p[k] >= 0 && p[k] <= 99);
     };
@@ -287,6 +289,7 @@ function validLeague(o) {
           !Array.isArray(g.pitcher) || !g.pitcher.every((id, side) => has(side, id)) || !Array.isArray(g.bases) || g.bases.length !== 3 || !Array.isArray(g.events) ||
           !int(g.inning) || g.inning < 1 || g.inning > 15 || ![0,1].includes(g.half) || !Array.isArray(g.score) || !g.box || !g.pbox) return false; }
     if (o.report && (!Array.isArray(o.history) || !o.history.length || !['grew','slipped','expiring'].every(k => Array.isArray(o.report[k])))) return false;
+    if(o.moraleNotes!==undefined&&(!Array.isArray(o.moraleNotes)||o.moraleNotes.length>12||!o.moraleNotes.every(x=>x&&Number.isInteger(x.id)&&Number.isInteger(x.key)&&typeof x.text==='string'&&typeof x.kind==='string')))return false;
     if(!validCoachState(o.coaches)) return false;
     if(o.report?.coaching!==undefined&&(!Array.isArray(o.report.coaching)||!o.report.coaching.every(x=>x&&typeof x.name==='string'&&typeof x.coach==='string'&&['hitting','pitching'].includes(x.role)&&x.gains&&typeof x.gains==='object'&&Object.entries(x.gains).every(([k,n])=>['contact','power','eye','glove','stuff','control','stamina'].includes(k)&&Number.isInteger(n)&&n>0&&n<=2)))) return false;
     return true;
@@ -301,15 +304,19 @@ function migrateLeague(o) { if(!validLeague(o)) return newLeague((Date.now()>>>0
   // The game, pitch by pitch (v0.5.0): batters get a speed rating.
   if(!L.dmd){ L.dmd=true; const all=L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?L.draft.pool:[]); for(const p of all) if(!p.pitcher&&p.speed===undefined) p.speed=speedFor(p.id,p.age); }
   L.coaches=L.coaches||{hitting:null,pitching:null};
+  for(const p of L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?.pool||[]))playerMorale(p);
+  L.moraleNotes=L.moraleNotes||[];
   if(L.lastBox&&!(Array.isArray(L.lastBox.bat)&&Array.isArray(L.lastBox.pit))) delete L.lastBox;
   return L; }
 
 /* What the shared front office (shared/sports-office.js) needs to know about baseball. */
 const SPORT = {
+  adjustSalary: (p,base)=>moraleAsk(p,base), renewed: (L,p)=>resolveContractMood(L,p),
   cfg: DM, overall: p=>overall(p), rosterOk: c=>rosterOk(c), rosterNeed: 'nine batters and five pitchers',
   lineup: c=>setLineup(c), sameRole: (a,b)=>a.pitcher===b.pitcher, farmMax: FARM_MAX, valid: o=>validLeague(o),
   cantLose: (c,p)=>!p.pitcher&&batters(c).length<=DM.minBatters ? 'You need at least nine batters. Sign one first.'
     : p.pitcher&&pitchers(c).length<=DM.minPitchers ? 'You need at least five pitchers. Sign one first.' : '',
-  signed: (L,p)=>{ if(p.bargain) ensureBargains(L); },
+  signed: (L,p)=>{ if(p.bargain) ensureBargains(L);resetPlayerMorale(p,DM.you); },
+  traded: (L,out,incoming,other)=>{out.forEach(p=>resetPlayerMorale(p,other));incoming.forEach(p=>resetPlayerMorale(p,DM.you));},
   upgraded: (L,k)=>{ if(k==='scouting') fillFreeAgents(L,L.freeAgents.length); }
 };
