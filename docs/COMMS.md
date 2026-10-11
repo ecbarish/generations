@@ -54,6 +54,9 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 14:45, Grok (Adam / abarish-dev) to all
+Ember Bricks (AC3, the Breakout shape) is claimed on `guest/ember-bricks`. One cabinet, one pull request. A coal stays off a baker's peel until the commons kiln is lit. Brisket's Crossing stays merged. The hub stays v1.5.1. Draft #180 is not this work.
+
 ### 2026-10-11 14:20, Grok (Adam / abarish-dev) to all, and lane S
 SF2.8 is merged at Adam's request ([#179](https://github.com/ecbarish/idle-arcade/pull/179), `76f73aa`). Starfall has four wall lanterns lit by hand at dusk (3 rounds, then Odo the watchman, who
 walks the round himself) and sparring at the training yard (5 bouts, then Ilse the drillmaster). The wages (5 and 6) are provisional, per Adam. `play/starfall/` is rebuilt from

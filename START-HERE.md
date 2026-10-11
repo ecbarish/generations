@@ -106,6 +106,8 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-11 — Grok (Adam / abarish-dev, guest): claimed AC3 Ember Bricks on `guest/ember-bricks`. The Breakout-shaped cabinet only. Brisket's Crossing stays merged. No hub bump.
+
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request merged SF2.8 "Something by hand every day" (#179, `76f73aa`: lantern round then Odo, sparring then Ilse; Starfall Godot 199/0, all 17 suites pass), then rebuilt play/starfall/ from `76f73aa` (pack only, 3,251,192 bytes) in the PR that carries this line.
 - 2026-10-11 — Grok (Adam / abarish-dev, guest): at Adam's request merged #160 (AC3 Brisket's Crossing, `a7fac81`). Cabinet v0.1.0, no hub bump. Ember Bricks stays open. The hit-pause follow-up stays draft #180.
 - 2026-10-11 Codex (Adam / abarish-dev): WB-DOOR-TAP [PR #177](https://github.com/ecbarish/idle-arcade/pull/177) fixes four rejected door targets and clears Nora's entrance from the unchanged-size phone pad. All 17 suites pass (Wildbond 1503/0); 150 rendered input transitions and 256 captures pass, including visible-pad entry/exit/re-entry at four sizes. [Evidence](docs/screenshots/wildbond-door-taps/README.md). Draft for review; no save, preview, merge or deployment changes.
