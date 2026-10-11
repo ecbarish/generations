@@ -4,6 +4,18 @@ Every outlined project in one place, so Evan can hand work to any assistant (Cla
 and they can carry it to launch. START-HERE.md says what is happening *right now*; this file says *everything there
 is to do*. Ground rules for how assistants work, and how much creative freedom they have: [CREATIVE.md](CREATIVE.md).
 
+## Realmbound readability
+
+| ID | Project | Size | Status | Notes |
+|---|---|---|---|---|
+| RB1.6 | Readable ability names | S | ready: PR #141, Codex, 2026-10-10 | PLAYTEST pass 1; action bar only, no gameplay or saves |
+
+## Otherworld opening polish
+
+| ID | Project | Size | Status | Notes |
+|---|---|---|---|---|
+| OW1.1 | Visible introduction shortcut | S | ready: PR #142, Codex, 2026-10-10 | PLAYTEST pass 1; story and saves unchanged |
+
 ## Realmbound road approach
 
 | ID | Project | Size | Status | Notes |

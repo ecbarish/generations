@@ -137,6 +137,14 @@ For each: what players can see, the candidate explanations, the decided truth (i
 - Tobin's "Seen the tide go out further than it should, once. Didn't much like what walked out of it." (Breakwatermane,
   or something else first?)
 
+### 7. The harvest hum
+- **Seen:** Pip's heritage lines share "the same last hum" of a harvest song (Farmfolk: "I thought Grandmother made that
+  bit up"); Marit, Ilka and Vessa's reactions (table below) carry the hum to the coast, the pass and the fog shelter.
+- **Decided (Adam, 2026-10-10, WB2.4, PR #137):** Pip's grandmother is **Nora**, in her cottage beside Juniper's in
+  Larkhaven. She hums the tune for visitors and says "Pip thinks I made up the last bit. I didn't. My mother hummed it
+  just the same." That is a family memory only: two generations of one Larkhaven family, nothing older.
+- **Open:** where the song, and its last hum, really come from. Leave it unresolved; nothing in Nora's cottage answers it.
+
 ## Applying it to other games
 
 Otherworld (lives as layers of one history) and Realmbound (the Hollow Crown and what lies under it) can use the same
