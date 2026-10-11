@@ -249,7 +249,7 @@ mandatory daily chores; convenience is earned. Files for each: `starfall-godot/s
   from anywhere along its front, so standing there doesn't block them. Files: `starfall-godot/scripts/main.gd`,
   `tests/run_tests.gd`. Done when: checked; pacing re-measured. (Claimed: Grok for Adam / abarish-dev,
   guest/starfall-no-chores.) Score 16/21 (fun 2, Evan 2, friends 2, focus 3, cheap 3).
-- [ ] SF2.19 [any] Earned board help: more pin slots as the town grows (an earned unlock, not a purchase), shown in the
+- [ ] SF2.19 [any] (draft: Grok for Adam / abarish-dev, guest/starfall-board-slots; measured, not a clear win, see the pacing doc) Earned board help: more pin slots as the town grows (an earned unlock, not a purchase), shown in the
   board view. Files: as SF2.18. Done when: the slots grow with rank, old saves load, checked, pacing re-measured. Score
   15/21 (fun 2, Evan 2, friends 2, focus 2, cheap 3).
 - [ ] SF2.20 [any] Tamsin easier to reach: her offer comes from tavern evenings you keep, not only drinks poured, so a

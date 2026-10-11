@@ -636,6 +636,7 @@ func _run() -> void:
 	_wilds()
 	_by_hand()
 	_no_chores()
+	_board_slots()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -1067,3 +1068,40 @@ func _no_chores() -> void:
 			read = true
 			break
 	check(read and main.READ_AT != r.tile, "with you standing in front of the board, an adventurer reads it from beside you and takes the job")
+
+## SF2.19: more pins on the board as the town grows, earned, not bought.
+func _board_slots() -> void:
+	var keep_rank: int = main.rank
+	var keep_posted: Array = main.posted.duplicate()
+	var keep_notices: Array = main.notices.duplicate()
+	var seen := []
+	for r in 4:
+		main.rank = r
+		seen.append(main.max_posted())
+	check(seen == [2, 3, 4, 4], "pins on the board grow with the town: hamlet 2, village 3, town 4 (got %s)" % str(seen))
+	main.rank = 2
+	var keep_good: int = main.good_days
+	var keep_bad: int = main.bad_days
+	main.good_days = 2
+	main.bad_days = 0
+	main._new_notices()
+	main.good_days = keep_good
+	main.bad_days = keep_bad
+	check(main.notices.size() == 4, "after a good run the board has four notices")
+	main.posted.clear()
+	main.board_open = true
+	for i in 4:
+		main.board_pick(i)
+	check(main.posted.size() == 4, "and at town rank you can pin all four")
+	main.rank = 0
+	main.posted.clear()
+	for i in 4:
+		main.board_pick(i)
+	check(main.posted.size() == 2, "a hamlet still pins two")
+	main.rank = 1
+	main.posted = ["boar", "slimes", "wolves"]
+	check(main.max_posted() == 3, "the slots come from the town's rank (already saved), so old saves get theirs with no new field")
+	main.board_open = false
+	main.rank = keep_rank
+	main.posted = keep_posted
+	main.notices = keep_notices

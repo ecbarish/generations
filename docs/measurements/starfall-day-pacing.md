@@ -116,6 +116,39 @@ Raw numbers: `starfall-day-pacing-sf2.18.json`.
 - **Days 1 to 4 are no longer full** for the efficient player (59 to 81% busy).
 - Tamsin still didn't come in one seed (SF2.20).
 
+### Six seeds: before, after SF2.18, and with SF2.19 (draft)
+
+Three seeds were noisy, so this re-runs all three versions with six seeds each (`-- 6`: seeds 11 to 66), using
+the same script. Averages, with the range in brackets. Raw: `starfall-day-pacing-6seeds-*.json`.
+
+| | before (main `1f19d35`) | after SF2.18 (main `a0e4787`) | with SF2.19 board slots (draft #189) |
+|---|---|---|---|
+| **Board only:** coins | 76 (17 to 177) | **917** (408 to 1,353) | 851 (396 to 1,283) |
+| **Board only:** wins | 15 | **61** | 44 |
+| **Board only:** spirits on day 10 | 1.1 | **8.1** | 6.2 |
+| **Hand + hire:** coins | 3,018 | **3,605** | 3,424 |
+| **Hand + hire:** wins | 86 | 98 | 91 |
+| **Hand + hire:** busy, days 1 to 4 (avg s of 150) | 120 | 125 | 118 |
+| **Hand + hire:** lantern round | 30 s | **21 s** | 22 s |
+| **Hand + hire:** board walking a day | 44 s | 50 s | 47 s |
+| **Hand + hire:** Market Town (day) | 5.9 | 5.1 | 4.9 |
+| **Hand + hire:** Garrick hired in 10 days | 6 of 6 | 5 of 6 | **3 of 6** |
+| **Hand + hire:** Tamsin hired in 10 days | 2 of 6 | 5 of 6 | **0 of 6** |
+| **Hand, never hire:** coins | 1,758 | 1,928 | 2,064 |
+
+- **SF2.18 does what it should.** A player who skips hand work stays solvent (about 12× the coins it had before)
+  and spirits hold at about 8 instead of collapsing. Hand + hire is still clearly best (about 3.9× the skip
+  player's coins, and the most wins). Days 1 to 4 run at about 80 to 85% busy for the efficient player, not 100%.
+  The rest of the time goes to the board, which is now the main remaining chore.
+- **SF2.19 (more pins at Village and Town) is not a clear win, so it's left as a draft, not merged.** It saves
+  only about 3 s of board walking a day. With more adventurers out at once, fewer are home in the evenings and at
+  the smithy, so Tamsin's and Garrick's offers come later or not at all, and the skip player's spirits and wins
+  dip. Better options:
+  - pinned jobs that **stay pinned** (a standing order, earned at Town), which cuts the walking itself; or
+  - more slots **together with** SF2.20 (Tamsin's offer counting evenings the tavern is open) and Garrick's offer
+    counting smithy visits.
+  Adam to choose.
+
 ## Limits of this measurement
 
 It's a scripted player: teleporting between actions (but paying the walk time), a fixed build order (the healer is

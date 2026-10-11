@@ -24,6 +24,8 @@ func _go() -> void:
 	var pol: Array = ["board", "hand", "hand_nohire"]
 	var seeds: Array = [11, 22, 33]
 	var ua := OS.get_cmdline_user_args()
+	if ua.size() == 1:
+		seeds = range(1, int(ua[0]) + 1).map(func(i): return i * 11)
 	if ua.size() >= 2:
 		pol = [ua[0]]
 		seeds = [int(ua[1])]
@@ -202,10 +204,11 @@ func act(policy: String, hand: bool, hires: bool) -> bool:
 			m.finish_spar((m.SPAR_BAND.x + m.SPAR_BAND.y) / 2.0 if rng.randf() < SKILL else 0.1)
 			return true
 	# the board: keep two jobs pinned
-	if m.posted.size() < m.MAX_POSTED and m.notices.size() > m.posted.size():
+	var slots: int = m.max_posted() if m.has_method("max_posted") else m.MAX_POSTED
+	if m.posted.size() < slots and m.notices.size() > m.posted.size():
 		spend("board", m.READ_AT, 3.0)
 		for id in m.notices:
-			if m.posted.size() < m.MAX_POSTED and not id in m.posted:
+			if m.posted.size() < slots and not id in m.posted:
 				m.posted.append(id)
 		return true
 	# build the next thing when it's affordable and its plot is open

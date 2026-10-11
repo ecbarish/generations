@@ -117,7 +117,7 @@ const WAGE := 10
 const HIRE_AFTER := 10                     # meals you serve yourself before Bryn offers to take over
 const PATIENCE := 22.0                     # how long a hungry adventurer waits at the counter
 const POT_MEAL := 4                        # what they leave for helping themselves from the stew pot instead (SF2.18)
-const MAX_POSTED := 2
+const MAX_POSTED := 2                      # pins on the board at first; the town earns more as it grows (SF2.19)
 ## Cleared plots (p on the map, 2x2) where the town can grow; each keeps its anchor (top left) tile.
 ## (SF2.6: the plots keep their names, so old saves keep their buildings; they now line the road east of the inn.)
 const PLOTS := { "west": Vector2i(24, 6), "east": Vector2i(32, 6), "north": Vector2i(24, 12), "south": Vector2i(32, 12) }
@@ -895,6 +895,11 @@ func read_spot(h: Mover) -> Vector2i:
 			return p
 	return READ_AT
 
+## How many notices you can pin at once: two in a hamlet, three once Starfall is a village, four from a town (SF2.19).
+## Earned by growing the town, never bought.
+func max_posted() -> int:
+	return MAX_POSTED + mini(rank, 2)
+
 func job_of(id: String) -> Dictionary:
 	for j in JOBS:
 		if j.id == id:
@@ -1329,6 +1334,8 @@ func _check_rank() -> void:
 	for k in PLOTS:
 		if int(PLOT_RANK[k]) == rank:
 			caption.text += " Hob has staked out a new plot (%s)." % k
+	if rank <= 2:
+		caption.text += " The board has room for %d notices now." % max_posted()
 	caption_t = 8.0
 	if rank - 1 < NEWCOMERS.size():
 		var s: Array = NEWCOMERS[rank - 1]
@@ -2058,7 +2065,7 @@ func board_pick(i: int) -> void:
 	if id in posted:
 		posted.erase(id)
 		sfx.play("close", -4.0)
-	elif posted.size() < MAX_POSTED:
+	elif posted.size() < max_posted():
 		posted.append(id)
 		sfx.play("pick")
 	board_sel = i
@@ -2490,7 +2497,7 @@ func _draw_board_view() -> void:
 	var done := _note_rect(notices.size())
 	board_view.draw_rect(done, Color("3e2c20") if board_sel == notices.size() else Color("5a3e26"))
 	board_view.draw_string(font, done.position + Vector2(0, 11), "Done", HORIZONTAL_ALIGNMENT_CENTER, done.size.x, 8, Color("f4e9cd"))
-	board_view.draw_string(font, Vector2(32, 182), "Up to %d pinned. The guild keeps three coins in ten of each reward." % MAX_POSTED, HORIZONTAL_ALIGNMENT_CENTER, 320, 7, Color("e8d8b8"))
+	board_view.draw_string(font, Vector2(32, 182), "Up to %d pinned. The guild keeps three coins in ten of each reward." % max_posted(), HORIZONTAL_ALIGNMENT_CENTER, 320, 7, Color("e8d8b8"))
 
 ## Hob's plans for a plot, close up: what could stand here, what it costs, what it does for your adventurers.
 func _draw_plans(font: Font) -> void:
