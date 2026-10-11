@@ -7,3 +7,7 @@ Arrows or W/A/S/D hop. Space hops toward the lanterns. P pauses. On-screen butto
 Built like the other cabinets: shared arcade sound, text size and reduced-motion settings, optional scanlines. Art and tune are original code; no third-party assets. Does not read or change other games' saves. Ember Bricks is the next cabinet, not this one.
 
 Checks: `node tools/brisket-model-checks.cjs` and `node tools/run-all-checks.cjs briskets-crossing`. The branch includes main through the SF2.6 follow-ups (#165 and #166) and Lighthouse Watch v0.1.1. The issue forms quote the cabinet name so the apostrophe stays intact.
+
+## v0.1.1
+
+A hit gives Brisket a three-quarter-second recovery beat. Release held movement before hopping again; the lantern clock waits too. Space or any arrow starts from Get ready. Brisket is drawn 50% larger, with the same collision rules. High-score save format unchanged.
