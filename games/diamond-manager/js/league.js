@@ -107,7 +107,11 @@ function plateAppearance(r,b,p,glove) {
   return y<hr?4 : y<hr+.02?3 : y<hr+.22?2 : 1;
 }
 
-function starterOf(club) { const ps=pitchers(club).slice().sort((a,b)=>overall(b)-overall(a)).slice(0,5); return ps[club.rot%ps.length]; }
+/* Rest: a pitcher who threw 50 or more pitches needs four days off, 25 or more needs a day off. key counts days. */
+function rested(p,key) { const r=p.rest; return !r||key===undefined||key-r.day>=(r.pitches>=50?4:r.pitches>=25?2:1); }
+function starterOf(club,key) { const ps=pitchers(club).slice().sort((a,b)=>overall(b)-overall(a)).slice(0,5);
+  for(let k=0;k<ps.length;k++){ const p=ps[(club.rot+k)%ps.length]; if(rested(p,key)) return p; } return ps[club.rot%ps.length]; }
+function dayKey(L) { return L.season*100+(L.phase==='final'&&L.final?30+L.final.games.length:L.day); }
 function nth(n){return n+(n%10===1&&n!==11?'st':n%10===2&&n!==12?'nd':n%10===3&&n!==13?'rd':'th');}
 
 /* Record a played game into the standings and the season stats. */
@@ -116,7 +120,7 @@ function recordGame(L,g) {
   h.rs+=g.score[1]; h.ra+=g.score[0]; a.rs+=g.score[0]; a.ra+=g.score[1];
   if(g.winner===g.home){h.w++;a.l++;}else{a.w++;h.l++;}
   h.rot++; a.rot++;
-  for(const c of [h,a]) for(const p of c.players){ const s=g.box[p.id], ps=g.pbox&&g.pbox[p.id]; if(!s&&!ps) continue; p.season=p.season||{g:0};
+  for(const c of [h,a]) for(const p of c.players){ const s=g.box[p.id], ps=g.pbox&&g.pbox[p.id]; if(!s&&!ps) continue; p.season=p.season||{g:0}; if(ps&&g.key!==undefined) p.rest={day:g.key,pitches:ps.pitches};
     for(const k in s||ps) p.season[k]=(p.season[k]||0)+(s||ps)[k]; p.season.g=(p.season.g||0)+1;
     if(ps){ if(g.starters&&g.starters.includes(p.id)) p.season.gs=(p.season.gs||0)+1; if(g.decision&&g.decision.w===p.id) p.season.w=(p.season.w||0)+1; if(g.decision&&g.decision.l===p.id) p.season.l=(p.season.l||0)+1; } }
 }

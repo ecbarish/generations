@@ -93,8 +93,9 @@ side panel. Text is in full words.
   right now. I'd love to see more of the game rather than a description ... more stats and a box score ... pitcher
   management, pinch hit or run"): pitch-by-pitch engine (js/game.js) with fatigue, individual relievers, pinch hitters
   and runners, Iona's questions at big moments, an animated field, box scores, season/last/career stats, league
-  leaders, a Speed rating. Ideas left for any assistant: stolen bases and double plays (check the run numbers), defensive
-  substitutions and positions that matter, starters needing rest between games, sound for the crack of the bat.
+  leaders, a Speed rating, double plays, stolen bases, defensive changes and pitcher rest (Evan: "those other ideas
+  sound good"). Ideas left for any assistant: positions that matter (a shortstop playing first), a hit-and-run and
+  bunts, sound for the crack of the bat, a trophy room.
 - [x] **DM-T** [Claude, done 2026-10-11, v0.4.0] **Trading and a trade finder** (Evan: "We also need trading and trade
   finder"): find the cheapest deal for any player, shop one of ours to every club, "What would make it work?" in the
   trade table, prospects tradeable, ceilings in trade value. Later ideas for any assistant: trading draft picks and

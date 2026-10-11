@@ -102,5 +102,13 @@ function diamondManagerChecks(){
     assert(d.validLeague(L),'valid mid-game');const back=d.migrateLeague(clone(L));assert(back.live&&back.live.g.inning===g.inning,'resumed');d.finishGame(back,back.live.g);d.finishDay(back);
     return back.day===1&&!back.live&&back.clubs.reduce((n,c)=>n+c.w+c.l,0)===6&&back.lastBox&&d.validLeague(back);});
   check('Old saves give every batter a speed rating once',()=>{const L=d.newLeague(109);delete L.dmd;for(const p of L.clubs[0].players)delete p.speed;const a=d.migrateLeague(clone(L));return a.clubs[0].players.filter(p=>!p.pitcher).every(p=>p.speed===d.speedFor(p.id,p.age));});
+  check('Double plays and stolen bases happen at believable rates and are counted',()=>{const L=d.newLeague(110);let dp=0,sb=0,cs=0;const n=120;for(let i=0;i<n;i++){const g=d.playGame(L,i%6,(i+1)%6,i*11+7);
+    for(const e of g.events){ if(/double play/.test(e.t)){dp++;assert(e.moves.filter(m=>m.out).length===2,'two out');} } for(const id in g.box){sb+=g.box[id].sb;cs+=g.box[id].cs;} }
+    const per=x=>x/n/2;assert(per(dp)>.2&&per(dp)<1.2,'dp '+per(dp));assert(per(sb)>.05&&per(sb)<1.2,'sb '+per(sb));return cs>0;});
+  check('Tired arms rest: a starter who threw 90 pitches yesterday neither starts nor relieves today',()=>{const L=d.newLeague(111),c=L.clubs[1],key=d.dayKey(L);const next=d.starterOf(c,key);next.rest={day:key-1,pitches:90};
+    const s=d.starterOf(c,key);assert(s.id!==next.id,'skipped');const g=d.newGame(L,1,2,3);return !d.bullpenOf(L,g,1).some(p=>p.id===next.id)&&d.rested(next,key+3)&&!d.rested(next,key+2);});
+  check('A defensive change and a steal sign follow the rules',()=>{const L=d.newLeague(112),g=d.newGame(L,0,1,11,1);let n=0;while(!(g.started&&!g.pa&&g.half===0)&&n++<50)d.stepGame(L,g);
+    const bench=d.benchOf(L,g,1)[0],out=g.lineup[1][2];assert(d.defensiveSub(L,g,1,out,bench.id)==='','sub');assert(g.lineup[1][2]===bench.id&&g.gone[1].includes(out),'in the field');assert(d.defensiveSub(L,g,0,g.lineup[0][0],bench.id)!=='','not while batting');
+    const H=d.newLeague(113),h=d.newGame(H,0,1,11,0);h.started=true;h.line[0].push(0);h.bases=[h.lineup[0][4],0,0];assert(d.sendRunner(H,h,0,0)===''&&h.steal.base===0,'sign');h.bases=[h.lineup[0][4],h.lineup[0][5],0];return d.sendRunner(H,h,0,0)!=='';});
   return out;
 }

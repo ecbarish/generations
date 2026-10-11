@@ -51,7 +51,7 @@ function drawPlay(c,s,B,sc){
   const moving=play||e.kind==='play'?(e.moves||[]):[], ids=new Set(moving.map(m=>m.id));
   const still=(e.kind==='play'?sc.prev:e.runners)||[0,0,0];
   still.forEach((id,i)=>{ if(id&&!ids.has(id)){ const [x,y]=B[i+1]; person(c,x+6,y-12,sc.bat); } });
-  for(const m of moving){ if(m.out||m.to===0) continue; const rt=ease((k-.12)/.88), [x,y]=alongBases(B,m.from,Math.min(4,m.to),rt);
+  for(const m of moving){ if(m.to===0||(m.out&&(!e.steal||k>.85))) continue; const rt=ease((k-.12)/.88), [x,y]=alongBases(B,m.from,Math.min(4,m.to),rt);
     if(m.to>=4&&rt>=1) continue; person(c,x+6,y-12,sc.bat); }
   // The batter waits at the plate until the ball is in play.
   const batterGone=e.kind==='play'&&moving.some(m=>m.from===0&&m.to>0);
@@ -70,6 +70,6 @@ function drawPlay(c,s,B,sc){
   if(sc.pitcher) tag(c,mound[0],mound[1]+18*PERSON,sc.pitcher);
   if(sc.batter&&e.kind!=='end') tag(c,0,24+6*PERSON,sc.batter);
   if(play&&k>=.6&&k<1){ const word=e.res==='out'?'OUT':e.res===4?'HOME RUN':e.res===3?'TRIPLE':e.res===2?'DOUBLE':'HIT'; const [x,y]=spot(s,e.bb.a,Math.min(.95,e.bb.d)); tag(c,x,y-30,word); }
-  if(e.kind==='play'&&!e.bb&&k<1) tag(c,0,-40,e.res==='k'?'STRIKE THREE':'BALL FOUR');
+  if(e.kind==='play'&&!e.bb&&k<1){ if(e.steal){ const m=e.moves[0], [x,y]=alongBases(B,m.to,m.to,1); tag(c,x,y-34,m.out?'OUT':'SAFE'); } else if(e.res==='k'||e.res==='walk') tag(c,0,-40,e.res==='k'?'STRIKE THREE':'BALL FOUR'); else if(/double play/.test(e.t)) tag(c,0,-40,'DOUBLE PLAY'); }
 }
 function person(c,x,y,col){ c.save(); c.translate(x,y); c.scale(PERSON,PERSON); c.fillStyle='#1d1d1d'; c.fillRect(-3,1,6,9); c.fillStyle=col; c.fillRect(-4,-1,8,8); c.fillStyle='#d9a77a'; c.fillRect(-3,-7,6,6); c.restore(); }

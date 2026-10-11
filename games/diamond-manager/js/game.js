@@ -16,14 +16,14 @@ function gPlayer(L,g,side,id) { return gClub(L,g,side).players.find(p=>p.id===id
 function lastName(p) { return p.name.split(' ').slice(1).join(' ')||p.name; }
 
 function newGame(L,home,away,seed,manage=-1,quiet=false) {
-  const teams=[L.clubs[away],L.clubs[home]], st=teams.map(c=>starterOf(c).id);
-  const g={home,away,seed:seed>>>0,manage,quiet,inning:1,half:0,outs:0,balls:0,strikes:0,bases:[0,0,0],score:[0,0],line:[[],[]],hits:[0,0],
+  const key=dayKey(L), teams=[L.clubs[away],L.clubs[home]], st=teams.map(c=>starterOf(c,key).id);
+  const g={home,away,key,seed:seed>>>0,steal:null,manage,quiet,inning:1,half:0,outs:0,balls:0,strikes:0,bases:[0,0,0],score:[0,0],line:[[],[]],hits:[0,0],
     order:[0,0],lineup:teams.map(c=>c.lineup.slice()),first:teams.map(c=>c.lineup.slice()),bat:teams.map(c=>c.lineup.slice()),gone:[[],[]],pitcher:st.slice(),starters:st.slice(),
     used:st.map(id=>[id]),box:{},pbox:{},events:[],pa:null,started:false,done:false,asked:{},ask:null,hold:false,rec:null,winner:null,decision:null};
   st.forEach(id=>g.pbox[id]=pline());
   return g;
 }
-const bline=()=>({ab:0,r:0,h:0,d:0,t:0,hr:0,rbi:0,bb:0,k:0});
+const bline=()=>({ab:0,r:0,h:0,d:0,t:0,hr:0,rbi:0,bb:0,k:0,sb:0,cs:0});
 const pline=()=>({outs:0,h:0,r:0,bb:0,k:0,hr:0,pitches:0,bf:0});
 function snap(g,o) { if(g.quiet&&!o.runs&&o.kind!=='end') return; g.events.push(Object.assign({inning:g.inning,half:g.half,outs:g.outs,balls:g.balls,strikes:g.strikes,
   bases:g.bases.map(b=>b?1:0),runners:g.bases.slice(),score:g.score.slice(),pitcher:g.pitcher[1-g.half],batter:g.lineup[g.half][g.order[g.half]]},o)); }
@@ -31,7 +31,7 @@ function snap(g,o) { if(g.quiet&&!o.runs&&o.kind!=='end') return; g.events.push(
 /* Players who can still come in: batters on the bench, and pitchers who haven't pitched today. */
 function benchOf(L,g,side) { return batters(gClub(L,g,side)).filter(p=>!g.lineup[side].includes(p.id)&&!g.gone[side].includes(p.id)); }
 function bullpenOf(L,g,side) { const c=gClub(L,g,side), rot=pitchers(c).slice().sort((a,b)=>overall(b)-overall(a)).slice(0,5).map(p=>p.id);
-  return pitchers(c).filter(p=>!g.used[side].includes(p.id)).sort((a,b)=>(rot.includes(a.id)-rot.includes(b.id))||(rot.includes(a.id)?overall(a)-overall(b):overall(b)-overall(a))); }
+  return pitchers(c).filter(p=>!g.used[side].includes(p.id)&&rested(p,g.key)).sort((a,b)=>(rot.includes(a.id)-rot.includes(b.id))||(rot.includes(a.id)?overall(a)-overall(b):overall(b)-overall(a))); }
 
 /* Moves. Each is legal only between batters. They return '' or why not. */
 function changePitcher(L,g,side,id) { const p=bullpenOf(L,g,side).find(x=>x.id===id); if(!p) return 'That pitcher is not available.'; if(g.pa) return 'Wait for this batter to finish.';
@@ -41,7 +41,10 @@ function substitute(L,g,side,outId,inId,how) { const p=benchOf(L,g,side).find(x=
   if(!p||slot<0) return 'That move is not possible.'; const old=gPlayer(L,g,side,outId);
   g.lineup[side][slot]=inId; g.gone[side].push(outId); g.bat[side].splice(g.bat[side].indexOf(outId)+1,0,inId);
   const b=g.bases.indexOf(outId); if(b>=0&&side===g.half) g.bases[b]=inId;
-  snap(g,{kind:'move',side,t:how==='run'?p.name+' runs for '+lastName(old)+' at '+['first','second','third'][b]+'.':p.name+' bats for '+lastName(old)+'.'}); return ''; }
+  snap(g,{kind:'move',side,t:how==='run'?p.name+' runs for '+lastName(old)+' at '+['first','second','third'][b]+'.':how==='field'?p.name+' comes in to play the field for '+lastName(old)+'.':p.name+' bats for '+lastName(old)+'.'}); return ''; }
+function defensiveSub(L,g,side,outId,inId) { return side===g.half?'We are batting.':substitute(L,g,side,outId,inId,'field'); }
+/* Send a runner: he goes on the first pitch to the next batter. */
+function sendRunner(L,g,side,base) { if(side!==g.half||g.pa) return 'Only between batters, while we bat.'; if(!g.bases[base]||base>1||g.bases[base+1]) return 'No runner can steal there.'; g.steal={side,base}; return ''; }
 function pinchHit(L,g,side,inId) { return side!==g.half?'We are not batting.':substitute(L,g,side,g.lineup[side][g.order[side]],inId,'hit'); }
 function pinchRun(L,g,side,base,inId) { const id=g.bases[base]; return side!==g.half||!id?'There is no runner there.':substitute(L,g,side,id,inId,'run'); }
 
@@ -50,6 +53,8 @@ function ionaPitching(L,g,side) { const p=gPlayer(L,g,side,g.pitcher[side]), b=g
   const lead=g.score[side]-g.score[1-side], best=pen[0];
   if(b.pitches>pitchLimit(g,side,p)+4) return {kind:'tired',side,id:best.id};
   if(b.r>=6&&b.outs<15) return {kind:'shelled',side,id:best.id};
+  if(g.inning>=8&&lead>=1&&lead<=3&&!g.asked['def:'+side+':'+g.inning]){ const bench=benchOf(L,g,side), fielders=g.lineup[side].map(id=>gPlayer(L,g,side,id)).sort((a,b)=>a.glove-b.glove), glove=bench.slice().sort((a,b)=>b.glove-a.glove)[0];
+    if(glove&&fielders[0]&&glove.glove>=fielders[0].glove+12) return {kind:'def',side,id:glove.id,out:fielders[0].id}; }
   if(g.inning>=9&&lead>=1&&lead<=3&&g.starters[side]===p.id&&b.pitches>pitchLimit(g,side,p)-25&&overall(best)>=overall(p)-6) return {kind:'close',side,id:best.id};
   return null; }
 function ionaBatting(L,g,side) { const diff=g.score[side]-g.score[1-side]; if(g.inning<7||diff<-3||diff>2) return null; const bench=benchOf(L,g,side); if(!bench.length) return null;
@@ -59,7 +64,7 @@ function ionaBatting(L,g,side) { const diff=g.score[side]-g.score[1-side]; if(g.
     if(fast&&fast.id!==bat.id&&spd(fast)>=spd(r)+15) return {kind:'pr',side,id:fast.id,out:id,base}; } }
   return null; }
 const hitting=p=>(p.contact*2+p.power+p.eye)/4, spd=p=>p.speed||50;
-function applyIdea(L,g,m) { return m.kind==='ph'?pinchHit(L,g,m.side,m.id):m.kind==='pr'?pinchRun(L,g,m.side,m.base,m.id):changePitcher(L,g,m.side,m.id); }
+function applyIdea(L,g,m) { if(m.kind==='def'){ g.asked['def:'+m.side+':'+g.inning]=true; return defensiveSub(L,g,m.side,m.out,m.id); } if(m.kind==='steal') return sendRunner(L,g,m.side,m.base); return m.kind==='ph'?pinchHit(L,g,m.side,m.id):m.kind==='pr'?pinchRun(L,g,m.side,m.base,m.id):changePitcher(L,g,m.side,m.id); }
 /* The player's answer to a question the game stopped for. */
 function answerAsk(L,g,yes) { const a=g.ask; g.ask=null; if(!a) return ''; g.asked[a.key]=true; return yes?applyIdea(L,g,a):''; }
 
@@ -109,20 +114,31 @@ function stepGame(L,g) {
     const b=gPlayer(L,g,bat,g.lineup[bat][g.order[bat]]), p=gPlayer(L,g,def,g.pitcher[def]);
     const glove=g.lineup[def].reduce((n,id)=>n+gPlayer(L,g,def,id).glove,0)/9, res=plateAppearance(g,b,effective(g,def,p),glove);
     g.pa={b:b.id,res,seq:pitchesFor(g,res),i:0}; g.pbox[p.id].bf++; g.balls=0; g.strikes=0;
+    if(!g.steal&&bat!==g.manage&&g.outs<2){ for(const base of [1,0]){ const id=g.bases[base]; if(!id||g.bases[base+1]) continue; const r=gPlayer(L,g,bat,id), sp=spd(r);
+      if(sp>=60&&rnd(g)<(sp-55)*.012*(base===1?.4:1)){ g.steal={side:bat,base}; break; } } }
     snap(g,{kind:'up',t:''}); return ''; }
   const pa=g.pa, pb=g.pbox[g.pitcher[def]];
+  if(g.steal&&pa.i===0){ const {base}=g.steal, id=g.bases[base]; g.steal=null;
+    if(id&&!g.bases[base+1]&&base<2){ const r=gPlayer(L,g,bat,id), cat=gPlayer(L,g,def,g.lineup[def].map(x=>gPlayer(L,g,def,x)).find(x=>x.pos==='C')?.id||g.lineup[def][0]), st=g.box[id]||(g.box[id]=bline());
+      const safe=rnd(g)<clamp(.62+(spd(r)-50)*.01-(cat.glove-50)*.005,.35,.92), to=['second','third'][base];
+      if(safe){ g.bases[base+1]=id; g.bases[base]=0; st.sb++; snap(g,{kind:'play',steal:true,moves:[{id,from:base+1,to:base+2}],runs:0,t:r.name+' steals '+to+'!'}); }
+      else { g.bases[base]=0; st.cs++; g.outs++; pb.outs++; snap(g,{kind:'play',steal:true,moves:[{id,from:base+1,to:base+2,out:true}],runs:0,t:r.name+' is thrown out trying to steal '+to+' by '+lastName(cat)+'.'});
+        if(g.outs>=3){ g.pa=null; g.balls=0; g.strikes=0; return endHalf(L,g); } }
+      return ''; } }
   if(pa.i<pa.seq.length){ const c=pa.seq[pa.i++]; pb.pitches++;
     if(c==='B') g.balls=Math.min(4,g.balls+1); else if(c==='S'||c==='W') g.strikes=Math.min(3,g.strikes+1); else if(c==='F'&&g.strikes<2) g.strikes++;
     snap(g,{kind:'pitch',pitch:c,t:''}); return ''; }
   // The result of the plate appearance.
   const b=gPlayer(L,g,bat,pa.b), p=gPlayer(L,g,def,g.pitcher[def]), s=g.box[b.id]||(g.box[b.id]=bline()), res=pa.res;
-  const bb=res==='walk'||res==='k'?null:battedBall(g,res), moves=[], scored=[];
+  const bb=res==='walk'||res==='k'?null:battedBall(g,res), moves=[], scored=[]; let dp=false;
   const run=(id,from,to)=>{ moves.push({id,from,to}); if(to>=4) scored.push(id); };
   if(res==='walk'){ s.bb++; pb.bb++; const nb=g.bases.slice(); // only forced runners move up
     if(nb[0]){ if(nb[1]){ if(nb[2]) run(nb[2],3,4); run(nb[1],2,3); nb[2]=nb[1]; } run(nb[0],1,2); nb[1]=nb[0]; }
     nb[0]=b.id; run(b.id,0,1); g.bases=nb; }
   else if(res==='k'||res==='out'){ s.ab++; pb.outs++; g.outs++; if(res==='k'){s.k++;pb.k++;} moves.push({id:b.id,from:0,to:0,out:true});
-    if(res==='out'&&g.outs<3&&g.bases[2]&&rnd(g)<clamp(.35+(spd(gPlayer(L,g,bat,g.bases[2]))-50)*.006,.15,.6)){ run(g.bases[2],3,4); g.bases[2]=0; } }
+    if(res==='out'&&bb.bb==='ground'&&g.outs<3&&g.bases[0]&&rnd(g)<clamp(.38-(spd(b)-50)*.006,.15,.6)){ const r1=g.bases[0]; moves.push({id:r1,from:1,to:2,out:true}); g.bases[0]=0; g.outs++; pb.outs++; dp=true;
+      if(g.outs<3){ if(g.bases[2]){ run(g.bases[2],3,4); g.bases[2]=0; } if(g.bases[1]){ moves.push({id:g.bases[1],from:2,to:3}); g.bases[2]=g.bases[1]; g.bases[1]=0; } } }
+    else if(res==='out'&&g.outs<3&&g.bases[2]&&rnd(g)<clamp(.35+(spd(gPlayer(L,g,bat,g.bases[2]))-50)*.006,.15,.6)){ run(g.bases[2],3,4); g.bases[2]=0; } }
   else { s.ab++; s.h++; pb.h++; g.hits[bat]++; if(res===2)s.d++; if(res===3)s.t++; if(res===4){s.hr++;pb.hr++;}
     for(let i=2;i>=0;i--){ const id=g.bases[i]; if(!id) continue; g.bases[i]=0; const r=gPlayer(L,g,bat,id), extra=(res<3&&i+res===2&&rnd(g)<clamp(.55+(spd(r)-50)*.008,.2,.85))?1:0;
       const to=i+1+res+extra; run(id,i+1,Math.min(4,to)); if(to<4) g.bases[to-1]=id; }
@@ -133,12 +149,16 @@ function stepGame(L,g) {
   const names=scored.map(id=>lastName(gPlayer(L,g,bat,id))), last=pa.seq[pa.seq.length-1];
   let text=b.name+' '+playWords(res,bb||{},last)+'.';
   if(res==='k') text=b.name+' '+playWords(res,{},last)+' against '+lastName(p)+'.';
+  if(dp) text=b.name+' grounds into a double play.';
   if(n) text+=' '+(res===4&&n===1?'':(n===1?names[0]+' scores.':names.slice(0,-1).join(', ')+' and '+names[n-1]+' score.'));
   g.pa=null; g.balls=0; g.strikes=0; g.order[bat]=(g.order[bat]+1)%9;
   snap(g,{kind:'play',res,bb,moves,runs:n,t:text.trim(),who:lastName(b)});
   if(g.inning>=9&&bat===1&&g.score[1]>g.score[0]) return endGame(L,g);
-  if(g.outs>=3){ g.started=false; g.bases=[0,0,0];
-    if(bat===0&&g.inning>=9&&g.score[1]>g.score[0]) return endGame(L,g);
+  if(g.outs>=3) return endHalf(L,g);
+  return '';
+}
+function endHalf(L,g) { const bat=g.half; g.started=false; g.bases=[0,0,0]; g.steal=null;
+  { if(bat===0&&g.inning>=9&&g.score[1]>g.score[0]) return endGame(L,g);
     if(bat===1&&g.inning>=9&&g.score[0]!==g.score[1]) return endGame(L,g);
     if(bat===1&&g.inning>=15){ g.score[1]++; g.line[1][g.line[1].length-1]++; g.rec={lead:1,w:g.pitcher[1],l:g.pitcher[0]}; g.pbox[g.pitcher[0]].r++; const hero=g.lineup[1][g.order[1]]; (g.box[hero]||(g.box[hero]=bline())).r++;
       snap(g,{kind:'play',runs:1,moves:[],t:'A wild pitch brings the winning run home in the fifteenth.'}); return endGame(L,g); }
