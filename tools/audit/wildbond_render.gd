@@ -66,6 +66,20 @@ func capture() -> void:
    place_at(name,p)
    await shot("%s-overview"%name,size,{"kind":"overview"})
    var rows=main.cur_map()
+   if name in main.BUILT:
+    var width: int=rows[0].length()
+    var height: int=rows.size()
+    for anchor in [Vector2i(6,5),Vector2i(width-7,5),Vector2i(6,height-6),Vector2i(width-7,height-6)]:
+     var nearest: Vector2i=p
+     var distance: float=100000.0
+     for yy in height:
+      for xx in width:
+       var candidate:=Vector2i(xx,yy)
+       if main.solid(main.tile_at(candidate)) or main._under_roof(candidate) or main.tile_at(candidate)=="D":continue
+       if candidate.distance_squared_to(anchor)<distance:
+        nearest=candidate;distance=candidate.distance_squared_to(anchor)
+     place_at(name,nearest)
+     await shot("%s-sector-%d-%d"%[name,anchor.x,anchor.y],size,{"kind":"settled sector coverage"})
    for y in rows.size():
     for x in rows[0].length():
      if rows[y][x]!="D":continue
@@ -95,6 +109,36 @@ func capture() -> void:
    place_at(name,Vector2i(int(start[0]),int(start[1])))
    await shot("%s-faded"%name,size,{"kind":"faded overview"})
   main.spilled=true
+ # Drive actual engine input actions and actual tap handler, not _step/_switch.
+ for size in [Vector2i(1920,1080),Vector2i(812,375)]:
+  root.size=size
+  var destinations: Dictionary=main.DOORS.duplicate()
+  destinations[main.BARN_DOOR]="barn"
+  for door in destinations:
+   for method in ["key-action","tap-handler"]:
+    var destination: String=destinations[door]
+    place_at("larkhaven",door+Vector2i.DOWN)
+    main.restore.clear()
+    for n in names:main.restore.append({"where":n,"at":Vector2(192,108),"r":5000.0,"goal":5000.0})
+    if method=="key-action":Input.action_press("move_up")
+    else:main._tap(Vector2(door)*main.TILE+Vector2(8,8))
+    for frame in 120:
+     main._process(1.0/60.0)
+     if method=="key-action" and frame==1:Input.action_release("move_up")
+     if main.map_name==destination and main.trans_t<0.0:break
+    Input.action_release("move_up")
+    var arrived: bool=main.map_name==destination
+    await shot("%s-%s-entry"%[destination,method],size,{"kind":"engine entry transition","method":method,"expected":destination,"arrived":arrived,"door":xy(door)})
+    if arrived:
+     main.lines.clear()
+     var exit_tile: Vector2i=main.BARN_EXIT if destination=="barn" else main.INTERIORS[destination].exit
+     if method=="key-action":Input.action_press("move_down")
+     else:main._tap(Vector2(exit_tile)*main.TILE+Vector2(8,8))
+     for frame in 180:
+      main._process(1.0/60.0)
+      if main.map_name=="larkhaven" and main.trans_t<0.0:break
+     Input.action_release("move_down")
+     await shot("%s-%s-exit"%[destination,method],size,{"kind":"engine exit transition","method":method,"expected":"larkhaven","arrived":main.map_name=="larkhaven"})
  root.size=Vector2i(375,812)
  place_at("larkhaven",Vector2i(11,7))
  await shot("portrait",root.size,{"kind":"portrait rotation behavior"})
@@ -106,6 +150,8 @@ func capture() -> void:
  await process_frame
  quit()
 func shot(label: String,size: Vector2i,meta: Dictionary) -> void:
+ main.place_t=4.0
+ main.cam.force_update_scroll()
  main._update_ui()
  main.queue_redraw()
  main.colour_layer.queue_redraw()
