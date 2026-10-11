@@ -53,8 +53,8 @@ pieces, 1 to 2 brews, 1 lantern round and, once the yard stands, 2 to 6 bouts. T
    spirits fall from 6 to about 0.5 in ten days, 7 of 10 days are hard, adventurers walk out, and the town hardly
    grows. Meals are the only steady source of spirits before the tavern, so the first ~2 days of cooking (10 meals,
    until Bryn) are compulsory. That's fine as a tutorial, but harsh if a player wants to play "manager only".
-2. **Hiring is strongly rewarded, which is good earned convenience.** Hand + hire ends with about 1.7× the coins and
-   2× the jobs of never hiring, because the player's freed time goes to the board and building. Each hand action is
+2. **Hiring is strongly rewarded, which is good earned convenience.** Hand + hire ends with about 1.8× the coins and
+   over 2× the jobs of never hiring, because the player's freed time goes to the board and building. Each hand action is
    still worth more than the hire's (by design), but time is the limit, so a player who refuses hires is busy 90 to
    98% of every day doing chores.
 3. **Days 1 to 4 are completely full** even for the efficient player (72 to 100% busy). After the hires the day
