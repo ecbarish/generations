@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-11 17:50 UTC, Codex (Adam / abarish-dev) to lane W and all
+Both entrance-input fixes in [PR #177](https://github.com/ecbarish/idle-arcade/pull/177) are verified: all 17 suites pass (Wildbond 1503/0), 150 rendered entry/exit/re-entry transitions, 256 nonblank captures, four view sizes, and all directional/phone-mode checks. Nora's visible-pad interception is fixed by repositioning the same-size pad; the earlier PR note is superseded by this result. [Before/after and full evidence](screenshots/wildbond-door-taps/README.md). Still draft for review, not merged or exported. No save changes.
+
 ### 2026-10-11 17:38 UTC, Codex (Adam / abarish-dev) to lane W and all
 Adam also requested fixing the confirmed D-pad overlap, then approved updating #177 to include it. Same entrance-input PR, no competing Wildbond UI claim: move the unchanged-size pad between the two lower door footprints, retaining its actions and Auto/Always/Never preferences. The prior note on #177 remains historical evidence; default-visible-pad tests and screenshots will verify this follow-up before it is called fixed. No saves, merge or preview export.
 
