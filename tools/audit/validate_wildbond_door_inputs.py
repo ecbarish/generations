@@ -22,6 +22,11 @@ buildings = {"inn": (4, 4), "shop": (7, 10), "pip_home": (13, 4), "gran_home": (
 methods = ["mouse", "touch", "keyboard"]
 phases = ["entry", "exit", "reentry"]
 expected = {(f"{w}x{h}/{building}/{method}", phase) for (w, h), building, method, phase in itertools.product(sizes, buildings, methods, phases)}
+def verify_pointer_preflight(case):
+    preflight = case["pointer_preflight"]
+    for actual, expected in [("os_position", "screen_target"), ("viewport_position", "viewport_target"), ("world_position", "world_target")]:
+        assert sum((a - b) ** 2 for a, b in zip(preflight[actual], case[expected])) < 0.25, (case["case"], "pointer_preflight", actual)
+
 seen = set()
 for case in report["cases"]:
     key = (case["case"], case["phase"])
@@ -49,6 +54,7 @@ for case in report["cases"]:
     assert 0 < case["simulation_frames"] <= 240, key
     events = case["input_events"]
     if method in ("mouse", "touch"):
+        verify_pointer_preflight(case)
         assert case["phone_buttons_setting"] == "off", key
         assert not case["touch_buttons_visible"], key
         assert case["queued_at_input"] and case["queued_at_input"][-1] == case["goal"], key
@@ -81,6 +87,7 @@ for case in report["phone_diagnostics"]:
     assert name not in diagnostic_seen
     diagnostic_seen.add(name)
     assert case["phone_buttons_setting"] == "auto"
+    verify_pointer_preflight(case)
     if case["status"] == "intercepted-by-phone-controls":
         assert not case["arrived"] and not case["mouse_reached_unhandled_input"], name
         assert case["controls_visible_before"] and (case["target_hits_pad"] or case["target_hits_button"]), name

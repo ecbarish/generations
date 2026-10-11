@@ -33,6 +33,8 @@ class InputWitness extends Node2D:
 			record["viewport_position"] = [event.position.x, event.position.y]
 			var world := get_global_mouse_position()
 			record["world_mouse_position"] = [world.x, world.y]
+			var os_mouse := DisplayServer.mouse_get_position()
+			record["os_mouse_position"] = [os_mouse.x, os_mouse.y]
 		elif event is InputEventKey:
 			record["pressed"] = event.pressed
 			record["physical_keycode"] = event.physical_keycode
@@ -146,6 +148,23 @@ func refresh_render() -> void:
 	await wait_frames()
 	await RenderingServer.frame_post_draw
 
+func position_pointer(screen: Vector2, viewport: Vector2, world: Vector2) -> Dictionary:
+	# parse_input_event dispatches coordinates but does not move the OS cursor.
+	# On desktop/X11, the game's get_global_mouse_position() reads that cursor.
+	# Position the real pointer first; never overwrite the game's mouse lookup or
+	# compensate its result. The same camera/stretch transform must round-trip.
+	# This desktop setup is not evidence of physical Android/iOS/browser behavior.
+	root.grab_focus()
+	Input.warp_mouse(screen)
+	await wait_frames(4)  # Let X11 deliver its actual pointer motion.
+	var os_mouse := Vector2(DisplayServer.mouse_get_position())
+	var viewport_mouse := root.get_mouse_position()
+	var world_mouse: Vector2 = main.get_global_mouse_position()
+	check(os_mouse.distance_to(screen + Vector2(root.position)) < 0.5, "OS pointer positioning failed")
+	check(viewport_mouse.distance_to(viewport) < 0.5, "OS pointer did not round-trip through viewport stretch/letterboxing")
+	check(world_mouse.distance_to(world) < 0.5, "OS pointer did not round-trip through the camera transform")
+	return {"setup": "Input.warp_mouse before injection; actual X11 motion settled", "os_position": xy(os_mouse), "viewport_position": xy(viewport_mouse), "world_position": xy(world_mouse)}
+
 func pointer_event(method: String, position: Vector2, pressed: bool) -> void:
 	if method == "touch":
 		var event := InputEventScreenTouch.new()
@@ -213,6 +232,8 @@ func transition(method: String, destination: String, goal: Vector2i, phase: Stri
 	}
 	check(Rect2(Vector2.ZERO, Vector2(size)).has_point(screen), "Target falls outside rendered window")
 	check(root.position == Vector2i.ZERO, "Input fixture requires window origin (0,0)")
+	if method != "keyboard":
+		record["pointer_preflight"] = await position_pointer(screen, viewport, world)
 	witness.events.clear()
 	witness.observing = true
 	if method == "keyboard":
@@ -305,6 +326,7 @@ func phone_diagnostic(building: String, size: Vector2i, already_touched: bool) -
 	var button_hit: bool = main.touch._on_btn(viewport)
 	var before := state()
 	var controls_visible: bool = main.touch.visible
+	var pointer_preflight := await position_pointer(screen, viewport, world)
 	witness.events.clear()
 	witness.observing = true
 	pointer_event("touch", screen, true)
@@ -338,6 +360,7 @@ func phone_diagnostic(building: String, size: Vector2i, already_touched: bool) -
 		"screen_target": xy(screen), "viewport_target": xy(viewport), "world_target": xy(world),
 		"mouse_reached_unhandled_input": reached_unhandled, "queued_at_input": queued,
 		"input_events": input_events, "arrived": arrived, "status": status,
+		"pointer_preflight": pointer_preflight,
 		"before": before, "after": state(),
 	})
 	await shot(current_case.replace("/", "-") + "-after", size)
@@ -348,7 +371,7 @@ func write_report() -> void:
 	var report := {
 		"schema": 1, "source_sha": OS.get_environment("SOURCE_SHA"),
 		"engine": Engine.get_version_info(), "display_server": DisplayServer.get_name(),
-		"input_method": "Input.parse_input_event with physical keys or camera/stretch-transformed screen coordinates",
+		"input_method": "Input.parse_input_event with physical keys or camera/stretch-transformed screen coordinates; X11 pointer positioned and independently verified with Input.warp_mouse before pointer injection",
 		"touch_method": "InputEventScreenTouch, engine emulate_mouse_from_touch, normal touch-pad listener and unhandled-input pipeline; Phone buttons: Never",
 		"scope_note": "Direct tap-to-walk with the supported Phone buttons: Never setting. Visible corner D-pad occlusion is a separate UI concern; physical mobile-browser behavior is not tested.",
 		"fixture": "Authored _skip_opening; no_save and settings.keep=false before scene enters tree; actors retained; only initial approach positioning",
