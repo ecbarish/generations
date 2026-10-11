@@ -1,0 +1,4293 @@
+{
+  "source_baseline": "3c77e086fd95a55112f855abc9a73a55bce64b48",
+  "review_head": "b505e3c817844f59609fc4dc88f5d6acc19b6a96",
+  "rendered_source": "c95e8f71a7c04516318bc23c673abcf9df977197",
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "run_url": "https://github.com/ecbarish/idle-arcade/actions/runs/38158156008",
+  "artifact_id": 11708937404,
+  "counts": {
+    "wildbond": 243,
+    "starfall": 102,
+    "total": 345,
+    "wildbond_access_maps": 18,
+    "starfall_access_states": 501
+  },
+  "access": {
+    "wildbond_findings": [],
+    "wildbond_route_witnesses": [],
+    "starfall_unreachable": []
+  },
+  "engine_transitions": [
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        168
+      ],
+      "door": [
+        4,
+        4
+      ],
+      "expected": "inn",
+      "file": "inn-key-action-entry-1920x1080.png",
+      "from": [
+        4,
+        5
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "inn",
+      "method": "key-action",
+      "partner": [
+        11,
+        11
+      ],
+      "player": [
+        11,
+        10
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          4,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        72,
+        88
+      ],
+      "expected": "larkhaven",
+      "file": "inn-key-action-exit-1920x1080.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "key-action",
+      "partner": [
+        5,
+        5
+      ],
+      "player": [
+        4,
+        5
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": false,
+      "camera": [
+        72,
+        88
+      ],
+      "door": [
+        4,
+        4
+      ],
+      "expected": "inn",
+      "file": "inn-tap-handler-entry-1920x1080.png",
+      "from": [
+        4,
+        5
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "larkhaven",
+      "method": "tap-handler",
+      "partner": [
+        4,
+        6
+      ],
+      "player": [
+        4,
+        5
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          4,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        168
+      ],
+      "door": [
+        7,
+        10
+      ],
+      "expected": "shop",
+      "file": "shop-key-action-entry-1920x1080.png",
+      "from": [
+        7,
+        11
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "shop",
+      "method": "key-action",
+      "partner": [
+        11,
+        11
+      ],
+      "player": [
+        11,
+        10
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          7,
+          10
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        120,
+        184
+      ],
+      "expected": "larkhaven",
+      "file": "shop-key-action-exit-1920x1080.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "key-action",
+      "partner": [
+        8,
+        11
+      ],
+      "player": [
+        7,
+        11
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": false,
+      "camera": [
+        120,
+        184
+      ],
+      "door": [
+        7,
+        10
+      ],
+      "expected": "shop",
+      "file": "shop-tap-handler-entry-1920x1080.png",
+      "from": [
+        7,
+        11
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "larkhaven",
+      "method": "tap-handler",
+      "partner": [
+        7,
+        12
+      ],
+      "player": [
+        7,
+        11
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          7,
+          10
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        168
+      ],
+      "door": [
+        13,
+        4
+      ],
+      "expected": "pip_home",
+      "file": "pip_home-key-action-entry-1920x1080.png",
+      "from": [
+        13,
+        5
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "pip_home",
+      "method": "key-action",
+      "partner": [
+        11,
+        11
+      ],
+      "player": [
+        11,
+        10
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          13,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        216,
+        88
+      ],
+      "expected": "larkhaven",
+      "file": "pip_home-key-action-exit-1920x1080.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "key-action",
+      "partner": [
+        14,
+        5
+      ],
+      "player": [
+        13,
+        5
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": false,
+      "camera": [
+        216,
+        88
+      ],
+      "door": [
+        13,
+        4
+      ],
+      "expected": "pip_home",
+      "file": "pip_home-tap-handler-entry-1920x1080.png",
+      "from": [
+        13,
+        5
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "larkhaven",
+      "method": "tap-handler",
+      "partner": [
+        13,
+        6
+      ],
+      "player": [
+        13,
+        5
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          13,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        168
+      ],
+      "door": [
+        2,
+        10
+      ],
+      "expected": "gran_home",
+      "file": "gran_home-key-action-entry-1920x1080.png",
+      "from": [
+        2,
+        11
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "gran_home",
+      "method": "key-action",
+      "partner": [
+        11,
+        11
+      ],
+      "player": [
+        11,
+        10
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          2,
+          10
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        40,
+        184
+      ],
+      "expected": "larkhaven",
+      "file": "gran_home-key-action-exit-1920x1080.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "key-action",
+      "partner": [
+        3,
+        11
+      ],
+      "player": [
+        2,
+        11
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": false,
+      "camera": [
+        40,
+        184
+      ],
+      "door": [
+        2,
+        10
+      ],
+      "expected": "gran_home",
+      "file": "gran_home-tap-handler-entry-1920x1080.png",
+      "from": [
+        2,
+        11
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "larkhaven",
+      "method": "tap-handler",
+      "partner": [
+        2,
+        12
+      ],
+      "player": [
+        2,
+        11
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          2,
+          10
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        184
+      ],
+      "door": [
+        18,
+        4
+      ],
+      "expected": "barn",
+      "file": "barn-key-action-entry-1920x1080.png",
+      "from": [
+        18,
+        5
+      ],
+      "goal_walkable": true,
+      "kind": "engine entry transition",
+      "map": "barn",
+      "method": "key-action",
+      "partner": [
+        11,
+        12
+      ],
+      "player": [
+        11,
+        11
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          18,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        296,
+        88
+      ],
+      "expected": "larkhaven",
+      "file": "barn-key-action-exit-1920x1080.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "key-action",
+      "partner": [
+        18,
+        4
+      ],
+      "player": [
+        18,
+        5
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        184
+      ],
+      "door": [
+        18,
+        4
+      ],
+      "expected": "barn",
+      "file": "barn-tap-handler-entry-1920x1080.png",
+      "from": [
+        18,
+        5
+      ],
+      "goal_walkable": true,
+      "kind": "engine entry transition",
+      "map": "barn",
+      "method": "tap-handler",
+      "partner": [
+        11,
+        12
+      ],
+      "player": [
+        11,
+        11
+      ],
+      "queued_at_input": [
+        [
+          18,
+          4
+        ]
+      ],
+      "route_candidate": [
+        [
+          18,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        296,
+        88
+      ],
+      "expected": "larkhaven",
+      "file": "barn-tap-handler-exit-1920x1080.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "tap-handler",
+      "partner": [
+        18,
+        4
+      ],
+      "player": [
+        18,
+        5
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        1920,
+        1080
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        168
+      ],
+      "door": [
+        4,
+        4
+      ],
+      "expected": "inn",
+      "file": "inn-key-action-entry-812x375.png",
+      "from": [
+        4,
+        5
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "inn",
+      "method": "key-action",
+      "partner": [
+        11,
+        11
+      ],
+      "player": [
+        11,
+        10
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          4,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        72,
+        88
+      ],
+      "expected": "larkhaven",
+      "file": "inn-key-action-exit-812x375.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "key-action",
+      "partner": [
+        5,
+        5
+      ],
+      "player": [
+        4,
+        5
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": false,
+      "camera": [
+        72,
+        88
+      ],
+      "door": [
+        4,
+        4
+      ],
+      "expected": "inn",
+      "file": "inn-tap-handler-entry-812x375.png",
+      "from": [
+        4,
+        5
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "larkhaven",
+      "method": "tap-handler",
+      "partner": [
+        4,
+        6
+      ],
+      "player": [
+        4,
+        5
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          4,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        168
+      ],
+      "door": [
+        7,
+        10
+      ],
+      "expected": "shop",
+      "file": "shop-key-action-entry-812x375.png",
+      "from": [
+        7,
+        11
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "shop",
+      "method": "key-action",
+      "partner": [
+        11,
+        11
+      ],
+      "player": [
+        11,
+        10
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          7,
+          10
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        120,
+        184
+      ],
+      "expected": "larkhaven",
+      "file": "shop-key-action-exit-812x375.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "key-action",
+      "partner": [
+        8,
+        11
+      ],
+      "player": [
+        7,
+        11
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": false,
+      "camera": [
+        120,
+        184
+      ],
+      "door": [
+        7,
+        10
+      ],
+      "expected": "shop",
+      "file": "shop-tap-handler-entry-812x375.png",
+      "from": [
+        7,
+        11
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "larkhaven",
+      "method": "tap-handler",
+      "partner": [
+        7,
+        12
+      ],
+      "player": [
+        7,
+        11
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          7,
+          10
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        168
+      ],
+      "door": [
+        13,
+        4
+      ],
+      "expected": "pip_home",
+      "file": "pip_home-key-action-entry-812x375.png",
+      "from": [
+        13,
+        5
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "pip_home",
+      "method": "key-action",
+      "partner": [
+        11,
+        11
+      ],
+      "player": [
+        11,
+        10
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          13,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        216,
+        88
+      ],
+      "expected": "larkhaven",
+      "file": "pip_home-key-action-exit-812x375.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "key-action",
+      "partner": [
+        14,
+        5
+      ],
+      "player": [
+        13,
+        5
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": false,
+      "camera": [
+        216,
+        88
+      ],
+      "door": [
+        13,
+        4
+      ],
+      "expected": "pip_home",
+      "file": "pip_home-tap-handler-entry-812x375.png",
+      "from": [
+        13,
+        5
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "larkhaven",
+      "method": "tap-handler",
+      "partner": [
+        13,
+        6
+      ],
+      "player": [
+        13,
+        5
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          13,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        168
+      ],
+      "door": [
+        2,
+        10
+      ],
+      "expected": "gran_home",
+      "file": "gran_home-key-action-entry-812x375.png",
+      "from": [
+        2,
+        11
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "gran_home",
+      "method": "key-action",
+      "partner": [
+        11,
+        11
+      ],
+      "player": [
+        11,
+        10
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          2,
+          10
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        40,
+        184
+      ],
+      "expected": "larkhaven",
+      "file": "gran_home-key-action-exit-812x375.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "key-action",
+      "partner": [
+        3,
+        11
+      ],
+      "player": [
+        2,
+        11
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": false,
+      "camera": [
+        40,
+        184
+      ],
+      "door": [
+        2,
+        10
+      ],
+      "expected": "gran_home",
+      "file": "gran_home-tap-handler-entry-812x375.png",
+      "from": [
+        2,
+        11
+      ],
+      "goal_walkable": false,
+      "kind": "engine entry transition",
+      "map": "larkhaven",
+      "method": "tap-handler",
+      "partner": [
+        2,
+        12
+      ],
+      "player": [
+        2,
+        11
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          2,
+          10
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        184
+      ],
+      "door": [
+        18,
+        4
+      ],
+      "expected": "barn",
+      "file": "barn-key-action-entry-812x375.png",
+      "from": [
+        18,
+        5
+      ],
+      "goal_walkable": true,
+      "kind": "engine entry transition",
+      "map": "barn",
+      "method": "key-action",
+      "partner": [
+        11,
+        12
+      ],
+      "player": [
+        11,
+        11
+      ],
+      "queued_at_input": [],
+      "route_candidate": [
+        [
+          18,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        296,
+        88
+      ],
+      "expected": "larkhaven",
+      "file": "barn-key-action-exit-812x375.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "key-action",
+      "partner": [
+        18,
+        4
+      ],
+      "player": [
+        18,
+        5
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        184,
+        184
+      ],
+      "door": [
+        18,
+        4
+      ],
+      "expected": "barn",
+      "file": "barn-tap-handler-entry-812x375.png",
+      "from": [
+        18,
+        5
+      ],
+      "goal_walkable": true,
+      "kind": "engine entry transition",
+      "map": "barn",
+      "method": "tap-handler",
+      "partner": [
+        11,
+        12
+      ],
+      "player": [
+        11,
+        11
+      ],
+      "queued_at_input": [
+        [
+          18,
+          4
+        ]
+      ],
+      "route_candidate": [
+        [
+          18,
+          4
+        ]
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    },
+    {
+      "arrived": true,
+      "camera": [
+        296,
+        88
+      ],
+      "expected": "larkhaven",
+      "file": "barn-tap-handler-exit-812x375.png",
+      "kind": "engine exit transition",
+      "map": "larkhaven",
+      "method": "tap-handler",
+      "partner": [
+        18,
+        4
+      ],
+      "player": [
+        18,
+        5
+      ],
+      "scene_state": "free; actors retained; no saves; paused time; startup fade settled",
+      "size": [
+        812,
+        375
+      ],
+      "spilled": true
+    }
+  ],
+  "wildbond_capture_index": [
+    {
+      "file": "larkhaven-overview-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        11,
+        7
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "larkhaven-sector-6-5-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "larkhaven-sector-17-5-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        17,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "larkhaven-sector-6-8-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        6,
+        7
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "larkhaven-sector-17-8-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        17,
+        7
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "larkhaven-door-4-4-from-3-5-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        3,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-4-4-from-4-5-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        4,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-4-4-from-5-5-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        5,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-13-4-from-12-5-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        12,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-13-4-from-13-5-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        13,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-13-4-from-14-5-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        14,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-18-4-from-17-5-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        17,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-18-4-from-18-5-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        18,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-18-4-from-19-5-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        19,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-2-10-from-1-11-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        1,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-2-10-from-2-11-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        2,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-2-10-from-3-11-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        3,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-7-10-from-6-11-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        6,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-7-10-from-7-11-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        7,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-7-10-from-8-11-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        8,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "thornwood_route-overview-1920x1080.png",
+      "map": "thornwood_route",
+      "player": [
+        13,
+        16
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "thornwood_route-sector-6-5-1920x1080.png",
+      "map": "thornwood_route",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_route-sector-23-5-1920x1080.png",
+      "map": "thornwood_route",
+      "player": [
+        23,
+        9
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_route-sector-6-12-1920x1080.png",
+      "map": "thornwood_route",
+      "player": [
+        6,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_route-sector-23-12-1920x1080.png",
+      "map": "thornwood_route",
+      "player": [
+        23,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood-overview-1920x1080.png",
+      "map": "thornwood",
+      "player": [
+        13,
+        14
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "thornwood-sector-6-5-1920x1080.png",
+      "map": "thornwood",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood-sector-23-5-1920x1080.png",
+      "map": "thornwood",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood-sector-6-10-1920x1080.png",
+      "map": "thornwood",
+      "player": [
+        6,
+        10
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood-sector-23-10-1920x1080.png",
+      "map": "thornwood",
+      "player": [
+        23,
+        10
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_grove-overview-1920x1080.png",
+      "map": "thornwood_grove",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "thornwood_grove-sector-6-5-1920x1080.png",
+      "map": "thornwood_grove",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_grove-sector-19-5-1920x1080.png",
+      "map": "thornwood_grove",
+      "player": [
+        18,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_grove-sector-6-10-1920x1080.png",
+      "map": "thornwood_grove",
+      "player": [
+        6,
+        10
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_grove-sector-19-10-1920x1080.png",
+      "map": "thornwood_grove",
+      "player": [
+        19,
+        10
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "saltmarsh-overview-1920x1080.png",
+      "map": "saltmarsh",
+      "player": [
+        13,
+        12
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "saltmarsh-sector-6-5-1920x1080.png",
+      "map": "saltmarsh",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "saltmarsh-sector-23-5-1920x1080.png",
+      "map": "saltmarsh",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "saltmarsh-sector-6-8-1920x1080.png",
+      "map": "saltmarsh",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "saltmarsh-sector-23-8-1920x1080.png",
+      "map": "saltmarsh",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "emberfall-overview-1920x1080.png",
+      "map": "emberfall",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "emberfall-sector-6-5-1920x1080.png",
+      "map": "emberfall",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "emberfall-sector-23-5-1920x1080.png",
+      "map": "emberfall",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "emberfall-sector-6-8-1920x1080.png",
+      "map": "emberfall",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "emberfall-sector-23-8-1920x1080.png",
+      "map": "emberfall",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "cloudglass-overview-1920x1080.png",
+      "map": "cloudglass",
+      "player": [
+        13,
+        12
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "cloudglass-sector-6-5-1920x1080.png",
+      "map": "cloudglass",
+      "player": [
+        7,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "cloudglass-sector-23-5-1920x1080.png",
+      "map": "cloudglass",
+      "player": [
+        23,
+        4
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "cloudglass-sector-6-8-1920x1080.png",
+      "map": "cloudglass",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "cloudglass-sector-23-8-1920x1080.png",
+      "map": "cloudglass",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "stillreed-overview-1920x1080.png",
+      "map": "stillreed",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "stillreed-sector-6-5-1920x1080.png",
+      "map": "stillreed",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "stillreed-sector-23-5-1920x1080.png",
+      "map": "stillreed",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "stillreed-sector-6-8-1920x1080.png",
+      "map": "stillreed",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "stillreed-sector-23-8-1920x1080.png",
+      "map": "stillreed",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "hollowecho-overview-1920x1080.png",
+      "map": "hollowecho",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "hollowecho-sector-6-5-1920x1080.png",
+      "map": "hollowecho",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "hollowecho-sector-23-5-1920x1080.png",
+      "map": "hollowecho",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "hollowecho-sector-6-8-1920x1080.png",
+      "map": "hollowecho",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "hollowecho-sector-23-8-1920x1080.png",
+      "map": "hollowecho",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "sunthread-overview-1920x1080.png",
+      "map": "sunthread",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "sunthread-sector-6-5-1920x1080.png",
+      "map": "sunthread",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "sunthread-sector-23-5-1920x1080.png",
+      "map": "sunthread",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "sunthread-sector-6-8-1920x1080.png",
+      "map": "sunthread",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "sunthread-sector-23-8-1920x1080.png",
+      "map": "sunthread",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "farwatch-overview-1920x1080.png",
+      "map": "farwatch",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "farwatch-sector-6-5-1920x1080.png",
+      "map": "farwatch",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "farwatch-sector-23-5-1920x1080.png",
+      "map": "farwatch",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "farwatch-sector-6-8-1920x1080.png",
+      "map": "farwatch",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "farwatch-sector-23-8-1920x1080.png",
+      "map": "farwatch",
+      "player": [
+        23,
+        7
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "league-overview-1920x1080.png",
+      "map": "league",
+      "player": [
+        3,
+        16
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "league-sector-6-5-1920x1080.png",
+      "map": "league",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "league-sector-33-5-1920x1080.png",
+      "map": "league",
+      "player": [
+        33,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "league-sector-6-12-1920x1080.png",
+      "map": "league",
+      "player": [
+        6,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "league-sector-33-12-1920x1080.png",
+      "map": "league",
+      "player": [
+        33,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "spire-overview-1920x1080.png",
+      "map": "spire",
+      "player": [
+        9,
+        14
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "spire-sector-6-5-1920x1080.png",
+      "map": "spire",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "spire-sector-12-5-1920x1080.png",
+      "map": "spire",
+      "player": [
+        12,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "spire-sector-6-12-1920x1080.png",
+      "map": "spire",
+      "player": [
+        6,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "spire-sector-12-12-1920x1080.png",
+      "map": "spire",
+      "player": [
+        12,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "barn-overview-1920x1080.png",
+      "map": "barn",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "barn-service-4-6-1920x1080.png",
+      "map": "barn",
+      "player": [
+        4,
+        6
+      ],
+      "kind": "stall trough workbench"
+    },
+    {
+      "file": "barn-service-21-8-1920x1080.png",
+      "map": "barn",
+      "player": [
+        21,
+        8
+      ],
+      "kind": "stall trough workbench"
+    },
+    {
+      "file": "barn-service-2-10-1920x1080.png",
+      "map": "barn",
+      "player": [
+        2,
+        10
+      ],
+      "kind": "stall trough workbench"
+    },
+    {
+      "file": "inn-overview-1920x1080.png",
+      "map": "inn",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "inn-resident-1920x1080.png",
+      "map": "inn",
+      "player": [
+        10,
+        6
+      ],
+      "kind": "resident approach"
+    },
+    {
+      "file": "shop-overview-1920x1080.png",
+      "map": "shop",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "shop-resident-1920x1080.png",
+      "map": "shop",
+      "player": [
+        11,
+        6
+      ],
+      "kind": "resident approach"
+    },
+    {
+      "file": "pip_home-overview-1920x1080.png",
+      "map": "pip_home",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "pip_home-resident-1920x1080.png",
+      "map": "pip_home",
+      "player": [
+        12,
+        6
+      ],
+      "kind": "resident approach"
+    },
+    {
+      "file": "gran_home-overview-1920x1080.png",
+      "map": "gran_home",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "gran_home-resident-1920x1080.png",
+      "map": "gran_home",
+      "player": [
+        9,
+        6
+      ],
+      "kind": "resident approach"
+    },
+    {
+      "file": "larkhaven-faded-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        11,
+        7
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "thornwood_route-faded-1920x1080.png",
+      "map": "thornwood_route",
+      "player": [
+        13,
+        16
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "thornwood-faded-1920x1080.png",
+      "map": "thornwood",
+      "player": [
+        13,
+        14
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "thornwood_grove-faded-1920x1080.png",
+      "map": "thornwood_grove",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "saltmarsh-faded-1920x1080.png",
+      "map": "saltmarsh",
+      "player": [
+        13,
+        12
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "emberfall-faded-1920x1080.png",
+      "map": "emberfall",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "cloudglass-faded-1920x1080.png",
+      "map": "cloudglass",
+      "player": [
+        13,
+        12
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "stillreed-faded-1920x1080.png",
+      "map": "stillreed",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "hollowecho-faded-1920x1080.png",
+      "map": "hollowecho",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "sunthread-faded-1920x1080.png",
+      "map": "sunthread",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "farwatch-faded-1920x1080.png",
+      "map": "farwatch",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "league-faded-1920x1080.png",
+      "map": "league",
+      "player": [
+        3,
+        16
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "spire-faded-1920x1080.png",
+      "map": "spire",
+      "player": [
+        9,
+        14
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "larkhaven-overview-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        11,
+        7
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "larkhaven-sector-6-5-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "larkhaven-sector-17-5-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        17,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "larkhaven-sector-6-8-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        6,
+        7
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "larkhaven-sector-17-8-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        17,
+        7
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "larkhaven-door-4-4-from-3-5-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        3,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-4-4-from-4-5-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        4,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-4-4-from-5-5-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        5,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-13-4-from-12-5-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        12,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-13-4-from-13-5-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        13,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-13-4-from-14-5-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        14,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-18-4-from-17-5-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        17,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-18-4-from-18-5-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        18,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-18-4-from-19-5-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        19,
+        5
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-2-10-from-1-11-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        1,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-2-10-from-2-11-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        2,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-2-10-from-3-11-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        3,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-7-10-from-6-11-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        6,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-7-10-from-7-11-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        7,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "larkhaven-door-7-10-from-8-11-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        8,
+        11
+      ],
+      "kind": "door approach"
+    },
+    {
+      "file": "thornwood_route-overview-812x375.png",
+      "map": "thornwood_route",
+      "player": [
+        13,
+        16
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "thornwood_route-sector-6-5-812x375.png",
+      "map": "thornwood_route",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_route-sector-23-5-812x375.png",
+      "map": "thornwood_route",
+      "player": [
+        23,
+        9
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_route-sector-6-12-812x375.png",
+      "map": "thornwood_route",
+      "player": [
+        6,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_route-sector-23-12-812x375.png",
+      "map": "thornwood_route",
+      "player": [
+        23,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood-overview-812x375.png",
+      "map": "thornwood",
+      "player": [
+        13,
+        14
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "thornwood-sector-6-5-812x375.png",
+      "map": "thornwood",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood-sector-23-5-812x375.png",
+      "map": "thornwood",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood-sector-6-10-812x375.png",
+      "map": "thornwood",
+      "player": [
+        6,
+        10
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood-sector-23-10-812x375.png",
+      "map": "thornwood",
+      "player": [
+        23,
+        10
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_grove-overview-812x375.png",
+      "map": "thornwood_grove",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "thornwood_grove-sector-6-5-812x375.png",
+      "map": "thornwood_grove",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_grove-sector-19-5-812x375.png",
+      "map": "thornwood_grove",
+      "player": [
+        18,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_grove-sector-6-10-812x375.png",
+      "map": "thornwood_grove",
+      "player": [
+        6,
+        10
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "thornwood_grove-sector-19-10-812x375.png",
+      "map": "thornwood_grove",
+      "player": [
+        19,
+        10
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "saltmarsh-overview-812x375.png",
+      "map": "saltmarsh",
+      "player": [
+        13,
+        12
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "saltmarsh-sector-6-5-812x375.png",
+      "map": "saltmarsh",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "saltmarsh-sector-23-5-812x375.png",
+      "map": "saltmarsh",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "saltmarsh-sector-6-8-812x375.png",
+      "map": "saltmarsh",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "saltmarsh-sector-23-8-812x375.png",
+      "map": "saltmarsh",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "emberfall-overview-812x375.png",
+      "map": "emberfall",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "emberfall-sector-6-5-812x375.png",
+      "map": "emberfall",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "emberfall-sector-23-5-812x375.png",
+      "map": "emberfall",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "emberfall-sector-6-8-812x375.png",
+      "map": "emberfall",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "emberfall-sector-23-8-812x375.png",
+      "map": "emberfall",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "cloudglass-overview-812x375.png",
+      "map": "cloudglass",
+      "player": [
+        13,
+        12
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "cloudglass-sector-6-5-812x375.png",
+      "map": "cloudglass",
+      "player": [
+        7,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "cloudglass-sector-23-5-812x375.png",
+      "map": "cloudglass",
+      "player": [
+        23,
+        4
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "cloudglass-sector-6-8-812x375.png",
+      "map": "cloudglass",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "cloudglass-sector-23-8-812x375.png",
+      "map": "cloudglass",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "stillreed-overview-812x375.png",
+      "map": "stillreed",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "stillreed-sector-6-5-812x375.png",
+      "map": "stillreed",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "stillreed-sector-23-5-812x375.png",
+      "map": "stillreed",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "stillreed-sector-6-8-812x375.png",
+      "map": "stillreed",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "stillreed-sector-23-8-812x375.png",
+      "map": "stillreed",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "hollowecho-overview-812x375.png",
+      "map": "hollowecho",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "hollowecho-sector-6-5-812x375.png",
+      "map": "hollowecho",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "hollowecho-sector-23-5-812x375.png",
+      "map": "hollowecho",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "hollowecho-sector-6-8-812x375.png",
+      "map": "hollowecho",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "hollowecho-sector-23-8-812x375.png",
+      "map": "hollowecho",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "sunthread-overview-812x375.png",
+      "map": "sunthread",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "sunthread-sector-6-5-812x375.png",
+      "map": "sunthread",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "sunthread-sector-23-5-812x375.png",
+      "map": "sunthread",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "sunthread-sector-6-8-812x375.png",
+      "map": "sunthread",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "sunthread-sector-23-8-812x375.png",
+      "map": "sunthread",
+      "player": [
+        23,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "farwatch-overview-812x375.png",
+      "map": "farwatch",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "farwatch-sector-6-5-812x375.png",
+      "map": "farwatch",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "farwatch-sector-23-5-812x375.png",
+      "map": "farwatch",
+      "player": [
+        23,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "farwatch-sector-6-8-812x375.png",
+      "map": "farwatch",
+      "player": [
+        6,
+        8
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "farwatch-sector-23-8-812x375.png",
+      "map": "farwatch",
+      "player": [
+        23,
+        7
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "league-overview-812x375.png",
+      "map": "league",
+      "player": [
+        3,
+        16
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "league-sector-6-5-812x375.png",
+      "map": "league",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "league-sector-33-5-812x375.png",
+      "map": "league",
+      "player": [
+        33,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "league-sector-6-12-812x375.png",
+      "map": "league",
+      "player": [
+        6,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "league-sector-33-12-812x375.png",
+      "map": "league",
+      "player": [
+        33,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "spire-overview-812x375.png",
+      "map": "spire",
+      "player": [
+        9,
+        14
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "spire-sector-6-5-812x375.png",
+      "map": "spire",
+      "player": [
+        6,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "spire-sector-12-5-812x375.png",
+      "map": "spire",
+      "player": [
+        12,
+        5
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "spire-sector-6-12-812x375.png",
+      "map": "spire",
+      "player": [
+        6,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "spire-sector-12-12-812x375.png",
+      "map": "spire",
+      "player": [
+        12,
+        12
+      ],
+      "kind": "settled sector coverage"
+    },
+    {
+      "file": "barn-overview-812x375.png",
+      "map": "barn",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "barn-service-4-6-812x375.png",
+      "map": "barn",
+      "player": [
+        4,
+        6
+      ],
+      "kind": "stall trough workbench"
+    },
+    {
+      "file": "barn-service-21-8-812x375.png",
+      "map": "barn",
+      "player": [
+        21,
+        8
+      ],
+      "kind": "stall trough workbench"
+    },
+    {
+      "file": "barn-service-2-10-812x375.png",
+      "map": "barn",
+      "player": [
+        2,
+        10
+      ],
+      "kind": "stall trough workbench"
+    },
+    {
+      "file": "inn-overview-812x375.png",
+      "map": "inn",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "inn-resident-812x375.png",
+      "map": "inn",
+      "player": [
+        10,
+        6
+      ],
+      "kind": "resident approach"
+    },
+    {
+      "file": "shop-overview-812x375.png",
+      "map": "shop",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "shop-resident-812x375.png",
+      "map": "shop",
+      "player": [
+        11,
+        6
+      ],
+      "kind": "resident approach"
+    },
+    {
+      "file": "pip_home-overview-812x375.png",
+      "map": "pip_home",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "pip_home-resident-812x375.png",
+      "map": "pip_home",
+      "player": [
+        12,
+        6
+      ],
+      "kind": "resident approach"
+    },
+    {
+      "file": "gran_home-overview-812x375.png",
+      "map": "gran_home",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "overview"
+    },
+    {
+      "file": "gran_home-resident-812x375.png",
+      "map": "gran_home",
+      "player": [
+        9,
+        6
+      ],
+      "kind": "resident approach"
+    },
+    {
+      "file": "larkhaven-faded-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        11,
+        7
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "thornwood_route-faded-812x375.png",
+      "map": "thornwood_route",
+      "player": [
+        13,
+        16
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "thornwood-faded-812x375.png",
+      "map": "thornwood",
+      "player": [
+        13,
+        14
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "thornwood_grove-faded-812x375.png",
+      "map": "thornwood_grove",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "saltmarsh-faded-812x375.png",
+      "map": "saltmarsh",
+      "player": [
+        13,
+        12
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "emberfall-faded-812x375.png",
+      "map": "emberfall",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "cloudglass-faded-812x375.png",
+      "map": "cloudglass",
+      "player": [
+        13,
+        12
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "stillreed-faded-812x375.png",
+      "map": "stillreed",
+      "player": [
+        1,
+        8
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "hollowecho-faded-812x375.png",
+      "map": "hollowecho",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "sunthread-faded-812x375.png",
+      "map": "sunthread",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "farwatch-faded-812x375.png",
+      "map": "farwatch",
+      "player": [
+        1,
+        9
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "league-faded-812x375.png",
+      "map": "league",
+      "player": [
+        3,
+        16
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "spire-faded-812x375.png",
+      "map": "spire",
+      "player": [
+        9,
+        14
+      ],
+      "kind": "faded overview"
+    },
+    {
+      "file": "inn-key-action-entry-1920x1080.png",
+      "map": "inn",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "inn-key-action-exit-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        4,
+        5
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "inn-tap-handler-entry-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        4,
+        5
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "shop-key-action-entry-1920x1080.png",
+      "map": "shop",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "shop-key-action-exit-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        7,
+        11
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "shop-tap-handler-entry-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        7,
+        11
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "pip_home-key-action-entry-1920x1080.png",
+      "map": "pip_home",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "pip_home-key-action-exit-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        13,
+        5
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "pip_home-tap-handler-entry-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        13,
+        5
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "gran_home-key-action-entry-1920x1080.png",
+      "map": "gran_home",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "gran_home-key-action-exit-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        2,
+        11
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "gran_home-tap-handler-entry-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        2,
+        11
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "barn-key-action-entry-1920x1080.png",
+      "map": "barn",
+      "player": [
+        11,
+        11
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "barn-key-action-exit-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        18,
+        5
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "barn-tap-handler-entry-1920x1080.png",
+      "map": "barn",
+      "player": [
+        11,
+        11
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "barn-tap-handler-exit-1920x1080.png",
+      "map": "larkhaven",
+      "player": [
+        18,
+        5
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "inn-key-action-entry-812x375.png",
+      "map": "inn",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "inn-key-action-exit-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        4,
+        5
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "inn-tap-handler-entry-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        4,
+        5
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "shop-key-action-entry-812x375.png",
+      "map": "shop",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "shop-key-action-exit-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        7,
+        11
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "shop-tap-handler-entry-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        7,
+        11
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "pip_home-key-action-entry-812x375.png",
+      "map": "pip_home",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "pip_home-key-action-exit-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        13,
+        5
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "pip_home-tap-handler-entry-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        13,
+        5
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "gran_home-key-action-entry-812x375.png",
+      "map": "gran_home",
+      "player": [
+        11,
+        10
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "gran_home-key-action-exit-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        2,
+        11
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "gran_home-tap-handler-entry-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        2,
+        11
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "barn-key-action-entry-812x375.png",
+      "map": "barn",
+      "player": [
+        11,
+        11
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "barn-key-action-exit-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        18,
+        5
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "barn-tap-handler-entry-812x375.png",
+      "map": "barn",
+      "player": [
+        11,
+        11
+      ],
+      "kind": "engine entry transition"
+    },
+    {
+      "file": "barn-tap-handler-exit-812x375.png",
+      "map": "larkhaven",
+      "player": [
+        18,
+        5
+      ],
+      "kind": "engine exit transition"
+    },
+    {
+      "file": "portrait-375x812.png",
+      "map": "larkhaven",
+      "player": [
+        11,
+        7
+      ],
+      "kind": "portrait rotation behavior"
+    }
+  ],
+  "starfall_capture_index": [
+    {
+      "file": "empty-rank0_1920x1080_square.png",
+      "state": "empty-rank0",
+      "target": "square",
+      "player": [
+        14,
+        10
+      ]
+    },
+    {
+      "file": "empty-rank0_1920x1080_gate-approach.png",
+      "state": "empty-rank0",
+      "target": "gate-approach",
+      "player": [
+        2,
+        9
+      ]
+    },
+    {
+      "file": "empty-rank0_1920x1080_hall-approach.png",
+      "state": "empty-rank0",
+      "target": "hall-approach",
+      "player": [
+        12,
+        6
+      ]
+    },
+    {
+      "file": "empty-rank0_1920x1080_inn-approach.png",
+      "state": "empty-rank0",
+      "target": "inn-approach",
+      "player": [
+        20,
+        7
+      ]
+    },
+    {
+      "file": "empty-rank0_1920x1080_inn-service.png",
+      "state": "empty-rank0",
+      "target": "inn-service",
+      "player": [
+        18,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_1920x1080_board-approach.png",
+      "state": "empty-rank0",
+      "target": "board-approach",
+      "player": [
+        7,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_1920x1080_plot-west-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-west-approach",
+      "player": [
+        24,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_1920x1080_plot-east-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-east-approach",
+      "player": [
+        32,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_1920x1080_plot-north-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-north-approach",
+      "player": [
+        24,
+        14
+      ]
+    },
+    {
+      "file": "empty-rank0_1920x1080_plot-south-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-south-approach",
+      "player": [
+        32,
+        14
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_square.png",
+      "state": "completed-a-rank3",
+      "target": "square",
+      "player": [
+        14,
+        10
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_gate-approach.png",
+      "state": "completed-a-rank3",
+      "target": "gate-approach",
+      "player": [
+        2,
+        9
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_hall-approach.png",
+      "state": "completed-a-rank3",
+      "target": "hall-approach",
+      "player": [
+        12,
+        6
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_inn-approach.png",
+      "state": "completed-a-rank3",
+      "target": "inn-approach",
+      "player": [
+        20,
+        7
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_inn-service.png",
+      "state": "completed-a-rank3",
+      "target": "inn-service",
+      "player": [
+        18,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_board-approach.png",
+      "state": "completed-a-rank3",
+      "target": "board-approach",
+      "player": [
+        7,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_plot-west-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-west-approach",
+      "player": [
+        24,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_plot-east-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-east-approach",
+      "player": [
+        32,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_plot-north-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-north-approach",
+      "player": [
+        24,
+        14
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_plot-south-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-south-approach",
+      "player": [
+        32,
+        14
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_service-smithy-west.png",
+      "state": "completed-a-rank3",
+      "target": "service-smithy-west",
+      "player": [
+        25,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_1920x1080_service-apothecary-north.png",
+      "state": "completed-a-rank3",
+      "target": "service-apothecary-north",
+      "player": [
+        25,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_square.png",
+      "state": "completed-b-rank3",
+      "target": "square",
+      "player": [
+        14,
+        10
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_gate-approach.png",
+      "state": "completed-b-rank3",
+      "target": "gate-approach",
+      "player": [
+        2,
+        9
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_hall-approach.png",
+      "state": "completed-b-rank3",
+      "target": "hall-approach",
+      "player": [
+        12,
+        6
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_inn-approach.png",
+      "state": "completed-b-rank3",
+      "target": "inn-approach",
+      "player": [
+        20,
+        7
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_inn-service.png",
+      "state": "completed-b-rank3",
+      "target": "inn-service",
+      "player": [
+        18,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_board-approach.png",
+      "state": "completed-b-rank3",
+      "target": "board-approach",
+      "player": [
+        7,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_plot-west-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-west-approach",
+      "player": [
+        24,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_plot-east-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-east-approach",
+      "player": [
+        32,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_plot-north-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-north-approach",
+      "player": [
+        24,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_plot-south-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-south-approach",
+      "player": [
+        32,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_service-smithy-south.png",
+      "state": "completed-b-rank3",
+      "target": "service-smithy-south",
+      "player": [
+        33,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_1920x1080_service-tavern-west.png",
+      "state": "completed-b-rank3",
+      "target": "service-tavern-west",
+      "player": [
+        25,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_812x375_square.png",
+      "state": "empty-rank0",
+      "target": "square",
+      "player": [
+        14,
+        10
+      ]
+    },
+    {
+      "file": "empty-rank0_812x375_gate-approach.png",
+      "state": "empty-rank0",
+      "target": "gate-approach",
+      "player": [
+        2,
+        9
+      ]
+    },
+    {
+      "file": "empty-rank0_812x375_hall-approach.png",
+      "state": "empty-rank0",
+      "target": "hall-approach",
+      "player": [
+        12,
+        6
+      ]
+    },
+    {
+      "file": "empty-rank0_812x375_inn-approach.png",
+      "state": "empty-rank0",
+      "target": "inn-approach",
+      "player": [
+        20,
+        7
+      ]
+    },
+    {
+      "file": "empty-rank0_812x375_inn-service.png",
+      "state": "empty-rank0",
+      "target": "inn-service",
+      "player": [
+        18,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_812x375_board-approach.png",
+      "state": "empty-rank0",
+      "target": "board-approach",
+      "player": [
+        7,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_812x375_plot-west-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-west-approach",
+      "player": [
+        24,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_812x375_plot-east-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-east-approach",
+      "player": [
+        32,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_812x375_plot-north-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-north-approach",
+      "player": [
+        24,
+        14
+      ]
+    },
+    {
+      "file": "empty-rank0_812x375_plot-south-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-south-approach",
+      "player": [
+        32,
+        14
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_square.png",
+      "state": "completed-a-rank3",
+      "target": "square",
+      "player": [
+        14,
+        10
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_gate-approach.png",
+      "state": "completed-a-rank3",
+      "target": "gate-approach",
+      "player": [
+        2,
+        9
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_hall-approach.png",
+      "state": "completed-a-rank3",
+      "target": "hall-approach",
+      "player": [
+        12,
+        6
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_inn-approach.png",
+      "state": "completed-a-rank3",
+      "target": "inn-approach",
+      "player": [
+        20,
+        7
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_inn-service.png",
+      "state": "completed-a-rank3",
+      "target": "inn-service",
+      "player": [
+        18,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_board-approach.png",
+      "state": "completed-a-rank3",
+      "target": "board-approach",
+      "player": [
+        7,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_plot-west-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-west-approach",
+      "player": [
+        24,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_plot-east-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-east-approach",
+      "player": [
+        32,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_plot-north-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-north-approach",
+      "player": [
+        24,
+        14
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_plot-south-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-south-approach",
+      "player": [
+        32,
+        14
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_service-smithy-west.png",
+      "state": "completed-a-rank3",
+      "target": "service-smithy-west",
+      "player": [
+        25,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_812x375_service-apothecary-north.png",
+      "state": "completed-a-rank3",
+      "target": "service-apothecary-north",
+      "player": [
+        25,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_square.png",
+      "state": "completed-b-rank3",
+      "target": "square",
+      "player": [
+        14,
+        10
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_gate-approach.png",
+      "state": "completed-b-rank3",
+      "target": "gate-approach",
+      "player": [
+        2,
+        9
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_hall-approach.png",
+      "state": "completed-b-rank3",
+      "target": "hall-approach",
+      "player": [
+        12,
+        6
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_inn-approach.png",
+      "state": "completed-b-rank3",
+      "target": "inn-approach",
+      "player": [
+        20,
+        7
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_inn-service.png",
+      "state": "completed-b-rank3",
+      "target": "inn-service",
+      "player": [
+        18,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_board-approach.png",
+      "state": "completed-b-rank3",
+      "target": "board-approach",
+      "player": [
+        7,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_plot-west-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-west-approach",
+      "player": [
+        24,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_plot-east-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-east-approach",
+      "player": [
+        32,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_plot-north-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-north-approach",
+      "player": [
+        24,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_plot-south-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-south-approach",
+      "player": [
+        32,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_service-smithy-south.png",
+      "state": "completed-b-rank3",
+      "target": "service-smithy-south",
+      "player": [
+        33,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_812x375_service-tavern-west.png",
+      "state": "completed-b-rank3",
+      "target": "service-tavern-west",
+      "player": [
+        25,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_375x812_square.png",
+      "state": "empty-rank0",
+      "target": "square",
+      "player": [
+        14,
+        10
+      ]
+    },
+    {
+      "file": "empty-rank0_375x812_gate-approach.png",
+      "state": "empty-rank0",
+      "target": "gate-approach",
+      "player": [
+        2,
+        9
+      ]
+    },
+    {
+      "file": "empty-rank0_375x812_hall-approach.png",
+      "state": "empty-rank0",
+      "target": "hall-approach",
+      "player": [
+        12,
+        6
+      ]
+    },
+    {
+      "file": "empty-rank0_375x812_inn-approach.png",
+      "state": "empty-rank0",
+      "target": "inn-approach",
+      "player": [
+        20,
+        7
+      ]
+    },
+    {
+      "file": "empty-rank0_375x812_inn-service.png",
+      "state": "empty-rank0",
+      "target": "inn-service",
+      "player": [
+        18,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_375x812_board-approach.png",
+      "state": "empty-rank0",
+      "target": "board-approach",
+      "player": [
+        7,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_375x812_plot-west-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-west-approach",
+      "player": [
+        24,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_375x812_plot-east-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-east-approach",
+      "player": [
+        32,
+        8
+      ]
+    },
+    {
+      "file": "empty-rank0_375x812_plot-north-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-north-approach",
+      "player": [
+        24,
+        14
+      ]
+    },
+    {
+      "file": "empty-rank0_375x812_plot-south-approach.png",
+      "state": "empty-rank0",
+      "target": "plot-south-approach",
+      "player": [
+        32,
+        14
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_square.png",
+      "state": "completed-a-rank3",
+      "target": "square",
+      "player": [
+        14,
+        10
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_gate-approach.png",
+      "state": "completed-a-rank3",
+      "target": "gate-approach",
+      "player": [
+        2,
+        9
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_hall-approach.png",
+      "state": "completed-a-rank3",
+      "target": "hall-approach",
+      "player": [
+        12,
+        6
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_inn-approach.png",
+      "state": "completed-a-rank3",
+      "target": "inn-approach",
+      "player": [
+        20,
+        7
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_inn-service.png",
+      "state": "completed-a-rank3",
+      "target": "inn-service",
+      "player": [
+        18,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_board-approach.png",
+      "state": "completed-a-rank3",
+      "target": "board-approach",
+      "player": [
+        7,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_plot-west-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-west-approach",
+      "player": [
+        24,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_plot-east-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-east-approach",
+      "player": [
+        32,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_plot-north-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-north-approach",
+      "player": [
+        24,
+        14
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_plot-south-approach.png",
+      "state": "completed-a-rank3",
+      "target": "plot-south-approach",
+      "player": [
+        32,
+        14
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_service-smithy-west.png",
+      "state": "completed-a-rank3",
+      "target": "service-smithy-west",
+      "player": [
+        25,
+        8
+      ]
+    },
+    {
+      "file": "completed-a-rank3_375x812_service-apothecary-north.png",
+      "state": "completed-a-rank3",
+      "target": "service-apothecary-north",
+      "player": [
+        25,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_square.png",
+      "state": "completed-b-rank3",
+      "target": "square",
+      "player": [
+        14,
+        10
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_gate-approach.png",
+      "state": "completed-b-rank3",
+      "target": "gate-approach",
+      "player": [
+        2,
+        9
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_hall-approach.png",
+      "state": "completed-b-rank3",
+      "target": "hall-approach",
+      "player": [
+        12,
+        6
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_inn-approach.png",
+      "state": "completed-b-rank3",
+      "target": "inn-approach",
+      "player": [
+        20,
+        7
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_inn-service.png",
+      "state": "completed-b-rank3",
+      "target": "inn-service",
+      "player": [
+        18,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_board-approach.png",
+      "state": "completed-b-rank3",
+      "target": "board-approach",
+      "player": [
+        7,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_plot-west-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-west-approach",
+      "player": [
+        24,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_plot-east-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-east-approach",
+      "player": [
+        32,
+        8
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_plot-north-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-north-approach",
+      "player": [
+        24,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_plot-south-approach.png",
+      "state": "completed-b-rank3",
+      "target": "plot-south-approach",
+      "player": [
+        32,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_service-smithy-south.png",
+      "state": "completed-b-rank3",
+      "target": "service-smithy-south",
+      "player": [
+        33,
+        14
+      ]
+    },
+    {
+      "file": "completed-b-rank3_375x812_service-tavern-west.png",
+      "state": "completed-b-rank3",
+      "target": "service-tavern-west",
+      "player": [
+        25,
+        8
+      ]
+    }
+  ]
+}
