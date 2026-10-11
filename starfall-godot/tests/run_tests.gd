@@ -633,6 +633,7 @@ func _run() -> void:
 			missing_feel.append(id)
 	check(missing_feel.is_empty(), "every feeling has its picture (missing: %s)" % ", ".join(missing_feel))
 	_own_place()
+	_wilds()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -713,3 +714,75 @@ func _own_place() -> void:
 	main.me.tile = keep_me
 	for m in keep_where:
 		m.where = keep_where[m]
+
+## SF2.7, see the wilds sooner: out through the west gate to a short stretch of trail and back, every spot on it
+## reachable, the waymarkers readable, adventurers on a job there seen at work, and a save made out there loads there.
+func _wilds() -> void:
+	check(main.WILDS.size() == main.MAP.size() and main.WILDS.all(func(r): return r.length() == main.WILDS_W), "the stretch outside the gate is a whole map, as tall as the town")
+	check(main.F_PROPS != null and main.F_PROPS.get_width() > 0 and main.F_PINES.get_width() > 0 and main.F_GROUND.get_width() > 0, "the stretch's pictures load (ground, pines, ART-SF-6 props)")
+	check(main.cam.limit_left == -main.WILDS_W * main.TILE, "the camera follows you out past the gate")
+	var keep_where := {}
+	for m in main.people():
+		keep_where[m] = m.where
+		if m != main.me:
+			m.where = "gone"
+	main.lines.clear()
+	main.me.tile = main.GATE_IN
+	main.me.pos = Vector2(main.me.tile) * main.TILE
+	var outside := Vector2i(-3, 9)
+	check(walk_to(outside) and main.me.tile.x < 0, "you can walk out through the west gate")
+	check("Outside the gate" in main.caption.text, "and you're told where the trail goes")
+	var lost := []
+	var spots := 0
+	for y in main.WILDS.size():
+		for x in range(-main.WILDS_W, 0):
+			var p := Vector2i(x, y)
+			if not main.solid(p):
+				spots += 1
+				if p != outside and main.route(outside, p, main.me).is_empty():
+					lost.append(p)
+	check(spots > 150 and lost.is_empty(), "every open spot out there can be walked to (%d spots; cut off: %s)" % [spots, str(lost)])
+	for at in main.JOB_SPOTS.values():
+		check(not main.solid(at) and at.x < 0, "a job's place on the stretch is open ground: %s" % str(at))
+	var unread := []
+	for mk in main.MARKERS:
+		var ok := false
+		for d in [Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP]:
+			var stand: Vector2i = mk + d
+			if main.solid(stand) or (stand != outside and main.route(outside, stand, main.me).is_empty()):
+				continue
+			main.lines.clear()
+			main.me.tile = stand
+			main.me.face = -d
+			if main.use() and main.lines.size() == 1 and main.lines[0].text == main.MARKERS[mk]:
+				ok = true
+				break
+		if not ok:
+			unread.append(mk)
+	main.lines.clear()
+	check(unread.is_empty(), "every waymarker can be walked up to and read (not: %s)" % str(unread))
+	var h: Variant = main.heroes[0]
+	var keep_h := [h.where, h.a.job, h.a.state]
+	h.where = "away"
+	h.a.job = "boar"
+	check(main.away_spot(h) == main.JOB_SPOTS.boar, "an adventurer out after the boar is seen at Tull's field")
+	h.a.job = "barrow"
+	check(main.away_spot(h) == Vector2i.ZERO, "one gone further, to the barrow, isn't")
+	h.where = keep_h[0]; h.a.job = keep_h[1]; h.a.state = keep_h[2]
+	main.me.tile = outside
+	check(walk_to(main.GATE_IN), "and you can walk back in through the gate")
+	# a save made outside the gate loads you outside the gate
+	main.no_save = false
+	main.save_path = "user://test_wilds.json"
+	main.me.tile = Vector2i(-10, 9)
+	main.me.pos = Vector2(main.me.tile) * main.TILE
+	main.save_game()
+	main.me.tile = main.GATE_IN
+	for m in keep_where:
+		m.where = keep_where[m]
+	check(main._load() and main.me.tile == Vector2i(-10, 9), "a save made out on the trail loads you there")
+	main.SafeSave.remove(main.save_path)
+	main.no_save = true
+	main.lines.clear()
+	main.me.tile = main.GATE_IN
+	main.me.pos = Vector2(main.me.tile) * main.TILE
