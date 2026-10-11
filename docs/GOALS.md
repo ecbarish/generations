@@ -14,6 +14,8 @@ How this page works with the others:
 - **Long term** (a year and more): the ambition. Each goal is a direction, not a ticket yet. Lane P turns a long-term
   goal into path tickets only once the medium-term goal before it is done, so nobody builds year-two features on
   unfinished ground.
+- **At a milestone** (a medium-term goal reached, or a game's version step): refresh the site and guide
+  (docs/SITE-AND-GUIDES.md), not on every update.
 - When a goal is reached, tick it here with the PR, and move the next one up. Lane P (Priorities and direction) keeps
   this page current alongside QUEUE.md.
 
