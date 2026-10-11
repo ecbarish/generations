@@ -197,6 +197,51 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
 - [x] SF2.8 [Claude] Something by hand every day (GR-8): the next jobs to master, then hire. (claimed: Grok for Adam / abarish-dev, 2026-10-11, guest/starfall-by-hand, H5 part 2) Merged 2026-10-11 ([PR #179](https://github.com/ecbarish/idle-arcade/pull/179), `76f73aa`): the gate watch (lantern round, then Odo, who walks it) and sparring at the yard (then Ilse). Darkness consequences are a separate follow-up.
 - [x] SF2.5 [Claude] Hire the apothecary's apprentice once you've brewed enough (the same "master it, then hire" rule). *Done 2026-10-09: after four batches by hand Fen walks in; six coins a day; brews whenever there are herbs and room on the shelf; leaves the pot to you if unpaid.*
 
+**SF-M2b: progression (Adam, 2026-10-11; docs/proposals/starfall-progression.md).** Rule for all of these: no
+mandatory daily chores; convenience is earned. Files for each: `starfall-godot/scripts/main.gd`,
+`starfall-godot/tests/run_tests.gd` (plus `data/stories.json` where noted); new save fields default for old saves.
+- [ ] SF2.9 [any] Darkness, step 1 (docs/proposals/starfall-darkness.md, Adam's decision): on a night with an unlit wall
+  section, sometimes (start ~1 in 3) a small creature is seen slipping in through that section to the nearest building.
+  At most one incident in the whole town per night, and each lantern protects only its own section. Next morning there's
+  a mess with tracks to the wall, a report line, and that building works a little worse until it's cleared with one E
+  press or by Odo on his round. Gone after a day; no combat. Done when: all lit means no incident; a dark section is the
+  only way in; there's never more than one a night; a hand clear and an Odo clear both work; old saves load; screenshot.
+  Score 14/21 (fun 2, Evan 2, friends 2, focus 2, cheap 2).
+- [ ] SF2.10 [any] In-world goal guidance: a goal line under the status bar naming the nearest unlock with its count, in
+  the world's words ("Walk the walls 2 more nights: someone might ask to keep watch"; "4 more jobs: Starfall becomes a
+  Village"), plus a "Next" list of the three nearest unlocks (ranks, hires, plots, story beats). Done when: it always shows
+  a reachable next step, updates as counts change, works on phone width, and is checked for each kind of unlock. Fixes the
+  COMMS lane S "no goal line" note. Score 18/21 (fun 2, Evan 3, friends 3, focus 2, cheap 3).
+- [ ] SF2.11 [any] Station mastery ranks: counter, forge, pot, tap, lantern round and yard each earn named ranks at 10/25/50
+  uses. Rank 1 widens the gold band (less fiddly), rank 2 adds a technique with a choice (for example a stew that lifts
+  spirits or one that heals), and rank 3 brings a tool drawn in the world that makes one press do more. Start with the
+  counter; one station per PR is fine. Done when: ranks save, each rank visibly changes the station, and hand play stays
+  better than the hire. Score 18/21 (fun 3, Evan 3, friends 2, focus 2, cheap 2).
+- [ ] SF2.12 [any] The hire works at your rank: Bryn, Garrick, Fen, Tamsin, Odo and Ilse work at the mastery rank you
+  reached before hiring them, so mastering first makes the helper better. Done when it's checked per hire. Score 14/21
+  (fun 2, Evan 2, friends 1, focus 2, cheap 3).
+- [ ] SF2.13 [any] Trust per adventurer: +1 for each thing you do by hand for them (a meal, a pour, a piece forged, a
+  bout, a story talk), shown as marks on their card. It gates later story beats (with jobs) and gives one high-trust perk
+  (they'll take a job a step harder for you). Uses `data/stories.json`. Done when: trust saves and defaults to 0, and
+  shows; gating and the perk are checked. Score 17/21 (fun 2, Evan 3, friends 2, focus 2, cheap 3).
+- [ ] SF2.14 [any] Veteran requests: at level 5 or 10 jobs done, a few danger-5 requests on the board ask for that
+  adventurer by name and only they can take them. Each pays more and leaves a visible change in town (a trophy over the
+  hall door, a new carter route). Done when: early recruits get them, a higher-level newcomer can't take theirs, and the
+  change shows. Score 17/21 (fun 3, Evan 3, friends 1, focus 2, cheap 2).
+- [ ] SF2.15 [any] Signature moves through training and equipment: at a level, with training-yard bouts and good gear, each
+  member learns one move tied to their class and story (Aki's guard halves the hurt on a failed job; Ren's map shortens
+  trips). It's shown on their card and announced in town. Done when: each starting member has one, it's earned (not given),
+  and it's checked. Score 15/21 (fun 2, Evan 3, friends 1, focus 2, cheap 2).
+- [ ] SF2.16 [any] Recruit specialities, not bigger numbers: each job lists who suits it ("good for: archers, thieves"),
+  and suited adventurers get better odds. Newcomers and visitors arrive near your team's middle level, never above your
+  best, each bringing a trait. Done when: every class suits at least one job, favourites stay best at their own work,
+  and relationships (trust, stories) are untouched by new arrivals. Score 15/21 (fun 2, Evan 2, friends 2, focus 2,
+  cheap 3).
+- [x] SF2.17 [any] Day-pacing check: measure the 150-second day in normal play (hand jobs per day, chores vs bonuses,
+  time to each hire and rank, active vs idle income) with a scripted player; recommendations only, no numbers changed.
+  (Grok for Adam / abarish-dev, 2026-10-11: docs/measurements/starfall-day-pacing.md.) Score 14/21 (fun 2, Evan 2,
+  friends 2, focus 2, cheap 2).
+
 **SF-M3: seasons.**
 - [ ] SF3.1 [Claude] Seasons as chapters (SV2), the first one ending in a festival.
 - [ ] SF3.2 [Claude] Travelling merchants and visitors from other games (the shared universe, lightly).

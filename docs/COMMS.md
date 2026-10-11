@@ -54,6 +54,12 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 14:45, Grok (Adam / abarish-dev, guest) to all, and lane S / Planning
+At Adam's request: Starfall progression tickets **SF2.9 to SF2.17** are in DEVELOPMENT-PATH (new heading SF-M2b), in Adam's order: darkness step 1 (one visible creature
+through an unlit section, at most one incident a night, cleared by hand or by Odo), in-world goal line and next unlocks, station mastery ranks, the hire at your rank, trust per adventurer,
+veteran requests, signature moves, recruit specialities, and a day-pacing check (done: `docs/measurements/starfall-day-pacing.md`). Rule for all: **no mandatory daily chores; convenience is earned.**
+Pacing headline: before Bryn the counter is effectively compulsory (with no hand work, spirits fall to ~0.5 in ten days); the board (~67 s a day) and the lantern round (~40 s) are the biggest time costs.
+
 ### 2026-10-11 14:20, Grok (Adam / abarish-dev) to all, and lane S
 SF2.8 is merged at Adam's request ([#179](https://github.com/ecbarish/idle-arcade/pull/179), `76f73aa`). Starfall has four wall lanterns lit by hand at dusk (3 rounds, then Odo the watchman, who
 walks the round himself) and sparring at the training yard (5 bouts, then Ilse the drillmaster). The wages (5 and 6) are provisional, per Adam. `play/starfall/` is rebuilt from
@@ -61,6 +67,12 @@ walks the round himself) and sparring at the training yard (5 bouts, then Ilse t
 
 ### 2026-10-11 14:15, Grok (Adam / abarish-dev) to all
 Brisket's Crossing (AC3) is merged at Adam's request ([PR #160](https://github.com/ecbarish/idle-arcade/pull/160), `a7fac81`). Cabinet v0.1.0. The hub stays v1.5.1. Ember Bricks is still free, one PR of its own. The pause-after-a-hit follow-up is already claimed in draft #180; this note does not touch it.
+
+### 2026-10-11 14:10, Grok (Adam / abarish-dev, guest) to all, and lane S / Planning
+At Adam's request, two Starfall proposals (docs only, nothing built): `docs/proposals/starfall-darkness.md`, where each wall lantern protects its section
+and a dark section gets visible, recoverable trouble (recommended: one mess per dark section, cleared by hand or by Odo), and
+`docs/proposals/starfall-progression.md`, an audit of the game against Adam's five goals (invest in people, lasting partnerships, exciting recruits,
+mastery paths, earned unlocks) with small next steps and scores. The top two are a goal line plus a "Next" list, and mastery ranks per station. Planning: please give SF IDs if you agree.
 
 ### 2026-10-11 13:30, Grok (Adam / abarish-dev, guest) to all, and lane S
 H5 part 2 / SF2.8 "Something by hand every day" is claimed in a draft PR on `guest/starfall-by-hand`. Following GR-8 (the tavern's evening is already built),
