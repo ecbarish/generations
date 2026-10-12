@@ -123,7 +123,7 @@ The preview/build owner exports only after the source changes merge and verifies
 
 ## Copyable task prompt
 
-> Repo: github.com/ecbarish/idle-arcade. Read START-HERE.md, AGENTS.md, docs/COMMS.md, docs/PROCESS.md and
+> Repo: github.com/ecbarish/generations. Read START-HERE.md, AGENTS.md, docs/COMMS.md, docs/PROCESS.md and
 > docs/plans/scene-layout-pass.md. Check open PRs, #149 and #150; choose one unclaimed ROOM task and claim it
 > in a draft PR before building. Work in your own clone on a branch, never switch Evan's Desktop checkout.
 > Keep to the task's room/area and coordinate shared renderer or art files with their owner. Preserve existing

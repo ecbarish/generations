@@ -75,7 +75,7 @@ jobs:
           persist-credentials: false
       - name: Verify reviewed bytes on official Pages
         env:
-          LIVE_PREVIEW_URL: https://ecbarish.github.io/idle-arcade/play/starfall/
+          LIVE_PREVIEW_URL: https://ecbarish.github.io/generations/play/starfall/
         run: python3 tools/starfall-preview-live.py
       - uses: actions/upload-artifact@v4
         if: always()

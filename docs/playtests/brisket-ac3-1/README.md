@@ -2,7 +2,7 @@
 
 ## Published and verified
 
-[Play Brisket v0.1.1](https://ecbarish.github.io/idle-arcade/games/briskets-crossing/). Adam approved merge and live verification at 16:26 UTC. #180 merged as `19a7ee377e8097b3cdd47a7e15152663bbd7455e`. [Pages deployment](https://github.com/ecbarish/idle-arcade/actions/runs/38277598883) and the merged-main [19-suite run](https://github.com/ecbarish/idle-arcade/actions/runs/38277600145) passed.
+[Play Brisket v0.1.1](https://ecbarish.github.io/generations/games/briskets-crossing/). Adam approved merge and live verification at 16:26 UTC. #180 merged as `19a7ee377e8097b3cdd47a7e15152663bbd7455e`. [Pages deployment](https://github.com/ecbarish/idle-arcade/actions/runs/38277598883) and the merged-main [19-suite run](https://github.com/ecbarish/idle-arcade/actions/runs/38277600145) passed.
 
 The [public runtime verifier](https://github.com/ecbarish/idle-arcade/actions/runs/38278202817) passed **31 checks at 2026-10-12 16:34:14.742 UTC**: eight public game/shared files exactly match their reviewed SHA-256 values; public localhost-only debug hook is absent; three browser sizes show preserved old scores, keyboard start, uniform rendering, readable real-hit recovery, pause/rotation/resume, unchanged score reload and no runtime errors. These are actual public URL interactions, without injected game hooks. A separate network read independently matched all eight Git blob hashes at 16:32 UTC.
 

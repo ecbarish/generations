@@ -25,7 +25,7 @@ Preview PR #222 merged as `95b1655f894d4b8fbe139144907325fe0dda6bc1` after [all 
 
 [Pages deployment](https://github.com/ecbarish/idle-arcade/actions/runs/38262092537), [post-merge all-suite checks](https://github.com/ecbarish/idle-arcade/actions/runs/38262093297) and [live verification](https://github.com/ecbarish/idle-arcade/actions/runs/38262093152) all passed for that exact merge. At **2026-10-12 14:21:59 UTC**, the public build metadata and all four file hashes exactly matched the reviewed release. [Original downloaded live verification JSON](starfall-mobile-live-verification.json); artifact 11753031931.
 
-Live: https://ecbarish.github.io/idle-arcade/play/starfall/
+Live: https://ecbarish.github.io/generations/play/starfall/
 
 | Public file | Bytes | Verified SHA-256 |
 |---|---:|---|

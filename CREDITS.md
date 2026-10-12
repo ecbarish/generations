@@ -1,6 +1,6 @@
 # Idle Arcade credits
 
-Player page: [credits.html](credits.html). Project direction and playtesting: Evan. Development contributions: Claude, ChatGPT/Codex and Jules; [repository contributors](https://github.com/ecbarish/idle-arcade/graphs/contributors).
+Player page: [credits.html](credits.html). Project direction and playtesting: Evan. Development contributions: Claude, ChatGPT/Codex and Jules; [repository contributors](https://github.com/ecbarish/generations/graphs/contributors).
 
 ## Art and sound
 

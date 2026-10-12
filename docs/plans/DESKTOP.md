@@ -25,7 +25,7 @@ Device target is already clear: desktop and phone. Confirm the browser you use o
 ```sh
 git clone --branch codex/arcade-development-plan idle-arcade-development-plan.bundle idle-arcade
 cd idle-arcade
-git remote set-url origin https://github.com/ecbarish/idle-arcade.git
+git remote set-url origin https://github.com/ecbarish/generations.git
 git config user.email "206636510+ecbarish@users.noreply.github.com"
 git fetch origin
 ```

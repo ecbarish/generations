@@ -8,7 +8,7 @@ person) and paste the prompt in the box below. Everything it needs is in this fi
 and what's next". Update it before you stop (see "Before you stop").
 
 ```
-Repo: github.com/ecbarish/idle-arcade. Read START-HERE.md first and follow it.
+Repo: github.com/ecbarish/generations. Read START-HERE.md first and follow it.
 Read docs/COMMS.md and docs/PROCESS.md, check open PR titles before claiming a task from docs/QUEUE.md,
 then build and test it. Add your START-HERE Session log line before you stop. Planning owns "Where we are"
 and "Up next". Ask me only about the "Questions for Evan".
@@ -104,6 +104,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-12 Claude (Priorities and direction): AR-REN steps 5-6. Evan renamed the repository to ecbarish/generations and set the description (19:50 UTC); addresses switched (#241). Update your git remote: `git remote set-url origin https://github.com/ecbarish/generations.git`. Next: step 7, the leftover idle-arcade redirect site.
 - 2026-10-12 Claude (Priorities and direction): rename steps 1-3: rename window in COMMS, save-names check (22 names), "Idle Arcade" to "Generations" in page titles, manifest, comments and top docs. All 18 suites pass.
 - 2026-10-12 Claude (Priorities and direction): Generations rename as ticket AR-REN (waits for Evan; checklist gaps added), GOALS refinements (earned automation, five-minute sessions), Keymaster KM0 parked.
 - 2026-10-12 dot engineering task (Adam): Brisket v0.1.2 easier opening is live, #233 merge `032bbd09`. Pages, eight public file hashes and 40 real public-browser checks verified at 17:27 UTC; all 19 source suites and 784 responsive/opening checks pass. [Release record](docs/playtests/brisket-ac3-2/README.md), scoped handoff #236.

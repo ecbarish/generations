@@ -2,31 +2,31 @@
   "attempts": [
     {
       "checked_at": "2026-10-12T14:19:58Z",
-      "url": "https://ecbarish.github.io/idle-arcade/play/starfall/",
+      "url": "https://ecbarish.github.io/generations/play/starfall/",
       "verified": false,
       "reason": "Public build metadata is still a different revision"
     },
     {
       "checked_at": "2026-10-12T14:20:29Z",
-      "url": "https://ecbarish.github.io/idle-arcade/play/starfall/",
+      "url": "https://ecbarish.github.io/generations/play/starfall/",
       "verified": false,
       "reason": "Public build metadata is still a different revision"
     },
     {
       "checked_at": "2026-10-12T14:20:59Z",
-      "url": "https://ecbarish.github.io/idle-arcade/play/starfall/",
+      "url": "https://ecbarish.github.io/generations/play/starfall/",
       "verified": false,
       "reason": "Public build metadata is still a different revision"
     },
     {
       "checked_at": "2026-10-12T14:21:29Z",
-      "url": "https://ecbarish.github.io/idle-arcade/play/starfall/",
+      "url": "https://ecbarish.github.io/generations/play/starfall/",
       "verified": false,
       "reason": "Public build metadata is still a different revision"
     },
     {
       "checked_at": "2026-10-12T14:21:59Z",
-      "url": "https://ecbarish.github.io/idle-arcade/play/starfall/",
+      "url": "https://ecbarish.github.io/generations/play/starfall/",
       "verified": true,
       "source_commit": "1a37f695fa6f271da74cb983e909f5968501d032",
       "files": {

@@ -22,7 +22,7 @@
   function issueUrl(form, gameName, version, getContext) {
     let where = ''; try { where = getContext ? String(getContext() || '') : ''; } catch (err) { where = ''; }
     const ver = version ? `v${version}` : 'test version';
-    const url = new URL('https://github.com/ecbarish/idle-arcade/issues/new');
+    const url = new URL('https://github.com/ecbarish/generations/issues/new');
     url.searchParams.set('template', form); url.searchParams.set('game', gameName);
     url.searchParams.set('context', where ? `${ver} - ${where}` : ver);
     return url.toString();

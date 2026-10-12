@@ -1,5 +1,5 @@
 const fs=require('fs'),path=require('path'),crypto=require('crypto'),assert=require('assert/strict'),{chromium}=require('playwright');
-const origin='https://ecbarish.github.io/idle-arcade/',out='docs/playtests/brisket-ac3-1/live';fs.mkdirSync(out,{recursive:true});
+const origin='https://ecbarish.github.io/generations/',out='docs/playtests/brisket-ac3-1/live';fs.mkdirSync(out,{recursive:true});
 const files=['games/briskets-crossing/index.html','games/briskets-crossing/game.js','games/briskets-crossing/model.js','games/briskets-crossing/style.css','shared/engine.js','shared/settings.js','shared/sound.js','shared/feedback.js'];
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));const checks=[];const check=(name,ok)=>{assert.ok(ok,name);checks.push(name);};

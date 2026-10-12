@@ -1,7 +1,7 @@
 {
   "verified_at": "2026-10-12T16:34:14.742Z",
   "source_commit": "19a7ee377e8097b3cdd47a7e15152663bbd7455e",
-  "url": "https://ecbarish.github.io/idle-arcade/games/briskets-crossing/",
+  "url": "https://ecbarish.github.io/generations/games/briskets-crossing/",
   "checks": 31,
   "check_names": [
     "all eight public file hashes match reviewed source",

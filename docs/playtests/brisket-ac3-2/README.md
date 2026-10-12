@@ -1,6 +1,6 @@
 # AC3.2: Brisket easier opening
 
-Released v0.1.2: Adam-approved [#233](https://github.com/ecbarish/idle-arcade/pull/233), merged as `032bbd09988e8186567309c9c567a5f03b365eb3` on 2026-10-12. [Play the verified release](https://ecbarish.github.io/idle-arcade/games/briskets-crossing/). This addresses Adam's report that the opening felt too tightly packed on his phone.
+Released v0.1.2: Adam-approved [#233](https://github.com/ecbarish/idle-arcade/pull/233), merged as `032bbd09988e8186567309c9c567a5f03b365eb3` on 2026-10-12. [Play the verified release](https://ecbarish.github.io/generations/games/briskets-crossing/). This addresses Adam's report that the opening felt too tightly packed on his phone.
 
 ## Focused change
 

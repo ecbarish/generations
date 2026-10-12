@@ -43,7 +43,7 @@ For Evan, and for any assistant explaining things to Evan. Add a word when you c
 - **Push / pull:** sending your commits up to GitHub / bringing others' commits down.
 - **Patch / bundle:** work packed into a file when it can't be pushed directly (a `.patch` holds the changes; a
   `.bundle` holds the commits themselves). Applied on a computer that can push.
-- **GitHub Pages:** GitHub's free web hosting; it serves `main` at https://ecbarish.github.io/idle-arcade/.
+- **GitHub Pages:** GitHub's free web hosting; it serves `main` at https://ecbarish.github.io/generations/.
 - **`.gitignore` / `.gitattributes`:** a list of files git should never save / rules for how git treats files (line endings,
   which files are pictures and sounds rather than text).
 - **Line endings:** Windows and other computers mark the end of a line of text differently; mixing them makes every

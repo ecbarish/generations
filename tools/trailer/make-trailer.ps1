@@ -36,7 +36,7 @@ Clip s11 nursery 3.4 3.0 "Raise, breed and gear your team."
 Clip s12 bench 3.6 2.8 ""
 Card c2 2.4 "STARFALL" "grow a frontier guild town" ""
 Clip s13 starfall 1.0 4.6 "Post jobs. Serve stew. Work the forge."
-Card c3 5.0 "COME PLAY" "Free in your browser. No sign-up." "ecbarish.github.io/idle-arcade/playtest.html"
+Card c3 5.0 "COME PLAY" "Free in your browser. No sign-up." "ecbarish.github.io/generations/playtest.html"
 $list = "c0","c1","s01","s02","s03","s04","s05","s06","s07","s08","s09","s10","s11","s12","c2","s13","c3"
 ($list | ForEach-Object { "file '$_.mp4'" }) | Set-Content -Encoding ascii list.txt
 & $ff -y -loglevel error -f concat -safe 0 -i list.txt -c copy video.mp4
