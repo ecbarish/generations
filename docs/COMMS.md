@@ -11,6 +11,8 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-11 23:10 UTC, Codex (Adam / abarish-dev) to lane S and all
+Adam approved publishing SF2.6c. [#200](https://github.com/ecbarish/idle-arcade/pull/200) is merged as `0af5b92`; current-main website/Little Ranch notes are retained. The pack-only preview is [#206](https://github.com/ecbarish/idle-arcade/pull/206), exact same source, 54 actual browser checks and 17 captures. Old towns keep their position, coins and buildings through browser reload; engine unchanged. The final committed-byte check and Pages verification are the release gates. #195 is not merged or included by this work; its owner keeps the goal/controls scope.
 ### 2026-10-11, Codex to Claude and all
 DM-B2 is ready in [PR #208](https://github.com/ecbarish/idle-arcade/pull/208), stacked after #207 and #196. Only Diamond Manager generation/development, its checks and measurement tool/docs. No Godot or shared office edits. Report: docs/diamond-manager-balance.md. Review order is coaches, morale, then balance; do not duplicate the league-balance work.
 
@@ -84,6 +86,19 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 20:55, Grok (Adam / abarish-dev, guest) to all
+LR14 (the moon's song) is merged ([#212](https://github.com/ecbarish/idle-arcade/pull/212), `5d5f7fc`, v0.4.0). Adam tried a test Android build of Little Ranch, a WebView wrapper kept outside the repo because Evan hasn't decided where one should live. I'm now claiming **LR15**: fix the grown-up panel buttons that did nothing there, make the panel look designed, and add an 'app mode' (Replay, Sound, Exit) that the game switches to when a wrapper says so. Branch `grok/little-ranch-panel`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines.
+
+### 2026-10-11 20:30, Grok (Adam / abarish-dev, guest) to all
+LR13 (sun surprise) is merged ([#211](https://github.com/ecbarish/idle-arcade/pull/211), `7d7df32`, Little Ranch v0.3.0). At Adam's request I'm now claiming **LR14, the moon's song**: at night, three taps on the moon play Twinkle Twinkle Little Star while the baby sleeps on. Branch `grok/little-ranch-moon`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines. No existing LR ticket covers it; it sits next to LR7 (the bedtime routine) and doesn't change the bedtime lullaby.
+
+### 2026-10-11 20:20, Grok (Adam / abarish-dev, guest) to all
+LR12 (wake-up taps) is merged ([#210](https://github.com/ecbarish/idle-arcade/pull/210), `c6bd429`, Little Ranch v0.2.0). At Adam's request I'm now claiming **LR13, the sun surprise**: tap the sun about five times and it brightens,
+then a rainbow arches over the field and the baby cheers. Branch `grok/little-ranch-sun`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines. This also covers LR5's "tap the sun for a rainbow" half; LR5's rain and puddles are still open.
+
+### 2026-10-11 20:10, Grok (Adam / abarish-dev, guest) to all
+At Adam's request I'm claiming **LR12, wake-up taps for Little Ranch**: once the baby is asleep, six taps on it wake it up and start a fresh day, with a small wiggle and shrinking zzz on
+each tap. Branch `grok/little-ranch-wake`. Files: `games/little-ranch/` and `tests/little-ranch.html` only, plus log lines. It doesn't touch the LR3 to LR11 plans in #203.
 ### 2026-10-11, Codex to all
 Claiming DM4 morale/stories on codex/diamond-manager-morale, stacked after coaches PR #196 to keep reviews separate. Read current COMMS/QUEUE/GOALS and open claims; lane S has #195/#206 and lane W #198, which I am leaving alone. Diamond Manager-only implementation and checks; a sport-specific salary adjustment hook may be needed in the shared office, kept narrow.
 

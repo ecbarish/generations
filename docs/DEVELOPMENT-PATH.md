@@ -186,7 +186,7 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
   hall and inn now have (Evan saw the inn's door floating above its stone base on 2026-10-11; fixed for those two in
   tools/art/starfall_hall_inn.py). Done when the opening screenshot reads lived-in, every building is still reachable, and the
   Starfall checks pass.
-- [ ] SF2.6c [any] (claimed: Codex for Adam / abarish-dev, 2026-10-11, guest/starfall-opening-view; implemented and visually verified in [PR #200](https://github.com/ecbarish/idle-arcade/pull/200); awaiting final CI/review, not merged) Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
+- [x] SF2.6c [any] (merged 2026-10-11: [PR #200](https://github.com/ecbarish/idle-arcade/pull/200), Codex for Adam / abarish-dev; full roofs, 227 native checks, 32 rendered captures and 501 layout checks) Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
   and banner, the most recognisable parts. Start the player (or the camera) so both buildings show whole. Also delete
   the unused Ninja Adventure tiles in `starfall-godot/assets/env/` (house.png, nature.png, floor.png and their .import
   files; nothing loads them) and update CREDITS.md (the pack's music and sounds stay). Done when a day-one screenshot
@@ -305,6 +305,8 @@ deliverables with their details: [plans/sports-management.md](plans/sports-manag
 deliverables are retired; the batting prototype stays in games/diamond-career/ off the shelf.
 - [x] DM1 [Claude] The first playable season (v0.1.0, PR #110).
 - [x] DM2 [any] Playability pass (docs/playtests/diamond-manager-1.md). - [x] DM-B [Claude] Choices matter (v0.2.0).
+- [x] DM3 [any] Hiring coaches (v0.6.0, PR #196, merged 2026-10-12). - [x] DM4 [any] Player morale and stories (v0.7.0, PR #207, merged 2026-10-12; was ready: Codex, 2026-10-11; stacked after #196) - [ ] DM5 [any] The ballpark you see grow.
+- [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [x] DM-G [Claude] Pitch-by-pitch game, in-game moves, box scores, stats (v0.5.0). - [ ] DM-B2 [any] Keep the league in balance over many seasons. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
 - [ ] DM3 [any] Hiring coaches. (ready: Codex, PR #196, 2026-10-11) - [ ] DM4 [any] Player morale and stories. (ready: Codex, PR #207, 2026-10-11; stacked after #196) - [ ] DM5 [any] The ballpark you see grow.
 - [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [x] DM-G [Claude] Pitch-by-pitch game, in-game moves, box scores, stats (v0.5.0). - [ ] DM-B2 [any] Keep the league in balance over many seasons. (ready: Codex, PR #208; stacked after #207) - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
 
@@ -374,7 +376,7 @@ No-server sharing: trade and battle codes, ghost teams (V6 part 1).
 Next steps, from docs/proposals/little-ranch-next.md (PR #203, 2026-10-11; Evan: "a big hit with my daughter"). Each is one PR on `games/little-ranch/` with checks in `tests/little-ranch.html`, a README changelog line and a "tried with a toddler" note; the toddler rules in games-for-everyone.md hold for every step. Done when the step works on a phone and a tablet with no reading and nothing to fail.
 - [ ] LR3 [any] The singing flowers: a row of big flowers; tap one and it sings its own note and bobs; the baby dances. (QUEUE road 10)
 - [ ] LR4 [any] A second friend: a baby Pebblit (or Glowmote) visits some days; both can be fed and bubbled; they nuzzle.
-- [ ] LR5 [any] Rain and rainbows: tap the cloud for soft rain and puddles to splash; tap the sun for a rainbow.
+- [ ] LR5 [any] Rain and rainbows: tap the cloud for soft rain and puddles to splash; tap the sun for a rainbow. (The sun's rainbow is done in LR13; the rain and puddles are still to do.)
 - [ ] LR6 [any] The hat basket: tap the basket and the baby tries on the next hat.
 - [ ] LR7 [any] The bedtime routine: teeth, a drink of water, goodnight to each friend, then the lullaby.
 - [ ] LR8 [any] Spoken words: names, colours and "night night" in the browser's voice (no microphone; recording a parent's voice needs Evan's yes).
@@ -383,6 +385,10 @@ Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the 
 - [ ] LR10 [any] The Little Wagon (17/18): load two babies, one ride with three things to tap and one colour gate where any car gets a cheer.
 - [ ] LR11 [any] The Snack Kitchen (17/18): four foods, one bowl, one baby who loves berries and pulls funny faces at the rest.
 (The shape puzzle, 14/18, waits until she is 3½ to 4.)
+- [x] LR12 [any] Wake-up taps (Adam, 2026-10-11): once the baby is asleep, six taps on it wake it and start a fresh sunny day (the same reset as New visit), with a small wiggle and shrinking zzz on each tap and a happy wake on the sixth; no text, nothing to fail. Files: `games/little-ranch/`, `tests/little-ranch.html`. (Grok for Adam / abarish-dev, PR #210, v0.2.0)
+- [x] LR13 [any] Sun surprise (Adam, 2026-10-11): in the daytime, each tap on the sun makes it a little brighter; on the fifth a big rainbow arches over the field, the baby looks up and cheers, and after a few seconds it fades and the count starts again. No words, nothing to fail; at night there's no sun to tap. Files: `games/little-ranch/`, `tests/little-ranch.html`. (Grok for Adam / abarish-dev, PR #211, v0.3.0)
+- [x] LR14 [any] The moon's song (Adam, 2026-10-11): at night, while the baby sleeps and the moon is up, each tap on the moon makes it glow a little more with a soft note; on the third it plays the first verse of Twinkle Twinkle Little Star (a public-domain tune, made in code, quiet when sound is off) while the stars twinkle in time. The baby sleeps on with a little smile, moon taps don't count toward the six wake taps, taps during the song just twinkle, and stray taps wear off. No words, nothing to fail. Files: `games/little-ranch/`, `tests/little-ranch.html`. (Grok for Adam / abarish-dev, PR #212, v0.4.0)
+- [x] LR15 [any] A cleaner grown-up panel, and app mode (Adam, 2026-10-11, after trying a test Android build): fix the panel buttons that did nothing in the Android WebView ('Back to play', 'Back to the arcade'); redesign the panel (rounded card, drawn icons, one-line labels, a close X, tap outside to close; portrait, landscape and small phones); when the game runs inside the standalone app it shows just Replay, Sound and Exit. The 3 s hold lock stays. Files: `games/little-ranch/`, `tests/little-ranch.html`. (Grok for Adam / abarish-dev, PR #215, v0.5.0)
 **The Arcade Cabinets (browser), original single-screen games in the 1978-85 style.**
 - [x] AC1 [any] Storm Front (the Space Invaders shape, Evan's pick): one cabinet, original name and art, one PR. (built: Codex for Adam / abarish-dev, guest/storm-front, PR #119; awaiting review)
 - [x] AC2 [any] Lighthouse Watch (the Missile Command shape). (built: Grok for Adam / abarish-dev, PR #145, merged 2026-10-10; v0.1.0)
@@ -585,3 +591,8 @@ line or two, with the page that holds the detail.
 
 - [x] WB-PREVIEW-177 [any] Built and browser-verified 2026-10-11, Adam / abarish-dev, [PR #183](https://github.com/ecbarish/idle-arcade/pull/183). Exact merged source `480dfc4`; 353 browser checks, 119 captures, 60 door transitions, 20 fresh-save reloads and 12 pad hold/release cases. Unchanged engine and save format. Final latest-head CI, merge and live hash confirmation gate publication; see [release record](research/wildbond-preview-door-release.md).
 
+
+
+## Starfall opening preview release
+
+- [x] SF-PREVIEW-200 [any] Built and browser-verified 2026-10-11, Codex for Adam / abarish-dev, [PR #206](https://github.com/ecbarish/idle-arcade/pull/206). Exact merged source `0af5b92`; 54 browser checks, 17 nonblank captures, fresh nondefault-position reloads and previous-source saved towns. Engine and save format unchanged. Final latest-head CI, merge and live-hash confirmation gate publication; see [release record](research/starfall-preview-opening.md).
