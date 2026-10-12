@@ -1,0 +1,11 @@
+{
+  "checks": 28,
+  "baseline": "430d439",
+  "screens": [
+    "375x812",
+    "1366x768",
+    "1920x1080",
+    "3440x1440"
+  ],
+  "note": "Isolated Chromium contexts, actual UI navigation and arrival-timed pointer swing; no human fun score or physical-phone claim."
+}

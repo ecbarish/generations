@@ -39,3 +39,8 @@ html,body{height:100%;overflow:hidden}body{display:block}body>header{position:fi
 #panel p,#panel button,#panel input,#panel select,#panel td,#panel summary,#batting-window button{font-size:inherit}
 #panel .muted,.field-cue,.field-help,#close-sheet{font-size:calc(14px * var(--arc-text,1));color:#c0d1cb;opacity:1}
 #world-objects button,#world-rooms button,#tools button{font-size:calc(13px * var(--arc-text,1))}
+
+/* DC-N: the highlighted bar agrees with the plate circle and the opening-game window. */
+#timing-bar i{width:var(--swing-zone,18.1818%)}
+.dlg-diamond .dlg-say{white-space:normal;overflow-wrap:anywhere;max-height:none;overflow:visible;font-size:calc(15px * var(--arc-text,1))}
+.dlg-diamond .dlg-continue{position:sticky;bottom:0}

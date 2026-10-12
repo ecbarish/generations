@@ -20,7 +20,10 @@ function calendarHTML() {
     html+='<h3>'+ (road?'The road you made':'A month with your name on it')+'</h3><p>'+period.games+' games · '+period.wins+' wins · '+period.record.hits+' hits · '+period.record.walks+' walks.</p><p>Average '+rate(average(period.record))+' · on-base '+rate(onBase(period.record))+'. Your record, home and money stay yours.</p>';
     if(!road){const o=ROAD_OFFERS[S.contract.offer];html+='<h3>The second month: three away series</h3><p>Keep your '+esc(o.role)+' role on a new thirty-day term. No signing bonus. Five '+money(o.wage)+' salaries, on days '+o.days.map(d=>S.day+d).join(', ')+'. Total '+money(o.wage*5)+'. Eighteen possible games at three parks; quiet days are your choice.</p>'+btn('start-road','Sign the road-month term and board the bus',true);}
     else html+='<p>This road chapter is complete. Your visits are remembered if a later season brings you back. There is no unattended calendar.</p>';
-  } else if(S.phase==='home') html+=btn('day','Spend a quiet day at home',false,!!period&&S.day>=period.end);
+  } else if(['clubhouse','home'].includes(S.phase)) {
+    html+='<h3>Day '+S.day+' · The next game</h3>'+preparationHTML();
+    if(S.phase==='home')html+=btn('day','Spend a quiet day at home',false,!!period&&S.day>=period.end);
+  }
   return html;
 }
 function careerSheetHTML(view,original) {
