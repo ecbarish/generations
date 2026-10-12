@@ -73,7 +73,7 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 
 **WB-M2: who you are and where you stand.**
 - [x] WB2.1 [Claude] Tamer abilities with heritages (WG1): done 2026-10-08 (Orders menu: Rally, a family order, Toren's Steady).
-- [ ] WB-KEYS [any] Show the keys in game (PLAYTEST pass 2: "Wildbond still shows no keys in game"): the first time each action matters, its key or phone-pad button appears in the world; no website needed to play. (QUEUE H2)
+- [x] WB-KEYS [any] Show the keys in game (PLAYTEST pass 2: "Wildbond still shows no keys in game"): the first time each action matters, its key or phone-pad button appears in the world; no website needed to play. (QUEUE H2) *Done 2026-10-11 (Claude, lane W): the arrow keys float over your head until you have walked a few steps; beside anyone or anything you can use, the Talk key and its word ("E Talk", "E Feed"; A on a gamepad) sit beside you until you have used it three times; J (or Y) sits beside the bag until the field book has been opened. On a phone the pad and the Talk button already label themselves, so nothing is added. Older saves never see them. Screenshots: docs/screenshots/wildbond-keys/.*
 - [ ] WB2.2 [Claude] Depth step 1 (WG6): ground heights, object footprints and heights (part 1 done 2026-10-08: the colour layer drawn in true depth order, people in front of you faded as the world is). Part 2 done 2026-10-09: trees beside open ground stand at their true height and their crowns pass in front of you (see-through, faded like the world: shaders/canopy.gdshader), never over a sign or an item. Left: ground heights, footprints and heights on objects (houses and rocks).
 - [ ] WB2.3 [Claude] Variety pass (WG7) (done 2026-10-08: an animated effect per element in battle; waves and wind under the music. Tried the pack's water ripples: opaque tiles, rejected). Left: waterfalls, edge
   tiles.
@@ -83,6 +83,17 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 - [x] WB2.6 [ChatGPT] (done, merged 2026-10-09; T45) Lore: a heritage line for every Warden and townsperson in areas 1-4 (data in the browser game,
   exported to Godot), recorded in the thread ledger.
 - [x] WB2.7 [Claude] Bring T37's fourteen creatures into Godot (WG9): done 2026-10-09 (exported; all use existing body types; 107 species).
+
+**WB-C: creatures worth raising (Evan, 2026-10-11; spec: docs/wildbond-creatures.md, list: docs/wildbond-creatures/catalog.md).**
+Target about 150 species in about 70 lines; most new species are new stages of today's 74 loners; six showpiece lines.
+- [ ] CR1 [any] Sizes and tiers in the data (`size`, `tier` on every species) and creatures drawn at their size in battle and when following you (spec 4.4). Screenshots small beside huge.
+- [ ] CR2 [ChatGPT / writer] The six showpiece lines (spec 3): the three starter lines promoted, new Stone, Gale and Radiant lines, a slow growth rate, guardians raised to 560-600; pacing check (WB3.6b) holds.
+- [ ] CR3 [any, one region per PR] Grow the loners into lines: about 58 of the 74 creatures that never evolve gain a new stage before or after them, each its own creature with its own name and look (like Squirtle, Wartortle, Blastoise; not baby or adult versions, which are WB5.5), in journey order (Thornwood first).
+- [ ] CR4 [any] The evolution moment: the light, the silhouette growing, the new form at full size, someone who notices; the full version for showpieces.
+- [ ] CR5 [any] Two more branching lines with unused conditions (time of day, weather, what it ate).
+- [ ] CR6 [any] World-fit audit: every creature in solid black by shape; fix look-alikes; each region's size and shape spread (spec 4.2, 4.7).
+- [ ] CR7 [any] Rare spawns for showpieces: a hidden pocket or rare-condition spawn per region, hinted by someone there.
+- [ ] CR8 [any] New shapes: fish and a winged drake first, then rabbit-kind, beetle, owl (one per PR, screenshots).
 
 **WB-M3: the rest of the valley (areas 5-8).**
 - [ ] WB3.1 [Claude] Stillreed Basin in Godot (map, ferry, trainers, Warden), with its own furniture, sound and music. *Step 1 done 2026-10-09: the area is walkable with its wooden footbridges, trainers, Warden, river ambience and the Boat tune; step 2: the moored ferry skiff and its mooring sign (readable), the river flowing under the bridges. Step 3: its own touches: the current running down the river, cattails on the banks, windfall under the orchard, a coil of ferry rope, dragonflies. Still to do (later, with the story): a ferry ride once the rope is mended.*
@@ -436,6 +447,10 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - [x] SCENE-PLAN [any] (ready: PR #151, Codex, 2026-10-10) Shared scene/interior design outline requested by Evan: docs/plans/scene-layout-pass.md; distinct Larkhaven home briefs, entrance/input/visual checks and independently claimable follow-ups. Complements MAP-AUDIT #147; no engine or art edits. Done when the brief and COMMS handoff are published. Score 18/21 (fun 3x2, heart 2x2, friends 3, focus 2, cheap 3). (merged: PR #151; ticked 2026-10-11 by lane P)
 
 ## Part 4: what we've learned and actioned (newest first; every piece of work adds a line)
+
+- **2026-10-11, creature catalogue (Wildbond builder):** counting the data showed the real gap: 74 of 89 lines never evolve and every creature is drawn the same size. Growing existing creatures into lines beats adding loners, and the catalogue is now generated from the data (`tools/wildbond-catalog.cjs`, checked by run-all-checks) so it can't go stale.
+
+- **2026-10-11, WB-KEYS:** a caption that names the keys is easy to miss; a small key drawn beside you, with the word it does, at the moment it matters, is not. Keep such hints in the world, count uses and let them step aside (an older save starts as already knowing). Put the hint beside the player, never over the person you're about to talk to.
 
 - **2026-10-11, SF2.6c:** frame the whole landmark texture, not only its collision footprint, and reserve space for screen text. A fresh spawn plus a one-tile northern margin fixes the first view without moving existing saves; verify actual renderer captures and service routes at every supported shape. [Evidence](screenshots/starfall-opening-view/README.md).
 

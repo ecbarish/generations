@@ -103,6 +103,8 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 
 ## Session log (newest first; one or two lines each)
 - 2026-10-12 Claude (Priorities and direction): Evan's two changes: Realmbound early game first (RB1.10-RB1.12, end-game parked) and "Play, not watch" in GOALS.md (less automatic play, no full Auto; tasks RB1.11, AR2.14).
+- 2026-10-11 Claude (Wildbond builder): creature catalogue and pipeline for Evan: docs/wildbond-creatures.md (target ~150, tiers with six showpiece lines, world-fit rules after Cobblemon, a step-by-step for adding a creature, tasks CR1-CR8 in DEVELOPMENT-PATH WB-C) and a generated list, docs/wildbond-creatures/catalog.md.
+- 2026-10-11 Claude (Wildbond builder): WB-KEYS (QUEUE H2, the playtest pass 2 blocker): Wildbond shows its keys in the world the first times they matter (arrows over your head, the Talk key and word beside you, J beside the bag); gamepad buttons on a gamepad; nothing extra on a phone. Checks and screenshots in docs/screenshots/wildbond-keys/.
 
 - 2026-10-11 Claude (Continue Idle Arcade games thread): SF2.10 / H1, Starfall's goal line and on-screen controls (the playtest pass 2 blocker); 230 checks; play/starfall/ pack rebuilt so the Playtester can re-score.
 - 2026-10-11 Claude (ideas thread): Evan says Little Ranch is a big hit with his daughter. docs/proposals/little-ranch-next.md: new toddler toys as places inside Little Ranch (Little Wagon 17, Snack Kitchen 17, Paint Shed 16) and LR3-LR8 for the ranch. No builds; PRIORITIES places them.
