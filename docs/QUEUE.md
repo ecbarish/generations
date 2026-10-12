@@ -48,11 +48,11 @@ pull request list. One task per pull request; split a big one into steps and ope
 
 **Done since the last refresh:** WB5.1 the Spire (#129), WD4a Thornwood (#128), WB2.4 the homes, SF2.6 Starfall's own
 place (#157), SF2.7 the wilds (#174), SF2.8 by hand (#179), WB-DOOR-TAP (#177), WB4.2 part 1 and WB4.3 part 2 (#170).
-**Claimed now:** SF2.18 no mandatory chores (#187, draft), the Wildbond doorway preview (#183, draft).
+**Claimed now:** WB-KEYS (H2, #198). SF2.18 (#187) and SF2.10 (#195) are merged.
 
 | # | Big build (path ID) | Read first | Files | Done when |
 |---|---|---|---|---|
-| H1 | **Starfall says what to do next** (SF2.10; playtest pass 2 blocker: Starfall scored 11) | DEVELOPMENT-PATH SF2.10; docs/PLAYTEST.md pass 2 | `starfall-godot/` | A goal line naming the nearest unlock with its count, and the controls on screen after the opening; a newcomer replay scores 15+ |
+| H1 | ~~Starfall says what to do next (SF2.10)~~ **Done:** merged in #195 (2026-10-12) | | | |
 | H2 | **Wildbond shows its keys in game** (WB-KEYS; playtest pass 2) | docs/PLAYTEST.md pass 2; `controls.gd`, `touch_pad.gd` | `wildbond-godot/` | The first time each action matters, the key (or the pad button on a phone) appears in the world; a newcomer never needs the website to play |
 | H3 | **Battles with real choices** (WD3) | docs/proposals/game-review-2026-10-09.md GR-2; `rules.gd`, `battle.gd` | Wildbond data and battle scripts | About 60 moves (from 22), a signature move per family, a few statuses, each Warden fights with a plan; the pacing check (WB3.6b) still holds; checks for every status |
 | H4 | **Saltmarsh you can explore** (WD4b, then one area per PR in journey order: Emberfall, Cloudglass, ...) | GR-3; WD4a (#128) as the pattern | `wildbond-godot/` map data and scenes | A route, the settlement and one hidden pocket, with a spot you come back to with the right creature; old saves load in the right place; screenshots |
@@ -102,15 +102,13 @@ it, then self-check and merge (docs/PROCESS.md). Each line names its spec; read 
 **Done since the last refresh:** AC1 Storm Front, AC2 Lighthouse Watch, Brisket's Crossing (#160), LR1 and LR2 Little
 Ranch, AR2.11 "Tell us", AR2.12 the front door, RB1.4 to RB1.9 (Realmbound phone, abilities, inn, facing, 3D trial),
 DM2 and Diamond Manager v0.4.0 (#172), OW1.1, WD2's data half (#113), X2 links (#158), X3 Otherworld text (#104).
-**Claimed now:** AC3 Ember Bricks (#185), AC3.1 Brisket polish (#180), Diamond Manager v0.5.0 (#175), MAP-AUDIT-150
-(#176).
+**Claimed now:** AC3.1 Brisket polish (#180, draft), MAP-AUDIT-150 (#176, draft), RB-PLAY1 first-session check (#214,
+draft). Ember Bricks (#185) and Diamond Manager v0.5.0 to v0.8.0 are merged.
 
 | # | Task (path ID) | Spec | Files | Done when |
 |---|---|---|---|---|
 | 1 | **More moves as data** (WD3 data half; feeds H3) | game review GR-2 | browser Wildbond data, exported with `tools/godot-export` | About 60 moves, a signature move per family, a few statuses, balanced with the pacing sim |
-| 2 | **Diamond Manager: hiring coaches** (DM3) | docs/plans/sports-management.md | `games/diamond-manager/` | As the plan says; `tests/diamond-manager.html` passes; after #175 merges |
-| 3 | **Diamond Manager: morale and stories** (DM4) | as above | as above | As above |
-| 4 | **Diamond Manager: a league that stays balanced** (DM-B2), then **records and history** (DM7) | as above | as above | One PR each |
+| 2 | **Diamond Manager: the ballpark you see grow** (DM5; DM3, DM4, DM-B2 and DM7 merged as v0.6.0 to v0.8.0 in #196, #207, #208, #209) | docs/plans/sports-management.md | `games/diamond-manager/` | As the plan says; `tests/diamond-manager.html` passes; screenshots at 375 and 1920 |
 | 5 | **Lantern Bowl pitch** (LB0), then **the shared sports office** (LB1) | plans/sports-management.md "Game 2" | `docs/plans/`, `shared/sports-office.js` | A one-page pitch with three mock screens; then the office code shared with Diamond Manager, its tests passing |
 | 6 | **Realmbound: the hero only fights when you do** (RB1.11), with the first-hour playtest (RB1.10) | DEVELOPMENT-PATH RB-M1b; GOALS.md "Play, not watch" | `games/realmbound/`, `docs/playtests/` | As the path says; `tests/run.html` passes; old saves load |
 | 7 | **Realmbound: the first hour, made fun** (RB1.12), after RB1.10 lists the fixes; then **Play, not watch elsewhere** (AR2.14) | as above | `games/realmbound/`; `index.html`, `games/primordial/` | One PR per fix; the next newcomer playtest scores Realmbound 17+. (RB2.1 and RB2.2 parked by Evan, 2026-10-12) |
