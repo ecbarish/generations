@@ -102,7 +102,11 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-12 Claude (Priorities and direction): Evan's two changes: Realmbound early game first (RB1.10-RB1.12, end-game parked) and "Play, not watch" in GOALS.md (less automatic play, no full Auto; tasks RB1.11, AR2.14).
 
+- 2026-10-11 Claude (Continue Idle Arcade games thread): SF2.10 / H1, Starfall's goal line and on-screen controls (the playtest pass 2 blocker); 230 checks; play/starfall/ pack rebuilt so the Playtester can re-score.
+- 2026-10-11 Claude (ideas thread): Evan says Little Ranch is a big hit with his daughter. docs/proposals/little-ranch-next.md: new toddler toys as places inside Little Ranch (Little Wagon 17, Snack Kitchen 17, Paint Shed 16) and LR3-LR8 for the ranch. No builds; PRIORITIES places them.
+- **2026-10-11, Codex:** DM3 coach hiring/development in PR #196: two roles, six winter candidates, seasonal cash salaries and exact visible player gains; old saves and phone/laptop/desktop/ultrawide flows checked. No versions, Godot or other games changed.
 - 2026-10-11 Grok (Adam / abarish-dev, guest): LR15 Little Ranch grown-up panel cleanup and app mode (#215, v0.5.0). Little Ranch checks 96/96; the tick, changelog and this line are in the PR itself. The Android wrapper that uses app mode stays outside the repo.
 - 2026-10-11 Grok (Adam / abarish-dev, guest): LR14 Little Ranch moon's song (#212, v0.4.0). Three taps on the moon at night play Twinkle Twinkle Little Star while the baby sleeps. Little Ranch checks 79/79; the tick, changelog and this line are in the PR itself.
 - 2026-10-11 Grok (Adam / abarish-dev, guest): LR13 Little Ranch sun surprise (#211, v0.3.0). Five taps on the sun in the daytime bring a rainbow and a cheering baby. Little Ranch checks 66/66; the tick, changelog and this line are in the PR itself.
@@ -125,7 +129,6 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 - 2026-10-11 Claude (website thread): arcade v1.6.0, AR2.14. Classic editions in their own section with ribbons; guides labelled by edition; site and guide refreshes tied to milestones (docs/SITE-AND-GUIDES.md); hall upgrade ticket AR2.13 on the QUEUE road (#13).
 
 - 2026-10-11 Claude (Priorities and direction): docs/GOALS.md, short, medium and long-term goals for the arcade and each game (Evan asked). Wildbond's long term: the creature game people wish Pokémon was, six pillars drawn from the best fan games (Radical Red, Reborn, Cassette Beasts, Temtem, Coromon, Infinite Fusion, Insurgence) plus our own idea, the bond as the game.
-
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request ("do your suggestions"), merged SF2.18 no mandatory chores (#187, `a0e4787`) and SF2.20 Tamsin easier to reach (#190, `fa44b3a`). Adam dropped SF2.19 (extra board pins measured worse; #189 closed). The pacing re-measure is in docs/measurements/starfall-day-pacing.md. Then rebuilt play/starfall/ from `fa44b3a` (pack only, 3,252,424 bytes) in the PR that carries this line.
 - 2026-10-11 Claude (Priorities and direction): refreshed the shared docs after Evan heard they were stale. QUEUE's Heavy lifting (12 builds) and road ahead (12 tasks) rebuilt from what is really open; 11 merged path lines ticked; new WB-KEYS, LR3, AC-x; PRIORITIES section 4 and this Up next rewritten.
 - 2026-10-11 Grok (Adam / abarish-dev, guest): COMMS catch-up only. Ember Bricks is claimed in ready #185 (not free, not merged; hub stays v1.5.1; #180 untouched). #177 merged (`480dfc4`); its preview is draft #183. #181 and #182 are merged.

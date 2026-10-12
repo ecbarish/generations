@@ -39,6 +39,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Godot Starfall (2026-10-11, SF2.10): Starfall says what to do next. After the opening a goal line under the status bar names the nearest thing within reach (pin a request, serve meals until Bryn offers, the next rank, an empty plot, someone waiting for a word, a member's story, the next helper to earn) and counts down as you play; G or a tap on it lists the next three. The keys are shown the first time you need them and go once used. Old saves skip the key hints. 230 checks pass; web preview rebuilt.
+- Diamond Manager v0.6.0 (2026-10-11): coach hiring: optional hitting/pitching staff, one-season salaries and visible winter development gains (DM3, PR #196; version bumped on merge).
 - Godot Starfall preview (2026-10-11, SF-PREVIEW-200): rebuilt from merged `0af5b92` so new towns open with the complete Guild Hall roof/banner and inn roof. Exact pack passes real-browser movement and fresh/legacy saved-town reload checks; engine and save format unchanged. [Release evidence](docs/research/starfall-preview-opening.md).
 
 - Diamond Manager v0.6.0 (2026-10-11): coach hiring: optional hitting/pitching staff, one-season salaries and visible winter development gains (DM3, PR #196; version bumped on merge).
@@ -54,7 +56,6 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 - Godot Starfall (2026-10-11, SF2.6c): new towns open beside the Guild Hall with both full roofs and the banner in view. Removed three unused pack tiles; music and sounds remain. Existing towns keep their saved position and progress. [Before/after and checks](docs/screenshots/starfall-opening-view/README.md). Source change only; the web preview is not rebuilt by this PR.
 
 - Arcade v1.6.0 (2026-10-11, AR2.14): Classic versus the new version made obvious. Wildbond Classic and Starfall Guild Classic sit together in a last "Classic editions" section with a tan Classic ribbon and a link to their new version; the new versions carry a green "New version" ribbon. The guides page says which edition each guide covers and when it was last checked; the Diamond Career guide moves to "Older guides". The site and guides now refresh at milestones (docs/SITE-AND-GUIDES.md). The hall's cabinets keep one readable size in a row that scrolls as you walk, grouped like the sections with the Classics last; phones skip the hall and go straight to the section buttons and cards.
-
 - Wildbond (2026-10-11, WB-DOOR-TAP): clicking or tapping Larkhaven's inn, shop and both homes now queues entry just like the barn. The full-size phone directional pad is moved between the lower doorways so it no longer covers Nora's entrance. Door collisions, walking distance, keyboard controls, phone preferences and saves are unchanged; source fix only, web preview not re-exported.
 
 - Wildbond (2026-10-11, keys in the game): the opening's notes now name the controls for whatever you're playing on (keys, a gamepad or a phone): how to walk, talk and open your field book (Playtester's note).
