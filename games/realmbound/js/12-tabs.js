@@ -168,7 +168,7 @@ addons:{
       ${u?(a.id==='macro'?`<div class="meta" id="macroInfo"></div>`:''):`<div class="meta" id="ar-${a.id}"></div>`}</div>
       <div class="r">${u?`<button class="tgl" data-act="addon" data-arg="${a.id}" id="at-${a.id}" aria-label="${a.name} on or off"></button>`:''}</div></div>`;}).join('');},
   update(){const h=H();for(const a of ADDONS){const t=$('#at-'+a.id);if(t)t.setAttribute('aria-pressed',h.addons.on[a.id]?'true':'false');const r=$('#ar-'+a.id);if(r){const [x,n]=a.prog();r.textContent=`${a.req}: ${fmtI(Math.min(x,n))}/${n}`;}}
-    const mi=$('#macroInfo');if(mi)mi.textContent=`Auto mode plays at ${Math.round(aiEff()*100)}% efficiency. ${fmtI(h.stats.manual)} presses so far.`;}
+    const mi=$('#macroInfo');if(mi)mi.textContent=`Earned Auto helps only on out-levelled roads, at ${Math.round(aiEff()*100)}% efficiency. ${fmtI(h.stats.manual)} presses so far.`;}
 },
 journal:{
   key(){return 'j'+(H().pace||'classic')+!!H().dun;},

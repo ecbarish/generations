@@ -919,3 +919,12 @@ Add one line per issue: what happened, where (zone or screen), and the character
 - [x] Document the artist contract, token vocabulary and species contact sheet. Do not change Godot or browser screens; renderer adoption is separate.
 - [x] Check complete coverage, unique silhouettes/markings, JSON export and save independence; run all suites.
 - Files: games/wildbond/js/00-data.js, games/wildbond/js/07-ranch.js (attach hybrid data only), tests/wildbond-checks.js, docs/lore/wildbond-looks.md and coordination docs.
+
+### RB1.11: Realmbound, play rather than watch
+
+- [x] Remove Focus's idle AI fallback, including established heroes. Every opponent waits for a deliberate Fight/ability order; pause both sides if the player stops giving combat input. Show the action inside the game window.
+- [x] Reuse the Rotation Macro's 500 manual ability-use milestone for earned Auto, only strictly above the region's upper level and never in dungeons/raids. No new full Auto system; retain existing loot, selling and repair conveniences.
+- [x] Give only bounded rested XP for away time. Hidden tabs cannot simulate combat; loading and returning from hidden/suspended sessions do not resume Auto without a choice. Old earned progress loads unchanged.
+- [x] Check idle starts/resumes, pets/companions/timers, every region's mastery boundary, save reload and away rewards; exercise actual UI at phone, laptop, desktop and ultrawide sizes. All arcade suites pass. This is not the independent first-hour playtest (RB1.10).
+- Files: games/realmbound/, tests/realmbound-scenarios.cjs, tests/realmbound-active-play-ui.cjs, guides/realmbound*.html, docs/playtests/realmbound-active-play.md, its screenshots and normal coordination lines. No shared/Godot/preview or version edits.
+- Ready for review: Codex, PR #218, stacked after #214.

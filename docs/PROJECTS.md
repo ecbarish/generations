@@ -8,6 +8,7 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 
 | ID | Project | Size | Status | Notes |
 |---|---|---|---|---|
+| RB1.11 | Active play and rested time away | M | ready: Codex, PR #218 | No idle combat; Auto only on out-levelled roads; old saves load |
 | RB-PLAY1 | First-session audit and immediate fixes | S | ready: Codex, PR #214 | Focus town ownership, clear travel and quest return; human validation still needed |
 
 ## Realmbound readability

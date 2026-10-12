@@ -105,6 +105,8 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 - 2026-10-12 Claude (sports thread): Diamond Manager v0.8.1: balls in play keep a watchable pace at Fast and Very fast, infielders react, first baseman covers, batter runs it out (Evan saw only strikeouts at speed).
 - 2026-10-12 Claude (Priorities and direction): long runway: QUEUE "The direction" section, Heavy lifting H1-H20, road 16 rows (LB2+ unparked, AC5/AC6 added), WD3 ticked.
 
+- **2026-10-12, Codex:** RB1.11 in PR #218, stacked after #214: active encounters, no idle fallback, earned easy-road Auto, rested time away and safe old-save reload. First-hour/human enjoyment validation remains separate; raids parked.
+
 - **2026-10-11, Codex:** Evan deferred another Realmbound raid for player validation; #213 released/closed. RB-PLAY1 in PR #214 audits the first quest and fixes Focus town ownership, travel restrictions and visible return guidance. Human fun/first-party validation remains; no endgame content built.
 - 2026-10-12 Claude (Priorities and direction): Evan's two changes: Realmbound early game first (RB1.10-RB1.12, end-game parked) and "Play, not watch" in GOALS.md (less automatic play, no full Auto; tasks RB1.11, AR2.14).
 - 2026-10-11 Claude (Wildbond builder): creature catalogue and pipeline for Evan: docs/wildbond-creatures.md (target ~150, tiers with six showpiece lines, world-fit rules after Cobblemon, a step-by-step for adding a creature, tasks CR1-CR8 in DEVELOPMENT-PATH WB-C) and a generated list, docs/wildbond-creatures/catalog.md.

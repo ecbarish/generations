@@ -312,16 +312,16 @@ module.exports = function scenarios() {
         const t=rb.newHero('Thirdcheck','wild','duskelf','priest');t.lvl=60;rb.S.chars.push(t);rb.S.cur=t.id;rb.boot();
         t.talents={twindisc:5,atonement:5};rb.boot();check(rb.heroRole()==='heal','a Discipline priest heals in groups');
         rb.spawn();const C=rb.C;C.mob.max=C.mob.hp=1e7;C.hp=ST.hpMax*.5;const hp0=C.hp;ABIL.priest.find(a=>a.id==='smite').fn();check(C.hp>hp0,'Atonement: Holy Smite heals you when you are hurt worst');
-        t.talents={atonement:5,twindisc:5,mentalstr:5,divfury:5,dgrace:4,penance:1,painsup:1};C.buffs={};rb.boot();const raw=ST.hpMax*.2;rb.spawn();rb.C.mob.max=rb.C.mob.hp=1e7;rb.C.hp=ST.hpMax;
+        t.talents={atonement:5,twindisc:5,mentalstr:5,divfury:5,dgrace:4,penance:1,painsup:1};C.buffs={};rb.boot();const raw=ST.hpMax*.2;rb.spawn();rb.C.lastInput=rb.C.run;rb.C.mob.max=rb.C.mob.hp=1e7;rb.C.hp=ST.hpMax;
         const before=rb.C.hp;hitHero(raw);const plain=before-rb.C.hp;rb.C.hp=ST.hpMax;rb.C.buffs.painsup={t:8};const b2=rb.C.hp;hitHero(raw);check(b2-rb.C.hp<plain*.75,'Pain Suppression cuts the damage you take');rb.C.buffs={};
         check(ABIL.priest.find(a=>a.id==='smite').cast()<2,'Divine Fury makes Holy Smite faster');
         t.cls='warrior';t.talents={rampage:4};rb.boot();rb.spawn();rb.C.mob.hp=rb.C.mob.max*.27;check(ABIL.warrior.find(a=>a.id==='finish').cond(),'Rampage lets Finishing Blow land below 30%');
         t.talents={};rb.boot();rb.spawn();rb.C.mob.hp=rb.C.mob.max*.27;check(!ABIL.warrior.find(a=>a.id==='finish').cond(),'without Rampage Finishing Blow still waits for 20%');
-        t.cls='rogue';t.talents={shadowdance:1};rb.boot();rb.spawn();rb.C.mob.max=rb.C.mob.hp=1e7;rb.C.buffs.dance={t:8};openWin('opening',8);ABIL.rogue.find(a=>a.id==='backstab').fn();
+        t.cls='rogue';t.talents={shadowdance:1};rb.boot();rb.spawn();rb.C.lastInput=rb.C.run;rb.C.mob.max=rb.C.mob.hp=1e7;rb.C.buffs.dance={t:8};openWin('opening',8);ABIL.rogue.find(a=>a.id==='backstab').fn();
         check(rb.C.win.opening>0,'Shadow Dance keeps the Backstab opening after a Backstab');rb.C.buffs={};
         t.cls='hunter';t.talents={lockload:1};rb.boot();rb.spawn();rb.C.buffs.lnl={t:12};check(ABIL.hunter.find(a=>a.id==='shot').cast()===0,'Lock and Load makes the next Steady Shot instant');
         rb.C.mob.max=rb.C.mob.hp=1e7;ABIL.hunter.find(a=>a.id==='shot').fn();check(!rb.C.buffs.lnl,'and is used up by that shot');
-        t.cls='mage';t.talents={};rb.boot();rb.spawn();rb.C.mob.max=rb.C.mob.hp=1e7;const m0=dmgMods();rb.C.buffs.arcpower={t:15};check(dmgMods()>m0*1.3,'Arcane Power raises your damage');rb.C.buffs={};
+        t.cls='mage';t.talents={};rb.boot();rb.spawn();rb.C.lastInput=rb.C.run;rb.C.mob.max=rb.C.mob.hp=1e7;const m0=dmgMods();rb.C.buffs.arcpower={t:15};check(dmgMods()>m0*1.3,'Arcane Power raises your damage');rb.C.buffs={};
         t.cls='priest';t.lvl=45;t.talents={twindisc:3};t.freeRespecUsed=true;delete t.freeTreesV;t.money=0;rb.boot();check(rb.respecCost()===0,'everyone gets one more free reset for the third trees');
         rb.respec();check(!Object.keys(t.talents).length&&t.freeTreesV===3,'that reset is used once');t.talents={twindisc:1};check(rb.respecCost()===10000,'later resets cost gold again');
         rb.S.chars=rb.S.chars.filter(c=>c!==t);rb.S.cur=tw.id;rb.boot();}
@@ -396,7 +396,7 @@ module.exports = function scenarios() {
         check(rb.S.bank.ore===Math.floor(3600/per)&&per===400,'a level-20 miner sends about 9 ore an hour to the shared bank');
         rb.S.tab='supplies';renderTab(true);check(/Jobs board/.test(document.querySelector('#tabbody').innerHTML)&&/Supplyb/.test(document.querySelector('#tabbody').innerHTML),'the Supplies tab shows the bank and the jobs board');
         rb.S.bank.ore=7;check(craftKit()&&rb.S.bank.ore===1&&rb.S.bank.kit===1,'six ore make a repair kit');
-        A.gear.weapon.dur=20;rb.C.run=100;rb.C.lastInput=100;A.mode='auto';afterFight();
+        A.gear.weapon.dur=20;rb.C.run=100;rb.C.lastInput=100;A.addons.unl.macro=true;A.mode='auto';afterFight();
         check(A.gear.weapon.dur===100&&rb.S.bank.kit===0&&rb.C.phase!=='town','Auto mends worn gear with a kit instead of walking to town');
         A.gear.weapon.dur=20;afterFight();check(rb.C.phase==='town','with no kits left Auto walks back to town as before');A.mode='focus';
         rb.S.guild.jobs[B.id].since-=1800e3;switchTo(B.id);
@@ -408,7 +408,7 @@ module.exports = function scenarios() {
         check(ROSTER.assign(W.id,'herb')&&ROSTER.busy()===1,'a hero can gather herbs');rb.S.guild.jobs[String(W.id)].since-=3600e3;supplyTick();
         check(rb.S.bank.herb===Math.floor(3600/JOBS.herb.every(W.id)),'herbs arrive in the shared bank');
         rb.S.bank.herb=8;check(craftPotion()&&craftPotion()&&rb.S.bank.potion===2&&rb.S.bank.herb===0,'four herbs brew a healing potion');
-        rb.spawn();rb.C.mob.max=rb.C.mob.hp=1e7;rb.C.hp=ST.hpMax*.25;rb.step(.1);check(rb.S.bank.potion===1&&rb.C.hp>ST.hpMax*.5,'below 30% health in a fight you drink a potion');
+        rb.spawn();rb.C.lastInput=rb.C.run;rb.C.mob.max=rb.C.mob.hp=1e7;rb.C.hp=ST.hpMax*.25;rb.step(.1);check(rb.S.bank.potion===1&&rb.C.hp>ST.hpMax*.5,'below 30% health in a fight you drink a potion');
         rb.C.hp=ST.hpMax*.25;rb.step(.1);check(rb.S.bank.potion===1,'only one potion a minute');
         rb.C.cds.potion=0;rb.S.bank.autoPot=false;rb.C.hp=ST.hpMax*.25;rb.step(.1);check(rb.S.bank.potion===1,'potion drinking can be switched off');rb.S.bank.autoPot=true;rb.C.hp=ST.hpMax;rb.C.mob=null;rb.C.phase='seek';
         ROSTER.stop(W.id);const lv0=W.lvl,xp0=W.xp,need=rb.xpNeed(W.lvl);ROSTER.assign(W.id,'quest');rb.S.guild.jobs[String(W.id)].since-=3600e3;supplyTick();
@@ -543,7 +543,7 @@ module.exports = function scenarios() {
         const keepP=window.pellHere;pellHere=()=>true;const pell=townPeople().find(n=>n.id==='pell');check(!!pell,'Pell visits the town now and then');
         tw.money=1000;const pots=bank().potion;while(RTALK)SCN.skip();townTalk(pell);SCN.choose(0);check(bank().potion===pots+1&&tw.money===800,'Pell sells a healing potion for 2 silver');pellHere=keepP;PW=questWidth;
         TOWN_WALK.place(13,14,'down');TOWN_WALK.step('down');check(rb.C.phase==='seek','the town gate takes you back on the road');
-        tw.mode='auto';rb.C.phase='intown';townEnter();tw.bags.push(genJunk(20,'beast'));for(let i=0;i<2000&&rb.C.phase==='intown';i++){TOWN_WALK.tick(.05);townAutoTick();}
+        tw.addons.unl.macro=true;tw.mode='auto';rb.C.phase='intown';townEnter();tw.bags.push(genJunk(20,'beast'));for(let i=0;i<2000&&rb.C.phase==='intown';i++){TOWN_WALK.tick(.05);townAutoTick();}
         check(rb.C.phase==='seek'&&!tw.bags.some(i=>i.junk),'on Auto your hero visits the smithy, then walks out of the gate');
         const wk=World.walker({map:()=>({rows:['...','.#.','...']}),tiles:{'.':{},'#':{solid:1}},pos:()=>wpos,on:{}}),wpos={x:0,y:0,dir:'down'};wk.place(0,0);
         check(wk.walkTo(2,2)&&wk.path.length===4,'the shared walker finds the shortest way around walls');
@@ -745,14 +745,14 @@ module.exports = function scenarios() {
         spawn();C.mob.hp=0;onKill();const victoryAt=C.run;
         check(hero.stats.kills===1&&!aiOn(),'RB1.5: a real first victory starts the grace period');
         C.run= victoryAt+15;check(!aiOn(),'RB1.5: full fifteen seconds after the first victory');
-        C.run+=.01;check(aiOn(),'RB1.5: established Focus fallback resumes after fifteen seconds');
+        C.run+=.01;check(!aiOn(),'RB1.11: Focus never falls back after fifteen seconds or a first victory');
         hero.mode='auto';SCN.play([['Farmer Aldous','Take your time.']],null);
         const before=JSON.stringify(C);step(30);check(JSON.stringify(C)===before&&!aiOn(),'RB1.5: every dialogue pauses combat even in explicit Auto');
 
         hero.quests.active=[firstErrand(hero).id];hero.quests.prog[firstErrand(hero).id]=99;
         questHelper();check(!hero.quests.done[firstErrand(hero).id],'RB1.5: QuestHelper cannot choose rewards behind a conversation');
         const kills=hero.stats.kills;offline(3600,true);check(hero.stats.kills===kills,'RB1.5: long background gaps cannot hunt behind a conversation');
-        SCN.skip();check(aiOn(),'RB1.5: explicitly chosen Auto resumes after dialogue');
+        SCN.skip();check(!aiOn(),'RB1.11: unearned Auto cannot resume after dialogue');
         hero.mode='focus';C.lastInput=C.run;check(!aiOn(),'RB1.5: manual control resets established fallback');
         const legacy=migrate({v:1,cur:hero.id,chars:[JSON.parse(JSON.stringify(hero))],last:Date.now()}).chars[0];
         check(legacy.stats.kills===1,'RB1.5: existing victory record survives save migration without a new field');
@@ -771,7 +771,7 @@ module.exports = function scenarios() {
         rb.boot();check(!RTALK,faction+'/'+cls+': completed arrival does not replay on load');
         rb.C.phase='fight';rb.spawn();rb.C.gcd=0;rb.C.cast=null;rb.C.res=CLASSES[cls].res==='rage'?0:ST.resMax;
         const action=roadAction(),hint=roadHint();
-        check(hint&&hint.id==='fight'&&hint.text.includes('15 seconds')&&hint.text.includes('Basic attacks'),faction+'/'+cls+': existing Focus and fallback explained');
+        check(hint&&hint.id==='fight'&&hint.text.includes('ten seconds')&&hint.text.includes('Basic attacks'),faction+'/'+cls+': active Focus and safe pause explained');
         const available=bar().find(a=>canUse(a,true));
         check(available?action.includes(available.name)&&knows(available.id):action.includes('Rage'),faction+'/'+cls+': advice follows usable action or rage limitation');
         const run=rb.C.run;rb.step(.1);check(rb.C.run>run,faction+'/'+cls+': combat resumes after Skip');
@@ -947,9 +947,9 @@ module.exports = function scenarios() {
             const inn=townBuildings().find(b=>b.kind==='inn');C.hp=1;townDoor(inn);check(TOWN.inside==='inn'&&C.hp===1,tag+': Inn waits for deliberate rest');
             check(!openMemberStoryBook(),tag+': Inn cannot open Guild Hall stories');townTalk(townPeople()[0]);SCN.skip();SCN.choose(0);check(C.hp===ST.hpMax,tag+': Keeper restores health');
             C.hp=1;townTalk(townPeople()[0]);const abandoned=RTALK.done;boot();const afterBoot=C.hp;abandoned(0);check(!RTALK&&C.hp===afterBoot,tag+': reloading clears and invalidates pending service');
-            C.phase='intown';hero.mode='auto';hero.bags.push(genJunk(60,'beast'));townEnter();
+            C.phase='intown';hero.addons.unl.macro=true;hero.mode='auto';hero.bags.push(genJunk(60,'beast'));townEnter();
             for(let i=0;i<2000&&C.phase==='intown';i++){townAutoTick();TOWN_WALK.tick(.05);}
-            check(C.phase==='seek'&&!hero.bags.some(i=>i.junk)&&!RTALK,tag+': Auto sells, repairs and finds regional road exit');hero.mode='focus';
+            check(autoAllowed()?C.phase==='seek'&&!hero.bags.some(i=>i.junk)&&!RTALK:C.phase==='intown'&&!TOWN.auto,tag+': earned out-levelled Auto retains its route; current-level roads stay manual');hero.mode='focus';
           }
           check(layouts.size>=8,'R6: all eight regions have distinct footprints');
           hero.zone='fens';boot();C.phase='intown';townEnter();check(TOWN.map.rows.join('').includes('~')&&TOWN.map.rows.join('').includes('_'),'R6: Fenwatch has water and boardwalk');
@@ -1127,11 +1127,48 @@ module.exports = function scenarios() {
       }
 
       // RB-PLAY1: an idle Focus town visit is still the player's visit, not combat fallback's errand.
-      {const keep=S,keepC=C,width=PW;try{S=JSON.parse(JSON.stringify(S));const hero=newHero('First Road','concord','human','warrior');hero.onboarding=null;hero.mode='focus';hero.stats.kills=1;S.chars=[hero];S.cur=hero.id;PW=1000;boot();closeModal();closeRealmNotebook(false);C.run=100;C.lastInput=0;C.phase='intown';C.townT=.01;hero.money=1000;hero.gear.weapon.dur=40;townEnter();const money=hero.money,dur=hero.gear.weapon.dur;check(aiOn()&&!townAuto(),'RB-PLAY1: combat fallback does not delegate a Focus town visit');step(40);townAutoTick();check(C.phase==='intown'&&!TOWN.auto&&hero.money===money&&hero.gear.weapon.dur===dur,'RB-PLAY1: idle Focus does not buy repairs, choose a route or leave town');updateWorld();check($('#modeHint').textContent.includes('Take your time in town')&&!$('#status').textContent.includes('Smithy'),'RB-PLAY1: idle Focus town explains manual walking and talking');
+      {const keep=S,keepC=C,width=PW;try{S=JSON.parse(JSON.stringify(S));const hero=newHero('First Road','concord','human','warrior');hero.onboarding=null;hero.mode='focus';hero.stats.kills=1;S.chars=[hero];S.cur=hero.id;PW=1000;boot();closeModal();closeRealmNotebook(false);C.run=100;C.lastInput=0;C.phase='intown';C.townT=.01;hero.money=1000;hero.gear.weapon.dur=40;townEnter();const money=hero.money,dur=hero.gear.weapon.dur;check(!aiOn()&&!townAuto(),'RB1.11: idle Focus delegates neither combat nor a town visit');step(40);townAutoTick();check(C.phase==='intown'&&!TOWN.auto&&hero.money===money&&hero.gear.weapon.dur===dur,'RB-PLAY1: idle Focus does not buy repairs, choose a route or leave town');updateWorld();check($('#modeHint').textContent.includes('Take your time in town')&&!$('#status').textContent.includes('Smithy'),'RB-PLAY1: idle Focus town explains manual walking and talking');
        const inn=townBuildings().find(b=>b.kind==='inn');C.hp=1;townDoor(inn);check(TOWN.inside==='inn'&&C.hp===1,'RB-PLAY1: idle Focus still enters the Inn without auto-healing');townTalk(townPeople()[0]);SCN.skip();SCN.choose(0);check(C.hp===ST.hpMax,'RB-PLAY1: the Keeper heals when deliberately asked');townExit();
-       hero.mode='auto';townEnter();check(townAuto()&&TOWN.auto==='smith','RB-PLAY1: explicit Auto still delegates the town route');C.townT=.01;step(.1);check(C.phase==='seek','RB-PLAY1: explicit Auto still repairs and leaves');hero.mode='focus';C.phase='intown';TOWN.auto='smith';TOWN_WALK.path=[[1,1]];townAutoTick();check(!TOWN.auto&&!TOWN_WALK.path.length,'RB-PLAY1: switching Focus cancels only the automatic town route');
+       hero.lvl=20;hero.addons.unl.macro=true;hero.mode='auto';townEnter();check(townAuto()&&TOWN.auto==='smith','RB-PLAY1: explicit Auto still delegates the town route');C.townT=.01;step(.1);check(C.phase==='seek','RB-PLAY1: explicit Auto still repairs and leaves');hero.mode='focus';C.phase='intown';TOWN.auto='smith';TOWN_WALK.path=[[1,1]];townAutoTick();check(!TOWN.auto&&!TOWN_WALK.path.length,'RB-PLAY1: switching Focus cancels only the automatic town route');
        C.phase='fight';openRealmNotebook('map');check($('#fieldGoTown').disabled&&$('#fieldTownReason').textContent.includes('finish this fight'),'RB-PLAY1: Map visibly explains combat travel restriction');closeRealmNotebook(false);C.phase='seek';openRealmNotebook('map');check(!$('#fieldGoTown').disabled&&$('#fieldTownReason').hidden,'RB-PLAY1: safe travel becomes available without a new rule');closeRealmNotebook(false);hero.dun={id:'vault',tier:0,step:0,mods:[],wipes:0};syncFieldTownButton();check($('#fieldGoTown').disabled&&$('#fieldTownReason').textContent.includes('dungeon'),'RB-PLAY1: Map explains dungeon travel restriction');hero.dun=null;
        const q=QUESTS[hero.zone][0];hero.quests.active=[q.id];hero.quests.prog[q.id]=q.n;hero.quests.done={};updateWorld();check(!document.getElementById('fieldQuestReady').hidden,'RB-PLAY1: a ready request is visible on the carried Journal while the book is put away');openRealmNotebook('quests');const rewards=JSON.stringify(qReward(q)),coins=hero.money;findPlaceQuest(q.id);check(FIELD_BOOK==='map'&&realmNotebookOpen()&&hero.money===coins&&!hero.quests.done[q.id]&&JSON.stringify(qReward(q))===rewards,'RB-PLAY1: meeting a ready giver opens the Map without choosing or granting rewards');closeRealmNotebook(false);
       }finally{clearTownService();closeRealmNotebook(false);clearArrival();S=keep;C=keepC;PW=width;if(H())boot();}}
+
+      // RB1.11: inactivity never awards combat; earned Auto is restricted on every road.
+      {const keep=S,keepC=C;try{
+        const hero=newHero('Active Road','concord','human','warrior');hero.onboarding=null;S=emptyS();S.chars=[hero];S.cur=hero.id;boot();closeModal();closeRealmNotebook(false);
+        const progress=()=>JSON.stringify({lvl:hero.lvl,xp:hero.xp,money:hero.money,stats:hero.stats.kills,quests:hero.quests,bags:hero.bags,gear:hero.gear});
+        spawn();const before=progress(),hp=C.hp,mhp=C.mob.hp;for(let i=0;i<6000;i++)step(.1);
+        check(progress()===before&&C.hp===hp&&C.mob.hp===mhp&&C.fightT===0,'RB1.11: ten idle minutes from a fresh encounter give no attacks, damage, XP, kills, gear wear or quest progress');
+        updateWorld();check(!$('#fightBtn').hidden&&$('#mAuto').disabled&&$('#modeHint').textContent.includes('waits for you'),'RB1.11: new hero sees Fight and a locked Auto with an explanation');
+        $('#mAuto').click();check(hero.mode==='focus','RB1.11: disabled Auto cannot start combat');
+        $('#fightBtn').click();const clock=C.fightT;step(.1);check(C.fightT>clock&&!combatWaiting(),'RB1.11: actual Fight button starts the deliberate exchange');
+        C.mob.max=C.mob.hp=1e9;C.hp=ST.hpMax;C.run=C.lastInput+10;const frozen=JSON.stringify({hp:C.hp,mob:C.mob,buffs:C.buffs,gcd:C.gcd,cds:C.cds,party:C.party,res:C.res});for(let i=0;i<600;i++)step(.1);
+        check(JSON.stringify({hp:C.hp,mob:C.mob,buffs:C.buffs,gcd:C.gcd,cds:C.cds,party:C.party,res:C.res})===frozen&&!aiOn(),'RB1.11: inactive fight freezes both sides and every combat timer without fallback');
+        $('#mFocus').click();check(combatWaiting(),'RB1.11: clicking a mode is not permission to resume a fight');
+        beginFight();check(!combatWaiting(),'RB1.11: an explicit resume restores control');
+        spawn();check(combatWaiting(),'RB1.11: a new opponent requires a fresh order even after recent combat');
+        hero.stats.kills=100;C.run+=1000;check(!aiOn(),'RB1.11: established heroes never acquire idle fallback');
+        const lootProgress=progress();const r=offline(86400,true);check(progress()===lootProgress&&r.kills===0&&r.xp===0&&r.money===0&&r.levels===0&&hero.rested>0&&hero.rested<=xpNeed(hero.lvl)*1.5,'RB1.11: a day away grants bounded rested XP only');
+        const cap=hero.rested;offline(1e9);check(hero.rested===cap,'RB1.11: repeated away calls cannot exceed the rested cap');
+        check(!offline(NaN)&&!offline(Infinity)&&!offline(-1),'RB1.11: invalid away intervals are ignored');
+        check(!offlineHTML(r).includes('kept hunting')&&offlineHTML(r).includes('road waits'),'RB1.11: welcome-back copy describes rest rather than fabricated hunting');
+        for(const zone of Object.keys(ZONES)){
+          hero.zone=zone;hero.lvl=ZONES[zone].lv[1];hero.addons.unl.macro=true;hero.mode='auto';check(!autoAllowed()&&!aiOn(),zone+': Auto is unavailable at the zone cap');
+          hero.lvl++;check(hero.lvl<=LEVEL_CAP?autoAllowed()&&aiOn():!autoAllowed()&&!aiOn(),zone+': earned Auto works only on out-levelled roads within the hero level cap');
+          hero.dun={id:'sanctum'};check(!autoAllowed()&&!aiOn(),zone+': dungeons never permit Auto');hero.dun=null;
+          hero.addons.unl.macro=false;hero.stats.manual=499;check(!autoAllowed(),zone+': out-levelling alone does not earn Auto');hero.stats.manual=500;check(hero.lvl<=LEVEL_CAP?autoAllowed():!autoAllowed(),zone+': 500 real ability presses earns the existing Macro, never a level-cap bypass');hero.stats.manual=0;
+        }
+        hero.zone='thornvale';hero.lvl=20;hero.addons.unl.macro=true;hero.mode='auto';save();const saved=JSON.parse(localStorage.getItem(KEY));S=migrate(saved);boot();check(H().mode==='focus'&&H().lvl===20&&H().stats.kills===100,'RB1.11: old Auto save reloads in Focus with its earned progress intact');
+      }finally{S=keep;C=keepC;if(H())boot();}}
+
+      {const keep=S,keepC=C;try{
+        const h=newHero('Patient Hunter','concord','human','hunter');h.onboarding=null;h.lvl=20;S=emptyS();S.chars=[h];S.cur=h.id;boot();closeModal();h.grind='wolf';spawn();startTame();finishTame();spawn();
+        h.npcs[0].cls='priest';h.party=[h.npcs[0].id];syncParty();C.party[0].hp*=.5;
+        C.hp=ST.hpMax*.2;C.mob.dots.test={per:99,left:2,t:.01,label:'Test'};C.buffs.renew={t:5,tick:.01,amt:50};C.cast={t:2,max:2,a:{name:'Test cast'}};C.cds.potion=3;C.gcd=2;C.surge={t:.01};C.win.dodge=1;C.lastInput=-99;
+        const ledger=()=>JSON.stringify({hp:C.hp,mob:C.mob,party:C.party,pet:petOf(),cast:C.cast,buffs:C.buffs,cds:C.cds,gcd:C.gcd,surge:C.surge,win:C.win,res:C.res,tame:C.taming});const before=ledger();for(let n=0;n<200;n++)step(.1);
+        check(ledger()===before,'RB1.11: inactive Hunter freezes real pet, healer companion, DoT, cast, healing, cooldown, resource and boss-reaction timers together');
+        const pet=petOf(),ps=petStats(pet);check(pet.hp>0&&C.party.length===1&&C.party[0].n.cls==='priest'&&ps.hpMax>0,'RB1.11: pause fixture contains a living pet and a real healer, not empty placeholders');
+      }finally{S=keep;C=keepC;if(H())boot();}}
 return checks;
 };

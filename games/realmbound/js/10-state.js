@@ -34,12 +34,11 @@ function save(){S.last=Date.now();const h=H();
   if(h&&C){h.cur={hp:C.hp,res:C.res};h.lastPlayed=Date.now();}
   Arcade.save(KEY,S);
   if(h)Arcade.report('realmbound',{summary:`${h.name}, level ${h.lvl} ${RACES[h.race].name} ${CLASSES[h.cls].name}`,detail:`${ZONES[h.zone].name} · ${S.chars.length} character${S.chars.length>1?'s':''}`});}
-/* hunt=false for characters you weren't playing: like a classic logout, they only rest at the inn */
+/* Away time rests the hero; the old hunt argument is deliberately ignored. */
 function offline(sec,hunt){
-  const h=H();if(!h||sec<60)return null;sec=Math.min(sec,86400);if(hunt===undefined)hunt=true;
+  const h=H();if(!h||!Number.isFinite(sec)||sec<60)return null;sec=Math.min(sec,86400);
+  h.rested=Number.isFinite(h.rested)?Math.max(0,h.rested):0;
   const restedGain=h.lvl<LEVEL_CAP?Math.max(0,Math.min(xpNeed(h.lvl)*1.5-h.rested,sec/3600*xpNeed(h.lvl)*.15)):0;h.rested+=restedGain;
-  const kills=hunt&&!RTALK&&(h.mode==='auto'||h.stats.kills>0)?Math.floor(sec*.5/Math.max(8,h.avg.cycle)):0;const lvl0=h.lvl;let xp=0;const money=Math.round(kills*h.avg.money);
-  if(kills>0&&h.lvl<LEVEL_CAP){xp=Math.round(kills*h.avg.xp);gainXP(xp,false);}h.money+=money;h.stats.kills+=kills;
-  return {sec,kills,xp,money,levels:h.lvl-lvl0,rested:restedGain};
+  return {sec,kills:0,xp:0,money:0,levels:0,rested:restedGain};
 }
 
