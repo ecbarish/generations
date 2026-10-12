@@ -1,6 +1,6 @@
 # AC3.2: Brisket easier opening
 
-Claim: [draft #233](https://github.com/ecbarish/idle-arcade/pull/233), dot engineering task for Adam, 2026-10-12. Adam reports the opening feels too tightly packed, particularly on his phone. No merge or publication is authorized.
+Released v0.1.2: Adam-approved [#233](https://github.com/ecbarish/idle-arcade/pull/233), merged as `032bbd09988e8186567309c9c567a5f03b365eb3` on 2026-10-12. [Play the verified release](https://ecbarish.github.io/idle-arcade/games/briskets-crossing/). This addresses Adam's report that the opening felt too tightly packed on his phone.
 
 ## Focused change
 
@@ -36,3 +36,13 @@ Selected original screenshots, unchanged from artifact `11761845137` (full ZIP d
 - [All opening metrics](captures/summary.json)
 
 Local Chromium was unavailable in the preceding task, so GitHub Actions supplied browser execution. Chromium emulation is not physical-device or Safari testing. The timed routes establish reachable crossings, not human reaction success or enjoyment. Existing time-left scoring makes new records easier to achieve; score balance is intentionally changed, while saved records remain compatible.
+
+## Verified public release
+
+Adam approved merge/publication at 17:17 UTC. Final release head `61a53030940b68272cdb60f9c0ca663fcae9fdba` passes [all 19 suites](https://github.com/ecbarish/idle-arcade/actions/runs/38283500276) and [57 Brisket + 336 responsive + 448 opening checks](https://github.com/ecbarish/idle-arcade/actions/runs/38283500366). Merge `032bbd09988e8186567309c9c567a5f03b365eb3` is [deployed by Pages](https://github.com/ecbarish/idle-arcade/actions/runs/38283973649).
+
+At **2026-10-12 17:27:15 UTC**, the [actual public verifier](https://github.com/ecbarish/idle-arcade/actions/runs/38284204107) passed **40 checks and eight exact public hashes**. It opened the real public site at 375×812, 812×375 and 1366×768, verified the wider three-wagon opening and 56-second/0.8-speed model, made a real first touchscreen hop while retaining three lives, induced a real hit/recovery, paused/rotated/resumed and reloaded an old v1 score unchanged. It neither injects a game-state hook nor routes public game files through replacements. Live screenshots were inspected.
+
+[Verification JSON with hashes](live/verification.json), [portrait first touch](live/375x812-first-touch.png), [landscape first touch](live/812x375-first-touch.png), [portrait recovery](live/375x812-recovery.png). Original artifact `11762157933` (`14b6f459f8ac0039f9716c2bef9ee1271b09d767c294007c1714dd0b1a49c85b`, expires 2027-01-10) retains all nine screenshots. This verifies Chromium-emulated publication; physical-device and Safari testing remain outside the evidence.
+
+Scoped documentation/verifier handoff: [#236](https://github.com/ecbarish/idle-arcade/pull/236). Its final-head and postmerge checks are recorded in the PR/Tower without rewriting the historical implementation captures.

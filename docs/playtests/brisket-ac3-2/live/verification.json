@@ -1,0 +1,143 @@
+{
+  "verified_at": "2026-10-12T17:27:15.419Z",
+  "source_commit": "032bbd09988e8186567309c9c567a5f03b365eb3",
+  "url": "https://ecbarish.github.io/idle-arcade/games/briskets-crossing/",
+  "checks": 40,
+  "check_names": [
+    "all eight public file hashes match reviewed source",
+    "public localhost hook absent 375",
+    "old score shown 375",
+    "keyboard starts public game 375",
+    "uniform public rendering 375",
+    "public easier clock and speed 375",
+    "public three wagons and wide cyclic gaps 375",
+    "public first touch retains three lives 375",
+    "readable real-hit caption 375",
+    "public pause menu 375",
+    "public rotation no overflow 375",
+    "resumes after rotation 375",
+    "old public score unchanged after reload 375",
+    "no runtime errors 375",
+    "public localhost hook absent 812",
+    "old score shown 812",
+    "keyboard starts public game 812",
+    "uniform public rendering 812",
+    "public easier clock and speed 812",
+    "public three wagons and wide cyclic gaps 812",
+    "public first touch retains three lives 812",
+    "readable real-hit caption 812",
+    "public pause menu 812",
+    "public rotation no overflow 812",
+    "resumes after rotation 812",
+    "old public score unchanged after reload 812",
+    "no runtime errors 812",
+    "public localhost hook absent 1366",
+    "old score shown 1366",
+    "keyboard starts public game 1366",
+    "uniform public rendering 1366",
+    "public easier clock and speed 1366",
+    "public three wagons and wide cyclic gaps 1366",
+    "public first touch retains three lives 1366",
+    "readable real-hit caption 1366",
+    "public pause menu 1366",
+    "public rotation no overflow 1366",
+    "resumes after rotation 1366",
+    "old public score unchanged after reload 1366",
+    "no runtime errors 1366"
+  ],
+  "hashes": [
+    {
+      "file": "games/briskets-crossing/index.html",
+      "status": 200,
+      "bytes": 2234,
+      "expected": "693ba605850999ea5b57583d947289d0e04151644e435866798b7e5225cb8b5b",
+      "actual": "693ba605850999ea5b57583d947289d0e04151644e435866798b7e5225cb8b5b",
+      "match": true
+    },
+    {
+      "file": "games/briskets-crossing/game.js",
+      "status": 200,
+      "bytes": 15089,
+      "expected": "1af51d843876c202223192a2be76709602e08aab32fa4793a6a1a1588d4bd91e",
+      "actual": "1af51d843876c202223192a2be76709602e08aab32fa4793a6a1a1588d4bd91e",
+      "match": true
+    },
+    {
+      "file": "games/briskets-crossing/model.js",
+      "status": 200,
+      "bytes": 6586,
+      "expected": "65542ac97e2ca822a8fee66c274b2d62fb25122bf93635b3d9a2abe21f71f066",
+      "actual": "65542ac97e2ca822a8fee66c274b2d62fb25122bf93635b3d9a2abe21f71f066",
+      "match": true
+    },
+    {
+      "file": "games/briskets-crossing/style.css",
+      "status": 200,
+      "bytes": 7237,
+      "expected": "17ebe8c47287ecbc0396fe579df93ee0f89d1ff7e9f031c2dece8e1c6b044a4d",
+      "actual": "17ebe8c47287ecbc0396fe579df93ee0f89d1ff7e9f031c2dece8e1c6b044a4d",
+      "match": true
+    },
+    {
+      "file": "shared/engine.js",
+      "status": 200,
+      "bytes": 10882,
+      "expected": "a700b8e63f0e72d37baa0404c3d62689414599c72bc7f94fa244a2216ed2880c",
+      "actual": "a700b8e63f0e72d37baa0404c3d62689414599c72bc7f94fa244a2216ed2880c",
+      "match": true
+    },
+    {
+      "file": "shared/settings.js",
+      "status": 200,
+      "bytes": 11046,
+      "expected": "5e2dc6aab195d2571b82a745f50fa1e513deaf118040eecf7e1d625f906bf177",
+      "actual": "5e2dc6aab195d2571b82a745f50fa1e513deaf118040eecf7e1d625f906bf177",
+      "match": true
+    },
+    {
+      "file": "shared/sound.js",
+      "status": 200,
+      "bytes": 12208,
+      "expected": "abfb57483cf62aa20f8c1bb134e844c8b218eec5d20c9fb17d7af6c082421473",
+      "actual": "abfb57483cf62aa20f8c1bb134e844c8b218eec5d20c9fb17d7af6c082421473",
+      "match": true
+    },
+    {
+      "file": "shared/feedback.js",
+      "status": 200,
+      "bytes": 4863,
+      "expected": "8dbc9a3a11dfcedbf6a667cf4c99c9e1c0da9b530bf6519f4f9338f582509057",
+      "actual": "8dbc9a3a11dfcedbf6a667cf4c99c9e1c0da9b530bf6519f4f9338f582509057",
+      "match": true
+    }
+  ],
+  "views": [
+    {
+      "width": 375,
+      "height": 812,
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 16
+      },
+      "errors": []
+    },
+    {
+      "width": 812,
+      "height": 375,
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 16
+      },
+      "errors": []
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 20
+      },
+      "errors": []
+    }
+  ]
+}
