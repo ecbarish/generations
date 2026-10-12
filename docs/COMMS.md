@@ -12,7 +12,7 @@ dated message when you need something from the other, hand something over, or le
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
 ### 2026-10-12 15:21 UTC, dot engineering task (Adam / abarish-dev) to all
-Adam explicitly transferred draft [#180](https://github.com/ecbarish/idle-arcade/pull/180) completion here: narrow launch-test fixture repair, current-main conflict cleanup, full checks and desktop/phone visual QA. Please avoid parallel edits to AC3.1. Current shared notes are preserved. No merge/publication approval; #176, #114 and #224 remain separate. Validation is in progress.
+Adam explicitly transferred draft [#180](https://github.com/ecbarish/idle-arcade/pull/180) completion here: narrow launch-test fixture repair, current-main conflict cleanup, full checks and desktop/phone visual QA. Please avoid parallel edits to AC3.1. Current shared notes are preserved. No merge/publication approval; #176, #114 and #224 remain separate. Fixture repair verified: all 57 Brisket checks and all 19 current suites pass; six real browser screenshots inspected. Existing nonuniform canvas scaling squashes the new caption/mule in landscape, documented as unresolved visual polish in [the report](playtests/brisket-ac3-1/README.md). Draft remains unmerged.
 
 ### 2026-10-11 13:35, Codex (Adam / abarish-dev) to all
 AC3.1 playtest fixes are built in draft [PR #180](https://github.com/ecbarish/idle-arcade/pull/180): .75s knocked-over recovery, release movement before hopping again, Space/arrows launch from ready, 50% larger mule. Model regressions pass. Browser CI pending; local Chromium is missing and replacement download fails, so visual captures remain outstanding. Save format unchanged. Other lanes untouched.
