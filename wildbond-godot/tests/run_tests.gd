@@ -147,7 +147,7 @@ func _run() -> void:
 	main.spilled = true
 	check(main._music_key() == "larkhaven", "once the colour spills into town, a warm village tune")
 	main.spilled = false
-	check(["faded", "larkhaven", "barn", "thornwood_route", "thornwood", "thornwood_grove", "saltmarsh", "emberfall", "cloudglass", "stillreed", "hollowecho", "sunthread", "farwatch", "wild", "trainer"].all(func(k): return ResourceLoader.exists(main.music_path(k))), "every tune is in the game, including both new Thornwood maps sharing Thornwood's theme")
+	check(["faded", "larkhaven", "barn", "thornwood_route", "thornwood", "thornwood_grove", "saltmarsh_route", "saltmarsh", "saltmarsh_pool", "emberfall", "cloudglass", "stillreed", "hollowecho", "sunthread", "farwatch", "wild", "trainer"].all(func(k): return ResourceLoader.exists(main.music_path(k))), "every tune is in the game, including both new Thornwood maps sharing Thornwood's theme")
 	check(["saltmarsh", "emberfall", "cloudglass"].all(func(k): return ResourceLoader.exists("res://assets/ambience/%s.ogg" % k)), "waves on the coast and wind in the highlands and the pass")
 	# ---- the map: closed doors, the barn opens with the story
 	check(not main.walkable(Vector2i(4, 4)), "cottage doors stay shut")
@@ -459,10 +459,34 @@ func _run() -> void:
 		check(walk_to(Vector2i(13, 1)), "you can walk to the open gate (at %s, stage %s, lines %d, battle %s, map %s)" % [main.me.tile, main.stage, main.lines.size(), main.battle.visible, main.map_name])
 		main._step(Vector2i.UP)
 		tick(1.0)
-		check(main.map_name == "saltmarsh" and main.me.tile == Vector2i(13, 12), "through the gate: Saltmarsh Coast, arriving where the map says")
+		check(main.map_name == "saltmarsh_route" and main.me.tile == Vector2i(13, 14), "through the gate: the coast road below Saltmarsh")
+		check(main.DATA.MAPS.saltmarsh_route.exits.N.to == "saltmarsh" and main.DATA.MAPS.saltmarsh.exits.S.to == "saltmarsh_route", "WD4b: the coast road and the original Saltmarsh map are separate")
+		check(main.DATA.MAPS.saltmarsh_route.exits.W.requiresElement == "Tide" and main.DATA.MAPS.has("saltmarsh_pool"), "WD4b: Moon Pool is a return spot behind a Tide-partner gate")
+		check(walk_to(Vector2i(1, 8)), "WD4b: the west spur reaches the tide shelf")
+		main._step(Vector2i.LEFT)
+		tick(0.8)
+		check(main.map_name == "saltmarsh_route" and not main.lines.is_empty() and "Tide partner" in str(main.lines[0].text), "without a Tide partner, Moon Pool stays out of reach")
+		talk_through()
+		var tide_helper: Dictionary = main.R.make("brineskit", 8, { "rar": 1 }, main.rng)
+		main.team.append(tide_helper)
+		check(main._team_has_element("Tide"), "a Tide creature in the team satisfies the return gate")
+		check(walk_to(Vector2i(1, 8)), "back to the tide shelf with Brineskit")
+		main._step(Vector2i.LEFT)
+		tick(0.8)
+		check(main.map_name == "saltmarsh_pool" and main.me.tile == Vector2i(1, 8), "the Tide partner opens Moon Pool")
+		check(main._wild_table().any(func(w): return w[0] == "foamglint" and int(w[1]) == 12), "the hidden pool makes rare Foamglint substantially easier to find")
+		check(str(main.DATA.MAPS.saltmarsh_pool.signs["22,8"]).contains("tide"), "the hidden pool keeps Tobin's story: the tide that walked out")
+		main._go("saltmarsh_route", Vector2i(1, 8), Vector2i.RIGHT)
+		tick(0.8)
+		main.team.erase(tide_helper)
+		check(main.map_name == "saltmarsh_route", "you can return from Moon Pool to the coast road")
+		check(walk_to(Vector2i(13, 1)), "the coast road continues north to the settlement")
+		main._step(Vector2i.UP)
+		tick(0.8)
+		check(main.map_name == "saltmarsh" and main.me.tile == Vector2i(13, 12), "WD4b: the original Saltmarsh map is the settlement, so old saves keep their coordinates")
 		check(main.level_cap() == 25, "one badge raises the level cap to 25 (CAP_TABLE)")
-		check(main.npcs.any(func(n): return n.id == "nerys" and n.where == "saltmarsh" and main.npc_info.nerys.warden), "Warden Nerys waits on the coast")
-		check(main.npcs.filter(func(n): return n.where == "saltmarsh").size() >= 4, "the coast's people: Tobin, Cato, Marit and Nerys")
+		check(main.npcs.any(func(n): return n.id == "nerys" and n.where == "saltmarsh" and main.npc_info.nerys.warden), "Warden Nerys waits in the settlement")
+		check(main.npcs.any(func(n): return n.id == "tobin" and n.where == "saltmarsh_route") and main.npcs.filter(func(n): return n.where == "saltmarsh").size() >= 3, "WD4b: Tobin is on the coast road; Cato, Marit and Nerys stay in the settlement")
 		# ---- the cliff road east to the Emberfall Highlands: roped off until Nerys gives you the Tide Badge
 		main.npc_info.cato.beaten = true                # (walk past the beach trainers for this check)
 		main.npc_info.marit.beaten = true
@@ -658,7 +682,20 @@ func _run() -> void:
 		main.badges.erase("tide")                       # back to one badge, as the checks below expect
 		main.npc_info.nerys.beaten = false
 		walk_to(Vector2i(14, 8))                        # along the beach path, out of the tall grass
-		check(walk_to(Vector2i(13, 13)) or main.map_name == "thornwood", "back to the coast road south (at %s, battle %s)" % [main.me.tile, main.battle.visible])
+		check(walk_to(Vector2i(13, 13)) or main.map_name == "saltmarsh_route", "back to the settlement's south edge (at %s, battle %s)" % [main.me.tile, main.battle.visible])
+		main._step(Vector2i.DOWN)
+		tick(1.0)
+		check(main.map_name == "saltmarsh_route" and main.me.tile == Vector2i(13, 1), "WD4b: south from the settlement returns to the coast road")
+		talk_through()
+		var followed := false
+		for _try in 3:
+			if walk_to(Vector2i(13, 14)):
+				followed = true
+				break
+			if main.lines.is_empty() and not main.battle.visible:
+				break
+			talk_through()
+		check(followed, "follow the coast road back toward Thornwood")
 		main._step(Vector2i.DOWN)
 		tick(1.0)
 		check(main.map_name == "thornwood" and main.me.tile == Vector2i(13, 1), "and back into Thornwood by the gate")
@@ -1173,6 +1210,15 @@ func _run() -> void:
 	tick(1.0)
 	talk_through()
 	check(main.map_name == "thornwood" and main.me.tile == Vector2i(13, 14), "WD4a: that old save lands at the same Thornwood coordinate, now in the settlement")
+	var pre_wd4b: Dictionary = main._read_save()
+	pre_wd4b["map"] = "saltmarsh"
+	pre_wd4b["x"] = 13
+	pre_wd4b["y"] = 12
+	main.SafeSave.write(main.save_path, pre_wd4b)
+	check(main._load_game(), "WD4b: a pre-expansion save whose map is saltmarsh still loads")
+	tick(1.0)
+	talk_through()
+	check(main.map_name == "saltmarsh" and main.me.tile == Vector2i(13, 12), "WD4b: that old save lands at the same Saltmarsh coordinate, now in the settlement")
 	# WB2.4 adds two cottages to Larkhaven: an old save standing where one now is steps out in front of its door
 	var pre_homes: Dictionary = main._read_save()
 	pre_homes["map"] = "larkhaven"

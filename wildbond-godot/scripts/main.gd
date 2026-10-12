@@ -128,7 +128,7 @@ var spire_active := false
 var rematch_wins := {}                       # Warden id -> post-Champion rematch wins
 var spotter: Mover = null                    # a trainer who has seen you and is walking over
 var spot_t := 0.0
-const BUILT := ["larkhaven", "thornwood_route", "thornwood", "thornwood_grove", "saltmarsh", "emberfall", "cloudglass", "stillreed", "hollowecho", "sunthread", "farwatch", "league", "spire"]    # the maps the Godot version has so far
+const BUILT := ["larkhaven", "thornwood_route", "thornwood", "thornwood_grove", "saltmarsh_route", "saltmarsh", "saltmarsh_pool", "emberfall", "cloudglass", "stillreed", "hollowecho", "sunthread", "farwatch", "league", "spire"]    # the maps the Godot version has so far
 var starters: Array[Mover] = []
 var partner: Mover = null
 var map_name := "larkhaven"
@@ -2109,7 +2109,7 @@ func _season_ground(rows: Array) -> void:
 	var sn := cal.season()
 	if sn == "summer":
 		return
-	var sea: bool = map_name in ["saltmarsh", "farwatch", "league"]
+	var sea: bool = map_name in ["saltmarsh", "saltmarsh_route", "saltmarsh_pool", "farwatch", "league"]
 	for y in rows.size():
 		for x in rows[0].length():
 			var ch: String = rows[y][x]
@@ -2520,7 +2520,7 @@ func _draw_mist() -> void:
 		draw_rect(Rect2(Vector2(x + 20, y + 3), Vector2(100, 4)), Color(0.78, 0.74, 0.86, 0.08))
 func _draw_water(x: int, y: int, o: Vector2, n: int) -> void:
 	_tex(WATER, Vector2i(11, 0), Vector2i.ONE, o)
-	var sea: bool = map_name in ["saltmarsh", "farwatch", "league"]
+	var sea: bool = map_name in ["saltmarsh", "saltmarsh_route", "saltmarsh_pool", "farwatch", "league"]
 	if sea:
 		# the open sea: lines of swell that roll slowly toward the beach
 		var ph := fmod(t * 0.6 + x * 0.37 + y * 0.9, 3.0)
@@ -4119,7 +4119,7 @@ func _music_key() -> String:
 	return map_name
 
 ## Places that share a tune play the same file, so the game carries each track once (a smaller web download).
-const SAME_TUNE := { "thornwood_route": "thornwood", "thornwood_grove": "thornwood", "sunthread": "saltmarsh", "farwatch": "barn", "spire": "barn" }   # one Thornwood theme across its connected maps; Sunny and Peaceful elsewhere
+const SAME_TUNE := { "thornwood_route": "thornwood", "thornwood_grove": "thornwood", "saltmarsh_route": "saltmarsh", "saltmarsh_pool": "saltmarsh", "sunthread": "saltmarsh", "farwatch": "barn", "spire": "barn" }   # one Thornwood theme across its connected maps; Sunny and Peaceful elsewhere
 
 func music_path(key: String) -> String:
 	return "res://assets/music/%s.ogg" % SAME_TUNE.get(key, key)
