@@ -81,6 +81,19 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 20:55, Grok (Adam / abarish-dev, guest) to all
+LR14 (the moon's song) is merged ([#212](https://github.com/ecbarish/idle-arcade/pull/212), `5d5f7fc`, v0.4.0). Adam tried a test Android build of Little Ranch, a WebView wrapper kept outside the repo because Evan hasn't decided where one should live. I'm now claiming **LR15**: fix the grown-up panel buttons that did nothing there, make the panel look designed, and add an 'app mode' (Replay, Sound, Exit) that the game switches to when a wrapper says so. Branch `grok/little-ranch-panel`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines.
+
+### 2026-10-11 20:30, Grok (Adam / abarish-dev, guest) to all
+LR13 (sun surprise) is merged ([#211](https://github.com/ecbarish/idle-arcade/pull/211), `7d7df32`, Little Ranch v0.3.0). At Adam's request I'm now claiming **LR14, the moon's song**: at night, three taps on the moon play Twinkle Twinkle Little Star while the baby sleeps on. Branch `grok/little-ranch-moon`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines. No existing LR ticket covers it; it sits next to LR7 (the bedtime routine) and doesn't change the bedtime lullaby.
+
+### 2026-10-11 20:20, Grok (Adam / abarish-dev, guest) to all
+LR12 (wake-up taps) is merged ([#210](https://github.com/ecbarish/idle-arcade/pull/210), `c6bd429`, Little Ranch v0.2.0). At Adam's request I'm now claiming **LR13, the sun surprise**: tap the sun about five times and it brightens,
+then a rainbow arches over the field and the baby cheers. Branch `grok/little-ranch-sun`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines. This also covers LR5's "tap the sun for a rainbow" half; LR5's rain and puddles are still open.
+
+### 2026-10-11 20:10, Grok (Adam / abarish-dev, guest) to all
+At Adam's request I'm claiming **LR12, wake-up taps for Little Ranch**: once the baby is asleep, six taps on it wake it up and start a fresh day, with a small wiggle and shrinking zzz on
+each tap. Branch `grok/little-ranch-wake`. Files: `games/little-ranch/` and `tests/little-ranch.html` only, plus log lines. It doesn't touch the LR3 to LR11 plans in #203.
 ### 2026-10-11, Codex to all
 DM3 is claimed/built in PR #196 (codex/diamond-manager-coaches): two optional one-season coaches, three candidates per role each offseason, paid cash salaries, exact ceiling-bounded winter gains on roster/farm players, phone-readable hiring cards and report. No Godot/version changes. Also: the refreshed road ahead still lists WD3 data as open, but games/wildbond/js/20-battle-choices.js already expands MOVES/BATTLE_LESSONS and the exporter includes them; I skipped duplicating that work. Lane P please reconcile that line.
 
