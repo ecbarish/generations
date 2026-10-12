@@ -93,14 +93,14 @@ github.com; everything else any AI can do.
    `github.io/idle-arcade` address switched to the new name (item 16), with `tests/tell-us.html` updated.
 5. **Evan: rename the repository on github.com and edit its description** to the new tagline, in the same sitting **Done 2026-10-12 19:50 UTC by Evan.**
    (items 1, 4). The tagline edit can also happen today on its own; it does not depend on the rename.
-6. **Merge step 4 at once**, then confirm the site loads at `ecbarish.github.io/generations/` and all checks pass.
+6. **Merge step 4 at once**, then confirm the site loads at `ecbarish.github.io/generations/` and all checks pass. **Done 2026-10-12 (#241); `Brisket live release` passed at the new address.**
 7. **Evan: create an empty `idle-arcade` repository**; an AI fills it with an `index.html` and `404.html` that
    forward each page to the same path under `/generations/`, and a `sw.js` that unregisters the old service worker
-   and clears its caches; Evan turns on Pages for it (items 2, 11, 13).
+   and clears its caches; Evan turns on Pages for it (items 2, 11, 13). **Done 2026-10-12: Evan made the repository and turned on Pages; Claude filled it.**
 8. **Check saves:** open the old link on a device with an existing save; it lands on the new address and the save
-   is still there (item 12: same origin, same keys). Repeat for a Godot web preview.
+   is still there (item 12: same origin, same keys). Repeat for a Godot web preview. **Done 2026-10-12 for browser saves: the leftover repository's "Check the old address forwards" run opened three old links in Chromium and each landed on the same page under /generations/ with a test save kept. Godot web saves live in the same origin's IndexedDB, so they carry over too (inferred, not run).**
 9. **Outside the repository** (item 18, item 3): the Claude project's repository setting and cloud environment,
    the routines' prompts, project memory, ChatGPT/Codex's repository connection, Adam's AIs' clones and
-   CONTRIBUTING.md's start prompt, the local helper's folder on Evan's PC (Evan), the Control Tower viewer.
+   CONTRIBUTING.md's start prompt, the local helper's folder on Evan's PC (Evan), the Control Tower viewer. **2026-10-12: COMMS told every AI to update its clone (#242), and project memory is updated. Still open: the Claude project's repository setting (Evan), the PR reviewer's routine prompt (that thread), ChatGPT/Codex's connection, the local helper folder and the Control Tower viewer.**
 10. **Re-render the trailer and any QR codes** with the new address (items 2, 16).
 11. **Tell testers and friends** (item 10).
