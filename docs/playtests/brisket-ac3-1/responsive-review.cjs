@@ -14,6 +14,7 @@ const results=[];let count=0;const check=(name,ok)=>{assert.ok(ok,name);count++;
   await page.screenshot({path:path.join(out,name+'-normal.png')});
   await page.evaluate(()=>{const H=__brisket;document.querySelector('#notice').textContent='Score kept for this visit. This browser could not save it.';H.M.hurt(H.state);});await page.waitForTimeout(50);
   const caption=await page.locator('#recovery').evaluate(e=>{const r=e.getBoundingClientRect();return{text:e.textContent,font:parseFloat(getComputedStyle(e).fontSize),width:r.width,height:r.height,hidden:e.hidden,pointerEvents:getComputedStyle(e).pointerEvents};});check(name+' readable recovery caption',caption.font>=16&&!caption.hidden&&caption.text==='Steady, Brisket');check(name+' caption does not consume input',caption.pointerEvents==='none');check(name+' existing save warning preserved',(await page.locator('#notice').textContent()).includes('could not save it'));
+  await page.locator('#notice').evaluate(e=>e.textContent='');
   await page.screenshot({path:path.join(out,name+'-recovery.png')});
   await page.evaluate(()=>{const H=__brisket;H.M.current(H.state).recovery=0;});await page.waitForTimeout(50);check(name+' release caption',await page.locator('#recovery').textContent()==='Release to hop again');await page.screenshot({path:path.join(out,name+'-release.png')});
   await page.evaluate(()=>{const H=__brisket,p=H.M.current(H.state);p.awaitRelease=false;p.clearing=1;});await page.waitForTimeout(50);await page.screenshot({path:path.join(out,name+'-lanterns.png')});
