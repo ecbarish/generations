@@ -82,9 +82,9 @@ must be verified against the current tree, not inferred from this table.
 |---|---|---|---|
 | ROOM-01 | Rendered entrance review | Reviewer; continue #150. Captures/report only; no game edits | Inventory every built Wildbond and Starfall map/interior, with entrance views, reproduction steps and per-area findings |
 | ROOM-02 | Input and collision repair | Builder of the affected game; coordinate #149 and the door-input note on #137 | Actual keyboard, pointer/touch and supported gamepad paths enter/leave correctly; no walking through roofs; regression checks reproduce the failures |
-| ROOM-03 | Pip and Mira's furnishing pass | Wildbond builder, after homes settle; existing interior data/drawing only | Cohesive family space, clear landing/routes, reachable resident/gift, before/after captures and old saves pass |
-| ROOM-04 | Nora's furnishing pass | Wildbond builder; after ROOM-03 or stack on it if files overlap | Clearly different, compact hearth-centred home; berry gift and conversations preserved; same acceptance checks |
-| ROOM-05 | Inn, shop and barn pass | One Wildbond room per PR unless genuinely independent files | Service/stall/workbench layouts make sense and all existing actions remain reachable |
+| ROOM-03 | Pip and Mira's furnishing pass (done 2026-10-12, WB-ROOMS-1) | Wildbond builder, after homes settle; existing interior data/drawing only | Cohesive family space, clear landing/routes, reachable resident/gift, before/after captures and old saves pass |
+| ROOM-04 | Nora's furnishing pass (done 2026-10-12, WB-ROOMS-1) | Wildbond builder; after ROOM-03 or stack on it if files overlap | Clearly different, compact hearth-centred home; berry gift and conversations preserved; same acceptance checks |
+| ROOM-05 | Inn, shop and barn pass (inn done 2026-10-12, WB-ROOMS-1) | One Wildbond room per PR unless genuinely independent files | Service/stall/workbench layouts make sense and all existing actions remain reachable |
 | ROOM-06 | Starfall room/door composition | Starfall builder with current frontier asset owners; one building per PR | Building purpose obvious from composition, service approach clear under every legal plot placement; wages/jobs/hiring unchanged |
 | ROOM-07 | Area-by-area exterior pass | Game builder; use ROOM-01 findings, one area per PR | Continuous believable paths, readable bridges/gates/settlements and landmarks, existing exits/story/hidden pockets preserved |
 
