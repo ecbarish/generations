@@ -1,7 +1,7 @@
 'use strict';
 /* Diamond Manager: the screen. The field fills the window; the scoreboard, the play-by-play and Iona's notes sit on
    it; the front office is a clipboard opened over the field. */
-const VERSION='0.7.0';
+const VERSION='0.7.1';
 const $=s=>document.querySelector(s);
 Arcade.validators[DM.key]=validLeague;
 let L=migrateLeague(loadLeague(localStorage, Arcade.backups(DM.key))), view=null, tab='roster', trade={club:1,give:[],get:[],answer:''}, finder={pos:'any',shop:0,want:null,deal:null,offers:null}, flash='';
@@ -389,4 +389,4 @@ let fieldSize=null;
 function frame(now){ stepWatch(now); fieldSize=drawField($('#field'),L,view?view.scene:null); requestAnimationFrame(frame); }
 render(); requestAnimationFrame(frame);
 if(L.intro) introNote(); else if(L.live) watch(L.live.g,false); else showOffseasonOrNext();
-if(location.hostname==='localhost') window.__dm={get L(){return L;},set L(v){L=v;render();},DM,freshMorale,playerMorale,moodWord,moraleAsk,validMorale,recordMood,offerPlayerDeal,playerStory,coachCandidates,hireCoach,coachingGain,validCoachState,newLeague,playGame,playDay,playFinalGame,recordGame,standings,overall,askSalary,payroll,batters,pitchers,setLineup,autoLineup,makeSchedule,plateAppearance,gateMoney,endSeason,canStartSeason,startSeason,resign,release,signFree,buyUpgrade,worth,judgeTrade,doTrade,aiOffer,answerOffer,validLeague,loadLeague,migrateLeague,rosterOk,render,potentialFor,defensiveSub,sendRunner,rested,starterOf,dayKey,newGame,stepGame,finishGame,startDay,finishDay,startFinalGame,finishFinalGame,changePitcher,pinchHit,pinchRun,answerAsk,benchOf,bullpenOf,effective,pitchLimit,boxScore,speedFor,findDeal,completeDeal,shopPlayer,tradeRating,clubPlayer,scoutCeiling,makeProspect,develop,playsDaily,startDraft,draftPick,draftPass,draftAuto,callUp,sendDown,releaseFarm,FARM_MAX};
+if(location.hostname==='localhost') window.__dm={get L(){return L;},set L(v){L=v;render();},DM,marketLevel,fillFreeAgents,addStandouts,freshMorale,playerMorale,moodWord,moraleAsk,validMorale,recordMood,offerPlayerDeal,playerStory,coachCandidates,hireCoach,coachingGain,validCoachState,newLeague,playGame,playDay,playFinalGame,recordGame,standings,overall,askSalary,payroll,batters,pitchers,setLineup,autoLineup,makeSchedule,plateAppearance,gateMoney,endSeason,canStartSeason,startSeason,resign,release,signFree,buyUpgrade,worth,judgeTrade,doTrade,aiOffer,answerOffer,validLeague,loadLeague,migrateLeague,rosterOk,render,potentialFor,defensiveSub,sendRunner,rested,starterOf,dayKey,newGame,stepGame,finishGame,startDay,finishDay,startFinalGame,finishFinalGame,changePitcher,pinchHit,pinchRun,answerAsk,benchOf,bullpenOf,effective,pitchLimit,boxScore,speedFor,findDeal,completeDeal,shopPlayer,tradeRating,clubPlayer,scoutCeiling,makeProspect,develop,playsDaily,startDraft,draftPick,draftPass,draftAuto,callUp,sendDown,releaseFarm,FARM_MAX};

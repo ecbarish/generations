@@ -130,7 +130,7 @@ side panel. Text is in full words.
   slump, shown on the roster and name tags, and small, tested effects on results.
 - [ ] **DM-N** [any] **The club's news and people**: the Lamplight paper after each day (two or three headlines from
   real results), and owner and fan opinions that react to winning, payroll and the park, as Retro Bowl does.
-- [ ] **DM-B2** [any] **Keep the league in balance over many seasons**: in a six-season simulation the other clubs'
+- [ ] **DM-B2** [Codex, PR #208; six-season measurements in diamond-manager-balance.md] **Keep the league in balance over many seasons**: in a six-season simulation the other clubs'
   average overall climbs from about 56 to 64 (it climbed to 62 before DM6 too), while the free-agent market stays at
   level 50, so a hands-off club falls to about 5 wins. Make free agents and standouts track the league's average
   (or slow the other clubs' growth) so the market stays useful; keep the gap check passing and add a check that the

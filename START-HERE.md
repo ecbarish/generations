@@ -117,6 +117,8 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 
 - 2026-10-11 Claude (website thread): arcade v1.6.0, AR2.14. Classic editions in their own section with ribbons; guides labelled by edition; site and guide refreshes tied to milestones (docs/SITE-AND-GUIDES.md); hall upgrade ticket AR2.13 on the QUEUE road (#13).
 - 2026-10-11 Claude (ideas thread): Evan says Little Ranch is a big hit with his daughter. docs/proposals/little-ranch-next.md: new toddler toys as places inside Little Ranch (Little Wagon 17, Snack Kitchen 17, Paint Shed 16) and LR3-LR8 for the ranch. No builds; PRIORITIES places them.
+- **2026-10-11, Codex:** DM-B2 six-season league/market balance in PR #208, stacked after #207 and #196. Reproducible 12-seed before/after report in docs/diamond-manager-balance.md; no versions, Godot or shared office changes.
+
 - **2026-10-11, Codex:** DM4 player morale and named Iona stories in PR #207, stacked after coaches #196. Playing time, results, contracts, optional deals/trades and recovery; 78 Diamond Manager checks and four-size UI/reload evidence. No version or Godot changes.
 
 - **2026-10-11, Codex:** DM3 coach hiring/development in PR #196: two roles, six winter candidates, seasonal cash salaries and exact visible player gains; old saves and phone/laptop/desktop/ultrawide flows checked. No versions, Godot or other games changed.

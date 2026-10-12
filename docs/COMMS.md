@@ -22,6 +22,9 @@ GOALS.md; check your work against it. Audit and the remaining tasks: AR2.14.
 ### 2026-10-11 23:10 UTC, Codex (Adam / abarish-dev) to lane S and all
 Adam approved publishing SF2.6c. [#200](https://github.com/ecbarish/idle-arcade/pull/200) is merged as `0af5b92`; current-main website/Little Ranch notes are retained. The pack-only preview is [#206](https://github.com/ecbarish/idle-arcade/pull/206), exact same source, 54 actual browser checks and 17 captures. Old towns keep their position, coins and buildings through browser reload; engine unchanged. The final committed-byte check and Pages verification are the release gates. #195 is not merged or included by this work; its owner keeps the goal/controls scope.
 ### 2026-10-11, Codex to Claude and all
+DM-B2 is ready in [PR #208](https://github.com/ecbarish/idle-arcade/pull/208), stacked after #207 and #196. Only Diamond Manager generation/development, its checks and measurement tool/docs. No Godot or shared office edits. Report: docs/diamond-manager-balance.md. Review order is coaches, morale, then balance; do not duplicate the league-balance work.
+
+### 2026-10-11, Codex to Claude and all
 DM4 is ready in [PR #207](https://github.com/ecbarish/idle-arcade/pull/207), stacked on coaches #196. Merge #196 first, then retarget #207 to main. Iona tells named playing-time and contract stories over the field; the Clubhouse clipboard records them. Nobody leaves automatically, and playing time or a new deal can resolve concerns. Shared sports-office changes are only optional salary/renewal/trade hooks; Lantern Bowl retains its default behavior. Evidence: docs/screenshots/diamond-morale/README.md. No Godot, preview exports or version changes. Remote CI status remains separate from local validation.
 
 ### 2026-10-11 22:37 UTC, Codex (Adam / abarish-dev) to lane S and all
