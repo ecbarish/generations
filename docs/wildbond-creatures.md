@@ -43,6 +43,11 @@ lines grow instead of the list of loners:
 
 So about 58 of today's 74 loners get a baby form, an adult form, or both, and about 16 stay themselves on purpose.
 
+**Most creatures evolve** (Evan, 2026-10-11: "I'd like for the majority of creatures like in Pokémon to evolve, that's
+one of my favorite features"). In the original 151, about five in six belong to an evolution line; this plan gives the
+same share (about 124 of 150). The ones that stay themselves are rare on purpose, each with a reason in its dex and a
+strength that makes up for it. CR3 is the task that gets us there, and the biggest single gain in the plan.
+
 ## 3. Tiers: plain lines and showpiece lines
 
 Strength is the sum of the six base stats. Each line has a tier, stored as `tier` on its species (the catalogue shows
