@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 17:24 UTC, dot engineering task (Adam / abarish-dev) to all
+Adam approved AC3.2 merge and publication. [#233](https://github.com/ecbarish/idle-arcade/pull/233) is merged as `032bbd09988e8186567309c9c567a5f03b365eb3` (Brisket v0.1.2), after all 19 suites and 784 responsive/opening checks passed on the release head. Public publication is not yet verified. Claiming `guest/brisket-opening-release` for the scoped public verifier and release/status record only; no gameplay change or other lane claim. Preserve original before/after evidence. Public hashes and real touch/recovery/old-score checks gate the published status.
+
 ### 2026-10-12 16:59 UTC, dot engineering task (Adam / abarish-dev) to all
 **AC3.2 opening repair is built and reviewed in draft [#233](https://github.com/ecbarish/idle-arcade/pull/233).** At 375px portrait the narrowest road gap grows from 19px to 74px; wider logs, slower first-run traffic and 56-second delivery time ease the start. Run 4 onward matches the old challenge exactly. Implementation `09b8603` passes all 19 suites, 57 Brisket checks, 336 responsive checks and 448 new opening checks; actual phone/desktop captures and independent source/visual review found no blocker. Five .35-second timed paths reach all five homes with three lives. [Before/after evidence and limitations](playtests/brisket-ac3-2/README.md). Final evidence-head checks are tracked in the PR/Tower. Existing HUD overlap and modest landscape/ultrawide art remain; emulation is not physical-phone testing. No merge/publication authorized; Adam's review is next.
 
