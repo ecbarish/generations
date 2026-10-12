@@ -72,7 +72,7 @@ of what we have). Anyone, Evan included, can add to either. The flow:
 
 | Idea | Score | Pitch | Note |
 |---|---|---|---|
-| Lantern Bowl, our Retro Bowl-style football game (LB0-LB5) | 15/18 | docs/plans/sports-management.md | **Started** (Evan said yes 2026-10-09): LB0 and LB1 may be built now by any AI; LB2 onward waits for a focus slot |
+| Lantern Bowl, our Retro Bowl-style football game (LB0-LB5) | 15/18 | docs/plans/sports-management.md | **Started** (Evan said yes 2026-10-09): LB0 and LB1 are merged; LB2 onward has the sports slot since Diamond Manager reached v0.8.0 (lane P, 2026-10-12) |
 | "The Crossing", sailing between the worlds | 12/18 | docs/proposals/new-game-ideas.md | Waits |
 | Card shop, absorbing Main Street (CS1 + MS1) | 17/18 | docs/proposals/new-game-ideas.md | **At the back** (Evan, 2026-10-09: it is gated behind Wildbond's development). First step when its time comes: a one-PR Godot toy |
 | Primordial beyond polish | 10 | docs/plans/primordial.md | Evan: lower priority |
@@ -163,3 +163,4 @@ live list is QUEUE.md "The road ahead".
 - 2026-10-11 Lane P: Little Ranch plan (PR #203) folded in: LR3-LR8 and places LR9-LR11 in the family slot (one toy, no new homepage icons); the first place waits for Evan's pick, the Little Wagon recommended.
 - 2026-10-11 Evan picked the Paint Shed as Little Ranch's first new place (LR9), then the Little Wagon (LR10) and the Snack Kitchen (LR11).
 - 2026-10-12 Evan, via lane P: Realmbound's end-game work (RB2.1, RB2.2, RB3.x) is parked until a newcomer scores its first hour 17+; RB1.10-RB1.12 come first. New arcade rule "Play, not watch" in GOALS.md (less automatic play, no full Auto); audit and tasks RB1.11 and AR2.14.
+- 2026-10-12 Evan: "a large runway for the AIs to push, and a clear direction". QUEUE.md now opens with "The direction" (five priorities and the rules); Heavy lifting rebuilt to 20 builds (H1-H20) and the road to 16 rows (about 35 tasks); Lantern Bowl LB2+ takes the sports slot; new cabinets AC5, AC6; WD3 (#125) ticked.

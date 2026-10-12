@@ -132,7 +132,7 @@ Target about 150 species in about 70 lines; most new species are new stages of t
 - [x] WD1 [Claude] **Done 2026-10-09 in PR #91** (satchel icon and Satchel page; large place names on arrival). Numbers off the screen (GR-4): remove the Badges/Lures/Coins/Wilddex line; a readable arrival name.
 - [ ] WD2 [ChatGPT data, Claude drawing] (data built: Codex, PR #113; drawing remains open) Creatures that look different (GR-1): per-species look features in data;
   parts drawn in figures.gd; 4-5 new body shapes. *Part 1 done 2026-10-09: serpent, turtle, moth and tree-folk shapes for twelve species (figures.gd `SHAPE_FOR`; a `shape` field in the data overrides it). Data half built in PR #113: all 107 browser species have shape + head/back/tail/pattern hints, including hybrids. Left: Claude draws the parts; a fish shape with WB5.7.*
-- [ ] WD3 [Claude, ChatGPT data] Battles with real choices (GR-2): about 60 moves, family signature moves, a few
+- [x] WD3 [Claude, ChatGPT data] (merged: PR #125; ticked 2026-10-12 by lane P) Battles with real choices (GR-2): about 60 moves, family signature moves, a few
   statuses, an order per Warden; tuned with WB3.6.
 - [ ] WD4 [Claude] Areas you can explore (GR-3): route, settlement and hidden pocket per area, return spots gated by
   element. **WD4a Thornwood done 2026-10-09 in PR #128:** Thornwood Trail, the preserved settlement, and Stone-gated Old Root Grove. Remaining areas stay open, one area per PR.
@@ -411,6 +411,8 @@ Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the 
 - [x] AC1 [any] Storm Front (the Space Invaders shape, Evan's pick): one cabinet, original name and art, one PR. (built: Codex for Adam / abarish-dev, guest/storm-front, PR #119; awaiting review)
 - [x] AC2 [any] Lighthouse Watch (the Missile Command shape). (built: Grok for Adam / abarish-dev, PR #145, merged 2026-10-10; v0.1.0)
 - [x] AC2.1 [any] Lighthouse Watch display and controls polish: uniform harbour scale, taps mapped after resize, phone pause/rotation checks and before/after captures. Files: `games/lighthouse-watch/`, `tests/lighthouse-watch.html`, evidence in `docs/playtests/lighthouse-watch-display/`; done when circles remain round and aiming/menus/scores pass on phone and desktop. Score 16/21 (fun 2×2, heart 2×2, friends 3, focus 2, cheap 3). (built: Codex for Adam / abarish-dev, PR #163; v0.1.1 release)
+- [ ] AC5 [any] A fifth cabinet: a 1978-85 one-screen shape we don't have yet (the maze chase or the asteroid field), our own name, art and sound, never a copied look; shared high scores; phone and desktop. Score 16/21. (QUEUE road 9, added 2026-10-12)
+- [ ] AC6 [any] A sixth cabinet, the other shape from AC5's choice, same rules. (QUEUE road 9)
 - [ ] AC-x [any] Cabinet polish from playtests (docs/PLAYTEST.md pass 2): one cabinet per PR (AC1.1, AC2.2, ...), until each scores 17+. (QUEUE road 9, added 2026-10-11)
 - [x] AC3 [any] Brisket's Crossing (the Frogger shape) and Ember Bricks (the Breakout shape), one PR each. Brisket's Crossing is merged ([PR #160](https://github.com/ecbarish/idle-arcade/pull/160), `a7fac81`). Ember Bricks is merged ([PR #185](https://github.com/ecbarish/idle-arcade/pull/185), Grok for Adam / abarish-dev, 2026-10-11).
 
