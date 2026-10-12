@@ -6,4 +6,6 @@ Godot 4.7.2 rendered these from the trial, with the opening skipped and the coas
 - [Saltmarsh Coast](settlement.png): the original settlement, so an old save still lands on this map.
 - [Moon Pool](pool.png): the return spot a Tide partner can open. Foamglint is easier to find here.
 
+The capture script is `wildbond-godot/tests/wd4b_screens.gd`.
+
 Not a physical-device test. Draft #232.
