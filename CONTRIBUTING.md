@@ -1,6 +1,6 @@
-# Contributing to Idle Arcade (for guests and their AI helpers)
+# Contributing to Generations (for guests and their AI helpers)
 
-Welcome. Idle Arcade is Evan's set of games, built by Evan with several AI assistants. This page is for anyone outside
+Welcome. Generations is Evan's set of games, built by Evan with several AI assistants. This page is for anyone outside
 that group who wants to help, for example a family member working with their own AI (ChatGPT, Claude, Gemini or
 another). You don't need to know how to program: your AI does the work, and this page tells it the rules.
 

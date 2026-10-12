@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "Idle Arcade",
-  "short_name": "Idle Arcade",
+  "name": "Generations",
+  "short_name": "Generations",
   "description": "Small, growing adventure and progression games. Play at your own pace.",
   "start_url": "./index.html",
   "scope": "./",

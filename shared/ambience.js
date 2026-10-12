@@ -1,4 +1,4 @@
-/* Shared ambience for Idle Arcade games (S5, 2026-10-09): living scenes drawn in code, no image files.
+/* Shared ambience for Generations games (S5, 2026-10-09): living scenes drawn in code, no image files.
    The same weather, light and life in every game, so the arcade feels like one family:
    - sky:     day/night gradient, twinkling stars, a pixel moon or sun, aurora, drifting pixel clouds
    - far:     distant scenery that scrolls with parallax and sways in the wind (pines, oaks, dead trees, peaks,

@@ -1,4 +1,4 @@
-/* Shared dialogue scenes for Idle Arcade games (S1, 2026-10-08).
+/* Shared dialogue scenes for Generations games (S1, 2026-10-08).
    A speaker portrait, a name plate and typewriter text over a game's scene, with optional choices at the end.
    One look across the arcade (pixel portraits, the same layout and controls), themed per game by CSS variables.
 

@@ -3,7 +3,7 @@
 **Start with [START-HERE.md](START-HERE.md):** current state, the ordered task queue and the session log. This file
 holds the full rules and the file layout.
 
-Idle Arcade is a set of plain HTML/JS browser games with no build step. The live site is
+Generations is a set of plain HTML/JS browser games with no build step. The live site is
 https://ecbarish.github.io/idle-arcade/ (GitHub Pages serves the `main` branch).
 
 ## Rules the owner cares about

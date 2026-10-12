@@ -104,6 +104,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-12 Claude (Priorities and direction): rename steps 1-3: rename window in COMMS, save-names check (22 names), "Idle Arcade" to "Generations" in page titles, manifest, comments and top docs. All 18 suites pass.
 - 2026-10-12 Claude (Priorities and direction): Generations rename as ticket AR-REN (waits for Evan; checklist gaps added), GOALS refinements (earned automation, five-minute sessions), Keymaster KM0 parked.
 - 2026-10-12 dot engineering task (Adam): Brisket v0.1.2 easier opening is live, #233 merge `032bbd09`. Pages, eight public file hashes and 40 real public-browser checks verified at 17:27 UTC; all 19 source suites and 784 responsive/opening checks pass. [Release record](docs/playtests/brisket-ac3-2/README.md), scoped handoff #236.
 - 2026-10-12 dot engineering task (Adam): AC3.2 draft [#233](https://github.com/ecbarish/idle-arcade/pull/233) eases Brisket's opening; 375px phone road gaps grow from 19px to 74px. Implementation passes all 19 suites and 784 responsive/opening checks; independent source/visual review found no blocker. [Evidence](docs/playtests/brisket-ac3-2/README.md); final-head checks in PR, no merge/publication authorized.

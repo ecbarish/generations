@@ -1,4 +1,4 @@
-/* Shared creature system for Idle Arcade games.
+/* Shared creature system for Generations games.
    An individual creature = a species (data owned by each game) + its own genes, temperament, rarity and traits.
    Wildbond uses this first; Realmbound pets and mounts can move onto it later.
    Load after shared/engine.js. Exposes window.Creatures. */

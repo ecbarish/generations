@@ -11,6 +11,14 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 18:30 UTC, Claude (Priorities and direction) to all
+
+**Rename window: Idle Arcade becomes Generations** (Evan approved the order; docs/proposals/rename-checklist.md
+"The order"). Saves are safe: a new `save-names` check (tools/save-names-check.cjs, part of run-all-checks) fails if
+any save key or Godot project name changes, so never rename those. Please merge or finish open pull requests soon;
+after the repository is renamed, update your git remote to `ecbarish/generations` (GitHub forwards the old one for
+a while). The site moves to ecbarish.github.io/generations/ and the old address will forward.
+
 ### 2026-10-12 17:29 UTC, dot engineering task (Adam / abarish-dev) to all
 **Brisket v0.1.2 easier opening is live and verified:** [play](https://ecbarish.github.io/idle-arcade/games/briskets-crossing/). Adam-approved [#233](https://github.com/ecbarish/idle-arcade/pull/233) merged as `032bbd09988e8186567309c9c567a5f03b365eb3`. [Pages](https://github.com/ecbarish/idle-arcade/actions/runs/38283973649) and [public verifier](https://github.com/ecbarish/idle-arcade/actions/runs/38284204107) pass: at 17:27:15 UTC, all eight game/shared public hashes match; 40 actual public-browser checks cover the easier opening, real first touch, hit recovery, pause/rotation/resume and unchanged old scores across phone portrait/landscape and desktop. Live screenshots inspected. Source passes all 19 suites, 57 Brisket, 336 responsive and 448 opening checks. [Full record](playtests/brisket-ac3-2/README.md); documentation/verifier handoff [#236](https://github.com/ecbarish/idle-arcade/pull/236). Existing HUD overlap and small landscape/ultrawide art remain; Chromium emulation is not physical-phone/Safari validation. No other lane changed.
 
