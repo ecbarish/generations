@@ -10,7 +10,7 @@
    rainbow over the field while the baby cheers (LR13). At night, three taps on the moon play Twinkle Twinkle Little Star
    while the stars twinkle and the baby sleeps on (LR14). Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.4.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45;
+  const VERSION = '0.5.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45;
   // Twinkle Twinkle Little Star, first verse (traditional, public domain): [note, beats]
   const A = [[72,1],[72,1],[79,1],[79,1],[81,1],[81,1],[79,2],[77,1],[77,1],[76,1],[76,1],[74,1],[74,1],[72,2]], B = [[79,1],[79,1],[77,1],[77,1],[76,1],[76,1],[74,2]];
   const TWINKLE = [...A, ...B, ...B, ...A], SONG_BEATS = TWINKLE.reduce((n, x) => n + x[1], 0), LULLABY_SECS = 25 * .55;
@@ -317,19 +317,37 @@
   lock.addEventListener('pointerdown', holdStart); ['pointerup', 'pointerleave', 'pointercancel'].forEach(n => lock.addEventListener(n, holdEnd));
   lock.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) holdStart(e); }); lock.addEventListener('keyup', holdEnd);
   lock.addEventListener('click', e => e.preventDefault());
-  function soundLabel() { document.getElementById('gSoundLabel').textContent = prefs.sound ? 'Sound on' : 'Sound off'; }
+  // The panel's buttons act on the pointer lifting over the button where it went down (with click as the fallback for
+  // keyboards and scripts), so they don't depend on the browser turning a touch into a click: in an Android WebView
+  // that click can be dropped, which left "Back to play" doing nothing (LR15).
+  const APP = /[?&]app=1(&|$)/.test(location.search) || !!window.LittleRanchApp; // inside the standalone app
+  if (APP) panel.classList.add('app');
+  function press(el, fn) {
+    let down = null, fired = -1e9;
+    el.addEventListener('pointerdown', e => { down = e.pointerId; });
+    el.addEventListener('pointercancel', () => { down = null; });
+    el.addEventListener('pointerup', e => { if (down !== e.pointerId) return; down = null; if (el === panel && e.target !== panel) return; e.preventDefault(); fired = performance.now(); fn(); });
+    el.addEventListener('click', e => { e.preventDefault(); if (performance.now() - fired < 700) return; if (el === panel && e.target !== panel) return; fn(); });
+  }
+  function soundLabel() { const b = document.getElementById('gSound'); document.getElementById('gSoundLabel').textContent = prefs.sound ? 'Sound on' : 'Sound off';
+    b.classList.toggle('off', !prefs.sound); b.setAttribute('aria-pressed', String(prefs.sound)); document.getElementById('gWaves').style.display = prefs.sound ? '' : 'none'; document.getElementById('gMute').style.display = prefs.sound ? 'none' : ''; }
   function openPanel() { panel.hidden = false; soundLabel(); clearTimeout(idle); idle = setTimeout(closePanel, 20000); }
   function closePanel() { panel.hidden = true; clearTimeout(idle); }
-  document.getElementById('gClose').onclick = closePanel;
-  document.getElementById('gNew').onclick = () => { newVisit(); closePanel(); };
-  document.getElementById('gSound').onclick = () => { prefs.sound = !prefs.sound; try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} if (!prefs.sound && ac) { ac.close(); ac = null; } soundLabel(); idle && (clearTimeout(idle), idle = setTimeout(closePanel, 20000)); };
+  if (APP) document.getElementById('gNewLabel').textContent = 'Replay';
+  press(panel, closePanel); // a tap on the dimmed backdrop, outside the card
+  press(document.getElementById('gX'), closePanel);
+  press(document.getElementById('gClose'), closePanel);
+  press(document.getElementById('gNew'), () => { newVisit(); closePanel(); });
+  press(document.getElementById('gSound'), () => { prefs.sound = !prefs.sound; try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} if (!prefs.sound && ac) { ac.close(); ac = null; } soundLabel(); clearTimeout(idle); idle = setTimeout(closePanel, 20000); });
+  press(document.getElementById('gHome'), () => { location.href = document.getElementById('gHome').href; });
+  press(document.getElementById('gExit'), () => { closePanel(); try { window.LittleRanchApp && window.LittleRanchApp.exit(); } catch (e) {} });
 
   /* ---------------- run ---------------- */
   newVisit(); addEventListener('resize', layout);
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get prefs() { return prefs; }, moonAt: () => moonAt(), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel,
+  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get prefs() { return prefs; }, moonAt: () => moonAt(), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();

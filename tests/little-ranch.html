@@ -34,7 +34,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.4.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.5.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -168,8 +168,42 @@ document.querySelector('#run').onclick = async () => {
     lp('pointerdown'); await sleep(LR.HOLD_MS + 400); lp('pointerup'); check('Holding the lock for three seconds opens the grown-up panel', !panel.hidden);
     d.querySelector('#gSound').click(); check('The sound switch is behind the lock and is the only thing stored', JSON.parse(localStorage.getItem(PREF)).sound === false && others() === before);
     d.querySelector('#gSound').click(); d.querySelector('#gNew').click(); check('"New visit" starts a fresh, sunny visit', panel.hidden && S().mode === 'play' && S().acts === 0 && S().dusk === 0);
+    // ---- LR15: the panel's ways back to play, by touch alone (no click), and no double actions
+    const pe = (el, type, id) => el.dispatchEvent(new w.PointerEvent(type, { pointerId: id, bubbles: true, cancelable: true, isPrimary: true, pointerType: 'touch' }));
+    const touch = (el, id) => { pe(el, 'pointerdown', id); pe(el, 'pointerup', id); };
+    LR.openPanel(); touch(d.querySelector('#gClose'), 501); check('"Back to play" closes the panel on a touch alone (no click needed)', panel.hidden);
+    await sleep(750); LR.openPanel(); d.querySelector('#gClose').click(); check('...and on a plain click or key press', panel.hidden);
+    LR.openPanel(); touch(d.querySelector('#gX'), 502); check('The X in the corner closes the panel', panel.hidden);
+    LR.openPanel(); touch(panel, 503); check('A tap on the dimmed backdrop closes the panel', panel.hidden);
+    LR.openPanel(); touch(d.querySelector('#grown .card'), 504); touch(d.querySelector('#gTitle'), 505); check('A tap inside the card (not on a button) keeps it open', !panel.hidden);
+    pe(d.querySelector('#gClose'), 'pointerdown', 506); pe(d.querySelector('#gClose'), 'pointercancel', 506); pe(d.querySelector('#gClose'), 'pointerup', 506); check('A touch that turns into a swipe does nothing', !panel.hidden);
+    pe(lock, 'pointerdown', 507); pe(panel, 'pointerup', 507); check('Lifting the finger from the lock hold does not close the panel it opened', !panel.hidden);
+    const s0 = LR.prefs.sound; touch(d.querySelector('#gSound'), 508); d.querySelector('#gSound').click();
+    check('A touch and its follow-up click count once (sound flips once and shows it)', LR.prefs.sound === !s0 && d.querySelector('#gSoundLabel').textContent === (LR.prefs.sound ? 'Sound on' : 'Sound off') && d.querySelector('#gSound').getAttribute('aria-pressed') === String(LR.prefs.sound) && (d.querySelector('#gMute').style.display === 'none') === LR.prefs.sound);
+    touch(d.querySelector('#gSound'), 509); check('...and flips back', LR.prefs.sound === s0);
+    LR.openPanel(); const vis = () => [...d.querySelectorAll('#grown .act')].filter(visible).map(el => el.textContent.trim());
+    check('On the web the panel shows New visit, Sound, Arcade and Back to play', !LR.APP && vis().join('|') === 'New visit|' + (LR.prefs.sound ? 'Sound on' : 'Sound off') + '|Arcade|Back to play');
+    const fits = [...d.querySelectorAll('#grown .lbl')].filter(visible).every(el => el.scrollWidth <= el.clientWidth + 1 && el.getBoundingClientRect().height < 30);
+    check('Every label fits on one line at 375 px wide', fits);
+    touch(d.querySelector('#gClose'), 510);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
+    // ---- LR15: app mode (inside the standalone app): Replay, Sound and Exit
+    const app = document.createElement('iframe'); app.style.cssText = 'width:667px;height:375px'; app.src = '../games/little-ranch/index.html?app=1';
+    await new Promise((ok, no) => { const t = setTimeout(() => no(Error('app-mode load timed out')), 20000); app.onload = () => { clearTimeout(t); ok(); }; document.querySelector('#game').appendChild(app); });
+    const aw = app.contentWindow, ad = app.contentDocument; for (let i = 0; i < 50 && !aw.LR; i++) await sleep(100);
+    let exits = 0; aw.LittleRanchApp = { exit: () => { exits++; } };
+    const avis = el => { const s = aw.getComputedStyle(el); return !el.closest('[hidden]') && s.display !== 'none'; };
+    const atouch = (el, id) => ['pointerdown', 'pointerup'].forEach(t => el.dispatchEvent(new aw.PointerEvent(t, { pointerId: id, bubbles: true, cancelable: true, isPrimary: true, pointerType: 'touch' })));
+    aw.LR.openPanel(); const acts = [...ad.querySelectorAll('#grown .act')].filter(avis).map(el => el.textContent.trim());
+    check('In the app the panel shows exactly Replay, Sound and Exit (no arcade link)', aw.LR.APP && acts.length === 3 && acts[0] === 'Replay' && /^Sound (on|off)$/.test(acts[1]) && acts[2] === 'Exit' && !avis(ad.querySelector('#gHome')));
+    check('...plus the X to go back to play', avis(ad.querySelector('#gX')));
+    const ar = [...ad.querySelectorAll('#grown .act')].filter(avis).map(el => el.getBoundingClientRect()), card = ad.querySelector('#grown .card').getBoundingClientRect();
+    check('In a phone held sideways, the three sit in one row inside the card', ar.every(r => Math.abs(r.top - ar[0].top) < 2 && r.left >= card.left && r.right <= card.right && r.bottom <= card.bottom) && card.bottom <= 375 && card.top >= 0);
+    aw.LR.state.acts = 5; atouch(ad.querySelector('#gNew'), 601); check('Replay starts a fresh day and closes the panel', ad.querySelector('#grown').hidden && aw.LR.state.acts === 0 && aw.LR.state.mode === 'play');
+    aw.LR.openPanel(); atouch(ad.querySelector('#gX'), 602); check('The X goes back to play', ad.querySelector('#grown').hidden && exits === 0);
+    aw.LR.openPanel(); atouch(ad.querySelector('#gExit'), 603); check('Exit asks the app to close (once)', exits === 1 && ad.querySelector('#grown').hidden);
+    app.remove();
     sum.className = 'pass'; sum.textContent = 'PASS — ' + n + ' Little Ranch checks.';
   } catch (e) { sum.className = 'fail'; sum.textContent = 'FAIL — ' + e.message; }
   finally { if (frame) frame.remove(); if (keep === null) localStorage.removeItem(PREF); else localStorage.setItem(PREF, keep); button.disabled = false; }
