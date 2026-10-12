@@ -26,7 +26,8 @@ work:** PROCESS.md (claim with a draft PR titled with the ID, build, self-check,
 road". Lane P (Priorities and direction) keeps both lists 20 deep.
 
 **Waiting on Evan, do not start:** the rename to Generations (AR-REN; the steps are ready in
-docs/proposals/rename-checklist.md), the new tagline (docs/proposals/tagline.md), and Keymaster (KM0, parked).
+docs/proposals/rename-checklist.md "Proposed order"; Evan approves the order first) and Keymaster (KM0, parked). The
+tagline is decided: "Play for the fun. Automate the grind." (tagline.md).
 
 ## Who works where (lanes, updated 2026-10-09)
 
