@@ -1,0 +1,79 @@
+name: Starfall mobile aspect fit
+on:
+  pull_request:
+    paths:
+      - 'starfall-godot/**'
+      - 'tools/starfall-mobile-fit-checks.cjs'
+      - 'tools/starfall-preview-fixtures.gd'
+      - '.github/workflows/starfall-mobile-fit.yml'
+permissions:
+  contents: read
+concurrency:
+  group: starfall-mobile-fit-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  exported-browser-review:
+    # Temporary source-PR QA only. No export is written to play/, and no deployment runs here.
+    if: github.event.pull_request.number == 221 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/starfall-mobile-fit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+      LEGACY_SHA: fa44b3ace8aa151ff264af679b3d739342b25a34
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install official Godot and Chromium
+        run: |
+          set -euo pipefail
+          curl --fail --retry 2 --connect-timeout 15 --max-time 120 -sSLo "$RUNNER_TEMP/godot.zip" https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
+          npm install --no-save --no-package-lock playwright@1.56.1 pngjs@7.0.0
+          npx playwright install --with-deps chromium
+      - name: Export isolated before and after QA packs without replacing the preview
+        run: |
+          set -euo pipefail
+          mkdir -p mobile-fit-review/pack mobile-fit-review/screens
+          git rev-parse HEAD | tee mobile-fit-review/source-sha.txt
+          printf '%s\n' "$BASE_SHA" > mobile-fit-review/base-sha.txt
+          "$GODOT" --version | tee mobile-fit-review/engine.txt
+          sha256sum play/starfall/{index.js,index.wasm,index.html,index.pck} > mobile-fit-review/preview-before.sha256
+          git fetch --depth=1 origin "$BASE_SHA"
+          git worktree add --detach "$RUNNER_TEMP/starfall-mobile-before" "$BASE_SHA"
+          for side in before after; do
+            project="$PWD/starfall-godot"
+            if [ "$side" = before ]; then project="$RUNNER_TEMP/starfall-mobile-before/starfall-godot"; fi
+            timeout 180 "$GODOT" --headless --path "$project" --editor --import --quit |& tee "mobile-fit-review/$side-import.log"
+            timeout 180 "$GODOT" --headless --path "$project" --export-pack Web "$PWD/mobile-fit-review/pack/$side.pck" |& tee "mobile-fit-review/$side-export.log"
+          done
+          sha256sum mobile-fit-review/pack/*.pck > mobile-fit-review/pack/sha256.txt
+          git fetch --depth=1 origin "$LEGACY_SHA"
+          git worktree add --detach "$RUNNER_TEMP/starfall-mobile-legacy" "$LEGACY_SHA"
+          cp tools/starfall-preview-fixtures.gd "$RUNNER_TEMP/starfall-mobile-legacy/starfall-godot/tests/preview-fixtures.gd"
+          timeout 180 "$GODOT" --headless --path "$RUNNER_TEMP/starfall-mobile-legacy/starfall-godot" --editor --import --quit
+          FIXTURE_OUTPUT="$PWD/mobile-fit-review/legacy.json" timeout 60 "$GODOT" --headless --path "$RUNNER_TEMP/starfall-mobile-legacy/starfall-godot" --script res://tests/preview-fixtures.gd
+      - name: Exercise phone fitting, rotation, touch, desktop and old saves
+        run: |
+          set -euo pipefail
+          node --check tools/starfall-mobile-fit-checks.cjs
+          node tools/starfall-mobile-fit-checks.cjs --self-test
+          timeout --signal=TERM --kill-after=15s 18m node tools/starfall-mobile-fit-checks.cjs |& tee mobile-fit-review/runtime.log
+      - name: Prove committed preview and engine bytes remain unchanged
+        if: always()
+        run: |
+          set -euo pipefail
+          sha256sum --check mobile-fit-review/preview-before.sha256
+          git diff --exit-code -- play/starfall/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: starfall-mobile-fit-review
+          path: mobile-fit-review/
+          if-no-files-found: error

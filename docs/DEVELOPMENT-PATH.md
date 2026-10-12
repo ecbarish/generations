@@ -166,6 +166,8 @@ Target about 150 species in about 70 lines; most new species are new stages of t
 **WB-M7 (later): first person.** WG11: a 3D view generated from the same maps (docs/proposals/depth-and-first-person.md).
 
 ### Starfall (Godot): the village
+
+- [ ] SF-MOBILE-FIT [any] (implemented, draft review: [PR #221](https://github.com/ecbarish/idle-arcade/pull/221), Codex for Adam / abarish-dev, 2026-10-12; 1,406 browser checks / 136 captures, final-head checks pending) Fix phone letterboxing with mobile fractional aspect-fit; retain desktop integer scaling, camera, controls and saves. Files: starfall-godot/ scaling/tests, scoped tools/ and CI harness, evidence/session notes. Done when rendered portrait/landscape, rotation/repeated resize, touch/text and desktop checks pass. No merge or preview publication.
 **SF-M1: the working town (done 2026-10-08).**
 - [x] Board, adventurers, the counter and Bryn, plots and Hob, healer,
 yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, detail, web preview.

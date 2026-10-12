@@ -62,3 +62,6 @@ keys are shown at the bottom the first time you need them (walking, then using t
   to start with the hut built and the yard going up, or `--market` for all four buildings).
 - Next slices (docs/plans/starfall-village.md): more places to run by hand (the smithy, the apothecary), more plots as
   the town grows, guild members' stories, seasons as chapters.
+
+## Display sizing
+Phones use fractional aspect-fit so the 384×216 view reaches the available width or height, including after rotation or browser toolbar changes. Different-shaped screens still have aspect-ratio bars; the camera does not show more world or crop the view. Desktop keeps whole-number pixel scaling. Pixel art stays nearest-filtered; mobile fractional sizes can make some source pixels one display pixel wider than others. Android/iOS native and their web host feature tags select this policy. No save setting is added.
