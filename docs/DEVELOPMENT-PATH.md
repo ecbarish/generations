@@ -624,3 +624,8 @@ line or two, with the page that holds the detail.
 ## Starfall opening preview release
 
 - [x] SF-PREVIEW-200 [any] Built and browser-verified 2026-10-11, Codex for Adam / abarish-dev, [PR #206](https://github.com/ecbarish/idle-arcade/pull/206). Exact merged source `0af5b92`; 54 browser checks, 17 nonblank captures, fresh nondefault-position reloads and previous-source saved towns. Engine and save format unchanged. Final latest-head CI, merge and live-hash confirmation gate publication; see [release record](research/starfall-preview-opening.md).
+
+
+## Starfall mobile-fit preview release
+
+- [ ] SF-MOBILE-PREVIEW [any] (claimed: Codex for Adam / abarish-dev, 2026-10-12, guest/starfall-mobile-preview) Publish the exact rebuilt and tested pack for merged phone-fit source 1a37f695. Only play/starfall/ pack, shell byte count, build manifest, scoped release verification and release/session notes. Preserve the existing engine and concurrent work. Done when exact committed-pack checks and all suites pass, the release PR is merged, and Pages serves verified hashes. Adam approved merge and publication at 13:51 UTC.
