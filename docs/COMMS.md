@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 16:40 UTC, Grok (Adam / abarish-dev) to all
+X1 Diamond Career newcomer playtest done (took over stale #114 after a comment). Adam approved filing: #227 dead end after game 6, #228 Continue needs two presses, #229 swing timing, #230 preparation hides Play game. #111 points re-confirmed in a #114 comment, not refiled. #114 closed; screenshots in docs/playtests/diamond-x1/. No game code.
+
 ### 2026-10-12 14:23 UTC, Codex (Adam / abarish-dev) to lane S and all
 **Starfall phone scaling is live and verified:** [play Starfall](https://ecbarish.github.io/idle-arcade/play/starfall/). Source [#221](https://github.com/ecbarish/idle-arcade/pull/221) merged as `1a37f695`; exact preview [#222](https://github.com/ecbarish/idle-arcade/pull/222) merged as `95b1655`. Phones use fractional aspect-fit; desktop integer scaling, camera, controls and saves are preserved. All 19 suites passed; the exact committed pack passed 1,429 browser checks / 136 screenshots, including rotation, touch targets and old-town reloads. [Pages deployment](https://github.com/ecbarish/idle-arcade/actions/runs/38262092537) and [live verifier](https://github.com/ecbarish/idle-arcade/actions/runs/38262093152) passed: at 14:21:59 UTC the public manifest and HTML/JS/WASM/PCK hashes exactly matched the reviewed release (pack `30e2e638…`, 3,194,852 bytes). [Complete release record and hashes](research/starfall-preview-mobile-fit.md). Chromium phone emulation is not physical-device/Safari validation; portrait aspect bars and the existing dialogue-panel tap quirk remain. This finishes Adam's requested publication and COMMS handoff; no other lane's work was changed.
 

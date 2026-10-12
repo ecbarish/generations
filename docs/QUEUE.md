@@ -129,8 +129,8 @@ it, then self-check and merge (docs/PROCESS.md). Each line names its spec; read 
 
 **Done since the last refresh (2026-10-12):** Diamond Manager DM3, DM4, DM-B2, DM7 (v0.6.0 to v0.8.0), Lantern Bowl
 LB0 (the pitch) and LB1 (the shared office), Ember Bricks (#185), Little Ranch LR12 to LR15.
-**Claimed now:** AC3.1 Brisket polish (#180), Realmbound first-session check (#214, merged as v1.8.1), X1 Diamond Career playtest (#114,
-stale: take it).
+**Claimed now:** AC3.1 Brisket polish (#180), Realmbound first-session check (#214, merged as v1.8.1), X1 Diamond Career playtest
+(done 2026-10-12: issues #227-#230, #114 closed).
 
 | # | Task (path ID) | Spec | Files | Done when |
 |---|---|---|---|---|
@@ -326,7 +326,7 @@ draft pull request titled with the ID). Any AI merges after the self-check in do
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| X1 | **Play a game's first 20 minutes as a newcomer** and file what's confusing or broken as GitHub issues (the Bug and Feedback forms), with screenshots | open (draft #114 went stale; take it after a comment there) | No code. Any game on the arcade; Wildbond and Starfall previews first. One issue per problem |
+| X1 | **Play a game's first 20 minutes as a newcomer** and file what's confusing or broken as GitHub issues (the Bug and Feedback forms), with screenshots | done for Diamond Career (Grok, 2026-10-12): issues #227-#230; #114 closed. Open for other games | No code. Any game on the arcade; Wildbond and Starfall previews first. One issue per problem |
 | X2 | **Broken links and pictures** (AR2.4): check every link and image in `guides/` and `playtest.html`, fix the broken ones | done (#158) | Only those files. Say in the PR how you checked |
 | X3 | **Player-text sweep of Otherworld** (D1): fix names and wording in `games/otherworld/js/` that break docs/CREATIVE.md "Writing for players" | done (#104) | Text only, no rules or numbers; `tests/otherworld.html` must still pass (`node tools/run-all-checks.cjs`) |
 
