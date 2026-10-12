@@ -1,4 +1,4 @@
-# Idle Arcade: the master project list
+# Generations: the master project list
 
 Every outlined project in one place, so Evan can hand work to any assistant (Claude, ChatGPT/Codex, or another AI)
 and they can carry it to launch. START-HERE.md says what is happening *right now*; this file says *everything there

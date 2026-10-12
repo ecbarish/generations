@@ -20,7 +20,7 @@ function Card($name, $d, $big, $small, $small2) {
   $vf += ",fade=t=in:st=0:d=0.4,fade=t=out:st=$($d - 0.4):d=0.4,format=yuv420p"
   & $ff -y -loglevel error -f lavfi -i "color=c=0x111626:s=$($W)x$($H):d=$($d):r=30" -vf $vf -an -c:v libx264 -preset medium -crf 18 "$name.mp4"
 }
-Card c0 2.2 "IDLE ARCADE" "presents" ""
+Card c0 2.2 "GENERATIONS" "presents" ""
 Card c1 2.8 "WILDBOND" "a creature-bonding adventure" ""
 Clip s01 demo 1.0 3.6 "The valley has lost its colour."
 Clip s02 demo 8.6 3.0 "Sign the ranch register. Become a tamer."

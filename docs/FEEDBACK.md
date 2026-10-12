@@ -1,6 +1,6 @@
 # Feedback, bugs and suggestions
 
-**For testers:** open https://github.com/ecbarish/idle-arcade/issues/new/choose and pick *Playtest feedback*,
+**For testers:** open https://github.com/ecbarish/generations/issues/new/choose and pick *Playtest feedback*,
 *Bug report* or *Suggestion*. (A free GitHub account is needed. Testers without one can send Evan notes any way they
 like; Evan, or an assistant, files them as issues.) In a game, **⚙ Settings → Tell us** (and the Feedback button in
 many top bars) opens the right form with the game, version and place already filled in (F2, AR2.11; `shared/feedback.js`).

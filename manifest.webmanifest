@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Generations",
   "short_name": "Generations",
-  "description": "Small, growing adventure and progression games. Play at your own pace.",
+  "description": "Play for the fun. Automate the grind. Small, growing adventure and progression games.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

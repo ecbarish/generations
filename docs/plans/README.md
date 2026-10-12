@@ -1,4 +1,4 @@
-# Idle Arcade: research and development plans
+# Generations: research and development plans
 
 Prepared 2026-10-06 for Evan. These documents turn comparable-game research and the owner's stated direction into proposed development stages. They are not a promise of every feature, a completed game spec or authorization to unpark implementation. `docs/ROADMAP.md` still controls approved work. This planning branch adds documentation only above the updated Winter Road branch; it implements no additional gameplay.
 

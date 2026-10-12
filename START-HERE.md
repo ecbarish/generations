@@ -107,6 +107,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 - 2026-10-12 Claude (Priorities and direction): Evan picked folding Starfall Guild into the Godot village: SF-GUILD (map first, Heavy lifting H21); browser SG-N1 is fixes only.
 
 - **2026-10-12, Codex:** AR2.15 in PR #249 separates the hall’s sports destinations and save displays; existing game saves and the mixed legacy index remain intact.
+- 2026-10-12 Claude (website thread): rename sweep. The homepage sign, hall neon, promo kickers and trailer card say Generations; the tagline "Play for the fun. Automate the grind." is on the homepage, manifest, README and CLAUDE.md; CONTRIBUTING, FEEDBACK, glossary, offline and winter-road docs point to ecbarish/generations. History lines, save keys, Godot names and the votes form name left as they were.
 - 2026-10-12 Claude (Priorities and direction): check-in. Plan holds; Evan's business-games direction and "passions first" recorded (QUEUE direction, GOALS, PRIORITIES); DM5 moved ahead of Lantern Bowl.
 
 - **2026-10-12, Codex:** DC-N newcomer fixes in PR #247: calendar Play, tapered opening timing, complete dialogue and preparation return; own Generations clone, old saves preserved.

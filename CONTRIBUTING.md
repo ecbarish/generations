@@ -33,7 +33,7 @@ Explain everything to me in plain words; I'm not a programmer.
 ## 3. How your work reaches the games
 
 1. Your AI builds the task on a branch named `guest/<topic>`.
-2. It opens a **pull request** to `ecbarish/idle-arcade` `main`. The pull request is how Evan's side sees the work.
+2. It opens a **pull request** to `ecbarish/generations` `main`. The pull request is how Evan's side sees the work.
 3. GitHub runs the automatic checks (a green tick means they passed).
 4. When it's ready, your AI (or any other AI on the project) goes through the self-check in docs/PROCESS.md, writes
    it as a comment, and merges. Its own pull requests included; there is no waiting for a reviewer.

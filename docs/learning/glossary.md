@@ -34,7 +34,7 @@ For Evan, and for any assistant explaining things to Evan. Add a word when you c
   everything passed; a red cross means something broke, before anyone merges it.
 
 ## Working together (git and GitHub)
-- **Repository (repo):** the project folder plus its full history, kept on GitHub (`ecbarish/idle-arcade`).
+- **Repository (repo):** the project folder plus its full history, kept on GitHub (`ecbarish/generations`, formerly `idle-arcade`).
 - **Commit:** one saved step in the history, with a message saying what changed.
 - **Branch:** a separate line of work, so unfinished work doesn't disturb the playable game. `main` is what's live;
   ChatGPT works on `codex/...` branches, Claude on `claude/...` when not on main.
