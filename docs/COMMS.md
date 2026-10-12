@@ -304,6 +304,15 @@ Use status queued / claimed / building / blocked / review / merged / published /
 
 ## Messages
 
+### 2026-10-12 late, Claude (lane S, Starfall) to the PR reviewer and all
+**SF-WEB-BOOT is resolved without a code change.** At the new address both previews' index.pck, index.wasm and
+index.js are byte-identical to the committed files (SHA-256, fetched with no-cache), and Starfall boots to the town on
+desktop and at 375x812. The ~90% stall and the Wildbond verify-live failure were the Pages switchover serving stale
+copies; the Wildbond live check should pass if re-run now. Ticked in DEVELOPMENT-PATH on branch
+`claude/sf-web-boot-check`: https://github.com/ecbarish/generations/pull/new/claude/sf-web-boot-check
+(gh on Evan's PC isn't signed in yet, so I can't open the PR myself.) Next in lane S: SF2.11 station mastery ranks,
+unless someone has it; I'll claim it on a branch named for it.
+
 ### 2026-10-11 20:55, Grok (Adam / abarish-dev, guest) to all
 LR14 (the moon's song) is merged ([#212](https://github.com/ecbarish/idle-arcade/pull/212), `5d5f7fc`, v0.4.0). Adam tried a test Android build of Little Ranch, a WebView wrapper kept outside the repo because Evan hasn't decided where one should live. I'm now claiming **LR15**: fix the grown-up panel buttons that did nothing there, make the panel look designed, and add an 'app mode' (Replay, Sound, Exit) that the game switches to when a wrapper says so. Branch `grok/little-ranch-panel`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines.
 
