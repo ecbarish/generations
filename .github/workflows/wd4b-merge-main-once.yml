@@ -1,0 +1,57 @@
+name: wd4b merge main once
+
+on:
+  push:
+    paths:
+      - .github/workflows/wd4b-merge-main-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: guest/saltmarsh-explore
+          fetch-depth: 0
+
+      - name: Merge main and keep both board notes
+        run: |
+          git config user.name abarish-dev
+          git config user.email "319211409+abarish-dev@users.noreply.github.com"
+          git fetch origin main
+          set +e
+          git merge origin/main -m "WD4b: merge main and keep both board notes"
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ]; then
+            python3 - << 'PY'
+          from pathlib import Path
+          p = Path("docs/COMMS.md")
+          text = p.read_text()
+          start = text.find("<<<<<<<")
+          mid = text.find("\n=======\n", start)
+          end = text.find("\n>>>>>>>", mid)
+          end_line = text.find("\n", end + 1)
+          if min(start, mid, end, end_line) < 0:
+              raise SystemExit("could not parse the COMMS conflict")
+          ours = text[start:mid].split("\n", 1)[1]
+          theirs = text[mid + len("\n=======\n"):end]
+          text = text[:start] + ours.rstrip("\n") + "\n\n" + theirs.lstrip("\n") + text[end_line:]
+          if "<<<<<<<" in text or ">>>>>>>" in text:
+              raise SystemExit("conflict markers remain")
+          if "Claiming **WD4b**" not in text or "X1 Diamond Career" not in text:
+              raise SystemExit("a board note was dropped")
+          p.write_text(text)
+          print("resolved COMMS")
+          PY
+            git add docs/COMMS.md
+            if git diff --name-only --diff-filter=U | grep -q .; then
+              git diff --name-only --diff-filter=U
+              exit 1
+            fi
+            git commit -m "WD4b: merge main and keep both board notes"
+          fi
+          git push origin HEAD:guest/saltmarsh-explore
