@@ -7,20 +7,25 @@ const MAX_CHARS=8;
 const emptyS=()=>({v:2,chars:[],cur:null,last:Date.now(),tab:'quests'});
 let S=emptyS();
 const H=()=>S.chars.find(c=>c.id===S.cur)||null;
+function normalizeFieldLoot(h){
+  const loot=h.fieldLoot;
+  if(!loot||!Number.isFinite(loot.money)||loot.money<0||!Array.isArray(loot.items)||
+    !loot.items.every(it=>it&&Number.isFinite(it.id)&&typeof it.name==='string'))h.fieldLoot=null;
+}
 function migrate(o){
   if(!o||typeof o!=='object')return emptyS();
   if(Array.isArray(o.chars)){
-    for(const h of o.chars)if(h.onboarding===undefined)h.onboarding=null;
+    for(const h of o.chars){if(h.onboarding===undefined)h.onboarding=null;normalizeFieldLoot(h);}
     if(o.guild&&o.guild.founded){o.guild.requests=o.guild.requests||{};o.guild.stories=normalizeMemberStories(o.guild.stories);}
     return o;
   }
   const s=emptyS();s.last=o.last||Date.now();s.tab=o.tab||'quests';
-  if(o.hero){const h=o.hero;if(h.onboarding===undefined)h.onboarding=null;h.id=h.id||uid();h.log=o.log||[];h.lastPlayed=o.last||Date.now();s.chars.push(h);s.cur=h.id;}
+  if(o.hero){const h=o.hero;if(h.onboarding===undefined)h.onboarding=null;normalizeFieldLoot(h);h.id=h.id||uid();h.log=o.log||[];h.lastPlayed=o.last||Date.now();s.chars.push(h);s.cur=h.id;}
   return s;
 }
 function newHero(name,faction,race,cls){
   const h={id:uid(),log:[],lastPlayed:Date.now(),name,faction,race,cls,lvl:1,xp:0,rested:0,money:0,zone:FACTIONS[faction].start,gear:{},bags:[],talents:{},
-    quests:{active:[],done:{},prog:{},rewards:{}},addons:{unl:{},on:{}},mode:'focus',grind:null,pets:[],activePet:null,riding:0,mounts:[],mount:null,npcs:genNpcs(faction),party:[],dun:null,dstats:{clears:0,best:-1,runs:0},
+    quests:{active:[],done:{},prog:{},rewards:{}},addons:{unl:{},on:{}},mode:'focus',grind:null,pets:[],activePet:null,riding:0,mounts:[],mount:null,npcs:genNpcs(faction),party:[],dun:null,fieldLoot:null,dstats:{clears:0,best:-1,runs:0},
     stats:{kills:0,deaths:0,loots:0,junkSold:0,quests:0,equips:0,manual:0,uses:0,play:0,money:0,feeds:0,tamed:0},avg:{cycle:30,xp:20,money:5},seenAddons:true,onboarding:{arrival:false,hints:{}}};
   const K=CLASSES[cls];
   h.gear.weapon=genItem(1,1,'weapon',{cls,type:K.weap[0]});

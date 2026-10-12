@@ -86,6 +86,7 @@ function targetMob(){
   const ok=z.filter(m=>!m.rare&&m.lv[0]<=h.lvl);return ok.length?ok[ok.length-1]:z[0];
 }
 function spawn(){
+  if(restoreFieldLoot())return;
   if(H().dun){spawnDungeon();return;}
   const t=targetMob(),lvl=rint(t.lv[0],t.lv[1]),e=!!t.elite,beast=t.kind==='beast';
   const rar=beast?wildRarity(t):0;let name=t.name,col=t.col,petName=t.name;
@@ -130,16 +131,20 @@ function onKill(){
   // ordering: elites end the fight with a guaranteed look at the loot
   const auto=h.addons.unl.autoloot&&h.addons.on.autoloot;
   if(!loot.money&&!loot.items.length){afterFight();return;}
-  if(auto){takeLoot(loot,false);afterFight();return;}
-  if(aiOn()&&!m.elite){if(loot.money)takeLoot({money:loot.money,items:[]},false);if(loot.items.length)line('You leave the rest of the loot on the corpse.','l-hurt');afterFight();return;}
-  C.loot=loot;C.phase='loot';C.t=aiOn()?3:12;
+  if(auto){const left=takeLoot(loot,false);if(left.items.length){holdFieldLoot(left);return;}afterFight();return;}
+  if(aiOn()&&!m.elite){if(loot.money)takeLoot({money:loot.money,items:[]},false);loot.money=0;if(!loot.items.length){afterFight();return;}}
+  holdFieldLoot(loot);
 }
+function holdFieldLoot(loot){H().fieldLoot=loot;C.loot=loot;C.phase='loot';C.t=0;}
+function restoreFieldLoot(){const h=H();if(h.dun||!h.fieldLoot||(!h.fieldLoot.money&&!h.fieldLoot.items.length))return false;holdFieldLoot(h.fieldLoot);return true;}
 function takeLoot(loot,manual){
-  const h=H();if(loot.money){h.money+=loot.money;h.stats.money+=loot.money;line(`You loot ${moneyTxt(loot.money)}.`,'l-loot');}
-  for(const it of loot.items){if(h.bags.length>=16){err('Inventory is full.');line(`Inventory is full. ${it.name} was left behind.`,'l-hurt');continue;}
+  const h=H(),left=[];let collected=!!loot.money;if(loot.money){h.money+=loot.money;h.stats.money+=loot.money;line(`You loot ${moneyTxt(loot.money)}.`,'l-loot');}
+  for(const it of loot.items){if(h.bags.length>=16){left.push(it);err('Satchel is full. Make room, then collect the remaining loot.');continue;}
+    collected=true;
     h.bags.push(it);line(`You receive loot: [${it.name}].`,'l-loot');if(it.rar>=2)toast(`Loot: ${it.name}`);
     if(h.addons.unl.gearcmp&&h.addons.on.gearcmp)autoEquip(it);}
-  if(manual)h.stats.loots++;
+  if(manual&&collected)h.stats.loots++;
+  return {money:0,items:left};
 }
 function afterFight(){
   if(H().dun){afterDungeonPull();return;}
@@ -208,9 +213,7 @@ function step(h){
       const p=petOf(),petOk=!p||p.hp<=0?!(p&&C.reviving>0):p.hp>=petStats(p).hpMax*.9;
       const partyOk=C.party.every(q=>q.dead||q.hp>=compStats(q.n).hpMax*.9);
       if(C.hp>=ST.hpMax*.97&&(!mana||C.res>=ST.resMax*.95)&&petOk&&partyOk){C.phase='seek';C.t=he.dun?4:travel(2.5);}break;}
-    case 'loot':C.t-=h;if(C.t<=0){
-      if(C.loot&&C.loot.dun){for(const it of C.loot.items)giveLoot(it);afterDungeonPull();break;}
-      if(C.loot&&aiOn()&&C.loot.money)takeLoot({money:C.loot.money,items:[]},false);if(C.loot&&C.loot.items.length)line('The corpse decays. Some loot was left behind.','l-hurt');afterFight();}break;
+    case 'loot':break; // Deliberate collection and companion gifts never expire while being read.
     case 'dead':C.t-=h;if(C.t<=0){C.hp=ST.hpMax*.5;if(mana)C.res=ST.resMax*.5;C.phase='rest';line('You return to your body.','l-sys');}break;
     case 'town':C.t-=h;if(C.t<=0){C.phase='intown';line(`You arrive at ${hubName()}.`,'l-sys');
         if(he.addons.unl.sweep&&he.addons.on.sweep)sellJunk(true);if(he.addons.unl.petcare&&he.addons.on.petcare&&he.bags.filter(i=>i.food).length<3)buyFood(true);C.townT=3;}break;

@@ -27,7 +27,7 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| RB-N1 | Keep loot and answer player input | S | claimed: Codex, 2026-10-12 | Field loot, low-resource feedback and dialogue click/tap; no content expansion |
+| RB-N1 | Keep loot and answer player input | S | ready: Codex, PR #253 | Field loot, low-resource feedback and dialogue click/tap; no content expansion |
 
 ## Realmbound first-session validation
 

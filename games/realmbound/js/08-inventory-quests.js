@@ -25,7 +25,7 @@ function score(it){if(!it||it.junk||!canEquip(it))return -1;const w=CLASSES[H().
 function hubName(){const z=ZONES[H().zone];return typeof z.hub==='string'?z.hub:z.hub[H().faction];}
 function giver(q){return Array.isArray(q.giver)?q.giver[H().faction==='concord'?0:1]:q.giver;}
 function goTown(){if(H().dun){err('Leave the dungeon first.');return;}if(C.phase==='fight'){err("You can't leave in the middle of a fight.");return;}C.phase='town';C.t=travel(10);C.mob=null;line('Heading back to town.','l-sys');}
-function leaveTown(){C.phase='seek';C.t=travel(6);line('You head back out.','l-sys');}
+function leaveTown(){C.phase='seek';C.t=travel(6);line('You head back out.','l-sys');restoreFieldLoot();}
 
 /* ---- items & vendor ---- */
 function equip(id,auto){const h=H(),i=h.bags.findIndex(x=>x.id===id);if(i<0)return;const it=h.bags[i];if(!canEquip(it)){err("You can't use that.");return;}

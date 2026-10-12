@@ -1170,5 +1170,29 @@ module.exports = function scenarios() {
         check(ledger()===before,'RB1.11: inactive Hunter freezes real pet, healer companion, DoT, cast, healing, cooldown, resource and boss-reaction timers together');
         const pet=petOf(),ps=petStats(pet);check(pet.hp>0&&C.party.length===1&&C.party[0].n.cls==='priest'&&ps.hpMax>0,'RB1.11: pause fixture contains a living pet and a real healer, not empty placeholders');
       }finally{S=keep;C=keepC;if(H())boot();}}
+
+      // RB-N1: waiting never destroys a player's drops; only actual collection earns loot credit.
+      {const keep=S,keepC=C;try{
+        const hero=newHero('Patient Collector','concord','human','rogue');hero.onboarding={arrival:true,hints:{}};S=emptyS();S.chars=[hero];S.cur=hero.id;boot();closeModal();clearArrival();
+        const item=genJunk(1,'beast'),loot={money:37,items:[item]};holdFieldLoot(loot);const original=JSON.stringify(loot);for(let i=0;i<600;i++)step(.1);
+        check(C.phase==='loot'&&JSON.stringify(C.loot)===original,'RB-N1: a minute on the field preserves every uncollected coin and item');
+        spawn();check(C.phase==='loot'&&C.loot.items[0].id===item.id,'RB-N1: a pending drop prevents the next spawn overwriting it');
+        for(let i=0;i<16;i++)hero.bags.push(genJunk(1,'humanoid'));lootAll();check(hero.money===37&&hero.fieldLoot.items[0].id===item.id&&hero.fieldLoot.money===0,'RB-N1: full satchel keeps its item and collects coins exactly once');
+        const attempts=hero.stats.loots;lootAll();check(hero.money===37&&hero.stats.loots===attempts&&C.phase==='loot','RB-N1: repeated full-satchel attempts duplicate neither coins nor earned loot credit');
+        const raw=JSON.parse(JSON.stringify(S));S=migrate(raw);boot();const loaded=H();check(C.phase==='loot'&&C.loot.items[0].id===item.id&&loaded.money===37,'RB-N1: saved pending field drop returns after reload with the same identity and wallet');
+        goTown();C.t=0;step(.1);check(C.phase==='intown'&&loaded.fieldLoot.items.length===1,'RB-N1: visiting town keeps the remaining drop');
+        const sale=loaded.bags[0];sellItem(sale.id);const paid=loaded.money;leaveTown();lootAll();check(loaded.bags.some(i=>i.id===item.id)&&loaded.money===paid&&!loaded.fieldLoot&&C.phase!=='loot','RB-N1: selling to make room and returning collects the item without paying the coins again');
+        const last=JSON.stringify(loaded.bags);lootAll();check(JSON.stringify(loaded.bags)===last,'RB-N1: a collected pile cannot be taken twice');
+        const old=JSON.parse(JSON.stringify(S));delete old.chars[0].fieldLoot;const cash=old.chars[0].money,bag=JSON.stringify(old.chars[0].bags);const migrated=migrate(old);check(migrated.chars[0].fieldLoot===null&&migrated.chars[0].money===cash&&JSON.stringify(migrated.chars[0].bags)===bag,'RB-N1: old saves get no pending loot without altering bags or money');
+        migrated.chars[0].fieldLoot={money:2,items:[null]};check(migrate(migrated).chars[0].fieldLoot===null,'RB-N1: malformed optional loot is ignored safely');
+        S.chars=[hero];S.cur=hero.id;hero.bags=[];hero.fieldLoot=null;boot();closeModal();spawn();C.res=0;C.gcd=0;C.cds={};const ability=bar()[0],before=$('#toasts').children.length;canUse(ability,true);
+        check($('#toasts').children.length===before,'RB-N1: quiet ability readiness checks do not spam resource notices');press(0);check(C.err==='Not enough energy.'&&$('#toasts').lastChild.textContent==='Not enough energy.','RB-N1: an actual low-energy press explains the failure in the game window');
+        clearArrival();let ended=false;SCN.play([['Iora','A whole line worth reading before choosing.'],['Iora','The next thought.']],()=>{ended=true;});RTALK.shown=0;renderTalkAction();const next=SCN.el.querySelector('.dlg-continue');check(next.textContent==='Show line','RB-N1: typing text names the reveal action');next.click();check(RTALK.i===0&&SCN.el.querySelector('.dlg-say').textContent===RTALK.lines[0][1]&&next.textContent==='Continue','RB-N1: click reveals the complete line immediately and changes its label');next.click();check(RTALK.i===1,'RB-N1: Continue click advances one line');SCN.skip();check(ended,'RB-N1: completing dialogue still runs its callback');
+        SCN.play([['Iora','Choose deliberately.']],()=>{ended=true;},{choices:['Take it','Leave it']});ended=false;SCN.advance();SCN.advance();check(!ended&&SCN.el.classList.contains('asking'),'RB-N1: revealing a choice line never selects an outcome');SCN.choose(1);
+        hero.lvl=20;hero.zone='fens';boot();closeModal();startDungeon(0,hero.npcs.slice(0,4).map(n=>n.id),'sanctum');const def=dungeonDef();hero.dun.step=def.enc.findIndex(e=>e.loot>0);spawnDungeon();dunKill(C.mob);const bossLoot=JSON.stringify(C.loot);step(60);check(C.phase==='loot'&&JSON.stringify(C.loot)===bossLoot,'RB-N1: dungeon loot never times out into an unwanted companion gift');
+        hero.bags=Array.from({length:16},()=>genJunk(1,'humanoid'));const drop=C.loot.items[0];dunLootAct(drop.id,false);check(C.loot.items.some(it=>it.id===drop.id),'RB-N1: individual dungeon Take keeps a drop when the satchel is full');
+        const count=C.loot.items.length;dunLootAct(drop.id,true);check(!C.loot||C.loot.items.length===count-1,'RB-N1: deliberate companion gift still consumes exactly one drop');
+      }finally{SCN.skip();S=keep;C=keepC;if(H())boot();}}
+
 return checks;
 };
