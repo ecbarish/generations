@@ -104,7 +104,8 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
-- 2026-10-12 Grok (Adam / abarish-dev, guest): claimed WD4b, Saltmarsh you can explore (`guest/saltmarsh-explore`): coast road, original settlement kept, Tide-gated Moon Pool. Not merged.
+- 2026-10-12 Grok (Adam / abarish-dev, guest): claimed WD4b, Saltmarsh you can explore (`guest/saltmarsh-explore`, draft #232): coast road, original settlement kept, Tide-gated Moon Pool. Not merged.
+- 2026-10-12 dot engineering task (Adam): Brisket v0.1.1 #180 is live (`19a7ee37`), eight public file hashes and 31 actual public-browser checks verified at 16:34 UTC. All 19 suites and 336 responsive checks pass; [release record](docs/playtests/brisket-ac3-1/README.md), status-only handoff #231.
 - 2026-10-12 dot engineering task (Adam): #180 landscape correction approved; responsive art/caption fix passes 336 browser checks/70 captures and independent visual review; head 527b28a9 passes all 19 suites and 336 responsive checks; awaiting Adam's merge decision, kept draft. Original before screenshots retained, no merge/publication.
 - 2026-10-12 dot engineering task (Adam): authorized ownership handoff for AC3.1 draft #180, fixture repair and current-main reconciliation; all 19 suites and 57 Brisket checks pass; six browser images reviewed, with pre-existing landscape stretch documented for the merge decision. No merge or publication.
 - 2026-10-11 — Codex (Adam): AC3.1 built in draft [PR #180](https://github.com/ecbarish/idle-arcade/pull/180): Brisket recovery/release gate, ready keyboard launch, larger mule. Model checks pass; browser CI and visual review pending because local Chromium is unavailable. Capture script and review limits in docs/playtests/brisket-ac3-1/. No merge.

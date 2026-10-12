@@ -1,0 +1,70 @@
+{
+  "checked_at": "2026-10-12T16:32:32.167247+00:00",
+  "source_commit": "19a7ee377e8097b3cdd47a7e15152663bbd7455e",
+  "files": [
+    {
+      "file": "games/briskets-crossing/model.js",
+      "expected_blob": "3da89afd46a9c34b03d18a0a43430a5862d38271",
+      "actual_blob": "3da89afd46a9c34b03d18a0a43430a5862d38271",
+      "sha256": "52532d769dc0340f00103d049b66ede4b5c2a1000b1fc8275ee84b5912d0ac05",
+      "bytes": 6148,
+      "match": true
+    },
+    {
+      "file": "games/briskets-crossing/index.html",
+      "expected_blob": "acb88d3577e9029d67faa700907c43c8883de033",
+      "actual_blob": "acb88d3577e9029d67faa700907c43c8883de033",
+      "sha256": "693ba605850999ea5b57583d947289d0e04151644e435866798b7e5225cb8b5b",
+      "bytes": 2234,
+      "match": true
+    },
+    {
+      "file": "games/briskets-crossing/style.css",
+      "expected_blob": "7846caf6568c8b5955e71ffb3159b58c82a9c24a",
+      "actual_blob": "7846caf6568c8b5955e71ffb3159b58c82a9c24a",
+      "sha256": "17ebe8c47287ecbc0396fe579df93ee0f89d1ff7e9f031c2dece8e1c6b044a4d",
+      "bytes": 7237,
+      "match": true
+    },
+    {
+      "file": "shared/settings.js",
+      "expected_blob": "90cec5aa57eaae07d86a0b0a7e2933279583bb17",
+      "actual_blob": "90cec5aa57eaae07d86a0b0a7e2933279583bb17",
+      "sha256": "5e2dc6aab195d2571b82a745f50fa1e513deaf118040eecf7e1d625f906bf177",
+      "bytes": 11046,
+      "match": true
+    },
+    {
+      "file": "shared/feedback.js",
+      "expected_blob": "aff374f254b23118fa9071578c022df2e4bce0f5",
+      "actual_blob": "aff374f254b23118fa9071578c022df2e4bce0f5",
+      "sha256": "8dbc9a3a11dfcedbf6a667cf4c99c9e1c0da9b530bf6519f4f9338f582509057",
+      "bytes": 4863,
+      "match": true
+    },
+    {
+      "file": "shared/engine.js",
+      "expected_blob": "544eb9a279a93205b77cd43204c9b0e0922e79cf",
+      "actual_blob": "544eb9a279a93205b77cd43204c9b0e0922e79cf",
+      "sha256": "a700b8e63f0e72d37baa0404c3d62689414599c72bc7f94fa244a2216ed2880c",
+      "bytes": 10882,
+      "match": true
+    },
+    {
+      "file": "shared/sound.js",
+      "expected_blob": "77e971e690e66628ea476b3d7c94dca045e53d7f",
+      "actual_blob": "77e971e690e66628ea476b3d7c94dca045e53d7f",
+      "sha256": "abfb57483cf62aa20f8c1bb134e844c8b218eec5d20c9fb17d7af6c082421473",
+      "bytes": 12208,
+      "match": true
+    },
+    {
+      "file": "games/briskets-crossing/game.js",
+      "expected_blob": "5ac957f91099912b019106ce39e3f2a31bc27e89",
+      "actual_blob": "5ac957f91099912b019106ce39e3f2a31bc27e89",
+      "sha256": "2e2f0aeb7b93479ca1575fa62a8e1f606e3fa5f8cc4b98662dfa3333ef2d5faf",
+      "bytes": 15089,
+      "match": true
+    }
+  ]
+}
