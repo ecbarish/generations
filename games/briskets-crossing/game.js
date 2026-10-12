@@ -50,7 +50,7 @@
   function drawTraffic(lane,it){const paint=x=>{const y=lane.y*ch+ch*.14,ww=it.w*cw,hh=ch*.72;ctx.fillStyle=lane.kind==='road'?'#c4a574':'#6d4c32';ctx.fillRect(x,y,ww,hh);if(lane.kind==='road'){ctx.fillStyle='#3a2418';ctx.fillRect(x+3*u,y+3*u,Math.max(0,ww-6*u),4*u);ctx.fillStyle='#2a2a2a';const wheel=4*u;ctx.fillRect(x+2*u,y+hh-wheel/2,wheel,wheel);ctx.fillRect(x+ww-6*u,y+hh-wheel/2,wheel,wheel);}else{ctx.fillStyle='#8a6848';ctx.fillRect(x,y+3*u,ww,3*u);}};paint(it.x*cw);if(it.x+it.w>M.COLS)paint((it.x-M.COLS)*cw);}
   for(const lane of p.lanes)for(const it of lane.items)drawTraffic(lane,it);
   const pose=M.pose(p);mule(pose.x*cw,pose.y*ch+ch*(p.recovery>0||impact?.5:.78),t,p.recovery>0||!!impact,u);
-  const recovery=$('recovery'),message=state&&$('curtain').hidden?(impact?hitText(impact.cause):(p.recovery>0?hitText(p.hitCause):p.awaitRelease?hitText(p.hitCause)+' · Release to hop again':'')):'';
+  const recovery=$('recovery'),message=state&&$('curtain').hidden?(impact?hitText(impact.cause):(p.recovery>0?hitText(p.hitCause):p.awaitRelease?(p.hitCause?hitText(p.hitCause)+' · ':'')+'Release to hop again':'')):'';
   if(recovery.textContent!==message)recovery.textContent=message;recovery.hidden=!message;
   if(p.clearing>0){ctx.fillStyle='#f6d275';ctx.font='bold 18px monospace';ctx.textAlign='center';ctx.fillText('LANTERNS LIT',W/2,H*.45);}
   $('timeText').textContent='Time: '+Math.ceil(p.time)+'s';$('timeText').classList.toggle('urgent',p.time<=10);const clock=Math.max(0,p.time/M.plan(p.round).time),bar=Math.min(160,W*.3);ctx.fillStyle='#1a120c';ctx.fillRect(12,H-8,bar,4);ctx.fillStyle=clock<.25?'#e07050':'#f6d275';ctx.fillRect(12,H-8,bar*clock,4);

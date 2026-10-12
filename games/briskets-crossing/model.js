@@ -34,7 +34,7 @@
  function ready(s){if(s.phase!=='ready')return false;s.phase='playing';return true;}
  function endTurn(s){const p=current(s);if(p.ended||s.phase!=='playing')return;p.ended=true;s.events.push('turn');const next=s.players.findIndex((q,i)=>i!==s.active&&!q.ended);if(next>=0){s.active=next;s.phase='ready';}else s.phase='over';}
  function respawn(p){p.x=START.x+.5;p.y=START.y;p.tx=p.x;p.ty=p.y;p.hop=0;p.best=START.y;p.time=plan(p.round).time;}
- function hurt(s,cause='cart'){const p=current(s);if(p.ended||p.clearing>0||p.recovery>0)return;p.hitCause=cause;p.lives--;s.events.push('hit');if(p.lives<=0)endTurn(s);else {respawn(p);p.recovery=RECOVERY;p.awaitRelease=true;}}
+ function hurt(s,cause=null){const p=current(s);if(p.ended||p.clearing>0||p.recovery>0)return;p.hitCause=cause;p.lives--;s.events.push('hit');if(p.lives<=0)endTurn(s);else {respawn(p);p.recovery=RECOVERY;p.awaitRelease=true;}}
  function onLog(p){const lane=p.lanes.find(l=>l.y===p.y&&l.kind==='river');if(!lane)return null;return lane.items.find(it=>spanHits(it.x,it.w,p.x))||null;}
  function hitCart(p){const lane=p.lanes.find(l=>l.y===p.y&&l.kind==='road');if(!lane)return false;return lane.items.some(it=>spanHits(it.x,it.w,p.x));}
  function deliver(s,p){
@@ -49,7 +49,7 @@
   if(p.y<p.best){p.score+=10*(p.best-p.y);p.best=p.y;s.events.push('step');}
   const kind=laneKind(p.y);
   if(kind==='home')deliver(s,p);
-  else if(kind==='road'&&hitCart(p))hurt(s);
+  else if(kind==='road'&&hitCart(p))hurt(s,'cart');
   else if(kind==='river'&&!onLog(p))hurt(s,'river');
  }
  function hop(s,dx,dy){
@@ -76,7 +76,7 @@
   p.time=Math.max(0,p.time-dt);
   if(p.hop>0){p.hop=Math.max(0,p.hop-dt);if(p.hop<=0)finishHop(s,p);}
   if(p.ended||p.clearing>0||p.hop>0)return;
-  if(laneKind(p.y)==='road'&&hitCart(p)){hurt(s);return;}
+  if(laneKind(p.y)==='road'&&hitCart(p)){hurt(s,'cart');return;}
   if(!p.ended&&p.time<=0)hurt(s,'time');
  }
  function advance(s,dt,input={}){let left=Math.max(0,Math.min(.25,dt)),events=[],first=true;while(left>0){const tick=Math.min(left,1/120);step(s,tick,first?input:{},input);first=false;events.push(...s.events);left-=tick;}s.events=events;return s;}
