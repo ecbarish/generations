@@ -1,4 +1,48 @@
-# AC3.1 Brisket repair and visual review
+# AC3.1 Brisket responsive presentation review
+
+## Responsive correction, approved 2026-10-12
+
+Adam approved continuing #180 to fix the landscape squash and tiny recovery caption. The crossing still fills the available cabinet: its 13 columns and 11 lanes adapt to the viewport, while the mule and decorative details use one uniform scale. The responsive grid intentionally has rectangular cells; this is not a letterboxed square world or a claim of square cells.
+
+Canvas drawing uses uniform device-pixel scaling. Mule normal/recovery bounds fit their cells, wheels stay square, and item widths still span their exact logical collision width. Recovery and release guidance use a separate pointer-transparent DOM overlay at **16–20 CSS pixels**, respecting text settings. Lantern-clear text also uses CSS-pixel sizing. The existing save-error notice remains separate.
+
+No changes to model rules, collision dimensions, movement speed, recovery timing, scores, save keys/formats or input actions in this responsive follow-up. The existing inverse tap mapping is preserved.
+
+## Evidence and independent review
+
+Render implementation and capture head: `1bda9e51f44a5044d274ce8a18d1f8869605da25`; CI merge: `88861482ce9b5f6414951f665647956a66cea042`, based on main `07403b4b7512da4abef44704d7fda510914030b0`.
+
+[Responsive review run](https://github.com/ecbarish/idle-arcade/actions/runs/38275487015) passes **336 checks** in **14 configurations**, producing **70 screenshots**:
+- 320×568, 375×812, 667×375, 812×375, 1366×768, 1920×1080, 3440×1440, each at DPR 1 and 2.
+- Normal, recovery, awaiting release, lantern-clear and paused states.
+- All four actual touchscreen tap directions before/after repeated rotation; final position and lives checked.
+- Full available world, uniform canvas transform, ≥44px controls, no document overflow, readable captions, pointer transparency, preserved injected save-warning fixture, caption clearing on title/next-player transitions, and zero browser runtime errors.
+- The unchanged Brisket suite passes all **57 checks**, including keyboard/touch/gamepad flows, two-player turns and actual v1-score reload. Model/recovery checks pass.
+- A first, older harness iteration used a fixed 230ms delay and intermittently asserted before an ultrawide DPR2 hop finished. The final harness waits up to 3 seconds for the expected completed hop, retaining the same final position and life assertions. No retry input or skipped assertions.
+
+Independent review inspected source and 13 representative images spanning every size and all five states, with no blocking code or visual finding. Reviewed improvements: normal/tipped mule proportions, square wagon details, legible captions, clean wrapping on 320px, menus/controls within screen, and full cabinet use. Final-head CI and the harness-only synchronization adjustment are recorded in [PR #180](https://github.com/ecbarish/idle-arcade/pull/180); the existing full `Checks` workflow and aggregate runner are unmodified.
+
+### Retained original responsive captures
+
+- [Small phone](responsive/320x568-dpr1-normal.png)
+- [Portrait recovery](responsive/375x812-dpr1-recovery.png)
+- [Landscape normal](responsive/812x375-dpr1-normal.png)
+- [Landscape recovery](responsive/812x375-dpr1-recovery.png)
+- [Landscape release](responsive/812x375-dpr1-release.png)
+- [Desktop](responsive/1366x768-dpr1-normal.png)
+- [All measured configurations](responsive/summary.json)
+
+All 70 original images: [artifact 11759161059](https://github.com/ecbarish/idle-arcade/actions/runs/38275487015/artifacts/11759161059), retained through 2027-01-10. Downloaded ZIP SHA-256: `ccf7da9ff4b438404e3adfe75a6504d0f236ed2fc02451f2f3ac0976e0ad460a`. The six selected PNGs are committed unchanged; original pre-correction PNGs below are preserved separately.
+
+## Limits
+
+Chromium viewport/touch emulation is not physical Android/iOS or Safari validation. Existing HUD placement can overlap parts of the top home-post area; ultrawide artwork retains a modest deliberate size cap. These are existing presentation limits, not new blockers found in this scoped correction. Human fun validation remains separate. No merge or publication is authorized; the PR remains draft for Adam's decision.
+
+---
+
+## Historical fixture-repair and pre-correction review
+
+The following is the original 15:34 review. Its landscape caveat motivated the approved responsive correction above; its screenshots deliberately retain the **before** state.
 
 ## Verified repair, 2026-10-12
 

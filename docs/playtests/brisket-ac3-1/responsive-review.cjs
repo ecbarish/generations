@@ -24,7 +24,7 @@ const results=[];let count=0;const check=(name,ok)=>{assert.ok(ok,name);count++;
    await page.setViewportSize({width:vw,height:vh});
    for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]]){
     await page.evaluate(()=>{const H=__brisket;H.start(1);H.launch();const p=H.M.current(H.state);p.x=6.5;p.y=5;p.tx=p.x;p.ty=p.y;p.best=0;p.lanes.forEach(l=>{l.speed=0;l.items=l.kind==='river'?[{x:0,w:13}]:[];});});
-    const r=await page.locator('#sea').boundingBox();await page.touchscreen.tap(r.x+(6.5+dx)/13*r.width,r.y+(5.5+dy)/11*r.height);await page.waitForTimeout(230);
+    const r=await page.locator('#sea').boundingBox();await page.touchscreen.tap(r.x+(6.5+dx)/13*r.width,r.y+(5.5+dy)/11*r.height);await page.waitForFunction(({dx,dy})=>{const H=__brisket,p=H.M.current(H.state);return p.hop===0&&Math.abs(p.x-(6.5+dx))<.01&&p.y===5+dy;},{dx,dy},{timeout:3000});
     const pose=await page.evaluate(()=>{const H=__brisket,p=H.M.current(H.state);return{x:p.x,y:p.y,lives:p.lives};});check(name+` tap ${dx},${dy} after ${vw}x${vh}`,Math.abs(pose.x-(6.5+dx))<.01&&pose.y===5+dy&&pose.lives===3);
    }
   }

@@ -7,6 +7,9 @@ on:
       - 'docs/playtests/brisket-ac3-1/**'
       - '.github/workflows/brisket-polish-review.yml'
   workflow_dispatch:
+concurrency:
+  group: brisket-review-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
