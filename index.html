@@ -33,6 +33,7 @@ a{color:inherit}
 .sign{font-family:var(--f-sign);font-weight:400;font-size:clamp(40px,7vw,78px);line-height:.95;margin:0;color:var(--marquee);
   text-shadow:0 0 18px rgba(255,207,77,.35),0 3px 0 #a5781a;letter-spacing:.01em}
 .sign span{color:var(--neon);text-shadow:0 0 18px rgba(255,111,168,.35),0 3px 0 #9c3466}
+.tag .motto{display:block;color:var(--fg);font-size:1.15em;margin-bottom:4px}
 .tag{color:var(--muted);max-width:60ch;margin:0;font-size:16px}
 
 .shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:18px}
@@ -124,8 +125,8 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
 <body>
 <div class="wrap">
   <header class="marquee">
-    <h1 class="sign">Idle <span>Arcade</span></h1>
-    <p class="tag">A stable of idle and progression games. Each one saves on its own, so you can jump between them and pick up where you left off. Wildbond and Starfall Guild each have a <b>new version</b> (where the work happens) and a <b>Classic</b> edition (the original browser game, at the bottom). New here? Meet <a href="promo.html" style="color:var(--marquee)">Realmbound →</a> or <a href="promo-wildbond.html" style="color:var(--ok)">Wildbond →</a></p>
+    <h1 class="sign">Gener<span>ations</span></h1>
+    <p class="tag"><b class="motto">Play for the fun. Automate the grind.</b> A stable of adventure and progression games. Each one saves on its own, so you can jump between them and pick up where you left off. Wildbond and Starfall Guild each have a <b>new version</b> (where the work happens) and a <b>Classic</b> edition (the original browser game, at the bottom). New here? Meet <a href="promo.html" style="color:var(--marquee)">Realmbound →</a> or <a href="promo-wildbond.html" style="color:var(--ok)">Wildbond →</a></p>
     <div class="header-tools"><a class="playtest-link" href="playtest.html">What to try →</a><a class="credits-link" href="credits.html">Credits</a><button class="install-btn" id="installArcade" hidden>Install arcade</button><span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span><span class="version-label">v1.6.0</span><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div></div>
     <details class="app-help"><summary>Play offline or add to your home screen</summary><p>Open this page online and wait for “Ready for offline play.” You can then open the arcade and its browser games without internet. The new versions of Wildbond and Starfall need internet on their first visit. Use Install arcade when it appears, or your browser’s Install / Add to Home Screen menu. Your saves stay in this browser on this device. Without internet, lettering may use device fonts and Wildbond may use its HD-2D view while the 3D renderer is unavailable.</p></details>
   </header>

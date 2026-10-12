@@ -47,7 +47,7 @@
     const carpet = ['#ff6fa8', '#7ab8ff', '#ffcf4d', '#7fe0a0'], span = hallLen(); for (let i = 0; i < 40 * Math.ceil(span / Math.max(1, W)); i++) { const x = (i * 97) % span - cam; if (x < -20 || x > W + 20) continue; const y = floor + p * 2 + ((i * 53) % Math.max(1, H - floor - p * 4)); R(x, y, p * 3, p, carpet[i % 4]); R(x + p, y - p, p, p * 3, carpet[i % 4]); }
     // neon sign
     cx.save(); cx.font = `${Math.max(14, Math.round(H / 10))}px Bungee, Impact, sans-serif`; cx.textAlign = 'center'; cx.textBaseline = 'top';
-    const flick = reduce ? 1 : (Math.sin(t * 23) > -.95 ? 1 : .4); cx.shadowColor = '#ff6fa8'; cx.shadowBlur = 18 * flick; cx.fillStyle = `rgba(255,111,168,${.9 * flick})`; cx.fillText('IDLE ARCADE', W / 2, H * .05); cx.restore();
+    const flick = reduce ? 1 : (Math.sin(t * 23) > -.95 ? 1 : .4); cx.shadowColor = '#ff6fa8'; cx.shadowBlur = 18 * flick; cx.fillStyle = `rgba(255,111,168,${.9 * flick})`; cx.fillText('GENERATIONS', W / 2, H * .05); cx.restore();
     const lights = [{ x: W / 2, y: H * .1, r: H * .3, col: '#ff6fa8' }];
     for (let i = 0; i < 5; i++) { const lx = W * (.1 + i * .2); R(lx - p * 3, 0, p * 6, p * 2, '#5a4a70'); lights.push({ x: lx, y: p * 3, r: H * .35, col: '#ffe8c0' }); }
     CABS.forEach((gm, i) => {

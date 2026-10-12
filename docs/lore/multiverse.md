@@ -1,4 +1,4 @@
-# The Idle Arcade multiverse (light touch)
+# The Generations multiverse (light touch)
 
 Decided 2026-10-08: Evan said yes to a shared universe "where it makes sense". This file is the canon for how the
 games connect. Each game's own lore record stays the authority for its world (`docs/lore/realmbound.md`,

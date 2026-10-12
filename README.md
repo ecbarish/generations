@@ -1,6 +1,8 @@
 # Generations (formerly Idle Arcade)
 
-A stable of idle and progression browser games. Each game saves on its own in the browser,
+**Play for the fun. Automate the grind.** Live at https://ecbarish.github.io/generations/
+
+A stable of adventure and progression browser games. Each game saves on its own in the browser,
 and the hub page shows where you left off in every one.
 
 **Design rule:** automation (managers, staff, instincts) is always earned by playing, never sold.
@@ -39,6 +41,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Generations name sweep (2026-10-12): the homepage sign and the hall's neon say Generations, with the tagline "Play for the fun. Automate the grind."; promo pages, the trailer card and contributor docs use the new name and repository.
 - Brisket's Crossing v0.1.3 (2026-10-12, AC3.3; version bumped on merge): visible death causes, labelled urgent timer, clear lives/session counts, and completed-run progress even when initials are skipped (PR #244).
 
 - Brisket's Crossing v0.1.2 (2026-10-12, AC3.2): wider early wagon gaps and logs, slower opening traffic and more delivery time; the first hop starts in clear road. Original challenge returns from run 4. Existing score records and controls stay compatible. [Phone before/after and checks](docs/playtests/brisket-ac3-2/README.md).

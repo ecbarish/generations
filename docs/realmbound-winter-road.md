@@ -81,7 +81,7 @@ run these commands from its folder (use a new destination folder):
 ```sh
 git clone --branch codex/realmbound-winter-road idle-arcade-winter-road.bundle idle-arcade
 cd idle-arcade
-git remote set-url origin https://github.com/ecbarish/idle-arcade.git
+git remote set-url origin https://github.com/ecbarish/generations.git
 git config user.email "206636510+ecbarish@users.noreply.github.com"
 git fetch origin
 git push -u origin codex/realmbound-winter-road

@@ -1,4 +1,4 @@
-# Idle Arcade credits
+# Generations credits
 
 Player page: [credits.html](credits.html). Project direction and playtesting: Evan. Development contributions: Claude, ChatGPT/Codex and Jules; [repository contributors](https://github.com/ecbarish/generations/graphs/contributors).
 

@@ -4,7 +4,7 @@ One installable arcade starts at the hub and includes Primordial, Starfall Guild
 the hub online and wait for **Ready for offline play** before disconnecting. Use **Install arcade** when the
 browser offers it, or its install / Add to Home Screen menu. Installation is optional; offline browser tabs work too.
 HTTPS is needed on a hosted site; localhost works for development. The manifest and worker paths are relative,
-including GitHub Pages' `/idle-arcade/` scope. The cabinet icon is original procedural artwork.
+including GitHub Pages' `/generations/` scope. The cabinet icon is original procedural artwork.
 
 The hub prepares one complete release of local pages, scripts and styles. Dependencies come from those pages,
 so a newly split script is picked up automatically. Credits and license links are followed when present. Tests,
