@@ -296,6 +296,12 @@ const LOOKS := {
 }
 
 func _ready() -> void:
+	# A phone must use its available width/height between browser bars, including
+	# fractional downscaling below 384 px. Keep the same view and Godot's input
+	# transform; only desktop keeps whole-number pixel enlargement. Web exports
+	# have host-specific tags rather than the native "mobile" feature.
+	if OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios"):
+		get_window().content_scale_stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL
 	_load_stories()
 	rng.randomize()
 	ama.where = "gone"

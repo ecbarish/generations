@@ -49,6 +49,7 @@ func hero(name: String) -> Variant:
 
 func _run() -> void:
 	main.rng.seed = 2026
+	_display_scaling()
 	_opening_view()
 	# ---- the town at the start
 	check(main.MAP.all(func(r): return r.length() == main.MAP[0].length()), "the town map is the same width on every row")
@@ -1197,3 +1198,13 @@ func _opening_view() -> void:
 		check(not main.route(main.me.tile, target, main.me).is_empty(), "the opening reaches service/door %s" % target)
 	for name in ["house", "nature", "floor"]:
 		check(not FileAccess.file_exists("res://assets/env/%s.png" % name) and not FileAccess.file_exists("res://assets/env/%s.png.import" % name), "unused %s tile and import are removed" % name)
+
+func _display_scaling() -> void:
+	var mobile := OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios")
+	var expected := Window.CONTENT_SCALE_STRETCH_FRACTIONAL if mobile else Window.CONTENT_SCALE_STRETCH_INTEGER
+	check(root.content_scale_stretch == expected, "mobile aspect-fit / desktop integer scaling follows the host platform")
+	check(root.content_scale_size == Vector2i(384, 216), "scaling keeps the same 384 by 216 view")
+	check(root.content_scale_aspect == Window.CONTENT_SCALE_ASPECT_KEEP, "scaling keeps proportions and letterboxes only the excess aspect")
+	check(root.content_scale_mode == Window.CONTENT_SCALE_MODE_CANVAS_ITEMS, "scaling keeps canvas-item rendering")
+	check(main.cam.zoom == Vector2.ONE, "display scaling does not zoom the world camera")
+	check(ProjectSettings.get_setting("rendering/textures/canvas_textures/default_texture_filter") == 0, "scaling preserves nearest-neighbour pixel art")
