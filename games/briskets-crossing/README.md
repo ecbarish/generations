@@ -13,3 +13,8 @@ Checks: `node tools/brisket-model-checks.cjs` and `node tools/run-all-checks.cjs
 A hit gives Brisket a three-quarter-second recovery beat. Release held movement before hopping again; the lantern clock waits too. Space or any arrow starts from Get ready. Brisket is drawn 50% larger, with the same collision rules. High-score save format unchanged.
 
 Responsive follow-up: the world fills its cabinet while mule/detail proportions stay uniform. Recovery/release guidance is readable at 16–20 CSS pixels; logical movement, collision widths, recovery and score saves are unchanged.
+
+
+## Unreleased: easier opening (AC3.2)
+
+The first crossings give Brisket wider wagon gaps, wider logs and more time. The first step starts in a clear gap; later runs return to the original challenge from run 4. Old scores and controls are unchanged. [Measurements and phone review](../../docs/playtests/brisket-ac3-2/README.md).
