@@ -93,7 +93,7 @@ side panel. Text is in full words.
 - [x] **DM-B** [Claude, done 2026-10-11, v0.2.0] **Make the general manager's choices matter** (from DM2): today a sensible active manager wins no
   more than a hands-off one over two seasons. Target 3 to 5 more wins a season and a final by about season 3; options
   in docs/playtests/diamond-manager-1.md. Add a simulation check for the gap.
-- [ ] **DM3** [any] **Hiring coaches**: two coach slots (hitting, pitching), three candidates each offseason with a
+- [ ] **DM3** [any] **Hiring coaches** (ready: Codex, PR #196, 2026-10-11): two coach slots (hitting, pitching), three candidates each offseason with a
   salary and a specialty (young players, power, control). Their effect is a visible growth bonus in the offseason
   report. Checks: a coach changes growth by the stated amount; old saves load.
 - [ ] **DM4** [any] **Player morale and stories**: each player has a mood (playing time, winning, contract); unhappy
