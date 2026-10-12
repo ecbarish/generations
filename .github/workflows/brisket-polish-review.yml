@@ -42,6 +42,8 @@ jobs:
           node tools/run-all-checks.cjs briskets-crossing
       - name: Capture desktop, portrait and landscape
         run: node docs/playtests/brisket-ac3-1/capture.cjs
+      - name: Responsive drawing, repeated rotation and real tap review
+        run: node docs/playtests/brisket-ac3-1/responsive-review.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -49,4 +51,5 @@ jobs:
           path: |
             docs/playtests/brisket-ac3-1/*.png
             docs/playtests/brisket-ac3-1/*.json
+            docs/playtests/brisket-ac3-1/responsive/
           retention-days: 90
