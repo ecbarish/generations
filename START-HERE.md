@@ -102,6 +102,8 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+
+- **2026-10-11, Codex:** Evan deferred another Realmbound raid for player validation; #213 released/closed. RB-PLAY1 in PR #214 audits the first quest and fixes Focus town ownership, travel restrictions and visible return guidance. Human fun/first-party validation remains; no endgame content built.
 - 2026-10-12 Claude (Priorities and direction): Evan's two changes: Realmbound early game first (RB1.10-RB1.12, end-game parked) and "Play, not watch" in GOALS.md (less automatic play, no full Auto; tasks RB1.11, AR2.14).
 - 2026-10-11 Claude (Wildbond builder): creature catalogue and pipeline for Evan: docs/wildbond-creatures.md (target ~150, tiers with six showpiece lines, world-fit rules after Cobblemon, a step-by-step for adding a creature, tasks CR1-CR8 in DEVELOPMENT-PATH WB-C) and a generated list, docs/wildbond-creatures/catalog.md.
 - 2026-10-11 Claude (Wildbond builder): WB-KEYS (QUEUE H2, the playtest pass 2 blocker): Wildbond shows its keys in the world the first times they matter (arrows over your head, the Talk key and word beside you, J beside the bag); gamepad buttons on a gamepad; nothing extra on a phone. Checks and screenshots in docs/screenshots/wildbond-keys/.

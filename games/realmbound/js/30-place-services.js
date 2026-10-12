@@ -82,7 +82,7 @@ function placeTownReachable(people,at){
 }
 function findPlaceQuest(id){
  const q=ALLQ[id];if(!q||!H())return false;if(q.zone!==H().zone){closeRealmNotebook(false);toast('Meet '+giver(q)+' in '+ZONES[q.zone].name+'. Choose that road on your Map.');return false;}closeRealmNotebook(false);
- if(!townActive()){toast('Meet '+giver(q)+' in '+hubName()+'. Use Go to town on your Map.');return false;}
+ if(!townActive()){openRealmNotebook('map');toast('Meet '+giver(q)+' in '+hubName()+'. Use Go to town on your Map.');return false;}
  if(H().mode==='auto'){toast('Choose Focus to talk with '+giver(q)+'.');return false;}
  if(TOWN.inside)townExit();const n=townPeople().find(n=>n.id==='giver'&&n.name===giver(q));return !!n&&TOWN_WALK.walkTo(...n.at);
 }
@@ -90,7 +90,7 @@ function findPlaceQuest(id){
  FIELD_TITLES.place='In town';
  const page=document.createElement('div');page.dataset.fieldPage='place';page.className='field-page';page.hidden=true;$('.menu').append(page);
  const oldClose=closeRealmNotebook;closeRealmNotebook=function(restore){PLACE_BOOK=null;curKey=null;$('.menu').classList.remove('place-book');oldClose(restore);};
- const oldDoor=townDoor;townDoor=function(b){if(b&&['trainer','stable','guild'].includes(b.kind)&&townActive()&&!aiOn()){TOWN.inside=b.kind;TOWN.auto=null;TOWN_WALK.place(...(b.kind==='guild'?GUILD_HALL:SERVICE_ROOMS[b.kind]).start);line('You step into the '+buildingName(b)+'.','l-sys');sfx('select');return;}oldDoor(b);};
+ const oldDoor=townDoor;townDoor=function(b){if(b&&['trainer','stable','guild'].includes(b.kind)&&townActive()&&!townAuto()){TOWN.inside=b.kind;TOWN.auto=null;TOWN_WALK.place(...(b.kind==='guild'?GUILD_HALL:SERVICE_ROOMS[b.kind]).start);line('You step into the '+buildingName(b)+'.','l-sys');sfx('select');return;}oldDoor(b);};
  const oldTalk=townTalk;townTalk=function(n){if(n.id==='keeper'&&['trainer','stable'].includes(TOWN.inside)){talkPlaceKeeper(n);return;}if(n.id==='registrar'){if(inGuildHall())talkPlaceRegistrar(n);else placeChoice(n.name,'You will find the charter, records and Hearth Book inside the Guild Hall. Shall we go over?', ['Walk to the Guild Hall','Another time'],c=>{if(c===0)visitRealmPlace('guild');});return;}if(n.id==='member'&&inGuildHall()){talkPlaceMember(n.key);return;}if(n.id==='giver'){talkPlaceQuest(n);return;}oldTalk(n);};
  const oldSign=townSign;townSign=function(x,y){const tile=TOWN.map.rows[y]?.[x];if(inGuildHall()&&tile==='J'){openPlaceJobs();return;}if(inGuildHall()&&tile==='C'){openPlaceChest();return;}oldSign(x,y);};
  const oldHallPeople=hallPeople;hallPeople=function(){return oldHallPeople().filter(n=>n.id!=='member'||!ROSTER.jobOf(n.key)&&!memberRaiding(n.key));};

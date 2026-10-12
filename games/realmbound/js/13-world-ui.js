@@ -91,7 +91,7 @@ function updateWorld(){
   // mode
   $('#mFocus').classList.toggle('on',h.mode==='focus');$('#mAuto').classList.toggle('on',h.mode==='auto');
   const eff=Math.round(aiEff()*100);
-  $('#modeHint').innerHTML=RTALK?'Take your time. Continue when you are ready.':h.mode==='focus'&&!h.stats.kills?'Your first fight is yours. Try a lit ability.':h.mode==='auto'?`Auto plays at ${eff}% and skips openings. No Engaged bonus.`:
+  $('#modeHint').innerHTML=townActive()&&h.mode==='focus'&&!RTALK?'Take your time in town. Walk to someone and press Enter to talk.':RTALK?'Take your time. Continue when you are ready.':h.mode==='focus'&&!h.stats.kills?'Your first fight is yours. Try a lit ability.':h.mode==='auto'?`Auto plays at ${eff}% and skips openings. No Engaged bonus.`:
     (aiOn()?`Autopilot is covering for you (${eff}%). Press any ability to take over.`:(engaged()?`<span class="engaged">Engaged: +10% XP.</span> Press 1–${bar().length} or click.`:`Press 1–${bar().length} to stay Engaged (+10% XP).`));
   // xp
   const need=xpNeed(h.lvl);$('#xpI').style.width=(h.lvl>=LEVEL_CAP?100:h.xp/need*100)+'%';
@@ -109,7 +109,7 @@ function updateWorld(){
   // log
   const lg=C.lines.slice(-7).map(l=>`<div class="${l.cls}">${l.txt}</div>`).join('');const le=$('#log');if(le.dataset.h!==lg){le.innerHTML=lg;le.dataset.h=lg;}
   // badges
-  const ready=h.quests.active.some(id=>qState(ALLQ[id])==='ready');const qb=$('#qBadge');qb.hidden=!ready&&h.quests.active.length>0;qb.textContent=ready?'?':'!';
+  const ready=h.quests.active.some(id=>qState(ALLQ[id])==='ready');const qb=$('#qBadge');qb.hidden=!ready&&h.quests.active.length>0;qb.textContent=ready?'?':'!';const carried=document.getElementById('fieldQuestReady');if(carried)carried.hidden=!ready;
   const ups=h.bags.filter(it=>canEquip(it)&&score(it)>score(h.gear[it.slot])).length;const bb=$('#bBadge');bb.hidden=!ups;bb.textContent=ups;
   const tp=h.lvl>=10?talentPoints():0;const tb=$('#tBadge');tb.hidden=!tp;tb.textContent=tp;
   $('#aBadge').hidden=h.seenAddons!==false;
