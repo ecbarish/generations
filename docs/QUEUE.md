@@ -140,20 +140,22 @@ LB0 (the pitch) and LB1 (the shared office), Ember Bricks (#185), Little Ranch L
 |---|---|---|---|---|
 | 1 | **Realmbound: the hero only fights when you do** (RB1.11), with the first-hour playtest (RB1.10) | DEVELOPMENT-PATH RB-M1b; GOALS.md "Play, not watch" | `games/realmbound/`, `docs/playtests/` | As the path says; `tests/run.html` passes; old saves load |
 | 2 | **Realmbound: the first hour, made fun** (RB1.12, one PR per fix RB1.10 lists) | as above | `games/realmbound/` | The next newcomer playtest scores Realmbound 17+ |
-| 3 | **Lantern Bowl: one drive, playable** (LB2; Diamond Manager reached v0.8.0, so Lantern Bowl now has the sports slot, lane P 2026-10-12) | docs/plans/lantern-bowl.md, the mock screens; `shared/sports-office.js` | `games/lantern-bowl/` (new), its test page | You call plays and throw on one drive, on phone and desktop; quick and readable like Retro Bowl, our own art |
-| 4 | **Lantern Bowl: one full game** (LB3), then **season and office** (LB4), then **playability pass** (LB5) | as above | as above | One PR each; LB5 scores 17+ in a newcomer playtest |
-| 5 | **Diamond Manager: the ballpark you see grow** (DM5) | docs/plans/sports-management.md | `games/diamond-manager/` | As the plan says; `tests/diamond-manager.html` passes |
-| 6 | **Little Ranch: the singing flowers** (LR3), then LR4 to LR8 in order | docs/proposals/little-ranch-next.md | `games/little-ranch/`, `tests/little-ranch.html` | One PR each; phone and tablet; no reading, nothing to fail; a "tried with a toddler" note |
-| 7 | **Little Ranch: the Paint Shed** (LR9, Evan's pick), then the Little Wagon (LR10) and the Snack Kitchen (LR11) | as above | as above | As each path line says |
-| 8 | **The next cabinet's polish** (AC-x: AC1.1 Storm Front, AC2.2 Lighthouse Watch, AC4.1 Ember Bricks) | docs/PLAYTEST.md pass 2 | that cabinet's folder | Each cabinet scores 17+ |
-| 9 | **A fifth and sixth cabinet** (AC5, AC6: one-screen 1978-85 shapes we don't have yet, such as the maze chase or the asteroid field; our own names, art and sound, never a copied look) | docs/proposals/games-for-everyone.md; AC1-AC3 as the pattern | `games/<new cabinet>/`, its test page | Plays on phone and desktop with shared high scores; scores 17+ |
-| 10 | **Play, not watch, elsewhere** (AR2.14: the hall's tagline, Primordial's away-gains) | DEVELOPMENT-PATH AR2.14 | `index.html`, `games/primordial/` | As the line says |
-| 11 | **Otherworld: skills that grow with use** (OW2.2), then **people with wants and grudges** (OW2.3) | docs/plans/otherworld.md | `games/otherworld/` | `tests/otherworld.html` passes |
-| 12 | **Newcomer playtest, pass 3** (X1 for every game on the hall, after the fixes above land) | docs/PLAYTEST.md | `docs/PLAYTEST.md`, issues | A score per game and the top fix for each as new path lines |
-| 13 | **Wildbond catalogue batches 3 and 4** (WB5.6, after #198's catalogue pipeline merges) | #198's pipeline and world-fit rules | catalogue data | 12-15 creatures each, with lore, passing the catalogue checks |
-| 14 | **The hall, upgraded** (AR2.13) | docs/SITE-AND-GUIDES.md | `launcher/`, `index.html` | A sign over each group, other visitors walking, a nicer Classic corner; `node tools/launcher-checks.cjs` passes |
-| 15 | **Game boxes** (AR2.3, V3) | docs/VISION.md | `launcher/`, `index.html` | A box picture per game in the hall |
-| 16 | **Lantern Ice pitch** (HK0, after LB3) | docs/plans/sports-management.md | `docs/plans/` | A one-page pitch with three mock screens using the shared office |
+| 3 | **Brisket's Crossing: newcomer fixes** (AC3.3, Flint's playtest in COMMS 2026-10-12 20:19) | DEVELOPMENT-PATH AC3.3 | `games/briskets-crossing/`, its checks | As the path says; old scores load; phone and desktop captures |
+| 4 | **The hall card that shows the wrong game** (AR2.15) and **Diamond Career's way in** (DC-N, same playtest) | DEVELOPMENT-PATH AR2.15, DC-N | `launcher/`, `index.html`, `games/diamond-career/` | As the path says |
+| 5 | **Lantern Bowl: one drive, playable** (LB2; Diamond Manager reached v0.8.0, so Lantern Bowl now has the sports slot, lane P 2026-10-12) | docs/plans/lantern-bowl.md, the mock screens; `shared/sports-office.js` | `games/lantern-bowl/` (new), its test page | You call plays and throw on one drive, on phone and desktop; quick and readable like Retro Bowl, our own art |
+| 6 | **Lantern Bowl: one full game** (LB3), then **season and office** (LB4), then **playability pass** (LB5) | as above | as above | One PR each; LB5 scores 17+ in a newcomer playtest |
+| 7 | **Diamond Manager: the ballpark you see grow** (DM5) | docs/plans/sports-management.md | `games/diamond-manager/` | As the plan says; `tests/diamond-manager.html` passes |
+| 8 | **Little Ranch: the singing flowers** (LR3), then LR4 to LR8 in order | docs/proposals/little-ranch-next.md | `games/little-ranch/`, `tests/little-ranch.html` | One PR each; phone and tablet; no reading, nothing to fail; a "tried with a toddler" note |
+| 9 | **Little Ranch: the Paint Shed** (LR9, Evan's pick), then the Little Wagon (LR10) and the Snack Kitchen (LR11) | as above | as above | As each path line says |
+| 10 | **The next cabinet's polish** (AC-x: AC1.1 Storm Front, AC2.2 Lighthouse Watch, AC4.1 Ember Bricks) | docs/PLAYTEST.md pass 2 | that cabinet's folder | Each cabinet scores 17+ |
+| 11 | **A fifth and sixth cabinet** (AC5, AC6: one-screen 1978-85 shapes we don't have yet, such as the maze chase or the asteroid field; our own names, art and sound, never a copied look) | docs/proposals/games-for-everyone.md; AC1-AC3 as the pattern | `games/<new cabinet>/`, its test page | Plays on phone and desktop with shared high scores; scores 17+ |
+| 12 | **Play, not watch, elsewhere** (AR2.14: the hall's tagline, Primordial's away-gains) | DEVELOPMENT-PATH AR2.14 | `index.html`, `games/primordial/` | As the line says |
+| 13 | **Otherworld: skills that grow with use** (OW2.2), then **people with wants and grudges** (OW2.3) | docs/plans/otherworld.md | `games/otherworld/` | `tests/otherworld.html` passes |
+| 14 | **Newcomer playtest, pass 3** (X1 for every game on the hall, after the fixes above land) | docs/PLAYTEST.md | `docs/PLAYTEST.md`, issues | A score per game and the top fix for each as new path lines |
+| 15 | **Wildbond catalogue batches 3 and 4** (WB5.6, after #198's catalogue pipeline merges) | #198's pipeline and world-fit rules | catalogue data | 12-15 creatures each, with lore, passing the catalogue checks |
+| 16 | **The hall, upgraded** (AR2.13) | docs/SITE-AND-GUIDES.md | `launcher/`, `index.html` | A sign over each group, other visitors walking, a nicer Classic corner; `node tools/launcher-checks.cjs` passes |
+| 17 | **Game boxes** (AR2.3, V3) | docs/VISION.md | `launcher/`, `index.html` | A box picture per game in the hall |
+| 18 | **Lantern Ice pitch** (HK0, after LB3) | docs/plans/sports-management.md | `docs/plans/` | A one-page pitch with three mock screens using the shared office |
 
 **Godot work is open to any AI too** (Evan, 2026-10-09: "Yes, with checks"). Rules for it: claim the deliverable as
 above (the Wildbond builder and Starfall threads check the open PR list too); keep to the files the deliverable needs;

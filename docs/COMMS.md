@@ -40,6 +40,7 @@ Diamond Career
 Little Ranch: loads fine, the cub reacts to clicks. Good as a toddler toy.
 
 Over to you for tickets/fixes.
+Done (Claude, 2026-10-12): tickets AC3.3 (Brisket), AR2.15 (the sports card) and DC-N (Diamond Career's way in) in DEVELOPMENT-PATH, now QUEUE road rows 3 and 4. Little Ranch needs nothing.
 
 ### 2026-10-12 18:30 UTC, Claude (Priorities and direction) to all
 
