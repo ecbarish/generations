@@ -328,6 +328,7 @@ deliverables are retired; the batting prototype stays in games/diamond-career/ o
 - [x] DM1 [Claude] The first playable season (v0.1.0, PR #110).
 - [x] DM2 [any] Playability pass (docs/playtests/diamond-manager-1.md). - [x] DM-B [Claude] Choices matter (v0.2.0).
 - [x] DM3 [any] Hiring coaches (v0.6.0, PR #196, merged 2026-10-12). - [x] DM4 [any] Player morale and stories (v0.7.0, PR #207, merged 2026-10-12; was ready: Codex, 2026-10-11; stacked after #196) - [ ] DM5 [any] The ballpark you see grow.
+- [ ] DC-N [any] Diamond Career, the way in (Flint's playtest, 2026-10-12; check X1's issues #227-#230 first and skip what they already cover): a "Play" button on the calendar's game day instead of only through talking to Iona; a wider timing window in game 1 so a newcomer gets a hit with their own bat; long lines in conversations wrap instead of being cut off. Nice to have: "Practice contact" becomes a small timing game (play, not watch). Files: games/diamond-career/.
 - [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [x] DM-G [Claude] Pitch-by-pitch game, in-game moves, box scores, stats (v0.5.0). - [x] DM-B2 [any] Keep the league in balance over many seasons (v0.7.1, PR #208, merged 2026-10-12). - [x] DM7 [any] Records and history (v0.8.0, PR #209, merged 2026-10-12). - [ ] DM8 [later] Step into the big moment.
 
 ### Lantern Bowl (browser; American football in the Retro Bowl spirit, our own code and art)
@@ -385,7 +386,8 @@ browser (E4). (claimed: Grok, 2026-10-09, grok/studio-text-browser; Lane C task 
   Classic, the old homepage vote closes; START-HERE versions corrected (Claude).
 **AR-M3: the walk-in arcade and friends.**
 - [x] AR2.14 [Claude] Classic versus the new version made obvious; site and guides refreshed at milestones (docs/SITE-AND-GUIDES.md), done 2026-10-11.
-- [ ] AR2.13 [any] The hall, upgraded (QUEUE road #13).
+- [ ] AR2.13 [any] The hall, upgraded (QUEUE road ahead).
+- [ ] AR2.15 [any] The hall card that shows the wrong game (Flint's playtest, 2026-10-12): the "Diamond Manager" card under Sports showed Diamond Career's progress, and the game it opened called itself Diamond Career. Check which game each sports card opens and whose save it reads; each card opens and shows its own game. Files: launcher/, index.html.
 - [ ] AR3.1 [Claude] Walk-in arcade steps 1-2 (V11).
 - [ ] AR3.2 [any]
 No-server sharing: trade and battle codes, ghost teams (V6 part 1).
@@ -456,6 +458,7 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 - [x] SCENE-PLAN [any] (ready: PR #151, Codex, 2026-10-10) Shared scene/interior design outline requested by Evan: docs/plans/scene-layout-pass.md; distinct Larkhaven home briefs, entrance/input/visual checks and independently claimable follow-ups. Complements MAP-AUDIT #147; no engine or art edits. Done when the brief and COMMS handoff are published. Score 18/21 (fun 3x2, heart 2x2, friends 3, focus 2, cheap 3). (merged: PR #151; ticked 2026-10-11 by lane P)
 
 ## Part 4: what we've learned and actioned (newest first; every piece of work adds a line)
+- **2026-10-12, rename steps 5-6 (Claude, lane P):** after a repository rename, the Pages site at the new address can keep serving an older build until the next push to main deploys, so verify live files after the first post-rename merge, not before. A verifier that pins one release's hashes is a record and cannot pass again once later work changes those files; don't read its failure as a broken site. Flint's playtest became AC3.3, AR2.15 and DC-N.
 
 - **2026-10-12, RB1.11 (Codex):** disabling AI fallback is insufficient when basic attacks, pets and companions still advance. Pause the whole combat transaction together, and test old away saves through boot rather than only calling an offline helper.
 
@@ -636,3 +639,5 @@ line or two, with the page that holds the detail.
 - [x] **AC3.1 [any]: Brisket playtest polish** (published: PR #180, merge `19a7ee37`, dot / Adam, 2026-10-12; all 19 suites, 336 responsive checks and 31 live-browser checks pass; eight public hashes verified, record in docs/playtests/brisket-ac3-1/README.md). Short knocked-over recovery, Space/arrows launch from ready, larger mule. Files: games/briskets-crossing/, its checks, screenshots and release/status notes. Done when held movement cannot immediately repeat a death, ready keyboard controls work, old scores load and phone/desktop captures pass. Score 16/21 (fun 3×2, heart 2×2, friends 2, focus 1, cheap 3).
 
 - [x] **AC3.2 [any]: Brisket easier opening** (published: dot / Adam, #233, merge `032bbd09`, v0.1.2, 2026-10-12; all 19 suites and 784 responsive/opening checks pass; eight public hashes and 40 actual live-browser checks verified at 17:27 UTC, record in docs/playtests/brisket-ac3-2/README.md). Wider early-road gaps and river landing windows, slower first-run traffic and more time after Adam's phone playtest. Controls, recovery and old scores preserved; original challenge returns from run 4. Phone portrait/landscape captures and timed routes independently reviewed. Scoped release handoff #236.
+
+- [ ] **AC3.3 [any]: Brisket newcomer fixes** (Flint's first-time playtest, docs/COMMS.md 2026-10-12 20:19). Show a death: a short knocked-over moment and a line in words, not a silent respawn. Label the timer bar "Time", with more urgency in the last seconds. "1 life", not "1 lives". One lives rule a newcomer can see (the get-ready screen showed 1 life on one run and 3 on the next; explain it or make it the same). The run counter goes up each run. "Pell's Crossing" reads as a typo next to "Brisket's Crossing": show it as the place's subtitle. The hall card says "Not started yet" after runs without initials: count a run with or without them. Files: games/briskets-crossing/, its checks. Done when old scores still load and phone and desktop captures pass. Release note: the AC3.2 verifier pins release 032bbd09, so a new release gets its own record.

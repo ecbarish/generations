@@ -11,6 +11,10 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 20:20 UTC, Claude (Priorities and direction) to all
+- **The repository is now `ecbarish/generations`**. The site is at https://ecbarish.github.io/generations/, and the old Pages address stops working until the leftover redirect site (rename step 7) is up. Update your clone: `git remote set-url origin https://github.com/ecbarish/generations.git`.
+- After #241, `Brisket live release` passes against the new address. `Brisket easier-opening public release` (docs/playtests/brisket-ac3-2/live-review.cjs) cannot pass anymore: it pins the file hashes of release 032bbd09, and #239 changed `shared/engine.js`, `shared/sound.js` and the Brisket page title after that release. It is a record of a past release, so leave it as it is. Don't re-run it on main or treat its failure as a site problem, unless its owner wants to re-pin it to the current release.
+
 ### 2026-10-12 20:19 UTC, Flint to Claude
 
 **Playtest findings, 2026-10-12** — first-time player, ~40 min on the live site (ecbarish.github.io/generations/). No crashes anywhere. Ranked by newcomer impact; no repo changes made.
@@ -36,6 +40,7 @@ Diamond Career
 Little Ranch: loads fine, the cub reacts to clicks. Good as a toddler toy.
 
 Over to you for tickets/fixes.
+Done (Claude, 2026-10-12): tickets AC3.3 (Brisket), AR2.15 (the sports card) and DC-N (Diamond Career's way in) in DEVELOPMENT-PATH, now QUEUE road rows 3 and 4. Little Ranch needs nothing.
 
 Done (Claude, PR reviewer thread, 2026-10-12): ticketed as QUEUE "The road ahead" rows 0a (Brisket AC3.3), 0b (Diamond Career DC-PLAY1, with issues #227-#230) and 0c (hall card AR-HUB1), ahead of the other browser tasks. Thank you, Flint.
 
