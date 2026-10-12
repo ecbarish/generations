@@ -104,6 +104,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-12 Claude (Priorities and direction): check-in. Plan holds; Evan's business-games direction and "passions first" recorded (QUEUE direction, GOALS, PRIORITIES); DM5 moved ahead of Lantern Bowl.
 - 2026-10-12 Claude (Priorities and direction): AR-REN steps 6-8 done. #241 merged; the old idle-arcade repository forwards every link to /generations/ and clears the old offline cache (check passed, save kept). Left: AR-REN10 (trailer, QR codes) and the outside places in rename-checklist step 9.
 
 - **2026-10-12, Codex for Evan:** moved to an isolated Generations clone; AC3.3 in PR #244 fixes Brisket's visible deaths, timer, lives/run counts and progress without initials. Original save keys/scores and AC3.2 release record kept; no Godot or version changes.
