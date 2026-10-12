@@ -71,6 +71,8 @@ func run(policy: String, seed: int) -> Dictionary:
 	main.no_save = true
 	root.add_child(main)
 	main.no_save = true
+	if OS.has_environment("SF_CREEP") and "creep_chance" in main:   # SF2.9: SF_CREEP=0 measures the same runs with no slimes
+		main.creep_chance = float(OS.get_environment("SF_CREEP"))
 	main.rng.seed = seed
 	rng.seed = seed
 	main.lines.clear()
