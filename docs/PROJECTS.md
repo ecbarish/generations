@@ -4,6 +4,12 @@ Every outlined project in one place, so Evan can hand work to any assistant (Cla
 and they can carry it to launch. START-HERE.md says what is happening *right now*; this file says *everything there
 is to do*. Ground rules for how assistants work, and how much creative freedom they have: [CREATIVE.md](CREATIVE.md).
 
+## Brisket opening accessibility
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| AC3.2 | Easier opening after phone playtest | S | published: dot / Adam, [#233](https://github.com/ecbarish/idle-arcade/pull/233), v0.1.2, 2026-10-12 | Wider early gaps, landing windows and decision time; phone captures, timed crossings, eight public hashes and 40 live checks verified |
+
 ## Realmbound first-session validation
 
 | ID | Project | Size | Status | Notes |

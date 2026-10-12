@@ -43,3 +43,44 @@ console.log('PASS brisket model');
 
 const recover=play(),rec=M.current(recover);M.hurt(recover);assert.equal(rec.lives,2);assert.ok(rec.recovery>0);const clock=rec.time;M.hurt(recover);assert.equal(rec.lives,2,'recovery ignores another hit');for(let i=0;i<8;i++)M.advance(recover,.25,{dy:-1});assert.equal(rec.y,M.START.y,'held input cannot restart after recovery');assert.equal(rec.time,clock,'recovery and release wait freeze the clock');assert.equal(M.hop(recover,0,-1),false);M.advance(recover,.02,{});assert.equal(M.hop(recover,0,-1),true,'fresh press after release can hop');
 console.log('PASS recovery and held-input regression');
+
+// AC3.2: measure every cyclic gap, including the seam that was narrower than a tile.
+function gapWidths(lane){const items=[...lane.items].sort((a,b)=>a.x-b.x);return items.map((a,i)=>(items[(i+1)%items.length].x-a.x+M.COLS)%M.COLS-a.w);}
+for(let seed=1;seed<=100;seed++){
+ const s=play(seed),p=M.current(s);
+ for(const lane of p.lanes){
+  if(lane.kind==='road'){
+   assert.equal(lane.items.length,3);
+   for(const gap of gapWidths(lane))assert.ok(gap>=2.683-1e-9,'all opening gaps, including wrap, are wider than two columns');
+   assert.ok(Math.min(...gapWidths(lane))/lane.speed>3.16,'opening road has at least three seconds of clear crossing at any column');
+  }else{
+   assert.ok(lane.items.every(it=>it.w>=3.5),'opening logs provide wide landing space');
+   assert.ok(lane.items.every(it=>it.w/lane.speed>6),'opening log landing windows exceed six seconds');
+  }
+ }
+ // Real hazards, no fixture replacement: immediate first hop and a one-second delayed hop.
+ for(const delay of [0,1]){
+  const entry=play(seed),ep=M.current(entry);for(let t=0;t<delay;t+=.25)M.advance(entry,.25);
+  assert.ok(M.hop(entry,0,-1));M.advance(entry,.2);
+  assert.equal(ep.lives,3,'first hop has breathing room across seeds');assert.equal(ep.y,9);
+ }
+}
+assert.equal(M.plan(1).time,56,'new players get fourteen more seconds per delivery');
+for(let round=1;round<12;round++){
+ assert.ok(M.plan(round+1).speed>=M.plan(round).speed,'speed increases gradually');
+ assert.ok(M.plan(round+1).time<=M.plan(round).time,'the clock tightens as runs advance');
+ if(round>=4){assert.equal(M.plan(round).speed,1.15+Math.min(2.4,(round-1)*.28));assert.equal(M.plan(round).time,Math.max(20,M.TIME-(round-1)*2));}
+}
+console.log('PASS easier opening: 100 seeds, cyclic gaps, landing windows, delayed entries and later-round curve');
+
+// Frozen v0.1.1 fixture proves the scoped change rejoins the exact old challenge.
+const beforeOpening=require('../docs/playtests/brisket-ac3-2/baseline-model.cjs');
+for(let seed=1;seed<=12;seed++){
+ const old=beforeOpening.create(1,seed),now=M.create(1,seed);beforeOpening.ready(old);M.ready(now);
+ for(let round=2;round<=12;round++){
+  for(const [model,s]of [[beforeOpening,old],[M,now]]){model.current(s).clearing=.1;model.advance(s,.1);}
+  if(round>=4){assert.deepEqual(M.current(now).lanes,beforeOpening.current(old).lanes,'later lane positions, widths and speed exactly match v0.1.1');assert.equal(M.current(now).time,beforeOpening.current(old).time);}
+ }
+}
+console.log('PASS exact later-round compatibility: runs 4–12 across 12 seeds');
+

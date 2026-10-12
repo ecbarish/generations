@@ -445,23 +445,23 @@ func indoors() -> bool:
 
 # ---------------------------------------------------------------- Larkhaven's inn and shop, walked into (WB2.4)
 ## Rooms you walk into from their doors in town, like Maren's barn. X dark, W wall, , floor, c counter, t table,
-## s shelf, h hearth, k crates, b bed, d the door out. Each keeper stands behind the counter: walk up and press E.
+## s shelf, h hearth, k crates, b bed, n chair, e bench, a barrel, g kettle stand, r rug (walkable), d the door out. Each keeper stands behind the counter: walk up and press E.
 ## The two homes (WB2.4) have no counter: the person who lives there is by the hearth; something to find lies on the floor.
-const ROOM_SOLID := "XWcthskb"
+const ROOM_SOLID := "XWcthskbneag"
 const INTERIORS := {
 	"inn": { "name": "The Larkhaven Inn", "door": Vector2i(4, 4), "exit": Vector2i(11, 11), "keeper": "ned", "keeper_at": Vector2i(10, 4),
 		"rows": [
 			"XXXXXXXXXXXXXXXXXXXXXXXX",
 			"XXXXXWWWWWWWWWWWWWWXXXXX",
 			"XXXXXWWWWWWWWWWWWWWXXXXX",
-			"XXXXXh,,,,,,,,,,,,sXXXXX",
-			"XXXXX,,,,,,,,,,,,,sXXXXX",
+			"XXXXXh,,,,,,,,,,aasXXXXX",
+			"XXXXX,n,,,,,,,,,,,sXXXXX",
 			"XXXXX,,,ccccc,,,,,,XXXXX",
 			"XXXXX,,,,,,,,,,,,,,XXXXX",
-			"XXXXX,,t,,,,,,,t,,,XXXXX",
-			"XXXXX,,,,,,,,,,,,,,XXXXX",
-			"XXXXX,,t,,,,,,,t,,,XXXXX",
-			"XXXXX,,,,,,,,,,,,,,XXXXX",
+			"XXXXX,ntn,rrr,ntn,,XXXXX",
+			"XXXXX,,,,,rrr,,,,,,XXXXX",
+			"XXXXX,ttt,rrr,ttt,,XXXXX",
+			"XXXXX,eee,,,,,eee,,XXXXX",
 			"XXXXXWWWWWWdWWWWWWWXXXXX",
 			"XXXXXXXXXXXXXXXXXXXXXXXX",
 			"XXXXXXXXXXXXXXXXXXXXXXXX",
@@ -491,13 +491,13 @@ const INTERIORS := {
 			"XXXXXXXXXXXXXXXXXXXXXXXX",
 			"XXXXXXXWWWWWWWWWWXXXXXXX",
 			"XXXXXXXWWWWWWWWWWXXXXXXX",
-			"XXXXXXXh,,,,,,,,bXXXXXXX",
-			"XXXXXXX,,,,,,,,,bXXXXXXX",
-			"XXXXXXX,,,t,,,,,,XXXXXXX",
-			"XXXXXXX,,,,,,,,,,XXXXXXX",
-			"XXXXXXXs,,,,,,,,,XXXXXXX",
-			"XXXXXXXs,,,,,,,,,XXXXXXX",
-			"XXXXXXX,,,,,,,,,,XXXXXXX",
+			"XXXXXXXhn,,,,,,,bXXXXXXX",
+			"XXXXXXXrr,,,,,,,bXXXXXXX",
+			"XXXXXXX,ntn,,,,,,XXXXXXX",
+			"XXXXXXX,,n,,,,,,bXXXXXXX",
+			"XXXXXXXs,,,,,,,,bXXXXXXX",
+			"XXXXXXXs,,,,,,,,kXXXXXXX",
+			"XXXXXXXa,,,,,,,,,XXXXXXX",
 			"XXXXXXX,,,,,,,,,,XXXXXXX",
 			"XXXXXXXWWWWdWWWWWXXXXXXX",
 			"XXXXXXXXXXXXXXXXXXXXXXXX",
@@ -511,12 +511,12 @@ const INTERIORS := {
 			"XXXXXXXXXXXXXXXXXXXXXXXX",
 			"XXXXXXXWWWWWWWWWWXXXXXXX",
 			"XXXXXXXWWWWWWWWWWXXXXXXX",
-			"XXXXXXXh,,,,,,,,sXXXXXXX",
-			"XXXXXXX,,,,,,,,,sXXXXXXX",
+			"XXXXXXXhg,,,,,,,sXXXXXXX",
+			"XXXXXXXn,,,,,,,,sXXXXXXX",
+			"XXXXXXXrrr,,,,,,,XXXXXXX",
+			"XXXXXXX,,,,,nt,,,XXXXXXX",
 			"XXXXXXX,,,,,,,,,,XXXXXXX",
-			"XXXXXXX,,,,,t,,,,XXXXXXX",
-			"XXXXXXX,,,,,,,,,,XXXXXXX",
-			"XXXXXXXb,,,,,,,,,XXXXXXX",
+			"XXXXXXXb,,,,,,,,aXXXXXXX",
 			"XXXXXXXb,,,,,,,,,XXXXXXX",
 			"XXXXXXX,,,,,,,,,,XXXXXXX",
 			"XXXXXXXWWWWdWWWWWXXXXXXX",
@@ -4207,10 +4207,59 @@ func _draw_room() -> void:
 					draw_rect(Rect2(o + Vector2(0, 3), Vector2(16, 2)), WOOD_LIGHT.lightened(0.2))
 					draw_rect(Rect2(o + Vector2(0, 11), Vector2(16, 2)), WOOD_DARK)
 				"t":
-					draw_rect(Rect2(o + Vector2(1, 3), Vector2(14, 10)), Figures.OUTLINE)          # a table with a candle
-					draw_rect(Rect2(o + Vector2(2, 4), Vector2(12, 8)), WOOD)
-					draw_rect(Rect2(o + Vector2(7, 5), Vector2(2, 3)), Color("efe6d4"))
-					draw_rect(Rect2(o + Vector2(7, 3 + int(t * 6.0) % 2), Vector2(2, 2)), Color("f2c050"))
+					var tl: bool = x > 0 and rows[y][x - 1] == "t"                                 # tables side by side join into one long table
+					var tr: bool = x < w - 1 and rows[y][x + 1] == "t"
+					var l0 := 0 if tl else 1
+					var r0 := 16 if tr else 15
+					draw_rect(Rect2(o + Vector2(l0, 3), Vector2(r0 - l0, 10)), Figures.OUTLINE)    # a table, one candle in its middle
+					draw_rect(Rect2(o + Vector2(l0 + (0 if tl else 1), 4), Vector2(r0 - l0 - (0 if tl else 1) - (0 if tr else 1), 8)), WOOD)
+					if tl == tr:
+						draw_rect(Rect2(o + Vector2(7, 5), Vector2(2, 3)), Color("efe6d4"))
+						draw_rect(Rect2(o + Vector2(7, 3 + int(t * 6.0) % 2), Vector2(2, 2)), Color("f2c050"))
+					elif (x + y) % 2 == 0:
+						draw_rect(Rect2(o + Vector2(5, 6), Vector2(5, 4)), Color("c8b89a"))           # a bowl
+						draw_rect(Rect2(o + Vector2(6, 6), Vector2(3, 2)), Color("8a5a2a"))
+				"n":
+					draw_rect(Rect2(o + Vector2(3, 1), Vector2(10, 14)), Figures.OUTLINE)          # a chair, its back to the wall side
+					draw_rect(Rect2(o + Vector2(4, 2), Vector2(8, 5)), WOOD_DARK)
+					draw_rect(Rect2(o + Vector2(4, 8), Vector2(8, 4)), WOOD_LIGHT)
+					draw_rect(Rect2(o + Vector2(4, 12), Vector2(2, 3)), WOOD_DARK)
+					draw_rect(Rect2(o + Vector2(10, 12), Vector2(2, 3)), WOOD_DARK)
+				"e":
+					var el: bool = x > 0 and rows[y][x - 1] == "e"                                 # a bench, plank by plank
+					var er: bool = x < w - 1 and rows[y][x + 1] == "e"
+					draw_rect(Rect2(o + Vector2(0 if el else 1, 5), Vector2(16 - (0 if el else 1) - (0 if er else 1), 6)), Figures.OUTLINE)
+					draw_rect(Rect2(o + Vector2(0 if el else 2, 6), Vector2(16 - (0 if el else 2) - (0 if er else 2), 3)), WOOD_LIGHT)
+					if not el:
+						draw_rect(Rect2(o + Vector2(2, 11), Vector2(2, 4)), WOOD_DARK)
+					if not er:
+						draw_rect(Rect2(o + Vector2(12, 11), Vector2(2, 4)), WOOD_DARK)
+				"a":
+					draw_rect(Rect2(o + Vector2(2, 1), Vector2(12, 14)), Figures.OUTLINE)          # a barrel, hooped
+					draw_rect(Rect2(o + Vector2(3, 2), Vector2(10, 12)), Color("8a5a32"))
+					draw_rect(Rect2(o + Vector2(3, 2), Vector2(10, 2)), Color("6b4a2a"))
+					draw_rect(Rect2(o + Vector2(3, 5), Vector2(10, 1)), Color("4a4a48"))
+					draw_rect(Rect2(o + Vector2(3, 11), Vector2(10, 1)), Color("4a4a48"))
+				"g":
+					draw_rect(Rect2(o + Vector2(2, 7), Vector2(12, 8)), Figures.OUTLINE)           # a hob stand by the hearth, the kettle on
+					draw_rect(Rect2(o + Vector2(3, 8), Vector2(10, 6)), Color("6a6a66"))
+					draw_rect(Rect2(o + Vector2(4, 3), Vector2(8, 5)), Figures.OUTLINE)
+					draw_rect(Rect2(o + Vector2(5, 4), Vector2(6, 3)), Color("3a3a40"))
+					draw_rect(Rect2(o + Vector2(11, 4), Vector2(3, 1)), Color("3a3a40"))
+					var puff := int(t * 2.0) % 3
+					draw_rect(Rect2(o + Vector2(12 + puff, 2 - puff), Vector2(2, 2)), Color(1, 1, 1, 0.5 - puff * 0.15))
+				"r":
+					draw_rect(Rect2(o + Vector2(0, 0), Vector2(16, 16)), Color("8a3a32"))          # a woven rug, edged where it ends
+					for k in 2:
+						draw_rect(Rect2(o + Vector2(0, 5 + k * 5), Vector2(16, 1)), Color("c8925a"))
+					if x == 0 or rows[y][x - 1] != "r":
+						draw_rect(Rect2(o, Vector2(2, 16)), Color("5a2a24"))
+					if x == w - 1 or rows[y][x + 1] != "r":
+						draw_rect(Rect2(o + Vector2(14, 0), Vector2(2, 16)), Color("5a2a24"))
+					if rows[y - 1][x] != "r":
+						draw_rect(Rect2(o, Vector2(16, 2)), Color("5a2a24"))
+					if rows[y + 1][x] != "r":
+						draw_rect(Rect2(o + Vector2(0, 14), Vector2(16, 2)), Color("5a2a24"))
 				"s":
 					draw_rect(Rect2(o + Vector2(1, 0), Vector2(14, 16)), Figures.OUTLINE)          # shelves of jars and bottles
 					draw_rect(Rect2(o + Vector2(2, 1), Vector2(12, 14)), WOOD_DARK)
