@@ -40,3 +40,6 @@ const d1=M.create(1,42),d2=M.create(1,42);M.ready(d1);M.ready(d2);M.advance(d1,3
 assert.equal(JSON.stringify(M.current(d1).lanes),JSON.stringify(M.current(d2).lanes));
 assert.equal(M.current(d1).x,M.current(d2).x);
 console.log('PASS brisket model');
+
+const recover=play(),rec=M.current(recover);M.hurt(recover);assert.equal(rec.lives,2);assert.ok(rec.recovery>0);const clock=rec.time;M.hurt(recover);assert.equal(rec.lives,2,'recovery ignores another hit');for(let i=0;i<8;i++)M.advance(recover,.25,{dy:-1});assert.equal(rec.y,M.START.y,'held input cannot restart after recovery');assert.equal(rec.time,clock,'recovery and release wait freeze the clock');assert.equal(M.hop(recover,0,-1),false);M.advance(recover,.02,{});assert.equal(M.hop(recover,0,-1),true,'fresh press after release can hop');
+console.log('PASS recovery and held-input regression');

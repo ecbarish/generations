@@ -1,0 +1,58 @@
+name: Brisket polish review
+on:
+  pull_request:
+    paths:
+      - 'games/briskets-crossing/**'
+      - 'tests/briskets-crossing.html'
+      - 'docs/playtests/brisket-ac3-1/**'
+      - '.github/workflows/brisket-polish-review.yml'
+  workflow_dispatch:
+concurrency:
+  group: brisket-review-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  browser-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          echo "CHROME_PATH=$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
+      - name: Reproduce original fixture failure without changing committed files
+        run: |
+          cp tests/briskets-crossing.html "$RUNNER_TEMP/brisket-fixed.html"
+          trap 'cp "$RUNNER_TEMP/brisket-fixed.html" tests/briskets-crossing.html' EXIT
+          git show 037a00305fedd54563774a24724e659b57f0def5:tests/briskets-crossing.html > tests/briskets-crossing.html
+          set +e
+          node tools/run-all-checks.cjs briskets-crossing > "$RUNNER_TEMP/brisket-baseline.log" 2>&1
+          result=$?
+          set -e
+          cat "$RUNNER_TEMP/brisket-baseline.log"
+          test "$result" -eq 1
+          grep -F "Cannot read properties of null (reading 'click')" "$RUNNER_TEMP/brisket-baseline.log"
+      - name: Verify repaired fixture and recovery model
+        run: |
+          node tools/brisket-model-checks.cjs
+          node tools/run-all-checks.cjs briskets-crossing
+      - name: Capture desktop, portrait and landscape
+        run: node docs/playtests/brisket-ac3-1/capture.cjs
+      - name: Responsive drawing, repeated rotation and real tap review
+        run: node docs/playtests/brisket-ac3-1/responsive-review.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: brisket-polish-review
+          path: |
+            docs/playtests/brisket-ac3-1/*.png
+            docs/playtests/brisket-ac3-1/*.json
+            docs/playtests/brisket-ac3-1/responsive/
+          retention-days: 90
