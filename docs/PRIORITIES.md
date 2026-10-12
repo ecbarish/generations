@@ -23,7 +23,7 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 |---|---|---|---|
 | **Flagship** (confirmed by Evan 2026-10-09) | about 60% | The game we are finishing. Its next milestone comes before anything else in Claude's lane, and ChatGPT's data and writing for it comes first in Lane A. | **Wildbond (Godot)**, toward version 2.0 |
 | **Second** | about 25% | Grows steadily, one milestone at a time. | **Starfall village (Godot)** |
-| **ChatGPT's own** | ChatGPT's time after flagship support | One browser game ChatGPT moves forward. | **Realmbound** (the game window, phone pass, the second raid tier) |
+| **ChatGPT's own** | ChatGPT's time after flagship support | One browser game ChatGPT moves forward. | **Realmbound**: the first hour made fun (RB1.10-RB1.12); end-game parked (Evan, 2026-10-12) |
 | **Family games** (Evan said yes 2026-10-09) | small, alongside | Two small browser games "for everyone", each starting with its one-PR smallest test; never at the flagship's expense. | **Little Ranch** (a tap-and-play toy for ages 2-4) and **the Arcade Cabinets** (original 1978-85 style single-screen games, Storm Front first), docs/proposals/games-for-everyone.md. Little Ranch is a hit at home (2026-10-11): its next steps LR3-LR8 and new toddler toys as places inside it (LR9-LR11) follow docs/proposals/little-ranch-next.md |
 | **Keep alive** | about 15% | Bugs from friends, small fixes, playtests. No new systems. | Diamond Manager (replaced Diamond Career; DM2, its playability pass, may go ahead), Otherworld, browser Wildbond (Classic), the arcade and Come Play |
 | **Parked** | none | Ideas and proposals only, no builds. | Primordial, old Starfall Guild, card shop, Main Street, walk-in arcade, the AI storyteller |
@@ -118,7 +118,7 @@ chapters, SF3.4 festivals, then SF4.1 expeditions as **first-person grid delves*
 
 **Browser order (ChatGPT and any AI; refreshed 2026-10-11):** done: RB1.4 to RB1.9, AR2.11, AR2.12, OW1.1, WD2's
 data. Next: WD3's move data (feeds the battles), then Diamond Manager DM3, DM4, DM-B2, DM7 (after v0.5.0, #175), Lantern
-Bowl LB0-LB1, Realmbound RB2.2 and the RB2.1 plan, Otherworld OW2.2, cabinet and Little Ranch polish from playtests. The
+Bowl LB0-LB1, Realmbound's first hour RB1.10-RB1.12 (RB2 and RB3 parked, Evan 2026-10-12), Otherworld OW2.2, cabinet and Little Ranch polish from playtests. The
 live list is QUEUE.md "The road ahead".
 
 ## 5. When to re-rank
@@ -162,3 +162,4 @@ live list is QUEUE.md "The road ahead".
   two playtest pass 2 blockers put first for helpers.
 - 2026-10-11 Lane P: Little Ranch plan (PR #203) folded in: LR3-LR8 and places LR9-LR11 in the family slot (one toy, no new homepage icons); the first place waits for Evan's pick, the Little Wagon recommended.
 - 2026-10-11 Evan picked the Paint Shed as Little Ranch's first new place (LR9), then the Little Wagon (LR10) and the Snack Kitchen (LR11).
+- 2026-10-12 Evan, via lane P: Realmbound's end-game work (RB2.1, RB2.2, RB3.x) is parked until a newcomer scores its first hour 17+; RB1.10-RB1.12 come first. New arcade rule "Play, not watch" in GOALS.md (less automatic play, no full Auto); audit and tasks RB1.11 and AR2.14.
