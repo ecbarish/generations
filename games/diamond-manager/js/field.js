@@ -41,10 +41,15 @@ function tag(c,x,y,text){ c.save(); c.font='600 12px system-ui'; const wd=c.meas
 /* scene: {e (the event on screen), prev (the runners before it), at (when it started), def and bat colours, names}. */
 function drawPlay(c,s,B,sc){
   const e=sc.e, t=(performance.now()-sc.at), mound=spot(s,0,.30), home=[0,0], plate=[-14,-6];
-  const play=e.kind==='play'&&e.bb, dur=play?(e.bb.bb==='hr'?1700:1400):e.kind==='play'?900:e.kind==='pitch'?520:0, k=dur?Math.min(1,t/dur):1;
+  const play=e.kind==='play'&&e.bb, dur=play?(e.bb.bb==='hr'?1700:1400)*(sc.px||1):e.kind==='play'?900:e.kind==='pitch'?520:0, k=dur?Math.min(1,t/dur):1;
   // Fielders: everyone at their spot, except the one who chases a ball in play.
   for(const [pos,[a,d]] of Object.entries(FIELDERS)){ let [x,y]=spot(s,a,d);
     if(play&&pos===e.bb.f&&e.bb.bb!=='hr'){ const [tx,ty]=spot(s,e.bb.a,Math.min(.97,e.bb.d)); const m=ease(k/.6); x=lerp(x,tx,m); y=lerp(y,ty,m); }
+    // The rest of the infield reacts too: a nearby infielder breaks toward a ground ball, and the first baseman runs
+    // to the bag to take the throw.
+    else if(play&&e.bb.bb==='ground'&&'1B 2B SS 3B'.includes(pos)){ const m=ease(k/.5);
+      if(pos==='1B'&&e.res==='out'){ x=lerp(x,B[1][0]-4,m); y=lerp(y,B[1][1]+2,m); }
+      else if(Math.abs(a-e.bb.a)<24){ const [tx,ty]=spot(s,e.bb.a,d); x=lerp(x,tx,m*.6); y=lerp(y,ty,m*.6); } }
     if(pos==='C'){ y=Math.max(y,10); }
     person(c,x,y-8,sc.def); }
   // Runners: still ones from the bases, moving ones along the base paths.
@@ -55,7 +60,9 @@ function drawPlay(c,s,B,sc){
     if(m.to>=4&&rt>=1) continue; person(c,x+6,y-12,sc.bat); }
   // The batter waits at the plate until the ball is in play.
   const batterGone=e.kind==='play'&&moving.some(m=>m.from===0&&m.to>0);
-  if(!batterGone&&e.kind!=='end'&&e.kind!=='head'){ person(c,plate[0],plate[1],sc.bat);
+  // On a ball in play that ends in an out, the batter still runs hard down the line toward first.
+  if(play&&e.res==='out'){ const [x,y]=alongBases(B,0,1,ease(k)*.85); person(c,x+6,y-12,sc.bat); }
+  else if(!batterGone&&e.kind!=='end'&&e.kind!=='head'){ person(c,plate[0],plate[1],sc.bat);
     const swung=e.kind==='pitch'&&'WFX'.includes(e.pitch)&&k>.7; c.strokeStyle='#e9d3a2'; c.lineWidth=3; c.beginPath(); c.moveTo(plate[0]+4*PERSON,plate[1]-2*PERSON);
     const ang=swung?-.2:-1.9; c.lineTo(plate[0]+4*PERSON+Math.cos(ang)*14*PERSON,plate[1]-2*PERSON+Math.sin(ang)*14*PERSON); c.stroke(); }
   // The ball.
@@ -69,7 +76,7 @@ function drawPlay(c,s,B,sc){
   // Name tags, like a broadcast: who is pitching (and how many pitches), who is batting.
   if(sc.pitcher) tag(c,mound[0],mound[1]+18*PERSON,sc.pitcher);
   if(sc.batter&&e.kind!=='end') tag(c,0,24+6*PERSON,sc.batter);
-  if(play&&k>=.6&&k<1){ const word=e.res==='out'?'OUT':e.res===4?'HOME RUN':e.res===3?'TRIPLE':e.res===2?'DOUBLE':'HIT'; const [x,y]=spot(s,e.bb.a,Math.min(.95,e.bb.d)); tag(c,x,y-30,word); }
+  if(play&&k>=.6){ const word=e.res==='out'?'OUT':e.res===4?'HOME RUN':e.res===3?'TRIPLE':e.res===2?'DOUBLE':'HIT'; const [x,y]=spot(s,e.bb.a,Math.min(.95,e.bb.d)); tag(c,x,y-30,word); }
   if(e.kind==='play'&&!e.bb&&k<1){ if(e.steal){ const m=e.moves[0], [x,y]=alongBases(B,m.to,m.to,1); tag(c,x,y-34,m.out?'OUT':'SAFE'); } else if(e.res==='k'||e.res==='walk') tag(c,0,-40,e.res==='k'?'STRIKE THREE':'BALL FOUR'); else if(/double play/.test(e.t)) tag(c,0,-40,'DOUBLE PLAY'); }
 }
 function person(c,x,y,col){ c.save(); c.translate(x,y); c.scale(PERSON,PERSON); c.fillStyle='#1d1d1d'; c.fillRect(-3,1,6,9); c.fillStyle=col; c.fillRect(-4,-1,8,8); c.fillStyle='#d9a77a'; c.fillRect(-3,-7,6,6); c.restore(); }
