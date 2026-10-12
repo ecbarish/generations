@@ -135,3 +135,5 @@ playtested game in the game window. Parked until then: Realmbound's raid tier, b
 - 2026-10-11: first version (Claude, Priorities and direction), from Evan's ask above.
 - 2026-10-12: Play, not watch (less automatic play) and Realmbound's early game first, from Evan via lane P.
 - 2026-10-12: earned automation, not autoplay, and five-minute sessions added under "Play, not watch" (Evan, via lane P).
+- 2026-10-12: passions first (Evan via Flint): games that may interest anybody, led by what we love; the audience
+  follows. The toddler, modern and retro shelves stay, as a result of that, not a checklist.
