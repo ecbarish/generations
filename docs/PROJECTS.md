@@ -4,6 +4,12 @@ Every outlined project in one place, so Evan can hand work to any assistant (Cla
 and they can carry it to launch. START-HERE.md says what is happening *right now*; this file says *everything there
 is to do*. Ground rules for how assistants work, and how much creative freedom they have: [CREATIVE.md](CREATIVE.md).
 
+## Hall sports-card isolation
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| AR2.15 | Separate Manager and Career cards | S | claimed: Codex, 2026-10-12 | Correct destinations, own-save progress and isolated reset; launcher and index only |
+
 ## Brisket opening accessibility
 
 | ID | Project | Size | Status | Scope |
