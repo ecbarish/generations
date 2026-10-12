@@ -1,12 +1,23 @@
 const fs=require('fs'),path=require('path'),crypto=require('crypto'),assert=require('assert/strict'),{chromium}=require('playwright');
 const origin='https://ecbarish.github.io/idle-arcade/',out='docs/playtests/brisket-ac3-2/live';fs.mkdirSync(out,{recursive:true});
 const files=['games/briskets-crossing/index.html','games/briskets-crossing/game.js','games/briskets-crossing/model.js','games/briskets-crossing/style.css','shared/engine.js','shared/settings.js','shared/sound.js','shared/feedback.js'];
+// Pinned to release 032bbd09; rerunning after later releases must not relabel newer bytes.
+const releaseHashes={
+  "games/briskets-crossing/index.html": "693ba605850999ea5b57583d947289d0e04151644e435866798b7e5225cb8b5b",
+  "games/briskets-crossing/game.js": "1af51d843876c202223192a2be76709602e08aab32fa4793a6a1a1588d4bd91e",
+  "games/briskets-crossing/model.js": "65542ac97e2ca822a8fee66c274b2d62fb25122bf93635b3d9a2abe21f71f066",
+  "games/briskets-crossing/style.css": "17ebe8c47287ecbc0396fe579df93ee0f89d1ff7e9f031c2dece8e1c6b044a4d",
+  "shared/engine.js": "a700b8e63f0e72d37baa0404c3d62689414599c72bc7f94fa244a2216ed2880c",
+  "shared/settings.js": "5e2dc6aab195d2571b82a745f50fa1e513deaf118040eecf7e1d625f906bf177",
+  "shared/sound.js": "abfb57483cf62aa20f8c1bb134e844c8b218eec5d20c9fb17d7af6c082421473",
+  "shared/feedback.js": "8dbc9a3a11dfcedbf6a667cf4c99c9e1c0da9b530bf6519f4f9338f582509057"
+};
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));const checks=[];const check=(name,ok)=>{assert.ok(ok,name);checks.push(name);};
 (async()=>{
  let hashes=[];
  for(let attempt=0;attempt<40;attempt++){
-  hashes=await Promise.all(files.map(async file=>{const expected=hash(fs.readFileSync(file)),r=await fetch(origin+file,{headers:{'cache-control':'no-cache'}}),b=Buffer.from(await r.arrayBuffer());return{file,status:r.status,bytes:b.length,expected,actual:hash(b),match:r.ok&&hash(b)===expected};}));
+  hashes=await Promise.all(files.map(async file=>{const expected=releaseHashes[file],r=await fetch(origin+file,{headers:{'cache-control':'no-cache'}}),b=Buffer.from(await r.arrayBuffer());return{file,status:r.status,bytes:b.length,expected,actual:hash(b),match:r.ok&&hash(b)===expected};}));
   if(hashes.every(x=>x.match))break;
   console.log('Waiting for public release:',hashes.filter(x=>!x.match).map(x=>x.file));await sleep(15000);
  }
@@ -14,8 +25,10 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));const checks=[];const check=(na
  const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||undefined});const views=[];
  try{for(const [width,height]of [[375,812],[812,375],[1366,768]]){
   const context=await browser.newContext({viewport:{width,height},hasTouch:true,serviceWorkers:'block'}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.addInitScript(()=>{const k='briskets-crossing-save-v1';if(!localStorage.getItem(k))localStorage.setItem(k,JSON.stringify({v:1,game:'briskets-crossing',scores:[{name:'QA1',score:321}],sound:0,scanlines:false}));});
-  await page.goto(origin+'games/briskets-crossing/',{waitUntil:'networkidle'});check('public localhost hook absent '+width,await page.evaluate(()=>typeof window.__brisket==='undefined'));
+  await page.goto(origin+'games/briskets-crossing/',{waitUntil:'networkidle'});
+  // Seed once in this isolated test browser. Never reseed on the final reload.
+  await page.evaluate(()=>localStorage.setItem('briskets-crossing-save-v1',JSON.stringify({v:1,game:'briskets-crossing',scores:[{name:'QA1',score:321}],sound:0,scanlines:false})));
+  await page.reload({waitUntil:'networkidle'});check('public localhost hook absent '+width,await page.evaluate(()=>typeof window.__brisket==='undefined'));
   check('old score shown '+width,(await page.locator('.scores').textContent()).includes('QA1'));
   const saved=await page.evaluate(()=>localStorage.getItem('briskets-crossing-save-v1'));
   await page.locator('[data-start="1"]').click();await page.keyboard.press('Space');check('keyboard starts public game '+width,await page.locator('#curtain').isHidden());
