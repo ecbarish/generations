@@ -75,7 +75,7 @@ rest) and the creature drawing (WD2's drawing half).
 | H1 | ~~Wildbond shows its keys in game (WB-KEYS)~~ **Done:** merged in #198 (2026-10-12) | docs/PLAYTEST.md pass 2 | `wildbond-godot/` | The first time each action matters, its key or pad button appears in the world |
 | H2 | **Saltmarsh you can explore** (WD4b) | GR-3; WD4a (#128) as the pattern | `wildbond-godot/` maps and scenes | A route, the settlement and one hidden pocket, with a spot you come back to with the right creature; old saves load; screenshots |
 | H3 | **Dress Starfall's square and roads** (ART-SF-8) | DEVELOPMENT-PATH ART-SF-8; docs/art/starfall.md | `starfall-godot/` | As the line says; before and after screenshots |
-| H4 | **Starfall: darkness, step 1** (SF2.9) | docs/proposals/starfall-darkness.md | `starfall-godot/` | As the line says; old saves load |
+| H4 | ~~Starfall: darkness, step 1 (SF2.9)~~ **Done:** merged in #224 (2026-10-12) | docs/proposals/starfall-darkness.md | `starfall-godot/` | As the line says; old saves load |
 | H5 | **Starfall: station mastery ranks** (SF2.11) | DEVELOPMENT-PATH SF2.11 | `starfall-godot/` | Named ranks at 10/25/50 per station, shown in the world; checks |
 | H6 | **Starfall: the hire works at your rank** (SF2.12, after H5) | SF2.12 | `starfall-godot/` | Each helper works at the rank you reached; active play stays worth more; checks |
 | H7 | **Starfall: trust per adventurer** (SF2.13) | SF2.13 | `starfall-godot/` | As the line says; checks |
