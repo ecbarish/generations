@@ -1,5 +1,17 @@
 # AC3.1 Brisket responsive presentation review
 
+## Published and verified
+
+[Play Brisket v0.1.1](https://ecbarish.github.io/idle-arcade/games/briskets-crossing/). Adam approved merge and live verification at 16:26 UTC. #180 merged as `19a7ee377e8097b3cdd47a7e15152663bbd7455e`. [Pages deployment](https://github.com/ecbarish/idle-arcade/actions/runs/38277598883) and the merged-main [19-suite run](https://github.com/ecbarish/idle-arcade/actions/runs/38277600145) passed.
+
+The [public runtime verifier](https://github.com/ecbarish/idle-arcade/actions/runs/38278202817) passed **31 checks at 2026-10-12 16:34:14.742 UTC**: eight public game/shared files exactly match their reviewed SHA-256 values; public localhost-only debug hook is absent; three browser sizes show preserved old scores, keyboard start, uniform rendering, readable real-hit recovery, pause/rotation/resume, unchanged score reload and no runtime errors. These are actual public URL interactions, without injected game hooks. A separate network read independently matched all eight Git blob hashes at 16:32 UTC.
+
+[Machine-readable live verification](live/verification.json) · [independent hashes](live/independent-hashes.json) · [portrait recovery](live/375x812-recovery.png) · [landscape recovery](live/812x375-recovery.png) · [desktop recovery](live/1366x768-recovery.png). Live images are original and inspected. Full six-image artifact [11759379108](https://github.com/ecbarish/idle-arcade/actions/runs/38278202817/artifacts/11759379108), ZIP SHA-256 `58f286a91d3df60e8841155be128ba7fa3818126531c3790bc9106c57ad5662b`, retained through 2027-01-10.
+
+The first public-verifier run incorrectly asked Playwright to wait for a hidden element to be visible; the game had correctly hidden the caption. The verifier now explicitly waits for hidden state and passed. No game changes were needed. #231 is the scoped documentation/verifier handoff; release gameplay bytes stay identical.
+
+The remainder records development and historical pre-release decisions; earlier statements of no merge approval or draft status are superseded by this publication record.
+
 ## Responsive correction, approved 2026-10-12
 
 Adam approved continuing #180 to fix the landscape squash and tiny recovery caption. The crossing still fills the available cabinet: its 13 columns and 11 lanes adapt to the viewport, while the mule and decorative details use one uniform scale. The responsive grid intentionally has rectangular cells; this is not a letterboxed square world or a claim of square cells.
