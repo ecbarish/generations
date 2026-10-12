@@ -66,6 +66,7 @@ big step, someone who didn't build it scores it with docs/PLAYTEST.md's six ques
 Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stable; tickets reference them.
 
 ### Wildbond (Godot): the new Wildbond, to version 2.0
+- [ ] WB-N1 [any] Wildbond newcomer snags (Flint round 2, COMMS 2026-10-12 20:52): after the rival fight, someone says the team is hurt and the Larkhaven inn heals; after the first catch, Maren points to the ranch's daily plan once; the HP shown after the rival battle matches the real HP. Bond-gated evolution is a design question for Design decisions first. Files: wildbond-godot/. Done when all Godot checks pass and old saves load.
 **WB-M1: the start of the journey (done 2026-10-08).**
 - [x] The opening, register and heritages, the barn, Wren; Thornwood, Saltmarsh, Emberfall, Cloudglass; wild
   bonding; trainers and Wardens; the ranch as a place (nursery, trough, workbench, gear); evolution; music; saving;
@@ -167,6 +168,8 @@ Target about 150 species in about 70 lines; most new species are new stages of t
 **WB-M7 (later): first person.** WG11: a 3D view generated from the same maps (docs/proposals/depth-and-first-person.md).
 
 ### Starfall (Godot): the village
+- [ ] SF-WEB-BOOT [any] Bug (Flint round 3, 2026-10-12 21:02): the hall's "Play the preview" link to /generations/play/starfall/ stuck at about 90% loading across two loads after the rename. Reproduce at the new address; check the service worker, cached paths and the verifier's pinned address; fix and republish so it boots on desktop and phone.
+- [ ] SG-N1 [any] Starfall Guild (the browser classic), hands on during the fight (Flint round 3): one tactical call in combat (target priority, the cleric's heal timing, or the mage's big spell); a first taste of earned staff early (for example the Receptionist at 3 recruits); something to do during the 8-second rest after a wipe; the Ledger's time played counts correctly. Files: games/starfall-guild/.
 
 - [x] SF-MOBILE-FIT [any] (merged: [PR #221](https://github.com/ecbarish/idle-arcade/pull/221), `1a37f695`, Codex for Adam / abarish-dev, 2026-10-12; final 1,429 browser checks / 136 captures and all 19 suites passed) Fix phone letterboxing with mobile fractional aspect-fit; retain desktop integer scaling, camera, controls and saves. Files: starfall-godot/ scaling/tests, scoped tools/ and CI harness, evidence/session notes. Done when rendered portrait/landscape, rotation/repeated resize, touch/text and desktop checks pass. Source merged after Adam approved publication; exact preview tracked in SF-MOBILE-PREVIEW.
 **SF-M1: the working town (done 2026-10-08).**
@@ -284,6 +287,7 @@ creatures as monsters. Built as first-person grid delves (docs/proposals/new-gam
 - [ ] SF4.2 [Claude] Phone controls and settings; Starfall guide [any]; trailer.
 
 ### Realmbound (browser)
+- [ ] RB-N1 [any] Realmbound newcomer snags (Flint's playtest round 2, docs/COMMS.md 2026-10-12 20:52): loot never vanishes unseen (a corpse's loot stays until taken, or the window says plainly what was left and where it went); pressing an ability without energy says "Not enough energy"; the dialogue Continue button works by click and tap, not only Enter. Then, as RB1.12 work: two or three quests at once in Thornvale. Files: games/realmbound/. Done when tests/run.html passes and old saves load.
 - [x] RB1.9 [ChatGPT] Third-person 3D inn trial (built: Codex, PR #159, 2026-10-10; awaiting review). Evan asked for a modern Pokemon-like third-person presentation. Isolated prototype, original procedural stylized models, honest character/furniture dimensions, walk/orbit/collision, a substantial contained hearth, real light/shadow geometry, phone and ultrawide checks. Files: experiments/realmbound-3d/, tests/realmbound-3d.cjs, docs/proposals/realmbound-3d.md, screenshots and handoff. No production renderer, saves, shared engines or Godot edits. Score 18/21 (Fun 3x2, Heart 3x2, Notice 3, Focus 2, Cheap 1). (merged: PR #159; ticked 2026-10-11 by lane P)
 
 **RB-M1: in the game window.**
@@ -321,6 +325,7 @@ asking for help; rules only).
 Realmbound's Godot question answered by Evan, then a plan (START-HERE question 2).
 
 ### Diamond Manager (browser; the baseball game, reworked 2026-10-09)
+- [ ] DM-N1 [any] Diamond Manager, numbers you watch climb (Flint round 3, COMMS 2026-10-12 21:02): upgrades show their effect on named players ("Cy Moss: ceiling 60 to 62"); hot and cold streaks so ratings move game to game; one or two dugout calls with visible risk (steal, hit-and-run, intentional walk, pinch hitter). Bugs first: F does nothing on the post-game screen until "Hear from Iona" is clicked; signing a left fielder showed two left fielders in the lineup; the hall card kept a stale 0-1 record after two games.
 Evan, 2026-10-09: the batting game was too hard to read and to hit; make it one you manage (ratings, trades,
 contracts, hiring, stadium upgrades, watching games) and plan a Retro Bowl-style football game. Full plan and the
 deliverables with their details: [plans/sports-management.md](plans/sports-management.md). The old DC2-DC4 career
@@ -341,6 +346,7 @@ Plan: [plans/sports-management.md](plans/sports-management.md) "Game 3". Reuses 
 - [ ] HK0 [any] Pitch. - [ ] HK1 [any] Hockey simulation. - [ ] HK2 [any] Shootout moment. - [ ] HK3 [any] Season, lines, office. - [ ] HK4 [any] Playability pass.
 
 ### Otherworld (browser)
+- [ ] OW-N1 [any] Otherworld newcomer snags (Flint round 2): a visible "Memories carried" ledger so players can plan unlocks across runs; at least two choices open at every beat (no single-choice click-through); the hall blurb calls it a story life sim, not idle management. Files: games/otherworld/, index.html.
 **OW-M1: three lives (done through v0.3.0).**
 - [x] The Between, Asterhold with Lanthorn, Hearthmere, the Ashen Throne.
 **OW-M2: memories and a systemic world.**
@@ -356,6 +362,7 @@ proposal (Evan picks the theme).
 rules; free local model first, as docs/otherworld-design.md says).
 
 ### The arcade (everything shared)
+- [ ] AR2.16 [any] Hall blurbs that match the games (Flint round 2): Lighthouse Watch is arcade action, not automation; Otherworld is a story life sim, not idle management. Files: index.html, launcher/.
 **AR-M1: friends can play (done 2026-10-08).**
 - [x] Come Play, previews, trailer, Windows builds.
 **AR-M2: polish for everyone.**
