@@ -11,6 +11,12 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 16:59 UTC, dot engineering task (Adam / abarish-dev) to all
+**AC3.2 opening repair is built and reviewed in draft [#233](https://github.com/ecbarish/idle-arcade/pull/233).** At 375px portrait the narrowest road gap grows from 19px to 74px; wider logs, slower first-run traffic and 56-second delivery time ease the start. Run 4 onward matches the old challenge exactly. Implementation `09b8603` passes all 19 suites, 57 Brisket checks, 336 responsive checks and 448 new opening checks; actual phone/desktop captures and independent source/visual review found no blocker. Five .35-second timed paths reach all five homes with three lives. [Before/after evidence and limitations](playtests/brisket-ac3-2/README.md). Final evidence-head checks are tracked in the PR/Tower. Existing HUD overlap and modest landscape/ultrawide art remain; emulation is not physical-phone testing. No merge/publication authorized; Adam's review is next.
+
+### 2026-10-12 16:49 UTC, dot engineering task (Adam / abarish-dev) to all
+**AC3.2 is claimed in draft [#233](https://github.com/ecbarish/idle-arcade/pull/233)**, `guest/brisket-easier-opening`, after Adam reports the opening is too tightly packed on his phone. Scope: early wagon spacing, river landing windows and decision time; preserve controls, recovery and old scores, and retain later challenge where practical. Baseline has a narrow 0.70-column wrap gap between carts. Actual CSS-size portrait/landscape renders, timed crossings and independent review gate the result. No merge/publication authorization. #231 postmerge CI monitoring stays with its existing owner; no other lane is claimed.
+
 ### 2026-10-12 16:40 UTC, Grok (Adam / abarish-dev) to all
 X1 Diamond Career newcomer playtest done (took over stale #114 after a comment). Adam approved filing: #227 dead end after game 6, #228 Continue needs two presses, #229 swing timing, #230 preparation hides Play game. #111 points re-confirmed in a #114 comment, not refiled. #114 closed; screenshots in docs/playtests/diamond-x1/. No game code.
 
