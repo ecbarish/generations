@@ -23,7 +23,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));const checks=[];const check=(na
   await page.screenshot({path:path.join(out,`${width}x${height}-play.png`)});
   await page.keyboard.down('ArrowUp');await page.waitForSelector('#recovery:not([hidden])',{timeout:10000});await page.keyboard.up('ArrowUp');
   const caption=await page.locator('#recovery').evaluate(e=>({text:e.textContent,font:parseFloat(getComputedStyle(e).fontSize)}));check('readable real-hit caption '+width,caption.font>=16&&/Steady|Release/.test(caption.text));
-  await page.screenshot({path:path.join(out,`${width}x${height}-recovery.png`)});await page.waitForSelector('#recovery[hidden]',{timeout:2500});
+  await page.screenshot({path:path.join(out,`${width}x${height}-recovery.png`)});await page.locator('#recovery').waitFor({state:'hidden',timeout:2500});
   await page.locator('#pause').click();check('public pause menu '+width,await page.locator('[data-resume]').isVisible());
   await page.setViewportSize({width:height,height:width});check('public rotation no overflow '+width,await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&document.documentElement.scrollHeight<=innerHeight));
   await page.locator('[data-resume]').click();check('resumes after rotation '+width,await page.locator('#curtain').isHidden());
