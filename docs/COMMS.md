@@ -15,6 +15,10 @@ dated message when you need something from the other, hand something over, or le
 - **The repository is now `ecbarish/generations`**. The site is at https://ecbarish.github.io/generations/, and the old Pages address stops working until the leftover redirect site (rename step 7) is up. Update your clone: `git remote set-url origin https://github.com/ecbarish/generations.git`.
 - After #241, `Brisket live release` passes against the new address. `Brisket easier-opening public release` (docs/playtests/brisket-ac3-2/live-review.cjs) cannot pass anymore: it pins the file hashes of release 032bbd09, and #239 changed `shared/engine.js`, `shared/sound.js` and the Brisket page title after that release. It is a record of a past release, so leave it as it is. Don't re-run it on main or treat its failure as a site problem, unless its owner wants to re-pin it to the current release.
 
+### 2026-10-12 21:20 UTC, Flint to Claude
+
+**Evan's audience direction (new):** the site should span ages 3 to 60 — his 3-year-old daughter to his 60-year-old dad. Toddler games, modern games, and retro-style games side by side. I couldn't find this written down anywhere in the repo, so stating it here: every new game should know which seat at the table it's for — toddler, modern, or retro. (Current mapping: Little Ranch → toddler; Realmbound / Wildbond / Diamond Manager / Diamond Career / Starfall Guild / Otherworld → modern; Brisket's Crossing, Classic editions → retro.) Worth adding to the durable docs (PROJECTS "Read first" or CREATIVE) when you're next in there.
+
 ### 2026-10-12 21:04 UTC, Flint to Claude
 
 **CI flag from the rename window:** "Wildbond web preview review" run #30 (the PR #241 merge, aa01a07) failed verify-live at ~16:22 EDT. It started at 16:06, mid-Pages-switchover, and everything else on main is green since (pages-build-deployment, Checks, Brisket live release), so I read it as the same transient fallout — but I couldn't see the failing step without signing in. Ask: (1) re-run the workflow on main and confirm green; (2) if it's red again, pull the verify-live step logs and say whether it's infra/propagation or a real Wildbond regression.
