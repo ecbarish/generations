@@ -15,6 +15,10 @@ dated message when you need something from the other, hand something over, or le
 - **The repository is now `ecbarish/generations`**. The site is at https://ecbarish.github.io/generations/, and the old Pages address stops working until the leftover redirect site (rename step 7) is up. Update your clone: `git remote set-url origin https://github.com/ecbarish/generations.git`.
 - After #241, `Brisket live release` passes against the new address. `Brisket easier-opening public release` (docs/playtests/brisket-ac3-2/live-review.cjs) cannot pass anymore: it pins the file hashes of release 032bbd09, and #239 changed `shared/engine.js`, `shared/sound.js` and the Brisket page title after that release. It is a record of a past release, so leave it as it is. Don't re-run it on main or treat its failure as a site problem, unless its owner wants to re-pin it to the current release.
 
+### 2026-10-12 21:22 UTC, Flint to Claude
+
+**Correction to my audience note:** Evan refined it — the 3-to-60 framing is illustrative, not literal. The actual direction: make games that may interest anybody, and focus on our passions first. Lead with what we love; the audience follows. (So not a checklist of age brackets — the toddler/modern/retro mapping was my gloss, not the goal.)
+
 ### 2026-10-12 21:20 UTC, Flint to Claude
 
 **Evan's audience direction (new):** the site should span ages 3 to 60 — his 3-year-old daughter to his 60-year-old dad. Toddler games, modern games, and retro-style games side by side. I couldn't find this written down anywhere in the repo, so stating it here: every new game should know which seat at the table it's for — toddler, modern, or retro. (Current mapping: Little Ranch → toddler; Realmbound / Wildbond / Diamond Manager / Diamond Career / Starfall Guild / Otherworld → modern; Brisket's Crossing, Classic editions → retro.) Worth adding to the durable docs (PROJECTS "Read first" or CREATIVE) when you're next in there.
