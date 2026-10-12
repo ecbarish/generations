@@ -25,6 +25,18 @@ function bounds(image, predicate, region={x:0,y:0,width:image.width,height:image
   }
   return count ? {x:left,y:top,width:right-left+1,height:bottom-top+1,count} : null;
 }
+function addedTextPixels(before,after,region) {
+  assert(before.width===after.width&&before.height===after.height,'Text comparison needs equal-size rendered frames');
+  let count=0;
+  for(let y=Math.ceil(region.y);y<Math.floor(region.y+region.height);y++)for(let x=Math.ceil(region.x);x<Math.floor(region.x+region.width);x++) {
+    const i=(y*after.width+x)*4,a=after.data,b=before.data;
+    // Actual small font coverage is antialiased below its nominal #f4efe4 label colour.
+    // Require newly bright, near-neutral pixels relative to the same static UI region.
+    if(Math.min(a[i],a[i+1],a[i+2])>=120 && Math.max(a[i],a[i+1],a[i+2])-Math.min(a[i],a[i+1],a[i+2])<50 &&
+      a[i]+a[i+1]+a[i+2]-b[i]-b[i+1]-b[i+2]>60)count++;
+  }
+  return count;
+}
 const painted = (im,region) => bounds(im,(r,g,b,a)=>a>0&&Math.max(r,g,b)>4,region);
 const cream = (r,g,b) => r>=225 && g>=219 && b>=203 && Math.abs(r-g)<32;
 const gold = (r,g,b) => r>155 && g>120 && b<140 && r>b*1.45 && g>b*1.3;
@@ -53,7 +65,7 @@ fs.mkdirSync(path.join(out,'screens'),{recursive:true});
 const report={started:new Date().toISOString(),source:process.env.SOURCE_SHA||null,base:process.env.BASE_SHA||null,
   scope:'Chromium Android/iPhone UA, touch, viewport and DPR emulation; not physical devices or Safari/WebKit.',
   limitations:['Existing dialogue panels consume taps; dialogue is advanced with the supported open-world tap below the panel. This scaling test does not change dialogue input handling.','Text evidence is rendered glyph/panel pixels and full-resolution screenshots, not automated OCR or a human readability rating.'],
-  checks:[],captures:[],sessions:[],saves:[],errors:[],packs:{}};
+  checks:[],captures:[],sessions:[],saves:[],textTransitions:[],errors:[],packs:{}};
 const write=()=>fs.writeFileSync(path.join(out,'web-review.json'),JSON.stringify(report,null,2)+'\n');
 const check=(ok,message)=>{assert(ok,message);report.checks.push(message);console.log('PASS',message);write();};
 const hash=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -165,14 +177,18 @@ async function fresh(g,tag) {
   return c;
 }
 async function toggleGoals(g,tag,c) {
-  const count=img=>bounds(img,cream,logicalRegion(c.frame,5,23,374,48))?.count||0;
-  const before=count(c.im);
+  const region=logicalRegion(c.frame,5,23,374,48),minimum=80*c.entry.scale*c.entry.scale;
   await pressAt(g,uiPoint(c,20,17));
   const shown=await capture(g,tag+'-goals-shown',{goal:true});
-  check(count(shown.im)>before+20*c.entry.scale*c.entry.scale,tag+' goal-line input renders additional text glyphs');
+  const added=addedTextPixels(c.im,shown.im,region);
+  check(added>minimum,tag+' goal-line input renders additional text glyphs ('+added+' changed pixels)');
   await waitSave(g,d=>d.hints.goals===true,tag+' goal-line input persists its acknowledgement');
   await pressAt(g,uiPoint(shown,20,17));
-  return capture(g,tag+'-goals-hidden',{goal:true});
+  const hidden=await capture(g,tag+'-goals-hidden',{goal:true});
+  const removed=addedTextPixels(hidden.im,shown.im,region);
+  check(removed>minimum,tag+' second goal-line input hides the extra text ('+removed+' changed pixels)');
+  report.textTransitions.push({tag,added,removed,minimum,region});write();
+  return hidden;
 }
 async function walk(g,tag,target,me) {
   const size=g.page.viewportSize(), scale=g.platform==='desktop'?Math.max(1,Math.floor(Math.min(size.width/384,size.height/216))):Math.min(size.width/384,size.height/216);
