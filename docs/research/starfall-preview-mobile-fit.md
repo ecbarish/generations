@@ -17,3 +17,21 @@ The PR222-only read-only workflow verifies the exact committed pack hash/size, s
 After merging, the existing Pages verification workflow checks the public build manifest and independently hashes index.html, index.js, index.wasm and index.pck. The final deployment SHA, verification run and live result will be recorded in PR #222. No claim of being live is made before this gate passes.
 
 The source-review screenshots and limits remain [here](../screenshots/starfall-mobile-fit/README.md): Chromium mobile emulation is not a physical device or Safari test, aspect bars remain, and the existing dialogue-panel input quirk is unchanged. No new gameplay, camera, save format or engine change is part of this release.
+
+
+## Verified live result — 2026-10-12
+
+Preview PR #222 merged as `95b1655f894d4b8fbe139144907325fe0dda6bc1` after [all 19 suites](https://github.com/ecbarish/idle-arcade/actions/runs/38260286667) and [exact committed-pack review](https://github.com/ecbarish/idle-arcade/actions/runs/38260286755) passed on head `cd2b8f7b3d7cb9c937aa466be22c7fc9fdd60bf0`. The latter passed 1,429 checks / 136 screenshots; artifact 11752009873 retains full evidence.
+
+[Pages deployment](https://github.com/ecbarish/idle-arcade/actions/runs/38262092537), [post-merge all-suite checks](https://github.com/ecbarish/idle-arcade/actions/runs/38262093297) and [live verification](https://github.com/ecbarish/idle-arcade/actions/runs/38262093152) all passed for that exact merge. At **2026-10-12 14:21:59 UTC**, the public build metadata and all four file hashes exactly matched the reviewed release. [Original downloaded live verification JSON](starfall-mobile-live-verification.json); artifact 11753031931.
+
+Live: https://ecbarish.github.io/idle-arcade/play/starfall/
+
+| Public file | Bytes | Verified SHA-256 |
+|---|---:|---|
+| index.html | 5,486 | 984c3e1f3f9b72ae625991c7cf4e4a0c8558e19f19a7fcaad0818973631ad61d |
+| index.js | 279,815 | 33c94cb3175f3333b82e2a3be5e8e86f77986f0aa2042b1631f6367a4e5bb6ba |
+| index.pck | 3,194,852 | 30e2e6382740bcddc783f73aa7831138bf5aa638c4e6bc3792b8225172c6b8b8 |
+| index.wasm | 39,514,754 | fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0 |
+
+Existing open tabs need a refresh to load the new pack; the save location and format are unchanged. The final COMMS entry records these results without replacing other contributors' messages. Implementation/release commits use the verified abarish-dev noreply author and committer; GitHub-generated merge commits have that noreply author and GitHub's standard `noreply@github.com` service committer.

@@ -102,6 +102,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-12 Codex (Adam / abarish-dev): Starfall mobile fit is live: source #221 (`1a37f695`), exact preview #222 (`95b1655`). All 19 suites, 1,429 exact-pack browser checks / 136 captures, Pages and public manifest/four-file hashes pass; [verified release and COMMS handoff](docs/research/starfall-preview-mobile-fit.md).
 - 2026-10-12 Codex (Adam / abarish-dev): Adam approved publishing mobile fit; source [#221](https://github.com/ecbarish/idle-arcade/pull/221) merged as `1a37f695`. Exact tested pack staged in [#222](https://github.com/ecbarish/idle-arcade/pull/222), with committed-byte browser checks and Pages/live hashes as release gates; [record](docs/research/starfall-preview-mobile-fit.md).
 - 2026-10-12 Codex (Adam / abarish-dev): SF-MOBILE-FIT in draft [#221](https://github.com/ecbarish/idle-arcade/pull/221): phones use fractional aspect-fit, desktop keeps integer pixels; camera and saves unchanged. 1,406 exported-browser checks / 136 captures and all 19 suites pass; [evidence](docs/screenshots/starfall-mobile-fit/README.md). Final-head checks gate review; not merged or published.
 - 2026-10-12 Claude (sports thread): Diamond Manager v0.8.1: balls in play keep a watchable pace at Fast and Very fast, infielders react, first baseman covers, batter runs it out (Evan saw only strikeouts at speed).
