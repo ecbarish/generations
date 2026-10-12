@@ -46,7 +46,7 @@ edit the GDScript and data too; if its environment can't run Godot, Claude runs 
 *Editor > Manage Export Templates > Download and Install*. After that, Claude can build it any time:
 `powershell -File tools\godot-build.ps1`.
 - **A link (recommended):** the web build goes to `play/wildbond/` on the arcade site, so friends open
-  `https://ecbarish.github.io/idle-arcade/play/wildbond/` in a desktop browser. Nothing to install. Mouse clicks work
+  `https://ecbarish.github.io/generations/play/wildbond/` in a desktop browser. Nothing to install. Mouse clicks work
   (click to walk); phones will need on-screen touch controls polished first.
 - **A file:** `wildbond-godot\export\Wildbond-trial-windows.zip` holds one .exe. Windows warns about an unknown
   publisher (we don't pay for code signing): *More info > Run anyway*.

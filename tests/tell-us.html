@@ -15,7 +15,7 @@ document.querySelector('#run').onclick=async()=>{const sum=document.querySelecto
    await until(()=>w.Feedback&&w.Feedback.current);btn.click();const row=await until(()=>d.querySelector('.arc-tell'),3000);check(name+': Settings shows a "Tell us" row',!!row);
    const links=[...row.querySelectorAll('a[data-tell]')];check(name+': three Tell us links',links.length===3);
    for(const a of links){const u=new URL(a.href),form=u.searchParams.get('template'),game=u.searchParams.get('game'),ctx=u.searchParams.get('context')||'';
-    check(name+' '+form+': opens a new issue on the arcade repo in a new tab',u.origin+u.pathname==='https://github.com/ecbarish/idle-arcade/issues/new'&&a.target==='_blank'&&/noopener/.test(a.rel));
+    check(name+' '+form+': opens a new issue on the arcade repo in a new tab',u.origin+u.pathname==='https://github.com/ecbarish/generations/issues/new'&&a.target==='_blank'&&/noopener/.test(a.rel));
     check(name+' '+form+': game is prefilled and matches the form',game===name&&(options[form]||[]).includes(game));
     check(name+' '+form+': version is prefilled',/^(v\d+\.\d+|test version)/.test(ctx));
     check(name+' '+form+': no save data in the link',ctx.length<200&&!/[{}]/.test(ctx));}

@@ -16,7 +16,7 @@ another). You don't need to know how to program: your AI does the work, and this
 ## 2. Paste this to your AI to start every session
 
 ```
-You are helping with github.com/ecbarish/idle-arcade as a guest contributor (lane X).
+You are helping with github.com/ecbarish/generations as a guest contributor (lane X).
 Read, in this order: CONTRIBUTING.md, docs/PROCESS.md (how to claim, submit and merge), docs/GOALS.md (where each game
 is heading), START-HERE.md,
 docs/PRIORITIES.md, docs/QUEUE.md ("Who works where", "Heavy lifting", "The road ahead", "Lane X" and "When the road
@@ -37,7 +37,7 @@ Explain everything to me in plain words; I'm not a programmer.
 3. GitHub runs the automatic checks (a green tick means they passed).
 4. When it's ready, your AI (or any other AI on the project) goes through the self-check in docs/PROCESS.md, writes
    it as a comment, and merges. Its own pull requests included; there is no waiting for a reviewer.
-5. Once merged, the change is live at https://ecbarish.github.io/idle-arcade/ within a few minutes.
+5. Once merged, the change is live at https://ecbarish.github.io/generations/ within a few minutes.
 
 ## 4. The few rules that matter
 

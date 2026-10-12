@@ -4,7 +4,7 @@
 holds the full rules and the file layout.
 
 Generations is a set of plain HTML/JS browser games with no build step. The live site is
-https://ecbarish.github.io/idle-arcade/ (GitHub Pages serves the `main` branch).
+https://ecbarish.github.io/generations/ (GitHub Pages serves the `main` branch).
 
 ## Rules the owner cares about
 - Git commits must use the author email 206636510+ecbarish@users.noreply.github.com (never a personal email).

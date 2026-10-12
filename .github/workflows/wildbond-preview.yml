@@ -73,7 +73,7 @@ jobs:
           persist-credentials: false
       - name: Wait for the exact reviewed bytes on the official Pages preview
         env:
-          LIVE_PREVIEW_URL: https://ecbarish.github.io/idle-arcade/play/wildbond/
+          LIVE_PREVIEW_URL: https://ecbarish.github.io/generations/play/wildbond/
         run: python3 tools/wildbond-preview-live.py
       - uses: actions/upload-artifact@v4
         if: always()

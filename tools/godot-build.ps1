@@ -1,5 +1,5 @@
 # Builds the Wildbond Godot trial for sharing:
-#   Web:     play/wildbond/ (a page friends open from the arcade site: https://ecbarish.github.io/idle-arcade/play/wildbond/)
+#   Web:     play/wildbond/ (a page friends open from the arcade site: https://ecbarish.github.io/generations/play/wildbond/)
 #   Windows: wildbond-godot/export/Wildbond.exe (one file to zip and send)
 # Needs Godot's export templates once: in Godot, Editor > Manage Export Templates > Download and Install.
 # Usage: powershell -NoProfile -ExecutionPolicy Bypass -File tools\godot-build.ps1 [-Target Web|Windows|All]
@@ -18,7 +18,7 @@ if (-not (Test-Path $templates)) {
 if ($Target -in 'Web', 'All') {
   New-Item -ItemType Directory -Force (Join-Path $root 'play\wildbond') | Out-Null
   & $godot.FullName --headless --path $proj --export-release 'Web' (Join-Path $root 'play\wildbond\index.html')
-  Write-Output 'Web build: play\wildbond\ (commit and push it, then share https://ecbarish.github.io/idle-arcade/play/wildbond/)'
+  Write-Output 'Web build: play\wildbond\ (commit and push it, then share https://ecbarish.github.io/generations/play/wildbond/)'
 }
 if ($Target -in 'Windows', 'All') {
   New-Item -ItemType Directory -Force (Join-Path $proj 'export') | Out-Null
