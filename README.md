@@ -39,6 +39,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Unreleased, SF-MOBILE-FIT ([draft #221](https://github.com/ecbarish/idle-arcade/pull/221)): Starfall phones use fractional aspect-fit while desktop retains integer pixel scaling; unchanged camera, controls and saves. [Rendered review](docs/screenshots/starfall-mobile-fit/README.md). Source only; web preview not published.
+
 - Realmbound v1.9.0 (2026-10-12, RB1.11): encounters wait for your order, Focus pauses rather than taking over, Auto is earned on out-levelled roads, and time away grants rested XP only (PR #218; version bumped on merge).
 
 - Realmbound v1.8.1 (2026-10-11): first-session fixes: Focus keeps town visits manual, Map explains blocked travel and the carried Journal shows ready requests (RB-PLAY1, PR #214; version bumped on merge).

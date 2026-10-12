@@ -57,6 +57,7 @@ if(process.argv.includes('--self-test')) {
   const im=PNG.sync.read(fs.readFileSync(path.join(root,'docs/screenshots/starfall-opening-view/after-812x375-welcome.png')));
   const f=painted(im);assert.deepEqual([f.x,f.y,f.width,f.height],[214,79,384,216]);
   const d=dialogueBounds(im,f);assert(d&&d.width>=235&&d.width<=240&&d.height>20);
+  assert.equal(addedTextPixels(im,im,{x:0,y:0,width:im.width,height:im.height}),0,'Identical frames cannot count as newly rendered text');
   console.log('PASS: screenshot pixel decoder finds the real 384x216 integer-scale witness and dialogue panel');
   process.exit(0);
 }
@@ -105,6 +106,7 @@ async function open(browser,platform,size,{before=false,fixture=null,instrument=
   await ready(page);
   const actual=await page.evaluate(()=>({userAgent:navigator.userAgent,touchPoints:navigator.maxTouchPoints,dpr:devicePixelRatio,innerWidth,innerHeight}));
   check(actual.userAgent===profiles[platform].userAgent,platform+' uses the intended host UA');
+  check(actual.dpr===dpr,platform+' uses the intended device pixel ratio '+dpr);
   check(actual.innerWidth===size.width&&actual.innerHeight===size.height,platform+' uses the intended CSS viewport');
   if(platform!=='desktop')check(actual.touchPoints>0,platform+' emulates touch input');
   check(errors.length===0,platform+' '+size.width+'x'+size.height+' engine starts without script errors');

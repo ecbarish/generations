@@ -1,0 +1,642 @@
+{
+  "source": "9bf2a446cc8f529fe807625870a682bdd1b1e726",
+  "base": "2da704145f43c24cf204244d43624fc4bea31597",
+  "scope": "Chromium Android/iPhone UA, touch, viewport and DPR emulation; not physical devices or Safari/WebKit.",
+  "limitations": [
+    "Existing dialogue panels consume taps; dialogue is advanced with the supported open-world tap below the panel. This scaling test does not change dialogue input handling.",
+    "Text evidence is rendered glyph/panel pixels and full-resolution screenshots, not automated OCR or a human readability rating."
+  ],
+  "passed": true,
+  "started": "2026-10-12T13:17:25.529Z",
+  "finished": "2026-10-12T13:27:31.247Z",
+  "packs": {
+    "before": {
+      "bytes": 3194932,
+      "sha256": "350a333c6894a29c8640b0736f3994424c8082ef5e5f75da0695b84a55f02dc9"
+    },
+    "after": {
+      "bytes": 3194852,
+      "sha256": "8b7af18cc0be0ba6aec5b2e93e628b3b411596cc8ce292842c0d9ea90826012f"
+    }
+  },
+  "previewBytes": {
+    "index.js": "33c94cb3175f3333b82e2a3be5e8e86f77986f0aa2042b1631f6367a4e5bb6ba",
+    "index.wasm": "fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0",
+    "index.html": "9b6385c773516a7aeeda754f759b903d5e12a881447743e1cb79b777b84a9f82",
+    "index.pck": "f8aacde0c490517cc070721d64378cab0fd8dbd070e7bf2c5db00db9c0a585d5"
+  },
+  "errors": [],
+  "textTransitions": [
+    {
+      "tag": "android-375x812-dpr1",
+      "added": 1594,
+      "removed": 1594,
+      "minimum": 76.2939453125,
+      "region": {
+        "x": 4.8828125,
+        "y": 323.3611111111111,
+        "width": 365.234375,
+        "height": 46.666666666666664
+      }
+    },
+    {
+      "tag": "android-375x812-dpr1-resize-0-812x375",
+      "added": 4504,
+      "removed": 4504,
+      "minimum": 241.1265432098765,
+      "region": {
+        "x": 81.671875,
+        "y": 39.93055555555556,
+        "width": 648.65625,
+        "height": 83.33333333333333
+      }
+    },
+    {
+      "tag": "android-375x812-dpr1-resize-4-375x738",
+      "added": 1594,
+      "removed": 1594,
+      "minimum": 76.2939453125,
+      "region": {
+        "x": 4.8828125,
+        "y": 286.3611111111111,
+        "width": 365.234375,
+        "height": 46.666666666666664
+      }
+    },
+    {
+      "tag": "android-375x812-dpr1-resize-6-812x375",
+      "added": 4504,
+      "removed": 4504,
+      "minimum": 241.1265432098765,
+      "region": {
+        "x": 81.671875,
+        "y": 39.93055555555556,
+        "width": 648.65625,
+        "height": 83.33333333333333
+      }
+    },
+    {
+      "tag": "android-393x851-dpr3",
+      "added": 1533,
+      "removed": 1533,
+      "minimum": 83.7939453125,
+      "region": {
+        "x": 5.1171875,
+        "y": 338.5324074074074,
+        "width": 382.765625,
+        "height": 49.111111111111114
+      }
+    },
+    {
+      "tag": "android-393x851-dpr3-resize-0-851x393",
+      "added": 4576,
+      "removed": 4576,
+      "minimum": 264.8302469135802,
+      "region": {
+        "x": 85.1015625,
+        "y": 41.84722222222222,
+        "width": 680.796875,
+        "height": 87.33333333333333
+      }
+    },
+    {
+      "tag": "android-393x851-dpr3-resize-4-393x777",
+      "added": 1533,
+      "removed": 1533,
+      "minimum": 83.7939453125,
+      "region": {
+        "x": 5.1171875,
+        "y": 301.5324074074074,
+        "width": 382.765625,
+        "height": 49.111111111111114
+      }
+    },
+    {
+      "tag": "android-393x851-dpr3-resize-6-851x393",
+      "added": 4576,
+      "removed": 4576,
+      "minimum": 264.8302469135802,
+      "region": {
+        "x": 85.1015625,
+        "y": 41.84722222222222,
+        "width": 680.796875,
+        "height": 87.33333333333333
+      }
+    },
+    {
+      "tag": "ios-375x812-dpr1",
+      "added": 1594,
+      "removed": 1594,
+      "minimum": 76.2939453125,
+      "region": {
+        "x": 4.8828125,
+        "y": 323.3611111111111,
+        "width": 365.234375,
+        "height": 46.666666666666664
+      }
+    },
+    {
+      "tag": "ios-375x812-dpr1-resize-0-812x375",
+      "added": 4504,
+      "removed": 4504,
+      "minimum": 241.1265432098765,
+      "region": {
+        "x": 81.671875,
+        "y": 39.93055555555556,
+        "width": 648.65625,
+        "height": 83.33333333333333
+      }
+    },
+    {
+      "tag": "ios-375x812-dpr1-resize-4-375x738",
+      "added": 1594,
+      "removed": 1594,
+      "minimum": 76.2939453125,
+      "region": {
+        "x": 4.8828125,
+        "y": 286.3611111111111,
+        "width": 365.234375,
+        "height": 46.666666666666664
+      }
+    },
+    {
+      "tag": "ios-375x812-dpr1-resize-6-812x375",
+      "added": 4504,
+      "removed": 4504,
+      "minimum": 241.1265432098765,
+      "region": {
+        "x": 81.671875,
+        "y": 39.93055555555556,
+        "width": 648.65625,
+        "height": 83.33333333333333
+      }
+    },
+    {
+      "tag": "ios-393x851-dpr3",
+      "added": 1533,
+      "removed": 1533,
+      "minimum": 83.7939453125,
+      "region": {
+        "x": 5.1171875,
+        "y": 338.5324074074074,
+        "width": 382.765625,
+        "height": 49.111111111111114
+      }
+    },
+    {
+      "tag": "ios-393x851-dpr3-resize-0-851x393",
+      "added": 4576,
+      "removed": 4576,
+      "minimum": 264.8302469135802,
+      "region": {
+        "x": 85.1015625,
+        "y": 41.84722222222222,
+        "width": 680.796875,
+        "height": 87.33333333333333
+      }
+    },
+    {
+      "tag": "ios-393x851-dpr3-resize-4-393x777",
+      "added": 1533,
+      "removed": 1533,
+      "minimum": 83.7939453125,
+      "region": {
+        "x": 5.1171875,
+        "y": 301.5324074074074,
+        "width": 382.765625,
+        "height": 49.111111111111114
+      }
+    },
+    {
+      "tag": "ios-393x851-dpr3-resize-6-851x393",
+      "added": 4576,
+      "removed": 4576,
+      "minimum": 264.8302469135802,
+      "region": {
+        "x": 85.1015625,
+        "y": 41.84722222222222,
+        "width": 680.796875,
+        "height": 87.33333333333333
+      }
+    },
+    {
+      "tag": "desktop-1366x768",
+      "added": 12858,
+      "removed": 12858,
+      "minimum": 720,
+      "region": {
+        "x": 122,
+        "y": 129,
+        "width": 1122,
+        "height": 144
+      }
+    },
+    {
+      "tag": "desktop-1920x1080",
+      "added": 34033,
+      "removed": 34033,
+      "minimum": 2000,
+      "region": {
+        "x": 25,
+        "y": 115,
+        "width": 1870,
+        "height": 240
+      }
+    },
+    {
+      "tag": "desktop-3440x1440",
+      "added": 49203,
+      "removed": 49203,
+      "minimum": 2880,
+      "region": {
+        "x": 598,
+        "y": 210,
+        "width": 2244,
+        "height": 288
+      }
+    }
+  ],
+  "run": "https://github.com/ecbarish/idle-arcade/actions/runs/38254467520",
+  "artifact_id": 11749657446,
+  "artifact_expires": "2027-01-10",
+  "checks": 1406,
+  "screenshots": 136,
+  "sessions": 23,
+  "save_assertions": 71,
+  "full_report_sha256": "70bfaeb7bd322ce3beeac6d344220064186d9f7752ea018c5a99dbe9c3f51103",
+  "source_tree": "cb5e9d7955b9d535f386cad988065d9777b7a07f",
+  "selected_captures": [
+    {
+      "name": "android-dpr2.75-before-landscape.png",
+      "platform": "android",
+      "before": true,
+      "dpr": 2.75,
+      "viewport": {
+        "width": 812,
+        "height": 375
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 812,
+        "height": 374
+      },
+      "backing": {
+        "width": 2233,
+        "height": 1031
+      },
+      "frame": {
+        "x": 127,
+        "y": 30,
+        "width": 559,
+        "height": 314,
+        "count": 175526
+      },
+      "expected": {
+        "x": 126.72727272727275,
+        "y": 30.290009699321047,
+        "width": 558.5454545454545,
+        "height": 313.4199806013579
+      },
+      "scale": 1.4510184287099903,
+      "goalPixels": null,
+      "dialogue": {
+        "x": 233,
+        "y": 283,
+        "width": 346,
+        "height": 47,
+        "count": 13657
+      },
+      "textSizeCss": {
+        "status": 11.608147429679923,
+        "goal": 10.157129000969933,
+        "dialogue": 11.608147429679923
+      }
+    },
+    {
+      "name": "android-dpr2.75-after-landscape.png",
+      "platform": "android",
+      "before": false,
+      "dpr": 2.75,
+      "viewport": {
+        "width": 812,
+        "height": 375
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 812,
+        "height": 374
+      },
+      "backing": {
+        "width": 2233,
+        "height": 1031
+      },
+      "frame": {
+        "x": 73,
+        "y": 0,
+        "width": 666,
+        "height": 374,
+        "count": 249084
+      },
+      "expected": {
+        "x": 72.74747474747477,
+        "y": 0,
+        "width": 666.5050505050505,
+        "height": 374
+      },
+      "scale": 1.7314814814814814,
+      "goalPixels": null,
+      "dialogue": {
+        "x": 200,
+        "y": 302,
+        "width": 412,
+        "height": 56,
+        "count": 20008
+      },
+      "textSizeCss": {
+        "status": 13.851851851851851,
+        "goal": 12.12037037037037,
+        "dialogue": 13.851851851851851
+      }
+    },
+    {
+      "name": "android-dpr2.75-after-portrait.png",
+      "platform": "android",
+      "before": false,
+      "dpr": 2.75,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 374,
+        "height": 812
+      },
+      "backing": {
+        "width": 1031,
+        "height": 2233
+      },
+      "frame": {
+        "x": 0,
+        "y": 301,
+        "width": 374,
+        "height": 210,
+        "count": 78540
+      },
+      "expected": {
+        "x": 0,
+        "y": 300.5568181818182,
+        "width": 374,
+        "height": 210.88636363636365
+      },
+      "scale": 0.9739583333333334,
+      "goalPixels": null,
+      "dialogue": {
+        "x": 71,
+        "y": 471,
+        "width": 232,
+        "height": 31,
+        "count": 5721
+      },
+      "textSizeCss": {
+        "status": 7.791666666666667,
+        "goal": 6.817708333333334,
+        "dialogue": 7.791666666666667
+      }
+    },
+    {
+      "name": "ios-393x851-dpr3-resize-0-851x393-goals-shown.png",
+      "platform": "ios",
+      "before": false,
+      "dpr": 3,
+      "viewport": {
+        "width": 851,
+        "height": 393
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 851,
+        "height": 393
+      },
+      "backing": {
+        "width": 2553,
+        "height": 1179
+      },
+      "frame": {
+        "x": 76,
+        "y": 0,
+        "width": 699,
+        "height": 393,
+        "count": 274707
+      },
+      "expected": {
+        "x": 76.16666666666674,
+        "y": 0,
+        "width": 698.6666666666665,
+        "height": 393
+      },
+      "scale": 1.8194444444444442,
+      "goalPixels": {
+        "x": 89,
+        "y": 24,
+        "width": 664,
+        "height": 17,
+        "count": 1420
+      },
+      "dialogue": {
+        "x": 95,
+        "y": 75,
+        "width": 557,
+        "height": 1,
+        "count": 237
+      },
+      "textSizeCss": {
+        "status": 14.555555555555554,
+        "goal": 12.736111111111109,
+        "dialogue": 14.555555555555554
+      }
+    },
+    {
+      "name": "desktop-1366x768-before.png",
+      "platform": "desktop",
+      "before": true,
+      "dpr": 1,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 768
+      },
+      "backing": {
+        "width": 1366,
+        "height": 768
+      },
+      "frame": {
+        "x": 107,
+        "y": 60,
+        "width": 1152,
+        "height": 648,
+        "count": 746496
+      },
+      "expected": {
+        "x": 107,
+        "y": 60,
+        "width": 1152,
+        "height": 648
+      },
+      "scale": 3,
+      "goalPixels": null,
+      "dialogue": {
+        "x": 326,
+        "y": 582,
+        "width": 714,
+        "height": 99,
+        "count": 61611
+      },
+      "textSizeCss": {
+        "status": 24,
+        "goal": 21,
+        "dialogue": 24
+      }
+    },
+    {
+      "name": "desktop-1366x768-after.png",
+      "platform": "desktop",
+      "before": false,
+      "dpr": 1,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 768
+      },
+      "backing": {
+        "width": 1366,
+        "height": 768
+      },
+      "frame": {
+        "x": 107,
+        "y": 60,
+        "width": 1152,
+        "height": 648,
+        "count": 746496
+      },
+      "expected": {
+        "x": 107,
+        "y": 60,
+        "width": 1152,
+        "height": 648
+      },
+      "scale": 3,
+      "goalPixels": null,
+      "dialogue": {
+        "x": 326,
+        "y": 582,
+        "width": 714,
+        "height": 99,
+        "count": 61612
+      },
+      "textSizeCss": {
+        "status": 24,
+        "goal": 21,
+        "dialogue": 24
+      }
+    },
+    {
+      "name": "android-legacy-loaded.png",
+      "platform": "android",
+      "before": false,
+      "dpr": 1,
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 375,
+        "height": 812
+      },
+      "backing": {
+        "width": 375,
+        "height": 812
+      },
+      "frame": {
+        "x": 0,
+        "y": 301,
+        "width": 375,
+        "height": 210,
+        "count": 78750
+      },
+      "expected": {
+        "x": 0,
+        "y": 300.53125,
+        "width": 375,
+        "height": 210.9375
+      },
+      "scale": 0.9765625,
+      "goalPixels": {
+        "x": 7,
+        "y": 317,
+        "width": 241,
+        "height": 6,
+        "count": 225
+      },
+      "dialogue": null,
+      "textSizeCss": {
+        "status": 7.8125,
+        "goal": 6.8359375,
+        "dialogue": 7.8125
+      }
+    }
+  ],
+  "selected_files": [
+    {
+      "name": "android-dpr2.75-before-landscape.png",
+      "sha256": "e7d9f4cd288828ae27732fde452a3a786054d0d258c6fe7c19650a0535456752",
+      "bytes": 69439
+    },
+    {
+      "name": "android-dpr2.75-after-landscape.png",
+      "sha256": "6aed828bb7af77d5f0c870ef3871f369ec54a538d87ee40f09daaf9c6cc7ea94",
+      "bytes": 74134
+    },
+    {
+      "name": "android-dpr2.75-after-portrait.png",
+      "sha256": "3b9e6d5f9aceb582d09c7e698d602bd890098e36e9275f696c7505e01edeaff4",
+      "bytes": 49175
+    },
+    {
+      "name": "ios-393x851-dpr3-resize-0-851x393-goals-shown.png",
+      "sha256": "6518d709289e682caf0128cf5f0cdf83b4bdf03ce051f60dd648e21c2cc7f11e",
+      "bytes": 59236
+    },
+    {
+      "name": "desktop-1366x768-before.png",
+      "sha256": "a1beea39583068df66b1c4f13256a94092ae369628cf7e8e0c06ac0c8ce3da0a",
+      "bytes": 52748
+    },
+    {
+      "name": "desktop-1366x768-after.png",
+      "sha256": "24875c7da01c152cd0255d2ab7e9e4b421cc4ea3a7ac092de0b7caa8097f168d",
+      "bytes": 52822
+    },
+    {
+      "name": "android-legacy-loaded.png",
+      "sha256": "d3f4a678414c116b49118d20f3ea1f7d49410f343ca7a50f7c24dbc4b47d1f93",
+      "bytes": 25639
+    }
+  ]
+}
