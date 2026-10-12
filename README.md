@@ -39,6 +39,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Realmbound (2026-10-12, RB1.11): encounters wait for your order, Focus pauses rather than taking over, Auto is earned on out-levelled roads, and time away grants rested XP only (PR #218).
+
 - 2026-10-11: Realmbound first-session fixes: Focus keeps town visits manual, Map explains blocked travel and the carried Journal shows ready requests (RB-PLAY1, PR #214; no new raid/version bump).
 
 - Godot Starfall (2026-10-11, SF2.10): Starfall says what to do next. After the opening a goal line under the status bar names the nearest thing within reach (pin a request, serve meals until Bryn offers, the next rank, an empty plot, someone waiting for a word, a member's story, the next helper to earn) and counts down as you play; G or a tap on it lists the next three. The keys are shown the first time you need them and go once used. Old saves skip the key hints. 230 checks pass; web preview rebuilt.

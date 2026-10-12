@@ -12,6 +12,7 @@ function boot(){
   for(const k of ['kills','deaths','loots','junkSold','quests','equips','manual','uses','play','money','feeds','tamed'])h.stats[k]=h.stats[k]||0;
   h.pets=h.pets||[];if(h.activePet===undefined)h.activePet=null;h.riding=h.riding||0;h.mounts=h.mounts||[];if(h.mount===undefined)h.mount=null;
   if(!h.npcs)h.npcs=genNpcs(h.faction);h.party=h.party||[];if(h.dun===undefined)h.dun=null;migrateDungeons(h);
+  h.mode='focus'; // loading never resumes delegated combat without a choice
   recalc();C=freshC();C.hp=h.cur?Math.min(ST.hpMax,h.cur.hp):ST.hpMax;C.res=h.cur?Math.min(ST.resMax,h.cur.res):(CLASSES[h.cls].res==='mana'?ST.resMax:0);if(C.hp<=0)C.hp=ST.hpMax*.5;
   syncParty();
   closeModal();curKey=null;buildSlots();supplyCheckIn();updateWorld();beginArrival(false);
@@ -26,14 +27,18 @@ function start(data){
   if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({S:JSON.parse(JSON.stringify(S))}));}catch(e){}}
   setupFeedback('Realmbound', VERSION, () => { const h = H(); if (!h) return 'Not started'; return `${ZONES[h.zone] ? ZONES[h.zone].name : h.zone}, level ${h.lvl} ${CLASSES[h.cls] ? CLASSES[h.cls].name : h.cls}`; }); // the Feedback menu (shared/feedback.js)
   resize();
-  let lastT=performance.now(),uiT=0,chk=0;
-  setInterval(()=>{const t=performance.now();let dt=(t-lastT)/1000;lastT=t;if(!H()||!C)return;
-    if(dt>60){const r=realmRoadActive()?null:offline(dt);if(r&&!modalKind)openModal('offline',offlineHTML(r));dt=0;}
+  let lastT=performance.now(),uiT=0,chk=0,hiddenAt=null;
+  setInterval(()=>{const t=performance.now();let dt=(t-lastT)/1000;lastT=t;if(document.hidden||!H()||!C)return;
+    if(dt>60){H().mode='focus';C.lastInput=-99;const r=realmRoadActive()?null:offline(dt);if(r&&!modalKind)openModal('offline',offlineHTML(r));dt=0;}
     let guard=0;while(dt>0&&guard++<700){const st=Math.min(.1,dt);dt-=st;step(st);}
     if(!realmRoadActive()&&H().addons.unl.questhelper&&H().addons.on.questhelper)questHelper();
     chk+=.1;if(chk>=1){chk=0;checkAddons();supplyTick();}
     uiT+=.1;if(uiT>=.1){uiT=0;updateWorld();}},100);
-  setInterval(save,10000);addEventListener('beforeunload',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
+  setInterval(()=>{if(!document.hidden)save();},10000);addEventListener('beforeunload',()=>{if(hiddenAt===null)save();});
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){if(H())H().mode='focus';if(C)C.lastInput=-99;save();hiddenAt=Date.now();}
+    else if(hiddenAt!==null){const sec=(Date.now()-hiddenAt)/1000;hiddenAt=null;lastT=performance.now();const r=offline(sec);if(r&&r.rested>0&&!modalKind&&!RTALK)openModal('offline',offlineHTML(r));save();}
+  });
   requestAnimationFrame(frame);
 }
 if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(start);

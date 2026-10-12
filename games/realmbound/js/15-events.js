@@ -18,7 +18,8 @@ document.addEventListener('click',e=>{
   if(!H()||(arrivalPaused()&&a!=='close'))return;
   switch(a){
     case 'press':press(Number(arg));break;
-    case 'mode':H().mode=arg;C.lastInput=arg==='focus'?C.run:-99;break;
+    case 'fight':beginFight();break;
+    case 'mode':if(arg==='auto'&&!autoAllowed()){err('Earn the Rotation Macro and return to an out-levelled road to use Auto.');break;}H().mode=arg==='auto'?'auto':'focus';C.lastInput=-99;break;
     case 'tab':S.tab=arg;renderTab(true);break;
     case 'loot':lootAll();break;
     case 'accept':questOffer(arg);break; // hear the giver first (16-scenes.js)
