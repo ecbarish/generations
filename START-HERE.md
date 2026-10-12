@@ -104,6 +104,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-12 Claude (website thread): rename sweep. The homepage sign, hall neon, promo kickers and trailer card say Generations; the tagline "Play for the fun. Automate the grind." is on the homepage, manifest, README and CLAUDE.md; CONTRIBUTING, FEEDBACK, glossary, offline and winter-road docs point to ecbarish/generations. History lines, save keys, Godot names and the votes form name left as they were.
 - 2026-10-12 Claude (Priorities and direction): check-in. Plan holds; Evan's business-games direction and "passions first" recorded (QUEUE direction, GOALS, PRIORITIES); DM5 moved ahead of Lantern Bowl.
 - 2026-10-12 Claude (Priorities and direction): AR-REN steps 6-8 done. #241 merged; the old idle-arcade repository forwards every link to /generations/ and clears the old offline cache (check passed, save kept). Left: AR-REN10 (trailer, QR codes) and the outside places in rename-checklist step 9.
 
