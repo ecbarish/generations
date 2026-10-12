@@ -1,0 +1,7 @@
+{
+  "games": 6,
+  "pitches": 24,
+  "manualHits": 1,
+  "firstTwoHits": 1,
+  "method": "Actual calendar and field pointer inputs, timing arrival at 85%, no state or pitch overrides; isolated fresh phone context."
+}

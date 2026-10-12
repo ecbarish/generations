@@ -8,7 +8,7 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| DC-N | Find and learn the first game | S | claimed: Codex, 2026-10-12 | Calendar play, first-game timing, readable dialogue and preparation return; issues #228–#230 |
+| DC-N | Find and learn the first game | S | ready: Codex, PR #247 | Calendar play, first-game timing, readable dialogue and preparation return; issues #228–#230 |
 
 ## Brisket opening accessibility
 

@@ -59,8 +59,9 @@ function resolvePitch(g,stats,p,action) {
   let quality=.38, text='The simulated batter reads the release.';
   const stance=action.stance||'contact';
   if(action.mode==='timing') {
-    const delta=action.timing-1; quality=clamp(1-Math.abs(delta)*3,0,1);
-    text=Math.abs(delta)<.10?'You met the '+p.type+' on time.':delta<0?'You were early on the '+p.type+'.':'You were late on the '+p.type+'.';
+    const delta=action.timing-1,window=action.timingWindow||.10, distance=Math.abs(delta);
+    quality=clamp(distance<=window?1-distance*.3/window:.7-(distance-window)*3,0,1);
+    text=distance<window?'You met the '+p.type+' on time.':delta<0?'You were early on the '+p.type+'.':'You were late on the '+p.type+'.';
   } else if(action.mode==='tactical') {
     const right=action.guess===p.type; quality=right?.88:.30;
     text=right?'You read the '+p.type+' correctly.':'You expected a '+action.guess+'; it was a '+p.type+'.';
