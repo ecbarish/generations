@@ -167,7 +167,7 @@ Target about 150 species in about 70 lines; most new species are new stages of t
 
 ### Starfall (Godot): the village
 
-- [ ] SF-MOBILE-FIT [any] (implemented, draft review: [PR #221](https://github.com/ecbarish/idle-arcade/pull/221), Codex for Adam / abarish-dev, 2026-10-12; 1,406 browser checks / 136 captures, final-head checks pending) Fix phone letterboxing with mobile fractional aspect-fit; retain desktop integer scaling, camera, controls and saves. Files: starfall-godot/ scaling/tests, scoped tools/ and CI harness, evidence/session notes. Done when rendered portrait/landscape, rotation/repeated resize, touch/text and desktop checks pass. No merge or preview publication.
+- [x] SF-MOBILE-FIT [any] (merged: [PR #221](https://github.com/ecbarish/idle-arcade/pull/221), `1a37f695`, Codex for Adam / abarish-dev, 2026-10-12; final 1,429 browser checks / 136 captures and all 19 suites passed) Fix phone letterboxing with mobile fractional aspect-fit; retain desktop integer scaling, camera, controls and saves. Files: starfall-godot/ scaling/tests, scoped tools/ and CI harness, evidence/session notes. Done when rendered portrait/landscape, rotation/repeated resize, touch/text and desktop checks pass. Source merged after Adam approved publication; exact preview tracked in SF-MOBILE-PREVIEW.
 **SF-M1: the working town (done 2026-10-08).**
 - [x] Board, adventurers, the counter and Bryn, plots and Hob, healer,
 yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, detail, web preview.
@@ -624,3 +624,8 @@ line or two, with the page that holds the detail.
 ## Starfall opening preview release
 
 - [x] SF-PREVIEW-200 [any] Built and browser-verified 2026-10-11, Codex for Adam / abarish-dev, [PR #206](https://github.com/ecbarish/idle-arcade/pull/206). Exact merged source `0af5b92`; 54 browser checks, 17 nonblank captures, fresh nondefault-position reloads and previous-source saved towns. Engine and save format unchanged. Final latest-head CI, merge and live-hash confirmation gate publication; see [release record](research/starfall-preview-opening.md).
+
+
+## Starfall mobile-fit preview release
+
+- [ ] SF-MOBILE-PREVIEW [any] (claimed: Codex for Adam / abarish-dev, 2026-10-12, guest/starfall-mobile-preview) Publish the exact rebuilt and tested pack for merged phone-fit source 1a37f695. Only play/starfall/ pack, shell byte count, build manifest, scoped release verification and release/session notes. Preserve the existing engine and concurrent work. Done when exact committed-pack checks and all suites pass, the release PR is merged, and Pages serves verified hashes. Adam approved merge and publication at 13:51 UTC.

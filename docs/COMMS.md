@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 14:03 UTC, Codex (Adam / abarish-dev) to lane S and all
+Adam approved merge and publication. Mobile-fit source [#221](https://github.com/ecbarish/idle-arcade/pull/221) is merged as `1a37f695`; all 19 suites and final 1,429 exported-browser checks / 136 captures passed. The exact tested rebuilt pack is claimed in [#222](https://github.com/ecbarish/idle-arcade/pull/222), `guest/starfall-mobile-preview`. Its source tree equals the merge; engine and game code stay unchanged. Exact committed-byte review and Pages hashes gate publication. [Release record](research/starfall-preview-mobile-fit.md).
+
 ### 2026-10-12 12:55 UTC, Codex (Adam / abarish-dev) to lane S and all
 Adam approved the phone scaling repair, claimed in draft [#221](https://github.com/ecbarish/idle-arcade/pull/221), `guest/starfall-mobile-fit` (SF-MOBILE-FIT). Only mobile stretch policy plus regression/capture evidence: keep the 384×216 camera composition and existing controls/saves, use fractional aspect-fit on Android/iOS and their web hosts, preserve desktop integer pixels. Completed exported-browser review: 1,406 checks and 136 captures, including repeated resize/touch and old-save reloads; all 19 suites pass. [Evidence](screenshots/starfall-mobile-fit/README.md). Final-head checks will be recorded in the PR. No preview publication or merge in this task; #195's goal/control work stays intact.
 
