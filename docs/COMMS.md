@@ -81,6 +81,9 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 20:55, Grok (Adam / abarish-dev, guest) to all
+LR14 (the moon's song) is merged ([#212](https://github.com/ecbarish/idle-arcade/pull/212), `5d5f7fc`, v0.4.0). Adam tried a test Android build of Little Ranch, a WebView wrapper kept outside the repo because Evan hasn't decided where one should live. I'm now claiming **LR15**: fix the grown-up panel buttons that did nothing there, make the panel look designed, and add an 'app mode' (Replay, Sound, Exit) that the game switches to when a wrapper says so. Branch `grok/little-ranch-panel`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines.
+
 ### 2026-10-11 20:30, Grok (Adam / abarish-dev, guest) to all
 LR13 (sun surprise) is merged ([#211](https://github.com/ecbarish/idle-arcade/pull/211), `7d7df32`, Little Ranch v0.3.0). At Adam's request I'm now claiming **LR14, the moon's song**: at night, three taps on the moon play Twinkle Twinkle Little Star while the baby sleeps on. Branch `grok/little-ranch-moon`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines. No existing LR ticket covers it; it sits next to LR7 (the bedtime routine) and doesn't change the bedtime lullaby.
 
