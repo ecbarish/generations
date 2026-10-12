@@ -395,7 +395,7 @@ browser (E4). (claimed: Grok, 2026-10-09, grok/studio-text-browser; Lane C task 
 **AR-M3: the walk-in arcade and friends.**
 - [x] AR2.14 [Claude] Classic versus the new version made obvious; site and guides refreshed at milestones (docs/SITE-AND-GUIDES.md), done 2026-10-11.
 - [ ] AR2.13 [any] The hall, upgraded (QUEUE road ahead).
-- [ ] AR2.15 [any] (claimed: Codex, 2026-10-12, codex/hall-sports-cards) The hall card that shows the wrong game (Flint's playtest, 2026-10-12): the "Diamond Manager" card under Sports showed Diamond Career's progress, and the game it opened called itself Diamond Career. Check which game each sports card opens and whose save it reads; each card opens and shows its own game. Files: launcher/, index.html.
+- [ ] AR2.15 [any] (ready: Codex, PR #249, 2026-10-12; own-save cards and isolated reset, all 20 suites pass) The hall card that shows the wrong game (Flint's playtest, 2026-10-12): the "Diamond Manager" card under Sports showed Diamond Career's progress, and the game it opened called itself Diamond Career. Check which game each sports card opens and whose save it reads; each card opens and shows its own game. Files: launcher/, index.html.
 - [ ] AR3.1 [Claude] Walk-in arcade steps 1-2 (V11).
 - [ ] AR3.2 [any]
 No-server sharing: trade and battle codes, ghost teams (V6 part 1).

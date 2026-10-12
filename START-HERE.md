@@ -104,6 +104,8 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+
+- **2026-10-12, Codex:** AR2.15 in PR #249 separates the hall’s sports destinations and save displays; existing game saves and the mixed legacy index remain intact.
 - 2026-10-12 Claude (Priorities and direction): check-in. Plan holds; Evan's business-games direction and "passions first" recorded (QUEUE direction, GOALS, PRIORITIES); DM5 moved ahead of Lantern Bowl.
 - 2026-10-12 Claude (Priorities and direction): AR-REN steps 6-8 done. #241 merged; the old idle-arcade repository forwards every link to /generations/ and clears the old offline cache (check passed, save kept). Left: AR-REN10 (trailer, QR codes) and the outside places in rename-checklist step 9.
 

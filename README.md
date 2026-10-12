@@ -39,6 +39,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Generations hall — AR2.15 (PR #249):** Diamond Career has its own sports card; each sports card shows its own save and opens or resets the correct game.
+
 - Brisket's Crossing v0.1.3 (2026-10-12, AC3.3; version bumped on merge): visible death causes, labelled urgent timer, clear lives/session counts, and completed-run progress even when initials are skipped (PR #244).
 
 - Brisket's Crossing v0.1.2 (2026-10-12, AC3.2): wider early wagon gaps and logs, slower opening traffic and more delivery time; the first hop starts in clear road. Original challenge returns from run 4. Existing score records and controls stay compatible. [Phone before/after and checks](docs/playtests/brisket-ac3-2/README.md).

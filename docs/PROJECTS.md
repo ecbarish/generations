@@ -8,7 +8,7 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| AR2.15 | Separate Manager and Career cards | S | claimed: Codex, 2026-10-12 | Correct destinations, own-save progress and isolated reset; launcher and index only |
+| AR2.15 | Separate Manager and Career cards | S | ready: Codex, PR #249 | Correct destinations, own-save progress and isolated reset; launcher and index only |
 
 ## Brisket opening accessibility
 
