@@ -40,7 +40,8 @@ the very end, so running out of usage never strands work.
   Be *in* the world: places and people instead of menu buttons. May become an app or full game someday.
 - **Earned automation, never paywalled.** Active play is always worth at least as much as idle. **Updated 2026-10-07
   (docs/VISION.md §8):** as games deepen, automation means earned quality of life and delegating to characters (guild
-  members, ranch creatures, hired help), not skipping the fun; full Auto is for grinding and idle time.
+  members, ranch creatures, hired help), not skipping the fun. **Updated 2026-10-12 (GOALS.md "Play, not watch"):** greatly less automatic play; conveniences
+  and some delegated jobs, never a game that plays itself, no new full Auto.
 - **Games feel like games** (Evan, 2026-10-07, after playing Wildbond): the screen is the world; interactions are
   physical (walk to the shop, the trough, the person); features arrive through the story; everything is readable in
   full words; nothing plays itself. The principles in docs/wildbond-plan.md apply to every game.
@@ -87,7 +88,7 @@ the very end, so running out of usage never strands work.
 
 ## Latest owner direction and Codex handoff — 2026-10-06
 
-Read [docs/plans/README.md](docs/plans/README.md) (and START-HERE.md for current status). The plans cover six games and a broader sports framework, based on 19 comparable titles. All games should eventually support manual through full automation, with independent delegation settings. Earned automation remains the current rule; whether full Auto is available immediately is still an owner decision. Desktop and phone come first; VR is deferred.
+Read [docs/plans/README.md](docs/plans/README.md) (and START-HERE.md for current status). The plans cover six games and a broader sports framework, based on 19 comparable titles. All games should eventually support manual through full automation, with independent delegation settings (superseded 2026-10-12: no full automation, GOALS.md "Play, not watch"). Earned automation remains the current rule; whether full Auto is available immediately is still an owner decision. Desktop and phone come first; VR is deferred.
 
 Sports should support athlete careers and team management across sports. Salaries should fund lasting personal progress (homes, cars, other purchases). Baseball remains the recommended first module; do not silently unpark implementation.
 

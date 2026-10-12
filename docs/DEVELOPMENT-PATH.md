@@ -208,7 +208,7 @@ mandatory daily chores; convenience is earned. Files for each: `starfall-godot/s
   press or by Odo on his round. Gone after a day; no combat. Done when: all lit means no incident; a dark section is the
   only way in; there's never more than one a night; a hand clear and an Odo clear both work; old saves load; screenshot.
   Score 14/21 (fun 2, Evan 2, friends 2, focus 2, cheap 2).
-- [ ] SF2.10 [any] In-world goal guidance: a goal line under the status bar naming the nearest unlock with its count, in
+- [x] SF2.10 [any] (done 2026-10-11, Claude, PR #195: goals() and control_hint() in main.gd; 230 checks) In-world goal guidance: a goal line under the status bar naming the nearest unlock with its count, in
   the world's words ("Walk the walls 2 more nights: someone might ask to keep watch"; "4 more jobs: Starfall becomes a
   Village"), plus a "Next" list of the three nearest unlocks (ranks, hires, plots, story beats). Done when: it always shows
   a reachable next step, updates as counts change, works on phone width, and is checked for each kind of unlock. Fixes the
@@ -285,6 +285,12 @@ creatures as monsters. Built as first-person grid delves (docs/proposals/new-gam
 - [x] RB1.7 [ChatGPT] Realmbound inn furnishing pass (built: Codex, 2026-10-10, PR #153; awaiting review). Files: games/realmbound/js/22-hub-layouts.js, 22-town.js, tests/realmbound-inn-layout.js and run.html, screenshots and task notes. Done when sleeping, dining and hearth spaces are distinct; the entrance, Keeper and exit work by tap and keyboard; existing services and saves stay intact. Score: 17/21 (Fun now 2x2, Evan's heart 3x2, Friends notice 2, Moves the focus 2, Cheap 3). (merged: PR #153; ticked 2026-10-11 by lane P)
 - [x] RB1.8 [ChatGPT] Facing people and object-shaped shadows (built: Codex, 2026-10-10, PR #155; awaiting review). Evan's request: four-direction walking sprites and quieter foot contact shadows so existing silhouette casts read clearly, including Low quality. Files: browser Realmbound scene/town/road/light code, focused rendering checks and their run.html hookup, screenshots and notes; no shared engine or Godot edits, saves or versions. Done when walking away hides the face, NPC facing is respected, sun/lamp casts retain object shapes, side walls join as planes, a substantial flame fits a generous hearth opening, room framing is a little steeper, and all suites pass. Score 19/21 (Fun 3x2, Evan's heart 3x2, Friends notice 3, Focus 2, Cheap 2). (merged: PR #155; ticked 2026-10-11 by lane P)
 
+**RB-M1b: the first hour is fun (Evan, 2026-10-12, before anything later-game).** Evan: "we don't have any players yet and we need the game to be worth playing and fun before we push anything later game." Take these in order; RB-M2 and RB-M3 below are parked until a newcomer scores Realmbound 17+.
+- [ ] RB1.10 [any] Newcomer playtest of the first hour (character creation to about level 10), played actively with no time away, scored with docs/PLAYTEST.md. Write docs/playtests/realmbound-first-hour.md (what was fun, what was dull or confusing, with screenshots) and add the top five fixes below as RB1.12a-e lines. Done when the note and the lines are merged. Score 17/21.
+- [ ] RB1.11 [any] Play, not watch (GOALS.md rule, Evan 2026-10-12): the autopilot no longer takes over when the player pauses (`aiOn()` in games/realmbound/js/11-combat.js:46 after 15 idle seconds); Auto becomes an earned toggle only for zones the hero has out-levelled; time away gives rested XP at the inn instead of kills and loot ("kept hunting while you were away", 13-world-ui.js:174, `offline()` in 10-state.js). Keep the conveniences (auto-loot, the repair trip, batch selling). Old saves load. Done when tests/run.html passes and a newcomer's first ten minutes never show the hero fighting on its own. Score 18/21.
+- [ ] RB1.12 [any] The first hour, made fun: the fixes RB1.10 lists, one PR each (expected: fights with something to react to, hits and sounds that land, the first quest chain told by people, a first dungeon before level 10, loot worth opening). Done when the next newcomer playtest scores Realmbound 17+.
+
+**Parked until RB-M1b is done (Evan, 2026-10-12): RB-M2 and RB-M3.**
 **RB-M2: what the raid set up.**
 - [ ] RB2.1 [ChatGPT] Battlegrounds plan in docs/proposals/ (R3; new system: Evan
 approves).
@@ -336,6 +342,7 @@ rules; free local model first, as docs/otherworld-design.md says).
 **AR-M1: friends can play (done 2026-10-08).**
 - [x] Come Play, previews, trailer, Windows builds.
 **AR-M2: polish for everyone.**
+- [ ] AR2.14 [any] Play, not watch, across the arcade (GOALS.md rule, Evan 2026-10-12). Audit 2026-10-12 by lane P: Wildbond (Godot and Classic, `AUTOPILOT = false`), Starfall (helpers are delegation), Diamond Manager ("Let Iona finish the game" is a convenience), Otherworld, Little Ranch and the cabinets already follow it; Realmbound is RB1.11. Still to do, one small PR each: (a) the hall's tagline in index.html says "a stable of idle and progression games"; say what the games are instead; (b) Primordial: its "pool kept growing while you were away" becomes a small welcome-back gift to spend by playing (index.html `offline()`); (c) any AI touching a game checks its own work against the rule. Classic editions (Wildbond Classic, Starfall Guild Classic) stay as they were, as archives. Score 15/21.
 - [x] AR2.1 [ChatGPT] Accessibility (T44, L10). (merged 2026-10-09)
 - [x] AR2.2 [ChatGPT] (done, merged 2026-10-09; T46) The
 launcher shows the Godot previews as games (cards, covers, links).
