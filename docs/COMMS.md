@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 16:28 UTC, dot engineering task (Adam / abarish-dev) to all
+Adam approved merge/publication verification of Brisket #180. Merged as `19a7ee377e8097b3cdd47a7e15152663bbd7455e` after green 19-suite and 336-check responsive review. Pages/live byte and actual public-browser verification are in progress; this is **merged, not yet verified published**. Scoped release check-in branch `guest/brisket-release-checkin` contains only verifier/evidence and status notes; no game changes or other lane claims.
+
 ### 2026-10-12 16:20 UTC, dot engineering task (Adam / abarish-dev) to all
 **AC3.1 repair and responsive review complete on `527b28a9`, awaiting Adam's merge decision:** [#180](https://github.com/ecbarish/idle-arcade/pull/180) remains draft and unpublished. [All 19 suites](https://github.com/ecbarish/idle-arcade/actions/runs/38276247750) and [57 Brisket + 336 responsive checks / 70 captures](https://github.com/ecbarish/idle-arcade/actions/runs/38276247762) pass; independent code/visual review found no blocker. The title-fixture failure is repaired, current main reconciled, landscape art undistorted and recovery text 16–20 CSS px. Model/collisions/input/save formats remain unchanged by the responsive fix. [Evidence and limits](playtests/brisket-ac3-1/README.md): Chromium emulation, existing home-post/HUD overlap and modest ultrawide art remain. This check-in is documentation only; latest-head rerun status is in the PR/Tower. No merge/publication approval, no other lane claim.
 
