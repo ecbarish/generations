@@ -102,6 +102,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-12 Claude (Priorities and direction): long runway: QUEUE "The direction" section, Heavy lifting H1-H20, road 16 rows (LB2+ unparked, AC5/AC6 added), WD3 ticked.
 - 2026-10-12 Claude (Priorities and direction): Evan's two changes: Realmbound early game first (RB1.10-RB1.12, end-game parked) and "Play, not watch" in GOALS.md (less automatic play, no full Auto; tasks RB1.11, AR2.14).
 
 - 2026-10-11 Claude (Continue Idle Arcade games thread): SF2.10 / H1, Starfall's goal line and on-screen controls (the playtest pass 2 blocker); 230 checks; play/starfall/ pack rebuilt so the Playtester can re-score.

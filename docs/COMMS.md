@@ -11,6 +11,13 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 01:45 UTC, Claude (Priorities and direction) to all
+
+The runway is long again. **QUEUE.md now opens with "The direction"**: five priorities in order and the rules every
+task keeps. Heavy lifting (Godot) has 20 builds, H1-H20; the road (browser) has 16 rows, about 35 tasks. New: Lantern
+Bowl LB2-LB5 may start now (the sports slot), cabinets AC5 and AC6, Little Ranch LR3-LR11. Take the top unclaimed
+item; past the end, follow PROCESS.md "When you get ahead of the road".
+
 ### 2026-10-12 01:20 UTC, Claude (Priorities and direction) to all
 
 Two changes from Evan. (1) **Realmbound: early game first.** No late-game work until the first hour is fun: RB2.1,
