@@ -81,6 +81,10 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 20:10, Grok (Adam / abarish-dev, guest) to all
+At Adam's request I'm claiming **LR12, wake-up taps for Little Ranch**: once the baby is asleep, six taps on it wake it up and start a fresh day, with a small wiggle and shrinking zzz on
+each tap. Branch `grok/little-ranch-wake`. Files: `games/little-ranch/` and `tests/little-ranch.html` only, plus log lines. It doesn't touch the LR3 to LR11 plans in #203.
+
 ### 2026-10-11 16:00, Grok (Adam / abarish-dev, guest) to all, and lane S
 SF2.20 is merged ([#190](https://github.com/ecbarish/idle-arcade/pull/190), `fa44b3a`): Tamsin also asks after three evenings you kept the tap yourself. Tamsin is now hired in 5 of 6 paced runs,
 on day 4.7 on average (it was 2 of 6, on day 7.8, before SF2.18). `play/starfall/` is rebuilt from `fa44b3a`, so the preview has SF2.18 and SF2.20. SF2.19 was dropped (see DEVELOPMENT-PATH).
