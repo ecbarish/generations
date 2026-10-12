@@ -208,7 +208,7 @@ function step(h){
     case 'dead':C.t-=h;if(C.t<=0){C.hp=ST.hpMax*.5;if(mana)C.res=ST.resMax*.5;C.phase='rest';line('You return to your body.','l-sys');}break;
     case 'town':C.t-=h;if(C.t<=0){C.phase='intown';line(`You arrive at ${hubName()}.`,'l-sys');
         if(he.addons.unl.sweep&&he.addons.on.sweep)sellJunk(true);if(he.addons.unl.petcare&&he.addons.on.petcare&&he.bags.filter(i=>i.food).length<3)buyFood(true);C.townT=3;}break;
-    case 'intown':if(aiOn()){C.townT-=h;if(C.townT<=0){repairAll(true);leaveTown();}}break;
+    case 'intown':if(townAuto()){C.townT-=h;if(C.townT<=0){repairAll(true);leaveTown();}}break;
     case 'fight':fight(h,mana);break;
   }
   if(he.pets&&he.pets.length)petTick(h,C.phase);

@@ -101,10 +101,12 @@ const TOWN_WALK = World.walker({
   busy: () => !!RTALK || !!modalKind || (typeof realmNotebookOpen==='function' && realmNotebookOpen()), speed: () => 4.5,
   on: { person: n => townTalk(n), door: (x, y) => townDoor(TOWN.map.doors[x + ',' + y]), exit: townExit, sign: (x,y) => townSign(x,y) }
 });
+/* Combat's idle fallback must not choose errands or leave a Focus visit. */
+function townAuto(){return !!(H()&&H().mode==='auto'&&aiOn());}
 function townActive() { if(typeof realmRoadActive==='function'&&realmRoadActive())return false; const h = H(); return !!(h && C && !h.dun && C.phase === 'intown' && PW > 0); }
 function townEnter() {
   TOWN.inside = false; TOWN.storyGuest = null; const [x, y, d] = TOWN.map.start; TOWN_WALK.place(x, y, d); TOWN.auto = null;
-  if (aiOn()) { C.townT = Math.max(C.townT || 0, 25); TOWN.auto = 'smith'; }
+  if (townAuto()) { C.townT = Math.max(C.townT || 0, 25); TOWN.auto = 'smith'; }
 }
 function townExit() {
   if (TOWN.inside) { const b = townBuildings().find(x => x.kind === (inGuildHall() ? 'guild' : TOWN.inside)); TOWN.inside = false; TOWN_WALK.place(b.door, b.y + b.h, 'down'); line(`You step back out into ${hubName()}.`, 'l-sys'); return; }
@@ -118,7 +120,7 @@ function townSign(x, y) {
 }
 function townDoor(b) {
   if (!b) return; const h = H();
-  if (['inn','smith'].includes(b.kind) && townActive() && !aiOn()) { TOWN.inside=b.kind;TOWN.auto=null;TOWN_WALK.place(...SERVICE_ROOMS[b.kind].start);line('You step into the '+buildingName(b)+'.','l-sys');sfx('select');return; }
+  if (['inn','smith'].includes(b.kind) && townActive() && !townAuto()) { TOWN.inside=b.kind;TOWN.auto=null;TOWN_WALK.place(...SERVICE_ROOMS[b.kind].start);line('You step into the '+buildingName(b)+'.','l-sys');sfx('select');return; }
   if (b.kind === 'inn') { C.hp = ST.hpMax; if (CLASSES[h.cls].res === 'mana') C.res = ST.resMax; for (const p of C.party) { p.dead = false; p.hp = compStats(p.n).hpMax; }
     line(townKind() === 'camp' ? 'You eat by the longhouse fire and sleep under heavy furs. Everyone is rested.' : HUB_NAMES[h.zone] && HUB_NAMES[h.zone].inn === 'Abbey'
       ? 'The brothers of the Abbey find you a quiet cell and a bowl of barley soup. Everyone is rested.' : 'The innkeeper sets a bowl of stew in front of you. Everyone is rested.', 'l-heal'); sfx('heal'); return; }
@@ -162,7 +164,7 @@ function memberTalk(key) {
 }
 /* Services are offered by people in the room, with prices in their choice labels. */
 function talkTownService(n){
-  if(RTALK||!H()||!TOWN.inside||inGuildHall()||aiOn())return false;
+  if(RTALK||!H()||!TOWN.inside||inGuildHall()||townAuto())return false;
   const room=TOWN.inside,hero=H(),account=S,price=repairCost(),junk=hero.bags.filter(i=>i.junk).reduce((sum,i)=>sum+i.value,0);
   let settled=false;const serviceState={cancelled:false};
   const inn=room==='inn',choices=inn?['Rest with your companions','Another time']:['Sell scraps · '+moneyTxt(junk),'Repair equipment · '+moneyTxt(price),'Sell scraps and repair','Another time','Commission guild gear'];
@@ -181,9 +183,10 @@ function clearTownService(){
 }
 /* Auto: stroll to the smithy, then out of the gate */
 function townAutoTick() {
+  if(!townAuto()){if(TOWN.auto){TOWN.auto=null;TOWN_WALK.path=[];}return;}
   if(typeof realmNotebookOpen==='function' && realmNotebookOpen())return;
-  if (!TOWN.auto && aiOn() && !RTALK) { TOWN.auto = 'smith'; C.townT = Math.max(C.townT || 0, 25); } // Auto took over while you stood around
-  if (!TOWN.auto || !aiOn() || RTALK || !TOWN_WALK.arrived() || TOWN_WALK.path.length) return;
+  if (!TOWN.auto && townAuto() && !RTALK) { TOWN.auto = 'smith'; C.townT = Math.max(C.townT || 0, 25); } // Auto took over while you stood around
+  if (!TOWN.auto || !townAuto() || RTALK || !TOWN_WALK.arrived() || TOWN_WALK.path.length) return;
   if (TOWN.inside) { TOWN_WALK.walkTo(TOWN.map.start[0], TOWN.map.rows.length - 1); return; } // out of the hall first
   if (TOWN.auto === 'smith') { const b = townBuildings().find(x => x.kind === 'smith'); TOWN_WALK.walkTo(b.door, b.y + b.h - 1); TOWN.auto = 'gate'; return; }
   if (TOWN.auto === 'gate') { TOWN_WALK.walkTo(13, TOWN_H - 1); TOWN.auto = 'out'; }
@@ -326,7 +329,7 @@ function drawTown(t) {
   cx.fillStyle = 'rgba(20,16,12,.72)'; cx.fillRect(8, 8, lw, fs * 1.6); cx.fillStyle = '#f2c14e'; cx.textBaseline = 'middle'; cx.fillText(text, 16, 8 + fs * .82); cx.textBaseline = 'alphabetic';
   if(RTALK)return;
   const hint = Math.max(10, Math.round(PH / 22)); cx.font = `600 ${hint}px Alegreya Sans, sans-serif`; cx.fillStyle = 'rgba(255,240,210,.75)'; cx.textAlign = 'right';
-  cx.fillText(aiOn() ? 'Auto: off to the smithy, then the road' : inside ? (inGuildHall()?'Talk to your guild':TOWN.inside==='inn'?'Talk to the Keeper':TOWN.inside==='trainer'?'Talk to the Trainer':TOWN.inside==='stable'?'Talk to the Stable Keeper':'Talk to the Smith')+' · Door: back to town' : PW<500?'Arrows / WASD · Tap to walk · Enter to talk':'Walk: arrows / WASD or tap · Enter: talk · Gate: back to the road', PW - 10, PH - 10); cx.textAlign = 'left';
+  cx.fillText(townAuto() ? 'Auto: off to the smithy, then the road' : inside ? (inGuildHall()?'Talk to your guild':TOWN.inside==='inn'?'Talk to the Keeper':TOWN.inside==='trainer'?'Talk to the Trainer':TOWN.inside==='stable'?'Talk to the Stable Keeper':'Talk to the Smith')+' · Door: back to town' : PW<500?'Arrows / WASD · Tap to walk · Enter to talk':'Walk: arrows / WASD or tap · Enter: talk · Gate: back to the road', PW - 10, PH - 10); cx.textAlign = 'left';
 }
 /* input while you're walking the town */
 document.addEventListener('keydown', e => {
