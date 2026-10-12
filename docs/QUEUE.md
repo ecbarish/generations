@@ -67,12 +67,12 @@ pull request list. One task per pull request; split a big one into steps and ope
 
 **Done since the last refresh (2026-10-12):** WD3 battles with real choices (#125), SF2.6c Starfall's best side
 (#200), SF2.10 the goal line (#195), SF2.18 no mandatory chores (#187), WB4.2 part 1 and WB4.3 part 2 (#170).
-**Claimed now:** WB-KEYS (#198), MAP-AUDIT-150 (#176). The Wildbond builder thread keeps the ending (WB4.2, WB4.3's
+**Claimed now:** MAP-AUDIT-150 (#176). WB-KEYS merged in #198 (2026-10-12). The Wildbond builder thread keeps the ending (WB4.2, WB4.3's
 rest) and the creature drawing (WD2's drawing half).
 
 | # | Big build (path ID) | Read first | Files | Done when |
 |---|---|---|---|---|
-| H1 | **Wildbond shows its keys in game** (WB-KEYS; claimed #198) | docs/PLAYTEST.md pass 2 | `wildbond-godot/` | The first time each action matters, its key or pad button appears in the world |
+| H1 | ~~Wildbond shows its keys in game (WB-KEYS)~~ **Done:** merged in #198 (2026-10-12) | docs/PLAYTEST.md pass 2 | `wildbond-godot/` | The first time each action matters, its key or pad button appears in the world |
 | H2 | **Saltmarsh you can explore** (WD4b) | GR-3; WD4a (#128) as the pattern | `wildbond-godot/` maps and scenes | A route, the settlement and one hidden pocket, with a spot you come back to with the right creature; old saves load; screenshots |
 | H3 | **Dress Starfall's square and roads** (ART-SF-8) | DEVELOPMENT-PATH ART-SF-8; docs/art/starfall.md | `starfall-godot/` | As the line says; before and after screenshots |
 | H4 | **Starfall: darkness, step 1** (SF2.9) | docs/proposals/starfall-darkness.md | `starfall-godot/` | As the line says; old saves load |
@@ -129,7 +129,7 @@ it, then self-check and merge (docs/PROCESS.md). Each line names its spec; read 
 
 **Done since the last refresh (2026-10-12):** Diamond Manager DM3, DM4, DM-B2, DM7 (v0.6.0 to v0.8.0), Lantern Bowl
 LB0 (the pitch) and LB1 (the shared office), Ember Bricks (#185), Little Ranch LR12 to LR15.
-**Claimed now:** AC3.1 Brisket polish (#180), Realmbound first-session check (#214), X1 Diamond Career playtest (#114,
+**Claimed now:** AC3.1 Brisket polish (#180), Realmbound first-session check (#214, merged as v1.8.1), X1 Diamond Career playtest (#114,
 stale: take it).
 
 | # | Task (path ID) | Spec | Files | Done when |
