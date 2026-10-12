@@ -1,0 +1,125 @@
+name: wd4b screens once
+
+on:
+  push:
+    paths:
+      - .github/workflows/wd4b-screens-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  place:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: guest/saltmarsh-explore
+      - name: Save the three Saltmarsh screens
+        run: |
+          set -euo pipefail
+          git config user.name abarish-dev
+          git config user.email "319211409+abarish-dev@users.noreply.github.com"
+          mkdir -p docs/screenshots/wildbond-wd4b
+          curl --fail --retry 2 --max-time 60 -fsSL -A "Mozilla/5.0" -o docs/screenshots/wildbond-wd4b/road.png "https://tmpfiles.org/dl/1791827828.9f0d8f7c0c142cab/wWAeKTfLHjUa/road.png"
+          curl --fail --retry 2 --max-time 60 -fsSL -A "Mozilla/5.0" -o docs/screenshots/wildbond-wd4b/settlement.png "https://tmpfiles.org/dl/1791827828.8e6c339cf28f1020/wmAUKPfzHpVG/settlement.png"
+          curl --fail --retry 2 --max-time 60 -fsSL -A "Mozilla/5.0" -o docs/screenshots/wildbond-wd4b/pool.png "https://tmpfiles.org/dl/1791827828.fd330fb24affc185/wwABKpfqHXLW/pool.png"
+          python3 - << 'PY'
+          import hashlib, pathlib
+          expect = {
+            "road": "18e5320808674d139a43c86ac844dc701dd059285f94906ab06ac5f6070ac4c0",
+            "settlement": "42306000930701a8482fceb4ffa73e1dcdce361f50ce0f97401a7c3efbf57f0b",
+            "pool": "5e2119302ef0ba972dd16c9bf0841ea02cd70d5e1a6591e70a6978d7d02bd0bb",
+          }
+          for name, sha in expect.items():
+              got = hashlib.sha256(pathlib.Path(f"docs/screenshots/wildbond-wd4b/{name}.png").read_bytes()).hexdigest()
+              if got != sha:
+                  raise SystemExit(name + " hash " + got)
+          pathlib.Path("wildbond-godot/tests/wd4b_screens.gd").write_text("""extends SceneTree
+var main: Node
+
+func _initialize() -> void:
+\tmain = load(\"res://scenes/main.tscn\").instantiate()
+\tmain.no_save = true
+\tmain.settings.keep = false
+\tmain.show_howto = false
+\troot.add_child(main)
+\tcapture.call_deferred()
+
+func capture() -> void:
+\tDirAccess.make_dir_recursive_absolute(\"res://frames/wd4b\")
+\tmain._skip_opening()
+\tmain.fade_in = 1.0
+\tmain.fade_rect.color.a = 0.0
+\tmain.trans_t = -1.0
+\tmain.letter_steps = 999
+\tmain.register.visible = false
+\tmain.card.visible = false
+\tmain.lines.clear()
+\tmain.title.visible = false
+\tmain.howto.visible = false
+\tmain.stage = \"free\"
+\tmain.painted = true
+\tmain.spilled = true
+\tmain.key_learn = { \"walk\": 9, \"act\": 9, \"book\": 9 }
+\tfor place_id in [\"saltmarsh\", \"saltmarsh_route\", \"saltmarsh_pool\"]:
+\t\tmain.restore.append({ \"where\": place_id, \"at\": Vector2(192, 108), \"r\": 5000.0, \"goal\": 5000.0 })
+\troot.borderless = true
+\troot.min_size = Vector2i(1, 1)
+\troot.position = Vector2i.ZERO
+\troot.size = Vector2i(1366, 768)
+\tfor shot in [
+\t\t[\"road\", \"saltmarsh_route\", Vector2i(13, 8)],
+\t\t[\"settlement\", \"saltmarsh\", Vector2i(18, 8)],
+\t\t[\"pool\", \"saltmarsh_pool\", Vector2i(10, 8)],
+\t]:
+\t\tmain._set_map(shot[1])
+\t\tmain.map_name = shot[1]
+\t\tmain.me.where = shot[1]
+\t\tmain.me.tile = shot[2]
+\t\tmain.me.pos = Vector2(main.me.tile) * main.TILE
+\t\tmain.me.path.clear()
+\t\tmain.partner.where = shot[1]
+\t\tmain.partner.tile = main.me.tile + Vector2i.LEFT
+\t\tmain.partner.pos = Vector2(main.partner.tile) * main.TILE
+\t\tmain.partner.path.clear()
+\t\tmain.cam.position = main.me.pos + Vector2(8, 8)
+\t\tmain.cam.reset_smoothing()
+\t\tmain.lines.clear()
+\t\tmain.queue_redraw()
+\t\tfor _i in 12:
+\t\t\tawait process_frame
+\t\tawait RenderingServer.frame_post_draw
+\t\tvar image := root.get_texture().get_image()
+\t\tif image == null:
+\t\t\tpush_error(\"WD4b capture had no image: \" + shot[0])
+\t\t\tquit(2)
+\t\t\treturn
+\t\tvar err := image.save_png(\"res://frames/wd4b/%s.png\" % shot[0])
+\t\tprint(\"WD4b screen: %s %dx%d save %s\" % [shot[0], image.get_width(), image.get_height(), err])
+\t\tif err != OK:
+\t\t\tquit(2)
+\t\t\treturn
+\tmain.queue_free()
+\tawait process_frame
+\tquit()
+""")
+          readme = """# WD4b Saltmarsh screens
+
+Godot 4.7.2 rendered these from the trial, with the opening skipped and the coast's colour restored. Nothing here is a web export.
+
+- [Saltmarsh Road](road.png): the coast road between Thornwood's gate and the settlement. Tobin stands by the sign.
+- [Saltmarsh Coast](settlement.png): the original settlement, so an old save still lands on this map.
+- [Moon Pool](pool.png): the return spot a Tide partner can open. Foamglint is easier to find here.
+
+Reproduce with Godot 4.7.2: `xvfb-run Godot --path wildbond-godot --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/wd4b_screens.gd`
+
+Not a physical-device test. Draft #232.
+"""
+          pathlib.Path("docs/screenshots/wildbond-wd4b/README.md").write_text(readme)
+          print("screens ok")
+          PY
+          git add docs/screenshots/wildbond-wd4b wildbond-godot/tests/wd4b_screens.gd
+          git rm -f .github/workflows/wd4b-screens-once.yml
+          git commit -m "WD4b: Saltmarsh road, settlement and Moon Pool screens"
+          git push origin HEAD:guest/saltmarsh-explore
