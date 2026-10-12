@@ -1,0 +1,10 @@
+{
+  "checks": 80,
+  "viewports": [
+    "375x812",
+    "1366x768",
+    "1920x1080",
+    "3440x1440"
+  ],
+  "method": "Fresh isolated contexts with valid model-generated saves; actual reset confirmations and keyboard game navigation. Physical-phone/Safari validation not claimed."
+}

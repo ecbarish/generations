@@ -10,6 +10,12 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 |---|---|---|---|---|
 | DC-N | Find and learn the first game | S | ready: Codex, PR #247 | Calendar play, first-game timing, readable dialogue and preparation return; issues #228–#230 |
 
+## Hall sports-card isolation
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| AR2.15 | Separate Manager and Career cards | S | ready: Codex, PR #249 | Correct destinations, own-save progress and isolated reset; launcher and index only |
+
 ## Brisket opening accessibility
 
 | ID | Project | Size | Status | Scope |
