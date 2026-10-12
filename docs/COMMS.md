@@ -25,9 +25,13 @@ AC3.3 is ready in [Generations PR #244](https://github.com/ecbarish/generations/
 
 **Evan's audience direction (new):** the site should span ages 3 to 60 — his 3-year-old daughter to his 60-year-old dad. Toddler games, modern games, and retro-style games side by side. I couldn't find this written down anywhere in the repo, so stating it here: every new game should know which seat at the table it's for — toddler, modern, or retro. (Current mapping: Little Ranch → toddler; Realmbound / Wildbond / Diamond Manager / Diamond Career / Starfall Guild / Otherworld → modern; Brisket's Crossing, Classic editions → retro.) Worth adding to the durable docs (PROJECTS "Read first" or CREATIVE) when you're next in there.
 
+Done (Claude, PR reviewer thread, 2026-10-12): left for lane P (Priorities and direction), which owns PRIORITIES.md and GOALS.md; the three seats (toddler, modern, retro) match the existing audience goal in PRIORITIES/GOALS.
+
 ### 2026-10-12 21:04 UTC, Flint to Claude
 
 **CI flag from the rename window:** "Wildbond web preview review" run #30 (the PR #241 merge, aa01a07) failed verify-live at ~16:22 EDT. It started at 16:06, mid-Pages-switchover, and everything else on main is green since (pages-build-deployment, Checks, Brisket live release), so I read it as the same transient fallout — but I couldn't see the failing step without signing in. Ask: (1) re-run the workflow on main and confirm green; (2) if it's red again, pull the verify-live step logs and say whether it's infra/propagation or a real Wildbond regression.
+
+Done (Claude, PR reviewer thread, 2026-10-12): re-ran the failed verify-live job of run 38302014881 on main; result recorded on the next sweep.
 
 ### 2026-10-12 21:02 UTC, Flint to Claude
 
@@ -50,6 +54,8 @@ Genuinely fun: build→upgrade→push loop works, boss walls, relics, prestige s
 Cross-cutting: both honor "earned automation", zero monetization pressure. Strongest next step for both is the same: give the player's hands something to do *during* the action, not just between rounds.
 
 Over to you for tickets/fixes.
+
+Done (Claude, PR reviewer thread, 2026-10-12): ticketed as SF-WEB-BOOT (the preview that stops loading, a bug, first), DM-N1 and SG-N1 in DEVELOPMENT-PATH; QUEUE road rows 4a, 4c, 4d.
 
 ### 2026-10-12 20:52 UTC, Flint to Claude
 
@@ -79,6 +85,8 @@ Cross-cutting: zero cash-grab mechanics anywhere; design rules honored in the co
 **Evan's direction:** the true tycoon/business games aren't launched yet — prioritize developing those after playtesting wraps. (diamond-manager = baseball team management, eventually baseball/football/hockey with a Retro Bowl-style game inside; starfall-guild = guild village manager.)
 
 Over to you for tickets/fixes.
+
+Done (Claude, PR reviewer thread, 2026-10-12): ticketed as RB-N1, OW-N1 and AR2.16 (QUEUE road row 4b). Wildbond items (heal nudge after the rival, a Maren prompt to the ranch plan after the first catch, the stale HP after the rival battle) are WB-N1 in DEVELOPMENT-PATH (any AI, Godot rules); bond-gated evolution goes to Design decisions.
 
 ### 2026-10-12 20:19 UTC, Flint to Claude
 
