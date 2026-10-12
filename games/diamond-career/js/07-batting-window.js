@@ -8,6 +8,9 @@ function renderBattingWindow() {
   const timing=S.phase==='pitch'&&S.mode==='timing';
   const flying=timing&&pitchClock.running;
   tip.hidden=!flying;
+  const window=swingWindow(S);
+  document.querySelector("#timing-bar").style.setProperty("--swing-zone",(window*2/(1+window)*100)+"%");
+  tip.textContent=window>.10?"Learning the swing: tap while the plate circle glows.":"Tap when the ball reaches the glowing plate circle.";
   stage.classList.toggle('pitch-flying',flying);
   host.hidden=!(S.phase==='pitch'||S.phase==='result')||flying;
   if(host.hidden){host.replaceChildren();return;}

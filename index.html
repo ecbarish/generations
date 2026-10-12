@@ -152,6 +152,7 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
 <script src="shared/ambience.js"></script>
 <script src="shared/light.js"></script>
 <script src="launcher/games.js"></script>
+<script src="launcher/sports-progress.js"></script>
 <script>
 (function(){
 'use strict';
@@ -161,12 +162,13 @@ const GAMES=window.ArcadeGames;
 const ago=t=>{const s=(Date.now()-t)/1000;if(s<90)return'just now';if(s<3600)return Math.round(s/60)+' min ago';if(s<86400)return Math.round(s/3600)+' h ago';return Math.round(s/86400)+' days ago';};
 
 /* Each game's save key in localStorage, used by "Reset progress" */
-const SAVE_KEYS={'baseball':'diamond-manager-save-v1','otherworld':'otherworld-save-v1','primordial':'primordial-save-v1','starfall-guild':'starfall-guild-save-v1','realmbound':'realmbound-save-v1','wildbond':'wildbond-save-v1'};
-const idx=Arcade.readIndex();
+const SAVE_KEYS={'baseball':'diamond-manager-save-v1','diamond-career':'diamond-career-save-v1','otherworld':'otherworld-save-v1','primordial':'primordial-save-v1','starfall-guild':'starfall-guild-save-v1','realmbound':'realmbound-save-v1','wildbond':'wildbond-save-v1'};
+const idx=ArcadeSportsProgress.forHall(Arcade.readIndex());
+const progressText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shelf=document.getElementById('shelf');
 const card=g=>{
   const p=g.preview?null:idx[g.id];
-  const prog=g.preview?'<div class="none">Preview saves stay inside this game; Classic progress is separate.</div>':g.href?(p?`<div class="sum">${p.summary}</div><div class="det">${p.detail} · played ${ago(p.last)}</div>`:'<div class="none">Not started yet.</div>'):'';
+  const prog=g.preview?'<div class="none">Preview saves stay inside this game; Classic progress is separate.</div>':g.href?(p?`<div class="sum">${progressText(p.summary)}</div><div class="det">${progressText(p.detail)} · ${Number.isFinite(p.last)?'played '+ago(p.last):'saved on this device'}</div>`:'<div class="none">Not started yet.</div>'):'';
   const btn=g.href?`<a class="play ${p?'':'alt'}" href="${g.href}">${g.preview?'Play the preview':p?'Continue':'Play'}</a>`:`<div class="soon">Being designed now</div>`;
   const reset=p&&SAVE_KEYS[g.id]?`<div class="reset" id="rs-${g.id}"><button class="resetlink" data-reset="${g.id}">Reset progress</button></div>`:'';
   return `<article class="cab${g.preview?' preview-card':''}" data-game="${g.id}"><div class="cover">${g.edition?`<span class="edition ed-${g.edition}">${g.edition==='new'?'New version':'Classic'}</span>`:''}<canvas data-cover="${g.cover}" aria-hidden="true"></canvas>${g.image?`<img src="${g.image}" alt="${g.alt}" loading="lazy" decoding="async">`:""}<div class="title ${g.tcls}">${g.title}</div></div>

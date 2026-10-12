@@ -52,7 +52,7 @@
     for (let i = 0; i < 5; i++) { const lx = W * (.1 + i * .2); R(lx - p * 3, 0, p * 6, p * 2, '#5a4a70'); lights.push({ x: lx, y: p * 3, r: H * .35, col: '#ffe8c0' }); }
     CABS.forEach((gm, i) => {
       const x = cabX(i) - cam, cw = cabW(), ch = H * .52; if (x < -cw || x > W + cw) return;
-      const top = floor - ch, on = hover === gm.id, col = { 'wildbond-preview': '#2f7a52', 'starfall-preview': '#3a4a8a', primordial: '#1e5a60', 'starfall-guild': '#3a4a8a', realmbound: '#4a2a6a', wildbond: '#2f7a52', baseball: '#5a5a5a', otherworld: '#4a3a7a' }[gm.id] || '#444';
+      const top = floor - ch, on = hover === gm.id, col = { 'wildbond-preview': '#2f7a52', 'starfall-preview': '#3a4a8a', primordial: '#1e5a60', 'starfall-guild': '#3a4a8a', realmbound: '#4a2a6a', wildbond: '#2f7a52', baseball: '#5a5a5a', 'diamond-career': '#245c58', otherworld: '#4a3a7a' }[gm.id] || '#444';
       R(x - cw / 2, top, cw, ch, col); R(x - cw / 2 - p, top, p, ch, '#00000055'); R(x - cw / 2, top, cw, p * 6, '#0a0a12');
       cx.save(); cx.font = `${Math.max(9, Math.round(cw / 9))}px Bungee, Impact, sans-serif`; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillStyle = gm.href ? '#ffcf4d' : '#8a8aa0';
       cx.fillText(gm.title.toUpperCase(), x, top + p * 3, cw * .94); // squeezed to fit narrow phone cabinets cx.restore();

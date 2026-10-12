@@ -19,7 +19,7 @@ anybody, led by what we love; the audience follows (not a checklist of ages). In
    festival.
 4. **Realmbound's first hour made fun** (end-game parked), then **the business games** (Evan, 2026-10-12: develop
    the tycoon games once the playtest fixes land: Diamond Manager deeper, toward one sports front office with a game you
-   play inside it, and Starfall Guild's manager loop with your hands on the fight), then **Lantern Bowl playable**.
+   play inside it, and Starfall Guild's best loops folded into the Godot village, SF-GUILD), then **Lantern Bowl playable**.
 5. **The family games:** Little Ranch's next steps and places (the Paint Shed first), and more cabinets.
 
 **The rules every task keeps:** play, not watch (no game plays itself, no new full Auto); the screen is the world (no
@@ -97,6 +97,7 @@ rest) and the creature drawing (WD2's drawing half).
 | H18 | **Festivals on the shared calendar** (SF3.4, then WS4 winter and spring weather in Wildbond) | SF3.4, WS4 | `starfall-godot/`, then `wildbond-godot/` | One PR each |
 | H19 | **Stillreed Basin's remaining steps** (WB3.1) | DEVELOPMENT-PATH WB3.1 | `wildbond-godot/` | As the line says |
 | H20 | **Travelling merchants and visitors** (SF3.2) | docs/lore/multiverse.md | `starfall-godot/` | One visitor from another game, lightly; the Design decisions thread for canon |
+| H21 | **Starfall Guild's best loops in the Godot village** (SF-GUILD: the one-page map first, then one ticket per loop; Evan's pick 2026-10-12) | DEVELOPMENT-PATH SF-GUILD | `docs/plans/`, then `starfall-godot/` | The map merged, then each loop as its own PR with a tactical call in fights and an early earned hire |
 
 **Keep this list at least 20 builds deep** (Evan, 2026-10-12). Any AI that finds it shorter adds the next open items
 from PRIORITIES.md section 4 and the Starfall order, then the path's later milestones.
@@ -146,7 +147,7 @@ LB0 (the pitch) and LB1 (the shared office), Ember Bricks (#185), Little Ranch L
 | 4a | **Starfall: the web preview that stops loading** (SF-WEB-BOOT, bug; Flint round 3) | DEVELOPMENT-PATH SF-WEB-BOOT | `play/starfall/`, its verifier | The hall's "Play the preview" opens a Starfall that finishes booting at the new address on desktop and phone; the verifier checks the new address |
 | 4b | **Newcomer snags, round 2** (RB-N1 Realmbound, OW-N1 Otherworld, AR2.16 hall blurbs, WB-N1 Wildbond in Godot; Flint 2026-10-12 20:52) | DEVELOPMENT-PATH RB-N1, OW-N1, AR2.16 | `games/realmbound/`, `games/otherworld/`, `index.html` | As each path line says; one PR per game |
 | 4c | **Diamond Manager: the numbers you watch climb** (DM-N1; Flint 2026-10-12 21:02) | DEVELOPMENT-PATH DM-N1 | `games/diamond-manager/` | As the path says; `tests/diamond-manager.html` passes |
-| 4d | **Starfall Guild: hands on during the fight** (SG-N1; Flint 2026-10-12 21:02) | DEVELOPMENT-PATH SG-N1 | `games/starfall-guild/` | As the path says; old saves load |
+| 4d | **Starfall Guild: small fixes only** (SG-N1; Flint 2026-10-12 21:02; its loops move to Godot, see H21) | DEVELOPMENT-PATH SG-N1 | `games/starfall-guild/` | As the path says; old saves load |
 | 5 | **Diamond Manager: the ballpark you see grow** (DM5) | docs/plans/sports-management.md | `games/diamond-manager/` | As the plan says; `tests/diamond-manager.html` passes |
 | 6 | **Lantern Bowl: one drive, playable** (LB2; Diamond Manager reached v0.8.0, so Lantern Bowl now has the sports slot, lane P 2026-10-12) | docs/plans/lantern-bowl.md, the mock screens; `shared/sports-office.js` | `games/lantern-bowl/` (new), its test page | You call plays and throw on one drive, on phone and desktop; quick and readable like Retro Bowl, our own art |
 | 7 | **Lantern Bowl: one full game** (LB3), then **season and office** (LB4), then **playability pass** (LB5) | as above | as above | One PR each; LB5 scores 17+ in a newcomer playtest |

@@ -73,7 +73,7 @@ function actCareer(act) {
   else if(act==='day'&&S.phase==='home'){advanceDays(S,1);S.phase=careerPhase(S);S.message='A quiet day at home. Any salary due today is in your ledger.';changed=true;}
   else if(act==='finish-month')changed=finishMonth(S);
   else if(act==='new-series')changed=beginSeries(S);
-  if(changed){resetClock();saveCareer();renderCareer();if(act==='new-series'&&S.road)playBusTrip();if(act==='rest'||act.startsWith('train-'))D.play([[act==='rest'?'':'iona',act==='train-contact'?'A clean swing, not a hurried one. Practice putting the barrel where you mean it to be.':act==='train-power'?'Use your legs before your arms. Power has a cost; keep contact in the conversation.':act==='rest'?'An evening without another drill. Your legs feel fresh again.':S.message.replace(/^Iona: “|”$/g,'')]],()=>renderCareer());}
+  if(changed){resetClock();saveCareer();renderCareer();if(act==='new-series'&&S.road)playBusTrip();if(act==='rest'||act.startsWith('train-'))D.play([[act==='rest'?'':'iona',act==='train-contact'?'A clean swing, not a hurried one. Practice putting the barrel where you mean it to be.':act==='train-power'?'Use your legs before your arms. Power has a cost; keep contact in the conversation.':act==='rest'?'An evening without another drill. Your legs feel fresh again.':S.message.replace(/^Iona: “|”$/g,'')]],()=>{renderCareer();openCareerSheet('coach');});}
 }
 
 function decisionHTML(){return S.notes.map(n=>`<p class="quote">Day ${n.day} · ${esc(n.text)}</p>`).join('');}

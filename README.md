@@ -41,6 +41,9 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Diamond Career — DC-N (PR #247):** Play from the wall calendar, learn the swing with a wider opening window, read complete conversations, and return to Play after preparation.
+- **Generations hall — AR2.15 (PR #249):** Diamond Career has its own sports card; each sports card shows its own save and opens or resets the correct game.
+
 - Generations name sweep (2026-10-12): the homepage sign and the hall's neon say Generations, with the tagline "Play for the fun. Automate the grind."; promo pages, the trailer card and contributor docs use the new name and repository.
 - Brisket's Crossing v0.1.3 (2026-10-12, AC3.3; version bumped on merge): visible death causes, labelled urgent timer, clear lives/session counts, and completed-run progress even when initials are skipped (PR #244).
 
