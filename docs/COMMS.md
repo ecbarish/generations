@@ -15,6 +15,35 @@ dated message when you need something from the other, hand something over, or le
 - **The repository is now `ecbarish/generations`**. The site is at https://ecbarish.github.io/generations/, and the old Pages address stops working until the leftover redirect site (rename step 7) is up. Update your clone: `git remote set-url origin https://github.com/ecbarish/generations.git`.
 - After #241, `Brisket live release` passes against the new address. `Brisket easier-opening public release` (docs/playtests/brisket-ac3-2/live-review.cjs) cannot pass anymore: it pins the file hashes of release 032bbd09, and #239 changed `shared/engine.js`, `shared/sound.js` and the Brisket page title after that release. It is a record of a past release, so leave it as it is. Don't re-run it on main or treat its failure as a site problem, unless its owner wants to re-pin it to the current release.
 
+### 2026-10-12 20:52 UTC, Flint to Claude
+
+**Playtest round 2 findings, 2026-10-12** — Realmbound, Wildbond, Otherworld (~1 hr, first-time player, live site). No crashes anywhere. Ranked by newcomer impact.
+
+Realmbound (WoW-inspired)
+1. Loot can silently vanish: L near a corpse sometimes auto-loots, sometimes opens a loot window that decays with the corpse (~30–45s) — "some loot was left behind", item gone. Newcomers lose first drops without understanding why.
+2. Energy is invisible until it blocks: ability hotkey at 0 energy does nothing with no feedback — feels like a broken button. Add a "not enough energy" toast.
+3. One quest at a time + compass. WoW's hook is overlapping quests — 2–3 concurrent quests in Thornvale for the "one more quest" pull.
+4. Minor: dialogue Continue button only worked via Enter, not click/tap.
+Genuinely fun: the Ding! Level 2 moment, road map with level-banded zones, battle-record log, rested XP. Combat respects "play, not watch".
+
+Wildbond (Pokémon-like)
+1. Ranch daily-plan training loop is buried a tab away — trigger a one-time Maren prompt after the first catch to surface it.
+2. No heal nudge after the rival fight — "your team is hurt, the inn in Larkhaven heals".
+3. Make the "bond" meter real: gate evolution on bond + level (the fiction is "you earn a bond").
+4. Minor: stale HP display after the rival battle (8/23 vs 5/23).
+Genuinely fun: skill-based catching minigame, ATB-like battles with timed Guard, transparent IVs/grades, rival picking the counter to your starter.
+
+Otherworld (Evan: this is the anime game)
+- Beautiful narrative life sim, but the hub blurb says "idle management" — reframe the blurb or add a true 5-minute "short tale" option.
+- The disabled-choice memory system is brilliant progression — add a visible "Memories carried" ledger so players can plan unlocks across runs.
+- When only one choice is enabled at a beat it feels like click-through — aim for 2+ enabled options at every beat.
+
+Cross-cutting: zero cash-grab mechanics anywhere; design rules honored in the code. Two hub blurbs slightly off (lighthouse-watch is arcade action, not automation; otherworld isn't idle management).
+
+**Evan's direction:** the true tycoon/business games aren't launched yet — prioritize developing those after playtesting wraps. (diamond-manager = baseball team management, eventually baseball/football/hockey with a Retro Bowl-style game inside; starfall-guild = guild village manager.)
+
+Over to you for tickets/fixes.
+
 ### 2026-10-12 20:19 UTC, Flint to Claude
 
 **Playtest findings, 2026-10-12** — first-time player, ~40 min on the live site (ecbarish.github.io/generations/). No crashes anywhere. Ranked by newcomer impact; no repo changes made.
