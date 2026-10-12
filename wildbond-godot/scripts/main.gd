@@ -104,6 +104,7 @@ var bonded := {}
 var got_items := {}                          # items already picked up, by id
 var grass_n := 10                            # tall-grass steps until the next find (8-16, like the browser)
 var battle_story := ""                       # "rival1" for Wren's battle; empty for wild ones
+var key_learn := { "walk": 0, "act": 0, "book": 0 }   # WB-KEYS: how often each control has been used (its key shows until then)
 var satchel: Control                         # the satchel you carry, top right: tap it (or Tab/J) for the field book
 var place_t := 0.0                           # seconds since you arrived somewhere (the place name holds, then fades)
 var title: Control
@@ -868,6 +869,7 @@ func _step(d: Vector2i) -> void:
 		aside.path.clear()
 	if walkable(me.tile + d):
 		me.path = [me.tile + d]
+		key_learn.walk += 1
 		if partner and partner.where == map_name and partner.tile != was and (aside == null or aside == partner):
 			_stop(partner)
 			partner.path = [was]
@@ -907,6 +909,8 @@ func _unhandled_input(e: InputEvent) -> void:
 	var pressed: bool = (Controls.pressed(e, "interact") or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT))
 	if not pressed:
 		return
+	if not (e is InputEventMouseButton) and lines.is_empty() and action_word() != "":
+		key_learn.act += 1
 	if not lines.is_empty():
 		advance()
 	elif stage == "free" and not (e is InputEventMouseButton) and not battle.visible and _talk_here():
@@ -1224,6 +1228,7 @@ func _draw() -> void:
 		if b.where == map_name:
 			var a: float = 1.0 - b.t / 1.6
 			draw_arc(b.p, 1.5 + b.t, 0, TAU, 10, Color(0.85, 0.95, 1.0, a), 1.0)
+	_draw_key_hints()
 
 func _draw_outdoor() -> void:
 	var rows: Array = cur_map()
@@ -2664,6 +2669,8 @@ const BADGE_COL := { "thorn": Color("5d9a3e"), "tide": Color("3a8fd8"), "ember":
 ## The satchel, drawn small in the corner: a leather bag with its flap, and a pin on the strap for each badge you hold.
 func _draw_satchel() -> void:
 	var c := satchel
+	if key_hint("book") != "":
+		_keycap(c, Vector2(-12, 16), key_hint("book"))                     # WB-KEYS: the key that opens the bag, until you have
 	var ink := Color(0.1, 0.12, 0.14)
 	for r in [Rect2(4, 0, 16, 3), Rect2(4, 0, 3, 7), Rect2(17, 0, 3, 7)]:   # the strap, an arch over the bag
 		c.draw_rect(r, ink)
@@ -3177,7 +3184,7 @@ func save_game() -> void:
 		"badges": badges, "seen": seen, "bonded": bonded, "items": got_items, "beaten": beaten,
 		"restore": restore.map(func(r): return { "where": r.where, "x": r.at.x, "y": r.at.y, "goal": r.goal }),
 		"explored": explored_in, "story": story_done, "retry": story_retry, "egg": egg, "gear": gear_owned, "taught": taught, "letter": [letter_steps, letters], "calendar": cal.to_dict(), "festival": { "done": fest_done, "keep": keepsakes, "flowers": flowers }, "league": league_room,
-		"spire": { "floor": spire_floor, "best": spire_best, "active": spire_active }, "rematches": rematch_wins, "bondDay": bond_day,
+		"spire": { "floor": spire_floor, "best": spire_best, "active": spire_active }, "rematches": rematch_wins, "bondDay": bond_day, "keysLearned": key_learn,
 		"map": map_name, "x": me.tile.x, "y": me.tile.y, "partner": partner.id if partner else "" }
 	SafeSave.write(save_path, d)                 # a spare file first, the last good save kept as a backup
 
@@ -3234,6 +3241,9 @@ func _load_game() -> bool:
 	spire_active = bool(sz.get("active", false)) and story_done.has("leagueEnding")
 	rematch_wins = d.get("rematches", {})
 	bond_day = str(d.get("bondDay", ""))
+	var kl: Dictionary = d.get("keysLearned", { "walk": 9, "act": 9, "book": 9 })   # an older save already knows its way
+	for k in key_learn:
+		key_learn[k] = int(kl.get(k, 9))
 	var fz: Dictionary = d.get("festival", {})
 	fest_done = fz.get("done", {})
 	keepsakes = fz.get("keep", {})
@@ -3286,6 +3296,7 @@ func _door(kind: String) -> void:
 ## The field book (book.gd): the Wilddex and your team, from what you've seen and who chose you.
 func _open_book() -> void:
 	walk_to.clear()
+	key_learn.book += 1
 	sfx.play("open")
 	book.seen = seen
 	book.bonded = bonded
@@ -4007,6 +4018,74 @@ func _draw_evidence(e: Dictionary) -> void:
 func _long_shadow(foot: Vector2, w: float, l: float) -> void:
 	var pts := PackedVector2Array([foot + Vector2(-w / 2, 0), foot + Vector2(w / 2, 0), foot + Vector2(w / 2 + l, l * 0.45), foot + Vector2(-w / 2 + l, l * 0.45)])
 	draw_colored_polygon(pts, Color(0.1, 0.08, 0.14, 0.18))
+
+## WB-KEYS (Playtester pass 2: "Wildbond still shows no keys in game"). The first times each control matters, its
+## key or button sits in the world: arrow keys over your head until you've walked a few steps, the Talk key over
+## your head while there's someone or something to use (until you've used it three times), and the book's key beside
+## the bag until you've opened it. On a phone the pad and the Talk button already show themselves, so nothing is added.
+const KEY_TIMES := { "walk": 4, "act": 3, "book": 1 }
+
+## The key to show for a control now ("" when none is needed): a keyboard letter, or a gamepad button.
+func key_hint(what: String) -> String:
+	var use := HowTo.in_use()
+	if use == "touch" or demo or key_learn.get(what, 0) >= KEY_TIMES[what]:
+		return ""
+	if not lines.is_empty() or trans_t >= 0.0 or lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible:
+		return ""
+	match what:
+		"walk":
+			if stage in ["to_barn", "barn_choose", "walk_out", "free"] and walk_to.is_empty():
+				return "stick" if use == "pad" else "arrows"
+		"act":
+			if action_word() != "":
+				return "A" if use == "pad" else "E"
+		"book":
+			if stage == "free" and _satchel_shown():
+				return "Y" if use == "pad" else "J"
+	return ""
+
+func _draw_key_hints() -> void:
+	var head := me.pos + Vector2(8, -9 + sin(t * 3.0) * 0.6)
+	var act := key_hint("act")
+	if act != "":
+		_keycap(self, me.pos + Vector2(15, 6 + sin(t * 3.0) * 0.6), act, action_word())   # beside you, not over them
+	elif key_hint("walk") != "":
+		_keycap(self, head + Vector2(0, -6), key_hint("walk"))
+
+## One key drawn as a little cap (or a round gamepad button, or the four arrow keys), with an optional word beside it.
+func _keycap(c: CanvasItem, at: Vector2, key: String, word := "") -> void:
+	var f := ThemeDB.fallback_font
+	var ink := Color("3e2c20")
+	var cap := Color("f4e9cd")
+	if key == "arrows":
+		for o in [Vector2(-4, -9), Vector2(-9, -4), Vector2(-4, -4), Vector2(1, -4)]:
+			c.draw_rect(Rect2(at + o, Vector2(8, 8)), ink)
+			c.draw_rect(Rect2(at + o + Vector2(1, 1), Vector2(6, 5)), cap)
+		var tri := func(p: Vector2, d: Vector2) -> void:
+			var s := Vector2(-d.y, d.x)
+			c.draw_colored_polygon(PackedVector2Array([p + d * 2, p - d + s * 1.5, p - d - s * 1.5]), ink)
+		tri.call(at + Vector2(0, -6), Vector2.UP)
+		tri.call(at + Vector2(-5, -1), Vector2.LEFT)
+		tri.call(at + Vector2(0, -1), Vector2.DOWN)
+		tri.call(at + Vector2(5, -1), Vector2.RIGHT)
+		return
+	var w := 10.0
+	if key == "stick":
+		c.draw_circle(at + Vector2(0, -4), 5.0, ink)
+		c.draw_circle(at + Vector2(0, -4), 4.0, cap)
+		c.draw_circle(at + Vector2(sin(t * 2.0) * 1.5, -4 + cos(t * 2.0) * 1.5), 2.0, ink)
+		return
+	if key in ["A", "Y"]:
+		c.draw_circle(at + Vector2(w / 2, -4), 5.0, ink)
+		c.draw_circle(at + Vector2(w / 2, -4), 4.0, Color("7cb86c") if key == "A" else Color("e8c84a"))
+	else:
+		c.draw_rect(Rect2(at + Vector2(0, -10), Vector2(w, 11)), ink)
+		c.draw_rect(Rect2(at + Vector2(1, -9), Vector2(w - 2, 8)), cap)
+	c.draw_string(f, at + Vector2(0, -2), key, HORIZONTAL_ALIGNMENT_CENTER, w, 8, ink)
+	if word != "":
+		var tw := f.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, 6).x
+		c.draw_rect(Rect2(at + Vector2(w + 1, -8), Vector2(tw + 4, 8)), Color(0.96, 0.91, 0.8, 0.85))
+		c.draw_string(f, at + Vector2(w + 3, -2), word, HORIZONTAL_ALIGNMENT_LEFT, -1, 6, ink)
 
 ## The controls in words for the device in use (Playtester, 2026-10-11: "the keys are never shown inside the game").
 func keys_for(what: String) -> String:

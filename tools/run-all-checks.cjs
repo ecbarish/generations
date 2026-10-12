@@ -15,7 +15,7 @@ const PAGES=['run','wildbond','starfall','sound','offline','diamond','diamond-ma
 const GODOT_SUITES=['wildbond-godot','starfall-godot'];
 const only=process.argv.slice(2);
 const wanted=name=>!only.length||only.some(w=>name.includes(w));
-if(only.length&&!PAGES.concat(GODOT_SUITES).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES).join(', '));process.exit(2);}
+if(only.length&&!PAGES.concat(GODOT_SUITES,['wildbond-catalog']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['wildbond-catalog']).join(', '));process.exit(2);}
 const TYPES={'.html':'text/html','.js':'text/javascript','.cjs':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.ogg':'audio/ogg','.wav':'audio/wav','.mp3':'audio/mpeg','.mp4':'video/mp4','.wasm':'application/wasm','.pck':'application/octet-stream','.webmanifest':'application/manifest+json','.ico':'image/x-icon','.txt':'text/plain','.md':'text/plain'};
 
 function serve(){return new Promise(ok=>{const server=http.createServer((req,res)=>{
@@ -92,6 +92,12 @@ function findGodot(){
       results.push({name:project,ok,line:total});
       console.log((ok?'ok  ':'FAIL')+'  '+project+'  '+total);
     }
+  }
+  if(wanted('wildbond-catalog')){                 // the generated creature catalogue matches the game data
+    const run=spawnSync(process.execPath,[path.join(ROOT,'tools/wildbond-catalog.cjs'),'--check'],{encoding:'utf8'});
+    const line=((run.stdout||'')+(run.stderr||'')).trim().split('\n').pop();
+    results.push({name:'wildbond-catalog',ok:run.status===0,line});
+    console.log((run.status===0?'ok  ':'FAIL')+'  wildbond-catalog  '+line);
   }
   const failed=results.filter(r=>!r.ok);
   console.log(failed.length?'\n'+failed.length+' of '+results.length+' suites FAILED.':'\nAll '+results.length+' suites pass.');

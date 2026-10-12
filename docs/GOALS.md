@@ -105,7 +105,7 @@ is what the real games should be."
 
 | Term | Goal | Path IDs |
 |---|---|---|
-| Short | **Hire coaches in Diamond Manager; pitch Lantern Bowl** (a one-page pitch with three mock screens) and share the office code. | DM3, LB0, LB1 |
+| Short | **Lantern Bowl playable** (one drive, then one full game) and Diamond Manager's ballpark you see grow. (DM3, DM4, DM-B2, DM7, LB0 and LB1 are done.) | LB2, LB3, DM5 |
 | Medium | **Two sports that play well**: Diamond Manager with morale, records and a league that stays balanced over many seasons; Lantern Bowl from one playable drive to a full season (Retro Bowl's quick, readable football). | DM4, DM-B2, DM7, LB2-LB5 |
 | Long | **One sports world**: a shared management core across baseball, football and hockey, where your career and your salary buy a life that lasts (homes, cars), as the 2026-10-06 plans describe. | HK0+, docs/plans/sports-management.md |
 

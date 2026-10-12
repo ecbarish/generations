@@ -73,7 +73,7 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 
 **WB-M2: who you are and where you stand.**
 - [x] WB2.1 [Claude] Tamer abilities with heritages (WG1): done 2026-10-08 (Orders menu: Rally, a family order, Toren's Steady).
-- [ ] WB-KEYS [any] Show the keys in game (PLAYTEST pass 2: "Wildbond still shows no keys in game"): the first time each action matters, its key or phone-pad button appears in the world; no website needed to play. (QUEUE H2)
+- [x] WB-KEYS [any] Show the keys in game (PLAYTEST pass 2: "Wildbond still shows no keys in game"): the first time each action matters, its key or phone-pad button appears in the world; no website needed to play. (QUEUE H2) *Done 2026-10-11 (Claude, lane W): the arrow keys float over your head until you have walked a few steps; beside anyone or anything you can use, the Talk key and its word ("E Talk", "E Feed"; A on a gamepad) sit beside you until you have used it three times; J (or Y) sits beside the bag until the field book has been opened. On a phone the pad and the Talk button already label themselves, so nothing is added. Older saves never see them. Screenshots: docs/screenshots/wildbond-keys/.*
 - [ ] WB2.2 [Claude] Depth step 1 (WG6): ground heights, object footprints and heights (part 1 done 2026-10-08: the colour layer drawn in true depth order, people in front of you faded as the world is). Part 2 done 2026-10-09: trees beside open ground stand at their true height and their crowns pass in front of you (see-through, faded like the world: shaders/canopy.gdshader), never over a sign or an item. Left: ground heights, footprints and heights on objects (houses and rocks).
 - [ ] WB2.3 [Claude] Variety pass (WG7) (done 2026-10-08: an animated effect per element in battle; waves and wind under the music. Tried the pack's water ripples: opaque tiles, rejected). Left: waterfalls, edge
   tiles.
@@ -83,6 +83,17 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 - [x] WB2.6 [ChatGPT] (done, merged 2026-10-09; T45) Lore: a heritage line for every Warden and townsperson in areas 1-4 (data in the browser game,
   exported to Godot), recorded in the thread ledger.
 - [x] WB2.7 [Claude] Bring T37's fourteen creatures into Godot (WG9): done 2026-10-09 (exported; all use existing body types; 107 species).
+
+**WB-C: creatures worth raising (Evan, 2026-10-11; spec: docs/wildbond-creatures.md, list: docs/wildbond-creatures/catalog.md).**
+Target about 150 species in about 70 lines; most new species are new stages of today's 74 loners; six showpiece lines.
+- [ ] CR1 [any] Sizes and tiers in the data (`size`, `tier` on every species) and creatures drawn at their size in battle and when following you (spec 4.4). Screenshots small beside huge.
+- [ ] CR2 [ChatGPT / writer] The six showpiece lines (spec 3): the three starter lines promoted, new Stone, Gale and Radiant lines, a slow growth rate, guardians raised to 560-600; pacing check (WB3.6b) holds.
+- [ ] CR3 [any, one region per PR] Grow the loners into lines: about 58 of the 74 creatures that never evolve gain a new stage before or after them, each its own creature with its own name and look (like Squirtle, Wartortle, Blastoise; not baby or adult versions, which are WB5.5), in journey order (Thornwood first).
+- [ ] CR4 [any] The evolution moment: the light, the silhouette growing, the new form at full size, someone who notices; the full version for showpieces.
+- [ ] CR5 [any] Two more branching lines with unused conditions (time of day, weather, what it ate).
+- [ ] CR6 [any] World-fit audit: every creature in solid black by shape; fix look-alikes; each region's size and shape spread (spec 4.2, 4.7).
+- [ ] CR7 [any] Rare spawns for showpieces: a hidden pocket or rare-condition spawn per region, hinted by someone there.
+- [ ] CR8 [any] New shapes: fish and a winged drake first, then rabbit-kind, beetle, owl (one per PR, screenshots).
 
 **WB-M3: the rest of the valley (areas 5-8).**
 - [ ] WB3.1 [Claude] Stillreed Basin in Godot (map, ferry, trainers, Warden), with its own furniture, sound and music. *Step 1 done 2026-10-09: the area is walkable with its wooden footbridges, trainers, Warden, river ambience and the Boat tune; step 2: the moored ferry skiff and its mooring sign (readable), the river flowing under the bridges. Step 3: its own touches: the current running down the river, cattails on the banks, windfall under the orchard, a coil of ferry rope, dragonflies. Still to do (later, with the story): a ferry ride once the rope is mended.*
@@ -121,7 +132,7 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 - [x] WD1 [Claude] **Done 2026-10-09 in PR #91** (satchel icon and Satchel page; large place names on arrival). Numbers off the screen (GR-4): remove the Badges/Lures/Coins/Wilddex line; a readable arrival name.
 - [ ] WD2 [ChatGPT data, Claude drawing] (data built: Codex, PR #113; drawing remains open) Creatures that look different (GR-1): per-species look features in data;
   parts drawn in figures.gd; 4-5 new body shapes. *Part 1 done 2026-10-09: serpent, turtle, moth and tree-folk shapes for twelve species (figures.gd `SHAPE_FOR`; a `shape` field in the data overrides it). Data half built in PR #113: all 107 browser species have shape + head/back/tail/pattern hints, including hybrids. Left: Claude draws the parts; a fish shape with WB5.7.*
-- [ ] WD3 [Claude, ChatGPT data] Battles with real choices (GR-2): about 60 moves, family signature moves, a few
+- [x] WD3 [Claude, ChatGPT data] (merged: PR #125; ticked 2026-10-12 by lane P) Battles with real choices (GR-2): about 60 moves, family signature moves, a few
   statuses, an order per Warden; tuned with WB3.6.
 - [ ] WD4 [Claude] Areas you can explore (GR-3): route, settlement and hidden pocket per area, return spots gated by
   element. **WD4a Thornwood done 2026-10-09 in PR #128:** Thornwood Trail, the preserved settlement, and Stone-gated Old Root Grove. Remaining areas stay open, one area per PR.
@@ -297,7 +308,7 @@ approves).
 - [ ] RB2.2 [ChatGPT] Second raid tier (R7), data and encounters. (deferred by Evan, 2026-10-11: validate the opening/core loop with players before deeper content)
 - [x] RB2.3 [ChatGPT] The catalogue reaches Realmbound (T43). (merged 2026-10-09)
 
-- [ ] RB-PLAY1 [ChatGPT] Fresh-character first-session audit: first quest, combat, recovery and reload; immediately useful fixes only. (ready: Codex, PR #214, 2026-10-11)
+- [x] RB-PLAY1 [ChatGPT] Fresh-character first-session audit: first quest, combat, recovery and reload; immediately useful fixes only. (v1.8.1, PR #214, merged 2026-10-12)
 
 **RB-M3: a living world.**
 - [ ] RB3.1 [ChatGPT] Simulated adventurers in the zones (V5 part 1: questing, groups,
@@ -400,6 +411,8 @@ Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the 
 - [x] AC1 [any] Storm Front (the Space Invaders shape, Evan's pick): one cabinet, original name and art, one PR. (built: Codex for Adam / abarish-dev, guest/storm-front, PR #119; awaiting review)
 - [x] AC2 [any] Lighthouse Watch (the Missile Command shape). (built: Grok for Adam / abarish-dev, PR #145, merged 2026-10-10; v0.1.0)
 - [x] AC2.1 [any] Lighthouse Watch display and controls polish: uniform harbour scale, taps mapped after resize, phone pause/rotation checks and before/after captures. Files: `games/lighthouse-watch/`, `tests/lighthouse-watch.html`, evidence in `docs/playtests/lighthouse-watch-display/`; done when circles remain round and aiming/menus/scores pass on phone and desktop. Score 16/21 (fun 2×2, heart 2×2, friends 3, focus 2, cheap 3). (built: Codex for Adam / abarish-dev, PR #163; v0.1.1 release)
+- [ ] AC5 [any] A fifth cabinet: a 1978-85 one-screen shape we don't have yet (the maze chase or the asteroid field), our own name, art and sound, never a copied look; shared high scores; phone and desktop. Score 16/21. (QUEUE road 9, added 2026-10-12)
+- [ ] AC6 [any] A sixth cabinet, the other shape from AC5's choice, same rules. (QUEUE road 9)
 - [ ] AC-x [any] Cabinet polish from playtests (docs/PLAYTEST.md pass 2): one cabinet per PR (AC1.1, AC2.2, ...), until each scores 17+. (QUEUE road 9, added 2026-10-11)
 - [x] AC3 [any] Brisket's Crossing (the Frogger shape) and Ember Bricks (the Breakout shape), one PR each. Brisket's Crossing is merged ([PR #160](https://github.com/ecbarish/idle-arcade/pull/160), `a7fac81`). Ember Bricks is merged ([PR #185](https://github.com/ecbarish/idle-arcade/pull/185), Grok for Adam / abarish-dev, 2026-10-11).
 
@@ -440,6 +453,10 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
 ## Part 4: what we've learned and actioned (newest first; every piece of work adds a line)
 
 - **2026-10-12, RB1.11 (Codex):** disabling AI fallback is insufficient when basic attacks, pets and companions still advance. Pause the whole combat transaction together, and test old away saves through boot rather than only calling an offline helper.
+
+- **2026-10-11, creature catalogue (Wildbond builder):** counting the data showed the real gap: 74 of 89 lines never evolve and every creature is drawn the same size. Growing existing creatures into lines beats adding loners, and the catalogue is now generated from the data (`tools/wildbond-catalog.cjs`, checked by run-all-checks) so it can't go stale.
+
+- **2026-10-11, WB-KEYS:** a caption that names the keys is easy to miss; a small key drawn beside you, with the word it does, at the moment it matters, is not. Keep such hints in the world, count uses and let them step aside (an older save starts as already knowing). Put the hint beside the player, never over the person you're about to talk to.
 
 - **2026-10-11, SF2.6c:** frame the whole landmark texture, not only its collision footprint, and reserve space for screen text. A fresh spawn plus a one-tile northern margin fixes the first view without moving existing saves; verify actual renderer captures and service routes at every supported shape. [Evidence](screenshots/starfall-opening-view/README.md).
 
