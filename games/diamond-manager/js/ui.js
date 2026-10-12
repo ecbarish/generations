@@ -1,7 +1,7 @@
 'use strict';
 /* Diamond Manager: the screen. The field fills the window; the scoreboard, the play-by-play and Iona's notes sit on
    it; the front office is a clipboard opened over the field. */
-const VERSION='0.6.0';
+const VERSION='0.7.0';
 const $=s=>document.querySelector(s);
 Arcade.validators[DM.key]=validLeague;
 let L=migrateLeague(loadLeague(localStorage, Arcade.backups(DM.key))), view=null, tab='roster', trade={club:1,give:[],get:[],answer:''}, finder={pos:'any',shop:0,want:null,deal:null,offers:null}, flash='';
@@ -141,7 +141,7 @@ function afterGameNote(g){
   const gate=L.results.length&&L.results[L.results.length-1].gate&&L.phase!=='final';
   const r=L.results[L.results.length-1];
   note('<div class="who">Iona Vale, field manager</div><h2>'+(won?'A win':'A loss')+', '+Math.max(...g.score)+' to '+Math.min(...g.score)+'</h2><ul>'+why.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>'+
-    (gate&&r.gate?'<p>'+r.gate.crowd.toLocaleString()+' came to Lamplight Field. The gate brought in '+money(r.gate.money)+'.</p>':''),
+    ((L.moraleNotes||[]).filter(x=>x.key===(g.key??dayKey(L))).map(x=>'<p>'+esc(x.text)+'</p><button data-player-story="'+x.id+'">Talk with Iona about '+esc(pl(c,x.id)?.name||'the player')+'</button>').join(''))+(gate&&r.gate?'<p>'+r.gate.crowd.toLocaleString()+' came to Lamplight Field. The gate brought in '+money(r.gate.money)+'.</p>':''),
     '<button class="primary" id="n-ok">Thanks, Iona</button><button id="a-box">Box score</button>');
 }
 function showOffseasonOrNext(){
@@ -172,14 +172,16 @@ function introNote(){
 }
 
 /* ---------- The front office ---------- */
-const TABS=[['roster','Roster and lineup'],['trades','Trades'],['free','Free agents'],['farm','Farm and draft'],['stats','Stats'],['coaches','Coaches'],['park','Ballpark'],['league','League']];
+const TABS=[['roster','Roster and lineup'],['trades','Trades'],['free','Free agents'],['farm','Farm and draft'],['stats','Stats'],['people','Clubhouse'],['coaches','Coaches'],['park','Ballpark'],['league','League']];
 function openOffice(t){ if(t)tab=t; $('#office').hidden=false; closeNote(); renderOffice(); $('#close-office').focus(); }
 function closeOffice(){ $('#office').hidden=true; flash=''; finder.want=null; finder.deal=null; finder.offers=null; render(); }
 function renderOffice(){
   $('#tabs').innerHTML=TABS.map(([k,n])=>'<button role="tab" data-tab="'+k+'" aria-selected="'+(k===tab)+'">'+n+'</button>').join('');
   const m=flash?'<div class="msg'+(flash.startsWith('✓')?' ok':'')+'" role="status">'+esc(flash)+'</div>':'';
-  $('#office-body').innerHTML=m+({coaches:coachesTab,roster:rosterTab,trades:tradeTab,free:freeTab,farm:farmTab,stats:statsTab,park:parkTab,league:leagueTab}[tab])();
+  $('#office-body').innerHTML=m+({people:moraleTab,coaches:coachesTab,roster:rosterTab,trades:tradeTab,free:freeTab,farm:farmTab,stats:statsTab,park:parkTab,league:leagueTab}[tab])();
 }
+function moraleTab(){return '<p>Playing time, results and contract expectations shape how each player feels. Unsettled players ask 10% more; Settled players ask 5% less. The asking price is rounded to the nearest $10K. Give someone real innings to rebuild their place here.</p><div class="coach-grid">'+you().players.map(p=>'<article class="coach-card"><h4>'+esc(p.name)+'</h4><p>'+esc(p.pitcher?'Pitcher':p.pos)+' · '+moodWord(p)+'</p><p>'+esc(playerStory(p))+'</p><button data-player-story="'+p.id+'">Hear from Iona</button></article>').join('')+'</div>';}
+function playerStoryNote(id,error=''){const p=pl(you(),id);if(!p)return;const m=playerMorale(p);note('<div class="who">Iona Vale, field manager</div><h2>'+esc(p.name)+'</h2><p>'+esc(playerStory(p))+'</p>'+(error?'<p role="status">'+esc(error)+'</p>':''),(m.request?.kind==='contract'?'<button class="primary" data-player-deal="'+id+'">Offer a new deal: '+money(askSalary(p,L.upgrades.clubhouse))+' a season</button>':m.request?.kind==='trade'?'<button class="primary" data-player-trade="'+id+'">Look for a new club</button>':'')+'<button id="n-ok">'+(m.request?'Keep them here for now':'Back to the field')+'</button>');}
 function coachesTab(){let html='<p>Iona: A good teacher helps players grow into their promise. Coaches work with the roster and farm club. Age and player ceilings still apply.</p><p>Staff salaries come from cash, separate from player payroll. Pay once when signing, for next season only; no automatic renewal.</p>';for(const role of ['hitting','pitching']){const c=L.coaches?.[role];html+='<h3>'+ (role==='hitting'?'Hitting':'Pitching')+' coach</h3>';if(c){html+='<p><b>'+esc(c.name)+'</b> · '+money(c.salary)+' paid for season '+c.season+'. '+coachDescription(c)+'</p>';continue;}const candidates=coachCandidates(L,role);html+=candidates.length?'<div class="coach-grid">'+candidates.map(c=>'<article class="coach-card"><h4>'+esc(c.name)+'</h4><p>'+coachDescription(c)+'</p><p><b>'+money(c.salary)+'</b> for season '+c.season+'</p><button data-coach-role="'+role+'" data-coach="'+c.id+'" '+(L.cash<c.salary?'disabled':'')+'>Hire '+esc(c.name)+'</button></article>').join('')+'</div>':'<p>This job is open. Three candidates will visit during the offseason.</p>';}if(L.report?.coaching?.length)html+='<h3>Last winter’s coaching</h3>'+coachingReport(L.report);return html;}
 function coachingReport(r){const labels={contact:'Contact',power:'Power',eye:'Eye',glove:'Glove',stuff:'Stuff',control:'Control',stamina:'Stamina'};return '<ul>'+r.coaching.map(x=>'<li>'+esc(x.name)+': '+Object.entries(x.gains).filter(([k,n])=>labels[k]&&Number.isInteger(n)&&n>0&&n<=2).map(([k,n])=>labels[k]+' +'+n).join(', ')+' from '+esc(x.coach)+'.</li>').join('')+'</ul>';}
 function ratingCells(p){ return p.pitcher?'<td>'+p.stuff+'</td><td>'+p.control+'</td><td>'+p.stamina+'</td>':'<td>'+p.contact+'</td><td>'+p.power+'</td><td>'+p.eye+'</td><td>'+p.glove+'</td><td class="hide-sm">'+spd(p)+'</td>'; }
@@ -329,6 +331,9 @@ document.addEventListener('click',async e=>{
   if(b.id==='close-office') return closeOffice();
   if(b.dataset.tab){ tab=b.dataset.tab; flash=''; return renderOffice(); }
   if(b.id==='stat-box'){ closeOffice(); return boxNote(); }
+  if(b.dataset.playerStory){closeOffice();return playerStoryNote(Number(b.dataset.playerStory));}
+  if(b.dataset.playerDeal){const id=Number(b.dataset.playerDeal),error=offerPlayerDeal(L,id);save();if(error)return playerStoryNote(id,error);const p=pl(you(),id);render();note('<div class="who">Iona Vale, field manager</div><h2>A deal for the road ahead</h2><p>'+esc(p.name)+' has signed for '+money(p.salary)+' a season. They know you listened.</p>','<button class="primary" id="n-ok">Back to the field</button>');return;}
+  if(b.dataset.playerTrade){const id=Number(b.dataset.playerTrade);trade={club:1,give:[id],get:[],answer:''};return openOffice('trades');}
   const c=you(); let r=null;
   if(b.dataset.up!==undefined||b.dataset.down!==undefined){ const i=Number(b.dataset.up??b.dataset.down), j=b.dataset.up!==undefined?i-1:i+1; const l=c.lineup.slice(); [l[i],l[j]]=[l[j],l[i]]; c.lineup=l; r=''; }
   else if(b.dataset.start){ const l=c.lineup.slice(); l[8]=Number(b.dataset.start); c.lineup=l; setLineup(c,l); r=''; }
@@ -384,4 +389,4 @@ let fieldSize=null;
 function frame(now){ stepWatch(now); fieldSize=drawField($('#field'),L,view?view.scene:null); requestAnimationFrame(frame); }
 render(); requestAnimationFrame(frame);
 if(L.intro) introNote(); else if(L.live) watch(L.live.g,false); else showOffseasonOrNext();
-if(location.hostname==='localhost') window.__dm={get L(){return L;},set L(v){L=v;render();},DM,coachCandidates,hireCoach,coachingGain,validCoachState,newLeague,playGame,playDay,playFinalGame,recordGame,standings,overall,askSalary,payroll,batters,pitchers,setLineup,autoLineup,makeSchedule,plateAppearance,gateMoney,endSeason,canStartSeason,startSeason,resign,release,signFree,buyUpgrade,worth,judgeTrade,doTrade,aiOffer,answerOffer,validLeague,loadLeague,migrateLeague,rosterOk,render,potentialFor,defensiveSub,sendRunner,rested,starterOf,dayKey,newGame,stepGame,finishGame,startDay,finishDay,startFinalGame,finishFinalGame,changePitcher,pinchHit,pinchRun,answerAsk,benchOf,bullpenOf,effective,pitchLimit,boxScore,speedFor,findDeal,completeDeal,shopPlayer,tradeRating,clubPlayer,scoutCeiling,makeProspect,develop,playsDaily,startDraft,draftPick,draftPass,draftAuto,callUp,sendDown,releaseFarm,FARM_MAX};
+if(location.hostname==='localhost') window.__dm={get L(){return L;},set L(v){L=v;render();},DM,freshMorale,playerMorale,moodWord,moraleAsk,validMorale,recordMood,offerPlayerDeal,playerStory,coachCandidates,hireCoach,coachingGain,validCoachState,newLeague,playGame,playDay,playFinalGame,recordGame,standings,overall,askSalary,payroll,batters,pitchers,setLineup,autoLineup,makeSchedule,plateAppearance,gateMoney,endSeason,canStartSeason,startSeason,resign,release,signFree,buyUpgrade,worth,judgeTrade,doTrade,aiOffer,answerOffer,validLeague,loadLeague,migrateLeague,rosterOk,render,potentialFor,defensiveSub,sendRunner,rested,starterOf,dayKey,newGame,stepGame,finishGame,startDay,finishDay,startFinalGame,finishFinalGame,changePitcher,pinchHit,pinchRun,answerAsk,benchOf,bullpenOf,effective,pitchLimit,boxScore,speedFor,findDeal,completeDeal,shopPlayer,tradeRating,clubPlayer,scoutCeiling,makeProspect,develop,playsDaily,startDraft,draftPick,draftPass,draftAuto,callUp,sendDown,releaseFarm,FARM_MAX};

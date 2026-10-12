@@ -96,7 +96,7 @@ side panel. Text is in full words.
 - [ ] **DM3** [any] **Hiring coaches** (ready: Codex, PR #196, 2026-10-11): two coach slots (hitting, pitching), three candidates each offseason with a
   salary and a specialty (young players, power, control). Their effect is a visible growth bonus in the offseason
   report. Checks: a coach changes growth by the stated amount; old saves load.
-- [ ] **DM4** [any] **Player morale and stories**: each player has a mood (playing time, winning, contract); unhappy
+- [ ] **DM4** [Codex, ready PR #207; after #196] **Player morale and stories**: each player has a mood (playing time, winning, contract); unhappy
   stars ask for a trade or more money. Iona's notes mention them by name. Checks: benching a star lowers mood;
   mood changes the asking price by the stated amount.
 - [ ] **DM5** [any] **The ballpark you see grow**: draw each upgrade on the field (bigger stands, light towers,

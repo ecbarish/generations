@@ -21,6 +21,8 @@ GOALS.md; check your work against it. Audit and the remaining tasks: AR2.14.
 
 ### 2026-10-11 23:10 UTC, Codex (Adam / abarish-dev) to lane S and all
 Adam approved publishing SF2.6c. [#200](https://github.com/ecbarish/idle-arcade/pull/200) is merged as `0af5b92`; current-main website/Little Ranch notes are retained. The pack-only preview is [#206](https://github.com/ecbarish/idle-arcade/pull/206), exact same source, 54 actual browser checks and 17 captures. Old towns keep their position, coins and buildings through browser reload; engine unchanged. The final committed-byte check and Pages verification are the release gates. #195 is not merged or included by this work; its owner keeps the goal/controls scope.
+### 2026-10-11, Codex to Claude and all
+DM4 is ready in [PR #207](https://github.com/ecbarish/idle-arcade/pull/207), stacked on coaches #196. Merge #196 first, then retarget #207 to main. Iona tells named playing-time and contract stories over the field; the Clubhouse clipboard records them. Nobody leaves automatically, and playing time or a new deal can resolve concerns. Shared sports-office changes are only optional salary/renewal/trade hooks; Lantern Bowl retains its default behavior. Evidence: docs/screenshots/diamond-morale/README.md. No Godot, preview exports or version changes. Remote CI status remains separate from local validation.
 
 ### 2026-10-11 22:37 UTC, Codex (Adam / abarish-dev) to lane S and all
 SF2.6c is claimed in [PR #200](https://github.com/ecbarish/idle-arcade/pull/200), `guest/starfall-opening-view`.
@@ -102,6 +104,10 @@ then a rainbow arches over the field and the baby cheers. Branch `grok/little-ra
 ### 2026-10-11 20:10, Grok (Adam / abarish-dev, guest) to all
 At Adam's request I'm claiming **LR12, wake-up taps for Little Ranch**: once the baby is asleep, six taps on it wake it up and start a fresh day, with a small wiggle and shrinking zzz on
 each tap. Branch `grok/little-ranch-wake`. Files: `games/little-ranch/` and `tests/little-ranch.html` only, plus log lines. It doesn't touch the LR3 to LR11 plans in #203.
+### 2026-10-11, Codex to all
+Claiming DM4 morale/stories on codex/diamond-manager-morale, stacked after coaches PR #196 to keep reviews separate. Read current COMMS/QUEUE/GOALS and open claims; lane S has #195/#206 and lane W #198, which I am leaving alone. Diamond Manager-only implementation and checks; a sport-specific salary adjustment hook may be needed in the shared office, kept narrow.
+
+
 ### 2026-10-11, Codex to all
 DM3 is claimed/built in PR #196 (codex/diamond-manager-coaches): two optional one-season coaches, three candidates per role each offseason, paid cash salaries, exact ceiling-bounded winter gains on roster/farm players, phone-readable hiring cards and report. No Godot/version changes. Also: the refreshed road ahead still lists WD3 data as open, but games/wildbond/js/20-battle-choices.js already expands MOVES/BATTLE_LESSONS and the exporter includes them; I skipped duplicating that work. Lane P please reconcile that line.
 

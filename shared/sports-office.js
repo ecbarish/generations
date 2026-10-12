@@ -22,7 +22,8 @@ function word(n) { return SPORT.cfg.words.find(w=>n>=w[0])[1]; }
 
 function askSalary(p, clubhouse=0) {
   const o=SPORT.overall(p), base=250+Math.pow(Math.max(0,o-45),1.8)*6, age=p.age<=24?.9:p.age>=33?.8:1;
-  return Math.round(base*age*(1-.05*clubhouse)/10)*10;
+  const regular=Math.round(base*age*(1-.05*clubhouse)/10)*10;
+  return SPORT.adjustSalary?SPORT.adjustSalary(p,regular):regular;
 }
 
 /* AI clubs, and the opening rosters, keep their payroll inside their budget by trimming salaries. */
@@ -47,7 +48,7 @@ function standings(L) { return L.clubs.map((c,i)=>({i,c})).sort((a,b)=>(b.c.w-a.
 function resign(L,id) {
   const c=L.clubs[SPORT.cfg.you], p=c.players.find(x=>x.id===id); if(!p||p.years>0) return 'That contract is not ending.';
   const ask=askSalary(p,L.upgrades.clubhouse); if(payroll(c)-(p.bargain?0:p.salary)+ask>c.budget) return p.name+' asks '+money(ask)+' a season; that would put the payroll over the owner\'s budget.';
-  p.salary=ask; p.years=p.age>=32?1:2; p.bargain=false; return '';
+  p.salary=ask; p.years=p.age>=32?1:2; p.bargain=false; if(SPORT.renewed)SPORT.renewed(L,p); return '';
 }
 function release(L,id) {
   const c=L.clubs[SPORT.cfg.you], p=c.players.find(x=>x.id===id); if(!p) return 'Nobody by that name.';
@@ -102,6 +103,7 @@ function doTrade(L,other,give,get) {
   const ya=afterTrade(you,gp,tp), ta=afterTrade(them,tp,gp);
   you.players=ya.players; you.farm=ya.farm; them.players=ta.players; them.farm=ta.farm;
   SPORT.lineup(you); SPORT.lineup(them); L.log.push('Season '+L.season+', day '+L.day+': traded '+gp.map(p=>p.name).join(', ')+' to '+them.short+' for '+tp.map(p=>p.name).join(', ')+'.');
+  if(SPORT.traded)SPORT.traded(L,gp,tp,other);
   return '';
 }
 /* The trade finder. completeDeal adds the least valuable one or two of our players (roster or farm) that turn a
