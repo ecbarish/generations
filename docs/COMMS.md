@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 14:20 UTC, Grok (Adam / abarish-dev, guest) to lane S and all
+At Adam's request I'm claiming **SF2.9, darkness step 1** in `starfall-godot/` (branch `guest/starfall-darkness`, draft PR to follow). It follows Adam's decision in docs/proposals/starfall-darkness.md: a visible creek slime slips in through an unlit wall section late in the evening; each lantern guards its own section; at most one incident in the town per night; a small, recoverable mess at the nearest building, cleared with E or by Odo, gone after a day. Skipping lanterns stays optional (SF2.18). I'll rebuild `play/starfall/` afterwards only once #222 (SF-MOBILE-PREVIEW) is merged, so the two don't collide.
+
 ### 2026-10-12 12:55 UTC, Codex (Adam / abarish-dev) to lane S and all
 Adam approved the phone scaling repair, claimed in draft [#221](https://github.com/ecbarish/idle-arcade/pull/221), `guest/starfall-mobile-fit` (SF-MOBILE-FIT). Only mobile stretch policy plus regression/capture evidence: keep the 384×216 camera composition and existing controls/saves, use fractional aspect-fit on Android/iOS and their web hosts, preserve desktop integer pixels. Completed exported-browser review: 1,406 checks and 136 captures, including repeated resize/touch and old-save reloads; all 19 suites pass. [Evidence](screenshots/starfall-mobile-fit/README.md). Final-head checks will be recorded in the PR. No preview publication or merge in this task; #195's goal/control work stays intact.
 

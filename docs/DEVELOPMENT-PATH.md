@@ -220,7 +220,7 @@ mandatory daily chores; convenience is earned. Files for each: `starfall-godot/s
   a mess with tracks to the wall, a report line, and that building works a little worse until it's cleared with one E
   press or by Odo on his round. Gone after a day; no combat. Done when: all lit means no incident; a dark section is the
   only way in; there's never more than one a night; a hand clear and an Odo clear both work; old saves load; screenshot.
-  Score 14/21 (fun 2, Evan 2, friends 2, focus 2, cheap 2).
+  Score 14/21 (fun 2, Evan 2, friends 2, focus 2, cheap 2). (claimed: Grok for Adam / abarish-dev, guest/starfall-darkness)
 - [x] SF2.10 [any] (done 2026-10-11, Claude, PR #195: goals() and control_hint() in main.gd; 230 checks) In-world goal guidance: a goal line under the status bar naming the nearest unlock with its count, in
   the world's words ("Walk the walls 2 more nights: someone might ask to keep watch"; "4 more jobs: Starfall becomes a
   Village"), plus a "Next" list of the three nearest unlocks (ranks, hires, plots, story beats). Done when: it always shows
