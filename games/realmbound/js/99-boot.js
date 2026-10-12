@@ -1,5 +1,5 @@
 'use strict';
-const VERSION = '1.8.0'; // the game's version (L9): bump it on release, see HANDOFF.md "Releasing a version"
+const VERSION = '1.8.1'; // the game's version (L9): bump it on release, see HANDOFF.md "Releasing a version"
 /* =================== boot =================== */
 function boot(){
   clearRealmRoad();
