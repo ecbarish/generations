@@ -8,6 +8,10 @@ Canvas drawing uses uniform device-pixel scaling. Mule normal/recovery bounds fi
 
 No changes to model rules, collision dimensions, movement speed, recovery timing, scores, save keys/formats or input actions in this responsive follow-up. The existing inverse tap mapping is preserved.
 
+## Final verified implementation
+
+Head `527b28a900b36e155c4bde1969fd5fcc324f6e6e` passes [all 19 aggregate suites](https://github.com/ecbarish/idle-arcade/actions/runs/38276247750), including native Wildbond 1,510 and Starfall 264. The [final responsive rerun](https://github.com/ecbarish/idle-arcade/actions/runs/38276247762) passes the old-fixture reproduction, 57 Brisket checks and 336 responsive checks, producing 70 fresh images. The bounded-hop synchronization change passes. Final artifact 11759600233, ZIP SHA-256 `c9c2678ce8ee480cfb5ff96a43aac54f25322021160f78ad44089b2059057a01`. Subsequent check-in edits are documentation only; latest-head status remains in the PR.
+
 ## Evidence and independent review
 
 Render implementation and capture head: `1bda9e51f44a5044d274ce8a18d1f8869605da25`; CI merge: `88861482ce9b5f6414951f665647956a66cea042`, based on main `07403b4b7512da4abef44704d7fda510914030b0`.
