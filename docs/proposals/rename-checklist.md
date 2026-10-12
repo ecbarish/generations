@@ -16,8 +16,8 @@ This is its own ticket, not a quick edit. Do not start until Evan approves the s
    Update every shared link, bookmark, and QR code.
 3. **Control Tower viewer URL** (`idle-arcade-tower.abarish227759.chatgpt.site`): check whether
    it needs renaming or reconfiguring; update COMMS.md references.
-4. **Repo description + tagline**: pending Evan's tagline pick (see tagline.md). Do not change
-   the description until he picks.
+4. **Repo description + tagline**: decided 2026-10-12, "Play for the fun. Automate the grind." (tagline.md).
+   Evan edits the description himself on github.com.
 5. **Docs sweep**: CLAUDE.md, README.md, START-HERE.md, HANDOFF.md, AGENTS.md, CONTRIBUTING.md
    and docs/* — "Idle Arcade" / "idle-arcade" / "the arcade" → "Generations". (Note: some
    "arcade" uses mean the site shell/launcher specifically; those may stay if the launcher
@@ -71,3 +71,30 @@ Checked against the repository on 2026-10-12.
     keeps working through GitHub's forwarding for a while, but update them in the same session.
 19. **Order matters:** merge every open pull request (or warn their authors) before renaming, since branches
     keep working but in-flight links and checks point at the old name.
+
+## Proposed order (lane P, 2026-10-12; waits for Evan's approval)
+
+Evan greenlit the rename and wants to approve this order before anyone starts. Steps marked **Evan** are his on
+github.com; everything else any AI can do.
+
+1. **Announce a short rename window** in COMMS and merge or warn every open pull request (item 19).
+2. **Add a save-safety check** to `tools/run-all-checks.cjs`: it fails if any `arcade-*` key name or either Godot
+   `config/name` changes (items 9, 14, 15). These names never change in any later step.
+3. **Name pull request, merged before the rename:** the words "Idle Arcade" become "Generations" in docs, page
+   titles, meta, the manifest name and code comments; the service worker's cache name gets a new version so
+   players pick up the new pages (items 5-8, 17). Links still point at the old address, so nothing breaks yet.
+4. **Address pull request, prepared but not merged:** every hard-coded `ecbarish/idle-arcade` and
+   `github.io/idle-arcade` address switched to the new name (item 16), with `tests/tell-us.html` updated.
+5. **Evan: rename the repository on github.com and edit its description** to the new tagline, in the same sitting
+   (items 1, 4). The tagline edit can also happen today on its own; it does not depend on the rename.
+6. **Merge step 4 at once**, then confirm the site loads at `ecbarish.github.io/generations/` and all checks pass.
+7. **Evan: create an empty `idle-arcade` repository**; an AI fills it with an `index.html` and `404.html` that
+   forward each page to the same path under `/generations/`, and a `sw.js` that unregisters the old service worker
+   and clears its caches; Evan turns on Pages for it (items 2, 11, 13).
+8. **Check saves:** open the old link on a device with an existing save; it lands on the new address and the save
+   is still there (item 12: same origin, same keys). Repeat for a Godot web preview.
+9. **Outside the repository** (item 18, item 3): the Claude project's repository setting and cloud environment,
+   the routines' prompts, project memory, ChatGPT/Codex's repository connection, Adam's AIs' clones and
+   CONTRIBUTING.md's start prompt, the local helper's folder on Evan's PC (Evan), the Control Tower viewer.
+10. **Re-render the trailer and any QR codes** with the new address (items 2, 16).
+11. **Tell testers and friends** (item 10).

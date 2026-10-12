@@ -1,5 +1,10 @@
 # Tagline change (Flint, 2026-10-12)
 
+**Decided (Evan, 2026-10-12): "Play for the fun. Automate the grind."** Gemini suggested it; Evan picked it over the
+options below. It fits GOALS.md's "earned automation, not autoplay": the fun is played, the chores you have mastered
+can be automated. The "no automation words" rejection below is overruled by Evan's pick. The GitHub description edit
+is Evan's own step on github.com (docs/proposals/rename-checklist.md, "Proposed order").
+
 Evan, 2026-10-12: the tagline needs work or removal — "I don't want to be corny." Also, honest
 monetization (ads, microtransactions) is on the table if the games can genuinely earn, so the
 branding must not promise "no ads ever." The project started as a hobby and has become more;
