@@ -7,9 +7,13 @@
    the corner button for three seconds). Art and sounds are drawn and made in code. Only the sound choice is stored
    (little-ranch-settings-v1); there is no save. Once it's asleep, six taps on it wake it up for a fresh sunny day (LR12):
    each tap makes it stir and its zzz shrink. In the daytime, tapping the sun brightens it, and the fifth tap brings a
-   rainbow over the field while the baby cheers (LR13). Checks: tests/little-ranch.html. */
+   rainbow over the field while the baby cheers (LR13). At night, three taps on the moon play Twinkle Twinkle Little Star
+   while the stars twinkle and the baby sleeps on (LR14). Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.3.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5;
+  const VERSION = '0.4.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45;
+  // Twinkle Twinkle Little Star, first verse (traditional, public domain): [note, beats]
+  const A = [[72,1],[72,1],[79,1],[79,1],[81,1],[81,1],[79,2],[77,1],[77,1],[76,1],[76,1],[74,1],[74,1],[72,2]], B = [[79,1],[79,1],[77,1],[77,1],[76,1],[76,1],[74,2]];
+  const TWINKLE = [...A, ...B, ...B, ...A], SONG_BEATS = TWINKLE.reduce((n, x) => n + x[1], 0), LULLABY_SECS = 25 * .55;
   const cv = document.getElementById('ranch'), cx = cv.getContext('2d');
   const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, k) => a + (b - a) * k;
@@ -24,7 +28,8 @@
   function audio() { if (!prefs.sound) return null; if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); master = ac.createGain(); master.gain.value = .16;
     const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400; master.connect(lp); lp.connect(ac.destination); } catch (e) { return null; } }
     if (ac.state === 'suspended') ac.resume(); return ac; }
-  function tone(f, dur, at, vol, type, slide) { const a = audio(); if (!a) return; const t = a.currentTime + (at || 0), o = a.createOscillator(), g = a.createGain();
+  let tones = 0; // notes actually played (for the checks: none when the sound is off)
+  function tone(f, dur, at, vol, type, slide) { const a = audio(); if (!a) return; tones++; const t = a.currentTime + (at || 0), o = a.createOscillator(), g = a.createGain();
     o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur);
     g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol || .5, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
     o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + .05); }
@@ -42,6 +47,8 @@
     stir: n => tone(330 + n * 60, .18, 0, .2, 'triangle', 380 + n * 60), // a sleepy murmur, a little higher each tap
     shine: n => tone(784 * Math.pow(1.122, n), .25, 0, .18, 'sine'), // a bright note, a step up each tap
     rainbow: () => [60, 64, 67, 72, 76, 79, 84].forEach((n, i) => tone(hz(n), .5, i * .09, .2, 'triangle')),
+    hum: n => tone(hz(67 + n * 2), .7, 0, .14, 'sine'), // the moon's soft note, a little higher each tap
+    star: n => { tone(hz(n), BEAT * 1.6, 0, .16, 'sine'); tone(hz(n + 12), BEAT, 0, .04, 'sine'); }, // a soft music-box note
     wake: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, .22, i * .1, .28, 'triangle')); },
     lullaby: () => { const tune = [67, 64, 0, 67, 64, 0, 69, 67, 64, 62, 60, 0, 0, 62, 64, 67, 64, 62, 60, 0, 0, 0, 64, 62, 60]; // original, slow, soft
       tune.forEach((n, i) => { if (n) { tone(hz(n), .8, i * .55, .28, 'triangle'); if (i % 3 === 0) tone(hz(n - 12), 1.2, i * .55, .12, 'sine'); } }); }
@@ -52,7 +59,7 @@
   let st;
   function newVisit() {
     st = { t: 0, mode: 'play', dusk: 0, acts: 0, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0 },
-      bowl: { food: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null } };
+      bowl: { food: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null } };
     layout(); st.baby.x = L.home.x;
   }
   function layout() {
@@ -127,11 +134,28 @@
     u.bow = { at: st.t }; sfx('rainbow');
     const b = st.baby; if (!b.act && b.tx === null) { b.act = 'cheer'; b.at = st.t; } done();
   }
+  // LR14: the moon's song. At night, while the baby sleeps (and the bedtime lullaby is over), each tap on the moon makes it
+  // glow a little more; the third plays Twinkle Twinkle Little Star while the stars twinkle in time. The baby sleeps on.
+  const moonAt = () => ({ x: W * .8, y: lerp(L.ground, H * .16, clamp((st.dusk - .6) / .4, 0, 1)) });
+  const moonUp = () => st.mode === 'sleep' && st.baby.act === 'sleep' && !st.dawn && st.lullabyAt !== null && st.t - st.lullabyAt > LULLABY_SECS;
+  function hum() {
+    const u = st.moon, m = moonAt(); fx('spark', m.x, m.y - L.U * .1);
+    if (u.song) { sfx('twinkle'); return; }
+    u.taps++; u.last = st.t; u.glow = u.taps / MOON_TAPS; sfx('hum', u.taps);
+    if (u.taps >= MOON_TAPS) u.song = { at: st.t, i: 0, beat: -9 };
+  }
+  function song(dt) { // plays the tune note by note, so it stops at once if the baby wakes
+    const u = st.moon; if (!u.song) { if (u.taps && st.t - u.last > 10) u.taps = 0; u.glow = Math.max(u.taps / MOON_TAPS, u.glow - dt * .5); return; }
+    const k = (st.t - u.song.at) / BEAT; let start = 0;
+    for (let i = 0; i < TWINKLE.length; i++) { if (i >= u.song.i && k >= start) { u.song.i = i + 1; u.song.beat = st.t; sfx('star', TWINKLE[i][0]);
+        const sx = (i * 7 * 97.3) % W, sy = (i * 7 * 53.7) % (L.ground * .8); fx('spark', sx, sy); } start += TWINKLE[i][1]; }
+    if (k > SONG_BEATS + 1) { u.song = null; u.taps = 0; }
+  }
   function bedtime() { if (st.mode !== 'play') return; st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn'); st.sponge.drag = null; st.sponge.auto = null; }
 
   function update(dt) {
     st.t += dt; const b = st.baby, sp = L.U * .9;
-    st.stir = Math.max(0, st.stir - dt * 2.5);
+    st.stir = Math.max(0, st.stir - dt * 2.5); song(dt);
     { const u = st.sun; if (u.bow && st.t - u.bow.at > BOW_SECS) { u.bow = null; u.taps = 0; } // the rainbow fades, the count starts again
       if (!u.bow) { if (u.taps && st.t - u.last > 10) u.taps = 0; u.glow = Math.max(u.taps / SUN_TAPS, u.glow - dt * .5); } } if (st.dawn) { st.dusk = Math.max(0, st.dusk - dt / 2.5); if (st.dusk === 0) st.dawn = false; }
     if (b.tx !== null) { const d = b.tx - b.x; if (Math.abs(d) <= sp * dt) { b.x = b.tx; b.tx = null; const f = b.then; b.then = null; if (f) f(); } else b.x += Math.sign(d) * sp * dt; }
@@ -184,6 +208,7 @@
       ell(x, y - z * .45, z * 1.05 * br, z * .55 * br, body); ell(x + z * .7, y - z * .3, z * .55, z * .3, dark); ell(x + z * 1.15, y - z * .35, z * .16, z * .14, ember);
       ell(x - z * .55, y - z * .55, z * .5, z * .42, body); ell(x - z * .7, y - z * .42, z * .26, z * .18, cream);
       cx.fillStyle = '#3a2420'; cx.fillRect(R(x - z * .62), R(y - z * .62), R(z * .18), Math.max(1, R(z * .05))); cx.fillRect(R(x - z * .32), R(y - z * .62), R(z * .18), Math.max(1, R(z * .05)));
+      if (st.moon.song || st.moon.glow > 0) { cx.fillStyle = '#3a2420'; cx.fillRect(R(x - z * .55), R(y - z * .4), R(z * .16), Math.max(1, R(z * .04))); cx.fillRect(R(x - z * .62), R(y - z * .44), Math.max(1, R(z * .06)), Math.max(1, R(z * .04))); cx.fillRect(R(x - z * .4), R(y - z * .44), Math.max(1, R(z * .06)), Math.max(1, R(z * .04))); } // a little smile
       cx.beginPath(); cx.moveTo(R(x - z * .85), R(y - z * .85)); cx.lineTo(R(x - z * .7), R(y - z * 1.15)); cx.lineTo(R(x - z * .55), R(y - z * .9)); cx.fillStyle = body; cx.fill();
       return; }
     const by = y - hop;
@@ -220,11 +245,13 @@
     const g = st.dusk, U = L.U;
     const sky = cx.createLinearGradient(0, 0, 0, L.ground); sky.addColorStop(0, pick3('#6cbcec', '#e8805a', '#121a44', g)); sky.addColorStop(1, pick3('#d4eef8', '#ffd08a', '#3a3a70', g));
     cx.fillStyle = sky; cx.fillRect(0, 0, W, L.ground + 1);
-    if (g > .55) { cx.fillStyle = `rgba(255,255,230,${clamp((g - .55) * 2.2, 0, 1)})`; for (let i = 0; i < 40; i++) { const x = (i * 97.3) % W, y = (i * 53.7) % (L.ground * .8), tw = .6 + .4 * Math.sin(st.t * 2 + i); if (tw > .5) cx.fillRect(R(x), R(y), 1, 1); } }
+    if (g > .55) { cx.fillStyle = `rgba(255,255,230,${clamp((g - .55) * 2.2, 0, 1)})`; for (let i = 0; i < 40; i++) { const x = (i * 97.3) % W, y = (i * 53.7) % (L.ground * .8), tw = .6 + .4 * Math.sin(st.t * 2 + i); if (tw > .5 || st.moon.song) { const sz = st.moon.song && (i % 3 === (st.moon.song.i % 3)) ? 2 : 1; cx.fillRect(R(x), R(y), sz, sz); } } }
     const sunY = lerp(L.sun.y, L.ground + U * .1, clamp(g * 1.6, 0, 1)); const glow = st.sun.glow;
     ell(L.sun.x, sunY, U * (.13 + glow * .07), U * (.13 + glow * .07), `rgba(255,240,180,${(.25 + glow * .35) * (1 - g)})`); ell(L.sun.x, sunY, U * (.09 + glow * .025), U * (.09 + glow * .025), glow > 0 ? mixHex('#fff4b0', '#ffffff', glow) : pick3('#fff4b0', '#ffb050', '#ff8040', g));
     if (st.sun.bow) drawRainbow(st.t - st.sun.bow.at);
-    if (g > .6) { const k = clamp((g - .6) / .4, 0, 1); ell(W * .8, lerp(L.ground, H * .16, k), U * .07, U * .07, '#f4f0d8'); ell(W * .8 + U * .03, lerp(L.ground, H * .16, k) - U * .02, U * .06, U * .06, pick3('#121a44', '#121a44', '#121a44', 1)); }
+    if (g > .6) { const k = clamp((g - .6) / .4, 0, 1), mg = st.moon.song ? 1 : st.moon.glow, pulse = st.moon.song ? clamp(1 - (st.t - st.moon.song.beat) / BEAT, 0, 1) * .25 : 0;
+      if (mg > 0) { ell(W * .8, lerp(L.ground, H * .16, k), U * (.11 + mg * .05 + pulse * .03), U * (.11 + mg * .05 + pulse * .03), `rgba(240,240,200,${.12 + mg * .2 + pulse * .2})`); }
+      ell(W * .8, lerp(L.ground, H * .16, k), U * .07, U * .07, '#f4f0d8'); ell(W * .8 + U * .03, lerp(L.ground, H * .16, k) - U * .02, U * .06, U * .06, (mg > 0 ? mixHex('#121a44', '#5a5e6e', clamp((.12 + mg * .2 + pulse * .2) / .37, 0, 1)) : '#121a44')); }
     ell(W * .25, L.ground + U * .05, W * .45, U * .22, pick3('#8acb6a', '#a0a050', '#2a4a48', g)); ell(W * .8, L.ground + U * .07, W * .4, U * .18, pick3('#7abf5c', '#909848', '#24423f', g));
     cx.fillStyle = pick3('#7cc85a', '#b0a050', '#2a4a40', g); cx.fillRect(0, R(L.ground), W, H - R(L.ground));
     cx.fillStyle = pick3('#a87a4a', '#a06a3a', '#3a2e38', g); const fy = L.ground + U * .02; cx.fillRect(0, R(fy), W, Math.max(1, R(U * .025))); cx.fillRect(0, R(fy + U * .07), W, Math.max(1, R(U * .025)));
@@ -262,6 +289,7 @@
     e.preventDefault(); audio(); const p = at(e), s = st.sponge;
     if (st.mode !== 'play') { // bedtime: taps twinkle; six taps on the sleeping baby wake it for a new day (LR12)
       if (st.baby.act === 'sleep' && near(p, babyCentre(), L.size * 1.2)) return nudge();
+      if (moonUp() && near(p, moonAt(), Math.max(L.U * .16, L.R))) return hum();
       fx('spark', p.x, p.y); sfx('twinkle'); return; }
     const bub = st.bubbles.find(u => Math.hypot(u.x - p.x, u.y - p.y) < u.r * 1.8 + L.U * .02);
     if (bub) { st.bubbles.splice(st.bubbles.indexOf(bub), 1); fx('spark', bub.x, bub.y); sfx('pop'); return; }
@@ -301,7 +329,7 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel,
+  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get prefs() { return prefs; }, moonAt: () => moonAt(), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();
