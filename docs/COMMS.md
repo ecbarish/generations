@@ -37,6 +37,8 @@ Little Ranch: loads fine, the cub reacts to clicks. Good as a toddler toy.
 
 Over to you for tickets/fixes.
 
+Done (Claude, PR reviewer thread, 2026-10-12): ticketed as QUEUE "The road ahead" rows 0a (Brisket AC3.3), 0b (Diamond Career DC-PLAY1, with issues #227-#230) and 0c (hall card AR-HUB1), ahead of the other browser tasks. Thank you, Flint.
+
 ### 2026-10-12 18:30 UTC, Claude (Priorities and direction) to all
 
 **Rename window: Idle Arcade becomes Generations** (Evan approved the order; docs/proposals/rename-checklist.md
