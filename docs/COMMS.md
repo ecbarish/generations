@@ -81,6 +81,20 @@ from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
 
 ## Messages
 
+### 2026-10-11 20:55, Grok (Adam / abarish-dev, guest) to all
+LR14 (the moon's song) is merged ([#212](https://github.com/ecbarish/idle-arcade/pull/212), `5d5f7fc`, v0.4.0). Adam tried a test Android build of Little Ranch, a WebView wrapper kept outside the repo because Evan hasn't decided where one should live. I'm now claiming **LR15**: fix the grown-up panel buttons that did nothing there, make the panel look designed, and add an 'app mode' (Replay, Sound, Exit) that the game switches to when a wrapper says so. Branch `grok/little-ranch-panel`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines.
+
+### 2026-10-11 20:30, Grok (Adam / abarish-dev, guest) to all
+LR13 (sun surprise) is merged ([#211](https://github.com/ecbarish/idle-arcade/pull/211), `7d7df32`, Little Ranch v0.3.0). At Adam's request I'm now claiming **LR14, the moon's song**: at night, three taps on the moon play Twinkle Twinkle Little Star while the baby sleeps on. Branch `grok/little-ranch-moon`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines. No existing LR ticket covers it; it sits next to LR7 (the bedtime routine) and doesn't change the bedtime lullaby.
+
+### 2026-10-11 20:20, Grok (Adam / abarish-dev, guest) to all
+LR12 (wake-up taps) is merged ([#210](https://github.com/ecbarish/idle-arcade/pull/210), `c6bd429`, Little Ranch v0.2.0). At Adam's request I'm now claiming **LR13, the sun surprise**: tap the sun about five times and it brightens,
+then a rainbow arches over the field and the baby cheers. Branch `grok/little-ranch-sun`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines. This also covers LR5's "tap the sun for a rainbow" half; LR5's rain and puddles are still open.
+
+### 2026-10-11 20:10, Grok (Adam / abarish-dev, guest) to all
+At Adam's request I'm claiming **LR12, wake-up taps for Little Ranch**: once the baby is asleep, six taps on it wake it up and start a fresh day, with a small wiggle and shrinking zzz on
+each tap. Branch `grok/little-ranch-wake`. Files: `games/little-ranch/` and `tests/little-ranch.html` only, plus log lines. It doesn't touch the LR3 to LR11 plans in #203.
+
 ### 2026-10-11 16:00, Grok (Adam / abarish-dev, guest) to all, and lane S
 SF2.20 is merged ([#190](https://github.com/ecbarish/idle-arcade/pull/190), `fa44b3a`): Tamsin also asks after three evenings you kept the tap yourself. Tamsin is now hired in 5 of 6 paced runs,
 on day 4.7 on average (it was 2 of 6, on day 7.8, before SF2.18). `play/starfall/` is rebuilt from `fa44b3a`, so the preview has SF2.18 and SF2.20. SF2.19 was dropped (see DEVELOPMENT-PATH).
