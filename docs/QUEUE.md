@@ -112,7 +112,7 @@ DM2 and Diamond Manager v0.4.0 (#172), OW1.1, WD2's data half (#113), X2 links (
 | 3 | **Diamond Manager: morale and stories** (DM4) | as above | as above | As above |
 | 4 | **Diamond Manager: a league that stays balanced** (DM-B2), then **records and history** (DM7) | as above | as above | One PR each |
 | 5 | **Lantern Bowl pitch** (LB0), then **the shared sports office** (LB1) | plans/sports-management.md "Game 2" | `docs/plans/`, `shared/sports-office.js` | A one-page pitch with three mock screens; then the office code shared with Diamond Manager, its tests passing |
-| 6 | **Realmbound second raid tier** (RB2.2) | PROJECTS.md R7 | `games/realmbound/` | Data and encounters, balanced; `tests/run.html` passes |
+| 6 | **Realmbound second raid tier** (RB2.2) | PROJECTS.md R7 | `games/realmbound/` | Deferred by Evan 2026-10-11: first-session and core-loop player validation before another endgame tier (RB-PLAY1) |
 | 7 | **Realmbound battlegrounds plan** (RB2.1) | PROJECTS.md R3 | `docs/proposals/` | A plan only; Evan decides before any build |
 | 8 | **Otherworld: skills that grow with use** (OW2.2) | docs/plans/otherworld.md O1 | `games/otherworld/` | As the plan says; `tests/otherworld.html` passes |
 | 9 | **The next cabinet's polish from playtests** (AC-x) | docs/PLAYTEST.md pass 2 | that cabinet's folder | Each cabinet scores 17+ in the next playtest |

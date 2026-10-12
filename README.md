@@ -39,6 +39,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- 2026-10-11: Realmbound first-session fixes: Focus keeps town visits manual, Map explains blocked travel and the carried Journal shows ready requests (RB-PLAY1, PR #214; no new raid/version bump).
+
 - Godot Starfall preview (2026-10-11, SF-PREVIEW-200): rebuilt from merged `0af5b92` so new towns open with the complete Guild Hall roof/banner and inn roof. Exact pack passes real-browser movement and fresh/legacy saved-town reload checks; engine and save format unchanged. [Release evidence](docs/research/starfall-preview-opening.md).
 
 - Godot Starfall (2026-10-11, SF2.6c): new towns open beside the Guild Hall with both full roofs and the banner in view. Removed three unused pack tiles; music and sounds remain. Existing towns keep their saved position and progress. [Before/after and checks](docs/screenshots/starfall-opening-view/README.md). Source change only; the web preview is not rebuilt by this PR.

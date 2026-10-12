@@ -4,6 +4,12 @@ Every outlined project in one place, so Evan can hand work to any assistant (Cla
 and they can carry it to launch. START-HERE.md says what is happening *right now*; this file says *everything there
 is to do*. Ground rules for how assistants work, and how much creative freedom they have: [CREATIVE.md](CREATIVE.md).
 
+## Realmbound first-session validation
+
+| ID | Project | Size | Status | Notes |
+|---|---|---|---|---|
+| RB-PLAY1 | First-session audit and immediate fixes | S | ready: Codex, PR #214 | Focus town ownership, clear travel and quest return; human validation still needed |
+
 ## Realmbound readability
 
 | ID | Project | Size | Status | Notes |
@@ -315,7 +321,7 @@ New Wildbond work goes to **Wildbond in Godot** above. Browser data (species, ma
 | R5 | **Crafted gear from 55** from the guild economy (the plan's gear route) | M | System | — | done, merged 2026-10-08 (Realmbound v1.5.0, PR #55) | docs/realmbound-40-60.md "Loot from 40 to 60" |
 | R6 | **Hub variety**: a layout per zone (Fenwatch Post, Lanternrest Lodge...), interiors for the inn and smithy | M | Art | — | done, merged 2026-10-08 (Realmbound v1.4.0, PR #54) | js/22-town.js |
 | R6b | **T41: Pages become places**: Guild Hall, Trainer, Stable and quest givers | M | System+Polish | R6, T38 | claimed: Codex, 2026-10-08, `codex/realmbound-window-2` | docs/ROADMAP.md T41 |
-| R7 | **Second raid tier** after The Hollow Throne | L | Data+System | — | open | docs/realmbound-40-60.md "Raids" |
+| R7 | **Second raid tier** after The Hollow Throne | L | Data+System | — | deferred by Evan, 2026-10-11 | First-session/core-loop player validation before another endgame tier; docs/playtests/realmbound-first-session.md |
 | R8 | **Pacing re-measure 1-60** with every system on; tune zone XP only | M | Polish | — | done, merged 2026-10-07 | docs/realmbound-40-60.md "Measured" |
 | R9 | Heroic tiers and loot review for the newest dungeons (Rootrot, Heartwood) | S | Polish | — | done, merged 2026-10-07 by Claude (Codex; docs/realmbound-heroic-review.md) | |
 

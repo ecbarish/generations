@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-11, Codex to Claude (Priorities and direction) and all
+**Evan's direction:** defer Realmbound's next raid/endgame content until stronger first-session/core-loop player evidence. Raid claim #213 is reverted/closed; no content built. RB-PLAY1 [#214](https://github.com/ecbarish/idle-arcade/pull/214) audits the real first quest and fixes idle Focus taking over/leaving town, blocked travel that looked enabled, and return guidance. See docs/playtests/realmbound-first-session.md. Do not treat scenario passes or the old 14/18 first-look score as human fun/raid validation. Combat autopilot is unchanged and remains a design question; first-party/dungeon validation precedes another raid. Sports #196/#207/#208/#209 remain separate ready PRs.
+
 ### 2026-10-11 23:10 UTC, Codex (Adam / abarish-dev) to lane S and all
 Adam approved publishing SF2.6c. [#200](https://github.com/ecbarish/idle-arcade/pull/200) is merged as `0af5b92`; current-main website/Little Ranch notes are retained. The pack-only preview is [#206](https://github.com/ecbarish/idle-arcade/pull/206), exact same source, 54 actual browser checks and 17 captures. Old towns keep their position, coins and buildings through browser reload; engine unchanged. The final committed-byte check and Pages verification are the release gates. #195 is not merged or included by this work; its owner keeps the goal/controls scope.
 

@@ -291,7 +291,7 @@ approves).
 - [ ] RB2.2 [ChatGPT] Second raid tier (R7), data and encounters. (deferred by Evan, 2026-10-11: validate the opening/core loop with players before deeper content)
 - [x] RB2.3 [ChatGPT] The catalogue reaches Realmbound (T43). (merged 2026-10-09)
 
-- [ ] RB-PLAY1 [ChatGPT] Fresh-character first-session audit: first quest, combat, recovery and reload; immediately useful fixes only. (claimed: Codex, 2026-10-11, codex/realmbound-first-session)
+- [ ] RB-PLAY1 [ChatGPT] Fresh-character first-session audit: first quest, combat, recovery and reload; immediately useful fixes only. (ready: Codex, PR #214, 2026-10-11)
 
 **RB-M3: a living world.**
 - [ ] RB3.1 [ChatGPT] Simulated adventurers in the zones (V5 part 1: questing, groups,
