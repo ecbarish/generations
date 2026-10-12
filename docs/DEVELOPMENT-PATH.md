@@ -312,7 +312,7 @@ deliverables are retired; the batting prototype stays in games/diamond-career/ o
 - [x] DM1 [Claude] The first playable season (v0.1.0, PR #110).
 - [x] DM2 [any] Playability pass (docs/playtests/diamond-manager-1.md). - [x] DM-B [Claude] Choices matter (v0.2.0).
 - [x] DM3 [any] Hiring coaches (v0.6.0, PR #196, merged 2026-10-12). - [x] DM4 [any] Player morale and stories (v0.7.0, PR #207, merged 2026-10-12; was ready: Codex, 2026-10-11; stacked after #196) - [ ] DM5 [any] The ballpark you see grow.
-- [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [x] DM-G [Claude] Pitch-by-pitch game, in-game moves, box scores, stats (v0.5.0). - [x] DM-B2 [any] Keep the league in balance over many seasons (v0.7.1, PR #208, merged 2026-10-12). - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
+- [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [x] DM-G [Claude] Pitch-by-pitch game, in-game moves, box scores, stats (v0.5.0). - [x] DM-B2 [any] Keep the league in balance over many seasons (v0.7.1, PR #208, merged 2026-10-12). - [x] DM7 [any] Records and history (v0.8.0, PR #209, merged 2026-10-12). - [ ] DM8 [later] Step into the big moment.
 
 ### Lantern Bowl (browser; American football in the Retro Bowl spirit, our own code and art)
 Evan said yes 2026-10-09. Plan: [plans/sports-management.md](plans/sports-management.md) "Game 2".

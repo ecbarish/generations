@@ -384,6 +384,7 @@ Merged 2026-10-08 (Realmbound v1.3.0, PR #53); written by Codex on codex/realmbo
 |---|---|---|---|---|
 | DM3 | Hitting and pitching coaches | M | ready: Codex, PR #196, 2026-10-11 | sports-management.md; seasonal cash contracts, ceiling-bounded gains, old saves and winter reports |
 
+| DM7 | Records, awards and history | M | ready: Codex, PR #209; stacked after #208 | Actual season stats, club records and in-game trophy case; after DM-B2 |
 | DM-B2 | Six-season league balance | M | ready: Codex, PR #208; stacked after #207 | Reproducible long-term league and market checks; stacked after DM4 |
 | DM4 | Player morale and stories | M | ready: Codex, PR #207, stacked after #196 | Playing time, results, contract expectations; named requests and visible asking-price changes |
 
