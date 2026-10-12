@@ -288,7 +288,7 @@ creatures as monsters. Built as first-person grid delves (docs/proposals/new-gam
 **RB-M2: what the raid set up.**
 - [ ] RB2.1 [ChatGPT] Battlegrounds plan in docs/proposals/ (R3; new system: Evan
 approves).
-- [ ] RB2.2 [ChatGPT] Second raid tier (R7), data and encounters. (design proposal claimed: Codex, 2026-10-11, codex/realmbound-second-raid-plan; implementation awaits design review)
+- [ ] RB2.2 [ChatGPT] Second raid tier (R7), data and encounters.
 - [x] RB2.3 [ChatGPT] The catalogue reaches Realmbound (T43). (merged 2026-10-09)
 
 **RB-M3: a living world.**
