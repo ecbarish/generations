@@ -29,6 +29,10 @@ some automated processes but not a fully automated experience"). This rule is fo
 - Conveniences are welcome and earned: auto-loot, faster travel, batch actions, skipping a game you are only watching.
 - Time away gives a small welcome-back gift (rested XP, a stocked shelf), never kills, levels, wins or loot.
 - No new "full Auto" mode. This replaces "full Auto is for grinding and idle time" (VISION.md §8, CLAUDE.md).
+- **Earned automation, not autoplay** (Evan, 2026-10-12): automating tedious work stays, because earning it made players
+  feel accomplished. Automate the chores you have mastered; never automate the decisions.
+- **Five-minute sessions** (Evan, 2026-10-12; the original itch, a game for breaks at work): every game works in a short
+  break. It pauses anywhere, a few minutes feel complete and satisfying, and nothing feels missing or held back.
 
 | Term | Goal | Done when |
 |---|---|---|
@@ -130,3 +134,4 @@ playtested game in the game window. Parked until then: Realmbound's raid tier, b
 
 - 2026-10-11: first version (Claude, Priorities and direction), from Evan's ask above.
 - 2026-10-12: Play, not watch (less automatic play) and Realmbound's early game first, from Evan via lane P.
+- 2026-10-12: earned automation, not autoplay, and five-minute sessions added under "Play, not watch" (Evan, via lane P).

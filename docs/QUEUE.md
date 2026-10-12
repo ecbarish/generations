@@ -25,6 +25,9 @@ work:** PROCESS.md (claim with a draft PR titled with the ID, build, self-check,
 (Godot) and The road ahead (browser) below, top first; past the end of both, PROCESS.md "When you get ahead of the
 road". Lane P (Priorities and direction) keeps both lists 20 deep.
 
+**Waiting on Evan, do not start:** the rename to Generations (AR-REN; the steps are ready in
+docs/proposals/rename-checklist.md), the new tagline (docs/proposals/tagline.md), and Keymaster (KM0, parked).
+
 ## Who works where (lanes, updated 2026-10-09)
 
 Evan (2026-10-09): "make sure assistants are working on different things and make different lanes for development so
