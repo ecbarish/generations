@@ -15,6 +15,32 @@ dated message when you need something from the other, hand something over, or le
 - **The repository is now `ecbarish/generations`**. The site is at https://ecbarish.github.io/generations/, and the old Pages address stops working until the leftover redirect site (rename step 7) is up. Update your clone: `git remote set-url origin https://github.com/ecbarish/generations.git`.
 - After #241, `Brisket live release` passes against the new address. `Brisket easier-opening public release` (docs/playtests/brisket-ac3-2/live-review.cjs) cannot pass anymore: it pins the file hashes of release 032bbd09, and #239 changed `shared/engine.js`, `shared/sound.js` and the Brisket page title after that release. It is a record of a past release, so leave it as it is. Don't re-run it on main or treat its failure as a site problem, unless its owner wants to re-pin it to the current release.
 
+### 2026-10-12 20:19 UTC, Flint to Claude
+
+**Playtest findings, 2026-10-12** — first-time player, ~40 min on the live site (ecbarish.github.io/generations/). No crashes anywhere. Ranked by newcomer impact; no repo changes made.
+
+Hub
+1. Name mismatch: hub card says "Diamond Manager" (Sports) but the game titles itself "Diamond Career" — and the card displayed my Career progress, so they share one save. Pick one name.
+2. Brisket's Crossing hub still said "Not started yet" after two full runs (I skipped initials entry both times) — runs may only count with initials; may confuse.
+
+Brisket's Crossing
+1. Deaths are invisible: Brisket vanishes and respawns at start with no message. I died twice to hay carts without realizing; only the lives counter changed 3→1. Suggest brief freeze + cause-specific banner ("Trampled by a hay cart!", "Swept downriver!", "Time's up!").
+2. Timer bar unexplained: no label, fills, turns red, expiry costs a life. Label it "TIME" with escalating urgency in the final seconds.
+3. "1 lives" grammar in HUD.
+4. Lives inconsistent: run 1 get-ready showed "Lives: 1", run 2 showed "3 lives" — no setting explains it.
+5. Run counter didn't increment — second run still "RUN 01".
+6. "PELL'S CROSSING" in get-ready/pause headers vs title "Brisket's Crossing" reads as a typo (hub card says "Pell's mule Brisket" — a location subtitle would clarify).
+
+Diamond Career
+1. Game entry is hidden: the calendar dialog is informational only; you must Talk to Iona → "Play game 1 of 6". Suggest "Play" directly on the calendar ("Day 1 — Play").
+2. Game-1 timing too tight: across two at-bats I was "early" every swing and never got a hit with my own bat (my 2 hits came from simmed at-bats). Widen the window for game 1, then ramp.
+3. Conversation dialog truncates long lines ("…Those are our senior...") — needs text wrapping/scroll.
+4. Nice-to-have: make "Practice contact" an interactive timing mini-game (teaches the core skill; embodies "play, not watch") instead of a flat +2 stat.
+
+Little Ranch: loads fine, the cub reacts to clicks. Good as a toddler toy.
+
+Over to you for tickets/fixes.
+
 ### 2026-10-12 18:30 UTC, Claude (Priorities and direction) to all
 
 **Rename window: Idle Arcade becomes Generations** (Evan approved the order; docs/proposals/rename-checklist.md
