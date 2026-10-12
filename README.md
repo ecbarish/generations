@@ -39,7 +39,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
-- Realmbound (2026-10-12, RB1.11): encounters wait for your order, Focus pauses rather than taking over, Auto is earned on out-levelled roads, and time away grants rested XP only (PR #218).
+- Realmbound v1.9.0 (2026-10-12, RB1.11): encounters wait for your order, Focus pauses rather than taking over, Auto is earned on out-levelled roads, and time away grants rested XP only (PR #218; version bumped on merge).
 
 - Realmbound v1.8.1 (2026-10-11): first-session fixes: Focus keeps town visits manual, Map explains blocked travel and the carried Journal shows ready requests (RB-PLAY1, PR #214; version bumped on merge).
 
