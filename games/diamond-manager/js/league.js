@@ -57,7 +57,7 @@ function newLeague(seed=1) {
     club.players.push(makePlayer(L,L.nextId++,c.level-4,false,DM.batPos[ri(L,0,7)]));
     fitPayroll(L,club); setLineup(club); club.farm=[makeProspect(L,L.nextId++),makeProspect(L,L.nextId++)]; L.clubs.push(club);
   });
-  L.schedule=makeSchedule(DM.seasonGames);
+  L.schedule=makeSchedule(DM.seasonGames); L.seasonLedger=freshSeasonLedger(L);
   fillFreeAgents(L, 8); addStandouts(L);
   return L;
 }
@@ -97,7 +97,7 @@ function dayKey(L) { return L.season*100+(L.phase==='final'&&L.final?30+L.final.
 
 /* Record a played game into the standings and the season stats. */
 function recordGame(L,g) {
-  recordMood(L,g);
+  recordMood(L,g);rememberGame(L,g);
   const h=L.clubs[g.home], a=L.clubs[g.away];
   h.rs+=g.score[1]; h.ra+=g.score[0]; a.rs+=g.score[0]; a.ra+=g.score[1];
   if(g.winner===g.home){h.w++;a.l++;}else{a.w++;h.l++;}
@@ -146,6 +146,7 @@ function playFinalGame(L) { const g=startFinalGame(L,false); if(!g) return null;
 function endSeason(L) {
   const you=L.clubs[DM.you], champ=L.final.champion===DM.you, inFinal=L.final.teams.includes(DM.you);
   L.history.push({season:L.season, w:you.w, l:you.l, place:standings(L).findIndex(s=>s.i===DM.you)+1, final:inFinal, champion:champ, championName:L.clubs[L.final.champion].name});
+  archiveSeason(L);
   const prev=L.history.length>1?L.history[L.history.length-2].w:null;
   // A climbing club earns a little too, so a GM who improves a losing team sees the budget grow (playtest DM2).
   const raise=champ?1500:inFinal?900:you.w>you.l?600:prev!==null&&you.w>prev?400:0; you.budget=Math.min(18000,you.budget+raise);
@@ -247,7 +248,7 @@ function refill(L,c) {
 function canStartSeason(L) { return L.phase==='offseason' && (!L.draft||L.draft.done) && L.clubs[DM.you].players.every(p=>p.years>0) && rosterOk(L.clubs[DM.you]) && payroll(L.clubs[DM.you])<=L.clubs[DM.you].budget; }
 function startSeason(L) {
   if(!canStartSeason(L)) return false;
-  L.season++; L.day=0; L.results=[]; L.final=null; L.phase='season'; L.report=null; L.offer=null; L.draft=null;
+  L.season++; L.day=0; L.results=[]; L.final=null; L.phase='season'; L.seasonLedger=freshSeasonLedger(L); L.report=null; L.offer=null; L.draft=null;
   L.clubs.forEach(c=>{c.w=0;c.l=0;c.rs=0;c.ra=0;c.rot=0;});
   return true;
 }
@@ -296,7 +297,7 @@ function validLeague(o) {
           !int(g.inning) || g.inning < 1 || g.inning > 15 || ![0,1].includes(g.half) || !Array.isArray(g.score) || !g.box || !g.pbox) return false; }
     if (o.report && (!Array.isArray(o.history) || !o.history.length || !['grew','slipped','expiring'].every(k => Array.isArray(o.report[k])))) return false;
     if(o.moraleNotes!==undefined&&(!Array.isArray(o.moraleNotes)||o.moraleNotes.length>12||!o.moraleNotes.every(x=>x&&Number.isInteger(x.id)&&Number.isInteger(x.key)&&typeof x.text==='string'&&typeof x.kind==='string')))return false;
-    if(!validCoachState(o.coaches)) return false;
+    if(!validCoachState(o.coaches)||!validSeasonLedger(o.seasonLedger,o)||!Array.isArray(o.history)||!o.history.every(validSeasonHistory)) return false;
     if(o.report?.coaching!==undefined&&(!Array.isArray(o.report.coaching)||!o.report.coaching.every(x=>x&&typeof x.name==='string'&&typeof x.coach==='string'&&['hitting','pitching'].includes(x.role)&&x.gains&&typeof x.gains==='object'&&Object.entries(x.gains).every(([k,n])=>['contact','power','eye','glove','stuff','control','stamina'].includes(k)&&Number.isInteger(n)&&n>0&&n<=2)))) return false;
     return true;
   } catch (_) { return false; }
@@ -311,7 +312,7 @@ function migrateLeague(o) { if(!validLeague(o)) return newLeague((Date.now()>>>0
   if(!L.dmd){ L.dmd=true; const all=L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?L.draft.pool:[]); for(const p of all) if(!p.pitcher&&p.speed===undefined) p.speed=speedFor(p.id,p.age); }
   L.coaches=L.coaches||{hitting:null,pitching:null};
   for(const p of L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?.pool||[]))playerMorale(p);
-  L.moraleNotes=L.moraleNotes||[];
+  L.moraleNotes=L.moraleNotes||[]; L.seasonLedger=L.seasonLedger||freshSeasonLedger(L);
   if(L.lastBox&&!(Array.isArray(L.lastBox.bat)&&Array.isArray(L.lastBox.pit))) delete L.lastBox;
   return L; }
 

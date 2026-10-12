@@ -136,7 +136,7 @@ side panel. Text is in full words.
   (or slow the other clubs' growth) so the market stays useful; keep the gap check passing and add a check that the
   league average stays within about 4 points over six seasons. Harness idea: the gap check in
   tests/diamond-manager-checks.js, run for six seasons.
-- [ ] **DM7** [any] **Records and history**: season-by-season table, league awards (best hitter, best pitcher),
+- [ ] **DM7** [Codex, PR #209; docs/diamond-manager-history.md] **Records and history**: season-by-season table, league awards (best hitter, best pitcher),
   club records, a trophy case in the clubhouse.
 - [ ] **DM8** [Claude or any, later] **Step into the big moment** (optional): in close late innings, offer the old
   Diamond Career at-bat (tactical mode only) for one pinch-hit. Only after DM2 says the core is fun.

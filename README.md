@@ -39,6 +39,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- 2026-10-11: Diamond Manager season ledger, actual-stat league awards, club records and a dated Trophy Case in the Clubhouse (DM7, PR #209; version unchanged pending review).
+
 - 2026-10-11: Diamond Manager six-season balance: ordinary recruits and standouts track the league; winter visitors renew, while earned development and bargain access remain (DM-B2, PR #208; version unchanged pending review).
 
 - 2026-10-11: Diamond Manager player morale: named playing-time and contract concerns through Iona, reversible choices and visible salary expectations (DM4, PR #207; version unchanged pending review).
