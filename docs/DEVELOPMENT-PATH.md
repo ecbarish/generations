@@ -383,7 +383,7 @@ Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the 
 - [ ] LR10 [any] The Little Wagon (17/18): load two babies, one ride with three things to tap and one colour gate where any car gets a cheer.
 - [ ] LR11 [any] The Snack Kitchen (17/18): four foods, one bowl, one baby who loves berries and pulls funny faces at the rest.
 (The shape puzzle, 14/18, waits until she is 3½ to 4.)
-- [ ] LR12 [any] Wake-up taps (Adam, 2026-10-11): once the baby is asleep, six taps on it wake it and start a fresh sunny day (the same reset as New visit), with a small wiggle and shrinking zzz on each tap and a happy wake on the sixth; no text, nothing to fail. Files: `games/little-ranch/`, `tests/little-ranch.html`. (claimed: Grok for Adam / abarish-dev, grok/little-ranch-wake)
+- [x] LR12 [any] Wake-up taps (Adam, 2026-10-11): once the baby is asleep, six taps on it wake it and start a fresh sunny day (the same reset as New visit), with a small wiggle and shrinking zzz on each tap and a happy wake on the sixth; no text, nothing to fail. Files: `games/little-ranch/`, `tests/little-ranch.html`. (Grok for Adam / abarish-dev, PR #210, v0.2.0)
 **The Arcade Cabinets (browser), original single-screen games in the 1978-85 style.**
 - [x] AC1 [any] Storm Front (the Space Invaders shape, Evan's pick): one cabinet, original name and art, one PR. (built: Codex for Adam / abarish-dev, guest/storm-front, PR #119; awaiting review)
 - [x] AC2 [any] Lighthouse Watch (the Missile Command shape). (built: Grok for Adam / abarish-dev, PR #145, merged 2026-10-10; v0.1.0)

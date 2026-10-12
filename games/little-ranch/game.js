@@ -5,9 +5,10 @@
    the sky turns orange, a lullaby plays and it curls up asleep: the visit is over. No words to read, nothing to fail,
    no timers to beat, no links out. The way back to the arcade and the sound switch sit behind a grown-up lock (hold
    the corner button for three seconds). Art and sounds are drawn and made in code. Only the sound choice is stored
-   (little-ranch-settings-v1); there is no save. Checks: tests/little-ranch.html. */
+   (little-ranch-settings-v1); there is no save. Once it's asleep, six taps on it wake it up for a fresh sunny day (LR12):
+   each tap makes it stir and its zzz shrink. Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.1.1', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000;
+  const VERSION = '0.2.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6;
   const cv = document.getElementById('ranch'), cx = cv.getContext('2d');
   const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, k) => a + (b - a) * k;
@@ -37,16 +38,18 @@
     rustle: () => { crunch(); setTimeout(crunch, 90); }, boo: () => { tone(392, .16, 0, .4, 'triangle', 523); tone(659, .3, .14, .4, 'triangle', 784); },
     note: () => tone(NOTES[Math.floor(Math.random() * NOTES.length)], .5, 0, .2), yawn: () => tone(440, .9, 0, .3, 'triangle', 262),
     twinkle: () => tone(1568 + Math.random() * 400, .4, 0, .08),
+    stir: n => tone(330 + n * 60, .18, 0, .2, 'triangle', 380 + n * 60), // a sleepy murmur, a little higher each tap
+    wake: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, .22, i * .1, .28, 'triangle')); },
     lullaby: () => { const tune = [67, 64, 0, 67, 64, 0, 69, 67, 64, 62, 60, 0, 0, 62, 64, 67, 64, 62, 60, 0, 0, 0, 64, 62, 60]; // original, slow, soft
       tune.forEach((n, i) => { if (n) { tone(hz(n), .8, i * .55, .28, 'triangle'); if (i % 3 === 0) tone(hz(n - 12), 1.2, i * .55, .12, 'sine'); } }); }
   };
-  const sfx = name => { try { SFX[name](); } catch (e) {} };
+  const sfx = (name, arg) => { try { SFX[name](arg); } catch (e) {} };
 
   /* ---------------- the visit ---------------- */
   let st;
   function newVisit() {
     st = { t: 0, mode: 'play', dusk: 0, acts: 0, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0 },
-      bowl: { food: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null };
+      bowl: { food: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false };
     layout(); st.baby.x = L.home.x;
   }
   function layout() {
@@ -102,10 +105,19 @@
     tickle() { const b = st.baby; if (b.act || b.tx !== null) { sfx('giggle'); return; } b.act = 'giggle'; b.at = st.t; sfx('giggle'); done(); },
     sparkle(p) { fx('spark', p.x, p.y); sfx('note'); }
   };
+  // LR12: tapping the sleeping baby. Each tap it stirs and its zzz get smaller; on the sixth it wakes up happy and a
+  // fresh sunny day starts (the same reset as New visit), with the sky brightening from night.
+  function nudge() {
+    st.wake++; st.stir = 1; sfx('stir', st.wake); fx('zzz', st.baby.x + L.size * .6, L.home.y - L.size * 1.3);
+    if (st.wake < WAKE_TAPS) return;
+    newVisit(); st.dusk = 1; st.dawn = true; st.baby.act = 'giggle'; st.baby.at = 0; st.baby.happy = 1; sfx('wake');
+    for (let i = 0; i < 5; i++) fx('heart', babyCentre().x + (i - 2) * L.size * .4, babyCentre().y - L.size);
+  }
   function bedtime() { if (st.mode !== 'play') return; st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn'); st.sponge.drag = null; st.sponge.auto = null; }
 
   function update(dt) {
     st.t += dt; const b = st.baby, sp = L.U * .9;
+    st.stir = Math.max(0, st.stir - dt * 2.5); if (st.dawn) { st.dusk = Math.max(0, st.dusk - dt / 2.5); if (st.dusk === 0) st.dawn = false; }
     if (b.tx !== null) { const d = b.tx - b.x; if (Math.abs(d) <= sp * dt) { b.x = b.tx; b.tx = null; const f = b.then; b.then = null; if (f) f(); } else b.x += Math.sign(d) * sp * dt; }
     const since = st.t - b.at;
     if (b.act === 'eat') { if (Math.floor(since / .35) !== Math.floor((since - dt) / .35)) { sfx('crunch'); fx('crumb', L.bowl.x + (Math.random() - .5) * L.R, L.bowl.y - L.R * .3); }
@@ -148,8 +160,9 @@
     const sleep = b.act === 'sleep';
     shadow(x, y, z * 1.1);
     const body = '#e06a32', dark = '#b4471c', cream = '#ffe2b8', ember = '#ffd04a';
+    if (sleep && st.stir > 0) x += Math.sin(t * 40) * st.stir * z * .1 * m; // stirring when tapped (LR12)
     if (sleep) { // curled up: a round bun with the tail wrapped round, breathing
-      const br = 1 + Math.sin(t * 1.6) * .03 * m;
+      const br = 1 + Math.sin(t * 1.6) * .03 * m + st.stir * .06;
       ell(x, y - z * .45, z * 1.05 * br, z * .55 * br, body); ell(x + z * .7, y - z * .3, z * .55, z * .3, dark); ell(x + z * 1.15, y - z * .35, z * .16, z * .14, ember);
       ell(x - z * .55, y - z * .55, z * .5, z * .42, body); ell(x - z * .7, y - z * .42, z * .26, z * .18, cream);
       cx.fillStyle = '#3a2420'; cx.fillRect(R(x - z * .62), R(y - z * .62), R(z * .18), Math.max(1, R(z * .05))); cx.fillRect(R(x - z * .32), R(y - z * .62), R(z * .18), Math.max(1, R(z * .05)));
@@ -214,7 +227,7 @@
       if (f.kind === 'heart') { const r = U * .035; cx.fillStyle = `rgba(255,90,120,${a})`; ell(x - r * .5, y, r * .6, r * .6, cx.fillStyle); ell(x + r * .5, y, r * .6, r * .6, cx.fillStyle); cx.beginPath(); cx.moveTo(R(x - r * 1.05), R(y + r * .15)); cx.lineTo(R(x), R(y + r * 1.3)); cx.lineTo(R(x + r * 1.05), R(y + r * .15)); cx.fill(); }
       else if (f.kind === 'spark') { cx.fillStyle = `rgba(255,240,150,${a})`; const r = U * .03 * (1 + k); cx.fillRect(R(f.x - r), R(f.y), R(r * 2), 1); cx.fillRect(R(f.x), R(f.y - r), 1, R(r * 2)); }
       else if (f.kind === 'crumb') ell(f.x + f.vx * k * .5, f.y - U * .1 * k + U * .3 * k * k, U * .012, U * .012, `rgba(200,130,58,${a})`);
-      else if (f.kind === 'zzz') { const zz = clamp(1 - k / 3, 0, 1), r = U * .03 * (1 + k * .4); cx.strokeStyle = `rgba(230,230,255,${zz})`; cx.lineWidth = 1; cx.beginPath(); const zx = f.x + k * U * .05, zy = f.y - k * U * .08;
+      else if (f.kind === 'zzz') { const zz = clamp(1 - k / 3, 0, 1), r = U * .03 * (1 + k * .4) * (1 - st.wake / WAKE_TAPS * .75); cx.strokeStyle = `rgba(230,230,255,${zz})`; cx.lineWidth = 1; cx.beginPath(); const zx = f.x + k * U * .05, zy = f.y - k * U * .08;
         cx.moveTo(R(zx - r), R(zy - r)); cx.lineTo(R(zx + r), R(zy - r)); cx.lineTo(R(zx - r), R(zy + r)); cx.lineTo(R(zx + r), R(zy + r)); cx.stroke(); } }
     if (g > 0) { cx.fillStyle = `rgba(20,20,60,${g * .25})`; cx.fillRect(0, 0, W, H); }
   }
@@ -223,7 +236,9 @@
   const at = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H }; };
   cv.addEventListener('pointerdown', e => {
     e.preventDefault(); audio(); const p = at(e), s = st.sponge;
-    if (st.mode !== 'play') { fx('spark', p.x, p.y); sfx('twinkle'); return; } // bedtime: taps only twinkle, the baby stays asleep
+    if (st.mode !== 'play') { // bedtime: taps twinkle; six taps on the sleeping baby wake it for a new day (LR12)
+      if (st.baby.act === 'sleep' && near(p, babyCentre(), L.size * 1.2)) return nudge();
+      fx('spark', p.x, p.y); sfx('twinkle'); return; }
     const bub = st.bubbles.find(u => Math.hypot(u.x - p.x, u.y - p.y) < u.r * 1.8 + L.U * .02);
     if (bub) { st.bubbles.splice(st.bubbles.indexOf(bub), 1); fx('spark', bub.x, bub.y); sfx('pop'); return; }
     if (!s.auto && near(p, s, L.R * 1.1)) { s.drag = { id: e.pointerId, x: p.x, y: p.y, at: performance.now(), moved: 0 }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; }
@@ -261,7 +276,7 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel,
+  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();

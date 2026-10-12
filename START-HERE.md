@@ -103,6 +103,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-11 Grok (Adam / abarish-dev, guest): LR12 Little Ranch wake-up taps (#210, v0.2.0). Six taps on the sleeping baby wake it for a fresh day. Little Ranch checks 57/57; the tick, changelog and this line are in the PR itself.
 - 2026-10-11 Codex (Adam / abarish-dev): Adam approved publication; SF2.6c #200 merged as `0af5b92`, after preserving current-main website/Little Ranch notes and rechecking all 18 suites. Exact-source preview #206 passes 54 browser checks and 17 captures; downloaded bytes independently hash/blob verified. Final read-only committed-pack check and Pages/live hashes gate publication; [release record](docs/research/starfall-preview-opening.md). #195 remains separate.
 
 - 2026-10-11 Codex (Adam / abarish-dev): SF2.6c in [PR #200](https://github.com/ecbarish/idle-arcade/pull/200): fresh opening shows the complete Guild Hall and inn, old positions/progress preserved, three unused environment tiles removed. All 18 CI suites pass (Starfall 227/0), plus 32 nonblank rendered captures at four sizes and 501 construction states; final evidence-only head will be rechecked. [Evidence](docs/screenshots/starfall-opening-view/README.md). Not merged or exported.
