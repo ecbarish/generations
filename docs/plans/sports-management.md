@@ -96,7 +96,7 @@ side panel. Text is in full words.
 - [ ] **DM3** [any] **Hiring coaches** (ready: Codex, PR #196, 2026-10-11): two coach slots (hitting, pitching), three candidates each offseason with a
   salary and a specialty (young players, power, control). Their effect is a visible growth bonus in the offseason
   report. Checks: a coach changes growth by the stated amount; old saves load.
-- [ ] **DM4** [any] **Player morale and stories**: each player has a mood (playing time, winning, contract); unhappy
+- [ ] **DM4** [Codex, ready PR #207; after #196] **Player morale and stories**: each player has a mood (playing time, winning, contract); unhappy
   stars ask for a trade or more money. Iona's notes mention them by name. Checks: benching a star lowers mood;
   mood changes the asking price by the stated amount.
 - [ ] **DM5** [any] **The ballpark you see grow**: draw each upgrade on the field (bigger stands, light towers,
@@ -130,13 +130,13 @@ side panel. Text is in full words.
   slump, shown on the roster and name tags, and small, tested effects on results.
 - [ ] **DM-N** [any] **The club's news and people**: the Lamplight paper after each day (two or three headlines from
   real results), and owner and fan opinions that react to winning, payroll and the park, as Retro Bowl does.
-- [ ] **DM-B2** [any] **Keep the league in balance over many seasons**: in a six-season simulation the other clubs'
+- [ ] **DM-B2** [Codex, PR #208; six-season measurements in diamond-manager-balance.md] **Keep the league in balance over many seasons**: in a six-season simulation the other clubs'
   average overall climbs from about 56 to 64 (it climbed to 62 before DM6 too), while the free-agent market stays at
   level 50, so a hands-off club falls to about 5 wins. Make free agents and standouts track the league's average
   (or slow the other clubs' growth) so the market stays useful; keep the gap check passing and add a check that the
   league average stays within about 4 points over six seasons. Harness idea: the gap check in
   tests/diamond-manager-checks.js, run for six seasons.
-- [ ] **DM7** [any] **Records and history**: season-by-season table, league awards (best hitter, best pitcher),
+- [ ] **DM7** [Codex, PR #209; docs/diamond-manager-history.md] **Records and history**: season-by-season table, league awards (best hitter, best pitcher),
   club records, a trophy case in the clubhouse.
 - [ ] **DM8** [Claude or any, later] **Step into the big moment** (optional): in close late innings, offer the old
   Diamond Career at-bat (tactical mode only) for one pinch-hit. Only after DM2 says the core is fun.

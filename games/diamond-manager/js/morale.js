@@ -1,0 +1,19 @@
+'use strict';
+/* DM4: game-result-driven morale, without extra random rolls or performance modifiers. */
+function freshMorale(){return {mood:50,missed:0,request:null,club:null,lastAsked:-1000,lastNoted:-1000,lastGame:-1};}
+function playerMorale(p){return p.morale||(p.morale=freshMorale());}
+function moodWord(p){const n=playerMorale(p).mood;return n>=70?'Settled':n<35?'Unsettled':'Steady';}
+function moraleAsk(p,base){const n=p.morale?.mood??50;return Math.round(base*(n<35?1.10:n>=70?.95:1)/10)*10;}
+function validMorale(m){return m===undefined||!!(m&&Number.isFinite(m.mood)&&m.mood>=0&&m.mood<=100&&(m.club===undefined||m.club===null||(Number.isInteger(m.club)&&m.club>=0&&m.club<6))&&Number.isInteger(m.missed)&&m.missed>=0&&['lastAsked','lastNoted','lastGame'].every(k=>Number.isInteger(m[k]))&&(m.request===null||!!(m.request&&['trade','contract'].includes(m.request.kind)&&Number.isInteger(m.request.key))));}
+function moodNote(L,g,p,text,kind){L.moraleNotes=L.moraleNotes||[];L.moraleNotes.push({key:g.key??dayKey(L),id:p.id,text,kind});L.moraleNotes=L.moraleNotes.slice(-12);}
+function recordMood(L,g){const key=g.key??dayKey(L);for(const ci of [g.home,g.away]){const c=L.clubs[ci],won=g.winner===ci,side=ci===g.home?1:0,bat=new Set((g.bat?.[side]||g.lineup?.[side]||[]).concat(g.first?.[side]||[])),arms=new Set(g.used?.[side]||g.starters||[]);
+ for(const p of c.players){let m=playerMorale(p);if(m.club!==null&&m.club!==undefined&&m.club!==ci){p.morale=freshMorale();m=p.morale;}m.club=ci;if(m.lastGame===key)continue;m.lastGame=key;const played=p.pitcher?arms.has(p.id):bat.has(p.id),star=overall(p)>=62,available=!p.pitcher||(L.day>=6&&rested(p,key)&&(!p.rest||key-p.rest.day>=7));const neutralAsk=askSalary({...p,morale:{...m,mood:50}},0),underpaid=p.years<=1&&p.salary<neutralAsk*.75&&!p.bargain;
+  m.missed=played?0:available?m.missed+1:m.missed;const minutes=played?2:available?(star?-3:-1):0;m.mood=clamp(m.mood+(won?1:-1)+minutes-(underpaid?3:0),0,100);
+  if(ci!==DM.you)continue;
+  if(m.request?.kind==='trade'&&played&&m.mood>=45){m.request=null;m.lastNoted=key;moodNote(L,g,p,p.name+' is back in the rhythm of the team. Those innings meant something.','recovered');}
+  if(!m.request&&star&&m.mood<35&&key-m.lastAsked>=7){const kind=m.missed>=3?'trade':underpaid?'contract':null;if(kind){m.request={kind,key};m.lastAsked=key;moodNote(L,g,p,kind==='trade'?p.name+' wants a club where there is room to play. They have been watching from the bench.':p.name+' wants a better deal. Their play has outgrown the old contract.',kind);}}
+ }} }
+function resetPlayerMorale(p,club){p.morale=freshMorale();p.morale.club=club;}
+function resolveContractMood(L,p){const m=playerMorale(p);m.mood=clamp(m.mood+8,0,100);if(m.request?.kind==='contract')m.request=null;}
+function offerPlayerDeal(L,id){const c=L.clubs[DM.you],p=c.players.find(x=>x.id===id);if(!p||playerMorale(p).request?.kind!=='contract')return 'That player has not asked for a new deal.';const ask=askSalary(p,L.upgrades.clubhouse);if(payroll(c)-(p.bargain?0:p.salary)+ask>c.budget)return p.name+' asks '+money(ask)+' a season; there is not room in the owner’s budget.';p.salary=ask;p.years=p.age>=32?1:2;p.bargain=false;resolveContractMood(L,p);return '';}
+function playerStory(p){const m=playerMorale(p);if(m.request?.kind==='trade')return p.name+' told me, “I want to play. If there is no room here, will you help me find a club where there is?”';if(m.request?.kind==='contract')return p.name+' told me, “I have grown into this team. I would like a deal that recognises that.”';return m.mood>=70?p.name+' feels at home here. Regular innings and good days together have made a difference.':m.missed?p.name+' has been waiting for a chance. A place on the team should mean more than watching.':p.name+' is taking the season one game at a time. Keep giving them chances to contribute.';}

@@ -45,6 +45,16 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 - Diamond Manager v0.6.0 (2026-10-11): coach hiring: optional hitting/pitching staff, one-season salaries and visible winter development gains (DM3, PR #196; version bumped on merge).
 - Godot Starfall preview (2026-10-11, SF-PREVIEW-200): rebuilt from merged `0af5b92` so new towns open with the complete Guild Hall roof/banner and inn roof. Exact pack passes real-browser movement and fresh/legacy saved-town reload checks; engine and save format unchanged. [Release evidence](docs/research/starfall-preview-opening.md).
 
+- Diamond Manager v0.6.0 (2026-10-11): coach hiring: optional hitting/pitching staff, one-season salaries and visible winter development gains (DM3, PR #196; version bumped on merge).
+- Diamond Manager v0.7.0 (2026-10-11): player morale: named playing-time and contract concerns through Iona, reversible choices and visible salary expectations (DM4, PR #207; version bumped on merge).
+- Diamond Manager v0.7.1 (2026-10-11): six-season balance: ordinary recruits and standouts track the league; winter visitors renew, while earned development and bargain access remain (DM-B2, PR #208; version bumped on merge).
+- Diamond Manager v0.8.0 (2026-10-11): season ledger, actual-stat league awards, club records and a dated Trophy Case in the Clubhouse (DM7, PR #209; version bumped on merge).
+
+- 2026-10-11: Diamond Manager six-season balance: ordinary recruits and standouts track the league; winter visitors renew, while earned development and bargain access remain (DM-B2, PR #208; version unchanged pending review).
+
+- 2026-10-11: Diamond Manager player morale: named playing-time and contract concerns through Iona, reversible choices and visible salary expectations (DM4, PR #207; version unchanged pending review).
+
+- 2026-10-11: Diamond Manager coach hiring: optional hitting/pitching staff, one-season salaries and visible winter development gains (DM3, PR #196; version unchanged pending review).
 - Godot Starfall (2026-10-11, SF2.6c): new towns open beside the Guild Hall with both full roofs and the banner in view. Removed three unused pack tiles; music and sounds remain. Existing towns keep their saved position and progress. [Before/after and checks](docs/screenshots/starfall-opening-view/README.md). Source change only; the web preview is not rebuilt by this PR.
 
 - Arcade v1.6.0 (2026-10-11, AR2.14): Classic versus the new version made obvious. Wildbond Classic and Starfall Guild Classic sit together in a last "Classic editions" section with a tan Classic ribbon and a link to their new version; the new versions carry a green "New version" ribbon. The guides page says which edition each guide covers and when it was last checked; the Diamond Career guide moves to "Older guides". The site and guides now refresh at milestones (docs/SITE-AND-GUIDES.md). The hall's cabinets keep one readable size in a row that scrolls as you walk, grouped like the sections with the Classics last; phones skip the hall and go straight to the section buttons and cards.
