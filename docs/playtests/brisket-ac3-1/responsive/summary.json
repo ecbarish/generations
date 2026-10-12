@@ -1,0 +1,607 @@
+{
+  "checks": 336,
+  "results": [
+    {
+      "name": "320x568-dpr1",
+      "metrics": {
+        "canvas": {
+          "x": 9,
+          "y": 130,
+          "width": 302,
+          "height": 328.8125
+        },
+        "transform": {
+          "a": 1,
+          "d": 1
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 16,
+        "width": 151,
+        "height": 53.59375,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "375x812-dpr1",
+      "metrics": {
+        "canvas": {
+          "x": 9,
+          "y": 100,
+          "width": 357,
+          "height": 602.8125
+        },
+        "transform": {
+          "a": 1,
+          "d": 1
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 16,
+        "width": 164.5,
+        "height": 32.796875,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "667x375-dpr1",
+      "metrics": {
+        "canvas": {
+          "x": 9,
+          "y": 51,
+          "width": 649,
+          "height": 266
+        },
+        "transform": {
+          "a": 1,
+          "d": 1
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 46,
+            "height": 44
+          },
+          {
+            "width": 46,
+            "height": 44
+          },
+          {
+            "width": 46,
+            "height": 44
+          },
+          {
+            "width": 46,
+            "height": 44
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 16,
+        "width": 164.5,
+        "height": 32.796875,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "812x375-dpr1",
+      "metrics": {
+        "canvas": {
+          "x": 9,
+          "y": 51,
+          "width": 794,
+          "height": 266
+        },
+        "transform": {
+          "a": 1,
+          "d": 1
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 58,
+            "height": 44
+          },
+          {
+            "width": 58,
+            "height": 44
+          },
+          {
+            "width": 58,
+            "height": 44
+          },
+          {
+            "width": 58,
+            "height": 44
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 16,
+        "width": 164.5,
+        "height": 32.796875,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "1366x768-dpr1",
+      "metrics": {
+        "canvas": {
+          "x": 9,
+          "y": 57,
+          "width": 1348,
+          "height": 640
+        },
+        "transform": {
+          "a": 1,
+          "d": 1
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 20,
+        "width": 200.625,
+        "height": 38,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "1920x1080-dpr1",
+      "metrics": {
+        "canvas": {
+          "x": 211,
+          "y": 57,
+          "width": 1498,
+          "height": 952
+        },
+        "transform": {
+          "a": 1,
+          "d": 1
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 20,
+        "width": 200.625,
+        "height": 38,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "3440x1440-dpr1",
+      "metrics": {
+        "canvas": {
+          "x": 621,
+          "y": 57,
+          "width": 2198,
+          "height": 1302
+        },
+        "transform": {
+          "a": 1,
+          "d": 1
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 80,
+            "height": 60
+          },
+          {
+            "width": 80,
+            "height": 60
+          },
+          {
+            "width": 80,
+            "height": 60
+          },
+          {
+            "width": 80,
+            "height": 60
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 20,
+        "width": 200.625,
+        "height": 38,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "320x568-dpr2",
+      "metrics": {
+        "canvas": {
+          "x": 9,
+          "y": 130,
+          "width": 302,
+          "height": 328.8125
+        },
+        "transform": {
+          "a": 2,
+          "d": 2
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 16,
+        "width": 151,
+        "height": 53.59375,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "375x812-dpr2",
+      "metrics": {
+        "canvas": {
+          "x": 9,
+          "y": 100,
+          "width": 357,
+          "height": 602.8125
+        },
+        "transform": {
+          "a": 2,
+          "d": 2
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          },
+          {
+            "width": 46,
+            "height": 48
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 16,
+        "width": 164.5,
+        "height": 32.796875,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "667x375-dpr2",
+      "metrics": {
+        "canvas": {
+          "x": 9,
+          "y": 51,
+          "width": 649,
+          "height": 266
+        },
+        "transform": {
+          "a": 2,
+          "d": 2
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 46,
+            "height": 44
+          },
+          {
+            "width": 46,
+            "height": 44
+          },
+          {
+            "width": 46,
+            "height": 44
+          },
+          {
+            "width": 46,
+            "height": 44
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 16,
+        "width": 164.5,
+        "height": 32.796875,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "812x375-dpr2",
+      "metrics": {
+        "canvas": {
+          "x": 9,
+          "y": 51,
+          "width": 794,
+          "height": 266
+        },
+        "transform": {
+          "a": 2,
+          "d": 2
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 58,
+            "height": 44
+          },
+          {
+            "width": 58,
+            "height": 44
+          },
+          {
+            "width": 58,
+            "height": 44
+          },
+          {
+            "width": 58,
+            "height": 44
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 16,
+        "width": 164.5,
+        "height": 32.796875,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "1366x768-dpr2",
+      "metrics": {
+        "canvas": {
+          "x": 9,
+          "y": 57,
+          "width": 1348,
+          "height": 640
+        },
+        "transform": {
+          "a": 2,
+          "d": 2
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 20,
+        "width": 200.625,
+        "height": 38,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "1920x1080-dpr2",
+      "metrics": {
+        "canvas": {
+          "x": 211,
+          "y": 57,
+          "width": 1498,
+          "height": 952
+        },
+        "transform": {
+          "a": 2,
+          "d": 2
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          },
+          {
+            "width": 58,
+            "height": 50
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 20,
+        "width": 200.625,
+        "height": 38,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    },
+    {
+      "name": "3440x1440-dpr2",
+      "metrics": {
+        "canvas": {
+          "x": 621,
+          "y": 57,
+          "width": 2198,
+          "height": 1302
+        },
+        "transform": {
+          "a": 2,
+          "d": 2
+        },
+        "overflow": false,
+        "controls": [
+          {
+            "width": 80,
+            "height": 60
+          },
+          {
+            "width": 80,
+            "height": 60
+          },
+          {
+            "width": 80,
+            "height": 60
+          },
+          {
+            "width": 80,
+            "height": 60
+          }
+        ]
+      },
+      "caption": {
+        "text": "Steady, Brisket",
+        "font": 20,
+        "width": 200.625,
+        "height": 38,
+        "hidden": false,
+        "pointerEvents": "none"
+      },
+      "errors": []
+    }
+  ]
+}
