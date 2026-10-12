@@ -5,7 +5,8 @@
  const START={x:6,y:10};
  function rng(seed){let n=seed>>>0;return()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};}
  function laneKind(y){return y===0?'home':y<=4?'river':y===5?'safe':y<=9?'road':'start';}
- function plan(n){return {speed:1.15+Math.min(2.4,(n-1)*.28),time:Math.max(20,TIME-(n-1)*2)};}
+ // Give new players room to read the crossing. Run four rejoins the original curve.
+ function plan(n){const opening=Math.max(0,(4-n)/3);return {speed:1.15+Math.min(2.4,(n-1)*.28)-.35*opening,time:Math.max(20,TIME-(n-1)*2)+14*opening,opening};}
  function wrap(x){return (x%COLS+COLS)%COLS;}
  function spanHits(left,width,point){const a=wrap(left),b=a+width;if(b<=COLS)return point>=a&&point<b;return point>=a||point<b-COLS;}
  function buildLanes(random,round){
@@ -14,9 +15,13 @@
    const kind=laneKind(y);if(kind!=='road'&&kind!=='river')continue;
    const dir=y%2===0?1:-1,p=plan(round);
    const speed=p.speed*(kind==='river'?.68:1)*(0.9+(y%3)*.08);
-   const width=kind==='river'?2.35+(y%2)*.85:1.65;
-   const gap=kind==='river'?4.6:3.55,count=kind==='river'?3:4,items=[];
+   const width=kind==='river'?2.35+(y%2)*.85+p.opening*(y%2?.6:1.15):1.65;
+   const count=kind==='river'?3:round<=2?3:4;
+   // Equal opening intervals also remove the old cramped wrap-around wagon gap.
+   const gap=p.opening>0?COLS/count:kind==='river'?4.6:3.55,items=[];
    let x=random()*gap;
+   // The first invitation to hop is into open road, rather than a random wagon.
+   if(round===1&&y===9)x=START.x+.5-width-(gap-width)/2;
    for(let i=0;i<count;i++){items.push({x:wrap(x),w:width});x+=gap;}
    lanes.push({y,dir,speed,kind,items});
   }
@@ -80,3 +85,4 @@
  const api={COLS,ROWS,W,H,LIVES,TIME,HOP,RECOVERY,HOME_COLS,START,laneKind,plan,create,current,ready,advance,hop,hurt,endTurn,onLog,hitCart,pose,scores,record};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.BrisketModel=api;
 })(typeof window==='object'?window:globalThis);
+

@@ -1,0 +1,1526 @@
+{
+  "checks": 448,
+  "routeCadenceSeconds": 0.35,
+  "results": [
+    {
+      "width": 320,
+      "height": 568,
+      "version": "before",
+      "metrics": {
+        "canvas": {
+          "width": 302,
+          "height": 328.8125
+        },
+        "time": 42,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.6000000000000005,
+            "minGapCss": 13.938461538461551,
+            "minClearSeconds": 0.7829218643979338,
+            "landingSeconds": 4.175583276788976
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000042,
+            "minGapCss": 33.68461538461548,
+            "minClearSeconds": 1.7492641026878395,
+            "landingSeconds": 2.8350142353906285
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.5999999999999988,
+            "minGapCss": 13.938461538461508,
+            "minClearSeconds": 0.8525149190110808,
+            "landingSeconds": 4.546746234725774
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000006,
+            "minGapCss": 33.6846153846154,
+            "minClearSeconds": 1.8920611722950056,
+            "landingSeconds": 3.0664439688919045
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.6999999999999997,
+            "minGapCss": 16.261538461538457,
+            "minClearSeconds": 0.6763285024154587,
+            "landingSeconds": 1.5942028985507246
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 16.261538461538496,
+            "minClearSeconds": 0.6211180124223615,
+            "landingSeconds": 1.4640638864241349
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 16.261538461538496,
+            "minClearSeconds": 0.5742411812961457,
+            "landingSeconds": 1.3535684987694834
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 16.261538461538496,
+            "minClearSeconds": 0.6763285024154605,
+            "landingSeconds": 1.5942028985507246
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "version": "after",
+      "metrics": {
+        "canvas": {
+          "width": 302,
+          "height": 328.8125
+        },
+        "time": 56,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 12.389743589743556,
+            "minClearSeconds": 1.0004001600640229,
+            "landingSeconds": 7.127851140456182
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 19.358974358974333,
+            "minClearSeconds": 1.4451535331113556,
+            "landingSeconds": 6.069644839067702
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 12.389743589743556,
+            "minClearSeconds": 1.0893246187363803,
+            "landingSeconds": 7.761437908496732
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 19.358974358974333,
+            "minClearSeconds": 1.5631252501000377,
+            "landingSeconds": 6.565126050420168
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 62.33589743589741,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 62.33589743589741,
+            "minClearSeconds": 3.4226190476190466,
+            "landingSeconds": 2.104591836734694
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 62.33589743589741,
+            "minClearSeconds": 3.1643081761006275,
+            "landingSeconds": 1.945754716981132
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 62.33589743589741,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "version": "before",
+      "metrics": {
+        "canvas": {
+          "width": 357,
+          "height": 602.8125
+        },
+        "time": 42,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.6000000000000005,
+            "minGapCss": 16.476923076923093,
+            "minClearSeconds": 0.7829218643979338,
+            "landingSeconds": 4.175583276788976
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000042,
+            "minGapCss": 39.819230769230884,
+            "minClearSeconds": 1.7492641026878395,
+            "landingSeconds": 2.8350142353906285
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.5999999999999988,
+            "minGapCss": 16.476923076923043,
+            "minClearSeconds": 0.8525149190110808,
+            "landingSeconds": 4.546746234725774
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000006,
+            "minGapCss": 39.819230769230785,
+            "minClearSeconds": 1.8920611722950056,
+            "landingSeconds": 3.0664439688919045
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.6999999999999997,
+            "minGapCss": 19.223076923076913,
+            "minClearSeconds": 0.6763285024154587,
+            "landingSeconds": 1.5942028985507246
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 19.223076923076967,
+            "minClearSeconds": 0.6211180124223615,
+            "landingSeconds": 1.4640638864241349
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 19.223076923076967,
+            "minClearSeconds": 0.5742411812961457,
+            "landingSeconds": 1.3535684987694834
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 19.223076923076967,
+            "minClearSeconds": 0.6763285024154605,
+            "landingSeconds": 1.5942028985507246
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "version": "after",
+      "metrics": {
+        "canvas": {
+          "width": 357,
+          "height": 602.8125
+        },
+        "time": 56,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 14.646153846153807,
+            "minClearSeconds": 1.0004001600640229,
+            "landingSeconds": 7.127851140456182
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 22.884615384615355,
+            "minClearSeconds": 1.4451535331113556,
+            "landingSeconds": 6.069644839067702
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 14.646153846153807,
+            "minClearSeconds": 1.0893246187363803,
+            "landingSeconds": 7.761437908496732
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 22.884615384615355,
+            "minClearSeconds": 1.5631252501000377,
+            "landingSeconds": 6.565126050420168
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 73.68846153846151,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 73.68846153846151,
+            "minClearSeconds": 3.4226190476190466,
+            "landingSeconds": 2.104591836734694
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 73.68846153846151,
+            "minClearSeconds": 3.1643081761006275,
+            "landingSeconds": 1.945754716981132
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 73.68846153846151,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "version": "before",
+      "metrics": {
+        "canvas": {
+          "width": 372,
+          "height": 634.8125
+        },
+        "time": 42,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.6000000000000005,
+            "minGapCss": 17.169230769230783,
+            "minClearSeconds": 0.7829218643979338,
+            "landingSeconds": 4.175583276788976
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000042,
+            "minGapCss": 41.49230769230781,
+            "minClearSeconds": 1.7492641026878395,
+            "landingSeconds": 2.8350142353906285
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.5999999999999988,
+            "minGapCss": 17.169230769230733,
+            "minClearSeconds": 0.8525149190110808,
+            "landingSeconds": 4.546746234725774
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000006,
+            "minGapCss": 41.492307692307705,
+            "minClearSeconds": 1.8920611722950056,
+            "landingSeconds": 3.0664439688919045
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.6999999999999997,
+            "minGapCss": 20.030769230769224,
+            "minClearSeconds": 0.6763285024154587,
+            "landingSeconds": 1.5942028985507246
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 20.030769230769273,
+            "minClearSeconds": 0.6211180124223615,
+            "landingSeconds": 1.4640638864241349
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 20.030769230769273,
+            "minClearSeconds": 0.5742411812961457,
+            "landingSeconds": 1.3535684987694834
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 20.030769230769273,
+            "minClearSeconds": 0.6763285024154605,
+            "landingSeconds": 1.5942028985507246
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "version": "after",
+      "metrics": {
+        "canvas": {
+          "width": 372,
+          "height": 634.8125
+        },
+        "time": 56,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 15.26153846153842,
+            "minClearSeconds": 1.0004001600640229,
+            "landingSeconds": 7.127851140456182
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 23.84615384615381,
+            "minClearSeconds": 1.4451535331113556,
+            "landingSeconds": 6.069644839067702
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 15.26153846153842,
+            "minClearSeconds": 1.0893246187363803,
+            "landingSeconds": 7.761437908496732
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 23.84615384615381,
+            "minClearSeconds": 1.5631252501000377,
+            "landingSeconds": 6.565126050420168
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 76.78461538461535,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 76.78461538461535,
+            "minClearSeconds": 3.4226190476190466,
+            "landingSeconds": 2.104591836734694
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 76.78461538461535,
+            "minClearSeconds": 3.1643081761006275,
+            "landingSeconds": 1.945754716981132
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 76.78461538461535,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "version": "before",
+      "metrics": {
+        "canvas": {
+          "width": 649,
+          "height": 266
+        },
+        "time": 42,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.6000000000000005,
+            "minGapCss": 29.95384615384618,
+            "minClearSeconds": 0.7829218643979338,
+            "landingSeconds": 4.175583276788976
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000042,
+            "minGapCss": 72.38846153846174,
+            "minClearSeconds": 1.7492641026878395,
+            "landingSeconds": 2.8350142353906285
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.5999999999999988,
+            "minGapCss": 29.95384615384609,
+            "minClearSeconds": 0.8525149190110808,
+            "landingSeconds": 4.546746234725774
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000006,
+            "minGapCss": 72.38846153846157,
+            "minClearSeconds": 1.8920611722950056,
+            "landingSeconds": 3.0664439688919045
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.6999999999999997,
+            "minGapCss": 34.946153846153834,
+            "minClearSeconds": 0.6763285024154587,
+            "landingSeconds": 1.5942028985507246
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 34.94615384615392,
+            "minClearSeconds": 0.6211180124223615,
+            "landingSeconds": 1.4640638864241349
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 34.94615384615392,
+            "minClearSeconds": 0.5742411812961457,
+            "landingSeconds": 1.3535684987694834
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 34.94615384615392,
+            "minClearSeconds": 0.6763285024154605,
+            "landingSeconds": 1.5942028985507246
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "version": "after",
+      "metrics": {
+        "canvas": {
+          "width": 649,
+          "height": 266
+        },
+        "time": 56,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 26.625641025640956,
+            "minClearSeconds": 1.0004001600640229,
+            "landingSeconds": 7.127851140456182
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 41.602564102564045,
+            "minClearSeconds": 1.4451535331113556,
+            "landingSeconds": 6.069644839067702
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 26.625641025640956,
+            "minClearSeconds": 1.0893246187363803,
+            "landingSeconds": 7.761437908496732
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 41.602564102564045,
+            "minClearSeconds": 1.5631252501000377,
+            "landingSeconds": 6.565126050420168
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 133.96025641025636,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 133.96025641025636,
+            "minClearSeconds": 3.4226190476190466,
+            "landingSeconds": 2.104591836734694
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 133.96025641025636,
+            "minClearSeconds": 3.1643081761006275,
+            "landingSeconds": 1.945754716981132
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 133.96025641025636,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 812,
+      "height": 375,
+      "version": "before",
+      "metrics": {
+        "canvas": {
+          "width": 794,
+          "height": 266
+        },
+        "time": 42,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.6000000000000005,
+            "minGapCss": 36.64615384615388,
+            "minClearSeconds": 0.7829218643979338,
+            "landingSeconds": 4.175583276788976
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000042,
+            "minGapCss": 88.56153846153872,
+            "minClearSeconds": 1.7492641026878395,
+            "landingSeconds": 2.8350142353906285
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.5999999999999988,
+            "minGapCss": 36.64615384615377,
+            "minClearSeconds": 0.8525149190110808,
+            "landingSeconds": 4.546746234725774
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000006,
+            "minGapCss": 88.56153846153849,
+            "minClearSeconds": 1.8920611722950056,
+            "landingSeconds": 3.0664439688919045
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.6999999999999997,
+            "minGapCss": 42.75384615384614,
+            "minClearSeconds": 0.6763285024154587,
+            "landingSeconds": 1.5942028985507246
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 42.75384615384625,
+            "minClearSeconds": 0.6211180124223615,
+            "landingSeconds": 1.4640638864241349
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 42.75384615384625,
+            "minClearSeconds": 0.5742411812961457,
+            "landingSeconds": 1.3535684987694834
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 42.75384615384625,
+            "minClearSeconds": 0.6763285024154605,
+            "landingSeconds": 1.5942028985507246
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 812,
+      "height": 375,
+      "version": "after",
+      "metrics": {
+        "canvas": {
+          "width": 794,
+          "height": 266
+        },
+        "time": 56,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 32.57435897435889,
+            "minClearSeconds": 1.0004001600640229,
+            "landingSeconds": 7.127851140456182
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 50.89743589743583,
+            "minClearSeconds": 1.4451535331113556,
+            "landingSeconds": 6.069644839067702
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 32.57435897435889,
+            "minClearSeconds": 1.0893246187363803,
+            "landingSeconds": 7.761437908496732
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 50.89743589743583,
+            "minClearSeconds": 1.5631252501000377,
+            "landingSeconds": 6.565126050420168
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 163.88974358974352,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 163.88974358974352,
+            "minClearSeconds": 3.4226190476190466,
+            "landingSeconds": 2.104591836734694
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 163.88974358974352,
+            "minClearSeconds": 3.1643081761006275,
+            "landingSeconds": 1.945754716981132
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 163.88974358974352,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "version": "before",
+      "metrics": {
+        "canvas": {
+          "width": 1348,
+          "height": 640
+        },
+        "time": 42,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.6000000000000005,
+            "minGapCss": 62.21538461538467,
+            "minClearSeconds": 0.7829218643979338,
+            "landingSeconds": 4.175583276788976
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000042,
+            "minGapCss": 150.35384615384658,
+            "minClearSeconds": 1.7492641026878395,
+            "landingSeconds": 2.8350142353906285
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.5999999999999988,
+            "minGapCss": 62.21538461538449,
+            "minClearSeconds": 0.8525149190110808,
+            "landingSeconds": 4.546746234725774
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000006,
+            "minGapCss": 150.3538461538462,
+            "minClearSeconds": 1.8920611722950056,
+            "landingSeconds": 3.0664439688919045
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.6999999999999997,
+            "minGapCss": 72.58461538461536,
+            "minClearSeconds": 0.6763285024154587,
+            "landingSeconds": 1.5942028985507246
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 72.58461538461555,
+            "minClearSeconds": 0.6211180124223615,
+            "landingSeconds": 1.4640638864241349
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 72.58461538461555,
+            "minClearSeconds": 0.5742411812961457,
+            "landingSeconds": 1.3535684987694834
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 72.58461538461555,
+            "minClearSeconds": 0.6763285024154605,
+            "landingSeconds": 1.5942028985507246
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "version": "after",
+      "metrics": {
+        "canvas": {
+          "width": 1348,
+          "height": 640
+        },
+        "time": 56,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 55.30256410256395,
+            "minClearSeconds": 1.0004001600640229,
+            "landingSeconds": 7.127851140456182
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 86.41025641025628,
+            "minClearSeconds": 1.4451535331113556,
+            "landingSeconds": 6.069644839067702
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 55.30256410256395,
+            "minClearSeconds": 1.0893246187363803,
+            "landingSeconds": 7.761437908496732
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 86.41025641025628,
+            "minClearSeconds": 1.5631252501000377,
+            "landingSeconds": 6.565126050420168
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 278.24102564102554,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 278.24102564102554,
+            "minClearSeconds": 3.4226190476190466,
+            "landingSeconds": 2.104591836734694
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 278.24102564102554,
+            "minClearSeconds": 3.1643081761006275,
+            "landingSeconds": 1.945754716981132
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 278.24102564102554,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "version": "before",
+      "metrics": {
+        "canvas": {
+          "width": 1498,
+          "height": 952
+        },
+        "time": 42,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.6000000000000005,
+            "minGapCss": 69.1384615384616,
+            "minClearSeconds": 0.7829218643979338,
+            "landingSeconds": 4.175583276788976
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000042,
+            "minGapCss": 167.08461538461586,
+            "minClearSeconds": 1.7492641026878395,
+            "landingSeconds": 2.8350142353906285
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.5999999999999988,
+            "minGapCss": 69.1384615384614,
+            "minClearSeconds": 0.8525149190110808,
+            "landingSeconds": 4.546746234725774
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000006,
+            "minGapCss": 167.08461538461546,
+            "minClearSeconds": 1.8920611722950056,
+            "landingSeconds": 3.0664439688919045
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.6999999999999997,
+            "minGapCss": 80.66153846153844,
+            "minClearSeconds": 0.6763285024154587,
+            "landingSeconds": 1.5942028985507246
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 80.66153846153863,
+            "minClearSeconds": 0.6211180124223615,
+            "landingSeconds": 1.4640638864241349
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 80.66153846153863,
+            "minClearSeconds": 0.5742411812961457,
+            "landingSeconds": 1.3535684987694834
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 80.66153846153863,
+            "minClearSeconds": 0.6763285024154605,
+            "landingSeconds": 1.5942028985507246
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "version": "after",
+      "metrics": {
+        "canvas": {
+          "width": 1498,
+          "height": 952
+        },
+        "time": 56,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 61.45641025641009,
+            "minClearSeconds": 1.0004001600640229,
+            "landingSeconds": 7.127851140456182
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 96.0256410256409,
+            "minClearSeconds": 1.4451535331113556,
+            "landingSeconds": 6.069644839067702
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 61.45641025641009,
+            "minClearSeconds": 1.0893246187363803,
+            "landingSeconds": 7.761437908496732
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 96.0256410256409,
+            "minClearSeconds": 1.5631252501000377,
+            "landingSeconds": 6.565126050420168
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 309.202564102564,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 309.202564102564,
+            "minClearSeconds": 3.4226190476190466,
+            "landingSeconds": 2.104591836734694
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 309.202564102564,
+            "minClearSeconds": 3.1643081761006275,
+            "landingSeconds": 1.945754716981132
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 309.202564102564,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "version": "before",
+      "metrics": {
+        "canvas": {
+          "width": 2198,
+          "height": 1302
+        },
+        "time": 42,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.6000000000000005,
+            "minGapCss": 101.44615384615393,
+            "minClearSeconds": 0.7829218643979338,
+            "landingSeconds": 4.175583276788976
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000042,
+            "minGapCss": 245.16153846153915,
+            "minClearSeconds": 1.7492641026878395,
+            "landingSeconds": 2.8350142353906285
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.2,
+            "minGap": 0.5999999999999988,
+            "minGapCss": 101.44615384615363,
+            "minClearSeconds": 0.8525149190110808,
+            "landingSeconds": 4.546746234725774
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 2.35,
+            "minGap": 1.4500000000000006,
+            "minGapCss": 245.16153846153856,
+            "minClearSeconds": 1.8920611722950056,
+            "landingSeconds": 3.0664439688919045
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.6999999999999997,
+            "minGapCss": 118.3538461538461,
+            "minClearSeconds": 0.6763285024154587,
+            "landingSeconds": 1.5942028985507246
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 118.3538461538464,
+            "minClearSeconds": 0.6211180124223615,
+            "landingSeconds": 1.4640638864241349
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 118.3538461538464,
+            "minClearSeconds": 0.5742411812961457,
+            "landingSeconds": 1.3535684987694834
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 4,
+            "width": 1.65,
+            "minGap": 0.7000000000000015,
+            "minGapCss": 118.3538461538464,
+            "minClearSeconds": 0.6763285024154605,
+            "landingSeconds": 1.5942028985507246
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "version": "after",
+      "metrics": {
+        "canvas": {
+          "width": 2198,
+          "height": 1302
+        },
+        "time": 56,
+        "lanes": [
+          {
+            "row": 1,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 90.17435897435873,
+            "minClearSeconds": 1.0004001600640229,
+            "landingSeconds": 7.127851140456182
+          },
+          {
+            "row": 2,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 140.89743589743568,
+            "minClearSeconds": 1.4451535331113556,
+            "landingSeconds": 6.069644839067702
+          },
+          {
+            "row": 3,
+            "kind": "river",
+            "count": 3,
+            "width": 3.8000000000000003,
+            "minGap": 0.5333333333333319,
+            "minGapCss": 90.17435897435873,
+            "minClearSeconds": 1.0893246187363803,
+            "landingSeconds": 7.761437908496732
+          },
+          {
+            "row": 4,
+            "kind": "river",
+            "count": 3,
+            "width": 3.5,
+            "minGap": 0.8333333333333321,
+            "minGapCss": 140.89743589743568,
+            "minClearSeconds": 1.5631252501000377,
+            "landingSeconds": 6.565126050420168
+          },
+          {
+            "row": 6,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 453.68974358974344,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          },
+          {
+            "row": 7,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 453.68974358974344,
+            "minClearSeconds": 3.4226190476190466,
+            "landingSeconds": 2.104591836734694
+          },
+          {
+            "row": 8,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 453.68974358974344,
+            "minClearSeconds": 3.1643081761006275,
+            "landingSeconds": 1.945754716981132
+          },
+          {
+            "row": 9,
+            "kind": "road",
+            "count": 3,
+            "width": 1.65,
+            "minGap": 2.6833333333333322,
+            "minGapCss": 453.68974358974344,
+            "minClearSeconds": 3.7268518518518503,
+            "landingSeconds": 2.2916666666666665
+          }
+        ]
+      },
+      "errors": []
+    }
+  ]
+}

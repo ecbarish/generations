@@ -5,6 +5,8 @@ on:
       - 'games/briskets-crossing/**'
       - 'tests/briskets-crossing.html'
       - 'docs/playtests/brisket-ac3-1/**'
+      - 'docs/playtests/brisket-ac3-2/**'
+      - 'tools/brisket-model-checks.cjs'
       - '.github/workflows/brisket-polish-review.yml'
   workflow_dispatch:
 concurrency:
@@ -47,6 +49,8 @@ jobs:
         run: node docs/playtests/brisket-ac3-1/capture.cjs
       - name: Responsive drawing, repeated rotation and real tap review
         run: node docs/playtests/brisket-ac3-1/responsive-review.cjs
+      - name: Easier opening, timed routes and before-after phone renders
+        run: node docs/playtests/brisket-ac3-2/browser-review.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -55,4 +59,6 @@ jobs:
             docs/playtests/brisket-ac3-1/*.png
             docs/playtests/brisket-ac3-1/*.json
             docs/playtests/brisket-ac3-1/responsive/
+            docs/playtests/brisket-ac3-2/captures/
           retention-days: 90
+
