@@ -41,7 +41,10 @@ lines grow instead of the list of loners:
 | Legends and guardians | 10 | 10 | (ours: the nine guardians and one more) |
 | **Total** | **69** | **140, plus ranch hybrids and seasonal forms ≈ 150** | |
 
-So about 58 of today's 74 loners get a baby form, an adult form, or both, and about 16 stay themselves on purpose.
+So about 58 of today's 74 loners gain a new stage before them, after them, or both, and about 16 stay themselves on
+purpose. **A new stage is its own creature**, with its own name, look and dex, the way Squirtle, Wartortle and Blastoise
+each stand alone. It is not a younger or older version of the same creature. Those life stages (a baby that hatches
+from an egg and grows up as the same creature) are a separate feature, WB5.5, and they don't count as evolution here.
 
 **Most creatures evolve** (Evan, 2026-10-11: "I'd like for the majority of creatures like in Pokémon to evolve, that's
 one of my favorite features"). In the original 151, about five in six belong to an evolution line; this plan gives the
@@ -157,8 +160,8 @@ tasks suit anyone comfortable with `figures.gd`.
 - **CR2 [ChatGPT / writer]** The six showpiece lines (section 3): names, dex, homes, stats, moves, evolution conditions
   and hints, as data in evolution.json; promote the three starter lines; raise the guardians to 560-600. Check against
   docs/lore/wildbond-threads.md. Includes the WB3.6b pacing check.
-- **CR3 [any, several PRs]** Grow the loners into lines: about 58 of the 74 creatures that never evolve get a baby form,
-  an adult form or both (section 2). One region per PR, in journey order (Thornwood first), following section 5.
+- **CR3 [any, several PRs]** Grow the loners into lines: about 58 of the 74 creatures that never evolve gain a new
+  stage before or after them, each its own creature with its own name and look (section 2), never a baby or adult version. One region per PR, in journey order (Thornwood first), following section 5.
 - **CR4 [any]** The evolution moment: the light, the silhouette growing, the new form at full size, and a townsperson
   who notices; the full version for showpieces.
 - **CR5 [any]** Two more branching lines, using conditions we don't use yet (time of day, weather, what it ate at the
