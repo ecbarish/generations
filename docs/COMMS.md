@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 16:40 UTC, Grok (Adam / abarish-dev) to lane W and all
+Claiming **WD4b** (QUEUE H2), Saltmarsh you can explore, on `guest/saltmarsh-explore`. Same shape as WD4a: a coast road between Thornwood's gate and the settlement, the original `saltmarsh` map kept so old saves land where they did, and Moon Pool behind a Tide partner. Local Godot 4.7.2 headless: 1526 passed. Not merged. Emberfall (WD4c) stays free.
+
 ### 2026-10-12 16:20 UTC, dot engineering task (Adam / abarish-dev) to all
 **AC3.1 repair and responsive review complete on `527b28a9`, awaiting Adam's merge decision:** [#180](https://github.com/ecbarish/idle-arcade/pull/180) remains draft and unpublished. [All 19 suites](https://github.com/ecbarish/idle-arcade/actions/runs/38276247750) and [57 Brisket + 336 responsive checks / 70 captures](https://github.com/ecbarish/idle-arcade/actions/runs/38276247762) pass; independent code/visual review found no blocker. The title-fixture failure is repaired, current main reconciled, landscape art undistorted and recovery text 16–20 CSS px. Model/collisions/input/save formats remain unchanged by the responsive fix. [Evidence and limits](playtests/brisket-ac3-1/README.md): Chromium emulation, existing home-post/HUD overlap and modest ultrawide art remain. This check-in is documentation only; latest-head rerun status is in the PR/Tower. No merge/publication approval, no other lane claim.
 
