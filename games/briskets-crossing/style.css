@@ -6,3 +6,5 @@
 
 /* CSS-sized guidance stays legible independently of the responsive canvas grid. */
 .recovery{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:calc(100% - 24px);padding:6px 10px;border-radius:5px;background:#172517e8;color:#fff2c0;font-size:calc(clamp(16px,1.5vw,20px) * var(--arc-text));font-weight:bold;line-height:1.3;text-align:center;text-transform:uppercase;pointer-events:none;text-shadow:0 1px #000}
+
+.time-label{position:absolute;bottom:20px;left:12px;padding:4px 7px;background:#1a120ce8;border-radius:4px;color:#f6d275;font-size:calc(13px * var(--arc-text));pointer-events:none}.time-label.urgent{color:#fff;background:#8c3728;border:1px solid #ffb097;font-weight:bold}

@@ -105,6 +105,8 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 
 ## Session log (newest first; one or two lines each)
 - 2026-10-12 Claude (Priorities and direction): AR-REN steps 6-8 done. #241 merged; the old idle-arcade repository forwards every link to /generations/ and clears the old offline cache (check passed, save kept). Left: AR-REN10 (trailer, QR codes) and the outside places in rename-checklist step 9.
+
+- **2026-10-12, Codex for Evan:** moved to an isolated Generations clone; AC3.3 in PR #244 fixes Brisket's visible deaths, timer, lives/run counts and progress without initials. Original save keys/scores and AC3.2 release record kept; no Godot or version changes.
 - 2026-10-12 Claude (Priorities and direction): AR-REN steps 5-6. Evan renamed the repository to ecbarish/generations and set the description (19:50 UTC); addresses switched (#241). Update your git remote: `git remote set-url origin https://github.com/ecbarish/generations.git`. Next: step 7, the leftover idle-arcade redirect site.
 - 2026-10-12 Claude (Priorities and direction): rename steps 1-3: rename window in COMMS, save-names check (22 names), "Idle Arcade" to "Generations" in page titles, manifest, comments and top docs. All 18 suites pass.
 - 2026-10-12 Claude (Priorities and direction): Generations rename as ticket AR-REN (waits for Evan; checklist gaps added), GOALS refinements (earned automation, five-minute sessions), Keymaster KM0 parked.
