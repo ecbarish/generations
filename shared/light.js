@@ -1,4 +1,4 @@
-/* The light engine (S6 / G1, 2026-10-09): light, shadow and atmosphere for every Idle Arcade game, drawn in code.
+/* The light engine (S6 / G1, 2026-10-09): light, shadow and atmosphere for every Generations game, drawn in code.
    Inspired by WoW: Forever's renderer (Evan: "paying attention to the details of the lighting and the shadows greatly
    affects the overall look"): shadows that line up with the sun and moon and move through the day, bounce light that
    carries colour into the shade, fog you move through that light scatters in, and real torchlight. In our pixel style:

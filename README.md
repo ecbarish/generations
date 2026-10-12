@@ -1,4 +1,4 @@
-# Idle Arcade
+# Generations (formerly Idle Arcade)
 
 A stable of idle and progression browser games. Each game saves on its own in the browser,
 and the hub page shows where you left off in every one.

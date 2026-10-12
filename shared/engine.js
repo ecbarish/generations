@@ -1,4 +1,4 @@
-/* Idle Arcade shared engine.
+/* Generations shared engine.
    Every game loads this before its own script and uses window.Arcade for:
    - number/time formatting (fmt, fmtI, fmtTime)
    - per-game saves in localStorage (load, save, erase) that never throw

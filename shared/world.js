@@ -1,4 +1,4 @@
-/* The world kit (S4, 2026-10-09): walkable tile worlds for every Idle Arcade game. Born in Wildbond (T7b, T13),
+/* The world kit (S4, 2026-10-09): walkable tile worlds for every Generations game. Born in Wildbond (T7b, T13),
    shared so Realmbound's towns (and later Starfall's guild hall and Otherworld) walk and look the same way.
 
    1. World.walker: a grid you walk on, with smooth sliding between tiles, held keys, click-to-walk (shortest path),

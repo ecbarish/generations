@@ -1,4 +1,4 @@
-/* Shared chiptune sound for Idle Arcade games (S2, 2026-10-08). Everything is made live with Web Audio, no audio files.
+/* Shared chiptune sound for Generations games (S2, 2026-10-08). Everything is made live with Web Audio, no audio files.
    One sound family for the arcade: the same instruments, effects and mixing in every game, each with its own tunes.
 
    Tracks are note strings, one 8th note per token, '.' = rest: { bpm, mel, bass, drum?, lead?, shift?, echo? }

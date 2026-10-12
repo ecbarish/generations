@@ -1,4 +1,4 @@
-/* Shared roster and jobs for Idle Arcade games (S3, 2026-10-08). Members you aren't playing take jobs; each job
+/* Shared roster and jobs for Generations games (S3, 2026-10-08). Members you aren't playing take jobs; each job
    pays whole units on a timer, like IdleOn's AFK characters but with no daily chores: a job keeps running until you
    change it, and everything comes back in one report.
 

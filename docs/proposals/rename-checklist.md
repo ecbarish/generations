@@ -72,7 +72,10 @@ Checked against the repository on 2026-10-12.
 19. **Order matters:** merge every open pull request (or warn their authors) before renaming, since branches
     keep working but in-flight links and checks point at the old name.
 
-## Proposed order (lane P, 2026-10-12; waits for Evan's approval)
+## The order (lane P, 2026-10-12; approved by Evan 2026-10-12, 18:10 UTC)
+
+**Evan, 2026-10-12: Claude does the github.com steps (5 and 7) on Evan's PC** through the computer tools, with Evan signed in and
+asked for an OK right before; Claude never types a password. Progress: steps 1-3 in the pull request that adds this line.
 
 Evan greenlit the rename and wants to approve this order before anyone starts. Steps marked **Evan** are his on
 github.com; everything else any AI can do.
@@ -83,6 +86,9 @@ github.com; everything else any AI can do.
 3. **Name pull request, merged before the rename:** the words "Idle Arcade" become "Generations" in docs, page
    titles, meta, the manifest name and code comments; the service worker's cache name gets a new version so
    players pick up the new pages (items 5-8, 17). Links still point at the old address, so nothing breaks yet.
+   Done: the service worker needs no new version (it is online-first and its cache name already includes the site's
+   address); its `idle-arcade-shell:` prefix stays so it keeps cleaning up its own old caches. `shared/votes-config.js`
+   keeps "Idle Arcade votes", the real name of Evan's Google Form.
 4. **Address pull request, prepared but not merged:** every hard-coded `ecbarish/idle-arcade` and
    `github.io/idle-arcade` address switched to the new name (item 16), with `tests/tell-us.html` updated.
 5. **Evan: rename the repository on github.com and edit its description** to the new tagline, in the same sitting
