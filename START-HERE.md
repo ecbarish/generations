@@ -104,6 +104,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-12 Codex (Adam / abarish-dev): Adam approved publishing mobile fit; source [#221](https://github.com/ecbarish/idle-arcade/pull/221) merged as `1a37f695`. Exact tested pack staged in [#222](https://github.com/ecbarish/idle-arcade/pull/222), with committed-byte browser checks and Pages/live hashes as release gates; [record](docs/research/starfall-preview-mobile-fit.md).
 
 - 2026-10-12 Codex (Adam): TOWER-COMMS #223 requests shared task reporting for the separate read-only AI Control Tower Site; no game or save changes.
 - 2026-10-12 Codex (Adam / abarish-dev): SF-MOBILE-FIT in draft [#221](https://github.com/ecbarish/idle-arcade/pull/221): phones use fractional aspect-fit, desktop keeps integer pixels; camera and saves unchanged. 1,406 exported-browser checks / 136 captures and all 19 suites pass; [evidence](docs/screenshots/starfall-mobile-fit/README.md). Final-head checks gate review; not merged or published.
