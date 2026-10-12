@@ -104,6 +104,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-12 dot engineering task (Adam): AC3.2 draft [#233](https://github.com/ecbarish/idle-arcade/pull/233) eases Brisket's opening; 375px phone road gaps grow from 19px to 74px. Implementation passes all 19 suites and 784 responsive/opening checks; independent source/visual review found no blocker. [Evidence](docs/playtests/brisket-ac3-2/README.md); final-head checks in PR, no merge/publication authorized.
 - 2026-10-12 dot engineering task (Adam): Brisket v0.1.1 #180 is live (`19a7ee37`), eight public file hashes and 31 actual public-browser checks verified at 16:34 UTC. All 19 suites and 336 responsive checks pass; [release record](docs/playtests/brisket-ac3-1/README.md), status-only handoff #231.
 - 2026-10-12 dot engineering task (Adam): #180 landscape correction approved; responsive art/caption fix passes 336 browser checks/70 captures and independent visual review; head 527b28a9 passes all 19 suites and 336 responsive checks; awaiting Adam's merge decision, kept draft. Original before screenshots retained, no merge/publication.
 - 2026-10-12 dot engineering task (Adam): authorized ownership handoff for AC3.1 draft #180, fixture repair and current-main reconciliation; all 19 suites and 57 Brisket checks pass; six browser images reviewed, with pre-existing landscape stretch documented for the merge decision. No merge or publication.

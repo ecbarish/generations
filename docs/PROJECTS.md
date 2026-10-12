@@ -8,7 +8,7 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| AC3.2 | Easier opening after phone playtest | S | claimed: dot / Adam, draft [#233](https://github.com/ecbarish/idle-arcade/pull/233), 2026-10-12 | Wider early gaps, landing windows and decision time; phone captures and timed crossings; no merge authorized |
+| AC3.2 | Easier opening after phone playtest | S | built and reviewed: dot / Adam, draft [#233](https://github.com/ecbarish/idle-arcade/pull/233), 2026-10-12 | Wider early gaps, landing windows and decision time; phone captures and timed crossings; no merge authorized |
 
 ## Realmbound first-session validation
 

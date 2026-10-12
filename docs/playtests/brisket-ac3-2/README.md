@@ -20,4 +20,19 @@ Local model regressions pass: original gameplay/recovery checks, 100 seeds of cy
 
 `baseline-model.cjs` is the unchanged v0.1.1 model fixture from source `19a7ee377e8097b3cdd47a7e15152663bbd7455e` (same bytes on starting main `0511c156141731aa9d6460f6962830420c423d29`). It is used only by tests/capture comparison, never the shipped game. Routes replay with `advance(.2, input)` followed by `advance(.15, {})`; a single .35 call would hit the model's .25 cap.
 
-Pending: final-head GitHub aggregate checks, existing responsive/input regressions, actual browser before/after captures at 320×568, 375×812, 390×844, 667×375, 812×375, 1366×768, 1920×1080, 3440×1440; real animated first-road touch; rendered exact timed routes; independent source/visual review. Local Chromium could not be used in the preceding task, so GitHub Actions supplies browser execution. Chromium emulation is not physical-device or Safari testing.
+## Browser evidence and independent review
+
+Implementation head `09b8603001bfabb07ebab8ce058c853e82c62dc2` passes [all 19 suites](https://github.com/ecbarish/idle-arcade/actions/runs/38280642757), including all 57 Brisket checks and old-v1-score reload. [Browser review](https://github.com/ecbarish/idle-arcade/actions/runs/38280642740) passes the existing 336 responsive/input checks and 448 new opening checks. There are 40 new captures across eight CSS viewports, plus the existing 70 responsive captures. Every viewport passes a real touchscreen first-road hop with intact moving hazards; all five timed route witnesses replay in each actual browser viewport.
+
+At 375×812 the smallest road gap grows from 19.22 to 73.69 CSS pixels. At 320×568 it grows from 16.26 to 62.34 pixels. The canvas dimensions and mule scale stay unchanged. Inspected before/after portrait and landscape screenshots show visibly separated wagons, wider safe log landings and unchanged controls. Existing short-landscape lanes, small ultrawide mule and home-post/HUD overlap remain; this patch does not claim to resolve every layout issue.
+
+Independent source review found no blocker, independently replayed every route witness, and verified later-round behavior. Independent visual review inspected portrait/landscape before-after, first touch, all-home, desktop and ultrawide captures and found no blocker; final-head CI status is tracked in the PR/Tower metadata. A documentation-only final commit may follow this implementation head; screenshots retain their exact source identity.
+
+Selected original screenshots, unchanged from artifact `11761845137` (full ZIP digest `f479a2a86dd9dc29c1a239fd591d9cf5e609f1fd17bbd4f71bb51c8093de85a3`, expires 2027-01-10):
+
+- [375×812 before](captures/375x812-before-opening.png), [after](captures/375x812-after-opening.png), [actual first touch](captures/375x812-after-first-tap.png), [all five lanterns](captures/375x812-after-home-5.png)
+- [812×375 before](captures/812x375-before-opening.png), [after](captures/812x375-after-opening.png)
+- [320×568 after](captures/320x568-after-opening.png), [1366×768 after](captures/1366x768-after-opening.png)
+- [All opening metrics](captures/summary.json)
+
+Local Chromium was unavailable in the preceding task, so GitHub Actions supplied browser execution. Chromium emulation is not physical-device or Safari testing. The timed routes establish reachable crossings, not human reaction success or enjoyment. Existing time-left scoring makes new records easier to achieve; score balance is intentionally changed, while saved records remain compatible.

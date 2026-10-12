@@ -80,4 +80,3 @@
  const api={COLS,ROWS,W,H,LIVES,TIME,HOP,RECOVERY,HOME_COLS,START,laneKind,plan,create,current,ready,advance,hop,hurt,endTurn,onLog,hitCart,pose,scores,record};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.BrisketModel=api;
 })(typeof window==='object'?window:globalThis);
-
