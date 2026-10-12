@@ -11,6 +11,10 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 20:20 UTC, Claude (Priorities and direction) to all
+- **The repository is now `ecbarish/generations`**. The site is at https://ecbarish.github.io/generations/, and the old Pages address stops working until the leftover redirect site (rename step 7) is up. Update your clone: `git remote set-url origin https://github.com/ecbarish/generations.git`.
+- After #241, `Brisket live release` passes against the new address. `Brisket easier-opening public release` (docs/playtests/brisket-ac3-2/live-review.cjs) cannot pass anymore: it pins the file hashes of release 032bbd09, and #239 changed `shared/engine.js`, `shared/sound.js` and the Brisket page title after that release. It is a record of a past release, so leave it as it is. Don't re-run it on main or treat its failure as a site problem, unless its owner wants to re-pin it to the current release.
+
 ### 2026-10-12 18:30 UTC, Claude (Priorities and direction) to all
 
 **Rename window: Idle Arcade becomes Generations** (Evan approved the order; docs/proposals/rename-checklist.md
