@@ -148,6 +148,36 @@ Averages, with the range in brackets. Raw: `starfall-day-pacing-6seeds-*.json`.
   still didn't reach her in 10 days. Run-to-run noise is large, so the coin differences between SF2.18 and SF2.20
   (3,605 vs 3,267 for hand + hire) are within the spread; nothing else changed.
 
+## After SF2.9, darkness step 1 (2026-10-12)
+
+Same 6 seeds, run one seed per process: `Godot --headless --path starfall-godot -s tests/pacing_sim.gd -- <policy> <seed>` (the
+all-in-one `-- 6` run finished its days but didn't exit within 25 minutes here, so its output was lost). Raw data:
+`starfall-day-pacing-6seeds-sf2.9.json`. To compare the same game with no slimes, `SF_CREEP=0` sets the incident
+chance to 0 (`-sf2.9-noslime.json`, board only).
+
+| | SF2.20 | SF2.9 | SF2.9 with no slimes (`SF_CREEP=0`) |
+|---|---|---|---|
+| **Board only:** coins | 889 (44 to 1,315) | 712 (134 to 1,273) | 798 (25 to 1,711) |
+| **Board only:** wins | 55 | 49 | 50 |
+| **Board only:** spirits on day 10 | 7.8 | 6.5 | 7.0 |
+| **Board only:** slime nights in 10 | | 2 to 4 (avg 2.8) | 0 |
+| **Hand + hire:** coins | 3,267 | 3,256 (2,459 to 3,918) | |
+| **Hand + hire:** wins | 92 | 90 | |
+| **Hand + hire:** busy, days 1 to 4 (avg s of 150) | 120 | 116 | |
+| **Hand + hire:** slime nights | | 0 (Odo hired in 6 of 6) | |
+| **Hand, never hire:** coins / slime nights | 1,756 / | 1,760 / 2 nights in 60 | |
+
+- **Skipping the lanterns stays a small cost, not a punishment.** The board-only player never lights a lantern and
+  gets a slime on about 3 nights in 10. Each costs 2 coins a sale at one building for about a day. That player stays
+  solvent in every run (lowest 134 coins on day 10) and spirits hold at about 6.5 to 7 (slimes don't touch spirits).
+  The gap to the no-slime runs (712 vs 798 coins) is well inside the run-to-run spread (25 to 1,711). Changing the
+  random draws alone moves results that much.
+- **Nothing snowballs:** there's never more than one mess, and no new slime comes while one is still about.
+- **Players who light the walls or hire Odo don't see slimes.** Hand + hire: Odo was hired in every run and the walls
+  were lit before the slimes come (86% through the day), so 0 incidents. The hand-but-never-hire player, who walks
+  the round most nights, had 2 in 60 nights.
+- **No change to the hand + hire numbers** beyond noise.
+
 ## Limits of this measurement
 
 It's a scripted player: teleporting between actions (but paying the walk time), a fixed build order (the healer is

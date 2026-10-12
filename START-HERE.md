@@ -105,6 +105,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 
 ## Session log (newest first; one or two lines each)
 - 2026-10-12 Codex (Adam / abarish-dev): Starfall mobile fit is live: source #221 (`1a37f695`), exact preview #222 (`95b1655`). All 19 suites, 1,429 exact-pack browser checks / 136 captures, Pages and public manifest/four-file hashes pass; [verified release and COMMS handoff](docs/research/starfall-preview-mobile-fit.md).
+- 2026-10-12 Grok (Adam / abarish-dev, guest): SF2.9 Starfall darkness step 1 ([#224](https://github.com/ecbarish/idle-arcade/pull/224)): one visible slime a night at most, through an unlit wall section; small mess cleared by E or Odo, gone after a day. Pacing re-measured (docs/measurements/starfall-day-pacing.md): the skip-the-lanterns player stays solvent. Source only; preview not rebuilt.
 - 2026-10-12 Codex (Adam / abarish-dev): Adam approved publishing mobile fit; source [#221](https://github.com/ecbarish/idle-arcade/pull/221) merged as `1a37f695`. Exact tested pack staged in [#222](https://github.com/ecbarish/idle-arcade/pull/222), with committed-byte browser checks and Pages/live hashes as release gates; [record](docs/research/starfall-preview-mobile-fit.md).
 
 - 2026-10-12 Codex (Adam): TOWER-COMMS #223 requests shared task reporting for the separate read-only AI Control Tower Site; no game or save changes.

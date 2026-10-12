@@ -710,6 +710,7 @@ func _run() -> void:
 	_by_hand()
 	_no_chores()
 	_tamsin_kept()
+	_darkness()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -1208,3 +1209,115 @@ func _display_scaling() -> void:
 	check(root.content_scale_mode == Window.CONTENT_SCALE_MODE_CANVAS_ITEMS, "scaling keeps canvas-item rendering")
 	check(main.cam.zoom == Vector2.ONE, "display scaling does not zoom the world camera")
 	check(ProjectSettings.get_setting("rendering/textures/canvas_textures/default_texture_filter") == 0, "scaling preserves nearest-neighbour pixel art")
+
+## SF2.9: darkness, step 1. Each lantern guards its own section; at most one slime a night, seen coming in; a small
+## mess that you or Odo clean up, gone after a day.
+func _darkness() -> void:
+	var keep := [main.lamps.duplicate(), main.day_t, main.coins, main.odo_hired, main.odo.where, main.odo.tile, main.day, main.today.duplicate(), main.me.tile]
+	var late: float = main.DAY_SECONDS * (main.CREEP_AT + 0.01)
+	var inn_mess := func(day: int) -> Dictionary: return { "k": "", "at": [main.INN_STEP.x, main.INN_STEP.y], "from": 0, "day": day }
+	var reset := func(lit: Array) -> void:
+		main.mess = {}
+		main.creep = {}
+		main.creep_tried = false
+		main.lamps = lit.duplicate()
+	main.creep_chance = 1.0                              # make every chance come up, to test the rules around it
+	reset.call([true, true, true, true])
+	main.day_t = late
+	main._dark_tick(0.05)
+	check(main.creep.is_empty() and main.mess.is_empty() and main.creep_tried, "all four walls lit: nothing gets in, even on a night one would")
+	var only_dark := true
+	for i in 4:
+		for n in 3:
+			var lit := [true, true, true, true]
+			lit[i] = false
+			reset.call(lit)
+			main._dark_tick(0.05)
+			only_dark = only_dark and not main.creep.is_empty() and int(main.creep.from) == i and main.creep.path[0] == main.LANTERNS[i]
+	check(only_dark, "each lantern guards its own section: a slime only comes in by the one wall left dark")
+	reset.call([false, false, false, false])
+	main.day_t = main.DAY_SECONDS * 0.6
+	main._dark_tick(0.05)
+	check(main.creep.is_empty() and not main.creep_tried, "early in the evening nothing comes: there's time to light the walls")
+	main.day_t = late
+	main._dark_tick(0.05)
+	check(not main.creep.is_empty() and "slips in by the dark" in main.caption.text, "late on a dark evening a slime is seen slipping in, and the caption names the wall")
+	var goal: String = main.creep.k
+	var guard := 0
+	while not main.creep.is_empty() and guard < 600:
+		main._dark_tick(0.05)
+		guard += 1
+	check(main.creep.is_empty() and not main.mess.is_empty() and main._v(main.mess.at) == main._step_of(goal), "it walks to the nearest building and leaves a mess on its step")
+	main._dark_tick(0.05)
+	check(main.creep.is_empty(), "with all four walls dark, still only one slime that night")
+	var report: String = main._dark_night()
+	check("creek slime" in report and main.WALLS[int(main.mess.from)] in report, "the night's report names the slime, the wall it came by and the place")
+	main.day += 1
+	main.day_t = late
+	main._dark_tick(0.05)
+	check(main.creep.is_empty(), "no new slime while last night's mess is still about: never more than one")
+	main.mess = inn_mess.call(main.day)
+	var h = main.heroes[0]
+	var ha: Dictionary = h.a.duplicate(true)
+	var hw: Array = [h.where, h.tile, h.path.duplicate()]
+	var c0: int = main.coins
+	main.serve(h, true)
+	check(main.coins - c0 == main.MEAL - main.MESS_TAX and main.mess_tax("") == main.MESS_TAX and main.mess_tax("east") == 0, "a meal at the inn takes 2 coins less while the slime mess is on its step (other places are untouched)")
+	main.meals -= 1
+	h.a = ha
+	h.where = hw[0]
+	h.tile = hw[1]
+	h.path = hw[2]
+	check(main.MEAL - main.MESS_TAX > main.POT_MEAL, "even with a mess, cooking by hand pays more than the stew pot")
+	main.me.tile = main.INN_STEP + Vector2i.RIGHT
+	main.me.path.clear()
+	check(main.use() and main.mess.is_empty(), "one E press beside the mess cleans it up")
+	main.mess = inn_mess.call(main.day)
+	main.odo.where = "town"
+	main.odo_hired = true
+	main.odo.tile = main.ODO_AT
+	main.odo.pos = Vector2(main.ODO_AT) * main.TILE
+	main.odo.path.clear()
+	main.day_t = 5.0
+	var secs := 0.0
+	while not main.mess.is_empty() and secs < 60.0:
+		tick(0.5)
+		secs += 0.5
+	check(main.mess.is_empty(), "by day Odo walks over and cleans it up himself (%.0f s)" % secs)
+	main.mess = inn_mess.call(main.day - 1)
+	report = main._dark_night()
+	check(main.mess.is_empty() and "dried up" in report and not main.creep_tried, "a mess nobody cleans is gone after a day")
+	reset.call([false, false, false, false])
+	main.day_t = main.DAY_SECONDS * 0.555
+	main.odo.tile = main.ODO_AT
+	main.odo.pos = Vector2(main.ODO_AT) * main.TILE
+	main.odo.path.clear()
+	while main.day_t < late + 1.0:
+		tick(0.5)
+	check(main.creep.is_empty() and main.mess.is_empty() and not main.lamps.has(false), "with Odo hired the walls are lit before the slimes come, so nothing gets in")
+	main.no_save = false
+	main.save_path = "user://test_dark.json"
+	main.mess = inn_mess.call(main.day)
+	main.creep_tried = true
+	main.save_game()
+	main.mess = {}
+	main.creep_tried = false
+	check(main._load() and not main.mess.is_empty() and main._v(main.mess.at) == main.INN_STEP and main.creep_tried, "a mess and tonight's roll are saved and load back")
+	var d: Dictionary = main.SafeSave.read(main.save_path)
+	d.erase("dark")
+	main.SafeSave.write(main.save_path, d)
+	check(main._load() and main.mess.is_empty() and not main.creep_tried and main.creep.is_empty(), "a save from before SF2.9 loads with no mess and no slime")
+	main.SafeSave.remove(main.save_path)
+	main.no_save = true
+	main.creep_chance = main.CREEP_CHANCE
+	reset.call(keep[0])
+	main.day_t = keep[1]
+	main.coins = keep[2]
+	main.odo_hired = keep[3]
+	main.odo.where = keep[4]
+	main.odo.tile = keep[5]
+	main.odo.pos = Vector2(keep[5]) * main.TILE
+	main.day = keep[6]
+	main.today = keep[7]
+	main.me.tile = keep[8]
+	main.me.pos = Vector2(keep[8]) * main.TILE

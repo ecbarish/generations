@@ -262,6 +262,10 @@ var lamps: Array = [false, false, false, false]   # the wall lanterns lit tonigh
 var rounds := 0                             # lantern rounds you've walked yourself, all time
 var odo := Mover.new("odo", Vector2i(-5, -5))   # a night watchman, once you've shown the round is worth walking
 var odo_hired := false
+var mess := {}                              # SF2.9: the one mess a creature left tonight or last night ({} if none)
+var creep := {}                             # SF2.9: the creature walking in right now ({} if none)
+var creep_tried := false                    # SF2.9: tonight's chance has been rolled
+var creep_chance := CREEP_CHANCE
 var hints := {}                             # the controls a newcomer has already been shown and used (SF2.10)
 var steps_walked := 0                       # steps taken while the walking hint is up
 var goals_hint_t := 0.0                    # the last hint (G for goals) goes by itself after a while
@@ -485,6 +489,7 @@ func _process(dt: float) -> void:
 	_forge_tick(dt)
 	_pour_tick(dt)
 	_watch_tick(dt)
+	_dark_tick(dt)
 	_spar_tick(dt)
 	_fen_tick(dt)
 	_brew(dt)
@@ -595,6 +600,9 @@ func _use() -> bool:
 				say("", MARKERS[me.tile + d])
 				return true
 		return false
+	if not mess.is_empty() and (me.tile - _v(mess.at)).length() <= 1.01:
+		clear_mess(false)
+		return true
 	if fen.where == "town" and not fen_hired and (me.tile - fen.tile).length() <= 1.01:
 		talk_fen()
 		return true
@@ -1013,17 +1021,17 @@ func _counter(dt: float) -> void:
 	if float(h.a.waited) > PATIENCE:
 		# nobody at the counter: they help themselves from the stew pot (SF2.18). Fed, but plain: half the coins and
 		# no lift in spirits, so cooking by hand (or Bryn) stays better, and skipping it never starves anyone.
-		coins += POT_MEAL
-		today.earned += POT_MEAL
+		coins += POT_MEAL - mess_tax("")
+		today.earned += POT_MEAL - mess_tax("")
 		today["pot"] = int(today.get("pot", 0)) + 1
 		bark(h, ["Nobody at the counter? I'll help myself from the pot.", "Pot stew again. It's filling, I suppose.",
 			"I'll ladle my own. Coins in the jar."][rng.randi() % 3])
 		_to_bed(h)
 
 func serve(h: Mover, by_hand: bool) -> void:
-	coins += MEAL
+	coins += MEAL - mess_tax("")
 	today.meals += 1
-	today.earned += MEAL
+	today.earned += MEAL - mess_tax("")
 	if by_hand:
 		meals += 1
 	h.a.morale = mini(10, int(h.a.morale) + 1)
@@ -1224,8 +1232,8 @@ func finish_piece(h: Mover, hits: int, by_hand: bool) -> void:
 	var a: Dictionary = h.a
 	var price: int = GEAR_COST[int(a.gear)]
 	a.purse = int(a.purse) - price
-	coins += price
-	today.earned += price
+	coins += price - mess_tax(finished("smithy"))
+	today.earned += price - mess_tax(finished("smithy"))
 	today.gear = int(today.get("gear", 0)) + 1
 	a.gear = int(a.gear) + 1
 	a.fine = hits >= 3
@@ -1284,8 +1292,8 @@ func buy_tonic(h: Mover) -> void:
 	stock -= 1
 	h.a.purse = int(h.a.purse) - PRICES[price_i]
 	h.a.tonic = true
-	coins += PRICES[price_i]
-	today.earned += PRICES[price_i]
+	coins += PRICES[price_i] - mess_tax(finished("apothecary"))
+	today.earned += PRICES[price_i] - mess_tax(finished("apothecary"))
 	today.tonics = int(today.get("tonics", 0)) + 1
 	bark(h, "One tonic, coins in the jar. Thank you!")
 	sfx.play("coin", -6.0)
@@ -1681,8 +1689,8 @@ func _finish_pour(fill: float) -> void:
 func drink(h: Mover, quality: int, by_hand := false) -> void:
 	var a: Dictionary = h.a
 	a.purse = int(a.purse) - DRINK
-	coins += DRINK
-	today.earned += DRINK
+	coins += DRINK - mess_tax(finished("tavern"))
+	today.earned += DRINK - mess_tax(finished("tavern"))
 	today["drinks"] = int(today.get("drinks", 0)) + 1
 	var lift := 1 + (1 if quality >= 2 else 0) + (1 if near("tavern", "inn") else 0)
 	a.morale = mini(10, int(a.morale) + lift)
@@ -1825,6 +1833,13 @@ func talk_odo() -> void:
 func _watch_tick(_dt: float) -> void:
 	if not odo_hired or odo.where != "town" or not odo.path.is_empty():
 		return
+	if not mess.is_empty() and not evening():       # SF2.9: by day Odo sees to any mess a creature left
+		if (odo.tile - _v(mess.at)).length() <= 1.01:
+			odo.face = _v(mess.at) - odo.tile
+			clear_mess(true)
+		elif int(t * 10) % 5 == 0:
+			send(odo, _v(mess.at))
+		return
 	var i := odo_next()
 	if not evening() or i < 0:
 		if odo.tile != ODO_AT and int(t * 10) % 10 == 0:
@@ -1863,8 +1878,125 @@ func _watch_night() -> String:
 		else:
 			odo_hired = false
 			out += " You couldn't pay Odo; the lamps are yours again until you can."
+	out += _dark_night()
 	lamps = [false, false, false, false]
 	return out
+
+# ---------------------------------------------------------------- darkness, step 1 (SF2.9, Adam's decision)
+## Each wall lantern guards its own section. Late in the evening, if a section is still dark, there's a chance (about 1
+## in 3) that a small creek slime slips in through it and makes for the nearest building, in plain sight. At most one
+## in the whole town each night, and none while last night's mess is still about. Where it gets to, it leaves a mess
+## with tracks back to the wall: that building takes MESS_TAX fewer coins a sale until it's cleaned up (one E press,
+## or Odo by day), and it dries up by itself after a day. No fighting and nothing lost for good: a dark wall costs a
+## little, never more, and lighting the walls (or paying Odo) keeps the slimes out.
+const CREEP_CHANCE := 1.0 / 3.0
+const CREEP_AT := 0.86                     # how far into the day the slimes come (evening starts at 0.55)
+const CREEP_SPEED := 2.5                   # tiles a second: easy to watch, not a chase
+const MESS_TAX := 2
+const WALLS := ["west", "north", "east", "south"]
+const MESS_PLACES := ["smithy", "tavern", "apothecary"]   # buildings that take coins (plus the inn, always)
+
+func _v(a: Variant) -> Vector2i:
+	return a if a is Vector2i else Vector2i(int(a[0]), int(a[1]))
+
+## The building nearest a wall lantern that a slime would make for: the inn, or a finished smithy, tavern or apothecary.
+func _creep_goal(i: int) -> String:
+	var best := ""
+	var d := Vector2(INN_STEP - LANTERNS[i]).length()
+	for kind in MESS_PLACES:
+		var k := finished(kind)
+		if k != "" and Vector2(_step_of(k) - LANTERNS[i]).length() < d:
+			best = k
+			d = Vector2(_step_of(k) - LANTERNS[i]).length()
+	return best
+
+func _place_name(k: String) -> String:
+	return "the inn" if k == "" else "the %s" % str(built[k].what)
+
+## How much less a sale at this place takes while a mess is on its step (0 or MESS_TAX).
+func mess_tax(k: String) -> int:
+	return MESS_TAX if not mess.is_empty() and str(mess.k) == k else 0
+
+func _dark_tick(dt: float) -> void:
+	if not creep.is_empty():
+		creep.go = float(creep.go) + dt * CREEP_SPEED
+		if int(creep.go) >= creep.path.size() - 1:
+			_creep_arrives()
+		return
+	if creep_tried or not evening() or day_t < DAY_SECONDS * CREEP_AT:
+		return
+	creep_tried = true
+	var dark: Array = []
+	for i in LANTERNS.size():
+		if not lamps[i]:
+			dark.append(i)
+	if dark.is_empty() or not mess.is_empty() or rng.randf() >= creep_chance:
+		return
+	start_creep(dark[rng.randi() % dark.size()])
+
+## A slime comes in by dark section i (only ever a dark one) and heads for the nearest building.
+func start_creep(i: int) -> void:
+	var goal := _creep_goal(i)
+	var path: Array = [LANTERNS[i], LAMP_STANDS[i]]
+	path.append_array(route(LAMP_STANDS[i], _step_of(goal)))
+	creep = { "from": i, "k": goal, "path": path, "go": 0.0 }
+	caption.text = "Something small and wet slips in by the dark %s wall, and makes for %s." % [WALLS[i], _place_name(goal)]
+	caption_t = 5.0
+
+func _creep_arrives() -> void:
+	var at := _step_of(str(creep.k))
+	mess = { "k": creep.k, "at": [at.x, at.y], "from": creep.from, "day": day }
+	creep = {}
+
+func clear_mess(by_odo: bool) -> void:
+	var k := str(mess.k)
+	mess = {}
+	sfx.play("success", -10.0)
+	if by_odo:
+		bark(odo, "Slime on the step again. I've seen to it.")
+	else:
+		caption.text = "You scrape up the slime and wash down the step. %s is back to rights." % _place_name(k).capitalize()
+		caption_t = 4.0
+
+## At nightfall: a slime still walking gets where it was going; last night's mess dries up; tonight's goes in the report.
+func _dark_night() -> String:
+	var out := ""
+	if not creep.is_empty():
+		_creep_arrives()
+	if not mess.is_empty() and int(mess.day) < day:
+		out += " Last night's slime mess has dried up and blown away."
+		mess = {}
+	elif not mess.is_empty():
+		out += " In the dark, a creek slime got in by the %s wall and into %s: it takes %d coins less a sale until the mess is cleaned up." % [WALLS[int(mess.from)], _place_name(str(mess.k)), MESS_TAX]
+	creep_tried = false
+	return out
+
+func _dark_draw() -> void:
+	if not mess.is_empty():
+		var at := Vector2(_v(mess.at)) * TILE + Vector2(8, 11)
+		var from := Vector2(LAMP_STANDS[int(mess.from)]) * TILE + Vector2(8, 11)
+		var n := int(from.distance_to(at) / 9.0)
+		for j in range(1, n):                       # little wet tracks back to the wall it came in by
+			var p := from.lerp(at, float(j) / float(n)) + Vector2(0, 2 if j % 2 == 0 else -2)
+			draw_circle(p, 1.4, Color(0.42, 0.72, 0.36, 0.55))
+		draw_circle(at, 6.5, Color(0.36, 0.66, 0.3, 0.85))
+		draw_circle(at + Vector2(-4, 2), 3.5, Color(0.36, 0.66, 0.3, 0.85))
+		draw_circle(at + Vector2(4, 3), 3.0, Color(0.36, 0.66, 0.3, 0.85))
+		draw_circle(at + Vector2(-1, -2), 1.6, Color(0.75, 0.95, 0.65, 0.9))
+	if not creep.is_empty():
+		var g := float(creep.go)
+		var a: Vector2i = creep.path[mini(int(g), creep.path.size() - 1)]
+		var b: Vector2i = creep.path[mini(int(g) + 1, creep.path.size() - 1)]
+		var p := Vector2(a).lerp(Vector2(b), g - floor(g)) * TILE + Vector2(8, 12)
+		var sq := 1.0 + 0.15 * sin(t * 9.0)
+		draw_set_transform(p, 0.0, Vector2(sq, 1.0 / sq))
+		draw_circle(Vector2(0, -3), 5.5, Color(0.42, 0.78, 0.36))
+		draw_rect(Rect2(-5.5, -3, 11, 3), Color(0.42, 0.78, 0.36))
+		draw_circle(Vector2(-2, -4), 1.3, Color.WHITE)
+		draw_circle(Vector2(2, -4), 1.3, Color.WHITE)
+		draw_circle(Vector2(-2, -4), 0.6, Color.BLACK)
+		draw_circle(Vector2(2, -4), 0.6, Color.BLACK)
+		draw_set_transform(Vector2.ZERO)
 
 func _lamps_draw() -> void:
 	for i in LANTERNS.size():
@@ -2233,6 +2365,7 @@ func _draw() -> void:
 	_counter_draw()
 	_board_draw()
 	_lamps_draw()
+	_dark_draw()
 	for y in MAP.size():                         # the pines outside the wall, darker and denser than Wildbond's trees
 		for x in range(-WILDS_W, MAP[0].length()):
 			if tile_at(Vector2i(x, y)) == "T" and posmod(x + y, 2) == 0:
@@ -2616,6 +2749,7 @@ func save_game() -> void:
 		"built": built, "jobs": total_jobs, "rank": rank, "herbs": herbs, "stock": stock, "price": price_i,
 		"pieces": pieces, "smith": smith_hired, "apprentice": { "batches": batches, "hired": fen_hired, "here": fen.where == "town" }, "tavern": { "pours": pours, "hired": tamsin_hired, "here": tamsin.where == "town", "shut": tavern_shut, "quiet": tavern_quiet, "kept": kept }, "garrick": garrick.where == "town", "good": good_days, "bad": bad_days, "visitors": visitors,
 		"watch": { "lamps": lamps, "rounds": rounds, "hired": odo_hired, "here": odo.where == "town" },
+		"dark": { "mess": mess, "tried": creep_tried },
 		"drill": { "spars": spars, "hired": ilse_hired, "here": ilse.where == "town" }, "hints": hints,
 		"heroes": heroes.map(func(h): return h.a) }
 	SafeSave.write(save_path, d)                 # a spare file first, the last good save kept as a backup
@@ -2665,6 +2799,12 @@ func _load() -> bool:
 	for i in mini(ls.size(), lamps.size()):
 		lamps[i] = bool(ls[i])
 	rounds = int(wt.get("rounds", 0))
+	var dk: Dictionary = d.get("dark", {})           # (SF2.9: saves from before the darkness have no mess and no roll yet)
+	mess = dk.get("mess", {})
+	if not mess.is_empty() and not (mess.has("at") and mess.has("k") and mess.has("from") and mess.has("day")):
+		mess = {}
+	creep_tried = bool(dk.get("tried", false))
+	creep = {}
 	odo_hired = bool(wt.get("hired", false))
 	if wt.get("here", false):
 		odo.where = "town"
