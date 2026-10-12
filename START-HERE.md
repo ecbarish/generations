@@ -1,5 +1,7 @@
 # START HERE
 
+**Control Tower reporting (Adam, 2026-10-12):** update the fenced `json` block with a top-level `tower` object in your task's PR description when claiming work, changing status, handing off, becoming blocked, submitting for review, merging or publishing. Use the format in [docs/COMMS.md](docs/COMMS.md) (TOWER-COMMS, 2026-10-12) and the PR template. Report your actual AI/thread, operator, project/lane, task ID, owned paths, dependencies, blocker/next action, check evidence and release details; leave unknown values null. Never infer AI identity from a shared GitHub account, or equate merged with published. At session start, reconcile your open PR metadata even if you missed COMMS. [Control Tower](https://idle-arcade-tower.abarish227759.chatgpt.site) is Adam's private viewer; the reporting format is in the repository.
+
 **For Evan:** when one assistant runs out of usage, open any other one (Claude, ChatGPT/Codex, another AI or a
 person) and paste the prompt in the box below. Everything it needs is in this file and the files it links.
 **For any assistant:** read this file top to bottom before doing anything. It is the single source of "where we are
