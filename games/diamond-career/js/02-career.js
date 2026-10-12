@@ -68,13 +68,15 @@ function startMatch(s) {
   s.phase=g.finished?'summary':'pitch';if(s.phase==='summary')accountMatch(s);else nextPitch(s);return true;
 }
 function nextPitch(s) { if(!s.active||s.active.g.finished)return; s.active.pitch=makePitch(s.active.g,s.active.pitcher,effectiveStats(s));s.phase='pitch'; }
+// Only the opening three games teach arrival timing; subsequent series retain the original challenge.
+function swingWindow(s) { return s.series===0&&!s.contract?[.32,.22,.15][s.played]||.10:.10; }
 function playPitch(s,action) {
   if(s.phase!=='pitch'||!s.active.pitch)return false;
-  const a=s.active, r=resolvePitch(a.g,effectiveStats(s),a.pitch,action), board=applyPlay(a.g,r.play);
+  const a=s.active, r=resolvePitch(a.g,effectiveStats(s),a.pitch,{...action,timingWindow:swingWindow(s)}), board=applyPlay(a.g,r.play);
   a.last={...r,...board,take:!!action.take};a.pitch=null;s.phase='result';
   if(board.ended)a.g.manual++;
   if(board.ended&&board.kind==='walk'&&action.take)rememberDecision(s,'walk','Waited out an out-of-zone pitch and earned a walk.');
-  if(!action.take&&r.play==='strike'&&action.mode==='timing'&&action.timing<.8)rememberDecision(s,'early','Swung early before the ball reached the plate.');
+  if(!action.take&&r.play==='strike'&&action.mode==='timing'&&action.timing<1-swingWindow(s))rememberDecision(s,'early','Swung early before the ball reached the plate.');
   return a.last;
 }
 function continueMatch(s) {
