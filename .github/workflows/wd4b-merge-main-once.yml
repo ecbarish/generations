@@ -1,0 +1,38 @@
+name: wd4b merge main once
+
+on:
+  push:
+    branches: [guest/saltmarsh-explore]
+    paths:
+      - ".github/workflows/wd4b-merge-main-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: guest/saltmarsh-explore
+          fetch-depth: 0
+      - name: Merge main and keep both notes
+        run: |
+          set -euo pipefail
+          echo "56efb47fd075e43af0793ee822a2b1bc15b9228f86ec831cad44252e8f29f0a8  .github/wd4b_resolve_once.b64" | sha256sum -c
+          base64 -d .github/wd4b_resolve_once.b64 > /tmp/wd4b_resolve_once.py
+          echo "2487f001d497da47a67ebe935952c33ff158dd44ad261d89df576cfb32aab403  /tmp/wd4b_resolve_once.py" | sha256sum -c
+          git config user.name "abarish-dev"
+          git config user.email "319211409+abarish-dev@users.noreply.github.com"
+          git fetch origin main
+          git merge origin/main --no-edit || true
+          python3 /tmp/wd4b_resolve_once.py
+          if grep -n "<<<<<<<" README.md START-HERE.md docs/COMMS.md docs/DEVELOPMENT-PATH.md; then
+            echo "conflict markers remain"
+            exit 1
+          fi
+          git add -A
+          git rm -f .github/wd4b_resolve_once.b64 .github/workflows/wd4b-merge-main-once.yml
+          git commit -m "WD4b: merge main and keep the Saltmarsh claim"
+          git push origin HEAD:guest/saltmarsh-explore
