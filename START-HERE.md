@@ -102,6 +102,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-12 Claude (sports thread): Diamond Manager v0.8.1: balls in play keep a watchable pace at Fast and Very fast, infielders react, first baseman covers, batter runs it out (Evan saw only strikeouts at speed).
 - 2026-10-12 Claude (Priorities and direction): long runway: QUEUE "The direction" section, Heavy lifting H1-H20, road 16 rows (LB2+ unparked, AC5/AC6 added), WD3 ticked.
 
 - **2026-10-11, Codex:** Evan deferred another Realmbound raid for player validation; #213 released/closed. RB-PLAY1 in PR #214 audits the first quest and fixes Focus town ownership, travel restrictions and visible return guidance. Human fun/first-party validation remains; no endgame content built.

@@ -1,7 +1,7 @@
 'use strict';
 /* Diamond Manager: the screen. The field fills the window; the scoreboard, the play-by-play and Iona's notes sit on
    it; the front office is a clipboard opened over the field. */
-const VERSION='0.8.0';
+const VERSION='0.8.1';
 const $=s=>document.querySelector(s);
 Arcade.validators[DM.key]=validLeague;
 let L=migrateLeague(loadLeague(localStorage, Arcade.backups(DM.key))), view=null, tab='roster', trade={club:1,give:[],get:[],answer:''}, finder={pos:'any',shop:0,want:null,deal:null,offers:null}, flash='';
@@ -14,6 +14,9 @@ const esc=s=>String(s).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 
 /* ---------- The scoreboard and the field ---------- */
 const SPEED_X=[1,.4,.12];
+/* A ball in play never runs faster than this share of its normal time, so at Fast and Very fast you still see the
+   fielder go to the ball and the out made (Evan, 2026-10-12: at speed the infielders never moved). */
+const PLAY_X=[1,.6,.45];
 const dots=(n,max,cls)=>Array.from({length:max},(_,i)=>'<i class="dot'+(i<n?' on '+cls:'')+'" aria-hidden="true"></i>').join('');
 function scoreboardHTML(){
   const y=you(), pos=standings(L).findIndex(s=>s.i===DM.you)+1;
@@ -66,11 +69,11 @@ function pump(now){ const g=view.g;
     const prev=view.e?view.e.runners:[0,0,0]; view.e=e;
     const defIdx=e.half?g.away:g.home, batIdx=e.half?g.home:g.away, pid=e.pitcher, bid=e.batter;
     const pp=club(defIdx).players.find(p=>p.id===pid), bp=club(batIdx).players.find(p=>p.id===bid);
-    view.scene={e,prev,at:now,def:DM.clubs[defIdx].color,bat:DM.clubs[batIdx].color,
+    view.scene={e,prev,at:now,px:PLAY_X[L.speed-1],def:DM.clubs[defIdx].color,bat:DM.clubs[batIdx].color,
       pitcher:pp?lastName(pp)+' · '+(g.pbox[pid]?g.pbox[pid].pitches:0)+' pitches':'', batter:bp&&e.kind!=='play'?lastName(bp)+' · '+todayLine(g,bp):''}; } }
 function todayLine(g,p){ const b=g.box[p.id]; if(b&&b.ab+b.bb) return b.h+' for '+b.ab+(b.bb?', '+b.bb+' walk'+(b.bb>1?'s':''):'')+' today'; const s=p.season; return s&&s.ab?'batting '+avg(s.h,s.ab)+' this season':'first time up'; }
 const avg=(h,ab)=>ab?(h/ab).toFixed(3).replace(/^0/,''):'.000';
-function waitFor(e){ if(!e) return 0; const base=e.kind==='head'?1300:e.kind==='up'?450:e.kind==='pitch'?700:e.kind==='move'?1600:e.kind==='play'?(e.bb?(e.bb.bb==='hr'?2600:2100):1300):0; return base*SPEED_X[L.speed-1]; }
+function waitFor(e){ if(!e) return 0; const base=e.kind==='head'?1300:e.kind==='up'?450:e.kind==='pitch'?700:e.kind==='move'?1600:e.kind==='play'?(e.bb?(e.bb.bb==='hr'?2600:2100):1300):0; return base*(e.kind==='play'&&e.bb?PLAY_X:SPEED_X)[L.speed-1]; }
 function stepWatch(now){
   if(!view||view.done||view.paused||!$('#note').hidden) return;
   if(now-view.at<waitFor(view.e)) return;
