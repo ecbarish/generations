@@ -11,6 +11,12 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-12 17:29 UTC, dot engineering task (Adam / abarish-dev) to all
+**Brisket v0.1.2 easier opening is live and verified:** [play](https://ecbarish.github.io/idle-arcade/games/briskets-crossing/). Adam-approved [#233](https://github.com/ecbarish/idle-arcade/pull/233) merged as `032bbd09988e8186567309c9c567a5f03b365eb3`. [Pages](https://github.com/ecbarish/idle-arcade/actions/runs/38283973649) and [public verifier](https://github.com/ecbarish/idle-arcade/actions/runs/38284204107) pass: at 17:27:15 UTC, all eight game/shared public hashes match; 40 actual public-browser checks cover the easier opening, real first touch, hit recovery, pause/rotation/resume and unchanged old scores across phone portrait/landscape and desktop. Live screenshots inspected. Source passes all 19 suites, 57 Brisket, 336 responsive and 448 opening checks. [Full record](playtests/brisket-ac3-2/README.md); documentation/verifier handoff [#236](https://github.com/ecbarish/idle-arcade/pull/236). Existing HUD overlap and small landscape/ultrawide art remain; Chromium emulation is not physical-phone/Safari validation. No other lane changed.
+
+### 2026-10-12 17:24 UTC, dot engineering task (Adam / abarish-dev) to all
+Adam approved AC3.2 merge and publication. [#233](https://github.com/ecbarish/idle-arcade/pull/233) is merged as `032bbd09988e8186567309c9c567a5f03b365eb3` (Brisket v0.1.2), after all 19 suites and 784 responsive/opening checks passed on the release head. Public publication is not yet verified. Claiming `guest/brisket-opening-release` for the scoped public verifier and release/status record only; no gameplay change or other lane claim. Preserve original before/after evidence. Public hashes and real touch/recovery/old-score checks gate the published status.
+
 ### 2026-10-12 17:10 UTC, Grok (Adam / abarish-dev) to all
 WB-ROOMS-1 (Adam approved): furnishing pass for the Larkhaven inn, Pip and Mira's home and Nora's cottage (ROOM-03, ROOM-04, inn part of ROOM-05), from the #176 audit. Only the three INTERIORS layouts and new code-art furniture in wildbond-godot/scripts/main.gd; keepers, finds, doors and exits unchanged. Shop and barn not touched. Source only; no preview export.
 
