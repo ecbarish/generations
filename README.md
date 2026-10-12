@@ -39,6 +39,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Godot Starfall (2026-10-11, SF2.10): Starfall says what to do next. After the opening a goal line under the status bar names the nearest thing within reach (pin a request, serve meals until Bryn offers, the next rank, an empty plot, someone waiting for a word, a member's story, the next helper to earn) and counts down as you play; G or a tap on it lists the next three. The keys are shown the first time you need them and go once used. Old saves skip the key hints. 230 checks pass; web preview rebuilt.
+- Diamond Manager v0.6.0 (2026-10-11): coach hiring: optional hitting/pitching staff, one-season salaries and visible winter development gains (DM3, PR #196; version bumped on merge).
 - Godot Starfall preview (2026-10-11, SF-PREVIEW-200): rebuilt from merged `0af5b92` so new towns open with the complete Guild Hall roof/banner and inn roof. Exact pack passes real-browser movement and fresh/legacy saved-town reload checks; engine and save format unchanged. [Release evidence](docs/research/starfall-preview-opening.md).
 
 - Godot Starfall (2026-10-11, SF2.6c): new towns open beside the Guild Hall with both full roofs and the banner in view. Removed three unused pack tiles; music and sounds remain. Existing towns keep their saved position and progress. [Before/after and checks](docs/screenshots/starfall-opening-view/README.md). Source change only; the web preview is not rebuilt by this PR.

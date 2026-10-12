@@ -49,7 +49,7 @@ function makeProspect(r,id) { const pitcher=rnd(r)<.4, p=makePlayer(r,id,ri(r,36
 function newLeague(seed=1) {
   const L={game:'diamond-manager', schema:1, seed:seed>>>0, nextId:1, season:1, day:0, cash:600, phase:'season',
     clubs:[], schedule:[], results:[], log:[], inbox:[], freeAgents:[], upgrades:{seats:0,lights:0,training:0,scouting:0,clubhouse:0},
-    speed:1, intro:true, history:[], final:null, offer:null, sound:0, dmb:true, dmc:true, dmd:true, draft:null, live:null};
+    speed:1, intro:true, history:[], final:null, offer:null, sound:0, coaches:{hitting:null,pitching:null}, dmb:true, dmc:true, dmd:true, draft:null, live:null};
   DM.clubs.forEach((c,i)=>{
     const club={name:c.name, short:c.short, w:0, l:0, rs:0, ra:0, budget:i===0?10500:13500, players:[], lineup:[], rot:0};
     DM.batPos.forEach(pos=>club.players.push(makePlayer(L,L.nextId++,c.level,false,pos)));
@@ -148,10 +148,11 @@ function endSeason(L) {
   const prev=L.history.length>1?L.history[L.history.length-2].w:null;
   // A climbing club earns a little too, so a GM who improves a losing team sees the budget grow (playtest DM2).
   const raise=champ?1500:inFinal?900:you.w>you.l?600:prev!==null&&you.w>prev?400:0; you.budget=Math.min(18000,you.budget+raise);
-  L.report={raise, grew:[], slipped:[], expiring:[], left:[]};
+  L.coaches=L.coaches||{hitting:null,pitching:null};
+  L.report={raise, grew:[], slipped:[], expiring:[], left:[], coaching:[]};
   L.clubs.forEach((c,ci)=>{
     const tr=ci===DM.you?L.upgrades.training*2:1, daily=new Set(c.players.filter(p=>playsDaily(c,p)));
-    for(const p of c.players.concat(c.farm||[])){ const before=overall(p), farm=(c.farm||[]).includes(p); develop(L,p,tr,farm||daily.has(p)); const d=overall(p)-before;
+    for(const p of c.players.concat(c.farm||[])){ const before=overall(p), farm=(c.farm||[]).includes(p); const coach=ci===DM.you&&L.coaches?L.coaches[p.pitcher?"pitching":"hitting"]:null; const coached=develop(L,p,tr,farm||daily.has(p),coach&&coach.season===L.season?coach:null);if(coached)L.report.coaching.push(coached); const d=overall(p)-before;
       if(ci===DM.you){ if(d>=2)L.report.grew.push({name:p.name,d,farm}); if(d<=-2)L.report.slipped.push({name:p.name,d}); }
       if(p.season&&p.season.g){ p.last=Object.assign({year:L.season},p.season); p.career=p.career||{}; for(const k in p.season) p.career[k]=(p.career[k]||0)+p.season[k]; }
       if(!farm||p.sent)p.years--; if(farm&&p.sent&&p.years<=0){p.sent=false;p.salary=150;p.years=3;} p.season=null; }
@@ -167,6 +168,7 @@ function endSeason(L) {
   L.clubs.forEach((c,ci)=>{ if(ci!==DM.you){ refill(L,c); fitPayroll(L,c); } setLineup(c); });
   L.freeAgents=L.freeAgents.filter(p=>!p.star); addStandouts(L); ensureBargains(L);
   startDraft(L);
+  L.coaches={hitting:null,pitching:null};
 }
 /* The draft: each winter 24 young prospects, three rounds, the club with the worst record picks first in every round.
    Other clubs pick the best ceiling their scouts see; the Lanterns choose for themselves (or let Iona). */
@@ -200,7 +202,7 @@ function sendDown(L,id) { const c=L.clubs[DM.you], p=c.players.find(x=>x.id===id
 function releaseFarm(L,id) { const c=L.clubs[DM.you], i=(c.farm||[]).findIndex(x=>x.id===id); if(i<0) return 'That player is not on the farm club.'; c.farm.splice(i,1); return ''; }
 /* Growth: young players climb toward their potential, faster when they play every day (in the lineup, in the top five
    arms, or on the farm club) and with training rooms; past 30 they slip. Training also lifts a young ceiling a little. */
-function develop(L,p,training,playing) {
+function develop(L,p,training,playing,coach=null) {
   const o=overall(p), room=Math.max(0,(p.pot||o)-o); let base;
   if(p.age<=27){ base=Math.min(room+1, ri(L,0,2)+Math.ceil(room/6)+(playing&&p.age<=25&&room>0?1:0)) + (room>0?training:0); p.pot=Math.min(92,(p.pot||o)+Math.ceil(training/2)); }
   else base=p.age<=30?ri(L,-1,1):p.age<=33?ri(L,-3,0):ri(L,-5,-1);
@@ -208,7 +210,7 @@ function develop(L,p,training,playing) {
   for(const k of keys) p[k]=clamp(p[k]+base+ri(L,-1,1),20,99);
   for(let g=0;g<20&&p.age<=27&&overall(p)>p.pot+1;g++) for(const k of keys) p[k]=clamp(p[k]-1,20,99);
   if(p.age>27) p.pot=Math.max(overall(p),Math.min(p.pot||0,overall(p)+2));
-  p.age++;
+  const gain=coachingGain(p,coach);p.age++;return gain;
 }
 function playsDaily(c,p) { return p.pitcher ? pitchers(c).sort((a,b)=>overall(b)-overall(a)).slice(0,5).includes(p) : c.lineup.includes(p.id); }
 function fillFreeAgents(L,n) {
@@ -285,6 +287,8 @@ function validLeague(o) {
           !Array.isArray(g.pitcher) || !g.pitcher.every((id, side) => has(side, id)) || !Array.isArray(g.bases) || g.bases.length !== 3 || !Array.isArray(g.events) ||
           !int(g.inning) || g.inning < 1 || g.inning > 15 || ![0,1].includes(g.half) || !Array.isArray(g.score) || !g.box || !g.pbox) return false; }
     if (o.report && (!Array.isArray(o.history) || !o.history.length || !['grew','slipped','expiring'].every(k => Array.isArray(o.report[k])))) return false;
+    if(!validCoachState(o.coaches)) return false;
+    if(o.report?.coaching!==undefined&&(!Array.isArray(o.report.coaching)||!o.report.coaching.every(x=>x&&typeof x.name==='string'&&typeof x.coach==='string'&&['hitting','pitching'].includes(x.role)&&x.gains&&typeof x.gains==='object'&&Object.entries(x.gains).every(([k,n])=>['contact','power','eye','glove','stuff','control','stamina'].includes(k)&&Number.isInteger(n)&&n>0&&n<=2)))) return false;
     return true;
   } catch (_) { return false; }
 }
@@ -296,6 +300,7 @@ function migrateLeague(o) { if(!validLeague(o)) return newLeague((Date.now()>>>0
     for(const p of L.freeAgents)if(p.pot===undefined)p.pot=potentialFor(r,p); if(L.phase==='offseason'&&!L.draft)L.draft={pool:[],order:[],pick:0,picks:[],done:true}; }
   // The game, pitch by pitch (v0.5.0): batters get a speed rating.
   if(!L.dmd){ L.dmd=true; const all=L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?L.draft.pool:[]); for(const p of all) if(!p.pitcher&&p.speed===undefined) p.speed=speedFor(p.id,p.age); }
+  L.coaches=L.coaches||{hitting:null,pitching:null};
   if(L.lastBox&&!(Array.isArray(L.lastBox.bat)&&Array.isArray(L.lastBox.pit))) delete L.lastBox;
   return L; }
 

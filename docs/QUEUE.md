@@ -112,8 +112,8 @@ DM2 and Diamond Manager v0.4.0 (#172), OW1.1, WD2's data half (#113), X2 links (
 | 3 | **Diamond Manager: morale and stories** (DM4) | as above | as above | As above |
 | 4 | **Diamond Manager: a league that stays balanced** (DM-B2), then **records and history** (DM7) | as above | as above | One PR each |
 | 5 | **Lantern Bowl pitch** (LB0), then **the shared sports office** (LB1) | plans/sports-management.md "Game 2" | `docs/plans/`, `shared/sports-office.js` | A one-page pitch with three mock screens; then the office code shared with Diamond Manager, its tests passing |
-| 6 | **Realmbound second raid tier** (RB2.2) | PROJECTS.md R7 | `games/realmbound/` | Data and encounters, balanced; `tests/run.html` passes |
-| 7 | **Realmbound battlegrounds plan** (RB2.1) | PROJECTS.md R3 | `docs/proposals/` | A plan only; Evan decides before any build |
+| 6 | **Realmbound: the hero only fights when you do** (RB1.11), with the first-hour playtest (RB1.10) | DEVELOPMENT-PATH RB-M1b; GOALS.md "Play, not watch" | `games/realmbound/`, `docs/playtests/` | As the path says; `tests/run.html` passes; old saves load |
+| 7 | **Realmbound: the first hour, made fun** (RB1.12), after RB1.10 lists the fixes; then **Play, not watch elsewhere** (AR2.14) | as above | `games/realmbound/`; `index.html`, `games/primordial/` | One PR per fix; the next newcomer playtest scores Realmbound 17+. (RB2.1 and RB2.2 parked by Evan, 2026-10-12) |
 | 8 | **Otherworld: skills that grow with use** (OW2.2) | docs/plans/otherworld.md O1 | `games/otherworld/` | As the plan says; `tests/otherworld.html` passes |
 | 9 | **The next cabinet's polish from playtests** (AC-x) | docs/PLAYTEST.md pass 2 | that cabinet's folder | Each cabinet scores 17+ in the next playtest |
 | 10 | **Little Ranch: the singing flowers, then LR4-LR8 in order; the Paint Shed (LR9) alongside** (LR3) | docs/proposals/little-ranch-next.md; DEVELOPMENT-PATH "Family games" | `games/little-ranch/`, `tests/little-ranch.html` | Each step one PR, works on phone and tablet with no reading and nothing to fail; a "tried with a toddler" note |
