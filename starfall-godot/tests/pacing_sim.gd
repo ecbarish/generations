@@ -107,7 +107,8 @@ func run(policy: String, seed: int) -> Dictionary:
 				"batches": main.batches - int(prev.batches), "spars": main.spars - int(prev.spars), "rounds": main.rounds - int(prev.rounds),
 				"busy_s": snappedf(b - day_start_busy, 0.1), "heroes": main.heroes.size(), "pot": int(main.today.get("pot", 0)), "unfed": int(main.today.get("unfed", 0)),
 				"morale": snappedf(main.heroes.reduce(func(acc, h): return acc + int(h.a.morale), 0) / float(main.heroes.size()), 0.1),
-				"good": main.good_days, "bad": main.bad_days })
+				"good": main.good_days, "bad": main.bad_days,
+				"slime": 1 if ("mess" in main and not main.mess.is_empty() and int(main.mess.day) == d_prev) else 0 })
 			prev = { "meals": main.meals, "pours": main.pours, "pieces": main.pieces, "batches": main.batches, "spars": main.spars, "rounds": main.rounds }
 			day_start_busy = b
 			d_prev = main.day
