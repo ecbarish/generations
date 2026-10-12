@@ -102,6 +102,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-12 Claude (Priorities and direction): Evan's two changes: Realmbound early game first (RB1.10-RB1.12, end-game parked) and "Play, not watch" in GOALS.md (less automatic play, no full Auto; tasks RB1.11, AR2.14).
 
 - 2026-10-11 Grok (Adam / abarish-dev, guest): LR15 Little Ranch grown-up panel cleanup and app mode (#215, v0.5.0). Little Ranch checks 96/96; the tick, changelog and this line are in the PR itself. The Android wrapper that uses app mode stays outside the repo.
 - 2026-10-11 Grok (Adam / abarish-dev, guest): LR14 Little Ranch moon's song (#212, v0.4.0). Three taps on the moon at night play Twinkle Twinkle Little Star while the baby sleeps. Little Ranch checks 79/79; the tick, changelog and this line are in the PR itself.

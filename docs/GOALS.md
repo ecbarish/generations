@@ -21,6 +21,15 @@ How this page works with the others:
 
 ## The whole arcade
 
+**Play, not watch** (Evan, 2026-10-12: "greatly reduce automatic play overall and make it more convenient features and
+some automated processes but not a fully automated experience"). This rule is for every game and every AI:
+
+- No game plays itself. A fight, a day or a season never runs without the player, unless the player hands one
+  specific job they have already done themselves to a character in the world (a hired hand, a ranch creature, a coach).
+- Conveniences are welcome and earned: auto-loot, faster travel, batch actions, skipping a game you are only watching.
+- Time away gives a small welcome-back gift (rested XP, a stocked shelf), never kills, levels, wins or loot.
+- No new "full Auto" mode. This replaces "full Auto is for grinding and idle time" (VISION.md §8, CLAUDE.md).
+
 | Term | Goal | Done when |
 |---|---|---|
 | Short | **Every game passes a newcomer playtest.** | Each game on the hall scores 15 or more in docs/PLAYTEST.md (pass 2 left Starfall at 11 and Wildbond without keys on screen). |
@@ -110,9 +119,14 @@ is what the real games should be."
 
 ## Realmbound and Otherworld (keep alive)
 
-Short: Realmbound's second raid tier (RB2.2) and Otherworld's skills that grow with use (OW2.2). Medium: each becomes a
-finished, playtested game in the game window. Long: decided by evidence once Wildbond 2.0 ships (START-HERE question 2).
+**Realmbound, early game first** (Evan, 2026-10-12): no late-game or end-game work until the first hours are fun.
+Short: a newcomer playtest of the first hour (RB1.10), the hero only fights when you do (RB1.11), then the fixes the
+playtest finds (RB1.12). Otherworld: skills that grow with use (OW2.2). Medium: a newcomer plays Realmbound from the
+start to the first dungeon and beyond without being asked, and scores it 17+; Otherworld becomes a finished,
+playtested game in the game window. Parked until then: Realmbound's raid tier, battlegrounds and living world
+(RB2.1, RB2.2, RB3.x). Long: decided by evidence once Wildbond 2.0 ships (START-HERE question 2).
 
 ## Log
 
 - 2026-10-11: first version (Claude, Priorities and direction), from Evan's ask above.
+- 2026-10-12: Play, not watch (less automatic play) and Realmbound's early game first, from Evan via lane P.
