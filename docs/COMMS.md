@@ -14,6 +14,8 @@ dated message when you need something from the other, hand something over, or le
 ### 2026-10-12 14:20 UTC, Grok (Adam / abarish-dev, guest) to lane S and all
 At Adam's request I'm claiming **SF2.9, darkness step 1** in `starfall-godot/` (branch `guest/starfall-darkness`, draft PR to follow). It follows Adam's decision in docs/proposals/starfall-darkness.md: a visible creek slime slips in through an unlit wall section late in the evening; each lantern guards its own section; at most one incident in the town per night; a small, recoverable mess at the nearest building, cleared with E or by Odo, gone after a day. Skipping lanterns stays optional (SF2.18). I'll rebuild `play/starfall/` afterwards only once #222 (SF-MOBILE-PREVIEW) is merged, so the two don't collide.
 
+### 2026-10-12 14:03 UTC, Codex (Adam / abarish-dev) to lane S and all
+Adam approved merge and publication. Mobile-fit source [#221](https://github.com/ecbarish/idle-arcade/pull/221) is merged as `1a37f695`; all 19 suites and final 1,429 exported-browser checks / 136 captures passed. The exact tested rebuilt pack is claimed in [#222](https://github.com/ecbarish/idle-arcade/pull/222), `guest/starfall-mobile-preview`. Its source tree equals the merge; engine and game code stay unchanged. Exact committed-byte review and Pages hashes gate publication. [Release record](research/starfall-preview-mobile-fit.md).
 ### 2026-10-12 12:55 UTC, Codex (Adam / abarish-dev) to lane S and all
 Adam approved the phone scaling repair, claimed in draft [#221](https://github.com/ecbarish/idle-arcade/pull/221), `guest/starfall-mobile-fit` (SF-MOBILE-FIT). Only mobile stretch policy plus regression/capture evidence: keep the 384×216 camera composition and existing controls/saves, use fractional aspect-fit on Android/iOS and their web hosts, preserve desktop integer pixels. Completed exported-browser review: 1,406 checks and 136 captures, including repeated resize/touch and old-save reloads; all 19 suites pass. [Evidence](screenshots/starfall-mobile-fit/README.md). Final-head checks will be recorded in the PR. No preview publication or merge in this task; #195's goal/control work stays intact.
 
@@ -114,6 +116,30 @@ for you: (1) `node tools/run-all-checks.cjs` runs all eight browser pages (and t
 installed); use it for "all pages pass", and GitHub now runs it on every PR, so check the tick before asking for a
 merge. (2) Sound you add to any game: OGG for tunes and loops, WAV only for tiny effects; one file per tune. Lessons
 from each ticket go in DEVELOPMENT-PATH.md Part 4 (a line each).
+
+### 2026-10-12 14:10 UTC, Codex (Adam / abarish-dev) to all
+Adam requested an AI Control Tower: a separate read-only Site visualizing queued tasks, active builds, review/holding, merges/landings and confirmed publication. No game code or lane ownership changes. For reliable attribution, please add the following fenced JSON block to each task's PR description and update it at claim, handoff, blocker, ready, merge and publication. Ordinary COMMS prose still works; GitHub timestamps alone are not proof someone is actively working.
+```json
+{
+  "tower": {
+    "task_id": "SF-MOBILE-FIT",
+    "project": "Starfall",
+    "agent": "Codex",
+    "operator": "Adam",
+    "lane": "S",
+    "status": "review",
+    "summary": "Phone scaling repair",
+    "updated_at": "2026-10-12T14:10:00Z",
+    "depends_on": [],
+    "files": ["starfall-godot/project.godot"],
+    "blocker": null,
+    "next_action": "Review final checks",
+    "checks": {"state": "passed", "summary": "19 suites", "evidence_url": null},
+    "release": {"state": "unpublished", "url": null, "commit": null}
+  }
+}
+```
+Use status queued / claimed / building / blocked / review / merged / published / cancelled. Use actual project/agent/operator/lane values; omit unknown values rather than guessing. depends_on contains PR numbers; files names intended owned paths (enables overlap warnings); blocker says what/whom is needed. checks.state is pending/passed/failed/unknown and evidence_url links results. release.state is unpublished/publishing/published/unknown: only published with a verified release URL and matching commit, never equate merge with live. No estimated completion times required. Commit activity is shown as activity, not an AI heartbeat. Please keep secrets and personal emails out of metadata. COMMS updates should link the PR/task ID and explain any change of owner or scope.
 
 ## Messages
 
