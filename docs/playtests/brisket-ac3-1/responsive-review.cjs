@@ -7,7 +7,7 @@ const results=[];let count=0;const check=(name,ok)=>{assert.ok(ok,name);count++;
   const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:dpr,hasTouch:true,serviceWorkers:'block'}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));const name=`${width}x${height}-dpr${dpr}`;
   await page.goto(`http://127.0.0.1:${server.address().port}/games/briskets-crossing/`);
   await page.locator('[data-start="1"]').click();await page.keyboard.press('ArrowUp');
-  await page.evaluate(()=>{const H=__brisket;H.state.paused=true;H.M.current(H.state).lanes.forEach(l=>{if(l.kind==='road')l.items=[];});});
+  await page.evaluate(()=>{const H=__brisket;H.state.paused=true;});
   await page.waitForTimeout(50);
   const metrics=await page.evaluate(()=>{const c=document.querySelector('#sea'),r=c.getBoundingClientRect(),t=c.getContext('2d').getTransform();return{canvas:{x:r.x,y:r.y,width:r.width,height:r.height},transform:{a:t.a,d:t.d},overflow:document.documentElement.scrollWidth>innerWidth||document.documentElement.scrollHeight>innerHeight,controls:[...document.querySelectorAll('[data-hold]')].map(b=>{const r=b.getBoundingClientRect();return{width:r.width,height:r.height};})};});
   check(name+' isotropic canvas transform',Math.abs(metrics.transform.a-metrics.transform.d)<.001);check(name+' full available world',metrics.canvas.width>=Math.min(width-40,width>2400?2160:1460)&&metrics.canvas.height>150);check(name+' no overflow',!metrics.overflow);check(name+' 44px controls',metrics.controls.every(r=>r.width>=44&&r.height>=44));
