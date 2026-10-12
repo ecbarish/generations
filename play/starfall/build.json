@@ -1,12 +1,13 @@
 {
-  "built": "2026-10-11",
+  "built": "2026-10-12",
   "godot": "4.7.2-stable",
-  "source_commit": "9c48e64181876fc710f6161332dc73b1353a857b",
-  "source_tree": "cf714e323e046eafd5391c35595e5a8fdc393329",
+  "source_commit": "1a37f695fa6f271da74cb983e909f5968501d032",
+  "source_tree": "cb5e9d7955b9d535f386cad988065d9777b7a07f",
+  "review_run": "https://github.com/ecbarish/idle-arcade/actions/runs/38256542577",
   "sha256": {
-    "index.pck": "fbded600090917ee9d99885a98c5798fa1602ba4c46a4e5c218ea3614ea430ee",
-    "index.html": "4a25d00dd4652195d254c68bd1a6951ff0ec8cbe5e5e3832704947d0f587f2ad",
+    "index.html": "984c3e1f3f9b72ae625991c7cf4e4a0c8558e19f19a7fcaad0818973631ad61d",
     "index.js": "33c94cb3175f3333b82e2a3be5e8e86f77986f0aa2042b1631f6367a4e5bb6ba",
+    "index.pck": "30e2e6382740bcddc783f73aa7831138bf5aa638c4e6bc3792b8225172c6b8b8",
     "index.wasm": "fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0"
   }
 }

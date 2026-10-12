@@ -6,7 +6,11 @@ small frontier town. This is the first slice.
 ## Play it
 Double-click **Play Starfall.bat** (Godot is unzipped in `C:\Users\evanb\Godot`). Arrow keys or WASD to walk, or click
 and tap where to go. Enter, Space or E to talk and to use things. Click or tap the board or the counter to walk up and
-use it.
+use it. G (or a tap on the goal line) shows the next few goals; M turns the music on or off, N the sounds.
+
+**What to do next** is always on screen: a goal line under the status bar names the nearest thing within reach, in
+the town's words ("Serve 3 more meals at the counter: Bryn might take it over"), and counts down as you play. The
+keys are shown at the bottom the first time you need them (walking, then using things) and go once you've used them.
 
 ## What's in it
 - **The town:** the Guild Hall, the Lantern Inn with its counter (a striped awning and a pot of stew), the guild board,
@@ -58,3 +62,6 @@ use it.
   to start with the hut built and the yard going up, or `--market` for all four buildings).
 - Next slices (docs/plans/starfall-village.md): more places to run by hand (the smithy, the apothecary), more plots as
   the town grows, guild members' stories, seasons as chapters.
+
+## Display sizing
+Phones use fractional aspect-fit so the 384×216 view reaches the available width or height, including after rotation or browser toolbar changes. Different-shaped screens still have aspect-ratio bars; the camera does not show more world or crop the view. Desktop keeps whole-number pixel scaling. Pixel art stays nearest-filtered; mobile fractional sizes can make some source pixels one display pixel wider than others. Android/iOS native and their web host feature tags select this policy. No save setting is added.

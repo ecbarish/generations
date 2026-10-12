@@ -23,6 +23,21 @@ as the baseball direction; that prototype stays in the repo, untouched, but leav
 | *Two Point Hospital*, *Theme Park* style builders | Upgrading a building you can see | The ballpark grows on screen as you upgrade it |
 | *Super Mega Baseball* | Stylised players with simple, clear traits | Short readable ratings (Contact, Power, Eye, Glove; Stuff, Control, Stamina) |
 
+### Mobile sports games (Evan, 2026-10-11: "investigate other mobile games and see if there's something we can model off")
+
+| Game | What players love | What we take (ticket) |
+|---|---|---|
+| *Retro Bowl* and *Retro Bowl College* (New Star Games) | You play only the moments that matter (your offence's drives); the sim does the rest; a game takes minutes | **Key moments you play** (DM-K): in baseball, call the pitch or the batter's approach in the big spots |
+| *New Star Soccer*, *Retro Goal* (New Star Games) | A career told through people: relationships, headlines, a manager who reacts | **News and people** (DM-N): a paper after each day, owner and fan opinions |
+| *OOTP Baseball Go* (mobile Out of the Park) | Real depth on a phone: full stats, a live game view, one-tap sim when you only want results | Already taken: box scores, stats, live view (DM-G). Next: **highlights speed** (DM-H) |
+| *Baseball 9*, *MLB 9 Innings* (Com2uS) | Arcade pitching and batting choices plus team building and training; players with special skills | **Traits** (DM-M); pitch types for the pitch call (DM-K). **Not** their card packs, energy timers or paid boosts |
+| *Super Mega Baseball* | Traits and "mojo" (confidence) you can read on each player; a difficulty slider (Ego) | **Traits and confidence** (DM-M); a difficulty setting later |
+| *Football Manager Mobile*, *Top Eleven* | Short sessions; 2D highlights of your match; shouts from the touchline | **Highlights speed** (DM-H): watch only the chances, skip the rest |
+
+The pattern every hit shares: **you act at the big moments, the simulation handles the rest, and the game is short.**
+Our Diamond Manager has the watching and the managing; what it lacks is a moment where your own call decides a
+pitch. That is DM-K, the first ticket below. Nothing here copies a game's names, screens or art.
+
 The lessons: **ratings must visibly matter** (a better lineup wins more, and the game says so); **every decision is
 small and quick** (no screen of 40 columns); **money is the tension** (payroll vs. upgrades vs. keeping stars);
 **watching is the reward** (a game you can follow, skip or speed up); **a long goal you can see** (the park).
@@ -78,10 +93,10 @@ side panel. Text is in full words.
 - [x] **DM-B** [Claude, done 2026-10-11, v0.2.0] **Make the general manager's choices matter** (from DM2): today a sensible active manager wins no
   more than a hands-off one over two seasons. Target 3 to 5 more wins a season and a final by about season 3; options
   in docs/playtests/diamond-manager-1.md. Add a simulation check for the gap.
-- [ ] **DM3** [any] **Hiring coaches**: two coach slots (hitting, pitching), three candidates each offseason with a
+- [ ] **DM3** [any] **Hiring coaches** (ready: Codex, PR #196, 2026-10-11): two coach slots (hitting, pitching), three candidates each offseason with a
   salary and a specialty (young players, power, control). Their effect is a visible growth bonus in the offseason
   report. Checks: a coach changes growth by the stated amount; old saves load.
-- [ ] **DM4** [any] **Player morale and stories**: each player has a mood (playing time, winning, contract); unhappy
+- [ ] **DM4** [Codex, ready PR #207; after #196] **Player morale and stories**: each player has a mood (playing time, winning, contract); unhappy
   stars ask for a trade or more money. Iona's notes mention them by name. Checks: benching a star lowers mood;
   mood changes the asking price by the stated amount.
 - [ ] **DM5** [any] **The ballpark you see grow**: draw each upgrade on the field (bigger stands, light towers,
@@ -89,17 +104,39 @@ side panel. Text is in full words.
 - [x] **DM6** [Claude, done 2026-10-11, v0.3.0] **A draft and player development** (Evan: "we need to add the draft and the
   development of players"): ceilings, growth toward them (faster when playing every day), scouting precision, a
   three-round draft of 24 prospects (worst first), a six-player farm club, call-ups and send-downs. 37 checks.
+- [x] **DM-G** [Claude, done 2026-10-11, v0.5.0] **The game you watch and manage** (Evan: "The game is pretty basic
+  right now. I'd love to see more of the game rather than a description ... more stats and a box score ... pitcher
+  management, pinch hit or run"): pitch-by-pitch engine (js/game.js) with fatigue, individual relievers, pinch hitters
+  and runners, Iona's questions at big moments, an animated field, box scores, season/last/career stats, league
+  leaders, a Speed rating, double plays, stolen bases, defensive changes and pitcher rest (Evan: "those other ideas
+  sound good"). Ideas left for any assistant: positions that matter (a shortstop playing first), a hit-and-run and
+  bunts, sound for the crack of the bat, a trophy room.
 - [x] **DM-T** [Claude, done 2026-10-11, v0.4.0] **Trading and a trade finder** (Evan: "We also need trading and trade
   finder"): find the cheapest deal for any player, shop one of ours to every club, "What would make it work?" in the
   trade table, prospects tradeable, ceilings in trade value. Later ideas for any assistant: trading draft picks and
   cash, other clubs trading with each other, a trade deadline.
-- [ ] **DM-B2** [any] **Keep the league in balance over many seasons**: in a six-season simulation the other clubs'
+- [ ] **DM-K** [any] **Key moments you play** (the Retro Bowl idea for baseball). In games you watch, at a big
+  spot (7th inning or later, close score, runners in scoring position, or any at-bat you choose with a Call it button):
+  on defence you pick the pitch (fastball, breaking ball, changeup) and where (inside, outside, low); on offence the
+  batter's approach (take a pitch, swing away, protect the plate, bunt, hit-and-run). Each batter and pitcher has a
+  readable strength and weakness (from the ratings, shown on the name tag), and a call that plays to them shifts the
+  odds a little (about 10 to 20 per cent), never a sure thing. No timing or reflexes; every choice in full words.
+  Iona can call it for you. Checks: a good call raises the success rate over 2,000 trials, a bad call lowers it, a
+  league season's scoring stays within the current bounds.
+- [ ] **DM-H** [any] **Highlights speed**: a fourth watch speed that skips to the moments that matter (runners on,
+  late and close, Iona's questions, key moments, home runs), shown on the field, with the box score kept whole.
+- [ ] **DM-M** [any] **Traits and confidence**: one or two traits per player in full words ("Clutch hitter",
+  "Fastball hunter", "Workhorse", "Ground-ball pitcher"), a confidence that rises with hits and wins and falls in a
+  slump, shown on the roster and name tags, and small, tested effects on results.
+- [ ] **DM-N** [any] **The club's news and people**: the Lamplight paper after each day (two or three headlines from
+  real results), and owner and fan opinions that react to winning, payroll and the park, as Retro Bowl does.
+- [ ] **DM-B2** [Codex, PR #208; six-season measurements in diamond-manager-balance.md] **Keep the league in balance over many seasons**: in a six-season simulation the other clubs'
   average overall climbs from about 56 to 64 (it climbed to 62 before DM6 too), while the free-agent market stays at
   level 50, so a hands-off club falls to about 5 wins. Make free agents and standouts track the league's average
   (or slow the other clubs' growth) so the market stays useful; keep the gap check passing and add a check that the
   league average stays within about 4 points over six seasons. Harness idea: the gap check in
   tests/diamond-manager-checks.js, run for six seasons.
-- [ ] **DM7** [any] **Records and history**: season-by-season table, league awards (best hitter, best pitcher),
+- [ ] **DM7** [Codex, PR #209; docs/diamond-manager-history.md] **Records and history**: season-by-season table, league awards (best hitter, best pitcher),
   club records, a trophy case in the clubhouse.
 - [ ] **DM8** [Claude or any, later] **Step into the big moment** (optional): in close late innings, offer the old
   Diamond Career at-bat (tactical mode only) for one pinch-hit. Only after DM2 says the core is fun.
@@ -124,9 +161,9 @@ Manager, not copied), so both games improve together.
 
 ### The road
 
-- [ ] **LB0** [any] One-page pitch with three mock screens (the field, a play call, the office) in
+- [x] **LB0** [Claude, done 2026-10-11: [lantern-bowl.md](lantern-bowl.md)] One-page pitch with three mock screens (the field, a play call, the office) in
   docs/plans/lantern-bowl.md, checked by the Design decisions thread for anything too close to Retro Bowl's look.
-- [ ] **LB1** [any] Extract the office code from Diamond Manager into `shared/sports-office.js` with no behaviour
+- [x] **LB1** [Claude, done 2026-10-11: shared/sports-office.js; a sport defines a SPORT object with its overall, roster rule, lineup, role and follow-ups] Extract the office code from Diamond Manager into `shared/sports-office.js` with no behaviour
   change (all Diamond Manager checks still pass). Make it sport-neutral (positions, rating names and the game
   simulation passed in), since hockey and later sports reuse it.
 - [ ] **LB2** [any] **One drive, playable**: field, four play calls, the passing moment, first downs, a touchdown.

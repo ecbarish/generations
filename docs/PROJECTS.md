@@ -4,6 +4,13 @@ Every outlined project in one place, so Evan can hand work to any assistant (Cla
 and they can carry it to launch. START-HERE.md says what is happening *right now*; this file says *everything there
 is to do*. Ground rules for how assistants work, and how much creative freedom they have: [CREATIVE.md](CREATIVE.md).
 
+## Realmbound first-session validation
+
+| ID | Project | Size | Status | Notes |
+|---|---|---|---|---|
+| RB1.11 | Active play and rested time away | M | ready: Codex, PR #218 | No idle combat; Auto only on out-levelled roads; old saves load |
+| RB-PLAY1 | First-session audit and immediate fixes | S | ready: Codex, PR #214 | Focus town ownership, clear travel and quest return; human validation still needed |
+
 ## Realmbound readability
 
 | ID | Project | Size | Status | Notes |
@@ -315,7 +322,7 @@ New Wildbond work goes to **Wildbond in Godot** above. Browser data (species, ma
 | R5 | **Crafted gear from 55** from the guild economy (the plan's gear route) | M | System | — | done, merged 2026-10-08 (Realmbound v1.5.0, PR #55) | docs/realmbound-40-60.md "Loot from 40 to 60" |
 | R6 | **Hub variety**: a layout per zone (Fenwatch Post, Lanternrest Lodge...), interiors for the inn and smithy | M | Art | — | done, merged 2026-10-08 (Realmbound v1.4.0, PR #54) | js/22-town.js |
 | R6b | **T41: Pages become places**: Guild Hall, Trainer, Stable and quest givers | M | System+Polish | R6, T38 | claimed: Codex, 2026-10-08, `codex/realmbound-window-2` | docs/ROADMAP.md T41 |
-| R7 | **Second raid tier** after The Hollow Throne | L | Data+System | — | open | docs/realmbound-40-60.md "Raids" |
+| R7 | **Second raid tier** after The Hollow Throne | L | Data+System | — | deferred by Evan, 2026-10-11 | First-session/core-loop player validation before another endgame tier; docs/playtests/realmbound-first-session.md |
 | R8 | **Pacing re-measure 1-60** with every system on; tune zone XP only | M | Polish | — | done, merged 2026-10-07 | docs/realmbound-40-60.md "Measured" |
 | R9 | Heroic tiers and loot review for the newest dungeons (Rootrot, Heartwood) | S | Polish | — | done, merged 2026-10-07 by Claude (Codex; docs/realmbound-heroic-review.md) | |
 
@@ -377,6 +384,16 @@ Merged 2026-10-08 (Realmbound v1.3.0, PR #53); written by Codex on codex/realmbo
 |---|---|---|---|---|---|---|
 | OW2 | **T42: memories that matter across lives** | M | Data+System | OW1 | claimed: Codex, 2026-10-08, codex/otherworld-memories | Cross-world knowledge and persistent wants, grudges and debts; authored rules |
 | OW1 | **T35: a living Lanthorn** | M | Data+Polish | OW0 | done, merged 2026-10-08 (Otherworld v0.2.0, PR #58) | docs/ROADMAP.md T35: visible locked choices, gift costs, food/fear over three days and Archivist memories |
+
+## Diamond Manager coaching
+
+| ID | Project | Size | Status | Notes |
+|---|---|---|---|---|
+| DM3 | Hitting and pitching coaches | M | ready: Codex, PR #196, 2026-10-11 | sports-management.md; seasonal cash contracts, ceiling-bounded gains, old saves and winter reports |
+
+| DM7 | Records, awards and history | M | ready: Codex, PR #209; stacked after #208 | Actual season stats, club records and in-game trophy case; after DM-B2 |
+| DM-B2 | Six-season league balance | M | ready: Codex, PR #208; stacked after #207 | Reproducible long-term league and market checks; stacked after DM4 |
+| DM4 | Player morale and stories | M | ready: Codex, PR #207, stacked after #196 | Playing time, results, contract expectations; named requests and visible asking-price changes |
 
 ## Diamond Career follow-up
 

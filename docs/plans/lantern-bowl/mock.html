@@ -1,0 +1,68 @@
+<!doctype html><meta charset="utf-8"><title>Lantern Bowl mock screens (LB0)</title>
+<style>body{margin:0;background:#111;color:#eee;font:14px system-ui}canvas{display:block;margin:0 0 12px;image-rendering:pixelated;width:960px;height:540px}</style>
+<!-- Mock screens for the LB0 pitch, drawn in code at 384x216 and scaled 2.5x, the arcade's pixel scale. Not game code. -->
+<canvas id="a" width="384" height="216"></canvas><canvas id="b" width="384" height="216"></canvas><canvas id="c" width="384" height="216"></canvas>
+<script>
+const INK='#1e1a22', LAMP='#f2d080', TXT='#fff4cd';
+function ctx(id){const c=document.getElementById(id).getContext('2d');c.imageSmoothingEnabled=false;return c;}
+function rect(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),w,h);}
+function text(c,s,x,y,col=TXT,size=7,align='left'){c.font=size+'px monospace';c.fillStyle=col;c.textAlign=align;c.fillText(s,x,y);}
+function panel(c,x,y,w,h){rect(c,x,y,w,h,INK);rect(c,x+1,y+1,w-2,h-2,'#173e41');}
+// A person, 8 wide and 12 tall at this mock's scale (real proportions, no big heads), seen from the press box.
+function player(c,x,y,jersey,num){rect(c,x-4,y-12,8,13,INK);rect(c,x-3,y-11,6,3,'#d9a77a');rect(c,x-3,y-8,6,5,jersey);rect(c,x-3,y-3,2,3,'#ddd');rect(c,x+1,y-3,2,3,'#ddd');if(num)text(c,num,x,y-4,'#fff',4,'center');}
+function sky(c){const g=c.createLinearGradient(0,0,0,60);g.addColorStop(0,'#1b2440');g.addColorStop(1,'#6a4a5a');c.fillStyle=g;c.fillRect(0,0,384,60);}
+function stands(c){rect(c,0,40,384,22,'#3b2f35');for(let x=2;x<384;x+=5)for(let y=43;y<60;y+=4)rect(c,x+(y%8?2:0),y,2,2,['#c9b68f','#8a6d6a','#e0d4b4','#6b5845'][(x*7+y)%4]);
+  for(const x of [30,130,254,354]){rect(c,x,6,2,36,'#3a3a3a');rect(c,x-7,2,16,6,INK);rect(c,x-6,3,14,4,LAMP);c.fillStyle='rgba(242,208,128,.08)';c.beginPath();c.arc(x+1,40,46,0,7);c.fill();}}
+// The field runs left to right across the screen (we look at it from the press box), lit by the lanterns.
+function field(c){for(let i=0;i<12;i++)rect(c,i*32,62,32,154,i%2?'#2e6b3a':'#2a6336');
+  c.fillStyle='rgba(242,208,128,.05)';c.fillRect(0,62,384,154);
+  for(let i=0;i<=10;i++){const x=12+i*36;rect(c,x,62,1,154,'#e8e2c8');if(i>0&&i<10)text(c,String(i<=5?i*10:100-i*10),x,72,'#e8e2c8',6,'center');}
+  rect(c,0,62,12,154,'#7a2f2a');rect(c,372,62,12,154,'#1f4f5a');text(c,'B',6,142,'#f2d080',8,'center');text(c,'L',378,142,'#f2d080',8,'center');}
+function scorebug(c,line){panel(c,104,4,176,22);text(c,'LANTERNS 14   MILLRACE 10',192,13,TXT,7,'center');text(c,line,192,22,'#c0d1cb',6,'center');}
+
+// 1. THE FIELD: the passing moment.
+{const c=ctx('a');sky(c);stands(c);field(c);scorebug(c,'3rd quarter  2:41   2nd and 6 at their 34');
+ const los=12+6.6*36; rect(c,los,62,1,154,'#7fb6ff'); rect(c,los+6*3.6,62,1,154,'#f2d080');
+ for(let i=0;i<5;i++)player(c,los-3,112+i*10,'#b0563e');
+ for(let i=0;i<4;i++)player(c,los+8,116+i*10,'#2d6f80');
+ player(c,los-26,135,'#b0563e','7'); // quarterback dropping back
+ // routes as dotted chalk lines, the open receiver ringed in lamplight
+ c.fillStyle='#fff8';for(let t=0;t<1;t+=.04){c.fillRect(los+t*60,92-Math.sin(t*3)*4,1,1);c.fillRect(los+t*44,186+t*-10,1,1);c.fillRect(los+t*30+(t>.6?(t-.6)*30:0),140-(t>.6?(t-.6)*60:0),1,1);}
+ player(c,los+60,93,'#b0563e','81');player(c,los+46,178,'#b0563e','12');player(c,los+38,121,'#b0563e','88');
+ player(c,los+66,101,'#2d6f80');player(c,los+40,186,'#2d6f80');player(c,los+48,128,'#2d6f80');
+ c.strokeStyle=LAMP;c.lineWidth=1;c.beginPath();c.arc(los+46,172,9,0,7);c.stroke();c.strokeStyle='#f2d08066';c.beginPath();c.arc(los+46,172,13,0,7);c.stroke();
+ panel(c,6,172,150,38);text(c,'Tap a receiver to throw.',12,182);text(c,'Ada Brisk (12) is open: the ring',12,192,'#c0d1cb',6);text(c,'is gold. Wait and the window closes.',12,201,'#c0d1cb',6);
+ text(c,'Mock 1: the field',378,212,'#fff8',6,'right');}
+
+// 2. THE PLAY CALL: the coach's chalkboard, held up on the sideline.
+{const c=ctx('b');sky(c);stands(c);field(c);c.fillStyle='#0008';c.fillRect(0,0,384,216);
+ player(c,48,200,'#3b3b46');text(c,'Coach (you)',48,210,'#c0d1cb',6,'center');
+ rect(c,82,34,220,160,'#6b4a2a');rect(c,86,38,212,152,'#24302c');
+ text(c,'1st and 10 at our 42.  Their safety is playing deep.',192,50,'#e8e2c8',6,'center');
+ const plays=[['Inside run','Mara Holt carries. Steady yards.'],['Quick slant','A short, safe throw.'],['Deep post','Long throw; their safety is back.'],['Play action','Fake the run, then throw.']];
+ plays.forEach(([n,d],i)=>{const x=94+(i%2)*102,y=60+Math.floor(i/2)*62;rect(c,x,y,96,56,i===3?'#3d4a3a':'#2c3833');c.strokeStyle=i===3?LAMP:'#e8e2c855';c.strokeRect(x+.5,y+.5,95,55);
+   c.fillStyle='#e8e2c8';for(let k=0;k<5;k++){c.beginPath();c.arc(x+20+k*8,y+40,2,0,7);c.fill();}
+   c.strokeStyle='#e8e2c8';c.beginPath();if(i===0){c.moveTo(x+36,y+40);c.lineTo(x+36,y+20);}else if(i===1){c.moveTo(x+60,y+40);c.lineTo(x+66,y+30);c.lineTo(x+48,y+18);}else{c.moveTo(x+70,y+40);c.lineTo(x+72,y+22);c.lineTo(x+56,y+10);if(i===3){c.moveTo(x+36,y+40);c.lineTo(x+28,y+46);}}c.stroke();
+   text(c,(i+1)+'  '+n,x+4,y+10,i===3?LAMP:TXT,7);text(c,d,x+4,y+52,'#c0d1cb',5);});
+ text(c,'Pip Calloway (QC coach): "Play action. They bit on the run twice."',192,186,'#c0d1cb',6,'center');
+ text(c,'Mock 2: the play call',378,212,'#fff8',6,'right');}
+
+// 3. THE OFFICE: the coach's room under the stands. People and things, not a menu.
+{const c=ctx('c');rect(c,0,0,384,216,'#3a2c26');for(let y=0;y<150;y+=8)rect(c,0,y,384,1,'#2f241f');rect(c,0,150,384,66,'#5a4232');for(let x=0;x<384;x+=24)rect(c,x,150,1,66,'#4a3628');
+ // window onto the lit field
+ rect(c,24,20,120,70,INK);rect(c,27,23,114,64,'#1b2440');rect(c,27,60,114,27,'#2e6b3a');for(const x of [40,128]){rect(c,x,30,10,4,LAMP);}
+ text(c,'The field',84,98,'#c0d1cb',6,'center');
+ // the depth chart board
+ rect(c,164,16,96,92,'#6b4a2a');rect(c,167,19,90,86,'#efe6cf');text(c,'DEPTH CHART',212,28,'#1d2a2a',6,'center');
+ ['QB  Wren Talley    74','RB  Mara Holt      68','WR  Ada Brisk      77','WR  Tomas Reed     63','TE  Bram Okafor    65','Line              61','Defence           58','Kick  Sol Varga    70'].forEach((s,i)=>text(c,s,170,38+i*8.5,'#1d2a2a',5));
+ // the trophy shelf and the facilities model
+ rect(c,276,40,90,4,'#6b4a2a');rect(c,286,28,8,12,'#c9a640');rect(c,306,32,6,8,'#9aa0a6');text(c,'Trophy shelf',321,52,'#c0d1cb',6,'center');
+ rect(c,280,70,84,40,'#2c3833');rect(c,288,90,68,14,'#2e6b3a');rect(c,286,80,72,10,'#6b5845');for(const x of [290,350])rect(c,x,72,2,18,'#3a3a3a');text(c,'Stadium model: seats 2/4',322,118,'#c0d1cb',5,'center');
+ // desk and people
+ rect(c,120,150,140,26,'#6b4a2a');rect(c,120,148,140,4,'#8a6440');rect(c,150,140,30,10,'#efe6cf');text(c,'Contracts',165,147,'#1d2a2a',5,'center');
+ player(c,100,186,'#3b3b46');text(c,'You',100,198,'#c0d1cb',6,'center');
+ player(c,290,186,'#b0563e','12');
+ panel(c,206,124,170,24);text(c,'Ada Brisk: "Two good years. I want',212,133,TXT,6);text(c,'a three-year deal before the draft."',212,142,TXT,6);
+ panel(c,6,198,186,16);text(c,'Cap room 4.2   Coaching points 3   Fans: hopeful',12,208,'#c0d1cb',6);
+ text(c,'Mock 3: the office',378,212,'#fff8',6,'right');}
+</script>

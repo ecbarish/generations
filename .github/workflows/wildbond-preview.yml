@@ -2,6 +2,9 @@ name: Wildbond web preview review
 on:
   pull_request:
     paths: ['tools/wildbond-preview-*', '.github/workflows/wildbond-preview.yml', 'play/wildbond/**']
+  push:
+    branches: [main]
+    paths: ['play/wildbond/**', '.github/workflows/wildbond-preview.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -10,9 +13,11 @@ concurrency:
   cancel-in-progress: true
 jobs:
   web-review:
-    if: github.event_name == 'pull_request' && github.event.pull_request.number == 132 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/wildbond-preview-integration'
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 183 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/wildbond-preview-door-fixes'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
+    env:
+      SOURCE_COMMIT: 480dfc4acd9799b033d70a250167f9654a29f207
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,25 +34,12 @@ jobs:
           echo "GODOT=$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
-      - name: Verify the exact shipped pack and retain the previous preview
+      - name: Verify the exact committed pack and retain the previous preview
         run: |
           set -euo pipefail
-          mkdir -p preview-review
-          python - <<'PYVERIFY'
-          import hashlib, json, re, subprocess
-          from pathlib import Path
-          manifest = json.loads(Path('play/wildbond/build.json').read_text())
-          tree = subprocess.check_output(['git', 'rev-parse', 'HEAD:wildbond-godot'], text=True).strip()
-          assert tree == manifest['source_tree'], 'Game source differs from the reviewed pack'
-          for name, digest in manifest['sha256'].items():
-              assert hashlib.sha256(Path('play/wildbond', name).read_bytes()).hexdigest() == digest, name + ' digest mismatch'
-          size = int(re.search(r'"index.pck"\s*:\s*(\d+)', Path('play/wildbond/index.html').read_text())[1])
-          assert size == Path('play/wildbond/index.pck').stat().st_size
-          Path('preview-review/build.json').write_text(json.dumps(manifest, indent=2) + '\n')
-          print('Verified committed pack, shell, unchanged engine and source tree')
-          PYVERIFY
-          git fetch --depth=1 origin 0bc8e7b84deaadd72cb2555cc4941078ce89e310
-          git show FETCH_HEAD:play/wildbond/index.pck > "$RUNNER_TEMP/wildbond-before.pck"
+          git fetch --depth=1 origin "$SOURCE_COMMIT"
+          python3 tools/wildbond-preview-manifest.py verify --source "$SOURCE_COMMIT"
+          git show "$SOURCE_COMMIT:play/wildbond/index.pck" > "$RUNNER_TEMP/wildbond-before.pck"
       - name: Generate saves with the real pre-WD3 writer
         run: |
           set -euo pipefail
@@ -69,3 +61,23 @@ jobs:
             preview-review/
             play/wildbond/index.pck
             play/wildbond/index.html
+            play/wildbond/build.json
+
+  verify-live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Wait for the exact reviewed bytes on the official Pages preview
+        env:
+          LIVE_PREVIEW_URL: https://ecbarish.github.io/idle-arcade/play/wildbond/
+        run: python3 tools/wildbond-preview-live.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wildbond-live-verification
+          path: preview-review/live-verification.json
+          if-no-files-found: error

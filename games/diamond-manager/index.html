@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#173e41"><title>Diamond Manager · Idle Arcade</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="../../shared/accessibility.css">
 </head>
 <body>
-<header><a href="../../index.html" aria-label="Back to Idle Arcade">← Arcade</a><div class="brand">Diamond Manager <small>Test version · v0.4.0</small></div><nav id="tools" aria-label="Game tools"><button id="help">How to play</button><button id="save-tools">Your save</button><div class="feedback-container"><button>Feedback</button></div></nav></header>
+<header><a href="../../index.html" aria-label="Back to Idle Arcade">← Arcade</a><div class="brand">Diamond Manager <small>Test version · v0.8.1</small></div><nav id="tools" aria-label="Game tools"><button id="help">How to play</button><button id="save-tools">Your save</button><div class="feedback-container"><button>Feedback</button></div></nav></header>
 <main id="stage" aria-label="Lamplight Field">
   <canvas id="field" role="img" aria-label="Lamplight Field from above: the diamond, the stands and the runners on base"></canvas>
   <div id="scoreboard" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -17,5 +17,5 @@
 <dialog id="save-dialog" aria-labelledby="save-title"><h2 id="save-title">Your Diamond Manager save</h2><div id="save-content"></div><button id="close-save">Back to the field</button></dialog>
 <dialog id="decision-dialog" aria-labelledby="decision-title"><h2 id="decision-title">A roster decision</h2><p id="decision-text"></p><button id="decision-no">Keep the player</button> <button id="decision-yes">Let the player go</button></dialog>
 <script src="../../shared/engine.js"></script><script src="../../shared/settings.js"></script><script src="../../shared/feedback.js"></script>
-<script src="js/league.js"></script><script src="js/field.js"></script><script src="js/ui.js"></script>
+<script src="../../shared/sports-office.js"></script><script src="js/league.js"></script><script src="js/coaches.js"></script><script src="js/morale.js"></script><script src="js/history.js"></script><script src="js/game.js"></script><script src="js/field.js"></script><script src="js/ui.js"></script>
 </body></html>

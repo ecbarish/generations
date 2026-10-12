@@ -49,6 +49,8 @@ func hero(name: String) -> Variant:
 
 func _run() -> void:
 	main.rng.seed = 2026
+	_display_scaling()
+	_opening_view()
 	# ---- the town at the start
 	check(main.MAP.all(func(r): return r.length() == main.MAP[0].length()), "the town map is the same width on every row")
 	check(main.heroes.size() == 3 and main.coins == 100 and main.day == 1, "three adventurers, 100 coins, day one")
@@ -57,6 +59,15 @@ func _run() -> void:
 	talk_through()
 	tick(1.0)
 	check(main.heroes.all(func(h): return h.a.state == "town"), "with nothing pinned up, everyone waits in town")
+	# ---- what to do next, and the controls (SF2.10)
+	main._update_ui()
+	check(main.goal.text.begins_with("Next: Pin a request on the guild board"), "after the opening, a goal line says what to do first")
+	check("WASD" in main.hint.text, "and the walking keys are shown")
+	check(main.goals().size() >= 3, "there's more than one goal in reach, for the Next list")
+	main.lines.append({ "who": "", "text": "x" })
+	main._update_ui()
+	check(main.goal.text == "" and main.hint.text == "", "both step aside while someone is talking")
+	main.lines.clear()
 	# ---- the guild board
 	check(walk_to(main.READ_AT), "you can walk up to the board")
 	check(main.use() and main.board_open, "using it opens the board, close up")
@@ -111,7 +122,7 @@ func _run() -> void:
 		if taker.where == "town":
 			break
 	check(taker.where == "town" and int(taker.a.hp) == int(taker.a.max), "rested, they come back out good as new")
-	# ---- nobody serving: they give up and go hungry
+	# ---- nobody serving: they help themselves from the stew pot (SF2.18; it used to cost them spirits)
 	var waiter: Variant = main.heroes[2] if main.heroes[2] != taker else main.heroes[1]
 	walk_to(Vector2i(11, 10))
 	waiter.a.state = "to_counter"
@@ -123,7 +134,7 @@ func _run() -> void:
 		tick(0.1)
 		if waiter.a.state != "to_counter":
 			break
-	check(waiter.a.state == "to_rest" and int(waiter.a.morale) == morale0 - 1, "left waiting too long, they give up grumbling (spirits drop)")
+	check(waiter.a.state == "to_rest" and int(waiter.a.morale) == morale0, "left waiting too long, they ladle their own from the stew pot (spirits don't drop)")
 	# ---- a disastrous job: never fatal
 	var brave: Variant = hero("Ren")
 	brave.a.lvl = 1
@@ -547,6 +558,64 @@ func _run() -> void:
 	main.tamsin.where = "gone"
 	main.today = { "done": 0, "failed": 0, "meals": 0, "earned": 0 }
 	main.day_t = 0.0
+	# ---- the goal line follows the town (SF2.10): ranks, hires, plots, stories, always something reachable
+	main._update_ui()
+	check("E, Space or Enter" not in main.hint.text and "WASD" not in main.hint.text, "after walking and using things, those hints are gone")
+	var keep := { "meals": main.meals, "hired": main.hired, "rank": main.rank, "jobs": main.total_jobs, "built": main.built.duplicate(true),
+		"pieces": main.pieces, "batches": main.batches, "rounds": main.rounds, "spars": main.spars, "pours": main.pours,
+		"g": main.garrick.where, "f": main.fen.where, "o": main.odo.where, "i": main.ilse.where, "t": main.tamsin.where, "posted": main.posted.duplicate() }
+	var goal_texts := func() -> String: return " | ".join(main.goals().map(func(x): return str(x.text)))
+	main.hired = false
+	main.meals = 7
+	check("Serve 3 more meals at the counter" in goal_texts.call(), "Bryn: meals left to serve")
+	main.meals = 8
+	check("Serve 2 more meals" in goal_texts.call(), "the count goes down as you serve")
+	main.meals = main.HIRE_AFTER
+	check(main.goals().any(func(x): return str(x.text).begins_with("Talk to Bryn") and int(x.left) == 0), "then: talk to Bryn, first in line")
+	main.hired = true
+	main.rank = 0
+	main.total_jobs = 2
+	main.built = {}
+	check("4 more jobs done and 1 more building: Starfall becomes a Village" in goal_texts.call(), "the next rank, with what it still needs")
+	check("empty plot" in goal_texts.call(), "an empty plot, and where to see Hob's plans")
+	main.built = { "west": { "what": "smithy", "left": 0.0 } }
+	main.garrick.where = "gone"
+	main.pieces = 2
+	check("Forge 3 more pieces" in goal_texts.call(), "a hire to earn at the smithy")
+	main.garrick.where = "town"
+	main.smith_hired = false
+	check(str(main.goals()[0].text).begins_with("Garrick is waiting"), "someone waiting for a word comes first")
+	main.smith_hired = true
+	main.odo.where = "gone"
+	main.rounds = 1
+	check("Walk the walls 2 more nights" in goal_texts.call(), "the night watch, counted in nights")
+	var aki: Variant = hero("Aki")
+	var aki_keep: Dictionary = aki.a.duplicate(true)
+	aki.a.beat = 0
+	aki.a.morale = 8
+	aki.a.state = "town"
+	aki.a.jobs_done = 99
+	aki.where = "town"
+	check(main.story_ready(aki) and "Aki wants a word" in goal_texts.call(), "a member's story beat shows up as a goal")
+	aki.a = aki_keep
+	main.rank = main.RANKS.size() - 1
+	main.built = {}
+	for k in main.PLOTS:
+		main.built[k] = { "what": "x", "left": 0.0 }
+	main.garrick.where = "town"
+	main.odo.where = "town"
+	main.odo_hired = true
+	check(not main.goals().is_empty(), "a fully grown town still has a next step")
+	main.meals = keep.meals
+	main.hired = keep.hired
+	main.rank = keep.rank
+	main.total_jobs = keep.jobs
+	main.built = keep.built
+	main.pieces = keep.pieces
+	main.garrick.where = keep.g
+	main.odo.where = keep.o
+	main.rounds = keep.rounds
+	main.odo_hired = false
 	# ---- saving the town and loading it back (a test file, never the real one)
 	main.no_save = false
 	main.save_path = "user://test_town.json"
@@ -561,6 +630,10 @@ func _run() -> void:
 	check(main.finished("healer") == "west" and main.finished("yard") == "east" and main.ama.where == "town" and main.rank >= 1, "with its buildings, Ama, and its rank")
 	check(main.finished("smithy") == "north" and main.smith_hired and main.garrick.where == "town" and main.stock == 2 and main.herbs > 0, "and its smithy, Garrick, the apothecary's shelf and herbs")
 	check(main.good_days == 4 and main.visitors.size() == 2, "and how the town has been doing, and who has come")
+	var saved_opening: Dictionary = main.SafeSave.read(main.save_path)
+	saved_opening.me = [14, 10]                 # the pre-SF2.6c day-one square position
+	main.SafeSave.write(main.save_path, saved_opening)
+	check(main._load() and main.me.tile == Vector2i(14, 10) and main.coins == 77, "SF2.6c keeps an existing town's position and progress")
 	# a save from before SF2.6 (the old one-screen map): you may have stood where a wall or building is now
 	var old_save: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(main.save_path))
 	old_save.me = [10, 3]                         # under the Guild Hall's roof in the new town
@@ -634,6 +707,9 @@ func _run() -> void:
 	check(missing_feel.is_empty(), "every feeling has its picture (missing: %s)" % ", ".join(missing_feel))
 	_own_place()
 	_wilds()
+	_by_hand()
+	_no_chores()
+	_tamsin_kept()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -786,3 +862,349 @@ func _wilds() -> void:
 	main.lines.clear()
 	main.me.tile = main.GATE_IN
 	main.me.pos = Vector2(main.me.tile) * main.TILE
+
+## SF2.8, something by hand every day: the gate watch's lantern round and sparring at the training yard, each mastered
+## by hand and then offered to a hire, the hire taking over, hand play worth at least the hire, and old saves defaulting.
+func _by_hand() -> void:
+	var keep_built: Dictionary = main.built.duplicate(true)
+	var keep_coins: int = main.coins
+	var keep_day_t: float = main.day_t
+	main.lines.clear()
+	main.then_do = Callable()
+	# the gate watch: lanterns are lit at dusk, not in the day
+	main.day_t = main.DAY_SECONDS * 0.2
+	main.me.tile = main.LANTERNS[0] + Vector2i.RIGHT
+	main.use()
+	check(not main.lamps[0] and main.lines.size() == 1, "in daylight a wall lantern stays cold")
+	main.lines.clear()
+	check(main.F_PROPS.get_width() > 0, "the lanterns' picture (ART-SF-6) loads")
+	var unreachable := []
+	for l in main.LANTERNS:
+		var ok := false
+		for d in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+			if not main.solid(l + d) and not main.route(main.GATE_IN, l + d, main.me).is_empty():
+				ok = true
+		if not ok:
+			unreachable.append(l)
+	check(unreachable.is_empty(), "every wall lantern can be walked up to (not: %s)" % str(unreachable))
+	main.day_t = main.DAY_SECONDS * 0.7
+	var hero = main.heroes[0]
+	hero.where = "town"
+	hero.a.state = "town"
+	hero.a.morale = 4
+	for r in main.ROUNDS_AFTER:
+		for i in main.LANTERNS.size():
+			main.me.tile = main.LANTERNS[i] + (Vector2i.RIGHT if i == 0 else (Vector2i.DOWN if i == 1 else (Vector2i.LEFT if i == 2 else Vector2i.UP)))
+			main.lines.clear()
+			main.use()
+		if r == 0:
+			check(not main.lamps.has(false) and main.rounds == 1, "walking to all four lanterns at dusk walks the round")
+			var c0: int = main.coins
+			main.today.earned = 0
+			var out: String = main._watch_night()
+			check(main.coins == c0 + main.LAMP_MONEY and int(hero.a.morale) == 5 and "lamp money" in out, "a round walked by hand: lamp money, and adventurers at home sleep easy (+1 nerve)")
+			check(main.lamps.count(true) == 0, "the lamps go out for the next day")
+			check(main.odo.where == "gone", "one round isn't enough for a watchman to ask")
+		else:
+			main._watch_night()
+	check(main.rounds == main.ROUNDS_AFTER and main.odo.where == "town", "after %d rounds by hand, Odo the watchman comes asking" % main.ROUNDS_AFTER)
+	main.odo.tile = main.ODO_AT
+	main.odo.path.clear()
+	main.me.tile = main.ODO_AT + Vector2i.RIGHT
+	main.lines.clear()
+	main.use()
+	talk_through()
+	check(main.odo_hired, "talk to Odo and he takes the round")
+	main.day_t = main.DAY_SECONDS * 0.56
+	main.me.tile = main.INN_STEP + Vector2i(1, 2)
+	main.me.pos = Vector2(main.me.tile) * main.TILE
+	tick(0.5)
+	check(main.lamps.count(true) == 0 and not main.odo.path.is_empty(), "at dusk Odo sets off on his round; the lamps aren't lit by magic")
+	var order := []
+	var seen_at := []
+	for i in 1600:
+		tick(0.05)
+		for k in 4:
+			if main.lamps[k] and not order.has(k):
+				order.append(k)
+				seen_at.append(main.odo.tile == main.LAMP_STANDS[k])
+		if order.size() == 4:
+			break
+	check(order == [0, 1, 2, 3] and not seen_at.has(false), "he walks the walls and lights each lantern as he reaches it, west, north, east, south (%s)" % str(order))
+	check(main.evening() and main.day_t < main.DAY_SECONDS, "and finishes the round well before the night is over")
+	for i in 600:
+		tick(0.05)
+		if main.odo.tile == main.ODO_AT:
+			break
+	check(main.odo.tile == main.ODO_AT, "then goes back to his post by the watchtower")
+	hero.a.morale = 4
+	var c1: int = main.coins
+	main._watch_night()
+	var auto_coins: int = main.coins - c1
+	check(int(hero.a.morale) == 5 and auto_coins == -main.ODO_WAGE, "Odo's round: adventurers sleep easy, and Odo is paid")
+	check(main.LAMP_MONEY > auto_coins, "walking the round yourself is worth more than Odo's (lamp money, no wage)")
+	# the training yard
+	main.built = { "east": { "what": "yard", "left": 0.0 } }
+	var step: Vector2i = main._step_of("east")
+	main.me.tile = step
+	main.me.path.clear()
+	for h in main.heroes:
+		h.where = "town"
+		h.a.state = "town"
+		h.a.erase("sparred")
+		h.a.morale = 5
+	main.heroes[1].a.morale = 2
+	main.lines.clear()
+	check(main.spar_partner() == main.heroes[1], "the least sure adventurer at home is first to spar")
+	main.heroes[1].tile = step + Vector2i(-6, 1)
+	main.heroes[1].pos = Vector2(main.heroes[1].tile) * main.TILE
+	main.heroes[1].path.clear()
+	main.use()
+	check(not main.spar.is_empty() and main.spar.h == main.heroes[1], "at the yard, E calls them over for a bout")
+	main.spar_press()
+	check(not main.spar.ready and not main.spar.on, "the meter waits until they arrive (E does nothing yet)")
+	for i in 400:
+		tick(0.05)
+		if main.spar.ready:
+			break
+	check(main.spar.ready and (main.heroes[1].tile - main.me.tile).length() <= 1.01, "they walk over, and the bout starts once they're beside you")
+	main.spar_press()
+	tick(1.0)
+	check(not main.spar.is_empty(), "the swing keeps going; there's no failing by waiting")
+	main.finish_spar((main.SPAR_BAND.x + main.SPAR_BAND.y) / 2.0)
+	check(int(main.heroes[1].a.morale) == 4 and main.spars == 1, "a clean bout raises nerve by two")
+	check(main.spar_partner() != main.heroes[1], "one bout each a day")
+	var hand_total := 2
+	for k in main.SPARS_AFTER - 1:
+		var h = main.spar_partner()
+		if h == null:
+			for x in main.heroes:
+				x.a.erase("sparred")
+			h = main.spar_partner()
+		main.spar = { "fill": 0.0, "on": true, "h": h, "dir": 1.0 }
+		var before := int(h.a.morale)
+		main.finish_spar(0.05)
+		if k == 0:
+			check(int(h.a.morale) == mini(10, before + 1), "a scrappy bout still raises nerve by one")
+		hand_total += int(h.a.morale) - before
+	check(main.spars == main.SPARS_AFTER and main.ilse.where == "town", "after %d bouts by hand, Ilse the drillmaster comes asking" % main.SPARS_AFTER)
+	main.ilse.tile = main._drill_at()
+	main.ilse.path.clear()
+	main.me.tile = main.ilse.tile + Vector2i.DOWN
+	main.lines.clear()
+	main.use()
+	talk_through()
+	check(main.ilse_hired, "talk to Ilse and she takes the yard")
+	for x in main.heroes:
+		x.a.erase("sparred")
+		x.a.morale = 5
+	main.coins = 100
+	var nerve_before := 0
+	for x in main.heroes:
+		nerve_before += int(x.a.morale)
+	var said: String = main._yard_morning()
+	var nerve_auto := -nerve_before
+	for x in main.heroes:
+		nerve_auto += int(x.a.morale)
+	check(nerve_auto == 1 and main.coins == 100 - main.ILSE_WAGE and "Ilse paid" in said, "Ilse drills the one who needs it most each morning (+1 nerve), and is paid")
+	check(2 * main.heroes.size() > nerve_auto and hand_total > nerve_auto, "a day of sparring yourself (up to +2 for every adventurer) is worth more than Ilse's drill (+1 for one)")
+	main.coins = 0
+	main._watch_night()
+	main._yard_morning()
+	check(main.rounds == main.ROUNDS_AFTER and main.spars == main.SPARS_AFTER and main.odo.where == "town" and main.ilse.where == "town",
+		"unpaid, Odo and Ilse stop working but stay in town to be taken on again; the rounds and bouts you earned stay earned")
+	main.odo_hired = true
+	main.ilse_hired = true
+	main.coins = 100
+	main.heroes[2].a.state = "sparring"
+	# saves
+	main.no_save = false
+	main.save_path = "user://test_by_hand.json"
+	main.save_game()
+	var d: Dictionary = main.SafeSave.read(main.save_path)
+	check(int(d.watch.rounds) == main.ROUNDS_AFTER and bool(d.watch.hired) and int(d.drill.spars) == main.SPARS_AFTER and bool(d.drill.hired), "the watch and the yard are saved")
+	main.odo_hired = false
+	main.ilse_hired = false
+	check(main._load() and main.odo_hired and main.ilse_hired and main.odo.where == "town" and main.ilse.where == "town", "and load back, Odo and Ilse at their posts")
+	check(str(main.heroes[2].a.state) == "town", "someone saved mid-bout loads at home, not stuck sparring")
+	d.erase("watch")
+	d.erase("drill")
+	main.SafeSave.write(main.save_path, d)
+	main.odo.where = "gone"
+	main.ilse.where = "gone"
+	check(main._load() and main.rounds == 0 and not main.odo_hired and main.spars == 0 and not main.ilse_hired and main.lamps.count(true) == 0 and main.odo.where == "gone", "a save from before the watch and the yard loads with none of it")
+	main.SafeSave.remove(main.save_path)
+	main.no_save = true
+	main.built = keep_built
+	main.coins = keep_coins
+	main.day_t = keep_day_t
+	main.lines.clear()
+	main.me.tile = main.GATE_IN
+	main.me.pos = Vector2(main.me.tile) * main.TILE
+
+## SF2.18: no mandatory chores. Skipping a hand job never starves or stalls anyone; hand work stays the better choice.
+func _no_chores() -> void:
+	main.lines.clear()
+	main.then_do = Callable()
+	var keep_hired: bool = main.hired
+	main.hired = false
+	var h = main.heroes[0]
+	h.where = "town"
+	h.a.state = "to_counter"
+	h.tile = main.ORDER_AT
+	h.pos = Vector2(h.tile) * main.TILE
+	h.path.clear()
+	h.a.morale = 5
+	main.queue.clear()
+	main.queue.append(h)
+	h.a.waited = main.PATIENCE + 0.01
+	main.today = { "done": 3, "failed": 0, "meals": 0, "earned": 0, "unfed": 0 }
+	var c0: int = main.coins
+	main._counter(0.05)
+	check(int(h.a.morale) == 5 and main.coins == c0 + main.POT_MEAL and int(main.today.get("pot", 0)) == 1 and h.a.state == "to_rest" and main.queue.is_empty(),
+		"nobody at the counter: they help themselves from the stew pot, fed but plain (no lost spirits)")
+	check(main._judge_day() != "bad" and int(main.today.get("unfed", 0)) == 0, "a pot supper doesn't count as going hungry")
+	check(main.MEAL > main.POT_MEAL, "a meal served by hand is worth more than the pot (%d > %d coins, and +1 spirits)" % [main.MEAL, main.POT_MEAL])
+	main.hired = keep_hired
+	# the lantern round: lit from the walk, one short loop off the road
+	main.day_t = main.DAY_SECONDS * 0.7
+	var keep_odo: bool = main.odo_hired
+	main.odo_hired = false
+	main.lamps = [false, false, false, false]
+	var loop := [main.READ_AT, Vector2i(5, 9), Vector2i(28, 5), Vector2i(37, 9), Vector2i(20, 12)]
+	var tiles := 0
+	for i in range(1, loop.size()):
+		tiles += main.route(loop[i - 1], loop[i], main.me).size()
+		main.me.tile = loop[i]
+		main._light_near()
+	var secs: float = float(tiles) / float(main.me.speed)
+	check(not main.lamps.has(false), "walking a loop past the walls at dusk lights all four lanterns, no stopping needed")
+	check(secs >= 10.0 and secs <= 20.0, "the round, from the board past all four walls, takes about 15 to 20 seconds (%.1f s)" % secs)
+	main.lamps = [false, false, false, false]
+	main.me.tile = Vector2i(14, 9)
+	main._light_near()
+	check(not main.lamps.has(true), "the square itself is out of reach of the wall lanterns: it's still a round you choose to walk")
+	main.day_t = main.DAY_SECONDS * 0.2
+	main.me.tile = Vector2i(5, 9)
+	main._light_near()
+	check(not main.lamps[0], "in daylight walking past doesn't light them")
+	main.odo_hired = keep_odo
+	main.lamps = [false, false, false, false]
+	# sparring past full spirits becomes practice; by hand beats Ilse
+	h.a.state = "town"
+	h.a.morale = 10
+	var keep_lvl = h.a.lvl
+	var keep_xp = h.a.xp
+	h.a.lvl = 9                                  # far from the next level, so the practice shows as plain xp
+	h.a.xp = 0
+	main.spar = { "h": h }
+	main.finish_spar((main.SPAR_BAND.x + main.SPAR_BAND.y) / 2.0)
+	var got_clean := int(h.a.xp)
+	check(int(h.a.morale) == 10 and got_clean == 2 * main.SPAR_XP, "a clean bout at full spirits gives practice instead (%d xp)" % got_clean)
+	h.a.morale = 10
+	h.a.xp = 0
+	var keep_ilse: bool = main.ilse_hired
+	main.ilse_hired = true
+	main.coins += main.ILSE_WAGE
+	for o in main.heroes:
+		if o != h:
+			o.a.morale = 10
+			o.a.sparred = main.day
+	h.a.sparred = -1
+	main._yard_morning()
+	var got_ilse := int(h.a.xp)
+	h.a.lvl = keep_lvl
+	h.a.xp = keep_xp
+	check(got_ilse == main.SPAR_XP and got_clean > got_ilse, "Ilse's drill at full spirits gives practice too, less than a bout by hand (%d < %d)" % [got_ilse, got_clean])
+	main.ilse_hired = keep_ilse
+	# the board: standing in front of it no longer blocks anyone
+	main.me.tile = main.READ_AT
+	main.me.pos = Vector2(main.READ_AT) * main.TILE
+	main.me.path.clear()
+	main.walk_to.clear()
+	var r = main.heroes[1]
+	r.where = "town"
+	r.a.state = "to_board"
+	r.a.job = main.JOBS[0].id
+	r.a.timer = 0.0
+	r.a.hp = r.a.max
+	r.tile = Vector2i(14, 9)
+	r.pos = Vector2(r.tile) * main.TILE
+	r.path.clear()
+	main.send(r, main.read_spot(r))
+	var read := false
+	for i in 300:
+		main._process(0.05)
+		main.me.tile = main.READ_AT
+		main.me.pos = Vector2(main.READ_AT) * main.TILE
+		if r.a.state in ["leaving", "to_apoth"]:
+			read = true
+			break
+	check(read and main.READ_AT != r.tile, "with you standing in front of the board, an adventurer reads it from beside you and takes the job")
+
+## SF2.20: a quiet tavern still gets its barkeep: Tamsin also asks after three evenings you kept the tap yourself.
+func _tamsin_kept() -> void:
+	var keep := [main.pours, main.kept, main.tamsin.where, main.tamsin.tile, main.tamsin_hired, main.today.duplicate()]
+	var keep_built: Dictionary = main.built.duplicate(true)
+	main.built["east"] = { "what": "tavern", "left": 0.0 }
+	main.tamsin.where = "gone"
+	main.tamsin_hired = false
+	main.pours = 3                                      # only three drinks ever poured: under POUR_AFTER
+	main.kept = 0
+	for n in main.KEPT_AFTER:
+		main.today = { "done": 0, "failed": 0, "meals": 0, "earned": 0, "drinks": 1, "kept": true }
+		main._tavern_evening()
+		if n < main.KEPT_AFTER - 1:
+			check(main.tamsin.where == "gone", "Tamsin isn't here yet after %d evening(s) kept" % (n + 1))
+	check(main.tamsin.where == "town" and main.pours < main.POUR_AFTER, "after three evenings you kept the tap yourself, Tamsin walks in, even with few drinks poured")
+	main.tamsin.where = "gone"
+	main.kept = 0
+	main.today = { "done": 0, "failed": 0, "meals": 0, "earned": 0, "drinks": 2 }
+	main._tavern_evening()
+	check(main.kept == 0, "an evening Tamsin or nobody poured doesn't count: you master it first")
+	main.no_save = false
+	main.save_path = "user://test_tamsin.json"
+	main.kept = 2
+	main.save_game()
+	main.kept = 0
+	check(main._load() and main.kept == 2, "evenings kept are saved and load back")
+	var d: Dictionary = main.SafeSave.read(main.save_path)
+	d.tavern.erase("kept")
+	main.SafeSave.write(main.save_path, d)
+	main.kept = 5
+	check(main._load() and main.kept == 0, "a save from before SF2.20 loads with no evenings kept")
+	main.SafeSave.remove(main.save_path)
+	main.no_save = true
+	main.pours = keep[0]
+	main.kept = keep[1]
+	main.tamsin.where = keep[2]
+	main.tamsin.tile = keep[3]
+	main.tamsin_hired = keep[4]
+	main.today = keep[5]
+	main.built = keep_built
+
+## SF2.6c: the fresh opening fits both landmarks; existing towns keep their saved position.
+func _opening_view() -> void:
+	check(main.me.tile == Vector2i(15, 5) and main.walkable(main.me.tile, main.me), "the new guildmaster starts on open ground beside the hall")
+	var half := Vector2(192, 108)
+	var center: Vector2 = main.me.pos + Vector2(8, 8)
+	center.y = clampf(center.y, main.cam.limit_top + half.y, main.cam.limit_bottom - half.y)
+	var visible := Rect2(center - half, half * 2)
+	var hall := Rect2(Vector2(main.HALL_DOOR.x - 3, main.HALL_DOOR.y - 4) * main.TILE, main.F_HALL[0].get_size())
+	var inn := Rect2(Vector2(main.INN_DOOR.x - 2, main.INN_DOOR.y - 4) * main.TILE, main.F_INN[0].get_size())
+	check(visible.encloses(hall) and visible.encloses(inn), "both complete landmark textures fit in the opening camera")
+	check(hall.position.y - visible.position.y >= 28 and inn.position.y - visible.position.y >= 28, "roofs leave room for status and SF2.10's goal line")
+	for target in [main.READ_AT, main.SERVE_AT, main.HALL_DOOR + Vector2i.DOWN, main.INN_STEP, main.GATE]:
+		check(not main.route(main.me.tile, target, main.me).is_empty(), "the opening reaches service/door %s" % target)
+	for name in ["house", "nature", "floor"]:
+		check(not FileAccess.file_exists("res://assets/env/%s.png" % name) and not FileAccess.file_exists("res://assets/env/%s.png.import" % name), "unused %s tile and import are removed" % name)
+
+func _display_scaling() -> void:
+	var mobile := OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios")
+	var expected := Window.CONTENT_SCALE_STRETCH_FRACTIONAL if mobile else Window.CONTENT_SCALE_STRETCH_INTEGER
+	check(root.content_scale_stretch == expected, "mobile aspect-fit / desktop integer scaling follows the host platform")
+	check(root.content_scale_size == Vector2i(384, 216), "scaling keeps the same 384 by 216 view")
+	check(root.content_scale_aspect == Window.CONTENT_SCALE_ASPECT_KEEP, "scaling keeps proportions and letterboxes only the excess aspect")
+	check(root.content_scale_mode == Window.CONTENT_SCALE_MODE_CANVAS_ITEMS, "scaling keeps canvas-item rendering")
+	check(main.cam.zoom == Vector2.ONE, "display scaling does not zoom the world camera")
+	check(ProjectSettings.get_setting("rendering/textures/canvas_textures/default_texture_filter") == 0, "scaling preserves nearest-neighbour pixel art")

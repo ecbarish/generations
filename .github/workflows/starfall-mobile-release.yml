@@ -1,0 +1,100 @@
+name: Starfall mobile exact-pack release
+on:
+  pull_request:
+    paths:
+      - 'play/starfall/**'
+      - 'starfall-godot/**'
+      - 'tools/starfall-mobile-fit-checks.cjs'
+      - 'tools/starfall-preview-manifest.py'
+      - 'tools/starfall-preview-fixtures.gd'
+      - '.github/workflows/starfall-mobile-release.yml'
+permissions:
+  contents: read
+concurrency:
+  group: starfall-mobile-release-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  committed-pack-review:
+    # Release-PR verification only: no re-export, preview mutation or deployment.
+    if: github.event.pull_request.number == 222 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/starfall-mobile-preview'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SOURCE_COMMIT: 1a37f695fa6f271da74cb983e909f5968501d032
+      SOURCE_TREE: cb5e9d7955b9d535f386cad988065d9777b7a07f
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+      BASE_SHA: 1a37f695fa6f271da74cb983e909f5968501d032
+      LEGACY_SHA: fa44b3ace8aa151ff264af679b3d739342b25a34
+      REVIEWED_PACK_SHA256: 30e2e6382740bcddc783f73aa7831138bf5aa638c4e6bc3792b8225172c6b8b8
+      REVIEWED_PACK_BYTES: '3194852'
+      BEFORE_PACK: release-review/before.pck
+      AFTER_PACK: play/starfall/index.pck
+      MOBILE_FIT_OUTPUT: release-review
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Verify committed reviewed bytes and retain the actual previous shipped pack
+        run: |
+          set -euo pipefail
+          mkdir -p release-review/screens
+          git ls-files -z play/starfall/ | xargs -0 sha256sum > release-review/preview-before.sha256
+          git rev-parse HEAD | tee release-review/release-sha.txt
+          printf '%s\n' "$SOURCE_COMMIT" > release-review/source-sha.txt
+          git fetch --depth=1 origin "$SOURCE_COMMIT"
+          test "$(git rev-parse "$SOURCE_COMMIT:starfall-godot")" = "$SOURCE_TREE"
+          test "$(git rev-parse HEAD:starfall-godot)" = "$SOURCE_TREE"
+          git diff --exit-code "$SOURCE_COMMIT" HEAD -- tools/starfall-mobile-fit-checks.cjs tools/starfall-preview-manifest.py tools/starfall-preview-fixtures.gd
+          printf '%s  %s\n' "$REVIEWED_PACK_SHA256" "$AFTER_PACK" | sha256sum --check
+          test "$(stat -c %s "$AFTER_PACK")" = "$REVIEWED_PACK_BYTES"
+          python3 tools/starfall-preview-manifest.py verify --source "$SOURCE_COMMIT"
+          cp play/starfall/build.json release-review/build.json
+          cp play/starfall/index.html release-review/index.html
+          # The previous manifest predates its actual pack; the immutable Git blob is authoritative.
+          git show "$SOURCE_COMMIT:play/starfall/index.pck" > "$BEFORE_PACK"
+          git rev-parse "$SOURCE_COMMIT:play/starfall/index.pck" > release-review/before-blob.txt
+          test "$(git hash-object "$BEFORE_PACK")" = "$(cat release-review/before-blob.txt)"
+          sha256sum "$BEFORE_PACK" "$AFTER_PACK" > release-review/packs.sha256
+          wc -c "$BEFORE_PACK" "$AFTER_PACK" > release-review/pack-sizes.txt
+          git diff --exit-code -- play/starfall/
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install official legacy-save writer and Chromium
+        run: |
+          set -euo pipefail
+          curl --fail --retry 2 --connect-timeout 15 --max-time 120 -sSLo "$RUNNER_TEMP/godot.zip" https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
+          npm install --no-save --no-package-lock playwright@1.56.1 pngjs@7.0.0
+          npx playwright install --with-deps chromium
+      - name: Generate legacy town in isolated previous-source checkout
+        run: |
+          set -euo pipefail
+          "$GODOT" --version | tee release-review/engine.txt
+          printf '%s\n' "$LEGACY_SHA" > release-review/legacy-source-sha.txt
+          git fetch --depth=1 origin "$LEGACY_SHA"
+          git worktree add --detach "$RUNNER_TEMP/starfall-mobile-release-legacy" "$LEGACY_SHA"
+          cp tools/starfall-preview-fixtures.gd "$RUNNER_TEMP/starfall-mobile-release-legacy/starfall-godot/tests/preview-fixtures.gd"
+          timeout 180 "$GODOT" --headless --path "$RUNNER_TEMP/starfall-mobile-release-legacy/starfall-godot" --editor --import --quit |& tee release-review/legacy-import.log
+          FIXTURE_OUTPUT="$PWD/release-review/legacy.json" timeout 60 "$GODOT" --headless --path "$RUNNER_TEMP/starfall-mobile-release-legacy/starfall-godot" --script res://tests/preview-fixtures.gd |& tee release-review/legacy-fixture.log
+      - name: Exercise exact committed pack across phone, desktop, rotation, touch and saves
+        run: |
+          set -euo pipefail
+          node --check tools/starfall-mobile-fit-checks.cjs
+          node tools/starfall-mobile-fit-checks.cjs --self-test
+          timeout --signal=TERM --kill-after=15s 18m node tools/starfall-mobile-fit-checks.cjs |& tee release-review/runtime.log
+      - name: Prove all committed preview bytes remain unchanged
+        if: always()
+        run: |
+          set -euo pipefail
+          sha256sum --check release-review/preview-before.sha256
+          sha256sum --check release-review/packs.sha256
+          git diff --exit-code -- play/starfall/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: starfall-mobile-release-review
+          path: release-review/
+          if-no-files-found: error

@@ -90,16 +90,16 @@ function updateWorld(){
     el.title=`${a.name}${a.talent?' (talent)':` (level ${a.lvl})`}: ${a.desc}`;});
   // mode
   $('#mFocus').classList.toggle('on',h.mode==='focus');$('#mAuto').classList.toggle('on',h.mode==='auto');
-  const eff=Math.round(aiEff()*100);
-  $('#modeHint').innerHTML=RTALK?'Take your time. Continue when you are ready.':h.mode==='focus'&&!h.stats.kills?'Your first fight is yours. Try a lit ability.':h.mode==='auto'?`Auto plays at ${eff}% and skips openings. No Engaged bonus.`:
-    (aiOn()?`Autopilot is covering for you (${eff}%). Press any ability to take over.`:(engaged()?`<span class="engaged">Engaged: +10% XP.</span> Press 1–${bar().length} or click.`:`Press 1–${bar().length} to stay Engaged (+10% XP).`));
+  const eff=Math.round(aiEff()*100),wait=combatWaiting(),fb=$('#fightBtn');fb.hidden=!wait;fb.textContent=C.fightT>0?'Continue fight':'Fight';
+  const auto=$('#mAuto');auto.disabled=!autoAllowed();auto.hidden=!autoAllowed();auto.title=autoAllowed()?'Earned help on this out-levelled road.':'Earn the Rotation Macro (500 ability presses), then return above this road’s level range.';
+  $('#modeHint').textContent=RTALK?'Take your time. Continue when you are ready.':townActive()&&h.mode==='focus'?'Take your time in town. Walk to someone and press Enter to talk.':aiOn()?'Auto helps on this out-levelled road at '+eff+'%. New roads and dungeons are yours to play.':wait?'Fight waits for you. Choose Fight or an ability; ten seconds without combat input pauses it.':'Use an ability to keep fighting. Focus pauses when you stop; it never takes over.';
   // xp
   const need=xpNeed(h.lvl);$('#xpI').style.width=(h.lvl>=LEVEL_CAP?100:h.xp/need*100)+'%';
   const xl=h.lvl>=LEVEL_CAP?100:h.xp/need*100;$('#xpR').style.left=xl+'%';$('#xpR').style.width=(h.lvl>=LEVEL_CAP?0:Math.min(100-xl,h.rested/need*100))+'%';
   $('#xpT').textContent=h.lvl>=LEVEL_CAP?`Level ${h.lvl} · cap for this version`:`XP ${fmtI(h.xp)} / ${fmtI(need)}${h.rested>0?` · Rested ${fmtI(h.rested)}`:''}`;
   // status + err
   const am=activeMount();
-  const st={seek:d?`Moving deeper into ${dungeonDef().name}…`:am?`Riding ${am.name} to find ${targetMob().name}…`:`Looking for ${targetMob().name}…`,fight:m?(C.surge?`${m.name} is casting ${dungeonDef().surgeName}! Press D to dodge!`:`Fighting ${m.name}`):'',
+  const st={seek:d?`Moving deeper into ${dungeonDef().name}…`:am?`Riding ${am.name} to find ${targetMob().name}…`:`Looking for ${targetMob().name}…`,fight:m?(combatWaiting()?`Waiting for your order · ${m.name}`:C.surge?`${m.name} is casting ${dungeonDef().surgeName}! Press D to dodge!`:`Fighting ${m.name}`):'',
     loot:C.loot&&C.loot.dun?'Boss loot: take it, or give it to a companion':'Loot the corpse (L) before it decays',rest:d||C.party.length?'The party catches its breath…':'Resting…',dead:`You are dead. Running back to your corpse: ${Math.ceil(C.t)}s`,town:`Travelling to ${hubName()}: ${Math.ceil(C.t)}s`,intown:`In town at ${hubName()}. Visit the Inn to rest or the Smithy to sell and repair.`}[C.phase]||'';
   $('#status').textContent=RTALK&&RTALK.townService?'':st;$('#err').textContent=C.errT>0?C.err:'';
   // loot window
@@ -109,7 +109,7 @@ function updateWorld(){
   // log
   const lg=C.lines.slice(-7).map(l=>`<div class="${l.cls}">${l.txt}</div>`).join('');const le=$('#log');if(le.dataset.h!==lg){le.innerHTML=lg;le.dataset.h=lg;}
   // badges
-  const ready=h.quests.active.some(id=>qState(ALLQ[id])==='ready');const qb=$('#qBadge');qb.hidden=!ready&&h.quests.active.length>0;qb.textContent=ready?'?':'!';
+  const ready=h.quests.active.some(id=>qState(ALLQ[id])==='ready');const qb=$('#qBadge');qb.hidden=!ready&&h.quests.active.length>0;qb.textContent=ready?'?':'!';const carried=document.getElementById('fieldQuestReady');if(carried)carried.hidden=!ready;
   const ups=h.bags.filter(it=>canEquip(it)&&score(it)>score(h.gear[it.slot])).length;const bb=$('#bBadge');bb.hidden=!ups;bb.textContent=ups;
   const tp=h.lvl>=10?talentPoints():0;const tb=$('#tBadge');tb.hidden=!tp;tb.textContent=tp;
   $('#aBadge').hidden=h.seenAddons!==false;
@@ -171,7 +171,5 @@ function lfgHTML(){const h=H(),def=dungeonDef(LFG.id),record=dungeonStats(LFG.id
   <h4>Difficulty</h4><div class="mfoot" style="justify-content:flex-start;margin-top:0">${tiers.map(t=>`<button class="btn sm ${LFG.tier===t?'':'alt'}" data-act="lfgtier" data-arg="${t}">${t?'Heroic '+t:'Normal'}</button>`).join('')}</div>
   <p class="meta">${LFG.tier?`Enemies are ${Math.round((tierMult(LFG.tier)-1)*100)}% tougher, loot is ${LFG.tier*2} item levels higher, and ${LFG.tier>=4?'two random modifiers apply':'one random modifier applies'} (${Object.values(DUN_MODS).map(m=>m.name).join(', ')}).`:'The first clear unlocks Heroic 1.'}</p>
   <div class="mfoot"><button class="btn alt" data-act="close">Not now</button><button class="btn" data-act="lfgenter" ${sel.length===4?'':'disabled'}>Enter dungeon</button></div>`;}
-function offlineHTML(r){return `<h2>Welcome back</h2><p class="sub">You were away for ${fmtTime(r.sec)}. Your hero rested at the inn and kept hunting while you were gone, at half pace.</p>
-  <div class="stats" style="margin:10px 0"><div><span class="meta">Monsters slain</span><b>${fmtI(r.kills)}</b></div><div><span class="meta">Experience</span><b>${fmtI(r.xp)}</b></div><div><span class="meta">Money</span><b>${moneyStr(r.money)}</b></div><div><span class="meta">Rested XP gained</span><b>${fmtI(r.rested)}</b></div>${r.levels?`<div><span class="meta">Levels gained</span><b>${r.levels}</b></div>`:''}</div>
-  <p class="meta">Rested experience doubles the XP from kills until it runs out. Loot and quests wait for you.</p><div class="mfoot"><button class="btn" data-act="close">Continue</button></div>`;}
-
+function offlineHTML(r){return `<h2>Welcome back</h2><p class="sub">You were away for ${fmtTime(r.sec)}. Your hero rested at the inn. The road waits for you.</p>
+  <p class="meta">Rested experience gained: ${fmtI(r.rested)}. This doubles experience from your next kills until it runs out; no battles, loot or quests happened while you were away.</p><div class="mfoot"><button class="btn" data-act="close">Continue</button></div>`;}

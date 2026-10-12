@@ -1,5 +1,7 @@
 # START HERE
 
+**Control Tower reporting (Adam, 2026-10-12):** update the fenced `json` block with a top-level `tower` object in your task's PR description when claiming work, changing status, handing off, becoming blocked, submitting for review, merging or publishing. Use the format in [docs/COMMS.md](docs/COMMS.md) (TOWER-COMMS, 2026-10-12) and the PR template. Report your actual AI/thread, operator, project/lane, task ID, owned paths, dependencies, blocker/next action, check evidence and release details; leave unknown values null. Never infer AI identity from a shared GitHub account, or equate merged with published. At session start, reconcile your open PR metadata even if you missed COMMS. [Control Tower](https://idle-arcade-tower.abarish227759.chatgpt.site) is Adam's private viewer; the reporting format is in the repository.
+
 **For Evan:** when one assistant runs out of usage, open any other one (Claude, ChatGPT/Codex, another AI or a
 person) and paste the prompt in the box below. Everything it needs is in this file and the files it links.
 **For any assistant:** read this file top to bottom before doing anything. It is the single source of "where we are
@@ -65,21 +67,18 @@ and "Up next". Ask me only about the "Questions for Evan".
   catalogue and evolution, depth and first person one day (the fading took depth as well as colour). Ledger:
   `docs/lore/wildbond-threads.md`.
 
-## Up next (take the first one that isn't claimed; mark it "claimed by <who>, <date>" when you start)
+## Up next (refreshed 2026-10-11; the live lists are in QUEUE.md)
 
-**Focus first: [docs/PRIORITIES.md](docs/PRIORITIES.md)** (2026-10-09) says which games are being built now
-(flagship Wildbond in Godot, second the Starfall village, ChatGPT's own Realmbound) and the order inside each.
-**The lanes in [docs/QUEUE.md](docs/QUEUE.md) are what to do next** (its "current goal" was rewritten 2026-10-08). **When a lane runs
-out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) supplies the next task**: the whole path for every game,
-67 deliverables with owners, no assistant is ever "finished".
+**How to work:** [docs/PROCESS.md](docs/PROCESS.md): pick, claim with a draft PR, build, self-check, merge. Any AI may do
+any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (Godot builds) and "The road ahead"
+(browser), in [docs/PRIORITIES.md](docs/PRIORITIES.md) order; past the end, PROCESS.md "When you get ahead of the road".
 
-- **Claude (Lane B):** review and merge ChatGPT's PRs first. Then, in order: WG1 tamer abilities with heritages; WG6
-  depth step 1 (ground heights, footprints, and the fix for the colour layer drawing you over people in front of you);
-  WG7 the variety pass (animated water, interiors, battle effects, sounds, edge tiles); WG2 the areas after Stillreed (Stillreed done 2026-10-09: Hollow Echo next, see DEVELOPMENT-PATH WB3.2) and the
-  rest; SV1 Starfall members' stories; SV3 failing and excelling. After big steps, re-export `play/` and
-  refresh the Come Play pictures.
-- **ChatGPT (Lane A):** T41 Realmbound part 2 (pages become places); T42 Otherworld memories that matter (toward a systemic world); T43 the catalogue reaches Realmbound; T44 accessibility. (Done 2026-10-08: T36 Diamond Career in the game window; T37 catalogue batch 2; T38
-  Realmbound in the game window; T39 Hearthmere; T40 Wildbond clues for areas 5-8; the Ashen Throne.)
+- **First, the two playtest pass 2 blockers:** Starfall's goal line and controls (SF2.10, H1) and Wildbond's keys in
+  game (WB-KEYS, H2).
+- **Waiting to merge (check them, self-check, merge):** Diamond Manager v0.5.0 (#175), Ember Bricks (#185). Drafts in
+  progress: #176, #180, #183, #187.
+- **Claude threads:** the Wildbond builder keeps the ending's rest (WB4.3) and the creature drawing (WD2); everyone
+  else reviews merged work and keeps these lists current.
 - **Anyone:** bugs from friends first (GitHub issues, or Evan's messages).
 
 ## Questions for Evan (work continues on the defaults until he answers)
@@ -105,14 +104,65 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
-
+- 2026-10-12 dot engineering task (Adam): authorized ownership handoff for AC3.1 draft #180, fixture repair and current-main reconciliation; full browser checks and visual QA in progress. No merge or publication.
 - 2026-10-11 — Codex (Adam): AC3.1 built in draft [PR #180](https://github.com/ecbarish/idle-arcade/pull/180): Brisket recovery/release gate, ready keyboard launch, larger mule. Model checks pass; browser CI and visual review pending because local Chromium is unavailable. Capture script and review limits in docs/playtests/brisket-ac3-1/. No merge.
+- 2026-10-12 Codex (Adam / abarish-dev): Starfall mobile fit is live: source #221 (`1a37f695`), exact preview #222 (`95b1655`). All 19 suites, 1,429 exact-pack browser checks / 136 captures, Pages and public manifest/four-file hashes pass; [verified release and COMMS handoff](docs/research/starfall-preview-mobile-fit.md).
+- 2026-10-12 Codex (Adam / abarish-dev): Adam approved publishing mobile fit; source [#221](https://github.com/ecbarish/idle-arcade/pull/221) merged as `1a37f695`. Exact tested pack staged in [#222](https://github.com/ecbarish/idle-arcade/pull/222), with committed-byte browser checks and Pages/live hashes as release gates; [record](docs/research/starfall-preview-mobile-fit.md).
+
+- 2026-10-12 Codex (Adam): TOWER-COMMS #223 requests shared task reporting for the separate read-only AI Control Tower Site; no game or save changes.
+- 2026-10-12 Codex (Adam / abarish-dev): SF-MOBILE-FIT in draft [#221](https://github.com/ecbarish/idle-arcade/pull/221): phones use fractional aspect-fit, desktop keeps integer pixels; camera and saves unchanged. 1,406 exported-browser checks / 136 captures and all 19 suites pass; [evidence](docs/screenshots/starfall-mobile-fit/README.md). Final-head checks gate review; not merged or published.
+- 2026-10-12 Claude (sports thread): Diamond Manager v0.8.1: balls in play keep a watchable pace at Fast and Very fast, infielders react, first baseman covers, batter runs it out (Evan saw only strikeouts at speed).
+- 2026-10-12 Claude (Priorities and direction): long runway: QUEUE "The direction" section, Heavy lifting H1-H20, road 16 rows (LB2+ unparked, AC5/AC6 added), WD3 ticked.
+
+- **2026-10-12, Codex:** RB1.11 in PR #218, stacked after #214: active encounters, no idle fallback, earned easy-road Auto, rested time away and safe old-save reload. First-hour/human enjoyment validation remains separate; raids parked.
+
+- **2026-10-11, Codex:** Evan deferred another Realmbound raid for player validation; #213 released/closed. RB-PLAY1 in PR #214 audits the first quest and fixes Focus town ownership, travel restrictions and visible return guidance. Human fun/first-party validation remains; no endgame content built.
+- 2026-10-12 Claude (Priorities and direction): Evan's two changes: Realmbound early game first (RB1.10-RB1.12, end-game parked) and "Play, not watch" in GOALS.md (less automatic play, no full Auto; tasks RB1.11, AR2.14).
+- 2026-10-11 Claude (Wildbond builder): creature catalogue and pipeline for Evan: docs/wildbond-creatures.md (target ~150, tiers with six showpiece lines, world-fit rules after Cobblemon, a step-by-step for adding a creature, tasks CR1-CR8 in DEVELOPMENT-PATH WB-C) and a generated list, docs/wildbond-creatures/catalog.md.
+- 2026-10-11 Claude (Wildbond builder): WB-KEYS (QUEUE H2, the playtest pass 2 blocker): Wildbond shows its keys in the world the first times they matter (arrows over your head, the Talk key and word beside you, J beside the bag); gamepad buttons on a gamepad; nothing extra on a phone. Checks and screenshots in docs/screenshots/wildbond-keys/.
+
+- 2026-10-11 Claude (Continue Idle Arcade games thread): SF2.10 / H1, Starfall's goal line and on-screen controls (the playtest pass 2 blocker); 230 checks; play/starfall/ pack rebuilt so the Playtester can re-score.
+- 2026-10-11 Claude (ideas thread): Evan says Little Ranch is a big hit with his daughter. docs/proposals/little-ranch-next.md: new toddler toys as places inside Little Ranch (Little Wagon 17, Snack Kitchen 17, Paint Shed 16) and LR3-LR8 for the ranch. No builds; PRIORITIES places them.
+- 2026-10-11 Grok (Adam / abarish-dev, guest): LR15 Little Ranch grown-up panel cleanup and app mode (#215, v0.5.0). Little Ranch checks 96/96; the tick, changelog and this line are in the PR itself. The Android wrapper that uses app mode stays outside the repo.
+- 2026-10-11 Grok (Adam / abarish-dev, guest): LR14 Little Ranch moon's song (#212, v0.4.0). Three taps on the moon at night play Twinkle Twinkle Little Star while the baby sleeps. Little Ranch checks 79/79; the tick, changelog and this line are in the PR itself.
+- 2026-10-11 Grok (Adam / abarish-dev, guest): LR13 Little Ranch sun surprise (#211, v0.3.0). Five taps on the sun in the daytime bring a rainbow and a cheering baby. Little Ranch checks 66/66; the tick, changelog and this line are in the PR itself.
+- 2026-10-11 Grok (Adam / abarish-dev, guest): LR12 Little Ranch wake-up taps (#210, v0.2.0). Six taps on the sleeping baby wake it for a fresh day. Little Ranch checks 57/57; the tick, changelog and this line are in the PR itself.
+- 2026-10-11 Codex (Adam / abarish-dev): Adam approved publication; SF2.6c #200 merged as `0af5b92`, after preserving current-main website/Little Ranch notes and rechecking all 18 suites. Exact-source preview #206 passes 54 browser checks and 17 captures; downloaded bytes independently hash/blob verified. Final read-only committed-pack check and Pages/live hashes gate publication; [release record](docs/research/starfall-preview-opening.md). #195 remains separate.
+
+- 2026-10-11 Codex (Adam / abarish-dev): SF2.6c in [PR #200](https://github.com/ecbarish/idle-arcade/pull/200): fresh opening shows the complete Guild Hall and inn, old positions/progress preserved, three unused environment tiles removed. All 18 CI suites pass (Starfall 227/0), plus 32 nonblank rendered captures at four sizes and 501 construction states; final evidence-only head will be rechecked. [Evidence](docs/screenshots/starfall-opening-view/README.md). Not merged or exported.
+
+- 2026-10-11 Claude (website thread): arcade v1.6.0, AR2.14. Classic editions in their own section with ribbons; guides labelled by edition; site and guide refreshes tied to milestones (docs/SITE-AND-GUIDES.md); hall upgrade ticket AR2.13 on the QUEUE road (#13).
+- 2026-10-11 Claude (ideas thread): Evan says Little Ranch is a big hit with his daughter. docs/proposals/little-ranch-next.md: new toddler toys as places inside Little Ranch (Little Wagon 17, Snack Kitchen 17, Paint Shed 16) and LR3-LR8 for the ranch. No builds; PRIORITIES places them.
+- **2026-10-11, Codex:** DM7 records/history in PR #209 after #208/#207/#196: actual club stints, league awards and Trophy Case; old history preserved without invented awards. 93 Diamond Manager checks and four-size browser/reload evidence.
+
+- **2026-10-11, Codex:** DM-B2 six-season league/market balance in PR #208, stacked after #207 and #196. Reproducible 12-seed before/after report in docs/diamond-manager-balance.md; no versions, Godot or shared office changes.
+
+- **2026-10-11, Codex:** DM4 player morale and named Iona stories in PR #207, stacked after coaches #196. Playing time, results, contracts, optional deals/trades and recovery; 78 Diamond Manager checks and four-size UI/reload evidence. No version or Godot changes.
+
+- **2026-10-11, Codex:** DM3 coach hiring/development in PR #196: two roles, six winter candidates, seasonal cash salaries and exact visible player gains; old saves and phone/laptop/desktop/ultrawide flows checked. No versions, Godot or other games changed.
+- 2026-10-11 Codex (Adam / abarish-dev): SF2.6c in [PR #200](https://github.com/ecbarish/idle-arcade/pull/200): fresh opening shows the complete Guild Hall and inn, old positions/progress preserved, three unused environment tiles removed. All 18 CI suites pass (Starfall 227/0), plus 32 nonblank rendered captures at four sizes and 501 construction states; final evidence-only head will be rechecked. [Evidence](docs/screenshots/starfall-opening-view/README.md). Not merged or exported.
+
+- 2026-10-11 Claude (website thread): arcade v1.6.0, AR2.14. Classic editions in their own section with ribbons; guides labelled by edition; site and guide refreshes tied to milestones (docs/SITE-AND-GUIDES.md); hall upgrade ticket AR2.13 on the QUEUE road (#13).
+
+- 2026-10-11 Claude (Priorities and direction): docs/GOALS.md, short, medium and long-term goals for the arcade and each game (Evan asked). Wildbond's long term: the creature game people wish Pokémon was, six pillars drawn from the best fan games (Radical Red, Reborn, Cassette Beasts, Temtem, Coromon, Infinite Fusion, Insurgence) plus our own idea, the bond as the game.
+- 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request ("do your suggestions"), merged SF2.18 no mandatory chores (#187, `a0e4787`) and SF2.20 Tamsin easier to reach (#190, `fa44b3a`). Adam dropped SF2.19 (extra board pins measured worse; #189 closed). The pacing re-measure is in docs/measurements/starfall-day-pacing.md. Then rebuilt play/starfall/ from `fa44b3a` (pack only, 3,252,424 bytes) in the PR that carries this line.
+- 2026-10-11 Claude (Priorities and direction): refreshed the shared docs after Evan heard they were stale. QUEUE's Heavy lifting (12 builds) and road ahead (12 tasks) rebuilt from what is really open; 11 merged path lines ticked; new WB-KEYS, LR3, AC-x; PRIORITIES section 4 and this Up next rewritten.
+- 2026-10-11 Grok (Adam / abarish-dev, guest): COMMS catch-up only. Ember Bricks is claimed in ready #185 (not free, not merged; hub stays v1.5.1; #180 untouched). #177 merged (`480dfc4`); its preview is draft #183. #181 and #182 are merged.
+- 2026-10-11 — Grok (Adam / abarish-dev, guest): claimed AC3 Ember Bricks on `guest/ember-bricks`. The Breakout-shaped cabinet only. Brisket's Crossing stays merged. No hub bump.
+
+- 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request, Starfall planning docs (#181): the darkness proposal updated with Adam's decision (one visible creature, at most one incident a night), the progression audit with his priority order, tickets SF2.9 to SF2.17 in DEVELOPMENT-PATH, and the SF2.17 day-pacing measurement (docs/measurements/starfall-day-pacing.md; no game numbers changed).
+- 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request merged SF2.8 "Something by hand every day" (#179, `76f73aa`: lantern round then Odo, sparring then Ilse; Starfall Godot 199/0, all 17 suites pass), then rebuilt play/starfall/ from `76f73aa` (pack only, 3,251,192 bytes) in the PR that carries this line.
+- 2026-10-11 — Grok (Adam / abarish-dev, guest): at Adam's request merged #160 (AC3 Brisket's Crossing, `a7fac81`). Cabinet v0.1.0, no hub bump. Ember Bricks stays open. The hit-pause follow-up stays draft #180.
+- 2026-10-11 Codex (Adam / abarish-dev): WB-DOOR-TAP [PR #177](https://github.com/ecbarish/idle-arcade/pull/177) fixes four rejected door targets and clears Nora's entrance from the unchanged-size phone pad. All 17 suites pass (Wildbond 1503/0); 150 rendered input transitions and 256 captures pass, including visible-pad entry/exit/re-entry at four sizes. [Evidence](docs/screenshots/wildbond-door-taps/README.md). Merged as `480dfc4`; exact preview release #183 passes 353 browser checks and 119 captures, with final CI/live-hash gates before publication. No save-format changes.
 
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request built and merged SF2.7 "See the wilds sooner" (#174, `9c48e64`): a short stretch outside Starfall's west gate (trail, creek, Tull's field, North Road, waymarkers; adventurers on those jobs seen at work). Starfall Godot 167/0, all 17 suites pass. Then rebuilt play/starfall/ from `9c48e64` (pack only, 3,241,944 bytes) in the PR that carries this line.
 - 2026-10-11 Claude (Playtester thread): playtest pass 2 (docs/PLAYTEST.md). The four new games pass (Storm Front, Lighthouse Watch and Little Ranch 17, Brisket's Crossing 15, with a no-pause-after-a-hit fix wanted). The Starfall village is still below the bar (no goal line or controls). Wildbond is better (its own village, tap to walk) but still shows no keys in game.
 - 2026-10-11 Claude (Art direction thread): reviewed ART-SF-1 to 7 and SF2.6 in the game: passed (Starfall no longer looks like Larkhaven). Moved the food counter onto Starfall's palette; new tasks ART-SF-8 (dress the square) and SF2.6c (day-one view shows the hall and inn roofs; drop unused pack tiles) in DEVELOPMENT-PATH.
 - 2026-10-11 Claude (Wildbond builder thread, lane W): WB4.2 part 1, the wild bond in battle (battle.gd `can_join`/`_join`, tests/wild_bond.gd, PR #170). Then WB4.3 part 2 in the same PR: T58 placed (evidence beside Orri, Ceryn and Sivet; the reveal by Hollowecho's cave mouth; long shadows once depth returns; each Warden's after-line; tests/reveal.gd). Left for lane W: the fused form per family and the wild bond's field book page and legends (WB4.2), the partner's walk in the reveal, Maren's and Wren's tell lines.
+- 2026-10-11 Claude (sports thread): DM-G, Diamond Manager v0.5.0: pitch-by-pitch games on an animated field, pitching changes, pinch hitters and runners, box scores, a Stats page and league leaders; 49 checks.
 - 2026-10-11 Claude (sports thread): DM-T, Diamond Manager v0.4.0: trade finder (find a deal, shop a player, what would make it work), prospects tradeable; 41 checks.
+- 2026-10-11 Claude (sports thread): LB0 done: Lantern Bowl pitch with three mock screens (docs/plans/lantern-bowl.md). LB1 done too: the front office (contracts, trades, money, schedule, standings, save loading) lives in shared/sports-office.js; Diamond Manager passes all 53 checks unchanged. LB2 (one playable drive) is open for any AI.
+- 2026-10-11 Claude (sports thread): Diamond Manager v0.5.1: pitcher rest like the majors (starters every fifth day, relievers by pitch count); 53 checks. Mobile sports games researched (docs/plans/sports-management.md); new tickets DM-K key moments you call, DM-H highlights speed, DM-M traits, DM-N news. Lantern Bowl LB0-LB5 still unclaimed.
 - 2026-10-11 Claude (sports thread): DM6, Diamond Manager v0.3.0: the draft (three rounds, worst first), ceilings and growth, a six-player farm club with call-ups and send-downs; 37 checks. Next for any assistant: DM-B2 (league balance over many seasons), DM3 coaches, LB0/LB1 football.
 - 2026-10-11 Claude (sports thread): DM-B, Diamond Manager v0.2.0: managing now matters (bigger budget, standouts, league-minimum players, faster training, Iona on trades); 27 checks. Next for any assistant: DM3 coaches, LB0/LB1 football (docs/plans/sports-management.md).
 - 2026-10-10 — Codex (Adam / abarish-dev): LR2 [PR #140](https://github.com/ecbarish/idle-arcade/pull/140) repairs meals interrupted by Peekaboo and keeps the baby/toys aligned through rotation. 49 browser checks, repeated saved-sound compatibility, before/after captures and all 14 implementation suites passed; reconciled with current main and all 17 suites passed. Adam approved publication; v0.1.1 release metadata is being rechecked before the approved merge. No save changes.
@@ -602,3 +652,4 @@ out, the ticket factory in [docs/DEVELOPMENT-PATH.md](docs/DEVELOPMENT-PATH.md) 
 - 2026-10-07 Claude: T13 parts 1-3 (eras), T11b (challenge modes), T1 plan (`docs/realmbound-40-60.md`); merged T14,
   T16, T18 from ChatGPT.
 - Earlier history: README.md changelog, `docs/ROADMAP.md`, and `docs/DEVELOPMENT.md` (Codex's notes up to 2026-10-06).
+

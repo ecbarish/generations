@@ -31,7 +31,7 @@ function spawnDungeon(){
   C.mob={id:'dun'+d.step,dun:true,boss:!!e.boss,final:!!e.final,name:e.n>1?`${e.name} (${e.n})`:e.name,kind:e.kind,fam:e.fam,col:e.col,elite:!!e.boss,lvl,rar:0,traits:[],
     xpM:e.boss?6:e.n*1.2,max:Math.round(hp*tm),dmg:dmg*tm,armor:lvl*25,speed:2,swing:1.2,dots:{},chill:0,marked:0,mech:e.mech||null,
     tidal:d.mods.includes('tidal'),raging:d.mods.includes('raging'),lootN:e.loot||0};
-  C.mob.hp=C.mob.max;C.phase='fight';C.fightT=0;C.swing=.4;C.cp=0;C.win={};C.taming=null;C.surge=null;C.guardUsed=false;C.charged=false;
+  C.mob.hp=C.mob.max;C.phase='fight';C.lastInput=-99;C.fightT=0;C.swing=.4;C.cp=0;C.win={};C.taming=null;C.surge=null;C.guardUsed=false;C.charged=false;
   C.petSwing=.8;C.petCd=(petOf()&&FAMILIES[petOf().family].ab==='charge')?.5:4;
   if(C.mob.mech){C.waveT=(C.mob.mech.wave||0)*.6;C.surgeT=(C.mob.mech.surge||0)*.7;C.chillT=(C.mob.mech.chill||0)*.8;}
   C.chill=0;for(const p of C.party)p.chill=0; // Grave Chill never carries over between fights

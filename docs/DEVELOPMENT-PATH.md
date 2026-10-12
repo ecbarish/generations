@@ -73,14 +73,27 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 
 **WB-M2: who you are and where you stand.**
 - [x] WB2.1 [Claude] Tamer abilities with heritages (WG1): done 2026-10-08 (Orders menu: Rally, a family order, Toren's Steady).
+- [x] WB-KEYS [any] Show the keys in game (PLAYTEST pass 2: "Wildbond still shows no keys in game"): the first time each action matters, its key or phone-pad button appears in the world; no website needed to play. (QUEUE H2) *Done 2026-10-11 (Claude, lane W): the arrow keys float over your head until you have walked a few steps; beside anyone or anything you can use, the Talk key and its word ("E Talk", "E Feed"; A on a gamepad) sit beside you until you have used it three times; J (or Y) sits beside the bag until the field book has been opened. On a phone the pad and the Talk button already label themselves, so nothing is added. Older saves never see them. Screenshots: docs/screenshots/wildbond-keys/.*
 - [ ] WB2.2 [Claude] Depth step 1 (WG6): ground heights, object footprints and heights (part 1 done 2026-10-08: the colour layer drawn in true depth order, people in front of you faded as the world is). Part 2 done 2026-10-09: trees beside open ground stand at their true height and their crowns pass in front of you (see-through, faded like the world: shaders/canopy.gdshader), never over a sign or an item. Left: ground heights, footprints and heights on objects (houses and rocks).
 - [ ] WB2.3 [Claude] Variety pass (WG7) (done 2026-10-08: an animated effect per element in battle; waves and wind under the music. Tried the pack's water ripples: opaque tiles, rejected). Left: waterfalls, edge
   tiles.
+- [x] WB-DOOR-TAP [any] (verified: draft PR #177, Adam / abarish-dev, 2026-10-11) Fix the registered-door tap rejection reported on #137; main.gd and native input regressions, with desktop/phone entry, exit and re-entry evidence for all five Larkhaven buildings. Also clear the confirmed Nora doorway/D-pad overlap at Adam's explicit request; retain button size, actions and preferences. Keep keyboard, state restrictions, camera transforms and saves unchanged; no preview export or merge. (merged: PR #177; ticked 2026-10-11 by lane P)
 - [x] WB2.4 [Claude] Interiors: the inn, the shop and two homes in Larkhaven, walkable (inn and shop done 2026-10-08, with Old Ned and Juniper; both homes done 2026-10-10: Pip's home with Mira and Nora's cottage, Grok for Adam / abarish-dev, PR #137, H8; the pack's unused Interior tileset has furniture, floors and walls: docs/learning/assets.md).
 - [x] WB2.5 [Claude] Maren's letter and the field book's "where next" hint (WG8): done 2026-10-08.
 - [x] WB2.6 [ChatGPT] (done, merged 2026-10-09; T45) Lore: a heritage line for every Warden and townsperson in areas 1-4 (data in the browser game,
   exported to Godot), recorded in the thread ledger.
 - [x] WB2.7 [Claude] Bring T37's fourteen creatures into Godot (WG9): done 2026-10-09 (exported; all use existing body types; 107 species).
+
+**WB-C: creatures worth raising (Evan, 2026-10-11; spec: docs/wildbond-creatures.md, list: docs/wildbond-creatures/catalog.md).**
+Target about 150 species in about 70 lines; most new species are new stages of today's 74 loners; six showpiece lines.
+- [ ] CR1 [any] Sizes and tiers in the data (`size`, `tier` on every species) and creatures drawn at their size in battle and when following you (spec 4.4). Screenshots small beside huge.
+- [ ] CR2 [ChatGPT / writer] The six showpiece lines (spec 3): the three starter lines promoted, new Stone, Gale and Radiant lines, a slow growth rate, guardians raised to 560-600; pacing check (WB3.6b) holds.
+- [ ] CR3 [any, one region per PR] Grow the loners into lines: about 58 of the 74 creatures that never evolve gain a new stage before or after them, each its own creature with its own name and look (like Squirtle, Wartortle, Blastoise; not baby or adult versions, which are WB5.5), in journey order (Thornwood first).
+- [ ] CR4 [any] The evolution moment: the light, the silhouette growing, the new form at full size, someone who notices; the full version for showpieces.
+- [ ] CR5 [any] Two more branching lines with unused conditions (time of day, weather, what it ate).
+- [ ] CR6 [any] World-fit audit: every creature in solid black by shape; fix look-alikes; each region's size and shape spread (spec 4.2, 4.7).
+- [ ] CR7 [any] Rare spawns for showpieces: a hidden pocket or rare-condition spawn per region, hinted by someone there.
+- [ ] CR8 [any] New shapes: fish and a winged drake first, then rabbit-kind, beetle, owl (one per PR, screenshots).
 
 **WB-M3: the rest of the valley (areas 5-8).**
 - [ ] WB3.1 [Claude] Stillreed Basin in Godot (map, ferry, trainers, Warden), with its own furniture, sound and music. *Step 1 done 2026-10-09: the area is walkable with its wooden footbridges, trainers, Warden, river ambience and the Boat tune; step 2: the moored ferry skiff and its mooring sign (readable), the river flowing under the bridges. Step 3: its own touches: the current running down the river, cattails on the banks, windfall under the orchard, a coil of ferry rope, dragonflies. Still to do (later, with the story): a ferry ride once the rope is mended.*
@@ -119,7 +132,7 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 - [x] WD1 [Claude] **Done 2026-10-09 in PR #91** (satchel icon and Satchel page; large place names on arrival). Numbers off the screen (GR-4): remove the Badges/Lures/Coins/Wilddex line; a readable arrival name.
 - [ ] WD2 [ChatGPT data, Claude drawing] (data built: Codex, PR #113; drawing remains open) Creatures that look different (GR-1): per-species look features in data;
   parts drawn in figures.gd; 4-5 new body shapes. *Part 1 done 2026-10-09: serpent, turtle, moth and tree-folk shapes for twelve species (figures.gd `SHAPE_FOR`; a `shape` field in the data overrides it). Data half built in PR #113: all 107 browser species have shape + head/back/tail/pattern hints, including hybrids. Left: Claude draws the parts; a fish shape with WB5.7.*
-- [ ] WD3 [Claude, ChatGPT data] Battles with real choices (GR-2): about 60 moves, family signature moves, a few
+- [x] WD3 [Claude, ChatGPT data] (merged: PR #125; ticked 2026-10-12 by lane P) Battles with real choices (GR-2): about 60 moves, family signature moves, a few
   statuses, an order per Warden; tuned with WB3.6.
 - [ ] WD4 [Claude] Areas you can explore (GR-3): route, settlement and hidden pocket per area, return spots gated by
   element. **WD4a Thornwood done 2026-10-09 in PR #128:** Thornwood Trail, the preserved settlement, and Stone-gated Old Root Grove. Remaining areas stay open, one area per PR.
@@ -153,6 +166,8 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 **WB-M7 (later): first person.** WG11: a 3D view generated from the same maps (docs/proposals/depth-and-first-person.md).
 
 ### Starfall (Godot): the village
+
+- [x] SF-MOBILE-FIT [any] (merged: [PR #221](https://github.com/ecbarish/idle-arcade/pull/221), `1a37f695`, Codex for Adam / abarish-dev, 2026-10-12; final 1,429 browser checks / 136 captures and all 19 suites passed) Fix phone letterboxing with mobile fractional aspect-fit; retain desktop integer scaling, camera, controls and saves. Files: starfall-godot/ scaling/tests, scoped tools/ and CI harness, evidence/session notes. Done when rendered portrait/landscape, rotation/repeated resize, touch/text and desktop checks pass. Source merged after Adam approved publication; exact preview tracked in SF-MOBILE-PREVIEW.
 **SF-M1: the working town (done 2026-10-08).**
 - [x] Board, adventurers, the counter and Bryn, plots and Hob, healer,
 yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, detail, web preview.
@@ -184,17 +199,75 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
   hall and inn now have (Evan saw the inn's door floating above its stone base on 2026-10-11; fixed for those two in
   tools/art/starfall_hall_inn.py). Done when the opening screenshot reads lived-in, every building is still reachable, and the
   Starfall checks pass.
-- [ ] SF2.6c [any] Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
+- [x] SF2.6c [any] (merged 2026-10-11: [PR #200](https://github.com/ecbarish/idle-arcade/pull/200), Codex for Adam / abarish-dev; full roofs, 227 native checks, 32 rendered captures and 501 layout checks) Open on the town's best side: on day one the camera cuts off the Guild Hall's and the inn's roofs
   and banner, the most recognisable parts. Start the player (or the camera) so both buildings show whole. Also delete
   the unused Ninja Adventure tiles in `starfall-godot/assets/env/` (house.png, nature.png, floor.png and their .import
   files; nothing loads them) and update CREDITS.md (the pack's music and sounds stay). Done when a day-one screenshot
   shows both roofs and the checks pass.
-- [ ] MAP-AUDIT [any] (claimed: Adam / abarish-dev, 2026-10-10) Audit current Wildbond/Starfall map and interior reachability, entrance occlusion and scene furnishing; reproduce findings and file fix tickets; no game edits.
+- [x] MAP-AUDIT [any] (claimed: Adam / abarish-dev, 2026-10-10) Audit current Wildbond/Starfall map and interior reachability, entrance occlusion and scene furnishing; reproduce findings and file fix tickets; no game edits. (merged: PR #147; rendered follow-up MAP-AUDIT-150 is draft #176; ticked 2026-10-11 by lane P)
 - [x] ART-SF-6 [any] ([PR #148](https://github.com/ecbarish/idle-arcade/pull/148), Adam / abarish-dev, merged 2026-10-11) Loose props: barrel, crate, firewood, lit/unlit lantern, 2×1 cart, bunting and a 48×48 staked plot on props.png; footprint metadata and a contact scene on ART-SF-1 ground; art review before integration.
-- [ ] WB-ROOF-149 [any] (claimed: Adam / abarish-dev, 2026-10-10) Fix #149: tap routes avoid roof collision while preserving doors and NPC avoidance; wildbond-godot/scripts/main.gd and native tests; done when both witnessed taps and existing transition checks pass.
+- [x] WB-ROOF-149 [any] (claimed: Adam / abarish-dev, 2026-10-10) Fix #149: tap routes avoid roof collision while preserving doors and NPC avoidance; wildbond-godot/scripts/main.gd and native tests; done when both witnessed taps and existing transition checks pass. (merged: PR #154; ticked 2026-10-11 by lane P)
 - [x] SF2.7 [Claude] See the wilds sooner (GR-7): a small walkable stretch past the gate (an early piece of SF4.1). (claimed: Grok for Adam / abarish-dev, 2026-10-11, guest/starfall-wilds-sooner, H5 part 1) Built in #174: a 26×18 stretch west of the gate on the town's grid (x -26 to -1); SF4.1 can extend it west or add camps there. Merged 2026-10-11 (`9c48e64`); play/starfall/ rebuilt to include it.
-- [ ] SF2.8 [Claude] Something by hand every day (GR-8): the next jobs to master, then hire.
+- [x] SF2.8 [Claude] Something by hand every day (GR-8): the next jobs to master, then hire. (claimed: Grok for Adam / abarish-dev, 2026-10-11, guest/starfall-by-hand, H5 part 2) Merged 2026-10-11 ([PR #179](https://github.com/ecbarish/idle-arcade/pull/179), `76f73aa`): the gate watch (lantern round, then Odo, who walks it) and sparring at the yard (then Ilse). Darkness consequences are a separate follow-up.
 - [x] SF2.5 [Claude] Hire the apothecary's apprentice once you've brewed enough (the same "master it, then hire" rule). *Done 2026-10-09: after four batches by hand Fen walks in; six coins a day; brews whenever there are herbs and room on the shelf; leaves the pot to you if unpaid.*
+
+**SF-M2b: progression (Adam, 2026-10-11; docs/proposals/starfall-progression.md).** Rule for all of these: no
+mandatory daily chores; convenience is earned. Files for each: `starfall-godot/scripts/main.gd`,
+`starfall-godot/tests/run_tests.gd` (plus `data/stories.json` where noted); new save fields default for old saves.
+- [ ] SF2.9 [any] Darkness, step 1 (docs/proposals/starfall-darkness.md, Adam's decision): on a night with an unlit wall
+  section, sometimes (start ~1 in 3) a small creature is seen slipping in through that section to the nearest building.
+  At most one incident in the whole town per night, and each lantern protects only its own section. Next morning there's
+  a mess with tracks to the wall, a report line, and that building works a little worse until it's cleared with one E
+  press or by Odo on his round. Gone after a day; no combat. Done when: all lit means no incident; a dark section is the
+  only way in; there's never more than one a night; a hand clear and an Odo clear both work; old saves load; screenshot.
+  Score 14/21 (fun 2, Evan 2, friends 2, focus 2, cheap 2).
+- [x] SF2.10 [any] (done 2026-10-11, Claude, PR #195: goals() and control_hint() in main.gd; 230 checks) In-world goal guidance: a goal line under the status bar naming the nearest unlock with its count, in
+  the world's words ("Walk the walls 2 more nights: someone might ask to keep watch"; "4 more jobs: Starfall becomes a
+  Village"), plus a "Next" list of the three nearest unlocks (ranks, hires, plots, story beats). Done when: it always shows
+  a reachable next step, updates as counts change, works on phone width, and is checked for each kind of unlock. Fixes the
+  COMMS lane S "no goal line" note. Score 18/21 (fun 2, Evan 3, friends 3, focus 2, cheap 3).
+- [ ] SF2.11 [any] Station mastery ranks: counter, forge, pot, tap, lantern round and yard each earn named ranks at 10/25/50
+  uses. Rank 1 widens the gold band (less fiddly), rank 2 adds a technique with a choice (for example a stew that lifts
+  spirits or one that heals), and rank 3 brings a tool drawn in the world that makes one press do more. Start with the
+  counter; one station per PR is fine. Done when: ranks save, each rank visibly changes the station, and hand play stays
+  better than the hire. Score 18/21 (fun 3, Evan 3, friends 2, focus 2, cheap 2).
+- [ ] SF2.12 [any] The hire works at your rank: Bryn, Garrick, Fen, Tamsin, Odo and Ilse work at the mastery rank you
+  reached before hiring them, so mastering first makes the helper better. Done when it's checked per hire. Score 14/21
+  (fun 2, Evan 2, friends 1, focus 2, cheap 3).
+- [ ] SF2.13 [any] Trust per adventurer: +1 for each thing you do by hand for them (a meal, a pour, a piece forged, a
+  bout, a story talk), shown as marks on their card. It gates later story beats (with jobs) and gives one high-trust perk
+  (they'll take a job a step harder for you). Uses `data/stories.json`. Done when: trust saves and defaults to 0, and
+  shows; gating and the perk are checked. Score 17/21 (fun 2, Evan 3, friends 2, focus 2, cheap 3).
+- [ ] SF2.14 [any] Veteran requests: at level 5 or 10 jobs done, a few danger-5 requests on the board ask for that
+  adventurer by name and only they can take them. Each pays more and leaves a visible change in town (a trophy over the
+  hall door, a new carter route). Done when: early recruits get them, a higher-level newcomer can't take theirs, and the
+  change shows. Score 17/21 (fun 3, Evan 3, friends 1, focus 2, cheap 2).
+- [ ] SF2.15 [any] Signature moves through training and equipment: at a level, with training-yard bouts and good gear, each
+  member learns one move tied to their class and story (Aki's guard halves the hurt on a failed job; Ren's map shortens
+  trips). It's shown on their card and announced in town. Done when: each starting member has one, it's earned (not given),
+  and it's checked. Score 15/21 (fun 2, Evan 3, friends 1, focus 2, cheap 2).
+- [ ] SF2.16 [any] Recruit specialities, not bigger numbers: each job lists who suits it ("good for: archers, thieves"),
+  and suited adventurers get better odds. Newcomers and visitors arrive near your team's middle level, never above your
+  best, each bringing a trait. Done when: every class suits at least one job, favourites stay best at their own work,
+  and relationships (trust, stories) are untouched by new arrivals. Score 15/21 (fun 2, Evan 2, friends 2, focus 2,
+  cheap 3).
+- [x] SF2.17 [any] Day-pacing check: measure the 150-second day in normal play (hand jobs per day, chores vs bonuses,
+  time to each hire and rank, active vs idle income) with a scripted player; recommendations only, no numbers changed.
+  (Grok for Adam / abarish-dev, 2026-10-11: docs/measurements/starfall-day-pacing.md.) Score 14/21 (fun 2, Evan 2,
+  friends 2, focus 2, cheap 2).
+- [x] SF2.18 [any] No mandatory chores (SF2.17's findings; Adam: "Do your suggestions"): if nobody cooks, adventurers
+  help themselves from a stew pot (fed, half the coins, no lift in spirits, so cooking by hand stays better); at dusk
+  you light a wall lantern just by walking within 4 tiles (the round is a ~15 to 20 s loop off the road; Odo still walks
+  it; still optional); a bout or drill past full spirits becomes practice xp (hand > Ilse); adventurers read the board
+  from anywhere along its front, so standing there doesn't block them. Files: `starfall-godot/scripts/main.gd`,
+  `tests/run_tests.gd`. Done when: checked; pacing re-measured. (Claimed: Grok for Adam / abarish-dev,
+  guest/starfall-no-chores; merged 2026-10-11, [#187](https://github.com/ecbarish/idle-arcade/pull/187), `a0e4787`.) Score 16/21 (fun 2, Evan 2, friends 2, focus 3, cheap 3).
+- [x] SF2.19 [any] **Dropped, not built (Adam, 2026-10-11):** the pacing re-measure showed extra pins saved ~3 s a day but kept adventurers away from the tavern and smithy (Tamsin 0 of 6, Garrick 3 of 6) and lowered spirits; draft #189 closed. See docs/measurements/starfall-day-pacing.md. Was: Earned board help: more pin slots as the town grows (an earned unlock, not a purchase), shown in the
+  board view. Files: as SF2.18. Done when: the slots grow with rank, old saves load, checked, pacing re-measured. Score
+  15/21 (fun 2, Evan 2, friends 2, focus 2, cheap 3).
+- [x] SF2.20 [any] (Grok for Adam / abarish-dev; merged 2026-10-11, [#190](https://github.com/ecbarish/idle-arcade/pull/190), `fa44b3a`: Tamsin also asks after 3 evenings you kept the tap) Tamsin easier to reach: her offer comes from tavern evenings you keep, not only drinks poured, so a
+  quiet tavern still gets there. Files: as SF2.18. Done when: checked, pacing re-measured. Score 14/21 (fun 2, Evan 2,
+  friends 1, focus 2, cheap 3).
 
 **SF-M3: seasons.**
 - [ ] SF3.1 [Claude] Seasons as chapters (SV2), the first one ending in a festival.
@@ -210,7 +283,7 @@ creatures as monsters. Built as first-person grid delves (docs/proposals/new-gam
 - [ ] SF4.2 [Claude] Phone controls and settings; Starfall guide [any]; trailer.
 
 ### Realmbound (browser)
-- [ ] RB1.9 [ChatGPT] Third-person 3D inn trial (built: Codex, PR #159, 2026-10-10; awaiting review). Evan asked for a modern Pokemon-like third-person presentation. Isolated prototype, original procedural stylized models, honest character/furniture dimensions, walk/orbit/collision, a substantial contained hearth, real light/shadow geometry, phone and ultrawide checks. Files: experiments/realmbound-3d/, tests/realmbound-3d.cjs, docs/proposals/realmbound-3d.md, screenshots and handoff. No production renderer, saves, shared engines or Godot edits. Score 18/21 (Fun 3x2, Heart 3x2, Notice 3, Focus 2, Cheap 1).
+- [x] RB1.9 [ChatGPT] Third-person 3D inn trial (built: Codex, PR #159, 2026-10-10; awaiting review). Evan asked for a modern Pokemon-like third-person presentation. Isolated prototype, original procedural stylized models, honest character/furniture dimensions, walk/orbit/collision, a substantial contained hearth, real light/shadow geometry, phone and ultrawide checks. Files: experiments/realmbound-3d/, tests/realmbound-3d.cjs, docs/proposals/realmbound-3d.md, screenshots and handoff. No production renderer, saves, shared engines or Godot edits. Score 18/21 (Fun 3x2, Heart 3x2, Notice 3, Focus 2, Cheap 1). (merged: PR #159; ticked 2026-10-11 by lane P)
 
 **RB-M1: in the game window.**
 - [x] Part 1 (T38).
@@ -218,18 +291,26 @@ creatures as monsters. Built as first-person grid delves (docs/proposals/new-gam
 - [x] RB1.3 [ChatGPT] (done, merged 2026-10-09; T48) Part 3: the road between towns as a walkable stretch at key points (an inn on the road, a
   camp), keeping auto-combat where it already lives.
 - [x] RB1.4 [ChatGPT] Phone pass for the new layout (L3 part 2). (built: Codex for Adam / abarish-dev, 2026-10-09, PR #116; awaiting review)
-- [ ] RB1.6 [ChatGPT] (ready: PR #141, Codex, 2026-10-10) Readable ability names (PLAYTEST pass 1): action-bar styles and tests/realmbound-phone.js only; full names in a body font, phone-safe wrapping and visible shortcuts/cooldowns; screenshots at 375, 1280 and 3440, all suites pass. Score 17/21 (fun 2x2, heart 2x2, friends 3, focus 3, cheap 3).
+- [x] RB1.6 [ChatGPT] (ready: PR #141, Codex, 2026-10-10) Readable ability names (PLAYTEST pass 1): action-bar styles and tests/realmbound-phone.js only; full names in a body font, phone-safe wrapping and visible shortcuts/cooldowns; screenshots at 375, 1280 and 3440, all suites pass. Score 17/21 (fun 2x2, heart 2x2, friends 3, focus 3, cheap 3). (merged: PR #141; ticked 2026-10-11 by lane P)
 - [x] RB1.5 [ChatGPT] (built: Codex, 2026-10-09, PR #98; awaiting review) Wait for the player (GR-10, a bug): autopilot must not take over during the first dialogue
   (games/realmbound/js/13-world-ui.js:95); fix the stray blocks in the sky. Do first.
 
-- [ ] RB1.7 [ChatGPT] Realmbound inn furnishing pass (built: Codex, 2026-10-10, PR #153; awaiting review). Files: games/realmbound/js/22-hub-layouts.js, 22-town.js, tests/realmbound-inn-layout.js and run.html, screenshots and task notes. Done when sleeping, dining and hearth spaces are distinct; the entrance, Keeper and exit work by tap and keyboard; existing services and saves stay intact. Score: 17/21 (Fun now 2x2, Evan's heart 3x2, Friends notice 2, Moves the focus 2, Cheap 3).
-- [ ] RB1.8 [ChatGPT] Facing people and object-shaped shadows (built: Codex, 2026-10-10, PR #155; awaiting review). Evan's request: four-direction walking sprites and quieter foot contact shadows so existing silhouette casts read clearly, including Low quality. Files: browser Realmbound scene/town/road/light code, focused rendering checks and their run.html hookup, screenshots and notes; no shared engine or Godot edits, saves or versions. Done when walking away hides the face, NPC facing is respected, sun/lamp casts retain object shapes, side walls join as planes, a substantial flame fits a generous hearth opening, room framing is a little steeper, and all suites pass. Score 19/21 (Fun 3x2, Evan's heart 3x2, Friends notice 3, Focus 2, Cheap 2).
+- [x] RB1.7 [ChatGPT] Realmbound inn furnishing pass (built: Codex, 2026-10-10, PR #153; awaiting review). Files: games/realmbound/js/22-hub-layouts.js, 22-town.js, tests/realmbound-inn-layout.js and run.html, screenshots and task notes. Done when sleeping, dining and hearth spaces are distinct; the entrance, Keeper and exit work by tap and keyboard; existing services and saves stay intact. Score: 17/21 (Fun now 2x2, Evan's heart 3x2, Friends notice 2, Moves the focus 2, Cheap 3). (merged: PR #153; ticked 2026-10-11 by lane P)
+- [x] RB1.8 [ChatGPT] Facing people and object-shaped shadows (built: Codex, 2026-10-10, PR #155; awaiting review). Evan's request: four-direction walking sprites and quieter foot contact shadows so existing silhouette casts read clearly, including Low quality. Files: browser Realmbound scene/town/road/light code, focused rendering checks and their run.html hookup, screenshots and notes; no shared engine or Godot edits, saves or versions. Done when walking away hides the face, NPC facing is respected, sun/lamp casts retain object shapes, side walls join as planes, a substantial flame fits a generous hearth opening, room framing is a little steeper, and all suites pass. Score 19/21 (Fun 3x2, Evan's heart 3x2, Friends notice 3, Focus 2, Cheap 2). (merged: PR #155; ticked 2026-10-11 by lane P)
 
+**RB-M1b: the first hour is fun (Evan, 2026-10-12, before anything later-game).** Evan: "we don't have any players yet and we need the game to be worth playing and fun before we push anything later game." Take these in order; RB-M2 and RB-M3 below are parked until a newcomer scores Realmbound 17+.
+- [ ] RB1.10 [any] Newcomer playtest of the first hour (character creation to about level 10), played actively with no time away, scored with docs/PLAYTEST.md. Write docs/playtests/realmbound-first-hour.md (what was fun, what was dull or confusing, with screenshots) and add the top five fixes below as RB1.12a-e lines. Done when the note and the lines are merged. Score 17/21.
+- [x] RB1.11 [any] (v1.9.0, PR #218, merged 2026-10-12) Play, not watch (GOALS.md rule, Evan 2026-10-12): the autopilot no longer takes over when the player pauses (`aiOn()` in games/realmbound/js/11-combat.js:46 after 15 idle seconds); Auto becomes an earned toggle only for zones the hero has out-levelled; time away gives rested XP at the inn instead of kills and loot ("kept hunting while you were away", 13-world-ui.js:174, `offline()` in 10-state.js). Keep the conveniences (auto-loot, the repair trip, batch selling). Old saves load. Done when tests/run.html passes and a newcomer's first ten minutes never show the hero fighting on its own. Score 18/21.
+- [ ] RB1.12 [any] The first hour, made fun: the fixes RB1.10 lists, one PR each (expected: fights with something to react to, hits and sounds that land, the first quest chain told by people, a first dungeon before level 10, loot worth opening). Done when the next newcomer playtest scores Realmbound 17+.
+
+**Parked until RB-M1b is done (Evan, 2026-10-12): RB-M2 and RB-M3.**
 **RB-M2: what the raid set up.**
 - [ ] RB2.1 [ChatGPT] Battlegrounds plan in docs/proposals/ (R3; new system: Evan
 approves).
-- [ ] RB2.2 [ChatGPT] Second raid tier (R7), data and encounters.
+- [ ] RB2.2 [ChatGPT] Second raid tier (R7), data and encounters. (deferred by Evan, 2026-10-11: validate the opening/core loop with players before deeper content)
 - [x] RB2.3 [ChatGPT] The catalogue reaches Realmbound (T43). (merged 2026-10-09)
+
+- [x] RB-PLAY1 [ChatGPT] Fresh-character first-session audit: first quest, combat, recovery and reload; immediately useful fixes only. (v1.8.1, PR #214, merged 2026-10-12)
 
 **RB-M3: a living world.**
 - [ ] RB3.1 [ChatGPT] Simulated adventurers in the zones (V5 part 1: questing, groups,
@@ -245,8 +326,8 @@ deliverables with their details: [plans/sports-management.md](plans/sports-manag
 deliverables are retired; the batting prototype stays in games/diamond-career/ off the shelf.
 - [x] DM1 [Claude] The first playable season (v0.1.0, PR #110).
 - [x] DM2 [any] Playability pass (docs/playtests/diamond-manager-1.md). - [x] DM-B [Claude] Choices matter (v0.2.0).
-- [ ] DM3 [any] Hiring coaches. - [ ] DM4 [any] Player morale and stories. - [ ] DM5 [any] The ballpark you see grow.
-- [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [ ] DM-B2 [any] Keep the league in balance over many seasons. - [ ] DM7 [any] Records and history. - [ ] DM8 [later] Step into the big moment.
+- [x] DM3 [any] Hiring coaches (v0.6.0, PR #196, merged 2026-10-12). - [x] DM4 [any] Player morale and stories (v0.7.0, PR #207, merged 2026-10-12; was ready: Codex, 2026-10-11; stacked after #196) - [ ] DM5 [any] The ballpark you see grow.
+- [x] DM6 [Claude] The draft and player development (v0.3.0). - [x] DM-T [Claude] Trade finder (v0.4.0). - [x] DM-G [Claude] Pitch-by-pitch game, in-game moves, box scores, stats (v0.5.0). - [x] DM-B2 [any] Keep the league in balance over many seasons (v0.7.1, PR #208, merged 2026-10-12). - [x] DM7 [any] Records and history (v0.8.0, PR #209, merged 2026-10-12). - [ ] DM8 [later] Step into the big moment.
 
 ### Lantern Bowl (browser; American football in the Retro Bowl spirit, our own code and art)
 Evan said yes 2026-10-09. Plan: [plans/sports-management.md](plans/sports-management.md) "Game 2".
@@ -261,7 +342,7 @@ Plan: [plans/sports-management.md](plans/sports-management.md) "Game 3". Reuses 
 **OW-M1: three lives (done through v0.3.0).**
 - [x] The Between, Asterhold with Lanthorn, Hearthmere, the Ashen Throne.
 **OW-M2: memories and a systemic world.**
-- [ ] OW1.1 [ChatGPT] (ready: PR #142, Codex, 2026-10-10) Visible Choose a world option in the Between introduction (PLAYTEST pass 1); games/otherworld/js/01-game.js, style.css and existing checks only; uses existing dialogue skip, preserves all choices/memories/saves; phone and desktop screenshots, all suites pass. Score 16/21 (fun 2x2, heart 2x2, friends 3, focus 2, cheap 3).
+- [x] OW1.1 [ChatGPT] (ready: PR #142, Codex, 2026-10-10) Visible Choose a world option in the Between introduction (PLAYTEST pass 1); games/otherworld/js/01-game.js, style.css and existing checks only; uses existing dialogue skip, preserves all choices/memories/saves; phone and desktop screenshots, all suites pass. Score 16/21 (fun 2x2, heart 2x2, friends 3, focus 2, cheap 3). (merged: PR #142; ticked 2026-10-11 by lane P)
 - [x] OW2.1 [ChatGPT] Memories that matter across lives (T42). (merged 2026-10-09)
 - [ ] OW2.2 [ChatGPT] Skills that grow through use (O1 in docs/plans/otherworld.md).
 - [ ] OW2.3 [ChatGPT] People
@@ -276,11 +357,12 @@ rules; free local model first, as docs/otherworld-design.md says).
 **AR-M1: friends can play (done 2026-10-08).**
 - [x] Come Play, previews, trailer, Windows builds.
 **AR-M2: polish for everyone.**
+- [ ] AR2.14 [any] Play, not watch, across the arcade (GOALS.md rule, Evan 2026-10-12). Audit 2026-10-12 by lane P: Wildbond (Godot and Classic, `AUTOPILOT = false`), Starfall (helpers are delegation), Diamond Manager ("Let Iona finish the game" is a convenience), Otherworld, Little Ranch and the cabinets already follow it; Realmbound is RB1.11. Still to do, one small PR each: (a) the hall's tagline in index.html says "a stable of idle and progression games"; say what the games are instead; (b) Primordial: its "pool kept growing while you were away" becomes a small welcome-back gift to spend by playing (index.html `offline()`); (c) any AI touching a game checks its own work against the rule. Classic editions (Wildbond Classic, Starfall Guild Classic) stay as they were, as archives. Score 15/21.
 - [x] AR2.1 [ChatGPT] Accessibility (T44, L10). (merged 2026-10-09)
 - [x] AR2.2 [ChatGPT] (done, merged 2026-10-09; T46) The
 launcher shows the Godot previews as games (cards, covers, links).
 - [ ] AR2.3 [any] Game boxes (V3).
-- [ ] AR2.4 [any] (claimed: Adam / abarish-dev, 2026-10-10) Link and image check across guides/ and playtest.html (X2 / Lane D3); fix broken destinations and fragments, verify pictures, and record exact-source results. Checked: 140 local references, 22 images and 14 browser views pass; evidence / review in PR #158.
+- [x] AR2.4 [any] (claimed: Adam / abarish-dev, 2026-10-10) Link and image check across guides/ and playtest.html (X2 / Lane D3); fix broken destinations and fragments, verify pictures, and record exact-source results. Checked: 140 local references, 22 images and 14 browser views pass; evidence / review in PR #158. (merged: PR #158; ticked 2026-10-11 by lane P)
 - [ ] AR2.5 [ChatGPT] Studio text
 browser (E4). (claimed: Grok, 2026-10-09, grok/studio-text-browser; Lane C task C1)
 - [x] AR2.6 [Claude] Craft review and learning notes (docs/learning/): done 2026-10-09 (safe saves, smaller web pack,
@@ -300,6 +382,8 @@ browser (E4). (claimed: Grok, 2026-10-09, grok/studio-text-browser; Lane C task 
 - [x] AR2.12 [any] The front door (done 2026-10-09, Claude, PR #109: the hall only, sections by kind, how to play on every card) (GR-12): the hub leads with the Godot games, Starfall Guild and Primordial move to
   Classic, the old homepage vote closes; START-HERE versions corrected (Claude).
 **AR-M3: the walk-in arcade and friends.**
+- [x] AR2.14 [Claude] Classic versus the new version made obvious; site and guides refreshed at milestones (docs/SITE-AND-GUIDES.md), done 2026-10-11.
+- [ ] AR2.13 [any] The hall, upgraded (QUEUE road #13).
 - [ ] AR3.1 [Claude] Walk-in arcade steps 1-2 (V11).
 - [ ] AR3.2 [any]
 No-server sharing: trade and battle codes, ghost teams (V6 part 1).
@@ -309,11 +393,30 @@ No-server sharing: trade and battle codes, ghost teams (V6 part 1).
 - [x] LR2 [any] Repair interrupted feeding and preserve active play through resize/rotation. Scope: Little Ranch game/test files, isolated read-only browser-review script/workflow, screenshots and brief process notes. Done when repeat/interruption and phone-to-ultrawide checks pass with sound preferences unchanged. Score: 18/21. (v0.1.1 release: [PR #140](https://github.com/ecbarish/idle-arcade/pull/140), Codex for Adam / abarish-dev, 2026-10-10; 49 game checks, 15 Chromium review checks and all 17 current-main suites passed; version-only release metadata is rechecked before merge)
 - [x] LR1 [any] The smallest test: one baby creature, three actions (feed, bubbles, peekaboo) and a bedtime
   ending; no reading, no failing, no links or purchases, a grown-up lock. Shares the baby-form drawings W9/W10 needs. (claimed: Grok for Adam / abarish-dev, 2026-10-09, guest/little-ranch)
+Next steps, from docs/proposals/little-ranch-next.md (PR #203, 2026-10-11; Evan: "a big hit with my daughter"). Each is one PR on `games/little-ranch/` with checks in `tests/little-ranch.html`, a README changelog line and a "tried with a toddler" note; the toddler rules in games-for-everyone.md hold for every step. Done when the step works on a phone and a tablet with no reading and nothing to fail.
+- [ ] LR3 [any] The singing flowers: a row of big flowers; tap one and it sings its own note and bobs; the baby dances. (QUEUE road 10)
+- [ ] LR4 [any] A second friend: a baby Pebblit (or Glowmote) visits some days; both can be fed and bubbled; they nuzzle.
+- [ ] LR5 [any] Rain and rainbows: tap the cloud for soft rain and puddles to splash; tap the sun for a rainbow. (The sun's rainbow is done in LR13; the rain and puddles are still to do.)
+- [ ] LR6 [any] The hat basket: tap the basket and the baby tries on the next hat.
+- [ ] LR7 [any] The bedtime routine: teeth, a drink of water, goodnight to each friend, then the lullaby.
+- [ ] LR8 [any] Spoken words: names, colours and "night night" in the browser's voice (no microphone; recording a parent's voice needs Evan's yes).
+Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the barn picture leads home; never a separate icon on the homepage). **Evan picked the Paint Shed first (2026-10-11)**, then the Little Wagon, then the Snack Kitchen; LR3-LR8 continue alongside.
+- [ ] LR9 [any] The Paint Shed (16/18, Evan's pick): reached by a paint-drip picture sign; one creature outline, four fat paint pots, tap to fill a part, sparkles when every part is coloured, the painted baby walks out in its colours until bedtime.
+- [ ] LR10 [any] The Little Wagon (17/18): load two babies, one ride with three things to tap and one colour gate where any car gets a cheer.
+- [ ] LR11 [any] The Snack Kitchen (17/18): four foods, one bowl, one baby who loves berries and pulls funny faces at the rest.
+(The shape puzzle, 14/18, waits until she is 3½ to 4.)
+- [x] LR12 [any] Wake-up taps (Adam, 2026-10-11): once the baby is asleep, six taps on it wake it and start a fresh sunny day (the same reset as New visit), with a small wiggle and shrinking zzz on each tap and a happy wake on the sixth; no text, nothing to fail. Files: `games/little-ranch/`, `tests/little-ranch.html`. (Grok for Adam / abarish-dev, PR #210, v0.2.0)
+- [x] LR13 [any] Sun surprise (Adam, 2026-10-11): in the daytime, each tap on the sun makes it a little brighter; on the fifth a big rainbow arches over the field, the baby looks up and cheers, and after a few seconds it fades and the count starts again. No words, nothing to fail; at night there's no sun to tap. Files: `games/little-ranch/`, `tests/little-ranch.html`. (Grok for Adam / abarish-dev, PR #211, v0.3.0)
+- [x] LR14 [any] The moon's song (Adam, 2026-10-11): at night, while the baby sleeps and the moon is up, each tap on the moon makes it glow a little more with a soft note; on the third it plays the first verse of Twinkle Twinkle Little Star (a public-domain tune, made in code, quiet when sound is off) while the stars twinkle in time. The baby sleeps on with a little smile, moon taps don't count toward the six wake taps, taps during the song just twinkle, and stray taps wear off. No words, nothing to fail. Files: `games/little-ranch/`, `tests/little-ranch.html`. (Grok for Adam / abarish-dev, PR #212, v0.4.0)
+- [x] LR15 [any] A cleaner grown-up panel, and app mode (Adam, 2026-10-11, after trying a test Android build): fix the panel buttons that did nothing in the Android WebView ('Back to play', 'Back to the arcade'); redesign the panel (rounded card, drawn icons, one-line labels, a close X, tap outside to close; portrait, landscape and small phones); when the game runs inside the standalone app it shows just Replay, Sound and Exit. The 3 s hold lock stays. Files: `games/little-ranch/`, `tests/little-ranch.html`. (Grok for Adam / abarish-dev, PR #215, v0.5.0)
 **The Arcade Cabinets (browser), original single-screen games in the 1978-85 style.**
 - [x] AC1 [any] Storm Front (the Space Invaders shape, Evan's pick): one cabinet, original name and art, one PR. (built: Codex for Adam / abarish-dev, guest/storm-front, PR #119; awaiting review)
 - [x] AC2 [any] Lighthouse Watch (the Missile Command shape). (built: Grok for Adam / abarish-dev, PR #145, merged 2026-10-10; v0.1.0)
 - [x] AC2.1 [any] Lighthouse Watch display and controls polish: uniform harbour scale, taps mapped after resize, phone pause/rotation checks and before/after captures. Files: `games/lighthouse-watch/`, `tests/lighthouse-watch.html`, evidence in `docs/playtests/lighthouse-watch-display/`; done when circles remain round and aiming/menus/scores pass on phone and desktop. Score 16/21 (fun 2×2, heart 2×2, friends 3, focus 2, cheap 3). (built: Codex for Adam / abarish-dev, PR #163; v0.1.1 release)
-- [ ] AC3 [any] Brisket's Crossing (the Frogger shape) and Ember Bricks (the Breakout shape), one PR each. Brisket's Crossing is draft PR #160 (ready for review, not merged). Ember Bricks is still free.
+- [ ] AC5 [any] A fifth cabinet: a 1978-85 one-screen shape we don't have yet (the maze chase or the asteroid field), our own name, art and sound, never a copied look; shared high scores; phone and desktop. Score 16/21. (QUEUE road 9, added 2026-10-12)
+- [ ] AC6 [any] A sixth cabinet, the other shape from AC5's choice, same rules. (QUEUE road 9)
+- [ ] AC-x [any] Cabinet polish from playtests (docs/PLAYTEST.md pass 2): one cabinet per PR (AC1.1, AC2.2, ...), until each scores 17+. (QUEUE road 9, added 2026-10-11)
+- [x] AC3 [any] Brisket's Crossing (the Frogger shape) and Ember Bricks (the Breakout shape), one PR each. Brisket's Crossing is merged ([PR #160](https://github.com/ecbarish/idle-arcade/pull/160), `a7fac81`). Ember Bricks is merged ([PR #185](https://github.com/ecbarish/idle-arcade/pull/185), Grok for Adam / abarish-dev, 2026-10-11).
 
 ### Parked (Evan decides when)
 Primordial beyond light polish, a second sport. Proposals welcome; no builds.
@@ -347,9 +450,21 @@ the **card shop** is one of its businesses, selling Wildbond cards (creatures an
   the game.
 - **Small local-helper jobs** (Lane D), checked by a person.
 
-- [ ] SCENE-PLAN [any] (ready: PR #151, Codex, 2026-10-10) Shared scene/interior design outline requested by Evan: docs/plans/scene-layout-pass.md; distinct Larkhaven home briefs, entrance/input/visual checks and independently claimable follow-ups. Complements MAP-AUDIT #147; no engine or art edits. Done when the brief and COMMS handoff are published. Score 18/21 (fun 3x2, heart 2x2, friends 3, focus 2, cheap 3).
+- [x] SCENE-PLAN [any] (ready: PR #151, Codex, 2026-10-10) Shared scene/interior design outline requested by Evan: docs/plans/scene-layout-pass.md; distinct Larkhaven home briefs, entrance/input/visual checks and independently claimable follow-ups. Complements MAP-AUDIT #147; no engine or art edits. Done when the brief and COMMS handoff are published. Score 18/21 (fun 3x2, heart 2x2, friends 3, focus 2, cheap 3). (merged: PR #151; ticked 2026-10-11 by lane P)
 
 ## Part 4: what we've learned and actioned (newest first; every piece of work adds a line)
+
+- **2026-10-12, RB1.11 (Codex):** disabling AI fallback is insufficient when basic attacks, pets and companions still advance. Pause the whole combat transaction together, and test old away saves through boot rather than only calling an offline helper.
+
+- **2026-10-11, creature catalogue (Wildbond builder):** counting the data showed the real gap: 74 of 89 lines never evolve and every creature is drawn the same size. Growing existing creatures into lines beats adding loners, and the catalogue is now generated from the data (`tools/wildbond-catalog.cjs`, checked by run-all-checks) so it can't go stale.
+
+- **2026-10-11, WB-KEYS:** a caption that names the keys is easy to miss; a small key drawn beside you, with the word it does, at the moment it matters, is not. Keep such hints in the world, count uses and let them step aside (an older save starts as already knowing). Put the hint beside the player, never over the person you're about to talk to.
+
+- **2026-10-11, SF2.6c:** frame the whole landmark texture, not only its collision footprint, and reserve space for screen text. A fresh spawn plus a one-tile northern margin fixes the first view without moving existing saves; verify actual renderer captures and service routes at every supported shape. [Evidence](screenshots/starfall-opening-view/README.md).
+
+- **2026-10-11, AC3 Ember Bricks:** the Breakout shape is its own cabinet and its own pull request. Leave the shared AC3 checkbox open until that cabinet is merged too.
+
+- **2026-10-11, AC3 merge:** a status line that still says "not merged" after the merge is wrong; correct it, and leave the checkbox open while the other cabinet on that line is unbuilt.
 
 - **2026-10-11, the wild bond and the reveal (Claude, Wildbond builder, PR #170):** an emergent moment that gates story (the reveal waits on the wild bond, as T58's contract asks) needs a way to be reached by every player: the Spire and rematches give hard battles late, but a player who never lets a Bonded partner stand alone may never see it. Watch for this in playtests; if it bites, a Warden can hint at it rather than the gate opening without it. A scene that sets its flags as it starts is safe because nothing saves while lines are playing, so a closed game replays it. Writing packs kept outside the Godot project need a copy inside it (data/wildbond-reveal.json); note the pair in both places.
 - 2026-10-10 (AC2.1): fit a fixed arcade world with one scale and invert the same viewport for taps; test render transforms and real screen targets across resize/DPR so a visual fix cannot silently break aim.
@@ -379,6 +494,11 @@ line or two, with the page that holds the detail.
   square, the opening view) and one older code-drawn piece off the palette, and doors drawn between two tiles
   (a door must be centred on the map tile you walk through, and touch the ground); next time a set of tasks includes one for
   dressing the scene and one for the first screen. Tasks ART-SF-8, SF2.6c.
+- **2026-10-11, DM-G (Claude, sports thread):** "watching" a sports sim means seeing it, not reading it. To add pitches
+  and fielders without breaking a balanced simulation, the result of each plate appearance still comes from the tested
+  ratings formula and the pitches are written to fit it (four balls end a walk, three strikes a strikeout); the run and
+  batting numbers stayed within a few percent. A game is a plain saved object stepped one pitch at a time, so the
+  player can be asked between batters and a game left halfway resumes.
 - **2026-10-11, DM-T (Claude, sports thread):** a trade finder needs no new rules, only a search over the existing
   judge (every suggested deal is checked by the same function that answers a hand-built proposal), so it can never
   offer something the other club would refuse; a check pins that and that no single cheaper player would do.
@@ -401,6 +521,12 @@ line or two, with the page that holds the detail.
 - **2026-10-09, DM2 playtest (Claude, Playtester):** simulating many seasons through the game's own functions (hands-off
   against active) finds balance problems a single playthrough can't: in Diamond Manager the choices barely moved
   results. Actioned: three small fixes and ticket DM-B (docs/playtests/diamond-manager-1.md).
+- **2026-10-11, AR2.14 editions and milestone refreshes (Claude, website thread):** "Classic" was used for every
+  browser game in places, which blurred the one distinction that matters (two editions of Wildbond and Starfall). Now
+  only those two are Classic, they sit in their own last section with ribbons, and the site and guides refresh at
+  milestones instead of every merge (docs/SITE-AND-GUIDES.md), because each update changes the games too much.
+  Fitting every cabinet on one screen stopped working at 14 games: cabinets now keep one size and the hall scrolls with
+  the walker; on phones the hall is hidden (Evan: unusable there) and the cards are the menu.
 - **2026-10-09, AR2.12 the front door (Claude, website thread):** three homepage styles split the effort and the
   living world could only fit four or five games, so a style that holds every game wins: the arcade hall is now the
   only one (Evan's call). Players could not tell what a game was or how to control it, so every card now says what you
@@ -486,6 +612,22 @@ line or two, with the page that holds the detail.
 - **2026-10-10, RB1.9 equipment follow-up (Codex):** visible gear needs stable item-type IDs and joint attachment points before higher-detail art. Inspect screenshots as well as checking meshes exist: a replaced scale component can accidentally stretch chest armour over a face. Keep prop dimensions, collisions and interactions separate from replaceable art.
 ## Maintenance
 
-- [ ] **FB-17 [any]: onboarding instructions cleanup** (ready: PR #168, Codex / Adam, 2026-10-10). Files: START-HERE.md and task/status notes only. Repair the broken old-save rule, refer test coverage to the runner, and align claim/merge instructions with PROCESS.md. Done when links resolve and the diff changes documentation only.
+- [x] **FB-17 [any]: onboarding instructions cleanup** (ready: PR #168, Codex / Adam, 2026-10-10). Files: START-HERE.md and task/status notes only. Repair the broken old-save rule, refer test coverage to the runner, and align claim/merge instructions with PROCESS.md. Done when links resolve and the diff changes documentation only. (merged: PR #168)
 
-- [ ] **AC3.1 [any]: Brisket playtest polish** (built: draft PR #180, Codex / Adam, 2026-10-11; browser CI and visual evidence pending). Short knocked-over recovery, Space/arrows launch from ready, larger mule. Files: games/briskets-crossing/, its checks, screenshots and release/status notes. Done when held movement cannot immediately repeat a death, ready keyboard controls work, old scores load and phone/desktop captures pass. Score 16/21 (fun 3×2, heart 2×2, friends 2, focus 1, cheap 3).
+
+## Wildbond doorway preview release record
+
+- [x] WB-PREVIEW-177 [any] Built and browser-verified 2026-10-11, Adam / abarish-dev, [PR #183](https://github.com/ecbarish/idle-arcade/pull/183). Exact merged source `480dfc4`; 353 browser checks, 119 captures, 60 door transitions, 20 fresh-save reloads and 12 pad hold/release cases. Unchanged engine and save format. Final latest-head CI, merge and live hash confirmation gate publication; see [release record](research/wildbond-preview-door-release.md).
+
+
+
+## Starfall opening preview release
+
+- [x] SF-PREVIEW-200 [any] Built and browser-verified 2026-10-11, Codex for Adam / abarish-dev, [PR #206](https://github.com/ecbarish/idle-arcade/pull/206). Exact merged source `0af5b92`; 54 browser checks, 17 nonblank captures, fresh nondefault-position reloads and previous-source saved towns. Engine and save format unchanged. Final latest-head CI, merge and live-hash confirmation gate publication; see [release record](research/starfall-preview-opening.md).
+
+
+## Starfall mobile-fit preview release
+
+- [x] SF-MOBILE-PREVIEW [any] (done: Codex for Adam / abarish-dev, 2026-10-12; [PR #222](https://github.com/ecbarish/idle-arcade/pull/222) merged `95b1655`, live manifest/four hashes verified 14:21:59 UTC, [record](research/starfall-preview-mobile-fit.md)) Publish the exact rebuilt and tested pack for merged phone-fit source 1a37f695. Only play/starfall/ pack, shell byte count, build manifest, scoped release verification and release/session notes. Preserve the existing engine and concurrent work. Done when exact committed-pack checks and all suites pass, the release PR is merged, and Pages serves verified hashes. Adam approved merge and publication at 13:51 UTC.
+
+- [ ] **AC3.1 [any]: Brisket playtest polish** (built: draft PR #180, Codex / Adam, 2026-10-11; completion transferred to dot / Adam 2026-10-12; fixture repair and validation in progress). Short knocked-over recovery, Space/arrows launch from ready, larger mule. Files: games/briskets-crossing/, its checks, screenshots and release/status notes. Done when held movement cannot immediately repeat a death, ready keyboard controls work, old scores load and phone/desktop captures pass. Score 16/21 (fun 3×2, heart 2×2, friends 2, focus 1, cheap 3).

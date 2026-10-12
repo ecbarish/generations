@@ -1248,12 +1248,14 @@ func _run() -> void:
 	preload("res://tests/battle_choices.gd").run(main, check)
 	preload("res://tests/wild_bond.gd").run(main, check)
 	preload("res://tests/reveal.gd").run(main, check)
+	preload("res://tests/key_hints.gd").run(main, check)
 	# ---- every door and road out has a tile in front of it you can stand on and reach (Adam, 2026-10-10)
 	var blocked := door_problems()
 	for problem in blocked:
 		print("  door check: " + problem)
 	check(blocked.is_empty(), "every door, doorway and road out has an open, reachable tile in front of it (%d problems)" % blocked.size())
 	preload("res://tests/roof_routes.gd").run(main, check)
+	preload("res://tests/door_taps.gd").run(main, check)
 	# ---- the done line
 	print("Wildbond Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)

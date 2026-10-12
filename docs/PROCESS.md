@@ -53,9 +53,10 @@ ladder and stop at the first rung that gives you work:
    issue with the "Suggestion" form instead, and go to rung 4.
 4. **The fallback list:** QUEUE.md "When the road is empty" (pre-review, playtest, bug fixes, tests, text polish).
 
-**It fits what we're doing only if** it is in a game in a focus slot (or a family game: Little Ranch, the cabinets),
-keeps to that game's look (the art direction page) and its story so far, and makes the game more fun to play, not
-just bigger. **Ask first** (a line in COMMS "to Claude (Priorities and direction)" or a GitHub issue; then take
+**It fits what we're doing only if** it moves a short- or medium-term goal in [GOALS.md](GOALS.md), is in a game in a focus slot (or a family game: Little Ranch, the cabinets),
+keeps to that game's look (the art direction page) and its story so far, makes the game more fun to play, not
+just bigger, and keeps the player playing, not watching (GOALS.md "Play, not watch": no game plays itself, no new
+full Auto). **Ask first** (a line in COMMS "to Claude (Priorities and direction)" or a GitHub issue; then take
 other work while you wait) before anything that: starts a new game or a new mode; adds story, characters or lore
 canon (the Design decisions thread, docs/DECISIONS.md, decides those, and docs/lore/wildbond-threads.md comes first);
 changes how saves, controls or the menus work across a game; adds an outside asset; or costs money. Lane P (the

@@ -54,7 +54,11 @@ a{color:inherit}
 .fb-btn:hover{background:var(--muted);color:var(--bg)}
 .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
 .status{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 9px;border-radius:999px;border:1px solid currentColor}
-.s-play{color:var(--ok)} .s-proto{color:var(--proto)} .s-design{color:var(--dim)}
+.s-play{color:var(--ok)} .s-proto{color:var(--proto)} .s-design{color:var(--dim)} .s-classic{color:#e6c9a0}
+/* Edition ribbons (Evan, 2026-10-11: make Classic versus the new version obvious at a glance) */
+.edition{position:absolute;top:10px;left:-4px;z-index:2;font-family:var(--f-sign);font-size:13px;letter-spacing:.06em;padding:3px 12px 3px 14px;border-radius:0 6px 6px 0;box-shadow:0 2px 6px #0008}
+.ed-new{background:#7fe0a0;color:#0c2a18}.ed-classic{background:#d9b98a;color:#2e1f0c}
+.kind#kind-classic .cab{border-style:dashed}.edition-link a{color:#7fe0a0;text-underline-offset:3px}
 .blurb{margin:0;color:var(--muted);font-size:14px}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tags span{font-size:12px;color:var(--muted);background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:1px 7px}
@@ -98,7 +102,8 @@ a{color:inherit}
 .launch-hit{position:absolute;top:8%;bottom:4%;display:block;border-radius:10px}
 .launch-hit:focus-visible{outline:3px solid var(--marquee);outline-offset:-3px}
 .launch-hit.soon{cursor:default}
-@media (max-width:720px){.launch-view{aspect-ratio:4/3}}
+/* Phones (Evan, 2026-10-11: the hall was unusable on a phone): no hall, just the section buttons and the cards */
+@media (max-width:720px){.launch-view,.launch-hint{display:none}}
 /* Big screens (L11): more of the shelf at once, bigger covers */
 @media (min-width:1700px){.wrap{max-width:min(2200px,92vw)}.shelf{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}}
 @media (min-width:2400px){.wrap{max-width:min(2900px,92vw)}.shelf{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}.tag{font-size:18px;max-width:80ch}}
@@ -120,9 +125,9 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
 <div class="wrap">
   <header class="marquee">
     <h1 class="sign">Idle <span>Arcade</span></h1>
-    <p class="tag">A stable of idle and progression games. Each one saves on its own, so you can jump between them and pick up where you left off. New here? Meet <a href="promo.html" style="color:var(--marquee)">Realmbound →</a> or <a href="promo-wildbond.html" style="color:var(--ok)">Wildbond →</a></p>
-    <div class="header-tools"><a class="playtest-link" href="playtest.html">What to try →</a><a class="credits-link" href="credits.html">Credits</a><button class="install-btn" id="installArcade" hidden>Install arcade</button><span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span><span class="version-label">v1.5.0</span><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div></div>
-    <details class="app-help"><summary>Play offline or add to your home screen</summary><p>Open this page online and wait for “Ready for offline play.” You can then open the arcade and its Classic browser games without internet. The new Wildbond and Starfall previews need internet on their first visit. Use Install arcade when it appears, or your browser’s Install / Add to Home Screen menu. Your saves stay in this browser on this device. Without internet, lettering may use device fonts and Wildbond may use its HD-2D view while the 3D renderer is unavailable.</p></details>
+    <p class="tag">A stable of idle and progression games. Each one saves on its own, so you can jump between them and pick up where you left off. Wildbond and Starfall Guild each have a <b>new version</b> (where the work happens) and a <b>Classic</b> edition (the original browser game, at the bottom). New here? Meet <a href="promo.html" style="color:var(--marquee)">Realmbound →</a> or <a href="promo-wildbond.html" style="color:var(--ok)">Wildbond →</a></p>
+    <div class="header-tools"><a class="playtest-link" href="playtest.html">What to try →</a><a class="credits-link" href="credits.html">Credits</a><button class="install-btn" id="installArcade" hidden>Install arcade</button><span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span><span class="version-label">v1.6.0</span><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div></div>
+    <details class="app-help"><summary>Play offline or add to your home screen</summary><p>Open this page online and wait for “Ready for offline play.” You can then open the arcade and its browser games without internet. The new versions of Wildbond and Starfall need internet on their first visit. Use Install arcade when it appears, or your browser’s Install / Add to Home Screen menu. Your saves stay in this browser on this device. Without internet, lettering may use device fonts and Wildbond may use its HD-2D view while the 3D renderer is unavailable.</p></details>
   </header>
 
   <section class="launcher" id="launcher" aria-label="Choose a game">
@@ -133,7 +138,7 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
   <main class="kinds" id="shelf"></main>
 
   <section class="note">
-    <div><h2>Your saves</h2><p>Progress is stored in this browser on this device, with automatic backups. Classic browser games have a <b>Your save</b> box to move your journey to another computer. The new previews keep separate saves and do not import Classic journeys.</p></div>
+    <div><h2>Your saves</h2><p>Progress is stored in this browser on this device, with automatic backups. Browser games have a <b>Your save</b> box to move your journey to another computer. Wildbond and Starfall Guild each come in two editions, the new version and the Classic, with separate saves: a Classic journey does not carry over.</p></div>
     <div><h2>Automation is earned</h2><p>Managers, staff and instincts unlock from things you do in the game. Nothing here is for sale.</p></div>
     <div><h2>Always changing</h2><p>These games get tuned and extended a layer at a time. Prototypes may change a lot between visits.</p></div>
   </section>
@@ -149,7 +154,7 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
 <script>
 (function(){
 'use strict';
-const VERSION = '1.5.1'; // the arcade's version (L9)
+const VERSION = '1.6.0'; // the arcade's version (L9)
 setupFeedback('The arcade homepage', VERSION, () => '');
 const GAMES=window.ArcadeGames;
 const ago=t=>{const s=(Date.now()-t)/1000;if(s<90)return'just now';if(s<3600)return Math.round(s/60)+' min ago';if(s<86400)return Math.round(s/3600)+' h ago';return Math.round(s/86400)+' days ago';};
@@ -163,9 +168,9 @@ const card=g=>{
   const prog=g.preview?'<div class="none">Preview saves stay inside this game; Classic progress is separate.</div>':g.href?(p?`<div class="sum">${p.summary}</div><div class="det">${p.detail} · played ${ago(p.last)}</div>`:'<div class="none">Not started yet.</div>'):'';
   const btn=g.href?`<a class="play ${p?'':'alt'}" href="${g.href}">${g.preview?'Play the preview':p?'Continue':'Play'}</a>`:`<div class="soon">Being designed now</div>`;
   const reset=p&&SAVE_KEYS[g.id]?`<div class="reset" id="rs-${g.id}"><button class="resetlink" data-reset="${g.id}">Reset progress</button></div>`:'';
-  return `<article class="cab${g.preview?' preview-card':''}" data-game="${g.id}"><div class="cover"><canvas data-cover="${g.cover}" aria-hidden="true"></canvas>${g.image?`<img src="${g.image}" alt="${g.alt}" loading="lazy" decoding="async">`:""}<div class="title ${g.tcls}">${g.title}</div></div>
+  return `<article class="cab${g.preview?' preview-card':''}" data-game="${g.id}"><div class="cover">${g.edition?`<span class="edition ed-${g.edition}">${g.edition==='new'?'New version':'Classic'}</span>`:''}<canvas data-cover="${g.cover}" aria-hidden="true"></canvas>${g.image?`<img src="${g.image}" alt="${g.alt}" loading="lazy" decoding="async">`:""}<div class="title ${g.tcls}">${g.title}</div></div>
     <div class="body"><span class="status ${g.status[1]}">${g.status[0]}</span><p class="blurb">${g.blurb}</p>
-    <div class="tags">${g.tags.map(t=>`<span>${t}</span>`).join('')}</div><div class="howto"><p><b>What you do:</b> ${g.goal}</p><p><b>Controls:</b> ${g.controls}</p></div>${g.href?`<div class="prog">${prog}</div>`:''}${btn}${g.guide?`<p><a href="${g.guide}">Guide · the Sundered Reach →</a></p>`:""}${g.preview?`<p class="preview-load">${g.load}</p><p class="preview-classic"><a href="${GAMES.find(other=>other.id===g.classic).href}">Play ${GAMES.find(other=>other.id===g.classic).title} →</a></p>`:""}${reset}</div></article>`;
+    <div class="tags">${g.tags.map(t=>`<span>${t}</span>`).join('')}</div><div class="howto"><p><b>What you do:</b> ${g.goal}</p><p><b>Controls:</b> ${g.controls}</p></div>${g.href?`<div class="prog">${prog}</div>`:''}${btn}${g.guide?`<p><a href="${g.guide}">Guide · the Sundered Reach →</a></p>`:""}${g.preview?`<p class="preview-load">${g.load}</p><p class="preview-classic"><a href="${GAMES.find(other=>other.id===g.classic).href}">Play ${GAMES.find(other=>other.id===g.classic).title} →</a></p>`:""}${g.newer?`<p class="edition-link"><a href="${GAMES.find(o=>o.id===g.newer).href}">Try the new version of ${GAMES.find(o=>o.id===g.newer).title} →</a></p>`:''}${reset}</div></article>`;
 };
 /* Sections by kind (Evan, 2026-10-09): each says what its games are like, so similar games sit side by side */
 const KINDS=window.ArcadeKinds.filter(k=>GAMES.some(g=>g.kind===k.id));
@@ -228,6 +233,7 @@ covers.ranch=function(c,w,h,t){const g=h*.62;c.fillStyle='#8fd0f0';c.fillRect(0,
 covers.storm=function(c,w,h,t){c.fillStyle='#081d30';c.fillRect(0,0,w,h);c.fillStyle='#123c4c';c.fillRect(0,h*.8,w,h*.2);for(let row=0;row<3;row++)for(let col=0;col<7;col++){let x=w*(.12+col*.12)+Math.sin(t)*w*.025,y=h*(.23+row*.15);c.fillStyle=['#c4bada','#a3c7d3','#729bad'][row];c.fillRect(x-9,y,18,7);c.fillRect(x-5,y-5,10,7);}c.fillStyle='#83aca2';for(let i=0;i<4;i++)c.fillRect(w*(.12+i*.22),h*.75,w*.12,7);c.fillStyle='#f6d275';c.fillRect(w*.5-3,h*.88,6,9);c.fillRect(w*.5-1,h*.61,2,9);};
 covers.watch=function(c,w,h,t){c.fillStyle='#0a1426';c.fillRect(0,0,w,h);c.fillStyle='#0f2c3c';c.fillRect(0,h*.82,w,h*.18);c.fillStyle='#d8d2bc';c.fillRect(w*.5-5,h*.62,10,h*.2);c.fillStyle='#b5463e';c.fillRect(w*.5-5,h*.68,10,3);c.fillStyle='#f6d275';c.fillRect(w*.5-4,h*.57,8,6);for(let i=0;i<4;i++){let x=w*(.12+i*.25+(i>1?.01:0)),y=h*(.1+((t*.25+i*.27)%1)*.6);c.fillStyle='#ff7a3a';c.fillRect(x-2,y-2,4,4);c.fillStyle='#ff9a4a55';c.fillRect(x-1,y-14,2,12);}let r=6+4*Math.abs(Math.sin(t*2));c.fillStyle='rgba(255,230,150,.55)';c.beginPath();c.arc(w*.68,h*.3,r,0,7);c.fill();c.strokeStyle='#f6d27588';c.beginPath();c.moveTo(w*.5,h*.57);c.lineTo(w*.68,h*.3);c.stroke();c.fillStyle='#8a5a3a';for(const x of [.15,.32,.7,.86])c.fillRect(w*x-7,h*.84,14,4);};
 covers.brisket=function(c,w,h,t){c.fillStyle='#243044';c.fillRect(0,0,w,h);c.fillStyle='#6b5344';c.fillRect(0,h*.42,w,h*.16);c.fillStyle='#1b4550';c.fillRect(0,h*.22,w,h*.16);c.fillStyle='#3d5c3a';c.fillRect(0,h*.72,w,h*.2);c.fillRect(0,h*.08,w,h*.12);c.fillStyle='#c4a574';c.fillRect((w*.15+Math.sin(t)*w*.2+w)%w,h*.46,w*.16,h*.06);c.fillStyle='#6d4c32';c.fillRect((w*.55+t*18)%w,h*.26,w*.2,h*.05);c.fillStyle='#8a5a32';c.fillRect(w*.48,h*.78,10,8);c.fillStyle='#5c3a28';c.fillRect(w*.47,h*.84,4,5);c.fillRect(w*.55,h*.84,4,5);c.fillStyle='#f6d275';c.fillRect(w*.56,h*.76,4,4);for(const x of [.12,.32,.5,.68,.86]){c.fillStyle='#5c4632';c.fillRect(w*x,h*.12,3,10);c.fillStyle='#f6d275';c.fillRect(w*x-1,h*.1,5,3);}};
+covers.ember=function(c,w,h,t){c.fillStyle='#2a140e';c.fillRect(0,0,w,h);c.fillStyle='#4a2a1c';c.fillRect(w*.08,h*.14,w*.84,h*.46);for(let row=0;row<4;row++)for(let col=0;col<8;col++){c.fillStyle=row===1&&col>2&&col<6?'#5a241c':'#c45a3a';c.fillRect(w*(.12+col*.1),h*(.18+row*.09),w*.08,h*.06);}const x=w*(.5+Math.sin(t)*.2);c.fillStyle='#c4a574';c.fillRect(x-w*.12,h*.78,w*.24,h*.04);c.fillStyle='#8a5a32';c.fillRect(x-3,h*.82,6,h*.06);c.fillStyle='#ff7a22';c.beginPath();c.arc(x,h*(.64-Math.abs(Math.sin(t*3))*.12),6,0,7);c.fill();c.fillStyle='#ffe08a';c.fillRect(x-1,h*(.64-Math.abs(Math.sin(t*3))*.12)-1,2,2);};
 const items=[...document.querySelectorAll('canvas[data-cover]')].map(cv=>({cv,ctx:cv.getContext('2d'),fn:covers[cv.dataset.cover]}));
 function size(){items.forEach(o=>{const r=o.cv.getBoundingClientRect();o.w=r.width;o.h=r.height;const d=Math.min(2,devicePixelRatio||1);o.cv.width=Math.round(r.width*d);o.cv.height=Math.round(r.height*d);o.ctx.setTransform(d,0,0,d,0,0);});}
 size();addEventListener('resize',size);
