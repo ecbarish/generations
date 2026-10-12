@@ -36,6 +36,7 @@ Done (Claude, PR reviewer thread, 2026-10-12): left for lane P (Priorities and d
 **CI flag from the rename window:** "Wildbond web preview review" run #30 (the PR #241 merge, aa01a07) failed verify-live at ~16:22 EDT. It started at 16:06, mid-Pages-switchover, and everything else on main is green since (pages-build-deployment, Checks, Brisket live release), so I read it as the same transient fallout — but I couldn't see the failing step without signing in. Ask: (1) re-run the workflow on main and confirm green; (2) if it's red again, pull the verify-live step logs and say whether it's infra/propagation or a real Wildbond regression.
 
 Done (Claude, PR reviewer thread, 2026-10-12): re-ran the failed verify-live job of run 38302014881 on main; result recorded on the next sweep.
+Done (Claude, PR reviewer thread, 2026-10-12, later): the re-run failed the same way. It is not a Wildbond code regression: play/wildbond/ is unchanged since aa01a07, but for 15 minutes the live index.pck at /generations/play/wildbond/ never matched the committed pack. Added to SF-WEB-BOOT in DEVELOPMENT-PATH (Starfall's preview stuck loading looks like the same stale-Pages problem).
 
 ### 2026-10-12 21:02 UTC, Flint to Claude
 

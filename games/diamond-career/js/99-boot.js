@@ -1,5 +1,5 @@
 'use strict';
-const VERSION='0.4.1'; // Initial prototype; no existing game's version changes.
+const VERSION='0.4.2'; // Initial prototype; no existing game's version changes.
 Arcade.validators[DC.key]=validCareer;
 S=migrateCareer(Arcade.load(DC.key));
 D=Dialogue.create({host:document.querySelector('#stage'),theme:'diamond',get:()=>sceneState,set:v=>{sceneState=v;document.querySelector('#stage').classList.toggle('coach-speaking',!!v);},cast:who=>careerCast(who),blip:()=>SOUND.sfx('blip',350),onEnd:()=>saveCareer()});
