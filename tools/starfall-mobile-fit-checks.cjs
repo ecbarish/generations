@@ -25,7 +25,7 @@ function bounds(image, predicate, region={x:0,y:0,width:image.width,height:image
   }
   return count ? {x:left,y:top,width:right-left+1,height:bottom-top+1,count} : null;
 }
-const painted = im => bounds(im,(r,g,b,a)=>a>0&&Math.max(r,g,b)>4);
+const painted = (im,region) => bounds(im,(r,g,b,a)=>a>0&&Math.max(r,g,b)>4,region);
 const cream = (r,g,b) => r>=225 && g>=219 && b>=203 && Math.abs(r-g)<32;
 const gold = (r,g,b) => r>155 && g>120 && b<140 && r>b*1.45 && g>b*1.3;
 function logicalRegion(f,x,y,w,h) {return {x:f.x+x*f.width/384,y:f.y+y*f.height/216,width:w*f.width/384,height:h*f.height/216};}
@@ -105,14 +105,16 @@ async function ready(page) {
 async function capture(g,label,{fit=true,goal=false,dialogue=false}={}) {
   const p=g.page, size=p.viewportSize();
   const box=await p.locator('#canvas').boundingBox();
-  check(Math.abs(box.x)<1&&Math.abs(box.y)<1&&Math.abs(box.width-size.width)<1&&Math.abs(box.height-size.height)<1,label+' canvas covers the CSS viewport');
+  check(Math.abs(box.x)<1&&Math.abs(box.y)<1&&Math.abs(box.width-size.width)<=1&&Math.abs(box.height-size.height)<=1,label+' canvas covers the CSS viewport within one-pixel engine rounding');
+  const backing=await p.locator('#canvas').evaluate(c=>({width:c.width,height:c.height}));
   const data=await p.screenshot({path:path.join(out,'screens',label+'.png'),scale:'css',timeout:20000});
-  const im=PNG.sync.read(data), frame=painted(im);
+  const im=PNG.sync.read(data), frame=painted(im,box);
   check(im.width===size.width&&im.height===size.height&&frame&&frame.count>size.width*size.height*.05,label+' has a nonblank real rendered screenshot');
   const fractional=g.platform!=='desktop'&&!g.before;
-  const rawScale=Math.min(size.width/384,size.height/216);
-  const scale=fractional?rawScale:Math.max(1/g.dpr,Math.floor(rawScale*g.dpr)/g.dpr);
-  const expected={x:(size.width-384*scale)/2,y:(size.height-216*scale)/2,width:384*scale,height:216*scale};
+  const rawScale=Math.min(backing.width/384,backing.height/216);
+  const pixelScale=fractional?rawScale:Math.max(1,Math.floor(rawScale));
+  const sx=pixelScale*box.width/backing.width,sy=pixelScale*box.height/backing.height,scale=Math.min(sx,sy);
+  const expected={x:box.x+(box.width-384*sx)/2,y:box.y+(box.height-216*sy)/2,width:384*sx,height:216*sy};
   if(fit) {
     for(const k of ['x','y','width','height'])check(Math.abs(frame[k]-expected[k])<=2,label+' painted '+k+' matches '+(fractional?'fractional aspect fit':'unchanged integer scale'));
     check(Math.abs(frame.width/frame.height-16/9)<.02,label+' preserves 16:9 without stretching');
@@ -121,7 +123,7 @@ async function capture(g,label,{fit=true,goal=false,dialogue=false}={}) {
   const dialog=dialogueBounds(im,frame);
   if(goal)check(goalPixels&&goalPixels.count>18*scale*scale,label+' has visible goal-line glyph pixels inside the view');
   if(dialogue)check(dialog&&dialog.width>225*scale&&dialog.width<244*scale&&dialog.height>12*scale,label+' has a complete dialogue panel inside the view');
-  const entry={name:label+'.png',platform:g.platform,before:g.before,dpr:g.dpr,viewport:size,frame,expected,scale,goalPixels,dialogue:dialog,
+  const entry={name:label+'.png',platform:g.platform,before:g.before,dpr:g.dpr,viewport:size,canvas:box,backing,frame,expected,scale,goalPixels,dialogue:dialog,
     textSizeCss:{status:8*scale,goal:7*scale,dialogue:8*scale}};
   report.captures.push(entry);write();return {im,frame,entry};
 }
