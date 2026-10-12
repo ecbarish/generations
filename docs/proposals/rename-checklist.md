@@ -91,7 +91,7 @@ github.com; everything else any AI can do.
    keeps "Idle Arcade votes", the real name of Evan's Google Form.
 4. **Address pull request, prepared but not merged:** every hard-coded `ecbarish/idle-arcade` and
    `github.io/idle-arcade` address switched to the new name (item 16), with `tests/tell-us.html` updated.
-5. **Evan: rename the repository on github.com and edit its description** to the new tagline, in the same sitting
+5. **Evan: rename the repository on github.com and edit its description** to the new tagline, in the same sitting **Done 2026-10-12 19:50 UTC by Evan.**
    (items 1, 4). The tagline edit can also happen today on its own; it does not depend on the rename.
 6. **Merge step 4 at once**, then confirm the site loads at `ecbarish.github.io/generations/` and all checks pass.
 7. **Evan: create an empty `idle-arcade` repository**; an AI fills it with an `index.html` and `404.html` that
