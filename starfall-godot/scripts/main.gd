@@ -116,6 +116,9 @@ const MEAL := 8
 const WAGE := 10
 const HIRE_AFTER := 10                     # meals you serve yourself before Bryn offers to take over
 const PATIENCE := 22.0                     # how long a hungry adventurer waits at the counter
+## Counter mastery (SF2.11, the counter first): meals served by hand earn named ranks, each changing the counter.
+const COOK_RANKS := [10, 25, 50]
+const COOK_NAMES := ["Kitchen Hand", "Cook", "Head Cook"]
 const POT_MEAL := 4                        # what they leave for helping themselves from the stew pot instead (SF2.18)
 const MAX_POSTED := 2
 ## Cleared plots (p on the map, 2x2) where the town can grow; each keeps its anchor (top left) tile.
@@ -217,6 +220,7 @@ var notices: Array = []                     # today's job notices on the board (
 var posted: Array = []                      # notices you've pinned up for the adventurers (ids)
 var today := { "done": 0, "failed": 0, "meals": 0, "earned": 0 }
 var queue: Array[Mover] = []                # hungry adventurers waiting at the counter, first in front
+var recipe := "hearty"                      # the Cook's choice on the slate: "hearty" lifts spirits, "broth" mends (SF2.11)
 var serve_t := 0.0                          # Bryn's serving time for the customer in front
 var lines: Array = []                       # conversation: [{who, text}]
 var barks: Array = []                       # short things people say as they pass: [{m, text, t}]
@@ -338,6 +342,9 @@ func _ready() -> void:
 		built["north"] = { "what": "tavern", "left": 0.0 }
 		rank = maxi(rank, 1)
 		day_t = DAY_SECONDS * 0.7
+	if "--headcook" in OS.get_cmdline_user_args():    # the counter at Head Cook, broth on the slate (-- --no-save --headcook)
+		meals = 50
+		recipe = "broth"
 	if "--goodrun" in OS.get_cmdline_user_args():     # a town on a good run: bunting over the street (-- --no-save --built --goodrun)
 		good_days = 2
 	if "--story" in OS.get_cmdline_user_args():       # Ren wants a word, and you're mid-conversation: -- --no-save --story
@@ -615,8 +622,8 @@ func _use() -> bool:
 	if finished("smithy") != "" and me.tile == forge_at():
 		_use_smithy()
 		return true
-	if me.tile == SERVE_AT and not queue.is_empty() and queue[0].tile == ORDER_AT and not hired:
-		serve(queue[0], true)
+	if _at_counter() and not queue.is_empty() and queue[0].tile == ORDER_AT and not hired:
+		serve_by_hand()
 		return true
 	if (me.tile - BOARD).length() <= 1.01:
 		open_board()
@@ -667,9 +674,11 @@ func _use() -> bool:
 			talk_hero(h)
 			return true
 	if (me.tile - COUNTER).length() <= 1.01:
-		if hired:
+		if cook_rank() >= 2 and queue.is_empty():
+			_turn_slate()
+		elif hired:
 			say("bryn", "I've got the counter, guildmaster. Go and see to the board.")
-		elif me.tile != SERVE_AT:
+		elif not _at_counter():
 			say("", "The inn's counter. Step round behind it to serve whoever's waiting.")
 		else:
 			say("", "Nobody's waiting. The stew keeps warm.")
@@ -1035,6 +1044,13 @@ func serve(h: Mover, by_hand: bool) -> void:
 	if by_hand:
 		meals += 1
 	h.a.morale = mini(10, int(h.a.morale) + 1)
+	if by_hand and cook_rank() >= 2:
+		if recipe == "hearty":
+			h.a.morale = mini(10, int(h.a.morale) + 1)          # a hearty stew: their spirits lift further
+		else:
+			h.a.hp = mini(int(h.a.max), int(h.a.hp) + int(ceil(float(h.a.max) * 0.25)))   # a healing broth: it mends
+	if by_hand and meals in COOK_RANKS:
+		_cook_rank_up()
 	if by_hand:
 		sfx.play("coin")
 		feel(h, "pleased", 4.0)
@@ -2485,6 +2501,68 @@ func _draw_built(_k: String, what: String, o: Vector2) -> void:
 			if heroes.any(func(h): return h.where == "healer"):
 				draw_rect(Rect2(at + Vector2(36, 26), Vector2(5, 4)), Color("f2d080"))   # a lamp lit for someone resting
 
+# ---------------------------------------------------------------- counter mastery (SF2.11): Kitchen Hand, Cook, Head Cook
+## Your rank at the counter: 0 to 3, from meals served by hand (all time).
+func cook_rank() -> int:
+	var r := 0
+	for need in COOK_RANKS:
+		if meals >= int(need):
+			r += 1
+	return r
+
+## Where you can serve from: behind the counter, or (from Kitchen Hand on) anywhere beside it.
+func _at_counter() -> bool:
+	if me.tile == SERVE_AT:
+		return true
+	return cook_rank() >= 1 and (me.tile - COUNTER).length() <= 1.01 and me.tile != ORDER_AT
+
+## Serving by hand: the one at the front, and from Head Cook the next in line too (the big pot, one press).
+func serve_by_hand() -> void:
+	var n := 2 if cook_rank() >= 3 else 1
+	var served := 0
+	for h in queue.duplicate():
+		if served >= n:
+			break
+		if served == 0 and h.tile != ORDER_AT:
+			break
+		if h.path.is_empty() and (h.tile - ORDER_AT).length() <= 2.3:
+			serve(h, true)
+			served += 1
+
+## At the counter with nobody waiting: from Cook on, turn the slate between the two recipes.
+func _turn_slate() -> void:
+	recipe = "broth" if recipe == "hearty" else "hearty"
+	sfx.play("open")
+	say("", "You turn the slate: %s today." % ("hearty stew, to lift their spirits" if recipe == "hearty" else "healing broth, to mend the hurt ones"))
+
+func _cook_rank_up() -> void:
+	var r := cook_rank()
+	caption.text = "%d meals served by your own hand. You're the %s now. %s" % [meals, COOK_NAMES[r - 1], [
+		"You know the counter well enough to serve from either side of it.",
+		"You've a recipe slate on the counter: stand at it when nobody's waiting to choose hearty stew or healing broth.",
+		"The big two-handled pot is yours: one press at the counter serves the first two in line."][r - 1]]
+	caption_t = 9.0
+	sfx.play("coin")
+
+## What the counter shows of your rank: a name plank, the recipe slate, the big pot.
+func _counter_rank_draw(o: Vector2) -> void:
+	var r := cook_rank()
+	if r >= 1:
+		draw_rect(Rect2(o + Vector2(2, -13), Vector2(12, 4)), Figures.OUTLINE)               # the plank over the awning
+		draw_rect(Rect2(o + Vector2(3, -12), Vector2(10, 2)), Color("d8b070"))
+		for k in r:
+			draw_rect(Rect2(o + Vector2(4 + k * 3, -12), Vector2(2, 2)), Color("f2d24a"))   # a gold notch per rank
+	if r >= 2:
+		draw_rect(Rect2(o + Vector2(-5, 3), Vector2(5, 7)), Figures.OUTLINE)                # the slate, at the counter's end
+		draw_rect(Rect2(o + Vector2(-4, 4), Vector2(3, 5)), Color("3a3a40"))
+		draw_rect(Rect2(o + Vector2(-4, 5), Vector2(3, 1)), Color("e08a3a") if recipe == "hearty" else Color("7ac87a"))
+	if r >= 3:
+		draw_rect(Rect2(o + Vector2(2, -2), Vector2(12, 6)), Figures.OUTLINE)                # the big two-handled pot
+		draw_rect(Rect2(o + Vector2(3, -1), Vector2(10, 5)), Color("5a6068"))
+		draw_rect(Rect2(o + Vector2(1, 0), Vector2(2, 2)), Color("5a6068"))
+		draw_rect(Rect2(o + Vector2(13, 0), Vector2(2, 2)), Color("5a6068"))
+		draw_rect(Rect2(o + Vector2(4, -1), Vector2(8, 1)), Color("d8a050"))
+		draw_line(o + Vector2(10, -1), o + Vector2(14, -7), Color("8a8a84"), 1.0)          # the ladle
 func _counter_draw() -> void:
 	# a plank counter under a striped awning, a pot of stew steaming on it (Starfall palette, docs/art/starfall.md)
 	var o := Vector2(COUNTER) * TILE
@@ -2501,6 +2579,7 @@ func _counter_draw() -> void:
 	for k in 2:
 		var ph := fmod(t * 0.5 + k * 0.5, 1.0)
 		draw_circle(o + Vector2(8 + sin(t * 2.0 + k) * 2.0, -ph * 10.0), 1.5 + ph * 2.0, Color(1, 1, 1, 0.35 * (1.0 - ph)))
+	_counter_rank_draw(o)
 
 func _board_draw() -> void:
 	# the job board (ART-SF-5), with a paper pinned up for each notice you've posted
@@ -2744,7 +2823,7 @@ func _notification(what: int) -> void:
 func save_game() -> void:
 	if no_save:
 		return
-	var d := { "v": 1, "coins": coins, "day": day, "day_t": day_t, "meals": meals, "hired": hired, "offered": bryn_offered,
+	var d := { "v": 1, "coins": coins, "day": day, "day_t": day_t, "meals": meals, "recipe": recipe, "hired": hired, "offered": bryn_offered,
 		"notices": notices, "posted": posted, "today": today, "me": [me.tile.x, me.tile.y],
 		"built": built, "jobs": total_jobs, "rank": rank, "herbs": herbs, "stock": stock, "price": price_i,
 		"pieces": pieces, "smith": smith_hired, "apprentice": { "batches": batches, "hired": fen_hired, "here": fen.where == "town" }, "tavern": { "pours": pours, "hired": tamsin_hired, "here": tamsin.where == "town", "shut": tavern_shut, "quiet": tavern_quiet, "kept": kept }, "garrick": garrick.where == "town", "good": good_days, "bad": bad_days, "visitors": visitors,
@@ -2764,6 +2843,7 @@ func _load() -> bool:
 	day = int(d.day)
 	day_t = float(d.day_t)
 	meals = int(d.meals)
+	recipe = str(d.get("recipe", "hearty")) if str(d.get("recipe", "hearty")) in ["hearty", "broth"] else "hearty"
 	hired = bool(d.hired)
 	bryn_offered = bool(d.offered)
 	notices = d.notices

@@ -231,7 +231,7 @@ mandatory daily chores; convenience is earned. Files for each: `starfall-godot/s
   Village"), plus a "Next" list of the three nearest unlocks (ranks, hires, plots, story beats). Done when: it always shows
   a reachable next step, updates as counts change, works on phone width, and is checked for each kind of unlock. Fixes the
   COMMS lane S "no goal line" note. Score 18/21 (fun 2, Evan 3, friends 3, focus 2, cheap 3).
-- [ ] SF2.11 [any] Station mastery ranks: counter, forge, pot, tap, lantern round and yard each earn named ranks at 10/25/50
+- [ ] SF2.11 [any] (counter done 2026-10-12, Claude lane S, branch claude/sf2.11-counter-mastery: meals by hand earn Kitchen Hand at 10 (serve from beside the counter), Cook at 25 (a recipe slate: hearty stew lifts spirits, healing broth mends), Head Cook at 50 (the big two-handled pot serves two in line); plank, slate and pot drawn on the counter; Bryn stays plain; 272 checks. Next: the forge, pot, tap, lantern round and yard) Station mastery ranks: counter, forge, pot, tap, lantern round and yard each earn named ranks at 10/25/50
   uses. Rank 1 widens the gold band (less fiddly), rank 2 adds a technique with a choice (for example a stew that lifts
   spirits or one that heals), and rank 3 brings a tool drawn in the world that makes one press do more. Start with the
   counter; one station per PR is fine. Done when: ranks save, each rank visibly changes the station, and hand play stays

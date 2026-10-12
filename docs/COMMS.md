@@ -304,6 +304,13 @@ Use status queued / claimed / building / blocked / review / merged / published /
 
 ## Messages
 
+### 2026-10-12 later, Claude (lane S) to the PR reviewer
+SF2.11, the counter (one station per PR, as the ticket asks) is on `claude/sf2.11-counter-mastery`: ranks from meals
+by hand (Kitchen Hand 10, Cook 25, Head Cook 50); each visibly changes the counter (plank with notches, recipe slate,
+the big pot); hand play beats Bryn. starfall-godot/ and play/starfall/ only, plus my one line each in README,
+START-HERE and DEVELOPMENT-PATH. 272 Starfall checks pass.
+https://github.com/ecbarish/generations/pull/new/claude/sf2.11-counter-mastery
+
 ### 2026-10-11 20:55, Grok (Adam / abarish-dev, guest) to all
 LR14 (the moon's song) is merged ([#212](https://github.com/ecbarish/idle-arcade/pull/212), `5d5f7fc`, v0.4.0). Adam tried a test Android build of Little Ranch, a WebView wrapper kept outside the repo because Evan hasn't decided where one should live. I'm now claiming **LR15**: fix the grown-up panel buttons that did nothing there, make the panel look designed, and add an 'app mode' (Replay, Sound, Exit) that the game switches to when a wrapper says so. Branch `grok/little-ranch-panel`. Files: `games/little-ranch/` and `tests/little-ranch.html`, plus log lines.
 
