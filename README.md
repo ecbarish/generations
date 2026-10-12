@@ -39,6 +39,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Brisket's Crossing v0.1.2 (2026-10-12, AC3.2): wider early wagon gaps and logs, slower opening traffic and more delivery time; the first hop starts in clear road. Original challenge returns from run 4. Existing score records and controls stay compatible. [Phone before/after and checks](docs/playtests/brisket-ac3-2/README.md).
+
 - Godot Starfall (2026-10-12, SF2.9): darkness, step 1. Late on an evening when a wall lantern is still dark, sometimes (about 1 in 3) a small creek slime is seen slipping in through that section and making for the nearest building. Each lantern guards its own section, and there's at most one slime in the whole town a night. It leaves a mess on the step with tracks back to the wall, and that place takes 2 coins less a sale until you clean it up with one E press (or Odo does it by day); it dries up by itself after a day. No fighting, nothing permanent; lighting the walls or hiring Odo keeps them out. Old saves load with no mess. 264 checks pass. Source only; the web preview isn't rebuilt by this PR.
 - 2026-10-12, Starfall mobile aspect-fit ([source #221](https://github.com/ecbarish/idle-arcade/pull/221), [preview #222](https://github.com/ecbarish/idle-arcade/pull/222)): phones use fractional aspect-fit while desktop retains integer pixel scaling; unchanged camera, controls and saves. [Rendered review](docs/screenshots/starfall-mobile-fit/README.md) and [exact-build release record](docs/research/starfall-preview-mobile-fit.md).
 
