@@ -17,7 +17,7 @@ Sizes: medium 60, large 22, huge 15, small 15. Tiers: plain 97, legend 9, strong
 | Bogsnap | croc | Tide | medium* | plain* | 1 of 1 | 298 | Thornwood, Old Root Grove | (stays itself) |
 | Bramblestag | horse | Grove | medium* | plain* | 1 of 1 | 400 | bred at the ranch | (stays itself) |
 | Breakwatermane | wolf | Tide | huge* | legend* | 1 of 1 | 525 | one of a kind | (stays itself) |
-| Brineskit | lizard | Tide | small* | plain* | 1 of 2 | 300 | Saltmarsh Coast | Brineskit → Shoalcrest |
+| Brineskit | lizard | Tide | small* | plain* | 1 of 2 | 300 | Saltmarsh Coast, Moon Pool | Brineskit → Shoalcrest |
 | Shoalcrest | croc | Tide | large* | plain* | 2 of 2 | 420 | raised |  |
 | Buoyglint | sprite | Radiant | medium* | plain* | 1 of 1 | 300 | Farwatch Reach | (stays itself) |
 | Cairnclasp | turtle | Stone | medium* | plain* | 1 of 1 | 300 | Emberfall Highlands | (stays itself) |
@@ -32,7 +32,7 @@ Sizes: medium 60, large 22, huge 15, small 15. Tiers: plain 97, legend 9, strong
 | Bloomcourser | horse | Grove | large* | plain* | 2 of 2 | 420 | raised |  |
 | Cragskein | spider | Stone | medium* | plain* | 1 of 1 | 300 | Emberfall Highlands | (stays itself) |
 | Dawntassel | moth | Radiant | medium* | plain* | 1 of 1 | 300 | Sunthread Commons | (stays itself) |
-| Dewspinner | spider | Tide | medium* | plain* | 1 of 1 | 300 | Saltmarsh Coast | (stays itself) |
+| Dewspinner | spider | Tide | medium* | plain* | 1 of 1 | 300 | Saltmarsh Coast, Moon Pool | (stays itself) |
 | Drakelet | lizard | Ember | medium* | plain* | 1 of 1 | 396 | bred at the ranch | (stays itself) |
 | Dripdart | lizard | Tide | medium* | plain* | 1 of 1 | 300 | Hollowecho Hills | (stays itself) |
 | Dunepounce | cat | Stone | medium* | plain* | 1 of 1 | 300 | Saltmarsh Coast | (stays itself) |
@@ -46,7 +46,7 @@ Sizes: medium 60, large 22, huge 15, small 15. Tiers: plain 97, legend 9, strong
 | Cairnhound | wolf | Stone | large* | plain* | 2 of 3 | 420 | Cloudglass Pass |  |
 | Ridgewarden | wolf | Stone | huge* | strong* | 3 of 3 | 510 | raised |  |
 | Flintroot | treefolk | Stone | medium* | plain* | 1 of 1 | 300 | Hollowecho Hills | (stays itself) |
-| Foamglint | sprite | Tide | medium* | plain* | 1 of 1 | 300 | Saltmarsh Coast | (stays itself) |
+| Foamglint | sprite | Tide | medium* | plain* | 1 of 1 | 300 | Saltmarsh Coast, Moon Pool | (stays itself) |
 | Fogsail | moth | Shade | large* | plain* | 1 of 1 | 420 | Cloudglass Pass | (stays itself) |
 | Fogtail | cat | Gale | medium* | plain* | 1 of 1 | 304 | Cloudglass Pass | (stays itself) |
 | Fordfoal | horse | Tide | large* | plain* | 1 of 1 | 420 | Stillreed Basin | (stays itself) |
@@ -84,7 +84,7 @@ Sizes: medium 60, large 22, huge 15, small 15. Tiers: plain 97, legend 9, strong
 | Pallweaver | spider | Stone | medium* | plain* | 1 of 1 | 304 | Cloudglass Pass | (stays itself) |
 | Pebblepaw | cat | Stone | medium* | plain* | 1 of 1 | 298 | Thornwood, Old Root Grove | (stays itself) |
 | Pennantlark | bird | Radiant | medium* | plain* | 1 of 1 | 300 | Sunthread Commons | (stays itself) |
-| Poolkit | cat | Tide | small* | plain* | 1 of 2 | 300 | Saltmarsh Coast | Poolkit → (Mistlynx / Sunlynx / Rilllynx) |
+| Poolkit | cat | Tide | small* | plain* | 1 of 2 | 300 | Saltmarsh Coast, Moon Pool | Poolkit → (Mistlynx / Sunlynx / Rilllynx) |
 | Rilllynx | cat | Tide | large* | plain* | 2 of 2 | 420 | raised |  |
 | Mistlynx | cat | Shade | large* | plain* | 2 of 2 | 440 | raised |  |
 | Sunlynx | cat | Radiant | large* | plain* | 2 of 2 | 440 | raised |  |
@@ -96,7 +96,7 @@ Sizes: medium 60, large 22, huge 15, small 15. Tiers: plain 97, legend 9, strong
 | Ripplet | lizard | Tide | small* | plain* | 1 of 3 | 313 | starter, Maren's barn | Ripplet → Tidewyrm → Deeptide |
 | Tidewyrm | serpent | Tide | large* | plain* | 2 of 3 | 450 | raised |  |
 | Deeptide | serpent | Tide | huge* | showpiece* | 3 of 3 | 544 | raised |  |
-| Saillet | lizard | Gale | small* | plain* | 1 of 3 | 300 | Saltmarsh Coast | Saillet → Draftscale → Stormfrill |
+| Saillet | lizard | Gale | small* | plain* | 1 of 3 | 300 | Saltmarsh Coast, Moon Pool | Saillet → Draftscale → Stormfrill |
 | Draftscale | lizard | Gale | large* | plain* | 2 of 3 | 420 | Cloudglass Pass |  |
 | Stormfrill | lizard | Gale | huge* | strong* | 3 of 3 | 510 | raised |  |
 | Screegrin | hyena | Stone | medium* | plain* | 1 of 1 | 300 | Emberfall Highlands | (stays itself) |

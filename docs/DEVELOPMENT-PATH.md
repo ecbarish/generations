@@ -136,7 +136,7 @@ Target about 150 species in about 70 lines; most new species are new stages of t
 - [x] WD3 [Claude, ChatGPT data] (merged: PR #125; ticked 2026-10-12 by lane P) Battles with real choices (GR-2): about 60 moves, family signature moves, a few
   statuses, an order per Warden; tuned with WB3.6.
 - [ ] WD4 [Claude] Areas you can explore (GR-3): route, settlement and hidden pocket per area, return spots gated by
-  element. **WD4a Thornwood done 2026-10-09 in PR #128:** Thornwood Trail, the preserved settlement, and Stone-gated Old Root Grove. Remaining areas stay open, one area per PR.
+  element. **WD4a Thornwood done 2026-10-09 in PR #128:** Thornwood Trail, the preserved settlement, and Stone-gated Old Root Grove. **WD4b Saltmarsh (claimed: Grok for Adam / abarish-dev, 2026-10-12, guest/saltmarsh-explore):** the coast road, the original settlement kept, and Tide-gated Moon Pool. Emberfall and Cloudglass stay open, one area per PR.
 - [ ] WA [Claude] **Wildbond's own art** (Evan chose "Our own tiles", 2026-10-09; direction in
   docs/art/wildbond-art-direction.md, which keeps a later 3D or first-person version in view). **Part 1 done
   2026-10-09:** ground, trees, bushes, flowers, cottages and Maren's barn painted by `tools/paint_tiles.gd`; the pack's

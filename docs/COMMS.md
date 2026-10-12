@@ -33,6 +33,8 @@ WB-ROOMS-1 (Adam approved): furnishing pass for the Larkhaven inn, Pip and Mira'
 
 ### 2026-10-12 16:49 UTC, dot engineering task (Adam / abarish-dev) to all
 **AC3.2 is claimed in draft [#233](https://github.com/ecbarish/idle-arcade/pull/233)**, `guest/brisket-easier-opening`, after Adam reports the opening is too tightly packed on his phone. Scope: early wagon spacing, river landing windows and decision time; preserve controls, recovery and old scores, and retain later challenge where practical. Baseline has a narrow 0.70-column wrap gap between carts. Actual CSS-size portrait/landscape renders, timed crossings and independent review gate the result. No merge/publication authorization. #231 postmerge CI monitoring stays with its existing owner; no other lane is claimed.
+### 2026-10-12 16:40 UTC, Grok (Adam / abarish-dev) to lane W and all
+Claiming **WD4b** (QUEUE H2), Saltmarsh you can explore, draft [#232](https://github.com/ecbarish/idle-arcade/pull/232) on `guest/saltmarsh-explore`. Same shape as WD4a: a coast road between Thornwood's gate and the settlement, the original `saltmarsh` map kept so old saves land where they did, and Moon Pool behind a Tide partner. Local Godot 4.7.2 headless: 1526 passed. Not merged. Emberfall (WD4c) stays free.
 
 ### 2026-10-12 16:40 UTC, Grok (Adam / abarish-dev) to all
 X1 Diamond Career newcomer playtest done (took over stale #114 after a comment). Adam approved filing: #227 dead end after game 6, #228 Continue needs two presses, #229 swing timing, #230 preparation hides Play game. #111 points re-confirmed in a #114 comment, not refiled. #114 closed; screenshots in docs/playtests/diamond-x1/. No game code.

@@ -37,13 +37,11 @@ button appear (every control is a named action in `scripts/controls.gd`; the pad
   or a moment in the woods. **Bond** throws a lure and starts a calm meter: press when the marker is in the green
   (weaker, calmer creatures are easier). **Each creature that trusts you brings colour back** where you are. Your team
   holds three; the rest go to Maren's ranch. **Bram and Lise** spot you and walk over to battle; **Warden Isolde**
-  waits at the hawthorn gate with her scene and three creatures, and the **Thorn Badge** opens the gate (the coast is
-  next to build). Lose a battle and you hurry home to Maren; talk to her any time to heal your team.
+  waits at the hawthorn gate with her scene and three creatures, and the **Thorn Badge** opens the gate onto Saltmarsh Road (the settlement keeps its old map; Moon Pool opens for a Tide partner). Lose a battle and you hurry home to Maren; talk to her any time to heal your team.
 - **Story moments as you explore** (the browser's STORY): Wren catches you up on the Thornwood trail after 12
   explorations, and Elderhorn, the guardian stag, steps out of the old trees at 20 (befriend it, or it slips away to
   return later). On the coast: Wren again, and Breakwatermane walking out of the surf at low tide.
-- **Saltmarsh Coast:** through the hawthorn gate. Beach, reeds, rocks and the open sea; Tobin the old fisher, Cato and
-  Marit, and Warden Nerys with the Tide Badge (the cliff road east to the Emberfall Highlands opens with it). Badges
+- **Saltmarsh:** the Thorn Badge opens onto Saltmarsh Road, then the original coast settlement, so an old save keeps its map and coordinates. Beach, reeds, rocks and the open sea. Tobin the old fisher stands on the road; Cato, Marit and Warden Nerys stay in the settlement. The Tide Badge opens the cliff road east. A Tide partner can climb down to Moon Pool, where Foamglint is easier to find. Badges
   raise the level cap (15, then 25, ...: CAP_TABLE).
 - **Emberfall Highlands:** up the cliff road with the Tide Badge. A mountain of layered rock with sunlit rims and shaded
   cliff faces (rock out in the meadow stands as boulders), warm dry turf, amber hot springs that bubble and steam, and
