@@ -102,6 +102,8 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+
+- 2026-10-12 Codex (Adam): TOWER-COMMS #223 requests shared task reporting for the separate read-only AI Control Tower Site; no game or save changes.
 - 2026-10-12 Codex (Adam / abarish-dev): SF-MOBILE-FIT in draft [#221](https://github.com/ecbarish/idle-arcade/pull/221): phones use fractional aspect-fit, desktop keeps integer pixels; camera and saves unchanged. 1,406 exported-browser checks / 136 captures and all 19 suites pass; [evidence](docs/screenshots/starfall-mobile-fit/README.md). Final-head checks gate review; not merged or published.
 - 2026-10-12 Claude (sports thread): Diamond Manager v0.8.1: balls in play keep a watchable pace at Fast and Very fast, infielders react, first baseman covers, batter runs it out (Evan saw only strikeouts at speed).
 - 2026-10-12 Claude (Priorities and direction): long runway: QUEUE "The direction" section, Heavy lifting H1-H20, road 16 rows (LB2+ unparked, AC5/AC6 added), WD3 ticked.
