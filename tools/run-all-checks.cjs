@@ -15,7 +15,7 @@ const PAGES=['run','wildbond','starfall','sound','offline','diamond','diamond-ma
 const GODOT_SUITES=['wildbond-godot','starfall-godot'];
 const only=process.argv.slice(2);
 const wanted=name=>!only.length||only.some(w=>name.includes(w));
-if(only.length&&!PAGES.concat(GODOT_SUITES,['wildbond-catalog','save-names','asset-library']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['wildbond-catalog','save-names','asset-library']).join(', '));process.exit(2);}
+if(only.length&&!PAGES.concat(GODOT_SUITES,['wildbond-catalog','save-names','asset-library','agent-context']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['wildbond-catalog','save-names','asset-library','agent-context']).join(', '));process.exit(2);}
 const TYPES={'.html':'text/html','.js':'text/javascript','.cjs':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.ogg':'audio/ogg','.wav':'audio/wav','.mp3':'audio/mpeg','.mp4':'video/mp4','.wasm':'application/wasm','.pck':'application/octet-stream','.webmanifest':'application/manifest+json','.ico':'image/x-icon','.txt':'text/plain','.md':'text/plain'};
 
 function serve(){return new Promise(ok=>{const server=http.createServer((req,res)=>{
@@ -110,6 +110,12 @@ function findGodot(){
     const line=((run.stdout||'')+(run.stderr||'')).trim().split('\n').pop();
     results.push({name:'asset-library',ok:run.status===0,line});
     console.log((run.status===0?'ok  ':'FAIL')+'  asset-library  '+line);
+  }
+  if(wanted('agent-context')){                  // scoped startup retains current tasks, warnings and fresh source hashes
+    const run=spawnSync(process.execPath,[path.join(ROOT,'tests/agent-context.cjs')],{encoding:'utf8'});
+    const line=((run.stdout||'')+(run.stderr||'')).trim().split('\n').pop();
+    results.push({name:'agent-context',ok:run.status===0,line});
+    console.log((run.status===0?'ok  ':'FAIL')+'  agent-context  '+line);
   }
   const failed=results.filter(r=>!r.ok);
   console.log(failed.length?'\n'+failed.length+' of '+results.length+' suites FAILED.':'\nAll '+results.length+' suites pass.');

@@ -45,7 +45,7 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| RB1.12a | Concurrent Thornvale requests | S | built: dot (Adam), draft #283; held for Adam | Existing quests, Journal, save regression checks; no save format change |
+| RB1.12a | Concurrent Thornvale requests | S | published: dot (Adam), #283 at 05d39631 | Existing quests, Journal, save regression checks; no save format change |
 
 ## Realmbound newcomer snags
 
@@ -226,7 +226,7 @@ workbench and gear), evolution shapes and conditions, heritages, music, saving. 
 
 | ID | Project | Size | Status | Notes |
 |---|---|---|---|---|
-| WB-C2 | **Meet your partner sooner** (cycle 1) | S | claimed: dot / Adam, 2026-10-13, [#279](https://github.com/ecbarish/generations/pull/279) | Measured New Game to first partner at most three minutes; preserve choices, story and saves |
+| WB-C2 | **Meet your partner sooner** (cycle 1) | S | merged c8fa1c8; preview pending, [#279](https://github.com/ecbarish/generations/pull/279) | Measured New Game to first partner at most three minutes; preserve choices, story and saves |
 | WB2.6 | **Early-road heritage recognition** (T45; browser data exported for Claude) | S | claimed: Codex, 2026-10-08, codex/wildbond-early-heritages | All four origins for existing early-road NPCs and Wardens; ledger and checks |
 | WG1 | **Tamer abilities** with heritages: orders that grow from who you are and who taught you (Toren's Steady) | M | open (next) | creature-catalogue-and-evolution.md §4 |
 | WG2 | **Stillreed Basin** and the areas after it (Hollowecho, Sunthread, Farwatch), from the browser data | L | open | Each with its own furniture, sound and music (variety plan) |
@@ -379,6 +379,8 @@ New Wildbond work goes to **Wildbond in Godot** above. Browser data (species, ma
 | RB-W1 | **T38 Realmbound in the game window, plan and part 1** | M | Polish | — | done, merged 2026-10-08 (Realmbound v1.6.0, PR #62) | ROADMAP T38; world fills the window, Quest Journal and Satchel overlays; no gameplay/balance or version changes |
 
 ## Shared systems and the world kit
+
+**ONBOARD-KIT1** merged by dot (Adam), 2026-10-13, [#294](https://github.com/ecbarish/generations/pull/294); authorized public verification in [#301](https://github.com/ecbarish/generations/pull/301): cycle-1 shared browser newcomer kit; Realmbound adapter and neutral fixture only. See DEVELOPMENT-PATH.
 
 | ID | Project | Size | Kind | Depends | Status | Spec / notes |
 |---|---|---|---|---|---|---|

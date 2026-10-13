@@ -55,18 +55,44 @@ function roadHint() {
   }
   return null;
 }
+/* The shared presenter never reads or writes a hero. These labels describe existing actions only. */
+const ROAD_GOALS = {
+  recovery:'Recover and keep your progress.', reward:'Return your finished request.', loot:'Collect what you found.',
+  town:'Rest, trade, or choose your next road.', bags:'Compare the gear in your Satchel.',
+  home:'Choose another request.', companion:'Meet your fellow traveler.', fight:'Choose your next combat action.',
+  thornvaleRequests:'Ask Deputy Rhea about the mine.'
+};
+function roadInputHint(hint) {
+  if (hint.id === 'town') return {keyboard:'Put away this note, then walk with arrows or WASD. Enter talks to someone nearby.',touch:'Put away this note, then tap the ground to walk or a person to approach and talk.'};
+  if (hint.id === 'fight') return {keyboard:'Put away this note, then press a lit ability’s number or choose Fight.',touch:'Put away this note, then tap a lit ability or the Fight button.'};
+  if (hint.id === 'loot') return {keyboard:'Put away this note, then press L or choose Loot all when you are ready.',touch:'Put away this note, then tap Loot all when you are ready.'};
+  if (hint.tab === 'bags') return {keyboard:'Choose Open bags below. B opens the Satchel from the world; Esc puts it away.',touch:'Tap Open bags below. Tap Put away to return.'};
+  if (hint.tab === 'quests') return {keyboard:'Choose Open quests below. J opens the Quest Journal from the world; Esc puts it away.',touch:'Tap Open quests below. Tap Put away to return.'};
+  return {keyboard:'Esc puts this note away. Your actions remain yours to choose.',touch:'Tap Put away to return to the world. Take your time.'};
+}
+let ROAD_PRESENTER = null;
 function renderRoadGuide() {
   const controls = $('#arrivalControls'); if (controls) controls.hidden = !arrivalPaused();
   const el = $('#roadGuide'); if (!el) return;
-  const hint = roadHint(); el.hidden = !hint;
-  if (!hint) { el.dataset.key = ''; return; }
-  const key = hint.id + hint.title + hint.text;
-  if (el.dataset.key === key) return; el.dataset.key = key;
-  el.replaceChildren(); const heading = document.createElement('h3'), text = document.createElement('p'), acts = document.createElement('div');
-  heading.textContent = hint.title; text.textContent = hint.text; acts.className = 'road-acts';
-  if (hint.tab) { const b = document.createElement('button'); b.className = 'btn sm'; b.dataset.act = 'tab'; b.dataset.arg = hint.tab; b.textContent = 'Open ' + hint.tab[0].toUpperCase() + hint.tab.slice(1); acts.append(b); }
-  const dismiss = document.createElement('button'); dismiss.className = 'btn sm alt'; dismiss.dataset.road = 'dismiss'; dismiss.dataset.hint = hint.id; dismiss.textContent = 'Got it'; acts.append(dismiss);
-  el.append(heading, text, acts);
+  if (!ROAD_PRESENTER) {
+    ROAD_PRESENTER = ArcadeOnboarding.create({element:el,
+      onDismiss:id => { const o = roadState(H()); if (o) { o.hints[id] = true; save(); renderRoadGuide(); if (typeof FIELD_BOOK !== 'undefined' && FIELD_BOOK === 'road') { const target = el.hidden ? $('#fieldPutAway') : el.querySelector('.onboarding-dismiss'); if (target) target.focus(); } } },
+      onAction:tab => { if (typeof openRealmNotebook === 'function') openRealmNotebook(tab, FIELD_OPENER || $('#fieldDock [data-field-book="road"]')); }
+    });
+  }
+  const hint = roadHint();
+  ROAD_PRESENTER.update(hint ? {id:hint.id,title:hint.title,text:hint.text,goal:ROAD_GOALS[hint.id] || hint.title,
+    inputs:roadInputHint(hint),
+    orientation:{portrait:'You can turn your phone sideways for a wider view. Portrait play still works.'},
+    actions:hint.tab ? [{id:hint.tab,label:'Open ' + hint.tab[0].toUpperCase() + hint.tab.slice(1)}] : []} : null);
+  // Reuse the existing Road note control, with no new overlay over walking or dialogue.
+  const opener = $('#fieldDock [data-field-book="road"]');
+  if (opener) {
+    let next = $('#roadNextGoal');
+    if (!next) { next = document.createElement('span'); next.id = 'roadNextGoal'; opener.append(next); }
+    const visible = !!hint && !RTALK && !modalKind;
+    next.hidden = !visible; next.textContent = visible ? ROAD_GOALS[hint.id] || hint.title : '';
+  }
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-road]'); if (!b) return;

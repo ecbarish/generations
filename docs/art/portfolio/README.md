@@ -26,4 +26,4 @@ For a later adventurer chapter, keep Evan's 2026-10-13 feedback: he likes the pa
 
 Seventeen 768px preview files total 1,517,958 bytes; source PNGs are linked in place. No new generation or credits. Approval scope and candidate corrections are visible in every view.
 
-Aggregate run: 20 of 21 normal suites passed; the unchanged Little Ranch kitchen-hint check failed again on main b14553e. Earlier runs of that same game revision passed, so this remains an intermittent baseline issue for the game owner. No game code or game assertion changed here.
+Aggregate verification after merging main 4c5b74a (2026-10-13): **21 of 22 suites pass**. The unchanged Little Ranch check `Left alone, the berries glow (the hint)` still fails. Both Godot suites pass (Wildbond 1,643; Starfall 272), as do the catalogue/save/asset/context checks. Portfolio verification remains 211 checks and 27 responsive views. No game code or assertion changed here.

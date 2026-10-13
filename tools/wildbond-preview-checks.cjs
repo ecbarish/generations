@@ -5,15 +5,20 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const assert = require('assert/strict');
+const { isDeepStrictEqual } = require('util');
 const { chromium } = require('playwright');
+const { reviewOpening } = require('./wildbond-opening-browser.cjs');
+const { navigateWithPack } = require('./wildbond-pack-response.cjs');
 const root = path.resolve(__dirname, '..');
 const out = path.join(root, 'preview-review');
 fs.mkdirSync(path.join(out, 'screens'), { recursive: true });
-const report = { checks: [], consoles: [], screenshots: [], doors: [], pad: [] };
+const report = { completed: false, suite: process.env.WB_OPENING_ONLY === '1' ? 'opening-only' : 'full', checks: [], consoles: [], screenshots: [], doors: [], pad: [] };
 const check = (ok, label) => { assert(ok, label); report.checks.push(label); console.log('PASS ' + label); };
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
-  let file = path.join(root, decodeURIComponent(url.pathname));
+  // Local-only aliases model the repository rename under one browser origin.
+  const requestPath = decodeURIComponent(url.pathname).replace(/^\/(?:idle-arcade|generations)(?=\/play\/wildbond\/)/, '');
+  let file = path.join(root, requestPath);
   if (!file.startsWith(root + path.sep)) { res.writeHead(403); return res.end(); }
   if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
   if (!fs.existsSync(file)) { res.writeHead(404); return res.end(); }
@@ -47,7 +52,9 @@ async function open(browser, size, fixture, before = false, options = {}) {
     route.fulfill({ contentType: 'text/html', body: source });
   });
   if (before) await page.route('**/play/wildbond/index.pck', route => route.fulfill({ path: process.env.BEFORE_PACK, contentType: 'application/octet-stream' }));
-  await page.goto(`http://127.0.0.1:${server.address().port}/play/wildbond/`);
+  const prefix = options.pathPrefix || '';
+  assert(['', '/idle-arcade', '/generations'].includes(prefix), 'Only documented local review aliases are permitted');
+  await page.goto(`http://127.0.0.1:${server.address().port}${prefix}/play/wildbond/`);
   await page.waitForFunction(() => !document.querySelector('#status'), null, { timeout: 90000 });
   await page.waitForTimeout(1200);
   check(errors.length === 0, `${before ? 'previous' : 'refreshed'} web pack starts at ${size.width}×${size.height}`);
@@ -258,12 +265,95 @@ async function reviewPad(browser, size, legacy) {
   } finally { await current.context.close(); }
 }
 
+async function reviewRenameContinuity(browser, fixture) {
+  assert(process.env.BEFORE_PACK && fs.existsSync(process.env.BEFORE_PACK), 'Actual previous pack required for rename continuity');
+  const current = await open(browser, { width: 812, height: 375 }, fixture, true, { phone: true, settings: settingsText(0), pathPrefix: '/idle-arcade' });
+  const { page } = current;
+  let canonicalPack = null;
+  const packEvidence = {};
+  report.renameDiagnostics = { pack: packEvidence, errors: current.errors };
+  try {
+    const previousUrl = page.url();
+    check(new URL(previousUrl).pathname === '/idle-arcade/play/wildbond/', 'Rename review starts at the simulated old repository path');
+    await continueJourney(page);
+    await persisted(page, d => d.saved !== fixture.saved && d.map === 'barn' && d.x === 11 && d.y === 11, 'Previous shipped pack loads the once-preloaded journey at the old path');
+    // A real input change ensures this is old-runtime persistence, not a static fixture comparison.
+    await step(page, 'ArrowUp');
+    const changed = await persisted(page, d => d.map === 'barn' && d.x === 11 && d.y === 10, 'Real keyboard movement in previous pack changes the old-path journey');
+    const stored = await browserStored(page, d => d.map === 'barn' && d.x === 11 && d.y === 10 && d.saved === changed.saved, 'Old-path changed journey is persisted to real origin IndexedDB');
+    const oldSettings = await readSettings(page);
+    await shot(page, 'rename-old-path-persisted');
+    // Observe all loaded pack bytes after removing every preload and old-pack substitution.
+    await page.unroute('**/play/wildbond/');
+    await page.unroute('**/play/wildbond/index.pck');
+    const canonicalUrl = `http://127.0.0.1:${server.address().port}/generations/play/wildbond/`;
+    check(new URL(previousUrl).origin === new URL(canonicalUrl).origin, 'Rename scenario retains the same actual browser origin');
+    canonicalPack = await navigateWithPack(page, canonicalUrl, fs.readFileSync(path.join(root, 'play/wildbond/index.pck')), packEvidence);
+    check(canonicalPack !== null, 'Observed new pack response at the simulated canonical path');
+    await page.waitForTimeout(900);
+    await continueJourney(page);
+    function possessionsPreserved(save) {
+      return save.partner === stored.partner && isDeepStrictEqual(save.team, stored.team)
+        && isDeepStrictEqual(save.ranch, stored.ranch) && isDeepStrictEqual(save.bag, stored.bag)
+        && isDeepStrictEqual(save.look, stored.look) && isDeepStrictEqual(save.badges, stored.badges)
+        && Object.entries(stored.story).every(([key, value]) => isDeepStrictEqual(save.story[key], value));
+    }
+    // Existing authored interior reload behavior uses the doorway landing, not the old tile.
+    const loaded = await persisted(page, d => d.saved !== stored.saved && d.map === 'barn' && d.x === 11 && d.y === 11 && possessionsPreserved(d), 'Canonical path loads the changed old-path IndexedDB journey without a fixture and preserves partner, team, ranch, possessions and progression');
+    check(await readSettings(page) === oldSettings, 'Phone and sound settings survive same-origin repository path rename');
+    await browserStored(page, d => d.saved === loaded.saved && possessionsPreserved(d), 'Canonical path persists the retained journey back to the same IndexedDB');
+    await shot(page, 'rename-canonical-path-loaded');
+    check(current.errors.length === 0, 'Same-origin path continuity has no browser/game-script errors');
+    report.renameContinuity = { passed: true, scope: 'simulated-local-same-origin-path-rename', oldPath: '/idle-arcade/play/wildbond/', canonicalPath: '/generations/play/wildbond/', sameOrigin: true, priorPack: true, priorPackSha256: require('crypto').createHash('sha256').update(fs.readFileSync(process.env.BEFORE_PACK)).digest('hex'), realInputChange: true, indexedDB: true, fixtureFreeNavigation: true, settingsPreserved: true, newPack: canonicalPack, oldPosition: { x: stored.x, y: stored.y }, canonicalPosition: { x: loaded.x, y: loaded.y }, screenshots: ['rename-old-path-persisted.png', 'rename-canonical-path-loaded.png'] };
+  } catch (error) {
+    report.renameDiagnostics.error = error.stack || String(error);
+    await shot(page, 'rename-continuity-failed').catch(captureError => { report.renameDiagnostics.captureError = captureError.message; });
+    throw error;
+  } finally { await current.context.close(); }
+}
+
+async function reviewCurrentSave(browser) {
+  const fixture = JSON.parse(fs.readFileSync(path.join(root, 'wildbond-godot/tests/fixtures/wb-c2-pre-change.json'), 'utf8'));
+  const current = await open(browser, { width: 812, height: 375 }, fixture, false, { phone: true, settings: settingsText(0) });
+  function preserved(save) {
+    return save.partner === fixture.partner && save.map === fixture.map && save.x === fixture.x && save.y === fixture.y
+      && save.look.name === fixture.look.name && save.look.heritage === fixture.look.heritage
+      && JSON.stringify(save.badges) === JSON.stringify(fixture.badges)
+      && isDeepStrictEqual(save.team, fixture.team) && isDeepStrictEqual(save.ranch, fixture.ranch)
+      && Object.entries(fixture.bag).every(([key, value]) => JSON.stringify(save.bag[key]) === JSON.stringify(value))
+      && Object.entries(fixture.story).every(([key, value]) => JSON.stringify(save.story[key]) === JSON.stringify(value));
+  }
+  try {
+    await continueJourney(current.page);
+    const loaded = await persisted(current.page, d => d.saved !== fixture.saved && preserved(d), 'WB-C2 frozen pre-change journey preserves partner, team, inventory, heritage, badges, story and location');
+    await browserStored(current.page, preserved, 'WB-C2 frozen journey reaches real browser IndexedDB');
+    await shot(current.page, 'wb-c2-current-save-before-reload');
+    await reloadWithoutFixtures(current.page);
+    await persisted(current.page, d => d.saved !== loaded.saved && preserved(d), 'WB-C2 frozen journey survives fixture-free browser reload');
+    check(await readSettings(current.page) === settingsText(0), 'WB-C2 frozen journey preserves existing phone and sound settings');
+    await shot(current.page, 'wb-c2-current-save-after-reload');
+    check(current.errors.length === 0, 'WB-C2 frozen journey has no browser/game-script errors');
+    report.currentSave = { passed: true, source: 'wildbond-godot/tests/fixtures/wb-c2-pre-change.json', fixtureFreeReload: true, indexedDB: true, partner: fixture.partner };
+  } finally { await current.context.close(); }
+}
+
 (async () => {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const browser = await chromium.launch({ headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   try {
-    const fixtures = Object.fromEntries(['barn', 'thornwood', 'champion'].map(name => [name, JSON.parse(fs.readFileSync(path.join(out, 'fixtures', name + '.json'), 'utf8'))]));
-    check(!fixtures.barn.team[0].moves && !fixtures.barn.spire && !fixtures.barn.rematches, 'fixtures were written in the pre-WD3/pre-Spire format');
+    // Independent contexts: check the path-migration gate first so its failure
+    // does not wait behind already-verified opening captures. No coverage removed.
+    let fixtures;
+    if (process.env.WB_OPENING_ONLY !== '1') {
+      fixtures = Object.fromEntries(['barn', 'thornwood', 'champion'].map(name => [name, JSON.parse(fs.readFileSync(path.join(out, 'fixtures', name + '.json'), 'utf8'))]));
+      check(!fixtures.barn.team[0].moves && !fixtures.barn.spire && !fixtures.barn.rematches, 'fixtures were written in the pre-WD3/pre-Spire format');
+      await reviewRenameContinuity(browser, fixtures.barn);
+    }
+    for (const [size, method] of [[{ width: 812, height: 375 }, 'touch'], [{ width: 1920, height: 1080 }, 'keyboard']]) {
+      await reviewOpening(browser, { open, screenPoint, check, report, out }, size, method);
+    }
+    await reviewCurrentSave(browser);
+    if (process.env.WB_OPENING_ONLY === '1') { report.completed = true; return; }
     for (const size of [{ width: 667, height: 375 }, { width: 1366, height: 768 }, { width: 1920, height: 1080 }, { width: 3440, height: 1440 }]) {
       const tag = `${size.width}x${size.height}`;
       if (size.width === 667 || size.width === 1920) {
@@ -363,6 +453,7 @@ async function reviewPad(browser, size, legacy) {
     check(opening.errors.length === 0, 'new journey responds for a minute and survives portrait/landscape rotation without script/page errors');
     await opening.context.close();
     await reviewDoors(browser, fixtures.barn);
+    report.completed = true;
     console.log('WEB REVIEW PASSED: ' + report.checks.length + ' checks, ' + report.screenshots.length + ' screenshots');
   } finally {
     fs.writeFileSync(path.join(out, 'web-review.json'), JSON.stringify(report, null, 2) + '\n');
