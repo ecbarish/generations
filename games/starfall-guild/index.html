@@ -27,7 +27,13 @@
     <section class="left">
       <div class="win">
         <div class="bar"><span id="stageTitle">B1F · Slime</span><span id="stageTag"></span></div>
-        <div class="stage"><canvas id="stage" aria-label="Your party fighting in the dungeon"></canvas></div>
+        <div class="stage"><canvas id="stage" aria-label="Your party fighting in the dungeon"></canvas>
+          <section id="recovery" class="recovery" hidden aria-label="Prepare while the party recovers">
+            <b>Regroup at the Inn</b> <span id="recovery-time"></span>
+            <p>Train for the next delve, or choose a safer floor. Rest finishes on its own.</p>
+            <div class="recovery-actions"><button class="btn gold" id="recovery-train" data-act="recovery-train"></button><button class="btn" id="recovery-back" data-act="back">Choose a safer floor</button></div>
+          </section>
+        </div>
         <div class="body">
           <div class="bstat">
             <span class="lbl">Enemy</span><div class="hpbar"><i id="monHp" style="width:100%"></i></div><span class="px" id="monHpT">0</span>

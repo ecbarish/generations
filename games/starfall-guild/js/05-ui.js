@@ -128,7 +128,20 @@ function renderTab(force){const t=TABS[S.tab]||TABS.party;const k=S.tab+':'+t.ke
   document.querySelectorAll('.tabs [role=tab]').forEach(b=>b.setAttribute('aria-selected',b.dataset.arg===S.tab?'true':'false'));}
 
 /* ================= HUD ================= */
+function recoveryPrep(){
+  return S.party.slice().sort((a,b)=>a.lvl-b.lvl||a.id-b.id)[0]||null;
+}
+function updateRecovery(){
+  const panel=$('#recovery');panel.hidden=!(S.resting>0&&S.party.length&&!S.regionOffer);
+  if(panel.hidden)return;
+  $('#recovery-time').textContent=Math.ceil(S.resting)+'s to recover';
+  const a=recoveryPrep(),cost=lvlCostN(a,1),b=$('#recovery-train');
+  b.dataset.arg=String(a.id);b.textContent='Train '+a.name+' · '+fmt(cost)+' gold';b.disabled=S.gold<cost;
+  b.setAttribute('aria-label','Train '+a.name+' one level for '+fmt(cost)+' gold');
+  $('#recovery-back').disabled=S.floor<=1;
+}
 function updateUI(){
+  updateRecovery();
   const r=R(),m=S.mon;
   $('#seasonNo').textContent=S.stats.seasons+1;$('#regionName').textContent=r.name;$('#regionNote').textContent=r.mods.join(' · ');
   $('#gold').textContent=fmt(S.gold);$('#gps').textContent=`${fmt(D.gps)}/s from shops`;

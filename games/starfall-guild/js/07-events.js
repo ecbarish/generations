@@ -10,6 +10,7 @@ document.addEventListener('click',e=>{
     case 'tab':S.tab=arg;renderTab(true);break;
     case 'mode':S.buy=arg==='max'?'max':Number(arg);break;
     case 'lvl':levelUp(Number(arg),S.buy);break;
+    case 'recovery-train':{const a=S.party.find(a=>a.id===Number(arg));if(S.resting>0&&a&&levelUp(a.id,1))toast(a.name+' reaches level '+a.lvl+'. Stronger for the next delve.');break;}
     case 'dismiss':if(arm(el,'Dismiss','Sure?'))dismiss(Number(arg));break;
     case 'recruit':recruit(Number(arg));break;
     case 'reroll':{const c=rerollCost();if(S.gold>=c){S.gold-=c;S.rerolls++;refreshBoard();}break;}

@@ -8,7 +8,7 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| SG-N1 | Useful recovery and accurate Ledger time | S | claimed: Codex, codex/starfall-classic-recovery | Browser classic only; existing preparation actions inside the scene, no new loop |
+| SG-N1 | Useful recovery and accurate Ledger time | S | ready: Codex, PR #264 | Browser classic only; existing preparation actions inside the scene, no new loop |
 
 ## Diamond Manager newcomer bugs
 

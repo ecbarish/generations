@@ -105,6 +105,8 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-12 Codex: SG-N1 browser-classic recovery and Ledger fixes, PR #264; all 20 suites and 26 browser checks pass. Godot unchanged.
+
 - 2026-10-12 Codex: DM-N1a, reported Diamond Manager post-game/bench-start bugs, PR #261; isolated browser bug fixes, no content/version changes.
 
 - **2026-10-12, Codex:** RB-N1 in PR #253 repairs loot expiry/full-satchel loss and resource/dialogue feedback; pending field drops default safely for old saves. No content expansion or version bump.
