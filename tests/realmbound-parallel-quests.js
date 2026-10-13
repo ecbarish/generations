@@ -58,7 +58,8 @@ async function checkRealmParallelQuests(frame){
  frame.style.width='667px';frame.style.height='375px';await settle();
  const dialog=d.querySelector('.scene .dlg'),dialogBox=dialog.getBoundingClientRect(),topBox=d.querySelector('.top').getBoundingClientRect();
  check(dialogBox.top>=topBox.bottom,'landscape quest conversation clears the top HUD');
- check(dialogBox.bottom<=d.querySelector('.abar').getBoundingClientRect().top+1,'landscape quest conversation clears the combat controls');
+ check(w.getComputedStyle(d.querySelector('.abar')).display==='none'||dialogBox.bottom<=d.querySelector('.abar').getBoundingClientRect().top+1,'landscape quest conversation clears or hides paused combat controls');
+ check(dialogBox.bottom<=d.querySelector('#fieldDock').getBoundingClientRect().top,'landscape quest conversation clears the dock');
  const buttons=[...d.querySelectorAll('.dlg-choices button')];buttons[buttons.length-1].click();
  check(run('JSON.stringify(H().quests)===cancelSnapshot'),'Another time leaves quests and rewards untouched');
  run("talkPlaceQuest(townPeople().find(n=>n.name==='Deputy Rhea'));SCN.skip();");
