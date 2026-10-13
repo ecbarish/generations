@@ -1,0 +1,144 @@
+{
+  "date": "2026-10-13",
+  "checks": [
+    {
+      "width": 390,
+      "state": "",
+      "game": "",
+      "search": "",
+      "count": 17,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "state": "production",
+      "game": "",
+      "search": "",
+      "count": 0,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "state": "reference",
+      "game": "Starfall",
+      "search": "",
+      "count": 6,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "state": "prototype",
+      "game": "",
+      "search": "sword",
+      "count": 1,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "state": "",
+      "game": "Wildbond",
+      "search": "",
+      "count": 3,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "state": "",
+      "game": "",
+      "search": "",
+      "count": 17,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "state": "production",
+      "game": "",
+      "search": "",
+      "count": 0,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "state": "reference",
+      "game": "Starfall",
+      "search": "",
+      "count": 6,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "state": "prototype",
+      "game": "",
+      "search": "sword",
+      "count": 1,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "state": "",
+      "game": "Wildbond",
+      "search": "",
+      "count": 3,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "state": "",
+      "game": "",
+      "search": "",
+      "count": 17,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "state": "production",
+      "game": "",
+      "search": "",
+      "count": 0,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "state": "reference",
+      "game": "Starfall",
+      "search": "",
+      "count": 6,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "state": "prototype",
+      "game": "",
+      "search": "sword",
+      "count": 1,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "state": "",
+      "game": "Wildbond",
+      "search": "",
+      "count": 3,
+      "status": "pass"
+    }
+  ],
+  "negative": [
+    {
+      "kind": "duplicate-id",
+      "status": "rejected-as-expected"
+    },
+    {
+      "kind": "unverified-production",
+      "status": "rejected-as-expected"
+    },
+    {
+      "kind": "changed-source",
+      "status": "rejected-as-expected"
+    },
+    {
+      "kind": "missing-dependency",
+      "status": "rejected-as-expected"
+    }
+  ],
+  "errors": []
+}

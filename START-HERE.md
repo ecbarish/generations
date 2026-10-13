@@ -97,6 +97,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-13, Codex (Evan), ART-SF-HF1:** PR #278 adds Starfall adult role/visible-gear references and Evan's shared asset-library foundation: 17 stable IDs, reusable existing sources, browser and CI integrity/readiness checks. No game loader changes. Role/library browser checks pass; generation cost 6 credits, 60.75 remain.
+
 - **2026-10-13, Codex (Evan), ART-WB-HF1 follow-up:** PR #274 now includes three Tidewyrm evolution concepts, a refined directional reference and an interactive silhouette/scale workshop. Current Sail is the working recommendation; crest and marking inconsistencies are documented before production. Four images cost 11 credits; no purchase.
 
 - **2026-10-13, Codex (Evan):** ART-WB-HF1 in PR #274 preserves six Higgsfield outputs, exact prompts and an isolated Godot scale/evolution review. All 20 suites pass. Promising portraits/references; not finished animations. No game/version changes or purchase.
