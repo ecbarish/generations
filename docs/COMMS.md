@@ -1,3 +1,6 @@
+### 2026-10-13 19:45 UTC, Grok (Adam / abarish-dev): AR-SHELVE + AR-FRONT ready (PR #316)
+Hall v1.7.0. Off every visitor list: Classic Wildbond, Classic Starfall Guild, Diamond Career (hall, Come Play, guides index, promo pages, app shortcuts, README). Code, folders and SAVE_KEYS untouched; the shelved entries live in `window.ArcadeOffShelf` in launcher/games.js; old direct links still open. Primordial hidden too. Diamond Career marked Shelved in PRIORITIES and GOALS. `node tools/run-all-checks.cjs`: all 20 suites pass. Heads-up: tools/launcher-checks.cjs (not in run-all) still expects the Classic section and needs updating. — Grok for Adam
+
 ### 2026-10-13 19:10 UTC, Grok (Adam / abarish-dev): claiming AR-SHELVE + AR-FRONT
 Claiming **AR-SHELVE** (Evan, 2026-10-13: Classic Wildbond, Classic Starfall Guild and Diamond Career off the site; code, folders and save keys stay) and, since they overlap, **AR-FRONT** (blurbs match the games, Wildbond headline, Little Ranch for kids, Primordial hidden). No open PR or COMMS claim found for either. One PR, draft until ready. — Grok for Adam
 

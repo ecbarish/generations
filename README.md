@@ -11,10 +11,10 @@ and the hub page shows where you left off in every one.
 
 | Game | Status | What it is |
 |---|---|---|
-| [Primordial](games/primordial/) | Playable | Evolution idle game: cell to Leviathan, mutation drafts, niche fights, extinction resets |
-| [Starfall Guild](games/starfall-guild/) | Prototype | Kairosoft-style adventurer guild: recruit, class combos, dungeon autobattle, town, staff, seasons |
+| [Wildbond](play/wildbond/) | Early preview (Godot) | The headline game: bond with creatures and bring colour back to a faded world, eight regions and the league |
+| [Little Ranch](games/little-ranch/) | Test version | A toy for ages 2 to 4: feed, bath, peekaboo and bedtime; no reading, nothing to lose |
+| [Primordial](games/primordial/) | Playable (hidden from the hall) | Evolution idle game: cell to Leviathan, mutation drafts, niche fights, extinction resets |
 | [Realmbound](games/realmbound/) | Prototype | Classic-MMO-inspired adventure: two factions, 5 classes including a pet-taming Hunter, levels 1–40, quests, loot, Focus/Auto play, addons as automation ([design](docs/realmbound-design.md)) |
-| [Diamond Career](games/diamond-career/) | Prototype | Batter career from first call-up through a 30-day paid month, timing/tactical batting, two contract terms, calendar salary and permanent home/garage purchases |
 | [Otherworld](games/otherworld/) | Prototype | Three authored lives: Asterhold, Hearthmere and the Ashen Throne; costly gifts, choices, endings and knowledge carried between lives |
 
 Design plans live in [docs/](docs/): [Realmbound](docs/realmbound-design.md), [idea backlog](docs/ideas.md).
@@ -83,6 +83,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 - 2026-10-11: Diamond Manager coach hiring: optional hitting/pitching staff, one-season salaries and visible winter development gains (DM3, PR #196; version unchanged pending review).
 - Godot Starfall (2026-10-11, SF2.6c): new towns open beside the Guild Hall with both full roofs and the banner in view. Removed three unused pack tiles; music and sounds remain. Existing towns keep their saved position and progress. [Before/after and checks](docs/screenshots/starfall-opening-view/README.md). Source change only; the web preview is not rebuilt by this PR.
 
+- Arcade v1.7.0 (2026-10-13, AR-SHELVE + AR-FRONT): Classic Wildbond, Classic Starfall Guild and Diamond Career are off the hall, Come Play, the guides index, the promo pages, the app shortcuts and this README (Evan); their code, folders and save keys stay, so old saves and direct links still work. Primordial is hidden from the hall. Wildbond leads as the headline, Little Ranch has its own "For little ones" section, the small games are "Arcade cabinets", and the Lighthouse Watch and Otherworld blurbs say what they are (arcade action; a story life sim) (AR2.16).
 - Arcade v1.6.0 (2026-10-11, AR2.14): Classic versus the new version made obvious. Wildbond Classic and Starfall Guild Classic sit together in a last "Classic editions" section with a tan Classic ribbon and a link to their new version; the new versions carry a green "New version" ribbon. The guides page says which edition each guide covers and when it was last checked; the Diamond Career guide moves to "Older guides". The site and guides now refresh at milestones (docs/SITE-AND-GUIDES.md). The hall's cabinets keep one readable size in a row that scrolls as you walk, grouped like the sections with the Classics last; phones skip the hall and go straight to the section buttons and cards.
 - Wildbond (2026-10-11, WB-DOOR-TAP): clicking or tapping Larkhaven's inn, shop and both homes now queues entry just like the barn. The full-size phone directional pad is moved between the lower doorways so it no longer covers Nora's entrance. Door collisions, walking distance, keyboard controls, phone preferences and saves are unchanged; source fix only, web preview not re-exported.
 
