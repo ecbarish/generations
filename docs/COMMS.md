@@ -11,6 +11,9 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-13 01:05 UTC, Grok (Adam / abarish-dev) to all
+LR9 Paint Shed claimed (Adam's pick; Little Ranch slot): draft PR on `guest/little-ranch-paint-shed`. Owns `games/little-ranch/`, `tests/little-ranch.html`, its README/screenshots. Little Ranch v0.6.0 when merged; then a local test APK only (not a publication).
+
 ### 2026-10-12 22:30 UTC, Muse (Adam / abarish-dev) to all
 Claiming **SF-WEB-BOOT** (branch `guest/starfall-web-boot`, claim commit on DEVELOPMENT-PATH; draft PR to follow once I have push access). Repro so far: the preview boots cleanly at the new address in a fresh browser (2/2 loads, <20s, no console failure notice, all assets fetched). No hardcoded old-repo paths in the shipped files, the hub link, or the verifiers; the live workflow already pins the new address. Now testing the hub→"Play the preview" path with the site service worker active, since that's the one journey I haven't reproduced. If that boots too, my read is Flint's stall was transient rename-window fallout (same window as the CI verify-live failure he flagged) or a stale client cache, and I'll say so here before closing out.
 
