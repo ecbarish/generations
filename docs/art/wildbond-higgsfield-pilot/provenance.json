@@ -1,0 +1,106 @@
+{
+  "provider": "Higgsfield",
+  "model": "gpt_image_2_5",
+  "retrieved_at": "2026-10-13",
+  "rights_status": "Provider terms not yet verified; review before shipping. Not CC0.",
+  "originals": [
+    {
+      "name": "cindercub.png",
+      "job_id": "30866c9d-07e7-4550-b8b5-de4f27bb5180",
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "2k",
+        "background": "transparent",
+        "aspect_ratio": "1:1",
+        "count": 1,
+        "prompt": "Original Wildbond game art, a handmade storybook valley that lost its colour and is getting it back. Clean detailed pixel art suitable as a sprite production reference, crisp hard pixel clusters and edges, no anti-aliasing or painterly blur, warm near-black outline #1e1a22, restrained 3-value material ramps, light from upper left. Natural believable animal proportions, appealing expressive but modest eyes, no giant heads or chibi bodies. Every subject fully visible, isolated on genuine transparent alpha; no painted checkerboard, scenery, words, logos, borders, scale bars or watermarks. Assets must read in silhouette and remain recognisable if later modelled in 3D. Equal-sized cells, generous clear gutters, no overlap, no cropped feet or tails. One coherent character turnaround sheet in a 2 by 2 arrangement: front three-quarter facing left, clear left profile, rear three-quarter facing right with no visible face, and front three-quarter resting pose. Same markings, proportions and design in every cell. Top-down RPG camera at approximately 35 degrees above the ground. Separate poses are independent cutout assets, with clean gaps and no cast ground shadows. CINDERCUB, Wildbond's Ember starter: a small wolf pup with smouldering burnt-orange fur #d8642e, round ears, an ember ruff along its back, a curled tail and a few darker spots. Compact sturdy paws and a clear canine muzzle. A soft warm glow stays inside the fur, never a fireball or a burning body. It sleeps curled around warm stones, but omit stones here so each sprite is usable. Friendly and alert, a creature you care for, not a weapon. Preserve recognisable wolf anatomy and a distinctive ember-ruff silhouette."
+      }
+    },
+    {
+      "name": "ripplet.png",
+      "job_id": "b1e54293-d1fb-4fd7-8b5a-36d8847a0256",
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "2k",
+        "background": "transparent",
+        "aspect_ratio": "1:1",
+        "count": 1,
+        "prompt": "Original Wildbond game art, a handmade storybook valley that lost its colour and is getting it back. Clean detailed pixel art suitable as a sprite production reference, crisp hard pixel clusters and edges, no anti-aliasing or painterly blur, warm near-black outline #1e1a22, restrained 3-value material ramps, light from upper left. Natural believable animal proportions, appealing expressive but modest eyes, no giant heads or chibi bodies. Every subject fully visible, isolated on genuine transparent alpha; no painted checkerboard, scenery, words, logos, borders, scale bars or watermarks. Assets must read in silhouette and remain recognisable if later modelled in 3D. Equal-sized cells, generous clear gutters, no overlap, no cropped feet or tails. One coherent character turnaround sheet in a 2 by 2 arrangement: front three-quarter facing left, clear left profile, rear three-quarter facing right with no visible face, and front three-quarter resting pose. Same markings, proportions and design in every cell. Top-down RPG camera at approximately 35 degrees above the ground. Separate poses are independent cutout assets, with clean gaps and no cast ground shadows. RIPPLET, Wildbond's Tide starter: a curious small river lizard in restrained blue #3a8fd8, with bubble-shaped cheek contours, a smooth back, a paddle-shaped tail and subtle ring markings. Four short but well-defined legs, clear lizard muzzle, gentle curious expression. Pale blue underside and dark teal shadows. In the resting pose include only one tiny bubble above its nose. Never draw a frog, crocodile, fish or humanoid. Preserve lizard anatomy and paddle-tail silhouette; scales are restrained pixel clusters, not realistic noise."
+      }
+    },
+    {
+      "name": "mosshog.png",
+      "job_id": "075438f7-b855-4ef2-bdc1-fe69e2eb911e",
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "2k",
+        "background": "transparent",
+        "aspect_ratio": "1:1",
+        "count": 1,
+        "prompt": "Original Wildbond game art, a handmade storybook valley that lost its colour and is getting it back. Clean detailed pixel art suitable as a sprite production reference, crisp hard pixel clusters and edges, no anti-aliasing or painterly blur, warm near-black outline #1e1a22, restrained 3-value material ramps, light from upper left. Natural believable animal proportions, appealing expressive but modest eyes, no giant heads or chibi bodies. Every subject fully visible, isolated on genuine transparent alpha; no painted checkerboard, scenery, words, logos, borders, scale bars or watermarks. Assets must read in silhouette and remain recognisable if later modelled in 3D. Equal-sized cells, generous clear gutters, no overlap, no cropped feet or tails. One coherent character turnaround sheet in a 2 by 2 arrangement: front three-quarter facing left, clear left profile, rear three-quarter facing right with no visible face, and front three-quarter resting pose. Same markings, proportions and design in every cell. Top-down RPG camera at approximately 35 degrees above the ground. Separate poses are independent cutout assets, with clean gaps and no cast ground shadows. MOSSHOG, Wildbond's Grove starter: a sturdy young wild boar with short tusks, a broad boar snout, a stub tail, speckled warm brown hide and a soft moss bed growing on its back. Grove green #5d9a3e mixed with deep cool leaf greens #24503e #3f8558 #8ccf7e; bark tones #4a3426 #6a4a32 #8a6444. Grounded four-legged proportions and a low broad silhouette, not a hedgehog or teddy bear. A tiny empty nest tucked into the moss suggests that birds can nest there; keep it small, with no birds obscuring the creature. Patient kindly demeanour, healthy limbs and substantial body."
+      }
+    },
+    {
+      "name": "larkhaven-props.png",
+      "job_id": "39fa6f91-b680-49b5-b216-3886e95a9bba",
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "2k",
+        "background": "transparent",
+        "aspect_ratio": "1:1",
+        "count": 1,
+        "prompt": "Original Wildbond game art, a handmade storybook valley that lost its colour and is getting it back. Clean detailed pixel art suitable as a sprite production reference, crisp hard pixel clusters and edges, no anti-aliasing or painterly blur, warm near-black outline #1e1a22, restrained 3-value material ramps, light from upper left. Natural believable animal proportions, appealing expressive but modest eyes, no giant heads or chibi bodies. Every subject fully visible, isolated on genuine transparent alpha; no painted checkerboard, scenery, words, logos, borders, scale bars or watermarks. Assets must read in silhouette and remain recognisable if later modelled in 3D. Equal-sized cells, generous clear gutters, no overlap, no cropped feet or tails. A coherent 3 by 3 grid of nine separate Larkhaven ranch/environment props, all at the same RPG camera angle and comparable game scale. Row 1: low broadleaf berry bush with red berries; weathered wooden water trough with a visible blue surface; stacked hay bales tied with simple twine. Row 2: horizontal ranch fence segment with two posts and connected rails; matching vertical fence segment with rails actually running between posts in the vertical ground direction; matching corner fence segment with connected rails on both axes. Row 3: a small hanging lantern on a short wooden post; a compact lure pouch with a clear closed leather flap and simple cord; a low barn feed bowl. No buildings or creatures. Light upper-left with shading on objects themselves, no baked ground shadows. Palette: leaf #24503e #2f6a4a #3f8558 #8ccf7e, bark #4a3426 #6a4a32 #8a6444, water #2f5f7e #4a84a2 #8cc0d4, straw #a8875a #ccad7c #dcc092, leather #6a4a32, berry #8e342c #c45e4e, lamplight #f2d080. Contact footprints clearly match each visible base; fence variants share post height, rail spacing and thickness so they can later form a connected map."
+      }
+    }
+  ],
+  "evolution_tests": [
+    {
+      "name": "blazefang.png",
+      "job_id": "3fbb0d3a-2c31-487f-8a44-227520d69a5f",
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "2k",
+        "background": "transparent",
+        "aspect_ratio": "1:1",
+        "count": 1,
+        "medias": [
+          {
+            "role": "image",
+            "value": "30866c9d-07e7-4550-b8b5-de4f27bb5180"
+          }
+        ],
+        "prompt": "Create ONE original creature portrait, not a sheet and not several characters. Wildbond BLAZEFANG, the grown evolution of the referenced Cindercub wolf pup. Preserve the ember-orange fur, darker spots, curled tail and canine anatomy from the reference, but give it a mature strong wolf body, sturdy legs, a longer muzzle and a broad smouldering mane. Canon: its mane burns brighter the more it trusts its tamer. Ember base #e8441e tempered by warm rust shadows and restrained golden highlights. Friendly alert confidence, not a snarling weapon; moderate eyes and ears, no oversized chibi head. Full body front three-quarter facing left, paws visible, tail uncropped, generous empty margins. Isolated genuine transparent alpha, NO ground shadow, scenery, labels or logos. Same handmade storybook pixel-inspired illustrative style as reference, warm near-black ink #1e1a22, light upper left, simple three-value material ramps. This is a Wilddex portrait and future modelling reference, NOT an animation sheet or final low-resolution game sprite."
+      }
+    },
+    {
+      "name": "thornback.png",
+      "job_id": "6c8c9ae3-6904-4dd6-b020-b887630e8bc3",
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "2k",
+        "background": "transparent",
+        "aspect_ratio": "1:1",
+        "count": 1,
+        "medias": [
+          {
+            "role": "image",
+            "value": "075438f7-b855-4ef2-bdc1-fe69e2eb911e"
+          }
+        ],
+        "prompt": "Create ONE original creature portrait, not a sheet and not several characters. Wildbond THORNBACK, the grown evolution of the referenced Mosshog young boar. Preserve the sturdy brown boar anatomy, broad snout, short tail, mossy back and cool-green foliage; evolve into a mature broad powerful boar with substantial legs and slightly larger tusks. Canon: its thorns can split a fallen log; it guards its herd fiercely. Add recognisable woody thorns rising from its mossy back, clear big shapes rather than noisy spines. Grove base #3f7a2a, deep leaf #24503e and #3f8558, bark #4a3426 #6a4a32 #8a6444. Patient protective expression, modest eyes, not a hedgehog or chibi toy. Full body front three-quarter facing left, hooves visible, tail uncropped, generous empty margins. Isolated genuine transparent alpha, NO ground shadow, scenery, labels or logos. Same handmade storybook pixel-inspired illustrative style as reference, warm near-black ink #1e1a22, light upper left, simple three-value material ramps. This is a Wilddex portrait and future modelling reference, NOT an animation sheet or final low-resolution game sprite."
+      }
+    }
+  ],
+  "estimated_credits": {
+    "four_sheets": 11,
+    "two_portraits": 5.5,
+    "total": 16.5,
+    "note": "Estimates, not an account billing reconciliation. Trial is not unlimited."
+  }
+}

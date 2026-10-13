@@ -1,0 +1,297 @@
+[
+  {
+    "file": "cindercub.png",
+    "sha256": "05a8cdaa5c0478673acb66dcbaa27683c1c005d9fccd05e052ae744ec2e2292b",
+    "width": 2048,
+    "height": 2048,
+    "colors": 88543,
+    "alpha": {
+      "min": 0,
+      "max": 254,
+      "soft_pixels": 288330,
+      "body_pixels": 1358875
+    },
+    "cells": [
+      {
+        "row": 0,
+        "col": 0,
+        "region": [
+          148,
+          177,
+          741,
+          814
+        ],
+        "opaque_component_pixels": 373049
+      },
+      {
+        "row": 0,
+        "col": 1,
+        "region": [
+          1040,
+          217,
+          928,
+          782
+        ],
+        "opaque_component_pixels": 370428
+      },
+      {
+        "row": 1,
+        "col": 0,
+        "region": [
+          179,
+          1156,
+          745,
+          817
+        ],
+        "opaque_component_pixels": 344573
+      },
+      {
+        "row": 1,
+        "col": 1,
+        "region": [
+          1158,
+          1426,
+          752,
+          478
+        ],
+        "opaque_component_pixels": 270825
+      }
+    ],
+    "region_method": "largest connected alpha>=128 components; independent details may be omitted"
+  },
+  {
+    "file": "larkhaven-props.png",
+    "sha256": "3a5b12e38a5348d21123e6b0d12bf5555c1758a95bba693c9662df7717b90c09",
+    "width": 2048,
+    "height": 2048,
+    "colors": 148868,
+    "alpha": {
+      "min": 0,
+      "max": 254,
+      "soft_pixels": 545524,
+      "body_pixels": 1389151
+    },
+    "cells": [
+      {
+        "row": 0,
+        "col": 0,
+        "region": [
+          54,
+          186,
+          595,
+          508
+        ],
+        "opaque_component_pixels": 216177
+      },
+      {
+        "row": 0,
+        "col": 1,
+        "region": [
+          736,
+          249,
+          611,
+          441
+        ],
+        "opaque_component_pixels": 166753
+      },
+      {
+        "row": 0,
+        "col": 2,
+        "region": [
+          1426,
+          173,
+          572,
+          549
+        ],
+        "opaque_component_pixels": 211621
+      },
+      {
+        "row": 1,
+        "col": 0,
+        "region": [
+          54,
+          908,
+          643,
+          406
+        ],
+        "opaque_component_pixels": 161815
+      },
+      {
+        "row": 1,
+        "col": 1,
+        "region": [
+          843,
+          753,
+          349,
+          624
+        ],
+        "opaque_component_pixels": 114473
+      },
+      {
+        "row": 1,
+        "col": 2,
+        "region": [
+          1366,
+          860,
+          648,
+          524
+        ],
+        "opaque_component_pixels": 176976
+      },
+      {
+        "row": 2,
+        "col": 0,
+        "region": [
+          190,
+          1396,
+          315,
+          534
+        ],
+        "opaque_component_pixels": 93540
+      },
+      {
+        "row": 2,
+        "col": 1,
+        "region": [
+          843,
+          1520,
+          371,
+          410
+        ],
+        "opaque_component_pixels": 118902
+      },
+      {
+        "row": 2,
+        "col": 2,
+        "region": [
+          1453,
+          1601,
+          482,
+          322
+        ],
+        "opaque_component_pixels": 128894
+      }
+    ],
+    "region_method": "largest connected alpha>=128 components; independent details may be omitted"
+  },
+  {
+    "file": "mosshog.png",
+    "sha256": "7ea9f44e7aa9e39a187540d0f3de20e04d7f3e8934f30b47011ad575388b2e23",
+    "width": 2048,
+    "height": 2048,
+    "colors": 115577,
+    "alpha": {
+      "min": 0,
+      "max": 254,
+      "soft_pixels": 394713,
+      "body_pixels": 1798475
+    },
+    "cells": [
+      {
+        "row": 0,
+        "col": 0,
+        "region": [
+          82,
+          150,
+          839,
+          851
+        ],
+        "opaque_component_pixels": 464221
+      },
+      {
+        "row": 0,
+        "col": 1,
+        "region": [
+          995,
+          217,
+          1006,
+          798
+        ],
+        "opaque_component_pixels": 479223
+      },
+      {
+        "row": 1,
+        "col": 0,
+        "region": [
+          142,
+          1065,
+          773,
+          903
+        ],
+        "opaque_component_pixels": 434442
+      },
+      {
+        "row": 1,
+        "col": 1,
+        "region": [
+          1084,
+          1217,
+          876,
+          724
+        ],
+        "opaque_component_pixels": 420589
+      }
+    ],
+    "region_method": "largest connected alpha>=128 components; independent details may be omitted"
+  },
+  {
+    "file": "ripplet.png",
+    "sha256": "7fe536898d322e2d256479f8990cd94dbe185d5fb8cc35d013a3ef502e5cf699",
+    "width": 2048,
+    "height": 2048,
+    "colors": 68185,
+    "alpha": {
+      "min": 0,
+      "max": 254,
+      "soft_pixels": 691771,
+      "body_pixels": 937360
+    },
+    "cells": [
+      {
+        "row": 0,
+        "col": 0,
+        "region": [
+          114,
+          325,
+          828,
+          614
+        ],
+        "opaque_component_pixels": 242455
+      },
+      {
+        "row": 0,
+        "col": 1,
+        "region": [
+          1013,
+          399,
+          1000,
+          534
+        ],
+        "opaque_component_pixels": 223413
+      },
+      {
+        "row": 1,
+        "col": 0,
+        "region": [
+          106,
+          1161,
+          797,
+          755
+        ],
+        "opaque_component_pixels": 249515
+      },
+      {
+        "row": 1,
+        "col": 1,
+        "region": [
+          1060,
+          1402,
+          934,
+          422
+        ],
+        "opaque_component_pixels": 219990
+      }
+    ],
+    "region_method": "largest connected alpha>=128 components; independent details may be omitted"
+  }
+]

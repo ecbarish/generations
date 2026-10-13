@@ -1,0 +1,168 @@
+{
+  "date": "2026-10-13",
+  "checks": [
+    {
+      "width": 1440,
+      "mode": "colour",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "mode": "colour",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "mode": "colour",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "mode": "grey",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "mode": "grey",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "mode": "grey",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "mode": "silhouette",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "mode": "silhouette",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "mode": "silhouette",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "mode": "colour",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "mode": "colour",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "mode": "colour",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "mode": "grey",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "mode": "grey",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "mode": "grey",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "mode": "silhouette",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "mode": "silhouette",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "mode": "silhouette",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "mode": "colour",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "mode": "colour",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "mode": "colour",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "mode": "grey",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "mode": "grey",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "mode": "grey",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "mode": "silhouette",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "mode": "silhouette",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "mode": "silhouette",
+      "size": "32",
+      "status": "pass"
+    }
+  ],
+  "errors": []
+}

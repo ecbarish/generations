@@ -1,0 +1,67 @@
+{
+  "items": [
+    {
+      "name": "Ripplet",
+      "tag": "Young form / family anchor",
+      "note": "Bubble cheeks and ring markings connect the family.",
+      "src": "originals/ripplet.png",
+      "bounds": [
+        114,
+        325,
+        828,
+        614
+      ]
+    },
+    {
+      "name": "Current Sail",
+      "tag": "Recommended direction",
+      "note": "The wave crest gives a distinct silhouette. Needs a less juvenile skull.",
+      "src": "tidewyrm/current-sail.png",
+      "bounds": [
+        40,
+        619,
+        1984,
+        932
+      ]
+    },
+    {
+      "name": "Estuary Mantle",
+      "tag": "Alternative",
+      "note": "Protective crescent collar, but the body remains close to the young form.",
+      "src": "tidewyrm/estuary-mantle.png",
+      "bounds": [
+        42,
+        497,
+        1993,
+        1215
+      ]
+    },
+    {
+      "name": "Ribbon Current",
+      "tag": "Alternative",
+      "note": "Long tail and swept cheeks; more elegant, less clearly crocodilian.",
+      "src": "tidewyrm/ribbon-current.png",
+      "bounds": [
+        44,
+        382,
+        1996,
+        1400
+      ]
+    },
+    {
+      "name": "Current Sail \u00b7 refined",
+      "tag": "Working recommendation / corrections pending",
+      "note": "Lower body and smaller eyes. Rear crest direction and markings still need reconciliation.",
+      "src": "tidewyrm/current-sail-reference.png",
+      "bounds": [
+        180,
+        48,
+        1782,
+        754
+      ]
+    }
+  ],
+  "recommendation": "Current Sail \u2014 refine the anatomy, preserve the wave.",
+  "reason": "It changes the silhouette clearly while keeping Ripplet\u2019s cheek and ring motifs. The first candidate still has juvenile eyes and proportions; the directional refinement explores a lower, longer crocodilian body.",
+  "turnaround": "tidewyrm/current-sail-reference.png"
+}
