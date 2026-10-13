@@ -16,7 +16,7 @@
    Pebblit friend wanders in (LR4): it eats and gets bubbly too, and a tap on it makes the two nuzzle. Tap the cloud for soft rain (LR5); afterwards
    puddles shine on the grass and a rainbow comes out; tap a puddle and the baby jumps in. The hat basket (LR6): each tap puts the next hat on the baby's head. Nothing is saved. Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.13.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
+  const VERSION = '0.13.1', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
   // LR-C1: things on the ranch, in the order an idle hint offers them (the first one not yet played with)
   const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'sign', 'wsign', 'ksign'];
   // LR11: the Snack Kitchen. Four foods (berries, carrot, lemon, broccoli), one bowl, one baby who loves berries and pulls a
@@ -123,7 +123,7 @@
     L.wagon.barn = L.shed.barn;
     L.cloud = { x: W * .64, y: Math.max(H * .08, U * .08), r: Math.min(U * .1, H * .11) }; // LR5
     L.puddles = [{ x: W / 2 - sp * .62, y: H * .69 }, { x: W / 2 + sp * (wide ? .7 : .5), y: H * (wide ? .67 : .7) }].map(q => ({ ...q, r: U * .12 }));
-    L.basket = { x: Math.max(W * .09, U * .14 * .95), y: H * .68 }; // LR6: the hat basket, at the field's left edge
+    L.basket = wide ? { x: Math.max(U * .14 * .62, L.sign.x - U * .14 * (.1 + .6 * .95)), y: H * .69, r: U * .14 * .6 } : { x: Math.max(W * .09, U * .14 * .95), y: H * .7, r: U * .14 * .9 }; // wide: left of the paint sign's post (LR-POLISH-1) // LR6: the hat basket, at the field's left edge
     L.fhome = { x: L.home.x + (L.sponge.x - L.home.x) * .9, y: L.home.y }; L.fz = L.size * .95; // LR4: the friend's spot, between the baby and the sponge
     L.ksign = { x: W * .45, y: L.ground - U * .14 * 1.7 }; // LR11: the snack-bowl sign, on the hilltop
     { const fr = Math.min(W * .108, H * .1), ty = H * .64, z = Math.min(W * .22, H * .24);
@@ -171,7 +171,7 @@
     if (f.act === 'giggle' && since > .8) f.act = null;
     if (f.act === 'nuzzle' && since > NUZZLE_SECS) f.act = null;
     if (f.act === 'wait' && st.baby.tx === null && st.baby.act !== 'nuzzle') f.act = null;
-    if (st.mode === 'sleep' && f.tx === null && f.act !== 'sleep') { f.act = 'sleep'; f.x = L.fhome.x / W; }
+    if (st.mode === 'sleep' && f.tx === null && f.act !== 'sleep') { f.act = 'sleep'; f.x = Math.min(W - L.fz * .85, Math.max(L.fhome.x, L.home.x + L.size * 1.32 + L.fz * .82)) / W; } // curled up clear of the sleeping baby (LR-POLISH-1)
     f.soap = Math.max(0, f.soap - dt * .08); }
   function drawFriend() { const f = st.friend; if (!f) return; const z = L.fz, x = f.x * W, y = L.home.y, since = st.t - f.at, m = reduce() ? .3 : 1;
     if (f.act === 'sleep') { shadow(x, y, z * .9); ell(x, y - z * .4, z * .8, z * .45, '#8fa0b8'); ell(x - z * .3, y - z * .55, z * .1, z * .08, '#6a7a94'); ell(x + z * .45, y - z * .45, z * .38, z * .34, '#8fa0b8');
@@ -372,7 +372,7 @@
       ell(x, y - r * .05, r * .1, r * .1, '#e84a5a'); ell(x - r * .32, y, r * .08, r * .08, '#4fb4ff'); ell(x + r * .32, y, r * .08, r * .08, '#5fb34a'); }
     else if (i === 3) { for (let k = 0; k < 5; k++) { const fx2 = x + (k - 2) * r * .3, fy = y + Math.abs(k - 2) * r * .1 - r * .05; ell(fx2, fy, r * .17, r * .17, ['#ff6f91', '#ffa040', '#b07aff', '#4fb4ff', '#ff5a5a'][k]); ell(fx2, fy, r * .07, r * .07, '#fff3a0'); } }
     else if (i === 4) { cx.fillStyle = '#8a5a34'; cx.beginPath(); cx.ellipse(R(x), R(y + r * .08), R(r * 1.2), R(r * .25), 0, 0, 7); cx.fill(); ell(x, y - r * .3, r * .55, r * .45, '#9a6a3e'); cx.fillStyle = '#5a3a24'; cx.fillRect(R(x - r * .55), R(y - r * .12), R(r * 1.1), Math.max(1, R(r * .12))); ell(x - r * 1.1, y - r * .05, r * .2, r * .14, '#8a5a34'); ell(x + r * 1.1, y - r * .05, r * .2, r * .14, '#8a5a34'); } }
-  function drawBasket(g) { const B = L.basket, r = L.R * .9, sh = Math.sin(st.t * 30) * st.hat.shake * r * .08, bob = hintBob('basket'), x = B.x + sh, y = B.y - bob, dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
+  function drawBasket(g) { const B = L.basket, r = B.r, sh = Math.sin(st.t * 30) * st.hat.shake * r * .08, bob = hintBob('basket'), x = B.x + sh, y = B.y - bob, dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
     shadow(B.x, B.y + r * .55, r * .95);
     ell(x - r * .35, y - r * .45, r * .3, r * .14, dk('#e8c870')); ell(x + r * .05, y - r * .6, r * .2, r * .25, dk('#4fb4ff')); ell(x + r * .4, y - r * .45, r * .22, r * .12, dk('#f2c14e')); // hats peeking out
     cx.fillStyle = dk('#c8904a'); cx.beginPath(); cx.moveTo(R(x - r * .85), R(y - r * .35)); cx.lineTo(R(x + r * .85), R(y - r * .35)); cx.lineTo(R(x + r * .65), R(y + r * .55)); cx.lineTo(R(x - r * .65), R(y + r * .55)); cx.fill();

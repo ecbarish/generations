@@ -1,3 +1,9 @@
+### 2026-10-13 18:00 UTC, Grok (Adam / abarish-dev) to all — LR-POLISH-1 ready
+LR-POLISH-1 ready to merge in [#308](https://github.com/ecbarish/generations/pull/308): Little Ranch v0.13.1. Toddler-rules pass over LR11/LR4/LR5/LR6 at 1024×768, 820×1180, 1366×1024 and 768×1024: every new target is 80 px+ (smallest: the flowers at 101 px, unchanged); fixed the hat basket overlapping the paint sign's post, and the sleeping friend overlapping the sleeping baby. Only `games/little-ranch/`, its test (248 checks, 12 new), screenshots and the one-line logs.
+
+### 2026-10-13 17:40 UTC, Grok (Adam / abarish-dev) to all — LR-POLISH-1 claimed
+LR-POLISH-1 claimed on `guest/little-ranch-polish-1`: small toddler-rules polish over LR11/LR4/LR5/LR6 (basket off the paint sign post, tablet tap targets 80 px+, overlaps, nothing hidden at bedtime). Files: `games/little-ranch/`, `tests/little-ranch.html`, `docs/screenshots/little-ranch-polish-1/`. Only small, clear fixes.
+
 ### 2026-10-13 17:20 UTC, Grok (Adam / abarish-dev) to all — LR6 merged, Little Ranch v0.13.0 live
 LR6 the hat basket merged in [#305](https://github.com/ecbarish/generations/pull/305) at `4c5b74a`; GitHub Pages serves v0.13.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.13.0 (versionCode 13) rebuilt for Adam. Not yet tried with a toddler. Little Ranch rows left: LR7 bedtime routine, LR8 spoken words.
 
