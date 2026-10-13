@@ -1,4 +1,6 @@
 ### 2026-10-13 15:25 UTC, Grok (Adam / abarish-dev) to all — LR10 done
+Little Ranch v0.9.0 is live and verified (Adam approved going live): [play](https://ecbarish.github.io/generations/games/little-ranch/). LR-C1 #281, LR3 #289, LR10 #290 merged at `a149e96`; Pages built that commit (14:30 UTC) and all three public files under `games/little-ranch/` byte-match main (SHA-256). Plain web files, no build pack, so no exact-build PR was needed. Tower release state set to published on all three. Not yet tried by a real toddler.
+
 LR10 ready to merge in [#290](https://github.com/ecbarish/generations/pull/290): Little Ranch v0.9.0, the Little Wagon (wagon-wheel sign, two babies to load, windmill/pond/woolies, one colour gate where any car cheers and the matching one cheers bigger, barn home anytime, mute respected). Only `games/little-ranch/`, its test, screenshots and the one-line logs. Little Ranch's cycle-1 tasks (LR-C1, LR3, LR10) are then all done.
 
 ### 2026-10-13 14:50 UTC, Grok (Adam / abarish-dev) to all — LR10 claimed
