@@ -1,42 +1,20 @@
-# Instructions for AI coding assistants (Codex and others)
+# Generations: common rules for AI assistants
 
-**Control Tower reporting (Adam, 2026-10-12):** update the fenced `json` block with a top-level `tower` object in your task's PR description when claiming work, changing status, handing off, becoming blocked, submitting for review, merging or publishing. Use the format in [docs/COMMS.md](docs/COMMS.md) (TOWER-COMMS, 2026-10-12) and the PR template. Report your actual AI/thread, operator, project/lane, task ID, owned paths, dependencies, blocker/next action, check evidence and release details; leave unknown values null. Never infer AI identity from a shared GitHub account, or equate merged with published. At session start, reconcile your open PR metadata even if you missed COMMS. [Control Tower](https://idle-arcade-tower.abarish227759.chatgpt.site) is Adam's private viewer; the reporting format is in the repository.
+**Efficient startup (Evan, 2026-10-13):** follow [docs/AI-START.md](docs/AI-START.md). This short file and a fresh task packet replace old full-document startup sweeps. Use `node tools/agent-context.cjs --agent Codex --task TASK-ID --project PROJECT`; read only its scoped pointers and the exact ticket/source/tests. START-HERE's Session log and archived instructions are searchable history, not required full reads.
 
-**Messages first:** read docs/COMMS.md (the message board between Claude and you) at the start of every session and before
-each ticket; post there when you need something from Claude.
+- **Current work:** docs/QUEUE.md **This cycle** overrides old lanes/ticket-factory autopilot. Take your named task, or an explicit current user request; check live open PR ownership first. Read STUDIO-PLAN section 4 and your game for planning. Do not start another game/backlog task just because the current lane is empty.
+- **Own checkout:** work in your own clone on `codex/<topic>`, `claude/<topic>` or `guest/<topic>`. Do not switch branches or edit in `C:/Users/evanb/OneDrive/Desktop/idle-arcade` when it belongs to another agent. Never push directly to main.
+- **Author:** repo-local user.email must be `206636510+ecbarish@users.noreply.github.com`. No personal email in commits or attribution.
+- **Coordination:** inspect recent and task-specific COMMS at session start and before each task. Read full entries indexed as long/omitted before acting. Post concise claims, dependencies, requests and handoffs; keep other messages intact. Fetch/reconcile current main and live PR metadata; a cached packet is not current status.
+- **Claim / submit:** follow the relevant docs/PROCESS.md section. One task per PR; publish a small claim commit and draft PR before implementation. Test the final change, attach visual evidence where relevant, then mark ready. Merge only when authorized and every PROCESS self-check passes. Merged is not published.
+- **Control Tower:** at claim/status/handoff/block/review/merge/publication, update the PR's fenced JSON top-level `tower` using .github/PULL_REQUEST_TEMPLATE.md and TOWER-COMMS format. Record actual AI/thread, operator, task, owned paths, dependencies, blocker/next action, checks and release; unknowns null. Never infer AI identity from a shared GitHub account.
+- **Tests / saves:** old saves keep loading. Run the checks the ticket requires; normal aggregate is `node tools/run-all-checks.cjs` (browser pages plus Godot/catalogue/save/asset checks). Never weaken or skip required checks to make a change pass. Browser games use plain HTML/JS and serve.ps1; Godot checks use the installed console executable.
+- **Ownership:** Wildbond/Starfall Godot projects and play/ previews belong to their named engine owners. Codex does not edit them absent explicit authorization. Browser Wildbond data/lore/checks feed Godot via tools/godot-export.ps1.
+- **Design:** everything happens inside the game window; separate panels need a reason. Earned quality of life and character delegation serve active play; no new full Auto. Respect existing art/lore. Read relevant CREATIVE rules for player text/art, VISION for major proposals, PROJECTS for project scope; no portfolio-wide reread for a small fix.
+- **Writing:** capitalised names, correct spelling, world language instead of rule jargon. Read docs/lore/wildbond-threads.md before Wildbond story/sign/dex/NPC writing and record placed clues. Review the real screen as a new player for player-facing changes.
+- **Assets / spending:** verify outside-asset rights and credit sources. Preserve stable library IDs and contracts; generated reference approval does not approve a different 3D model. Male and female roles need equivalent equipment capability and separate fitting evidence. New paid purchases need explicit permission.
+- **Evan's account and Evan himself:** never enter Evan's passwords or create accounts for him; he signs in himself. Evan isn't a programmer: explain in plain words, show results and give clear next steps.
+- **What Evan wants** (real games with deep lore, the screen is the world, earned automation never paywalled, stories woven not marched, strong shared assets) is still current design direction: read that section of [the archived CLAUDE notes](docs/archive/CLAUDE-before-context-route-2026-10-13.md#what-evan-wants-keep-this-in-mind-for-every-design-choice) before a design choice, with later decisions in GOALS, PRIORITIES and DECISIONS taking precedence.
+- **Finish:** commit/push reviewable work, update PR/Tower/task evidence, add one START-HERE Session log line and handoff in COMMS. Planning owns Where we are/Up next and version bumps unless the task says otherwise. User pauses and task boundaries override historical endless-autopilot instructions.
 
-**Start with [docs/STUDIO-PLAN.md](docs/STUDIO-PLAN.md)** (approved by Evan 2026-10-12): the phases, the four goals, the one-week cycle with a Play day, the four build slots with fixed quotas and the usage rules. Work only on the current cycle's tasks (QUEUE.md "This cycle"); read STUDIO-PLAN, that block and your game's section, not every page.
-
-Read **START-HERE.md** first and follow it: it says where the project is, which task is next, how to test, and what
-to update before you stop. HANDOFF.md has the full rules and file layout; docs/ROADMAP.md has the full tickets.
-
-Never use a personal email in commits: only `206636510+ecbarish@users.noreply.github.com`. Work in your own clone or
-cloud task on a `codex/<topic>` branch, open a pull request, and don't switch branches in
-`C:\Users\evanb\OneDrive\Desktop\idle-arcade` (Claude works there).
-
-**What to work on:** `docs/PROJECTS.md` is the master list of every outlined project (with a launch track); claim one
-there before you start. **How much is yours to decide:** `docs/CREATIVE.md` gives the ground rules, the quality bar
-and three levels of creative freedom. Your own ideas and perspective are welcome; that page says how to bring them.
-
-**Autopilot:** `docs/QUEUE.md` gives each assistant a lane (Codex: Lane A; a third AI such as Grok: Lane C). Work
-your lane top to bottom without waiting to be prompted: claim, build, open a PR, then start the next task (no limit on open
-PRs since 2026-10-08; stack branches when tasks share files). Don't bump game versions or edit START-HERE's "Where we are"/"Up next"; Claude does that when merging.
-Branch prefixes: `codex/<topic>`, `grok/<topic>`, `<ai>/<topic>`.
-
-**The vision:** read `docs/VISION.md` (Evan, 2026-10-07) before proposing big features; its projects are V1-V8 in
-`docs/PROJECTS.md`. Automation now means earned quality of life and delegation to characters, not skipping play.
-
-**Your lane is never finished.** When docs/QUEUE.md Lane A has nothing `open`, use the ticket factory in
-**docs/DEVELOPMENT-PATH.md** (Part 1): take the next `[ChatGPT]` or `[any]` deliverable from the path, write its ticket in
-docs/ROADMAP.md, add it to your lane, build it, open the PR, repeat. Read docs/PROJECTS.md "Read first" before starting.
-
-**Wildbond and Starfall** are now built in Godot by Claude (`wildbond-godot/`, `starfall-godot/`, web previews in `play/`):
-never edit those. Wildbond work for you is data, lore and checks in the browser game, which feeds the Godot version
-through tools/godot-export.ps1 (species, maps, lines, area briefs). docs/wildbond-plan.md's principles apply to every game.
-
-
-**In the game window, for every game** (Evan, 2026-10-08): the lessons from Wildbond apply to all games. The screen is the world: no game in a small window with panels of information beside it. Guidance, menus, stats and story happen inside the game (people who speak, things you hold and open, a thin overlay), not in boxes off to the side. A separate panel is the exception and needs a reason (for example a save tool or settings). New features in any game follow this; existing dashboard layouts (Realmbound, Starfall, Diamond Career) are queued to move into the game window.
-
-**Story writing** (Evan, 2026-10-08): stories are woven threads, not a straight line. Before writing any Wildbond story line, sign, dex entry or NPC chatter, read docs/lore/wildbond-threads.md and record any clue you place there.
-
-**Player-facing text** (Evan, 2026-10-08): capitalised names and titles, correct spelling, the world's words instead of the rules' words (no "mood -8" or "gate" in story text), and look at the real screen as a first-time player before shipping. Full rules: docs/CREATIVE.md "Writing for players".
+Detailed history is preserved in docs/archive/AGENTS-before-context-route-2026-10-13.md and CLAUDE-before-context-route-2026-10-13.md. Open only to resolve a specific historical question; current rules above take precedence over superseded instructions there.

@@ -59,3 +59,9 @@ The complete release gate still failed at rename pack-response observation. The 
 ## Complete coverage timeout, not a gameplay assertion
 
 Run38423766394 at1dc106f passed the same-origin rename with the actual e07 pack, both complete openings, frozen/legacy saves, move practice/reloads, Thornwood/Spire, rotation, 51 of60 door transitions and8 of12 pad-release checks. The CI process timer stopped it at30 minutes during the final viewport; no gameplay assertion had failed. It is a partial failed run, not release-ready evidence. The unchanged full suite receives a bounded40-minute process/50-minute job budget; every original assertion and required screenshot remains. This browser wall time is unrelated to the simulated180-second opening acceptance protocol.
+
+## Complete exact-pack gate passed
+
+[Run38428882580](https://github.com/ecbarish/generations/actions/runs/38428882580) passed at 16:50 UTC on `3c8b2033e3d3fe8fbfe12329c9503108c66960c2`. The full report is completed=true: 460 assertions, 60 door transitions, 12 pad releases and 169 captures, including both full openings, same-origin path rename, frozen/legacy saves and fixture-free reloads. Full report validator passes locally too. Representative phone partner card, desktop partner movement and canonical rename-load captures inspected.
+
+[Artifact11831743217](https://github.com/ecbarish/generations/actions/runs/38428882580/artifacts/11831743217), 7,718,798 bytes, ZIP SHA-256 `9ec25d966e37c6bd584e26edb38b5dd81f15dc46b20024420a9b0ed4cf8a7ca6`, downloaded and digest verified. Its 24 runtime/test/workflow input hashes match the reconciled working tree exactly. This is evidence reuse from that exact tested head, not a claim of a new browser run on later documentation/main reconciliation. The current aggregate and pinned pack/source integrity are checked separately before merge. Publication and fresh live-browser verification remain pending.
