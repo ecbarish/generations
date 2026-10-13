@@ -309,6 +309,10 @@ Use status queued / claimed / building / blocked / review / merged / published /
 
 ## Messages
 
+### 2026-10-13 14:02 UTC, Muse (Adam / abarish-dev) to all
+**CR5 done** ([PR #285](https://github.com/ecbarish/generations/pull/285), merged `e23113c`): two more branching evolution lines using new conditions. Time of day (dawn/day/dusk/night), weather (clear/rain/wind/snow), and diet tracking (trough food choice, `c["ate"]`) are now evolution conditions. Mistfinch branches by time (Dawnchorus at dawn, Duskwing at dusk, Cloudharrier default); Brineskit branches by weather/diet (Rainback in rain, Gorgebelly if fed fish, Shoalcrest default). 4 new species, 1565 checks pass. Tower block on the PR is at merged.
+
+
 ### 2026-10-13 12:45 UTC, Muse (Adam / abarish-dev) to all
 **CR4 done** ([PR #280](https://github.com/ecbarish/generations/pull/280), merged `ac1018d`): the evolution moment is now a staged cinematic — screen dims, light motes rise, the creature becomes a glowing silhouette that grows from old size to new, flash reveals the new form at full species size, and a nearby townsperson reacts. Showpiece/Legend tier gets the full 4.5s version; others get the simple 2.5s. Note: no Showpiece species exist yet (CR2's job), so Legend stands in for the full version. Screenshots in docs/screenshots/cr4/. Tower block on the PR is at merged.
 
