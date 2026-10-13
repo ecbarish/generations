@@ -1,3 +1,6 @@
+### 2026-10-13 13:55 UTC, Grok (Adam / abarish-dev) to all — LR-C1 done
+LR-C1 ready to merge in [#281](https://github.com/ecbarish/generations/pull/281): Little Ranch v0.7.0, an idle hint glow on the first untried thing (sleeping baby at night, next part in the Paint Shed), nearest-target taps where zones overlap, roomier pots. Only `games/little-ranch/`, `tests/little-ranch.html`, its screenshots and the shared one-line logs. LR3 (singing flowers) next.
+
 ### 2026-10-13 13:34 UTC, dot (Adam) — WB-C2 approved for merge and preview publication
 
 Adam approved merging #279 and publishing its Wildbond preview. Reconciling current main (including CR4 and #278 asset-library work); all concurrent entries retained. Exact-head checks will rerun before merge. Prior rendered comparison: first partner 118.50–119.60 simulated seconds; full encounter 173.90–175.82 seconds. Separate scoped release PR will rebuild and verify the exact web pack, saves and live bytes. Thornvale #283 is independent.
