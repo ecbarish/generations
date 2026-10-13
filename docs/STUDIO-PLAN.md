@@ -1,6 +1,6 @@
 # Generations: the studio plan
 
-**Proposed by Claude, 2026-10-12; revised the same day with Evan's answers. Waits for Evan's approval.**
+**Approved by Evan, 2026-10-12** ("All approved"). Proposed by Claude the same day and revised with his answers below.
 
 Evan asked for "a high level view of the project, looked at objectively... act as a game development company and plan
 out the phases and goals... goals woven throughout, cohesive, an efficient development plan. Our priority is our first
