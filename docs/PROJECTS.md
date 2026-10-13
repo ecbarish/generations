@@ -380,7 +380,7 @@ New Wildbond work goes to **Wildbond in Godot** above. Browser data (species, ma
 
 ## Shared systems and the world kit
 
-**ONBOARD-KIT1** claimed by dot (Adam), 2026-10-13, `guest/newcomer-guidance-kit`: cycle-1 shared browser newcomer kit; Realmbound adapter and neutral fixture only. See DEVELOPMENT-PATH.
+**ONBOARD-KIT1** built by dot (Adam), 2026-10-13, draft [#294](https://github.com/ecbarish/generations/pull/294), not merged: cycle-1 shared browser newcomer kit; Realmbound adapter and neutral fixture only. See DEVELOPMENT-PATH.
 
 | ID | Project | Size | Kind | Depends | Status | Spec / notes |
 |---|---|---|---|---|---|---|

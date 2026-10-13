@@ -43,9 +43,38 @@ goals and callbacks. It does not adapt another production game or write any stor
   layout, rotation, large-text, dismissal, repeated opening, saved/legacy progress, fixture and lifecycle checks.
 - Additive `Newcomer guidance review` Actions workflow retains screenshots and a machine-readable report.
 
-Evidence/results will be recorded after the final implementation passes. Local Chromium launch failed
-in the cloud sandbox; Actions must supply actual browser evidence. Automated checks are not a fresh
-newcomer playtest or evidence of human enjoyment. No merge or publication has been approved.
+Implementation `af45611` passed all **21 aggregate suites**, including **9,074 Realmbound checks**,
+and **526 focused actual-browser assertions** with **55 screenshots**. The workflow's merge checkout
+`bad5cfb` and the PR head have the identical tree `4ffb2a797f89a5fae7516a242a8e4802fad84d70`.
+
+- [Full aggregate](https://github.com/ecbarish/generations/actions/runs/38422624938)
+- [Focused browser review and full-resolution artifacts](https://github.com/ecbarish/generations/actions/runs/38422624931)
+- [Existing before/after phone capture](https://github.com/ecbarish/generations/actions/runs/38422624901)
+- [Detailed assertion/geometry report](browser-report.json)
+
+Coverage: real touch at 320×568, 375×812, 390×844 with 150% text, 667×375 and 812×375;
+keyboard at 1366×768, 1920×1080 and 3440×1440; actual resize rotation; arrival, notebook,
+Quest Journal, Satchel, dismissal/reset/reopen, reload, raw historical v1/v2 saves, movement;
+neutral consumer safe text, callbacks, focus stability, destruction and no storage writes.
+
+The first focused run found a real 812×375 dialogue/header overlap. The fix is limited to short-wide
+arrival/town-service conversations and follows existing narrow-phone positioning. The complete suite
+then passed; no assertion was removed. An initial aggregate attempt crashed in Godot import before
+running tests; retrying the unchanged job passed. Local Chromium could not launch in the sandbox,
+so browser evidence is from Actions Chromium 141.0.7390.37 emulation, not a physical phone.
+
+Final evidence/status commits are checked again; see the PR's exact-head check results. Automated
+checks are not a new newcomer playtest or evidence of human enjoyment. No merge or publication approved.
+
+## Selected captures
+
+Compressed full-resolution copies; original PNGs remain in the linked artifact.
+
+![Corrected wide-phone quest conversation](screenshots/touch-812x375-text1-dialogue.webp)
+![Landscape Road note](screenshots/touch-667x375-text1-road-note.webp)
+![Portrait Road note at 150% text; content scrolls inside the notebook](screenshots/touch-390x844-text1.5-road-note.webp)
+![Desktop Road note](screenshots/keyboard-1366x768-text1-road-note.webp)
+![Neutral second consumer](screenshots/reference-portrait.webp)
 
 ## Independent source review (2026-10-13)
 
