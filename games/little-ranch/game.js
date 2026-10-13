@@ -14,17 +14,20 @@
    picture goes home at any time. A wagon-wheel sign leads to the Little Wagon (LR10); a snack-bowl sign to the Snack
    Kitchen (LR11): tap a food and the baby eats it, loving berries and pulling funny faces at the rest. On some visits a baby
    Pebblit friend wanders in (LR4): it eats and gets bubbly too, and a tap on it makes the two nuzzle. Tap the cloud for soft rain (LR5); afterwards
-   puddles shine on the grass and a rainbow comes out; tap a puddle and the baby jumps in. Nothing is saved. Checks: tests/little-ranch.html. */
+   puddles shine on the grass and a rainbow comes out; tap a puddle and the baby jumps in. The hat basket (LR6): each tap puts the next hat on the baby's head. Nothing is saved. Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.12.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
+  const VERSION = '0.13.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
   // LR-C1: things on the ranch, in the order an idle hint offers them (the first one not yet played with)
-  const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'sign', 'wsign', 'ksign'];
+  const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'sign', 'wsign', 'ksign'];
   // LR11: the Snack Kitchen. Four foods (berries, carrot, lemon, broccoli), one bowl, one baby who loves berries and pulls a
   // funny face at the rest (puffed cheeks, a sour squeeze, a tongue out). Three bowls of berries and it's full and happy.
   // LR4: a second friend. On some visits (about half) a baby Pebblit wanders in and settles beside the baby. Tap the bowl
   // and it trots over and eats too; the sponge bubbles it as well; tap it and the two babies run together and nuzzle.
   // LR5: rain and puddles. Tap the cloud: soft rain for a few seconds (another tap keeps it going); when it stops, two
   // puddles shine on the grass and a rainbow comes out. Tap a puddle and the baby runs over and jumps in, splash! The puddles dry up after a while.
+  // LR6: the hat basket. Tap it and a hat hops out onto the baby's head: a straw sun hat, a party hat, a crown, a flower
+  // crown, a cowboy hat, then the hat hops back in (bare head) and round again. Every third hat is one happy thing.
+  const HATS = ['straw', 'party', 'crown', 'flowers', 'cowboy'], HAT_FLY = .6, HAT_TRIES = 3;
   const RAIN_SECS = 5, PUDDLE_SECS = 60, SPLASH_SECS = 1.3;
   const FRIEND_ODDS = .5, NUZZLE_SECS = 1.6, FRIEND_EAT_SECS = 2.4; let forceFriend = null;
   const FOODS = ['berries', 'carrot', 'lemon', 'broccoli'], FOOD_FACES = ['yum', 'puff', 'sour', 'tongue'], KITCHEN_BERRIES = 3, FLY_SECS = .5, EAT_SECS = .9, FACE_SECS = 1.6, KITCHEN_END_SECS = 2.6;
@@ -94,7 +97,7 @@
   function newVisit() {
     st = { t: 0, mode: 'play', dusk: 0, acts: 0, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0 },
       bowl: { food: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null },
-      place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [] };
+      place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 } };
     if (forceFriend !== null ? forceFriend : Math.random() < FRIEND_ODDS) st.friend = { x: 1.1, tx: null, then: null, act: null, at: 0, soap: 0, dir: -1 };
     layout(); st.baby.x = L.home.x; if (st.friend) fgo(L.fhome.x, null); // it wanders in from the right
   }
@@ -119,7 +122,8 @@
       L.shed = { z, x: W / 2 - z * .08, y: H * .7, potR, pots: PAINT.map((c, i) => ({ x: W * (.125 + i * .25), y: H * .88 - potR * .4 })), barn: { x: Math.max(potR * 1.15, W * .1), y: Math.max(potR * 1.15, H * .09), r: potR * .95 } }; }
     L.wagon.barn = L.shed.barn;
     L.cloud = { x: W * .64, y: Math.max(H * .08, U * .08), r: Math.min(U * .1, H * .11) }; // LR5
-    L.puddles = [{ x: W / 2 - sp * .62, y: H * .69 }, { x: W / 2 + sp * .5, y: H * .7 }].map(q => ({ ...q, r: U * .12 }));
+    L.puddles = [{ x: W / 2 - sp * .62, y: H * .69 }, { x: W / 2 + sp * (wide ? .7 : .5), y: H * (wide ? .67 : .7) }].map(q => ({ ...q, r: U * .12 }));
+    L.basket = { x: Math.max(W * .09, U * .14 * .95), y: H * .68 }; // LR6: the hat basket, at the field's left edge
     L.fhome = { x: L.home.x + (L.sponge.x - L.home.x) * .9, y: L.home.y }; L.fz = L.size * .95; // LR4: the friend's spot, between the baby and the sponge
     L.ksign = { x: W * .45, y: L.ground - U * .14 * 1.7 }; // LR11: the snack-bowl sign, on the hilltop
     { const fr = Math.min(W * .108, H * .1), ty = H * .64, z = Math.min(W * .22, H * .24);
@@ -282,7 +286,7 @@
     if (st.mode !== 'play' || busy() || st.sponge.drag || st.sponge.auto || st.sun.bow) return null;
     const ok = k => (!['sun', 'cloud'].includes(k) || daytime()) && (k !== 'puddle' || st.puddles.some(q => q.i === 0)) && (k !== 'friend' || (st.friend && st.friend.tx === null)), left = HINTS.filter(k => !st.used[k] && ok(k)), all = HINTS.filter(ok);
     const name = left.length ? left[0] : all[Math.floor((st.t - st.idleAt - HINT_SECS) / 8) % all.length];
-    const at = { bowl: [L.bowl, L.R * 1.1], sponge: [L.sponge, L.R * 1.05], bush: [{ x: L.bush.x, y: L.bush.y - L.R * .5 }, L.R * 1.35], baby: [babyCentre(), L.size * 1.1], sun: [sunAt(), L.U * .15], sign: [{ x: L.sign.x, y: L.sign.y - L.R * .45 }, L.R * 1.05], flowers: [L.flowers[2], L.flowers[2].r * 1.4], wsign: [{ x: L.wsign.x, y: L.wsign.y - L.R * .45 }, L.R * 1.05], ksign: [{ x: L.ksign.x, y: L.ksign.y - L.R * .45 }, L.R * 1.05], friend: [st.friend ? fCentre() : L.home, L.fz * 1.1], cloud: [L.cloud, L.cloud.r * 1.3], puddle: [L.puddles[0], L.puddles[0].r] }[name];
+    const at = { bowl: [L.bowl, L.R * 1.1], sponge: [L.sponge, L.R * 1.05], bush: [{ x: L.bush.x, y: L.bush.y - L.R * .5 }, L.R * 1.35], baby: [babyCentre(), L.size * 1.1], sun: [sunAt(), L.U * .15], sign: [{ x: L.sign.x, y: L.sign.y - L.R * .45 }, L.R * 1.05], flowers: [L.flowers[2], L.flowers[2].r * 1.4], wsign: [{ x: L.wsign.x, y: L.wsign.y - L.R * .45 }, L.R * 1.05], ksign: [{ x: L.ksign.x, y: L.ksign.y - L.R * .45 }, L.R * 1.05], friend: [st.friend ? fCentre() : L.home, L.fz * 1.1], cloud: [L.cloud, L.cloud.r * 1.3], basket: [{ x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05], puddle: [L.puddles[0], L.puddles[0].r] }[name];
     return { name, x: at[0].x, y: at[0].y, r: at[1] };
   }
   function drawHint() { const h = hint(); if (!h) return; const k = st.t - st.idleAt - HINT_SECS, m = reduce() ? 0 : 1, pulse = .5 + .5 * Math.sin(k * 3.2);
@@ -353,6 +357,30 @@
     else if (k.phase === 'face' && e >= FACE_SECS) { k.face = null; k.food = null; k.at = st.t;
       if (k.berries >= KITCHEN_BERRIES) { k.phase = 'full'; sfx('rainbow'); for (let j = 0; j < 10; j++) fx(j % 2 ? 'spark' : 'heart', V.baby.x + (Math.random() - .5) * V.z * 2.4, V.baby.y - V.z * (1 + Math.random() * 1.2)); } else k.phase = 'idle'; }
     else if (k.phase === 'full' && e >= KITCHEN_END_SECS) leaveKitchen(true); }
+  function hatTap() { const h = st.hat; h.shake = 1; if (h.fly) { sfx('note'); return; } // LR6
+    const next = h.wear + 1 >= HATS.length ? -1 : h.wear + 1; h.fly = { from: h.wear, to: next, at: st.t }; sfx('pick', 2); }
+  function hatUpdate(dt) { const h = st.hat; h.shake = Math.max(0, h.shake - dt * 2.5);
+    if (h.fly && st.t - h.fly.at >= HAT_FLY) { h.wear = h.fly.to; h.fly = null; const c = babyCentre();
+      if (h.wear >= 0) { sfx('giggle'); for (let i = 0; i < 4; i++) fx('spark', c.x + (i - 1.5) * L.size * .3, c.y - L.size * 1.1); const b = st.baby; if (!b.act && b.tx === null) { b.act = 'giggle'; b.at = st.t; } if (++h.tries % HAT_TRIES === 0) done(); }
+      else sfx('bloop'); } }
+  const hatTop = () => { const b = st.baby, z = L.size; return { x: b.x + b.dir * z * .42, y: L.home.y - z * 1.25 - z * .66 * .8 }; };
+  function drawHat(i, x, y, r) { // r is the head's radius; (x, y) is the top of the head
+    if (i === 0) { ell(x, y + r * .12, r * 1.25, r * .3, '#e8c870'); ell(x, y - r * .12, r * .7, r * .45, '#f0d888'); cx.fillStyle = '#e84a5a'; cx.fillRect(R(x - r * .68), R(y - r * .02), R(r * 1.36), Math.max(1, R(r * .14))); ell(x + r * .5, y - r * .02, r * .12, r * .12, '#ffffff'); }
+    else if (i === 1) { cx.fillStyle = '#4fb4ff'; cx.beginPath(); cx.moveTo(R(x - r * .5), R(y + r * .15)); cx.lineTo(R(x + r * .5), R(y + r * .15)); cx.lineTo(R(x), R(y - r * 1.2)); cx.fill();
+      cx.fillStyle = '#ffd04a'; for (const k of [.25, .65]) { const w2 = r * .5 * (1 - k) + r * .05; cx.fillRect(R(x - w2), R(y + r * .15 - k * r * 1.35), R(w2 * 2), Math.max(1, R(r * .12))); } ell(x, y - r * 1.2, r * .16, r * .16, '#ff5a8a'); }
+    else if (i === 2) { cx.fillStyle = '#f2c14e'; cx.beginPath(); cx.moveTo(R(x - r * .6), R(y + r * .15)); for (let k = 0; k <= 4; k++) { cx.lineTo(R(x - r * .6 + k * r * .3), R(y - r * (k % 2 ? .25 : .7))); } cx.lineTo(R(x + r * .6), R(y + r * .15)); cx.fill();
+      ell(x, y - r * .05, r * .1, r * .1, '#e84a5a'); ell(x - r * .32, y, r * .08, r * .08, '#4fb4ff'); ell(x + r * .32, y, r * .08, r * .08, '#5fb34a'); }
+    else if (i === 3) { for (let k = 0; k < 5; k++) { const fx2 = x + (k - 2) * r * .3, fy = y + Math.abs(k - 2) * r * .1 - r * .05; ell(fx2, fy, r * .17, r * .17, ['#ff6f91', '#ffa040', '#b07aff', '#4fb4ff', '#ff5a5a'][k]); ell(fx2, fy, r * .07, r * .07, '#fff3a0'); } }
+    else if (i === 4) { cx.fillStyle = '#8a5a34'; cx.beginPath(); cx.ellipse(R(x), R(y + r * .08), R(r * 1.2), R(r * .25), 0, 0, 7); cx.fill(); ell(x, y - r * .3, r * .55, r * .45, '#9a6a3e'); cx.fillStyle = '#5a3a24'; cx.fillRect(R(x - r * .55), R(y - r * .12), R(r * 1.1), Math.max(1, R(r * .12))); ell(x - r * 1.1, y - r * .05, r * .2, r * .14, '#8a5a34'); ell(x + r * 1.1, y - r * .05, r * .2, r * .14, '#8a5a34'); } }
+  function drawBasket(g) { const B = L.basket, r = L.R * .9, sh = Math.sin(st.t * 30) * st.hat.shake * r * .08, bob = hintBob('basket'), x = B.x + sh, y = B.y - bob, dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
+    shadow(B.x, B.y + r * .55, r * .95);
+    ell(x - r * .35, y - r * .45, r * .3, r * .14, dk('#e8c870')); ell(x + r * .05, y - r * .6, r * .2, r * .25, dk('#4fb4ff')); ell(x + r * .4, y - r * .45, r * .22, r * .12, dk('#f2c14e')); // hats peeking out
+    cx.fillStyle = dk('#c8904a'); cx.beginPath(); cx.moveTo(R(x - r * .85), R(y - r * .35)); cx.lineTo(R(x + r * .85), R(y - r * .35)); cx.lineTo(R(x + r * .65), R(y + r * .55)); cx.lineTo(R(x - r * .65), R(y + r * .55)); cx.fill();
+    cx.fillStyle = dk('#a8703a'); for (const k of [-.1, .2]) cx.fillRect(R(x - r * .78), R(y + k * r), R(r * 1.56), Math.max(1, R(r * .08))); for (const k of [-.45, 0, .45]) cx.fillRect(R(x + k * r - r * .04), R(y - r * .35), Math.max(1, R(r * .08)), R(r * .9));
+    ell(x, y - r * .35, r * .88, r * .12, dk('#8a5a34')); cx.strokeStyle = dk('#8a5a34'); cx.lineWidth = Math.max(2, r * .1); cx.beginPath(); cx.ellipse(R(x), R(y - r * .35), R(r * .6), R(r * .55), 0, Math.PI, 2 * Math.PI); cx.stroke(); }
+  function drawHatFly() { const h = st.hat; if (!h.fly) return; const a = clamp((st.t - h.fly.at) / HAT_FLY, 0, 1), top = hatTop(), B = { x: L.basket.x, y: L.basket.y - L.R * .5 }, hr = L.size * .66;
+    const on = h.fly.to >= 0, i = on ? h.fly.to : h.fly.from, A = on ? B : top, Z = on ? top : B, k = on ? a : a;
+    if (i >= 0) drawHat(i, lerp(A.x, Z.x, k), lerp(A.y, Z.y, k) - Math.sin(k * Math.PI) * L.size * 1.2, hr * lerp(on ? .6 : 1, on ? 1 : .6, k)); }
   function rainTap() { const c = st.cloud; c.puff = 1; // LR5
     if (!daytime()) return; if (!c.rain) { c.rain = st.t; sfx('rustle'); } c.until = Math.max(c.until, st.t) + (c.rain === st.t ? RAIN_SECS : 2); }
   function rainUpdate(dt) { const c = st.cloud; c.puff = Math.max(0, c.puff - dt * 2);
@@ -393,7 +421,7 @@
     if (b.act === 'yawn' && since > 1.6) { b.act = null; home(); }
     if (b.act === 'cheer' && since > 1.8) b.act = null;
     if (b.act === 'nuzzle' && since > NUZZLE_SECS) { b.act = null; done(); home(); }
-    friendUpdate(dt); rainUpdate(dt);
+    friendUpdate(dt); rainUpdate(dt); hatUpdate(dt);
     if (b.act === 'splash' && since > SPLASH_SECS) { b.act = null; done(); home(); }
     if (b.act === 'dance') { if (since > 1.3) b.act = null; else if (Math.floor(since / .32) !== Math.floor((since - dt) / .32)) b.dir = -b.dir; }
     for (const f of st.flowers) f.bob = Math.max(0, f.bob - dt * 1.6);
@@ -463,6 +491,7 @@
       else { cx.fillStyle = '#2a1a18'; const w = hr * .3; cx.fillRect(R(ex - w / 2), R(ey + (eyes === 'happy' ? -hr * .04 : 0)), R(w), Math.max(1, R(hr * .07))); if (eyes === 'happy') { cx.fillRect(R(ex - w / 2), R(ey + hr * .03), Math.max(1, R(hr * .07)), Math.max(1, R(hr * .06))); cx.fillRect(R(ex + w / 2 - hr * .07), R(ey + hr * .03), Math.max(1, R(hr * .07)), Math.max(1, R(hr * .06))); } } }
     ell(hx + d * hr * .25, hy + hr * .22, hr * .1, hr * .07, '#3a2420');
     if (mouth) ell(hx + d * hr * .22, hy + hr * .48, hr * .14 * mouth, hr * .12 * mouth, '#8a2a2a');
+    if (st.hat.wear >= 0 && !(st.hat.fly && st.hat.fly.from === st.hat.wear)) drawHat(st.hat.wear, hx, hy - hr * .8, hr); // LR6
     if (b.soap > .05) for (let i = 0; i < 6; i++) ell(x + Math.cos(i * 2.1) * z * .6, by - z * (.7 + .5 * Math.sin(i * 1.7)), z * .12 * b.soap + 1, z * .1 * b.soap + 1, 'rgba(255,255,255,.85)');
   }
   function drawBush(front) {
@@ -701,7 +730,7 @@
     for (let x = W * .05; x < W; x += U * .3) cx.fillRect(R(x), R(fy - U * .03), Math.max(2, R(U * .03)), R(U * .14));
     for (let i = 0; i < 30; i++) { const x = (i * 61.7) % W, y = L.ground + U * .2 + (i * 37.1) % (H - L.ground - U * .2); cx.fillStyle = pick3('#5aa848', '#8a8a40', '#1e3a36', g); cx.fillRect(R(x), R(y), 1, 2); }
     drawHint();
-    drawPuddles(); drawSign(g); drawWheelSign(g); drawKSign(g);
+    drawPuddles(); drawBasket(g); drawSign(g); drawWheelSign(g); drawKSign(g);
     const hidden = st.baby.act === 'hide' || st.baby.act === 'peek';
     if (!hidden) drawBush(false);
     // the bowl
@@ -713,6 +742,7 @@
       const base = L.bush.y + L.R * .3; cx.save(); cx.beginPath(); cx.rect(0, 0, W, R(base)); cx.clip(); // only what rises above the bush's foot shows
       cx.translate(0, L.bush.y - L.home.y + L.size * .9 - k * L.size * 1.4); st.baby.x = L.bush.x; drawBaby(); st.baby.x = save; cx.restore(); drawBush(true); }
     else { drawFriend(); drawBaby(); }
+    drawHatFly();
     // the sponge
     const s = st.sponge, sw = L.R * .8; if (!s.drag && !s.auto) shadow(s.x, s.y + sw * .3, sw);
     cx.save(); cx.translate(R(s.x), R(s.y - hintBob('sponge'))); cx.rotate(s.drag || s.auto ? Math.sin(st.t * 10) * .2 : 0);
@@ -731,7 +761,7 @@
   function ranchTarget(p) { const s = st.sponge, c = [];
     if (!s.auto) c.push(['sponge', s, L.R * 1.1]); c.push(['sign', L.sign, L.R * 1.1], ['wsign', L.wsign, L.R * 1.1], ['ksign', L.ksign, L.R * 1.1], ['bowl', L.bowl, L.R * 1.2], ['bush', { x: L.bush.x, y: L.bush.y - L.R * .4 }, L.R * 1.4]);
     if (st.baby.act !== 'hide') c.push(['baby', babyCentre(), L.size * 1.2]); if (st.friend) c.push(['friend', fCentre(), L.fz * 1.25]); if (daytime()) c.push(['sun', sunAt(), Math.max(L.U * .16, L.R)], ['cloud', L.cloud, L.cloud.r * 1.35]);
-    for (const q of st.puddles) c.push(['puddle' + q.i, L.puddles[q.i], L.puddles[q.i].r]);
+    for (const q of st.puddles) c.push(['puddle' + q.i, L.puddles[q.i], L.puddles[q.i].r]); c.push(['basket', { x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05]);
     L.flowers.forEach((q, i) => c.push(['flower' + i, { x: q.x, y: q.y }, q.r * 1.15]));
     let best = null, bk = 1; for (const [n, q, r] of c) { const k = Math.hypot(p.x - q.x, p.y - q.y) / r; if (k <= bk) { bk = k; best = n; } } return best; }
   cv.addEventListener('pointerdown', e => {
@@ -758,6 +788,7 @@
     if (pick === 'friend') return friendTap();
     if (pick === 'sun') return shine();
     if (pick === 'cloud') return rainTap();
+    if (pick === 'basket') return hatTap();
     if (/^puddle/.test(pick)) return puddleTap(+pick.slice(6));
     act.sparkle(p);
   });
@@ -813,7 +844,7 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
+  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();
