@@ -130,6 +130,7 @@ live list is QUEUE.md "The road ahead".
 
 ## Log
 
+- 2026-10-13 Claude (lane P): cycle 1 revised on Evan's word ("the playtests are a waste until we update beyond Flint's notes"): every game's tasks come from Flint's three rounds; new playtests and Lantern Bowl wait for cycle 2.
 - 2026-10-13 Claude (lane P): the studio plan's weekly cycle now runs the order. Cycle 1 (QUEUE.md "This cycle"): Wildbond, Little Ranch, Starfall in the rotating slot (lowest newcomer score, 10/18), Lantern Bowl in the Incubator, plus the Phase 0 front door. Cycle 2's rotating game is Realmbound.
 
 - 2026-10-09 Claude: first version. Flagship Wildbond (Godot), second Starfall village, ChatGPT's own Realmbound;
