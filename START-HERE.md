@@ -97,6 +97,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-13, Grok (Adam), LR3:** Little Ranch v0.8.0, the singing flowers (five notes, the baby dances, drag for a song), in [#289](https://github.com/ecbarish/generations/pull/289).
+- **2026-10-13, Grok (Adam), LR-C1:** Little Ranch v0.7.0, the first five minutes alone on a tablet: idle hint glow, nearest-target taps, roomier paint pots; parent's checklist and tablet screenshots in [#281](https://github.com/ecbarish/generations/pull/281).
 - 2026-10-13 Codex: ART-WB-SPRITE-EVAL saved as a future candidate in docs/art/wildbond-art-direction.md section 8; note-only, no trial started or credits spent.
 
 - **2026-10-13, dot (Adam), WB-C2:** shorter arrival/barn dialogue and unchanged family tales immediately after the first bond, in draft [#279](https://github.com/ecbarish/generations/pull/279). All 20 aggregate suites pass on the implementation, including 1,612 integrated Wildbond checks and frozen pre-change save compatibility. Input-only before/after timing and full-resolution desktop/phone evidence: [record](docs/playtests/wildbond-wb-c2/README.md). Adam approved merge and preview publication at 13:32 UTC; reconciling current main and rerunning exact-head checks before the scoped release.
