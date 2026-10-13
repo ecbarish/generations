@@ -1357,7 +1357,7 @@ func _draw_actor(ci: CanvasItem, m: Mover, i: int, fade_amt := 0.0) -> void:
 			"bird": m.look.kind == "boar" and not walking and fmod(t + 3.0, 16.0) < 10.0,
 		}
 		var wiggle := (1.0 if int(t * 16.0) % 2 == 0 else -1.0) if m.act == "pounce" and m.act_t > 0.4 and m.act_t < 0.8 else 0.0
-		var sc := SIZE_SCALE.get(str(DATA.SPECIES.get(m.id, {}).get("size", "medium")), 1.0)   # CR1: draw at species size
+		var sc: float = SIZE_SCALE.get(str(DATA.SPECIES.get(m.id, {}).get("size", "medium")), 1.0)   # CR1: draw at species size
 		var o := m.pos + Vector2(-1 + wiggle, 4 + m.hop)
 		ci.draw_set_transform(o, 0, Vector2(sc, sc))
 		Figures.creature(ci, Vector2.ZERO, m.right, pose, _faded_look(m.look, fade_amt))

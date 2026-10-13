@@ -795,8 +795,7 @@ func _draw() -> void:
 	for u in order:
 		if u.c.hp <= 0 and u.hit <= 0.0:
 			continue
-		var sc := 4.0 if u.side == "a" else 3.0
-		sc *= SIZE_SCALE.get(str(R.sp(u.c).get("size", "medium")), 1.0)   # CR1: draw at species size
+		var sc: float = (4.0 if u.side == "a" else 3.0) * SIZE_SCALE.get(str(R.sp(u.c).get("size", "medium")), 1.0)   # CR1: draw at species size
 		var at := _spot(u)
 		var dir := 1.0 if u.side == "a" else -1.0
 		at.x += sin(clampf(u.lunge / 0.35, 0.0, 1.0) * PI) * 10.0 * dir
