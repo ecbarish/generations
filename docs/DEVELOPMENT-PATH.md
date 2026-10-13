@@ -91,7 +91,7 @@ Target about 150 species in about 70 lines; most new species are new stages of t
 - [x] CR1 [any] (done 2026-10-12 by Muse, Adam / abarish-dev, PR #267) Sizes and tiers in the data (`size`, `tier` on all 112 species) and creatures drawn at their size in battle and when following you (spec 4.4). Screenshots small beside huge (docs/screenshots/cr1/). All Godot checks pass (1528).
 - [ ] CR2 [ChatGPT / writer] The six showpiece lines (spec 3): the three starter lines promoted, new Stone, Gale and Radiant lines, a slow growth rate, guardians raised to 560-600; pacing check (WB3.6b) holds.
 - [ ] CR3 [any, one region per PR] Grow the loners into lines: about 58 of the 74 creatures that never evolve gain a new stage before or after them, each its own creature with its own name and look (like Squirtle, Wartortle, Blastoise; not baby or adult versions, which are WB5.5), in journey order (Thornwood first).
-- [ ] CR4 [any] The evolution moment: the light, the silhouette growing, the new form at full size, someone who notices; the full version for showpieces.
+- [x] CR4 [any] (done 2026-10-13 by Muse, Adam / abarish-dev, PR #280) The evolution moment: the light, the silhouette growing, the new form at full size, someone who notices; the full version for showpieces (Legend as stand-in until CR2). Screenshots docs/screenshots/cr4/. 1534 Godot checks pass.
 - [ ] CR5 [any] Two more branching lines with unused conditions (time of day, weather, what it ate).
 - [ ] CR6 [any] World-fit audit: every creature in solid black by shape; fix look-alikes; each region's size and shape spread (spec 4.2, 4.7).
 - [ ] CR7 [any] Rare spawns for showpieces: a hidden pocket or rare-condition spawn per region, hinted by someone there.

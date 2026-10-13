@@ -20,7 +20,7 @@ function beginArrival(replay) {
     ['@The Sundered Reach', 'Stone roads in the west. Witnessed promises on the steppe. Different ways to keep a neighbor safe.'],
     ['@' + home, 'Your road begins with a small request. Someone is waiting for help.'],
     [giver(q), q.text],
-    ['@The first errand', replay ? 'That is where this road began. Your present quests and progress are unchanged.' : q.name + ' is already in your Quests. Look for its target, start each fight yourself, then meet the giver in town to choose a reward.']
+    ['@The first errand', replay ? 'That is where this road began. Your present quests and progress are unchanged.' : q.name + ' is already in your Quests. Look for its target, start each fight yourself, then meet the giver in town to choose a reward.' + (h.zone==='thornvale'?' You can carry three requests together. Deputy Rhea has two jobs in the old mine; find her through your Quest Journal.':'')]
   ], () => {
     ARRIVAL_HERO = null;
     if (!replay && o) { o.arrival = true; if (H() === h) save(); }
@@ -42,6 +42,9 @@ function roadHint() {
   if (C.phase === 'dead') return show('recovery', 'The road continues', 'Your hero recovers after a defeat. Nothing in this guide requires a perfect start; your quest progress stays with you.');
   if (state === 'ready') return show('reward', 'Bring the errand home', 'The objective is ready, but the errand is not finished. Open Quests and choose one reward. It goes into Bags, not straight onto your character. A full bag? Sell an item or visit the smith first.', 'quests');
   if (C.phase === 'loot' && C.loot && !h.stats.loots) return show('loot', 'Something for the road', 'Press Loot all or L when you are ready. Money is collected and items go into your Satchel if there is room; the rest waits for you. AutoLoot is earned after 60 manual loots; it is not on yet.');
+  if(h.zone==='thornvale'&&h.quests.active.length<3&&['t2','t3'].some(id=>qState(ALLQ[id])==='avail')) {
+    const hint=show('thornvaleRequests','More to do on one road','You can carry three requests together. Deputy Rhea needs candles recovered and Diggers driven from the old mine. Both requests can progress on the same hunt. Open your Quest Journal to find her in Thornvale Abbey.','quests');if(hint)return hint;
+  }
   if (C.phase === 'intown') return show('town', 'A fire to come back to', 'Walk with arrows or WASD, or tap the ground. Walk into the inn or longhouse for rest, or the smith to sell junk and repair if you can afford it. Repairs are optional. Walk to the gate, or use Leave town, to return.');
   if ((state !== 'done' || o.hints.home) && h.stats.loots && !h.stats.equips && h.bags.some(i => !i.junk && !i.food && !i.mountItem)) {
     const hint = show('bags', 'Finding is not equipping', 'Open Bags to inspect what you found. Your class can only wear suitable gear; compare it with the current item before choosing Equip. Junk can be sold in town.', 'bags'); if (hint) return hint;

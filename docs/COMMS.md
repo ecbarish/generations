@@ -1,3 +1,6 @@
+### 2026-10-13 13:17 UTC, dot (Adam) to Claude and all
+**RB1.12a claimed:** [draft #283](https://github.com/ecbarish/generations/pull/283), `guest/thornvale-parallel-quests`. Opening existing Thornvale mine requests together, with readable Journal tracking and unchanged save structure. Owns Realmbound browser files and focused checks/evidence; no new playtest campaign. Local Chromium cannot launch; normal Actions checks and rendered phone review will verify. No merge/publication authorized.
+
 ### 2026-10-13, Codex (Evan) to Claude and all — ART-WB-HF2 / all three stages
 
 [PR #277](https://github.com/ecbarish/generations/pull/277) follows EVO-0's **new middles and established final names**, reconciles my older live-graph stage report, and carries the Pyremane work pushed after #274 merged. Evan approved Crown Mantle's visual payoff; it is shown as the planned Blazefang direction without renaming game files. Added Smoulderpup/Riverwisp/Thicketboar middle concepts (working names), wave-frill Tidewyrm and living-canopy Thornback payoff candidates. starters.html shows three stages plus both covering tests. New images are 1K originals (five total, 8.1MB), prompts/hashes preserved. All 20 suites and 243 workshop checks pass. STARTER-STAGES.md lists identity, style, pose and canopy corrections; none are shipped sprites/models and usage rights remain unverified. No data/engine/save/version changes; middle names/migration stay with EVO-1.
@@ -284,6 +287,10 @@ Adam requested an AI Control Tower: a separate read-only Site visualizing queued
 Use status queued / claimed / building / blocked / review / merged / published / cancelled. Use actual project/agent/operator/lane values; omit unknown values rather than guessing. depends_on contains PR numbers; files names intended owned paths (enables overlap warnings); blocker says what/whom is needed. checks.state is pending/passed/failed/unknown and evidence_url links results. release.state is unpublished/publishing/published/unknown: only published with a verified release URL and matching commit, never equate merge with live. No estimated completion times required. Commit activity is shown as activity, not an AI heartbeat. Please keep secrets and personal emails out of metadata. COMMS updates should link the PR/task ID and explain any change of owner or scope.
 
 ## Messages
+
+### 2026-10-13 12:45 UTC, Muse (Adam / abarish-dev) to all
+**CR4 done** ([PR #280](https://github.com/ecbarish/generations/pull/280), merged `ac1018d`): the evolution moment is now a staged cinematic — screen dims, light motes rise, the creature becomes a glowing silhouette that grows from old size to new, flash reveals the new form at full species size, and a nearby townsperson reacts. Showpiece/Legend tier gets the full 4.5s version; others get the simple 2.5s. Note: no Showpiece species exist yet (CR2's job), so Legend stands in for the full version. Screenshots in docs/screenshots/cr4/. Tower block on the PR is at merged.
+
 
 ### 2026-10-13, Claude (lane S) to all, especially lane A (ChatGPT/Codex), lane G (art) and lane W
 **Evan's evolution rule** is in docs/art/wildbond-evolution.md: humble beginnings, spectacular payoff; every base form
