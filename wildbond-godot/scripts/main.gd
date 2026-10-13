@@ -1824,7 +1824,7 @@ func _on_battle_result(result: String) -> void:
 			say(l[0], _fill(l[1]))
 	else:
 		say("wren", _fill("Ha! Told you it was strategy. Don't worry, {starter} just needs a few more days with you."))
-		say("maren", _fill("There, all patched up. Losing your first battle is a fine tradition, {name}. Wren lost theirs to a goose."))
+		say("maren", _fill("There, all patched up. Your team was hurt — I fixed them up this time, but the inn in Larkhaven heals them whenever they need it. Losing your first battle is a fine tradition, {name}. Wren lost theirs to a goose."))
 		say("wren", "That goose was a professional.")
 
 ## Water (Wildbond's own water tiles, tools/paint_tiles.gd): open water with now and then a lily pad or a glint, and a sandy shore with a dark
@@ -2630,6 +2630,9 @@ func _wild_battle() -> void:
 	battle.open("wild", team, [foe], "")
 
 func _after_wild(result: String) -> void:
+	if not battle.caught.is_empty() and not story_done.has("marenRanchTip"):
+		story_done["marenRanchTip"] = true
+		say("maren", "A new friend! The ranch has room for them — I look after every creature here, and there's always something useful for a willing one to do. Come by and I'll show you.")
 	for c in battle.caught:
 		restore.append({ "where": map_name, "at": me.pos + Vector2(8, 8), "r": 0.0, "goal": 64.0 })   # trust brings the colour back
 		bonded[c.sp] = true
