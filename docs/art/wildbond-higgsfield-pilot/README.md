@@ -4,6 +4,8 @@ Evan asked to maximise the three-day trial before deciding whether to pay. This 
 
 ## Recommendation
 
+Read [the creature and evolution reference guide](DESIGN-LANGUAGE.md) first. Evan wants varied, sometimes dramatic transformations; the two initial mature portraits are conservative candidates, not the template for every evolution.
+
 Use generated art first for **Wilddex portraits, creature design references and prop concepts**. The starters read recognisably at game scale, and references offer a promising starting point for future models. Do not spend the trial generating the whole catalogue as animation sheets: the first four outputs are illustrations with pixel styling, not production pixel sprites. A two-portrait evolution test checks family consistency before wider batching.
 
 ![Godot scale review](capture/frame00000000.png)
