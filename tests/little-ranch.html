@@ -22,6 +22,7 @@ document.querySelector('#run').onclick = async () => {
     const w = frame.contentWindow, d = frame.contentDocument; w.addEventListener('error', e => errors.push(e.message));
     for (let i = 0; i < 50 && !w.LR; i++) await sleep(100);
     const LR = w.LR, cv = d.querySelector('#ranch'); let pid = 1;
+    LR.setFriend(false); LR.newVisit(); // LR4: the friend's visits are random; the older checks run without it, LR4's with it
     const ev = (el, type, p) => el.dispatchEvent(new w.PointerEvent(type, { pointerId: pid, clientX: p.x, clientY: p.y, bubbles: true, cancelable: true, isPrimary: true }));
     const tap = q => { const p = LR.toScreen(q); pid++; ev(cv, 'pointerdown', p); ev(cv, 'pointerup', p); };
     const drag = (a, b, steps) => { pid++; ev(cv, 'pointerdown', LR.toScreen(a)); for (let i = 1; i <= steps; i++) { ev(cv, 'pointermove', LR.toScreen({ x: a.x + (b.x - a.x) * i / steps, y: a.y + (b.y - a.y) * i / steps })); LR.advance(.05); } ev(cv, 'pointerup', LR.toScreen(b)); };
@@ -34,7 +35,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.10.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.11.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -299,6 +300,33 @@ document.querySelector('#run').onclick = async () => {
       LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(26); tap(L().ksign); check('At night the snack sign only twinkles (the baby sleeps on)', S().place === 'ranch' && S().mode === 'sleep');
       LR.newVisit(); LR.advance(.1);
     }
+    // ---- LR4: a second friend
+    { const seen = new Set(); LR.setFriend(null); for (let i = 0; i < 40; i++) { LR.newVisit(); seen.add(!!S().friend); } check('The friend visits on some visits, not all', seen.has(true) && seen.has(false)); }
+    LR.setFriend(true);
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(5);
+      const c = LR.fCentre(), sc = LR.scale, r = cv.getBoundingClientRect(), q = LR.toScreen(c);
+      check(`${width}×${height}: the friend wanders in, settles on screen, is 64 px+ and its own tap (as are the baby, the bowl and the sponge)`, S().friend.tx === null && q.x > r.left && q.x < r.right && L().fz * 1.25 * 2 * sc >= 64 && LR.ranchTarget(c) === 'friend' && LR.ranchTarget(baby()) === 'baby' && LR.ranchTarget(L().bowl) === 'bowl' && LR.ranchTarget(L().sponge) === 'sponge');
+    }
+    frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.newVisit(); LR.advance(5);
+    { const F = () => S().friend;
+      const a4 = S().acts; tap(LR.fCentre()); check('Tapping the friend: the baby goes to it', F().act === 'wait' || F().act === 'nuzzle');
+      for (let i = 0; i < 40 && S().baby.act !== 'nuzzle'; i++) LR.advance(.1); LR.advance(.2); check('...and they nuzzle, with hearts', S().baby.act === 'nuzzle' && F().act === 'nuzzle' && S().fx.some(f => f.kind === 'heart'));
+      LR.advance(2); check('...which is one happy thing; the baby heads home', S().acts === a4 + 1 && S().baby.act !== 'nuzzle');
+      LR.advance(3); const t0 = LR.tones; tap(L().bowl); LR.advance(.1); check('Tapping the bowl: the friend trots over too', F().tx !== null && S().baby.tx !== null && LR.tones > t0);
+      let both = false; for (let i = 0; i < 50 && !both; i++) { LR.advance(.1); both = F().act === 'eat' && S().baby.act === 'eat'; } check('...and both eat', both);
+      LR.advance(4); check('...then the friend goes back to its spot', F().act === null);
+      LR.advance(4); const a5 = S().acts; tap(L().sponge); LR.advance(2); check('Tapping the sponge bubbles the baby...', S().baby.soap > .1);
+      LR.advance(1); check('...then the friend', F().soap > .1); LR.advance(1.5); check('...one happy thing for the bath', S().acts === a5 + 1 && !S().sponge.auto);
+      LR.advance(10); const f0 = F().soap; drag(L().sponge, LR.fCentre(), 12); check('Dragging the sponge over the friend bubbles it', F().soap > f0);
+      LR.advance(3); S().baby.act = 'giggle'; S().baby.at = S().t; const a6 = S().acts; tap(LR.fCentre()); check('Tapping the friend while the baby is busy: a giggle, nothing breaks', F().act === 'giggle' && S().baby.tx === null && S().acts === a6);
+      LR.advance(2); const mute = LR.prefs.sound; LR.prefs.sound = false; const t7 = LR.tones; tap(LR.fCentre()); LR.advance(4); tap(L().bowl); LR.advance(6); check('With the sound off the friend is silent', LR.tones === t7); LR.prefs.sound = mute;
+      LR.bedtime(); LR.advance(30); check('At bedtime the friend sleeps too', S().mode === 'sleep' && F().act === 'sleep');
+      const w4 = S().wake; tap(LR.fCentre()); check('At night a tap on the sleeping friend changes nothing (the baby sleeps on)', S().mode === 'sleep' && F().act === 'sleep' && S().acts >= 0);
+      LR.newVisit(); LR.advance(5); tap(L().ksign); check('With the friend here the Snack Kitchen still opens', S().place === 'kitchen'); tap(L().kitchen.barn);
+      check('...and the barn brings you back with the friend still there', S().place === 'ranch' && !!F());
+    }
+    LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
     // ---- LR15: app mode (inside the standalone app): Replay, Sound and Exit
