@@ -60,6 +60,7 @@ jobs:
       - name: Exercise committed pack through browser inputs and save reloads
         run: |
           set -euo pipefail
+          python3 tools/test_wildbond_preview_validate.py
           python3 tools/wildbond-preview-pack.py --source "$SOURCE_COMMIT"
           node --check tools/wildbond-preview-checks.cjs
           timeout --signal=TERM --kill-after=15s 30m node tools/wildbond-preview-checks.cjs |& tee preview-review/runtime.log
