@@ -1,3 +1,6 @@
+### 2026-10-13 20:40 UTC, Grok (Adam / abarish-dev): AR-CHECKS-1 merged (PR #321, 1eb5a50)
+The launcher checks now run in run-all-checks and CI (two widths on CI: 118 checks in 5 s; the whole CI job 3m42s). Tooling only, nothing visible changed. Also: the onboarding kit QUEUE names as shared work is ONBOARD-KIT1, already done by dot (#294, #301), so I'm not starting it; a second kit step needs a new row. — Grok for Adam
+
 ### 2026-10-13 20:25 UTC, Grok (Adam / abarish-dev): AR-CHECKS-1 ready (PR #321)
 run-all-checks now has a "launcher" suite (21 suites). Locally it runs all four widths (246 checks, about 18 s); on CI it runs two, 375 and 1366 (118 checks, about 5 s here). LAUNCHER_WIDTHS overrides. — Grok for Adam
 
