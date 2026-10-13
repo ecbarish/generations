@@ -288,8 +288,7 @@ func _ready() -> void:
 func _begin_intro() -> void:
 	if show_howto and not demo:
 		howto.open()                              # the controls first, so nobody starts a journey not knowing them
-	say("", "The supply cart stops at the edge of the trees. Larkhaven: a handful of roofs and a ranch fence that runs right up to the forest.")
-	say("", "Everything here looks faded, like an old picture left in the sun. You too.")
+	say("", "The supply cart stops by Larkhaven's ranch fence. The whole valley looks faded, like an old picture left in the sun. You too.")
 
 func _on_howto_closed() -> void:
 	if howto_then_title:
@@ -383,11 +382,8 @@ func _on_signed(look: Dictionary) -> void:
 	stage = "signed"
 	say("", "As the ink dries, colour runs into you: your hands, your clothes, your hair. You're the only bright thing on the road.")
 	say("maren", "%s. Good name. And look at you, bright as a new penny!" % look.name)
-	say("maren", "Don't mind the rest of it. The whole valley faded long ago. Like an old photo, isn't it?")
 	var fam: Dictionary = HERITAGES.get(heritage(), HERITAGES.farm)
 	say("maren", "%s, it says here. %s" % [fam.name, fam.maren])
-	say("", fam.tale)
-	say("maren", "Every family in this valley tells it a little differently. I once heard four tellings at one harvest supper. They can't all be right. Maybe they can't all be wrong, either.")
 	say("maren", "Folk say it comes back, a little, every time someone earns a creature's trust. Come to the barn. Someone's been waiting for you.")
 
 # ---------------------------------------------------------------- heritage: where your family comes from (register.gd)
@@ -746,8 +742,7 @@ func _switch() -> void:
 	if trans_to == "barn" and stage == "to_barn":
 		stage = "barn_meet"
 		caption.text = ""
-		say("maren", "Here they are. Three young ones, born this spring, and every one of them hoping for a tamer.")
-		say("maren", "Go and say hello. Take your time, love; this is the big one. They'll be choosing you as much as you choose them.")
+		say("maren", "Three young ones, born this spring. Go and say hello, love. They'll be choosing you as much as you choose them.")
 	elif trans_to == "larkhaven" and partner and not spilled:
 		spilled = true
 		maren.where = "larkhaven"                         # Maren follows you out
@@ -820,8 +815,7 @@ func _process(dt: float) -> void:
 		me.face = maren.tile - me.tile                  # you turn to each other
 		maren.face = me.tile - maren.tile
 		maren.right = maren.face.x > 0
-		say("maren", "There you are! You must be the new tamer. I'm Maren. I keep the ranch.")
-		say("maren", "Before anything else: the ranch register. Every tamer in the valley signs it. Write yourself in, love.")
+		say("maren", "There you are! I'm Maren. I keep the ranch. Every tamer signs our register. Write yourself in, love.")
 	var free_to_walk: bool = stage in ["to_barn", "barn_choose", "walk_out", "free"] and not lessons.visible and not card.visible and not battle.visible and not shop.visible and not book.visible and trans_t < 0.0
 	if lines.is_empty() and free_to_walk and me.path.is_empty() and me.pos.distance_to(Vector2(me.tile) * TILE) < 0.5:
 		var d := Controls.held_dir()                 # keys, a gamepad, or the phone pad (WB6.1)
@@ -1030,6 +1024,11 @@ func _on_chosen(id: String) -> void:
 	say("", "You kneel in the straw. %s looks at you for a long moment, then steps forward and presses its head into your hand." % n)
 	say("", "Colour floods out from it: gold straw, red beams, a blue sky in the high window.")
 	say("maren", "...There. It chose you right back. And the world remembered a little.")
+	# WB-C2: meet a partner before the family tale. Keep every heritage's existing clue,
+	# now beside the bond it describes; no save flag or optional/missable story branch.
+	var fam: Dictionary = HERITAGES.get(heritage(), HERITAGES.farm)
+	say("", fam.tale)
+	say("maren", "Every family in this valley tells it a little differently. I once heard four tellings at one harvest supper. They can't all be right. Maybe they can't all be wrong, either.")
 	say("maren", "Nobody owns a creature, love; they choose. The other two will find their tamers. Wren's due by later, and that one never could wait.")
 	say("maren", "Off you go, then. Show %s the valley." % n)
 

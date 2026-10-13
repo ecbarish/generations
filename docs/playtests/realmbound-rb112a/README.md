@@ -19,7 +19,7 @@ No save schema, key, version or migration changes. Old single-active arrays, pro
 - Source head `56ad188456d69e467dc2705a5de15300f37751cb`: [all 21 suites pass](https://github.com/ecbarish/generations/actions/runs/38406855470), including **9,074 Realmbound scenario checks**. The six-setting [phone review and real browser reload checks pass](https://github.com/ecbarish/generations/actions/runs/38406856043).
 - Source review found no save/game-code blocker. Its test-coverage suggestions were implemented. Visual review caught landscape header overlap; Realmbound's measured dialogue height now outranks shared CSS, and short-screen paused town/arrival conversations temporarily use the inactive combat controls' space. Tests verify header/dock clearance and restoration.
 - Reviewed phone, large-text Journal, landscape, laptop and ultrawide renders. The capture script restores text scaling after actual reload; this final evidence-only correction and documentation are rerun under normal CI. Exact latest-head results are recorded in PR #283's validation/Tower block.
-- Screenshot originals remain in the linked Actions artifacts (72 before/after captures); compressed selected images below are from source head 56ad188. No new game code follows that source head.
+- Screenshot originals remain in the linked Actions artifacts (72 before/after captures); compressed selected images below are from source head 56ad188. No new Realmbound game code follows that source head.
 
 ## Selected renders
 

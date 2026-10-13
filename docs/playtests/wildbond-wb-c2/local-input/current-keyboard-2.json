@@ -1,0 +1,170 @@
+{
+	"display": "headless",
+	"elapsed_seconds": 174.95,
+	"engine": "4.6.3-stable (official)",
+	"failures": [],
+	"first_partner_seconds": 119.55,
+	"input_events": 102,
+	"main_sha256": "f44570e6dfd8896bf39ac3184446c5a93cabd754f40b7f1158e6cf107989bbff",
+	"method": "keyboard",
+	"milestones": [
+		{
+			"label": "howto",
+			"map": "larkhaven",
+			"seconds": 0.0666666666666667,
+			"stage": "intro"
+		},
+		{
+			"label": "register",
+			"map": "larkhaven",
+			"seconds": 29.95,
+			"stage": "register"
+		},
+		{
+			"label": "signed-invitation",
+			"map": "larkhaven",
+			"seconds": 81.4333333333333,
+			"stage": "signed"
+		},
+		{
+			"label": "follow-maren",
+			"map": "larkhaven",
+			"seconds": 89.9333333333333,
+			"stage": "to_barn"
+		},
+		{
+			"label": "barn-choice",
+			"map": "barn",
+			"seconds": 101.283333333333,
+			"stage": "barn_choose"
+		},
+		{
+			"label": "partner-card",
+			"map": "barn",
+			"seconds": 104.25,
+			"stage": "barn_choose"
+		},
+		{
+			"label": "first-partner",
+			"map": "barn",
+			"seconds": 119.55,
+			"stage": "bonded"
+		},
+		{
+			"label": "partner-control",
+			"map": "barn",
+			"seconds": 174.95,
+			"stage": "walk_out"
+		}
+	],
+	"partner_acquired": true,
+	"partner_id": "mosshog",
+	"protocol": "60Hz simulated elapsed time; wandering seed 20261013; redraw paused only during simulated reading budgets (all game frames still advance); how-to 12s; dialogue 180wpm + 0.75s each; character creator 30s; Not yet/reopen 2s; first partner card 12s; keyboard deliberate selection 1s; optimal read-only route navigation via actual keyboard/touch-pad inputs. Fresh New Game starts directly without saved-title menu. No novice guarantee or physical mobile claim.",
+	"rendered": false,
+	"source_sha": "f694ba7fa6e04a150bbc9769e9ff14646c103433",
+	"starter_index": 2,
+	"transcript": [
+		{
+			"reading_seconds": 8.41666666666667,
+			"stage": "intro",
+			"text": "The supply cart stops by Larkhaven's ranch fence. The whole valley looks faded, like an old picture left in the sun. You too.",
+			"who": "",
+			"words": 23
+		},
+		{
+			"reading_seconds": 6.75,
+			"stage": "maren_talks",
+			"text": "There you are! I'm Maren. I keep the ranch. Every tamer signs our register. Write yourself in, love.",
+			"who": "maren",
+			"words": 18
+		},
+		{
+			"reading_seconds": 8.08333333333333,
+			"stage": "signed",
+			"text": "As the ink dries, colour runs into you: your hands, your clothes, your hair. You're the only bright thing on the road.",
+			"who": "",
+			"words": 22
+		},
+		{
+			"reading_seconds": 4.75,
+			"stage": "signed",
+			"text": "Rowan. Good name. And look at you, bright as a new penny!",
+			"who": "maren",
+			"words": 12
+		},
+		{
+			"reading_seconds": 8.08333333333333,
+			"stage": "signed",
+			"text": "Larkhaven farmfolk, it says here. A farm family! Then you know how to look after things that can't tell you what's wrong.",
+			"who": "maren",
+			"words": 22
+		},
+		{
+			"reading_seconds": 8.41666666666667,
+			"stage": "signed",
+			"text": "Folk say it comes back, a little, every time someone earns a creature's trust. Come to the barn. Someone's been waiting for you.",
+			"who": "maren",
+			"words": 23
+		},
+		{
+			"reading_seconds": 7.75,
+			"stage": "barn_meet",
+			"text": "Three young ones, born this spring. Go and say hello, love. They'll be choosing you as much as you choose them.",
+			"who": "maren",
+			"words": 21
+		},
+		{
+			"reading_seconds": 8.41666666666667,
+			"stage": "bonded",
+			"text": "You kneel in the straw. Mosshog looks at you for a long moment, then steps forward and presses its head into your hand.",
+			"who": "",
+			"words": 23
+		},
+		{
+			"reading_seconds": 6.08333333333333,
+			"stage": "bonded",
+			"text": "Colour floods out from it: gold straw, red beams, a blue sky in the high window.",
+			"who": "",
+			"words": 16
+		},
+		{
+			"reading_seconds": 4.75,
+			"stage": "bonded",
+			"text": "...There. It chose you right back. And the world remembered a little.",
+			"who": "maren",
+			"words": 12
+		},
+		{
+			"reading_seconds": 12.4166666666667,
+			"stage": "bonded",
+			"text": "Your grandmother always said the land grew tired. People took and took from it, and one hard winter it simply let its colour go. \"Look after the land,\" she'd say, \"and one day it'll remember.\"",
+			"who": "",
+			"words": 35
+		},
+		{
+			"reading_seconds": 11.0833333333333,
+			"stage": "bonded",
+			"text": "Every family in this valley tells it a little differently. I once heard four tellings at one harvest supper. They can't all be right. Maybe they can't all be wrong, either.",
+			"who": "maren",
+			"words": 31
+		},
+		{
+			"reading_seconds": 8.75,
+			"stage": "bonded",
+			"text": "Nobody owns a creature, love; they choose. The other two will find their tamers. Wren's due by later, and that one never could wait.",
+			"who": "maren",
+			"words": 24
+		},
+		{
+			"reading_seconds": 3.41666666666667,
+			"stage": "bonded",
+			"text": "Off you go, then. Show Mosshog the valley.",
+			"who": "maren",
+			"words": 8
+		}
+	],
+	"window_size": [
+		1920,
+		1080
+	]
+}

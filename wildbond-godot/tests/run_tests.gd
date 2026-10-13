@@ -69,6 +69,47 @@ func _run() -> void:
 	main.rng.seed = 2026                          # the same rolls every run, so the checks always see the same story
 	main.battle.rng.seed = 2026
 	var D: Dictionary = main.DATA
+	# WB-C2: keep every heritage clue and every starter identity through the shorter opening.
+	for family in main.HERITAGES:
+		for starter_id in main.DATA.STARTERS:
+			var opening: Node = load("res://scenes/main.tscn").instantiate()
+			opening.no_save = true
+			opening.settings.keep = false
+			opening.show_howto = false
+			root.add_child(opening)
+			opening.register.keep = false
+			var look: Dictionary = opening.register.look()
+			look.heritage = family
+			opening.lines.clear()
+			opening._on_signed(look)
+			check(opening.lines.size() == 4 and opening.lines.any(func(l): return opening.HERITAGES[family].maren in l.text), "WB-C2: %s still receives personal recognition before the barn" % family)
+			check(not opening.lines.any(func(l): return l.text == opening.HERITAGES[family].tale), "WB-C2: %s meets a partner before the longer family tale" % family)
+			opening.lines.clear()
+			opening._on_chosen(starter_id)
+			check(opening.team.size() == 1 and opening.team[0].sp == starter_id and opening.team[0].lvl == 5 and opening.partner.id == starter_id, "WB-C2: %s keeps the chosen %s at level five" % [family, starter_id])
+			check(opening.rival_c.sp == opening.DATA.COUNTER[starter_id], "WB-C2: Wren still picks the counter to %s" % starter_id)
+			check(opening.lines.filter(func(l): return l.text == opening.HERITAGES[family].tale).size() == 1 and opening.lines.any(func(l): return "four tellings" in l.text), "WB-C2: %s keeps its exact tale and the conflicting-accounts clue once after bonding" % family)
+			check(opening.lines.any(func(l): return "Nobody owns a creature" in l.text) and opening.lines.any(func(l): return "world remembered" in l.text), "WB-C2: free choice and the returning-memory story remain")
+			opening.free()
+	# Frozen v1 save written by pre-WB-C2 main 40fcaf9, not reconstructed by this version.
+	var legacy: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/wb-c2-pre-change.json"))
+	var returning: Node = load("res://scenes/main.tscn").instantiate()
+	returning.no_save = true
+	returning.settings.keep = false
+	returning.show_howto = false
+	root.add_child(returning)
+	returning.register.keep = false
+	returning.save_path = "user://wb_c2_legacy_test.json"
+	returning.lines.clear()
+	check(returning.SafeSave.write(returning.save_path, legacy) and returning._load_game(), "WB-C2: a real pre-change v1 save still loads")
+	for i in 20: returning._process(0.05)
+	check(returning.stage == "free" and returning.map_name == legacy.map and returning.me.tile == Vector2i(legacy.x, legacy.y), "WB-C2: returning players keep their location and never replay the opening")
+	check(returning.my_look.name == legacy.look.name and returning.heritage() == legacy.look.heritage, "WB-C2: existing name and heritage survive")
+	check(JSON.parse_string(JSON.stringify(returning.team)) == legacy.team and JSON.parse_string(JSON.stringify(returning.ranch)) == legacy.ranch and returning.partner.id == legacy.partner, "WB-C2: exact partner, nickname, stats, trust and ranch survive")
+	check(JSON.parse_string(JSON.stringify(returning.bag)) == legacy.bag and returning.badges == legacy.badges and returning.story_done == legacy.story, "WB-C2: inventory, badges and story progress survive")
+	check(not returning.lines.any(func(l): return l.text == returning.HERITAGES.coast.tale), "WB-C2: old saves do not replay the relocated heritage tale")
+	returning.SafeSave.remove(returning.save_path)
+	returning.free()
 	# ---- the data bridge: the browser game's content arrived intact
 	check(D.has("SPECIES") and D.SPECIES.size() >= 60, "creatures exported from the browser game")
 	check(D.has("MOVES") and D.has("COUNTER") and D.has("STORY"), "moves, matchups and story exported")
