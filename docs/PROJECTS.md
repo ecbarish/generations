@@ -380,6 +380,8 @@ New Wildbond work goes to **Wildbond in Godot** above. Browser data (species, ma
 
 ## Shared systems and the world kit
 
+**ONBOARD-KIT1** claimed by dot (Adam), 2026-10-13, `guest/newcomer-guidance-kit`: cycle-1 shared browser newcomer kit; Realmbound adapter and neutral fixture only. See DEVELOPMENT-PATH.
+
 | ID | Project | Size | Kind | Depends | Status | Spec / notes |
 |---|---|---|---|---|---|---|
 | S4c | **Starfall Guild's walkable guild hall** on the world kit | M | System+Art | — | open | shared/world.js; Realmbound's js/22-town.js is the example |
