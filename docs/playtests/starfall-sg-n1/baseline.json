@@ -1,0 +1,42 @@
+[
+  {
+    "name": "phone",
+    "check": "Two minutes choosing a region count without income",
+    "ok": false
+  },
+  {
+    "name": "phone",
+    "check": "Recovery preparation appears inside scene",
+    "ok": false
+  },
+  {
+    "name": "laptop",
+    "check": "Two minutes choosing a region count without income",
+    "ok": false
+  },
+  {
+    "name": "laptop",
+    "check": "Recovery preparation appears inside scene",
+    "ok": false
+  },
+  {
+    "name": "desktop",
+    "check": "Two minutes choosing a region count without income",
+    "ok": false
+  },
+  {
+    "name": "desktop",
+    "check": "Recovery preparation appears inside scene",
+    "ok": false
+  },
+  {
+    "name": "ultrawide",
+    "check": "Two minutes choosing a region count without income",
+    "ok": false
+  },
+  {
+    "name": "ultrawide",
+    "check": "Recovery preparation appears inside scene",
+    "ok": false
+  }
+]

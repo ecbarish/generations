@@ -10,6 +10,12 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 |---|---|---|---|---|
 | DM-N1b | Named winter training preview | S | ready: Codex, PR #269 | Existing mechanics, scout uncertainty and farm players; read-only feedback |
 
+## Starfall Guild reported fixes
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| SG-N1 | Useful recovery and accurate Ledger time | S | ready: Codex, PR #264 | Browser classic only; existing preparation actions inside the scene, no new loop |
+
 ## Diamond Manager newcomer bugs
 
 | ID | Project | Size | Status | Scope |

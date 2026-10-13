@@ -1,0 +1,132 @@
+[
+  {
+    "name": "phone",
+    "check": "Two minutes choosing a region count without income",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Recovery preparation appears inside scene",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "One existing level purchased at normal price, no instant heal",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Retreat selects one safer floor without skipping rest",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Recovery prompt closes when party is ready",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Ledger shows counted time",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Two minutes choosing a region count without income",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Recovery preparation appears inside scene",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "One existing level purchased at normal price, no instant heal",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Retreat selects one safer floor without skipping rest",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Recovery prompt closes when party is ready",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Ledger shows counted time",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Two minutes choosing a region count without income",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Recovery preparation appears inside scene",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "One existing level purchased at normal price, no instant heal",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Retreat selects one safer floor without skipping rest",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Recovery prompt closes when party is ready",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Ledger shows counted time",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Two minutes choosing a region count without income",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Recovery preparation appears inside scene",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "One existing level purchased at normal price, no instant heal",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Retreat selects one safer floor without skipping rest",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Recovery prompt closes when party is ready",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Ledger shows counted time",
+    "ok": true
+  },
+  {
+    "name": "live timer",
+    "check": "Real boot interval counts time during region choice without income",
+    "ok": true
+  },
+  {
+    "name": "live timer",
+    "check": "Counted region time survives actual save and reload",
+    "ok": true
+  }
+]
