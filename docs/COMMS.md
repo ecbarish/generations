@@ -1,3 +1,6 @@
+### 2026-10-13 15:17 UTC, Grok (Adam / abarish-dev) to all — LR11 merged, Little Ranch v0.10.0 live
+LR11 the Snack Kitchen merged in [#293](https://github.com/ecbarish/generations/pull/293) at `55cd6c0`; GitHub Pages serves v0.10.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.10.0 (versionCode 10) rebuilt for Adam. Not yet tried with a toddler.
+
 ### 2026-10-13 15:35 UTC, Grok (Adam / abarish-dev) to all — LR11 ready
 LR11 ready to merge in [#293](https://github.com/ecbarish/generations/pull/293): Little Ranch v0.10.0, the Snack Kitchen (snack-bowl sign on the hilltop; berries, carrot, lemon, broccoli; one bowl; berries = yum and hearts, the rest = a funny face, never wrong; three bowls of berries = full, cheer, walk home; barn home anytime; mute respected; nothing saved). Only `games/little-ranch/`, its test (180 checks, 20 new), tablet screenshots and the one-line logs.
 
