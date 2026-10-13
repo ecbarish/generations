@@ -1,0 +1,227 @@
+{
+  "date": "2026-10-13",
+  "scope": "Bounded throwaway fixtures, not project-level autonomous development",
+  "model": "arcade-coder-32k:latest",
+  "runtime": "Ollama 0.40.1",
+  "local_opencode": [
+    {
+      "task": "lookup",
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 147.95,
+      "report": "{\"file\": \"world-data.json\", \"gifts\": [\"Appraisal\", \"Pocket Space\", \"Sword Saint\"]}",
+      "usage": [
+        {
+          "total": 3908,
+          "input": 3858,
+          "output": 45,
+          "reasoning": 0,
+          "cache": {
+            "write": 0,
+            "read": 5
+          }
+        },
+        {
+          "total": 4130,
+          "input": 242,
+          "output": 26,
+          "reasoning": 0,
+          "cache": {
+            "write": 0,
+            "read": 3862
+          }
+        }
+      ],
+      "tools": [
+        "read"
+      ]
+    },
+    {
+      "task": "fix",
+      "status": "failed",
+      "exit_code": 0,
+      "seconds": 104.25,
+      "report": "Done.<tool_call>",
+      "usage": [
+        {
+          "total": 3934,
+          "input": 2034,
+          "output": 45,
+          "reasoning": 0,
+          "cache": {
+            "write": 0,
+            "read": 1855
+          }
+        },
+        {
+          "total": 4144,
+          "input": 120,
+          "output": 136,
+          "reasoning": 0,
+          "cache": {
+            "write": 0,
+            "read": 3888
+          }
+        },
+        {
+          "total": 4164,
+          "input": 153,
+          "output": 4,
+          "reasoning": 0,
+          "cache": {
+            "write": 0,
+            "read": 4007
+          }
+        }
+      ],
+      "tools": [
+        "edit",
+        "read"
+      ]
+    },
+    {
+      "task": "audit",
+      "status": "failed",
+      "exit_code": 0,
+      "seconds": 95.12,
+      "report": "VERDICT: MISMATCH",
+      "usage": [
+        {
+          "total": 3917,
+          "input": 2017,
+          "output": 45,
+          "reasoning": 0,
+          "cache": {
+            "write": 0,
+            "read": 1855
+          }
+        },
+        {
+          "total": 4215,
+          "input": 337,
+          "output": 7,
+          "reasoning": 0,
+          "cache": {
+            "write": 0,
+            "read": 3871
+          }
+        }
+      ],
+      "tools": [
+        "read"
+      ]
+    }
+  ],
+  "opencode_prompts": [
+    {
+      "id": "lookup",
+      "prompt": "READ ONLY. Read world-data.json. What are the three Asterhold gifts? Return only JSON with keys file and gifts. Do not infer gifts from other worlds.",
+      "expected": [
+        "Appraisal",
+        "Pocket Space",
+        "Sword Saint"
+      ]
+    },
+    {
+      "id": "fix",
+      "prompt": "Edit ONLY words.js so words(list) produces an empty string for no names, A for one, A and B for two, A, B and C for three or more. Keep exports.words. Shell tools are disabled: do not claim you ran check.cjs. Stop after the edit.",
+      "expected": "A, B and C",
+      "actual": "A, B, and C"
+    },
+    {
+      "id": "audit",
+      "prompt": "READ ONLY. Compare guide.md with world-data.json. Report only factual mismatches, not paraphrasing. End exactly VERDICT: MATCH or VERDICT: MISMATCH. Do not invent source details.",
+      "expected": "VERDICT: MATCH",
+      "actual": "VERDICT: MISMATCH"
+    }
+  ],
+  "fixture_data": {
+    "Asterhold": {
+      "gifts": [
+        "Appraisal",
+        "Pocket Space",
+        "Sword Saint"
+      ]
+    },
+    "Hearthmere": {
+      "gifts": [
+        "Hearthsense"
+      ]
+    },
+    "Ashen Throne": {
+      "gifts": [
+        "Embercraft"
+      ]
+    }
+  },
+  "fixture_guide": "In Asterhold, choose Appraisal to read useful details, Pocket Space to carry more, or Sword Saint to favour swordplay. Hearthmere and the Ashen Throne are other destinations.",
+  "openhuman": {
+    "version": "v0.64.15",
+    "package_sha256": "d3add5f3ca48b62b7ca93bb53b7990d35e3d40673e42c9a951915f459993fdd9",
+    "installation": "MSI administrative extraction to temporary directory, not Windows installation",
+    "config": "isolated OPENHUMAN_WORKSPACE, privacy local_only, all text workloads explicitly ollama:arcade-coder-32k:latest",
+    "connection": {
+      "status": "passed",
+      "seconds": 0.67,
+      "reply": "LOCAL_READY"
+    },
+    "file_agent": {
+      "status": "failed",
+      "seconds": 0.11,
+      "error": "driver failed: hosted root invocation is unavailable because the session has no hosted authority"
+    },
+    "note": "Connection pass is not an agent-task pass. No account created or OAuth credentials imported."
+  },
+  "free_cloud_apis": {
+    "status": "not benchmarked",
+    "reason": "No tested provider API key configured; no signup, credential import or paid fallback performed"
+  },
+  "context_comparison": [
+    {
+      "variant": "bounded_legacy_baseline",
+      "error": "timed out",
+      "seconds": 180.08
+    },
+    {
+      "variant": "fresh_task_packet",
+      "characters": 7630,
+      "prompt_tokens": 2126,
+      "output_tokens": 46,
+      "seconds": 49.59,
+      "answer": "{\n  \"task_id\": \"DM-N1c\",\n  \"game\": \"Diamond Manager\",\n  \"owner\": \"ChatGPT/Codex\",\n  \"required_test\": \"tests/diamond-manager.html\"\n}",
+      "passed": true,
+      "model": "arcade-coder-32k:latest"
+    }
+  ],
+  "context_footprint": {
+    "baseline_files": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "START-HERE.md",
+      "docs/COMMS.md",
+      "docs/QUEUE.md",
+      "docs/PROCESS.md",
+      "docs/PROJECTS.md",
+      "docs/CREATIVE.md",
+      "docs/ROADMAP.md"
+    ],
+    "legacy_full_files_bytes": 418942,
+    "packet_characters": 7630,
+    "packet_approx_tokens": 1908,
+    "scope_note": "Full-file footprint is documentary, not a billed-token measurement. Model comparison uses a bounded legacy excerpt with enough source facts for the same lookup."
+  },
+  "runtime_caveat": {
+    "model_size_vram_reported_bytes": 0,
+    "model_context": 32768,
+    "log": "CPU backend loaded, AMD integrated GPU dropped, no NVIDIA GPU discovered in this evaluation session",
+    "nvidia_smi": "insufficient permissions; no driver/ACL/service changes attempted",
+    "conclusion": "Times reflect this CPU-backed session and do not supersede the earlier GPU benchmark."
+  },
+  "validation": {
+    "aggregate_suites": 22,
+    "aggregate_state": "passed",
+    "agent_context_cases": 21,
+    "reconciled_main": "b14553e",
+    "prior_baseline_failure": "Little Ranch kitchen hint on 1dd0eb8; repeated alone, then latest main passed; no game/test changes in this task"
+  }
+}

@@ -35,7 +35,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.11.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.13.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -327,6 +327,53 @@ document.querySelector('#run').onclick = async () => {
       check('...and the barn brings you back with the friend still there', S().place === 'ranch' && !!F());
     }
     LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    // ---- LR5: rain and puddles
+    LR.setFriend(false); d.querySelector('#grown').hidden = true; // an earlier section leaves the grown-up panel open
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      S().puddles = [0, 1].map(i => ({ i, at: S().t, splash: -9 })); const sc = LR.scale, r = cv.getBoundingClientRect(), cq = LR.toScreen(L().cloud);
+      check(`${width}×${height}: the cloud and both puddles are 64 px+, on screen and their own taps; the sun, signs and baby keep theirs`, L().cloud.r * 2 * sc >= 64 && L().puddles[0].r * 2 * sc >= 64 && cq.y > r.top && cq.x < r.right && LR.ranchTarget(L().cloud) === 'cloud' && LR.ranchTarget(L().puddles[0]) === 'puddle0' && LR.ranchTarget(L().puddles[1]) === 'puddle1' && LR.ranchTarget(L().sun) === 'sun' && LR.ranchTarget(L().wsign) === 'wsign' && LR.ranchTarget(L().ksign) === 'ksign' && LR.ranchTarget(baby()) === 'baby');
+    }
+    frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+    { const C = () => S().cloud;
+      tap(L().cloud); check('Tapping the cloud: soft rain', !!C().rain && S().puddles.length === 0);
+      const t0 = LR.tones; LR.advance(1); check('...pattering', LR.tones > t0);
+      tap(L().cloud); const u = C().until; check('Another tap keeps it raining a little longer', u > C().rain + LR.RAIN_SECS);
+      LR.advance(7); check('When the rain stops: two puddles and a rainbow', !C().rain && S().puddles.length === 2 && !!S().sun.bow);
+      { let h = null; for (let i = 0; i < 100 && !h; i++) { LR.advance(.1); h = LR.hint(); } check('Left alone after the shower, the idle hint comes back', !!h); }
+      const a5 = S().acts; tap(L().puddles[1]); check('Tapping a puddle: the baby runs to it', S().baby.tx !== null);
+      let sp = false; for (let i = 0; i < 40 && !sp; i++) { LR.advance(.1); sp = S().baby.act === 'splash'; } check('...and jumps in, splash!', sp && S().fx.some(f => f.kind === 'blob'));
+      LR.advance(2); check('...one happy thing', S().acts === a5 + 1);
+      S().baby.act = 'giggle'; S().baby.at = S().t; const a6 = S().acts; tap(L().puddles[0]); check('Tapping a puddle while the baby is busy: just a splash, nothing breaks', S().puddles[0].splash === S().t && S().acts === a6);
+      LR.advance(LR.PUDDLE_SECS); check('The puddles dry up after a while', S().puddles.length === 0);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t7 = LR.tones; tap(L().cloud); LR.advance(7); tap(L().puddles[0]); LR.advance(4); check('With the sound off the rain and splash are silent', LR.tones === t7 && S().puddles.length === 2); LR.prefs.sound = mute;
+      LR.newVisit(); LR.advance(.1); tap(L().cloud); LR.advance(1); LR.bedtime(); LR.advance(3); check('Bedtime stops the rain without puddles', !C().rain && S().puddles.length === 0);
+      LR.advance(26); tap(L().cloud); check('At night the cloud is gone: a tap only twinkles (the baby sleeps on)', !C().rain && S().mode === 'sleep');
+      LR.newVisit(); LR.advance(.1);
+    }
+    // ---- LR6: the hat basket
+    LR.setFriend(false); d.querySelector('#grown').hidden = true;
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      S().puddles = [0, 1].map(i => ({ i, at: S().t, splash: -9 })); const sc = LR.scale, r = cv.getBoundingClientRect(), bq = LR.toScreen(L().basket), B = { x: L().basket.x, y: L().basket.y - L().R * .15 };
+      check(`${width}×${height}: the hat basket is 64 px+, on screen and its own tap (puddles, bowl, sign and baby keep theirs)`, L().R * 1.05 * 2 * sc >= 64 && bq.x > r.left && bq.y < r.bottom && LR.ranchTarget(B) === 'basket' && LR.ranchTarget(L().puddles[0]) === 'puddle0' && LR.ranchTarget(L().puddles[1]) === 'puddle1' && LR.ranchTarget(L().bowl) === 'bowl' && LR.ranchTarget(L().sign) === 'sign' && LR.ranchTarget(baby()) === 'baby');
+      if (width > height * 1.3) { const P = L().puddles[1], z = L().size; check(`${width}×${height}: the right-hand puddle sits clear of the baby at home`, P.x - P.r * .5 > L().home.x + z * .42 + z * .66 * .9); }
+    }
+    frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+    { const H = () => S().hat, B = { x: L().basket.x, y: L().basket.y - L().R * .15 };
+      check('The baby starts bare-headed', H().wear === -1);
+      const t0 = LR.tones; tap(B); check('Tapping the basket: a hat hops out', !!H().fly && H().fly.to === 0 && LR.tones > t0);
+      tap(B); check('A tap while a hat is flying just jiggles the basket', H().fly.to === 0 && H().shake > .9);
+      LR.advance(.7); check('...and lands on the baby\'s head (the straw hat)', H().wear === 0 && !H().fly);
+      const a6 = S().acts; for (let i = 1; i < LR.HATS.length; i++) { tap(B); LR.advance(.7); } check('Each tap: the next hat (party, crown, flowers, cowboy)', H().wear === LR.HATS.length - 1);
+      check('Every third hat is one happy thing', S().acts === a6 + 1);
+      tap(B); LR.advance(.7); check('After the last hat it hops back in: bare head', H().wear === -1);
+      tap(B); LR.advance(.7); check('...and round again', H().wear === 0);
+      tap(L().bowl); LR.advance(6); check('The hat stays on through other play', H().wear === 0);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t7 = LR.tones; tap(B); LR.advance(.7); tap(B); LR.advance(.7); check('With the sound off the hats are silent', LR.tones === t7 && H().wear === 2); LR.prefs.sound = mute;
+      LR.bedtime(); LR.advance(30); const w = H().wear; tap(B); check('At night the basket only twinkles (the baby sleeps on)', S().mode === 'sleep' && !H().fly && H().wear === w);
+      LR.newVisit(); LR.advance(.1); check('A new visit starts bare-headed', H().wear === -1);
+    }
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
     // ---- LR15: app mode (inside the standalone app): Replay, Sound and Exit

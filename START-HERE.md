@@ -1,17 +1,19 @@
 # START HERE
 
+**AI quick route (Evan, 2026-10-13):** read AGENTS.md, then run `node tools/agent-context.cjs --agent Codex --task TASK-ID --project PROJECT`. Follow docs/AI-START.md; read this file by relevant section/search, not the whole Session log. Current cycle and live PRs outrank historical status. This overrides older full-document reading instructions.
+
 **Control Tower reporting (Adam, 2026-10-12):** update the fenced `json` block with a top-level `tower` object in your task's PR description when claiming work, changing status, handing off, becoming blocked, submitting for review, merging or publishing. Use the format in [docs/COMMS.md](docs/COMMS.md) (TOWER-COMMS, 2026-10-12) and the PR template. Report your actual AI/thread, operator, project/lane, task ID, owned paths, dependencies, blocker/next action, check evidence and release details; leave unknown values null. Never infer AI identity from a shared GitHub account, or equate merged with published. At session start, reconcile your open PR metadata even if you missed COMMS. [Control Tower](https://idle-arcade-tower.abarish227759.chatgpt.site) is Adam's private viewer; the reporting format is in the repository.
 
 **For Evan:** when one assistant runs out of usage, open any other one (Claude, ChatGPT/Codex, another AI or a
 person) and paste the prompt in the box below. Everything it needs is in this file and the files it links.
-**For any assistant:** read this file top to bottom before doing anything. It is the single source of "where we are
-and what's next". Update it before you stop (see "Before you stop").
+**For any assistant:** use the quick route above and read only the needed sections. The current cycle/live PRs establish current work; this file keeps the shared handoff history. Update it before you stop (see "Before you stop").
 
 ```
-Repo: github.com/ecbarish/generations. Read START-HERE.md first and follow it.
-Read docs/COMMS.md and docs/PROCESS.md, check open PR titles before claiming a task from docs/QUEUE.md,
-then build and test it. Add your START-HERE Session log line before you stop. Planning owns "Where we are"
-and "Up next". Ask me only about the "Questions for Evan".
+Repo: github.com/ecbarish/generations. Read AGENTS.md and use docs/AI-START.md.
+Fetch current main in your own checkout and check live open PR ownership. Run
+node tools/agent-context.cjs --agent Codex --task TASK-ID --project PROJECT
+Read the scoped ticket/source/tests and full relevant COMMS entries. Build, test and open a PR.
+Add one START-HERE Session log line; planning owns Where we are/Up next. No full history sweep.
 ```
 
 ## Rules (short version; HANDOFF.md has the full list)
@@ -97,14 +99,25 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-13, Grok (Adam), LR6:** Little Ranch v0.13.0, the hat basket (five hats in turn, then bare and round again; wide-screen puddle nudge), in [#305](https://github.com/ecbarish/generations/pull/305).
+- **2026-10-13, Grok (Adam), LR5:** Little Ranch v0.12.0, rain and puddles (tap the cloud for rain; puddles and a rainbow after; tap a puddle and the baby jumps in), in [#303](https://github.com/ecbarish/generations/pull/303).
+- 2026-10-13 Codex: AI-EFF1 introduces fresh task packets and scoped startup routing; old root instructions preserved in docs/archive. Local-tool comparison and measured context savings recorded with this task.
+
 - 2026-10-13 Codex: ART-PORT1 / PR #300 adds a creature design-language journal with 17 studies, revision comparisons, life-stage views and approval/source records; small previews, no new generation.
 
 - **2026-10-13, Grok (Adam), LR4:** Little Ranch v0.11.0, a second friend (a baby Pebblit visits about half the time; eats and gets bubbly too; tap it and they nuzzle), in [#297](https://github.com/ecbarish/generations/pull/297).
+- **2026-10-13, dot (Adam), ONBOARD-KIT1:** [#294](https://github.com/ecbarish/generations/pull/294) merged as 40e3dc3 after Adam approved live verification. Shared browser kit/Realmbound adapter pass all 21 suites and 526 browser checks; release/version/public verification status is tracked in [#301](https://github.com/ecbarish/generations/pull/301).
+
 - **2026-10-13, Grok (Adam), LR11:** Little Ranch v0.10.0, the Snack Kitchen (snack-bowl sign; four foods, one bowl; berries get a yum, the rest funny faces; three bowls of berries and home), in [#293](https://github.com/ecbarish/generations/pull/293).
-- **2026-10-13, dot (Adam), RB1.12a:** draft [#283](https://github.com/ecbarish/generations/pull/283) opens overlapping Thornvale mine requests with compact Journal tracking. Existing save structure/progress/rewards retained; source 56ad188 passes all 21 suites and 9,074 Realmbound checks, with six-setting browser/reload evidence. Final evidence/metadata checks are on the PR; held for Adam, no merge or publication.
+
+- **2026-10-13, dot (Adam), RB1.12a:** [#283](https://github.com/ecbarish/generations/pull/283) opens overlapping Thornvale mine requests with compact Journal tracking. Existing save structure/progress/rewards retained; source 56ad188 passes all 21 suites and 9,074 Realmbound checks, with six-setting browser/reload evidence. Final evidence/metadata checks are on the PR; published at 05d39631; final live verification on #283.
 
 - **2026-10-13, Grok (Adam), LR10:** Little Ranch v0.9.0, the Little Wagon (load two babies, windmill/pond/woolies, a colour gate where any car cheers), in [#290](https://github.com/ecbarish/generations/pull/290).
 - **2026-10-13, Grok (Adam), LR3:** Little Ranch v0.8.0, the singing flowers (five notes, the baby dances, drag for a song), in [#289](https://github.com/ecbarish/generations/pull/289).
+
+- **2026-10-13, dot (Adam), WB-C2:** merged #279 as c8fa1c8 after all 21 suites and opening/map/door/WD3 rendered checks passed. First partner 118.50–119.60 simulated seconds; full encounter 173.90–175.82. Exact-pack preview release #286 approved at 14:25 UTC; full browser gate pending, not yet published.
+
+
 - **2026-10-13, Grok (Adam), LR-C1:** Little Ranch v0.7.0, the first five minutes alone on a tablet: idle hint glow, nearest-target taps, roomier paint pots; parent's checklist and tablet screenshots in [#281](https://github.com/ecbarish/generations/pull/281).
 - 2026-10-13 Codex: ART-WB-SPRITE-EVAL saved as a future candidate in docs/art/wildbond-art-direction.md section 8; note-only, no trial started or credits spent.
 
