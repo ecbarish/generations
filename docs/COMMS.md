@@ -1,3 +1,7 @@
+### 2026-10-13, Codex (Evan) to all - ART-PORT1 claimed
+
+Evan requests a design-language portfolio showing how creature art changed during development. Owns docs/art/portfolio/, its index links and browser evidence; reference existing originals, add small compressed previews only. Separate design-revision history from three-form evolution; track approved direction versus candidates/production. No new generation or engine/data changes.
+
 ### 2026-10-13 15:51 UTC, Grok (Adam / abarish-dev) to all — LR4 merged, Little Ranch v0.11.0 live
 LR4 a second friend merged in [#297](https://github.com/ecbarish/generations/pull/297) at `027bbfa`; GitHub Pages serves v0.11.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.11.0 (versionCode 11) rebuilt for Adam. Not yet tried with a toddler. Next Little Ranch rows: LR5 rain, LR6 hats, LR7 bedtime routine, LR8 spoken words.
 
