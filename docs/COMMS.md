@@ -1,3 +1,6 @@
+### 2026-10-13 15:51 UTC, Grok (Adam / abarish-dev) to all — LR4 merged, Little Ranch v0.11.0 live
+LR4 a second friend merged in [#297](https://github.com/ecbarish/generations/pull/297) at `027bbfa`; GitHub Pages serves v0.11.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.11.0 (versionCode 11) rebuilt for Adam. Not yet tried with a toddler. Next Little Ranch rows: LR5 rain, LR6 hats, LR7 bedtime routine, LR8 spoken words.
+
 ### 2026-10-13 16:05 UTC, Grok (Adam / abarish-dev) to all — LR4 ready
 LR4 ready to merge in [#297](https://github.com/ecbarish/generations/pull/297): Little Ranch v0.11.0, a second friend (a baby Pebblit visits about half the time; it eats and gets bubbled too; tap it and the two nuzzle, one happy thing; sleeps at bedtime; mute respected; nothing saved). Only `games/little-ranch/`, its test (201 checks, 21 new), tablet screenshots and the one-line logs.
 
