@@ -213,6 +213,24 @@ func _run() -> void:
 	main._evo_cine_start({ "sp": "ripplet", "name": "Test" }, "tidewyrm")
 	check(not bool(main.evo_cine["full"]), "CR4: Plain-tier evolution gets the simple version")
 	main.evo_cine = {}
+	# ---- CR5: new evolution conditions (time, weather, ate)
+	check(main.cal.time_of_day() in ["dawn", "day", "dusk", "night"], "CR5: time_of_day returns a valid phase")
+	check(main.cal.weather() in ["clear", "rain", "wind", "snow"], "CR5: weather returns a valid condition")
+	# Time-based branching: mistfinch at dawn -> dawnchorus
+	var finch: Dictionary = main.R.make("mistfinch", 18, {}, main.rng)
+	var ctx_dawn := { "place": "larkhaven", "team": [], "time": "dawn", "weather": "clear" }
+	check(main.R.evo_target(finch, ctx_dawn) == "dawnchorus", "CR5: mistfinch at dawn becomes Dawnchorus")
+	var ctx_dusk := { "place": "larkhaven", "team": [], "time": "dusk", "weather": "clear" }
+	check(main.R.evo_target(finch, ctx_dusk) == "duskwing", "CR5: mistfinch at dusk becomes Duskwing")
+	var ctx_day := { "place": "larkhaven", "team": [], "time": "day", "weather": "clear" }
+	check(main.R.evo_target(finch, ctx_day) == "cloudharrier", "CR5: mistfinch by day becomes Cloudharrier (default)")
+	# Weather/diet branching: brineskit
+	var skit: Dictionary = main.R.make("brineskit", 18, {}, main.rng)
+	var ctx_rain := { "place": "larkhaven", "team": [], "time": "day", "weather": "rain" }
+	check(main.R.evo_target(skit, ctx_rain) == "rainback", "CR5: brineskit in rain becomes Rainback")
+	skit["ate"] = "fish"
+	var ctx_clear := { "place": "larkhaven", "team": [], "time": "day", "weather": "clear" }
+	check(main.R.evo_target(skit, ctx_clear) == "gorgebelly", "CR5: brineskit fed fish becomes Gorgebelly")
 	# ---- music: a tune for each place; Larkhaven's comes back with its colour
 	check(main._music_key() == "faded", "the faded valley has a lost, quiet tune")
 	main.spilled = true

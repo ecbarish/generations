@@ -100,7 +100,7 @@ function palePanels(image) {
   return panels;
 }
 function readText(image, temporary, options = {}) {
-  const regions = [...palePanels(image), [278, 182, 76, 16], [14, 18, 356, 24], [8, 194, 368, 18], [196, 179, 160, 21], [322, 171, 44, 15]];
+  const regions = [...palePanels(image), [278, 182, 76, 16], [14, 18, 356, 24], [8, 194, 368, 18], [8, 193, 368, 23], [196, 179, 160, 21], [322, 171, 44, 15]];
   const native = options.screenshot ? PNG.sync.read(options.screenshot) : image;
   const g = options.size ? geometry(options.size) : { x: 0, y: 0, scale: 1 };
   const texts = [];
@@ -113,6 +113,22 @@ function readText(image, temporary, options = {}) {
     fs.writeFileSync(file, PNG.sync.write(crop(native, sx, sy, w * g.scale, h * g.scale)));
     if (g.scale < 4) execFileSync('convert', [file, '-filter', 'Lanczos', '-resize', `${400 / g.scale}%`, file], { timeout: 15000 });
     texts.push(execFileSync('tesseract', [file, 'stdout', '--psm', h <= 21 ? '7' : '6'], { encoding: 'utf8', timeout: 30000, stdio: ['ignore', 'pipe', 'pipe'] }));
+    // The phone guidance is tiny outlined white text over green/brown scenery.
+    // Preserve the phrase assertions; isolate its neutral/cool glyph pixels only
+    // when ordinary OCR cannot read them, with both caption lines in the crop.
+    if (y === 193 && options.required && !options.required.every(phrase => matches(texts.join('\n'), phrase))) {
+      const glyphs = crop(native, sx, sy, w * g.scale, h * g.scale);
+      for (let p = 0; p < glyphs.data.length; p += 4) {
+        const [r, green, b] = glyphs.data.subarray(p, p + 3);
+        const ink = r > 110 && b >= green && green >= r && b - r <= 25;
+        glyphs.data[p] = glyphs.data[p + 1] = glyphs.data[p + 2] = ink ? 0 : 255;
+        glyphs.data[p + 3] = 255;
+      }
+      const maskFile = temporary + '-caption-glyphs.png';
+      fs.writeFileSync(maskFile, PNG.sync.write(glyphs));
+      execFileSync('convert', [maskFile, '-filter', 'Lanczos', '-resize', `${800 / g.scale}%`, maskFile], { timeout: 15000 });
+      texts.push(execFileSync('tesseract', [maskFile, 'stdout', '--psm', '6'], { encoding: 'utf8', timeout: 30000, stdio: ['ignore', 'pipe', 'pipe'] }));
+    }
     // Avoid repeatedly OCRing scenery once every required phrase is evidenced.
     if (options.required?.every(phrase => matches(texts.join('\n'), phrase))) break;
   }
@@ -173,14 +189,15 @@ async function reviewOpening(browser, api, size, method) {
   async function position() { return playerTile(logicalImage(await page.screenshot(), size)); }
   async function walkTo(x, y) {
     // Authored clear corridors, closed-loop position from pixels only.
+    let before = await position();
     for (let i = 0; i < 24; i++) {
-      const before = await position();
       if (before.x === x && before.y === y) return;
       const direction = before.y !== y ? (before.y < y ? 'down' : 'up') : before.x < x ? 'right' : 'left';
       await move(direction);
       const after = await position();
       record.movement.push({ before, direction, after });
       check(before.x !== after.x || before.y !== after.y, `${tag}: ${direction} visibly moves Rowan`);
+      before = after; // Reuse the just-observed tile; no duplicate expensive screenshot between inputs.
     }
     throw Error(`${tag}: did not reach ${x},${y} through ordinary movement`);
   }

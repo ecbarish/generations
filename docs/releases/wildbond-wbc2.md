@@ -31,3 +31,9 @@ Run [38408642351](https://github.com/ecbarish/generations/actions/runs/384086423
 ## Rename-continuity coverage
 
 The automated local browser suite now also models the same-origin repository path change: actual prior pack at `/idle-arcade/play/wildbond/`, a real movement-triggered IndexedDB save, then fixture-free navigation to `/generations/play/wildbond/` with the new pack response hash checked. It must preserve team/ranch identities, possessions, progression and settings. Existing authored barn reload lands at its doorway (11,11), not the prior movement tile (11,10). This is a controlled same-origin path regression, not access to anyone’s existing browser data. Runtime result pending; all 16 validator positive/negative controls pass locally.
+
+## Moving main and immutable release
+
+Main advanced with CR5 and Little Ranch while the browser suite ran. Their source and documentation are preserved. This release remains fixed to c8fa1c8 / e07fb136; CR5 is deliberately not rebuilt into it. Default manifest verification still demands branch/source tree equality. The explicit verify-only pinned-artifact mode instead requires source ancestry, the fixed reviewed pack hash and byte count, the immutable source tree/data, unchanged engine/shell rules and all prior checksum assertions. The release workflow pins those constants; it cannot stage/export in this mode.
+
+Second browser run38409932476 completed the entire desktop opening, partner identity, safe decline/reopen, heritage and harvest text, and regained movement. Phone reached the correct Follow Maren screen but tiny white guidance over scenery failed OCR. Screenshots confirm its presence; required text assertions are retained while improving observation. Complete browser verification is not yet passed.

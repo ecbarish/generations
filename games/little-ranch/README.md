@@ -13,6 +13,8 @@ LR1, the smallest test of a tap-and-play toy for ages 2 to 4 (docs/proposals/gam
 
 After about a dozen of those (or six minutes) it yawns, the sky turns orange and then night, a lullaby plays and it curls up asleep. That is the end of the visit: taps around it only twinkle stars, but **six taps on the sleeping baby** wake it up (it stirs and its zzz shrink with each tap; on the sixth it wakes happy, with hearts) and a fresh sunny day begins, the same as New visit (LR12). No words to read, no scores, timers, lives or wrong answers, no links out, no purchases, no feedback button.
 
+- **Never stuck** (LR-C1): after about six quiet seconds the first thing not yet tried glows softly and bobs (then each in turn); at night it's the sleeping baby, in the Paint Shed the next part to colour. Any touch hides it. Where tap zones overlap, the nearest thing wins.
+
 **Grown-ups:** hold the lock in the top corner for three seconds for New visit, Sound on/off, Arcade and Back to play (or tap the X, or anywhere outside the card). **App mode** (LR15): a standalone wrapper that loads `index.html?app=1`, or provides `window.LittleRanchApp.exit()`, gets just Replay, Sound and Exit; Exit calls `LittleRanchApp.exit()`. Sound is gentle and on by default; the choice is the only thing stored (`little-ranch-settings-v1`). There is no save.
 
 Art and sounds are drawn and made in code (no assets). Checks: `node tools/run-all-checks.cjs little-ranch` (tests/little-ranch.html).

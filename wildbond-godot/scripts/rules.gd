@@ -267,6 +267,12 @@ static func evo_target(c: Dictionary, ctx: Dictionary = {}) -> String:
 			continue
 		if o.has("with") and str(o.with) not in ctx.get("team", []):
 			continue
+		if o.has("time") and str(ctx.get("time", "")) != str(o.time):   # CR5: time of day
+			continue
+		if o.has("weather") and str(ctx.get("weather", "")) != str(o.weather):   # CR5: weather
+			continue
+		if o.has("ate") and str(c.get("ate", "")) != str(o.ate):   # CR5: what it ate at the ranch
+			continue
 		return str(o.to)
 	return ""
 

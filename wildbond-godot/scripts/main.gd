@@ -100,6 +100,8 @@ var wren := Mover.new("wren", "gone", Vector2i(10, 0))   # your rival, who arriv
 var team: Array = []                         # your creatures as the rules see them (rules.gd): level, XP, stats, bond
 var rival_c: Dictionary = {}
 var bag := { "lures": 5, "coins": 120, "berries": 0 }   # your satchel (the browser game starts you with 5 lures and 120 coins)
+var trough_food := "berries"   # CR5: which food is in the trough (what they ate matters)
+var feed_options: Array = []   # CR5: food ids for the trough choice card
 var ranch: Array = []                        # creatures resting at Maren's ranch (your team holds three)
 var seen := {}                               # the Wilddex: species seen and bonded
 var bonded := {}
@@ -915,7 +917,7 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif stage == "free" and not (e is InputEventMouseButton) and not lessons.visible and not card.visible and _festival_here():
 		pass
 	elif stage == "free" and not (e is InputEventMouseButton) and not lessons.visible and not card.visible and _near_trough():
-		_feed()
+		_choose_feed()
 	elif stage == "free" and not (e is InputEventMouseButton) and not lessons.visible and not card.visible and _near_stall():
 		_breed_here()
 	elif stage == "free" and not (e is InputEventMouseButton) and not lessons.visible and not card.visible and _near_bench():
@@ -2229,7 +2231,7 @@ func _festival_here() -> bool:
 						_festival_complete()
 						return true
 		"lanterns":
-			if _near_trough() and int(bag.berries) >= 2:
+			if _near_trough() and int(bag.get(trough_food, 0)) >= 2:
 				_feed()
 				_festival_complete()
 				return true
@@ -3604,16 +3606,36 @@ func _near_stall() -> bool:
 	return map_name == "barn" and me.tile.y == BREED_STALL.end.y and me.tile.x >= BREED_STALL.position.x and me.tile.x < BREED_STALL.end.x
 
 func _feed() -> void:
-	if int(bag.berries) < 2:
-		say("", "The trough is empty. Two berries make a feed; the shop in Larkhaven sells them.")
+	# CR5: feed the trough's selected food; record what each creature ate.
+	var food: String = trough_food
+	var have := int(bag.get(food, 0))
+	if have < 2:
+		say("", "The trough is empty. Two %s make a feed; the shop in Larkhaven sells them." % DATA.FOODS[food].name)
 		return
-	bag.berries = int(bag.berries) - 2
+	bag[food] = have - 2
 	for c in ranch:
 		R.add_bond(c, 3.0)
+		c["ate"] = food   # what it ate: an evolution condition (CR5)
 	for m in ranch_movers:
 		if m.where == "barn" and m.home == BARN_FLOOR:
 			m.path = route(m.tile, Vector2i(21, 6 + ranch_movers.find(m) % 4))   # they come to eat
-	say("", "You tip berries into the trough. Your ranch creatures crowd round, tails going, and trust you a little more.")
+	say("", "You tip %s into the trough. Your ranch creatures crowd round, tails going, and trust you a little more." % DATA.FOODS[food].name)
+
+## CR5: choose which food goes in the trough (if you have more than one kind).
+func _choose_feed() -> void:
+	var options: Array = []
+	var foods: Array = []
+	for fid in DATA.FOODS:
+		if int(bag.get(fid, 0)) >= 2:
+			foods.append(fid)
+			options.append("%s (%d)" % [DATA.FOODS[fid].name, int(bag.get(fid, 0))])
+	if foods.size() <= 1:
+		_feed()   # only one choice (or none): just feed
+		return
+	card_mode = "feed_choice"
+	# Store the food ids for the choice handler
+	feed_options = foods
+	card.open("trough", { "note": "Which food for the trough?" }, options)
 
 func _breed_here() -> void:
 	if not egg.is_empty():
@@ -3795,6 +3817,11 @@ func ranch_info(c: Dictionary) -> Dictionary:
 func _on_card_pick(i: int) -> void:
 	if card_mode == "bench":
 		_bench_pick(i)
+		return
+	if card_mode == "feed_choice" and i < feed_options.size():
+		trough_food = str(feed_options[i])
+		feed_options = []
+		_feed()
 		return
 	if card_mode == "breed":
 		if i == 0:
@@ -3986,7 +4013,8 @@ func _check_evolution() -> void:
 		return
 	if not evo_cine.is_empty():   # CR4: don't interrupt the moment
 		return
-	var ctx := { "place": str(DATA.MAPS.get(map_name, {}).get("biome", map_name)), "team": team.map(func(x): return x.sp) }
+	var ctx := { "place": str(DATA.MAPS.get(map_name, {}).get("biome", map_name)), "team": team.map(func(x): return x.sp),
+		"time": cal.time_of_day(), "weather": cal.weather() }   # CR5: new evolution conditions
 	for c in team:
 		if float(c.get("hold", 0)) >= c.lvl:
 			continue

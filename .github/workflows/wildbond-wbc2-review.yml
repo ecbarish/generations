@@ -21,6 +21,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          fetch-depth: 64
       - name: Verify exact committed pack and source before browser work
         run: |
           set -euo pipefail
@@ -28,8 +29,8 @@ jobs:
           git rev-parse HEAD | tee preview-review/release-sha.txt
           git fetch --depth=1 origin "$SOURCE_COMMIT"
           test "$(git rev-parse "$SOURCE_COMMIT:wildbond-godot")" = "$SOURCE_TREE"
-          test "$(git rev-parse HEAD:wildbond-godot)" = "$SOURCE_TREE"
-          python3 tools/wildbond-preview-manifest.py verify --source "$SOURCE_COMMIT"
+          git merge-base --is-ancestor "$SOURCE_COMMIT" HEAD
+          python3 tools/wildbond-preview-manifest.py verify --source "$SOURCE_COMMIT" --pinned-artifact --expected-pack-sha256 e07fb136963268fee136c46fbc3b9b80ba89e0517b17b728392097453a214100 --expected-pack-bytes 20398356
           git ls-files -z play/wildbond/ | xargs -0 sha256sum > preview-review/committed.sha256
           git show "$SOURCE_COMMIT:play/wildbond/index.pck" > "$BEFORE_PACK"
           git rev-parse "$SOURCE_COMMIT:play/wildbond/index.pck" > preview-review/before-blob.txt

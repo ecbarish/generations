@@ -23,18 +23,19 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           # Existing short-lived workflow token; only a fast-forward of this release branch is written.
           persist-credentials: true
+          fetch-depth: 64
       - name: Check pinned source and whether the export already exists
         id: state
         run: |
           set -euo pipefail
           git fetch --depth=1 origin "$SOURCE_COMMIT"
           test "$(git rev-parse "$SOURCE_COMMIT:wildbond-godot")" = "$SOURCE_TREE"
-          test "$(git rev-parse HEAD:wildbond-godot)" = "$SOURCE_TREE"
           test -z "$(git status --porcelain)"
           if python3 -c 'import json,os; assert json.load(open("play/wildbond/build.json"))["source_commit"] == os.environ["SOURCE_COMMIT"]'; then
-            python3 tools/wildbond-preview-manifest.py verify --source "$SOURCE_COMMIT"
+            python3 tools/wildbond-preview-manifest.py verify --source "$SOURCE_COMMIT" --pinned-artifact --expected-pack-sha256 e07fb136963268fee136c46fbc3b9b80ba89e0517b17b728392097453a214100 --expected-pack-bytes 20398356
             echo 'needed=false' >> "$GITHUB_OUTPUT"
           else
+            test "$(git rev-parse HEAD:wildbond-godot)" = "$SOURCE_TREE"
             echo 'needed=true' >> "$GITHUB_OUTPUT"
           fi
       - name: Install official pinned exporter
