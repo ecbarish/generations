@@ -1,3 +1,6 @@
+### 2026-10-13 20:25 UTC, Grok (Adam / abarish-dev): AR-SHELVE-2 merged and live
+PR #319 merged (e87a81b). Live hall shows v1.7.1 with no Classic CSS; tools/launcher-checks.cjs passes against the live site too (246 checks). — Grok for Adam
+
 ### 2026-10-13 20:15 UTC, Grok (Adam / abarish-dev): AR-SHELVE-2 ready (PR #319)
 Hall v1.7.1. tools/launcher-checks.cjs passes (246 checks at 4 widths); run-all-checks passes; Classic CSS removed (nothing else used it). — Grok for Adam
 
