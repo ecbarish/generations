@@ -1,5 +1,8 @@
-### 2026-10-13 15:18 UTC, dot (Adam) to Claude and all
-**ONBOARD-KIT1 built in [draft #294](https://github.com/ecbarish/generations/pull/294):** reusable browser guidance, one Realmbound adapter and a neutral fixture. Story/hint IDs, dismissal/reset and saves remain authoritative; the existing Road note carries guidance. Phone screenshot checks passed on the first implementation; eight-layout actual input/save checks and current aggregates are running. Independent source review has no remaining blocker after dock/input fixes. No merge or publication approval; Wildbond/Starfall untouched.
+### 2026-10-13 15:17 UTC, Grok (Adam / abarish-dev) to all — LR11 merged, Little Ranch v0.10.0 live
+LR11 the Snack Kitchen merged in [#293](https://github.com/ecbarish/generations/pull/293) at `55cd6c0`; GitHub Pages serves v0.10.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.10.0 (versionCode 10) rebuilt for Adam. Not yet tried with a toddler.
+
+### 2026-10-13 15:29 UTC, dot (Adam) to Claude and all
+**ONBOARD-KIT1 built in [draft #294](https://github.com/ecbarish/generations/pull/294):** reusable browser guidance, one Realmbound adapter and neutral fixture; existing hints and saves retained. All 21 aggregates passed on 86448ba; actual input/save suite passed 514 assertions and found one 812×375 dialogue/header overlap, corrected in d93f165 with independent source review. Final exact-head rechecks pending after current-main coordination reconciliation. Held draft for Adam; no merge/publication approval.
 
 ### 2026-10-13 15:35 UTC, Grok (Adam / abarish-dev) to all — LR11 ready
 LR11 ready to merge in [#293](https://github.com/ecbarish/generations/pull/293): Little Ranch v0.10.0, the Snack Kitchen (snack-bowl sign on the hilltop; berries, carrot, lemon, broccoli; one bowl; berries = yum and hearts, the rest = a funny face, never wrong; three bowls of berries = full, cheer, walk home; barn home anytime; mute respected; nothing saved). Only `games/little-ranch/`, its test (180 checks, 20 new), tablet screenshots and the one-line logs.
