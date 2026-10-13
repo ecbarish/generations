@@ -88,7 +88,7 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 
 **WB-C: creatures worth raising (Evan, 2026-10-11; spec: docs/wildbond-creatures.md, list: docs/wildbond-creatures/catalog.md).**
 Target about 150 species in about 70 lines; most new species are new stages of today's 74 loners; six showpiece lines.
-- [ ] CR1 [any] (claimed 2026-10-12 by Muse, Adam / abarish-dev) Sizes and tiers in the data (`size`, `tier` on every species) and creatures drawn at their size in battle and when following you (spec 4.4). Screenshots small beside huge.
+- [x] CR1 [any] (done 2026-10-12 by Muse, Adam / abarish-dev, PR #267) Sizes and tiers in the data (`size`, `tier` on all 112 species) and creatures drawn at their size in battle and when following you (spec 4.4). Screenshots small beside huge (docs/screenshots/cr1/). All Godot checks pass (1528).
 - [ ] CR2 [ChatGPT / writer] The six showpiece lines (spec 3): the three starter lines promoted, new Stone, Gale and Radiant lines, a slow growth rate, guardians raised to 560-600; pacing check (WB3.6b) holds.
 - [ ] CR3 [any, one region per PR] Grow the loners into lines: about 58 of the 74 creatures that never evolve gain a new stage before or after them, each its own creature with its own name and look (like Squirtle, Wartortle, Blastoise; not baby or adult versions, which are WB5.5), in journey order (Thornwood first).
 - [ ] CR4 [any] The evolution moment: the light, the silhouette growing, the new form at full size, someone who notices; the full version for showpieces.
