@@ -8,7 +8,8 @@ permissions:
 jobs:
   live-opening:
     # One authorized release only. Do not run this source-pinned verifier on future previews.
-    if: contains(github.event.head_commit.message, 'Merge PR #286:')
+    if: >-
+      contains(github.event.head_commit.message, 'Merge PR #286:')
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
