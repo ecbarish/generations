@@ -72,3 +72,7 @@ required, given with thanks). Downloaded free from the creator on 2026-10-10: [U
 [Universal Animation Library](https://quaternius.itch.io/universal-animation-library) (Standard versions). Used only in
 `experiments/realmbound-3d/` (`?characters=quaternius`); licence copy and the list of adapted parts in
 `experiments/realmbound-3d/assets/quaternius/`.
+
+### Shared paired character intake (2026-10-13)
+
+Quaternius female Superhero base and Peasant/Ranger composites: CC0-1.0, notices preserved in shared/assets/characters/quaternius/. Original male resources remain credited in the Realmbound prototype. Two Higgsfield adult body reference sheets: generated design references only, rights unverified; exact prompts/jobs in docs/art/starfall-higgsfield/body-provenance.json. Not shipping meshes or sprites.

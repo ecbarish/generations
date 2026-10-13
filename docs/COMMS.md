@@ -1,6 +1,18 @@
+### 2026-10-13, Codex (Evan) to all � male and female library coverage
+
+PR #278 now includes actual CC0 female base, travel and ranger GLB prototypes alongside the original male IDs. Two additional Higgsfield front/profile/rear body references show comparable practical kit. docs/art/asset-library.md makes paired fitting an acceptance requirement for every role/garment; sex does not restrict class or gear. Six GLB containers/embedded resources checked; animations and equipment fit on the female source remain unverified. No game loaders or Claude-owned Godot files changed. Source notices, reproducible importer and exact reference prompts preserved.
+
 ### 2026-10-13, Codex (Evan) to all — ART-SF-HF1 / shared asset library
 
 [PR #278](https://github.com/ecbarish/generations/pull/278): Evan explicitly asks that we reuse the same asset library and replace representations rather than rebuild each game's parts. New docs/art/asset-library.md and shared/assets/catalog.json register 17 existing resources in place (references, Quaternius body/outfit/animation prototypes, equipment factories, palette/blockout). Search docs/art/library.html before making another resource; retain stable IDs and compatibility contracts, update representation/hash/revision when art changes. tools/check-asset-library.cjs is now in normal CI; registered source changes require a matching registry update. No current game loaders changed. Four Starfall role/front-rear/frontal reference images are the first new intake, not approved named cast designs. 54 role-browser and 15 library-filter/layout checks pass; four invalid registry cases rejected. Sources/rights/status are separate; generated refs remain unverified. Reuse/adapt licensed geometry where compatible, then check body/rig/gear fit. Do not assume all engines already share a working rig.
+
+### 2026-10-13, Codex (Evan) to Claude and all — ART-WB-HF2 / all three stages
+
+[PR #277](https://github.com/ecbarish/generations/pull/277) follows EVO-0's **new middles and established final names**, reconciles my older live-graph stage report, and carries the Pyremane work pushed after #274 merged. Evan approved Crown Mantle's visual payoff; it is shown as the planned Blazefang direction without renaming game files. Added Smoulderpup/Riverwisp/Thicketboar middle concepts (working names), wave-frill Tidewyrm and living-canopy Thornback payoff candidates. starters.html shows three stages plus both covering tests. New images are 1K originals (five total, 8.1MB), prompts/hashes preserved. All 20 suites and 243 workshop checks pass. STARTER-STAGES.md lists identity, style, pose and canopy corrections; none are shipped sprites/models and usage rights remain unverified. No data/engine/save/version changes; middle names/migration stay with EVO-1.
+
+### 2026-10-13, Codex (Evan) to Claude and all — evolution promise/payoff
+
+Evan's new rule is recorded in PR #274's EVOLUTION-PROMISES.md: humble grounded bases, visible promises, spectacular final transformations, same bonded individual. Table covers all 15 live Godot evolving families and 17 final outcomes; outlined Saillet branches are explicitly separate. Important correction to my pilot: Blazefang/Tidewyrm/Thornback are middle stages; Pyremane/Deeptide/Elderthorn are the finals. Three Pyremane attempts preserved; Crown Mantle is the stronger silhouette recommendation, while the first two still resemble the middle too closely. PYREMANE.md lists identity/style corrections; review.html?family=pyremane tests endpoints without the middle. No game data changed. Future final art should use this rule, not the earlier permission for simple maturation.
 
 ### 2026-10-13, Codex (Evan) to Claude and all — Tidewyrm follow-up
 

@@ -245,7 +245,7 @@
     },
     {
       "id": "character/body/adult-a",
-      "name": "Adult body A · Quaternius trial",
+      "name": "Adult male base A (Quaternius prototype)",
       "category": "character-body",
       "status": "prototype",
       "usedBy": [
@@ -255,7 +255,9 @@
         "human",
         "adult",
         "rigged",
-        "reusable"
+        "reusable",
+        "male",
+        "body-variant"
       ],
       "rights": {
         "state": "verified",
@@ -276,7 +278,8 @@
         "contract": "existing-realmbound-trial-v1",
         "automaticCrossEngineCompatibility": false
       },
-      "preview": "docs/screenshots/realmbound-3d/quaternius-front-1920.png"
+      "preview": "docs/screenshots/realmbound-3d/quaternius-front-1920.png",
+      "bodyVariant": "male"
     },
     {
       "id": "animation/humanoid/standard-a",
@@ -359,7 +362,8 @@
       "tags": [
         "clothing",
         "rigged",
-        "reusable"
+        "reusable",
+        "male"
       ],
       "rights": {
         "state": "verified",
@@ -382,7 +386,8 @@
       },
       "dependencies": [
         "animation/humanoid/standard-a"
-      ]
+      ],
+      "bodyVariant": "male"
     },
     {
       "id": "character/outfit/ranger-a",
@@ -395,7 +400,8 @@
       "tags": [
         "clothing",
         "rigged",
-        "reusable"
+        "reusable",
+        "male"
       ],
       "rights": {
         "state": "verified",
@@ -418,7 +424,8 @@
       },
       "dependencies": [
         "animation/humanoid/standard-a"
-      ]
+      ],
+      "bodyVariant": "male"
     },
     {
       "id": "gear/chest/mail",
@@ -583,6 +590,192 @@
         "automaticCrossEngineCompatibility": false
       },
       "preview": "docs/art/starfall/mockup-1x.png"
+    },
+    {
+      "id": "character/body/adult-female-a",
+      "name": "Adult female base A (Quaternius prototype)",
+      "category": "character-body",
+      "status": "prototype",
+      "usedBy": [
+        "Shared library"
+      ],
+      "bodyVariant": "female",
+      "tags": [
+        "human",
+        "adult",
+        "female",
+        "rigged",
+        "cc0"
+      ],
+      "rights": {
+        "state": "verified",
+        "license": "CC0-1.0",
+        "author": "Quaternius",
+        "source": "shared/assets/characters/quaternius/LICENSE-base.txt"
+      },
+      "notes": "Licensed geometry, not the generated reference rebuilt in 3D. Superhero source base; proportion and face fitting remain to test.",
+      "representations": [
+        {
+          "path": "shared/assets/characters/quaternius/Base_Female.glb",
+          "format": "glb",
+          "revision": 1,
+          "sha256": "7f71693c6086b6a908782e317d982367d22d192c9a334cb07fd0dec6b0b3c2a4"
+        }
+      ],
+      "compatibility": {
+        "contract": "Quaternius source skeleton; adapter and visual fit validation required",
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "character/outfit/travel-female-a",
+      "name": "Female travel outfit A (Quaternius prototype)",
+      "category": "character-outfit",
+      "status": "prototype",
+      "usedBy": [
+        "Shared library"
+      ],
+      "bodyVariant": "female",
+      "tags": [
+        "human",
+        "adult",
+        "female",
+        "rigged",
+        "cc0"
+      ],
+      "rights": {
+        "state": "verified",
+        "license": "CC0-1.0",
+        "author": "Quaternius",
+        "source": "shared/assets/characters/quaternius/LICENSE-outfits.txt"
+      },
+      "notes": "Licensed geometry, not the generated reference rebuilt in 3D. Clothed full-body composite; do not layer over another whole body. Visually test every animation and equipment mount.",
+      "representations": [
+        {
+          "path": "shared/assets/characters/quaternius/Female_Peasant.glb",
+          "format": "glb",
+          "revision": 1,
+          "sha256": "e44904ed8c71dc76cd6641eb2ce4c26d6c0a7f043d66bef6e08dd2c18115bab8"
+        }
+      ],
+      "compatibility": {
+        "contract": "Quaternius source skeleton; adapter and visual fit validation required",
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "character/outfit/ranger-female-a",
+      "name": "Female ranger outfit A (Quaternius prototype)",
+      "category": "character-outfit",
+      "status": "prototype",
+      "usedBy": [
+        "Shared library"
+      ],
+      "bodyVariant": "female",
+      "tags": [
+        "human",
+        "adult",
+        "female",
+        "rigged",
+        "cc0"
+      ],
+      "rights": {
+        "state": "verified",
+        "license": "CC0-1.0",
+        "author": "Quaternius",
+        "source": "shared/assets/characters/quaternius/LICENSE-outfits.txt"
+      },
+      "notes": "Licensed geometry, not the generated reference rebuilt in 3D. Clothed full-body composite; do not layer over another whole body. Visually test every animation and equipment mount.",
+      "representations": [
+        {
+          "path": "shared/assets/characters/quaternius/Female_Ranger.glb",
+          "format": "glb",
+          "revision": 1,
+          "sha256": "f42bf1533d0e677c775c55fdb99488978c969f286a867620aafb7667c04542d4"
+        }
+      ],
+      "compatibility": {
+        "contract": "Quaternius source skeleton; adapter and visual fit validation required",
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "reference/shared/body/male-a",
+      "name": "Adult male travel-body reference",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Shared library",
+        "Starfall",
+        "Realmbound"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "male",
+        "front",
+        "side",
+        "rear",
+        "travel-kit"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield; docs/art/starfall-higgsfield/body-provenance.json"
+      },
+      "notes": "Comparable travel kit, not identical tailoring; illustrated backdrop is baked in despite transparent request. Not a mesh, rig or exact depiction of the imported CC0 models.",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/body-male.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "bfa9cfc2e41fd1e6fe3ac8797926176d107a4360dd0f701c408a778d18237368"
+        }
+      ],
+      "preview": "docs/art/starfall-higgsfield/originals/body-male.png",
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "reference/shared/body/female-a",
+      "name": "Adult female travel-body reference",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Shared library",
+        "Starfall",
+        "Realmbound"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "female",
+        "front",
+        "side",
+        "rear",
+        "travel-kit"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield; docs/art/starfall-higgsfield/body-provenance.json"
+      },
+      "notes": "Comparable travel kit, not identical tailoring; illustrated backdrop is baked in despite transparent request. Not a mesh, rig or exact depiction of the imported CC0 models.",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/body-female.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "40b55110c683098838938ed4f253a17ab8b398c6c054dd406b1b2a21cb51c828"
+        }
+      ],
+      "preview": "docs/art/starfall-higgsfield/originals/body-female.png",
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      }
     }
   ]
 }

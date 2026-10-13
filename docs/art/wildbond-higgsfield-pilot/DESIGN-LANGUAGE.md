@@ -1,5 +1,7 @@
 # Creature reference language and evolution briefs
 
+**Superseded final-form rule:** [Evan's promise/payoff direction](EVOLUTION-PROMISES.md) now governs every evolution. Natural maturation can describe a middle stage, but a final form must deliver a substantial transformation. Use the complete Godot evolution graph: Blazefang, Tidewyrm and Thornback are middle stages, not endpoints. The 15-family promise/payoff table is the current brief; earlier candidates below remain exploration history.
+
 ## Evan's direction — 2026-10-13
 
 The purpose of this experiment is the cleanest production path and clearest references for the whole catalogue. Evan likes these designs, but wants evolution variety: a dramatic transformation can be as exciting as the jump from Charmander to Charizard. Not every evolution should simply look older or larger. That is a principle about transformation, not permission to copy those creatures' designs.
@@ -20,7 +22,7 @@ These are shared rendering rules; they do not mean every species needs the same 
 | Specialisation | Body becomes suited to a new ecological role: swimmer, guardian, glider, burrower | Two strong visual anchors from the young form |
 | Metamorphosis | Major silhouette/anatomy change or a new expression of the element | An unmistakable motif and a coherent story for the change |
 
-Choose per family; no fixed quota and no forced wings, horns or extra limbs. Use specialisation and metamorphosis deliberately across the catalogue so discovering an evolution remains exciting. A dramatic silhouette can come from a crest, flowing mane, armoured back, fan tail or changed stance as well as flight. Visual inventions do not add abilities or alter gameplay.
+Choose a final transformation per family; no forced wings, horns or extra limbs. Maturation alone is insufficient for the final reward. A dramatic silhouette can come from a crest, flowing mane, armoured back, fan tail or changed stance as well as flight. Plant its visible promise in the humble base. Visual inventions do not add abilities or alter gameplay.
 
 ## Evolution acceptance check
 

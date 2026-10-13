@@ -1,0 +1,384 @@
+{
+  "date": "2026-10-13",
+  "checks": [
+    {
+      "family": "tidewyrm",
+      "width": 390,
+      "mode": "colour",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 390,
+      "mode": "colour",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 390,
+      "mode": "colour",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 390,
+      "mode": "grey",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 390,
+      "mode": "grey",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 390,
+      "mode": "grey",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 390,
+      "mode": "silhouette",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 390,
+      "mode": "silhouette",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 390,
+      "mode": "silhouette",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 1440,
+      "mode": "colour",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 1440,
+      "mode": "colour",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 1440,
+      "mode": "colour",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 1440,
+      "mode": "grey",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 1440,
+      "mode": "grey",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 1440,
+      "mode": "grey",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 1440,
+      "mode": "silhouette",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 1440,
+      "mode": "silhouette",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 1440,
+      "mode": "silhouette",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 3440,
+      "mode": "colour",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 3440,
+      "mode": "colour",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 3440,
+      "mode": "colour",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 3440,
+      "mode": "grey",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 3440,
+      "mode": "grey",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 3440,
+      "mode": "grey",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 3440,
+      "mode": "silhouette",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 3440,
+      "mode": "silhouette",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "tidewyrm",
+      "width": 3440,
+      "mode": "silhouette",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 390,
+      "mode": "colour",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 390,
+      "mode": "colour",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 390,
+      "mode": "colour",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 390,
+      "mode": "grey",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 390,
+      "mode": "grey",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 390,
+      "mode": "grey",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 390,
+      "mode": "silhouette",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 390,
+      "mode": "silhouette",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 390,
+      "mode": "silhouette",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 1440,
+      "mode": "colour",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 1440,
+      "mode": "colour",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 1440,
+      "mode": "colour",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 1440,
+      "mode": "grey",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 1440,
+      "mode": "grey",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 1440,
+      "mode": "grey",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 1440,
+      "mode": "silhouette",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 1440,
+      "mode": "silhouette",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 1440,
+      "mode": "silhouette",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 3440,
+      "mode": "colour",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 3440,
+      "mode": "colour",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 3440,
+      "mode": "colour",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 3440,
+      "mode": "grey",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 3440,
+      "mode": "grey",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 3440,
+      "mode": "grey",
+      "size": "32",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 3440,
+      "mode": "silhouette",
+      "size": "180",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 3440,
+      "mode": "silhouette",
+      "size": "64",
+      "status": "pass"
+    },
+    {
+      "family": "pyremane",
+      "width": 3440,
+      "mode": "silhouette",
+      "size": "32",
+      "status": "pass"
+    }
+  ],
+  "errors": []
+}
