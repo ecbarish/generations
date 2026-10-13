@@ -21,4 +21,3 @@ for(const id of ['mode','size','cut'])$(id).addEventListener('change',draw);
 window.addEventListener('resize',draw);
 start().catch(error=>{$('status').textContent=error.message;window.reviewError=error.message;});
 </script></html>
-
