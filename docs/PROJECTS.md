@@ -45,7 +45,7 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| RB1.12a | Concurrent Thornvale requests | S | built: dot (Adam), draft #283; held for Adam | Existing quests, Journal, save regression checks; no save format change |
+| RB1.12a | Concurrent Thornvale requests | S | published: dot (Adam), #283 at 05d39631 | Existing quests, Journal, save regression checks; no save format change |
 
 ## Realmbound newcomer snags
 
@@ -226,7 +226,7 @@ workbench and gear), evolution shapes and conditions, heritages, music, saving. 
 
 | ID | Project | Size | Status | Notes |
 |---|---|---|---|---|
-| WB-C2 | **Meet your partner sooner** (cycle 1) | S | claimed: dot / Adam, 2026-10-13, [#279](https://github.com/ecbarish/generations/pull/279) | Measured New Game to first partner at most three minutes; preserve choices, story and saves |
+| WB-C2 | **Meet your partner sooner** (cycle 1) | S | merged c8fa1c8; preview pending, [#279](https://github.com/ecbarish/generations/pull/279) | Measured New Game to first partner at most three minutes; preserve choices, story and saves |
 | WB2.6 | **Early-road heritage recognition** (T45; browser data exported for Claude) | S | claimed: Codex, 2026-10-08, codex/wildbond-early-heritages | All four origins for existing early-road NPCs and Wardens; ledger and checks |
 | WG1 | **Tamer abilities** with heritages: orders that grow from who you are and who taught you (Toren's Steady) | M | open (next) | creature-catalogue-and-evolution.md §4 |
 | WG2 | **Stillreed Basin** and the areas after it (Hollowecho, Sunthread, Farwatch), from the browser data | L | open | Each with its own furniture, sound and music (variety plan) |

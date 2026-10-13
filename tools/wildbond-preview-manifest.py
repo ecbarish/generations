@@ -30,10 +30,21 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=["stage", "verify"])
     parser.add_argument("--source", required=True)
+    parser.add_argument("--pinned-artifact", action="store_true", help="Verify an already-built immutable release while newer source remains on the branch")
+    parser.add_argument("--expected-pack-sha256")
+    parser.add_argument("--expected-pack-bytes", type=int)
     args = parser.parse_args()
     assert re.fullmatch(r"[0-9a-f]{40}", args.source), "An exact merged source SHA is required"
     source_tree = git("rev-parse", args.source + ":wildbond-godot")
-    assert git("rev-parse", "HEAD:wildbond-godot") == source_tree, "Claim branch game source differs from the pinned merged source"
+    if args.pinned_artifact:
+        assert args.mode == "verify", "Pinned-artifact mode must never export or stage a different source"
+        assert re.fullmatch(r"[0-9a-f]{64}", args.expected_pack_sha256 or ""), "Pin the independently reviewed pack hash"
+        assert args.expected_pack_bytes and args.expected_pack_bytes > 0
+        subprocess.check_call(["git", "merge-base", "--is-ancestor", args.source, "HEAD"], cwd=ROOT)
+        assert digest(PREVIEW / "index.pck") == args.expected_pack_sha256, "Immutable reviewed pack changed"
+        assert (PREVIEW / "index.pck").stat().st_size == args.expected_pack_bytes, "Immutable reviewed pack size changed"
+    else:
+        assert git("rev-parse", "HEAD:wildbond-godot") == source_tree, "Claim branch game source differs from the pinned merged source"
     for name, expected in ENGINE.items():
         assert digest(PREVIEW / name) == expected, name + " must remain the existing Godot 4.7.2 engine"
     before_shell = subprocess.check_output(["git", "show", args.source + ":play/wildbond/index.html"], cwd=ROOT)
@@ -64,6 +75,8 @@ def main():
         assert re.fullmatch(r"[0-9a-f]{64}", expected)
         assert digest(PREVIEW / name) == expected, name + " digest mismatch"
     assert digest(PREVIEW / "index.pck") != source_manifest["sha256"]["index.pck"], "Preview pack was not refreshed"
+    previous_pack = subprocess.check_output(["git", "show", args.source + ":play/wildbond/index.pck"], cwd=ROOT)
+    assert digest(PREVIEW / "index.pck") != hashlib.sha256(previous_pack).hexdigest(), "Preview pack still equals the actual previous committed pack"
     out = ROOT / "preview-review"
     out.mkdir(exist_ok=True)
     (out / "build.json").write_text(json.dumps(manifest, indent=2) + "\n")

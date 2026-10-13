@@ -107,10 +107,15 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 - **2026-10-13, dot (Adam), ONBOARD-KIT1:** [#294](https://github.com/ecbarish/generations/pull/294) merged as 40e3dc3 after Adam approved live verification. Shared browser kit/Realmbound adapter pass all 21 suites and 526 browser checks; release/version/public verification status is tracked in [#301](https://github.com/ecbarish/generations/pull/301).
 
 - **2026-10-13, Grok (Adam), LR11:** Little Ranch v0.10.0, the Snack Kitchen (snack-bowl sign; four foods, one bowl; berries get a yum, the rest funny faces; three bowls of berries and home), in [#293](https://github.com/ecbarish/generations/pull/293).
-- **2026-10-13, dot (Adam), RB1.12a:** draft [#283](https://github.com/ecbarish/generations/pull/283) opens overlapping Thornvale mine requests with compact Journal tracking. Existing save structure/progress/rewards retained; source 56ad188 passes all 21 suites and 9,074 Realmbound checks, with six-setting browser/reload evidence. Final evidence/metadata checks are on the PR; held for Adam, no merge or publication.
+
+- **2026-10-13, dot (Adam), RB1.12a:** [#283](https://github.com/ecbarish/generations/pull/283) opens overlapping Thornvale mine requests with compact Journal tracking. Existing save structure/progress/rewards retained; source 56ad188 passes all 21 suites and 9,074 Realmbound checks, with six-setting browser/reload evidence. Final evidence/metadata checks are on the PR; published at 05d39631; final live verification on #283.
 
 - **2026-10-13, Grok (Adam), LR10:** Little Ranch v0.9.0, the Little Wagon (load two babies, windmill/pond/woolies, a colour gate where any car cheers), in [#290](https://github.com/ecbarish/generations/pull/290).
 - **2026-10-13, Grok (Adam), LR3:** Little Ranch v0.8.0, the singing flowers (five notes, the baby dances, drag for a song), in [#289](https://github.com/ecbarish/generations/pull/289).
+
+- **2026-10-13, dot (Adam), WB-C2:** merged #279 as c8fa1c8 after all 21 suites and opening/map/door/WD3 rendered checks passed. First partner 118.50–119.60 simulated seconds; full encounter 173.90–175.82. Exact-pack preview release #286 approved at 14:25 UTC; full browser gate pending, not yet published.
+
+
 - **2026-10-13, Grok (Adam), LR-C1:** Little Ranch v0.7.0, the first five minutes alone on a tablet: idle hint glow, nearest-target taps, roomier paint pots; parent's checklist and tablet screenshots in [#281](https://github.com/ecbarish/generations/pull/281).
 - 2026-10-13 Codex: ART-WB-SPRITE-EVAL saved as a future candidate in docs/art/wildbond-art-direction.md section 8; note-only, no trial started or credits spent.
 
