@@ -5,7 +5,7 @@
 Evan's personal stable of browser games, live at https://ecbarish.github.io/generations/ (GitHub Pages from `main`).
 Tagline: **Play for the fun. Automate the grind.** Repository `ecbarish/generations` (the old `idle-arcade` repository only
 forwards links). Save keys and Godot project names keep their old "arcade" names on purpose.
-**Start with [docs/STUDIO-PLAN.md](docs/STUDIO-PLAN.md)** (approved by Evan 2026-10-12): the phases, the four goals, the one-week cycle with a Play day, the three build slots and the usage rules. Work only on the current cycle's tasks (QUEUE.md "This cycle"); read STUDIO-PLAN, that block and your game's section, not every page.
+**Start with [docs/STUDIO-PLAN.md](docs/STUDIO-PLAN.md)** (approved by Evan 2026-10-12): the phases, the four goals, the one-week cycle with a Play day, the four build slots with fixed quotas and the usage rules. Work only on the current cycle's tasks (QUEUE.md "This cycle"); read STUDIO-PLAN, that block and your game's section, not every page.
 
 Evan works on this from more than one computer and with ChatGPT/Codex too, so **this repo is the shared memory**:
 read **`START-HERE.md`** (where we are, what's next, the session log, shared by every assistant), **`docs/PRIORITIES.md`**

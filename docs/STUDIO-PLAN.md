@@ -122,17 +122,31 @@ The heart of this plan. Everyone works in the **same one-week cycle**, and **eve
 
 ### Which games are active each cycle
 
-Not every game every week. **Three build slots per cycle:**
+Not every game every week. **Four build slots per cycle, each with a fixed quota** (Evan, 2026-10-12: "set a content
+amount goal for each thing before it's rotated, that way if there's extra development in a week no game gets extra
+favouritism"):
 
-1. **Wildbond**: every cycle (the headline).
-2. **Little Ranch**: every cycle, small (kids' ideas from COMMS).
-3. **The rotating slot**: one of Starfall, Realmbound, Diamond Manager or the arcade row, chosen at Plan.
+| Slot | Every cycle | Quota per cycle |
+|---|---|---|
+| 1. **Wildbond** (the headline) | yes | one goal, **6 tasks** |
+| 2. **Little Ranch** (kids' ideas from COMMS) | yes | one goal, **3 tasks** |
+| 3. **The rotating slot**: Starfall, Realmbound, Diamond Manager or the arcade row, in turn | one game per cycle | one goal, **5 tasks** |
+| 4. **The Incubator** (section 7) | yes | **3 tasks** toward the current ten-minute slice |
 
-Everything else gets bug fixes only that week. This is how we stop spreading thin.
+**Quotas are fixed at Plan and never grow.** A task is one pull request. When a slot meets its quota, that game is
+**done for the week**: no extra features, however much time is left. Spare effort flows down this list, in order:
+
+1. **Bugs from the last Play day**, any game.
+2. **The next game in the rotation** starts early: its tasks count toward *its* quota next cycle, so it gets no extra.
+3. **The next Incubator idea's pitch or slice**, counted toward the Incubator's next quota.
+4. **Shared work** (the onboarding kit, the shared Godot kit), which helps every game equally.
+
+Everything not in a slot gets bug fixes only that week. This is how we stop spreading thin, and how the Incubator
+keeps moving every single week instead of waiting for leftovers.
 
 ### Saving usage (Evan and his dad's AI time)
 
-- **Fewer threads at once:** at most three building threads plus the reviewer in any cycle.
+- **Fewer threads at once:** at most four building threads (one per slot) plus the reviewer in any cycle.
 - **Read less:** a thread reads STUDIO-PLAN, the "This cycle" block and its game's section. Nothing else unless the
   task needs it.
 - **Short messages:** COMMS posts of five lines or fewer; decisions go to their page the same day.
@@ -146,7 +160,7 @@ Everything else gets bug fixes only that week. This is how we stop spreading thi
 ## 5. The phases
 
 Each phase has **one headline goal** and a **gate**. Phases are made of cycles; a phase ends when its gate passes, not
-on a date. Estimates assume the three-slot cycle above.
+on a date. Estimates assume the four-slot cycle above.
 
 ### Phase 0: Reset (one cycle)
 
@@ -254,7 +268,7 @@ To keep them without spreading thin:
 
 1. **Pitch** (already done for most): one page, the fun in one sentence, the scorecard.
 2. **Ten-minute slice:** the smallest version that shows the fun. **At most one slice in progress at a time**, built
-   only when a cycle has room (usually a helper with spare usage).
+   with the Incubator's own quota every cycle (section 4: 3 tasks a week), so it never waits for leftovers.
 3. **Gate:** the slice passes the newcomer test at 15/18 or better, and the family wants more.
 4. **Graduate:** it joins the Workshop, then the line-up when a slot opens. One in, one out.
 
@@ -287,6 +301,6 @@ needs from us.
 
 1. **The shelves:** Wildbond headline; Little Ranch for kids; Starfall, Realmbound (early game), Diamond Manager and
    the arcade row in the line-up; Otherworld, Diamond Career and Lantern Bowl in the Workshop; Classics hidden?
-2. **The one-week cycle with a Play day**, three build slots (Wildbond, Little Ranch, one rotating)?
+2. **The one-week cycle with a Play day**, three build slots (Wildbond, Little Ranch, one rotating)? *(Approved; on 2026-10-12 Evan added fixed quotas per slot and a weekly Incubator slot, section 4.)*
 3. **Approve the phases and gates**, so lane P can post the first "This cycle" today.
 4. **The Incubator order:** Lantern Bowl, Keymaster, the card shop, The Crossing, Main Street?
