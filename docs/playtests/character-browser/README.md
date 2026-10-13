@@ -1,6 +1,6 @@
 # CHAR-BROWSER1: portable character-bench launcher
 
-Adam approved this bounded fix on 2026-10-13. [Draft PR #318](https://github.com/ecbarish/generations/pull/318). No merge or deployment is authorized.
+Adam approved this bounded fix and authorized merging [PR #318](https://github.com/ecbarish/generations/pull/318) on 2026-10-13. Tooling only; no gameplay or artwork release.
 
 ## Change
 
@@ -23,4 +23,4 @@ An additive PR-only, read-only Actions workflow installs the repository's existi
 
 Local full-browser execution was attempted but blocked before assertions by Chromium `socket() failed: Operation not permitted`; an official bundled-browser download also returned an invalid archive. Four non-browser aggregate suites passed locally. Successful CI above supplies the actual browser/Godot verification, not a claim that local browser tests passed.
 
-This is source-rig/UI regression evidence, not production garment acceptance, physical-device/Safari validation or a performance benchmark. Final documentation-only head CI is recorded in the PR's current checks and Tower block. Draft remains unmerged and unpublished pending Adam's decision.
+This is source-rig/UI regression evidence, not production garment acceptance, physical-device/Safari validation or a performance benchmark. Final documentation-only head CI is recorded in the PR's current checks and Tower block. Adam authorized merge; main was reconciled without changing the character implementation or assertions. Current exact-head checks, merge commit and post-merge verification are maintained in PR #318's Tower block.

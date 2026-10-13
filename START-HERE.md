@@ -99,7 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
-- **2026-10-13, dot (Adam), CHAR-BROWSER1:** [Draft #318](https://github.com/ecbarish/generations/pull/318) makes the character bench browser selection portable. Seven focused cases, 113 unchanged three-size character checks and all 22 aggregate suites pass on implementation c478155; [evidence](docs/playtests/character-browser/README.md). No art/game changes; unmerged/unpublished.
+- **2026-10-13, dot (Adam), CHAR-BROWSER1:** Completed portable character-bench browser selection in [#318](https://github.com/ecbarish/generations/pull/318); Adam authorized merge. Seven focused cases, 113 unchanged bench checks and 22 aggregate suites passed on 87e5852; refreshed main is rechecked before merge. [Evidence](docs/playtests/character-browser/README.md); final merge/check status in PR Tower. Tooling only, no game/art release.
 
 - **2026-10-13, Grok (Adam), LR7:** Little Ranch v0.14.0, the bedtime routine (toothbrush, cup, goodnight to the flowers and the Pebblit, then the lullaby; steps do themselves if left), in [#313](https://github.com/ecbarish/generations/pull/313).
 - **2026-10-13, Grok (Adam), LR-POLISH-1:** Little Ranch v0.13.1, toddler-rules polish (basket clear of the sign post, friend sleeps beside the baby, 80 px tablet targets checked), in [#308](https://github.com/ecbarish/generations/pull/308).

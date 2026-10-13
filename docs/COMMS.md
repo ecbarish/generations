@@ -1,8 +1,29 @@
+### 2026-10-13 20:44 UTC, dot (Adam / abarish-dev): CHAR-BROWSER1 merge authorized, #318
+Adam authorized merging [PR #318](https://github.com/ecbarish/generations/pull/318). Reconciled main through #322, preserving all concurrent COMMS entries; character implementation and assertions are unchanged. Re-running the exact resolved-head bench and aggregate before the PROCESS self-check and merge commit. Implementation complete; current checks, merge commit and post-merge result are maintained in PR #318's Tower block. Tooling only, no gameplay/artwork release or version bump.
+
 ### 2026-10-13 20:00 UTC, dot (Adam / abarish-dev): CHAR-BROWSER1 built, draft #318
 [PR #318](https://github.com/ecbarish/generations/pull/318) fixes the #278 browser-path handoff: explicit CHROME_PATH preserved; existing Windows Chrome when present, bundled Chromium otherwise. Seven selection cases, all 113 unchanged three-size bench checks and all 22 aggregate suites pass on c478155; [evidence](playtests/character-browser/README.md). No art/game/rig/save changes or tracked screenshot churn. Final documentation-head CI follows in PR; held draft, no merge/deploy authorization.
 
 ### 2026-10-13 19:49 UTC, dot (Adam / abarish-dev): claiming CHAR-BROWSER1
 Adam approved the bounded character-bench browser fallback requested in the #278 handoff. Owns tests/character-library.cjs, a focused browser-selection regression and task evidence. Preserve CHROME_PATH and all rig/equipment/save/recovery checks; no artwork or game behavior changes. Draft PR before implementation; no merge or deployment authorized.
+
+### 2026-10-13 20:40 UTC, Grok (Adam / abarish-dev): AR-CHECKS-1 merged (PR #321, 1eb5a50)
+The launcher checks now run in run-all-checks and CI (two widths on CI: 118 checks in 5 s; the whole CI job 3m42s). Tooling only, nothing visible changed. Also: the onboarding kit QUEUE names as shared work is ONBOARD-KIT1, already done by dot (#294, #301), so I'm not starting it; a second kit step needs a new row. — Grok for Adam
+
+### 2026-10-13 20:25 UTC, Grok (Adam / abarish-dev): AR-CHECKS-1 ready (PR #321)
+run-all-checks now has a "launcher" suite (21 suites). Locally it runs all four widths (246 checks, about 18 s); on CI it runs two, 375 and 1366 (118 checks, about 5 s here). LAUNCHER_WIDTHS overrides. — Grok for Adam
+
+### 2026-10-13 20:20 UTC, Grok (Adam / abarish-dev): claiming AR-CHECKS-1 (lane T, Best practices)
+Adding tools/launcher-checks.cjs to `node tools/run-all-checks.cjs` as a "launcher" suite. This touches tools/, which is **lane T (Best practices)**; Adam said yes. CI already runs run-all-checks (.github/workflows/checks.yml), so no workflow change. — Grok for Adam
+
+### 2026-10-13 20:25 UTC, Grok (Adam / abarish-dev): AR-SHELVE-2 merged and live
+PR #319 merged (e87a81b). Live hall shows v1.7.1 with no Classic CSS; tools/launcher-checks.cjs passes against the live site too (246 checks). — Grok for Adam
+
+### 2026-10-13 20:15 UTC, Grok (Adam / abarish-dev): AR-SHELVE-2 ready (PR #319)
+Hall v1.7.1. tools/launcher-checks.cjs passes (246 checks at 4 widths); run-all-checks passes; Classic CSS removed (nothing else used it). — Grok for Adam
+
+### 2026-10-13 20:05 UTC, Grok (Adam / abarish-dev): claiming AR-SHELVE-2
+AR-SHELVE leftovers: tools/launcher-checks.cjs updated for the new hall (no Classic section, Wildbond headline, For little ones, Primordial hidden) and the unused Classic CSS removed. Draft PR to follow. — Grok for Adam
 
 ### 2026-10-13 20:00 UTC, Grok (Adam / abarish-dev): AR-SHELVE + AR-FRONT merged and live
 PR #316 merged (89d07ac). Live hall v1.7.0 on Pages: no Classic or Diamond Career cabinets, Primordial hidden, Wildbond leads, Little Ranch under "For little ones"; Come Play has no links to them; old direct links (games/wildbond, games/starfall-guild, games/diamond-career, games/primordial) still open. Open: tools/launcher-checks.cjs (not in run-all) still asserts the Classic section. — Grok for Adam
