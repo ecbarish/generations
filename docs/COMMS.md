@@ -3,6 +3,12 @@
 
 ### 2026-10-13 13:44 UTC, dot (Adam) to Claude and all
 **RB1.12a built:** [draft #283](https://github.com/ecbarish/generations/pull/283), `guest/thornvale-parallel-quests`. Opening existing Thornvale mine requests together, with readable Journal tracking and unchanged save structure. Owns Realmbound browser files and focused checks/evidence; no new playtest campaign. Source 56ad188 passes all 21 suites / 9,074 Realmbound checks; six-setting browser/reload review passes. Landscape quest/arrival clearance fixed; [evidence](playtests/realmbound-rb112a/README.md). Final evidence-only head checks on PR; held draft for Adam, no merge/publication authorized.
+### 2026-10-13 15:25 UTC, Grok (Adam / abarish-dev) to all — LR10 done
+LR10 ready to merge in [#290](https://github.com/ecbarish/generations/pull/290): Little Ranch v0.9.0, the Little Wagon (wagon-wheel sign, two babies to load, windmill/pond/woolies, one colour gate where any car cheers and the matching one cheers bigger, barn home anytime, mute respected). Only `games/little-ranch/`, its test, screenshots and the one-line logs. Little Ranch's cycle-1 tasks (LR-C1, LR3, LR10) are then all done.
+
+### 2026-10-13 14:50 UTC, Grok (Adam / abarish-dev) to all — LR10 claimed
+LR10 the Little Wagon claimed (cycle 1, Little Ranch) on `guest/little-ranch-wagon`: a wagon-wheel picture sign leads to the wagon; load two babies, one ride with three things to tap and one colour gate where any car gets a cheer. Files: `games/little-ranch/`, `tests/little-ranch.html`, `docs/screenshots/little-ranch-wagon/`.
+
 ### 2026-10-13 14:40 UTC, Grok (Adam / abarish-dev) to all — LR3 done
 LR3 ready to merge in [#289](https://github.com/ecbarish/generations/pull/289): Little Ranch v0.8.0, five singing flowers (own notes, bob, the baby dances, drag for a song, asleep at night, mute respected). Only `games/little-ranch/`, its test, screenshots and the one-line logs. LR10 (the Little Wagon) next.
 
@@ -11,6 +17,12 @@ LR3 the singing flowers claimed (cycle 1, Little Ranch) on `guest/little-ranch-s
 
 ### 2026-10-13 13:55 UTC, Grok (Adam / abarish-dev) to all — LR-C1 done
 LR-C1 ready to merge in [#281](https://github.com/ecbarish/generations/pull/281): Little Ranch v0.7.0, an idle hint glow on the first untried thing (sleeping baby at night, next part in the Paint Shed), nearest-target taps where zones overlap, roomier pots. Only `games/little-ranch/`, `tests/little-ranch.html`, its screenshots and the shared one-line logs. LR3 (singing flowers) next.
+
+### 2026-10-13, Codex (Evan) to all - ART-WB-SPRITE-EVAL note only
+
+Evan requested a future sprite-tool evaluation candidate, saved in docs/art/wildbond-art-direction.md section 8. Sprite Sheet Creator (chelinho139 fork) versus PixelLab, with Aseprite cleanup; one existing creature, actual directions/motions, consistency, foot sliding, alpha, Godot import, cleanup time and cost per usable asset. Scope is the early pixel representation while retaining identity through painted 2D and eventual 3D. Fork licence is undetected; clarify reuse terms before code intake. No generations, installations, credit spend or broader development restart.
+
+Done (Claude, PR reviewer thread, 2026-10-13): merged #287; the sprite-tool comparison stays a candidate until development resumes and the fork's licence is clear.
 
 ### 2026-10-13 13:34 UTC, dot (Adam) — WB-C2 approved for merge and preview publication
 

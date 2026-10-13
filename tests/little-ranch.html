@@ -34,7 +34,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.8.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.9.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -242,6 +242,35 @@ document.querySelector('#run').onclick = async () => {
       const mute = LR.prefs.sound; LR.prefs.sound = false; const t5 = LR.tones; LR.advance(1); tap(fl[2]); check('With the sound off the flowers bob silently', LR.tones === t5 && F()[2].bob > .9); LR.prefs.sound = mute;
       LR.newVisit(); tap(L().bowl); LR.advance(.2); tap(fl[1]); check('A flower while the baby goes for its meal still sings; the meal goes on', S().flowers[1].bob > .9 && (S().baby.tx !== null || S().baby.act === 'eat') && S().bowl.food > 0);
       LR.advance(6); LR.bedtime(); LR.advance(26); const t6 = LR.tones, w6 = S().wake; tap(L().flowers[2]); check('At night the flowers sleep: a tap only twinkles and the baby sleeps on', S().mode === 'sleep' && S().flowers[2].bob === 0 && S().wake === w6);
+    }
+    // ---- LR10: the Little Wagon
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const V = L().wagon, sc = LR.scale, r = cv.getBoundingClientRect(), gp = LR.toScreen({ x: V.puller.x + V.z * 2.6, y: V.gy });
+      check(`${width}×${height}: the wagon-wheel sign is big and its own tap; the cars, the puller and the waiting babies are 64 px+`, L().R * 2 * sc >= 64 && LR.ranchTarget(L().wsign) === 'wsign' && V.z * 1.8 * sc >= 64 && V.z * 1.6 * sc >= 64 && gp.x < r.right);
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+    { const V = () => L().wagon, Wg = () => S().wagon, waitAt = i => ({ x: V().wait[i].x, y: V().wait[i].y - V().z * .5 });
+      tap(L().wsign); check('Tapping the wagon-wheel sign goes to the Little Wagon, babies waiting beside it', S().place === 'wagon' && Wg().phase === 'load' && !Wg().aboard[0] && !Wg().aboard[1]);
+      tap(V().puller); check('Tapping the wagon before everyone is aboard just wiggles it (nothing wrong)', Wg().phase === 'load' && Wg().wiggle > 0);
+      tap(waitAt(0)); check('Tapping a baby: it hops into its car and waves', Wg().aboard[0] && !Wg().aboard[1]);
+      LR.advance(.3); tap(V().cars[1]); check('A tap on the empty car loads the other baby too', Wg().aboard[1]);
+      LR.advance(.6); tap(V().puller); check('Both aboard: tap the wagon and it rolls', Wg().phase === 'ride');
+      LR.advance(2.5); const x1 = Wg().x; LR.advance(1); check('The valley rolls by', Wg().x > x1);
+      for (const k of ['windmill', 'pond', 'woolies']) { while (Wg().phase === 'ride' && LR.thingAt(k).x > L().wagon.puller.x) LR.advance(.1); const t0 = LR.tones; tap(LR.thingAt(k));
+        check(`Tapping the ${k} as it goes by: it answers (${k === 'windmill' ? 'spins' : k === 'pond' ? 'splashes' : 'baas'})`, Wg().things[k].at === S().t && LR.tones > t0 && (k !== 'windmill' || Wg().things.windmill.spin > .9)); }
+      LR.advance(15); check('A coloured gate stops the wagon; the gate is one of the cars\' colours', Wg().phase === 'gate' && [0, 1].includes(Wg().gate.col) && LR.thingAt('gate').x < L().wagon.puller.x + L().wagon.z * 3 && LR.hint() && LR.hint().name === 'car' + Wg().gate.col);
+      const other = 1 - Wg().gate.col; tap(V().cars[other]); check('Tapping the other colour\'s car still opens the gate with a cheer (nothing is wrong)', Wg().gate.at !== null && !Wg().gate.big);
+      LR.advance(1.5); check('...and the wagon rolls on', Wg().phase === 'ride');
+      const a10 = S().acts; LR.advance(4.5); check('At the end of the road the babies hop off with a cheer', Wg() && Wg().phase === 'end');
+      LR.advance(3); check('...then back to the ranch: one happy thing, the baby walks home', S().place === 'ranch' && S().wagon === null && S().acts === a10 + 1);
+      tap(L().wsign); LR.advance(.1); tap(waitAt(0)); tap(waitAt(1)); LR.advance(.6); tap(V().cars[0]); LR.advance(30); const big = Wg().gate.col; tap(V().cars[big]);
+      check('The car of the gate\'s colour gets the bigger cheer', Wg().gate.big === true && S().fx.length >= 10);
+      tap(V().barn); check('The barn picture goes home from the wagon at any time (no count)', S().place === 'ranch' && S().wagon === null);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t7 = LR.tones; tap(L().wsign); tap(waitAt(0)); tap(waitAt(1)); LR.advance(.6); tap(V().puller); LR.advance(4); tap(LR.thingAt('windmill')); tap(V().barn);
+      check('With the sound off the wagon rides silently', LR.tones === t7); LR.prefs.sound = mute;
+      LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(26); tap(L().wsign); check('At night the wagon sign only twinkles (the baby sleeps on)', S().place === 'ranch' && S().mode === 'sleep');
+      LR.newVisit(); LR.advance(.1);
     }
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
