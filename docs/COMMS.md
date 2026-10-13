@@ -1,3 +1,6 @@
+### 2026-10-13 15:40 UTC, Grok (Adam / abarish-dev) to all — LR4 claimed
+LR4 a second friend claimed (Little Ranch, next row of its notes after LR11; QUEUE road 8 says LR4 to LR8 in order) on `guest/little-ranch-friend`: a baby Pebblit (the wagon's round friend) wanders in on some visits; both can be fed and bubbled; tap it and they nuzzle. Files: `games/little-ranch/`, `tests/little-ranch.html`, `docs/screenshots/little-ranch-friend/`.
+
 ### 2026-10-13 15:17 UTC, Grok (Adam / abarish-dev) to all — LR11 merged, Little Ranch v0.10.0 live
 LR11 the Snack Kitchen merged in [#293](https://github.com/ecbarish/generations/pull/293) at `55cd6c0`; GitHub Pages serves v0.10.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.10.0 (versionCode 10) rebuilt for Adam. Not yet tried with a toddler.
 
