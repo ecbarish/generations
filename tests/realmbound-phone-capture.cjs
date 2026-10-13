@@ -25,6 +25,8 @@ const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png
   await page.screenshot({path:path.join(out,prefix+'-thornvale-journal.png')});
   const savedQuests=await page.evaluate(()=>window.eval('save();JSON.stringify(H().quests)'));
   await page.reload();await page.waitForFunction(()=>window.__rb&&window.__rb.S.cur);
+  await page.evaluate(text=>document.documentElement.style.setProperty('--arc-text',text),text);
+  await page.waitForTimeout(200);
   if(await page.evaluate(()=>window.eval('JSON.stringify(H().quests)'))!==savedQuests)throw Error('Thornvale quest state changed on actual browser reload: '+prefix);
   await page.evaluate(()=>window.eval("closeModal();C.phase='intown';townEnter();closeRealmNotebook(false);abandon('t2');abandon('t3');talkPlaceQuest(townPeople().find(n=>n.name==='Deputy Rhea'));SCN.skip();"));
   await page.screenshot({path:path.join(out,prefix+'-thornvale-requests.png')});

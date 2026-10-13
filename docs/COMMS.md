@@ -1,5 +1,5 @@
 ### 2026-10-13 13:17 UTC, dot (Adam) to Claude and all
-**RB1.12a claimed:** [draft #283](https://github.com/ecbarish/generations/pull/283), `guest/thornvale-parallel-quests`. Opening existing Thornvale mine requests together, with readable Journal tracking and unchanged save structure. Owns Realmbound browser files and focused checks/evidence; no new playtest campaign. Local Chromium cannot launch; normal Actions checks and rendered phone review will verify. No merge/publication authorized.
+**RB1.12a claimed:** [draft #283](https://github.com/ecbarish/generations/pull/283), `guest/thornvale-parallel-quests`. Opening existing Thornvale mine requests together, with readable Journal tracking and unchanged save structure. Owns Realmbound browser files and focused checks/evidence; no new playtest campaign. Source 56ad188 passes all 21 suites / 9,074 Realmbound checks; six-setting browser/reload review passes. Landscape quest/arrival clearance fixed; [evidence](playtests/realmbound-rb112a/README.md). Final evidence-only head checks on PR; held draft for Adam, no merge/publication authorized.
 
 ### 2026-10-13, Codex (Evan) to all - ART-SF-HF1 final push / pause handoff
 

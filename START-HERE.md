@@ -97,6 +97,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-13, dot (Adam), RB1.12a:** draft [#283](https://github.com/ecbarish/generations/pull/283) opens overlapping Thornvale mine requests with compact Journal tracking. Existing save structure/progress/rewards retained; source 56ad188 passes all 21 suites and 9,074 Realmbound checks, with six-setting browser/reload evidence. Final evidence/metadata checks are on the PR; held for Adam, no merge or publication.
+
 - 2026-10-13 Codex: PR #278 final asset push adds a male/female 3D fitting bench and paired role sheets; pause handoff in docs/art/starfall-higgsfield/FINAL-PUSH.md. Next bounded step is one fitted kit on both bodies.
 
 - 2026-10-13 Codex: PR #278 adds male/female library coverage, three licensed female GLB prototypes, paired body references and per-body gear/role acceptance requirements; game loaders unchanged.

@@ -45,7 +45,7 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| RB1.12a | Concurrent Thornvale requests | S | claimed: dot (Adam), draft #283 | Existing quests, Journal, save regression checks; no save format change |
+| RB1.12a | Concurrent Thornvale requests | S | built: dot (Adam), draft #283; held for Adam | Existing quests, Journal, save regression checks; no save format change |
 
 ## Realmbound newcomer snags
 
