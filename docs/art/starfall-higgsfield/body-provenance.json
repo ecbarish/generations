@@ -1,0 +1,69 @@
+{
+  "provider": "Higgsfield",
+  "model": "gpt_image_2_5",
+  "date": "2026-10-13",
+  "estimatedCredits": 3,
+  "rights": "unverified",
+  "review": {
+    "backdrop": "opaque illustrated background despite transparent request",
+    "tailoring": "Male stand collar and female open neckline differ; normalize garment pattern before production.",
+    "geometry": "References do not depict the imported Quaternius meshes exactly",
+    "fit": "No rig/equipment fit approval implied"
+  },
+  "requests": [
+    {
+      "index": 0,
+      "params": {
+        "model": "gpt_image_2_5",
+        "prompt": "Shared fantasy RPG character asset reference, sturdy believable adult proportions matching a warm grounded village world. Fully clothed in identical practical neutral linen travel tunic, trousers, leather boots and simple belt, NO armour or weapons. Neutral A pose, orthographic FRONT, SIDE and REAR views of the SAME person, equal scale aligned ground, all limbs visible, plain transparent background, no text. Show anatomy and garment silhouette clearly for a reusable 3D modelling reference; dignified and nonsexual, no exaggerated proportions. Adult male body variant. Healthy substantial shoulders, arms and legs, not scrawny. Same outfit design across all views.",
+        "aspect_ratio": "3:2",
+        "quality": "high",
+        "resolution": "1k",
+        "background": "transparent",
+        "count": 1,
+        "medias": [
+          {
+            "role": "image",
+            "value": "21950fb8-f5b9-4fb7-a617-856b4b0fc174"
+          }
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "params": {
+        "model": "gpt_image_2_5",
+        "prompt": "Shared fantasy RPG character asset reference, sturdy believable adult proportions matching a warm grounded village world. Fully clothed in identical practical neutral linen travel tunic, trousers, leather boots and simple belt, NO armour or weapons. Neutral A pose, orthographic FRONT, SIDE and REAR views of the SAME person, equal scale aligned ground, all limbs visible, plain transparent background, no text. Show anatomy and garment silhouette clearly for a reusable 3D modelling reference; dignified and nonsexual, no exaggerated proportions. Adult female body variant. Healthy substantial shoulders, arms and legs, not scrawny. Same outfit design across all views.",
+        "aspect_ratio": "3:2",
+        "quality": "high",
+        "resolution": "1k",
+        "background": "transparent",
+        "count": 1,
+        "medias": [
+          {
+            "role": "image",
+            "value": "21950fb8-f5b9-4fb7-a617-856b4b0fc174"
+          }
+        ]
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "index": 0,
+      "job_id": "521d51a4-2cb3-43dd-9ef8-be69b1eefc8a",
+      "status": "completed",
+      "type": "image",
+      "model": "gpt_image_2_5",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kch5bkdf9AlzUeVe6g4RQYh24H/hf_20261013_115126_521d51a4-2cb3-43dd-9ef8-be69b1eefc8a.png"
+    },
+    {
+      "index": 1,
+      "job_id": "42226cb5-9a21-48e5-888b-78b941acd24c",
+      "status": "completed",
+      "type": "image",
+      "model": "gpt_image_2_5",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kch5bkdf9AlzUeVe6g4RQYh24H/hf_20261013_115125_42226cb5-9a21-48e5-888b-78b941acd24c.png"
+    }
+  ]
+}

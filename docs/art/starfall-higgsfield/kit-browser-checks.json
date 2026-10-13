@@ -1,0 +1,26 @@
+{
+  "checks": [
+    {
+      "width": 390,
+      "height": 844,
+      "images": 3,
+      "overflow": false,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "images": 3,
+      "overflow": false,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "images": 3,
+      "overflow": false,
+      "status": "pass"
+    }
+  ],
+  "errors": []
+}

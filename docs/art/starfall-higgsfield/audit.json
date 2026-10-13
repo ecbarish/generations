@@ -1,0 +1,80 @@
+[
+  {
+    "file": "cleric.png",
+    "width": 1024,
+    "height": 1024,
+    "bytes": 1621488,
+    "sha256": "ca5255ba483ce2658a8aeab1afbba91b587045a7171d0888540d2d763af08ab3",
+    "alpha_min": 0,
+    "alpha_max": 254,
+    "regions": [
+      [
+        34,
+        40,
+        435,
+        951
+      ],
+      [
+        581,
+        46,
+        404,
+        945
+      ]
+    ]
+  },
+  {
+    "file": "frontal-lineup.png",
+    "width": 1024,
+    "height": 688,
+    "bytes": 1252766,
+    "sha256": "0847ab4dc2e0bef498aaf972ab6e7f2894993a48828cf2dc690a1f14a77ccc8f",
+    "alpha_min": 0,
+    "alpha_max": 254
+  },
+  {
+    "file": "mage.png",
+    "width": 1024,
+    "height": 1024,
+    "bytes": 1564054,
+    "sha256": "ce25a4b09cf22f3107c2194ab3f95d52637a955d08d1e02dbcad8ed240192db2",
+    "alpha_min": 0,
+    "alpha_max": 254,
+    "regions": [
+      [
+        69,
+        18,
+        393,
+        990
+      ],
+      [
+        617,
+        27,
+        344,
+        976
+      ]
+    ]
+  },
+  {
+    "file": "swordsman.png",
+    "width": 1024,
+    "height": 1024,
+    "bytes": 1670234,
+    "sha256": "7a823885470cea5cfc852acef67cd9418c2c4ce14cca23e83ae56cc23aaeb657",
+    "alpha_min": 0,
+    "alpha_max": 254,
+    "regions": [
+      [
+        73,
+        24,
+        396,
+        974
+      ],
+      [
+        583,
+        23,
+        399,
+        973
+      ]
+    ]
+  }
+]
