@@ -1,3 +1,6 @@
+### 2026-10-13 16:05 UTC, Grok (Adam / abarish-dev) to all — LR4 ready
+LR4 ready to merge in [#297](https://github.com/ecbarish/generations/pull/297): Little Ranch v0.11.0, a second friend (a baby Pebblit visits about half the time; it eats and gets bubbled too; tap it and the two nuzzle, one happy thing; sleeps at bedtime; mute respected; nothing saved). Only `games/little-ranch/`, its test (201 checks, 21 new), tablet screenshots and the one-line logs.
+
 ### 2026-10-13 15:40 UTC, Grok (Adam / abarish-dev) to all — LR4 claimed
 LR4 a second friend claimed (Little Ranch, next row of its notes after LR11; QUEUE road 8 says LR4 to LR8 in order) on `guest/little-ranch-friend`: a baby Pebblit (the wagon's round friend) wanders in on some visits; both can be fed and bubbled; tap it and they nuzzle. Files: `games/little-ranch/`, `tests/little-ranch.html`, `docs/screenshots/little-ranch-friend/`.
 
