@@ -369,7 +369,7 @@ proposal (Evan picks the theme).
 rules; free local model first, as docs/otherworld-design.md says).
 
 ### The arcade (everything shared)
-- [ ] AR2.16 [any] Hall blurbs that match the games (Flint round 2): Lighthouse Watch is arcade action, not automation; Otherworld is a story life sim, not idle management. Files: index.html, launcher/.
+- [x] AR2.16 [any] Hall blurbs that match the games (Flint round 2): Lighthouse Watch is arcade action, not automation; Otherworld is a story life sim, not idle management. Files: index.html, launcher/.
 **AR-M1: friends can play (done 2026-10-08).**
 - [x] Come Play, previews, trailer, Windows builds.
 **AR-M2: polish for everyone.**

@@ -126,8 +126,8 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
 <div class="wrap">
   <header class="marquee">
     <h1 class="sign">Gener<span>ations</span></h1>
-    <p class="tag"><b class="motto">Play for the fun. Automate the grind.</b> A stable of adventure and progression games. Each one saves on its own, so you can jump between them and pick up where you left off. Wildbond and Starfall Guild each have a <b>new version</b> (where the work happens) and a <b>Classic</b> edition (the original browser game, at the bottom). New here? Meet <a href="promo.html" style="color:var(--marquee)">Realmbound →</a> or <a href="promo-wildbond.html" style="color:var(--ok)">Wildbond →</a></p>
-    <div class="header-tools"><a class="playtest-link" href="playtest.html">What to try →</a><a class="credits-link" href="credits.html">Credits</a><button class="install-btn" id="installArcade" hidden>Install arcade</button><span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span><span class="version-label">v1.6.0</span><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div></div>
+    <p class="tag"><b class="motto">Play for the fun. Automate the grind.</b> A stable of adventure and progression games, headlined by <b>Wildbond</b>: bond with creatures and bring colour back to a faded world. Little ones have <b>Little Ranch</b>, a gentle toy for ages 2 to 4. Each game saves on its own, so you can jump between them and pick up where you left off. New here? Meet <a href="promo.html" style="color:var(--marquee)">Realmbound →</a> or <a href="promo-wildbond.html" style="color:var(--ok)">Wildbond →</a></p>
+    <div class="header-tools"><a class="playtest-link" href="playtest.html">What to try →</a><a class="credits-link" href="credits.html">Credits</a><button class="install-btn" id="installArcade" hidden>Install arcade</button><span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span><span class="version-label">v1.7.0</span><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div></div>
     <details class="app-help"><summary>Play offline or add to your home screen</summary><p>Open this page online and wait for “Ready for offline play.” You can then open the arcade and its browser games without internet. The new versions of Wildbond and Starfall need internet on their first visit. Use Install arcade when it appears, or your browser’s Install / Add to Home Screen menu. Your saves stay in this browser on this device. Without internet, lettering may use device fonts and Wildbond may use its HD-2D view while the 3D renderer is unavailable.</p></details>
   </header>
 
@@ -139,7 +139,7 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
   <main class="kinds" id="shelf"></main>
 
   <section class="note">
-    <div><h2>Your saves</h2><p>Progress is stored in this browser on this device, with automatic backups. Browser games have a <b>Your save</b> box to move your journey to another computer. Wildbond and Starfall Guild each come in two editions, the new version and the Classic, with separate saves: a Classic journey does not carry over.</p></div>
+    <div><h2>Your saves</h2><p>Progress is stored in this browser on this device, with automatic backups. Browser games have a <b>Your save</b> box to move your journey to another computer.</p></div>
     <div><h2>Automation is earned</h2><p>Managers, staff and instincts unlock from things you do in the game. Nothing here is for sale.</p></div>
     <div><h2>Always changing</h2><p>These games get tuned and extended a layer at a time. Prototypes may change a lot between visits.</p></div>
   </section>
@@ -156,7 +156,7 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
 <script>
 (function(){
 'use strict';
-const VERSION = '1.6.0'; // the arcade's version (L9)
+const VERSION = '1.7.0'; // the arcade's version (L9)
 setupFeedback('The arcade homepage', VERSION, () => '');
 const GAMES=window.ArcadeGames;
 const ago=t=>{const s=(Date.now()-t)/1000;if(s<90)return'just now';if(s<3600)return Math.round(s/60)+' min ago';if(s<86400)return Math.round(s/3600)+' h ago';return Math.round(s/86400)+' days ago';};
@@ -168,12 +168,12 @@ const progressText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','
 const shelf=document.getElementById('shelf');
 const card=g=>{
   const p=g.preview?null:idx[g.id];
-  const prog=g.preview?'<div class="none">Preview saves stay inside this game; Classic progress is separate.</div>':g.href?(p?`<div class="sum">${progressText(p.summary)}</div><div class="det">${progressText(p.detail)} · ${Number.isFinite(p.last)?'played '+ago(p.last):'saved on this device'}</div>`:'<div class="none">Not started yet.</div>'):'';
+  const prog=g.preview?'<div class="none">Preview saves stay inside this game.</div>':g.href?(p?`<div class="sum">${progressText(p.summary)}</div><div class="det">${progressText(p.detail)} · ${Number.isFinite(p.last)?'played '+ago(p.last):'saved on this device'}</div>`:'<div class="none">Not started yet.</div>'):'';
   const btn=g.href?`<a class="play ${p?'':'alt'}" href="${g.href}">${g.preview?'Play the preview':p?'Continue':'Play'}</a>`:`<div class="soon">Being designed now</div>`;
   const reset=p&&SAVE_KEYS[g.id]?`<div class="reset" id="rs-${g.id}"><button class="resetlink" data-reset="${g.id}">Reset progress</button></div>`:'';
   return `<article class="cab${g.preview?' preview-card':''}" data-game="${g.id}"><div class="cover">${g.edition?`<span class="edition ed-${g.edition}">${g.edition==='new'?'New version':'Classic'}</span>`:''}<canvas data-cover="${g.cover}" aria-hidden="true"></canvas>${g.image?`<img src="${g.image}" alt="${g.alt}" loading="lazy" decoding="async">`:""}<div class="title ${g.tcls}">${g.title}</div></div>
     <div class="body"><span class="status ${g.status[1]}">${g.status[0]}</span><p class="blurb">${g.blurb}</p>
-    <div class="tags">${g.tags.map(t=>`<span>${t}</span>`).join('')}</div><div class="howto"><p><b>What you do:</b> ${g.goal}</p><p><b>Controls:</b> ${g.controls}</p></div>${g.href?`<div class="prog">${prog}</div>`:''}${btn}${g.guide?`<p><a href="${g.guide}">Guide · the Sundered Reach →</a></p>`:""}${g.preview?`<p class="preview-load">${g.load}</p><p class="preview-classic"><a href="${GAMES.find(other=>other.id===g.classic).href}">Play ${GAMES.find(other=>other.id===g.classic).title} →</a></p>`:""}${g.newer?`<p class="edition-link"><a href="${GAMES.find(o=>o.id===g.newer).href}">Try the new version of ${GAMES.find(o=>o.id===g.newer).title} →</a></p>`:''}${reset}</div></article>`;
+    <div class="tags">${g.tags.map(t=>`<span>${t}</span>`).join('')}</div><div class="howto"><p><b>What you do:</b> ${g.goal}</p><p><b>Controls:</b> ${g.controls}</p></div>${g.href?`<div class="prog">${prog}</div>`:''}${btn}${g.guide?`<p><a href="${g.guide}">Guide · the Sundered Reach →</a></p>`:""}${g.preview?`<p class="preview-load">${g.load}</p>`:""}${reset}</div></article>`;
 };
 /* Sections by kind (Evan, 2026-10-09): each says what its games are like, so similar games sit side by side */
 const KINDS=window.ArcadeKinds.filter(k=>GAMES.some(g=>g.kind===k.id));
