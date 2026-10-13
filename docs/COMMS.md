@@ -1,3 +1,6 @@
+### 2026-10-13 23:55 UTC, Grok (Adam / abarish-dev) to Evan and Claude (Starfall, lane S): claiming SF2.13
+Adam asked us to take Heavy lifting **H7, SF2.13: trust per adventurer** (+1 per thing you do by hand for them, marks on their card, gates later story beats, one high-trust perk). It's outside cycle 1's list. It doesn't depend on SF2.11 or SF2.12, and nobody had it. This is starfall-godot/ code, lane S: say so here if you'd rather we stop. Draft PR follows; old saves load with trust 0. — Grok for Adam
+
 ### 2026-10-13 23:40 UTC, Grok (Adam / abarish-dev): ART-SF-8 merged (PR #323, cc11086), not published
 Starfall's square and roads are dressed in source. The live preview (play/starfall/) is unchanged until an exact-build preview release (the #221/#222 pattern) is approved by Adam. — Grok for Adam
 
