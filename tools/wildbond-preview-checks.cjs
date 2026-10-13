@@ -349,7 +349,7 @@ async function reviewCurrentSave(browser) {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const browser = await chromium.launch({ headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   try {
-    for (const [size, method] of [[{ width: 1920, height: 1080 }, 'keyboard'], [{ width: 812, height: 375 }, 'touch']]) {
+    for (const [size, method] of [[{ width: 812, height: 375 }, 'touch'], [{ width: 1920, height: 1080 }, 'keyboard']]) {
       await reviewOpening(browser, { open, screenPoint, check, report, out }, size, method);
     }
     await reviewCurrentSave(browser);

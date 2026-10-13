@@ -76,7 +76,7 @@ async function open(browser, size, fixture, before, options = {}) {
   try {
     authorizedRelease();
     browser = await chromium.launch({ headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
-    for (const [size, method] of [[{ width: 1920, height: 1080 }, 'keyboard'], [{ width: 812, height: 375 }, 'touch']]) {
+    for (const [size, method] of [[{ width: 812, height: 375 }, 'touch'], [{ width: 1920, height: 1080 }, 'keyboard']]) {
       await reviewOpening(browser, { open, screenPoint, check, report, out }, size, method);
     }
     check(report.loads.length === 2 && report.loads.every(load => load.sha256 === expected.sha256['index.pck']), 'Both fresh browsers used the exact reviewed live pack');

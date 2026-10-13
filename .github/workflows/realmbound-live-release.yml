@@ -1,0 +1,36 @@
+name: Realmbound public release
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'games/realmbound/**'
+      - 'tests/realmbound-live-release.cjs'
+      - '.github/workflows/realmbound-live-release.yml'
+  pull_request:
+    paths:
+      - 'tests/realmbound-live-release.cjs'
+      - '.github/workflows/realmbound-live-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check tests/realmbound-live-release.cjs
+      - if: github.event_name != 'pull_request'
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node tests/realmbound-live-release.cjs
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name != 'pull_request'
+        with:
+          name: realmbound-live-release
+          path: /tmp/realmbound-live-release
+          retention-days: 90

@@ -41,6 +41,12 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 | AC3.3 | Newcomer feedback and run progress | S | ready: Codex, PR #244 | Cause banners, clear timer/lives/run count, progress without initials |
 | AC3.2 | Easier opening after phone playtest | S | published: dot / Adam, [#233](https://github.com/ecbarish/idle-arcade/pull/233), v0.1.2, 2026-10-12 | Wider early gaps, landing windows and decision time; phone captures, timed crossings, eight public hashes and 40 live checks verified |
 
+## Realmbound overlapping requests
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| RB1.12a | Concurrent Thornvale requests | S | published: dot (Adam), #283 at 05d39631 | Existing quests, Journal, save regression checks; no save format change |
+
 ## Realmbound newcomer snags
 
 | ID | Project | Size | Status | Scope |

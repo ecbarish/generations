@@ -1,3 +1,10 @@
+### 2026-10-13 15:07 UTC, dot (Adam) — WB-C2 full touch-flow verifier audit
+
+Release #286 remains unpublished and frozen to c8fa1c8/e07fb136. Corrected dialogue input passes; next gate exposed the test reading Meet in guidance instead of checking the actual action-button region, then walking away. Auditing creator/action/card/dialogue targets together with negative controls. No gameplay or pack changes; all desktop/save/door requirements retained, phone runs first. All21 suites passed on e499e2b including Thornvale05d3963.
+
+### 2026-10-13 14:52 UTC, dot (Adam) to Claude and all
+**RB1.12a published:** Adam approved merge/publication; [#283](https://github.com/ecbarish/generations/pull/283) merged at `05d39631eb4d37d858d1f06375f25af657b16e48`. [Play Thornvale](https://ecbarish.github.io/generations/games/realmbound/): three existing requests can be held together, with readable Journal tracking and unchanged save structure. All 21 suites, final six-setting phone/reload review and Pages deployment passed. [Public verification](https://github.com/ecbarish/generations/actions/runs/38416183421) matched nine approved file hashes and passed real accept-three/save/reload plus 9,058 scenarios in each fresh phone/desktop profile; live screenshots inspected. Tower is done/passed/published. No further RB1.12a work pending.
+
 ### 2026-10-13 14:44 UTC, dot (Adam) — WB-C2 combined release approved; exact-pack phone gate pending
 
 Adam approved the disclosed combined preview at 14:25 UTC. Release #286 remains frozen to c8fa1c8 / e07fb136; later CR5 and Little Ranch work is preserved in source, not silently rebuilt into this pack. All 21 aggregate suites pass on 7fcded5. Exact-pack desktop opening passes; the phone test reaches the barn but its advance tap leaves Maren’s greeting open, so the next-caption assertion correctly fails. Cause: the harness taps a dialogue PanelContainer, which consumes touch; use screenshot-observed open world space, preserving assertions. WB-C3 should retain this existing bubble-tap limitation alongside phone letterboxing. Full save/reload/door stages and publication remain pending.
@@ -33,6 +40,12 @@ LR-C1 ready to merge in [#281](https://github.com/ecbarish/generations/pull/281)
 Evan requested a future sprite-tool evaluation candidate, saved in docs/art/wildbond-art-direction.md section 8. Sprite Sheet Creator (chelinho139 fork) versus PixelLab, with Aseprite cleanup; one existing creature, actual directions/motions, consistency, foot sliding, alpha, Godot import, cleanup time and cost per usable asset. Scope is the early pixel representation while retaining identity through painted 2D and eventual 3D. Fork licence is undetected; clarify reuse terms before code intake. No generations, installations, credit spend or broader development restart.
 
 Done (Claude, PR reviewer thread, 2026-10-13): merged #287; the sprite-tool comparison stays a candidate until development resumes and the fork's licence is clear.
+
+### 2026-10-13 14:26 UTC, dot (Adam) to Claude and all
+**RB1.12a publication approved:** Adam approved merging and publishing [#283](https://github.com/ecbarish/generations/pull/283). Reconciling current main with all concurrent reports preserved; exact-head aggregate and phone/save checks rerun before merge. Scoped to Thornvale browser changes; Wildbond preview release remains independent.
+
+### 2026-10-13 13:44 UTC, dot (Adam) to Claude and all
+**RB1.12a built:** [draft #283](https://github.com/ecbarish/generations/pull/283), `guest/thornvale-parallel-quests`. Opening existing Thornvale mine requests together, with readable Journal tracking and unchanged save structure. Owns Realmbound browser files and focused checks/evidence; no new playtest campaign. Source 56ad188 passes all 21 suites / 9,074 Realmbound checks; six-setting browser/reload review passes. Landscape quest/arrival clearance fixed; [evidence](playtests/realmbound-rb112a/README.md). Final evidence-only head checks on PR; held draft for Adam, no merge/publication authorized.
 
 ### 2026-10-13 13:34 UTC, dot (Adam) — WB-C2 approved for merge and preview publication
 

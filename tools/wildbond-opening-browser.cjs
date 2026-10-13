@@ -147,6 +147,63 @@ function readText(image, temporary, options = {}) {
   return texts.join('\n');
 }
 
+const TOUCH_CONTROLS = {
+  meet: { rect: [326, 171, 36, 14], point: [344, 178], label: 'Meet' },
+  sign: { rect: [204, 166, 146, 15], point: [270, 173], label: 'Sign the register' },
+  choose: { rect: [196, 182, 76, 16], point: [230, 190], label: 'Choose Cindercub' },
+  notyet: { rect: [278, 182, 76, 16], point: [312, 190], label: 'Not yet' },
+};
+function meetLabel(text) {
+  const value = normalize(text);
+  // Only the crop of a positively detected action circle gets this one-glyph
+  // OCR allowance. It does not change matches() or any full-screen assertion.
+  return value.length === 4 && [...value].filter((letter, i) => letter !== 'meet'[i]).length <= 1;
+}
+function controlObservation(screenshot, size, kind, temporary) {
+  const control = TOUCH_CONTROLS[kind];
+  assert(control, 'Only authored opening controls may be targeted');
+  const image = logicalImage(screenshot, size), native = PNG.sync.read(screenshot), g = geometry(size);
+  const pixel = (x, y) => [...image.data.subarray((y * 384 + x) * 4, (y * 384 + x) * 4 + 3)];
+  let background;
+  if (kind === 'meet') {
+    // Positive circular-button fill samples, outside its label. The guidance
+    // sentence containing "Meet" is below this control and cannot satisfy it.
+    background = [[344, 166], [332, 178], [356, 178], [344, 189]].every(([x, y]) => {
+      const [r, green, b] = pixel(x, y);
+      return r >= 170 && green >= 160 && b >= 135 && r >= green && green >= b && r - b <= 85;
+    });
+  } else {
+    const [x, y, w, h] = control.rect;
+    const fills = kind === 'notyet' ? [[62, 44, 32]] : [[62, 44, 32], [122, 90, 58]];
+    background = [[x + 2, y + 2], [x + w - 3, y + 2], [x + 2, y + h - 3]].every(([px, py]) => fills.some(rgb => rgb.every((v, c) => Math.abs(pixel(px, py)[c] - v) <= 3)));
+  }
+  if (!background) return { kind, ...control, visible: false, background, text: '' };
+  const [x, y, w, h] = control.rect, center = g.scale === 1 ? 0.5 : 0;
+  const sx = Math.floor(g.x + center) + x * g.scale, sy = Math.floor(g.y + center) + y * g.scale;
+  const file = temporary + '-' + kind + '.png';
+  fs.writeFileSync(file, PNG.sync.write(crop(native, sx, sy, w * g.scale, h * g.scale)));
+  if (g.scale < 4) execFileSync('convert', [file, '-filter', 'Lanczos', '-resize', `${400 / g.scale}%`, file], { timeout: 15000 });
+  const text = execFileSync('tesseract', [file, 'stdout', '--psm', '7'], { encoding: 'utf8', timeout: 30000, stdio: ['ignore', 'pipe', 'pipe'] });
+  const visible = kind === 'meet' ? meetLabel(text) : matches(text, control.label);
+  return { kind, ...control, visible, background, text };
+}
+function stallStep(from, visited, blocked) {
+  // Six authored floor cells immediately beside/under Cindercub's six-cell home.
+  // BFS around a temporarily occupied cell; never leave this first-stall rectangle.
+  const allowed = (x, y) => x >= 7 && x <= 9 && y >= 4 && y <= 5 && !blocked.has(`${x},${y}`);
+  const queue = [{ x: from.x, y: from.y, path: [] }], seen = new Set([`${from.x},${from.y}`]);
+  while (queue.length) {
+    const node = queue.shift();
+    if (node.path.length && !visited.has(`${node.x},${node.y}`)) return node.path[0];
+    for (const [direction, dx, dy] of [['up', 0, -1], ['left', -1, 0], ['right', 1, 0], ['down', 0, 1]]) {
+      const x = node.x + dx, y = node.y + dy, key = `${x},${y}`;
+      if (!allowed(x, y) || seen.has(key)) continue;
+      seen.add(key); queue.push({ x, y, path: [...node.path, { direction, x, y }] });
+    }
+  }
+  return null;
+}
+
 async function reviewOpening(browser, api, size, method) {
   const { open, screenPoint, check, report, out } = api;
   report.openings ??= [];
@@ -205,6 +262,46 @@ async function reviewOpening(browser, api, size, method) {
     }
     await page.waitForTimeout(500);
   }
+  async function inspectControl(kind, label) {
+    const screenshot = await page.screenshot();
+    const result = controlObservation(screenshot, size, kind, path.join(out, `opening-${tag}-control`));
+    record.touchControls ??= [];
+    record.touchControls.push({ label, ...result });
+    const file = `opening-${tag}-${label}.png`;
+    fs.writeFileSync(path.join(out, 'screens', file), screenshot);
+    report.screenshots.push(file);
+    return { result, image: logicalImage(screenshot, size) };
+  }
+  async function touchControl(kind, label) {
+    const { result } = await inspectControl(kind, label);
+    check(result.visible, `${tag}/${label}: authored ${result.label} button itself is visibly available`);
+    await tap(...result.point);
+  }
+  async function meetByTouch(label) {
+    const visited = new Set(), blocked = new Set();
+    for (let attempt = 0; attempt < 18; attempt++) {
+      const { result, image } = await inspectControl('meet', `${label}-action-${attempt}`);
+      const before = playerTile(image);
+      check(before.x >= 7 && before.x <= 9 && before.y >= 4 && before.y <= 5, `${tag}: starter search stays in Cindercub's authored approach cells`);
+      if (result.visible) {
+        await tap(...result.point);
+        await observe(`${label}-card`, ['Choose Cindercub', 'Not yet']);
+        return true;
+      }
+      visited.add(`${before.x},${before.y}`);
+      const next = stallStep(before, visited, blocked);
+      check(next !== null, `${tag}: bounded first-stall search has an unvisited reachable cell`);
+      await move(next.direction);
+      const after = await position();
+      record.movement.push({ before, direction: next.direction, after, scope: 'first-stall-search' });
+      if (after.x === before.x && after.y === before.y) {
+        // A creature may occupy the requested cell. Re-observe actual Meet and
+        // position on the next iteration, then route around that one cell.
+        blocked.add(`${next.x},${next.y}`);
+      } else check(after.x === next.x && after.y === next.y, `${tag}: first-stall touch moves only to the requested adjacent tile`);
+    }
+    throw Error(`${tag}: bounded visible-button search did not meet Cindercub`);
+  }
   async function position() { return playerTile(logicalImage(await page.screenshot(), size)); }
   async function walkTo(x, y) {
     // Authored clear corridors, closed-loop position from pixels only.
@@ -228,7 +325,7 @@ async function reviewOpening(browser, api, size, method) {
     await observe('maren-register', ['Every tamer signs', 'register']);
     await advance();
     await observe('register', ['Ranch Register']);
-    if (method === 'touch') await tap(270, 173);
+    if (method === 'touch') await touchControl('sign', 'sign-control');
     else {
       for (let i = 0; i < 9; i++) await page.keyboard.press('ArrowDown');
       await advance();
@@ -250,27 +347,28 @@ async function reviewOpening(browser, api, size, method) {
     await walkTo(8, 5);
     // The young creature may be in any of its six authored stall cells.
     // Search bounded neighbouring positions; stop as soon as the visible card opens.
-    let card = false;
-    for (const direction of [null, 'up', 'left', 'right', 'right', 'left', 'down', 'left']) {
-      if (direction) await move(direction);
-      let seen = await observe(`approach-${counter++}`);
-      if (method === 'touch') {
-        // No Meet button means no interaction is available; never tap the world fallback.
-        if (!matches(seen.text, 'Meet')) continue;
-        await tap(344, 178);
-      } else await page.keyboard.press('Enter');
-      seen = await observe(`meet-${counter++}`);
-      if (matches(seen.text, 'Choose Cindercub')) { card = true; break; }
+    if (method === 'touch') {
+      const card = await meetByTouch('initial-meet');
+      check(card, `${tag}: Cindercub card opens through walking and Meet`);
+    } else {
+      let card = false;
+      for (const direction of [null, 'up', 'left', 'right', 'right', 'left', 'down', 'left']) {
+        if (direction) await move(direction);
+        let seen = await observe(`approach-${counter++}`);
+        await page.keyboard.press('Enter');
+        seen = await observe(`meet-${counter++}`);
+        if (matches(seen.text, 'Choose Cindercub')) { card = true; break; }
+      }
+      check(card, `${tag}: Cindercub card opens through walking and Meet`);
     }
-    check(card, `${tag}: Cindercub card opens through walking and Meet`);
     await observe('partner-card', ['Choose Cindercub', 'Not yet']);
-    if (method === 'touch') await tap(312, 190);
+    if (method === 'touch') await touchControl('notyet', 'decline-control');
     else await advance(); // default selection must be Not yet
     await observe('declined', ['Walk up to one']);
     await page.waitForTimeout(400);
-    if (method === 'touch') await tap(344, 178); else await advance();
+    if (method === 'touch') await meetByTouch('reopen-meet'); else await advance();
     await observe('card-reopened', ['Choose Cindercub', 'Not yet']);
-    if (method === 'touch') await tap(230, 190);
+    if (method === 'touch') await touchControl('choose', 'choose-control');
     else { await page.keyboard.press('ArrowLeft'); await advance(); }
     const acquired = await observe('partner-acquired', ['kneel in the straw', 'Cindercub']);
     check(colourPixels(acquired.image, [216, 100, 46]).length >= 3, `${tag}: selected Cindercub is visibly coloured after bonding`);
@@ -294,4 +392,4 @@ async function reviewOpening(browser, api, size, method) {
     report.openings.push(record);
   } finally { await current.context.close(); }
 }
-module.exports = { reviewOpening, logicalImage, playerTile, normalize, matches, readText, dialogueTapPoint };
+module.exports = { reviewOpening, logicalImage, playerTile, normalize, matches, readText, dialogueTapPoint, controlObservation, stallStep, meetLabel };

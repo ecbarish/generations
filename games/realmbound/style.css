@@ -231,3 +231,9 @@ textarea{width:100%;min-height:60px;background:#000;color:var(--fg);border:1px s
 
 .guild-craft-preview{font-size:13px;line-height:1.4;border-block:1px solid #896b32;padding:6px 0;margin:6px 0}.craft-unavailable{color:#ffe0a8;margin-top:4px}
 @media(max-width:520px){.scene:has(.guild-craft-preview){min-height:480px;aspect-ratio:auto}}
+
+/* RB1.12a: short, readable objectives inside the carried Journal. */
+.thornvale-requests{border:1px solid var(--gold);border-radius:8px;padding:10px;margin:8px 0 14px}
+.thornvale-requests .rowl{flex-wrap:wrap;align-items:center}
+.thornvale-requests .l{flex:1 1 150px;overflow-wrap:anywhere}
+.thornvale-requests button{min-height:44px;flex-shrink:0}

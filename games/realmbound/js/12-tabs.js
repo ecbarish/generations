@@ -3,25 +3,30 @@
 let curKey=null;
 const TABS={
 quests:{
-  key(){const h=H();return h.zone+'|'+h.lvl+'|'+h.quests.active.join(',')+'|'+Object.keys(h.quests.done).length+'|'+Object.values(h.drecords||{}).map(r=>r.clears>0?1:0).join('')+'|'+h.quests.active.map(id=>qState(ALLQ[id])).join('');},
+  key(){const h=H();return h.zone+'|'+h.grind+'|'+h.lvl+'|'+h.quests.active.join(',')+'|'+Object.keys(h.quests.done).length+'|'+Object.values(h.drecords||{}).map(r=>r.clears>0?1:0).join('')+'|'+h.quests.active.map(id=>qState(ALLQ[id])).join('');},
   build(){const h=H();const z=ZONES[h.zone];
     const route=ZONE_ORDER[h.faction],next=route.slice(route.indexOf(h.zone)+1).find(id=>h.lvl>=ZONES[id].lv[0]-2);
     const act=h.quests.active.map(id=>ALLQ[id]);const avail=QUESTS[h.zone].filter(q=>qState(q)==='avail');
     let o=`<h3>Quest log ${act.length}/3</h3><p class="sub">Quests give the most experience. Your hero hunts whatever the first unfinished quest needs.</p>`;
+    if(h.zone==='thornvale'){
+      o+='<section class="thornvale-requests" aria-label="Requests on this road"><p class="sub">Carry up to three requests. The two mine requests progress together; choose which unfinished request to follow next.</p>';
+      o+=act.filter(q=>q.zone==='thornvale').map(q=>`<div class="rowl"><div class="l"><b>${q.name}</b><div class="meta" id="qshort-${q.id}"></div></div><button class="btn sm alt" data-act="followquest" data-arg="${q.id}" ${qState(q)!=='active'?'disabled':''}>${qState(q)==='ready'?'Ready to return':!h.grind&&act.find(a=>a.zone===h.zone&&qState(a)==='active')===q?'Following':'Follow next'}</button></div>`).join('');
+      o+='</section>';
+    }
     o+=act.length?act.map(q=>{const st=qState(q),rw=qReward(q);return `<div class="rowl" style="align-items:flex-start"><div class="l"><div class="qtitle ${st==='ready'?'done':''}">${q.name}${q.elite?' <span class="pill" style="color:var(--gold)">Elite</span>':''}</div>
       <div class="prog" id="qp-${q.id}"></div><div class="meta">${giver(q)} · ${ZONES[q.zone].name} · ${moneyStr(qMoney(q))} · ${fmtI(qXP(q))} XP</div>
       ${st==='ready'?`<div class="meta" style="margin-top:4px">${townActive()?'Choose a reward:':'Rewards to choose in town:'}</div>${rw.map((it,i)=>`<div style="margin-top:3px"><button class="btn sm" data-act="turnin" data-arg="${q.id}:${i}">${townActive()?'Return to':'Meet'} ${giver(q)}</button> ${itemSpan(it)}</div>`).join('')}`:`<div class="meta">Reward choice: ${rw.map(itemSpan).join(' or ')}</div>`}</div>
       <div class="r">${st!=='ready'?`<button class="btn sm alt" data-act="abandon" data-arg="${q.id}">Abandon</button>`:''}</div></div>`;}).join(''):'<p class="meta">No requests in your Journal yet. Meet the people below in town.</p>';
-    o+=`<h4>Available at ${hubName()}</h4>`;
+    o+=`<h4>Available at ${hubName()}</h4>${act.length>=3?'<p class="meta">Your three places are full. Finish or abandon a request before accepting another.</p>':''}`;
     o+=avail.length?avail.map(q=>`<div class="rowl" style="align-items:flex-start"><div class="l"><div class="qtitle">[${q.lvl}] ${q.name}${q.elite?' <span class="pill" style="color:var(--gold)">Elite</span>':''}</div><div class="qtext">"${q.text}"</div><div class="meta">${giver(q)} · ${q.type==='kill'?`Slay ${q.n} ${ZONES[q.zone].mobs.find(m=>m.id===q.mob).name}`:`Collect ${q.n} ${ZONES[q.zone].mobs.find(m=>m.id===q.mob).drop}`}</div></div>
-      <div class="r"><button class="btn sm" data-act="accept" data-arg="${q.id}">Meet ${giver(q)}</button></div></div>`).join(''):`<p class="meta">No more quests here at your level.${next?' '+ZONES[next].name+' has work for you.':''}</p>`;
+      <div class="r"><button class="btn sm" data-act="accept" data-arg="${q.id}" ${act.length>=3?'disabled':''}>Meet ${giver(q)}</button></div></div>`).join(''):`<p class="meta">No more quests here at your level.${next?' '+ZONES[next].name+' has work for you.':''}</p>`;
     // attunement quests waiting on dungeon clears say what they need (T23's needDun)
     const waiting=QUESTS[h.zone].filter(q=>q.needDun&&!h.quests.done[q.id]&&h.lvl>=q.lvl-2&&(!q.req||h.quests.done[q.req])&&q.needDun.some(id=>dungeonStats(id).clears<=0));
     if(waiting.length)o+=waiting.map(q=>`<div class="rowl"><div class="l"><div class="qtitle">[${q.lvl}] ${q.name} <span class="pill" style="color:var(--gold)">Attunement</span></div><div class="meta">${giver(q)} will offer this once you have cleared ${q.needDun.filter(id=>dungeonStats(id).clears<=0).map(id=>DUNGEONS[id].name).join(' and ')} at least once.</div></div></div>`).join('');
     const nDone=QUESTS[h.zone].filter(q=>h.quests.done[q.id]).length;o+=`<p class="meta" style="margin-top:8px">${nDone}/${QUESTS[h.zone].length} quests done in ${z.name}.</p>`;
     return o;},
   update(){const h=H();for(const id of h.quests.active){const el=$('#qp-'+id);if(!el)continue;const q=ALLQ[id],p=h.quests.prog[id]||0,mob=ZONES[q.zone].mobs.find(m=>m.id===q.mob);
-    el.textContent=q.type==='kill'?`${mob.name} slain: ${Math.min(p,q.n)}/${q.n}`:`${mob.drop}: ${Math.min(p,q.n)}/${q.n}`;}}
+    el.textContent=q.type==='kill'?`${mob.name} slain: ${Math.min(p,q.n)}/${q.n}`:`${mob.drop}: ${Math.min(p,q.n)}/${q.n}`;const short=$('#qshort-'+id);if(short)short.textContent=el.textContent;}}
 },
 char:{
   key(){const h=H();return h.lvl+'|'+SLOTS.map(s=>h.gear[s]?h.gear[s].id+':'+h.gear[s].dur:'').join(',');},
