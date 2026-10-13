@@ -1,0 +1,140 @@
+{
+  "ember": {
+    "promise": "A little ember ruff promises a crown of fire.",
+    "payoff": "The adolescent holds the heat in uneven seams; the final crown opens around the same wolf.",
+    "corrections": "Approved final silhouette direction. Reconcile round base ears, spot-to-chevron landmarks and rendering style. The image formerly called Pyremane is used as the proposed Blazefang payoff direction under EVO-0, not a renamed game asset.",
+    "stages": [
+      {
+        "name": "Cindercub",
+        "stage": "base",
+        "label": "Base / banked embers",
+        "note": "Grounded pup; keep the ruff restrained.",
+        "src": "originals/cindercub.png",
+        "bounds": [
+          148,
+          177,
+          741,
+          814
+        ]
+      },
+      {
+        "name": "Smoulderpup",
+        "stage": "middle",
+        "label": "Middle / working name",
+        "note": "Lanky and scruffy; ember seams, but no open fire crown.",
+        "src": "starter-stages/assets/smoulderpup.png",
+        "bounds": [
+          101,
+          55,
+          855,
+          935
+        ]
+      },
+      {
+        "name": "Blazefang",
+        "stage": "final",
+        "label": "Final / approved visual direction",
+        "note": "The shoulder ruff opens into the spectacular crown.",
+        "src": "pyremane/crown-mantle.png",
+        "bounds": [
+          111,
+          22,
+          1892,
+          2014
+        ]
+      }
+    ]
+  },
+  "tide": {
+    "promise": "A little folded frill promises command of the river.",
+    "payoff": "The gangly middle carries floppy fin folds; the final unfurls them into a great wave crown on a flowing river-reptile body.",
+    "corrections": "Candidate final. Retain cheek sacs, face and ring landmarks through all stages; shorten any excessive neck stretch and verify four legs. Water arc is elemental reference detail, not a collision footprint.",
+    "stages": [
+      {
+        "name": "Ripplet",
+        "stage": "base",
+        "label": "Base / practising water",
+        "note": "Curious small river lizard; neck-fold promise still needs a restrained redraw.",
+        "src": "originals/ripplet.png",
+        "bounds": [
+          114,
+          325,
+          828,
+          614
+        ]
+      },
+      {
+        "name": "Riverwisp",
+        "stage": "middle",
+        "label": "Middle / working name",
+        "note": "Long-legged, half-grown frill drooping beside the neck.",
+        "src": "starter-stages/assets/riverwisp.png",
+        "bounds": [
+          44,
+          162,
+          972,
+          753
+        ]
+      },
+      {
+        "name": "Tidewyrm",
+        "stage": "final",
+        "label": "Final / payoff candidate",
+        "note": "Folded fins become a wave crest; same river-reptile identity.",
+        "src": "starter-stages/assets/tidewyrm-payoff.png",
+        "bounds": [
+          8,
+          25,
+          1007,
+          963
+        ]
+      }
+    ]
+  },
+  "grove": {
+    "promise": "A little moss bed promises a whole living grove.",
+    "payoff": "The middle garden grows uneven saplings; the final carries a broad tree canopy with the familiar nest still sheltered among its roots.",
+    "corrections": "Candidate final. Thorn crown must grow from the shoulder vegetation, not read as deer antlers; fix speckle/ear landmarks and make the canopy\u2019s attachment and weight believable. Do not hide the boar under vegetation.",
+    "stages": [
+      {
+        "name": "Mosshog",
+        "stage": "base",
+        "label": "Base / first moss garden",
+        "note": "Small boar with a moss bed and nesting space.",
+        "src": "originals/mosshog.png",
+        "bounds": [
+          82,
+          150,
+          839,
+          851
+        ]
+      },
+      {
+        "name": "Thicketboar",
+        "stage": "middle",
+        "label": "Middle / working name",
+        "note": "Burly and overgrown, with uneven thin saplings rather than a full canopy.",
+        "src": "starter-stages/assets/thicketboar.png",
+        "bounds": [
+          43,
+          49,
+          954,
+          940
+        ]
+      },
+      {
+        "name": "Thornback",
+        "stage": "final",
+        "label": "Final / payoff candidate",
+        "note": "A walking grove; animal remains the solid foundation.",
+        "src": "starter-stages/assets/thornback-payoff.png",
+        "bounds": [
+          23,
+          11,
+          983,
+          997
+        ]
+      }
+    ]
+  }
+}

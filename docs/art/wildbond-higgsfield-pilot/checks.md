@@ -1,5 +1,7 @@
 # Evidence — 2026-10-13
 
+ART-WB-HF2 (PR #277): all 20 suites pass on the latest-main follow-up branch. The three-stage workshop passes 243 family/viewport/mode/size/covering checks with no page errors/overflow, nonempty visible source images and equal comparison heights. Evidence: `starter-stages/browser-checks.json`; captures: `capture/stages-*.png`. Five new original PNGs are 1024-square and their hashes/dimensions are in `starter-stages/audit.json`.
+
 Promise/payoff follow-up: verified coverage against the actual Godot evolution overrides: all 15 evolving roots and 17 terminal outcomes appear in EVOLUTION-PROMISES.md. `evolution-graph.json` preserves that inspected graph. Both family pages pass 54 combined responsive/mode/size checks (Pyremane has four endpoint cards; Tidewyrm has five study cards), with no page errors, overflow or unequal comparison heights. Evidence: `pyremane/browser-checks.json` and `capture/pyremane-*.png`.
 
 Tidewyrm follow-up: all 20 suites rerun successfully after adding the interactive workshop and the standalone Godot comparison. Browser-specific evidence is in `tidewyrm/browser-checks.json`: 27 viewport/mode/size combinations, all five images visible, equal-height comparisons and no horizontal overflow or page errors. GPU evidence: `capture/tidewyrm00000000.png` and `capture/tidewyrm.log`.

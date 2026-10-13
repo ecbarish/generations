@@ -1,5 +1,7 @@
 # Humble beginnings, spectacular payoff
 
+**Historical live-graph snapshot:** after this was written, EVO-0 introduced a proposed starter restructuring with new middle forms and Blazefang/Tidewyrm/Thornback as the final names. See [the current stage handoff](STARTER-STAGES.md) and [the approved main direction](../wildbond-evolution.md). The table below records the inspected older live graph; use the new plan for forthcoming starter art and data work.
+
 **Evan's decision, 2026-10-13.** This supersedes the pilot's earlier allowance for final forms that only mature naturally. Every evolving family begins as a grounded, charming animal and ends with a substantial transformation. A small visible promise connects those endpoints. The same bonded individual grows through the line; evolution never substitutes an unrelated animal.
 
 The transformation may change posture, silhouette, anatomy and elemental expression. It must preserve recognisable identity anchors, and visible capabilities should follow the creature's own story. A middle stage can be awkward, restrained or transitional; the final stage must feel rewarding without relying on the middle stage to explain its connection to the base.

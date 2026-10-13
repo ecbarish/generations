@@ -1,5 +1,7 @@
 # Cindercub → Pyremane: testing the promised crown
 
+**Update:** Evan approved the Crown Mantle payoff direction. EVO-0's newer plan uses a new middle and retains Blazefang as the final name; [STARTER-STAGES.md](STARTER-STAGES.md) applies this visual direction to that planned final while preserving the original Pyremane source file and historical report.
+
 The live Godot line is **Cindercub → Blazefang → Pyremane**. Blazefang is a middle stage. This test implements Evan's art-review rule, not a gameplay change.
 
 **Promise:** Cindercub's modest ember ruff gathers around its shoulders like a crown that has not opened yet.
