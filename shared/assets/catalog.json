@@ -776,6 +776,123 @@
         "contract": null,
         "automaticCrossEngineCompatibility": false
       }
+    },
+    {
+      "id": "reference/starfall/paired-role/swordsman",
+      "name": "Paired male/female swordsman kit",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Starfall",
+        "Shared library"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "male",
+        "female",
+        "swordsman",
+        "front",
+        "rear",
+        "visible-gear"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield; docs/art/starfall-higgsfield/kit-provenance.json"
+      },
+      "notes": "Same role and equipment coverage across both bodies. See kits.html for construction corrections before modelling. Reference only; separate from licensed source geometry.",
+      "preview": "docs/art/starfall-higgsfield/originals/paired-swordsman.png",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/paired-swordsman.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "dfdae467c19dc4293c1c46ebc0e8bec7202afe53bc329f1b20661b9ecdd30fd5"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "reference/starfall/paired-role/mage",
+      "name": "Paired male/female mage kit",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Starfall",
+        "Shared library"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "male",
+        "female",
+        "mage",
+        "front",
+        "rear",
+        "visible-gear"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield; docs/art/starfall-higgsfield/kit-provenance.json"
+      },
+      "notes": "Same role and equipment coverage across both bodies. See kits.html for construction corrections before modelling. Reference only; separate from licensed source geometry.",
+      "preview": "docs/art/starfall-higgsfield/originals/paired-mage.png",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/paired-mage.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "683b1ece9477cd47f5ad796ea11a6c737432f71053d26f169de14a1a0b259b01"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "reference/starfall/paired-role/cleric",
+      "name": "Paired male/female cleric kit",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Starfall",
+        "Shared library"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "male",
+        "female",
+        "cleric",
+        "front",
+        "rear",
+        "visible-gear"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield; docs/art/starfall-higgsfield/kit-provenance.json"
+      },
+      "notes": "Same role and equipment coverage across both bodies. See kits.html for construction corrections before modelling. Reference only; separate from licensed source geometry.",
+      "preview": "docs/art/starfall-higgsfield/originals/paired-cleric.png",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/paired-cleric.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "04f14977e7ed5518431faea724dcd1f274c16a760bb2fc7b2a8822016eb58065"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      }
     }
   ]
 }

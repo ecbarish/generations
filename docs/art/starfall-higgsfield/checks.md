@@ -16,3 +16,9 @@ These checks establish working review/library tooling and source integrity. They
 Registry expanded to 22 IDs with female base, travel and ranger GLBs and two adult body reference sheets. Six male/female GLB containers have valid headers, embedded resources, bounded buffer views, meshes and skins; exact skeleton names are recorded in shared/assets/characters/quaternius/intake-checks.json. This is source integrity evidence, not animation or gear-fit acceptance.
 
 Updated library: 15 filter/layout cases pass; four invalid fixtures rejected. Paired-body page loads both images without horizontal overflow at 390, 1440 and 3440px; evidence in body-browser-checks.json and bodies-1440.png. Images inspected: opaque painted backgrounds and different collar tailoring remain corrections. PNGs are references, separate from CC0 source meshes. No game loader or Godot file changed.
+
+## Final fitting-bench push (2026-10-13)
+
+All 21 normal suites pass on the final implementation, including registry integrity for 25 IDs / 23 source files. `node tests/character-library.cjs http://localhost:8777` adds 113 passing source-rig/UI checks: both bodies, travel/ranger, idle/walk/talk/sword stance, skin values, no unmatched animation tracks, weapon movement and forward blade direction, four views, pause/scrub, reduced motion, save isolation and failed-resource recovery. Evidence and eight captures: bench/.
+
+Updated library: 15 filter/layout checks and four negative fixtures pass. Paired role gallery: all three images load without horizontal overflow at 390, 1440 and 3440px. See kit-browser-checks.json and kits-1440.png. Visual review found the male Mage rear book-hip mismatch and source-model fitting limitations recorded in FINAL-PUSH.md; neither reference nor source geometry is labelled production-ready.

@@ -75,3 +75,7 @@ The stable original `character/body/adult-a` now explicitly identifies the exist
 Each production garment/equipment entry must list its supported body IDs and acceptance captures for **each** supported body: front, profile, rear, idle, walking, turning and interaction. A pass on one does not imply a pass on the other. Keep silhouette sturdy and gear readable on both; do not solve a female fit by shrinking armour or omitting protective equipment. Never layer two full-body composites.
 
 Intake evidence: [six GLB container checks](../../shared/assets/characters/quaternius/intake-checks.json). Embedded buffers/textures and skins are structurally checked; animation compatibility and gear fit remain unapproved. The new PNG references have baked backgrounds and slightly different necklines: normalize tailoring before modelling. [See both references](starfall-higgsfield/bodies.html).
+
+## First registry consumer: the fitting bench
+
+[experiments/character-library/](../../experiments/character-library/) loads both body variants, travel/ranger composites, shared hair and animation clips directly by registry ID. It supports four views, four motions, pose scrubbing and a moving right-hand sword probe. It leaves game saves untouched. Named-track compatibility is now demonstrated in this isolated THREE adapter; production garment fit and Godot integration remain separate acceptance steps. The [final handoff](starfall-higgsfield/FINAL-PUSH.md) records the visual corrections and the next bounded modelling task.

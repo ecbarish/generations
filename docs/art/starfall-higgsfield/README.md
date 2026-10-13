@@ -48,3 +48,7 @@ Account balance changed **66.75 → 60.75**, so this round used **6 credits**. N
 The role workshop passed 54 direction/mode/size/layout combinations at 390, 1440 and 3440 px widths: three visible equal-height roles, loaded lineup/town context, no page errors or horizontal overflow. Evidence: `browser-checks.json` and `capture-*.png`.
 
 The shared library passed 15 filter/layout cases plus four negative integrity cases: duplicate IDs, unverified production claims, changed source hashes and missing dependencies were all rejected. Its registry has 17 IDs pointing to 15 source files; no asset bytes are duplicated in the registry. The asset-library check is included in `tools/run-all-checks.cjs` for normal CI use. Evidence: `library-checks.json` and `library-1440.png`.
+
+## Final paired-character push
+
+Start with [paired role kits](kits.html), [the working fitting bench](../../../experiments/character-library/) and [the pause handoff](FINAL-PUSH.md). Three role sheets cover male/female front/rear views; the bench proves actual source-rig reuse with two outfit families. Exact new prompts and corrections: kit-provenance.json. The image sheets and source meshes are separate resources.

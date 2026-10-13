@@ -14,4 +14,3 @@ j.buffers=[{byteLength:offset}];const json=Buffer.from(JSON.stringify(j)),jp=Buf
  for(const [folder,source,dest] of sources){const src=find(path.join(input,folder),source);if(!src)throw Error('Missing source '+source);await pack(src,dest);}
  for(const [folder,source,dest] of [['realmbound-quaternius-bases','License_Standard.txt','LICENSE-base.txt'],['realmbound-quaternius-outfits','License_Standard.txt','LICENSE-outfits.txt']]){const src=find(path.join(input,folder),source);if(!src)throw Error('Missing licence '+source);fs.copyFileSync(src,path.join(out,dest));}
 })().catch(e=>{console.error(e);process.exit(1);});
-
