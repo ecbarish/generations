@@ -6,10 +6,11 @@ const path = require('path');
 const http = require('http');
 const assert = require('assert/strict');
 const { chromium } = require('playwright');
+const { reviewOpening } = require('./wildbond-opening-browser.cjs');
 const root = path.resolve(__dirname, '..');
 const out = path.join(root, 'preview-review');
 fs.mkdirSync(path.join(out, 'screens'), { recursive: true });
-const report = { checks: [], consoles: [], screenshots: [], doors: [], pad: [] };
+const report = { completed: false, suite: process.env.WB_OPENING_ONLY === '1' ? 'opening-only' : 'full', checks: [], consoles: [], screenshots: [], doors: [], pad: [] };
 const check = (ok, label) => { assert(ok, label); report.checks.push(label); console.log('PASS ' + label); };
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
@@ -258,10 +259,42 @@ async function reviewPad(browser, size, legacy) {
   } finally { await current.context.close(); }
 }
 
+async function reviewCurrentSave(browser) {
+  const fixture = JSON.parse(fs.readFileSync(path.join(root, 'wildbond-godot/tests/fixtures/wb-c2-pre-change.json'), 'utf8'));
+  const current = await open(browser, { width: 812, height: 375 }, fixture, false, { phone: true, settings: settingsText(0) });
+  function preserved(save) {
+    return save.partner === fixture.partner && save.map === fixture.map && save.x === fixture.x && save.y === fixture.y
+      && save.look.name === fixture.look.name && save.look.heritage === fixture.look.heritage
+      && JSON.stringify(save.badges) === JSON.stringify(fixture.badges)
+      && fixture.team.every((c, i) => save.team[i]?.sp === c.sp && save.team[i]?.lvl === c.lvl && JSON.stringify(save.team[i]?.moves) === JSON.stringify(c.moves))
+      && fixture.team.every((c, i) => ["name", "hp", "bond", "xp", "temp", "rar"].every(k => save.team[i]?.[k] === c[k]))
+      && JSON.stringify(save.ranch) === JSON.stringify(fixture.ranch)
+      && Object.entries(fixture.bag).every(([key, value]) => JSON.stringify(save.bag[key]) === JSON.stringify(value))
+      && Object.entries(fixture.story).every(([key, value]) => JSON.stringify(save.story[key]) === JSON.stringify(value));
+  }
+  try {
+    await continueJourney(current.page);
+    const loaded = await persisted(current.page, d => d.saved !== fixture.saved && preserved(d), 'WB-C2 frozen pre-change journey preserves partner, team, inventory, heritage, badges, story and location');
+    await browserStored(current.page, preserved, 'WB-C2 frozen journey reaches real browser IndexedDB');
+    await shot(current.page, 'wb-c2-current-save-before-reload');
+    await reloadWithoutFixtures(current.page);
+    await persisted(current.page, d => d.saved !== loaded.saved && preserved(d), 'WB-C2 frozen journey survives fixture-free browser reload');
+    check(await readSettings(current.page) === settingsText(0), 'WB-C2 frozen journey preserves existing phone and sound settings');
+    await shot(current.page, 'wb-c2-current-save-after-reload');
+    check(current.errors.length === 0, 'WB-C2 frozen journey has no browser/game-script errors');
+    report.currentSave = { passed: true, source: 'wildbond-godot/tests/fixtures/wb-c2-pre-change.json', fixtureFreeReload: true, indexedDB: true, partner: fixture.partner };
+  } finally { await current.context.close(); }
+}
+
 (async () => {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const browser = await chromium.launch({ headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   try {
+    for (const [size, method] of [[{ width: 1920, height: 1080 }, 'keyboard'], [{ width: 812, height: 375 }, 'touch']]) {
+      await reviewOpening(browser, { open, screenPoint, check, report, out }, size, method);
+    }
+    await reviewCurrentSave(browser);
+    if (process.env.WB_OPENING_ONLY === '1') { report.completed = true; return; }
     const fixtures = Object.fromEntries(['barn', 'thornwood', 'champion'].map(name => [name, JSON.parse(fs.readFileSync(path.join(out, 'fixtures', name + '.json'), 'utf8'))]));
     check(!fixtures.barn.team[0].moves && !fixtures.barn.spire && !fixtures.barn.rematches, 'fixtures were written in the pre-WD3/pre-Spire format');
     for (const size of [{ width: 667, height: 375 }, { width: 1366, height: 768 }, { width: 1920, height: 1080 }, { width: 3440, height: 1440 }]) {
@@ -363,6 +396,7 @@ async function reviewPad(browser, size, legacy) {
     check(opening.errors.length === 0, 'new journey responds for a minute and survives portrait/landscape rotation without script/page errors');
     await opening.context.close();
     await reviewDoors(browser, fixtures.barn);
+    report.completed = true;
     console.log('WEB REVIEW PASSED: ' + report.checks.length + ' checks, ' + report.screenshots.length + ' screenshots');
   } finally {
     fs.writeFileSync(path.join(out, 'web-review.json'), JSON.stringify(report, null, 2) + '\n');

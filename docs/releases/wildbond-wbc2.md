@@ -19,3 +19,7 @@ New release therefore includes the shorter opening plus already-merged creature 
 - Official Pages manifest plus all four file hashes; live browser behavior and actually loaded pack hash.
 
 Measured source timing remains simulated at 60 Hz with fixed reading/choice budgets, not human novice or physical-device timing. Existing phone letterboxing is separate WB-C3 work. Repository rename continuity is not assumed from a source save test.
+
+## Staged export
+
+Build run [38407995978](https://github.com/ecbarish/generations/actions/runs/38407995978) committed only three preview files at `48a13e8cec83ecae02bd839748d118576a2cd96b`. Pack SHA-256 `e07fb136963268fee136c46fbc3b9b80ba89e0517b17b728392097453a214100`, 20,398,356 bytes. Author and committer verified as abarish-dev / 319211409+abarish-dev@users.noreply.github.com. Actual pack inspection validates all154 entry checksums, all three data JSON files against exact source, shortened opening text and CR1/CR4/interior tokens; the old pack fails this validator. Engine hashes unchanged. Exact committed browser review pending.

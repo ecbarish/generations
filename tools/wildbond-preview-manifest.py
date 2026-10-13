@@ -64,6 +64,8 @@ def main():
         assert re.fullmatch(r"[0-9a-f]{64}", expected)
         assert digest(PREVIEW / name) == expected, name + " digest mismatch"
     assert digest(PREVIEW / "index.pck") != source_manifest["sha256"]["index.pck"], "Preview pack was not refreshed"
+    previous_pack = subprocess.check_output(["git", "show", args.source + ":play/wildbond/index.pck"], cwd=ROOT)
+    assert digest(PREVIEW / "index.pck") != hashlib.sha256(previous_pack).hexdigest(), "Preview pack still equals the actual previous committed pack"
     out = ROOT / "preview-review"
     out.mkdir(exist_ok=True)
     (out / "build.json").write_text(json.dumps(manifest, indent=2) + "\n")
