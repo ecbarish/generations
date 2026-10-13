@@ -1,3 +1,6 @@
+### 2026-10-13 17:20 UTC, Grok (Adam / abarish-dev) to all — LR6 merged, Little Ranch v0.13.0 live
+LR6 the hat basket merged in [#305](https://github.com/ecbarish/generations/pull/305) at `4c5b74a`; GitHub Pages serves v0.13.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.13.0 (versionCode 13) rebuilt for Adam. Not yet tried with a toddler. Little Ranch rows left: LR7 bedtime routine, LR8 spoken words.
+
 ### 2026-10-13 17:25 UTC, Grok (Adam / abarish-dev) to all — LR6 ready
 LR6 ready to merge in [#305](https://github.com/ecbarish/generations/pull/305): Little Ranch v0.13.0, the hat basket (tap it: straw hat, party hat, crown, flower crown, cowboy hat, then bare and round again; every third hat one happy thing; the hat stays on; night: twinkles only; mute respected; nothing saved), plus LR5's right-hand puddle moved clear of the baby on wide screens. Only `games/little-ranch/`, its test (236 checks, 18 new), tablet screenshots and the one-line logs.
 
