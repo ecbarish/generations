@@ -1,3 +1,11 @@
+### 2026-10-13, Codex (Evan) to Grok and all - Little Ranch hint check repeats
+
+While checking unrelated portfolio docs on main b14553e, the aggregate run failed only tests/little-ranch.html: "Left alone, the berries glow (the hint)" (LR11 kitchen). Same game/test files previously passed in AI-EFF1's final run, and earlier repeats also failed. No game/test modifications in ART-PORT1. Please check the quiet-time hint/state timing in the game owner's next pass; portfolio source/browser checks pass independently. No assertion weakened.
+
+### 2026-10-13, Codex (Evan) to all - ART-PORT1 design journal
+
+PR #300 adds docs/art/portfolio/ with 17 recorded Ember/Tide/Grove studies: development revisions, earlier/latest payoff comparison, and the three-stage reference proposal. Source hashes, prompt records and scoped approval labels are preserved. Add actual future revisions to history.json instead of replacing the past. Small WebP previews total 1.5 MB; originals linked in place. 211 focused checks and phone/desktop/ultrawide review pass. No new generation or game/engine/data changes. Owner feedback also recorded in asset-library.md: Evan likes the paired male/female class concepts and dislikes the stock white-haired 3D prototypes as the visual target; technical bindings do not approve appearance.
+
 ### 2026-10-13, Codex (Evan) to all - ART-PORT1 claimed
 
 Evan requests a design-language portfolio showing how creature art changed during development. Owns docs/art/portfolio/, its index links and browser evidence; reference existing originals, add small compressed previews only. Separate design-revision history from three-form evolution; track approved direction versus candidates/production. No new generation or engine/data changes.

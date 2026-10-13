@@ -67,3 +67,7 @@ Done when: a contact sheet beside a 16x24 person and the neighbouring pieces; re
 | Otherworld (browser) | not yet | Each life a different world; a sheet per world |
 
 When a game gets new art, its sheet comes first, then the drawing tasks, then the pieces.
+
+## Design-language portfolio
+
+[The Wildbond creature design journal](portfolio/index.html) records early studies, alternatives and current payoff directions, alongside the three-life-stage proposal. Every image carries source/provenance links and approval scope. Add real revisions as we develop them; do not replace the record with only the newest picture.

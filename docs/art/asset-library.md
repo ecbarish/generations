@@ -79,3 +79,7 @@ Intake evidence: [six GLB container checks](../../shared/assets/characters/quate
 ## First registry consumer: the fitting bench
 
 [experiments/character-library/](../../experiments/character-library/) loads both body variants, travel/ranger composites, shared hair and animation clips directly by registry ID. It supports four views, four motions, pose scrubbing and a moving right-hand sword probe. It leaves game saves untouched. Named-track compatibility is now demonstrated in this isolated THREE adapter; production garment fit and Godot integration remain separate acceptance steps. The [final handoff](starfall-higgsfield/FINAL-PUSH.md) records the visual corrections and the next bounded modelling task.
+
+## Owner visual review (2026-10-13)
+
+Evan likes the paired male/female Swordsman, Mage and Cleric concept sheets as the visual target. He dislikes the white-haired stock 3D figures in the fitting bench. Their tested animation/attachment bindings do not approve their appearance; reshape or replace the visible model to match the accepted concept before visual acceptance. The design portfolio records reference approval separately from production-model readiness.

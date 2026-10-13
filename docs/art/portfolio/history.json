@@ -1,0 +1,307 @@
+{
+  "schemaVersion": 1,
+  "title": "Wildbond: a creature design journal",
+  "date": "2026-10-13",
+  "scope": "Recorded reference development, not a record of shipped asset changes. Sequence is within each family; exact generation settings remain in linked provenance.",
+  "principle": "Humble beginnings. Spectacular payoff.",
+  "namingNote": "Names and life-stage labels reflect the EVO-0 reference round. Middle names are provisional; current game/catalogue data is authoritative for implementation. Historical Pyremane folder naming is preserved without declaring a new name canon.",
+  "rightsNote": "Generated illustrations remain reference-only with unverified usage rights. Approval covers visual direction, not sprites, meshes, rigs, animation or an entire family.",
+  "families": [
+    {
+      "id": "ember",
+      "name": "The Ember companion",
+      "line": "Cindercub / Smoulderpup / Blazefang",
+      "promise": "A small ember ruff promises a crown of fire.",
+      "lesson": "More fur and more flame did not change the outline enough. The crown makes the final form feel like an event while retaining a recognisable wolf.",
+      "comparison": [
+        "ember-mature",
+        "ember-crown"
+      ],
+      "stages": [
+        "ember-base",
+        "ember-middle",
+        "ember-crown"
+      ],
+      "entries": [
+        {
+          "id": "ember-base",
+          "title": "The grounded starting point",
+          "source": "docs/art/wildbond-higgsfield-pilot/originals/cindercub.png",
+          "preview": "previews/ember-base.webp",
+          "sourceSha256": "05a8cdaa5c0478673acb66dcbaa27683c1c005d9fccd05e052ae744ec2e2292b",
+          "date": "2026-10-13",
+          "sequence": 1,
+          "status": "reference",
+          "stage": "Base anchor",
+          "note": "A charming pup establishes the family. Round ears and landmark markings still need harmonisation.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "ember-mature",
+          "title": "First growth portrait",
+          "source": "docs/art/wildbond-higgsfield-pilot/portraits/blazefang.png",
+          "preview": "previews/ember-mature.webp",
+          "sourceSha256": "1c950a0caa9e190b1b860b79247d3f4e36d689c20a3330d68074565dbd9133ba",
+          "date": "2026-10-13",
+          "sequence": 2,
+          "status": "superseded",
+          "stage": "Early payoff study",
+          "note": "Healthy and more mature, but this was the direction Evan wanted us to push beyond: evolution needed a more dramatic silhouette.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "ember-hearth",
+          "title": "Hearth Crown",
+          "source": "docs/art/wildbond-higgsfield-pilot/pyremane/hearth-crown.png",
+          "preview": "previews/ember-hearth.webp",
+          "sourceSha256": "0656a74679efc0c7aae92f6131ac3e2db664696be4e81f3d5a587bc068217b3c",
+          "date": "2026-10-13",
+          "sequence": 3,
+          "status": "superseded",
+          "stage": "Alternative payoff",
+          "note": "A fuller mane and similar body outline. Retained to show why extra decoration alone was insufficient.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/pyremane/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "ember-storm",
+          "title": "Storm Standard",
+          "source": "docs/art/wildbond-higgsfield-pilot/pyremane/storm-standard.png",
+          "preview": "previews/ember-storm.webp",
+          "sourceSha256": "719d80fc1873d23877542e11313e55b857204faf95767b6f25174c384c065c0c",
+          "date": "2026-10-13",
+          "sequence": 4,
+          "status": "superseded",
+          "stage": "Alternative payoff",
+          "note": "Flowing fire adds presence, but the overall shape remains too close to a grown wolf.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/pyremane/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "ember-crown",
+          "title": "Crown Mantle",
+          "source": "docs/art/wildbond-higgsfield-pilot/pyremane/crown-mantle.png",
+          "preview": "previews/ember-crown.webp",
+          "sourceSha256": "3e8b2bd688feae24608536f78d56de4aaaf77dcf0599a351380afeedff91ec1b",
+          "date": "2026-10-13",
+          "sequence": 5,
+          "status": "approved-direction",
+          "stage": "Planned final direction",
+          "note": "Evan approved this visual payoff direction. The fire crown changes the entire outline; model sheets, animation and a final game asset remain unapproved.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/pyremane/provenance.json",
+          "approvalSource": "docs/art/wildbond-higgsfield-pilot/STARTER-STAGES.md",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "ember-middle",
+          "title": "Making room for the middle",
+          "source": "docs/art/wildbond-higgsfield-pilot/starter-stages/assets/smoulderpup.png",
+          "preview": "previews/ember-middle.webp",
+          "sourceSha256": "88b29b1738f990781b5c7a83e56e82951368bad81314c5196bee62331474da79",
+          "date": "2026-10-13",
+          "sequence": 6,
+          "status": "candidate",
+          "stage": "Proposed middle / working name",
+          "note": "A scruffy, uneven adolescent keeps the full crown in reserve. The three-stage proposal preserves an awkward transitional beat.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/starter-stages/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        }
+      ],
+      "navLabel": "Ember"
+    },
+    {
+      "id": "tide",
+      "name": "The Tide companion",
+      "line": "Ripplet / Riverwisp / Tidewyrm",
+      "promise": "The small water-lizard reference needs a subtle folded-frill promise in its eventual redraw.",
+      "lesson": "We explored a wave sail, collar and ribbon silhouette, then settled on a clearer frill opening. The base must plant the feature that the adult fulfils.",
+      "comparison": [
+        "tide-sail",
+        "tide-payoff"
+      ],
+      "stages": [
+        "tide-base",
+        "tide-middle",
+        "tide-payoff"
+      ],
+      "entries": [
+        {
+          "id": "tide-base",
+          "title": "The water-lizard anchor",
+          "source": "docs/art/wildbond-higgsfield-pilot/originals/ripplet.png",
+          "preview": "previews/tide-base.webp",
+          "sourceSha256": "7fe536898d322e2d256479f8990cd94dbe185d5fb8cc35d013a3ef502e5cf699",
+          "date": "2026-10-13",
+          "sequence": 1,
+          "status": "reference",
+          "stage": "Base anchor",
+          "note": "Bubble cheeks and ring markings establish identity. A folded neck-frill clue is a proposed correction, not something already implemented.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "tide-sail",
+          "title": "Current Sail",
+          "source": "docs/art/wildbond-higgsfield-pilot/tidewyrm/current-sail.png",
+          "preview": "previews/tide-sail.webp",
+          "sourceSha256": "99235f182f0b759a25177df740ba54a5c7c20362dc7e47c52f2517688b8142e5",
+          "date": "2026-10-13",
+          "sequence": 2,
+          "status": "superseded",
+          "stage": "First bold direction",
+          "note": "The low river-reptile and wave crest make a stronger outline. Skull age, crest orientation and markings needed refinement.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/tidewyrm/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "tide-mantle",
+          "title": "Estuary Mantle",
+          "source": "docs/art/wildbond-higgsfield-pilot/tidewyrm/estuary-mantle.png",
+          "preview": "previews/tide-mantle.webp",
+          "sourceSha256": "dd1b816acde1accf3438a11bdf98b275da39a4418bddbd382d94a921fbf89c36",
+          "date": "2026-10-13",
+          "sequence": 3,
+          "status": "alternative",
+          "stage": "Alternative payoff",
+          "note": "A protective collar explores another payoff, but the body remains close to the young reference.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/tidewyrm/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "tide-ribbon",
+          "title": "Ribbon Current",
+          "source": "docs/art/wildbond-higgsfield-pilot/tidewyrm/ribbon-current.png",
+          "preview": "previews/tide-ribbon.webp",
+          "sourceSha256": "c2e10c55bcbe42c2ed083457bd0a685920751f125635e91b65f9da301f1c24e2",
+          "date": "2026-10-13",
+          "sequence": 4,
+          "status": "alternative",
+          "stage": "Alternative payoff",
+          "note": "A flowing silhouette explores elegance; it is less clearly crocodilian. Retained as a branch we considered.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/tidewyrm/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "tide-refined",
+          "title": "Current Sail, refined",
+          "source": "docs/art/wildbond-higgsfield-pilot/tidewyrm/current-sail-reference.png",
+          "preview": "previews/tide-refined.webp",
+          "sourceSha256": "ae85f721bf50f8e10d795de106bb4fcd03f0732fd5ba845c523f292c9b14584e",
+          "date": "2026-10-13",
+          "sequence": 5,
+          "status": "superseded",
+          "stage": "Construction refinement",
+          "note": "Lower body and smaller eyes. Rear crest direction and landmark consistency still needed reconciliation.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/tidewyrm/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "tide-middle",
+          "title": "A folded transitional frill",
+          "source": "docs/art/wildbond-higgsfield-pilot/starter-stages/assets/riverwisp.png",
+          "preview": "previews/tide-middle.webp",
+          "sourceSha256": "24e1a3514298394ea1f98d127f78d8720ccc5132a9b0441039e43b780f7d9f38",
+          "date": "2026-10-13",
+          "sequence": 6,
+          "status": "candidate",
+          "stage": "Proposed middle / working name",
+          "note": "A gangly swimmer with a drooping ribbed frill reserves the broad wave crown for the final payoff.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/starter-stages/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "tide-payoff",
+          "title": "The wave-frill payoff",
+          "source": "docs/art/wildbond-higgsfield-pilot/starter-stages/assets/tidewyrm-payoff.png",
+          "preview": "previews/tide-payoff.webp",
+          "sourceSha256": "05983ca9aeccad2ee7d178a1710b38217cd459aa438667bac50fadd97e004963",
+          "date": "2026-10-13",
+          "sequence": 7,
+          "status": "candidate",
+          "stage": "Planned final candidate",
+          "note": "The frill opens into a broad wave crown. This is the current reference candidate, awaiting visual approval and a consistent family sheet.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/starter-stages/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        }
+      ],
+      "navLabel": "Tide"
+    },
+    {
+      "id": "grove",
+      "name": "The Grove companion",
+      "line": "Mosshog / Thicketboar / Thornback",
+      "promise": "A little moss-backed boar and nesting space promise a living canopy.",
+      "lesson": "The design moved from a larger garden-backed animal to a broad, living tree canopy. The nest remains an identity anchor instead of being discarded.",
+      "comparison": [
+        "grove-mature",
+        "grove-payoff"
+      ],
+      "stages": [
+        "grove-base",
+        "grove-middle",
+        "grove-payoff"
+      ],
+      "entries": [
+        {
+          "id": "grove-base",
+          "title": "The moss-backed beginning",
+          "source": "docs/art/wildbond-higgsfield-pilot/originals/mosshog.png",
+          "preview": "previews/grove-base.webp",
+          "sourceSha256": "7ea9f44e7aa9e39a187540d0f3de20e04d7f3e8934f30b47011ad575388b2e23",
+          "date": "2026-10-13",
+          "sequence": 1,
+          "status": "reference",
+          "stage": "Base anchor",
+          "note": "A grounded boar carries a small nesting space. This remains the family anchor for the later garden and canopy.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "grove-mature",
+          "title": "First grown garden",
+          "source": "docs/art/wildbond-higgsfield-pilot/portraits/thornback.png",
+          "preview": "previews/grove-mature.webp",
+          "sourceSha256": "38db786feb36a639d1918d9ed638a7c8688a8e5380d847ffb97ce9d55635a777",
+          "date": "2026-10-13",
+          "sequence": 2,
+          "status": "superseded",
+          "stage": "Early payoff study",
+          "note": "A fuller, mature boar and thicker growth. Useful exploration, but the outline needed a more spectacular payoff.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "grove-middle",
+          "title": "Uneven saplings",
+          "source": "docs/art/wildbond-higgsfield-pilot/starter-stages/assets/thicketboar.png",
+          "preview": "previews/grove-middle.webp",
+          "sourceSha256": "e9a034b98c159ab86fb9cf7f3d3b037f75d4dff22a510cd3000c42a4f99ca8db",
+          "date": "2026-10-13",
+          "sequence": 3,
+          "status": "candidate",
+          "stage": "Proposed middle / working name",
+          "note": "An overgrown adolescent carries thin, uneven saplings. The garden is visibly unfinished rather than a miniature final canopy.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/starter-stages/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        },
+        {
+          "id": "grove-payoff",
+          "title": "The living-canopy payoff",
+          "source": "docs/art/wildbond-higgsfield-pilot/starter-stages/assets/thornback-payoff.png",
+          "preview": "previews/grove-payoff.webp",
+          "sourceSha256": "e3854347856872571c84771010f48d0a1b99d5c0a83e45466cee2e466a670707",
+          "date": "2026-10-13",
+          "sequence": 4,
+          "status": "candidate",
+          "stage": "Planned final candidate",
+          "note": "A broad tree canopy transforms the outline while retaining the powerful boar and nesting space. Branch anatomy and landmarks need a construction pass.",
+          "provenance": "docs/art/wildbond-higgsfield-pilot/starter-stages/provenance.json",
+          "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839"
+        }
+      ],
+      "navLabel": "Grove"
+    }
+  ]
+}
