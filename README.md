@@ -41,6 +41,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Diamond Manager: Training Rooms now show named roster/farm players' winter ceiling outlook, respecting scout uncertainty and existing age/cap rules (DM-N1b; no balance changes).
+
 - **Diamond Manager v0.8.2 — DM-N1a (PR #261; version bumped on merge):** post-game Front office shortcut/button, safe result settlement and position-aware bench starts with named replacements.
 
 - **Realmbound v1.9.1 — RB-N1 (PR #253; version bumped on merge):** Uncollected loot waits, pending field drops survive saving and full satchels, resource failures answer visibly, and dialogue names its reveal/continue action.

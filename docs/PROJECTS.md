@@ -8,7 +8,7 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| DM-N1b | Named winter training preview | S | claimed: Codex, codex/diamond-manager-training-feedback | Existing mechanics, scout uncertainty and farm players; read-only feedback |
+| DM-N1b | Named winter training preview | S | ready: Codex, PR #269 | Existing mechanics, scout uncertainty and farm players; read-only feedback |
 
 ## Diamond Manager newcomer bugs
 
