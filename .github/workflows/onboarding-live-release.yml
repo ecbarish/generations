@@ -1,0 +1,59 @@
+# Additive public gate; onboarding-review.yml retains all eight local layouts.
+name: Newcomer guidance public release
+on:
+  pull_request:
+    paths:
+      - 'tests/onboarding-browser.cjs'
+      - 'tests/onboarding-live-release.cjs'
+      - '.github/workflows/onboarding-live-release.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'shared/**'
+      - 'games/realmbound/**'
+      - 'tests/onboarding-*'
+      - '.github/workflows/onboarding-live-release.yml'
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: 'Approved deployed commit SHA (empty uses the selected workflow commit)'
+        required: false
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: onboarding-live-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  public-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      # A PR verifies the already-approved deployed base, never its unmerged labels.
+      # After merging, the immutable push SHA includes the approved release labels.
+      SOURCE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || inputs.source_ref || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check immutable-source gate and syntax
+        run: |
+          node --check tests/onboarding-browser.cjs
+          node --check tests/onboarding-live-release.cjs
+          node tests/onboarding-live-release.cjs --self-test
+      - name: Install pinned browser tooling
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify actual public phones, desktop, guidance and synthetic saves
+        run: node tests/onboarding-live-release.cjs . "$RUNNER_TEMP/onboarding-live-release"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: newcomer-guidance-live-release
+          path: ${{ runner.temp }}/onboarding-live-release/
+          if-no-files-found: error
+          retention-days: 90
