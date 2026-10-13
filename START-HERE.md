@@ -1,17 +1,19 @@
 # START HERE
 
+**AI quick route (Evan, 2026-10-13):** read AGENTS.md, then run `node tools/agent-context.cjs --agent Codex --task TASK-ID --project PROJECT`. Follow docs/AI-START.md; read this file by relevant section/search, not the whole Session log. Current cycle and live PRs outrank historical status. This overrides older full-document reading instructions.
+
 **Control Tower reporting (Adam, 2026-10-12):** update the fenced `json` block with a top-level `tower` object in your task's PR description when claiming work, changing status, handing off, becoming blocked, submitting for review, merging or publishing. Use the format in [docs/COMMS.md](docs/COMMS.md) (TOWER-COMMS, 2026-10-12) and the PR template. Report your actual AI/thread, operator, project/lane, task ID, owned paths, dependencies, blocker/next action, check evidence and release details; leave unknown values null. Never infer AI identity from a shared GitHub account, or equate merged with published. At session start, reconcile your open PR metadata even if you missed COMMS. [Control Tower](https://idle-arcade-tower.abarish227759.chatgpt.site) is Adam's private viewer; the reporting format is in the repository.
 
 **For Evan:** when one assistant runs out of usage, open any other one (Claude, ChatGPT/Codex, another AI or a
 person) and paste the prompt in the box below. Everything it needs is in this file and the files it links.
-**For any assistant:** read this file top to bottom before doing anything. It is the single source of "where we are
-and what's next". Update it before you stop (see "Before you stop").
+**For any assistant:** use the quick route above and read only the needed sections. The current cycle/live PRs establish current work; this file keeps the shared handoff history. Update it before you stop (see "Before you stop").
 
 ```
-Repo: github.com/ecbarish/generations. Read START-HERE.md first and follow it.
-Read docs/COMMS.md and docs/PROCESS.md, check open PR titles before claiming a task from docs/QUEUE.md,
-then build and test it. Add your START-HERE Session log line before you stop. Planning owns "Where we are"
-and "Up next". Ask me only about the "Questions for Evan".
+Repo: github.com/ecbarish/generations. Read AGENTS.md and use docs/AI-START.md.
+Fetch current main in your own checkout and check live open PR ownership. Run
+node tools/agent-context.cjs --agent Codex --task TASK-ID --project PROJECT
+Read the scoped ticket/source/tests and full relevant COMMS entries. Build, test and open a PR.
+Add one START-HERE Session log line; planning owns Where we are/Up next. No full history sweep.
 ```
 
 ## Rules (short version; HANDOFF.md has the full list)
@@ -96,6 +98,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+
+- 2026-10-13 Codex: AI-EFF1 introduces fresh task packets and scoped startup routing; old root instructions preserved in docs/archive. Local-tool comparison and measured context savings recorded with this task.
 
 - **2026-10-13, Grok (Adam), LR11:** Little Ranch v0.10.0, the Snack Kitchen (snack-bowl sign; four foods, one bowl; berries get a yum, the rest funny faces; three bowls of berries and home), in [#293](https://github.com/ecbarish/generations/pull/293).
 - **2026-10-13, dot (Adam), RB1.12a:** draft [#283](https://github.com/ecbarish/generations/pull/283) opens overlapping Thornvale mine requests with compact Journal tracking. Existing save structure/progress/rewards retained; source 56ad188 passes all 21 suites and 9,074 Realmbound checks, with six-setting browser/reload evidence. Final evidence/metadata checks are on the PR; held for Adam, no merge or publication.
