@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "name": "Cindercub",
+      "tag": "Humble beginning",
+      "note": "The small ember ruff promises a fire crown. Round ears still need correction in this generated base.",
+      "src": "originals/cindercub.png",
+      "bounds": [
+        148,
+        177,
+        741,
+        814
+      ]
+    },
+    {
+      "name": "Hearth Crown",
+      "tag": "Revise",
+      "note": "Too close to Blazefang: more mane, similar overall silhouette.",
+      "src": "pyremane/hearth-crown.png",
+      "bounds": [
+        153,
+        213,
+        1839,
+        1712
+      ]
+    },
+    {
+      "name": "Storm Standard",
+      "tag": "Revise",
+      "note": "More flowing fire, but still a grown wolf with added back fur.",
+      "src": "pyremane/storm-standard.png",
+      "bounds": [
+        122,
+        172,
+        1900,
+        1738
+      ]
+    },
+    {
+      "name": "Crown Mantle",
+      "tag": "Recommended final silhouette",
+      "note": "A broad fire crown changes the entire outline. Same muzzle/chest blaze; style and marking map need harmonisation.",
+      "src": "pyremane/crown-mantle.png",
+      "bounds": [
+        111,
+        22,
+        1892,
+        2014
+      ]
+    }
+  ],
+  "title": "A little ember ruff. A crown of fire.",
+  "intro": "Humble beginnings, spectacular payoff. Blazefang is intentionally hidden: compare the base directly with its actual Godot final stage, Pyremane. The payoff must remain the same bonded wolf.",
+  "recommendation": "Crown Mantle: the strongest final-stage direction.",
+  "reason": "The crown changes the whole outline and the base\u2019s little ruff has a clear destination. The first two results are retained as examples of the middle-stage trap. The selected silhouette still needs a consistent family model sheet and rendering style.",
+  "turnaround": "pyremane/crown-mantle.png"
+}

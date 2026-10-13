@@ -1,0 +1,44 @@
+[
+  {
+    "file": "hearth-crown.png",
+    "sha256": "0656a74679efc0c7aae92f6131ac3e2db664696be4e81f3d5a587bc068217b3c",
+    "size": [
+      2048,
+      2048
+    ],
+    "bounds": [
+      153,
+      213,
+      1839,
+      1712
+    ]
+  },
+  {
+    "file": "storm-standard.png",
+    "sha256": "719d80fc1873d23877542e11313e55b857204faf95767b6f25174c384c065c0c",
+    "size": [
+      2048,
+      2048
+    ],
+    "bounds": [
+      122,
+      172,
+      1900,
+      1738
+    ]
+  },
+  {
+    "file": "crown-mantle.png",
+    "sha256": "3e8b2bd688feae24608536f78d56de4aaaf77dcf0599a351380afeedff91ec1b",
+    "size": [
+      2048,
+      2048
+    ],
+    "bounds": [
+      111,
+      22,
+      1892,
+      2014
+    ]
+  }
+]

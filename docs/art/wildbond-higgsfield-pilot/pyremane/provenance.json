@@ -1,0 +1,70 @@
+{
+  "provider": "Higgsfield",
+  "date": "2026-10-13",
+  "model": "gpt_image_2_5",
+  "rule": "Humble beginnings, spectacular payoff",
+  "estimated_credits": 8.25,
+  "base_reference": "cindercub",
+  "actual_line": [
+    "cindercub",
+    "blazefang",
+    "pyremane"
+  ],
+  "candidates": [
+    {
+      "file": "hearth-crown.png",
+      "job_id": "44e29145-be9f-43c1-9b0e-4b4b6e2974fb",
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "2k",
+        "aspect_ratio": "1:1",
+        "background": "transparent",
+        "count": 1,
+        "medias": [
+          {
+            "role": "image",
+            "value": "30866c9d-07e7-4550-b8b5-de4f27bb5180"
+          }
+        ],
+        "prompt": "Original WILDBOND creature PYREMANE, the FINAL stage of Cindercub → Blazefang → Pyremane. Reference is the humble Cindercub pup; preserve family identity, NOT its juvenile proportions. New rule: HUMBLE BEGINNINGS, SPECTACULAR PAYOFF. Base promise: a small ember ruff warming the pup becomes a majestic crown of living fire. Canon: a wolf whose mane became a crown of fire on warm mountain ground; it walks into storms as if they were rain. This is the SAME wolf grown through its life, never replaced by another animal. Retain the reference's warm orange coat, pale muzzle/chest blaze and recognisable muzzle/ear relationship; spots may mature into ember chevrons. A powerful adult wolf with believable substantial paws, broad shoulders, muscular body, long canine muzzle and SMALL intelligent eyes. Much smaller head-to-body ratio than the pup. ONE full-body final-form portrait, three-quarter facing left, all paws and tail visible with wide clear margins, isolated transparent background. Storybook warmth, dark warm ink #1e1a22, clean simple colour masses, upper-left light, warm rust/crimson fur and limited golden fire. Do NOT copy any franchise creature. No wings, horns, extra limbs, armour, clothing, floating jewels, scenery, labels or ground shadow. Avoid cute enlarged pup, fox body, lion face, skinny legs, noisy spikes. Design A: HEARTH CROWN. A commanding thick-chested wolf in a grounded protective stance, massive mane rising into one broad crown-shaped arc of flame around neck and shoulders. The flame crown is strongly integrated with the fur line and extends backward along the shoulder ridge, with three or four broad flame lobes, not dozens of spikes. A long heavy plume tail curls once and has an ember-bright tip. The silhouette must feel like a safe warm hearth becoming a mountain guardian. Fire stays concentrated in the mane, while limbs and body remain solid animal anatomy. No halo detached from the body."
+      },
+      "status": "revise: too close to middle stage"
+    },
+    {
+      "file": "storm-standard.png",
+      "job_id": "43d7905b-4a31-4dd4-a0a7-79e6cd9b3f51",
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "2k",
+        "aspect_ratio": "1:1",
+        "background": "transparent",
+        "count": 1,
+        "medias": [
+          {
+            "role": "image",
+            "value": "30866c9d-07e7-4550-b8b5-de4f27bb5180"
+          }
+        ],
+        "prompt": "Original WILDBOND creature PYREMANE, the FINAL stage of Cindercub → Blazefang → Pyremane. Reference is the humble Cindercub pup; preserve family identity, NOT its juvenile proportions. New rule: HUMBLE BEGINNINGS, SPECTACULAR PAYOFF. Base promise: a small ember ruff warming the pup becomes a majestic crown of living fire. Canon: a wolf whose mane became a crown of fire on warm mountain ground; it walks into storms as if they were rain. This is the SAME wolf grown through its life, never replaced by another animal. Retain the reference's warm orange coat, pale muzzle/chest blaze and recognisable muzzle/ear relationship; spots may mature into ember chevrons. A powerful adult wolf with believable substantial paws, broad shoulders, muscular body, long canine muzzle and SMALL intelligent eyes. Much smaller head-to-body ratio than the pup. ONE full-body final-form portrait, three-quarter facing left, all paws and tail visible with wide clear margins, isolated transparent background. Storybook warmth, dark warm ink #1e1a22, clean simple colour masses, upper-left light, warm rust/crimson fur and limited golden fire. Do NOT copy any franchise creature. No wings, horns, extra limbs, armour, clothing, floating jewels, scenery, labels or ground shadow. Avoid cute enlarged pup, fox body, lion face, skinny legs, noisy spikes. Design B: STORM STANDARD. A lean but powerful long-legged mountain wolf, wind-braced stance, thick neck and substantial paws. Its mane becomes an enormous swept-back fire crest, like a single flowing banner of flame attached along the neck and spine; this dramatically changes its profile, without adding wings. A broad flame plume tail balances the crest. Three large flowing flame tongues max, body remains clearly wolf. The silhouette must feel like the pup's tiny ruff finally unfurling into something that can face a storm. Modest eyes, mature face, no smiling chibi expression."
+      },
+      "status": "revise: too close to middle stage"
+    }
+  ],
+  "revision": {
+    "file": "crown-mantle.png",
+    "job_id": "b8c8a559-88f8-41b7-9463-9aef8a88542f",
+    "params": {
+      "model": "gpt_image_2_5",
+      "quality": "high",
+      "resolution": "2k",
+      "background": "transparent",
+      "aspect_ratio": "1:1",
+      "count": 1,
+      "prompt": "Design ONE original Wildbond final evolution PYREMANE, a majestic fire-crowned WOLF. The base is a humble orange wolf pup called Cindercub with a little ember ruff, pale muzzle/chest blaze and dark orange spots. The middle is an ordinary grown orange wolf called Blazefang with flame-shaped fur. DO NOT draw another orange wolf with more back fur. FINAL PAYOFF: the tiny shoulder ruff opens into a gigantic structured CROWN-MANTLE of living fire framing the whole head and both shoulders. The fire crown is twice the width of the wolf's skull, built from three huge broad curling flame lobes connected to the shoulder mane; it radically changes the silhouette into an unmistakable crowned mountain guardian. A monumental heavy front chest, square strong wolf stance, very substantial paws, dark russet-red short body fur contrasting the golden crown, long powerful plume tail with one large terminal flame fan. Retain the familiar pale muzzle and chest blaze, canine muzzle, pointed wolf ears, amber small eyes and transformed dark chevrons. Remains the same four-legged wolf, not a lion, dragon, fox, humanoid, armoured knight or unrelated creature. Mature animal anatomy; no cute juvenile head, skinny legs or dozens of fur spikes. Pose: strong frontal three-quarter view, one forepaw a little ahead, planted calmly like it can shelter its tamer through a storm. Full body uncropped, ample empty margin, plain genuine transparent alpha, no ground shadow, text, scenic background or aura detached from body. Elegant handmade storybook game illustration, strong broad shapes, warm near-black #1e1a22 contour, upper-left light, restrained crimson/russet body palette and honey-gold fire. Canon: its mane became a crown of fire on warm mountain ground, and it walks into storms as if they were rain. This is a creature reference portrait, not a gameplay screenshot. Design the outline first: FIRE CROWN much wider than the head, not just a flame ridge along the back."
+    },
+    "status": "recommended silhouette direction; not approved production reference"
+  },
+  "rights": "Provider terms unverified; no CC0 or commercial licence asserted."
+}

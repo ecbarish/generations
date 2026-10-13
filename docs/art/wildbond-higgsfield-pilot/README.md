@@ -4,6 +4,10 @@ Evan asked to maximise the three-day trial before deciding whether to pay. This 
 
 ## Recommendation
 
+**Latest stage-plan reconciliation:** [the three-stage workshop](starters.html) follows EVO-0's proposed new middles and established final names. [STARTER-STAGES.md](STARTER-STAGES.md) distinguishes that plan from the older live graph and records Evan's approved fire-crown direction. Three stages are shown by default, with both covering tests available. This follow-up is in PR #277 because #274 merged before the latest Pyremane work was included.
+
+**Current rule:** [Humble beginnings, spectacular payoff](EVOLUTION-PROMISES.md) applies to every evolving family. It includes all 15 live Godot families and their 17 final outcomes. [The Pyremane endpoint test](review.html?family=pyremane) demonstrates the rule with Blazefang hidden; [the handoff](PYREMANE.md) distinguishes insufficient early attempts from the stronger Crown Mantle direction. Thirteen generated source images are now preserved in this pilot.
+
 Read [the creature and evolution reference guide](DESIGN-LANGUAGE.md) first. Evan wants varied, sometimes dramatic transformations; the two initial mature portraits are conservative candidates, not the template for every evolution.
 
 **Evolution follow-up:** [the interactive evolution workshop](review.html) compares Ripplet with three Tidewyrm directions and a refinement. [The Tidewyrm handoff](TIDEWYRM.md) explains the selected wave-backed silhouette and precise corrections before production. Ten generated source images are now preserved across this pilot; the original six-image evaluation below remains its first-stage evidence.
