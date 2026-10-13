@@ -255,7 +255,7 @@ function canUse(a,quiet){
   if(C.gcd>0||(a.cd&&C.cds[a.id]>0))return fail('Ability is not ready yet.');
   if(a.react&&!(C.win[a.react]>0))return fail('That needs an opening.');
   if(a.cond&&!a.cond())return fail(a.id==='finish'?'Target needs to be below 20% health.':'You can\'t use that right now.');
-  const cost=a.cost();if(C.res<cost)return fail(`Not enough ${CLASSES[H().cls].res}.`);
+  const cost=a.cost();if(C.res<cost){const message=`Not enough ${CLASSES[H().cls].res}.`;if(!quiet)toast(message);return fail(message);}
   return true;
 }
 function useAb(a,manual){

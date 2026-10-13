@@ -54,7 +54,7 @@ function dunKill(m){
 function giveLoot(it){const ps=partyAlive().length?partyAlive():C.party;if(!ps.length)return;const p=pick(ps);
   addAff(p.n,5,`You gave them [${it.name}].`);moodBump(p.n,10);say(p.n,'thanks');line(`You give [${it.name}] to ${p.n.name}.`,'l-loot');}
 function dunLootAct(id,give){if(!C.loot||!C.loot.dun)return;const i=C.loot.items.findIndex(x=>x.id===id);if(i<0)return;const it=C.loot.items.splice(i,1)[0];C.lastInput=C.run;
-  if(give)giveLoot(it);else takeLoot({money:0,items:[it]},true);if(!C.loot.items.length)afterDungeonPull();}
+  if(give)giveLoot(it);else {const left=takeLoot({money:0,items:[it]},true);if(left&&left.items.length)C.loot.items.splice(i,0,it);}if(!C.loot.items.length)afterDungeonPull();}
 function afterDungeonPull(){
   C.loot=null;C.surge=null;C.buffs.vendetta=null;if(C.dunDone){C.dunDone=false;finishDungeon();return;}
   for(const p of C.party)if(p.dead){p.dead=false;p.hp=compStats(p.n).hpMax*.3;line(`${p.n.name} gets back on their feet.`,'l-sys');}

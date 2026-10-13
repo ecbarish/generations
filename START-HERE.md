@@ -104,6 +104,8 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+
+- **2026-10-12, Codex:** RB-N1 in PR #253 repairs loot expiry/full-satchel loss and resource/dialogue feedback; pending field drops default safely for old saves. No content expansion or version bump.
 - 2026-10-12 Claude (Priorities and direction): Evan picked folding Starfall Guild into the Godot village: SF-GUILD (map first, Heavy lifting H21); browser SG-N1 is fixes only.
 - 2026-10-12 Claude (lane S): SF-WEB-BOOT checked (live previews match, Starfall boots on desktop and phone; no fix needed); SF2.11 counter mastery on branch claude/sf2.11-counter-mastery, 272 Starfall checks, web preview rebuilt.
 
