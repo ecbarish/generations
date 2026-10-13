@@ -8,9 +8,14 @@
    (little-ranch-settings-v1); there is no save. Once it's asleep, six taps on it wake it up for a fresh sunny day (LR12):
    each tap makes it stir and its zzz shrink. In the daytime, tapping the sun brightens it, and the fifth tap brings a
    rainbow over the field while the baby cheers (LR13). At night, three taps on the moon play Twinkle Twinkle Little Star
-   while the stars twinkle and the baby sleeps on (LR14). Checks: tests/little-ranch.html. */
+   while the stars twinkle and the baby sleeps on (LR14). A paint-drip sign at the ranch's edge leads to the Paint Shed
+   (LR9): four fat pots and a big outline of the baby; tap a pot, tap (or drag over) a part to fill it; when every part
+   is coloured, sparkles, and the painted baby walks back out to the ranch in its colours until bedtime. The barn
+   picture goes home at any time. Nothing is saved. Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.5.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45;
+  const VERSION = '0.6.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6;
+  // LR9: the Paint Shed's four fat pots and the four parts of the baby's outline (in the order they're drawn)
+  const PAINT = ['#ff6fa8', '#4fa6ff', '#ffd03a', '#5fd06a'], PARTS = ['tail', 'legs', 'body', 'head'];
   // Twinkle Twinkle Little Star, first verse (traditional, public domain): [note, beats]
   const A = [[72,1],[72,1],[79,1],[79,1],[81,1],[81,1],[79,2],[77,1],[77,1],[76,1],[76,1],[74,1],[74,1],[72,2]], B = [[79,1],[79,1],[77,1],[77,1],[76,1],[76,1],[74,2]];
   const TWINKLE = [...A, ...B, ...B, ...A], SONG_BEATS = TWINKLE.reduce((n, x) => n + x[1], 0), LULLABY_SECS = 25 * .55;
@@ -49,6 +54,9 @@
     rainbow: () => [60, 64, 67, 72, 76, 79, 84].forEach((n, i) => tone(hz(n), .5, i * .09, .2, 'triangle')),
     hum: n => tone(hz(67 + n * 2), .7, 0, .14, 'sine'), // the moon's soft note, a little higher each tap
     star: n => { tone(hz(n), BEAT * 1.6, 0, .16, 'sine'); tone(hz(n + 12), BEAT, 0, .04, 'sine'); }, // a soft music-box note
+    splat: k => { tone(hz([60, 64, 67, 71][k] + 12), .2, 0, .25, 'triangle', hz([60, 64, 67, 71][k] + 7)); crunch(); },
+    pick: k => tone(hz([72, 76, 79, 83][k]), .15, 0, .22, 'sine'),
+    door: () => { tone(330, .12, 0, .2, 'triangle', 440); tone(523, .18, .1, .22, 'triangle'); },
     wake: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, .22, i * .1, .28, 'triangle')); },
     lullaby: () => { const tune = [67, 64, 0, 67, 64, 0, 69, 67, 64, 62, 60, 0, 0, 62, 64, 67, 64, 62, 60, 0, 0, 0, 64, 62, 60]; // original, slow, soft
       tune.forEach((n, i) => { if (n) { tone(hz(n), .8, i * .55, .28, 'triangle'); if (i % 3 === 0) tone(hz(n - 12), 1.2, i * .55, .12, 'sine'); } }); }
@@ -59,7 +67,8 @@
   let st;
   function newVisit() {
     st = { t: 0, mode: 'play', dusk: 0, acts: 0, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0 },
-      bowl: { food: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null } };
+      bowl: { food: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null },
+      place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 } };
     layout(); st.baby.x = L.home.x;
   }
   function layout() {
@@ -69,7 +78,10 @@
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     const U = Math.min(W, H * 1.15), wide = W > H * 1.3, sp = wide ? Math.min(W * .3, U * 1.1) : W * .28; // big screens: things spread out
     L = { U, R: U * .14, ground: H * .56, size: U * .17,
-      home: { x: W / 2, y: H * .76 }, bowl: { x: W / 2 - sp, y: H * .84 }, sponge: { x: W / 2 + sp, y: H * .86 }, bush: { x: W / 2 + sp * .8, y: H * .6 }, sun: { x: W * .22, y: H * .17 } };
+      home: { x: W / 2, y: H * .76 }, bowl: { x: W / 2 - sp, y: H * .84 }, sponge: { x: W / 2 + sp, y: H * .86 }, bush: { x: W / 2 + sp * .8, y: H * .6 }, sun: { x: W * .22, y: H * .17 }, sign: { x: Math.max(W * .11, U * .14 * 1.3), y: H * .5 } };
+    { // the Paint Shed (LR9): the outline in the middle, four pots along the bottom, the barn picture top left
+      const potR = Math.min(W * .108, H * .1), z = Math.min(W * .82 / 2.4, H * .5 / 2.1);
+      L.shed = { z, x: W / 2 - z * .08, y: H * .7, potR, pots: PAINT.map((c, i) => ({ x: W * (.14 + i * .24), y: H * .88 - potR * .4 })), barn: { x: Math.max(potR * 1.15, W * .1), y: Math.max(potR * 1.15, H * .09), r: potR * .95 } }; }
     if (st && old.U && (W !== oldW || H !== oldH)) {
       // Keep progress between the same places, rather than keeping obsolete canvas pixels.
       // The eating spot includes the baby's size, so a plain width ratio is not enough.
@@ -151,10 +163,46 @@
         const sx = (i * 7 * 97.3) % W, sy = (i * 7 * 53.7) % (L.ground * .8); fx('spark', sx, sy); } start += TWINKLE[i][1]; }
     if (k > SONG_BEATS + 1) { u.song = null; u.taps = 0; }
   }
+
+  // LR9: the Paint Shed. Through the paint-drip sign; four pots and a big outline of the baby. Tap a pot (the first is
+  // ready in the brush), then tap or drag over a part: it fills. When all four parts have colour: sparkles and a cheer,
+  // and a moment later the painted baby walks back out of the sign into the ranch, in its colours until bedtime.
+  function enterShed() { if (st.mode !== 'play' || st.place !== 'ranch') return; st.place = 'shed'; st.sign.shake = 1; st.sponge.drag = null; st.shed.doneAt = null; sfx('door'); }
+  function leaveShed(painted) {
+    st.place = 'ranch'; sfx('door');
+    if (painted) { st.paint = { ...st.shed.parts }; st.shed.parts = {}; st.shed.doneAt = null; const b = st.baby;
+      b.act = null; b.x = L.sign.x; b.then = null; go(L.home.x, () => { b.act = 'cheer'; b.at = st.t; }); done(); }
+  }
+  function shedPrims(part) { const S2 = L.shed, z = S2.z, ox = S2.x, oy = S2.y, hx = .42, hy = -1.25, hr = .66;
+    const e = (x, y, rx, ry) => ({ k: 'e', x: ox + x * z, y: oy + y * z, rx: rx * z, ry: ry * z }), t = pts => ({ k: 't', pts: pts.map(([x, y]) => [ox + x * z, oy + y * z]) });
+    if (part === 'tail') return [e(-.85, -.7, .3, .18), e(-1.1, -.92, .18, .18)];
+    if (part === 'legs') return [-.45, .35].map(lx => ({ k: 'r', x: ox + lx * z, y: oy - .4 * z, w: .24 * z, h: .4 * z }));
+    if (part === 'body') return [e(0, -.55, .78, .48)];
+    return [t([[hx - hr * .75, hy - hr * .25], [hx - hr * .55, hy - hr * 1.2], [hx - hr * .1, hy - hr * .7]]), t([[hx + hr * .75, hy - hr * .25], [hx + hr * .55, hy - hr * 1.2], [hx + hr * .1, hy - hr * .7]]), e(hx, hy, hr, hr * .9)]; }
+  function inPrim(q, p, pad) { if (q.k === 'e') return ((p.x - q.x) / (q.rx + pad)) ** 2 + ((p.y - q.y) / (q.ry + pad)) ** 2 <= 1;
+    if (q.k === 'r') return p.x >= q.x - pad && p.x <= q.x + q.w + pad && p.y >= q.y - pad && p.y <= q.y + q.h + pad;
+    const xs = q.pts.map(v => v[0]), ys = q.pts.map(v => v[1]); return p.x >= Math.min(...xs) - pad && p.x <= Math.max(...xs) + pad && p.y >= Math.min(...ys) - pad && p.y <= Math.max(...ys) + pad; }
+  function partAt(p) { // no fiddly edges: inside a part (with a margin), or else the nearest part when close to the baby
+    for (const part of ['head', 'legs', 'tail', 'body']) if (shedPrims(part).some(q => inPrim(q, p, L.shed.z * .08))) return part;
+    const c = { x: L.shed.x, y: L.shed.y - L.shed.z }; if (Math.hypot(p.x - c.x, p.y - c.y) > L.shed.z * 1.9) return null;
+    let best = null, bd = 1e9; for (const part of PARTS) for (const q of shedPrims(part)) { const qx = q.k === 'e' ? q.x : q.k === 'r' ? q.x + q.w / 2 : q.pts[1][0], qy = q.k === 'e' ? q.y : q.k === 'r' ? q.y + q.h / 2 : q.pts[1][1], dd = Math.hypot(p.x - qx, p.y - qy); if (dd < bd) { bd = dd; best = part; } }
+    return best; }
+  function partPoint(part) { const q = shedPrims(part)[part === 'head' ? 2 : 0]; return q.k === 'e' ? { x: q.x, y: q.y } : { x: q.x + q.w / 2, y: q.y + q.h * .8 }; }
+  function paintPart(part, p) { const sh = st.shed; if (sh.doneAt !== null || !part || sh.parts[part] === sh.pot) return;
+    sh.parts[part] = sh.pot; sfx('splat', sh.pot); for (let i = 0; i < 4; i++) { fx('blob', p.x, p.y); st.fx[st.fx.length - 1].col = PAINT[sh.pot]; }
+    if (PARTS.every(k => k in sh.parts)) { sh.doneAt = st.t; sfx('rainbow'); for (let i = 0; i < 18; i++) { fx(i % 3 ? 'spark' : 'blob', L.shed.x + (Math.random() - .5) * L.shed.z * 2.6, L.shed.y - Math.random() * L.shed.z * 2); if (!(i % 3)) st.fx[st.fx.length - 1].col = PAINT[i % 4]; } } }
+  function pickPot(i) { st.shed.pot = i; sfx('pick', i); const q = L.shed.pots[i]; fx('spark', q.x, q.y - L.shed.potR); }
+  function shedTap(p) { const S2 = L.shed;
+    if (near(p, S2.barn, S2.barn.r * 1.15)) return leaveShed(false);
+    const i = S2.pots.findIndex(q => near(p, q, S2.potR * 1.15)); if (i >= 0) return pickPot(i);
+    const part = st.shed.doneAt === null && partAt(p); if (part) return paintPart(part, p);
+    fx('spark', p.x, p.y); sfx('note'); }
   function bedtime() { if (st.mode !== 'play') return; st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn'); st.sponge.drag = null; st.sponge.auto = null; }
 
   function update(dt) {
     st.t += dt; const b = st.baby, sp = L.U * .9;
+    if (st.place === 'shed') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); if (st.shed.doneAt !== null && st.t - st.shed.doneAt > SHED_WALK_SECS) leaveShed(true); return; }
+    st.sign.shake = Math.max(0, st.sign.shake - dt * 1.5);
     st.stir = Math.max(0, st.stir - dt * 2.5); song(dt);
     { const u = st.sun; if (u.bow && st.t - u.bow.at > BOW_SECS) { u.bow = null; u.taps = 0; } // the rainbow fades, the count starts again
       if (!u.bow) { if (u.taps && st.t - u.last > 10) u.taps = 0; u.glow = Math.max(u.taps / SUN_TAPS, u.glow - dt * .5); } } if (st.dawn) { st.dusk = Math.max(0, st.dusk - dt / 2.5); if (st.dusk === 0) st.dawn = false; }
@@ -181,7 +229,7 @@
     if (st.mode === 'dusk') { st.dusk = Math.min(1, st.dusk + dt / 10);
       if (st.dusk > .25 && st.lullabyAt === null) { st.lullabyAt = st.t; sfx('lullaby'); }
       if (st.dusk > .55 && !busy()) { b.act = 'sleep'; b.at = st.t; }
-      if (st.dusk >= 1 && b.act === 'sleep') st.mode = 'sleep'; }
+      if (st.dusk >= 1 && b.act === 'sleep') { st.mode = 'sleep'; st.paint = null; } } // bedtime washes the paint off
     if (b.act === 'sleep' && Math.floor(st.t / 1.2) !== Math.floor((st.t - dt) / 1.2)) fx('zzz', b.x + L.size * .6, L.home.y - L.size * 1.3);
   }
 
@@ -201,27 +249,28 @@
     if (Math.floor(t * 10) % 37 === 0 && eyes === 'open') eyes = 'closed'; // blinks
     const sleep = b.act === 'sleep';
     shadow(x, y, z * 1.1);
-    const body = '#e06a32', dark = '#b4471c', cream = '#ffe2b8', ember = '#ffd04a';
+    const body = '#e06a32', dark = '#b4471c', cream = '#ffe2b8', P = st.paint ? Object.fromEntries(Object.entries(st.paint).map(([k, v]) => [k, PAINT[v]])) : {}; // painted in the Paint Shed (LR9)
+    const bodyC = P.body || body, headC = P.head || body, tailC = P.tail || body, legC = P.legs ? mixHex(P.legs, '#000000', .2) : dark, ember = P.tail ? mixHex(P.tail, '#ffffff', .45) : '#ffd04a';
     if (sleep && st.stir > 0) x += Math.sin(t * 40) * st.stir * z * .1 * m; // stirring when tapped (LR12)
     if (sleep) { // curled up: a round bun with the tail wrapped round, breathing
       const br = 1 + Math.sin(t * 1.6) * .03 * m + st.stir * .06;
-      ell(x, y - z * .45, z * 1.05 * br, z * .55 * br, body); ell(x + z * .7, y - z * .3, z * .55, z * .3, dark); ell(x + z * 1.15, y - z * .35, z * .16, z * .14, ember);
-      ell(x - z * .55, y - z * .55, z * .5, z * .42, body); ell(x - z * .7, y - z * .42, z * .26, z * .18, cream);
+      ell(x, y - z * .45, z * 1.05 * br, z * .55 * br, bodyC); ell(x + z * .7, y - z * .3, z * .55, z * .3, P.tail ? tailC : dark); ell(x + z * 1.15, y - z * .35, z * .16, z * .14, ember);
+      ell(x - z * .55, y - z * .55, z * .5, z * .42, headC); ell(x - z * .7, y - z * .42, z * .26, z * .18, cream);
       cx.fillStyle = '#3a2420'; cx.fillRect(R(x - z * .62), R(y - z * .62), R(z * .18), Math.max(1, R(z * .05))); cx.fillRect(R(x - z * .32), R(y - z * .62), R(z * .18), Math.max(1, R(z * .05)));
       if (st.moon.song || st.moon.glow > 0) { cx.fillStyle = '#3a2420'; cx.fillRect(R(x - z * .55), R(y - z * .4), R(z * .16), Math.max(1, R(z * .04))); cx.fillRect(R(x - z * .62), R(y - z * .44), Math.max(1, R(z * .06)), Math.max(1, R(z * .04))); cx.fillRect(R(x - z * .4), R(y - z * .44), Math.max(1, R(z * .06)), Math.max(1, R(z * .04))); } // a little smile
-      cx.beginPath(); cx.moveTo(R(x - z * .85), R(y - z * .85)); cx.lineTo(R(x - z * .7), R(y - z * 1.15)); cx.lineTo(R(x - z * .55), R(y - z * .9)); cx.fillStyle = body; cx.fill();
+      cx.beginPath(); cx.moveTo(R(x - z * .85), R(y - z * .85)); cx.lineTo(R(x - z * .7), R(y - z * 1.15)); cx.lineTo(R(x - z * .55), R(y - z * .9)); cx.fillStyle = headC; cx.fill();
       return; }
     const by = y - hop;
     // tail with a glowing ember tip
-    ell(x - d * z * .85, by - z * .7, z * .3, z * .18, body); ell(x - d * z * 1.1, by - z * .9 - Math.sin(t * 5) * z * .05 * m, z * .17, z * .17, ember);
+    ell(x - d * z * .85, by - z * .7, z * .3, z * .18, tailC); ell(x - d * z * 1.1, by - z * .9 - Math.sin(t * 5) * z * .05 * m, z * .17, z * .17, ember);
     // body and short legs
-    for (const lx of [-.45, .35]) { cx.fillStyle = dark; cx.fillRect(R(x + lx * z), R(by - z * .35), R(z * .22), R(z * .35 + hop * .5)); }
-    ell(x, by - z * .55, z * .78, z * .48 * squash, body); ell(x + d * z * .15, by - z * .45, z * .45, z * .26, cream);
+    for (const lx of [-.45, .35]) { cx.fillStyle = legC; cx.fillRect(R(x + lx * z), R(by - z * .35), R(z * .22), R(z * .35 + hop * .5)); }
+    ell(x, by - z * .55, z * .78, z * .48 * squash, bodyC); ell(x + d * z * .15, by - z * .45, z * .45, z * .26, cream);
     // the big baby head
     const hx = x + d * z * .42, hy = by - z * 1.25 - (b.act === 'cheer' ? z * .12 : 0) + (b.act === 'eat' ? Math.abs(Math.sin(since * 9)) * z * .25 : 0), hr = z * .66;
-    for (const s of [-1, 1]) { cx.fillStyle = body; cx.beginPath(); cx.moveTo(R(hx + s * hr * .75), R(hy - hr * .25)); cx.lineTo(R(hx + s * hr * .55), R(hy - hr * 1.2)); cx.lineTo(R(hx + s * hr * .1), R(hy - hr * .7)); cx.fill();
+    for (const s of [-1, 1]) { cx.fillStyle = headC; cx.beginPath(); cx.moveTo(R(hx + s * hr * .75), R(hy - hr * .25)); cx.lineTo(R(hx + s * hr * .55), R(hy - hr * 1.2)); cx.lineTo(R(hx + s * hr * .1), R(hy - hr * .7)); cx.fill();
       cx.fillStyle = '#ff9a8a'; cx.beginPath(); cx.moveTo(R(hx + s * hr * .6), R(hy - hr * .45)); cx.lineTo(R(hx + s * hr * .52), R(hy - hr * .95)); cx.lineTo(R(hx + s * hr * .28), R(hy - hr * .65)); cx.fill(); }
-    ell(hx, hy, hr, hr * .9, body); ell(hx + d * hr * .2, hy + hr * .35, hr * .52, hr * .38, cream);
+    ell(hx, hy, hr, hr * .9, headC); ell(hx + d * hr * .2, hy + hr * .35, hr * .52, hr * .38, cream);
     ell(hx - hr * .5, hy + hr * .2, hr * .16, hr * .1, '#ff9a8a'); ell(hx + hr * .62, hy + hr * .2, hr * .16, hr * .1, '#ff9a8a');
     for (const s of [-1, 1]) { const ex = hx + s * hr * .38 + d * hr * .1, ey = hy - hr * .05;
       if (eyes === 'open') { ell(ex, ey, hr * .17, hr * .21, '#2a1a18'); ell(ex - hr * .05, ey - hr * .08, hr * .06, hr * .06, '#fff'); }
@@ -241,7 +290,64 @@
     const a = clamp(Math.min(k / .6, (BOW_SECS - k) / 1.2), 0, 1) * .8, cxr = W / 2, cyr = L.ground + L.U * .1, R0 = Math.min(W * .48, L.ground * 1.15), band = Math.max(2, L.U * .03);
     ['#ff5a5a', '#ffa040', '#ffe050', '#6ad060', '#50a8ff', '#8a6ae0'].forEach((c, i) => { cx.strokeStyle = c; cx.globalAlpha = a; cx.lineWidth = band; cx.beginPath(); cx.arc(R(cxr), R(cyr), R(R0 - i * band), Math.PI, 0); cx.stroke(); });
     cx.globalAlpha = 1; }
+  function drawFx(U) {
+    for (const f of st.fx) { const k = st.t - f.at, x = f.x + f.vx * k, y = f.y + f.vy * k, a = clamp(1 - k / 1.4, 0, 1);
+      if (f.kind === 'heart') { const r = U * .035; cx.fillStyle = `rgba(255,90,120,${a})`; ell(x - r * .5, y, r * .6, r * .6, cx.fillStyle); ell(x + r * .5, y, r * .6, r * .6, cx.fillStyle); cx.beginPath(); cx.moveTo(R(x - r * 1.05), R(y + r * .15)); cx.lineTo(R(x), R(y + r * 1.3)); cx.lineTo(R(x + r * 1.05), R(y + r * .15)); cx.fill(); }
+      else if (f.kind === 'spark') { cx.fillStyle = `rgba(255,240,150,${a})`; const r = U * .03 * (1 + k); cx.fillRect(R(f.x - r), R(f.y), R(r * 2), 1); cx.fillRect(R(f.x), R(f.y - r), 1, R(r * 2)); }
+      else if (f.kind === 'blob') { const r = U * .025 * (1 + k * .5); cx.globalAlpha = a; ell(x, y + U * .4 * k * k, r, r, f.col || '#fff'); cx.globalAlpha = 1; }
+      else if (f.kind === 'crumb') ell(f.x + f.vx * k * .5, f.y - U * .1 * k + U * .3 * k * k, U * .012, U * .012, `rgba(200,130,58,${a})`);
+      else if (f.kind === 'zzz') { const zz = clamp(1 - k / 3, 0, 1), r = U * .03 * (1 + k * .4) * (1 - st.wake / WAKE_TAPS * .75); cx.strokeStyle = `rgba(230,230,255,${zz})`; cx.lineWidth = 1; cx.beginPath(); const zx = f.x + k * U * .05, zy = f.y - k * U * .08;
+        cx.moveTo(R(zx - r), R(zy - r)); cx.lineTo(R(zx + r), R(zy - r)); cx.lineTo(R(zx - r), R(zy + r)); cx.lineTo(R(zx + r), R(zy + r)); cx.stroke(); } }
+  }
+
+  // LR9: the paint-drip picture sign at the ranch's edge, and the Paint Shed itself
+  function drawPot(x, y, r, col, lift) { // a fat paint pot: a wooden bucket brimming with colour, drips down its side
+    y -= lift; shadow(x, y + r * .75 + lift, r * .9);
+    cx.fillStyle = '#7a5434'; cx.beginPath(); cx.moveTo(R(x - r * .85), R(y - r * .35)); cx.lineTo(R(x + r * .85), R(y - r * .35)); cx.lineTo(R(x + r * .68), R(y + r * .75)); cx.lineTo(R(x - r * .68), R(y + r * .75)); cx.fill();
+    cx.fillStyle = '#5a3a24'; cx.fillRect(R(x - r * .8), R(y), R(r * 1.6), Math.max(1, R(r * .1))); cx.fillRect(R(x - r * .72), R(y + r * .45), R(r * 1.44), Math.max(1, R(r * .1)));
+    ell(x, y - r * .35, r * .88, r * .3, '#4a2e1c'); ell(x, y - r * .33, r * .78, r * .24, col);
+    for (const [dx, h] of [[-.5, .5], [.1, .75], [.55, .4]]) { cx.fillStyle = col; cx.fillRect(R(x + dx * r), R(y - r * .3), Math.max(2, R(r * .16)), R(r * h)); ell(x + dx * r + r * .08, y - r * .3 + r * h, r * .1, r * .1, col); } }
+  function drawSign(g) {
+    const s = L.sign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.sign.shake * r * .06;
+    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2), Math.max(2, R(r * .16)), R(r * 1.4)); // the post
+    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
+    cx.fillStyle = pick3('#f4e2c0', '#e8c890', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
+    PAINT.forEach((c, i) => { cx.fillStyle = g > .6 ? mixHex(c, '#20203a', .6) : c; const x = -r * .66 + i * r * .44; cx.fillRect(R(x - r * .17), R(-r * .62), R(r * .34), R(r * (.35 + (i % 2) * .25))); ell(x, -r * .62 + r * (.35 + (i % 2) * .25), r * .17, r * .14, cx.fillStyle); });
+    cx.fillStyle = '#8a5a34'; cx.save(); cx.rotate(-.5); cx.fillRect(R(-r * .1), R(r * .02), R(r * .2), R(r * .7)); cx.restore(); // a little brush
+    cx.restore(); }
+  function drawShed() {
+    const U = L.U, S2 = L.shed, z = S2.z, sh = st.shed;
+    const wall = cx.createLinearGradient(0, 0, 0, H); wall.addColorStop(0, '#c88a54'); wall.addColorStop(1, '#a8703e'); cx.fillStyle = wall; cx.fillRect(0, 0, W, H);
+    cx.fillStyle = 'rgba(90,50,24,.35)'; for (let x = 0; x < W; x += Math.max(6, U * .12)) cx.fillRect(R(x), 0, 1, R(H * .74));
+    const wx = W * .78, wy = H * .14, ww = Math.min(W * .16, U * .3); cx.fillStyle = '#5a3a24'; cx.fillRect(R(wx - ww * .55), R(wy - ww * .45), R(ww * 1.1), R(ww * .9)); // a window with the sky
+    cx.fillStyle = '#9ad6f4'; cx.fillRect(R(wx - ww * .47), R(wy - ww * .37), R(ww * .94), R(ww * .74)); cx.fillStyle = '#5a3a24'; cx.fillRect(R(wx - 1), R(wy - ww * .37), 2, R(ww * .74)); cx.fillRect(R(wx - ww * .47), R(wy - 1), R(ww * .94), 2);
+    [[.3, .12], [.5, .2], [.12, .45], [.88, .42], [.62, .08]].forEach(([a, b], i) => { const c = PAINT[i % 4]; ell(W * a, H * b, U * .04, U * .03, c); ell(W * a + U * .05, H * b + U * .02, U * .015, U * .015, c); }); // old splats on the wall
+    cx.fillStyle = '#8a5a34'; cx.fillRect(0, R(H * .74), W, H - R(H * .74)); cx.fillStyle = 'rgba(60,34,18,.4)'; for (let y = H * .74; y < H; y += Math.max(5, U * .08)) cx.fillRect(0, R(y), W, 1);
+    // the outline: each part white until it is painted, with a thick dark edge (a colouring book)
+    const done = sh.doneAt !== null, hop = done ? Math.abs(Math.sin((st.t - sh.doneAt) * 9)) * z * .15 * (reduce() ? .3 : 1) : 0;
+    shadow(S2.x, S2.y, z * 1.2); cx.save(); cx.translate(0, -hop);
+    for (const part of PARTS) { const col = part in sh.parts ? PAINT[sh.parts[part]] : '#fffaf0';
+      for (const q of shedPrims(part)) { cx.beginPath(); if (q.k === 'e') cx.ellipse(R(q.x), R(q.y), R(q.rx), R(q.ry), 0, 0, 7); else if (q.k === 'r') cx.rect(R(q.x), R(q.y), R(q.w), R(q.h)); else { cx.moveTo(R(q.pts[0][0]), R(q.pts[0][1])); cx.lineTo(R(q.pts[1][0]), R(q.pts[1][1])); cx.lineTo(R(q.pts[2][0]), R(q.pts[2][1])); cx.closePath(); }
+        cx.fillStyle = col; cx.fill(); cx.strokeStyle = '#3a2420'; cx.lineWidth = Math.max(2, z * .05); cx.stroke(); } }
+    const hx = S2.x + .42 * z, hy = S2.y - 1.25 * z, hr = .66 * z; // the face, always friendly
+    ell(S2.x + .15 * z, S2.y - .45 * z, .42 * z, .24 * z, 'rgba(255,240,215,.75)'); ell(hx + hr * .2, hy + hr * .35, hr * .5, hr * .36, 'rgba(255,240,215,.85)');
+    for (const s of [-1, 1]) { const ex = hx + s * hr * .38 + hr * .1, ey = hy - hr * .05; if (done) { cx.fillStyle = '#2a1a18'; cx.fillRect(R(ex - hr * .15), R(ey), R(hr * .3), Math.max(2, R(hr * .07))); } else { ell(ex, ey, hr * .15, hr * .19, '#2a1a18'); ell(ex - hr * .05, ey - hr * .07, hr * .05, hr * .05, '#fff'); } }
+    ell(hx + hr * .25, hy + hr * .22, hr * .1, hr * .07, '#3a2420'); ell(hx + hr * .22, hy + hr * .5, hr * .13 * (done ? 1.2 : .8), hr * .1 * (done ? 1.3 : .6), '#8a2a2a');
+    ell(hx - hr * .5, hy + hr * .2, hr * .15, hr * .09, '#ff9a8a'); ell(hx + hr * .65, hy + hr * .2, hr * .15, hr * .09, '#ff9a8a');
+    cx.restore();
+    // the pots, the chosen one lifted with a brush in it
+    S2.pots.forEach((q, i) => { const on = i === sh.pot, lift = on ? S2.potR * (.25 + .06 * Math.sin(st.t * 5) * (reduce() ? 0 : 1)) : 0;
+      if (on) ell(q.x, q.y + S2.potR * .2, S2.potR * 1.15, S2.potR * 1.05, 'rgba(255,250,210,.45)');
+      drawPot(q.x, q.y, S2.potR, PAINT[i], lift);
+      if (on) { cx.save(); cx.translate(R(q.x + S2.potR * .25), R(q.y - S2.potR * .35 - lift)); cx.rotate(.35); cx.fillStyle = '#8a5a34'; cx.fillRect(R(-S2.potR * .07), R(-S2.potR * 1.1), R(S2.potR * .14), R(S2.potR * .9)); cx.fillStyle = PAINT[i]; cx.fillRect(R(-S2.potR * .11), R(-S2.potR * .3), R(S2.potR * .22), R(S2.potR * .3)); cx.restore(); } });
+    // the barn picture: home to the ranch
+    const b = S2.barn; ell(b.x, b.y, b.r, b.r, 'rgba(255,248,232,.9)');
+    cx.fillStyle = '#c8453a'; cx.fillRect(R(b.x - b.r * .55), R(b.y - b.r * .15), R(b.r * 1.1), R(b.r * .7));
+    cx.beginPath(); cx.moveTo(R(b.x - b.r * .7), R(b.y - b.r * .1)); cx.lineTo(R(b.x), R(b.y - b.r * .62)); cx.lineTo(R(b.x + b.r * .7), R(b.y - b.r * .1)); cx.fillStyle = '#8a2a24'; cx.fill();
+    cx.fillStyle = '#fff4e0'; cx.fillRect(R(b.x - b.r * .2), R(b.y + b.r * .12), R(b.r * .4), R(b.r * .43)); cx.fillStyle = '#5fb34a'; cx.fillRect(R(b.x - b.r * .7), R(b.y + b.r * .55), R(b.r * 1.4), Math.max(2, R(b.r * .1)));
+    drawFx(U); }
   function draw() {
+    if (st.place === 'shed') return drawShed();
     const g = st.dusk, U = L.U;
     const sky = cx.createLinearGradient(0, 0, 0, L.ground); sky.addColorStop(0, pick3('#6cbcec', '#e8805a', '#121a44', g)); sky.addColorStop(1, pick3('#d4eef8', '#ffd08a', '#3a3a70', g));
     cx.fillStyle = sky; cx.fillRect(0, 0, W, L.ground + 1);
@@ -257,6 +363,7 @@
     cx.fillStyle = pick3('#a87a4a', '#a06a3a', '#3a2e38', g); const fy = L.ground + U * .02; cx.fillRect(0, R(fy), W, Math.max(1, R(U * .025))); cx.fillRect(0, R(fy + U * .07), W, Math.max(1, R(U * .025)));
     for (let x = W * .05; x < W; x += U * .3) cx.fillRect(R(x), R(fy - U * .03), Math.max(2, R(U * .03)), R(U * .14));
     for (let i = 0; i < 30; i++) { const x = (i * 61.7) % W, y = L.ground + U * .2 + (i * 37.1) % (H - L.ground - U * .2); cx.fillStyle = pick3('#5aa848', '#8a8a40', '#1e3a36', g); cx.fillRect(R(x), R(y), 1, 2); }
+    drawSign(g);
     const hidden = st.baby.act === 'hide' || st.baby.act === 'peek';
     if (!hidden) drawBush(false);
     // the bowl
@@ -274,12 +381,7 @@
     for (const [a, c] of [[-.5, -.2], [.3, .1], [-.1, .25], [.6, -.25]]) cx.fillRect(R(a * sw), R(c * sw), Math.max(1, R(sw * .16)), Math.max(1, R(sw * .16))); cx.restore();
     for (const u of st.bubbles) { const x = u.x + Math.sin(st.t * 2 + u.seed) * u.r * .8; cx.strokeStyle = 'rgba(255,255,255,.9)'; cx.lineWidth = 1; cx.beginPath(); cx.arc(R(x), R(u.y), Math.max(2, R(u.r)), 0, 7); cx.stroke();
       ell(x, u.y, u.r, u.r, 'rgba(200,230,255,.25)'); ell(x - u.r * .35, u.y - u.r * .35, u.r * .2 + .5, u.r * .2 + .5, '#fff'); }
-    for (const f of st.fx) { const k = st.t - f.at, x = f.x + f.vx * k, y = f.y + f.vy * k, a = clamp(1 - k / 1.4, 0, 1);
-      if (f.kind === 'heart') { const r = U * .035; cx.fillStyle = `rgba(255,90,120,${a})`; ell(x - r * .5, y, r * .6, r * .6, cx.fillStyle); ell(x + r * .5, y, r * .6, r * .6, cx.fillStyle); cx.beginPath(); cx.moveTo(R(x - r * 1.05), R(y + r * .15)); cx.lineTo(R(x), R(y + r * 1.3)); cx.lineTo(R(x + r * 1.05), R(y + r * .15)); cx.fill(); }
-      else if (f.kind === 'spark') { cx.fillStyle = `rgba(255,240,150,${a})`; const r = U * .03 * (1 + k); cx.fillRect(R(f.x - r), R(f.y), R(r * 2), 1); cx.fillRect(R(f.x), R(f.y - r), 1, R(r * 2)); }
-      else if (f.kind === 'crumb') ell(f.x + f.vx * k * .5, f.y - U * .1 * k + U * .3 * k * k, U * .012, U * .012, `rgba(200,130,58,${a})`);
-      else if (f.kind === 'zzz') { const zz = clamp(1 - k / 3, 0, 1), r = U * .03 * (1 + k * .4) * (1 - st.wake / WAKE_TAPS * .75); cx.strokeStyle = `rgba(230,230,255,${zz})`; cx.lineWidth = 1; cx.beginPath(); const zx = f.x + k * U * .05, zy = f.y - k * U * .08;
-        cx.moveTo(R(zx - r), R(zy - r)); cx.lineTo(R(zx + r), R(zy - r)); cx.lineTo(R(zx - r), R(zy + r)); cx.lineTo(R(zx + r), R(zy + r)); cx.stroke(); } }
+    drawFx(U);
     if (g > 0) { cx.fillStyle = `rgba(20,20,60,${g * .25})`; cx.fillRect(0, 0, W, H); }
   }
 
@@ -287,6 +389,8 @@
   const at = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H }; };
   cv.addEventListener('pointerdown', e => {
     e.preventDefault(); audio(); const p = at(e), s = st.sponge;
+    // LR9: the shed and the sign act when the finger lifts (like the grown-up panel, LR15); a drag over the outline paints
+    if (st.place === 'shed') { st.down = { id: e.pointerId, p, drag: false }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; }
     if (st.mode !== 'play') { // bedtime: taps twinkle; six taps on the sleeping baby wake it for a new day (LR12)
       if (st.baby.act === 'sleep' && near(p, babyCentre(), L.size * 1.2)) return nudge();
       if (moonUp() && near(p, moonAt(), Math.max(L.U * .16, L.R))) return hum();
@@ -294,15 +398,20 @@
     const bub = st.bubbles.find(u => Math.hypot(u.x - p.x, u.y - p.y) < u.r * 1.8 + L.U * .02);
     if (bub) { st.bubbles.splice(st.bubbles.indexOf(bub), 1); fx('spark', bub.x, bub.y); sfx('pop'); return; }
     if (!s.auto && near(p, s, L.R * 1.1)) { s.drag = { id: e.pointerId, x: p.x, y: p.y, at: performance.now(), moved: 0 }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; }
+    if (near(p, L.sign, L.R * 1.1)) { st.down = { id: e.pointerId, p, sign: true }; st.sign.shake = .5; return; }
     if (near(p, L.bowl, L.R * 1.2)) return act.feed();
     if (near(p, { x: L.bush.x, y: L.bush.y - L.R * .4 }, L.R * 1.4)) return act.peek();
     if (st.baby.act !== 'hide' && near(p, babyCentre(), L.size * 1.2)) return act.tickle();
     if (daytime() && near(p, sunAt(), Math.max(L.U * .16, L.R))) return shine();
     act.sparkle(p);
   });
-  cv.addEventListener('pointermove', e => { const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return; const p = at(e);
+  cv.addEventListener('pointermove', e => { const d = st.down; if (d && d.id === e.pointerId && st.place === 'shed') { const p = at(e);
+      if (!d.drag && Math.hypot(p.x - d.p.x, p.y - d.p.y) > L.shed.z * .15) { d.drag = true; paintPart(partAt(d.p), d.p); } if (d.drag) paintPart(partAt(p), p); return; }
+    const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return; const p = at(e);
     s.drag.moved += Math.hypot(p.x - s.x, p.y - s.y); s.x = p.x; s.y = p.y; if (near(p, babyCentre(), L.size * 1.3)) act.scrub(p); });
-  const release = e => { const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return;
+  const release = e => { const d = st.down; if (d && d.id === e.pointerId) { st.down = null; if (e.type === 'pointercancel') return; const p = at(e);
+      if (d.sign) { if (near(p, L.sign, L.R * 1.3)) enterShed(); return; } if (!d.drag && st.place === 'shed') shedTap(p); return; }
+    const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return;
     const tap = s.drag.moved < L.R * .5 && performance.now() - s.drag.at < 500; s.drag = null;
     if (tap) act.bath(); else if (s.scrubbed) { s.scrubbed = false; done(); } };
   cv.addEventListener('pointerup', release); cv.addEventListener('pointercancel', release);
@@ -347,7 +456,7 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get prefs() { return prefs; }, moonAt: () => moonAt(), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
+  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();

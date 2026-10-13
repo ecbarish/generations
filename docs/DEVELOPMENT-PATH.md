@@ -66,7 +66,7 @@ big step, someone who didn't build it scores it with docs/PLAYTEST.md's six ques
 Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stable; tickets reference them.
 
 ### Wildbond (Godot): the new Wildbond, to version 2.0
-- [ ] WB-N1 [any] Wildbond newcomer snags (Flint round 2, COMMS 2026-10-12 20:52): after the rival fight, someone says the team is hurt and the Larkhaven inn heals; after the first catch, Maren points to the ranch's daily plan once; the HP shown after the rival battle matches the real HP. Bond-gated evolution is a design question for Design decisions first. Files: wildbond-godot/. Done when all Godot checks pass and old saves load.
+- [x] WB-N1 [any] (done 2026-10-12 by Muse, Adam / abarish-dev, PR #257) Wildbond newcomer snags (Flint round 2, COMMS 2026-10-12 20:52): after the rival fight, Maren says the team is hurt and the Larkhaven inn heals (win scene + loss line); after the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]`); battle HP bars snap to real HP on finish (`u.shown`). Bond-gated evolution is a design question for Design decisions first. Files: wildbond-godot/. All Godot checks pass; old saves load (additive changes only).
 **WB-M1: the start of the journey (done 2026-10-08).**
 - [x] The opening, register and heritages, the barn, Wren; Thornwood, Saltmarsh, Emberfall, Cloudglass; wild
   bonding; trainers and Wardens; the ranch as a place (nursery, trough, workbench, gear); evolution; music; saving;
@@ -88,7 +88,7 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 
 **WB-C: creatures worth raising (Evan, 2026-10-11; spec: docs/wildbond-creatures.md, list: docs/wildbond-creatures/catalog.md).**
 Target about 150 species in about 70 lines; most new species are new stages of today's 74 loners; six showpiece lines.
-- [ ] CR1 [any] Sizes and tiers in the data (`size`, `tier` on every species) and creatures drawn at their size in battle and when following you (spec 4.4). Screenshots small beside huge.
+- [x] CR1 [any] (done 2026-10-12 by Muse, Adam / abarish-dev, PR #267) Sizes and tiers in the data (`size`, `tier` on all 112 species) and creatures drawn at their size in battle and when following you (spec 4.4). Screenshots small beside huge (docs/screenshots/cr1/). All Godot checks pass (1528).
 - [ ] CR2 [ChatGPT / writer] The six showpiece lines (spec 3): the three starter lines promoted, new Stone, Gale and Radiant lines, a slow growth rate, guardians raised to 560-600; pacing check (WB3.6b) holds.
 - [ ] CR3 [any, one region per PR] Grow the loners into lines: about 58 of the 74 creatures that never evolve gain a new stage before or after them, each its own creature with its own name and look (like Squirtle, Wartortle, Blastoise; not baby or adult versions, which are WB5.5), in journey order (Thornwood first).
 - [ ] CR4 [any] The evolution moment: the light, the silhouette growing, the new form at full size, someone who notices; the full version for showpieces.
@@ -327,6 +327,7 @@ Realmbound's Godot question answered by Evan, then a plan (START-HERE question 2
 
 ### Diamond Manager (browser; the baseball game, reworked 2026-10-09)
 - [x] DM-N1a [any] Diamond Manager newcomer bugs (done: Codex, PR #261, merged 2026-10-13 as v0.8.2): post-game F opens the office without losing the result; starting a bench batter replaces the matching position when available, with an explicit replacement label. Preserve saves and the existing game loop. Verify the hall record fix from AR2.15; no new streaks or content. Files: games/diamond-manager/, tests/diamond-manager-checks.js, docs/playtests/. Reported-playtest bugs exception under STUDIO-PLAN.
+- [ ] DM-N1b [any] Training Rooms feedback (ready: Codex, PR #269, codex/diamond-manager-training-feedback): show named roster/farm players' existing winter ceiling effects at current/next room levels, respecting scout uncertainty, age limits and the ceiling cap. Preview only; no balance, RNG or save changes. Files: games/diamond-manager/, tests/diamond-manager-checks.js, docs/playtests/. Fixes Flint's reported invisible upgrade effects; larger DM-N1 systems wait for the studio cycle.
 - [ ] DM-N1 [any] Diamond Manager, numbers you watch climb (Flint round 3, COMMS 2026-10-12 21:02): upgrades show their effect on named players ("Cy Moss: ceiling 60 to 62"); hot and cold streaks so ratings move game to game; one or two dugout calls with visible risk (steal, hit-and-run, intentional walk, pinch hitter). Bugs first: F does nothing on the post-game screen until "Hear from Iona" is clicked; signing a left fielder showed two left fielders in the lineup; the hall card kept a stale 0-1 record after two games.
 Evan, 2026-10-09: the batting game was too hard to read and to hit; make it one you manage (ratings, trades,
 contracts, hiring, stadium upgrades, watching games) and plan a Retro Bowl-style football game. Full plan and the
@@ -415,7 +416,7 @@ Next steps, from docs/proposals/little-ranch-next.md (PR #203, 2026-10-11; Evan:
 - [ ] LR7 [any] The bedtime routine: teeth, a drink of water, goodnight to each friend, then the lullaby.
 - [ ] LR8 [any] Spoken words: names, colours and "night night" in the browser's voice (no microphone; recording a parent's voice needs Evan's yes).
 Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the barn picture leads home; never a separate icon on the homepage). **Evan picked the Paint Shed first (2026-10-11)**, then the Little Wagon, then the Snack Kitchen; LR3-LR8 continue alongside.
-- [ ] LR9 [any] The Paint Shed (16/18, Evan's pick): reached by a paint-drip picture sign; one creature outline, four fat paint pots, tap to fill a part, sparkles when every part is coloured, the painted baby walks out in its colours until bedtime.
+- [x] LR9 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #262, v0.6.0; not yet tried with a toddler) The Paint Shed (16/18, Evan's pick): reached by a paint-drip picture sign; one creature outline, four fat paint pots, tap to fill a part, sparkles when every part is coloured, the painted baby walks out in its colours until bedtime.
 - [ ] LR10 [any] The Little Wagon (17/18): load two babies, one ride with three things to tap and one colour gate where any car gets a cheer.
 - [ ] LR11 [any] The Snack Kitchen (17/18): four foods, one bowl, one baby who loves berries and pulls funny faces at the rest.
 (The shape puzzle, 14/18, waits until she is 3½ to 4.)

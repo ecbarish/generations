@@ -16,6 +16,8 @@ const Title := preload("res://scripts/title.gd")
 const TouchPad := preload("res://scripts/touch_pad.gd")
 const HowTo := preload("res://scripts/howto.gd")
 const Shop := preload("res://scripts/shop.gd")
+## CR1: size classes to world scale (spec 4.4, docs/wildbond-creatures.md).
+const SIZE_SCALE := { "tiny": 0.7, "small": 0.85, "medium": 1.0, "large": 1.2, "huge": 1.45 }
 const Book := preload("res://scripts/book.gd")
 const Calendar := preload("res://scripts/calendar.gd")
 ## Larkhaven's doors in the Godot version: the inn (rest) and the shop counter. (The browser puts the shop where Maren's
@@ -1355,7 +1357,11 @@ func _draw_actor(ci: CanvasItem, m: Mover, i: int, fade_amt := 0.0) -> void:
 			"bird": m.look.kind == "boar" and not walking and fmod(t + 3.0, 16.0) < 10.0,
 		}
 		var wiggle := (1.0 if int(t * 16.0) % 2 == 0 else -1.0) if m.act == "pounce" and m.act_t > 0.4 and m.act_t < 0.8 else 0.0
-		Figures.creature(ci, m.pos + Vector2(-1 + wiggle, 4 + m.hop), m.right, pose, _faded_look(m.look, fade_amt))
+		var sc: float = SIZE_SCALE.get(str(DATA.SPECIES.get(m.id, {}).get("size", "medium")), 1.0)   # CR1: draw at species size
+		var o := m.pos + Vector2(-1 + wiggle, 4 + m.hop)
+		ci.draw_set_transform(o, 0, Vector2(sc, sc))
+		Figures.creature(ci, Vector2.ZERO, m.right, pose, _faded_look(m.look, fade_amt))
+		ci.draw_set_transform(Vector2.ZERO)
 		return
 	var face := m.face
 	if not walking and face == Vector2i.DOWN and fmod(t + i, 6.0) > 5.2:
@@ -1824,7 +1830,7 @@ func _on_battle_result(result: String) -> void:
 			say(l[0], _fill(l[1]))
 	else:
 		say("wren", _fill("Ha! Told you it was strategy. Don't worry, {starter} just needs a few more days with you."))
-		say("maren", _fill("There, all patched up. Losing your first battle is a fine tradition, {name}. Wren lost theirs to a goose."))
+		say("maren", _fill("There, all patched up. Your team was hurt — I fixed them up this time, but the inn in Larkhaven heals them whenever they need it. Losing your first battle is a fine tradition, {name}. Wren lost theirs to a goose."))
 		say("wren", "That goose was a professional.")
 
 ## Water (Wildbond's own water tiles, tools/paint_tiles.gd): open water with now and then a lily pad or a glint, and a sandy shore with a dark
@@ -2630,6 +2636,9 @@ func _wild_battle() -> void:
 	battle.open("wild", team, [foe], "")
 
 func _after_wild(result: String) -> void:
+	if not battle.caught.is_empty() and not story_done.has("marenRanchTip"):
+		story_done["marenRanchTip"] = true
+		say("maren", "A new friend! The ranch has room for them — I look after every creature here, and there's always something useful for a willing one to do. Come by and I'll show you.")
 	for c in battle.caught:
 		restore.append({ "where": map_name, "at": me.pos + Vector2(8, 8), "r": 0.0, "goal": 64.0 })   # trust brings the colour back
 		bonded[c.sp] = true

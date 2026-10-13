@@ -4,6 +4,12 @@ Every outlined project in one place, so Evan can hand work to any assistant (Cla
 and they can carry it to launch. START-HERE.md says what is happening *right now*; this file says *everything there
 is to do*. Ground rules for how assistants work, and how much creative freedom they have: [CREATIVE.md](CREATIVE.md).
 
+## Diamond Manager training feedback
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| DM-N1b | Named winter training preview | S | ready: Codex, PR #269 | Existing mechanics, scout uncertainty and farm players; read-only feedback |
+
 ## Starfall Guild reported fixes
 
 | ID | Project | Size | Status | Scope |

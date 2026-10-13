@@ -1,0 +1,142 @@
+[
+  {
+    "name": "phone",
+    "check": "Named current and next winter preview present",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Actual purchase updates named ceiling preview without growing ratings",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Second room projects 60 to 62 at exact scouting",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Farm player included",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Purchased rooms and forecast survive reload",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Rough scouting stays approximate without leaking exact ceiling",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "No browser errors",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Named current and next winter preview present",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Actual purchase updates named ceiling preview without growing ratings",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Second room projects 60 to 62 at exact scouting",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Farm player included",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Purchased rooms and forecast survive reload",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Rough scouting stays approximate without leaking exact ceiling",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "No browser errors",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Named current and next winter preview present",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Actual purchase updates named ceiling preview without growing ratings",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Second room projects 60 to 62 at exact scouting",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Farm player included",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Purchased rooms and forecast survive reload",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Rough scouting stays approximate without leaking exact ceiling",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "No browser errors",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Named current and next winter preview present",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Actual purchase updates named ceiling preview without growing ratings",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Second room projects 60 to 62 at exact scouting",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Farm player included",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Purchased rooms and forecast survive reload",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Rough scouting stays approximate without leaking exact ceiling",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "No browser errors",
+    "ok": true
+  }
+]
