@@ -1,5 +1,7 @@
 # Evidence — 2026-10-13
 
+Promise/payoff follow-up: verified coverage against the actual Godot evolution overrides: all 15 evolving roots and 17 terminal outcomes appear in EVOLUTION-PROMISES.md. `evolution-graph.json` preserves that inspected graph. Both family pages pass 54 combined responsive/mode/size checks (Pyremane has four endpoint cards; Tidewyrm has five study cards), with no page errors, overflow or unequal comparison heights. Evidence: `pyremane/browser-checks.json` and `capture/pyremane-*.png`.
+
 Tidewyrm follow-up: all 20 suites rerun successfully after adding the interactive workshop and the standalone Godot comparison. Browser-specific evidence is in `tidewyrm/browser-checks.json`: 27 viewport/mode/size combinations, all five images visible, equal-height comparisons and no horizontal overflow or page errors. GPU evidence: `capture/tidewyrm00000000.png` and `capture/tidewyrm.log`.
 
 `node tools/run-all-checks.cjs` exited 0: **All 20 suites pass.** Fresh browser contexts; no personal saves.

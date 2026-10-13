@@ -97,6 +97,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-13, Codex (Evan), ART-WB-HF1:** applied "humble beginnings, spectacular payoff" to 15 live Godot evolution families / 17 final outcomes in PR #274. Corrected starter stages (Blazefang/Tidewyrm/Thornback are middles); generated three Pyremane candidates and recommended Crown Mantle. Endpoint workshop passes 54 responsive/mode/size checks. This round cost 8.25 credits; 74.25 remain.
+
 - **2026-10-13, Codex (Evan), ART-WB-HF1 follow-up:** PR #274 now includes three Tidewyrm evolution concepts, a refined directional reference and an interactive silhouette/scale workshop. Current Sail is the working recommendation; crest and marking inconsistencies are documented before production. Four images cost 11 credits; no purchase.
 
 - **2026-10-13, Codex (Evan):** ART-WB-HF1 in PR #274 preserves six Higgsfield outputs, exact prompts and an isolated Godot scale/evolution review. All 20 suites pass. Promising portraits/references; not finished animations. No game/version changes or purchase.

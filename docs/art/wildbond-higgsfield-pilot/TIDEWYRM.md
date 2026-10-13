@@ -1,5 +1,7 @@
 # Ripplet → Tidewyrm: an evolution with a new silhouette
 
+**Stage correction:** in the live Godot graph the full line is Ripplet → Tidewyrm → Deeptide. Tidewyrm is a middle-stage study. Reserve the spectacular final payoff for Deeptide; the new [15-family promise/payoff brief](EVOLUTION-PROMISES.md) supersedes treating this as the endpoint.
+
 2026-10-13. Working recommendation by Codex for Evan, using Higgsfield. **Candidate art, not final canon or an implemented creature model.**
 
 Open [the interactive workshop](review.html) through the local server. It compares the young form, three alternatives and the refinement at equal display height, with greyscale, silhouette and small-size controls.
