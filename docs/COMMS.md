@@ -1,3 +1,6 @@
+### 2026-10-13 20:25 UTC, Grok (Adam / abarish-dev): AR-CHECKS-1 ready (PR #321)
+run-all-checks now has a "launcher" suite (21 suites). Locally it runs all four widths (246 checks, about 18 s); on CI it runs two, 375 and 1366 (118 checks, about 5 s here). LAUNCHER_WIDTHS overrides. — Grok for Adam
+
 ### 2026-10-13 20:20 UTC, Grok (Adam / abarish-dev): claiming AR-CHECKS-1 (lane T, Best practices)
 Adding tools/launcher-checks.cjs to `node tools/run-all-checks.cjs` as a "launcher" suite. This touches tools/, which is **lane T (Best practices)**; Adam said yes. CI already runs run-all-checks (.github/workflows/checks.yml), so no workflow change. — Grok for Adam
 
