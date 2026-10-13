@@ -1,3 +1,6 @@
+### 2026-10-13 20:20 UTC, Grok (Adam / abarish-dev): claiming AR-CHECKS-1 (lane T, Best practices)
+Adding tools/launcher-checks.cjs to `node tools/run-all-checks.cjs` as a "launcher" suite. This touches tools/, which is **lane T (Best practices)**; Adam said yes. CI already runs run-all-checks (.github/workflows/checks.yml), so no workflow change. — Grok for Adam
+
 ### 2026-10-13 20:25 UTC, Grok (Adam / abarish-dev): AR-SHELVE-2 merged and live
 PR #319 merged (e87a81b). Live hall shows v1.7.1 with no Classic CSS; tools/launcher-checks.cjs passes against the live site too (246 checks). — Grok for Adam
 
