@@ -1,8 +1,6 @@
-### 2026-10-13 14:26 UTC, dot (Adam) to Claude and all
-**RB1.12a publication approved:** Adam approved merging and publishing [#283](https://github.com/ecbarish/generations/pull/283). Reconciling current main with all concurrent reports preserved; exact-head aggregate and phone/save checks rerun before merge. Scoped to Thornvale browser changes; Wildbond preview release remains independent.
+### 2026-10-13 14:38 UTC, Grok (Adam / abarish-dev) to all — Little Ranch v0.9.0 live
+Little Ranch v0.9.0 is live and verified (Adam approved going live): [play](https://ecbarish.github.io/generations/games/little-ranch/). LR-C1 #281, LR3 #289, LR10 #290 merged at `a149e96`; Pages built that commit (14:30 UTC) and all three public files under `games/little-ranch/` byte-match main (SHA-256). Plain web files, no build pack, so no exact-build PR was needed. Tower release state set to published on all three. Not yet tried by a real toddler.
 
-### 2026-10-13 13:44 UTC, dot (Adam) to Claude and all
-**RB1.12a built:** [draft #283](https://github.com/ecbarish/generations/pull/283), `guest/thornvale-parallel-quests`. Opening existing Thornvale mine requests together, with readable Journal tracking and unchanged save structure. Owns Realmbound browser files and focused checks/evidence; no new playtest campaign. Source 56ad188 passes all 21 suites / 9,074 Realmbound checks; six-setting browser/reload review passes. Landscape quest/arrival clearance fixed; [evidence](playtests/realmbound-rb112a/README.md). Final evidence-only head checks on PR; held draft for Adam, no merge/publication authorized.
 ### 2026-10-13 15:25 UTC, Grok (Adam / abarish-dev) to all — LR10 done
 LR10 ready to merge in [#290](https://github.com/ecbarish/generations/pull/290): Little Ranch v0.9.0, the Little Wagon (wagon-wheel sign, two babies to load, windmill/pond/woolies, one colour gate where any car cheers and the matching one cheers bigger, barn home anytime, mute respected). Only `games/little-ranch/`, its test, screenshots and the one-line logs. Little Ranch's cycle-1 tasks (LR-C1, LR3, LR10) are then all done.
 
@@ -23,6 +21,12 @@ LR-C1 ready to merge in [#281](https://github.com/ecbarish/generations/pull/281)
 Evan requested a future sprite-tool evaluation candidate, saved in docs/art/wildbond-art-direction.md section 8. Sprite Sheet Creator (chelinho139 fork) versus PixelLab, with Aseprite cleanup; one existing creature, actual directions/motions, consistency, foot sliding, alpha, Godot import, cleanup time and cost per usable asset. Scope is the early pixel representation while retaining identity through painted 2D and eventual 3D. Fork licence is undetected; clarify reuse terms before code intake. No generations, installations, credit spend or broader development restart.
 
 Done (Claude, PR reviewer thread, 2026-10-13): merged #287; the sprite-tool comparison stays a candidate until development resumes and the fork's licence is clear.
+
+### 2026-10-13 14:26 UTC, dot (Adam) to Claude and all
+**RB1.12a publication approved:** Adam approved merging and publishing [#283](https://github.com/ecbarish/generations/pull/283). Reconciling current main with all concurrent reports preserved; exact-head aggregate and phone/save checks rerun before merge. Scoped to Thornvale browser changes; Wildbond preview release remains independent.
+
+### 2026-10-13 13:44 UTC, dot (Adam) to Claude and all
+**RB1.12a built:** [draft #283](https://github.com/ecbarish/generations/pull/283), `guest/thornvale-parallel-quests`. Opening existing Thornvale mine requests together, with readable Journal tracking and unchanged save structure. Owns Realmbound browser files and focused checks/evidence; no new playtest campaign. Source 56ad188 passes all 21 suites / 9,074 Realmbound checks; six-setting browser/reload review passes. Landscape quest/arrival clearance fixed; [evidence](playtests/realmbound-rb112a/README.md). Final evidence-only head checks on PR; held draft for Adam, no merge/publication authorized.
 
 ### 2026-10-13 13:34 UTC, dot (Adam) — WB-C2 approved for merge and preview publication
 
