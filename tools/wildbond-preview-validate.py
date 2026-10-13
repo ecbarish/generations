@@ -35,6 +35,17 @@ for capture in r['screenshots']:
     assert (a.folder / 'screens' / capture).stat().st_size > 1000
 assert not any(any(word in item['line'] for word in ('SCRIPT ERROR', 'Parse Error', 'Failed to load script', 'Aborted(')) for item in r['consoles'])
 if not a.opening_only:
+    rename = r.get('renameContinuity', {})
+    assert rename.get('passed') and rename.get('scope') == 'simulated-local-same-origin-path-rename'
+    assert rename.get('oldPath') == '/idle-arcade/play/wildbond/' and rename.get('canonicalPath') == '/generations/play/wildbond/'
+    assert all(rename.get(field) is True for field in ('sameOrigin', 'priorPack', 'realInputChange', 'indexedDB', 'fixtureFreeNavigation', 'settingsPreserved'))
+    assert len(rename.get('priorPackSha256', '')) == 64 and len(rename.get('newPack', {}).get('sha256', '')) == 64
+    assert rename['newPack']['sha256'] != rename['priorPackSha256'], 'Rename test must exercise different previous and reviewed packs'
+    assert rename['oldPosition'] == {'x': 11, 'y': 10} and rename['canonicalPosition'] == {'x': 11, 'y': 11}
+    assert set(rename['screenshots']) == {'rename-old-path-persisted.png', 'rename-canonical-path-loaded.png'}
+    for capture in rename['screenshots']:
+        data = (a.folder / 'screens' / capture).read_bytes()
+        assert len(data) > 1000 and struct.unpack('>II', data[16:24]) == (812, 375)
     doors = {(c['size']['width'], c['size']['height'], c['building'], c['phase']) for c in r['doors']}
     expected = {(w, h, b, phase) for w, h in ((1920, 1080), (812, 375), (844, 390), (960, 540)) for b in ('inn', 'shop', 'pip_home', 'gran_home', 'barn') for phase in ('entry', 'exit', 'reentry')}
     assert doors == expected and len(r['doors']) == 60

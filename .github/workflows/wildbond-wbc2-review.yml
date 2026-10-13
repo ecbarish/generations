@@ -5,7 +5,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: wildbond-wbc2-review-${{ github.ref }}
+  group: wildbond-wbc2-review-${{ github.event.pull_request.head.sha }}
   cancel-in-progress: true
 jobs:
   committed-pack:

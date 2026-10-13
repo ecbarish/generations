@@ -32,6 +32,9 @@ class BrowserEvidenceGate(unittest.TestCase):
             self.report['openings'].append(dict(method=method, size=dict(width=w, height=h), completed=True, partnerAcquired=True, controlReturned=True, fresh=True, partner='cindercub', movement=[{}], regainedMovement=dict(before=dict(x=8, y=5), after=dict(x=8, y=6)), checkpoints=[dict(label=label, file=file) for label in LABELS]))
         self.report['doors'] = [dict(size=dict(width=w, height=h), building=b, phase=p) for w, h in ((1920, 1080), (812, 375), (844, 390), (960, 540)) for b in ('inn', 'shop', 'pip_home', 'gran_home', 'barn') for p in ('entry', 'exit', 'reentry')]
         self.report['pad'] = [dict(releaseVerified=True) for _ in range(12)]
+        rename_shots = ['rename-old-path-persisted.png', 'rename-canonical-path-loaded.png']
+        for file in rename_shots: (self.root / 'screens' / file).write_bytes(png(812, 375))
+        self.report['renameContinuity'] = dict(passed=True, scope='simulated-local-same-origin-path-rename', oldPath='/idle-arcade/play/wildbond/', canonicalPath='/generations/play/wildbond/', sameOrigin=True, priorPack=True, priorPackSha256='1' * 64, realInputChange=True, indexedDB=True, fixtureFreeNavigation=True, settingsPreserved=True, newPack=dict(sha256='2' * 64), oldPosition=dict(x=11, y=10), canonicalPosition=dict(x=11, y=11), screenshots=rename_shots)
 
     def gate(self, success=False):
         (self.root / 'web-review.json').write_text(json.dumps(self.report))
@@ -68,6 +71,18 @@ class BrowserEvidenceGate(unittest.TestCase):
         self.gate()
     def test_door_coverage_lost(self):
         self.report['doors'].pop()
+        self.gate()
+    def test_missing_rename_continuity(self):
+        del self.report['renameContinuity']
+        self.gate()
+    def test_rename_reinjects_fixture(self):
+        self.report['renameContinuity']['fixtureFreeNavigation'] = False
+        self.gate()
+    def test_rename_never_changed_packs(self):
+        self.report['renameContinuity']['newPack']['sha256'] = '1' * 64
+        self.gate()
+    def test_rename_missing_capture(self):
+        (self.root / 'screens/rename-canonical-path-loaded.png').unlink()
         self.gate()
     def test_pad_release_lost(self):
         self.report['pad'][0]['releaseVerified'] = False

@@ -27,3 +27,7 @@ Build run [38407995978](https://github.com/ecbarish/generations/actions/runs/384
 ## First exported-browser run
 
 Run [38408642351](https://github.com/ecbarish/generations/actions/runs/38408642351) stopped at the Maren/register OCR assertion. The captured native 1920×1080 image visibly contains the correct complete revised dialogue; the verifier downsampled its high-resolution browser font before OCR and misread it. Correcting the observer to crop native-resolution text; required phrases and matching tolerances are unchanged. This is a failed verification run, not a passed browser review. Exact pack bytes remain unchanged.
+
+## Rename-continuity coverage
+
+The automated local browser suite now also models the same-origin repository path change: actual prior pack at `/idle-arcade/play/wildbond/`, a real movement-triggered IndexedDB save, then fixture-free navigation to `/generations/play/wildbond/` with the new pack response hash checked. It must preserve team/ranch identities, possessions, progression and settings. Existing authored barn reload lands at its doorway (11,11), not the prior movement tile (11,10). This is a controlled same-origin path regression, not access to anyone’s existing browser data. Runtime result pending; all 16 validator positive/negative controls pass locally.
