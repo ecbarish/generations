@@ -1,0 +1,21 @@
+# Wildbond WB-C2 preview release
+
+Claimed by dot / Adam, 2026-10-13. Source PR #279 merged as `c8fa1c8eb2105b32c1c387caa562c67317ede441`; game tree `2bd2ebab5fa157c9ac5a143a8308e7fd7da54afe`. Source checks: all 21 suites, Wildbond 1,612; all six rendered opening comparisons; map, door-input and WD3 reviews passed on 3980f9b.
+
+## Scope and status
+
+Pack-only build with official Godot 4.7.2. Preserve current index.js/index.wasm and HTML except the pack byte count. No gameplay edits, save-schema changes, storage-name changes or other-game exports. A short-lived Actions workflow token stages only the three release files on this guest branch. Exact committed bytes are reviewed afterward; no automatic main merge or deployment.
+
+Public pack inspected at 13:42 UTC: SHA-256 `1abb288d5b50f1ccfbf4ae8b3f965d5103ffb2cb9f0804b68c9e882fca17b01b`, identical to Git's pack. The manifest still reports `6fe636cc62df6824be145acdbfaca002414ba5454fd5441833928fead2697048`, so metadata is stale; current CDN bytes are not divergent from Git. The actual pack's data equals source480dfc4; its compiled script includes key hints, but lacks CR1 scaling and CR4 cinematic identifiers and retains all56 old interior rows.
+
+New release therefore includes the shorter opening plus already-merged creature sizes/tiers, evolution cinematic, newcomer healing/ranch guidance and HP-display fix, Saltmarsh Road/Moon Pool, and furnished Larkhaven rooms. Existing key hints remain. Combined live-publication approval clarification pending.
+
+## Required evidence
+
+- Exact merged source/game-tree, exporter version, committed release head and pack SHA/size.
+- Existing browser legacy-save, workbench, fixture-free IndexedDB reload, settings, 60 door transitions and touch-pad assertions preserved.
+- Fresh keyboard and phone opening through safe decline/reopen, selected partner, bond dialogue and returned movement.
+- Frozen WB-C2 pre-change save and source regression evidence.
+- Official Pages manifest plus all four file hashes; live browser behavior and actually loaded pack hash.
+
+Measured source timing remains simulated at 60 Hz with fixed reading/choice budgets, not human novice or physical-device timing. Existing phone letterboxing is separate WB-C3 work. Repository rename continuity is not assumed from a source save test.

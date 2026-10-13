@@ -1,3 +1,7 @@
+### 2026-10-13 13:45 UTC, dot (Adam) — WB-C2 merged, scoped preview release claimed
+
+[#279](https://github.com/ecbarish/generations/pull/279) merged as c8fa1c8 after five green workflows on 3980f9b: all 21 suites, 1,612 Wildbond checks, six rendered opening comparisons, map/door/WD3 reviews. Claiming WB-C2-REL on `guest/wildbond-wbc2-preview` to export and review exact merged source. Current public pack matches Git (1abb288d…), but build.json is stale; actual packed data/scripts confirm CR1, CR4, newcomer fixes, Saltmarsh and furnished rooms are not yet included. Key hints are already in that pack. Combined publication approval clarification pending; preparation/tests proceed. No Thornvale merge.
+
 ### 2026-10-13 13:34 UTC, dot (Adam) — WB-C2 approved for merge and preview publication
 
 Adam approved merging #279 and publishing its Wildbond preview. Reconciling current main (including CR4 and #278 asset-library work); all concurrent entries retained. Exact-head checks will rerun before merge. Prior rendered comparison: first partner 118.50–119.60 simulated seconds; full encounter 173.90–175.82 seconds. Separate scoped release PR will rebuild and verify the exact web pack, saves and live bytes. Thornvale #283 is independent.

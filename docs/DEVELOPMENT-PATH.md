@@ -66,7 +66,9 @@ big step, someone who didn't build it scores it with docs/PLAYTEST.md's six ques
 Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stable; tickets reference them.
 
 ### Wildbond (Godot): the new Wildbond, to version 2.0
-- [ ] WB-C2 [dot / Adam] (claimed: dot / Adam, 2026-10-13, `guest/wildbond-first-partner`) Meet your partner sooner (cycle 1): measure New Game to first partner before and after; trim the opening to three minutes or less while preserving story essentials and old saves. Files: Wildbond opening, regression/timing evidence, and coordination docs. Done when both measurements are in the PR, checks pass, and old saves load.
+- [x] WB-C2 [dot / Adam] (merged: #279, c8fa1c8, 2026-10-13) Meet your partner sooner (cycle 1): measure New Game to first partner before and after; trim the opening to three minutes or less while preserving story essentials and old saves. Files: Wildbond opening, regression/timing evidence, and coordination docs. Done when both measurements are in the PR, checks pass, and old saves load.
+- [ ] WB-C2-REL [dot / Adam] (claimed: dot / Adam, 2026-10-13, `guest/wildbond-wbc2-preview`) Rebuild the exact merged Wildbond source c8fa1c8 as a pack-only preview; verify browser opening, legacy saves, phone inputs, manifest and live bytes. Preserve engine/storage identity and concurrent work. Publication waits for combined-release approval.
+
 - [x] WB-N1 [any] (done 2026-10-12 by Muse, Adam / abarish-dev, PR #257) Wildbond newcomer snags (Flint round 2, COMMS 2026-10-12 20:52): after the rival fight, Maren says the team is hurt and the Larkhaven inn heals (win scene + loss line); after the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]`); battle HP bars snap to real HP on finish (`u.shown`). Bond-gated evolution is a design question for Design decisions first. Files: wildbond-godot/. All Godot checks pass; old saves load (additive changes only).
 **WB-M1: the start of the journey (done 2026-10-08).**
 - [x] The opening, register and heritages, the barn, Wren; Thornwood, Saltmarsh, Emberfall, Cloudglass; wild

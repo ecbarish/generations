@@ -97,6 +97,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-13, dot (Adam), WB-C2:** merged #279 as c8fa1c8 after all 21 suites and opening/map/door/WD3 rendered checks passed. First partner 118.50–119.60 simulated seconds; full encounter 173.90–175.82. Exact-pack preview release claimed separately; not yet published.
+
 - **2026-10-13, dot (Adam), WB-C2:** shorter arrival/barn dialogue and unchanged family tales immediately after the first bond, in draft [#279](https://github.com/ecbarish/generations/pull/279). All 20 aggregate suites pass on the implementation, including 1,612 integrated Wildbond checks and frozen pre-change save compatibility. Input-only before/after timing and full-resolution desktop/phone evidence: [record](docs/playtests/wildbond-wb-c2/README.md). Adam approved merge and preview publication at 13:32 UTC; reconciling current main and rerunning exact-head checks before the scoped release.
 
 - 2026-10-13 Codex: PR #278 final asset push adds a male/female 3D fitting bench and paired role sheets; pause handoff in docs/art/starfall-higgsfield/FINAL-PUSH.md. Next bounded step is one fitted kit on both bodies.
