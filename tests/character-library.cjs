@@ -1,7 +1,13 @@
 /* Optional visual integration suite: node tests/character-library.cjs <served repo origin>.
    Uses the trial's external THREE r134 CDN. Separate from the offline game CI runner. */
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('fs'),path=require('path');
-(async()=>{const origin=process.argv[2]||'http://localhost:8777',out=path.resolve(__dirname,'../docs/art/starfall-higgsfield/bench');fs.mkdirSync(out,{recursive:true});const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});const checks=[];function check(ok,label){assert.ok(ok,label);checks.push(label);}
+// Keep an explicit override; use the old Windows default only when installed.
+function browserPath(env=process.env,exists=fs.existsSync){
+ const windowsChrome='C:/Program Files/Google/Chrome/Application/chrome.exe';
+ return env.CHROME_PATH||(exists(windowsChrome)?windowsChrome:undefined);
+}
+module.exports={browserPath};
+if(require.main===module)(async()=>{const origin=process.argv[2]||'http://localhost:8777',out=path.resolve(__dirname,'../docs/art/starfall-higgsfield/bench');fs.mkdirSync(out,{recursive:true});const browser=await chromium.launch({executablePath:browserPath(),headless:true});const checks=[];function check(ok,label){assert.ok(ok,label);checks.push(label);}
 try{for(const [width,height] of [[390,844],[1440,1000],[3440,1440]]){
  const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce',serviceWorkers:'block'}),page=await context.newPage(),errors=[],warnings=[];
  page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='warning'&&m.text().includes('THREE.PropertyBinding'))warnings.push(m.text());});

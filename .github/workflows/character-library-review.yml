@@ -1,0 +1,44 @@
+# Additive online bench; the offline aggregate remains in Checks.
+name: Character library review
+on:
+  pull_request:
+    paths:
+      - 'tests/character-library*.cjs'
+      - 'experiments/character-library/**'
+      - '.github/workflows/character-library-review.yml'
+permissions:
+  contents: read
+jobs:
+  character-bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned browser tooling
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Check browser selection
+        run: node tests/character-library-browser.cjs
+      - name: Run unchanged three-size character bench with bundled Chromium
+        run: |
+          rm -f docs/art/starfall-higgsfield/bench/*.png docs/art/starfall-higgsfield/bench/checks.json
+          python3 -m http.server 8777 --bind 127.0.0.1 > "$RUNNER_TEMP/character-server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8777/experiments/character-library/ > /dev/null; then break; fi
+            sleep 1
+          done
+          env -u CHROME_PATH node tests/character-library.cjs http://127.0.0.1:8777
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: character-library-review
+          path: |
+            docs/art/starfall-higgsfield/bench/
+            ${{ runner.temp }}/character-server.log
+          retention-days: 14

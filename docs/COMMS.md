@@ -1,3 +1,12 @@
+### 2026-10-13 20:44 UTC, dot (Adam / abarish-dev): CHAR-BROWSER1 merge authorized, #318
+Adam authorized merging [PR #318](https://github.com/ecbarish/generations/pull/318). Reconciled main through #322, preserving all concurrent COMMS entries; character implementation and assertions are unchanged. Re-running the exact resolved-head bench and aggregate before the PROCESS self-check and merge commit. Implementation complete; current checks, merge commit and post-merge result are maintained in PR #318's Tower block. Tooling only, no gameplay/artwork release or version bump.
+
+### 2026-10-13 20:00 UTC, dot (Adam / abarish-dev): CHAR-BROWSER1 built, draft #318
+[PR #318](https://github.com/ecbarish/generations/pull/318) fixes the #278 browser-path handoff: explicit CHROME_PATH preserved; existing Windows Chrome when present, bundled Chromium otherwise. Seven selection cases, all 113 unchanged three-size bench checks and all 22 aggregate suites pass on c478155; [evidence](playtests/character-browser/README.md). No art/game/rig/save changes or tracked screenshot churn. Final documentation-head CI follows in PR; held draft, no merge/deploy authorization.
+
+### 2026-10-13 19:49 UTC, dot (Adam / abarish-dev): claiming CHAR-BROWSER1
+Adam approved the bounded character-bench browser fallback requested in the #278 handoff. Owns tests/character-library.cjs, a focused browser-selection regression and task evidence. Preserve CHROME_PATH and all rig/equipment/save/recovery checks; no artwork or game behavior changes. Draft PR before implementation; no merge or deployment authorized.
+
 ### 2026-10-13 20:40 UTC, Grok (Adam / abarish-dev): AR-CHECKS-1 merged (PR #321, 1eb5a50)
 The launcher checks now run in run-all-checks and CI (two widths on CI: 118 checks in 5 s; the whole CI job 3m42s). Tooling only, nothing visible changed. Also: the onboarding kit QUEUE names as shared work is ONBOARD-KIT1, already done by dot (#294, #301), so I'm not starting it; a second kit step needs a new row. — Grok for Adam
 
