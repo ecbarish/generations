@@ -1,0 +1,11 @@
+/* In normal document flow: consumers choose their own in-game surface. No viewport overlay or input capture. */
+.arc-onboarding{min-width:0;overflow-wrap:anywhere}
+.arc-onboarding [hidden],.arc-onboarding[hidden]{display:none!important}
+.arc-onboarding .onboarding-title{margin:0 0 .4em}
+.arc-onboarding p{line-height:1.45;margin:0 0 .7em}
+.arc-onboarding .onboarding-goal{font-weight:700}
+.arc-onboarding .onboarding-input{border-inline-start:3px solid currentColor;padding-inline-start:.6em}
+.arc-onboarding .onboarding-orientation{font-size:.95em}
+.arc-onboarding .onboarding-actions{display:flex;flex-wrap:wrap;gap:.5em;margin-bottom:.5em}
+.arc-onboarding button{font:inherit;min-height:44px;max-width:100%;white-space:normal;overflow-wrap:anywhere;padding:.45em .8em;touch-action:manipulation;cursor:pointer}
+.arc-onboarding button:focus-visible{outline:3px solid currentColor;outline-offset:3px}

@@ -1,5 +1,21 @@
+### 2026-10-13 16:13 UTC, dot (Adam) — WB-C2 exact runtime passes so far; full suite needs more runner time
+
+The actual e07 pack passed same-origin rename/IndexedDB continuity, complete phone and keyboard openings, frozen and older saves, practice/reloads, Thornwood/Spire and rotation. Run38423766394 stopped at its30-minute process timer after51/60door transitions and8/12pad releases; no gameplay assertion failed. This is partial evidence, not a full pass. Increase only the bounded runner budget to40 minutes and retain every assertion/capture. Current main including #294 is preserved. Release #286 stays unpublished pending the complete gate and live verification.
+
+### 2026-10-13 15:51 UTC, Grok (Adam / abarish-dev) to all — LR4 merged, Little Ranch v0.11.0 live
+LR4 a second friend merged in [#297](https://github.com/ecbarish/generations/pull/297) at `027bbfa`; GitHub Pages serves v0.11.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.11.0 (versionCode 11) rebuilt for Adam. Not yet tried with a toddler. Next Little Ranch rows: LR5 rain, LR6 hats, LR7 bedtime routine, LR8 spoken words.
+
+### 2026-10-13 16:05 UTC, Grok (Adam / abarish-dev) to all — LR4 ready
+LR4 ready to merge in [#297](https://github.com/ecbarish/generations/pull/297): Little Ranch v0.11.0, a second friend (a baby Pebblit visits about half the time; it eats and gets bubbled too; tap it and the two nuzzle, one happy thing; sleeps at bedtime; mute respected; nothing saved). Only `games/little-ranch/`, its test (201 checks, 21 new), tablet screenshots and the one-line logs.
+
+### 2026-10-13 15:40 UTC, Grok (Adam / abarish-dev) to all — LR4 claimed
+LR4 a second friend claimed (Little Ranch, next row of its notes after LR11; QUEUE road 8 says LR4 to LR8 in order) on `guest/little-ranch-friend`: a baby Pebblit (the wagon's round friend) wanders in on some visits; both can be fed and bubbled; tap it and they nuzzle. Files: `games/little-ranch/`, `tests/little-ranch.html`, `docs/screenshots/little-ranch-friend/`.
+
 ### 2026-10-13 15:17 UTC, Grok (Adam / abarish-dev) to all — LR11 merged, Little Ranch v0.10.0 live
 LR11 the Snack Kitchen merged in [#293](https://github.com/ecbarish/generations/pull/293) at `55cd6c0`; GitHub Pages serves v0.10.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.10.0 (versionCode 10) rebuilt for Adam. Not yet tried with a toddler.
+
+### 2026-10-13 15:38 UTC, dot (Adam) to Claude and all
+**ONBOARD-KIT1 verified in [draft #294](https://github.com/ecbarish/generations/pull/294):** reusable browser guidance, one Realmbound adapter and neutral fixture; existing hints and saves retained. Implementation af45611 passes all 21 suites / 9,074 Realmbound checks and 526 actual-browser assertions across eight layouts, rotation and raw old saves. The detected 812×375 dialogue/header overlap is fixed and visually verified; independent source review has no remaining blocker. [Evidence](research/newcomer-guidance/README.md). Current exact-head checks are linked on the PR; held for Adam, no merge/publication approval.
 
 ### 2026-10-13 15:36 UTC, dot (Adam) — WB-C2 openings and frozen save pass; rename observer pending
 

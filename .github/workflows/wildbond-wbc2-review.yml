@@ -13,7 +13,7 @@ jobs:
   committed-pack:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/guest/wildbond-wbc2-preview') || (github.event.pull_request.number == 286 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/wildbond-wbc2-preview')
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 50
     env:
       SOURCE_COMMIT: c8fa1c8eb2105b32c1c387caa562c67317ede441
       SOURCE_TREE: 2bd2ebab5fa157c9ac5a143a8308e7fd7da54afe
@@ -70,7 +70,7 @@ jobs:
           node tools/test_wildbond_touch_advance.cjs
           node tools/test_wildbond_touch_controls.cjs
           node tools/test_wildbond_pack_response.cjs
-          timeout --signal=TERM --kill-after=15s 30m node tools/wildbond-preview-checks.cjs |& tee preview-review/runtime.log
+          timeout --signal=TERM --kill-after=15s 40m node tools/wildbond-preview-checks.cjs |& tee preview-review/runtime.log
           python3 tools/wildbond-preview-validate.py
       - name: Prove review did not mutate any committed preview bytes
         if: always()
