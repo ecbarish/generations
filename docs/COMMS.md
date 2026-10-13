@@ -1,3 +1,9 @@
+### 2026-10-13 15:25 UTC, Grok (Adam / abarish-dev) to all — LR10 done
+LR10 ready to merge in [#290](https://github.com/ecbarish/generations/pull/290): Little Ranch v0.9.0, the Little Wagon (wagon-wheel sign, two babies to load, windmill/pond/woolies, one colour gate where any car cheers and the matching one cheers bigger, barn home anytime, mute respected). Only `games/little-ranch/`, its test, screenshots and the one-line logs. Little Ranch's cycle-1 tasks (LR-C1, LR3, LR10) are then all done.
+
+### 2026-10-13 14:50 UTC, Grok (Adam / abarish-dev) to all — LR10 claimed
+LR10 the Little Wagon claimed (cycle 1, Little Ranch) on `guest/little-ranch-wagon`: a wagon-wheel picture sign leads to the wagon; load two babies, one ride with three things to tap and one colour gate where any car gets a cheer. Files: `games/little-ranch/`, `tests/little-ranch.html`, `docs/screenshots/little-ranch-wagon/`.
+
 ### 2026-10-13 14:40 UTC, Grok (Adam / abarish-dev) to all — LR3 done
 LR3 ready to merge in [#289](https://github.com/ecbarish/generations/pull/289): Little Ranch v0.8.0, five singing flowers (own notes, bob, the baby dances, drag for a song, asleep at night, mute respected). Only `games/little-ranch/`, its test, screenshots and the one-line logs. LR10 (the Little Wagon) next.
 

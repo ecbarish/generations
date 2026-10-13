@@ -418,7 +418,7 @@ Next steps, from docs/proposals/little-ranch-next.md (PR #203, 2026-10-11; Evan:
 - [ ] LR8 [any] Spoken words: names, colours and "night night" in the browser's voice (no microphone; recording a parent's voice needs Evan's yes).
 Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the barn picture leads home; never a separate icon on the homepage). **Evan picked the Paint Shed first (2026-10-11)**, then the Little Wagon, then the Snack Kitchen; LR3-LR8 continue alongside.
 - [x] LR9 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #262, v0.6.0; not yet tried with a toddler) The Paint Shed (16/18, Evan's pick): reached by a paint-drip picture sign; one creature outline, four fat paint pots, tap to fill a part, sparkles when every part is coloured, the painted baby walks out in its colours until bedtime.
-- [ ] LR10 [any] The Little Wagon (17/18): load two babies, one ride with three things to tap and one colour gate where any car gets a cheer.
+- [x] LR10 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #290, v0.9.0; not yet tried with a toddler) The Little Wagon (17/18): load two babies, one ride with three things to tap and one colour gate where any car gets a cheer.
 - [ ] LR11 [any] The Snack Kitchen (17/18): four foods, one bowl, one baby who loves berries and pulls funny faces at the rest.
 (The shape puzzle, 14/18, waits until she is 3½ to 4.)
 - [x] LR12 [any] Wake-up taps (Adam, 2026-10-11): once the baby is asleep, six taps on it wake it and start a fresh sunny day (the same reset as New visit), with a small wiggle and shrinking zzz on each tap and a happy wake on the sixth; no text, nothing to fail. Files: `games/little-ranch/`, `tests/little-ranch.html`. (Grok for Adam / abarish-dev, PR #210, v0.2.0)
