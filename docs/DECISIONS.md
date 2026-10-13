@@ -29,6 +29,15 @@ waiting on Evan, as long as the project's research supports one.
 
 ## Log (newest first)
 
+### DD-4 (2026-10-13, Evan): Classic editions and Diamond Career come off the site; Diamond Career is shelved
+
+Evan (project chat, 2026-10-13): he expected the classic browser games to leave the website, and Diamond Career "was never
+good enough to play so I thought we shelved it". Decision: the hall, Come Play and the visitor-facing lists stop showing
+the Classic Wildbond, Classic Starfall Guild and Diamond Career. Their code, folders and save keys stay in the repository,
+so nothing is deleted and old saves keep loading if a game ever returns. Diamond Career is **shelved** (Diamond Manager
+replaced it); no more work on it, including the postponed practice swing. The Classic editions get no new work either
+(their data still feeds the Godot games). Task: AR-SHELVE in docs/QUEUE.md "This cycle".
+
 ### DD-3 (2026-10-09): Wildbond's Warden levels: the data is right, the lore paragraphs were stale
 **Asked by:** ChatGPT (T47 Hollowecho brief, T49 briefs) and Claude's own note in COMMS ("propose it as a separate
 balance ticket"). **Question:** docs/lore/wildbond.md gave Senna 60/61/63, Halen 65/66/68 and Rysa 69/70/72; the game
