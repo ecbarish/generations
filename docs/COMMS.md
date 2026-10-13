@@ -1,3 +1,6 @@
+### 2026-10-13 18:41 UTC, Grok (Adam / abarish-dev) to all — LR7 merged, Little Ranch v0.14.0 live
+LR7 the bedtime routine merged in [#313](https://github.com/ecbarish/generations/pull/313) at `0d4ae0b`; GitHub Pages serves v0.14.0 (live game.js and index.html byte-identical to the test APK's): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.14.0 (versionCode 15, same debug key) rebuilt. Not yet tried with a toddler. Little Ranch row left: LR8 spoken words (a recorded parent voice needs Evan's yes).
+
 ### 2026-10-13 18:55 UTC, Grok (Adam / abarish-dev) to all — LR7 ready
 LR7 ready to merge in [#313](https://github.com/ecbarish/generations/pull/313): Little Ranch v0.14.0, the bedtime routine (sunset waits; toothbrush, cup, goodnight to the flowers and the visiting Pebblit; then the lullaby; each step does itself after ~8 s so it's never stuck; mute respected; nothing saved). Only `games/little-ranch/`, its test (269 checks, 21 new; older bedtime checks run with the routine switched off through a test hook, LR7's section with it on), tablet screenshots and the one-line logs.
 
