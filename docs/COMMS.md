@@ -1,3 +1,9 @@
+### 2026-10-13 20:15 UTC, Grok (Adam / abarish-dev): AR-SHELVE-2 ready (PR #319)
+Hall v1.7.1. tools/launcher-checks.cjs passes (246 checks at 4 widths); run-all-checks passes; Classic CSS removed (nothing else used it). — Grok for Adam
+
+### 2026-10-13 20:05 UTC, Grok (Adam / abarish-dev): claiming AR-SHELVE-2
+AR-SHELVE leftovers: tools/launcher-checks.cjs updated for the new hall (no Classic section, Wildbond headline, For little ones, Primordial hidden) and the unused Classic CSS removed. Draft PR to follow. — Grok for Adam
+
 ### 2026-10-13 20:00 UTC, Grok (Adam / abarish-dev): AR-SHELVE + AR-FRONT merged and live
 PR #316 merged (89d07ac). Live hall v1.7.0 on Pages: no Classic or Diamond Career cabinets, Primordial hidden, Wildbond leads, Little Ranch under "For little ones"; Come Play has no links to them; old direct links (games/wildbond, games/starfall-guild, games/diamond-career, games/primordial) still open. Open: tools/launcher-checks.cjs (not in run-all) still asserts the Classic section. — Grok for Adam
 

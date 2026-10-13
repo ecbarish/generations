@@ -55,11 +55,10 @@ a{color:inherit}
 .fb-btn:hover{background:var(--muted);color:var(--bg)}
 .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
 .status{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 9px;border-radius:999px;border:1px solid currentColor}
-.s-play{color:var(--ok)} .s-proto{color:var(--proto)} .s-design{color:var(--dim)} .s-classic{color:#e6c9a0}
+.s-play{color:var(--ok)} .s-proto{color:var(--proto)} .s-design{color:var(--dim)}
 /* Edition ribbons (Evan, 2026-10-11: make Classic versus the new version obvious at a glance) */
 .edition{position:absolute;top:10px;left:-4px;z-index:2;font-family:var(--f-sign);font-size:13px;letter-spacing:.06em;padding:3px 12px 3px 14px;border-radius:0 6px 6px 0;box-shadow:0 2px 6px #0008}
-.ed-new{background:#7fe0a0;color:#0c2a18}.ed-classic{background:#d9b98a;color:#2e1f0c}
-.kind#kind-classic .cab{border-style:dashed}.edition-link a{color:#7fe0a0;text-underline-offset:3px}
+.ed-new{background:#7fe0a0;color:#0c2a18}
 .blurb{margin:0;color:var(--muted);font-size:14px}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tags span{font-size:12px;color:var(--muted);background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:1px 7px}
@@ -112,13 +111,13 @@ a{color:inherit}
 
 body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .desc,.cab .play,.header-tools a{font-size:calc(14px * var(--arc-text,1))}
 
-/* Actual recorded frames mark the new versions; Classic keeps its animated covers. */
+/* Actual recorded frames mark the previews. */
 .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
 .preview-card .cover{height:auto;aspect-ratio:16/9}
 .preview-card .cover .title{inset:auto 0 0;padding:16px 12px 10px;background:linear-gradient(transparent,#12101deb);font-size:24px;text-shadow:0 2px 3px #000}
 .preview-card .status{background:#233a32;color:#bff1cc;border:1px solid #608871}
-.preview-load,.preview-classic{font-size:calc(14px * var(--arc-text,1));line-height:1.5}
-.preview-load{color:#c4b9d8}.preview-classic a{color:#ffd27a;text-underline-offset:3px}
+.preview-load{font-size:calc(14px * var(--arc-text,1));line-height:1.5}
+.preview-load{color:#c4b9d8}
 </style>
 <link rel="stylesheet" href="shared/accessibility.css">
 </head>
@@ -127,7 +126,7 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
   <header class="marquee">
     <h1 class="sign">Gener<span>ations</span></h1>
     <p class="tag"><b class="motto">Play for the fun. Automate the grind.</b> A stable of adventure and progression games, headlined by <b>Wildbond</b>: bond with creatures and bring colour back to a faded world. Little ones have <b>Little Ranch</b>, a gentle toy for ages 2 to 4. Each game saves on its own, so you can jump between them and pick up where you left off. New here? Meet <a href="promo.html" style="color:var(--marquee)">Realmbound →</a> or <a href="promo-wildbond.html" style="color:var(--ok)">Wildbond →</a></p>
-    <div class="header-tools"><a class="playtest-link" href="playtest.html">What to try →</a><a class="credits-link" href="credits.html">Credits</a><button class="install-btn" id="installArcade" hidden>Install arcade</button><span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span><span class="version-label">v1.7.0</span><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div></div>
+    <div class="header-tools"><a class="playtest-link" href="playtest.html">What to try →</a><a class="credits-link" href="credits.html">Credits</a><button class="install-btn" id="installArcade" hidden>Install arcade</button><span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span><span class="version-label">v1.7.1</span><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div></div>
     <details class="app-help"><summary>Play offline or add to your home screen</summary><p>Open this page online and wait for “Ready for offline play.” You can then open the arcade and its browser games without internet. The new versions of Wildbond and Starfall need internet on their first visit. Use Install arcade when it appears, or your browser’s Install / Add to Home Screen menu. Your saves stay in this browser on this device. Without internet, lettering may use device fonts and Wildbond may use its HD-2D view while the 3D renderer is unavailable.</p></details>
   </header>
 
@@ -156,7 +155,7 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
 <script>
 (function(){
 'use strict';
-const VERSION = '1.7.0'; // the arcade's version (L9)
+const VERSION = '1.7.1'; // the arcade's version (L9)
 setupFeedback('The arcade homepage', VERSION, () => '');
 const GAMES=window.ArcadeGames;
 const ago=t=>{const s=(Date.now()-t)/1000;if(s<90)return'just now';if(s<3600)return Math.round(s/60)+' min ago';if(s<86400)return Math.round(s/3600)+' h ago';return Math.round(s/86400)+' days ago';};
