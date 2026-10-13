@@ -16,21 +16,21 @@
  .abar .mode{flex-direction:row;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
  .statusline{bottom:calc(var(--field-controls-top) + 8px)}
  #arrivalControls{bottom:calc(var(--field-controls-top) + 8px);max-width:calc(100% - 16px);flex-wrap:wrap;justify-content:center}
- .scene .dlg{bottom:calc(var(--field-controls-top) + var(--arrival-controls-height,0px) + 12px)!important;max-height:calc(100% - var(--field-controls-top) - var(--arrival-controls-height,0px) - 70px)}
+ .world:not(.on-road) .scene .dlg.dlg-realmbound{bottom:calc(var(--field-controls-top) + var(--arrival-controls-height,0px) + 12px)!important;max-height:calc(100% - var(--field-controls-top) - var(--arrival-controls-height,0px) - 70px)}
  .lootwin,.enccard{bottom:calc(var(--field-controls-top) + 48px);max-height:calc(100dvh - var(--field-controls-top) - 120px);overflow:auto}
  .petframe,.enccard,.lootwin,#arrivalControls{zoom:1!important;font-size:calc(14px * var(--arc-text,1))}
  .petframe{bottom:calc(var(--field-controls-top) + 48px)}
  .menu{max-height:calc(100dvh - 16px - env(safe-area-inset-bottom));top:50%}
  .field-book-head{gap:6px}.field-book-head h2{font-size:20px;min-width:0}.field-book-head button{flex:none}
  .menu .tabs button{min-height:44px}.menu .tb,.field-page{overflow-wrap:anywhere}
- .on-road .scene .dlg{bottom:calc(var(--field-dock-height,59px) + 44px)!important;max-height:calc(100% - var(--field-dock-height,59px) - 115px)}
+ .on-road .world:not(.on-road) .scene .dlg.dlg-realmbound{bottom:calc(var(--field-dock-height,59px) + 44px)!important;max-height:calc(100% - var(--field-dock-height,59px) - 115px)}
  .on-road .statusline{bottom:calc(var(--field-dock-height,59px) + 24px)}
  .scene canvas,button{touch-action:manipulation}
 }
 @media(max-width:700px) and (max-height:560px){
  .zonebar{top:58px}.units{top:85px}.party{top:145px}
  .abar{max-height:32dvh}.abar .modehint{display:none}
- .scene .dlg{max-height:calc(100% - var(--field-controls-top) - var(--arrival-controls-height,0px) - 62px)}
+ .world:not(.on-road) .scene .dlg.dlg-realmbound{max-height:calc(100% - var(--field-controls-top) - var(--arrival-controls-height,0px) - 62px)}
 }
 
 .abar{flex-wrap:wrap;justify-content:center}
@@ -51,4 +51,8 @@
  .abar .ab{width:calc((100% - 8px)/3);min-height:68px}
  .abar .ab .ic{font-size:calc(14px * var(--arc-text,1))}
  .abar .ab.special{width:calc((100% - 8px)/3);min-width:0}
+}
+/* The arrival pauses combat; on a short screen its controls need that space. */
+@media(max-width:700px) and (max-height:560px){
+ .app:has(#arrivalControls:not([hidden])) .abar{display:none}
 }

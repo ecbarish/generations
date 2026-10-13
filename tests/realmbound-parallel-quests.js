@@ -55,6 +55,10 @@ async function checkRealmParallelQuests(frame){
  d.querySelector('[data-act="followquest"][data-arg="t3"]').click();
  check(run("H().quests.active[0]==='t3'"),'actual Journal button follows selected request');
  run("closeRealmNotebook(false);C.phase='intown';townEnter();abandon('t2');var cancelSnapshot=JSON.stringify(H().quests);talkPlaceQuest(townPeople().find(n=>n.name==='Deputy Rhea'));SCN.skip();");
+ frame.style.width='667px';frame.style.height='375px';await settle();
+ const dialog=d.querySelector('.scene .dlg'),dialogBox=dialog.getBoundingClientRect(),topBox=d.querySelector('.top').getBoundingClientRect();
+ check(dialogBox.top>=topBox.bottom,'landscape quest conversation clears the top HUD');
+ check(dialogBox.bottom<=d.querySelector('.abar').getBoundingClientRect().top+1,'landscape quest conversation clears the combat controls');
  const buttons=[...d.querySelectorAll('.dlg-choices button')];buttons[buttons.length-1].click();
  check(run('JSON.stringify(H().quests)===cancelSnapshot'),'Another time leaves quests and rewards untouched');
  run("talkPlaceQuest(townPeople().find(n=>n.name==='Deputy Rhea'));SCN.skip();");
@@ -65,6 +69,12 @@ async function checkRealmParallelQuests(frame){
  [...d.querySelectorAll('.dlg-choices button')].find(b=>b.textContent.includes('Candles in the Dark')).click();run('SCN.skip();');
  [...d.querySelectorAll('.dlg-choices button')].find(b=>b.textContent.startsWith('I can help')).click();
  check(run("H().quests.active.length===3&&H().quests.active.includes('t2')&&H().quests.prog.t2===0"),'actual giver offer accepts a third request alongside the other two');
+ run("clearTownService();RTALK=null;SCN.el.hidden=true;closeRealmNotebook(false);H().onboarding={arrival:false,hints:{}};beginArrival(false);while(RTALK.i<RTALK.lines.length-1){RTALK.shown=RTALK.lines[RTALK.i][1].length;SCN.advance();}RTALK.shown=RTALK.lines[RTALK.i][1].length;renderTalkAction();updateWorld();");
+ await settle();await settle();
+ check(d.querySelector('.scene .dlg').getBoundingClientRect().top>=d.querySelector('.top').getBoundingClientRect().bottom,'landscape arrival guidance clears the header');
+ check(d.querySelector('#arrivalControls').getBoundingClientRect().bottom<=d.querySelector('#fieldDock').getBoundingClientRect().top,'landscape arrival controls stay above the dock');
+ run('SCN.skip();');await settle();
+ check(d.querySelector('.abar').getBoundingClientRect().height>0,'combat controls return after arrival closes');
  run("clearTownService();RTALK=null;SCN.el.hidden=true;closeRealmNotebook(false);");
  return checks;
 }
