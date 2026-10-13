@@ -14,9 +14,10 @@
    picture goes home at any time. A wagon-wheel sign leads to the Little Wagon (LR10); a snack-bowl sign to the Snack
    Kitchen (LR11): tap a food and the baby eats it, loving berries and pulling funny faces at the rest. On some visits a baby
    Pebblit friend wanders in (LR4): it eats and gets bubbly too, and a tap on it makes the two nuzzle. Tap the cloud for soft rain (LR5); afterwards
-   puddles shine on the grass and a rainbow comes out; tap a puddle and the baby jumps in. The hat basket (LR6): each tap puts the next hat on the baby's head. Nothing is saved. Checks: tests/little-ranch.html. */
+   puddles shine on the grass and a rainbow comes out; tap a puddle and the baby jumps in. The hat basket (LR6): each tap puts the next hat on the baby's head. At bedtime (LR7) the
+   toothbrush, a cup of water and goodnight to each friend come before the lullaby. Nothing is saved. Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.13.1', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
+  const VERSION = '0.14.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
   // LR-C1: things on the ranch, in the order an idle hint offers them (the first one not yet played with)
   const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'sign', 'wsign', 'ksign'];
   // LR11: the Snack Kitchen. Four foods (berries, carrot, lemon, broccoli), one bowl, one baby who loves berries and pulls a
@@ -27,6 +28,10 @@
   // puddles shine on the grass and a rainbow comes out. Tap a puddle and the baby runs over and jumps in, splash! The puddles dry up after a while.
   // LR6: the hat basket. Tap it and a hat hops out onto the baby's head: a straw sun hat, a party hat, a crown, a flower
   // crown, a cowboy hat, then the hat hops back in (bare head) and round again. Every third hat is one happy thing.
+  // LR7: the bedtime routine. At dusk, before the lullaby: tap the toothbrush (the baby brushes, foamy), then the cup (a big
+  // drink), then say goodnight to each friend (the flowers, and the Pebblit when it's visiting): tap them and they wave and
+  // yawn. Then the lullaby and sleep. Nothing to fail and never stuck: a step left alone for a few seconds does itself.
+  const ROUTINE = ['teeth', 'water', 'night'], ROUTINE_WAIT = 8, BRUSH_SECS = 1.8, DRINK_SECS = 1.4; let useRoutine = true;
   const HATS = ['straw', 'party', 'crown', 'flowers', 'cowboy'], HAT_FLY = .6, HAT_TRIES = 3;
   const RAIN_SECS = 5, PUDDLE_SECS = 60, SPLASH_SECS = 1.3;
   const FRIEND_ODDS = .5, NUZZLE_SECS = 1.6, FRIEND_EAT_SECS = 2.4; let forceFriend = null;
@@ -97,7 +102,7 @@
   function newVisit() {
     st = { t: 0, mode: 'play', dusk: 0, acts: 0, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0 },
       bowl: { food: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null },
-      place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 } };
+      place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 }, routine: null, shut: 0 };
     if (forceFriend !== null ? forceFriend : Math.random() < FRIEND_ODDS) st.friend = { x: 1.1, tx: null, then: null, act: null, at: 0, soap: 0, dir: -1 };
     layout(); st.baby.x = L.home.x; if (st.friend) fgo(L.fhome.x, null); // it wanders in from the right
   }
@@ -124,6 +129,7 @@
     L.cloud = { x: W * .64, y: Math.max(H * .08, U * .08), r: Math.min(U * .1, H * .11) }; // LR5
     L.puddles = [{ x: W / 2 - sp * .62, y: H * .69 }, { x: W / 2 + sp * (wide ? .7 : .5), y: H * (wide ? .67 : .7) }].map(q => ({ ...q, r: U * .12 }));
     L.basket = wide ? { x: Math.max(U * .14 * .62, L.sign.x - U * .14 * (.1 + .6 * .95)), y: H * .69, r: U * .14 * .6 } : { x: Math.max(W * .09, U * .14 * .95), y: H * .7, r: U * .14 * .9 }; // wide: left of the paint sign's post (LR-POLISH-1) // LR6: the hat basket, at the field's left edge
+    L.item = wide ? { x: L.bowl.x + U * .14 * .6, y: L.bowl.y - U * .14 * .45, r: U * .14 * .8 } : { x: Math.max(U * .14 * 1.2, L.home.x - L.size * 2.1), y: L.home.y - L.size * .55, r: U * .14 * .95 }; // LR7: where the toothbrush and the cup wait
     L.fhome = { x: L.home.x + (L.sponge.x - L.home.x) * .9, y: L.home.y }; L.fz = L.size * .95; // LR4: the friend's spot, between the baby and the sponge
     L.ksign = { x: W * .45, y: L.ground - U * .14 * 1.7 }; // LR11: the snack-bowl sign, on the hilltop
     { const fr = Math.min(W * .108, H * .1), ty = H * .64, z = Math.min(W * .22, H * .24);
@@ -282,6 +288,9 @@
     if (st.place === 'kitchen') return st.kitchen.phase === 'idle' ? { name: 'food0', x: L.kitchen.foods[0].x, y: L.kitchen.foods[0].y, r: L.kitchen.fr * 1.25 } : null;
     if (st.place === 'shed') { if (st.shed.doneAt !== null) return null; const k = PARTS.find(q => !(q in st.shed.parts)); const z = L.shed.z;
       return k ? { name: k, ...partPoint(k), r: z * .55 } : null; }
+    if (st.mode === 'dusk' && st.routine && st.routine.step < 3 && !st.routine.doing && st.baby.act !== 'yawn' && st.baby.tx === null) { const r = st.routine; // LR7
+      if (r.step < 2) return { name: 'item', x: L.item.x, y: L.item.y, r: L.item.r * 1.1 };
+      return r.said.flowers ? { name: 'friend', ...fCentre(), r: L.fz * 1.1 } : { name: 'flowers', x: L.flowers[2].x, y: L.flowers[2].y, r: L.flowers[2].r * 1.4 }; }
     if (st.mode === 'sleep') return st.baby.act === 'sleep' && !st.moon.song ? { name: 'baby', ...babyCentre(), r: L.size * 1.1 } : null;
     if (st.mode !== 'play' || busy() || st.sponge.drag || st.sponge.auto || st.sun.bow) return null;
     const ok = k => (!['sun', 'cloud'].includes(k) || daytime()) && (k !== 'puddle' || st.puddles.some(q => q.i === 0)) && (k !== 'friend' || (st.friend && st.friend.tx === null)), left = HINTS.filter(k => !st.used[k] && ok(k)), all = HINTS.filter(ok);
@@ -400,7 +409,39 @@
     ell(P.x, P.y, P.r * k, P.r * .36 * k, '#5aa8e0'); ell(P.x - P.r * .2, P.y - P.r * .06, P.r * .5 * k, P.r * .1 * k, '#a8dcf8');
     if (bob) { cx.strokeStyle = 'rgba(255,255,255,.7)'; cx.lineWidth = 2; cx.beginPath(); cx.ellipse(R(P.x), R(P.y), R(P.r * k + bob), R(P.r * .36 * k + bob * .4), 0, 0, 7); cx.stroke(); }
     if (sp2 < 1) { cx.strokeStyle = `rgba(255,255,255,${1 - sp2})`; cx.lineWidth = Math.max(1, L.U * .006); cx.beginPath(); cx.ellipse(R(P.x), R(P.y), R(P.r * (.3 + sp2)), R(P.r * .36 * (.3 + sp2)), 0, 0, 7); cx.stroke(); } } }
-  function bedtime() { if (st.mode !== 'play') return; if (st.friend) { st.friend.act = null; fgo(L.fhome.x, null); } st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn'); st.sponge.drag = null; st.sponge.auto = null; }
+  const routineFriends = () => ['flowers'].concat(st.friend ? ['friend'] : []);
+  function routineStep(k) { const r = st.routine, b = st.baby; r.at = st.t; st.idleAt = st.t; // do step k (by a tap, or by itself)
+    if (k === 0) { r.doing = { what: 'teeth', at: st.t }; b.act = 'brush'; b.at = st.t; b.dir = -1; sfx('bloop'); }
+    else if (k === 1) { r.doing = { what: 'water', at: st.t }; b.act = 'drink'; b.at = st.t; b.dir = -1; sfx('plink'); } }
+  function sayNight(who) { const r = st.routine, b = st.baby; if (r.said[who]) return; r.said[who] = true; r.at = st.t; st.idleAt = st.t; sfx('yawn');
+    if (!b.act && b.tx === null) { b.act = 'wave'; b.at = st.t; }
+    if (who === 'flowers') { st.flowers.forEach(f => { f.bob = 1; f.at = st.t; }); fx('zzz', L.flowers[2].x, L.flowers[2].y - L.flowers[2].r); }
+    else { const f = st.friend; f.act = 'giggle'; f.at = st.t; const c = fCentre(); fx('zzz', c.x, c.y - L.fz); }
+    if (routineFriends().every(k => r.said[k])) { r.step = 3; r.doneAt = st.t; for (let i = 0; i < 3; i++) fx('heart', babyCentre().x + (i - 1) * L.size * .5, babyCentre().y - L.size); } }
+  function routineTap(p) { const r = st.routine; if (!r || r.step >= 3) return false;
+    if (r.doing || st.baby.act === 'yawn' || st.baby.tx !== null) { fx('spark', p.x, p.y); sfx('twinkle'); return true; }
+    if (r.step < 2) { if (near(p, L.item, L.item.r * 1.1)) { routineStep(r.step); return true; } }
+    else { const fi = flowerAt(p); if (fi >= 0) { sayNight('flowers'); return true; } if (st.friend && near(p, fCentre(), L.fz * 1.25)) { sayNight('friend'); return true; } }
+    return false; }
+  function routineUpdate(dt) { const r = st.routine, b = st.baby; if (!r) return; st.shut = r.said.flowers ? Math.min(1, st.shut + dt) : st.shut;
+    if (r.doing) { const k = st.t - r.doing.at, dur = r.doing.what === 'teeth' ? BRUSH_SECS : DRINK_SECS;
+      if (r.doing.what === 'teeth' && Math.floor(k / .25) !== Math.floor((k - dt) / .25)) { const c = babyCentre(); fx('blob', c.x - L.size * .3, c.y - L.size * .2); st.fx[st.fx.length - 1].col = '#ffffff'; sfx('bloop'); }
+      if (k >= dur) { r.doing = null; r.step++; r.at = st.t; if (b.act === 'brush' || b.act === 'drink') { b.act = null; } sfx('giggle'); } return; }
+    if (r.step < 3 && b.act !== 'yawn' && b.tx === null && st.t - r.at > ROUTINE_WAIT) { if (r.step < 2) routineStep(r.step); else sayNight(routineFriends().find(k => !r.said[k])); } }
+  function drawItem(what, x, y, r, tilt) { cx.save(); cx.translate(R(x), R(y)); cx.rotate(tilt || 0);
+    if (what === 'teeth') { cx.rotate(-.6); cx.fillStyle = '#4fb4ff'; cx.fillRect(R(-r * .12), R(-r * .2), R(r * .24), R(r * 1.1)); ell(0, r * .9, r * .14, r * .14, '#4fb4ff');
+      cx.fillStyle = '#ffffff'; cx.fillRect(R(-r * .2), R(-r * .55), R(r * .4), R(r * .35)); cx.fillStyle = '#9ad6f4'; for (let k = 0; k < 3; k++) cx.fillRect(R(-r * .18 + k * r * .14), R(-r * .55), Math.max(1, R(r * .06)), R(r * .35));
+      ell(0, -r * .62, r * .2, r * .12, '#7cd8a0'); ell(r * .05, -r * .7, r * .1, r * .07, '#ffffff'); }
+    else { cx.fillStyle = '#ff9a40'; cx.beginPath(); cx.moveTo(R(-r * .45), R(-r * .55)); cx.lineTo(R(r * .45), R(-r * .55)); cx.lineTo(R(r * .35), R(r * .6)); cx.lineTo(R(-r * .35), R(r * .6)); cx.fill();
+      ell(0, -r * .55, r * .45, r * .12, '#7cc0f4'); cx.strokeStyle = '#ff9a40'; cx.lineWidth = Math.max(2, r * .12); cx.beginPath(); cx.arc(R(r * .45), R(0), R(r * .25), -1.4, 1.4); cx.stroke();
+      ell(-r * .12, 0, r * .07, r * .09, '#ffffff'); ell(r * .12, 0, r * .07, r * .09, '#ffffff'); cx.fillStyle = '#ffffff'; cx.fillRect(R(-r * .1), R(r * .18), R(r * .2), Math.max(1, R(r * .05))); }
+    cx.restore(); }
+  function drawRoutine(g) { const r = st.routine; if (!r || r.step >= 2 && !r.doing) return; const I = L.item, hb = hint(), bob = hb && hb.name === 'item' && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * I.r * .2 : 0;
+    if (r.doing) { const b = st.baby, z = L.size, hx = b.x + b.dir * z * .42, my = L.home.y - z * 1.25 + z * .66 * .48, k = st.t - r.doing.at;
+      if (r.doing.what === 'teeth') drawItem('teeth', hx + b.dir * z * .5 + Math.sin(k * 20) * z * .12, my + z * .1, I.r * .7, b.dir > 0 ? .4 : -.4);
+      else drawItem('water', hx + b.dir * z * .55, my + z * .15, I.r * .6, b.dir * -.6 * clamp(k / .4, 0, 1)); return; }
+    ell(I.x, I.y + I.r * .55, I.r * .9, I.r * .22, 'rgba(255,240,200,.35)'); drawItem(ROUTINE[r.step], I.x, I.y - bob, I.r); }
+  function bedtime() { if (st.mode !== 'play') return; st.routine = useRoutine ? { step: 0, at: st.t, doing: null, said: {}, doneAt: null } : null; st.shut = 0; if (st.friend) { st.friend.act = null; fgo(L.fhome.x, null); } st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn'); st.sponge.drag = null; st.sponge.auto = null; }
 
   function update(dt) {
     st.t += dt; const b = st.baby, sp = L.U * .9;
@@ -420,6 +461,7 @@
     if (b.act === 'peek' && since > 1.4) { b.act = null; done(); home(); }
     if (b.act === 'yawn' && since > 1.6) { b.act = null; home(); }
     if (b.act === 'cheer' && since > 1.8) b.act = null;
+    if (b.act === 'wave' && since > 1.2) b.act = null;
     if (b.act === 'nuzzle' && since > NUZZLE_SECS) { b.act = null; done(); home(); }
     friendUpdate(dt); rainUpdate(dt); hatUpdate(dt);
     if (b.act === 'splash' && since > SPLASH_SECS) { b.act = null; done(); home(); }
@@ -437,7 +479,7 @@
     st.fx = st.fx.filter(f => st.t - f.at < (f.kind === 'zzz' ? 3 : 1.4));
     // bedtime: after enough play, the sky turns orange, then night; a lullaby; the baby curls up
     if (st.mode === 'play' && !busy() && !s.drag && !s.auto && (st.acts >= BEDTIME_ACTS || st.t > BEDTIME_SECS)) bedtime();
-    if (st.mode === 'dusk') { st.dusk = Math.min(1, st.dusk + dt / 10);
+    if (st.mode === 'dusk') { routineUpdate(dt); st.dusk = Math.min(st.routine && st.routine.step < 3 ? .22 : 1, st.dusk + dt / 10); // LR7: the sky waits at sunset for the routine
       if (st.dusk > .25 && st.lullabyAt === null) { st.lullabyAt = st.t; sfx('lullaby'); }
       if (st.dusk > .55 && !busy()) { b.act = 'sleep'; b.at = st.t; }
       if (st.dusk >= 1 && b.act === 'sleep') { st.mode = 'sleep'; st.paint = null; } } // bedtime washes the paint off
@@ -455,6 +497,9 @@
     if (b.act === 'giggle') { hop = Math.abs(Math.sin(since * 16)) * z * .25 * m; eyes = 'happy'; mouth = 1; }
     if (b.act === 'cheer') { hop = Math.abs(Math.sin(since * 9)) * z * .45 * m; eyes = 'happy'; mouth = 1.1; }
     if (b.act === 'splash') { hop = Math.abs(Math.sin(since * 10)) * z * .4 * m; eyes = 'happy'; mouth = 1.1; }
+    if (b.act === 'brush') { eyes = 'happy'; mouth = .5; squash = 1 + Math.sin(since * 30) * .03 * m; }
+    if (b.act === 'drink') { eyes = 'closed'; mouth = .3; }
+    if (b.act === 'wave') { hop = Math.abs(Math.sin(since * 8)) * z * .12 * m; eyes = 'happy'; mouth = .7; }
     if (b.act === 'nuzzle') { eyes = 'happy'; mouth = .6; x += d * Math.abs(Math.sin(since * 6)) * z * .12 * m; }
     if (b.act === 'dance') { hop = Math.abs(Math.sin(since * 10)) * z * .3 * m; eyes = 'happy'; mouth = .9; squash = 1 + Math.sin(since * 20) * .06 * m; }
     if (b.act === 'eat') { squash = 1 + Math.sin(since * 18) * .05; eyes = 'happy'; }
@@ -502,7 +547,7 @@
     for (let i = 0; i < 4; i++) ell(b.x + sh + Math.cos(i * 1.6) * r * .6, b.y - r * (.55 + .2 * Math.sin(i * 2)), r * .08, r * .08, g > .6 ? '#c8c0e8' : '#ffd0e0');
   }
   function drawFlowers(g) { // LR3: big friendly flowers; open by day, gently closed at night
-    const night = clamp((g - .4) / .5, 0, 1), m = reduce() ? .3 : 1, hb = hintBob('flowers');
+    const night = Math.max(clamp((g - .4) / .5, 0, 1), st.shut), m = reduce() ? .3 : 1, hb = hintBob('flowers');
     L.flowers.forEach((q, i) => { const f = st.flowers[i], k = st.t - f.at, bob = f.bob * f.bob, sway = Math.sin(k * 14) * bob * q.r * .3 * m + Math.sin(st.t * 1.3 + i) * q.r * .04 * m;
       const hy = q.y - bob * q.r * .35 * m - hb, hx = q.x + sway, r = q.r * (1 + bob * .18 * m);
       cx.fillStyle = pick3('#3f9a48', '#5a8a3a', '#1e3a34', g); cx.fillRect(R(q.x - Math.max(1, q.r * .07)), R(hy), Math.max(2, R(q.r * .14)), R(q.stem - hy));
@@ -742,7 +787,7 @@
       const base = L.bush.y + L.R * .3; cx.save(); cx.beginPath(); cx.rect(0, 0, W, R(base)); cx.clip(); // only what rises above the bush's foot shows
       cx.translate(0, L.bush.y - L.home.y + L.size * .9 - k * L.size * 1.4); st.baby.x = L.bush.x; drawBaby(); st.baby.x = save; cx.restore(); drawBush(true); }
     else { drawFriend(); drawBaby(); }
-    drawHatFly();
+    drawHatFly(); if (st.mode === 'dusk') drawRoutine(g);
     // the sponge
     const s = st.sponge, sw = L.R * .8; if (!s.drag && !s.auto) shadow(s.x, s.y + sw * .3, sw);
     cx.save(); cx.translate(R(s.x), R(s.y - hintBob('sponge'))); cx.rotate(s.drag || s.auto ? Math.sin(st.t * 10) * .2 : 0);
@@ -769,6 +814,7 @@
     // LR9: the shed and the sign act when the finger lifts (like the grown-up panel, LR15); a drag over the outline paints
     if (st.place === 'wagon' || st.place === 'kitchen') { st.down = { id: e.pointerId, p }; return; }
     if (st.place === 'shed') { st.down = { id: e.pointerId, p, drag: false }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; }
+    if (st.mode === 'dusk' && routineTap(p)) return; // LR7
     if (st.mode !== 'play') { // bedtime: taps twinkle; six taps on the sleeping baby wake it for a new day (LR12)
       if (st.baby.act === 'sleep' && near(p, babyCentre(), L.size * 1.2)) return nudge();
       if (moonUp() && near(p, moonAt(), Math.max(L.U * .16, L.R))) return hum();
@@ -844,7 +890,7 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
+  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();
