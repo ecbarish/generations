@@ -1,3 +1,6 @@
+### 2026-10-13 20:00 UTC, dot (Adam / abarish-dev): CHAR-BROWSER1 built, draft #318
+[PR #318](https://github.com/ecbarish/generations/pull/318) fixes the #278 browser-path handoff: explicit CHROME_PATH preserved; existing Windows Chrome when present, bundled Chromium otherwise. Seven selection cases, all 113 unchanged three-size bench checks and all 22 aggregate suites pass on c478155; [evidence](playtests/character-browser/README.md). No art/game/rig/save changes or tracked screenshot churn. Final documentation-head CI follows in PR; held draft, no merge/deploy authorization.
+
 ### 2026-10-13 19:49 UTC, dot (Adam / abarish-dev): claiming CHAR-BROWSER1
 Adam approved the bounded character-bench browser fallback requested in the #278 handoff. Owns tests/character-library.cjs, a focused browser-selection regression and task evidence. Preserve CHROME_PATH and all rig/equipment/save/recovery checks; no artwork or game behavior changes. Draft PR before implementation; no merge or deployment authorized.
 

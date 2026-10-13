@@ -370,7 +370,7 @@ rules; free local model first, as docs/otherworld-design.md says).
 
 ### The arcade (everything shared)
 
-- [ ] **CHAR-BROWSER1 [any]**: Make `tests/character-library.cjs` browser selection portable: preserve `CHROME_PATH`, use installed Windows Chrome when present, otherwise Playwright Chromium. Add focused selection regressions and rerun the unchanged three-size character bench plus aggregate. No artwork, game, save or rig changes. Explicit Adam request, 2026-10-13. (claimed: dot / Adam, 2026-10-13, `guest/character-test-portability`)
+- [ ] **CHAR-BROWSER1 [any]**: Make `tests/character-library.cjs` browser selection portable: preserve `CHROME_PATH`, use installed Windows Chrome when present, otherwise Playwright Chromium. Add focused selection regressions and rerun the unchanged three-size character bench plus aggregate. No artwork, game, save or rig changes. Explicit Adam request, 2026-10-13. (built: dot / Adam, 2026-10-13, [draft #318](https://github.com/ecbarish/generations/pull/318); 7 focused + 113 bench checks and 22 suites pass on c478155; held unmerged)
 - [x] AR2.16 [any] Hall blurbs that match the games (Flint round 2): Lighthouse Watch is arcade action, not automation; Otherworld is a story life sim, not idle management. Files: index.html, launcher/.
 **AR-M1: friends can play (done 2026-10-08).**
 - [x] Come Play, previews, trailer, Windows builds.
