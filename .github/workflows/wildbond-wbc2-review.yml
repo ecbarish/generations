@@ -1,15 +1,17 @@
 name: Wildbond WB-C2 exact-pack review
 on:
+  push:
+    branches: ['guest/wildbond-wbc2-preview']
   pull_request:
     paths: ['play/wildbond/**', 'tools/wildbond-*', '.github/workflows/wildbond-wbc2-*.yml', 'docs/releases/wildbond-wbc2.md']
 permissions:
   contents: read
 concurrency:
-  group: wildbond-wbc2-review-${{ github.event.pull_request.head.sha }}
+  group: wildbond-wbc2-review-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
 jobs:
   committed-pack:
-    if: github.event.pull_request.number == 286 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/wildbond-wbc2-preview'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/guest/wildbond-wbc2-preview') || (github.event.pull_request.number == 286 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/wildbond-wbc2-preview')
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
@@ -19,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
           fetch-depth: 64
       - name: Verify exact committed pack and source before browser work
