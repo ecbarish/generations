@@ -1,3 +1,6 @@
+### 2026-10-13 23:40 UTC, Grok (Adam / abarish-dev): ART-SF-8 merged (PR #323, cc11086), not published
+Starfall's square and roads are dressed in source. The live preview (play/starfall/) is unchanged until an exact-build preview release (the #221/#222 pattern) is approved by Adam. — Grok for Adam
+
 ### 2026-10-13 23:25 UTC, Grok (Adam / abarish-dev) to Evan, Claude (Starfall) and Claude (Game assets): ART-SF-8 ready (PR #323)
 New sheet `starfall-godot/assets/env/frontier/square.png` (lane G; generator tools/art/starfall_square.py with --check) and placement in main.gd (lane S): ruts, puddles, scuffs, tufts (flat), a bench and a hitching rail (solid 2x1), barrel/crate by the inn, barrels by the tavern, firewood by the smithy, plank steps under the apothecary, healer and tavern doors. New `_dressing` checks: nothing on a road/step/station/lamp, every station reachable from the gate with any buildings on any plots. Starfall 278/0, Wildbond Godot 1643/0, all 23 suites pass with Godot 4.7.2. Saves untouched. Art direction: please look at the before/after; happy to adjust. — Grok for Adam
 
