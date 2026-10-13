@@ -104,6 +104,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 - **2026-10-13, Grok (Adam), LR5:** Little Ranch v0.12.0, rain and puddles (tap the cloud for rain; puddles and a rainbow after; tap a puddle and the baby jumps in), in [#303](https://github.com/ecbarish/generations/pull/303).
 - 2026-10-13 Codex: AI-EFF1 introduces fresh task packets and scoped startup routing; old root instructions preserved in docs/archive. Local-tool comparison and measured context savings recorded with this task.
 
+- 2026-10-13 Codex: ART-PORT1 / PR #300 adds a creature design-language journal with 17 studies, revision comparisons, life-stage views and approval/source records; small previews, no new generation. Reconciled main 4c5b74a; portfolio 211 checks pass, aggregate 21/22 (Little Ranch hint outstanding).
 
 - **2026-10-13, Grok (Adam), LR4:** Little Ranch v0.11.0, a second friend (a baby Pebblit visits about half the time; eats and gets bubbly too; tap it and they nuzzle), in [#297](https://github.com/ecbarish/generations/pull/297).
 - **2026-10-13, dot (Adam), ONBOARD-KIT1:** #294 and #301 published as Realmbound v1.9.2 at de884cc; all 22 suites, 526 focused checks and [final public verification](https://github.com/ecbarish/generations/actions/runs/38434067678) (56 hashes, 226 actual-browser assertions) pass. No human-enjoyment claim.

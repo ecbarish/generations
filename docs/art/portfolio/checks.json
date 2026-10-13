@@ -1,0 +1,225 @@
+{
+  "date": "2026-10-13",
+  "checks": 211,
+  "entries": 17,
+  "browserViews": [
+    {
+      "width": 390,
+      "height": 844,
+      "family": "ember",
+      "mode": "history",
+      "count": 6,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "ember",
+      "mode": "compare",
+      "count": 2,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "ember",
+      "mode": "stages",
+      "count": 3,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "tide",
+      "mode": "history",
+      "count": 7,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "tide",
+      "mode": "compare",
+      "count": 2,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "tide",
+      "mode": "stages",
+      "count": 3,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "grove",
+      "mode": "history",
+      "count": 4,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "grove",
+      "mode": "compare",
+      "count": 2,
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "grove",
+      "mode": "stages",
+      "count": 3,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "ember",
+      "mode": "history",
+      "count": 6,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "ember",
+      "mode": "compare",
+      "count": 2,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "ember",
+      "mode": "stages",
+      "count": 3,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "tide",
+      "mode": "history",
+      "count": 7,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "tide",
+      "mode": "compare",
+      "count": 2,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "tide",
+      "mode": "stages",
+      "count": 3,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "grove",
+      "mode": "history",
+      "count": 4,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "grove",
+      "mode": "compare",
+      "count": 2,
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "grove",
+      "mode": "stages",
+      "count": 3,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "ember",
+      "mode": "history",
+      "count": 6,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "ember",
+      "mode": "compare",
+      "count": 2,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "ember",
+      "mode": "stages",
+      "count": 3,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "tide",
+      "mode": "history",
+      "count": 7,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "tide",
+      "mode": "compare",
+      "count": 2,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "tide",
+      "mode": "stages",
+      "count": 3,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "grove",
+      "mode": "history",
+      "count": 4,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "grove",
+      "mode": "compare",
+      "count": 2,
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "grove",
+      "mode": "stages",
+      "count": 3,
+      "status": "pass"
+    }
+  ],
+  "errors": [],
+  "approvalScope": "Visual-direction approval only; no production game/model approval"
+}
