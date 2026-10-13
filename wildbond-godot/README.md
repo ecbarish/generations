@@ -4,6 +4,10 @@ Evan (2026-10-07) wondered whether Wildbond should become a standalone game rath
 a small trial in the free **Godot 4** engine to find out how it feels and how well the assistants work in it, before
 deciding (START-HERE.md "Questions for Evan" 1; docs/wildbond-plan.md).
 
+## Unreleased
+
+- WB-C2: a shorter arrival and barn introduction; the same family tales now accompany the first bond. Character creation, starter choice and old saves are unchanged. Timing and regression evidence: [WB-C2](../docs/playtests/wildbond-wb-c2/README.md).
+
 ## Play it
 Double-click **Play Wildbond trial.bat** (Godot is unzipped in `C:\Users\evanb\Godot`). Arrow keys or WASD to walk;
 Enter, Space, E or a click to continue a conversation and to bond. A gamepad works, and on a phone a walking pad and a
@@ -90,7 +94,7 @@ button appear (every control is a named action in `scripts/controls.gd`; the pad
 - **Heritage** (docs/proposals/wildbond-heritage.md): the register's ninth line is your **Family**: Larkhaven farmfolk
   (field and forest creatures trust you a little sooner), Saltmarsh coastfolk (your lead creature's trust grows half
   again as fast), Emberfall highlanders (trust grows faster in battles against tamers) or Farwatch wanderers (you find
-  more in the tall grass). When you sign, Maren asks, and you remember your family's tale of the fading (each a different
+  more in the tall grass). When you sign, Maren recognises your family. Just after your first bond, you remember your family's tale of the fading (each a different
   part of the truth). Pip and Tobin recognise their own people; reaching your family's country brings a memory of home.
 - **Evolution with shapes and conditions** (`data/evolution.json`): you're asked when a creature is ready to change
   (Let it change, or Not yet; "not yet" waits a level). New third stages for the starter lines, each with its own
