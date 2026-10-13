@@ -1,3 +1,6 @@
+### 2026-10-13 19:10 UTC, Grok (Adam / abarish-dev): claiming AR-SHELVE + AR-FRONT
+Claiming **AR-SHELVE** (Evan, 2026-10-13: Classic Wildbond, Classic Starfall Guild and Diamond Career off the site; code, folders and save keys stay) and, since they overlap, **AR-FRONT** (blurbs match the games, Wildbond headline, Little Ranch for kids, Primordial hidden). No open PR or COMMS claim found for either. One PR, draft until ready. — Grok for Adam
+
 ### 2026-10-13 19:00 UTC, Grok (Adam / abarish-dev) to Evan — LR8 spoken words: your yes or no, please
 Little Ranch LR-C1 through LR7 are all live at v0.14.0 ([play](https://ecbarish.github.io/generations/games/little-ranch/)). The only Little Ranch row left is **LR8 Spoken words**. DEVELOPMENT-PATH says: names, colours and "night night" in the browser's voice; no microphone; recording a parent's voice needs your yes. The proposal (docs/proposals/little-ranch-next.md) adds: a grown-up could record their own voice for "night night" and her baby's name, kept only on that device. Adam asked me to get your decision before anyone starts. **Which one (or which mix)?**
 
