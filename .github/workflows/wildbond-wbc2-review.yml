@@ -34,6 +34,7 @@ jobs:
           git merge-base --is-ancestor "$SOURCE_COMMIT" HEAD
           python3 tools/wildbond-preview-manifest.py verify --source "$SOURCE_COMMIT" --pinned-artifact --expected-pack-sha256 e07fb136963268fee136c46fbc3b9b80ba89e0517b17b728392097453a214100 --expected-pack-bytes 20398356
           git ls-files -z play/wildbond/ | xargs -0 sha256sum > preview-review/committed.sha256
+          git ls-files -z play/wildbond/ tools/wildbond-preview-checks.cjs tools/wildbond-opening-browser.cjs tools/wildbond-preview-fixtures.gd tools/wildbond-preview-manifest.py tools/wildbond-preview-pack.py tools/wildbond-preview-validate.py tools/test_wildbond_preview_validate.py tools/test_wildbond_touch_advance.cjs wildbond-godot/tests/fixtures/wb-c2-pre-change.json .github/workflows/wildbond-wbc2-review.yml | xargs -0 sha256sum > preview-review/runtime-inputs.sha256
           git show "$SOURCE_COMMIT:play/wildbond/index.pck" > "$BEFORE_PACK"
           git rev-parse "$SOURCE_COMMIT:play/wildbond/index.pck" > preview-review/before-blob.txt
           test "$(git hash-object "$BEFORE_PACK")" = "$(cat preview-review/before-blob.txt)"
@@ -66,6 +67,7 @@ jobs:
           python3 tools/test_wildbond_preview_validate.py
           python3 tools/wildbond-preview-pack.py --source "$SOURCE_COMMIT"
           node --check tools/wildbond-preview-checks.cjs
+          node tools/test_wildbond_touch_advance.cjs
           timeout --signal=TERM --kill-after=15s 30m node tools/wildbond-preview-checks.cjs |& tee preview-review/runtime.log
           python3 tools/wildbond-preview-validate.py
       - name: Prove review did not mutate any committed preview bytes
@@ -73,6 +75,7 @@ jobs:
         run: |
           set -euo pipefail
           sha256sum --check preview-review/committed.sha256
+          sha256sum --check preview-review/runtime-inputs.sha256
           sha256sum --check preview-review/packs.sha256
           git diff --exit-code -- play/wildbond/
       - uses: actions/upload-artifact@v4

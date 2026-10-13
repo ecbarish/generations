@@ -8,7 +8,7 @@ Pack-only build with official Godot 4.7.2. Preserve current index.js/index.wasm 
 
 Public pack inspected at 13:42 UTC: SHA-256 `1abb288d5b50f1ccfbf4ae8b3f965d5103ffb2cb9f0804b68c9e882fca17b01b`, identical to Git's pack. The manifest still reports `6fe636cc62df6824be145acdbfaca002414ba5454fd5441833928fead2697048`, so metadata is stale; current CDN bytes are not divergent from Git. The actual pack's data equals source480dfc4; its compiled script includes key hints, but lacks CR1 scaling and CR4 cinematic identifiers and retains all56 old interior rows.
 
-New release therefore includes the shorter opening plus already-merged creature sizes/tiers, evolution cinematic, newcomer healing/ranch guidance and HP-display fix, Saltmarsh Road/Moon Pool, and furnished Larkhaven rooms. Existing key hints remain. Combined live-publication approval clarification pending.
+New release therefore includes the shorter opening plus already-merged creature sizes/tiers, evolution cinematic, newcomer healing/ranch guidance and HP-display fix, Saltmarsh Road/Moon Pool, and furnished Larkhaven rooms. Existing key hints remain. Adam approved this disclosed combined publication at 14:25 UTC. Publication remains gated on the complete exact-pack browser suite and live verification.
 
 ## Required evidence
 
@@ -37,3 +37,9 @@ The automated local browser suite now also models the same-origin repository pat
 Main advanced with CR5 and Little Ranch while the browser suite ran. Their source and documentation are preserved. This release remains fixed to c8fa1c8 / e07fb136; CR5 is deliberately not rebuilt into it. Default manifest verification still demands branch/source tree equality. The explicit verify-only pinned-artifact mode instead requires source ancestry, the fixed reviewed pack hash and byte count, the immutable source tree/data, unchanged engine/shell rules and all prior checksum assertions. The release workflow pins those constants; it cannot stage/export in this mode.
 
 Second browser run38409932476 completed the entire desktop opening, partner identity, safe decline/reopen, heritage and harvest text, and regained movement. Phone reached the correct Follow Maren screen but tiny white guidance over scenery failed OCR. Screenshots confirm its presence; required text assertions are retained while improving observation. Complete browser verification is not yet passed.
+
+## Ordinary phone input correction
+
+Runs38413410612 (e560965) and38414028594 (7fcded5) passed the complete desktop opening and phone through the barn greeting. The latter transition failed correctly: screenshot shows Maren’s greeting still open. The verifier tapped the greeting’s `PanelContainer`, which consumes that touch before the existing unhandled-input dialogue advance. Use visibly empty world space outside panels and controls; preserve every caption and movement assertion. This is a test-input correction, not a game/pack change or a passed full suite. Aggregate checks are green on7fcded5.
+
+Known existing phone limitation: tapping directly on some dialogue panels is consumed by UI and does not advance the conversation; tapping open world space does. This frozen release does not change that control behavior. Retain it for the separate WB-C3 phone-controls task, alongside the existing letterboxing.

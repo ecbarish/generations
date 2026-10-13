@@ -99,6 +99,18 @@ function palePanels(image) {
   }
   return panels;
 }
+function dialogueTapPoint(image) {
+  const panels = palePanels(image).filter(([, , width]) => width >= 200);
+  assert(panels.length, 'A visible dialogue panel must be present before advancing dialogue');
+  // Bubble is a PanelContainer with mouse_filter=STOP. Touch-emulated mouse
+  // events must land outside it to reach main._unhandled_input. Also keep clear
+  // of the bottom thumb pad/Meet controls and the top-right field-book target.
+  const candidates = [[24, 108], [24, 72], [360, 108], [360, 72], [192, 24]];
+  const point = candidates.find(([px, py]) => panels.every(([x, y, w, h]) => px < x - 4 || px > x + w + 4 || py < y - 4 || py > y + h + 4));
+  assert(point, 'A visible empty-world touch target must exist outside dialogue UI');
+  return { point, panels };
+}
+
 function readText(image, temporary, options = {}) {
   const regions = [...palePanels(image), [278, 182, 76, 16], [14, 18, 356, 24], [8, 194, 368, 18], [8, 193, 368, 23], [196, 179, 160, 21], [322, 171, 44, 15]];
   const native = options.screenshot ? PNG.sync.read(options.screenshot) : image;
@@ -167,9 +179,16 @@ async function reviewOpening(browser, api, size, method) {
     await page.touchscreen.tap(p.x, p.y);
     await page.waitForTimeout(300);
   }
-  async function advance() {
-    if (method === 'touch') await tap(190, 108); // dialogue accepts any ordinary tap
-    else { await page.keyboard.press('Enter'); await page.waitForTimeout(300); }
+  async function advance(howto = false) {
+    if (method === 'touch') {
+      if (howto) await tap(190, 108); // HowTo consumes touch in its own _input handler.
+      else {
+        const target = dialogueTapPoint(logicalImage(await page.screenshot(), size));
+        record.touchAdvances ??= [];
+        record.touchAdvances.push(target);
+        await tap(...target.point);
+      }
+    } else { await page.keyboard.press('Enter'); await page.waitForTimeout(300); }
   }
   async function move(direction) {
     const dirs = { up: [0, -1, 'ArrowUp'], down: [0, 1, 'ArrowDown'], left: [-1, 0, 'ArrowLeft'], right: [1, 0, 'ArrowRight'] };
@@ -203,7 +222,7 @@ async function reviewOpening(browser, api, size, method) {
   }
   try {
     await observe('howto', ['How to play']);
-    await advance();
+    await advance(true);
     await observe('short-arrival', ['supply cart', 'ranch fence']);
     await advance();
     await observe('maren-register', ['Every tamer signs', 'register']);
@@ -275,4 +294,4 @@ async function reviewOpening(browser, api, size, method) {
     report.openings.push(record);
   } finally { await current.context.close(); }
 }
-module.exports = { reviewOpening, logicalImage, playerTile, normalize, matches, readText };
+module.exports = { reviewOpening, logicalImage, playerTile, normalize, matches, readText, dialogueTapPoint };

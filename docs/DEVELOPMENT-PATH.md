@@ -67,7 +67,7 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 
 ### Wildbond (Godot): the new Wildbond, to version 2.0
 - [x] WB-C2 [dot / Adam] (merged: #279, c8fa1c8, 2026-10-13) Meet your partner sooner (cycle 1): measure New Game to first partner before and after; trim the opening to three minutes or less while preserving story essentials and old saves. Files: Wildbond opening, regression/timing evidence, and coordination docs. Done when both measurements are in the PR, checks pass, and old saves load.
-- [ ] WB-C2-REL [dot / Adam] (claimed: dot / Adam, 2026-10-13, `guest/wildbond-wbc2-preview`) Rebuild the exact merged Wildbond source c8fa1c8 as a pack-only preview; verify browser opening, legacy saves, phone inputs, manifest and live bytes. Preserve engine/storage identity and concurrent work. Publication waits for combined-release approval.
+- [ ] WB-C2-REL [dot / Adam] (claimed: dot / Adam, 2026-10-13, `guest/wildbond-wbc2-preview`) Rebuild the exact merged Wildbond source c8fa1c8 as a pack-only preview; verify browser opening, legacy saves, phone inputs, manifest and live bytes. Preserve engine/storage identity and concurrent work. Combined publication approved 2026-10-13 14:25 UTC; complete exact-pack and live verification required.
 
 - [x] WB-N1 [any] (done 2026-10-12 by Muse, Adam / abarish-dev, PR #257) Wildbond newcomer snags (Flint round 2, COMMS 2026-10-12 20:52): after the rival fight, Maren says the team is hurt and the Larkhaven inn heals (win scene + loss line); after the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]`); battle HP bars snap to real HP on finish (`u.shown`). Bond-gated evolution is a design question for Design decisions first. Files: wildbond-godot/. All Godot checks pass; old saves load (additive changes only).
 **WB-M1: the start of the journey (done 2026-10-08).**
@@ -412,7 +412,7 @@ No-server sharing: trade and battle codes, ghost teams (V6 part 1).
 - [x] LR1 [any] The smallest test: one baby creature, three actions (feed, bubbles, peekaboo) and a bedtime
   ending; no reading, no failing, no links or purchases, a grown-up lock. Shares the baby-form drawings W9/W10 needs. (claimed: Grok for Adam / abarish-dev, 2026-10-09, guest/little-ranch)
 Next steps, from docs/proposals/little-ranch-next.md (PR #203, 2026-10-11; Evan: "a big hit with my daughter"). Each is one PR on `games/little-ranch/` with checks in `tests/little-ranch.html`, a README changelog line and a "tried with a toddler" note; the toddler rules in games-for-everyone.md hold for every step. Done when the step works on a phone and a tablet with no reading and nothing to fail.
-- [ ] LR3 [any] The singing flowers: a row of big flowers; tap one and it sings its own note and bobs; the baby dances. (QUEUE road 10)
+- [x] LR3 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #289, v0.8.0; not yet tried with a toddler) The singing flowers: a row of big flowers; tap one and it sings its own note and bobs; the baby dances. (QUEUE road 10)
 - [ ] LR4 [any] A second friend: a baby Pebblit (or Glowmote) visits some days; both can be fed and bubbled; they nuzzle.
 - [ ] LR5 [any] Rain and rainbows: tap the cloud for soft rain and puddles to splash; tap the sun for a rainbow. (The sun's rainbow is done in LR13; the rain and puddles are still to do.)
 - [ ] LR6 [any] The hat basket: tap the basket and the baby tries on the next hat.
@@ -420,7 +420,7 @@ Next steps, from docs/proposals/little-ranch-next.md (PR #203, 2026-10-11; Evan:
 - [ ] LR8 [any] Spoken words: names, colours and "night night" in the browser's voice (no microphone; recording a parent's voice needs Evan's yes).
 Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the barn picture leads home; never a separate icon on the homepage). **Evan picked the Paint Shed first (2026-10-11)**, then the Little Wagon, then the Snack Kitchen; LR3-LR8 continue alongside.
 - [x] LR9 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #262, v0.6.0; not yet tried with a toddler) The Paint Shed (16/18, Evan's pick): reached by a paint-drip picture sign; one creature outline, four fat paint pots, tap to fill a part, sparkles when every part is coloured, the painted baby walks out in its colours until bedtime.
-- [ ] LR10 [any] The Little Wagon (17/18): load two babies, one ride with three things to tap and one colour gate where any car gets a cheer.
+- [x] LR10 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #290, v0.9.0; not yet tried with a toddler) The Little Wagon (17/18): load two babies, one ride with three things to tap and one colour gate where any car gets a cheer.
 - [ ] LR11 [any] The Snack Kitchen (17/18): four foods, one bowl, one baby who loves berries and pulls funny faces at the rest.
 (The shape puzzle, 14/18, waits until she is 3½ to 4.)
 - [x] LR12 [any] Wake-up taps (Adam, 2026-10-11): once the baby is asleep, six taps on it wake it and start a fresh sunny day (the same reset as New visit), with a small wiggle and shrinking zzz on each tap and a happy wake on the sixth; no text, nothing to fail. Files: `games/little-ranch/`, `tests/little-ranch.html`. (Grok for Adam / abarish-dev, PR #210, v0.2.0)
