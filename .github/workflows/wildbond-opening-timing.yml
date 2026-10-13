@@ -5,6 +5,7 @@ on:
       - 'wildbond-godot/**'
       - 'tools/audit/wildbond_opening_timing.gd'
       - 'tools/audit/validate_wildbond_opening_timing.py'
+      - 'tools/audit/test_validate_wildbond_opening_timing.py'
       - '.github/workflows/wildbond-opening-timing.yml'
   workflow_dispatch:
 permissions:
@@ -29,7 +30,7 @@ jobs:
           unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
           echo "GODOT=$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends xvfb libgl1-mesa-dri
+          sudo apt-get install -y --no-install-recommends xvfb libgl1-mesa-dri imagemagick
       - name: Compare rendered baseline and current through normal inputs
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
@@ -52,11 +53,13 @@ jobs:
             mkdir -p "$XDG_DATA_HOME" "$XDG_CACHE_HOME"
             timeout 180 "$GODOT" --headless --path "$project" --editor --import --quit
             mkdir -p "opening-review/$variant"
-            SOURCE_SHA="$sha" OPENING_OUTPUT="$PWD/opening-review/$variant" timeout 480 xvfb-run -a -s "-screen 0 2400x1400x24" "$GODOT" --path "$project" --audio-driver Dummy --rendering-method gl_compatibility --fixed-fps 60 --script "$fixture" |& tee "opening-review/$variant/run.log"
+            SOURCE_SHA="$sha" OPENING_OUTPUT="$PWD/opening-review/$variant" timeout 480 xvfb-run -a -s "-screen 0 4000x1800x24" "$GODOT" --path "$project" --audio-driver Dummy --rendering-method gl_compatibility --fixed-fps 60 --script "$fixture" |& tee "opening-review/$variant/run.log"
           done
       - name: Validate real-input completion, captures, and timing
         if: always()
-        run: python3 tools/audit/validate_wildbond_opening_timing.py opening-review --require-rendered
+        run: |
+          python3 tools/audit/test_validate_wildbond_opening_timing.py
+          python3 tools/audit/validate_wildbond_opening_timing.py opening-review --require-rendered
       - uses: actions/upload-artifact@v4
         if: always()
         with:
