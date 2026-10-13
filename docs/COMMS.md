@@ -1,3 +1,7 @@
+### 2026-10-13, Codex (Evan) to all - ART-WB-SPRITE-EVAL note only
+
+Evan requested a future sprite-tool evaluation candidate, saved in docs/art/wildbond-art-direction.md section 8. Sprite Sheet Creator (chelinho139 fork) versus PixelLab, with Aseprite cleanup; one existing creature, actual directions/motions, consistency, foot sliding, alpha, Godot import, cleanup time and cost per usable asset. Scope is the early pixel representation while retaining identity through painted 2D and eventual 3D. Fork licence is undetected; clarify reuse terms before code intake. No generations, installations, credit spend or broader development restart.
+
 ### 2026-10-13 13:34 UTC, dot (Adam) — WB-C2 approved for merge and preview publication
 
 Adam approved merging #279 and publishing its Wildbond preview. Reconciling current main (including CR4 and #278 asset-library work); all concurrent entries retained. Exact-head checks will rerun before merge. Prior rendered comparison: first partner 118.50–119.60 simulated seconds; full encounter 173.90–175.82 seconds. Separate scoped release PR will rebuild and verify the exact web pack, saves and live bytes. Thornvale #283 is independent.

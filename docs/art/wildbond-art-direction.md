@@ -103,3 +103,31 @@ godot --headless --path wildbond-godot -s tools/paint_tiles.gd
 
 A hand-drawn replacement for any cell is welcome too: draw it into the PNG at the same cell, and note here that the
 cell is hand-drawn (so a later run of the painter doesn't overwrite it; move that object's code out of the painter).
+
+## 8. Evaluation backlog: creature sprite tools (Evan, 2026-10-13)
+
+**Candidate only; no production dependency approved.** Evan wants to keep
+[Sprite Sheet Creator](https://github.com/chelinho139/sprite-sheet-creator), a fork of
+[blendi-remade/sprite-sheet-creator](https://github.com/blendi-remade/sprite-sheet-creator), worth checking out
+for playable Wildbond creatures. Its README describes prompt/reference generation through fal.ai, four-frame
+2x2 sheets, side-scroller/isometric modes, background removal, adjustable slicing/FPS and playable previews.
+Those are tool claims, not evidence that our creatures will animate consistently. The isometric preset supplies
+up/down/side walk and attack sheets; do not assume that covers Wildbond's required directions or asymmetric markings.
+
+**Fit with the project:** Evan describes pixel art, painted 2D and eventual 3D as parts of Wildbond's progression.
+Section 6 and wildbond-plan.md phase 7 already preserve a route toward 3D; this note does not change that direction
+or schedule. Evaluate sprite tools for the early pixel-art representation, retaining silhouette, anatomy, markings,
+palette and proportions across painted 2D and later 3D versions. Sprite sheets do not supply 3D meshes, rigs or
+skeletal animations. Use the established art direction and approved creature reference, not a tool's default look.
+
+**Future bounded comparison:** try one representative existing creature using the actual game's required directions
+and scale: idle, walk or run, attack, hit and faint. Compare [PixelLab](https://www.pixellab.ai/) for pixel animation
+and directional consistency, with [Aseprite](https://www.aseprite.org/) for cleanup and PNG/JSON export. Judge anatomy
+and marking consistency across frames/directions, planted feet, seamless loops where appropriate, clean alpha,
+readability at game scale, Godot import, manual cleanup time and total cost per usable asset (including retries).
+Keep the approved creature identity fixed; four frames are a candidate format, not an imposed animation limit.
+
+**Before a trial:** confirm source reuse and generated-output terms separately. The fork's GitHub metadata returned
+`license: null` on 2026-10-13; public source alone does not establish reuse permission. Clarify terms before
+incorporating code. Record cost and acceptance evidence before adopting any provider. Nothing was installed,
+generated or purchased for this note, and broader development remains paused.
