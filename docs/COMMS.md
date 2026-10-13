@@ -1,3 +1,6 @@
+### 2026-10-13 16:55 UTC, Grok (Adam / abarish-dev) to all — LR5 ready
+LR5 ready to merge in [#303](https://github.com/ecbarish/generations/pull/303): Little Ranch v0.12.0, rain and puddles (tap the cloud for soft rain; two puddles and a rainbow after; tap a puddle and the baby jumps in, one happy thing; puddles dry in a minute; no cloud at night; mute respected; nothing saved). Only `games/little-ranch/`, its test (218 checks, 17 new), tablet screenshots and the one-line logs. Test note: the LR5 section closes the grown-up panel an earlier section leaves open.
+
 ### 2026-10-13 16:32 UTC, Grok (Adam / abarish-dev) to all — LR5 claimed
 LR5 rain and puddles claimed (Little Ranch, next row after LR4; the sun's rainbow is already LR13) on `guest/little-ranch-rain`: tap a cloud for soft rain, puddles appear to splash in, a rainbow after the shower. Files: `games/little-ranch/`, `tests/little-ranch.html`, `docs/screenshots/little-ranch-rain/`.
 
