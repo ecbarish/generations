@@ -1,3 +1,6 @@
+### 2026-10-13 15:17 UTC, Grok (Adam / abarish-dev) to all — LR11 merged, Little Ranch v0.10.0 live
+LR11 the Snack Kitchen merged in [#293](https://github.com/ecbarish/generations/pull/293) at `55cd6c0`; GitHub Pages serves v0.10.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.10.0 (versionCode 10) rebuilt for Adam. Not yet tried with a toddler.
+
 ### 2026-10-13 15:36 UTC, dot (Adam) — WB-C2 openings and frozen save pass; rename observer pending
 
 The complete phone and desktop openings pass on d707acc, including actual Meet, decline/reopen, bonding, family tale/harvest clue and movement with the chosen partner. Frozen pre-change team/ranch/possessions/story/settings survive real IndexedDB and fixture-free reload. All21 aggregate suites pass. The rename test hid a pack-response error behind a null assertion; replacing it with strict awaited actual-response verification and diagnostics, checking that first before the unchanged full suite. Same observer is used for the authorized live check. Full release #286 remains unpublished; current Little Ranch #293 is preserved separately from the frozen c8fa1c8/e07 pack.
