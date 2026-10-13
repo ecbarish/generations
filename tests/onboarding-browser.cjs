@@ -1,17 +1,23 @@
 /* ONBOARD-KIT1 actual-browser regression review. Fresh contexts contain only synthetic saves.
    Usage: node tests/onboarding-browser.cjs [repository root] [artifact directory]
    Optional CHROME_PATH selects a locally installed browser; CI uses pinned Playwright Chromium.
-   State setup uses the existing localhost test surface; all reviewed UI actions use real input. */
+   ONBOARDING_BASE_URL optionally runs the same review against actual public resources.
+   State setup uses existing game bindings; all reviewed UI actions use real input. */
 'use strict';
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
+const crypto = require('node:crypto');
 const { execFileSync } = require('node:child_process');
 const { chromium } = require('playwright');
 const root = path.resolve(process.argv[2] || path.join(__dirname, '..'));
 const out = path.resolve(process.argv[3] || '/tmp/onboarding-review');
+const publicBase = process.env.ONBOARDING_BASE_URL;
+const manifest = process.env.ONBOARDING_PUBLIC_MANIFEST ? JSON.parse(fs.readFileSync(process.env.ONBOARDING_PUBLIC_MANIFEST, 'utf8')) : null;
 const report = { started: new Date().toISOString(), checks: [], screenshots: [], geometry: [], failures: [] };
+const responseChecks = new Set(), responseEvidence = [], responseFailures = [];
+const expectedResponses = new Map(manifest ? manifest.files.map(file => [file.file, file.expected]) : []);
 const configurations = [
   { width: 320, height: 568, text: 1, touch: true },
   { width: 375, height: 812, text: 1, touch: true },
@@ -22,10 +28,16 @@ const configurations = [
   { width: 1920, height: 1080, text: 1, touch: false },
   { width: 3440, height: 1440, text: 1, touch: false }
 ];
+// Release smoke covers both phone orientations and desktop; the local review
+// continues to run all eight configurations and every original assertion.
+const reviewConfigurations = publicBase ? configurations.filter(config => [375, 812, 1366].includes(config.width)) : configurations;
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml' };
 let browser, server, base;
 function check(ok, label) { assert.ok(ok, label); report.checks.push(label); }
 const run = (page, source) => page.evaluate(code => window.eval(code), source);
+const ready = (page, saved = false) => publicBase
+  ? page.waitForFunction(hasSave => window.eval('typeof started!=="undefined"&&started&&typeof boot==="function"&&typeof S!=="undefined"') && window.ArcadeOnboarding && (!hasSave || window.eval('!!S.cur')), saved)
+  : page.waitForFunction(hasSave => window.__rb && window.ArcadeOnboarding && (!hasSave || window.__rb.S.cur), saved);
 const settle = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 async function capture(page, label) {
   const file = label.replace(/[^a-z0-9._-]+/gi, '-') + '.png';
@@ -52,13 +64,53 @@ async function contextFor(config) {
     viewport: { width: config.width, height: config.height }, hasTouch: config.touch,
     isMobile: config.touch, reducedMotion: 'reduce', serviceWorkers: 'block'
   });
-  // Offline fonts must not make a local regression depend on a third-party service.
-  await context.route('**/*', route => new URL(route.request().url()).origin === base ? route.continue() : route.abort());
+  // Keep the original local policy. Public runs abort only optional Google fonts;
+  // game resources always come from the real server, never route.fulfill/local bytes.
+  await context.route('**/*', route => {
+    const url = new URL(route.request().url());
+    if (url.origin === new URL(base).origin) return route.continue();
+    if (!publicBase || ['fonts.googleapis.com', 'fonts.gstatic.com'].includes(url.hostname)) return route.abort();
+    return route.continue();
+  });
+  if (publicBase) {
+    const storage = await context.storageState();
+    check(!storage.cookies.length && !storage.origins.length, 'public: new context contains no existing player data');
+  }
+  if (manifest) context.on('response', response => {
+    const task = (async () => {
+      const url = new URL(response.url()), site = new URL(base + '/');
+      const executable = ['document', 'script', 'stylesheet'].includes(response.request().resourceType());
+      if (url.origin !== site.origin || !url.pathname.startsWith(site.pathname)) {
+        if (executable) responseFailures.push({ url: url.href, error: 'Loaded executable/document resource is outside the approved site' });
+        return;
+      }
+      let file = decodeURIComponent(url.pathname.slice(site.pathname.length));
+      if (file.endsWith('/')) file += 'index.html';
+      if (!expectedResponses.has(file)) {
+        if (executable) {
+          responseFailures.push({ file, error: 'Loaded executable/document resource is absent from approved source manifest' });
+        }
+        return;
+      }
+      const actual = crypto.createHash('sha256').update(await response.body()).digest('hex');
+      const evidence = { file, status: response.status(), expected: expectedResponses.get(file), actual };
+      evidence.ok = response.ok() && actual === evidence.expected;
+      responseEvidence.push(evidence);
+      if (!evidence.ok) responseFailures.push(evidence);
+    })().catch(error => responseFailures.push({ url: response.url(), error: error.message }));
+    responseChecks.add(task); task.finally(() => responseChecks.delete(task));
+  });
   return context;
+}
+async function closeContext(context) {
+  // Finish reading real response bodies before closing their browser connection.
+  await Promise.all([...responseChecks]);
+  await context.close();
 }
 async function game(page, config) {
   await page.goto(base + '/games/realmbound/');
-  await page.waitForFunction(() => window.__rb && window.ArcadeOnboarding);
+  await ready(page);
+  if (publicBase) check(await run(page, "!S.cur&&localStorage.getItem(KEY)===null"), 'public: game starts without a saved hero before synthetic setup');
   await page.evaluate(text => document.documentElement.style.setProperty('--arc-text', text), config.text);
   await run(page, `clearArrival();clearTownService();closeRealmNotebook(false);RTALK=null;SCN.el.hidden=true;closeModal();
     S=emptyS();var browserHero=newHero('Guidance review','concord','human','hunter');
@@ -165,7 +217,7 @@ async function reviewGame(config) {
     await closeBook(page, config.touch);
     check(await snapshot(page) === original, name + ': opening, actions and dismissal preserve quests, gear and money');
     await run(page, 'save();');
-    await page.reload(); await page.waitForFunction(() => window.__rb && window.__rb.S.cur);
+    await page.reload(); await ready(page, true);
     await page.evaluate(text => document.documentElement.style.setProperty('--arc-text', text), config.text);
     await run(page, "closeModal();C.phase='seek';C.t=3600;updateWorld();");
     check(await run(page, `H().onboarding.hints[${JSON.stringify(hint)}]===true`), name + ': dismissal survives actual reload');
@@ -215,7 +267,7 @@ async function reviewGame(config) {
     check(errors.length === 0, name + ': no runtime errors: ' + errors.join('; '));
   } catch (error) {
     await capture(page, name + '-FAIL').catch(() => {}); throw error;
-  } finally { await context.close(); }
+  } finally { await closeContext(context); }
 }
 
 async function reviewLegacy(version) {
@@ -233,7 +285,7 @@ async function reviewLegacy(version) {
     // cannot replace it: this one-page fixture is installed before any game scripts.
     await page.addInitScript(account => localStorage.setItem('realmbound-save-v1', JSON.stringify(account)), legacy.account);
     const original = legacy.expected;
-    await page.reload(); await page.waitForFunction(() => window.__rb && window.__rb.S.cur);
+    await page.reload(); await ready(page, true);
     await run(page, "closeModal();C.phase='seek';C.t=3600;updateWorld();");
     check(await snapshot(page) === original, 'legacy v' + version + ': real reload preserves old quest progress, rewards, inventory and money');
     check(await run(page, 'H().onboarding===null&&!arrivalPaused()'), 'legacy v' + version + ': no unsolicited onboarding opt-in');
@@ -247,7 +299,7 @@ async function reviewLegacy(version) {
     await activate(page, '[data-road="skip"]', true);
     check(await run(page, 'H().onboarding===null'), 'legacy v' + version + ': replay never opts returning player into hints');
     check(await snapshot(page) === original, 'legacy v' + version + ': replay preserves prior progress');
-  } finally { await context.close(); }
+  } finally { await closeContext(context); }
 }
 
 async function reviewReference() {
@@ -291,25 +343,40 @@ async function reviewReference() {
       el.remove(); return { safe, stable, hidden, disposed };
     });
     for (const [key, value] of Object.entries(lifecycle)) check(value, 'reference lifecycle: ' + key);
-  } finally { await context.close(); }
+  } finally { await closeContext(context); }
 }
 
 (async () => {
   fs.mkdirSync(out, { recursive: true });
   try { report.source = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(); } catch { report.source = null; }
-  server = http.createServer((req, res) => {
-    const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
-    let file = path.resolve(root, '.' + pathname); if (pathname.endsWith('/')) file = path.join(file, 'index.html');
-    if (!file.startsWith(root + path.sep)) { res.writeHead(403); res.end(); return; }
-    fs.readFile(file, (error, data) => {
-      if (error) { res.writeHead(404); res.end(); return; }
-      res.setHeader('Cache-Control', 'no-store'); res.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream'); res.end(data);
+  report.mode = publicBase ? 'public' : 'local';
+  report.configurations = reviewConfigurations;
+  if (publicBase) {
+    const url = new URL(publicBase);
+    assert.equal(url.protocol, 'https:', 'Public verification requires HTTPS');
+    assert.ok(!url.search && !url.hash && !url.username && !url.password, 'Public base must be a plain site URL');
+    base = url.href.replace(/\/$/, '');
+    if (manifest) {
+      assert.equal(manifest.base.replace(/\/$/, ''), base, 'Manifest must describe the actual public base');
+      report.publicSource = manifest.source;
+    }
+  } else {
+    assert.ok(!manifest, 'Public manifest requires ONBOARDING_BASE_URL');
+    server = http.createServer((req, res) => {
+      const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+      let file = path.resolve(root, '.' + pathname); if (pathname.endsWith('/')) file = path.join(file, 'index.html');
+      if (!file.startsWith(root + path.sep)) { res.writeHead(403); res.end(); return; }
+      fs.readFile(file, (error, data) => {
+        if (error) { res.writeHead(404); res.end(); return; }
+        res.setHeader('Cache-Control', 'no-store'); res.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream'); res.end(data);
+      });
     });
-  });
-  await new Promise(resolve => server.listen(0, 'localhost', resolve)); base = 'http://localhost:' + server.address().port;
+    await new Promise(resolve => server.listen(0, 'localhost', resolve)); base = 'http://localhost:' + server.address().port;
+  }
+  report.base = base;
   browser = await chromium.launch({ headless: true, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}) });
   report.browser = await browser.version();
-  for (const config of configurations) {
+  for (const config of reviewConfigurations) {
     try { await reviewGame(config); console.log('PASS', JSON.stringify(config)); }
     catch (error) { report.failures.push({ configuration: config, error: error.stack }); console.error(error.stack); }
   }
@@ -317,6 +384,15 @@ async function reviewReference() {
     try { await reviewLegacy(version); } catch (error) { report.failures.push({ legacy: version, error: error.stack }); console.error(error.stack); }
   }
   try { await reviewReference(); } catch (error) { report.failures.push({ reference: true, error: error.stack }); console.error(error.stack); }
+  if (manifest) {
+    await Promise.all([...responseChecks]);
+    const seen = new Set(responseEvidence.filter(item => item.ok).map(item => item.file));
+    for (const file of manifest.files) if (file.requiredInBrowser && !seen.has(file.file)) responseFailures.push({ file: file.file, error: 'Approved resource was not verified in an actual browser response' });
+    report.publicResponses = responseEvidence;
+    report.publicResponseFailures = responseFailures;
+    if (responseFailures.length) report.failures.push({ publicResources: responseFailures });
+    else check(true, 'public: every required actual browser resource matches the approved immutable source');
+  }
   assert.equal(report.failures.length, 0, 'Onboarding browser review failures; see report.json');
 })().catch(error => { if (!report.failures.length) report.failures.push({ error: error.stack }); console.error(error.message); process.exitCode = 1; }).finally(async () => {
   report.finished = new Date().toISOString(); report.passed = report.failures.length === 0;

@@ -104,7 +104,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 
 - **2026-10-13, Grok (Adam), LR4:** Little Ranch v0.11.0, a second friend (a baby Pebblit visits about half the time; eats and gets bubbly too; tap it and they nuzzle), in [#297](https://github.com/ecbarish/generations/pull/297).
-- **2026-10-13, dot (Adam), ONBOARD-KIT1:** shared browser guidance and one Realmbound adapter in draft [#294](https://github.com/ecbarish/generations/pull/294); neutral reuse fixture and existing saves retained. Head 38efefa passes 21 suites / 526 browser assertions; independent source/visual review clear. Current exact-head checks are linked on the PR; held for Adam, no merge/publication approval.
+- **2026-10-13, dot (Adam), ONBOARD-KIT1:** [#294](https://github.com/ecbarish/generations/pull/294) merged as 40e3dc3 after Adam approved live verification. Shared browser kit/Realmbound adapter pass all 21 suites and 526 browser checks; release/version/public verification status is tracked in [#301](https://github.com/ecbarish/generations/pull/301).
 
 - **2026-10-13, Grok (Adam), LR11:** Little Ranch v0.10.0, the Snack Kitchen (snack-bowl sign; four foods, one bowl; berries get a yum, the rest funny faces; three bowls of berries and home), in [#293](https://github.com/ecbarish/generations/pull/293).
 - **2026-10-13, dot (Adam), RB1.12a:** draft [#283](https://github.com/ecbarish/generations/pull/283) opens overlapping Thornvale mine requests with compact Journal tracking. Existing save structure/progress/rewards retained; source 56ad188 passes all 21 suites and 9,074 Realmbound checks, with six-setting browser/reload evidence. Final evidence/metadata checks are on the PR; held for Adam, no merge or publication.
