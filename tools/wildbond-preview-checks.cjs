@@ -8,6 +8,7 @@ const assert = require('assert/strict');
 const { isDeepStrictEqual } = require('util');
 const { chromium } = require('playwright');
 const { reviewOpening } = require('./wildbond-opening-browser.cjs');
+const { navigateWithPack } = require('./wildbond-pack-response.cjs');
 const root = path.resolve(__dirname, '..');
 const out = path.join(root, 'preview-review');
 fs.mkdirSync(path.join(out, 'screens'), { recursive: true });
@@ -269,7 +270,8 @@ async function reviewRenameContinuity(browser, fixture) {
   const current = await open(browser, { width: 812, height: 375 }, fixture, true, { phone: true, settings: settingsText(0), pathPrefix: '/idle-arcade' });
   const { page } = current;
   let canonicalPack = null;
-  const canonicalBodyChecks = [];
+  const packEvidence = {};
+  report.renameDiagnostics = { pack: packEvidence, errors: current.errors };
   try {
     const previousUrl = page.url();
     check(new URL(previousUrl).pathname === '/idle-arcade/play/wildbond/', 'Rename review starts at the simulated old repository path');
@@ -284,23 +286,9 @@ async function reviewRenameContinuity(browser, fixture) {
     // Observe all loaded pack bytes after removing every preload and old-pack substitution.
     await page.unroute('**/play/wildbond/');
     await page.unroute('**/play/wildbond/index.pck');
-    page.on('response', response => {
-      if (new URL(response.url()).pathname !== '/generations/play/wildbond/index.pck') return;
-      canonicalBodyChecks.push((async () => {
-        assert.equal(response.status(), 200);
-        const body = await response.body();
-        const crypto = require('crypto');
-        const actual = crypto.createHash('sha256').update(body).digest('hex');
-        const expected = crypto.createHash('sha256').update(fs.readFileSync(path.join(root, 'play/wildbond/index.pck'))).digest('hex');
-        assert.equal(actual, expected, 'Canonical-path browser loads the exact new committed pack');
-        canonicalPack = { sha256: actual, bytes: body.length, url: response.url() };
-      })().catch(error => current.errors.push('Rename pack verification: ' + error.message)));
-    });
     const canonicalUrl = `http://127.0.0.1:${server.address().port}/generations/play/wildbond/`;
     check(new URL(previousUrl).origin === new URL(canonicalUrl).origin, 'Rename scenario retains the same actual browser origin');
-    await page.goto(canonicalUrl);
-    await page.waitForFunction(() => !document.querySelector('#status'), null, { timeout: 90000 });
-    await Promise.all(canonicalBodyChecks);
+    canonicalPack = await navigateWithPack(page, canonicalUrl, fs.readFileSync(path.join(root, 'play/wildbond/index.pck')), packEvidence);
     check(canonicalPack !== null, 'Observed new pack response at the simulated canonical path');
     await page.waitForTimeout(900);
     await continueJourney(page);
@@ -317,6 +305,10 @@ async function reviewRenameContinuity(browser, fixture) {
     await shot(page, 'rename-canonical-path-loaded');
     check(current.errors.length === 0, 'Same-origin path continuity has no browser/game-script errors');
     report.renameContinuity = { passed: true, scope: 'simulated-local-same-origin-path-rename', oldPath: '/idle-arcade/play/wildbond/', canonicalPath: '/generations/play/wildbond/', sameOrigin: true, priorPack: true, priorPackSha256: require('crypto').createHash('sha256').update(fs.readFileSync(process.env.BEFORE_PACK)).digest('hex'), realInputChange: true, indexedDB: true, fixtureFreeNavigation: true, settingsPreserved: true, newPack: canonicalPack, oldPosition: { x: stored.x, y: stored.y }, canonicalPosition: { x: loaded.x, y: loaded.y }, screenshots: ['rename-old-path-persisted.png', 'rename-canonical-path-loaded.png'] };
+  } catch (error) {
+    report.renameDiagnostics.error = error.stack || String(error);
+    await shot(page, 'rename-continuity-failed').catch(captureError => { report.renameDiagnostics.captureError = captureError.message; });
+    throw error;
   } finally { await current.context.close(); }
 }
 
@@ -349,14 +341,19 @@ async function reviewCurrentSave(browser) {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const browser = await chromium.launch({ headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   try {
+    // Independent contexts: check the path-migration gate first so its failure
+    // does not wait behind already-verified opening captures. No coverage removed.
+    let fixtures;
+    if (process.env.WB_OPENING_ONLY !== '1') {
+      fixtures = Object.fromEntries(['barn', 'thornwood', 'champion'].map(name => [name, JSON.parse(fs.readFileSync(path.join(out, 'fixtures', name + '.json'), 'utf8'))]));
+      check(!fixtures.barn.team[0].moves && !fixtures.barn.spire && !fixtures.barn.rematches, 'fixtures were written in the pre-WD3/pre-Spire format');
+      await reviewRenameContinuity(browser, fixtures.barn);
+    }
     for (const [size, method] of [[{ width: 812, height: 375 }, 'touch'], [{ width: 1920, height: 1080 }, 'keyboard']]) {
       await reviewOpening(browser, { open, screenPoint, check, report, out }, size, method);
     }
     await reviewCurrentSave(browser);
     if (process.env.WB_OPENING_ONLY === '1') { report.completed = true; return; }
-    const fixtures = Object.fromEntries(['barn', 'thornwood', 'champion'].map(name => [name, JSON.parse(fs.readFileSync(path.join(out, 'fixtures', name + '.json'), 'utf8'))]));
-    check(!fixtures.barn.team[0].moves && !fixtures.barn.spire && !fixtures.barn.rematches, 'fixtures were written in the pre-WD3/pre-Spire format');
-    await reviewRenameContinuity(browser, fixtures.barn);
     for (const size of [{ width: 667, height: 375 }, { width: 1366, height: 768 }, { width: 1920, height: 1080 }, { width: 3440, height: 1440 }]) {
       const tag = `${size.width}x${size.height}`;
       if (size.width === 667 || size.width === 1920) {

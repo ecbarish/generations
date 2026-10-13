@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const assert = require('assert/strict');
 const { chromium } = require('playwright');
 const { reviewOpening } = require('./wildbond-opening-browser.cjs');
+const { navigateWithPack } = require('./wildbond-pack-response.cjs');
 
 const OFFICIAL = 'https://ecbarish.github.io/generations/play/wildbond/';
 const root = path.resolve(__dirname, '..');
@@ -37,39 +38,35 @@ async function open(browser, size, fixture, before, options = {}) {
   const context = await browser.newContext({ viewport: size, hasTouch: !!options.phone, isMobile: !!options.phone });
   const page = await context.newPage();
   const errors = [];
-  let load = null;
-  const bodies = [];
+  const evidence = { size, method: options.phone ? 'touch' : 'keyboard' };
+  (report.loadDiagnostics ||= []).push(evidence);
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => {
     const line = message.text();
     report.consoles.push({ type: message.type(), line, size });
     if (/SCRIPT ERROR|Parse Error|Failed to load script|Aborted\(/.test(line)) errors.push(line);
   });
-  page.on('response', response => {
-    if (new URL(response.url()).pathname !== '/generations/play/wildbond/index.pck') return;
-    bodies.push((async () => {
-      officialResponse(response, 'index.pck');
-      const body = await response.body();
-      const sha256 = crypto.createHash('sha256').update(body).digest('hex');
-      assert.equal(sha256, expected.sha256['index.pck'], 'The actual browser-loaded pack must match the reviewed committed digest');
-      load = { size, method: options.phone ? 'touch' : 'keyboard', url: response.url(), status: response.status(), bytes: body.length, sha256, fromServiceWorker: response.fromServiceWorker() };
-      report.loads.push(load);
-    })().catch(error => { errors.push('Pack verification: ' + error.message); }));
-  });
   try {
     const manifest = await context.request.get(OFFICIAL + 'build.json', { headers: { 'Cache-Control': 'no-cache' }, timeout: 60000 });
     officialResponse(manifest, 'build.json');
     assert.deepEqual(await manifest.json(), expected, 'Live manifest must equal the exact committed release manifest');
-    const response = await page.goto(OFFICIAL, { timeout: 90000 });
-    assert.equal(response.url(), OFFICIAL, 'Official page must load without a cross-site or path redirect');
-    assert.equal(response.status(), 200);
-    await page.waitForFunction(() => !document.querySelector('#status'), null, { timeout: 90000 });
-    await Promise.all(bodies);
-    check(load !== null, `${size.width}x${size.height}: witnessed actual live pack response body`);
+    const committedBody = fs.readFileSync(path.join(root, 'play/wildbond/index.pck'));
+    assert.equal(crypto.createHash('sha256').update(committedBody).digest('hex'), expected.sha256['index.pck'], 'Committed pack bytes match the approved manifest');
+    const observed = await navigateWithPack(page, OFFICIAL, committedBody, evidence);
+    const load = { size, method: options.phone ? 'touch' : 'keyboard', ...observed };
+    report.loads.push(load);
+    check(load.sha256 === expected.sha256['index.pck'], `${size.width}x${size.height}: witnessed actual live pack response body`);
     check(errors.length === 0, `${size.width}x${size.height}: live pack digest and startup are clean`);
     await page.waitForTimeout(1200);
     return { context, page, errors };
-  } catch (error) { await context.close(); throw error; }
+  } catch (error) {
+    evidence.error = error.stack || String(error);
+    evidence.browserErrors = errors;
+    const file = `live-load-failed-${size.width}x${size.height}.png`;
+    await page.screenshot({ path: path.join(out, 'screens', file) }).then(() => report.screenshots.push(file)).catch(captureError => { evidence.captureError = captureError.message; });
+    await context.close();
+    throw error;
+  }
 }
 (async () => {
   let browser;
