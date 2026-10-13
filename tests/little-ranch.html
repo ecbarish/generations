@@ -34,7 +34,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.5.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.6.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -186,6 +186,24 @@ document.querySelector('#run').onclick = async () => {
     const fits = [...d.querySelectorAll('#grown .lbl')].filter(visible).every(el => el.scrollWidth <= el.clientWidth + 1 && el.getBoundingClientRect().height < 30);
     check('Every label fits on one line at 375 px wide', fits);
     touch(d.querySelector('#gClose'), 510);
+    // ---- LR9: the Paint Shed
+    LR.newVisit(); LR.advance(.1); const SH = () => S().shed, sl = () => L().shed;
+    check('The paint-drip sign is on the ranch, big and away from the edges', L().sign.x - L().R > 0 && L().R * 2 * LR.scale >= 80);
+    tap(L().sign); check('Tapping the sign goes into the Paint Shed', S().place === 'shed');
+    check('In the shed: four fat pots, each at least 80 px across, and a big barn picture', sl().pots.length === 4 && sl().potR * 2 * LR.scale >= 78 && sl().barn.r * 2 * LR.scale >= 70);
+    pid++; ev(cv, 'pointerdown', LR.toScreen(sl().pots[2])); check('A pot is chosen when the finger lifts, not when it lands', SH().pot === 0);
+    ev(cv, 'pointerup', LR.toScreen(sl().pots[2])); check('...and then it is the chosen pot', SH().pot === 2);
+    tap(LR.partPoint('body')); check('Tapping the body fills it with that colour', SH().parts.body === 2);
+    tap({ x: LR.partPoint('head').x + sl().z * .7, y: LR.partPoint('head').y }); check('A tap just beside the head still paints it (no fiddly edges)', SH().parts.head === 2);
+    tap(sl().barn); check('The barn picture goes home to the ranch at any time; nothing is painted on the baby yet', S().place === 'ranch' && S().paint === null);
+    tap(L().sign); check('Back in the shed, the painting is still there', S().place === 'shed' && SH().parts.body === 2);
+    tap(sl().pots[0]); drag(LR.partPoint('tail'), LR.partPoint('legs'), 8); check('Dragging over the outline paints what it passes', SH().parts.tail === 0 && SH().parts.legs === 0);
+    const acts9 = S().acts; check('Every part coloured: sparkles and a cheer', SH().doneAt !== null && S().fx.length > 10);
+    LR.advance(3); check('...then the painted baby walks back out to the ranch in its colours (one happy thing)', S().place === 'ranch' && S().paint && Object.keys(S().paint).length === 4 && S().paint.head === 2 && S().paint.tail === 0 && S().acts === acts9 + 1);
+    const mute = LR.prefs.sound; LR.prefs.sound = false; tap(L().sign); const t9 = LR.tones; tap(sl().pots[1]); tap(LR.partPoint('head')); tap(sl().barn);
+    check('Painting with the sound off makes no sound', LR.tones === t9); LR.prefs.sound = mute;
+    LR.bedtime(); LR.advance(25); check('Bedtime washes the paint off', S().mode === 'sleep' && S().paint === null);
+    LR.newVisit(); LR.advance(.1); check('A new visit starts on the ranch with a fresh outline', S().place === 'ranch' && Object.keys(SH().parts).length === 0);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
     // ---- LR15: app mode (inside the standalone app): Replay, Sound and Exit

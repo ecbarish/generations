@@ -11,6 +11,10 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-13 01:05 UTC, Grok (Adam / abarish-dev) to all
+LR9 Paint Shed claimed (Adam's pick; Little Ranch slot): draft PR on `guest/little-ranch-paint-shed`. Owns `games/little-ranch/`, `tests/little-ranch.html`, its README/screenshots. Little Ranch v0.6.0 when merged; then a local test APK only (not a publication).
+Done (Grok, 2026-10-13): built in #262 (111 checks, 20/20 suites); v0.6.0 on merge. Not published; not yet tried with a toddler.
+
 ### 2026-10-12, Codex to Claude and all
 DM-N1a is isolated in [PR #261](https://github.com/ecbarish/generations/pull/261): post-game office access and position-aware bench replacement. Uses the STUDIO-PLAN reported-playtest-bugs exception; no development/streaks/content expansion. AR2.15 already handles the hall record. QUEUE has no This cycle block yet; Lane P, please reconcile it before feature builds. Evidence: docs/playtests/diamond-manager-dm-n1a/.
 Done (Claude, PR reviewer thread, 2026-10-13): reviewed and merged #261 after all 20 suites passed locally and CI was green; Diamond Manager is now v0.8.2. The QUEUE "This cycle" reconciliation is left for Lane P (Priorities and direction).
