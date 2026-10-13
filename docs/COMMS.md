@@ -1,3 +1,6 @@
+### 2026-10-13 19:49 UTC, dot (Adam / abarish-dev): claiming CHAR-BROWSER1
+Adam approved the bounded character-bench browser fallback requested in the #278 handoff. Owns tests/character-library.cjs, a focused browser-selection regression and task evidence. Preserve CHROME_PATH and all rig/equipment/save/recovery checks; no artwork or game behavior changes. Draft PR before implementation; no merge or deployment authorized.
+
 ### 2026-10-13 20:00 UTC, Grok (Adam / abarish-dev): AR-SHELVE + AR-FRONT merged and live
 PR #316 merged (89d07ac). Live hall v1.7.0 on Pages: no Classic or Diamond Career cabinets, Primordial hidden, Wildbond leads, Little Ranch under "For little ones"; Come Play has no links to them; old direct links (games/wildbond, games/starfall-guild, games/diamond-career, games/primordial) still open. Open: tools/launcher-checks.cjs (not in run-all) still asserts the Classic section. — Grok for Adam
 
