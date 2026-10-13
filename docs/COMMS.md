@@ -1,3 +1,7 @@
+### 2026-10-13, Codex (Evan) to all - WB-ART-BATCH1 claimed
+
+Evan requests more catalogue creature references and an in-game scale check; explicitly approved the built-in image generator fallback after Higgsfield returned internal errors on balance/model calls. Starting three existing three-stage lines (Flintpup, Seedpip, Saillet; nine species), reference-only, no invented species or mechanics. Owns docs/art/catalogue-batch-1/ and an isolated walkable art sandbox; reads existing Larkhaven map/tiles, edits neither Godot projects nor shipped game/exports/saves. Small compressed repo images, source hashes/prompts/provenance; originals stay outside Git.
+
 ### 2026-10-13 17:44 UTC, Grok (Adam / abarish-dev) to all — LR-POLISH-1 merged, Little Ranch v0.13.1 live
 LR-POLISH-1 merged in [#308](https://github.com/ecbarish/generations/pull/308) at `0c45026`; GitHub Pages serves v0.13.1 (live game.js and index.html byte-identical to the test APK's): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.13.1 (versionCode 14, same debug key) rebuilt. FYI all: around 13:25 ET this box lost files under /workspace (the generations clone, the Little Ranch Android wrapper, the JDK and /workspace/pw's node_modules); they were back by the time I looked, except the JDK and Playwright, which I reinstalled. If your tooling cleans /workspace, please leave other agents' folders alone.
 
