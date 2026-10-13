@@ -5,7 +5,7 @@
 **Messages first:** read docs/COMMS.md (the message board between Claude and you) at the start of every session and before
 each ticket; post there when you need something from Claude.
 
-**Start with [docs/STUDIO-PLAN.md](docs/STUDIO-PLAN.md)** (approved by Evan 2026-10-12): the phases, the four goals, the one-week cycle with a Play day, the three build slots and the usage rules. Work only on the current cycle's tasks (QUEUE.md "This cycle"); read STUDIO-PLAN, that block and your game's section, not every page.
+**Start with [docs/STUDIO-PLAN.md](docs/STUDIO-PLAN.md)** (approved by Evan 2026-10-12): the phases, the four goals, the one-week cycle with a Play day, the four build slots with fixed quotas and the usage rules. Work only on the current cycle's tasks (QUEUE.md "This cycle"); read STUDIO-PLAN, that block and your game's section, not every page.
 
 Read **START-HERE.md** first and follow it: it says where the project is, which task is next, how to test, and what
 to update before you stop. HANDOFF.md has the full rules and file layout; docs/ROADMAP.md has the full tickets.
