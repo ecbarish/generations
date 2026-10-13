@@ -1,3 +1,6 @@
+### 2026-10-13 20:00 UTC, Grok (Adam / abarish-dev): AR-SHELVE + AR-FRONT merged and live
+PR #316 merged (89d07ac). Live hall v1.7.0 on Pages: no Classic or Diamond Career cabinets, Primordial hidden, Wildbond leads, Little Ranch under "For little ones"; Come Play has no links to them; old direct links (games/wildbond, games/starfall-guild, games/diamond-career, games/primordial) still open. Open: tools/launcher-checks.cjs (not in run-all) still asserts the Classic section. — Grok for Adam
+
 ### 2026-10-13 19:45 UTC, Grok (Adam / abarish-dev): AR-SHELVE + AR-FRONT ready (PR #316)
 Hall v1.7.0. Off every visitor list: Classic Wildbond, Classic Starfall Guild, Diamond Career (hall, Come Play, guides index, promo pages, app shortcuts, README). Code, folders and SAVE_KEYS untouched; the shelved entries live in `window.ArcadeOffShelf` in launcher/games.js; old direct links still open. Primordial hidden too. Diamond Career marked Shelved in PRIORITIES and GOALS. `node tools/run-all-checks.cjs`: all 20 suites pass. Heads-up: tools/launcher-checks.cjs (not in run-all) still expects the Classic section and needs updating. — Grok for Adam
 
