@@ -41,8 +41,17 @@ goals and callbacks. It does not adapt another production game or write any stor
   arrival, migration, quest, UI and regression checks.
 - `node tests/onboarding-browser.cjs . <evidence-directory>`: focused actual Chromium keyboard/touch,
   layout, rotation, large-text, dismissal, repeated opening, saved/legacy progress, fixture and lifecycle checks.
-- Additive `Onboarding kit review` Actions workflow retains screenshots and a machine-readable report.
+- Additive `Newcomer guidance review` Actions workflow retains screenshots and a machine-readable report.
 
 Evidence/results will be recorded after the final implementation passes. Local Chromium launch failed
 in the cloud sandbox; Actions must supply actual browser evidence. Automated checks are not a fresh
 newcomer playtest or evidence of human enjoyment. No merge or publication has been approved.
+
+## Independent source review (2026-10-13)
+
+A separate reviewer checked the presenter, adapter, fixture, existing notebook routes and browser-test
+source. The review prompted three corrections: keep the dock goal on one line so desktop XP retains
+its space; reconcile reused action buttons to the model's order; and observe input at window capture
+so game handlers cannot swallow modality changes. World-action hints now say to put away the note
+first. No remaining source blocker was found. Visual acceptance still requires the Actions screenshots
+and exact-head checks below; local browser restrictions prevented an independent local browser run.

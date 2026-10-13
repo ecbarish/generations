@@ -97,6 +97,9 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-13, dot (Adam), ONBOARD-KIT1:** shared browser guidance and one Realmbound adapter in draft [#294](https://github.com/ecbarish/generations/pull/294); neutral reuse fixture, existing hint/save semantics retained. Exact-head browser/aggregate verification in progress; held for Adam, no merge/publication approval.
+
+- **2026-10-13, Grok (Adam), LR11:** Little Ranch v0.10.0, the Snack Kitchen (snack-bowl sign; four foods, one bowl; berries get a yum, the rest funny faces; three bowls of berries and home), in [#293](https://github.com/ecbarish/generations/pull/293).
 - **2026-10-13, dot (Adam), RB1.12a:** draft [#283](https://github.com/ecbarish/generations/pull/283) opens overlapping Thornvale mine requests with compact Journal tracking. Existing save structure/progress/rewards retained; source 56ad188 passes all 21 suites and 9,074 Realmbound checks, with six-setting browser/reload evidence. Final evidence/metadata checks are on the PR; held for Adam, no merge or publication.
 
 - **2026-10-13, Grok (Adam), LR10:** Little Ranch v0.9.0, the Little Wagon (load two babies, windmill/pond/woolies, a colour gate where any car cheers), in [#290](https://github.com/ecbarish/generations/pull/290).

@@ -11,7 +11,7 @@ const { execFileSync } = require('node:child_process');
 const { chromium } = require('playwright');
 const root = path.resolve(process.argv[2] || path.join(__dirname, '..'));
 const out = path.resolve(process.argv[3] || '/tmp/onboarding-review');
-const report = { started: new Date().toISOString(), checks: [], screenshots: [], failures: [] };
+const report = { started: new Date().toISOString(), checks: [], screenshots: [], geometry: [], failures: [] };
 const configurations = [
   { width: 320, height: 568, text: 1, touch: true },
   { width: 375, height: 812, text: 1, touch: true },
@@ -181,12 +181,13 @@ async function reviewGame(config) {
     await run(page, "C.phase='intown';townEnter();talkPlaceQuest(townPeople().find(n=>n.name==='Deputy Rhea'));SCN.skip();updateWorld();");
     await settle(page);
     check(await page.locator('#roadGuide').isHidden() && await page.locator('#roadNextGoal').isHidden(), name + ': guidance yields to quest conversation');
-    const clear = await page.evaluate(() => {
-      const box = selector => document.querySelector(selector).getBoundingClientRect();
-      const dialogue = box('.scene .dlg'), bar = box('.abar');
-      return dialogue.top >= box('.top').bottom - 1 && dialogue.bottom <= box('#fieldDock').top + 1 && (!bar.height || dialogue.bottom <= bar.top + 1);
+    const clearance = await page.evaluate(() => {
+      const box = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { top: r.top, bottom: r.bottom, height: r.height }; };
+      const dialogue = box('.scene .dlg'), bar = box('.abar'), header = box('.top'), dock = box('#fieldDock');
+      return { dialogue, bar, header, dock, clear: dialogue.top >= header.bottom - 1 && dialogue.bottom <= dock.top + 1 && (!bar.height || dialogue.bottom <= bar.top + 1) };
     });
-    check(clear, name + ': quest conversation clears header, combat controls and dock');
+    report.geometry.push({ configuration: name, scene: 'quest conversation', ...clearance });
+    check(clearance.clear, name + ': quest conversation clears header, combat controls and dock: ' + JSON.stringify(clearance));
     await capture(page, name + '-dialogue');
     await activate(page, '.dlg-choices button:last-child', config.touch);
     check(await run(page, '!RTALK'), name + ': conversation choice remains usable');

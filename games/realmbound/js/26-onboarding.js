@@ -63,9 +63,9 @@ const ROAD_GOALS = {
   thornvaleRequests:'Ask Deputy Rhea about the mine.'
 };
 function roadInputHint(hint) {
-  if (hint.id === 'town') return {keyboard:'Walk with arrows or WASD. Enter talks to someone nearby.',touch:'Tap the ground to walk. Tap a nearby person to talk.'};
-  if (hint.id === 'fight') return {keyboard:'Press a lit ability’s number, or choose Fight.',touch:'Tap a lit ability or the Fight button.'};
-  if (hint.id === 'loot') return {keyboard:'Press L or choose Loot all when you are ready.',touch:'Tap Loot all when you are ready.'};
+  if (hint.id === 'town') return {keyboard:'Put away this note, then walk with arrows or WASD. Enter talks to someone nearby.',touch:'Put away this note, then tap the ground to walk or a person to approach and talk.'};
+  if (hint.id === 'fight') return {keyboard:'Put away this note, then press a lit ability’s number or choose Fight.',touch:'Put away this note, then tap a lit ability or the Fight button.'};
+  if (hint.id === 'loot') return {keyboard:'Put away this note, then press L or choose Loot all when you are ready.',touch:'Put away this note, then tap Loot all when you are ready.'};
   if (hint.tab === 'bags') return {keyboard:'Choose Open bags below. B opens the Satchel from the world; Esc puts it away.',touch:'Tap Open bags below. Tap Put away to return.'};
   if (hint.tab === 'quests') return {keyboard:'Choose Open quests below. J opens the Quest Journal from the world; Esc puts it away.',touch:'Tap Open quests below. Tap Put away to return.'};
   return {keyboard:'Esc puts this note away. Your actions remain yours to choose.',touch:'Tap Put away to return to the world. Take your time.'};

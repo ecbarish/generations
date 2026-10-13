@@ -34,7 +34,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.9.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.10.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -270,6 +270,33 @@ document.querySelector('#run').onclick = async () => {
       const mute = LR.prefs.sound; LR.prefs.sound = false; const t7 = LR.tones; tap(L().wsign); tap(waitAt(0)); tap(waitAt(1)); LR.advance(.6); tap(V().puller); LR.advance(4); tap(LR.thingAt('windmill')); tap(V().barn);
       check('With the sound off the wagon rides silently', LR.tones === t7); LR.prefs.sound = mute;
       LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(26); tap(L().wsign); check('At night the wagon sign only twinkles (the baby sleeps on)', S().place === 'ranch' && S().mode === 'sleep');
+      LR.newVisit(); LR.advance(.1);
+    }
+    // ---- LR11: the Snack Kitchen
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const K = L().kitchen, sc = LR.scale, r = cv.getBoundingClientRect(), fs = K.foods.map(q => LR.toScreen(q));
+      check(`${width}×${height}: the snack-bowl sign is big and its own tap; the foods are 64 px+, apart and on screen`, LR.ranchTarget(L().ksign) === 'ksign' && LR.ranchTarget(L().wsign) === 'wsign' && LR.ranchTarget(L().sign) === 'sign' && K.fr * 2 * sc >= 64 && K.bowl.r * 2 * sc >= 64 && fs.every((q, i) => q.x > r.left && q.x < r.right && q.y < r.bottom && (!i || Math.hypot(q.x - fs[i - 1].x, q.y - fs[i - 1].y) >= K.fr * 2 * sc)));
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+    { const K = () => L().kitchen, Kt = () => S().kitchen, food = i => K().foods[i];
+      tap(L().ksign); check('Tapping the snack-bowl sign goes to the Snack Kitchen: four foods, an empty bowl', S().place === 'kitchen' && Kt().phase === 'idle' && LR.FOODS.length === 4);
+      LR.advance(7); check('Left alone, the berries glow (the hint)', LR.hint() && LR.hint().name === 'food0');
+      const t0 = LR.tones; tap(food(1)); check('Tapping a food: it hops into the bowl', Kt().phase === 'fly' && Kt().food === 1 && LR.tones > t0);
+      tap(food(2)); check('A tap while the baby is busy just wiggles that food (nothing queued, nothing wrong)', Kt().food === 1 && Kt().wig[2] > .9);
+      LR.advance(.6); check('...the baby eats it', Kt().phase === 'eat');
+      LR.advance(1); check('Carrot: a funny face (puffed cheeks), no berry counted, nothing wrong', Kt().face === 'puff' && Kt().berries === 0);
+      LR.advance(1.8); check('...and then it is ready for more', Kt().phase === 'idle');
+      for (const [i, f] of [[2, 'sour'], [3, 'tongue']]) { tap(food(i)); LR.advance(1.6); check(`${LR.FOODS[i]}: its own funny face (${f})`, Kt().face === f); LR.advance(1.8); }
+      tap(food(0)); LR.advance(1.6); check('Berries: a happy yum with hearts', Kt().face === 'yum' && Kt().berries === 1 && S().fx.some(f => f.kind === 'heart'));
+      LR.advance(1.8); const a11 = S().acts; tap(food(0)); LR.advance(3.5); tap(food(0)); LR.advance(3.5);
+      check('Three bowls of berries: full, with a cheer', Kt() && Kt().phase === 'full' && Kt().berries === 3);
+      LR.advance(3); check('...then back to the ranch: one happy thing, the baby walks home', S().place === 'ranch' && S().kitchen === null && S().acts === a11 + 1);
+      tap(L().ksign); LR.advance(.1); tap({ x: K().baby.x, y: K().baby.y - K().z * 1.2 }); check('Tapping the baby in the kitchen: a giggle', S().t - Kt().giggle < .1);
+      tap(food(0)); tap(K().barn); check('The barn picture goes home from the kitchen at any time, even mid-snack (no count)', S().place === 'ranch' && S().kitchen === null);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t8 = LR.tones; tap(L().ksign); tap(food(0)); LR.advance(3); tap(food(2)); LR.advance(3); tap(K().barn);
+      check('With the sound off the kitchen is silent', LR.tones === t8); LR.prefs.sound = mute;
+      LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(26); tap(L().ksign); check('At night the snack sign only twinkles (the baby sleeps on)', S().place === 'ranch' && S().mode === 'sleep');
       LR.newVisit(); LR.advance(.1);
     }
     check('No other storage was touched', others() === before);
