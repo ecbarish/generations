@@ -63,5 +63,6 @@
  .app:has(#arrivalControls:not([hidden])) .abar,
  .app:has(.world:not(.on-road) .town-service-dialogue:not([hidden])) .abar{display:none}
  #arrivalControls{bottom:calc(var(--field-dock-height,49px) + 8px)}
- .world:not(.on-road) .scene .dlg.dlg-realmbound{bottom:calc(var(--field-dock-height,49px) + var(--arrival-controls-height,0px) + 12px)!important;max-height:calc(100% - var(--field-dock-height,49px) - var(--arrival-controls-height,0px) - 78px)}
+ .app:has(#arrivalControls:not([hidden])) .world:not(.on-road) .scene .dlg.dlg-realmbound,
+ .world:not(.on-road) .scene .dlg.dlg-realmbound.town-service-dialogue{bottom:calc(var(--field-dock-height,49px) + var(--arrival-controls-height,0px) + 12px)!important;max-height:calc(100% - var(--field-dock-height,49px) - var(--arrival-controls-height,0px) - 78px)}
 }
