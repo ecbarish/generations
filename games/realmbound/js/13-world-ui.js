@@ -100,11 +100,12 @@ function updateWorld(){
   // status + err
   const am=activeMount();
   const st={seek:d?`Moving deeper into ${dungeonDef().name}…`:am?`Riding ${am.name} to find ${targetMob().name}…`:`Looking for ${targetMob().name}…`,fight:m?(combatWaiting()?`Waiting for your order · ${m.name}`:C.surge?`${m.name} is casting ${dungeonDef().surgeName}! Press D to dodge!`:`Fighting ${m.name}`):'',
-    loot:C.loot&&C.loot.dun?'Boss loot: take it, or give it to a companion':'Loot the corpse (L) before it decays',rest:d||C.party.length?'The party catches its breath…':'Resting…',dead:`You are dead. Running back to your corpse: ${Math.ceil(C.t)}s`,town:`Travelling to ${hubName()}: ${Math.ceil(C.t)}s`,intown:`In town at ${hubName()}. Visit the Inn to rest or the Smithy to sell and repair.`}[C.phase]||'';
+    loot:C.loot&&C.loot.dun?'Boss loot: take it, or give it to a companion':'Uncollected loot waits for you · Take it (L)',rest:d||C.party.length?'The party catches its breath…':'Resting…',dead:`You are dead. Running back to your corpse: ${Math.ceil(C.t)}s`,town:`Travelling to ${hubName()}: ${Math.ceil(C.t)}s`,intown:`In town at ${hubName()}. Visit the Inn to rest or the Smithy to sell and repair.`}[C.phase]||'';
   $('#status').textContent=RTALK&&RTALK.townService?'':st;$('#err').textContent=C.errT>0?C.err:'';
   // loot window
   const lw=$('#lootwin');lw.hidden=!(C.phase==='loot'&&C.loot);if(!lw.hidden){const dl=C.loot.dun;
-    const html=(C.loot.money?`<li>${moneyStr(C.loot.money)}</li>`:'')+C.loot.items.map(it=>`<li style="margin:3px 0">${itemSpan(it)}${dl?` ${canEquip(it)&&score(it)>score(h.gear[it.slot])?'<span class="pill" style="color:#7cf08a">Upgrade</span>':''} <button class="btn sm" data-act="dtake" data-arg="${it.id}">Take</button> <button class="btn sm alt" data-act="dgive" data-arg="${it.id}">Give to a companion</button>`:''}</li>`).join('');
+    const room=h.bags.length>=16&&C.loot.items.length?'<li class="loot-help">Satchel full. '+(dl?'Give an item to a companion, or make room before taking it.':'Visit the Smithy to make room, then return for these drops.')+'</li>':'';
+    const html=room+(C.loot.money?`<li>${moneyStr(C.loot.money)}</li>`:'')+C.loot.items.map(it=>`<li style="margin:3px 0">${itemSpan(it)}${dl?` ${canEquip(it)&&score(it)>score(h.gear[it.slot])?'<span class="pill" style="color:#7cf08a">Upgrade</span>':''} <button class="btn sm" data-act="dtake" data-arg="${it.id}">Take</button> <button class="btn sm alt" data-act="dgive" data-arg="${it.id}">Give to a companion</button>`:''}</li>`).join('');
     const ll=$('#lootList');if(ll.dataset.h!==html){ll.innerHTML=html;ll.dataset.h=html;}}
   // log
   const lg=C.lines.slice(-7).map(l=>`<div class="${l.cls}">${l.txt}</div>`).join('');const le=$('#log');if(le.dataset.h!==lg){le.innerHTML=lg;le.dataset.h=lg;}
@@ -150,9 +151,11 @@ function deleteChar(id){
   if(!S.chars.length){Arcade.erase(KEY,'realmbound');S=emptyS();CR.name=pick(NAMES);openModal('create',createHTML());return;}
   Arcade.save(KEY,S);openModal('chars',charsHTML());
 }
-function lootAll(){if(!C.loot)return;C.lastInput=C.run;
-  if(C.loot.dun){for(const it of C.loot.items)takeLoot({money:0,items:[it]},true);afterDungeonPull();return;}
-  takeLoot(C.loot,true);C.loot=null;afterFight();}
+function lootAll(){if(C.phase!=='loot'||!C.loot)return;C.lastInput=C.run;
+  const dungeon=!!C.loot.dun,left=takeLoot(C.loot,true);
+  if(left.items.length){if(dungeon){C.loot={...left,dun:true};}else holdFieldLoot(left);return;}
+  if(dungeon){afterDungeonPull();return;}
+  H().fieldLoot=null;C.loot=null;afterFight();}
 /* ---- the group finder ---- */
 let LFG={sel:[],tier:0,id:'sanctum'};
 function lfgOk(n){return n&&npcLvl(n)>=dungeonDef(LFG.id).minLvl-2;}

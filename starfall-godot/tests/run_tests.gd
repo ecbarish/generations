@@ -616,6 +616,80 @@ func _run() -> void:
 	main.odo.where = keep.o
 	main.rounds = keep.rounds
 	main.odo_hired = false
+	# ---- counter mastery (SF2.11): Kitchen Hand, Cook, Head Cook from meals served by hand
+	var keep_meals: int = main.meals
+	var keep_hired: bool = main.hired
+	var keep_tile: Vector2i = main.me.tile
+	main.hired = false
+	main.meals = 0
+	check(main.cook_rank() == 0, "no rank at the counter to start with")
+	main.me.tile = main.COUNTER + Vector2i.UP
+	check(not main._at_counter(), "at first you serve from behind the counter only")
+	main.meals = 10
+	check(main.cook_rank() == 1 and main._at_counter(), "ten meals by hand: Kitchen Hand, and you can serve from beside the counter")
+	main.meals = 24
+	var guest: Variant = hero("Ren")
+	var keep_people := []
+	for g in [hero("Ren"), hero("Yuna")]:
+		keep_people.append([g, g.where, g.tile, g.pos, g.a.duplicate(true)])
+	guest.where = "town"
+	guest.a.morale = 4
+	guest.a.state = "to_counter"
+	guest.tile = main.ORDER_AT
+	guest.pos = Vector2(guest.tile) * main.TILE
+	guest.path.clear()
+	main.queue.clear()
+	main.queue.append(guest)
+	main.recipe = "hearty"
+	main.serve_by_hand()
+	check(main.meals == 25 and main.cook_rank() == 2 and int(guest.a.morale) == 6 and "Cook" in main.caption.text, "the 25th meal: Cook, announced in town (and the hearty stew lifts spirits twice)")
+	main.queue.clear()
+	main.lines.clear()
+	main._turn_slate()
+	check(main.recipe == "broth", "with nobody waiting, the Cook turns the slate to healing broth")
+	guest.a.hp = 1
+	guest.a.state = "to_counter"
+	guest.tile = main.ORDER_AT
+	guest.pos = Vector2(guest.tile) * main.TILE
+	guest.path.clear()
+	main.queue.clear()
+	main.queue.append(guest)
+	main.serve_by_hand()
+	check(int(guest.a.hp) > 1, "healing broth mends")
+	var guest2: Variant = hero("Yuna")
+	for g in [guest, guest2]:
+		g.where = "town"
+		g.a.state = "to_counter"
+		g.path.clear()
+	guest.tile = main.ORDER_AT
+	guest2.tile = main.ORDER_AT + Vector2i(1, 1)
+	main.queue.clear()
+	main.queue.append(guest)
+	main.queue.append(guest2)
+	main.meals = 50
+	main.serve_by_hand()
+	check(main.cook_rank() == 3 and main.queue.is_empty(), "Head Cook: one press at the big pot serves the first two in line")
+	main.hired = true
+	var plain: Variant = guest
+	plain.a.morale = 4
+	plain.a.state = "to_counter"
+	plain.tile = main.ORDER_AT
+	main.queue.clear()
+	main.queue.append(plain)
+	main.serve(plain, false)
+	check(int(plain.a.morale) == 5, "Bryn serves a plain meal: your own hand stays better than the hire")
+	main.queue.clear()
+	main.lines.clear()
+	main.meals = keep_meals
+	main.hired = keep_hired
+	main.recipe = "hearty"
+	main.me.tile = keep_tile
+	for kp in keep_people:
+		kp[0].where = kp[1]
+		kp[0].tile = kp[2]
+		kp[0].pos = kp[3]
+		kp[0].a = kp[4]
+		kp[0].path.clear()
 	# ---- saving the town and loading it back (a test file, never the real one)
 	main.no_save = false
 	main.save_path = "user://test_town.json"

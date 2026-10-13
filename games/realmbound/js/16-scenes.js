@@ -19,6 +19,17 @@ const SCN = Dialogue.create({
   blip: who => sfx('blip', voiceOf(who)),
   auto: () => false // every deliberately opened conversation waits for its reader
 });
+// The typewriter stays, but its first press now says what it does and reveals text immediately.
+function renderTalkAction(){
+  const talk=RTALK;if(!talk)return;
+  const text=talk.lines[talk.i][1],typing=talk.shown<text.length;
+  SCN.el.querySelector('.dlg-continue').textContent=typing?'Show line':'Continue';
+  SCN.el.querySelector('.dlg-say').textContent=text.slice(0,talk.shown);
+  const arrival=document.querySelector('[data-road="advance"]');
+  if(arrival)arrival.textContent=typing?'Show line (Enter)':'Continue (Enter)';
+}
+for(const method of ['play','advance']){const original=SCN[method];SCN[method]=function(...args){const result=original(...args);renderTalkAction();return result;};}
+setInterval(renderTalkAction,45);
 /* the Accept button in the quest log: hear the request first */
 function questOffer(id) {
   const q = ALLQ[id]; if (!q || qState(q) !== 'avail') return;

@@ -104,7 +104,10 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+
+- **2026-10-12, Codex:** RB-N1 in PR #253 repairs loot expiry/full-satchel loss and resource/dialogue feedback; pending field drops default safely for old saves. No content expansion or version bump.
 - 2026-10-12 Claude (Priorities and direction): Evan picked folding Starfall Guild into the Godot village: SF-GUILD (map first, Heavy lifting H21); browser SG-N1 is fixes only.
+- 2026-10-12 Claude (lane S): SF-WEB-BOOT checked (live previews match, Starfall boots on desktop and phone; no fix needed); SF2.11 counter mastery on branch claude/sf2.11-counter-mastery, 272 Starfall checks, web preview rebuilt.
 
 - **2026-10-12, Codex:** AR2.15 in PR #249 separates the hall’s sports destinations and save displays; existing game saves and the mixed legacy index remain intact.
 - 2026-10-12 Claude (website thread): rename sweep. The homepage sign, hall neon, promo kickers and trailer card say Generations; the tagline "Play for the fun. Automate the grind." is on the homepage, manifest, README and CLAUDE.md; CONTRIBUTING, FEEDBACK, glossary, offline and winter-road docs point to ecbarish/generations. History lines, save keys, Godot names and the votes form name left as they were.

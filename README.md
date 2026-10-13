@@ -41,6 +41,9 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Realmbound — RB-N1 (PR #253):** Uncollected loot waits, pending field drops survive saving and full satchels, resource failures answer visibly, and dialogue names its reveal/continue action.
+
+- Godot Starfall (2026-10-12): mastery at the inn counter. Serve meals yourself and you rise from Kitchen Hand (serve from beside the counter) to Cook (choose hearty stew or a healing broth on the slate) to Head Cook (the big pot serves two at once). Bryn still serves a plain meal, so your own hand stays best. 272 checks pass.
 - **Diamond Career v0.4.2 — DC-N (PR #247; version bumped on merge):** Play from the wall calendar, learn the swing with a wider opening window, read complete conversations, and return to Play after preparation.
 - **Generations hall — AR2.15 (PR #249):** Diamond Career has its own sports card; each sports card shows its own save and opens or resets the correct game.
 
