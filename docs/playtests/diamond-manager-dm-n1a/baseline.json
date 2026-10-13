@@ -1,0 +1,42 @@
+[
+  {
+    "name": "phone",
+    "check": "F opens office on completed game",
+    "ok": false
+  },
+  {
+    "name": "phone",
+    "check": "Bench start replaces same-position batter",
+    "ok": false
+  },
+  {
+    "name": "laptop",
+    "check": "F opens office on completed game",
+    "ok": false
+  },
+  {
+    "name": "laptop",
+    "check": "Bench start replaces same-position batter",
+    "ok": false
+  },
+  {
+    "name": "desktop",
+    "check": "F opens office on completed game",
+    "ok": false
+  },
+  {
+    "name": "desktop",
+    "check": "Bench start replaces same-position batter",
+    "ok": false
+  },
+  {
+    "name": "ultrawide",
+    "check": "F opens office on completed game",
+    "ok": false
+  },
+  {
+    "name": "ultrawide",
+    "check": "Bench start replaces same-position batter",
+    "ok": false
+  }
+]

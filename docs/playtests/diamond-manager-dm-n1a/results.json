@@ -1,0 +1,162 @@
+[
+  {
+    "name": "phone",
+    "check": "F opens office on completed game",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Office settles stats before roster moves",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Shortcut works from focused action button",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Closing office keeps completed game",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Result recorded once",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Hall reads current two-game record from Manager save",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Bench start replaces same-position batter",
+    "ok": true
+  },
+  {
+    "name": "phone",
+    "check": "Replacement survives reload",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "F opens office on completed game",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Office settles stats before roster moves",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Shortcut works from focused action button",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Closing office keeps completed game",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Result recorded once",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Hall reads current two-game record from Manager save",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Bench start replaces same-position batter",
+    "ok": true
+  },
+  {
+    "name": "laptop",
+    "check": "Replacement survives reload",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "F opens office on completed game",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Office settles stats before roster moves",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Shortcut works from focused action button",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Closing office keeps completed game",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Result recorded once",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Hall reads current two-game record from Manager save",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Bench start replaces same-position batter",
+    "ok": true
+  },
+  {
+    "name": "desktop",
+    "check": "Replacement survives reload",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "F opens office on completed game",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Office settles stats before roster moves",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Shortcut works from focused action button",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Closing office keeps completed game",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Result recorded once",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Hall reads current two-game record from Manager save",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Bench start replaces same-position batter",
+    "ok": true
+  },
+  {
+    "name": "ultrawide",
+    "check": "Replacement survives reload",
+    "ok": true
+  }
+]
