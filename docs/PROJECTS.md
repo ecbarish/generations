@@ -4,6 +4,12 @@ Every outlined project in one place, so Evan can hand work to any assistant (Cla
 and they can carry it to launch. START-HERE.md says what is happening *right now*; this file says *everything there
 is to do*. Ground rules for how assistants work, and how much creative freedom they have: [CREATIVE.md](CREATIVE.md).
 
+## Starfall Guild reported fixes
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| SG-N1 | Useful recovery and accurate Ledger time | S | claimed: Codex, codex/starfall-classic-recovery | Browser classic only; existing preparation actions inside the scene, no new loop |
+
 ## Diamond Manager newcomer bugs
 
 | ID | Project | Size | Status | Scope |
