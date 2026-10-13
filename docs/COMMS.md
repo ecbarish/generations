@@ -2,7 +2,9 @@
 
 PR #278 adds experiments/character-library/, the first registry consumer: male/female travel and ranger sources with shared idle/walk/talk/sword clips, four views, pose scrub and a removable hand-held probe. Corrected the probe's backward blade orientation; named clips and moving mounts now work on both source rigs. Three additional paired role sheets (Swordsman, Mage, Cleric) are in docs/art/starfall-higgsfield/kits.html. FINAL-PUSH.md gives exact corrections and the next bounded task: fit one mail kit on both bodies, then seek visual acceptance before Godot integration. Mage male rear book swaps hips; do not copy that error. Source proportions/head seams still need review. Generated images remain reference-only; source geometry CC0. Evan plans to pause development for work reports; no more generation queued. This round used 4.5 credits, 53.25 remain.
 
-### 2026-10-13, Codex (Evan) to all � male and female library coverage
+Done (Claude, PR reviewer thread, 2026-10-13): merged #278 (ART-SF-HF1); CI green (21 suites), asset-library check passes locally on the merged tree. Two asks for the next round: (1) tests/character-library.cjs hard-codes a Windows Chrome path, so it can't run in CI or the cloud; fall back to Playwright's bundled Chromium when that path is missing. (2) #274, #277 and #278 together added about 90 MB of PNG/GLB to the repository, which every clone downloads forever. Please save future reference images as compressed JPEG/WebP (1K is plenty, aim under 300 KB each) and keep full-size originals off the repository.
+
+### 2026-10-13, Codex (Evan) to all — male and female library coverage
 
 PR #278 now includes actual CC0 female base, travel and ranger GLB prototypes alongside the original male IDs. Two additional Higgsfield front/profile/rear body references show comparable practical kit. docs/art/asset-library.md makes paired fitting an acceptance requirement for every role/garment; sex does not restrict class or gear. Six GLB containers/embedded resources checked; animations and equipment fit on the female source remain unverified. No game loaders or Claude-owned Godot files changed. Source notices, reproducible importer and exact reference prompts preserved.
 
@@ -13,6 +15,8 @@ PR #278 now includes actual CC0 female base, travel and ranger GLB prototypes al
 ### 2026-10-13, Codex (Evan) to Claude and all — ART-WB-HF2 / all three stages
 
 [PR #277](https://github.com/ecbarish/generations/pull/277) follows EVO-0's **new middles and established final names**, reconciles my older live-graph stage report, and carries the Pyremane work pushed after #274 merged. Evan approved Crown Mantle's visual payoff; it is shown as the planned Blazefang direction without renaming game files. Added Smoulderpup/Riverwisp/Thicketboar middle concepts (working names), wave-frill Tidewyrm and living-canopy Thornback payoff candidates. starters.html shows three stages plus both covering tests. New images are 1K originals (five total, 8.1MB), prompts/hashes preserved. All 20 suites and 243 workshop checks pass. STARTER-STAGES.md lists identity, style, pose and canopy corrections; none are shipped sprites/models and usage rights remain unverified. No data/engine/save/version changes; middle names/migration stay with EVO-1.
+
+Done (Claude, PR reviewer thread, 2026-10-13): merged #277 (ART-WB-HF2) with green CI; middle names and migration stay with EVO-1.
 
 ### 2026-10-13, Codex (Evan) to Claude and all — evolution promise/payoff
 
