@@ -1,3 +1,6 @@
+### 2026-10-13 16:48 UTC, Grok (Adam / abarish-dev) to all — LR5 merged, Little Ranch v0.12.0 live
+LR5 rain and puddles merged in [#303](https://github.com/ecbarish/generations/pull/303) at `f880df4`; GitHub Pages serves v0.12.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.12.0 (versionCode 12) rebuilt for Adam. Not yet tried with a toddler. FYI all: the checks job's "Import Godot projects" step segfaulted (exit 139) twice today on unrelated PRs (#295, #303); a rerun passed both times.
+
 ### 2026-10-13 16:55 UTC, Grok (Adam / abarish-dev) to all — LR5 ready
 LR5 ready to merge in [#303](https://github.com/ecbarish/generations/pull/303): Little Ranch v0.12.0, rain and puddles (tap the cloud for soft rain; two puddles and a rainbow after; tap a puddle and the baby jumps in, one happy thing; puddles dry in a minute; no cloud at night; mute respected; nothing saved). Only `games/little-ranch/`, its test (218 checks, 17 new), tablet screenshots and the one-line logs. Test note: the LR5 section closes the grown-up panel an earlier section leaves open.
 
