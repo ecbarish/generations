@@ -34,7 +34,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.6.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.7.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -204,6 +204,27 @@ document.querySelector('#run').onclick = async () => {
     check('Painting with the sound off makes no sound', LR.tones === t9); LR.prefs.sound = mute;
     LR.bedtime(); LR.advance(25); check('Bedtime washes the paint off', S().mode === 'sleep' && S().paint === null);
     LR.newVisit(); LR.advance(.1); check('A new visit starts on the ranch with a fresh outline', S().place === 'ranch' && Object.keys(SH().parts).length === 0);
+    // ---- LR-C1: the first five minutes alone, on a tablet
+    for (const [width, height] of [[1024, 768], [820, 1180]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const sc = LR.scale, l = L(), sl2 = l.shed, diam = [l.R * 2.2, l.R * 2.2, l.R * 2.8, l.size * 2.4, Math.max(l.U * .32, l.R * 2), l.R * 2.2].map(v => v * sc);
+      check(`${width}×${height} tablet: every ranch target is at least 64 px across`, diam.every(v => v >= 64));
+      const gap = (sl2.pots[1].x - sl2.pots[0].x - sl2.potR * 2) * sc;
+      check(`${width}×${height} tablet: the four paint pots are big (64 px+) with room between them`, sl2.potR * 2 * sc >= 64 && gap >= 24 && sl2.barn.r * 2 * sc >= 64);
+      const head = { x: S().baby.x + l.size * .55, y: l.home.y - l.size * 1.3 };
+      check(`${width}×${height} tablet: a tap on the baby's head tickles the baby, not the bush beside it`, LR.ranchTarget(head) === 'baby');
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150);
+    LR.newVisit(); LR.advance(LR.HINT_SECS - 1); check('No hint while she is still looking (the first few seconds)', LR.hint() === null);
+    LR.advance(1.5); check('After a few quiet seconds, the first untouched thing glows (the bowl)', LR.hint() && LR.hint().name === 'bowl');
+    tap(L().bowl); check('Any touch hides the hint again', LR.hint() === null);
+    LR.advance(5); LR.advance(LR.HINT_SECS + .5); check('Next time it offers something not yet tried (the sponge)', LR.hint() && LR.hint().name === 'sponge');
+    S().used = { bowl: 1, sponge: 1, bush: 1, baby: 1, sun: 1, sign: 1 }; LR.advance(.1); check('Once everything is tried, the hint takes turns (never stuck)', !!LR.hint());
+    LR.bedtime(); LR.advance(26); S().idleAt = S().t; LR.advance(LR.HINT_SECS + .5);
+    check('At night, the hint shows the sleeping baby (tap to wake: no dead end)', S().mode === 'sleep' && LR.hint() && LR.hint().name === 'baby');
+    LR.newVisit(); LR.advance(.1); tap(L().sign); LR.advance(LR.HINT_SECS + .5); check('In the Paint Shed, the hint shows a part to colour', S().place === 'shed' && LR.PARTS.includes(LR.hint() && LR.hint().name));
+    LR.leaveShed(false); LR.newVisit();
+    check('Nothing to read or ask: no words, no start screen, play begins on the first touch', text === '' && S().mode === 'play' && S().place === 'ranch');
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
     // ---- LR15: app mode (inside the standalone app): Replay, Sound and Exit
