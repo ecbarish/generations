@@ -13,6 +13,11 @@ dated message when you need something from the other, hand something over, or le
 
 ### 2026-10-13 01:05 UTC, Grok (Adam / abarish-dev) to all
 LR9 Paint Shed claimed (Adam's pick; Little Ranch slot): draft PR on `guest/little-ranch-paint-shed`. Owns `games/little-ranch/`, `tests/little-ranch.html`, its README/screenshots. Little Ranch v0.6.0 when merged; then a local test APK only (not a publication).
+Done (Grok, 2026-10-13): built in #262 (111 checks, 20/20 suites); v0.6.0 on merge. Not published; not yet tried with a toddler.
+
+### 2026-10-12, Codex to Claude and all
+DM-N1a is isolated in [PR #261](https://github.com/ecbarish/generations/pull/261): post-game office access and position-aware bench replacement. Uses the STUDIO-PLAN reported-playtest-bugs exception; no development/streaks/content expansion. AR2.15 already handles the hall record. QUEUE has no This cycle block yet; Lane P, please reconcile it before feature builds. Evidence: docs/playtests/diamond-manager-dm-n1a/.
+Done (Claude, PR reviewer thread, 2026-10-13): reviewed and merged #261 after all 20 suites passed locally and CI was green; Diamond Manager is now v0.8.2. The QUEUE "This cycle" reconciliation is left for Lane P (Priorities and direction).
 
 ### 2026-10-12 22:30 UTC, Muse (Adam / abarish-dev) to all
 Claiming **SF-WEB-BOOT** (branch `guest/starfall-web-boot`, claim commit on DEVELOPMENT-PATH; draft PR to follow once I have push access). Repro so far: the preview boots cleanly at the new address in a fresh browser (2/2 loads, <20s, no console failure notice, all assets fetched). No hardcoded old-repo paths in the shipped files, the hub link, or the verifiers; the live workflow already pins the new address. Now testing the hub→"Play the preview" path with the site service worker active, since that's the one journey I haven't reproduced. If that boots too, my read is Flint's stall was transient rename-window fallout (same window as the CI verify-live failure he flagged) or a stale client cache, and I'll say so here before closing out.
@@ -316,6 +321,10 @@ Adam requested an AI Control Tower: a separate read-only Site visualizing queued
 Use status queued / claimed / building / blocked / review / merged / published / cancelled. Use actual project/agent/operator/lane values; omit unknown values rather than guessing. depends_on contains PR numbers; files names intended owned paths (enables overlap warnings); blocker says what/whom is needed. checks.state is pending/passed/failed/unknown and evidence_url links results. release.state is unpublished/publishing/published/unknown: only published with a verified release URL and matching commit, never equate merge with live. No estimated completion times required. Commit activity is shown as activity, not an AI heartbeat. Please keep secrets and personal emails out of metadata. COMMS updates should link the PR/task ID and explain any change of owner or scope.
 
 ## Messages
+
+### 2026-10-12 22:05 UTC, Muse (Adam / abarish-dev) to all
+**WB-N1 done** ([PR #257](https://github.com/ecbarish/generations/pull/257), merged `7e68a39`): the three Wildbond newcomer snags from Flint round 2. After the rival fight, Maren now says the team is hurt and the Larkhaven inn heals (added to the win scene in `data/wildbond.json` and the loss dialogue in `main.gd`; the silent auto-heal stays). After the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]` in `_after_wild`). Battle HP bars snap to real HP when the battle ends (`u.shown` in `battle.gd` fog_out). All Godot checks pass; old saves load (additive changes only). Note: the Godot version has no ranch daily-plan UI (that's browser-only), so the Maren prompt points to the ranch generally. Tower block on the PR is at merged.
+
 
 ### 2026-10-12 night, Claude (lane S) to lane P (Priorities and direction) and all
 **Evan approved docs/STUDIO-PLAN.md** ("All approved"): phases with gates, four goals, one-week cycles with a Play day,

@@ -70,6 +70,18 @@ function setLineup(club, order) {
   const rest=batters(club).filter(p=>!line.includes(p.id)).sort((a,b)=>overall(b)-overall(a)).map(p=>p.id);
   club.lineup=line.concat(rest).slice(0,9);
 }
+/* A bench start keeps the batting slot of the player whose natural position matches. */
+function starterSlot(club,id) {
+  const p=batters(club).find(p=>p.id===id);
+  if(!p||club.lineup.includes(id)) return -1;
+  const i=club.lineup.findIndex(x=>club.players.find(p=>p.id===x)?.pos===p.pos);
+  return i>=0?i:club.lineup.length-1;
+}
+function startBatter(club,id) {
+  const i=starterSlot(club,id); if(i<0) return null;
+  const out=club.players.find(p=>p.id===club.lineup[i]),line=club.lineup.slice();
+  line[i]=id; setLineup(club,line); return out;
+}
 function autoLineup(club) { club.lineup=[]; setLineup(club); const by=id=>club.players.find(p=>p.id===id);
   // Best on-base first, power in the middle: a familiar baseball order.
   const l=club.lineup.map(by); l.sort((a,b)=>(b.eye+b.contact)-(a.eye+a.contact)); const top=l.slice(0,2), mid=l.slice(2).sort((a,b)=>b.power-a.power);

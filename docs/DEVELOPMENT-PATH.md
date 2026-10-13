@@ -66,7 +66,7 @@ big step, someone who didn't build it scores it with docs/PLAYTEST.md's six ques
 Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stable; tickets reference them.
 
 ### Wildbond (Godot): the new Wildbond, to version 2.0
-- [ ] WB-N1 [any] Wildbond newcomer snags (Flint round 2, COMMS 2026-10-12 20:52): after the rival fight, someone says the team is hurt and the Larkhaven inn heals; after the first catch, Maren points to the ranch's daily plan once; the HP shown after the rival battle matches the real HP. Bond-gated evolution is a design question for Design decisions first. Files: wildbond-godot/. Done when all Godot checks pass and old saves load.
+- [x] WB-N1 [any] (done 2026-10-12 by Muse, Adam / abarish-dev, PR #257) Wildbond newcomer snags (Flint round 2, COMMS 2026-10-12 20:52): after the rival fight, Maren says the team is hurt and the Larkhaven inn heals (win scene + loss line); after the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]`); battle HP bars snap to real HP on finish (`u.shown`). Bond-gated evolution is a design question for Design decisions first. Files: wildbond-godot/. All Godot checks pass; old saves load (additive changes only).
 **WB-M1: the start of the journey (done 2026-10-08).**
 - [x] The opening, register and heritages, the barn, Wren; Thornwood, Saltmarsh, Emberfall, Cloudglass; wild
   bonding; trainers and Wardens; the ranch as a place (nursery, trough, workbench, gear); evolution; music; saving;
@@ -326,6 +326,7 @@ asking for help; rules only).
 Realmbound's Godot question answered by Evan, then a plan (START-HERE question 2).
 
 ### Diamond Manager (browser; the baseball game, reworked 2026-10-09)
+- [x] DM-N1a [any] Diamond Manager newcomer bugs (done: Codex, PR #261, merged 2026-10-13 as v0.8.2): post-game F opens the office without losing the result; starting a bench batter replaces the matching position when available, with an explicit replacement label. Preserve saves and the existing game loop. Verify the hall record fix from AR2.15; no new streaks or content. Files: games/diamond-manager/, tests/diamond-manager-checks.js, docs/playtests/. Reported-playtest bugs exception under STUDIO-PLAN.
 - [ ] DM-N1 [any] Diamond Manager, numbers you watch climb (Flint round 3, COMMS 2026-10-12 21:02): upgrades show their effect on named players ("Cy Moss: ceiling 60 to 62"); hot and cold streaks so ratings move game to game; one or two dugout calls with visible risk (steal, hit-and-run, intentional walk, pinch hitter). Bugs first: F does nothing on the post-game screen until "Hear from Iona" is clicked; signing a left fielder showed two left fielders in the lineup; the hall card kept a stale 0-1 record after two games.
 Evan, 2026-10-09: the batting game was too hard to read and to hit; make it one you manage (ratings, trades,
 contracts, hiring, stadium upgrades, watching games) and plan a Retro Bowl-style football game. Full plan and the

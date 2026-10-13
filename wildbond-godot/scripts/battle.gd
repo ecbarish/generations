@@ -187,6 +187,8 @@ func _process(dt: float) -> void:
 			if state_t > 1.0:
 				visible = false
 				state = "off"
+				for u in allies + foes:
+					u.shown = float(u.c.hp)                    # the bars match the real HP when the dust settles
 				finished.emit(result)
 	if demo:
 		_demo()

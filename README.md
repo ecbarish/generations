@@ -41,6 +41,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Diamond Manager v0.8.2 — DM-N1a (PR #261; version bumped on merge):** post-game Front office shortcut/button, safe result settlement and position-aware bench starts with named replacements.
+
 - **Realmbound v1.9.1 — RB-N1 (PR #253; version bumped on merge):** Uncollected loot waits, pending field drops survive saving and full satchels, resource failures answer visibly, and dialogue names its reveal/continue action.
 
 - Godot Starfall (2026-10-12): mastery at the inn counter. Serve meals yourself and you rise from Kitchen Hand (serve from beside the counter) to Cook (choose hearty stew or a healing broth on the slate) to Head Cook (the big pot serves two at once). Bryn still serves a plain meal, so your own hand stays best. 272 checks pass.
