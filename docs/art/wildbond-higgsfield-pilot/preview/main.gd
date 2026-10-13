@@ -6,6 +6,9 @@ var elapsed := 0.0
 var cutoff := true
 var evolution_view := false
 var portraits: Dictionary = {}
+var tide_view := false
+var tide_texture: ImageTexture
+var tide_region: Rect2
 func _ready() -> void:
  var base := ProjectSettings.globalize_path("res://../")
  audit = JSON.parse_string(FileAccess.get_file_as_string(base + "audit.json"))
@@ -30,6 +33,13 @@ func _ready() -> void:
   assert(portrait != null and portrait.get_size() == Vector2i(2048, 2048))
   portraits[name] = ImageTexture.create_from_image(portrait)
  evolution_view = "--evolutions" in OS.get_cmdline_user_args()
+ tide_view = "--tidewyrm" in OS.get_cmdline_user_args()
+ var tide := Image.load_from_file(base + "tidewyrm/current-sail-reference.png")
+ assert(tide != null)
+ tide_texture = ImageTexture.create_from_image(tide)
+ var review: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(base + "tidewyrm/review.json"))
+ var bounds: Array = review.items[-1].bounds
+ tide_region = Rect2(bounds[0], bounds[1], bounds[2], bounds[3])
  print("PILOT PASS: 4 original PNGs imported; 21 bounded object regions; no game files or saves touched")
  queue_redraw()
 func region(file: String, index: int) -> Rect2:
@@ -49,6 +59,19 @@ func _draw() -> void:
  draw_rect(Rect2(0,0,768,432),Color("f4eddc"))
  text(Vector2(16,23),"WILDBOND / HIGGSFIELD ASSET PILOT",18)
  text(Vector2(16,44),"Space: alpha cutoff. E: evolution portraits. Poses are NOT a walk animation.")
+ if tide_view:
+  text(Vector2(24,78),"RIPPLET TO TIDEWYRM / CURRENT SAIL",20)
+  draw_rect(Rect2(16,92,736,300),Color("6aa862"))
+  sprite("ripplet.png",0,Vector2(115,300),112)
+  var height := 380.0 * tide_region.size.y / tide_region.size.x
+  draw_texture_rect_region(tide_texture,Rect2(310,300-height,380,height),tide_region)
+  text(Vector2(36,326),"Young form")
+  text(Vector2(326,326),"Working evolution direction")
+  sprite("ripplet.png",0,Vector2(150,380),26)
+  draw_texture_rect_region(tide_texture,Rect2(230,380-48*tide_region.size.y/tide_region.size.x,48,48*tide_region.size.y/tide_region.size.x),tide_region)
+  text(Vector2(310,379),"Small silhouettes: 26 / 48 px wide")
+  text(Vector2(16,417),"Proposed art only. Rear sail direction and marking layout need reconciliation.")
+  return
  if evolution_view:
   for i in range(2):
    var x := 16 + i * 376

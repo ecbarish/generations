@@ -6,6 +6,8 @@ Evan asked to maximise the three-day trial before deciding whether to pay. This 
 
 Read [the creature and evolution reference guide](DESIGN-LANGUAGE.md) first. Evan wants varied, sometimes dramatic transformations; the two initial mature portraits are conservative candidates, not the template for every evolution.
 
+**Evolution follow-up:** [the interactive evolution workshop](review.html) compares Ripplet with three Tidewyrm directions and a refinement. [The Tidewyrm handoff](TIDEWYRM.md) explains the selected wave-backed silhouette and precise corrections before production. Ten generated source images are now preserved across this pilot; the original six-image evaluation below remains its first-stage evidence.
+
 Use generated art first for **Wilddex portraits, creature design references and prop concepts**. The starters read recognisably at game scale, and references offer a promising starting point for future models. Do not spend the trial generating the whole catalogue as animation sheets: the first four outputs are illustrations with pixel styling, not production pixel sprites. A two-portrait evolution test checks family consistency before wider batching.
 
 ![Godot scale review](capture/frame00000000.png)
