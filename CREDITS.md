@@ -33,6 +33,10 @@ Google Fonts source revision: `5e8a3ba899557829a76cfdac30fa512bda91d7ca` (notice
 
 Before adding an outside asset or library, record its name, author/copyright, exact source, version where applicable, use in the arcade, license and any changes here. Copy the supplied notice into licenses/ and update credits.html. Keep attribution required by the asset's license; CREATIVE.md sets the permitted-source rules. Third-party notices describe those components only; they do not grant a license for the entire arcade.
 
+## Wildbond reference pilot: Higgsfield images (docs only, not in any game)
+
+`docs/art/wildbond-higgsfield-pilot/` holds AI-generated concept references made with Higgsfield in Evan's authorised trial (ART-WB-HF1, PR #274, October 2026): starter turnarounds, prop concepts, evolution portraits and Tidewyrm explorations. Prompts, generation IDs and hashes are recorded beside them. The provider's usage rights have not been verified, so these images are design references only: none ships in a game, and none may be copied into a game until the rights are checked and recorded here.
+
 ## Wildbond (Godot trial): Ninja Adventure asset pack
 
 **Ninja Adventure - Asset Pack** by **Pixel-Boy** and **AAA** ([itch.io](https://pixel-boy.itch.io/ninja-adventure-asset-pack)),
