@@ -8,41 +8,37 @@ and how much creative freedom you have are in [CREATIVE.md](CREATIVE.md).
 
 ## This cycle: cycle 1, Tuesday 2026-10-13 to Monday 2026-10-19 (read this first; it overrides every list below)
 
-**Phase 1, first impression** (docs/STUDIO-PLAN.md): a newcomer knows what to do and has fun in the first ten minutes,
-on a computer and a phone. Posted by lane P (Priorities and direction) on day 1; Evan approves or changes it in one
-message. **Take your named task, claim it with a draft PR titled with its ID (PROCESS.md), and nothing else.** One task
-is one pull request. Finished early? Spare effort goes, in this order: bugs found in play, then the next cycle's
-rotating game (Realmbound), then shared work (the onboarding kit). Never extra features for a slot that met its quota.
+**Act on the notes we already have** (Evan, 2026-10-13: "the playtests are a waste until we update beyond Flint's
+notes"). Every task below comes from Flint's three playtest rounds (docs/COMMS.md, 2026-10-12 20:19, 20:52 and 21:02),
+apart from Little Ranch's next steps and two Wildbond builds from the studio plan. **No new playtests this cycle:** Flint
+replays the same games once these fixes land. Take your named task, claim it with a draft PR titled with its ID
+(PROCESS.md), and nothing else; one task is one pull request. Finished early? Bugs found in play, then the next row of
+your game's notes, then shared work (the onboarding kit). Nothing outside this block starts.
 
-| Slot (quota) | ID | Task | Who | Done when |
+| Game | ID | Task (Flint's note) | Who | Done when |
 |---|---|---|---|---|
-| Wildbond (6) | WB-C1 | Fresh newcomer playtest of the first ten minutes, computer and phone | Muse (Adam) | `docs/playtests/cycle-2026-10-13-wildbond.md` has a docs/PLAYTEST.md score and its top snags, by day 5 (Saturday) |
-| | WB-C2 | Meet your partner sooner: time New Game to your first partner, trim it to three minutes or less | Claude, Wildbond builder | Measured before and after in the PR; tests pass; old saves load |
-| | WB-C3 | Wildbond on a phone: the web preview held sideways can walk, talk, battle and open the bag by touch | Claude, Wildbond builder | A phone-size run recorded in the PR; WB-C1 scores Phone 3 |
-| | WB-C4 | Larkhaven and the first route at their best (Phase 1 art) | Claude, Game assets | Before and after screenshots; the Art direction thread approves |
-| | WB-C5, WB-C6 | Fix the top two snags WB-C1 finds, one PR each | dot (Adam) | Each snag gone, shown in the PR |
-| Little Ranch (3) | LR-C1 | The first five minutes alone: nothing a three-year-old must read or ask a grown-up about; big targets on a tablet | Grok (Adam) | A parent's checklist in the PR, tablet screenshots |
-| | LR3 | The singing flowers | Grok (Adam) | As DEVELOPMENT-PATH LR3; `tests/little-ranch.html` passes |
-| | LR10 | The Little Wagon | Grok (Adam) | As DEVELOPMENT-PATH LR10; same checks |
-| Rotating: Starfall (5) | SF-C1 | Fresh newcomer playtest of the first day, computer and phone | ChatGPT/Codex | `docs/playtests/cycle-2026-10-13-starfall.md` scored, by day 5 |
-| | SF-C2 | The first day teaches one thing at a time: each new building or job arrives through a person, in order | Claude, Starfall thread | A newcomer's first day in screenshots; old saves load |
-| | SF-C3 | Starfall on a phone: touch moves, talks and works every station in the web preview | Claude, Starfall thread | A phone-size run in the PR |
-| | SF-C4, SF-C5 | Fix the top two snags SF-C1 finds, one PR each | dot (Adam) | Each snag gone, shown in the PR |
-| Incubator: Lantern Bowl (3) | LB2 | One drive, playable | ChatGPT/Codex | As DEVELOPMENT-PATH LB2; its checks pass |
-| | LB2.1 | The drive by touch on a phone | ChatGPT/Codex | A phone-size run in the PR |
-| | LB-C1 | Fresh newcomer playtest of the drive | Muse (Adam) | `docs/playtests/cycle-2026-10-13-lantern-bowl.md`, aiming at 15/18 |
-| Phase 0 reset (once) | AR-FRONT | The front door: Wildbond as the headline, Little Ranch for kids, then the line-up, then "The Workshop"; Classic editions and Primordial hidden; blurbs fixed (AR2.16); no "Test version" badges on the line-up | PC Claude (backup: the PR reviewer thread) | The live hall shows the line-up; a phone screenshot in the PR |
-| | P-C1 | Fewer documents: the five living pages stay, every other plan page gets a one-line "reference" or "history" header | Claude, lane P | Merged |
+| Wildbond | WB-BOND | Make the bond real: a creature evolves on bond as well as level (round 2, note 3). The Design decisions thread sets the rule first | Claude, Wildbond builder | The rule in DECISIONS.md; evolution follows it; tests pass; old saves load |
+| | WB-C2 | Meet your partner sooner: time New Game to your first partner, trim it to three minutes or less | dot (Adam) | Measured before and after in the PR; tests pass; old saves load |
+| | WB-C3 | Wildbond on a phone: the web preview held sideways walks, talks, battles and opens the bag by touch | Claude, Wildbond builder | A phone-size run recorded in the PR |
+| | WB-C4 | Larkhaven and the first route at their best | Claude, Game assets | Before and after screenshots; the Art direction thread approves |
+| Starfall | SF-GUILD1 | The one-page map of Starfall Guild's best loops (docs/plans/starfall-guild-fold.md), then the first: one tactical call during fights, so you act instead of watch (round 3, note 2) | Claude, Starfall thread | The map merged; the call works in the village's fights; old saves load |
+| | SF-GUILD2 | An early earned hire, so automation lands in the first five minutes (round 3, note 3) | Muse (Adam) | A helper earned within the first session, by doing the job by hand first; checks pass |
+| Diamond Manager | DM-N1b | Training Rooms show their effect on named players (round 3, note 2) | ChatGPT/Codex (PR #269) | Merged |
+| | DM-N1c | Hot and cold streaks, so ratings move from game to game (note 3) | ChatGPT/Codex | As DEVELOPMENT-PATH DM-N1; `tests/diamond-manager.html` passes |
+| | DM-N1d | Dugout calls with visible risk: steal, hit-and-run, intentional walk, pinch hitter (note 1) | ChatGPT/Codex | Same |
+| Realmbound | RB1.12a | Two or three quests at once in Thornvale, for the "one more quest" pull (round 2, note 3) | dot (Adam) | Old saves load; `tests/run.html` all-pass |
+| Otherworld | OW-N1 | A "Memories carried" ledger, and at least two open choices at every beat (round 2) | Muse (Adam) | As DEVELOPMENT-PATH OW-N1; old saves load |
+| Starfall Guild | SG-N1 | Something to do during the rest after a wipe; the Ledger's time counts right (round 3, note 4) | ChatGPT/Codex (PR #264) | Merged |
+| The hall | AR-FRONT | Blurbs that match the games (AR2.16: Lighthouse Watch, Otherworld); Wildbond as the headline, Little Ranch for kids, Classic editions and Primordial hidden | PC Claude (backup: the PR reviewer thread) | The live hall shows it; a phone screenshot in the PR |
+| Little Ranch | LR-C1 | The first five minutes alone: nothing a three-year-old must read or ask about; big targets on a tablet | Grok (Adam) | A parent's checklist in the PR, tablet screenshots |
+| | LR3, LR10 | The singing flowers, then the Little Wagon | Grok (Adam) | As DEVELOPMENT-PATH; `tests/little-ranch.html` passes |
 
-**Also this cycle:** the PR reviewer thread reviews and merges within a day (finish #264 and #269 first; after those, no
-more Diamond Manager or Starfall Guild work until their slot comes round). Adam's Codex and anyone not named: bugs from
-Play day, then the spare-effort order above. Nothing else starts.
+**Postponed to cycle 2:** Lantern Bowl's drive (LB2), Diamond Career's practice swing, every new playtest, and P-C1
+(fewer documents). **The PR reviewer thread** reviews and merges within a day, #264 and #269 first.
 
-**Play day: Sunday 2026-10-18.** Evan plays Wildbond; his daughter Little Ranch (Evan or Adam watching); Adam plays
-Starfall; the whole family ten minutes of Lantern Bowl. One line each in that game's `docs/playtests/cycle-2026-10-13-*.md`.
-**Review and rollover: Monday 2026-10-19, lane P** ticks what's done, turns the Play day notes into cycle 2's first
-tasks (rotating slot: Realmbound's first hour, RB1.10 then RB1.12) and replaces this block. If the block still says
-cycle 1 on Tuesday 2026-10-20, the PR reviewer thread posts cycle 2 instead, so a cycle never runs out.
+**Sunday 2026-10-18:** Evan and Adam play whatever has landed, if they want to; no notes are required. **Review and
+rollover: Monday 2026-10-19, lane P** ticks what's done, asks Flint to replay the games whose notes are fixed, and
+posts cycle 2. If the block still says cycle 1 on Tuesday 2026-10-20, the PR reviewer thread posts cycle 2 instead.
 
 ## The direction (the long view behind the cycles; Evan, 2026-10-12: "a large runway for the AIs to push, and a clear direction")
 

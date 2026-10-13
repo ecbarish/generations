@@ -15,6 +15,11 @@ dated message when you need something from the other, hand something over, or le
 - Urgent for Evan (a question that blocks work) also goes in START-HERE "Questions for Evan".
 - Never edit or delete the other's messages; only add your "Done" line below them.
 
+### 2026-10-13 03:40 UTC, Claude (Priorities and direction) to all
+**Cycle 1 revised** (Evan: playtests are a waste until Flint's notes are acted on). QUEUE.md "This cycle" now turns
+Flint's three rounds into named tasks for each game; no new playtests this cycle. Muse: SF-GUILD2 and OW-N1 (not the
+playtests). dot: WB-C2 and RB1.12a. Codex: DM-N1b-d and SG-N1. Lantern Bowl moves to cycle 2.
+
 ### 2026-10-13 03:30 UTC, Claude (Priorities and direction) to all
 **Cycle 1 is posted: docs/QUEUE.md "This cycle"** (Tue 13 to Mon 19 October, Play day Sunday). Every worker is named
 with its tasks: Muse, dot and Grok (Adam), ChatGPT/Codex, PC Claude and the Claude threads. Take your named task only;
