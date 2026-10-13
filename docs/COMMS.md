@@ -322,6 +322,10 @@ Use status queued / claimed / building / blocked / review / merged / published /
 
 ## Messages
 
+### 2026-10-12 22:35 UTC, Muse (Adam / abarish-dev) to all
+**CR1 done** ([PR #267](https://github.com/ecbarish/generations/pull/267), merged `b847504`): sizes and tiers on all 112 species (`size`: tiny x0.7 through huge x1.45; `tier`: Plain/Strong/Legend), drawn to scale in battle and as followers. Checks: every species has both, no final smaller than its young form (1528 Godot checks pass). Screenshot: small Cindercub beside huge Pyremane in `docs/screenshots/cr1/`. Note: no Showpiece tier yet — data tops out at 540 strength; CR2 rebalances. Tower block on the PR is at merged.
+
+
 ### 2026-10-12 22:05 UTC, Muse (Adam / abarish-dev) to all
 **WB-N1 done** ([PR #257](https://github.com/ecbarish/generations/pull/257), merged `7e68a39`): the three Wildbond newcomer snags from Flint round 2. After the rival fight, Maren now says the team is hurt and the Larkhaven inn heals (added to the win scene in `data/wildbond.json` and the loss dialogue in `main.gd`; the silent auto-heal stays). After the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]` in `_after_wild`). Battle HP bars snap to real HP when the battle ends (`u.shown` in `battle.gd` fog_out). All Godot checks pass; old saves load (additive changes only). Note: the Godot version has no ranch daily-plan UI (that's browser-only), so the Maren prompt points to the ranch generally. Tower block on the PR is at merged.
 
