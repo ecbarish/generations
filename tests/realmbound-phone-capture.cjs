@@ -23,8 +23,13 @@ const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png
   await page.evaluate(()=>window.eval("closeRealmNotebook(false);clearTownService();RTALK=null;SCN.el.hidden=true;const questPicture=newHero('Three Roads','concord','human','hunter');questPicture.onboarding={arrival:true,hints:{}};S.chars=[questPicture];S.cur=questPicture.id;boot();closeModal();accept('t1');accept('t2');accept('t3');C.phase='intown';townEnter();openRealmNotebook('quests');"));
   await page.waitForTimeout(200);
   await page.screenshot({path:path.join(out,prefix+'-thornvale-journal.png')});
-  await page.evaluate(()=>window.eval("closeRealmNotebook(false);abandon('t2');abandon('t3');talkPlaceQuest(townPeople().find(n=>n.name==='Deputy Rhea'));SCN.skip();"));
+  const savedQuests=await page.evaluate(()=>window.eval('save();JSON.stringify(H().quests)'));
+  await page.reload();await page.waitForFunction(()=>window.__rb&&window.__rb.S.cur);
+  if(await page.evaluate(()=>window.eval('JSON.stringify(H().quests)'))!==savedQuests)throw Error('Thornvale quest state changed on actual browser reload: '+prefix);
+  await page.evaluate(()=>window.eval("closeModal();C.phase='intown';townEnter();closeRealmNotebook(false);abandon('t2');abandon('t3');talkPlaceQuest(townPeople().find(n=>n.name==='Deputy Rhea'));SCN.skip();"));
   await page.screenshot({path:path.join(out,prefix+'-thornvale-requests.png')});
+  await page.evaluate(()=>window.eval("clearTownService();RTALK=null;SCN.el.hidden=true;H().onboarding={arrival:false,hints:{}};beginArrival(false);while(RTALK&&RTALK.i<RTALK.lines.length-1){SCN.skip();SCN.advance();}SCN.skip();updateWorld();"));
+  await page.screenshot({path:path.join(out,prefix+'-thornvale-arrival.png')});
   await context.close();
  }
  }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}

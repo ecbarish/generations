@@ -5,7 +5,11 @@ async function checkRealmParallelQuests(frame){
  const run=code=>w.eval(code),json=code=>JSON.parse(run('JSON.stringify('+code+')'));
  run("clearTownService();clearArrival();RTALK=null;SCN.el.hidden=true;closeModal();const parallelHero=newHero('Three Roads','concord','human','hunter');parallelHero.onboarding={arrival:true,hints:{}};S=emptyS();S.chars=[parallelHero];S.cur=parallelHero.id;boot();C.phase='intown';townEnter();");
  check(run("['t1','t2','t3'].every(id=>qState(ALLQ[id])==='avail')"),'three existing requests available at level one');
- check(run("qState(ALLQ.t7)==='locked'&&qState(ALLQ.t8)==='locked'"),'later story and elite prerequisites retained');
+ run('H().lvl=10;');
+ check(run("qState(ALLQ.t7)==='locked'&&qState(ALLQ.t8)==='locked'"),'later story and elite prerequisites remain locked at eligible level');
+ run("H().quests.done.t3=true;H().quests.done.t1=true;");
+ check(run("qState(ALLQ.t7)==='avail'&&qState(ALLQ.t8)==='avail'"),'later requests unlock only after their existing prerequisite');
+ run('H().lvl=1;H().quests.done={};');
  run("accept('t1');accept('t2');accept('t3');accept('t2');");
  check(run("H().quests.active.join(',')==='t1,t2,t3'"),'three accepted requests; repeated acceptance adds no duplicate');
  const reward=json('H().quests.rewards');
@@ -44,6 +48,8 @@ async function checkRealmParallelQuests(frame){
   check(d.documentElement.scrollWidth<=width,width+'px Journal stays inside viewport');
   check(d.querySelectorAll('.thornvale-requests [data-act="followquest"]').length===3,width+'px shows all three objective controls');
   check([...d.querySelectorAll('.thornvale-requests .rowl')].every(el=>el.getBoundingClientRect().right<=width+1),width+'px objectives do not overflow');
+  check([...d.querySelectorAll('.thornvale-requests button')].every(el=>el.getBoundingClientRect().height>=44),width+'px objective buttons have 44px tap targets');
+  check([...d.querySelectorAll('.thornvale-requests .l')].every(el=>el.scrollWidth<=el.clientWidth+1),width+'px objective text wraps without clipping');
   check(d.querySelector('[data-act="accept"][data-arg="t4"]').disabled,width+'px fourth acceptance clearly unavailable');
  }
  d.querySelector('[data-act="followquest"][data-arg="t3"]').click();
@@ -51,6 +57,14 @@ async function checkRealmParallelQuests(frame){
  run("closeRealmNotebook(false);C.phase='intown';townEnter();abandon('t2');const cancelSnapshot=JSON.stringify(H().quests);talkPlaceQuest(townPeople().find(n=>n.name==='Deputy Rhea'));SCN.skip();");
  const buttons=[...d.querySelectorAll('.dlg-choices button')];buttons[buttons.length-1].click();
  check(run('JSON.stringify(H().quests)===cancelSnapshot'),'Another time leaves quests and rewards untouched');
+ run("talkPlaceQuest(townPeople().find(n=>n.name==='Deputy Rhea'));SCN.skip();");
+ [...d.querySelectorAll('.dlg-choices button')].find(b=>b.textContent.includes('Candles in the Dark')).click();run('SCN.skip();');
+ [...d.querySelectorAll('.dlg-choices button')].find(b=>b.textContent.startsWith('Another time')).click();
+ check(run('JSON.stringify(H().quests)===cancelSnapshot'),'cancelling the actual offer leaves the open slot unchanged');
+ run("talkPlaceQuest(townPeople().find(n=>n.name==='Deputy Rhea'));SCN.skip();");
+ [...d.querySelectorAll('.dlg-choices button')].find(b=>b.textContent.includes('Candles in the Dark')).click();run('SCN.skip();');
+ [...d.querySelectorAll('.dlg-choices button')].find(b=>b.textContent.startsWith('I can help')).click();
+ check(run("H().quests.active.length===3&&H().quests.active.includes('t2')&&H().quests.prog.t2===0"),'actual giver offer accepts a third request alongside the other two');
  run("clearTownService();RTALK=null;SCN.el.hidden=true;closeRealmNotebook(false);");
  return checks;
 }

@@ -42,9 +42,6 @@ function roadHint() {
   if (C.phase === 'dead') return show('recovery', 'The road continues', 'Your hero recovers after a defeat. Nothing in this guide requires a perfect start; your quest progress stays with you.');
   if (state === 'ready') return show('reward', 'Bring the errand home', 'The objective is ready, but the errand is not finished. Open Quests and choose one reward. It goes into Bags, not straight onto your character. A full bag? Sell an item or visit the smith first.', 'quests');
   if (C.phase === 'loot' && C.loot && !h.stats.loots) return show('loot', 'Something for the road', 'Press Loot all or L when you are ready. Money is collected and items go into your Satchel if there is room; the rest waits for you. AutoLoot is earned after 60 manual loots; it is not on yet.');
-  if(h.zone==='thornvale'&&h.quests.active.length<3&&['t2','t3'].some(id=>qState(ALLQ[id])==='avail')) {
-    const hint=show('thornvaleRequests','More to do on one road','You can carry three requests together. Deputy Rhea needs candles recovered and Diggers driven from the old mine. Both requests can progress on the same hunt. Open your Quest Journal to find her in Thornvale Abbey.','quests');if(hint)return hint;
-  }
   if (C.phase === 'intown') return show('town', 'A fire to come back to', 'Walk with arrows or WASD, or tap the ground. Walk into the inn or longhouse for rest, or the smith to sell junk and repair if you can afford it. Repairs are optional. Walk to the gate, or use Leave town, to return.');
   if ((state !== 'done' || o.hints.home) && h.stats.loots && !h.stats.equips && h.bags.some(i => !i.junk && !i.food && !i.mountItem)) {
     const hint = show('bags', 'Finding is not equipping', 'Open Bags to inspect what you found. Your class can only wear suitable gear; compare it with the current item before choosing Equip. Junk can be sold in town.', 'bags'); if (hint) return hint;
@@ -53,6 +50,9 @@ function roadHint() {
   const n = C.enc && npcOf(C.enc.id) || (C.party[0] && C.party[0].n);
   if (n) return show('companion', n.name + ', a fellow traveler', n.name + ' is a ' + ROLE_NAME[roleOf(n)].toLowerCase() + '. ' + ({tank:'They can draw attacks away from others.',heal:'They can mend the party when someone is hurt.',dps:'They help bring enemies down.'}[roleOf(n)] || 'They fight alongside you.') + ' Wave or help when offered; Invite to group asks them to join. Strangers may decline or leave later. Friendship grows by sharing the road; you still give your own orders.', 'friends');
   if (C.phase === 'fight' && !h.stats.manual) return show('fight', 'Your first deliberate action', roadAction() + ' Choose Fight or an ability to start. Basic attacks follow while you play; ten seconds without combat input pauses the encounter, including enemies and companions. There is no idle takeover. Active Focus kills earn 10% extra XP.');
+  if(h.zone==='thornvale'&&h.quests.active.length<3&&['t2','t3'].some(id=>qState(ALLQ[id])==='avail')) {
+    const hint=show('thornvaleRequests','More to do on one road','You can carry three requests together. Deputy Rhea needs candles recovered and Diggers driven from the old mine. Both requests can progress on the same hunt. Open your Quest Journal to find her in Thornvale Abbey.','quests');if(hint)return hint;
+  }
   return null;
 }
 function renderRoadGuide() {
