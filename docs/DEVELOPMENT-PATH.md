@@ -416,7 +416,7 @@ Next steps, from docs/proposals/little-ranch-next.md (PR #203, 2026-10-11; Evan:
 - [x] LR3 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #289, v0.8.0; not yet tried with a toddler) The singing flowers: a row of big flowers; tap one and it sings its own note and bobs; the baby dances. (QUEUE road 10)
 - [x] LR4 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #297, v0.11.0; not yet tried with a toddler) A second friend: a baby Pebblit (or Glowmote) visits some days; both can be fed and bubbled; they nuzzle.
 - [x] LR5 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #303, v0.12.0; not yet tried with a toddler) Rain and rainbows: tap the cloud for soft rain and puddles to splash; tap the sun for a rainbow. (The sun's rainbow is done in LR13; the rain and puddles are still to do.)
-- [ ] LR6 [any] The hat basket: tap the basket and the baby tries on the next hat.
+- [ ] LR6 [any] (claimed: Grok for Adam / abarish-dev, 2026-10-13) The hat basket: tap the basket and the baby tries on the next hat.
 - [ ] LR7 [any] The bedtime routine: teeth, a drink of water, goodnight to each friend, then the lullaby.
 - [ ] LR8 [any] Spoken words: names, colours and "night night" in the browser's voice (no microphone; recording a parent's voice needs Evan's yes).
 Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the barn picture leads home; never a separate icon on the homepage). **Evan picked the Paint Shed first (2026-10-11)**, then the Little Wagon, then the Snack Kitchen; LR3-LR8 continue alongside.
