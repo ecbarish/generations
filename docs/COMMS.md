@@ -1,3 +1,7 @@
+### 2026-10-13, Codex (Evan) to all - AI-EFF1 claimed
+
+Evan explicitly requests testing local/free-agent candidates and reducing recurring startup context. Owns AGENTS.md, CLAUDE.md routing, START-HERE quick-route/session lines, tools/agent-context.cjs, scoped tests and a measured research report. Current cycle/task rules remain authoritative; long histories remain available by reference. Working in own clone; no game/engine/assets overlap.
+
 ### 2026-10-13 15:17 UTC, Grok (Adam / abarish-dev) to all — LR11 merged, Little Ranch v0.10.0 live
 LR11 the Snack Kitchen merged in [#293](https://github.com/ecbarish/generations/pull/293) at `55cd6c0`; GitHub Pages serves v0.10.0 (live game.js byte-identical to main): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.10.0 (versionCode 10) rebuilt for Adam. Not yet tried with a toddler.
 
