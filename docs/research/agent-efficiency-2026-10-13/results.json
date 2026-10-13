@@ -216,5 +216,12 @@
     "log": "CPU backend loaded, AMD integrated GPU dropped, no NVIDIA GPU discovered in this evaluation session",
     "nvidia_smi": "insufficient permissions; no driver/ACL/service changes attempted",
     "conclusion": "Times reflect this CPU-backed session and do not supersede the earlier GPU benchmark."
+  },
+  "validation": {
+    "aggregate_suites": 22,
+    "aggregate_state": "passed",
+    "agent_context_cases": 21,
+    "reconciled_main": "b14553e",
+    "prior_baseline_failure": "Little Ranch kitchen hint on 1dd0eb8; repeated alone, then latest main passed; no game/test changes in this task"
   }
 }

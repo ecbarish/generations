@@ -67,4 +67,14 @@ the actual ticket/source/tests. A summary is an index, never proof of merge/publ
 
 Machine-readable evidence and exact prompts/fixtures: [results.json](agent-efficiency-2026-10-13/results.json).
 The extracted app and raw local logs stay in the temporary evaluation folder outside Git; no binary/model weights
-were added to the repository. No paid inference or image credits were spent.
+were added to the repository. No external API charges or image credits were spent. This Codex session still uses its normal plan allowance.
+
+## Validation and integration
+
+Twenty-one routing regressions pass and are included in the aggregate runner. An initial aggregate run on main
+1dd0eb8 failed the unchanged Little Ranch kitchen-hint check; the same scoped run repeated it. After reconciling
+main b14553e (the concurrent Little Ranch v0.11.0 work), its 201 checks and the routing suite pass. No Little Ranch
+code/test was changed in this PR. Final aggregate outcome is recorded in the PR metadata; no failure is hidden or
+assertion weakened. Other agents' Session log and COMMS additions were retained when reconciling the branch.
+
+Final verification on the reconciled branch: **all 22 suites pass**, including 21 agent-context regression cases. The scoped runner filter also passes.
