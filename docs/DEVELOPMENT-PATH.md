@@ -326,6 +326,7 @@ asking for help; rules only).
 Realmbound's Godot question answered by Evan, then a plan (START-HERE question 2).
 
 ### Diamond Manager (browser; the baseball game, reworked 2026-10-09)
+- [ ] DM-N1a [any] Diamond Manager newcomer bugs (claimed: Codex, 2026-10-12, codex/diamond-manager-newcomer-bugs): post-game F opens the office without losing the result; starting a bench batter replaces the matching position when available, with an explicit replacement label. Preserve saves and the existing game loop. Verify the hall record fix from AR2.15; no new streaks or content. Files: games/diamond-manager/, tests/diamond-manager-checks.js, docs/playtests/. Reported-playtest bugs exception under STUDIO-PLAN.
 - [ ] DM-N1 [any] Diamond Manager, numbers you watch climb (Flint round 3, COMMS 2026-10-12 21:02): upgrades show their effect on named players ("Cy Moss: ceiling 60 to 62"); hot and cold streaks so ratings move game to game; one or two dugout calls with visible risk (steal, hit-and-run, intentional walk, pinch hitter). Bugs first: F does nothing on the post-game screen until "Hear from Iona" is clicked; signing a left fielder showed two left fielders in the lineup; the hall card kept a stale 0-1 record after two games.
 Evan, 2026-10-09: the batting game was too hard to read and to hit; make it one you manage (ratings, trades,
 contracts, hiring, stadium upgrades, watching games) and plan a Retro Bowl-style football game. Full plan and the

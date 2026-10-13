@@ -4,6 +4,12 @@ Every outlined project in one place, so Evan can hand work to any assistant (Cla
 and they can carry it to launch. START-HERE.md says what is happening *right now*; this file says *everything there
 is to do*. Ground rules for how assistants work, and how much creative freedom they have: [CREATIVE.md](CREATIVE.md).
 
+## Diamond Manager newcomer bugs
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| DM-N1a | Post-game access and lineup replacement | S | claimed: Codex, codex/diamond-manager-newcomer-bugs | Reported playtest bugs; no content expansion |
+
 ## Diamond Career newcomer fixes
 
 | ID | Project | Size | Status | Scope |
