@@ -66,7 +66,7 @@ big step, someone who didn't build it scores it with docs/PLAYTEST.md's six ques
 Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stable; tickets reference them.
 
 ### Wildbond (Godot): the new Wildbond, to version 2.0
-- [ ] WB-N1 [any] (claimed 2026-10-12 by Muse, Adam / abarish-dev) Wildbond newcomer snags (Flint round 2, COMMS 2026-10-12 20:52): after the rival fight, someone says the team is hurt and the Larkhaven inn heals; after the first catch, Maren points to the ranch's daily plan once; the HP shown after the rival battle matches the real HP. Bond-gated evolution is a design question for Design decisions first. Files: wildbond-godot/. Done when all Godot checks pass and old saves load.
+- [x] WB-N1 [any] (done 2026-10-12 by Muse, Adam / abarish-dev, PR #257) Wildbond newcomer snags (Flint round 2, COMMS 2026-10-12 20:52): after the rival fight, Maren says the team is hurt and the Larkhaven inn heals (win scene + loss line); after the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]`); battle HP bars snap to real HP on finish (`u.shown`). Bond-gated evolution is a design question for Design decisions first. Files: wildbond-godot/. All Godot checks pass; old saves load (additive changes only).
 **WB-M1: the start of the journey (done 2026-10-08).**
 - [x] The opening, register and heritages, the barn, Wren; Thornwood, Saltmarsh, Emberfall, Cloudglass; wild
   bonding; trainers and Wardens; the ranch as a place (nursery, trough, workbench, gear); evolution; music; saving;
