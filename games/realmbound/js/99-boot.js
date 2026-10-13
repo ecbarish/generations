@@ -14,7 +14,7 @@ function boot(){
   if(!h.npcs)h.npcs=genNpcs(h.faction);h.party=h.party||[];if(h.dun===undefined)h.dun=null;migrateDungeons(h);
   h.mode='focus'; // loading never resumes delegated combat without a choice
   recalc();C=freshC();C.hp=h.cur?Math.min(ST.hpMax,h.cur.hp):ST.hpMax;C.res=h.cur?Math.min(ST.resMax,h.cur.res):(CLASSES[h.cls].res==='mana'?ST.resMax:0);if(C.hp<=0)C.hp=ST.hpMax*.5;
-  syncParty();
+  syncParty();normalizeFieldLoot(h);restoreFieldLoot();
   closeModal();curKey=null;buildSlots();supplyCheckIn();updateWorld();beginArrival(false);
 }
 /* test hook, local dev server only */

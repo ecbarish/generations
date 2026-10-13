@@ -30,13 +30,14 @@ function syncRealmNotebook(){syncFieldTownButton();if(!FIELD_BOOK)return;if(!H()
 
 /* Runtime layout only: no hero/save fields. ResizeObserver also follows text-size changes. */
 (() => {
- const app=$('#app'),dock=$('#fieldDock'),bar=$('.abar');
+ const app=$('#app'),dock=$('#fieldDock'),bar=$('.abar'),arrival=$('#arrivalControls');
  const measure=()=>{
   const dockHeight=Math.ceil(dock.getBoundingClientRect().height);
   const barHeight=Math.ceil(bar.getBoundingClientRect().height);
   app.style.setProperty('--field-dock-height',dockHeight+'px');
   app.style.setProperty('--field-controls-top',(dockHeight+19+barHeight)+'px');
+  app.style.setProperty('--arrival-controls-height',arrival.hidden?'0px':(Math.ceil(arrival.getBoundingClientRect().height)+8)+'px');
  };
- const observer=new ResizeObserver(measure);observer.observe(dock);observer.observe(bar);
+ const observer=new ResizeObserver(measure);observer.observe(dock);observer.observe(bar);observer.observe(arrival);
  addEventListener('resize',measure);measure();
 })();

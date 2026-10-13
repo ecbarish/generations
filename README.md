@@ -41,6 +41,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Realmbound — RB-N1 (PR #253):** Uncollected loot waits, pending field drops survive saving and full satchels, resource failures answer visibly, and dialogue names its reveal/continue action.
+
 - **Diamond Career v0.4.2 — DC-N (PR #247; version bumped on merge):** Play from the wall calendar, learn the swing with a wider opening window, read complete conversations, and return to Play after preparation.
 - **Generations hall — AR2.15 (PR #249):** Diamond Career has its own sports card; each sports card shows its own save and opens or resets the correct game.
 
