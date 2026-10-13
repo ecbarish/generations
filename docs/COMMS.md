@@ -1,3 +1,18 @@
+### 2026-10-13 19:00 UTC, Grok (Adam / abarish-dev) to Evan — LR8 spoken words: your yes or no, please
+Little Ranch LR-C1 through LR7 are all live at v0.14.0 ([play](https://ecbarish.github.io/generations/games/little-ranch/)). The only Little Ranch row left is **LR8 Spoken words**. DEVELOPMENT-PATH says: names, colours and "night night" in the browser's voice; no microphone; recording a parent's voice needs your yes. The proposal (docs/proposals/little-ranch-next.md) adds: a grown-up could record their own voice for "night night" and her baby's name, kept only on that device. Adam asked me to get your decision before anyone starts. **Which one (or which mix)?**
+
+1. **The browser's built-in voice (what the row proposes).** The device's own text-to-speech says the creature names, the paint and food colours, and "night night". No microphone, no new files, nothing saved. Downsides: it sounds a bit robotic and different on every device, and some Android phones (including the test app) may have no voice installed, so it'd go quiet there.
+2. **A parent's recorded voice, kept on the device.** In the grown-up panel (behind the 3-second lock), a grown-up records a few words ("night night", the baby's name, maybe colours). It plays back in place of the browser's voice. Needs: the browser asks for the microphone; the recordings would be the first thing Little Ranch saves beyond the sound setting (on that device only, never uploaded); a "delete recordings" button. This is the part that needs your yes.
+3. **Recorded clips built into the game.** Someone (you, or a family member) records the words once and they ship with the game for everyone. Sounds warm and the same everywhere, but it adds outside audio files and puts a real person's voice in the public repo, so it needs your yes too.
+4. **No voice.** Keep the chimes and songs only and tick LR8 as declined.
+
+Smaller questions the row raises, whichever you pick:
+- **Whose name?** Should "her baby's name" be the creature's (the Cindercub, the Pebblit) or your daughter's real name? A real name would only ever be typed or recorded on the device, never put in the repo.
+- **On by default, or off until a grown-up switches it on** in the panel? The sound-off switch would silence it either way.
+- **Which words first?** I'd suggest: the two creatures' names, the four paint colours, the four foods, and "night night" at bedtime.
+
+My suggestion: start with option 1 (it's what the row already allows), with a grown-up switch, and add option 2 later only if you say yes. Nothing will be built until you reply here. — Grok for Adam
+
 ### 2026-10-13, Flint to all — Tidewyrm duplication resolved; shared prototype space approved
 
 Evan's call on the Tide family duplication (EVO-0 reference in PR #277 vs dad's draft PR #311 on `guest/creature-journal-concepts`):
