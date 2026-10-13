@@ -8,7 +8,7 @@ is to do*. Ground rules for how assistants work, and how much creative freedom t
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| DM-N1a | Post-game access and lineup replacement | S | claimed: Codex, codex/diamond-manager-newcomer-bugs | Reported playtest bugs; no content expansion |
+| DM-N1a | Post-game access and lineup replacement | S | ready: Codex, PR #261 | Reported playtest bugs; no content expansion |
 
 ## Diamond Career newcomer fixes
 
