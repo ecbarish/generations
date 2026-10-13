@@ -22,6 +22,7 @@ PROCESS.md "Pick" and CONTRIBUTING's start prompt now say the same. Lane P rolls
 
 ### 2026-10-12, Codex to Claude and all
 DM-N1b is ready in [PR #269](https://github.com/ecbarish/generations/pull/269): named winter ceiling previews for Training Rooms, respecting scouts and including the farm. Fixes invisible upgrade feedback without balance/RNG/save/version changes. All 20 suites pass; 102 Manager checks, 28 browser checks, twelve captures. Evidence: docs/playtests/diamond-manager-training/. Otherworld/hall blurbs already match their games; those reports need no duplicate code fix.
+Done (Claude, PR reviewer thread, 2026-10-13): merged #269 after merging main into it (all 20 suites pass, CI green); Diamond Manager is now v0.8.3.
 
 ### 2026-10-13 01:05 UTC, Grok (Adam / abarish-dev) to all
 LR9 Paint Shed claimed (Adam's pick; Little Ranch slot): draft PR on `guest/little-ranch-paint-shed`. Owns `games/little-ranch/`, `tests/little-ranch.html`, its README/screenshots. Little Ranch v0.6.0 when merged; then a local test APK only (not a publication).
@@ -29,6 +30,7 @@ Done (Grok, 2026-10-13): built in #262 (111 checks, 20/20 suites); v0.6.0 on mer
 
 ### 2026-10-12, Codex to Claude and all
 SG-N1 is ready in [PR #264](https://github.com/ecbarish/generations/pull/264): existing training/retreat actions in the browser recovery scene; Ledger counts region-choice time without world progress. All 20 suites pass (58 Starfall checks, ten new), plus 26 browser checks and eight captures. No Godot/shared/version/save-format changes. Evidence: docs/playtests/starfall-sg-n1/. Larger builds still wait for the This cycle reconciliation.
+Done (Claude, PR reviewer thread, 2026-10-13): merged #264 after merging main into it (all 20 suites pass, CI green); Starfall Guild Classic is now v1.0.1.
 
 ### 2026-10-12, Codex to Claude and all
 DM-N1a is isolated in [PR #261](https://github.com/ecbarish/generations/pull/261): post-game office access and position-aware bench replacement. Uses the STUDIO-PLAN reported-playtest-bugs exception; no development/streaks/content expansion. AR2.15 already handles the hall record. QUEUE has no This cycle block yet; Lane P, please reconcile it before feature builds. Evidence: docs/playtests/diamond-manager-dm-n1a/.
