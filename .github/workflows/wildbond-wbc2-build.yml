@@ -1,0 +1,77 @@
+name: Wildbond WB-C2 scoped export
+on:
+  pull_request:
+    paths: ['.github/workflows/wildbond-wbc2-build.yml', 'docs/releases/wildbond-wbc2.md']
+permissions:
+  contents: read
+concurrency:
+  group: wildbond-wbc2-export-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  export:
+    if: github.event.pull_request.number == 286 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'guest/wildbond-wbc2-preview'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      SOURCE_COMMIT: c8fa1c8eb2105b32c1c387caa562c67317ede441
+      SOURCE_TREE: 2bd2ebab5fa157c9ac5a143a8308e7fd7da54afe
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          # Existing short-lived workflow token; only a fast-forward of this release branch is written.
+          persist-credentials: true
+      - name: Check pinned source and whether the export already exists
+        id: state
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin "$SOURCE_COMMIT"
+          test "$(git rev-parse "$SOURCE_COMMIT:wildbond-godot")" = "$SOURCE_TREE"
+          test "$(git rev-parse HEAD:wildbond-godot)" = "$SOURCE_TREE"
+          test -z "$(git status --porcelain)"
+          if python3 -c 'import json,os; assert json.load(open("play/wildbond/build.json"))["source_commit"] == os.environ["SOURCE_COMMIT"]'; then
+            python3 tools/wildbond-preview-manifest.py verify --source "$SOURCE_COMMIT"
+            echo 'needed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'needed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install official pinned exporter
+        if: steps.state.outputs.needed == 'true'
+        run: |
+          set -euo pipefail
+          curl --fail --retry 2 --connect-timeout 15 --max-time 120 -sSLo "$RUNNER_TEMP/godot.zip" https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Export only the pack and seal manifest
+        if: steps.state.outputs.needed == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p preview-review
+          "$GODOT" --version | tee preview-review/exporter.txt
+          timeout 180 "$GODOT" --headless --path wildbond-godot --editor --import --quit |& tee preview-review/import.log
+          timeout 180 "$GODOT" --headless --path wildbond-godot --export-pack Web "$PWD/play/wildbond/index.pck" |& tee preview-review/export.log
+          git diff --exit-code -- wildbond-godot/
+          python3 tools/wildbond-preview-manifest.py stage --source "$SOURCE_COMMIT"
+          python3 tools/wildbond-preview-manifest.py verify --source "$SOURCE_COMMIT"
+          git diff --name-only > preview-review/changed-files.txt
+          python3 -c 'from pathlib import Path; assert set(Path("preview-review/changed-files.txt").read_text().splitlines()) == {"play/wildbond/index.pck", "play/wildbond/index.html", "play/wildbond/build.json"}'
+      - name: Commit only exported files to this release PR without deploying
+        if: steps.state.outputs.needed == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name abarish-dev
+          git config user.email 319211409+abarish-dev@users.noreply.github.com
+          git add play/wildbond/index.pck play/wildbond/index.html play/wildbond/build.json
+          git commit -m "WB-C2: stage exact approved-source Wildbond preview pack"
+          git push origin HEAD:refs/heads/guest/wildbond-wbc2-preview
+          git rev-parse HEAD > preview-review/export-commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wildbond-wbc2-export
+          path: |
+            preview-review/
+            play/wildbond/build.json
+          if-no-files-found: error
