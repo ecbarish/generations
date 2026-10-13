@@ -41,6 +41,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **ONBOARD-KIT1 (draft #294):** shared browser newcomer guidance starts in Realmbound’s existing Road note, with current-goal, keyboard/touch and optional orientation advice. Existing hints, story, save keys and returning-player behavior retained; neutral reuse fixture and focused regression checks added. Not merged or published.
+
 - **Diamond Manager v0.8.3 — DM-N1b (PR #269; version bumped on merge):** Training Rooms now show named roster/farm players' winter ceiling outlook, respecting scout uncertainty and existing age/cap rules (DM-N1b; no balance changes).
 - **Starfall Guild Classic v1.0.1 — SG-N1 (PR #264; version bumped on merge):** recovery offers existing training/retreat actions inside the scene; the Ledger counts time spent choosing a region without granting idle rewards (SG-N1).
 
