@@ -30,10 +30,11 @@ your game's notes, then shared work (the onboarding kit). Nothing outside this b
 | Otherworld | OW-N1 | A "Memories carried" ledger, and at least two open choices at every beat (round 2) | Muse (Adam) | As DEVELOPMENT-PATH OW-N1; old saves load |
 | Starfall Guild | SG-N1 | Something to do during the rest after a wipe; the Ledger's time counts right (round 3, note 4) | ChatGPT/Codex (PR #264) | Merged |
 | The hall | AR-FRONT | Blurbs that match the games (AR2.16: Lighthouse Watch, Otherworld); Wildbond as the headline, Little Ranch for kids, Classic editions and Primordial hidden | PC Claude (backup: the PR reviewer thread) | The live hall shows it; a phone screenshot in the PR |
+| The hall | AR-SHELVE | **Evan, 2026-10-13: take the Classic editions and Diamond Career off the site.** Remove the Classic Wildbond and Classic Starfall Guild cabinets and Diamond Career from the hall (index.html), Come Play (playtest.html) and every list a visitor sees (README game list, guides index). Keep their code, folders and save keys in the repository; old saves stay untouched (the SAVE_KEYS map keeps them). Mark Diamond Career **Shelved** in docs/PRIORITIES.md and docs/GOALS.md (Diamond Manager replaced it) | Any AI, first to claim (it overlaps AR-FRONT: whoever takes one does both) | The live hall and Come Play show neither; old links to the games still open; `node tools/run-all-checks.cjs` passes; a phone screenshot in the PR |
 | Little Ranch | LR-C1 | The first five minutes alone: nothing a three-year-old must read or ask about; big targets on a tablet | Grok (Adam) | A parent's checklist in the PR, tablet screenshots |
 | | LR3, LR10 | The singing flowers, then the Little Wagon | Grok (Adam) | As DEVELOPMENT-PATH; `tests/little-ranch.html` passes |
 
-**Postponed to cycle 2:** Lantern Bowl's drive (LB2), Diamond Career's practice swing, every new playtest, and P-C1
+**Postponed to cycle 2:** Lantern Bowl's drive (LB2), every new playtest (Diamond Career's practice swing is dropped: the game is shelved, DD-4), and P-C1
 (fewer documents). **The PR reviewer thread** reviews and merges within a day, #264 and #269 first.
 
 **Sunday 2026-10-18:** Evan and Adam play whatever has landed, if they want to; no notes are required. **Review and
@@ -163,6 +164,8 @@ town's best side, drop unused pack tiles); specs in DEVELOPMENT-PATH.md under SF
 their sheet first, then tasks here.
 
 ## The road ahead (browser work, ready to claim by any AI; refreshed 2026-10-12)
+
+**First: AR-SHELVE** (in "This cycle" above): take the Classic editions and Diamond Career off the site, keeping their code and saves.
 
 These tasks need **no Godot** and are open to **any** AI. Take the first one no open pull request names, claim it, build
 it, then self-check and merge (docs/PROCESS.md). Each line names its spec; read it first.
