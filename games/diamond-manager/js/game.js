@@ -10,14 +10,14 @@ const FIELD_WORD={P:'the pitcher',C:'the catcher','1B':'first',  '2B':'second',S
 function pitchLimit(g,side,p) { return g.starters[side]===p.id ? 70+Math.round(p.stamina*.5) : 18+Math.round(p.stamina*.25); }
 /* Past the limit a pitcher tires: Stuff and Control fall a little with every pitch. */
 function effective(g,side,p) { const over=Math.max(0,(g.pbox[p.id]?g.pbox[p.id].pitches:0)-pitchLimit(g,side,p)), cut=Math.min(18,Math.round(over*.4));
-  return {stuff:p.stuff-cut, control:p.control-cut, stamina:p.stamina, tired:over>0}; }
+  const q=formRatings(p); return {stuff:Math.max(0,q.stuff-cut), control:Math.max(0,q.control-cut), stamina:p.stamina, tired:over>0}; }
 function gClub(L,g,side) { return L.clubs[side?g.home:g.away]; }
 function gPlayer(L,g,side,id) { return gClub(L,g,side).players.find(p=>p.id===id); }
 function lastName(p) { return p.name.split(' ').slice(1).join(' ')||p.name; }
 
 function newGame(L,home,away,seed,manage=-1,quiet=false) {
   const key=dayKey(L), teams=[L.clubs[away],L.clubs[home]], st=teams.map(c=>starterOf(c,key).id);
-  const g={home,away,key,seed:seed>>>0,steal:null,manage,quiet,inning:1,half:0,outs:0,balls:0,strikes:0,bases:[0,0,0],score:[0,0],line:[[],[]],hits:[0,0],
+  const g={home,away,key,formKey:formGameKey(L),seed:seed>>>0,steal:null,manage,quiet,inning:1,half:0,outs:0,balls:0,strikes:0,bases:[0,0,0],score:[0,0],line:[[],[]],hits:[0,0],
     order:[0,0],lineup:teams.map(c=>c.lineup.slice()),first:teams.map(c=>c.lineup.slice()),bat:teams.map(c=>c.lineup.slice()),gone:[[],[]],pitcher:st.slice(),starters:st.slice(),
     used:st.map(id=>[id]),box:{},pbox:{},events:[],pa:null,started:false,done:false,asked:{},ask:null,hold:false,rec:null,winner:null,decision:null};
   st.forEach(id=>g.pbox[id]=pline());
@@ -112,7 +112,7 @@ function stepGame(L,g) {
       if(side===g.manage){ const key=idea.kind+':'+(idea.out||g.pitcher[side])+':'+(idea.kind==='ph'||idea.kind==='pr'?g.inning:''); if(g.asked[key]) continue; g.ask=Object.assign({key},idea); return 'ask'; }
       applyIdea(L,g,idea); }
     const b=gPlayer(L,g,bat,g.lineup[bat][g.order[bat]]), p=gPlayer(L,g,def,g.pitcher[def]);
-    const glove=g.lineup[def].reduce((n,id)=>n+gPlayer(L,g,def,id).glove,0)/9, res=plateAppearance(g,b,effective(g,def,p),glove);
+    const glove=g.lineup[def].reduce((n,id)=>n+gPlayer(L,g,def,id).glove,0)/9, res=plateAppearance(g,formRatings(b),effective(g,def,p),glove);
     g.pa={b:b.id,res,seq:pitchesFor(g,res),i:0}; g.pbox[p.id].bf++; g.balls=0; g.strikes=0;
     if(!g.steal&&bat!==g.manage&&g.outs<2){ for(const base of [1,0]){ const id=g.bases[base]; if(!id||g.bases[base+1]) continue; const r=gPlayer(L,g,bat,id), sp=spd(r);
       if(sp>=60&&rnd(g)<(sp-55)*.012*(base===1?.4:1)){ g.steal={side:bat,base}; break; } } }

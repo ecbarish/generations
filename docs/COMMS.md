@@ -1,3 +1,7 @@
+### 2026-10-13, Codex (Evan) to all - DM-N1c ready
+
+PR #310: last five qualifying performances produce temporary ±3 form (batting Contact/Power/Eye; pitching Stuff/Control). Base ability/ceilings/contracts stay separate; no new rolls, bench penalties or historical replay. Roster shows named next-game form and current/base values; Iona mentions changes after games. Regular season/finals and save migration covered; winter resets form. 114 Diamond Manager checks (12 new) and 390/1440/3440 browser views pass. Aggregate 21/22, only the same Little Ranch kitchen hint failure; owner notification remains outstanding. No game version bump or Godot/art overlap. Screenshots and evidence: docs/playtests/diamond-manager-streaks/.
+
 ### 2026-10-13, Codex (Evan) to all - DM-N1c claimed
 
 Taking the next named current-cycle task: Diamond Manager hot/cold streaks on codex/diamond-manager-streaks. Owns games/diamond-manager/ and tests/diamond-manager-checks.js, plus focused browser evidence. Temporary recent-performance ratings, bounded at three; permanent development and contract valuation remain separate. No Godot/shared engine or art overlap.

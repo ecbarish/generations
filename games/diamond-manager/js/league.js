@@ -34,7 +34,7 @@ function makePlayer(r, id, level, pitcher, pos) {
   const p={id, name:DM.first[ri(r,0,DM.first.length-1)]+' '+DM.last[ri(r,0,DM.last.length-1)], age, pitcher:!!pitcher};
   if(pitcher) Object.assign(p,{pos:'P',stuff:g(),control:g(),stamina:g()});
   else Object.assign(p,{pos,contact:g(),power:g(),eye:g(),glove:g(),speed:speedFor(id,age)});
-  p.morale=freshMorale(); p.salary=askSalary(p); p.years=ri(r,1,3); p.pot=potentialFor(r,p); return p;
+  p.morale=freshMorale(); p.form=freshForm(); p.salary=askSalary(p); p.years=ri(r,1,3); p.pot=potentialFor(r,p); return p;
 }
 /* Speed (batters only) takes extra bases and makes a pinch runner; it is not part of overall. Drawn from the id so old
    saves can be given the same number. */
@@ -109,7 +109,7 @@ function dayKey(L) { return L.season*100+(L.phase==='final'&&L.final?30+L.final.
 
 /* Record a played game into the standings and the season stats. */
 function recordGame(L,g) {
-  recordMood(L,g);rememberGame(L,g);
+  recordMood(L,g);recordForm(L,g);rememberGame(L,g);
   const h=L.clubs[g.home], a=L.clubs[g.away];
   h.rs+=g.score[1]; h.ra+=g.score[0]; a.rs+=g.score[0]; a.ra+=g.score[1];
   if(g.winner===g.home){h.w++;a.l++;}else{a.w++;h.l++;}
@@ -148,7 +148,7 @@ function startFinalGame(L,manage) {
   L.live={g,final:true}; return g; }
 function finishFinalGame(L) {
   const g=L.live&&L.live.g, f=L.final; if(!g||!g.done||!L.live.final) return null; L.live=null; const top=f.teams[0], other=f.teams[1];
-  f.wins[g.winner===top?0:1]++; f.games.push({home:g.home,away:g.away,score:g.score,winner:g.winner}); L.lastBox=boxScore(L,g);
+  recordForm(L,g); f.wins[g.winner===top?0:1]++; f.games.push({home:g.home,away:g.away,score:g.score,winner:g.winner}); L.lastBox=boxScore(L,g);
   if(g.home===DM.you){ const gate=gateMoney(L); L.cash+=gate.money*2; }
   if(f.wins[0]===2||f.wins[1]===2){ f.champion=f.wins[0]===2?top:other; L.phase='offseason'; endSeason(L); }
   return g;
@@ -262,6 +262,7 @@ function startSeason(L) {
   if(!canStartSeason(L)) return false;
   L.season++; L.day=0; L.results=[]; L.final=null; L.phase='season'; L.seasonLedger=freshSeasonLedger(L); L.report=null; L.offer=null; L.draft=null;
   L.clubs.forEach(c=>{c.w=0;c.l=0;c.rs=0;c.ra=0;c.rot=0;});
+  for(const p of L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents))p.form=freshForm();
   return true;
 }
 function rosterOk(c) { return batters(c).length>=DM.minBatters && pitchers(c).length>=DM.minPitchers && c.players.length<=DM.rosterMax; }
@@ -283,7 +284,7 @@ function validLeague(o) {
     const player = p => {
       if (!p || !int(p.id) || p.id < 1 || ids.has(p.id) || typeof p.name !== 'string' || typeof p.pitcher !== 'boolean' ||
           !int(p.age) || p.age < 1 || !number(p.salary) || p.salary < 0 || !int(p.years) || (p.pot !== undefined && !number(p.pot))) return false;
-      if(!validMorale(p.morale)||(p.marketVisitor!==undefined&&typeof p.marketVisitor!=='boolean')) return false;
+      if(!validForm(p.form)||!validMorale(p.morale)||(p.marketVisitor!==undefined&&typeof p.marketVisitor!=='boolean')) return false;
       ids.add(p.id);
       return (p.pitcher ? ['stuff','control','stamina'] : ['contact','power','eye','glove']).every(k => number(p[k]) && p[k] >= 0 && p[k] <= 99);
     };
@@ -323,7 +324,7 @@ function migrateLeague(o) { if(!validLeague(o)) return newLeague((Date.now()>>>0
   // The game, pitch by pitch (v0.5.0): batters get a speed rating.
   if(!L.dmd){ L.dmd=true; const all=L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?L.draft.pool:[]); for(const p of all) if(!p.pitcher&&p.speed===undefined) p.speed=speedFor(p.id,p.age); }
   L.coaches=L.coaches||{hitting:null,pitching:null};
-  for(const p of L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?.pool||[]))playerMorale(p);
+  for(const p of L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?.pool||[])){playerMorale(p);if(p.form===undefined)p.form=freshForm();}
   L.moraleNotes=L.moraleNotes||[]; L.seasonLedger=L.seasonLedger||freshSeasonLedger(L);
   if(L.lastBox&&!(Array.isArray(L.lastBox.bat)&&Array.isArray(L.lastBox.pit))) delete L.lastBox;
   return L; }

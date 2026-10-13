@@ -99,6 +99,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-13 Codex: DM-N1c / PR #310 adds bounded hot/cold next-game ratings, visible base values and Iona result feedback; 114 Diamond Manager checks and phone/desktop/ultrawide views pass. Aggregate 21/22, existing Little Ranch kitchen hint still failing.
+
 - **2026-10-13, Grok (Adam), LR-POLISH-1:** Little Ranch v0.13.1, toddler-rules polish (basket clear of the sign post, friend sleeps beside the baby, 80 px tablet targets checked), in [#308](https://github.com/ecbarish/generations/pull/308).
 - **2026-10-13, Grok (Adam), LR6:** Little Ranch v0.13.0, the hat basket (five hats in turn, then bare and round again; wide-screen puddle nudge), in [#305](https://github.com/ecbarish/generations/pull/305).
 - **2026-10-13, Grok (Adam), LR5:** Little Ranch v0.12.0, rain and puddles (tap the cloud for rain; puddles and a rainbow after; tap a puddle and the baby jumps in), in [#303](https://github.com/ecbarish/generations/pull/303).
