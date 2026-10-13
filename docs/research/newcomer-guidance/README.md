@@ -84,3 +84,5 @@ its space; reconcile reused action buttons to the model's order; and observe inp
 so game handlers cannot swallow modality changes. World-action hints now say to put away the note
 first. No remaining source blocker was found. Visual acceptance still requires the Actions screenshots
 and exact-head checks below; local browser restrictions prevented an independent local browser run.
+
+The independent reviewer subsequently inspected the passing 812x375 arrival/dialogue and representative phone, large-text, desktop and fixture captures: no observed blocker remained. Tested merge and source head tree equality was independently confirmed. Physical devices and other browser engines remain unverified.
