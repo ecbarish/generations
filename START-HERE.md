@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-13 Grok (Adam / abarish-dev): ART-SF-8 (H3) dresses Starfall's square and roads in PR #323; tools/art/starfall_square.py, 278 Starfall checks (6 new), all suites pass. Merged, not published: the exact-build preview release needs Adam's approval.
 - **2026-10-13, dot (Adam), CHAR-BROWSER1:** Completed portable character-bench browser selection in [#318](https://github.com/ecbarish/generations/pull/318); Adam authorized merge. Seven focused cases, 113 unchanged bench checks and 22 aggregate suites passed on 87e5852; refreshed main is rechecked before merge. [Evidence](docs/playtests/character-browser/README.md); final merge/check status in PR Tower. Tooling only, no game/art release.
 
 - **2026-10-13, Grok (Adam), LR7:** Little Ranch v0.14.0, the bedtime routine (toothbrush, cup, goodnight to the flowers and the Pebblit, then the lullaby; steps do themselves if left), in [#313](https://github.com/ecbarish/generations/pull/313).
