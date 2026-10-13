@@ -141,6 +141,22 @@ favouritism"):
 3. **The next Incubator idea's pitch or slice**, counted toward the Incubator's next quota.
 4. **Shared work** (the onboarding kit, the shared Godot kit), which helps every game equally.
 
+**Every slot has designated playtesting, every cycle** (Evan, 2026-10-12). A slot's week isn't done until its build
+has been played and scored:
+
+| Slot | Designated players on Play day | Plus |
+|---|---|---|
+| Wildbond | Evan | a fresh AI newcomer playtest (an AI that didn't build it) |
+| Little Ranch | Evan's daughter, with Evan or her grandad watching what she does | a parent's safety and "would I hand her this?" check |
+| The rotating game | Evan's dad (Adam) | a fresh AI newcomer playtest |
+| The Incubator | the whole family, ten minutes each | a fresh AI newcomer playtest |
+
+- **The fresh AI playtest** runs on day 5, before Play day, scored with docs/PLAYTEST.md. It catches the broken and
+  the confusing, so the family's time goes on whether it's fun.
+- **Play-day notes:** one short note per slot in `docs/playtests/cycle-<date>-<game>.md`: the score, what was fun,
+  what wasn't, what confused anyone. In plain words; a line each is enough.
+- **The notes set next week's first tasks**, ahead of anything new, and the scores track the phase gates.
+- A slot with nobody available to play it moves its Play day to the next cycle; it doesn't skip the playtest.
 Everything not in a slot gets bug fixes only that week. This is how we stop spreading thin, and how the Incubator
 keeps moving every single week instead of waiting for leftovers.
 
@@ -301,6 +317,6 @@ needs from us.
 
 1. **The shelves:** Wildbond headline; Little Ranch for kids; Starfall, Realmbound (early game), Diamond Manager and
    the arcade row in the line-up; Otherworld, Diamond Career and Lantern Bowl in the Workshop; Classics hidden?
-2. **The one-week cycle with a Play day**, three build slots (Wildbond, Little Ranch, one rotating)? *(Approved; on 2026-10-12 Evan added fixed quotas per slot and a weekly Incubator slot, section 4.)*
+2. **The one-week cycle with a Play day**, three build slots (Wildbond, Little Ranch, one rotating)? *(Approved; on 2026-10-12 Evan added fixed quotas per slot, a weekly Incubator slot and designated playtesting for every slot, section 4.)*
 3. **Approve the phases and gates**, so lane P can post the first "This cycle" today.
 4. **The Incubator order:** Lantern Bowl, Keymaster, the card shop, The Crossing, Main Street?
