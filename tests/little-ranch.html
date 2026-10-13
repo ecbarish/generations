@@ -35,7 +35,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.13.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.13.1');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -374,6 +374,18 @@ document.querySelector('#run').onclick = async () => {
       LR.bedtime(); LR.advance(30); const w = H().wear; tap(B); check('At night the basket only twinkles (the baby sleeps on)', S().mode === 'sleep' && !H().fly && H().wear === w);
       LR.newVisit(); LR.advance(.1); check('A new visit starts bare-headed', H().wear === -1);
     }
+    // ---- LR-POLISH-1: toddler-rules pass over LR11, LR4, LR5, LR6 on tablets
+    d.querySelector('#grown').hidden = true;
+    for (const [width, height] of [[1024, 768], [820, 1180], [1366, 1024], [768, 1024]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.setFriend(true); LR.newVisit(); LR.advance(5);
+      const sc = LR.scale, Lb = L().basket, Ls = L().sign, r = L().R * .95, K = L().kitchen;
+      const clearOfPost = Lb.x + Lb.r * .85 < Ls.x - r * .08 || Lb.x - Lb.r * .85 > Ls.x + r * .08 || Lb.y - Lb.r * .65 > Ls.y + r * 1.2;
+      check(`${width}×${height}: the hat basket stands clear of the paint sign's post`, clearOfPost);
+      check(`${width}×${height}: the new pieces are 80 px+ to tap on a tablet (basket, cloud, puddles, friend, kitchen foods, bowl and barn)`, [L().R * 1.05, L().cloud.r * 1.35, L().puddles[0].r, L().fz * 1.25, K.fr * 1.25, K.bowl.r, K.barn.r * 1.15].every(v => v * 2 * sc >= 80));
+      LR.bedtime(); LR.advance(30);
+      check(`${width}×${height}: at bedtime the friend curls up beside the baby, not on top of it`, S().friend.act === 'sleep' && LR.fCentre().x - L().fz * .8 >= L().home.x + L().size * 1.3 - 1);
+    }
+    LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
     // ---- LR15: app mode (inside the standalone app): Replay, Sound and Exit
