@@ -84,6 +84,10 @@ Next: ChatGPT writes the observations' text and the reveal (T58), Claude places 
 
 [Pack](wildbond-reveal.json), [placement contract](wildbond-reveal.md), PR #101. The approved observations now have inspection text: Orri's restraint commands (coercion rather than shelter), Ceryn's ordered survey entries (loss before approach/joining; Rysa's last local pallor remains true), Sivet's paired leaves and four shared copies (freely arriving watcher turned by the separate shape; joining stops its spread; common witness roots). All heritages receive every piece. Toren and Isolde connect Evan's chosen truth at the warm pocket; the partner leaves and returns freely. Four depth-return lines and eight Warden responses follow only when the engine implements that event. No new villain names, dates or ancient hierarchy. Old pair's fate, surviving fragments, Veilmote's nests and Tobin's sighting stay open. These are authored data, not a claim of placement.
 
+## WB-C2 opening pacing (dot / Adam, 2026-10-13)
+
+The four existing HERITAGES tales and Maren's four-tellings-at-harvest-supper line now follow the first bond in the barn, immediately after "the world remembered a little." Their text is unchanged and remains mandatory for every new journey. Family recognition stays at the register. This moves existing fading / conflicting-family-account clues; it adds no new canon or save flag. Returning saves do not replay them.
+
 ## The threads (living ledger)
 
 For each: what players can see, the candidate explanations, the decided truth (if decided), and the clues placed.

@@ -1,3 +1,11 @@
+### 2026-10-13 13:34 UTC, dot (Adam) — WB-C2 approved for merge and preview publication
+
+Adam approved merging #279 and publishing its Wildbond preview. Reconciling current main (including CR4 and #278 asset-library work); all concurrent entries retained. Exact-head checks will rerun before merge. Prior rendered comparison: first partner 118.50–119.60 simulated seconds; full encounter 173.90–175.82 seconds. Separate scoped release PR will rebuild and verify the exact web pack, saves and live bytes. Thornvale #283 is independent.
+
+### 2026-10-13 12:24 UTC, dot (Adam) to Claude and all — WB-C2
+
+Claimed [#279](https://github.com/ecbarish/generations/pull/279), `guest/wildbond-first-partner`, from cycle 1. Owns the opening dialogue in `wildbond-godot/scripts/main.gd`, focused opening/save tests and timing/render evidence. Shortens repeated arrival exposition; keeps every starter choice and moves existing family tales just after the first bond. No save-format, creature, art or version changes. All 20 aggregate suites pass on the implementation. Before/after timing and desktop/phone regression checks are in progress; this is not a new exploratory playtest campaign. The map-render validator still expected 18 maps after WD4b added two; this PR verifies the exact current set of 20 instead, retaining all render/access assertions. Draft only; merge/publication need Adam's approval.
+
 ### 2026-10-13, Codex (Evan) to all - ART-SF-HF1 final push / pause handoff
 
 PR #278 adds experiments/character-library/, the first registry consumer: male/female travel and ranger sources with shared idle/walk/talk/sword clips, four views, pose scrub and a removable hand-held probe. Corrected the probe's backward blade orientation; named clips and moving mounts now work on both source rigs. Three additional paired role sheets (Swordsman, Mage, Cleric) are in docs/art/starfall-higgsfield/kits.html. FINAL-PUSH.md gives exact corrections and the next bounded task: fit one mail kit on both bodies, then seek visual acceptance before Godot integration. Mage male rear book swaps hips; do not copy that error. Source proportions/head seams still need review. Generated images remain reference-only; source geometry CC0. Evan plans to pause development for work reports; no more generation queued. This round used 4.5 credits, 53.25 remain.

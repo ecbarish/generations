@@ -18,7 +18,16 @@ for game in ("wildbond", "starfall"):
         captures.append({"file": str(path.relative_to(root)), "width": width, "height": height, "stddev": deviation})
 wb = json.loads((root / "wildbond-access.json").read_text())
 sf = json.loads((root / "starfall-access.json").read_text())
-assert len(wb["maps"]) == 18
+# WD4b added Saltmarsh Trail and Moon Pool. Check identities as well as count:
+# merely accepting a larger total could hide a missing map or a duplicate capture.
+expected_wildbond_maps = {
+    "larkhaven", "thornwood_route", "thornwood", "thornwood_grove",
+    "saltmarsh_route", "saltmarsh", "saltmarsh_pool", "emberfall", "cloudglass",
+    "stillreed", "hollowecho", "sunthread", "farwatch", "league", "spire",
+    "barn", "inn", "shop", "pip_home", "gran_home",
+}
+assert len(wb["maps"]) == len(expected_wildbond_maps), "Incomplete or duplicate Wildbond map coverage"
+assert {m["map"] for m in wb["maps"]} == expected_wildbond_maps, "Unexpected or missing Wildbond map IDs"
 assert len(sf["states"]) == 501
 report = {"captures": captures, "wildbond_findings": wb["findings"],
           "wildbond_route_witnesses": [m["map"] for m in wb["maps"] if m["route_roof_witness"]],
