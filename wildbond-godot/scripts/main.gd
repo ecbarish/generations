@@ -16,6 +16,8 @@ const Title := preload("res://scripts/title.gd")
 const TouchPad := preload("res://scripts/touch_pad.gd")
 const HowTo := preload("res://scripts/howto.gd")
 const Shop := preload("res://scripts/shop.gd")
+## CR1: size classes to world scale (spec 4.4, docs/wildbond-creatures.md).
+const SIZE_SCALE := { "tiny": 0.7, "small": 0.85, "medium": 1.0, "large": 1.2, "huge": 1.45 }
 const Book := preload("res://scripts/book.gd")
 const Calendar := preload("res://scripts/calendar.gd")
 ## Larkhaven's doors in the Godot version: the inn (rest) and the shop counter. (The browser puts the shop where Maren's
@@ -1355,7 +1357,11 @@ func _draw_actor(ci: CanvasItem, m: Mover, i: int, fade_amt := 0.0) -> void:
 			"bird": m.look.kind == "boar" and not walking and fmod(t + 3.0, 16.0) < 10.0,
 		}
 		var wiggle := (1.0 if int(t * 16.0) % 2 == 0 else -1.0) if m.act == "pounce" and m.act_t > 0.4 and m.act_t < 0.8 else 0.0
-		Figures.creature(ci, m.pos + Vector2(-1 + wiggle, 4 + m.hop), m.right, pose, _faded_look(m.look, fade_amt))
+		var sc: float = SIZE_SCALE.get(str(DATA.SPECIES.get(m.id, {}).get("size", "medium")), 1.0)   # CR1: draw at species size
+		var o := m.pos + Vector2(-1 + wiggle, 4 + m.hop)
+		ci.draw_set_transform(o, 0, Vector2(sc, sc))
+		Figures.creature(ci, Vector2.ZERO, m.right, pose, _faded_look(m.look, fade_amt))
+		ci.draw_set_transform(Vector2.ZERO)
 		return
 	var face := m.face
 	if not walking and face == Vector2i.DOWN and fmod(t + i, 6.0) > 5.2:
