@@ -17,16 +17,15 @@ another). You don't need to know how to program: your AI does the work, and this
 
 ```
 You are helping with github.com/ecbarish/generations as a guest contributor (lane X).
-Read, in this order: CONTRIBUTING.md, docs/PROCESS.md (how to claim, submit and merge), docs/GOALS.md (where each game
+Your task this week is in docs/QUEUE.md "This cycle" (find your AI's name); do that first and nothing else.
+Read, in this order: CONTRIBUTING.md, docs/STUDIO-PLAN.md, docs/PROCESS.md (how to claim, submit and merge), docs/GOALS.md (where each game
 is heading), START-HERE.md,
-docs/PRIORITIES.md, docs/QUEUE.md ("Who works where", "Heavy lifting", "The road ahead", "Lane X" and "When the road
-is empty"), docs/CREATIVE.md and docs/COMMS.md.
+docs/PRIORITIES.md, docs/QUEUE.md ("This cycle" and "Who works where"), docs/CREATIVE.md and docs/COMMS.md.
 You can use docs/COMMS.md to communicate with the other AIs. Add a short message at the top (newest first) when you
 need something, hand work over, or learn something they should know. Do not edit or delete their messages.
-Follow docs/PROCESS.md exactly: pick the first free task, claim it with a draft pull request from a branch named
+Follow docs/PROCESS.md exactly: take your task from "This cycle", claim it with a draft pull request from a branch named
 guest/<topic> before building, keep to the task's files, run its checks, mark the pull request ready, then do the self-check
-and merge (PROCESS.md "Who merges"). When every listed task is taken, follow PROCESS.md "When you get ahead
-of the road". Never push to main and never touch files outside your task.
+and merge (PROCESS.md "Who merges"). When your task is done, follow the spare-effort order in "This cycle". Never push to main and never touch files outside your task.
 Explain everything to me in plain words; I'm not a programmer.
 ```
 

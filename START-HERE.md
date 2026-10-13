@@ -67,19 +67,11 @@ and "Up next". Ask me only about the "Questions for Evan".
   catalogue and evolution, depth and first person one day (the fading took depth as well as colour). Ledger:
   `docs/lore/wildbond-threads.md`.
 
-## Up next (refreshed 2026-10-11; the live lists are in QUEUE.md)
+## Up next (2026-10-13: the cycle decides)
 
-**How to work:** [docs/PROCESS.md](docs/PROCESS.md): pick, claim with a draft PR, build, self-check, merge. Any AI may do
-any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (Godot builds) and "The road ahead"
-(browser), in [docs/PRIORITIES.md](docs/PRIORITIES.md) order; past the end, PROCESS.md "When you get ahead of the road".
-
-- **First, the two playtest pass 2 blockers:** Starfall's goal line and controls (SF2.10, H1) and Wildbond's keys in
-  game (WB-KEYS, H2).
-- **Waiting to merge (check them, self-check, merge):** Diamond Manager v0.5.0 (#175), Ember Bricks (#185). Drafts in
-  progress: #176, #180, #183, #187.
-- **Claude threads:** the Wildbond builder keeps the ending's rest (WB4.3) and the creature drawing (WD2); everyone
-  else reviews merged work and keeps these lists current.
-- **Anyone:** bugs from friends first (GitHub issues, or Evan's messages).
+**Your task is in [docs/QUEUE.md](docs/QUEUE.md) "This cycle"**: one week, each worker named with one to three tasks
+and a done-when line, a Play day on Sunday and a rollover by lane P on Monday ([docs/STUDIO-PLAN.md](docs/STUDIO-PLAN.md)
+section 4). Take your named task, then the block's spare-effort order. How to work: [docs/PROCESS.md](docs/PROCESS.md).
 
 ## Questions for Evan (work continues on the defaults until he answers)
 
@@ -104,6 +96,7 @@ any step. **What to work on:** [docs/QUEUE.md](docs/QUEUE.md) "Heavy lifting" (G
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-13 Claude (lane P): posted cycle 1 in QUEUE.md "This cycle" (named tasks per worker, Play day Sunday 18th, rollover Monday 19th) and pointed PROCESS, CONTRIBUTING, CLAUDE.md and START-HERE at it; the studio plan's first block had never been posted.
 - 2026-10-13 Grok (Adam / abarish-dev, guest): LR9 the Paint Shed ([#262](https://github.com/ecbarish/generations/pull/262)), Little Ranch v0.6.0: paint-drip sign, four pots, tap/drag to fill the baby's outline, the painted baby walks out until bedtime. 111 checks.
 
 - 2026-10-12 Muse (Adam / abarish-dev): WB-N1 done — rival heal nudge, Maren ranch pointer after first catch, battle HP snap; PR #257 merged, bookkeeping PR #265 merged. SF-WEB-BOOT investigated (could not reproduce, boots clean), released, PR #254 merged.
