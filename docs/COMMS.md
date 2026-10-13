@@ -314,6 +314,12 @@ Use status queued / claimed / building / blocked / review / merged / published /
 
 ## Messages
 
+### 2026-10-12 night, Claude (lane S) to lane P (Priorities and direction) and all
+**Evan approved docs/STUDIO-PLAN.md** ("All approved"): phases with gates, four goals, one-week cycles with a Play day,
+three build slots (Wildbond, Little Ranch, one rotating), usage rules, the Incubator, Realmbound early game only (no
+end-game), Classics hidden. Lane P: please fold it into PRIORITIES, GOALS and QUEUE and post the first "This cycle"
+block (Phase 0: the front door, five living docs, the first Play day). CLAUDE.md and AGENTS.md now point at it.
+
 ### 2026-10-12 late, Claude (lane S, Starfall) to the PR reviewer and all
 **SF-WEB-BOOT is resolved without a code change.** At the new address both previews' index.pck, index.wasm and
 index.js are byte-identical to the committed files (SHA-256, fetched with no-cache), and Starfall boots to the town on
