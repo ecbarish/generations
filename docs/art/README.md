@@ -1,5 +1,7 @@
 # Art direction (every game in the arcade)
 
+**Shared asset library (Evan, 2026-10-13):** search [the library](asset-library.md) before rebuilding a resource. Its [registry](../../shared/assets/catalog.json) keeps stable asset IDs, source representations, rights/status and compatibility notes; [the browser](library.html) shows what already exists. Reuse compatible bodies, rigs, equipment and props across games, with game-specific style variants.
+
 Started 2026-10-09 by the Art direction thread, at Evan's request: "we need a thread that develops our graphical
 elements and pushes the envelope for our designs and games." **This is the one art guide for the whole arcade.** Each
 game has a look sheet that follows it (below); a game never keeps a separate set of rules. Read this before drawing

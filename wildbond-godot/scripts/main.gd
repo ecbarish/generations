@@ -288,8 +288,7 @@ func _ready() -> void:
 func _begin_intro() -> void:
 	if show_howto and not demo:
 		howto.open()                              # the controls first, so nobody starts a journey not knowing them
-	say("", "The supply cart stops at the edge of the trees. Larkhaven: a handful of roofs and a ranch fence that runs right up to the forest.")
-	say("", "Everything here looks faded, like an old picture left in the sun. You too.")
+	say("", "The supply cart stops by Larkhaven's ranch fence. The whole valley looks faded, like an old picture left in the sun. You too.")
 
 func _on_howto_closed() -> void:
 	if howto_then_title:
@@ -383,11 +382,8 @@ func _on_signed(look: Dictionary) -> void:
 	stage = "signed"
 	say("", "As the ink dries, colour runs into you: your hands, your clothes, your hair. You're the only bright thing on the road.")
 	say("maren", "%s. Good name. And look at you, bright as a new penny!" % look.name)
-	say("maren", "Don't mind the rest of it. The whole valley faded long ago. Like an old photo, isn't it?")
 	var fam: Dictionary = HERITAGES.get(heritage(), HERITAGES.farm)
 	say("maren", "%s, it says here. %s" % [fam.name, fam.maren])
-	say("", fam.tale)
-	say("maren", "Every family in this valley tells it a little differently. I once heard four tellings at one harvest supper. They can't all be right. Maybe they can't all be wrong, either.")
 	say("maren", "Folk say it comes back, a little, every time someone earns a creature's trust. Come to the barn. Someone's been waiting for you.")
 
 # ---------------------------------------------------------------- heritage: where your family comes from (register.gd)
@@ -746,8 +742,7 @@ func _switch() -> void:
 	if trans_to == "barn" and stage == "to_barn":
 		stage = "barn_meet"
 		caption.text = ""
-		say("maren", "Here they are. Three young ones, born this spring, and every one of them hoping for a tamer.")
-		say("maren", "Go and say hello. Take your time, love; this is the big one. They'll be choosing you as much as you choose them.")
+		say("maren", "Three young ones, born this spring. Go and say hello, love. They'll be choosing you as much as you choose them.")
 	elif trans_to == "larkhaven" and partner and not spilled:
 		spilled = true
 		maren.where = "larkhaven"                         # Maren follows you out
@@ -797,6 +792,7 @@ func _process(dt: float) -> void:
 	battle.heritage = heritage()
 	battle.taught = taught
 	_check_evolution()
+	_evo_cine_tick(dt)
 	_bubbles(dt)
 	for m in actors():
 		if m.is_creature():
@@ -819,8 +815,7 @@ func _process(dt: float) -> void:
 		me.face = maren.tile - me.tile                  # you turn to each other
 		maren.face = me.tile - maren.tile
 		maren.right = maren.face.x > 0
-		say("maren", "There you are! You must be the new tamer. I'm Maren. I keep the ranch.")
-		say("maren", "Before anything else: the ranch register. Every tamer in the valley signs it. Write yourself in, love.")
+		say("maren", "There you are! I'm Maren. I keep the ranch. Every tamer signs our register. Write yourself in, love.")
 	var free_to_walk: bool = stage in ["to_barn", "barn_choose", "walk_out", "free"] and not lessons.visible and not card.visible and not battle.visible and not shop.visible and not book.visible and trans_t < 0.0
 	if lines.is_empty() and free_to_walk and me.path.is_empty() and me.pos.distance_to(Vector2(me.tile) * TILE) < 0.5:
 		var d := Controls.held_dir()                 # keys, a gamepad, or the phone pad (WB6.1)
@@ -1029,6 +1024,11 @@ func _on_chosen(id: String) -> void:
 	say("", "You kneel in the straw. %s looks at you for a long moment, then steps forward and presses its head into your hand." % n)
 	say("", "Colour floods out from it: gold straw, red beams, a blue sky in the high window.")
 	say("maren", "...There. It chose you right back. And the world remembered a little.")
+	# WB-C2: meet a partner before the family tale. Keep every heritage's existing clue,
+	# now beside the bond it describes; no save flag or optional/missable story branch.
+	var fam: Dictionary = HERITAGES.get(heritage(), HERITAGES.farm)
+	say("", fam.tale)
+	say("maren", "Every family in this valley tells it a little differently. I once heard four tellings at one harvest supper. They can't all be right. Maybe they can't all be wrong, either.")
 	say("maren", "Nobody owns a creature, love; they choose. The other two will find their tamers. Wren's due by later, and that one never could wait.")
 	say("maren", "Off you go, then. Show %s the valley." % n)
 
@@ -1230,6 +1230,7 @@ func _draw() -> void:
 		if b.where == map_name:
 			var a: float = 1.0 - b.t / 1.6
 			draw_arc(b.p, 1.5 + b.t, 0, TAU, 10, Color(0.85, 0.95, 1.0, a), 1.0)
+	_draw_evo_cine()
 	_draw_key_hints()
 
 func _draw_outdoor() -> void:
@@ -3816,12 +3817,7 @@ func _on_card_pick(i: int) -> void:
 		var c: Dictionary = evolving
 		evolving = {}
 		if i == 0:
-			var old := R.evolve(c, evolve_to)
-			seen[c.sp] = true
-			bonded[c.sp] = true
-			restore.append({ "where": map_name, "at": me.pos + Vector2(8, 8), "r": 0.0, "goal": 90.0 })   # the change brings colour with it
-			say("", "Light pours off %s. When it fades, %s stands in its place, and looks up at you." % [old, DATA.SPECIES[c.sp].name])
-			_lead_look()
+			_evo_cine_start(c, evolve_to)   # CR4: the moment plays out, then _evo_cine_finish applies it
 		else:
 			c["hold"] = c.lvl                        # not yet: it won't ask again until it grows a level
 			say("", "%s shakes itself and settles down. It seems content as it is, for now." % c.name)
@@ -3848,8 +3844,147 @@ func _on_card_pick(i: int) -> void:
 var evolving: Dictionary = {}
 var evolve_to := ""
 
+## CR4: the evolution moment. A staged cinematic: dim, light, silhouette growing,
+## new form revealed at full size, then a witness reacts. Showpieces (and Legends
+## as stand-in until CR2 lands the showpiece lines) get the full version.
+var evo_cine := {}  # {t, dur, old_sp, new_sp, old_sc, new_sc, full, cname}
+
+func _evo_cine_start(c: Dictionary, to: String) -> void:
+	var old_sp: String = c.sp
+	var new_sp: String = to
+	var old_sc: float = SIZE_SCALE.get(str(DATA.SPECIES.get(old_sp, {}).get("size", "medium")), 1.0)
+	var new_sc: float = SIZE_SCALE.get(str(DATA.SPECIES.get(new_sp, {}).get("size", "medium")), 1.0)
+	var tier: String = str(DATA.SPECIES.get(new_sp, {}).get("tier", "Plain"))
+	var full: bool = tier == "Showpiece" or tier == "Legend"
+	evo_cine = {
+		"t": 0.0, "dur": 4.5 if full else 2.5,
+		"old_sp": old_sp, "new_sp": new_sp,
+		"old_sc": old_sc, "new_sc": new_sc,
+		"full": full, "cname": c.name, "c": c,
+	}
+
+func _evo_cine_tick(dt: float) -> void:
+	if evo_cine.is_empty():
+		return
+	evo_cine["t"] = float(evo_cine["t"]) + dt
+	if float(evo_cine["t"]) >= float(evo_cine["dur"]):
+		_evo_cine_finish()
+
+func _evo_cine_finish() -> void:
+	var c: Dictionary = evo_cine["c"]
+	var new_sp: String = evo_cine["new_sp"]
+	var old := R.evolve(c, new_sp)
+	seen[c.sp] = true
+	bonded[c.sp] = true
+	restore.append({ "where": map_name, "at": me.pos + Vector2(8, 8), "r": 0.0, "goal": 90.0 })
+	var cname: String = evo_cine["cname"]
+	evo_cine = {}
+	say("", "Light pours off %s. When it fades, %s stands in its place, and looks up at you." % [old, DATA.SPECIES[c.sp].name])
+	_lead_look()
+	_evo_witness(cname)
+
+## Someone nearby notices the evolution.
+func _evo_witness(cname: String) -> void:
+	var best: Mover = null
+	var best_d := 99999.0
+	for m in actors():
+		if m.is_creature() or m == me:
+			continue
+		var d: float = m.pos.distance_to(me.pos)
+		if d < best_d and d < 200.0:
+			best_d = d
+			best = m
+	if best != null:
+		var who: String = str(best.id)
+		say(who, "Did you see that? %s just changed!" % cname)
+
+## CR4: draw the evolution cinematic overlay.
+func _draw_evo_cine() -> void:
+	if evo_cine.is_empty():
+		return
+	var et: float = float(evo_cine["t"])
+	var dur: float = float(evo_cine["dur"])
+	var full: bool = bool(evo_cine["full"])
+	var old_sp: String = evo_cine["old_sp"]
+	var new_sp: String = evo_cine["new_sp"]
+	var old_sc: float = float(evo_cine["old_sc"])
+	var new_sc: float = float(evo_cine["new_sc"])
+	var center := Vector2(160, 120)   # screen center for the moment
+
+	# Phase timing
+	var dim_end := 0.8 if full else 0.0
+	var glow_end := 2.0 if full else 0.5
+	var grow_end := 3.5 if full else 1.5
+	var reveal_end := 4.0 if full else 2.0
+
+	# Dim the world (full version only)
+	if full and et < dim_end:
+		var dim_a := 0.6 * minf(et / dim_end, 1.0)
+		draw_rect(Rect2(Vector2.ZERO, Vector2(320, 240)), Color(0, 0, 0, dim_a))
+	elif full:
+		draw_rect(Rect2(Vector2.ZERO, Vector2(320, 240)), Color(0, 0, 0, 0.6))
+
+	# Light motes rising (throughout)
+	var mote_n := 24 if full else 12
+	for i in mote_n:
+		var ph := fmod(et * 2.0 + float(i) * 0.7, 1.0)
+		var mx := center.x + sin(float(i) * 2.3) * 30.0 * ph
+		var my := center.y + 20.0 - ph * 60.0
+		var ma := (1.0 - ph) * (0.8 if et > dim_end else 0.3)
+		draw_rect(Rect2(Vector2(mx, my), Vector2(2, 2)), Color(1.0, 0.95, 0.7, ma))
+
+	# The creature: silhouette growing, then revealed
+	var sp: String = old_sp
+	var sc: float = old_sc
+	var is_silhouette := true
+	if et >= reveal_end:
+		sp = new_sp
+		sc = new_sc
+		is_silhouette = false
+	elif et >= grow_end:
+		# Flash of light on reveal
+		var flash := 1.0 - (et - grow_end) / (reveal_end - grow_end)
+		draw_rect(Rect2(Vector2.ZERO, Vector2(320, 240)), Color(1.0, 1.0, 0.9, flash * 0.7))
+		sp = new_sp
+		sc = new_sc
+		is_silhouette = false
+	elif et >= glow_end:
+		# Growing silhouette
+		var gp := (et - glow_end) / (grow_end - glow_end)
+		sc = lerpf(old_sc, new_sc, gp)
+		sp = old_sp
+		is_silhouette = true
+	elif et >= dim_end:
+		# Glowing silhouette at old size
+		sp = old_sp
+		sc = old_sc
+		is_silhouette = true
+
+	var species: Dictionary = DATA.SPECIES.get(sp, {})
+	var look: Dictionary = Figures.look_for(species)
+	if is_silhouette:
+		# Silhouette: luminous violet form, clearly visible against the dim
+		var sil := Color(0.45, 0.35, 0.75)
+		look = { "kind": look["kind"], "body": sil, "belly": sil.lightened(0.25), "dark": sil.darkened(0.2), "accent": Color(1.0, 0.95, 0.7), "snout": sil.lightened(0.15) }
+
+	var draw_sc := sc * 4.0   # large, centered like the card preview
+	var o := center + Vector2(0, 10)
+	draw_set_transform(o, 0, Vector2(draw_sc, draw_sc))
+	var pose := { "walking": false, "frame": 0, "blink": false, "wag": 0, "sniff": false, "twitch": 0, "sit": false, "ears_up": true, "crouch": 0, "bird": false }
+	Figures.creature(self, Vector2.ZERO, true, pose, look)
+	draw_set_transform(Vector2.ZERO)
+
+	# Glow ring around the creature (stronger during silhouette phases)
+	if is_silhouette:
+		var glow_a := 0.7 + 0.3 * sin(et * 8.0)
+		var gr := 34.0 * draw_sc / 4.0
+		draw_arc(center + Vector2(0, 10), gr, 0, TAU, 32, Color(1.0, 0.9, 0.6, glow_a), 3.0)
+		draw_arc(center + Vector2(0, 10), gr * 0.8, 0, TAU, 32, Color(1.0, 0.95, 0.75, glow_a * 0.6), 2.0)
+
 func _check_evolution() -> void:
 	if stage != "free" or not lines.is_empty() or lessons.visible or battle.visible or card.visible or shop.visible or book.visible or trans_t >= 0.0:
+		return
+	if not evo_cine.is_empty():   # CR4: don't interrupt the moment
 		return
 	var ctx := { "place": str(DATA.MAPS.get(map_name, {}).get("biome", map_name)), "team": team.map(func(x): return x.sp) }
 	for c in team:

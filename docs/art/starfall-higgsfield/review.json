@@ -1,0 +1,59 @@
+[
+  {
+    "name": "Swordsman",
+    "src": "originals/swordsman.png",
+    "regions": [
+      [
+        73,
+        24,
+        396,
+        974
+      ],
+      [
+        583,
+        23,
+        399,
+        973
+      ]
+    ],
+    "note": "Fitted mail, blue collar, belt-held blade; reconcile the shoulder side across views."
+  },
+  {
+    "name": "Mage",
+    "src": "originals/mage.png",
+    "regions": [
+      [
+        69,
+        18,
+        393,
+        990
+      ],
+      [
+        617,
+        27,
+        344,
+        976
+      ]
+    ],
+    "note": "Violet collar, split coat, book and tall staff; front study turns the face away."
+  },
+  {
+    "name": "Cleric",
+    "src": "originals/cleric.png",
+    "regions": [
+      [
+        34,
+        40,
+        435,
+        951
+      ],
+      [
+        581,
+        46,
+        404,
+        945
+      ]
+    ],
+    "note": "Cream/gold cloth, medical satchel and crook; front study turns the face away."
+  }
+]

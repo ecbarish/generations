@@ -1,0 +1,107 @@
+{
+  "provider": "Higgsfield",
+  "model": "gpt_image_2_5",
+  "date": "2026-10-13",
+  "balance_before": 57.75,
+  "estimated_credits": 4.5,
+  "rights": "unverified reference only",
+  "requests": [
+    {
+      "index": 0,
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "1k",
+        "aspect_ratio": "3:2",
+        "count": 1,
+        "prompt": "Original grounded fantasy guild production concept sheet, warm handmade illustration with clean clear construction, subdued slate/moss/leather/linen palette, sturdy adult proportions, substantial arms and practical limbs, SAME world/style as reference. FOUR full-body figures in one evenly spaced row: male FRONT, male REAR, female FRONT, female REAR. Neutral standing pose, identical item design and placement on both body variants, same protective coverage, same capability, no exposed chest/midriff or exaggerated sexuality. Faces visible only on front, true backs on rear. Same person consistent front/back for each pair. Gear must attach by visible belts and straps, no floating parts or intersection. Keep all figures and items uncropped, ample gaps. Plain light neutral backdrop. No captions, writing, scenery, glow or VFX. This is a clear garment/gear modelling reference, not a game screenshot. ROLE SWORDSMAN: Practical padded slate jacket with compact chain vest, leather forearm guards, low small symmetrical shoulder guards attached to vest straps, plain straight sword sheathed at LEFT hip, round wood shield secured to back. Restrained narrow blue guild accent. No oversized armour.",
+        "medias": [
+          {
+            "role": "image",
+            "value": "521d51a4-2cb3-43dd-9ef8-be69b1eefc8a"
+          },
+          {
+            "role": "image",
+            "value": "42226cb5-9a21-48e5-888b-78b941acd24c"
+          }
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "1k",
+        "aspect_ratio": "3:2",
+        "count": 1,
+        "prompt": "Original grounded fantasy guild production concept sheet, warm handmade illustration with clean clear construction, subdued slate/moss/leather/linen palette, sturdy adult proportions, substantial arms and practical limbs, SAME world/style as reference. FOUR full-body figures in one evenly spaced row: male FRONT, male REAR, female FRONT, female REAR. Neutral standing pose, identical item design and placement on both body variants, same protective coverage, same capability, no exposed chest/midriff or exaggerated sexuality. Faces visible only on front, true backs on rear. Same person consistent front/back for each pair. Gear must attach by visible belts and straps, no floating parts or intersection. Keep all figures and items uncropped, ample gaps. Plain light neutral backdrop. No captions, writing, scenery, glow or VFX. This is a clear garment/gear modelling reference, not a game screenshot. ROLE MAGE: Practical split wool travelling coat over shirt and trousers, sturdy boots, violet collar accent, simple wooden staff held in RIGHT hand, closed spellbook strapped at LEFT hip. Full sensible sleeves; show how book and staff attach. No tall pointed hat.",
+        "medias": [
+          {
+            "role": "image",
+            "value": "521d51a4-2cb3-43dd-9ef8-be69b1eefc8a"
+          },
+          {
+            "role": "image",
+            "value": "42226cb5-9a21-48e5-888b-78b941acd24c"
+          }
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "1k",
+        "aspect_ratio": "3:2",
+        "count": 1,
+        "prompt": "Original grounded fantasy guild production concept sheet, warm handmade illustration with clean clear construction, subdued slate/moss/leather/linen palette, sturdy adult proportions, substantial arms and practical limbs, SAME world/style as reference. FOUR full-body figures in one evenly spaced row: male FRONT, male REAR, female FRONT, female REAR. Neutral standing pose, identical item design and placement on both body variants, same protective coverage, same capability, no exposed chest/midriff or exaggerated sexuality. Faces visible only on front, true backs on rear. Same person consistent front/back for each pair. Gear must attach by visible belts and straps, no floating parts or intersection. Keep all figures and items uncropped, ample gaps. Plain light neutral backdrop. No captions, writing, scenery, glow or VFX. This is a clear garment/gear modelling reference, not a game screenshot. ROLE CLERIC: Cream and muted ochre work tunic over sturdy trousers, short reinforced travel vest, practical boots, small wooden walking crook in RIGHT hand and closed healer satchel at LEFT hip with cross-body strap. Original abstract sun-stitch on collar; no real religious symbols.",
+        "medias": [
+          {
+            "role": "image",
+            "value": "521d51a4-2cb3-43dd-9ef8-be69b1eefc8a"
+          },
+          {
+            "role": "image",
+            "value": "42226cb5-9a21-48e5-888b-78b941acd24c"
+          }
+        ]
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "index": 0,
+      "job_id": "ba32b17c-4130-4bae-8eaf-a0c72bc0a60e",
+      "status": "completed",
+      "type": "image",
+      "model": "gpt_image_2_5",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kch5bkdf9AlzUeVe6g4RQYh24H/hf_20261013_122042_ba32b17c-4130-4bae-8eaf-a0c72bc0a60e.png"
+    },
+    {
+      "index": 1,
+      "job_id": "f235e032-7227-4d1a-9a3b-3105776d3c29",
+      "status": "completed",
+      "type": "image",
+      "model": "gpt_image_2_5",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kch5bkdf9AlzUeVe6g4RQYh24H/hf_20261013_122044_f235e032-7227-4d1a-9a3b-3105776d3c29.png"
+    },
+    {
+      "index": 2,
+      "job_id": "4dd57553-23ca-43e3-964d-cd4817a882a5",
+      "status": "completed",
+      "type": "image",
+      "model": "gpt_image_2_5",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kch5bkdf9AlzUeVe6g4RQYh24H/hf_20261013_122043_4dd57553-23ca-43e3-964d-cd4817a882a5.png"
+    }
+  ],
+  "review": {
+    "swordsman": "Strong paired coverage and shoulder silhouette. Keep anatomical LEFT sword placement; review straps under back shield and lower pauldron edge in motion.",
+    "mage": "Good common coat and staff. Male rear book is on the wrong hip; correct to anatomical LEFT, matching front and female rear. Staff must stay in anatomical RIGHT hand.",
+    "cleric": "Strong practical matching coverage, satchel and crook. Normalize front/rear satchel strap attachment and crook curvature before modelling.",
+    "general": "Generated illustrated references, not the source meshes or production rigged models. Same role capabilities across both bodies; stature differences are suggestions, not required limits."
+  },
+  "balance_after": 53.25,
+  "observed_credits": 4.5
+}
