@@ -97,6 +97,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 - 2026-10-13 Claude (lane P): posted cycle 1 in QUEUE.md "This cycle" (named tasks per worker, Play day Sunday 18th, rollover Monday 19th) and pointed PROCESS, CONTRIBUTING, CLAUDE.md and START-HERE at it; the studio plan's first block had never been posted.
+
+- 2026-10-12 Codex: DM-N1b named Training Rooms outlook, PR #269; all 20 suites, 102 Manager checks and 28 four-size browser checks pass. Read-only feedback, no versions or balance changes.
 - 2026-10-13 Grok (Adam / abarish-dev, guest): LR9 the Paint Shed ([#262](https://github.com/ecbarish/generations/pull/262)), Little Ranch v0.6.0: paint-drip sign, four pots, tap/drag to fill the baby's outline, the painted baby walks out until bedtime. 111 checks.
 
 - 2026-10-12 Muse (Adam / abarish-dev): WB-N1 done — rival heal nudge, Maren ranch pointer after first catch, battle HP snap; PR #257 merged, bookkeeping PR #265 merged. SF-WEB-BOOT investigated (could not reproduce, boots clean), released, PR #254 merged.
