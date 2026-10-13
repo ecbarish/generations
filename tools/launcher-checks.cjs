@@ -2,7 +2,8 @@
 const {chromium}=require('playwright'),fs=require('fs'),path=require('path');
 const origin=process.env.ARCADE_TEST_ORIGIN||'http://localhost:8766';let count=0;function check(ok,label){if(!ok)throw Error(label);count++;}
 (async()=>{const b=await chromium.launch({executablePath:process.env.CHROME_PATH||(process.platform==='win32'?'C:/Program Files/Google/Chrome/Application/chrome.exe':undefined),headless:true});try{
- for(const [width,height]of [[375,812],[1366,768],[1920,1080],[3440,1440]]){
+ const WIDTHS=process.env.LAUNCHER_WIDTHS?process.env.LAUNCHER_WIDTHS.split(',').map(w=>w.split('x').map(Number)):[[375,812],[1366,768],[1920,1080],[3440,1440]]; // run-all-checks passes two on CI
+ for(const [width,height]of WIDTHS){
   const c=await b.newContext({viewport:{width,height},reducedMotion:'reduce',serviceWorkers:'block'}),p=await c.newPage(),errors=[],engineRequests=[];p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>{if(/\.(wasm|pck)(\?|$)/.test(r.url()))engineRequests.push(r.url())});
   await p.addInitScript(()=>{const index={wildbond:{summary:'Classic eight badges',detail:'League cleared',last:1},'starfall-guild':{summary:'Classic winter guild',detail:'Season 4',last:1},realmbound:{summary:'Level 12 hero',detail:'Thornvale',last:1},'wildbond-preview':{summary:'Wrong shared progress',detail:'Must never be shown',last:1},'starfall-preview':{summary:'Wrong shared progress',detail:'Must never be shown',last:1}};localStorage.setItem('arcade-index-v1',JSON.stringify(index));localStorage.setItem('wildbond-save-v1','classic-wildbond-sentinel');localStorage.setItem('starfall-guild-save-v1','classic-starfall-sentinel');localStorage.setItem('realmbound-save-v1','realmbound-sentinel');localStorage.setItem('unrelated-sentinel','keep');});
   await p.goto(origin+'/');await p.waitForFunction(()=>window.ARCADE);
