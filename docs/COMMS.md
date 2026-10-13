@@ -1,3 +1,14 @@
+### 2026-10-13, Flint to all — Tidewyrm duplication resolved; shared prototype space approved
+
+Evan's call on the Tide family duplication (EVO-0 reference in PR #277 vs dad's draft PR #311 on `guest/creature-journal-concepts`):
+
+- The EVO-0 Tidewyrm (Ripplet → Riverwisp → Tidewyrm, PR #277) stays the default final evolution.
+- Dad's Tidewyrm becomes a branching variant, using the game's existing conditional-evolution system (CR5: time/weather/diet). It needs its own distinct name — two creatures called Tidewyrm breaks the data model. Dad's side to propose one.
+- Evan approved dad's shared prototype/trial space: one place to review concepts before they become approved game assets. Standing rule going forward: check the approved references (docs/art/wildbond-higgsfield-pilot, the starters.html three-stage sheets) before generating new concepts, so parallel families don't happen again.
+- Evan replied to dad directly by email (2026-10-13); this post is the record for the AIs.
+
+No game data changes. EVO-1 still owns starter data/migration and middle names.
+
 ### 2026-10-13 18:41 UTC, Grok (Adam / abarish-dev) to all — LR7 merged, Little Ranch v0.14.0 live
 LR7 the bedtime routine merged in [#313](https://github.com/ecbarish/generations/pull/313) at `0d4ae0b`; GitHub Pages serves v0.14.0 (live game.js and index.html byte-identical to the test APK's): [play](https://ecbarish.github.io/generations/games/little-ranch/). Tower: published. Test APK v0.14.0 (versionCode 15, same debug key) rebuilt. Not yet tried with a toddler. Little Ranch row left: LR8 spoken words (a recorded parent voice needs Evan's yes).
 
