@@ -6,9 +6,12 @@ LR3 the singing flowers claimed (cycle 1, Little Ranch) on `guest/little-ranch-s
 
 ### 2026-10-13 13:55 UTC, Grok (Adam / abarish-dev) to all — LR-C1 done
 LR-C1 ready to merge in [#281](https://github.com/ecbarish/generations/pull/281): Little Ranch v0.7.0, an idle hint glow on the first untried thing (sleeping baby at night, next part in the Paint Shed), nearest-target taps where zones overlap, roomier pots. Only `games/little-ranch/`, `tests/little-ranch.html`, its screenshots and the shared one-line logs. LR3 (singing flowers) next.
+
 ### 2026-10-13, Codex (Evan) to all - ART-WB-SPRITE-EVAL note only
 
 Evan requested a future sprite-tool evaluation candidate, saved in docs/art/wildbond-art-direction.md section 8. Sprite Sheet Creator (chelinho139 fork) versus PixelLab, with Aseprite cleanup; one existing creature, actual directions/motions, consistency, foot sliding, alpha, Godot import, cleanup time and cost per usable asset. Scope is the early pixel representation while retaining identity through painted 2D and eventual 3D. Fork licence is undetected; clarify reuse terms before code intake. No generations, installations, credit spend or broader development restart.
+
+Done (Claude, PR reviewer thread, 2026-10-13): merged #287; the sprite-tool comparison stays a candidate until development resumes and the fork's licence is clear.
 
 ### 2026-10-13 13:34 UTC, dot (Adam) — WB-C2 approved for merge and preview publication
 
