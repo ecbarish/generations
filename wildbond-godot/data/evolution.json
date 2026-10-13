@@ -1,35 +1,464 @@
 {
-	"about": "Evolution for the Godot version (docs/proposals/creature-catalogue-and-evolution.md section 2). New forms and the ways creatures change, beyond the browser game's single level evolutions. Merged into the game data at start: species are added, and evos replace a species' old single evolution. Each evo: to, at (level), and optional place (a map), bond (trust level: 1 Friendly, 2 Loyal, 3 Devoted, 4 Bonded), with (a species in your team). The first matching option wins, so put special ones first and the ordinary one last. hint is what Maren thinks; the field book shows it once you've seen the creature.",
-	"species": {
-		"pyremane": { "name": "Pyremane", "fam": "wolf", "el": "Ember", "col": "#c8321a", "size": "huge", "tier": "Legend", "big": 1,
-			"base": { "hp": 80, "pow": 112, "grd": 72, "spd": 104, "wit": 92, "spi": 70 },
-			"learn": [[1, "bite"], [1, "emberSnap"], [6, "howl"], [11, "flameRush"], [32, "radiance"]],
-			"dex": "Its mane became a crown of fire on the mountain where the ground runs warm. It walks into storms as if they were rain." },
-		"deeptide": { "name": "Deeptide", "fam": "croc", "el": "Tide", "col": "#14508f", "size": "huge", "tier": "Legend", "big": 1,
-			"base": { "hp": 96, "pow": 84, "grd": 98, "spd": 66, "wit": 104, "spi": 96 },
-			"learn": [[1, "tailWhip"], [1, "bubbleJet"], [6, "mistVeil"], [11, "tidePulse"], [32, "harden"]],
-			"dex": "It only takes this form for a tamer it trusts completely. In deep water it moves like the tide itself, and it never leaves that tamer's side." },
-		"elderthorn": { "name": "Elderthorn", "fam": "boar", "el": "Grove", "col": "#2e5e22", "size": "huge", "tier": "Legend", "big": 1,
-			"base": { "hp": 112, "pow": 104, "grd": 104, "spd": 50, "wit": 70, "spi": 84 },
-			"learn": [[1, "charge"], [1, "vineLash"], [6, "regrowth"], [11, "thornQuake"], [32, "gust"]],
-			"dex": "A small wood grows on its back, and the birds that raised it with you nest there still. Where it sleeps, seedlings come up in spring." },
-		"mistlynx": { "name": "Mistlynx", "fam": "cat", "el": "Shade", "col": "#6a6a8a", "size": "large", "tier": "Plain", "big": 1,
-			"base": { "hp": 60, "pow": 62, "grd": 58, "spd": 100, "wit": 96, "spi": 64 },
-			"learn": [[1, "scratch"], [5, "bubbleJet"], [12, "mistVeil"], [20, "shadowSting"], [32, "tailwind"]],
-			"dex": "A Poolkit that grew up in the cloud of the high pass. It slips through fog without a sound and is gone before you see it move." },
-		"sunlynx": { "name": "Sunlynx", "fam": "cat", "el": "Radiant", "col": "#e8c050", "size": "large", "tier": "Plain", "big": 1,
-			"base": { "hp": 66, "pow": 60, "grd": 62, "spd": 90, "wit": 92, "spi": 70 },
-			"learn": [[1, "scratch"], [5, "bubbleJet"], [12, "spark"], [20, "radiance"], [32, "regrowth"]],
-			"dex": "A Poolkit that grew up devoted to its tamer. Its coat holds the morning light, and it lies across the doorway at night to keep it in." }
-	},
-	"evos": {
-		"blazefang": [{ "to": "pyremane", "at": 32, "place": "emberfall", "hint": "The heat of Emberfall may wake something in it, once it's strong enough." }],
-		"tidewyrm": [{ "to": "deeptide", "at": 32, "bond": 3, "hint": "It changes only for a tamer it trusts completely." }],
-		"thornback": [{ "to": "elderthorn", "at": 32, "with": "glimmerwing", "hint": "Birds nest on the greatest Thornback. Raise it beside a Glimmerwing." }],
-		"poolkit": [
-			{ "to": "mistlynx", "at": 24, "place": "cloudglass", "hint": "Poolkit grows to suit its home. Raised in the cloud, it turns quiet." },
-			{ "to": "sunlynx", "at": 24, "bond": 3, "hint": "A Poolkit devoted to its tamer grows warm and bright." },
-			{ "to": "rilllynx", "at": 24, "hint": "Most Poolkit become river cats. Most, not all." }
-		]
-	}
+ "about": "Evolution for the Godot version (docs/proposals/creature-catalogue-and-evolution.md section 2). New forms and the ways creatures change, beyond the browser game's single level evolutions. Merged into the game data at start: species are added, and evos replace a species' old single evolution. Each evo: to, at (level), and optional place (a map), bond (trust level: 1 Friendly, 2 Loyal, 3 Devoted, 4 Bonded), with (a species in your team). The first matching option wins, so put special ones first and the ordinary one last. hint is what Maren thinks; the field book shows it once you've seen the creature.",
+ "species": {
+  "pyremane": {
+   "name": "Pyremane",
+   "fam": "wolf",
+   "el": "Ember",
+   "col": "#c8321a",
+   "size": "huge",
+   "tier": "Legend",
+   "big": 1,
+   "base": {
+    "hp": 80,
+    "pow": 112,
+    "grd": 72,
+    "spd": 104,
+    "wit": 92,
+    "spi": 70
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     1,
+     "emberSnap"
+    ],
+    [
+     6,
+     "howl"
+    ],
+    [
+     11,
+     "flameRush"
+    ],
+    [
+     32,
+     "radiance"
+    ]
+   ],
+   "dex": "Its mane became a crown of fire on the mountain where the ground runs warm. It walks into storms as if they were rain."
+  },
+  "deeptide": {
+   "name": "Deeptide",
+   "fam": "croc",
+   "el": "Tide",
+   "col": "#14508f",
+   "size": "huge",
+   "tier": "Legend",
+   "big": 1,
+   "base": {
+    "hp": 96,
+    "pow": 84,
+    "grd": 98,
+    "spd": 66,
+    "wit": 104,
+    "spi": 96
+   },
+   "learn": [
+    [
+     1,
+     "tailWhip"
+    ],
+    [
+     1,
+     "bubbleJet"
+    ],
+    [
+     6,
+     "mistVeil"
+    ],
+    [
+     11,
+     "tidePulse"
+    ],
+    [
+     32,
+     "harden"
+    ]
+   ],
+   "dex": "It only takes this form for a tamer it trusts completely. In deep water it moves like the tide itself, and it never leaves that tamer's side."
+  },
+  "elderthorn": {
+   "name": "Elderthorn",
+   "fam": "boar",
+   "el": "Grove",
+   "col": "#2e5e22",
+   "size": "huge",
+   "tier": "Legend",
+   "big": 1,
+   "base": {
+    "hp": 112,
+    "pow": 104,
+    "grd": 104,
+    "spd": 50,
+    "wit": 70,
+    "spi": 84
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     1,
+     "vineLash"
+    ],
+    [
+     6,
+     "regrowth"
+    ],
+    [
+     11,
+     "thornQuake"
+    ],
+    [
+     32,
+     "gust"
+    ]
+   ],
+   "dex": "A small wood grows on its back, and the birds that raised it with you nest there still. Where it sleeps, seedlings come up in spring."
+  },
+  "mistlynx": {
+   "name": "Mistlynx",
+   "fam": "cat",
+   "el": "Shade",
+   "col": "#6a6a8a",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "base": {
+    "hp": 60,
+    "pow": 62,
+    "grd": 58,
+    "spd": 100,
+    "wit": 96,
+    "spi": 64
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     5,
+     "bubbleJet"
+    ],
+    [
+     12,
+     "mistVeil"
+    ],
+    [
+     20,
+     "shadowSting"
+    ],
+    [
+     32,
+     "tailwind"
+    ]
+   ],
+   "dex": "A Poolkit that grew up in the cloud of the high pass. It slips through fog without a sound and is gone before you see it move."
+  },
+  "sunlynx": {
+   "name": "Sunlynx",
+   "fam": "cat",
+   "el": "Radiant",
+   "col": "#e8c050",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "base": {
+    "hp": 66,
+    "pow": 60,
+    "grd": 62,
+    "spd": 90,
+    "wit": 92,
+    "spi": 70
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     5,
+     "bubbleJet"
+    ],
+    [
+     12,
+     "spark"
+    ],
+    [
+     20,
+     "radiance"
+    ],
+    [
+     32,
+     "regrowth"
+    ]
+   ],
+   "dex": "A Poolkit that grew up devoted to its tamer. Its coat holds the morning light, and it lies across the doorway at night to keep it in."
+  },
+  "dawnchorus": {
+   "name": "Dawnchorus",
+   "fam": "bird",
+   "el": "Radiant",
+   "col": "#f2d24a",
+   "size": "small",
+   "tier": "Strong",
+   "big": 1,
+   "base": {
+    "hp": 55,
+    "pow": 60,
+    "grd": 50,
+    "spd": 95,
+    "wit": 80,
+    "spi": 65
+   },
+   "learn": [
+    [
+     1,
+     "peck"
+    ],
+    [
+     1,
+     "gust"
+    ],
+    [
+     6,
+     "skyDive"
+    ],
+    [
+     12,
+     "dawnRay"
+    ],
+    [
+     20,
+     "tailwind"
+    ],
+    [
+     32,
+     "gleamTrail"
+    ]
+   ],
+   "dex": "A Mistfinch that greeted the dawn. Its song carries the first light."
+  },
+  "duskwing": {
+   "name": "Duskwing",
+   "fam": "bird",
+   "el": "Shade",
+   "col": "#4a4a6a",
+   "size": "small",
+   "tier": "Strong",
+   "big": 1,
+   "base": {
+    "hp": 55,
+    "pow": 65,
+    "grd": 55,
+    "spd": 90,
+    "wit": 75,
+    "spi": 70
+   },
+   "learn": [
+    [
+     1,
+     "peck"
+    ],
+    [
+     1,
+     "gust"
+    ],
+    [
+     6,
+     "skyDive"
+    ],
+    [
+     12,
+     "duskLull"
+    ],
+    [
+     20,
+     "shadowSting"
+    ],
+    [
+     32,
+     "tailwind"
+    ]
+   ],
+   "dex": "A Mistfinch that hunts at dusk. It flies without a sound."
+  },
+  "rainback": {
+   "name": "Rainback",
+   "fam": "lizard",
+   "el": "Tide",
+   "col": "#2a6a9a",
+   "size": "large",
+   "tier": "Strong",
+   "big": 1,
+   "base": {
+    "hp": 70,
+    "pow": 65,
+    "grd": 75,
+    "spd": 60,
+    "wit": 70,
+    "spi": 75
+   },
+   "learn": [
+    [
+     1,
+     "tailWhip"
+    ],
+    [
+     1,
+     "bubbleJet"
+    ],
+    [
+     6,
+     "mistVeil"
+    ],
+    [
+     12,
+     "rainTap"
+    ],
+    [
+     20,
+     "undertowPull"
+    ],
+    [
+     32,
+     "tidePulse"
+    ]
+   ],
+   "dex": "A Brineskit raised in the rain. Water beads on its back and never falls."
+  },
+  "gorgebelly": {
+   "name": "Gorgebelly",
+   "fam": "lizard",
+   "el": "Tide",
+   "col": "#3a8a5a",
+   "size": "large",
+   "tier": "Strong",
+   "big": 1,
+   "base": {
+    "hp": 80,
+    "pow": 75,
+    "grd": 65,
+    "spd": 55,
+    "wit": 60,
+    "spi": 65
+   },
+   "learn": [
+    [
+     1,
+     "tailWhip"
+    ],
+    [
+     1,
+     "bubbleJet"
+    ],
+    [
+     6,
+     "shedSkin"
+    ],
+    [
+     12,
+     "deepDrag"
+    ],
+    [
+     20,
+     "undertowPull"
+    ],
+    [
+     32,
+     "guardBreak"
+    ]
+   ],
+   "dex": "A Brineskit fed on fish. It grew broad and strong."
+  }
+ },
+ "evos": {
+  "blazefang": [
+   {
+    "to": "pyremane",
+    "at": 32,
+    "place": "emberfall",
+    "hint": "The heat of Emberfall may wake something in it, once it's strong enough."
+   }
+  ],
+  "tidewyrm": [
+   {
+    "to": "deeptide",
+    "at": 32,
+    "bond": 3,
+    "hint": "It changes only for a tamer it trusts completely."
+   }
+  ],
+  "thornback": [
+   {
+    "to": "elderthorn",
+    "at": 32,
+    "with": "glimmerwing",
+    "hint": "Birds nest on the greatest Thornback. Raise it beside a Glimmerwing."
+   }
+  ],
+  "poolkit": [
+   {
+    "to": "mistlynx",
+    "at": 24,
+    "place": "cloudglass",
+    "hint": "Poolkit grows to suit its home. Raised in the cloud, it turns quiet."
+   },
+   {
+    "to": "sunlynx",
+    "at": 24,
+    "bond": 3,
+    "hint": "A Poolkit devoted to its tamer grows warm and bright."
+   },
+   {
+    "to": "rilllynx",
+    "at": 24,
+    "hint": "Most Poolkit become river cats. Most, not all."
+   }
+  ],
+  "mistfinch": [
+   {
+    "to": "dawnchorus",
+    "at": 18,
+    "time": "dawn",
+    "hint": "A Mistfinch that sees the dawn becomes something that sings with it."
+   },
+   {
+    "to": "duskwing",
+    "at": 18,
+    "time": "dusk",
+    "hint": "A Mistfinch that flies at dusk learns the quiet ways."
+   },
+   {
+    "to": "cloudharrier",
+    "at": 18,
+    "hint": "Most Mistfinch become cloud harriers. Most, not all."
+   }
+  ],
+  "brineskit": [
+   {
+    "to": "rainback",
+    "at": 18,
+    "weather": "rain",
+    "hint": "A Brineskit caught in the rain grows to love it."
+   },
+   {
+    "to": "gorgebelly",
+    "at": 18,
+    "ate": "fish",
+    "hint": "A Brineskit fed on fish grows broad and strong."
+   },
+   {
+    "to": "shoalcrest",
+    "at": 18,
+    "hint": "Most Brineskit become shoal crests. Most, not all."
+   }
+  ]
+ }
 }

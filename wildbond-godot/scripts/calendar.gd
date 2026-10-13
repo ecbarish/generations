@@ -90,6 +90,39 @@ func year() -> int:
 func next_mode() -> void:
 	mode = MODES[(MODES.find(mode) + 1) % MODES.size()]
 
+## CR5: time of day, derived from play time. A day is DAY_SECONDS long;
+## dawn/day/dusk/night each get a quarter. Used for evolution conditions.
+func time_of_day() -> String:
+	var frac := fmod(played, DAY_SECONDS) / DAY_SECONDS
+	if frac < 0.25:
+		return "dawn"
+	elif frac < 0.5:
+		return "day"
+	elif frac < 0.75:
+		return "dusk"
+	else:
+		return "night"
+
+## CR5: the day's weather, seeded by day+season so it's stable all day.
+## Used for evolution conditions; surfaced in the field book.
+func weather() -> String:
+	var s := season()
+	var d := day()
+	var seed := hash("%s-%d" % [s, d])
+	var roll: int = abs(seed) % 100
+	match s:
+		"spring":
+			return "rain" if roll < 30 else "clear"
+		"summer":
+			return "wind" if roll < 20 else "clear"
+		"autumn":
+			if roll < 25: return "rain"
+			elif roll < 40: return "wind"
+			else: return "clear"
+		"winter":
+			return "snow" if roll < 35 else "clear"
+	return "clear"
+
 func to_dict() -> Dictionary:
 	return { "played": played, "mode": mode, "south": south }
 
