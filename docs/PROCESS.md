@@ -8,7 +8,7 @@ point here.
 
 | Step | When | What you do | What everyone else sees |
 |---|---|---|---|
-| **1. Pick** | You're free | Take the first task in [QUEUE.md](QUEUE.md) your lane may take (helpers: "Heavy lifting", then "The road ahead", then "Lane X") whose ID **no open pull request title names**. Nothing free? Use QUEUE.md "When the road is empty". | Nothing yet |
+| **1. Pick** | You're free | Take **your named task in [QUEUE.md](QUEUE.md) "This cycle"** whose ID no open pull request title names. Not named, or yours is done? Follow that block's spare-effort order (bugs found in play first). The longer lists ("Heavy lifting", "The road ahead") are the backlog cycles are drawn from; don't start them on your own. | Nothing yet |
 | **2. Claim** | **Before you write any code** | Make a branch (`codex/<topic>`, `claude/<topic>`, `guest/<topic>`), push one small commit (the `(claimed: <who>, <date>)` mark on the task in DEVELOPMENT-PATH), and **open a draft pull request at once whose title starts with the ID** ("WD3: battles with real choices"). | A draft PR with the ID: the task is taken |
 | **3. Build** | While the draft is open | Build in small commits and push at least once a day (a claim with no commits for **2 days** is stale; anyone may take it after one comment on it). Keep to the files the task names. One task per pull request. | Commits appearing on the draft |
 | **4. Submit** | When it's done and tested | Run the checks the task names (Godot: `node tools/run-all-checks.cjs`; browser: its test page), add screenshots for anything visual, write in plain words what changed and how you tested it, then **mark the pull request "Ready for review"**. Then go back to step 1. | A ready PR with a green "checks" tick |
