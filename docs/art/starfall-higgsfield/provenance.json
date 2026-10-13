@@ -1,0 +1,78 @@
+{
+  "provider": "Higgsfield",
+  "model": "gpt_image_2_5",
+  "date": "2026-10-13",
+  "balance_before": 66.75,
+  "balance_after": 60.75,
+  "observed_credits": 6,
+  "roles": [
+    {
+      "file": "swordsman.png",
+      "job_id": "99125689-3f42-4c35-a365-61dfdc179d2c",
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "1k",
+        "aspect_ratio": "1:1",
+        "background": "transparent",
+        "count": 1,
+        "prompt": "Original STARFALL frontier-guild character reference, not a gameplay sprite. The setting is a cool pine-forest frontier town of log walls, weathered wood, mud and lamplight. Adult natural sturdy proportions, approximately six and a half heads tall, substantial upper arms, forearms, torso and practical boots; not chibi, not a fashion mannequin, not skinny limbs under huge armour. Warm handmade storybook digital illustration, strong restrained shapes, subtle texture, dark ink #1e1a22, upper-left light. Colours echo cool slate, moss, weathered brown leather, wool, steel and a small muted class accent. TWO consistent full-body views of ONE unnamed adult: front three-quarter facing left and REAR three-quarter facing right with NO visible face. Same anatomy, hair, clothing and equipment in both. Every piece of gear actually attached by belt, strap or hand; no floating accessories, intersecting shoulder pads, extra limbs or weapons. Wide empty gutters and margins, feet and gear uncropped, isolated genuine transparent alpha, no ground shadow or glow, no scenery, text, labels, UI or logos. This is a base model-sheet concept for later 2D and 3D, not a finished rig. ROLE: SWORDSMAN. A stocky young adult with short dark hair, a broad neck and shoulders, practical expression. Early earned kit, not elite plate armour: padded slate-blue wool jacket over a plain linen shirt, compact chain vest, simple brown leather belt and bracers, dark trousers, sturdy work boots. One understated matched shoulder reinforcement attached beneath straps, never oversized. ONE practical straight sword with plain guard, sheathed at the hip and belt-attached; no second sword on back. Small repaired leather travel pouch. Muted blue #3a6fd8 as a narrow collar or guild cloth detail, not a bright full suit. Keep chest, arms and hands readable; front and back show how the vest, shoulder reinforcement and scabbard attach. Courage comes from sturdy silhouette and preparedness, not chaotic equipment."
+      }
+    },
+    {
+      "file": "mage.png",
+      "job_id": "fdb9dfa9-27ef-49bb-bbe2-25aef4a49385",
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "1k",
+        "aspect_ratio": "1:1",
+        "background": "transparent",
+        "count": 1,
+        "prompt": "Original STARFALL frontier-guild character reference, not a gameplay sprite. The setting is a cool pine-forest frontier town of log walls, weathered wood, mud and lamplight. Adult natural sturdy proportions, approximately six and a half heads tall, substantial upper arms, forearms, torso and practical boots; not chibi, not a fashion mannequin, not skinny limbs under huge armour. Warm handmade storybook digital illustration, strong restrained shapes, subtle texture, dark ink #1e1a22, upper-left light. Colours echo cool slate, moss, weathered brown leather, wool, steel and a small muted class accent. TWO consistent full-body views of ONE unnamed adult: front three-quarter facing left and REAR three-quarter facing right with NO visible face. Same anatomy, hair, clothing and equipment in both. Every piece of gear actually attached by belt, strap or hand; no floating accessories, intersecting shoulder pads, extra limbs or weapons. Wide empty gutters and margins, feet and gear uncropped, isolated genuine transparent alpha, no ground shadow or glow, no scenery, text, labels, UI or logos. This is a base model-sheet concept for later 2D and 3D, not a finished rig. ROLE: MAGE. An athletic adult with close-tied medium-length dark hair, mature face and calm curious posture. Practical frontier scholar, not a glittery royal wizard. Layered charcoal/slate wool split-coat ending around the knees so trousered legs and sturdy boots stay visible, muted violet #8b5cf6 scarf/collar accent, plain linen sleeves, leather belt with one book pouch, simple fingerless gloves. ONE wooden staff held beside the body; small restrained metal-ring finial, no giant glowing crystal or floating magic. Rolled field notes secured to belt. Staff and split coat create a tall narrow role silhouette; torso and arms remain substantial. Rear view correctly shows tied hair, collar and book-pouch attachment, no face."
+      }
+    },
+    {
+      "file": "cleric.png",
+      "job_id": "5239005f-9080-4c47-8b77-69dda6cc8933",
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "1k",
+        "aspect_ratio": "1:1",
+        "background": "transparent",
+        "count": 1,
+        "prompt": "Original STARFALL frontier-guild character reference, not a gameplay sprite. The setting is a cool pine-forest frontier town of log walls, weathered wood, mud and lamplight. Adult natural sturdy proportions, approximately six and a half heads tall, substantial upper arms, forearms, torso and practical boots; not chibi, not a fashion mannequin, not skinny limbs under huge armour. Warm handmade storybook digital illustration, strong restrained shapes, subtle texture, dark ink #1e1a22, upper-left light. Colours echo cool slate, moss, weathered brown leather, wool, steel and a small muted class accent. TWO consistent full-body views of ONE unnamed adult: front three-quarter facing left and REAR three-quarter facing right with NO visible face. Same anatomy, hair, clothing and equipment in both. Every piece of gear actually attached by belt, strap or hand; no floating accessories, intersecting shoulder pads, extra limbs or weapons. Wide empty gutters and margins, feet and gear uncropped, isolated genuine transparent alpha, no ground shadow or glow, no scenery, text, labels, UI or logos. This is a base model-sheet concept for later 2D and 3D, not a finished rig. ROLE: CLERIC. A sturdy adult with short auburn hair, healthy broad shoulders and a kind attentive face. Frontier healer ready to travel, not a saint in ceremonial robes. Warm cream linen over a moss-grey wool tunic, short practical split overskirt over trousers, ochre/gold #d9a21b sash accent, broad leather belt, sturdy brown boots and simple bracers. ONE wooden walking crook held beside the body; a compact leather medical satchel on a cross-body strap and one visible secured roll of clean cloth. No modern red-cross symbol, halo, wings, ornamental armour or magic particles. The ochre sash, rounded satchel and crook distinguish the role from the violet mage. Show real arms/body rather than hiding the person inside a shapeless robe; rear view shows the same strap and hair, no face."
+      }
+    }
+  ],
+  "frontal": {
+    "file": "frontal-lineup.png",
+    "job_id": "21950fb8-f5b9-4fb7-a617-856b4b0fc174",
+    "params": {
+      "model": "gpt_image_2_5",
+      "quality": "high",
+      "resolution": "1k",
+      "aspect_ratio": "3:2",
+      "background": "transparent",
+      "count": 1,
+      "medias": [
+        {
+          "role": "image",
+          "value": "99125689-3f42-4c35-a365-61dfdc179d2c"
+        },
+        {
+          "role": "image",
+          "value": "fdb9dfa9-27ef-49bb-bbe2-25aef4a49385"
+        },
+        {
+          "role": "image",
+          "value": "5239005f-9080-4c47-8b77-69dda6cc8933"
+        }
+      ],
+      "prompt": "Make a clean FRONTAL full-body lineup of the THREE original Starfall guild role characters in the supplied references, one of each, separate and equally scaled. Left swordsman: short black hair, stocky shoulders, blue collar, chain vest, leather bracers, ONE simple sword sheathed at the hip. Centre mage: dark tied hair, violet scarf, split charcoal coat, field book at belt, one plain tall wooden ring-topped staff. Right cleric: short auburn hair, cream and moss tunic, gold sash, cross-body medical satchel and secured clean cloth roll, one wooden crook. CRITICAL: ALL THREE HEADS AND BODIES FACE DIRECTLY TOWARD THE CAMERA; visible full frontal faces, both eyes, relaxed mature expression. Do not turn heads left/right or hide faces. Preserve clothing, body proportions and hair from references, no class assigned to a named game character. Six-and-a-half-head adult proportions, substantial arms/torso and practical boots. Equipment is attached by hand/belt/strap and separated from face and legs; no floating accessories, no extra weapons. Swordsman has one small shoulder piece on their LEFT shoulder only (right side of the frontal picture); same side in any future view. Clean broad shapes, restrained cool frontier palette, warm dark ink #1e1a22, upper-left light, handmade storybook illustration matching the supplied references. All three complete bodies and staff tips uncropped with generous gutters and margins. Genuine transparent alpha; no scenery, ground shadows, labels, text, symbols or glow."
+    }
+  },
+  "rights_status": "Generated reference studies only. Provider usage rights unverified; not cleared production game assets.",
+  "cast_status": "Unnamed adult role concepts; not approved appearances for Aki, Ren, Yuna or other named cast."
+}
