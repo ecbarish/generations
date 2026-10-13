@@ -22,6 +22,7 @@ document.querySelector('#run').onclick = async () => {
     const w = frame.contentWindow, d = frame.contentDocument; w.addEventListener('error', e => errors.push(e.message));
     for (let i = 0; i < 50 && !w.LR; i++) await sleep(100);
     const LR = w.LR, cv = d.querySelector('#ranch'); let pid = 1;
+    LR.setRoutine(false); // LR7: the older bedtime checks run straight to the lullaby; LR7's own section turns the routine on
     LR.setFriend(false); LR.newVisit(); // LR4: the friend's visits are random; the older checks run without it, LR4's with it
     const ev = (el, type, p) => el.dispatchEvent(new w.PointerEvent(type, { pointerId: pid, clientX: p.x, clientY: p.y, bubbles: true, cancelable: true, isPrimary: true }));
     const tap = q => { const p = LR.toScreen(q); pid++; ev(cv, 'pointerdown', p); ev(cv, 'pointerup', p); };
@@ -35,7 +36,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.13.1');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.14.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -386,6 +387,36 @@ document.querySelector('#run').onclick = async () => {
       check(`${width}×${height}: at bedtime the friend curls up beside the baby, not on top of it`, S().friend.act === 'sleep' && LR.fCentre().x - L().fz * .8 >= L().home.x + L().size * 1.3 - 1);
     }
     LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    // ---- LR7: the bedtime routine
+    LR.setRoutine(true); LR.setFriend(true); d.querySelector('#grown').hidden = true;
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(5); LR.bedtime(); LR.advance(4);
+      const I = L().item, sc = LR.scale, r = cv.getBoundingClientRect(), q = LR.toScreen(I);
+      check(`${width}×${height}: the toothbrush and cup are big (80 px+ on tablets, 64+ on phones), on screen and clear of the baby`, I.r * 1.1 * 2 * sc >= (width >= 768 && height >= 768 ? 80 : 64) && q.x > r.left && q.y > r.top && Math.hypot(I.x - baby().x, I.y - baby().y) > I.r + L().size * .8);
+    }
+    frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.newVisit(); LR.advance(5);
+    { const Rt = () => S().routine, I = () => L().item;
+      LR.bedtime(); LR.advance(4); check('Bedtime: the sky stops at sunset and the toothbrush comes out (no lullaby yet)', S().mode === 'dusk' && Rt().step === 0 && S().lullabyAt === null && S().dusk <= .22);
+      LR.advance(3); check('Left alone, the toothbrush glows', LR.hint() && LR.hint().name === 'item');
+      const t0 = LR.tones; tap(I()); check('Tapping the toothbrush: the baby brushes', S().baby.act === 'brush' && Rt().doing && LR.tones > t0);
+      tap(I()); check('A tap while brushing just twinkles', Rt().step === 0);
+      LR.advance(2); check('...foamy, then the cup comes out', Rt().step === 1 && S().fx.some(f => f.kind === 'blob'));
+      tap(I()); LR.advance(1.6); check('Tapping the cup: a big drink, then goodnights', Rt().step === 2);
+      LR.advance(7); check('The flowers glow for goodnight', LR.hint() && LR.hint().name === 'flowers');
+      tap(L().flowers[1]); check('Tapping a flower: the flowers say goodnight and close', Rt().said.flowers && Rt().step === 2);
+      LR.advance(7); check('Then the friend glows for goodnight', LR.hint() && LR.hint().name === 'friend');
+      tap(LR.fCentre()); check('Tapping the friend: it waves goodnight; the routine is done', Rt().said.friend && Rt().step === 3);
+      LR.advance(3); check('...then the lullaby', S().lullabyAt !== null);
+      LR.advance(12); check('...and sleep', S().mode === 'sleep' && S().baby.act === 'sleep' && S().friend.act === 'sleep');
+      LR.setFriend(false); LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(4);
+      check('Without the friend, goodnight is just the flowers', JSON.stringify(Rt().said) === '{}');
+      LR.advance(9); check('Never stuck: a step left alone does itself (teeth)', Rt().step >= 1);
+      LR.advance(40); check('...all the way to the lullaby and sleep, with no taps at all', S().mode === 'sleep' && S().baby.act === 'sleep' && Rt().step === 3);
+      LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(4); const t9 = LR.tones; LR.prefs.sound = false; tap(I()); LR.advance(2); tap(I()); LR.advance(2); tap(L().flowers[0]); LR.advance(30);
+      check('With the sound off the routine and lullaby are silent', LR.tones === t9 && S().mode === 'sleep'); LR.prefs.sound = true;
+      tap(baby()); check('The six wake taps still work after the routine', S().wake === 1);
+    }
+    LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
     // ---- LR15: app mode (inside the standalone app): Replay, Sound and Exit
