@@ -34,7 +34,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.7.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.8.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -225,6 +225,24 @@ document.querySelector('#run').onclick = async () => {
     LR.newVisit(); LR.advance(.1); tap(L().sign); LR.advance(LR.HINT_SECS + .5); check('In the Paint Shed, the hint shows a part to colour', S().place === 'shed' && LR.PARTS.includes(LR.hint() && LR.hint().name));
     LR.leaveShed(false); LR.newVisit();
     check('Nothing to read or ask: no words, no start screen, play begins on the first touch', text === '' && S().mode === 'play' && S().place === 'ranch');
+    // ---- LR3: the singing flowers
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180], [1920, 1080]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const fl = L().flowers, r = cv.getBoundingClientRect(), sp2 = fl.map(q => LR.toScreen(q));
+      check(`${width}×${height}: a row of ${LR.FLOWERS.length} big flowers (64 px+), all on screen, each one its own tap`, fl.length === 5 && fl.every(q => q.r * 2 * LR.scale >= 64) && sp2.every(p => p.x > r.left && p.x < r.right && p.y < r.bottom) && fl.every((q, i) => LR.ranchTarget(q) === 'flower' + i));
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+    { const fl = L().flowers, F = () => S().flowers, t3 = LR.tones;
+      tap(fl[0]); check('Tapping a flower: it sings (a note) and bobs, and the baby dances', LR.tones > t3 && F()[0].bob > .9 && S().baby.act === 'dance' && S().fx.some(f => f.kind === 'note'));
+      LR.advance(.3); const t4 = LR.tones; tap(fl[3]); check('Each flower has its own note (five different notes)', new Set(LR.FLOWER_NOTES).size === 5 && LR.tones > t4 && F()[3].bob > .9);
+      LR.advance(2); check('The dance finishes and the flowers settle', S().baby.act === null && F().every(f => f.bob === 0));
+      const a3 = S().acts; pid++; ev(cv, 'pointerdown', LR.toScreen(fl[0])); for (let i = 1; i <= 16; i++) { ev(cv, 'pointermove', LR.toScreen({ x: fl[0].x + (fl[4].x - fl[0].x) * i / 16, y: fl[0].y })); LR.advance(.03); } ev(cv, 'pointerup', LR.toScreen(fl[4]));
+      check('Running a finger along the row plays every flower it passes (a little song)', F().every(f => f.bob > 0) && S().sung === 7);
+      check('A song counts as one happy thing every five notes (no rush to bedtime)', S().acts === a3 + 1);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t5 = LR.tones; LR.advance(1); tap(fl[2]); check('With the sound off the flowers bob silently', LR.tones === t5 && F()[2].bob > .9); LR.prefs.sound = mute;
+      LR.newVisit(); tap(L().bowl); LR.advance(.2); tap(fl[1]); check('A flower while the baby goes for its meal still sings; the meal goes on', S().flowers[1].bob > .9 && (S().baby.tx !== null || S().baby.act === 'eat') && S().bowl.food > 0);
+      LR.advance(6); LR.bedtime(); LR.advance(26); const t6 = LR.tones, w6 = S().wake; tap(L().flowers[2]); check('At night the flowers sleep: a tap only twinkles and the baby sleeps on', S().mode === 'sleep' && S().flowers[2].bob === 0 && S().wake === w6);
+    }
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
     // ---- LR15: app mode (inside the standalone app): Replay, Sound and Exit
