@@ -203,6 +203,16 @@ func _run() -> void:
 			if final_sc < young_sc:
 				scale_ok = false
 	check(scale_ok, "CR1: no final form is drawn smaller than its young form")
+	# ---- CR4: the evolution moment has staged phases; showpieces get the full version
+	main._evo_cine_start({ "sp": "cindercub", "name": "Test" }, "pyremane")
+	check(not main.evo_cine.is_empty(), "CR4: starting the cinematic sets state")
+	check(bool(main.evo_cine["full"]), "CR4: Legend-tier evolution gets the full version")
+	check(float(main.evo_cine["dur"]) > 3.0, "CR4: full version runs longer than the simple one")
+	check(float(main.evo_cine["new_sc"]) > float(main.evo_cine["old_sc"]), "CR4: silhouette grows (huge final > small young)")
+	main.evo_cine = {}
+	main._evo_cine_start({ "sp": "ripplet", "name": "Test" }, "tidewyrm")
+	check(not bool(main.evo_cine["full"]), "CR4: Plain-tier evolution gets the simple version")
+	main.evo_cine = {}
 	# ---- music: a tune for each place; Larkhaven's comes back with its colour
 	check(main._music_key() == "faded", "the faded valley has a lost, quiet tune")
 	main.spilled = true
@@ -1183,6 +1193,10 @@ func _run() -> void:
 	tick(0.1)
 	check(main.card.visible and main.evolve_to == "blazefang", "a level later, it's ready again")
 	main.card._pick(0)
+	check(not main.evo_cine.is_empty(), "CR4: Let it change starts the evolution moment")
+	# Fast-forward through the cinematic
+	for i in 60:
+		tick(0.1)
 	check(cub.sp == "blazefang" and main.seen.has("blazefang") and main.partner.look.body == Color(main.DATA.SPECIES.blazefang.col), "Let it change: Blazefang, now walking with you")
 	talk_through()
 	for c in keep_team:

@@ -1,0 +1,898 @@
+{
+  "schemaVersion": 1,
+  "about": "Shared source registry. Stable IDs outlive representations; reference/prototype does not imply production acceptance. No game loader integration yet.",
+  "assets": [
+    {
+      "id": "reference/starfall/role/swordsman",
+      "name": "Starfall swordsman role reference",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Starfall"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "swordsman",
+        "front",
+        "rear",
+        "visible-gear"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield / GPT Image 2.5; provenance stored beside original files"
+      },
+      "notes": "Unnamed role concept; not a named character design or production model.",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/swordsman.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "7a823885470cea5cfc852acef67cd9418c2c4ce14cca23e83ae56cc23aaeb657"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      },
+      "preview": "docs/art/starfall-higgsfield/originals/swordsman.png"
+    },
+    {
+      "id": "reference/starfall/role/mage",
+      "name": "Starfall mage role reference",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Starfall"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "mage",
+        "front",
+        "rear",
+        "visible-gear"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield / GPT Image 2.5; provenance stored beside original files"
+      },
+      "notes": "Unnamed role concept; not a named character design or production model.",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/mage.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "ce25a4b09cf22f3107c2194ab3f95d52637a955d08d1e02dbcad8ed240192db2"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      },
+      "preview": "docs/art/starfall-higgsfield/originals/mage.png"
+    },
+    {
+      "id": "reference/starfall/role/cleric",
+      "name": "Starfall cleric role reference",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Starfall"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "cleric",
+        "front",
+        "rear",
+        "visible-gear"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield / GPT Image 2.5; provenance stored beside original files"
+      },
+      "notes": "Unnamed role concept; not a named character design or production model.",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/cleric.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "ca5255ba483ce2658a8aeab1afbba91b587045a7171d0888540d2d763af08ab3"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      },
+      "preview": "docs/art/starfall-higgsfield/originals/cleric.png"
+    },
+    {
+      "id": "reference/starfall/guild-lineup",
+      "name": "Starfall frontal guild lineup",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Starfall"
+      ],
+      "tags": [
+        "human",
+        "front",
+        "face",
+        "guild"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield / GPT Image 2.5; provenance stored beside original files"
+      },
+      "notes": "Face/equipment direction; resolve matching views before production.",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/frontal-lineup.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "0847ab4dc2e0bef498aaf972ab6e7f2894993a48828cf2dc690a1f14a77ccc8f"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      },
+      "preview": "docs/art/starfall-higgsfield/originals/frontal-lineup.png"
+    },
+    {
+      "id": "reference/wildbond/species/cindercub",
+      "name": "Wildbond cindercub base study",
+      "category": "creature-reference",
+      "status": "reference",
+      "usedBy": [
+        "Wildbond"
+      ],
+      "tags": [
+        "creature",
+        "starter",
+        "turnaround"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield / GPT Image 2.5; provenance stored beside original files"
+      },
+      "notes": "Historical generated base sheet; art direction/canon corrections still required.",
+      "representations": [
+        {
+          "path": "docs/art/wildbond-higgsfield-pilot/originals/cindercub.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "05a8cdaa5c0478673acb66dcbaa27683c1c005d9fccd05e052ae744ec2e2292b"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      },
+      "preview": "docs/art/wildbond-higgsfield-pilot/originals/cindercub.png"
+    },
+    {
+      "id": "reference/wildbond/species/ripplet",
+      "name": "Wildbond ripplet base study",
+      "category": "creature-reference",
+      "status": "reference",
+      "usedBy": [
+        "Wildbond"
+      ],
+      "tags": [
+        "creature",
+        "starter",
+        "turnaround"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield / GPT Image 2.5; provenance stored beside original files"
+      },
+      "notes": "Historical generated base sheet; art direction/canon corrections still required.",
+      "representations": [
+        {
+          "path": "docs/art/wildbond-higgsfield-pilot/originals/ripplet.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "7fe536898d322e2d256479f8990cd94dbe185d5fb8cc35d013a3ef502e5cf699"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      },
+      "preview": "docs/art/wildbond-higgsfield-pilot/originals/ripplet.png"
+    },
+    {
+      "id": "reference/wildbond/species/mosshog",
+      "name": "Wildbond mosshog base study",
+      "category": "creature-reference",
+      "status": "reference",
+      "usedBy": [
+        "Wildbond"
+      ],
+      "tags": [
+        "creature",
+        "starter",
+        "turnaround"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield / GPT Image 2.5; provenance stored beside original files"
+      },
+      "notes": "Historical generated base sheet; art direction/canon corrections still required.",
+      "representations": [
+        {
+          "path": "docs/art/wildbond-higgsfield-pilot/originals/mosshog.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "7ea9f44e7aa9e39a187540d0f3de20e04d7f3e8934f30b47011ad575388b2e23"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      },
+      "preview": "docs/art/wildbond-higgsfield-pilot/originals/mosshog.png"
+    },
+    {
+      "id": "character/body/adult-a",
+      "name": "Adult male base A (Quaternius prototype)",
+      "category": "character-body",
+      "status": "prototype",
+      "usedBy": [
+        "Realmbound experiment"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "rigged",
+        "reusable",
+        "male",
+        "body-variant"
+      ],
+      "rights": {
+        "state": "verified",
+        "license": "CC0-1.0",
+        "source": "experiments/realmbound-3d/assets/quaternius/LICENSE.txt",
+        "author": "Quaternius"
+      },
+      "notes": "Free Standard/Superhero base; not a universally fitted Regular body. Requires the existing adapter and proportions review.",
+      "representations": [
+        {
+          "path": "experiments/realmbound-3d/assets/quaternius/Base_Male.glb",
+          "format": "glb",
+          "revision": 1,
+          "sha256": "482dbc44037c46a3ee9fb287770dbc48009ac76edacc600e01b353da353746d5"
+        }
+      ],
+      "compatibility": {
+        "contract": "existing-realmbound-trial-v1",
+        "automaticCrossEngineCompatibility": false
+      },
+      "preview": "docs/screenshots/realmbound-3d/quaternius-front-1920.png",
+      "bodyVariant": "male"
+    },
+    {
+      "id": "animation/humanoid/standard-a",
+      "name": "Humanoid animation resource A",
+      "category": "animation",
+      "status": "prototype",
+      "usedBy": [
+        "Realmbound experiment"
+      ],
+      "tags": [
+        "idle",
+        "walk",
+        "talk",
+        "skeleton"
+      ],
+      "rights": {
+        "state": "verified",
+        "license": "CC0-1.0",
+        "source": "experiments/realmbound-3d/assets/quaternius/LICENSE.txt",
+        "author": "Quaternius"
+      },
+      "notes": "Standard library contains 43 named clips; trial uses idle, walk and talking. Retargeting is not automatic.",
+      "representations": [
+        {
+          "path": "experiments/realmbound-3d/assets/quaternius/Animations.glb",
+          "format": "glb",
+          "revision": 1,
+          "sha256": "69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997"
+        }
+      ],
+      "compatibility": {
+        "contract": "existing-realmbound-trial-v1",
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "character/hair/parted-a",
+      "name": "Rigged parted hair A",
+      "category": "character-part",
+      "status": "prototype",
+      "usedBy": [
+        "Realmbound experiment"
+      ],
+      "tags": [
+        "hair",
+        "rigged",
+        "head-mount"
+      ],
+      "rights": {
+        "state": "verified",
+        "license": "CC0-1.0",
+        "source": "experiments/realmbound-3d/assets/quaternius/LICENSE.txt",
+        "author": "Quaternius"
+      },
+      "notes": "Retains matching named skeleton; requires head/neck adapter.",
+      "representations": [
+        {
+          "path": "experiments/realmbound-3d/assets/quaternius/Hair.glb",
+          "format": "glb",
+          "revision": 1,
+          "sha256": "a124a6b843153e0eabb8cd198547c376a0f3f4d1fdba16089c6b0771a70d1c86"
+        }
+      ],
+      "compatibility": {
+        "contract": "existing-realmbound-trial-v1",
+        "automaticCrossEngineCompatibility": false
+      },
+      "dependencies": [
+        "character/body/adult-a"
+      ]
+    },
+    {
+      "id": "character/outfit/travel-a",
+      "name": "Clothed character composite travel-a",
+      "category": "character-outfit-composite",
+      "status": "prototype",
+      "usedBy": [
+        "Realmbound experiment"
+      ],
+      "tags": [
+        "clothing",
+        "rigged",
+        "reusable",
+        "male"
+      ],
+      "rights": {
+        "state": "verified",
+        "license": "CC0-1.0",
+        "source": "experiments/realmbound-3d/assets/quaternius/LICENSE.txt",
+        "author": "Quaternius"
+      },
+      "notes": "Includes a clothed body, not just separate garments. Do not layer a second complete body underneath; see local README and fitting notes.",
+      "representations": [
+        {
+          "path": "experiments/realmbound-3d/assets/quaternius/Male_Peasant.glb",
+          "format": "glb",
+          "revision": 1,
+          "sha256": "bdb7b7274cfc0bb26149c19ae7c63a373ef3a9d4c75de704470c15af0c81f9cc"
+        }
+      ],
+      "compatibility": {
+        "contract": "existing-realmbound-trial-v1",
+        "automaticCrossEngineCompatibility": false
+      },
+      "dependencies": [
+        "animation/humanoid/standard-a"
+      ],
+      "bodyVariant": "male"
+    },
+    {
+      "id": "character/outfit/ranger-a",
+      "name": "Clothed character composite ranger-a",
+      "category": "character-outfit-composite",
+      "status": "prototype",
+      "usedBy": [
+        "Realmbound experiment"
+      ],
+      "tags": [
+        "clothing",
+        "rigged",
+        "reusable",
+        "male"
+      ],
+      "rights": {
+        "state": "verified",
+        "license": "CC0-1.0",
+        "source": "experiments/realmbound-3d/assets/quaternius/LICENSE.txt",
+        "author": "Quaternius"
+      },
+      "notes": "Includes a clothed body, not just separate garments. Do not layer a second complete body underneath; see local README and fitting notes.",
+      "representations": [
+        {
+          "path": "experiments/realmbound-3d/assets/quaternius/Male_Ranger.glb",
+          "format": "glb",
+          "revision": 1,
+          "sha256": "416255b26a0a6b2900af970d3305d70ef40f409352fc656e336d3161bb120adb"
+        }
+      ],
+      "compatibility": {
+        "contract": "existing-realmbound-trial-v1",
+        "automaticCrossEngineCompatibility": false
+      },
+      "dependencies": [
+        "animation/humanoid/standard-a"
+      ],
+      "bodyVariant": "male"
+    },
+    {
+      "id": "gear/chest/mail",
+      "name": "Procedural chest mail",
+      "category": "equipment-factory",
+      "status": "prototype",
+      "usedBy": [
+        "Realmbound experiment"
+      ],
+      "tags": [
+        "visible-gear",
+        "socket",
+        "replaceable"
+      ],
+      "rights": {
+        "state": "project-authored",
+        "license": "Project source; no separate third-party grant asserted",
+        "source": "Repository source and CREDITS.md"
+      },
+      "notes": "Existing descriptor identity from the trial. Registry documents it; no game loader changed. Preserve slot and mount semantics when replacing art.",
+      "representations": [
+        {
+          "path": "experiments/realmbound-3d/gear.js",
+          "format": "javascript",
+          "revision": 1,
+          "sha256": "fcaa547d85f97a6c87e6df101edcbc5620ab14225c4080532a94cbb0fd0549b9"
+        }
+      ],
+      "compatibility": {
+        "contract": "existing-realmbound-trial-v1",
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "gear/weapon/sword",
+      "name": "Procedural weapon sword",
+      "category": "equipment-factory",
+      "status": "prototype",
+      "usedBy": [
+        "Realmbound experiment"
+      ],
+      "tags": [
+        "visible-gear",
+        "socket",
+        "replaceable"
+      ],
+      "rights": {
+        "state": "project-authored",
+        "license": "Project source; no separate third-party grant asserted",
+        "source": "Repository source and CREDITS.md"
+      },
+      "notes": "Existing descriptor identity from the trial. Registry documents it; no game loader changed. Preserve slot and mount semantics when replacing art.",
+      "representations": [
+        {
+          "path": "experiments/realmbound-3d/gear.js",
+          "format": "javascript",
+          "revision": 1,
+          "sha256": "fcaa547d85f97a6c87e6df101edcbc5620ab14225c4080532a94cbb0fd0549b9"
+        }
+      ],
+      "compatibility": {
+        "contract": "existing-realmbound-trial-v1",
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "gear/offhand/shield",
+      "name": "Procedural offhand shield",
+      "category": "equipment-factory",
+      "status": "prototype",
+      "usedBy": [
+        "Realmbound experiment"
+      ],
+      "tags": [
+        "visible-gear",
+        "socket",
+        "replaceable"
+      ],
+      "rights": {
+        "state": "project-authored",
+        "license": "Project source; no separate third-party grant asserted",
+        "source": "Repository source and CREDITS.md"
+      },
+      "notes": "Existing descriptor identity from the trial. Registry documents it; no game loader changed. Preserve slot and mount semantics when replacing art.",
+      "representations": [
+        {
+          "path": "experiments/realmbound-3d/gear.js",
+          "format": "javascript",
+          "revision": 1,
+          "sha256": "fcaa547d85f97a6c87e6df101edcbc5620ab14225c4080532a94cbb0fd0549b9"
+        }
+      ],
+      "compatibility": {
+        "contract": "existing-realmbound-trial-v1",
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "palette/starfall/frontier",
+      "name": "Starfall frontier palette",
+      "category": "palette",
+      "status": "reference",
+      "usedBy": [
+        "Starfall"
+      ],
+      "tags": [
+        "pine",
+        "mud",
+        "timber",
+        "cool",
+        "lamplight"
+      ],
+      "rights": {
+        "state": "project-authored",
+        "license": "Project source; no separate third-party grant asserted",
+        "source": "Repository source and CREDITS.md"
+      },
+      "notes": "Established 27-colour material ramps; generated concepts have not been converted to it.",
+      "representations": [
+        {
+          "path": "docs/art/starfall/palette.gpl",
+          "format": "gpl",
+          "revision": 1,
+          "sha256": "a93c411ad6fedbce7f8c4bc737fba246289bea260c11dbfd86e2cbf1d18888a4"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "reference/starfall/town-blockout",
+      "name": "Starfall town blocking reference",
+      "category": "environment-reference",
+      "status": "reference",
+      "usedBy": [
+        "Starfall"
+      ],
+      "tags": [
+        "town",
+        "layout",
+        "frontier",
+        "scale"
+      ],
+      "rights": {
+        "state": "project-authored",
+        "license": "Project source; no separate third-party grant asserted",
+        "source": "Repository source and CREDITS.md"
+      },
+      "notes": "Authored 384x216 blocking mock-up, not a final map asset.",
+      "representations": [
+        {
+          "path": "docs/art/starfall/mockup-1x.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "d6bc535911b9a74ef4ffc40fcea8f5e886c0ba280166920dcf01580039cba4f0"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      },
+      "preview": "docs/art/starfall/mockup-1x.png"
+    },
+    {
+      "id": "character/body/adult-female-a",
+      "name": "Adult female base A (Quaternius prototype)",
+      "category": "character-body",
+      "status": "prototype",
+      "usedBy": [
+        "Shared library"
+      ],
+      "bodyVariant": "female",
+      "tags": [
+        "human",
+        "adult",
+        "female",
+        "rigged",
+        "cc0"
+      ],
+      "rights": {
+        "state": "verified",
+        "license": "CC0-1.0",
+        "author": "Quaternius",
+        "source": "shared/assets/characters/quaternius/LICENSE-base.txt"
+      },
+      "notes": "Licensed geometry, not the generated reference rebuilt in 3D. Superhero source base; proportion and face fitting remain to test.",
+      "representations": [
+        {
+          "path": "shared/assets/characters/quaternius/Base_Female.glb",
+          "format": "glb",
+          "revision": 1,
+          "sha256": "7f71693c6086b6a908782e317d982367d22d192c9a334cb07fd0dec6b0b3c2a4"
+        }
+      ],
+      "compatibility": {
+        "contract": "Quaternius source skeleton; adapter and visual fit validation required",
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "character/outfit/travel-female-a",
+      "name": "Female travel outfit A (Quaternius prototype)",
+      "category": "character-outfit",
+      "status": "prototype",
+      "usedBy": [
+        "Shared library"
+      ],
+      "bodyVariant": "female",
+      "tags": [
+        "human",
+        "adult",
+        "female",
+        "rigged",
+        "cc0"
+      ],
+      "rights": {
+        "state": "verified",
+        "license": "CC0-1.0",
+        "author": "Quaternius",
+        "source": "shared/assets/characters/quaternius/LICENSE-outfits.txt"
+      },
+      "notes": "Licensed geometry, not the generated reference rebuilt in 3D. Clothed full-body composite; do not layer over another whole body. Visually test every animation and equipment mount.",
+      "representations": [
+        {
+          "path": "shared/assets/characters/quaternius/Female_Peasant.glb",
+          "format": "glb",
+          "revision": 1,
+          "sha256": "e44904ed8c71dc76cd6641eb2ce4c26d6c0a7f043d66bef6e08dd2c18115bab8"
+        }
+      ],
+      "compatibility": {
+        "contract": "Quaternius source skeleton; adapter and visual fit validation required",
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "character/outfit/ranger-female-a",
+      "name": "Female ranger outfit A (Quaternius prototype)",
+      "category": "character-outfit",
+      "status": "prototype",
+      "usedBy": [
+        "Shared library"
+      ],
+      "bodyVariant": "female",
+      "tags": [
+        "human",
+        "adult",
+        "female",
+        "rigged",
+        "cc0"
+      ],
+      "rights": {
+        "state": "verified",
+        "license": "CC0-1.0",
+        "author": "Quaternius",
+        "source": "shared/assets/characters/quaternius/LICENSE-outfits.txt"
+      },
+      "notes": "Licensed geometry, not the generated reference rebuilt in 3D. Clothed full-body composite; do not layer over another whole body. Visually test every animation and equipment mount.",
+      "representations": [
+        {
+          "path": "shared/assets/characters/quaternius/Female_Ranger.glb",
+          "format": "glb",
+          "revision": 1,
+          "sha256": "f42bf1533d0e677c775c55fdb99488978c969f286a867620aafb7667c04542d4"
+        }
+      ],
+      "compatibility": {
+        "contract": "Quaternius source skeleton; adapter and visual fit validation required",
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "reference/shared/body/male-a",
+      "name": "Adult male travel-body reference",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Shared library",
+        "Starfall",
+        "Realmbound"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "male",
+        "front",
+        "side",
+        "rear",
+        "travel-kit"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield; docs/art/starfall-higgsfield/body-provenance.json"
+      },
+      "notes": "Comparable travel kit, not identical tailoring; illustrated backdrop is baked in despite transparent request. Not a mesh, rig or exact depiction of the imported CC0 models.",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/body-male.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "bfa9cfc2e41fd1e6fe3ac8797926176d107a4360dd0f701c408a778d18237368"
+        }
+      ],
+      "preview": "docs/art/starfall-higgsfield/originals/body-male.png",
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "reference/shared/body/female-a",
+      "name": "Adult female travel-body reference",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Shared library",
+        "Starfall",
+        "Realmbound"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "female",
+        "front",
+        "side",
+        "rear",
+        "travel-kit"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield; docs/art/starfall-higgsfield/body-provenance.json"
+      },
+      "notes": "Comparable travel kit, not identical tailoring; illustrated backdrop is baked in despite transparent request. Not a mesh, rig or exact depiction of the imported CC0 models.",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/body-female.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "40b55110c683098838938ed4f253a17ab8b398c6c054dd406b1b2a21cb51c828"
+        }
+      ],
+      "preview": "docs/art/starfall-higgsfield/originals/body-female.png",
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "reference/starfall/paired-role/swordsman",
+      "name": "Paired male/female swordsman kit",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Starfall",
+        "Shared library"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "male",
+        "female",
+        "swordsman",
+        "front",
+        "rear",
+        "visible-gear"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield; docs/art/starfall-higgsfield/kit-provenance.json"
+      },
+      "notes": "Same role and equipment coverage across both bodies. See kits.html for construction corrections before modelling. Reference only; separate from licensed source geometry.",
+      "preview": "docs/art/starfall-higgsfield/originals/paired-swordsman.png",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/paired-swordsman.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "dfdae467c19dc4293c1c46ebc0e8bec7202afe53bc329f1b20661b9ecdd30fd5"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "reference/starfall/paired-role/mage",
+      "name": "Paired male/female mage kit",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Starfall",
+        "Shared library"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "male",
+        "female",
+        "mage",
+        "front",
+        "rear",
+        "visible-gear"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield; docs/art/starfall-higgsfield/kit-provenance.json"
+      },
+      "notes": "Same role and equipment coverage across both bodies. See kits.html for construction corrections before modelling. Reference only; separate from licensed source geometry.",
+      "preview": "docs/art/starfall-higgsfield/originals/paired-mage.png",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/paired-mage.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "683b1ece9477cd47f5ad796ea11a6c737432f71053d26f169de14a1a0b259b01"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      }
+    },
+    {
+      "id": "reference/starfall/paired-role/cleric",
+      "name": "Paired male/female cleric kit",
+      "category": "character-reference",
+      "status": "reference",
+      "usedBy": [
+        "Starfall",
+        "Shared library"
+      ],
+      "tags": [
+        "human",
+        "adult",
+        "male",
+        "female",
+        "cleric",
+        "front",
+        "rear",
+        "visible-gear"
+      ],
+      "rights": {
+        "state": "unverified",
+        "license": null,
+        "source": "Higgsfield; docs/art/starfall-higgsfield/kit-provenance.json"
+      },
+      "notes": "Same role and equipment coverage across both bodies. See kits.html for construction corrections before modelling. Reference only; separate from licensed source geometry.",
+      "preview": "docs/art/starfall-higgsfield/originals/paired-cleric.png",
+      "representations": [
+        {
+          "path": "docs/art/starfall-higgsfield/originals/paired-cleric.png",
+          "format": "png",
+          "revision": 1,
+          "sha256": "04f14977e7ed5518431faea724dcd1f274c16a760bb2fc7b2a8822016eb58065"
+        }
+      ],
+      "compatibility": {
+        "contract": null,
+        "automaticCrossEngineCompatibility": false
+      }
+    }
+  ]
+}
