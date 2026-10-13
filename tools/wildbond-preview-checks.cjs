@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const assert = require('assert/strict');
+const { isDeepStrictEqual } = require('util');
 const { chromium } = require('playwright');
 const { reviewOpening } = require('./wildbond-opening-browser.cjs');
 const root = path.resolve(__dirname, '..');
@@ -266,9 +267,7 @@ async function reviewCurrentSave(browser) {
     return save.partner === fixture.partner && save.map === fixture.map && save.x === fixture.x && save.y === fixture.y
       && save.look.name === fixture.look.name && save.look.heritage === fixture.look.heritage
       && JSON.stringify(save.badges) === JSON.stringify(fixture.badges)
-      && fixture.team.every((c, i) => save.team[i]?.sp === c.sp && save.team[i]?.lvl === c.lvl && JSON.stringify(save.team[i]?.moves) === JSON.stringify(c.moves))
-      && fixture.team.every((c, i) => ["name", "hp", "bond", "xp", "temp", "rar"].every(k => save.team[i]?.[k] === c[k]))
-      && JSON.stringify(save.ranch) === JSON.stringify(fixture.ranch)
+      && isDeepStrictEqual(save.team, fixture.team) && isDeepStrictEqual(save.ranch, fixture.ranch)
       && Object.entries(fixture.bag).every(([key, value]) => JSON.stringify(save.bag[key]) === JSON.stringify(value))
       && Object.entries(fixture.story).every(([key, value]) => JSON.stringify(save.story[key]) === JSON.stringify(value));
   }

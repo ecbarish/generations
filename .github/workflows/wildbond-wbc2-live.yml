@@ -1,0 +1,46 @@
+name: Wildbond WB-C2 live opening
+on:
+  push:
+    branches: [main]
+    paths: ['play/wildbond/**', '.github/workflows/wildbond-wbc2-live.yml']
+permissions:
+  contents: read
+jobs:
+  live-opening:
+    # One authorized release only. Do not run this source-pinned verifier on future previews.
+    if: contains(github.event.head_commit.message, 'Merge PR #286:')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      LIVE_PREVIEW_URL: https://ecbarish.github.io/generations/play/wildbond/
+      WB_SOURCE_COMMIT: c8fa1c8eb2105b32c1c387caa562c67317ede441
+      WB_LIVE_OPENING_APPROVED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Wait for reviewed Pages manifest and all four exact files
+        run: python3 tools/wildbond-preview-live.py
+      - name: Install browser and visual-verification tools
+        run: |
+          set -euo pipefail
+          npm install --no-save --no-package-lock playwright@1.56.1 pngjs@7.0.0
+          npx playwright install --with-deps chromium
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends tesseract-ocr imagemagick
+      - name: Observe exact pack loaded by desktop and phone browsers and complete opening
+        run: |
+          set -euo pipefail
+          node --check tools/wildbond-live-opening-checks.cjs
+          timeout --signal=TERM --kill-after=15s 16m node tools/wildbond-live-opening-checks.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wildbond-wbc2-live-opening
+          path: |
+            live-opening-review/
+            preview-review/live-verification.json
+          if-no-files-found: error

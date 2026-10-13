@@ -23,3 +23,7 @@ Measured source timing remains simulated at 60 Hz with fixed reading/choice budg
 ## Staged export
 
 Build run [38407995978](https://github.com/ecbarish/generations/actions/runs/38407995978) committed only three preview files at `48a13e8cec83ecae02bd839748d118576a2cd96b`. Pack SHA-256 `e07fb136963268fee136c46fbc3b9b80ba89e0517b17b728392097453a214100`, 20,398,356 bytes. Author and committer verified as abarish-dev / 319211409+abarish-dev@users.noreply.github.com. Actual pack inspection validates all154 entry checksums, all three data JSON files against exact source, shortened opening text and CR1/CR4/interior tokens; the old pack fails this validator. Engine hashes unchanged. Exact committed browser review pending.
+
+## First exported-browser run
+
+Run [38408642351](https://github.com/ecbarish/generations/actions/runs/38408642351) stopped at the Maren/register OCR assertion. The captured native 1920×1080 image visibly contains the correct complete revised dialogue; the verifier downsampled its high-resolution browser font before OCR and misread it. Correcting the observer to crop native-resolution text; required phrases and matching tolerances are unchanged. This is a failed verification run, not a passed browser review. Exact pack bytes remain unchanged.

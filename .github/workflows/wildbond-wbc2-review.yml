@@ -76,5 +76,7 @@ jobs:
         if: always()
         with:
           name: wildbond-wbc2-exact-pack-review
-          path: preview-review/
+          path: |
+            preview-review/
+            !preview-review/before.pck
           if-no-files-found: error

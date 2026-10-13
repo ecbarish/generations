@@ -99,15 +99,24 @@ function palePanels(image) {
   }
   return panels;
 }
-function readText(image, temporary) {
-  const regions = [...palePanels(image), [14, 18, 356, 24], [8, 194, 368, 18], [196, 179, 160, 21], [322, 171, 44, 15]];
-  return regions.map(([x, y, w, h], i) => {
+function readText(image, temporary, options = {}) {
+  const regions = [...palePanels(image), [278, 182, 76, 16], [14, 18, 356, 24], [8, 194, 368, 18], [196, 179, 160, 21], [322, 171, 44, 15]];
+  const native = options.screenshot ? PNG.sync.read(options.screenshot) : image;
+  const g = options.size ? geometry(options.size) : { x: 0, y: 0, scale: 1 };
+  const texts = [];
+  for (const [i, [x, y, w, h]] of regions.entries()) {
     const file = temporary + '-' + i + '.png';
-    fs.writeFileSync(file, PNG.sync.write(crop(image, x, y, w, h)));
-    // Smooth enlarged glyph edges; tight crops keep scenery from dominating OCR.
-    execFileSync('convert', [file, '-filter', 'Lanczos', '-resize', '400%', file], { timeout: 15000 });
-    return execFileSync('tesseract', [file, 'stdout', '--psm', h <= 21 ? '7' : '6'], { encoding: 'utf8', timeout: 30000, stdio: ['ignore', 'pipe', 'pipe'] });
-  }).join('\n');
+    // Use logical pixels only to locate panels. OCR must retain the browser's
+    // native high-resolution font rasterization instead of downsampling glyphs.
+    const pixelCenter = g.scale === 1 ? 0.5 : 0;
+    const sx = Math.floor(g.x + pixelCenter) + x * g.scale, sy = Math.floor(g.y + pixelCenter) + y * g.scale;
+    fs.writeFileSync(file, PNG.sync.write(crop(native, sx, sy, w * g.scale, h * g.scale)));
+    if (g.scale < 4) execFileSync('convert', [file, '-filter', 'Lanczos', '-resize', `${400 / g.scale}%`, file], { timeout: 15000 });
+    texts.push(execFileSync('tesseract', [file, 'stdout', '--psm', h <= 21 ? '7' : '6'], { encoding: 'utf8', timeout: 30000, stdio: ['ignore', 'pipe', 'pipe'] }));
+    // Avoid repeatedly OCRing scenery once every required phrase is evidenced.
+    if (options.required?.every(phrase => matches(texts.join('\n'), phrase))) break;
+  }
+  return texts.join('\n');
 }
 
 async function reviewOpening(browser, api, size, method) {
@@ -128,7 +137,7 @@ async function reviewOpening(browser, api, size, method) {
       fs.writeFileSync(path.join(out, 'screens', file), screenshot);
       image = logicalImage(screenshot, size);
       const ocrFile = path.join(out, `opening-${tag}-ocr.png`);
-      text = readText(image, ocrFile);
+      text = readText(image, ocrFile, { screenshot, size, required });
       if (!required || required.every(value => matches(text, value))) break;
     }
     fs.writeFileSync(path.join(out, `opening-${tag}-${label}.txt`), text);
