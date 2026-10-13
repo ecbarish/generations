@@ -785,6 +785,7 @@ func _run() -> void:
 	_no_chores()
 	_tamsin_kept()
 	_darkness()
+	_dressing()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -1395,3 +1396,52 @@ func _darkness() -> void:
 	main.today = keep[7]
 	main.me.tile = keep[8]
 	main.me.pos = Vector2(keep[8]) * main.TILE
+
+# ---- ART-SF-8: the square and roads dressed, and nothing in the way
+func _dressing() -> void:
+	var keep_built: Dictionary = main.built.duplicate(true)
+	var keep_rank: int = main.rank
+	var on_way := []
+	for at in main.DRESSING:
+		for i in int(main.DRESSING[at][1]):
+			var p: Vector2i = at + Vector2i(i, 0)
+			if main._is_path(p.x, p.y) or main.tile_at(p) != "," and main.tile_at(p) != "q" or p in main.LAMP_STANDS or p in main.READ_SPOTS \
+					or p in [main.SERVE_AT, main.ORDER_AT, main.INN_STEP, main.GATE_IN, main.BRYN_HOME, main.HALL_DOOR + Vector2i.DOWN]:
+				on_way.append(p)
+	check(on_way.is_empty(), "the bench, the hitching rail and the inn's barrel and crate stand off every road, step and station (%s)" % str(on_way))
+	var solid_ok := true
+	for at in main.DRESSING:
+		for i in int(main.DRESSING[at][1]):
+			solid_ok = solid_ok and main.solid(at + Vector2i(i, 0))
+	check(solid_ok, "standing dressing blocks its footprint, like any prop")
+	var flat_ok := true
+	for p in main.PUDDLES:
+		flat_ok = flat_ok and not main.solid(p)
+	check(flat_ok, "puddles, ruts and tufts lie flat: you walk through them")
+	main.lines.clear()
+	var towns := [
+		{},
+		{ "west": { "what": "healer", "left": 0.0 }, "east": { "what": "yard", "left": 0.0 }, "north": { "what": "smithy", "left": 0.0 }, "south": { "what": "apothecary", "left": 0.0 } },
+		{ "west": { "what": "tavern", "left": 0.0 }, "east": { "what": "smithy", "left": 0.0 }, "north": { "what": "apothecary", "left": 0.0 }, "south": { "what": "healer", "left": 0.0 } },
+		{ "west": { "what": "smithy", "left": 0.0 }, "east": { "what": "tavern", "left": 0.0 }, "north": { "what": "yard", "left": 0.0 }, "south": { "what": "apothecary", "left": 0.0 } },
+	]
+	var cut := []
+	main.rank = 2
+	for town in towns:
+		main.built = town.duplicate(true)
+		var goals: Array = [main.SERVE_AT, main.ORDER_AT, main.INN_STEP, main.HALL_DOOR + Vector2i.DOWN, Vector2i(12, 13)]
+		goals.append_array(main.READ_SPOTS)
+		goals.append_array(main.LAMP_STANDS)
+		for k in main.PLOTS:
+			goals.append(main._step_of(k))
+			if town.has(k) and town[k].what == "smithy":
+				goals.append(main._step_of(k) + Vector2i.RIGHT)
+		for g in goals:
+			if main.solid(g) or main.route(main.GATE_IN, g, null).is_empty():
+				cut.append([town.keys().map(func(k): return town[k].what), g])
+	check(cut.is_empty(), "with any buildings on any plots, every station, step and lamp can still be reached from the gate (%s)" % str(cut))
+	main.built = { "north": { "what": "smithy", "left": 0.0 } }
+	check(main.solid(main.PLOTS.north + Vector2i(2, 0)) and main._prop_at(main.PLOTS.north + Vector2i(2, 0)) == "firewood", "the smithy keeps its firewood stacked by its wall")
+	main.built = keep_built
+	main.rank = keep_rank
+	check(ResourceLoader.exists("res://assets/env/frontier/square.png"), "the square's dressing sheet is in the game")

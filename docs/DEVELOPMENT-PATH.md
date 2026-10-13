@@ -200,7 +200,7 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
   palette; and, after Evan spotted it, the hall's and inn's doors now sit centred on their map tile (so the inn's path
   meets the door) and stand on a plank step to the ground instead of floating on the stone base. Follow-ups: ART-SF-8 and
   SF2.6c below.
-- [ ] ART-SF-8 [any] Dress the square and roads: the square is one plain packed-earth rectangle. Add worn ruts and
+- [x] ART-SF-8 [any] (done: Grok for Adam / abarish-dev, 2026-10-13, H3, PR #323; 278 Starfall checks; before/after in docs/playtests/art-sf-8/) Dress the square and roads: the square is one plain packed-earth rectangle. Add worn ruts and
   puddles, grass tufts along the edges, a bench and a hitching post, and place ART-SF-6's barrels, crates and firewood
   by the buildings that would use them (inn, tavern, smithy). Pictures in `starfall-godot/assets/env/frontier/`,
   placement in main.gd. Also give the apothecary, healer and tavern doors a step down to the ground, as the
