@@ -12,6 +12,8 @@ const R := preload("res://scripts/rules.gd")
 const INK := Color("2a2230")
 const PAPER := Color("f8f2e4")
 const EL_COL := { "Ember": Color("e0602a"), "Tide": Color("3a8fd8"), "Grove": Color("5d9a3e") }
+## CR1: size classes to battle scale (spec 4.4, docs/wildbond-creatures.md).
+const SIZE_SCALE := { "tiny": 0.7, "small": 0.85, "medium": 1.0, "large": 1.2, "huge": 1.45 }
 ## Each element's hit has its own animated effect (Ninja Adventure FX, CC0; assets/fx): [file, frame width, frames, tint].
 const EL_FX := { "Ember": ["ember", 25, 8, Color.WHITE], "Tide": ["tide", 40, 11, Color.WHITE], "Grove": ["grove", 30, 8, Color.WHITE],
 	"Stone": ["stone", 30, 14, Color.WHITE], "Gale": ["gale", 20, 8, Color.WHITE], "Shade": ["shade", 40, 9, Color("b080e8")],
@@ -794,6 +796,7 @@ func _draw() -> void:
 		if u.c.hp <= 0 and u.hit <= 0.0:
 			continue
 		var sc := 4.0 if u.side == "a" else 3.0
+		sc *= SIZE_SCALE.get(str(R.sp(u.c).get("size", "medium")), 1.0)   # CR1: draw at species size
 		var at := _spot(u)
 		var dir := 1.0 if u.side == "a" else -1.0
 		at.x += sin(clampf(u.lunge / 0.35, 0.0, 1.0) * PI) * 10.0 * dir

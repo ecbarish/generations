@@ -142,6 +142,26 @@ func _run() -> void:
 	check(R.evo_target(pk, { "place": "saltmarsh" }) == "sunlynx", "and one devoted to its tamer becomes Sunlynx")
 	check(R.evo_target(R.make("hearthlaugh", 60, { "rar": 1 }, main.rng)) == "", "Hearthlaugh never evolves; it's itself")
 	check(main.DATA.SPECIES.has("pyremane") and main.DATA.SPECIES.size() >= 98, "the new forms are in the Wilddex (%d creatures)" % main.DATA.SPECIES.size())
+	# ---- CR1: every species has a size and tier; huge finals outscale their young forms
+	var sizes := { "tiny": 0.7, "small": 0.85, "medium": 1.0, "large": 1.2, "huge": 1.45 }
+	var tiers := ["Plain", "Strong", "Showpiece", "Legend"]
+	var bad_st: Array = []
+	for sid in main.DATA.SPECIES:
+		var s: Dictionary = main.DATA.SPECIES[sid]
+		if not sizes.has(str(s.get("size", ""))) or not tiers.has(str(s.get("tier", ""))):
+			bad_st.append(sid)
+	check(bad_st.is_empty(), "CR1: every species has a valid size and tier" + ("" if bad_st.is_empty() else " (bad: %s)" % ", ".join(bad_st.slice(0, 5))))
+	var scale_ok := true
+	for sid in main.DATA.SPECIES:
+		var s: Dictionary = main.DATA.SPECIES[sid]
+		var evo: Dictionary = s.get("evo", {})
+		var to: String = str(evo.get("to", ""))
+		if to != "" and main.DATA.SPECIES.has(to):
+			var young_sc: float = sizes.get(str(s.get("size", "medium")), 1.0)
+			var final_sc: float = sizes.get(str(main.DATA.SPECIES[to].get("size", "medium")), 1.0)
+			if final_sc < young_sc:
+				scale_ok = false
+	check(scale_ok, "CR1: no final form is drawn smaller than its young form")
 	# ---- music: a tune for each place; Larkhaven's comes back with its colour
 	check(main._music_key() == "faded", "the faded valley has a lost, quiet tune")
 	main.spilled = true
