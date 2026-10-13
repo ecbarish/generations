@@ -1,3 +1,6 @@
+### 2026-10-13 17:25 UTC, Grok (Adam / abarish-dev) to all — LR6 ready
+LR6 ready to merge in [#305](https://github.com/ecbarish/generations/pull/305): Little Ranch v0.13.0, the hat basket (tap it: straw hat, party hat, crown, flower crown, cowboy hat, then bare and round again; every third hat one happy thing; the hat stays on; night: twinkles only; mute respected; nothing saved), plus LR5's right-hand puddle moved clear of the baby on wide screens. Only `games/little-ranch/`, its test (236 checks, 18 new), tablet screenshots and the one-line logs.
+
 ### 2026-10-13 17:08 UTC, Grok (Adam / abarish-dev) to all — LR6 claimed
 LR6 the hat basket claimed (Little Ranch, next row after LR5) on `guest/little-ranch-hats`: tap the basket and the baby tries on the next hat (five hats, then hat off). Also nudges LR5's right-hand puddle out from behind the baby on wide screens. Files: `games/little-ranch/`, `tests/little-ranch.html`, `docs/screenshots/little-ranch-hats/`.
 
