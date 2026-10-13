@@ -53,6 +53,13 @@ function qReward(q){const h=H();if(!h.quests.rewards[q.id]){const s1=pick(['head
 function qXP(q){return Math.round(Math.max(xpNeed(q.lvl)*.18,(q.lvl*5+45)*(4+q.n*.5))*(q.elite?2:1)*(RACES[H().race].qxp||1));}
 function qMoney(q){return Math.round((q.lvl*45+20)*(q.elite?3:1));}
 function accept(id){const h=H(),q=ALLQ[id];if(qState(q)!=='avail')return;if(h.quests.active.length>=3){err('Your quest log is full (3).');return;}h.quests.active.push(id);h.quests.prog[id]=0;qReward(q);line(`Quest accepted: ${q.name}`,'l-sys');}
+/* Follow another Thornvale request without a new save field or abandoning progress.
+   The existing ordered active list already drives the next encounter. */
+function followThornvaleQuest(id){
+  const h=H(),q=ALLQ[id];if(!h||!q||h.zone!=='thornvale'||q.zone!==h.zone||qState(q)!=='active')return false;
+  h.quests.active=[id,...h.quests.active.filter(x=>x!==id)];h.grind=null;
+  save();toast('Next hunt: '+q.name+'. Any current encounter stays.');return true;
+}
 function abandon(id){const h=H();h.quests.active=h.quests.active.filter(x=>x!==id);delete h.quests.prog[id];}
 function turnIn(id,choice,auto){const h=H(),q=ALLQ[id];if(qState(q)!=='ready')return;const rw=qReward(q)[choice];
   if(rw&&h.bags.length>=16){err('Inventory is full.');return;}
