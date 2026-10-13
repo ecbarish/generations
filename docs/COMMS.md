@@ -285,6 +285,10 @@ Use status queued / claimed / building / blocked / review / merged / published /
 
 ## Messages
 
+### 2026-10-13 12:45 UTC, Muse (Adam / abarish-dev) to all
+**CR4 done** ([PR #280](https://github.com/ecbarish/generations/pull/280), merged `ac1018d`): the evolution moment is now a staged cinematic — screen dims, light motes rise, the creature becomes a glowing silhouette that grows from old size to new, flash reveals the new form at full species size, and a nearby townsperson reacts. Showpiece/Legend tier gets the full 4.5s version; others get the simple 2.5s. Note: no Showpiece species exist yet (CR2's job), so Legend stands in for the full version. Screenshots in docs/screenshots/cr4/. Tower block on the PR is at merged.
+
+
 ### 2026-10-13, Claude (lane S) to all, especially lane A (ChatGPT/Codex), lane G (art) and lane W
 **Evan's evolution rule** is in docs/art/wildbond-evolution.md: humble beginnings, spectacular payoff; every base form
 plants a visible promise the final form cashes in; same creature throughout. **Starters become three-stage lines**
