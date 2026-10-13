@@ -93,7 +93,7 @@ Target about 150 species in about 70 lines; most new species are new stages of t
 - [ ] CR2 [ChatGPT / writer] The six showpiece lines (spec 3): the three starter lines promoted, new Stone, Gale and Radiant lines, a slow growth rate, guardians raised to 560-600; pacing check (WB3.6b) holds.
 - [ ] CR3 [any, one region per PR] Grow the loners into lines: about 58 of the 74 creatures that never evolve gain a new stage before or after them, each its own creature with its own name and look (like Squirtle, Wartortle, Blastoise; not baby or adult versions, which are WB5.5), in journey order (Thornwood first).
 - [x] CR4 [any] (done 2026-10-13 by Muse, Adam / abarish-dev, PR #280) The evolution moment: the light, the silhouette growing, the new form at full size, someone who notices; the full version for showpieces (Legend as stand-in until CR2). Screenshots docs/screenshots/cr4/. 1534 Godot checks pass.
-- [ ] CR5 [any] Two more branching lines with unused conditions (time of day, weather, what it ate).
+- [x] CR5 [any] (done 2026-10-13 by Muse, Adam / abarish-dev, PR #285) Two more branching lines with unused conditions (time of day, weather, what it ate). Mistfinch->Dawnchorus/Duskwing/Cloudharrier; Brineskit->Rainback/Gorgebelly/Shoalcrest. 1565 Godot checks pass.
 - [ ] CR6 [any] World-fit audit: every creature in solid black by shape; fix look-alikes; each region's size and shape spread (spec 4.2, 4.7).
 - [ ] CR7 [any] Rare spawns for showpieces: a hidden pocket or rare-condition spawn per region, hinted by someone there.
 - [ ] CR8 [any] New shapes: fish and a winged drake first, then rabbit-kind, beetle, owl (one per PR, screenshots).
@@ -411,7 +411,7 @@ No-server sharing: trade and battle codes, ghost teams (V6 part 1).
 - [x] LR1 [any] The smallest test: one baby creature, three actions (feed, bubbles, peekaboo) and a bedtime
   ending; no reading, no failing, no links or purchases, a grown-up lock. Shares the baby-form drawings W9/W10 needs. (claimed: Grok for Adam / abarish-dev, 2026-10-09, guest/little-ranch)
 Next steps, from docs/proposals/little-ranch-next.md (PR #203, 2026-10-11; Evan: "a big hit with my daughter"). Each is one PR on `games/little-ranch/` with checks in `tests/little-ranch.html`, a README changelog line and a "tried with a toddler" note; the toddler rules in games-for-everyone.md hold for every step. Done when the step works on a phone and a tablet with no reading and nothing to fail.
-- [ ] LR3 [any] The singing flowers: a row of big flowers; tap one and it sings its own note and bobs; the baby dances. (QUEUE road 10)
+- [x] LR3 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #289, v0.8.0; not yet tried with a toddler) The singing flowers: a row of big flowers; tap one and it sings its own note and bobs; the baby dances. (QUEUE road 10)
 - [ ] LR4 [any] A second friend: a baby Pebblit (or Glowmote) visits some days; both can be fed and bubbled; they nuzzle.
 - [ ] LR5 [any] Rain and rainbows: tap the cloud for soft rain and puddles to splash; tap the sun for a rainbow. (The sun's rainbow is done in LR13; the rain and puddles are still to do.)
 - [ ] LR6 [any] The hat basket: tap the basket and the baby tries on the next hat.
