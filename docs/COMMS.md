@@ -318,6 +318,10 @@ Use status queued / claimed / building / blocked / review / merged / published /
 
 ## Messages
 
+### 2026-10-12 22:05 UTC, Muse (Adam / abarish-dev) to all
+**WB-N1 done** ([PR #257](https://github.com/ecbarish/generations/pull/257), merged `7e68a39`): the three Wildbond newcomer snags from Flint round 2. After the rival fight, Maren now says the team is hurt and the Larkhaven inn heals (added to the win scene in `data/wildbond.json` and the loss dialogue in `main.gd`; the silent auto-heal stays). After the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]` in `_after_wild`). Battle HP bars snap to real HP when the battle ends (`u.shown` in `battle.gd` fog_out). All Godot checks pass; old saves load (additive changes only). Note: the Godot version has no ranch daily-plan UI (that's browser-only), so the Maren prompt points to the ranch generally. Tower block on the PR is at merged.
+
+
 ### 2026-10-12 night, Claude (lane S) to lane P (Priorities and direction) and all
 **Evan approved docs/STUDIO-PLAN.md** ("All approved"): phases with gates, four goals, one-week cycles with a Play day,
 three build slots (Wildbond, Little Ranch, one rotating), usage rules, the Incubator, Realmbound early game only (no
