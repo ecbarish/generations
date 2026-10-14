@@ -176,6 +176,39 @@
     return { ok: true, count: q.count, cost: q.cost };
   }
 
+  /* Payback is the next stall's price divided by the income that one stall adds.
+     A milestone can add more than one stall's rate, because the whole row doubles. */
+  function paybackSeconds(state, i) {
+    var stall = spec(i);
+    var st = state.stalls && state.stalls[i];
+    if (!stall || !st || !st.hired) return Infinity;
+    var cost = Idle.bulkCost(stall.base, stall.growth, st.owned, 1);
+    var owned = st.owned > 0 ? st.owned : 0;
+    var before = stall.rate * owned * Idle.milestoneMult(owned);
+    var afterOwned = owned + 1;
+    var added = stall.rate * afterOwned * Idle.milestoneMult(afterOwned) - before;
+    if (!(cost > 0) || !(added > 0) || !isFinite(cost) || !isFinite(added)) return Infinity;
+    return cost / added;
+  }
+
+  function paybackLabel(seconds) {
+    if (!(seconds > 0) || !isFinite(seconds)) return '';
+    if (seconds >= 60) return Arcade.fmtTime(Math.round(seconds));
+    return Math.max(1, Math.round(seconds)) + 's'; // whole seconds: "22s", never "22.0s" (playtest fix)
+  }
+
+  function paybackLine(state, i) {
+    var stall = spec(i);
+    if (!stall) return '';
+    var label = paybackLabel(paybackSeconds(state, i));
+    if (!label) return stall.vendor + ' is running this stall.';
+    return 'The next one pays for itself in ' + label + '.';
+  }
+
+  function awayRule() {
+    return 'While away: earns ' + Math.round(OFFLINE_RATE * 100) + '%, up to ' + (OFFLINE_CAP / 3600) + 'h';
+  }
+
   function secondsToNext(state) {
     var rate = income(state);
     if (!(rate > 0)) return Infinity;
@@ -238,6 +271,7 @@
     var lead = 'You were gone ' + Arcade.fmtTime(summary.away) + '.';
     if (summary.capped) lead += ' The box only holds four hours, so ' + Arcade.fmtTime(summary.credited) + ' counted.';
     else lead += ' The stalls kept ' + Arcade.fmtTime(summary.credited) + ' of it.';
+    lead += ' While away, stalls earn ' + Math.round(OFFLINE_RATE * 100) + '%.';
     var box = summary.gained > 0
       ? Arcade.fmt(summary.gained) + ' coins are in the box.'
       : 'The box is empty. Nothing was earning while you were gone.';
@@ -321,6 +355,10 @@
     quote: quote,
     buy: buy,
     secondsToNext: secondsToNext,
+    paybackSeconds: paybackSeconds,
+    paybackLine: paybackLine,
+    paybackLabel: paybackLabel,
+    awayRule: awayRule,
     goal: goal,
     lookLine: lookLine,
     gossipLine: gossipLine,

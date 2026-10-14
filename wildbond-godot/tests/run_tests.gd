@@ -241,6 +241,55 @@ func _run() -> void:
 				if placed_rect.intersects((panel as Rect2).grow(4.0)):
 					battle_clear = false
 	check(battle_clear, "EVO-1: every painted battle sprite keeps its whole scale and stays clear of the HP panels")
+	# ---- WBL-6: a battle front is the file <id>_battle_front.png. A missing file keeps the old figure.
+	var fronts := ["cindercub", "smoulderpup", "blazefang", "ripplet", "riverwisp", "tidewyrm", "mosshog", "thicketboar", "thornback"]
+	var Figures := load("res://scripts/figures.gd")
+	for sid in fronts:
+		var front: Texture2D = Sprites.battle_texture(sid)
+		check(Sprites.battle_file(sid) == "res://assets/creatures/battle/%s_battle_front.png" % sid, "WBL-6: %s is looked up by file name" % sid)
+		check(front != null and Sprites.has_battle_front(sid) and Sprites.battle_size(sid) == Vector2i(64, 64), "WBL-6: %s has a 64x64 battle front" % sid)
+		check(Sprites.has(sid), "WBL-6: %s keeps its overworld sheet" % sid)
+		var imported := FileAccess.get_file_as_string("res://assets/creatures/battle/%s_battle_front.png.import" % sid)
+		check(imported.contains("compress/mode=0") and imported.contains("mipmaps/generate=false"), "WBL-6: %s imports lossless, with no mipmaps" % sid)
+	check(Sprites.battle_file("not-a-creature") == "res://assets/creatures/battle/not-a-creature_battle_front.png" and Sprites.battle_texture("not-a-creature") == null and not Sprites.has_battle_front("not-a-creature"), "WBL-6: an unknown id misses, and nothing is substituted")
+	check(not Sprites.has_battle_front("duskweaver") and Sprites.battle_texture("duskweaver") == null, "WBL-6: Duskweaver has no battle front, so the battle keeps the figure")
+	var dusk: Dictionary = main.DATA.SPECIES.duskweaver
+	var dusk_look: Dictionary = Figures.look_for(dusk)
+	var dusk_canon: Array = Figures._body(true, { "walking": false, "wag": 0, "ears_up": true }, dusk_look)
+	var dusk_h: int = int(Figures.pixel_span(dusk_canon).y)
+	var dusk_target: int = int(Figures._target_height(dusk, dusk_canon))
+	var dusk_foe: int = maxi(1, int(round(float(dusk_target) / float(maxi(1, dusk_h)) * 3.0)))
+	var dusk_ally: int = maxi(1, int(round(float(dusk_target) / float(maxi(1, dusk_h)) * 4.0)))
+	check(Figures.battle_whole_scale(dusk, 3.0) == dusk_foe and Figures.battle_whole_scale(dusk, 4.0) == dusk_ally, "WBL-6: Duskweaver's fallback is a whole scale (foe %d, ally %d)" % [dusk_foe, dusk_ally])
+	var dusk_parts: Array = Figures.native_parts(dusk, false, { "wag": 0, "ears_up": true }, {})
+	check(dusk_parts.size() > 4 and Figures.battle_whole_scale(dusk, 3.0) == int(Figures.battle_whole_scale(dusk, 3.0)), "WBL-6: the fallback still draws Duskweaver, on whole pixels")
+	check(Sprites.whole_scale(1.0) == 1.0 and Sprites.whole_scale(1.9) == 1.0 and Sprites.BATTLE_FRONT_SCALE == 1.0, "WBL-6: a battle front is drawn at a whole scale of at least 1")
+	check(int(ProjectSettings.get_setting("rendering/textures/canvas_textures/default_texture_filter")) == 0, "WBL-6: canvas textures use nearest filtering")
+	var front_foot := Vector2(100, 164)
+	var front_left: Rect2 = Sprites.battle_dest(front_foot, Vector2i(64, 64), 1.0, false)
+	var front_right: Rect2 = Sprites.battle_dest(front_foot, Vector2i(64, 64), 1.0, true)
+	check(front_left.size == Vector2(64, 64) and front_right.size == Vector2(-64, 64) and front_right.position == front_left.position, "WBL-6: a foe faces left and your creature is mirrored on the same feet")
+	check(is_equal_approx(front_left.position.y + front_left.size.y, front_foot.y) and is_equal_approx(front_left.position.x + front_left.size.x * 0.5, front_foot.x), "WBL-6: a battle front stands on its bottom centre")
+	var front_panels := [Rect2(222, 116, 154, 36), Rect2(10, 8, 150, 26)]
+	var ally_stand := Vector2(100, 164)
+	var foe_stand := Vector2(286, 98)
+	var ally_placed: Vector2 = Sprites.foot_clear_of(ally_stand, Vector2i(64, 64), 1.0, front_panels, 4.0)
+	var foe_placed: Vector2 = Sprites.foot_clear_of(foe_stand, Vector2i(64, 64), 1.0, front_panels, 4.0)
+	var ally_box: Rect2 = Sprites.dest_rect(ally_placed, Vector2i(64, 64), 1.0)
+	var foe_box: Rect2 = Sprites.dest_rect(foe_placed, Vector2i(64, 64), 1.0)
+	var front_clear: bool = not ally_box.intersects((front_panels[0] as Rect2).grow(4.0)) and not ally_box.intersects((front_panels[1] as Rect2).grow(4.0)) and not foe_box.intersects((front_panels[0] as Rect2).grow(4.0)) and not foe_box.intersects((front_panels[1] as Rect2).grow(4.0))
+	check(ally_box.size == Vector2(64, 64) and foe_box.size == Vector2(64, 64) and front_clear, "WBL-6: a 64x64 front keeps its scale and stays clear of the HP panels")
+	var command := Rect2(8, 164, 368, 46)
+	var player_panels: Array = [Rect2(222, 116, 154, 36), Rect2(10, 8, 150, 26), command]
+	var player_foot: Vector2 = Sprites.foot_clear_of(Vector2(100, 164), Vector2i(64, 64), 1.0, player_panels, 4.0)
+	var player_rect: Rect2 = Sprites.dest_rect(player_foot, Vector2i(64, 64), 1.0)
+	var bottom_row: int = int(player_rect.position.y + player_rect.size.y) - 1
+	var border_y: int = int(command.position.y) - 1
+	check(player_rect.size == Vector2(64, 64) and player_foot.x == 100.0 and player_foot.y == floor(player_foot.y), "WBL-6: the command box lifts the player on a whole pixel and does not change the scale")
+	check(bottom_row <= border_y - 1, "WBL-6: the player's bottom row (%d) is at least 1px above the command box border (%d)" % [bottom_row, border_y])
+	check(player_rect.position.y + player_rect.size.y <= command.position.y - 4.0 and not player_rect.intersects(command.grow(4.0)), "WBL-6: the player keeps 4px clear of the command box")
+	var foe_kept: Vector2 = Sprites.foot_clear_of(Vector2(286, 98), Vector2i(64, 64), 1.0, player_panels, 4.0)
+	check(foe_kept == Vector2(286, 98), "WBL-6: a foe already above the command box stays on its platform")
 	var wash_tex: Texture2D = Sprites.texture("blazefang", "idle")
 	var wash_a: Texture2D = Sprites._washed(wash_tex, Rect2i(0, 0, fang_sz.x, fang_sz.y), 0.5)
 	var wash_b: Texture2D = Sprites._washed(wash_tex, Rect2i(0, 0, fang_sz.x, fang_sz.y), 0.51)
@@ -975,7 +1024,7 @@ func _run() -> void:
 				if int(main.bag.lures) > 0 and tries < 6:
 					var before_l: int = main.bag.lures
 					bt2._choose(3)
-					if tries == 0: check(bt2.state == "capture" and main.bag.lures == before_l - 1, "Bond throws a lure and starts the calm meter")
+					if tries == 0: check(bt2.state == "capture" and main.bag.lures == before_l - 1, "Catch throws a lure and starts the calm meter")
 					bt2.cap.pos = bt2.cap.zone
 					bt2._calm()
 					tries += 1
@@ -1853,6 +1902,7 @@ func _run() -> void:
 	main.battle.visible = false
 	main.battle.state = ""
 	preload("res://tests/battle_choices.gd").run(main, check)
+	preload("res://tests/fair_start.gd").run(main, check)
 	preload("res://tests/wild_bond.gd").run(main, check)
 	preload("res://tests/reveal.gd").run(main, check)
 	preload("res://tests/key_hints.gd").run(main, check)
@@ -1864,6 +1914,8 @@ func _run() -> void:
 	_dressing_checks()
 	preload("res://tests/roof_routes.gd").run(main, check)
 	preload("res://tests/door_taps.gd").run(main, check)
+	preload("res://tests/wbl1_menu.gd").run(main, check)
+	preload("res://tests/wbl_battle_start.gd").run(main, check)
 	# ---- the done line
 	print("Wildbond Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)

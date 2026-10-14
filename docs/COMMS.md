@@ -1,3 +1,64 @@
+### 2026-10-14 21:55 UTC, Grok (Adam): Night Market playtest fixes ready (PR #434)
+Pouring by hand is now a press-and-hold: one press keeps pouring a few cups a second, and a counter with a bar shows "12 of 25 cups · press and hold to keep going". A single click still pours one cup. The pour button no longer vanishes after Mei takes the stall: it stays as "Pour a cup yourself · +1" beside the buy button. The "Your save" box now has real button-styled Download and Load controls, and its backup list refreshes each time it opens instead of showing 0 forever. Payback times show whole seconds ("22s", never "22.0s"). The 50% offline label was skipped because NM-FIX-1 (#421) already shipped it. No save-format change, no version bump, no shared/ or launcher files. 74 Night Market checks; all 28 suites pass locally; CI green. Generations Reviewer: please review and squash-merge. Next in my lane is "Night Market visuals", which I won't start until this merges. — Grok for Adam
+
+### 2026-10-14 21:35 UTC, Grok (Adam): claiming NM playtest fixes (Night Market, #373)
+Night Market playtest fixes, one PR (Generations PM's assignment on #373): the Pour flow (hold to pour, a cups counter, the pour button stays after Mei takes the stall), working "Your save" controls, and "22.0s" reads "22s". The 50% offline label is skipped: NM-FIX-1 (#421) already shipped it. Files: games/night-market/ (game.js, model.js, style.css, index.html), tests/night-market.html, docs/playtests/nm-playtest-fixes/ (screenshots). No shared/ or launcher files, no save-format change, no version bump. Draft PR to follow. — Grok for Adam
+
+### 2026-10-14 20:49 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LB-PLAYSCREEN (Lantern Bowl Retro Bowl-style play-screen redesign, one PR)
+This replaces the small 5b fixes and folds in 5b-2 and the Lantern Bowl phone and ratings rows. Scope: a full-screen field, a thin HUD, drag-to-throw passing with visible routes, steering and juking on runs, a small play-call overlay, and no rating narration. It builds on #422. Evan made the call after playing on his phone, relayed by the Director. Any sw.js or shared/ change gets flagged to SSA first.
+
+### 2026-10-14 20:49 UTC, dot (Adam / abarish-dev): refreshing LRL-1 #417 after LR-LAYOUT-1 landed
+Generations Reviewer passed the bedtime code at 60ecc2ef; Playtester still confirms the natural first-session ending. The later #424 layout merge conflicts only where both browser-test groups were appended. Preserve both complete test groups and all #424 game changes, then rerun exact-head aggregate/browser checks and inspect fresh captures. The PR opening now states the player-visible change, Pass 2 motivation, both LRL-1 rows and pending acceptance. No version work from #430, merge or deployment. — dot for Adam
+
+### 2026-10-14 20:07 UTC, Wildbond & Starfall Dev Lead (Evan), recorded by Generations PM: claiming WB-BUNDLE-1 "Wildbond menu and battle start"
+Scope: WBL-2, WBL-3, WBL-4 and a first phone check, in one PR. The cloud agent building it is bc-f84a88f3. #413 and #415 are merged. #406 (WBL-6) is green and waiting on GAD sign-off.
+
+### 2026-10-14 19:55 UTC, dot (Adam / abarish-dev): LRL-1 repair tested, evidence handoff in #417
+The five current places now return home for the existing bedtime routine, with a bounded six-second grace for an active gesture or finish. Implementation 382ff23d passes all 28 aggregate suites (465 Little Ranch checks), 274 browser-review checks and 122 baseline/fix model checks. Old sound choice and an unrelated save survive; no new storage writes. Independent code review is clear. Exact-head Chromium screenshots and report are in docs/playtests/lrl-1/; they are accelerated engineering evidence, not a physical-phone or newcomer acceptance. Evidence-only head will receive the final CI/self-check before ready. Playtester or Evan still confirms unaided first-session usability and gentleness. No LRL-2/3/4 completion, held LR19–LR22 work, merge or deployment claimed. — dot for Adam
+
+### 2026-10-14 19:45 UTC, Side Games Dev Lead (Evan): claiming LR-LAYOUT-1 (Little Ranch cookie/cutter + phone overlap fixes, from GAD spec; Playtester)
+
+### 2026-10-14 19:42 UTC, Claude (cloud session for Evan): claiming WBL-2 (battles start fair)
+From the Wildbond launch list (#405), with Evan's go-ahead. Every creature started a battle with a random head start, so a quicker foe often struck (or began winding up) before you could choose. Now your lead creature moves first and the battle opens on your menu. A battle with every foe already down ends instead of asking for a move. Files: wildbond-godot/scripts/battle.gd, tests/fair_start.gd, tests/run_tests.gd, tools/audit/wildbond_fair_start_view.gd, docs/screenshots/wbl2/. No save change. Generations Reviewer merges.
+
+### 2026-10-14 19:38 UTC, Side Games Dev Lead (Evan): claiming NM-FIX-1 (Night Market payback hint shows 2s on every stall + show 50% offline rate on screen; Playtester 5/10)
+
+### 2026-10-14 19:36 UTC, dot (Adam / abarish-dev): claiming LRL-1
+The launch checklist is now on main (#405), with no open LRL-1 claim found. Taking the bounded first-visit bedtime fix: the five current side rooms bypass bedtime while unfinished, despite the shared rule that bedtime works from anywhere. Preserve a gentle ending, the existing routine, normal toy completions, sound settings and saves. Owns games/little-ranch/game.js, tests/little-ranch.html, a focused addition to tools/playtest/little-ranch-review.cjs for exact-head browser evidence, and docs/playtests/lrl-1/, plus this coordination note. Also clean up the synthetic held pointer that intermittently reopens the test's grown-up panel and suppresses the kitchen hint; keep every assertion. LR19–LR22 remain held and untouched. Draft PR before implementation; no workflow change, version bump, merge or deployment. Playtester or Evan still confirms first-session usability. — dot for Adam
+
+### 2026-10-14T19:28Z, Side Games Dev Lead (Evan): claiming LB 5b-1 (Lantern Bowl controls + passing, #371)
+Scope: Retro Bowl-style pull-back passing (no auto-aim default), optional All 22 controller mode, joystick + juke/spin, pass tutorial, headless tests. Play art/playbook = 5b-2.
+
+### 2026-10-14 19:15 UTC, Grok (Cursor cloud) for Evan: launch dates from the measured merge rate
+
+On #405, after merging main. Evan asked for faster dates, taken from `git log` on main, with no part-time discount. The count is in docs/plans/launch-summary.md.
+
+- **7 days (8–14 Oct):** 280 merged pulls, 40 a day. Little Ranch 28 (4.00/day), Lantern Bowl 6 (0.86), Night Market 2 (0.29), Wildbond 34 (4.86), docs 21 (3.00).
+- **14 days (1–14 Oct):** 287 pulls, 20.50 a day. Seven of those days had none.
+- Likely is pulls left ÷ the 7-day feature rate, plus 1 confirmation day, plus 0 buffer. Slower uses the 14-day rate, 2 rounds, and a 2-day buffer.
+- **Dates:** Little Ranch 16 Oct / 20 Oct. Lantern Bowl 20 Oct / 1 Nov. Night Market 22 Oct / 8 Nov. Wildbond 17 Oct / 22 Oct.
+- Merged: #403 (`d9cde61`), #400 (`43785a4`), #381, #383, #380, #399. On hold: #404, #409. Wildbond's first task is WBL-1, then WBL-2, WBL-3, WBL-4. Sprites come after. NM-CLAMP is SSA's and does not block.
+
+### 2026-10-14 17:55 UTC, Grok (Cursor cloud) for Evan: dev-lead corrections on the launch checklists
+
+On #405. Little Ranch is unchanged, and its dates are still pending a dev-lead check.
+
+- **Lantern Bowl and Night Market:** checked by Side Games Dev Lead. 5a (#383) is merging (`77361c6`, art approved). 5b is an L split into 5b-1 and 5b-2 (both M): Retro Bowl passing with no auto-aim, then play art and the playbook. 5c stays S, plus the 360px version label and a median carry of 2.7 against a target of 3. Likely 2026-11-11, slower 2026-12-02. Night Market #403 is built (56 tests pass). Hub entry is a separate S. Tuning S after Playtester. Likely 2026-11-04, slower 2026-11-18.
+- **Wildbond:** checked by Wildbond & Starfall Dev Lead. Nine battle sprites, not eight. Mosshog stays on the older Higgsfield art for now. WBL-6 (S) is first and already in progress. Then WBL-1 (with Choose Ripplet, WBL-14), WBL-2, WBL-3. WBL-11 and WBL-12 are SSA, parallel, and do not block unless Godot uses them. About 2 pulls a week. Likely 2026-11-11, slower 2026-12-09. Fun 7/10 and a phone session are must-pass. Phone is not yet tested.
+- The 7/10 bar is confirmed for those three. Summary: docs/plans/launch-summary.md.
+
+### 2026-10-14 17:45 UTC, Grok (Cursor cloud) for Evan: three launch games
+
+Evan's later 2026-10-14 ruling replaces the earlier same-day launch wording.
+
+- **Launch:** Little Ranch, Lantern Bowl, Night Market. Checklists and dates: docs/plans/ (launch-summary.md). Finished means playable and fun: first session without help, fun at least 7/10, no blocker or major bug, phone where it applies, one clear goal. Merging is not enough.
+- **Night Market:** IDLE-CORE is merged (#393). #403 is IDLE-NM1 and a launch task.
+- **Lantern Bowl:** round 5 (#371, #383) counts.
+- **Little Ranch:** #400 LR18 (Grok, opened before the hold) may finish as launch polish. LR19–LR22 stay in docs/ideas.md until the checklist calls for them.
+- **Wildbond:** steady background lane. Partial run, about 6 minutes on an existing save: Fun 5/10. Phone not yet tested. New Wildbond content waits.
+- **Keep-alive, bugs only:** Starfall, Keymaster, Diamond Manager, the cabinets, Realmbound, Otherworld. SS1, CS1 and DP1 wait until Night Market is playtested. The Starfall exact-build preview (#323/#325) is not now.
+- **Owners:** Side Games Dev Lead has Little Ranch (Grok and dot help), Lantern Bowl and Night Market. Wildbond & Starfall Dev Lead has Wildbond. Dates are pending a dev-lead check.
+
 ### 2026-10-14 17:02 UTC, Grok (Adam): LR18 ready (PR #400)
 Little Ranch Dough Table: a dough picture-sign opens a table with one lump in the baby's colour. Tap to squish it flat; rub (a forgiving drag, anywhere near) to roll it back into a ball; tap the cutter to stamp out a little dough baby that hops away. Three babies, a cheer, then home (one happy thing). No words, nothing to fail, no timers, nothing saved, no version bump. All 27 suites pass locally; CI green. Touches the same game.js as LR17 (#381): whichever merges second takes main in. Generations Reviewer: please review and squash-merge. — Grok for Adam
 

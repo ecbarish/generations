@@ -12,7 +12,7 @@ var confirm_new := false                       # starting over asks twice, so a 
 var font: Font
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	Controls.fill(self)
 	mouse_filter = MOUSE_FILTER_STOP
 	font = ThemeDB.fallback_font
 	visible = summary != ""                    # stays shut unless it was opened already
@@ -51,14 +51,16 @@ func _input(e: InputEvent) -> void:
 		elif Controls.pressed(e, "back"): confirm_new = false
 		get_viewport().set_input_as_handled()
 		queue_redraw()
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var p := get_local_mouse_position()
+	elif Controls.pointing(e):
+		var p := Controls.at(self, e)
 		for i in 3:
 			if _btn(i).has_point(p):
 				sel = i
 				_pick(i)
 		get_viewport().set_input_as_handled()
 		queue_redraw()
+	elif Controls.swallow_pointer(e):
+		get_viewport().set_input_as_handled()
 
 func _draw() -> void:
 	draw_rect(Rect2(0, 0, 384, 216), Color("121418"))
