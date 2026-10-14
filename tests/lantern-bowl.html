@@ -679,7 +679,8 @@ document.querySelector('#run').onclick = async () => {
     await wait();
     again.begin('inside');
     let homeBall = null, homeBallMoved = false, homeSquad = null, homePlayersMoved = false, homeLive = false;
-    for (let i = 0; i < 90; i++) {
+    const homeWatch = performance.now();
+    while (performance.now() - homeWatch < 2500 && !(homeBallMoved && homePlayersMoved)) {
       await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
       const live = again.state.phase === 'live' && again.state.play && again.state.play.offence === 'home';
       if (!live) continue;
