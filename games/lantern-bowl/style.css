@@ -72,6 +72,8 @@ footer { padding: 6px 0 0; }
 .dock-plays svg { width: 18px; height: 18px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .dock-plays button:disabled { opacity: 0.38; pointer-events: none; }
 .hint, .held { margin: 4px 0 0; text-align: center; color: #d9c89a; font-size: calc(12px * var(--arc-text)); line-height: 1.35; }
+.hint { min-height: 3.4em; }
+.hint.reading { color: var(--lamp); font-weight: 700; }
 .held { color: var(--lamp); }
 .curtain {
   position: absolute; inset: 0; z-index: 5; display: grid; align-items: end; justify-items: center;
