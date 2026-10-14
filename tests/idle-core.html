@@ -49,24 +49,15 @@ document.querySelector('#run').onclick = function () {
   var hidden = false;
   var realNow = Date.now;
   var realPerf = performance.now.bind(performance);
-  var realRAF = window.requestAnimationFrame;
-  var realCAF = window.cancelAnimationFrame;
-  var queue = [];
-  var seq = 1;
+  var realSet = window.setInterval;
+  var realClear = window.clearInterval;
+  var tick = null;
+  var tickMs = 0;
   Date.now = function () { return wall; };
   performance.now = function () { return perf; };
-  window.requestAnimationFrame = function (fn) {
-    var id = seq++;
-    queue.push({ id: id, fn: fn });
-    return id;
-  };
-  window.cancelAnimationFrame = function (id) {
-    queue = queue.filter(function (item) { return item.id !== id; });
-  };
-  function pump() {
-    var item = queue.shift();
-    if (item) item.fn();
-  }
+  window.setInterval = function (fn, ms) { tick = fn; tickMs = ms; return 1; };
+  window.clearInterval = function () { tick = null; };
+  function pump() { if (tick) tick(); }
   try {
     Object.defineProperty(document, 'hidden', { configurable: true, get: function () { return hidden; } });
   } catch (e) {
@@ -205,6 +196,68 @@ document.querySelector('#run').onclick = function () {
       pump();
       check('stop ends the tick loop', document.title === 'Arcade hall');
       check('lastSeen is the clock the game can save', idle.lastSeen() === wall);
+      check('ticks are a 250ms interval, not animation frames', tickMs === 250 && tick === null);
+    })();
+
+    (function hiddenThrottle() {
+      var cash = 0;
+      var rate = 10;
+      var idle = Idle.create({
+        getRate: function () { return rate; },
+        apply: function (amount) { cash += amount; },
+        maxOfflineSec: 100,
+        offlineRate: 0.5,
+        title: { label: 'Night Market', unit: '$' }
+      });
+      document.title = 'Arcade hall';
+      var summary = idle.start(wall - 80 * 1000);
+      check('throttle fixture opens under the cap', summary && summary.credited === 80 && summary.capped === false);
+      rate = 40;
+      hidden = true;
+      wall += 1000;
+      perf += 50;
+      var before = cash;
+      var credited = summary.credited;
+      pump();
+      check('a hidden tab with one-second gaps pays the full rate', cash - before === 40);
+      check('a one-second hidden gap is not offline', summary.credited === credited && summary.capped === false);
+      check('a hidden tab keeps the title current', document.title === '+$' + Arcade.fmt(40) + '/s · Night Market');
+      idle.stop();
+      hidden = false;
+    })();
+
+    (function plainTitle() {
+      var savedFmt = Arcade.fmt;
+      var savedFmtI = Arcade.fmtI;
+      var warns = 0;
+      var realWarn = console.warn;
+      console.warn = function () { warns++; };
+      Arcade.fmt = undefined;
+      Arcade.fmtI = undefined;
+      try {
+        var idle = Idle.create({
+          getRate: function () { return 10.5; },
+          apply: function () {},
+          title: { label: 'Night Market', unit: '$' }
+        });
+        document.title = 'Arcade hall';
+        idle.start(wall);
+        check('a missing fmt warns once and uses plain whole numbers', warns === 1 && document.title === '+$10/s · Night Market');
+        idle.stop();
+        idle = Idle.create({
+          getRate: function () { return 1200; },
+          apply: function () {},
+          title: { label: 'Night Market', unit: '$' }
+        });
+        document.title = 'Arcade hall';
+        idle.start(wall);
+        check('the plain fallback keeps fmtI scale above 1000', document.title === '+$1.20K/s · Night Market' && warns === 1);
+        idle.stop();
+      } finally {
+        Arcade.fmt = savedFmt;
+        Arcade.fmtI = savedFmtI;
+        console.warn = realWarn;
+      }
     })();
 
     (function bulk() {
@@ -254,8 +307,8 @@ document.querySelector('#run').onclick = function () {
     hidden = false;
     Date.now = realNow;
     performance.now = realPerf;
-    window.requestAnimationFrame = realRAF;
-    window.cancelAnimationFrame = realCAF;
+    window.setInterval = realSet;
+    window.clearInterval = realClear;
     document.title = originalTitle;
     button.disabled = false;
   }
