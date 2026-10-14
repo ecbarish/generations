@@ -581,8 +581,30 @@
     }
   }
 
+  function uprightPhone() {
+    return !!(window.matchMedia && window.matchMedia('(max-aspect-ratio: 3/4)').matches);
+  }
+
   function resize() {
     var r = canvas.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (uprightPhone()) {
+      var slot = canvas.parentElement && canvas.parentElement.parentElement;
+      var avail = slot ? slot.getBoundingClientRect().width : r.width;
+      var cssScale = avail >= V.SIDE.w * 2 ? 2 : 1;
+      var cssW = V.SIDE.w * cssScale, cssH = V.SIDE.h * cssScale;
+      canvas.style.width = cssW + 'px';
+      canvas.style.height = cssH + 'px';
+      canvas.style.imageRendering = 'pixelated';
+      var k = Math.max(1, Math.round(window.devicePixelRatio || 1));
+      var bw = V.SIDE.w * cssScale * k, bh = V.SIDE.h * cssScale * k;
+      if (canvas.width !== bw || canvas.height !== bh) { canvas.width = bw; canvas.height = bh; }
+      return { w: cssW, h: cssH, dpr: k, scale: cssScale, upright: true };
+    }
+    if (canvas.style.width) {
+      canvas.style.width = '';
+      canvas.style.height = '';
+      canvas.style.imageRendering = '';
+    }
     var w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
     return { w: r.width, h: r.height, dpr: dpr };
@@ -615,6 +637,21 @@
 
   function draw() {
     var box = resize();
+    var play = state && state.phase === 'live' ? state.play : null;
+    var paint = {
+      game: state,
+      play: play,
+      camX: sideCam ? sideCam.x : (state ? state.spot : 25),
+      aim: aimDrag,
+      reduced: reduce
+    };
+    if (box.upright) {
+      var mul = box.scale * box.dpr;
+      ctx.setTransform(mul, 0, 0, mul, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+      V.paintMatch(ctx, paint);
+      return;
+    }
     var scale = Math.max(0.01, Math.min(box.w / V.SIDE.w, box.h / V.SIDE.h));
     var ox = (box.w - V.SIDE.w * scale) / 2;
     var oy = (box.h - V.SIDE.h * scale) / 2;
@@ -624,14 +661,7 @@
     ctx.fillRect(0, 0, box.w, box.h);
     ctx.setTransform(box.dpr * scale, 0, 0, box.dpr * scale, box.dpr * ox, box.dpr * oy);
     ctx.imageSmoothingEnabled = false;
-    var play = state && state.phase === 'live' ? state.play : null;
-    V.paintMatch(ctx, {
-      game: state,
-      play: play,
-      camX: sideCam ? sideCam.x : (state ? state.spot : 25),
-      aim: aimDrag,
-      reduced: reduce
-    });
+    V.paintMatch(ctx, paint);
   }
 
   function frame(now) {
