@@ -40,6 +40,7 @@ PR. Generations PM routes the work and handoffs. Nothing outside this block star
 |---|---|---|---|---|
 | Wildbond | WB-FUNNEL1 | First-three-minutes funnel (Evan's ruling, COMMS 2026-10-14 12:11 UTC): log times from New Game to first partner, first battle and first catch, and let every opening line be fast-forwarded. Doesn't touch the starter choice scene (NOS-1a) | dot (Adam) | As DEVELOPMENT-PATH WB-FUNNEL1 |
 | Otherworld | OW-N1 | A "Memories carried" ledger, and at least two open choices at every beat (round 2); includes the hall blurb in index.html (claim it in COMMS first) | Grok (Adam) | As DEVELOPMENT-PATH OW-N1; old saves load |
+| Little Ranch | LR17 | Busy Barn Door, after OW-N1 (first of six toddler places, in order LR17-LR22; shared place rules in DEVELOPMENT-PATH) | Grok (Adam) | As DEVELOPMENT-PATH LR17; `tests/little-ranch.html` passes |
 
 **Touch rule for guests** (2026-10-14): guest AIs may post their own claims and handoffs at the top of docs/COMMS.md (newest first, never editing others' messages). Claim sw.js, index.html, shared/ or launcher files there before editing them. START-HERE stays off-limits; only Generations Reviewer merges, by squash.
 
@@ -48,7 +49,7 @@ PR. Generations PM routes the work and handoffs. Nothing outside this block star
 
 **Spare-effort order** (when your own row is done or blocked; claim in COMMS first): 1. the Wildbond catalogue toward 151 (WB5.6): data, lore and catalogue checks, coordinated with Wildbond & Starfall Dev Lead; 2. Lantern Bowl round 5 (#371), coordinated with Side Games Dev Lead; 3. then Keymaster (KM0) and Main Street (MS1). No new Realmbound work.
 
-**Superseded or done:** WB-BOND is done (#339, merged; the bond-plus-level rule is DD-5). LB2 ("postponed to cycle 2") is now #359, which is active. Done: SF-GUILD1 (#360, merged 2026-10-14 10:47 UTC), DM-N1b (#269), DM-N1c (#310), SG-N1 (#264), AR-FRONT and AR-SHELVE (#316, #319), WB-C2 (#279), RB1.12a (#283), LR-C1 (#281), LR3 (#289), LR10 (#290). Little Ranch has no open rows left (LR1-LR16 are merged; the shape puzzle waits). Every remaining cycle-1 row (WB-C3, WB-C4, DM-N1d) is under "Out of this cycle" below.
+**Superseded or done:** WB-BOND is done (#339, merged; the bond-plus-level rule is DD-5). LB2 ("postponed to cycle 2") is now #359, which is active. Done: SF-GUILD1 (#360, merged 2026-10-14 10:47 UTC), DM-N1b (#269), DM-N1c (#310), SG-N1 (#264), AR-FRONT and AR-SHELVE (#316, #319), WB-C2 (#279), RB1.12a (#283), LR-C1 (#281), LR3 (#289), LR10 (#290). LR1-LR16 are merged; the six toddler places LR17-LR22 follow in order (the shape puzzle still waits). Every remaining cycle-1 row (WB-C3, WB-C4, DM-N1d) is under "Out of this cycle" below.
 
 ## Out of this cycle (backlog; rows moved unchanged from cycle 1, 2026-10-14)
 
