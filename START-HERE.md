@@ -99,6 +99,9 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, Claude, WB-C4:** Larkhaven gets a barn garden, door stones, straw in the pen and grass variety, and the Thornwood ponds get a muddy, reedy bank, in [#372](https://github.com/ecbarish/generations/pull/372). Source only; not a preview release.
+- **2026-10-14, Claude, WB-C3b:** the register shows only the tap hint on phones, and the partner-card note no longer touches the stat bars, in [#382](https://github.com/ecbarish/generations/pull/382). Source only; not a preview release.
+- **2026-10-14, Claude, KM0:** Keymaster v0.1.0, one listing, one analyzer, one buy, in [#379](https://github.com/ecbarish/generations/pull/379).
 - **2026-10-14, docs, #384:** Little Ranch six toddler places (LR17-LR22), and LR17 in Grok's guest-lane queue. Docs only.
 - **2026-10-14, docs, #385:** KM0 is marked approved, not parked, in PRIORITIES and QUEUE, and is in review in #379. Docs only.
 - **2026-10-14, docs, #375:** QUEUE catch-up. Lantern Bowl round 5 is 5a, 5b and 5c under #371; EVO-1 and WB5.6 are marked done in the cycle. Docs only.
