@@ -6,7 +6,7 @@
   var M = window.LanternModel, V = window.LanternView;
   var $ = function (id) { return document.getElementById(id); };
   var canvas = $('field'), ctx = canvas.getContext('2d');
-  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.2', SAVE_V = 1;
+  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.3', SAVE_V = 2;
   var reduce = Settings.reduced();
 
   /* Older files climb: steps[1] turns a v1 save into v2, and so on, until SAVE_V.
@@ -27,13 +27,29 @@
     if (data.match != null && !(data.match.score && data.match.home && data.match.away)) return null;
     return data;
   }
-  migrateSave.steps = {};
+  /* v1 files have no overtime count. The match itself is unchanged. */
+  migrateSave.steps = {
+    1: function (data) {
+      var next = Object.assign({}, data);
+      next.v = 2;
+      if (next.match && typeof next.match === 'object') {
+        next.match = Object.assign({}, next.match);
+        if (next.match.otTurns == null) next.match.otTurns = 0;
+      }
+      return next;
+    }
+  };
   migrateSave.SAVE_V = SAVE_V;
 
   Arcade.validators[KEY] = function (o) { return !!migrateSave(o); };
 
+  function newerSave(file) {
+    return !!(file && typeof file === 'object' && file.game === 'lantern-bowl' && typeof file.v === 'number' && isFinite(file.v) && file.v > SAVE_V);
+  }
+  var HELD_NOTE = 'This save is from a newer version, so progress will not be saved.';
   var raw = Arcade.load(KEY);
-  var migrated = migrateSave(raw);
+  var holdSave = newerSave(raw);
+  var migrated = holdSave ? null : migrateSave(raw);
   var save = {
     v: SAVE_V, game: 'lantern-bowl',
     sound: migrated && [0, 1, 2].indexOf(migrated.sound) >= 0 ? migrated.sound : 0,
@@ -42,8 +58,10 @@
 
   var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null, lastSheet = '';
   var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, throw: null };
+  var sheetDetail = false, watchLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0;
 
   function persist() {
+    if (holdSave) return false;
     save.match = state ? M.serialise(state) : save.match;
     var ok = Arcade.save(KEY, save);
     if (state) {
@@ -81,6 +99,8 @@
       set: function (v) { save.sound = v; persist(); audio.render(); audio.sfx('select'); }
     }]
   });
+  var build = $('build');
+  if (build) build.textContent = 'v' + VERSION;
   if (window.Feedback) Feedback.register('Lantern Bowl', VERSION, function () {
     if (!state) return 'before kickoff';
     return M.downWords(state) + ', ' + state.score.home + '–' + state.score.away;
@@ -91,6 +111,10 @@
     banner.hidden = !text;
     banner.textContent = text || '';
     bannerUntil = 0;
+  }
+  function prompt(text) {
+    say(text);
+    promptUntil = performance.now() + 2200;
   }
   function sentences(text) {
     var parts = String(text || '').match(/[^.!?]+[.!?]+/g);
@@ -103,13 +127,24 @@
   }
   function hidePanel() { $('curtain').hidden = true; }
 
+  function showHeld() {
+    var el = $('held');
+    if (!el) return;
+    el.hidden = !holdSave;
+    el.textContent = holdSave ? HELD_NOTE : '';
+  }
   function title() {
-    mode = 'title'; state = null; lastSheet = '';
+    mode = 'title'; state = null; lastSheet = ''; sheetDetail = false; watchLeft = 0;
+    showHeld();
     say('');
+    var sheet = $('sheet');
+    if (sheet) { sheet.textContent = ''; sheet.hidden = true; }
+    var cue = $('cue');
+    if (cue) { cue.hidden = true; cue.textContent = ''; }
     var again = save.match ? '<button type="button" data-continue>Continue the game</button>' : '';
     panel('Lamplight Field',
-      '<p>The Brackenport Lanterns have Millrace under the lanterns. You call the offence. Their drives are told in a few lines.</p>' +
-      '<p>Two-minute quarters. Drag to throw, swipe to juke, tap to dive. Turbo spends your wind.</p>' +
+      '<p>The Brackenport Lanterns have Millrace under the lanterns. You call the offence. Their drives play out on the field.</p>' +
+      '<p>Two-minute quarters. Pick a play, then drag to throw. A short pull stays short. Swipe to juke, tap to dive.</p>' +
       '<div class="actions"><button type="button" data-kick>Kick off</button>' + again + '</div>');
     dock();
   }
@@ -131,31 +166,40 @@
     hidePanel();
     if (state.phase === 'final') return showFinal();
     mode = 'play';
-    if (state.phase === 'cpu' || state.possession === 'away') return showCpu();
+    if (state.phase === 'cpu' || state.possession === 'away') return beginWatch();
     showCall();
     canvas.focus();
   }
 
   function showCall() {
     if (!state || state.phase === 'final') return showFinal();
-    if (state.possession !== 'home') return showCpu();
+    if (state.possession !== 'home') return beginWatch();
     mode = 'play';
     dock();
     say(M.currentMessage(state));
   }
 
-  function showCpu() {
-    mode = 'summary';
-    var lines = M.cpuDrive(state, function () { persist(); });
-    persist();
+  /* Millrace's snaps play on the field, one at a time, so the clock moves with the play. */
+  function beginWatch() {
     if (!state || state.phase === 'final') return showFinal();
-    var items = (lines.length ? lines : [{ text: 'They give it back.' }]).map(function (line) {
-      var text = typeof line === 'string' ? line : line.text;
-      return '<li>' + sentences(text).map(function (s) { return '<p>' + escapeText(s) + '</p>'; }).join('') + '</li>';
-    }).join('');
-    panel('Millrace had the ball',
-      '<ol class="cpu-log">' + items + '</ol>' +
-      '<div class="actions"><button type="button" data-ours>Our ball</button></div>');
+    if (state.possession === 'home') return showCall();
+    mode = 'watch';
+    hidePanel();
+    if (state.phase === 'live') { dock(); return; }
+    if (!M.cpuSnap(state)) {
+      if (state.phase === 'final') return showFinal();
+      return showCall();
+    }
+    persist();
+    if (state.phase !== 'live') return holdWatch();
+    dock();
+  }
+  function holdWatch() {
+    mode = 'watch';
+    hidePanel();
+    watchLeft = rushWatch ? 0.04 : 0.85;
+    say(M.currentMessage(state));
+    persist();
     dock();
   }
 
@@ -171,6 +215,7 @@
   }
 
   function escapeText(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function escapeAttr(s) { return escapeText(s).replace(/"/g, '&quot;'); }
 
   var GLYPH = {
     inside: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M7 10l5-5 5 5"/></svg>',
@@ -180,22 +225,43 @@
     kick: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>',
     turbo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14c3-6 5 2 8-4s5 2 8-4"/></svg>'
   };
+  function kickWhy(live, fourth) {
+    if (live) return 'Kick waits. The play is already going.';
+    if (!fourth) return 'Kick waits for fourth down.';
+    return '';
+  }
+  function turboWhy(live) { return live ? '' : 'Turbo waits until the ball is moving.'; }
   function dock() {
     var show = mode === 'play' && state && (state.phase === 'call' || state.phase === 'live');
+    var live = !!(show && state.phase === 'live');
+    var fourth = !!(state && state.down >= 4);
+    var hint = $('hint');
+    if (hint) {
+      var note = '';
+      if (show) {
+        var turboNote = turboWhy(live);
+        var kickNote = kickWhy(live, fourth);
+        if (turboNote) note += turboNote + ' ';
+        if (kickNote) note += kickNote + ' ';
+      }
+      hint.textContent = note + 'Drag up to throw. A short pull stays short. Swipe to juke. Tap to dive.';
+    }
     if (!show) { $('dock').innerHTML = ''; return; }
-    var live = state.phase === 'live';
-    var fourth = state.down >= 4;
     var cells = [
-      { id: 'inside', label: 'Inside', play: true, off: live },
-      { id: 'outside', label: 'Outside', play: true, off: live },
-      { id: 'quick', label: 'Quick', play: true, off: live },
-      { id: 'deep', label: 'Deep', play: true, off: live },
-      { id: 'kick', label: 'Kick', play: true, off: live || !fourth },
-      { id: 'turbo', label: 'Turbo', play: false, off: !live }
+      { id: 'inside', label: 'Inside', play: true, off: live, why: '' },
+      { id: 'outside', label: 'Outside', play: true, off: live, why: '' },
+      { id: 'quick', label: 'Quick', play: true, off: live, why: '' },
+      { id: 'deep', label: 'Deep', play: true, off: live, why: '' },
+      { id: 'kick', label: 'Kick', play: true, off: live || !fourth, why: kickWhy(live, fourth) },
+      { id: 'turbo', label: 'Turbo', play: false, off: !live, why: turboWhy(live) }
     ];
     $('dock').innerHTML = '<div class="dock-plays">' + cells.map(function (c) {
-      var attr = c.play ? ' data-play="' + c.id + '"' : ' id="turbo" aria-label="Turbo"';
-      return '<button type="button"' + attr + (c.off ? ' disabled' : '') + '>' + GLYPH[c.id] + '<span>' + c.label + '</span></button>';
+      var why = c.off ? c.why : '';
+      var name = why ? c.label + '. ' + why : c.label;
+      var attr = c.play ? ' data-play="' + c.id + '"' : ' id="turbo"';
+      attr += ' aria-label="' + escapeAttr(name) + '" title="' + escapeAttr(why || c.label) + '"';
+      var slot = why ? ' data-why="' + escapeAttr(why) + '"' : '';
+      return '<span class="slot"' + slot + '><button type="button"' + attr + (c.off ? ' disabled' : '') + '>' + GLYPH[c.id] + '<span>' + c.label + '</span></button></span>';
     }).join('') + '</div>';
     var turbo = $('turbo');
     if (turbo && !turbo.disabled) {
@@ -222,7 +288,7 @@
     persist();
     turboHeld = false;
     if (state.phase === 'final') return showFinal();
-    if (state.phase === 'cpu' || state.possession === 'away') return showCpu();
+    if (state.phase === 'cpu' || state.possession === 'away') return holdWatch();
     showCall();
   }
 
@@ -233,8 +299,10 @@
   }
 
   $('dock').addEventListener('click', function (e) {
+    var why = e.target.closest('[data-why]');
+    if (why && why.dataset.why) { prompt(why.dataset.why); return; }
     var b = e.target.closest('[data-play]');
-    if (b) begin(b.dataset.play);
+    if (b && !b.disabled) begin(b.dataset.play);
   });
   $('curtain').addEventListener('click', function (e) {
     var b = e.target.closest('button');
@@ -255,31 +323,32 @@
     return out;
   }
 
-  canvas.addEventListener('pointerdown', function (e) {
-    if (!state || state.phase !== 'live') return;
-    canvas.setPointerCapture(e.pointerId);
-    gesture = { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId };
+  function armGesture(x, y, id) {
+    if (!state) return;
+    if (state.phase === 'call' && state.possession === 'home') { prompt('Pick a play first.'); return; }
+    if (state.phase !== 'live' || mode === 'watch') return;
+    gesture = { x: x, y: y, t: performance.now(), id: id };
     aimDrag = null;
-  });
-  canvas.addEventListener('pointermove', function (e) {
-    if (!gesture || gesture.id !== e.pointerId || !state || state.phase !== 'live') return;
-    if (state.play && state.play.family === 'run') steer = Math.max(-1, Math.min(1, (e.clientX - gesture.x) / 80));
+  }
+  function dragGesture(x, y) {
+    if (!gesture || !state || state.phase !== 'live') return;
+    if (state.play && state.play.family === 'run') steer = Math.max(-1, Math.min(1, (x - gesture.x) / 80));
     var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
     if (!pass) { aimDrag = null; return; }
-    var dx = e.clientX - gesture.x, dy = e.clientY - gesture.y;
+    var dx = x - gesture.x, dy = y - gesture.y;
     var rect = canvas.getBoundingClientRect();
     var pull = V.classifyPull(Math.hypot(dx, dy));
     var dir = V.dragToField(dx, dy);
     aimDrag = {
       kind: pull.kind,
       preview: M.aimThrow(state.play, { dirX: dir.dirX, dirY: dir.dirY, power: pull.power }),
-      x: e.clientX - rect.left, y: e.clientY - rect.top
+      x: x - rect.left, y: y - rect.top
     };
-  });
-  canvas.addEventListener('pointerup', function (e) {
+  }
+  function releaseGesture(x, y) {
     aimDrag = null;
     if (!gesture || !state || state.phase !== 'live') { gesture = null; steer = 0; return; }
-    var dx = e.clientX - gesture.x, dy = e.clientY - gesture.y;
+    var dx = x - gesture.x, dy = y - gesture.y;
     var dist = Math.hypot(dx, dy), quick = performance.now() - gesture.t < 320;
     var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
     if (pass && dist > 22) {
@@ -289,7 +358,53 @@
       queued.juke = dx > 0 ? 1 : -1;
     } else if (dist < 18) queued.dive = true;
     gesture = null; steer = 0;
+  }
+  function fromTouch(e) {
+    var t = (e.changedTouches && e.changedTouches[0]) || (e.touches && e.touches[0]);
+    return t ? { x: t.clientX, y: t.clientY, id: t.identifier } : null;
+  }
+  canvas.addEventListener('touchstart', function (e) {
+    var p = fromTouch(e);
+    if (!p) return;
+    e.preventDefault();
+    touchGuard = performance.now() + 800;
+    armGesture(p.x, p.y, p.id);
+  }, { passive: false });
+  canvas.addEventListener('touchmove', function (e) {
+    var p = fromTouch(e);
+    if (!p) return;
+    e.preventDefault();
+    touchGuard = performance.now() + 800;
+    dragGesture(p.x, p.y);
+  }, { passive: false });
+  canvas.addEventListener('touchend', function (e) {
+    var p = fromTouch(e);
+    if (!p) return;
+    e.preventDefault();
+    touchGuard = performance.now() + 800;
+    releaseGesture(p.x, p.y);
+  }, { passive: false });
+  canvas.addEventListener('touchcancel', function () {
+    touchGuard = performance.now() + 800;
+    gesture = null; aimDrag = null; steer = 0;
   });
+  function mouseAfterTouch(e) {
+    return e.pointerType === 'touch' || performance.now() < touchGuard;
+  }
+  canvas.addEventListener('pointerdown', function (e) {
+    if (mouseAfterTouch(e)) return;
+    if (state && state.phase === 'live') { try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* already gone */ } }
+    armGesture(e.clientX, e.clientY, e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (mouseAfterTouch(e) || !gesture || gesture.id !== e.pointerId) return;
+    dragGesture(e.clientX, e.clientY);
+  });
+  canvas.addEventListener('pointerup', function (e) {
+    if (mouseAfterTouch(e)) return;
+    releaseGesture(e.clientX, e.clientY);
+  });
+  if ($('sheet')) $('sheet').addEventListener('click', function () { sheetDetail = !sheetDetail; hud(); });
 
   window.addEventListener('keydown', function (e) {
     if (e.target.closest && e.target.closest('input,button,a,select,textarea,.arc-set-bg')) return;
@@ -332,11 +447,22 @@
     });
     return note;
   }
+  function blockersPhrase(off, def) {
+    var gap = Number(off.line) - Number(def.rush);
+    if (gap >= 8) return 'The blockers have room';
+    if (gap <= -8) return 'The rush is through';
+    return 'The blockers are matched';
+  }
+  function blockersDetail(off, def) {
+    return 'Blockers ' + Arcade.fmt(off.line) + ', rush ' + Arcade.fmt(def.rush);
+  }
   function rosterLine(game) {
     var off = game[game.possession === 'away' ? 'away' : 'home'];
     var def = game[game.possession === 'away' ? 'home' : 'away'];
     var hands = off.wr && off.wr[0] ? off.wr[0] : off.qb;
-    return off.qb.name + ' throw ' + Arcade.fmt(off.qb.throw) + ' · ' + hands.name + ' hands ' + Arcade.fmt(hands.catch) + ' · Line ' + Arcade.fmt(off.line) + ' vs rush ' + Arcade.fmt(def.rush) + windClause(game);
+    var wind = windClause(game);
+    if (sheetDetail) return off.qb.name + ' throw ' + Arcade.fmt(off.qb.throw) + ' · ' + hands.name + ' hands ' + Arcade.fmt(hands.catch) + ' · ' + blockersDetail(off, def) + wind;
+    return off.qb.name + ' throwing · ' + hands.name + ' catching · ' + blockersPhrase(off, def) + wind;
   }
   /* The strip names whoever has the ball on this snap: the carrier on a run,
      or the passer and the target while the throw is still in the air. */
@@ -347,8 +473,8 @@
     var off = game[side];
     var def = game[side === 'away' ? 'home' : 'away'];
     var carrier = play.actors[play.carrier] || play.actors[0];
-    var line = ' · Line ' + Arcade.fmt(off.line) + ' vs rush ' + Arcade.fmt(def.rush);
     var wind = windClause(game);
+    var match = sheetDetail ? blockersDetail(off, def) : blockersPhrase(off, def);
     if (play.family === 'pass' && !play.didCatch) {
       var target = play.flight && play.flight.target;
       if (!target) {
@@ -358,32 +484,44 @@
         });
       }
       var hands = target || (off.wr && off.wr[0]) || carrier;
-      return carrier.name + ' throw ' + Arcade.fmt(carrier.throw) + ' · ' + hands.name + ' hands ' + Arcade.fmt(hands.catch) + line + wind;
+      if (sheetDetail) return carrier.name + ' throw ' + Arcade.fmt(carrier.throw) + ' · ' + hands.name + ' hands ' + Arcade.fmt(hands.catch) + ' · ' + match + wind;
+      return carrier.name + ' throwing · ' + hands.name + ' catching · ' + match + wind;
     }
-    return carrier.name + ' carry ' + Arcade.fmt(carrier.carry) + ' · speed ' + Arcade.fmt(carrier.speed) + line + wind;
+    if (sheetDetail) return carrier.name + ' carry ' + Arcade.fmt(carrier.carry) + ' · speed ' + Arcade.fmt(carrier.speed) + ' · ' + match + wind;
+    return carrier.name + ' carrying · ' + match + wind;
   }
   function hud() {
     if (!state) {
       $('homeScore').textContent = '0'; $('awayScore').textContent = '0';
       $('clock').textContent = 'Q1 ' + Arcade.fmtTime(M.QUARTER);
       $('down').textContent = 'Kickoff';
-      if ($('sheet')) $('sheet').hidden = true;
+      if ($('sheet')) { $('sheet').hidden = true; $('sheet').textContent = ''; }
+      if ($('cue')) $('cue').hidden = true;
       if ($('banner').textContent) say('');
       return;
     }
     $('homeScore').textContent = Arcade.fmt(state.score.home);
     $('awayScore').textContent = Arcade.fmt(state.score.away);
-    $('clock').textContent = 'Q' + state.quarter + ' ' + Arcade.fmtTime(Math.max(0, Math.ceil(state.clock)));
+    $('clock').textContent = state.quarter >= 5 ? 'OT' : 'Q' + state.quarter + ' ' + Arcade.fmtTime(Math.max(0, Math.ceil(state.clock)));
     $('down').textContent = state.phase === 'final' ? 'Final' : M.downWords(state);
     var live = state.phase === 'live';
     if (live && state.play) lastSheet = snapLine(state);
     var sheet = $('sheet');
+    var curtainUp = $('curtain') && !$('curtain').hidden;
     if (sheet) {
-      sheet.hidden = live;
-      if (!live) sheet.textContent = lastSheet || rosterLine(state);
+      sheet.hidden = live || curtainUp;
+      if (!live && !curtainUp) sheet.textContent = lastSheet || rosterLine(state);
     }
-    var msg = state.phase === 'live' || state.phase === 'final' ? '' : M.currentMessage(state);
-    if ($('banner').textContent !== msg) say(msg);
+    var cue = $('cue');
+    var cueName = mode === 'play' && live && state.play && state.play.offence === 'home' ? state.play.cue : '';
+    if (cue) {
+      cue.hidden = !cueName;
+      cue.textContent = cueName === 'juke' ? 'Swipe to juke' : cueName === 'dive' ? 'Tap to dive' : '';
+    }
+    if (performance.now() >= promptUntil) {
+      var msg = state.phase === 'live' || state.phase === 'final' ? '' : M.currentMessage(state);
+      if ($('banner').textContent !== msg) say(msg);
+    }
   }
 
   function resize() {
@@ -529,7 +667,8 @@
             ctx.font = '700 14px ui-monospace, monospace';
             ctx.textAlign = 'center';
             var labelAt = V.fitCircle({ x: (start.x + tip.x) / 2, y: (start.y + tip.y) / 2 - 16 }, 4, view, 8);
-            ctx.fillText(aimDrag.kind === 'bullet' ? 'Bullet' : 'Lob', labelAt.x, labelAt.y);
+            var yards = Math.max(0, Math.round(aimDrag.preview.x));
+            ctx.fillText((aimDrag.kind === 'bullet' ? 'Bullet' : 'Lob') + ' · ' + yards, labelAt.x, labelAt.y);
           }
         }
       }
@@ -569,6 +708,27 @@
       M.step(state, reduce ? Math.min(dt, 0.02) : dt, readGesture());
       soundFor(state.events);
       if (state.phase !== 'live') afterWhistle();
+    } else if (mode === 'watch' && state && !document.hidden) {
+      if (state.phase === 'live') {
+        var scale = rushWatch ? 28 : (reduce ? 6 : 3.5);
+        var budget = dt * scale, steps = 0, heard = [];
+        while (budget > 0 && state.phase === 'live' && steps++ < 48) {
+          if (state.play) lastSheet = snapLine(state);
+          var slice = Math.min(0.05, budget);
+          M.step(state, slice, M.policies.cpu(state.play, state));
+          if (state.events && state.events.length) heard = heard.concat(state.events);
+          budget -= slice;
+        }
+        soundFor(heard);
+        if (state.phase !== 'live') holdWatch();
+      } else if (watchLeft > 0) {
+        watchLeft -= dt;
+        if (watchLeft <= 0) {
+          if (state.phase === 'final') showFinal();
+          else if (state.possession !== 'home') beginWatch();
+          else showCall();
+        }
+      }
     }
     hud();
     draw();
@@ -588,7 +748,8 @@
       refresh: function () {
         if (state && state.phase !== 'live' && state.phase !== 'final' && state.possession === 'home') showCall();
       },
-      playCpu: function () { if (state) showCpu(); },
+      playCpu: function () { rushWatch = true; if (state) beginWatch(); },
+      rush: function (on) { rushWatch = !!on; },
       migrateSave: migrateSave
     };
   }

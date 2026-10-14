@@ -90,7 +90,8 @@
       possession: 'home', received: 'home', score: { home: 0, away: 0 }, phase: 'call', play: null, events: [],
       fatigue: {}, usage: { inside: 0, outside: 0, quick: 0, deep: 0 },
       home: applyOver(baseRoster('home'), opts.home), away: applyOver(baseRoster('away'), opts.away),
-      last: null, lastGain: 0, log: [], playSerial: 0, halfKick: false
+      last: null, lastGain: 0, log: [], playSerial: 0, halfKick: false,
+      otTurns: 0, otSide: null
     };
   }
 
@@ -98,20 +99,66 @@
   function recover(game) {
     Object.keys(game.fatigue).forEach(function (id) { game.fatigue[id] = Math.max(0, game.fatigue[id] - 0.18); });
   }
+  /* Overtime has no clock. Quarter 5 is that untimed period; the save already stores quarter. */
+  function endRegulation(game) {
+    game.clock = 0;
+    if (game.score.home !== game.score.away) { game.phase = 'final'; return; }
+    game.quarter = 5;
+    game.otTurns = 0;
+    game.otReady = true;
+    var first = other(game.received || 'home');
+    game.otSide = first;
+    game.possession = first;
+    game.spot = 75;
+    game.down = 1;
+    game.toGo = Math.min(10, Math.max(1, 100 - game.spot));
+    if (game.phase === 'final') game.phase = 'call';
+  }
   function burn(game, seconds) {
+    if (game.quarter >= 5) return;
     var left = Math.max(0, seconds), guard = 0;
     while (left > 0 && guard++ < 8) {
       if (game.clock <= 0) {
-        if (game.quarter >= 4) { game.phase = 'final'; game.clock = 0; return; }
+        if (game.quarter >= 4) return endRegulation(game);
         game.quarter += 1; game.clock = QUARTER;
         if (game.quarter === 3) game.halfKick = true;
       }
       if (left < game.clock - 1e-9) { game.clock -= left; return; }
       left -= game.clock; game.clock = 0;
-      if (game.quarter >= 4) { game.phase = 'final'; game.clock = 0; return; }
+      if (game.quarter >= 4) return endRegulation(game);
       game.quarter += 1; game.clock = QUARTER;
       if (game.quarter === 3) game.halfKick = true;
     }
+  }
+  /* After one overtime turn ends, the other side starts on the 25.
+     After both turns, a lead wins. A level score starts the same pair again. */
+  function finishOtTurn(game, text) {
+    if (game.quarter !== 5 || game.phase === 'final') return text;
+    if (!game.otSide) game.otSide = game.possession;
+    if (game.possession === game.otSide) return text;
+    game.otTurns = (game.otTurns || 0) + 1;
+    text = String(text).replace(/\s*$/, '');
+    if (game.otTurns % 2 === 1) {
+      var next = other(game.otSide);
+      game.otSide = next;
+      game.possession = next;
+      game.spot = 75;
+      game.down = 1;
+      game.toGo = 10;
+      return text + ' ' + (game[next].short || 'The other side') + ' ball, on the 25.';
+    }
+    if (game.score.home !== game.score.away) {
+      game.phase = 'final';
+      return text + ' Overtime is over.';
+    }
+    var first = other(game.received || 'home');
+    game.otTurns = 0;
+    game.otSide = first;
+    game.possession = first;
+    game.spot = 75;
+    game.down = 1;
+    game.toGo = 10;
+    return text + ' Still level. ' + (game[first].short || 'They') + ' ball again, on the 25.';
   }
   function giveBall(game, side, spot) {
     game.possession = side;
@@ -158,6 +205,12 @@
     var spent = Math.max(4, Math.min(MAX_CLOCK, Number(seconds) || 4));
     burn(game, spent);
     text = openHalf(game, text);
+    if (game.otReady) {
+      game.otReady = false;
+      var firstName = game[game.possession] && game[game.possession].short;
+      text = String(text).replace(/\s*$/, '') + ' Overtime. Level at the gun, so each side gets one turn from the 25. ' + (firstName || 'Millrace') + ' goes first. Whoever leads after both turns wins. If it is still level, they play another pair of turns.';
+    }
+    if (game.quarter === 5) text = finishOtTurn(game, text);
     if (game.phase !== 'final') finishPhase(game);
     game.playSerial = (game.playSerial || 0) + 1;
     if (game.phase !== 'final') {
@@ -183,7 +236,11 @@
   }
   function clockSpent(before, after) {
     if (!before || !after) return 0;
-    return before.clock - after.clock + (after.quarter - before.quarter) * QUARTER;
+    var bq = before.quarter >= 5 ? 4 : before.quarter;
+    var aq = after.quarter >= 5 ? 4 : after.quarter;
+    var bc = before.quarter >= 5 ? 0 : before.clock;
+    var ac = after.quarter >= 5 ? 0 : after.clock;
+    return bc - ac + (aq - bq) * QUARTER;
   }
   function spotWords(spot) {
     var yard = Math.round(Number(spot) || 0);
@@ -426,32 +483,47 @@
     }
   }
 
-  /* Where this drag is headed. No dice, so the picture can show the same target the snap will use. */
+  /* Yards this pull can travel. A short drag dies at a checkdown.
+     Length grows with the square of the pull, so a long drag is the one that reaches a deep route. */
+  function throwReach(power) {
+    var p = clamp(Number(power) || 0, 0, 1);
+    return 7.5 + p * p * 35;
+  }
+  /* Where this drag is headed. No dice, so the picture can show the same spot the snap will use.
+     The aim line picks the receiver: the one closest to that line, not the deepest in a wide cone.
+     Pull strength sets how far the ball can travel, and whether it is a bullet or a lob. */
   function aimThrow(play, thrown) {
     var qb = carrierOf(play);
     var mag = Math.hypot(thrown.dirX, thrown.dirY) || 1;
     var dirX = thrown.dirX / mag, dirY = thrown.dirY / mag;
     var power = clamp(Number(thrown.power) || 0, 0, 1);
     var kind = power < 0.42 ? 'bullet' : 'lob';
-    var reach = kind === 'bullet' ? 8 + power * 16 : 14 + power * 30;
-    var cone = kind === 'bullet' ? 0.93 : 0.88;
-    var best = null, bestScore = -1;
+    var reach = throwReach(power);
+    var best = null, bestMiss = 1e9, bestDot = -1;
     play.actors.forEach(function (a) {
       if (!a.off || a.role === 'qb') return;
       var aim = a.route || { x: a.x, y: a.y };
-      var dx = aim.x - qb.x, dy = aim.y - qb.y, dist = Math.hypot(dx, dy) || 1;
-      if (dist > reach + 6) return;
+      var dx = aim.x - qb.x, dy = aim.y - qb.y;
+      var dist = Math.hypot(dx, dy) || 1;
       var dot = (dx / dist) * dirX + (dy / dist) * dirY;
-      if (dot < cone) return;
-      var score = dot - Math.abs(dist - reach) / 50;
-      if (score > bestScore) { best = { actor: a, aim: aim, dist: dist, dot: dot }; bestScore = score; }
+      if (dot <= 0) return;
+      if (dist > reach + 5) return;
+      var miss = Math.abs(dx * dirY - dy * dirX);
+      if (miss < bestMiss - 1e-6 || (Math.abs(miss - bestMiss) <= 1e-6 && dot > bestDot)) {
+        best = { actor: a, aim: aim, dist: dist };
+        bestMiss = miss;
+        bestDot = dot;
+      }
     });
+    if (best) {
+      return {
+        kind: kind, power: power, aimed: true, reach: reach,
+        target: best.actor, x: best.aim.x, y: best.aim.y, dist: best.dist
+      };
+    }
     return {
-      kind: kind, power: power, aimed: !!best,
-      target: best ? best.actor : null,
-      x: best ? best.aim.x : qb.x + dirX * reach,
-      y: best ? best.aim.y : qb.y + dirY * reach,
-      dist: best ? best.dist : reach
+      kind: kind, power: power, aimed: false, reach: reach, target: null,
+      x: qb.x + dirX * reach, y: qb.y + dirY * reach, dist: reach
     };
   }
   function launch(game, play, thrown) {
@@ -473,6 +545,9 @@
   }
   function defenderRate(a) { return 5.05 + (a.tackle || 50) / 42; }
 
+  function slippingSoon(play) {
+    return play.elapsed < play.jukeUntil || play.elapsed < (play.diveUntil || 0);
+  }
   function stepCarry(game, play, dt, inp) {
     if (play.flight) return fly(game, play, dt);
     var back = carrierOf(play);
@@ -512,8 +587,14 @@
     });
     if (Math.abs(back.y) > SIDELINE) return endCarry(game, play, back.name + ' steps out');
     if (game.spot + back.x >= 100) return endCarry(game, play, back.name);
+    var closing = nearest(play, back.x, back.y, function (a) { return !a.off; });
+    play.cue = null;
+    if (!reading && closing && !slippingSoon(play)) {
+      if (!play.jukeUsed && closing.d < 2.8 && closing.d >= 1.45) play.cue = 'juke';
+      else if (!play.diving && closing.d < 1.7) play.cue = 'dive';
+    }
     if (reading) return;
-    var hit = nearest(play, back.x, back.y, function (a) { return !a.off; });
+    var hit = closing;
     var slipping = play.elapsed < play.jukeUntil || play.elapsed < (play.diveUntil || 0);
     if (hit && hit.d < 1.05 && !slipping) {
       var tackleP = chance(hit.actor.tackle, back.carry) * (play.diving ? 0.4 : 1);
@@ -690,7 +771,7 @@
     var game = create({ seed: (seed >>> 0) || 1 });
     var guard = 0;
     var pol = style === 'careless' ? policies.careless : policies.cpu;
-    while (game.phase !== 'final' && guard++ < 160) {
+    while (game.phase !== 'final' && guard++ < 240) {
       if (game.possession !== 'home') { cpuDrive(game); continue; }
       if (game.phase === 'final') break;
       if (game.down >= 4) {
@@ -721,17 +802,21 @@
     while (game.phase === 'live' && guard++ < 360) step(game, 1 / 30, pol(game.play, game));
     return game;
   }
+  /* One Millrace snap. The drive keeps going when the quarter turns; only a real change of possession, the half, or the gun stops it. */
+  function cpuSnap(game) {
+    if (!game || game.phase === 'final' || game.possession !== 'away') return false;
+    if (game.down >= 4) { kick(game); return true; }
+    if (!callPlay(game, cpuCall(game))) return false;
+    finish(game, policies.cpu);
+    return true;
+  }
   function cpuDrive(game, onPlay) {
     var lines = [], n = 0;
-    while (game.possession === 'away' && game.phase !== 'final' && n < 10) {
-      var quarter = game.quarter;
-      if (game.down >= 4) kick(game);
-      else if (!callPlay(game, cpuCall(game))) break;
-      else finish(game, policies.cpu);
+    while (game.possession === 'away' && game.phase !== 'final' && n < 24) {
+      if (!cpuSnap(game)) break;
       if (game.last) lines.push({ text: game.last.text, gain: game.last.gain });
       if (onPlay) onPlay(game);
       n += 1;
-      if (game.phase === 'final' || game.quarter !== quarter) break;
     }
     return lines;
   }
@@ -807,7 +892,7 @@
   function scriptedSeries(seed, plan) {
     var game = create({ seed: (seed >>> 0) || 1 });
     var guard = 0, called = 0;
-    while (game.phase !== 'final' && guard++ < 160) {
+    while (game.phase !== 'final' && guard++ < 240) {
       if (game.possession !== 'home') { cpuDrive(game); continue; }
       if (game.down >= 4) { kick(game); continue; }
       var id = plan(game, called);
@@ -863,7 +948,8 @@
       usage: Object.assign({ inside: 0, outside: 0, quick: 0, deep: 0 }, game.usage),
       received: game.received === 'away' ? 'away' : 'home',
       home: game.home, away: game.away,
-      last: game.last, log: game.log.slice(), lastGain: game.lastGain, playSerial: game.playSerial || 0
+      last: game.last, log: game.log.slice(), lastGain: game.lastGain, playSerial: game.playSerial || 0,
+      otTurns: game.otTurns || 0
     };
   }
   function restore(data) {
@@ -873,7 +959,8 @@
     if (data.away && data.away.qb) game.away = data.away;
     game.rng = (data.rng >>> 0) || game.rng;
     game.seed = (data.seed >>> 0) || game.seed;
-    game.quarter = clamp(Math.round(Number(data.quarter) || 1), 1, 4);
+    var quarter = Math.round(Number(data.quarter) || 1);
+    game.quarter = quarter === 5 ? 5 : clamp(quarter, 1, 4);
     game.clock = clamp(Number(data.clock), 0, QUARTER);
     if (!isFinite(game.clock)) game.clock = QUARTER;
     game.down = clamp(Math.round(Number(data.down) || 1), 1, 4);
@@ -910,6 +997,9 @@
       }
     }
     game.log = Array.isArray(data.log) ? data.log.slice(-16) : [];
+    game.otTurns = Math.max(0, Math.round(Number(data.otTurns) || 0));
+    game.otSide = game.quarter === 5 ? game.possession : null;
+    game.otReady = false;
     game.play = null;
     return game;
   }
@@ -917,7 +1007,7 @@
   var api = {
     QUARTER: QUARTER, SIDELINE: SIDELINE, MAX_CLOCK: MAX_CLOCK, PLAYS: PLAYS,
     chance: chance, teamOutline: teamOutline, create: create, restore: restore, serialise: serialise,
-    callPlay: callPlay, kick: kick, step: step, finish: finish, cpuDrive: cpuDrive, cpuCall: cpuCall,
+    callPlay: callPlay, kick: kick, step: step, finish: finish, cpuDrive: cpuDrive, cpuSnap: cpuSnap, cpuCall: cpuCall,
     policies: policies, downWords: downWords, spotWords: spotWords, resolveCatch: resolveCatch,
     laneOpenRate: laneOpenRate, catchRate: catchRate, sampleRunYards: sampleRunYards,
     passCatchShare: passCatchShare, digestScript: digestScript, snapshot: snapshot, burn: burn,
