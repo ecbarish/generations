@@ -4716,7 +4716,9 @@ func _thumbs_tick() -> void:
 	touch.mode = settings.buttons()
 	var menus := lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or (menu != null and menu.visible)
 	var framed := phone != null
-	var side := framed and not phone.L.is_empty() and bool(phone.L.get("side", false))
+	var side := false
+	if framed and not phone.L.is_empty():
+		side = bool(phone.L.get("side", false))
 	touch.pad_on = not framed and not menus and lines.is_empty() and trans_t < 0.0 and stage in ["to_barn", "barn_choose", "walk_out", "free"]
 	touch.word = action_word()
 	touch.btn_on = not framed and not menus and trans_t < 0.0 and touch.word != ""

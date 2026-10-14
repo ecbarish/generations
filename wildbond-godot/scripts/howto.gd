@@ -29,6 +29,10 @@ func _ready() -> void:
 	Controls.fill(self)
 	mouse_filter = MOUSE_FILTER_STOP
 	font = ThemeDB.fallback_font
+	if font != null:
+		font = font.duplicate()
+		font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
+		font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
 	visible = false
 
 var foot := "begin"                            # "Tap anywhere to begin" or "...to go on"
