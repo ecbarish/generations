@@ -488,6 +488,36 @@ document.querySelector('#run').onclick = async () => {
       check('With the sound off the barn door is silent', LR.tones === t9); LR.prefs.sound = mute;
       LR.newVisit(); LR.bedtime(); tap(L().dsign); check('At bedtime the sign does not open the door (bedtime goes on)', S().place === 'ranch');
     }
+    // ---- LR20: the Little Garden
+    LR.prefs.sound = true;
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180], [1920, 1080]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const sc = LR.scale, r = cv.getBoundingClientRect(), V = L().garden, pts = [...V.patches, V.bag, V.can].map(q => LR.toScreen(q));
+      check(`${width}×${height}: the garden sign is its own tap and the other signs, the bush and the baby still are; patches, bag and can are 64 px+, apart and on screen`, LR.ranchTarget(L().gsign) === 'gsign' && ['sign', 'wsign', 'ksign', 'dsign'].every(k => LR.ranchTarget(L()[k]) === k) && LR.ranchTarget(baby()) === 'baby' && LR.ranchTarget({ x: L().bush.x, y: L().bush.y - L().R * .4 }) === 'bush' && V.pr * 2 * sc >= 64 && V.tr * 2 * sc >= 64 && pts.every(q => q.x > r.left && q.x < r.right && q.y > r.top && q.y < r.bottom) && pts.every((q, i) => pts.every((o, j) => i === j || Math.hypot(q.x - o.x, q.y - o.y) >= Math.min(V.pr, V.tr) * 1.6 * sc)));
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    { const V = () => L().garden, G = () => S().garden;
+      tap(L().gsign); check('Tapping the garden sign goes to the Little Garden: three empty patches', S().place === 'garden' && G().plots.every(q => q === null));
+      LR.advance(LR.HINT_SECS + .5); check('Left alone, the seed bag glows (the hint)', LR.hint() && LR.hint().name === 'bag');
+      let t0 = LR.tones; tap(V().bag); check('Tapping the seed bag plants a berry seed in the first patch, at once', G().plots[0] && G().plots[0].kind === 0 && G().plots[0].stage === 0 && LR.tones > t0);
+      LR.advance(LR.HINT_SECS + .5); check('Then the watering can glows', LR.hint() && LR.hint().name === 'can');
+      LR.advance(120); check('Left alone for two minutes, nothing grows, wilts or dies (taps, not time)', G().plots[0].stage === 0);
+      for (let k = 1; k <= 2; k++) { tap(V().can); check(`Watering ${k} starts at once`, !!G().water); LR.advance(LR.WATER_SECS + .05); check(`...one growth stage (${k})`, G().plots[0].stage === k); }
+      tap(V().patches[0]); check('Tapping a growing plant just wiggles it', G().plots[0].stage === 2);
+      const a20 = S().acts; tap(V().can); LR.advance(LR.WATER_SECS + .05); check('The third watering gives a berry', G().plots[0].stage === LR.GROW);
+      LR.advance(LR.EAT_DELAY + .1); check('...and the baby reaches for it', G().eat && G().eat.kind === 0);
+      LR.advance(LR.CROP_EAT_SECS + .1); check('...and eats it with a yum and hearts; the patch is ready again', G().plots[0] === null && G().harvests === 1 && S().fx.some(f => f.kind === 'heart'));
+      tap(V().patches[1]); check('Tapping an empty patch plants there too (a carrot next)', G().plots[1] && G().plots[1].kind === 1);
+      tap(V().bag); tap(V().bag); check('The bag fills the patches in turn; a tap with every patch full just wiggles it', G().plots.every(q => q) && new Set(G().plots.map(q => q.kind)).size === 3 && G().bagWig > .9);
+      for (let k = 0; k < 9; k++) { tap(V().can); LR.advance(LR.WATER_SECS + .05); } LR.advance(6);
+      check('Water as you like: everything grows and gets eaten (berry, carrot, flower), three harvests are one happy thing', G().harvests === 4 && S().acts === a20 + 1 && G().plots.every(q => q === null));
+      t0 = LR.tones; tap(V().can); LR.advance(LR.WATER_SECS + .05); check('Watering with nothing planted just sprinkles (nothing wrong)', LR.tones > t0 && G().plots.every(q => q === null));
+      tap(V().bag); tap(V().barn); check('The barn picture goes home at any time (nothing is kept)', S().place === 'ranch' && S().garden === null);
+      tap(L().gsign); check('...and the next visit starts with empty patches', G().plots.every(q => q === null)); tap(V().barn);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t9 = LR.tones; tap(L().gsign); tap(V().bag); for (let k = 0; k < 3; k++) { tap(V().can); LR.advance(1); } LR.advance(3); tap(V().barn);
+      check('With the sound off the garden is silent', LR.tones === t9); LR.prefs.sound = mute;
+      LR.newVisit(); LR.bedtime(); tap(L().gsign); check('At bedtime the garden sign does not open (bedtime goes on)', S().place === 'ranch');
+    }
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
