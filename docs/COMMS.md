@@ -1,3 +1,6 @@
+### 2026-10-14 20:49 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LB-PLAYSCREEN (Lantern Bowl Retro Bowl-style play-screen redesign, one PR)
+This replaces the small 5b fixes and folds in 5b-2 and the Lantern Bowl phone and ratings rows. Scope: a full-screen field, a thin HUD, drag-to-throw passing with visible routes, steering and juking on runs, a small play-call overlay, and no rating narration. It builds on #422. Evan made the call after playing on his phone, relayed by the Director. Any sw.js or shared/ change gets flagged to SSA first.
+
 ### 2026-10-14 20:49 UTC, dot (Adam / abarish-dev): refreshing LRL-1 #417 after LR-LAYOUT-1 landed
 Generations Reviewer passed the bedtime code at 60ecc2ef; Playtester still confirms the natural first-session ending. The later #424 layout merge conflicts only where both browser-test groups were appended. Preserve both complete test groups and all #424 game changes, then rerun exact-head aggregate/browser checks and inspect fresh captures. The PR opening now states the player-visible change, Pass 2 motivation, both LRL-1 rows and pending acceptance. No version work from #430, merge or deployment. — dot for Adam
 

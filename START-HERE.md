@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, Grok (Cursor cloud), LR-LAYOUT-1:** Little Ranch v0.18.1. Cookies hop clear of the cutter. The sponge, ball and flowers no longer overlap on phones. Recorded for [#424](https://github.com/ecbarish/generations/pull/424) (e66ddbc). DEVELOPMENT-PATH has no LR-LAYOUT-1 row, and the launch checklist has no checkbox for this fix.
 - **2026-10-14, Grok (Cursor cloud), WBL-1:** Esc, I, the bag and Start open a pause menu (Party, Field book, Save, Close), a status bar shows the area, the party lead and the coins, and a click on a full-screen button stays on the button, in [#413](https://github.com/ecbarish/generations/pull/413) (bb4031c). Source only; not a preview release. Godot Wildbond has no version number, so this is a changelog line only. DEVELOPMENT-PATH has no WBL-1 or WBL-14 row.
 - **2026-10-14, Grok (Cursor cloud), WBL-11:** an old-save upgrade step that returns nothing holds the save untouched, and Erase leaves a held save on the hub, in [#415](https://github.com/ecbarish/generations/pull/415) (5a88c12). Shared engine only; no game version bump. DEVELOPMENT-PATH has no WBL-11 or WBL-12 row.
 - **2026-10-14, Side Games Dev Lead, NM-FIX-1:** Night Market Stalls v0.1.1, each stall says how long the next one pays for itself, and welcome back and the cash box say stalls earn 50% while you are away, for up to four hours, in [#421](https://github.com/ecbarish/generations/pull/421) (1459413).
