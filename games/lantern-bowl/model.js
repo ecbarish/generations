@@ -208,7 +208,7 @@
     if (game.otReady) {
       game.otReady = false;
       var firstName = game[game.possession] && game[game.possession].short;
-      text = String(text).replace(/\s*$/, '') + ' Overtime. Level at the gun, so each side gets one turn from the 25. ' + (firstName || 'Millrace') + ' goes first. Whoever leads after both turns wins.';
+      text = String(text).replace(/\s*$/, '') + ' Overtime. Level at the gun, so each side gets one turn from the 25. ' + (firstName || 'Millrace') + ' goes first. Whoever leads after both turns wins. If it is still level, they play another pair of turns.';
     }
     if (game.quarter === 5) text = finishOtTurn(game, text);
     if (game.phase !== 'final') finishPhase(game);
@@ -490,8 +490,8 @@
     return 7.5 + p * p * 35;
   }
   /* Where this drag is headed. No dice, so the picture can show the same spot the snap will use.
-     The ball travels with the pull. It reaches a receiver only when the pull is long enough,
-     and a longer pull is allowed to find a deeper one. */
+     The aim line picks the receiver: the one closest to that line, not the deepest in a wide cone.
+     Pull strength sets how far the ball can travel, and whether it is a bullet or a lob. */
   function aimThrow(play, thrown) {
     var qb = carrierOf(play);
     var mag = Math.hypot(thrown.dirX, thrown.dirY) || 1;
@@ -499,17 +499,21 @@
     var power = clamp(Number(thrown.power) || 0, 0, 1);
     var kind = power < 0.42 ? 'bullet' : 'lob';
     var reach = throwReach(power);
-    var best = null, bestScore = -1e9;
+    var best = null, bestMiss = 1e9, bestDot = -1;
     play.actors.forEach(function (a) {
       if (!a.off || a.role === 'qb') return;
       var aim = a.route || { x: a.x, y: a.y };
       var dx = aim.x - qb.x, dy = aim.y - qb.y;
       var dist = Math.hypot(dx, dy) || 1;
       var dot = (dx / dist) * dirX + (dy / dist) * dirY;
-      if (dot < 0.5) return;
+      if (dot <= 0) return;
       if (dist > reach + 5) return;
-      var score = dist + dot * 10;
-      if (score > bestScore) { best = { actor: a, aim: aim, dist: dist }; bestScore = score; }
+      var miss = Math.abs(dx * dirY - dy * dirX);
+      if (miss < bestMiss - 1e-6 || (Math.abs(miss - bestMiss) <= 1e-6 && dot > bestDot)) {
+        best = { actor: a, aim: aim, dist: dist };
+        bestMiss = miss;
+        bestDot = dot;
+      }
     });
     if (best) {
       return {

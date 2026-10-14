@@ -117,7 +117,7 @@ document.querySelector('#run').onclick = async () => {
     check('the gun ends the game', gun.phase === 'final' && gun.clock === 0 && gun.quarter === 4);
     const ot = M.create({ seed: 9 }); ot.quarter = 4; ot.clock = 4; ot.spot = 40; ot.score.home = 7; ot.score.away = 7;
     M.callPlay(ot, 'inside'); M.finish(ot, M.policies.neutral);
-    check('overtime gives Millrace one turn from the 25 and says so', ot.quarter === 5 && ot.possession === 'away' && ot.phase === 'cpu' && Math.round(ot.spot) === 75 && /Overtime/.test(ot.last.text) && /Millrace goes first/.test(ot.last.text) && /both turns/.test(ot.last.text));
+    check('overtime gives Millrace one turn from the 25 and says so', ot.quarter === 5 && ot.possession === 'away' && ot.phase === 'cpu' && Math.round(ot.spot) === 75 && /Overtime/.test(ot.last.text) && /Millrace goes first/.test(ot.last.text) && /both turns/.test(ot.last.text) && /another pair of turns/.test(ot.last.text));
     const told = text => /punt|Turnover|Intercept|Touchdown|Safety|Halftime|makes it|misses from|Overtime|ball, on the 25|ball again/i.test(text || '');
     const broken = M.create({ seed: 1 });
     broken.quarter = 1; broken.clock = 12; broken.down = 2; broken.toGo = 10; broken.spot = 81; broken.possession = 'away'; broken.phase = 'cpu';
@@ -143,33 +143,39 @@ document.querySelector('#run').onclick = async () => {
     check('from Q1 0:54, 2nd and 10 at their 19, the clock stays honest (' + spotSteps + ' snaps)', clockOk && causeOk && spotSteps > 0 && M.downWords(M.create({ seed: 1 })) !== '');
     const named = M.create({ seed: 355 }); named.quarter = 1; named.clock = 54; named.down = 2; named.toGo = 10; named.spot = 81;
     check('that spot is 2nd and 10 at their 19', M.downWords(named) === '2nd and 10 at their 19');
-    function aimedPull(power, dirY) {
+    function aimedPull(power, dirX, dirY) {
       return function (play) {
         if (!play || play.family !== 'pass' || play.thrown || play.flight) return M.policies.neutral();
         if (play.elapsed < 0.35) return M.policies.neutral();
-        return { steer: 0, turbo: false, juke: 0, dive: false, throw: { dirX: 0.95, dirY: dirY, power: power } };
+        return { steer: 0, turbo: false, juke: 0, dive: false, throw: { dirX: dirX, dirY: dirY, power: power } };
       };
     }
     let weakYards = 0, strongYards = 0;
     for (let i = 0; i < 12; i++) {
       const opts = { seed: 40 + i, home: { throw: 84, catch: 82 }, away: { cover: 36, rush: 40 } };
-      const weakPull = M.create(opts); M.callPlay(weakPull, 'quick'); M.finish(weakPull, aimedPull(0.12, 0)); weakYards += weakPull.lastGain || 0;
-      const strongPull = M.create(opts); M.callPlay(strongPull, 'quick'); M.finish(strongPull, aimedPull(0.75, 0)); strongYards += strongPull.lastGain || 0;
+      const weakPull = M.create(opts); M.callPlay(weakPull, 'quick'); M.finish(weakPull, aimedPull(0.12, 21, -8)); weakYards += weakPull.lastGain || 0;
+      const strongPull = M.create(opts); M.callPlay(strongPull, 'quick'); M.finish(strongPull, aimedPull(0.75, 21, -8)); strongYards += strongPull.lastGain || 0;
     }
     check('a stronger pull gains more yards (' + (weakYards / 12).toFixed(1) + ' vs ' + (strongYards / 12).toFixed(1) + ')', strongYards > weakYards + 60);
     const aimGame = M.create({ seed: 1 }); M.callPlay(aimGame, 'quick');
-    const aimWeak = M.aimThrow(aimGame.play, { dirX: 0.95, dirY: 0, power: 0.12 });
-    const aimStrong = M.aimThrow(aimGame.play, { dirX: 0.95, dirY: 0, power: 0.75 });
-    const aimLeft = M.aimThrow(aimGame.play, { dirX: 0.6, dirY: -0.8, power: 0.7 });
-    const aimRight = M.aimThrow(aimGame.play, { dirX: 0.6, dirY: 0.8, power: 0.7 });
-    check('aim moves the preview from one side to the other', aimStrong.x > aimWeak.x + 4 && aimLeft.y < -2 && aimRight.y > 2 && aimLeft.target !== aimRight.target);
-    let sawJuke = false;
+    const aimWeak = M.aimThrow(aimGame.play, { dirX: 21, dirY: -8, power: 0.12 });
+    const aimStrong = M.aimThrow(aimGame.play, { dirX: 21, dirY: -8, power: 0.8 });
+    const rad = Math.PI / 180;
+    const aimAda = M.aimThrow(aimGame.play, { dirX: Math.cos(-18 * rad), dirY: Math.sin(-18 * rad), power: 0.85 });
+    const aimBram = M.aimThrow(aimGame.play, { dirX: Math.cos(-12 * rad), dirY: Math.sin(-12 * rad), power: 0.85 });
+    const aimNear = M.aimThrow(aimGame.play, { dirX: Math.cos(14 * rad), dirY: Math.sin(14 * rad), power: 0.85 });
+    const aimMara = M.aimThrow(aimGame.play, { dirX: Math.cos(16 * rad), dirY: Math.sin(16 * rad), power: 0.85 });
+    check('pull strength sets the depth along one aim', aimStrong.x > aimWeak.x + 4 && aimStrong.target !== aimWeak.target);
+    check('six degrees of aim changes the receiver', aimAda.target && aimAda.target.name === 'Ada Brisk' && aimBram.target && aimBram.target.name === 'Bram Okafor' && aimAda.target !== aimBram.target);
+    check('two degrees of aim the other way changes the receiver', aimNear.target && aimNear.target.name === 'Bram Okafor' && aimMara.target && aimMara.target.name === 'Mara Holt' && aimNear.target !== aimMara.target && aimMara.y > 2 && aimAda.y < -2);
+    let sawJuke = false, sawDive = false;
     const cueGame = M.create({ seed: 2 }); M.callPlay(cueGame, 'inside');
     for (let i = 0; i < 180 && cueGame.phase === 'live'; i++) {
       M.step(cueGame, 1 / 30, M.policies.neutral());
       if (cueGame.play && cueGame.play.cue === 'juke') sawJuke = true;
+      if (cueGame.play && cueGame.play.cue === 'dive') sawDive = true;
     }
-    check('a closing defender prompts a juke', sawJuke);
+    check('a closing defender prompts a juke and then a dive', sawJuke && sawDive);
     const goalLine = M.create(); goalLine.spot = 100; goalLine.toGo = 0; goalLine.down = 1;
     check('the goal line is not their 0', M.spotWords(100) === 'the goal line' && M.spotWords(99) === 'their 1' && M.downWords(goalLine).indexOf('their 0') < 0);
     check('the goal sits closer when the offence is downfield', V.fieldLocal(80, 100) === 20 && V.fieldLocal(25, 100) === 75);
@@ -280,6 +286,9 @@ document.querySelector('#run').onclick = async () => {
     w2.__lantern.begin('inside');
     await wait();
     check('a snap keeps only the score, the down and the clock', d2.querySelector('#sheet').hidden && !d2.querySelector('#windLabel') && !d2.querySelector('#gas') && d2.querySelector('#clock').textContent.length > 0 && d2.querySelector('#down').textContent.length > 0);
+    const liveHint = d2.querySelector('#hint').textContent || '';
+    const liveKick = d2.querySelector('[data-play="kick"]').getAttribute('aria-label') || '';
+    check('during a snap the hint matches the kick button', liveHint.indexOf('already going') >= 0 && liveKick.indexOf('already going') >= 0 && liveHint.indexOf('fourth down') < 0);
     const liveButtons = ['inside', 'outside', 'quick', 'deep', 'kick'].map(spotOf);
     check('the play buttons stay put during the snap', liveButtons.every((now, i) => Math.abs(now.left - beforeDown[['inside', 'outside', 'quick', 'deep', 'kick'][i]].left) < 2));
     w2.__lantern.finishLive();

@@ -209,16 +209,20 @@
   function turboWhy(live) { return live ? '' : 'Turbo waits until the ball is moving.'; }
   function dock() {
     var show = mode === 'play' && state && (state.phase === 'call' || state.phase === 'live');
+    var live = !!(show && state.phase === 'live');
+    var fourth = !!(state && state.down >= 4);
     var hint = $('hint');
     if (hint) {
       var note = '';
-      if (show && state.phase !== 'live') note += 'Turbo waits until the ball is moving. ';
-      if (show && state.down < 4) note += 'Kick waits for fourth down. ';
+      if (show) {
+        var turboNote = turboWhy(live);
+        var kickNote = kickWhy(live, fourth);
+        if (turboNote) note += turboNote + ' ';
+        if (kickNote) note += kickNote + ' ';
+      }
       hint.textContent = note + 'Drag up to throw. A short pull stays short. Swipe to juke. Tap to dive.';
     }
     if (!show) { $('dock').innerHTML = ''; return; }
-    var live = state.phase === 'live';
-    var fourth = state.down >= 4;
     var cells = [
       { id: 'inside', label: 'Inside', play: true, off: live, why: '' },
       { id: 'outside', label: 'Outside', play: true, off: live, why: '' },
