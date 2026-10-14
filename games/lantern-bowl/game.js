@@ -40,7 +40,7 @@
     match: migrated && migrated.match ? migrated.match : null
   };
 
-  var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null;
+  var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null, lastSheet = '';
   var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, throw: null };
 
   function persist() {
@@ -104,7 +104,7 @@
   function hidePanel() { $('curtain').hidden = true; }
 
   function title() {
-    mode = 'title'; state = null;
+    mode = 'title'; state = null; lastSheet = '';
     say('');
     var again = save.match ? '<button type="button" data-continue>Continue the game</button>' : '';
     panel('Lamplight Field',
@@ -115,6 +115,7 @@
   }
 
   function kickoff(seed) {
+    lastSheet = '';
     state = M.create({ seed: (seed >>> 0) || (Date.now() >>> 0) || 1 });
     mode = 'play';
     hidePanel();
@@ -125,6 +126,7 @@
 
   function resume() {
     if (!save.match) return title();
+    lastSheet = '';
     state = M.restore(save.match);
     hidePanel();
     if (state.phase === 'final') return showFinal();
@@ -225,6 +227,7 @@
   }
 
   function finishLive() {
+    if (state && state.phase === 'live' && state.play) lastSheet = snapLine(state);
     if (state && state.phase === 'live') M.finish(state, M.policies.neutral);
     if (state && state.phase !== 'live') afterWhistle();
   }
@@ -321,13 +324,49 @@
     });
   }
 
+  function windClause(game) {
+    var note = '';
+    Object.keys(game.fatigue || {}).forEach(function (who) {
+      var left = Math.round((1 - (game.fatigue[who] || 0)) * 100);
+      if (left < 100) note = ' · ' + who + ' wind ' + Arcade.fmt(left);
+    });
+    return note;
+  }
+  function rosterLine(game) {
+    var off = game[game.possession === 'away' ? 'away' : 'home'];
+    var def = game[game.possession === 'away' ? 'home' : 'away'];
+    var hands = off.wr && off.wr[0] ? off.wr[0] : off.qb;
+    return off.qb.name + ' throw ' + Arcade.fmt(off.qb.throw) + ' · ' + hands.name + ' hands ' + Arcade.fmt(hands.catch) + ' · Line ' + Arcade.fmt(off.line) + ' vs rush ' + Arcade.fmt(def.rush) + windClause(game);
+  }
+  /* The strip names whoever has the ball on this snap: the carrier on a run,
+     or the passer and the target while the throw is still in the air. */
+  function snapLine(game) {
+    var play = game.play;
+    if (!play || !play.actors || !play.actors.length) return rosterLine(game);
+    var side = play.offence === 'away' ? 'away' : 'home';
+    var off = game[side];
+    var def = game[side === 'away' ? 'home' : 'away'];
+    var carrier = play.actors[play.carrier] || play.actors[0];
+    var line = ' · Line ' + Arcade.fmt(off.line) + ' vs rush ' + Arcade.fmt(def.rush);
+    var wind = windClause(game);
+    if (play.family === 'pass' && !play.didCatch) {
+      var target = play.flight && play.flight.target;
+      if (!target) {
+        play.actors.forEach(function (a) {
+          if (!a.off || a.role === 'qb' || !a.route) return;
+          if (!target || a.route.x > target.route.x) target = a;
+        });
+      }
+      var hands = target || (off.wr && off.wr[0]) || carrier;
+      return carrier.name + ' throw ' + Arcade.fmt(carrier.throw) + ' · ' + hands.name + ' hands ' + Arcade.fmt(hands.catch) + line + wind;
+    }
+    return carrier.name + ' carry ' + Arcade.fmt(carrier.carry) + ' · speed ' + Arcade.fmt(carrier.speed) + line + wind;
+  }
   function hud() {
     if (!state) {
       $('homeScore').textContent = '0'; $('awayScore').textContent = '0';
       $('clock').textContent = 'Q1 ' + Arcade.fmtTime(M.QUARTER);
       $('down').textContent = 'Kickoff';
-      $('gas').hidden = true;
-      $('windLabel').textContent = '';
       if ($('sheet')) $('sheet').hidden = true;
       if ($('banner').textContent) say('');
       return;
@@ -336,24 +375,12 @@
     $('awayScore').textContent = Arcade.fmt(state.score.away);
     $('clock').textContent = 'Q' + state.quarter + ' ' + Arcade.fmtTime(Math.max(0, Math.ceil(state.clock)));
     $('down').textContent = state.phase === 'final' ? 'Final' : M.downWords(state);
-    var play = state.play;
     var live = state.phase === 'live';
-    $('gas').hidden = true;
-    $('windLabel').textContent = '';
+    if (live && state.play) lastSheet = snapLine(state);
     var sheet = $('sheet');
     if (sheet) {
       sheet.hidden = live;
-      if (!live) {
-        var off = state[state.possession === 'away' ? 'away' : 'home'];
-        var def = state[state.possession === 'away' ? 'home' : 'away'];
-        var hands = off.wr && off.wr[0] ? off.wr[0] : off.qb;
-        var windNote = '';
-        Object.keys(state.fatigue || {}).forEach(function (who) {
-          var left = Math.round((1 - (state.fatigue[who] || 0)) * 100);
-          if (left < 100) windNote = ' · ' + who + ' wind ' + Arcade.fmt(left);
-        });
-        sheet.textContent = off.qb.name + ' throw ' + Arcade.fmt(off.qb.throw) + ' · ' + hands.name + ' hands ' + Arcade.fmt(hands.catch) + ' · Line ' + Arcade.fmt(off.line) + ' vs rush ' + Arcade.fmt(def.rush) + windNote;
-      }
+      if (!live) sheet.textContent = lastSheet || rosterLine(state);
     }
     var msg = state.phase === 'live' || state.phase === 'final' ? '' : M.currentMessage(state);
     if ($('banner').textContent !== msg) say(msg);
@@ -538,6 +565,7 @@
     var dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
     last = now;
     if (mode === 'play' && state && state.phase === 'live' && !document.hidden) {
+      if (state.play) lastSheet = snapLine(state);
       M.step(state, reduce ? Math.min(dt, 0.02) : dt, readGesture());
       soundFor(state.events);
       if (state.phase !== 'live') afterWhistle();

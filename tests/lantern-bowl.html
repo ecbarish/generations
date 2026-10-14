@@ -217,11 +217,13 @@ document.querySelector('#run').onclick = async () => {
     await wait();
     w2.__lantern.begin('inside');
     await wait();
-    check('a snap keeps only the score, the down and the clock', d2.querySelector('#sheet').hidden && d2.querySelector('#windLabel').textContent === '' && d2.querySelector('#gas').hidden && d2.querySelector('#clock').textContent.length > 0 && d2.querySelector('#down').textContent.length > 0);
+    check('a snap keeps only the score, the down and the clock', d2.querySelector('#sheet').hidden && !d2.querySelector('#windLabel') && !d2.querySelector('#gas') && d2.querySelector('#clock').textContent.length > 0 && d2.querySelector('#down').textContent.length > 0);
     const liveButtons = ['inside', 'outside', 'quick', 'deep', 'kick'].map(spotOf);
     check('the play buttons stay put during the snap', liveButtons.every((now, i) => Math.abs(now.left - beforeDown[['inside', 'outside', 'quick', 'deep', 'kick'][i]].left) < 2));
     w2.__lantern.finishLive();
     await wait();
+    const carried = d2.querySelector('#sheet');
+    check('the ratings follow the ball carrier', !!carried && !carried.hidden && carried.textContent.indexOf('Mara Holt') >= 0 && carried.textContent.indexOf('carry') >= 0 && carried.textContent.indexOf('throw') < 0);
     resumed.possession = 'home';
     resumed.phase = 'call';
     resumed.down = 1;
@@ -263,9 +265,14 @@ document.querySelector('#run').onclick = async () => {
         check('the 400px ratings stay on the field', ratings.width > 0 && ratings.left >= field.left - 1 && ratings.right <= field.right + 1 && ratings.bottom <= field.bottom + 1);
       }
     }
-    d2.documentElement.style.setProperty('--arc-text', '1.3');
     frame.style.width = '375px'; frame.style.height = '812px';
+    d2.documentElement.style.setProperty('--arc-text', '1');
     await wait();
+    const baseTitle = parseFloat(w2.getComputedStyle(d2.querySelector('h1')).fontSize);
+    d2.documentElement.style.setProperty('--arc-text', '1.3');
+    await wait();
+    const bigTitle = parseFloat(w2.getComputedStyle(d2.querySelector('h1')).fontSize);
+    check('the title follows the text size', bigTitle > baseTitle * 1.2 && bigTitle < baseTitle * 1.45);
     check('larger text stays on a phone', d2.documentElement.scrollWidth <= 376 && d2.documentElement.scrollHeight <= 813);
 
     const again = w2.__lantern;
