@@ -37,13 +37,13 @@ for variant in (('current',) if a.single else ('baseline', 'current')):
         assert report['rendered'] and report['display'] != 'headless'
         expected = [812, 375] if report['method'] == 'touch' else [1920, 1080]
         assert report['window_size'] == expected
-        for label in ('howto', 'register', 'follow-maren', 'signed-invitation', 'barn-choice', 'partner-card', 'first-partner', 'partner-control', 'first-battle', 'free-roam', 'first-route', 'first-catch', 'catch-control'):
+        for label in ('howto', 'register', 'follow-maren', 'signed-invitation', 'barn-choice', 'partner-card', 'first-partner', 'partner-control', 'first-battle', 'first-battle-choice', 'free-roam', 'first-route', 'first-catch', 'catch-control'):
             shot = folder / f'{label}.png'
             assert shot.stat().st_size > 1000, shot
             assert list(struct.unpack('>II', shot.read_bytes()[16:24])) == expected, shot
         if report['method'] == 'keyboard' and report['starter_index'] == 0:
             for size in ('1366x768', '3440x1440'):
-                shot = folder / f'catch-control-{size}.png'
+                shot = folder / f'partner-control-{size}.png'
                 assert shot.stat().st_size > 1000
                 assert struct.unpack('>II', shot.read_bytes()[16:24]) == tuple(map(int, size.split('x'))), shot
 current = reports['current']

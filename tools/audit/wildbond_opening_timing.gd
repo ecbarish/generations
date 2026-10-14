@@ -246,15 +246,20 @@ func run() -> void:
 	if main.stage != "walk_out": failures.append("Partner encounter did not return control")
 	await capture("partner-control")
 	partner_control_seconds = frames / 60.0
-	await complete_funnel()
-	var report := {"source_sha": OS.get_environment("SOURCE_SHA"), "main_sha256": FileAccess.get_sha256("res://scripts/main.gd"), "engine": Engine.get_version_info().string, "method": method, "display": DisplayServer.get_name(), "rendered": rendered, "window_size": [root.size.x, root.size.y], "protocol": "60Hz simulated elapsed time; wandering seed 20261013; redraw paused only during simulated reading budgets (all game frames still advance); how-to 12s; dialogue 180wpm + 0.75s each; character creator 30s; Not yet/reopen 2s; first partner card 12s; keyboard deliberate selection 1s; optimal read-only route navigation via actual keyboard/touch-pad inputs. Fresh New Game starts directly without saved-title menu. Continues via barn exit and Wren, first rival battle, north road to Thornwood Trail, grass patrol at (18,12)-(20,12), Bond at full health with precise timing. Battle seed 20261014; ready highest-value attacks in trainer battles; results read 2s; no battle pace override. OPENING_RAPID=1 replaces reading budgets by two frames. No novice guarantee or physical mobile claim.", "rapid": rapid, "partner_control_seconds": partner_control_seconds, "first_battle_seconds": first_battle_seconds, "first_catch_seconds": first_catch_seconds, "catch_attempts": catch_attempts, "catch_joined_team": main.team.size() > 1, "starter_index": starter_index, "partner_id": main.partner.id if main.partner else "", "first_partner_seconds": first_partner_seconds, "elapsed_seconds": frames / 60.0, "input_events": events, "partner_acquired": not main.team.is_empty(), "milestones": milestones, "transcript": transcript, "failures": failures}
-	# Extra shape captures occur after both timing metrics are frozen.
+	# Retain WB-C2's partner-control visual gate at its original two extra sizes.
+	# These rendered frames count toward the later funnel; the two partner metrics
+	# are already frozen. Restore the normal size before battle/catch captures.
 	if rendered and method == "keyboard" and starter_index == 0:
+		var normal_size := root.size
 		for size in [Vector2i(1366, 768), Vector2i(3440, 1440)]:
 			root.size = size
 			root.position = Vector2i.ZERO
-			for i in 6: await process_frame
-			await capture("catch-control-%dx%d" % [size.x, size.y])
+			await tick(6)
+			await capture("partner-control-%dx%d" % [size.x, size.y])
+		root.size = normal_size
+		await tick(6)
+	await complete_funnel()
+	var report := {"source_sha": OS.get_environment("SOURCE_SHA"), "main_sha256": FileAccess.get_sha256("res://scripts/main.gd"), "engine": Engine.get_version_info().string, "method": method, "display": DisplayServer.get_name(), "rendered": rendered, "window_size": [root.size.x, root.size.y], "protocol": "60Hz simulated elapsed time; wandering seed 20261013; redraw paused only during simulated reading budgets (all game frames still advance); how-to 12s; dialogue 180wpm + 0.75s each; character creator 30s; Not yet/reopen 2s; first partner card 12s; keyboard deliberate selection 1s; optimal read-only route navigation via actual keyboard/touch-pad inputs. Fresh New Game starts directly without saved-title menu. Continues via barn exit and Wren, first rival battle, north road to Thornwood Trail, grass patrol at (18,12)-(20,12), Bond at full health with precise timing. Battle seed 20261014; ready highest-value attacks in trainer battles; results read 2s; no battle pace override. OPENING_RAPID=1 replaces reading budgets by two frames. No novice guarantee or physical mobile claim.", "rapid": rapid, "partner_control_seconds": partner_control_seconds, "first_battle_seconds": first_battle_seconds, "first_catch_seconds": first_catch_seconds, "catch_attempts": catch_attempts, "catch_joined_team": main.team.size() > 1, "starter_index": starter_index, "partner_id": main.partner.id if main.partner else "", "first_partner_seconds": first_partner_seconds, "elapsed_seconds": frames / 60.0, "input_events": events, "partner_acquired": not main.team.is_empty(), "milestones": milestones, "transcript": transcript, "failures": failures}
 	var f := FileAccess.open(folder + "/report.json", FileAccess.WRITE)
 	f.store_string(JSON.stringify(report, "\t"))
 	print("OPENING_RESULT ", JSON.stringify(report))
@@ -301,9 +306,13 @@ func battle_input() -> void:
 func finish_battle() -> void:
 	var bt: Control = main.battle
 	var deadline := frames + 18000
+	var choice_captured := false
 	while bt.visible and frames < deadline and failures.is_empty():
 		match bt.state:
 			"choose":
+				if main.battle_story == "rival1" and not choice_captured:
+					await capture("first-battle-choice")
+					choice_captured = true
 				if bt.kind == "wild":
 					if int(main.bag.get("lures", 0)) <= 0:
 						failures.append("No lures remain before first catch")

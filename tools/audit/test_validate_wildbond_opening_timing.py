@@ -10,7 +10,7 @@ import unittest
 import zlib
 
 VALIDATOR = Path(__file__).with_name('validate_wildbond_opening_timing.py')
-LABELS = ('howto', 'register', 'signed-invitation', 'follow-maren', 'barn-choice', 'partner-card', 'first-partner', 'partner-control', 'first-battle', 'free-roam', 'first-route', 'first-catch', 'catch-control')
+LABELS = ('howto', 'register', 'signed-invitation', 'follow-maren', 'barn-choice', 'partner-card', 'first-partner', 'partner-control', 'first-battle', 'first-battle-choice', 'free-roam', 'first-route', 'first-catch', 'catch-control')
 
 
 def png(width, height):
@@ -47,7 +47,7 @@ class OpeningGateTests(unittest.TestCase):
             for label in LABELS:
                 (out / f'{label}.png').write_bytes(png(1920, 1080))
             for w, h in ((1366, 768), (3440, 1440)):
-                (out / f'catch-control-{w}x{h}.png').write_bytes(png(w, h))
+                (out / f'partner-control-{w}x{h}.png').write_bytes(png(w, h))
 
     def mutate(self, fn):
         path = self.folder / 'current/report.json'
@@ -55,9 +55,11 @@ class OpeningGateTests(unittest.TestCase):
         fn(data)
         path.write_text(json.dumps(data))
 
-    def run_gate(self, accepted=False):
+    def run_gate(self, accepted=False, expected_error=None):
         result = subprocess.run([sys.executable, str(VALIDATOR), str(self.folder), '--require-rendered'], capture_output=True, text=True)
         self.assertEqual(result.returncode == 0, accepted, result.stdout + result.stderr)
+        if expected_error is not None:
+            self.assertIn(expected_error, result.stderr)
 
     def test_positive_control(self):
         self.run_gate(True)
@@ -71,12 +73,20 @@ class OpeningGateTests(unittest.TestCase):
         self.run_gate()
 
     def test_acquisition_over_180(self):
-        self.mutate(lambda d: d.update(first_partner_seconds=181, elapsed_seconds=200))
-        self.run_gate()
+        def over_limit(data):
+            data.update(first_partner_seconds=181, partner_control_seconds=190)
+            for mark in data['milestones']:
+                if mark['label'] == 'first-partner': mark['seconds'] = 181
+                if mark['label'] == 'partner-control': mark['seconds'] = 190
+        self.mutate(over_limit)
+        self.run_gate(expected_error='First partner exceeds the fixed-protocol three-minute target')
 
     def test_control_over_180(self):
-        self.mutate(lambda d: d.update(partner_control_seconds=181))
-        self.run_gate()
+        def over_limit(data):
+            data['partner_control_seconds'] = 181
+            next(m for m in data['milestones'] if m['label'] == 'partner-control')['seconds'] = 181
+        self.mutate(over_limit)
+        self.run_gate(expected_error='Complete partner encounter exceeds the fixed-protocol three-minute target')
 
     def test_missing_battle(self):
         self.mutate(lambda d: d.update(first_battle_seconds=-1))
@@ -103,7 +113,7 @@ class OpeningGateTests(unittest.TestCase):
         self.run_gate()
 
     def test_wrong_extra_capture_dimensions(self):
-        (self.folder / 'current/catch-control-3440x1440.png').write_bytes(png(1366, 768))
+        (self.folder / 'current/partner-control-3440x1440.png').write_bytes(png(1366, 768))
         self.run_gate()
 
 
