@@ -99,7 +99,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
-- **2026-10-14, docs:** Launch quality. Little Ranch, Lantern Bowl and Night Market are the launch games; Wildbond is the steady lane. Checklists and the one-page summary are in docs/plans/. Dates are pending a dev-lead check.
+- **2026-10-14, docs:** Launch checklists corrected by the dev leads. Lantern Bowl 5a is merging; 5b is the passing and playbook slice. Night Market #403 is built. Wildbond's first task is the nine battle sprites. Little Ranch's dates are still pending a dev-lead check. Summary in docs/plans/launch-summary.md.
+- **2026-10-14, docs:** Launch quality. Little Ranch, Lantern Bowl and Night Market are the launch games; Wildbond is the steady lane. Checklists and the one-page summary are in docs/plans/.
 - **2026-10-14, #401:** Arcade v1.8.0. A new home page, a Lab page, and per-game pages, in [#401](https://github.com/ecbarish/generations/pull/401) (1779129).
 - **2026-10-14, Side Games Dev Lead, IDLE-CORE:** the shared idle core in shared/idle-core.js, in [#393](https://github.com/ecbarish/generations/pull/393) (cae662e). Elapsed time, a capped catch-up when the page is opened again, bulk buy, and an optional income readout in the tab title. Games keep their own saves. Shared Systems Architect co-reviewed it.
 - **2026-10-14, #396:** Arcade v1.7.2. A Play Wildbond header button, share and meta tags, a Start here section plus a collapsed More section, and Classic editions hidden, in [#396](https://github.com/ecbarish/generations/pull/396) (b5c9f3c).

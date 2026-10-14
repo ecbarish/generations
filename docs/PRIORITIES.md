@@ -35,7 +35,7 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 
 **Weekly playtest:** each week Playtester plays each launch game, and Wildbond, as a newcomer and scores it. The lowest-scoring part of that game becomes its next task.
 
-**Already open, and may finish:** Lantern Bowl round 5 (#371, #383) counts toward that checklist. #400 LR18 (Grok, opened before the hold) may finish as Little Ranch launch polish. #381 LR17 was also opened before the hold and may finish; it is not required for the checklist. LR19–LR22 wait on the shelf until the Little Ranch checklist calls for them.
+**Already open, and may finish:** Lantern Bowl round 5 counts toward that checklist. #383 (5a) is approved and merging. #400 LR18 (Grok, opened before the hold) may finish as Little Ranch launch polish. #381 LR17 was also opened before the hold and may finish; it is not required for the checklist. LR19–LR22 wait on the shelf until the Little Ranch checklist calls for them.
 
 Rules:
 - **Bugs friends report on a launch game or on Wildbond** become the next gap on that checklist. A bug on a keep-alive game may be fixed. It does not start new content.
