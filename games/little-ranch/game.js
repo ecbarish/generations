@@ -324,8 +324,8 @@
     if (m && Math.floor(k / 1.4) !== Math.floor((k - 1 / 30) / 1.4)) fx('spark', h.x + (Math.random() - .5) * h.r, h.y - h.r * .6); }
   const hintBob = name => { const h = hint(); if (!h || h.name !== name || reduce()) return 0; return Math.abs(Math.sin((st.t - st.idleAt) * 3.2)) * L.U * .025; };
   const BALL_ROLL = .7, BALL_KICKS = 3;
-  function ballSpot(side) { const y = L.ground + (L.home.y - L.ground) * .48, span = Math.min(L.size * 2.3, W * .28);
-    return { x: clamp(L.home.x + side * span, W * .18, W * .82), y, r: L.R * .95 }; }
+  function ballSpot(side) { const y = L.ground + L.R * 1.35, span = Math.min(L.size * 1.15, W * .18);
+    return { x: clamp(L.home.x + side * span, W * .24, W * .76), y, r: L.R * .88 }; }
   function ballNow() { const b = st.ball, A = ballSpot(b.from), B = ballSpot(b.to), k = b.at < 0 ? 1 : clamp((st.t - b.at) / BALL_ROLL, 0, 1), e = k * k * (3 - 2 * k);
     return { x: lerp(A.x, B.x, e), y: A.y, r: A.r, rolling: b.at >= 0 && k < 1 }; }
   function kickBall() { const b = st.ball; if (b.at >= 0 && st.t - b.at < BALL_ROLL) { sfx('boing'); return; }
@@ -813,8 +813,8 @@
     // the bowl
     const bw = L.R, bb = hintBob('bowl'); shadow(L.bowl.x, L.bowl.y, bw); cx.save(); cx.translate(0, -R(bb)); ell(L.bowl.x, L.bowl.y - bw * .25, bw, bw * .45, pick3('#4a90d8', '#5a7ab8', '#2a3a68', g)); ell(L.bowl.x, L.bowl.y - bw * .45, bw * .82, bw * .2, '#2a4a7a');
     if (st.bowl.food > 0) for (let i = 0; i < 9 * st.bowl.food; i++) ell(L.bowl.x + (i % 5 - 2) * bw * .3, L.bowl.y - bw * (.5 + (i % 2) * .12), bw * .14, bw * .11, '#c8823a'); cx.restore();
-    drawFlowers(g);
     drawBall();
+    drawFlowers(g);
     if (hidden) { // peekaboo: behind the bush, then up comes the head
       const k = st.baby.act === 'peek' ? Math.sin(clamp((st.t - st.baby.at) / 1.4, 0, 1) * Math.PI) : 0, save = st.baby.x;
       const base = L.bush.y + L.R * .3; cx.save(); cx.beginPath(); cx.rect(0, 0, W, R(base)); cx.clip(); // only what rises above the bush's foot shows
@@ -850,9 +850,11 @@
     if (st.place === 'shed') { st.down = { id: e.pointerId, p, drag: false }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; }
     if (st.mode === 'dusk' && routineTap(p)) return; // LR7
     if (st.mode !== 'play') { // bedtime: taps twinkle; six taps on the sleeping baby wake it for a new day (LR12)
-      if (st.baby.act === 'sleep' && near(p, babyCentre(), L.size * 1.2)) return nudge();
+      const q = ballNow(), bc = babyCentre();
+      const onBall = near(p, q, q.r * 1.2), onBaby = st.baby.act === 'sleep' && near(p, bc, L.size * 1.2);
+      if (onBall && (!onBaby || Math.hypot(p.x - q.x, p.y - q.y) <= Math.hypot(p.x - bc.x, p.y - bc.y))) return kickBall();
+      if (onBaby) return nudge();
       if (moonUp() && near(p, moonAt(), Math.max(L.U * .16, L.R))) return hum();
-      if (near(p, ballNow(), ballNow().r * 1.2)) return kickBall();
       fx('spark', p.x, p.y); sfx('twinkle'); return; }
     const bub = st.bubbles.find(u => Math.hypot(u.x - p.x, u.y - p.y) < u.r * 1.8 + L.U * .02);
     if (bub) { st.bubbles.splice(st.bubbles.indexOf(bub), 1); fx('spark', bub.x, bub.y); sfx('pop'); return; }
