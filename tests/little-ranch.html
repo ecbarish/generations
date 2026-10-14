@@ -36,7 +36,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.15.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.16.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -437,6 +437,26 @@ document.querySelector('#run').onclick = async () => {
     tap(baby()); for (let i = 0; i < 6; i++) { tap(baby()); LR.advance(.2); }
     LR.newVisit(); tap(L().flowers[2]); tap(L().sign); tap(L().shed.pots[0]);
     check('With the sound off, no words are spoken', LR.words.length === quiet);
+    LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    // ---- LR16: the meadow ball. Tap it and it rolls; the baby runs over and kicks. Nothing to miss, nothing saved.
+    const ballAt = () => LR.ballNow();
+    for (const [width, height] of [[820, 1180], [1366, 768]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.advance(.1);
+      const q = ballAt(), sc = LR.scale, r = cv.getBoundingClientRect(), spot = LR.toScreen(q);
+      check(`${width}×${height}: the ball is 80 px+, on the grass, and its own tap`, q.r * 1.2 * 2 * sc >= 80 && spot.x > r.left + width * .08 && spot.x < r.left + width * .92 && LR.ranchTarget(q) === 'ball' && LR.ranchTarget(L().bowl) === 'bowl' && LR.ranchTarget(baby()) === 'baby');
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+    const side0 = ballAt().x; tap(ballAt()); LR.advance(.2);
+    check('Tapping the ball rolls it and says ball', S().ball.to === 1 && ballAt().x !== side0 && LR.words[LR.words.length - 1] === 'ball');
+    LR.advance(2); check('The baby runs over and kicks, and one kick is not yet a happy thing', S().ball.kicks === 1 && S().acts === 0 && S().baby.act === null);
+    tap(ballAt()); LR.advance(2); tap(ballAt()); LR.advance(2);
+    check('Every third kick is one happy thing', S().ball.kicks === 3 && S().acts === 1);
+    const mid = S().ball.to; tap(ballAt()); tap(ballAt());
+    check('A tap while the ball is still rolling only boings', S().ball.to === -mid);
+    LR.bedtime(); LR.advance(30); const wakes = S().wake; tap(ballAt());
+    check('At night the ball only boings, and the baby sleeps on', S().mode === 'sleep' && S().wake === wakes && S().ball.kicks === 3);
+    LR.prefs.sound = false; const quietBall = LR.words.length, quietTones = LR.tones; LR.newVisit(); tap(LR.ballNow());
+    check('With the sound off, the ball is quiet', LR.words.length === quietBall && LR.tones === quietTones);
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);

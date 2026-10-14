@@ -16,6 +16,8 @@ LR1, the smallest test of a tap-and-play toy for ages 2 to 4 (docs/proposals/gam
 
 - **spoken words** (LR8): the device's own voice says "Cindercub" and "Pebblit", the flower and paint and wagon colours, the foods, and "Night night" at bedtime. Nothing is written on the ranch. Sound off means silence. No microphone, and a parent's own recording is not in the game.
 
+- tap the **ball** in the grass (LR16): it rolls to the other side and the baby runs over and kicks it. Every third kick is one happy thing. There is no goal to miss. At night a tap only makes a soft boing, and the baby sleeps on. Sound off means silence. Nothing is saved.
+
 - tap the **hat basket** at the field's left edge (LR6): a hat hops out onto the baby's head, and each tap brings the next one: a straw sun hat, a party hat, a crown, a flower crown, a cowboy hat, then it hops back in (bare head) and round again. Every third hat is one happy thing. The hat stays on through play until the next visit.
 
 - tap the **cloud** (LR5): soft rain falls for a few seconds (another tap keeps it going). When it stops, two puddles shine on the grass and a rainbow comes out. Tap a puddle and the baby runs over and jumps in, splash (one happy thing). The puddles dry up after about a minute. No cloud at night.
