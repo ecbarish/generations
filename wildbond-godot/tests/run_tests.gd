@@ -739,7 +739,7 @@ func _run() -> void:
 		if main.card.visible:
 			break
 	check(main.card.visible and main.card.id == "ripplet", "tapping Ripplet walks you up to it and opens its page")
-	check(main.card.sel == 1, "the page starts on Not yet (no accidental choice)")
+	check(main.card.sel == 0, "the page starts on Choose, the confirm")
 	main.card._close(false)
 	check(not main.card.visible and main.partner == null, "Not yet closes the page and chooses nothing")
 	main._meet(main.starters[2])
@@ -1866,6 +1866,7 @@ func _run() -> void:
 	preload("res://tests/roof_routes.gd").run(main, check)
 	preload("res://tests/door_taps.gd").run(main, check)
 	preload("res://tests/wbl1_menu.gd").run(main, check)
+	preload("res://tests/phone_layout.gd").run(main, check)
 	# ---- the done line
 	print("Wildbond Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)

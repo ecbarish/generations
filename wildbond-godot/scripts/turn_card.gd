@@ -1,13 +1,15 @@
 extends Control
-## "Turn your phone sideways" (Playtester, 2026-10-09: in phone portrait the game is a thin strip with tiny text and no
-## room for the pad). While the window is taller than it is wide, this card covers the game and the game holds still;
-## turning the phone takes it away again, right where you were.
+## While the window is taller than it is wide, this page covers the game and the game holds still.
+## Turning the phone, or making a computer window wider than it is tall, takes the page away right where you were.
+## The words fill the window. There is no picture to hunt for, and the page says how to go on.
 
 const INK := Color("3e2c20")
 const FAINT := Color("8a6e50")
+const TITLE := "Turn your phone sideways"
+const BODY := "Wildbond needs the wide screen. Turn the phone so the long side runs across. Your journey is waiting right here, and nothing is lost."
+const DESK := "On a computer, make this window wider than it is tall."
 
 var font: Font
-var t := 0.0
 
 func _ready() -> void:
 	Controls.fill(self)
@@ -20,8 +22,10 @@ func _ready() -> void:
 static func upright(size: Vector2) -> bool:
 	return size.y > size.x * 1.05
 
-func _process(dt: float) -> void:
-	t += dt
+func message() -> PackedStringArray:
+	return PackedStringArray([TITLE, BODY, DESK])
+
+func _process(_dt: float) -> void:
 	check(Vector2(DisplayServer.window_get_size()))
 	if visible:
 		queue_redraw()
@@ -32,23 +36,39 @@ func check(size: Vector2) -> void:
 		visible = up
 		get_tree().paused = up
 		queue_redraw()
+	_fit_window(size)
+
+## A portrait window letterboxes the game into a thin strip. While this page is up, let the canvas
+## fill the window so the words are the whole screen. A wide window goes back to the game's shape.
+func _fit_window(size: Vector2) -> void:
+	var win := get_window()
+	if win == null:
+		return
+	var real := Vector2(DisplayServer.window_get_size())
+	if real.x < 8.0 or real.y < 8.0 or real.distance_to(size) > 1.0:
+		return
+	var want := Window.CONTENT_SCALE_ASPECT_EXPAND if upright(size) else Window.CONTENT_SCALE_ASPECT_KEEP
+	if win.content_scale_aspect != want:
+		win.content_scale_aspect = want
 
 func _input(e: InputEvent) -> void:
 	if visible and (e is InputEventMouseButton or e is InputEventScreenTouch or e is InputEventScreenDrag or e is InputEventKey):
 		get_viewport().set_input_as_handled()
 
 func _draw() -> void:
-	draw_rect(Rect2(0, 0, 384, 216), Color("121418"))
-	draw_rect(Rect2(10, 10, 364, 196), Color("4a2e1a"))
-	draw_rect(Rect2(14, 14, 356, 188), Color("f4e9cd"))
-	# a phone that tips onto its side, over and over
-	var a: float = clampf(fmod(t, 2.4) - 0.6, 0.0, 1.0) * PI / 2.0
-	var c := Vector2(192, 92)
-	var xf := Transform2D(-a, c)
-	var body := PackedVector2Array([Vector2(-14, -24), Vector2(14, -24), Vector2(14, 24), Vector2(-14, 24)])
-	var screen := PackedVector2Array([Vector2(-11, -19), Vector2(11, -19), Vector2(11, 19), Vector2(-11, 19)])
-	draw_colored_polygon(xf * body, INK)
-	draw_colored_polygon(xf * screen, Color("7cb86c"))
-	draw_string(font, Vector2(14, 148), "Turn your phone sideways", HORIZONTAL_ALIGNMENT_CENTER, 356, 16, INK)
-	draw_string(font, Vector2(14, 170), "Wildbond is played with the screen wide. Your journey waits right here.",
-		HORIZONTAL_ALIGNMENT_CENTER, 356, 8, FAINT)
+	var s := size
+	if s.x < 8.0 or s.y < 8.0:
+		s = Vector2(384, 216)
+	draw_rect(Rect2(Vector2.ZERO, s), Color("121418"))
+	var panel := Rect2(s.x * 0.06, s.y * 0.18, s.x * 0.88, s.y * 0.64)
+	draw_rect(panel, Color("4a2e1a"))
+	draw_rect(panel.grow(-4), Color("f4e9cd"))
+	var title_size := 22 if s.y >= 320.0 else 16
+	var body_size := 12 if s.y >= 320.0 else 8
+	var y := panel.position.y + panel.size.y * 0.28
+	draw_string(font, Vector2(panel.position.x, y), TITLE, HORIZONTAL_ALIGNMENT_CENTER, panel.size.x, title_size, INK)
+	y += title_size + 16.0
+	var body_w := panel.size.x - 28.0
+	draw_multiline_string(font, Vector2(panel.position.x + 14.0, y), BODY, HORIZONTAL_ALIGNMENT_CENTER, body_w, body_size, -1, INK)
+	y += font.get_multiline_string_size(BODY, HORIZONTAL_ALIGNMENT_CENTER, body_w, body_size).y + 14.0
+	draw_multiline_string(font, Vector2(panel.position.x + 14.0, y), DESK, HORIZONTAL_ALIGNMENT_CENTER, body_w, body_size, -1, FAINT)

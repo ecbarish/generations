@@ -35,11 +35,31 @@ func open(word := "begin") -> void:
 
 ## Which column is in use now: a touch screen, a connected gamepad, or the keyboard.
 static func in_use() -> String:
-	if Controls.touch:
+	if Controls.touch or touch_device():
 		return "touch"
 	if not Input.get_connected_joypads().is_empty():
 		return "pad"
 	return "keys"
+
+## A phone or tablet, including a phone-shaped window. The web game often reports no touch screen until the first tap,
+## and this page opens before that tap, so a phone must not be told it is using a keyboard.
+static func touch_device() -> bool:
+	return touch_device_size(Vector2(DisplayServer.window_get_size()))
+
+static func touch_device_size(size: Vector2) -> bool:
+	if OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios"):
+		return true
+	if DisplayServer.is_touchscreen_available():
+		return true
+	if size.x < 8.0 or size.y < 8.0:
+		return false
+	var short := minf(size.x, size.y)
+	var long := maxf(size.x, size.y)
+	return short <= 520.0 and long <= 1000.0
+
+## The heading a player reads first. On a touch device that is the phone, not the keyboard.
+static func leads_with(use: String) -> String:
+	return "Phone or tablet" if use == "touch" else "Keyboard"
 
 func _process(dt: float) -> void:
 	if visible:
@@ -66,6 +86,9 @@ func _draw() -> void:
 	draw_rect(Rect2(14, 14, 356, 188), Color("f4e9cd"))
 	draw_string(font, Vector2(14, 34), "How to play", HORIZONTAL_ALIGNMENT_CENTER, 356, 13, INK)
 	var use := in_use()
+	if use == "touch":
+		_draw_touch()
+		return
 	for i in COLS.size():
 		var x := 22.0 + i * 116.0
 		var mine: bool = COLS[i][1] == use
@@ -81,3 +104,14 @@ func _draw() -> void:
 			y += 17.0
 	var how := "Tap anywhere" if use == "touch" else ("Press any button" if use == "pad" else "Press any key")
 	draw_string(font, Vector2(14, 188), "%s to %s.  This page is also on the Settings page of your field book." % [how, foot], HORIZONTAL_ALIGNMENT_CENTER, 356, 6, FAINT)
+
+## One readable page of the phone controls. A touch device was being shown the keyboard column first.
+func _draw_touch() -> void:
+	draw_string(font, Vector2(14, 58), "Phone or tablet", HORIZONTAL_ALIGNMENT_CENTER, 356, 12, INK)
+	draw_string(font, Vector2(14, 72), "(what you're using)", HORIZONTAL_ALIGNMENT_CENTER, 356, 7, FAINT)
+	var y := 96.0
+	for r in COLS[1][2]:
+		draw_string(font, Vector2(40, y), r[0], HORIZONTAL_ALIGNMENT_LEFT, 140, 10, INK)
+		draw_string(font, Vector2(180, y), r[1], HORIZONTAL_ALIGNMENT_LEFT, 160, 9, Color("6a5a3a"))
+		y += 16.0
+	draw_string(font, Vector2(14, 188), "Tap anywhere to %s.  This page is also on the Settings page of your field book." % foot, HORIZONTAL_ALIGNMENT_CENTER, 356, 6, FAINT)

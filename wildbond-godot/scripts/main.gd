@@ -4510,17 +4510,38 @@ func _thumbs_tick() -> void:
 	touch.word = action_word()
 	touch.btn_on = not menus and trans_t < 0.0 and touch.word != ""
 	touch.refresh()
-	# the caption keeps clear of the thumbs: between the pad and the button while they show (WB-C3), and grows upward
-	var left := TouchPad.PAD.x + TouchPad.PAD_R + 4.0 if touch.visible and touch.pad_on else 8.0
-	var right := -(384.0 - TouchPad.BTN.x + TouchPad.BTN_R + 4.0) if touch.visible and touch.btn_on else -8.0
-	if caption.offset_left != left or caption.offset_right != right:   # only on a change, so it isn't laid out every frame
-		caption.offset_left = left
-		caption.offset_right = right
+	_place_caption()
 	battle.pace = settings.pace()
 	var size := 10 if settings.large_text() else 8
 	if bubble_text.label_settings.font_size != size:  # only on a change, so the labels aren't laid out every frame
 		bubble_text.label_settings.font_size = size
 		caption.add_theme_font_size_override("font_size", size - 1)
+
+## The hint sits above the walking pad and the talk button, and the box is as tall as the wrapped words,
+## so a long line is not cut off on the bottom edge and does not sit under the pad.
+func _place_caption() -> void:
+	var left := 8.0
+	var right := -8.0
+	var bottom := -6.0
+	if touch.visible and touch.pad_on:
+		left = TouchPad.PAD.x + TouchPad.PAD_R + 8.0
+		bottom = minf(bottom, TouchPad.PAD.y - TouchPad.PAD_R - 8.0 - 216.0)
+	if touch.visible and touch.btn_on:
+		right = -(384.0 - TouchPad.BTN.x + TouchPad.BTN_R + 4.0)
+		bottom = minf(bottom, TouchPad.BTN.y - TouchPad.BTN_R - 8.0 - 216.0)
+	var width := maxf(32.0, 384.0 - left + right)
+	var font := caption.get_theme_font("font")
+	var size := caption.get_theme_font_size("font_size")
+	var text_h := 12.0
+	if caption.text != "" and font != null:
+		text_h = font.get_multiline_string_size(caption.text, HORIZONTAL_ALIGNMENT_CENTER, width, size).y
+		text_h += caption.get_theme_constant("outline_size") + 2.0
+	var top := bottom - maxf(text_h, 12.0)
+	if caption.offset_left != left or caption.offset_right != right or caption.offset_bottom != bottom or caption.offset_top != top:
+		caption.offset_left = left
+		caption.offset_right = right
+		caption.offset_bottom = bottom
+		caption.offset_top = top
 
 ## What pressing Talk would do here, in a word for the phone button ("" when there's nothing to do). While someone
 ## speaks the button steps aside (the bubble sits low): a tap anywhere moves the talk on.

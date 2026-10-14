@@ -667,7 +667,8 @@ func _input(e: InputEvent) -> void:
 		"orders":
 			var ol := known_orders()
 			if click:
-				if p.y >= 145 and p.y < 161 and ol.size() > 4:
+				var nav_y := _order_nav_y()
+				if p.y >= nav_y and p.y < nav_y + 16.0 and ol.size() > 4:
 					if p.x < 92: order_i = maxi(0, (order_i / 4 - 1) * 4)
 					elif p.x < 180: order_i = mini(ol.size() - 1, (order_i / 4 + 1) * 4)
 					return
@@ -696,11 +697,92 @@ func _grid_move(i: int, d: Vector2i, n: int, cols: int) -> int:
 		Vector2i.DOWN: i = i + cols if i + cols < n else i
 	return i
 
+var layout_scale := 0.0                      # tests set a phone scale; 0 uses the real window
+
+## Device pixels per canvas pixel. A headless window reports no size; treat that as the desktop's whole-pixel scale.
+func _view_scale() -> float:
+	if layout_scale > 0.0:
+		return layout_scale
+	var win := Vector2(DisplayServer.window_get_size())
+	if win.x < 8.0 or win.y < 8.0:
+		return 4.0
+	return maxf(0.25, minf(win.x / 384.0, win.y / 216.0))
+
+## A command is at least 44 device pixels tall, and never shorter than the desktop's 16 canvas pixels.
+func _row_h() -> float:
+	return _row_h_for(_view_scale())
+
+func _row_h_for(scale: float) -> float:
+	return maxf(16.0, ceil(44.0 / maxf(scale, 0.01)))
+
+func _command_box() -> Rect2:
+	var h := _row_h()
+	var box_h := 2.0 * h + 14.0
+	return Rect2(8, 216.0 - 6.0 - box_h, 368, box_h)
+
 func _menu_rect(i: int) -> Rect2:
-	return Rect2(244 + (i % 3) * 44, 170 + (i / 3) * 19, 41, 16)
+	var h := _row_h()
+	var box := _command_box()
+	return Rect2(244 + (i % 3) * 44, box.position.y + 6.0 + (i / 3) * (h + 3.0), 41, h)
 
 func _move_rect(i: int) -> Rect2:
-	return Rect2(14 + (i % 2) * 96, 170 + (i / 2) * 19, 92, 16)
+	var h := _row_h()
+	var box := _command_box()
+	return Rect2(14 + (i % 2) * 96, box.position.y + 6.0 + (i / 2) * (h + 3.0), 92, h)
+
+func _order_nav_y() -> float:
+	return _command_box().position.y - 19.0
+
+func _detail_rect() -> Rect2:
+	var box := _command_box()
+	return Rect2(208, box.position.y + 2.0, 164, box.size.y - 4.0)
+
+func _ally_panel() -> Rect2:
+	var panel := Rect2(222, 116, 154, 36)
+	var limit := _command_box().position.y - 4.0
+	if panel.end.y > limit:
+		panel.position.y = limit - panel.size.y
+	return panel
+
+func _ally_line_rect(i: int, n: int) -> Rect2:
+	var lift := maxf(0.0, 160.0 - (_command_box().position.y - 4.0))
+	return Rect2(236, 162.0 - (n - i) * 22.0 - lift, 140, 20)
+
+## Where the "Next:" names sit. They shrink, then wrap, and stay inside the top of the screen.
+func _chip_boxes(labels: PackedStringArray) -> Dictionary:
+	var size := 7
+	var limit := 376.0
+	var x0 := 192.0
+	while size > 5:
+		var x := x0
+		var rows := 1
+		var fits := true
+		for lab in labels:
+			var w := font.get_string_size(lab, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 8.0
+			if w > limit - x0:
+				fits = false
+				break
+			if x + w > limit:
+				rows += 1
+				x = x0
+			if rows > 2:
+				fits = false
+				break
+			x += w + 3.0
+		if fits:
+			break
+		size -= 1
+	var rects: Array = []
+	var x := x0
+	var y := 7.0
+	for lab in labels:
+		var w := minf(font.get_string_size(lab, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 8.0, limit - x0)
+		if x > x0 and x + w > limit:
+			x = x0
+			y += size + 5.0
+		rects.append(Rect2(x, y, w, size + 3.0))
+		x += w + 3.0
+	return {"font": size, "rects": rects}
 
 ## How good a move looks against the foe in front: power, type advantage and same-element bonus (the demo and the
 ## automated checks pick moves this way, as a sensible player would).
@@ -740,10 +822,10 @@ func _hp_panels() -> Array:
 	for i in foes.size():
 		panels.append(Rect2(10, 8 + i * 30, 150, 26))
 	if allies.size() == 1:
-		panels.append(Rect2(222, 116, 154, 36))
+		panels.append(_ally_panel())
 	elif allies.size() > 1:
 		for i in allies.size():
-			panels.append(Rect2(236, 162 - (allies.size() - i) * 22, 140, 20))
+			panels.append(_ally_line_rect(i, allies.size()))
 	return panels
 
 ## Feet on the bottom edge of the sprite. If that rect would sit under a health panel, slide the
@@ -883,19 +965,20 @@ func _draw() -> void:
 	for i in foes.size():
 		_info(foes[i], Rect2(10, 8 + i * 30, 150, 26), false)
 	if allies.size() == 1:
-		_info(allies[0], Rect2(222, 116, 154, 36), true)
+		_info(allies[0], _ally_panel(), true)
 	else:
 		for i in allies.size():                                  # a compact line each, so the foe stays in view
-			_info_line(allies[i], Rect2(236, 162 - (allies.size() - i) * 22, 140, 20))
+			_info_line(allies[i], _ally_line_rect(i, allies.size()))
 	_queue()
 	if not tele.is_empty():
 		_text("%s is gathering power! Guard!" % tele.u.c.name, Vector2(10, 70), 8, Color("c83a2a"))
 	# the message box, and the commands on your turn
-	_box(Rect2(8, 164, 368, 46))
+	var box := _command_box()
+	_box(box)
 	match state:
 		"choose":
-			_text("What will %s do?" % wait_u.c.name, Vector2(16, 180), 9, INK)
-			_text("Orders ready: %d of 3  (Guard uses 1)" % int(orders), Vector2(16, 198), 7, Color("6a5a4a"))
+			_text("What will %s do?" % wait_u.c.name, Vector2(16, box.position.y + 16), 9, INK)
+			_text("Orders ready: %d of 3  (Guard uses 1)" % int(orders), Vector2(16, box.position.y + 34), 7, Color("6a5a4a"))
 			for i in MENU.size():
 				var r := _menu_rect(i)
 				var on := i == menu_i
@@ -904,7 +987,8 @@ func _draw() -> void:
 				var dim: bool = (word == "Guard" and orders < 1) or (word == "Orders" and orders < 1) or (word in ["Run", "Bond"] and kind != "wild") or (word == "Bond" and int(bag.get("lures", 0)) <= 0) or (word == "Bag" and int(bag.get("berries", 0)) <= 0)
 				if word == "Stand with it" and not on:
 					draw_rect(r, Color("f2d080"))         # lamplight: the one new thing on the page
-				_text(word, r.position + Vector2(0, 11 if word.length() > 7 else 12), 6 if word.length() > 7 else 8, (PAPER if on else INK) if not dim else Color("9a8a7a"), r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+				var baseline := (11.0 if word.length() > 7 else 12.0) if r.size.y <= 16.0 else r.size.y * 0.5 + 3.0
+				_text(word, r.position + Vector2(0, baseline), 6 if word.length() > 7 else 8, (PAPER if on else INK) if not dim else Color("9a8a7a"), r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 		"moves":
 			var mv := R.moves_of(wait_u.c)
 			for i in mv.size():
@@ -915,27 +999,30 @@ func _draw() -> void:
 				draw_rect(r, INK if on else Color("e8dcc4"))
 				if m.get("el") != null:
 					draw_rect(Rect2(r.position + Vector2(3, 5), Vector2(5, 6)), EL_COL.get(m.el, INK))
-				_text(m.name, r.position + Vector2(11, 12), 8, (PAPER if on else INK) if not resting else Color("9a8a7a"))
+				var move_base := 12.0 if r.size.y <= 16.0 else r.size.y * 0.5 + 3.0
+				_text(m.name, r.position + Vector2(11, move_base), 8, (PAPER if on else INK) if not resting else Color("9a8a7a"))
 			var sel: Dictionary = R.DATA.MOVES[mv[move_i]]
 			var desc := R.move_info(mv[move_i])
-			var info_r := Rect2(208, 166, 164, 42)
+			var info_r := _detail_rect()
 			draw_multiline_string(font, info_r.position + Vector2(4, 10), "%s: %s.%s" % [sel.name, desc,
 				" Resting." if wait_u.cds.get(mv[move_i], 0.0) > 0 else ""], HORIZONTAL_ALIGNMENT_LEFT, info_r.size.x - 8, 7, -1, INK)
 		"orders":
 			var ol := known_orders()
 			if ol.size() > 4:
+				var nav_y := _order_nav_y()
 				for button in [[12, "Previous"], [100, "Next"]]:
-					draw_rect(Rect2(button[0], 145, 80, 16), INK)
-					_text(button[1], Vector2(button[0] + 5, 156), 7, PAPER)
+					draw_rect(Rect2(button[0], nav_y, 80, 16), INK)
+					_text(button[1], Vector2(button[0] + 5, nav_y + 11), 7, PAPER)
 			for i in range((order_i / 4) * 4, mini(ol.size(), (order_i / 4) * 4 + 4)):
 				var r := _move_rect(i % 4)
 				var on := i == order_i
 				var o: Dictionary = ORDERS[ol[i]]
 				var short: bool = orders < int(o.cost)
 				draw_rect(r, INK if on else Color("e8dcc4"))
-				_text("%s (%d)" % [o.name, int(o.cost)], r.position + Vector2(5, 12), 8, (PAPER if on else INK) if not short else Color("9a8a7a"))
+				var order_base := 12.0 if r.size.y <= 16.0 else r.size.y * 0.5 + 3.0
+				_text("%s (%d)" % [o.name, int(o.cost)], r.position + Vector2(5, order_base), 8, (PAPER if on else INK) if not short else Color("9a8a7a"))
 			var so: Dictionary = ORDERS[ol[order_i]]
-			var oinfo := Rect2(208, 166, 164, 42)
+			var oinfo := _detail_rect()
 			draw_multiline_string(font, oinfo.position + Vector2(4, 10), "Page %d/%d. %s Orders ready: %d." % [order_i / 4 + 1, ceili(ol.size() / 4.0), so.text, int(orders)],
 				HORIZONTAL_ALIGNMENT_LEFT, oinfo.size.x - 8, 7, -1, INK)
 		"capture":
@@ -1040,15 +1127,16 @@ func _queue() -> void:
 			s.atb += best_t * s.rate
 		best.atb = 0.0
 		order.append(best.u)
-	var x := 166.0
-	_text("Next:", Vector2(x, 15), 7, INK)
-	x += 26
+	var labels := PackedStringArray()
 	for u in order:
-		var nm: String = u.c.name
-		var w := font.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, 7).x + 8
-		draw_rect(Rect2(x, 7, w, 10), Color("2e5a8a") if u.side == "a" else Color("8a3a2e"))
-		_text(nm, Vector2(x + 4, 15), 7, PAPER)
-		x += w + 3
+		labels.append(u.c.name)
+	var chips: Dictionary = _chip_boxes(labels)
+	var chip_size: int = int(chips["font"])
+	_text("Next:", Vector2(166, 7.0 + chip_size + 1.0), chip_size, INK)
+	for i in order.size():
+		var r: Rect2 = chips["rects"][i]
+		draw_rect(r, Color("2e5a8a") if order[i].side == "a" else Color("8a3a2e"))
+		_text(labels[i], Vector2(r.position.x + 4.0, r.position.y + chip_size + 1.0), chip_size, PAPER, r.size.x - 6.0)
 
 # ---------------------------------------------------------------- bonding with a wild creature (calmNow)
 func _calm() -> void:
