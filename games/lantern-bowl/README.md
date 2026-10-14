@@ -1,6 +1,6 @@
 # Lantern Bowl
 
-v0.1.0. One football game at Lamplight Field. You are the Brackenport Lanterns, Millrace is the other side. Four quarters of two minutes. You call the play and play the snap. Their drives are told in a few lines.
+v0.1.0. One football game at Lamplight Field. (claimed: Grok 4.7 Cursor cloud, 2026-10-14, playtest fixes #348) You are the Brackenport Lanterns, Millrace is the other side. Four quarters of two minutes. You call the play and play the snap. Their drives are told in a few lines.
 
 Drag up the field to throw. A short pull is a bullet. A long pull is a lob. Swipe sideways to juke. Tap to dive. Turbo spends the wind bar; when it is empty, Turbo stops helping. Green lanes are blocked open. Red lanes are not. The ring around the quarterback shrinks as the rush arrives. Ratings run from 0 to 100. About 50 is an ordinary player, and the difference shows up in blocks, tackles and catches.
 
