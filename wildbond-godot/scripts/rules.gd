@@ -268,15 +268,15 @@ static func raised_lvl(c: Dictionary, kind: String) -> int:
 	return l
 
 ## What a creature is ready to become right now, or "". ctx: place (the map's area), team (species ids with it).
-## An option may ask for a level (`at`), a trust step (`bond`: 1 Friendly .. 4 Bonded), or both.
+## Every option asks for a level (`at`). It may also ask for a trust step (`bond`: 1 Friendly .. 4 Bonded).
+## Trust is added to the level. It never replaces it, so a missing `at` does not change the creature. DD-5.
 ## A bond branch also names how it was raised (`raised`: "care" or "battle") and that track's step (`raised_at`).
 ## Place, companion, time, weather and diet still apply. The first option whose requirements are all met wins.
-## A missing `at` means level is not part of this change, so it can evolve on bond. DD-5.
 static func evo_target(c: Dictionary, ctx: Dictionary = {}) -> String:
 	for o in evo_options(c):
-		if not (o.has("at") or o.has("bond") or o.has("raised")):
+		if not o.has("at"):
 			continue
-		if o.has("at") and c.lvl < int(o.at):
+		if c.lvl < int(o.at):
 			continue
 		if o.has("bond") and bond_lvl(c) < int(o.bond):
 			continue

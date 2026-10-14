@@ -29,7 +29,7 @@ waiting on Evan, as long as the project's research supports one.
 
 ## Log (newest first)
 
-### DD-5 (2026-10-14): a creature can evolve on bond as well as on level
+### DD-5 (2026-10-14): trust is required alongside a level, not instead of one
 
 **Asked by:** Flint, playtest round 2 note 3 (docs/COMMS.md, 2026-10-12 20:52), ticketed as WB-BOND. The bond meter did not change what a creature could become: almost every change waited on a level alone. Deeptide's own line already says it changes only for a tamer it trusts. The catalogue (docs/plans/wildbond-catalogue.md) also wants, later, one young creature whose final form depends on how it was raised.
 
@@ -56,15 +56,16 @@ The loyal trait multiplies each of these by 1.5. A partner that has fainted earn
 
 **How it combines with level and with the other conditions.** Each way a creature can change is one option in `wildbond-godot/data/evolution.json` (or the species' single `evo` in the catalogue). The first option whose requirements are all met is the one offered. You can always say not yet.
 
-An option may ask for a level (`at`), a trust step (`bond`), or both:
+Evan (2026-10-14): there is no trust-only route. A starter will have the trust by the chosen level. Bond is an added requirement alongside level, not a replacement.
+
+Every option asks for a level (`at`). It may also ask for a trust step (`bond`). The data shape is the two together: a level and, when the line needs it, a trust step. An option with no level does not change the creature.
 
 - Level only: it changes when it has grown that far. The journey's existing lines stay like this, so a partner one level away in an older save is not suddenly held back.
-- Bond only: it changes when trust reaches that step, even if it is still young. This is evolving on bond.
-- Both: it changes only when it has grown that far and trusts you that much.
+- Level and trust: it changes only when it has grown that far and trusts you that much. Trust before that level does not change it.
 
-Place, time of day, weather, a companion (`with`) and what it last ate (`ate`) still apply on top of whichever of those you name. A missing `at` does not mean level 0. It means level is not part of that change.
+Place, time of day, weather, a companion (`with`) and what it last ate (`ate`) still apply on top of the level, and on top of the trust step when the option names one.
 
-Tidewyrm is the line that uses both shapes. Bonded trust (step 4) can make it Deeptide before level 32. Devoted trust (step 3) at level 32 still can, which is the path it already had. Either way it becomes the same Deeptide, and only for a tamer it trusts. Other lines are unchanged until their own data opts in.
+Tidewyrm becomes Deeptide at level 32 with Devoted trust (step 3). That is the path it already had. Bonded trust before level 32 does not make it Deeptide. It still changes only for a tamer it trusts. Other lines are unchanged until their own data opts in.
 
 **How this enables a future bond-branch creature.** One young creature, several finals, chosen by how you raised it (the catalogue's bond branch, CAT-2, which will name it). The shape is already in the data under `bond_branch`, and it is not a creature you can meet yet. Each final is an option. Put the special ones first and the ordinary one last.
 
@@ -73,7 +74,7 @@ As trust is earned it is also remembered on the creature, in `raised`:
 - `raised.battle` — trust from a fight (a move you ordered, a win, Rally, Steady).
 - `raised.care` — trust from a feed, a festival, or a letter home.
 
-An option names the record with `raised` (`"care"` or `"battle"`) and that record's step with `raised_at`, using the same five steps. It may also ask for overall trust (`bond`) and a level (`at`). The final form is the first option that matches. If care and battle are both far enough, the one listed first wins, so the data decides the priority, not the code. Trust split across both records, with neither record far enough on its own, does not pick a special final. A creature with no `raised` record, which is every save from before this rule, takes the ordinary option when its level says so.
+An option names the record with `raised` (`"care"` or `"battle"`) and that record's step with `raised_at`, using the same five steps. It also asks for a level (`at`), and it may ask for overall trust (`bond`). The final form is the first option that matches. Trust before that level does not choose a final. If care and battle are both far enough at that level, the one listed first wins, so the data decides the priority, not the code. Trust split across both records, with neither record far enough on its own, does not pick a special final; the ordinary level option does. A creature with no `raised` record, which is every save from before this rule, takes the ordinary option when its level says so.
 
 CAT-2's job is to name that young creature and its finals and to point the same option list at it. No new art: a form still draws from its family's procedural figure.
 
