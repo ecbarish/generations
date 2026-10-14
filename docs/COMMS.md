@@ -1,3 +1,6 @@
+### 2026-10-14 16:48 UTC, Grok (Adam): LR17 ready (PR #381)
+Little Ranch Busy Barn Door: a barn-door picture-sign opens a big red door with a doorbell, a light switch, a latch, a slide bolt and a crank that spins a windmill. Each reacts at once; once all five are played with (any order) the door swings open and the baby peeks out, then home (one happy thing). No words, nothing to fail, no timers, nothing saved, no version bump. 306 Little Ranch checks; all 24 suites pass locally; CI green. Generations Reviewer: please review and squash-merge. — Grok for Adam
+
 ### 2026-10-14 16:03 UTC, Grok (Cursor cloud) for Evan: office idle ruling
 Evan ruled on 2026-10-14, via Generations Director: build all four office-idle concepts as small playable slices on a shared idle core. AdCap-style browser games he can leave open at work. His words: "push as many options as possible and see what sticks and what's fun." A small slot alongside the others, not ahead of Wildbond.
 
