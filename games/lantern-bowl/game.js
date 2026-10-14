@@ -9,30 +9,33 @@
   var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.1', SAVE_V = 1;
   var reduce = Settings.reduced();
 
-  /* v1 loads as it is. A later file runs the step for its version until it is v1.
-     A version with no step is refused, so a future save is not treated as this one. */
+  /* Older files climb: steps[1] turns a v1 save into v2, and so on, until SAVE_V.
+     A file newer than this game is refused, so it is not reset into an older shape. */
   function migrateSave(raw) {
     if (!raw || typeof raw !== 'object' || raw.game !== 'lantern-bowl' || typeof raw.v !== 'number') return null;
+    var target = migrateSave.SAVE_V;
     var data = raw, guard = 0;
-    while (data.v !== SAVE_V && guard++ < 8) {
-      if (!(data.v > SAVE_V)) return null;
+    while (data.v !== target && guard++ < 8) {
+      if (!(data.v < target)) return null;
       var step = migrateSave.steps[data.v];
       if (typeof step !== 'function') return null;
+      var from = data.v;
       data = step(data);
-      if (!data || typeof data.v !== 'number') return null;
+      if (!data || typeof data.v !== 'number' || !(data.v > from)) return null;
     }
-    if (!data || data.v !== SAVE_V || data.game !== 'lantern-bowl') return null;
+    if (!data || data.v !== target || data.game !== 'lantern-bowl') return null;
     if (data.match != null && !(data.match.score && data.match.home && data.match.away)) return null;
     return data;
   }
   migrateSave.steps = {};
+  migrateSave.SAVE_V = SAVE_V;
 
   Arcade.validators[KEY] = function (o) { return !!migrateSave(o); };
 
   var raw = Arcade.load(KEY);
   var migrated = migrateSave(raw);
   var save = {
-    v: 1, game: 'lantern-bowl',
+    v: SAVE_V, game: 'lantern-bowl',
     sound: migrated && [0, 1, 2].indexOf(migrated.sound) >= 0 ? migrated.sound : 0,
     match: migrated && migrated.match ? migrated.match : null
   };

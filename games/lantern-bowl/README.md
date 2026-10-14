@@ -6,7 +6,7 @@ Drag from the quarterback. A short pull is a bullet and a long pull is a lob, an
 
 The view is from behind your offence. A side-on look can be added later without changing the rules. Outlines use each club's colour, drawn in code.
 
-Saves, the clock's wording, sound and the settings row are the shared arcade ones. The game saves after every play (`lantern-bowl-save-v1`). A save from this version keeps loading. A later version of the file can be brought forward one step at a time; a file this game does not know how to read is left alone. Closing the tab does not play the game for you. There are no ads, energy bars or paid shortcuts.
+Saves, the clock's wording, sound and the settings row are the shared arcade ones. The game saves after every play (`lantern-bowl-save-v1`). A save from this version keeps loading. An older save steps up one version at a time. A file newer than this game is left alone. Closing the tab does not play the game for you. There are no ads, energy bars or paid shortcuts.
 
 Play: [games/lantern-bowl/](index.html). Checks: `node tools/run-all-checks.cjs lantern-bowl`.
 
