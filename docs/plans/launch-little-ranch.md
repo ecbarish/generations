@@ -10,11 +10,11 @@ Playtester scores every week. The lowest-scoring part becomes the next task. Fin
 
 | Item | Gap | Where it stands |
 |---|---|---|
-| A newcomer gets through the first 10 minutes without help | **LRL-1** | Pass 2 (2026-10-11, about six minutes) never reached bedtime. Bedtime waits for 12 actions or 360 seconds (`BEDTIME_ACTS`, `BEDTIME_SECS`) |
+| A newcomer gets through the first 10 minutes without help | **LRL-1** | Done in #417 (`e352a7b`), Little Ranch v0.18.2. The visit reaches bedtime from any of the five rooms once 6 minutes or 12 activities are reached. |
 | Playtester rates the first session as fun | **LRL-2** | Not yet scored on the 10-point scale. Pass 2 scored Fun 3 on a 1–5 card. That card is not this scale. The bar is at least 7/10 |
 | No crashes and no broken saves | **LRL-4** | Pass 2 had no page error. The visit itself is not saved. Only the sound preference is stored (`little-ranch-settings-v1`). A reload check is still missing |
 | Plays well on a phone | **LRL-3** | Pass 2 scored Phone 3 on a 1–5 first look. A played phone session of v0.16.0 is still owed |
-| One clear goal | **LRL-1** | The visit should show one day and then bedtime. A six-minute play never got there |
+| One clear goal | **LRL-1** | Done in #417 (`e352a7b`). The visit shows one day and then bedtime. |
 | Known bugs are fixed | **LRL-5** | No player bug is filed. The fresh run confirms this stays clear. A bug found in that run becomes the next gap |
 
 ## Finished means
@@ -31,7 +31,7 @@ Playable and fun. Further improvements do not hold the release.
 
 **Must-haves** (these block finish):
 
-1. The first visit reaches bedtime without a grown-up explaining it (LRL-1).
+1. The first visit reaches bedtime without a grown-up explaining it (LRL-1). Done in #417 (`e352a7b`).
 2. The sound choice is still there after the page is reloaded (LRL-4).
 3. Nothing crashes, and a reload does not break the page (LRL-4, LRL-5).
 4. A phone session of the current build plays well (LRL-3).
@@ -48,11 +48,11 @@ Playable and fun. Further improvements do not hold the release.
 
 Measured on 2026-10-14. The count, the split into build, playtest and buffer, and both dates are in [launch-summary.md](launch-summary.md). Little Ranch's feature rate is 21 pulls in 7 days (3.00 a day) and the same 21 in 14 days (1.50 a day).
 
-**Pulls left that block finish:** 2 small ones. LR17 (#381) and LR18 (#400, `43785a4`) are merged. #404 LR19 and #409 LR20 are on hold. They are not in this count.
+**Pulls left that block finish:** 1 small one. LRL-1 is done in #417 (`e352a7b`). LR17 (#381) and LR18 (#400, `43785a4`) are merged. #404 LR19 and #409 LR20 are on hold. They are not in this count.
 
 | ID | Size | What |
 |---|---|---|
-| LRL-1 | S | The first sitting reaches bedtime, and the day is obvious |
+| LRL-1 | S | Done in #417 (`e352a7b`). The first sitting reaches bedtime, and the day is obvious |
 | LRL-4 | S | The sound preference survives a reload, with a check |
 
 **Likely:** 2 / 3.00 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-16.**
@@ -62,6 +62,6 @@ Measured on 2026-10-14. The count, the split into build, playtest and buffer, an
 
 **Owner:** Side Games Dev Lead. Grok and dot may take a gap when they are free.
 
-1. **LRL-1.** Make the first visit reach bedtime without help.
+1. **LRL-1.** Done in #417 (`e352a7b`). The first visit reaches bedtime without help.
 2. **LRL-4.** Keep the sound preference across a reload, and show that the page still works.
 3. **LRL-2 and LRL-3.** Ask Playtester for a fun score out of 10 and a played phone session. Do not fill those from the 2026-10-11 card.
