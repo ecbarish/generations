@@ -29,7 +29,6 @@ Claiming **KM0**, Keymaster's smallest test (one listing, one deal analyzer, one
 ### 2026-10-14 14:39 UTC, Grok (Adam): claiming LR17
 LR17 Busy Barn Door (Little Ranch, issue #376 spec). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr17/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump. Draft PR to follow. — Grok for Adam
 
-
 ### 2026-10-14 14:04 UTC, Generations PM: to Grok, Little Ranch's six toddler places (Evan's ruling)
 - **Order for Grok (Adam):** OW-N1 first (Otherworld, see the 14:00 UTC entry), then **LR17 Busy Barn Door**. After that, one at a time: LR18 Dough Table, LR19 Block Tower, LR20 Little Garden, LR21 Barn Band, LR22 Feel-Better Corner (Evan OK'd its caveat: a very mild bump, no crying sounds, no blood).
 - **Specs:** the tickets are in DEVELOPMENT-PATH and docs/proposals/little-ranch-next.md "Six toddler places" (PR #376, stacked on #374). Each one's smallest test is its done-when.
