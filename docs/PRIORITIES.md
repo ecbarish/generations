@@ -27,7 +27,8 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 | **Family games** (Evan said yes 2026-10-09) | small, alongside | Two small browser games "for everyone", each starting with its one-PR smallest test; never at the flagship's expense. | **Little Ranch** (a tap-and-play toy for ages 2-4) and **the Arcade Cabinets** (original 1978-85 style single-screen games, Storm Front first), docs/proposals/games-for-everyone.md. Little Ranch is a hit at home (2026-10-11): its next steps LR3-LR8 and new toddler toys as places inside it (LR9-LR11) follow docs/proposals/little-ranch-next.md |
 | **Keep alive** | about 15% | Bugs from friends, small fixes, playtests. No new systems. | Diamond Manager (DM2, its playability pass, may go ahead), Otherworld, the arcade and Come Play |
 | **Shelved** (Evan, 2026-10-13, AR-SHELVE) | none | Off the site; code, folders and saves kept, old links still open. No work. | **Diamond Career** (Diamond Manager replaced it), Classic Wildbond, Classic Starfall Guild |
-| **Parked** | none | Ideas and proposals only, no builds. | Primordial (hidden from the hall), old Starfall Guild, card shop, Main Street, walk-in arcade, the AI storyteller |
+| **Office idle** (Evan, via Generations Director, 2026-10-14) | small, alongside | AdCap-style browser games he can leave open at work, on a shared idle core. A small slot beside the others. Not ahead of Wildbond. | **IDLE-CORE**, then four smallest slices: Night Market Stalls (IDLE-NM1, first), Saltmarsh Shipping Office (IDLE-SS1), Card Shop lite (IDLE-CS1), Desk Plant Lab (IDLE-DP1). His words: "push as many options as possible and see what sticks and what's fun." Rows in QUEUE.md |
+| **Parked** | none | Ideas and proposals only, no builds. | Primordial (hidden from the hall), old Starfall Guild, the card shop's full Wildbond-roster tie-in (Card Shop lite is approved; see Office idle), Main Street, walk-in arcade, the AI storyteller |
 
 Rules:
 - **Bugs friends report jump every queue**, in any slot (GitHub issues, Evan's messages).
@@ -75,8 +76,8 @@ of what we have). Anyone, Evan included, can add to either. The flow:
 |---|---|---|---|
 | Lantern Bowl, our Retro Bowl-style football game (LB0-LB5) | 15/18 | docs/plans/sports-management.md | **Started** (Evan said yes 2026-10-09): LB0 and LB1 are merged; LB2 onward has the sports slot since Diamond Manager reached v0.8.0 (lane P, 2026-10-12) |
 | "The Crossing", sailing between the worlds | 12/18 | docs/proposals/new-game-ideas.md | Waits |
-| Card shop, absorbing Main Street (CS1 + MS1) | 17/18 | docs/proposals/new-game-ideas.md | **At the back** (Evan, 2026-10-09: it is gated behind Wildbond's development). First step when its time comes: a one-PR Godot toy |
-| Keymaster, a property-portfolio game around Evan's deal analyzer (KM0) | 18-19/21 | docs/proposals/keymaster.md | **Parked** until Evan gives it a focus slot (2026-10-12); smallest test: one listing, one analyzer, one buy |
+| Card shop, absorbing Main Street (CS1 + MS1) | 17/18 | docs/proposals/new-game-ideas.md | **Card Shop lite approved** (Evan, via Generations Director, 2026-10-14): Main Street's shop loop with placeholder stock. That approval lifts the Wildbond gate on the lite slice (IDLE-CS1). The full roster tie-in stays behind Wildbond |
+| Keymaster, a property-portfolio game around Evan's deal analyzer (KM0) | 18-19/21 | docs/proposals/keymaster.md | **Approved** and in review in #379 (Evan gave it the go-ahead, 2026-10-14); smallest test: one listing, one analyzer, one buy |
 | Primordial beyond polish | 10 | docs/plans/primordial.md | Evan: lower priority |
 | Walk-in arcade (AR3.1) | 10 | docs/VISION.md | Evan: the games come first |
 
@@ -172,3 +173,4 @@ live list is QUEUE.md "The road ahead".
 - 2026-10-12 Evan: tagline decided, "Play for the fun. Automate the grind."; the rename is greenlit, with its order (rename-checklist.md "Proposed order") waiting for Evan's approval.
 - 2026-10-12 Evan (via Flint): after the playtest fixes, develop the business games first (Diamond Manager toward one sports front office with a game you play inside; Starfall Guild's manager loop). QUEUE: DM5 moves ahead of Lantern Bowl; DM-N1 and SG-N1 stay right after the newcomer fixes. Passions first: games that may interest anybody, led by what we love.
 - 2026-10-12 Evan (decision card): Starfall Guild's best loops fold into the Godot Starfall village (SF-GUILD, Heavy lifting H21); the browser Starfall Guild gets fixes only (SG-N1).
+- 2026-10-14 Evan, via Generations Director: office idle is a small slot alongside the others, not ahead of Wildbond. Build all four concepts as small playable slices on a shared idle core (IDLE-CORE, then IDLE-NM1, IDLE-SS1, IDLE-CS1, IDLE-DP1). Card Shop lite (Main Street's shop loop with placeholder stock) is approved, which lifts the Wildbond gate on that lite slice. His words: "push as many options as possible and see what sticks and what's fun."

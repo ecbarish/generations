@@ -1271,6 +1271,8 @@ func _draw_outdoor() -> void:
 	for y in rows.size():
 		for x in rows[0].length():
 			_draw_ground(x, y, rows[y][x])
+	if map_name in DRESSED:
+		_draw_dressing(rows)                       # WB-C4: the ground's small life, under the season's snow and petals
 	_season_ground(rows)
 	# 2. fences and the signpost (drawn in code; they already looked right)
 	for y in rows.size():
@@ -1876,6 +1878,191 @@ func _on_battle_result(result: String) -> void:
 		say("wren", _fill("Ha! Told you it was strategy. Don't worry, {starter} just needs a few more days with you."))
 		say("maren", _fill("There, all patched up. Your team was hurt — I fixed them up this time, but the inn in Larkhaven heals them whenever they need it. Losing your first battle is a fine tradition, {name}. Wren lost theirs to a goose."))
 		say("wren", "That goose was a professional.")
+
+# ---------------------------------------------------------------- Larkhaven and the Thornwood Trail at their best (WB-C4)
+## The ground's small life on the first two places you walk: clover, daisies, tufts and pebbles on the plain grass, a
+## vegetable patch by the barn, stone steps at the cottage doors and straw in the pen; on the trail, ferns and
+## mushrooms where the trees meet the grass, and pebbles on the path. All of it lies flat on the ground: nothing blocks
+## the way, nothing moves a door, and the map data (shared with the browser game) is unchanged. Colours come from the
+## art direction's ramps (docs/art/wildbond-art-direction.md); ground details have no outline (rule 3). Drawn before the
+## season's layer, so winter's snow still covers them.
+const DRESSED := ["larkhaven", "thornwood_route"]
+const WOODLAND_PONDS := ["thornwood", "thornwood_route", "thornwood_grove"]
+const LEAF := [Color("24503e"), Color("2f6a4a"), Color("3f8558"), Color("5ea26a"), Color("8ccf7e")]
+const PATH_RAMP := [Color("a8875a"), Color("bb9a6a"), Color("ccad7c"), Color("dcc092")]
+const BARK := [Color("4a3426"), Color("6a4a32"), Color("8a6444")]
+const WASH := [Color("cfc4ac"), Color("e6dcc6"), Color("f4eddc")]
+const RED := [Color("6e2620"), Color("8e342c"), Color("ab463a"), Color("c45e4e")]
+const LAMP := Color("f2d080")
+const VEG_PATCH := Rect2i(21, 1, 2, 3)         # Larkhaven: the barn's kitchen garden, on the grass east of the barn
+
+## A steady number for a tile, so the same tile always gets the same detail (no flicker, the same every visit).
+func _hash(x: int, y: int, k: int) -> int:
+	return absi((x * 73856093) ^ (y * 19349663) ^ (k * 83492791)) % 1000
+
+func _draw_dressing(rows: Array) -> void:
+	var winter := cal.season() == "winter"
+	var lark := map_name == "larkhaven"
+	var solid := buildings()
+	for y in rows.size():
+		for x in rows[0].length():
+			var ch: String = rows[y][x]
+			var o := Vector2(x, y) * TILE
+			var h := _hash(x, y, 1)
+			if ch == "," and not solid.any(func(b): return b.has_point(Vector2i(x, y))):
+				if lark and VEG_PATCH.has_point(Vector2i(x, y)):
+					_draw_veg(o, x, y, winter)
+					continue
+				var by_trees := not lark and "T" in [tile_at(Vector2i(x, y - 1)), tile_at(Vector2i(x - 1, y)), tile_at(Vector2i(x + 1, y)), tile_at(Vector2i(x, y + 1))]
+				if by_trees and h < 420:
+					if h % 3:
+						_draw_fern(o, h)
+					else:
+						_draw_mushrooms(o, h)
+				elif h < 140:
+					_draw_clover(o, h)
+				elif h < 230 and not winter:
+					_draw_daisies(o, h)
+				elif h < 330:
+					_draw_tuft(o, h)
+				elif h < 380:
+					_draw_pebbles(o, h, false)
+			elif _is_path(x, y) and h < 260:
+				_draw_pebbles(o, h, true)
+	if map_name == "thornwood_route":
+		_draw_step(Vector2(5, 12) * TILE + Vector2(-2, 6))   # a flat stone where the clearing comes down to the pond
+	if lark:
+		for d in [Vector2i(4, 4), Vector2i(13, 4), Vector2i(2, 10), Vector2i(7, 10)]:
+			_draw_step(Vector2(d.x, d.y + 1) * TILE)          # a flat stone at each cottage door
+		var pen: Array = DATA.MAPS.larkhaven.get("pen", [])
+		if pen.size() == 4:
+			for py in range(int(pen[1]), int(pen[3]) + 1):    # straw in the pen, and under the barn's open door
+				for px in range(int(pen[0]), int(pen[2]) + 1):
+					_draw_straw(Vector2(px, py) * TILE, _hash(px, py, 3))
+		_draw_straw(Vector2(BARN_DOOR.x, BARN_DOOR.y + 1) * TILE, 7)
+
+func _draw_clover(o: Vector2, h: int) -> void:
+	for k in 3:
+		var p := o + Vector2(2 + (h + k * 37) % 11, 3 + (h / 7 + k * 23) % 10)
+		draw_rect(Rect2(p, Vector2(2, 1)), LEAF[2])
+		draw_rect(Rect2(p + Vector2(0, 1), Vector2(1, 1)), LEAF[3])
+		draw_rect(Rect2(p + Vector2(1, 1), Vector2(1, 1)), LEAF[1])
+
+func _draw_daisies(o: Vector2, h: int) -> void:
+	for k in 2 + h % 2:
+		var p := o + Vector2(2 + (h * 3 + k * 41) % 12, 2 + (h + k * 29) % 12)
+		draw_rect(Rect2(p + Vector2(0, 1), Vector2(3, 1)), WASH[2])
+		draw_rect(Rect2(p + Vector2(1, 0), Vector2(1, 3)), WASH[2])
+		draw_rect(Rect2(p + Vector2(1, 1), Vector2(1, 1)), LAMP)
+
+func _draw_tuft(o: Vector2, h: int) -> void:
+	var p := o + Vector2(3 + h % 9, 6 + (h / 9) % 7)
+	draw_rect(Rect2(p, Vector2(1, 3)), LEAF[1])
+	draw_rect(Rect2(p + Vector2(2, -1), Vector2(1, 4)), LEAF[2])
+	draw_rect(Rect2(p + Vector2(4, 1), Vector2(1, 2)), LEAF[1])
+	draw_rect(Rect2(p + Vector2(2, -1), Vector2(1, 1)), LEAF[4])
+
+func _draw_pebbles(o: Vector2, h: int, on_path: bool) -> void:
+	for k in 1 + h % 3:
+		var p := o + Vector2(2 + (h * 7 + k * 31) % 12, 2 + (h * 3 + k * 17) % 12)
+		draw_rect(Rect2(p, Vector2(2, 1)), PATH_RAMP[3] if on_path else WASH[0])     # lit from the top left
+		draw_rect(Rect2(p + Vector2(0, 1), Vector2(2, 1)), PATH_RAMP[0] if on_path else BARK[2])
+
+func _draw_fern(o: Vector2, h: int) -> void:
+	var b := o + Vector2(4 + h % 6, 13)
+	for k in 3:                                               # three fronds fanning up from one root
+		var dx := (k - 1) * 3
+		for j in 4:
+			draw_rect(Rect2(b + Vector2(dx * j / 3.0, -j * 2 - 1), Vector2(1, 2)), LEAF[1 + (j + k) % 2])
+		draw_rect(Rect2(b + Vector2(dx, -8), Vector2(1, 1)), LEAF[3])
+	draw_rect(Rect2(b + Vector2(-1, 0), Vector2(3, 1)), LEAF[0])
+
+func _draw_mushrooms(o: Vector2, h: int) -> void:
+	for k in 2:
+		var p := o + Vector2(3 + (h + k * 6) % 9, 8 + k * 2)
+		draw_rect(Rect2(p + Vector2(1, 2), Vector2(1, 2)), WASH[1])                # the stem
+		draw_rect(Rect2(p, Vector2(3, 2)), RED[2])                                 # the cap, lit top left
+		draw_rect(Rect2(p, Vector2(1, 1)), RED[3])
+		draw_rect(Rect2(p + Vector2(2, 1), Vector2(1, 1)), RED[1])
+		draw_rect(Rect2(p + Vector2(1, 0), Vector2(1, 1)), WASH[2])                # one white spot
+
+func _draw_step(o: Vector2) -> void:
+	draw_rect(Rect2(o + Vector2(3, 0), Vector2(10, 4)), PATH_RAMP[0])
+	draw_rect(Rect2(o + Vector2(3, 0), Vector2(10, 1)), WASH[1])
+	draw_rect(Rect2(o + Vector2(4, 1), Vector2(8, 2)), WASH[0])
+
+func _draw_straw(o: Vector2, h: int) -> void:
+	for k in 5:
+		var p := o + Vector2(1 + (h * 5 + k * 29) % 13, 2 + (h * 3 + k * 19) % 12)
+		draw_rect(Rect2(p, Vector2(3, 1)), LAMP if k % 2 else PATH_RAMP[3])
+		draw_rect(Rect2(p + Vector2(1, 1), Vector2(2, 1)), PATH_RAMP[1])
+
+## The barn's kitchen garden: dark tilled rows with a leafy head on each (bare earth in winter, under the snow).
+func _draw_veg(o: Vector2, x: int, y: int, winter: bool) -> void:
+	draw_rect(Rect2(o, Vector2(16, 16)), BARK[1])
+	for r in 2:
+		draw_rect(Rect2(o + Vector2(0, 2 + r * 8), Vector2(16, 3)), BARK[0])       # the furrows
+		draw_rect(Rect2(o + Vector2(0, 1 + r * 8), Vector2(16, 1)), BARK[2])
+		if winter:
+			continue
+		for c in 2:
+			var p := o + Vector2(2 + c * 8, r * 8)
+			var cabbage := (x + y + c + r) % 3 != 0
+			draw_rect(Rect2(p + Vector2(0, 1), Vector2(5, 3)), LEAF[2] if cabbage else LEAF[1])
+			draw_rect(Rect2(p + Vector2(1, 0), Vector2(3, 1)), LEAF[3])
+			draw_rect(Rect2(p + Vector2(1, 1), Vector2(2, 1)), LEAF[4] if cabbage else LEAF[3])
+			if not cabbage:
+				draw_rect(Rect2(p + Vector2(2, 4), Vector2(1, 1)), RED[3])           # a radish showing at the soil
+
+## A woodland pond's edge: a dark muddy bank instead of a beach, rounded where two banks meet, with reeds standing in
+## the shallows and now and then a flat stone. Draws over the water tile's edges only; the water itself stays.
+func _draw_bank(x: int, y: int, o: Vector2) -> void:
+	var wet := func(dx: int, dy: int) -> bool: return tile_at(Vector2i(x + dx, y + dy)) in ["~", "j", "q", "b"]
+	var deep := Color("2f5f7e")
+	var sides := { Vector2i.UP: not wet.call(0, -1), Vector2i.DOWN: not wet.call(0, 1), Vector2i.LEFT: not wet.call(-1, 0), Vector2i.RIGHT: not wet.call(1, 0) }
+	if sides[Vector2i.UP]:
+		draw_rect(Rect2(o, Vector2(16, 2)), BARK[1]); draw_rect(Rect2(o + Vector2(0, 2), Vector2(16, 1)), deep)
+	if sides[Vector2i.DOWN]:
+		draw_rect(Rect2(o + Vector2(0, 13), Vector2(16, 3)), BARK[1]); draw_rect(Rect2(o + Vector2(0, 13), Vector2(16, 1)), BARK[2]); draw_rect(Rect2(o + Vector2(0, 12), Vector2(16, 1)), deep)
+	if sides[Vector2i.LEFT]:
+		draw_rect(Rect2(o, Vector2(2, 16)), BARK[1]); draw_rect(Rect2(o + Vector2(2, 0), Vector2(1, 16)), deep)
+	if sides[Vector2i.RIGHT]:
+		draw_rect(Rect2(o + Vector2(14, 0), Vector2(2, 16)), BARK[0]); draw_rect(Rect2(o + Vector2(13, 0), Vector2(1, 16)), deep)
+	# a bank isn't ruled straight: it bulges a pixel or two here and there along each side
+	var h := _hash(x, y, 2)
+	if sides[Vector2i.UP] and h % 3 == 0:
+		draw_rect(Rect2(o + Vector2(3 + h % 7, 2), Vector2(5, 1)), BARK[1])
+	if sides[Vector2i.DOWN] and h % 3 == 1:
+		draw_rect(Rect2(o + Vector2(2 + h % 8, 12), Vector2(6, 1)), BARK[1])
+	if sides[Vector2i.LEFT] and h % 3 == 2:
+		draw_rect(Rect2(o + Vector2(2, 4 + h % 6), Vector2(1, 5)), BARK[1])
+	if sides[Vector2i.RIGHT] and h % 3 == 0:
+		draw_rect(Rect2(o + Vector2(13, 3 + h % 7), Vector2(1, 6)), BARK[0])
+	# round the corners where two banks meet: fill the outside of a quarter circle with bank
+	var rad := 9
+	for c in [[Vector2i.UP, Vector2i.LEFT, Vector2(0, 0), Vector2(1, 1)], [Vector2i.UP, Vector2i.RIGHT, Vector2(16, 0), Vector2(-1, 1)],
+			[Vector2i.DOWN, Vector2i.LEFT, Vector2(0, 16), Vector2(1, -1)], [Vector2i.DOWN, Vector2i.RIGHT, Vector2(16, 16), Vector2(-1, -1)]]:
+		if sides[c[0]] and sides[c[1]]:
+			for i in rad:
+				for j in rad:
+					var d := Vector2(rad - i, rad - j).length()
+					var px: Vector2 = o + c[2] + Vector2(i, j) * c[3] - Vector2(c[3].x < 0, c[3].y < 0)
+					if d > rad:
+						draw_rect(Rect2(px, Vector2.ONE), BARK[1])
+					elif d > rad - 1.0:
+						draw_rect(Rect2(px, Vector2.ONE), deep)
+	# reeds in the shallows along each bank, swaying a little
+	var sway := sin(t * 1.3 + y * 0.9 + x) * 0.7
+	for side in sides:
+		if not sides[side]:
+			continue
+		var at: Vector2 = o + Vector2(8, 8) + Vector2(side) * 4.0 + (Vector2(h % 5 - 2, 0) if side.y != 0 else Vector2(0, h % 5 - 2))
+		for k in 2 + h % 2:
+			var off := Vector2((k - 1) * 3.0, 0) if side.y != 0 else Vector2(0, (k - 1) * 3.0)   # along the bank
+			var p: Vector2 = at + off + Vector2(sway, 0)
+			draw_rect(Rect2(p + Vector2(0, -4), Vector2(1, 6)), LEAF[1 + k % 2])
+			if k == 1 and h % 2:
+				draw_rect(Rect2(p + Vector2(0, -6), Vector2(1, 2)), BARK[0])        # a cattail head
 
 ## Water (Wildbond's own water tiles, tools/paint_tiles.gd): open water with now and then a lily pad or a glint, and a sandy shore with a dark
 ## edge drawn wherever the water meets land.
@@ -2589,6 +2776,9 @@ func _draw_water(x: int, y: int, o: Vector2, n: int) -> void:
 		_tex(WATER, Vector2i(11, 3), Vector2i.ONE, o)                              # a lily pad on the pond
 	elif n == 7 and int(t * 1.5 + x) % 3 == 0:
 		_tex(WATER, Vector2i(11, 2), Vector2i.ONE, o)                              # a glint of light
+	if map_name in WOODLAND_PONDS:
+		_draw_bank(x, y, o)                       # a woodland pond has a muddy bank, not a beach (WB-C4)
+		return
 	var shore := Color("e0c896")                    # the art direction's sand and deep water (docs/art)
 	var edge := Color("2f5f7e")
 	if tile_at(Vector2i(x, y - 1)) not in ["~", "j", "q", "b"]:

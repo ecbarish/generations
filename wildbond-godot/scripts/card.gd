@@ -12,6 +12,7 @@ const Sprites := preload("res://scripts/creature_sprites.gd")
 const INK := Color("3e2c20")
 const FAINT := Color("8a6e50")
 const STATS := [["hp", "Health"], ["pow", "Power"], ["grd", "Guard"], ["spd", "Speed"], ["wit", "Wits"], ["spi", "Spirit"]]
+const STATS_H := 40                             # three rows of stat bars, and a gap before the note under them
 ## The bars measure a creature's kind against the strongest creature known in the valley (the highest natural strength in the
 ## Wilddex is about 116), so every page uses the same yardstick and a full bar means "as strong as any".
 const STRONGEST := 120.0
@@ -158,7 +159,7 @@ func _draw() -> void:
 		draw_rect(Rect2(sx + 30, sy + 2, 36, 5), Color("e4d6b4"))
 		draw_rect(Rect2(sx + 30, sy + 2, 36.0 * clampf(v / STRONGEST, 0.0, 1.0), 5), el_col.darkened(0.1))
 		_text(str(int(v)), Vector2(sx + 68, sy + 7), 6, INK)
-	y += 37
+	y += STATS_H                                    # (room enough that the note below doesn't touch the last bars, WB-C3b)
 	_text("Its kind's strength. Full bar: the strongest known (%d)." % int(STRONGEST), Vector2(190, y + 1), 6, FAINT, 158)
 	y += 10
 	y = _para(info.get("moves_line", "Starts with %s." % preload("res://scripts/rules.gd").words(info.moves)), Vector2(190, y), 158, 7, INK) + 1

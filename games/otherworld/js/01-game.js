@@ -1,7 +1,7 @@
 'use strict';
 /* Otherworld: state, saves, the story runner, the Between (choose a world, a gift, a name and look), the status
    window, endings, soul memories and rebirth (by choice after an ending, or on death). docs/otherworld-design.md */
-const VERSION = '0.4.0';
+const VERSION = '0.4.1';
 const STORY_NAMES = ['Ren', 'Aki', 'Sora', 'Kai', 'Yuna', 'Haru'];
 const HAIR = ['#2a1a12', '#7a4a2a', '#d8b06a', '#c84a3a', '#e8e8f0', '#4a5aa8'];
 const SKIN = ['#f6d8c0', '#f1c9a0', '#d8a882', '#a8744e', '#7a4a2e'];
