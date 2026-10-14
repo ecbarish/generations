@@ -1,0 +1,48 @@
+/* Keymaster: a warm desk in an estate office. Plain CSS; no third-party assets. */
+:root{--paper:#f4eddc;--card:#fffaf0;--ink:#2a2420;--soft:#6a5e52;--line:#d8cbb2;--good:#2f6a4a;--bad:#a0402e;--accent:#8e342c;--gold:#f2d080}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+.desk{max-width:1100px;margin:0 auto;padding:12px 16px 24px;display:grid;gap:14px;grid-template-columns:1fr}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{margin:0;font-size:1.5rem;letter-spacing:.02em}
+.tag{color:var(--soft);font-size:.9rem}
+.home{color:var(--accent);text-decoration:none;font-weight:600;min-height:44px;display:inline-flex;align-items:center}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.listing{display:grid;gap:12px;grid-template-columns:1fr}
+.house{width:100%;max-width:340px;height:auto;justify-self:center}
+.facts h2{margin:0;font-size:1.2rem}.kind{margin:2px 0;color:var(--soft)}.ask{margin:4px 0;font-size:1.1rem}
+.units{margin:6px 0 0;padding-left:18px;color:var(--soft)}
+.sheet h2{margin:0 0 8px;font-size:1.15rem}
+.choices{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.choice{display:grid;gap:4px}.choice.wide{grid-column:1/-1}
+.label{font-size:.85rem;color:var(--soft)}
+button{font:inherit;min-height:44px;min-width:44px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:6px 12px;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.stepper{display:flex;align-items:center;gap:8px}.stepper output{min-width:7.5em;text-align:center;font-weight:700;font-size:1.1rem}
+.toggle{display:flex;gap:6px;flex-wrap:wrap}.toggle button{flex:1 1 auto}
+.toggle button[aria-checked="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.rehab button{text-align:left;flex:1 1 220px}.rehab small{display:block;color:inherit;opacity:.8}
+.month{width:100%;border-collapse:collapse;margin:12px 0}
+.month th{text-align:left;font-weight:400;padding:4px 0;color:var(--soft)}.month td{text-align:right;padding:4px 0;font-variant-numeric:tabular-nums;white-space:nowrap}
+.month tr+tr{border-top:1px dashed var(--line)}.month .total th,.month .total td{font-weight:700;color:var(--ink);padding-top:8px}
+.measures{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.measures li{border:1px solid var(--line);border-radius:8px;padding:8px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
+.measures small{grid-column:1/-1;color:var(--soft);font-size:.8rem}
+.measures .v{font-weight:700;font-variant-numeric:tabular-nums}
+.good .v{color:var(--good)}.bad .v{color:var(--bad)}
+.good .v::before{content:"✓ "}.bad .v::before{content:"✗ "}
+.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.actions button{flex:1 1 160px}
+.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+.answer h2{margin:0 0 6px}.answer p{margin:6px 0}
+.months{list-style:none;padding:0;margin:10px 0;display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.months li{border:1px solid var(--line);border-radius:6px;padding:4px;font-size:.75rem;text-align:center;font-variant-numeric:tabular-nums}
+.months li.event{background:#fbe9df;border-color:#e0b8a8}
+.months b{display:block;font-size:.7rem;color:var(--soft);font-weight:400}
+.year{width:100%;border-collapse:collapse}.year th{text-align:left;font-weight:400;color:var(--soft);padding:3px 0}.year td{text-align:right;font-variant-numeric:tabular-nums}
+.verdict{font-size:1.25rem;font-weight:800;margin:10px 0 2px}
+@media (min-width:860px){
+ .desk{grid-template-columns:minmax(300px,2fr) 3fr;align-items:start}
+ header,.answer{grid-column:1/-1}
+}
+@media (max-width:420px){.choices,.measures{grid-template-columns:1fr}.months{grid-template-columns:repeat(4,1fr)}}
+@media (prefers-reduced-motion:no-preference){.answer{animation:rise .25s ease-out}@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1}}}

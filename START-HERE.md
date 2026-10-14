@@ -99,6 +99,26 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, Side Games Dev Lead, ENGINE-SAVEVER:** versioned saves in the shared engine, in [#392](https://github.com/ecbarish/generations/pull/392). Existing saves are unaffected, since no game registers a version yet. Shared Systems Architect co-reviewed it.
+- **2026-10-14, docs, #388:** office idle progression spec, docs/research/office-idle-progression.md (Game Researcher), research plus the §8 build spec for IDLE-CORE, NM1, SS1, CS1 and DP1 (curves, prestige, offline caps, where offline means the page was closed, milestones and done-when criteria). No version, changelog or DEVELOPMENT-PATH tick.
+- **2026-10-14, docs, #389:** office idle ruling (Evan, via Director, 2026-10-14). PRIORITIES gets an Office idle slot, and QUEUE gets IDLE-CORE then NM1, SS1, CS1 and DP1. Card Shop lite is approved, and the full Wildbond tie-in stays gated. Docs only.
+- **2026-10-14, Claude, WB-C4:** Larkhaven gets a barn garden, door stones, straw in the pen and grass variety, and the Thornwood ponds get a muddy, reedy bank, in [#372](https://github.com/ecbarish/generations/pull/372). Source only; not a preview release.
+- **2026-10-14, Claude, WB-C3b:** the register shows only the tap hint on phones, and the partner-card note no longer touches the stat bars, in [#382](https://github.com/ecbarish/generations/pull/382). Source only; not a preview release.
+- **2026-10-14, Claude, KM0:** Keymaster v0.1.0, one listing, one analyzer, one buy, in [#379](https://github.com/ecbarish/generations/pull/379).
+- **2026-10-14, docs, #384:** Little Ranch six toddler places (LR17-LR22), and LR17 in Grok's guest-lane queue. Docs only.
+- **2026-10-14, docs, #385:** KM0 is marked approved, not parked, in PRIORITIES and QUEUE, and is in review in #379. Docs only.
+- **2026-10-14, docs, #375:** QUEUE catch-up. Lantern Bowl round 5 is 5a, 5b and 5c under #371; EVO-1 and WB5.6 are marked done in the cycle. Docs only.
+- **2026-10-14, Grok (Adam), OW-N1:** Otherworld v0.4.1, a Memories carried ledger, two open choices at every beat, and the hall blurb, in [#378](https://github.com/ecbarish/generations/pull/378).
+- **2026-10-14, WB5.6:** Godot Wildbond catalogue batch, 189 species, evolved forms at half, in [#368](https://github.com/ecbarish/generations/pull/368). Source only; not a preview release.
+- **2026-10-14, docs, #374:** guest lanes get WB-FUNNEL1 and OW-N1, the SF-GUILD2 ticket, and the spare-effort order. Docs only.
+- **2026-10-14, Side Games Dev Lead, #359:** Lantern Bowl v0.1.4, running matters and Millrace's drives on the field, in [#369](https://github.com/ecbarish/generations/pull/369).
+- **2026-10-14, Claude, WB-C3:** Wildbond on a phone held sideways, by touch, in [#361](https://github.com/ecbarish/generations/pull/361). Source only; not a preview release.
+- **2026-10-14, EVO-1:** starters as three-stage lines in [#366](https://github.com/ecbarish/generations/pull/366), with old saves converting and battle sprites clearing the HP panel in [#370](https://github.com/ecbarish/generations/pull/370). Source only; not a preview release.
+- **2026-10-14, docs, #367:** QUEUE notes DM-N1d after #347 closed. Docs only.
+- **2026-10-14, #365:** two Checks flakes stopped (Starfall boot and the Godot audio import). No game version.
+- **2026-10-14, docs, #364:** QUEUE adds the WB-NOSTALGIA first tasks, NOS-1a through NOS-1e. Docs only.
+- **2026-10-14, docs, #363:** START-HERE's merge rule matches #362. Docs only.
+- **2026-10-14, docs, #362:** only Generations Reviewer merges, and each task has one owner. Docs only.
 - **2026-10-14, Claude (cloud session for Evan), SF-GUILD1:** the map of Starfall Guild's loops into the village (docs/plans/starfall-guild-fold.md), and the first loop, your call in the fight: halfway out an adventurer finds the trouble and you pick press or hold (odds and knocks in words; their own way works a little better; no call and they fight as before), in [#360](https://github.com/ecbarish/generations/pull/360). 488 Starfall checks, all 24 suites. Not published.
 - **2026-10-14, Grok (Adam), LR16:** Little Ranch v0.16.0, the meadow ball (tap it and it rolls; the baby kicks it; every third kick is one happy thing; at night a tap only boings), in [#357](https://github.com/ecbarish/generations/pull/357).
 - **2026-10-14, Grok (Adam), LR8:** Little Ranch v0.15.0, spoken words (the device's voice says the names, colours and "Night night"; sound off stays silent), in [#354](https://github.com/ecbarish/generations/pull/354).

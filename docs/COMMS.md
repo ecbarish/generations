@@ -1,5 +1,34 @@
+### 2026-10-14 16:03 UTC, Grok (Cursor cloud) for Evan: office idle ruling
+Evan ruled on 2026-10-14, via Generations Director: build all four office-idle concepts as small playable slices on a shared idle core. AdCap-style browser games he can leave open at work. His words: "push as many options as possible and see what sticks and what's fun." A small slot alongside the others, not ahead of Wildbond.
+
+- **Order:** IDLE-CORE, IDLE-NM1 Night Market Stalls (first), IDLE-SS1 Saltmarsh Shipping Office, IDLE-CS1 Card Shop lite, IDLE-DP1 Desk Plant Lab. Rows are in QUEUE This cycle; the slot is in PRIORITIES.
+- **Card Shop lite** is Main Street's shop loop with placeholder stock. That lifts the Wildbond gate on the lite slice. The full roster tie-in still waits.
+- **Spec:** house rules in docs/research/village-and-business-review.md. The four pitches are not in docs/research as of ef1bf0c, so the rows use that review until they are filed. Card Shop lite also uses docs/plans/main-street.md and docs/proposals/new-game-ideas.md section A.
+- Side Games Dev Lead claimed IDLE-CORE and IDLE-NM1 (15:58 UTC, below). Later slices: Side Games Dev Lead, or dot or Grok after their current guest task. Game Art Director: a light style pass, ideally a quiet spreadsheet-style skin. Playtester rates each once playable. Only Generations Reviewer merges.
+
+### 2026-10-14 16:00 UTC, Side Games Dev Lead (Evan): claiming ENGINE-SAVEVER
+- This is a small PR to shared/engine.js, agreed with Shared Systems Architect, who checks that existing saves still load. It registers an optional version and migrate beside the existing validators. When a save is newer than the game, the game refuses it and turns saving off for that session, with a notice to the player. **Touch rule: shared/engine.js is claimed here.** No save format changes, because this only refuses saves and never writes new fields. Files: shared/engine.js, a tests page and a tools/run-all-checks.cjs line. IDLE-CORE ships as shared/idle-core.js and tests/idle-core.html. Reviewer merges.
+
+### 2026-10-14 15:58 UTC, Side Games Dev Lead (Evan): claiming IDLE-CORE and IDLE-NM1
+- **IDLE-CORE**: a shared idle core in shared/ with elapsed-time progress (safe when background tabs are throttled), capped offline catch-up with a "while you were away" summary, bulk-buy maths, and an optional income readout in the tab title. House rules come from docs/research/village-and-business-review.md: do a job yourself before you can hire, offline earnings are capped, and there is no multiplier treadmill. Files: shared/idle-core.js (exact name to be agreed with Shared Systems Architect, who owns the API and agrees it before work starts) and tests/idle-core.html, plus a tools/run-all-checks.cjs line. **Touch rule: shared/ is claimed here.** No save-format change to existing games.
+- **IDLE-NM1**: Night Market Stalls, the smallest playable slice on IDLE-CORE, with Game Researcher's pitch as the spec. It starts after IDLE-CORE merges. Files: games/night-market/ and tests/night-market.html. The hall entry (index.html, launcher/games.js) will be claimed separately when it's added.
+- Draft PRs titled with each ID will follow. Reviewer merges. Lantern Bowl #371 continues alongside.
+
+### 2026-10-14 15:10 UTC, Claude (cloud session for Evan): claiming WB-C3b (bugs found in play)
+Two small Wildbond bugs from the WB-C3 phone run, with Evan's go-ahead (finished-early order: bugs found in play). The register showed the keyboard's "Up/Down…" help on a phone too. On the partner card, the "Its kind's strength…" note touched the last row of stat bars. Files: wildbond-godot/scripts/register.gd, scripts/card.gd, tests/run_tests.gd. No save, data or story change. @Wildbond & Starfall Dev Lead: small UI-only, nothing in your WB5.6 or NOS files. — Claude for Evan
+
+### 2026-10-14 14:32 UTC, Grok (Adam): OW-N1 ready for Generations Reviewer ([#378](https://github.com/ecbarish/generations/pull/378))
+- A Memories carried ledger (corner button and the Choose a world table) shows each memory carried, where the unknown ones are kept and how many choices each opens. Seven beats that could narrow to one clickable option gain an always-open alternative, so every beat now has two or more. Hall blurb in launcher/games.js says story life sim, not idle management. No save field added (the ledger reads S.mem and S.lives); old v1 saves load. Otherworld 1907/0 with 8 new OW-N1 checks; all 24 suites pass locally; CI green. No version bump, no START-HERE edit; Reviewer merges.
+
+### 2026-10-14 14:30 UTC, Claude (cloud session for Evan): claiming KM0 (spare effort)
+Claiming **KM0**, Keymaster's smallest test (one listing, one deal analyzer, one buy, on a single screen; docs/proposals/keymaster.md), as spare effort with Evan's go-ahead. The spare-effort order's items 1 and 2 are covered (#368 passes 151; #371 is with Side Games Dev Lead). @Side Games Dev Lead: KM0 is your row; this is only the one-screen prototype, and I'll hand it to you after review. Analyzer lines (Evan's pick): cash flow, cap rate, cash-on-cash, the 1% rule and after-repair value. Files: games/keymaster/, tests/keymaster.html, tools/run-all-checks.cjs (one test-page line). No hall entry (index.html stays untouched), no save key. Draft PR to follow. — Claude for Evan
+
+### 2026-10-14 14:16 UTC, Grok (Adam): claiming OW-N1
+- Files: games/otherworld/, tests/otherworld-checks.js, tests/otherworld.html, index.html and launcher/games.js (the hall blurb lives in launcher/games.js, which index.html loads; both claimed here per the touch rule). Draft PR to follow, titled OW-N1. No save-format change planned (the ledger reads existing soul memories).
+
 ### 2026-10-14 14:39 UTC, Grok (Adam): claiming LR17
 LR17 Busy Barn Door (Little Ranch, issue #376 spec). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr17/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump. Draft PR to follow. — Grok for Adam
+
 
 ### 2026-10-14 14:04 UTC, Generations PM: to Grok, Little Ranch's six toddler places (Evan's ruling)
 - **Order for Grok (Adam):** OW-N1 first (Otherworld, see the 14:00 UTC entry), then **LR17 Busy Barn Door**. After that, one at a time: LR18 Dough Table, LR19 Block Tower, LR20 Little Garden, LR21 Barn Band, LR22 Feel-Better Corner (Evan OK'd its caveat: a very mild bump, no crying sounds, no blood).
