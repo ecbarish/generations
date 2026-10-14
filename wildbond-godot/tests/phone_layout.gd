@@ -40,6 +40,11 @@ static func run(main: Node, check: Callable) -> void:
 	check.call(PhoneShell.contrast(PhoneShell.CREAM, PhoneShell.SLATE) >= 4.5 and PhoneShell.contrast(PhoneShell.CREAM, PhoneShell.A_DIM) >= 4.5, "cream on the slate and the dark red is at least 4.5 to 1")
 	check.call(PhoneShell.contrast(Color("8a6444"), PhoneShell.SHADOW) < 4.5 and PhoneShell.contrast(PhoneShell.DIM_TEXT, PhoneShell.SHADOW) >= 4.5, "the dim bark fails, so disabled words use the darker #6a4a32")
 	check.call(PhoneShell.INK.to_html(false) == "1e1a22", "outlines are ink #1e1a22")
+	check.call(HowTo.INK.to_html(false) == "1e1a22" and HowTo.PAPER.to_html(false) == "f4eddc" and HowTo.BARK.to_html(false) == "4a3426", "How to play uses ink, paper and bark")
+	check.call(HowTo.SUB_BASELINE - HowTo.TITLE_BASELINE >= 24.0, "How to play sits on its own line, above Phone or tablet")
+	check.call(PhoneShell.contrast(HowTo.BARK, HowTo.PAPER) >= 4.5, "Tap anywhere, in bark on paper, is at least 4.5 to 1")
+	var port := PhoneShell.portrait_rect(Rect2(12, 51, 366, 332), Vector2i(18, 12))
+	check.call(port.size == Vector2(36, 24) and port.position.y == 51.0 + 4.0 + 16.0 and absf(port.get_center().x - (12.0 + 183.0)) < 0.01, "the starter portrait is the sheet at 2x, 16px below the card's ink")
 
 	check.call(PhoneShell.release_is_step(40, false) and not PhoneShell.release_is_step(40, true) and not PhoneShell.release_is_step(2000, false), "a tap under 100ms is one tile; a hold, or a tap that already stepped, is not")
 	var dpad: Rect2 = wide["dpad"]
@@ -85,6 +90,20 @@ static func run(main: Node, check: Callable) -> void:
 	main.talk_page = 1
 	var side := PhoneShell.layout_for(Vector2(844, 390), Vector4.ZERO, 1.0)
 	check.call(main.lines.size() == 1 and int(main.talk_page) == 1 and str(main.talk_key) == "The same page stays open when the phone turns." and int(side["game_w"]) == 384, "rotating does not clear the open page or the line")
+	var sv: Rect2 = side["view"]
+	var ss: Rect2 = side["strip"]
+	var sd: Rect2 = side["dpad"]
+	var sa: Rect2 = PhoneShell.circle_box(side["a"], float(side["a_r"]))
+	var sb: Rect2 = PhoneShell.circle_box(side["b"], float(side["b_r"]))
+	var sm: Rect2 = side["menu"]
+	var sleft: Rect2 = side["deck_left"]
+	var sright: Rect2 = side["deck_right"]
+	check.call(bool(side["side"]) and sv.size == Vector2(384, 216) and ss.position.y >= sv.end.y and not sv.intersects(ss), "844x390: the view stays 384 by 216 and the hint band sits under it")
+	check.call(not sv.intersects(sleft) and not sv.intersects(sright) and sleft.size.x >= 44.0 and sright.size.x >= 44.0, "844x390: deck colour has a panel on each side of the view")
+	check.call(sd.size.x >= 44.0 and sd.size.y >= 44.0 and not sv.intersects(sd) and float(side["a_r"]) >= 22.0 and float(side["b_r"]) >= 22.0, "844x390: the d-pad, A and B are at least 44 across and clear of the view")
+	check.call(sm.size.y >= 44.0 and not sv.intersects(sm) and not ss.intersects(sm) and PhoneShell.box_gap(sa, sb) >= 8.0, "844x390: Menu is drawn clear of the view, and A and B stay apart")
+	check.call(PhoneShell.wants(Vector2(844, 390)) and PhoneShell.wants(Vector2(390, 844)) and not PhoneShell.wants(Vector2(1920, 1080)), "a sideways phone gets the frame; a desktop does not")
+	check.call(PhoneShell.strip_lines(112.0) == 4 and PhoneShell.strip_lines(104.0) == 3 and PhoneShell.strip_lines(72.0) == 2, "a hint band only keeps the lines that fit")
 	main.lines = keep_lines
 	main.talk_page = keep_page
 	main.talk_key = keep_key

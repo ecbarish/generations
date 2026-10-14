@@ -5,8 +5,14 @@ extends Control
 ## Any key, tap, click or button closes it.
 
 signal closed
-const INK := Color("3e2c20")
-const FAINT := Color("8a6e50")
+## Spec palette only (docs/art/wildbond-upright-layout.md). Bark on paper is about 9.9:1.
+const INK := Color("1e1a22")
+const PAPER := Color("f4eddc")
+const BARK := Color("4a3426")
+const DECK := Color("e6dcc6")
+## Baselines, not the top of the glyphs. 28px apart keeps "How to play" clear of "Phone or tablet".
+const TITLE_BASELINE := 40.0
+const SUB_BASELINE := 68.0
 const COLS := [
 	["Keyboard", "keys", [["Walk", "Arrow keys or W A S D"], ["Talk, choose", "E or Enter"], ["Back", "Esc"],
 		["Field book", "J or Tab; bag: menu"], ["Book pages", "Q and E"], ["Music, sounds", "M and N"]]],
@@ -91,32 +97,33 @@ func _input(e: InputEvent) -> void:
 		closed.emit()
 
 func _draw() -> void:
-	draw_rect(Rect2(0, 0, 384, 216), Color("121418"))
-	draw_rect(Rect2(10, 10, 364, 196), Color("4a2e1a"))
-	draw_rect(Rect2(14, 14, 356, 188), Color("f4e9cd"))
-	draw_string(font, Vector2(14, 34), "How to play", HORIZONTAL_ALIGNMENT_CENTER, 356, 13, INK)
+	draw_rect(Rect2(0, 0, 384, 216), INK)
+	draw_rect(Rect2(10, 10, 364, 196), BARK)
+	draw_rect(Rect2(14, 14, 356, 188), PAPER)
 	var use := in_use()
 	if use == "touch":
 		_draw_touch()
 		return
+	draw_string(font, Vector2(14, TITLE_BASELINE), "How to play", HORIZONTAL_ALIGNMENT_CENTER, 356, 16, INK)
 	for i in COLS.size():
 		var x := 22.0 + i * 116.0
 		var mine: bool = COLS[i][1] == use
 		if mine:
-			draw_rect(Rect2(x - 4, 42, 112, 136), Color(0.85, 0.66, 0.36, 0.3))
-		draw_string(font, Vector2(x, 54), COLS[i][0], HORIZONTAL_ALIGNMENT_CENTER, 104, 8, INK)
+			draw_rect(Rect2(x - 4, 52, 112, 120), DECK)
+		draw_string(font, Vector2(x, 66), COLS[i][0], HORIZONTAL_ALIGNMENT_CENTER, 104, 8, INK)
 		if mine:
-			draw_string(font, Vector2(x, 63), "(what you're using)", HORIZONTAL_ALIGNMENT_CENTER, 104, 6, FAINT)
-		var y := 76.0
+			draw_string(font, Vector2(x, 76), "(what you're using)", HORIZONTAL_ALIGNMENT_CENTER, 104, 6, BARK)
+		var y := 90.0
 		for r in COLS[i][2]:
 			draw_string(font, Vector2(x, y), r[0], HORIZONTAL_ALIGNMENT_LEFT, -1, 7, INK)
-			draw_string(font, Vector2(x, y + 8), r[1], HORIZONTAL_ALIGNMENT_LEFT, 104, 6, Color("6a5a3a"))
+			draw_string(font, Vector2(x, y + 8), r[1], HORIZONTAL_ALIGNMENT_LEFT, 104, 6, BARK)
 			y += 17.0
-	var how := "Tap anywhere" if use == "touch" else ("Press any button" if use == "pad" else "Press any key")
-	draw_string(font, Vector2(14, 188), "%s to %s.  This page is also on the Settings page of your field book." % [how, foot], HORIZONTAL_ALIGNMENT_CENTER, 356, 6, FAINT)
+	var how := "Press any button" if use == "pad" else "Press any key"
+	draw_string(font, Vector2(14, 186), "%s to %s.  This page is also on the Settings page of your field book." % [how, foot], HORIZONTAL_ALIGNMENT_CENTER, 356, 8, BARK)
 
-## One readable page of the phone controls. A touch device was being shown the keyboard column first.
+## One readable page of the phone controls. The title and "Phone or tablet" each have their own line.
 func _draw_touch() -> void:
-	draw_string(font, Vector2(14, 40), "Phone or tablet", HORIZONTAL_ALIGNMENT_CENTER, 356, 16, INK)
-	draw_multiline_string(font, Vector2(28, 78), TOUCH_COPY, HORIZONTAL_ALIGNMENT_LEFT, 328, 16, -1, INK)
-	draw_string(font, Vector2(14, 196), "Tap anywhere to %s." % foot, HORIZONTAL_ALIGNMENT_CENTER, 356, 16, FAINT)
+	draw_string(font, Vector2(28, TITLE_BASELINE), "How to play", HORIZONTAL_ALIGNMENT_CENTER, 328, 16, INK)
+	draw_string(font, Vector2(28, SUB_BASELINE), "Phone or tablet", HORIZONTAL_ALIGNMENT_CENTER, 328, 16, INK)
+	draw_multiline_string(font, Vector2(28, 100), TOUCH_COPY, HORIZONTAL_ALIGNMENT_LEFT, 328, 16, 6, INK)
+	draw_string(font, Vector2(28, 186), "Tap anywhere to %s." % foot, HORIZONTAL_ALIGNMENT_CENTER, 328, 16, BARK)

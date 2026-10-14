@@ -1213,8 +1213,8 @@ func _info(u: Dictionary, r: Rect2, mine: bool) -> void:
 		draw_rect(xr, Color("d8ccb4"))
 		draw_rect(Rect2(xr.position, Vector2(xr.size.x * clampf(float(u.c.xp) / R.xp_need(u.c.lvl), 0.0, 1.0), xr.size.y)), Color("4a8ad8"))
 
-## The next few turns, without touching the real turn meters.
-func upcoming() -> Array:
+## The next few turns, without touching the real turn meters. The field shows four. The upright strip asks for more, so a long order can wrap and end in +N.
+func upcoming(count := 4) -> Array:
 	var sim: Array = []
 	for u in allies + foes:
 		if u.c.hp > 0:
@@ -1222,7 +1222,7 @@ func upcoming() -> Array:
 	var order: Array = []
 	if sim.is_empty():
 		return order
-	for n in 4:
+	for n in maxi(1, count):
 		var best: Dictionary = sim[0]
 		var best_t := INF
 		for s in sim:
@@ -1236,15 +1236,15 @@ func upcoming() -> Array:
 		order.append(best.u)
 	return order
 
-func next_names() -> PackedStringArray:
+func next_names(count := 4) -> PackedStringArray:
 	var labels := PackedStringArray()
-	for u in upcoming():
+	for u in upcoming(count):
 		labels.append(str(u.c.name))
 	return labels
 
-func next_sides() -> PackedStringArray:
+func next_sides(count := 4) -> PackedStringArray:
 	var sides := PackedStringArray()
-	for u in upcoming():
+	for u in upcoming(count):
 		sides.append(str(u.side))
 	return sides
 

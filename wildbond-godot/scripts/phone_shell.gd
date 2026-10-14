@@ -1,6 +1,7 @@
 extends Control
 ## Upright phone: the 384×216 (or narrower) view sits in a Game Boy frame, with a dialogue strip and a
-## d-pad / A / B / Menu deck under it. A wide window keeps the existing layout. docs/art/wildbond-upright-layout.md
+## d-pad / A / B / Menu deck under it. A sideways phone keeps that same view, with a hint band under it
+## and a deck on either side. A wide computer window keeps the existing layout. docs/art/wildbond-upright-layout.md
 
 const INK := Color("1e1a22")
 const DECK := Color("e6dcc6")
@@ -24,6 +25,8 @@ const CREAM := Color("f4eddc")
 ## #8a6444 on #cfc4ac is about 3:1, under the 4.5:1 line, so disabled words use the darker bark.
 const DIM_TEXT := Color("6a4a32")
 const TOUCH_HINT := "Use the d-pad to walk. Tap A or the dialogue box to talk and go on. Tap Menu for your party and to save."
+## Enough coming turns that two chip lines fill and the rest become +N.
+const CHIP_LOOKAHEAD := 12
 const Sprites := preload("res://scripts/creature_sprites.gd")
 const HowTo := preload("res://scripts/howto.gd")
 
@@ -72,11 +75,17 @@ static func _pixel_font() -> Font:
 static func wants(win: Vector2) -> bool:
 	if win.x < 8.0 or win.y < 8.0:
 		return false
-	if win.y <= win.x * 1.05:
+	if win.y > win.x * 1.05:
+		return win.x <= 900.0
+	return side_wants(win)
+
+## A phone held sideways: short edge at most 520, long edge at most 1000. A desktop stays as it is.
+static func side_wants(win: Vector2) -> bool:
+	if win.x < 8.0 or win.y < 8.0 or win.x <= win.y * 1.05:
 		return false
-	if win.x > 900.0:
-		return false
-	return true
+	var short := minf(win.x, win.y)
+	var long := maxf(win.x, win.y)
+	return short <= 520.0 and long <= 1000.0
 
 static func read_insets() -> Vector4:
 	if use_forced:
@@ -213,6 +222,8 @@ static func _put_plus(rects: Array, out: Array, extra: int, font: Font, font_siz
 	out.append("+%d" % count)
 
 static func layout_for(win: Vector2, insets: Vector4, dpr: float = 1.0) -> Dictionary:
+	if side_wants(win):
+		return _layout_side(win, insets, dpr)
 	var left := insets.x
 	var top := insets.y
 	var right := insets.z
@@ -268,8 +279,64 @@ static func layout_for(win: Vector2, insets: Vector4, dpr: float = 1.0) -> Dicti
 		"view": view, "strip": strip, "deck": deck, "dpad": dpad,
 		"a": a, "a_r": ar, "b": b, "b_r": ar, "menu": menu,
 		"buttons": buttons, "card": card, "choose": choose, "not_yet": not_yet,
+		"top": top, "bottom": bottom, "left": left, "right": right, "side": false,
+	}
+
+## Sideways phone. The view stays 384×216. Deck colour sits on both sides of it. The hint has its own
+## band under the view, never over it. Whatever is left is ink, not black.
+static func _layout_side(win: Vector2, insets: Vector4, dpr: float) -> Dictionary:
+	var left := insets.x
+	var top := insets.y
+	var right := insets.z
+	var bottom := insets.w
+	var avail_w := maxf(16.0, win.x - left - right)
+	var avail_h := maxf(16.0, win.y - top - bottom)
+	var game_w := 384
+	if avail_w < 384.0:
+		game_w = maxi(16, int(floor(avail_w / 16.0)) * 16)
+	var view_w := float(game_w)
+	var view_h := 216.0
+	var gap := 4.0
+	var hint_h := 72.0
+	if view_h + gap + hint_h > avail_h:
+		hint_h = maxf(48.0, avail_h - view_h - gap)
+	var extra := maxf(0.0, avail_h - view_h - gap - hint_h)
+	var view := Rect2(left + floor((avail_w - view_w) / 2.0), top + extra, view_w, view_h)
+	var strip := Rect2(left, view.end.y + gap, avail_w, hint_h)
+	var deck_left := Rect2(left, view.position.y, maxf(0.0, view.position.x - left), view.size.y)
+	var deck_right := Rect2(view.end.x, view.position.y, maxf(0.0, win.x - right - view.end.x), view.size.y)
+	var dpad_s := 132.0 if deck_left.size.x >= 160.0 else 124.0
+	var dpad := Rect2(left + 20.0, deck_left.position.y + (deck_left.size.y - dpad_s) * 0.5, dpad_s, dpad_s)
+	if dpad.end.x > view.position.x - 8.0:
+		dpad.position.x = maxf(left + 8.0, view.position.x - 8.0 - dpad_s)
+	var ar := 32.0 if deck_right.size.x >= 96.0 else 22.0
+	var stack := ar * 2.0 + 8.0 + ar * 2.0 + 8.0 + 44.0
+	var sy := deck_right.position.y + maxf(0.0, (deck_right.size.y - stack) * 0.5)
+	var ax := deck_right.get_center().x
+	var a := Vector2(ax, sy + ar)
+	var b := Vector2(ax, a.y + ar + 8.0 + ar)
+	var mw := 96.0 if deck_right.size.x >= 112.0 else 88.0
+	var menu := Rect2(ax - mw * 0.5, b.y + ar + 8.0, mw, 44.0)
+	var card := Rect2(view.position, view.size)
+	return {
+		"game_w": game_w, "k": 1, "dpr": dpr, "side": true,
+		"backing": Vector2(float(game_w) * dpr, 216.0 * dpr),
+		"view": view, "strip": strip, "deck": deck_left, "deck_left": deck_left, "deck_right": deck_right,
+		"dpad": dpad, "a": a, "a_r": ar, "b": b, "b_r": ar, "menu": menu,
+		"buttons": [], "card": card, "choose": Rect2(), "not_yet": Rect2(),
 		"top": top, "bottom": bottom, "left": left, "right": right,
 	}
+
+## The starter portrait: the painted sheet at 2×, 16px below the card's ink and 16px above the name.
+## Lines of 16px text that fit in a strip, with 12px padding and a line height of 1.3.
+static func strip_lines(strip_h: float) -> int:
+	return maxi(1, int(floor((strip_h - 24.0) / 20.8)))
+
+static func portrait_rect(card: Rect2, frame: Vector2i) -> Rect2:
+	var w := maxf(2.0, float(frame.x)) * 2.0
+	var h := maxf(2.0, float(frame.y)) * 2.0
+	var top := card.position.y + 4.0 + 16.0
+	return Rect2(card.get_center().x - w * 0.5, top, w, h)
 
 static func _menu_rect(win_x: float, left: float, right: float, dpad: Rect2, b: Vector2, br: float, wide: bool, deck_bot: float) -> Rect2:
 	var mw := 96.0 if wide else 88.0
@@ -489,6 +556,15 @@ func _press(p: Vector2, id: int) -> void:
 		flash_t = 0.12
 		_do_menu()
 		return
+	if bool(L.get("side", false)):
+		var side_strip: Rect2 = L["strip"]
+		if side_strip.has_point(p) and not _main.lines.is_empty():
+			_advance_talk()
+			return
+		var side_view: Rect2 = L["view"]
+		if side_view.has_point(p):
+			_forward_point(p)
+		return
 	if _main.card.visible:
 		var choose: Rect2 = L["choose"]
 		var wait: Rect2 = L["not_yet"]
@@ -614,7 +690,7 @@ func _pages() -> PackedStringArray:
 		_main.talk_key = text
 		_main.talk_page = 0
 	var strip: Rect2 = L["strip"]
-	var max_lines := 4 if strip.size.y >= 112.0 else 3
+	var max_lines := strip_lines(strip.size.y)
 	var pages := paginate(text, font, 16, maxf(32.0, strip.size.x - 24.0), max_lines)
 	if int(_main.talk_page) >= pages.size():
 		_main.talk_page = maxi(0, pages.size() - 1)
@@ -695,10 +771,13 @@ func _draw() -> void:
 	# The strip is inset 8px. Those side gaps are frame, not the empty window colour.
 	draw_rect(Rect2(left, strip.position.y, maxf(0.0, strip.position.x - left), strip.size.y), INK)
 	draw_rect(Rect2(strip.end.x, strip.position.y, maxf(0.0, win.x - right - strip.end.x), strip.size.y), INK)
+	if bool(L.get("side", false)):
+		_draw_side()
+		return
 	draw_rect(deck, DECK)
 	draw_rect(Rect2(deck.position, Vector2(deck.size.x, 1)), PAPER)
 	draw_rect(Rect2(deck.position.x, deck.end.y - 1, deck.size.x, 1), SHADOW)
-	var battle_on: bool = _main != null and _main.battle.visible and _main.battle.state in ["choose", "moves", "orders"]
+	var battle_on: bool = _main != null and _main.battle.visible
 	var card_on: bool = _main != null and _main.card.visible and _main.card.buttons.is_empty()
 	if battle_on:
 		_draw_battle(strip)
@@ -707,6 +786,27 @@ func _draw() -> void:
 	if card_on:
 		_draw_card()
 	_draw_pad()
+
+## Letterbox is ink. The panels beside the view are deck. The hint band is under the view.
+func _draw_side() -> void:
+	var win := size
+	var view: Rect2 = L["view"]
+	var strip: Rect2 = L["strip"]
+	draw_rect(Rect2(0, 0, win.x, maxf(0.0, view.position.y)), INK)
+	draw_rect(Rect2(0, view.end.y, win.x, maxf(0.0, strip.position.y - view.end.y)), INK)
+	if strip.end.y < win.y:
+		draw_rect(Rect2(0, strip.end.y, win.x, win.y - strip.end.y), INK)
+	_paint_deck(L["deck_left"])
+	_paint_deck(L["deck_right"])
+	_draw_strip(strip)
+	_draw_pad()
+
+func _paint_deck(deck: Rect2) -> void:
+	if deck.size.x < 1.0 or deck.size.y < 1.0:
+		return
+	draw_rect(deck, DECK)
+	draw_rect(Rect2(deck.position, Vector2(deck.size.x, 1)), PAPER)
+	draw_rect(Rect2(deck.position.x, deck.end.y - 1, deck.size.x, 1), SHADOW)
 
 func _draw_strip(strip: Rect2) -> void:
 	draw_rect(strip, INK)
@@ -719,8 +819,8 @@ func _draw_strip(strip: Rect2) -> void:
 	if not pages.is_empty():
 		body = pages[int(_main.talk_page)]
 		more = int(_main.talk_page) < pages.size() - 1
-	elif _main != null and str(_main.caption.text) != "":
-		var hint_pages := paginate(str(_main.caption.text), font, 16, maxf(32.0, strip.size.x - 24.0), 4 if strip.size.y >= 112.0 else 3)
+	elif _main != null and not _main.howto.visible and str(_main.caption.text) != "":
+		var hint_pages := paginate(str(_main.caption.text), font, 16, maxf(32.0, strip.size.x - 24.0), strip_lines(strip.size.y))
 		body = hint_pages[0]
 		col = HINT
 		more = hint_pages.size() > 1
@@ -737,14 +837,22 @@ func _draw_battle(strip: Rect2) -> void:
 	draw_rect(strip, INK)
 	draw_rect(strip.grow(-1), PAPER)
 	draw_rect(strip.grow(-3), SHADOW, false, 2.0)
+	# While a move plays, the grid steps aside and the strip is the message.
+	if _main.battle.state not in ["choose", "moves", "orders"]:
+		_draw_battle_note(strip)
+		return
 	var buttons: Array = L["buttons"]
 	var slots: Array = _slots()
 	var names := PackedStringArray()
 	var sides := PackedStringArray()
 	if _main.battle.has_method("next_names"):
-		names = _main.battle.next_names()
-		sides = _main.battle.next_sides()
-	var chips: Dictionary = place_chips(names, font, strip.position.x, strip.position.y + 6.0, strip.end.x, 14, 28.0)
+		names = _main.battle.next_names(CHIP_LOOKAHEAD)
+		sides = _main.battle.next_sides(CHIP_LOOKAHEAD)
+	var label := "Next:"
+	var label_w := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+	var row := Rect2(strip.position.x + 12.0, strip.position.y + 6.0, label_w + 4.0, 28.0)
+	_text_in(row, label, 16, INK)
+	var chips: Dictionary = place_chips(names, font, row.end.x + 6.0, strip.position.y + 6.0, strip.end.x, 14, 28.0)
 	var rects: Array = chips["rects"]
 	var labs: PackedStringArray = chips["labels"]
 	for i in rects.size():
@@ -777,16 +885,34 @@ func _draw_battle(strip: Rect2) -> void:
 			draw_rect(r, DECK)
 			_text_in(r, str(slots[i]["text"]), 16, INK)
 
+## The line the move just spoke. The command grid is hidden, so the words have the strip.
+func _draw_battle_note(strip: Rect2) -> void:
+	var text := ""
+	var lines: Array = _main.battle.log_lines
+	if not lines.is_empty():
+		text = str(lines[lines.size() - 1])
+	if text == "":
+		text = "…"
+	var max_lines := strip_lines(strip.size.y)
+	var pages := paginate(text, font, 16, maxf(32.0, strip.size.x - 24.0), max_lines)
+	var y := strip.position.y + 12.0 + font.get_ascent(16)
+	for line in pages[0].split("\n"):
+		draw_string(font, Vector2(strip.position.x + 12.0, y), line, HORIZONTAL_ALIGNMENT_LEFT, strip.size.x - 24.0, 16, INK)
+		y += 16.0 * 1.3
+
 func _draw_card() -> void:
 	var card: Rect2 = L["card"]
 	draw_rect(card, INK)
 	draw_rect(card.grow(-4), PAPER)
 	var info: Dictionary = _main.card.info
 	var name := str(info.get("name", ""))
-	var foot := Vector2(card.get_center().x, card.position.y + 16.0 + 64.0)
-	if not Sprites.try_draw(self, str(_main.card.id), foot, true, "idle", int(Time.get_ticks_msec() / 160.0), 2.0, 0.0, ""):
-		draw_rect(Rect2(foot.x - 16, foot.y - 32, 32, 32), SLATE)
-	var y := foot.y + 16.0 + font.get_ascent(20)
+	var id := str(_main.card.id)
+	var dest := portrait_rect(card, Sprites.frame_size(id, "idle"))
+	var foot := Vector2(dest.get_center().x, dest.end.y)
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if not Sprites.try_draw(self, id, foot, true, "idle", int(Time.get_ticks_msec() / 160.0), 2.0, 0.0, ""):
+		draw_rect(dest, SLATE)
+	var y := dest.end.y + 16.0 + font.get_ascent(20)
 	draw_string(font, Vector2(card.position.x, y), name, HORIZONTAL_ALIGNMENT_CENTER, card.size.x, 20, INK)
 	y += 22.0
 	draw_string(font, Vector2(card.position.x, y), str(info.get("el", "")), HORIZONTAL_ALIGNMENT_CENTER, card.size.x, 16, HINT)

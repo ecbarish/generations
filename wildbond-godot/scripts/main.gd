@@ -127,7 +127,7 @@ var title: Control
 var touch: Control                               # the phone pad (touch_pad.gd)
 var howto: Control                               # the How to play page (howto.gd)
 var turn_card: Control                             # kept so an old test can still cover the screen; it no longer asks you to turn the phone
-var phone = null                                 # the upright Game Boy frame (phone_shell.gd), or null on a wide window
+var phone = null                                 # the phone frame (phone_shell.gd), or null on a wide window
 var show_howto := true                           # it opens before a new journey (the checks turn it off)
 var howto_then_title := false                    # opened from the title page: go back to it after
 var settings := Settings.new()                   # sound, text size, battle pace, phone buttons (settings.gd, WB6.2)
@@ -4693,8 +4693,8 @@ func _fit_caption() -> void:
 		caption_plate.size = Vector2(384, maxf(1.0, band_bottom - band_top))
 
 # ---------------------------------------------------------------- the phone pad and the settings (WB6.1-6.2)
-## An upright phone grows the Game Boy frame. Turning it sideways takes the frame away and leaves the journey,
-## the open line, and the page of that line where they were.
+## An upright phone grows the Game Boy frame. A phone held sideways keeps the 384×216 view, an ink
+## letterbox, a hint band under the view, and a deck on either side. Turning never drops the open line.
 func _phone_sync() -> void:
 	var win := Vector2(DisplayServer.window_get_size())
 	if PhoneShell.wants(win):
@@ -4715,10 +4715,11 @@ func _thumbs_tick() -> void:
 	_phone_sync()
 	touch.mode = settings.buttons()
 	var menus := lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or (menu != null and menu.visible)
-	var upright := phone != null
-	touch.pad_on = not upright and not menus and lines.is_empty() and trans_t < 0.0 and stage in ["to_barn", "barn_choose", "walk_out", "free"]
+	var framed := phone != null
+	var side := framed and not phone.L.is_empty() and bool(phone.L.get("side", false))
+	touch.pad_on = not framed and not menus and lines.is_empty() and trans_t < 0.0 and stage in ["to_barn", "barn_choose", "walk_out", "free"]
 	touch.word = action_word()
-	touch.btn_on = not upright and not menus and trans_t < 0.0 and touch.word != ""
+	touch.btn_on = not framed and not menus and trans_t < 0.0 and touch.word != ""
 	var win := Vector2(DisplayServer.window_get_size())
 	var side_phone := phone == null and win.x > win.y * 1.05 and win.y >= 8.0 and win.y <= 520.0 and win.x <= 1000.0
 	if side_phone:
@@ -4732,7 +4733,7 @@ func _thumbs_tick() -> void:
 	_place_caption()
 	_fit_caption()
 	battle.pace = settings.pace()
-	battle.external_ui = upright
+	battle.external_ui = framed and not side
 	var size := 16 if side_phone else (10 if settings.large_text() else 8)
 	if bubble_text.label_settings.font_size != size:  # only on a change, so the labels aren't laid out every frame
 		bubble_text.label_settings.font_size = size
