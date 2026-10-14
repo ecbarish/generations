@@ -1,36 +1,43 @@
 /* Generations shared idle core.
-   Load shared/engine.js first. This file never reads or writes storage: the game
-   saves idle.lastSeen() itself through Arcade.save / Arcade.load. Also save on
-   visibilitychange and pagehide, so a hidden or closing tab keeps that timestamp.
+   Load shared/engine.js first. This file never reads or writes storage.
 
-   Ticks are setInterval(tick, 250). Browsers slow that to about a second while the
-   tab is hidden; Date.now() deltas still pay the full rate. A hidden gap longer
-   than 5 seconds (a frozen or sleeping tab) uses the offline cap. Games draw with
-   their own requestAnimationFrame.
+   Offline means the page was closed. start(lastSeen) is the only offline
+   catch-up: min(away, cap) at offlineRate, returned as a summary the game draws.
+   While the page is loaded, including a hidden tab, every tick credits the full
+   Date.now() gap at the online rate. No hidden threshold and no cap. A clock
+   step backward credits 0.
+
+   Pass save and the core calls it with lastSeen on visibilitychange (when the
+   tab hides), on pagehide, and every 30s. The game writes that through engine.js.
+   Also save from those same moments if you keep your own listener. Ticks are
+   setInterval(tick, 250). Games draw with their own requestAnimationFrame.
 
    var idle = Idle.create({
      getRate: function () { return state.perSecond; },
      apply: function (amount) { state.cash += amount; },
-     maxOfflineSec: 8 * 3600,
-     offlineRate: 1,
-     title: { label: 'Night Market', unit: '$' }
+     maxOfflineSec: 4 * 3600,
+     offlineRate: 0.5,
+     title: { label: 'Night Market', unit: '$' },
+     save: function (seen) { state.seen = seen; Arcade.save(key, state); }
    });
    var away = idle.start(savedLastSeen); // {away, credited, gained, capped}, or null if away < 60s
    // The game draws its own "While you were away" panel from that summary.
    // While running, the tab title is '+' + unit + Arcade.fmt(rate) + '/s · ' + label
    // (for a rate of 1200: '+$1.20K/s · Night Market'), refreshed once a second.
    idle.stop(); // puts the previous tab title back
-   Arcade.save(key, { cash: state.cash, seen: idle.lastSeen() });
-   Idle.bulkCost(base, growth, owned, 10);
+   Idle.milestoneMult(owned);          // x2 at 25, x4 at 50, x8 at 100
+   Idle.bulkCost(base, growth, owned, 10); // growth defaults to Idle.DEFAULT_GROWTH (1.07)
    Idle.maxAffordable(base, growth, owned, state.cash);
 */
 (function () {
   'use strict';
 
   var DEFAULT_CAP = 8 * 3600;
+  var DEFAULT_GROWTH = 1.07; // generators may override, usually in 1.05-1.15
   var AWAY_MIN = 60;
-  var HIDDEN_GAP = 5;
   var TICK_MS = 250;
+  var SAVE_MS = 30000;
+  var MILESTONES = [25, 50, 100];
   var SUF = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
   var titleWarned = false;
 
@@ -59,7 +66,23 @@
     return plainFmtI(rate);
   }
 
+  function growthOf(growth) {
+    if (growth === undefined || growth === null) return DEFAULT_GROWTH;
+    return growth;
+  }
+
+  /* x2 at each milestone the player has reached. 25, 50 and 100 stack to x8.
+     A second call with the same owned count stays put: the game saves owned. */
+  function milestoneMult(owned, steps) {
+    var list = steps && steps.length ? steps : MILESTONES;
+    var n = owned > 0 && isFinite(owned) ? owned : 0;
+    var mult = 1;
+    for (var i = 0; i < list.length; i++) if (n >= list[i]) mult *= 2;
+    return mult;
+  }
+
   function bulkCost(base, growth, owned, n) {
+    growth = growthOf(growth);
     n = Math.floor(n);
     if (!(n > 0) || !(base > 0) || !isFinite(base)) return 0;
     if (!isFinite(owned) || owned < 0) owned = 0;
@@ -76,6 +99,7 @@
   /* Largest n whose closed-form ladder price fits in cash. The log step is the
      answer; a few boundary nudges only correct floating-point rounding. */
   function maxAffordable(base, growth, owned, cash) {
+    growth = growthOf(growth);
     if (!(cash > 0) || !isFinite(cash)) return 0;
     if (bulkCost(base, growth, owned, 1) > cash) return 0;
     if (!isFinite(owned) || owned < 0) owned = 0;
@@ -108,23 +132,19 @@
     var offlineRate = (typeof opts.offlineRate === 'number' && isFinite(opts.offlineRate) && opts.offlineRate >= 0) ? opts.offlineRate : 1;
     if (offlineRate > 1) offlineRate = 1; // away time never pays more than active play
     var titleOpts = opts.title || null;
+    var saveFn = typeof opts.save === 'function' ? opts.save : null;
     var running = false;
     var timer = 0;
+    var listening = false;
     var lastWall = 0;
-    var lastPerf = 0;
     var lastTitleAt = -Infinity;
+    var lastSaveAt = 0;
     var savedTitle = null;
     var summary = null;
 
     function rateNow() {
       var rate = +getRate();
       return isFinite(rate) && rate > 0 ? rate : 0;
-    }
-    function perfNow() {
-      return (typeof performance !== 'undefined' && performance.now) ? performance.now() : 0;
-    }
-    function tabHidden() {
-      return typeof document !== 'undefined' && document.hidden === true;
     }
     function addOffline(awaySec) {
       var capped = awaySec > maxOfflineSec;
@@ -146,6 +166,30 @@
       document.title = '+' + unit + titleNumber(rateNow()) + '/s · ' + label;
       lastTitleAt = now;
     }
+    function flushSave(now) {
+      if (typeof saveFn !== 'function') return;
+      lastSaveAt = now;
+      saveFn(now);
+    }
+    function onVisibility() {
+      if (running && typeof document !== 'undefined' && document.hidden) flushSave(Date.now());
+    }
+    function onPageHide() {
+      if (running) flushSave(Date.now());
+    }
+    function unbindSaves() {
+      if (!listening) return;
+      if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', onVisibility);
+      if (typeof window !== 'undefined') window.removeEventListener('pagehide', onPageHide);
+      listening = false;
+    }
+    function bindSaves() {
+      unbindSaves();
+      if (typeof saveFn !== 'function') return;
+      if (typeof document !== 'undefined') document.addEventListener('visibilitychange', onVisibility);
+      if (typeof window !== 'undefined') window.addEventListener('pagehide', onPageHide);
+      listening = true;
+    }
     function disarm() {
       if (timer && typeof clearInterval === 'function') clearInterval(timer);
       timer = 0;
@@ -157,46 +201,39 @@
     function onTick() {
       if (!running) return;
       var wall = Date.now();
-      var perf = perfNow();
       var wallDt = (wall - lastWall) / 1000;
-      var perfDt = (perf - lastPerf) / 1000;
-      var hidden = tabHidden();
       lastWall = wall;
-      lastPerf = perf;
-      if (!(wallDt > 0)) {
-        /* A clock that moves backward credits nothing. */
-      } else if (wallDt > maxOfflineSec || (hidden && wallDt > HIDDEN_GAP)) {
-        addOffline(wallDt);
-      } else {
-        /* Hidden tabs throttle the interval to about a second: that is still
-           active play. performance.now() only smooths a visible tick. */
-        var dt = wallDt;
-        if (!hidden && perfDt > 0) dt = Math.min(perfDt, wallDt);
-        var gained = rateNow() * dt;
+      /* Loaded page, hidden or not: the whole gap at the online rate. No cap. */
+      if (wallDt > 0) {
+        var gained = rateNow() * wallDt;
         if (gained) apply(gained);
       }
+      if (running && wall - lastSaveAt >= SAVE_MS) flushSave(wall);
       if (running && wall - lastTitleAt >= 1000) writeTitle(wall);
     }
     function start(lastSeen) {
       running = false;
       disarm();
+      unbindSaves();
       summary = null;
       running = true;
       var now = Date.now();
       lastWall = now;
-      lastPerf = perfNow();
+      lastSaveAt = now;
       var result = null;
       if (typeof lastSeen === 'number' && isFinite(lastSeen)) {
         var away = (now - lastSeen) / 1000;
         if (away >= AWAY_MIN) result = addOffline(away);
       }
       writeTitle(now);
+      bindSaves();
       arm();
       return result;
     }
     function stop() {
       running = false;
       disarm();
+      unbindSaves();
       if (savedTitle !== null && typeof document !== 'undefined') {
         document.title = savedTitle;
         savedTitle = null;
@@ -207,5 +244,11 @@
     return { start: start, stop: stop, lastSeen: lastSeen };
   }
 
-  window.Idle = { create: create, bulkCost: bulkCost, maxAffordable: maxAffordable };
+  window.Idle = {
+    create: create,
+    bulkCost: bulkCost,
+    maxAffordable: maxAffordable,
+    milestoneMult: milestoneMult,
+    DEFAULT_GROWTH: DEFAULT_GROWTH
+  };
 })();

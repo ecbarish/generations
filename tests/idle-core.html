@@ -172,8 +172,8 @@ document.querySelector('#run').onclick = function () {
       perf += 6000;
       before = cash;
       pump();
-      check('a hidden gap past five seconds is offline', cash - before === 2400 * 6 * 0.5);
-      check('the hidden gap is added to the summary', summary.credited === credited + 6 && summary.gained === gained + 2400 * 6 * 0.5 && summary.capped === false);
+      check('a long hidden gap stays on the full online rate', cash - before === 2400 * 6);
+      check('a hidden gap does not become an away summary', summary.credited === credited && summary.gained === gained && summary.capped === false);
 
       var mark = cash;
       var snap = summary.credited;
@@ -185,10 +185,9 @@ document.querySelector('#run').onclick = function () {
       wall += 1500 * 1000;
       perf += 1500 * 1000;
       before = cash;
-      var awayBefore = summary.away;
       pump();
-      check('a forward jump is held to the cap', cash - before === 2400 * 1000 * 0.5);
-      check('a forward jump flags the summary', summary.capped === true && summary.credited === snap + 1000 && summary.away === awayBefore + 1500);
+      check('a long loaded gap is not clamped', cash - before === 2400 * 1500);
+      check('a loaded gap does not flag the away summary', summary.capped === false && summary.credited === snap);
 
       idle.stop();
       check('stop restores the tab title', document.title === 'Arcade hall');
@@ -223,6 +222,92 @@ document.querySelector('#run').onclick = function () {
       check('a one-second hidden gap is not offline', summary.credited === credited && summary.capped === false);
       check('a hidden tab keeps the title current', document.title === '+$' + Arcade.fmt(40) + '/s · Night Market');
       idle.stop();
+      hidden = false;
+
+      cash = 0;
+      rate = 10;
+      idle = Idle.create({
+        getRate: function () { return rate; },
+        apply: function (amount) { cash += amount; },
+        maxOfflineSec: 100,
+        offlineRate: 0.5
+      });
+      idle.start(wall);
+      hidden = true;
+      for (var i = 0; i < 10; i++) { wall += 60000; perf += 1000; pump(); }
+      var full = 10 * 600;
+      check('ten hidden minutes, woken each minute, pays within 2% of full income', Math.abs(cash - full) <= full * 0.02 && cash > full * 0.5);
+      idle.stop();
+      hidden = false;
+    })();
+
+    (function reopen() {
+      var cash = 0;
+      var rate = 8;
+      var cap = 4 * 3600;
+      var idle = Idle.create({
+        getRate: function () { return rate; },
+        apply: function (amount) { cash += amount; },
+        maxOfflineSec: cap,
+        offlineRate: 0.5
+      });
+      var hour = idle.start(wall - 3600 * 1000);
+      var hourPay = rate * 3600 * 0.5;
+      check('reopening after one hour credits the offline rate', hour && hour.away === 3600 && hour.credited === 3600 && hour.capped === false && Math.abs(hour.gained - hourPay) <= hourPay * 0.01 && Math.abs(cash - hourPay) <= hourPay * 0.01);
+      idle.stop();
+      cash = 0;
+      var closed = idle.start(wall - 30 * 3600 * 1000);
+      var capPay = rate * cap * 0.5;
+      check('reopening after thirty hours is held to the four hour cap', closed && closed.away === 30 * 3600 && closed.credited === cap && closed.capped === true && Math.abs(closed.gained - capPay) <= capPay * 0.01 && Math.abs(cash - capPay) <= capPay * 0.01);
+      idle.stop();
+    })();
+
+    (function milestonesAndGrowth() {
+      check('24 owned has no milestone', Idle.milestoneMult(24) === 1);
+      check('25 owned applies x2 once', Idle.milestoneMult(25) === 2 && Idle.milestoneMult(25) === 2);
+      check('50 owned stacks to x4', Idle.milestoneMult(50) === 4);
+      check('100 owned stacks to x8', Idle.milestoneMult(100) === 8);
+      var savedOwned = 25;
+      check('a reloaded owned count keeps the same milestone', Idle.milestoneMult(savedOwned) === 2);
+      check('the default growth is 1.07', Idle.DEFAULT_GROWTH === 1.07);
+      var worked = Idle.bulkCost(5, undefined, 10, 10);
+      var bruteWorked = brute(5, 1.07, 10, 10);
+      check('the worked x10 cost is 135.90', worked.toFixed(2) === '135.90' && Math.abs(worked - bruteWorked) <= 1e-9 * bruteWorked);
+      var affordable = Idle.maxAffordable(5, undefined, 10, worked);
+      check('max at the default growth buys the worked ten', affordable === 10 && Idle.bulkCost(5, undefined, 10, affordable) <= worked + 1e-6);
+    })();
+
+    (function saves() {
+      var stamps = [];
+      var idle = Idle.create({
+        getRate: function () { return 1; },
+        apply: function () {},
+        save: function (seen) { stamps.push(seen); }
+      });
+      idle.start(wall);
+      check('starting does not write a save', stamps.length === 0);
+      hidden = true;
+      document.dispatchEvent(new Event('visibilitychange'));
+      check('hiding the tab saves lastSeen', stamps.length === 1 && stamps[0] === wall);
+      hidden = false;
+      document.dispatchEvent(new Event('visibilitychange'));
+      check('showing the tab does not save', stamps.length === 1);
+      wall += 5000;
+      window.dispatchEvent(new Event('pagehide'));
+      check('pagehide saves the new timestamp', stamps.length === 2 && stamps[1] === wall);
+      var count = stamps.length;
+      wall += 29999;
+      pump();
+      check('just under 30 seconds does not save again', stamps.length === count);
+      wall += 1;
+      pump();
+      check('every 30 seconds saves lastSeen', stamps.length === count + 1 && stamps[stamps.length - 1] === wall);
+      idle.stop();
+      var afterStop = stamps.length;
+      hidden = true;
+      document.dispatchEvent(new Event('visibilitychange'));
+      window.dispatchEvent(new Event('pagehide'));
+      check('stop ends the save listeners', stamps.length === afterStop);
       hidden = false;
     })();
 
