@@ -103,7 +103,7 @@ document.querySelector('#run').onclick = async () => {
     }
     check('a juke as the defender arrives gains more than a juke at the snap (' + (timedJuke / 20).toFixed(1) + ' vs ' + (earlyJuke / 20).toFixed(1) + ')', timedJuke > earlyJuke + 20);
     check('a dive as the defender arrives gains more than a dive at the snap (' + (timedDive / 20).toFixed(1) + ' vs ' + (earlyDive / 20).toFixed(1) + ')', timedDive > earlyDive + 20);
-    const dropped = M.create({ seed: 43 }); M.callPlay(dropped, 'quick'); M.finish(dropped, M.scriptedQuick);
+    const dropped = M.create({ seed: 4 }); M.callPlay(dropped, 'quick'); M.finish(dropped, M.scriptedQuick);
     const dropText = M.currentMessage(dropped);
     check('a drop uses the cover that stopped it', /cannot bring it in/.test(dropText) && /The cover \(\d+\) stopped /.test(dropText) && !/beat the cover/.test(dropText) && !/beat The /.test(dropText));
     const caught = M.create({ seed: 1 }); M.callPlay(caught, 'quick'); M.finish(caught, M.scriptedQuick);
@@ -353,6 +353,7 @@ document.querySelector('#run').onclick = async () => {
 
     const again = w2.__lantern;
     again.state.quarter = 4; again.state.clock = 3; again.state.down = 1; again.state.toGo = 10; again.state.spot = 40; again.state.possession = 'home'; again.state.phase = 'call';
+    again.state.score.home = 7; again.state.score.away = 0;
     again.begin('inside'); again.finishLive();
     await wait();
     check('a finished game offers play again', again.state.phase === 'final' && !!d2.querySelector('[data-again]'));

@@ -483,9 +483,11 @@
     }
   }
 
-  /* Yards this pull can travel. A short drag dies short of a deep route. */
+  /* Yards this pull can travel. A short drag dies at a checkdown.
+     Length grows with the square of the pull, so a long drag is the one that reaches a deep route. */
   function throwReach(power) {
-    return 5 + clamp(Number(power) || 0, 0, 1) * 48;
+    var p = clamp(Number(power) || 0, 0, 1);
+    return 7.5 + p * p * 35;
   }
   /* Where this drag is headed. No dice, so the picture can show the same spot the snap will use.
      The ball travels with the pull. It reaches a receiver only when the pull is long enough,
