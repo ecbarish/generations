@@ -59,6 +59,7 @@
   var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null, lastSheet = '';
   var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, throw: null };
   var sheetDetail = false, watchLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0;
+  var pointerNotes = [];
 
   function persist() {
     if (holdSave) return false;
@@ -174,30 +175,35 @@
   function showCall() {
     if (!state || state.phase === 'final') return showFinal();
     if (state.possession !== 'home') return beginWatch();
+    if (mode === 'watch') lastSheet = '';
     mode = 'play';
     dock();
     say(M.currentMessage(state));
   }
 
-  /* Millrace's snaps play on the field, one at a time, so the clock moves with the play. */
+  /* Millrace's snaps play on the field. Each one stays live so the ball and the players move, then the result holds briefly. */
   function beginWatch() {
     if (!state || state.phase === 'final') return showFinal();
     if (state.possession === 'home') return showCall();
     mode = 'watch';
     hidePanel();
-    if (state.phase === 'live') { dock(); return; }
-    if (!M.cpuSnap(state)) {
+    if (state.phase === 'live') { lastSheet = ''; dock(); return; }
+    lastSheet = '';
+    say('');
+    if (state.down >= 4) {
+      M.kick(state);
+      return holdWatch();
+    }
+    if (!M.callPlay(state, M.cpuCall(state))) {
       if (state.phase === 'final') return showFinal();
       return showCall();
     }
-    persist();
-    if (state.phase !== 'live') return holdWatch();
     dock();
   }
   function holdWatch() {
     mode = 'watch';
     hidePanel();
-    watchLeft = rushWatch ? 0.04 : 0.85;
+    watchLeft = rushWatch ? 0.04 : 0.4;
     say(M.currentMessage(state));
     persist();
     dock();
@@ -231,21 +237,35 @@
     return '';
   }
   function turboWhy(live) { return live ? '' : 'Turbo waits until the ball is moving.'; }
+  function hintText() {
+    var live = !!(mode === 'play' && state && state.phase === 'live');
+    var show = mode === 'play' && state && (state.phase === 'call' || state.phase === 'live');
+    var fourth = !!(state && state.down >= 4);
+    var parts = [];
+    if (live && state.play && state.play.load > 0 && state.play.offence === 'home') parts.push(M.READING_HINT);
+    if (show) {
+      var turboNote = turboWhy(live);
+      var kickNote = kickWhy(live, fourth);
+      if (turboNote) parts.push(turboNote);
+      if (kickNote) parts.push(kickNote);
+    }
+    var passLive = live && state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
+    if (passLive) parts.push('Drag up to throw. A short pull stays short.');
+    if (live) parts.push('Swipe to juke. Tap to dive.');
+    return parts.join(' ');
+  }
+  function paintHint() {
+    var hint = $('hint');
+    if (!hint) return;
+    var text = hintText();
+    hint.textContent = text;
+    hint.classList.toggle('reading', text.indexOf(M.READING_HINT) >= 0);
+  }
   function dock() {
     var show = mode === 'play' && state && (state.phase === 'call' || state.phase === 'live');
     var live = !!(show && state.phase === 'live');
     var fourth = !!(state && state.down >= 4);
-    var hint = $('hint');
-    if (hint) {
-      var note = '';
-      if (show) {
-        var turboNote = turboWhy(live);
-        var kickNote = kickWhy(live, fourth);
-        if (turboNote) note += turboNote + ' ';
-        if (kickNote) note += kickNote + ' ';
-      }
-      hint.textContent = note + 'Drag up to throw. A short pull stays short. Swipe to juke. Tap to dive.';
-    }
+    paintHint();
     if (!show) { $('dock').innerHTML = ''; return; }
     var cells = [
       { id: 'inside', label: 'Inside', play: true, off: live, why: '' },
@@ -363,11 +383,16 @@
     var t = (e.changedTouches && e.changedTouches[0]) || (e.touches && e.touches[0]);
     return t ? { x: t.clientX, y: t.clientY, id: t.identifier } : null;
   }
+  function notePointer(source, x, y) {
+    pointerNotes.push({ source: source, x: x, y: y });
+    if (pointerNotes.length > 12) pointerNotes.shift();
+  }
   canvas.addEventListener('touchstart', function (e) {
     var p = fromTouch(e);
     if (!p) return;
     e.preventDefault();
     touchGuard = performance.now() + 800;
+    notePointer('touch', p.x, p.y);
     armGesture(p.x, p.y, p.id);
   }, { passive: false });
   canvas.addEventListener('touchmove', function (e) {
@@ -389,10 +414,22 @@
     gesture = null; aimDrag = null; steer = 0;
   });
   function mouseAfterTouch(e) {
-    return e.pointerType === 'touch' || performance.now() < touchGuard;
+    return !!(e && (e.pointerType === 'touch' || performance.now() < touchGuard));
   }
+  ['mousedown', 'mouseup', 'click'].forEach(function (type) {
+    canvas.addEventListener(type, function (e) {
+      if (performance.now() >= touchGuard) return;
+      notePointer('ignored', e.clientX, e.clientY);
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+  });
   canvas.addEventListener('pointerdown', function (e) {
-    if (mouseAfterTouch(e)) return;
+    if (mouseAfterTouch(e)) {
+      if (e.pointerType !== 'touch') notePointer('ignored', e.clientX, e.clientY);
+      return;
+    }
+    notePointer('pointer', e.clientX, e.clientY);
     if (state && state.phase === 'live') { try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* already gone */ } }
     armGesture(e.clientX, e.clientY, e.pointerId);
   });
@@ -509,15 +546,17 @@
     var sheet = $('sheet');
     var curtainUp = $('curtain') && !$('curtain').hidden;
     if (sheet) {
-      sheet.hidden = live || curtainUp;
-      if (!live && !curtainUp) sheet.textContent = lastSheet || rosterLine(state);
+      var watching = mode === 'watch';
+      sheet.hidden = live || curtainUp || watching;
+      if (!sheet.hidden) sheet.textContent = lastSheet || rosterLine(state);
     }
     var cue = $('cue');
     var cueName = mode === 'play' && live && state.play && state.play.offence === 'home' ? state.play.cue : '';
     if (cue) {
       cue.hidden = !cueName;
-      cue.textContent = cueName === 'juke' ? 'Swipe to juke' : cueName === 'dive' ? 'Tap to dive' : '';
+      cue.textContent = cueName === 'juke' ? 'Swipe to juke' : cueName === 'dive' ? 'Tap to dive' : cueName === 'turbo' ? 'Hold Turbo' : '';
     }
+    paintHint();
     if (performance.now() >= promptUntil) {
       var msg = state.phase === 'live' || state.phase === 'final' ? '' : M.currentMessage(state);
       if ($('banner').textContent !== msg) say(msg);
@@ -542,6 +581,7 @@
   function draw() {
     var box = resize();
     ctx.setTransform(box.dpr, 0, 0, box.dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = '#1b2438'; ctx.fillRect(0, 0, box.w, box.h);
     var view = { w: box.w, h: box.h };
     var play = state && state.play;
@@ -578,39 +618,32 @@
       if (Math.abs(100 - cam.x) < 40) strokeWorld(100, -26, 100, 26, cam, view, '#f6edd4', 3);
     }
     if (play) {
-      if (play.family === 'run' || play.didCatch) {
+      if ((play.family === 'run' || play.didCatch) && play.lanes) {
         play.lanes.forEach(function (lane) {
-          var y0 = lane.y - 5, y1 = lane.y + 5;
-          var a = at(0.2, y0), b = at(7, y0), c = at(7, y1), d = at(0.2, y1);
-          if (!a || !b || !c || !d) return;
-          ctx.fillStyle = lane.open ? 'rgba(90, 210, 120, 0.38)' : 'rgba(210, 70, 60, 0.38)';
-          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c.x, c.y); ctx.lineTo(d.x, d.y); ctx.closePath(); ctx.fill();
+          var stateName = play.laneStates && play.laneStates[lane.id] ? play.laneStates[lane.id].state : 'open';
+          var near = at(0.3, lane.y), far = at(6.3, lane.y);
+          if (near && far) {
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.imageSmoothingEnabled = false;
+            V.drawRunLane(ctx, { x0: near.x, y0: near.y, x1: far.x, y1: far.y, state: stateName, px: box.dpr });
+            ctx.restore();
+          }
         });
       }
-      if (play.family === 'pass' && !play.thrown) {
+      if (play.family === 'pass' && !play.thrown && !play.flight) {
         var qb = play.actors[play.carrier];
-        var rx = play.pocket * 0.45, ry = play.pocket, guard = 0, ring = [];
-        while (guard++ < 8) {
-          ring = [];
-          var outside = false;
-          for (var i = 0; i <= 28; i++) {
-            var ang = i / 28 * Math.PI * 2;
-            var pt = at(qb.x + Math.cos(ang) * rx, qb.y + Math.sin(ang) * ry);
-            if (!pt || pt.x < 6 || pt.y < 6 || pt.x > view.w - 6 || pt.y > view.h - 6) outside = true;
-            if (pt) ring.push(pt);
-          }
-          if (!outside) break;
-          rx *= 0.78; ry *= 0.78;
-        }
-        if (ring.length) {
-          ctx.beginPath();
-          ring.forEach(function (pt, i) { if (i) ctx.lineTo(pt.x, pt.y); else ctx.moveTo(pt.x, pt.y); });
-          ctx.closePath();
-          ctx.fillStyle = play.pocket < 2.2 ? 'rgba(211, 91, 74, 0.28)' : 'rgba(242, 208, 128, 0.2)';
-          ctx.fill();
-          ctx.strokeStyle = play.pocket < 2.2 ? '#ffb0a4' : '#f2d080';
-          ctx.lineWidth = 3;
-          ctx.stroke();
+        var pocketAt = qb && at(qb.x, qb.y);
+        if (pocketAt) {
+          ctx.save();
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.imageSmoothingEnabled = false;
+          V.drawPocketRing(ctx, {
+            x: pocketAt.x, y: pocketAt.y, step: play.ringStep || 0, from: play.ringFrom || 0,
+            tween: play.ringTween == null ? 0.12 : play.ringTween, time: play.elapsed || 0, reduced: reduce,
+            px: box.dpr
+          });
+          ctx.restore();
         }
       }
       var sprites = play.actors.map(function (a) {
@@ -633,11 +666,21 @@
           fill: team.color, outline: aimed ? '#f2d080' : M.teamOutline(team.color),
           jukeDir: play.jukeDir || 1
         });
-        if (s.a === carrier && (juking || diving)) {
-          ctx.fillStyle = '#f6edd4';
+        if (s.a === carrier && (juking || diving || play.turboOn)) {
+          ctx.fillStyle = play.turboOn && !juking && !diving ? '#f2d080' : '#f6edd4';
           ctx.font = '700 ' + Math.max(12, 13 * s.p.scale) + 'px ui-monospace, monospace';
           ctx.textAlign = 'center';
-          ctx.fillText(juking ? 'Juke' : 'Dive', s.p.x, s.p.y - 28 * s.p.scale);
+          ctx.fillText(juking ? 'Juke' : diving ? 'Dive' : 'Turbo', s.p.x, s.p.y - 28 * s.p.scale);
+          if (play.turboOn) {
+            ctx.strokeStyle = '#f2d080';
+            ctx.lineWidth = Math.max(2, 2 * s.p.scale);
+            ctx.beginPath();
+            ctx.moveTo(s.p.x - 8 * s.p.scale, s.p.y - 4 * s.p.scale);
+            ctx.lineTo(s.p.x - 20 * s.p.scale, s.p.y - 1 * s.p.scale);
+            ctx.moveTo(s.p.x - 6 * s.p.scale, s.p.y + 6 * s.p.scale);
+            ctx.lineTo(s.p.x - 18 * s.p.scale, s.p.y + 9 * s.p.scale);
+            ctx.stroke();
+          }
         }
         if (aimed) {
           var mark = V.fitCircle(s.p, 16 * s.p.scale, view, 6);
@@ -710,7 +753,7 @@
       if (state.phase !== 'live') afterWhistle();
     } else if (mode === 'watch' && state && !document.hidden) {
       if (state.phase === 'live') {
-        var scale = rushWatch ? 28 : (reduce ? 6 : 3.5);
+        var scale = rushWatch ? 28 : (reduce ? 4 : 2.4);
         var budget = dt * scale, steps = 0, heard = [];
         while (budget > 0 && state.phase === 'live' && steps++ < 48) {
           if (state.play) lastSheet = snapLine(state);
@@ -749,8 +792,11 @@
         if (state && state.phase !== 'live' && state.phase !== 'final' && state.possession === 'home') showCall();
       },
       playCpu: function () { rushWatch = true; if (state) beginWatch(); },
+      watchLive: function () { rushWatch = false; if (state) beginWatch(); },
       rush: function (on) { rushWatch = !!on; },
-      migrateSave: migrateSave
+      migrateSave: migrateSave,
+      pointerNotes: pointerNotes,
+      hintText: hintText
     };
   }
 })();
