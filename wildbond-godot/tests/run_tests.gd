@@ -2019,4 +2019,12 @@ func _dressing_checks() -> void:
 	rows = main.cur_map()
 	check(rows[12][5] == "," and rows[12][4] == "~", "the trail's pond stone is on dry land where the clearing meets the water")
 	check("thornwood_route" in main.WOODLAND_PONDS and not "saltmarsh" in main.WOODLAND_PONDS, "woodland ponds get a muddy bank; the sea keeps its beach")
+	# WB-C4b (art review): the bank reads at play zoom and the reeds never sit between pixels
+	check(main.BANK >= 3 and main.BULGE.min() >= 2 and main.BULGE.max() <= 3 and main.BANK_CORNER == 16 - main.BANK,
+		"a pond bank is 3px or more, bulges 2-3px, and a corner tile keeps a quarter circle of water that meets the next banks")
+	var sways := {}
+	for i in 200:
+		var s = main.reed_sway(3, 7, i * 0.037)
+		sways[s] = true
+	check(sways.keys().all(func(s): return typeof(s) == TYPE_INT and absi(s) <= 1) and sways.size() == 3, "reeds sway by whole pixels: -1, 0 or 1")
 	main._set_map(keep)

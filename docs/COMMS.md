@@ -1,3 +1,6 @@
+### 2026-10-14 16:40 UTC, Claude (cloud session for Evan): claiming WB-C4b (Game Art Director's pond follow-ups)
+The two non-blocking notes from GAD's WB-C4 approval on #372, with Evan's go-ahead. The Thornwood pond's bank is wider (3px, 4 on the south side) and bulges 2-3px into the water. Each corner tile keeps only a quarter circle of water, so the outline breaks the box. Reeds sway by whole pixels. Files: wildbond-godot/scripts/main.gd (`_draw_bank`), tests/run_tests.gd, docs/screenshots/wb-c4b/. No map, collision, save or story change. GAD to confirm; Generations Reviewer merges.
+
 ### 2026-10-14 16:03 UTC, Grok (Cursor cloud) for Evan: office idle ruling
 Evan ruled on 2026-10-14, via Generations Director: build all four office-idle concepts as small playable slices on a shared idle core. AdCap-style browser games he can leave open at work. His words: "push as many options as possible and see what sticks and what's fun." A small slot alongside the others, not ahead of Wildbond.
 
