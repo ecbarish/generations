@@ -32,6 +32,22 @@
     return { x: cx, y: cy, r: Math.max(0, Math.min(Number(radius) || 0, room)) };
   }
 
+  /* Yards from the line of scrimmage. The goal comes toward the camera as the spot advances. */
+  function fieldLocal(spot, absolute) {
+    return (Number(absolute) || 0) - (Number(spot) || 0);
+  }
+
+  /* Camera sits just behind the ball, in field yards. The ball stays put; the field moves. */
+  function followBall(ball) {
+    ball = ball || {};
+    return { x: (Number(ball.x) || 0) - 3, y: (Number(ball.y) || 0) * 0.25 };
+  }
+
+  /* Art files use id_view_pose.png. None are shipped yet; drawPlayer falls back to code. */
+  function spriteFile(id, viewName, pose) {
+    return String(id || 'player') + '_' + String(viewName || 'back') + '_' + String(pose || 'idle') + '.png';
+  }
+
   function project(name, point, cam, view) {
     if (name === 'behind') return behind(point, cam || { x: 0, y: 0 }, view || { w: 390, h: 520 });
     return null;
@@ -50,7 +66,58 @@
     return { dirX: dirX / mag, dirY: dirY / mag };
   }
 
-  var api = { RESERVED: RESERVED, project: project, classifyPull: classifyPull, dragToField: dragToField, fitCircle: fitCircle };
+  /* One entry for every player. A later sprite replaces the figure; the game does not grow a second drawer. */
+  function drawPlayer(ctx, spec) {
+    spec = spec || {};
+    var file = spriteFile(spec.id, spec.view, spec.pose);
+    var img = drawPlayer.sprites[file];
+    var s = Number(spec.scale) > 0 ? spec.scale : 1;
+    var x = Number(spec.x) || 0, y = Number(spec.y) || 0;
+    if (img && img.width > 0 && img.height > 0) {
+      var w = 18 * s, h = w * (img.height / img.width);
+      ctx.drawImage(img, x - w / 2, y - h * 0.92, w, h);
+      return 'sprite';
+    }
+    var pose = spec.pose || 'idle';
+    var lean = pose === 'juke' ? (spec.jukeDir < 0 ? -1 : 1) * 7 * s : 0;
+    var squash = pose === 'dive' ? 0.62 : 1;
+    var swing = pose === 'run1' ? 1 : pose === 'run2' ? -1 : pose === 'dive' ? 0.35 : 0;
+    ctx.save();
+    ctx.translate(x + lean, y);
+    ctx.scale(1, squash);
+    ctx.lineCap = 'round';
+    ctx.lineWidth = Math.max(2, 2.4 * s);
+    ctx.strokeStyle = spec.outline || '#f6edd4';
+    ctx.beginPath();
+    ctx.moveTo(-3.2 * s, -7 * s);
+    ctx.lineTo((-3.2 - swing * 4.2) * s, 1.5 * s);
+    ctx.moveTo(3.2 * s, -7 * s);
+    ctx.lineTo((3.2 + swing * 4.2) * s, 1.5 * s);
+    ctx.moveTo(-5 * s, -12 * s);
+    ctx.lineTo(-8 * s, -7 * s);
+    ctx.moveTo(5 * s, -12 * s);
+    ctx.lineTo(8 * s, -7 * s);
+    ctx.stroke();
+    ctx.fillStyle = spec.fill || '#c45a32';
+    ctx.beginPath();
+    ctx.ellipse(0, -12 * s, 6.2 * s, 7.4 * s, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#e7c4a8';
+    ctx.beginPath();
+    ctx.arc(0, -21 * s, 4.6 * s, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    return 'figure';
+  }
+  drawPlayer.sprites = {};
+
+  var api = {
+    RESERVED: RESERVED, project: project, classifyPull: classifyPull, dragToField: dragToField,
+    fitCircle: fitCircle, fieldLocal: fieldLocal, followBall: followBall, spriteFile: spriteFile,
+    drawPlayer: drawPlayer
+  };
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.LanternView = api;
 })(typeof window === 'object' ? window : globalThis);
