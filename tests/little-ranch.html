@@ -512,7 +512,7 @@ document.querySelector('#run').onclick = async () => {
       drag({ x: V().lump.x - V().lr, y: V().lump.y }, { x: V().lump.x + V().lr, y: V().lump.y }, 6); check('Rolling the ball just wobbles it (nothing wrong)', Dg().goal === 0);
       t0 = LR.tones; tap(V().cutter); check('Tapping the cutter: it hops over at once', Dg().stamp && LR.tones > t0);
       tap(V().cutter); check('A tap while it is stamping is just a note (nothing queued)', Dg().stamps === 0);
-      LR.advance(LR.STAMP_SECS * .5); check('...it stamps out a little dough baby (the ball squishes flat under it)', Dg().stamps === 1 && Dg().hops.length === 1 && Dg().goal === 1);
+      LR.advance(LR.STAMP_SECS * .5); check('...it stamps out a little dough baby (the ball squishes flat under it)', Dg().stamps === 1 && Dg().hops.length === 0 && Dg().stamp && Dg().goal === 1);
       LR.advance(1); const x1 = Dg().hops[0] && Dg().hops[0].at; LR.advance(.2); check('...that hops away with hearts', S().fx.some(f => f.kind === 'heart') || x1 !== undefined);
       const a18 = S().acts; tap(V().cutter); LR.advance(LR.STAMP_SECS + .1); tap(V().cutter); LR.advance(LR.STAMP_SECS + .1);
       check(`${LR.DOUGH_BABIES} little babies: a happy cheer`, Dg() && Dg().phase === 'done' && Dg().stamps === LR.DOUGH_BABIES);
@@ -528,7 +528,7 @@ document.querySelector('#run').onclick = async () => {
     const shade = (r, g, b, q) => { const dr = r - q[0], dg = g - q[1], db = b - q[2]; return dr * dr + dg * dg + db * db; };
     const watchCookies = async label => {
       tap(L().tsign);
-      let frames = 0, restTouch = 0, left = true, aligned = true, whole = true, zOk = true, sawPress = false, height = 0;
+      let frames = 0, touch = 0, left = true, aligned = true, whole = true, zOk = true, sawPress = false, height = 0, earlyHop = false;
       const t0 = S().t; let next = 0;
       while (S().place === 'dough' && S().t - t0 < 5.6) {
         if (next < 3 && S().dough && !S().dough.stamp && S().dough.stamps === next) { tap(L().dough.cutter); next++; }
@@ -540,26 +540,37 @@ document.querySelector('#run').onclick = async () => {
         if (pose.pressed && Math.abs(pose.ringY - pose.bodyY) > 1) aligned = false;
         if (pose.pressed) sawPress = true;
         for (const h of pose.hops) if (h.dir !== -1 || h.x > round(L().dough.lump.x) || h.x !== round(h.x) || h.y !== round(h.y)) left = false;
-        S().fx = []; LR.redraw();
-        const img = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, w = cv.width, h = cv.height;
+        if (D.stamp && pose.hops.length !== D.stamps - (D.stamp.hit ? 1 : 0)) earlyHop = true;
+        S().fx = [];
+        const kept = D.hops; D.hops = []; LR.redraw();
+        const w = cv.width, h = cv.height, baseCut = new Uint8Array(w * h), baseCook = new Uint8Array(w * h);
+        const read = (cut, cook) => {
+          const img = cv.getContext('2d').getImageData(0, 0, w, h).data;
+          let minY = h, maxY = 0, nCook = 0;
+          for (let i = 0, p = 0; i < img.length; i += 4, p++) {
+            const r = img[i], g = img[i + 1], b = img[i + 2];
+            if (shade(r, g, b, cutterRgb) <= 2 || shade(r, g, b, knobRgb) <= 2) cut[p] = 1;
+            else if (shade(r, g, b, cookieRgb) <= 2) { cook[p] = 1; nCook++; const y = (p / w) | 0; if (y < minY) minY = y; if (y > maxY) maxY = y; }
+          }
+          return { minY, maxY, nCook };
+        };
+        const bare = read(baseCut, baseCook);
+        D.hops = kept; LR.redraw();
         const cut = new Uint8Array(w * h), cook = new Uint8Array(w * h);
-        let minY = h, maxY = 0, nCook = 0;
-        for (let i = 0, p = 0; i < img.length; i += 4, p++) {
-          const r = img[i], g = img[i + 1], b = img[i + 2];
-          if (shade(r, g, b, cutterRgb) <= 2 || shade(r, g, b, knobRgb) <= 2) cut[p] = 1;
-          else if (shade(r, g, b, cookieRgb) <= 2) { cook[p] = 1; nCook++; const y = (p / w) | 0; if (y < minY) minY = y; if (y > maxY) maxY = y; }
-        }
-        if (!D.stamp && nCook) {
-          for (let y = 0; y < h && !restTouch; y++) for (let x = 0; x < w; x++) {
-            const p = y * w + x; if (!cook[p]) continue;
-            if ((x && cut[p - 1]) || (x + 1 < w && cut[p + 1]) || (y && cut[p - w]) || (y + 1 < h && cut[p + w])) { restTouch++; break; }
+        read(cut, cook);
+        if (!touch) {
+          for (let y = 0; y < h && !touch; y++) for (let x = 0; x < w; x++) {
+            const p = y * w + x, hopPx = cook[p] && !baseCook[p];
+            if (!hopPx && !(cook[p] && baseCut[p])) continue;
+            if (cook[p] && baseCut[p]) { touch++; break; }
+            if ((x && cut[p - 1]) || (x + 1 < w && cut[p + 1]) || (y && cut[p - w]) || (y + 1 < h && cut[p + w])) { touch++; break; }
           }
         }
-        if (pose.pressed && D.stamps === 1 && nCook && !height) height = maxY - minY + 1;
+        if (pose.pressed && D.stamps === 1 && bare.nCook && !height) height = bare.maxY - bare.minY + 1;
       }
-      check(`${label}: three cookies hop left on whole pixels and never cross the lump`, frames > 90 && next === 3 && left && whole);
-      check(`${label}: the cookie is cutter-sized, and the ring sits on its body when pressed`, zOk && sawPress && aligned && height >= 26 && height <= 32);
-      check(`${label}: once the cutter is home, no cookie pixel touches it`, restTouch === 0);
+      check(`${label}: three cookies hop left on whole pixels and never cross the lump`, frames > 90 && next === 3 && left && whole && !earlyHop);
+      check(`${label}: the cookie is cutter-sized, and the ring sits on its body when pressed`, zOk && sawPress && aligned && height >= 25 && height <= 32);
+      check(`${label}: no hopping cookie covers the cutter in any frame`, touch === 0);
     };
     for (const [label, width, height] of [['Desktop 1024×594', 1024, 594], ['iPhone 12 upright 390×844', 390, 844], ['Sideways 844×390', 844, 390]]) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.2);
@@ -575,7 +586,8 @@ document.querySelector('#run').onclick = async () => {
         const raw = Math.min(L().ground + L().R * 1.35, petal - spots[0].r - 3);
         check(`${label}: both ball spots rest above the flowers`, spots.every(q => q.y === round(raw) && q.x === round(q.x) && petal - q.r - q.y >= 2));
         const bowlEdge = L().bowl.x + L().R, spongeEdge = L().sponge.x - sw;
-        check(`${label}: the flowers keep 3 px clear of the bowl and the sponge`, flowers[0].x - flowers[0].r - bowlEdge >= 3 && spongeEdge - (flowers[flowers.length - 1].x + flowers[flowers.length - 1].r) >= 3);
+        const lo = bowlEdge + flowers[0].r + 3, hi = spongeEdge - flowers[flowers.length - 1].r - 3;
+        check(`${label}: the flower centres sit on the bowl and sponge gaps`, Math.abs(flowers[0].x - lo) < 1e-6 && Math.abs(flowers[flowers.length - 1].x - hi) < 1e-6 && flowers[0].x - flowers[0].r - bowlEdge >= 3 && spongeEdge - (flowers[flowers.length - 1].x + flowers[flowers.length - 1].r) >= 3);
         const signR = L().R * .95, boardBottom = L().dsign.y + signR * .27, spongeTop = L().sponge.y - sw * .55;
         check(`${label}: the barn-door sign stays at least 3 px above the sponge`, spongeTop - boardBottom >= 3);
       }

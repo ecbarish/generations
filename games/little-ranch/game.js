@@ -157,7 +157,7 @@
         const lo0 = L.bowl.x + L.R, hi0 = L.sponge.x - sw, step0 = (hi0 - lo0) / FLOWERS.length;
         r = Math.min(step0 * .56, U * .12);
         const lo = L.bowl.x + L.R + r + 3, hi = L.sponge.x - sw - r - 3;
-        step = (hi - lo) / FLOWERS.length; x0 = lo + step / 2; y = H * .9;
+        x0 = lo; step = (hi - lo) / (FLOWERS.length - 1); y = H * .9;
       } else {
         x0 = W * .1; step = W * .8 / (FLOWERS.length - 1); r = Math.min(step * .5, U * .1); y = H * .935;
         L.sponge.y = R(y - r * 1.1 - sw * .55 - 4); // tall phones: the sponge sits above the flower row
@@ -473,8 +473,10 @@
   function doughUpdate(dt) { const D = st.dough, V = L.dough; D.flat += clamp(D.goal - D.flat, -dt * 5, dt * 5);
     if (D.stamp) { const e = st.t - D.stamp.at;
       if (!D.stamp.hit && e >= STAMP_SECS * .45) { D.stamp.hit = true; D.goal = 1; D.flat = Math.max(D.flat, .8); D.stamps++; sfx('splat', 2); sfx('giggle');
-        D.hops.push({ at: st.t, dir: -1, front: D.stamps % 2 === 0 }); for (let j = 0; j < 3; j++) fx('heart', V.lump.x + (j - 1) * V.lr * .4, V.lump.y - V.lr * .6); }
-      if (e >= STAMP_SECS) { D.stamp = null; if (D.stamps >= DOUGH_BABIES && D.phase === 'play') { D.phase = 'done'; D.at = st.t; sfx('rainbow'); } } }
+        for (let j = 0; j < 3; j++) fx('heart', V.lump.x + (j - 1) * V.lr * .4, V.lump.y - V.lr * .6); }
+      // Added once the cutter is home. The clock starts late in the press, so the baby is already
+      // a few pixels left of the lump and the next stamp does not land on it.
+      if (e >= STAMP_SECS) { D.hops.push({ at: D.stamp.at + STAMP_SECS * .8, dir: -1, front: D.stamps % 2 === 0 }); D.stamp = null; if (D.stamps >= DOUGH_BABIES && D.phase === 'play') { D.phase = 'done'; D.at = st.t; sfx('rainbow'); } } }
     D.hops = D.hops.filter(h => st.t - h.at < 3);
     if (D.phase === 'done' && st.t - D.at >= DOUGH_END_SECS) leaveDough(true); }
   function hatTap() { const h = st.hat; h.shake = 1; if (h.fly) { sfx('note'); return; } // LR6
