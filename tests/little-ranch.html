@@ -522,6 +522,67 @@ document.querySelector('#run').onclick = async () => {
       check('With the sound off the Dough Table is silent', LR.tones === t9); LR.prefs.sound = mute;
       LR.newVisit(); LR.bedtime(); tap(L().tsign); check('At bedtime the dough sign does not open the table (bedtime goes on)', S().place === 'ranch');
     }
+    // ---- LR-LAYOUT-1: cookies hop clear of the cutter; the sponge, ball and flowers keep their gaps
+    LR.prefs.sound = false; LR.setRoutine(false); LR.setFriend(false);
+    const round = Math.round, cookieRgb = [238, 173, 142], cutterRgb = [63, 138, 232], knobRgb = [232, 72, 60];
+    const shade = (r, g, b, q) => { const dr = r - q[0], dg = g - q[1], db = b - q[2]; return dr * dr + dg * dg + db * db; };
+    const watchCookies = async label => {
+      tap(L().tsign);
+      let frames = 0, restTouch = 0, left = true, aligned = true, whole = true, zOk = true, sawPress = false, height = 0;
+      const t0 = S().t; let next = 0;
+      while (S().place === 'dough' && S().t - t0 < 5.6) {
+        if (next < 3 && S().dough && !S().dough.stamp && S().dough.stamps === next) { tap(L().dough.cutter); next++; }
+        LR.advance(1 / 30); frames++;
+        const D = S().dough; if (!D || !D.pose) continue;
+        const pose = D.pose;
+        if (pose.z !== round(L().dough.cr * .9) || pose.line !== round(pose.line)) zOk = false;
+        if (pose.cxp !== round(pose.cxp) || pose.cyp !== round(pose.cyp)) whole = false;
+        if (pose.pressed && Math.abs(pose.ringY - pose.bodyY) > 1) aligned = false;
+        if (pose.pressed) sawPress = true;
+        for (const h of pose.hops) if (h.dir !== -1 || h.x > round(L().dough.lump.x) || h.x !== round(h.x) || h.y !== round(h.y)) left = false;
+        S().fx = []; LR.redraw();
+        const img = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, w = cv.width, h = cv.height;
+        const cut = new Uint8Array(w * h), cook = new Uint8Array(w * h);
+        let minY = h, maxY = 0, nCook = 0;
+        for (let i = 0, p = 0; i < img.length; i += 4, p++) {
+          const r = img[i], g = img[i + 1], b = img[i + 2];
+          if (shade(r, g, b, cutterRgb) <= 2 || shade(r, g, b, knobRgb) <= 2) cut[p] = 1;
+          else if (shade(r, g, b, cookieRgb) <= 2) { cook[p] = 1; nCook++; const y = (p / w) | 0; if (y < minY) minY = y; if (y > maxY) maxY = y; }
+        }
+        if (!D.stamp && nCook) {
+          for (let y = 0; y < h && !restTouch; y++) for (let x = 0; x < w; x++) {
+            const p = y * w + x; if (!cook[p]) continue;
+            if ((x && cut[p - 1]) || (x + 1 < w && cut[p + 1]) || (y && cut[p - w]) || (y + 1 < h && cut[p + w])) { restTouch++; break; }
+          }
+        }
+        if (pose.pressed && D.stamps === 1 && nCook && !height) height = maxY - minY + 1;
+      }
+      check(`${label}: three cookies hop left on whole pixels and never cross the lump`, frames > 90 && next === 3 && left && whole);
+      check(`${label}: the cookie is cutter-sized, and the ring sits on its body when pressed`, zOk && sawPress && aligned && height >= 26 && height <= 32);
+      check(`${label}: once the cutter is home, no cookie pixel touches it`, restTouch === 0);
+    };
+    for (const [label, width, height] of [['Desktop 1024×594', 1024, 594], ['iPhone 12 upright 390×844', 390, 844], ['Sideways 844×390', 844, 390]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.2);
+      const wide = cv.width > cv.height * 1.3, sw = L().R * .8, flowers = L().flowers;
+      const petal = Math.min(...flowers.map(f => f.y - f.r));
+      const spots = [-1, 1].map(side => { const b = S().ball; b.from = side; b.to = side; b.at = -9; return LR.ballNow(); });
+      if (!wide) {
+        const bottom = round(L().sponge.y) + round(-sw * .55) + round(sw * 1.1);
+        check(`${label}: the sponge sits at least 4 px above every flower`, L().sponge.y === round(L().sponge.y) && bottom <= petal - 4);
+        const B = L().basket;
+        check(`${label}: the ball and the hat basket do not touch`, spots.every(q => q.x === round(q.x) && Math.hypot(q.x - B.x, q.y - B.y) >= q.r + B.r));
+      } else {
+        const raw = Math.min(L().ground + L().R * 1.35, petal - spots[0].r - 3);
+        check(`${label}: both ball spots rest above the flowers`, spots.every(q => q.y === round(raw) && q.x === round(q.x) && petal - q.r - q.y >= 2));
+        const bowlEdge = L().bowl.x + L().R, spongeEdge = L().sponge.x - sw;
+        check(`${label}: the flowers keep 3 px clear of the bowl and the sponge`, flowers[0].x - flowers[0].r - bowlEdge >= 3 && spongeEdge - (flowers[flowers.length - 1].x + flowers[flowers.length - 1].r) >= 3);
+        const signR = L().R * .95, boardBottom = L().dsign.y + signR * .27, spongeTop = L().sponge.y - sw * .55;
+        check(`${label}: the barn-door sign stays at least 3 px above the sponge`, spongeTop - boardBottom >= 3);
+      }
+      if (width === 844 && height === 390) check('Sideways 844×390: the ball rests at y=123', spots.every(q => q.y === 123));
+      if (width === 1024 && height === 594) check('Desktop 1024×594: the stamped cookie is 18 px', round(L().dough.cr * .9) === 18);
+      await watchCookies(label);
+    }
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
