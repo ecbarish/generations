@@ -1,5 +1,5 @@
 {
-  "_about": "Members' stories (SF2.1). Each adventurer's arc is a list of beats. A beat is ready when they have finished 'after_jobs' jobs, their spirits are at least 4, and any building in 'needs' stands. They ask for a word ('!' over their head); you talk to them, hear 'lines', and choose. Each option: 'text' (what you say), 'lines' (what follows), 'morale' (change), 'coins' (change, optional), 'trait' (kept for good, optional). Traits: steady (+5% on every job), bold (takes jobs a step harder), mapper (+10% reward on their jobs), healer (rests twice as fast). Words players see follow docs/CREATIVE.md 'Writing for players'.",
+  "_about": "Members' stories (SF2.1). Each adventurer's arc is a list of beats. A beat is ready when they have finished 'after_jobs' jobs, you have earned 'after_trust' trust with them by hand (SF2.13; optional), their spirits are at least 4, and any building in 'needs' stands. They ask for a word ('!' over their head); you talk to them, hear 'lines', and choose. Each option: 'text' (what you say), 'lines' (what follows), 'morale' (change), 'coins' (change, optional), 'trait' (kept for good, optional). Traits: steady (+5% on every job), bold (takes jobs a step harder), mapper (+10% reward on their jobs), healer (rests twice as fast). Words players see follow docs/CREATIVE.md 'Writing for players'.",
   "Aki": [
     {
       "after_jobs": 2,
@@ -44,6 +44,7 @@
     },
     {
       "after_jobs": 6,
+      "after_trust": 2,
       "lines": [
         [
           "Aki",
@@ -83,6 +84,7 @@
     },
     {
       "after_jobs": 10,
+      "after_trust": 4,
       "lines": [
         [
           "Aki",
@@ -156,6 +158,7 @@
     },
     {
       "after_jobs": 5,
+      "after_trust": 2,
       "lines": [
         [
           "Ren",
@@ -193,6 +196,7 @@
     },
     {
       "after_jobs": 9,
+      "after_trust": 4,
       "lines": [
         [
           "Ren",
@@ -266,6 +270,7 @@
     },
     {
       "after_jobs": 5,
+      "after_trust": 2,
       "needs": "healer",
       "lines": [
         [
@@ -303,6 +308,7 @@
     },
     {
       "after_jobs": 9,
+      "after_trust": 4,
       "needs": "healer",
       "lines": [
         [
@@ -376,6 +382,7 @@
     },
     {
       "after_jobs": 5,
+      "after_trust": 2,
       "needs": "smithy",
       "lines": [
         [
@@ -414,6 +421,7 @@
     },
     {
       "after_jobs": 9,
+      "after_trust": 4,
       "lines": [
         [
           "Kaito",
@@ -486,6 +494,7 @@
     },
     {
       "after_jobs": 5,
+      "after_trust": 2,
       "needs": "yard",
       "lines": [
         [
@@ -524,6 +533,7 @@
     },
     {
       "after_jobs": 9,
+      "after_trust": 4,
       "lines": [
         [
           "Hana",
@@ -596,6 +606,7 @@
     },
     {
       "after_jobs": 5,
+      "after_trust": 2,
       "needs": "healer",
       "lines": [
         [
@@ -634,6 +645,7 @@
     },
     {
       "after_jobs": 9,
+      "after_trust": 4,
       "lines": [
         [
           "Sora",

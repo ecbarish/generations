@@ -395,7 +395,7 @@ func _new_town() -> void:
 		var m := Mover.new("hero%d" % i, TOWN_AREA.position + Vector2i(i * 3 + 1, i % 2))
 		var c: Dictionary = CLASSES[s[1]]
 		var mx := int(c.hp * (1.0 + 0.2 * (s[2] - 1)))
-		m.a = { "name": s[0], "cls": s[1], "lvl": s[2], "xp": 0, "hp": mx, "max": mx, "morale": 6, "state": "town", "job": "", "timer": 2.0 + i * 3.0, "hair": HAIR[(i * 4 + 1) % HAIR.size()], "purse": 20, "gear": 0, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [], "asked": false }
+		m.a = { "name": s[0], "cls": s[1], "lvl": s[2], "xp": 0, "hp": mx, "max": mx, "trust": 0, "morale": 6, "state": "town", "job": "", "timer": 2.0 + i * 3.0, "hair": HAIR[(i * 4 + 1) % HAIR.size()], "purse": 20, "gear": 0, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [], "asked": false }
 		_dress(m)
 		heroes.append(m)
 	_new_notices()
@@ -944,7 +944,8 @@ func _pick_job(h: Mover) -> String:
 	var a: Dictionary = h.a
 	if float(a.hp) < float(a.max) * 0.7 or int(a.morale) < 3:
 		return ""
-	var nerve := int(a.lvl) + (1 if int(a.morale) >= 8 else 0) + (1 if "bold" in a.get("traits", []) else 0)
+	var bold: bool = "bold" in a.get("traits", []) or trusted(h)          # (high trust is a softer bold; the two don't stack)
+	var nerve := int(a.lvl) + (1 if int(a.morale) >= 8 else 0) + (1 if bold else 0)
 	var best := ""
 	var best_reward := -1
 	for id in posted:
@@ -1065,6 +1066,7 @@ func serve(h: Mover, by_hand: bool) -> void:
 	if by_hand and meals in COOK_RANKS:
 		_cook_rank_up()
 	if by_hand:
+		gain_trust(h)
 		sfx.play("coin")
 		feel(h, "pleased", 4.0)
 		bark(h, ["That smells wonderful.", "Thank you, guildmaster!", "Just what I needed."][rng.randi() % 3])
@@ -1268,6 +1270,7 @@ func finish_piece(h: Mover, hits: int, by_hand: bool) -> void:
 	a.fine = hits >= 3
 	if by_hand:
 		pieces += 1
+		gain_trust(h)
 		sfx.play("success" if hits >= 3 else "coin")
 	if hits >= 3:
 		feel(h, "heart", 6.0)
@@ -1408,7 +1411,7 @@ func _check_rank() -> void:
 		var m := Mover.new("hero%d" % heroes.size(), GATE_IN)
 		var c: Dictionary = CLASSES[s[1]]
 		var mx := int(c.hp * (1.0 + 0.2 * (s[2] - 1)))
-		m.a = { "name": s[0], "cls": s[1], "lvl": s[2], "xp": 0, "hp": mx, "max": mx, "morale": 7, "state": "town", "job": "", "timer": 3.0, "hair": HAIR[(heroes.size() * 4 + 1) % HAIR.size()], "purse": 30, "gear": 0, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [], "asked": false }
+		m.a = { "name": s[0], "cls": s[1], "lvl": s[2], "xp": 0, "hp": mx, "max": mx, "trust": 0, "morale": 7, "state": "town", "job": "", "timer": 3.0, "hair": HAIR[(heroes.size() * 4 + 1) % HAIR.size()], "purse": 30, "gear": 0, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [], "asked": false }
 		_dress(m)
 		heroes.append(m)
 		bark(m, "Is this the guild? I heard there's honest work here.")
@@ -1449,6 +1452,8 @@ func talk_hero(h: Mover) -> void:
 	var mood := "keen for work" if int(a.morale) >= 7 else ("steady" if int(a.morale) >= 4 else "low on heart")
 	var body := "fit and well" if float(a.hp) >= float(a.max) * 0.95 else ("a bit bruised" if not badly_hurt(h) else "badly hurt")
 	say(a.name, "%s, level %d. Feeling %s, and %s." % [cls, a.lvl, body, mood])
+	if trusted(h):
+		say(a.name, "You've done a lot for me, guildmaster. Pin up something a step harder and I'll take it on for you.")
 	if posted.is_empty():
 		say(a.name, "Nothing on the board that I've seen. Pin something up and I'll have a look.")
 	elif _pick_job(h) == "" and float(a.hp) >= float(a.max) * 0.7 and int(a.morale) >= 3:
@@ -1546,7 +1551,7 @@ func _judge_day() -> String:
 		var c: Dictionary = CLASSES[v[1]]
 		var mx := int(c.hp * (1.0 + 0.2 * (int(v[2]) - 1)))
 		var m := Mover.new("hero%d" % heroes.size(), GATE_IN)
-		m.a = { "name": v[0], "cls": v[1], "lvl": v[2], "xp": 0, "hp": mx, "max": mx, "morale": 8, "state": "town", "job": "", "timer": 3.0, "hair": HAIR[(heroes.size() * 4 + 3) % HAIR.size()], "purse": 50, "gear": 1, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [v[3]], "asked": false }
+		m.a = { "name": v[0], "cls": v[1], "lvl": v[2], "xp": 0, "hp": mx, "max": mx, "trust": 0, "morale": 8, "state": "town", "job": "", "timer": 3.0, "hair": HAIR[(heroes.size() * 4 + 3) % HAIR.size()], "purse": 50, "gear": 1, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [v[3]], "asked": false }
 		_dress(m)
 		heroes.append(m)
 		bark(m, v[4])
@@ -1731,6 +1736,8 @@ func drink(h: Mover, quality: int, by_hand := false) -> void:
 	a.drank = day
 	a.state = "town"
 	a.timer = 2.0
+	if by_hand:
+		gain_trust(h)
 	bark(h, ["Just right. Thank you.", "That's a proper pour!", "Ahh. Now I can sleep."][clampi(quality, 0, 2)] if quality >= 2 else ["Bit of foam. Still good.", "Cheers, guildmaster."][rng.randi() % 2])
 	if by_hand:
 		pours += 1
@@ -2107,6 +2114,7 @@ func finish_spar(fill: float) -> void:
 		h.a.timer = 1.5
 	var practised := _lift(h, 2 if clean else 1)
 	h.a.sparred = day
+	gain_trust(h)
 	if clean:
 		sfx.play("success")
 		feel(h, "heart", 4.0)
@@ -2423,6 +2431,8 @@ func _draw() -> void:
 		var feel := feeling(m, i)                                      # a bubble over their head: how they feel
 		if feel != "":
 			draw_texture(_emote(feel), m.pos + Vector2(1, -19 + sin(t * 4.0) * 1.0))
+		if feel == "":
+			_trust_draw(m)
 		if not m.a.is_empty() and badly_hurt(m):
 			draw_rect(Rect2(m.pos + Vector2(4, -3), Vector2(8, 2)), Color("f4f0e8"))      # a bandage round the head
 	_evening_tint()
@@ -2946,6 +2956,7 @@ func _load() -> bool:
 		a.tonic = bool(a.get("tonic", false))
 		a.beat = int(a.get("beat", 0))
 		a.jobs_done = int(a.get("jobs_done", 0))
+		a.trust = int(a.get("trust", int(a.beat) * 2))   # (SF2.13; older saves: two marks for each story talk already had)
 		if str(a.get("state", "")) == "sparring":
 			a.state = "town"                         # (a bout isn't saved: saved mid-bout, they're just at home)
 		a.traits = Array(a.get("traits", []))
@@ -3169,6 +3180,55 @@ func _music_tick(dt: float) -> void:
 	elif music.playing:
 		music.volume_db = move_toward(music.volume_db, MUSIC_VOL, dt * 30.0)
 
+# ---------------------------------------------------------------- trust per adventurer (SF2.13)
+## +1 each time you do something by hand for someone: a meal, a pour, a piece forged, a bout, a story talk. It shows as
+## lamp-coloured marks over their head while you stand near them, gates their later story beats (after_trust in
+## data/stories.json), and at TRUST_PERK they'll take a job a step harder for you. Helpers' work never earns it.
+const TRUST_MAX := 10
+const TRUST_PERK := 6
+
+func trust_of(h: Mover) -> int:
+	return int(h.a.get("trust", 0)) if not h.a.is_empty() else 0
+
+func trusted(h: Mover) -> bool:
+	return trust_of(h) >= TRUST_PERK
+
+func gain_trust(h: Mover) -> void:
+	if h == null or h.a.is_empty():
+		return
+	var was := trust_of(h)
+	h.a.trust = mini(TRUST_MAX, was + 1)
+	if was < TRUST_PERK and int(h.a.trust) >= TRUST_PERK:
+		feel(h, "heart", 5.0)
+		then_do_soon(h)
+
+## The moment trust tips over: they say so, once, and the marks turn to a star.
+func then_do_soon(h: Mover) -> void:
+	bark(h, "I'd take on something harder, if it's for you.")
+	caption.text = "%s trusts you now: they'll take a job a step harder for you." % h.a.name
+	caption_t = 6.0
+
+## The marks: one notch per trust, in two rows of five over their head, while you're close; a star once trusted.
+func _trust_draw(m: Mover) -> void:
+	if m.a.is_empty() or m.where != "town" or (m.tile - me.tile).length() > 2.3:
+		return
+	var n := trust_of(m)
+	if n <= 0:
+		return
+	var row := mini(n, 5)
+	var o := m.pos + Vector2(8.0 - row * 2.0, -14)
+	if n >= TRUST_PERK:
+		var c := m.pos + Vector2(8, -14)
+		draw_rect(Rect2(c + Vector2(-1, -3), Vector2(3, 7)), Figures.OUTLINE)
+		draw_rect(Rect2(c + Vector2(-3, -1), Vector2(7, 3)), Figures.OUTLINE)
+		draw_rect(Rect2(c + Vector2(0, -2), Vector2(1, 5)), Color("f2d080"))
+		draw_rect(Rect2(c + Vector2(-2, 0), Vector2(5, 1)), Color("f2d080"))
+		return
+	for i in n:
+		var p := o + Vector2((i % 5) * 4, -(i / 5) * 4)
+		draw_rect(Rect2(p, Vector2(3, 3)), Figures.OUTLINE)
+		draw_rect(Rect2(p + Vector2(0, 0), Vector2(2, 2)), Color("f2d080"))
+
 # ---------------------------------------------------------------- members' stories (SF2.1; data/stories.json)
 ## Each adventurer has a short arc. When a beat is ready (enough jobs done, spirits up, any building it needs stands),
 ## they ask for a word and a "!" shows over them. Talk to them, hear them out, and choose; what you choose stays with
@@ -3260,6 +3320,8 @@ func story_ready(h: Mover) -> bool:
 	var beat: Dictionary = arc[b]
 	if int(a.get("jobs_done", 0)) < int(beat.get("after_jobs", 0)):
 		return false
+	if int(a.get("trust", 0)) < int(beat.get("after_trust", 0)):
+		return false                             # later beats wait until you've done enough by hand for them (SF2.13)
 	return not beat.has("needs") or finished(str(beat.needs)) != ""
 
 func _story_talk(h: Mover) -> void:
@@ -3289,6 +3351,7 @@ func story_choose(i: int) -> void:
 		say(str(l[0]), str(l[1]))
 	a.beat = int(a.beat) + 1
 	a.asked = false
+	gain_trust(h)
 	sfx.play("pick")
 
 func _story_input(e: InputEvent) -> void:
