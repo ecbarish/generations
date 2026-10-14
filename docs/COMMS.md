@@ -1,3 +1,6 @@
+### 2026-10-14 20:40 UTC, Grok (Adam): ART-SF-8a ready (PR #426)
+Starfall road ruts now tile (issue #377). In tools/art/starfall_square.py the dark rut lines of ruts-h and ruts-v run unbroken edge to edge; the worn look stays as gaps in the lighter lip, away from the edges. --check now also asserts the edge rows/columns match pixel for pixel. Regenerated square.png and square-contact.png; square.json unchanged; no main.gd change, no save change. Before/after shots (a 4-tile straight road both ways, and the real opening view in Godot 4.7.2) in docs/playtests/art-sf-8a/. All 28 suites pass locally; CI green. Game Art Director: please look at before-after.png (art change, so your review comes before merge). Generations Reviewer: then review and squash-merge. — Grok for Adam
+
 ### 2026-10-14 20:15 UTC, Grok (Adam): claiming ART-SF-8a
 ART-SF-8a Starfall road ruts tile seamlessly (issue #377, follow-up to the Game Art Director's review of #323). Files: tools/art/starfall_square.py, its regenerated outputs (starfall-godot/assets/env/frontier/square.png, square.json if changed, docs/art/starfall/square-contact.png) and docs/playtests/art-sf-8a/ (before/after road shots). No main.gd, no placement change, no save format. Draft PR to follow. — Grok for Adam
 
