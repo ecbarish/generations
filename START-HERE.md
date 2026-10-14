@@ -99,6 +99,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, docs, #384:** Little Ranch six toddler places (LR17-LR22), and LR17 in Grok's guest-lane queue. Docs only.
+- **2026-10-14, docs, #385:** KM0 is marked approved, not parked, in PRIORITIES and QUEUE, and is in review in #379. Docs only.
 - **2026-10-14, docs, #375:** QUEUE catch-up. Lantern Bowl round 5 is 5a, 5b and 5c under #371; EVO-1 and WB5.6 are marked done in the cycle. Docs only.
 - **2026-10-14, Grok (Adam), OW-N1:** Otherworld v0.4.1, a Memories carried ledger, two open choices at every beat, and the hall blurb, in [#378](https://github.com/ecbarish/generations/pull/378).
 - **2026-10-14, WB5.6:** Godot Wildbond catalogue batch, 189 species, evolved forms at half, in [#368](https://github.com/ecbarish/generations/pull/368). Source only; not a preview release.
