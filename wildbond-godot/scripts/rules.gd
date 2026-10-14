@@ -255,15 +255,34 @@ static func evo_options(c: Dictionary) -> Array:
 	var evo = sp(c).get("evo")
 	return [evo] if evo else []
 
+## The named step (0 Wary .. 4 Bonded) of one way of raising. A missing record is Wary. DD-5.
+static func raised_lvl(c: Dictionary, kind: String) -> int:
+	var raised = c.get("raised", {})
+	if typeof(raised) != TYPE_DICTIONARY:
+		return 0
+	var n := float(raised.get(kind, 0.0))
+	var l := 0
+	for i in BOND.size():
+		if n >= float(BOND[i][1]):
+			l = i
+	return l
+
 ## What a creature is ready to become right now, or "". ctx: place (the map's area), team (species ids with it).
-## Conditions: level (at), trust (bond: 1 Friendly .. 4 Bonded), a place, a companion (with). First match wins.
+## An option may ask for a level (`at`), a trust step (`bond`: 1 Friendly .. 4 Bonded), or both.
+## A bond branch also names how it was raised (`raised`: "care" or "battle") and that track's step (`raised_at`).
+## Place, companion, time, weather and diet still apply. The first option whose requirements are all met wins.
+## A missing `at` means level is not part of this change, so it can evolve on bond. DD-5.
 static func evo_target(c: Dictionary, ctx: Dictionary = {}) -> String:
 	for o in evo_options(c):
-		if c.lvl < int(o.at):
+		if not (o.has("at") or o.has("bond") or o.has("raised")):
 			continue
-		if o.has("place") and str(ctx.get("place", "")) != str(o.place):
+		if o.has("at") and c.lvl < int(o.at):
 			continue
 		if o.has("bond") and bond_lvl(c) < int(o.bond):
+			continue
+		if o.has("raised") and raised_lvl(c, str(o.raised)) < int(o.get("raised_at", o.get("bond", 1))):
+			continue
+		if o.has("place") and str(ctx.get("place", "")) != str(o.place):
 			continue
 		if o.has("with") and str(o.with) not in ctx.get("team", []):
 			continue
@@ -288,9 +307,19 @@ static func evolve(c: Dictionary, to: String) -> String:
 	c.hp = mini(st.hp, c.hp + roundi(st.hp * 0.3))
 	return old
 
-static func add_bond(c: Dictionary, v: float) -> bool:
+## Trust rises by v (half again with the loyal trait). kind is "battle" or "care":
+## that much is also remembered, so a future bond branch can tell how the creature was raised (DD-5).
+## Returns true when it crosses into a new named step.
+static func add_bond(c: Dictionary, v: float, kind: String = "") -> bool:
 	var b := bond_lvl(c)
-	c.bond += v * (1.5 if "loyal" in c.traits else 1.0)
+	var gain := v * (1.5 if "loyal" in c.traits else 1.0)
+	c.bond = float(c.get("bond", 0.0)) + gain
+	if kind != "":
+		var raised: Dictionary = {}
+		if typeof(c.get("raised")) == TYPE_DICTIONARY:
+			raised = c.raised
+		raised[kind] = float(raised.get(kind, 0.0)) + gain
+		c["raised"] = raised
 	return bond_lvl(c) > b
 
 ## Element advantage: 1.5 when the move's element beats the target's, 0.67 when the target's beats it.

@@ -173,6 +173,69 @@ func _run() -> void:
 	check(R.evo_target(tw) == "", "Tidewyrm won't change for a tamer it doesn't trust completely")
 	tw.bond = 150.0
 	check(R.evo_target(tw) == "deeptide", "with complete trust (Devoted) it becomes Deeptide")
+	# ---- WB-BOND: evolve on bond as well as level (DD-5)
+	var young_tw := R.make("tidewyrm", 20, { "rar": 1 }, main.rng)
+	young_tw.bond = 140.0
+	check(R.evo_target(young_tw) == "", "WB-BOND: Devoted but still young, Tidewyrm waits")
+	young_tw.bond = 280.0
+	check(R.evo_target(young_tw) == "deeptide", "WB-BOND: Bonded, Tidewyrm changes before it is fully grown")
+	var grown_tw := R.make("tidewyrm", 32, { "rar": 1 }, main.rng)
+	grown_tw.bond = 139.0
+	check(R.evo_target(grown_tw) == "", "WB-BOND: level 32 without Devoted trust does not change")
+	grown_tw.bond = 140.0
+	check(R.evo_target(grown_tw) == "deeptide", "WB-BOND: grown and Devoted, Tidewyrm still becomes Deeptide")
+	var cared := R.make("cindercub", 5, { "rar": 1, "traits": [] }, main.rng)
+	check(R.add_bond(cared, 20.0, "care") and is_equal_approx(float(cared.bond), 20.0) and is_equal_approx(float(cared.raised.care), 20.0) and R.raised_lvl(cared, "care") == 1, "WB-BOND: feeding-trust is remembered as care, and Friendly is step 1")
+	var loyal_cub := R.make("cindercub", 5, { "rar": 1, "traits": ["loyal"] }, main.rng)
+	R.add_bond(loyal_cub, 20.0, "care")
+	check(is_equal_approx(float(loyal_cub.bond), 30.0) and is_equal_approx(float(loyal_cub.raised.care), 30.0), "WB-BOND: the loyal trait multiplies the remembered trust too")
+	var branch: Array = main.DATA.BOND_BRANCH.options
+	main.DATA.EVOS["bondbranch"] = branch
+	var stand := R.make("cindercub", 8, { "rar": 1, "traits": [] }, main.rng)
+	stand.sp = "bondbranch"
+	check(R.evo_target(stand) == "", "WB-BOND: a young bond-branch creature with no trust stays as it is")
+	R.add_bond(stand, 40.0, "care")
+	R.add_bond(stand, 40.0, "battle")
+	check(R.bond_lvl(stand) == 2 and R.raised_lvl(stand, "care") == 1 and R.evo_target(stand) == "", "WB-BOND: trust split across care and battle does not pick a special form")
+	var cared_for := R.make("cindercub", 8, { "rar": 1, "traits": [] }, main.rng)
+	cared_for.sp = "bondbranch"
+	R.add_bond(cared_for, 60.0, "care")
+	check(R.evo_target(cared_for) == "careform", "WB-BOND: raised by care, the gentle final comes first")
+	var fought := R.make("cindercub", 8, { "rar": 1, "traits": [] }, main.rng)
+	fought.sp = "bondbranch"
+	R.add_bond(fought, 60.0, "battle")
+	check(R.evo_target(fought) == "battleform", "WB-BOND: raised in the fight, the keen final is the one offered")
+	var both := R.make("cindercub", 8, { "rar": 1, "traits": [] }, main.rng)
+	both.sp = "bondbranch"
+	R.add_bond(both, 60.0, "battle")
+	R.add_bond(both, 60.0, "care")
+	check(R.evo_target(both) == "careform", "WB-BOND: when both ways of raising are far enough, the first option wins")
+	var ordinary := R.make("cindercub", 16, { "rar": 1, "traits": [] }, main.rng)
+	ordinary.sp = "bondbranch"
+	check(R.evo_target(ordinary) == "grownform", "WB-BOND: with no raising record, the level change is the ordinary form")
+	main.DATA.EVOS.erase("bondbranch")
+	var held := young_tw.duplicate(true)
+	held["hold"] = 20
+	held["hold_bond"] = 4
+	check(main.evolution_held(held), "WB-BOND: not yet waits at this level and this trust")
+	held["hold_bond"] = 3
+	check(not main.evolution_held(held), "WB-BOND: a new trust step asks again, even at the same level")
+	held.erase("hold_bond")
+	held.lvl = 20
+	check(main.evolution_held(held), "WB-BOND: an older not-yet, with no trust step stored, still waits for a level")
+	held.lvl = 21
+	check(not main.evolution_held(held), "WB-BOND: that older not-yet asks again after a level")
+	var bare := { "sp": "tidewyrm", "name": "Tidewyrm", "lvl": 20, "xp": 0, "rar": 1, "hp": 10, "pot": { "hp": 1, "pow": 1, "grd": 1, "spd": 1, "wit": 1, "spi": 1 }, "bond": 12.5, "traits": [] }
+	var fixed := main._fix_creature(bare.duplicate(true))
+	check(not fixed.has("raised") and is_equal_approx(float(fixed.bond), 12.5), "WB-BOND: a save without a raising record loads as it was")
+	var marked := bare.duplicate(true)
+	marked["raised"] = { "care": 20, "battle": 4 }
+	var fixed_marked := main._fix_creature(marked)
+	check(is_equal_approx(float(fixed_marked.raised.care), 20.0) and is_equal_approx(float(fixed_marked.raised.battle), 4.0), "WB-BOND: a raising record loads back")
+	var nobond := bare.duplicate(true)
+	nobond.erase("bond")
+	var fixed_old := main._fix_creature(nobond)
+	check(is_equal_approx(float(fixed_old.bond), 0.0) and R.bond_lvl(fixed_old) == 0, "WB-BOND: a creature saved with no trust number is Wary")
 	var tb := R.make("thornback", 32, { "rar": 1 }, main.rng)
 	check(R.evo_target(tb, { "team": ["thornback"] }) == "" and R.evo_target(tb, { "team": ["thornback", "glimmerwing"] }) == "elderthorn", "Thornback becomes Elderthorn when raised alongside a Glimmerwing")
 	var pk := R.make("poolkit", 24, { "rar": 1 }, main.rng)

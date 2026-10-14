@@ -52,7 +52,11 @@ function line(id) {
   const walk = (k) => {
     const n = nexts(k).filter(e => S[e.to]);
     if (!n.length) return S[k].name;
-    const parts = n.map(e => `${walk(e.to)}`);
+    const parts = [];
+    for (const e of n) {
+      const child = walk(e.to);
+      if (!parts.includes(child)) parts.push(child);
+    }
     const at = n.map(e => e.at).filter(Boolean);
     return `${S[k].name} → ${parts.length > 1 ? '(' + parts.join(' / ') + ')' : parts[0]}${at.length === 1 ? '' : ''}`;
   };

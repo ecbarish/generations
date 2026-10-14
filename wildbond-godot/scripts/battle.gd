@@ -528,7 +528,7 @@ func use_order(id: String) -> bool:
 			for a in team:
 				var hp := roundi(a.st.hp * 0.2)
 				a.c.hp = mini(a.st.hp, a.c.hp + hp)
-				R.add_bond(a.c, 1.0)
+				R.add_bond(a.c, 1.0, "battle")
 				floats.append({ "u": a, "txt": "+%d" % hp, "col": Color("7cf08a"), "age": 0.0 })
 			say("You rally your team. Everyone recovers.")
 		"patch":
@@ -560,7 +560,7 @@ func use_order(id: String) -> bool:
 		"steady":
 			for a in team:
 				Effects.cleanse(a)
-				R.add_bond(a.c, 0.5)
+				R.add_bond(a.c, 0.5, "battle")
 			say("You speak low and slow, the way Toren showed you. Your team steadies.")
 	if id in ["shelter", "tailwind", "rain", "snare", "expose", "mend", "renew"]: say("You call %s. %s" % [o.name, o.text])
 	orders -= float(o.cost)
@@ -578,7 +578,7 @@ func _use_move(m: String) -> void:
 	wait_u = {}
 	u.atb = 0.0
 	_act(u, m, 1.0)
-	R.add_bond(u.c, 0.3)
+	R.add_bond(u.c, 0.3, "battle")
 
 # ---------------------------------------------------------------- the end: XP, level ups, the bond (endBattle)
 func _end(r: String) -> void:
@@ -609,7 +609,7 @@ func _end(r: String) -> void:
 				gain *= 1.5                             # highlanders: trust grows in hard battles
 			if str(u.c.get("gear", "")) == "bell":
 				gain *= 1.5                             # the calm bell
-			if u.c.hp > 0 and R.add_bond(u.c, gain):
+			if u.c.hp > 0 and R.add_bond(u.c, gain, "battle"):
 				results.append("%s trusts you more: %s." % [u.c.name, R.BOND[R.bond_lvl(u.c)][0]])
 	elif r == "lost":
 		results.append("Your team is exhausted.")
