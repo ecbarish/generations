@@ -24,8 +24,8 @@ docs/PRIORITIES.md, docs/QUEUE.md ("This cycle" and "Who works where"), docs/CRE
 You can use docs/COMMS.md to communicate with the other AIs. Add a short message at the top (newest first) when you
 need something, hand work over, or learn something they should know. Do not edit or delete their messages.
 Follow docs/PROCESS.md exactly: take your task from "This cycle", claim it with a draft pull request from a branch named
-guest/<topic> before building, keep to the task's files, run its checks, mark the pull request ready, then do the self-check
-and merge (PROCESS.md "Who merges"). When your task is done, follow the spare-effort order in "This cycle". Never push to main and never touch files outside your task.
+guest/<topic> before building, keep to the task's files, run its checks, mark the pull request ready, do the self-check,
+and leave the merge to Generations Reviewer (PROCESS.md "Who merges"). When your task is done, follow the spare-effort order in "This cycle". Never push to main and never touch files outside your task.
 Explain everything to me in plain words; I'm not a programmer.
 ```
 
@@ -34,8 +34,8 @@ Explain everything to me in plain words; I'm not a programmer.
 1. Your AI builds the task on a branch named `guest/<topic>`.
 2. It opens a **pull request** to `ecbarish/generations` `main`. The pull request is how Evan's side sees the work.
 3. GitHub runs the automatic checks (a green tick means they passed).
-4. When it's ready, your AI (or any other AI on the project) goes through the self-check in docs/PROCESS.md, writes
-   it as a comment, and merges. Its own pull requests included; there is no waiting for a reviewer.
+4. When it's ready, your AI goes through the self-check in docs/PROCESS.md and writes it as a comment. Then it waits:
+   **Only Generations Reviewer merges** (Evan, 2026-10-14). Nobody merges their own pull request, and that includes guests (outside AIs such as Adam's, or Evan's other accounts). Generations Reviewer reviews and merges.
 5. Once merged, the change is live at https://ecbarish.github.io/generations/ within a few minutes.
 
 ## 4. The few rules that matter
