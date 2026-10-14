@@ -37,15 +37,18 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
 }
 .rate, .goal { margin: 0.15rem 0; }
 .goal { color: var(--good); }
-.lane { /* ART-NM-1: the lane strip, whole-number scale only, centred on the night colour */
+.lane { /* ART-NM-1: the lane strip breaks out of the 42rem column to the page width (set by lane.js), whole-number scale */
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
   background: var(--night);
-  margin: 0.8rem -1.1rem 0.2rem;
+  margin: 0.8rem 0 0.2rem;
   display: flex;
   justify-content: center;
   overflow: hidden;
 }
 .lane canvas { display: block; flex: none; image-rendering: pixelated; image-rendering: crisp-edges; }
-@media (max-width: 380px) { .lane { margin-left: -0.8rem; margin-right: -0.8rem; } }
 .bulk {
   display: flex;
   flex-wrap: wrap;

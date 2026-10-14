@@ -329,7 +329,7 @@ document.querySelector('#run').onclick = async function () {
     // ---- ART-NM-1: the lane strip (effects 0-5)
     var NL = w.NightLane, lc = d.getElementById('lane'), hk = w.__nightMarket;
     var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
-    check('the lane strip is a 384x72 canvas scaled by a whole number', NL && lc.width === 384 && lc.height === 72 && +lc.dataset.scale >= 1 && lc.style.width === (384 * +lc.dataset.scale) + 'px');
+    check('the lane strip is a 384x72 canvas, scaled by a whole number from 384 px up', NL && lc.width === 384 && lc.height === 72 && (+lc.dataset.scale < 1 ? lc.style.width === Math.floor(384 * +lc.dataset.scale) + 'px' : (+lc.dataset.scale === Math.floor(+lc.dataset.scale) && lc.style.width === (384 * +lc.dataset.scale) + 'px')));
     NL.step(1);
     var pal = Object.keys(NL.PALETTE).map(function (k) { return NL.PALETTE[k]; });
     var colours = function () { var px = lc.getContext('2d').getImageData(0, 0, 384, 72).data, seen = {};
@@ -367,6 +367,21 @@ document.querySelector('#run').onclick = async function () {
     d.querySelector('#stalls [data-act="serve"]').click(); check('...but a sale still shows one still coin', NL.coinsOn() >= 1);
     NL.setReduce(false); await wait(200); check('...and motion comes back when allowed', NL.live);
     check('the strip only reads the save state (the model never sees it)', !('lane' in hk.state) && Object.keys(w.NightMarket).indexOf('NightLane') < 0);
+
+    // GAD fixes on #438: the lane breaks out of the column, and no stall is ever cut off
+    var laneBox = d.querySelector('.lane');
+    for (var lw = 0, widths = [[320, 640], [375, 700], [390, 700], [768, 800], [820, 800], [1280, 800], [1920, 900]]; lw < widths.length; lw++) {
+      var ww = widths[lw][0], expect = ww < 384 ? ww / 384 : Math.min(3, Math.floor(ww / 384));
+      frame.style.width = ww + 'px'; frame.style.height = widths[lw][1] + 'px'; await wait(120);
+      var cr = lc.getBoundingClientRect(), vwid = d.documentElement.clientWidth;
+      check(ww + ' wide: the strip scale is ' + (ww < 384 ? 'shrunk to fit' : Math.floor(expect) + 'x') + ', centred, and every stall is whole on screen', Math.abs(+lc.dataset.scale - expect) < 0.01 && cr.left >= -0.5 && cr.right <= vwid + 0.5 && Math.abs(cr.width - Math.floor(384 * expect)) <= 1 && d.documentElement.scrollWidth <= ww + 1 && Math.abs((cr.left + cr.right) / 2 - vwid / 2) <= 1.5);
+    }
+    frame.style.width = '1280px'; frame.style.height = '800px'; await wait(120);
+    check('on a wide window the lane is wider than the 42rem column (it breaks out to 3x)', lc.getBoundingClientRect().width === 1152 && lc.getBoundingClientRect().width > d.querySelector('.window').getBoundingClientRect().width);
+    frame.style.width = '320px'; frame.style.height = '700px'; await wait(120);
+    check('320 wide: the Tea Stall (slot 0) and the sixth stall (slot 5) are both fully inside the canvas on screen', lc.getBoundingClientRect().left >= 0 && lc.getBoundingClientRect().right <= 320.5 && lc.getBoundingClientRect().width >= 319);
+    var sh = lc.getContext('2d').getImageData(5 * 64 + 5, 12 + 13, 1, 1).data, shc = '#' + [sh[0], sh[1], sh[2]].map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+    check('shuttered stalls have a lighter rim so they read against the night', shc === NL.PALETTE.mute);
 
     // the save box: real-looking, working controls
     var saveBox = d.querySelector('details.save'); saveBox.open = true; saveBox.dispatchEvent(new w.Event('toggle'));

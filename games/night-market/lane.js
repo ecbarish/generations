@@ -32,6 +32,7 @@
     for (var i = 0; i < 6; i++) { var x0 = i * SLOT, y0 = TOP; if (open(i)) stallOpen(c, i, x0, y0); else stallShut(c, x0, y0); }
   }
   function stallShut(c, x0, y0) {
+    rect(c, x0 + 5, y0 + 13, 54, 42, 'mute');                       // a lighter rim so a shuttered stall has an edge on the night
     box(c, x0 + 6, y0 + 14, 52, 40, 'timber');
     for (var y = y0 + 17; y < y0 + 52; y += 4) rect(c, x0 + 8, y, 48, 1, 'mute');
   }
@@ -45,7 +46,7 @@
     box(c, x0 + 4, y0 + 36, 56, 14, 'amber');                                                 // counter
     rect(c, x0 + 5, y0 + 37, 54, 1, 'wash'); rect(c, x0 + 5, y0 + 48, 54, 1, 'timber'); rect(c, x0 + 58, y0 + 37, 1, 12, 'timber');
     var cx0 = x0 + 32, cy = y0 + 36;                                                          // what the stall sells, on the counter
-    if (i === 0) { box(c, cx0 - 4, cy - 6, 8, 6, 'amber'); rect(c, cx0 + 4, cy - 4, 2, 1, 'ink'); box(c, cx0 + 9, cy - 3, 3, 3, 'wash'); box(c, cx0 - 12, cy - 3, 3, 3, 'wash'); }
+    if (i === 0) { box(c, cx0 - 4, cy - 6, 8, 6, 'amber'); rect(c, cx0 + 4, cy - 4, 2, 1, 'ink'); box(c, cx0 + 9, cy - 4, 4, 4, 'wash'); box(c, cx0 - 13, cy - 4, 4, 4, 'wash'); }
     if (i === 1) { box(c, cx0 - 6, cy - 4, 12, 4, 'rule'); box(c, cx0 - 5, cy - 7, 10, 3, 'rule'); }
     if (i === 2) { rect(c, cx0 - 1, cy - 14, 1, 14, 'timber'); rect(c, cx0 + 10, cy - 14, 1, 14, 'timber'); }
     if (i === 3) { for (var m = 0; m < 3; m++) box(c, cx0 - 10 + m * 7, cy - 4, 5, 4, 'lamp'); }
@@ -165,8 +166,12 @@
   function stillFor(ms) { draw(); setTimeout(function () { coins.forEach(function (c) { c.on = false; }); flashes = []; draw(); }, ms); }
 
   function fit() {
-    var wrap = cv.parentNode, k = Math.max(1, Math.floor(wrap.clientWidth / W));
-    cv.style.width = (W * k) + 'px'; cv.style.height = (H * k) + 'px'; cv.dataset.scale = String(k);
+    // The lane breaks out of the page column to the full page width. Whole-number scale from 384 px up (2x from 768, 3x from
+    // 1152, never more than 3x). Below 384 px a 1x strip can't fit, so it shrinks to the page width with every stall whole
+    // (the one place the scale isn't a whole number, so the Tea Stall is never cut off).
+    var vw = document.documentElement.clientWidth || W, wrap = cv.parentNode, k = vw < W ? vw / W : Math.min(3, Math.floor(vw / W));
+    wrap.style.width = vw + 'px';
+    cv.style.width = Math.floor(W * k) + 'px'; cv.style.height = Math.floor(H * k) + 'px'; cv.dataset.scale = String(+k.toFixed(3));
   }
 
   window.NightLane = {
