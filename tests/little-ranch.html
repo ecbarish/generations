@@ -323,7 +323,8 @@ document.querySelector('#run').onclick = async () => {
       LR.advance(4); const a5 = S().acts; tap(L().sponge); LR.advance(2); check('Tapping the sponge bubbles the baby...', S().baby.soap > .1);
       LR.advance(1); check('...then the friend', F().soap > .1); LR.advance(1.5); check('...one happy thing for the bath', S().acts === a5 + 1 && !S().sponge.auto);
       LR.advance(10); const f0 = F().soap; drag(L().sponge, LR.fCentre(), 12); check('Dragging the sponge over the friend bubbles it', F().soap > f0);
-      LR.advance(3); S().baby.act = 'giggle'; S().baby.at = S().t; const a6 = S().acts; tap(LR.fCentre()); check('Tapping the friend while the baby is busy: a giggle, nothing breaks', F().act === 'giggle' && S().baby.tx === null && S().acts === a6);
+      LR.advance(3); S().bubbles.length = 0; // a bubble in the way is popped first; clear them so this tap reaches the friend
+      S().baby.act = 'giggle'; S().baby.at = S().t; const a6 = S().acts; tap(LR.fCentre()); check('Tapping the friend while the baby is busy: a giggle, nothing breaks', F().act === 'giggle' && S().baby.tx === null && S().acts === a6);
       LR.advance(2); const mute = LR.prefs.sound; LR.prefs.sound = false; const t7 = LR.tones; tap(LR.fCentre()); LR.advance(4); tap(L().bowl); LR.advance(6); check('With the sound off the friend is silent', LR.tones === t7); LR.prefs.sound = mute;
       LR.bedtime(); LR.advance(30); check('At bedtime the friend sleeps too', S().mode === 'sleep' && F().act === 'sleep');
       const w4 = S().wake; tap(LR.fCentre()); check('At night a tap on the sleeping friend changes nothing (the baby sleeps on)', S().mode === 'sleep' && F().act === 'sleep' && S().acts >= 0);
