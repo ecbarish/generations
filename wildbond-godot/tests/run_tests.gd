@@ -280,22 +280,41 @@ func _run() -> void:
 	check(is_equal_approx(float(bond_fixed_old.bond), 0.0) and R.bond_lvl(bond_fixed_old) == 0, "WB-BOND: a creature saved with no trust number is Wary")
 	var retired := { "sp": "deeptide", "name": "Old Salt", "lvl": 40, "xp": 12, "rar": 2, "hp": 77, "pot": { "hp": 8, "pow": 11, "grd": 9, "spd": 4, "wit": 14, "spi": 7 }, "bond": 180.0, "traits": ["loyal"], "temp": "steady", "raised": { "care": 60.0, "battle": 40.0 }, "hold": 32, "hold_bond": 3, "moves": ["tidePulse", "harden"] }
 	var kept: Dictionary = retired.duplicate(true)
-	var fixed: Dictionary = main._fix_creature(retired)
+	var number_only: Dictionary = main._fix_creature(retired.duplicate(true))
+	check(number_only.sp == "deeptide" and number_only.name == "Old Salt" and int(number_only.lvl) == 40, "EVO-1: reading a creature only fixes numbers; it does not convert a retired form")
+	var plain := { "sp": "pyremane", "name": "Pyremane", "lvl": 36, "xp": 4, "rar": 1, "hp": 50, "pot": kept.pot.duplicate(), "bond": 140.0, "traits": [] }
+	var thorn := { "sp": "elderthorn", "name": "Elderthorn", "lvl": 33, "xp": 1, "rar": 1, "hp": 40, "pot": kept.pot.duplicate(), "bond": 20.0, "traits": [], "raised": { "care": 10.0 } }
+	var sprout := thorn.duplicate(true)
+	sprout.name = "Sprout"
+	sprout.lvl = 5
+	var step_file := { "v": 1, "team": [retired, plain], "ranch": [thorn], "seen": { "deeptide": "old-tide", "tidewyrm": "kept-final", "pyremane": true }, "bonded": { "elderthorn": true }, "egg": { "steps": 4, "child": sprout }, "look": { "name": "Rowan" }, "badges": [], "map": "thornwood" }
+	var stepped: Dictionary = main.migrate_save(step_file)
+	var fixed: Dictionary = stepped.team[0]
+	check(int(stepped.v) == main.SAVE_V and step_file.v == 1 and step_file.team[0].sp == "deeptide", "EVO-1: the version 1 step becomes version 2 and leaves the original save alone")
 	check(fixed.sp == "tidewyrm" and fixed.name == "Old Salt" and int(fixed.lvl) == 40 and int(fixed.xp) == 12 and is_equal_approx(float(fixed.bond), 180.0), "EVO-1: a nicknamed Deeptide becomes Tidewyrm and keeps level, experience and trust")
 	check(is_equal_approx(float(fixed.raised.care), 60.0) and is_equal_approx(float(fixed.raised.battle), 40.0) and int(fixed.hold) == 32 and int(fixed.hold_bond) == 3, "EVO-1: raising, hold and hold_bond survive the conversion")
 	check(fixed.pot == kept.pot and int(fixed.hp) == 77 and fixed.moves == kept.moves and fixed.temp == "steady" and fixed.traits == ["loyal"], "EVO-1: potentials, stored health, moves, temperament and traits stay")
-	var plain := { "sp": "pyremane", "name": "Pyremane", "lvl": 36, "xp": 4, "rar": 1, "hp": 50, "pot": kept.pot.duplicate(), "bond": 140.0, "traits": [] }
-	var plain_fixed: Dictionary = main._fix_creature(plain)
+	var plain_fixed: Dictionary = stepped.team[1]
 	check(plain_fixed.sp == "blazefang" and plain_fixed.name == "Blazefang" and int(plain_fixed.hp) == 50 and plain_fixed.pot == kept.pot and int(plain_fixed.xp) == 4, "EVO-1: a default-named Pyremane becomes Blazefang and keeps its stats")
-	var thorn := { "sp": "elderthorn", "name": "Elderthorn", "lvl": 33, "xp": 1, "rar": 1, "hp": 40, "pot": kept.pot.duplicate(), "bond": 20.0, "traits": [], "raised": { "care": 10.0 } }
-	var thorn_fixed: Dictionary = main._fix_creature(thorn)
+	var thorn_fixed: Dictionary = stepped.ranch[0]
 	check(thorn_fixed.sp == "thornback" and thorn_fixed.name == "Thornback" and is_equal_approx(float(thorn_fixed.raised.care), 10.0) and is_equal_approx(float(thorn_fixed.bond), 20.0), "EVO-1: Elderthorn becomes Thornback and keeps its raising and trust")
-	var dex := { "deeptide": true, "tidewyrm": true, "pyremane": true }
-	var dex2: Dictionary = main._migrate_dex(dex)
-	check(not dex2.has("deeptide") and not dex2.has("pyremane") and dex2.has("tidewyrm") and dex2.has("blazefang"), "EVO-1: the Wilddex follows a retired form, and does not drop a final already seen")
+	check(stepped.egg.child.sp == "thornback" and stepped.egg.child.name == "Sprout" and int(stepped.egg.child.lvl) == 5, "EVO-1: an egg's child converts, and a nickname stays")
+	check(stepped.seen.tidewyrm == "kept-final" and not stepped.seen.has("deeptide") and not stepped.seen.has("pyremane") and stepped.seen.blazefang == true and stepped.bonded.thornback == true and not stepped.bonded.has("elderthorn"), "EVO-1: the Wilddex follows a retired form, and does not drop a final already seen")
+	var stayed: Dictionary = main.migrate_save(stepped)
+	check(int(stayed.v) == main.SAVE_V and stayed.team[0].sp == "tidewyrm" and stayed.team[1].sp == "blazefang" and stayed.ranch[0].sp == "thornback", "EVO-1: a version 2 save is not converted a second time")
+	var current := { "v": 2, "team": [{ "sp": "ripplet", "name": "Puddle", "lvl": 5 }] }
+	var current_back: Dictionary = main.migrate_save(current)
+	check(int(current_back.v) == main.SAVE_V and current_back.team[0].sp == "ripplet" and current_back.team[0].name == "Puddle" and current.team[0].sp == "ripplet", "EVO-1: a version 2 creature that was never retired stays as it is")
+	check(main.migrate_save({ "v": 3, "team": [{ "sp": "deeptide", "name": "Old Salt" }], "kept": "byte-for-byte" }).is_empty(), "EVO-1: a newer save is not reshaped")
 	# Frozen v1 save written by current main's save_game() (origin/main b0cd249), before these forms were retired.
-	var retired_save: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/evo1-retired-forms.json"))
+	var fixture_text := FileAccess.get_file_as_string("res://tests/fixtures/evo1-retired-forms.json")
+	var retired_save: Dictionary = JSON.parse_string(fixture_text)
 	check(retired_save.team[0].sp == "deeptide" and retired_save.team[1].sp == "pyremane" and retired_save.ranch[0].sp == "elderthorn", "EVO-1: the frozen save still names Deeptide, Pyremane and Elderthorn")
+	var migrated_fix: Dictionary = main.migrate_save(retired_save)
+	check(int(migrated_fix.v) == main.SAVE_V and migrated_fix.team[0].sp == "tidewyrm" and migrated_fix.team[0].name == retired_save.team[0].name and int(migrated_fix.team[0].lvl) == int(retired_save.team[0].lvl) and int(migrated_fix.team[0].xp) == int(retired_save.team[0].xp) and is_equal_approx(float(migrated_fix.team[0].bond), float(retired_save.team[0].bond)) and int(migrated_fix.team[0].hold) == int(retired_save.team[0].hold) and int(migrated_fix.team[0].hold_bond) == int(retired_save.team[0].hold_bond), "EVO-1: the frozen version 1 save steps to version 2, and Old Salt keeps nickname, level, experience, trust, hold and hold_bond")
+	check(migrated_fix.team[1].sp == "blazefang" and migrated_fix.team[1].name == "Blazefang" and migrated_fix.ranch[0].sp == "thornback" and migrated_fix.egg.child.sp == "thornback" and migrated_fix.egg.child.name == "Sprout", "EVO-1: the frozen Pyremane, Elderthorn and egg child step to Blazefang and Thornback")
+	check(migrated_fix.seen.tidewyrm == retired_save.seen.tidewyrm and not migrated_fix.seen.has("deeptide") and not migrated_fix.seen.has("pyremane") and not migrated_fix.seen.has("elderthorn") and migrated_fix.seen.has("blazefang") and migrated_fix.seen.has("thornback") and migrated_fix.bonded.has("tidewyrm") and not migrated_fix.bonded.has("deeptide"), "EVO-1: the frozen Wilddex follows the retired forms and keeps the Tidewyrm entry")
+	check(FileAccess.get_file_as_string("res://tests/fixtures/evo1-retired-forms.json") == fixture_text and retired_save.team[0].sp == "deeptide", "EVO-1: the migration does not rewrite the frozen fixture")
 	var returned: Node = load("res://scenes/main.tscn").instantiate()
 	returned.no_save = true
 	returned.settings.keep = false
@@ -304,7 +323,9 @@ func _run() -> void:
 	returned.register.keep = false
 	returned.save_path = "user://evo1_retired_load.json"
 	returned.lines.clear()
-	check(returned.SafeSave.write(returned.save_path, retired_save) and returned._load_game(), "EVO-1: a real pre-change save holding the retired forms still loads")
+	check(returned.SafeSave.write(returned.save_path, retired_save), "EVO-1: the frozen save can be put on disk")
+	var retired_bytes := FileAccess.get_file_as_string(returned.save_path)
+	check(returned._load_game(), "EVO-1: a real pre-change save holding the retired forms still loads")
 	for i in 20: returned._process(0.05)
 	var old_lead: Dictionary = retired_save.team[0]
 	var new_lead: Dictionary = returned.team[0]
@@ -328,8 +349,42 @@ func _run() -> void:
 	var old_egg: Dictionary = retired_save.egg.child
 	var new_egg: Dictionary = returned.egg.child
 	check(returned.egg.steps == int(retired_save.egg.steps) and new_egg.sp == "thornback" and new_egg.name == old_egg.name and int(new_egg.lvl) == int(old_egg.lvl) and is_equal_approx(float(new_egg.bond), float(old_egg.bond)), "EVO-1: an egg that was going to be Elderthorn hatches as Thornback and keeps its nickname, level and trust")
+	check(FileAccess.get_file_as_string(returned.save_path) == retired_bytes and "deeptide" in retired_bytes, "EVO-1: loading the frozen save migrates it in memory and does not rewrite the file")
 	returned.SafeSave.remove(returned.save_path)
 	returned.free()
+	var newer_src: Dictionary = retired_save.duplicate(true)
+	newer_src.v = 3
+	newer_src.kept = "byte-for-byte"
+	var newer_node: Node = load("res://scenes/main.tscn").instantiate()
+	newer_node.no_save = false
+	newer_node.settings.keep = false
+	newer_node.show_howto = false
+	newer_node.save_path = "user://evo1_newer.json"
+	newer_node.SafeSave.remove(newer_node.save_path)
+	check(newer_node.SafeSave.write(newer_node.save_path, newer_src), "EVO-1: a newer save can be put on disk for the guard")
+	var newer_bytes := FileAccess.get_file_as_string(newer_node.save_path)
+	root.add_child(newer_node)
+	check(newer_node.no_save and newer_node.hold_save and newer_node.title.visible and newer_node.title.get("summary") == main.NEWER_NOTE, "EVO-1: a newer save turns saving off and shows the notice")
+	check(FileAccess.get_file_as_string(newer_node.save_path) == newer_bytes, "EVO-1: opening a newer save does not rewrite it")
+	newer_node.lines.clear()
+	newer_node.stage = "free"
+	newer_node.trans_t = -1.0
+	newer_node.no_save = false
+	newer_node.battle.visible = false
+	newer_node.lessons.visible = false
+	newer_node.save_game()
+	check(FileAccess.get_file_as_string(newer_node.save_path) == newer_bytes, "EVO-1: a free moment does not overwrite a newer save")
+	newer_node._on_title("continue")
+	check(FileAccess.get_file_as_string(newer_node.save_path) == newer_bytes and newer_node.lines.any(func(l): return l.text == main.NEWER_NOTE), "EVO-1: continuing says the notice and still does not save")
+	newer_node.lines.clear()
+	newer_node.stage = "free"
+	newer_node.trans_t = -1.0
+	newer_node.hold_save = false
+	newer_node.no_save = false
+	newer_node.save_game()
+	check(FileAccess.get_file_as_string(newer_node.save_path) == newer_bytes and "byte-for-byte" in newer_bytes and newer_node.migrate_save(newer_src).is_empty(), "EVO-1: with the hold cleared, the newer file on disk is still not overwritten")
+	newer_node.SafeSave.remove(newer_node.save_path)
+	newer_node.free()
 	var tb := R.make("thornback", 36, { "rar": 1 }, main.rng)
 	tb.bond = 280.0
 	check(R.evo_target(tb, { "team": ["thornback", "glimmerwing"] }) == "", "EVO-1: Thornback no longer becomes Elderthorn beside a Glimmerwing")
@@ -1439,7 +1494,7 @@ func _run() -> void:
 	main.no_save = false
 	main.save_path = "user://test_journey.json"
 	main.save_game()
-	check(FileAccess.file_exists(main.save_path), "your journey saves")
+	check(FileAccess.file_exists(main.save_path) and int(main._peek_save().get("v", 0)) == main.SAVE_V, "your journey saves as version 2")
 	var lures_saved: int = main.bag.lures
 	var lvl_saved: int = main.team[0].lvl
 	var team_saved: int = main.team.size()

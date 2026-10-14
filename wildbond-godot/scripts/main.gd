@@ -122,6 +122,7 @@ var settings := Settings.new()                   # sound, text size, battle pace
 var shop: Control
 var book: Control
 var no_save := false                         # tests and recordings never touch your saved journey
+var hold_save := false                       # a newer save is on disk: this session must not write over it
 var save_path := "user://journey.json"
 var then_do := Callable()                    # runs when the current conversation ends
 var npcs: Array[Mover] = []                  # people out in the world (from the game data): trainers, Wardens
@@ -283,6 +284,12 @@ func _ready() -> void:
 	if demo:
 		no_save = true
 	if not no_save and SafeSave.exists(save_path):
+		var raw := _peek_save()
+		if _newer_save(raw):
+			no_save = true
+			hold_save = true
+			title.open(NEWER_NOTE)                   # the file stays as it is; this session does not save
+			return
 		var s := _save_summary()
 		if s != "":
 			title.open(s)                            # a journey is saved: continue it, or start a new one
@@ -303,6 +310,10 @@ func _on_title(choice: String) -> void:
 	if choice == "howto":
 		howto_then_title = true
 		howto.open("go on")
+		return
+	if hold_save:
+		say("", NEWER_NOTE)
+		_begin_intro()
 		return
 	if choice == "continue" and _load_game():
 		return
@@ -3199,7 +3210,9 @@ func _notification(what: int) -> void:
 		save_game()
 
 func save_game() -> void:
-	if no_save or stage != "free" or battle.visible or lessons.visible or not lines.is_empty() or trans_t >= 0.0:
+	if no_save or hold_save or _newer_save(_peek_save()):
+		return
+	if stage != "free" or battle.visible or lessons.visible or not lines.is_empty() or trans_t >= 0.0:
 		return
 	var look := {}
 	for k in my_look:
@@ -3208,7 +3221,7 @@ func save_game() -> void:
 	for k in npc_info:
 		if npc_info[k].beaten:
 			beaten.append(k)
-	var d := { "v": 1, "saved": Time.get_datetime_string_from_system(), "look": look, "team": team, "ranch": ranch, "bag": bag,
+	var d := { "v": SAVE_V, "saved": Time.get_datetime_string_from_system(), "look": look, "team": team, "ranch": ranch, "bag": bag,
 		"badges": badges, "seen": seen, "bonded": bonded, "items": got_items, "beaten": beaten,
 		"restore": restore.map(func(r): return { "where": r.where, "x": r.at.x, "y": r.at.y, "goal": r.goal }),
 		"explored": explored_in, "story": story_done, "retry": story_retry, "egg": egg, "gear": gear_owned, "taught": taught, "letter": [letter_steps, letters], "calendar": cal.to_dict(), "festival": { "done": fest_done, "keep": keepsakes, "flowers": flowers }, "league": league_room,
@@ -3216,9 +3229,95 @@ func save_game() -> void:
 		"map": map_name, "x": me.tile.x, "y": me.tile.y, "partner": partner.id if partner else "" }
 	SafeSave.write(save_path, d)                 # a spare file first, the last good save kept as a backup
 
-func _read_save() -> Dictionary:
+## Journey files. Version 2 is this game. A version 1 file climbs one step. A newer file is refused.
+const SAVE_V := 2
+const NEWER_NOTE := "This save is from a newer version, so progress will not be saved."
+## Retired third forms (EVO-1). Only the version 1 step changes the species id. A default name follows it.
+const RETIRED_FORMS := { "pyremane": "blazefang", "deeptide": "tidewyrm", "elderthorn": "thornback" }
+const RETIRED_NAMES := { "pyremane": "Pyremane", "deeptide": "Deeptide", "elderthorn": "Elderthorn" }
+
+func _save_version(d: Dictionary) -> int:
+	var v = d.get("v", null)
+	if typeof(v) != TYPE_INT and typeof(v) != TYPE_FLOAT:
+		return -1
+	return int(v)
+
+## The file on disk, including one this game is too old to reshape. A broken file falls through to its backup.
+func _peek_save() -> Dictionary:
 	return SafeSave.read(save_path, func(d: Dictionary) -> bool:
-		return int(d.get("v", 0)) == 1 and d.get("team") is Array and not d.team.is_empty())
+		return _save_version(d) >= 1 and d.get("team") is Array and not d.team.is_empty())
+
+func _newer_save(d: Dictionary) -> bool:
+	if d.is_empty():
+		return false
+	var v = d.get("v", null)
+	if typeof(v) != TYPE_INT and typeof(v) != TYPE_FLOAT:
+		return false
+	return float(v) > float(SAVE_V)
+
+## The journey this game can play, or {} when the file is missing, broken, or newer than SAVE_V.
+## A version 1 file is copied and stepped to version 2. The caller's dictionary is left as it was.
+func migrate_save(raw: Dictionary) -> Dictionary:
+	if _save_version(raw) < 1 or float(raw.v) > float(SAVE_V):
+		return {}
+	var data := raw.duplicate(true)
+	var guard := 0
+	while _save_version(data) != SAVE_V and guard < 8:
+		guard += 1
+		var from := _save_version(data)
+		if from >= SAVE_V:
+			return {}
+		var stepped := {}
+		if from == 1:
+			stepped = _migrate_v1(data)
+		if _save_version(stepped) <= from:
+			return {}
+		data = stepped
+	if _save_version(data) != SAVE_V or not (data.get("team") is Array) or data.team.is_empty():
+		return {}
+	return data
+
+## Version 1 to version 2: Deeptide, Pyremane and Elderthorn become Tidewyrm, Blazefang and Thornback.
+## Level, experience, trust, raising, hold, hold_bond, nickname and stats stay on the creature.
+func _migrate_v1(data: Dictionary) -> Dictionary:
+	var next := data.duplicate(true)
+	next.v = SAVE_V
+	if next.get("team") is Array:
+		next.team = _remap_list(next.team)
+	if next.get("ranch") is Array:
+		next.ranch = _remap_list(next.ranch)
+	var egg_v = next.get("egg", {})
+	if egg_v is Dictionary and not (egg_v as Dictionary).is_empty() and (egg_v as Dictionary).get("child") is Dictionary:
+		var egg: Dictionary = (egg_v as Dictionary).duplicate(true)
+		egg.child = _remap_retired(egg.child)
+		next.egg = egg
+	if next.get("seen") is Dictionary:
+		next.seen = _migrate_dex((next.seen as Dictionary).duplicate(true))
+	if next.get("bonded") is Dictionary:
+		next.bonded = _migrate_dex((next.bonded as Dictionary).duplicate(true))
+	return next
+
+func _remap_list(list: Array) -> Array:
+	var out: Array = []
+	for c in list:
+		out.append(_remap_retired(c) if c is Dictionary else c)
+	return out
+
+func _remap_retired(c: Dictionary) -> Dictionary:
+	var out := c.duplicate(true)
+	var old := str(out.get("sp", ""))
+	if RETIRED_FORMS.has(old):
+		var nick := str(out.get("name", ""))
+		out.sp = RETIRED_FORMS[old]
+		if nick == "" or nick == RETIRED_NAMES[old]:
+			out.name = str(DATA.SPECIES[out.sp].name)
+	return out
+
+func _read_save() -> Dictionary:
+	var raw := _peek_save()
+	if raw.is_empty() or _newer_save(raw):
+		return {}
+	return migrate_save(raw)
 
 func _save_summary() -> String:
 	var d := _read_save()
@@ -3227,26 +3326,13 @@ func _save_summary() -> String:
 	var where: String = "Maren's barn" if d.map == "barn" else (str(INTERIORS[d.map].name) if INTERIORS.has(d.map) else str(DATA.MAPS.get(d.map, {}).get("name", d.map)))
 	var nb: int = d.badges.size()
 	var lead_sp := str(d.team[0].get("sp", ""))
-	if RETIRED_FORMS.has(lead_sp):
-		lead_sp = RETIRED_FORMS[lead_sp]
 	var lead_name: String = str(d.team[0].name) if d.team[0].name != null else str(DATA.SPECIES.get(lead_sp, {}).get("name", "your partner"))
 	return "%s and %s, in %s. %d badge%s, %d in the Wilddex." % [d.look.get("name", "You"), lead_name,
 		where, nb, "" if nb == 1 else "s", d.seen.size()]
 
-## Retired third forms (EVO-1). An old save keeps the creature; only the species id changes, and a default name follows it.
-const RETIRED_FORMS := { "pyremane": "blazefang", "deeptide": "tidewyrm", "elderthorn": "thornback" }
-const RETIRED_NAMES := { "pyremane": "Pyremane", "deeptide": "Deeptide", "elderthorn": "Elderthorn" }
-
 ## A creature read back from the save: JSON stores every number as a decimal, so whole numbers are made whole again.
-## A retired third form becomes the final the line kept. Level, experience, trust, raising, hold, hold_bond,
-## nickname, potentials and the stored health number stay on the creature.
+## Species ids are already the ones this version plays. The retired-form change happens in migrate_save, once.
 func _fix_creature(c: Dictionary) -> Dictionary:
-	var old := str(c.get("sp", ""))
-	if RETIRED_FORMS.has(old):
-		var nick := str(c.get("name", ""))
-		c.sp = RETIRED_FORMS[old]
-		if nick == "" or nick == RETIRED_NAMES[old]:
-			c.name = str(DATA.SPECIES[c.sp].name)
 	for k in ["lvl", "xp", "rar", "hp"]:
 		c[k] = int(c[k])
 	for s in c.pot:
@@ -3270,6 +3356,8 @@ func _migrate_dex(box: Dictionary) -> Dictionary:
 	return box
 
 func _load_game() -> bool:
+	if _newer_save(_peek_save()):
+		return false
 	var d := _read_save()
 	if d.is_empty():
 		return false
@@ -3282,8 +3370,8 @@ func _load_game() -> bool:
 	for k in d.bag:
 		bag[k] = int(d.bag[k])                       # the same satchel the battle screen holds
 	badges = d.badges
-	seen = _migrate_dex(d.seen)
-	bonded = _migrate_dex(d.bonded)
+	seen = d.seen
+	bonded = d.bonded
 	got_items = d.items
 	explored_in = d.get("explored", {})
 	story_done = d.get("story", {})
