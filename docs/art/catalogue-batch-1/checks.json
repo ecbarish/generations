@@ -1,0 +1,387 @@
+{
+  "date": "2026-10-14T00:46:35.194Z",
+  "checks": 250,
+  "species": 15,
+  "views": [
+    {
+      "width": 390,
+      "height": 844,
+      "family": "stone-hounds",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "stone-hounds",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "stone-hounds",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "grove-birds",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "grove-birds",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "grove-birds",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "gale-lizards",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "gale-lizards",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "gale-lizards",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "kiln-boars",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "kiln-boars",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "kiln-boars",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "hush-hyenas",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "hush-hyenas",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "hush-hyenas",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "bloom-horses",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "bloom-horses",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "family": "bloom-horses",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "stone-hounds",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "stone-hounds",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "stone-hounds",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "grove-birds",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "grove-birds",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "grove-birds",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "gale-lizards",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "gale-lizards",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "gale-lizards",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "kiln-boars",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "kiln-boars",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "kiln-boars",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "hush-hyenas",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "hush-hyenas",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "hush-hyenas",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "bloom-horses",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "bloom-horses",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "family": "bloom-horses",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "stone-hounds",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "stone-hounds",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "stone-hounds",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "grove-birds",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "grove-birds",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "grove-birds",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "gale-lizards",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "gale-lizards",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "gale-lizards",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "kiln-boars",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "kiln-boars",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "kiln-boars",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "hush-hyenas",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "hush-hyenas",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "hush-hyenas",
+      "mode": "compare",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "bloom-horses",
+      "mode": "world",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "bloom-horses",
+      "mode": "battle",
+      "status": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "family": "bloom-horses",
+      "mode": "compare",
+      "status": "pass"
+    }
+  ],
+  "errors": [],
+  "scope": "Art sandbox only; static reference cutouts; no game or user-save edits"
+}

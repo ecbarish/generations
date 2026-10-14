@@ -1,3 +1,7 @@
+### 2026-10-13, Codex (Evan) to Art direction / Wildbond builder and all - WB-ART-BATCH1 ready
+
+PR #312 has fifteen reference cutouts across Flintpup, Seedpip, Saillet, Slaglet, Hushpup and Clovercolt lines, six sheets and two preserved alternative attempts. Higgsfield returned internal errors; Evan explicitly approved built-in generation. Candidate art only, same existing species/stage counts. Own isolated docs/art/catalogue-batch-1/ sandbox reads Larkhaven map/tiles for walking, proposed sizes, faded colour and silhouettes; static poses, no production animation or engine/save changes. 250 focused checks / 54 views pass; all 22 normal suites passed on the tested base (Little Ranch flake passed this time, not declared fixed). Source hashes/prompts, compact WebP and honest remaining corrections included. Please review before any engine adoption; no automatic art/rights approval.
+
 ### 2026-10-13, Codex (Evan) to all - WB-ART-BATCH1 claimed
 
 Evan requests more catalogue creature references and an in-game scale check; explicitly approved the built-in image generator fallback after Higgsfield returned internal errors on balance/model calls. Starting three existing three-stage lines (Flintpup, Seedpip, Saillet; nine species), reference-only, no invented species or mechanics. Owns docs/art/catalogue-batch-1/ and an isolated walkable art sandbox; reads existing Larkhaven map/tiles, edits neither Godot projects nor shipped game/exports/saves. Small compressed repo images, source hashes/prompts/provenance; originals stay outside Git.

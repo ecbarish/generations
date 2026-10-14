@@ -1,0 +1,211 @@
+{
+  "date": "2026-10-13",
+  "provider": "Built-in image generator (explicit user-approved fallback)",
+  "higgsfield": {
+    "status": "unavailable",
+    "reason": "Balance/preferences/model calls returned internal errors",
+    "creditsSpent": 0
+  },
+  "approval": "Reference candidates only; not production sprites, animation, meshes or game canon",
+  "rightsStatus": "Unverified; no distribution/sale approval inferred",
+  "entries": [
+    {
+      "key": "stone-hounds",
+      "prompt": "Use case: stylized-concept. Asset: one transparent three-stage creature reference sheet for Wildbond, an original storybook creature-bonding game. Painted illustration with crisp dark ink contour #1e1a22, restrained earthy palette, light from upper left, anatomically readable animal bodies, charm without oversized bobbleheads. Exactly THREE separate full-body creatures in one HORIZONTAL ROW, centered in three equal-width cells, generous empty transparent gaps and padding; no overlap, no labels, no text, no background, no ground, no cast shadows. All feet/wings/frills fully within their cell. Every creature faces toward the left in three-quarter side view, all grounded at the same baseline. Show all three at comparable illustration height for comparison; do NOT merely enlarge the baby. The base stays humble and plausibly real, the adolescent is awkward and transitional, the final radically transforms its silhouette and pays off a visible base promise while remaining recognisably the same animal. Preserve shared eyes, muzzle/beak and two marking anchors through the line. Not Pokemon designs, not existing franchise creatures. No weapons or accessories. STONE HOUND LINE, left to right: (1) FLINTPUP: a small grounded wolf pup in warm grey-beige #aaa18b fur, broad paws and rounded ears; two pale brow spots and dark muzzle, a tiny low ridge of pebble-like fur on its shoulders hinting it steadies loose slopes. Only a few stone accents; clearly fur, a believable pup. (2) CAIRNHOUND: same hound face/markings, gangly heavy adolescent #827b6b; uneven flat stone plates gathering over shoulders and flanks, lumpy low piled-stone spine, oversize sturdy paws; no adult ridge yet. (3) RIDGEWARDEN: same wolf, now an imposing patient mountain guardian #656b70. Four powerful legs visible under a long low body; a spectacular ascending ridge of weathered standing-stone slabs organically rising along shoulder/back, like a mountain crest, a heavy stone-and-fur chest mantle. Slabs echo the base shoulder pebbles, body remains a wolf rather than a rock golem, face warm and intelligent; pale brow spots and dark muzzle stay unmistakable. Presence changes from tentative pup to a mountain on four legs; no horn crown, no wings.",
+      "components": [
+        {
+          "label": 3,
+          "count": 106525,
+          "bounds": [
+            12,
+            309,
+            462,
+            452
+          ]
+        },
+        {
+          "label": 2,
+          "count": 205286,
+          "bounds": [
+            453,
+            142,
+            634,
+            623
+          ]
+        },
+        {
+          "label": 1,
+          "count": 371216,
+          "bounds": [
+            1042,
+            12,
+            895,
+            757
+          ]
+        }
+      ],
+      "sourceSha256": "2fd30cfdc0610798854c7673f1793063842634285b552cc87d7f00ddd9a5e76b",
+      "originalFile": "exec-2db20bc1-d1bc-42e3-bbfd-8a751fb31b5c.png"
+    },
+    {
+      "key": "grove-birds",
+      "prompt": "Use case: stylized-concept. Asset: one transparent three-stage creature reference sheet for Wildbond, an original storybook creature-bonding game. Painted illustration with crisp dark ink contour #1e1a22, restrained earthy palette, light from upper left, anatomically readable animal bodies, charm without oversized bobbleheads. Exactly THREE separate full-body creatures in one HORIZONTAL ROW, centered in three equal-width cells, generous empty transparent gaps and padding; no overlap, no labels, no text, no background, no ground, no cast shadows. All feet/wings/frills fully within their cell. Every creature faces toward the left in three-quarter side view, all grounded at the same baseline. Show all three at comparable illustration height for comparison; do NOT merely enlarge the baby. The base stays humble and plausibly real, the adolescent is awkward and transitional, the final radically transforms its silhouette and pays off a visible base promise while remaining recognisably the same animal. Preserve shared eyes, muzzle/beak and two marking anchors through the line. Not Pokemon designs, not existing franchise creatures. No weapons or accessories. GROVE BIRD LINE, left to right: (1) SEEDPIP: a grounded small finch/lark #9ca86a olive feathers, tan belly, dark eye stripe, short seed-cracking beak and one acorn-shaped tucked seed at chest feather fold; small twig-shaped tail marking, no overt magic. Real bird anatomy, two bird feet visible, closed wings. (2) HEDGELARK: same eye stripe/tan belly/seed beak, awkward half-fledged adolescent #688c51; shaggy shoulder feathers shaped like immature leaves, twiglike shafts sticking unevenly from wing tips, a nesting hollow hinted between shoulder plumage. Wings still short and folded, charming ungainly posture, not mature tree wings. (3) BOUGHCHORUS: the same lark grown into a magnificent broad-winged orchard guardian #427b54; wings open in a high sweeping arch, feathers elegantly become branching leafy boughs while retaining clear bird wing anatomy, leaves graduated from olive to deep cool green, a tiny tucked nesting hollow under one wing, tail branches into a sweeping fan. Substantial transformed canopy silhouette, pale belly/eye stripe/beak readable, two bird legs visible, NO humanoid tree, no face on trunk, no floating detached foliage. Seed promise becomes a living orchard in the bird's wings.",
+      "components": [
+        {
+          "label": 3,
+          "count": 69248,
+          "bounds": [
+            18,
+            397,
+            448,
+            405
+          ]
+        },
+        {
+          "label": 2,
+          "count": 129451,
+          "bounds": [
+            453,
+            319,
+            594,
+            493
+          ]
+        },
+        {
+          "label": 1,
+          "count": 377974,
+          "bounds": [
+            922,
+            12,
+            968,
+            801
+          ]
+        }
+      ],
+      "sourceSha256": "0175f0cb9e8750189dc0d1afb1238c2ba4980ccecffc502ce71052dd019ac728",
+      "originalFile": "exec-70cbbc73-81dd-46ec-aa78-45a3f12f1e94.png"
+    },
+    {
+      "key": "gale-lizards",
+      "prompt": "Use case: stylized-concept. Asset: one transparent three-stage creature reference sheet for Wildbond, an original storybook creature-bonding game. Painted illustration with crisp dark ink contour #1e1a22, restrained earthy palette, light from upper left, anatomically readable animal bodies, charm without oversized bobbleheads. Exactly THREE separate full-body creatures in one HORIZONTAL ROW, centered in three equal-width cells, generous empty transparent gaps and padding; no overlap, no labels, no text, no background, no ground, no cast shadows. All feet/wings/frills fully within their cell. Every creature faces toward the left in three-quarter side view, all grounded at the same baseline. Show all three at comparable illustration height for comparison; do NOT merely enlarge the baby. The base stays humble and plausibly real, the adolescent is awkward and transitional, the final radically transforms its silhouette and pays off a visible base promise while remaining recognisably the same animal. Preserve shared eyes, muzzle/beak and two marking anchors through the line. Not Pokemon designs, not existing franchise creatures. No weapons or accessories. GALE SAIL-LIZARD LINE, left to right: (1) SAILLET: a small grounded quadruped lizard #b0c2b9 sage-grey skin, friendly amber eyes, a dark cheek stripe and three pale tail bands, a modest folded triangular back sail lifted into the breeze. Clearly a real small lizard, no wings, four legs visible. (2) DRAFTSCALE: same face/cheek stripe/tail bands, awkward long-limbed adolescent #7ca4ad teal-grey; its oversized dorsal sail has outgrown its body, tilting clumsily, ribbed sail partly folded and too long to manage, no full adult wing silhouette yet. (3) STORMFRILL: same lizard transformed into a glorious storm drake #5f7f9b blue-grey. Four muscular reptile legs still visible, a long counterbalancing tail, dorsal sail and neck-frill ribs unfurl into spectacular twin swept fin panels shaped like storm sails, broad dramatic high silhouette, thin restrained silver lightning seams inside fins, no detached lightning or scenery. Amber eyes, cheek stripe and three tail bands remain recognisable; head stays distinctly lizard, no bird beak, no six-legged anatomy or arbitrary added dragon wings. The small sail has become a coherent storm-catching membrane system, with a confident sailing pose.",
+      "components": [
+        {
+          "label": 3,
+          "count": 60161,
+          "bounds": [
+            17,
+            459,
+            505,
+            306
+          ]
+        },
+        {
+          "label": 2,
+          "count": 138507,
+          "bounds": [
+            496,
+            181,
+            662,
+            591
+          ]
+        },
+        {
+          "label": 1,
+          "count": 279778,
+          "bounds": [
+            1110,
+            12,
+            793,
+            791
+          ]
+        }
+      ],
+      "sourceSha256": "f19afcca13ca05df38e1204ee76722d9c29a59139d33684f6d21fed15107aa7b",
+      "originalFile": "exec-aae25bfd-5896-4227-a09e-8b7bd9a310a7.png"
+    },
+    {
+      "key": "kiln-boars",
+      "prompt": "Original Wildbond storybook creature evolution reference sheet, transparent background with preserved alpha. Exactly TWO full-body creatures, separate left and right with a wide empty gap, no overlap, no labels, no lettering, no scenery, no ground or shadows. Crisp dark ink contours #1e1a22, restrained earthy colours, upper-left soft light, high-quality painted anatomy. Left humble young real animal, right SPECTACULAR transformed final with a different silhouette, SAME animal face and two marking anchors. Both face left in three-quarter side view. All limbs and all decorations inside frame with generous padding. No copied franchise creature, no armour worn by people, no humanoid body, no weapon. These are existing two-stage catalogue lines; do not add a third fictional species. Left SLAGLET: a sturdy small boar #b77748 with dusty brown short fur, blunt round snout, short dark ears, little clay crust patches on its back, a dark oval patch around its warm brown eye and two ivory dots behind the ear. Almost all fur; a warm snug dust coat, not a fireball. Right KILNTUSK: same four-legged boar, same eye patch/ivory dots, now a formidable living kiln with broad low plated volcanic shell and shoulder vents. Fired-clay tusks sweep forward, big interlocking ochre plates flare out into a furnace hood over the shoulders, restrained molten orange seams shine from between plates and vent behind the shoulder. Belly and four strong boar legs clearly visible, curious warm face. Major architectural kiln silhouette, not just a fat boar with more spikes.",
+      "components": [
+        {
+          "label": 2,
+          "count": 170364,
+          "bounds": [
+            17,
+            336,
+            605,
+            501
+          ]
+        },
+        {
+          "label": 1,
+          "count": 511456,
+          "bounds": [
+            724,
+            18,
+            1030,
+            843
+          ]
+        }
+      ],
+      "sourceSha256": "d7f325ba0933142d1bc283449258f8ef77d80faa12276cabc5f38ead05b51ea1",
+      "originalFile": "exec-547d1dfa-25f4-46e3-b455-67647df9de32.png"
+    },
+    {
+      "key": "hush-hyenas",
+      "prompt": "Original Wildbond storybook creature evolution reference sheet, transparent background with preserved alpha. Exactly TWO full-body creatures, separate left and right with a wide empty gap, no overlap, no labels, no lettering, no scenery, no ground or shadows. Crisp dark ink contours #1e1a22, restrained earthy colours, upper-left soft light, high-quality painted anatomy. Left humble young real animal, right SPECTACULAR transformed final with a different silhouette, SAME animal face and two marking anchors. Both face left in three-quarter side view. All limbs and all decorations inside frame with generous padding. No copied franchise creature, no armour worn by people, no humanoid body, no weapon. These are existing two-stage catalogue lines; do not add a third fictional species. Left HUSHPUP: a grounded charming young striped hyena #81729b dusty lavender-grey fur, round ears, short muzzle, dark teardrop cheek marking, two narrow diagonal stripes at the shoulder, slim restrained ruff. Alert listening posture, no magic halo or enormous head. Right HUSHMANE: same striped hyena, forequarters become powerfully sloping, same round ears and teardrop cheek; a vast sweeping circular collar of layered dark dusk-purple fur forms a dramatic sound-absorbing mantle, pointed fur tufts curl inward like echoes toward its chest. Soft pale concentric seam markings ONLY within the mane imply echo-ripples; no detached ring, no floating wave. Four real hyena legs, strong back slope, shorter hindquarters, a generous curved bushy tail, same shoulder stripes visible below the mantle. A charismatic guardian of silence, not a sinister monster or a wolf.",
+      "components": [
+        {
+          "label": 2,
+          "count": 168181,
+          "bounds": [
+            18,
+            290,
+            603,
+            638
+          ]
+        },
+        {
+          "label": 1,
+          "count": 433543,
+          "bounds": [
+            681,
+            68,
+            843,
+            866
+          ]
+        }
+      ],
+      "sourceSha256": "87992821d817a555b9157577a9edc40c42774ce727f3d9c3983424fcdee37895",
+      "originalFile": "exec-66678374-c0dd-4eba-8b36-e9d5227f34c3.png"
+    },
+    {
+      "key": "bloom-horses",
+      "prompt": "Original Wildbond storybook creature evolution reference sheet, transparent background with preserved alpha. Exactly TWO full-body creatures, separate left and right with a wide empty gap, no overlap, no labels, no lettering, no scenery, no ground or shadows. Crisp dark ink contours #1e1a22, restrained earthy colours, upper-left soft light, high-quality painted anatomy. Left humble young real animal, right SPECTACULAR transformed final with a different silhouette, SAME animal face and two marking anchors. Both face left in three-quarter side view. All limbs and all decorations inside frame with generous padding. No copied franchise creature, no armour worn by people, no humanoid body, no weapon. These are existing two-stage catalogue lines; do not add a third fictional species. Left CLOVERCOLT: a plausible young pony/foal #a5bb63 soft muted olive coat, short floppy dark-green mane, pale cream blaze on its face, one cream front sock, a single loose shelter ribbon caught discreetly in mane. Humble nearly normal real foal with sturdy anatomy and friendly eyes. Right BLOOMCOURSER: same equine grown into a magnificent flowering guardian, same pale blaze and front sock, no unicorn horn and no antlers. Mane unfurls into a great long sweeping banner of layered leaf-like hair, restrained ribbon strands and small cream blossoms, tail becomes a broad flowering pennant; a flowing leafy mantle follows the neck and shoulders, powerful arched neck and proud forward step. Presence like an orchard's ceremonial horse, elegant flowing horizontal silhouette; all four legs and hooves readable. Ribbons organically in mane, no saddle or horse armour, no human rider, no extra legs.",
+      "components": [
+        {
+          "label": 4,
+          "count": 138643,
+          "bounds": [
+            38,
+            192,
+            458,
+            665
+          ]
+        },
+        {
+          "label": 1,
+          "count": 480228,
+          "bounds": [
+            734,
+            15,
+            1024,
+            854
+          ]
+        }
+      ],
+      "sourceSha256": "8bfd61981b8b5d424bb062fe1b14168ef41089c0c8c9a00b8dfd8fbf531aa23c",
+      "originalFile": "exec-988ec982-cbd6-42a3-865f-c430152a4929.png"
+    }
+  ]
+}

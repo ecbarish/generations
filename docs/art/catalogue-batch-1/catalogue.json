@@ -1,0 +1,529 @@
+{
+  "date": "2026-10-13",
+  "sourceCommit": "e7953573f412ebc8d3a1ab2229a0f57334b87342",
+  "scope": "15 species; six existing lines; candidate art only. Three lines have three stages, three have two. World heights are proposals, not edited game data.",
+  "map": {
+    "name": "Larkhaven",
+    "source": "wildbond-godot/data/wildbond.json",
+    "rows": [
+      "TTTTTTTTTTNNTTTTTTTTTTTT",
+      "T,,,,,,,,,..P,,,,,,,,,,T",
+      "T,rrrrr,,,..,,,,rrrrr,,T",
+      "T,rrrrr,,,..,,,,rrrrr,,T",
+      "T,##D##,,,..,,,,##D##,,T",
+      "T,,,.,,,,,..,,,,,,.,,,,T",
+      "T,,.................,f,T",
+      "T,f,,,,,,,..,,,,,,,,,,,T",
+      "T,,,,rrrrr..,=======,,,T",
+      "T,,,,rrrrr..,=,,,,,=,,,T",
+      "T,,,,##D##..,=,,,,,=,f,T",
+      "T,f,,,,.,,..,===.===,,,T",
+      "T,,,,,,..........,,,,,,T",
+      "TTTTTTTTTTTTTTTTTTTTTTTT"
+    ],
+    "start": [
+      11,
+      7
+    ]
+  },
+  "families": [
+    {
+      "id": "stone-hounds",
+      "name": "stone hounds",
+      "sheet": "assets/stone-hounds-sheet.webp",
+      "sourceHash": "2fd30cfdc0610798854c7673f1793063842634285b552cc87d7f00ddd9a5e76b",
+      "creatures": [
+        {
+          "id": "flintpup",
+          "name": "Flintpup",
+          "element": "Stone",
+          "family": "wolf",
+          "canonSize": "tiny",
+          "stage": "base",
+          "file": "assets/flintpup.webp",
+          "sourceBounds": [
+            12,
+            309,
+            462,
+            452
+          ],
+          "sourceComponent": 3,
+          "sourceAlphaThreshold": 128,
+          "sha256": "9fdb122e2dcdf3749eb1f8e1259ce4949ba8f88629689c75920436d1789f9014",
+          "bytes": 48024,
+          "status": "candidate",
+          "dex": "On the Emberfall Highlands' cool scree, it taps loose stones with its paws before leading the pack across.",
+          "proposedWorldHeight": 16,
+          "assetId": "wildbond.reference.batch1.flintpup",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        },
+        {
+          "id": "cairnhound",
+          "name": "Cairnhound",
+          "element": "Stone",
+          "family": "wolf",
+          "canonSize": "small",
+          "stage": "middle",
+          "file": "assets/cairnhound.webp",
+          "sourceBounds": [
+            453,
+            142,
+            634,
+            623
+          ],
+          "sourceComponent": 2,
+          "sourceAlphaThreshold": 128,
+          "sha256": "820196f0984d24dd086432a9777392e88561bdaab23351ff9fb15418aa2017de",
+          "bytes": 72902,
+          "status": "candidate",
+          "dex": "It keeps Cloudglass Pass's cairns upright through winter, resting against the smallest stones when the wind rises.",
+          "proposedWorldHeight": 24,
+          "assetId": "wildbond.reference.batch1.cairnhound",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        },
+        {
+          "id": "ridgewarden",
+          "name": "Ridgewarden",
+          "element": "Stone",
+          "family": "wolf",
+          "canonSize": "large",
+          "stage": "final",
+          "file": "assets/ridgewarden.webp",
+          "sourceBounds": [
+            1042,
+            12,
+            895,
+            757
+          ],
+          "sourceComponent": 1,
+          "sourceAlphaThreshold": 128,
+          "sha256": "22d02923f45e24c4126b6e419e236408b0e03b3a27db47bcae1fa3da7123a4ec",
+          "bytes": 71784,
+          "status": "candidate",
+          "dex": "Cloudglass Pass's oldest ridge packs follow its patient steps; it returns for the last pup before leaving a ledge.",
+          "proposedWorldHeight": 44,
+          "assetId": "wildbond.reference.batch1.ridgewarden",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "grove-birds",
+      "name": "grove birds",
+      "sheet": "assets/grove-birds-sheet.webp",
+      "sourceHash": "0175f0cb9e8750189dc0d1afb1238c2ba4980ccecffc502ce71052dd019ac728",
+      "creatures": [
+        {
+          "id": "seedpip",
+          "name": "Seedpip",
+          "element": "Grove",
+          "family": "bird",
+          "canonSize": "tiny",
+          "stage": "base",
+          "file": "assets/seedpip.webp",
+          "sourceBounds": [
+            18,
+            397,
+            448,
+            405
+          ],
+          "sourceComponent": 3,
+          "sourceAlphaThreshold": 128,
+          "sha256": "7a7a9f90e7118e13caee5db339046727f13272f346de9fe7d13cbb97a76b093e",
+          "bytes": 37082,
+          "status": "candidate",
+          "dex": "In Thornwood, it tucks fallen seeds into fence cracks and checks them again after rain.",
+          "proposedWorldHeight": 16,
+          "assetId": "wildbond.reference.batch1.seedpip",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        },
+        {
+          "id": "hedgelark",
+          "name": "Hedgelark",
+          "element": "Grove",
+          "family": "bird",
+          "canonSize": "small",
+          "stage": "middle",
+          "file": "assets/hedgelark.webp",
+          "sourceBounds": [
+            453,
+            319,
+            594,
+            493
+          ],
+          "sourceComponent": 2,
+          "sourceAlphaThreshold": 128,
+          "sha256": "0fd6e5fea3a16ae3cffd23d7713bdc4b3ff2ed0febb9344d911c51c782d410a9",
+          "bytes": 65496,
+          "status": "candidate",
+          "dex": "Thornwood's hedges shelter its leafy nests; its dawn call waits until every nestling answers.",
+          "proposedWorldHeight": 24,
+          "assetId": "wildbond.reference.batch1.hedgelark",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        },
+        {
+          "id": "boughchorus",
+          "name": "Boughchorus",
+          "element": "Grove",
+          "family": "bird",
+          "canonSize": "large",
+          "stage": "final",
+          "file": "assets/boughchorus.webp",
+          "sourceBounds": [
+            922,
+            12,
+            968,
+            801
+          ],
+          "sourceComponent": 1,
+          "sourceAlphaThreshold": 128,
+          "sha256": "0e8d3ea58c8fa487d29df857b2a21bf91e6b857f4506c918b710296c6b6a7e87",
+          "bytes": 78428,
+          "status": "candidate",
+          "dex": "In Sunthread Commons, it sings from orchard branches, leaving the first ripe fruit for the smaller birds.",
+          "proposedWorldHeight": 44,
+          "assetId": "wildbond.reference.batch1.boughchorus",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "gale-lizards",
+      "name": "gale lizards",
+      "sheet": "assets/gale-lizards-sheet.webp",
+      "sourceHash": "f19afcca13ca05df38e1204ee76722d9c29a59139d33684f6d21fed15107aa7b",
+      "creatures": [
+        {
+          "id": "saillet",
+          "name": "Saillet",
+          "element": "Gale",
+          "family": "lizard",
+          "canonSize": "tiny",
+          "stage": "base",
+          "file": "assets/saillet.webp",
+          "sourceBounds": [
+            17,
+            459,
+            505,
+            306
+          ],
+          "sourceComponent": 3,
+          "sourceAlphaThreshold": 128,
+          "sha256": "282792c80019d1a980007cfa2dcb17fb1d88c0a46b708a8ad269f2b58258a6fe",
+          "bytes": 32426,
+          "status": "candidate",
+          "dex": "On Saltmarsh Coast, it lifts its little back sail to dry after rain, leaning into whichever breeze smells of home.",
+          "proposedWorldHeight": 16,
+          "assetId": "wildbond.reference.batch1.saillet",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        },
+        {
+          "id": "draftscale",
+          "name": "Draftscale",
+          "element": "Gale",
+          "family": "lizard",
+          "canonSize": "small",
+          "stage": "middle",
+          "file": "assets/draftscale.webp",
+          "sourceBounds": [
+            496,
+            181,
+            662,
+            591
+          ],
+          "sourceComponent": 2,
+          "sourceAlphaThreshold": 128,
+          "sha256": "79f2babcf852c8b738cff6e921287f081e60e365352fb489bc131b6cfabddc0f",
+          "bytes": 52566,
+          "status": "candidate",
+          "dex": "Above Cloudglass Pass, its broad sail catches the rising air; it circles back whenever a young Saillet falls behind.",
+          "proposedWorldHeight": 24,
+          "assetId": "wildbond.reference.batch1.draftscale",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        },
+        {
+          "id": "stormfrill",
+          "name": "Stormfrill",
+          "element": "Gale",
+          "family": "lizard",
+          "canonSize": "large",
+          "stage": "final",
+          "file": "assets/stormfrill.webp",
+          "sourceBounds": [
+            1110,
+            12,
+            793,
+            791
+          ],
+          "sourceComponent": 1,
+          "sourceAlphaThreshold": 128,
+          "sha256": "f93e2f0719da56f2865ca6eb5d614964d24fbb4a26ff8ea5c8a90f2736edafc1",
+          "bytes": 67670,
+          "status": "candidate",
+          "dex": "Cloudglass Pass's storm winds bend its great frill, but it folds the sail to shelter its companions from the worst gusts.",
+          "proposedWorldHeight": 44,
+          "assetId": "wildbond.reference.batch1.stormfrill",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "kiln-boars",
+      "name": "kiln boars",
+      "sheet": "assets/kiln-boars-sheet.webp",
+      "sourceHash": "d7f325ba0933142d1bc283449258f8ef77d80faa12276cabc5f38ead05b51ea1",
+      "creatures": [
+        {
+          "id": "slaglet",
+          "name": "Slaglet",
+          "element": "Ember",
+          "family": "boar",
+          "canonSize": "tiny",
+          "stage": "base",
+          "file": "assets/slaglet.webp",
+          "sourceBounds": [
+            17,
+            336,
+            605,
+            501
+          ],
+          "sourceComponent": 2,
+          "sourceAlphaThreshold": 128,
+          "sha256": "d39918d496718fb0b722116cff2afb685dfe8f49d8abdcd3dc628d9cd919e19e",
+          "bytes": 59026,
+          "status": "candidate",
+          "dex": "It rolls in warm volcanic dust until its coat forms a snug crust that keeps out the mountain chill.",
+          "proposedWorldHeight": 16,
+          "assetId": "wildbond.reference.batch1.slaglet",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        },
+        {
+          "id": "kilntusk",
+          "name": "Kilntusk",
+          "element": "Ember",
+          "family": "boar",
+          "canonSize": "large",
+          "stage": "final",
+          "file": "assets/kilntusk.webp",
+          "sourceBounds": [
+            724,
+            18,
+            1030,
+            843
+          ],
+          "sourceComponent": 1,
+          "sourceAlphaThreshold": 128,
+          "sha256": "37ba2b64b8273a716b31c73470986bd80f08acc5209138419af96c7a7c8bdfd3",
+          "bytes": 70098,
+          "status": "candidate",
+          "dex": "Its glowing tusks loosen hardened lava so its herd can root for tender shoots beneath the stone.",
+          "proposedWorldHeight": 44,
+          "assetId": "wildbond.reference.batch1.kilntusk",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "hush-hyenas",
+      "name": "hush hyenas",
+      "sheet": "assets/hush-hyenas-sheet.webp",
+      "sourceHash": "87992821d817a555b9157577a9edc40c42774ce727f3d9c3983424fcdee37895",
+      "creatures": [
+        {
+          "id": "hushpup",
+          "name": "Hushpup",
+          "element": "Shade",
+          "family": "hyena",
+          "canonSize": "tiny",
+          "stage": "base",
+          "file": "assets/hushpup.webp",
+          "sourceBounds": [
+            18,
+            290,
+            603,
+            638
+          ],
+          "sourceComponent": 2,
+          "sourceAlphaThreshold": 128,
+          "sha256": "3d821cd149c130e897e86c3ae833744c0e57ad44ae2807eddf41c66dda511964",
+          "bytes": 52954,
+          "status": "candidate",
+          "dex": "It stops at a fork until the returning echo matches the footfalls of its friends.",
+          "proposedWorldHeight": 16,
+          "assetId": "wildbond.reference.batch1.hushpup",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        },
+        {
+          "id": "hushmane",
+          "name": "Hushmane",
+          "element": "Shade",
+          "family": "hyena",
+          "canonSize": "medium",
+          "stage": "final",
+          "file": "assets/hushmane.webp",
+          "sourceBounds": [
+            681,
+            68,
+            843,
+            866
+          ],
+          "sourceComponent": 1,
+          "sourceAlphaThreshold": 128,
+          "sha256": "05fbaa7ad17b86af1bf06d53ffb53ab12264de6548d92bf34c5f19700e63c02b",
+          "bytes": 66926,
+          "status": "candidate",
+          "dex": "Its soft call carries around stone bends without startling the creatures sheltering there.",
+          "proposedWorldHeight": 24,
+          "assetId": "wildbond.reference.batch1.hushmane",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "bloom-horses",
+      "name": "bloom horses",
+      "sheet": "assets/bloom-horses-sheet.webp",
+      "sourceHash": "8bfd61981b8b5d424bb062fe1b14168ef41089c0c8c9a00b8dfd8fbf531aa23c",
+      "creatures": [
+        {
+          "id": "clovercolt",
+          "name": "Clovercolt",
+          "element": "Grove",
+          "family": "horse",
+          "canonSize": "tiny",
+          "stage": "base",
+          "file": "assets/clovercolt.webp",
+          "sourceBounds": [
+            38,
+            192,
+            458,
+            665
+          ],
+          "sourceComponent": 4,
+          "sourceAlphaThreshold": 128,
+          "sha256": "ff52a92f699efb5216cbcb46ae24083088641e23827f54d7d3e846bf0c25b176",
+          "bytes": 48214,
+          "status": "candidate",
+          "dex": "It carries loose shelter ties in its mane and waits while slower partners cross the meadow.",
+          "proposedWorldHeight": 16,
+          "assetId": "wildbond.reference.batch1.clovercolt",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        },
+        {
+          "id": "bloomcourser",
+          "name": "Bloomcourser",
+          "element": "Grove",
+          "family": "horse",
+          "canonSize": "large",
+          "stage": "final",
+          "file": "assets/bloomcourser.webp",
+          "sourceBounds": [
+            734,
+            15,
+            1024,
+            854
+          ],
+          "sourceComponent": 1,
+          "sourceAlphaThreshold": 128,
+          "sha256": "0b6fc2b98820a5a11d4a3cdaee37372ed6cb9d3cf2abb14ee8fbfbe09bd9113f",
+          "bytes": 91328,
+          "status": "candidate",
+          "dex": "Flowers open along its mane where young creatures lean against it during a storm.",
+          "proposedWorldHeight": 44,
+          "assetId": "wildbond.reference.batch1.bloomcourser",
+          "contract": {
+            "frames": 1,
+            "pose": "left-three-quarter static",
+            "anchor": "bottom-centre",
+            "format": "RGBA WebP",
+            "productionApproved": false
+          }
+        }
+      ]
+    }
+  ]
+}
