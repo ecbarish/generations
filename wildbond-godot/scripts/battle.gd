@@ -120,6 +120,8 @@ func open(battle_kind: String, team: Array, foe_team: Array, who: String) -> voi
 	order_i = 0
 	allies = team.filter(func(c): return c.hp > 0).map(func(c): return unit(c, "a"))
 	foes = foe_team.map(func(c): return unit(c, "f"))
+	if not allies.is_empty():
+		allies[0].atb = R.ACT_AT                      # WBL-2: you move first, so a battle opens on your menu, never on a free hit
 	log_lines.clear()
 	floats.clear()
 	sparks.clear()
@@ -137,8 +139,6 @@ func open(battle_kind: String, team: Array, foe_team: Array, who: String) -> voi
 	joined_t = 0.0
 	flood_t = -1.0
 	sure_catch = false
-	if not allies.is_empty():
-		allies[0].atb = R.ACT_AT                 # you choose first; a quicker foe gets no free hit (WBL-2)
 	var names := ", ".join(foes.map(func(u): return "%s (Lv %d)" % [u.c.name, u.c.lvl]))
 	say("A wild %s appeared!" % names if kind == "wild" else "%s sends out %s!" % [trainer, names])
 	_go_to("fog_in")
@@ -207,11 +207,7 @@ func _process(dt: float) -> void:
 func _tick(h: float) -> void:
 	# A battle that is already over (the tests knock a foe out, and so can a last tick of poison) ends at once,
 	# instead of opening a menu for a fight nobody is left to fight.
-	if living("f").is_empty():
-		_end("won")
-		return
-	if living("a").is_empty():
-		_end("lost")
+	if _check_end():
 		return
 	if not joined.is_empty():
 		joined_t -= h
