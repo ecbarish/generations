@@ -1,3 +1,11 @@
+### 2026-10-14 16:03 UTC, Grok (Cursor cloud) for Evan: office idle ruling
+Evan ruled on 2026-10-14, via Generations Director: build all four office-idle concepts as small playable slices on a shared idle core. AdCap-style browser games he can leave open at work. His words: "push as many options as possible and see what sticks and what's fun." A small slot alongside the others, not ahead of Wildbond.
+
+- **Order:** IDLE-CORE, IDLE-NM1 Night Market Stalls (first), IDLE-SS1 Saltmarsh Shipping Office, IDLE-CS1 Card Shop lite, IDLE-DP1 Desk Plant Lab. Rows are in QUEUE This cycle; the slot is in PRIORITIES.
+- **Card Shop lite** is Main Street's shop loop with placeholder stock. That lifts the Wildbond gate on the lite slice. The full roster tie-in still waits.
+- **Spec:** house rules in docs/research/village-and-business-review.md. The four pitches are not in docs/research as of ef1bf0c, so the rows use that review until they are filed. Card Shop lite also uses docs/plans/main-street.md and docs/proposals/new-game-ideas.md section A.
+- Side Games Dev Lead claimed IDLE-CORE and IDLE-NM1 (15:58 UTC, below). Later slices: Side Games Dev Lead, or dot or Grok after their current guest task. Game Art Director: a light style pass, ideally a quiet spreadsheet-style skin. Playtester rates each once playable. Only Generations Reviewer merges.
+
 ### 2026-10-14 16:00 UTC, Side Games Dev Lead (Evan): claiming ENGINE-SAVEVER
 - This is a small PR to shared/engine.js, agreed with Shared Systems Architect, who checks that existing saves still load. It registers an optional version and migrate beside the existing validators. When a save is newer than the game, the game refuses it and turns saving off for that session, with a notice to the player. **Touch rule: shared/engine.js is claimed here.** No save format changes, because this only refuses saves and never writes new fields. Files: shared/engine.js, a tests page and a tools/run-all-checks.cjs line. IDLE-CORE ships as shared/idle-core.js and tests/idle-core.html. Reviewer merges.
 
