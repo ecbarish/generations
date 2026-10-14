@@ -14,7 +14,8 @@ const INK := Color("2a2230")
 const PAPER := Color("f8f2e4")
 const EL_COL := { "Ember": Color("e0602a"), "Tide": Color("3a8fd8"), "Grove": Color("5d9a3e") }
 ## CR1: size classes to battle scale (spec 4.4, docs/wildbond-creatures.md).
-const SIZE_SCALE := { "tiny": 0.7, "small": 0.85, "medium": 1.0, "large": 1.2, "huge": 1.45 }
+## Whole-number zoom only. A creature's size is the height drawn into its pixels (metres × 12.35).
+const SIZE_SCALE := { "tiny": 1, "small": 1, "medium": 1, "large": 1, "huge": 1 }
 ## Painted sprites stay this many pixels clear of the health panels. The zoom itself stays a whole number.
 const PANEL_CLEARANCE := 4.0
 ## Each element's hit has its own animated effect (Ninja Adventure FX, CC0; assets/fx): [file, frame width, frames, tint].
@@ -817,7 +818,6 @@ func _draw() -> void:
 	for u in order:
 		if u.c.hp <= 0 and u.hit <= 0.0:
 			continue
-		var sc: float = (4.0 if u.side == "a" else 3.0) * SIZE_SCALE.get(str(R.sp(u.c).get("size", "medium")), 1.0)   # CR1: draw at species size
 		var at := _spot(u)
 		var dir := 1.0 if u.side == "a" else -1.0
 		at.x += sin(clampf(u.lunge / 0.35, 0.0, 1.0) * PI) * 10.0 * dir
@@ -841,8 +841,8 @@ func _draw() -> void:
 		var pose_name := "walk" if u.lunge > 0.0 else "idle"
 		var foot := _painted_foot(at + Vector2(0, 6), str(u.c.sp), pose_name, zoom)
 		if not Sprites.try_draw(self, str(u.c.sp), foot, u.side == "a", pose_name, int(t * 8.0), zoom, 0.0, gear):
-			draw_set_transform(at - Vector2(9, 12) * sc, 0, Vector2(sc, sc))
-			Figures.creature(self, Vector2.ZERO, u.side == "a", pose, look)
+			draw_set_transform(at - Vector2(9, 12) * zoom, 0, Vector2(zoom, zoom))
+			Figures.paint(self, Vector2.ZERO, Figures.sized_parts(R.sp(u.c), u.side == "a", pose, look))
 			draw_set_transform(Vector2.ZERO)
 	for u in allies + foes:
 		var status_line := Effects.label(u)
@@ -975,7 +975,7 @@ func _draw_joined(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictionary
 	var foot := _painted_foot(at + Vector2(0, 8), str(u.c.sp), "idle", sc)
 	if not Sprites.try_draw(self, str(u.c.sp), foot, true, "idle", 0, sc, 0.0, str(u.c.get("gear", ""))):
 		draw_set_transform(at - Vector2(9, 12) * sc, 0, Vector2(sc, sc))
-		Figures.creature(self, Vector2.ZERO, true, pose, look)
+		Figures.paint(self, Vector2.ZERO, Figures.sized_parts(R.sp(u.c), true, pose, look))
 		draw_set_transform(Vector2.ZERO)
 	if not tamer_look.is_empty():
 		draw_set_transform(at + Vector2(-26, -70), 0, Vector2(2.4, 2.4))   # you, within its shape, facing the foe with it

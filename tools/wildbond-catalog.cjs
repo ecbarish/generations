@@ -21,6 +21,10 @@ for (const [mid, m] of Object.entries(data.MAPS)) {
   const lists = [m.wild || []].concat(Object.values(m.seasonal || {}).map(s => s.wild || []));
   for (const l of lists) for (const [id] of l) (where[id] = where[id] || new Set()).add(m.name || mid);
 }
+for (const [mid, pairs] of Object.entries(evo.wild || {})) {
+  const name = (data.MAPS[mid] && data.MAPS[mid].name) || mid;
+  for (const [id] of pairs) (where[id] = where[id] || new Set()).add(name);
+}
 // lines: parent and stage
 const parent = {};
 for (const id of Object.keys(S)) for (const e of nexts(id)) if (S[e.to]) parent[e.to] = parent[e.to] || id;
