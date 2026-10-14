@@ -59,6 +59,7 @@ const WARDEN_PLANS := {"Warden Isolde": "shelter", "Warden Nerys": "setup", "War
 var allies: Array = []
 var foes: Array = []
 var state := "off"                            # fog_in, intro, run, choose, moves, beat, results, fog_out
+var tap_landed := false                       # the press already hit Fight (or another command), so the release must not act again
 var wait_u: Dictionary = {}                   # the ally whose turn it is
 var beat_t := 0.0
 var state_t := 0.0
@@ -641,12 +642,23 @@ func _end(r: String) -> void:
 # ---------------------------------------------------------------- input: keys, mouse or touch
 func _input(e: InputEvent) -> void:
 	if not visible:
+		tap_landed = false
 		return
 	var click: bool = Controls.pointing(e)
+	var up: bool = Controls.released(e)
 	var ok := Controls.pressed(e, "interact")      # named actions (controls.gd): keys, a gamepad, or the phone's button
 	var back := Controls.pressed(e, "back")
 	var key := Controls.dir(e)
-	if Controls.swallow_pointer(e) and not click:
+	if up:
+		var missed := not tap_landed
+		tap_landed = false
+		# A press that already chose is swallowed. A press that missed still counts if the finger comes up on Fight.
+		if missed and state == "choose":
+			click = true
+		else:
+			get_viewport().set_input_as_handled()
+			return
+	elif Controls.swallow_pointer(e) and not click:
 		get_viewport().set_input_as_handled()      # the duplicate touch under a real click must not reach the world
 		return
 	if not (click or ok or back or key != Vector2i.ZERO):
@@ -656,8 +668,13 @@ func _input(e: InputEvent) -> void:
 	match state:
 		"choose":
 			if click:
+				var hit := false
 				for i in MENU.size():
-					if _menu_rect(i).has_point(p): _choose(i)
+					if _menu_rect(i).has_point(p):
+						hit = true
+						_choose(i)
+				if Controls.pointing(e):
+					tap_landed = hit
 			elif ok: _choose(menu_i)
 			else: menu_i = _grid_move(menu_i, key, MENU.size(), 3)
 		"capture":

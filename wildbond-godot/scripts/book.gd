@@ -1,6 +1,6 @@
 extends Control
-## The field book you carry (docs/wildbond-plan.md phase 4, "menus you hold"): open it with Tab or J, or tap the satchel
-## bag in the corner. Four pages: the Wilddex (every creature in the game: seen ones in colour, the rest dark shapes, a mark for the ones
+## The field book you carry (docs/wildbond-plan.md phase 4, "menus you hold"): open it with Tab or J, or from Field book
+## on the menu (the bag in the corner opens that menu). Four pages: the Wilddex (every creature in the game: seen ones in colour, the rest dark shapes, a mark for the ones
 ## that chose you; pick one for its page), your Team (level, health, XP, moves; who rests at the ranch) and the Satchel
 ## (what you carry, your badges and keepsakes: the numbers live here, not on the screen, WD1).
 ## The last page is Settings (WB6.2): sound, text size, battle pace and the phone buttons.

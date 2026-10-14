@@ -41,6 +41,7 @@ var t := 0.0
 var demo_i := 0
 var font: Font
 var keep := true                             # false in the recorded demo, so it never touches your saved choices
+var tap_landed := false                      # the press already hit a row or Sign, so the release must not sign again
 
 func _ready() -> void:
 	Controls.fill(self)
@@ -98,6 +99,7 @@ func demo_step() -> void:
 # ---------------------------------------------------------------- input: arrows and Enter, typing, or the mouse
 func _input(e: InputEvent) -> void:
 	if not visible:
+		tap_landed = false
 		return
 	var typed := char(e.unicode) if e is InputEventKey and e.pressed and e.unicode >= 32 else ""
 	if row == 0 and typed != "" and not (e.keycode in [KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT]):
@@ -129,9 +131,25 @@ func _input(e: InputEvent) -> void:
 				if p.x < 270: change(-1)
 				elif p.x > 332 or i != 0: change(1)
 		# The words, the button, and the line that says to click: a near miss used to do nothing.
+		var signed_now := false
 		if not on_row and Rect2(190, 156, 170, 52).has_point(p):
 			row = SIGN_ROW
 			sign_it()
+			signed_now = true
+		tap_landed = on_row or signed_now
+		get_viewport().set_input_as_handled()
+	elif Controls.released(e):
+		if not tap_landed:
+			var p := Controls.at(self, e)
+			var on_row := false
+			for i in ROWS.size():
+				var y := ROW_Y + i * ROW_STEP
+				if p.y >= y - 9 and p.y < y + 4 and p.x > 196:
+					on_row = true
+			if not on_row and Rect2(190, 156, 170, 52).has_point(p):
+				row = SIGN_ROW
+				sign_it()
+		tap_landed = false
 		get_viewport().set_input_as_handled()
 	elif Controls.swallow_pointer(e):
 		get_viewport().set_input_as_handled()

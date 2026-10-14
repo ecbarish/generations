@@ -29,6 +29,8 @@ static func run(host: Node, check: Callable) -> void:
 	_objective(game, check)
 	_phone(game, check)
 	_playtester(game, check)
+	_areas(game, check)
+	_taps(game, check)
 	Input.emulate_mouse_from_touch = emulate
 	game.get_tree().paused = false
 	for action in ["move_down", "move_up", "move_left", "move_right"]:
@@ -366,6 +368,197 @@ static func _key_tap(game: Node, code: Key) -> void:
 	var event := InputEventKey.new()
 	event.physical_keycode = code
 	event.keycode = code
+	event.pressed = true
+	game.get_viewport().push_input(event)
+	event = event.duplicate()
+	event.pressed = false
+	game.get_viewport().push_input(event)
+
+## The menu and the status strip in every area, including Larkhaven before the story sets you free.
+## Esc, I, the bag, a finger and Start all open Party, Field book, Save and Close. The bag does not open the field book.
+static func _areas(game: Node, check: Callable) -> void:
+	var emulate: bool = Input.emulate_mouse_from_touch
+	check.call(game.status.INK.a == 1.0, "menu: the status strip is solid, so it shows against Larkhaven's dark roofs")
+	var names: Array = []
+	for map_name in game.BUILT:
+		names.append(str(map_name))
+	names.append("barn")
+	for room_name in game.INTERIORS:
+		names.append(str(room_name))
+	for map_name in names:
+		_place(game, str(map_name), "free")
+		_menu_inputs(game, check, str(map_name))
+	_place(game, "larkhaven", "to_barn")
+	check.call(game.stage == "to_barn" and game.map_name == "larkhaven" and game._menu_allowed(), "menu: Larkhaven still offers the menu while you follow Maren")
+	_menu_inputs(game, check, "Larkhaven before you are free")
+	_place(game, "larkhaven", "free")
+	_key_code(game, KEY_I)
+	check.call(game.menu.visible and not game.book.visible, "menu: I opens the menu even when the key event has no physical code")
+	game.menu.close()
+	game.book.visible = false
+	_key_code(game, KEY_ESCAPE)
+	check.call(game.menu.visible and not game.book.visible, "menu: Esc opens the menu even when the key event has no physical code")
+	game.menu.close()
+	game.book.visible = false
+	var bag: Vector2 = game.satchel.position + game.satchel.size * 0.5
+	_release(game, bag)
+	check.call(game.menu.visible and not game.book.visible, "menu: a bag tap that only reports the release opens the menu, not the field book")
+	game.menu.close()
+	game.book.visible = false
+	_press(game, Vector2(8, 8))
+	_release(game, bag)
+	check.call(game.menu.visible and not game.book.visible, "menu: a bag tap whose press misses still opens the menu when the finger comes up on the bag")
+	game.menu.close()
+	game.book.visible = false
+	Input.emulate_mouse_from_touch = emulate
+
+static func _menu_inputs(game: Node, check: Callable, where: String) -> void:
+	check.call(game.status.visible and str(game.status.area) == str(game.place.text) and str(game.status.area) != "", "menu: the status strip names %s" % where)
+	check.call(game.satchel.visible and game._menu_allowed(), "menu: the bag is there in %s" % where)
+	var bag: Vector2 = game.satchel.position + game.satchel.size * 0.5
+	Input.emulate_mouse_from_touch = true
+	_key_tap(game, KEY_I)
+	_opened(game, check, "I", where)
+	_key_tap(game, KEY_ESCAPE)
+	_opened(game, check, "Esc", where)
+	click(game, bag)
+	_opened(game, check, "the bag", where)
+	Input.emulate_mouse_from_touch = false
+	tap(game, bag)
+	_opened(game, check, "a finger on the bag", where)
+	Input.emulate_mouse_from_touch = true
+	var down := InputEventJoypadButton.new()
+	down.button_index = JOY_BUTTON_START
+	down.pressed = true
+	game.get_viewport().push_input(down)
+	var up := InputEventJoypadButton.new()
+	up.button_index = JOY_BUTTON_START
+	up.pressed = false
+	game.get_viewport().push_input(up)
+	_opened(game, check, "Start", where)
+
+static func _opened(game: Node, check: Callable, how: String, where: String) -> void:
+	check.call(game.menu.visible and not game.book.visible, "menu: %s in %s opens Party, Field book, Save and Close, and not the field book" % [how, where])
+	game.menu.close()
+	game.book.visible = false
+	game._update_ui()
+
+static func _place(game: Node, map_name: String, stage_name: String) -> void:
+	game.lines.clear()
+	game.then_do = Callable()
+	game.stage = stage_name
+	game.trans_t = -1.0
+	game.walk_to.clear()
+	game.me.path.clear()
+	game.walk_tap = Vector2i.ZERO
+	game.book.visible = false
+	game.battle.visible = false
+	game.battle.state = "off"
+	game.card.visible = false
+	game.register.visible = false
+	game.shop.visible = false
+	game.title.visible = false
+	game.howto.visible = false
+	game.lessons.visible = false
+	game.turn_card.visible = false
+	if game.menu.visible:
+		game.menu.close()
+	game.get_tree().paused = false
+	game.touch.mode = "off"
+	game.touch.touched = false
+	game.touch.pad_finger = -1
+	game.touch.btn_finger = -1
+	game._set_map(map_name)
+	game._update_ui()
+
+## One tap does one thing, even when the point arrives only as the finger comes up.
+static func _taps(game: Node, check: Callable) -> void:
+	_place(game, "barn", "barn_choose")
+	game.card.open("mosshog", game.card_info("mosshog"))
+	var choose_at: Vector2 = game.card._btn(0).get_center()
+	_press(game, Vector2(8, 8))
+	_release(game, choose_at)
+	check.call(not game.card.visible and game.partner.id == "mosshog" and game.lines.size() == 7, "a Choose tap whose press misses still picks when the finger comes up on Choose, once")
+	_place(game, "barn", "barn_choose")
+	game.card.open("ripplet", game.card_info("ripplet"))
+	_release(game, game.card._btn(0).get_center())
+	check.call(not game.card.visible and game.partner.id == "ripplet" and game.lines.size() == 7, "a Choose tap that only reports the release still picks, once")
+	_place(game, "thornwood", "free")
+	game.register.keep = false
+	game.register.open()
+	_press(game, Vector2(8, 8))
+	_release(game, Vector2(277, 181))
+	check.call(not game.register.visible and game.stage == "signed" and game.lines.size() == 4, "a Sign the register tap whose press misses still signs when the finger comes up on it, once")
+	_place(game, "thornwood", "free")
+	game.register.keep = false
+	game.register.open()
+	_release(game, Vector2(277, 181))
+	check.call(not game.register.visible and game.stage == "signed" and game.lines.size() == 4, "a Sign the register tap that only reports the release still signs, once")
+	_place(game, "thornwood", "free")
+	game.register.keep = false
+	game.register.open()
+	var before_name: int = int(game.register.name_i)
+	_press(game, Vector2(250, 28))
+	_release(game, Vector2(277, 181))
+	check.call(game.register.visible and game.stage == "free" and int(game.register.name_i) != before_name, "a tap on a register line still changes that line, and the release does not sign")
+	var b: Control = game.battle
+	var lead: Dictionary = game.R.make("ripplet", 8, { "rar": 1 }, game.rng)
+	var foe: Dictionary = game.R.make("mosshog", 8, { "rar": 1 }, game.rng)
+	b.open("wild", [lead], [foe], "")
+	b.foes[0].atb = game.R.ACT_AT
+	b._go_to("run")
+	b._tick(0.2)
+	var fight: Vector2 = b._menu_rect(0).get_center()
+	check.call(b.state == "choose" and b.menu_word(0) == "Fight", "Fight is waiting on the action menu")
+	_press(game, Vector2(8, 8))
+	_release(game, fight)
+	check.call(b.state == "moves" and not game.book.visible, "a Fight tap whose press misses still chooses Fight when the finger comes up on it")
+	b._go_to("choose")
+	_release(game, fight)
+	check.call(b.state == "moves", "a Fight tap that only reports the release still chooses Fight")
+	b._go_to("choose")
+	click(game, fight)
+	check.call(b.state == "moves", "a click on Fight chooses it once")
+	b.visible = false
+	b.state = "off"
+	_place(game, "larkhaven", "free")
+	game.say("", "One.")
+	game.say("", "Two.")
+	game.say("", "Three.")
+	game._update_ui()
+	var bubble: Control = game.get_node("UI/Bubble")
+	var box := Rect2(bubble.position, bubble.size)
+	var spot: Vector2 = box.get_center()
+	check.call(bubble.visible and box.has_point(spot) and box.size.y > 8.0, "dialogue: the speech box is on screen")
+	click(game, spot)
+	check.call(game.lines.size() == 2 and str(game.lines[0].text) == "Two.", "dialogue: a click inside the speech box advances one line")
+	_release(game, spot)
+	check.call(game.lines.size() == 1 and str(game.lines[0].text) == "Three.", "dialogue: a tap inside the speech box that only reports the release advances one line")
+	game.say("", "Four.")
+	game._update_ui()
+	_press(game, Vector2(1, 1))
+	_release(game, spot)
+	check.call(game.lines.size() == 1 and str(game.lines[0].text) == "Four.", "dialogue: press and release inside the speech box advance one line, not two")
+	game.lines.clear()
+
+static func _press(game: Node, at: Vector2) -> void:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = true
+	event.position = game.get_viewport().get_final_transform() * at
+	game.get_viewport().push_input(event)
+
+static func _release(game: Node, at: Vector2) -> void:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = false
+	event.position = game.get_viewport().get_final_transform() * at
+	game.get_viewport().push_input(event)
+
+static func _key_code(game: Node, code: Key) -> void:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.physical_keycode = KEY_NONE
 	event.pressed = true
 	game.get_viewport().push_input(event)
 	event = event.duplicate()

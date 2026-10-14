@@ -937,6 +937,8 @@ func _walk(m: Mover, dt: float) -> void:
 
 func _unhandled_input(e: InputEvent) -> void:
 	_note_walk_tap(e)
+	Controls.note(e)
+	var release_kind := Controls.release_kind(e)
 	if Controls.pressed(e, "toggle_music"):
 		music_on = not music_on                  # M: music on or off
 		get_viewport().set_input_as_handled()
@@ -946,6 +948,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	# Esc, I, or the bag. A battle, a conversation, or another page keeps the menu shut.
+	# The bag opens this menu. It does not open the field book (Tab or J still does that).
 	if (Controls.pressed(e, "open_menu") or _satchel_hit(e)) and menu and (menu.visible or _menu_allowed()):
 		_toggle_menu()
 		get_viewport().set_input_as_handled()
@@ -955,7 +958,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		# advance once; accepting its touch too would skip another line (or the first
 		# line after signing/choosing). Native touch also works when emulation is off;
 		# mouse-to-touch test events are duplicates of an already handled click too.
-		if not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION and e.pressed and not _covering() and not lines.is_empty():
+		var native := not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION
+		if native and not _covering() and not lines.is_empty() and (e.pressed or release_kind == 2):
 			advance()
 			get_viewport().set_input_as_handled()
 		return
@@ -964,6 +968,12 @@ func _unhandled_input(e: InputEvent) -> void:
 	if want_book and stage == "free" and lines.is_empty() and not battle.visible and not shop.visible and not book.visible:
 		_open_book()
 		get_viewport().set_input_as_handled()
+		return
+	if release_kind != 0:
+		# A tap that never sent a press still moves the talk on, once. The release after a real press does not skip a line.
+		if release_kind == 2 and not lines.is_empty() and not _covering():
+			advance()
+			get_viewport().set_input_as_handled()
 		return
 	var pressed: bool = (Controls.pressed(e, "interact") or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT))
 	if not pressed:
@@ -1009,7 +1019,8 @@ func _covering() -> bool:
 	return lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or turn_card.visible or (menu != null and menu.visible)
 
 func _menu_allowed() -> bool:
-	return menu != null and not menu.visible and stage == "free" and lines.is_empty() and trans_t < 0.0 and not _covering()
+	# Every area, including Larkhaven before the story sets you free. A conversation or a page still keeps it shut.
+	return menu != null and not menu.visible and lines.is_empty() and trans_t < 0.0 and not _covering()
 
 func _toggle_menu() -> void:
 	if menu.visible:
@@ -1022,9 +1033,15 @@ func _toggle_menu() -> void:
 	menu.open()
 
 func _satchel_hit(e: InputEvent) -> bool:
-	if satchel == null or not satchel.visible or not Controls.pointing(e):
+	if satchel == null or not satchel.visible:
 		return false
-	return Rect2(Vector2.ZERO, satchel.size).has_point(Controls.at(satchel, e))
+	var down := Controls.pointing(e)
+	# The release only counts while the menu is still shut, so the press that opened it is not undone on the way up.
+	var up := Controls.released(e) and menu != null and not menu.visible
+	if not down and not up:
+		return false
+	# The bag, and the key drawn just beside it.
+	return Rect2(Vector2(-14, -2), Vector2(42, 28)).has_point(Controls.at(satchel, e))
 
 func _on_menu(action: String) -> void:
 	match action:
@@ -3027,7 +3044,9 @@ func _maren_heals() -> void:
 	_festival_invite()
 
 func _satchel_shown() -> bool:
-	return stage == "free" and not lessons.visible and not battle.visible and not book.visible and not shop.visible
+	if lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or turn_card.visible:
+		return false
+	return lines.is_empty() and trans_t < 0.0
 
 ## Each badge's colour, pinned to the satchel strap and shown in the field book (the element of its Warden's town).
 const BADGE_COL := { "thorn": Color("5d9a3e"), "tide": Color("3a8fd8"), "ember": Color("e0602a"), "beacon": Color("e8c84a"),
@@ -3037,7 +3056,7 @@ const BADGE_COL := { "thorn": Color("5d9a3e"), "tide": Color("3a8fd8"), "ember":
 func _draw_satchel() -> void:
 	var c := satchel
 	if key_hint("book") != "":
-		_keycap(c, Vector2(-12, 16), key_hint("book"))                     # WB-KEYS: the key that opens the bag, until you have
+		_keycap(c, Vector2(-12, 16), key_hint("book"))                     # the book's key, until it has been opened; the bag itself opens the menu
 	var ink := Color(0.1, 0.12, 0.14)
 	for r in [Rect2(4, 0, 16, 3), Rect2(4, 0, 3, 7), Rect2(17, 0, 3, 7)]:   # the strap, an arch over the bag
 		c.draw_rect(r, ink)
@@ -4862,7 +4881,7 @@ func keys_for(what: String) -> String:
 	match what:
 		"walk": return { "touch": "the pad in the corner, or tap where to go", "pad": "the left stick" }.get(use, "the arrow keys or W A S D")
 		"talk": return { "touch": "tap Talk", "pad": "press A" }.get(use, "press E")
-		"book": return { "touch": "tap the bag at the top right", "pad": "press Y" }.get(use, "press J")
+		"book": return { "touch": "open the menu and choose Field book", "pad": "press Y" }.get(use, "press J")
 	return ""
 
 ## How to press: "tap Meet" on a phone, a key on a computer (for the few hints that name a control).
