@@ -205,14 +205,14 @@
       if (!state.stalls[i].hired) continue;
       if (state.stalls[i].owned >= UNLOCK_AT) continue;
       left = UNLOCK_AT - state.stalls[i].owned;
-      return (left === 1 ? 'One more ' : left + ' more ') + spec(i).name + (left === 1 ? '' : 's') + '. ' + spec(i).next;
+      return (left === 1 ? 'One more ' : left + ' more ') + spec(i).name.toLowerCase() + (left === 1 ? '' : 's') + '. ' + spec(i).next;
     }
     for (i = STALLS.length - 1; i >= 0; i--) {
       st = state.stalls[i];
       if (!st.hired || st.owned <= 0 || st.owned >= 100) continue;
       var nextAt = st.owned < 25 ? 25 : st.owned < 50 ? 50 : 100;
       left = nextAt - st.owned;
-      return left + ' more ' + spec(i).name + (left === 1 ? '' : 's') + ' and the lane changes: ' + spec(i).looks[lookIndex(nextAt)] + '.';
+      return left + ' more ' + spec(i).name.toLowerCase() + (left === 1 ? '' : 's') + ', and the lane changes: ' + spec(i).looks[lookIndex(nextAt)] + '.';
     }
     return 'Every stall has a crowd. The lane is as bright as it gets tonight.';
   }
@@ -222,7 +222,9 @@
     var stall = spec(i);
     if (!state.stalls[i].hired) return '';
     if (owned <= 0) return stall.vendor + ' is here, waiting for the first one.';
-    return stall.looks[lookIndex(owned)] + '. The ' + stall.name + ' earns ' + timesWord(owned) + '.';
+    var look = stall.looks[lookIndex(owned)];
+    if (Idle.milestoneMult(owned) <= 1) return look + '.';
+    return look + '. It earns ' + timesWord(owned) + '.';
   }
 
   function gossipLine(state) {
