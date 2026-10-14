@@ -423,56 +423,57 @@
   function formationSpots(off, formation) {
     var qb = off.qb, rb = off.rb, te = off.te;
     var wr = off.wr || [];
-    var olY = [-2, -1, 0, 1, 2];
+    /* Spread in the squashed side view so each body can be counted. */
+    var olY = [-8, -4, 0, 4, 8];
     var olName = ['Tackle', 'Guard', 'Centre', 'Guard', 'Tackle'];
     var rows = [];
     olY.forEach(function (y, i) {
-      rows.push(member(true, 'ol', olName[i], -0.55, y));
+      rows.push(member(true, 'ol', olName[i], -0.9, y));
     });
     if (formation === 'shotgun') {
-      rows.push(member(true, 'qb', qb.name, -6, 0));
-      rows.push(member(true, 'rb', rb.name, -2, 3));
-      rows.push(member(true, 'te', te.name, 0, -3));
-      rows.push(member(true, 'wr', wr[0] ? wr[0].name : 'Receiver', 0, -8));
-      rows.push(member(true, 'wr', wr[1] ? wr[1].name : 'Receiver', 0, 12));
-      rows.push(member(true, 'wr', 'Slot', 0, 18, { route: { x: 14, y: 16 } }));
+      rows.push(member(true, 'qb', qb.name, -6.2, 0));
+      rows.push(member(true, 'rb', rb.name, -4, 6));
+      rows.push(member(true, 'te', te.name, -2.2, -14));
+      rows.push(member(true, 'wr', wr[0] ? wr[0].name : 'Receiver', 0.2, -20));
+      rows.push(member(true, 'wr', wr[1] ? wr[1].name : 'Receiver', 0.2, 12));
+      rows.push(member(true, 'wr', 'Slot', 0.2, 20, { route: { x: 14, y: 18 } }));
     } else if (formation === 'iform') {
-      rows.push(member(true, 'qb', qb.name, -2, 0));
-      rows.push(member(true, 'rb', 'Fullback', -3.6, 0));
-      rows.push(member(true, 'rb', rb.name, -5.4, 0));
-      rows.push(member(true, 'te', te.name, -0.45, 3.3));
-      rows.push(member(true, 'wr', wr[0] ? wr[0].name : 'Receiver', 0, -14));
-      rows.push(member(true, 'wr', wr[1] ? wr[1].name : 'Receiver', 0, 14));
+      rows.push(member(true, 'qb', qb.name, -3.4, 0));
+      rows.push(member(true, 'rb', 'Fullback', -6.2, 0));
+      rows.push(member(true, 'rb', rb.name, -9, 0));
+      rows.push(member(true, 'te', te.name, -2.2, 14));
+      rows.push(member(true, 'wr', wr[0] ? wr[0].name : 'Receiver', 0.2, -20));
+      rows.push(member(true, 'wr', wr[1] ? wr[1].name : 'Receiver', 0.2, 20));
     } else {
-      rows.push(member(true, 'qb', qb.name, -2, 0));
-      rows.push(member(true, 'rb', rb.name, -4.8, 0));
-      rows.push(member(true, 'te', te.name, -0.45, -3.3));
-      rows.push(member(true, 'te', 'Wing', -0.45, 3.3));
-      rows.push(member(true, 'wr', wr[0] ? wr[0].name : 'Receiver', 0, -14));
-      rows.push(member(true, 'wr', wr[1] ? wr[1].name : 'Receiver', 0, 14));
+      rows.push(member(true, 'qb', qb.name, -3.4, 0));
+      rows.push(member(true, 'rb', rb.name, -6.4, 10));
+      rows.push(member(true, 'te', te.name, -2.2, -14));
+      rows.push(member(true, 'te', 'Wing', -2.2, 14));
+      rows.push(member(true, 'wr', wr[0] ? wr[0].name : 'Receiver', 0.2, -20));
+      rows.push(member(true, 'wr', wr[1] ? wr[1].name : 'Receiver', 0.2, 20));
     }
     return rows;
   }
   function defenceSpots(formation) {
     var nickel = formation === 'shotgun';
     var rows = [];
-    [-1.5, -0.5, 0.5, 1.5].forEach(function (y, i) {
-      rows.push(member(false, 'dl', i === 0 || i === 3 ? 'End' : 'Tackle', 0.7, y));
+    [-6, -2, 2, 6].forEach(function (y, i) {
+      rows.push(member(false, 'dl', i === 0 || i === 3 ? 'End' : 'Tackle', 1.8, y));
     });
     if (nickel) {
-      rows.push(member(false, 'lb', 'Backer', 4.4, -3.2));
-      rows.push(member(false, 'lb', 'Backer', 4.4, 3.2));
+      rows.push(member(false, 'lb', 'Backer', 5.4, -10));
+      rows.push(member(false, 'lb', 'Backer', 5.4, 10));
     } else {
-      rows.push(member(false, 'lb', 'Backer', 4.6, -4.5));
-      rows.push(member(false, 'lb', 'Backer', 4.2, 0));
-      rows.push(member(false, 'lb', 'Backer', 4.6, 4.5));
+      rows.push(member(false, 'lb', 'Backer', 5.6, -12));
+      rows.push(member(false, 'lb', 'Backer', 5.2, 0));
+      rows.push(member(false, 'lb', 'Backer', 5.6, 12));
     }
     var wrs = formationSpots({ qb: { name: '' }, rb: { name: '' }, te: { name: '' }, wr: [{ name: '' }, { name: '' }] }, formation).filter(function (p) { return p.role === 'wr'; });
     wrs.forEach(function (wr) {
-      rows.push(member(false, 'cb', 'Cover', wr.anchorX + 1.15, wr.anchorY));
+      rows.push(member(false, 'cb', 'Cover', wr.anchorX + 2.1, wr.anchorY));
     });
-    rows.push(member(false, 's', 'Safety', 12, -6));
-    rows.push(member(false, 's', 'Safety', 14, 6));
+    rows.push(member(false, 's', 'Safety', 12, -10));
+    rows.push(member(false, 's', 'Safety', 15, 10));
     return { rows: rows, defence: nickel ? 'nickel' : 'base' };
   }
   function claim(squad, actor, pred) {

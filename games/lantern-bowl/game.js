@@ -10,8 +10,10 @@
   var reduce = Settings.reduced();
   var sideCam = null;
   var STRIPS = [
-    'offence_side_idle', 'offence_side_run', 'offence_side_throw', 'offence_side_catch', 'offence_side_dive',
-    'defence_side_idle', 'defence_side_run', 'defence_side_catch', 'defence_side_tackle'
+    'offence_skill_side_idle', 'offence_skill_side_run', 'offence_skill_side_throw', 'offence_skill_side_dive',
+    'defence_skill_side_idle', 'defence_skill_side_run', 'defence_skill_side_tackle',
+    'offence_line_side_idle', 'offence_line_side_run',
+    'defence_line_side_idle', 'defence_line_side_run', 'defence_line_side_tackle'
   ];
   function loadArt() {
     STRIPS.forEach(function (name) {

@@ -498,7 +498,7 @@
       var aimed = !!(aimTarget && p.link && p.link === aimTarget);
       drawPlayer(ctx, {
         x: row.s.x, y: row.s.y, scale: 1,
-        file: (p.off ? 'offence' : 'defence') + '_side_' + pose + '.png',
+        file: spriteFile((p.off ? 'offence_' : 'defence_') + (p.body === 'line' ? 'line' : 'skill'), 'side', pose),
         id: p.role, view: 'side', pose: pose, frame: posed.frame,
         body: p.body, face: p.face, ramp: ramp, muted: p.body === 'line',
         fill: team.color, trim: ramp[0], role: p.role,
@@ -555,10 +555,10 @@
       var sw = strip ? 16 : img.width, sh = strip ? 16 : img.height;
       var frames = strip ? img.width / 16 : 1;
       var frame = ((spec.frame | 0) % frames + frames) % frames;
-      var dw, dh;
-      if (spec.body === 'line') { dw = 14; dh = 12; }
-      else if (spec.body === 'skill') { dw = 10; dh = 16; }
-      else { dw = 18 * s; dh = dw * (sh / sw); }
+      /* A 16-tall strip is drawn at native size, so a 1px outline stays 1px
+         and the lineman stays wider than the skill body. */
+      var dw = strip ? 16 : 18 * s;
+      var dh = strip ? 16 : dw * (sh / sw);
       ctx.save();
       ctx.imageSmoothingEnabled = false;
       ctx.translate(Math.round(x), Math.round(y));
