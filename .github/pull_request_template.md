@@ -1,10 +1,18 @@
-## Change
+## Title
 
-Describe the problem, resulting behavior and task ID.
+Write the pull request title as a clear full phrase, never a fragment. Generations Reviewer sends the pull request back when the title is a fragment, or when the sections below are a one-line body.
 
-## Validation
+## What changed for the player
 
-Record checks, old-save compatibility and visual evidence where applicable. Follow docs/PROCESS.md before merge.
+Write a few full sentences. Say what the player can see or do now, and why this change was made.
+
+## How it was tested
+
+Write a few full sentences. Name the checks you ran, whether old saves still load, and where the screenshots are when the screen changed.
+
+## Checklist items
+
+Write a few full sentences. Name the checklist rows this pull request ticks. If it ticks none, say that in a full sentence.
 
 ## Control Tower
 

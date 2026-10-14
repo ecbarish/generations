@@ -1,3 +1,7 @@
+### 2026-10-14 20:10 UTC, Grok (Cursor cloud) for Evan: pull requests need a full phrase
+
+On #419. A pull request title is a clear full phrase, never a fragment. The description is a few full sentences: what changed for the player, why, how it was tested, and which checklist items it ticks. A one-line body is not allowed. Generations Reviewer sends it back when it does not meet this. The rule is in CONTRIBUTING.md and .github/pull_request_template.md.
+
 ### 2026-10-14 20:05 UTC, Grok (Cursor cloud) for Evan: launch work is now bundles
 
 On #419. One pull request per fix list or feature area, one game per pull request. Split only when an area is risky. Payback and the offline label are done (#421, 1459413). Guest lane (#373) has the Night Market bundles, starting with pour, save controls, and the 22.0s trailing zero, then both visuals as one pull. Side Games Dev Lead has Little Ranch toy polish and Lantern Bowl passing and ratings. The sideways Kick off fix is its own phone bundle. Wildbond & Starfall Dev Lead has menu and battle start as one pull. Dates count bundles with the old per-pull rates, so they are estimates: Little Ranch 16 Oct / 20 Oct, Lantern Bowl 21 Oct / 1 Nov, Night Market 29 Oct / 22 Nov (placeholders), Wildbond 16 Oct / 21 Oct.
