@@ -35,7 +35,7 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 
 - **Night Market:** Guest lane (#373). NM-PLAY first (pour, save controls, the 22.0s trailing zero). Then NM-VIS, both pictures in one pull. Then the phone layout and the hall entry. Payback and the offline label are done.
 - **Lantern Bowl:** Side Games Dev Lead. LB-PLAYSCREEN first, one large pull built on #422. Evan stopped the small 5b fixes. The redesign is new scope, so the dates are an estimate.
-- **Little Ranch:** Side Games Dev Lead. LR-POLISH first. The layout row is done (#424). Dough dots, the fox and the sign wiggle remain. LRL-1 is in review (#417).
+- **Little Ranch:** Side Games Dev Lead. LR-POLISH first. The layout row is done (#424). Dough dots, the fox and the sign wiggle remain, plus three non-blocking notes from the #417 pass: bigger, longer bedtime cues, a slower dusk fade, and feedback for leaving the paint shed early. LRL-1 (#417) has passed review and playtest, and is waiting on a merge of main.
 - **Wildbond:** Wildbond & Starfall Dev Lead. WB-OPEN still comes first, and now fixes the #413 Larkhaven menu. WBL-2 is done (#418). WB-PHONE builds the upright layout and removes the rotate gate.
 - **Phone:** LRL-11 and NM-FIX-7. Owner: Playtester. Not build pulls. Lantern Bowl's phone rows are inside LB-PLAYSCREEN. Wildbond's phone work is WB-PHONE.
 

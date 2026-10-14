@@ -1,3 +1,7 @@
+### 2026-10-14 21:00 UTC, Grok (Cursor cloud) for Evan: three Little Ranch notes ride in toy polish
+
+On #419. Playtester's #417 pass adds three non-blocking notes to LR-POLISH, owned by Side Games Dev Lead: bigger, longer bedtime cues (the cup timed out), a slower dusk fade, and feedback for leaving the paint shed early. They do not add a bundle, so Little Ranch stays 16 Oct / 20 Oct. LRL-1 (#417) has passed review and playtest, and is waiting on a merge of main.
+
 ### 2026-10-14 20:55 UTC, Grok (Cursor cloud) for Evan: play screen, upright phone, layout done
 
 On #419, after merging main. Lantern Bowl's small 5b fixes, phone rows and ratings rows are one bundle, LB-PLAYSCREEN, built on #422. It counts as one large bundle. Likely 19 Oct, slower 28 Oct. The redesign is new scope, so those dates are an estimate. Wildbond's phone bundle builds the upright layout and drops the rotate gate. The menu bundle also fixes the #413 Larkhaven menu. WBL-2 is done (#418). Little Ranch's layout row is done (#424, e66ddbc). LRL-1 (#417) is in review. Little Ranch dates stay 16 Oct / 20 Oct. Wildbond is 17 Oct / 21 Oct.

@@ -45,11 +45,11 @@ The 0.29 and 0.14 pulls-a-day rates come from a small sample of 2 merges, so the
 
 ## Where the games are
 
-Merged since the last draft: Night Market **#403** (`d9cde61`), payback and the offline label **#421** (`1459413`), Little Ranch **#400** LR18 (`43785a4`), **#381** LR17, the layout row **#424** (`e66ddbc`), Lantern Bowl 5a **#383**, Wildbond menu **#413** (`bb4031c`), fair battles **#418** (`56204cc`), **#415**, **#380**, and **#399**. **#404** LR19 and **#409** LR20 are on hold. LRL-1 is in review (#417).
+Merged since the last draft: Night Market **#403** (`d9cde61`), payback and the offline label **#421** (`1459413`), Little Ranch **#400** LR18 (`43785a4`), **#381** LR17, the layout row **#424** (`e66ddbc`), Lantern Bowl 5a **#383**, Wildbond menu **#413** (`bb4031c`), fair battles **#418** (`56204cc`), **#415**, **#380**, and **#399**. **#404** LR19 and **#409** LR20 are on hold. LRL-1 (#417) has passed review and playtest, and is waiting on a merge of main.
 
 | Game | Owner | Finish, in short | Bundles still open | Bundles | Likely | Slower | First bundle |
 |---|---|---|---|---|---|---|---|
-| Little Ranch | Side Games Dev Lead | Fun is 7/10. Layout row is done (#424). Dough dots, the fox and the sign wiggle remain, then the first visit. LRL-1 is in review (#417) | LR-POLISH, LR-VISIT. Phone playtest is not a bundle | 2 | 2026-10-16 | 2026-10-20 | LR-POLISH, what is left of toy polish |
+| Little Ranch | Side Games Dev Lead | Fun is 7/10. Layout row is done (#424). Dough dots, the fox and the sign wiggle remain, plus three non-blocking #417 notes, then the first visit. LRL-1 has passed review and playtest and is waiting on a merge of main | LR-POLISH, LR-VISIT. The three notes do not add a bundle. Phone playtest is not a bundle | 2 | 2026-10-16 | 2026-10-20 | LR-POLISH, what is left of toy polish |
 | Lantern Bowl | Side Games Dev Lead | Fun is 6/10. One play screen, built on #422, then the match rules and the save. The redesign is new scope, so the dates are an estimate | LB-PLAYSCREEN, LB-MATCH, LB-SAVE. 5b-1, 5b-2, the phone rows and the ratings rows are the one play screen | 3 | 2026-10-19 | 2026-10-28 | LB-PLAYSCREEN, the play screen |
 | Night Market | Guest lane (#373) | Fun is 5/10. Playtest fixes, visuals, phone layout, hall entry. Payback and offline are done | NM-PLAY, NM-VIS, NM-PHONE, NM-HUB. NM-RETUNE and NM-CLAMP stay off this count. Dates are placeholders | 4 | 2026-10-29 | 2026-11-22 | NM-PLAY, playtest fixes |
 | Wildbond | Wildbond & Starfall Dev Lead | Menu regression, the upright phone layout, then the catch, the sprites, the road. Fun is 5/10. WBL-2 is done (#418) | WB-OPEN, WB-PHONE, WB-CATCH, WB-LOOK, WB-ROAD | 5 | 2026-10-17 | 2026-10-21 | WB-OPEN, the Larkhaven menu |
