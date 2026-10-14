@@ -54,10 +54,54 @@ func _initialize() -> void:
 		out = "res://frames/cat-sheet.png"
 	img.save_png(out)
 	print("CAT SHEET ", out, " ", img.get_width(), "x", img.get_height())
+	_audit_sheet(data, tamer)
 	quit(0)
 
-func _stamp(img: Image, origin: Vector2i, parts: Array, sc: float) -> void:
-	var z := ZOOM
+## The stages added by the roster audit, same world scale, so the new finals and the two young forms can be seen together.
+func _audit_sheet(data: Dictionary, tamer: Array) -> void:
+	var skip := {
+		"creekribbon": true, "murkcoil": true, "gloomtide": true, "seedmoth": true, "sootcloak": true, "hearthbloom": true,
+		"dawnfoal": true, "sunford": true, "whisperpup": true, "ridgehowl": true, "charcup": true, "kilnback": true,
+	}
+	var ids: Array = []
+	for id in data.SPECIES:
+		if data.SPECIES[id].get("marks", false) and not skip.has(str(id)):
+			ids.append(str(id))
+	ids.sort_custom(func(a, b): return str(data.SPECIES[a].name) < str(data.SPECIES[b].name))
+	var cols := 4
+	var cell_w := 240
+	var cell_h := 150
+	var rows := int(ceil(float(ids.size() + 1) / float(cols)))
+	var sheet := Image.create(cols * cell_w, 36 + rows * cell_h, false, Image.FORMAT_RGBA8)
+	sheet.fill(Color("e6dcc6"))
+	_label(sheet, Vector2i(12, 8), "51 new stages at world scale beside a 12x21 tamer")
+	var z := 4
+	for i in ids.size():
+		var id: String = ids[i]
+		var s: Dictionary = data.SPECIES[id]
+		var look: Dictionary = Figures.look_for(s)
+		var pose := { "walking": false, "wag": 0, "ears_up": true }
+		var parts: Array = Figures.parts_of(true, pose, look)
+		var span: Vector2i = Figures.pixel_span(parts)
+		var sc: float = float(SCALE.get(str(s.size), 1.0))
+		var c := i % cols
+		var r := int(i / cols)
+		var origin := Vector2i(c * cell_w + 36, 36 + r * cell_h + 8)
+		_stamp(sheet, origin, parts, sc, z)
+		var px_h := int(round(float(span.y) * sc))
+		_label(sheet, Vector2i(c * cell_w + 8, 36 + r * cell_h + cell_h - 36), s.name)
+		_label(sheet, Vector2i(c * cell_w + 8, 36 + r * cell_h + cell_h - 18), "%s  %dpx" % [s.size, px_h])
+	var t := ids.size()
+	_stamp(sheet, Vector2i((t % cols) * cell_w + 48, 36 + int(t / cols) * cell_h + 8), tamer, 1.0, z)
+	_label(sheet, Vector2i((t % cols) * cell_w + 8, 36 + int(t / cols) * cell_h + cell_h - 36), "Tamer")
+	_label(sheet, Vector2i((t % cols) * cell_w + 8, 36 + int(t / cols) * cell_h + cell_h - 18), "12x21px")
+	var audit_out := OS.get_environment("AUDIT_SHEET")
+	if audit_out == "":
+		audit_out = "res://frames/audit-sheet.png"
+	sheet.save_png(audit_out)
+	print("AUDIT SHEET ", audit_out, " ", sheet.get_width(), "x", sheet.get_height(), " ", ids.size())
+
+func _stamp(img: Image, origin: Vector2i, parts: Array, sc: float, z: int = ZOOM) -> void:
 	for layer in 2:
 		for p in parts:
 			var col: Color = Color("1e1a22") if layer == 0 else p[4]

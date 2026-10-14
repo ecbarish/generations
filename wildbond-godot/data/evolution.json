@@ -1033,6 +1033,2703 @@
     ]
    ],
    "dex": "The coal became a kiln. Seams of heat glow between the plates of its shell, and cold hands are welcome on its back."
+  },
+  "glassharrier": {
+   "name": "Glassharrier",
+   "fam": "bird",
+   "el": "Gale",
+   "col": "#79a3b6",
+   "shape": "bird",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "swept-ears",
+    "back": "mist-ruff",
+    "tail": "plume",
+    "pattern": "chevrons"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "peck"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "The glass in its feathers has opened into wings that throw the grove light down the path."
+  },
+  "granitepaw": {
+   "name": "Granitepaw",
+   "fam": "cat",
+   "el": "Stone",
+   "col": "#756958",
+   "shape": "cat",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "swept-ears",
+    "back": "ember-spots",
+    "tail": "tapered",
+    "pattern": "rings"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The claws it wore down on granite have become paws that hold a slope in place."
+  },
+  "nightloom": {
+   "name": "Nightloom",
+   "fam": "spider",
+   "el": "Shade",
+   "col": "#44385d",
+   "shape": "spider",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "low-brow",
+    "back": "wave-ridge",
+    "tail": "stub",
+    "pattern": "spots"
+   },
+   "base": {
+    "hp": 68,
+    "pow": 70,
+    "grd": 80,
+    "spd": 72,
+    "wit": 90,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "shadowSting"
+    ],
+    [
+     12,
+     "duskLull"
+    ],
+    [
+     20,
+     "shadeThread"
+    ],
+    [
+     28,
+     "mistVeil"
+    ],
+    [
+     36,
+     "dreamBreak"
+    ]
+   ],
+   "dex": "The webs that used to vanish by morning now hang as a cloak of lasting dusk."
+  },
+  "stillmaw": {
+   "name": "Stillmaw",
+   "fam": "croc",
+   "el": "Tide",
+   "col": "#385138",
+   "shape": "croc",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "stone-crown",
+    "back": "crust-plates",
+    "tail": "brush",
+    "pattern": "rays"
+   },
+   "base": {
+    "hp": 90,
+    "pow": 72,
+    "grd": 100,
+    "spd": 48,
+    "wit": 70,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "bubbleJet"
+    ],
+    [
+     12,
+     "rainTap"
+    ],
+    [
+     20,
+     "undertowPull"
+    ],
+    [
+     28,
+     "tidePulse"
+    ],
+    [
+     36,
+     "rinse"
+    ]
+   ],
+   "dex": "The long wait in the water has become a pool that stays quiet around it."
+  },
+  "coalheart": {
+   "name": "Coalheart",
+   "fam": "lizard",
+   "el": "Ember",
+   "col": "#aa5120",
+   "shape": "lizard",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "fin-crest",
+    "back": "spark-orbit",
+    "tail": "tassel",
+    "pattern": "bands"
+   },
+   "base": {
+    "hp": 72,
+    "pow": 80,
+    "grd": 70,
+    "spd": 82,
+    "wit": 80,
+    "spi": 76
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "emberSnap"
+    ],
+    [
+     12,
+     "coalFlick"
+    ],
+    [
+     20,
+     "flameRush"
+    ],
+    [
+     28,
+     "emberMantle"
+    ],
+    [
+     36,
+     "steamBurst"
+    ]
+   ],
+   "dex": "The faint night glow has settled into a coal that keeps the rocks warm until dawn."
+  },
+  "nightcackle": {
+   "name": "Nightcackle",
+   "fam": "hyena",
+   "el": "Shade",
+   "col": "#514438",
+   "shape": "hyena",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "round-cheeks",
+    "back": "wind-mane",
+    "tail": "fin",
+    "pattern": "socks"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "shadowSting"
+    ],
+    [
+     12,
+     "duskLull"
+    ],
+    [
+     20,
+     "shadeThread"
+    ],
+    [
+     28,
+     "mistVeil"
+    ],
+    [
+     36,
+     "dreamBreak"
+    ]
+   ],
+   "dex": "The laugh that used to startle travelers now rolls the dark back from the path."
+  },
+  "galecharger": {
+   "name": "Galecharger",
+   "fam": "horse",
+   "el": "Gale",
+   "col": "#9da4aa",
+   "shape": "horse",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "sun-rays",
+    "back": "narrow-wings",
+    "tail": "ribbon",
+    "pattern": "mottled"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "The foal born to race has become a horse that runs as the wind itself."
+  },
+  "willowback": {
+   "name": "Willowback",
+   "fam": "croc",
+   "el": "Grove",
+   "col": "#54663e",
+   "shape": "turtle",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "stone-crown",
+    "back": "mist-ruff",
+    "tail": "plume",
+    "pattern": "cracks"
+   },
+   "base": {
+    "hp": 90,
+    "pow": 72,
+    "grd": 100,
+    "spd": 48,
+    "wit": 70,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "vineLash"
+    ],
+    [
+     12,
+     "seedGrip"
+    ],
+    [
+     20,
+     "bramblePress"
+    ],
+    [
+     28,
+     "groveShelter"
+    ],
+    [
+     36,
+     "regrowth"
+    ]
+   ],
+   "dex": "The seedlings in its back have taken root, and the bank holds where it rests."
+  },
+  "dunemantle": {
+   "name": "Dunemantle",
+   "fam": "cat",
+   "el": "Stone",
+   "col": "#968159",
+   "shape": "cat",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "round-cheeks",
+    "back": "ember-spots",
+    "tail": "tapered",
+    "pattern": "speckles"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The sand it used to spring from now rides its shoulders like a mantle."
+  },
+  "marshcrown": {
+   "name": "Marshcrown",
+   "fam": "boar",
+   "el": "Grove",
+   "col": "#637441",
+   "shape": "boar",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "low-brow",
+    "back": "wave-ridge",
+    "tail": "stub",
+    "pattern": "chevrons"
+   },
+   "base": {
+    "hp": 90,
+    "pow": 72,
+    "grd": 100,
+    "spd": 48,
+    "wit": 70,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     6,
+     "vineLash"
+    ],
+    [
+     12,
+     "seedGrip"
+    ],
+    [
+     20,
+     "bramblePress"
+    ],
+    [
+     28,
+     "groveShelter"
+    ],
+    [
+     36,
+     "regrowth"
+    ]
+   ],
+   "dex": "The trails it combed have grown into a crown of living reed."
+  },
+  "driftjaw": {
+   "name": "Driftjaw",
+   "fam": "hyena",
+   "el": "Stone",
+   "col": "#70675d",
+   "shape": "hyena",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "low-brow",
+    "back": "crust-plates",
+    "tail": "brush",
+    "pattern": "rings"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The pebble jaws that cracked shells now break the driftwood open for everyone smaller."
+  },
+  "stormkite": {
+   "name": "Stormkite",
+   "fam": "bird",
+   "el": "Gale",
+   "col": "#8399a6",
+   "shape": "bird",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tassel-crown",
+    "back": "spark-orbit",
+    "tail": "tassel",
+    "pattern": "spots"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "peck"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "It still rides the breeze without flapping, and the storm answers its whistle."
+  },
+  "spraymane": {
+   "name": "Spraymane",
+   "fam": "horse",
+   "el": "Gale",
+   "col": "#a0a59a",
+   "shape": "horse",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "swept-ears",
+    "back": "wind-mane",
+    "tail": "fin",
+    "pattern": "rays"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "The ribbons of spray have become a mane that the shoreline follows."
+  },
+  "dewmantle": {
+   "name": "Dewmantle",
+   "fam": "spider",
+   "el": "Tide",
+   "col": "#648c8e",
+   "shape": "spider",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "feather-antennae",
+    "back": "narrow-wings",
+    "tail": "ribbon",
+    "pattern": "bands"
+   },
+   "base": {
+    "hp": 68,
+    "pow": 70,
+    "grd": 80,
+    "spd": 72,
+    "wit": 90,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "bubbleJet"
+    ],
+    [
+     12,
+     "rainTap"
+    ],
+    [
+     20,
+     "undertowPull"
+    ],
+    [
+     28,
+     "tidePulse"
+    ],
+    [
+     36,
+     "rinse"
+    ]
+   ],
+   "dex": "The morning webs have become a mantle, and the shore drinks before the sun takes it."
+  },
+  "ashstride": {
+   "name": "Ashstride",
+   "fam": "lizard",
+   "el": "Ember",
+   "col": "#a56e40",
+   "shape": "lizard",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "low-brow",
+    "back": "mist-ruff",
+    "tail": "plume",
+    "pattern": "socks"
+   },
+   "base": {
+    "hp": 72,
+    "pow": 80,
+    "grd": 70,
+    "spd": 82,
+    "wit": 80,
+    "spi": 76
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "emberSnap"
+    ],
+    [
+     12,
+     "coalFlick"
+    ],
+    [
+     20,
+     "flameRush"
+    ],
+    [
+     28,
+     "emberMantle"
+    ],
+    [
+     36,
+     "steamBurst"
+    ]
+   ],
+   "dex": "The tiny tail prints have become a warm trail the highland rocks remember."
+  },
+  "cragbridge": {
+   "name": "Cragbridge",
+   "fam": "spider",
+   "el": "Stone",
+   "col": "#635753",
+   "shape": "spider",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "round-cheeks",
+    "back": "ember-spots",
+    "tail": "tapered",
+    "pattern": "mottled"
+   },
+   "base": {
+    "hp": 68,
+    "pow": 70,
+    "grd": 80,
+    "spd": 72,
+    "wit": 90,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The webs that bridged one crack now hold a path across the crag."
+  },
+  "ventmane": {
+   "name": "Ventmane",
+   "fam": "cat",
+   "el": "Ember",
+   "col": "#8a4738",
+   "shape": "cat",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "round-cheeks",
+    "back": "wave-ridge",
+    "tail": "stub",
+    "pattern": "cracks"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "emberSnap"
+    ],
+    [
+     12,
+     "coalFlick"
+    ],
+    [
+     20,
+     "flameRush"
+    ],
+    [
+     28,
+     "emberMantle"
+    ],
+    [
+     36,
+     "steamBurst"
+    ]
+   ],
+   "dex": "The copper fan of its tail has become a mane of steam over the warm vents."
+  },
+  "thermglide": {
+   "name": "Thermglide",
+   "fam": "bird",
+   "el": "Gale",
+   "col": "#8d807a",
+   "shape": "bird",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "feather-antennae",
+    "back": "crust-plates",
+    "tail": "brush",
+    "pattern": "speckles"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "peck"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "The circling call has become a long glide that shows every sheltered ledge."
+  },
+  "screehowl": {
+   "name": "Screehowl",
+   "fam": "hyena",
+   "el": "Stone",
+   "col": "#6a5a49",
+   "shape": "hyena",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "low-brow",
+    "back": "spark-orbit",
+    "tail": "tassel",
+    "pattern": "chevrons"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The chatter and the gathered stones have become a den that sings down the slope."
+  },
+  "cairnback": {
+   "name": "Cairnback",
+   "fam": "lizard",
+   "el": "Stone",
+   "col": "#7a7667",
+   "shape": "turtle",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "sun-rays",
+    "back": "wind-mane",
+    "tail": "fin",
+    "pattern": "rings"
+   },
+   "base": {
+    "hp": 90,
+    "pow": 72,
+    "grd": 100,
+    "spd": 48,
+    "wit": 70,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The cairn it gripped with four feet now rides its back, and the loose stones stay put."
+  },
+  "kilnsong": {
+   "name": "Kilnsong",
+   "fam": "bird",
+   "el": "Ember",
+   "col": "#9a5a3e",
+   "shape": "bird",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "swept-ears",
+    "back": "narrow-wings",
+    "tail": "ribbon",
+    "pattern": "spots"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "peck"
+    ],
+    [
+     6,
+     "emberSnap"
+    ],
+    [
+     12,
+     "coalFlick"
+    ],
+    [
+     20,
+     "flameRush"
+    ],
+    [
+     28,
+     "emberMantle"
+    ],
+    [
+     36,
+     "steamBurst"
+    ]
+   ],
+   "dex": "The clay nest has fired into wings, and the song means the mud is ready."
+  },
+  "highmane": {
+   "name": "Highmane",
+   "fam": "horse",
+   "el": "Gale",
+   "col": "#a9afb3",
+   "shape": "horse",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tall-ears",
+    "back": "mist-ruff",
+    "tail": "plume",
+    "pattern": "rays"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "The wisp of high cloud has become a mane the whole herd can follow along the ridge."
+  },
+  "screehold": {
+   "name": "Screehold",
+   "fam": "cat",
+   "el": "Stone",
+   "col": "#6c6966",
+   "shape": "cat",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tall-ears",
+    "back": "ember-spots",
+    "tail": "tapered",
+    "pattern": "bands"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "It still knows which stones will slide, and now it pins them until the herd is past."
+  },
+  "mistbound": {
+   "name": "Mistbound",
+   "fam": "cat",
+   "el": "Gale",
+   "col": "#99a0a4",
+   "shape": "cat",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "low-brow",
+    "back": "wave-ridge",
+    "tail": "stub",
+    "pattern": "socks"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "The cloud still hides it, and the lantern of its tail is what the others follow."
+  },
+  "pallspan": {
+   "name": "Pallspan",
+   "fam": "spider",
+   "el": "Stone",
+   "col": "#75716d",
+   "shape": "spider",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tassel-antennae",
+    "back": "crust-plates",
+    "tail": "brush",
+    "pattern": "mottled"
+   },
+   "base": {
+    "hp": 68,
+    "pow": 70,
+    "grd": 80,
+    "spd": 72,
+    "wit": 90,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The morning threads have become a span the pass can trust."
+  },
+  "ridgebeak": {
+   "name": "Ridgebeak",
+   "fam": "bird",
+   "el": "Stone",
+   "col": "#5f5a54",
+   "shape": "bird",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "feather-antennae",
+    "back": "spark-orbit",
+    "tail": "tassel",
+    "pattern": "cracks"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "peck"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The beak that cracked seeds now splits the fog-bound rock so the path can continue."
+  },
+  "tumblecrown": {
+   "name": "Tumblecrown",
+   "fam": "boar",
+   "el": "Gale",
+   "col": "#8a8e96",
+   "shape": "boar",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "round-cheeks",
+    "back": "wind-mane",
+    "tail": "fin",
+    "pattern": "speckles"
+   },
+   "base": {
+    "hp": 90,
+    "pow": 72,
+    "grd": 100,
+    "spd": 48,
+    "wit": 70,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "The tumble in the headwind has become a crest that throws seed across the high meadow."
+  },
+  "ledgerunner": {
+   "name": "Ledgerunner",
+   "fam": "horse",
+   "el": "Stone",
+   "col": "#687076",
+   "shape": "horse",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "low-brow",
+    "back": "narrow-wings",
+    "tail": "ribbon",
+    "pattern": "chevrons"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The hooves that tested each ledge have become the path the herd walks."
+  },
+  "reedmaw": {
+   "name": "Reedmaw",
+   "fam": "croc",
+   "el": "Tide",
+   "col": "#5e6855",
+   "shape": "turtle",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "low-brow",
+    "back": "mist-ruff",
+    "tail": "plume",
+    "pattern": "rings"
+   },
+   "base": {
+    "hp": 90,
+    "pow": 72,
+    "grd": 100,
+    "spd": 48,
+    "wit": 70,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "bubbleJet"
+    ],
+    [
+     12,
+     "rainTap"
+    ],
+    [
+     20,
+     "undertowPull"
+    ],
+    [
+     28,
+     "tidePulse"
+    ],
+    [
+     36,
+     "rinse"
+    ]
+   ],
+   "dex": "The mossy nose under the water has risen into a reed-crowned head the channel knows."
+  },
+  "channelwyrm": {
+   "name": "Channelwyrm",
+   "fam": "lizard",
+   "el": "Tide",
+   "col": "#6b8b81",
+   "shape": "serpent",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "round-cheeks",
+    "back": "ember-spots",
+    "tail": "tapered",
+    "pattern": "spots"
+   },
+   "base": {
+    "hp": 72,
+    "pow": 80,
+    "grd": 70,
+    "spd": 82,
+    "wit": 80,
+    "spi": 76
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "bubbleJet"
+    ],
+    [
+     12,
+     "rainTap"
+    ],
+    [
+     20,
+     "undertowPull"
+    ],
+    [
+     28,
+     "tidePulse"
+    ],
+    [
+     36,
+     "rinse"
+    ]
+   ],
+   "dex": "The whiskers that felt the rise have grown into a long body that leads the channel."
+  },
+  "orchardcrown": {
+   "name": "Orchardcrown",
+   "fam": "boar",
+   "el": "Grove",
+   "col": "#5f753e",
+   "shape": "treefolk",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "round-cheeks",
+    "back": "wave-ridge",
+    "tail": "stub",
+    "pattern": "rays"
+   },
+   "base": {
+    "hp": 90,
+    "pow": 72,
+    "grd": 100,
+    "spd": 48,
+    "wit": 70,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     6,
+     "vineLash"
+    ],
+    [
+     12,
+     "seedGrip"
+    ],
+    [
+     20,
+     "bramblePress"
+    ],
+    [
+     28,
+     "groveShelter"
+    ],
+    [
+     36,
+     "regrowth"
+    ]
+   ],
+   "dex": "The fruit it turned to soil now hangs in a small orchard on its crown."
+  },
+  "gustchorus": {
+   "name": "Gustchorus",
+   "fam": "bird",
+   "el": "Gale",
+   "col": "#9e905b",
+   "shape": "bird",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tassel-crown",
+    "back": "crust-plates",
+    "tail": "brush",
+    "pattern": "bands"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "peck"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "The whistle between the reeds has become a song the whole bank answers."
+  },
+  "seedshroud": {
+   "name": "Seedshroud",
+   "fam": "spider",
+   "el": "Shade",
+   "col": "#5a4e5e",
+   "shape": "spider",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tassel-antennae",
+    "back": "spark-orbit",
+    "tail": "tassel",
+    "pattern": "socks"
+   },
+   "base": {
+    "hp": 68,
+    "pow": 70,
+    "grd": 80,
+    "spd": 72,
+    "wit": 90,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "shadowSting"
+    ],
+    [
+     12,
+     "duskLull"
+    ],
+    [
+     20,
+     "shadeThread"
+    ],
+    [
+     28,
+     "mistVeil"
+    ],
+    [
+     36,
+     "dreamBreak"
+    ]
+   ],
+   "dex": "The dusk web that caught seeds now plants them, and a dark garden follows it."
+  },
+  "ledgeveil": {
+   "name": "Ledgeveil",
+   "fam": "spider",
+   "el": "Shade",
+   "col": "#575164",
+   "shape": "spider",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "feather-antennae",
+    "back": "wind-mane",
+    "tail": "fin",
+    "pattern": "mottled"
+   },
+   "base": {
+    "hp": 68,
+    "pow": 70,
+    "grd": 80,
+    "spd": 72,
+    "wit": 90,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "shadowSting"
+    ],
+    [
+     12,
+     "duskLull"
+    ],
+    [
+     20,
+     "shadeThread"
+    ],
+    [
+     28,
+     "mistVeil"
+    ],
+    [
+     36,
+     "dreamBreak"
+    ]
+   ],
+   "dex": "The silk beside an unsafe ledge has become a veil that closes the bad path."
+  },
+  "flintbole": {
+   "name": "Flintbole",
+   "fam": "boar",
+   "el": "Stone",
+   "col": "#756f5d",
+   "shape": "treefolk",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "round-cheeks",
+    "back": "narrow-wings",
+    "tail": "ribbon",
+    "pattern": "cracks"
+   },
+   "base": {
+    "hp": 90,
+    "pow": 72,
+    "grd": 100,
+    "spd": 48,
+    "wit": 70,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The shoulder that rubbed the trail clear has become a trunk of flint."
+  },
+  "echoledge": {
+   "name": "Echoledge",
+   "fam": "cat",
+   "el": "Stone",
+   "col": "#867e74",
+   "shape": "cat",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "low-brow",
+    "back": "mist-ruff",
+    "tail": "plume",
+    "pattern": "speckles"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The whiskers that found the broad ledge have become the ledge the others step on."
+  },
+  "bellwarden": {
+   "name": "Bellwarden",
+   "fam": "sprite",
+   "el": "Radiant",
+   "col": "#a5a373",
+   "shape": "sprite",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tassel-crown",
+    "back": "ember-spots",
+    "tail": "tapered",
+    "pattern": "chevrons"
+   },
+   "base": {
+    "hp": 64,
+    "pow": 60,
+    "grd": 70,
+    "spd": 86,
+    "wit": 96,
+    "spi": 84
+   },
+   "learn": [
+    [
+     1,
+     "spark"
+    ],
+    [
+     6,
+     "dawnRay"
+    ],
+    [
+     12,
+     "gleamTrail"
+    ],
+    [
+     20,
+     "brightCare"
+    ],
+    [
+     28,
+     "radiance"
+    ]
+   ],
+   "dex": "The light inside a silent bell now rings the hill when a team comes home."
+  },
+  "pooldart": {
+   "name": "Pooldart",
+   "fam": "lizard",
+   "el": "Tide",
+   "col": "#547877",
+   "shape": "lizard",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "round-cheeks",
+    "back": "wave-ridge",
+    "tail": "stub",
+    "pattern": "rings"
+   },
+   "base": {
+    "hp": 72,
+    "pow": 80,
+    "grd": 70,
+    "spd": 82,
+    "wit": 80,
+    "spi": 76
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "bubbleJet"
+    ],
+    [
+     12,
+     "rainTap"
+    ],
+    [
+     20,
+     "undertowPull"
+    ],
+    [
+     28,
+     "tidePulse"
+    ],
+    [
+     36,
+     "rinse"
+    ]
+   ],
+   "dex": "The tap that called the neighbours has become a pool that answers."
+  },
+  "tilthcrown": {
+   "name": "Tilthcrown",
+   "fam": "boar",
+   "el": "Grove",
+   "col": "#70643f",
+   "shape": "boar",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "round-cheeks",
+    "back": "crust-plates",
+    "tail": "brush",
+    "pattern": "spots"
+   },
+   "base": {
+    "hp": 90,
+    "pow": 72,
+    "grd": 100,
+    "spd": 48,
+    "wit": 70,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     6,
+     "vineLash"
+    ],
+    [
+     12,
+     "seedGrip"
+    ],
+    [
+     20,
+     "bramblePress"
+    ],
+    [
+     28,
+     "groveShelter"
+    ],
+    [
+     36,
+     "regrowth"
+    ]
+   ],
+   "dex": "The loosened soil has become a planted bed it carries beside the shared paths."
+  },
+  "hearthhem": {
+   "name": "Hearthhem",
+   "fam": "sprite",
+   "el": "Radiant",
+   "col": "#b99f64",
+   "shape": "sprite",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "feather-antennae",
+    "back": "spark-orbit",
+    "tail": "tassel",
+    "pattern": "rays"
+   },
+   "base": {
+    "hp": 64,
+    "pow": 60,
+    "grd": 70,
+    "spd": 86,
+    "wit": 96,
+    "spi": 84
+   },
+   "learn": [
+    [
+     1,
+     "spark"
+    ],
+    [
+     6,
+     "dawnRay"
+    ],
+    [
+     12,
+     "gleamTrail"
+    ],
+    [
+     20,
+     "brightCare"
+    ],
+    [
+     28,
+     "radiance"
+    ]
+   ],
+   "dex": "The small light on a shelter cloth has become the lit hem of the whole tent."
+  },
+  "pennantflare": {
+   "name": "Pennantflare",
+   "fam": "bird",
+   "el": "Radiant",
+   "col": "#b3904e",
+   "shape": "bird",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "swept-ears",
+    "back": "wind-mane",
+    "tail": "fin",
+    "pattern": "bands"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "peck"
+    ],
+    [
+     6,
+     "spark"
+    ],
+    [
+     12,
+     "dawnRay"
+    ],
+    [
+     20,
+     "gleamTrail"
+    ],
+    [
+     28,
+     "brightCare"
+    ],
+    [
+     36,
+     "radiance"
+    ]
+   ],
+   "dex": "The wing-flash over a gathering has become the pennant of the hall."
+  },
+  "emberrunner": {
+   "name": "Emberrunner",
+   "fam": "wolf",
+   "el": "Ember",
+   "col": "#9a5834",
+   "shape": "wolf",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "swept-ears",
+    "back": "narrow-wings",
+    "tail": "ribbon",
+    "pattern": "socks"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "emberSnap"
+    ],
+    [
+     12,
+     "coalFlick"
+    ],
+    [
+     20,
+     "flameRush"
+    ],
+    [
+     28,
+     "emberMantle"
+    ],
+    [
+     36,
+     "steamBurst"
+    ]
+   ],
+   "dex": "The warmth under the benches now travels with it, and the message arrives still warm."
+  },
+  "ribbonmane": {
+   "name": "Ribbonmane",
+   "fam": "horse",
+   "el": "Gale",
+   "col": "#8b9d8c",
+   "shape": "horse",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "sun-rays",
+    "back": "mist-ruff",
+    "tail": "plume",
+    "pattern": "mottled"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "The ribbons it brought home now stream in its mane, and the posts keep their colours."
+  },
+  "harborback": {
+   "name": "Harborback",
+   "fam": "croc",
+   "el": "Tide",
+   "col": "#596d68",
+   "shape": "croc",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "stone-crown",
+    "back": "ember-spots",
+    "tail": "tapered",
+    "pattern": "cracks"
+   },
+   "base": {
+    "hp": 90,
+    "pow": 72,
+    "grd": 100,
+    "spd": 48,
+    "wit": 70,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "bubbleJet"
+    ],
+    [
+     12,
+     "rainTap"
+    ],
+    [
+     20,
+     "undertowPull"
+    ],
+    [
+     28,
+     "tidePulse"
+    ],
+    [
+     36,
+     "rinse"
+    ]
+   ],
+   "dex": "The planks it nudged into the shallows now rest on a back that is a landing."
+  },
+  "lookoutwing": {
+   "name": "Lookoutwing",
+   "fam": "bird",
+   "el": "Gale",
+   "col": "#90a0a2",
+   "shape": "bird",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "swept-ears",
+    "back": "wave-ridge",
+    "tail": "stub",
+    "pattern": "speckles"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "peck"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "The two circles in the fog have become wings that hold the lookout's pattern."
+  },
+  "moorbridge": {
+   "name": "Moorbridge",
+   "fam": "spider",
+   "el": "Stone",
+   "col": "#827e74",
+   "shape": "spider",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "feather-antennae",
+    "back": "crust-plates",
+    "tail": "brush",
+    "pattern": "chevrons"
+   },
+   "base": {
+    "hp": 68,
+    "pow": 70,
+    "grd": 80,
+    "spd": 72,
+    "wit": 90,
+    "spi": 80
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "rockToss"
+    ],
+    [
+     12,
+     "harden"
+    ],
+    [
+     20,
+     "faultLine"
+    ],
+    [
+     28,
+     "standingStone"
+    ],
+    [
+     36,
+     "gravelFan"
+    ]
+   ],
+   "dex": "The silk that caught loose pebbles has become a marked road over the moor."
+  },
+  "inkwarden": {
+   "name": "Inkwarden",
+   "fam": "cat",
+   "el": "Shade",
+   "col": "#5a5f74",
+   "shape": "cat",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tall-ears",
+    "back": "spark-orbit",
+    "tail": "tassel",
+    "pattern": "rings"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "shadowSting"
+    ],
+    [
+     12,
+     "duskLull"
+    ],
+    [
+     20,
+     "shadeThread"
+    ],
+    [
+     28,
+     "mistVeil"
+    ],
+    [
+     36,
+     "dreamBreak"
+    ]
+   ],
+   "dex": "The whiskers that followed fresh ink now trace the safe chart in the dark."
+  },
+  "harborgleam": {
+   "name": "Harborgleam",
+   "fam": "sprite",
+   "el": "Radiant",
+   "col": "#b0a37b",
+   "shape": "sprite",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "feather-antennae",
+    "back": "wind-mane",
+    "tail": "fin",
+    "pattern": "spots"
+   },
+   "base": {
+    "hp": 64,
+    "pow": 60,
+    "grd": 70,
+    "spd": 86,
+    "wit": 96,
+    "spi": 84
+   },
+   "learn": [
+    [
+     1,
+     "spark"
+    ],
+    [
+     6,
+     "dawnRay"
+    ],
+    [
+     12,
+     "gleamTrail"
+    ],
+    [
+     20,
+     "brightCare"
+    ],
+    [
+     28,
+     "radiance"
+    ]
+   ],
+   "dex": "The light on one mooring post has become the gleam that brings the last team in."
+  },
+  "fogslip": {
+   "name": "Fogslip",
+   "fam": "lizard",
+   "el": "Shade",
+   "col": "#b4b0c5",
+   "shape": "moth",
+   "size": "small",
+   "tier": "Plain",
+   "metres": 1.05,
+   "marks": true,
+   "look": {
+    "head": "feather-antennae",
+    "back": "fin-ridge",
+    "tail": "tassel",
+    "pattern": "speckles"
+   },
+   "base": {
+    "hp": 44,
+    "pow": 42,
+    "grd": 40,
+    "spd": 64,
+    "wit": 54,
+    "spi": 56
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "shadowSting"
+    ],
+    [
+     12,
+     "duskLull"
+    ],
+    [
+     20,
+     "shadeThread"
+    ],
+    [
+     28,
+     "mistVeil"
+    ],
+    [
+     36,
+     "dreamBreak"
+    ]
+   ],
+   "evo": {
+    "at": 32,
+    "to": "fogsail"
+   },
+   "dex": "A small sail stays folded against its side while it practises standing still in the fog of Cloudglass Pass."
+  },
+  "raylet": {
+   "name": "Raylet",
+   "fam": "lizard",
+   "el": "Radiant",
+   "col": "#e1cd9a",
+   "shape": "lizard",
+   "size": "small",
+   "tier": "Plain",
+   "metres": 1.05,
+   "marks": true,
+   "look": {
+    "head": "sun-rays",
+    "back": "fin-ridge",
+    "tail": "ribbon",
+    "pattern": "rays"
+   },
+   "base": {
+    "hp": 44,
+    "pow": 42,
+    "grd": 40,
+    "spd": 64,
+    "wit": 54,
+    "spi": 56
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "spark"
+    ],
+    [
+     12,
+     "dawnRay"
+    ],
+    [
+     20,
+     "gleamTrail"
+    ],
+    [
+     28,
+     "brightCare"
+    ],
+    [
+     36,
+     "radiance"
+    ]
+   ],
+   "evo": {
+    "at": 36,
+    "to": "sunfrill"
+   },
+   "dex": "A little lizard naps on the rails of Sunthread Commons, holding up a stub of sail like a scrap of shade."
+  },
+  "emberdrake": {
+   "name": "Emberdrake",
+   "fam": "lizard",
+   "el": "Ember",
+   "col": "#b14526",
+   "shape": "serpent",
+   "size": "large",
+   "tier": "Strong",
+   "big": 1,
+   "metres": 1.78,
+   "marks": true,
+   "look": {
+    "head": "low-brow",
+    "back": "ember-spots",
+    "tail": "tapered",
+    "pattern": "socks"
+   },
+   "base": {
+    "hp": 84,
+    "pow": 98,
+    "grd": 78,
+    "spd": 90,
+    "wit": 78,
+    "spi": 72
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     6,
+     "emberSnap"
+    ],
+    [
+     12,
+     "coalFlick"
+    ],
+    [
+     20,
+     "flameRush"
+    ],
+    [
+     28,
+     "emberMantle"
+    ],
+    [
+     36,
+     "steamBurst"
+    ]
+   ],
+   "dex": "The dragon it practised in its sleep. Hot air has become a long wing of cinder, and the glide is a real flight."
   }
  },
  "evos": {
@@ -1065,18 +3762,20 @@
     "to": "mistlynx",
     "at": 24,
     "place": "cloudglass",
-    "hint": "Poolkit grows to suit its home. Raised in the cloud, it turns quiet."
+    "hint": "Once it trusts you a little and has grown, the cloud of the pass turns it quiet.",
+    "bond": 1
    },
    {
     "to": "sunlynx",
     "at": 24,
     "bond": 3,
-    "hint": "A Poolkit devoted to its tamer grows warm and bright."
+    "hint": "Once it trusts you deeply and has grown, devotion turns it warm and bright."
    },
    {
     "to": "rilllynx",
     "at": 24,
-    "hint": "Most Poolkit become river cats. Most, not all."
+    "hint": "Once it trusts you a little and has grown, most of them become river cats.",
+    "bond": 1
    }
   ],
   "mistfinch": [
@@ -1084,18 +3783,21 @@
     "to": "dawnchorus",
     "at": 18,
     "time": "dawn",
-    "hint": "A Mistfinch that sees the dawn becomes something that sings with it."
+    "hint": "Once it trusts you a little and has grown, a dawn flight becomes a song that belongs to the morning.",
+    "bond": 1
    },
    {
     "to": "duskwing",
     "at": 18,
     "time": "dusk",
-    "hint": "A Mistfinch that flies at dusk learns the quiet ways."
+    "hint": "Once it trusts you a little and has grown, a dusk flight becomes the quiet of the evening.",
+    "bond": 1
    },
    {
     "to": "cloudharrier",
     "at": 18,
-    "hint": "Most Mistfinch become cloud harriers. Most, not all."
+    "hint": "Once it trusts you a little and has grown, most of them part the cloud they used to sing in.",
+    "bond": 1
    }
   ],
   "brineskit": [
@@ -1103,18 +3805,21 @@
     "to": "rainback",
     "at": 18,
     "weather": "rain",
-    "hint": "A Brineskit caught in the rain grows to love it."
+    "hint": "Once it trusts you a little and has grown, the rain teaches it to love the wet.",
+    "bond": 1
    },
    {
     "to": "gorgebelly",
     "at": 18,
     "ate": "fish",
-    "hint": "A Brineskit fed on fish grows broad and strong."
+    "hint": "Once it trusts you a little and has grown, a diet of fish makes it broad and strong.",
+    "bond": 1
    },
    {
     "to": "shoalcrest",
     "at": 18,
-    "hint": "Most Brineskit become shoal crests. Most, not all."
+    "hint": "Once it trusts you a little and has grown, most of them become the shelter they used to borrow.",
+    "bond": 1
    }
   ],
   "creekribbon": [
@@ -1170,6 +3875,486 @@
     "bond": 2,
     "hint": "Once it trusts you and has grown, the coal in its shell becomes a little kiln."
    }
+  ],
+  "glimmerwing": [
+   {
+    "to": "glassharrier",
+    "at": 18,
+    "bond": 1,
+    "hint": "Once it trusts you a little and has grown, the glass in its feathers has opened into wings that throw the grove light down the path."
+   }
+  ],
+  "pebblepaw": [
+   {
+    "to": "granitepaw",
+    "at": 18,
+    "bond": 1,
+    "hint": "Once it trusts you a little and has grown, the claws it wore down on granite have become paws that hold a slope in place."
+   }
+  ],
+  "duskweaver": [
+   {
+    "to": "nightloom",
+    "at": 18,
+    "bond": 1,
+    "hint": "Once it trusts you a little and has grown, the webs that used to vanish by morning now hang as a cloak of lasting dusk."
+   }
+  ],
+  "bogsnap": [
+   {
+    "to": "stillmaw",
+    "at": 18,
+    "bond": 1,
+    "hint": "Once it trusts you a little and has grown, the long wait in the water has become a pool that stays quiet around it."
+   }
+  ],
+  "emberling": [
+   {
+    "to": "coalheart",
+    "at": 18,
+    "bond": 1,
+    "hint": "Once it trusts you a little and has grown, the faint night glow has settled into a coal that keeps the rocks warm until dawn."
+   }
+  ],
+  "gnawhound": [
+   {
+    "to": "nightcackle",
+    "at": 18,
+    "bond": 1,
+    "hint": "Once it trusts you a little and has grown, the laugh that used to startle travelers now rolls the dark back from the path."
+   }
+  ],
+  "galefoal": [
+   {
+    "to": "galecharger",
+    "at": 18,
+    "bond": 1,
+    "hint": "Once it trusts you a little and has grown, the foal born to race has become a horse that runs as the wind itself."
+   }
+  ],
+  "bogbough": [
+   {
+    "to": "willowback",
+    "at": 18,
+    "bond": 1,
+    "hint": "Once it trusts you a little and has grown, the seedlings in its back have taken root, and the bank holds where it rests."
+   }
+  ],
+  "dunepounce": [
+   {
+    "to": "dunemantle",
+    "at": 22,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the sand it used to spring from now rides its shoulders like a mantle."
+   }
+  ],
+  "reedtusk": [
+   {
+    "to": "marshcrown",
+    "at": 22,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the trails it combed have grown into a crown of living reed."
+   }
+  ],
+  "wrackjaw": [
+   {
+    "to": "driftjaw",
+    "at": 22,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the pebble jaws that cracked shells now break the driftwood open for everyone smaller."
+   }
+  ],
+  "kiteskirl": [
+   {
+    "to": "stormkite",
+    "at": 22,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, it still rides the breeze without flapping, and the storm answers its whistle."
+   }
+  ],
+  "spindriftfoal": [
+   {
+    "to": "spraymane",
+    "at": 22,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the ribbons of spray have become a mane that the shoreline follows."
+   }
+  ],
+  "dewspinner": [
+   {
+    "to": "dewmantle",
+    "at": 22,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the morning webs have become a mantle, and the shore drinks before the sun takes it."
+   }
+  ],
+  "ashskip": [
+   {
+    "to": "ashstride",
+    "at": 26,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the tiny tail prints have become a warm trail the highland rocks remember."
+   }
+  ],
+  "cragskein": [
+   {
+    "to": "cragbridge",
+    "at": 26,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the webs that bridged one crack now hold a path across the crag."
+   }
+  ],
+  "ventwhisk": [
+   {
+    "to": "ventmane",
+    "at": 26,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the copper fan of its tail has become a mane of steam over the warm vents."
+   }
+  ],
+  "thermwing": [
+   {
+    "to": "thermglide",
+    "at": 26,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the circling call has become a long glide that shows every sheltered ledge."
+   }
+  ],
+  "screegrin": [
+   {
+    "to": "screehowl",
+    "at": 26,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the chatter and the gathered stones have become a den that sings down the slope."
+   }
+  ],
+  "cairnclasp": [
+   {
+    "to": "cairnback",
+    "at": 26,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the cairn it gripped with four feet now rides its back, and the loose stones stay put."
+   }
+  ],
+  "kilnchirp": [
+   {
+    "to": "kilnsong",
+    "at": 26,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the clay nest has fired into wings, and the song means the mud is ready."
+   }
+  ],
+  "cirrusmane": [
+   {
+    "to": "highmane",
+    "at": 32,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the wisp of high cloud has become a mane the whole herd can follow along the ridge."
+   }
+  ],
+  "shalecat": [
+   {
+    "to": "screehold",
+    "at": 32,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, it still knows which stones will slide, and now it pins them until the herd is past."
+   }
+  ],
+  "fogtail": [
+   {
+    "to": "mistbound",
+    "at": 32,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the cloud still hides it, and the lantern of its tail is what the others follow."
+   }
+  ],
+  "pallweaver": [
+   {
+    "to": "pallspan",
+    "at": 32,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the morning threads have become a span the pass can trust."
+   }
+  ],
+  "gritbeak": [
+   {
+    "to": "ridgebeak",
+    "at": 32,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the beak that cracked seeds now splits the fog-bound rock so the path can continue."
+   }
+  ],
+  "tumbletusk": [
+   {
+    "to": "tumblecrown",
+    "at": 32,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the tumble in the headwind has become a crest that throws seed across the high meadow."
+   }
+  ],
+  "slatehoof": [
+   {
+    "to": "ledgerunner",
+    "at": 32,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the hooves that tested each ledge have become the path the herd walks."
+   }
+  ],
+  "siltjaw": [
+   {
+    "to": "reedmaw",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the mossy nose under the water has risen into a reed-crowned head the channel knows."
+   }
+  ],
+  "rillwhisk": [
+   {
+    "to": "channelwyrm",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the whiskers that felt the rise have grown into a long body that leads the channel."
+   }
+  ],
+  "orchardroot": [
+   {
+    "to": "orchardcrown",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the fruit it turned to soil now hangs in a small orchard on its crown."
+   }
+  ],
+  "gustreed": [
+   {
+    "to": "gustchorus",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the whistle between the reeds has become a song the whole bank answers."
+   }
+  ],
+  "duskcord": [
+   {
+    "to": "seedshroud",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the dusk web that caught seeds now plants them, and a dark garden follows it."
+   }
+  ],
+  "umbrelace": [
+   {
+    "to": "ledgeveil",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the silk beside an unsafe ledge has become a veil that closes the bad path."
+   }
+  ],
+  "flintroot": [
+   {
+    "to": "flintbole",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the shoulder that rubbed the trail clear has become a trunk of flint."
+   }
+  ],
+  "ledgewhisk": [
+   {
+    "to": "echoledge",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the whiskers that found the broad ledge have become the ledge the others step on."
+   }
+  ],
+  "bellmote": [
+   {
+    "to": "bellwarden",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the light inside a silent bell now rings the hill when a team comes home."
+   }
+  ],
+  "dripdart": [
+   {
+    "to": "pooldart",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the tap that called the neighbours has become a pool that answers."
+   }
+  ],
+  "tilthtusk": [
+   {
+    "to": "tilthcrown",
+    "at": 36,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the loosened soil has become a planted bed it carries beside the shared paths."
+   }
+  ],
+  "hemglow": [
+   {
+    "to": "hearthhem",
+    "at": 36,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the small light on a shelter cloth has become the lit hem of the whole tent."
+   }
+  ],
+  "pennantlark": [
+   {
+    "to": "pennantflare",
+    "at": 36,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the wing-flash over a gathering has become the pennant of the hall."
+   }
+  ],
+  "hearthrunner": [
+   {
+    "to": "emberrunner",
+    "at": 36,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the warmth under the benches now travels with it, and the message arrives still warm."
+   }
+  ],
+  "ribbonstride": [
+   {
+    "to": "ribbonmane",
+    "at": 36,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the ribbons it brought home now stream in its mane, and the posts keep their colours."
+   }
+  ],
+  "keeljaw": [
+   {
+    "to": "harborback",
+    "at": 38,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the planks it nudged into the shallows now rest on a back that is a landing."
+   }
+  ],
+  "chartwing": [
+   {
+    "to": "lookoutwing",
+    "at": 38,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the two circles in the fog have become wings that hold the lookout's pattern."
+   }
+  ],
+  "moorweft": [
+   {
+    "to": "moorbridge",
+    "at": 38,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the silk that caught loose pebbles has become a marked road over the moor."
+   }
+  ],
+  "inkwhisk": [
+   {
+    "to": "inkwarden",
+    "at": 38,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the whiskers that followed fresh ink now trace the safe chart in the dark."
+   }
+  ],
+  "buoyglint": [
+   {
+    "to": "harborgleam",
+    "at": 38,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the light on one mooring post has become the gleam that brings the last team in."
+   }
+  ],
+  "fogslip": [
+   {
+    "to": "fogsail",
+    "at": 32,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the folded sail opens and shows the pale edge of the path."
+   }
+  ],
+  "raylet": [
+   {
+    "to": "sunfrill",
+    "at": 36,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, that stub of sail opens and the little ones gather underneath."
+   }
+  ],
+  "drakelet": [
+   {
+    "to": "emberdrake",
+    "at": 36,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the dream of a dragon becomes a body that can carry it."
+   }
+  ],
+  "cairnhound": [
+   {
+    "to": "ridgewarden",
+    "at": 36,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the piled stone becomes a ridge that holds the slope."
+   }
+  ],
+  "draftscale": [
+   {
+    "to": "stormfrill",
+    "at": 36,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the outgrown sail spreads and the storm answers it."
+   }
+  ],
+  "hedgelark": [
+   {
+    "to": "boughchorus",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the twigs in its feathers open into leafy boughs."
+   }
+  ],
+  "clovercolt": [
+   {
+    "to": "bloomcourser",
+    "at": 64,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the loose ties in its mane become a banner of blossom."
+   }
+  ],
+  "fernruff": [
+   {
+    "to": "briarwatch",
+    "at": 18,
+    "bond": 1,
+    "hint": "Once it trusts you a little and has grown, the gaps in its hedge become doorways."
+   }
+  ],
+  "hushpup": [
+   {
+    "to": "hushmane",
+    "at": 60,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the listening becomes a mane that swallows sound."
+   }
+  ],
+  "reedlet": [
+   {
+    "to": "ferrycrest",
+    "at": 54,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the reed it balanced on becomes a back that can carry."
+   }
+  ],
+  "shoalpup": [
+   {
+    "to": "soundhowl",
+    "at": 68,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the wait at the tideline becomes a howl that calls everyone home."
+   }
+  ],
+  "slaglet": [
+   {
+    "to": "kilntusk",
+    "at": 22,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the dust-crust becomes a kiln."
+   }
   ]
  },
  "bond_branch": {
@@ -1207,6 +4392,30 @@
    [
     "charcup",
     6
+   ],
+   [
+    "dunemantle",
+    2
+   ],
+   [
+    "marshcrown",
+    2
+   ],
+   [
+    "driftjaw",
+    2
+   ],
+   [
+    "stormkite",
+    2
+   ],
+   [
+    "spraymane",
+    2
+   ],
+   [
+    "dewmantle",
+    2
    ]
   ],
   "hollowecho": [
@@ -1217,6 +4426,26 @@
    [
     "whisperpup",
     10
+   ],
+   [
+    "ledgeveil",
+    2
+   ],
+   [
+    "flintbole",
+    2
+   ],
+   [
+    "echoledge",
+    2
+   ],
+   [
+    "bellwarden",
+    2
+   ],
+   [
+    "pooldart",
+    2
    ]
   ],
   "emberfall": [
@@ -1226,6 +4455,38 @@
    ],
    [
     "kilnback",
+    2
+   ],
+   [
+    "ashstride",
+    2
+   ],
+   [
+    "cragbridge",
+    2
+   ],
+   [
+    "ventmane",
+    2
+   ],
+   [
+    "thermglide",
+    2
+   ],
+   [
+    "screehowl",
+    2
+   ],
+   [
+    "cairnback",
+    2
+   ],
+   [
+    "kilnsong",
+    2
+   ],
+   [
+    "emberdrake",
     2
    ]
   ],
@@ -1241,23 +4502,153 @@
    [
     "sunford",
     2
+   ],
+   [
+    "tilthcrown",
+    2
+   ],
+   [
+    "hearthhem",
+    2
+   ],
+   [
+    "pennantflare",
+    2
+   ],
+   [
+    "emberrunner",
+    2
+   ],
+   [
+    "ribbonmane",
+    2
+   ],
+   [
+    "raylet",
+    8
    ]
   ],
   "stillreed": [
    [
     "dawnfoal",
     8
+   ],
+   [
+    "reedmaw",
+    2
+   ],
+   [
+    "channelwyrm",
+    2
+   ],
+   [
+    "orchardcrown",
+    2
+   ],
+   [
+    "gustchorus",
+    2
+   ],
+   [
+    "seedshroud",
+    2
    ]
   ],
   "cloudglass": [
    [
     "ridgehowl",
     2
+   ],
+   [
+    "highmane",
+    2
+   ],
+   [
+    "screehold",
+    2
+   ],
+   [
+    "mistbound",
+    2
+   ],
+   [
+    "pallspan",
+    2
+   ],
+   [
+    "ridgebeak",
+    2
+   ],
+   [
+    "tumblecrown",
+    2
+   ],
+   [
+    "ledgerunner",
+    2
+   ],
+   [
+    "fogslip",
+    8
    ]
   ],
   "farwatch": [
    [
     "gloomtide",
+    2
+   ],
+   [
+    "harborback",
+    2
+   ],
+   [
+    "lookoutwing",
+    2
+   ],
+   [
+    "moorbridge",
+    2
+   ],
+   [
+    "inkwarden",
+    2
+   ],
+   [
+    "harborgleam",
+    2
+   ]
+  ],
+  "thornwood_grove": [
+   [
+    "glassharrier",
+    2
+   ],
+   [
+    "granitepaw",
+    2
+   ],
+   [
+    "nightloom",
+    2
+   ],
+   [
+    "stillmaw",
+    2
+   ],
+   [
+    "coalheart",
+    2
+   ],
+   [
+    "nightcackle",
+    2
+   ],
+   [
+    "galecharger",
+    2
+   ],
+   [
+    "willowback",
     2
    ]
   ]
