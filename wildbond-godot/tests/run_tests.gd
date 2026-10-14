@@ -279,6 +279,17 @@ func _run() -> void:
 	var foe_box: Rect2 = Sprites.dest_rect(foe_placed, Vector2i(64, 64), 1.0)
 	var front_clear: bool = not ally_box.intersects((front_panels[0] as Rect2).grow(4.0)) and not ally_box.intersects((front_panels[1] as Rect2).grow(4.0)) and not foe_box.intersects((front_panels[0] as Rect2).grow(4.0)) and not foe_box.intersects((front_panels[1] as Rect2).grow(4.0))
 	check(ally_box.size == Vector2(64, 64) and foe_box.size == Vector2(64, 64) and front_clear, "WBL-6: a 64x64 front keeps its scale and stays clear of the HP panels")
+	var command := Rect2(8, 164, 368, 46)
+	var player_panels: Array = [Rect2(222, 116, 154, 36), Rect2(10, 8, 150, 26), command]
+	var player_foot: Vector2 = Sprites.foot_clear_of(Vector2(100, 164), Vector2i(64, 64), 1.0, player_panels, 4.0)
+	var player_rect: Rect2 = Sprites.dest_rect(player_foot, Vector2i(64, 64), 1.0)
+	var bottom_row: int = int(player_rect.position.y + player_rect.size.y) - 1
+	var border_y: int = int(command.position.y) - 1
+	check(player_rect.size == Vector2(64, 64) and player_foot.x == 100.0 and player_foot.y == floor(player_foot.y), "WBL-6: the command box lifts the player on a whole pixel and does not change the scale")
+	check(bottom_row <= border_y - 1, "WBL-6: the player's bottom row (%d) is at least 1px above the command box border (%d)" % [bottom_row, border_y])
+	check(player_rect.position.y + player_rect.size.y <= command.position.y - 4.0 and not player_rect.intersects(command.grow(4.0)), "WBL-6: the player keeps 4px clear of the command box")
+	var foe_kept: Vector2 = Sprites.foot_clear_of(Vector2(286, 98), Vector2i(64, 64), 1.0, player_panels, 4.0)
+	check(foe_kept == Vector2(286, 98), "WBL-6: a foe already above the command box stays on its platform")
 	var wash_tex: Texture2D = Sprites.texture("blazefang", "idle")
 	var wash_a: Texture2D = Sprites._washed(wash_tex, Rect2i(0, 0, fang_sz.x, fang_sz.y), 0.5)
 	var wash_b: Texture2D = Sprites._washed(wash_tex, Rect2i(0, 0, fang_sz.x, fang_sz.y), 0.51)

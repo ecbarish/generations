@@ -6,7 +6,7 @@ deciding (START-HERE.md "Questions for Evan" 1; docs/wildbond-plan.md).
 
 ## Unreleased
 
-- WBL-6: a battle uses `assets/creatures/battle/<id>_battle_front.png` when that file is there (64×64, whole pixels, your creature turned to face right). A creature without one keeps the old picture, drawn on whole pixels. Not published.
+- WBL-6: a battle uses `assets/creatures/battle/<id>_battle_front.png` when that file is there (64×64, whole pixels, your creature turned to face right, feet 4px above the command box). A creature without one keeps the old picture, drawn on whole pixels. Not published.
 - WB-FUNNEL1 (merged #380, 2026-10-14): a tap advances opening dialogue, and the opening records time to the first partner, first battle and first catch. Not published.
 - WB-C4 (merged #372, 2026-10-14): Larkhaven gets a barn garden, door stones, straw in the pen and grass variety, and the Thornwood ponds get a muddy, reedy bank. Not published.
 - WB-C3b (merged #382, 2026-10-14): the register shows only the tap hint on phones, and the partner-card note no longer touches the stat bars. Not published.

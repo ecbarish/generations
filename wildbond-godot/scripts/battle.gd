@@ -16,8 +16,11 @@ const EL_COL := { "Ember": Color("e0602a"), "Tide": Color("3a8fd8"), "Grove": Co
 ## CR1: size classes to battle scale (spec 4.4, docs/wildbond-creatures.md).
 ## Whole-number zoom only. A creature's size is the height drawn into its pixels (metres × 12.35).
 const SIZE_SCALE := { "tiny": 1, "small": 1, "medium": 1, "large": 1, "huge": 1 }
-## Painted sprites stay this many pixels clear of the health panels. The zoom itself stays a whole number.
+## Painted sprites stay this many pixels clear of the health panels and the command box.
+## The zoom itself stays a whole number.
 const PANEL_CLEARANCE := 4.0
+## The message and command box. _box draws a 1px border outside this rect, so the top ink is y163.
+const COMMAND_BOX := Rect2(8, 164, 368, 46)
 ## Each element's hit has its own animated effect (Ninja Adventure FX, CC0; assets/fx): [file, frame width, frames, tint].
 const EL_FX := { "Ember": ["ember", 25, 8, Color.WHITE], "Tide": ["tide", 40, 11, Color.WHITE], "Grove": ["grove", 30, 8, Color.WHITE],
 	"Stone": ["stone", 30, 14, Color.WHITE], "Gale": ["gale", 20, 8, Color.WHITE], "Shade": ["shade", 40, 9, Color("b080e8")],
@@ -739,6 +742,12 @@ func _hp_panels() -> Array:
 			panels.append(Rect2(236, 162 - (allies.size() - i) * 22, 140, 20))
 	return panels
 
+## Health panels, plus the command box, so a player's feet are not hidden under its border.
+func _clearance_boxes() -> Array:
+	var boxes := _hp_panels()
+	boxes.append(COMMAND_BOX)
+	return boxes
+
 ## A finished battle front when the file exists; otherwise the overworld sheet, or the pixel figure.
 ## The front faces left. Your creature is mirrored. Feet sit on the platform, clear of the health panels.
 ## A lunge lands on a whole pixel so nearest filtering does not smear the outline.
@@ -763,7 +772,7 @@ func _battle_front_foot(spot: Vector2, species_id: String, scale: float) -> Vect
 	var sz := Sprites.battle_size(species_id)
 	if sz == Vector2i.ZERO:
 		return spot
-	return Sprites.foot_clear_of(spot, sz, scale, _hp_panels(), PANEL_CLEARANCE)
+	return Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
 
 ## The pixel figure, at a whole multiple of its own pixels. The old path scaled a fractional height fit.
 func _draw_figure(at: Vector2, species: Dictionary, facing_right: bool, pose: Dictionary, look: Dictionary, zoom: float) -> void:
@@ -779,7 +788,7 @@ func _painted_foot(spot: Vector2, species_id: String, pose: String, scale: float
 	var sz := Sprites.frame_size(species_id, pose)
 	if sz == Vector2i.ZERO:
 		return spot
-	return Sprites.foot_clear_of(spot, sz, scale, _hp_panels(), PANEL_CLEARANCE)
+	return Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
 
 func _spot(u: Dictionary) -> Vector2:
 	# where a creature stands: yours close at the bottom left, the foe further off at the top right
@@ -909,7 +918,7 @@ func _draw() -> void:
 	if not tele.is_empty():
 		_text("%s is gathering power! Guard!" % tele.u.c.name, Vector2(10, 70), 8, Color("c83a2a"))
 	# the message box, and the commands on your turn
-	_box(Rect2(8, 164, 368, 46))
+	_box(COMMAND_BOX)
 	match state:
 		"choose":
 			_text("What will %s do?" % wait_u.c.name, Vector2(16, 180), 9, INK)

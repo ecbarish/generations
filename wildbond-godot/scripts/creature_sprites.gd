@@ -105,8 +105,9 @@ static func dest_rect(foot: Vector2, sz: Vector2i, scale: float) -> Rect2:
 	var h := float(sz.y) * scale
 	return Rect2(foot - Vector2(w * 0.5, h), Vector2(w, h))
 
-## Shift `foot` until the sprite is `gap` pixels clear of every panel. Scale is left alone:
-## a sprite that is too wide moves aside, it is never drawn smaller.
+## Shift `foot` until the sprite is `gap` pixels clear of every panel. Scale is left alone.
+## A side panel slides the sprite aside. A bar under the feet, such as the command box, lifts
+## them to a whole pixel. The sprite is never drawn smaller.
 static func foot_clear_of(foot: Vector2, sz: Vector2i, scale: float, panels: Array, gap: float) -> Vector2:
 	if sz.x <= 0 or sz.y <= 0 or scale <= 0.0:
 		return foot
@@ -119,9 +120,16 @@ static func foot_clear_of(foot: Vector2, sz: Vector2i, scale: float, panels: Arr
 			if not rect.intersects(keep):
 				continue
 			var hit := rect.intersection(keep)
-			if hit.size.x <= 0.0:
+			if hit.size.x <= 0.0 or hit.size.y <= 0.0:
 				continue
-			if foot.x <= keep.get_center().x:
+			var spans_the_sprite := hit.size.x + 0.5 >= rect.size.x
+			var clips_the_feet := hit.position.y >= rect.position.y + rect.size.y * 0.5
+			if spans_the_sprite and clips_the_feet:
+				var lifted: float = floor(keep.position.y)
+				if foot.y <= lifted:
+					continue
+				foot.y = lifted
+			elif foot.x <= keep.get_center().x:
 				foot.x = floor(foot.x - hit.size.x)
 			else:
 				foot.x = ceil(foot.x + hit.size.x)
