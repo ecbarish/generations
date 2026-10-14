@@ -3,7 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Generations</title>
+<title>Generations: free adventure &amp; idle browser games</title>
+<meta name="description" content="Free browser games where you play for the fun and automate the grind. Start with Wildbond: bond with creatures and bring colour back to a faded world. No downloads, nothing for sale.">
+<link rel="canonical" href="https://ecbarish.github.io/generations/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Generations">
+<meta property="og:title" content="Generations: free adventure &amp; idle browser games">
+<meta property="og:description" content="Play for the fun. Automate the grind. Start with Wildbond, free in your browser.">
+<meta property="og:url" content="https://ecbarish.github.io/generations/">
+<meta property="og:image" content="https://ecbarish.github.io/generations/images/play/wb-barn.png">
+<meta property="og:image:alt" content="Wildbond: the barn, with creatures, a feeding trough and the nursery">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Generations: free adventure &amp; idle browser games">
+<meta name="twitter:description" content="Play for the fun. Automate the grind. Start with Wildbond, free in your browser.">
+<meta name="twitter:image" content="https://ecbarish.github.io/generations/images/play/wb-barn.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#111626">
 <link rel="apple-touch-icon" href="icons/arcade-192.png">
@@ -119,6 +132,16 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
 .preview-card .status{background:#233a32;color:#bff1cc;border:1px solid #608871}
 .preview-load{font-size:calc(14px * var(--arc-text,1));line-height:1.5}
 .preview-load{color:#c4b9d8}
+.hero-cta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:10px 0 4px}
+.hero-play{display:inline-block;background:var(--marquee);color:#1a1424;font-weight:700;font-size:20px;line-height:1.2;padding:14px 26px;border-radius:12px;text-decoration:none;box-shadow:0 4px 0 #a5781a,0 0 24px rgba(255,207,77,.35)}
+.hero-play:hover{filter:brightness(1.08)}.hero-play:active{transform:translateY(2px);box-shadow:0 2px 0 #a5781a}
+.hero-browse{color:var(--muted);font-size:15px}
+.nojs{line-height:1.9}
+details.more-info{margin-top:10px}details.more-info>summary{cursor:pointer;color:var(--muted);font-size:14px;padding:4px 0}
+details.more-games>summary{cursor:pointer;list-style:none}details.more-games>summary::-webkit-details-marker{display:none}
+details.more-games>summary h2{display:inline}details.more-games>summary h2::before{content:"▸ ";color:var(--marquee)}details.more-games[open]>summary h2::before{content:"▾ "}
+details.more-games>summary .like{display:block}details.more-games .shelf{margin-top:14px}
+@media (max-width:520px){.hero-play{display:block;text-align:center}}
 </style>
 <link rel="stylesheet" href="shared/accessibility.css">
 </head>
@@ -127,14 +150,11 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
   <header class="marquee">
     <h1 class="sign">Gener<span>ations</span></h1>
     <p class="tag"><b class="motto">Play for the fun. Automate the grind.</b> A stable of adventure and progression games, headlined by <b>Wildbond</b>: bond with creatures and bring colour back to a faded world. Little ones have <b>Little Ranch</b>, a gentle toy for ages 2 to 4. Each game saves on its own, so you can jump between them and pick up where you left off. New here? Meet <a href="promo.html" style="color:var(--marquee)">Realmbound →</a> or <a href="promo-wildbond.html" style="color:var(--ok)">Wildbond →</a></p>
+    <div class="hero-cta"><a class="hero-play" id="heroPlay" href="play/wildbond/">▶ Play Wildbond</a><a class="hero-browse" href="#shelf">or browse all games ↓</a></div>
+    <noscript><ul class="nojs"><li><a href="play/wildbond/">Wildbond</a></li><li><a href="play/starfall/">Starfall Guild</a></li><li><a href="games/realmbound/index.html">Realmbound</a></li><li><a href="games/little-ranch/index.html">Little Ranch</a> (ages 2 to 4)</li></ul></noscript>
     <div class="header-tools"><a class="playtest-link" href="playtest.html">What to try →</a><a class="credits-link" href="credits.html">Credits</a><button class="install-btn" id="installArcade" hidden>Install arcade</button><span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span><span class="version-label">v1.7.1</span><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div></div>
     <details class="app-help"><summary>Play offline or add to your home screen</summary><p>Open this page online and wait for “Ready for offline play.” You can then open the arcade and its browser games without internet. The new versions of Wildbond and Starfall need internet on their first visit. Use Install arcade when it appears, or your browser’s Install / Add to Home Screen menu. Your saves stay in this browser on this device. Without internet, lettering may use device fonts and Wildbond may use its HD-2D view while the 3D renderer is unavailable.</p></details>
   </header>
-
-  <section class="launcher" id="launcher" aria-label="Choose a game">
-    <div class="launch-bar"><span class="launch-hint" id="launchHint" aria-live="polite">Walk with ← → or tap a cabinet</span><nav class="kinds-nav" id="kindsNav" aria-label="Kinds of game"></nav></div>
-    <div class="launch-view"><canvas id="launchCv" aria-hidden="true"></canvas><div class="launch-hits" id="launchHits"></div></div>
-  </section>
 
   <main class="kinds" id="shelf"></main>
 
@@ -158,7 +178,8 @@ body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .des
 'use strict';
 const VERSION = '1.7.1'; // the arcade's version (L9)
 setupFeedback('The arcade homepage', VERSION, () => '');
-const GAMES=window.ArcadeGames;
+const GAMES=window.ArcadeGames.filter(g=>g.edition!=='classic'&&g.kind!=='classic'); // Evan 2026-10-14: Classic editions are not shown on the hub (their files stay)
+const START=['wildbond-preview','starfall-preview','realmbound']; // 'Start here': the current headline games
 const ago=t=>{const s=(Date.now()-t)/1000;if(s<90)return'just now';if(s<3600)return Math.round(s/60)+' min ago';if(s<86400)return Math.round(s/3600)+' h ago';return Math.round(s/86400)+' days ago';};
 
 /* Each game's save key in localStorage, used by "Reset progress" */
@@ -173,14 +194,15 @@ const card=g=>{
   const reset=p&&SAVE_KEYS[g.id]?`<div class="reset" id="rs-${g.id}"><button class="resetlink" data-reset="${g.id}">Reset progress</button></div>`:'';
   return `<article class="cab${g.preview?' preview-card':''}" data-game="${g.id}"><div class="cover">${g.edition?`<span class="edition ed-${g.edition}">${g.edition==='new'?'New version':'Classic'}</span>`:''}<canvas data-cover="${g.cover}" aria-hidden="true"></canvas>${g.image?`<img src="${g.image}" alt="${g.alt}" loading="lazy" decoding="async">`:""}<div class="title ${g.tcls}">${g.title}</div></div>
     <div class="body"><span class="status ${g.status[1]}">${g.status[0]}</span><p class="blurb">${g.blurb}</p>
-    <div class="tags">${g.tags.map(t=>`<span>${t}</span>`).join('')}</div><div class="howto"><p><b>What you do:</b> ${g.goal}</p><p><b>Controls:</b> ${g.controls}</p></div>${g.href?`<div class="prog">${prog}</div>`:''}${btn}${g.guide?`<p><a href="${g.guide}">Guide · the Sundered Reach →</a></p>`:""}${g.preview?`<p class="preview-load">${g.load}</p>`:""}${reset}</div></article>`;
+    ${btn}${g.guide?`<p><a href="${g.guide}">Guide · the Sundered Reach →</a></p>`:""}
+    <details class="more-info"><summary>How to play</summary><div class="tags">${g.tags.map(t=>`<span>${t}</span>`).join('')}</div>${g.goal||g.controls?`<div class="howto">${g.goal?`<p><b>What you do:</b> ${g.goal}</p>`:''}${g.controls?`<p><b>Controls:</b> ${g.controls}</p>`:''}</div>`:''}${g.href?`<div class="prog">${prog}</div>`:''}${g.preview&&g.load?`<p class="preview-load">${g.load}</p>`:""}${reset}</details></div></article>`;
 };
-/* Sections by kind (Evan, 2026-10-09): each says what its games are like, so similar games sit side by side */
-const KINDS=window.ArcadeKinds.filter(k=>GAMES.some(g=>g.kind===k.id));
-shelf.innerHTML=KINDS.map(k=>`<section class="kind" id="kind-${k.id}" aria-labelledby="kh-${k.id}"><h2 id="kh-${k.id}">${k.name}</h2><p class="like">${k.like}</p>
-  <div class="shelf">${GAMES.filter(g=>g.kind===k.id).map(card).join('')}</div></section>`).join('');
-document.getElementById('kindsNav').innerHTML=KINDS.map(k=>`<a href="#kind-${k.id}">${k.name}</a>`).join('');
-
+/* Hub layout (Evan, 2026-10-14): "Start here" holds the current headline games; test versions and prototypes fold into "More games". */
+const startG=START.map(id=>GAMES.find(g=>g.id===id)).filter(Boolean), moreG=GAMES.filter(g=>!START.includes(g.id));
+shelf.innerHTML=`<section class="kind" id="start-here" aria-labelledby="kh-start"><h2 id="kh-start">Start here</h2><p class="like">The games being worked on now. Pick one and play: no sign-up, nothing for sale.</p><div class="shelf">${startG.map(card).join('')}</div></section>`
+ +(moreG.length?`<details class="kind more-games" id="more-games"><summary><h2>More games (${moreG.length})</h2><span class="like">Test versions and prototypes. They may change a lot between visits.</span></summary><div class="shelf">${moreG.map(card).join('')}</div></details>`:'');
+/* Header button says Continue when this device has a hub save for Wildbond (same idx logic as the cards) */
+{const hp=document.getElementById('heroPlay');if(hp&&idx['wildbond-preview'])hp.textContent='▶ Continue Wildbond';}
 // An unavailable screenshot leaves the existing illustrated cover visible.
 shelf.querySelectorAll('.cover img').forEach(img=>{
   img.addEventListener('error',()=>{img.hidden=true;});
@@ -241,12 +263,12 @@ covers.ember=function(c,w,h,t){c.fillStyle='#2a140e';c.fillRect(0,0,w,h);c.fillS
 const items=[...document.querySelectorAll('canvas[data-cover]')].map(cv=>({cv,ctx:cv.getContext('2d'),fn:covers[cv.dataset.cover]}));
 function size(){items.forEach(o=>{const r=o.cv.getBoundingClientRect();o.w=r.width;o.h=r.height;const d=Math.min(2,devicePixelRatio||1);o.cv.width=Math.round(r.width*d);o.cv.height=Math.round(r.height*d);o.ctx.setTransform(d,0,0,d,0,0);});}
 size();addEventListener('resize',size);
+document.getElementById('more-games')?.addEventListener('toggle',size); // covers inside a closed <details> have no size until opened
 function frame(ms){const t=reduce?0:ms/1000;items.forEach(o=>{if(o.w)o.fn(o.ctx,o.w,o.h,t);});if(!reduce)requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
 window.ARCADE = { GAMES, covers, idx, VERSION }; // for the launcher (launcher/launcher.js)
 })();
 </script>
 <script>Settings.create({mount:".header-tools"});</script>
-<script src="launcher/launcher.js"></script>
 </body>
 </html>
