@@ -61,6 +61,8 @@ One game at Lamplight Field, in `games/lantern-bowl/`. The Brackenport Lanterns 
 
 The picture is from behind the offence. That camera is only a view. `view.js` leaves a named place for a side-on look later; it is not built. Team-colour outlines are drawn in code from each club's colour.
 
+Playtest pass (2026-10-14, issue 348): the drag starts on the quarterback and shows a bullet or a lob while you aim. Juke and dive move the carrier and say so. Careless play loses and attentive play wins. Ratings sit on the field, and a result names them when they decide the snap. One snap takes at most 14 seconds. A new quarter keeps the down and the ball. Millrace's drive is one sentence per line. Play again returns to the kickoff. The 400px header and the aim ring stay inside the screen.
+
 Idle progress while the tab is closed does not fit this game: the match is the snaps you play. The shared save resumes the same game, and the arcade's installable shell can keep the page for offline play.
 
 The LB0 mock still shows the press-box picture and a tap-the-receiver throw. This slice follows the later request for a behind-the-play camera and a drag throw. The mock is the pitch, not the control scheme of the slice.

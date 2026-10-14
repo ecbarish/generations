@@ -55,7 +55,7 @@ window.ArcadeGames=[
    blurb:'Take over the worst club in the league. Watch your games play out, set the batting order, trade with five rival clubs, sign free agents, re-sign or let go, and grow Lamplight Field with the gate money.',
    tags:['Baseball','Team manager','Trades & contracts'],cover:'baseball',
    kind:'sports',goal:'Take over the worst club in a six-club league and manage it through a thirty-game season: the batting order, trades, free agents and the ballpark.',controls:'Press Play ball (or Space) to watch the next game · open the Front office (or F) to change the team · everything else by mouse or tap.'},
-  {id:'lantern-bowl',title:'Lantern Bowl',tcls:'t-baseball',status:['Test version','s-proto'],href:'games/lantern-bowl/index.html',
+  {id:'lantern-bowl',title:'Lantern Bowl',tcls:'t-lantern',status:['Test version','s-proto'],href:'games/lantern-bowl/index.html',
    blurb:'Coach the Brackenport Lanterns for one game at Lamplight Field. Call the play, then throw, juke and dive against Millrace.',
    tags:['Football','You play the snaps','Two-minute quarters'],cover:'lantern',
    kind:'sports',goal:'Play your offence for a whole game. Drag to throw, swipe to juke, tap to dive, and hold Turbo until your wind gives out.',

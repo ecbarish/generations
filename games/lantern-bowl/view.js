@@ -13,11 +13,23 @@
     var depth = (point.x - cam.x) + 16;
     var z = Math.max(2.4, depth);
     var f = 15 / z;
+    var scale = clamp(f * 2.6, 0.7, 2.6);
+    if (view.w <= 430) scale = Math.max(scale, 2.05);
     return {
       x: view.w * 0.5 + (point.y - cam.y) * view.w * 0.11 * f,
       y: view.h * 0.84 - (point.x - cam.x) * view.h * 0.09 * f,
-      scale: clamp(f * 2.05, 0.42, 2.35)
+      scale: scale
     };
+  }
+
+  /* Keep a ring inside the picture. The sim's pocket is in yards; this is only the drawing. */
+  function fitCircle(center, radius, view, margin) {
+    var m = margin == null ? 6 : margin;
+    var w = Math.max(m * 2 + 1, view.w), h = Math.max(m * 2 + 1, view.h);
+    var cx = clamp(center.x, m, w - m);
+    var cy = clamp(center.y, m, h - m);
+    var room = Math.min(cx - m, w - m - cx, cy - m, h - m - cy);
+    return { x: cx, y: cy, r: Math.max(0, Math.min(Number(radius) || 0, room)) };
   }
 
   function project(name, point, cam, view) {
@@ -38,7 +50,7 @@
     return { dirX: dirX / mag, dirY: dirY / mag };
   }
 
-  var api = { RESERVED: RESERVED, project: project, classifyPull: classifyPull, dragToField: dragToField };
+  var api = { RESERVED: RESERVED, project: project, classifyPull: classifyPull, dragToField: dragToField, fitCircle: fitCircle };
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.LanternView = api;
 })(typeof window === 'object' ? window : globalThis);

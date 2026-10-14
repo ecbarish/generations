@@ -6,22 +6,41 @@
   var M = window.LanternModel, V = window.LanternView;
   var $ = function (id) { return document.getElementById(id); };
   var canvas = $('field'), ctx = canvas.getContext('2d');
-  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.0';
+  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.1', SAVE_V = 1;
   var reduce = Settings.reduced();
 
-  Arcade.validators[KEY] = function (o) {
-    return !!o && o.v === 1 && o.game === 'lantern-bowl' && (o.match == null || (!!o.match.score && !!o.match.home && !!o.match.away));
-  };
+  /* Older files climb: steps[1] turns a v1 save into v2, and so on, until SAVE_V.
+     A file newer than this game is refused, so it is not reset into an older shape. */
+  function migrateSave(raw) {
+    if (!raw || typeof raw !== 'object' || raw.game !== 'lantern-bowl' || typeof raw.v !== 'number') return null;
+    var target = migrateSave.SAVE_V;
+    var data = raw, guard = 0;
+    while (data.v !== target && guard++ < 8) {
+      if (!(data.v < target)) return null;
+      var step = migrateSave.steps[data.v];
+      if (typeof step !== 'function') return null;
+      var from = data.v;
+      data = step(data);
+      if (!data || typeof data.v !== 'number' || !(data.v > from)) return null;
+    }
+    if (!data || data.v !== target || data.game !== 'lantern-bowl') return null;
+    if (data.match != null && !(data.match.score && data.match.home && data.match.away)) return null;
+    return data;
+  }
+  migrateSave.steps = {};
+  migrateSave.SAVE_V = SAVE_V;
+
+  Arcade.validators[KEY] = function (o) { return !!migrateSave(o); };
 
   var raw = Arcade.load(KEY);
-  var valid = Arcade.validators[KEY](raw);
+  var migrated = migrateSave(raw);
   var save = {
-    v: 1, game: 'lantern-bowl',
-    sound: valid && [0, 1, 2].indexOf(raw.sound) >= 0 ? raw.sound : 0,
-    match: valid && raw.match ? raw.match : null
+    v: SAVE_V, game: 'lantern-bowl',
+    sound: migrated && [0, 1, 2].indexOf(migrated.sound) >= 0 ? migrated.sound : 0,
+    match: migrated && migrated.match ? migrated.match : null
   };
 
-  var state = null, mode = 'title', last = 0, bannerUntil = 0;
+  var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null;
   var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, throw: null };
 
   function persist() {
@@ -71,7 +90,12 @@
     var banner = $('banner');
     banner.hidden = !text;
     banner.textContent = text || '';
-    bannerUntil = text ? performance.now() + 1600 : 0;
+    bannerUntil = 0;
+  }
+  function sentences(text) {
+    var parts = String(text || '').match(/[^.!?]+[.!?]+/g);
+    if (!parts || !parts.length) return [String(text || '')];
+    return parts.map(function (s) { return s.trim(); }).filter(Boolean);
   }
   function panel(title, body) {
     $('panel').innerHTML = '<h2 id="panelTitle">' + title + '</h2>' + body;
@@ -121,7 +145,7 @@
     });
     if (fourth) buttons.unshift({ id: 'kick', label: 'Kick', detail: state.spot >= 62 ? 'Try a field goal.' : 'Punt it away.' });
     dock(buttons);
-    if (state.last) say(state.last.text);
+    say(M.currentMessage(state));
   }
 
   function showCpu() {
@@ -129,8 +153,12 @@
     var lines = M.cpuDrive(state, function () { persist(); });
     persist();
     if (!state || state.phase === 'final') return showFinal();
+    var items = (lines.length ? lines : [{ text: 'They give it back.' }]).map(function (line) {
+      var text = typeof line === 'string' ? line : line.text;
+      return '<li>' + sentences(text).map(function (s) { return '<p>' + escapeText(s) + '</p>'; }).join('') + '</li>';
+    }).join('');
     panel('Millrace had the ball',
-      '<p>' + (lines.length ? lines.map(escapeText).join('<br>') : 'They give it back.') + '</p>' +
+      '<ol class="cpu-log">' + items + '</ol>' +
       '<div class="actions"><button type="button" data-ours>Our ball</button></div>');
     dock([]);
   }
@@ -139,7 +167,7 @@
     mode = 'final';
     var s = state.score;
     var line = s.home === s.away ? 'Level at the lanterns.' : s.home > s.away ? 'The Lanterns take it.' : 'Millrace takes it.';
-    panel('Final', '<p>' + line + '</p><p>Lanterns ' + s.home + ', Millrace ' + s.away + '.</p><div class="actions"><button type="button" data-kick>Play again</button></div>');
+    panel('Final', '<p>' + line + '</p><p>Lanterns ' + s.home + ', Millrace ' + s.away + '.</p><div class="actions"><button type="button" data-again>Play again</button></div>');
     dock([]);
     persist();
     audio.sfx(s.home >= s.away ? 'win' : 'lose');
@@ -201,6 +229,7 @@
     var b = e.target.closest('button');
     if (!b) return;
     if (b.hasAttribute('data-kick')) kickoff();
+    else if (b.hasAttribute('data-again')) { save.match = null; state = null; persist(); title(); }
     else if (b.hasAttribute('data-continue')) resume();
     else if (b.hasAttribute('data-ours')) { mode = 'play'; hidePanel(); showCall(); }
   });
@@ -219,12 +248,25 @@
     if (!state || state.phase !== 'live') return;
     canvas.setPointerCapture(e.pointerId);
     gesture = { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId };
+    aimDrag = null;
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!gesture || gesture.id !== e.pointerId || !state || state.phase !== 'live') return;
     if (state.play && state.play.family === 'run') steer = Math.max(-1, Math.min(1, (e.clientX - gesture.x) / 80));
+    var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
+    if (!pass) { aimDrag = null; return; }
+    var dx = e.clientX - gesture.x, dy = e.clientY - gesture.y;
+    var rect = canvas.getBoundingClientRect();
+    var pull = V.classifyPull(Math.hypot(dx, dy));
+    var dir = V.dragToField(dx, dy);
+    aimDrag = {
+      kind: pull.kind,
+      preview: M.aimThrow(state.play, { dirX: dir.dirX, dirY: dir.dirY, power: pull.power }),
+      x: e.clientX - rect.left, y: e.clientY - rect.top
+    };
   });
   canvas.addEventListener('pointerup', function (e) {
+    aimDrag = null;
     if (!gesture || !state || state.phase !== 'live') { gesture = null; steer = 0; return; }
     var dx = e.clientX - gesture.x, dy = e.clientY - gesture.y;
     var dist = Math.hypot(dx, dy), quick = performance.now() - gesture.t < 320;
@@ -278,6 +320,7 @@
       $('down').textContent = 'Kickoff';
       $('gas').hidden = true;
       $('windLabel').textContent = '';
+      if ($('sheet')) $('sheet').hidden = true;
       return;
     }
     $('homeScore').textContent = Arcade.fmt(state.score.home);
@@ -292,7 +335,16 @@
     $('gas').querySelector('i').style.width = Math.round(wind * 100) + '%';
     $('gas').setAttribute('aria-label', 'Wind ' + Math.round(wind * 100));
     $('windLabel').textContent = showWind ? 'Wind ' + Arcade.fmt(Math.round(wind * 100)) : '';
-    if (bannerUntil && performance.now() > bannerUntil) say('');
+    var sheet = $('sheet');
+    if (sheet) {
+      var off = state[state.possession === 'away' ? 'away' : 'home'];
+      var def = state[state.possession === 'away' ? 'home' : 'away'];
+      var hands = off.wr && off.wr[0] ? off.wr[0] : off.qb;
+      sheet.hidden = false;
+      sheet.textContent = off.qb.name + ' throw ' + Arcade.fmt(off.qb.throw) + ' · ' + hands.name + ' hands ' + Arcade.fmt(hands.catch) + ' · Line ' + Arcade.fmt(off.line) + ' vs rush ' + Arcade.fmt(def.rush);
+    }
+    var msg = state.phase === 'live' ? '' : M.currentMessage(state);
+    if ($('banner').textContent !== msg) say(msg);
   }
 
   function resize() {
@@ -302,10 +354,13 @@
     return { w: r.width, h: r.height, dpr: dpr };
   }
 
-  function drawAthlete(p, fill, outline) {
+  function drawAthlete(p, fill, outline, pose) {
     var s = p.scale;
+    var lean = pose && pose.juke ? pose.juke * 10 * s : 0;
+    var squash = pose && pose.dive ? 0.62 : 1;
     ctx.save();
-    ctx.translate(p.x, p.y);
+    ctx.translate(p.x + lean, p.y);
+    ctx.scale(1, squash);
     ctx.lineWidth = Math.max(1.4, 2 * s);
     ctx.strokeStyle = outline;
     ctx.fillStyle = fill;
@@ -313,6 +368,12 @@
     ctx.fillStyle = '#e4c2a4';
     ctx.beginPath(); ctx.arc(0, -14 * s, 2.3 * s, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     ctx.restore();
+    if (pose && pose.word) {
+      ctx.fillStyle = '#f6edd4';
+      ctx.font = '700 ' + Math.max(12, 13 * s) + 'px ui-monospace, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(pose.word, p.x + lean, p.y - 28 * s);
+    }
   }
 
   function strokeWorld(ax, ay, bx, by, cam, view, color, width) {
@@ -365,29 +426,74 @@
       }
       if (play.family === 'pass' && !play.thrown) {
         var qb = play.actors[play.carrier];
-        ctx.beginPath();
-        var started = false;
-        for (var i = 0; i <= 28; i++) {
-          var ang = i / 28 * Math.PI * 2;
-          var pt = V.project('behind', { x: qb.x + Math.cos(ang) * play.pocket * 0.45, y: qb.y + Math.sin(ang) * play.pocket }, cam, view);
-          if (!pt) continue;
-          if (!started) { ctx.moveTo(pt.x, pt.y); started = true; } else ctx.lineTo(pt.x, pt.y);
+        var rx = play.pocket * 0.45, ry = play.pocket, guard = 0, ring = [];
+        while (guard++ < 8) {
+          ring = [];
+          var outside = false;
+          for (var i = 0; i <= 28; i++) {
+            var ang = i / 28 * Math.PI * 2;
+            var pt = V.project('behind', { x: qb.x + Math.cos(ang) * rx, y: qb.y + Math.sin(ang) * ry }, cam, view);
+            if (!pt || pt.x < 6 || pt.y < 6 || pt.x > view.w - 6 || pt.y > view.h - 6) outside = true;
+            if (pt) ring.push(pt);
+          }
+          if (!outside) break;
+          rx *= 0.78; ry *= 0.78;
         }
-        ctx.closePath();
-        ctx.fillStyle = play.pocket < 2.2 ? 'rgba(211, 91, 74, 0.28)' : 'rgba(242, 208, 128, 0.2)';
-        ctx.fill();
-        ctx.strokeStyle = play.pocket < 2.2 ? '#ffb0a4' : '#f2d080';
-        ctx.lineWidth = 3;
-        ctx.stroke();
+        if (ring.length) {
+          ctx.beginPath();
+          ring.forEach(function (pt, i) { if (i) ctx.lineTo(pt.x, pt.y); else ctx.moveTo(pt.x, pt.y); });
+          ctx.closePath();
+          ctx.fillStyle = play.pocket < 2.2 ? 'rgba(211, 91, 74, 0.28)' : 'rgba(242, 208, 128, 0.2)';
+          ctx.fill();
+          ctx.strokeStyle = play.pocket < 2.2 ? '#ffb0a4' : '#f2d080';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
       }
       var sprites = play.actors.map(function (a) {
         var pt = V.project('behind', a, cam, view);
         return { a: a, p: pt };
       }).filter(function (s) { return s.p; }).sort(function (u, v) { return u.p.y - v.p.y; });
+      var carrier = play.actors[play.carrier];
+      var juking = !!(carrier && play.jukeUntil && play.elapsed < play.jukeUntil);
+      var diving = !!(carrier && (play.diving || (play.diveUntil && play.elapsed < play.diveUntil)));
       sprites.forEach(function (s) {
         var team = s.a.off ? state[play.offence] : state[play.offence === 'home' ? 'away' : 'home'];
-        drawAthlete(s.p, team.color, M.teamOutline(team.color));
+        var aimed = aimDrag && aimDrag.preview && aimDrag.preview.target === s.a;
+        var pose = s.a === carrier ? { juke: juking ? (play.jukeDir || 1) : 0, dive: diving, word: juking ? 'Juke' : diving ? 'Dive' : '' } : null;
+        drawAthlete(s.p, team.color, aimed ? '#f2d080' : M.teamOutline(team.color), pose);
+        if (aimed) {
+          var mark = V.fitCircle(s.p, 16 * s.p.scale, view, 6);
+          ctx.strokeStyle = '#f2d080'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.arc(mark.x, mark.y, Math.max(8, mark.r), 0, Math.PI * 2); ctx.stroke();
+        }
       });
+      if (play.family === 'pass' && !play.thrown && carrier) {
+        var from = V.project('behind', carrier, cam, view);
+        if (from) {
+          var start = V.fitCircle(from, 14 * from.scale, view, 6);
+          ctx.strokeStyle = '#f6edd4'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.arc(start.x, start.y, Math.max(7, start.r), 0, Math.PI * 2); ctx.stroke();
+          if (aimDrag && aimDrag.preview) {
+            var end = V.project('behind', { x: aimDrag.preview.x, y: aimDrag.preview.y }, cam, view) || { x: aimDrag.x, y: aimDrag.y, scale: 1 };
+            var tip = V.fitCircle(end, 8, view, 6);
+            ctx.strokeStyle = aimDrag.kind === 'bullet' ? '#f2d080' : '#d7ecff';
+            ctx.lineWidth = aimDrag.kind === 'bullet' ? 4 : 2;
+            ctx.setLineDash(aimDrag.kind === 'lob' ? [7, 6] : []);
+            ctx.beginPath();
+            ctx.moveTo(start.x, start.y);
+            if (aimDrag.kind === 'lob') ctx.quadraticCurveTo((start.x + tip.x) / 2, Math.min(start.y, tip.y) - 36, tip.x, tip.y);
+            else ctx.lineTo(tip.x, tip.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#f6edd4';
+            ctx.font = '700 14px ui-monospace, monospace';
+            ctx.textAlign = 'center';
+            var labelAt = V.fitCircle({ x: (start.x + tip.x) / 2, y: (start.y + tip.y) / 2 - 16 }, 4, view, 8);
+            ctx.fillText(aimDrag.kind === 'bullet' ? 'Bullet' : 'Lob', labelAt.x, labelAt.y);
+          }
+        }
+      }
       var ballAt = play.flight ? { x: play.flight.x, y: play.flight.y } : play.actors[play.carrier];
       var ball = V.project('behind', ballAt, cam, view);
       if (ball) {
@@ -408,7 +514,8 @@
     }
     if (!reduce) {
       ctx.fillStyle = 'rgba(242, 208, 128, 0.08)';
-      ctx.beginPath(); ctx.arc(box.w * 0.5, 18, 70, 0, Math.PI * 2); ctx.fill();
+      var glow = V.fitCircle({ x: box.w * 0.5, y: 18 }, 70, view, 4);
+      ctx.beginPath(); ctx.arc(glow.x, glow.y, glow.r, 0, Math.PI * 2); ctx.fill();
     }
   }
 
@@ -434,7 +541,8 @@
       get state() { return state; },
       get save() { return save; },
       get mode() { return mode; },
-      kickoff: kickoff, resume: resume, begin: begin, finishLive: finishLive, persist: persist
+      kickoff: kickoff, resume: resume, begin: begin, finishLive: finishLive, persist: persist,
+      migrateSave: migrateSave
     };
   }
 })();

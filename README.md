@@ -42,6 +42,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Lantern Bowl v0.1.1:** playtest fixes. The throw shows its aim, juke and dive change the play, careless games lose, and the clock, downs and narrow screen behave. [Play](games/lantern-bowl/)
 - **Lantern Bowl v0.1.0:** the first playable game at Lamplight Field. Two-minute quarters against Millrace. Drag to throw, swipe to juke, tap to dive, Turbo spends your wind. Saves after every play through the shared engine. [Play](games/lantern-bowl/)
 
 - **Realmbound v1.9.2 — ONBOARD-KIT1 (#294):** shared newcomer guidance in the existing Road note, with current-goal, keyboard/touch and optional orientation advice. Existing hints, story, saves and returning-player behavior retained; short-landscape dialogue clearance fixed. Version bookkeeping and exact public verification are tracked in #301.
