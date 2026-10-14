@@ -10,7 +10,7 @@ import unittest
 import zlib
 
 VALIDATOR = Path(__file__).with_name('validate_wildbond_opening_timing.py')
-LABELS = ('howto', 'register', 'signed-invitation', 'follow-maren', 'barn-choice', 'partner-card', 'first-partner', 'partner-control')
+LABELS = ('howto', 'register', 'signed-invitation', 'follow-maren', 'barn-choice', 'partner-card', 'first-partner', 'partner-control', 'first-battle', 'free-roam', 'first-route', 'first-catch', 'catch-control')
 
 
 def png(width, height):
@@ -33,13 +33,21 @@ class OpeningGateTests(unittest.TestCase):
                     'method': 'keyboard', 'starter_index': 0, 'protocol': 'synthetic', 'engine': 'synthetic',
                     'rendered': True, 'display': 'x11', 'window_size': [1920, 1080],
                     'first_partner_seconds': 168 if variant == 'baseline' else 119,
-                    'elapsed_seconds': 200 if variant == 'baseline' else 174,
+                    'partner_control_seconds': 200 if variant == 'baseline' else 174,
+                    'first_battle_seconds': 250, 'first_catch_seconds': 310, 'elapsed_seconds': 340,
+                    'rapid': False, 'catch_attempts': 2, 'catch_joined_team': True,
                     'milestones': [{'label': label, 'seconds': 30, 'stage': 'bonded' if label == 'first-partner' else 'walk_out' if label == 'partner-control' else 'register'} for label in LABELS]}
+            for mark in data['milestones']:
+                if mark['label'] == 'first-battle': mark['stage'] = 'battle'
+                if mark['label'] in ('free-roam', 'catch-control'): mark['stage'] = 'free'
+                mark['map'] = 'thornwood_route'
+                fields = {'first-partner': 'first_partner_seconds', 'partner-control': 'partner_control_seconds', 'first-battle': 'first_battle_seconds', 'first-catch': 'first_catch_seconds'}
+                if mark['label'] in fields: mark['seconds'] = data[fields[mark['label']]]
             (out / 'report.json').write_text(json.dumps(data))
             for label in LABELS:
                 (out / f'{label}.png').write_bytes(png(1920, 1080))
             for w, h in ((1366, 768), (3440, 1440)):
-                (out / f'partner-control-{w}x{h}.png').write_bytes(png(w, h))
+                (out / f'catch-control-{w}x{h}.png').write_bytes(png(w, h))
 
     def mutate(self, fn):
         path = self.folder / 'current/report.json'
@@ -59,7 +67,7 @@ class OpeningGateTests(unittest.TestCase):
         self.run_gate()
 
     def test_incomplete_encounter(self):
-        self.mutate(lambda d: d['milestones'][-1].update(stage='bonded'))
+        self.mutate(lambda d: next(m for m in d['milestones'] if m['label'] == 'partner-control').update(stage='bonded'))
         self.run_gate()
 
     def test_acquisition_over_180(self):
@@ -67,7 +75,23 @@ class OpeningGateTests(unittest.TestCase):
         self.run_gate()
 
     def test_control_over_180(self):
-        self.mutate(lambda d: d.update(elapsed_seconds=181))
+        self.mutate(lambda d: d.update(partner_control_seconds=181))
+        self.run_gate()
+
+    def test_missing_battle(self):
+        self.mutate(lambda d: d.update(first_battle_seconds=-1))
+        self.run_gate()
+
+    def test_catch_not_joined(self):
+        self.mutate(lambda d: d.update(catch_joined_team=False))
+        self.run_gate()
+
+    def test_zero_catch_attempts(self):
+        self.mutate(lambda d: d.update(catch_attempts=0))
+        self.run_gate()
+
+    def test_inconsistent_timestamp(self):
+        self.mutate(lambda d: d.update(first_catch_seconds=309))
         self.run_gate()
 
     def test_missing_capture(self):
@@ -79,7 +103,7 @@ class OpeningGateTests(unittest.TestCase):
         self.run_gate()
 
     def test_wrong_extra_capture_dimensions(self):
-        (self.folder / 'current/partner-control-3440x1440.png').write_bytes(png(1366, 768))
+        (self.folder / 'current/catch-control-3440x1440.png').write_bytes(png(1366, 768))
         self.run_gate()
 
 

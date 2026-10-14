@@ -68,6 +68,7 @@ func _run() -> void:
 	main.register.keep = false
 	main.rng.seed = 2026                          # the same rolls every run, so the checks always see the same story
 	main.battle.rng.seed = 2026
+	preload("res://tests/opening_dialogue.gd").run(main, check)
 	var D: Dictionary = main.DATA
 	# WB-C2: keep every heritage clue and every starter identity through the shorter opening.
 	for family in main.HERITAGES:
@@ -433,10 +434,12 @@ func _run() -> void:
 	check(R.evo_target(tb, { "team": ["thornback", "glimmerwing"] }) == "", "EVO-1: Thornback no longer becomes Elderthorn beside a Glimmerwing")
 	var pk := R.make("poolkit", 24, { "rar": 1 }, main.rng)
 	pk.bond = 0.0
-	check(R.evo_target(pk, { "place": "cloudglass" }) == "mistlynx", "a branching line: Poolkit in the cloud of the pass becomes Mistlynx")
-	check(R.evo_target(pk, { "place": "saltmarsh" }) == "rilllynx", "elsewhere, most become Rilllynx")
+	check(R.evo_target(pk, { "place": "cloudglass" }) == "" and R.evo_target(pk, { "place": "saltmarsh" }) == "", "Poolkit at 24 without trust stays itself")
+	pk.bond = 20.0
+	check(R.evo_target(pk, { "place": "cloudglass" }) == "mistlynx", "a branching line: Poolkit in the cloud of the pass, once it trusts you a little, becomes Mistlynx")
+	check(R.evo_target(pk, { "place": "saltmarsh" }) == "rilllynx", "elsewhere, once it trusts you a little, most become Rilllynx")
 	pk.bond = 150.0
-	check(R.evo_target(pk, { "place": "saltmarsh" }) == "sunlynx", "and one devoted to its tamer becomes Sunlynx")
+	check(R.evo_target(pk, { "place": "saltmarsh" }) == "sunlynx", "and one that trusts you deeply becomes Sunlynx")
 	check(R.evo_target(R.make("hearthlaugh", 60, { "rar": 1 }, main.rng)) == "", "Hearthlaugh never evolves; it's itself")
 	check(main.DATA.SPECIES.has("smoulderpup") and main.DATA.SPECIES.has("riverwisp") and main.DATA.SPECIES.has("thicketboar") and main.DATA.SPECIES.size() >= 98, "the middle stages are in the Wilddex (%d creatures)" % main.DATA.SPECIES.size())
 	# ---- CR1: every species has a size and tier; huge finals outscale their young forms
@@ -459,6 +462,206 @@ func _run() -> void:
 			if final_sc < young_sc:
 				scale_ok = false
 	check(scale_ok, "CR1: no final form is drawn smaller than its young form")
+	# ---- catalogue batch: twelve new species. Every change asks for a level; a final also asks for trust (DD-5).
+	var batch := ["creekribbon", "murkcoil", "gloomtide", "seedmoth", "sootcloak", "hearthbloom", "dawnfoal", "sunford", "whisperpup", "ridgehowl", "charcup", "kilnback"]
+	var batch_ok := true
+	for id in batch:
+		batch_ok = batch_ok and main.DATA.SPECIES.has(id)
+	check(batch_ok and main.DATA.SPECIES.size() == 189, "catalogue: 189 in the Wilddex, evolved forms at least half (%d)" % main.DATA.SPECIES.size())
+	var finals := { "gloomtide": true, "hearthbloom": true, "sunford": true, "ridgehowl": true, "kilnback": true }
+	var evo_ok := true
+	var bond_ok := true
+	for id in batch:
+		if not main.DATA.EVOS.has(id):
+			continue
+		for o in main.DATA.EVOS[id]:
+			if not o.has("at"):
+				evo_ok = false
+			if finals.has(str(o.to)) and not o.has("bond"):
+				bond_ok = false
+	check(evo_ok, "catalogue batch: every new evolution asks for a level")
+	check(bond_ok, "catalogue batch: every final form also asks for trust")
+	check(int(main.DATA.SPECIES.cindercub.evo.at) == 16 and str(main.DATA.SPECIES.cindercub.evo.to) == "smoulderpup", "catalogue batch: Cindercub still becomes Smoulderpup at 16")
+	check(int(main.DATA.EVOS.smoulderpup[0].at) == 36 and int(main.DATA.EVOS.smoulderpup[0].bond) == 3 and str(main.DATA.EVOS.smoulderpup[0].to) == "blazefang", "catalogue batch: Smoulderpup becomes Blazefang at 36 with Devoted trust")
+	check(int(main.DATA.SPECIES.ripplet.evo.at) == 16 and str(main.DATA.SPECIES.ripplet.evo.to) == "riverwisp", "catalogue batch: Ripplet still becomes Riverwisp at 16")
+	check(int(main.DATA.EVOS.riverwisp[0].at) == 36 and int(main.DATA.EVOS.riverwisp[0].bond) == 3 and str(main.DATA.EVOS.riverwisp[0].to) == "tidewyrm", "catalogue batch: Riverwisp becomes Tidewyrm at 36 with Devoted trust")
+	check(int(main.DATA.SPECIES.mosshog.evo.at) == 16 and str(main.DATA.SPECIES.mosshog.evo.to) == "thicketboar", "catalogue batch: Mosshog still becomes Thicketboar at 16")
+	check(int(main.DATA.EVOS.thicketboar[0].at) == 36 and int(main.DATA.EVOS.thicketboar[0].bond) == 3 and str(main.DATA.EVOS.thicketboar[0].to) == "thornback", "catalogue batch: Thicketboar becomes Thornback at 36 with Devoted trust")
+	check(not main.DATA.EVOS.has("blazefang") and not main.DATA.EVOS.has("tidewyrm") and not main.DATA.EVOS.has("thornback"), "catalogue batch: Blazefang, Tidewyrm and Thornback have no further evolution")
+	var ribbon: Dictionary = main.R.make("creekribbon", 16, {}, main.rng)
+	check(main.R.evo_target(ribbon) == "murkcoil", "catalogue batch: Creekribbon becomes Murkcoil at 16")
+	var coil: Dictionary = main.R.make("murkcoil", 34, {}, main.rng)
+	coil.bond = 59.0
+	check(main.R.evo_target(coil) == "", "catalogue batch: Murkcoil at 34 without Loyal trust stays")
+	coil.bond = 60.0
+	check(main.R.evo_target(coil) == "gloomtide", "catalogue batch: grown and Loyal, Murkcoil becomes Gloomtide")
+	var young_coil: Dictionary = main.R.make("murkcoil", 20, {}, main.rng)
+	young_coil.bond = 280.0
+	check(main.R.evo_target(young_coil) == "", "catalogue batch: Bonded before the level, Murkcoil still waits")
+	var size_ok := true
+	var size_note := ""
+	var stand_pose := { "walking": false, "wag": 0, "ears_up": true }
+	for id in batch:
+		var sp: Dictionary = main.DATA.SPECIES[id]
+		var want: int = main.Figures.drawn_px(float(sp.metres))
+		var span: Vector2i = main.Figures.pixel_span(main.Figures.sized_parts(sp, true, stand_pose))
+		if span.y != want or span.x < 8:
+			size_ok = false
+			size_note += "%s %dx%d want %d " % [id, span.x, span.y, want]
+	check(size_ok, "catalogue batch: drawn height is metres times 12.35" + ("" if size_note == "" else " (" + size_note + ")"))
+	var placed := {}
+	for mid in main.DATA.MAPS:
+		var area: Dictionary = main.DATA.MAPS[mid]
+		var lists: Array = [area.get("wild", [])]
+		for season in area.get("seasonal", {}):
+			lists.append(area.seasonal[season].get("wild", []))
+		for list in lists:
+			for pair in list:
+				placed[str(pair[0])] = true
+	for mid in main.DATA.get("WILD_EXTRA", {}):
+		for pair in main.DATA.WILD_EXTRA[mid]:
+			placed[str(pair[0])] = true
+	var unplaced: Array = []
+	for id in batch:
+		if not placed.has(id):
+			unplaced.append(id)
+	check(unplaced.is_empty(), "catalogue batch: every new species can be met in the wild" + ("" if unplaced.is_empty() else " (missing %s)" % ", ".join(unplaced)))
+	# Roster audit: every change asks for a level. A final form also asks for trust, including the starter lines.
+	var audit_level: Array = []
+	var audit_trust: Array = []
+	var audit_missing: Array = []
+	var audit_parent := {}
+	for sid in main.DATA.SPECIES:
+		var audit_opts: Array = []
+		if main.DATA.EVOS.has(sid):
+			audit_opts = main.DATA.EVOS[sid]
+		elif main.DATA.SPECIES[sid].has("evo"):
+			audit_opts = [main.DATA.SPECIES[sid].evo]
+		for audit_o in audit_opts:
+			if not audit_o.has("at"):
+				audit_level.append(str(sid))
+			var audit_to := str(audit_o.get("to", ""))
+			if audit_to == "" or not main.DATA.SPECIES.has(audit_to):
+				audit_missing.append(str(sid))
+				continue
+			audit_parent[audit_to] = true
+			var audit_next: Array = []
+			if main.DATA.EVOS.has(audit_to):
+				audit_next = main.DATA.EVOS[audit_to]
+			elif main.DATA.SPECIES[audit_to].has("evo"):
+				audit_next = [main.DATA.SPECIES[audit_to].evo]
+			if audit_next.is_empty() and not audit_o.has("bond"):
+				audit_trust.append("%s->%s" % [sid, audit_to])
+	check(audit_level.is_empty(), "roster audit: every evolution asks for a level" + ("" if audit_level.is_empty() else " (" + ", ".join(audit_level.slice(0, 6)) + ")"))
+	check(audit_trust.is_empty(), "roster audit: every final form also asks for trust" + ("" if audit_trust.is_empty() else " (" + ", ".join(audit_trust.slice(0, 6)) + ")"))
+	check(audit_missing.is_empty(), "roster audit: every evolution names a real creature")
+	var audit_keep := { "hearthlaugh": true, "cinderstitch": true, "laughrill": true, "fordfoal": true }
+	var audit_orphans: Array = []
+	for sid in main.DATA.SPECIES:
+		var audit_s: Dictionary = main.DATA.SPECIES[sid]
+		var audit_size := str(audit_s.get("size", ""))
+		if audit_s.get("unique", false) or audit_keep.has(sid):
+			continue
+		if audit_size != "large" and audit_size != "huge":
+			continue
+		var audit_has_child: bool = bool(main.DATA.EVOS.has(sid) or audit_s.has("evo"))
+		if not audit_parent.has(sid) and not audit_has_child:
+			audit_orphans.append(str(sid))
+	check(audit_orphans.is_empty(), "roster audit: no large creature is an orphan" + ("" if audit_orphans.is_empty() else " (" + ", ".join(audit_orphans) + ")"))
+	check(main.DATA.SPECIES.has("fogslip") and main.DATA.SPECIES.has("raylet") and main.DATA.SPECIES.has("emberdrake"), "roster audit: Fogsail, Sunfrill and Drakelet have the missing stage")
+	var ratio_evolved := audit_parent.size()
+	check(float(ratio_evolved) / float(main.DATA.SPECIES.size()) >= 0.477, "roster shape: evolved forms are at least 47.7 percent (%d of %d)" % [ratio_evolved, main.DATA.SPECIES.size()])
+	var ratio_one := 0
+	var ratio_two := 0
+	var ratio_three := 0
+	for sid in main.DATA.SPECIES:
+		if audit_parent.has(sid):
+			continue
+		var ratio_depth := 1
+		var ratio_wave: Array = [sid]
+		while not ratio_wave.is_empty():
+			var ratio_next: Array = []
+			for ratio_id in ratio_wave:
+				var ratio_opts: Array = []
+				if main.DATA.EVOS.has(ratio_id):
+					ratio_opts = main.DATA.EVOS[ratio_id]
+				elif main.DATA.SPECIES[ratio_id].has("evo"):
+					ratio_opts = [main.DATA.SPECIES[ratio_id].evo]
+				for ratio_o in ratio_opts:
+					var ratio_to := str(ratio_o.get("to", ""))
+					if ratio_to != "" and main.DATA.SPECIES.has(ratio_to):
+						ratio_next.append(ratio_to)
+			if ratio_next.is_empty():
+				break
+			ratio_depth += 1
+			ratio_wave = ratio_next
+		if ratio_depth <= 1:
+			ratio_one += 1
+		elif ratio_depth == 2:
+			ratio_two += 1
+		else:
+			ratio_three += 1
+	check(ratio_two + ratio_three > ratio_one, "roster shape: most families have 2 or 3 stages (%d of one, %d of two, %d of three)" % [ratio_one, ratio_two, ratio_three])
+	var mark_note := ""
+	var mark_colors := {}
+	var height_note := ""
+	var sheet_cols := { "e6dcc6": true, "1e1a22": true }
+	for sid in main.DATA.SPECIES:
+		var mark_sp: Dictionary = main.DATA.SPECIES[sid]
+		var mark_parts: Array = main.Figures.sized_parts(mark_sp, true, stand_pose)
+		for mark_p in mark_parts:
+			var mark_hex := (mark_p[4] as Color).to_html(false)
+			sheet_cols[mark_hex] = true
+			if not main.Figures.PALETTE_HEX.has(mark_hex):
+				mark_colors[mark_hex] = sid
+		if not mark_sp.get("marks", false):
+			continue
+		if not mark_sp.has("metres"):
+			height_note += "%s no metres " % sid
+			continue
+		var mark_want: int = main.Figures.drawn_px(float(mark_sp.metres))
+		var mark_span: Vector2i = main.Figures.pixel_span(mark_parts)
+		if mark_span.y != mark_want:
+			mark_note += "%s %dpx want %d " % [sid, mark_span.y, mark_want]
+		var mark_walk: Vector2i = main.Figures.pixel_span(main.Figures.sized_parts(mark_sp, true, { "walking": true, "frame": 1, "wag": 1, "ears_up": true }))
+		if mark_walk.y < 12 or mark_walk.y > 34:
+			mark_note += "%s walk %d " % [sid, mark_walk.y]
+	check(mark_note == "" and height_note == "", "roster audit: marked creatures draw at metres times 12.35" + ("" if mark_note == "" and height_note == "" else " (" + height_note + mark_note + ")"))
+	var grow_note := ""
+	for sid in main.DATA.SPECIES:
+		var grow_opts: Array = []
+		if main.DATA.EVOS.has(sid):
+			grow_opts = main.DATA.EVOS[sid]
+		elif main.DATA.SPECIES[sid].has("evo"):
+			grow_opts = [main.DATA.SPECIES[sid].evo]
+		for grow_o in grow_opts:
+			var grow_to := str(grow_o.get("to", ""))
+			if grow_to == "" or not main.DATA.SPECIES.has(grow_to):
+				continue
+			var grow_young: int = main.Figures.world_height(main.DATA.SPECIES[sid])
+			var grow_next: int = main.Figures.world_height(main.DATA.SPECIES[grow_to])
+			var young_new: bool = main.DATA.SPECIES[sid].get("marks", false)
+			var next_new: bool = main.DATA.SPECIES[grow_to].get("marks", false)
+			if young_new and next_new and grow_next <= grow_young:
+				grow_note += "%s %d→%s %d " % [sid, grow_young, grow_to, grow_next]
+			elif next_new and not young_new and grow_next <= grow_young:
+				grow_note += "%s %d→%s %d " % [sid, grow_young, grow_to, grow_next]
+			elif young_new and not next_new and grow_young > grow_next:
+				grow_note += "%s %d→%s %d " % [sid, grow_young, grow_to, grow_next]
+	check(grow_note == "", "catalogue height: a later stage is taller" + ("" if grow_note == "" else " (" + grow_note + ")"))
+	check(mark_colors.is_empty(), "palette: every creature colour is on the shared ramps" + ("" if mark_colors.is_empty() else " (" + ", ".join(mark_colors.keys()) + ")"))
+	var tamer_parts: Array = main.Figures.person_parts(Vector2i.DOWN, false, 0, false, {
+		"skin": Color("f4eddc"), "hair": Color("6a4a32"), "hat": Color("33465e"),
+		"shirt": Color("8e342c"), "legs": Color("435a78"), "shoes": Color("4a3426"),
+		"style": "short", "outfit": "trousers", "body": "broad",
+	})
+	for tamer_p in tamer_parts:
+		var snapped: Color = main.Figures.nearest_palette(tamer_p[4])
+		var snapped_hex := snapped.to_html(false)
+		sheet_cols[snapped_hex] = true
+	check(sheet_cols.size() <= 32, "palette: the figure sheet stays within 32 colours (%d)" % sheet_cols.size())
+	for sheet_hex in sheet_cols:
+		check(main.Figures.PALETTE_HEX.has(sheet_hex), "palette: sheet colour #%s is a ramp colour" % sheet_hex)
 	# ---- CR4: the evolution moment has staged phases; showpieces get the full version
 	main._evo_cine_start({ "sp": "cindercub", "name": "Test" }, "elderhorn")
 	check(not main.evo_cine.is_empty(), "CR4: starting the cinematic sets state")
@@ -474,16 +677,22 @@ func _run() -> void:
 	check(main.cal.weather() in ["clear", "rain", "wind", "snow"], "CR5: weather returns a valid condition")
 	# Time-based branching: mistfinch at dawn -> dawnchorus
 	var finch: Dictionary = main.R.make("mistfinch", 18, {}, main.rng)
+	finch.bond = 0.0
 	var ctx_dawn := { "place": "larkhaven", "team": [], "time": "dawn", "weather": "clear" }
-	check(main.R.evo_target(finch, ctx_dawn) == "dawnchorus", "CR5: mistfinch at dawn becomes Dawnchorus")
+	check(main.R.evo_target(finch, ctx_dawn) == "", "CR5: mistfinch at dawn without trust stays")
+	finch.bond = 20.0
+	check(main.R.evo_target(finch, ctx_dawn) == "dawnchorus", "CR5: mistfinch at dawn, once it trusts you a little, becomes Dawnchorus")
 	var ctx_dusk := { "place": "larkhaven", "team": [], "time": "dusk", "weather": "clear" }
 	check(main.R.evo_target(finch, ctx_dusk) == "duskwing", "CR5: mistfinch at dusk becomes Duskwing")
 	var ctx_day := { "place": "larkhaven", "team": [], "time": "day", "weather": "clear" }
 	check(main.R.evo_target(finch, ctx_day) == "cloudharrier", "CR5: mistfinch by day becomes Cloudharrier (default)")
 	# Weather/diet branching: brineskit
 	var skit: Dictionary = main.R.make("brineskit", 18, {}, main.rng)
+	skit.bond = 0.0
 	var ctx_rain := { "place": "larkhaven", "team": [], "time": "day", "weather": "rain" }
-	check(main.R.evo_target(skit, ctx_rain) == "rainback", "CR5: brineskit in rain becomes Rainback")
+	check(main.R.evo_target(skit, ctx_rain) == "", "CR5: brineskit in the rain without trust stays")
+	skit.bond = 20.0
+	check(main.R.evo_target(skit, ctx_rain) == "rainback", "CR5: brineskit in rain, once it trusts you a little, becomes Rainback")
 	skit["ate"] = "fish"
 	var ctx_clear := { "place": "larkhaven", "team": [], "time": "day", "weather": "clear" }
 	check(main.R.evo_target(skit, ctx_clear) == "gorgebelly", "CR5: brineskit fed fish becomes Gorgebelly")
@@ -1430,10 +1639,10 @@ func _run() -> void:
 	ob.heritage = "wander"
 	ob.allies[1].atb = 0.0
 	check(ob.use_order("opening") and ob.allies[1].atb >= main.R.ACT_AT, "Find an Opening: another of your creatures acts at once")
-	# ---- every move resting (T56's Deeptide at Halen): no stuck menu; it catches its breath, and you choose once one is ready
+	# ---- every move resting (a Tidewyrm at Halen): no stuck menu; it catches its breath, and you choose once one is ready
 	var keep_bag: Dictionary = ob.bag
 	ob.bag = { "lures": 0, "berries": 0 }
-	var deep_sp: String = "deeptide" if main.DATA.SPECIES.has("deeptide") else "tidewyrm"
+	var deep_sp := "tidewyrm"
 	ob.open("trainer", [main.R.make(deep_sp, 65, { "rar": 1 }, main.rng)], [main.R.make("mosshog", 5, { "rar": 1 }, main.rng)], "Halen")
 	var deep: Dictionary = ob.allies[0]
 	for m in main.R.moves_of(deep.c):
@@ -1474,7 +1683,7 @@ func _run() -> void:
 	# Fast-forward through the cinematic
 	for i in 60:
 		tick(0.1)
-	check(cub.sp == "smoulderpup" and main.seen.has("smoulderpup") and main.partner.look.body == Color(main.DATA.SPECIES.smoulderpup.col), "Let it change: Smoulderpup, now walking with you")
+	check(cub.sp == "smoulderpup" and main.seen.has("smoulderpup") and main.partner.look.body == main.Figures.look_for(main.DATA.SPECIES.smoulderpup).body, "Let it change: Smoulderpup, now walking with you")
 	talk_through()
 	for c in keep_team:
 		c.erase("hold")
