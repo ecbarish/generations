@@ -15,7 +15,7 @@ PR. Generations PM routes the work and handoffs. Nothing outside this block star
 | # | Game | ID | Task | Owner | Done when |
 |---|---|---|---|---|---|
 | 1 | Wildbond | WB5.6 | The creature catalogue toward 151 (the main goal) | Wildbond & Starfall Dev Lead | Each batch passes the catalogue checks, with lore |
-| 1 | Wildbond | EVO-1 | Evolution follows bond as well as level (the rule in DECISIONS.md first; needs Evan's sign-off) | Wildbond & Starfall Dev Lead | The rule in DECISIONS.md; evolution follows it; tests pass; old saves load |
+| 1 | Wildbond | EVO-1 | Starters as three-stage lines per docs/art/wildbond-evolution.md: three middle species (middle at 16, final at 36), old saves grandfathered (needs Evan's sign-off) | Wildbond & Starfall Dev Lead | The rule in DECISIONS.md; evolution follows it; tests pass; old saves load |
 | 1 | Wildbond | #345 | Trust-gated final forms, wild late forms, no wild starters (updates DD-5) | Wildbond & Starfall Dev Lead | As the issue says; tests pass; old saves load |
 | 1 | Wildbond | WB2.2 | Depth, after the catalogue | Wildbond & Starfall Dev Lead | As DEVELOPMENT-PATH WB2.2 |
 | 1 | Wildbond | WB-ART | Creature and area art for the above | Game Art Director | The art review passes |
