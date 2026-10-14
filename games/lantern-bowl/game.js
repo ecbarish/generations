@@ -150,7 +150,11 @@
     return parts.map(function (s) { return s.trim(); }).filter(Boolean);
   }
   function panel(title, body) {
-    $('panel').innerHTML = '<h2 id="panelTitle">' + title + '</h2>' + body;
+    var html = String(body || '');
+    var actions = '';
+    var split = html.match(/([\s\S]*)(<div class="actions">[\s\S]*<\/div>)\s*$/);
+    if (split) { html = split[1]; actions = split[2]; }
+    $('panel').innerHTML = '<h2 id="panelTitle">' + title + '</h2><div class="panel-copy">' + html + '</div>' + actions;
     $('curtain').hidden = false;
   }
   function hidePanel() { $('curtain').hidden = true; }

@@ -580,6 +580,15 @@ document.querySelector('#run').onclick = async () => {
     await wait();
     const H = w.__lantern;
     check('local test hook', !!H && H.M === w.LanternModel);
+    for (const [width, height] of [[844, 390], [780, 360]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px';
+      await wait();
+      const kick = d.querySelector('[data-kick]').getBoundingClientRect();
+      const viewH = d.documentElement.clientHeight, viewW = d.documentElement.clientWidth;
+      check(width + '×' + height + ' Kick off stays on screen', kick.height >= 44 && kick.width >= 44 && kick.top >= 0 && kick.bottom <= viewH + 1 && kick.left >= -1 && kick.right <= viewW + 1);
+    }
+    frame.style.width = '844px'; frame.style.height = '390px';
+    await wait();
     check('shared settings row is on the page', !!d.querySelector('.arc-set-btn'));
     check('shared sound control is on the page', !!d.querySelector('#sound'));
     H.kickoff(5);
