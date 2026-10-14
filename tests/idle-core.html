@@ -107,6 +107,17 @@ document.querySelector('#run').onclick = function () {
       var back = idle.start(wall + 3600 * 1000);
       check('a clock that goes backward credits nothing', back === null && cash === 0);
       idle.stop();
+
+      cash = 0;
+      var boosted = Idle.create({
+        getRate: function () { return 4; },
+        apply: function (amount) { cash += amount; },
+        maxOfflineSec: 1000,
+        offlineRate: 2
+      });
+      var held = boosted.start(wall - 100 * 1000);
+      check('an offline rate above 1 pays no more than active play', held && held.gained === 400 && cash === 400);
+      boosted.stop();
     })();
 
     (function defaultsAndJump() {
@@ -128,7 +139,7 @@ document.querySelector('#run').onclick = function () {
       var idle = Idle.create({
         getRate: function () { return rate; },
         apply: function (amount) { cash += amount; },
-        maxOfflineSec: 100,
+        maxOfflineSec: 1000,
         offlineRate: 0.5,
         title: { label: 'Night Market', unit: '$' }
       });
@@ -180,13 +191,13 @@ document.querySelector('#run').onclick = function () {
       check('a backward jump during play credits nothing', cash === mark && summary.credited === snap);
 
       hidden = false;
-      wall += 180 * 1000;
-      perf += 180 * 1000;
+      wall += 1500 * 1000;
+      perf += 1500 * 1000;
       before = cash;
       var awayBefore = summary.away;
       pump();
-      check('a forward jump is held to the cap', cash - before === 2400 * 100 * 0.5);
-      check('a forward jump flags the summary', summary.capped === true && summary.credited === snap + 100 && summary.away === awayBefore + 180);
+      check('a forward jump is held to the cap', cash - before === 2400 * 1000 * 0.5);
+      check('a forward jump flags the summary', summary.capped === true && summary.credited === snap + 1000 && summary.away === awayBefore + 1500);
 
       idle.stop();
       check('stop restores the tab title', document.title === 'Arcade hall');
