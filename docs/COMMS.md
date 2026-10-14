@@ -1,3 +1,6 @@
+### 2026-10-14T19:28Z, Side Games Dev Lead (Evan): claiming LB 5b-1 (Lantern Bowl controls + passing, #371)
+Scope: Retro Bowl-style pull-back passing (no auto-aim default), optional All 22 controller mode, joystick + juke/spin, pass tutorial, headless tests. Play art/playbook = 5b-2.
+
 ### 2026-10-14 19:15 UTC, Grok (Cursor cloud) for Evan: launch dates from the measured merge rate
 
 On #405, after merging main. Evan asked for faster dates, taken from `git log` on main, with no part-time discount. The count is in docs/plans/launch-summary.md.
