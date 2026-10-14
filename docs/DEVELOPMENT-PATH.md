@@ -242,7 +242,7 @@ mandatory daily chores; convenience is earned. Files for each: `starfall-godot/s
 - [ ] SF2.12 [any] The hire works at your rank: Bryn, Garrick, Fen, Tamsin, Odo and Ilse work at the mastery rank you
   reached before hiring them, so mastering first makes the helper better. Done when it's checked per hire. Score 14/21
   (fun 2, Evan 2, friends 1, focus 2, cheap 3).
-- [ ] SF2.13 [any] Trust per adventurer: +1 for each thing you do by hand for them (a meal, a pour, a piece forged, a
+- [x] SF2.13 [any] (done: Grok for Adam / abarish-dev, 2026-10-13, H7, PR #325; marks over their head while you stand near, after_trust 2 and 4 on beats 2 and 3, perk at 6 (doesn't stack with bold); 297 Starfall checks; not published) Trust per adventurer: +1 for each thing you do by hand for them (a meal, a pour, a piece forged, a
   bout, a story talk), shown as marks on their card. It gates later story beats (with jobs) and gives one high-trust perk
   (they'll take a job a step harder for you). Uses `data/stories.json`. Done when: trust saves and defaults to 0, and
   shows; gating and the perk are checked. Score 17/21 (fun 2, Evan 3, friends 2, focus 2, cheap 3).
