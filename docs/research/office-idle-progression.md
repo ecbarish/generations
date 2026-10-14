@@ -161,8 +161,9 @@ Every number in this section is **[Opinion] a tuning starting point**, picked to
 - Production: base × owned × milestoneMult. **No other global multipliers** (house rule).
 - Default milestones: **25, 50, 100 owned → ×2 each** (stacking, so ×8 at 100), each with a visual hook.
 - Bulk: x1/x10/max via Pecorella's closed forms. Worked check: base 5, r 1.07, owned 10, buy 10 → 135.90.
-- **Offline rule:** Offline = the page was closed. While the page stays loaded (visible or hidden tab), every tick credits the full elapsed real time at the full online rate, no matter how large the gap (throttled hidden tabs included). The offline rate and offline cap apply only on load from a save, to the time between the last save timestamp and now.
-- Tick: credit the Date.now delta since the last tick (no threshold, no clamp while loaded). Save on visibilitychange (hidden) and pagehide, and every 30 s, so the last-save timestamp is accurate. On load: offline credit = min(now − lastSave, cap) × activeRate × offlineRate, then show the away summary.
+- **Offline rule:** Offline = the page was closed. While the page stays loaded (visible or hidden tab), every tick credits elapsed real time at the full online rate, up to `maxOfflineSec` per tick. The offline rate and offline cap apply only on load from a save, to the time between the last save timestamp and now.
+- Tick: credit the Date.now delta since the last tick, clamped to `maxOfflineSec`; a negative delta credits 0. Save on visibilitychange (hidden) and pagehide, and every 30 s, so the last-save timestamp is accurate. On load: offline credit = min(now − lastSave, cap) × activeRate × offlineRate, then show the away summary.
+- A single tick is held to `maxOfflineSec` (the hidden-tab clamp is kept; that's the Shared Systems Architect's NM-CLAMP ruling).
 
 ### 8.2 Generators (first 3 tiers)
 | Slice | Tier 1 (base / r / per s) | Tier 2 | Tier 3 | Payback t1/t2/t3 |
@@ -232,7 +233,7 @@ Hand work before hiring: NM1 serves 1 coin per tap (25 serves to the first vendo
 
 ### 8.6 Done-when criteria
 **IDLE-CORE**
-- **Offline rule:** Offline = the page was closed. While the page stays loaded (visible or hidden tab), every tick credits the full elapsed real time at the full online rate, no matter how large the gap (throttled hidden tabs included). The offline rate and offline cap apply only on load from a save, to the time between the last save timestamp and now.
+- **Offline rule:** Offline = the page was closed. While the page stays loaded (visible or hidden tab), every tick credits elapsed real time at the full online rate, up to `maxOfflineSec` per tick. The offline rate and offline cap apply only on load from a save, to the time between the last save timestamp and now.
 - Hide the tab for 10 min (throttled), then return: income credited is within 2% of 10 min × full online rate, with no offline rate or cap applied.
 - Close the page, reopen after 1 h (cap 4 h): credit = 1 h × rate × offlineRate within 1%, and the away summary shows it. Reopen after a simulated 30 h: credit = 4 h × rate × offlineRate within 1%, and the summary states the cap.
 - A save is written on visibilitychange (hidden), on pagehide and every 30 s (verify the timestamp updates).
