@@ -70,7 +70,6 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 - [x] WB-C2-REL [dot / Adam] (published: #286, f81ef50, 2026-10-13) Exact c8fa1c8/e07 pack released; all 22 suites, complete browser save/rename/phone gate, Pages and 93 actual-live assertions pass. [Evidence](releases/wildbond-wbc2-handoff.md). Engine/storage identity and concurrent work preserved.
 
 - [x] WB-N1 [any] (done 2026-10-12 by Muse, Adam / abarish-dev, PR #257) Wildbond newcomer snags (Flint round 2, COMMS 2026-10-12 20:52): after the rival fight, Maren says the team is hurt and the Larkhaven inn heals (win scene + loss line); after the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]`); battle HP bars snap to real HP on finish (`u.shown`). Bond-gated evolution is a design question for Design decisions first. Files: wildbond-godot/. All Godot checks pass; old saves load (additive changes only).
-- [ ] WB-BOND [any] (claimed: Grok in Cursor, for Evan, 2026-10-14, PR #339) Make the bond real: a creature evolves on bond as well as level (cycle 1, Flint round 2 note 3). The rule is DD-5. Files: docs/DECISIONS.md, wildbond-godot/. Done when evolution follows the rule, tests pass, and old saves load.
 **WB-M1: the start of the journey (done 2026-10-08).**
 - [x] The opening, register and heritages, the barn, Wren; Thornwood, Saltmarsh, Emberfall, Cloudglass; wild
   bonding; trainers and Wardens; the ranch as a place (nursery, trough, workbench, gear); evolution; music; saving;
