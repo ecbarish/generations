@@ -48,8 +48,7 @@ Pass, with the fourth badge's cap). Middle-stage names below are working names f
 | **Ripplet** → *(new, working name Riverwisp)* → **Tidewyrm** (Tide, lizard to river dragon) | Its **bubbles and the folded frill at its neck**: a little lizard practising the water's power | Gangly and stretched: half swimming, half walking, frills half-grown and floppy, unsure whether it belongs on the bank or in the river | **A river dragon.** A long, serpentine body; the folded frill is now a crest of fins; the bubbles have become a tide it commands, and it floats in a ring of its own water. Still a lizard at heart: same eyes, same face markings |
 | **Mosshog** → *(new, working name Thicketboar)* → **Thornback** (Grove, boar) | **The moss on its back is a garden**: birds nest there, and it lets them | Burly and shaggy, overgrown: saplings sprout unevenly, it's lopsided and shedding, a garden that hasn't settled | **A walking grove.** A crown of thorns and a young tree on its back, birds still nesting, flowers opening where it steps. It carries a whole little world |
 
-**Old saves:** a starter already in its current second form keeps it (grandfathered); every new evolution follows the
-three stages. Lane A decides the exact migration and writes the check.
+**Old saves (EVO-1):** Deeptide, Pyremane and Elderthorn are retired. That conversion is the version 1 to version 2 save step. A version 1 save that still holds one loads as Tidewyrm, Blazefang or Thornback, keeping level, experience, trust, raising, a held change, nickname and stats. A save newer than version 2 is left untouched, and saving stays off for that session. A starter already Blazefang, Tidewyrm or Thornback stays that form. A new journey follows the three stages. Middle names are settled: Smoulderpup, Riverwisp and Thicketboar.
 
 ## The catalogue: every existing line
 

@@ -1,21 +1,21 @@
 {
- "about": "Evolution for the Godot version (docs/proposals/creature-catalogue-and-evolution.md section 2; DD-5). New forms and the ways creatures change, beyond the browser game's single level evolutions. Merged into the game data at start: species are added, and evos replace a species' old single evolution. Each evo: to, and at (the level; always required), and any of bond (an added trust step: 1 Friendly, 2 Loyal, 3 Devoted, 4 Bonded), place (a map), with (a species in your team), time, weather, ate, raised (care or battle) and raised_at (that record's trust step). Trust is added to the level. It does not replace it. The first matching option wins, so put special ones first and the ordinary one last. hint is what Maren thinks; the field book shows the first hint once you've seen the creature. bond_branch is the shape for CAT-2's future creature, not a creature you can meet yet.",
+ "about": "Evolution for the Godot version (docs/proposals/creature-catalogue-and-evolution.md section 2; DD-5; EVO-1). New forms and the ways creatures change, beyond the browser game's single level evolutions. Merged into the game data at start: species are added, and evos replace a species' old single evolution. Each evo: to, and at (the level; always required), and any of bond (an added trust step: 1 Friendly, 2 Loyal, 3 Devoted, 4 Bonded), place (a map), with (a species in your team), time, weather, ate, raised (care or battle) and raised_at (that record's trust step). Trust is added to the level. It does not replace it. The first matching option wins, so put special ones first and the ordinary one last. hint is what Maren thinks; the field book shows the first hint once you've seen the creature. bond_branch is the shape for CAT-2's future creature, not a creature you can meet yet. Starter lines are three stages and are never met in the wild. Ripplet becomes Riverwisp at level 16, then Tidewyrm at level 36 with Devoted trust. Cindercub becomes Smoulderpup, then Blazefang. Mosshog becomes Thicketboar, then Thornback. Deeptide, Pyremane and Elderthorn are retired. metres, on a new middle stage, is its height in metres at 12.35 pixels per metre.",
  "species": {
-  "pyremane": {
-   "name": "Pyremane",
+  "smoulderpup": {
+   "name": "Smoulderpup",
    "fam": "wolf",
    "el": "Ember",
-   "col": "#c8321a",
-   "size": "huge",
-   "tier": "Legend",
-   "big": 1,
+   "col": "#e05426",
+   "size": "small",
+   "tier": "Strong",
+   "metres": 1.29555,
    "base": {
-    "hp": 80,
-    "pow": 112,
-    "grd": 72,
-    "spd": 104,
-    "wit": 92,
-    "spi": 70
+    "hp": 55,
+    "pow": 74,
+    "grd": 49,
+    "spd": 76,
+    "wit": 66,
+    "spi": 52
    },
    "learn": [
     [
@@ -31,31 +31,44 @@
      "howl"
     ],
     [
+     8,
+     "packHunt"
+    ],
+    [
      11,
      "flameRush"
     ],
     [
-     32,
-     "radiance"
+     15,
+     "coalFlick"
+    ],
+    [
+     22,
+     "steamBurst"
     ]
    ],
-   "dex": "Its mane became a crown of fire on the mountain where the ground runs warm. It walks into storms as if they were rain."
+   "dex": "A lanky young wolf, always too warm to hold. Glowing cracks run down its spine, and it steams when the rain finds it.",
+   "evo": {
+    "to": "blazefang",
+    "at": 36,
+    "bond": 3
+   }
   },
-  "deeptide": {
-   "name": "Deeptide",
-   "fam": "croc",
+  "riverwisp": {
+   "name": "Riverwisp",
+   "fam": "lizard",
    "el": "Tide",
-   "col": "#14508f",
-   "size": "huge",
-   "tier": "Legend",
-   "big": 1,
+   "col": "#2c7fcb",
+   "size": "small",
+   "tier": "Strong",
+   "metres": 1.1336,
    "base": {
-    "hp": 96,
-    "pow": 84,
-    "grd": 98,
-    "spd": 66,
-    "wit": 104,
-    "spi": 96
+    "hp": 62,
+    "pow": 59,
+    "grd": 67,
+    "spd": 53,
+    "wit": 72,
+    "spi": 66
    },
    "learn": [
     [
@@ -71,31 +84,44 @@
      "mistVeil"
     ],
     [
+     8,
+     "shedSkin"
+    ],
+    [
      11,
      "tidePulse"
     ],
     [
-     32,
-     "harden"
+     15,
+     "rainTap"
+    ],
+    [
+     22,
+     "undertowPull"
     ]
    ],
-   "dex": "It only takes this form for a tamer it trusts completely. In deep water it moves like the tide itself, and it never leaves that tamer's side."
+   "dex": "Gangly and stretched, half swimming and half walking. Its neck frill hangs floppy, and it has not chosen the bank or the river.",
+   "evo": {
+    "to": "tidewyrm",
+    "at": 36,
+    "bond": 3
+   }
   },
-  "elderthorn": {
-   "name": "Elderthorn",
+  "thicketboar": {
+   "name": "Thicketboar",
    "fam": "boar",
    "el": "Grove",
-   "col": "#2e5e22",
-   "size": "huge",
-   "tier": "Legend",
-   "big": 1,
+   "col": "#4e8a34",
+   "size": "small",
+   "tier": "Strong",
+   "metres": 1.21457,
    "base": {
-    "hp": 112,
-    "pow": 104,
-    "grd": 104,
-    "spd": 50,
-    "wit": 70,
-    "spi": 84
+    "hp": 74,
+    "pow": 71,
+    "grd": 71,
+    "spd": 45,
+    "wit": 51,
+    "spi": 60
    },
    "learn": [
     [
@@ -111,15 +137,28 @@
      "regrowth"
     ],
     [
+     8,
+     "rootCharge"
+    ],
+    [
      11,
      "thornQuake"
     ],
     [
-     32,
-     "gust"
+     15,
+     "seedGrip"
+    ],
+    [
+     22,
+     "bramblePress"
     ]
    ],
-   "dex": "A small wood grows on its back, and the birds that raised it with you nest there still. Where it sleeps, seedlings come up in spring."
+   "dex": "Burly and shaggy, and the garden on its back has not settled. Saplings sprout lopsided, and it sheds twigs as it walks.",
+   "evo": {
+    "to": "thornback",
+    "at": 36,
+    "bond": 3
+   }
   },
   "mistlynx": {
    "name": "Mistlynx",
@@ -379,28 +418,49 @@
   }
  },
  "evos": {
-  "blazefang": [
+  "cindercub": [
    {
-    "to": "pyremane",
-    "at": 32,
-    "place": "emberfall",
-    "hint": "The heat of Emberfall may wake something in it, once it's strong enough."
+    "to": "smoulderpup",
+    "at": 16,
+    "hint": "It grows lanky before the fire really wakes."
    }
   ],
-  "tidewyrm": [
+  "smoulderpup": [
    {
-    "to": "deeptide",
-    "at": 32,
+    "to": "blazefang",
+    "at": 36,
     "bond": 3,
-    "hint": "It changes only for a tamer it trusts completely, once it has grown."
+    "hint": "The fire breathes once it has grown, and only for a tamer it trusts."
    }
   ],
-  "thornback": [
+  "ripplet": [
    {
-    "to": "elderthorn",
-    "at": 32,
-    "with": "glimmerwing",
-    "hint": "Birds nest on the greatest Thornback. Raise it beside a Glimmerwing."
+    "to": "riverwisp",
+    "at": 16,
+    "hint": "It stretches between the bank and the river before it learns the tide."
+   }
+  ],
+  "riverwisp": [
+   {
+    "to": "tidewyrm",
+    "at": 36,
+    "bond": 3,
+    "hint": "It becomes a river dragon once it has grown, and only for a tamer it trusts."
+   }
+  ],
+  "mosshog": [
+   {
+    "to": "thicketboar",
+    "at": 16,
+    "hint": "The garden on its back grows wild before it can settle."
+   }
+  ],
+  "thicketboar": [
+   {
+    "to": "thornback",
+    "at": 36,
+    "bond": 3,
+    "hint": "It carries a grove once it has grown, and only for a tamer it trusts."
    }
   ],
   "poolkit": [
