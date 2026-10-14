@@ -1,6 +1,6 @@
 # Generations: common rules for AI assistants
 
-**Efficient startup (Evan, 2026-10-13):** follow [docs/AI-START.md](docs/AI-START.md). This short file and a fresh task packet replace old full-document startup sweeps. Use `node tools/agent-context.cjs --agent Codex --task TASK-ID --project PROJECT`; read only its scoped pointers and the exact ticket/source/tests. START-HERE's Session log and archived instructions are searchable history, not required full reads.
+**Efficient startup (Evan, 2026-10-13):** follow [docs/AI-START.md](docs/AI-START.md). This short file and a fresh task packet replace old full-document startup sweeps. Use `node tools/agent-context.cjs --agent <your name> --task TASK-ID --project PROJECT`; read only its scoped pointers and the exact ticket/source/tests. START-HERE's Session log and archived instructions are searchable history, not required full reads.
 
 - **Current work:** docs/QUEUE.md **This cycle** overrides old lanes/ticket-factory autopilot. Take your named task, or an explicit current user request; check live open PR ownership first. Read STUDIO-PLAN section 4 and your game for planning. Do not start another game/backlog task just because the current lane is empty.
 - **Own checkout:** work in your own clone on `codex/<topic>`, `claude/<topic>` or `guest/<topic>`. Do not switch branches or edit in `C:/Users/evanb/OneDrive/Desktop/idle-arcade` when it belongs to another agent. Never push directly to main.

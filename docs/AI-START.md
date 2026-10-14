@@ -4,7 +4,7 @@ Evan, 2026-10-13: stop reloading the whole project to do one task. This page def
 
 1. Read the short root `AGENTS.md` (the same rules apply to Claude).
 2. Fetch main in your own clone and check open PR titles/metadata for ownership.
-3. Run `node tools/agent-context.cjs --agent Codex --task TASK-ID --project PROJECT` (omit task when selecting). It reads the current QUEUE cycle and COMMS locally, returns named rows, a bounded set of recent/task messages, source fingerprints and targeted pointers. `--json` supplies machine-readable metadata.
+3. Run `node tools/agent-context.cjs --agent <your name> --task TASK-ID --project PROJECT` (omit task when selecting). It reads the current QUEUE cycle and COMMS locally, returns named rows, a bounded set of recent/task messages, source fingerprints and targeted pointers. `--json` supplies machine-readable metadata.
 4. Read the exact ticket, any long/omitted relevant COMMS entries, the task's source/tests and only the design sections needed for that change. For large files, search the task ID or function with rg and read the relevant sections plus their dependencies; do not dump an entire data catalogue to find one entry. Before a claim or merge, read the relevant PROCESS section and PR template.
 5. Implement and check the scoped change. Update its PR Tower block, COMMS if handing off, and one START-HERE Session log line. Planning owns Where we are/Up next.
 

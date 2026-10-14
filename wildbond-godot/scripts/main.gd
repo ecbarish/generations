@@ -18,7 +18,8 @@ const TouchPad := preload("res://scripts/touch_pad.gd")
 const HowTo := preload("res://scripts/howto.gd")
 const Shop := preload("res://scripts/shop.gd")
 ## CR1: size classes to world scale (spec 4.4, docs/wildbond-creatures.md).
-const SIZE_SCALE := { "tiny": 0.7, "small": 0.85, "medium": 1.0, "large": 1.2, "huge": 1.45 }
+## Whole-number zoom only. A creature's size is the height drawn into its pixels (metres × 12.35).
+const SIZE_SCALE := { "tiny": 1, "small": 1, "medium": 1, "large": 1, "huge": 1 }
 const Book := preload("res://scripts/book.gd")
 const Calendar := preload("res://scripts/calendar.gd")
 ## Larkhaven's doors in the Godot version: the inn (rest) and the shop counter. (The browser puts the shop where Maren's
@@ -201,6 +202,7 @@ func _ready() -> void:
 		DATA.SPECIES[k] = ej.data.species[k]
 	DATA["EVOS"] = ej.data.evos
 	DATA["BOND_BRANCH"] = ej.data.get("bond_branch", {})   # DD-5: the future bond-branch shape; not a creature you can meet yet
+	DATA["WILD_EXTRA"] = ej.data.get("wild", {})           # catalogue batch: Godot-only encounters, kept off the shared map export
 	R.DATA = DATA
 	var rj: JSON = load("res://data/wildbond-reveal.json")   # T58: the evidence and the reveal (docs/lore/wildbond-reveal.md)
 	REVEAL = rj.data
@@ -1010,7 +1012,7 @@ func card_info(id: String) -> Dictionary:
 		if DATA.COUNTER[k] == id:
 			strong = k
 	return {
-		"name": s.name, "el": s.el, "dex": s.dex, "base": s.base, "moves": moves, "look": CREATURE_LOOKS[id],
+		"name": s.name, "el": s.el, "dex": s.dex, "base": s.base, "moves": moves, "look": CREATURE_LOOKS[id], "species": s,
 		"strong": "%s (%s)" % [DATA.SPECIES[strong].el, DATA.SPECIES[strong].name],
 		"weak": "%s (%s)" % [DATA.SPECIES[weak].el, DATA.SPECIES[weak].name],
 		"role": role_of(s.base), "maren": MAREN_ON.get(id, ""),
@@ -1385,11 +1387,8 @@ func _draw_actor(ci: CanvasItem, m: Mover, i: int, fade_amt := 0.0) -> void:
 		# Painted art is already the world size (12.35px per metre). Species without a PNG keep the procedural figure.
 		if Sprites.try_draw(ci, sid, foot, m.right, "walk" if walking else "idle", int(m.step_t * 10.0), 1.0, fade_amt, str(m.look.get("gear", ""))):
 			return
-		var sc: float = SIZE_SCALE.get(str(DATA.SPECIES.get(m.id, {}).get("size", "medium")), 1.0)   # CR1: draw at species size
 		var o := m.pos + Vector2(-1 + wiggle, 4 + m.hop)
-		ci.draw_set_transform(o, 0, Vector2(sc, sc))
-		Figures.creature(ci, Vector2.ZERO, m.right, pose, _faded_look(m.look, fade_amt))
-		ci.draw_set_transform(Vector2.ZERO)
+		Figures.paint(ci, o, Figures.sized_parts(DATA.SPECIES.get(sid, {}), m.right, pose, _faded_look(m.look, fade_amt)))
 		return
 	var face := m.face
 	if not walking and face == Vector2i.DOWN and fmod(t + i, 6.0) > 5.2:
@@ -2387,12 +2386,21 @@ func _season_air() -> void:
 ## This place's wild table for the season (ChatGPT's WS3 data: small shifts, a few visitors who favour one season and
 ## are rare in the others), or the usual table where there's none.
 func _wild_table() -> Array:
+	var base: Array
 	var seasonal: Dictionary = DATA.MAPS[map_name].get("seasonal", {})
 	if seasonal.has(cal.season()):
-		return seasonal[cal.season()].wild
-	if DATA.MAPS[map_name].has("wild"):
-		return DATA.MAPS[map_name].wild
-	return DATA.BIOMES[DATA.MAPS[map_name].biome].wild
+		base = seasonal[cal.season()].wild
+	elif DATA.MAPS[map_name].has("wild"):
+		base = DATA.MAPS[map_name].wild
+	else:
+		base = DATA.BIOMES[DATA.MAPS[map_name].biome].wild
+	var extra: Array = DATA.get("WILD_EXTRA", {}).get(map_name, [])
+	if extra.is_empty():
+		return base
+	var out: Array = base.duplicate()
+	for pair in extra:
+		out.append(pair)
+	return out
 
 func _maren_data() -> Dictionary:
 	for n in DATA.MAPS.larkhaven.npcs:
@@ -4138,7 +4146,7 @@ func ranch_info(c: Dictionary) -> Dictionary:
 	var moves: Array = R.moves_of(c).map(func(mv): return DATA.MOVES[mv].name)
 	return {
 		"name": c.name, "el": s.el, "dex": s.dex, "base": s.base, "moves": moves,
-		"look": geared_look(c), "role": role_of(s.base),
+		"look": geared_look(c), "species": s, "role": role_of(s.base),
 		"strong": R.words(DATA.ELEMENTS[s.el].beats), "weak": R.words(weak) if not weak.is_empty() else "nothing in particular",
 		"moves_line": "Knows %s." % R.words(moves),
 		"note": "Level %d. Trust: %s. Resting at Maren's ranch." % [c.lvl, R.BOND[R.bond_lvl(c)][0]],
@@ -4210,8 +4218,8 @@ var evo_cine := {}  # {t, dur, old_sp, new_sp, old_sc, new_sc, full, cname}
 func _evo_cine_start(c: Dictionary, to: String) -> void:
 	var old_sp: String = c.sp
 	var new_sp: String = to
-	var old_sc: float = SIZE_SCALE.get(str(DATA.SPECIES.get(old_sp, {}).get("size", "medium")), 1.0)
-	var new_sc: float = SIZE_SCALE.get(str(DATA.SPECIES.get(new_sp, {}).get("size", "medium")), 1.0)
+	var old_sc: float = float(Figures.world_height(DATA.SPECIES.get(old_sp, {})))
+	var new_sc: float = float(Figures.world_height(DATA.SPECIES.get(new_sp, {})))
 	var tier: String = str(DATA.SPECIES.get(new_sp, {}).get("tier", "Plain"))
 	var full: bool = tier == "Showpiece" or tier == "Legend"
 	evo_cine = {
@@ -4321,28 +4329,26 @@ func _draw_evo_cine() -> void:
 	var species: Dictionary = DATA.SPECIES.get(sp, {})
 	var look: Dictionary = Figures.look_for(species)
 	if is_silhouette:
-		# Silhouette: luminous violet form, clearly visible against the dim
-		var sil := Color(0.45, 0.35, 0.75)
-		look = { "kind": look["kind"], "body": sil, "belly": sil.lightened(0.25), "dark": sil.darkened(0.2), "accent": Color(1.0, 0.95, 0.7), "snout": sil.lightened(0.15) }
+		# Silhouette: a luminous form, clearly visible against the dim. Three fixed values, no derived shades.
+		look = { "kind": look["kind"], "body": Color(0.45, 0.35, 0.75), "belly": Color(0.62, 0.52, 0.9), "dark": Color(0.28, 0.2, 0.48), "accent": Color(1.0, 0.95, 0.7), "snout": Color(0.55, 0.45, 0.82) }
 
-	var draw_sc := sc * 4.0   # large, centered like the card preview
+	var draw_sc := 4.0   # whole-pixel close-up; the growth is the taller drawing, not a fractional scale
 	var o := center + Vector2(0, 10)
 	var pose := { "walking": false, "frame": 0, "blink": false, "wag": 0, "sniff": false, "twitch": 0, "sit": false, "ears_up": true, "crouch": 0, "bird": false }
 	# The reveal can show the painted form, at a whole-pixel scale. The violet silhouette stays the procedural
 	# figure, so a species without art, and the shape of the change, still read the way they did.
 	var painted_reveal := false
 	if not is_silhouette:
-		var whole := maxi(1, int(floor(draw_sc)))
-		painted_reveal = Sprites.try_draw(self, sp, o + Vector2(8, 16) * float(whole), true, "idle", 0, float(whole))
+		painted_reveal = Sprites.try_draw(self, sp, o + Vector2(8, 16) * draw_sc, true, "idle", 0, draw_sc)
 	if not painted_reveal:
 		draw_set_transform(o, 0, Vector2(draw_sc, draw_sc))
-		Figures.creature(self, Vector2.ZERO, true, pose, look)
+		Figures.paint(self, Vector2.ZERO, Figures.sized_parts(species, true, pose, look))
 		draw_set_transform(Vector2.ZERO)
 
 	# Glow ring around the creature (stronger during silhouette phases)
 	if is_silhouette:
 		var glow_a := 0.7 + 0.3 * sin(et * 8.0)
-		var gr := 34.0 * draw_sc / 4.0
+		var gr := 16.0 + float(sc)
 		draw_arc(center + Vector2(0, 10), gr, 0, TAU, 32, Color(1.0, 0.9, 0.6, glow_a), 3.0)
 		draw_arc(center + Vector2(0, 10), gr * 0.8, 0, TAU, 32, Color(1.0, 0.95, 0.75, glow_a * 0.6), 2.0)
 
