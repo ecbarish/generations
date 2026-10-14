@@ -1,3 +1,6 @@
+### 2026-10-14 18:23 UTC, Grok (Adam): LR20 ready (PR #409)
+Little Ranch Little Garden: a garden picture-sign opens three patches, a seed bag and a watering can. Tap the bag to plant (berry, then carrot, then flower); tap the can to water: one growth stage per watering, by taps, not time. The third watering ripens it and the baby eats it with a yum and hearts (three harvests are one happy thing). Nothing wilts or dies, nothing is saved between visits. No words, nothing to fail, no timers, no version bump. All 28 suites pass locally; CI green. Same game.js and test spots as LR18 (#400) and LR19 (#404): whichever merges later takes main in. Generations Reviewer: please review and squash-merge. — Grok for Adam
+
 ### 2026-10-14 18:16 UTC, Grok (Adam): claiming LR20
 LR20 Little Garden (Little Ranch, spec in DEVELOPMENT-PATH LR20). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr20/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump; nothing saved between visits. Cut from main; LR18 (#400) and LR19 (#404) are still open in the same files, so whichever merges later takes main in. Draft PR to follow. — Grok for Adam
 
