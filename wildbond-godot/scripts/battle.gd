@@ -62,7 +62,8 @@ const WARDEN_PLANS := {"Warden Isolde": "shelter", "Warden Nerys": "setup", "War
 var allies: Array = []
 var foes: Array = []
 var state := "off"                            # fog_in, intro, run, choose, moves, beat, results, fog_out
-var tap_landed := false                       # the press already hit Fight (or another command), so the release must not act again
+var press_here := false                       # the press began while the action menu was already open
+var tap_landed := false                       # that press already hit a command, so the lift must not act again
 var wait_u: Dictionary = {}                   # the ally whose turn it is
 var beat_t := 0.0
 var state_t := 0.0
@@ -645,6 +646,7 @@ func _end(r: String) -> void:
 # ---------------------------------------------------------------- input: keys, mouse or touch
 func _input(e: InputEvent) -> void:
 	if not visible:
+		press_here = false
 		tap_landed = false
 		return
 	var click: bool = Controls.pointing(e)
@@ -652,10 +654,14 @@ func _input(e: InputEvent) -> void:
 	var ok := Controls.pressed(e, "interact")      # named actions (controls.gd): keys, a gamepad, or the phone's button
 	var back := Controls.pressed(e, "back")
 	var key := Controls.dir(e)
+	if click:
+		press_here = state == "choose"
 	if up:
-		var missed := not tap_landed
+		var missed := press_here and not tap_landed
+		press_here = false
 		tap_landed = false
-		# A press that already chose is swallowed. A press that missed still counts if the finger comes up on Fight.
+		# A press that already chose is swallowed. A press that began on this menu and missed still counts if the finger comes up on Fight.
+		# The lift that opened the menu is not a choice.
 		if missed and state == "choose":
 			click = true
 		else:

@@ -402,7 +402,7 @@ static func _areas(game: Node, check: Callable) -> void:
 	game.book.visible = false
 	var bag: Vector2 = game.satchel.position + game.satchel.size * 0.5
 	_release(game, bag)
-	check.call(game.menu.visible and not game.book.visible, "menu: a bag tap that only reports the release opens the menu, not the field book")
+	check.call(not game.menu.visible and not game.book.visible, "menu: a bag lift with no press does not open the menu")
 	game.menu.close()
 	game.book.visible = false
 	_press(game, Vector2(8, 8))
@@ -482,7 +482,7 @@ static func _taps(game: Node, check: Callable) -> void:
 	_place(game, "barn", "barn_choose")
 	game.card.open("ripplet", game.card_info("ripplet"))
 	_release(game, game.card._btn(0).get_center())
-	check.call(not game.card.visible and game.partner.id == "ripplet" and game.lines.size() == 7, "a Choose tap that only reports the release still picks, once")
+	check.call(game.card.visible and game.stage == "barn_choose" and game.lines.is_empty(), "a Choose lift with no press does not pick")
 	_place(game, "thornwood", "free")
 	game.register.keep = false
 	game.register.open()
@@ -493,7 +493,7 @@ static func _taps(game: Node, check: Callable) -> void:
 	game.register.keep = false
 	game.register.open()
 	_release(game, Vector2(277, 181))
-	check.call(not game.register.visible and game.stage == "signed" and game.lines.size() == 4, "a Sign the register tap that only reports the release still signs, once")
+	check.call(game.register.visible and game.stage == "free" and game.lines.is_empty(), "a Sign lift with no press does not sign")
 	_place(game, "thornwood", "free")
 	game.register.keep = false
 	game.register.open()
@@ -515,7 +515,7 @@ static func _taps(game: Node, check: Callable) -> void:
 	check.call(b.state == "moves" and not game.book.visible, "a Fight tap whose press misses still chooses Fight when the finger comes up on it")
 	b._go_to("choose")
 	_release(game, fight)
-	check.call(b.state == "moves", "a Fight tap that only reports the release still chooses Fight")
+	check.call(b.state == "choose", "a Fight lift with no press does not choose Fight")
 	b._go_to("choose")
 	click(game, fight)
 	check.call(b.state == "moves", "a click on Fight chooses it once")
@@ -533,13 +533,71 @@ static func _taps(game: Node, check: Callable) -> void:
 	click(game, spot)
 	check.call(game.lines.size() == 2 and str(game.lines[0].text) == "Two.", "dialogue: a click inside the speech box advances one line")
 	_release(game, spot)
-	check.call(game.lines.size() == 1 and str(game.lines[0].text) == "Three.", "dialogue: a tap inside the speech box that only reports the release advances one line")
+	check.call(game.lines.size() == 2 and str(game.lines[0].text) == "Two.", "dialogue: a lift inside the speech box with no press does not advance")
 	game.say("", "Four.")
 	game._update_ui()
 	_press(game, Vector2(1, 1))
 	_release(game, spot)
-	check.call(game.lines.size() == 1 and str(game.lines[0].text) == "Four.", "dialogue: press and release inside the speech box advance one line, not two")
+	check.call(game.lines.size() == 2 and str(game.lines[0].text) == "Three.", "dialogue: press and release inside the speech box advance one line, not two")
 	game.lines.clear()
+	_same_finger(game, check)
+
+## The press that opens a page is not a tap on whatever sits under the finger when it lifts.
+## The opening check's finger is a touch that Godot also sends as a mouse click. The Talk button sits inside Sign.
+static func _same_finger(game: Node, check: Callable) -> void:
+	var emulate: bool = Input.emulate_mouse_from_touch
+	Input.emulate_mouse_from_touch = true
+	_place(game, "larkhaven", "maren_talks")
+	game.register.keep = false
+	game.say("", "The book is open.")
+	game._update_ui()
+	var talk: Vector2 = game.touch.BTN
+	check.call(not game.register.visible and game.lines.size() == 1, "register: the page is shut before the tap that opens it")
+	_finger_tap(game, talk)
+	check.call(game.register.visible and game.stage == "register" and game.lines.is_empty(), "register: the tap that opens it does not sign when that finger comes up")
+	_place(game, "barn", "barn_choose")
+	var was: String = str(game.partner.id)
+	game.say("", "This one?")
+	game.then_do = func() -> void:
+		game.card.open("mosshog", game.card_info("mosshog"))
+	var choose_at: Vector2 = game.card._btn(0).get_center()
+	_finger_tap(game, choose_at)
+	check.call(game.card.visible and game.stage == "barn_choose" and str(game.partner.id) == was and game.lines.is_empty(), "card: the tap that opens it does not choose when that finger comes up")
+	_place(game, "thornwood", "free")
+	game.say("", "A wild one steps out.")
+	var lead: Dictionary = game.R.make("ripplet", 8, { "rar": 1 }, game.rng)
+	var foe: Dictionary = game.R.make("mosshog", 8, { "rar": 1 }, game.rng)
+	game.then_do = func() -> void:
+		game.battle.open("wild", [lead], [foe], "")
+		game.battle._go_to("choose")
+		game.battle.wait_u = game.battle.allies[0]
+	var fight: Vector2 = game.battle._menu_rect(0).get_center()
+	_finger_tap(game, fight)
+	check.call(game.battle.visible and str(game.battle.state) == "choose", "battle: the tap that opens the action menu does not choose Fight when that finger comes up")
+	game.battle.visible = false
+	game.battle.state = "off"
+	game.lines.clear()
+	game.then_do = Callable()
+	Input.emulate_mouse_from_touch = emulate
+
+## A finger: the mouse click Godot makes from the touch, then the touch itself, on the way down and on the way up.
+static func _finger_tap(game: Node, at: Vector2) -> void:
+	_finger(game, at, true)
+	_finger(game, at, false)
+
+static func _finger(game: Node, at: Vector2, down: bool) -> void:
+	var where: Vector2 = game.get_viewport().get_final_transform() * at
+	var mouse := InputEventMouseButton.new()
+	mouse.button_index = MOUSE_BUTTON_LEFT
+	mouse.device = InputEvent.DEVICE_ID_EMULATION
+	mouse.position = where
+	mouse.pressed = down
+	var finger := InputEventScreenTouch.new()
+	finger.index = 0
+	finger.position = where
+	finger.pressed = down
+	game.get_viewport().push_input(mouse)
+	game.get_viewport().push_input(finger)
 
 static func _press(game: Node, at: Vector2) -> void:
 	var event := InputEventMouseButton.new()

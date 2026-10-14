@@ -118,6 +118,7 @@ var objective: Control                       # what to do next (WBL-4)
 var caption_plate: ColorRect                 # the bar under the hint, so the words are not painted on the trees
 var caption_lift := 0.0                      # how far the view shifts up while that bar is showing
 var walk_tap := Vector2i.ZERO                # a key tap that went down and up before the next step (it still counts)
+var bag_press := false                        # the press began while the bag was already showing
 var menu_return := false                     # the field book was opened from the menu, so closing it comes back here
 var place_t := 0.0                           # seconds since you arrived somewhere (the place name holds, then fades)
 var title: Control
@@ -939,6 +940,8 @@ func _unhandled_input(e: InputEvent) -> void:
 	_note_walk_tap(e)
 	Controls.note(e)
 	var release_kind := Controls.release_kind(e)
+	if Controls.pointing(e):
+		bag_press = satchel != null and satchel.visible
 	if Controls.pressed(e, "toggle_music"):
 		music_on = not music_on                  # M: music on or off
 		get_viewport().set_input_as_handled()
@@ -959,7 +962,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		# line after signing/choosing). Native touch also works when emulation is off;
 		# mouse-to-touch test events are duplicates of an already handled click too.
 		var native := not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION
-		if native and not _covering() and not lines.is_empty() and (e.pressed or release_kind == 2):
+		if native and e.pressed and not _covering() and not lines.is_empty():
 			advance()
 			get_viewport().set_input_as_handled()
 		return
@@ -970,10 +973,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if release_kind != 0:
-		# A tap that never sent a press still moves the talk on, once. The release after a real press does not skip a line.
-		if release_kind == 2 and not lines.is_empty() and not _covering():
-			advance()
-			get_viewport().set_input_as_handled()
+		# A lift moves the talk on only when the press already did, and only that once. A lift that opened the line does not skip it.
 		return
 	var pressed: bool = (Controls.pressed(e, "interact") or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT))
 	if not pressed:
@@ -1034,10 +1034,15 @@ func _toggle_menu() -> void:
 
 func _satchel_hit(e: InputEvent) -> bool:
 	if satchel == null or not satchel.visible:
+		if Controls.released(e):
+			bag_press = false
 		return false
 	var down := Controls.pointing(e)
-	# The release only counts while the menu is still shut, so the press that opened it is not undone on the way up.
-	var up := Controls.released(e) and menu != null and not menu.visible
+	# The lift counts only if the press began while the bag was already showing, and the menu is still shut.
+	# The press that opened the menu is not undone on the way up, and a lift with no press is not a tap.
+	var up := Controls.release_kind(e) == 1 and menu != null and not menu.visible and bag_press
+	if Controls.released(e):
+		bag_press = false
 	if not down and not up:
 		return false
 	# The bag, and the key drawn just beside it.

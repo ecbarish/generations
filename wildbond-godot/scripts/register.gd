@@ -41,7 +41,8 @@ var t := 0.0
 var demo_i := 0
 var font: Font
 var keep := true                             # false in the recorded demo, so it never touches your saved choices
-var tap_landed := false                      # the press already hit a row or Sign, so the release must not sign again
+var press_here := false                      # the press began while this page was already open
+var tap_landed := false                      # that press already hit a row or Sign, so the lift must not sign again
 
 func _ready() -> void:
 	Controls.fill(self)
@@ -99,6 +100,7 @@ func demo_step() -> void:
 # ---------------------------------------------------------------- input: arrows and Enter, typing, or the mouse
 func _input(e: InputEvent) -> void:
 	if not visible:
+		press_here = false
 		tap_landed = false
 		return
 	var typed := char(e.unicode) if e is InputEventKey and e.pressed and e.unicode >= 32 else ""
@@ -121,6 +123,7 @@ func _input(e: InputEvent) -> void:
 			else: row += 1
 		get_viewport().set_input_as_handled()
 	elif Controls.pointing(e):
+		press_here = true
 		var p := Controls.at(self, e)
 		var on_row := false
 		for i in ROWS.size():
@@ -139,7 +142,8 @@ func _input(e: InputEvent) -> void:
 		tap_landed = on_row or signed_now
 		get_viewport().set_input_as_handled()
 	elif Controls.released(e):
-		if not tap_landed:
+		# The lift that opened this page is not a tap on Sign. Only a press that began here can finish on the way up.
+		if press_here and not tap_landed:
 			var p := Controls.at(self, e)
 			var on_row := false
 			for i in ROWS.size():
@@ -149,6 +153,7 @@ func _input(e: InputEvent) -> void:
 			if not on_row and Rect2(190, 156, 170, 52).has_point(p):
 				row = SIGN_ROW
 				sign_it()
+		press_here = false
 		tap_landed = false
 		get_viewport().set_input_as_handled()
 	elif Controls.swallow_pointer(e):
