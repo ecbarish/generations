@@ -1,13 +1,13 @@
 {
   "built": "2026-10-14",
   "godot": "4.7.2-stable",
-  "source_commit": "e2ce194cce95c5c8a3422c060c18aaadcf569d8e",
-  "source_tree": "07d28bf3787256999d789ca29adfe1c408db7db7",
+  "source_commit": "62d14e10a38d81b9e3ae402cef301b49a1891128",
+  "source_tree": "cdf6c08955dd969a127f19645d18587460d00ff8",
   "review_run": null,
   "sha256": {
-    "index.html": "17b122261d12fc63b36ffb7103eb43022437a63774c0c59bc2dfaa03b5aeda55",
+    "index.html": "27f8987fa9906cd61969d519de3dcc3d67c78d8d8fd5128d3e58403d6c490ae0",
     "index.js": "33c94cb3175f3333b82e2a3be5e8e86f77986f0aa2042b1631f6367a4e5bb6ba",
-    "index.pck": "cb4727e8b4397b83c8bd76d8b7a89c60ac4665f3aa300dd087ea9f6b4688d76c",
+    "index.pck": "073e6d070749c8c8200b1a3b1d8394a8f3f6ae8d467cd4e013e563c755c81c2e",
     "index.wasm": "fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0"
   }
 }

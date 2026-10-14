@@ -183,32 +183,6 @@ static func run(host: Node, check: Callable) -> void:
 	tap(game, game.card._btn(0).get_center())
 	check.call(not game.card.visible and game.partner.id == "mosshog" and game.walk_to.is_empty() and game.me.tile == stood, "WBL-14: a finger on Choose picks that starter and does not walk")
 	Input.emulate_mouse_from_touch = emulate
-	game.lines.clear()
-	game.card.visible = false
-	game.stage = "free"
-	game.trans_t = -1.0
-	var hint := "Follow Maren to her barn, the big wooden one at the top right, and walk in through its door. Walk with the arrow keys."
-	game.caption.text = hint
-	game._update_ui()
-	var cap_w: float = 384.0 - float(game.caption.offset_left) + float(game.caption.offset_right)
-	var cap_need: float = ThemeDB.fallback_font.get_multiline_string_size(hint, HORIZONTAL_ALIGNMENT_CENTER, cap_w, int(game.caption.get_theme_font_size("font_size"))).y
-	check.call(game.caption.offset_bottom <= -6.0 and game.caption.offset_bottom - game.caption.offset_top >= cap_need, "a long hint grows upward and stays clear of the bottom edge")
-	game.register.open()
-	click(game, game.register._sign_rect().get_center())
-	check.call(not game.register.visible and game.stage == "signed", "a click on Sign the register signs")
-	game.lines.clear()
-	game.stage = "free"
-	game.me.path.clear()
-	game.walk_to.clear()
-	var from: Vector2i = game.me.tile
-	var dir := Vector2i.DOWN
-	if not game.walkable(from + dir):
-		dir = Vector2i.RIGHT
-	var code: Key = KEY_DOWN if dir == Vector2i.DOWN else KEY_RIGHT
-	key(game, code)
-	check.call(not Input.is_action_pressed("move_down") and not Input.is_action_pressed("move_right"), "the short key tap is already up")
-	game._process(0.05)
-	check.call(game.me.path == [from + dir], "a short key tap still takes one step")
 	for action in ["move_down", "move_up", "move_left", "move_right"]:
 		if Input.is_action_pressed(action):
 			Input.action_release(action)

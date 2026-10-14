@@ -161,7 +161,6 @@ var fly_scare := 0.0
 var bubbles: Array = []                      # Ripplet's bubbles: [{p: Vector2, t: float}]
 var bubble_cd := 0.0
 var walk_to: Array[Vector2i] = []           # click or tap to walk: the steps still to take
-var step_tap := Vector2i.ZERO               # a key that went down and up before the next step: still take that one step
 var meet_after: Mover = null                 # walking up to a creature you tapped, to meet it on arrival
 var meet_tries := 0
 var rng := RandomNumberGenerator.new()
@@ -849,11 +848,8 @@ func _process(dt: float) -> void:
 		maren.right = maren.face.x > 0
 		say("maren", "There you are! I'm Maren. I keep the ranch. Every tamer signs our register. Write yourself in, love.")
 	var free_to_walk: bool = stage in ["to_barn", "barn_choose", "walk_out", "free"] and not _covering() and trans_t < 0.0
-	var d := Controls.held_dir()                     # keys, a gamepad, or the phone pad (WB6.1)
-	if d == Vector2i.ZERO:
-		d = step_tap                                 # a short tap is already up by the time the frame looks
-	step_tap = Vector2i.ZERO
 	if lines.is_empty() and free_to_walk and me.path.is_empty() and me.pos.distance_to(Vector2(me.tile) * TILE) < 0.5:
+		var d := Controls.held_dir()                 # keys, a gamepad, or the phone pad (WB6.1)
 		if d != Vector2i.ZERO:
 			walk_to.clear()                          # the keys always win over a tapped walk
 			meet_after = null
@@ -932,9 +928,6 @@ func _unhandled_input(e: InputEvent) -> void:
 		sfx.on = not sfx.on                      # N: sound effects on or off
 		get_viewport().set_input_as_handled()
 		return
-	var tapped := Controls.dir(e)
-	if tapped != Vector2i.ZERO:
-		step_tap = tapped                        # remember it even if the key is up before the next frame
 	# Esc, I, or the bag. A battle, a conversation, or another page keeps the menu shut.
 	if (Controls.pressed(e, "open_menu") or _satchel_hit(e)) and menu and (menu.visible or _menu_allowed()):
 		_toggle_menu()
@@ -1688,24 +1681,6 @@ func _draw_tile(x: int, y: int, ch: String) -> void:
 			draw_rect(Rect2(o + Vector2(4, 7), Vector2(8, 1)), Color("6b4a2a"))
 
 # ---------------------------------------------------------------- the speech bubble, captions and the faded world
-## The hint along the bottom grows upward to fit its words, and stays a few pixels clear of the screen edge.
-func _fit_caption() -> void:
-	var bottom := -6.0
-	caption.offset_bottom = bottom
-	var width := 384.0 - caption.offset_left + caption.offset_right
-	if width < 32.0:
-		width = 32.0
-	var font := caption.get_theme_font("font")
-	if font == null:
-		font = ThemeDB.fallback_font
-	var fsize := caption.get_theme_font_size("font_size")
-	var outline := float(caption.get_theme_constant("outline_size"))
-	var h := 12.0
-	if caption.text != "":
-		h = font.get_multiline_string_size(caption.text, HORIZONTAL_ALIGNMENT_CENTER, width, fsize).y
-		h = ceil(h + outline + 2.0)
-	caption.offset_top = bottom - maxf(h, 12.0)
-
 func _update_ui() -> void:
 	var to_screen := get_viewport().get_canvas_transform()
 	var line: Dictionary = lines[0] if not lines.is_empty() else {}
@@ -1738,7 +1713,6 @@ func _update_ui() -> void:
 			mx = int(R.stats(team[0]).hp)
 		status.visible = not (book.visible or battle.visible or card.visible or shop.visible or lessons.visible or register.visible or title.visible or howto.visible or turn_card.visible)
 		status.setup(place.text, lead, cur, mx, int(bag.get("coins", 0)))
-	_fit_caption()
 	# the place's name, large on arrival: it holds for a few seconds, then fades (hidden while you talk or fight)
 	place.modulate.a = 0.0 if battle.visible or book.visible else clampf(3.5 - place_t, 0.0, 1.0)
 	# the faded world: pass each restored circle on this map to the shader, in real screen pixels
