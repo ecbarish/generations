@@ -4,6 +4,7 @@ const fs=require('fs'),path=require('path'),crypto=require('crypto'),assert=requ
  const dir=__dirname,root=path.resolve(dir,'../../..'),j=JSON.parse(fs.readFileSync(dir+'/catalogue.json')),S=JSON.parse(fs.readFileSync(root+'/wildbond-godot/data/wildbond.json')).SPECIES,ids=new Set(),views=[],errors=[];let checks=0;
  const check=(ok,msg)=>{assert.ok(ok,msg);checks++;};
  check(j.families.length===6,'six families');
+ for(const input of j.sceneInputs)check(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,input.path))).digest('hex')===input.sha256,'read-only scene input hash');
  for(const f of j.families){check([2,3].includes(f.creatures.length),'actual stage count');for(const c of f.creatures){check(!ids.has(c.id),'unique ID');ids.add(c.id);check(S[c.id]?.name===c.name,'real catalogue name');check(c.status==='candidate','honest approval');const bytes=fs.readFileSync(path.join(dir,c.file));check(bytes.length<300000,'compact cutout');check(crypto.createHash('sha256').update(bytes).digest('hex')===c.sha256,'cutout hash');const meta=await sharp(bytes).metadata();check(meta.hasAlpha,'transparent output');check(meta.width<=512&&meta.height<=512,'bounded cutout');}}
  check(ids.size===15,'fifteen species');
  const exe=process.env.CHROME_PATH||['C:/Program Files/Google/Chrome/Application/chrome.exe','C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(fs.existsSync),browser=await chromium.launch({headless:true,...(exe?{executablePath:exe}:{})});

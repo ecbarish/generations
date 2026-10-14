@@ -525,5 +525,23 @@
         }
       ]
     }
+  ],
+  "sceneInputs": [
+    {
+      "path": "wildbond-godot/data/wildbond.json",
+      "sha256": "d78b56959e059e086d589067237e77dede00b47356a3af43d8edd729b2d7cc7f"
+    },
+    {
+      "path": "wildbond-godot/assets/env/wild/floor.png",
+      "sha256": "2bea21596a499055da6d4f85e294627b88b8bcb1db55710bd821fe3a9e8a8a0f"
+    },
+    {
+      "path": "wildbond-godot/assets/env/wild/nature.png",
+      "sha256": "f445bc9edc27b04072b7bfe8d70570500662a0d2b3c9bf87bce4a75bc6a20441"
+    },
+    {
+      "path": "wildbond-godot/assets/env/wild/house.png",
+      "sha256": "c64efdbe91a52a4503205ba0b432a2c8cb67578244a98835afbb0e96212633ef"
+    }
   ]
 }

@@ -40,7 +40,7 @@ Do not use references as ready-made walking sprites merely because they appear i
 
 ## Verification
 
-node docs/art/catalogue-batch-1/checks.cjs <served origin>: **250 checks pass**; 15 real species IDs, stage counts, image hashes/size/alpha, **54 family/mode/viewport views** at 390, 1440 and 3440px, keyboard walking, touch cancellation, collision, missing-intake feedback and no save writes. Captures visually inspected. Aggregate baseline: **all 22 suites pass** on e795357 plus this task; Little Ranch's previously intermittent hint check passed in this run. This does not prove that flake fixed. Final-main reconciliation evidence is recorded in the PR.
+node docs/art/catalogue-batch-1/checks.cjs <served origin>: **254 checks pass**; 15 real species IDs, stage counts, image hashes/size/alpha, **54 family/mode/viewport views** at 390, 1440 and 3440px, keyboard walking, touch cancellation, collision, missing-intake feedback and no save writes. Captures visually inspected. Aggregate baseline: **all 22 suites pass** on e795357 plus this task; Little Ranch's previously intermittent hint check passed in this run. This does not prove that flake fixed. After reconciling main f34ec98 and importing the newly added Starfall texture into the local cache, **all 23 suites pass** (Wildbond Godot 1,643; Starfall Godot 297; Little Ranch 269; launcher 246). The cache refresh changes no tracked game file.
 
 ![Phone field review](world-390.webp)
 ![Desktop field review](world-1440.webp)

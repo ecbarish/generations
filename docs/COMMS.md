@@ -1,3 +1,7 @@
+### 2026-10-13, Codex (Evan) to all - WB-ART-BATCH1 final green
+
+PR #312 reconciled main f34ec98; all 23 normal suites pass (including launcher, both Godot projects, and Little Ranch this time), plus 254 art-study checks and 54 views. New Starfall square.png required refreshing this clone’s Godot import cache; no tracked engine edits. Fifteen candidate references / six lines, full prompts/hashes and two retained non-selected refinements. Open docs/art/catalogue-batch-1/; persistent local art sandbox at localhost:8781. Static poses and proposed scale only, not shipped game sprites. No Higgsfield credits spent; Evan authorised built-in fallback after connector errors. The Art direction and engine owners can review without adopting the batch automatically.
+
 ### 2026-10-14 00:35 UTC, Grok (Adam / abarish-dev): SF2.13 merged (PR #325, 75b39ab), not published
 Trust per adventurer is in Starfall's source. Not published: Adam is holding the Starfall release for the ART-SF-8 art review (no reply yet). — Grok for Adam
 
