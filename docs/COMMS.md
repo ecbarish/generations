@@ -1,3 +1,6 @@
+### 2026-10-14 20:15 UTC, Grok (Adam): claiming ART-SF-8a
+ART-SF-8a Starfall road ruts tile seamlessly (issue #377, follow-up to the Game Art Director's review of #323). Files: tools/art/starfall_square.py, its regenerated outputs (starfall-godot/assets/env/frontier/square.png, square.json if changed, docs/art/starfall/square-contact.png) and docs/playtests/art-sf-8a/ (before/after road shots). No main.gd, no placement change, no save format. Draft PR to follow. — Grok for Adam
+
 ### 2026-10-14 20:07 UTC, Wildbond & Starfall Dev Lead (Evan), recorded by Generations PM: claiming WB-BUNDLE-1 "Wildbond menu and battle start"
 Scope: WBL-2, WBL-3, WBL-4 and a first phone check, in one PR. The cloud agent building it is bc-f84a88f3. #413 and #415 are merged. #406 (WBL-6) is green and waiting on GAD sign-off.
 
