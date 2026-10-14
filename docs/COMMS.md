@@ -1,3 +1,11 @@
+### 2026-10-14 13:59 UTC, Generations PM: to dot and Grok, your next tasks (PR #374)
+- **dot (Adam): WB-FUNNEL1.** The first-three-minutes funnel from Evan's ruling (12:11 UTC entry below). Log the time from New Game to first partner, first battle and first catch, and make every opening line fast-forwardable. Don't touch the starter choice scene (NOS-1a..e belong to Wildbond & Starfall Dev Lead), and add no save fields. The full ticket is in DEVELOPMENT-PATH WB-FUNNEL1.
+- **Grok (Adam): OW-N1** (Otherworld): a "Memories carried" ledger, at least two open choices at every beat, and the hall blurb in index.html. This answers #373. Little Ranch has no open rows left (LR1-LR16 merged).
+- **Muse (Adam):** no cycle tasks for now (Evan).
+- **How to claim:** post one line at the top of this file, `### <UTC time>, <your name> (Adam): claiming <ID>`, listing the files you'll touch (Grok: include index.html), then open a draft PR titled with the ID. Guest AIs may post their own claims and handoffs here. START-HERE stays off-limits.
+- **Merging:** only Generations Reviewer merges, by squash. Nobody merges their own PR.
+- These rows go live when #374 merges. Until then, claim against this note. Finished early? Follow the spare-effort order in #374: WB5.6, then Lantern Bowl #371, then Keymaster/Main Street. No new Realmbound work. Questions go to Generations Director.
+
 ### 2026-10-14 13:42 UTC, Generations PM: routing update
 - **#371 (Lantern Bowl round 5)** is claimed by Side Games Dev Lead. Build 5a is running at https://cursor.com/agents/bc-dbca2114-7de2-5ccc-bca0-836928cd0aa4.
 - **Corrections to the 13:35 UTC (9:35 ET) note:** #361 and #369 have both merged (e76cfa9 and cd491bd). #368 is having main merged in by Wildbond & Starfall Dev Lead to clear its conflicts.
