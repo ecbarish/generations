@@ -1,3 +1,36 @@
+### 2026-10-14T19:28Z, Side Games Dev Lead (Evan): claiming LB 5b-1 (Lantern Bowl controls + passing, #371)
+Scope: Retro Bowl-style pull-back passing (no auto-aim default), optional All 22 controller mode, joystick + juke/spin, pass tutorial, headless tests. Play art/playbook = 5b-2.
+
+### 2026-10-14 19:15 UTC, Grok (Cursor cloud) for Evan: launch dates from the measured merge rate
+
+On #405, after merging main. Evan asked for faster dates, taken from `git log` on main, with no part-time discount. The count is in docs/plans/launch-summary.md.
+
+- **7 days (8–14 Oct):** 280 merged pulls, 40 a day. Little Ranch 28 (4.00/day), Lantern Bowl 6 (0.86), Night Market 2 (0.29), Wildbond 34 (4.86), docs 21 (3.00).
+- **14 days (1–14 Oct):** 287 pulls, 20.50 a day. Seven of those days had none.
+- Likely is pulls left ÷ the 7-day feature rate, plus 1 confirmation day, plus 0 buffer. Slower uses the 14-day rate, 2 rounds, and a 2-day buffer.
+- **Dates:** Little Ranch 16 Oct / 20 Oct. Lantern Bowl 20 Oct / 1 Nov. Night Market 22 Oct / 8 Nov. Wildbond 17 Oct / 22 Oct.
+- Merged: #403 (`d9cde61`), #400 (`43785a4`), #381, #383, #380, #399. On hold: #404, #409. Wildbond's first task is WBL-1, then WBL-2, WBL-3, WBL-4. Sprites come after. NM-CLAMP is SSA's and does not block.
+
+### 2026-10-14 17:55 UTC, Grok (Cursor cloud) for Evan: dev-lead corrections on the launch checklists
+
+On #405. Little Ranch is unchanged, and its dates are still pending a dev-lead check.
+
+- **Lantern Bowl and Night Market:** checked by Side Games Dev Lead. 5a (#383) is merging (`77361c6`, art approved). 5b is an L split into 5b-1 and 5b-2 (both M): Retro Bowl passing with no auto-aim, then play art and the playbook. 5c stays S, plus the 360px version label and a median carry of 2.7 against a target of 3. Likely 2026-11-11, slower 2026-12-02. Night Market #403 is built (56 tests pass). Hub entry is a separate S. Tuning S after Playtester. Likely 2026-11-04, slower 2026-11-18.
+- **Wildbond:** checked by Wildbond & Starfall Dev Lead. Nine battle sprites, not eight. Mosshog stays on the older Higgsfield art for now. WBL-6 (S) is first and already in progress. Then WBL-1 (with Choose Ripplet, WBL-14), WBL-2, WBL-3. WBL-11 and WBL-12 are SSA, parallel, and do not block unless Godot uses them. About 2 pulls a week. Likely 2026-11-11, slower 2026-12-09. Fun 7/10 and a phone session are must-pass. Phone is not yet tested.
+- The 7/10 bar is confirmed for those three. Summary: docs/plans/launch-summary.md.
+
+### 2026-10-14 17:45 UTC, Grok (Cursor cloud) for Evan: three launch games
+
+Evan's later 2026-10-14 ruling replaces the earlier same-day launch wording.
+
+- **Launch:** Little Ranch, Lantern Bowl, Night Market. Checklists and dates: docs/plans/ (launch-summary.md). Finished means playable and fun: first session without help, fun at least 7/10, no blocker or major bug, phone where it applies, one clear goal. Merging is not enough.
+- **Night Market:** IDLE-CORE is merged (#393). #403 is IDLE-NM1 and a launch task.
+- **Lantern Bowl:** round 5 (#371, #383) counts.
+- **Little Ranch:** #400 LR18 (Grok, opened before the hold) may finish as launch polish. LR19–LR22 stay in docs/ideas.md until the checklist calls for them.
+- **Wildbond:** steady background lane. Partial run, about 6 minutes on an existing save: Fun 5/10. Phone not yet tested. New Wildbond content waits.
+- **Keep-alive, bugs only:** Starfall, Keymaster, Diamond Manager, the cabinets, Realmbound, Otherworld. SS1, CS1 and DP1 wait until Night Market is playtested. The Starfall exact-build preview (#323/#325) is not now.
+- **Owners:** Side Games Dev Lead has Little Ranch (Grok and dot help), Lantern Bowl and Night Market. Wildbond & Starfall Dev Lead has Wildbond. Dates are pending a dev-lead check.
+
 ### 2026-10-14 17:02 UTC, Grok (Adam): LR18 ready (PR #400)
 Little Ranch Dough Table: a dough picture-sign opens a table with one lump in the baby's colour. Tap to squish it flat; rub (a forgiving drag, anywhere near) to roll it back into a ball; tap the cutter to stamp out a little dough baby that hops away. Three babies, a cheer, then home (one happy thing). No words, nothing to fail, no timers, nothing saved, no version bump. All 27 suites pass locally; CI green. Touches the same game.js as LR17 (#381): whichever merges second takes main in. Generations Reviewer: please review and squash-merge. — Grok for Adam
 
