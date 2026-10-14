@@ -1183,7 +1183,7 @@ module.exports = function scenarios() {
         check(H().lvl===45&&H().xp===12&&H().rested===34,'experience above level 40 does not raise the level or rewrite stored experience');
         const road=H();road.zone='thornvale';road.lvl=10;road.addons.unl.macro=true;road.mode='auto';road.quests.done={};
         updateWorld();
-        check(!autoAllowed()&&!$('#mAuto').hidden&&$('#mAuto').disabled&&/finished|outgrown/.test($('#modeHint').textContent),'an unfinished road keeps Auto visible, disabled, and explained');
+        check(!autoAllowed()&&!$('#mAuto').hidden&&$('#mAuto').disabled&&/finished|outgrown/.test($('#modeHint').textContent)&&/outgrown/.test($('#mAuto').title),'an unfinished road keeps Auto visible, disabled, and explained');
         for(const q of QUESTS.thornvale)road.quests.done[q.id]=true;
         updateWorld();
         check(autoAllowed()&&aiOn()&&!$('#mAuto').hidden&&!$('#mAuto').disabled,'a cleared Thornvale road at level 10 allows Auto');
@@ -1196,7 +1196,7 @@ module.exports = function scenarios() {
         accept(QUESTS.thornvale[0].id);beginArrival(false);
         check(arrivalPaused()&&!$('#mAuto').hidden,'the arrival leaves the Auto control on screen');
         document.querySelector('[data-road="skip"]').click();
-        check(!arrivalPaused()&&!RTALK&&!$('#mAuto').hidden&&$('#mAuto').disabled&&/500/.test($('#modeHint').textContent),'skipping the arrival does not hide Auto, and the gate is written beside Focus');
+        check(!arrivalPaused()&&!RTALK&&!$('#mAuto').hidden&&$('#mAuto').disabled&&/500/.test($('#modeHint').textContent)&&/500/.test($('#mAuto').title),'skipping the arrival does not hide Auto, and the gate is written beside Focus');
         const purse=fresh.money;
         holdFieldLoot({money:15,items:[]});updateWorld();
         const creator=document.querySelector('#sheet button')||document.querySelector('#mFocus');

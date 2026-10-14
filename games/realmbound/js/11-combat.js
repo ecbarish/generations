@@ -54,6 +54,13 @@ function autoReason(h){
   if(!autoRoad(h))return 'Auto repeats a road you have finished, while you are still its level, or a road you have outgrown. This road is still yours to play.';
   return '';
 }
+/* One short line beside Focus. The full reason stays on the Auto button, and this line stays while you talk so the bar does not jump. */
+function autoHint(h){
+  h=h||H();if(!h||autoAllowed(h))return '';
+  if(h.dun)return 'Auto stays off in a dungeon.';
+  if(!autoEarned(h))return `Auto waits (${Math.min(h.stats?.manual||0,500)}/500).`;
+  return 'Auto waits for a finished road, or one you outgrow.';
+}
 function autoAllowed(h){h=h||H();return !!(h&&!h.dun&&ZONES[h.zone]&&h.lvl<=LEVEL_CAP&&autoEarned(h)&&autoRoad(h));}
 function aiOn(){return !!(H()&&C&&!RTALK&&H().mode==='auto'&&autoAllowed());}
 function combatWaiting(){return !!(C&&C.phase==='fight'&&!aiOn()&&C.run-C.lastInput>=10);}

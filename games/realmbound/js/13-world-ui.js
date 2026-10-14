@@ -93,7 +93,7 @@ function updateWorld(){
   const eff=Math.round(aiEff()*100),wait=combatWaiting(),fb=$('#fightBtn');fb.hidden=!wait;fb.textContent=C.fightT>0?'Continue fight':'Fight';
   const auto=$('#mAuto');auto.hidden=false;auto.disabled=!autoAllowed();auto.title=autoAllowed()?'Earned help. Auto repeats this road.':autoReason(h);
   const hint=RTALK?'Take your time. Continue when you are ready.':townActive()&&h.mode==='focus'?'Take your time in town. Walk to someone and press Enter to talk.':aiOn()?'Auto repeats this finished road at '+eff+'%. A new road, and every dungeon, stays yours to play.':wait?'Fight waits for you. Choose Fight or an ability; ten seconds without combat input pauses it.':'Use an ability to keep fighting. Focus pauses when you stop; it never takes over.';
-  $('#modeHint').textContent=!RTALK&&!autoAllowed()?hint+' '+autoReason(h):hint;
+  const why=autoHint(h);$('#modeHint').textContent=why?hint+' '+why:hint;
   // xp
   const need=xpNeed(h.lvl),capped=h.lvl>=PLAY_CAP;$('#xpI').style.width=(capped?100:h.xp/need*100)+'%';
   const xl=capped?100:h.xp/need*100;$('#xpR').style.left=xl+'%';$('#xpR').style.width=(capped?0:Math.min(100-xl,h.rested/need*100))+'%';
