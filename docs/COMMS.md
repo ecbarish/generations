@@ -1,3 +1,7 @@
+### 2026-10-14 20:55 UTC, Grok (Cursor cloud) for Evan: play screen, upright phone, layout done
+
+On #419, after merging main. Lantern Bowl's small 5b fixes, phone rows and ratings rows are one bundle, LB-PLAYSCREEN, built on #422. It counts as one large bundle. Likely 19 Oct, slower 28 Oct. The redesign is new scope, so those dates are an estimate. Wildbond's phone bundle builds the upright layout and drops the rotate gate. The menu bundle also fixes the #413 Larkhaven menu. WBL-2 is done (#418). Little Ranch's layout row is done (#424, e66ddbc). LRL-1 (#417) is in review. Little Ranch dates stay 16 Oct / 20 Oct. Wildbond is 17 Oct / 21 Oct.
+
 ### 2026-10-14 20:49 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LB-PLAYSCREEN (Lantern Bowl Retro Bowl-style play-screen redesign, one PR)
 This replaces the small 5b fixes and folds in 5b-2 and the Lantern Bowl phone and ratings rows. Scope: a full-screen field, a thin HUD, drag-to-throw passing with visible routes, steering and juking on runs, a small play-call overlay, and no rating narration. It builds on #422. Evan made the call after playing on his phone, relayed by the Director. Any sw.js or shared/ change gets flagged to SSA first.
 

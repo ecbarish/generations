@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, docs:** Lantern Bowl's play screen is one bundle, likely 19 Oct and slower 28 Oct, and that redesign is an estimate. Wildbond's upright phone layout is a bundle, likely 17 Oct. Little Ranch's layout row is done (#424). Summary in docs/plans/launch-summary.md.
 - **2026-10-14, docs:** A pull request title is a full phrase, and the description says what changed for the player, why, how it was tested, and which checklist items it ticks. Reviewer sends back a one-line body. Rule in CONTRIBUTING.md.
 - **2026-10-14, docs:** Launch work is bundled. Likely dates are 16 Oct (Little Ranch and Wildbond), 21 Oct (Lantern Bowl) and 29 Oct (Night Market, a placeholder). Summary in docs/plans/launch-summary.md.
 - **2026-10-14, Grok (Cursor cloud), WBL-1:** Esc, I, the bag and Start open a pause menu (Party, Field book, Save, Close), a status bar shows the area, the party lead and the coins, and a click on a full-screen button stays on the button, in [#413](https://github.com/ecbarish/generations/pull/413) (bb4031c). Source only; not a preview release. Godot Wildbond has no version number, so this is a changelog line only. DEVELOPMENT-PATH has no WBL-1 or WBL-14 row.

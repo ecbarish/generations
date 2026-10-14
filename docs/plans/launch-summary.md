@@ -33,23 +33,25 @@ Playtester scored the launch games on 2026-10-14: Night Market **5/10**, Lantern
 | Game | Bundles | Build, likely | Playtest, likely | Buffer | Total | Date | Build, slower | Playtest, slower | Buffer | Total | Date |
 |---|---:|---|---|---:|---:|---|---|---|---:|---:|---|
 | Little Ranch | 2 | 2 / 3.00 = 0.67 days | 1 day | 0 | 1.67 | **2026-10-16** | 2 / 1.50 = 1.33 | 2 days + 1 / 1.50 = 0.67 | 2 | 6.00 | **2026-10-20** |
-| Lantern Bowl | 5 | 5 / 0.86 = 5.83 days | 1 day | 0 | 6.83 | **2026-10-21** | 5 / 0.43 = 11.67 | 2 days + 1 / 0.43 = 2.33 | 2 | 18.00 | **2026-11-01** |
+| Lantern Bowl | 3 | 3 / 0.86 = 3.50 days | 1 day | 0 | 4.50 | **2026-10-19** | 3 / 0.43 = 7.00 | 2 days + 1 / 0.43 = 2.33 | 2 | 13.33 | **2026-10-28** |
 | Night Market | 4 | 4 / 0.29 = 14.00 days | 1 day | 0 | 15.00 | **2026-10-29** | 4 / 0.14 = 28.00 | 2 days + 1 / 0.14 = 7.00 | 2 | 39.00 | **2026-11-22** |
-| Wildbond | 4 | 4 / 4.43 = 0.90 days | 1 day | 0 | 1.90 | **2026-10-16** | 4 / 2.43 = 1.65 | 2 days + 1 / 2.43 = 0.41 | 2 | 6.06 | **2026-10-21** |
+| Wildbond | 5 | 5 / 4.43 = 1.13 days | 1 day | 0 | 2.13 | **2026-10-17** | 5 / 2.43 = 2.06 | 2 days + 1 / 2.43 = 0.41 | 2 | 6.47 | **2026-10-21** |
 
-Counting each gap as its own pull, the dates on this pull request were Little Ranch 18 Oct / 24 Oct, Lantern Bowl 26 Oct / 13 Nov, Night Market 12 Nov / 27 Dec, and Wildbond 17 Oct / 22 Oct.
+Counting each gap as its own pull, the dates on this pull request were Little Ranch 18 Oct / 24 Oct, Lantern Bowl 26 Oct / 13 Nov, Night Market 12 Nov / 27 Dec, and Wildbond 17 Oct / 22 Oct. After the first bundling they were Little Ranch 16 Oct / 20 Oct, Lantern Bowl 21 Oct / 1 Nov, Night Market 29 Oct / 22 Nov, and Wildbond 16 Oct / 21 Oct.
+
+Lantern Bowl's play-screen redesign is new scope, so its 19 October and 28 October dates are an estimate. The per-pull rate is applied to one large bundle, not to the old 5b rows.
 
 The 0.29 and 0.14 pulls-a-day rates come from a small sample of 2 merges, so the 29 October and 22 November Night Market dates are placeholders, not forecasts, and the rate will be re-measured after a week of real merges now that a guest bot is on the lane.
 
 ## Where the games are
 
-Merged since the last draft: Night Market **#403** (`d9cde61`), payback and the offline label **#421** (`1459413`), Little Ranch **#400** LR18 (`43785a4`), **#381** LR17, Lantern Bowl 5a **#383**, **#380**, and **#399**. **#404** LR19 and **#409** LR20 are on hold.
+Merged since the last draft: Night Market **#403** (`d9cde61`), payback and the offline label **#421** (`1459413`), Little Ranch **#400** LR18 (`43785a4`), **#381** LR17, the layout row **#424** (`e66ddbc`), Lantern Bowl 5a **#383**, Wildbond menu **#413** (`bb4031c`), fair battles **#418** (`56204cc`), **#415**, **#380**, and **#399**. **#404** LR19 and **#409** LR20 are on hold. LRL-1 is in review (#417).
 
 | Game | Owner | Finish, in short | Bundles still open | Bundles | Likely | Slower | First bundle |
 |---|---|---|---|---|---|---|---|
-| Little Ranch | Side Games Dev Lead | Fun is 7/10. Toy polish, then the first visit | LR-POLISH, LR-VISIT. Phone playtest is not a bundle | 2 | 2026-10-16 | 2026-10-20 | LR-POLISH, toy polish |
-| Lantern Bowl | Side Games Dev Lead | Fun is 6/10. Passing and ratings, a phone fix, the playbook, the readout, the save | LB-PASS, LB-PHONE, LB-BOOK, LB-READ, LB-SAVE. Kick off is the phone bundle, not passing | 5 | 2026-10-21 | 2026-11-01 | LB-PASS, passing and ratings |
+| Little Ranch | Side Games Dev Lead | Fun is 7/10. Layout row is done (#424). Dough dots, the fox and the sign wiggle remain, then the first visit. LRL-1 is in review (#417) | LR-POLISH, LR-VISIT. Phone playtest is not a bundle | 2 | 2026-10-16 | 2026-10-20 | LR-POLISH, what is left of toy polish |
+| Lantern Bowl | Side Games Dev Lead | Fun is 6/10. One play screen, built on #422, then the match rules and the save. The redesign is new scope, so the dates are an estimate | LB-PLAYSCREEN, LB-MATCH, LB-SAVE. 5b-1, 5b-2, the phone rows and the ratings rows are the one play screen | 3 | 2026-10-19 | 2026-10-28 | LB-PLAYSCREEN, the play screen |
 | Night Market | Guest lane (#373) | Fun is 5/10. Playtest fixes, visuals, phone layout, hall entry. Payback and offline are done | NM-PLAY, NM-VIS, NM-PHONE, NM-HUB. NM-RETUNE and NM-CLAMP stay off this count. Dates are placeholders | 4 | 2026-10-29 | 2026-11-22 | NM-PLAY, playtest fixes |
-| Wildbond | Wildbond & Starfall Dev Lead | Menu and battle start, then the catch, the sprites, the road. Fun is 5/10 | WB-OPEN, WB-CATCH, WB-LOOK, WB-ROAD | 4 | 2026-10-16 | 2026-10-21 | WB-OPEN, menu and battle start |
+| Wildbond | Wildbond & Starfall Dev Lead | Menu regression, the upright phone layout, then the catch, the sprites, the road. Fun is 5/10. WBL-2 is done (#418) | WB-OPEN, WB-PHONE, WB-CATCH, WB-LOOK, WB-ROAD | 5 | 2026-10-17 | 2026-10-21 | WB-OPEN, the Larkhaven menu |
 
 Full lists: [launch-little-ranch.md](launch-little-ranch.md), [launch-lantern-bowl.md](launch-lantern-bowl.md), [launch-night-market.md](launch-night-market.md), [launch-wildbond.md](launch-wildbond.md).

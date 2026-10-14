@@ -34,9 +34,10 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 **First in each lane** after Playtester's 2026-10-14 scores (Night Market 5/10, Lantern Bowl 6/10, Little Ranch 7/10). These sit ahead of the older gaps in [QUEUE.md](QUEUE.md).
 
 - **Night Market:** Guest lane (#373). NM-PLAY first (pour, save controls, the 22.0s trailing zero). Then NM-VIS, both pictures in one pull. Then the phone layout and the hall entry. Payback and the offline label are done.
-- **Lantern Bowl:** Side Games Dev Lead. LB-PASS first (passing and ratings). The sideways Kick off fix is LB-PHONE, its own bundle.
-- **Little Ranch:** Side Games Dev Lead. LR-POLISH first. The layout spec and the dough dots are in that one pull. LR-VISIT is bedtime and the sound preference.
-- **Phone:** LRL-11, LBL-11 and NM-FIX-7. Owner: Playtester. Not build pulls.
+- **Lantern Bowl:** Side Games Dev Lead. LB-PLAYSCREEN first, one large pull built on #422. Evan stopped the small 5b fixes. The redesign is new scope, so the dates are an estimate.
+- **Little Ranch:** Side Games Dev Lead. LR-POLISH first. The layout row is done (#424). Dough dots, the fox and the sign wiggle remain. LRL-1 is in review (#417).
+- **Wildbond:** Wildbond & Starfall Dev Lead. WB-OPEN still comes first, and now fixes the #413 Larkhaven menu. WBL-2 is done (#418). WB-PHONE builds the upright layout and removes the rotate gate.
+- **Phone:** LRL-11 and NM-FIX-7. Owner: Playtester. Not build pulls. Lantern Bowl's phone rows are inside LB-PLAYSCREEN. Wildbond's phone work is WB-PHONE.
 
 **Finished means playable and fun.** A newcomer gets through the first session without help, Playtester scores fun at least 7/10, there is no blocker or major bug, it plays on a phone where that applies, and there is one clear goal. Further improvements do not hold it. Merging alone does not count. Playtester or Evan confirms it.
 

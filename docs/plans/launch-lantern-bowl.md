@@ -14,12 +14,12 @@ Round 5's bar is the note on [#371](https://github.com/ecbarish/generations/issu
 
 | Item | Gap | Where it stands |
 |---|---|---|
-| A newcomer gets through the first 10 minutes without help | **LBL-1** | 5b is the controls, the passing, the play art and the tutorial. Split into 5b-1 and 5b-2. Not started |
+| A newcomer gets through the first 10 minutes without help | **LBL-1** | Evan played on his phone and stopped the small 5b fixes. **LB-PLAYSCREEN** is the one bundle, built on #422 |
 | Playtester rates the first session as fun | **LBL-2** | **6/10** on 2026-10-14. The bar is at least 7/10. This does not pass. 5a (#383) is merged (`253c545`) |
-| No crashes and no broken saves | **LBL-3** | A save is written after every play. An older file steps up to version 2 and keeps the match. A newer file is left alone. Still confirm a reload on the round-5 build. A separate small pull moves the save onto `Arcade.versions` without changing the save format |
-| Plays well on a phone | **LBL-4** | **LBL-11.** The phone layout still needs a playtest. Owner: Playtester. The version label is still cut off at 360px wide |
-| One clear goal | **LBL-5** | 5c keeps the score, the down and the clock readable. 5b shows the routes before the snap. Playtester's "reads as football in 5 seconds" pass sits here |
-| Known bugs are fixed | **LBL-6** | **LB-PASS** is first: passing and ratings. Sideways, Kick off is off screen and Settings opens nothing, and that does not fit inside passing, so it is **LB-PHONE**. The playbook, the readout and the save are their own bundles |
+| No crashes and no broken saves | **LBL-3** | A save is written after every play. An older file steps up to version 2 and keeps the match. **LB-SAVE** still moves the save onto `Arcade.versions` without changing the save format |
+| Plays well on a phone | **LBL-4** | The phone rows are inside **LB-PLAYSCREEN**. The field fills the screen. There is no separate phone pull |
+| One clear goal | **LBL-5** | The thin HUD, and the routes shown before the snap, are inside **LB-PLAYSCREEN** |
+| Known bugs are fixed | **LBL-6** | **LB-PLAYSCREEN** replaces 5b-1, 5b-2, the phone rows and the ratings rows. Drives, the clock, the median carry, field goals and yardage stay in **LB-MATCH**. The save stays in **LB-SAVE** |
 
 ## Finished means
 
@@ -30,42 +30,29 @@ Playable and fun. Further improvements do not hold the release.
 - A newcomer plays the first match without help.
 - Playtester scores fun at least **7/10**. Confirmed by the dev lead.
 - No blocker and no major bug.
-- It plays on a phone, including at 360px wide, where the version label is currently cut off.
+- It plays on a phone, with the field filling the screen and a thin HUD.
 - One clear goal: it reads as football in 5 seconds. Move the ball, know the down, and know which way the goal is.
 
 **Must-haves** (these block finish):
 
 1. A field a newcomer can follow (LBL-2, round 5a, #383). Art approved. Merged.
-2. **Retro Bowl-feel passing, no auto-aim** (LBL-1, 5b-1).
-3. **Play variety, with routes shown before the snap** (LBL-1, 5b-2).
-4. Down, distance, score and clock stay readable (LBL-5, round 5c), including the 360px version label and a median carry nearer 3 than 2.7.
-5. A reload keeps the same match, and the save rides on `Arcade.versions` with no format change (LBL-3).
-6. A phone session of that build plays well (LBL-4).
-7. Playtester's fun score is at least 7/10, and the match reads as football in 5 seconds (LBL-2, LBL-5). The 2026-10-14 score is 6/10.
-8. Sideways on a phone, the page scrolls so Kick off is on screen, and Settings opens (LBL-12). Rating numbers rewritten or hidden (LBL-7). Throw power or aim shown, and a missed deep pass explained (LBL-8). Opponent drives summarised, and the clock slower (LBL-9). Field goals on 4th down, and varied quick-pass yardage (LBL-10).
-9. A phone layout playtest (LBL-11). Owner: Playtester.
+2. **LB-PLAYSCREEN**, one large pull, owned by Side Games Dev Lead and built on #422. The field fills the screen, a thin HUD, drag-to-throw passing with visible routes, steering and juking on runs, a small play-call overlay, and no rating narration. This replaces 5b-1, 5b-2, the phone rows and the ratings rows.
+3. Down, distance, score and clock stay readable on that thin HUD (LBL-5). A median carry nearer 3 than 2.7 stays in **LB-MATCH**, with opponent drives and a slower clock (LBL-9), and field goals on 4th down with varied quick-pass yardage (LBL-10).
+4. A reload keeps the same match, and the save rides on `Arcade.versions` with no format change (LBL-3, **LB-SAVE**).
+5. A phone session of that build plays well, because the field fills the screen (LBL-4). That is inside LB-PLAYSCREEN, not a separate row.
+6. Playtester's fun score is at least 7/10, and the match reads as football in 5 seconds (LBL-2, LBL-5). The 2026-10-14 score is 6/10.
 
 ## Playtest gaps (2026-10-14, fun 6/10)
 
-These are bundles. Side Games Dev Lead owns them. Passing and ratings come first. The Kick off fix is its own phone bundle, because the page does not scroll and Settings opens nothing.
+Evan played Lantern Bowl on his phone and stopped the small 5b fixes. These are the bundles now. Side Games Dev Lead owns them. LB-PLAYSCREEN comes first. It counts as one large bundle.
 
 | ID | Owner | What |
 |---|---|---|
-| LB-PASS | Side Games Dev Lead | First bundle. Controls and passing (5b-1, already claimed), rewrite or hide the ratings (LBL-7), and show throw power or aim, including why a deep pass missed (LBL-8) |
-| LB-PHONE | Side Games Dev Lead | Sideways, the page does not scroll, so Kick off is off screen, and Settings opens nothing (LBL-12) |
-| LB-BOOK | Side Games Dev Lead | Play art and the playbook (5b-2), field goals on 4th down, and varied quick-pass yardage (LBL-10) |
-| LB-READ | Side Games Dev Lead | Score, down, clock, the 360px version label, and the median carry (5c), plus opponent drives and a slower clock (LBL-9) |
+| LB-PLAYSCREEN | Side Games Dev Lead | First bundle. One large pull, built on #422. The field fills the screen, a thin HUD, drag-to-throw passing with visible routes, steering and juking on runs, a small play-call overlay, and no rating narration. Replaces 5b-1, 5b-2, the phone rows (LBL-11, LBL-12) and the ratings rows (LBL-7, LBL-8) |
+| LB-MATCH | Side Games Dev Lead | What the play screen does not cover. Opponent drives and a slower clock (LBL-9), a median carry nearer 3 than 2.7, field goals on 4th down, and varied quick-pass yardage (LBL-10) |
 | LB-SAVE | Side Games Dev Lead | Onto `Arcade.versions`. Split out because it touches the save. No save-format change without Evan (LBL-3) |
-| LBL-11 | Playtester | The phone layout still needs a playtest. Not a build pull |
 
-**5b is not only a tutorial.** Evan's passing slice is:
-
-- Retro Bowl passing: pull back for power, aim with the drag, no auto-aim by default. Quarterback ratings set the aim arc's length and the accuracy. Power sets the range and the landing radius.
-- An optional All 22 / Madden mode, with a button per receiver.
-- Juke, spin, and a joystick.
-- Play art: routes drawn before the snap, and play-call diagrams.
-- A playbook across formations, from hand-ported MIT code.
-- A tutorial and a throwaway.
+The earlier split into 5b-1 and 5b-2 is stopped. Passing, routes, the phone layout and the ratings are LB-PLAYSCREEN, not their own pulls.
 
 **Does not block finish:**
 
@@ -77,21 +64,19 @@ These are bundles. Side Games Dev Lead owns them. Passing and ratings come first
 
 Measured 2026-10-14. Lantern Bowl's feature rate is 6 pulls in 7 days (0.86 a day) and the same 6 in 14 days (0.43 a day). The maths is in [launch-summary.md](launch-summary.md).
 
-**Bundles left:** 5. 5a (#383) is merged. LBL-11 is not a bundle. The sideways Kick off fix does not fit inside passing: the page does not scroll, and Settings opens nothing, so that is the phone bundle. The save cleanup is split out because it touches the save. The per-pull rate applied to these bundles makes the dates estimates.
+**Bundles left:** 3. 5a (#383) is merged. LB-PLAYSCREEN counts as one large bundle, even though it replaces several old rows. The save cleanup is split out because it touches the save. The per-pull rate applied to these bundles makes the dates estimates. The redesign is new scope, so these dates are an estimate.
 
 | ID | What is inside |
 |---|---|
-| LB-PASS | Passing and ratings: 5b-1, the rating numbers, and throw power or aim |
-| LB-PHONE | Sideways Kick off, and Settings |
-| LB-BOOK | Play art, the playbook, field goals on 4th down, and quick-pass yardage |
-| LB-READ | Score, down, clock, the version label, the median carry, opponent drives, and a slower clock |
+| LB-PLAYSCREEN | The field fills the screen, a thin HUD, drag-to-throw passing with visible routes, steering and juking on runs, a small play-call overlay, and no rating narration. Built on #422 |
+| LB-MATCH | Opponent drives, a slower clock, the median carry, field goals on 4th down, and quick-pass yardage |
 | LB-SAVE | Onto `Arcade.versions`. No save-format change without Evan |
 
-**Likely:** 5 / 0.86 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-21.**
-**Slower:** 5 / 0.43 days of build, two playtest rounds, and a 2-day buffer. **2026-11-01.**
+**Likely:** 3 / 0.86 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-19.**
+**Slower:** 3 / 0.43 days of build, two playtest rounds, and a 2-day buffer. **2026-10-28.**
 
 ## Owner and the first bundle
 
 **Owner:** Side Games Dev Lead.
 
-1. **LB-PASS.** Passing and ratings, one pull. 5b-1 is already claimed and belongs in this bundle.
+1. **LB-PLAYSCREEN.** The play screen, one large pull, built on #422.
