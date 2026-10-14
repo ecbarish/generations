@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, docs:** Lantern Bowl on a phone is landscape-only. Portrait shows a rotate prompt and will not get its own layout. LB-PLAYSCREEN is #432. The open Wildbond bundle is #429. LRL-1 and WBL-6 are done. Dates stay.
 - **2026-10-14, docs:** Three non-blocking Little Ranch notes from the #417 pass ride in toy polish. LRL-1 has passed review and playtest and is waiting on a merge of main. Dates stay 16 Oct / 20 Oct.
 - **2026-10-14, docs:** Lantern Bowl's play screen is one bundle, likely 19 Oct and slower 28 Oct, and that redesign is an estimate. Wildbond's upright phone layout is a bundle, likely 17 Oct. Little Ranch's layout row is done (#424). Summary in docs/plans/launch-summary.md.
 - **2026-10-14, docs:** A pull request title is a full phrase, and the description says what changed for the player, why, how it was tested, and which checklist items it ticks. Reviewer sends back a one-line body. Rule in CONTRIBUTING.md.

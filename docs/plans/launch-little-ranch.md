@@ -11,11 +11,11 @@ Playtester scores every week. The lowest-scoring part becomes the next task. Fin
 
 | Item | Gap | Where it stands |
 |---|---|---|
-| A newcomer gets through the first 10 minutes without help | **LRL-1** | Bedtime in the first sitting has passed review and playtest (#417). It is waiting on a merge of main |
+| A newcomer gets through the first 10 minutes without help | **LRL-1** | Done (#417, `e352a7b`). The first visit reaches bedtime |
 | Playtester rates the first session as fun | **LRL-2** | **7/10** on 2026-10-14. That meets the bar. The same session still left the gaps below |
 | No crashes and no broken saves | **LRL-4** | Pass 2 had no page error. The visit itself is not saved. Only the sound preference is stored (`little-ranch-settings-v1`). A reload check is still missing |
 | Plays well on a phone | **LRL-3** | **LRL-11.** The phone layout still needs a playtest. Owner: Playtester |
-| One clear goal | **LRL-1** | The visit should show one day and then bedtime. #417 has passed review and playtest, and is waiting on a merge of main |
+| One clear goal | **LRL-1** | Done (#417, `e352a7b`). The visit shows one day and then bedtime |
 | Known bugs are fixed | **LRL-5** | The layout row is done (#424, `e66ddbc`). **LR-POLISH** still has the dough dots, the fox, and the sign wiggle, plus three non-blocking notes from the #417 pass |
 
 ## Finished means
@@ -32,7 +32,7 @@ Playable and fun. Further improvements do not hold the release.
 
 **Must-haves** (these block finish):
 
-1. The first visit reaches bedtime without a grown-up explaining it (LRL-1). #417 has passed review and playtest, and is waiting on a merge of main.
+1. The first visit reaches bedtime without a grown-up explaining it (LRL-1). Done (#417, `e352a7b`).
 2. The sound choice is still there after the page is reloaded (LRL-4).
 3. Nothing crashes, and a reload does not break the page (LRL-4, LRL-5).
 4. A phone session of the current build plays well (LRL-3).
@@ -47,7 +47,7 @@ These are bundles. Side Games Dev Lead owns them. Toy polish comes before the fi
 | ID | Owner | What |
 |---|---|---|
 | LR-POLISH | Side Games Dev Lead | First bundle. The layout row is done (#424, `e66ddbc`): cookie and cutter, and the phone overlaps. Still in this pull: dough dots (LRL-6), the fox (LRL-7), and the sign wiggle (LRL-10). Game Art Director reviews any art. The same pull carries three non-blocking notes from the #417 pass: bigger, longer bedtime cues, because the cup timed out before the player saw it (LRL-13); a slower dusk fade (LRL-14); and feedback when the player leaves the paint shed early (LRL-15) |
-| LR-VISIT | Side Games Dev Lead | Bedtime in the first sitting (LRL-1). #417 has passed review and playtest, and is waiting on a merge of main. The sound preference after a reload (LRL-4) is still open. No save-format change |
+| LR-VISIT | Side Games Dev Lead | Bedtime in the first sitting is done (LRL-1, #417, `e352a7b`). The sound preference after a reload (LRL-4) is still open. No save-format change |
 | LRL-11 | Playtester | The phone layout still needs a playtest. Not a build pull |
 
 **Does not block finish:**
@@ -61,12 +61,12 @@ These are bundles. Side Games Dev Lead owns them. Toy polish comes before the fi
 
 Measured on 2026-10-14. The count, the split into build, playtest and buffer, and both dates are in [launch-summary.md](launch-summary.md). Little Ranch's feature rate is 21 pulls in 7 days (3.00 a day) and the same 21 in 14 days (1.50 a day).
 
-**Bundles left that block finish:** 2. The layout row is done (#424, `e66ddbc`). LRL-1 (#417) has passed review and playtest, and is waiting on a merge of main. The three #417 notes are non-blocking and ride inside LR-POLISH, so they do not add a bundle. The dates stay. The per-pull rate is applied to bundles, so these dates are estimates. LRL-11 is not a bundle. LR17 and LR18 are merged. #404 and #409 are on hold.
+**Bundles left that block finish:** 2. The layout row is done (#424, `e66ddbc`). LRL-1 is done (#417, `e352a7b`). The sound preference is still open, so LR-VISIT still counts. The three #417 notes are non-blocking and ride inside LR-POLISH, so they do not add a bundle. The dates stay. The per-pull rate is applied to bundles, so these dates are estimates. LRL-11 is not a bundle. LR17 and LR18 are merged. #404 and #409 are on hold.
 
 | ID | What is inside |
 |---|---|
 | LR-POLISH | Dough dots, the fox, and the sign wiggle. The layout row is done (#424, `e66ddbc`). Non-blocking, from the #417 pass: bigger, longer bedtime cues (LRL-13), a slower dusk fade (LRL-14), and feedback for leaving the paint shed early (LRL-15) |
-| LR-VISIT | Bedtime in the first sitting. #417 has passed review and playtest, and is waiting on a merge of main. The sound preference after a reload is still open |
+| LR-VISIT | The sound preference after a reload. Bedtime is done (#417, `e352a7b`) |
 
 **Likely:** 2 / 3.00 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-16.**
 **Slower:** 2 / 1.50 days of build, two playtest rounds, and a 2-day buffer. **2026-10-20.**

@@ -1,3 +1,7 @@
+### 2026-10-14 22:05 UTC, Grok (Cursor cloud) for Evan: Lantern Bowl is landscape-only
+
+On #419, after merging main. On a phone, Lantern Bowl is landscape-only. Held upright, it shows "Turn your phone sideways", the way ALL-22 does. Portrait will not get its own layout. LB-PLAYSCREEN is #432, which replaces #422. The open Wildbond bundle is #429. LRL-1 is done (#417, e352a7b). WBL-6 is done (#406, 440e4d6). Bundle counts are unchanged, so the dates stay.
+
 ### 2026-10-14 21:00 UTC, Grok (Cursor cloud) for Evan: three Little Ranch notes ride in toy polish
 
 On #419. Playtester's #417 pass adds three non-blocking notes to LR-POLISH, owned by Side Games Dev Lead: bigger, longer bedtime cues (the cup timed out), a slower dusk fade, and feedback for leaving the paint shed early. They do not add a bundle, so Little Ranch stays 16 Oct / 20 Oct. LRL-1 (#417) has passed review and playtest, and is waiting on a merge of main.

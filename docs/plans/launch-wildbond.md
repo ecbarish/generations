@@ -31,7 +31,7 @@ Partial newcomer report. About **6 minutes**, on an **existing save**. **Fun 5/1
 
 ## Gaps
 
-The open majors are five bundles, not one pull each. **WB-OPEN** is first: the menu, and the #413 regression where the Larkhaven menu does not open. **WB-PHONE** builds the upright layout. **WB-CATCH** is the Catch and the objective. **WB-LOOK** is the early pace and the nine sprites. **WB-ROAD** is the north exit, the Thornwood road, and Continue.
+The open majors are five bundles, not one pull each. **WB-OPEN** is first: the menu, and the #413 regression where the Larkhaven menu does not open. **WB-CATCH** is the Catch and the objective. Those two are the open Wildbond bundle, #429. **WB-PHONE** builds the upright layout. **WB-LOOK** is the early pace. The nine sprites are done. **WB-ROAD** is the north exit, the Thornwood road, and Continue.
 
 **WBL-1. Menu and status bar. Inside WB-OPEN.** Merged in #413 (`bb4031c`): Esc, the briefcase icon, and I open a real menu, plus a status bar. The menu covers party, field book, and save. **WBL-14** rode in that same pull: Choose Ripplet chooses, instead of walking. A regression remains. The Larkhaven menu does not open. That fix stays in WB-OPEN.
 
@@ -43,7 +43,7 @@ The open majors are five bundles, not one pull each. **WB-OPEN** is first: the m
 
 **WBL-4. The objective tracker. Inside WB-CATCH.** An on-screen objective, and tutorial text that fits its box. The first-catch Bond prompt is that objective for the opening encounter. Ticks the first 10 minutes and one clear goal.
 
-**WBL-6. Battle sprites. Inside WB-LOOK, with WBL-5.** Battle screens still draw the overworld sprites scaled up. Game Art Director handed over **9 finished 64×64 battle sprites**. Wiring them in rides with the early pace, and Game Art Director reviews the sprites. Mosshog uses the older Higgsfield art for now. Game Art Director will swap that sprite later, and that swap does not block finish. Ticks fun and known bugs.
+**WBL-6. Battle sprites. Done (#406, `440e4d6`).** Battles show the real creature sprites. Mosshog stays on the older Higgsfield art until Game Art Director swaps it, and that swap does not block finish. The early pace (WBL-5) is still open inside WB-LOOK.
 
 **WBL-5. The early route moves. Inside WB-LOOK.** A faster early encounter rate, and healing, so the first session is not a long walk with nothing to do. Ticks the first 10 minutes and fun.
 
@@ -92,7 +92,7 @@ Playable and fun. Further improvements do not hold the release.
 2. A battle that starts on the action menu (WBL-2). Done (#418, `56204cc`).
 3. An obvious Catch button, and a guided first catch that cannot fail, with Bag usable when you have items (WBL-3).
 4. An objective tracker whose text fits (WBL-4).
-5. An early pace with encounters and healing (WBL-5), then the 9 battle sprites (WBL-6). Mosshog stays on the older Higgsfield art until Game Art Director swaps it.
+5. An early pace with encounters and healing (WBL-5). The 9 battle sprites (WBL-6) are done (#406, `440e4d6`). Mosshog stays on the older Higgsfield art until Game Art Director swaps it.
 6. The north exit stays in the world, the Thornwood road goes somewhere, and Continue returns through the title screen to the same place (WBL-7, WBL-8, WBL-9, WBL-10).
 7. Fun at least 7/10, and the upright phone layout (**WB-PHONE**). Both are must-pass. The rotate gate is removed. Game Art Director art-checks the layout.
 
@@ -114,10 +114,10 @@ Measured 2026-10-14. Wildbond's feature rate is 31 pulls in 7 days (4.43 a day) 
 
 | ID | What is inside |
 |---|---|
-| WB-OPEN | Menu and battle start. WBL-2 is done (#418). The Larkhaven menu from #413 still does not open |
+| WB-OPEN | Menu and battle start. WBL-2 is done (#418). The Larkhaven menu from #413 still does not open. This is part of #429 |
 | WB-PHONE | The upright layout, to the 16-item spec. The rotate gate is removed. Game Art Director art-checks it |
-| WB-CATCH | The Catch button, the guided first catch, and the objective tracker |
-| WB-LOOK | Early pace, and the nine battle sprites. Game Art Director reviews the sprites |
+| WB-CATCH | The Catch button, the guided first catch, and the objective tracker. This is part of #429 |
+| WB-LOOK | Early pace (WBL-5). The nine battle sprites are done (#406, `440e4d6`) |
 | WB-ROAD | North exit, the Thornwood road, and Continue |
 
 **Likely:** 5 / 4.43 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-17.**
@@ -127,4 +127,4 @@ Measured 2026-10-14. Wildbond's feature rate is 31 pulls in 7 days (4.43 a day) 
 
 **Owner:** Wildbond & Starfall Dev Lead.
 
-1. **WB-OPEN.** Menu and battle start, one pull. WBL-2 is done. This pull fixes the #413 regression: the Larkhaven menu does not open.
+1. **WB-OPEN**, with **WB-CATCH**. The open Wildbond bundle is #429: the menu in every area, including the Larkhaven menu from #413, plus the Catch and the objective. WBL-2 is done. WBL-6 is done (#406, `440e4d6`).
