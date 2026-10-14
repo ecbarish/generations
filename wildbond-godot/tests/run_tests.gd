@@ -255,10 +255,10 @@ func _run() -> void:
 	var dusk: Dictionary = main.DATA.SPECIES.duskweaver
 	var dusk_look: Dictionary = Figures.look_for(dusk)
 	var dusk_canon: Array = Figures._body(true, { "walking": false, "wag": 0, "ears_up": true }, dusk_look)
-	var dusk_h := Figures.pixel_span(dusk_canon).y
-	var dusk_target := Figures._target_height(dusk, dusk_canon)
-	var dusk_foe := maxi(1, int(round(float(dusk_target) / float(maxi(1, dusk_h)) * 3.0)))
-	var dusk_ally := maxi(1, int(round(float(dusk_target) / float(maxi(1, dusk_h)) * 4.0)))
+	var dusk_h: int = int(Figures.pixel_span(dusk_canon).y)
+	var dusk_target: int = int(Figures._target_height(dusk, dusk_canon))
+	var dusk_foe: int = maxi(1, int(round(float(dusk_target) / float(maxi(1, dusk_h)) * 3.0)))
+	var dusk_ally: int = maxi(1, int(round(float(dusk_target) / float(maxi(1, dusk_h)) * 4.0)))
 	check(Figures.battle_whole_scale(dusk, 3.0) == dusk_foe and Figures.battle_whole_scale(dusk, 4.0) == dusk_ally, "WBL-6: Duskweaver's fallback is a whole scale (foe %d, ally %d)" % [dusk_foe, dusk_ally])
 	var dusk_parts: Array = Figures.native_parts(dusk, false, { "wag": 0, "ears_up": true }, {})
 	check(dusk_parts.size() > 4 and Figures.battle_whole_scale(dusk, 3.0) == int(Figures.battle_whole_scale(dusk, 3.0)), "WBL-6: the fallback still draws Duskweaver, on whole pixels")
@@ -276,7 +276,7 @@ func _run() -> void:
 	var foe_placed: Vector2 = Sprites.foot_clear_of(foe_stand, Vector2i(64, 64), 1.0, front_panels, 4.0)
 	var ally_box: Rect2 = Sprites.dest_rect(ally_placed, Vector2i(64, 64), 1.0)
 	var foe_box: Rect2 = Sprites.dest_rect(foe_placed, Vector2i(64, 64), 1.0)
-	var front_clear := not ally_box.intersects((front_panels[0] as Rect2).grow(4.0)) and not ally_box.intersects((front_panels[1] as Rect2).grow(4.0)) and not foe_box.intersects((front_panels[0] as Rect2).grow(4.0)) and not foe_box.intersects((front_panels[1] as Rect2).grow(4.0))
+	var front_clear: bool = not ally_box.intersects((front_panels[0] as Rect2).grow(4.0)) and not ally_box.intersects((front_panels[1] as Rect2).grow(4.0)) and not foe_box.intersects((front_panels[0] as Rect2).grow(4.0)) and not foe_box.intersects((front_panels[1] as Rect2).grow(4.0))
 	check(ally_box.size == Vector2(64, 64) and foe_box.size == Vector2(64, 64) and front_clear, "WBL-6: a 64x64 front keeps its scale and stays clear of the HP panels")
 	var wash_tex: Texture2D = Sprites.texture("blazefang", "idle")
 	var wash_a: Texture2D = Sprites._washed(wash_tex, Rect2i(0, 0, fang_sz.x, fang_sz.y), 0.5)
