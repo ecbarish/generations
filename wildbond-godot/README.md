@@ -6,6 +6,7 @@ deciding (START-HERE.md "Questions for Evan" 1; docs/wildbond-plan.md).
 
 ## Unreleased
 
+- WBL-2 (merged #418, 2026-10-14): a battle opens on your action menu. Your lead creature starts with a full turn meter, so a quicker foe no longer strikes or winds up before you choose. A battle in which every foe is already down ends instead of opening a menu. Not published.
 - WB-C4b (merged #399, 2026-10-14): the Thornwood pond outline breaks the box, and the reeds sway by whole pixels. Not published.
 - WB-FUNNEL1 (merged #380, 2026-10-14): a tap advances opening dialogue, and the opening records time to the first partner, first battle and first catch. Not published.
 - WB-C4 (merged #372, 2026-10-14): Larkhaven gets a barn garden, door stones, straw in the pen and grass variety, and the Thornwood ponds get a muddy, reedy bank. Not published.
