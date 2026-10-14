@@ -40,8 +40,14 @@
      lists and restores (arcade-backup:<save key>:<id> = { at, why, data, ver }): a recent one at most every 10 minutes
      and one a day for the last 3 days. If a save can't be read, load() falls back to the newest backup that can, and
      the page says so. saveToolsHTML() draws a "Your save" box (download, load a file, restore a backup) any game can
-     put in its menus; validators[key] (set by each game) checks that a file really is that game's save. */
-  var BK = 'arcade-backup:', RECENT_MS = 10 * 60 * 1000, DAYS = 3, lastBk = {}, frozen = {}, recovered = {}, validators = {};
+     put in its menus; validators[key] (set by each game) checks that a file really is that game's save.
+     versions[key] and migrates[key] are optional, set before load, beside validators. versions[key] is this game's
+     current save version (a number). The save's version is the v it already stores. An older v runs
+     migrates[key](save, fromVersion) when that function is set. A newer v is refused: load returns null, the stored
+     text is left untouched, and save stays off for the rest of the session. held[key] is the notice a game can show.
+     A game that sets no version behaves as before. This never writes a new save field. */
+  var BK = 'arcade-backup:', RECENT_MS = 10 * 60 * 1000, DAYS = 3, lastBk = {}, frozen = {}, recovered = {}, validators = {}, versions = {}, migrates = {}, held = {}, heldShown = {};
+  var HELD_NOTE = 'This save is from a newer version, so progress will not be saved.';
   function ver() { try { return typeof VERSION !== 'undefined' ? String(VERSION) : ''; } catch (e) { return ''; } }
   function putBackup(key, id, raw, why) { localStorage.setItem(BK + key + ':' + id, JSON.stringify({ at: Date.now(), why: why, data: raw, ver: ver() })); }
   function autoBackup(key, raw) {
@@ -60,16 +66,60 @@
       try { var b = JSON.parse(localStorage.getItem(k)); if (b && typeof b.data === 'string') { b.k = k; out.push(b); } } catch (e) {} } } } catch (e) {}
     return out.sort(function (a, b) { return b.at - a.at; });
   }
+  function gameVersion(key) {
+    var v = versions[key];
+    return typeof v === 'number' && isFinite(v) ? v : null;
+  }
+  function fileVersion(obj) {
+    if (!obj || typeof obj !== 'object' || typeof obj.v !== 'number' || !isFinite(obj.v)) return null;
+    return obj.v;
+  }
+  function newerThanGame(key, obj) {
+    var current = gameVersion(key), from = fileVersion(obj);
+    return current != null && from != null && from > current;
+  }
+  function noticeHeld(key) {
+    if (heldShown[key] || typeof document === 'undefined') return;
+    heldShown[key] = true;
+    var show = function () {
+      if (!document.body) return;
+      var d = document.createElement('div');
+      d.setAttribute('role', 'status');
+      d.setAttribute('data-arc-held', key);
+      d.className = 'arc-held';
+      d.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9999;max-width:min(92vw,560px);background:#1d2433;color:#fff;border:1px solid #f2c14e;border-radius:10px;padding:10px 14px;font:14px/1.4 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.4)';
+      d.textContent = held[key];
+      document.body.appendChild(d);
+    };
+    try { if (document.body) show(); else document.addEventListener('DOMContentLoaded', show); } catch (e) {}
+  }
+  function holdNewer(key) { held[key] = HELD_NOTE; noticeHeld(key); }
+  /* No registered version, or a save with no numeric v, is returned as parsed. migrate's return is what load returns. */
+  function applyVersion(key, obj) {
+    var current = gameVersion(key);
+    if (current == null) return obj;
+    var from = fileVersion(obj);
+    if (from == null || from === current) return obj;
+    if (from > current) { holdNewer(key); return null; }
+    if (typeof migrates[key] !== 'function') return obj;
+    try { var next = migrates[key](obj, from); return next === undefined ? obj : next; } catch (e) { return obj; }
+  }
   function load(key) {
     var r; try { r = localStorage.getItem(key); } catch (e) { return null; }
     if (!r) return null;
-    try { return JSON.parse(r); } catch (e) { /* damaged: try the backups, newest first */ }
+    try { return applyVersion(key, JSON.parse(r)); } catch (e) { /* damaged: try the backups, newest first */ }
     var bs = backups(key);
-    for (var i = 0; i < bs.length; i++) { try { var o = JSON.parse(bs[i].data); recovered[key] = bs[i]; noticeRecovered(bs[i]); return o; } catch (e) {} }
+    for (var i = 0; i < bs.length; i++) {
+      try {
+        var o = JSON.parse(bs[i].data);
+        if (newerThanGame(key, o)) continue;
+        recovered[key] = bs[i]; noticeRecovered(bs[i]); return applyVersion(key, o);
+      } catch (e) {}
+    }
     return null;
   }
   function save(key, obj) {
-    if (frozen[key]) return false; // a restore or import is about to reload the page: don't overwrite it
+    if (frozen[key] || held[key]) return false; // frozen: a restore or import is about to reload; held: a newer save must stay as stored
     try { var raw = JSON.stringify(obj); localStorage.setItem(key, raw); autoBackup(key, raw); return true; } catch (e) { return false; }
   }
   function encode(obj) { return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))); }
@@ -89,7 +139,8 @@
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
   function saveToolsHTML(key, btn) {
     btn = btn || 'btn'; var bs = backups(key);
-    return '<div class="arc-save" data-key="' + esc(key) + '"><div class="arc-save-row"><button class="' + btn + '" data-arcsave="download">Download my save</button>' +
+    var heldNote = held[key] ? '<p class="arc-note arc-held-note" role="status">' + esc(held[key]) + '</p>' : '';
+    return '<div class="arc-save" data-key="' + esc(key) + '">' + heldNote + '<div class="arc-save-row"><button class="' + btn + '" data-arcsave="download">Download my save</button>' +
       '<label class="' + btn + ' alt arc-file">Load a save file<input type="file" accept=".json,.txt,application/json,text/plain" data-arcsave="file"></label></div>' +
       '<details class="arc-bk"><summary>Automatic backups (' + bs.length + ')</summary>' + (bs.length ? bs.map(function (b) {
         return '<div class="arc-bk-row"><span>' + esc(new Date(b.at).toLocaleString()) + ' · ' + esc(b.why || 'backup') + (b.ver ? ' · v' + esc(b.ver) : '') + '</span>' +
@@ -144,14 +195,14 @@
     save(INDEX_KEY, idx);
   }
   function erase(key, gameId) {
-    try { localStorage.removeItem(key); } catch (e) {}
+    if (!held[key]) { try { localStorage.removeItem(key); } catch (e) {} }
     var idx = readIndex(); delete idx[gameId]; save(INDEX_KEY, idx);
   }
 
   window.Arcade = {
     fmt: fmt, fmtI: fmtI, fmtTime: fmtTime,
     load: load, save: save, encode: encode, decode: decode, decodeAny: decodeAny, erase: erase,
-    backups: backups, saveToolsHTML: saveToolsHTML, replaceSave: replaceSave, validators: validators, recovered: recovered,
+    backups: backups, saveToolsHTML: saveToolsHTML, replaceSave: replaceSave, validators: validators, versions: versions, migrates: migrates, held: held, recovered: recovered,
     report: report, readIndex: readIndex,
     home: '../../index.html'
   };
