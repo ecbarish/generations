@@ -197,5 +197,13 @@ func _draw() -> void:
 	var on := row == SIGN_ROW
 	draw_rect(Rect2(204, 166, 146, 15), INK if on else Color("7a5a3a"))
 	_text("Sign the register", Vector2(204, 177), 9, Color("f4e9cd"), 146)
-	_text("Up/Down choose a line, Left/Right change it", Vector2(193, 190), 6, FAINT, 163)
-	_text("Tap a line to change it, then sign" if Controls.touch else "Type your name; Enter or click to sign", Vector2(193, 198), 6, FAINT, 163)
+	var h := hints()
+	for i in h.size():
+		_text(h[i], Vector2(193, 198 - (h.size() - 1 - i) * 8), 6, FAINT, 163)
+
+## The help under the register: a phone gets the one line about tapping, a keyboard both lines (WB-C3b: the keyboard's
+## "Up/Down" line used to show on a phone too).
+func hints() -> Array:
+	if Controls.touch:
+		return ["Tap a line to change it, then sign"]
+	return ["Up/Down choose a line, Left/Right change it", "Type your name; Enter or click to sign"]

@@ -1950,6 +1950,17 @@ func _phone_fixes() -> void:
 	main.howto.visible = false
 	main.touch.touched = false
 	main.touch.refresh()
+	# WB-C3b: the register's help matches the device (a phone was told "Up/Down" too)
+	main.touch.touched = true
+	main.touch.refresh()
+	var ph: Array = main.register.hints()
+	check(ph.size() == 1 and not "Up/Down" in str(ph) and "Tap" in str(ph[0]), "on a phone the register says only how to tap")
+	main.touch.touched = false
+	main.touch.refresh()
+	var kh: Array = main.register.hints()
+	check(kh.size() == 2 and "Up/Down" in str(kh[0]), "with a keyboard the register keeps both lines")
+	# WB-C3b: the note under the partner card's stat bars has room (three rows of 12px, then a gap)
+	check(preload("res://scripts/card.gd").STATS_H >= 3 * 12 + 4, "the partner card's note sits clear of its stat bars")
 	# a tap on the speech bubble itself moves the talk on (it used to swallow the tap)
 	check(main.bubble.mouse_filter == Control.MOUSE_FILTER_IGNORE, "the speech bubble lets taps through to the game")
 	main.lines.clear()
