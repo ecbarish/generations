@@ -739,7 +739,7 @@ func _hp_panels() -> Array:
 	return panels
 
 ## Feet on the bottom edge of the sprite. If that rect would sit under a health panel, slide the
-## feet aside. `scale` is returned to the caller unchanged.
+## feet aside. The caller keeps the same whole-number scale.
 func _painted_foot(spot: Vector2, species_id: String, pose: String, scale: float) -> Vector2:
 	var sz := Sprites.frame_size(species_id, pose)
 	if sz == Vector2i.ZERO:
