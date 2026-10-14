@@ -204,14 +204,21 @@
     canvas.focus();
   }
 
+  function hideSheet() {
+    var sheet = $('sheet');
+    if (!sheet) return;
+    sheet.hidden = true;
+    sheet.textContent = '';
+  }
   function showCall() {
     resultLeft = 0;
     if (!state || state.phase === 'final') return showFinal();
     if (state.possession !== 'home') return askDefence();
     if (mode === 'watch' || mode === 'result') lastSheet = '';
     mode = 'play';
+    hideSheet();
     dock();
-    say('');
+    say(shortToast(summaryLine || M.currentMessage(state)));
   }
   /* The whistle's line stays up, with the next play cards held back so they cannot cover it. */
   function showResult() {
@@ -220,8 +227,9 @@
     mode = 'result';
     resultLeft = 1.15;
     hidePanel();
+    hideSheet();
     dock();
-    say(summaryLine || M.currentMessage(state));
+    say(shortToast(summaryLine || M.currentMessage(state)));
   }
 
   /* One choice, then Millrace's drive. The highlight itself has no buttons. */
@@ -497,7 +505,7 @@
     var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
     if (!pass) { aimDrag = null; stick = null; return; }
     var rect = canvas.getBoundingClientRect();
-    var pull = V.classifyPull(Math.hypot(dx, dy));
+    var pull = V.classifyPull(Math.hypot(dx, dy), V.pullSpan(rect.width, rect.height));
     var dir = V.dragToField(dx, dy);
     var preview = M.slingAim(state.play, { dirX: dir.dirX, dirY: dir.dirY, power: pull.power, kind: throwKind });
     var qb = state.play.actors[state.play.carrier];
@@ -521,7 +529,8 @@
     var dist = Math.hypot(dx, dy), quick = performance.now() - gesture.t < 320;
     var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
     if (pass && dist > 22) {
-      var pull = V.classifyPull(dist), dir = V.dragToField(dx, dy);
+      var field = canvas.getBoundingClientRect();
+      var pull = V.classifyPull(dist, V.pullSpan(field.width, field.height)), dir = V.dragToField(dx, dy);
       queued.throw = {
         dirX: dir.dirX, dirY: dir.dirY, power: pull.power, kind: throwKind,
         sling: true, autoAim: false, held: (performance.now() - gesture.t) / 1000
@@ -807,11 +816,8 @@
     var sheet = $('sheet');
     var curtainUp = $('curtain') && !$('curtain').hidden;
     if (sheet) {
-      var watching = mode === 'watch' || mode === 'defence';
-      var line = summaryLine || M.currentMessage(state) || '';
-      var showToast = !live && !curtainUp && !watching && mode !== 'title' && !!line;
-      sheet.hidden = !showToast;
-      if (!sheet.hidden) sheet.textContent = shortToast(line);
+      sheet.hidden = true;
+      if (live || curtainUp || mode === 'title' || mode === 'watch' || mode === 'defence') sheet.textContent = '';
     }
     var cue = $('cue');
     var cueName = mode === 'play' && live && state.play && state.play.offence === 'home' ? state.play.cue : '';
@@ -823,10 +829,10 @@
     paintTools();
     if (performance.now() >= promptUntil) {
       var watching = mode === 'watch' || mode === 'defence';
-      var calling = mode === 'play' && state.phase === 'call';
+      var calling = mode === 'play' && state.phase === 'call' && state.possession === 'home';
       var msg = '';
-      if (mode === 'result') msg = summaryLine || M.currentMessage(state) || '';
-      else if (!watching && !calling && state.phase !== 'live' && state.phase !== 'final') msg = summaryLine || M.currentMessage(state) || '';
+      if (!curtainUp && (mode === 'result' || calling)) msg = shortToast(summaryLine || M.currentMessage(state) || '');
+      else if (!watching && state.phase !== 'live' && state.phase !== 'final' && mode !== 'title') msg = '';
       if ($('banner').textContent !== msg) say(msg);
     }
   }
@@ -856,14 +862,16 @@
     var family = 'pocket';
     if (live && play.flight) family = 'air';
     else if (live && (play.family === 'run' || play.didCatch)) family = 'run';
-    var qbX = spot - 8;
+    var view = canvas.getBoundingClientRect();
+    var qbX = V.pocketAim(spot - 6 + V.pocketDrop(0.55), view.width, view.height);
     var landX = spot;
     if (live && play.flight) {
       qbX = spot + play.flight.fromX;
       landX = spot + play.flight.toX;
     } else if (live && family === 'pocket') {
       var carrier = play.actors[play.carrier];
-      qbX = spot + (carrier ? carrier.x : -6) + V.pocketDrop(play.elapsed);
+      var qbWorld = spot + (carrier ? carrier.x : -6) + V.pocketDrop(play.elapsed);
+      qbX = V.pocketAim(qbWorld, view.width, view.height);
     }
     var focus = V.sideFocus({
       family: family,

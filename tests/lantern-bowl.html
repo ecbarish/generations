@@ -51,7 +51,11 @@ document.querySelector('#run').onclick = async () => {
     check('an older match still loads', aged.spot === 40 && aged.down === 2 && aged.quarter === 3 && aged.score.home === 7 && aged.fatigue['Mara Holt'] === 0.4 && aged.log[0] === 'old play');
     const outline = M.teamOutline('#c45a32');
     check('team outlines are generated and stable', outline !== '#c45a32' && outline === M.teamOutline('#c45a32') && /^#[0-9a-f]{6}$/.test(outline));
-    check('a short pull is a bullet and a long pull is a lob', V.classifyPull(36).kind === 'bullet' && V.classifyPull(120).kind === 'lob');
+    const phoneSpan = V.pullSpan(844, 390);
+    const phonePull = V.classifyPull(130, phoneSpan);
+    const phoneMeter = V.powerMeter(phonePull.power, 844);
+    check('a short pull is a bullet and a long pull is a lob', V.classifyPull(phoneSpan * 0.2, phoneSpan).kind === 'bullet' && V.classifyPull(phoneSpan * 0.75, phoneSpan).kind === 'lob');
+    check('130px on a phone is not full power, and the meter shows that', phoneSpan > 240 && phonePull.power < 0.5 && phonePull.power > 0.15 && V.classifyPull(phoneSpan, phoneSpan).power === 1 && phoneMeter.fill > 0 && phoneMeter.fill < phoneMeter.width * 0.5);
     const shot = V.project('behind', { x: 4, y: 0 }, { x: 0, y: 0 }, { w: 400, h: 600 });
     check('the behind-the-play camera returns a point', !!shot && isFinite(shot.x) && isFinite(shot.y) && shot.scale > 0);
     const sidePoint = V.project('side', { x: 0, y: 0 }, { x: 0, y: 0 }, { w: 384, h: 216 });
@@ -191,8 +195,13 @@ document.querySelector('#run').onclick = async () => {
     const focusPocket = V.sideFocus({ family: 'pocket', spot: 40, qbX: droppedAt });
     const pocketPx = V.sideProject({ x: droppedAt, y: 0 }, { x: focusPocket.target });
     const focusBack = V.sideFocus({ cut: true, spot: 40 });
+    const phoneFrame = V.passFrame(844, 390);
+    const phoneCam = V.pocketAim(droppedAt, 844, 390);
+    const phoneLayout = V.fitLayout(844, 390);
+    const phoneQb = (phoneLayout.anchor + (droppedAt - phoneCam) * phoneLayout.yard) * phoneLayout.scale;
     check('after the snap the quarterback stays in from the left edge', focusPocket.chase === true && focusPocket.target === droppedAt && focusPocket.target < 40 && pocketPx.x >= 80);
     check('before the snap the camera leaves room behind the quarterback', focusBack.cut === true && focusBack.target === 32);
+    check('a pass on a phone leaves more than 70px behind the quarterback', phoneQb > 160 && phoneQb >= phoneFrame.span - 4 && phoneCam < droppedAt);
     check('the picture stays inside 32 colours', V.PALETTE.length <= 32 && V.PALETTE.length === new Set(V.PALETTE).size);
     const inkPen = { log: [] };
     ['save', 'restore', 'beginPath', 'moveTo', 'lineTo', 'ellipse', 'arc', 'fill', 'stroke', 'translate', 'scale', 'fillRect'].forEach(name => { inkPen[name] = () => { inkPen.log.push(name); }; });
@@ -665,7 +674,8 @@ document.querySelector('#run').onclick = async () => {
     check('continue loads the saved drive', w2.__lantern.state.spot === spot && w2.__lantern.state.rng === rng && w2.__lantern.state.seed === 5);
     const sheet = d2.querySelector('#sheet');
     const resumed = w2.__lantern.state;
-    check('the toast names the play without a rating number', !!sheet && !sheet.hidden && sheet.textContent.length > 8 && !/\(\d+\)/.test(sheet.textContent) && sheet.textContent.indexOf('throw ') < 0);
+    const resultLine = d2.querySelector('#banner');
+    check('the toast names the play without a rating number', !!resultLine && !resultLine.hidden && sheet.hidden && resultLine.textContent.length > 8 && !/\(\d+\)/.test(resultLine.textContent) && resultLine.textContent.indexOf('throw ') < 0);
     const offered = Array.from(d2.querySelectorAll('[data-play]'));
     check('the call is a short row with a diagram', offered.length >= 2 && offered.length <= 3 && offered.every(b => b.querySelector('svg') && b.textContent.trim().length > 1));
     check('kick stays off the call until fourth down', !d2.querySelector('[data-play="kick"]') && !d2.querySelector('[data-play="field"]') && !d2.querySelector('[data-play="punt"]'));
@@ -716,12 +726,14 @@ document.querySelector('#run').onclick = async () => {
     check('turning the phone sideways resumes the same snap', d2.querySelector('#turn').hidden && resumedMove);
     w2.__lantern.finishLive();
     await wait();
-    const carried = d2.querySelector('#sheet');
-    check('the toast names the ball carrier without a rating number', !!carried && !carried.hidden && carried.textContent.indexOf('Mara Holt') >= 0 && !/\(\d+\)/.test(carried.textContent) && carried.textContent.indexOf('throw ') < 0);
-    const sheetZ = parseInt(w2.getComputedStyle(carried).zIndex, 10);
-    const bannerZ = parseInt(w2.getComputedStyle(d2.querySelector('#banner')).zIndex, 10);
+    const carried = d2.querySelector('#banner');
+    const topCopy = d2.querySelector('#sheet');
+    const carriedBox = carried.getBoundingClientRect();
+    const carriedPitch = d2.querySelector('.pitch').getBoundingClientRect();
+    check('the toast names the ball carrier without a rating number', !!carried && !carried.hidden && topCopy.hidden && carried.textContent.indexOf('Mara Holt') >= 0 && !/\(\d+\)/.test(carried.textContent) && carried.textContent.indexOf('throw ') < 0);
+    const bannerZ = parseInt(w2.getComputedStyle(carried).zIndex, 10);
     const dockZ = parseInt(w2.getComputedStyle(d2.querySelector('#dock')).zIndex, 10);
-    check('the result stays above the play cards and those cards stay hidden', w2.__lantern.state.phase !== 'final' && d2.querySelectorAll('[data-play]').length === 0 && !carried.hidden && sheetZ > dockZ && bannerZ > dockZ);
+    check('one result toast sits clear of the yard numbers, with the play cards hidden', w2.__lantern.state.phase !== 'final' && d2.querySelectorAll('[data-play]').length === 0 && topCopy.hidden && !carried.hidden && carriedBox.top > carriedPitch.top + carriedPitch.height * 0.45 && carriedBox.bottom <= carriedPitch.bottom && bannerZ > dockZ);
     let cardsBack = false;
     const backWatch = performance.now();
     while (performance.now() - backWatch < 4000 && !cardsBack) {
@@ -729,6 +741,9 @@ document.querySelector('#run').onclick = async () => {
       cardsBack = w2.__lantern.mode === 'play' && d2.querySelectorAll('[data-play]').length >= 2 && d2.querySelectorAll('[data-play]').length <= 3;
     }
     check('the next play can be called once the result has been shown', cardsBack);
+    const callBanner = d2.querySelector('#banner').getBoundingClientRect();
+    const callCard = d2.querySelector('#dock button') && d2.querySelector('#dock button').getBoundingClientRect();
+    check('the one result toast stays above the next play cards', d2.querySelector('#sheet').hidden && !!callCard && callBanner.bottom <= callCard.top + 4);
     resumed.possession = 'home';
     resumed.phase = 'call';
     resumed.down = 1;
