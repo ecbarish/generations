@@ -31,7 +31,7 @@ for(const [width,height]of [[375,812],[1366,768],[1920,1080],[3440,1440]]){
   check(await p.locator('.arc-set-btn').count()===1,name+' has shared Settings');
   if(name==='realmbound')await p.evaluate(()=>window.eval("const h=newHero('Reader','concord','human','hunter');h.onboarding={arrival:true,hints:{}};h.mode='focus';S.chars=[h];S.cur=h.id;boot();closeModal();C.phase='intown';townEnter();updateWorld();"));
   if(name==='otherworld')await p.evaluate(()=>window.__ow.D.skip());
-  const fontSelector=name==='otherworld'?'.choose':name==='diamond-career'?'#panel':name==='realmbound'?'.menu':'.launch-modes button';
+  const fontSelector=name==='otherworld'?'.choose':name==='diamond-career'?'#panel':name==='realmbound'?'.menu':'.hero-lede';
   const normal=await p.locator(fontSelector).first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
   if(name==='realmbound')await p.locator('#fieldOptions summary').click();
   await p.locator('.arc-set-btn').click();await p.locator('[data-r]').filter({hasText:/^Larger$/}).click();await p.keyboard.press('Escape');

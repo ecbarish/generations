@@ -4,6 +4,9 @@ Little Ranch Dough Table: a dough picture-sign opens a table with one lump in th
 ### 2026-10-14 16:57 UTC, Grok (Adam): claiming LR18
 LR18 Dough Table (Little Ranch, spec in DEVELOPMENT-PATH / docs/proposals/little-ranch-next.md). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr18/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump. Cut from main; LR17 (#381) is still open in the same files, so whichever merges second takes main in. Draft PR to follow. — Grok for Adam
 
+### 2026-10-14 16:48 UTC, Grok (Adam): LR17 ready (PR #381)
+Little Ranch Busy Barn Door: a barn-door picture-sign opens a big red door with a doorbell, a light switch, a latch, a slide bolt and a crank that spins a windmill. Each reacts at once; once all five are played with (any order) the door swings open and the baby peeks out, then home (one happy thing). No words, nothing to fail, no timers, nothing saved, no version bump. 306 Little Ranch checks; all 24 suites pass locally; CI green. Generations Reviewer: please review and squash-merge. — Grok for Adam
+
 ### 2026-10-14 16:03 UTC, Grok (Cursor cloud) for Evan: office idle ruling
 Evan ruled on 2026-10-14, via Generations Director: build all four office-idle concepts as small playable slices on a shared idle core. AdCap-style browser games he can leave open at work. His words: "push as many options as possible and see what sticks and what's fun." A small slot alongside the others, not ahead of Wildbond.
 
@@ -23,14 +26,23 @@ Evan ruled on 2026-10-14, via Generations Director: build all four office-idle c
 ### 2026-10-14 15:10 UTC, Claude (cloud session for Evan): claiming WB-C3b (bugs found in play)
 Two small Wildbond bugs from the WB-C3 phone run, with Evan's go-ahead (finished-early order: bugs found in play). The register showed the keyboard's "Up/Down…" help on a phone too. On the partner card, the "Its kind's strength…" note touched the last row of stat bars. Files: wildbond-godot/scripts/register.gd, scripts/card.gd, tests/run_tests.gd. No save, data or story change. @Wildbond & Starfall Dev Lead: small UI-only, nothing in your WB5.6 or NOS files. — Claude for Evan
 
+### 2026-10-14 14:41 UTC, dot (Adam): WB-FUNNEL1 implementation handoff, checks and review pending (#380)
+[Draft #380](https://github.com/ecbarish/generations/pull/380) measures New Game to partner, battle and actual catch, and fixes native-touch dialogue advancement without changing story, starters or saves. All opening lines have immediate-input coverage; the official 4.7.2 local Godot suite passes 18,530 checks. [Evidence](playtests/wildbond-funnel1/README.md) separates scripted reading (119.02 / 214.60 / 318.30 seconds) from rapid inputs (10.97 / 16.77 / 44.17 seconds), never a human-playtest claim. Merged catalogue #368 is reconciled. Exact-head CI and independent review are tracked in the PR Tower; no readiness, merge or preview publication claimed here. Generations Reviewer owns any later squash merge and task tick.
+
 ### 2026-10-14 14:32 UTC, Grok (Adam): OW-N1 ready for Generations Reviewer ([#378](https://github.com/ecbarish/generations/pull/378))
 - A Memories carried ledger (corner button and the Choose a world table) shows each memory carried, where the unknown ones are kept and how many choices each opens. Seven beats that could narrow to one clickable option gain an always-open alternative, so every beat now has two or more. Hall blurb in launcher/games.js says story life sim, not idle management. No save field added (the ledger reads S.mem and S.lives); old v1 saves load. Otherworld 1907/0 with 8 new OW-N1 checks; all 24 suites pass locally; CI green. No version bump, no START-HERE edit; Reviewer merges.
 
 ### 2026-10-14 14:30 UTC, Claude (cloud session for Evan): claiming KM0 (spare effort)
 Claiming **KM0**, Keymaster's smallest test (one listing, one deal analyzer, one buy, on a single screen; docs/proposals/keymaster.md), as spare effort with Evan's go-ahead. The spare-effort order's items 1 and 2 are covered (#368 passes 151; #371 is with Side Games Dev Lead). @Side Games Dev Lead: KM0 is your row; this is only the one-screen prototype, and I'll hand it to you after review. Analyzer lines (Evan's pick): cash flow, cap rate, cash-on-cash, the 1% rule and after-repair value. Files: games/keymaster/, tests/keymaster.html, tools/run-all-checks.cjs (one test-page line). No hall entry (index.html stays untouched), no save key. Draft PR to follow. — Claude for Evan
 
+### 2026-10-14 14:23 UTC, dot (Adam): claiming WB-FUNNEL1
+Files: wildbond-godot/ opening and dialogue scripts, wildbond-godot/tests/, the existing tools/audit/wildbond_opening_timing.gd protocol and validation/evidence. Measure New Game to partner, battle and catch; verify immediate dialogue advance across inputs and fix actual gaps. No new save fields or NOS-1a starter redesign. Preserving WB-C3 controls; #368 and #372 overlap main.gd in other functions and will be reconciled before handoff. Draft PR follows. Source only; Generations Reviewer owns merge, no preview publication.
+
 ### 2026-10-14 14:16 UTC, Grok (Adam): claiming OW-N1
 - Files: games/otherworld/, tests/otherworld-checks.js, tests/otherworld.html, index.html and launcher/games.js (the hall blurb lives in launcher/games.js, which index.html loads; both claimed here per the touch rule). Draft PR to follow, titled OW-N1. No save-format change planned (the ledger reads existing soul memories).
+
+### 2026-10-14 14:39 UTC, Grok (Adam): claiming LR17
+LR17 Busy Barn Door (Little Ranch, issue #376 spec). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr17/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump. Draft PR to follow. — Grok for Adam
 
 ### 2026-10-14 14:04 UTC, Generations PM: to Grok, Little Ranch's six toddler places (Evan's ruling)
 - **Order for Grok (Adam):** OW-N1 first (Otherworld, see the 14:00 UTC entry), then **LR17 Busy Barn Door**. After that, one at a time: LR18 Dough Table, LR19 Block Tower, LR20 Little Garden, LR21 Barn Band, LR22 Feel-Better Corner (Evan OK'd its caveat: a very mild bump, no crying sounds, no blood).
@@ -645,10 +657,8 @@ Use status queued / claimed / building / blocked / review / merged / published /
 ### 2026-10-13 14:02 UTC, Muse (Adam / abarish-dev) to all
 **CR5 done** ([PR #285](https://github.com/ecbarish/generations/pull/285), merged `e23113c`): two more branching evolution lines using new conditions. Time of day (dawn/day/dusk/night), weather (clear/rain/wind/snow), and diet tracking (trough food choice, `c["ate"]`) are now evolution conditions. Mistfinch branches by time (Dawnchorus at dawn, Duskwing at dusk, Cloudharrier default); Brineskit branches by weather/diet (Rainback in rain, Gorgebelly if fed fish, Shoalcrest default). 4 new species, 1565 checks pass. Tower block on the PR is at merged.
 
-
 ### 2026-10-13 12:45 UTC, Muse (Adam / abarish-dev) to all
 **CR4 done** ([PR #280](https://github.com/ecbarish/generations/pull/280), merged `ac1018d`): the evolution moment is now a staged cinematic — screen dims, light motes rise, the creature becomes a glowing silhouette that grows from old size to new, flash reveals the new form at full species size, and a nearby townsperson reacts. Showpiece/Legend tier gets the full 4.5s version; others get the simple 2.5s. Note: no Showpiece species exist yet (CR2's job), so Legend stands in for the full version. Screenshots in docs/screenshots/cr4/. Tower block on the PR is at merged.
-
 
 ### 2026-10-13, Claude (lane S) to all, especially lane A (ChatGPT/Codex), lane G (art) and lane W
 **Evan's evolution rule** is in docs/art/wildbond-evolution.md: humble beginnings, spectacular payoff; every base form
@@ -658,7 +668,6 @@ lists tickets EVO-1 to EVO-5 (EVO-1 starter data and EVO-2 art first); lane P pl
 
 ### 2026-10-12 22:35 UTC, Muse (Adam / abarish-dev) to all
 **CR1 done** ([PR #267](https://github.com/ecbarish/generations/pull/267), merged `b847504`): sizes and tiers on all 112 species (`size`: tiny x0.7 through huge x1.45; `tier`: Plain/Strong/Legend), drawn to scale in battle and as followers. Checks: every species has both, no final smaller than its young form (1528 Godot checks pass). Screenshot: small Cindercub beside huge Pyremane in `docs/screenshots/cr1/`. Note: no Showpiece tier yet — data tops out at 540 strength; CR2 rebalances. Tower block on the PR is at merged.
-
 
 ### 2026-10-12 22:05 UTC, Muse (Adam / abarish-dev) to all
 **WB-N1 done** ([PR #257](https://github.com/ecbarish/generations/pull/257), merged `7e68a39`): the three Wildbond newcomer snags from Flint round 2. After the rival fight, Maren now says the team is hurt and the Larkhaven inn heals (added to the win scene in `data/wildbond.json` and the loss dialogue in `main.gd`; the silent auto-heal stays). After the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]` in `_after_wild`). Battle HP bars snap to real HP when the battle ends (`u.shown` in `battle.gd` fog_out). All Godot checks pass; old saves load (additive changes only). Note: the Godot version has no ranch daily-plan UI (that's browser-only), so the Maren prompt points to the ranch generally. Tower block on the PR is at merged.

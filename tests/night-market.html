@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Night Market checks</title>
+<style>
+  body{font:16px system-ui,sans-serif;background:#161326;color:#f4efe6;max-width:900px;margin:32px auto;padding:0 20px}
+  button{font:inherit;padding:10px 18px;cursor:pointer}
+  li{padding:5px 0;overflow-wrap:anywhere}
+  .pass{color:#9ee7ba}.fail{color:#ff9a9a}#summary{font-weight:bold}
+  iframe{width:375px;height:700px;border:0;background:#f4efe6}
+</style>
+<h1>Night Market checks</h1>
+<p>Economy, the capped welcome back, and the real stall buttons. No hall entry.</p>
+<button id="run">Run checks</button>
+<p id="summary">Ready.</p>
+<ol id="results"></ol>
+<div id="game"></div>
+<script src="../shared/engine.js"></script>
+<script src="../shared/idle-core.js"></script>
+<script src="../games/night-market/model.js"></script>
+<script>
+'use strict';
+document.querySelector('#run').onclick = async function () {
+  var sum = document.querySelector('#summary');
+  var list = document.querySelector('#results');
+  var button = document.querySelector('#run');
+  button.disabled = true;
+  list.replaceChildren();
+  sum.textContent = 'Running…';
+  var n = 0;
+  var M = window.NightMarket;
+  var KEY = M.SAVE_KEY;
+  var before = Object.keys(localStorage).slice().sort().join('|');
+  function check(name, ok) {
+    n++;
+    var li = document.createElement('li');
+    li.className = ok ? 'pass' : 'fail';
+    li.textContent = (ok ? 'PASS — ' : 'FAIL — ') + name;
+    list.appendChild(li);
+    if (!ok) throw Error(name);
+  }
+  function near(a, b) {
+    var d = Math.abs(a - b);
+    return d <= 1e-6 || d <= 1e-8 * Math.max(1, Math.abs(a), Math.abs(b));
+  }
+  function work(state) {
+    for (var i = 0; i < M.STALLS.length; i++) {
+      if (!M.unlocked(state, i)) return;
+      if (state.stalls[i].hired) continue;
+      if (M.canHire(state, i)) { M.hire(state, i); return; }
+      M.handSell(state, i);
+      if (M.canHire(state, i)) M.hire(state, i);
+      return;
+    }
+  }
+  function spend(state) {
+    for (var i = M.STALLS.length - 1; i >= 0; i--) {
+      if (M.quote(state, i, 'max').count > 0) { M.buy(state, i, 'max'); return; }
+    }
+  }
+  /* One hand action a second, then a second of stall income, then a buy on the cadence.
+     Active buys whenever coins allow. Office buys once a minute, the way a tab left open gets a glance. */
+  function play(seconds, buyEvery) {
+    var state = M.fresh();
+    var hireAt = null;
+    var tea25 = null;
+    var snap = {};
+    for (var t = 1; t <= seconds; t++) {
+      work(state);
+      if (hireAt == null && state.stalls[0].hired) hireAt = t;
+      M.addCash(state, M.income(state));
+      if (t % buyEvery === 0) spend(state);
+      if (tea25 == null && state.stalls[0].owned >= 25) tea25 = t;
+      if (t === 600 || t === 1800) snap[t] = { income: M.income(state), owned: state.stalls.map(function (s) { return s.owned; }) };
+    }
+    return { state: state, hireAt: hireAt, tea25: tea25, snap: snap };
+  }
+  function frontierSeconds(state) {
+    var rate = M.income(state);
+    if (!(rate > 0)) return Infinity;
+    for (var i = M.STALLS.length - 1; i >= 0; i--) {
+      if (!state.stalls[i].hired) continue;
+      return Idle.bulkCost(M.STALLS[i].base, M.STALLS[i].growth, state.stalls[i].owned, 1) / rate;
+    }
+    return Infinity;
+  }
+  var frame = null;
+  try {
+    check('six stalls on the shared milestones', M.STALLS.length === 6 && Idle.milestoneMult(25) === 2 && Idle.milestoneMult(50) === 4 && Idle.milestoneMult(100) === 8 && Idle.milestoneMult(24) === 1);
+    M.STALLS.forEach(function (s) {
+      check(s.name + ' grows gently', s.growth >= 1.05 && s.growth <= 1.15 && s.base > 0 && s.rate > 0 && s.serves > 0);
+    });
+    check('tea, dumpling and lantern match the starting table',
+      M.STALLS[0].base === 5 && M.STALLS[0].growth === 1.07 && M.STALLS[0].rate === 0.5 && M.STALLS[0].serves === 25 && M.STALLS[0].hand === 1 &&
+      M.STALLS[1].base === 60 && M.STALLS[1].growth === 1.08 && M.STALLS[1].rate === 4 &&
+      M.STALLS[2].base === 720 && M.STALLS[2].growth === 1.09 && M.STALLS[2].rate === 30);
+    check('offline is four hours at half pay', M.OFFLINE_CAP === 4 * 3600 && M.OFFLINE_RATE === 0.5);
+
+    var fresh = M.fresh();
+    check('a new lane starts with you pouring, not with a hire', fresh.stalls.every(function (s) { return s.owned === 0 && !s.hired && s.serves === 0; }) && /Mei/.test(M.goal(fresh)) && /25 more cups/.test(M.goal(fresh)));
+    check('the dumpling cart is shuttered', M.handSell(fresh, 1).ok === false && M.hire(fresh, 1).ok === false);
+    fresh.cash = 1e9;
+    check('coins cannot buy a stall before someone is hired', M.buy(fresh, 0, 'max').ok === false && fresh.stalls[0].owned === 0 && M.income(fresh) === 0);
+    fresh.cash = 0;
+    for (var i = 0; i < 24; i++) M.handSell(fresh, 0);
+    check('24 cups are not a hire', fresh.stalls[0].serves === 24 && fresh.cash === 24 && M.canHire(fresh, 0) === false && M.hire(fresh, 0).reason === 'serves');
+    M.handSell(fresh, 0);
+    check('the 25th cup lets Mei take the stall', M.canHire(fresh, 0) && M.hire(fresh, 0).ok && fresh.stalls[0].hired && fresh.stalls[0].owned === 0 && M.income(fresh) === 0);
+    check('the first tea stall costs 5', near(M.quote(fresh, 0, 1).cost, 5) && M.buy(fresh, 0, 1).ok && fresh.stalls[0].owned === 1 && fresh.cash === 20);
+    check('one tea stall earns half a coin a second, with no extra bonus', M.production(fresh, 0) === 0.5 && M.income(fresh) === 0.5);
+
+    var bulk = M.fresh();
+    bulk.stalls[0].hired = true;
+    bulk.cash = 1000;
+    var ten = Idle.bulkCost(5, 1.07, 0, 10);
+    check('buy 10 uses the shared bulk price', M.buy(bulk, 0, 10).ok && bulk.stalls[0].owned === 10 && near(1000 - bulk.cash, ten));
+    var room = Idle.bulkCost(5, 1.07, 10, 6);
+    bulk.cash = room;
+    var bought = M.buy(bulk, 0, 'max');
+    check('buy max spends only what the next stalls cost', bought.ok && bought.count === 6 && bulk.stalls[0].owned === 16 && bulk.cash === 0);
+    check('ten tea stalls open the dumpling cart', M.unlocked(bulk, 1) && M.handSell(bulk, 1).ok);
+    var shut = M.fresh();
+    shut.stalls[0].owned = 9;
+    shut.stalls[0].hired = true;
+    check('nine tea stalls keep the cart shut', M.unlocked(shut, 1) === false);
+
+    [24, 25, 50, 100].forEach(function (owned) {
+      var s = M.fresh();
+      s.stalls[0].hired = true;
+      s.stalls[0].owned = owned;
+      var mult = Idle.milestoneMult(owned);
+      check(owned + ' tea stalls earn the milestone and nothing else', M.production(s, 0) === M.STALLS[0].rate * owned * mult && M.income(s) === M.production(s, 0));
+    });
+    var dressed = M.fresh();
+    dressed.stalls[0].hired = true;
+    dressed.stalls[0].owned = 25;
+    check('25 stalls change the lane', /Two lanterns/.test(M.lookLine(dressed, 0)) && /twice as much/.test(M.lookLine(dressed, 0)));
+    dressed.stalls[0].owned = 100;
+    check('100 stalls bring the crowd', /crowd at the cups/.test(M.lookLine(dressed, 0)) && /eight times as much/.test(M.lookLine(dressed, 0)));
+
+    var active = play(1800, 1);
+    var a600 = active.snap[600];
+    var a1800 = active.snap[1800];
+    var aOwned = a1800.owned.filter(function (n) { return n > 0; }).length;
+    var aFrontier = frontierSeconds(active.state);
+    check('active play hires Mei on the 25th second', active.hireAt === 25);
+    check('the tea-stall change at 25 lands inside 10 minutes (at ' + active.tea25 + 's)', active.tea25 != null && active.tea25 <= 600);
+    check('half an hour of buying still opens stalls (' + a1800.owned.join(',') + ')', aOwned >= 4 && a1800.owned.some(function (n) { return n >= 25; }) && a1800.owned.some(function (n) { return n < 100; }));
+    check('income is still climbing at 30 minutes (' + a600.income.toFixed(1) + ' then ' + a1800.income.toFixed(1) + ')', a1800.income > a600.income && a1800.income > 1000);
+    check('the newest stall is still a real buy (' + aFrontier.toFixed(1) + 's)', aFrontier > 2 && aFrontier < 600);
+
+    var office = play(1800, 60);
+    var o600 = office.snap[600];
+    var o1800 = office.snap[1800];
+    var oOwned = o1800.owned.filter(function (n) { return n > 0; }).length;
+    check('a tab left open still hires within a minute', office.hireAt === 25);
+    check('glancing once a minute still upgrades through half an hour (' + o1800.owned.join(',') + ')', oOwned >= 3 && o1800.income > o600.income && o1800.owned.some(function (n) { return n < 100; }));
+
+    var wall = 1700000000000;
+    var realNow = Date.now;
+    var realSet = window.setInterval;
+    var realClear = window.clearInterval;
+    var tick = null;
+    Date.now = function () { return wall; };
+    window.setInterval = function (fn) { tick = fn; return 1; };
+    window.clearInterval = function () { tick = null; };
+    var title = document.title;
+    try {
+      var market = M.fresh();
+      market.stalls[0].hired = true;
+      market.stalls[0].owned = 20;
+      var saved = null;
+      var idle = M.createIdle(market, function (obj) { saved = obj; });
+      var away = idle.start(wall - 30 * 3600 * 1000);
+      var copy = M.awayCopy(away);
+      check('thirty hours away pays four hours at half rate', away && away.capped && away.credited === 4 * 3600 && near(away.gained, 10 * 4 * 3600 * 0.5) && near(market.cash, away.gained));
+      check('the welcome back names the four hour box', copy.title === 'While you were away' && /four hours/.test(copy.lead) && copy.box.indexOf(Arcade.fmt(away.gained)) === 0);
+      check('the tab title uses Arcade.fmt', document.title === '+' + Arcade.fmt(10) + '/s · Night Market');
+      idle.stop();
+      check('stopping the market restores the tab', document.title === title);
+
+      market = M.fresh();
+      market.stalls[0].hired = true;
+      market.stalls[0].owned = 20;
+      idle = M.createIdle(market, function (obj) { saved = obj; Arcade.save(KEY, obj); });
+      var hour = idle.start(wall - 3600 * 1000);
+      check('one hour away is not capped and pays half', hour && hour.capped === false && hour.credited === 3600 && near(hour.gained, 10 * 3600 * 0.5));
+      check('an hour reads as kept time, not the cap', /four hours/.test(M.awayCopy(hour).lead) === false && /kept/.test(M.awayCopy(hour).lead));
+      wall += 30000;
+      tick();
+      check('the save callback stamps the clock and the coins', saved && saved.seen === wall && saved.v === 1 && saved.game === 'night-market' && near(saved.cash, hour.gained + 300));
+      Arcade.versions[KEY] = M.SAVE_VERSION;
+      Arcade.validators[KEY] = M.valid;
+      var loaded = M.restore(Arcade.load(KEY));
+      check('Arcade.load brings the stall back', loaded.stalls[0].hired && loaded.stalls[0].owned === 20 && loaded.seen === wall);
+      idle.stop();
+
+      var ahead = M.serialize(M.fresh(), wall);
+      ahead.v = 2;
+      ahead.cash = 9;
+      localStorage.setItem(KEY, JSON.stringify(ahead));
+      var refused = Arcade.load(KEY);
+      check('a newer save is refused and left as it was', refused === null && JSON.parse(localStorage.getItem(KEY)).v === 2 && JSON.parse(localStorage.getItem(KEY)).cash === 9);
+      check('a refused save is not overwritten', Arcade.save(KEY, M.serialize(M.fresh(), wall)) === false && JSON.parse(localStorage.getItem(KEY)).v === 2);
+    } finally {
+      Date.now = realNow;
+      window.setInterval = realSet;
+      window.clearInterval = realClear;
+      if (document.title !== title) document.title = title;
+    }
+
+    delete Arcade.held[KEY];
+    Object.keys(localStorage).forEach(function (k) {
+      if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
+    });
+    var back = M.fresh();
+    back.stalls[0].hired = true;
+    back.stalls[0].owned = 20;
+    back.cash = 100;
+    back.lifetime = 100;
+    localStorage.setItem(KEY, JSON.stringify(M.serialize(back, Date.now() - 2 * 3600 * 1000)));
+
+    frame = document.createElement('iframe');
+    frame.title = 'Night Market test instance';
+    frame.src = '../games/night-market/index.html';
+    await new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () { reject(Error('load timed out')); }, 20000);
+      frame.onload = function () { clearTimeout(timer); resolve(); };
+      document.querySelector('#game').appendChild(frame);
+    });
+    var w = frame.contentWindow;
+    var d = w.document;
+    var hook = w.__nightMarket;
+    await new Promise(function (r) { setTimeout(r, 50); });
+    check('the page shows the welcome back from the save', hook && hook.away() && /While you were away/.test(d.querySelector('#away').textContent) && /36\.0K coins are in the box/.test(d.querySelector('#away').textContent) && /Mei says/.test(d.querySelector('#away').textContent));
+    d.querySelector('[data-act="away"]').click();
+    check('putting the box away clears the note', d.querySelector('#away').hidden);
+    frame.remove();
+    frame = null;
+    Object.keys(localStorage).forEach(function (k) {
+      if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
+    });
+    frame = document.createElement('iframe');
+    frame.title = 'Night Market fresh lane';
+    frame.src = '../games/night-market/index.html';
+    await new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () { reject(Error('fresh load timed out')); }, 20000);
+      frame.onload = function () { clearTimeout(timer); resolve(); };
+      document.querySelector('#game').appendChild(frame);
+    });
+    w = frame.contentWindow;
+    d = w.document;
+    await new Promise(function (r) { setTimeout(r, 40); });
+    check('a new market has no welcome back', d.querySelector('#away').hidden && /25 more cups/.test(d.querySelector('#goal').textContent));
+    for (var c = 0; c < 25; c++) d.querySelector('#stalls [data-act="serve"]').click();
+    var ask = d.querySelector('#stalls [data-act="hire"]');
+    check('25 cups on the real button lets you ask Mei', ask && !ask.disabled && /Mei/.test(ask.textContent) && d.querySelector('#coins').textContent === '25');
+    ask.click();
+    check('hiring hides the pouring and shows the price', d.querySelector('#stalls [data-act="serve"]').hidden && /Buy 1 · 5 coins/.test(d.querySelector('#stalls [data-act="buy"]').textContent));
+    d.querySelector('#stalls [data-act="buy"]').click();
+    check('the first stall is open and earning', /Tea Stall · 1/.test(d.querySelector('#stalls h2').textContent) && /0\.50 coins a second/.test(d.querySelector('#rate').textContent));
+    d.querySelector('[data-bulk="10"]').click();
+    check('buy 10 stays selected', d.querySelector('[data-bulk="10"]').getAttribute('aria-pressed') === 'true' && d.querySelector('[data-bulk="1"]').getAttribute('aria-pressed') === 'false');
+    d.querySelector('[data-bulk="max"]').click();
+    check('buy max is a real control', d.querySelector('[data-bulk="max"]').getAttribute('aria-pressed') === 'true');
+
+    for (var size = 0; size < 2; size++) {
+      var width = size === 0 ? 320 : 1280;
+      var height = size === 0 ? 700 : 800;
+      frame.style.width = width + 'px';
+      frame.style.height = height + 'px';
+      await new Promise(function (r) { setTimeout(r, 80); });
+      check(width + ' wide: the lane does not spill sideways', d.documentElement.scrollWidth <= width + 1);
+      check(width + ' wide: visible buttons are at least 44px', Array.prototype.every.call(d.querySelectorAll('button'), function (b) {
+        return b.offsetParent === null || b.getBoundingClientRect().height >= 44;
+      }));
+    }
+
+    Object.keys(localStorage).forEach(function (k) {
+      if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
+    });
+    check('other saves are left alone', Object.keys(localStorage).slice().sort().join('|') === before);
+    sum.textContent = 'PASS — ' + n + ' checks.';
+  } catch (e) {
+    sum.textContent = 'FAIL — ' + e.message;
+  } finally {
+    if (frame) frame.remove();
+    button.disabled = false;
+  }
+};
+</script>
+</html>
