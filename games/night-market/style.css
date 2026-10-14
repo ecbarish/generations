@@ -1,0 +1,84 @@
+/* Quiet night-market ledger. Original. No outside art. */
+:root {
+  --ink: #241c16;
+  --paper: #f4efe6;
+  --rule: #ddd4c6;
+  --amber: #8a4e1d;
+  --amber-wash: #f6e6cf;
+  --mute: #6e6258;
+  --good: #1d5c3e;
+  --night: #161326;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--night);
+  color: var(--ink);
+  font: 17px/1.45 Georgia, "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+}
+button, summary { font: inherit; }
+.window {
+  max-width: 42rem;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--paper);
+  padding: 1.1rem 1.1rem 2.2rem;
+  overflow-wrap: break-word;
+}
+a { color: var(--amber); }
+.home { color: var(--mute); text-decoration: none; font-size: 0.95rem; }
+h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weight: 600; }
+.scene { margin: 0 0 0.8rem; color: var(--mute); }
+.coins {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.7rem;
+}
+.rate, .goal { margin: 0.15rem 0; }
+.goal { color: var(--good); }
+.bulk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.9rem 0 0.3rem;
+}
+button {
+  min-height: 44px;
+  padding: 0.35rem 0.75rem;
+  white-space: normal;
+  border: 1px solid var(--ink);
+  background: #fffdf8;
+  color: var(--ink);
+  border-radius: 2px;
+  cursor: pointer;
+}
+button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+button:disabled { opacity: 0.45; cursor: default; }
+button[aria-pressed="true"], button.ask {
+  background: var(--amber-wash);
+  border-color: var(--amber);
+}
+.stalls { list-style: none; margin: 0.4rem 0 0; padding: 0; }
+.stall { border-top: 1px solid var(--rule); padding: 0.85rem 0 0.7rem; }
+.stall h2 { font-size: 1.15rem; margin: 0; font-weight: 600; }
+.habit, .facts, .wait { margin: 0.2rem 0; }
+.habit { color: var(--mute); }
+.wait { color: var(--mute); }
+.actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.45rem; }
+.actions button { flex: 1 1 9rem; }
+.closed h2, .closed .habit { color: var(--mute); }
+.away {
+  border: 1px solid var(--amber);
+  background: #fbf6ec;
+  padding: 0.8rem 0.85rem 0.9rem;
+  margin: 0.9rem 0;
+}
+.away h2 { margin: 0 0 0.35rem; font-size: 1.2rem; }
+.away p { margin: 0.3rem 0; }
+.save { margin-top: 1.1rem; color: var(--mute); }
+.save summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.foot { margin: 1rem 0 0; font-size: 0.95rem; }
+@media (max-width: 380px) {
+  .window { padding-left: 0.8rem; padding-right: 0.8rem; }
+  h1 { font-size: 1.45rem; }
+}
