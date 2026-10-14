@@ -6,7 +6,7 @@
   var M = window.LanternModel, V = window.LanternView;
   var $ = function (id) { return document.getElementById(id); };
   var canvas = $('field'), ctx = canvas.getContext('2d');
-  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.5', SAVE_V = 2;
+  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.6', SAVE_V = 2;
   var reduce = Settings.reduced();
   var sideCam = null;
   var STRIPS = [
@@ -71,11 +71,14 @@
   var save = {
     v: SAVE_V, game: 'lantern-bowl',
     sound: migrated && [0, 1, 2].indexOf(migrated.sound) >= 0 ? migrated.sound : 0,
+    passing: migrated && migrated.passing === 'all22' ? 'all22' : 'retro',
+    tutored: !!(migrated && migrated.tutored),
     match: migrated && migrated.match ? migrated.match : null
   };
 
   var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null, lastSheet = '';
-  var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, throw: null };
+  var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, spin: false, throw: null };
+  var stick = null, receiverKey = '', throwKind = 'bullet', turboTouch = null;
   var sheetDetail = false, watchLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0;
   var pointerNotes = [];
 
@@ -116,6 +119,12 @@
       options: [[0, 'Off'], [1, 'Effects'], [2, 'Effects and music']],
       get: function () { return save.sound; },
       set: function (v) { save.sound = v; persist(); audio.render(); audio.sfx('select'); }
+    }, {
+      label: 'Passing',
+      options: [['retro', 'Retro Bowl'], ['all22', 'All 22']],
+      get: function () { return save.passing === 'all22' ? 'all22' : 'retro'; },
+      set: function (v) { save.passing = v === 'all22' ? 'all22' : 'retro'; receiverKey = ''; persist(); },
+      note: 'The ball goes where you drag. A second finger switches a lob and a bullet.'
     }]
   });
   var build = $('build');
@@ -141,7 +150,11 @@
     return parts.map(function (s) { return s.trim(); }).filter(Boolean);
   }
   function panel(title, body) {
-    $('panel').innerHTML = '<h2 id="panelTitle">' + title + '</h2>' + body;
+    var html = String(body || '');
+    var actions = '';
+    var split = html.match(/([\s\S]*)(<div class="actions">[\s\S]*<\/div>)\s*$/);
+    if (split) { html = split[1]; actions = split[2]; }
+    $('panel').innerHTML = '<h2 id="panelTitle">' + title + '</h2><div class="panel-copy">' + html + '</div>' + actions;
     $('curtain').hidden = false;
   }
   function hidePanel() { $('curtain').hidden = true; }
@@ -163,7 +176,7 @@
     var again = save.match ? '<button type="button" data-continue>Continue the game</button>' : '';
     panel('Lamplight Field',
       '<p>The Brackenport Lanterns have Millrace under the lanterns. You call the offence. Their drives play out on the field.</p>' +
-      '<p>Two-minute quarters. Pick a play, then drag right to throw. A short pull stays short. Swipe to juke, tap to dive.</p>' +
+      '<p>Two-minute quarters. Pick a play, then pull back from the quarterback and let go to throw. With the ball, swipe to steer and juke.</p>' +
       '<div class="actions"><button type="button" data-kick>Kick off</button>' + again + '</div>');
     dock();
   }
@@ -249,65 +262,32 @@
     kick: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>',
     turbo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14c3-6 5 2 8-4s5 2 8-4"/></svg>'
   };
-  function kickWhy(live, fourth) {
-    if (live) return 'Kick waits. The play is already going.';
-    if (!fourth) return 'Kick waits for fourth down.';
-    return '';
-  }
-  function turboWhy(live) { return live ? '' : 'Turbo waits until the ball is moving.'; }
   function hintText() {
     var live = !!(mode === 'play' && state && state.phase === 'live');
-    var show = mode === 'play' && state && (state.phase === 'call' || state.phase === 'live');
-    var fourth = !!(state && state.down >= 4);
     var parts = [];
     if (live && state.play && state.play.load > 0 && state.play.offence === 'home') parts.push(M.READING_HINT);
-    if (show) {
-      var turboNote = turboWhy(live);
-      var kickNote = kickWhy(live, fourth);
-      if (turboNote) parts.push(turboNote);
-      if (kickNote) parts.push(kickNote);
-    }
-    var passLive = live && state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
-    if (passLive) parts.push('Drag right to throw. A short pull stays short.');
-    if (live) parts.push('Swipe to juke. Tap to dive.');
+    var passLive = live && state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight && state.play.offence === 'home';
+    if (passLive) parts.push('Pull back to throw.');
+    else if (live && carryingNow()) parts.push('Swipe to steer.');
     return parts.join(' ');
   }
   function paintHint() {
     var hint = $('hint');
     if (!hint) return;
     var text = hintText();
+    hint.hidden = !text;
     hint.textContent = text;
     hint.classList.toggle('reading', text.indexOf(M.READING_HINT) >= 0);
   }
   function dock() {
-    var show = mode === 'play' && state && (state.phase === 'call' || state.phase === 'live');
-    var live = !!(show && state.phase === 'live');
-    var fourth = !!(state && state.down >= 4);
     paintHint();
+    var show = mode === 'play' && state && state.phase === 'call' && state.possession === 'home';
     if (!show) { $('dock').innerHTML = ''; return; }
-    var cells = [
-      { id: 'inside', label: 'Inside', play: true, off: live, why: '' },
-      { id: 'outside', label: 'Outside', play: true, off: live, why: '' },
-      { id: 'quick', label: 'Quick', play: true, off: live, why: '' },
-      { id: 'deep', label: 'Deep', play: true, off: live, why: '' },
-      { id: 'kick', label: 'Kick', play: true, off: live || !fourth, why: kickWhy(live, fourth) },
-      { id: 'turbo', label: 'Turbo', play: false, off: !live, why: turboWhy(live) }
-    ];
-    $('dock').innerHTML = '<div class="dock-plays">' + cells.map(function (c) {
-      var why = c.off ? c.why : '';
-      var name = why ? c.label + '. ' + why : c.label;
-      var attr = c.play ? ' data-play="' + c.id + '"' : ' id="turbo"';
-      attr += ' aria-label="' + escapeAttr(name) + '" title="' + escapeAttr(why || c.label) + '"';
-      var slot = why ? ' data-why="' + escapeAttr(why) + '"' : '';
-      return '<span class="slot"' + slot + '><button type="button"' + attr + (c.off ? ' disabled' : '') + '>' + GLYPH[c.id] + '<span>' + c.label + '</span></button></span>';
+    var cells = M.offerPlays(state);
+    $('dock').innerHTML = '<div class="dock-plays">' + cells.map(function (id) {
+      var label = id === 'kick' ? 'Kick' : (M.PLAYS[id] ? M.PLAYS[id].label.replace(' run', '').replace(' pass', '') : id);
+      return '<button type="button" data-play="' + id + '" aria-label="' + escapeAttr(label) + '">' + GLYPH[id] + '<span>' + escapeText(label) + '</span></button>';
     }).join('') + '</div>';
-    var turbo = $('turbo');
-    if (turbo && !turbo.disabled) {
-      turbo.addEventListener('pointerdown', function (e) { e.preventDefault(); turboHeld = true; turbo.classList.add('held'); });
-      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
-        turbo.addEventListener(ev, function () { turboHeld = false; turbo.classList.remove('held'); });
-      });
-    }
   }
 
   function begin(id) {
@@ -352,46 +332,132 @@
   });
 
   function readGesture() {
-    var out = { steer: steer, turbo: turboHeld || keys.has('shift'), juke: queued.juke, dive: queued.dive || keys.has(' '), throw: queued.throw };
-    queued = { juke: 0, dive: false, throw: null };
+    var out = {
+      steer: steer, turbo: turboHeld || keys.has('shift'),
+      juke: queued.juke, dive: queued.dive || keys.has(' '), spin: queued.spin, throw: queued.throw
+    };
+    queued = { juke: 0, dive: false, spin: false, throw: null };
     if (keys.has('j')) out.juke = -1;
     if (keys.has('l')) out.juke = 1;
+    if (keys.has('k') && state && state.phase === 'live') out.spin = true;
     if (keys.has('arrowleft') || keys.has('a')) out.steer = -1;
     if (keys.has('arrowright') || keys.has('d')) out.steer = 1;
     return out;
   }
+  var keyHeld = {};
+  function receiverNames() {
+    var names = [];
+    if (!state || !state.play) return names;
+    state.play.actors.forEach(function (a) {
+      if (a.off && a.route && a.role !== 'qb' && a.role !== 'ol') names.push(a.name);
+    });
+    return names;
+  }
+  function receiverThrow(name, kind) {
+    save.tutored = true;
+    return {
+      receiver: name, kind: kind, autoAim: true, sling: false,
+      dirX: 1, dirY: 0, power: kind === 'lob' ? 0.72 : 0.28
+    };
+  }
+  /* Direction tests hand-ported from cptx032/virtual-joystick (Willie Lawrence, CC0 / public domain).
+     https://github.com/cptx032/virtual-joystick
+     The base appears where the finger lands, instead of sitting in one corner. */
+  function stickFlags(dx, dy) {
+    return {
+      up: dy < 0 && Math.abs(dx) <= 2 * Math.abs(dy),
+      down: dy > 0 && Math.abs(dx) <= 2 * Math.abs(dy),
+      left: dx < 0 && Math.abs(dy) <= 2 * Math.abs(dx),
+      right: dx > 0 && Math.abs(dy) <= 2 * Math.abs(dx)
+    };
+  }
+  function carryingNow() {
+    return !!(state && state.play && state.phase === 'live' && (state.play.family === 'run' || state.play.didCatch) && !state.play.flight);
+  }
+  function passPocket() {
+    return !!(state && state.play && state.phase === 'live' && state.play.family === 'pass' && !state.play.thrown && !state.play.flight);
+  }
+  function turnedAway() {
+    return !!(V.phoneTurn && V.phoneTurn(window.innerWidth, window.innerHeight));
+  }
+  function paintTurn() {
+    var card = $('turn');
+    var on = turnedAway();
+    if (card) card.hidden = !on;
+    if (on) {
+      gesture = null;
+      aimDrag = null;
+      stick = null;
+      steer = 0;
+      turboHeld = false;
+    }
+    return on;
+  }
+  function toggleThrowKind() {
+    throwKind = throwKind === 'lob' ? 'bullet' : 'lob';
+    if (aimDrag) {
+      aimDrag.kind = throwKind;
+      if (aimDrag.preview) aimDrag.preview.kind = throwKind;
+    }
+  }
 
   function armGesture(x, y, id) {
-    if (!state) return;
+    if (turnedAway() || !state) return;
     if (state.phase === 'call' && state.possession === 'home') { prompt('Pick a play first.'); return; }
     if (state.phase !== 'live' || mode === 'watch') return;
     gesture = { x: x, y: y, t: performance.now(), id: id };
     aimDrag = null;
+    if (carryingNow()) stick = { x: x, y: y, dx: 0, dy: 0, flags: stickFlags(0, 0) };
+    else stick = null;
   }
   function dragGesture(x, y) {
     if (!gesture || !state || state.phase !== 'live') return;
-    if (state.play && state.play.family === 'run') steer = Math.max(-1, Math.min(1, (x - gesture.x) / 80));
-    var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
-    if (!pass) { aimDrag = null; return; }
     var dx = x - gesture.x, dy = y - gesture.y;
+    if (carryingNow()) {
+      var flags = stickFlags(dx, dy);
+      var analog = Math.max(-1, Math.min(1, dx / 64));
+      if (flags.left) analog = Math.min(analog, -0.45);
+      if (flags.right) analog = Math.max(analog, 0.45);
+      steer = analog;
+      stick = { x: gesture.x, y: gesture.y, dx: dx, dy: dy, flags: flags };
+      aimDrag = null;
+      return;
+    }
+    var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
+    if (!pass) { aimDrag = null; stick = null; return; }
     var rect = canvas.getBoundingClientRect();
     var pull = V.classifyPull(Math.hypot(dx, dy));
     var dir = V.dragToField(dx, dy);
+    var preview = M.slingAim(state.play, { dirX: dir.dirX, dirY: dir.dirY, power: pull.power, kind: throwKind });
+    var qb = state.play.actors[state.play.carrier];
+    var held = (performance.now() - gesture.t) / 1000;
+    var guide = M.guideState(qb ? qb.throw : 50, held, pull.power, preview.dist, M.pressureFactor(state.play));
     aimDrag = {
-      kind: pull.kind,
-      preview: M.aimThrow(state.play, { dirX: dir.dirX, dirY: dir.dirY, power: pull.power }),
+      kind: throwKind,
+      preview: preview,
+      power: pull.power,
+      radius: guide.radius,
+      wobble: guide.wobble,
+      time: held,
       x: x - rect.left, y: y - rect.top
     };
   }
   function releaseGesture(x, y) {
     aimDrag = null;
+    stick = null;
     if (!gesture || !state || state.phase !== 'live') { gesture = null; steer = 0; return; }
     var dx = x - gesture.x, dy = y - gesture.y;
     var dist = Math.hypot(dx, dy), quick = performance.now() - gesture.t < 320;
     var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
     if (pass && dist > 22) {
       var pull = V.classifyPull(dist), dir = V.dragToField(dx, dy);
-      queued.throw = { dirX: dir.dirX, dirY: dir.dirY, power: pull.power };
+      queued.throw = {
+        dirX: dir.dirX, dirY: dir.dirY, power: pull.power, kind: throwKind,
+        sling: true, autoAim: false, held: (performance.now() - gesture.t) / 1000
+      };
+      save.tutored = true;
+    } else if (quick && Math.abs(dy) > 28 && Math.abs(dy) > Math.abs(dx) * 1.2) {
+      queued.spin = true;
     } else if (quick && Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy) * 1.2) {
       queued.juke = dx > 0 ? 1 : -1;
     } else if (dist < 18) queued.dive = true;
@@ -405,31 +471,52 @@
     pointerNotes.push({ source: source, x: x, y: y });
     if (pointerNotes.length > 12) pointerNotes.shift();
   }
+  function eachChangedTouch(e, fn) {
+    var list = e.changedTouches || [];
+    var i;
+    for (i = 0; i < list.length; i++) fn(list[i]);
+  }
   canvas.addEventListener('touchstart', function (e) {
-    var p = fromTouch(e);
-    if (!p) return;
+    if (!e.changedTouches || !e.changedTouches.length) return;
     e.preventDefault();
     touchGuard = performance.now() + 800;
-    notePointer('touch', p.x, p.y);
-    armGesture(p.x, p.y, p.id);
+    eachChangedTouch(e, function (t) {
+      notePointer('touch', t.clientX, t.clientY);
+      if (gesture && gesture.id !== t.identifier) {
+        if (carryingNow()) { turboHeld = true; turboTouch = t.identifier; }
+        else if (passPocket()) toggleThrowKind();
+        return;
+      }
+      armGesture(t.clientX, t.clientY, t.identifier);
+    });
   }, { passive: false });
   canvas.addEventListener('touchmove', function (e) {
-    var p = fromTouch(e);
-    if (!p) return;
+    if (!e.changedTouches || !e.changedTouches.length) return;
     e.preventDefault();
     touchGuard = performance.now() + 800;
-    dragGesture(p.x, p.y);
+    eachChangedTouch(e, function (t) {
+      if (!gesture || gesture.id !== t.identifier) return;
+      dragGesture(t.clientX, t.clientY);
+    });
   }, { passive: false });
   canvas.addEventListener('touchend', function (e) {
-    var p = fromTouch(e);
-    if (!p) return;
+    if (!e.changedTouches || !e.changedTouches.length) return;
     e.preventDefault();
     touchGuard = performance.now() + 800;
-    releaseGesture(p.x, p.y);
+    eachChangedTouch(e, function (t) {
+      if (turboTouch === t.identifier) { turboHeld = false; turboTouch = null; return; }
+      if (!gesture || gesture.id !== t.identifier) return;
+      releaseGesture(t.clientX, t.clientY);
+    });
   }, { passive: false });
   canvas.addEventListener('touchcancel', function () {
     touchGuard = performance.now() + 800;
-    gesture = null; aimDrag = null; steer = 0;
+    gesture = null; aimDrag = null; stick = null; steer = 0; turboHeld = false; turboTouch = null;
+  });
+  canvas.addEventListener('contextmenu', function (e) {
+    if (!passPocket()) return;
+    e.preventDefault();
+    toggleThrowKind();
   });
   function mouseAfterTouch(e) {
     return !!(e && (e.pointerType === 'touch' || performance.now() < touchGuard));
@@ -443,6 +530,7 @@
     }, true);
   });
   canvas.addEventListener('pointerdown', function (e) {
+    if (e.button != null && e.button !== 0) return;
     if (mouseAfterTouch(e)) {
       if (e.pointerType !== 'touch') notePointer('ignored', e.clientX, e.clientY);
       return;
@@ -459,21 +547,90 @@
     if (mouseAfterTouch(e)) return;
     releaseGesture(e.clientX, e.clientY);
   });
-  if ($('sheet')) $('sheet').addEventListener('click', function () { sheetDetail = !sheetDetail; hud(); });
+  var receiverHold = null;
+  function buttonTouch(el, down) {
+    if (!el) return;
+    el.addEventListener('touchstart', function (e) {
+      var p = fromTouch(e);
+      if (!p) return;
+      e.preventDefault();
+      e.stopPropagation();
+      touchGuard = performance.now() + 800;
+      notePointer('touch', p.x, p.y);
+      down(p);
+    }, { passive: false });
+    el.addEventListener('pointerdown', function (e) {
+      if (mouseAfterTouch(e)) { e.preventDefault(); notePointer('ignored', e.clientX, e.clientY); return; }
+      down({ x: e.clientX, y: e.clientY });
+    });
+  }
+  buttonTouch($('turbo'), function () {
+    turboHeld = true;
+    if ($('turbo')) $('turbo').classList.add('held');
+  });
+  if ($('turbo')) {
+    ['touchend', 'touchcancel', 'pointerup', 'pointercancel'].forEach(function (ev) {
+      $('turbo').addEventListener(ev, function () {
+        turboHeld = false;
+        $('turbo').classList.remove('held');
+      });
+    });
+  }
+  if ($('receivers')) {
+    $('receivers').addEventListener('touchstart', function (e) {
+      var b = e.target.closest('[data-receiver]');
+      var p = fromTouch(e);
+      if (!b || !p) return;
+      e.preventDefault();
+      e.stopPropagation();
+      touchGuard = performance.now() + 800;
+      notePointer('touch', p.x, p.y);
+      receiverHold = { name: b.dataset.receiver, t: performance.now(), touch: true };
+    }, { passive: false });
+    $('receivers').addEventListener('touchend', function (e) {
+      if (!receiverHold || !receiverHold.touch) return;
+      e.preventDefault();
+      touchGuard = performance.now() + 800;
+      var kind = performance.now() - receiverHold.t < 220 ? 'bullet' : 'lob';
+      queued.throw = receiverThrow(receiverHold.name, kind);
+      receiverHold = null;
+    }, { passive: false });
+    $('receivers').addEventListener('pointerdown', function (e) {
+      var b = e.target.closest('[data-receiver]');
+      if (!b) return;
+      if (mouseAfterTouch(e)) { e.preventDefault(); notePointer('ignored', e.clientX, e.clientY); return; }
+      receiverHold = { name: b.dataset.receiver, t: performance.now(), touch: false };
+    });
+    $('receivers').addEventListener('pointerup', function (e) {
+      if (!receiverHold || receiverHold.touch || mouseAfterTouch(e)) return;
+      var kind = performance.now() - receiverHold.t < 220 ? 'bullet' : 'lob';
+      queued.throw = receiverThrow(receiverHold.name, kind);
+      receiverHold = null;
+    });
+  }
 
   window.addEventListener('keydown', function (e) {
+    if (turnedAway()) return;
     if (e.target.closest && e.target.closest('input,button,a,select,textarea,.arc-set-bg')) return;
     var k = e.key.toLowerCase();
     if (k === 'p' || k === 'escape') { e.preventDefault(); togglePause(); return; }
-    if (mode === 'play' && state && state.phase === 'call' && '1234'.indexOf(k) >= 0) {
-      begin(['inside', 'outside', 'quick', 'deep'][Number(k) - 1]);
+    if (mode === 'play' && state && state.phase === 'call' && '123'.indexOf(k) >= 0) {
+      var offered = M.offerPlays(state);
+      var pick = offered[Number(k) - 1];
+      if (pick) begin(pick);
       return;
     }
     if (k === 'k' && state && state.phase === 'call' && state.down >= 4) { begin('kick'); return; }
+    if (k === 'shift' && !e.repeat && passPocket()) toggleThrowKind();
     keys.add(k);
-    if (k === ' ' || k === 'arrowleft' || k === 'arrowright') e.preventDefault();
+    if (!keyHeld[k]) keyHeld[k] = performance.now();
+    if (k === ' ' || k === 'arrowleft' || k === 'arrowright' || k === 'shift') e.preventDefault();
   });
-  window.addEventListener('keyup', function (e) { keys.delete(e.key.toLowerCase()); });
+  window.addEventListener('keyup', function (e) {
+    var k = e.key.toLowerCase();
+    delete keyHeld[k];
+    keys.delete(k);
+  });
 
   function togglePause() {
     if (!state || state.phase === 'final') return;
@@ -545,6 +702,13 @@
     if (sheetDetail) return carrier.name + ' carry ' + Arcade.fmt(carrier.carry) + ' · speed ' + Arcade.fmt(carrier.speed) + ' · ' + match + wind;
     return carrier.name + ' carrying · ' + match + wind;
   }
+  function shortToast(text) {
+    var s = String(text || '').replace(/\s*\(\d+\)/g, '').replace(/\s+/g, ' ').trim();
+    var dot = s.indexOf('. ');
+    if (dot > 12 && dot < 120) s = s.slice(0, dot + 1);
+    if (s.length > 110) s = s.slice(0, 107) + '…';
+    return s;
+  }
   function hud() {
     if (!state) {
       $('homeScore').textContent = '0'; $('awayScore').textContent = '0';
@@ -558,55 +722,46 @@
     $('homeScore').textContent = Arcade.fmt(state.score.home);
     $('awayScore').textContent = Arcade.fmt(state.score.away);
     $('clock').textContent = state.quarter >= 5 ? 'OT' : 'Q' + state.quarter + ' ' + Arcade.fmtTime(Math.max(0, Math.ceil(state.clock)));
-    $('down').textContent = state.phase === 'final' ? 'Final' : M.downWords(state);
+    $('down').textContent = state.phase === 'final' ? 'Final' : M.downWords(state).replace(' and ', ' & ').replace(' at ', ' · ');
     var live = state.phase === 'live';
     if (live && state.play) lastSheet = snapLine(state);
     var sheet = $('sheet');
     var curtainUp = $('curtain') && !$('curtain').hidden;
     if (sheet) {
       var watching = mode === 'watch';
-      sheet.hidden = live || curtainUp || watching;
-      if (!sheet.hidden) sheet.textContent = lastSheet || rosterLine(state);
+      var line = M.currentMessage(state) || '';
+      var showToast = !live && !curtainUp && !watching && mode !== 'title' && !!line;
+      sheet.hidden = !showToast;
+      if (!sheet.hidden) sheet.textContent = shortToast(line);
     }
     var cue = $('cue');
     var cueName = mode === 'play' && live && state.play && state.play.offence === 'home' ? state.play.cue : '';
     if (cue) {
       cue.hidden = !cueName;
-      cue.textContent = cueName === 'juke' ? 'Swipe to juke' : cueName === 'dive' ? 'Tap to dive' : cueName === 'turbo' ? 'Hold Turbo' : '';
+      cue.textContent = cueName === 'juke' ? 'Swipe to juke' : cueName === 'dive' ? 'Tap to dive' : cueName === 'turbo' ? 'Second finger sprints' : '';
     }
     paintHint();
+    paintTools();
     if (performance.now() >= promptUntil) {
       var msg = state.phase === 'live' || state.phase === 'final' ? '' : M.currentMessage(state);
       if ($('banner').textContent !== msg) say(msg);
     }
   }
 
-  function uprightPhone() {
-    return !!(window.matchMedia && window.matchMedia('(max-aspect-ratio: 3/4)').matches);
+  function fitChrome() {
+    var tight = window.innerWidth <= 380;
+    var gear = document.querySelector('#settingsMount .arc-set-btn');
+    if (gear) {
+      if (!gear.dataset.full) gear.dataset.full = gear.textContent || '⚙ Settings';
+      gear.textContent = tight ? '⚙' : gear.dataset.full;
+      gear.setAttribute('aria-label', 'Settings');
+    }
   }
-
   function resize() {
     var r = canvas.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
-    if (uprightPhone()) {
-      var slot = canvas.parentElement && canvas.parentElement.parentElement;
-      var avail = slot ? slot.getBoundingClientRect().width : r.width;
-      var cssScale = avail >= V.SIDE.w * 2 ? 2 : 1;
-      var cssW = V.SIDE.w * cssScale, cssH = V.SIDE.h * cssScale;
-      canvas.style.width = cssW + 'px';
-      canvas.style.height = cssH + 'px';
-      canvas.style.imageRendering = 'pixelated';
-      var k = Math.max(1, Math.round(window.devicePixelRatio || 1));
-      var bw = V.SIDE.w * cssScale * k, bh = V.SIDE.h * cssScale * k;
-      if (canvas.width !== bw || canvas.height !== bh) { canvas.width = bw; canvas.height = bh; }
-      return { w: cssW, h: cssH, dpr: k, scale: cssScale, upright: true };
-    }
-    if (canvas.style.width) {
-      canvas.style.width = '';
-      canvas.style.height = '';
-      canvas.style.imageRendering = '';
-    }
     var w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    fitChrome();
     return { w: r.width, h: r.height, dpr: dpr };
   }
 
@@ -638,23 +793,25 @@
   function draw() {
     var box = resize();
     var play = state && state.phase === 'live' ? state.play : null;
+    var passLive = !!(play && play.family === 'pass' && !play.thrown && !play.flight && play.offence === 'home');
+    var layout = V.fitLayout(box.w, box.h) || V.layoutFor(box.w, box.h);
+    var picture = layout || V.SIDE;
+    var offers = state && state.phase === 'call' ? M.offerPlays(state) : null;
+    var previewId = offers && offers.length ? (offers[0] === 'kick' ? 'inside' : offers[0]) : null;
     var paint = {
       game: state,
       play: play,
       camX: sideCam ? sideCam.x : (state ? state.spot : 25),
       aim: aimDrag,
-      reduced: reduce
+      coach: passLive && mode === 'play' && !save.tutored && !aimDrag,
+      reduced: reduce,
+      layout: layout,
+      formation: previewId ? M.formationFor(previewId) : null,
+      chalk: !play && previewId ? M.previewRoutes(previewId) : null
     };
-    if (box.upright) {
-      var mul = box.scale * box.dpr;
-      ctx.setTransform(mul, 0, 0, mul, 0, 0);
-      ctx.imageSmoothingEnabled = false;
-      V.paintMatch(ctx, paint);
-      return;
-    }
-    var scale = Math.max(0.01, Math.min(box.w / V.SIDE.w, box.h / V.SIDE.h));
-    var ox = (box.w - V.SIDE.w * scale) / 2;
-    var oy = (box.h - V.SIDE.h * scale) / 2;
+    var scale = picture.scale >= 1 ? picture.scale : Math.max(1, Math.floor(Math.min(box.w / picture.w, box.h / picture.h)));
+    var ox = Math.floor((box.w - picture.w * scale) / 2);
+    var oy = Math.floor((box.h - picture.h * scale) / 2);
     ctx.setTransform(box.dpr, 0, 0, box.dpr, 0, 0);
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = '#141820';
@@ -662,11 +819,60 @@
     ctx.setTransform(box.dpr * scale, 0, 0, box.dpr * scale, box.dpr * ox, box.dpr * oy);
     ctx.imageSmoothingEnabled = false;
     V.paintMatch(ctx, paint);
+    drawStick(box);
+  }
+  function drawStick(box) {
+    if (!stick || !carryingNow()) return;
+    var rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    var sx = canvas.width / rect.width, sy = canvas.height / rect.height;
+    var radius = Math.max(16, Math.round(28 * (canvas.width / V.SIDE.w)));
+    var x = Math.round((stick.x - rect.left) * sx);
+    var y = Math.round((stick.y - rect.top) * sy);
+    var dx = (stick.dx || 0) * sx, dy = (stick.dy || 0) * sy;
+    var mag = Math.hypot(dx, dy);
+    if (mag > radius) { dx *= radius / mag; dy *= radius / mag; }
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = '#f6edd4';
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = '#f6edd4';
+    ctx.lineWidth = Math.max(1, Math.round(sx));
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(Math.round(x + dx), Math.round(y + dy), Math.max(6, Math.round(radius / 2)), 0, Math.PI * 2);
+    ctx.fillStyle = '#c9bc9a';
+    ctx.fill();
+    ctx.restore();
+  }
+  function paintTools() {
+    var row = $('receivers');
+    var turbo = $('turbo');
+    if (turbo) turbo.hidden = true;
+    if (!row) return;
+    row.hidden = true;
+    row.innerHTML = '';
+    receiverKey = '';
+  }
+  function armMove(which, e) {
+    if (e && e.cancelable) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
+    touchGuard = performance.now() + 800;
+    if (which === 'spin') queued.spin = true;
+    else queued.juke = queued.juke || 1;
   }
 
   function frame(now) {
     var dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
     last = now;
+    if (paintTurn()) {
+      hud();
+      draw();
+      requestAnimationFrame(frame);
+      return;
+    }
     if (mode === 'play' && state && state.phase === 'live' && !document.hidden) {
       if (state.play) lastSheet = snapLine(state);
       M.step(state, reduce ? Math.min(dt, 0.02) : dt, readGesture());

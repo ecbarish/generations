@@ -59,11 +59,58 @@
     return { power: power, kind: power < 0.42 ? 'bullet' : 'lob' };
   }
 
-  /* Screen drag on the side field: right is downfield, up is toward the top sideline. */
+  /* Pull back from anywhere. The throw goes the other way. Right on the side field is downfield. */
   function dragToField(dx, dy) {
-    var dirX = Number(dx) || 0, dirY = Number(dy) || 0;
+    var dirX = -(Number(dx) || 0);
+    var dirY = -(Number(dy) || 0);
     var mag = Math.hypot(dirX, dirY) || 1;
     return { dirX: dirX / mag, dirY: dirY / mag };
+  }
+  /* Yards the quarterback slides back after the snap. Drawing only; the throw still leaves the pocket. */
+  function pocketDrop(elapsed) {
+    var u = clamp((Number(elapsed) || 0) / 0.55, 0, 1);
+    return -4.6 * (1 - (1 - u) * (1 - u));
+  }
+  /* Screen pixels of loft. The ball peaks halfway and comes down on the landing spot. */
+  function ballLoft(u, kind) {
+    var t = clamp(Number(u) || 0, 0, 1);
+    return Math.sin(t * Math.PI) * (kind === 'lob' ? 36 : 16);
+  }
+  /* The picture matches a landscape screen. The field stays side-on. */
+  function layoutFor(cssW, cssH) {
+    var w = Number(cssW) || 0, h = Number(cssH) || 0;
+    if (w < 1 || h < 1) return null;
+    var pictureH = SIDE.h;
+    var pictureW = Math.round(pictureH * (w / h));
+    pictureW = Math.max(SIDE.w, Math.min(pictureW, 760));
+    return {
+      w: pictureW, h: pictureH, yard: SIDE.yard, top: SIDE.top, fieldH: SIDE.fieldH,
+      widthY: SIDE.widthY, anchor: Math.round(pictureW * 0.28), lead: SIDE.lead
+    };
+  }
+  /* A phone held upright. Desktop sizes, and a phone already sideways, play the field. */
+  function phoneTurn(cssW, cssH) {
+    var w = Number(cssW) || 0, h = Number(cssH) || 0;
+    return h > w && w > 0 && w <= 520;
+  }
+  /* Whole-pixel scale. The picture then widens and grows so the field fills the box. */
+  function fitLayout(cssW, cssH) {
+    var base = layoutFor(cssW, cssH);
+    if (!base) return null;
+    var w = Number(cssW), h = Number(cssH);
+    var fit = Math.min(w / base.w, h / base.h);
+    var scale = Math.floor(fit);
+    if (!(scale >= 1)) scale = 1;
+    var fillW = Math.max(8, Math.floor(w / scale));
+    var fillH = Math.max(8, Math.floor(h / scale));
+    var chrome = Math.max(0, base.h - base.fieldH);
+    var margin = Math.min(chrome, Math.max(base.top, Math.floor(fillH / 5)));
+    return {
+      w: fillW, h: fillH, yard: base.yard, top: base.top, widthY: base.widthY,
+      lead: base.lead, scale: scale,
+      fieldH: Math.max(16, fillH - margin),
+      anchor: Math.round(fillW * 0.28)
+    };
   }
 
   /* Run lane and pocket ring, drawn under the players. Colours and patterns from the art spec. */
@@ -221,7 +268,7 @@
   }
 
   /* Side-on field. 384×216, 12px per yard, the vertical axis squashed into 160px under a 28px strip. */
-  var SIDE = { w: 384, h: 216, yard: 12, top: 28, fieldH: 160, widthY: 53.333333, anchor: 140, lead: 40 };
+  var SIDE = { w: 384, h: 216, yard: 12, top: 18, fieldH: 180, widthY: 53.333333, anchor: 140, lead: 40 };
   var STRIPES = ['#2d8a3c', '#38994a'];
   var PALETTE = [
     '#1e1a22', '#f2d080', '#e7c4a8', '#c99a78', '#8a5e48', '#f6edd4', '#c9bc9a', '#8a7e64',
@@ -235,15 +282,29 @@
     '#2d6f80': ['#4a93a4', '#2d6f80', '#1c4a58']
   };
   var GLYPH = {
-    A: '010,101,111,101,101', C: '111,100,100,100,111', E: '111,100,110,100,111',
-    I: '111,010,010,010,111', L: '100,100,100,100,111', M: '101,111,101,101,101',
-    N: '101,111,111,101,101', R: '110,101,110,101,101', S: '111,100,111,001,111',
-    T: '111,010,010,010,010', W: '101,101,101,111,101',
+    A: '010,101,111,101,101', B: '110,101,110,101,110', C: '111,100,100,100,111',
+    D: '110,101,101,101,110', E: '111,100,110,100,111', G: '111,100,101,101,111',
+    I: '111,010,010,010,111', J: '001,001,001,101,110', K: '101,110,100,110,101',
+    L: '100,100,100,100,111', M: '101,111,101,101,101', N: '101,111,111,101,101',
+    O: '111,101,101,101,111', P: '111,101,111,100,100', R: '110,101,110,101,101',
+    S: '111,100,111,001,111', T: '111,010,010,010,010', U: '101,101,101,101,111',
+    V: '101,101,101,101,010', W: '101,101,101,111,101',
     '0': '111,101,101,101,111', '1': '010,110,010,010,111', '2': '111,001,111,100,111',
     '3': '111,001,111,001,111', '4': '101,101,111,001,001', '5': '111,100,111,001,111',
     '6': '111,100,111,101,111', '7': '111,001,010,010,010', '8': '111,101,111,101,111',
     '9': '111,101,111,001,111'
   };
+  /* Words the picture paints with GLYPH. A space leaves a gap. Anything else needs a lit cell. */
+  var FIELD_WORDS = ['Lanterns', 'Millrace', 'POWER', 'LOB', 'BULLET', 'JUKE', 'SPIN', 'DIVE', 'GO', '10', '20', '30', '40', '50'];
+  function missingGlyphs(text) {
+    var missing = [];
+    String(text || '').toUpperCase().split('').forEach(function (ch) {
+      if (ch === ' ') return;
+      var rows = GLYPH[ch];
+      if (!rows || String(rows).indexOf('1') < 0) missing.push(ch);
+    });
+    return missing;
+  }
   function snapWorld(x) { return Math.round((Number(x) || 0) * SIDE.yard) / SIDE.yard; }
   function chainLines(game) {
     game = game || {};
@@ -293,12 +354,17 @@
     if (spec.family === 'run') return { target: (Number(spec.ballX) || spot) + SIDE.lead / SIDE.yard, chase: true, cut: false };
     return { target: spot, chase: true, cut: false };
   }
+  function alongPx(abs, camX) {
+    var delta = ((Number(abs) || 0) - (Number(camX) || 0)) * SIDE.yard;
+    return Math.round(SIDE.anchor + delta);
+  }
+  function crossPx(lat) {
+    return Math.round(SIDE.top + SIDE.fieldH / 2 + (Number(lat) || 0) * (SIDE.fieldH / SIDE.widthY));
+  }
   function sideProject(point, cam, view) {
     point = point || {};
     cam = cam || {};
-    var sx = Math.round(SIDE.anchor + ((Number(point.x) || 0) - (Number(cam.x) || 0)) * SIDE.yard);
-    var sy = Math.round(SIDE.top + SIDE.fieldH / 2 + (Number(point.y) || 0) * (SIDE.fieldH / SIDE.widthY));
-    return { x: sx, y: sy, scale: 1, view: view || null };
+    return { x: alongPx(point.x, cam.x), y: crossPx(point.y), scale: 1, view: view || null };
   }
   function rampFor(color) {
     var key = String(color || '').toLowerCase();
@@ -361,8 +427,8 @@
       drawGlyph(ctx, ch, Math.round(x + i * 4 * s), Math.round(y), s);
     });
   }
-  function yardX(abs, camX) { return Math.round(SIDE.anchor + (abs - camX) * SIDE.yard); }
-  function latY(lat) { return Math.round(SIDE.top + SIDE.fieldH / 2 + lat * (SIDE.fieldH / SIDE.widthY)); }
+  function yardX(abs, camX) { return alongPx(abs, camX); }
+  function latY(lat) { return crossPx(lat); }
   function paintField(ctx, spec) {
     var camX = spec.camX;
     var spot = spec.spot;
@@ -433,8 +499,130 @@
     if (moving) return { pose: 'run', frame: Math.floor(t * 8) % 4 };
     return { pose: 'idle', frame: Math.floor(t * 2) % 2 };
   }
+  /* Sits on the near sideline, clear of the score line. */
+  function drawPowerMeter(ctx, power) {
+    var p = clamp(Number(power) || 0, 0, 1);
+    var labelW = 40, gap = 6, bw = 88, bh = 10;
+    var x = Math.round((SIDE.w - (labelW + gap + bw)) / 2);
+    var y = Math.max(4, SIDE.h - bh - 4);
+    drawText(ctx, 'POWER', x, y, '#f6edd4', 2);
+    var bx = x + labelW + gap, by = y;
+    ctx.fillStyle = '#1e1a22';
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.fillStyle = '#c9bc9a';
+    ctx.fillRect(bx, by, bw, 1);
+    ctx.fillRect(bx, by + bh - 1, bw, 1);
+    ctx.fillRect(bx, by, 1, bh);
+    ctx.fillRect(bx + bw - 1, by, 1, bh);
+    var fill = Math.round((bw - 2) * p);
+    if (fill > 0) {
+      ctx.fillStyle = '#4aa8ff';
+      ctx.fillRect(bx + 1, by + 1, fill, bh - 2);
+    }
+  }
+  /* A predicted arc and the landing circle. Lamplight stays on the aimed player, not the arc. */
+  function drawPassGuide(ctx, at, carrier, aim) {
+    var preview = aim.preview || {};
+    var from = at(carrier.x, carrier.y);
+    var end = at(preview.x, preview.y);
+    var wobble = clamp(Number(aim.wobble) || 0, 0, 1);
+    var time = Number(aim.time) || 0;
+    if (wobble > 0) {
+      end = {
+        x: end.x + Math.round(Math.sin(time * 9) * wobble * 14),
+        y: end.y + Math.round(Math.cos(time * 7) * wobble * 8)
+      };
+    }
+    var radius = Math.max(0.6, Number(aim.radius) || Number(preview.radius) || 1.2);
+    var alongR = Math.max(4, Math.round(radius * SIDE.yard));
+    var crossR = Math.max(3, Math.round(radius * (SIDE.fieldH / SIDE.widthY)));
+    var rx = Math.min(alongR, Math.max(4, Math.floor(SIDE.w / 2) - 2));
+    var ry = Math.min(crossR, Math.max(3, Math.floor(SIDE.h / 2) - 2));
+    rx = Math.max(4, rx); ry = Math.max(3, ry);
+    end = {
+      x: clamp(end.x, rx + 2, Math.max(rx + 2, SIDE.w - rx - 2)),
+      y: clamp(end.y, ry + 2, Math.max(ry + 2, SIDE.h - ry - 2))
+    };
+    var loft = (aim.kind === 'lob' ? 28 : 10) + wobble * 10;
+    var samples = 8, i;
+    var prev = from;
+    ctx.fillStyle = wobble > 0 ? '#ffb0a4' : '#f6edd4';
+    for (i = 1; i <= samples; i++) {
+      var t = i / samples;
+      var u = 1 - t;
+      var x = u * u * from.x + 2 * u * t * ((from.x + end.x) / 2) + t * t * end.x;
+      var y = u * u * from.y + 2 * u * t * (((from.y + end.y) / 2) - loft) + t * t * end.y;
+      var next = { x: Math.round(x), y: Math.round(y) };
+      pixelLine(ctx, prev.x, prev.y, next.x, next.y, 2, [2, 3]);
+      prev = next;
+    }
+    ctx.fillStyle = '#4aa8ff';
+    pixelEllipse(ctx, end.x, end.y, rx, ry, 2, [2, 3]);
+    ctx.fillStyle = '#f6edd4';
+    ctx.fillRect(end.x - 3, end.y, 7, 1);
+    ctx.fillRect(end.x, end.y - 3, 1, 7);
+    if (aim.power != null) drawPowerMeter(ctx, aim.power);
+    return { end: end, kind: aim.kind === 'lob' ? 'lob' : 'bullet', ry: ry };
+  }
+  /* The throw word sits above the sprites, inside the picture, at the 8px glyph size. */
+  function drawPassLabel(ctx, guide) {
+    if (!guide || !guide.end) return;
+    var text = guide.kind === 'lob' ? 'LOB' : 'BULLET';
+    var scale = 2;
+    var tw = text.length * 4 * scale;
+    var th = 5 * scale;
+    var x = clamp(Math.round(guide.end.x - tw / 2), 2, Math.max(2, SIDE.w - tw - 2));
+    var y = Math.round(guide.end.y - (guide.ry || 6) - th - 3);
+    if (y < 2) y = Math.min(Math.max(2, SIDE.h - th - 2), Math.round(guide.end.y + (guide.ry || 6) + 3));
+    ctx.fillStyle = '#1e1a22';
+    ctx.fillRect(x - 2, y - 2, tw + 4, th + 4);
+    drawText(ctx, text, x, y, '#f2d080', scale);
+  }
+  /* Open is a light ring with a chevron. A window is dashed. Covered is dotted, with a cross. */
+  function opennessMark(band) {
+    if (band === 'window') return { color: '#ffdd33', shape: 'dashed', outline: '#1e1a22' };
+    if (band === 'covered') return { color: '#ffb0a4', shape: 'dotted', outline: '#1e1a22' };
+    return { color: '#f6edd4', shape: 'chevron', outline: '#1e1a22' };
+  }
+  function drawOpenMark(ctx, x, y, band) {
+    var mark = opennessMark(band);
+    var rx = 7, ry = 4;
+    ctx.fillStyle = mark.outline;
+    pixelEllipse(ctx, x, y, rx + 2, ry + 2, 2, null);
+    ctx.fillStyle = mark.color;
+    if (mark.shape === 'dashed') pixelEllipse(ctx, x, y, rx, ry, 2, [3, 2]);
+    else if (mark.shape === 'dotted') pixelEllipse(ctx, x, y, rx, ry, 2, [1, 2]);
+    else pixelEllipse(ctx, x, y, rx, ry, 2, null);
+    ctx.fillStyle = mark.outline;
+    if (mark.shape === 'chevron') {
+      pixelLine(ctx, x - 2, y - 3, x + 4, y, 1, null);
+      pixelLine(ctx, x - 2, y + 3, x + 4, y, 1, null);
+    } else if (mark.shape === 'dotted') {
+      pixelLine(ctx, x - 3, y - 2, x + 3, y + 2, 1, null);
+      pixelLine(ctx, x - 3, y + 2, x + 3, y - 2, 1, null);
+    }
+  }
+  function useSide(layout, fn) {
+    if (!layout) return fn();
+    var keys = ['w', 'h', 'yard', 'top', 'fieldH', 'widthY', 'anchor', 'lead'];
+    var prev = {};
+    keys.forEach(function (k) { prev[k] = SIDE[k]; if (layout[k] != null) SIDE[k] = layout[k]; });
+    try { return fn(); }
+    finally { keys.forEach(function (k) { SIDE[k] = prev[k]; }); }
+  }
+  function drawChalk(ctx, at, lines) {
+    (lines || []).forEach(function (line) {
+      if (!line) return;
+      var a = at(line.x0, line.y0), b = at(line.x1, line.y1);
+      ctx.fillStyle = '#f6edd4';
+      pixelLine(ctx, a.x, a.y, b.x, b.y, 2, [3, 3]);
+    });
+  }
   function paintMatch(ctx, spec) {
     spec = spec || {};
+    return useSide(spec.layout, function () { return paintMatchDraw(ctx, spec); });
+  }
+  function paintMatchDraw(ctx, spec) {
     var game = spec.game;
     var play = spec.play;
     var live = !!(game && play && game.phase === 'live');
@@ -449,7 +637,7 @@
     var squad = live ? play.squad : (picture ? spec.squad : null);
     if (!live && game && !squad) {
       var preview = root.LanternModel && root.LanternModel.previewSquad
-        ? root.LanternModel.previewSquad(off, def, game.look || 'singleback')
+        ? root.LanternModel.previewSquad(off, def, spec.formation || game.look || 'singleback')
         : null;
       squad = preview ? preview.squad : [];
       spec.ball = spec.ball || (preview && preview.ball);
@@ -465,6 +653,17 @@
       marks: game ? chainLines({ spot: spot, toGo: game.toGo }) : null
     });
     function at(x, y) { return sideProject({ x: spot + x, y: y }, { x: camX }); }
+    var drop = play && play.family === 'pass' && !play.thrown && !play.flight ? pocketDrop(play.elapsed) : 0;
+    if (!live) drawChalk(ctx, at, spec.chalk);
+    function openBand(p, list) {
+      var best = 99;
+      (list || []).forEach(function (o) {
+        if (o.off) return;
+        var d = Math.hypot(o.x - p.x, o.y - p.y);
+        if (d < best) best = d;
+      });
+      return root.LanternModel && root.LanternModel.opennessBand ? root.LanternModel.opennessBand(best) : (best <= 2.6 ? 'covered' : best < 5 ? 'window' : 'open');
+    }
     if (play && (play.family === 'run' || play.didCatch) && play.lanes) {
       play.lanes.forEach(function (lane) {
         var stateName = play.laneStates && play.laneStates[lane.id] ? play.laneStates[lane.id].state : 'open';
@@ -474,7 +673,7 @@
     }
     if (play && play.family === 'pass' && !play.thrown && !play.flight) {
       var qb = play.actors[play.carrier];
-      var pocketAt = qb && at(qb.x, qb.y);
+      var pocketAt = qb && at(qb.x + drop, qb.y);
       if (pocketAt) {
         drawPocketRing(ctx, {
           x: pocketAt.x, y: pocketAt.y, step: play.ringStep || 0, from: play.ringFrom || 0,
@@ -484,7 +683,9 @@
       }
     }
     var bodies = (squad || []).map(function (p) {
-      return { p: p, s: at(p.x, p.y) };
+      var px = p.x;
+      if (drop && p.off && p.role === 'qb') px += drop;
+      return { p: p, s: at(px, p.y) };
     }).sort(function (a, b) { return a.p.y - b.p.y; });
     var carrier = play && play.actors ? play.actors[play.carrier] : null;
     var aimTarget = spec.aim && spec.aim.preview ? spec.aim.preview.target : null;
@@ -513,7 +714,13 @@
     });
     var ball = live ? play.ball : spec.ball;
     if (ball) {
-      var b = at(ball.x, ball.y - 0.2);
+      var bx = ball.x, by = ball.y - 0.2;
+      if (drop && carrier && carrier.role === 'qb' && !play.flight) bx += drop;
+      var b = at(bx, by);
+      if (play && play.flight) {
+        var flightU = clamp(play.flight.t / (play.flight.air || 1), 0, 1);
+        b.y -= ballLoft(flightU, play.flight.kind);
+      }
       ctx.fillStyle = '#8a4a2a';
       ctx.fillRect(b.x - 3, b.y - 2, 6, 3);
       ctx.fillStyle = '#f6edd4';
@@ -526,17 +733,32 @@
       var who = null;
       bodies.forEach(function (row) { if (row.p.link === carrier) who = row.s; });
       var juking = !!(play.jukeUntil && play.elapsed < play.jukeUntil);
+      var spinning = !!(play.spinUntil && play.elapsed < play.spinUntil);
       var diving = !!(play.diving || (play.diveUntil && play.elapsed < play.diveUntil));
-      if (who && (juking || diving || play.turboOn)) {
-        drawText(ctx, juking ? 'JUKE' : diving ? 'DIVE' : 'GO', who.x - 8, who.y - 22, '#f6edd4', 1);
+      if (who && (juking || spinning || diving || play.turboOn)) {
+        drawText(ctx, juking ? 'JUKE' : spinning ? 'SPIN' : diving ? 'DIVE' : 'GO', who.x - 8, who.y - 22, '#f6edd4', 1);
       }
     }
-    if (play && play.family === 'pass' && !play.thrown && spec.aim && spec.aim.preview && carrier) {
-      var from = at(carrier.x, carrier.y);
-      var end = at(spec.aim.preview.x, spec.aim.preview.y);
-      ctx.fillStyle = spec.aim.kind === 'bullet' ? '#f6edd4' : '#ffffff';
-      pixelLine(ctx, from.x, from.y, end.x, end.y, 1, spec.aim.kind === 'lob' ? [3, 3] : null);
+    var showRings = !live || (play && play.family === 'pass' && !play.didCatch);
+    if (showRings && squad && squad.length) {
+      squad.forEach(function (p) {
+        if (!p.off || (p.role !== 'wr' && p.role !== 'te' && p.role !== 'rb')) return;
+        var spotAt = at(p.x, p.y);
+        drawOpenMark(ctx, spotAt.x, spotAt.y + 2, openBand(p, squad));
+      });
     }
+    var guide = null;
+    if (play && play.family === 'pass' && !play.thrown && spec.aim && spec.aim.preview && carrier) {
+      guide = drawPassGuide(ctx, at, { x: carrier.x + drop, y: carrier.y }, spec.aim);
+    } else if (play && play.family === 'pass' && !play.thrown && !spec.aim && spec.coach && carrier) {
+      guide = drawPassGuide(ctx, at, { x: carrier.x + drop, y: carrier.y }, {
+        preview: { x: carrier.x + 12, y: carrier.y - 2 },
+        kind: 'bullet',
+        radius: 1.4,
+        wobble: 0
+      });
+    }
+    if (guide) drawPassLabel(ctx, guide);
     ctx.restore();
     return { spot: spot, camX: camX, squad: (squad || []).length };
   }
@@ -615,7 +837,10 @@
     drawPlayer: drawPlayer, laneStyle: laneStyle, laneRails: laneRails, drawRunLane: drawRunLane,
     pocketRing: pocketRing, tweenRadius: tweenRadius, drawPocketRing: drawPocketRing, RING_STEPS: RING_STEPS,
     SIDE: SIDE, PALETTE: PALETTE, chainLines: chainLines, stepSideCamera: stepSideCamera,
-    sideFocus: sideFocus, sideProject: sideProject, paintMatch: paintMatch, rampFor: rampFor
+    sideFocus: sideFocus, sideProject: sideProject, paintMatch: paintMatch, rampFor: rampFor,
+    pocketDrop: pocketDrop, ballLoft: ballLoft, layoutFor: layoutFor, fitLayout: fitLayout,
+    opennessMark: opennessMark, phoneTurn: phoneTurn,
+    GLYPH: GLYPH, FIELD_WORDS: FIELD_WORDS, missingGlyphs: missingGlyphs
   };
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.LanternView = api;
