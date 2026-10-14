@@ -55,6 +55,62 @@ document.querySelector('#run').onclick = async () => {
     const shot = V.project('behind', { x: 4, y: 0 }, { x: 0, y: 0 }, { w: 400, h: 600 });
     check('the behind-the-play camera returns a point', !!shot && isFinite(shot.x) && isFinite(shot.y) && shot.scale > 0);
     check('the side-on view is reserved and not built', V.RESERVED.indexOf('side') >= 0 && V.project('side', { x: 0, y: 0 }, { x: 0, y: 0 }, { w: 100, h: 100 }) === null);
+    ['inside', 'outside', 'quick', 'deep'].forEach(id => {
+      const snap = M.create({ seed: 4 });
+      M.callPlay(snap, id);
+      const offN = snap.play.squad.filter(p => p.off).length;
+      const defN = snap.play.squad.filter(p => !p.off).length;
+      check(id + ' snaps eleven a side (' + snap.play.formation + ', ' + snap.play.defence + ')', offN === 11 && defN === 11);
+    });
+    const iForm = M.create({ seed: 4 }); M.callPlay(iForm, 'inside');
+    const single = M.create({ seed: 4 }); M.callPlay(single, 'outside');
+    const shotgun = M.create({ seed: 4 }); M.callPlay(shotgun, 'quick');
+    const countRole = (play, off, role) => play.squad.filter(p => p.off === off && p.role === role).length;
+    check('the I has two backs and a 4-3', iForm.play.formation === 'iform' && countRole(iForm.play, true, 'rb') === 2 && countRole(iForm.play, true, 'ol') === 5 && iForm.play.defence === 'base' && countRole(iForm.play, false, 'dl') === 4 && countRole(iForm.play, false, 'lb') === 3);
+    check('singleback has two tight ends and two receivers', single.play.formation === 'singleback' && countRole(single.play, true, 'te') === 2 && countRole(single.play, true, 'wr') === 2 && countRole(single.play, true, 'rb') === 1);
+    check('shotgun has three receivers and a nickel', shotgun.play.formation === 'shotgun' && countRole(shotgun.play, true, 'wr') === 3 && countRole(shotgun.play, true, 'te') === 1 && shotgun.play.defence === 'nickel' && countRole(shotgun.play, false, 'cb') === 3 && countRole(shotgun.play, false, 'lb') === 2);
+    check('blockers and the quarterback face downfield', iForm.play.squad.filter(p => p.off && (p.role === 'ol' || p.role === 'qb')).every(p => p.face === 1));
+    check('zone defenders face the ball', iForm.play.squad.filter(p => !p.off && (p.role === 'lb' || p.role === 's')).every(p => p.face === (iForm.play.ball.x + 0.05 < p.x ? -1 : 1)));
+    const awaySnap = M.create({ seed: 6 }); awaySnap.possession = 'away'; awaySnap.phase = 'cpu'; M.callPlay(awaySnap, 'quick');
+    check('Millrace also snaps eleven a side', awaySnap.play.squad.filter(p => p.off).length === 11 && awaySnap.play.squad.filter(p => !p.off).length === 11 && awaySnap.play.formation === 'shotgun');
+    function snapMoves(side, id) {
+      const game = M.create({ seed: 8 });
+      game.possession = side;
+      game.phase = side === 'home' ? 'call' : 'cpu';
+      if (!M.callPlay(game, id)) return false;
+      const ball0 = game.play.ball.x;
+      const xs = game.play.squad.map(p => p.x);
+      let ball = false, players = false;
+      for (let i = 0; i < 90 && game.phase === 'live'; i++) {
+        M.step(game, 1 / 30, M.policies.cpu(game.play, game));
+        if (!game.play) break;
+        if (Math.abs(game.play.ball.x - ball0) > 0.3) ball = true;
+        if (game.play.squad.some((p, n) => Math.abs(p.x - xs[n]) > 0.2)) players = true;
+      }
+      return ball && players;
+    }
+    check('the ball and the players move on a Lanterns run and a Lanterns pass', snapMoves('home', 'inside') && snapMoves('home', 'quick'));
+    check('the ball and the players move on a Millrace run and a Millrace pass', snapMoves('away', 'inside') && snapMoves('away', 'deep'));
+    const lines = V.chainLines({ spot: 25, toGo: 10 });
+    const losPx = V.sideProject({ x: lines.los, y: 0 }, { x: lines.los });
+    const firstPx = V.sideProject({ x: lines.first, y: 0 }, { x: lines.los });
+    check('the line of scrimmage and the first-down line sit on those yards', lines.los === 25 && lines.first === 35 && losPx.x === 140 && firstPx.x === losPx.x + 120);
+    const odd = V.sideProject({ x: 10.4, y: -3.2 }, { x: 0 });
+    check('the side camera lands on whole pixels', odd.x === Math.round(odd.x) && odd.y === Math.round(odd.y) && losPx.y === Math.round(losPx.y));
+    const heldCam = V.stepSideCamera({ x: 40, v: 4, chasing: true }, 90, 0.5, { chase: false });
+    check('the camera stops chasing after the whistle', heldCam.x === 40 && heldCam.v === 0 && heldCam.chasing === false);
+    const cutCam = V.stepSideCamera({ x: 70, v: 3, chasing: true }, 25, 0.5, { cut: true });
+    check('between plays the camera hard-cuts to the new line', cutCam.x === 25 && cutCam.v === 0 && cutCam.chasing === false);
+    const focusRun = V.sideFocus({ family: 'run', spot: 25, ballX: 30 });
+    const focusAir = V.sideFocus({ family: 'air', spot: 25, qbX: 20, landX: 40 });
+    check('a run leads the carrier and a pass aims between the quarterback and the landing spot', Math.abs(focusRun.target - (30 + 40 / 12)) < 1e-9 && focusRun.chase === true && focusAir.target === 30 && focusAir.chase === true);
+    check('the picture stays inside 32 colours', V.PALETTE.length <= 32 && V.PALETTE.length === new Set(V.PALETTE).size);
+    const inkPen = { log: [] };
+    ['save', 'restore', 'beginPath', 'moveTo', 'lineTo', 'ellipse', 'arc', 'fill', 'stroke', 'translate', 'scale'].forEach(name => { inkPen[name] = () => { inkPen.log.push(name); }; });
+    V.drawPlayer(inkPen, { x: 8, y: 8, scale: 2.4, id: 'qb', view: 'back', pose: 'idle' });
+    check('the fallback outline is 1px ink', inkPen.lineWidth === 1 && inkPen.strokeStyle === '#1e1a22');
+    const saveKeys = Object.keys(M.serialise(M.create({ seed: 1 }))).sort().join(',');
+    check('a save still has only the v2 fields', saveKeys === 'away,clock,down,fatigue,home,last,lastGain,log,otTurns,phase,playSerial,possession,quarter,received,rng,score,seed,spot,toGo,usage');
     const familiar = M.passCatchShare({ throw: 64, catch: 68, cover: 55, rush: 58 }, 36, 7);
     check('a well-aimed throw is usually caught (' + familiar.toFixed(2) + ')', familiar > 0.6);
     let plainYards = 0, jukeYards = 0;
@@ -219,6 +275,99 @@ document.querySelector('#run').onclick = async () => {
     const mixRate = band.mixed.wins / band.n;
     const mixMargin = band.mixed.mean - band.mixed.opp;
     check('a single plan wins about six games in ten, and a mixed plan wins about three in four (run ' + band.run.mean.toFixed(1) + '–' + band.run.opp.toFixed(1) + ', ' + band.run.wins + ' of ' + band.n + '; pass ' + band.pass.mean.toFixed(1) + '–' + band.pass.opp.toFixed(1) + ', ' + band.pass.wins + ' of ' + band.n + '; mixed ' + band.mixed.mean.toFixed(1) + '–' + band.mixed.opp.toFixed(1) + ', ' + band.mixed.wins + ' of ' + band.n + ')', singleBand(band.run) && singleBand(band.pass) && bandGap <= 4 && mixRate >= 0.70 - 1e-9 && mixRate <= 0.75 + 1e-9 && band.mixed.wins > band.run.wins && band.mixed.wins > band.pass.wins && band.mixed.mean > band.run.mean && band.mixed.mean > band.pass.mean && mixMargin > band.run.mean - band.run.opp && mixMargin > band.pass.mean - band.pass.opp);
+    function humanLike(play, game) {
+      if (!play) return M.policies.neutral();
+      if (play.family === 'pass' && !play.thrown && !play.flight) {
+        if (play.elapsed < 0.62) return M.policies.neutral();
+        const qb = play.actors[play.carrier];
+        let best = null, bestX = -1e9;
+        play.actors.forEach(a => { if (a.off && a.route && a.route.x > bestX) { bestX = a.route.x; best = a.route; } });
+        const target = best || { x: 12, y: 0 };
+        const dx = target.x - qb.x, dy = target.y - qb.y, mag = Math.hypot(dx, dy) || 1;
+        return { steer: 0, turbo: false, juke: 0, dive: false, throw: { dirX: dx / mag, dirY: dy / mag, power: play.id === 'deep' ? 0.84 : 0.36 } };
+      }
+      const back = play.actors[play.carrier];
+      const read = M.laneRead(play, back.y);
+      const open = !!(read.lane && read.lane.open && read.state !== 'closed');
+      const tired = (game.fatigue[back.name] || 0) >= 0.72;
+      return { steer: play.id === 'outside' ? 0.35 : 0, turbo: open && !tired && !play.didCatch, juke: 0, dive: false, throw: null };
+    }
+    function humanSample(style) {
+      const runs = [], passes = [];
+      let tds = 0;
+      for (let i = 0; i < 20; i++) {
+        const game = M.create({ seed: ((11 + i * 17) >>> 0) || 1 });
+        let guard = 0, called = 0;
+        while (game.phase !== 'final' && guard++ < 280) {
+          if (game.possession !== 'home') { M.cpuDrive(game); continue; }
+          const go = (game.toGo <= 8 && game.spot >= 45) || game.toGo <= 4;
+          if (game.down >= 4 && !go) { M.kick(game); continue; }
+          const id = style === 'pass' ? M.callStyle(game, 'pass') : ['inside', 'outside', 'quick', 'inside', 'outside', 'quick', 'inside', 'deep'][called % 8];
+          called += 1;
+          const before = game.score.home;
+          if (!M.callPlay(game, id)) break;
+          M.finish(game, humanLike);
+          if (game.score.home >= before + 6) tds += 1;
+          if ((id === 'inside' || id === 'outside') && game.last) runs.push(game.last.gain || 0);
+          if (game.last && game.last.caught) passes.push(game.last.gain || 0);
+        }
+      }
+      return { tds: tds / 20, runs, passes };
+    }
+    function medianOf(xs) {
+      const s = xs.slice().sort((a, b) => a - b);
+      const i = (s.length - 1) >> 1;
+      return s.length % 2 ? s[i] : (s[i] + s[i + 1]) / 2;
+    }
+    const humanRun = humanSample('run'), humanPass = humanSample('pass');
+    const carries = humanRun.runs;
+    const lossRate = carries.filter(x => x < -0.05).length / carries.length;
+    const tenRate = carries.filter(x => x >= 10).length / carries.length;
+    const twentyRate = carries.filter(x => x >= 20).length / carries.length;
+    const carryMedian = medianOf(carries);
+    check('a mostly-run game and a mostly-pass game each score about a touchdown (' + humanRun.tds.toFixed(2) + ' and ' + humanPass.tds.toFixed(2) + ' a game)', humanRun.tds >= 1 && humanPass.tds >= 1);
+    check('carries lose about one in ten, sit near 3, and sometimes break (' + (lossRate * 100).toFixed(1) + '% lost, median ' + carryMedian.toFixed(2) + ', ' + (tenRate * 100).toFixed(1) + '% at 10+, ' + (twentyRate * 100).toFixed(1) + '% at 20+)', carries.length >= 200 && lossRate >= 0.06 && lossRate <= 0.16 && carryMedian >= 2.5 && carryMedian <= 3.7 && tenRate >= 0.06 && tenRate <= 0.16 && twentyRate >= 0.008 && twentyRate <= 0.05);
+    const comps = humanPass.passes;
+    const piled = comps.filter(x => x >= 7 && x < 9).length / comps.length;
+    const deepShare = comps.filter(x => x >= 20).length / comps.length;
+    const passMin = Math.min.apply(null, comps), passMax = Math.max.apply(null, comps);
+    check('completed passes spread past a 7-to-9 yard pile (' + passMin.toFixed(1) + ' to ' + passMax.toFixed(1) + ', ' + Math.round(piled * 100) + '% in that band)', comps.length >= 40 && passMin <= 6 && passMax >= 20 && passMax - passMin >= 14 && piled <= 0.45 && deepShare >= 0.05);
+    [1, 2, 3].forEach(q => {
+      const crossing = M.create({ seed: 4 });
+      crossing.quarter = q; crossing.clock = 5; crossing.spot = 40; crossing.down = 1; crossing.toGo = 10;
+      M.callPlay(crossing, 'inside'); M.finish(crossing, M.policies.neutral);
+      const named = { 1: /Second quarter/, 2: /Third quarter/, 3: /Fourth quarter/ }[q];
+      check('the quarter change announces itself (' + q + ')', crossing.quarter === q + 1 && named.test(crossing.last.text) && (q !== 2 || /Halftime/.test(crossing.last.text)));
+    });
+    const ourEleven = M.create({ seed: 3, home: { line: 18, carry: 22, speed: 30 }, away: { rush: 92, tackle: 94 } });
+    ourEleven.down = 4; ourEleven.toGo = 20; ourEleven.spot = 11;
+    M.callPlay(ourEleven, 'inside'); M.finish(ourEleven, M.policies.neutral);
+    check('a turnover keeps the Lanterns\' map of the field', ourEleven.possession === 'away' && /at our 15/.test(ourEleven.last.text) && !/their 11/.test(ourEleven.last.text));
+    const picked = M.create({ seed: 5, home: { throw: 30, catch: 30 }, away: { cover: 90, rush: 40 } });
+    picked.spot = 43;
+    M.callPlay(picked, 'quick');
+    M.finish(picked, play => {
+      if (!play || play.thrown || play.flight || play.family !== 'pass') return M.policies.neutral();
+      if (play.elapsed < 0.4) return M.policies.neutral();
+      return { steer: 0, turbo: false, juke: 0, dive: false, throw: { dirX: 8, dirY: -1, power: 0.35 } };
+    });
+    check('an interception is spotted where the ball came down', Math.round(picked.spot) === 49 && /Intercepted/.test(picked.last.text) && /at their 49/.test(picked.last.text) && !/our 49/.test(picked.last.text));
+    let stuffedFirst = 0, runFast = 0, runSlow = 0;
+    const openGains = [];
+    for (let i = 0; i < 24; i++) {
+      const lived = M.create({ seed: 300 + i }); lived.spot = 40;
+      M.callPlay(lived, 'inside');
+      const laneOpen = lived.play.lanes[1].open;
+      let steps = 0;
+      while (lived.phase === 'live' && steps < 220) { M.step(lived, 1 / 30, M.policies.neutral()); steps += 1; }
+      const taken = steps / 30;
+      if (taken < 0.95) runFast += 1;
+      if (taken > 3.05) runSlow += 1;
+      if (lived.last && /stuffed/i.test(lived.last.text) && /First down/.test(lived.last.text)) stuffedFirst += 1;
+      if (laneOpen) openGains.push(lived.lastGain || 0);
+    }
+    check('a run plays out, and a stuff is not a first down', runFast === 0 && runSlow === 0 && stuffedFirst === 0);
+    check('an open lane is worth about 4 or 5, with a few breakaways (' + medianOf(openGains).toFixed(2) + ', ' + openGains.filter(x => x >= 15).length + ' long)', openGains.length >= 8 && medianOf(openGains) >= 3.8 && medianOf(openGains) <= 5.4 && openGains.filter(x => x >= 15).length >= 3);
     const rushed = M.runClockDrive(1);
     check('runs alone gain 50 yards inside 90 seconds (' + rushed.yards.toFixed(1) + ' yards in ' + rushed.clock.toFixed(1) + 's, seed ' + rushed.seed + ')', rushed.seed === 1 && rushed.yards >= 50 && rushed.clock <= 90);
     const runGains = [];
@@ -241,8 +390,10 @@ document.querySelector('#run').onclick = async () => {
     check('Millrace drives can stall (' + stalls.punt + ' punts, ' + stalls.fieldGoal + ' field goals, ' + stalls.turnover + ' turnovers, ' + stalls.touchdown + ' touchdowns of ' + stalls.drives + ')', stalls.drives > 20 && stalled > stalls.touchdown && stalls.punt > 0 && stalls.fieldGoal > 0 && stalls.turnover > 0 && stalls.touchdown > 0);
     function yardsIn(text) {
       if (/no gain/.test(text || '')) return 0;
-      const found = String(text || '').match(/for (\d+)|loss of (\d+)/);
-      return found ? +(found[1] || found[2]) : null;
+      const loss = String(text || '').match(/loss of (\d+)/);
+      if (loss) return -Number(loss[1]);
+      const found = String(text || '').match(/for (\d+)/);
+      return found ? +found[1] : null;
     }
     let textOk = true;
     for (let i = 0; i < 8 && textOk; i++) {
@@ -477,7 +628,7 @@ document.querySelector('#run').onclick = async () => {
     again.state.quarter = 1; again.state.clock = 100; again.state.down = 1; again.state.toGo = 10; again.state.spot = 32;
     again.state.possession = 'away'; again.state.phase = 'cpu'; again.state.score.home = 0; again.state.score.away = 0;
     again.watchLive();
-    let sawLive = false, ballMoved = false, firstBall = null, staleStrip = false;
+    let sawLive = false, ballMoved = false, firstBall = null, staleStrip = false, firstSquad = null, playersMoved = false;
     for (let i = 0; i < 36; i++) {
       await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
       const livePlay = again.state.phase === 'live' && again.state.play && again.state.play.offence === 'away';
@@ -487,10 +638,13 @@ document.querySelector('#run').onclick = async () => {
       const ball = watching.flight ? watching.flight.x : watching.actors[watching.carrier].x;
       if (firstBall == null) firstBall = ball;
       else if (Math.abs(ball - firstBall) > 0.35) ballMoved = true;
+      if (!firstSquad && watching.squad) firstSquad = watching.squad.map(p => p.x);
+      else if (firstSquad && watching.squad && watching.squad.some((p, n) => Math.abs(p.x - firstSquad[n]) > 0.2)) playersMoved = true;
       const strip = d2.querySelector('#sheet');
       if (strip && !strip.hidden && /throwing/.test(strip.textContent || '')) staleStrip = true;
     }
     check('a Millrace snap stays live and the ball moves', sawLive && ballMoved && !staleStrip);
+    check('a Millrace snap moves the players on the field', sawLive && playersMoved);
     again.state.play = null;
     again.state.possession = 'home';
     again.state.phase = 'call';
@@ -500,6 +654,23 @@ document.querySelector('#run').onclick = async () => {
     again.state.quarter = 1;
     again.state.clock = 120;
     again.refresh();
+    await wait();
+    again.begin('inside');
+    let homeBall = null, homeBallMoved = false, homeSquad = null, homePlayersMoved = false, homeLive = false;
+    for (let i = 0; i < 24; i++) {
+      await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
+      const live = again.state.phase === 'live' && again.state.play && again.state.play.offence === 'home';
+      if (!live) continue;
+      homeLive = true;
+      const bx = again.state.play.ball ? again.state.play.ball.x : again.state.play.actors[again.state.play.carrier].x;
+      if (homeBall == null) homeBall = bx;
+      else if (Math.abs(bx - homeBall) > 0.25) homeBallMoved = true;
+      if (!homeSquad && again.state.play.squad) homeSquad = again.state.play.squad.map(p => p.x);
+      else if (homeSquad && again.state.play.squad.some((p, n) => Math.abs(p.x - homeSquad[n]) > 0.2)) homePlayersMoved = true;
+    }
+    check('a Lanterns snap stays live and the ball and the players move', homeLive && homeBallMoved && homePlayersMoved);
+    if (again.state.phase === 'live') again.finishLive();
+    await wait();
     const emptyV1 = again.migrateSave({ v: 1, game: 'lantern-bowl', sound: 0, match: null });
     check('a v1 save still loads', !!emptyV1 && emptyV1.v === 2 && emptyV1.match === null && emptyV1.sound === 0);
     check('a save newer than this game is refused', again.migrateSave({ v: 3, game: 'lantern-bowl', sound: 0, match: null }) === null);
