@@ -11,7 +11,8 @@ const CACHE = PREFIX + CACHE_VERSION;
 const SLOW_MS = 4000; // past this, a waiting network request gives way to the kept copy (it still refreshes it)
 const PAGES = ['index.html', 'promo.html', 'promo-wildbond.html', 'playtest.html', 'credits.html',
   'games/primordial/index.html', 'games/starfall-guild/index.html', 'games/realmbound/index.html', 'games/wildbond/index.html',
-  'games/otherworld/index.html', 'games/diamond-career/index.html', 'games/diamond-manager/index.html'];
+  'games/otherworld/index.html', 'games/diamond-career/index.html', 'games/diamond-manager/index.html',
+  'games/lantern-bowl/index.html'];
 const CORE = ['manifest.webmanifest', 'shared/offline.js', 'icons/arcade.svg', 'icons/arcade-192.png', 'icons/arcade-512.png'];
 function local(path, base) { const u = new URL(path, base || ROOT); return u.origin === ROOT.origin && u.pathname.startsWith(ROOT.pathname) ? u : null; }
 // HTML is authored in this repo. Only explicit scripts/styles and credits notices are followed; no crawled links or remote assets.
