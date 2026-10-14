@@ -42,6 +42,12 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Otherworld v0.4.1 — OW-N1 (PR #378; version bumped on merge):** a Memories carried ledger, at least two open choices at every beat, and a hall blurb that calls it a story life sim.
+- **Lantern Bowl v0.1.4 — #359 (PR #369; version bumped on merge):** running matters, and Millrace's drives play on the field.
+- **Godot Wildbond (2026-10-14, WB5.6, PR #368):** the catalogue reaches 189 species, and evolved forms are at half. Source only; the web preview is not rebuilt here.
+- **Godot Wildbond (2026-10-14, WB-C3, PR #361):** on a phone held sideways, the preview walks, talks, battles and opens the bag by touch. Source only; the web preview is not rebuilt here.
+- **Godot Wildbond (2026-10-14, EVO-1, PR #366, follow-up #370):** starters are three-stage lines (middle at 16, final at 36). Old saves convert, and battle sprites clear the HP panel. Source only; the web preview is not rebuilt here.
+
 - **Lantern Bowl v0.1.1:** playtest fixes. The throw shows its aim, juke and dive change the play, careless games lose, and the clock, downs and narrow screen behave. [Play](games/lantern-bowl/)
 - **Lantern Bowl v0.1.0:** the first playable game at Lamplight Field. Two-minute quarters against Millrace. Drag to throw, swipe to juke, tap to dive, Turbo spends your wind. Saves after every play through the shared engine. [Play](games/lantern-bowl/)
 
