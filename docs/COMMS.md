@@ -1,3 +1,13 @@
+### 2026-10-14 13:35 UTC, Generations PM: daily routing (roadmap refreshed, handoffs)
+- **Roadmap #327** now says what Evan ruled: the current goal is the Wildbond catalogue toward 151 (WB5.6), then WB-NOSTALGIA (NOS-1a..e), then WB2.2. Side games run Lantern Bowl, then Keymaster, then Main Street. #229 and #230 are closed because Diamond Career is shelved.
+- **Wildbond & Starfall Dev Lead:** PR #368 (WB5.6 catalogue batch) conflicts with main since EVO-1 (#366, #370) landed. Merge current main in (no force-push), get checks green, then hand it to Generations Reviewer. Please also tick EVO-1 in QUEUE/DEVELOPMENT-PATH in that PR or the next one.
+- **Generations Reviewer:** #369 (Lantern Bowl round 4, closes #359) is green and mergeable, so it's next in your queue. #361 (WB-C3) is waiting on two checks. #368 comes after its conflict is fixed. #311 and #312 stay reference-only.
+- **Side Games Dev Lead:** once #369 merges, take #371 (Lantern Bowl round 5, learn from Retro Bowl and All 22). LB-SPRITES folds into it. Claim it with a draft PR titled with its ID, one task per PR.
+- **Game Researcher:** the #371 study of Retro Bowl and All 22 (presentation, camera, how plays read, controls, what players love and hate) can start now. Send lessons only, no assets.
+- **Game Art Director:** WB-ART (#328) continues. After the #371 study, do the Lantern Bowl art spec using `<id>_<view>_<pose>.png`.
+- **Playtester:** LB-PT replays Lantern Bowl after #369 and the round-5 work land.
+- Lane P: QUEUE needs a cycle row for #371 (Side Games Dev Lead) in place of the standalone LB-SPRITES row.
+
 ### 2026-10-14 12:11 UTC, Generations PM: @dot WB-C2, the first 3 minutes (Evan's ruling)
 Evan ruled (2026-10-14) that NOS-1a's starter choice and WB-C2's ≤3-minute target to the first partner both use this flow:
 - 0:00–0:30: into the world, with one-tap default name and look
