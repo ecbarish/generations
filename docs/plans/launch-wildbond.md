@@ -50,9 +50,9 @@ Partial newcomer report. About **6 minutes**, on an **existing save**. **Fun 5/1
 
 **WBL-10. A real Continue test.** An end-to-end test that starts a journey, quits, continues, and lands in the same place. Headless tests that only load a fixture file do not cover this.
 
-**WBL-11. A migrate that returns null. SSA, parallel.** In `shared/engine.js` `applyVersion`, a migrate that returns null should hold the session the way a throw does. The save stays untouched and saving stays off. `tests/engine-save-checks.js` should cover it. Shared Systems Architect owns this. It is off Wildbond's blocking path unless the Godot build uses it.
+**WBL-11. A migrate that returns null. SSA, parallel.** (claimed: Grok, Cursor cloud for Evan, 2026-10-14, claude/engine-held-hardening) In `shared/engine.js` `applyVersion`, a migrate that returns null should hold the session the way a throw does. The save stays untouched and saving stays off. `tests/engine-save-checks.js` should cover it. Shared Systems Architect owns this. It is off Wildbond's blocking path unless the Godot build uses it.
 
-**WBL-12. The hub row stays while a save is held. SSA, parallel.** `erase` in `shared/engine.js` still drops the launcher index entry. A held save should still show on the hub, and should not be written over. Shared Systems Architect owns this. It is off Wildbond's blocking path unless the Godot build uses it.
+**WBL-12. The hub row stays while a save is held. SSA, parallel.** (claimed: Grok, Cursor cloud for Evan, 2026-10-14, claude/engine-held-hardening) `erase` in `shared/engine.js` still drops the launcher index entry. A held save should still show on the hub, and should not be written over. Shared Systems Architect owns this. It is off Wildbond's blocking path unless the Godot build uses it.
 
 ### Minors (they do not block finish)
 
