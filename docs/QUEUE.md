@@ -26,9 +26,8 @@ PR. Generations PM routes the work and handoffs. Nothing outside this block star
 | 1 | Wildbond | #345 | Trust-gated final forms, wild late forms, no wild starters (updates DD-5) | Wildbond & Starfall Dev Lead | As the issue says; tests pass; old saves load |
 | 1 | Wildbond | WB2.2 | Depth, after the catalogue | Wildbond & Starfall Dev Lead | As DEVELOPMENT-PATH WB2.2 |
 | 1 | Wildbond | WB-ART | Creature and area art for the above | Game Art Director | The art review passes |
-| 2 | Lantern Bowl | #359 | **Active now:** make running matter and show Millrace's drives on the field | Side Games Dev Lead | As the issue says; Generations Reviewer verifies on the live game |
-| 2 | Lantern Bowl | LB-SPRITES | Side-view player sprites (`<id>_<view>_<pose>.png`), after #359 merges; any sw.js precache change is its own follow-up PR. Depends on Game Art Director's art sign-off (Game Art Director supplies the art, doesn't own the task) | Side Games Dev Lead | Sprites draw with the code-drawn fallback; checks pass |
-| 2 | Lantern Bowl | LB-PT | Replay after #359 and the sprites land | Playtester | Fun and Comeback scores reported |
+| 2 | Lantern Bowl | #371 | **Active now:** Lantern Bowl round 5, learning from Retro Bowl and All 22; includes the side-view player sprites (`<id>_<view>_<pose>.png`, formerly LB-SPRITES; Game Art Director's art sign-off is a dependency; any sw.js precache change is its own follow-up PR). Round 4 (#359) is done via #369 (cd491bd) | Side Games Dev Lead | As the issue says; sprites draw with the code-drawn fallback; checks pass; Generations Reviewer verifies on the live game |
+| 2 | Lantern Bowl | LB-PT | Replay after #371 lands | Playtester | Fun and Comeback scores reported |
 | 3 | Keymaster | KM0 | The first slice, after Lantern Bowl | Side Games Dev Lead | As DEVELOPMENT-PATH KM0 |
 | 4 | Main Street | MS1 | The first slice, after Keymaster | Side Games Dev Lead | As docs/PRIORITIES.md (CS1 + MS1) and docs/proposals/new-game-ideas.md |
 
