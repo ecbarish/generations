@@ -141,8 +141,6 @@ favouritism"):
 3. **The next Incubator idea's pitch or slice**, counted toward the Incubator's next quota.
 4. **Shared work** (the onboarding kit, the shared Godot kit), which helps every game equally.
 
-**Keep-alive tune claimed 2026-10-14 (explicit request, not a cycle quota):** Diamond Manager issue #337, how fast rival clubs grow. Grok (Cursor cloud, Evan). Tune the existing winter step only; add no systems.
-
 **Every slot has designated playtesting, every cycle** (Evan, 2026-10-12). A slot's week isn't done until its build
 has been played and scored:
 

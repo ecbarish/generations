@@ -34,8 +34,6 @@ your game's notes, then shared work (the onboarding kit). Nothing outside this b
 | Little Ranch | LR-C1 | The first five minutes alone: nothing a three-year-old must read or ask about; big targets on a tablet | Grok (Adam) | A parent's checklist in the PR, tablet screenshots |
 | | LR3, LR10 | The singing flowers, then the Little Wagon | Grok (Adam) | As DEVELOPMENT-PATH; `tests/little-ranch.html` passes |
 
-**Claimed outside this cycle (Evan, 2026-10-14, explicit request, keep-alive tune, not a quota row):** [#337](https://github.com/ecbarish/generations/issues/337) Diamond Manager rival growth. Grok (Cursor cloud, Evan) on `cursor/dm-337-rival-growth-b6b5`. Numbers only; no new systems. DM-N1c (#310) is merged and is left alone.
-
 **Postponed to cycle 2:** Lantern Bowl's drive (LB2), every new playtest (Diamond Career's practice swing is dropped: the game is shelved, DD-4), and P-C1
 (fewer documents). **The PR reviewer thread** reviews and merges within a day, #264 and #269 first.
 
