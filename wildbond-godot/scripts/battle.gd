@@ -1063,14 +1063,29 @@ func _draw() -> void:
 	else:
 		for i in allies.size():                                  # a compact line each, so the foe stays in view
 			_info_line(allies[i], _ally_line_rect(i, allies.size()))
-	if external_ui and state in ["choose", "moves", "orders"]:
-		return
-	_queue()
-	if not tele.is_empty():
-		_text("%s is gathering power! Guard!" % tele.u.c.name, Vector2(10, 70), 8, Color("c83a2a"))
-	# the message box, and the commands on your turn
-	var box := _command_box()
-	_box(box)
+	# Upright phone: chips, the command box and the results card live on the strip. The view keeps the fight and the fog.
+	if external_ui:
+		if state == "capture":
+			_draw_capture_marker()
+	else:
+		_queue()
+		if not tele.is_empty():
+			_text("%s is gathering power! Guard!" % tele.u.c.name, Vector2(10, 70), 8, Color("c83a2a"))
+		var box := _command_box()
+		_box(box)
+		_draw_commands(box)
+	# the grey fog that rolls in at the start and out at the end (soft; never a flash)
+	var fog := 0.0
+	if state == "fog_in": fog = 1.0 - state_t
+	elif state == "fog_out": fog = state_t
+	if fog > 0.0:
+		for k in 14:
+			var cx := fmod(k * 61.0 + t * 30.0, 440.0) - 28.0
+			var cy := fmod(k * 37.0, 230.0)
+			draw_circle(Vector2(cx, cy), 60.0 + 30.0 * fog, Color(0.72, 0.74, 0.76, clampf(fog, 0.0, 1.0) * 0.5))
+		draw_rect(Rect2(0, 0, 384, 216), Color(0.7, 0.72, 0.74, clampf(fog, 0.0, 1.0)))
+
+func _draw_commands(box: Rect2) -> void:
 	match state:
 		"choose":
 			_text("What will %s do?" % wait_u.c.name, Vector2(16, box.position.y + 14), 8, INK, 216)
@@ -1124,18 +1139,7 @@ func _draw() -> void:
 			draw_multiline_string(font, oinfo.position + Vector2(4, 10), "Page %d/%d. %s Orders ready: %d." % [order_i / 4 + 1, ceili(ol.size() / 4.0), so.text, int(orders)],
 				HORIZONTAL_ALIGNMENT_LEFT, oinfo.size.x - 8, 7, -1, INK)
 		"capture":
-			var prompt := "Press anywhere. This one comes with you." if sure_catch else "Press when the marker is in the green."
-			_text(prompt, Vector2(16, 178), 8, INK, 250)
-			var bar := Rect2(16, 188, 352, 12)
-			draw_rect(bar.grow(1), INK)
-			draw_rect(bar, Color("d8ccb4"))
-			var span := float(cap.get("wide", 0.2))
-			var z := float(cap.zone)
-			var x0 := bar.position.x + bar.size.x * clampf(z - span * 0.5, 0.0, 1.0)
-			var x1 := bar.position.x + bar.size.x * clampf(z + span * 0.5, 0.0, 1.0)
-			draw_rect(Rect2(x0, bar.position.y, maxf(1.0, x1 - x0), bar.size.y), Color("4aa84a"))
-			draw_rect(Rect2(bar.position.x + bar.size.x * cap.pos - 1, bar.position.y - 3, 3, bar.size.y + 6), INK)
-			_text("Lures left: %d" % int(bag.get("lures", 0)), Vector2(268, 178), 7, Color("6a5a4a"), 100, HORIZONTAL_ALIGNMENT_RIGHT)
+			_draw_capture_marker()
 		"results":
 			_box(Rect2(60, 30, 264, 124))
 			_text("Battle results", Vector2(60, 48), 10, INK, 264, HORIZONTAL_ALIGNMENT_CENTER)
@@ -1150,16 +1154,21 @@ func _draw() -> void:
 			var last := log_lines.slice(-2)
 			for i in last.size():
 				draw_multiline_string(font, Vector2(16, 180 + i * 14), last[i], HORIZONTAL_ALIGNMENT_LEFT, 352, 8, -1, INK if i == last.size() - 1 else Color("7a6a5a"))
-	# the grey fog that rolls in at the start and out at the end (soft; never a flash)
-	var fog := 0.0
-	if state == "fog_in": fog = 1.0 - state_t
-	elif state == "fog_out": fog = state_t
-	if fog > 0.0:
-		for k in 14:
-			var cx := fmod(k * 61.0 + t * 30.0, 440.0) - 28.0
-			var cy := fmod(k * 37.0, 230.0)
-			draw_circle(Vector2(cx, cy), 60.0 + 30.0 * fog, Color(0.72, 0.74, 0.76, clampf(fog, 0.0, 1.0) * 0.5))
-		draw_rect(Rect2(0, 0, 384, 216), Color(0.7, 0.72, 0.74, clampf(fog, 0.0, 1.0)))
+
+## The catch marker stays in the scene. It is the catch itself, not the command row.
+func _draw_capture_marker() -> void:
+	var prompt := "Press anywhere. This one comes with you." if sure_catch else "Press when the marker is in the green."
+	_text(prompt, Vector2(16, 178), 8, INK, 250)
+	var bar := Rect2(16, 188, 352, 12)
+	draw_rect(bar.grow(1), INK)
+	draw_rect(bar, Color("d8ccb4"))
+	var span := float(cap.get("wide", 0.2))
+	var z := float(cap.zone)
+	var x0 := bar.position.x + bar.size.x * clampf(z - span * 0.5, 0.0, 1.0)
+	var x1 := bar.position.x + bar.size.x * clampf(z + span * 0.5, 0.0, 1.0)
+	draw_rect(Rect2(x0, bar.position.y, maxf(1.0, x1 - x0), bar.size.y), Color("4aa84a"))
+	draw_rect(Rect2(bar.position.x + bar.size.x * cap.pos - 1, bar.position.y - 3, 3, bar.size.y + 6), INK)
+	_text("Lures left: %d" % int(bag.get("lures", 0)), Vector2(268, 178), 7, Color("6a5a4a"), 100, HORIZONTAL_ALIGNMENT_RIGHT)
 
 ## The joined form (the wild bond): you and your partner as one, you standing within its shape like living armour,
 ## a lamplight edge around you both and motes of colour rising. Larger than either of you alone.

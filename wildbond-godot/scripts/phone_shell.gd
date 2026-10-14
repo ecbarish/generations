@@ -56,6 +56,8 @@ var tap_dir := Vector2i.ZERO
 var finger := -1
 var flash := ""
 var flash_t := 0.0
+var battle_note := ""
+var battle_page := 0
 
 func _ready() -> void:
 	mouse_filter = MOUSE_FILTER_STOP
@@ -584,6 +586,12 @@ func _press(p: Vector2, id: int) -> void:
 			if r.has_point(p):
 				_main.battle.deck_press(int(slots[i]["i"]))
 				return
+	if _main.battle.visible and _main.battle.state in ["beat", "results"]:
+		var note_strip: Rect2 = L["strip"]
+		if note_strip.has_point(p):
+			if not _page_battle_note():
+				_main.battle.deck_press(0)
+			return
 	var strip: Rect2 = L["strip"]
 	if strip.has_point(p) and not _main.lines.is_empty():
 		_advance_talk()
@@ -646,6 +654,8 @@ func _do_a() -> void:
 		_push_action("interact")
 		return
 	if _main.battle.visible:
+		if not bool(L.get("side", false)) and _main.battle.state in ["beat", "results"] and _page_battle_note():
+			return
 		_push_action("interact")
 		return
 	if not _main.lines.is_empty():
@@ -885,20 +895,53 @@ func _draw_battle(strip: Rect2) -> void:
 			draw_rect(r, DECK)
 			_text_in(r, str(slots[i]["text"]), 16, INK)
 
-## The line the move just spoke. The command grid is hidden, so the words have the strip.
+## The line the move just spoke, or the results, once the grid steps aside. Long text pages at 16px.
 func _draw_battle_note(strip: Rect2) -> void:
-	var text := ""
-	var lines: Array = _main.battle.log_lines
-	if not lines.is_empty():
-		text = str(lines[lines.size() - 1])
-	if text == "":
-		text = "…"
-	var max_lines := strip_lines(strip.size.y)
-	var pages := paginate(text, font, 16, maxf(32.0, strip.size.x - 24.0), max_lines)
+	var pages := _battle_pages(strip)
+	var body := pages[battle_page] if not pages.is_empty() else "…"
 	var y := strip.position.y + 12.0 + font.get_ascent(16)
-	for line in pages[0].split("\n"):
+	for line in body.split("\n"):
 		draw_string(font, Vector2(strip.position.x + 12.0, y), line, HORIZONTAL_ALIGNMENT_LEFT, strip.size.x - 24.0, 16, INK)
 		y += 16.0 * 1.3
+	if battle_page < pages.size() - 1 and int(Time.get_ticks_msec() / 400) % 2 == 0:
+		var tip := strip.end - Vector2(16, 14)
+		draw_colored_polygon(PackedVector2Array([tip + Vector2(-6, -6), tip + Vector2(6, -6), tip + Vector2(0, 2)]), A_DIM)
+
+func _battle_note_text() -> String:
+	if _main == null or not _main.battle.visible:
+		return ""
+	if str(_main.battle.state) == "results":
+		var parts := PackedStringArray()
+		for line in _main.battle.results:
+			var s := str(line).strip_edges()
+			if s != "":
+				parts.append(s)
+		if not parts.is_empty():
+			return " ".join(parts)
+	var lines: Array = _main.battle.log_lines
+	if lines.is_empty():
+		return ""
+	return str(lines[lines.size() - 1])
+
+func _battle_pages(strip: Rect2) -> PackedStringArray:
+	var text := _battle_note_text()
+	if text != battle_note:
+		battle_note = text
+		battle_page = 0
+	var pages := paginate(text if text != "" else "…", font, 16, maxf(32.0, strip.size.x - 24.0), strip_lines(strip.size.y))
+	if battle_page >= pages.size():
+		battle_page = maxi(0, pages.size() - 1)
+	return pages
+
+## True when another page of the battle note was waiting. The last page leaves the press to continue.
+func _page_battle_note() -> bool:
+	var strip: Rect2 = L["strip"]
+	var pages := _battle_pages(strip)
+	if battle_page < pages.size() - 1:
+		battle_page += 1
+		queue_redraw()
+		return true
+	return false
 
 func _draw_card() -> void:
 	var card: Rect2 = L["card"]
@@ -987,20 +1030,23 @@ func _disc(c: Vector2, radius: float, fill: Color, light: Color, shadow: Color, 
 
 func _plus(dpad: Rect2, pressed: Vector2i) -> void:
 	var c := dpad.get_center()
-	var vert := Rect2(c.x - 22.0, dpad.position.y, 44.0, dpad.size.y)
-	var horiz := Rect2(dpad.position.x, c.y - 22.0, dpad.size.x, 44.0)
+	# Bevels sit outside the slate, so the measured face stays 132 (124 on a narrow phone) and each arm stays 44.
+	var bevel := 2.0
+	var thick := 44.0
+	var vert := Rect2(c.x - thick * 0.5 - bevel, dpad.position.y - bevel, thick + bevel * 2.0, dpad.size.y + bevel * 2.0)
+	var horiz := Rect2(dpad.position.x - bevel, c.y - thick * 0.5 - bevel, dpad.size.x + bevel * 2.0, thick + bevel * 2.0)
 	draw_rect(vert.grow(1), INK)
 	draw_rect(horiz.grow(1), INK)
 	draw_rect(vert, SLATE)
 	draw_rect(horiz, SLATE)
-	draw_rect(Rect2(vert.position, Vector2(2, vert.size.y)), SLATE_LIT)
-	draw_rect(Rect2(vert.position, Vector2(vert.size.x, 2)), SLATE_LIT)
-	draw_rect(Rect2(vert.end.x - 2, vert.position.y, 2, vert.size.y), SLATE_DIM)
-	draw_rect(Rect2(vert.position.x, vert.end.y - 2, vert.size.x, 2), SLATE_DIM)
-	draw_rect(Rect2(horiz.position, Vector2(2, horiz.size.y)), SLATE_LIT)
-	draw_rect(Rect2(horiz.position, Vector2(horiz.size.x, 2)), SLATE_LIT)
-	draw_rect(Rect2(horiz.end.x - 2, horiz.position.y, 2, horiz.size.y), SLATE_DIM)
-	draw_rect(Rect2(horiz.position.x, horiz.end.y - 2, horiz.size.x, 2), SLATE_DIM)
+	draw_rect(Rect2(vert.position, Vector2(bevel, vert.size.y)), SLATE_LIT)
+	draw_rect(Rect2(vert.position, Vector2(vert.size.x, bevel)), SLATE_LIT)
+	draw_rect(Rect2(vert.end.x - bevel, vert.position.y, bevel, vert.size.y), SLATE_DIM)
+	draw_rect(Rect2(vert.position.x, vert.end.y - bevel, vert.size.x, bevel), SLATE_DIM)
+	draw_rect(Rect2(horiz.position, Vector2(bevel, horiz.size.y)), SLATE_LIT)
+	draw_rect(Rect2(horiz.position, Vector2(horiz.size.x, bevel)), SLATE_LIT)
+	draw_rect(Rect2(horiz.end.x - bevel, horiz.position.y, bevel, horiz.size.y), SLATE_DIM)
+	draw_rect(Rect2(horiz.position.x, horiz.end.y - bevel, horiz.size.x, bevel), SLATE_DIM)
 	var arm := _arm(dpad, pressed)
 	if arm.size.x > 1.0:
 		draw_rect(arm, SLATE_DIM)
@@ -1008,14 +1054,15 @@ func _plus(dpad: Rect2, pressed: Vector2i) -> void:
 
 func _arm(dpad: Rect2, d: Vector2i) -> Rect2:
 	var c := dpad.get_center()
+	var bevel := 2.0
 	if d == Vector2i.UP:
-		return Rect2(c.x - 22.0, dpad.position.y, 44.0, 44.0)
+		return Rect2(c.x - 22.0 - bevel, dpad.position.y - bevel, 44.0 + bevel * 2.0, 44.0 + bevel)
 	if d == Vector2i.DOWN:
-		return Rect2(c.x - 22.0, dpad.end.y - 44.0, 44.0, 44.0)
+		return Rect2(c.x - 22.0 - bevel, dpad.end.y - 44.0, 44.0 + bevel * 2.0, 44.0 + bevel)
 	if d == Vector2i.LEFT:
-		return Rect2(dpad.position.x, c.y - 22.0, 44.0, 44.0)
+		return Rect2(dpad.position.x - bevel, c.y - 22.0 - bevel, 44.0 + bevel, 44.0 + bevel * 2.0)
 	if d == Vector2i.RIGHT:
-		return Rect2(dpad.end.x - 44.0, c.y - 22.0, 44.0, 44.0)
+		return Rect2(dpad.end.x - 44.0, c.y - 22.0 - bevel, 44.0 + bevel, 44.0 + bevel * 2.0)
 	return Rect2()
 
 func _pill(r: Rect2, fill: Color, light: Color, shadow: Color, pressed: bool) -> void:
