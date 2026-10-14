@@ -10,7 +10,7 @@ import unittest
 import zlib
 
 VALIDATOR = Path(__file__).with_name('validate_wildbond_opening_timing.py')
-LABELS = ('howto', 'register', 'signed-invitation', 'follow-maren', 'barn-choice', 'partner-card', 'first-partner', 'partner-control')
+LABELS = ('howto', 'register', 'signed-invitation', 'follow-maren', 'barn-choice', 'partner-card', 'first-partner', 'partner-control', 'first-battle', 'first-battle-choice', 'free-roam', 'first-route', 'first-catch', 'catch-control')
 
 
 def png(width, height):
@@ -33,8 +33,16 @@ class OpeningGateTests(unittest.TestCase):
                     'method': 'keyboard', 'starter_index': 0, 'protocol': 'synthetic', 'engine': 'synthetic',
                     'rendered': True, 'display': 'x11', 'window_size': [1920, 1080],
                     'first_partner_seconds': 168 if variant == 'baseline' else 119,
-                    'elapsed_seconds': 200 if variant == 'baseline' else 174,
+                    'partner_control_seconds': 200 if variant == 'baseline' else 174,
+                    'first_battle_seconds': 250, 'first_catch_seconds': 310, 'elapsed_seconds': 340,
+                    'rapid': False, 'catch_attempts': 2, 'catch_joined_team': True,
                     'milestones': [{'label': label, 'seconds': 30, 'stage': 'bonded' if label == 'first-partner' else 'walk_out' if label == 'partner-control' else 'register'} for label in LABELS]}
+            for mark in data['milestones']:
+                if mark['label'] == 'first-battle': mark['stage'] = 'battle'
+                if mark['label'] in ('free-roam', 'catch-control'): mark['stage'] = 'free'
+                mark['map'] = 'thornwood_route'
+                fields = {'first-partner': 'first_partner_seconds', 'partner-control': 'partner_control_seconds', 'first-battle': 'first_battle_seconds', 'first-catch': 'first_catch_seconds'}
+                if mark['label'] in fields: mark['seconds'] = data[fields[mark['label']]]
             (out / 'report.json').write_text(json.dumps(data))
             for label in LABELS:
                 (out / f'{label}.png').write_bytes(png(1920, 1080))
@@ -47,9 +55,11 @@ class OpeningGateTests(unittest.TestCase):
         fn(data)
         path.write_text(json.dumps(data))
 
-    def run_gate(self, accepted=False):
+    def run_gate(self, accepted=False, expected_error=None):
         result = subprocess.run([sys.executable, str(VALIDATOR), str(self.folder), '--require-rendered'], capture_output=True, text=True)
         self.assertEqual(result.returncode == 0, accepted, result.stdout + result.stderr)
+        if expected_error is not None:
+            self.assertIn(expected_error, result.stderr)
 
     def test_positive_control(self):
         self.run_gate(True)
@@ -59,15 +69,39 @@ class OpeningGateTests(unittest.TestCase):
         self.run_gate()
 
     def test_incomplete_encounter(self):
-        self.mutate(lambda d: d['milestones'][-1].update(stage='bonded'))
+        self.mutate(lambda d: next(m for m in d['milestones'] if m['label'] == 'partner-control').update(stage='bonded'))
         self.run_gate()
 
     def test_acquisition_over_180(self):
-        self.mutate(lambda d: d.update(first_partner_seconds=181, elapsed_seconds=200))
-        self.run_gate()
+        def over_limit(data):
+            data.update(first_partner_seconds=181, partner_control_seconds=190)
+            for mark in data['milestones']:
+                if mark['label'] == 'first-partner': mark['seconds'] = 181
+                if mark['label'] == 'partner-control': mark['seconds'] = 190
+        self.mutate(over_limit)
+        self.run_gate(expected_error='First partner exceeds the fixed-protocol three-minute target')
 
     def test_control_over_180(self):
-        self.mutate(lambda d: d.update(elapsed_seconds=181))
+        def over_limit(data):
+            data['partner_control_seconds'] = 181
+            next(m for m in data['milestones'] if m['label'] == 'partner-control')['seconds'] = 181
+        self.mutate(over_limit)
+        self.run_gate(expected_error='Complete partner encounter exceeds the fixed-protocol three-minute target')
+
+    def test_missing_battle(self):
+        self.mutate(lambda d: d.update(first_battle_seconds=-1))
+        self.run_gate()
+
+    def test_catch_not_joined(self):
+        self.mutate(lambda d: d.update(catch_joined_team=False))
+        self.run_gate()
+
+    def test_zero_catch_attempts(self):
+        self.mutate(lambda d: d.update(catch_attempts=0))
+        self.run_gate()
+
+    def test_inconsistent_timestamp(self):
+        self.mutate(lambda d: d.update(first_catch_seconds=309))
         self.run_gate()
 
     def test_missing_capture(self):
