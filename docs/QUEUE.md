@@ -37,7 +37,7 @@ PR. Generations PM routes the work and handoffs. Nothing outside this block star
 | Little Ranch | LR-C1 | The first five minutes alone: nothing a three-year-old must read or ask about; big targets on a tablet | Grok (Adam) | A parent's checklist in the PR, tablet screenshots |
 | Little Ranch | LR3, LR10 | The singing flowers, then the Little Wagon | Grok (Adam) | As DEVELOPMENT-PATH; `tests/little-ranch.html` passes |
 
-**Realmbound** (Evan, 2026-10-14): already-planned work (like RB1.12a) may finish; no new Realmbound work starts; resources go to the other games until Evan chooses to come back to it. Its endgame and late game stay shelved. **Merges:** Generations Reviewer.
+**Realmbound** (Evan, 2026-10-14): already-planned work (like RB1.12a) may finish; no new Realmbound work starts; resources go to the other games (new Realmbound work waits until every currently planned game has a playable version). Its endgame and late game stay shelved. **Merges:** Generations Reviewer.
 **Routing:** Generations PM. **Questions for Evan:** Generations Director.
 
 **Superseded or done:** WB-BOND is done (#339, merged; the bond-plus-level rule is DD-5). LB2 ("postponed to cycle 2") is now #359, which is active. Done: SF-GUILD1 (#360, merged 2026-10-14 10:47 UTC), DM-N1b (#269), DM-N1c (#310), SG-N1 (#264), AR-FRONT and AR-SHELVE (#316, #319). The other cycle-1 rows owned by Adam's AIs are under "Guest lanes" above. Every remaining cycle-1 row (WB-C3, WB-C4, DM-N1d) is under "Out of this cycle" below.
