@@ -43,8 +43,13 @@
 
   Arcade.validators[KEY] = function (o) { return !!migrateSave(o); };
 
+  function newerSave(file) {
+    return !!(file && typeof file === 'object' && file.game === 'lantern-bowl' && typeof file.v === 'number' && isFinite(file.v) && file.v > SAVE_V);
+  }
+  var HELD_NOTE = 'This save is from a newer version, so progress will not be saved.';
   var raw = Arcade.load(KEY);
-  var migrated = migrateSave(raw);
+  var holdSave = newerSave(raw);
+  var migrated = holdSave ? null : migrateSave(raw);
   var save = {
     v: SAVE_V, game: 'lantern-bowl',
     sound: migrated && [0, 1, 2].indexOf(migrated.sound) >= 0 ? migrated.sound : 0,
@@ -56,6 +61,7 @@
   var sheetDetail = false, watchLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0;
 
   function persist() {
+    if (holdSave) return false;
     save.match = state ? M.serialise(state) : save.match;
     var ok = Arcade.save(KEY, save);
     if (state) {
@@ -121,8 +127,15 @@
   }
   function hidePanel() { $('curtain').hidden = true; }
 
+  function showHeld() {
+    var el = $('held');
+    if (!el) return;
+    el.hidden = !holdSave;
+    el.textContent = holdSave ? HELD_NOTE : '';
+  }
   function title() {
     mode = 'title'; state = null; lastSheet = ''; sheetDetail = false; watchLeft = 0;
+    showHeld();
     say('');
     var sheet = $('sheet');
     if (sheet) { sheet.textContent = ''; sheet.hidden = true; }

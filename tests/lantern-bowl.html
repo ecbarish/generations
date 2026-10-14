@@ -414,6 +414,37 @@ document.querySelector('#run').onclick = async () => {
       sawFinal = again.state.phase === 'final';
     }
     check('the end of the game is the final screen', sawFinal && d2.querySelector('#panelTitle').textContent === 'Final' && !d2.querySelector('.cpu-log'));
+    frame.remove();
+    const v3raw = '{"v":3,"game":"lantern-bowl","sound":1,"match":{"score":{"home":9,"away":4},"home":{"qb":{"name":"Wren Talley"}},"away":{"qb":{"name":"Ned Harrow"}},"kept":"byte-for-byte"}}';
+    localStorage.setItem('lantern-bowl-save-v1', v3raw);
+    frame = document.createElement('iframe');
+    frame.title = 'Lantern Bowl newer save';
+    frame.src = '../games/lantern-bowl/index.html';
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(Error('newer-save load timed out')), 20000);
+      frame.onload = () => { clearTimeout(timer); resolve(); };
+      document.querySelector('#game').appendChild(frame);
+    });
+    const w3 = frame.contentWindow, d3 = w3.document;
+    await wait();
+    const sameFile = () => localStorage.getItem('lantern-bowl-save-v1') === v3raw;
+    const held = d3.querySelector('#held');
+    check('a newer save says progress will not be saved', !!held && !held.hidden && /newer version/.test(held.textContent) && /will not be saved/.test(held.textContent) && sameFile());
+    w3.__lantern.kickoff(4);
+    await wait();
+    check('a kickoff leaves a newer save byte for byte', sameFile());
+    d3.querySelector('#sound').click();
+    await wait();
+    check('a sound change leaves a newer save byte for byte', sameFile());
+    const late = w3.__lantern;
+    late.state.quarter = 4; late.state.clock = 3; late.state.down = 1; late.state.toGo = 10; late.state.spot = 40;
+    late.state.possession = 'home'; late.state.phase = 'call'; late.state.score.home = 7; late.state.score.away = 0;
+    late.begin('inside'); late.finishLive();
+    await wait();
+    d3.querySelector('[data-again]').click();
+    await wait();
+    const heldAfter = d3.querySelector('#held');
+    check('play again leaves a newer save byte for byte', sameFile() && !!heldAfter && !heldAfter.hidden && /will not be saved/.test(heldAfter.textContent));
     sum.textContent = 'PASS — ' + n + ' checks.';
   } catch (e) {
     sum.textContent = 'FAIL — ' + e.message;
