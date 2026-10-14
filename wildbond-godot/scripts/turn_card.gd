@@ -1,7 +1,7 @@
 extends Control
-## While the window is taller than it is wide, this page covers the game and the game holds still.
-## Turning the phone, or making a computer window wider than it is tall, takes the page away right where you were.
-## The words fill the window. There is no picture to hunt for, and the page says how to go on.
+## The upright phone used to stop here and ask you to turn it sideways. That gate is gone: an upright phone
+## plays in the Game Boy frame (phone_shell.gd). This control stays in the tree so a covering page can still
+## swallow a click in a test, and it never pauses the journey on its own.
 
 const INK := Color("3e2c20")
 const FAINT := Color("8a6e50")
@@ -26,17 +26,12 @@ func message() -> PackedStringArray:
 	return PackedStringArray([TITLE, BODY, DESK])
 
 func _process(_dt: float) -> void:
-	check(Vector2(DisplayServer.window_get_size()))
 	if visible:
 		queue_redraw()
 
-func check(size: Vector2) -> void:
-	var up := upright(size)
-	if up != visible:
-		visible = up
-		get_tree().paused = up
-		queue_redraw()
-	_fit_window(size)
+## The rotate gate is retired. Calling this never covers the game and never pauses it.
+func check(_size: Vector2) -> void:
+	visible = false
 
 ## A portrait window letterboxes the game into a thin strip. While this page is up, let the canvas
 ## fill the window so the words are the whole screen. A wide window goes back to the game's shape.

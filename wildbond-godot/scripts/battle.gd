@@ -10,6 +10,7 @@ const Figures := preload("res://scripts/figures.gd")
 const Sprites := preload("res://scripts/creature_sprites.gd")
 const Effects := preload("res://scripts/battle_effects.gd")
 const R := preload("res://scripts/rules.gd")
+const PhoneShell := preload("res://scripts/phone_shell.gd")
 const INK := Color("2a2230")
 const PAPER := Color("f8f2e4")
 const EL_COL := { "Ember": Color("e0602a"), "Tide": Color("3a8fd8"), "Grove": Color("5d9a3e") }
@@ -698,6 +699,7 @@ func _grid_move(i: int, d: Vector2i, n: int, cols: int) -> int:
 	return i
 
 var layout_scale := 0.0                      # tests set a phone scale; 0 uses the real window
+var external_ui := false                      # upright phone: the deck draws the commands, the scene stays in the view
 
 ## Device pixels per canvas pixel. A headless window reports no size; treat that as the desktop's whole-pixel scale.
 func _view_scale() -> float:
@@ -750,6 +752,8 @@ func _ally_line_rect(i: int, n: int) -> Rect2:
 
 ## Where the "Next:" names sit. They shrink, then wrap, and stay inside the top of the screen.
 func _chip_boxes(labels: PackedStringArray) -> Dictionary:
+	if _view_scale() < 2.0:
+		return PhoneShell.place_chips(labels, font, 8.0, 4.0, 376.0, 14, 28.0)
 	var size := 7
 	var limit := 376.0
 	var x0 := 192.0
@@ -969,6 +973,8 @@ func _draw() -> void:
 	else:
 		for i in allies.size():                                  # a compact line each, so the foe stays in view
 			_info_line(allies[i], _ally_line_rect(i, allies.size()))
+	if external_ui and state in ["choose", "moves", "orders"]:
+		return
 	_queue()
 	if not tele.is_empty():
 		_text("%s is gathering power! Guard!" % tele.u.c.name, Vector2(10, 70), 8, Color("c83a2a"))
@@ -984,7 +990,7 @@ func _draw() -> void:
 				var on := i == menu_i
 				draw_rect(r, INK if on else Color("e8dcc4"))
 				var word := menu_word(i)
-				var dim: bool = (word == "Guard" and orders < 1) or (word == "Orders" and orders < 1) or (word in ["Run", "Bond"] and kind != "wild") or (word == "Bond" and int(bag.get("lures", 0)) <= 0) or (word == "Bag" and int(bag.get("berries", 0)) <= 0)
+				var dim: bool = command_dim(i)
 				if word == "Stand with it" and not on:
 					draw_rect(r, Color("f2d080"))         # lamplight: the one new thing on the page
 				var baseline := (11.0 if word.length() > 7 else 12.0) if r.size.y <= 16.0 else r.size.y * 0.5 + 3.0
@@ -1106,15 +1112,15 @@ func _info(u: Dictionary, r: Rect2, mine: bool) -> void:
 		draw_rect(xr, Color("d8ccb4"))
 		draw_rect(Rect2(xr.position, Vector2(xr.size.x * clampf(float(u.c.xp) / R.xp_need(u.c.lvl), 0.0, 1.0), xr.size.y)), Color("4a8ad8"))
 
-func _queue() -> void:
-	# who acts next: simulate the turn meters forward and list the next four turns
+## The next few turns, without touching the real turn meters.
+func upcoming() -> Array:
 	var sim: Array = []
 	for u in allies + foes:
 		if u.c.hp > 0:
 			sim.append({ "u": u, "atb": u.atb, "rate": maxf(0.01, R.atb_rate(u)) })
-	if sim.is_empty():
-		return
 	var order: Array = []
+	if sim.is_empty():
+		return order
 	for n in 4:
 		var best: Dictionary = sim[0]
 		var best_t := INF
@@ -1127,16 +1133,78 @@ func _queue() -> void:
 			s.atb += best_t * s.rate
 		best.atb = 0.0
 		order.append(best.u)
+	return order
+
+func next_names() -> PackedStringArray:
+	var labels := PackedStringArray()
+	for u in upcoming():
+		labels.append(str(u.c.name))
+	return labels
+
+func next_sides() -> PackedStringArray:
+	var sides := PackedStringArray()
+	for u in upcoming():
+		sides.append(str(u.side))
+	return sides
+
+## A command that can be tapped but will not do the thing yet (no orders, no lure, a tamer blocking the way).
+func command_dim(i: int) -> bool:
+	var word := menu_word(i)
+	return (word == "Guard" and orders < 1.0) or (word == "Orders" and orders < 1.0) or (word in ["Run", "Bond"] and kind != "wild") or (word == "Bond" and int(bag.get("lures", 0)) <= 0) or (word == "Bag" and int(bag.get("berries", 0)) <= 0)
+
+## The upright deck's button. `i` is the command, the move, or the order.
+func deck_press(i: int) -> void:
+	match state:
+		"choose":
+			if i >= 0 and i < MENU.size():
+				menu_i = i
+				_choose(i)
+		"moves":
+			var mv: Array = R.moves_of(wait_u.c)
+			if i >= 0 and i < mv.size():
+				if i == move_i:
+					_use_move(mv[i])
+				else:
+					move_i = i
+		"orders":
+			var ol: Array = known_orders()
+			if i >= 0 and i < ol.size():
+				if i == order_i:
+					if use_order(ol[i]):
+						_go_to("choose")
+				else:
+					order_i = i
+		"capture":
+			_calm()
+		"beat":
+			state_t = beat_t
+		"results":
+			if state_t > 0.5:
+				_go_to("fog_out")
+
+func _queue() -> void:
+	var order := upcoming()
+	if order.is_empty():
+		return
 	var labels := PackedStringArray()
 	for u in order:
-		labels.append(u.c.name)
+		labels.append(str(u.c.name))
 	var chips: Dictionary = _chip_boxes(labels)
 	var chip_size: int = int(chips["font"])
-	_text("Next:", Vector2(166, 7.0 + chip_size + 1.0), chip_size, INK)
-	for i in order.size():
-		var r: Rect2 = chips["rects"][i]
-		draw_rect(r, Color("2e5a8a") if order[i].side == "a" else Color("8a3a2e"))
-		_text(labels[i], Vector2(r.position.x + 4.0, r.position.y + chip_size + 1.0), chip_size, PAPER, r.size.x - 6.0)
+	var rects: Array = chips["rects"]
+	var shown: PackedStringArray = chips["labels"] if chips.has("labels") else labels
+	if _view_scale() >= 2.0:
+		_text("Next:", Vector2(166, 7.0 + chip_size + 1.0), chip_size, INK)
+	for i in rects.size():
+		var r: Rect2 = rects[i]
+		var lab := shown[i] if i < shown.size() else ""
+		var ally := i < order.size() and str(order[i].side) == "a" and not lab.begins_with("+")
+		var fill := Color("e6dcc6") if lab.begins_with("+") else (Color("435a78") if ally else Color("8e342c"))
+		var word := Color("1e1a22") if lab.begins_with("+") else Color("f4eddc")
+		draw_rect(r.grow(1), Color("1e1a22"))
+		draw_rect(r, fill)
+		var baseline := r.position.y + (r.size.y + float(chip_size)) * 0.5
+		_text(lab, Vector2(r.position.x + 8.0, baseline), chip_size, word, r.size.x - 16.0)
 
 # ---------------------------------------------------------------- bonding with a wild creature (calmNow)
 func _calm() -> void:

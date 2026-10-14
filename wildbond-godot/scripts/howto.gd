@@ -10,8 +10,8 @@ const FAINT := Color("8a6e50")
 const COLS := [
 	["Keyboard", "keys", [["Walk", "Arrow keys or W A S D"], ["Talk, choose", "E or Enter"], ["Back", "Esc"],
 		["Field book", "J or Tab; bag: menu"], ["Book pages", "Q and E"], ["Music, sounds", "M and N"]]],
-	["Phone or tablet", "touch", [["Walk", "The pad, or tap where to go"], ["Talk", "The button beside it"],
-		["Choose", "Tap what you want"], ["Field book", "Bag opens the menu"], ["Close the book", "Tap outside it"]]],
+	["Phone or tablet", "touch", [["Walk", "The d-pad"], ["Talk", "Tap A or the dialogue box"],
+		["Menu", "Tap Menu for your party and to save"], ["Choose", "Tap Choose"], ["Back", "Tap B"]]],
 	["Gamepad", "pad", [["Walk", "Left stick or the cross"], ["Talk, choose", "A"], ["Back", "B"], ["Field book", "Y"],
 		["Book pages", "The shoulder buttons"], ["Calendar", "X"]]],
 ]
@@ -26,6 +26,12 @@ func _ready() -> void:
 	visible = false
 
 var foot := "begin"                            # "Tap anywhere to begin" or "...to go on"
+static var last_kind := ""                     # "touch", "keys" or "pad": whichever you used last
+
+const TOUCH_COPY := "Use the d-pad to walk. Tap A or the dialogue box to talk and go on. Tap Menu for your party and to save."
+
+static func note(kind: String) -> void:
+	last_kind = kind
 
 func open(word := "begin") -> void:
 	foot = word
@@ -35,7 +41,11 @@ func open(word := "begin") -> void:
 
 ## Which column is in use now: a touch screen, a connected gamepad, or the keyboard.
 static func in_use() -> String:
-	if Controls.touch or touch_device():
+	if last_kind == "keys":
+		return "keys"
+	if last_kind == "pad":
+		return "pad"
+	if last_kind == "touch" or Controls.touch or touch_device():
 		return "touch"
 	if not Input.get_connected_joypads().is_empty():
 		return "pad"
@@ -107,11 +117,6 @@ func _draw() -> void:
 
 ## One readable page of the phone controls. A touch device was being shown the keyboard column first.
 func _draw_touch() -> void:
-	draw_string(font, Vector2(14, 58), "Phone or tablet", HORIZONTAL_ALIGNMENT_CENTER, 356, 12, INK)
-	draw_string(font, Vector2(14, 72), "(what you're using)", HORIZONTAL_ALIGNMENT_CENTER, 356, 7, FAINT)
-	var y := 96.0
-	for r in COLS[1][2]:
-		draw_string(font, Vector2(40, y), r[0], HORIZONTAL_ALIGNMENT_LEFT, 140, 10, INK)
-		draw_string(font, Vector2(180, y), r[1], HORIZONTAL_ALIGNMENT_LEFT, 160, 9, Color("6a5a3a"))
-		y += 16.0
-	draw_string(font, Vector2(14, 188), "Tap anywhere to %s.  This page is also on the Settings page of your field book." % foot, HORIZONTAL_ALIGNMENT_CENTER, 356, 6, FAINT)
+	draw_string(font, Vector2(14, 40), "Phone or tablet", HORIZONTAL_ALIGNMENT_CENTER, 356, 16, INK)
+	draw_multiline_string(font, Vector2(28, 78), TOUCH_COPY, HORIZONTAL_ALIGNMENT_LEFT, 328, 16, -1, INK)
+	draw_string(font, Vector2(14, 196), "Tap anywhere to %s." % foot, HORIZONTAL_ALIGNMENT_CENTER, 356, 16, FAINT)
