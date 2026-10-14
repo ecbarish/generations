@@ -1,5 +1,7 @@
 # Lantern Bowl
 
+v0.1.2 (claimed: Grok 4.7, Cursor cloud, 2026-10-14). Playtest round 2, issue 351.
+
 v0.1.1. One football game at Lamplight Field. You are the Brackenport Lanterns, Millrace is the other side. Four quarters of two minutes. You call the play and play the snap. Their drives are a play-by-play, one line at a time.
 
 Drag from the quarterback. A short pull is a bullet and a long pull is a lob, and the aim line shows which while you drag. Swipe sideways to juke. Tap to dive. Both move the ball carrier and say so when the play ends. Turbo spends the wind bar; when it is empty, Turbo stops helping. Green lanes are blocked open. Red lanes are not. The ring around the quarterback shrinks as the rush arrives, and it stays inside the field. Ratings run from 0 to 100 and sit under the score. About 50 is an ordinary player. When a rating decides a block, a catch or a tackle, the result says the two numbers. A careless game loses. An attentive one wins. One snap never takes more than 14 seconds. Play again returns to the kickoff.
