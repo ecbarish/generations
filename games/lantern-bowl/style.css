@@ -87,9 +87,9 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 }
 .dock-plays { display: flex; gap: 8px; pointer-events: auto; }
 .dock-plays button {
-  width: 92px; min-height: 48px; max-height: 64px; display: flex; flex-direction: column;
+  width: 96px; min-height: 48px; max-height: 64px; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 2px; padding: 4px 6px;
-  white-space: nowrap; font-size: calc(13px * var(--arc-text));
+  white-space: normal; line-height: 1.15; font-size: calc(13px * var(--arc-text));
 }
 .dock-plays svg { width: 28px; height: 16px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .hint, .held {
@@ -169,5 +169,37 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
   #settingsMount { flex: 1 1 100%; margin-left: 0; justify-content: flex-end; gap: 4px; }
   #sound, #settingsMount .arc-set-btn {
     min-width: 44px; min-height: 44px; padding: 4px 8px; font-size: 10px;
+  }
+}
+/* 360 and 390 wide: the version stays whole, and Settings stays inside the screen. */
+@media (max-width: 420px) {
+  header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "home title version" "tools tools tools";
+    align-items: center;
+    column-gap: 6px;
+    row-gap: 2px;
+  }
+  header .home { grid-area: home; }
+  header h1 {
+    grid-area: title;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .build {
+    grid-area: version;
+    justify-self: end;
+    overflow: visible;
+    text-overflow: clip;
+    font-size: 11px;
+  }
+  #settingsMount {
+    grid-area: tools;
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+    flex: none;
   }
 }

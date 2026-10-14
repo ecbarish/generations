@@ -79,7 +79,7 @@
   var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null, lastSheet = '';
   var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, spin: false, throw: null };
   var stick = null, receiverKey = '', throwKind = 'bullet', turboTouch = null;
-  var sheetDetail = false, watchLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0;
+  var sheetDetail = false, watchLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0, summaryLine = '';
   var pointerNotes = [];
 
   function persist() {
@@ -166,7 +166,7 @@
     el.textContent = holdSave ? HELD_NOTE : '';
   }
   function title() {
-    mode = 'title'; state = null; lastSheet = ''; sheetDetail = false; watchLeft = 0;
+    mode = 'title'; state = null; lastSheet = ''; summaryLine = ''; sheetDetail = false; watchLeft = 0;
     showHeld();
     say('');
     var sheet = $('sheet');
@@ -175,14 +175,15 @@
     if (cue) { cue.hidden = true; cue.textContent = ''; }
     var again = save.match ? '<button type="button" data-continue>Continue the game</button>' : '';
     panel('Lamplight Field',
-      '<p>The Brackenport Lanterns have Millrace under the lanterns. You call the offence. Their drives play out on the field.</p>' +
-      '<p>Two-minute quarters. Pick a play, then pull back from the quarterback and let go to throw. With the ball, swipe to steer and juke.</p>' +
+      '<p>The Brackenport Lanterns have Millrace under the lanterns. You call the offence. Before their drive, you pick a defence, and that drive plays as a short highlight.</p>' +
+      '<p>Two-minute quarters, slow enough for several drives. Pick a play, then pull back from the quarterback and let go to throw. With the ball, swipe to steer and juke.</p>' +
       '<div class="actions"><button type="button" data-kick>Kick off</button>' + again + '</div>');
     dock();
   }
 
   function kickoff(seed) {
     lastSheet = '';
+    summaryLine = '';
     state = M.create({ seed: (seed >>> 0) || (Date.now() >>> 0) || 1 });
     mode = 'play';
     hidePanel();
@@ -198,18 +199,47 @@
     hidePanel();
     if (state.phase === 'final') return showFinal();
     mode = 'play';
-    if (state.phase === 'cpu' || state.possession === 'away') return beginWatch();
+    if (state.phase === 'cpu' || state.possession === 'away') return askDefence();
     showCall();
     canvas.focus();
   }
 
   function showCall() {
     if (!state || state.phase === 'final') return showFinal();
-    if (state.possession !== 'home') return beginWatch();
+    if (state.possession !== 'home') return askDefence();
     if (mode === 'watch') lastSheet = '';
     mode = 'play';
     dock();
-    say(M.currentMessage(state));
+    say(summaryLine || M.currentMessage(state));
+  }
+
+  /* One choice, then Millrace's drive. The highlight itself has no buttons. */
+  function askDefence() {
+    if (!state || state.phase === 'final') return showFinal();
+    if (state.possession === 'home') return showCall();
+    if (state.defenceCall) return beginWatch();
+    if (rushWatch) return chooseDefence('balanced');
+    mode = 'defence';
+    hidePanel();
+    summaryLine = '';
+    dock();
+    say('');
+  }
+  function chooseDefence(id) {
+    if (!state || !M.DEFENCE[id] || state.possession === 'home' || state.phase === 'final') return;
+    state.defenceCall = id;
+    state.driveFrom = state.log.length;
+    summaryLine = '';
+    mode = 'watch';
+    hidePanel();
+    beginWatch();
+  }
+  function finishDrive() {
+    if (!state) return;
+    var lines = state.log.slice(state.driveFrom || 0);
+    summaryLine = M.driveSummary(lines, state.defenceCall);
+    state.defenceCall = null;
+    state.driveFrom = null;
   }
 
   /* Millrace's snaps play on the field. Each one stays live so the ball and the players move, then the result holds briefly. */
@@ -234,8 +264,9 @@
   function holdWatch() {
     mode = 'watch';
     hidePanel();
-    watchLeft = rushWatch ? 0.04 : 0.4;
-    say(M.currentMessage(state));
+    watchLeft = rushWatch ? 0.04 : (state && state.defenceCall ? 0.14 : 0.35);
+    if (state && state.defenceCall) say('');
+    else say(summaryLine || M.currentMessage(state));
     persist();
     dock();
   }
@@ -260,9 +291,23 @@
     quick: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h10M12 8l4 4-4 4"/></svg>',
     deep: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h14M14 7l5 5-5 5"/></svg>',
     kick: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>',
+    field: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16h16M12 16V8M9 11l3-3 3 3"/></svg>',
+    punt: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16c6-2 10-8 16-10M14 6l6 0 0 6"/></svg>',
+    blitz: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3L5 14h7l-1 7 8-11h-7l1-7z"/></svg>',
+    balanced: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M12 4v16"/></svg>',
+    prevent: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l7 3v6c0 4-3 6-7 7-4-1-7-3-7-7V7l7-3z"/></svg>',
     turbo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14c3-6 5 2 8-4s5 2 8-4"/></svg>'
   };
+  function playLabel(id) {
+    if (id === 'field') return 'Field goal';
+    if (id === 'punt') return 'Punt';
+    if (id === 'kick') return 'Kick';
+    if (M.DEFENCE[id]) return M.DEFENCE[id].label;
+    if (M.PLAYS[id]) return M.PLAYS[id].label.replace(' run', '').replace(' pass', '');
+    return id;
+  }
   function hintText() {
+    if (mode === 'defence') return 'Pick a defence.';
     var live = !!(mode === 'play' && state && state.phase === 'live');
     var parts = [];
     if (live && state.play && state.play.load > 0 && state.play.offence === 'home') parts.push(M.READING_HINT);
@@ -281,18 +326,28 @@
   }
   function dock() {
     paintHint();
+    var choosing = mode === 'defence' && state && state.possession !== 'home' && state.phase !== 'live' && state.phase !== 'final';
+    if (choosing) {
+      var calls = ['blitz', 'balanced', 'prevent'];
+      $('dock').innerHTML = '<div class="dock-plays">' + calls.map(function (id) {
+        var label = playLabel(id);
+        return '<button type="button" data-defence="' + id + '" aria-label="' + escapeAttr(label) + '">' + GLYPH[id] + '<span>' + escapeText(label) + '</span></button>';
+      }).join('') + '</div>';
+      return;
+    }
     var show = mode === 'play' && state && state.phase === 'call' && state.possession === 'home';
     if (!show) { $('dock').innerHTML = ''; return; }
     var cells = M.offerPlays(state);
     $('dock').innerHTML = '<div class="dock-plays">' + cells.map(function (id) {
-      var label = id === 'kick' ? 'Kick' : (M.PLAYS[id] ? M.PLAYS[id].label.replace(' run', '').replace(' pass', '') : id);
-      return '<button type="button" data-play="' + id + '" aria-label="' + escapeAttr(label) + '">' + GLYPH[id] + '<span>' + escapeText(label) + '</span></button>';
+      var label = playLabel(id);
+      return '<button type="button" data-play="' + id + '" aria-label="' + escapeAttr(label) + '">' + (GLYPH[id] || '') + '<span>' + escapeText(label) + '</span></button>';
     }).join('') + '</div>';
   }
 
   function begin(id) {
     if (!state || state.phase !== 'call' || state.possession !== 'home') return;
-    if (id === 'kick') { M.kick(state); afterWhistle(); return; }
+    summaryLine = '';
+    if (id === 'kick' || id === 'field' || id === 'punt') { M.kick(state, id === 'kick' ? null : id); afterWhistle(); return; }
     if (!M.callPlay(state, id)) return;
     audio.sfx('select');
     hidePanel();
@@ -319,6 +374,8 @@
   $('dock').addEventListener('click', function (e) {
     var why = e.target.closest('[data-why]');
     if (why && why.dataset.why) { prompt(why.dataset.why); return; }
+    var defence = e.target.closest('[data-defence]');
+    if (defence && !defence.disabled) { chooseDefence(defence.dataset.defence); return; }
     var b = e.target.closest('[data-play]');
     if (b && !b.disabled) begin(b.dataset.play);
   });
@@ -614,13 +671,21 @@
     if (e.target.closest && e.target.closest('input,button,a,select,textarea,.arc-set-bg')) return;
     var k = e.key.toLowerCase();
     if (k === 'p' || k === 'escape') { e.preventDefault(); togglePause(); return; }
+    if (mode === 'defence' && '123'.indexOf(k) >= 0) {
+      chooseDefence(['blitz', 'balanced', 'prevent'][Number(k) - 1]);
+      return;
+    }
     if (mode === 'play' && state && state.phase === 'call' && '123'.indexOf(k) >= 0) {
       var offered = M.offerPlays(state);
       var pick = offered[Number(k) - 1];
       if (pick) begin(pick);
       return;
     }
-    if (k === 'k' && state && state.phase === 'call' && state.down >= 4) { begin('kick'); return; }
+    if (k === 'k' && state && state.phase === 'call' && state.down >= 4) {
+      var kickId = M.offerPlays(state).indexOf('field') >= 0 ? 'field' : 'punt';
+      begin(kickId);
+      return;
+    }
     if (k === 'shift' && !e.repeat && passPocket()) toggleThrowKind();
     keys.add(k);
     if (!keyHeld[k]) keyHeld[k] = performance.now();
@@ -728,8 +793,8 @@
     var sheet = $('sheet');
     var curtainUp = $('curtain') && !$('curtain').hidden;
     if (sheet) {
-      var watching = mode === 'watch';
-      var line = M.currentMessage(state) || '';
+      var watching = mode === 'watch' || mode === 'defence';
+      var line = summaryLine || M.currentMessage(state) || '';
       var showToast = !live && !curtainUp && !watching && mode !== 'title' && !!line;
       sheet.hidden = !showToast;
       if (!sheet.hidden) sheet.textContent = shortToast(line);
@@ -743,7 +808,8 @@
     paintHint();
     paintTools();
     if (performance.now() >= promptUntil) {
-      var msg = state.phase === 'live' || state.phase === 'final' ? '' : M.currentMessage(state);
+      var watching = mode === 'watch' || mode === 'defence';
+      var msg = (watching || state.phase === 'live' || state.phase === 'final') ? '' : (summaryLine || M.currentMessage(state));
       if ($('banner').textContent !== msg) say(msg);
     }
   }
@@ -797,7 +863,12 @@
     var layout = V.fitLayout(box.w, box.h) || V.layoutFor(box.w, box.h);
     var picture = layout || V.SIDE;
     var offers = state && state.phase === 'call' ? M.offerPlays(state) : null;
-    var previewId = offers && offers.length ? (offers[0] === 'kick' ? 'inside' : offers[0]) : null;
+    var previewId = null;
+    if (offers) {
+      offers.forEach(function (id) {
+        if (!previewId && id !== 'kick' && id !== 'field' && id !== 'punt') previewId = id;
+      });
+    }
     var paint = {
       game: state,
       play: play,
@@ -807,7 +878,7 @@
       reduced: reduce,
       layout: layout,
       formation: previewId ? M.formationFor(previewId) : null,
-      chalk: !play && previewId ? M.previewRoutes(previewId) : null
+      chalk: !play && previewId ? M.previewRoutes(previewId, state) : null
     };
     var scale = picture.scale >= 1 ? picture.scale : Math.max(1, Math.floor(Math.min(box.w / picture.w, box.h / picture.h)));
     var ox = Math.floor((box.w - picture.w * scale) / 2);
@@ -880,7 +951,7 @@
       if (state.phase !== 'live') afterWhistle();
     } else if (mode === 'watch' && state && !document.hidden) {
       if (state.phase === 'live') {
-        var scale = rushWatch ? 28 : (reduce ? 4 : 2.4);
+        var scale = rushWatch ? 28 : (state.defenceCall ? (reduce ? 6 : 8) : (reduce ? 4 : 2.4));
         var budget = dt * scale, steps = 0, heard = [];
         while (budget > 0 && state.phase === 'live' && steps++ < 48) {
           if (state.play) lastSheet = snapLine(state);
@@ -895,8 +966,13 @@
         watchLeft -= dt;
         if (watchLeft <= 0) {
           if (state.phase === 'final') showFinal();
-          else if (state.possession !== 'home') beginWatch();
-          else showCall();
+          else if (state.possession !== 'home') {
+            if (!state.defenceCall) askDefence();
+            else beginWatch();
+          } else {
+            finishDrive();
+            showCall();
+          }
         }
       }
     }
@@ -919,8 +995,9 @@
       refresh: function () {
         if (state && state.phase !== 'live' && state.phase !== 'final' && state.possession === 'home') showCall();
       },
-      playCpu: function () { rushWatch = true; if (state) beginWatch(); },
-      watchLive: function () { rushWatch = false; if (state) beginWatch(); },
+      playCpu: function () { rushWatch = true; if (state) askDefence(); },
+      watchLive: function () { rushWatch = false; if (state) askDefence(); },
+      chooseDefence: chooseDefence,
       rush: function (on) { rushWatch = !!on; },
       migrateSave: migrateSave,
       pointerNotes: pointerNotes,
