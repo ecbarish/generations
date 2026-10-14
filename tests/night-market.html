@@ -326,6 +326,48 @@ document.querySelector('#run').onclick = async function () {
     d.querySelector('[data-bulk="max"]').click();
     check('buy max is a real control', d.querySelector('[data-bulk="max"]').getAttribute('aria-pressed') === 'true');
 
+    // ---- ART-NM-1: the lane strip (effects 0-5)
+    var NL = w.NightLane, lc = d.getElementById('lane'), hk = w.__nightMarket;
+    var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+    check('the lane strip is a 384x72 canvas scaled by a whole number', NL && lc.width === 384 && lc.height === 72 && +lc.dataset.scale >= 1 && lc.style.width === (384 * +lc.dataset.scale) + 'px');
+    NL.step(1);
+    var pal = Object.keys(NL.PALETTE).map(function (k) { return NL.PALETTE[k]; });
+    var colours = function () { var px = lc.getContext('2d').getImageData(0, 0, 384, 72).data, seen = {};
+      for (var q = 0; q < px.length; q += 4) seen['#' + [px[q], px[q + 1], px[q + 2]].map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('') + (px[q + 3] === 255 ? '' : '/a')] = 1; return Object.keys(seen); };
+    check('palette check: every pixel is one of the 12 colours, fully opaque', pal.length === 9 && colours().every(function (c) { return pal.indexOf(c) >= 0; }));
+    var slotPx = function (i) { var v = lc.getContext('2d').getImageData(i * 64 + 20, 33, 1, 1).data; return '#' + [v[0], v[1], v[2]].map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); };
+    check('six stalls match the unlock state: open ones have awnings, shuttered ones show slats', [0, 1, 2, 3, 4, 5].every(function (i) { return (slotPx(i) === NL.PALETTE.mute) === !w.NightMarket.unlocked(hk.state, i); }) && w.NightMarket.unlocked(hk.state, 1) && !w.NightMarket.unlocked(hk.state, 5));
+    NL.step(8); var c1 = NL.coinsOn(); d.querySelector('#stalls [data-act="serve"]').click();
+    check('effect 1: every serve pops a coin over that stall', NL.coinsOn() === c1 + 1);
+    for (var q = 0; q < 30; q++) d.querySelector('#stalls [data-act="serve"]').click();
+    check('...a full lane never shows more than 12 coins (the pool drops extras)', NL.coinsOn() <= NL.MAX_COINS && NL.coinsOn() >= 10);
+    NL.step(5); check('...and each coin is gone after its four frames', NL.coinsOn() <= 2);
+    NL.step(40); var fr = NL.lanterns().map(function (L) { return L.f; });
+    check('effect 2: lanterns flicker without blinking in unison', fr.indexOf(0) >= 0 && (fr.indexOf(1) >= 0 || fr.indexOf(2) >= 0) && NL.lanterns().length === 18);
+    hk.state.cash = 1e6; hk.state.stalls[0].owned = 24; hk.render();
+    d.querySelector('[data-bulk="1"]').click(); d.querySelector('#stalls [data-act="buy"]').click();
+    var F = NL.flashes(); check('effect 4: crossing 25 plays the milestone flash on that stall, once', F.length === 1 && F[0].i === 0 && F[0].m);
+    NL.step(4); d.querySelector('#stalls [data-act="buy"]').click(); F = NL.flashes();
+    check('...an ordinary buy is the short lamplight rim', F.length === 1 && !F[0].m);
+    d.querySelector('[data-bulk="max"]').click(); d.querySelector('#stalls [data-act="buy"]').click();
+    check('...Buy max fires one flash, not one per stall bought', NL.flashes().length === 1);
+    NL.step(4); check('...and it clears', NL.flashes().length === 0);
+    NL.step(300); var ws = NL.walkers();
+    check('effect 5: people stroll by, at most two, on whole pixels', ws.length >= 1 && ws.length <= 2 && ws.every(function (P) { return P.x === Math.floor(P.x); }));
+    var x0 = ws[0].x; NL.step(1); check('...and never stand still mid-walk', NL.walkers()[0] && NL.walkers()[0].x !== x0);
+    var t0 = NL.ticks, f0 = NL.frames; await wait(450);
+    check('the strip runs on its own at about 8 ticks a second', NL.live && NL.ticks - t0 >= 2 && NL.ticks - t0 <= 6 && NL.frames > f0);
+    Object.defineProperty(d, 'hidden', { configurable: true, get: function () { return true; } }); d.dispatchEvent(new w.Event('visibilitychange'));
+    var fh = NL.frames, th = NL.ticks; await wait(300);
+    check('a hidden tab draws 0 animation frames, and walkers and coins are gone (not frozen)', !NL.live && NL.frames === fh && NL.ticks === th && NL.walkers().length === 0 && NL.coinsOn() === 0);
+    delete d.hidden; d.dispatchEvent(new w.Event('visibilitychange')); await wait(300);
+    check('...back again it restarts without a burst of queued coins', NL.live && NL.coinsOn() <= 3 && NL.ticks - th <= 4);
+    NL.setReduce(true); var fr0 = NL.frames; await wait(300);
+    check('reduced motion: the strip holds still (no animation frames)', !NL.live && NL.frames === fr0);
+    d.querySelector('#stalls [data-act="serve"]').click(); check('...but a sale still shows one still coin', NL.coinsOn() >= 1);
+    NL.setReduce(false); await wait(200); check('...and motion comes back when allowed', NL.live);
+    check('the strip only reads the save state (the model never sees it)', !('lane' in hk.state) && Object.keys(w.NightMarket).indexOf('NightLane') < 0);
+
     // the save box: real-looking, working controls
     var saveBox = d.querySelector('details.save'); saveBox.open = true; saveBox.dispatchEvent(new w.Event('toggle'));
     await new Promise(function (r) { setTimeout(r, 30); });
