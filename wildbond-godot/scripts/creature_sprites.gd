@@ -2,8 +2,9 @@ extends RefCounted
 ## Painted creatures, looked up by species id (EVO-1).
 ## A file is res://assets/creatures/<id>_side_<pose>.png. An animated pose is one row of equal-width
 ## frames, left to right. The idle sheet's width is one frame; walk is four of those frames.
-## Art faces left. Pass facing_right to flip it. Feet sit on the bottom row; `foot` is that point,
-## bottom centre. `scale` is screen pixels per sprite pixel (1 in the world, so a 16px creature stays 16px).
+## Art faces left. Pass facing_right to flip it in place. Feet sit on the bottom row; `foot` is that
+## point, bottom centre, and a flip does not move it. `scale` is screen pixels per sprite pixel
+## (1 in the world, so a 16px creature stays 16px).
 ## Tidewyrm's crawl and crawl_idle sheets are provisional. Walking asks for "walk", never "crawl".
 ## No PNG: try_draw returns false and the caller draws the procedural figure in figures.gd, unchanged.
 
@@ -56,6 +57,38 @@ static func fit_scale(sz: Vector2i, box: Vector2, cap: float) -> float:
 	var fit := minf(cap, minf(box.x / float(sz.x), box.y / float(sz.y)))
 	return float(maxi(1, int(floor(fit))))
 
+## The rectangle a sprite covers when its feet stand on `foot`. Bottom centre stays on `foot`.
+static func dest_rect(foot: Vector2, sz: Vector2i, scale: float) -> Rect2:
+	var w := float(sz.x) * scale
+	var h := float(sz.y) * scale
+	return Rect2(foot - Vector2(w * 0.5, h), Vector2(w, h))
+
+## Shift `foot` until the sprite is `gap` pixels clear of every panel. Scale is left alone:
+## a sprite that is too wide moves aside, it is never drawn smaller.
+static func foot_clear_of(foot: Vector2, sz: Vector2i, scale: float, panels: Array, gap: float) -> Vector2:
+	if sz.x <= 0 or sz.y <= 0 or scale <= 0.0:
+		return foot
+	for _step in 4:
+		var rect := dest_rect(foot, sz, scale)
+		var moved := false
+		for panel in panels:
+			var box: Rect2 = panel
+			var keep := box.grow(gap)
+			if not rect.intersects(keep):
+				continue
+			var hit := rect.intersection(keep)
+			if hit.size.x <= 0.0:
+				continue
+			if foot.x <= keep.get_center().x:
+				foot.x = floor(foot.x - hit.size.x)
+			else:
+				foot.x = ceil(foot.x + hit.size.x)
+			rect = dest_rect(foot, sz, scale)
+			moved = true
+		if not moved:
+			break
+	return foot
+
 ## Draw the painted sprite. Returns false when this species has no PNG, so the caller keeps figures.gd.
 ## `scale` is whole screen pixels per sprite pixel.
 static func try_draw(ci: CanvasItem, species_id: String, foot: Vector2, facing_right: bool, pose: String, frame: int, scale: float = 1.0, fade: float = 0.0, gear: String = "") -> bool:
@@ -70,14 +103,13 @@ static func try_draw(ci: CanvasItem, species_id: String, foot: Vector2, facing_r
 	var count := maxi(1, int(tex.get_width() / sz.x))
 	var i := posmod(frame, count)
 	var src := Rect2(i * sz.x, 0, sz.x, sz.y)
-	var dest_w := float(sz.x) * scale
-	var dest_h := float(sz.y) * scale
-	var origin := foot - Vector2(dest_w * 0.5, dest_h)
+	var dest := dest_rect(foot, sz, scale)
+	var origin := dest.position
 	var prev := ci.texture_filter
 	ci.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	var dest := Rect2(origin, Vector2(dest_w, dest_h))
+	# Godot flips a negative width in place and does not move the rect. Adding the width to
+	# position first would step the creature off its feet by a whole sprite.
 	if facing_right:
-		dest.position.x += dest.size.x
 		dest.size.x = -dest.size.x
 	if fade > 0.001:
 		ci.draw_texture_rect(_washed(tex, Rect2i(i * sz.x, 0, sz.x, sz.y), fade), dest, false)
