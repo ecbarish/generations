@@ -36,7 +36,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.14.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.15.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -417,6 +417,27 @@ document.querySelector('#run').onclick = async () => {
       tap(baby()); check('The six wake taps still work after the routine', S().wake === 1);
     }
     LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    // ---- LR8: spoken words. The device's voice; nothing written on the ranch, nothing saved, quiet when sound is off.
+    const heard = word => LR.words.filter(x => x === word).length;
+    const wBaby = heard('Cindercub'); tap(baby());
+    check('Tapping the baby says its name, and still nothing to read', heard('Cindercub') === wBaby + 1 && text === '');
+    LR.setFriend(true); LR.newVisit(); LR.advance(2); const wFriend = heard('Pebblit'); tap(LR.fCentre());
+    check('Tapping the friend says its name', heard('Pebblit') === wFriend + 1);
+    const wFlower = heard('pink'); tap(L().flowers[0]);
+    check('Tapping a flower says its colour', heard('pink') === wFlower + 1 && LR.FLOWER_WORDS[0] === 'pink');
+    tap(L().sign); const wPot = heard('yellow'); tap(L().shed.pots[2]);
+    check('Choosing a paint pot says its colour', S().place === 'shed' && heard('yellow') === wPot + 1 && LR.POT_WORDS[2] === 'yellow');
+    tap(L().shed.barn); LR.advance(.2);
+    tap(L().ksign); const wFood = heard('berries'); tap(L().kitchen.foods[0]);
+    check('Tapping a food says its name', heard('berries') === wFood + 1);
+    tap(L().kitchen.barn); LR.advance(.2);
+    const nights = heard('Night night'); LR.setRoutine(true); LR.bedtime(); LR.advance(50);
+    check('Bedtime says night night once, then the baby is asleep', heard('Night night') === nights + 1 && S().mode === 'sleep');
+    LR.prefs.sound = false; const quiet = LR.words.length;
+    tap(baby()); for (let i = 0; i < 6; i++) { tap(baby()); LR.advance(.2); }
+    LR.newVisit(); tap(L().flowers[2]); tap(L().sign); tap(L().shed.pots[0]);
+    check('With the sound off, no words are spoken', LR.words.length === quiet);
+    LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
     // ---- LR15: app mode (inside the standalone app): Replay, Sound and Exit
