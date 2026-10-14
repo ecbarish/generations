@@ -42,6 +42,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Night Market Stalls v0.1.0 — IDLE-NM1 (PR #403):** six stalls you work yourself before a vendor runs them, then buy in bulk, with a capped welcome back. Not on the hall yet.
 - **Godot Wildbond (2026-10-14, WB-FUNNEL1, PR #380):** a tap advances opening dialogue, and the opening records time to the first partner, first battle and first catch. Source only; the web preview is not rebuilt here.
 - **Lantern Bowl v0.1.5 — 371-5a (PR #383; version bumped on merge):** a side-on field with eleven a side, and carries with a real spread.
 - **Little Ranch v0.17.0 — LR17 (PR #381; version bumped on merge):** the Busy Barn Door. A doorbell, a light switch, a latch, a slide bolt and a crank; once all five are played with, in any order, the door opens and the baby peeks out.
