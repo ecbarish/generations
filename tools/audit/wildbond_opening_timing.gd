@@ -211,10 +211,12 @@ func run() -> void:
 				failures.append("Meeting opened a different starter")
 				break
 			await capture("partner-card")
-			# Exercise safe decline and reopen without acquiring a partner.
+			# Not yet must close the page without taking a partner. Back picks that last
+			# choice whether the page opens on Not yet (the older build) or on Choose.
+			# Touch hits the button the page actually drew, not a frozen pixel.
 			await read_for(2.0)
-			if method == "touch": await tap(Vector2(312, 190))
-			else: await press()
+			if method == "touch": await tap(main.card._btn(1).get_center())
+			else: await press(KEY_BACKSPACE)
 			if not main.team.is_empty() or main.card.visible:
 				failures.append("Not yet did not decline safely")
 				break
@@ -223,12 +225,13 @@ func run() -> void:
 			if not main.card.visible:
 				failures.append("Card did not reopen through input")
 				break
-			if main.card.sel != 1: failures.append("Card lost safe Not yet default")
 			await read_for(12.0)
-			if method == "touch": await tap(Vector2(230, 190))
+			if method == "touch": await tap(main.card._btn(0).get_center())
 			else:
-				await press(KEY_LEFT)
-				await pause(1.0)
+				# The older page opens on Not yet, so step onto Choose. This page already highlights it.
+				if main.card.sel != 0:
+					await press(KEY_LEFT)
+					await pause(1.0)
 				await press()
 		else: await pause(0.5)
 	if main.team.is_empty(): failures.append("No partner acquired")
@@ -259,7 +262,7 @@ func run() -> void:
 		root.size = normal_size
 		await tick(6)
 	await complete_funnel()
-	var report := {"source_sha": OS.get_environment("SOURCE_SHA"), "main_sha256": FileAccess.get_sha256("res://scripts/main.gd"), "engine": Engine.get_version_info().string, "method": method, "display": DisplayServer.get_name(), "rendered": rendered, "window_size": [root.size.x, root.size.y], "protocol": "60Hz simulated elapsed time; wandering seed 20261013; redraw paused only during simulated reading budgets (all game frames still advance); how-to 12s; dialogue 180wpm + 0.75s each; character creator 30s; Not yet/reopen 2s; first partner card 12s; keyboard deliberate selection 1s; optimal read-only route navigation via actual keyboard/touch-pad inputs. Fresh New Game starts directly without saved-title menu. Continues via barn exit and Wren, first rival battle, north road to Thornwood Trail, grass patrol at (18,12)-(20,12), Bond at full health with precise timing. Battle seed 20261014; ready highest-value attacks in trainer battles; results read 2s; no battle pace override. OPENING_RAPID=1 replaces reading budgets by two frames. No novice guarantee or physical mobile claim.", "rapid": rapid, "partner_control_seconds": partner_control_seconds, "first_battle_seconds": first_battle_seconds, "first_catch_seconds": first_catch_seconds, "catch_attempts": catch_attempts, "catch_joined_team": main.team.size() > 1, "starter_index": starter_index, "partner_id": main.partner.id if main.partner else "", "first_partner_seconds": first_partner_seconds, "elapsed_seconds": frames / 60.0, "input_events": events, "partner_acquired": not main.team.is_empty(), "milestones": milestones, "transcript": transcript, "failures": failures}
+	var report := {"source_sha": OS.get_environment("SOURCE_SHA"), "main_sha256": FileAccess.get_sha256("res://scripts/main.gd"), "engine": Engine.get_version_info().string, "method": method, "display": DisplayServer.get_name(), "rendered": rendered, "window_size": [root.size.x, root.size.y], "protocol": "60Hz simulated elapsed time; wandering seed 20261013; redraw paused only during simulated reading budgets (all game frames still advance); how-to 12s; dialogue 180wpm + 0.75s each; character creator 30s; Not yet/reopen 2s; first partner card 12s; Back declines, then Choose is confirmed (1s only when the highlight must move); optimal read-only route navigation via actual keyboard/touch-pad inputs. Fresh New Game starts directly without saved-title menu. Continues via barn exit and Wren, first rival battle, north road to Thornwood Trail, grass patrol at (18,12)-(20,12), Bond at full health with precise timing. Battle seed 20261014; ready highest-value attacks in trainer battles; results read 2s; no battle pace override. OPENING_RAPID=1 replaces reading budgets by two frames. No novice guarantee or physical mobile claim.", "rapid": rapid, "partner_control_seconds": partner_control_seconds, "first_battle_seconds": first_battle_seconds, "first_catch_seconds": first_catch_seconds, "catch_attempts": catch_attempts, "catch_joined_team": main.team.size() > 1, "starter_index": starter_index, "partner_id": main.partner.id if main.partner else "", "first_partner_seconds": first_partner_seconds, "elapsed_seconds": frames / 60.0, "input_events": events, "partner_acquired": not main.team.is_empty(), "milestones": milestones, "transcript": transcript, "failures": failures}
 	var f := FileAccess.open(folder + "/report.json", FileAccess.WRITE)
 	f.store_string(JSON.stringify(report, "\t"))
 	print("OPENING_RESULT ", JSON.stringify(report))
