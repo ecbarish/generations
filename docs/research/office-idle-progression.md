@@ -161,8 +161,8 @@ Every number in this section is **[Opinion] a tuning starting point**, picked to
 - Production: base × owned × milestoneMult. **No other global multipliers** (house rule).
 - Default milestones: **25, 50, 100 owned → ×2 each** (stacking, so ×8 at 100), each with a visual hook.
 - Bulk: x1/x10/max via Pecorella's closed forms. Worked check: base 5, r 1.07, owned 10, buy 10 → 135.90.
-- Offline: catch-up = min(elapsed, cap) × activeRate × offlineRate; per-game config; offlineRate < 1.
-- Tick: a Date.now delta per frame or timer, clamped; if delta > 60 s, take the offline path and show the summary.
+- **Offline rule:** Offline = the page was closed. While the page stays loaded (visible or hidden tab), every tick credits the full elapsed real time at the full online rate, no matter how large the gap (throttled hidden tabs included). The offline rate and offline cap apply only on load from a save, to the time between the last save timestamp and now.
+- Tick: credit the Date.now delta since the last tick (no threshold, no clamp while loaded). Save on visibilitychange (hidden) and pagehide, and every 30 s, so the last-save timestamp is accurate. On load: offline credit = min(now − lastSave, cap) × activeRate × offlineRate, then show the away summary.
 
 ### 8.2 Generators (first 3 tiers)
 | Slice | Tier 1 (base / r / per s) | Tier 2 | Tier 3 | Payback t1/t2/t3 |
@@ -232,8 +232,10 @@ Hand work before hiring: NM1 serves 1 coin per tap (25 serves to the first vendo
 
 ### 8.6 Done-when criteria
 **IDLE-CORE**
-- Hide the tab for 10 min, then return: income credited is within 2% of 10 min × rate (if under the cap) and the away summary shows it.
-- Simulated 30 h away with a 4 h cap: the credit equals 4 h × rate × offlineRate within 1%, and the summary states the cap.
+- **Offline rule:** Offline = the page was closed. While the page stays loaded (visible or hidden tab), every tick credits the full elapsed real time at the full online rate, no matter how large the gap (throttled hidden tabs included). The offline rate and offline cap apply only on load from a save, to the time between the last save timestamp and now.
+- Hide the tab for 10 min (throttled), then return: income credited is within 2% of 10 min × full online rate, with no offline rate or cap applied.
+- Close the page, reopen after 1 h (cap 4 h): credit = 1 h × rate × offlineRate within 1%, and the away summary shows it. Reopen after a simulated 30 h: credit = 4 h × rate × offlineRate within 1%, and the summary states the cap.
+- A save is written on visibilitychange (hidden), on pagehide and every 30 s (verify the timestamp updates).
 - Bulk x1/x10/max costs match the closed form within 1e-9 relative error; max never overspends.
 - Milestone at 25 fires exactly once, survives save and load, and applies ×2.
 - An old-version save loads (via ENGINE-SAVEVER) or is refused safely without being overwritten.
