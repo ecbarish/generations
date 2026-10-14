@@ -15,9 +15,10 @@
    Kitchen (LR11): tap a food and the baby eats it, loving berries and pulling funny faces at the rest. On some visits a baby
    Pebblit friend wanders in (LR4): it eats and gets bubbly too, and a tap on it makes the two nuzzle. Tap the cloud for soft rain (LR5); afterwards
    puddles shine on the grass and a rainbow comes out; tap a puddle and the baby jumps in. The hat basket (LR6): each tap puts the next hat on the baby's head. At bedtime (LR7) the
-   toothbrush, a cup of water and goodnight to each friend come before the lullaby. Nothing is saved. Checks: tests/little-ranch.html. */
+   toothbrush, a cup of water and goodnight to each friend come before the lullaby. The device's own voice says the
+   creatures' names, the colours and "night night" (LR8). No microphone, and nothing is saved. Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.14.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
+  const VERSION = '0.15.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
   // LR-C1: things on the ranch, in the order an idle hint offers them (the first one not yet played with)
   const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'sign', 'wsign', 'ksign'];
   // LR11: the Snack Kitchen. Four foods (berries, carrot, lemon, broccoli), one bowl, one baby who loves berries and pulls a
@@ -42,6 +43,22 @@
   const FLOWERS = ['#ff6f91', '#ffa040', '#b07aff', '#4fb4ff', '#ff5a5a'], FLOWER_NOTES = [72, 74, 76, 79, 81], SONG_TAPS = 5;
   // LR9: the Paint Shed's four fat pots and the four parts of the baby's outline (in the order they're drawn)
   const PAINT = ['#ff6fa8', '#4fa6ff', '#ffd03a', '#5fd06a'], PARTS = ['tail', 'legs', 'body', 'head'];
+  // LR8: spoken words, the browser's own voice. Names, colours and "night night". No microphone, nothing saved.
+  // Sound off means silence. A real parent's recording still needs Evan's yes.
+  const POT_WORDS = ['pink', 'blue', 'yellow', 'green'], FLOWER_WORDS = ['pink', 'orange', 'purple', 'blue', 'red'], CAR_WORDS = ['red', 'blue'], FOOD_WORDS = ['berries', 'carrot', 'lemon', 'broccoli'];
+  const words = [];
+  function speak(text) {
+    if (!prefs.sound || !text) return;
+    words.push(text);
+    try {
+      const syn = window.speechSynthesis; if (!syn || typeof syn.speak !== 'function') return;
+      syn.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = .85; u.pitch = 1.15; u.lang = 'en-US'; u.onerror = () => {};
+      syn.speak(u);
+    } catch (e) {}
+  }
+  function speakNight() { if (st.nightSaid) return; st.nightSaid = true; speak('Night night'); }
   // Twinkle Twinkle Little Star, first verse (traditional, public domain): [note, beats]
   const A = [[72,1],[72,1],[79,1],[79,1],[81,1],[81,1],[79,2],[77,1],[77,1],[76,1],[76,1],[74,1],[74,1],[72,2]], B = [[79,1],[79,1],[77,1],[77,1],[76,1],[76,1],[74,2]];
   const TWINKLE = [...A, ...B, ...B, ...A], SONG_BEATS = TWINKLE.reduce((n, x) => n + x[1], 0), LULLABY_SECS = 25 * .55;
@@ -164,6 +181,7 @@
   const fCentre = () => ({ x: st.friend.x * W, y: L.home.y - L.fz * .75 });
   function fgo(x, then) { const f = st.friend; f.tx = x / W; f.then = then; f.dir = x < f.x * W ? -1 : 1; }
   function friendTap() { const f = st.friend, b = st.baby; // LR4: run together and nuzzle (one happy thing); if anyone's busy, just a giggle
+    speak('Pebblit');
     if (busy() || f.act || f.tx !== null || st.sponge.auto) { if (!f.act && f.tx === null) { f.act = 'giggle'; f.at = st.t; } sfx('giggle'); return; }
     f.act = 'wait'; go(f.x * W - L.size * 1.15, () => { b.dir = 1; b.act = 'nuzzle'; b.at = st.t; f.act = 'nuzzle'; f.at = st.t; f.dir = -1; sfx('giggle'); sfx('wake');
       for (let i = 0; i < 4; i++) fx('heart', f.x * W - L.size * .6 + (i - 1.5) * L.size * .35, L.home.y - L.size * 1.9); }); }
@@ -203,7 +221,7 @@
       if (b.act === 'peek') return; st.bush.shake = 1; sfx('rustle'); b.act = null;
       st.bowl.food = 0; // Peekaboo replaces the meal, including a walk toward the bowl.
       go(L.bush.x, () => { b.act = 'hide'; b.at = st.t; }); },
-    tickle() { const b = st.baby; if (b.act || b.tx !== null) { sfx('giggle'); return; } b.act = 'giggle'; b.at = st.t; sfx('giggle'); done(); },
+    tickle() { const b = st.baby; speak('Cindercub'); if (b.act || b.tx !== null) { sfx('giggle'); return; } b.act = 'giggle'; b.at = st.t; sfx('giggle'); done(); },
     sparkle(p) { fx('spark', p.x, p.y); sfx('note'); }
   };
   // LR12: tapping the sleeping baby. Each tap it stirs and its zzz get smaller; on the sixth it wakes up happy and a
@@ -270,7 +288,7 @@
   function paintPart(part, p) { const sh = st.shed; if (sh.doneAt !== null || !part || sh.parts[part] === sh.pot) return;
     sh.parts[part] = sh.pot; sfx('splat', sh.pot); for (let i = 0; i < 4; i++) { fx('blob', p.x, p.y); st.fx[st.fx.length - 1].col = PAINT[sh.pot]; }
     if (PARTS.every(k => k in sh.parts)) { sh.doneAt = st.t; sfx('rainbow'); for (let i = 0; i < 18; i++) { fx(i % 3 ? 'spark' : 'blob', L.shed.x + (Math.random() - .5) * L.shed.z * 2.6, L.shed.y - Math.random() * L.shed.z * 2); if (!(i % 3)) st.fx[st.fx.length - 1].col = PAINT[i % 4]; } } }
-  function pickPot(i) { st.shed.pot = i; sfx('pick', i); const q = L.shed.pots[i]; fx('spark', q.x, q.y - L.shed.potR); }
+  function pickPot(i) { st.shed.pot = i; sfx('pick', i); speak(POT_WORDS[i]); const q = L.shed.pots[i]; fx('spark', q.x, q.y - L.shed.potR); }
   function shedTap(p) { const S2 = L.shed;
     if (near(p, S2.barn, S2.barn.r * 1.15)) return leaveShed(false);
     const i = S2.pots.findIndex(q => near(p, q, S2.potR * 1.15)); if (i >= 0) return pickPot(i);
@@ -305,7 +323,7 @@
   const hintBob = name => { const h = hint(); if (!h || h.name !== name || reduce()) return 0; return Math.abs(Math.sin((st.t - st.idleAt) * 3.2)) * L.U * .025; };
   // LR3: tap a flower and it sings its note and bobs; the baby dances to whatever she plays. Dragging along the row plays
   // each flower it passes. Every fifth note counts as one happy thing (so a long song doesn't rush bedtime).
-  function sing(i) { const f = st.flowers[i]; f.bob = 1; f.at = st.t; sfx('flower', FLOWER_NOTES[i]); const q = L.flowers[i];
+  function sing(i) { const f = st.flowers[i]; f.bob = 1; f.at = st.t; sfx('flower', FLOWER_NOTES[i]); speak(FLOWER_WORDS[i]); const q = L.flowers[i];
     fx('note', q.x + (Math.random() - .5) * q.r, q.y - q.r); st.fx[st.fx.length - 1].col = FLOWERS[i];
     const b = st.baby; if (b.tx === null && (!b.act || b.act === 'dance')) { if (b.act !== 'dance') b.dir = -b.dir; b.act = 'dance'; b.at = st.t; }
     if (++st.sung % SONG_TAPS === 0) done(); }
@@ -328,10 +346,10 @@
     const pull = Math.hypot(p.x - V.puller.x, p.y - V.puller.y) <= V.z * 1.15;
     if (w.phase === 'load') {
       const i = [0, 1].find(k => !w.aboard[k] && Math.hypot(p.x - V.wait[k].x, p.y - (V.wait[k].y - V.z * .5)) <= V.z * 1.1);
-      if (i !== undefined) { w.aboard[i] = true; w.hop[i] = st.t; sfx('boo'); fx('heart', V.cars[i].x, V.cars[i].y - V.z * 1.4); return; }
-      if (car >= 0 && !w.aboard[car]) { const k = car; w.aboard[k] = true; w.hop[k] = st.t; sfx('boo'); fx('heart', V.cars[k].x, V.cars[k].y - V.z * 1.4); return; } // a tap on the empty car loads its baby too
+      if (i !== undefined) { w.aboard[i] = true; w.hop[i] = st.t; sfx('boo'); speak(CAR_WORDS[i]); fx('heart', V.cars[i].x, V.cars[i].y - V.z * 1.4); return; }
+      if (car >= 0 && !w.aboard[car]) { const k = car; w.aboard[k] = true; w.hop[k] = st.t; sfx('boo'); speak(CAR_WORDS[k]); fx('heart', V.cars[k].x, V.cars[k].y - V.z * 1.4); return; } // a tap on the empty car loads its baby too
       if (car >= 0 || pull) { if (w.aboard[0] && w.aboard[1]) { w.phase = 'ride'; sfx('wake'); } else { w.wiggle = 1; sfx('pick', 0); } return; } }
-    if (w.phase === 'gate' && w.gate.at === null && car >= 0) { const big = car === w.gate.col; w.gate.at = st.t; w.gate.big = big; w.cheer = st.t;
+    if (w.phase === 'gate' && w.gate.at === null && car >= 0) { const big = car === w.gate.col; w.gate.at = st.t; w.gate.big = big; w.cheer = st.t; speak(CAR_WORDS[car]);
       sfx(big ? 'rainbow' : 'giggle'); const n = big ? 10 : 3; for (let i = 0; i < n; i++) fx(big && i % 2 ? 'spark' : 'heart', V.cars[car].x + (Math.random() - .5) * V.z * 2, V.cars[car].y - V.z * (1.2 + Math.random())); return; }
     if (w.phase !== 'load') for (const k of ['windmill', 'pond', 'woolies']) { const q = thingAt(k); if (q.x > -V.z && q.x < W + V.z && Math.hypot(p.x - q.x, p.y - q.y) <= thingR(k)) { const t = w.things[k]; t.at = st.t;
       if (k === 'windmill') { t.spin = 1; sfx('rainbow'); } else if (k === 'pond') { sfx('splash'); for (let i = 0; i < 6; i++) { fx('blob', q.x, q.y - V.z * .2); st.fx[st.fx.length - 1].col = '#9ad6f4'; } } else sfx('baa');
@@ -352,7 +370,7 @@
   function leaveKitchen(fed) { st.place = 'ranch'; sfx('door'); st.kitchen = null;
     if (fed) { const b = st.baby; b.act = null; b.then = null; b.x = L.ksign.x; go(L.home.x, () => { b.act = 'cheer'; b.at = st.t; }); done(); } }
   const foodAt = p => { let best = -1, bd = 1; L.kitchen.foods.forEach((q, i) => { const k = Math.hypot(p.x - q.x, p.y - q.y) / (L.kitchen.fr * 1.25); if (k <= bd) { bd = k; best = i; } }); return best; };
-  function feedKitchen(i) { const k = st.kitchen; if (k.phase !== 'idle') { k.wig[i] = 1; sfx('note'); return; } k.phase = 'fly'; k.food = i; k.at = st.t; sfx('pick', i); }
+  function feedKitchen(i) { const k = st.kitchen; if (k.phase !== 'idle') { k.wig[i] = 1; sfx('note'); return; } k.phase = 'fly'; k.food = i; k.at = st.t; sfx('pick', i); speak(FOOD_WORDS[i]); }
   function kitchenTap(p) { const k = st.kitchen, V = L.kitchen;
     if (near(p, V.barn, V.barn.r * 1.15)) return leaveKitchen(false);
     if (k.phase === 'full') { fx('spark', p.x, p.y); sfx('note'); return; }
@@ -413,7 +431,7 @@
   function routineStep(k) { const r = st.routine, b = st.baby; r.at = st.t; st.idleAt = st.t; // do step k (by a tap, or by itself)
     if (k === 0) { r.doing = { what: 'teeth', at: st.t }; b.act = 'brush'; b.at = st.t; b.dir = -1; sfx('bloop'); }
     else if (k === 1) { r.doing = { what: 'water', at: st.t }; b.act = 'drink'; b.at = st.t; b.dir = -1; sfx('plink'); } }
-  function sayNight(who) { const r = st.routine, b = st.baby; if (r.said[who]) return; r.said[who] = true; r.at = st.t; st.idleAt = st.t; sfx('yawn');
+  function sayNight(who) { const r = st.routine, b = st.baby; if (r.said[who]) return; r.said[who] = true; r.at = st.t; st.idleAt = st.t; sfx('yawn'); speakNight();
     if (!b.act && b.tx === null) { b.act = 'wave'; b.at = st.t; }
     if (who === 'flowers') { st.flowers.forEach(f => { f.bob = 1; f.at = st.t; }); fx('zzz', L.flowers[2].x, L.flowers[2].y - L.flowers[2].r); }
     else { const f = st.friend; f.act = 'giggle'; f.at = st.t; const c = fCentre(); fx('zzz', c.x, c.y - L.fz); }
@@ -481,7 +499,7 @@
     if (st.mode === 'play' && !busy() && !s.drag && !s.auto && (st.acts >= BEDTIME_ACTS || st.t > BEDTIME_SECS)) bedtime();
     if (st.mode === 'dusk') { routineUpdate(dt); st.dusk = Math.min(st.routine && st.routine.step < 3 ? .22 : 1, st.dusk + dt / 10); // LR7: the sky waits at sunset for the routine
       if (st.dusk > .25 && st.lullabyAt === null) { st.lullabyAt = st.t; sfx('lullaby'); }
-      if (st.dusk > .55 && !busy()) { b.act = 'sleep'; b.at = st.t; }
+      if (st.dusk > .55 && !busy()) { if (b.act !== 'sleep') speakNight(); b.act = 'sleep'; b.at = st.t; }
       if (st.dusk >= 1 && b.act === 'sleep') { st.mode = 'sleep'; st.paint = null; } } // bedtime washes the paint off
     if (b.act === 'sleep' && Math.floor(st.t / 1.2) !== Math.floor((st.t - dt) / 1.2)) fx('zzz', b.x + L.size * .6, L.home.y - L.size * 1.3);
   }
@@ -881,7 +899,7 @@
   press(document.getElementById('gX'), closePanel);
   press(document.getElementById('gClose'), closePanel);
   press(document.getElementById('gNew'), () => { newVisit(); closePanel(); });
-  press(document.getElementById('gSound'), () => { prefs.sound = !prefs.sound; try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} if (!prefs.sound && ac) { ac.close(); ac = null; } soundLabel(); clearTimeout(idle); idle = setTimeout(closePanel, 20000); });
+  press(document.getElementById('gSound'), () => { prefs.sound = !prefs.sound; try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} if (!prefs.sound) { if (ac) { ac.close(); ac = null; } try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {} } soundLabel(); clearTimeout(idle); idle = setTimeout(closePanel, 20000); });
   press(document.getElementById('gHome'), () => { location.href = document.getElementById('gHome').href; });
   press(document.getElementById('gExit'), () => { closePanel(); try { window.LittleRanchApp && window.LittleRanchApp.exit(); } catch (e) {} });
 
@@ -890,7 +908,7 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
+  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();

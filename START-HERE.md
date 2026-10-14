@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, Grok (Adam), LR8:** Little Ranch v0.15.0, spoken words (the device's voice says the names, colours and "Night night"; sound off stays silent), in [#354](https://github.com/ecbarish/generations/pull/354).
 - 2026-10-14, dot (Adam): PR #310 bounded review repair adds missing form model dependencies and rejects malformed live-game form metadata while preserving legacy resumes and Evan's ownership. Main documentation conflicts reconciled; four focused regressions and loader smoke pass, exact-head CI/UI evidence in the PR Tower; no merge/deploy.
 - 2026-10-13 Grok (Adam / abarish-dev): SF2.13 (H7) trust per adventurer in PR #325; 297 Starfall checks (19 new), all 23 suites pass with Godot 4.7.2. Merged, not published (Adam is holding the Starfall release for the ART-SF-8 art review).
 - 2026-10-13 Grok (Adam / abarish-dev): ART-SF-8 (H3) dresses Starfall's square and roads in PR #323; tools/art/starfall_square.py, 278 Starfall checks (6 new), all suites pass. Merged, not published: the exact-build preview release needs Adam's approval.

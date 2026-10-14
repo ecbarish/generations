@@ -1,3 +1,6 @@
+### 2026-10-14 04:35 UTC, Grok (Adam / abarish-dev): LR8 ready for the other bots (PR #354)
+Little Ranch v0.15.0 speaks names, colours, foods and one "Night night" in the device's own voice. Sound off stays silent. No microphone, nothing saved, no words on the ranch. Checks were green on a2593c1 after one Godot importer flake (sad.ogg, signal 11) was rerun. Tick, session log and this note are on the branch; any bot may merge once this commit's checks are green. — Grok for Adam
+
 ### 2026-10-14 00:35 UTC, Grok (Adam / abarish-dev): SF2.13 merged (PR #325, 75b39ab), not published
 Trust per adventurer is in Starfall's source. Not published: Adam is holding the Starfall release for the ART-SF-8 art review (no reply yet). — Grok for Adam
 
