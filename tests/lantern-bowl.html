@@ -211,13 +211,16 @@ document.querySelector('#run').onclick = async () => {
 
     const band = M.styleBand(20, 11);
     const bandGap = Math.abs(band.run.mean - band.pass.mean);
-    const rateInBand = row => {
+    const singleBand = row => {
       const rate = row.wins / band.n;
       const margin = row.mean - row.opp;
-      return rate >= 0.55 - 1e-9 && rate <= 0.65 + 1e-9 && margin >= -1 && margin <= 8;
+      return rate >= 0.55 - 1e-9 && rate <= 0.60 + 1e-9 && margin >= -1 && margin <= 8;
     };
+    const mixRate = band.mixed.wins / band.n;
     const mixMargin = band.mixed.mean - band.mixed.opp;
-    check('a single plan wins about six games in ten, and a mixed plan does better (run ' + band.run.mean.toFixed(1) + '–' + band.run.opp.toFixed(1) + ', ' + band.run.wins + ' of ' + band.n + '; pass ' + band.pass.mean.toFixed(1) + '–' + band.pass.opp.toFixed(1) + ', ' + band.pass.wins + ' of ' + band.n + '; mixed ' + band.mixed.mean.toFixed(1) + '–' + band.mixed.opp.toFixed(1) + ', ' + band.mixed.wins + ' of ' + band.n + ')', rateInBand(band.run) && rateInBand(band.pass) && bandGap <= 4 && band.mixed.wins > band.run.wins && band.mixed.wins > band.pass.wins && band.mixed.mean > band.run.mean && band.mixed.mean > band.pass.mean && mixMargin > band.run.mean - band.run.opp && mixMargin > band.pass.mean - band.pass.opp);
+    check('a single plan wins about six games in ten, and a mixed plan wins about three in four (run ' + band.run.mean.toFixed(1) + '–' + band.run.opp.toFixed(1) + ', ' + band.run.wins + ' of ' + band.n + '; pass ' + band.pass.mean.toFixed(1) + '–' + band.pass.opp.toFixed(1) + ', ' + band.pass.wins + ' of ' + band.n + '; mixed ' + band.mixed.mean.toFixed(1) + '–' + band.mixed.opp.toFixed(1) + ', ' + band.mixed.wins + ' of ' + band.n + ')', singleBand(band.run) && singleBand(band.pass) && bandGap <= 4 && mixRate >= 0.70 - 1e-9 && mixRate <= 0.75 + 1e-9 && band.mixed.wins > band.run.wins && band.mixed.wins > band.pass.wins && band.mixed.mean > band.run.mean && band.mixed.mean > band.pass.mean && mixMargin > band.run.mean - band.run.opp && mixMargin > band.pass.mean - band.pass.opp);
+    const rushed = M.runClockDrive(1);
+    check('runs alone gain 50 yards inside 90 seconds (' + rushed.yards.toFixed(1) + ' yards in ' + rushed.clock.toFixed(1) + 's, seed ' + rushed.seed + ')', rushed.seed === 1 && rushed.yards >= 50 && rushed.clock <= 90);
     const runGains = [];
     let bigJukes = 0;
     for (let i = 0; i < 24; i++) {
@@ -470,6 +473,33 @@ document.querySelector('#run').onclick = async () => {
     d2.querySelector('[data-kick]').click();
     await wait();
     check('the new kickoff is 1st and 10 at the 25', again.state.quarter === 1 && again.state.down === 1 && again.state.score.home === 0 && again.state.score.away === 0 && Math.round(again.state.spot) === 25);
+    again.rush(false);
+    again.state.quarter = 1; again.state.clock = 100; again.state.down = 1; again.state.toGo = 10; again.state.spot = 32;
+    again.state.possession = 'away'; again.state.phase = 'cpu'; again.state.score.home = 0; again.state.score.away = 0;
+    again.watchLive();
+    let sawLive = false, ballMoved = false, firstBall = null, staleStrip = false;
+    for (let i = 0; i < 36; i++) {
+      await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
+      const livePlay = again.state.phase === 'live' && again.state.play && again.state.play.offence === 'away';
+      if (!livePlay) continue;
+      sawLive = true;
+      const watching = again.state.play;
+      const ball = watching.flight ? watching.flight.x : watching.actors[watching.carrier].x;
+      if (firstBall == null) firstBall = ball;
+      else if (Math.abs(ball - firstBall) > 0.35) ballMoved = true;
+      const strip = d2.querySelector('#sheet');
+      if (strip && !strip.hidden && /throwing/.test(strip.textContent || '')) staleStrip = true;
+    }
+    check('a Millrace snap stays live and the ball moves', sawLive && ballMoved && !staleStrip);
+    again.state.play = null;
+    again.state.possession = 'home';
+    again.state.phase = 'call';
+    again.state.down = 1;
+    again.state.toGo = 10;
+    again.state.spot = 25;
+    again.state.quarter = 1;
+    again.state.clock = 120;
+    again.refresh();
     const emptyV1 = again.migrateSave({ v: 1, game: 'lantern-bowl', sound: 0, match: null });
     check('a v1 save still loads', !!emptyV1 && emptyV1.v === 2 && emptyV1.match === null && emptyV1.sound === 0);
     check('a save newer than this game is refused', again.migrateSave({ v: 3, game: 'lantern-bowl', sound: 0, match: null }) === null);

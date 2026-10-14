@@ -175,30 +175,35 @@
   function showCall() {
     if (!state || state.phase === 'final') return showFinal();
     if (state.possession !== 'home') return beginWatch();
+    if (mode === 'watch') lastSheet = '';
     mode = 'play';
     dock();
     say(M.currentMessage(state));
   }
 
-  /* Millrace's snaps play on the field, one at a time, so the clock moves with the play. */
+  /* Millrace's snaps play on the field. Each one stays live so the ball and the players move, then the result holds briefly. */
   function beginWatch() {
     if (!state || state.phase === 'final') return showFinal();
     if (state.possession === 'home') return showCall();
     mode = 'watch';
     hidePanel();
-    if (state.phase === 'live') { dock(); return; }
-    if (!M.cpuSnap(state)) {
+    if (state.phase === 'live') { lastSheet = ''; dock(); return; }
+    lastSheet = '';
+    say('');
+    if (state.down >= 4) {
+      M.kick(state);
+      return holdWatch();
+    }
+    if (!M.callPlay(state, M.cpuCall(state))) {
       if (state.phase === 'final') return showFinal();
       return showCall();
     }
-    persist();
-    if (state.phase !== 'live') return holdWatch();
     dock();
   }
   function holdWatch() {
     mode = 'watch';
     hidePanel();
-    watchLeft = rushWatch ? 0.04 : 0.85;
+    watchLeft = rushWatch ? 0.04 : 0.4;
     say(M.currentMessage(state));
     persist();
     dock();
@@ -541,8 +546,9 @@
     var sheet = $('sheet');
     var curtainUp = $('curtain') && !$('curtain').hidden;
     if (sheet) {
-      sheet.hidden = live || curtainUp;
-      if (!live && !curtainUp) sheet.textContent = lastSheet || rosterLine(state);
+      var watching = mode === 'watch';
+      sheet.hidden = live || curtainUp || watching;
+      if (!sheet.hidden) sheet.textContent = lastSheet || rosterLine(state);
     }
     var cue = $('cue');
     var cueName = mode === 'play' && live && state.play && state.play.offence === 'home' ? state.play.cue : '';
@@ -735,7 +741,7 @@
       if (state.phase !== 'live') afterWhistle();
     } else if (mode === 'watch' && state && !document.hidden) {
       if (state.phase === 'live') {
-        var scale = rushWatch ? 28 : (reduce ? 6 : 3.5);
+        var scale = rushWatch ? 28 : (reduce ? 4 : 2.4);
         var budget = dt * scale, steps = 0, heard = [];
         while (budget > 0 && state.phase === 'live' && steps++ < 48) {
           if (state.play) lastSheet = snapLine(state);
@@ -774,6 +780,7 @@
         if (state && state.phase !== 'live' && state.phase !== 'final' && state.possession === 'home') showCall();
       },
       playCpu: function () { rushWatch = true; if (state) beginWatch(); },
+      watchLive: function () { rushWatch = false; if (state) beginWatch(); },
       rush: function (on) { rushWatch = !!on; },
       migrateSave: migrateSave,
       pointerNotes: pointerNotes,

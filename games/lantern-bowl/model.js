@@ -964,9 +964,11 @@
     var prefer;
     if (game.toGo <= 2) prefer = ['inside', 'quick', 'outside'];
     else if (game.spot >= 62) prefer = ['quick', 'inside', 'outside'];
-    else if (game.toGo >= 8) prefer = ['quick', 'outside', 'deep', 'inside'];
-    else prefer = ['outside', 'inside', 'quick'];
-    var fresh = prefer.filter(function (id) { return tendencyLoad(game, id) < 6; });
+    else if (game.toGo >= 8) prefer = ['quick', 'outside', 'inside', 'deep'];
+    else prefer = ['outside', 'inside', 'quick', 'deep'];
+    var r = roll(game);
+    if (r < 0.22) return prefer[prefer.length - 1];
+    var fresh = prefer.filter(function (id) { return tendencyLoad(game, id) < 8; });
     var pool = fresh.length ? fresh : prefer;
     return pool[Math.floor(roll(game) * Math.min(3, pool.length))];
   }
@@ -1004,6 +1006,26 @@
       return r < 0.94 ? 'inside' : 'outside';
     }
     return callChoice(game, 'attentive');
+  }
+  /* Runs only, from the kickoff, until the drive has 50 yards or the clock and the sticks say otherwise. */
+  function runClockDrive(seed) {
+    var game = create({ seed: (seed >>> 0) || 1 });
+    var mark = { quarter: game.quarter, clock: game.clock, phase: game.phase };
+    var yards = 0, guard = 0;
+    while (game.possession === 'home' && game.phase !== 'final' && guard++ < 24) {
+      if (yards >= 50) break;
+      if (clockSpent(mark, game) >= 90) break;
+      if (game.down >= 4) break;
+      var id = roll(game) < 0.55 ? 'inside' : 'outside';
+      if (!callPlay(game, id)) break;
+      finish(game, policies.cpu);
+      yards += game.last ? Number(game.last.gain) || 0 : 0;
+    }
+    return {
+      yards: Math.round(yards * 10) / 10,
+      clock: Math.round(clockSpent(mark, game) * 10) / 10,
+      seed: (seed >>> 0) || 1
+    };
   }
   function simulateStyle(seed, style) {
     var game = create({ seed: (seed >>> 0) || 1 });
@@ -1295,7 +1317,7 @@
     scriptedQuick: scriptedQuick,
     tendencyLoad: tendencyLoad, resultLine: resultLine, decided: decided,
     TENDENCY_CAP: TENDENCY_CAP, READING_HINT: READING_HINT, RING_RADII: RING_RADII,
-    simulateStyle: simulateStyle, styleBand: styleBand, millraceDrives: millraceDrives,
+    simulateStyle: simulateStyle, styleBand: styleBand, millraceDrives: millraceDrives, runClockDrive: runClockDrive,
     laneRead: laneRead, updateRunLanes: updateRunLanes
   };
   if (typeof module === 'object' && module.exports) module.exports = api;
