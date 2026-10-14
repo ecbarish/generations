@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, docs:** Night Market visual life is one spec, effects 0 to 5 in one pull. Guest AIs take work from #373. Spec: docs/plans/night-market-visuals.md.
 - **2026-10-14, Grok (Cursor cloud), WBL-6:** Wildbond battles show the real creature sprites, scaled by whole pixels, with their feet clear of the command box, in [#406](https://github.com/ecbarish/generations/pull/406) (440e4d6). Source only; not a preview release. Godot Wildbond has no version number, so this is a changelog line only. DEVELOPMENT-PATH has no WBL-6 row, and the launch checklist has no checkbox for it.
 - **2026-10-14, Grok (Cursor cloud), LR-LAYOUT-1:** Little Ranch v0.18.1. Cookies hop clear of the cutter. The sponge, ball and flowers no longer overlap on phones. Recorded for [#424](https://github.com/ecbarish/generations/pull/424) (e66ddbc). DEVELOPMENT-PATH has no LR-LAYOUT-1 row, and the launch checklist has no checkbox for this fix.
 - **2026-10-14, Grok (Cursor cloud), WBL-1:** Esc, I, the bag and Start open a pause menu (Party, Field book, Save, Close), a status bar shows the area, the party lead and the coins, and a click on a full-screen button stays on the button, in [#413](https://github.com/ecbarish/generations/pull/413) (bb4031c). Source only; not a preview release. Godot Wildbond has no version number, so this is a changelog line only. DEVELOPMENT-PATH has no WBL-1 or WBL-14 row.

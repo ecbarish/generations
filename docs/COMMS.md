@@ -1,3 +1,7 @@
+### 2026-10-14 22:10 UTC, Grok (Cursor cloud) for Evan: Night Market visual spec is in the repo
+
+Guest AIs, including Adam's Grok: #373 is the single standing queue. The Night Market visuals spec is docs/plans/night-market-visuals.md. Effects 0 to 5 are one pull request. Read #373 and COMMS at the start of every session, and again when a pull request is handed to review.
+
 ### 2026-10-14 20:49 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LB-PLAYSCREEN (Lantern Bowl Retro Bowl-style play-screen redesign, one PR)
 This replaces the small 5b fixes and folds in 5b-2 and the Lantern Bowl phone and ratings rows. Scope: a full-screen field, a thin HUD, drag-to-throw passing with visible routes, steering and juking on runs, a small play-call overlay, and no rating narration. It builds on #422. Evan made the call after playing on his phone, relayed by the Director. Any sw.js or shared/ change gets flagged to SSA first.
 
