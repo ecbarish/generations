@@ -2,6 +2,20 @@
 
 Ideas waiting their turn. Each becomes a design plan in `docs/` before it's built.
 
+## Shelf (not now)
+
+Evan, 2026-10-14. These are not in the build. A launch checklist can call one back. Until then, nobody starts them.
+
+- **Little Ranch LR19–LR22** (Block Tower, Little Garden, Barn Band, Feel-Better Corner) wait until [launch-little-ranch.md](plans/launch-little-ranch.md) calls for them. **LR18 Dough Table (#400)** is not on this shelf: Grok opened it before the hold, and it may finish as launch polish. **LR17 (#381)** was also opened before the hold and may finish; the checklist does not require it.
+- **Wildbond new content** waits until [launch-wildbond.md](plans/launch-wildbond.md) is done: WB-NOSTALGIA (NOS-1a through NOS-1e), roster growth, and WB2.2.
+- **Office idle after Night Market:** IDLE-SS1 Saltmarsh Shipping Office, IDLE-CS1 Card Shop lite, and IDLE-DP1 Desk Plant Lab wait until Night Market has been playtested. IDLE-CORE is merged (#393). IDLE-NM1 is a launch task (#403), not shelved.
+- **Starfall exact-build preview** for the merged source in #323 (square and roads) and #325 (trust per adventurer) is **not now**. The source stays merged. The live preview stays as it is until Evan asks for that release. SF-GUILD2 and any other new Starfall content wait with it. Bug fixes only until then.
+- **Also waiting:** Keymaster beyond the merged smallest slice (#379), Main Street new content, Primordial, and the walk-in arcade.
+
+The sections below are older pitches. They are not a build order.
+
+
+
 ## Otherworld (working title) — anime isekai
 
 Summoned or reincarnated into another world. You get stronger, unlock powers and progress through story arcs.

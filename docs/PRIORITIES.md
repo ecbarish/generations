@@ -19,26 +19,28 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 
 ## 1. Focus slots
 
-| Slot | Share of build effort | What it means | Now (2026-10-09) |
-|---|---|---|---|
-| **Flagship** (confirmed by Evan 2026-10-09) | about 60% | The game we are finishing. Its next milestone comes before anything else in Claude's lane, and ChatGPT's data and writing for it comes first in Lane A. | **Wildbond (Godot)**, toward version 2.0 |
-| **Second** | about 25% | Grows steadily, one milestone at a time. | **Starfall village (Godot)** |
-| **ChatGPT's own** | ChatGPT's time after flagship support | One browser game ChatGPT moves forward. | **Realmbound**: already-planned work (like RB1.12a) may finish; no new Realmbound work starts; resources go to the other games (new Realmbound work waits until every currently planned game has a playable version) (Evan, 2026-10-14). End-game parked (Evan, 2026-10-12) |
-| **Family games** (Evan said yes 2026-10-09) | small, alongside | Two small browser games "for everyone", each starting with its one-PR smallest test; never at the flagship's expense. | **Little Ranch** (a tap-and-play toy for ages 2-4) and **the Arcade Cabinets** (original 1978-85 style single-screen games, Storm Front first), docs/proposals/games-for-everyone.md. Little Ranch is a hit at home (2026-10-11): its next steps LR3-LR8 and new toddler toys as places inside it (LR9-LR11) follow docs/proposals/little-ranch-next.md |
-| **Keep alive** | about 15% | Bugs from friends, small fixes, playtests. No new systems. | Diamond Manager (DM2, its playability pass, may go ahead), Otherworld, the arcade and Come Play |
-| **Shelved** (Evan, 2026-10-13, AR-SHELVE) | none | Off the site; code, folders and saves kept, old links still open. No work. | **Diamond Career** (Diamond Manager replaced it), Classic Wildbond, Classic Starfall Guild |
-| **Office idle** (Evan, via Generations Director, 2026-10-14) | small, alongside | AdCap-style browser games he can leave open at work, on a shared idle core. A small slot beside the others. Not ahead of Wildbond. | **IDLE-CORE**, then four smallest slices: Night Market Stalls (IDLE-NM1, first), Saltmarsh Shipping Office (IDLE-SS1), Card Shop lite (IDLE-CS1), Desk Plant Lab (IDLE-DP1). His words: "push as many options as possible and see what sticks and what's fun." Rows in QUEUE.md |
-| **Parked** | none | Ideas and proposals only, no builds. | Primordial (hidden from the hall), old Starfall Guild, the card shop's full Wildbond-roster tie-in (Card Shop lite is approved; see Office idle), Main Street, walk-in arcade, the AI storyteller |
+**Launch mode** (Evan, 2026-10-14, updated the same day): quality and launchability come before breadth. This table replaces the older share-of-effort split. The one-page dates are in [launch-summary.md](plans/launch-summary.md).
+
+| Slot | What it means | Now (2026-10-14) |
+|---|---|---|
+| **Launch** (three games, the strong push) | Only work that ticks a checklist item. No new content until that game's checklist is done. Finished means it is playable and fun, not merely merged. | **Little Ranch** ([launch-little-ranch.md](plans/launch-little-ranch.md)), **Lantern Bowl** ([launch-lantern-bowl.md](plans/launch-lantern-bowl.md)), **Night Market** ([launch-night-market.md](plans/launch-night-market.md)). Night Market includes IDLE-CORE, merged in #393. #403 is IDLE-NM1 and a launch task |
+| **Wildbond** (steady background) | Checklist fixes, steadily. The long project, not the first to ship. New creatures, areas and features wait until its checklist is done. | [launch-wildbond.md](plans/launch-wildbond.md). Partial newcomer run, 2026-10-14: about 6 minutes on an existing save, Fun 5/10. Phone not yet tested |
+| **Keep-alive** | Bug fixes only. No new content. Pull requests already open or claimed may finish. | Starfall, Keymaster, Diamond Manager, the cabinets, Realmbound, Otherworld. #341 (Starfall taps) is already merged. The Starfall exact-build preview for #323 and #325 is not now |
+| **Shelved** (Evan, 2026-10-13, AR-SHELVE) | Off the site; code, folders and saves kept, old links still open. No work. | **Diamond Career** (Diamond Manager replaced it), Classic Wildbond, Classic Starfall Guild |
+| **Shelf** | Ideas and new content. The list is [ideas.md](ideas.md). | WB-NOSTALGIA, roster growth, WB2.2, LR19–LR22, IDLE-SS1, IDLE-CS1, IDLE-DP1, Keymaster and Main Street new content, the Starfall exact-build preview, Primordial, the walk-in arcade |
+
+**Where the effort goes** (a suggestion, not a new slot count): most of it on the three launch games. Side Games Dev Lead takes Little Ranch, with Grok and dot as guest help, and also Lantern Bowl and Night Market. Wildbond & Starfall Dev Lead takes the Wildbond checklist. Guest AIs work part-time.
+
+**Finished means playable and fun.** A newcomer gets through the first session without help, Playtester scores fun at least 7/10, there is no blocker or major bug, it plays on a phone where that applies, and there is one clear goal. Further improvements do not hold it. Merging alone does not count. Playtester or Evan confirms it.
+
+**Weekly playtest:** each week Playtester plays each launch game, and Wildbond, as a newcomer and scores it. The lowest-scoring part of that game becomes its next task.
+
+**Already open, and may finish:** Lantern Bowl round 5 (#371, #383) counts toward that checklist. #400 LR18 (Grok, opened before the hold) may finish as Little Ranch launch polish. #381 LR17 was also opened before the hold and may finish; it is not required for the checklist. LR19–LR22 wait on the shelf until the Little Ranch checklist calls for them.
 
 Rules:
-- **Bugs friends report jump every queue**, in any slot (GitHub issues, Evan's messages).
-- **A game moves up a slot only when another moves down.** When the flagship reaches its goal (Wildbond 2.0), the
-  second becomes flagship and the best-scoring waiting game (section 3) takes the second slot. A new idea never
-  joins the build slots without taking a place from something.
-- **Shared work counts for every game it helps** ("two birds with one stone", CLAUDE.md): a shared system that the
-  flagship needs is flagship work, as long as it makes the flagship better now.
-- **Keep-alive games still get their writing and research** when ChatGPT's own slot is blocked; they just don't get
-  new systems until they move up.
+- **Bugs friends report on a launch game or on Wildbond** become the next gap on that checklist. A bug on a keep-alive game may be fixed. It does not start new content.
+- **SS1, CS1 and DP1** wait until Night Market has been playtested.
+- **Shared work counts when it ticks a checklist item** (the Continue save path, ENGINE-SAVEVER). It does not open a new game.
 
 ## 2. The scorecard (for any feature, improvement or new game)
 
@@ -74,14 +76,16 @@ of what we have). Anyone, Evan included, can add to either. The flow:
 
 | Idea | Score | Pitch | Note |
 |---|---|---|---|
-| Lantern Bowl, our Retro Bowl-style football game (LB0-LB5) | 15/18 | docs/plans/sports-management.md | **Started** (Evan said yes 2026-10-09): LB0 and LB1 are merged; LB2 onward has the sports slot since Diamond Manager reached v0.8.0 (lane P, 2026-10-12) |
-| "The Crossing", sailing between the worlds | 12/18 | docs/proposals/new-game-ideas.md | Waits |
-| Card shop, absorbing Main Street (CS1 + MS1) | 17/18 | docs/proposals/new-game-ideas.md | **Card Shop lite approved** (Evan, via Generations Director, 2026-10-14): Main Street's shop loop with placeholder stock. That approval lifts the Wildbond gate on the lite slice (IDLE-CS1). The full roster tie-in stays behind Wildbond |
-| Keymaster, a property-portfolio game around Evan's deal analyzer (KM0) | 18-19/21 | docs/proposals/keymaster.md | **Approved** and in review in #379 (Evan gave it the go-ahead, 2026-10-14); smallest test: one listing, one analyzer, one buy |
+| Lantern Bowl, our Retro Bowl-style football game (LB0-LB5) | 15/18 | docs/plans/sports-management.md | **Launch game.** Round 5 (#383, #371) is checklist work. The league and the later slices wait until [launch-lantern-bowl.md](plans/launch-lantern-bowl.md) is done |
+| "The Crossing", sailing between the worlds | 12/18 | docs/proposals/new-game-ideas.md | On the shelf |
+| Card shop, absorbing Main Street (CS1 + MS1) | 17/18 | docs/proposals/new-game-ideas.md | **Card Shop lite (IDLE-CS1) is approved**, and the Wildbond gate on that lite slice is lifted, but it waits until Night Market (IDLE-NM1) has been playtested. The full roster tie-in stays behind Wildbond |
+| Keymaster, a property-portfolio game around Evan's deal analyzer (KM0) | 18-19/21 | docs/proposals/keymaster.md | The smallest slice is merged (#379). Further Keymaster content is on the shelf. Bug fixes only |
 | Primordial beyond polish | 10 | docs/plans/primordial.md | Evan: lower priority |
 | Walk-in arcade (AR3.1) | 10 | docs/VISION.md | Evan: the games come first |
 
 ## 4. The flagship goal, in order
+
+**Launch mode overrides this section** (Evan, 2026-10-14). The strong push is the Little Ranch, Lantern Bowl and Night Market checklists. Wildbond's long list below waits until its own checklist is done. This section is what the games are for after they are playable and fun.
 
 **Wildbond 2.0** = the whole journey, finished and pleasant, playable on the web and on a phone, ready for friends and
 then everyone (START-HERE question 1, default (a)). The game is already playable start to finish, so what is left is
@@ -174,3 +178,4 @@ live list is QUEUE.md "The road ahead".
 - 2026-10-12 Evan (via Flint): after the playtest fixes, develop the business games first (Diamond Manager toward one sports front office with a game you play inside; Starfall Guild's manager loop). QUEUE: DM5 moves ahead of Lantern Bowl; DM-N1 and SG-N1 stay right after the newcomer fixes. Passions first: games that may interest anybody, led by what we love.
 - 2026-10-12 Evan (decision card): Starfall Guild's best loops fold into the Godot Starfall village (SF-GUILD, Heavy lifting H21); the browser Starfall Guild gets fixes only (SG-N1).
 - 2026-10-14 Evan, via Generations Director: office idle is a small slot alongside the others, not ahead of Wildbond. Build all four concepts as small playable slices on a shared idle core (IDLE-CORE, then IDLE-NM1, IDLE-SS1, IDLE-CS1, IDLE-DP1). Card Shop lite (Main Street's shop loop with placeholder stock) is approved, which lifts the Wildbond gate on that lite slice. His words: "push as many options as possible and see what sticks and what's fun."
+- 2026-10-14 Evan, later the same day: quality and launchability come before breadth. This replaces the "build all four office idle games now" line above. Launch games are Little Ranch, Lantern Bowl and Night Market (Night Market includes IDLE-CORE, merged in #393; #403 is IDLE-NM1 and a launch task). Wildbond is a steady background lane, not the first to ship. Keep-alive games get bug fixes only. SS1, CS1 and DP1 wait until Night Market has been playtested. LR19–LR22 and the Starfall exact-build preview (#323/#325) are on the shelf in docs/ideas.md. #400 LR18 may finish as Little Ranch launch polish. Finished means playable and fun, confirmed by Playtester or Evan. The bar is fun at least 7/10.

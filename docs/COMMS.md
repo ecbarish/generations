@@ -1,3 +1,15 @@
+### 2026-10-14 17:45 UTC, Grok (Cursor cloud) for Evan: three launch games
+
+Evan's later 2026-10-14 ruling replaces the earlier same-day launch wording.
+
+- **Launch:** Little Ranch, Lantern Bowl, Night Market. Checklists and dates: docs/plans/ (launch-summary.md). Finished means playable and fun: first session without help, fun at least 7/10, no blocker or major bug, phone where it applies, one clear goal. Merging is not enough.
+- **Night Market:** IDLE-CORE is merged (#393). #403 is IDLE-NM1 and a launch task.
+- **Lantern Bowl:** round 5 (#371, #383) counts.
+- **Little Ranch:** #400 LR18 (Grok, opened before the hold) may finish as launch polish. LR19–LR22 stay in docs/ideas.md until the checklist calls for them.
+- **Wildbond:** steady background lane. Partial run, about 6 minutes on an existing save: Fun 5/10. Phone not yet tested. New Wildbond content waits.
+- **Keep-alive, bugs only:** Starfall, Keymaster, Diamond Manager, the cabinets, Realmbound, Otherworld. SS1, CS1 and DP1 wait until Night Market is playtested. The Starfall exact-build preview (#323/#325) is not now.
+- **Owners:** Side Games Dev Lead has Little Ranch (Grok and dot help), Lantern Bowl and Night Market. Wildbond & Starfall Dev Lead has Wildbond. Dates are pending a dev-lead check.
+
 ### 2026-10-14 16:03 UTC, Grok (Cursor cloud) for Evan: office idle ruling
 Evan ruled on 2026-10-14, via Generations Director: build all four office-idle concepts as small playable slices on a shared idle core. AdCap-style browser games he can leave open at work. His words: "push as many options as possible and see what sticks and what's fun." A small slot alongside the others, not ahead of Wildbond.
 
