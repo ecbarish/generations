@@ -29,7 +29,7 @@ PR. Generations PM routes the work and handoffs. Nothing outside this block star
 **Routing:** Generations PM. **Questions for Evan:** Generations Director.
 
 **Superseded (folded so each task has one entry):** WB-BOND is now EVO-1 and #345; LB2 ("postponed to cycle 2") is now
-#359, which is active; WB-C2, WB-C3, WB-C4, SF-GUILD1, SF-GUILD2, DM-N1b-d, RB1.12a, OW-N1, SG-N1, AR-FRONT,
+#359, which is active; WB-C2, WB-C3, WB-C4, SF-GUILD1 (done: #360 merged 2026-10-14 10:47 UTC), SF-GUILD2, DM-N1b-d, RB1.12a, OW-N1, SG-N1, AR-FRONT,
 AR-SHELVE, LR-C1, LR3 and LR10 left this block (done, in a PR, or outside the current priorities).
 
 ## The direction (the long view behind the cycles; Evan, 2026-10-12: "a large runway for the AIs to push, and a clear direction")
@@ -87,7 +87,7 @@ more in another lane's files: ask that lane in COMMS, or keep it to a few lines 
 ## Claiming, submitting and merging: see [PROCESS.md](PROCESS.md)
 
 One page for every AI and thread: pick, claim with a draft pull request **before** building, build, submit (mark it
-ready), and merging: any AI may do any step, including merging its own pull request straight away, after a written self-check.
+ready) after a written self-check. **Only Generations Reviewer merges**; nobody merges their own pull request.
 
 ## Heavy lifting (for the AIs with the most usage: Evan's dad's AIs first; refreshed 2026-10-12)
 
@@ -195,7 +195,7 @@ LB0 (the pitch) and LB1 (the shared office), Ember Bricks (#185), Little Ranch L
 above (the Wildbond builder and Starfall threads check the open PR list too); keep to the files the deliverable needs;
 install Godot 4.7.2 (`docs/learning/`, or let GitHub do it) and run `node tools/run-all-checks.cjs`, which runs both
 Godot suites; **old saves must load** (add a check); add checks for what you build; for anything visual, put a
-screenshot in the PR; the GitHub "checks" tick must be green, and any AI merges after the self-check in docs/PROCESS.md. Take
+screenshot in the PR; the GitHub "checks" tick must be green, and after the self-check in docs/PROCESS.md only Generations Reviewer merges (nobody merges their own pull request). Take
 Godot deliverables from "Heavy lifting" above, in order, never one another open PR names.
 
 ## When the road is empty, or everything is waiting on review
@@ -235,7 +235,7 @@ Claude's weekly usage is the scarcest thing in the project. Claude threads:
    work" says: a draft pull request titled with the deliverable's ID, opened before you build.
 3. Build it on its own branch (`codex/<topic>`, `grok/<topic>`, `claude/<topic>`), with checks; all eight test pages pass
    (`tests/run.html`, `wildbond.html`, `starfall.html`, `sound.html`, `offline.html`, `diamond.html`, `otherworld.html`, `runner-safety.html`; Claude also runs the Godot checks).
-4. Open a pull request (then self-check and merge it yourself, docs/PROCESS.md). In the PR: what you built, the files you touched,
+4. Open a pull request and post the self-check (docs/PROCESS.md); only Generations Reviewer merges, never the author. In the PR: what you built, the files you touched,
    before/after screenshots for anything visual, and an "An idea" section if you have one.
 5. **Go straight to the next task in your lane.** Don't wait for the review.
    - If the next task needs files your open PR touches, branch from that PR's branch and say so in the new PR.
@@ -362,7 +362,7 @@ index.html or style.css until those phases are merged.
 Evan chose (2026-10-09) to add guests as collaborators: they push `guest/*` branches to this repo, never `main`.
 
 Self-contained tasks for someone new, each away from what the other lanes are building. Claim like everyone else (a
-draft pull request titled with the ID). Any AI merges after the self-check in docs/PROCESS.md. Lane P keeps this list stocked.
+draft pull request titled with the ID). After the self-check in docs/PROCESS.md, only Generations Reviewer merges; nobody, guests included, merges their own pull request. Lane P keeps this list stocked.
 
 | # | Task | Status | Notes |
 |---|---|---|---|
