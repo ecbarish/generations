@@ -163,9 +163,43 @@ async function engineSaveChecks() {
       const loaded = Arcade.load(skipKey);
       return loaded === null && !called && !Arcade.recovered[skipKey] && localStorage.getItem(skipKey) === primaryNew && Arcade.backups(skipKey)[0].data === backupOld && Arcade.held[skipKey] === NOTE && Arcade.save(skipKey, { v: 2 }) === false && localStorage.getItem(skipKey) === primaryNew;
     });
+
+    const throwKey = PREFIX + 'throw';
+    const throwRaw = '{"v":1,"coins":5,"kept":"yes"}';
+    localStorage.setItem(throwKey, throwRaw);
+    Arcade.versions[throwKey] = 3;
+    Arcade.migrates[throwKey] = () => { throw Error('migrate failed'); };
+    const thrownLoad = Arcade.load(throwKey);
+    const thrownNotice = document.querySelector('[data-arc-held="' + throwKey + '"]');
+    check('a migrate that throws leaves the save untouched and turns saving off', () => {
+      return thrownLoad === null && localStorage.getItem(throwKey) === throwRaw && Arcade.held[throwKey] === NOTE && !!thrownNotice && thrownNotice.textContent === NOTE && Arcade.save(throwKey, { v: 3, coins: 0 }) === false && localStorage.getItem(throwKey) === throwRaw;
+    });
+
+    const importKey = PREFIX + 'import';
+    const importCurrent = '{"v":2,"coins":3,"mine":true}';
+    const importNewer = '{"v":8,"coins":99,"kept":"newer"}';
+    localStorage.setItem(importKey, importCurrent);
+    Arcade.versions[importKey] = 2;
+    Arcade.validators[importKey] = (o) => !!(o && o.v === 2);
+    const importStored = () => Object.keys(localStorage).filter(k => k.indexOf(importKey) >= 0).sort().map(k => k + '=' + localStorage.getItem(k)).join('\n');
+    const importBefore = importStored();
+    let importMessage = '';
+    try { Arcade.replaceSave(importKey, importNewer, 'before loading a file'); importMessage = 'did not throw'; }
+    catch (e) { importMessage = e.message; }
+    const importAfter = importStored();
+    localStorage.setItem('arcade-backup:' + importKey + ':manual', JSON.stringify({ at: 1, why: 'manual', data: importNewer, ver: '' }));
+    document.querySelector('#tools').innerHTML = Arcade.saveToolsHTML(importKey);
+    const confirmPrev = window.confirm;
+    window.confirm = () => true;
+    try { document.querySelector('#tools [data-arcsave="restore"]').click(); }
+    finally { window.confirm = confirmPrev; }
+    const restoreMessage = document.querySelector('#tools .arc-save-msg').textContent;
+    check('import and restore reject a newer file before writing', () => {
+      return importMessage === NOTE && importBefore === importAfter && restoreMessage === NOTE && localStorage.getItem(importKey) === importCurrent && JSON.parse(localStorage.getItem('arcade-backup:' + importKey + ':manual')).data === importNewer;
+    });
   } finally {
     wipe();
-    [PREFIX + 'plain', PREFIX + 'high', PREFIX + 'old', PREFIX + 'same', PREFIX + 'bare', PREFIX + 'newer', PREFIX + 'other', PREFIX + 'backup', PREFIX + 'export', PREFIX + 'recover', PREFIX + 'skip-newer-backup'].forEach(forget);
+    [PREFIX + 'plain', PREFIX + 'high', PREFIX + 'old', PREFIX + 'same', PREFIX + 'bare', PREFIX + 'newer', PREFIX + 'other', PREFIX + 'backup', PREFIX + 'export', PREFIX + 'recover', PREFIX + 'skip-newer-backup', PREFIX + 'throw', PREFIX + 'import'].forEach(forget);
   }
   return checks;
 }

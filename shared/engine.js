@@ -43,8 +43,9 @@
      put in its menus; validators[key] (set by each game) checks that a file really is that game's save.
      versions[key] and migrates[key] are optional, set before load, beside validators. versions[key] is this game's
      current save version (a number). The save's version is the v it already stores. An older v runs
-     migrates[key](save, fromVersion) when that function is set. A newer v is refused: load returns null, the stored
-     text is left untouched, and save stays off for the rest of the session. held[key] is the notice a game can show.
+     migrates[key](save, fromVersion) when that function is set. A newer v, or a migrate that throws, is refused:
+     load returns null, the stored text is left untouched, and save stays off for the rest of the session. held[key]
+     is the notice a game can show. replaceSave rejects a newer file up front, before it writes, with that same notice.
      A game that sets no version behaves as before. This never writes a new save field. */
   var BK = 'arcade-backup:', RECENT_MS = 10 * 60 * 1000, DAYS = 3, lastBk = {}, frozen = {}, recovered = {}, validators = {}, versions = {}, migrates = {}, held = {}, heldShown = {};
   var HELD_NOTE = 'This save is from a newer version, so progress will not be saved.';
@@ -102,7 +103,8 @@
     if (from == null || from === current) return obj;
     if (from > current) { holdNewer(key); return null; }
     if (typeof migrates[key] !== 'function') return obj;
-    try { var next = migrates[key](obj, from); return next === undefined ? obj : next; } catch (e) { return obj; }
+    try { var next = migrates[key](obj, from); return next === undefined ? obj : next; }
+    catch (e) { holdNewer(key); return null; }
   }
   function load(key) {
     var r; try { r = localStorage.getItem(key); } catch (e) { return null; }
@@ -113,7 +115,9 @@
       try {
         var o = JSON.parse(bs[i].data);
         if (newerThanGame(key, o)) continue;
-        recovered[key] = bs[i]; noticeRecovered(bs[i]); return applyVersion(key, o);
+        var out = applyVersion(key, o);
+        if (held[key]) return null;
+        recovered[key] = bs[i]; noticeRecovered(bs[i]); return out;
       } catch (e) {}
     }
     return null;
@@ -128,7 +132,10 @@
   function decodeAny(text) { text = String(text || '').trim(); try { return decode(text); } catch (e) { return JSON.parse(text); } }
   /* replace a save with another (an import or a restore), backing up the current one first, then reload the page */
   function replaceSave(key, raw, why) {
-    var o = JSON.parse(raw); if (!o || typeof o !== 'object' || (validators[key] && !validators[key](o))) throw new Error('not a save for this game');
+    var o = JSON.parse(raw);
+    if (!o || typeof o !== 'object') throw new Error('not a save for this game');
+    if (newerThanGame(key, o)) throw new Error(HELD_NOTE);
+    if (validators[key] && !validators[key](o)) throw new Error('not a save for this game');
     var cur = localStorage.getItem(key); if (cur) putBackup(key, Date.now(), cur, why);
     localStorage.setItem(key, raw); frozen[key] = true; location.reload();
   }
@@ -158,7 +165,7 @@
         download(key + '-' + new Date().toISOString().slice(0, 10) + '.json', raw); say(box, 'Downloaded. Keep the file somewhere safe; Load a save file brings it back.'); }
       if (el.dataset.arcsave === 'restore') {
         if (!confirm('Restore this backup? Your current save is backed up first, then the game reloads.')) return;
-        try { replaceSave(key, JSON.parse(localStorage.getItem(el.dataset.k)).data, 'before a restore'); } catch (err) { say(box, 'That backup could not be restored.'); }
+        try { replaceSave(key, JSON.parse(localStorage.getItem(el.dataset.k)).data, 'before a restore'); } catch (err) { say(box, err && err.message === HELD_NOTE ? HELD_NOTE : 'That backup could not be restored.'); }
       }
     });
     document.addEventListener('change', function (e) {
@@ -168,7 +175,7 @@
         try { var o = decodeAny(rd.result);
           if (!confirm('Replace your save with this file? Your current save is backed up first, then the game reloads.')) { el.value = ''; return; }
           replaceSave(key, JSON.stringify(o), 'before loading a file');
-        } catch (err) { el.value = ''; say(box, "That file isn't a save for this game."); }
+        } catch (err) { el.value = ''; say(box, err && err.message === HELD_NOTE ? HELD_NOTE : "That file isn't a save for this game."); }
       };
       rd.readAsText(el.files[0]);
     });
