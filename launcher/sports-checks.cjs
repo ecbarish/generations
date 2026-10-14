@@ -3,7 +3,7 @@
 const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),vm=require('vm');
 const root=path.resolve(__dirname,'..'),origin=process.env.ARCADE_TEST_ORIGIN||'http://localhost:8765',out=process.env.ARCADE_TEST_OUTPUT||path.join(root,'docs/playtests/hall-ar215');fs.mkdirSync(out,{recursive:true});
 function model(folder,files,expression){const c=vm.createContext({});if(folder==='diamond-manager')vm.runInContext(fs.readFileSync(path.join(root,'shared/sports-office.js'),'utf8'),c);for(const file of files)vm.runInContext(fs.readFileSync(path.join(root,'games',folder,'js',file),'utf8'),c);return JSON.parse(vm.runInContext('JSON.stringify('+expression+')',c));}
-const manager=model('diamond-manager',['league.js','coaches.js','morale.js','history.js','game.js'],'(()=>{const s=newLeague(318);playDay(s);playDay(s);if(!validLeague(s))throw Error("fixture invalid");return s;})()');
+const manager=model('diamond-manager',['league.js','coaches.js','morale.js','form.js','history.js','game.js'],'(()=>{const s=newLeague(318);playDay(s);playDay(s);if(!validLeague(s))throw Error("fixture invalid");return s;})()');
 const career=model('diamond-career',['00-data.js','01-baseball.js','02-career.js','06-calendar.js','08-road.js'],'(()=>{const s=freshCareer(51);startCareer(s,"Career-only Rookie","right",0);if(!validCareer(s))throw Error("fixture invalid");return s;})()');
 const managerRaw=JSON.stringify(manager),careerRaw=JSON.stringify(career),mixed=JSON.stringify({baseball:{summary:'WRONG mixed legacy report',detail:'Career on the manager',last:1}});let checks=0;
 const check=(ok,why)=>{if(!ok)throw Error(why);checks++;};

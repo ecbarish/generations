@@ -46,3 +46,6 @@ dialog{background:#173e41;color:var(--ink);border:2px solid #86a28c;border-radiu
 .coach-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.coach-card{border:1px solid #b9a47e;border-radius:8px;padding:12px;background:#fff8e8}.coach-card h4{margin:0 0 8px}.coach-card p{margin:8px 0}.coach-card button{width:100%;min-height:44px}
 /* The clubhouse trophy is drawn here, with no outside artwork. */
 .trophy{text-align:center}.cup{display:block;position:relative;width:42px;height:32px;margin:8px auto 20px;background:#c59b37;border:2px solid #755514;border-radius:4px 4px 20px 20px;box-shadow:inset 8px 0 #ebc968}.cup:before,.cup:after{content:'';position:absolute;top:3px;width:15px;height:18px;border:3px solid #b38421;border-radius:50%;z-index:0}.cup:before{left:-15px}.cup:after{right:-15px}.cup i{position:absolute;width:8px;height:14px;left:15px;top:28px;background:#ac8021}.cup i:after{content:'';position:absolute;width:28px;height:5px;background:#b48c2d;left:-10px;top:12px;border-radius:2px}
+
+/* Recent form belongs on the in-world roster clipboard. */
+.form-label{display:block;min-width:16ch;max-width:22ch;line-height:1.4;margin-top:.2em}.base-rating{display:block;white-space:nowrap;font-size:.75em;opacity:.78}
