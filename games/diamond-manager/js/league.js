@@ -168,7 +168,7 @@ function endSeason(L) {
   L.freeAgents=L.freeAgents.filter(p=>{if(p.marketVisitor||p.bargain||p.star)return true;p.age++;return p.age<36;});
   L.clubs.forEach((c,ci)=>{
     const tr=ci===DM.you?L.upgrades.training*2:0, daily=new Set(c.players.filter(p=>playsDaily(c,p)));
-    for(const p of c.players.concat(c.farm||[])){ const before=overall(p), farm=(c.farm||[]).includes(p); const coach=ci===DM.you&&L.coaches?L.coaches[p.pitcher?"pitching":"hitting"]:null; const coached=develop(L,p,tr,farm||daily.has(p),coach&&coach.season===L.season?coach:null);if(coached)L.report.coaching.push(coached); const d=overall(p)-before;
+    for(const p of c.players.concat(c.farm||[])){ const before=overall(p), farm=(c.farm||[]).includes(p); const coach=ci===DM.you&&L.coaches?L.coaches[p.pitcher?"pitching":"hitting"]:null; const coached=develop(L,p,tr,farm||daily.has(p),coach&&coach.season===L.season?coach:null,ci===DM.you);if(coached)L.report.coaching.push(coached); const d=overall(p)-before;
       if(ci===DM.you){ if(d>=2)L.report.grew.push({name:p.name,d,farm}); if(d<=-2)L.report.slipped.push({name:p.name,d}); }
       if(p.season&&p.season.g){ p.last=Object.assign({year:L.season},p.season); p.career=p.career||{}; for(const k in p.season) p.career[k]=(p.career[k]||0)+p.season[k]; }
       if(!farm||p.sent)p.years--; if(farm&&p.sent&&p.years<=0){p.sent=false;p.salary=150;p.years=3;} p.season=null; }
@@ -219,10 +219,12 @@ function sendDown(L,id) { const c=L.clubs[DM.you], p=c.players.find(x=>x.id===id
   c.players.splice(c.players.indexOf(p),1); c.farm=c.farm||[]; c.farm.push(p); p.prospect=true; p.sent=true; setLineup(c); return ''; }
 function releaseFarm(L,id) { const c=L.clubs[DM.you], i=(c.farm||[]).findIndex(x=>x.id===id); if(i<0) return 'That player is not on the farm club.'; c.farm.splice(i,1); return ''; }
 /* Growth: young players climb toward their potential, faster when they play every day (in the lineup, in the top five
-   arms, or on the farm club) and with training rooms; past 30 they slip. Training also lifts a young ceiling a little. */
-function develop(L,p,training,playing,coach=null) {
+   arms, or on the farm club) and with training rooms; past 30 they slip. Training also lifts a young ceiling a little.
+   Other clubs take half that natural step (#337). The Lanterns keep the full step, so Training Rooms, coaches and
+   playing time are still what closes the gap. */
+function develop(L,p,training,playing,coach=null,yours=true) {
   const o=overall(p), room=Math.max(0,(p.pot||o)-o); let base;
-  if(p.age<=27){ base=Math.min(room, ri(L,0,2)+Math.ceil(room/10)+(playing&&p.age<=25&&room>0?1:0)) + (room>0?training:0); p.pot=Math.min(92,(p.pot||o)+Math.ceil(training/2)); }
+  if(p.age<=27){ const natural=ri(L,0,2)+Math.ceil(room/10)+(playing&&p.age<=25&&room>0?1:0); base=Math.min(room,(yours?natural:Math.floor(natural/2)))+(room>0?training:0); p.pot=Math.min(92,(p.pot||o)+Math.ceil(training/2)); }
   else base=p.age<=30?ri(L,-1,1):p.age<=33?ri(L,-3,0):ri(L,-5,-1);
   const keys=p.pitcher?['stuff','control','stamina']:['contact','power','eye','glove'];
   for(const k of keys) p[k]=clamp(p[k]+base+ri(L,-1,1),20,99);
