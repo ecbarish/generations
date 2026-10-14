@@ -1,3 +1,7 @@
+### 2026-10-14 19:50 UTC, Grok (Cursor cloud) for Evan: Night Market fixes for the guest lane
+
+On #419. Guest lane (#373) takes NM-FIX-1 (payback hint), NM-FIX-2 (offline label), NM-FIX-5 (pour), NM-FIX-3 and NM-FIX-4 (visuals). Side Games Dev Lead keeps Little Ranch and Lantern Bowl. The 12 November and 27 December Night Market dates are placeholders: the 0.29 and 0.14 rates are two merges.
+
 ### 2026-10-14 19:45 UTC, Grok (Cursor cloud) for Evan: playtest gaps on the launch checklists
 
 Playtester scored Night Market 5/10, Lantern Bowl 6/10 and Little Ranch 7/10. New rows are first in each lane in docs/QUEUE.md. Lantern Bowl starts with LBL-12 (sideways Kick off, and Settings). Night Market visual life is two pulls, NM-FIX-3 then NM-FIX-4, spec from Game Art Director. NM-FIX-8 is the back control and the fold. NM-FIX-2 sits before NM-RETUNE. Little Ranch adds LRL-12 for the phone overlaps. Cookie art spec stays LRL-8 before LRL-9. Dates, same rates as #405: Little Ranch 18 Oct / 24 Oct (was 16 Oct / 20 Oct). Lantern Bowl 26 Oct / 13 Nov (was 20 Oct / 1 Nov). Night Market 12 Nov / 27 Dec (was 22 Oct / 8 Nov). Wildbond unchanged, 17 Oct / 22 Oct.
