@@ -40,7 +40,8 @@ Explain everything to me in plain words; I'm not a programmer.
 
 ## 4. The few rules that matter
 
-- **One task per pull request**, small and playable. Say which files you changed.
+- **One pull request per fix list or feature area, and one game per pull request** (Evan, 2026-10-14). Split a chunk only when one area gets genuinely risky. Say which files you changed. Guardrails stay: tests green, old saves load, screenshots, Game Art Director reviews any art, and no save-format change without Evan.
+- **Write every pull request as a full phrase** (Evan, 2026-10-14). The title is a clear full phrase, never a fragment. The description is a few full sentences covering what changed for the player, why, how it was tested, and which checklist items it ticks. A one-line body is not allowed. Generations Reviewer sends the pull request back when it does not meet this. The headings to fill in are in `.github/pull_request_template.md`.
 - **Old saves must keep loading.** Players' progress is never lost.
 - **Everything happens in the game window** and is written for players (docs/CREATIVE.md "Writing for players").
 - **Outside art, sound or music** only with a license that allows it, recorded in CREDITS.md.
