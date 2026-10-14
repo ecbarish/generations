@@ -132,13 +132,14 @@ func _draw() -> void:
 	draw_rect(Rect2(76, 40, 56, 11), el_col)
 	_text(info.el, Vector2(76, 48), 7, Color("fdf6e6"), 56)
 	draw_rect(Rect2(66, 134, 76, 4), Color(0, 0, 0, 0.12))
-	draw_set_transform(Vector2(68, 86), 0, Vector2(4, 4))
 	var pose := { "wag": [1, 0, -1, 0][int(t * 8.0) % 4], "blink": fmod(t, 2.7) < 0.12, "ears_up": true,
 		"twitch": int(t * 6.0) % 2 if fmod(t, 4.0) > 3.0 else 0, "bird": info.look.get("kind") == "boar" }
-	# Four times life size, same as the procedural page. Feet rest on the shadow.
-	if not Sprites.try_draw(self, id, Vector2(9, 12), true, "idle", int(t * 6.0), 1.0, 0.0, str(info.get("look", {}).get("gear", ""))):
+	# Four times life size, in whole pixels. Feet rest on the shadow. A species without art keeps the procedural page.
+	var page_scale := 4
+	if not Sprites.try_draw(self, id, Vector2(104, 134), true, "idle", int(t * 6.0), float(page_scale), 0.0, str(info.get("look", {}).get("gear", ""))):
+		draw_set_transform(Vector2(68, 86), 0, Vector2(page_scale, page_scale))
 		Figures.creature(self, Vector2.ZERO, true, pose, info.look)
-	draw_set_transform(Vector2.ZERO)
+		draw_set_transform(Vector2.ZERO)
 	var y := _para(info.dex, Vector2(36, 156), 135, 7, FAINT)
 	# right page: what it is like
 	y = _para(info.role, Vector2(190, 30), 158, 7, INK) + 2

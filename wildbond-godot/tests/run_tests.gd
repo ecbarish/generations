@@ -201,6 +201,16 @@ func _run() -> void:
 	check(not Sprites.has("poolkit") and not Sprites.has("elderhorn"), "EVO-1: a species without a PNG is not claimed as painted")
 	check(Sprites.frame_size("smoulderpup", "idle").y == 16 and Sprites.frame_size("riverwisp", "idle").y == 14 and Sprites.frame_size("thicketboar", "idle").y == 15, "EVO-1: middle-stage sprites are 16, 14 and 15 pixels tall")
 	check(Sprites.frame_count("tidewyrm", "crawl") == 4 and Sprites.frame_size("tidewyrm", "walk").x == 32 and Sprites.frame_size("tidewyrm", "crawl").x == 38, "EVO-1: Tidewyrm's crawl sheet is separate from its walk, and provisional")
+	var fang_sz: Vector2i = Sprites.frame_size("blazefang", "idle")
+	var thorn_sz: Vector2i = Sprites.frame_size("thornback", "idle")
+	var slot: float = Sprites.fit_scale(fang_sz, Vector2(16, 16), 1.0)
+	var page: float = Sprites.fit_scale(thorn_sz, Vector2(120, 70), 4.0)
+	var row: float = Sprites.fit_scale(thorn_sz, Vector2(36, 30), 2.0)
+	check(slot == 1.0 and page == 3.0 and row == 1.0 and slot == floor(slot) and page == floor(page) and row == floor(row), "EVO-1: a sprite fits at a whole scale of at least 1 (Blazefang %s, Thornback page %s, row %s)" % [slot, page, row])
+	var wash_tex: Texture2D = Sprites.texture("blazefang", "idle")
+	var wash_a: Texture2D = Sprites._washed(wash_tex, Rect2i(0, 0, fang_sz.x, fang_sz.y), 0.5)
+	var wash_b: Texture2D = Sprites._washed(wash_tex, Rect2i(0, 0, fang_sz.x, fang_sz.y), 0.51)
+	check(wash_a != null and wash_a == wash_b, "EVO-1: a washed frame is kept and reused")
 	var wild_hits: Array = []
 	var banned := painted
 	for map_id in main.DATA.MAPS:

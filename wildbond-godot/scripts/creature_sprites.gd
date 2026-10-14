@@ -48,7 +48,16 @@ static func frame_count(species_id: String, pose: String) -> int:
 		return 0
 	return tex.get_width() / sz.x
 
+## Whole sprite pixels only. The largest whole scale that fits in `box`, and never above `cap`.
+## At least 1. A sprite that cannot shrink to the box stays 1x and overflows, rather than drawing at a fraction.
+static func fit_scale(sz: Vector2i, box: Vector2, cap: float) -> float:
+	if sz.x <= 0 or sz.y <= 0:
+		return 1.0
+	var fit := minf(cap, minf(box.x / float(sz.x), box.y / float(sz.y)))
+	return float(maxi(1, int(floor(fit))))
+
 ## Draw the painted sprite. Returns false when this species has no PNG, so the caller keeps figures.gd.
+## `scale` is whole screen pixels per sprite pixel.
 static func try_draw(ci: CanvasItem, species_id: String, foot: Vector2, facing_right: bool, pose: String, frame: int, scale: float = 1.0, fade: float = 0.0, gear: String = "") -> bool:
 	var use := pose
 	var tex := texture(species_id, use)
@@ -80,10 +89,17 @@ static func try_draw(ci: CanvasItem, species_id: String, foot: Vector2, facing_r
 	return true
 
 ## The same wash as the faded world (shaders/fade.gdshader and main.gd _faded_look), for a sprite drawn
-## on the colour layer where that shader does not run.
+## on the colour layer where that shader does not run. Built once per frame of art and fade step, then reused.
+const _WASH_STEPS := 32
+static var _wash: Dictionary = {}
+
 static func _washed(tex: Texture2D, region: Rect2i, amount: float) -> Texture2D:
+	var step := clampi(int(round(clampf(amount, 0.0, 1.0) * float(_WASH_STEPS))), 0, _WASH_STEPS)
+	var key := "%d|%d|%d|%d|%d|%d" % [tex.get_instance_id(), region.position.x, region.position.y, region.size.x, region.size.y, step]
+	if _wash.has(key):
+		return _wash[key]
 	var img := tex.get_image().get_region(region)
-	var fade := 0.78 * amount
+	var fade := 0.78 * (float(step) / float(_WASH_STEPS))
 	for y in img.get_height():
 		for x in img.get_width():
 			var c := img.get_pixel(x, y)
@@ -91,7 +107,9 @@ static func _washed(tex: Texture2D, region: Rect2i, amount: float) -> Texture2D:
 				continue
 			var g := c.r * 0.299 + c.g * 0.587 + c.b * 0.114
 			img.set_pixel(x, y, Color(lerpf(c.r, g * 1.03, fade), lerpf(c.g, g, fade), lerpf(c.b, g * 0.92, fade), c.a))
-	return ImageTexture.create_from_image(img)
+	var made := ImageTexture.create_from_image(img)
+	_wash[key] = made
+	return made
 
 ## The same gear marks as figures.gd, fitted to the sprite's body so a bell or a harness still shows.
 static func _paint_gear(ci: CanvasItem, gear: String, origin: Vector2, sz: Vector2i, scale: float, facing_right: bool) -> void:

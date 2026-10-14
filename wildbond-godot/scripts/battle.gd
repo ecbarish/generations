@@ -947,7 +947,7 @@ func _draw_joined(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictionary
 	var glow := 0.5 + 0.5 * sin(t * 4.0)
 	for k in 3:                                  # a lamplight halo, brightest at the heart
 		_ellipse(at + Vector2(0, -30), 58.0 - k * 14.0 + glow * 3.0, 50.0 - k * 12.0 + glow * 3.0, Color(1.0, 0.86, 0.52, 0.16 + k * 0.08))
-	var sc := 4.6
+	var sc := 5.0
 	if not Sprites.try_draw(self, str(u.c.sp), at + Vector2(0, 8), true, "idle", 0, sc, 0.0, str(u.c.get("gear", ""))):
 		draw_set_transform(at - Vector2(9, 12) * sc, 0, Vector2(sc, sc))
 		Figures.creature(self, Vector2.ZERO, true, pose, look)

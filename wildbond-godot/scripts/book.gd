@@ -163,7 +163,7 @@ func _draw_dex() -> void:
 		var drew := false
 		if known and Sprites.has(id):
 			var sz := Sprites.frame_size(id, "idle")
-			var fit := minf(minf(1.0, 16.0 / float(sz.x)), 16.0 / float(sz.y))
+			var fit := Sprites.fit_scale(sz, Vector2(16, 16), 1.0)
 			drew = Sprites.try_draw(self, id, r.position + Vector2(9, 17), true, "idle", 0, fit)
 		if not drew:
 			Figures.creature(self, r.position + Vector2(0, 2), true, { "wag": 0 }, look)
@@ -183,7 +183,7 @@ func _draw_dex() -> void:
 	var drew2 := false
 	if known2 and Sprites.has(id2):
 		var sz2 := Sprites.frame_size(id2, "idle")
-		var fit2 := minf(minf(4.0, 120.0 / float(sz2.x)), 70.0 / float(sz2.y))
+		var fit2 := Sprites.fit_scale(sz2, Vector2(120, 70), 4.0)
 		drew2 = Sprites.try_draw(self, id2, Vector2(274, 58 + float(sz2.y) * fit2), true, "idle", int(t * 6.0), fit2)
 	if not drew2:
 		draw_set_transform(Vector2(238, 64), 0, Vector2(4, 4))
@@ -214,7 +214,7 @@ func _draw_team() -> void:
 		var st := R.stats(c)
 		if Sprites.has(str(c.sp)):
 			var sz3 := Sprites.frame_size(str(c.sp), "idle")
-			var fit3 := minf(minf(2.0, 36.0 / float(sz3.x)), 30.0 / float(sz3.y))
+			var fit3 := Sprites.fit_scale(sz3, Vector2(36, 30), 2.0)
 			Sprites.try_draw(self, str(c.sp), Vector2(52, y + 32), true, "idle", int(t * 5.0), fit3, 0.0, str(c.get("gear", "")))
 		else:
 			draw_set_transform(Vector2(34, y), 0, Vector2(2, 2))

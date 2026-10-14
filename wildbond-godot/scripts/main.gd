@@ -4132,13 +4132,17 @@ func _draw_evo_cine() -> void:
 
 	var draw_sc := sc * 4.0   # large, centered like the card preview
 	var o := center + Vector2(0, 10)
-	draw_set_transform(o, 0, Vector2(draw_sc, draw_sc))
 	var pose := { "walking": false, "frame": 0, "blink": false, "wag": 0, "sniff": false, "twitch": 0, "sit": false, "ears_up": true, "crouch": 0, "bird": false }
-	# The reveal can show the painted form. The violet silhouette stays the procedural figure, so a species
-	# without art, and the shape of the change, still read the way they did.
-	if is_silhouette or not Sprites.try_draw(self, sp, Vector2(8, 16), true, "idle", 0):
+	# The reveal can show the painted form, at a whole-pixel scale. The violet silhouette stays the procedural
+	# figure, so a species without art, and the shape of the change, still read the way they did.
+	var painted_reveal := false
+	if not is_silhouette:
+		var whole := maxi(1, int(floor(draw_sc)))
+		painted_reveal = Sprites.try_draw(self, sp, o + Vector2(8, 16) * float(whole), true, "idle", 0, float(whole))
+	if not painted_reveal:
+		draw_set_transform(o, 0, Vector2(draw_sc, draw_sc))
 		Figures.creature(self, Vector2.ZERO, true, pose, look)
-	draw_set_transform(Vector2.ZERO)
+		draw_set_transform(Vector2.ZERO)
 
 	# Glow ring around the creature (stronger during silhouette phases)
 	if is_silhouette:
