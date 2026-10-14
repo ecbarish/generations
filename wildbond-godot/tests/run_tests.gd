@@ -1235,6 +1235,7 @@ func _run() -> void:
 	main.howto._process(0.5)
 	main.howto._input(anykey)
 	check(not main.howto.visible, "then any key closes it")
+	_phone_fixes()
 	var asked := [false]
 	main.book.want_howto.connect(func(): asked[0] = true, CONNECT_ONE_SHOT)
 	main.book.row = Settings.ROWS.size()
@@ -1725,3 +1726,53 @@ func door_problems() -> Array:
 
 func indoorsish(n: String) -> bool:
 	return n == "barn" or main.INTERIORS.has(n)
+
+## WB-C3, Wildbond on a phone held sideways: what a phone-size run by touch found.
+func _phone_fixes() -> void:
+	# a phone fills the screen it has (fractional fit, as Starfall's SF-MOBILE-FIT); a computer keeps whole pixels
+	var mobile := OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios")
+	check(root.content_scale_stretch == (Window.CONTENT_SCALE_STRETCH_FRACTIONAL if mobile else Window.CONTENT_SCALE_STRETCH_INTEGER), "a phone fills its screen; a computer keeps whole-pixel scaling")
+	check(root.content_scale_size == Vector2i(384, 216) and root.content_scale_aspect == Window.CONTENT_SCALE_ASPECT_KEEP, "either way the same 384 by 216 view, in proportion")
+	# How to play marks the phone column once the pad is showing, even if it opened first
+	main.touch.touched = true
+	main.touch.refresh()
+	main.howto.open()
+	main.howto._process(0.05)
+	check(main.howto.in_use() == "touch", "on a touch screen, How to play marks the phone or tablet column")
+	main.howto.visible = false
+	main.touch.touched = false
+	main.touch.refresh()
+	# a tap on the speech bubble itself moves the talk on (it used to swallow the tap)
+	check(main.bubble.mouse_filter == Control.MOUSE_FILTER_IGNORE, "the speech bubble lets taps through to the game")
+	main.lines.clear()
+	main.say("maren", "One.")
+	main.say("maren", "Two.")
+	tick(0.1)
+	check(main.bubble.visible, "the bubble is up")
+	var at: Vector2 = root.get_final_transform() * main.bubble.get_global_rect().get_center()
+	var down := InputEventMouseButton.new()           # (a phone's tap reaches the game as a click, emulated from the touch)
+	down.button_index = MOUSE_BUTTON_LEFT
+	down.pressed = true
+	down.position = at
+	var up := down.duplicate()
+	up.pressed = false
+	root.push_input(down)
+	root.push_input(up)
+	tick(0.1)
+	check(main.lines.size() == 1 and str(main.lines[0].text) == "Two.", "a tap on the bubble itself shows the next line")
+	main.lines.clear()
+	tick(0.1)
+	# a caption two lines long grows upward from the foot of the screen, instead of running off it (the phone run shows it)
+	check(main.caption.grow_vertical == Control.GROW_DIRECTION_BEGIN and main.caption.anchor_bottom == 1.0 and main.caption.offset_bottom < 0.0, "a long caption grows upward and stays on screen")
+	# and keeps clear of the pad and the button while they show; the whole width otherwise
+	var keep_stage: String = main.stage
+	main.stage = "free"
+	main.touch.touched = true
+	main._thumbs_tick()
+	var pad_edge: float = main.TouchPad.PAD.x + main.TouchPad.PAD_R
+	check(not main.touch.visible or (main.caption.offset_left >= pad_edge), "with the pad showing, the caption starts past it")
+	check(main.touch.visible, "(the pad shows for that check)")
+	main.touch.touched = false
+	main._thumbs_tick()
+	check(main.caption.offset_left == 8.0 and main.caption.offset_right == -8.0, "without the pad, the caption has the whole width")
+	main.stage = keep_stage
