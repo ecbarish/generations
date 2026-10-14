@@ -291,6 +291,7 @@ document.querySelector('#run').onclick = async () => {
     delete again.migrateSave.steps[1];
     again.migrateSave.SAVE_V = savedVersion;
     again.state.down = 4; again.state.spot = 28; again.state.toGo = 10; again.state.phase = 'call'; again.state.possession = 'home';
+    again.state.quarter = 1; again.state.clock = 120; again.state.seed = 1; again.state.rng = 1;
     again.begin('kick');
     await wait();
     const plays = Array.from(d2.querySelectorAll('.cpu-log li'));
