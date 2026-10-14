@@ -1,0 +1,239 @@
+extends RefCounted
+## WBL-2, WBL-3, WBL-4, and the phone pass: battles open on your menu, Catch is a button,
+## the first wild lure cannot miss, the objective fits its box, and a finger can reach the opening screens.
+
+static func run(host: Node, check: Callable) -> void:
+	var keep_mode: int = host.process_mode
+	host.process_mode = Node.PROCESS_MODE_DISABLED
+	var emulate: bool = Input.emulate_mouse_from_touch
+	var game = load("res://scenes/main.tscn").instantiate()
+	game.no_save = true
+	game.settings.keep = false
+	game.show_howto = false
+	host.get_tree().root.add_child(game)
+	game.set_process(false)
+	game.battle.set_process(false)
+	game.turn_card.set_process(false)
+	game.get_tree().paused = false
+	game._skip_opening()
+	for _i in 40:
+		game._process(0.05)
+		if game.trans_t < 0.0:
+			break
+	game.lines.clear()
+	game.stage = "free"
+	game.walk_to.clear()
+	game.me.path.clear()
+	_fair(game, check)
+	_catch(game, check)
+	_objective(game, check)
+	_phone(game, check)
+	Input.emulate_mouse_from_touch = emulate
+	game.get_tree().paused = false
+	for action in ["move_down", "move_up", "move_left", "move_right"]:
+		if Input.is_action_pressed(action):
+			Input.action_release(action)
+	game.free()
+	host.process_mode = keep_mode
+	host.get_tree().paused = false
+
+static func _fair(game: Node, check: Callable) -> void:
+	var b: Control = game.battle
+	for kind in ["wild", "trainer"]:
+		var me: Dictionary = game.R.make("ripplet", 8, { "rar": 1 }, game.rng)
+		var foe: Dictionary = game.R.make("cindercub", 60, { "rar": 1 }, game.rng)
+		var hp := int(game.R.stats(me).hp)
+		me.hp = hp
+		b.rng.seed = 11
+		b.open(kind, [me], [foe], "" if kind == "wild" else "Wren")
+		check.call(b.allies[0].atb >= game.R.ACT_AT, "WBL-2: your lead is ready as %s begins" % kind)
+		b.foes[0].atb = game.R.ACT_AT
+		var before := int(b.allies[0].c.hp)
+		b._go_to("run")
+		b._tick(0.2)
+		check.call(b.state == "choose" and int(b.allies[0].c.hp) == before, "WBL-2: a %s battle opens on the action menu, and a ready foe does not hit first" % kind)
+	b.open("wild", [game.R.make("ripplet", 8, { "rar": 1 }, game.rng)], [game.R.make("mosshog", 8, { "rar": 1 }, game.rng)], "")
+	b.foes[0].c.hp = 0
+	b._go_to("run")
+	b._tick(0.05)
+	check.call(b.state == "results" and b.result == "won", "WBL-2: a battle whose foe is already down ends, instead of offering a menu")
+	b.visible = false
+	b.state = "off"
+
+static func _catch(game: Node, check: Callable) -> void:
+	var b: Control = game.battle
+	game.team = [game.R.make("ripplet", 5, { "rar": 1 }, game.rng)]
+	game.ranch.clear()
+	game.story_done.erase("marenRanchTip")
+	game.bag.lures = 0
+	game.bag.berries = 0
+	game.map_name = "thornwood"
+	game._wild_battle()
+	check.call(b.sure_catch and int(game.bag.lures) >= 5 and b.menu_word(3) == "Catch", "WBL-3: the first wild meeting stocks lures and offers Catch")
+	check.call(not b._dimmed("Catch") and not b._dimmed("Bag"), "WBL-3: Catch and Bag are both open when you have lures and no berries")
+	b.foes[0].atb = game.R.ACT_AT
+	var hp := int(b.allies[0].c.hp)
+	b._go_to("run")
+	b._tick(0.05)
+	check.call(b.state == "choose" and int(b.allies[0].c.hp) == hp, "WBL-3: the guided meeting still waits for you")
+	b._choose(3)
+	check.call(b.state == "capture" and float(b.cap.wide) >= 1.0, "WBL-3: Catch throws the lure, and the green covers the bar")
+	b.cap.pos = 0.0
+	b.rng.seed = 99
+	b._calm()
+	check.call(b.result == "caught" and b.caught.size() == 1, "WBL-3: the first lure brings them with you even if the press is at the edge")
+	game.team.append(game.R.make("mosshog", 4, { "rar": 1 }, game.rng))
+	var lures: int = int(game.bag.lures)
+	game._wild_battle()
+	check.call(not b.sure_catch and int(game.bag.lures) == lures, "WBL-3: a later wild meeting is an ordinary catch, and it does not add lures")
+	b.bag = { "lures": 2, "berries": 0 }
+	b.kind = "wild"
+	b.state = "choose"
+	b.wait_u = b.allies[0]
+	b.sure_catch = false
+	b._choose(4)
+	check.call(b.state == "choose" and int(b.bag.lures) == 2 and "Catch" in str(b.log_lines[-1]), "WBL-3: Bag with only lures stays open and points at Catch")
+	b.bag = { "lures": 0, "berries": 0 }
+	check.call(b._dimmed("Bag") and b._dimmed("Catch"), "WBL-3: Bag and Catch grey out only when the bag has nothing to use")
+	b.bag = game.bag
+	b.visible = false
+	b.state = "off"
+
+static func _objective(game: Node, check: Callable) -> void:
+	game.battle.visible = false
+	game.stage = "to_barn"
+	game._update_ui()
+	check.call(game.objective.visible and game.objective.line == "Follow Maren into the barn.", "WBL-4: on the way to the barn, the objective says so")
+	_fits(game, check, "WBL-4: the barn objective fits its box")
+	game.stage = "barn_choose"
+	game._update_ui()
+	check.call(game.objective.line == "Choose who will walk with you.", "WBL-4: choosing a partner is the objective")
+	game.stage = "free"
+	game.team = [game.team[0]]
+	game.ranch.clear()
+	game.story_done.erase("marenRanchTip")
+	game.map_name = "larkhaven"
+	game.badges.clear()
+	game._update_ui()
+	check.call(game.objective.line == "Meet someone wild in the tall grass.", "WBL-4: before the first catch, the objective is a wild meeting")
+	_fits(game, check, "WBL-4: the wild-meeting objective fits its box")
+	game.battle.sure_catch = true
+	game.battle.kind = "wild"
+	game.battle.state = "choose"
+	game.battle.visible = true
+	game.battle.wait_u = { "c": { "name": "Ripplet" } }
+	game._update_ui()
+	check.call("Catch" in game.objective.line and game.objective.position.x + game.objective.size.x <= 240.0, "WBL-4: in that battle the objective is the Catch prompt, clear of the buttons")
+	_fits(game, check, "WBL-4: the Catch prompt fits its box")
+	game.battle.visible = false
+	game.battle.state = "off"
+	game.team.append(game.R.make("mosshog", 5, { "rar": 1 }, game.rng))
+	game._update_ui()
+	check.call(game.objective.line == "The north road leads to Thornwood.", "WBL-4: after the first catch, Larkhaven points at the north road")
+	game.caption.text = "%s walks with you now. The north road leads to Thornwood. To talk to someone, stand beside them and press E; your field book: press J." % game._partner_name()
+	game.touch.mode = "on"
+	game.touch.touched = true
+	game.stage = "free"
+	game.lines.clear()
+	game._thumbs_tick()
+	var width: float = (384.0 + game.caption.offset_right) - game.caption.offset_left
+	var font: Font = game.caption.get_theme_font("font")
+	var sz: int = game.caption.get_theme_font_size("font_size")
+	var h := font.get_multiline_string_size(game.caption.text, HORIZONTAL_ALIGNMENT_CENTER, width, sz).y
+	var box_h: float = game.caption.offset_bottom - game.caption.offset_top
+	var top: float = 216.0 + game.caption.offset_top
+	var bottom: float = 216.0 + game.caption.offset_bottom
+	check.call(h <= box_h + 0.5 and top >= 0.0 and bottom <= 216.0, "WBL-4: the long note after Wren fits on the screen between the phone controls (%s in %s)" % [h, box_h])
+	check.call(game.caption.offset_left >= game.TouchPad.PAD.x + game.TouchPad.PAD_R, "WBL-4: that note still starts clear of the walking pad")
+
+static func _fits(game: Node, check: Callable, what: String) -> void:
+	var h: float = game.objective.block_height(game.objective.size.x)
+	var r := Rect2(game.objective.position, game.objective.size)
+	check.call(game.objective.line != "" and h <= game.objective.size.y + 0.5 and r.position.x >= 0.0 and r.end.x <= 384.0 and r.position.y >= 0.0 and r.end.y <= 216.0, what)
+
+static func _phone(game: Node, check: Callable) -> void:
+	check.call(game.turn_card.upright(Vector2(390, 844)) and game.turn_card.upright(Vector2(375, 812)), "phone: a portrait window is the upright card")
+	check.call(not game.turn_card.upright(Vector2(844, 390)) and not game.turn_card.upright(Vector2(812, 375)), "phone: a landscape window is not the upright card")
+	game.stage = "free"
+	game.lines.clear()
+	game.walk_to.clear()
+	game.battle.visible = false
+	game.card.visible = false
+	game.title.visible = false
+	game.menu.visible = false
+	var stood: Vector2i = game.me.tile
+	game.turn_card.check(Vector2(390, 844))
+	check.call(game.turn_card.visible and game.get_tree().paused, "phone: portrait covers the game and holds it")
+	Input.emulate_mouse_from_touch = false
+	tap(game, Vector2(192, 140))
+	check.call(game.turn_card.visible and game.me.tile == stood and game.walk_to.is_empty(), "phone: a finger on the portrait card does not walk or start a journey")
+	game.turn_card.check(Vector2(844, 390))
+	check.call(not game.turn_card.visible and not game.get_tree().paused, "phone: turning sideways lifts the card and the journey continues")
+	game.title.open("Rowan and Ripplet, in Thornwood.")
+	for i in 3:
+		var r: Rect2 = game.title._btn(i)
+		var label: String = ["Continue your journey", "Start a new journey", "How to play"][i]
+		var tw: float = game.title.font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 8).x
+		check.call(r.position.x >= 8.0 and r.end.x <= 376.0 and r.position.y >= 8.0 and r.end.y <= 208.0 and r.size.y >= 16.0 and tw <= r.size.x - 4.0, "phone: the title button \"%s\" is on screen and its words fit" % label)
+	tap(game, game.title._btn(2).get_center())
+	check.call(game.howto.visible and game.walk_to.is_empty(), "phone: a finger opens How to play from the title")
+	game.howto.visible = false
+	game.title.visible = false
+	game.stage = "barn_choose"
+	game.card.open("ripplet", game.card_info("ripplet"))
+	var choose: Rect2 = game.card._btn(0)
+	var cw: float = game.card.font.get_string_size(game.card._label(0), HORIZONTAL_ALIGNMENT_LEFT, -1, game.card._btn_size()).x
+	check.call(choose.end.y <= 216.0 and choose.size.y >= 16.0 and cw <= choose.size.x, "phone: Choose on the starter card is on screen and its words fit")
+	var here: Vector2i = game.me.tile
+	tap(game, choose.get_center())
+	check.call(not game.card.visible and game.partner.id == "ripplet" and game.walk_to.is_empty() and game.me.tile == here, "phone: a finger on Choose picks the starter and does not walk")
+	game.lines.clear()
+	game.stage = "free"
+	game.touch.mode = "on"
+	game.touch.touched = true
+	game._thumbs_tick()
+	check.call(game.touch.visible and game.touch.pad_on, "phone: landscape shows the walking pad")
+	var pad := Rect2(game.TouchPad.PAD - Vector2(game.TouchPad.PAD_R, game.TouchPad.PAD_R), Vector2(game.TouchPad.PAD_R * 2, game.TouchPad.PAD_R * 2))
+	check.call(pad.position.x >= 0.0 and pad.end.x <= 384.0 and pad.position.y >= 0.0 and pad.end.y <= 216.0, "phone: the walking pad stays inside the view")
+	game._update_ui()
+	check.call(game.objective.visible and game.status.visible, "phone: the objective and the status strip are up while you walk")
+	tap(game, game.satchel.position + game.satchel.size * 0.5)
+	check.call(game.menu.visible and game.walk_to.is_empty(), "phone: a finger on the bag opens the menu")
+	for i in game.menu.ROWS.size():
+		var row: Rect2 = game.menu._row(i)
+		check.call(row.end.x <= 384.0 and row.end.y <= 216.0 and row.size.y >= 16.0, "phone: the menu row %s is on screen" % game.menu.ROWS[i])
+	tap(game, game.menu._row(3).get_center())
+	check.call(not game.menu.visible and game.walk_to.is_empty(), "phone: a finger on Close resumes")
+	game.team = [game.R.make("ripplet", 5, { "rar": 1 }, game.rng)]
+	game.ranch.clear()
+	game.story_done.erase("marenRanchTip")
+	game.bag.lures = 0
+	game.map_name = "thornwood"
+	game._wild_battle()
+	game.battle._go_to("choose")
+	game.battle.wait_u = game.battle.allies[0]
+	game._update_ui()
+	var hit: Rect2 = game.battle._menu_rect(3)
+	check.call(game.battle.menu_word(3) == "Catch" and hit.size.y >= 20.0 and hit.end.x <= 384.0 and hit.end.y <= 216.0, "phone: Catch is a tall button inside the battle")
+	for i in game.battle.MENU.size():
+		var word: String = game.battle.menu_word(i)
+		var rect: Rect2 = game.battle._menu_rect(i)
+		var px: int = game.battle._label_size(word, rect.size.x, 8)
+		var ww: float = game.battle.font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+		check.call(ww <= rect.size.x and rect.end.x <= 384.0 and rect.end.y <= 216.0, "phone: the battle word %s fits its button" % word)
+	tap(game, hit.get_center())
+	check.call(game.battle.state == "capture", "phone: a finger on Catch throws the lure")
+	tap(game, Vector2(192, 194))
+	check.call(game.battle.result == "caught", "phone: a finger on the bar brings the creature with you")
+	game.battle.visible = false
+	game.battle.state = "off"
+
+static func tap(game: Node, at: Vector2) -> void:
+	var event := InputEventScreenTouch.new()
+	event.index = 0
+	event.pressed = true
+	event.position = game.get_viewport().get_final_transform() * at
+	game.get_viewport().push_input(event)
+	event = event.duplicate()
+	event.pressed = false
+	game.get_viewport().push_input(event)

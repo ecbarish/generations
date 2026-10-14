@@ -114,6 +114,7 @@ var key_learn := { "walk": 0, "act": 0, "book": 0 }   # WB-KEYS: how often each 
 var satchel: Control                         # the bag, top right: tap it (or Esc or I) for the menu. Tab or J still opens the field book
 var menu: Control                            # pause menu: party, field book, save, close (WBL-1)
 var status: Control                          # the strip along the top: place, lead, coins
+var objective: Control                       # what to do next (WBL-4)
 var menu_return := false                     # the field book was opened from the menu, so closing it comes back here
 var place_t := 0.0                           # seconds since you arrived somewhere (the place name holds, then fades)
 var title: Control
@@ -293,6 +294,8 @@ func _ready() -> void:
 	menu.chose.connect(_on_menu)
 	status = preload("res://scripts/status_bar.gd").new()
 	$UI.add_child(status)
+	objective = preload("res://scripts/objective.gd").new()
+	$UI.add_child(objective)
 	if "--skip-opening" in OS.get_cmdline_user_args():
 		no_save = true
 		_skip_opening()
@@ -1713,6 +1716,7 @@ func _update_ui() -> void:
 			mx = int(R.stats(team[0]).hp)
 		status.visible = not (book.visible or battle.visible or card.visible or shop.visible or lessons.visible or register.visible or title.visible or howto.visible or turn_card.visible)
 		status.setup(place.text, lead, cur, mx, int(bag.get("coins", 0)))
+	_layout_objective()
 	# the place's name, large on arrival: it holds for a few seconds, then fades (hidden while you talk or fight)
 	place.modulate.a = 0.0 if battle.visible or book.visible else clampf(3.5 - place_t, 0.0, 1.0)
 	# the faded world: pass each restored circle on this map to the shader, in real screen pixels
@@ -2958,7 +2962,11 @@ func _wild_battle() -> void:
 	seen[id] = true
 	battle_story = ""
 	battle.max_level = level_cap()
+	var guide := _guide_first_catch()
+	if guide and int(bag.get("lures", 0)) < 5:
+		bag.lures = 5
 	battle.open("wild", team, [foe], "")
+	battle.sure_catch = guide
 
 func _after_wild(result: String) -> void:
 	if not battle.caught.is_empty() and not story_done.has("marenRanchTip"):
@@ -4500,6 +4508,100 @@ func _take_along(ri: int, ti: int) -> void:
 	_lead_look()
 	_place_ranch()
 
+# ---------------------------------------------------------------- what to do next (WBL-4)
+## True once a wild creature has already chosen to come with you. Reads the journey you already have.
+func _has_caught_wild() -> bool:
+	if story_done.has("marenRanchTip"):
+		return true
+	if ranch.size() > 0:
+		return true
+	return team.size() > 1
+
+## The opening wild meeting only: enough lures, and the lure cannot miss. A story guardian is not this meeting.
+func _guide_first_catch() -> bool:
+	return not _has_caught_wild()
+
+## One line for the tracker. Empty when a full-screen page is up, or once the first towns are behind you.
+func next_objective() -> String:
+	if objective == null:
+		return ""
+	if title.visible or register.visible or howto.visible or book.visible or shop.visible or lessons.visible or turn_card.visible or (menu != null and menu.visible):
+		return ""
+	if battle.visible:
+		if battle.sure_catch and battle.kind == "wild" and battle.state == "choose":
+			return "Press Catch. This first lure brings them with you."
+		return ""
+	if stage in ["barn_meet", "barn_choose"] or (card.visible and stage == "bonded"):
+		return "Choose who will walk with you."
+	match stage:
+		"intro", "maren_walks", "register", "signed", "to_barn":
+			return "Follow Maren into the barn."
+		"walk_out", "bonded", "spill":
+			return "Walk out into Larkhaven."
+		"free":
+			if not _has_caught_wild():
+				return "Meet someone wild in the tall grass."
+			if map_name == "larkhaven" and not badges.has("thorn"):
+				return "The north road leads to Thornwood."
+			if not badges.has("thorn"):
+				return "Find Thornwood's Warden."
+			return ""
+		_:
+			return ""
+
+func _layout_objective() -> void:
+	if objective == null:
+		return
+	var line := next_objective()
+	var px := 7 if battle.visible else 8
+	objective.setup(line, px)
+	if line == "":
+		_place_name_at(14.0)
+		return
+	if battle.visible:
+		objective.position = Vector2(12, 190)
+		objective.size = Vector2(222, maxf(16.0, objective.block_height(222.0)))
+		_place_name_at(14.0)
+		return
+	var width := 344.0
+	var h := clampf(objective.block_height(width), 16.0, 32.0)
+	objective.position = Vector2(4, 14)
+	objective.size = Vector2(width, h)
+	if card.visible:
+		objective.position = Vector2(28, 0)
+		objective.size = Vector2(328, h)
+		_place_name_at(14.0)
+		return
+	_place_name_at(14.0 + h + 2.0)
+
+func _place_name_at(top: float) -> void:
+	if place.offset_top == top and place.offset_bottom == top + 26.0:
+		return
+	place.offset_top = top
+	place.offset_bottom = top + 26.0
+
+## The note at the foot of the screen grows upward until the whole sentence is inside it (WBL-4).
+func _fit_caption() -> void:
+	if caption == null:
+		return
+	if caption.text == "":
+		if caption.offset_top != -22.0:
+			caption.offset_top = -22.0
+		return
+	var width := (384.0 + caption.offset_right) - caption.offset_left
+	if width < 16.0:
+		return
+	var font := caption.get_theme_font("font")
+	var sz := caption.get_theme_font_size("font_size")
+	var h := font.get_multiline_string_size(caption.text, HORIZONTAL_ALIGNMENT_CENTER, width, sz).y
+	h += float(caption.get_theme_constant("outline_size")) + 4.0
+	var top := caption.offset_bottom - h
+	var limit := 36.0 - 216.0
+	if top < limit:
+		top = limit
+	if not is_equal_approx(caption.offset_top, top):
+		caption.offset_top = top
+
 # ---------------------------------------------------------------- the phone pad and the settings (WB6.1-6.2)
 ## Tells the phone pad when walking is possible and what its button would do, and applies the settings that change
 ## how things look (text size) or run (battle pace).
@@ -4516,6 +4618,7 @@ func _thumbs_tick() -> void:
 	if caption.offset_left != left or caption.offset_right != right:   # only on a change, so it isn't laid out every frame
 		caption.offset_left = left
 		caption.offset_right = right
+	_fit_caption()
 	battle.pace = settings.pace()
 	var size := 10 if settings.large_text() else 8
 	if bubble_text.label_settings.font_size != size:  # only on a change, so the labels aren't laid out every frame
