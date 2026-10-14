@@ -209,9 +209,15 @@ document.querySelector('#run').onclick = async () => {
     const body = V.project('behind', { x: 0, y: 0 }, { x: -3, y: 0 }, { w: 400, h: 640 });
     check('players stay a readable size at 400px wide', body.scale >= 1.8);
 
-    const band = M.styleBand(16, 11);
+    const band = M.styleBand(20, 11);
     const bandGap = Math.abs(band.run.mean - band.pass.mean);
-    check('a mostly-run game stays near a mostly-pass game (run ' + band.run.mean.toFixed(1) + '–' + band.run.opp.toFixed(1) + ' with ' + band.run.wins + ' wins, pass ' + band.pass.mean.toFixed(1) + '–' + band.pass.opp.toFixed(1) + ' with ' + band.pass.wins + ' wins)', bandGap <= 8 && band.run.mean > 14 && band.pass.mean > 14 && band.run.wins >= 8 && band.pass.wins >= 8);
+    const rateInBand = row => {
+      const rate = row.wins / band.n;
+      const margin = row.mean - row.opp;
+      return rate >= 0.55 - 1e-9 && rate <= 0.65 + 1e-9 && margin >= -1 && margin <= 8;
+    };
+    const mixMargin = band.mixed.mean - band.mixed.opp;
+    check('a single plan wins about six games in ten, and a mixed plan does better (run ' + band.run.mean.toFixed(1) + '–' + band.run.opp.toFixed(1) + ', ' + band.run.wins + ' of ' + band.n + '; pass ' + band.pass.mean.toFixed(1) + '–' + band.pass.opp.toFixed(1) + ', ' + band.pass.wins + ' of ' + band.n + '; mixed ' + band.mixed.mean.toFixed(1) + '–' + band.mixed.opp.toFixed(1) + ', ' + band.mixed.wins + ' of ' + band.n + ')', rateInBand(band.run) && rateInBand(band.pass) && bandGap <= 4 && band.mixed.wins > band.run.wins && band.mixed.wins > band.pass.wins && band.mixed.mean > band.run.mean && band.mixed.mean > band.pass.mean && mixMargin > band.run.mean - band.run.opp && mixMargin > band.pass.mean - band.pass.opp);
     const runGains = [];
     let bigJukes = 0;
     for (let i = 0; i < 24; i++) {
@@ -229,7 +235,7 @@ document.querySelector('#run').onclick = async () => {
     check('adaptive defence swings a rating by at most ' + M.TENDENCY_CAP + ' (' + swing.toFixed(1) + ', tackle ' + baseTackle + ' to ' + usedTackle + ')', swing > 0 && swing <= M.TENDENCY_CAP && usedTackle - baseTackle <= M.TENDENCY_CAP + 0.01);
     const stalls = M.millraceDrives(12, 5);
     const stalled = stalls.punt + stalls.fieldGoal + stalls.turnover;
-    check('Millrace drives can stall (' + stalls.punt + ' punts, ' + stalls.fieldGoal + ' field goals, ' + stalls.turnover + ' turnovers, ' + stalls.touchdown + ' touchdowns of ' + stalls.drives + ')', stalls.drives > 20 && stalled > stalls.touchdown && stalls.punt > 0 && stalls.fieldGoal > 0 && stalls.turnover > 0);
+    check('Millrace drives can stall (' + stalls.punt + ' punts, ' + stalls.fieldGoal + ' field goals, ' + stalls.turnover + ' turnovers, ' + stalls.touchdown + ' touchdowns of ' + stalls.drives + ')', stalls.drives > 20 && stalled > stalls.touchdown && stalls.punt > 0 && stalls.fieldGoal > 0 && stalls.turnover > 0 && stalls.touchdown > 0);
     function yardsIn(text) {
       if (/no gain/.test(text || '')) return 0;
       const found = String(text || '').match(/for (\d+)|loss of (\d+)/);

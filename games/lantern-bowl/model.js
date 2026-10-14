@@ -56,11 +56,11 @@
     }
     return {
       club: 'Millrace', short: 'Millrace', color: '#2d6f80',
-        qb: person('Ned Harrow', { throw: 61, speed: 52, carry: 48 }),
-        rb: person('Cole Pimm', { speed: 63, carry: 58, catch: 52 }),
-        wr: [person('Lise Venn', { speed: 64, catch: 57 }), person('Otto Brant', { speed: 57, catch: 52 })],
-        te: person('Ivo Pell', { speed: 50, catch: 54, block: 55 }),
-        kicker: 'Pat Low', line: 56, rush: 58, cover: 55, tackle: 58, kick: 54
+        qb: person('Ned Harrow', { throw: 64, speed: 54, carry: 50 }),
+        rb: person('Cole Pimm', { speed: 64, carry: 62, catch: 56 }),
+        wr: [person('Lise Venn', { speed: 66, catch: 62 }), person('Otto Brant', { speed: 60, catch: 58 })],
+        te: person('Ivo Pell', { speed: 51, catch: 58, block: 56 }),
+        kicker: 'Pat Low', line: 60, rush: 58, cover: 55, tackle: 58, kick: 58
     };
   }
   function applyOver(roster, over) {
@@ -444,8 +444,10 @@
   }
   function resolveCatch(rollFn, qbThrow, hands, cover, dist, kind) {
     var difficulty = throwWindow(dist, kind);
+    if (kind === 'lob') difficulty += Math.max(0, dist - 12) * 1.35;
+    var coverEff = cover + (kind === 'lob' ? Math.max(0, dist - 12) * 0.7 : 0);
     if (rollFn() > chance(qbThrow, difficulty)) return 'miss';
-    if (rollFn() < chance(cover - 8, hands)) return rollFn() < 0.28 ? 'pick' : 'drop';
+    if (rollFn() < chance(coverEff - 8, hands)) return rollFn() < 0.28 ? 'pick' : 'drop';
     return 'catch';
   }
 
@@ -622,12 +624,23 @@
     var row = play.laneStates && lane && play.laneStates[lane.id];
     return { lane: lane, state: row ? row.state : 'open' };
   }
+  /* A timed move is a contest, not a promise. Most wins add a chunk. A clean win can break it. */
+  function moveContest(game, offRating, defRating) {
+    var p = chance(offRating, defRating);
+    var r = roll(game);
+    if (r >= p) return 'stop';
+    if (r < p * 0.24) return 'break';
+    return 'gain';
+  }
   function extendMove(game, play, kind) {
     if (play.goalX == null || play.moveExtended) return;
     play.moveExtended = true;
-    var boost = kind === 'juke' ? (play.hole === 'break' ? 1.2 + roll(game) * 2.2 : 6 + roll(game) * 8) : 2.2 + roll(game) * 1.8;
-    if (play.offence === 'away') boost *= 0.45;
-    if (kind === 'juke' && play.hole !== 'break') { play.breakaway = true; play.hole = 'break'; }
+    var result = kind === 'juke' ? play.jukeResult : play.diveResult;
+    var boost = result === 'break'
+      ? (kind === 'juke' ? (play.hole === 'break' ? 1.6 + roll(game) * 2.2 : 5.4 + roll(game) * 4.6) : 2.4 + roll(game) * 2.2)
+      : (result === 'gain' ? (kind === 'dive' ? 1.5 + roll(game) * 1.7 : 0.6 + roll(game) * 1) : 0);
+    if (result === 'break') { play.breakaway = true; play.hole = 'break'; }
+    if (play.offence === 'away') boost *= 0.8;
     play.goalX += boost;
   }
   function settleHole(game, play, back) {
@@ -647,20 +660,25 @@
       if (back.x > play.goalX) back.x = play.goalX;
       play.ratingNote = play.ratingNote || (' ' + resultLine('the rush', play.rush, 'the line', play.block));
     } else {
-      var juice = back.speed + (play.jukeTimed ? 14 : 0);
-      var second = !play.didCatch && roll(game) < chance(juice, tackle + (play.offence === 'away' ? 6 : 0));
+      var juice = back.speed;
+      var tax = play.offence === 'home' ? (play.load || 0) : 0;
+      var second = !play.didCatch && roll(game) < chance(juice, tackle + (play.offence === 'away' ? 6 : 16) + tax);
       if (second) {
         play.hole = 'break';
         play.breakaway = true;
-        play.goalX = 9 + roll(game) * (6 + back.speed / 18);
+        play.goalX = 8 + roll(game) * (4.2 + back.speed / 24);
+      } else if (play.didCatch) {
+        play.hole = 'catch';
+        play.goalX = back.x + 1.5 + roll(game) * 3.4;
       } else {
-        play.hole = play.didCatch ? 'catch' : 'gain';
-        play.goalX = (play.didCatch ? 1.6 : 5) + roll(game) * (play.didCatch ? 3.8 : 5.5);
+        play.hole = 'gain';
+        play.goalX = 2.6 + roll(game) * 3.4;
       }
+      if (tax) play.goalX = Math.max(0.5, play.goalX - tax * 0.22);
       if (!play.ratingNote) play.ratingNote = ' ' + resultLine('the line', play.block, 'the rush', play.rush);
     }
-    if (play.offence === 'away') play.goalX = 1 + play.goalX * 0.78;
-    if (!play.diveTimed && !play.jukeTimed && game.spot >= 94) play.goalX = Math.min(play.goalX, 1.05 + roll(game) * 2.3);
+    if (play.offence === 'away') play.goalX = 0.25 + play.goalX * 0.94;
+    if (!play.diveBreak && !play.jukeBreak && game.spot >= 94) play.goalX = Math.min(play.goalX, 1.05 + roll(game) * 2.3);
     if (play.jukeTimed) extendMove(game, play, 'juke');
     if (play.diveTimed) extendMove(game, play, 'dive');
   }
@@ -679,22 +697,43 @@
     var reading = play.elapsed < engage;
     if (inp.juke && !play.jukeUsed) {
       var jukeThreat = nearest(play, back.x, back.y, function (a) { return !a.off; });
+      var jukeTackle = jukeThreat ? jukeThreat.actor.tackle : 50;
       var jukeTimed = !!(jukeThreat && jukeThreat.d < 2.8 && play.elapsed + 1e-6 >= engage);
       back.y += inp.juke * (3.6 + back.speed / 40);
       play.jukeUsed = true; play.usedJuke = true; play.jukeDir = inp.juke;
-      play.jukeUntil = play.elapsed + (jukeTimed ? 0.9 : 0.28);
-      if (jukeTimed) { play.jukeTimed = true; play.breakaway = true; back.x += 1.15; extendMove(game, play, 'juke'); }
-      play.ratingNote = ' ' + resultLine('the juke', back.speed, 'the tackle', jukeThreat ? jukeThreat.actor.tackle : 50);
+      play.jukeResult = jukeTimed ? moveContest(game, back.speed + 2, jukeTackle) : 'stop';
+      play.jukeBreak = play.jukeResult === 'break';
+      play.jukeTimed = play.jukeResult !== 'stop';
+      play.jukeUntil = play.elapsed + (play.jukeTimed ? 0.9 : 0.28);
+      if (play.jukeBreak) { play.breakaway = true; back.x += 1.15; }
+      if (play.jukeTimed) extendMove(game, play, 'juke');
+      if (jukeTimed) {
+        play.ratingNote = play.jukeResult === 'stop'
+          ? ' ' + resultLine('the tackle', jukeTackle, 'the juke', back.speed)
+          : ' ' + resultLine('the juke', back.speed, 'the tackle', jukeTackle);
+      }
       game.events.push('juke');
     }
     if (inp.dive && !play.diving) {
       var diveThreat = nearest(play, back.x, back.y, function (a) { return !a.off; });
+      var diveTackle = diveThreat ? diveThreat.actor.tackle : 50;
       var diveTimed = !!(diveThreat && diveThreat.d < 2.6 && play.elapsed + 1e-6 >= engage);
+      var diveAtGoal = game.spot >= 94;
       play.diving = true; play.usedDive = true;
-      back.x += (diveTimed ? 3.05 : 1.05) + back.carry / 62;
-      play.diveUntil = play.elapsed + (diveTimed ? 0.72 : 0.26);
-      if (diveTimed) { play.diveTimed = true; play.breakaway = true; extendMove(game, play, 'dive'); }
-      play.ratingNote = ' ' + resultLine('the dive', back.carry, 'the tackle', diveThreat ? diveThreat.actor.tackle : 50);
+      play.diveResult = diveTimed ? (diveAtGoal ? 'break' : moveContest(game, back.carry + 8, diveTackle)) : 'stop';
+      play.diveBreak = play.diveResult === 'break';
+      play.diveTimed = play.diveResult !== 'stop';
+      var diveBurst = (play.diveBreak ? 3.05 : 1.05) + back.carry / 62;
+      if (play.jukeTimed && !diveAtGoal) diveBurst *= 0.4;
+      back.x += diveBurst;
+      play.diveUntil = play.elapsed + (play.diveTimed ? 0.72 : 0.26);
+      if (play.diveBreak) play.breakaway = true;
+      if (play.diveTimed) extendMove(game, play, 'dive');
+      if (diveTimed) {
+        play.ratingNote = play.diveResult === 'stop'
+          ? ' ' + resultLine('the tackle', diveTackle, 'the dive', back.carry)
+          : ' ' + resultLine('the dive', back.carry, 'the tackle', diveTackle);
+      }
       game.events.push('dive');
     }
     play._steer = inp.steer;
@@ -705,7 +744,7 @@
     if (!reading && read.state === 'closed' && !play.breakaway) pace = 0.58;
     else if (!reading && read.state === 'contested') pace = 0.86;
     else if (play.breakaway) pace = 1.32;
-    if (play.turboOn) pace *= 1.12;
+    if (play.turboOn) pace *= 1.04;
     back.x += speed * pace * dt;
     back.y = clamp(back.y + inp.steer * 8.4 * dt, -SIDELINE - 1, SIDELINE + 1);
     play.actors.forEach(function (a) {
@@ -728,10 +767,12 @@
     } else if (!reading && fatigue < 0.45 && back.x > 1 && back.x < 22) play.cue = 'turbo';
     if (!reading || play.didCatch) settleHole(game, play, back);
     if (play.goalX != null && back.x >= play.goalX && !slippingSoon(play)) {
+      if (game.spot + back.x < 100) back.x = Math.min(back.x, play.goalX);
       if (!play.didCatch) {
         var tackler = closing && closing.actor;
         var tackleAt = tackler ? tackler.tackle : 55;
-        if (play.jukeTimed && play.hole === 'break') play.ratingNote = ' ' + resultLine('the juke', back.speed, 'the tackle', tackleAt);
+        if (play.jukeBreak && play.hole === 'break') play.ratingNote = ' ' + resultLine('the juke', back.speed, 'the tackle', tackleAt);
+        else if (play.diveBreak && play.hole === 'break') play.ratingNote = ' ' + resultLine('the dive', back.carry, 'the tackle', tackleAt);
         else if (play.hole === 'stuff' || back.x < 2.4) play.ratingNote = ' ' + resultLine('the rush', play.rush, 'the line', play.block);
         else if (play.hole === 'break') play.ratingNote = ' ' + resultLine('the carry', back.carry, 'the tackle', tackleAt);
         else play.ratingNote = ' ' + resultLine('the line', play.block, 'the rush', play.rush);
@@ -785,7 +826,7 @@
     var catcher = { actor: ball.target, d: 0 };
     var cover = nearest(play, ball.toX, ball.toY, function (a) { return !a.off && (a.role === 'cb' || a.role === 's'); });
     var cov = cover && cover.d < (ball.kind === 'bullet' ? 3.2 : 5.5) ? cover.actor.cover : 32;
-    if (play.offence === 'away') cov += 10;
+    if (play.offence === 'away') cov += 3;
     var hands = catcher.actor.catch;
     var opening = throwWindow(dist, ball.kind);
     var outcome = resolveCatch(function () { return roll(game); }, ball.qb, hands, cov, dist, ball.kind);
@@ -854,11 +895,13 @@
 
   function cpuCall(game) {
     var r = roll(game);
-    if (game.toGo <= 2) return r < 0.72 ? 'inside' : 'quick';
-    if (game.toGo >= 8) return r < 0.4 ? 'deep' : r < 0.72 ? 'quick' : 'outside';
-    if (r < 0.38) return 'inside';
-    if (r < 0.66) return 'outside';
-    return 'quick';
+    if (game.toGo <= 2) return r < 0.68 ? 'inside' : 'quick';
+    if (game.spot >= 68) return r < 0.42 ? 'inside' : r < 0.78 ? 'quick' : 'outside';
+    if (game.toGo >= 8) return r < 0.16 ? 'deep' : r < 0.58 ? 'quick' : r < 0.82 ? 'outside' : 'inside';
+    if (r < 0.3) return 'inside';
+    if (r < 0.56) return 'outside';
+    if (r < 0.86) return 'quick';
+    return 'deep';
   }
 
   function bestLane(play) {
@@ -888,13 +931,13 @@
       var back = carrierOf(play);
       var lane = bestLane(play);
       var away = play.offence === 'away';
-      if (away && game && roll(game) < 0.55) lane = play.lanes[play.id === 'outside' ? 2 : 1] || lane;
+      if (away && game && roll(game) < 0.2) lane = play.lanes[play.id === 'outside' ? 2 : 1] || lane;
       var steer = clamp((lane.y - back.y) / 6, -1, 1);
       var threat = nearest(play, back.x, back.y, function (a) { return !a.off; });
       var tired = game ? fatigueOf(game, back.name) : 0;
-      var jukeOk = !away || (game && roll(game) < 0.4);
+      var jukeOk = !away || (game && roll(game) < 0.58);
       var juke = jukeOk && !play.jukeUsed && threat && threat.d < 2.4 && back.x > 1.5 ? (back.y >= threat.actor.y ? 1 : -1) : 0;
-      var dive = !play.diving && threat && threat.d < 1.6 && back.x > 4 && (!away || (game && roll(game) < 0.35));
+      var dive = !play.diving && threat && threat.d < 1.6 && back.x > 4 && (!away || (game && roll(game) < 0.5));
       return { steer: steer, turbo: !away && tired < 0.55 && back.x < 14, juke: juke, dive: dive, throw: null };
     },
     careless: function (play, game) {
@@ -918,10 +961,14 @@
       var ids = ['inside', 'outside', 'quick', 'deep'];
       return ids[Math.floor(roll(game) * ids.length)];
     }
-    if (game.toGo <= 2) return roll(game) < 0.75 ? 'inside' : 'quick';
-    if (game.spot >= 68) return roll(game) < 0.45 ? 'deep' : 'quick';
-    if (game.toGo >= 8) return roll(game) < 0.6 ? 'quick' : 'inside';
-    return roll(game) < 0.45 ? 'inside' : 'quick';
+    var prefer;
+    if (game.toGo <= 2) prefer = ['inside', 'quick', 'outside'];
+    else if (game.spot >= 62) prefer = ['quick', 'inside', 'outside'];
+    else if (game.toGo >= 8) prefer = ['quick', 'outside', 'deep', 'inside'];
+    else prefer = ['outside', 'inside', 'quick'];
+    var fresh = prefer.filter(function (id) { return tendencyLoad(game, id) < 6; });
+    var pool = fresh.length ? fresh : prefer;
+    return pool[Math.floor(roll(game) * Math.min(3, pool.length))];
   }
   function simulateGame(seed, style) {
     var game = create({ seed: (seed >>> 0) || 1 });
@@ -971,20 +1018,25 @@
     return game;
   }
   function styleBand(n, seed) {
-    var runScore = 0, runOpp = 0, runWins = 0, passScore = 0, passOpp = 0, passWins = 0, i;
+    var runScore = 0, runOpp = 0, runWins = 0, passScore = 0, passOpp = 0, passWins = 0;
+    var mixScore = 0, mixOpp = 0, mixWins = 0, i;
     for (i = 0; i < n; i++) {
       var key = ((seed + i * 17) >>> 0) || 1;
       var runGame = simulateStyle(key, 'run');
       var passGame = simulateStyle(key, 'pass');
+      var mixGame = simulateStyle(key, 'mixed');
       runScore += runGame.score.home; runOpp += runGame.score.away;
       passScore += passGame.score.home; passOpp += passGame.score.away;
+      mixScore += mixGame.score.home; mixOpp += mixGame.score.away;
       if (runGame.score.home > runGame.score.away) runWins += 1;
       if (passGame.score.home > passGame.score.away) passWins += 1;
+      if (mixGame.score.home > mixGame.score.away) mixWins += 1;
     }
     return {
       n: n,
       run: { mean: runScore / n, opp: runOpp / n, wins: runWins },
-      pass: { mean: passScore / n, opp: passOpp / n, wins: passWins }
+      pass: { mean: passScore / n, opp: passOpp / n, wins: passWins },
+      mixed: { mean: mixScore / n, opp: mixOpp / n, wins: mixWins }
     };
   }
   function millraceDrives(n, seed) {
