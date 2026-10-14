@@ -29,13 +29,13 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 | **Shelved** (Evan, 2026-10-13, AR-SHELVE) | Off the site; code, folders and saves kept, old links still open. No work. | **Diamond Career** (Diamond Manager replaced it), Classic Wildbond, Classic Starfall Guild |
 | **Shelf** | Ideas and new content. The list is [ideas.md](ideas.md). | WB-NOSTALGIA, roster growth, WB2.2, LR19–LR22, IDLE-SS1, IDLE-CS1, IDLE-DP1, Keymaster and Main Street new content, the Starfall exact-build preview, Primordial, the walk-in arcade |
 
-**Where the effort goes** (a suggestion, not a new slot count): most of it on the three launch games. Side Games Dev Lead keeps Little Ranch and Lantern Bowl, the Night Market payback hint and offline label (already in flight as NM-FIX-1, COMMS 7d08257), and the Night Market rows that are not named below. Guest lane (#373) keeps the pour and both visual pulls. Wildbond & Starfall Dev Lead takes the Wildbond checklist.
+**Where the effort goes** (a suggestion, not a new slot count): most of it on the three launch games. Side Games Dev Lead takes the Little Ranch and Lantern Bowl bundles. Guest lane (#373) takes the Night Market bundles. Wildbond & Starfall Dev Lead takes the Wildbond bundles. Payback hint and offline label are done (#421).
 
 **First in each lane** after Playtester's 2026-10-14 scores (Night Market 5/10, Lantern Bowl 6/10, Little Ranch 7/10). These sit ahead of the older gaps in [QUEUE.md](QUEUE.md).
 
-- **Night Market:** Guest lane (#373) has NM-FIX-3 first (lane strip, coin pop, flicker) and NM-FIX-4 (steam, flash, passers-by). The spec is from Game Art Director. The same guest lane has the pour. Side Games Dev Lead has the "2s" payback hint and NM-FIX-2, the honest 50% offline line, already in flight as NM-FIX-1 (COMMS 7d08257). NM-FIX-2 sits immediately before NM-RETUNE. Side Games Dev Lead also keeps the back control and the fold (NM-FIX-8), "Your save", and the hall entry.
-- **Lantern Bowl:** LBL-12 first. Sideways, Kick off is off screen, and Settings opens nothing. Then ratings, throw power or aim, opponent drives and a slower clock, then field goals and quick-pass yardage.
-- **Little Ranch:** LRL-6 dough tint, then the fox, then LRL-8 the cookie and cutter art spec (Game Art Director) and LRL-9 the code after it, then the sign wiggle, then LRL-12, the phone overlaps.
+- **Night Market:** Guest lane (#373). NM-PLAY first (pour, save controls, the 22.0s trailing zero). Then NM-VIS, both pictures in one pull. Then the phone layout and the hall entry. Payback and the offline label are done.
+- **Lantern Bowl:** Side Games Dev Lead. LB-PASS first (passing and ratings). The sideways Kick off fix is LB-PHONE, its own bundle.
+- **Little Ranch:** Side Games Dev Lead. LR-POLISH first. The layout spec and the dough dots are in that one pull. LR-VISIT is bedtime and the sound preference.
 - **Phone:** LRL-11, LBL-11 and NM-FIX-7. Owner: Playtester. Not build pulls.
 
 **Finished means playable and fun.** A newcomer gets through the first session without help, Playtester scores fun at least 7/10, there is no blocker or major bug, it plays on a phone where that applies, and there is one clear goal. Further improvements do not hold it. Merging alone does not count. Playtester or Evan confirms it.

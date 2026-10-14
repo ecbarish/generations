@@ -1,10 +1,11 @@
 # Launch checklist: Night Market
 
-**Owner:** Side Games Dev Lead.
+**Owner:** Guest lane (#373) for the Night Market bundles. Side Games Dev Lead keeps Little Ranch and Lantern Bowl.
 **Core:** IDLE-CORE is merged (#393, `shared/idle-core.js`). Games keep their own saves. The core is not rebuilt for this checklist.
 **The build:** IDLE-NM1, Night Market Stalls. **#403** is merged (`d9cde61`). The hub entry was not in that pull.
 **Ruling:** Evan, 2026-10-14. Night Market is a launch game. IDLE-NM1 is the build that fills this checklist. IDLE-SS1, IDLE-CS1 and IDLE-DP1 wait until Night Market has been playtested.
-**Dates:** measured 2026-10-14. See [launch-summary.md](launch-summary.md). The earlier dev-lead dates are replaced.
+**Dates:** measured 2026-10-14, then counted as bundles. See [launch-summary.md](launch-summary.md). The 29 October and 22 November dates are placeholders.
+**Chunks** (Evan, 2026-10-14): one pull request per fix list or feature area, and one game per pull request. Split only when one area gets genuinely risky. Guardrails stay: tests green, old saves load, screenshots, Game Art Director reviews any art, and no save-format change without Evan.
 
 Spec: [office-idle-progression.md](../research/office-idle-progression.md) §4A and §8, and the house rules in [village-and-business-review.md](../research/village-and-business-review.md). You do the job yourself before you hire. Offline earnings are capped. There is no multiplier treadmill.
 
@@ -18,8 +19,8 @@ Playtester scores the first session once the stall exists, then every week. Fini
 | Playtester rates the first session as fun | **NML-2** | **5/10** on 2026-10-14. The bar is at least 7/10. This does not pass |
 | No crashes and no broken saves | **NML-3** | #403 keeps the stall on the idle core. **NM-FIX-6:** "Your save" should do something. A reload must show the away summary and leave every other game's save alone |
 | Plays well on a phone | **NML-4** | **NM-FIX-7.** The phone layout still needs a playtest. Owner: Playtester |
-| One clear goal | **NML-5** | One stall you work yourself. **NM-FIX-1** and **NM-LABEL:** the payback hint shows "2s" on every stall, and the line shows time-to-afford. **NM-FIX-5:** the pour takes 25 clicks and then the button vanishes |
-| Known bugs are fixed | **NML-6** | **NM-FIX-2:** say the 50% offline rate on screen. **NM-FIX-3** and **NM-FIX-4:** visual life, two pulls. **NM-FIX-8:** the back control and the fold. **NM-RETUNE** still waits for the district slice. **NM-CLAMP** is below |
+| One clear goal | **NML-5** | One stall you work yourself. Payback hint and the time-to-afford line are done (#421). **NM-PLAY** still has the pour: 25 clicks, then the button vanishes |
+| Known bugs are fixed | **NML-6** | The offline label is done (#421). **NM-VIS** is visual life, one pull. **NM-PHONE** is the back control and the fold. **NM-RETUNE** still waits for the district slice. **NM-CLAMP** is below |
 
 ## Finished means
 
@@ -40,29 +41,25 @@ Playable and fun. Further improvements do not hold the release.
 3. A reload keeps the stall and does not touch other games' saves (NML-3).
 4. The stall plays on a phone (NML-4).
 5. Playtester's fun score is at least 7/10 (NML-2).
-6. A hub and launcher entry, so a newcomer can open the stall (**NM-HUB**). Size S. Its own claim. Not part of #403.
-7. The payback line tells the truth (**NM-LABEL**, **NM-FIX-1**). The hint shows "2s" on every stall. Relabel "pays for itself in N seconds", or show real payback. These two may be one pull.
-8. Offline earnings stay at 50% and the screen says so (**NM-FIX-2**).
-9. Visual life, two pulls, spec from Game Art Director. **NM-FIX-3:** lane-strip canvas, coin pop and flicker. **NM-FIX-4:** steam, flash and passers-by.
-10. "Back to the arcade" is large enough and does not cover another button, and a stall is on screen on a phone (**NM-FIX-8**).
-11. The pour keeps a button after 25 clicks (**NM-FIX-5**).
-12. "Your save" does something (**NM-FIX-6**).
-13. A phone layout playtest (**NM-FIX-7**). Owner: Playtester.
+6. A hub and launcher entry, so a newcomer can open the stall (**NM-HUB**). One pull. Not part of #403.
+7. Done (#421, `1459413`): the payback line tells the truth (**NM-LABEL**, **NM-FIX-1**).
+8. Done (#421, `1459413`): offline earnings stay at 50% and the screen says so (**NM-FIX-2**).
+9. Visual life, one pull (**NM-VIS**), spec from Game Art Director. Lane-strip canvas, coin pop and flicker (**NM-FIX-3**), plus steam, flash and passers-by (**NM-FIX-4**).
+10. "Back to the arcade" is large enough and does not cover another button, and a stall is on screen on a phone (**NM-PHONE**, **NM-FIX-8**).
+11. The pour keeps a button after 25 clicks, "Your save" does something, and a time hint does not print a trailing zero (**NM-PLAY**: **NM-FIX-5**, **NM-FIX-6**).
+12. A phone layout playtest (**NM-FIX-7**). Owner: Playtester.
 
 ## Playtest gaps (2026-10-14, fun 5/10)
 
-These come before the older gaps. Guest bots are welcome on the Side Games Dev Lead rows. One pull each.
+These are bundles, not one pull each. Guest lane (#373) owns them. Payback hint and offline label are done (#421, `1459413`).
 
-| ID | Size | Owner | What |
-|---|---|---|---|
-| NM-FIX-3 | S | Guest lane (#373) | First task. Visual life, pull 1 of 2: lane-strip canvas, coin pop and flicker. Spec from Game Art Director |
-| NM-FIX-4 | S | Guest lane (#373) | Visual life, pull 2 of 2: steam, flash and passers-by. Spec from Game Art Director. After NM-FIX-3 |
-| NM-FIX-8 | S | Side Games Dev Lead | "Back to the arcade" is 112×17 px and overlaps a button. The stalls sit below the fold on a phone |
-| NM-FIX-1 | S | Side Games Dev Lead | The payback hint shows "2s" on every stall. May be the same pull as NM-LABEL. Already in flight with the offline line (COMMS 7d08257). The offline line is NM-FIX-2 |
-| NM-FIX-5 | S | Guest lane (#373) | Pour flow: 25 clicks, then the button vanishes |
-| NM-FIX-6 | S | Side Games Dev Lead | "Your save" does something |
-| NM-FIX-7 | — | Playtester | The phone layout still needs a playtest. Not a build pull |
-| NM-FIX-2 | S | Side Games Dev Lead | Offline honesty, placed before NM-RETUNE. In flight with NM-FIX-1 (COMMS 7d08257). Keep the 50% offline rate and say so, for example "stalls earned 50% while you were away" |
+| ID | Owner | What |
+|---|---|---|
+| NM-PLAY | Guest lane (#373) | First bundle. Pour flow (NM-FIX-5), save controls (NM-FIX-6), and the 22.0s trailing-zero fix |
+| NM-VIS | Guest lane (#373) | Visuals, one pull: lane-strip canvas, coin pop and flicker (NM-FIX-3), plus steam, flash and passers-by (NM-FIX-4). Spec from Game Art Director, who reviews the art |
+| NM-PHONE | Guest lane (#373) | "Back to the arcade" is 112×17 px and overlaps a button. The stalls sit below the fold (NM-FIX-8) |
+| NM-HUB | Guest lane (#373) | Hall and launcher entry. #403 did not add this |
+| NM-FIX-7 | Playtester | The phone layout still needs a playtest. Not a build pull |
 
 **Reviewer notes that do not block the first session:**
 
@@ -76,27 +73,20 @@ These come before the older gaps. Guest bots are welcome on the Side Games Dev L
 
 Measured 2026-10-14. Night Market's feature rate is 2 pulls in 7 days (0.29 a day) and the same 2 in 14 days (0.14 a day): IDLE-CORE and #403. The maths is in [launch-summary.md](launch-summary.md).
 
-**Pulls left that block finish:** 8 in the likely case, 9 in the slower case. #403 is merged (`d9cde61`). NM-FIX-7 is the confirmation session, not a build pull. NM-RETUNE and NM-CLAMP are not in this count. NM-FIX-1 shares NM-LABEL's pull in the likely count. Visual life is two pulls.
+**Bundles left that block finish:** 4. #403 is merged. Payback hint and offline label are done (#421, `1459413`). NM-FIX-7 is not a bundle. NM-RETUNE and NM-CLAMP are not in this count. Visuals 1 and 2 are one pull. The per-pull rate applied to these bundles makes the dates estimates, and the small sample makes them placeholders.
 
-| ID | Size | What |
-|---|---|---|
-| NM-FIX-3 | S | Lane strip, coin pop, flicker |
-| NM-FIX-4 | S | Steam, flash, passers-by |
-| NM-FIX-8 | S | Back control and the fold |
-| NM-FIX-5 | S | Pour flow |
-| NM-FIX-6 | S | "Your save" |
-| NM-FIX-2 | S | Offline honesty |
-| NM-HUB | S | Hall entry |
-| NM-LABEL with NM-FIX-1 | S | Payback. Slower counts NM-FIX-1 as its own extra pull |
+| ID | What is inside |
+|---|---|
+| NM-PLAY | Pour flow, save controls, and the 22.0s trailing-zero fix |
+| NM-VIS | Lane strip, coin pop, flicker, steam, flash, and passers-by. One pull. Game Art Director reviews the art |
+| NM-PHONE | The back control and the stalls below the fold |
+| NM-HUB | Hall and launcher entry |
 
-**Likely:** 8 / 0.29 days of build, plus 1 confirmation day, plus 0 buffer. **2026-11-12.** Was 2026-10-22.
-**Slower:** 9 / 0.14 days of build, two playtest rounds, and a 2-day buffer. **2026-12-27.** Was 2026-11-08.
+**Likely:** 4 / 0.29 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-29.**
+**Slower:** 4 / 0.14 days of build, two playtest rounds, and a 2-day buffer. **2026-11-22.**
 
-## Owner and the first tasks
+## Owner and the first bundle
 
-**Owner:** Side Games Dev Lead keeps the payback hint (NM-FIX-1) and the offline label (NM-FIX-2). Those two are already in flight as NM-FIX-1 (COMMS 7d08257). Guest lane (#373) keeps the pour (NM-FIX-5) and both visual pulls (NM-FIX-3, NM-FIX-4). Side Games Dev Lead also keeps Little Ranch, Lantern Bowl, and the rest of Night Market. The visual-life spec is from Game Art Director.
+**Owner:** Guest lane (#373).
 
-1. **NM-FIX-3.** Lane-strip canvas, coin pop and flicker.
-2. **NM-FIX-4.** Steam, flash and passers-by.
-3. **NM-FIX-1.** Fix the "2s" hint. It may land with NM-LABEL.
-4. **NM-FIX-2** sits later, immediately before NM-RETUNE.
+1. **NM-PLAY.** Pour flow, save controls, and the trailing-zero fix, in one pull.

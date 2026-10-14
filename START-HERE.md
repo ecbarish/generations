@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, docs:** Launch work is bundled. Likely dates are 16 Oct (Little Ranch and Wildbond), 21 Oct (Lantern Bowl) and 29 Oct (Night Market, a placeholder). Summary in docs/plans/launch-summary.md.
 - **2026-10-14, docs:** Night Market's 12 Nov and 27 Dec dates are placeholders. Side Games Dev Lead keeps the payback hint and the offline label (in flight as NM-FIX-1). Guest lane (#373) keeps the pour and both visual pulls. Little Ranch and Lantern Bowl stay with Side Games Dev Lead.
 - **2026-10-14, docs:** Playtest scores on the launch checklists. Night Market 5/10, Lantern Bowl 6/10, Little Ranch 7/10. Likely dates are 18 Oct, 26 Oct and 12 Nov. Summary in docs/plans/launch-summary.md.
 - **2026-10-14, docs:** Launch dates redone from the measured merge rate. Likely dates are 16 Oct (Little Ranch), 17 Oct (Wildbond), 20 Oct (Lantern Bowl) and 22 Oct (Night Market). #403, #400, #381, #383, #380 and #399 are merged. #404 and #409 are on hold. Summary in docs/plans/launch-summary.md.

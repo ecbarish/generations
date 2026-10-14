@@ -4,7 +4,7 @@ Evan, 2026-10-14, redone the same evening. **Finished means playable and fun.** 
 
 A date is three parts, added up, then rounded up to a calendar day from 2026-10-14:
 
-1. **Build** = pulls left ÷ the lane's feature rate.
+1. **Build** = bundles left ÷ the lane's feature rate. The rate was measured per merged pull. Applying it to a bundle makes the date an estimate.
 2. **Playtest** = the rounds below. A round is one Playtester session. The known fixes are already in the build count, so the likely case is one confirmation day and no second fix. The slower case adds a second round: another day, plus one fix pull at the 14-day rate.
 3. **Buffer** = extra days that are not in the rate. Likely uses **0**. Slower uses **2**, and that 2 is the only padding.
 
@@ -26,32 +26,30 @@ Seven calendar days had no merged pull: 1–5 October, 7 October and 8 October. 
 
 Per day is the count divided by 7 or by 14. One of Wildbond's 31 feature pulls in the 7-day window is the hub button (#396). Leaving it in does not move Wildbond's date.
 
-**Likely** uses the 7-day feature rate. **Slower** uses the 14-day feature rate, two playtest rounds, and the 2-day buffer.
+**Likely** uses the 7-day feature rate on the bundle count, plus 1 playtest day. **Slower** uses the 14-day feature rate, two playtest rounds, and the 2-day buffer. These per-pull rates are applied to bundles, so the dates are estimates.
 
-| Game | Build, likely | Playtest, likely | Buffer | Total | Date | Build, slower | Playtest, slower | Buffer | Total | Date |
-|---|---|---|---|---:|---|---|---|---|---:|---|
-Playtester scored the launch games on 2026-10-14: Night Market **5/10**, Lantern Bowl **6/10**, Little Ranch **7/10**. The new gaps are in the pull counts below. The rates are unchanged. A phone-layout row is a Playtester session, already covered by the confirmation day, so it is not an extra build pull. Night Market's payback hint may share the existing relabel pull: the likely count does that, and the slower count gives it a pull of its own.
+Playtester scored the launch games on 2026-10-14: Night Market **5/10**, Lantern Bowl **6/10**, Little Ranch **7/10**. Open gaps are now bundles. A phone-layout playtest is the confirmation day, not an extra bundle. Payback hint and offline label are done (#421, `1459413`).
 
-| Game | Build, likely | Playtest, likely | Buffer | Total | Date | Build, slower | Playtest, slower | Buffer | Total | Date |
-|---|---|---|---|---:|---|---|---|---|---:|---|
-| Little Ranch | 8 / 3.00 = 2.67 days | 1 round × 1 day | 0 | 3.67 | **2026-10-18** | 8 / 1.50 = 5.33 | 2 days + 1 / 1.50 = 0.67 | 2 | 10.00 | **2026-10-24** |
-| Lantern Bowl | 9 / 0.86 = 10.50 days | 1 day | 0 | 11.50 | **2026-10-26** | 10 / 0.43 = 23.33 | 2 days + 1 / 0.43 = 2.33 | 2 | 29.67 | **2026-11-13** |
-| Night Market | 8 / 0.29 = 28.00 days | 1 day | 0 | 29.00 | **2026-11-12** | 9 / 0.14 = 63.00 | 2 days + 1 / 0.14 = 7.00 | 2 | 74.00 | **2026-12-27** |
-| Wildbond | 7 / 4.43 = 1.58 days | 1 day | 0 | 2.58 | **2026-10-17** | 7 / 2.43 = 2.88 | 2 days + 1 / 2.43 = 0.41 | 2 | 7.29 | **2026-10-22** |
+| Game | Bundles | Build, likely | Playtest, likely | Buffer | Total | Date | Build, slower | Playtest, slower | Buffer | Total | Date |
+|---|---:|---|---|---:|---:|---|---|---|---:|---:|---|
+| Little Ranch | 2 | 2 / 3.00 = 0.67 days | 1 day | 0 | 1.67 | **2026-10-16** | 2 / 1.50 = 1.33 | 2 days + 1 / 1.50 = 0.67 | 2 | 6.00 | **2026-10-20** |
+| Lantern Bowl | 5 | 5 / 0.86 = 5.83 days | 1 day | 0 | 6.83 | **2026-10-21** | 5 / 0.43 = 11.67 | 2 days + 1 / 0.43 = 2.33 | 2 | 18.00 | **2026-11-01** |
+| Night Market | 4 | 4 / 0.29 = 14.00 days | 1 day | 0 | 15.00 | **2026-10-29** | 4 / 0.14 = 28.00 | 2 days + 1 / 0.14 = 7.00 | 2 | 39.00 | **2026-11-22** |
+| Wildbond | 4 | 4 / 4.43 = 0.90 days | 1 day | 0 | 1.90 | **2026-10-16** | 4 / 2.43 = 1.65 | 2 days + 1 / 2.43 = 0.41 | 2 | 6.06 | **2026-10-21** |
 
-The previous likely / slower dates, before these gaps, were Little Ranch 16 Oct / 20 Oct, Lantern Bowl 20 Oct / 1 Nov, Night Market 22 Oct / 8 Nov, and Wildbond 17 Oct / 22 Oct. Wildbond's pull count did not change.
+Counting each gap as its own pull, the dates on this pull request were Little Ranch 18 Oct / 24 Oct, Lantern Bowl 26 Oct / 13 Nov, Night Market 12 Nov / 27 Dec, and Wildbond 17 Oct / 22 Oct.
 
-Night Market's rate is still 2 pulls in the fortnight. Eight pulls at that rate is why its likely date moves to 12 November, and nine pulls on the 14-day rate is why the slower date moves to 27 December. Visual life is two of those pulls: the lane strip, coin pop and flicker, then steam, flash and passers-by. The 0.29 and 0.14 pulls-a-day rates come from a small sample of 2 merges, so the 12 November and 27 December dates are placeholders, not forecasts, and the rate will be re-measured after a week of real merges now that a guest bot is on the lane.
+The 0.29 and 0.14 pulls-a-day rates come from a small sample of 2 merges, so the 29 October and 22 November Night Market dates are placeholders, not forecasts, and the rate will be re-measured after a week of real merges now that a guest bot is on the lane.
 
 ## Where the games are
 
-Merged since the last draft: Night Market **#403** (`d9cde61`), Little Ranch **#400** LR18 (`43785a4`), **#381** LR17, Lantern Bowl 5a **#383**, **#380**, and **#399**. **#404** LR19 and **#409** LR20 are on hold.
+Merged since the last draft: Night Market **#403** (`d9cde61`), payback and the offline label **#421** (`1459413`), Little Ranch **#400** LR18 (`43785a4`), **#381** LR17, Lantern Bowl 5a **#383**, **#380**, and **#399**. **#404** LR19 and **#409** LR20 are on hold.
 
-| Game | Owner | Finish, in short | Must-haves still open | Pulls left | Likely | Slower | First task |
+| Game | Owner | Finish, in short | Bundles still open | Bundles | Likely | Slower | First bundle |
 |---|---|---|---|---|---|---|---|
-| Little Ranch | Side Games Dev Lead (guest bots welcome). Cookie art spec is Game Art Director first | Fun is 7/10. Dough tint, fox, cookie and cutter, sign wiggle, phone overlaps, bedtime, sound | LRL-6 through LRL-10 and LRL-12, plus LRL-1 and LRL-4. Phone playtest LRL-11 is not a build pull | 8 | 2026-10-18 | 2026-10-24 | LRL-6, dough tint |
-| Lantern Bowl | Side Games Dev Lead (guest bots welcome) | Fun is 6/10. Sideways Kick off and Settings, then ratings, throw, drives, 5b and 5c | LBL-12, LBL-7 through LBL-10, plus 5b-1, 5b-2, 5c and the save. Phone playtest LBL-11 is not a build pull. Slower adds one pull for the label and the carry | 9 likely, 10 slower | 2026-10-26 | 2026-11-13 | LBL-12, sideways Kick off and Settings |
-| Night Market | Side Games Dev Lead has the payback hint and the offline label, already in flight as NM-FIX-1. Guest lane (#373) has the pour and both visual pulls. Side Games Dev Lead keeps the rest. The visual spec is from Game Art Director | Fun is 5/10. Two visual pulls, back control and fold, payback, pour, save, offline, hall | Two visual pulls, NM-FIX-8, pour, save, offline, hub, and payback together with the relabel. Slower counts payback on its own. Phone playtest is not a build pull. NM-RETUNE and NM-CLAMP stay off this count. The 12 Nov and 27 Dec dates are placeholders | 8 likely, 9 slower | 2026-11-12 | 2026-12-27 | NM-FIX-3, lane strip, coin pop and flicker |
-| Wildbond | Wildbond & Starfall Dev Lead | Menu, including Choose Ripplet; battles open on the action menu; an obvious Catch; an objective; then the 9 sprites; fun ≥ 7/10 (now 5/10); phone still untested | WBL-1 through WBL-10 and WBL-14. WBL-6 comes after WBL-4. #380 and #399 are merged | 4M + 3S = 7 | 2026-10-17 | 2026-10-22 | WBL-1, menu, status bar, and Choose Ripplet |
+| Little Ranch | Side Games Dev Lead | Fun is 7/10. Toy polish, then the first visit | LR-POLISH, LR-VISIT. Phone playtest is not a bundle | 2 | 2026-10-16 | 2026-10-20 | LR-POLISH, toy polish |
+| Lantern Bowl | Side Games Dev Lead | Fun is 6/10. Passing and ratings, a phone fix, the playbook, the readout, the save | LB-PASS, LB-PHONE, LB-BOOK, LB-READ, LB-SAVE. Kick off is the phone bundle, not passing | 5 | 2026-10-21 | 2026-11-01 | LB-PASS, passing and ratings |
+| Night Market | Guest lane (#373) | Fun is 5/10. Playtest fixes, visuals, phone layout, hall entry. Payback and offline are done | NM-PLAY, NM-VIS, NM-PHONE, NM-HUB. NM-RETUNE and NM-CLAMP stay off this count. Dates are placeholders | 4 | 2026-10-29 | 2026-11-22 | NM-PLAY, playtest fixes |
+| Wildbond | Wildbond & Starfall Dev Lead | Menu and battle start, then the catch, the sprites, the road. Fun is 5/10 | WB-OPEN, WB-CATCH, WB-LOOK, WB-ROAD | 4 | 2026-10-16 | 2026-10-21 | WB-OPEN, menu and battle start |
 
 Full lists: [launch-little-ranch.md](launch-little-ranch.md), [launch-lantern-bowl.md](launch-lantern-bowl.md), [launch-night-market.md](launch-night-market.md), [launch-wildbond.md](launch-wildbond.md).

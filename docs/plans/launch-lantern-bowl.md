@@ -3,7 +3,8 @@
 **Owner:** Side Games Dev Lead.
 **Build on main:** v0.1.4. One match at Lamplight Field. The save is `lantern-bowl-save-v1`, file version 2.
 **Ruling:** Evan, 2026-10-14. Lantern Bowl is a launch game. Round 5 counts: #371, and #383 (5a). No new content after this checklist until it is done.
-**Dates:** measured 2026-10-14. See [launch-summary.md](launch-summary.md). The earlier dev-lead dates are replaced.
+**Dates:** measured 2026-10-14, then counted as bundles. See [launch-summary.md](launch-summary.md).
+**Chunks** (Evan, 2026-10-14): one pull request per fix list or feature area, and one game per pull request. Split only when one area gets genuinely risky. Guardrails stay: tests green, old saves load, screenshots, Game Art Director reviews any art, and no save-format change without Evan.
 
 Playtester scores every week. Finished means the game is playable and fun. Merging a pull request does not finish it. Playtester or Evan confirms it.
 
@@ -18,7 +19,7 @@ Round 5's bar is the note on [#371](https://github.com/ecbarish/generations/issu
 | No crashes and no broken saves | **LBL-3** | A save is written after every play. An older file steps up to version 2 and keeps the match. A newer file is left alone. Still confirm a reload on the round-5 build. A separate small pull moves the save onto `Arcade.versions` without changing the save format |
 | Plays well on a phone | **LBL-4** | **LBL-11.** The phone layout still needs a playtest. Owner: Playtester. The version label is still cut off at 360px wide |
 | One clear goal | **LBL-5** | 5c keeps the score, the down and the clock readable. 5b shows the routes before the snap. Playtester's "reads as football in 5 seconds" pass sits here |
-| Known bugs are fixed | **LBL-6** | **LBL-12** is first: sideways, Kick off is off screen, and Settings opens nothing. Then **LBL-7** through **LBL-10**. 5c's follow-ups remain |
+| Known bugs are fixed | **LBL-6** | **LB-PASS** is first: passing and ratings. Sideways, Kick off is off screen and Settings opens nothing, and that does not fit inside passing, so it is **LB-PHONE**. The playbook, the readout and the save are their own bundles |
 
 ## Finished means
 
@@ -46,16 +47,16 @@ Playable and fun. Further improvements do not hold the release.
 
 ## Playtest gaps (2026-10-14, fun 6/10)
 
-These come before 5b. Guest bots are welcome. One pull each.
+These are bundles. Side Games Dev Lead owns them. Passing and ratings come first. The Kick off fix is its own phone bundle, because the page does not scroll and Settings opens nothing.
 
-| ID | Size | Owner | What |
-|---|---|---|---|
-| LBL-12 | S | Side Games Dev Lead | First task. Sideways, the page does not scroll, so Kick off is off screen. Settings opens nothing |
-| LBL-7 | S | Side Games Dev Lead | Rewrite or hide the rating numbers |
-| LBL-8 | S | Side Games Dev Lead | Show throw power or aim, and explain why a deep pass missed |
-| LBL-9 | S | Side Games Dev Lead | Summarise the opponent's drives, and slow the clock |
-| LBL-10 | S | Side Games Dev Lead | Minor: field goals on 4th down, and varied quick-pass yardage |
-| LBL-11 | — | Playtester | The phone layout still needs a playtest. Not a build pull |
+| ID | Owner | What |
+|---|---|---|
+| LB-PASS | Side Games Dev Lead | First bundle. Controls and passing (5b-1, already claimed), rewrite or hide the ratings (LBL-7), and show throw power or aim, including why a deep pass missed (LBL-8) |
+| LB-PHONE | Side Games Dev Lead | Sideways, the page does not scroll, so Kick off is off screen, and Settings opens nothing (LBL-12) |
+| LB-BOOK | Side Games Dev Lead | Play art and the playbook (5b-2), field goals on 4th down, and varied quick-pass yardage (LBL-10) |
+| LB-READ | Side Games Dev Lead | Score, down, clock, the 360px version label, and the median carry (5c), plus opponent drives and a slower clock (LBL-9) |
+| LB-SAVE | Side Games Dev Lead | Onto `Arcade.versions`. Split out because it touches the save. No save-format change without Evan (LBL-3) |
+| LBL-11 | Playtester | The phone layout still needs a playtest. Not a build pull |
 
 **5b is not only a tutorial.** Evan's passing slice is:
 
@@ -76,26 +77,21 @@ These come before 5b. Guest bots are welcome. One pull each.
 
 Measured 2026-10-14. Lantern Bowl's feature rate is 6 pulls in 7 days (0.86 a day) and the same 6 in 14 days (0.43 a day). The maths is in [launch-summary.md](launch-summary.md).
 
-**Pulls left:** 5a (#383) is merged.
+**Bundles left:** 5. 5a (#383) is merged. LBL-11 is not a bundle. The sideways Kick off fix does not fit inside passing: the page does not scroll, and Settings opens nothing, so that is the phone bundle. The save cleanup is split out because it touches the save. The per-pull rate applied to these bundles makes the dates estimates.
 
-| ID | Size | What |
-|---|---|---|
-| 5b-1 / LBL-1 | M | Controls and passing. Together with 5b-2 this is one L, split in two |
-| 5b-2 / LBL-1 | M | Play art and the playbook |
-| 5c / LBL-5 | S | Score, down and clock, the version label at 360px, and median carry 2.7 against a target of 3 |
-| Save cleanup / LBL-3 | S | Onto `Arcade.versions`. No save format change |
+| ID | What is inside |
+|---|---|
+| LB-PASS | Passing and ratings: 5b-1, the rating numbers, and throw power or aim |
+| LB-PHONE | Sideways Kick off, and Settings |
+| LB-BOOK | Play art, the playbook, field goals on 4th down, and quick-pass yardage |
+| LB-READ | Score, down, clock, the version label, the median carry, opponent drives, and a slower clock |
+| LB-SAVE | Onto `Arcade.versions`. No save-format change without Evan |
 
-The playtest adds **5** pulls (LBL-12 and LBL-7 through LBL-10). LBL-11 is not a build pull. Likely counts **9** (those 5, plus the 4 already listed, with the label and the carry inside 5c). Slower counts **10**, with the label and the carry as their own small pull.
+**Likely:** 5 / 0.86 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-21.**
+**Slower:** 5 / 0.43 days of build, two playtest rounds, and a 2-day buffer. **2026-11-01.**
 
-**Likely:** 9 / 0.86 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-26.** Was 2026-10-20.
-**Slower:** 10 / 0.43 days of build, two playtest rounds, and a 2-day buffer. **2026-11-13.** Was 2026-11-01.
+## Owner and the first bundle
 
-## Owner and the first tasks
+**Owner:** Side Games Dev Lead.
 
-**Owner:** Side Games Dev Lead. Guest bots are welcome.
-
-1. **LBL-12.** Sideways, bring Kick off on screen, and make Settings open.
-2. **LBL-7.** Rewrite or hide the rating numbers.
-3. **LBL-8.** Show throw power or aim, and explain a missed deep pass.
-4. **LBL-9.** Summarise the opponent's drives and slow the clock.
-5. **5b-1** stays next among the older gaps. 5a (#383) is merged. Side Games Dev Lead already claimed 5b-1.
+1. **LB-PASS.** Passing and ratings, one pull. 5b-1 is already claimed and belongs in this bundle.

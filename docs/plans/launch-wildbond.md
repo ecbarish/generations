@@ -3,7 +3,8 @@
 **Owner:** Wildbond & Starfall Dev Lead.
 **Lane:** steady background. Wildbond is the long project, not the first to ship. New content waits until this checklist is done: WB-NOSTALGIA (NOS-1a through NOS-1e), roster growth, and WB2.2.
 **Ruling:** Evan, 2026-10-14.
-**Dates:** measured 2026-10-14. See [launch-summary.md](launch-summary.md). The 7/10 bar is confirmed, and a played phone session is a must-pass. Phone is not yet tested. The earlier "2 pulls a week" dates are replaced.
+**Dates:** measured 2026-10-14, then counted as bundles. See [launch-summary.md](launch-summary.md). The 7/10 bar is confirmed, and a played phone session is a must-pass. Phone is not yet tested.
+**Chunks** (Evan, 2026-10-14): one pull request per fix list or feature area, and one game per pull request. Split only when one area gets genuinely risky. Guardrails stay: tests green, old saves load, screenshots, Game Art Director reviews any art, and no save-format change without Evan.
 
 Playtester scores every week. Finished means the game is playable and fun. Merging a pull request does not finish it. Playtester or Evan confirms it.
 
@@ -28,27 +29,29 @@ Partial newcomer report. About **6 minutes**, on an **existing save**. **Fun 5/1
 | One clear goal | WBL-1, WBL-4, WBL-8 | No status bar, the objective text does not fit, and the road to Thornwood does nothing |
 | Known bugs are fixed | WBL-1 through WBL-10, and WBL-14, block finish. WBL-11 and WBL-12 do not, unless Godot uses them | Majors are listed under must-haves. The rest are recorded and wait |
 
-## Gaps, top priority first
+## Gaps
 
-**WBL-1. Menu and status bar. First task.** Esc, the briefcase icon, and I open a real menu, plus a status bar. The menu covers party, field book, and save. This same pull includes **WBL-14**: on the starter screen, clicking Choose Ripplet with the mouse walks instead of choosing. That blocks the first 10 minutes, so it is a must-have, not a minor. Ticks the first 10 minutes and one clear goal.
+The open majors are four bundles, not one pull each. **WB-OPEN** is first: the menu, the status bar, Choose Ripplet, and battles that open on the action menu. **WB-CATCH** is the Catch and the objective. **WB-LOOK** is the early pace and the nine sprites. **WB-ROAD** is the north exit, the Thornwood road, and Continue.
 
-**WBL-2. Battles start fair.** A battle opens on the action menu. The enemy does not get a free hit. Ticks fun and known bugs.
+**WBL-1. Menu and status bar. Inside WB-OPEN.** Esc, the briefcase icon, and I open a real menu, plus a status bar. The menu covers party, field book, and save. The same pull includes **WBL-14**: on the starter screen, clicking Choose Ripplet with the mouse walks instead of choosing. That blocks the first 10 minutes, so it is a must-have, not a minor. Ticks the first 10 minutes and one clear goal.
 
-**WBL-3. An obvious Catch, and a first catch you can see.** Add a Catch button. Bag is greyed out today, and catching is hidden under Bond. Bag is enabled whenever you have items. Game Researcher's suggestion for this gap and for WBL-4: do it the way Pokémon stages a first catch. In the first wild encounter, show the Bond prompt on screen and give enough balls that the catch cannot fail. Not a wall of tutorial text. Ticks the first 10 minutes, fun, and one clear goal.
+**WBL-2. Battles start fair. Inside WB-OPEN.** A battle opens on the action menu. The enemy does not get a free hit. Ticks fun and known bugs.
 
-**WBL-4. The objective tracker.** An on-screen objective, and tutorial text that fits its box. The first-catch Bond prompt is that objective for the opening encounter. Ticks the first 10 minutes and one clear goal.
+**WBL-3. An obvious Catch, and a first catch you can see. Inside WB-CATCH.** Add a Catch button. Bag is greyed out today, and catching is hidden under Bond. Bag is enabled whenever you have items. Game Researcher's suggestion for this gap and for WBL-4: do it the way Pokémon stages a first catch. In the first wild encounter, show the Bond prompt on screen and give enough balls that the catch cannot fail. Not a wall of tutorial text. Ticks the first 10 minutes, fun, and one clear goal.
 
-**WBL-6. Battle sprites. After WBL-4.** Battle screens still draw the overworld sprites scaled up. Game Art Director handed over **9 finished 64×64 battle sprites**. Wiring them in is its own pull, size S, and it waits until WBL-1 through WBL-4 are underway. Mosshog uses the older Higgsfield art for now. Game Art Director will swap that sprite later, and that swap does not block finish. Ticks fun and known bugs.
+**WBL-4. The objective tracker. Inside WB-CATCH.** An on-screen objective, and tutorial text that fits its box. The first-catch Bond prompt is that objective for the opening encounter. Ticks the first 10 minutes and one clear goal.
 
-**WBL-5. The early route moves.** A faster early encounter rate, and healing, so the first session is not a long walk with nothing to do. Ticks the first 10 minutes and fun.
+**WBL-6. Battle sprites. Inside WB-LOOK, with WBL-5.** Battle screens still draw the overworld sprites scaled up. Game Art Director handed over **9 finished 64×64 battle sprites**. Wiring them in rides with the early pace, and Game Art Director reviews the sprites. Mosshog uses the older Higgsfield art for now. Game Art Director will swap that sprite later, and that swap does not block finish. Ticks fun and known bugs.
 
-**WBL-7. North exit.** Walking north once sent the player back to the title screen. Ticks no crashes and known bugs.
+**WBL-5. The early route moves. Inside WB-LOOK.** A faster early encounter rate, and healing, so the first session is not a long walk with nothing to do. Ticks the first 10 minutes and fun.
 
-**WBL-8. The road to Thornwood.** It does nothing. Ticks the first 10 minutes, one clear goal, and known bugs.
+**WBL-7. North exit. Inside WB-ROAD.** Walking north once sent the player back to the title screen. Ticks no crashes and known bugs.
 
-**WBL-9. Continue.** Continue goes through the title screen and returns to the same place. Ticks no crashes and no broken saves.
+**WBL-8. The road to Thornwood. Inside WB-ROAD.** It does nothing. Ticks the first 10 minutes, one clear goal, and known bugs.
 
-**WBL-10. A real Continue test.** An end-to-end test that starts a journey, quits, continues, and lands in the same place. Headless tests that only load a fixture file do not cover this.
+**WBL-9. Continue. Inside WB-ROAD.** Continue goes through the title screen and returns to the same place. Ticks no crashes and no broken saves.
+
+**WBL-10. A real Continue test. Inside WB-ROAD.** An end-to-end test that starts a journey, quits, continues, and lands in the same place. Headless tests that only load a fixture file do not cover this.
 
 **WBL-11. A migrate that returns null. SSA, parallel.** In `shared/engine.js` `applyVersion`, a migrate that returns null should hold the session the way a throw does. The save stays untouched and saving stays off. `tests/engine-save-checks.js` should cover it. Shared Systems Architect owns this. It is off Wildbond's blocking path unless the Godot build uses it.
 
@@ -105,28 +108,20 @@ Playable and fun. Further improvements do not hold the release.
 
 Measured 2026-10-14. Wildbond's feature rate is 31 pulls in 7 days (4.43 a day) and 34 in 14 days (2.43 a day). The maths is in [launch-summary.md](launch-summary.md). #380 and #399 are merged. They were not on this list.
 
-**Pulls left that block finish:** 7. Order is the order of the work.
+**Bundles left that block finish:** 4. The per-pull rate is applied to bundles, so these dates are estimates. #380 and #399 are merged. WBL-11 and WBL-12 stay with Shared Systems Architect and are not on this list.
 
-| Batch | Size | Gaps |
-|---|---|---|
-| Menu | M | WBL-1 and WBL-14 (Choose Ripplet) |
-| Battles | M | WBL-2 |
-| Catch | M | WBL-3, the Catch button and the guided first catch |
-| Objective | S | WBL-4 |
-| Early pace | S | WBL-5 |
-| Sprites | S | WBL-6. Nine sprites, after WBL-4. Mosshog stays on the older Higgsfield art |
-| Road and Continue | M | WBL-7, WBL-8, WBL-9, WBL-10 |
+| ID | What is inside |
+|---|---|
+| WB-OPEN | Menu, status bar, Choose Ripplet, and battles that open on the action menu |
+| WB-CATCH | The Catch button, the guided first catch, and the objective tracker |
+| WB-LOOK | Early pace, and the nine battle sprites. Game Art Director reviews the sprites |
+| WB-ROAD | North exit, the Thornwood road, and Continue |
 
-WBL-11 and WBL-12 are **SSA, parallel**. They are not on this list.
+**Likely:** 4 / 4.43 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-16.**
+**Slower:** 4 / 2.43 days of build, two playtest rounds, and a 2-day buffer. **2026-10-21.**
 
-**Likely:** 7 / 4.43 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-17.**
-**Slower:** 7 / 2.43 days of build, two playtest rounds, and a 2-day buffer. **2026-10-22.**
+## Owner and the first bundle
 
-## Owner and the first tasks
+**Owner:** Wildbond & Starfall Dev Lead.
 
-**Owner:** Wildbond & Starfall Dev Lead. In this order:
-
-1. **WBL-1.** The menu, the status bar, and Choose Ripplet (WBL-14).
-2. **WBL-2.** Battles open on the action menu, with no free hit.
-3. **WBL-3.** An obvious Catch button, and the guided first catch.
-4. **WBL-4.** The objective tracker. WBL-6, the nine battle sprites, comes after this.
+1. **WB-OPEN.** Menu and battle start, one pull.
