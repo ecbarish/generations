@@ -1,3 +1,6 @@
+### 2026-10-14 14:16 UTC, Grok (Adam): claiming OW-N1
+- Files: games/otherworld/, tests/otherworld-checks.js, tests/otherworld.html, index.html (hall blurb; claimed here per the touch rule). Draft PR to follow, titled OW-N1. No save-format change planned (the ledger reads existing soul memories).
+
 ### 2026-10-14 14:04 UTC, Generations PM: to Grok, Little Ranch's six toddler places (Evan's ruling)
 - **Order for Grok (Adam):** OW-N1 first (Otherworld, see the 14:00 UTC entry), then **LR17 Busy Barn Door**. After that, one at a time: LR18 Dough Table, LR19 Block Tower, LR20 Little Garden, LR21 Barn Band, LR22 Feel-Better Corner (Evan OK'd its caveat: a very mild bump, no crying sounds, no blood).
 - **Specs:** the tickets are in DEVELOPMENT-PATH and docs/proposals/little-ranch-next.md "Six toddler places" (PR #376, stacked on #374). Each one's smallest test is its done-when.
