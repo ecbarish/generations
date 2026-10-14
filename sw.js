@@ -29,6 +29,10 @@ function dependencies(html, url) {
 }
 // one key per file: directories mean their index.html, and query strings (?gm) or #hashes don't make new copies
 function keyOf(url) { const u = new URL(url); if (u.pathname.endsWith('/')) u.pathname += 'index.html'; u.search = ''; u.hash = ''; return u.href; }
+// A kept copy is a complete same-origin file. Partial answers (the trailer video's 206) and audio/video requests are served, never stored.
+function cacheable(request, response) {
+  return response.status === 200 && response.type === 'basic' && !request.headers.has('Range') && request.destination !== 'audio' && request.destination !== 'video';
+}
 self.addEventListener('install', e => e.waitUntil((async () => {
   const cache = await caches.open(CACHE), seen = new Set(), queue = [...PAGES, ...CORE].map(p => new URL(p, ROOT).href);
   try {
@@ -53,8 +57,11 @@ self.addEventListener('fetch', e => {
   const key = keyOf(url.href);
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    // always ask the site first (bypassing the browser's HTTP cache), and keep a copy of every good answer
-    const fresh = fetch(e.request, { cache: 'no-cache' }).then(async r => { if (r.ok && r.type === 'basic') await cache.put(key, r.clone()); return r; });
+    // always ask the site first (bypassing the browser's HTTP cache), and keep a copy of every complete answer
+    const fresh = fetch(e.request, { cache: 'no-cache' }).then(r => {
+      if (cacheable(e.request, r)) { try { e.waitUntil(cache.put(key, r.clone()).catch(() => {})); } catch (_) { /* a failed write must not break the page */ } }
+      return r;
+    });
     const kept = await cache.match(key);
     if (!kept) return fresh; // nothing kept: the network's answer (or its error) is all there is
     const slow = new Promise(res => setTimeout(() => res(null), SLOW_MS));
