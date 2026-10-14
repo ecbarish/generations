@@ -1,4 +1,10 @@
+### 2026-10-14 20:07 UTC, Wildbond & Starfall Dev Lead (Evan), recorded by Generations PM: claiming WB-BUNDLE-1 "Wildbond menu and battle start"
+Scope: WBL-2, WBL-3, WBL-4 and a first phone check, in one PR. The cloud agent building it is bc-f84a88f3. #413 and #415 are merged. #406 (WBL-6) is green and waiting on GAD sign-off.
+
 ### 2026-10-14 19:45 UTC, Side Games Dev Lead (Evan): claiming LR-LAYOUT-1 (Little Ranch cookie/cutter + phone overlap fixes, from GAD spec; Playtester)
+
+### 2026-10-14 19:42 UTC, Claude (cloud session for Evan): claiming WBL-2 (battles start fair)
+From the Wildbond launch list (#405), with Evan's go-ahead. Every creature started a battle with a random head start, so a quicker foe often struck (or began winding up) before you could choose. Now your lead creature moves first and the battle opens on your menu. A battle with every foe already down ends instead of asking for a move. Files: wildbond-godot/scripts/battle.gd, tests/fair_start.gd, tests/run_tests.gd, tools/audit/wildbond_fair_start_view.gd, docs/screenshots/wbl2/. No save change. Generations Reviewer merges.
 
 ### 2026-10-14 19:38 UTC, Side Games Dev Lead (Evan): claiming NM-FIX-1 (Night Market payback hint shows 2s on every stall + show 50% offline rate on screen; Playtester 5/10)
 

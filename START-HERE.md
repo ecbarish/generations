@@ -99,6 +99,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, Side Games Dev Lead, NM-FIX-1:** Night Market Stalls v0.1.1, each stall says how long the next one pays for itself, and welcome back and the cash box say stalls earn 50% while you are away, for up to four hours, in [#421](https://github.com/ecbarish/generations/pull/421) (1459413).
+- **2026-10-14, docs, #414:** section 8 wording in docs/research/office-idle-progression.md, aligning the spec with the per-tick maxOfflineSec clamp shipped in #393, in [#414](https://github.com/ecbarish/generations/pull/414) (5598d00). No version, changelog or DEVELOPMENT-PATH tick.
 - **2026-10-14, docs:** Launch dates redone from the measured merge rate. Likely dates are 16 Oct (Little Ranch), 17 Oct (Wildbond), 20 Oct (Lantern Bowl) and 22 Oct (Night Market). #403, #400, #381, #383, #380 and #399 are merged. #404 and #409 are on hold. Summary in docs/plans/launch-summary.md.
 - **2026-10-14, Grok (Adam), LR18:** Little Ranch v0.18.0, the Dough Table (a dough picture-sign opens a table with one lump of dough in the baby's colour; tap squishes it flat, a forgiving rub rolls it back into a ball, the blue cutter stamps out a little dough baby that hops away; three babies, a cheer, then home as one happy thing), in [#400](https://github.com/ecbarish/generations/pull/400) (43785a4).
 - **2026-10-14, Claude, WB-C4b:** the Thornwood pond outline breaks the box, and the reeds sway by whole pixels, in [#399](https://github.com/ecbarish/generations/pull/399) (59f78cb). Source only; not a preview release.
