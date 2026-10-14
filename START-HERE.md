@@ -99,6 +99,9 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, #401:** Arcade v1.8.0. A new home page, a Lab page, and per-game pages, in [#401](https://github.com/ecbarish/generations/pull/401) (1779129).
+- **2026-10-14, Side Games Dev Lead, IDLE-CORE:** the shared idle core in shared/idle-core.js, in [#393](https://github.com/ecbarish/generations/pull/393) (cae662e). Elapsed time, a capped catch-up when the page is opened again, bulk buy, and an optional income readout in the tab title. Games keep their own saves. Shared Systems Architect co-reviewed it.
+- **2026-10-14, #396:** Arcade v1.7.2. A Play Wildbond header button, share and meta tags, a Start here section plus a collapsed More section, and Classic editions hidden, in [#396](https://github.com/ecbarish/generations/pull/396) (b5c9f3c).
 - **2026-10-14, Side Games Dev Lead, ENGINE-SAVEVER:** versioned saves in the shared engine, in [#392](https://github.com/ecbarish/generations/pull/392). Existing saves are unaffected, since no game registers a version yet. Shared Systems Architect co-reviewed it.
 - **2026-10-14, docs, #388:** office idle progression spec, docs/research/office-idle-progression.md (Game Researcher), research plus the §8 build spec for IDLE-CORE, NM1, SS1, CS1 and DP1 (curves, prestige, offline caps, where offline means the page was closed, milestones and done-when criteria). No version, changelog or DEVELOPMENT-PATH tick.
 - **2026-10-14, docs, #389:** office idle ruling (Evan, via Director, 2026-10-14). PRIORITIES gets an Office idle slot, and QUEUE gets IDLE-CORE then NM1, SS1, CS1 and DP1. Card Shop lite is approved, and the full Wildbond tie-in stays gated. Docs only.

@@ -131,9 +131,9 @@
     }
   }
   function noteQuarter(game) {
+    var line = { 2: 'Second quarter.', 3: 'Third quarter.', 4: 'Fourth quarter.' };
     if (game.quarter === 3) game.halfKick = true;
-    else if (game.quarter === 2) game.quarterNote = 'Second quarter.';
-    else if (game.quarter === 4) game.quarterNote = 'Fourth quarter.';
+    if (line[game.quarter]) game.quarterNote = line[game.quarter];
   }
   /* After one overtime turn ends, the other side starts on the 25.
      After both turns, a lead wins. A level score starts the same pair again. */
@@ -259,10 +259,13 @@
     if (theirs < 1) return 'the goal line';
     return 'their ' + theirs;
   }
+  /* Yard lines stay on the Lanterns' map of the field. "Our" is their end and "their" is
+     Millrace's, for whoever has the ball, so a turnover does not rename our 11 as their 11. */
   function downWords(game) {
     var names = ['', '1st', '2nd', '3rd', '4th'];
     var goal = game.spot + game.toGo >= 99.5;
-    return names[game.down] + ' and ' + (goal ? 'Goal' : String(Math.max(1, Math.round(game.toGo)))) + ' at ' + spotWords(game.spot);
+    var fromHome = game.possession === 'away' ? (100 - game.spot) : game.spot;
+    return names[game.down] + ' and ' + (goal ? 'Goal' : String(Math.max(1, Math.round(game.toGo)))) + ' at ' + spotWords(fromHome);
   }
   function moveChains(game, yards) {
     var next = game.spot + yards;
@@ -305,7 +308,7 @@
       giveBall(game, other(side), 100 - game.spot);
       return closePlay(game, label + shown + '. Fourth down fails. Turnover on downs.' + because, 'turnover', rounded, 14, caught);
     }
-    var extra = code === 'first' ? ' First down.' : '';
+    var extra = code === 'first' && !/stuffed/i.test(label) ? ' First down.' : '';
     var seconds = Math.min(MAX_CLOCK, Math.max(6, 6 + Math.abs(rounded) * 0.25));
     return closePlay(game, label + shown + '.' + extra + because, code === 'first' ? 'first' : 'play', rounded, seconds, caught);
   }
@@ -373,6 +376,7 @@
     play.lanes.forEach(function (lane) {
       play.laneStates[lane.id] = { state: 'open', since: 0 };
     });
+    play.snapLane = id === 'outside' ? 'right' : 'mid';
   }
   function buildPass(game, play, off, def, id) {
     var deep = id === 'deep';
@@ -397,6 +401,177 @@
       play.actors.push(actor({ off: false, role: 'cb', name: 'Cover', x: r.x + 1.1, y: r.y, cover: def.cover, tackle: def.tackle, speed: 52, route: { x: r.toX, y: r.toY } }));
     });
     play.actors.push(actor({ off: false, role: 's', name: 'Safety', x: deep ? 16 : 9, y: 0, cover: def.cover, tackle: def.tackle, speed: 54 }));
+  }
+
+  /* The play the player calls picks the formation. Inside is the I, outside is singleback, a pass is shotgun. */
+  function formationFor(id) {
+    if (id === 'inside') return 'iform';
+    if (id === 'outside') return 'singleback';
+    if (id === 'quick' || id === 'deep') return 'shotgun';
+    return 'singleback';
+  }
+  function bodyOf(role) {
+    return role === 'ol' || role === 'dl' ? 'line' : 'skill';
+  }
+  function member(off, role, name, x, y, extra) {
+    return Object.assign({
+      off: !!off, role: role, name: name || '', x: x, y: y, anchorX: x, anchorY: y,
+      face: off ? 1 : -1, body: bodyOf(role), link: null, linkX: 0, linkY: 0, route: null
+    }, extra || {});
+  }
+  /* Eleven a side. Coordinates are yards from the line of scrimmage: x downfield, y lateral. */
+  function formationSpots(off, formation) {
+    var qb = off.qb, rb = off.rb, te = off.te;
+    var wr = off.wr || [];
+    /* Spread in the squashed side view so each body can be counted. */
+    var olY = [-8, -4, 0, 4, 8];
+    var olName = ['Tackle', 'Guard', 'Centre', 'Guard', 'Tackle'];
+    var rows = [];
+    olY.forEach(function (y, i) {
+      rows.push(member(true, 'ol', olName[i], -0.9, y));
+    });
+    if (formation === 'shotgun') {
+      rows.push(member(true, 'qb', qb.name, -6.2, 0));
+      rows.push(member(true, 'rb', rb.name, -4, 6));
+      rows.push(member(true, 'te', te.name, -2.2, -14));
+      rows.push(member(true, 'wr', wr[0] ? wr[0].name : 'Receiver', 0.2, -20));
+      rows.push(member(true, 'wr', wr[1] ? wr[1].name : 'Receiver', 0.2, 12));
+      rows.push(member(true, 'wr', 'Slot', 0.2, 20, { route: { x: 14, y: 18 } }));
+    } else if (formation === 'iform') {
+      rows.push(member(true, 'qb', qb.name, -3.4, 0));
+      rows.push(member(true, 'rb', 'Fullback', -6.2, 0));
+      rows.push(member(true, 'rb', rb.name, -9, 0));
+      rows.push(member(true, 'te', te.name, -2.2, 14));
+      rows.push(member(true, 'wr', wr[0] ? wr[0].name : 'Receiver', 0.2, -20));
+      rows.push(member(true, 'wr', wr[1] ? wr[1].name : 'Receiver', 0.2, 20));
+    } else {
+      rows.push(member(true, 'qb', qb.name, -3.4, 0));
+      rows.push(member(true, 'rb', rb.name, -6.4, 10));
+      rows.push(member(true, 'te', te.name, -2.2, -14));
+      rows.push(member(true, 'te', 'Wing', -2.2, 14));
+      rows.push(member(true, 'wr', wr[0] ? wr[0].name : 'Receiver', 0.2, -20));
+      rows.push(member(true, 'wr', wr[1] ? wr[1].name : 'Receiver', 0.2, 20));
+    }
+    return rows;
+  }
+  function defenceSpots(formation) {
+    var nickel = formation === 'shotgun';
+    var rows = [];
+    [-6, -2, 2, 6].forEach(function (y, i) {
+      rows.push(member(false, 'dl', i === 0 || i === 3 ? 'End' : 'Tackle', 1.8, y));
+    });
+    if (nickel) {
+      rows.push(member(false, 'lb', 'Backer', 5.4, -10));
+      rows.push(member(false, 'lb', 'Backer', 5.4, 10));
+    } else {
+      rows.push(member(false, 'lb', 'Backer', 5.6, -12));
+      rows.push(member(false, 'lb', 'Backer', 5.2, 0));
+      rows.push(member(false, 'lb', 'Backer', 5.6, 12));
+    }
+    var wrs = formationSpots({ qb: { name: '' }, rb: { name: '' }, te: { name: '' }, wr: [{ name: '' }, { name: '' }] }, formation).filter(function (p) { return p.role === 'wr'; });
+    wrs.forEach(function (wr) {
+      rows.push(member(false, 'cb', 'Cover', wr.anchorX + 2.1, wr.anchorY));
+    });
+    rows.push(member(false, 's', 'Safety', 12, -10));
+    rows.push(member(false, 's', 'Safety', 15, 10));
+    return { rows: rows, defence: nickel ? 'nickel' : 'base' };
+  }
+  function claim(squad, actor, pred) {
+    var i;
+    for (i = 0; i < squad.length; i++) {
+      if (squad[i].link || !pred(squad[i])) continue;
+      squad[i].link = actor;
+      squad[i].linkX = actor.x;
+      squad[i].linkY = actor.y;
+      squad[i].name = actor.name || squad[i].name;
+      return squad[i];
+    }
+    return null;
+  }
+  /* Picture of all 22. Rules actors stay the rules; linemen keep a tight row and are not those actors. */
+  function composeSquad(off, defSide, play) {
+    var formation = formationFor(play.id);
+    var squad = formationSpots(off, formation);
+    var defence = defenceSpots(formation);
+    squad = squad.concat(defence.rows);
+    var backfield = null;
+    play.actors.forEach(function (actor) {
+      if (actor.role === 'qb' || actor.role === 'wr' || actor.role === 'te' || actor.role === 'cb' || actor.role === 's') {
+        var taken = claim(squad, actor, function (p) { return p.off === actor.off && p.role === actor.role; });
+        if (taken && actor.route) taken.route = null;
+      } else if (play.family === 'run' && actor.off && actor.role === 'rb') {
+        backfield = claim(squad, actor, function (p) { return p.off && p.role === 'rb' && p.anchorX < -4; });
+        if (!backfield) backfield = claim(squad, actor, function (p) { return p.off && p.role === 'rb'; });
+      } else if (play.family !== 'run' && actor.off && actor.role === 'rb') {
+        claim(squad, actor, function (p) { return p.off && p.role === 'rb'; });
+      }
+    });
+    return { squad: squad, formation: formation, defence: defence.defence };
+  }
+  function previewSquad(off, defSide, formation) {
+    formation = formationFor(formation) === formation ? formation : (formation || 'singleback');
+    if (formation !== 'iform' && formation !== 'shotgun' && formation !== 'singleback') formation = 'singleback';
+    var defence = defenceSpots(formation);
+    var squad = formationSpots(off, formation).concat(defence.rows);
+    var ball = { x: -1.15, y: 0 };
+    squad.forEach(function (p) {
+      if (p.off && p.role === 'qb') ball = { x: p.x, y: p.y };
+    });
+    return { squad: squad, formation: formation, defence: defence.defence, ball: ball };
+  }
+  function faceSquad(play) {
+    var ball = play.ball || { x: 0, y: 0 };
+    play.squad.forEach(function (p) {
+      if (p.off && (p.role === 'ol' || p.role === 'qb' || p.role === 'te' || p.role === 'rb')) p.face = 1;
+      else if (p.off) p.face = 1;
+      else p.face = ball.x + 0.05 < p.x ? -1 : 1;
+    });
+  }
+  function driftSquad(play, p, dt) {
+    var ball = play.ball || { x: 0, y: 0 };
+    if (p.route) {
+      moveToward(p, p.route.x, p.route.y, 4.6, dt);
+      return;
+    }
+    if (p.role === 'ol') {
+      p.x = p.anchorX + Math.sin(play.elapsed * 8 + p.anchorY * 3) * 0.06;
+      p.y = p.anchorY;
+      return;
+    }
+    if (p.role === 'dl') {
+      var qb = carrierOf(play);
+      var tx = play.family === 'pass' && !play.flight ? Math.min(p.anchorX + 2.8, qb.x + 1.2) : p.anchorX + Math.max(0, Math.min(1.4, ball.x));
+      moveToward(p, tx, p.anchorY, 1.35, dt);
+      return;
+    }
+    if (!p.off) {
+      var depth = p.anchorX + Math.max(-0.4, Math.min(7, ball.x * 0.22));
+      moveToward(p, depth, p.anchorY * 0.72 + ball.y * 0.28, 3.3, dt);
+    }
+  }
+  function placeBall(play) {
+    if (play.flight) {
+      play.ball = { x: play.flight.x, y: play.flight.y };
+      return play.ball;
+    }
+    var carrier = carrierOf(play);
+    var body = null;
+    (play.squad || []).forEach(function (p) { if (p.link === carrier) body = p; });
+    play.ball = body ? { x: body.x, y: body.y } : { x: carrier.x, y: carrier.y };
+    return play.ball;
+  }
+  /* Per-tick picture. Linked bodies copy the rules actor's movement. Nothing here rolls the dice. */
+  function syncSquad(play, dt) {
+    if (!play || !play.squad) return play;
+    play.squad.forEach(function (p) {
+      if (p.link) {
+        p.x = p.anchorX + (p.link.x - p.linkX);
+        p.y = p.anchorY + (p.link.y - p.linkY);
+      } else if (dt > 0) driftSquad(play, p, dt);
+    });
+    placeBall(play);
+    faceSquad(play);
+    return play;
   }
 
   function callPlay(game, id) {
@@ -425,6 +600,12 @@
     };
     if (spec.family === 'run') buildRun(play, off, tuned, spec.id);
     else buildPass(game, play, off, tuned, spec.id);
+    var picture = composeSquad(off, def, play);
+    play.squad = picture.squad;
+    play.formation = picture.formation;
+    play.defence = picture.defence;
+    syncSquad(play, 0);
+    game.look = picture.formation;
     game.play = play;
     game.phase = 'live';
     game.events = ['snap'];
@@ -469,6 +650,7 @@
     if (play.family === 'pass' && !play.thrown && !play.flight) stepPocket(game, play, dt, inp);
     else stepCarry(game, play, dt, inp);
     if (game.phase === 'live' && play.elapsed > 7.4) endCarry(game, play, carrierOf(play).name + ' is stopped');
+    if (game.phase === 'live' && game.play) syncSquad(game.play, dt);
     return game;
   }
 
@@ -625,58 +807,136 @@
     var p = chance(offRating, defRating);
     var r = roll(game);
     if (r >= p) return 'stop';
-    if (r < p * 0.24) return 'break';
+    if (r < p * 0.36) return 'break';
     return 'gain';
   }
+  /* A juke that wins is a yard or three. The break tier is the occasional longer one, not eight yards on top. */
   function extendMove(game, play, kind) {
     if (play.goalX == null || play.moveExtended) return;
     play.moveExtended = true;
     var result = kind === 'juke' ? play.jukeResult : play.diveResult;
-    var boost = result === 'break'
-      ? (kind === 'juke' ? (play.hole === 'break' ? 1.6 + roll(game) * 2.2 : 5.4 + roll(game) * 4.6) : 2.4 + roll(game) * 2.2)
-      : (result === 'gain' ? (kind === 'dive' ? 1.5 + roll(game) * 1.7 : 0.6 + roll(game) * 1) : 0);
+    if (play.hole === 'stuff' && result !== 'break') return;
+    var boost = 0;
+    if (result === 'break') {
+      if (kind === 'juke') boost = play.hole === 'break' ? (0.3 + roll(game) * 0.5) : (3.1 + roll(game) * 2.2);
+      else boost = 1.6 + roll(game) * 1.2;
+    } else if (result === 'gain') {
+      boost = kind === 'dive' ? (1.35 + roll(game) * 0.9) : (1.35 + roll(game) * 1.55);
+    }
     if (result === 'break') { play.breakaway = true; play.hole = 'break'; }
     if (play.offence === 'away') boost *= 0.8;
     play.goalX += boost;
+    if (boost > 0 && play.arriveAt != null) play.arriveAt = Math.min(2.95, Math.max(play.arriveAt, play.elapsed + 0.45));
+  }
+  /* A juke keeps the lane it left. Steering before that can still choose a lane. */
+  function holeLane(play, back) {
+    var y = play.holeY != null ? play.holeY : (back.y + (play._steer || 0) * 12);
+    return readLane(play, y);
+  }
+  /* Contest rolls wait until the hole has used its own rolls, so an early step and a timed one share the lane. */
+  function resolveArmed(game, play) {
+    if (!play || play.goalX == null) return;
+    var back = carrierOf(play);
+    if (play.jukeArmed && !play.jukeResolved) {
+      play.jukeResolved = true;
+      if (!play.jukeResult) {
+        play.jukeResult = play.jukeWasTimed ? moveContest(game, back.speed + 2, play.jukeThreat || 50) : 'stop';
+        play.jukeBreak = play.jukeResult === 'break';
+        play.jukeTimed = play.jukeResult !== 'stop';
+      }
+      if (play.jukeBreak) { play.breakaway = true; back.x += 1.15; }
+      if (play.jukeWasTimed) {
+        play.ratingNote = play.jukeResult === 'stop'
+          ? ' ' + resultLine('the tackle', play.jukeThreat, 'the juke', back.speed)
+          : ' ' + resultLine('the juke', back.speed, 'the tackle', play.jukeThreat);
+      }
+      if (play.jukeTimed) extendMove(game, play, 'juke');
+    }
+    if (play.diveArmed && !play.diveResolved) {
+      play.diveResolved = true;
+      if (!play.diveResult) {
+        var diveAtGoal = game.spot >= 94;
+        play.diveResult = play.diveWasTimed ? (diveAtGoal ? 'break' : moveContest(game, back.carry + 8, play.diveThreat || 50)) : 'stop';
+        play.diveBreak = play.diveResult === 'break';
+        play.diveTimed = play.diveResult !== 'stop';
+      }
+      if (play.diveBreak) play.breakaway = true;
+      if (play.diveWasTimed) {
+        play.ratingNote = play.diveResult === 'stop'
+          ? ' ' + resultLine('the tackle', play.diveThreat, 'the dive', back.carry)
+          : ' ' + resultLine('the dive', back.carry, 'the tackle', play.diveThreat);
+      }
+      if (play.diveTimed) extendMove(game, play, 'dive');
+    }
   }
   function settleHole(game, play, back) {
     if (play.goalX != null) return;
     if (play.didCatch) {
-      if (play.elapsed < 0.28) return;
-    } else if (play.elapsed < 0.42) return;
-    var lane = readLane(play, back.y + (play._steer || 0) * 12);
-    var row = play.laneStates && lane && play.laneStates[lane.id];
-    var state = row ? row.state : 'open';
-    var held = !!(lane && lane.open && state !== 'closed');
+      if (play.elapsed < 0.22) return;
+    } else if (play.elapsed < 0.86) return;
+    var lane = holeLane(play, back);
+    var held = !!(lane && lane.open);
     var threat = nearest(play, back.x, back.y, function (a) { return !a.off; });
     var tackle = threat ? threat.actor.tackle : 55;
     if (!play.didCatch && !held) {
-      play.hole = 'stuff';
-      play.goalX = 0.35 + roll(game) * 1.7;
-      if (back.x > play.goalX) back.x = play.goalX;
-      play.ratingNote = play.ratingNote || (' ' + resultLine('the rush', play.rush, 'the line', play.block));
+      var piled = roll(game);
+      if (piled < 0.145) {
+        play.hole = 'stuff';
+        play.goalX = -(0.55 + piled * 5);
+        play.arriveAt = 1.08 + piled * 2;
+      } else if (piled < 0.20) {
+        play.hole = 'stuff';
+        play.goalX = 0;
+        play.arriveAt = 1.12 + piled;
+      } else if (piled < 0.985) {
+        play.hole = 'gain';
+        var along = (piled - 0.20) / 0.785;
+        play.goalX = 0.7 + along * 3.15;
+        play.arriveAt = 1.16 + along * 0.7;
+      } else {
+        play.hole = 'break';
+        play.breakaway = true;
+        var far = (piled - 0.985) / 0.015;
+        play.goalX = 20 + far * 5;
+        play.arriveAt = 2.4 + far * 0.4;
+      }
+      if (back.x > play.goalX) play.arriveAt = Math.max(play.arriveAt, play.elapsed + 0.35);
+      play.ratingNote = play.ratingNote || (' ' + resultLine(play.hole === 'stuff' ? 'the rush' : 'the line', play.hole === 'stuff' ? play.rush : play.block, play.hole === 'stuff' ? 'the line' : 'the rush', play.hole === 'stuff' ? play.block : play.rush));
     } else {
       var juice = back.speed;
       var tax = play.offence === 'home' ? (play.load || 0) : 0;
-      var second = !play.didCatch && roll(game) < chance(juice, tackle + (play.offence === 'away' ? 6 : 16) + tax);
+      var second = !play.didCatch && roll(game) < chance(juice, tackle + (play.offence === 'away' ? 6 : 16) + tax) * 1.05;
       if (second) {
+        var broke = roll(game);
         play.hole = 'break';
         play.breakaway = true;
-        play.goalX = 8 + roll(game) * (4.2 + back.speed / 24);
+        play.goalX = 10.4 + broke * 11.2;
+        play.arriveAt = 2.05 + broke * 0.78;
       } else if (play.didCatch) {
+        var room = play.catchRoom == null ? 3 : play.catchRoom;
+        var after = roll(game);
+        var bonus = room >= 4.2 ? (2.6 + after * 9.4) : (0.4 + after * (1.1 + Math.min(room, 4) * 0.55));
+        if (play.offence === 'home') bonus += 1.3;
         play.hole = 'catch';
-        play.goalX = back.x + 1.5 + roll(game) * 3.4;
+        play.goalX = back.x + bonus;
+        play.arriveAt = play.elapsed + 0.42 + after * 0.5;
       } else {
+        var gained = roll(game);
         play.hole = 'gain';
-        play.goalX = 2.6 + roll(game) * 3.4;
+        play.goalX = 2.55 + gained * 1.95;
+        play.arriveAt = 1.28 + gained * 0.85;
       }
-      if (tax) play.goalX = Math.max(0.5, play.goalX - tax * 0.22);
+      if (tax && play.goalX > 0) play.goalX = Math.max(0.15, play.goalX - tax * 0.42);
       if (!play.ratingNote) play.ratingNote = ' ' + resultLine('the line', play.block, 'the rush', play.rush);
     }
-    if (play.offence === 'away') play.goalX = 0.25 + play.goalX * 0.94;
+    if (play.hole !== 'stuff' && play.turboBank) {
+      play.goalX += play.turboBank;
+      play.turboBank = 0;
+    }
+    if (play.offence === 'away' && play.goalX > 0) play.goalX = 0.12 + play.goalX * 0.97;
     if (!play.diveBreak && !play.jukeBreak && game.spot >= 94) play.goalX = Math.min(play.goalX, 1.05 + roll(game) * 2.3);
-    if (play.jukeTimed) extendMove(game, play, 'juke');
-    if (play.diveTimed) extendMove(game, play, 'dive');
+    play.arriveAt = Math.max(play.didCatch ? play.elapsed + 0.35 : 1.02, Math.min(2.95, play.arriveAt || 1.4));
+    resolveArmed(game, play);
   }
   function stepCarry(game, play, dt, inp) {
     if (play.flight) return fly(game, play, dt);
@@ -694,54 +954,52 @@
     if (inp.juke && !play.jukeUsed) {
       var jukeThreat = nearest(play, back.x, back.y, function (a) { return !a.off; });
       var jukeTackle = jukeThreat ? jukeThreat.actor.tackle : 50;
-      var jukeTimed = !!(jukeThreat && jukeThreat.d < 2.8 && play.elapsed + 1e-6 >= engage);
+      var jukeWasTimed = !!(jukeThreat && jukeThreat.d < 2.8 && play.elapsed + 1e-6 >= engage);
+      if (play.holeY == null) play.holeY = back.y;
       back.y += inp.juke * (3.6 + back.speed / 40);
       play.jukeUsed = true; play.usedJuke = true; play.jukeDir = inp.juke;
-      play.jukeResult = jukeTimed ? moveContest(game, back.speed + 2, jukeTackle) : 'stop';
-      play.jukeBreak = play.jukeResult === 'break';
-      play.jukeTimed = play.jukeResult !== 'stop';
-      play.jukeUntil = play.elapsed + (play.jukeTimed ? 0.9 : 0.28);
-      if (play.jukeBreak) { play.breakaway = true; back.x += 1.15; }
-      if (play.jukeTimed) extendMove(game, play, 'juke');
-      if (jukeTimed) {
-        play.ratingNote = play.jukeResult === 'stop'
-          ? ' ' + resultLine('the tackle', jukeTackle, 'the juke', back.speed)
-          : ' ' + resultLine('the juke', back.speed, 'the tackle', jukeTackle);
-      }
+      play.jukeArmed = true; play.jukeWasTimed = jukeWasTimed; play.jukeThreat = jukeTackle;
+      play.jukeUntil = play.elapsed + (jukeWasTimed ? 0.9 : 0.28);
+      if (play.goalX != null) resolveArmed(game, play);
       game.events.push('juke');
     }
     if (inp.dive && !play.diving) {
       var diveThreat = nearest(play, back.x, back.y, function (a) { return !a.off; });
       var diveTackle = diveThreat ? diveThreat.actor.tackle : 50;
-      var diveTimed = !!(diveThreat && diveThreat.d < 2.6 && play.elapsed + 1e-6 >= engage);
+      var diveWasTimed = !!(diveThreat && diveThreat.d < 2.6 && play.elapsed + 1e-6 >= engage);
       var diveAtGoal = game.spot >= 94;
       play.diving = true; play.usedDive = true;
-      play.diveResult = diveTimed ? (diveAtGoal ? 'break' : moveContest(game, back.carry + 8, diveTackle)) : 'stop';
-      play.diveBreak = play.diveResult === 'break';
-      play.diveTimed = play.diveResult !== 'stop';
-      var diveBurst = (play.diveBreak ? 3.05 : 1.05) + back.carry / 62;
-      if (play.jukeTimed && !diveAtGoal) diveBurst *= 0.4;
-      back.x += diveBurst;
-      play.diveUntil = play.elapsed + (play.diveTimed ? 0.72 : 0.26);
-      if (play.diveBreak) play.breakaway = true;
-      if (play.diveTimed) extendMove(game, play, 'dive');
-      if (diveTimed) {
-        play.ratingNote = play.diveResult === 'stop'
-          ? ' ' + resultLine('the tackle', diveTackle, 'the dive', back.carry)
-          : ' ' + resultLine('the dive', back.carry, 'the tackle', diveTackle);
+      play.diveArmed = true; play.diveWasTimed = diveWasTimed; play.diveThreat = diveTackle;
+      if (diveWasTimed && diveAtGoal) {
+        play.diveResult = 'break';
+        play.diveBreak = true;
+        play.diveTimed = true;
+        play.breakaway = true;
       }
+      var diveBurst = (play.diveBreak ? 3.05 : 1.05) + back.carry / 62;
+      if (play.jukeWasTimed && !diveAtGoal) diveBurst *= 0.4;
+      back.x += diveBurst;
+      play.diveUntil = play.elapsed + (diveWasTimed ? 0.72 : 0.26);
+      if (play.goalX != null) resolveArmed(game, play);
       game.events.push('dive');
     }
     play._steer = inp.steer;
     updateRunLanes(play);
     var read = laneRead(play, back.y);
-    var speed = carrierRate(back, game.fatigue[back.name], inp.turbo && fatigue < 0.82);
-    var pace = reading ? 0.48 : 1;
-    if (!reading && read.state === 'closed' && !play.breakaway) pace = 0.58;
-    else if (!reading && read.state === 'contested') pace = 0.86;
-    else if (play.breakaway) pace = 1.32;
-    if (play.turboOn) pace *= 1.04;
-    back.x += speed * pace * dt;
+    if (play.turboOn && read.state !== 'closed' && play.hole !== 'stuff' && (play.turboSpent || 0) < 0.85) {
+      var turboAdd = Math.min(0.85 - (play.turboSpent || 0), 0.9 * dt);
+      play.turboSpent = (play.turboSpent || 0) + turboAdd;
+      if (play.goalX != null) play.goalX += turboAdd;
+      else play.turboBank = (play.turboBank || 0) + turboAdd;
+    }
+    if (play.goalX == null) {
+      var openish = !!(read.lane && read.lane.open && read.state !== 'closed');
+      var crawl = (reading ? 0.62 : 1) * (play.didCatch ? 2.4 : openish ? 1.35 : 0.18);
+      back.x += crawl * dt;
+    } else {
+      var remain = Math.max(1 / 30, (play.arriveAt || play.elapsed + 0.4) - play.elapsed);
+      back.x += (play.goalX - back.x) * Math.min(1, dt / remain);
+    }
     back.y = clamp(back.y + inp.steer * 8.4 * dt, -SIDELINE - 1, SIDELINE + 1);
     play.actors.forEach(function (a) {
       if (a === back || a.off) return;
@@ -762,14 +1020,14 @@
       else if (fatigue < 0.45 && back.x < 22) play.cue = 'turbo';
     } else if (!reading && fatigue < 0.45 && back.x > 1 && back.x < 22) play.cue = 'turbo';
     if (!reading || play.didCatch) settleHole(game, play, back);
-    if (play.goalX != null && back.x >= play.goalX && !slippingSoon(play)) {
-      if (game.spot + back.x < 100) back.x = Math.min(back.x, play.goalX);
+    if (play.goalX != null && play.elapsed + 1e-9 >= (play.arriveAt || 0) && !slippingSoon(play)) {
+      back.x = play.goalX;
       if (!play.didCatch) {
         var tackler = closing && closing.actor;
         var tackleAt = tackler ? tackler.tackle : 55;
         if (play.jukeBreak && play.hole === 'break') play.ratingNote = ' ' + resultLine('the juke', back.speed, 'the tackle', tackleAt);
         else if (play.diveBreak && play.hole === 'break') play.ratingNote = ' ' + resultLine('the dive', back.carry, 'the tackle', tackleAt);
-        else if (play.hole === 'stuff' || back.x < 2.4) play.ratingNote = ' ' + resultLine('the rush', play.rush, 'the line', play.block);
+        else if (play.hole === 'stuff') play.ratingNote = ' ' + resultLine('the rush', play.rush, 'the line', play.block);
         else if (play.hole === 'break') play.ratingNote = ' ' + resultLine('the carry', back.carry, 'the tackle', tackleAt);
         else play.ratingNote = ' ' + resultLine('the line', play.block, 'the rush', play.rush);
       }
@@ -792,8 +1050,8 @@
     if (play.usedJuke) return name + (inside ? ' jukes between the tackles' : edge ? ' jukes toward the sideline' : ' jukes');
     if (play.usedDive) return name + (inside ? ' dives between the tackles' : edge ? ' dives toward the sideline' : ' dives');
     if (play.breakaway) return name + (inside ? ' breaks through the middle' : edge ? ' breaks it outside' : ' breaks away');
-    if (inside) return yards < 2 ? name + ' is stuffed between the tackles' : name + ' finds a hole between the tackles';
-    if (edge) return yards < 2 ? name + ' is stuffed at the edge' : name + ' turns the corner';
+    if (inside) return (play.hole === 'stuff' || yards <= 0) ? name + ' is stuffed between the tackles' : name + ' finds a hole between the tackles';
+    if (edge) return (play.hole === 'stuff' || yards <= 0) ? name + ' is stuffed at the edge' : name + ' turns the corner';
     return '';
   }
   function endCarry(game, play, label) {
@@ -832,14 +1090,16 @@
       play.carrier = play.actors.indexOf(catcher.actor);
       play.diving = false; play.jukeUsed = false; play.usedJuke = false; play.usedDive = false;
       play.engage = 0;
+      play.catchRoom = cover ? cover.d : 8;
       play.ratingNote = ' ' + resultLine(catcher.actor.name + "'s hands", hands, 'the cover', cov);
       game.events.push('catch');
       return;
     }
     if (outcome === 'pick') {
       game.events.push('pick');
-      var spot = clamp(game.spot + ball.toX, 1, 99);
-      giveBall(game, other(play.offence), 100 - spot);
+      var landed = ball.x;
+      var field = clamp(play.startSpot + landed, 0, 100);
+      giveBall(game, other(play.offence), 100 - field);
       return closePlay(game, 'Intercepted near ' + catcher.actor.name + '. ' + resultLine('the cover', cov, catcher.actor.name + "'s hands", hands), 'turnover', 0, 10, false);
     }
     if (outcome === 'drop') {
@@ -932,8 +1192,9 @@
       var threat = nearest(play, back.x, back.y, function (a) { return !a.off; });
       var tired = game ? fatigueOf(game, back.name) : 0;
       var jukeOk = !away || (game && roll(game) < 0.58);
-      var juke = jukeOk && !play.jukeUsed && threat && threat.d < 2.4 && back.x > 1.5 ? (back.y >= threat.actor.y ? 1 : -1) : 0;
-      var dive = !play.diving && threat && threat.d < 1.6 && back.x > 4 && (!away || (game && roll(game) < 0.5));
+      var arrived = play.elapsed + 1 / 30 >= (play.engage || 0);
+      var juke = jukeOk && !play.jukeUsed && arrived && threat && threat.d < 2.4 ? (back.y >= threat.actor.y ? 1 : -1) : 0;
+      var dive = !play.diving && arrived && threat && threat.d < 1.6 && back.x > 1.2 && (!away || (game && roll(game) < 0.5));
       return { steer: steer, turbo: !away && tired < 0.55 && back.x < 14, juke: juke, dive: dive, throw: null };
     },
     careless: function (play, game) {
@@ -963,7 +1224,7 @@
     else if (game.toGo >= 8) prefer = ['quick', 'outside', 'inside', 'deep'];
     else prefer = ['outside', 'inside', 'quick', 'deep'];
     var r = roll(game);
-    if (r < 0.22) return prefer[prefer.length - 1];
+    if (r < 0.36) return prefer[prefer.length - 1];
     var fresh = prefer.filter(function (id) { return tendencyLoad(game, id) < 8; });
     var pool = fresh.length ? fresh : prefer;
     return pool[Math.floor(roll(game) * Math.min(3, pool.length))];
@@ -990,15 +1251,16 @@
   function callStyle(game, style) {
     var r = roll(game);
     if (style === 'run') {
-      if (game.toGo <= 2) return 'inside';
-      if (r < 0.52) return 'inside';
-      if (r < 0.9) return 'outside';
-      return r < 0.96 ? 'quick' : 'deep';
+      if (game.toGo <= 2 || game.spot >= 94) return 'inside';
+      if (r < 0.34) return 'inside';
+      if (r < 0.62) return 'outside';
+      if (r < 0.90) return 'quick';
+      return 'deep';
     }
     if (style === 'pass') {
       if (game.toGo <= 1) return 'inside';
-      if (r < 0.48) return 'quick';
-      if (r < 0.88) return 'deep';
+      if (r < 0.40) return 'quick';
+      if (r < 0.78) return 'deep';
       return r < 0.94 ? 'inside' : 'outside';
     }
     return callChoice(game, 'attentive');
@@ -1314,7 +1576,9 @@
     tendencyLoad: tendencyLoad, resultLine: resultLine, decided: decided,
     TENDENCY_CAP: TENDENCY_CAP, READING_HINT: READING_HINT, RING_RADII: RING_RADII,
     simulateStyle: simulateStyle, styleBand: styleBand, millraceDrives: millraceDrives, runClockDrive: runClockDrive,
-    laneRead: laneRead, updateRunLanes: updateRunLanes
+    callStyle: callStyle,
+    laneRead: laneRead, updateRunLanes: updateRunLanes,
+    formationFor: formationFor, previewSquad: previewSquad, syncSquad: syncSquad
   };
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.LanternModel = api;

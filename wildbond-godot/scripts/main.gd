@@ -919,6 +919,16 @@ func _unhandled_input(e: InputEvent) -> void:
 		sfx.on = not sfx.on                      # N: sound effects on or off
 		get_viewport().set_input_as_handled()
 		return
+	if e is InputEventScreenTouch:
+		# Normally Godot sends the emulated mouse press first. Let that existing path
+		# advance once; accepting its touch too would skip another line (or the first
+		# line after signing/choosing). Native touch also works when emulation is off;
+		# mouse-to-touch test events are duplicates of an already handled click too.
+		var covered := lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or turn_card.visible
+		if not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION and e.pressed and not covered and not lines.is_empty():
+			advance()
+			get_viewport().set_input_as_handled()
+		return
 	var want_book: bool = Controls.pressed(e, "open_book") or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and satchel.visible and satchel.get_global_rect().has_point(satchel.get_global_mouse_position()))
 	if lessons.visible: return
 	if want_book and stage == "free" and lines.is_empty() and not battle.visible and not shop.visible and not book.visible:
