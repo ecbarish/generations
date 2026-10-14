@@ -31,15 +31,15 @@
   "shortcuts": [
     {
       "name": "Wildbond",
-      "url": "games/wildbond/index.html"
+      "url": "play/wildbond/"
     },
     {
       "name": "Realmbound",
       "url": "games/realmbound/index.html"
     },
     {
-      "name": "Starfall Guild",
-      "url": "games/starfall-guild/index.html"
+      "name": "Starfall",
+      "url": "play/starfall/"
     }
   ]
 }

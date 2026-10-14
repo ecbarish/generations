@@ -785,6 +785,8 @@ func _run() -> void:
 	_no_chores()
 	_tamsin_kept()
 	_darkness()
+	_dressing()
+	_trust()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -1395,3 +1397,142 @@ func _darkness() -> void:
 	main.today = keep[7]
 	main.me.tile = keep[8]
 	main.me.pos = Vector2(keep[8]) * main.TILE
+
+# ---- ART-SF-8: the square and roads dressed, and nothing in the way
+func _dressing() -> void:
+	var keep_built: Dictionary = main.built.duplicate(true)
+	var keep_rank: int = main.rank
+	var on_way := []
+	for at in main.DRESSING:
+		for i in int(main.DRESSING[at][1]):
+			var p: Vector2i = at + Vector2i(i, 0)
+			if main._is_path(p.x, p.y) or main.tile_at(p) != "," and main.tile_at(p) != "q" or p in main.LAMP_STANDS or p in main.READ_SPOTS \
+					or p in [main.SERVE_AT, main.ORDER_AT, main.INN_STEP, main.GATE_IN, main.BRYN_HOME, main.HALL_DOOR + Vector2i.DOWN]:
+				on_way.append(p)
+	check(on_way.is_empty(), "the bench, the hitching rail and the inn's barrel and crate stand off every road, step and station (%s)" % str(on_way))
+	var solid_ok := true
+	for at in main.DRESSING:
+		for i in int(main.DRESSING[at][1]):
+			solid_ok = solid_ok and main.solid(at + Vector2i(i, 0))
+	check(solid_ok, "standing dressing blocks its footprint, like any prop")
+	var flat_ok := true
+	for p in main.PUDDLES:
+		flat_ok = flat_ok and not main.solid(p)
+	check(flat_ok, "puddles, ruts and tufts lie flat: you walk through them")
+	main.lines.clear()
+	var towns := [
+		{},
+		{ "west": { "what": "healer", "left": 0.0 }, "east": { "what": "yard", "left": 0.0 }, "north": { "what": "smithy", "left": 0.0 }, "south": { "what": "apothecary", "left": 0.0 } },
+		{ "west": { "what": "tavern", "left": 0.0 }, "east": { "what": "smithy", "left": 0.0 }, "north": { "what": "apothecary", "left": 0.0 }, "south": { "what": "healer", "left": 0.0 } },
+		{ "west": { "what": "smithy", "left": 0.0 }, "east": { "what": "tavern", "left": 0.0 }, "north": { "what": "yard", "left": 0.0 }, "south": { "what": "apothecary", "left": 0.0 } },
+	]
+	var cut := []
+	main.rank = 2
+	for town in towns:
+		main.built = town.duplicate(true)
+		var goals: Array = [main.SERVE_AT, main.ORDER_AT, main.INN_STEP, main.HALL_DOOR + Vector2i.DOWN, Vector2i(12, 13)]
+		goals.append_array(main.READ_SPOTS)
+		goals.append_array(main.LAMP_STANDS)
+		for k in main.PLOTS:
+			goals.append(main._step_of(k))
+			if town.has(k) and town[k].what == "smithy":
+				goals.append(main._step_of(k) + Vector2i.RIGHT)
+		for g in goals:
+			if main.solid(g) or main.route(main.GATE_IN, g, null).is_empty():
+				cut.append([town.keys().map(func(k): return town[k].what), g])
+	check(cut.is_empty(), "with any buildings on any plots, every station, step and lamp can still be reached from the gate (%s)" % str(cut))
+	main.built = { "north": { "what": "smithy", "left": 0.0 } }
+	check(main.solid(main.PLOTS.north + Vector2i(2, 0)) and main._prop_at(main.PLOTS.north + Vector2i(2, 0)) == "firewood", "the smithy keeps its firewood stacked by its wall")
+	main.built = keep_built
+	main.rank = keep_rank
+	check(ResourceLoader.exists("res://assets/env/frontier/square.png"), "the square's dressing sheet is in the game")
+
+# ---- SF2.13: trust per adventurer
+func _trust() -> void:
+	var h = main.heroes[0]
+	var keep: Dictionary = h.a.duplicate(true)
+	main.lines.clear()
+	check(main.heroes.all(func(x): return int(x.a.get("trust", -1)) >= 0), "every adventurer has a trust value")
+	h.a.trust = 0
+	main.gain_trust(h)
+	check(main.trust_of(h) == 1, "doing something by hand for someone earns one trust")
+	for i in 20:
+		main.gain_trust(h)
+	check(main.trust_of(h) == main.TRUST_MAX, "trust stops at ten marks")
+	# each by-hand act counts; a helper's work does not
+	h.a.trust = 0
+	h.a.state = "to_counter"
+	main.serve(h, true)
+	check(main.trust_of(h) == 1, "a meal served by hand: +1 trust")
+	h.a.trust = 0
+	main.serve(h, false)
+	check(main.trust_of(h) == 0, "a meal Bryn serves earns no trust")
+	h.a.purse = 100
+	main.drink(h, 2, true)
+	check(main.trust_of(h) == 1, "a pour by hand: +1 trust")
+	main.drink(h, 1, false)
+	check(main.trust_of(h) == 1, "Tamsin's pour earns none")
+	h.a.gear = 0
+	h.a.purse = 200
+	main.finish_piece(h, 3, true)
+	check(main.trust_of(h) == 2, "a piece forged by hand: +1 trust")
+	main.finish_piece(h, 3, false)
+	check(main.trust_of(h) == 2, "Garrick's piece earns none")
+	main.spar = { "h": h, "fill": 0.5, "on": true }
+	h.a.state = "sparring"
+	main.finish_spar(0.5)
+	check(main.trust_of(h) == 3, "a bout: +1 trust")
+	# gating: a later beat waits for trust as well as jobs
+	var arc: Array = main.stories.get(h.a.name, [])
+	h.a.beat = 1
+	h.a.state = "town"
+	h.a.morale = 7
+	h.a.jobs_done = 20
+	h.a.trust = int(arc[1].get("after_trust", 0)) - 1
+	check(not main.story_ready(h), "the second story beat waits until you've done enough by hand for them")
+	h.a.trust = int(arc[1].after_trust)
+	check(main.story_ready(h), "and opens once you have")
+	main.story_pick = { "h": h, "opts": arc[1].options }
+	var before: int = main.trust_of(h)
+	main.story_choose(0)
+	check(main.trust_of(h) == before + 1 and int(h.a.beat) == 2, "a story talk: +1 trust")
+	check(int(arc[2].get("after_trust", 0)) > int(arc[1].after_trust), "the last beat asks for more trust than the second")
+	main.lines.clear()
+	# the perk: a job a step harder
+	h.a.hp = h.a.max
+	h.a.morale = 6
+	h.a.traits = []
+	var lvl := int(h.a.lvl)
+	main.posted = []
+	for j in main.JOBS:
+		if int(j.danger) == lvl + 1:
+			main.posted.append(j.id)
+	h.a.trust = main.TRUST_PERK - 1
+	check(main._pick_job(h) == "", "below high trust they won't take a job above their nerve")
+	main.gain_trust(h)
+	check(main.trusted(h) and main._pick_job(h) != "", "at high trust they'll take a job a step harder for you")
+	h.a.traits = ["bold"]
+	main.posted = []
+	for j in main.JOBS:
+		if int(j.danger) == lvl + 2:
+			main.posted.append(j.id)
+	check(main._pick_job(h) == "", "trust and bold don't stack: never two steps harder")
+	main.posted = []
+	main.lines.clear()
+	# saves: trust is kept, and an older save loads with trust from the story talks already had
+	main.no_save = false
+	h.a = keep.duplicate(true)
+	h.a.trust = 5
+	main.save_game()
+	check(main._load() and main.trust_of(main.heroes[0]) == 5, "trust saves and loads")
+	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(main.save_path))
+	for x in d.heroes:
+		x.erase("trust")
+	d.heroes[0].beat = 1
+	var f := FileAccess.open(main.save_path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(d))
+	f.close()
+	check(main._load() and main.trust_of(main.heroes[0]) == 2 and main.heroes.slice(1).all(func(x): return main.trust_of(x) == 2 * int(x.a.beat)), "a save from before trust loads, with two marks per story talk already had (0 for none)")
+	main.SafeSave.remove(main.save_path)
+	main.no_save = true
+	main.lines.clear()

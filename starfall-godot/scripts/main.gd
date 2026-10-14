@@ -95,6 +95,19 @@ const MARKERS := {
 	Vector2i(-14, 3): "The North Road runs on to the far farms, the old quarry and the barrow hill. That's adventurers' work; your guild is waiting in town.",
 }
 const F_PROPS := preload("res://assets/env/frontier/props.png")     # ART-SF-6
+## ART-SF-8, a lived-in square and road (assets/env/frontier/SQUARE.md): ruts, puddles, scuffs and tufts lie flat and
+## never block; the bench, the hitching rail and the inn's barrel and crate stand on their footprints like any prop.
+const F_SQUARE := preload("res://assets/env/frontier/square.png")
+const SQ := { "ruts-h": Rect2(0, 0, 16, 16), "ruts-v": Rect2(16, 0, 16, 16), "puddle-a": Rect2(32, 0, 16, 16),
+	"puddle-b": Rect2(48, 0, 16, 16), "tuft-a": Rect2(64, 0, 16, 16), "tuft-b": Rect2(80, 0, 16, 16),
+	"scuff": Rect2(96, 0, 16, 16), "step": Rect2(112, 0, 16, 8), "bench": Rect2(0, 16, 32, 16), "hitch": Rect2(32, 16, 32, 16) }
+const PUDDLES := { Vector2i(9, 9): "puddle-a", Vector2i(14, 12): "puddle-b", Vector2i(27, 9): "puddle-a", Vector2i(36, 9): "puddle-b" }
+## Standing dressing, by its left tile: what, and how many tiles wide (each blocks its footprint).
+const DRESSING := { Vector2i(8, 13): ["bench", 2], Vector2i(22, 10): ["hitch", 2],
+	Vector2i(17, 5): ["barrel", 1], Vector2i(17, 6): ["crate", 1] }
+## Where a finished building's door sits in its picture (x of the door's left edge, and its bottom row up from the
+## ground), for the plank step down (the hall and the inn have theirs drawn in; tools/art/starfall_hall_inn.py).
+const DOOR_STEP := { "apothecary": [10, 3], "healer": [18, 3], "tavern": [10, 6] }
 const ROCK := Rect2(64, 64, 16, 16)
 
 const SOLID := "TPSGrc#BDWwu~Fonmhl"
@@ -382,7 +395,7 @@ func _new_town() -> void:
 		var m := Mover.new("hero%d" % i, TOWN_AREA.position + Vector2i(i * 3 + 1, i % 2))
 		var c: Dictionary = CLASSES[s[1]]
 		var mx := int(c.hp * (1.0 + 0.2 * (s[2] - 1)))
-		m.a = { "name": s[0], "cls": s[1], "lvl": s[2], "xp": 0, "hp": mx, "max": mx, "morale": 6, "state": "town", "job": "", "timer": 2.0 + i * 3.0, "hair": HAIR[(i * 4 + 1) % HAIR.size()], "purse": 20, "gear": 0, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [], "asked": false }
+		m.a = { "name": s[0], "cls": s[1], "lvl": s[2], "xp": 0, "hp": mx, "max": mx, "trust": 0, "morale": 6, "state": "town", "job": "", "timer": 2.0 + i * 3.0, "hair": HAIR[(i * 4 + 1) % HAIR.size()], "purse": 20, "gear": 0, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [], "asked": false }
 		_dress(m)
 		heroes.append(m)
 	_new_notices()
@@ -931,7 +944,8 @@ func _pick_job(h: Mover) -> String:
 	var a: Dictionary = h.a
 	if float(a.hp) < float(a.max) * 0.7 or int(a.morale) < 3:
 		return ""
-	var nerve := int(a.lvl) + (1 if int(a.morale) >= 8 else 0) + (1 if "bold" in a.get("traits", []) else 0)
+	var bold: bool = "bold" in a.get("traits", []) or trusted(h)          # (high trust is a softer bold; the two don't stack)
+	var nerve := int(a.lvl) + (1 if int(a.morale) >= 8 else 0) + (1 if bold else 0)
 	var best := ""
 	var best_reward := -1
 	for id in posted:
@@ -1052,6 +1066,7 @@ func serve(h: Mover, by_hand: bool) -> void:
 	if by_hand and meals in COOK_RANKS:
 		_cook_rank_up()
 	if by_hand:
+		gain_trust(h)
 		sfx.play("coin")
 		feel(h, "pleased", 4.0)
 		bark(h, ["That smells wonderful.", "Thank you, guildmaster!", "Just what I needed."][rng.randi() % 3])
@@ -1255,6 +1270,7 @@ func finish_piece(h: Mover, hits: int, by_hand: bool) -> void:
 	a.fine = hits >= 3
 	if by_hand:
 		pieces += 1
+		gain_trust(h)
 		sfx.play("success" if hits >= 3 else "coin")
 	if hits >= 3:
 		feel(h, "heart", 6.0)
@@ -1395,7 +1411,7 @@ func _check_rank() -> void:
 		var m := Mover.new("hero%d" % heroes.size(), GATE_IN)
 		var c: Dictionary = CLASSES[s[1]]
 		var mx := int(c.hp * (1.0 + 0.2 * (s[2] - 1)))
-		m.a = { "name": s[0], "cls": s[1], "lvl": s[2], "xp": 0, "hp": mx, "max": mx, "morale": 7, "state": "town", "job": "", "timer": 3.0, "hair": HAIR[(heroes.size() * 4 + 1) % HAIR.size()], "purse": 30, "gear": 0, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [], "asked": false }
+		m.a = { "name": s[0], "cls": s[1], "lvl": s[2], "xp": 0, "hp": mx, "max": mx, "trust": 0, "morale": 7, "state": "town", "job": "", "timer": 3.0, "hair": HAIR[(heroes.size() * 4 + 1) % HAIR.size()], "purse": 30, "gear": 0, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [], "asked": false }
 		_dress(m)
 		heroes.append(m)
 		bark(m, "Is this the guild? I heard there's honest work here.")
@@ -1436,6 +1452,8 @@ func talk_hero(h: Mover) -> void:
 	var mood := "keen for work" if int(a.morale) >= 7 else ("steady" if int(a.morale) >= 4 else "low on heart")
 	var body := "fit and well" if float(a.hp) >= float(a.max) * 0.95 else ("a bit bruised" if not badly_hurt(h) else "badly hurt")
 	say(a.name, "%s, level %d. Feeling %s, and %s." % [cls, a.lvl, body, mood])
+	if trusted(h):
+		say(a.name, "You've done a lot for me, guildmaster. Pin up something a step harder and I'll take it on for you.")
 	if posted.is_empty():
 		say(a.name, "Nothing on the board that I've seen. Pin something up and I'll have a look.")
 	elif _pick_job(h) == "" and float(a.hp) >= float(a.max) * 0.7 and int(a.morale) >= 3:
@@ -1533,7 +1551,7 @@ func _judge_day() -> String:
 		var c: Dictionary = CLASSES[v[1]]
 		var mx := int(c.hp * (1.0 + 0.2 * (int(v[2]) - 1)))
 		var m := Mover.new("hero%d" % heroes.size(), GATE_IN)
-		m.a = { "name": v[0], "cls": v[1], "lvl": v[2], "xp": 0, "hp": mx, "max": mx, "morale": 8, "state": "town", "job": "", "timer": 3.0, "hair": HAIR[(heroes.size() * 4 + 3) % HAIR.size()], "purse": 50, "gear": 1, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [v[3]], "asked": false }
+		m.a = { "name": v[0], "cls": v[1], "lvl": v[2], "xp": 0, "hp": mx, "max": mx, "trust": 0, "morale": 8, "state": "town", "job": "", "timer": 3.0, "hair": HAIR[(heroes.size() * 4 + 3) % HAIR.size()], "purse": 50, "gear": 1, "fine": false, "tonic": false, "beat": 0, "jobs_done": 0, "traits": [v[3]], "asked": false }
 		_dress(m)
 		heroes.append(m)
 		bark(m, v[4])
@@ -1718,6 +1736,8 @@ func drink(h: Mover, quality: int, by_hand := false) -> void:
 	a.drank = day
 	a.state = "town"
 	a.timer = 2.0
+	if by_hand:
+		gain_trust(h)
 	bark(h, ["Just right. Thank you.", "That's a proper pour!", "Ahh. Now I can sleep."][clampi(quality, 0, 2)] if quality >= 2 else ["Bit of foam. Still good.", "Cheers, guildmaster."][rng.randi() % 2])
 	if by_hand:
 		pours += 1
@@ -2094,6 +2114,7 @@ func finish_spar(fill: float) -> void:
 		h.a.timer = 1.5
 	var practised := _lift(h, 2 if clean else 1)
 	h.a.sparred = day
+	gain_trust(h)
 	if clean:
 		sfx.play("success")
 		feel(h, "heart", 4.0)
@@ -2342,6 +2363,7 @@ func _draw() -> void:
 		for x in range(-WILDS_W, MAP[0].length()):
 			_ground(x, y, tile_at(Vector2i(x, y)))
 	_draw_wilds()
+	_dress_ground()
 	for y in MAP.size():                         # the stockade: palisade pieces joined to their neighbours, stakes beyond
 		for x in MAP[0].length():
 			var ch: String = MAP[y][x]
@@ -2376,6 +2398,7 @@ func _draw() -> void:
 		for g in INN_GLASS:
 			_glow.append([F_INN[1], Rect2(g, Vector2(6, 6)), inn_at])
 	draw_texture(F_WELL, Vector2(11, 12 - 1) * TILE)
+	_dress_standing()
 	for k in PLOTS:
 		_draw_plot(k)
 	_counter_draw()
@@ -2408,6 +2431,8 @@ func _draw() -> void:
 		var feel := feeling(m, i)                                      # a bubble over their head: how they feel
 		if feel != "":
 			draw_texture(_emote(feel), m.pos + Vector2(1, -19 + sin(t * 4.0) * 1.0))
+		if feel == "":
+			_trust_draw(m)
 		if not m.a.is_empty() and badly_hurt(m):
 			draw_rect(Rect2(m.pos + Vector2(4, -3), Vector2(8, 2)), Color("f4f0e8"))      # a bandage round the head
 	_evening_tint()
@@ -2473,6 +2498,15 @@ func _draw_built(_k: String, what: String, o: Vector2) -> void:
 	var tex: Texture2D = F_BUILT[what]
 	var at := o + Vector2(0, 32 - tex.get_height())
 	draw_texture(tex, at)
+	if DOOR_STEP.has(what):                      # a plank step from the door down to the ground (ART-SF-8)
+		var ds: Array = DOOR_STEP[what]
+		draw_texture_rect_region(F_SQUARE, Rect2(o + Vector2(int(ds[0]) - 2, 32 - 7), Vector2(16, 8)), SQ.step)
+	if what == "tavern":                         # barrels by the taproom door
+		var b := Vector2(_step_of(_k) + Vector2i(2, -1)) * TILE
+		draw_texture_rect_region(F_PROPS, Rect2(b, Vector2(16, 16)), Rect2(0, 0, 16, 16))
+		draw_texture_rect_region(F_PROPS, Rect2(b + Vector2(0, -6), Vector2(16, 16)), Rect2(0, 0, 16, 16))
+	if what == "smithy":
+		draw_texture_rect_region(F_PROPS, Rect2(Vector2(PLOTS[_k] + Vector2i(2, 0)) * TILE, Vector2(16, 16)), Rect2(32, 0, 16, 16))
 	match what:
 		"smithy":                                # the forge breathing through the open front, smoke from the chimney
 			var a := Vector2(_step_of(_k) + Vector2i.RIGHT) * TILE                    # and the anvil by the door, where you work
@@ -2922,6 +2956,7 @@ func _load() -> bool:
 		a.tonic = bool(a.get("tonic", false))
 		a.beat = int(a.get("beat", 0))
 		a.jobs_done = int(a.get("jobs_done", 0))
+		a.trust = int(a.get("trust", int(a.beat) * 2))   # (SF2.13; older saves: two marks for each story talk already had)
 		if str(a.get("state", "")) == "sparring":
 			a.state = "town"                         # (a bout isn't saved: saved mid-bout, they're just at home)
 		a.traits = Array(a.get("traits", []))
@@ -3028,10 +3063,53 @@ func _plot_done(k: String) -> bool:
 
 ## The tile beside a finished building where its own thing stands ("" if none there).
 func _prop_at(p: Vector2i) -> String:
+	for at in DRESSING:                          # the bench, the hitching rail, the inn's barrel and crate (ART-SF-8)
+		if p.y == at.y and p.x >= at.x and p.x < at.x + int(DRESSING[at][1]):
+			return str(DRESSING[at][0])
 	for k in PLOTS:
+		if _plot_done(k) and built[k].what == "smithy" and p == PLOTS[k] + Vector2i(2, 0):
+			return "firewood"                    # the forge's wood, stacked by its wall
 		if _plot_done(k) and p == PLOTS[k] + Vector2i(2, 1):
 			return built[k].what
 	return ""
+
+## ART-SF-8: what lies flat on the ground (drawn under everything that stands): wheel ruts worn into the road,
+## puddles, scuffed earth on the square and grass tufts where moss meets mud. Chosen by tile, so it never shifts.
+func _dress_ground() -> void:
+	for y in MAP.size():
+		for x in MAP[0].length():
+			var p := Vector2i(x, y)
+			var ch := tile_at(p)
+			var o := Vector2(p) * TILE
+			var h := posmod(x * 31 + y * 17, 11)
+			if PUDDLES.has(p):
+				draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(16, 16)), SQ[PUDDLES[p]])
+			elif ch == "." and _is_path(x - 1, y) and _is_path(x + 1, y) and h != 0:
+				draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(16, 16)), SQ["ruts-h"])
+			elif ch == "." and _is_path(x, y - 1) and _is_path(x, y + 1) and h < 6:
+				draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(16, 16)), SQ["ruts-v"])
+			elif ch == "q" and h < 3:
+				draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(16, 16)), SQ.scuff)
+			elif ch == "," and plot_at(p) == "" and h < 5 and _edge(p):
+				draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(16, 16)), SQ["tuft-a" if h % 2 == 0 else "tuft-b"])
+
+## Moss right beside the road or the square, where grass grows long out of reach of wheels and boots.
+func _edge(p: Vector2i) -> bool:
+	for d in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+		if tile_at(p + d) in ".q":
+			return true
+	return false
+
+## ART-SF-8: the bench by the well, the hitching rail and trough on the road by the inn, the inn's barrel and crate.
+func _dress_standing() -> void:
+	for at in DRESSING:
+		var what: String = DRESSING[at][0]
+		var o := Vector2(at) * TILE
+		draw_rect(Rect2(o + Vector2(3, 13), Vector2(int(DRESSING[at][1]) * 16 - 6, 3)), Color(0, 0, 0, 0.22))
+		if SQ.has(what):
+			draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(32, 16)), SQ[what])
+		else:
+			draw_texture_rect_region(F_PROPS, Rect2(o, Vector2(16, 16)), Rect2(0 if what == "barrel" else 16, 0, 16, 16))
 
 func _doorstep(k: String) -> void:
 	var s := Vector2(_step_of(k)) * TILE
@@ -3101,6 +3179,55 @@ func _music_tick(dt: float) -> void:
 				music.stop()
 	elif music.playing:
 		music.volume_db = move_toward(music.volume_db, MUSIC_VOL, dt * 30.0)
+
+# ---------------------------------------------------------------- trust per adventurer (SF2.13)
+## +1 each time you do something by hand for someone: a meal, a pour, a piece forged, a bout, a story talk. It shows as
+## lamp-coloured marks over their head while you stand near them, gates their later story beats (after_trust in
+## data/stories.json), and at TRUST_PERK they'll take a job a step harder for you. Helpers' work never earns it.
+const TRUST_MAX := 10
+const TRUST_PERK := 6
+
+func trust_of(h: Mover) -> int:
+	return int(h.a.get("trust", 0)) if not h.a.is_empty() else 0
+
+func trusted(h: Mover) -> bool:
+	return trust_of(h) >= TRUST_PERK
+
+func gain_trust(h: Mover) -> void:
+	if h == null or h.a.is_empty():
+		return
+	var was := trust_of(h)
+	h.a.trust = mini(TRUST_MAX, was + 1)
+	if was < TRUST_PERK and int(h.a.trust) >= TRUST_PERK:
+		feel(h, "heart", 5.0)
+		then_do_soon(h)
+
+## The moment trust tips over: they say so, once, and the marks turn to a star.
+func then_do_soon(h: Mover) -> void:
+	bark(h, "I'd take on something harder, if it's for you.")
+	caption.text = "%s trusts you now: they'll take a job a step harder for you." % h.a.name
+	caption_t = 6.0
+
+## The marks: one notch per trust, in two rows of five over their head, while you're close; a star once trusted.
+func _trust_draw(m: Mover) -> void:
+	if m.a.is_empty() or m.where != "town" or (m.tile - me.tile).length() > 2.3:
+		return
+	var n := trust_of(m)
+	if n <= 0:
+		return
+	var row := mini(n, 5)
+	var o := m.pos + Vector2(8.0 - row * 2.0, -14)
+	if n >= TRUST_PERK:
+		var c := m.pos + Vector2(8, -14)
+		draw_rect(Rect2(c + Vector2(-1, -3), Vector2(3, 7)), Figures.OUTLINE)
+		draw_rect(Rect2(c + Vector2(-3, -1), Vector2(7, 3)), Figures.OUTLINE)
+		draw_rect(Rect2(c + Vector2(0, -2), Vector2(1, 5)), Color("f2d080"))
+		draw_rect(Rect2(c + Vector2(-2, 0), Vector2(5, 1)), Color("f2d080"))
+		return
+	for i in n:
+		var p := o + Vector2((i % 5) * 4, -(i / 5) * 4)
+		draw_rect(Rect2(p, Vector2(3, 3)), Figures.OUTLINE)
+		draw_rect(Rect2(p + Vector2(0, 0), Vector2(2, 2)), Color("f2d080"))
 
 # ---------------------------------------------------------------- members' stories (SF2.1; data/stories.json)
 ## Each adventurer has a short arc. When a beat is ready (enough jobs done, spirits up, any building it needs stands),
@@ -3193,6 +3320,8 @@ func story_ready(h: Mover) -> bool:
 	var beat: Dictionary = arc[b]
 	if int(a.get("jobs_done", 0)) < int(beat.get("after_jobs", 0)):
 		return false
+	if int(a.get("trust", 0)) < int(beat.get("after_trust", 0)):
+		return false                             # later beats wait until you've done enough by hand for them (SF2.13)
 	return not beat.has("needs") or finished(str(beat.needs)) != ""
 
 func _story_talk(h: Mover) -> void:
@@ -3222,6 +3351,7 @@ func story_choose(i: int) -> void:
 		say(str(l[0]), str(l[1]))
 	a.beat = int(a.beat) + 1
 	a.asked = false
+	gain_trust(h)
 	sfx.play("pick")
 
 func _story_input(e: InputEvent) -> void:

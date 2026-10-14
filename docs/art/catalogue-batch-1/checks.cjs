@@ -20,4 +20,3 @@ const fs=require('fs'),path=require('path'),crypto=require('crypto'),assert=requ
  fs.writeFileSync(dir+'/checks.json',JSON.stringify({date:new Date().toISOString(),checks,species:ids.size,views,errors,scope:'Art sandbox only; static reference cutouts; no game or user-save edits'},null,2)+'\n');console.log('PASS '+checks+' checks, '+views.length+' family/mode/viewport views, 15 species.');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});
-

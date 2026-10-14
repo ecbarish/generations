@@ -1,0 +1,263 @@
+{
+  "palette": "docs/art/starfall/palette.gpl",
+  "tile_size": 16,
+  "file": "square.png",
+  "atlas_size": [
+    128,
+    32
+  ],
+  "origin": "local top-left inside each rect; footprint_rect is the placement base",
+  "pieces": {
+    "ruts-h": {
+      "size": [
+        16,
+        16
+      ],
+      "footprint_rect": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 0,
+      "solid": false,
+      "rect": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "file": "square.png"
+    },
+    "ruts-v": {
+      "size": [
+        16,
+        16
+      ],
+      "footprint_rect": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 0,
+      "solid": false,
+      "rect": [
+        16,
+        0,
+        16,
+        16
+      ],
+      "file": "square.png"
+    },
+    "puddle-a": {
+      "size": [
+        16,
+        16
+      ],
+      "footprint_rect": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 0,
+      "solid": false,
+      "rect": [
+        32,
+        0,
+        16,
+        16
+      ],
+      "file": "square.png"
+    },
+    "puddle-b": {
+      "size": [
+        16,
+        16
+      ],
+      "footprint_rect": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 0,
+      "solid": false,
+      "rect": [
+        48,
+        0,
+        16,
+        16
+      ],
+      "file": "square.png"
+    },
+    "tuft-a": {
+      "size": [
+        16,
+        16
+      ],
+      "footprint_rect": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 0,
+      "solid": false,
+      "rect": [
+        64,
+        0,
+        16,
+        16
+      ],
+      "file": "square.png"
+    },
+    "tuft-b": {
+      "size": [
+        16,
+        16
+      ],
+      "footprint_rect": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 0,
+      "solid": false,
+      "rect": [
+        80,
+        0,
+        16,
+        16
+      ],
+      "file": "square.png"
+    },
+    "scuff": {
+      "size": [
+        16,
+        16
+      ],
+      "footprint_rect": [
+        0,
+        0,
+        16,
+        16
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 0,
+      "solid": false,
+      "rect": [
+        96,
+        0,
+        16,
+        16
+      ],
+      "file": "square.png"
+    },
+    "step": {
+      "size": [
+        16,
+        8
+      ],
+      "footprint_rect": [
+        0,
+        0,
+        16,
+        8
+      ],
+      "footprint_tiles": [
+        1,
+        1
+      ],
+      "height_tiles": 0,
+      "solid": false,
+      "anchor": "bottom centre under the door rect; the door tile stays walkable",
+      "rect": [
+        112,
+        0,
+        16,
+        8
+      ],
+      "file": "square.png"
+    },
+    "bench": {
+      "size": [
+        32,
+        16
+      ],
+      "footprint_rect": [
+        3,
+        10,
+        26,
+        5
+      ],
+      "footprint_tiles": [
+        2,
+        1
+      ],
+      "height_tiles": 0.5,
+      "solid": true,
+      "rect": [
+        0,
+        16,
+        32,
+        16
+      ],
+      "file": "square.png"
+    },
+    "hitch": {
+      "size": [
+        32,
+        16
+      ],
+      "footprint_rect": [
+        4,
+        10,
+        25,
+        6
+      ],
+      "footprint_tiles": [
+        2,
+        1
+      ],
+      "height_tiles": 1,
+      "solid": true,
+      "rect": [
+        32,
+        16,
+        32,
+        16
+      ],
+      "file": "square.png"
+    }
+  }
+}
