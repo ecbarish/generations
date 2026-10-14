@@ -57,7 +57,7 @@ These rows left "This cycle" when Evan reset the priorities. Text, owner and don
 |---|---|---|---|---|---|
 | Wildbond | WB-C3 | Wildbond on a phone: the web preview held sideways walks, talks, battles and opens the bag by touch | Claude, Wildbond builder | A phone-size run recorded in the PR | in draft PR #361 |
 | Wildbond | WB-C4 | Larkhaven and the first route at their best | Claude, Game assets | Before and after screenshots; the Art direction thread approves | open |
-| Diamond Manager | DM-N1d | Dugout calls with visible risk: steal, hit-and-run, intentional walk, pinch hitter (note 1) | ChatGPT/Codex | Same | in PR #347 (blocked) |
+| Diamond Manager | DM-N1d | Dugout calls with visible risk: steal, hit-and-run, intentional walk, pinch hitter (note 1) | ChatGPT/Codex | Same | PR #347 closed 2026-10-14; rebuild from fresh main when back in cycle (see #347 closing comment) |
 
 ## The direction (the long view behind the cycles; Evan, 2026-10-12: "a large runway for the AIs to push, and a clear direction")
 
