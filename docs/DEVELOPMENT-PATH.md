@@ -68,6 +68,7 @@ Tick a box when the deliverable is merged (`- [x]`, with the date). IDs are stab
 ### Wildbond (Godot): the new Wildbond, to version 2.0
 - [x] WB-C2 [dot / Adam] (merged: #279, c8fa1c8, 2026-10-13) Meet your partner sooner (cycle 1): measure New Game to first partner before and after; trim the opening to three minutes or less while preserving story essentials and old saves. Files: Wildbond opening, regression/timing evidence, and coordination docs. Done when both measurements are in the PR, checks pass, and old saves load.
 - [x] WB-C2-REL [dot / Adam] (published: #286, f81ef50, 2026-10-13) Exact c8fa1c8/e07 pack released; all 22 suites, complete browser save/rename/phone gate, Pages and 93 actual-live assertions pass. [Evidence](releases/wildbond-wbc2-handoff.md). Engine/storage identity and concurrent work preserved.
+- [x] WB-C3 [Claude, Wildbond builder] (merged: #361, e76cfa9, 2026-10-14) Wildbond on a phone held sideways: the web preview walks, talks, battles and opens the bag by touch. Files: wildbond-godot/. Done when a phone-size run is recorded in the PR.
 - [ ] WB-FUNNEL1 [dot / Adam] First-three-minutes funnel (Evan's ruling, COMMS 2026-10-14 12:11 UTC): record time from New Game to first partner, first battle and first catch (a debug/test readout, no new save fields), and let every opening dialogue line be fast-forwarded. Doesn't touch the starter choice scene (NOS-1a). Files: wildbond-godot/ opening and dialogue scripts, wildbond-godot/tests/. Done when a headless test prints the three times for a default New Game, fast-forward works on every opening line, old saves load and all checks pass.
 
 - [x] WB-N1 [any] (done 2026-10-12 by Muse, Adam / abarish-dev, PR #257) Wildbond newcomer snags (Flint round 2, COMMS 2026-10-12 20:52): after the rival fight, Maren says the team is hurt and the Larkhaven inn heals (win scene + loss line); after the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]`); battle HP bars snap to real HP on finish (`u.shown`). Bond-gated evolution is a design question for Design decisions first. Files: wildbond-godot/. All Godot checks pass; old saves load (additive changes only).
@@ -154,7 +155,8 @@ Target about 150 species in about 70 lines; most new species are new stages of t
 - [ ] WB5.3 [Claude] Ranch jobs: creatures help (W5/WG8).
 - [ ] WB5.4 [Claude] Roaming legendaries (W3 part 2).
 - [ ] WB5.5 [Claude] Baby forms as life stages (W9/W10, approved by Evan 2026-10-09 with the proposal's defaults; docs/proposals/creature-growth.md "Evan's answers"): part 1 eggs hatch as babies, care, growing up; part 2 elders and care-shaped potential; part 3 lost hatchlings.
-- [ ] WB5.6 [ChatGPT] Catalogue batch 3 and 4 (12-15 creatures each, data and lore).
+- [x] EVO-1 [Wildbond & Starfall Dev Lead] (merged: #366, 9cc9788, follow-up #370, d82363f, 2026-10-14) Starters as three-stage lines: three middle species (middle at 16, final at 36), old saves grandfathered. The follow-up converts old saves and clears battle sprites off the HP panel.
+- [x] WB5.6 [ChatGPT] (merged: #368, 8d6886a, 2026-10-14, 189 species) Catalogue batch 3 and 4 (12-15 creatures each, data and lore).
 - [ ] WB5.7 [Claude] Fishing at Saltmarsh (from docs/proposals/new-game-ideas.md, scored 16/18; added 2026-10-09).
 
 **WB-M6: version 2.0, ready for everyone.**
@@ -348,6 +350,7 @@ deliverables are retired; the batting prototype stays in games/diamond-career/ o
 
 ### Lantern Bowl (browser; American football in the Retro Bowl spirit, our own code and art)
 Evan said yes 2026-10-09. Plan: [plans/sports-management.md](plans/sports-management.md) "Game 2".
+- [x] #359 [Side Games Dev Lead] (merged: #369, cd491bd, 2026-10-14, Lantern Bowl v0.1.4) Running matters, and Millrace's drives play on the field.
 - [ ] LB0 [any] One-page pitch with three mock screens. - [ ] LB1 [any] shared/sports-office.js from Diamond Manager.
 - [ ] LB2 [any] One drive, playable. - [ ] LB3 [any] One full game. - [ ] LB4 [any] Season and office. - [ ] LB5 [any] Playability pass.
 
@@ -356,7 +359,7 @@ Plan: [plans/sports-management.md](plans/sports-management.md) "Game 3". Reuses 
 - [ ] HK0 [any] Pitch. - [ ] HK1 [any] Hockey simulation. - [ ] HK2 [any] Shootout moment. - [ ] HK3 [any] Season, lines, office. - [ ] HK4 [any] Playability pass.
 
 ### Otherworld (browser)
-- [ ] OW-N1 [Grok / Adam] Otherworld newcomer snags (Flint round 2): a visible "Memories carried" ledger so players can plan unlocks across runs; at least two choices open at every beat (no single-choice click-through); the hall blurb calls it a story life sim, not idle management. Files: games/otherworld/, index.html (claimed in COMMS first, per the touch rule).
+- [x] OW-N1 [Grok / Adam] (merged: #378, 76017d5, 2026-10-14, Otherworld v0.4.1) Otherworld newcomer snags (Flint round 2): a visible "Memories carried" ledger so players can plan unlocks across runs; at least two choices open at every beat (no single-choice click-through); the hall blurb calls it a story life sim, not idle management. Files: games/otherworld/, index.html (claimed in COMMS first, per the touch rule).
 **OW-M1: three lives (done through v0.3.0).**
 - [x] The Between, Asterhold with Lanthorn, Hearthmere, the Ashen Throne.
 **OW-M2: memories and a systemic world.**

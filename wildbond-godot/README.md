@@ -6,6 +6,9 @@ deciding (START-HERE.md "Questions for Evan" 1; docs/wildbond-plan.md).
 
 ## Unreleased
 
+- EVO-1 (merged #366, follow-up #370, 2026-10-14): starters are three-stage lines. Old saves convert, and battle sprites clear the HP panel. Not published.
+- WB-C3 (merged #361, 2026-10-14): a phone held sideways walks, talks, battles and opens the bag by touch. Not published.
+- WB5.6 (merged #368, 2026-10-14): catalogue batch, 189 species, evolved forms at half. Not published.
 - WB-C2: a shorter arrival and barn introduction; the same family tales now accompany the first bond. Character creation, starter choice and old saves are unchanged. Timing and regression evidence: [WB-C2](../docs/playtests/wildbond-wb-c2/README.md).
 
 ## Play it
