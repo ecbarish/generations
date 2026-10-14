@@ -4,271 +4,60 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Generations: free adventure &amp; idle browser games</title>
-<meta name="description" content="Free browser games where you play for the fun and automate the grind. Start with Wildbond: bond with creatures and bring colour back to a faded world. No downloads, nothing for sale.">
+<meta name="description" content="Free browser games where you play for the fun and automate the grind. Start with Wildbond: bond with creatures and bring colour back to a faded valley. No downloads, nothing for sale.">
 <link rel="canonical" href="https://ecbarish.github.io/generations/">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Generations">
-<meta property="og:title" content="Generations: free adventure &amp; idle browser games">
-<meta property="og:description" content="Play for the fun. Automate the grind. Start with Wildbond, free in your browser.">
-<meta property="og:url" content="https://ecbarish.github.io/generations/">
-<meta property="og:image" content="https://ecbarish.github.io/generations/images/play/wb-barn.png">
-<meta property="og:image:alt" content="Wildbond: the barn, with creatures, a feeding trough and the nursery">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Generations: free adventure &amp; idle browser games">
-<meta name="twitter:description" content="Play for the fun. Automate the grind. Start with Wildbond, free in your browser.">
-<meta name="twitter:image" content="https://ecbarish.github.io/generations/images/play/wb-barn.png">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Generations">
+<meta property="og:title" content="Generations: free adventure &amp; idle browser games"><meta property="og:description" content="Free browser games where you play for the fun and automate the grind. Start with Wildbond: bond with creatures and bring colour back to a faded valley. No downloads, nothing for sale.">
+<meta property="og:url" content="https://ecbarish.github.io/generations/"><meta property="og:image" content="https://ecbarish.github.io/generations/images/play/wb-larkhaven.png"><meta property="og:image:width" content="1536"><meta property="og:image:height" content="864"><meta property="og:image:alt" content="Wildbond: the village of Larkhaven">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Generations: free adventure &amp; idle browser games"><meta name="twitter:description" content="Free browser games where you play for the fun and automate the grind. Start with Wildbond: bond with creatures and bring colour back to a faded valley. No downloads, nothing for sale."><meta name="twitter:image" content="https://ecbarish.github.io/generations/images/play/wb-larkhaven.png">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#111626">
-<link rel="apple-touch-icon" href="icons/arcade-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@1&family=DotGothic16&display=swap" rel="stylesheet">
-<style>
-/* Layout: an arcade wall. Marquee sign on top, then a shelf of cabinets (cards) whose covers use each game's own art style. */
-:root{
-  --bg:#14121c; --bg2:#1c1928; --card:#221e31; --line:#363049;
-  --fg:#efeaf7; --muted:#a79fbb; --dim:#b7adc9;
-  --marquee:#ffcf4d; --neon:#ff6fa8; --ok:#7fe0a0; --proto:#7ab8ff;
-  --f-sign:'Bungee', 'Arial Black', Impact, sans-serif;
-  --f-body:'Figtree', system-ui, 'Segoe UI', sans-serif;
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-[hidden]{display:none!important}
-html,body{margin:0;min-height:100%}
-body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;
-  background-image:radial-gradient(circle at 50% -20%,#2b2342 0,transparent 60%)}
-a{color:inherit}
-:focus-visible{outline:3px solid var(--marquee);outline-offset:3px}
-.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:28px 56px;display:flex;flex-direction:column;gap:28px}
-
-.marquee{display:flex;flex-direction:column;gap:6px}
-.sign{font-family:var(--f-sign);font-weight:400;font-size:clamp(40px,7vw,78px);line-height:.95;margin:0;color:var(--marquee);
-  text-shadow:0 0 18px rgba(255,207,77,.35),0 3px 0 #a5781a;letter-spacing:.01em}
-.sign span{color:var(--neon);text-shadow:0 0 18px rgba(255,111,168,.35),0 3px 0 #9c3466}
-.tag .motto{display:block;color:var(--fg);font-size:1.15em;margin-bottom:4px}
-.tag{color:var(--muted);max-width:60ch;margin:0;font-size:16px}
-
-.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:18px}
-.cab{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
-.cover{position:relative;aspect-ratio:16/9;max-width:100%;overflow:hidden;border-bottom:1px solid var(--line)}
-.cover canvas{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated}
-.cover .title{position:absolute;left:14px;bottom:10px;right:14px;line-height:1;text-shadow:0 2px 10px rgba(0,0,0,.6)}
-.t-primordial{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:34px;color:#f0b25a}
-.t-starfall{font-family:'DotGothic16',monospace;font-size:28px;color:#fff;text-shadow:0 3px 0 #2b3550}
-.t-mmo{font-family:var(--f-sign);font-size:26px;color:#ffd27a}
-.t-baseball{font-family:var(--f-sign);font-size:24px;color:#fff}
-.t-lantern{font-family:var(--f-sign);font-size:26px;color:#f2d080;letter-spacing:.04em;text-shadow:0 3px 0 #6a3418}
-.t-wildbond{font-family:var(--f-sign);font-size:26px;color:#fff;text-shadow:0 3px 0 #217a52}
-.t-otherworld{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:34px;color:#fff;text-shadow:0 0 14px rgba(140,200,255,.8)}
-.playtest-link{display:inline-flex;align-items:center;min-height:44px;font-size:14px;color:var(--marquee);text-underline-offset:4px}.playtest-link:focus-visible{outline:2px solid var(--marquee);outline-offset:4px}
-.credits-link{color:var(--muted);font-size:14px;min-height:44px;display:inline-flex;align-items:center}.credits-link:focus-visible{outline:2px solid var(--marquee);outline-offset:4px}
-.header-tools{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}.install-btn{font:inherit;color:var(--fg);background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:8px 14px;min-height:44px;cursor:pointer}.install-btn[hidden]{display:none}.app-help{color:var(--muted);font-size:14px;max-width:70ch}.app-help summary{cursor:pointer;padding:10px 0;min-height:44px}.offline-status{color:var(--muted);font-size:13px}.install-btn:focus-visible,.app-help summary:focus-visible{outline:2px solid var(--marquee);outline-offset:4px}
-.version-label{font-size:12px;color:var(--dim)}
-.fb-btn{background:var(--line);border:none;color:var(--fg);padding:6px 12px;border-radius:4px;font:inherit;font-size:13px;cursor:pointer}
-.fb-btn:hover{background:var(--muted);color:var(--bg)}
-.body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
-.status{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 9px;border-radius:999px;border:1px solid currentColor}
-.s-play{color:var(--ok)} .s-proto{color:var(--proto)} .s-design{color:var(--dim)}
-/* Edition ribbons (Evan, 2026-10-11: make Classic versus the new version obvious at a glance) */
-.edition{position:absolute;top:10px;left:-4px;z-index:2;font-family:var(--f-sign);font-size:13px;letter-spacing:.06em;padding:3px 12px 3px 14px;border-radius:0 6px 6px 0;box-shadow:0 2px 6px #0008}
-.ed-new{background:#7fe0a0;color:#0c2a18}
-.blurb{margin:0;color:var(--muted);font-size:14px}
-.tags{display:flex;flex-wrap:wrap;gap:6px}
-.tags span{font-size:12px;color:var(--muted);background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:1px 7px}
-.prog{border-top:1px dashed var(--line);padding-top:10px;margin-top:auto;min-height:3.2em}
-.prog .sum{font-weight:700;font-variant-numeric:tabular-nums}
-.prog .det{font-size:13px;color:var(--muted)}
-.prog .none{font-size:13px;color:var(--dim)}
-.play{display:flex;justify-content:center;align-items:center;gap:8px;text-decoration:none;font-weight:700;border-radius:10px;padding:10px 14px;background:var(--marquee);color:#2a1d00}
-.play:hover{filter:brightness(1.07)}
-.play.alt{background:var(--bg2);color:var(--fg);border:1px solid var(--line)}
-.soon{font-size:13px;color:var(--dim);text-align:center;padding:10px 0}
-.reset{text-align:center}
-.resetlink{background:none;border:0;color:var(--dim);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer;padding:4px}
-.resetlink:hover{color:var(--neon)}
-.warn{margin:6px 0;font-size:13px;color:var(--fg)}
-.confirm{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.confirm button{font:inherit;font-size:13px;font-weight:700;border-radius:8px;padding:7px 12px;cursor:pointer}
-.erase{background:var(--neon);color:#2a0012;border:0}
-.keep{background:var(--bg2);color:var(--fg);border:1px solid var(--line)}
-
-/* Sections by kind of game (AR2.12): what each group is like, so similar games sit together */
-.kinds{display:flex;flex-direction:column;gap:30px}
-.kind{display:flex;flex-direction:column;gap:12px;scroll-margin-top:12px}
-.kind h2{font-family:var(--f-sign);font-weight:400;font-size:22px;margin:0;color:var(--marquee);letter-spacing:.02em}
-.kind .like{margin:0;color:var(--muted);max-width:75ch}
-.howto{font-size:13px;color:var(--fg);background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
-.howto p{margin:0}.howto b{color:var(--marquee);font-weight:600}
-.note{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;border-top:1px solid var(--line);padding-top:22px;color:var(--muted);font-size:14px}
-.note h2{font-family:var(--f-sign);font-weight:400;font-size:16px;color:var(--fg);margin:0 0 4px;letter-spacing:.02em}
-.note p{margin:0;max-width:52ch}
-/* The launcher (L8, trimmed by AR2.12): the arcade hall (launcher/launcher.js) */
-.launcher{display:flex;flex-direction:column;gap:10px}
-.launch-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
-.kinds-nav{display:flex;gap:6px;flex-wrap:wrap}
-.kinds-nav a{font-size:14px;min-height:44px;display:inline-flex;align-items:center;padding:6px 14px;border-radius:9px;border:1px solid var(--line);background:var(--bg2);color:var(--fg);text-decoration:none}
-.kinds-nav a:hover{border-color:var(--marquee)}
-.launch-hint{color:var(--muted);font-size:14px}
-.launch-view{position:relative;aspect-ratio:21/9;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0b1030}
-.launch-view canvas{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated}
-.launch-hits{position:absolute;inset:0}
-.launch-hit{position:absolute;top:8%;bottom:4%;display:block;border-radius:10px}
-.launch-hit:focus-visible{outline:3px solid var(--marquee);outline-offset:-3px}
-.launch-hit.soon{cursor:default}
-/* Phones (Evan, 2026-10-11: the hall was unusable on a phone): no hall, just the section buttons and the cards */
-@media (max-width:720px){.launch-view,.launch-hint{display:none}}
-/* Big screens (L11): more of the shelf at once, bigger covers */
-@media (min-width:1700px){.wrap{max-width:min(2200px,92vw)}.shelf{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}}
-@media (min-width:2400px){.wrap{max-width:min(2900px,92vw)}.shelf{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}.tag{font-size:18px;max-width:80ch}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-
-body{font-size:calc(16px * var(--arc-text,1))}.launch-bar,.kinds-nav a,.cab .desc,.cab .play,.header-tools a{font-size:calc(14px * var(--arc-text,1))}
-
-/* Actual recorded frames mark the previews. */
-.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
-.preview-card .cover{height:auto;aspect-ratio:16/9}
-.preview-card .cover .title{inset:auto 0 0;padding:16px 12px 10px;background:linear-gradient(transparent,#12101deb);font-size:24px;text-shadow:0 2px 3px #000}
-.preview-card .status{background:#233a32;color:#bff1cc;border:1px solid #608871}
-.preview-load{font-size:calc(14px * var(--arc-text,1));line-height:1.5}
-.preview-load{color:#c4b9d8}
-.hero-cta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:10px 0 4px}
-.hero-play{display:inline-block;background:var(--marquee);color:#1a1424;font-weight:700;font-size:20px;line-height:1.2;padding:14px 26px;border-radius:12px;text-decoration:none;box-shadow:0 4px 0 #a5781a,0 0 24px rgba(255,207,77,.35)}
-.hero-play:hover{filter:brightness(1.08)}.hero-play:active{transform:translateY(2px);box-shadow:0 2px 0 #a5781a}
-.hero-browse{color:var(--muted);font-size:15px}
-.nojs{line-height:1.9}
-details.more-info{margin-top:10px}details.more-info>summary{cursor:pointer;color:var(--muted);font-size:14px;padding:4px 0}
-details.more-games>summary{cursor:pointer;list-style:none}details.more-games>summary::-webkit-details-marker{display:none}
-details.more-games>summary h2{display:inline}details.more-games>summary h2::before{content:"▸ ";color:var(--marquee)}details.more-games[open]>summary h2::before{content:"▾ "}
-details.more-games>summary .like{display:block}details.more-games .shelf{margin-top:14px}
-@media (max-width:520px){.hero-play{display:block;text-align:center}}
-</style>
+<meta name="theme-color" content="#100e17">
+<link rel="icon" href="icons/arcade.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icons/arcade-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared/accessibility.css">
+<link rel="stylesheet" href="shared/hub.css">
 </head>
-<body>
+<body data-base="">
+<a class="skip" href="#main">Skip to the games</a>
+<header class="bar"><div class="wrap"><a class="logo" href="index.html" aria-label="Generations home">GENER<span>ATIONS</span></a>
+<nav class="nav" aria-label="Site"><a class="nav-games" href="index.html#games">Games</a><a class="" href="lab.html">Lab</a><a class="" href="playtest.html">What to try</a></nav></div></header>
+<main id="main">
+<section class="hero" aria-labelledby="hero-title"><div class="hero-bg" aria-hidden="true" style="background-image:url('images/play/wb-larkhaven.png')"></div>
+<img class="hero-side l" src="images/play/wildbond-godot-festival-lanterns.png" alt="" aria-hidden="true" loading="lazy"><img class="hero-side r" src="images/play/wb-emberfall.png" alt="" aria-hidden="true" loading="lazy">
 <div class="wrap">
-  <header class="marquee">
-    <h1 class="sign">Gener<span>ations</span></h1>
-    <p class="tag"><b class="motto">Play for the fun. Automate the grind.</b> A stable of adventure and progression games, headlined by <b>Wildbond</b>: bond with creatures and bring colour back to a faded world. Little ones have <b>Little Ranch</b>, a gentle toy for ages 2 to 4. Each game saves on its own, so you can jump between them and pick up where you left off. New here? Meet <a href="promo.html" style="color:var(--marquee)">Realmbound →</a> or <a href="promo-wildbond.html" style="color:var(--ok)">Wildbond →</a></p>
-    <div class="hero-cta"><a class="hero-play" id="heroPlay" href="play/wildbond/">▶ Play Wildbond</a><a class="hero-browse" href="#shelf">or browse all games ↓</a></div>
-    <noscript><ul class="nojs"><li><a href="play/wildbond/">Wildbond</a></li><li><a href="play/starfall/">Starfall Guild</a></li><li><a href="games/realmbound/index.html">Realmbound</a></li><li><a href="games/little-ranch/index.html">Little Ranch</a> (ages 2 to 4)</li></ul></noscript>
-    <div class="header-tools"><a class="playtest-link" href="playtest.html">What to try →</a><a class="credits-link" href="credits.html">Credits</a><button class="install-btn" id="installArcade" hidden>Install arcade</button><span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span><span class="version-label">v1.7.2</span><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div></div>
-    <details class="app-help"><summary>Play offline or add to your home screen</summary><p>Open this page online and wait for “Ready for offline play.” You can then open the arcade and its browser games without internet. The new versions of Wildbond and Starfall need internet on their first visit. Use Install arcade when it appears, or your browser’s Install / Add to Home Screen menu. Your saves stay in this browser on this device. Without internet, lettering may use device fonts and Wildbond may use its HD-2D view while the 3D renderer is unavailable.</p></details>
-  </header>
-
-  <main class="kinds" id="shelf"></main>
-
-  <section class="note">
-    <div><h2>Your saves</h2><p>Progress is stored in this browser on this device, with automatic backups. Browser games have a <b>Your save</b> box to move your journey to another computer.</p></div>
-    <div><h2>Automation is earned</h2><p>Managers, staff and instincts unlock from things you do in the game. Nothing here is for sale.</p></div>
-    <div><h2>Always changing</h2><p>These games get tuned and extended a layer at a time. Prototypes may change a lot between visits.</p></div>
-  </section>
-</div>
-
+<div class="hero-copy"><span class="eyebrow">Early preview · Free</span>
+<h1 id="hero-title">Wildbond</h1>
+<p class="hero-lede">Walk into faded Larkhaven, choose a partner creature and bring colour back to the valley, one bond at a time.</p>
+<div class="hero-actions"><a class="btn btn-primary" id="heroPlay" href="play/wildbond/">▶ Play Wildbond</a><a class="btn btn-ghost" href="game/wildbond.html">About the game</a></div>
+<p class="hero-note">Runs in your browser · saves on this device · best on a computer, works on phones held sideways.</p></div>
+<div class="hero-media"><div class="shot"><img src="images/play/wb-larkhaven.png" alt="Wildbond: Larkhaven village" width="1536" height="864" fetchpriority="high"><img src="images/play/wb-battle.png" alt="Wildbond: a creature battle" width="1536" height="864" loading="lazy"><img src="images/play/wb-coast.png" alt="Wildbond: Saltmarsh Coast" width="1536" height="864" loading="lazy"></div></div>
+</div></section>
+<section class="section" id="games" aria-labelledby="games-title"><span id="shelf"></span><span id="launcher"></span><span id="start-here"></span><div class="wrap">
+<div class="section-head"><h2 id="games-title">Play now</h2><p>The games being worked on right now. No sign-up, nothing for sale.</p></div>
+<div class="grid three" id="current"></div>
+<noscript><ul><li><a href="play/wildbond/">Wildbond</a></li><li><a href="play/starfall/">Starfall Guild</a></li><li><a href="games/realmbound/index.html">Realmbound</a></li><li><a href="lab.html">The Lab: test versions and prototypes</a></li></ul></noscript>
+</div></section>
+<section class="section" style="padding-top:0"><div class="wrap"><div class="lab-band">
+<div><h2>The Lab</h2><p>Test versions and prototypes: arcade cabinets, a baseball club, a football night, a story life sim and Little Ranch for ages 2 to 4. They change a lot between visits.</p></div>
+<div class="lab-thumbs" aria-hidden="true"><img src="images/lab/little-ranch.jpg" alt="" loading="lazy" width="960" height="540"><img src="images/lab/diamond-manager.jpg" alt="" loading="lazy" width="960" height="540"><img src="images/lab/storm-front.jpg" alt="" loading="lazy" width="960" height="540"></div>
+<a class="btn" href="lab.html">Visit the Lab →</a></div></div></section>
+</main>
+<footer class="foot"><div class="wrap">
+<div><p class="motto">Play for the fun. Automate the grind.</p>
+<p>Generations is a stable of free adventure and progression games, headlined by Wildbond. Progress is stored in this browser on this device, with automatic backups. Automation is earned in play, never sold.</p>
+<details class="app-help"><summary>Play offline or add to your home screen</summary><p>Open this page online and wait for “Ready for offline play.” You can then open the arcade and its browser games without internet. The new versions of Wildbond and Starfall need internet on their first visit. Use Install arcade when it appears, or your browser’s Install / Add to Home Screen menu. Your saves stay in this browser on this device.</p></details></div>
+<div><div class="tools"><button class="install-btn" id="installArcade" hidden>Install arcade</button><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div><span class="set-host"></span></div>
+<p class="tools" style="margin-top:.8rem"><a href="lab.html">The Lab</a><a href="playtest.html">What to try</a><a href="credits.html">Credits</a><a href="promo.html">Realmbound trailer</a><span class="version-label">v1.8.0</span></p>
+<span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span></div>
+</div></footer>
 <script src="shared/offline.js" defer></script>
 <script src="shared/settings.js"></script>
 <script src="shared/engine.js"></script>
 <script src="shared/feedback.js"></script>
-<script src="shared/ambience.js"></script>
-<script src="shared/light.js"></script>
 <script src="launcher/games.js"></script>
 <script src="launcher/sports-progress.js"></script>
-<script>
-(function(){
-'use strict';
-const VERSION = '1.7.2'; // the arcade's version (L9)
-setupFeedback('The arcade homepage', VERSION, () => '');
-const GAMES=window.ArcadeGames.filter(g=>g.edition!=='classic'&&g.kind!=='classic'); // Evan 2026-10-14: Classic editions are not shown on the hub (their files stay)
-const START=['wildbond-preview','starfall-preview','realmbound']; // 'Start here': the current headline games
-const ago=t=>{const s=(Date.now()-t)/1000;if(s<90)return'just now';if(s<3600)return Math.round(s/60)+' min ago';if(s<86400)return Math.round(s/3600)+' h ago';return Math.round(s/86400)+' days ago';};
-
-/* Each game's save key in localStorage, used by "Reset progress" */
-const SAVE_KEYS={'baseball':'diamond-manager-save-v1','diamond-career':'diamond-career-save-v1','otherworld':'otherworld-save-v1','primordial':'primordial-save-v1','starfall-guild':'starfall-guild-save-v1','realmbound':'realmbound-save-v1','wildbond':'wildbond-save-v1','lantern-bowl':'lantern-bowl-save-v1'};
-const idx=ArcadeSportsProgress.forHall(Arcade.readIndex());
-const progressText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const shelf=document.getElementById('shelf');
-const card=g=>{
-  const p=g.preview?null:idx[g.id];
-  const prog=g.preview?'<div class="none">Preview saves stay inside this game.</div>':g.href?(p?`<div class="sum">${progressText(p.summary)}</div><div class="det">${progressText(p.detail)} · ${Number.isFinite(p.last)?'played '+ago(p.last):'saved on this device'}</div>`:'<div class="none">Not started yet.</div>'):'';
-  const btn=g.href?`<a class="play ${p?'':'alt'}" href="${g.href}">${g.preview?'Play the preview':p?'Continue':'Play'}</a>`:`<div class="soon">Being designed now</div>`;
-  const reset=p&&SAVE_KEYS[g.id]?`<div class="reset" id="rs-${g.id}"><button class="resetlink" data-reset="${g.id}">Reset progress</button></div>`:'';
-  return `<article class="cab${g.preview?' preview-card':''}" data-game="${g.id}"><div class="cover">${g.edition?`<span class="edition ed-${g.edition}">${g.edition==='new'?'New version':'Classic'}</span>`:''}<canvas data-cover="${g.cover}" aria-hidden="true"></canvas>${g.image?`<img src="${g.image}" alt="${g.alt}" loading="lazy" decoding="async">`:""}<div class="title ${g.tcls}">${g.title}</div></div>
-    <div class="body"><span class="status ${g.status[1]}">${g.status[0]}</span><p class="blurb">${g.blurb}</p>
-    ${btn}${g.guide?`<p><a href="${g.guide}">Guide · the Sundered Reach →</a></p>`:""}
-    <details class="more-info"><summary>How to play</summary><div class="tags">${g.tags.map(t=>`<span>${t}</span>`).join('')}</div>${g.goal||g.controls?`<div class="howto">${g.goal?`<p><b>What you do:</b> ${g.goal}</p>`:''}${g.controls?`<p><b>Controls:</b> ${g.controls}</p>`:''}</div>`:''}${g.href?`<div class="prog">${prog}</div>`:''}${g.preview&&g.load?`<p class="preview-load">${g.load}</p>`:""}${reset}</details></div></article>`;
-};
-/* Hub layout (Evan, 2026-10-14): "Start here" holds the current headline games; test versions and prototypes fold into "More games". */
-const startG=START.map(id=>GAMES.find(g=>g.id===id)).filter(Boolean), moreG=GAMES.filter(g=>!START.includes(g.id));
-shelf.innerHTML=`<section class="kind" id="start-here" aria-labelledby="kh-start"><h2 id="kh-start">Start here</h2><p class="like">The games being worked on now. Pick one and play: no sign-up, nothing for sale.</p><div class="shelf">${startG.map(card).join('')}</div></section>`
- +(moreG.length?`<details class="kind more-games" id="more-games"><summary><h2>More games (${moreG.length})</h2><span class="like">Test versions and prototypes. They may change a lot between visits.</span></summary><div class="shelf">${moreG.map(card).join('')}</div></details>`:'');
-/* Header button says Continue when this device has a hub save for Wildbond (same idx logic as the cards) */
-{const hp=document.getElementById('heroPlay');if(hp&&idx['wildbond-preview'])hp.textContent='▶ Continue Wildbond';}
-// An unavailable screenshot leaves the existing illustrated cover visible.
-shelf.querySelectorAll('.cover img').forEach(img=>{
-  img.addEventListener('error',()=>{img.hidden=true;});
-  if(img.complete&&!img.naturalWidth)img.hidden=true;
-});
-
-/* ---- restarting a game: erase its save on this device, after a confirmation ---- */
-shelf.addEventListener('click',e=>{
-  const r=e.target.closest('[data-reset]'),ok=e.target.closest('[data-erase]'),no=e.target.closest('[data-keep]');
-  if(r){const g=GAMES.find(x=>x.id===r.dataset.reset);
-    document.getElementById('rs-'+g.id).innerHTML=`<p class="warn">Erase all ${g.title} progress on this device${g.id==='realmbound'?', including every character':''}? This can't be undone.</p>
-      <div class="confirm"><button class="erase" data-erase="${g.id}">Erase and start over</button><button class="keep" data-keep="${g.id}">Keep my progress</button></div>`;}
-  if(ok){const id=ok.dataset.erase;Arcade.erase(SAVE_KEYS[id],id);location.reload();}
-  if(no){const id=no.dataset.keep;document.getElementById('rs-'+id).innerHTML=`<button class="resetlink" data-reset="${id}">Reset progress</button>`;}
-});
-
-/* ---- covers, each in its game's own style ---- */
-const covers={
-  primordial(c,w,h,t){const g=c.createRadialGradient(w*.5,h*.4,4,w*.5,h*.5,w*.7);g.addColorStop(0,'#14404a');g.addColorStop(1,'#08171c');c.fillStyle=g;c.fillRect(0,0,w,h);
-    c.strokeStyle='rgba(138,169,167,.08)';for(let x=12;x<w;x+=24){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke();}for(let y=12;y<h;y+=24){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke();}
-    const cols=['#f0b25a','#86dc97','#5fd0c8','#ff9b85'];for(let i=0;i<14;i++){const x=(i*97+t*8*(i%3+1))%(w+40)-20,y=(i*53)%h,r=4+(i%4)*3,col=cols[i%4];
-      c.fillStyle=col+'33';c.strokeStyle=col;c.beginPath();c.arc(x,y,r,0,7);c.fill();c.stroke();c.fillStyle=col;c.beginPath();c.arc(x+r*.25,y-r*.15,r*.33,0,7);c.fill();}},
-  starfall(c,w,h,t){c.imageSmoothingEnabled=false;c.fillStyle='#8fd0ff';c.fillRect(0,0,w,h);c.fillStyle='#c9ecff';for(let i=0;i<4;i++){const x=(i*90+t*6)%(w+60)-30;c.fillRect(x,18+i*9,34,8);c.fillRect(x+6,12+i*9,20,6);}
-    c.fillStyle='#5fb35a';c.fillRect(0,h*.68,w,h);c.fillStyle='#4a9a46';for(let x=0;x<w;x+=12)c.fillRect(x,h*.68,6,4);
-    const p=4,hx=w*.5-16,hy=h*.68-48,b=Math.sin(t*5)>0?p:0;const r=(gx,gy,ww,hh,col)=>{c.fillStyle=col;c.fillRect(hx+gx*p,hy+gy*p-b,ww*p,hh*p);};
-    r(8,1,1,7,'#dfe6ee');r(7,7,3,1,'#8a5a2b');r(2,10,1,2,'#2b2b3a');r(5,10,1,2,'#2b2b3a');r(1,6,6,4,'#3a6fd8');r(1,9,6,1,'#2b2b3a');r(1,2,6,4,'#f6d3b0');r(2,4,1,2,'#2b2b3a');r(5,4,1,2,'#2b2b3a');
-    r(1,0,6,2,'#ff8fb1');r(0,1,1,4,'#ff8fb1');r(7,1,1,3,'#ff8fb1');r(1,2,2,1,'#ff8fb1');r(5,2,2,1,'#ff8fb1');},
-  mmo(c,w,h,t){const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#2a1846');g.addColorStop(1,'#120b1f');c.fillStyle=g;c.fillRect(0,0,w,h);
-    c.fillStyle='#1d1430';c.beginPath();c.moveTo(0,h);for(let x=0;x<=w;x+=w/8)c.lineTo(x,h*.55+Math.sin(x*.05)*18+((x/(w/8))%2)*-20);c.lineTo(w,h);c.fill();
-    const rar=['#9d9d9d','#ffffff','#1eff00','#0070dd','#a335ee','#ff8000'];rar.forEach((col,i)=>{const y=h*.18+i*10,a=.5+.5*Math.sin(t*2+i);c.fillStyle=col;c.globalAlpha=.25+.5*a;c.fillRect(w*.62,y,w*.3,4);});c.globalAlpha=1;
-    c.save();c.translate(w*.3,h*.5);c.rotate(-.6);c.fillStyle='#d8dde6';c.fillRect(-3,-46,6,64);c.fillStyle='#ffcf4d';c.fillRect(-14,16,28,5);c.fillStyle='#8a5a2b';c.fillRect(-3,21,6,16);c.restore();},
-  baseball(c,w,h,t){c.fillStyle='#1f6a3a';c.fillRect(0,0,w,h);for(let x=0;x<w;x+=28){c.fillStyle=(x/28)%2?'#22733f':'#1f6a3a';c.fillRect(x,0,28,h);}
-    const cx=w*.5,cy=h*.95,s=h*.55;c.fillStyle='#b9824c';c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+s,cy-s);c.lineTo(cx,cy-2*s);c.lineTo(cx-s,cy-s);c.closePath();c.fill();
-    c.fillStyle='#1f6a3a';c.beginPath();c.moveTo(cx,cy-18);c.lineTo(cx+s-22,cy-s);c.lineTo(cx,cy-2*s+22);c.lineTo(cx-s+22,cy-s);c.closePath();c.fill();
-    c.fillStyle='#fff';[[cx,cy-6],[cx+s-6,cy-s],[cx,cy-2*s+6],[cx-s+6,cy-s]].forEach(([x,y])=>c.fillRect(x-4,y-4,8,8));
-    const bx=cx+Math.sin(t*1.5)*s*.6,by=cy-s-Math.abs(Math.cos(t*1.5))*s*.5;c.beginPath();c.arc(bx,by,5,0,7);c.fill();},
-  wildbond(c,w,h,t){const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#9fd0f0');g.addColorStop(1,'#e0f0d0');c.fillStyle=g;c.fillRect(0,0,w,h);
-    c.fillStyle='#4f7a3a';c.beginPath();c.moveTo(0,h*.7);for(let x=0;x<=w;x+=w/8)c.lineTo(x,h*.55+Math.sin(x*.03)*h*.06);c.lineTo(w,h);c.lineTo(0,h);c.fill();c.fillStyle='#6a9a48';c.fillRect(0,h*.78,w,h*.22);
-    const p=4,b=Math.sin(t*5)>0?1:0,q=(x,y,ww,hh,col)=>{c.fillStyle=col;c.fillRect(x,y,ww*p,hh*p);};
-    const wolf=(x,col)=>{const y=h*.78-14*p;q(x-p,y+7*p,10,4,col);q(x-4*p,y+5*p,4,4,col);q(x-5*p,y+6*p,1,1,'#111');q(x,y+11*p,1,3-b,col);q(x+7*p,y+11*p,1,2+b,col);q(x+2*p,y+11*p,1,3,col);q(x+5*p,y+11*p,1,3,col);q(x+9*p,y+6*p,2,1,col);};
-    wolf(w*.22,'#d8642e');const fy=Math.sin(t*3)*3;c.globalAlpha=.35;c.fillStyle='#ffe36a';c.beginPath();c.arc(w*.55,h*.42+fy,22,0,7);c.fill();c.globalAlpha=1;q(w*.55-12,h*.42-10+fy,6,5,'#ffe36a');
-    q(w*.72,h*.78-7*p,7,4,'#9fd6f0');q(w*.72-3*p,h*.78-9*p,4,4,'#9fd6f0');q(w*.72+p,h*.78-9*p-b*2*p,5,2,'rgba(255,255,255,.6)');},
-  otherworld(c,w,h,t){const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#1b2a6b');g.addColorStop(1,'#e98bb0');c.fillStyle=g;c.fillRect(0,0,w,h);
-    const cx=w*.3,cy=h*.5,R=h*.36;c.save();c.translate(cx,cy);c.rotate(t*.3);c.strokeStyle='rgba(180,230,255,.85)';c.lineWidth=1.5;
-    [1,.78].forEach(k=>{c.beginPath();c.arc(0,0,R*k,0,7);c.stroke();});c.beginPath();for(let i=0;i<=6;i++){const a=i*Math.PI*2/6*2;c.lineTo(Math.cos(a)*R*.78,Math.sin(a)*R*.78);}c.stroke();c.restore();
-    const px=w*.56,py=h*.16,pw=w*.38,ph=h*.56;c.fillStyle='rgba(40,110,220,.55)';c.fillRect(px,py,pw,ph);c.strokeStyle='#bfe9ff';c.lineWidth=1.5;c.strokeRect(px,py,pw,ph);
-    c.fillStyle='#e8f7ff';c.font='bold 11px Figtree, sans-serif';c.fillText('STATUS',px+8,py+15);c.font='10px Figtree, sans-serif';
-    ['LV  1','HP  ??','SKILL  ???'].forEach((s,i)=>c.fillText(s,px+8,py+32+i*14));
-    c.fillStyle='rgba(255,255,255,.8)';for(let i=0;i<10;i++){const x=(i*71+t*10)%w,y=(i*37)%(h*.6);c.fillRect(x,y,2,2);}},
-};
-const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-covers.ranch=function(c,w,h,t){const g=h*.62;c.fillStyle='#8fd0f0';c.fillRect(0,0,w,g);c.fillStyle='#fff4b0';c.beginPath();c.arc(w*.2,h*.22,h*.1,0,7);c.fill();c.fillStyle='#7cc85a';c.fillRect(0,g,w,h-g);c.fillStyle='#a87a4a';c.fillRect(0,g+2,w,3);c.fillStyle='#4aa850';c.beginPath();c.arc(w*.78,g,h*.14,0,7);c.fill();const b=reduce?0:Math.abs(Math.sin(t*3))*h*.03,x=w*.48,y=h*.8-b;c.fillStyle='#e06a32';c.beginPath();c.ellipse(x,y,h*.13,h*.08,0,0,7);c.fill();c.beginPath();c.arc(x+h*.08,y-h*.12,h*.1,0,7);c.fill();c.fillStyle='#ffe2b8';c.beginPath();c.ellipse(x+h*.1,y-h*.08,h*.05,h*.035,0,0,7);c.fill();c.fillStyle='#2a1a18';c.fillRect(x+h*.04,y-h*.15,3,4);c.fillRect(x+h*.12,y-h*.15,3,4);c.fillStyle='#ffd04a';c.beginPath();c.arc(x-h*.16,y-h*.07,h*.035,0,7);c.fill();c.fillStyle='rgba(255,255,255,.8)';for(let i=0;i<5;i++){c.beginPath();c.arc(w*(.3+i*.05),h*(.5-((t*.1+i*.2)%1)*.3),3,0,7);c.fill();}};
-covers.storm=function(c,w,h,t){c.fillStyle='#081d30';c.fillRect(0,0,w,h);c.fillStyle='#123c4c';c.fillRect(0,h*.8,w,h*.2);for(let row=0;row<3;row++)for(let col=0;col<7;col++){let x=w*(.12+col*.12)+Math.sin(t)*w*.025,y=h*(.23+row*.15);c.fillStyle=['#c4bada','#a3c7d3','#729bad'][row];c.fillRect(x-9,y,18,7);c.fillRect(x-5,y-5,10,7);}c.fillStyle='#83aca2';for(let i=0;i<4;i++)c.fillRect(w*(.12+i*.22),h*.75,w*.12,7);c.fillStyle='#f6d275';c.fillRect(w*.5-3,h*.88,6,9);c.fillRect(w*.5-1,h*.61,2,9);};
-covers.watch=function(c,w,h,t){c.fillStyle='#0a1426';c.fillRect(0,0,w,h);c.fillStyle='#0f2c3c';c.fillRect(0,h*.82,w,h*.18);c.fillStyle='#d8d2bc';c.fillRect(w*.5-5,h*.62,10,h*.2);c.fillStyle='#b5463e';c.fillRect(w*.5-5,h*.68,10,3);c.fillStyle='#f6d275';c.fillRect(w*.5-4,h*.57,8,6);for(let i=0;i<4;i++){let x=w*(.12+i*.25+(i>1?.01:0)),y=h*(.1+((t*.25+i*.27)%1)*.6);c.fillStyle='#ff7a3a';c.fillRect(x-2,y-2,4,4);c.fillStyle='#ff9a4a55';c.fillRect(x-1,y-14,2,12);}let r=6+4*Math.abs(Math.sin(t*2));c.fillStyle='rgba(255,230,150,.55)';c.beginPath();c.arc(w*.68,h*.3,r,0,7);c.fill();c.strokeStyle='#f6d27588';c.beginPath();c.moveTo(w*.5,h*.57);c.lineTo(w*.68,h*.3);c.stroke();c.fillStyle='#8a5a3a';for(const x of [.15,.32,.7,.86])c.fillRect(w*x-7,h*.84,14,4);};
-covers.brisket=function(c,w,h,t){c.fillStyle='#243044';c.fillRect(0,0,w,h);c.fillStyle='#6b5344';c.fillRect(0,h*.42,w,h*.16);c.fillStyle='#1b4550';c.fillRect(0,h*.22,w,h*.16);c.fillStyle='#3d5c3a';c.fillRect(0,h*.72,w,h*.2);c.fillRect(0,h*.08,w,h*.12);c.fillStyle='#c4a574';c.fillRect((w*.15+Math.sin(t)*w*.2+w)%w,h*.46,w*.16,h*.06);c.fillStyle='#6d4c32';c.fillRect((w*.55+t*18)%w,h*.26,w*.2,h*.05);c.fillStyle='#8a5a32';c.fillRect(w*.48,h*.78,10,8);c.fillStyle='#5c3a28';c.fillRect(w*.47,h*.84,4,5);c.fillRect(w*.55,h*.84,4,5);c.fillStyle='#f6d275';c.fillRect(w*.56,h*.76,4,4);for(const x of [.12,.32,.5,.68,.86]){c.fillStyle='#5c4632';c.fillRect(w*x,h*.12,3,10);c.fillStyle='#f6d275';c.fillRect(w*x-1,h*.1,5,3);}};
-covers.lantern=function(c,w,h,t){c.fillStyle='#1b2438';c.fillRect(0,0,w,h);const sky=c.createLinearGradient(0,0,0,h*.4);sky.addColorStop(0,'#243456');sky.addColorStop(1,'#6a4a52');c.fillStyle=sky;c.fillRect(0,0,w,h*.4);for(let i=0;i<8;i++){c.fillStyle=i%2?'#1f6b3c':'#257445';c.fillRect(0,h*(.42+i*.07),w,h*.07);}c.strokeStyle='#7fb6ff';c.beginPath();c.moveTo(w*.35,h*.42);c.lineTo(w*.35,h*.98);c.stroke();c.strokeStyle='#f2d080';c.beginPath();c.moveTo(w*.62,h*.42);c.lineTo(w*.62,h*.98);c.stroke();for(const x of [.2,.8]){c.fillStyle='#3a3a3a';c.fillRect(w*x,h*.08,2,h*.2);c.fillStyle='#f2d080';c.fillRect(w*x-6,h*.06,14,5);}const bob=Math.sin(t*2)*3;c.fillStyle='#c45a32';c.fillRect(w*.42,h*.7+bob,8,12);c.strokeStyle='#e8b986';c.strokeRect(w*.42,h*.7+bob,8,12);c.fillStyle='#f2d080';c.beginPath();c.arc(w*.7,h*.55,4,0,7);c.fill();};
-covers.ember=function(c,w,h,t){c.fillStyle='#2a140e';c.fillRect(0,0,w,h);c.fillStyle='#4a2a1c';c.fillRect(w*.08,h*.14,w*.84,h*.46);for(let row=0;row<4;row++)for(let col=0;col<8;col++){c.fillStyle=row===1&&col>2&&col<6?'#5a241c':'#c45a3a';c.fillRect(w*(.12+col*.1),h*(.18+row*.09),w*.08,h*.06);}const x=w*(.5+Math.sin(t)*.2);c.fillStyle='#c4a574';c.fillRect(x-w*.12,h*.78,w*.24,h*.04);c.fillStyle='#8a5a32';c.fillRect(x-3,h*.82,6,h*.06);c.fillStyle='#ff7a22';c.beginPath();c.arc(x,h*(.64-Math.abs(Math.sin(t*3))*.12),6,0,7);c.fill();c.fillStyle='#ffe08a';c.fillRect(x-1,h*(.64-Math.abs(Math.sin(t*3))*.12)-1,2,2);};
-const items=[...document.querySelectorAll('canvas[data-cover]')].map(cv=>({cv,ctx:cv.getContext('2d'),fn:covers[cv.dataset.cover]}));
-function size(){items.forEach(o=>{const r=o.cv.getBoundingClientRect();o.w=r.width;o.h=r.height;const d=Math.min(2,devicePixelRatio||1);o.cv.width=Math.round(r.width*d);o.cv.height=Math.round(r.height*d);o.ctx.setTransform(d,0,0,d,0,0);});}
-size();addEventListener('resize',size);
-document.getElementById('more-games')?.addEventListener('toggle',size); // covers inside a closed <details> have no size until opened
-function frame(ms){const t=reduce?0:ms/1000;items.forEach(o=>{if(o.w)o.fn(o.ctx,o.w,o.h,t);});if(!reduce)requestAnimationFrame(frame);}
-requestAnimationFrame(frame);
-window.ARCADE = { GAMES, covers, idx, VERSION }; // for the launcher (launcher/launcher.js)
-})();
-</script>
-<script>Settings.create({mount:".header-tools"});</script>
+<script src="shared/hub.js"></script>
+<script>setupFeedback('The arcade homepage', Hub.VERSION, () => '');Settings.create({mount:'.set-host'});Hub.render(document.getElementById('current'),Hub.current(),{short:true,page:true,eager:true});Hub.redirectOldHash();addEventListener('hashchange',()=>Hub.redirectOldHash());Hub.cta(document.getElementById('heroPlay'),'wildbond-preview','Wildbond');</script>
 </body>
 </html>

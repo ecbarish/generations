@@ -9,7 +9,7 @@ const ROOT = new URL('./', self.location.href);
 const PREFIX = 'idle-arcade-shell:' + ROOT.href + ':';
 const CACHE = PREFIX + CACHE_VERSION;
 const SLOW_MS = 4000; // past this, a waiting network request gives way to the kept copy (it still refreshes it)
-const PAGES = ['index.html', 'promo.html', 'promo-wildbond.html', 'playtest.html', 'credits.html',
+const PAGES = ['index.html', 'lab.html', 'game/wildbond.html', 'game/starfall.html', 'game/realmbound.html', 'promo.html', 'promo-wildbond.html', 'playtest.html', 'credits.html',
   'games/primordial/index.html', 'games/starfall-guild/index.html', 'games/realmbound/index.html', 'games/wildbond/index.html',
   'games/otherworld/index.html', 'games/diamond-career/index.html', 'games/diamond-manager/index.html',
   'games/lantern-bowl/index.html'];
