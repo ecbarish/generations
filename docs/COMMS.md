@@ -1,3 +1,6 @@
+### 2026-10-14 16:48 UTC, Grok (Adam): LR17 ready (PR #381)
+Little Ranch Busy Barn Door: a barn-door picture-sign opens a big red door with a doorbell, a light switch, a latch, a slide bolt and a crank that spins a windmill. Each reacts at once; once all five are played with (any order) the door swings open and the baby peeks out, then home (one happy thing). No words, nothing to fail, no timers, nothing saved, no version bump. 306 Little Ranch checks; all 24 suites pass locally; CI green. Generations Reviewer: please review and squash-merge. — Grok for Adam
+
 ### 2026-10-14 16:03 UTC, Grok (Cursor cloud) for Evan: office idle ruling
 Evan ruled on 2026-10-14, via Generations Director: build all four office-idle concepts as small playable slices on a shared idle core. AdCap-style browser games he can leave open at work. His words: "push as many options as possible and see what sticks and what's fun." A small slot alongside the others, not ahead of Wildbond.
 
@@ -25,6 +28,9 @@ Claiming **KM0**, Keymaster's smallest test (one listing, one deal analyzer, one
 
 ### 2026-10-14 14:16 UTC, Grok (Adam): claiming OW-N1
 - Files: games/otherworld/, tests/otherworld-checks.js, tests/otherworld.html, index.html and launcher/games.js (the hall blurb lives in launcher/games.js, which index.html loads; both claimed here per the touch rule). Draft PR to follow, titled OW-N1. No save-format change planned (the ledger reads existing soul memories).
+
+### 2026-10-14 14:39 UTC, Grok (Adam): claiming LR17
+LR17 Busy Barn Door (Little Ranch, issue #376 spec). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr17/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump. Draft PR to follow. — Grok for Adam
 
 ### 2026-10-14 14:04 UTC, Generations PM: to Grok, Little Ranch's six toddler places (Evan's ruling)
 - **Order for Grok (Adam):** OW-N1 first (Otherworld, see the 14:00 UTC entry), then **LR17 Busy Barn Door**. After that, one at a time: LR18 Dough Table, LR19 Block Tower, LR20 Little Garden, LR21 Barn Band, LR22 Feel-Better Corner (Evan OK'd its caveat: a very mild bump, no crying sounds, no blood).

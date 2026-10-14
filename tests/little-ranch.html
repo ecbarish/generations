@@ -457,6 +457,37 @@ document.querySelector('#run').onclick = async () => {
     check('At night the ball only boings, and the baby sleeps on', S().mode === 'sleep' && S().wake === wakes && S().ball.kicks === 3);
     LR.prefs.sound = false; const quietBall = LR.words.length, quietTones = LR.tones; LR.newVisit(); tap(LR.ballNow());
     check('With the sound off, the ball is quiet', LR.words.length === quietBall && LR.tones === quietTones);
+    // ---- LR17: the Busy Barn Door
+    LR.prefs.sound = true;
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180], [1920, 1080]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const sc = LR.scale, r = cv.getBoundingClientRect(), D = L().door, gs = LR.GADGETS.map(k => D.g[k]), sp = gs.map(q => LR.toScreen(q));
+      check(`${width}×${height}: the barn-door sign is its own tap and the other signs still are; the door's five things are 64 px+, apart and on screen`, LR.ranchTarget(L().dsign) === 'dsign' && ['sign', 'wsign', 'ksign'].every(k => LR.ranchTarget(L()[k]) === k) && D.gr * 2 * sc >= 64 && sp.every((q, i) => q.x - D.gr * sc > r.left && q.x + D.gr * sc < r.right && q.y > r.top && q.y < r.bottom && sp.every((o, j) => i === j || Math.hypot(q.x - o.x, q.y - o.y) >= D.gr * 1.6 * sc)) && Math.hypot(D.barn.x - D.g.bell.x, D.barn.y - D.g.bell.y) > D.barn.r * 1.15 + D.gr * 1.25);
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    { const D = () => L().door, Ds = () => S().door, g = k => D().g[k];
+      tap(L().dsign); check('Tapping the barn-door sign goes to the Busy Barn Door, shut, nothing played with yet', S().place === 'door' && Ds().phase === 'shut' && Object.keys(Ds().touched).length === 0);
+      LR.advance(LR.HINT_SECS + .5); check('Left alone, the first thing glows (the hint)', LR.hint() && LR.hint().name === 'gbell');
+      let t0 = LR.tones; tap(g('bell')); check('The bell rings at once (same moment, no waiting) and swings', LR.tones > t0 && Ds().hit.bell === S().t && Ds().touched.bell);
+      t0 = LR.tones; const lit = Ds().light; tap(g('switch')); check('The switch turns the lamp over the door on, at once', Ds().light === !lit && LR.tones > t0 && Ds().hit.switch === S().t);
+      tap(g('switch')); check('...and off again (any number of times, nothing wrong)', Ds().light === lit);
+      tap(g('latch')); check('The latch flips at once', Ds().latch === true && Ds().hit.latch === S().t);
+      check('Bell, switch and latch: the door is still shut, waiting for the rest (no count, no timer)', Ds().phase === 'shut');
+      const sp0 = Ds().spin, m0 = Ds().mill; tap(g('crank')); LR.advance(.3); check('The crank spins the windmill fast', Ds().spin > sp0 && Ds().mill - m0 > .3);
+      t0 = LR.tones; tap({ x: D().x, y: D().top + D().dh * .2 }); check('Knocking on the shut door: a knock-knock wiggle (never wrong)', S().t - Ds().knock < .1 && LR.tones > t0 && Ds().phase === 'shut');
+      const a17 = S().acts; tap(g('bolt')); check('The last one (the bolt) slides, and the door starts to swing open', Ds().bolt === true && Ds().phase === 'open');
+      LR.advance(LR.DOOR_OPEN_SECS + .2); check('Peekaboo: the baby peeks out with hearts', Ds().boo && S().fx.some(f => f.kind === 'heart'));
+      tap(g('bell')); check('The bell still rings while the door is open', S().t - Ds().hit.bell < .05 && Ds().phase === 'open');
+      LR.advance(LR.DOOR_END_SECS); check('...then back to the ranch: one happy thing, the baby walks home', S().place === 'ranch' && S().door === null && S().acts === a17 + 1);
+      // every order opens the door, and none gets stuck (taps repeated, any order)
+      const orders = [[0, 1, 2, 3, 4], [4, 3, 2, 1, 0], [2, 0, 4, 1, 3], [1, 1, 3, 3, 0, 2, 2, 4], [3, 4, 0, 0, 0, 1, 2]]; let allOpen = true;
+      for (const o of orders) { tap(L().dsign); o.forEach(i => tap(g(LR.GADGETS[i]))); allOpen = allOpen && Ds().phase === 'open'; LR.advance(LR.DOOR_END_SECS + .2); allOpen = allOpen && S().place === 'ranch'; }
+      check('Any order (and repeats) opens the door, and it always comes home', allOpen);
+      tap(L().dsign); tap(g('bell')); tap(D().barn); check('The barn picture goes home from the door at any time (no count)', S().place === 'ranch' && S().door === null);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t9 = LR.tones; tap(L().dsign); LR.GADGETS.forEach(k => tap(g(k))); LR.advance(LR.DOOR_END_SECS + .2);
+      check('With the sound off the barn door is silent', LR.tones === t9); LR.prefs.sound = mute;
+      LR.newVisit(); LR.bedtime(); tap(L().dsign); check('At bedtime the sign does not open the door (bedtime goes on)', S().place === 'ranch');
+    }
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
