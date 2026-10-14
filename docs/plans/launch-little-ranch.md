@@ -13,7 +13,7 @@ Playtester scores every week. The lowest-scoring part becomes the next task. Fin
 |---|---|---|
 | A newcomer gets through the first 10 minutes without help | **LRL-1** | Done in #417 (`e352a7b`), Little Ranch v0.18.2. The visit reaches bedtime from any of the five rooms once 6 minutes or 12 activities are reached |
 | Playtester rates the first session as fun | **LRL-2** | **7/10** on 2026-10-14. That meets the bar. The same session still left the gaps below |
-| No crashes and no broken saves | **LRL-4** | Pass 2 had no page error. The visit itself is not saved. Only the sound preference is stored (`little-ranch-settings-v1`). A reload check is still missing |
+| No crashes and no broken saves | **LRL-4** | Pass 2 had no page error. The visit itself is not saved. Only the sound preference is stored (`little-ranch-settings-v1`). A reload check is still missing. 2026-10-14: the automated reload check passed on desktop and on an iPhone 12 held upright and sideways. Waiting for Playtester or Evan to confirm |
 | Plays well on a phone | **LRL-3** | **LRL-11.** The phone layout still needs a playtest. Owner: Playtester |
 | One clear goal | **LRL-1** | Done in #417 (`e352a7b`). The visit shows one day and then bedtime |
 | Known bugs are fixed | **LRL-5** | The layout row is done (#424, `e66ddbc`). **LR-POLISH** still has the dough dots, the fox, and the sign wiggle, plus three non-blocking notes from the #417 pass |
@@ -33,7 +33,7 @@ Playable and fun. Further improvements do not hold the release.
 **Must-haves** (these block finish):
 
 1. The first visit reaches bedtime without a grown-up explaining it (LRL-1). Done in #417 (`e352a7b`), Little Ranch v0.18.2.
-2. The sound choice is still there after the page is reloaded (LRL-4).
+2. The sound choice is still there after the page is reloaded (LRL-4). 2026-10-14: the automated reload check passed on desktop and on an iPhone 12 held upright and sideways. Waiting for Playtester or Evan to confirm.
 3. Nothing crashes, and a reload does not break the page (LRL-4, LRL-5).
 4. A phone session of the current build plays well (LRL-3).
 5. Playtester's fun score is at least 7/10 (LRL-2). The 2026-10-14 score is 7/10.
@@ -47,7 +47,7 @@ These are bundles. Side Games Dev Lead owns them. Toy polish comes before the fi
 | ID | Owner | What |
 |---|---|---|
 | LR-POLISH | Side Games Dev Lead | First bundle. The layout row is done (#424, `e66ddbc`): cookie and cutter, and the phone overlaps. Still in this pull: dough dots (LRL-6), the fox (LRL-7), and the sign wiggle (LRL-10). Game Art Director reviews any art. The same pull carries three non-blocking notes from the #417 pass: bigger, longer bedtime cues, because the cup timed out before the player saw it (LRL-13); a slower dusk fade (LRL-14); and feedback when the player leaves the paint shed early (LRL-15) |
-| LR-VISIT | Side Games Dev Lead | Bedtime in the first sitting is done (LRL-1, #417, `e352a7b`). The sound preference after a reload (LRL-4) is still open. No save-format change |
+| LR-VISIT | Side Games Dev Lead | Bedtime in the first sitting is done (LRL-1, #417, `e352a7b`). The sound preference after a reload (LRL-4) is still open. No save-format change. 2026-10-14: the automated reload check passed on desktop and on an iPhone 12 held upright and sideways. Waiting for Playtester or Evan to confirm |
 | LRL-11 | Playtester | The phone layout still needs a playtest. Not a build pull |
 
 **Does not block finish:**
