@@ -6,6 +6,7 @@ deciding (START-HERE.md "Questions for Evan" 1; docs/wildbond-plan.md).
 
 ## Unreleased
 
+- WB-FUNNEL1 (merged #380, 2026-10-14): a tap advances opening dialogue, and the opening records time to the first partner, first battle and first catch. Not published.
 - WB-C4 (merged #372, 2026-10-14): Larkhaven gets a barn garden, door stones, straw in the pen and grass variety, and the Thornwood ponds get a muddy, reedy bank. Not published.
 - WB-C3b (merged #382, 2026-10-14): the register shows only the tap hint on phones, and the partner-card note no longer touches the stat bars. Not published.
 - EVO-1 (merged #366, follow-up #370, 2026-10-14): starters are three-stage lines. Old saves convert, and battle sprites clear the HP panel. Not published.
