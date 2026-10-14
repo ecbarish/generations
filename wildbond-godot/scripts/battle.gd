@@ -16,8 +16,11 @@ const EL_COL := { "Ember": Color("e0602a"), "Tide": Color("3a8fd8"), "Grove": Co
 ## CR1: size classes to battle scale (spec 4.4, docs/wildbond-creatures.md).
 ## Whole-number zoom only. A creature's size is the height drawn into its pixels (metres × 12.35).
 const SIZE_SCALE := { "tiny": 1, "small": 1, "medium": 1, "large": 1, "huge": 1 }
-## Painted sprites stay this many pixels clear of the health panels. The zoom itself stays a whole number.
+## Painted sprites stay this many pixels clear of the health panels and the command box.
+## The zoom itself stays a whole number.
 const PANEL_CLEARANCE := 4.0
+## The message and command box. _box draws a 1px border outside this rect, so the top ink is y163.
+const COMMAND_BOX := Rect2(8, 164, 368, 46)
 ## Each element's hit has its own animated effect (Ninja Adventure FX, CC0; assets/fx): [file, frame width, frames, tint].
 const EL_FX := { "Ember": ["ember", 25, 8, Color.WHITE], "Tide": ["tide", 40, 11, Color.WHITE], "Grove": ["grove", 30, 8, Color.WHITE],
 	"Stone": ["stone", 30, 14, Color.WHITE], "Gale": ["gale", 20, 8, Color.WHITE], "Shade": ["shade", 40, 9, Color("b080e8")],
@@ -793,13 +796,53 @@ func _hp_panels() -> Array:
 			panels.append(Rect2(236, 162 - (allies.size() - i) * 22, 140, 20))
 	return panels
 
+## Health panels, plus the command box, so a player's feet are not hidden under its border.
+func _clearance_boxes() -> Array:
+	var boxes := _hp_panels()
+	boxes.append(COMMAND_BOX)
+	return boxes
+
+## A finished battle front when the file exists; otherwise the overworld sheet, or the pixel figure.
+## The front faces left. Your creature is mirrored. Feet sit on the platform, clear of the health panels.
+## A lunge lands on a whole pixel so nearest filtering does not smear the outline.
+func _draw_creature(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictionary) -> void:
+	var species_id := str(u.c.sp)
+	var facing_right: bool = str(u.side) == "a"
+	var gear := str(u.c.get("gear", ""))
+	var stand := Vector2(round(at.x), round(at.y))
+	if Sprites.has_battle_front(species_id):
+		var scale := Sprites.BATTLE_FRONT_SCALE
+		var foot := _battle_front_foot(stand + Vector2(0, 6), species_id, scale)
+		Sprites.try_draw_battle(self, species_id, foot, facing_right, scale, gear)
+		return
+	var zoom := 4.0 if u.side == "a" else 3.0
+	var pose_name := "walk" if u.lunge > 0.0 else "idle"
+	var foot := _painted_foot(stand + Vector2(0, 6), species_id, pose_name, zoom)
+	if Sprites.try_draw(self, species_id, foot, facing_right, pose_name, int(t * 8.0), zoom, 0.0, gear):
+		return
+	_draw_figure(stand, R.sp(u.c), facing_right, pose, look, zoom)
+
+func _battle_front_foot(spot: Vector2, species_id: String, scale: float) -> Vector2:
+	var sz := Sprites.battle_size(species_id)
+	if sz == Vector2i.ZERO:
+		return spot
+	return Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
+
+## The pixel figure, at a whole multiple of its own pixels. The old path scaled a fractional height fit.
+func _draw_figure(at: Vector2, species: Dictionary, facing_right: bool, pose: Dictionary, look: Dictionary, zoom: float) -> void:
+	var whole := float(Figures.battle_whole_scale(species, zoom))
+	var origin := Vector2(round(at.x - 9.0 * whole), round(at.y - 12.0 * whole))
+	draw_set_transform(origin, 0.0, Vector2(whole, whole))
+	Figures.paint(self, Vector2.ZERO, Figures.native_parts(species, facing_right, pose, look))
+	draw_set_transform(Vector2.ZERO)
+
 ## Feet on the bottom edge of the sprite. If that rect would sit under a health panel, slide the
 ## feet aside. The caller keeps the same whole-number scale.
 func _painted_foot(spot: Vector2, species_id: String, pose: String, scale: float) -> Vector2:
 	var sz := Sprites.frame_size(species_id, pose)
 	if sz == Vector2i.ZERO:
 		return spot
-	return Sprites.foot_clear_of(spot, sz, scale, _hp_panels(), PANEL_CLEARANCE)
+	return Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
 
 func _spot(u: Dictionary) -> Vector2:
 	# where a creature stands: yours close at the bottom left, the foe further off at the top right
@@ -888,16 +931,7 @@ func _draw() -> void:
 		if u.get("joined", false):
 			_draw_joined(u, at, pose, look)
 			continue
-		# Battle zooms in (your side closer than the foe) at a whole scale. The sprite's own pixels
-		# already carry its size, so a tall one is moved clear of the health panels rather than shrunk.
-		var zoom := 4.0 if u.side == "a" else 3.0
-		var gear := str(u.c.get("gear", ""))
-		var pose_name := "walk" if u.lunge > 0.0 else "idle"
-		var foot := _painted_foot(at + Vector2(0, 6), str(u.c.sp), pose_name, zoom)
-		if not Sprites.try_draw(self, str(u.c.sp), foot, u.side == "a", pose_name, int(t * 8.0), zoom, 0.0, gear):
-			draw_set_transform(at - Vector2(9, 12) * zoom, 0, Vector2(zoom, zoom))
-			Figures.paint(self, Vector2.ZERO, Figures.sized_parts(R.sp(u.c), u.side == "a", pose, look))
-			draw_set_transform(Vector2.ZERO)
+		_draw_creature(u, at, pose, look)
 	for u in allies + foes:
 		var status_line := Effects.label(u)
 		if u.c.hp > 0 and status_line != "":
@@ -938,7 +972,7 @@ func _draw() -> void:
 	if not tele.is_empty():
 		_text("%s is gathering power! Guard!" % tele.u.c.name, Vector2(10, 70), 8, Color("c83a2a"))
 	# the message box, and the commands on your turn
-	_box(Rect2(8, 164, 368, 46))
+	_box(COMMAND_BOX)
 	match state:
 		"choose":
 			_text("What will %s do?" % wait_u.c.name, Vector2(16, 178), 8, INK, 216)
@@ -1031,12 +1065,17 @@ func _draw_joined(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictionary
 	var glow := 0.5 + 0.5 * sin(t * 4.0)
 	for k in 3:                                  # a lamplight halo, brightest at the heart
 		_ellipse(at + Vector2(0, -30), 58.0 - k * 14.0 + glow * 3.0, 50.0 - k * 12.0 + glow * 3.0, Color(1.0, 0.86, 0.52, 0.16 + k * 0.08))
-	var sc := 5.0
-	var foot := _painted_foot(at + Vector2(0, 8), str(u.c.sp), "idle", sc)
-	if not Sprites.try_draw(self, str(u.c.sp), foot, true, "idle", 0, sc, 0.0, str(u.c.get("gear", ""))):
-		draw_set_transform(at - Vector2(9, 12) * sc, 0, Vector2(sc, sc))
-		Figures.paint(self, Vector2.ZERO, Figures.sized_parts(R.sp(u.c), true, pose, look))
-		draw_set_transform(Vector2.ZERO)
+	var species_id := str(u.c.sp)
+	var stand := Vector2(round(at.x), round(at.y))
+	if Sprites.has_battle_front(species_id):
+		var scale := Sprites.BATTLE_FRONT_SCALE
+		var foot := _battle_front_foot(stand + Vector2(0, 8), species_id, scale)
+		Sprites.try_draw_battle(self, species_id, foot, true, scale, str(u.c.get("gear", "")))
+	else:
+		var sc := 5.0
+		var foot := _painted_foot(stand + Vector2(0, 8), species_id, "idle", sc)
+		if not Sprites.try_draw(self, species_id, foot, true, "idle", 0, sc, 0.0, str(u.c.get("gear", ""))):
+			_draw_figure(stand, R.sp(u.c), true, pose, look, sc)
 	if not tamer_look.is_empty():
 		draw_set_transform(at + Vector2(-26, -70), 0, Vector2(2.4, 2.4))   # you, within its shape, facing the foe with it
 		Figures.person(self, Vector2.ZERO, Vector2i.RIGHT, false, 0, false, tamer_look)
