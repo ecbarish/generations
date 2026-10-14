@@ -74,7 +74,7 @@ func _audit_sheet(data: Dictionary, tamer: Array) -> void:
 	var rows := int(ceil(float(ids.size() + 1) / float(cols)))
 	var sheet := Image.create(cols * cell_w, 36 + rows * cell_h, false, Image.FORMAT_RGBA8)
 	sheet.fill(Color("e6dcc6"))
-	_label(sheet, Vector2i(12, 8), "51 new stages at world scale beside a 12x21 tamer")
+	_label(sheet, Vector2i(12, 8), "%d new stages at world scale beside a 12x21 tamer" % ids.size())
 	var z := 4
 	for i in ids.size():
 		var id: String = ids[i]

@@ -281,7 +281,7 @@ func _run() -> void:
 	var batch_ok := true
 	for id in batch:
 		batch_ok = batch_ok and main.DATA.SPECIES.has(id)
-	check(batch_ok and main.DATA.SPECIES.size() == 179, "catalogue: the new lines and the roster audit, 179 in the Wilddex (%d)" % main.DATA.SPECIES.size())
+	check(batch_ok and main.DATA.SPECIES.size() == 189, "catalogue: 189 in the Wilddex, evolved forms at least half (%d)" % main.DATA.SPECIES.size())
 	var finals := { "gloomtide": true, "hearthbloom": true, "sunford": true, "ridgehowl": true, "kilnback": true }
 	var evo_ok := true
 	var bond_ok := true
@@ -387,6 +387,39 @@ func _run() -> void:
 			audit_orphans.append(str(sid))
 	check(audit_orphans.is_empty(), "roster audit: no large creature is an orphan" + ("" if audit_orphans.is_empty() else " (" + ", ".join(audit_orphans) + ")"))
 	check(main.DATA.SPECIES.has("fogslip") and main.DATA.SPECIES.has("raylet") and main.DATA.SPECIES.has("emberdrake"), "roster audit: Fogsail, Sunfrill and Drakelet have the missing stage")
+	var ratio_evolved := audit_parent.size()
+	check(ratio_evolved * 2 >= main.DATA.SPECIES.size(), "roster shape: at least half the species are evolved forms (%d of %d)" % [ratio_evolved, main.DATA.SPECIES.size()])
+	var ratio_one := 0
+	var ratio_two := 0
+	var ratio_three := 0
+	for sid in main.DATA.SPECIES:
+		if audit_parent.has(sid):
+			continue
+		var ratio_depth := 1
+		var ratio_wave: Array = [sid]
+		while not ratio_wave.is_empty():
+			var ratio_next: Array = []
+			for ratio_id in ratio_wave:
+				var ratio_opts: Array = []
+				if main.DATA.EVOS.has(ratio_id):
+					ratio_opts = main.DATA.EVOS[ratio_id]
+				elif main.DATA.SPECIES[ratio_id].has("evo"):
+					ratio_opts = [main.DATA.SPECIES[ratio_id].evo]
+				for ratio_o in ratio_opts:
+					var ratio_to := str(ratio_o.get("to", ""))
+					if ratio_to != "" and main.DATA.SPECIES.has(ratio_to):
+						ratio_next.append(ratio_to)
+			if ratio_next.is_empty():
+				break
+			ratio_depth += 1
+			ratio_wave = ratio_next
+		if ratio_depth <= 1:
+			ratio_one += 1
+		elif ratio_depth == 2:
+			ratio_two += 1
+		else:
+			ratio_three += 1
+	check(ratio_two + ratio_three > ratio_one, "roster shape: most families have 2 or 3 stages (%d of one, %d of two, %d of three)" % [ratio_one, ratio_two, ratio_three])
 	var mark_note := ""
 	for sid in main.DATA.SPECIES:
 		var mark_sp: Dictionary = main.DATA.SPECIES[sid]

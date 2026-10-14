@@ -3730,6 +3730,512 @@
     ]
    ],
    "dex": "The dragon it practised in its sleep. Hot air has become a long wing of cinder, and the glide is a real flight."
+  },
+  "luckflare": {
+   "name": "Luckflare",
+   "fam": "sprite",
+   "el": "Radiant",
+   "col": "#c2ad51",
+   "shape": "sprite",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tassel-crown",
+    "back": "mist-ruff",
+    "tail": "plume",
+    "pattern": "chevrons"
+   },
+   "base": {
+    "hp": 64,
+    "pow": 60,
+    "grd": 70,
+    "spd": 86,
+    "wit": 96,
+    "spi": 84
+   },
+   "learn": [
+    [
+     1,
+     "spark"
+    ],
+    [
+     6,
+     "dawnRay"
+    ],
+    [
+     12,
+     "gleamTrail"
+    ],
+    [
+     20,
+     "brightCare"
+    ],
+    [
+     28,
+     "radiance"
+    ]
+   ],
+   "dex": "The lucky spark has opened into a flare that stays with the people who saw it."
+  },
+  "moonfoam": {
+   "name": "Moonfoam",
+   "fam": "sprite",
+   "el": "Tide",
+   "col": "#7aa99d",
+   "shape": "sprite",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "sun-rays",
+    "back": "ember-spots",
+    "tail": "tapered",
+    "pattern": "rings"
+   },
+   "base": {
+    "hp": 64,
+    "pow": 60,
+    "grd": 70,
+    "spd": 86,
+    "wit": 96,
+    "spi": 84
+   },
+   "learn": [
+    [
+     1,
+     "gust"
+    ],
+    [
+     6,
+     "bubbleJet"
+    ],
+    [
+     12,
+     "rainTap"
+    ],
+    [
+     20,
+     "undertowPull"
+    ],
+    [
+     28,
+     "tidePulse"
+    ],
+    [
+     36,
+     "rinse"
+    ]
+   ],
+   "dex": "The fleck of living foam has become a moonlit crest over the marsh."
+  },
+  "homeglow": {
+   "name": "Homeglow",
+   "fam": "sprite",
+   "el": "Radiant",
+   "col": "#b99a5b",
+   "shape": "sprite",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tassel-antennae",
+    "back": "wave-ridge",
+    "tail": "stub",
+    "pattern": "spots"
+   },
+   "base": {
+    "hp": 64,
+    "pow": 60,
+    "grd": 70,
+    "spd": 86,
+    "wit": 96,
+    "spi": 84
+   },
+   "learn": [
+    [
+     1,
+     "spark"
+    ],
+    [
+     6,
+     "dawnRay"
+    ],
+    [
+     12,
+     "gleamTrail"
+    ],
+    [
+     20,
+     "brightCare"
+    ],
+    [
+     28,
+     "radiance"
+    ]
+   ],
+   "dex": "The steam-spark has become the lamp that leads a team home through the mist."
+  },
+  "doorlamp": {
+   "name": "Doorlamp",
+   "fam": "sprite",
+   "el": "Radiant",
+   "col": "#c2b180",
+   "shape": "sprite",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "feather-antennae",
+    "back": "crust-plates",
+    "tail": "brush",
+    "pattern": "rays"
+   },
+   "base": {
+    "hp": 64,
+    "pow": 60,
+    "grd": 70,
+    "spd": 86,
+    "wit": 96,
+    "spi": 84
+   },
+   "learn": [
+    [
+     1,
+     "spark"
+    ],
+    [
+     6,
+     "dawnRay"
+    ],
+    [
+     12,
+     "gleamTrail"
+    ],
+    [
+     20,
+     "brightCare"
+    ],
+    [
+     28,
+     "radiance"
+    ]
+   ],
+   "dex": "The glow beside an open door has become the lamp that marks it."
+  },
+  "shellsong": {
+   "name": "Shellsong",
+   "fam": "bird",
+   "el": "Gale",
+   "col": "#7e998f",
+   "shape": "bird",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "swept-ears",
+    "back": "spark-orbit",
+    "tail": "tassel",
+    "pattern": "bands"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "peck"
+    ],
+    [
+     6,
+     "gust"
+    ],
+    [
+     12,
+     "airCut"
+    ],
+    [
+     20,
+     "windLift"
+    ],
+    [
+     28,
+     "skyDive"
+    ],
+    [
+     36,
+     "tailwind"
+    ]
+   ],
+   "dex": "The notes it tapped on shells have become a clear song before dawn."
+  },
+  "hollowchime": {
+   "name": "Hollowchime",
+   "fam": "sprite",
+   "el": "Radiant",
+   "col": "#a196b4",
+   "shape": "sprite",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "sun-rays",
+    "back": "wind-mane",
+    "tail": "fin",
+    "pattern": "socks"
+   },
+   "base": {
+    "hp": 64,
+    "pow": 60,
+    "grd": 70,
+    "spd": 86,
+    "wit": 96,
+    "spi": 84
+   },
+   "learn": [
+    [
+     1,
+     "spark"
+    ],
+    [
+     6,
+     "dawnRay"
+    ],
+    [
+     12,
+     "gleamTrail"
+    ],
+    [
+     20,
+     "brightCare"
+    ],
+    [
+     28,
+     "radiance"
+    ]
+   ],
+   "dex": "The single bright note has become the chime of the hollow."
+  },
+  "goldknot": {
+   "name": "Goldknot",
+   "fam": "sprite",
+   "el": "Radiant",
+   "col": "#c2a97a",
+   "shape": "moth",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tassel-antennae",
+    "back": "narrow-wings",
+    "tail": "ribbon",
+    "pattern": "mottled"
+   },
+   "base": {
+    "hp": 64,
+    "pow": 60,
+    "grd": 70,
+    "spd": 86,
+    "wit": 96,
+    "spi": 84
+   },
+   "learn": [
+    [
+     1,
+     "spark"
+    ],
+    [
+     6,
+     "dawnRay"
+    ],
+    [
+     12,
+     "gleamTrail"
+    ],
+    [
+     20,
+     "brightCare"
+    ],
+    [
+     28,
+     "radiance"
+    ]
+   ],
+   "dex": "The glimmer on a mended knot has become a tassel of dawn gold."
+  },
+  "havenlight": {
+   "name": "Havenlight",
+   "fam": "sprite",
+   "el": "Radiant",
+   "col": "#9caeb1",
+   "shape": "sprite",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "feather-antennae",
+    "back": "mist-ruff",
+    "tail": "plume",
+    "pattern": "cracks"
+   },
+   "base": {
+    "hp": 64,
+    "pow": 60,
+    "grd": 70,
+    "spd": 86,
+    "wit": 96,
+    "spi": 84
+   },
+   "learn": [
+    [
+     1,
+     "spark"
+    ],
+    [
+     6,
+     "dawnRay"
+    ],
+    [
+     12,
+     "gleamTrail"
+    ],
+    [
+     20,
+     "brightCare"
+    ],
+    [
+     28,
+     "radiance"
+    ]
+   ],
+   "dex": "The glimmer over a dry foothold has become a light that holds the landing."
+  },
+  "silentmane": {
+   "name": "Silentmane",
+   "fam": "cat",
+   "el": "Shade",
+   "col": "#38304b",
+   "shape": "cat",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "swept-ears",
+    "back": "narrow-wings",
+    "tail": "tassel",
+    "pattern": "rays"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 84,
+    "grd": 68,
+    "spd": 88,
+    "wit": 76,
+    "spi": 74
+   },
+   "learn": [
+    [
+     1,
+     "scratch"
+    ],
+    [
+     6,
+     "shadowSting"
+    ],
+    [
+     12,
+     "duskLull"
+    ],
+    [
+     20,
+     "shadeThread"
+    ],
+    [
+     28,
+     "mistVeil"
+    ],
+    [
+     36,
+     "dreamBreak"
+    ]
+   ],
+   "dex": "The silent hunt has become a mane that swallows its own footsteps."
+  },
+  "briarstag": {
+   "name": "Briarstag",
+   "fam": "horse",
+   "el": "Grove",
+   "col": "#5d512c",
+   "shape": "horse",
+   "size": "large",
+   "tier": "Plain",
+   "big": 1,
+   "metres": 1.62,
+   "marks": true,
+   "look": {
+    "head": "tall-ears",
+    "back": "wave-ridge",
+    "tail": "stub",
+    "pattern": "chevrons"
+   },
+   "base": {
+    "hp": 62,
+    "pow": 70,
+    "grd": 58,
+    "spd": 100,
+    "wit": 78,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     6,
+     "vineLash"
+    ],
+    [
+     12,
+     "seedGrip"
+    ],
+    [
+     20,
+     "bramblePress"
+    ],
+    [
+     28,
+     "groveShelter"
+    ],
+    [
+     36,
+     "regrowth"
+    ]
+   ],
+   "dex": "The thorny antlers have become a briar crown, and foals still rest beneath it."
   }
  },
  "evos": {
@@ -4355,6 +4861,86 @@
     "bond": 2,
     "hint": "Once it trusts you and has grown, the dust-crust becomes a kiln."
    }
+  ],
+  "sunspark": [
+   {
+    "to": "luckflare",
+    "at": 18,
+    "bond": 1,
+    "hint": "Once it trusts you a little and has grown, the lucky spark has opened into a flare that stays with the people who saw it."
+   }
+  ],
+  "foamglint": [
+   {
+    "to": "moonfoam",
+    "at": 22,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the fleck of living foam has become a moonlit crest over the marsh."
+   }
+  ],
+  "glowmote": [
+   {
+    "to": "homeglow",
+    "at": 26,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the steam-spark has become the lamp that leads a team home through the mist."
+   }
+  ],
+  "lanternwisp": [
+   {
+    "to": "doorlamp",
+    "at": 32,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the glow beside an open door has become the lamp that marks it."
+   }
+  ],
+  "glassbill": [
+   {
+    "to": "shellsong",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the notes it tapped on shells have become a clear song before dawn."
+   }
+  ],
+  "chimespark": [
+   {
+    "to": "hollowchime",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the single bright note has become the chime of the hollow."
+   }
+  ],
+  "dawntassel": [
+   {
+    "to": "goldknot",
+    "at": 36,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the glimmer on a mended knot has become a tassel of dawn gold."
+   }
+  ],
+  "isleglimmer": [
+   {
+    "to": "havenlight",
+    "at": 38,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the glimmer over a dry foothold has become a light that holds the landing."
+   }
+  ],
+  "lynxhound": [
+   {
+    "to": "silentmane",
+    "at": 34,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the silent hunt has become a mane that swallows its own footsteps."
+   }
+  ],
+  "bramblestag": [
+   {
+    "to": "briarstag",
+    "at": 28,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the thorny antlers have become a briar crown, and foals still rest beneath it."
+   }
   ]
  },
  "bond_branch": {
@@ -4416,6 +5002,10 @@
    [
     "dewmantle",
     2
+   ],
+   [
+    "moonfoam",
+    2
    ]
   ],
   "hollowecho": [
@@ -4445,6 +5035,14 @@
    ],
    [
     "pooldart",
+    2
+   ],
+   [
+    "hollowchime",
+    2
+   ],
+   [
+    "silentmane",
     2
    ]
   ],
@@ -4488,6 +5086,10 @@
    [
     "emberdrake",
     2
+   ],
+   [
+    "homeglow",
+    2
    ]
   ],
   "sunthread": [
@@ -4526,6 +5128,10 @@
    [
     "raylet",
     8
+   ],
+   [
+    "goldknot",
+    2
    ]
   ],
   "stillreed": [
@@ -4551,6 +5157,10 @@
    ],
    [
     "seedshroud",
+    2
+   ],
+   [
+    "shellsong",
     2
    ]
   ],
@@ -4590,6 +5200,10 @@
    [
     "fogslip",
     8
+   ],
+   [
+    "doorlamp",
+    2
    ]
   ],
   "farwatch": [
@@ -4615,6 +5229,10 @@
    ],
    [
     "harborgleam",
+    2
+   ],
+   [
+    "havenlight",
     2
    ]
   ],
@@ -4649,6 +5267,14 @@
    ],
    [
     "willowback",
+    2
+   ],
+   [
+    "luckflare",
+    2
+   ],
+   [
+    "briarstag",
     2
    ]
   ]
