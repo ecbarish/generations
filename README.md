@@ -42,6 +42,10 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Night Market Stalls v0.1.0 — IDLE-NM1 (PR #403):** six stalls you work yourself before a vendor runs them, then buy in bulk, with a capped welcome back. Not on the hall yet.
+- **Godot Wildbond (2026-10-14, WB-FUNNEL1, PR #380):** a tap advances opening dialogue, and the opening records time to the first partner, first battle and first catch. Source only; the web preview is not rebuilt here.
+- **Lantern Bowl v0.1.5 — 371-5a (PR #383; version bumped on merge):** a side-on field with eleven a side, and carries with a real spread.
+- **Little Ranch v0.17.0 — LR17 (PR #381; version bumped on merge):** the Busy Barn Door. A doorbell, a light switch, a latch, a slide bolt and a crank; once all five are played with, in any order, the door opens and the baby peeks out.
 - **Arcade v1.8.0 — HUB-REDESIGN (PR #401):** a game-first hub. A full-bleed Wildbond hero with one Play button, a Play now row (Wildbond, Starfall Guild, Realmbound), a new Lab page for test versions and prototypes, per-game pages with controls, what's new, screenshots and share tags, and the utilities moved to the footer. The canvas hall is retired; old hub anchors redirect. Classic editions stay reachable only by direct URL.
 - **Arcade v1.7.2 — #396 (PR #396; version bumped on merge):** a Play Wildbond header button, share and meta tags, a Start here section plus a collapsed More section, and Classic editions hidden.
 - **Godot Wildbond (2026-10-14, WB-C4, PR #372):** Larkhaven gets a barn garden, door stones, straw in the pen and grass variety, and the Thornwood ponds get a muddy, reedy bank. Source only; the web preview is not rebuilt here.

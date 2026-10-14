@@ -1,5 +1,7 @@
 # Lantern Bowl
 
+v0.1.5. The field is side-on, with eleven a side, and carries have a real spread (#383, 371-5a).
+
 v0.1.4. Running matters, and Millrace's drives play on the field (#369, closes #359).
 
 v0.1.3. A short pull stays short and the field shows where the ball is going. Pick a play before you drag. When a defender closes, the field says to swipe or dive. Kick and Turbo say why they are waiting. The ratings line is plain words until you tap it. Millrace's drives play on the field, and a change of possession says why. A level score at the gun goes to overtime: each side gets one turn from the 25, Millrace first, and a lead after both turns wins. If it is still level, they play another pair of turns. The page shows its version.
