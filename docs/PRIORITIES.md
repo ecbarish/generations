@@ -29,7 +29,15 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 | **Shelved** (Evan, 2026-10-13, AR-SHELVE) | Off the site; code, folders and saves kept, old links still open. No work. | **Diamond Career** (Diamond Manager replaced it), Classic Wildbond, Classic Starfall Guild |
 | **Shelf** | Ideas and new content. The list is [ideas.md](ideas.md). | WB-NOSTALGIA, roster growth, WB2.2, LR19–LR22, IDLE-SS1, IDLE-CS1, IDLE-DP1, Keymaster and Main Street new content, the Starfall exact-build preview, Primordial, the walk-in arcade |
 
-**Where the effort goes** (a suggestion, not a new slot count): most of it on the three launch games. Side Games Dev Lead takes Little Ranch, with Grok and dot as guest help, and also Lantern Bowl and Night Market. Wildbond & Starfall Dev Lead takes the Wildbond checklist.
+**Where the effort goes** (a suggestion, not a new slot count): most of it on the three launch games. Side Games Dev Lead takes the Little Ranch and Lantern Bowl bundles. Guest lane (#373) takes the Night Market bundles. Wildbond & Starfall Dev Lead takes the Wildbond bundles. Payback hint and offline label are done (#421).
+
+**First in each lane** after Playtester's 2026-10-14 scores (Night Market 5/10, Lantern Bowl 6/10, Little Ranch 7/10). These sit ahead of the older gaps in [QUEUE.md](QUEUE.md).
+
+- **Night Market:** Guest lane (#373). NM-PLAY first (pour, save controls, the 22.0s trailing zero). Then NM-VIS, both pictures in one pull. Then the phone layout and the hall entry. Payback and the offline label are done.
+- **Lantern Bowl:** Side Games Dev Lead. LB-PLAYSCREEN first, one large pull. It is #432, which replaces #422. On a phone it is landscape-only. Held upright, it shows "Turn your phone sideways", the way ALL-22 does. Portrait will not get its own layout. The redesign is new scope, so the dates are an estimate.
+- **Little Ranch:** Side Games Dev Lead. LR-POLISH first. The layout row is done (#424). LRL-1 is done (#417, `e352a7b`). Dough dots, the fox and the sign wiggle remain, plus three non-blocking notes from the #417 pass: bigger, longer bedtime cues, a slower dusk fade, and feedback for leaving the paint shed early. The sound preference is still open.
+- **Wildbond:** Wildbond & Starfall Dev Lead. The open bundle is #429: the Larkhaven menu, the catch and the objective. WBL-2 is done (#418). WBL-6 is done (#406, `440e4d6`). WB-PHONE builds the upright layout and removes the rotate gate.
+- **Phone:** LRL-11 and NM-FIX-7. Owner: Playtester. Not build pulls. Lantern Bowl on a phone is landscape-only, inside LB-PLAYSCREEN. Portrait shows "Turn your phone sideways" and will not get its own layout. Wildbond's phone work is WB-PHONE.
 
 **Finished means playable and fun.** A newcomer gets through the first session without help, Playtester scores fun at least 7/10, there is no blocker or major bug, it plays on a phone where that applies, and there is one clear goal. Further improvements do not hold it. Merging alone does not count. Playtester or Evan confirms it.
 

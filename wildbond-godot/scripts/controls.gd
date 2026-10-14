@@ -29,22 +29,38 @@ const DIRS := { "move_up": Vector2i.UP, "move_down": Vector2i.DOWN, "move_left":
 
 static func setup() -> void:
 	for a in ACTIONS:
-		if InputMap.has_action(a):
-			continue
-		InputMap.add_action(a, 0.4)
+		var fresh := not InputMap.has_action(a)
+		if fresh:
+			InputMap.add_action(a, 0.4)
+			for b in ACTIONS[a][1]:
+				var j := InputEventJoypadButton.new()
+				j.button_index = b
+				InputMap.action_add_event(a, j)
+			if STICK.has(a):
+				var m := InputEventJoypadMotion.new()
+				m.axis = STICK[a][0]
+				m.axis_value = STICK[a][1]
+				InputMap.action_add_event(a, m)
 		for k in ACTIONS[a][0]:
-			var e := InputEventKey.new()
-			e.physical_keycode = k                     # where the key sits, so WASD works on any keyboard layout
-			InputMap.action_add_event(a, e)
-		for b in ACTIONS[a][1]:
-			var j := InputEventJoypadButton.new()
-			j.button_index = b
-			InputMap.action_add_event(a, j)
-		if STICK.has(a):
-			var m := InputEventJoypadMotion.new()
-			m.axis = STICK[a][0]
-			m.axis_value = STICK[a][1]
-			InputMap.action_add_event(a, m)
+			_bind_key(a, k)
+
+## A real key carries both codes. A tool sometimes sends only one. Either press must count, and only once.
+static func _bind_key(action: String, key: Key) -> void:
+	var physical := false
+	var code := false
+	for ev in InputMap.action_get_events(action):
+		if ev is InputEventKey and ev.physical_keycode == key and ev.keycode == KEY_NONE:
+			physical = true
+		if ev is InputEventKey and ev.keycode == key and ev.physical_keycode == KEY_NONE:
+			code = true
+	if not physical:
+		var placed := InputEventKey.new()
+		placed.physical_keycode = key                 # where the key sits, so WASD works on any keyboard layout
+		InputMap.action_add_event(action, placed)
+	if not code:
+		var named := InputEventKey.new()
+		named.keycode = key
+		InputMap.action_add_event(action, named)
 
 ## True when this event is a fresh press of the action (held-key repeats don't count).
 static func pressed(e: InputEvent, action: String) -> bool:
@@ -57,12 +73,46 @@ static func dir(e: InputEvent) -> Vector2i:
 			return DIRS[a]
 	return Vector2i.ZERO
 
+static var _down := false
+static var _release_seen: InputEvent
+static var _release_kind := 0
+
 ## A fresh left click, or a finger when the engine is not also sending that finger as a mouse click.
 ## One tap must do one thing: the emulated mouse is the click, and the leftover touch is only swallowed.
 static func pointing(e: InputEvent) -> bool:
+	var hit := _press(e)
+	if hit:
+		_down = true
+	return hit
+
+static func note(e: InputEvent) -> void:
+	if _press(e):
+		_down = true
+
+static func _press(e: InputEvent) -> bool:
 	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		return true
 	return e is InputEventScreenTouch and e.pressed and not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION
+
+## The finger or the mouse button coming up.
+static func released(e: InputEvent) -> bool:
+	return release_kind(e) != 0
+
+## 0 is not a release. 1 had a press with it. 2 is the whole tap (the press never arrived).
+static func release_kind(e: InputEvent) -> int:
+	if not _up(e):
+		return 0
+	if _release_seen == e:
+		return _release_kind
+	_release_seen = e
+	_release_kind = 2 if not _down else 1
+	_down = false
+	return _release_kind
+
+static func _up(e: InputEvent) -> bool:
+	if e is InputEventMouseButton and not e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+		return true
+	return e is InputEventScreenTouch and not e.pressed and not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION
 
 ## Where that click or tap landed, in the control's own pixels. The event carries the point. The cursor
 ## (get_local_mouse_position) stays wherever it was, so a headless click and a real tap would miss the button.
@@ -77,7 +127,10 @@ static func fill(control: Control) -> void:
 
 ## The press, the duplicate touch, and the release: none of them should reach the world under a panel.
 static func swallow_pointer(e: InputEvent) -> bool:
-	return e is InputEventScreenTouch or e is InputEventScreenDrag or (e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT)
+	var sw: bool = e is InputEventScreenTouch or e is InputEventScreenDrag or (e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT)
+	if sw:
+		release_kind(e)
+	return sw
 
 ## Which way the walking controls are held right now (keys, stick, or the phone pad), or zero.
 static func held_dir() -> Vector2i:

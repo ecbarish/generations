@@ -3,7 +3,7 @@ extends Control
 ## It stays put. The big place-name still fades in on its own. Drawn at whole pixels, never scaled.
 
 const CREAM := Color("f4e9cd")
-const INK := Color(0.08, 0.07, 0.06, 0.88)
+const INK := Color(0.08, 0.07, 0.06, 1)          # solid: Larkhaven's roofs are dark, and a faint strip disappears into them
 var area := ""
 var lead := ""
 var hp := 0
