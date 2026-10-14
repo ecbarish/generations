@@ -457,6 +457,37 @@ document.querySelector('#run').onclick = async () => {
     check('At night the ball only boings, and the baby sleeps on', S().mode === 'sleep' && S().wake === wakes && S().ball.kicks === 3);
     LR.prefs.sound = false; const quietBall = LR.words.length, quietTones = LR.tones; LR.newVisit(); tap(LR.ballNow());
     check('With the sound off, the ball is quiet', LR.words.length === quietBall && LR.tones === quietTones);
+    // ---- LR19: the Block Tower
+    LR.prefs.sound = true;
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180], [1920, 1080]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const sc = LR.scale, r = cv.getBoundingClientRect(), V = L().tower, pts = [...V.tray, { x: V.baby.x, y: V.baby.y - V.baby.z }].map(q => LR.toScreen(q));
+      check(`${width}×${height}: the block sign is its own tap and the other signs (and the sun) still are; tray blocks and the baby are 64 px+ and on screen`, LR.ranchTarget(L().bsign) === 'bsign' && ['sign', 'wsign', 'ksign'].every(k => LR.ranchTarget(L()[k]) === k) && V.bs * 1.5 * sc >= 64 && V.baby.z * 3.2 * sc >= 64 && pts.every(q => q.x > r.left && q.x < r.right && q.y > r.top && q.y < r.bottom));
+      tap(L().bsign); for (let i = 0; i < 40; i++) { tap(V.tray[i % 3]); LR.advance(.05); } LR.advance(1);
+      const topY = V.fy - (S().tower.stack.length - .5) * V.bs + LR.towerCam();
+      check(`${width}×${height}: forty blocks high, the top block is still on screen (the view rises)`, S().tower.stack.length === 40 && topY - V.bs / 2 >= 0 && topY + V.bs / 2 <= V.fy);
+      tap(V.barn);
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    { const V = () => L().tower, Tw = () => S().tower;
+      tap(L().bsign); check('Tapping the block sign goes to the Block Tower: an empty floor, a tray of blocks', S().place === 'tower' && Tw().stack.length === 0);
+      LR.advance(LR.HINT_SECS + .5); check('Left alone, a tray block glows (the hint)', LR.hint() && LR.hint().name === 'tray0');
+      let t0 = LR.tones; tap(V().tray[0]); check('Tapping a block: it flies onto the stack at once', Tw().stack.length === 1 && LR.tones > t0);
+      LR.advance(LR.DROP_SECS + .05); check('...and lands with a clunk', Tw().stack[0].landed);
+      for (let i = 0; i < 4; i++) { tap(V().tray[i % 3]); LR.advance(.2); } LR.advance(.5); check('Five blocks snap onto the stack, each a creature face', Tw().stack.length === 5 && Tw().stack.every(b => b.landed && b.c >= 0 && b.c < LR.BLOCKS.length));
+      LR.advance(LR.HINT_SECS + .5); check('With five up, the hint shows the baby (knock it down)', LR.hint() && LR.hint().name === 'tbaby');
+      LR.advance(60); check('Left alone for a minute, it never falls by itself', Tw().stack.length === 5 && !Tw().tumble);
+      tap({ x: V().x, y: V().fy - V().bs * 2 }); check('Tapping the tower just wiggles it (it never falls by accident)', Tw().stack.length === 5 && Tw().wig > .9);
+      const a19 = S().acts; t0 = LR.tones; tap({ x: V().baby.x, y: V().baby.y - V().baby.z }); check('Tapping the baby knocks it down with a giggle: a happy tumble with hearts, one happy thing', Tw().stack.length === 0 && Tw().tumble && S().acts === a19 + 1 && LR.tones > t0 && S().fx.some(f => f.kind === 'heart'));
+      tap(V().tray[1]); check('A block tapped mid-tumble is just a note (nothing queued)', Tw().stack.length === 0);
+      LR.advance(LR.TUMBLE_SECS + .1); check('...the blocks settle and it is ready to restack', !Tw().tumble);
+      tap(V().tray[2]); LR.advance(.5); tap({ x: V().baby.x, y: V().baby.y - V().baby.z }); check('A small tumble still giggles (but only three or more count)', S().acts === a19 + 1 && S().t - Tw().giggle < .1);
+      LR.advance(2); tap({ x: V().baby.x, y: V().baby.y - V().baby.z }); check('Tapping the baby with no tower: just a giggle', S().t - Tw().giggle < .1 && !Tw().tumble);
+      tap(V().tray[0]); tap(V().barn); check('The barn picture goes home at any time, even mid-drop (no count)', S().place === 'ranch' && S().tower === null && S().acts === a19 + 1);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t9 = LR.tones; tap(L().bsign); for (let i = 0; i < 4; i++) tap(V().tray[0]); LR.advance(1); tap({ x: V().baby.x, y: V().baby.y - V().baby.z }); LR.advance(2); tap(V().barn);
+      check('With the sound off the Block Tower is silent', LR.tones === t9); LR.prefs.sound = mute;
+      LR.newVisit(); LR.bedtime(); tap(L().bsign); check('At bedtime the block sign does not open the tower (bedtime goes on)', S().place === 'ranch');
+    }
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);

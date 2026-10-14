@@ -20,7 +20,7 @@
 (function () {
   const VERSION = '0.16.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
   // LR-C1: things on the ranch, in the order an idle hint offers them (the first one not yet played with)
-  const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'ball', 'sign', 'wsign', 'ksign'];
+  const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'ball', 'sign', 'wsign', 'ksign', 'bsign'];
   // LR11: the Snack Kitchen. Four foods (berries, carrot, lemon, broccoli), one bowl, one baby who loves berries and pulls a
   // funny face at the rest (puffed cheeks, a sour squeeze, a tongue out). Three bowls of berries and it's full and happy.
   // LR4: a second friend. On some visits (about half) a baby Pebblit wanders in and settles beside the baby. Tap the bowl
@@ -38,6 +38,10 @@
   // LR16: the meadow ball. Tap it and it rolls to the other side of the grass; the baby runs over and kicks. Every third kick is one happy thing. Nothing to miss. At night a tap only boings.
   const FRIEND_ODDS = .5, NUZZLE_SECS = 1.6, FRIEND_EAT_SECS = 2.4; let forceFriend = null;
   const FOODS = ['berries', 'carrot', 'lemon', 'broccoli'], FOOD_FACES = ['yum', 'puff', 'sour', 'tongue'], KITCHEN_BERRIES = 3, FLY_SECS = .5, EAT_SECS = .9, FACE_SECS = 1.6, KITCHEN_END_SECS = 2.6;
+  // LR19: the Block Tower. Soft creature-face blocks in a tray: tap one and it drops onto the stack with a clunk. No height
+  // limit, and it never falls by itself (the view rises with it). Tap the baby and it knocks the tower down with a giggle: a
+  // happy tumble, then restack. A tumble of three or more blocks is one happy thing.
+  const BLOCKS = ['#ff6fa8', '#4fa6ff', '#ffd03a', '#5fd06a', '#b07aff'], DROP_SECS = .4, TUMBLE_SECS = 1.3, TUMBLE_MIN = 3;
   // LR10: the Little Wagon. Two cars (red and blue), two babies to load, three things along the valley and one colour gate
   const CARS = ['#e8483c', '#3f8ae8'], RIDE = { windmill: 1.05, pond: 1.75, woolies: 2.45, gate: 3.2, end: 4.1 }, RIDE_SPEED = .24, WAGON_END_SECS = 2.4;
   // LR3: the singing flowers, a row of five along the front of the meadow, each with its own note (C D E G A: any order sounds sweet)
@@ -121,7 +125,7 @@
   function newVisit() {
     st = { t: 0, mode: 'play', dusk: 0, acts: 0, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0 },
       bowl: { food: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null },
-      place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 }, ball: { from: -1, to: -1, at: -9, kicks: 0 }, routine: null, shut: 0 };
+      place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, bsign: { shake: 0 }, tower: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 }, ball: { from: -1, to: -1, at: -9, kicks: 0 }, routine: null, shut: 0 };
     if (forceFriend !== null ? forceFriend : Math.random() < FRIEND_ODDS) st.friend = { x: 1.1, tx: null, then: null, act: null, at: 0, soap: 0, dir: -1 };
     layout(); st.baby.x = L.home.x; if (st.friend) fgo(L.fhome.x, null); // it wanders in from the right
   }
@@ -153,6 +157,9 @@
     L.ksign = { x: W * .45, y: L.ground - U * .14 * 1.7 }; // LR11: the snack-bowl sign, on the hilltop
     { const fr = Math.min(W * .108, H * .1), ty = H * .64, z = Math.min(W * .22, H * .24);
       L.kitchen = { fr, ty, z, baby: { x: W * .5, y: ty }, bowl: { x: W * .5, y: ty + z * .12, r: Math.max(fr * 1.1, z * .5) }, foods: FOODS.map((f, i) => ({ x: W * (.125 + i * .25), y: H * .87 })), barn: L.shed.barn }; }
+    L.bsign = wide ? { x: Math.max(U * .14 * 1.05, W * .1), y: H * .22 } : { x: W * .5, y: L.ground - U * .14 * 5 }; // LR19: the block sign, up in the sky corner
+    { const bs = Math.min(W * .15, H * .13), fy = H * .84; // LR19
+      L.tower = { bs, fy, x: W * .46, baby: { x: W * .16, y: fy, z: Math.min(W * .1, H * .085) }, tray: [0, 1, 2].map(i => ({ x: W * .84, y: fy - bs * (.55 + i * 1.25) })), barn: L.shed.barn }; }
     if (st && old.U && (W !== oldW || H !== oldH)) {
       // Keep progress between the same places, rather than keeping obsolete canvas pixels.
       // The eating spot includes the baby's size, so a plain width ratio is not enough.
@@ -305,6 +312,8 @@
       if (w.phase === 'load') { const i = [0, 1].find(k => !w.aboard[k]); return i !== undefined ? { name: 'baby' + i, x: V.wait[i].x, y: V.wait[i].y - V.z * .5, r: V.z * .9 } : { name: 'wagon', x: V.puller.x, y: V.puller.y, r: V.z * 1.05 }; }
       if (w.phase === 'gate' && w.gate.at === null) { const c = V.cars[w.gate.col]; return { name: 'car' + w.gate.col, x: c.x, y: c.y - V.z * .3, r: V.z * 1.05 }; }
       return null; }
+    if (st.place === 'tower') { const T2 = st.tower, V = L.tower; if (T2.tumble) return null;
+      return T2.stack.length >= 5 ? { name: 'tbaby', x: V.baby.x, y: V.baby.y - V.baby.z * 1.2, r: V.baby.z * 1.3 } : { name: 'tray0', ...V.tray[0], r: V.bs * .75 }; }
     if (st.place === 'kitchen') return st.kitchen.phase === 'idle' ? { name: 'food0', x: L.kitchen.foods[0].x, y: L.kitchen.foods[0].y, r: L.kitchen.fr * 1.25 } : null;
     if (st.place === 'shed') { if (st.shed.doneAt !== null) return null; const k = PARTS.find(q => !(q in st.shed.parts)); const z = L.shed.z;
       return k ? { name: k, ...partPoint(k), r: z * .55 } : null; }
@@ -315,7 +324,7 @@
     if (st.mode !== 'play' || busy() || st.sponge.drag || st.sponge.auto || st.sun.bow) return null;
     const ok = k => (!['sun', 'cloud'].includes(k) || daytime()) && (k !== 'puddle' || st.puddles.some(q => q.i === 0)) && (k !== 'friend' || (st.friend && st.friend.tx === null)), left = HINTS.filter(k => !st.used[k] && ok(k)), all = HINTS.filter(ok);
     const name = left.length ? left[0] : all[Math.floor((st.t - st.idleAt - HINT_SECS) / 8) % all.length];
-    const at = { bowl: [L.bowl, L.R * 1.1], sponge: [L.sponge, L.R * 1.05], bush: [{ x: L.bush.x, y: L.bush.y - L.R * .5 }, L.R * 1.35], baby: [babyCentre(), L.size * 1.1], sun: [sunAt(), L.U * .15], sign: [{ x: L.sign.x, y: L.sign.y - L.R * .45 }, L.R * 1.05], flowers: [L.flowers[2], L.flowers[2].r * 1.4], wsign: [{ x: L.wsign.x, y: L.wsign.y - L.R * .45 }, L.R * 1.05], ksign: [{ x: L.ksign.x, y: L.ksign.y - L.R * .45 }, L.R * 1.05], friend: [st.friend ? fCentre() : L.home, L.fz * 1.1], cloud: [L.cloud, L.cloud.r * 1.3], basket: [{ x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05], puddle: [L.puddles[0], L.puddles[0].r], ball: [ballNow(), ballNow().r * 1.2] }[name];
+    const at = { bowl: [L.bowl, L.R * 1.1], sponge: [L.sponge, L.R * 1.05], bush: [{ x: L.bush.x, y: L.bush.y - L.R * .5 }, L.R * 1.35], baby: [babyCentre(), L.size * 1.1], sun: [sunAt(), L.U * .15], sign: [{ x: L.sign.x, y: L.sign.y - L.R * .45 }, L.R * 1.05], flowers: [L.flowers[2], L.flowers[2].r * 1.4], wsign: [{ x: L.wsign.x, y: L.wsign.y - L.R * .45 }, L.R * 1.05], ksign: [{ x: L.ksign.x, y: L.ksign.y - L.R * .45 }, L.R * 1.05], bsign: [{ x: L.bsign.x, y: L.bsign.y - L.R * .45 }, L.R * 1.05], friend: [st.friend ? fCentre() : L.home, L.fz * 1.1], cloud: [L.cloud, L.cloud.r * 1.3], basket: [{ x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05], puddle: [L.puddles[0], L.puddles[0].r], ball: [ballNow(), ballNow().r * 1.2] }[name];
     return { name, x: at[0].x, y: at[0].y, r: at[1] };
   }
   function drawHint() { const h = hint(); if (!h) return; const k = st.t - st.idleAt - HINT_SECS, m = reduce() ? 0 : 1, pulse = .5 + .5 * Math.sin(k * 3.2);
@@ -398,6 +407,26 @@
     else if (k.phase === 'face' && e >= FACE_SECS) { k.face = null; k.food = null; k.at = st.t;
       if (k.berries >= KITCHEN_BERRIES) { k.phase = 'full'; sfx('rainbow'); for (let j = 0; j < 10; j++) fx(j % 2 ? 'spark' : 'heart', V.baby.x + (Math.random() - .5) * V.z * 2.4, V.baby.y - V.z * (1 + Math.random() * 1.2)); } else k.phase = 'idle'; }
     else if (k.phase === 'full' && e >= KITCHEN_END_SECS) leaveKitchen(true); }
+  // LR19: the Block Tower
+  function enterTower() { if (st.mode !== 'play' || st.place !== 'ranch') return; st.place = 'tower'; st.bsign.shake = 1; st.sponge.drag = null;
+    st.tower = { stack: [], next: 0, tumble: null, wig: 0, giggle: -9, tumbles: 0 }; sfx('door'); }
+  function leaveTower() { st.place = 'ranch'; sfx('door'); st.tower = null; }
+  const towerCam = () => { const V = L.tower, T2 = st.tower, top = T2.stack.length * V.bs; return Math.max(0, top - (V.fy - H * .3)); }; // the view rises so the top stays on screen
+  function addBlock(i) { const T2 = st.tower, V = L.tower; if (T2.tumble) { sfx('note'); return; }
+    const c = (T2.next + i) % BLOCKS.length; T2.next = (T2.next + 1) % BLOCKS.length; T2.stack.push({ c, at: st.t, from: V.tray[i], dx: (Math.random() - .5) * V.bs * .12, landed: false }); sfx('pick', c % 4); }
+  function knock() { const T2 = st.tower, V = L.tower; T2.giggle = st.t; sfx('giggle'); if (T2.tumble || !T2.stack.length) return;
+    const cam = towerCam(); T2.tumble = { at: st.t, blocks: T2.stack.map((b, k) => ({ c: b.c, x: V.x + b.dx, y: V.fy - (k + .5) * V.bs + cam, vx: (Math.random() * .8 + .3) * V.bs * 3 * (k % 2 ? 1 : -.4) + V.bs, vy: -V.bs * (2 + Math.random() * 2), a: 0, va: (Math.random() - .5) * 8 })) };
+    if (T2.stack.length >= TUMBLE_MIN) { st.acts++; T2.tumbles++; } T2.stack = []; sfx('rainbow'); for (let j = 0; j < 5; j++) fx('heart', V.baby.x + (j - 2) * V.baby.z * .4, V.baby.y - V.baby.z * 2); }
+  function towerTap(p) { const T2 = st.tower, V = L.tower;
+    if (near(p, V.barn, V.barn.r * 1.15)) return leaveTower();
+    const i = V.tray.findIndex(q => near(p, q, V.bs * .75)); if (i >= 0) return addBlock(i);
+    if (Math.hypot(p.x - V.baby.x, p.y - (V.baby.y - V.baby.z * 1.1)) <= V.baby.z * 1.6) return knock();
+    if (T2.stack.length && Math.abs(p.x - V.x) <= V.bs * .8 && p.y <= V.fy && p.y >= V.fy - (T2.stack.length + .5) * V.bs + towerCam()) { T2.wig = 1; sfx('clop'); return; } // a wiggle: it never falls by itself
+    fx('spark', p.x, p.y); sfx('note'); }
+  function towerUpdate(dt) { const T2 = st.tower, V = L.tower; T2.wig = Math.max(0, T2.wig - dt * 2.5);
+    for (const b of T2.stack) if (!b.landed && st.t - b.at >= DROP_SECS) { b.landed = true; sfx('clop'); sfx('boing'); }
+    const tb = T2.tumble; if (tb) { for (const b of tb.blocks) { b.vy += V.bs * 9 * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.a += b.va * dt; if (b.y > V.fy - V.bs * .5) { b.y = V.fy - V.bs * .5; b.vy *= -.35; b.vx *= .7; b.va *= .6; } }
+      if (st.t - tb.at >= TUMBLE_SECS) T2.tumble = null; } }
   function hatTap() { const h = st.hat; h.shake = 1; if (h.fly) { sfx('note'); return; } // LR6
     const next = h.wear + 1 >= HATS.length ? -1 : h.wear + 1; h.fly = { from: h.wear, to: next, at: st.t }; sfx('pick', 2); }
   function hatUpdate(dt) { const h = st.hat; h.shake = Math.max(0, h.shake - dt * 2.5);
@@ -479,8 +508,9 @@
     st.t += dt; const b = st.baby, sp = L.U * .9;
     if (st.place === 'wagon') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); wagonUpdate(dt); return; }
     if (st.place === 'kitchen') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); kitchenUpdate(dt); return; }
+    if (st.place === 'tower') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); towerUpdate(dt); return; }
     if (st.place === 'shed') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); if (st.shed.doneAt !== null && st.t - st.shed.doneAt > SHED_WALK_SECS) leaveShed(true); return; }
-    st.sign.shake = Math.max(0, st.sign.shake - dt * 1.5); st.wsign.shake = Math.max(0, st.wsign.shake - dt * 1.5); st.ksign.shake = Math.max(0, st.ksign.shake - dt * 1.5);
+    st.sign.shake = Math.max(0, st.sign.shake - dt * 1.5); st.wsign.shake = Math.max(0, st.wsign.shake - dt * 1.5); st.ksign.shake = Math.max(0, st.ksign.shake - dt * 1.5); st.bsign.shake = Math.max(0, st.bsign.shake - dt * 1.5);
     st.stir = Math.max(0, st.stir - dt * 2.5); song(dt);
     { const u = st.sun; if (u.bow && st.t - u.bow.at > BOW_SECS) { u.bow = null; u.taps = 0; } // the rainbow fades, the count starts again
       if (!u.bow) { if (u.taps && st.t - u.last > 10) u.taps = 0; u.glow = Math.max(u.taps / SUN_TAPS, u.glow - dt * .5); } } if (st.dawn) { st.dusk = Math.max(0, st.dusk - dt / 2.5); if (st.dusk === 0) st.dawn = false; }
@@ -699,6 +729,41 @@
     for (const [dx, dy] of [[-.3, -.08], [0, -.18], [.3, -.08], [-.15, -.3], [.15, -.3]]) ell(dx * r, dy * r, r * .17, r * .17, dk('#5a3fa8'));
     cx.fillStyle = dk('#4fa6e8'); cx.beginPath(); cx.moveTo(R(-r * .65), R(-r * .05)); cx.lineTo(R(r * .65), R(-r * .05)); cx.lineTo(R(r * .4), R(r * .45)); cx.lineTo(R(-r * .4), R(r * .45)); cx.fill();
     ell(0, -r * .05, r * .65, r * .1, dk('#7cc0f4')); cx.restore(); }
+  function drawBlock(x, y, s, c, a) { // LR19: a soft block with a creature face (ears, eyes, a smile)
+    const col = BLOCKS[c]; cx.save(); cx.translate(R(x), R(y)); cx.rotate(a || 0); const h = s / 2;
+    for (const s2 of [-1, 1]) { cx.fillStyle = col; cx.beginPath(); cx.moveTo(R(s2 * h * .8), R(-h * .7)); cx.lineTo(R(s2 * h * .65), R(-h * 1.25)); cx.lineTo(R(s2 * h * .25), R(-h * .85)); cx.fill(); }
+    cx.fillStyle = mixHex(col, '#000000', .18); cx.fillRect(R(-h), R(-h), R(s), R(s)); cx.fillStyle = col; cx.fillRect(R(-h), R(-h), R(s), R(s * .9));
+    cx.fillStyle = mixHex(col, '#ffffff', .4); cx.fillRect(R(-h * .8), R(-h * .8), R(s * .25), R(s * .1));
+    for (const s2 of [-1, 1]) ell(s2 * h * .38, -h * .1, s * .07, s * .08, '#2a1a18'); ell(-h * .55, h * .2, s * .08, s * .05, 'rgba(255,140,140,.6)'); ell(h * .55, h * .2, s * .08, s * .05, 'rgba(255,140,140,.6)');
+    cx.strokeStyle = '#2a1a18'; cx.lineWidth = Math.max(1, s * .05); cx.beginPath(); cx.arc(0, R(h * .15), R(s * .12), .3, Math.PI - .3); cx.stroke(); cx.restore(); }
+  function drawBSign(g) { // LR19: a picture-sign with two stacked blocks
+    const s = L.bsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.bsign.shake * r * .06, bob = hintBob('bsign');
+    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(Math.max(r * 1.4, L.ground + L.U * .04 - s.y + r * .2) + bob));
+    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
+    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24)); cx.restore();
+    drawBlock(s.x + sh - r * .05, s.y - r * .45 - bob + r * .3, r * .55, 1, 0); drawBlock(s.x + sh + r * .05, s.y - r * .45 - bob - r * .26, r * .55, 0, .12);
+    if (g > .6) { cx.fillStyle = 'rgba(20,20,50,.5)'; cx.fillRect(R(s.x - r * .85), R(s.y - r * 1.07 - bob), R(r * 1.7), R(r * 1.24)); } }
+  function drawTower() { // LR19: the Block Tower
+    const U = L.U, V = L.tower, T2 = st.tower, m = reduce() ? .3 : 1, cam = towerCam(), hb = hint();
+    const wall = cx.createLinearGradient(0, 0, 0, V.fy); wall.addColorStop(0, '#fbe3c8'); wall.addColorStop(1, '#f4cfa8'); cx.fillStyle = wall; cx.fillRect(0, 0, W, H);
+    for (let i = 0; i < 6; i++) ell(W * (.1 + i * .17), H * .08 + ((i * 37) % 20) / 200 * H + cam * .3, U * .02, U * .02, BLOCKS[i % 5]);
+    const fy = V.fy + cam; cx.fillStyle = '#a0c8e8'; cx.fillRect(0, R(fy), W, H - R(fy)); cx.fillStyle = '#7fb0d8'; for (let x = 0; x < W; x += U * .08) cx.fillRect(R(x), R(fy), Math.max(1, R(U * .04)), H - R(fy));
+    // the stack (and the block dropping onto it)
+    const wig = Math.sin(st.t * 30) * T2.wig * V.bs * .05 * m;
+    T2.stack.forEach((b, k) => { const ty = fy - (k + .5) * V.bs, tx = V.x + b.dx + wig * (k / 4);
+      if (b.landed) return drawBlock(tx, ty, V.bs, b.c, 0);
+      const e = clamp((st.t - b.at) / DROP_SECS, 0, 1), ee = e * e; drawBlock(lerp(b.from.x, tx, e), lerp(b.from.y, ty, ee) - Math.sin(e * Math.PI) * V.bs * 1.2 * m, V.bs, b.c, (1 - e) * .5); });
+    if (T2.tumble) for (const b of T2.tumble.blocks) drawBlock(b.x, b.y, V.bs, b.c, b.a);
+    // the tray of blocks (always more)
+    V.tray.forEach((q, i) => { const bob = hb && hb.name === 'tray' + i && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.bs * .15 : 0; drawBlock(q.x, q.y - bob, V.bs, (T2.next + i) % BLOCKS.length, 0); });
+    // the baby, sitting by the tower
+    const bz = V.baby.z, gb = hb && hb.name === 'tbaby' && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * bz * .12 : 0;
+    drawKBaby(V.baby.x, V.baby.y - gb, bz, st.t - T2.giggle < 1 ? 'yum' : null, st.t - T2.giggle, st.t - T2.giggle < 1);
+    drawHint();
+    const b = V.barn; ell(b.x, b.y, b.r, b.r, 'rgba(255,248,232,.9)'); cx.fillStyle = '#c8453a'; cx.fillRect(R(b.x - b.r * .55), R(b.y - b.r * .15), R(b.r * 1.1), R(b.r * .7));
+    cx.beginPath(); cx.moveTo(R(b.x - b.r * .7), R(b.y - b.r * .1)); cx.lineTo(R(b.x), R(b.y - b.r * .62)); cx.lineTo(R(b.x + b.r * .7), R(b.y - b.r * .1)); cx.fillStyle = '#8a2a24'; cx.fill();
+    cx.fillStyle = '#fff4e0'; cx.fillRect(R(b.x - b.r * .2), R(b.y + b.r * .12), R(b.r * .4), R(b.r * .43)); cx.fillStyle = '#5fb34a'; cx.fillRect(R(b.x - b.r * .7), R(b.y + b.r * .55), R(b.r * 1.4), Math.max(2, R(b.r * .1)));
+    drawFx(U); }
   function drawKBaby(x, y, z, face, since, giggle) { // the kitchen's baby: big, sitting up at the table, all face
     const m = reduce() ? .3 : 1, body = '#e06a32', cream = '#ffe2b8', hr = z * .62;
     let hop = 0, sx = 0; if (face === 'yum' || face === 'full' || giggle) hop = Math.abs(Math.sin(since * 12)) * z * .12 * m;
@@ -790,6 +855,7 @@
     if (st.place === 'shed') return drawShed();
     if (st.place === 'wagon') return drawWagon();
     if (st.place === 'kitchen') return drawKitchen();
+    if (st.place === 'tower') return drawTower();
     const g = st.dusk, U = L.U;
     const sky = cx.createLinearGradient(0, 0, 0, L.ground); sky.addColorStop(0, pick3('#6cbcec', '#e8805a', '#121a44', g)); sky.addColorStop(1, pick3('#d4eef8', '#ffd08a', '#3a3a70', g));
     cx.fillStyle = sky; cx.fillRect(0, 0, W, L.ground + 1);
@@ -807,7 +873,7 @@
     for (let x = W * .05; x < W; x += U * .3) cx.fillRect(R(x), R(fy - U * .03), Math.max(2, R(U * .03)), R(U * .14));
     for (let i = 0; i < 30; i++) { const x = (i * 61.7) % W, y = L.ground + U * .2 + (i * 37.1) % (H - L.ground - U * .2); cx.fillStyle = pick3('#5aa848', '#8a8a40', '#1e3a36', g); cx.fillRect(R(x), R(y), 1, 2); }
     drawHint();
-    drawPuddles(); drawBasket(g); drawSign(g); drawWheelSign(g); drawKSign(g);
+    drawPuddles(); drawBasket(g); drawBSign(g); drawSign(g); drawWheelSign(g); drawKSign(g);
     const hidden = st.baby.act === 'hide' || st.baby.act === 'peek';
     if (!hidden) drawBush(false);
     // the bowl
@@ -837,7 +903,7 @@
   // LR-C1: where tap zones overlap (big zones on a tablet), the thing whose middle is nearest wins, so a tap on the
   // baby's head beside the bush tickles the baby rather than starting peekaboo.
   function ranchTarget(p) { const s = st.sponge, c = [];
-    if (!s.auto) c.push(['sponge', s, L.R * 1.1]); c.push(['sign', L.sign, L.R * 1.1], ['wsign', L.wsign, L.R * 1.1], ['ksign', L.ksign, L.R * 1.1], ['bowl', L.bowl, L.R * 1.2], ['bush', { x: L.bush.x, y: L.bush.y - L.R * .4 }, L.R * 1.4]);
+    if (!s.auto) c.push(['sponge', s, L.R * 1.1]); c.push(['sign', L.sign, L.R * 1.1], ['wsign', L.wsign, L.R * 1.1], ['ksign', L.ksign, L.R * 1.1], ['bsign', L.bsign, L.R * 1.1], ['bowl', L.bowl, L.R * 1.2], ['bush', { x: L.bush.x, y: L.bush.y - L.R * .4 }, L.R * 1.4]);
     if (st.baby.act !== 'hide') c.push(['baby', babyCentre(), L.size * 1.2]); if (st.friend) c.push(['friend', fCentre(), L.fz * 1.25]); if (daytime()) c.push(['sun', sunAt(), Math.max(L.U * .16, L.R)], ['cloud', L.cloud, L.cloud.r * 1.35]);
     for (const q of st.puddles) c.push(['puddle' + q.i, L.puddles[q.i], L.puddles[q.i].r]); c.push(['basket', { x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05]);
     L.flowers.forEach((q, i) => c.push(['flower' + i, { x: q.x, y: q.y }, q.r * 1.15]));
@@ -846,7 +912,7 @@
   cv.addEventListener('pointerdown', e => {
     e.preventDefault(); audio(); const p = at(e), s = st.sponge; st.idleAt = st.t;
     // LR9: the shed and the sign act when the finger lifts (like the grown-up panel, LR15); a drag over the outline paints
-    if (st.place === 'wagon' || st.place === 'kitchen') { st.down = { id: e.pointerId, p }; return; }
+    if (st.place === 'wagon' || st.place === 'kitchen' || st.place === 'tower') { st.down = { id: e.pointerId, p }; return; }
     if (st.place === 'shed') { st.down = { id: e.pointerId, p, drag: false }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; }
     if (st.mode === 'dusk' && routineTap(p)) return; // LR7
     if (st.mode !== 'play') { // bedtime: taps twinkle; six taps on the sleeping baby wake it for a new day (LR12)
@@ -863,6 +929,7 @@
     if (pick === 'sponge') { s.drag = { id: e.pointerId, x: p.x, y: p.y, at: performance.now(), moved: 0 }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; }
     if (pick === 'sign') { st.down = { id: e.pointerId, p, sign: 'paint' }; st.sign.shake = .5; return; }
     if (pick === 'wsign') { st.down = { id: e.pointerId, p, sign: 'wagon' }; st.wsign.shake = .5; return; }
+    if (pick === 'bsign') { st.down = { id: e.pointerId, p, sign: 'tower' }; st.bsign.shake = .5; return; }
     if (pick === 'ksign') { st.down = { id: e.pointerId, p, sign: 'kitchen' }; st.ksign.shake = .5; return; }
     if (/^flower/.test(pick)) { const i = +pick.slice(6); st.down = { id: e.pointerId, p, flower: i }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return sing(i); }
     if (pick === 'bowl') return act.feed();
@@ -882,7 +949,7 @@
     const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return; const p = at(e);
     s.drag.moved += Math.hypot(p.x - s.x, p.y - s.y); s.x = p.x; s.y = p.y; if (near(p, babyCentre(), L.size * 1.3)) act.scrub(p); else if (st.friend && near(p, fCentre(), L.fz * 1.2)) scrubFriend(p); });
   const release = e => { const d = st.down; if (d && d.id === e.pointerId) { st.down = null; if (e.type === 'pointercancel') return; const p = at(e);
-      if (d.sign === 'paint') { if (near(p, L.sign, L.R * 1.3)) enterShed(); return; } if (d.sign === 'wagon') { if (near(p, L.wsign, L.R * 1.3)) enterWagon(); return; } if (d.sign === 'kitchen') { if (near(p, L.ksign, L.R * 1.3)) enterKitchen(); return; } if (d.flower !== undefined) return; if (!d.drag && st.place === 'shed') shedTap(p); if (st.place === 'wagon') wagonTap(p); if (st.place === 'kitchen') kitchenTap(p); return; }
+      if (d.sign === 'paint') { if (near(p, L.sign, L.R * 1.3)) enterShed(); return; } if (d.sign === 'wagon') { if (near(p, L.wsign, L.R * 1.3)) enterWagon(); return; } if (d.sign === 'kitchen') { if (near(p, L.ksign, L.R * 1.3)) enterKitchen(); return; } if (d.sign === 'tower') { if (near(p, L.bsign, L.R * 1.3)) enterTower(); return; } if (d.flower !== undefined) return; if (!d.drag && st.place === 'shed') shedTap(p); if (st.place === 'wagon') wagonTap(p); if (st.place === 'kitchen') kitchenTap(p); if (st.place === 'tower') towerTap(p); return; }
     const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return;
     const tap = s.drag.moved < L.R * .5 && performance.now() - s.drag.at < 500; s.drag = null;
     if (tap) act.bath(); else if (s.scrubbed) { s.scrubbed = false; done(); } };
@@ -928,7 +995,7 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
+  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, BLOCKS, DROP_SECS, TUMBLE_SECS, TUMBLE_MIN, enterTower, leaveTower, towerCam: () => towerCam(), thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();
