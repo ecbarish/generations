@@ -5,7 +5,15 @@
 <title>Starfall Guild</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+<!-- Added from script so a stalled fonts.googleapis.com response cannot block boot. -->
+<script>
+(function () {
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap';
+  document.head.appendChild(link);
+})();
+</script>
 <link rel="stylesheet" href="style.css">
 
 <div class="app">
