@@ -25,6 +25,8 @@ header .home .narrow { display: none; }
 #settingsMount button { font-size: calc(12px * var(--arc-text)); }
 .screen { position: relative; min-height: 0; overflow: hidden; border: 1px solid #6d5a38; border-radius: 12px; background: #101820; }
 .pitch { position: absolute; inset: 0; }
+.under { position: absolute; inset: 0; pointer-events: none; }
+.under .sheet { pointer-events: auto; }
 .screen, canvas, .curtain, .panel, .banner, .sheet, .dock, .hud, .field-cue, .pitch {
   -webkit-user-select: none; user-select: none;
 }
@@ -135,16 +137,28 @@ footer { padding: 6px 0 0; }
   }
   .pitch {
     position: relative; inset: auto; order: 1;
-    width: max-content; height: max-content; flex: 0 0 auto;
+    width: max-content; height: max-content; flex: 0 0 216px;
   }
   .pitch canvas {
-    width: 384px; height: 216px;
+    width: 384px; height: 216px; flex: 0 0 auto;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
   }
-  .sheet {
-    position: static; order: 2; left: auto; right: auto; top: auto;
-    width: calc(100% - 12px); margin: 6px 6px 2px; flex: 0 0 auto;
+  .under {
+    position: static; inset: auto; order: 2;
+    width: 100%; flex: 0 0 8.5em; height: 8.5em; max-height: 8.5em;
+    overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 6px 6px 2px; pointer-events: none;
+  }
+  .under .sheet, .under .banner, .under .field-cue {
+    position: static; left: auto; right: auto; top: auto; bottom: auto;
+    transform: none; width: 100%; max-width: 100%; margin: 0;
+    flex: 0 0 auto; white-space: normal;
+  }
+  .under .sheet { pointer-events: auto; }
+  #sound, #settingsMount .arc-set-btn {
+    max-width: none; overflow: visible; text-overflow: clip; white-space: nowrap; width: auto;
   }
   .curtain { position: fixed; inset: 0; z-index: 6; }
   footer { min-height: 0; display: flex; flex-direction: column; gap: 4px; padding-top: 8px; }
