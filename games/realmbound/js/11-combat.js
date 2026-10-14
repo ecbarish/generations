@@ -42,8 +42,26 @@ function moneyTxt(c){c=Math.floor(c);const g=Math.floor(c/10000),s=Math.floor(c%
 let C=null;
 function freshC(){return {phase:'seek',t:1.5,mob:null,hp:ST?ST.hpMax:100,res:0,cp:0,gcd:0,cast:null,cds:{},buffs:{},win:{},swing:0,ai:0,aiArmed:false,
   absorb:0,loot:null,party:[],fightT:0,lastCast:-99,run:0,lastInput:-99,lastKill:0,err:'',errT:0,lines:[],fx:[],anim:{hero:0,mob:0}};}
-// The existing Rotation Macro earns help on roads already out-levelled, never in dungeons.
-function autoAllowed(h){h=h||H();return !!(h&&!h.dun&&ZONES[h.zone]&&h.lvl<=LEVEL_CAP&&h.lvl>ZONES[h.zone].lv[1]&&(h.addons?.unl?.macro||h.stats?.manual>=500));}
+// Earned Auto repeats a cleared road while you are still its level, or a road you have outgrown. Never a dungeon.
+function autoEarned(h){return !!(h&&(h.addons?.unl?.macro||h.stats?.manual>=500));}
+function zoneCleared(h,id){const qs=QUESTS[id]||[];return !!(h&&qs.length&&h.quests&&h.quests.done&&qs.every(q=>h.quests.done[q.id]));}
+function autoRoad(h){const z=h&&ZONES[h.zone];if(!z)return false;if(h.lvl>z.lv[1])return true;return h.lvl>=z.lv[0]&&h.lvl<=z.lv[1]&&zoneCleared(h,h.zone);}
+function autoReason(h){
+  h=h||H();if(!h)return '';
+  if(h.dun)return 'Auto stays off in a dungeon. Fight this one yourself.';
+  const presses=h.stats?.manual||0;
+  if(!autoEarned(h))return `Auto is earned, not switched on. Press abilities yourself (${Math.min(presses,500)}/500). Then it can repeat a road you have already cleared.`;
+  if(!autoRoad(h))return 'Auto repeats a road you have finished, while you are still its level, or a road you have outgrown. This road is still yours to play.';
+  return '';
+}
+/* One short line beside Focus. The full reason stays on the Auto button, and this line stays while you talk so the bar does not jump. */
+function autoHint(h){
+  h=h||H();if(!h||autoAllowed(h))return '';
+  if(h.dun)return 'Auto stays off in a dungeon.';
+  if(!autoEarned(h))return `Auto waits (${Math.min(h.stats?.manual||0,500)}/500).`;
+  return 'Auto waits for a finished road, or one you outgrow.';
+}
+function autoAllowed(h){h=h||H();return !!(h&&!h.dun&&ZONES[h.zone]&&h.lvl<=LEVEL_CAP&&autoEarned(h)&&autoRoad(h));}
 function aiOn(){return !!(H()&&C&&!RTALK&&H().mode==='auto'&&autoAllowed());}
 function combatWaiting(){return !!(C&&C.phase==='fight'&&!aiOn()&&C.run-C.lastInput>=10);}
 function beginFight(){if(!H()||!C||C.phase!=='fight'||RTALK||modalKind||realmNotebookOpen())return false;H().mode='focus';C.lastInput=C.run;return true;}
@@ -167,11 +185,11 @@ function paceMult(){return (PACE[H().pace]||PACE.classic).xp;}
 function zoneXPMult(){return H().lvl >= 40 ? (ZONES[H().zone].xpMult || 1) : 1;}
 function groupXP(x){const n=1+(C&&C.party?C.party.length:0);return n<2?x:Math.max(1,Math.round(x*GROUP_BONUS[Math.min(5,n)]/n));}
 function gainXP(x,kill){
-  const h=H();if(h.lvl>=LEVEL_CAP){return;}
+  const h=H();if(h.lvl>=PLAY_CAP){return;}
   x=Math.round(x*paceMult()*guildXPMult()*zoneXPMult());let bonus=0;if(kill&&h.rested>0){bonus=Math.min(x,h.rested);h.rested-=bonus;}
   h.xp+=x+bonus;line(`You gain ${x} experience${bonus?` (+${Math.round(bonus)} rested)`:''}.`,'l-xp');
-  while(h.lvl<LEVEL_CAP&&h.xp>=xpNeed(h.lvl)){h.xp-=xpNeed(h.lvl);h.lvl++;onLevel();}
-  if(h.lvl>=LEVEL_CAP){h.xp=0;h.rested=0;}
+  while(h.lvl<PLAY_CAP&&h.xp>=xpNeed(h.lvl)){h.xp-=xpNeed(h.lvl);h.lvl++;onLevel();}
+  if(h.lvl>=PLAY_CAP){h.xp=0;h.rested=0;}
 }
 function onLevel(){
   const h=H();recalc();C.hp=ST.hpMax;if(CLASSES[h.cls].res==='mana')C.res=ST.resMax;
@@ -180,7 +198,7 @@ function onLevel(){
   if(h.lvl>=10)line('You have a talent point to spend.','l-sys');
   if(h.lvl===10)toast('Talents unlocked');
   if(h.lvl===20)toast('Ashen Ridge awaits. Travel there for new quests.');
-  if(h.lvl===LEVEL_CAP)toast('Level cap for this version reached');
+  if(h.lvl===PLAY_CAP)toast('Level cap for this version reached');
 }
 function die(){
   const h=H();h.stats.deaths++;C.mob=null;C.cast=null;C.loot=null;C.phase='dead';C.t=15+h.lvl;C.absorb=0;C.buffs={};

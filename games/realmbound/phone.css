@@ -14,6 +14,7 @@
  .abar>.slots{flex-wrap:wrap;justify-content:center;min-width:0;max-width:100%;gap:4px}
  .ab{width:44px;height:44px;flex:none}.abar .seg button{min-height:44px;padding:6px 12px}
  .abar .mode{flex-direction:row;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+ .abar .modehint{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(100%,22ch);min-height:1.4em;line-height:1.4}
  .statusline{bottom:calc(var(--field-controls-top) + 8px)}
  #arrivalControls{bottom:calc(var(--field-controls-top) + 8px);max-width:calc(100% - 16px);flex-wrap:wrap;justify-content:center}
  .world:not(.on-road) .scene .dlg.dlg-realmbound{bottom:calc(var(--field-controls-top) + var(--arrival-controls-height,0px) + 12px)!important;max-height:calc(100% - var(--field-controls-top) - var(--arrival-controls-height,0px) - 70px)}

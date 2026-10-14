@@ -91,12 +91,13 @@ function updateWorld(){
   // mode
   $('#mFocus').classList.toggle('on',h.mode==='focus');$('#mAuto').classList.toggle('on',h.mode==='auto');
   const eff=Math.round(aiEff()*100),wait=combatWaiting(),fb=$('#fightBtn');fb.hidden=!wait;fb.textContent=C.fightT>0?'Continue fight':'Fight';
-  const auto=$('#mAuto');auto.disabled=!autoAllowed();auto.hidden=!autoAllowed();auto.title=autoAllowed()?'Earned help on this out-levelled road.':'Earn the Rotation Macro (500 ability presses), then return above this road’s level range.';
-  $('#modeHint').textContent=RTALK?'Take your time. Continue when you are ready.':townActive()&&h.mode==='focus'?'Take your time in town. Walk to someone and press Enter to talk.':aiOn()?'Auto helps on this out-levelled road at '+eff+'%. New roads and dungeons are yours to play.':wait?'Fight waits for you. Choose Fight or an ability; ten seconds without combat input pauses it.':'Use an ability to keep fighting. Focus pauses when you stop; it never takes over.';
+  const auto=$('#mAuto');auto.hidden=false;auto.disabled=!autoAllowed();auto.title=autoAllowed()?'Earned help. Auto repeats this road.':autoReason(h);
+  const hint=RTALK?'Take your time. Continue when you are ready.':townActive()&&h.mode==='focus'?'Take your time in town. Walk to someone and press Enter to talk.':aiOn()?'Auto repeats this finished road at '+eff+'%. A new road, and every dungeon, stays yours to play.':wait?'Fight waits for you. Choose Fight or an ability; ten seconds without combat input pauses it.':'Use an ability to keep fighting. Focus pauses when you stop; it never takes over.';
+  const why=autoHint(h);$('#modeHint').textContent=why?why+' '+hint:hint;
   // xp
-  const need=xpNeed(h.lvl);$('#xpI').style.width=(h.lvl>=LEVEL_CAP?100:h.xp/need*100)+'%';
-  const xl=h.lvl>=LEVEL_CAP?100:h.xp/need*100;$('#xpR').style.left=xl+'%';$('#xpR').style.width=(h.lvl>=LEVEL_CAP?0:Math.min(100-xl,h.rested/need*100))+'%';
-  $('#xpT').textContent=h.lvl>=LEVEL_CAP?`Level ${h.lvl} · cap for this version`:`XP ${fmtI(h.xp)} / ${fmtI(need)}${h.rested>0?` · Rested ${fmtI(h.rested)}`:''}`;
+  const need=xpNeed(h.lvl),capped=h.lvl>=PLAY_CAP;$('#xpI').style.width=(capped?100:h.xp/need*100)+'%';
+  const xl=capped?100:h.xp/need*100;$('#xpR').style.left=xl+'%';$('#xpR').style.width=(capped?0:Math.min(100-xl,h.rested/need*100))+'%';
+  $('#xpT').textContent=capped?`Level ${h.lvl} · cap for this version`:`XP ${fmtI(h.xp)} / ${fmtI(need)}${h.rested>0?` · Rested ${fmtI(h.rested)}`:''}`;
   // status + err
   const am=activeMount();
   const st={seek:d?`Moving deeper into ${dungeonDef().name}…`:am?`Riding ${am.name} to find ${targetMob().name}…`:`Looking for ${targetMob().name}…`,fight:m?(combatWaiting()?`Waiting for your order · ${m.name}`:C.surge?`${m.name} is casting ${dungeonDef().surgeName}! Press D to dodge!`:`Fighting ${m.name}`):'',
@@ -136,7 +137,7 @@ function charsHTML(){const cur=H();
   return `<h2>Characters</h2><p class="sub">Each hero keeps their own gear, quests, pets and addons. Heroes you aren't playing rest at the inn and build up rested experience.</p>
   ${S.chars.map(c=>{const K=CLASSES[c.cls],need=xpNeed(c.lvl),playing=cur&&cur.id===c.id;
     return `<div class="rowl"><div class="l"><b style="color:${K.col};font-family:var(--f-head);font-size:19px;font-weight:400">${c.name}</b> <span class="crest" style="background:${FACTIONS[c.faction].col};margin-left:4px"></span>
-      <div class="meta">Level ${c.lvl} ${RACES[c.race].name} ${K.name} · ${ZONES[c.zone].name}${c.pets&&c.pets.length?` · ${c.pets.length} pet${c.pets.length>1?'s':''}`:''}${c.lvl<LEVEL_CAP&&c.rested>=need*.01?` · <span style="color:var(--rested)">${Math.round(c.rested/need*100)}% rested</span>`:''} · ${playing?'playing now':'last played '+ago(c.lastPlayed||S.last)}</div></div>
+      <div class="meta">Level ${c.lvl} ${RACES[c.race].name} ${K.name} · ${ZONES[c.zone].name}${c.pets&&c.pets.length?` · ${c.pets.length} pet${c.pets.length>1?'s':''}`:''}${c.lvl<PLAY_CAP&&c.rested>=need*.01?` · <span style="color:var(--rested)">${Math.round(c.rested/need*100)}% rested</span>`:''} · ${playing?'playing now':'last played '+ago(c.lastPlayed||S.last)}</div></div>
       <div class="r">${playing?'<span class="pill" style="color:#7cf08a">Playing</span>':`<button class="btn sm" data-act="charplay" data-arg="${c.id}">Play</button>`}<button class="btn sm alt" data-act="chardel" data-arg="${c.id}">Delete</button></div></div>`;}).join('')||'<p class="meta">No characters yet.</p>'}
   <div class="mfoot">${S.chars.length<MAX_CHARS?'<button class="btn" data-act="charnew">Create new character</button>':`<span class="meta">All ${MAX_CHARS} character slots are full.</span>`}${cur?'<button class="btn alt" data-act="close">Back to the game</button>':''}</div>`;}
 function switchTo(id){

@@ -19,7 +19,7 @@ document.addEventListener('click',e=>{
   switch(a){
     case 'press':press(Number(arg));break;
     case 'fight':beginFight();break;
-    case 'mode':if(arg==='auto'&&!autoAllowed()){err('Earn the Rotation Macro and return to an out-levelled road to use Auto.');break;}H().mode=arg==='auto'?'auto':'focus';C.lastInput=-99;break;
+    case 'mode':if(arg==='auto'&&!autoAllowed()){err(autoReason()||'Auto is not available on this road.');break;}H().mode=arg==='auto'?'auto':'focus';C.lastInput=-99;break;
     case 'tab':S.tab=arg;renderTab(true);break;
     case 'loot':lootAll();break;
     case 'accept':questOffer(arg);break; // hear the giver first (16-scenes.js)
@@ -82,7 +82,8 @@ document.addEventListener('click',e=>{
   if(H()&&C)updateWorld();
 });
 document.addEventListener('change',e=>{if(e.target.id==='grindSel'&&H()){H().grind=e.target.value||null;}});
-document.addEventListener('keydown',e=>{if(!H()||!C||arrivalPaused()||(e.target.matches&&e.target.closest('input,textarea,select,button,a,summary,[role="dialog"],.arc-set-bg')))return;
+function hotkeyBlocked(e){const t=e.target;if(!t||!t.closest)return false;if(t.closest('input,textarea,select,.arc-set-bg'))return true;const dialog=t.closest('[role="dialog"]');return !!(dialog&&dialog.getClientRects().length);}
+document.addEventListener('keydown',e=>{if(!H()||!C||arrivalPaused()||hotkeyBlocked(e))return;
   if(/^[1-9]$/.test(e.key)){press(Number(e.key)-1);updateWorld();e.preventDefault();}
   else if(e.key==='l'||e.key==='L'){lootAll();updateWorld();}
   else if(e.key==='c'||e.key==='C'){doCombo(true);updateWorld();}
