@@ -24,6 +24,8 @@ var sel := 0                                  # 0 choose, 1 not yet (or the cust
 var buttons: Array = []                       # custom choices (the ranch); empty: "Choose <name>" / "Not yet"
 var t := 0.0
 var font: Font
+var press_here := false                      # the press began while this card was already open
+var tap_landed := false                      # that press already hit a button, so the lift must not choose again
 
 func _ready() -> void:
 	Controls.fill(self)
@@ -58,6 +60,8 @@ func _close(choose: bool) -> void:
 
 func _input(e: InputEvent) -> void:
 	if not visible:
+		press_here = false
+		tap_landed = false
 		return
 	var d := Controls.dir(e)                    # named actions (controls.gd): keys, a gamepad
 	if d != Vector2i.ZERO or Controls.pressed(e, "interact") or Controls.pressed(e, "back") or (e is InputEventKey and e.pressed):
@@ -67,10 +71,25 @@ func _input(e: InputEvent) -> void:
 		elif Controls.pressed(e, "back"): _pick(_count() - 1)
 		get_viewport().set_input_as_handled()
 	elif Controls.pointing(e):
+		press_here = true
 		var p := Controls.at(self, e)
+		tap_landed = false
 		for i in _count():
 			if _btn(i).has_point(p):
+				tap_landed = true
 				_pick(i)
+				break
+		get_viewport().set_input_as_handled()
+	elif Controls.released(e):
+		# The lift that opened this card is not a choice. Only a press that began here can finish on the way up.
+		if press_here and not tap_landed:
+			var p := Controls.at(self, e)
+			for i in _count():
+				if _btn(i).has_point(p):
+					_pick(i)
+					break
+		press_here = false
+		tap_landed = false
 		get_viewport().set_input_as_handled()
 	elif Controls.swallow_pointer(e):
 		get_viewport().set_input_as_handled()

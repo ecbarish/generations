@@ -134,7 +134,10 @@ async function reviewSoundReload(browser, origin) {
         mode: LR.state.mode, acts: LR.state.acts, place: LR.state.place, tones: LR.tones, words: LR.words.length,
         oscillators: window.lrl4Audio.length, audioStates: [...new Set(window.lrl4Audio.map(a => a.state))], writes: window.lrl4Writes
       }));
-      const shot = async name => { await page.screenshot({ path: path.join(out, name + '.png') }); report.screenshots.push(name + '.png'); };
+      const shot = async name => {
+        await page.locator('#grown').evaluate(panel => Promise.all(panel.getAnimations({ subtree: true }).map(animation => animation.finished)));
+        await page.screenshot({ path: path.join(out, name + '.png') }); report.screenshots.push(name + '.png');
+      };
       check(`LRL-4 ${width}x${height}: a fresh profile defaults to sound on without storing a visit`, (await snapshot()).sound === true && (await snapshot()).stored === null);
       for (const sound of [false, true]) {
         const label = `LRL-4 ${width}x${height} sound ${sound ? 'on' : 'off'}`;
