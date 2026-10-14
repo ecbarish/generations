@@ -1651,6 +1651,7 @@ func _run() -> void:
 	for problem in blocked:
 		print("  door check: " + problem)
 	check(blocked.is_empty(), "every door, doorway and road out has an open, reachable tile in front of it (%d problems)" % blocked.size())
+	_dressing_checks()
 	preload("res://tests/roof_routes.gd").run(main, check)
 	preload("res://tests/door_taps.gd").run(main, check)
 	# ---- the done line
@@ -1725,3 +1726,27 @@ func door_problems() -> Array:
 
 func indoorsish(n: String) -> bool:
 	return n == "barn" or main.INTERIORS.has(n)
+
+## WB-C4: Larkhaven and the Thornwood Trail dressed. Everything lies flat on open ground, so these check that it still
+## sits where it was drawn for: the vegetable patch on open grass, a stone at each cottage door, straw in the pen.
+func _dressing_checks() -> void:
+	var keep: String = main.map_name
+	main._set_map("larkhaven")
+	var rows: Array = main.cur_map()
+	var patch_ok := true
+	for y in range(main.VEG_PATCH.position.y, main.VEG_PATCH.end.y):
+		for x in range(main.VEG_PATCH.position.x, main.VEG_PATCH.end.x):
+			patch_ok = patch_ok and rows[y][x] == "," and not main.buildings().any(func(b): return b.has_point(Vector2i(x, y)))
+	check(patch_ok, "Larkhaven's vegetable patch lies on open grass, clear of every building")
+	var doors := 0
+	for d in [Vector2i(4, 4), Vector2i(13, 4), Vector2i(2, 10), Vector2i(7, 10)]:
+		if rows[d.y][d.x] == "D" and rows[d.y + 1][d.x] in ",.f":
+			doors += 1
+	check(doors == 4, "a doorstep stone in front of each of Larkhaven's four cottage doors (%d of 4)" % doors)
+	var pen: Array = main.DATA.MAPS.larkhaven.pen
+	check(pen.size() == 4 and rows[int(pen[1])][int(pen[0])] == ",", "the straw is inside the pen")
+	main._set_map("thornwood_route")
+	rows = main.cur_map()
+	check(rows[12][5] == "," and rows[12][4] == "~", "the trail's pond stone is on dry land where the clearing meets the water")
+	check("thornwood_route" in main.WOODLAND_PONDS and not "saltmarsh" in main.WOODLAND_PONDS, "woodland ponds get a muddy bank; the sea keeps its beach")
+	main._set_map(keep)
