@@ -99,6 +99,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, Side Games Dev Lead, ENGINE-SAVEVER:** versioned saves in the shared engine, in [#392](https://github.com/ecbarish/generations/pull/392). Existing saves are unaffected, since no game registers a version yet. Shared Systems Architect co-reviewed it.
+- **2026-10-14, docs, #388:** office idle progression spec, docs/research/office-idle-progression.md (Game Researcher), research plus the §8 build spec for IDLE-CORE, NM1, SS1, CS1 and DP1 (curves, prestige, offline caps, where offline means the page was closed, milestones and done-when criteria). No version, changelog or DEVELOPMENT-PATH tick.
 - **2026-10-14, docs, #389:** office idle ruling (Evan, via Director, 2026-10-14). PRIORITIES gets an Office idle slot, and QUEUE gets IDLE-CORE then NM1, SS1, CS1 and DP1. Card Shop lite is approved, and the full Wildbond tie-in stays gated. Docs only.
 - **2026-10-14, Claude, WB-C4:** Larkhaven gets a barn garden, door stones, straw in the pen and grass variety, and the Thornwood ponds get a muddy, reedy bank, in [#372](https://github.com/ecbarish/generations/pull/372). Source only; not a preview release.
 - **2026-10-14, Claude, WB-C3b:** the register shows only the tap hint on phones, and the partner-card note no longer touches the stat bars, in [#382](https://github.com/ecbarish/generations/pull/382). Source only; not a preview release.
