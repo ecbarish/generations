@@ -1,3 +1,6 @@
+### 2026-10-14 21:35 UTC, Grok (Adam): claiming NM playtest fixes (Night Market, #373)
+Night Market playtest fixes, one PR (Generations PM's assignment on #373): the Pour flow (hold to pour, a cups counter, the pour button stays after Mei takes the stall), working "Your save" controls, and "22.0s" reads "22s". The 50% offline label is skipped: NM-FIX-1 (#421) already shipped it. Files: games/night-market/ (game.js, model.js, style.css, index.html), tests/night-market.html, docs/playtests/nm-playtest-fixes/ (screenshots). No shared/ or launcher files, no save-format change, no version bump. Draft PR to follow. — Grok for Adam
+
 ### 2026-10-14 20:49 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LB-PLAYSCREEN (Lantern Bowl Retro Bowl-style play-screen redesign, one PR)
 This replaces the small 5b fixes and folds in 5b-2 and the Lantern Bowl phone and ratings rows. Scope: a full-screen field, a thin HUD, drag-to-throw passing with visible routes, steering and juking on runs, a small play-call overlay, and no rating narration. It builds on #422. Evan made the call after playing on his phone, relayed by the Director. Any sw.js or shared/ change gets flagged to SSA first.
 
