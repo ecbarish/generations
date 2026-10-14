@@ -1,0 +1,118 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Lantern Bowl checks</title>
+<style>body{font:16px system-ui;background:#141820;color:#f6edd4;padding:20px}.pass{color:#9ee7ba}.fail{color:#ffaaa6}button{min-height:44px}iframe{width:375px;height:812px;border:0}</style>
+<h1>Lantern Bowl checks</h1><button id="run">Run checks</button><p id="summary">Ready.</p><ol id="results"></ol><div id="game"></div>
+<script src="../games/lantern-bowl/model.js"></script>
+<script src="../games/lantern-bowl/view.js"></script>
+<script>
+'use strict';
+document.querySelector('#run').onclick = async () => {
+  const sum = document.querySelector('#summary'), list = document.querySelector('#results'), button = document.querySelector('#run');
+  button.disabled = true; list.replaceChildren(); sum.textContent = 'Running…';
+  const M = window.LanternModel, V = window.LanternView;
+  const managed = k => k === 'lantern-bowl-save-v1' || k === 'arcade-index-v1' || k === 'arcade-settings-v1' || k.startsWith('arcade-backup:lantern-bowl-save-v1:') || k.startsWith('arcade-backup:arcade-index-v1:');
+  const backup = new Map(Object.keys(localStorage).filter(managed).map(k => [k, localStorage.getItem(k)]));
+  let frame, n = 0;
+  const check = (name, ok) => { n++; const li = document.createElement('li'); li.className = ok ? 'pass' : 'fail'; li.textContent = (ok ? 'PASS — ' : 'FAIL — ') + name; list.appendChild(li); if (!ok) throw Error(name); };
+  const wait = () => new Promise(r => setTimeout(r, 240));
+  try {
+    Object.keys(localStorage).filter(managed).forEach(k => localStorage.removeItem(k));
+    check('same seed, same game', M.digestScript(99) === M.digestScript(99));
+    check('another seed is another game', M.digestScript(99) !== M.digestScript(3));
+    const open = M.laneOpenRate(85, 30, 240, 1), shut = M.laneOpenRate(30, 85, 240, 1);
+    check('a better line opens the middle more often (' + open.toFixed(2) + ' vs ' + shut.toFixed(2) + ')', open > shut + 0.45);
+    const hands = M.catchRate(82, 78, 28, 240, 2), stone = M.catchRate(28, 30, 82, 240, 2);
+    check('throwing and catching ratings beat coverage (' + hands.toFixed(2) + ' vs ' + stone.toFixed(2) + ')', hands > stone + 0.35);
+    const strong = M.sampleRunYards({ block: 85, carry: 80, rush: 30, tackle: 30, speed: 55 }, 36, 100);
+    const weak = M.sampleRunYards({ block: 30, carry: 30, rush: 85, tackle: 85, speed: 55 }, 36, 100);
+    check('better blockers and a better back gain more yards (' + strong.toFixed(1) + ' vs ' + weak.toFixed(1) + ')', strong > weak + 3);
+    const aimed = M.passCatchShare({ throw: 85, catch: 82, cover: 28, rush: 40 }, 24, 7);
+    const covered = M.passCatchShare({ throw: 28, catch: 30, cover: 84, rush: 40 }, 24, 7);
+    check('a full throw to a receiver still depends on ratings (' + aimed.toFixed(2) + ' vs ' + covered.toFixed(2) + ')', aimed > covered + 0.25);
+    const chains = M.create({ seed: 1 }); chains.spot = 40; chains.down = 1; chains.toGo = 10;
+    check('four yards makes 2nd and 6', M.moveChains(chains, 4) === 'down' && chains.down === 2 && Math.round(chains.toGo) === 6 && Math.round(chains.spot) === 44);
+    const first = M.create({ seed: 1 }); first.spot = 40; first.down = 2; first.toGo = 6;
+    check('a gain past the sticks is a first down', M.moveChains(first, 6) === 'first' && first.down === 1);
+    const goal = M.create({ seed: 1 }); goal.spot = 96; goal.down = 1; goal.toGo = 4;
+    check('the goal line is a touchdown in the chains', M.moveChains(goal, 5) === 'td');
+    const stuck = M.create({ seed: 1 }); stuck.spot = 40; stuck.down = 4; stuck.toGo = 2;
+    check('fourth down short of the sticks turns it over in the chains', M.moveChains(stuck, 1) === 'downs' && stuck.down === 5);
+    const clock = M.create({ seed: 1 }); M.burn(clock, 30);
+    check('thirty seconds leaves a minute and a half', Math.round(clock.clock) === 90 && clock.quarter === 1);
+    M.burn(clock, 100);
+    check('the clock carries into the next quarter', clock.quarter === 2 && Math.round(clock.clock) === 110);
+    const lastQ = M.create({ seed: 1 }); lastQ.quarter = 4; lastQ.clock = 10; M.burn(lastQ, 20);
+    check('time expiring in the fourth quarter ends the game', lastQ.phase === 'final' && lastQ.clock === 0);
+    const played = M.create({ seed: 11 }); M.callPlay(played, 'inside'); M.finish(played, M.policies.neutral);
+    const back = M.restore(M.serialise(played));
+    check('a saved match restores the same spot and dice', M.snapshot(back) === M.snapshot(played));
+    const aged = M.restore({ phase: 'call', spot: 40, down: 2, toGo: 6, quarter: 3, clock: 40, score: { home: 7, away: 3 }, possession: 'home', rng: 99, seed: 9, fatigue: { 'Mara Holt': 0.4 }, log: ['old play'] });
+    check('an older match still loads', aged.spot === 40 && aged.down === 2 && aged.quarter === 3 && aged.score.home === 7 && aged.fatigue['Mara Holt'] === 0.4 && aged.log[0] === 'old play');
+    const outline = M.teamOutline('#c45a32');
+    check('team outlines are generated and stable', outline !== '#c45a32' && outline === M.teamOutline('#c45a32') && /^#[0-9a-f]{6}$/.test(outline));
+    check('a short pull is a bullet and a long pull is a lob', V.classifyPull(36).kind === 'bullet' && V.classifyPull(120).kind === 'lob');
+    const shot = V.project('behind', { x: 4, y: 0 }, { x: 0, y: 0 }, { w: 400, h: 600 });
+    check('the behind-the-play camera returns a point', !!shot && isFinite(shot.x) && isFinite(shot.y) && shot.scale > 0);
+    check('the side-on view is reserved and not built', V.RESERVED.indexOf('side') >= 0 && V.project('side', { x: 0, y: 0 }, { x: 0, y: 0 }, { w: 100, h: 100 }) === null);
+
+    frame = document.createElement('iframe');
+    frame.title = 'Lantern Bowl test instance';
+    frame.src = '../games/lantern-bowl/index.html';
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(Error('load timed out')), 20000);
+      frame.onload = () => { clearTimeout(timer); resolve(); };
+      document.querySelector('#game').appendChild(frame);
+    });
+    const w = frame.contentWindow, d = w.document;
+    await wait();
+    const H = w.__lantern;
+    check('local test hook', !!H && H.M === w.LanternModel);
+    check('shared settings row is on the page', !!d.querySelector('.arc-set-btn'));
+    check('shared sound control is on the page', !!d.querySelector('#sound'));
+    H.kickoff(5);
+    await wait();
+    check('kickoff starts a drive you can call', H.state && H.state.phase === 'call' && H.state.possession === 'home' && d.querySelectorAll('[data-play]').length >= 4);
+    H.begin('inside');
+    check('the snap is live before the picture is asked to move it', H.state.phase === 'live' && H.state.play.lanes.length === 3);
+    H.finishLive();
+    await wait();
+    const saved = JSON.parse(localStorage.getItem('lantern-bowl-save-v1'));
+    check('the play is saved through the shared engine', !!saved && saved.game === 'lantern-bowl' && saved.v === 1 && !!saved.match && saved.match.seed === 5);
+    check('the save remembers the score', saved.match.score.home === H.state.score.home && saved.match.score.away === H.state.score.away);
+    const spot = saved.match.spot, rng = saved.match.rng;
+    frame.remove();
+    frame = document.createElement('iframe');
+    frame.title = 'Lantern Bowl resume';
+    frame.src = '../games/lantern-bowl/index.html';
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(Error('reload timed out')), 20000);
+      frame.onload = () => { clearTimeout(timer); resolve(); };
+      document.querySelector('#game').appendChild(frame);
+    });
+    const w2 = frame.contentWindow, d2 = w2.document;
+    await wait();
+    d2.querySelector('[data-continue]').click();
+    await wait();
+    check('continue loads the saved drive', w2.__lantern.state.spot === spot && w2.__lantern.state.rng === rng && w2.__lantern.state.seed === 5);
+
+    for (const [width, height] of [[375, 812], [667, 375], [1366, 768]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px';
+      await wait();
+      check(width + '×' + height + ' stays on the screen', d2.documentElement.scrollWidth <= width + 1 && d2.documentElement.scrollHeight <= height + 1);
+      check(width + '×' + height + ' play buttons are thumb sized', Array.from(d2.querySelectorAll('#dock button, #settingsMount button, .home')).every(b => b.getBoundingClientRect().height >= 40));
+    }
+    d2.documentElement.style.setProperty('--arc-text', '1.3');
+    frame.style.width = '375px'; frame.style.height = '812px';
+    await wait();
+    check('larger text stays on a phone', d2.documentElement.scrollWidth <= 376 && d2.documentElement.scrollHeight <= 813);
+    sum.textContent = 'PASS — ' + n + ' checks.';
+  } catch (e) {
+    sum.textContent = 'FAIL — ' + e.message;
+  } finally {
+    if (frame) frame.remove();
+    Object.keys(localStorage).filter(managed).forEach(k => localStorage.removeItem(k));
+    for (const [k, v] of backup) localStorage.setItem(k, v);
+    button.disabled = false;
+  }
+};
+</script>
+</html>

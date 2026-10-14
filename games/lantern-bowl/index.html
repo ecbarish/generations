@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lantern Bowl · Generations</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="cabinet">
+<header>
+  <a class="home" href="../../index.html">← Arcade</a>
+  <h1>Lantern Bowl</h1>
+  <div id="settingsMount"><button id="sound" type="button" aria-label="Change sound setting">Sound off</button></div>
+</header>
+<section class="screen" aria-label="Lamplight Field">
+  <canvas id="field" tabindex="0" aria-label="The field, seen from behind the offence."></canvas>
+  <div class="hud">
+    <span><small>LANTERNS</small><b id="homeScore">0</b></span>
+    <span class="mid"><small id="clock">Q1 2m 0s</small><b id="down">1st and 10</b><small id="windLabel"></small></span>
+    <span class="right"><small>MILLRACE</small><b id="awayScore">0</b></span>
+  </div>
+  <div id="gas" hidden><i></i></div>
+  <p class="banner" id="banner" hidden></p>
+  <div class="curtain" id="curtain"><section class="panel" id="panel" role="dialog" aria-labelledby="panelTitle"></section></div>
+</section>
+<footer>
+  <div class="dock" id="dock" role="group" aria-label="Play call"></div>
+  <p class="hint" id="hint">Drag up to throw. A short pull is a bullet, a long pull is a lob. Swipe to juke. Tap to dive.</p>
+</footer>
+</main>
+<script src="../../shared/engine.js"></script>
+<script src="../../shared/settings.js"></script>
+<script src="../../shared/sound.js"></script>
+<script src="../../shared/feedback.js"></script>
+<script src="model.js"></script>
+<script src="view.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

@@ -54,3 +54,24 @@ Design decisions thread: please confirm nothing here sits too close to Retro Bow
 - Defence: simulated by default. Default: an optional "call the defence" (three choices) on third down, later.
 - Two-point tries and onside kicks: in LB3 as one-tap choices.
 - Season length: twelve games plus a two-round final, as in the plan.
+
+## First playable slice (2026-10-14)
+
+One game at Lamplight Field, in `games/lantern-bowl/`. The Brackenport Lanterns against Millrace. Four two-minute quarters. You call a play, then play the snap: drag to throw (a short pull is a bullet, a long pull is a lob), swipe to juke, tap to dive, and a Turbo button that spends a visible wind bar. Run lanes glow green or red from the blocker-versus-rusher check. The pocket ring shrinks. Ratings are 0–100, with the league around 50, and they change who wins blocks, tackles and catches. Their drives are a short telling, not a second stick you hold. The game saves after every play through `shared/engine.js`, and it uses `shared/sound.js` and the shared settings row.
+
+The picture is from behind the offence. That camera is only a view. `view.js` leaves a named place for a side-on look later; it is not built. Team-colour outlines are drawn in code from each club's colour.
+
+Idle progress while the tab is closed does not fit this game: the match is the snaps you play. The shared save resumes the same game, and the arcade's installable shell can keep the page for offline play.
+
+The LB0 mock still shows the press-box picture and a tap-the-receiver throw. This slice follows the later request for a behind-the-play camera and a drag throw. The mock is the pitch, not the control scheme of the slice.
+
+## Follow-ups (not in this slice)
+
+- The defence learns your three most-used plays.
+- A league of 8 to 12 teams.
+- Currency, and one dilemma a week.
+- Scouting ranges, age curves, and a three-round draft.
+- Box scores, career stats, and league leaders.
+- IndexedDB for the save, plus export and import beyond the shared save string.
+- The coach's room, salary cap and facilities (`shared/sports-office.js`, LB4).
+- An optional side-on view, using the seam already in `view.js`.

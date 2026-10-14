@@ -22,6 +22,7 @@ const NAMES={
   'games/lighthouse-watch/game.js':['lighthouse-watch-save-v1'],
   'games/briskets-crossing/game.js':['briskets-crossing-save-v1'],
   'games/ember-bricks/game.js':['ember-bricks-save-v1'],
+  'games/lantern-bowl/game.js':['lantern-bowl-save-v1'],
   'games/little-ranch/game.js':['little-ranch-settings-v1'],
   'wildbond-godot/project.godot':['config/name="Wildbond (Godot trial)"'],
   'starfall-godot/project.godot':['config/name="Starfall (Godot)"'],

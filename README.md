@@ -16,6 +16,7 @@ and the hub page shows where you left off in every one.
 | [Primordial](games/primordial/) | Playable (hidden from the hall) | Evolution idle game: cell to Leviathan, mutation drafts, niche fights, extinction resets |
 | [Realmbound](games/realmbound/) | Prototype | Classic-MMO-inspired adventure: two factions, 5 classes including a pet-taming Hunter, levels 1–40, quests, loot, Focus/Auto play, addons as automation ([design](docs/realmbound-design.md)) |
 | [Otherworld](games/otherworld/) | Prototype | Three authored lives: Asterhold, Hearthmere and the Ashen Throne; costly gifts, choices, endings and knowledge carried between lives |
+| [Lantern Bowl](games/lantern-bowl/) | Test version | One football game at Lamplight Field: you play the Lanterns' snaps against Millrace |
 
 Design plans live in [docs/](docs/): [Realmbound](docs/realmbound-design.md), [idea backlog](docs/ideas.md).
 
@@ -40,6 +41,8 @@ then open http://localhost:8765/
 Anyone continuing this project (any AI assistant or person): open [START-HERE.md](START-HERE.md).
 
 ## Changelog
+
+- **Lantern Bowl v0.1.0:** the first playable game at Lamplight Field. Two-minute quarters against Millrace. Drag to throw, swipe to juke, tap to dive, Turbo spends your wind. Saves after every play through the shared engine. [Play](games/lantern-bowl/)
 
 - **Realmbound v1.9.2 — ONBOARD-KIT1 (#294):** shared newcomer guidance in the existing Road note, with current-goal, keyboard/touch and optional orientation advice. Existing hints, story, saves and returning-player behavior retained; short-landscape dialogue clearance fixed. Version bookkeeping and exact public verification are tracked in #301.
 
