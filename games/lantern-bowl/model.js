@@ -27,13 +27,9 @@
     var p = 1 / (1 + Math.exp(-z));
     return p < 0.08 ? 0.08 : p > 0.92 ? 0.92 : p;
   }
-  function teamOutline(hex) {
-    var n = parseInt(String(hex).replace('#', ''), 16);
-    if (!isFinite(n)) n = 0xc45a32;
-    var r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
-    function mix(c, lamp) { return clamp(Math.round(c * 0.28 + lamp * 0.5 + 255 * 0.22), 0, 255); }
-    function hex2(v) { return v.toString(16).padStart(2, '0'); }
-    return '#' + hex2(mix(r, 242)) + hex2(mix(g, 208)) + hex2(mix(b, 128));
+  /* Ink around every person. Lamplight is the aimed player only, never the team outline. */
+  function teamOutline() {
+    return '#1e1a22';
   }
   function other(side) { return side === 'home' ? 'away' : 'home'; }
 

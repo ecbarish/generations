@@ -581,6 +581,7 @@
   function draw() {
     var box = resize();
     ctx.setTransform(box.dpr, 0, 0, box.dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = '#1b2438'; ctx.fillRect(0, 0, box.w, box.h);
     var view = { w: box.w, h: box.h };
     var play = state && state.play;
@@ -621,17 +622,28 @@
         play.lanes.forEach(function (lane) {
           var stateName = play.laneStates && play.laneStates[lane.id] ? play.laneStates[lane.id].state : 'open';
           var near = at(0.3, lane.y), far = at(6.3, lane.y);
-          if (near && far) V.drawRunLane(ctx, { x0: near.x, y0: near.y, x1: far.x, y1: far.y, state: stateName });
+          if (near && far) {
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.imageSmoothingEnabled = false;
+            V.drawRunLane(ctx, { x0: near.x, y0: near.y, x1: far.x, y1: far.y, state: stateName, px: box.dpr });
+            ctx.restore();
+          }
         });
       }
       if (play.family === 'pass' && !play.thrown && !play.flight) {
         var qb = play.actors[play.carrier];
         var pocketAt = qb && at(qb.x, qb.y);
         if (pocketAt) {
+          ctx.save();
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.imageSmoothingEnabled = false;
           V.drawPocketRing(ctx, {
             x: pocketAt.x, y: pocketAt.y, step: play.ringStep || 0, from: play.ringFrom || 0,
-            tween: play.ringTween == null ? 0.12 : play.ringTween, time: play.elapsed || 0, reduced: reduce
+            tween: play.ringTween == null ? 0.12 : play.ringTween, time: play.elapsed || 0, reduced: reduce,
+            px: box.dpr
           });
+          ctx.restore();
         }
       }
       var sprites = play.actors.map(function (a) {
