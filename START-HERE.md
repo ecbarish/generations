@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, Claude, WB-C4b:** the Thornwood pond outline breaks the box, and the reeds sway by whole pixels, in [#399](https://github.com/ecbarish/generations/pull/399) (59f78cb). Source only; not a preview release.
 - **2026-10-14, Side Games Dev Lead, IDLE-NM1:** Night Market Stalls v0.1.0, six stalls you work yourself before a vendor runs them, then buy in bulk, with a capped welcome back, in [#403](https://github.com/ecbarish/generations/pull/403) (d9cde61).
 - **2026-10-14, dot (Adam), WB-FUNNEL1:** a tap advances opening dialogue, and the opening records time to the first partner, first battle and first catch, in [#380](https://github.com/ecbarish/generations/pull/380) (18c4169). Source only; not a preview release.
 - **2026-10-14, Side Games Dev Lead, 371-5a:** Lantern Bowl v0.1.5, a side-on field with eleven a side and carries with a real spread, in [#383](https://github.com/ecbarish/generations/pull/383) (253c545).
