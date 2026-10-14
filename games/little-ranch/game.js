@@ -18,7 +18,7 @@
    toothbrush, a cup of water and goodnight to each friend come before the lullaby. The device's own voice says the
    creatures' names, the colours and "night night" (LR8). No microphone, and nothing is saved. A big soft ball sits in the grass (LR16): tap it and it rolls, and the baby runs over and kicks it. Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.18.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
+  const VERSION = '0.18.1', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, BEDTIME_GRACE = 6, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
   // LR-C1: things on the ranch, in the order an idle hint offers them (the first one not yet played with)
   const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'ball', 'sign', 'wsign', 'ksign', 'dsign', 'tsign'];
   // LR11: the Snack Kitchen. Four foods (berries, carrot, lemon, broccoli), one bowl, one baby who loves berries and pulls a
@@ -130,7 +130,7 @@
   /* ---------------- the visit ---------------- */
   let st;
   function newVisit() {
-    st = { t: 0, mode: 'play', dusk: 0, acts: 0, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0 },
+    st = { t: 0, mode: 'play', dusk: 0, acts: 0, bedtimeAt: null, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0 },
       bowl: { food: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null },
       place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, tsign: { shake: 0 }, dough: null, dsign: { shake: 0 }, door: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 }, ball: { from: -1, to: -1, at: -9, kicks: 0 }, routine: null, shut: 0 };
     if (forceFriend !== null ? forceFriend : Math.random() < FRIEND_ODDS) st.friend = { x: 1.1, tx: null, then: null, act: null, at: 0, soap: 0, dir: -1 };
@@ -150,7 +150,18 @@
       L.wagon = { z, gy, cars: [0, 1].map(i => ({ x: W * .12 + i * z * 2.35, y: gy - z * .5 })), puller: { x: W * .12 + z * 4.9, y: gy - z * .8 },
         wait: [0, 1].map(i => ({ x: W * (.22 + i * .28), y: H * .9 })), barn: null }; }
     { // LR3: on wide screens between the bowl and the sponge, in front; on tall ones a row across the bottom of the meadow
-      const lo = W / 2 - sp + U * .14, hi = W / 2 + sp - U * .14 * .8, wstep = (hi - lo) / FLOWERS.length, x0 = wide ? lo + wstep / 2 : W * .1, step = wide ? wstep : W * .8 / (FLOWERS.length - 1), r = Math.min(step * (wide ? .56 : .5), U * (wide ? .12 : .1)), y = wide ? H * .9 : H * .935;
+      // LR-LAYOUT-1: size the blossoms first. On a wide screen the row then stays clear of the bowl and the sponge.
+      const sw = L.R * .8;
+      let x0, step, r, y;
+      if (wide) {
+        const lo0 = L.bowl.x + L.R, hi0 = L.sponge.x - sw, step0 = (hi0 - lo0) / FLOWERS.length;
+        r = Math.min(step0 * .56, U * .12);
+        const lo = L.bowl.x + L.R + r + 3, hi = L.sponge.x - sw - r - 3;
+        x0 = lo; step = (hi - lo) / (FLOWERS.length - 1); y = H * .9;
+      } else {
+        x0 = W * .1; step = W * .8 / (FLOWERS.length - 1); r = Math.min(step * .5, U * .1); y = H * .935;
+        L.sponge.y = R(y - r * 1.1 - sw * .55 - 4); // tall phones: the sponge sits above the flower row
+      }
       L.flowers = FLOWERS.map((c, i) => ({ x: x0 + i * step, y, r, stem: H * .985 })); }
     { // the Paint Shed (LR9): the outline in the middle, four pots along the bottom, the barn picture top left
       const potR = Math.min(W * .108, H * .1), z = Math.min(W * .82 / 2.4, H * .5 / 2.1);
@@ -345,8 +356,11 @@
     if (m && Math.floor(k / 1.4) !== Math.floor((k - 1 / 30) / 1.4)) fx('spark', h.x + (Math.random() - .5) * h.r, h.y - h.r * .6); }
   const hintBob = name => { const h = hint(); if (!h || h.name !== name || reduce()) return 0; return Math.abs(Math.sin((st.t - st.idleAt) * 3.2)) * L.U * .025; };
   const BALL_ROLL = .7, BALL_KICKS = 3;
-  function ballSpot(side) { const y = L.ground + L.R * 1.35, span = Math.min(L.size * 1.15, W * .18);
-    return { x: clamp(L.home.x + side * span, W * .24, W * .76), y, r: L.R * .88 }; }
+  function ballSpot(side) { const ballR = L.R * .88, wide = W > H * 1.3, span = Math.min(L.size * 1.15, W * .18);
+    let y = L.ground + L.R * 1.35, x = clamp(L.home.x + side * span, W * .24, W * .76);
+    if (wide && L.flowers && L.flowers.length) { const f = L.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); } // wide: rest above the petals
+    if (!wide && L.basket) x = Math.max(x, L.basket.x + L.basket.r + ballR + 3); // tall: keep the ball off the hat basket
+    return { x: R(x), y: R(y), r: ballR }; }
   function ballNow() { const b = st.ball, A = ballSpot(b.from), B = ballSpot(b.to), k = b.at < 0 ? 1 : clamp((st.t - b.at) / BALL_ROLL, 0, 1), e = k * k * (3 - 2 * k);
     return { x: lerp(A.x, B.x, e), y: A.y, r: A.r, rolling: b.at >= 0 && k < 1 }; }
   function kickBall() { const b = st.ball; if (b.at >= 0 && st.t - b.at < BALL_ROLL) { sfx('boing'); return; }
@@ -459,8 +473,10 @@
   function doughUpdate(dt) { const D = st.dough, V = L.dough; D.flat += clamp(D.goal - D.flat, -dt * 5, dt * 5);
     if (D.stamp) { const e = st.t - D.stamp.at;
       if (!D.stamp.hit && e >= STAMP_SECS * .45) { D.stamp.hit = true; D.goal = 1; D.flat = Math.max(D.flat, .8); D.stamps++; sfx('splat', 2); sfx('giggle');
-        D.hops.push({ at: st.t, dir: D.stamps % 2 ? 1 : -1 }); for (let j = 0; j < 3; j++) fx('heart', V.lump.x + (j - 1) * V.lr * .4, V.lump.y - V.lr * .6); }
-      if (e >= STAMP_SECS) { D.stamp = null; if (D.stamps >= DOUGH_BABIES && D.phase === 'play') { D.phase = 'done'; D.at = st.t; sfx('rainbow'); } } }
+        for (let j = 0; j < 3; j++) fx('heart', V.lump.x + (j - 1) * V.lr * .4, V.lump.y - V.lr * .6); }
+      // Added once the cutter is home. The clock starts late in the press, so the baby is already
+      // a few pixels left of the lump and the next stamp does not land on it.
+      if (e >= STAMP_SECS) { D.hops.push({ at: D.stamp.at + STAMP_SECS * .8, dir: -1, front: D.stamps % 2 === 0 }); D.stamp = null; if (D.stamps >= DOUGH_BABIES && D.phase === 'play') { D.phase = 'done'; D.at = st.t; sfx('rainbow'); } } }
     D.hops = D.hops.filter(h => st.t - h.at < 3);
     if (D.phase === 'done' && st.t - D.at >= DOUGH_END_SECS) leaveDough(true); }
   function hatTap() { const h = st.hat; h.shake = 1; if (h.fly) { sfx('note'); return; } // LR6
@@ -538,10 +554,38 @@
       if (r.doing.what === 'teeth') drawItem('teeth', hx + b.dir * z * .5 + Math.sin(k * 20) * z * .12, my + z * .1, I.r * .7, b.dir > 0 ? .4 : -.4);
       else drawItem('water', hx + b.dir * z * .55, my + z * .15, I.r * .6, b.dir * -.6 * clamp(k / .4, 0, 1)); return; }
     ell(I.x, I.y + I.r * .55, I.r * .9, I.r * .22, 'rgba(255,240,200,.35)'); drawItem(ROUTINE[r.step], I.x, I.y - bob, I.r); }
-  function bedtime() { if (st.mode !== 'play') return; st.routine = useRoutine ? { step: 0, at: st.t, doing: null, said: {}, doneAt: null } : null; st.shut = 0; if (st.friend) { st.friend.act = null; fgo(L.fhome.x, null); } st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn'); st.sponge.drag = null; st.sponge.auto = null; }
+  // LRL-1: a place shares the ranch's day. Let a short motion finish, but never wait for
+  // another correct tap or let repeated play hold bedtime off forever. No visible timer.
+  function bedtimeWaiting() {
+    if (st.down || st.sponge.drag || st.sponge.auto) return true;
+    if (st.place === 'shed') return st.shed.doneAt !== null;
+    if (st.place === 'wagon') return ['ride', 'end'].includes(st.wagon.phase) || (st.wagon.phase === 'gate' && st.wagon.gate.at !== null);
+    if (st.place === 'kitchen') return st.kitchen.phase !== 'idle';
+    if (st.place === 'door') return st.door.phase === 'open';
+    if (st.place === 'dough') return !!st.dough.stamp || st.dough.phase !== 'play';
+    return busy();
+  }
+  function bedtime() {
+    if (st.mode !== 'play') return;
+    // Unfinished toys do not earn completion. Their normal finish still counts once.
+    const leave = { shed: leaveShed, wagon: leaveWagon, kitchen: leaveKitchen, door: leaveDoor, dough: leaveDough }[st.place];
+    if (leave) leave(false);
+    // A ranch walk may have been frozen while visiting a place. It must not replace
+    // the yawn with an old meal/peek callback; a lifted finger must not act on that place.
+    st.baby.tx = null; st.baby.then = null; st.down = null;
+    st.sponge.drag = null; st.sponge.auto = null; st.sponge.scrubbed = false;
+    st.routine = useRoutine ? { step: 0, at: st.t, doing: null, said: {}, doneAt: null } : null; st.shut = 0;
+    if (st.friend) { st.friend.act = null; fgo(L.fhome.x, null); }
+    st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn');
+  }
 
   function update(dt) {
     st.t += dt; const b = st.baby, sp = L.U * .9;
+    // Before the place-specific returns: the first visit ends wherever she is playing.
+    if (st.mode === 'play' && (st.acts >= BEDTIME_ACTS || st.t > BEDTIME_SECS)) {
+      if (st.bedtimeAt === null) st.bedtimeAt = st.t;
+      if (!bedtimeWaiting() || st.t - st.bedtimeAt >= BEDTIME_GRACE) bedtime();
+    }
     if (st.place === 'wagon') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); wagonUpdate(dt); return; }
     if (st.place === 'kitchen') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); kitchenUpdate(dt); return; }
     if (st.place === 'dough') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); doughUpdate(dt); return; }
@@ -576,8 +620,7 @@
     b.soap = Math.max(0, b.soap - dt * .08); b.happy = Math.max(0, b.happy - dt * .7); st.bush.shake = Math.max(0, st.bush.shake - dt * 1.5);
     for (const u of st.bubbles) u.y -= L.U * .08 * dt; st.bubbles = st.bubbles.filter(u => st.t - u.at < 7 && u.y > -u.r);
     st.fx = st.fx.filter(f => st.t - f.at < (f.kind === 'zzz' ? 3 : 1.4));
-    // bedtime: after enough play, the sky turns orange, then night; a lullaby; the baby curls up
-    if (st.mode === 'play' && !busy() && !s.drag && !s.auto && (st.acts >= BEDTIME_ACTS || st.t > BEDTIME_SECS)) bedtime();
+    // bedtime: the sky turns orange, then night; a lullaby; the baby curls up
     if (st.mode === 'dusk') { routineUpdate(dt); st.dusk = Math.min(st.routine && st.routine.step < 3 ? .22 : 1, st.dusk + dt / 10); // LR7: the sky waits at sunset for the routine
       if (st.dusk > .25 && st.lullabyAt === null) { st.lullabyAt = st.t; sfx('lullaby'); }
       if (st.dusk > .55 && !busy()) { if (b.act !== 'sleep') speakNight(); b.act = 'sleep'; b.at = st.t; }
@@ -836,16 +879,27 @@
     const rx = V.lr * (1 + f * .5 + pk * .1 + Math.sin(D.spin * 3) * .04 * m + wob * .06), ry = V.lr * (.82 - f * .55 - pk * .08), cy = q.y - ry - b0 + V.lr * .2;
     ell(q.x, q.y + V.lr * .22, rx * 1.05, V.lr * .16, 'rgba(90,50,20,.25)'); ell(q.x, cy, rx, ry, col); ell(q.x - rx * .35, cy - ry * .45, rx * .22, Math.max(1, ry * .22), mixHex(col, '#ffffff', .5));
     for (let i = 0; i < 3; i++) { const a = D.spin + i * 2.1; ell(q.x + Math.cos(a) * rx * .55, cy + Math.sin(a) * ry * .4, rx * .06, Math.max(1, ry * .06), mixHex(col, '#000000', .12)); }
-    if (D.stamp && D.stamp.hit && st.t - D.stamp.at < STAMP_SECS) drawDoughBaby(q.x, cy + ry * .2, V.lr * .7, mixHex(col, '#ffffff', .15), 0);
-    // the little dough babies hopping away
-    for (const h of D.hops) { const e = st.t - h.at, k = e / 3, x = q.x + h.dir * k * W * .7, y = cy + ry * .2 - Math.abs(Math.sin(e * 6)) * V.lr * .6 * m; drawDoughBaby(x, y, V.lr * .7, mixHex(col, '#ffffff', .15), Math.abs(Math.cos(e * 6)) < .3 ? .6 : 0); }
+    const zCookie = R(V.cr * .9), base = cy + ry * .2;
+    // mixHex only parses #rrggbb. col is already rgb(), so mix the dough hex with white twice (0.35, then 0.15).
+    const doughHex = st.paint && st.paint.body !== undefined ? PAINT[st.paint.body] : '#e06a32';
+    const doughBaby = mixHex(doughHex, '#ffffff', 1 - .65 * .85);
+    if (D.stamp && D.stamp.hit && st.t - D.stamp.at < STAMP_SECS) drawDoughBaby(R(q.x), R(base), zCookie, doughBaby, 0);
     // the cutter: a blue baby-shaped cutter with a red knob; it hops over, presses, and hops back
-    let cxp = V.cutter.x, cyp = V.cutter.y - bob('cutter');
+    // pressed, its ring centre sits on the cookie's body centre
+    let cxp = V.cutter.x, cyp = V.cutter.y - bob('cutter'), pressed = false;
     if (D.stamp) { const e = (st.t - D.stamp.at) / STAMP_SECS, go2 = e < .35 ? e / .35 : e < .6 ? 1 : 1 - (e - .6) / .4, k = go2 * go2 * (3 - 2 * go2);
-      cxp = lerp(V.cutter.x, q.x, k); cyp = lerp(V.cutter.y, cy + ry * .2, k) - Math.sin(k * Math.PI) * V.lr * .8 * m; }
-    { const z = V.cr; cx.strokeStyle = '#3f8ae8'; cx.lineWidth = Math.max(2, z * .16); cx.beginPath(); cx.arc(R(cxp), R(cyp - z * .25), R(z * .62), 0, 7); cx.stroke();
+      const pressY = R(base - .4 * zCookie + .25 * V.cr);
+      cxp = lerp(V.cutter.x, q.x, k); cyp = lerp(V.cutter.y, pressY, k) - Math.sin(k * Math.PI) * V.lr * .8 * m; pressed = k === 1; }
+    cxp = R(cxp); cyp = R(cyp);
+    { const z = V.cr, lw = Math.max(2, R(z * .16)); cx.strokeStyle = '#3f8ae8'; cx.lineWidth = lw; cx.beginPath(); cx.arc(cxp, R(cyp - z * .25), R(z * .62), 0, 7); cx.stroke();
       for (const s2 of [-1, 1]) { cx.beginPath(); cx.moveTo(R(cxp + s2 * z * .5), R(cyp - z * .55)); cx.lineTo(R(cxp + s2 * z * .5), R(cyp - z * 1.15)); cx.lineTo(R(cxp + s2 * z * .1), R(cyp - z * .82)); cx.stroke(); }
       cx.fillStyle = '#3f8ae8'; cx.fillRect(R(cxp - z * .08), R(cyp - z * 1.35), R(z * .16), R(z * .5)); ell(cxp, cyp - z * 1.4, z * .28, z * .22, '#e8483c'); }
+    // hopping cookies, drawn after the cutter so they can never hide behind the outline. Every hop leaves to the left.
+    const hopAt = [];
+    for (const h of D.hops) { const e = st.t - h.at, k = e / 3, lane = h.front ? R(V.lr * .35) : 0;
+      const x = R(q.x + h.dir * k * W * .7), y = R(base + lane - Math.abs(Math.sin(e * 6)) * V.lr * .6 * m);
+      hopAt.push({ dir: h.dir, x, y }); drawDoughBaby(x, y, zCookie, doughBaby, Math.abs(Math.cos(e * 6)) < .3 ? .6 : 0); }
+    D.pose = { z: zCookie, pressed, cxp, cyp, line: Math.max(2, R(V.cr * .16)), ringY: R(cyp - V.cr * .25), bodyY: R(R(base) - .4 * zCookie), hops: hopAt };
     if (D.phase === 'done') for (let i = 0; i < 6; i++) { const a = st.t * 1.5 + i; ell(q.x + Math.cos(a) * V.lr * 1.6, q.y - V.lr * .6 + Math.sin(a) * V.lr * .6, U * .01, U * .01, '#fff3a0'); }
     drawHint();
     const b = V.barn; ell(b.x, b.y, b.r, b.r, 'rgba(255,248,232,.9)'); cx.fillStyle = '#c8453a'; cx.fillRect(R(b.x - b.r * .55), R(b.y - b.r * .15), R(b.r * 1.1), R(b.r * .7));
@@ -1087,8 +1141,9 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, DOUGH_BABIES, STAMP_SECS, DOUGH_END_SECS, enterDough, leaveDough, GADGETS, DOOR_OPEN_SECS, DOOR_END_SECS, enterDoor, leaveDoor, doorPoke: k => doorPoke(k), thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
+  window.LR = { VERSION, PREF, BEDTIME_ACTS, BEDTIME_SECS, BEDTIME_GRACE, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, DOUGH_BABIES, STAMP_SECS, DOUGH_END_SECS, enterDough, leaveDough, GADGETS, DOOR_OPEN_SECS, DOOR_END_SECS, enterDoor, leaveDoor, doorPoke: k => doorPoke(k), thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
+    redraw() { draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();
 

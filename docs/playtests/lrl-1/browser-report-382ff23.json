@@ -1,0 +1,7842 @@
+{
+  "checks": [
+    {
+      "name": "Browser regression suite run 1",
+      "pass": true,
+      "detail": "PASS — 465 Little Ranch checks."
+    },
+    {
+      "name": "Existing settings and unrelated save survive run 1",
+      "pass": true,
+      "detail": [
+        "{\"sound\":false}",
+        "{\"level\":27}"
+      ]
+    },
+    {
+      "name": "Browser regression suite run 2",
+      "pass": true,
+      "detail": "PASS — 465 Little Ranch checks."
+    },
+    {
+      "name": "Existing settings and unrelated save survive run 2",
+      "pass": true,
+      "detail": [
+        "{\"sound\":false}",
+        "{\"level\":27}"
+      ]
+    },
+    {
+      "name": "Baseline reproduces interrupted feeding",
+      "pass": true,
+      "detail": {
+        "food": 1,
+        "acts": 1,
+        "act": null,
+        "x": 94,
+        "home": 94
+      }
+    },
+    {
+      "name": "Baseline reproduces offscreen baby after rotation",
+      "pass": true,
+      "detail": {
+        "food": 0,
+        "acts": 0,
+        "act": null,
+        "x": 215,
+        "home": 94
+      }
+    },
+    {
+      "name": "Repair clears interrupted feeding",
+      "pass": true,
+      "detail": {
+        "food": 0,
+        "acts": 2,
+        "act": null,
+        "x": 94,
+        "home": 94
+      }
+    },
+    {
+      "name": "Repair prevents offscreen baby after rotation",
+      "pass": true,
+      "detail": {
+        "food": 0,
+        "acts": 0,
+        "act": null,
+        "x": 94,
+        "home": 94
+      }
+    },
+    {
+      "name": "375x812: food and peekaboo complete",
+      "pass": true,
+      "detail": {
+        "food": 0,
+        "acts": 2,
+        "act": null,
+        "x": 94,
+        "home": 94
+      }
+    },
+    {
+      "name": "667x375: food and peekaboo complete",
+      "pass": true,
+      "detail": {
+        "food": 0,
+        "acts": 2,
+        "act": null,
+        "x": 167,
+        "home": 167
+      }
+    },
+    {
+      "name": "1366x768: food and peekaboo complete",
+      "pass": true,
+      "detail": {
+        "food": 0,
+        "acts": 2,
+        "act": null,
+        "x": 171,
+        "home": 171
+      }
+    },
+    {
+      "name": "1920x1080: food and peekaboo complete",
+      "pass": true,
+      "detail": {
+        "food": 0,
+        "acts": 2,
+        "act": null,
+        "x": 160,
+        "home": 160
+      }
+    },
+    {
+      "name": "3440x1440: food and peekaboo complete",
+      "pass": true,
+      "detail": {
+        "food": 0,
+        "acts": 2,
+        "act": null,
+        "x": 215,
+        "home": 215
+      }
+    },
+    {
+      "name": "Reload keeps the existing sound preference",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 keeps twelve activities / six minutes and bounded grace",
+      "pass": true,
+      "detail": {
+        "acts": 12,
+        "seconds": 360,
+        "grace": 6
+      }
+    },
+    {
+      "name": "LRL-1 shed 375x812: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 375x812: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 shed 375x812: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 375x812: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 375x812: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 375x812: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 375x812: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 375x812: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 375x812: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 375x812: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 375x812: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 wagon 375x812: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 375x812: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 375x812: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 375x812: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 375x812: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 375x812: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 375x812: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 375x812: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 375x812: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 kitchen 375x812: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 375x812: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 375x812: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 375x812: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 375x812: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 375x812: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 375x812: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 375x812: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 375x812: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 door 375x812: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 375x812: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 375x812: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 375x812: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 375x812: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 375x812: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 375x812: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 375x812: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 375x812: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 dough 375x812: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 375x812: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 375x812: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 375x812: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 375x812: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 375x812: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 375x812: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 667x375: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 667x375: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 shed 667x375: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 667x375: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 667x375: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 667x375: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 667x375: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 667x375: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 667x375: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 667x375: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 667x375: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 wagon 667x375: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 667x375: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 667x375: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 667x375: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 667x375: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 667x375: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 667x375: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 667x375: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 667x375: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 kitchen 667x375: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 667x375: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 667x375: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 667x375: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 667x375: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 667x375: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 667x375: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 667x375: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 667x375: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 door 667x375: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 667x375: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 667x375: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 667x375: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 667x375: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 667x375: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 667x375: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 667x375: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 667x375: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 dough 667x375: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 667x375: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 667x375: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 667x375: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 667x375: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 667x375: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 667x375: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1024x768: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1024x768: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 shed 1024x768: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1024x768: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1024x768: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1024x768: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1024x768: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1024x768: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1024x768: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1024x768: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1024x768: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 wagon 1024x768: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1024x768: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1024x768: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1024x768: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1024x768: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1024x768: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1024x768: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1024x768: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1024x768: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 kitchen 1024x768: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1024x768: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1024x768: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1024x768: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1024x768: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1024x768: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1024x768: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1024x768: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1024x768: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 door 1024x768: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1024x768: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1024x768: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1024x768: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1024x768: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1024x768: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1024x768: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1024x768: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1024x768: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 dough 1024x768: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1024x768: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1024x768: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1024x768: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1024x768: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1024x768: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1024x768: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1366x768: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1366x768: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 shed 1366x768: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1366x768: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1366x768: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1366x768: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1366x768: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1366x768: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 1366x768: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1366x768: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1366x768: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 wagon 1366x768: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1366x768: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1366x768: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1366x768: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1366x768: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1366x768: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 1366x768: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1366x768: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1366x768: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 kitchen 1366x768: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1366x768: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1366x768: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1366x768: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1366x768: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1366x768: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 1366x768: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1366x768: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1366x768: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 door 1366x768: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1366x768: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1366x768: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1366x768: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1366x768: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1366x768: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 1366x768: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1366x768: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1366x768: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 dough 1366x768: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1366x768: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1366x768: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1366x768: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1366x768: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1366x768: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 1366x768: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 3440x1440: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 3440x1440: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 shed 3440x1440: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 3440x1440: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 3440x1440: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 3440x1440: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 3440x1440: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 3440x1440: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 shed 3440x1440: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 3440x1440: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 3440x1440: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 wagon 3440x1440: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 3440x1440: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 3440x1440: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 3440x1440: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 3440x1440: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 3440x1440: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 wagon 3440x1440: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 3440x1440: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 3440x1440: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 kitchen 3440x1440: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 3440x1440: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 3440x1440: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 3440x1440: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 3440x1440: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 3440x1440: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 kitchen 3440x1440: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 3440x1440: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 3440x1440: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 door 3440x1440: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 3440x1440: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 3440x1440: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 3440x1440: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 3440x1440: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 3440x1440: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 door 3440x1440: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 3440x1440: the picture sign opens the room",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 3440x1440: real input plays with an unfinished toy",
+      "pass": true
+    },
+    {
+      "name": "LRL-1 dough 3440x1440: the unfinished room stays playable before bedtime",
+      "pass": true,
+      "detail": {
+        "t": 357.0000000000684,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 3440x1440: the clock automatically returns to the ranch and yawns",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.023333333333333334,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 3440x1440: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 362.3000000000726,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 3440x1440: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 364.3000000000742,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 3440x1440: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 365.90000000007547,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "giggle",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 3440x1440: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 dough 3440x1440: no unfinished-room reward or resumed callback",
+      "pass": true,
+      "detail": {
+        "t": 377.9333333334184,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 366.23333333340906,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated shed: entry interrupts a real ranch activity",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": 136.11200000000002,
+        "callback": true,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated shed: the active gesture gets a brief grace period",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "shed",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": 247.16000000000003,
+        "callback": true,
+        "down": true,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated shed: the grace deadline clears the old activity and pointer",
+      "pass": true,
+      "detail": {
+        "t": 366.2666666667424,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.030000000000000002,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated shed: late pointerup does not brush, reopen a room or grant a reward",
+      "pass": true,
+      "detail": {
+        "t": 366.2666666667424,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.030000000000000002,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated shed: the unattended real routine reaches sleep without a stale reward",
+      "pass": true,
+      "detail": {
+        "t": 421.30000000011955,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 401.5000000001038,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated wagon: entry interrupts a real ranch activity",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": 136.11200000000002,
+        "callback": true,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated wagon: the active gesture gets a brief grace period",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "wagon",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": 247.16000000000003,
+        "callback": true,
+        "down": true,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated wagon: the grace deadline clears the old activity and pointer",
+      "pass": true,
+      "detail": {
+        "t": 366.2666666667424,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.030000000000000002,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated wagon: late pointerup does not brush, reopen a room or grant a reward",
+      "pass": true,
+      "detail": {
+        "t": 366.2666666667424,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.030000000000000002,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated wagon: the unattended real routine reaches sleep without a stale reward",
+      "pass": true,
+      "detail": {
+        "t": 421.30000000011955,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 401.5000000001038,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated kitchen: entry interrupts a real ranch activity",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": 136.11200000000002,
+        "callback": true,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated kitchen: the active gesture gets a brief grace period",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "kitchen",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": 247.16000000000003,
+        "callback": true,
+        "down": true,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated kitchen: the grace deadline clears the old activity and pointer",
+      "pass": true,
+      "detail": {
+        "t": 366.2666666667424,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.030000000000000002,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated kitchen: late pointerup does not brush, reopen a room or grant a reward",
+      "pass": true,
+      "detail": {
+        "t": 366.2666666667424,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.030000000000000002,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated kitchen: the unattended real routine reaches sleep without a stale reward",
+      "pass": true,
+      "detail": {
+        "t": 421.30000000011955,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 401.5000000001038,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated door: entry interrupts a real ranch activity",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": 136.11200000000002,
+        "callback": true,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated door: the active gesture gets a brief grace period",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "door",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": 247.16000000000003,
+        "callback": true,
+        "down": true,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated door: the grace deadline clears the old activity and pointer",
+      "pass": true,
+      "detail": {
+        "t": 366.2666666667424,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.030000000000000002,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated door: late pointerup does not brush, reopen a room or grant a reward",
+      "pass": true,
+      "detail": {
+        "t": 366.2666666667424,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.030000000000000002,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated door: the unattended real routine reaches sleep without a stale reward",
+      "pass": true,
+      "detail": {
+        "t": 421.30000000011955,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 401.5000000001038,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated dough: entry interrupts a real ranch activity",
+      "pass": true,
+      "detail": {
+        "t": 0,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": 136.11200000000002,
+        "callback": true,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated dough: the active gesture gets a brief grace period",
+      "pass": true,
+      "detail": {
+        "t": 360.20000000007093,
+        "place": "dough",
+        "mode": "play",
+        "acts": 0,
+        "act": null,
+        "tx": 247.16000000000003,
+        "callback": true,
+        "down": true,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated dough: the grace deadline clears the old activity and pointer",
+      "pass": true,
+      "detail": {
+        "t": 366.2666666667424,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.030000000000000002,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated dough: late pointerup does not brush, reopen a room or grant a reward",
+      "pass": true,
+      "detail": {
+        "t": 366.2666666667424,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 0,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.030000000000000002,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 held/rotated dough: the unattended real routine reaches sleep without a stale reward",
+      "pass": true,
+      "detail": {
+        "t": 421.30000000011955,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 0,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 401.5000000001038,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true,
+            "friend": true
+          }
+        },
+        "friend": "sleep",
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 eleven real activities still allow play",
+      "pass": true,
+      "detail": {
+        "t": 11.366666666666637,
+        "place": "ranch",
+        "mode": "play",
+        "acts": 11,
+        "act": null,
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0,
+        "lullabyAt": null,
+        "routine": null,
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 twelve real activities still start automatic bedtime well before six minutes",
+      "pass": true,
+      "detail": {
+        "t": 12.566666666666633,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 12,
+        "act": "yawn",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.03666666666666667,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": null,
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 twelve activities, no visiting friend: a real toothbrush tap starts brushing",
+      "pass": true,
+      "detail": {
+        "t": 14.666666666666625,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 12,
+        "act": "brush",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 0,
+          "doing": "teeth",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 twelve activities, no visiting friend: a real cup tap starts drinking",
+      "pass": true,
+      "detail": {
+        "t": 16.666666666666654,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 12,
+        "act": "drink",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 1,
+          "doing": "water",
+          "said": {}
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 twelve activities, no visiting friend: real goodnight taps finish the routine before the lullaby",
+      "pass": true,
+      "detail": {
+        "t": 18.266666666666733,
+        "place": "ranch",
+        "mode": "dusk",
+        "acts": 12,
+        "act": "wave",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 0.22,
+        "lullabyAt": null,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true
+          }
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 twelve activities, no visiting friend: the lullaby leads to sleep",
+      "pass": true,
+      "detail": {
+        "t": 30.300000000000665,
+        "place": "ranch",
+        "mode": "sleep",
+        "acts": 12,
+        "act": "sleep",
+        "tx": null,
+        "callback": false,
+        "down": false,
+        "sponge": false,
+        "food": 0,
+        "dusk": 1,
+        "lullabyAt": 18.600000000000083,
+        "routine": {
+          "step": 3,
+          "doing": null,
+          "said": {
+            "flowers": true
+          }
+        },
+        "friend": null,
+        "sound": false
+      }
+    },
+    {
+      "name": "LRL-1 creates no settings or unrelated-storage writes",
+      "pass": true,
+      "detail": {
+        "writes": [],
+        "before": [
+          [
+            [
+              "little-ranch-settings-v1",
+              "{\"sound\":false}"
+            ],
+            [
+              "lr2-unrelated-save",
+              "{\"level\":27}"
+            ]
+          ],
+          []
+        ],
+        "after": [
+          [
+            [
+              "little-ranch-settings-v1",
+              "{\"sound\":false}"
+            ],
+            [
+              "lr2-unrelated-save",
+              "{\"level\":27}"
+            ]
+          ],
+          []
+        ]
+      }
+    },
+    {
+      "name": "LRL-1 keeps the existing muted sound preference",
+      "pass": true
+    },
+    {
+      "name": "No browser errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "screenshots": [
+    "checks-1.png",
+    "checks-2.png",
+    "before-interrupted-feed.png",
+    "before-rotation.png",
+    "after-interrupted-feed.png",
+    "after-rotation.png",
+    "feeding-375x812.png",
+    "peekaboo-375x812.png",
+    "feeding-667x375.png",
+    "peekaboo-667x375.png",
+    "feeding-1366x768.png",
+    "peekaboo-1366x768.png",
+    "feeding-1920x1080.png",
+    "peekaboo-1920x1080.png",
+    "feeding-3440x1440.png",
+    "peekaboo-3440x1440.png",
+    "lrl1-shed-375x812-before.png",
+    "lrl1-shed-375x812-dusk.png",
+    "lrl1-shed-375x812-asleep.png",
+    "lrl1-wagon-375x812-before.png",
+    "lrl1-wagon-375x812-dusk.png",
+    "lrl1-wagon-375x812-asleep.png",
+    "lrl1-kitchen-375x812-before.png",
+    "lrl1-kitchen-375x812-dusk.png",
+    "lrl1-kitchen-375x812-asleep.png",
+    "lrl1-door-375x812-before.png",
+    "lrl1-door-375x812-dusk.png",
+    "lrl1-door-375x812-asleep.png",
+    "lrl1-dough-375x812-before.png",
+    "lrl1-dough-375x812-dusk.png",
+    "lrl1-dough-375x812-asleep.png",
+    "lrl1-shed-667x375-before.png",
+    "lrl1-shed-667x375-dusk.png",
+    "lrl1-shed-667x375-asleep.png",
+    "lrl1-wagon-667x375-before.png",
+    "lrl1-wagon-667x375-dusk.png",
+    "lrl1-wagon-667x375-asleep.png",
+    "lrl1-kitchen-667x375-before.png",
+    "lrl1-kitchen-667x375-dusk.png",
+    "lrl1-kitchen-667x375-asleep.png",
+    "lrl1-door-667x375-before.png",
+    "lrl1-door-667x375-dusk.png",
+    "lrl1-door-667x375-asleep.png",
+    "lrl1-dough-667x375-before.png",
+    "lrl1-dough-667x375-dusk.png",
+    "lrl1-dough-667x375-asleep.png",
+    "lrl1-shed-1024x768-before.png",
+    "lrl1-shed-1024x768-dusk.png",
+    "lrl1-shed-1024x768-asleep.png",
+    "lrl1-wagon-1024x768-before.png",
+    "lrl1-wagon-1024x768-dusk.png",
+    "lrl1-wagon-1024x768-asleep.png",
+    "lrl1-kitchen-1024x768-before.png",
+    "lrl1-kitchen-1024x768-dusk.png",
+    "lrl1-kitchen-1024x768-asleep.png",
+    "lrl1-door-1024x768-before.png",
+    "lrl1-door-1024x768-dusk.png",
+    "lrl1-door-1024x768-asleep.png",
+    "lrl1-dough-1024x768-before.png",
+    "lrl1-dough-1024x768-dusk.png",
+    "lrl1-dough-1024x768-asleep.png",
+    "lrl1-shed-1366x768-before.png",
+    "lrl1-shed-1366x768-dusk.png",
+    "lrl1-shed-1366x768-asleep.png",
+    "lrl1-wagon-1366x768-before.png",
+    "lrl1-wagon-1366x768-dusk.png",
+    "lrl1-wagon-1366x768-asleep.png",
+    "lrl1-kitchen-1366x768-before.png",
+    "lrl1-kitchen-1366x768-dusk.png",
+    "lrl1-kitchen-1366x768-asleep.png",
+    "lrl1-door-1366x768-before.png",
+    "lrl1-door-1366x768-dusk.png",
+    "lrl1-door-1366x768-asleep.png",
+    "lrl1-dough-1366x768-before.png",
+    "lrl1-dough-1366x768-dusk.png",
+    "lrl1-dough-1366x768-asleep.png",
+    "lrl1-shed-3440x1440-before.png",
+    "lrl1-shed-3440x1440-dusk.png",
+    "lrl1-shed-3440x1440-asleep.png",
+    "lrl1-wagon-3440x1440-before.png",
+    "lrl1-wagon-3440x1440-dusk.png",
+    "lrl1-wagon-3440x1440-asleep.png",
+    "lrl1-kitchen-3440x1440-before.png",
+    "lrl1-kitchen-3440x1440-dusk.png",
+    "lrl1-kitchen-3440x1440-asleep.png",
+    "lrl1-door-3440x1440-before.png",
+    "lrl1-door-3440x1440-dusk.png",
+    "lrl1-door-3440x1440-asleep.png",
+    "lrl1-dough-3440x1440-before.png",
+    "lrl1-dough-3440x1440-dusk.png",
+    "lrl1-dough-3440x1440-asleep.png",
+    "lrl1-shed-rotated-late-release.png",
+    "lrl1-wagon-rotated-late-release.png",
+    "lrl1-kitchen-rotated-late-release.png",
+    "lrl1-door-rotated-late-release.png",
+    "lrl1-dough-rotated-late-release.png"
+  ],
+  "bedtime": {
+    "method": "Accelerated QA: real mouse taps/drags; production animation loop stopped after the original suite; only LR.advance moves game time; real resize events and enabled teeth/water/goodnight routine. Not a real-time newcomer playtest.",
+    "limits": {
+      "acts": 12,
+      "seconds": 360,
+      "grace": 6
+    },
+    "visits": [
+      {
+        "room": "shed",
+        "width": 375,
+        "height": 812,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "shed",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "wagon",
+        "width": 375,
+        "height": 812,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "wagon",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "kitchen",
+        "width": 375,
+        "height": 812,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "kitchen",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "door",
+        "width": 375,
+        "height": 812,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "door",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "dough",
+        "width": 375,
+        "height": 812,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "dough",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "shed",
+        "width": 667,
+        "height": 375,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "shed",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "wagon",
+        "width": 667,
+        "height": 375,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "wagon",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "kitchen",
+        "width": 667,
+        "height": 375,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "kitchen",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "door",
+        "width": 667,
+        "height": 375,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "door",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "dough",
+        "width": 667,
+        "height": 375,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "dough",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "shed",
+        "width": 1024,
+        "height": 768,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "shed",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "wagon",
+        "width": 1024,
+        "height": 768,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "wagon",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "kitchen",
+        "width": 1024,
+        "height": 768,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "kitchen",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "door",
+        "width": 1024,
+        "height": 768,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "door",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "dough",
+        "width": 1024,
+        "height": 768,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "dough",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "shed",
+        "width": 1366,
+        "height": 768,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "shed",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "wagon",
+        "width": 1366,
+        "height": 768,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "wagon",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "kitchen",
+        "width": 1366,
+        "height": 768,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "kitchen",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "door",
+        "width": 1366,
+        "height": 768,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "door",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "dough",
+        "width": 1366,
+        "height": 768,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "dough",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "shed",
+        "width": 3440,
+        "height": 1440,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "shed",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "wagon",
+        "width": 3440,
+        "height": 1440,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "wagon",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "kitchen",
+        "width": 3440,
+        "height": 1440,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "kitchen",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "door",
+        "width": 3440,
+        "height": 1440,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "door",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      },
+      {
+        "room": "dough",
+        "width": 3440,
+        "height": 1440,
+        "before": {
+          "t": 357.0000000000684,
+          "place": "dough",
+          "mode": "play",
+          "acts": 0,
+          "act": null,
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0,
+          "lullabyAt": null,
+          "routine": null,
+          "friend": null,
+          "sound": false
+        },
+        "dusk": {
+          "t": 360.20000000007093,
+          "place": "ranch",
+          "mode": "dusk",
+          "acts": 0,
+          "act": "yawn",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 0.023333333333333334,
+          "lullabyAt": null,
+          "routine": {
+            "step": 0,
+            "doing": null,
+            "said": {}
+          },
+          "friend": null,
+          "sound": false
+        },
+        "asleep": {
+          "t": 377.9333333334184,
+          "place": "ranch",
+          "mode": "sleep",
+          "acts": 0,
+          "act": "sleep",
+          "tx": null,
+          "callback": false,
+          "down": false,
+          "sponge": false,
+          "food": 0,
+          "dusk": 1,
+          "lullabyAt": 366.23333333340906,
+          "routine": {
+            "step": 3,
+            "doing": null,
+            "said": {
+              "flowers": true,
+              "friend": true
+            }
+          },
+          "friend": "sleep",
+          "sound": false
+        }
+      }
+    ]
+  }
+}

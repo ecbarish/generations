@@ -78,9 +78,157 @@ const server = http.createServer((req, res) => {
     }
     await page.reload();
     check('Reload keeps the existing sound preference', await page.evaluate(() => JSON.parse(localStorage.getItem(LR.PREF)).sound === false));
+    await reviewBedtime(page, shot);
     check('No browser errors', errors.length === 0, errors);
     await context.close();
   } finally { await browser.close(); server.close(); fs.writeFileSync(path.join(out, 'report.json'), JSON.stringify(report, null, 2)); }
   console.log('PASS: ' + report.checks.length + ' review checks; ' + report.screenshots.length + ' screenshots.');
 })().catch(e => { server.close(); console.error(e); process.exitCode = 1; });
 function documentWidth(home) { return home * 2; }
+
+// LRL-1 accelerated QA: real browser pointer input and the existing LR.advance clock.
+// Stop the production animation loop only after the original review has finished,
+// so screenshot latency cannot consume a yawn or cross a bedtime threshold.
+// No forced bedtime, action-count/state assignment, or disabled bedtime routine. These
+// repeatable screenshots are engineering evidence, not a real-time newcomer playtest.
+async function reviewBedtime(page, shot) {
+  await page.evaluate(() => new Promise(resolve => {
+    const raf = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = () => 0;
+    // Drain the already-queued production frame; its next request is now a no-op.
+    // The saved browser rAF also lets the browser paint without advancing the game.
+    raf(() => raf(resolve));
+  }));
+  const rooms = { shed: 'sign', wagon: 'wsign', kitchen: 'ksign', door: 'dsign', dough: 'tsign' };
+  const sizes = [[375, 812], [667, 375], [1024, 768], [1366, 768], [3440, 1440]];
+  const limits = await page.evaluate(() => ({ acts: LR.BEDTIME_ACTS, seconds: LR.BEDTIME_SECS ?? 360, grace: LR.BEDTIME_GRACE ?? 6 }));
+  check('LRL-1 keeps twelve activities / six minutes and bounded grace', limits.acts === 12 && limits.seconds === 360 && limits.grace === 6, limits);
+  report.bedtime = { method: 'Accelerated QA: real mouse taps/drags; production animation loop stopped after the original suite; only LR.advance moves game time; real resize events and enabled teeth/water/goodnight routine. Not a real-time newcomer playtest.', limits, visits: [] };
+  const advance = seconds => page.evaluate(seconds => LR.advance(seconds), seconds);
+  const advanceTo = seconds => page.evaluate(seconds => { if (LR.state.t < seconds) LR.advance(seconds - LR.state.t); }, seconds);
+  const snapshot = () => page.evaluate(() => {
+    const s = LR.state, b = s.baby;
+    return { t: s.t, place: s.place, mode: s.mode, acts: s.acts, act: b.act, tx: b.tx, callback: !!b.then,
+      down: !!s.down, sponge: !!(s.sponge.drag || s.sponge.auto || s.sponge.scrubbed), food: s.bowl.food,
+      dusk: s.dusk, lullabyAt: s.lullabyAt, routine: s.routine && { step: s.routine.step, doing: s.routine.doing && s.routine.doing.what, said: s.routine.said },
+      friend: s.friend && s.friend.act, sound: LR.prefs.sound };
+  });
+  const point = key => page.evaluate(key => {
+    const l = LR.layout, s = LR.state;
+    const points = { body: () => LR.partPoint('body'), tail: () => LR.partPoint('tail'), pot: () => l.shed.pots[2],
+      passenger: () => ({ x: l.wagon.wait[0].x, y: l.wagon.wait[0].y - l.wagon.z * .5 }),
+      food: () => l.kitchen.foods[0], switch: () => l.door.g.switch, lump: () => l.dough.lump,
+      roll: () => ({ x: l.dough.lump.x + l.dough.lr * 2.4, y: l.dough.lump.y }),
+      flower: () => l.flowers[1], friend: () => LR.fCentre(),
+      baby: () => ({ x: s.baby.x, y: l.home.y - l.size * .9 }),
+      peek: () => ({ x: l.bush.x, y: l.bush.y - l.R * .4 }) };
+    return LR.toScreen(points[key] ? points[key]() : l[key]);
+  }, key);
+  const tap = async key => { const p = await point(key); await page.mouse.click(p.x, p.y); };
+  const drag = async (from, to) => {
+    const a = await point(from), b = await point(to);
+    await page.mouse.move(a.x, a.y); await page.mouse.down();
+    await page.mouse.move(b.x, b.y, { steps: 8 }); await page.mouse.up();
+  };
+  const viewport = async (width, height) => {
+    await page.setViewportSize({ width, height });
+    await page.waitForFunction(({ width, height }) => {
+      const c = document.querySelector('canvas'), scale = Math.max(2, Math.round(Math.min(width, height) / 190));
+      return c.width === Math.ceil(width / scale) && c.height === Math.ceil(height / scale);
+    }, { width, height }, { polling: 50 }); // rAF is paused; the real resize event still runs layout().
+  };
+  const fresh = friend => page.evaluate(friend => { LR.setRoutine(true); LR.setFriend(friend); LR.newVisit(); }, friend);
+  const storage = () => page.evaluate(() => [localStorage, sessionStorage].map(s => Object.keys(s).sort().map(k => [k, s.getItem(k)])));
+  const storedBefore = await storage();
+  await page.evaluate(() => {
+    window.lrlStorageWrites = [];
+    for (const op of ['setItem', 'removeItem', 'clear']) {
+      const original = Storage.prototype[op];
+      Storage.prototype[op] = function (...args) { window.lrlStorageWrites.push({ op, key: args[0] ?? null }); return original.apply(this, args); };
+    }
+  });
+  const finishRoutine = async label => {
+    await advance(2.1); await tap('item');
+    let s = await snapshot();
+    check(label + ': a real toothbrush tap starts brushing', s.act === 'brush' && s.routine.doing === 'teeth', s);
+    await advance(2); await tap('item'); s = await snapshot();
+    check(label + ': a real cup tap starts drinking', s.act === 'drink' && s.routine.doing === 'water', s);
+    await advance(1.6); await tap('flower');
+    if (await page.evaluate(() => !!LR.state.friend)) await tap('friend');
+    s = await snapshot();
+    check(label + ': real goodnight taps finish the routine before the lullaby', s.routine.step === 3 && s.routine.said.flowers && (s.friend === null || s.routine.said.friend), s);
+    await advance(12); s = await snapshot();
+    check(label + ': the lullaby leads to sleep', s.mode === 'sleep' && s.act === 'sleep' && s.dusk === 1 && s.lullabyAt !== null && (s.friend === null || s.friend === 'sleep'), s);
+    return s;
+  };
+  for (const [width, height] of sizes) {
+    await viewport(width, height);
+    for (const [room, sign] of Object.entries(rooms)) {
+      const label = `LRL-1 ${room} ${width}x${height}`, name = `lrl1-${room}-${width}x${height}`;
+      await fresh(true); await tap(sign);
+      check(label + ': the picture sign opens the room', (await snapshot()).place === room, await snapshot());
+      if (room === 'shed') { await tap('pot'); await drag('body', 'tail'); }
+      if (room === 'wagon') await tap('passenger');
+      if (room === 'kitchen') { await tap('food'); await advance(4); }
+      if (room === 'door') await tap('switch');
+      if (room === 'dough') { await tap('lump'); await drag('lump', 'roll'); }
+      const interacted = await page.evaluate(room => {
+        const s = LR.state;
+        if (room === 'shed') return Object.keys(s.shed.parts).length > 0 && s.shed.doneAt === null;
+        if (room === 'wagon') return s.wagon.aboard[0] && !s.wagon.aboard[1];
+        if (room === 'kitchen') return s.kitchen.berries === 1;
+        if (room === 'door') return s.door.touched.switch && s.door.phase === 'shut';
+        return s.dough.spin > 0 && s.dough.stamps === 0;
+      }, room);
+      check(label + ': real input plays with an unfinished toy', interacted);
+      await advanceTo(limits.seconds - 3);
+      const before = await snapshot();
+      check(label + ': the unfinished room stays playable before bedtime', before.mode === 'play' && before.place === room && before.acts === 0, before);
+      await shot(name + '-before');
+      await advanceTo(limits.seconds + .2);
+      const dusk = await snapshot();
+      check(label + ': the clock automatically returns to the ranch and yawns', dusk.mode === 'dusk' && dusk.place === 'ranch' && dusk.act === 'yawn' && dusk.routine.step === 0 && dusk.lullabyAt === null && dusk.acts === 0 && !dusk.callback && dusk.tx === null && !dusk.down && !dusk.sponge, dusk);
+      await shot(name + '-dusk');
+      const asleep = await finishRoutine(label);
+      check(label + ': no unfinished-room reward or resumed callback', asleep.acts === 0 && !asleep.callback && asleep.tx === null && asleep.food === 0 && !asleep.down && !asleep.sponge, asleep);
+      await shot(name + '-asleep');
+      report.bedtime.visits.push({ room, width, height, before, dusk, asleep });
+    }
+  }
+  // Freeze an existing ranch activity inside each room, then rotate while holding a
+  // real gesture across the threshold. A late release must not become a new tap.
+  const holds = { shed: 'body', wagon: 'passenger', kitchen: 'food', door: 'switch', dough: 'lump' };
+  for (const [room, sign] of Object.entries(rooms)) {
+    const label = 'LRL-1 held/rotated ' + room;
+    await viewport(375, 812); await fresh(true); await tap('peek'); await tap(sign);
+    let s = await snapshot();
+    check(label + ': entry interrupts a real ranch activity', s.place === room && (s.callback || s.tx !== null || s.act === 'hide'), s);
+    await advanceTo(limits.seconds - 2);
+    const p = await point(holds[room]); await page.mouse.move(p.x, p.y); await page.mouse.down();
+    if (room === 'shed' || room === 'dough') await page.mouse.move(p.x + 24, p.y, { steps: 4 });
+    await viewport(667, 375); await advanceTo(limits.seconds + .2); s = await snapshot();
+    check(label + ': the active gesture gets a brief grace period', s.mode === 'play' && s.place === room && s.down, s);
+    await advanceTo(limits.seconds + limits.grace + .25); s = await snapshot();
+    check(label + ': the grace deadline clears the old activity and pointer', s.mode === 'dusk' && s.place === 'ranch' && s.act === 'yawn' && !s.down && !s.callback && s.tx === null && s.acts === 0, s);
+    const item = await point('item'); await page.mouse.move(item.x, item.y); await page.mouse.up(); s = await snapshot();
+    check(label + ': late pointerup does not brush, reopen a room or grant a reward', s.place === 'ranch' && s.mode === 'dusk' && s.routine.step === 0 && !s.routine.doing && s.acts === 0, s);
+    await shot('lrl1-' + room + '-rotated-late-release');
+    await advance(55); s = await snapshot();
+    check(label + ': the unattended real routine reaches sleep without a stale reward', s.mode === 'sleep' && s.act === 'sleep' && s.routine.step === 3 && s.routine.said.flowers && s.routine.said.friend && s.lullabyAt !== null && s.acts === 0, s);
+  }
+  await viewport(1024, 768); await fresh(false);
+  for (let i = 0; i < limits.acts - 1; i++) { await tap('baby'); await advance(1); }
+  let s = await snapshot();
+  check('LRL-1 eleven real activities still allow play', s.mode === 'play' && s.acts === 11, s);
+  await tap('baby'); await advance(1.2); s = await snapshot();
+  check('LRL-1 twelve real activities still start automatic bedtime well before six minutes', s.mode === 'dusk' && s.acts === 12 && s.t < 30 && s.routine.step === 0, s);
+  await finishRoutine('LRL-1 twelve activities, no visiting friend');
+  const storedAfter = await storage(), writes = await page.evaluate(() => window.lrlStorageWrites);
+  check('LRL-1 creates no settings or unrelated-storage writes', writes.length === 0 && JSON.stringify(storedBefore) === JSON.stringify(storedAfter), { writes, before: storedBefore, after: storedAfter });
+  check('LRL-1 keeps the existing muted sound preference', (await snapshot()).sound === false);
+  fs.writeFileSync(path.join(out, 'lrl1-evidence.txt'), report.bedtime.method + '\n' +
+    'All five rooms at 375x812, 667x375, 1024x768, 1366x768 and 3440x1440.\n' +
+    'Stable filenames: lrl1-<room>-<width>x<height>-before/dusk/asleep.png.\n' +
+    'Also: held gestures, frozen ranch activities, rotation, late pointerup, unattended routine, twelve real activities and storage-write audit.\n' +
+    'Sound remains muted by the existing saved preference; lullaby scheduling is checked in state.\n');
+}
