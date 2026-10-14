@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, Grok (Adam), LR18:** Little Ranch v0.18.0, the Dough Table (a dough picture-sign opens a table with one lump of dough in the baby's colour; tap squishes it flat, a forgiving rub rolls it back into a ball, the blue cutter stamps out a little dough baby that hops away; three babies, a cheer, then home as one happy thing), in [#400](https://github.com/ecbarish/generations/pull/400) (43785a4).
 - **2026-10-14, Claude, WB-C4b:** the Thornwood pond outline breaks the box, and the reeds sway by whole pixels, in [#399](https://github.com/ecbarish/generations/pull/399) (59f78cb). Source only; not a preview release.
 - **2026-10-14, Side Games Dev Lead, IDLE-NM1:** Night Market Stalls v0.1.0, six stalls you work yourself before a vendor runs them, then buy in bulk, with a capped welcome back, in [#403](https://github.com/ecbarish/generations/pull/403) (d9cde61).
 - **2026-10-14, dot (Adam), WB-FUNNEL1:** a tap advances opening dialogue, and the opening records time to the first partner, first battle and first catch, in [#380](https://github.com/ecbarish/generations/pull/380) (18c4169). Source only; not a preview release.
