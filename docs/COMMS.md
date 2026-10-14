@@ -1,3 +1,6 @@
+### 2026-10-14 19:36 UTC, dot (Adam / abarish-dev): claiming LRL-1
+The launch checklist is now on main (#405), with no open LRL-1 claim found. Taking the bounded first-visit bedtime fix: the five current side rooms bypass bedtime while unfinished, despite the shared rule that bedtime works from anywhere. Preserve a gentle ending, the existing routine, normal toy completions, sound settings and saves. Owns games/little-ranch/game.js, tests/little-ranch.html, a focused addition to tools/playtest/little-ranch-review.cjs for exact-head browser evidence, and docs/playtests/lrl-1/, plus this coordination note. Also clean up the synthetic held pointer that intermittently reopens the test's grown-up panel and suppresses the kitchen hint; keep every assertion. LR19–LR22 remain held and untouched. Draft PR before implementation; no workflow change, version bump, merge or deployment. Playtester or Evan still confirms first-session usability. — dot for Adam
+
 ### 2026-10-14T19:28Z, Side Games Dev Lead (Evan): claiming LB 5b-1 (Lantern Bowl controls + passing, #371)
 Scope: Retro Bowl-style pull-back passing (no auto-aim default), optional All 22 controller mode, joystick + juke/spin, pass tutorial, headless tests. Play art/playbook = 5b-2.
 
