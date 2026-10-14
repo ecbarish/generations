@@ -9,7 +9,9 @@ const SHELVED=['wildbond','starfall-guild','diamond-career','primordial'];
  const savesIntact=p=>p.evaluate(()=>localStorage.getItem('wildbond-save-v1')==='classic-wildbond-sentinel'&&localStorage.getItem('starfall-guild-save-v1')==='classic-starfall-sentinel'&&localStorage.getItem('realmbound-save-v1')==='realmbound-sentinel'&&localStorage.getItem('unrelated-sentinel')==='keep');
  const linksOk=async(p,label)=>{const hrefs=await p.evaluate(()=>[...new Set([...document.querySelectorAll('a[href]')].map(a=>a.href).filter(h=>h.startsWith(location.origin)).map(h=>h.split('#')[0]))]);for(const h of hrefs){const r=await p.request.get(h);check(r.ok(),label+' link works: '+h);}};
  const shareOk=async(p,label)=>{for(const s of ['meta[property="og:title"]','meta[property="og:description"]','meta[name="twitter:card"]','meta[name="description"]','link[rel="canonical"]'])check(await p.locator(s).count()===1,label+' has '+s);
-  const img=await p.locator('meta[property="og:image"]').getAttribute('content');check(/^https:\/\/ecbarish\.github\.io\/generations\/.+\.(png|jpg)$/.test(img),label+' absolute og:image');const r=await p.request.get(origin+'/'+img.split('/generations/')[1]);check(r.ok(),label+' og:image exists');};
+  const img=await p.locator('meta[property="og:image"]').getAttribute('content');check(/^https:\/\/ecbarish\.github\.io\/generations\/.+\.(png|jpg)$/.test(img),label+' absolute og:image');const local=origin+'/'+img.split('/generations/')[1];const r=await p.request.get(local);check(r.ok(),label+' og:image exists');
+  const size=await p.evaluate(u=>new Promise(res=>{const i=new Image();i.onload=()=>res([i.naturalWidth,i.naturalHeight]);i.onerror=()=>res([0,0]);i.src=u;}),local);
+  check(String(size[0])===await p.locator('meta[property="og:image:width"]').getAttribute('content')&&String(size[1])===await p.locator('meta[property="og:image:height"]').getAttribute('content'),label+' og:image size tags match the image ('+size.join('x')+')');};
  for(const [width,height]of WIDTHS){
   const c=await b.newContext({viewport:{width,height},reducedMotion:'reduce',serviceWorkers:'block'}),p=await c.newPage(),errors=[],engineRequests=[];p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>{if(/\.(wasm|pck)(\?|$)/.test(r.url()))engineRequests.push(r.url())});
   await p.addInitScript(seed);
@@ -59,6 +61,13 @@ const SHELVED=['wildbond','starfall-guild','diamond-career','primordial'];
   check(await savesIntact(p),'saves untouched');
   await c.close();console.log(width+'x'+height+': PASS');
  }
+ const settle=async(p,re)=>{for(let i=0;i<50&&!re.test(p.url());i++)await p.waitForTimeout(100);await p.waitForLoadState('load');};
+ // old hub links (v1.7 sections and the canvas hall) still land somewhere sensible
+ {const c=await b.newContext({serviceWorkers:'block'}),p=await c.newPage();
+  for(const h of ['shelf','launcher','start-here','kind-adventure','kind-build']){await p.goto(origin+'/index.html#'+h);await p.waitForFunction(()=>document.querySelector('#current .cab'));check(new URL(p.url()).pathname.endsWith('/index.html')&&await p.locator('#games').count()===1,'old anchor stays on the hub: '+h);}
+  for(const h of ['kind-kids','kind-sports','kind-story','kind-different']){await p.goto(origin+'/index.html#'+h);await settle(p,/lab\.html/);await p.waitForSelector('#lab .cab',{state:'attached'});check(p.url().endsWith('lab.html#'+h),'kept the section: '+h);check(await p.locator('#'+h).count()===1,'old anchor moves to the Lab: '+h);}
+  await p.goto(origin+'/index.html#more-games');await settle(p,/lab\.html/);check(/lab\.html$/.test(p.url()),'More games url');check(true,'More games goes to the Lab');
+  await c.close();}
  // missing screenshots don't break the card, and keyboard Enter on the hero reaches the game
  const c=await b.newContext({serviceWorkers:'block'}),p=await c.newPage();await p.route('**/images/**',r=>r.abort());await p.goto(origin+'/');await p.waitForFunction(()=>document.querySelector('#current .cab'));
  check(await p.locator('#current .cab .ttl').first().isVisible(),'card title shows without its image');

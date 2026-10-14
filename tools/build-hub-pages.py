@@ -1,5 +1,6 @@
 # Generates index.html, lab.html and game/*.html (HUB-REDESIGN). Run from the repo root: python3 tools/build-hub-pages.py
 import html,os
+from PIL import Image
 B='https://ecbarish.github.io/generations/'
 FONT='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">'
 def head(base,title,desc,path,img,alt):
@@ -13,7 +14,7 @@ def head(base,title,desc,path,img,alt):
 <link rel="canonical" href="{B}{path}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Generations">
 <meta property="og:title" content="{title}"><meta property="og:description" content="{desc}">
-<meta property="og:url" content="{B}{path}"><meta property="og:image" content="{B}{img}"><meta property="og:image:width" content="1536"><meta property="og:image:height" content="864"><meta property="og:image:alt" content="{alt}">
+<meta property="og:url" content="{B}{path}"><meta property="og:image" content="{B}{img}"><meta property="og:image:width" content="{Image.open(img).size[0]}"><meta property="og:image:height" content="{Image.open(img).size[1]}"><meta property="og:image:alt" content="{alt}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title}"><meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="{B}{img}">
 <link rel="manifest" href="{base}manifest.webmanifest">
 <meta name="theme-color" content="#100e17">
@@ -35,7 +36,7 @@ def foot(base,offline):
 <p>Generations is a stable of free adventure and progression games, headlined by Wildbond. Progress is stored in this browser on this device, with automatic backups. Automation is earned in play, never sold.</p>
 <details class="app-help"><summary>Play offline or add to your home screen</summary><p>Open this page online and wait for “Ready for offline play.” You can then open the arcade and its browser games without internet. The new versions of Wildbond and Starfall need internet on their first visit. Use Install arcade when it appears, or your browser’s Install / Add to Home Screen menu. Your saves stay in this browser on this device.</p></details></div>
 <div><div class="tools"><button class="install-btn" id="installArcade" hidden>Install arcade</button><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div><span class="set-host"></span></div>
-<p class="tools" style="margin-top:.8rem"><a href="{base}lab.html">The Lab</a><a href="{base}playtest.html">What to try</a><a href="{base}credits.html">Credits</a><a href="{base}promo.html">Realmbound trailer</a><span class="version-label">v2.0.0</span></p>
+<p class="tools" style="margin-top:.8rem"><a href="{base}lab.html">The Lab</a><a href="{base}playtest.html">What to try</a><a href="{base}credits.html">Credits</a><a href="{base}promo.html">Realmbound trailer</a><span class="version-label">v1.8.0</span></p>
 <span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span></div>
 </div></footer>
 '''
@@ -65,7 +66,7 @@ idx+='<body data-base="">\n'+bar('','home')+f'''<main id="main">
 <p class="hero-note">Runs in your browser · saves on this device · best on a computer, works on phones held sideways.</p></div>
 <div class="hero-media"><div class="shot">{''.join(f'<img src="{s}" alt="{a}" width="1536" height="864"{" fetchpriority=\"high\"" if i==0 else " loading=\"lazy\""}>' for i,(s,a) in enumerate(zip(W,['Wildbond: Larkhaven village','Wildbond: a creature battle','Wildbond: Saltmarsh Coast'])))}</div></div>
 </div></section>
-<section class="section" id="games" aria-labelledby="games-title"><div class="wrap">
+<section class="section" id="games" aria-labelledby="games-title"><span id="shelf"></span><span id="launcher"></span><span id="start-here"></span><div class="wrap">
 <div class="section-head"><h2 id="games-title">Play now</h2><p>The games being worked on right now. No sign-up, nothing for sale.</p></div>
 <div class="grid three" id="current"></div>
 <noscript><ul><li><a href="play/wildbond/">Wildbond</a></li><li><a href="play/starfall/">Starfall Guild</a></li><li><a href="games/realmbound/index.html">Realmbound</a></li><li><a href="lab.html">The Lab: test versions and prototypes</a></li></ul></noscript>
@@ -75,7 +76,7 @@ idx+='<body data-base="">\n'+bar('','home')+f'''<main id="main">
 <div class="lab-thumbs" aria-hidden="true"><img src="images/lab/little-ranch.jpg" alt="" loading="lazy" width="960" height="540"><img src="images/lab/diamond-manager.jpg" alt="" loading="lazy" width="960" height="540"><img src="images/lab/storm-front.jpg" alt="" loading="lazy" width="960" height="540"></div>
 <a class="btn" href="lab.html">Visit the Lab →</a></div></div></section>
 </main>
-'''+foot('',True)+scripts('',True,'The arcade homepage',"Hub.render(document.getElementById('current'),Hub.current(),{short:true,page:true,eager:true});Hub.cta(document.getElementById('heroPlay'),'wildbond-preview','Wildbond');")
+'''+foot('',True)+scripts('',True,'The arcade homepage',"Hub.render(document.getElementById('current'),Hub.current(),{short:true,page:true,eager:true});Hub.redirectOldHash();addEventListener('hashchange',()=>Hub.redirectOldHash());Hub.cta(document.getElementById('heroPlay'),'wildbond-preview','Wildbond');")
 open('index.html','w').write(idx)
 # ---------- lab ----------
 lab=head('','The Lab: test versions and prototypes · Generations','Early test versions and prototypes from Generations: arcade cabinets, a baseball club, a football night, a story life sim and a toy for little ones.','lab.html','images/lab/little-ranch.jpg','Little Ranch, a toy for ages 2 to 4')
@@ -84,7 +85,7 @@ lab+='<body data-base="">\n'+bar('','lab')+'''<main id="main"><section class="se
 <div class="grid" id="lab"></div>
 <noscript><p>Turn on JavaScript to see the Lab, or open a game: <a href="games/little-ranch/index.html">Little Ranch</a>, <a href="games/diamond-manager/index.html">Diamond Manager</a>, <a href="games/lantern-bowl/index.html">Lantern Bowl</a>, <a href="games/otherworld/index.html">Otherworld</a>, <a href="games/storm-front/index.html">Storm Front</a>.</p></noscript>
 </div></section></main>
-'''+foot('',True)+scripts('',True,'The Lab',"Hub.render(document.getElementById('lab'),Hub.lab(),{how:true});")
+'''+foot('',True)+scripts('',True,'The Lab',"Hub.render(document.getElementById('lab'),Hub.lab(),{how:true,kindAnchors:true});Hub.jump();")
 open('lab.html','w').write(lab)
 # ---------- game pages ----------
 G=[dict(slug='wildbond',id='wildbond-preview',title='Wildbond',eyebrow='The headline game · Early preview',play='play/wildbond/',

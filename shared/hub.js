@@ -2,7 +2,7 @@
    except when the player confirms "Erase and start over" on a card. Classic editions are never shown. */
 (function () {
   'use strict';
-  const VERSION = '2.0.0';
+  const VERSION = '1.8.0';
   const CURRENT = ['wildbond-preview', 'starfall-preview', 'realmbound']; // the headline games on the hub
   const PAGES = { 'wildbond-preview': 'game/wildbond.html', 'starfall-preview': 'game/starfall.html', realmbound: 'game/realmbound.html' };
   const SHORT = {
@@ -29,7 +29,8 @@
     const more = opts.page && PAGES[g.id] ? `<a class="btn btn-ghost btn-sm" href="${base + PAGES[g.id]}">About</a>` : '';
     const how = opts.how ? `<details><summary>How to play</summary><p><b>What you do:</b> ${g.goal}</p><p><b>Controls:</b> ${g.controls}</p>${g.load ? `<p>${g.load}</p>` : ''}</details>` : '';
     const src = art(g);
-    return `<article class="card cab" data-game="${g.id}"><div class="card-art">${src ? `<img src="${src}" alt="${esc(g.alt || g.title + ' screenshot')}" loading="${opts.eager ? 'eager' : 'lazy'}" decoding="async" width="960" height="540">` : ''}<div class="ttl">${g.title}</div></div>
+    const anchor = opts.kindAnchors && !opts.seen[g.kind] ? (opts.seen[g.kind] = 1, ` id="kind-${g.kind}"`) : '';
+    return `<article class="card cab" data-game="${g.id}"${anchor}><div class="card-art">${src ? `<img src="${src}" alt="${esc(g.alt || g.title + ' screenshot')}" loading="${opts.eager ? 'eager' : 'lazy'}" decoding="async" width="960" height="540">` : ''}<div class="ttl">${g.title}</div></div>
       <div class="card-body"><span class="chip ${g.status[1]}">${g.status[0]}</span><p>${opts.short && SHORT[g.id] ? SHORT[g.id] : g.blurb}</p>${prog}${how}
       <div class="card-actions">${g.href ? `<a class="btn btn-sm play" href="${base + g.href}">${label}</a>` : '<span class="chip">Being designed now</span>'}${more}</div>${reset}</div></article>`;
   }
@@ -46,9 +47,18 @@
     VERSION, CURRENT, idx, games: all,
     current: () => CURRENT.map(id => all.find(g => g.id === id)).filter(Boolean),
     lab: () => all.filter(g => !CURRENT.includes(g.id)),
-    render(el, list, opts) { if (!el) return; el.innerHTML = list.map(g => card(g, opts || {})).join(''); wireResets(el); },
+    render(el, list, opts) { if (!el) return; opts = Object.assign({ seen: {} }, opts); el.innerHTML = list.map(g => card(g, opts)).join(''); wireResets(el); },
     // Previews are Godot games: their saves live in the browser's IndexedDB file system, never in the shared index.
     // Read-only: only look inside the database if it already exists (never create it), and only list keys.
+    // Old hub links (v1.7 and the canvas hall) keep working: section anchors of current games land on Play now,
+    // the others move to the matching section of the Lab.
+    redirectOldHash() {
+      const h = location.hash.slice(1); if (!h) return;
+      const labKinds = this.lab().map(g => 'kind-' + g.kind);
+      if (h === 'more-games' || h === 'kindsNav' || (labKinds.includes(h) && !['kind-adventure', 'kind-build'].includes(h))) { location.replace('lab.html' + (h.startsWith('kind-') ? '#' + h : '')); return; }
+      if (/^(kind-|launch)/.test(h)) { const t = document.getElementById('games'); if (t) t.scrollIntoView(); }
+    },
+    jump() { const t = location.hash && document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); },
     cta(el, id, name) {
       if (!el) return;
       const file = GODOT_SAVES[id];
