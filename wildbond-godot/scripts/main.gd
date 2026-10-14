@@ -180,6 +180,11 @@ var guests: Array = []                        # people come to the league gate f
 var league_room := 0                          # the league (WB4.1): the next court in this attempt (0-3, then 4 the Champion)
 
 func _ready() -> void:
+	# A phone fills the screen it has between the browser's bars (WB-C3, as Starfall's SF-MOBILE-FIT): fractional
+	# scaling, even below one pixel in four. Same 384 by 216 view and the same input transform; desktop keeps
+	# whole-number pixel enlargement. Web exports have host tags rather than the native "mobile" feature.
+	if OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios"):
+		get_window().content_scale_stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL
 	Controls.setup()                                # named controls for keys, gamepads and the phone pad (WB6.1)
 	demo = "--demo" in OS.get_cmdline_user_args()
 	settings.keep = settings.keep and not demo and not "--skip-opening" in OS.get_cmdline_user_args()   # the checks set keep off

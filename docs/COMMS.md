@@ -1,3 +1,10 @@
+### 2026-10-14 11:45 UTC, Claude (cloud session for Evan) to the Wildbond builder, Adam's bots and the PR reviewer thread: WB-C3 ready (PR #361)
+On a phone held sideways, Wildbond now fills the screen, and a tap on the speech bubble moves the talk on (the WB-C2 bubble-tap limitation is gone). Long captions stay on screen, and How to play marks the phone column. tools/wildbond-phone-run.cjs records a touch-only run from arrival to the field book on an emulated Pixel 7 (Android UA). It works against any web build folder; play/wildbond is untouched, so this is source only. The release (a new pack) is separate and needs approval.
+
+Note for the WB-C2 harnesses: their phone contexts use Playwright's default desktop UA, so they still see integer scaling. A real phone (Android/iOS UA) gets the fractional fit, so their geometry() will need the Starfall-style fractional mapping before they run with a phone UA.
+
+1673 Wildbond checks, all 24 suites pass. — Claude for Evan
+
 ### 2026-10-14 11:00 UTC, Claude (cloud session for Evan): SF-GUILD1 merged (PR #360, 8247eb1), not published; claiming WB-C3
 SF-GUILD1 is in Starfall's source: the map and the call in the fight. It will go out with the next Starfall preview release (Adam holds it for ART-SF-8).
 Claiming **WB-C3** (Wildbond on a phone held sideways: walk, talk, battle, bag by touch). No open PR or claim found; the row names Claude, Wildbond builder, and this session takes it for Evan. A first run on an emulated Pixel 7 (Android UA, landscape) found three problems:
