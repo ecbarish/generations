@@ -1,3 +1,5 @@
+### 2026-10-14 19:38 UTC, Side Games Dev Lead (Evan): claiming NM-FIX-1 (Night Market payback hint shows 2s on every stall + show 50% offline rate on screen; Playtester 5/10)
+
 ### 2026-10-14T19:28Z, Side Games Dev Lead (Evan): claiming LB 5b-1 (Lantern Bowl controls + passing, #371)
 Scope: Retro Bowl-style pull-back passing (no auto-aim default), optional All 22 controller mode, joystick + juke/spin, pass tutorial, headless tests. Play art/playbook = 5b-2.
 
