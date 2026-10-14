@@ -1,0 +1,561 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Main Street mock (MS0.1)</title>
+<style>
+  html, body { margin: 0; background: #141210; color: #fff4cd; font: 15px/1.45 system-ui, sans-serif; }
+  main { max-width: 960px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.15rem; font-weight: 650; margin: 0 0 8px; }
+  p { margin: 0 0 12px; max-width: 68ch; }
+  canvas {
+    display: block; width: 100%; height: auto; background: #111;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+    touch-action: none; outline: none;
+  }
+  canvas:focus { box-shadow: 0 0 0 2px #f2d080; }
+</style>
+<main>
+  <h1>Main Street, the first morning</h1>
+  <p>A playable sketch of the ten-minute slice, drawn at 384 by 216. Walk with the arrow keys or A and D, or tap the pavement. Space, Enter, or a tap uses whatever is in front of you. R starts the morning over. The Binder cannot be bought.</p>
+  <canvas id="street" width="384" height="216" tabindex="0" aria-label="Main Street, a playable sketch of the first morning"></canvas>
+</main>
+<script>
+(function () {
+  'use strict';
+  var W = 384, H = 216;
+  var INK = '#1e1a22', LAMP = '#f2d080', TXT = '#fff4cd', MUTED = '#c0d1cb';
+  var canvas = document.getElementById('street');
+  var c = canvas.getContext('2d');
+  c.imageSmoothingEnabled = false;
+  var reduce = false;
+  try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+  function fresh() {
+    return {
+      place: 'street', x: 72, dest: 72, face: 1,
+      hold: null, jars: 0, coins: 0,
+      kettle: false, mend: false,
+      placed: 0, sales: 0, pours: 0, mends: 0,
+      customer: null, custWait: 0.6,
+      cafeWait: 0.4, cafePhase: 'away',
+      pouring: false, pour: 0,
+      offer: null, nia: false, niaSold: false, niaT: 0,
+      pell: 'here', pellX: 8, heard: false,
+      fault: 0, mendWait: 0,
+      msg: 'Pell left a crate inside the open shop.', msgT: 4,
+      rush: false, arm: null, t: 0
+    };
+  }
+  var S = fresh();
+
+  function say(text, secs) { S.msg = text; S.msgT = secs || 3.4; }
+  function clamp(x) { return Math.max(14, Math.min(W - 14, x)); }
+  function approach(from, to, speed, dt) {
+    var max = speed * dt, d = to - from;
+    if (Math.abs(d) <= max) return to;
+    return from + Math.sign(d) * max;
+  }
+
+  function person(x, y, shirt, hair) {
+    x = Math.round(x); y = Math.round(y);
+    rect(x - 8, y - 24, 16, 24, INK);
+    rect(x - 6, y - 22, 12, 5, '#d9a77a');
+    rect(x - 6, y - 22, 12, 3, hair || '#3a2a22');
+    rect(x - 6, y - 16, 12, 8, shirt);
+    rect(x - 6, y - 8, 5, 8, '#2c3338');
+    rect(x + 1, y - 8, 5, 8, '#2c3338');
+  }
+  function mule(x, y) {
+    x = Math.round(x); y = Math.round(y);
+    rect(x - 14, y - 16, 28, 12, INK);
+    rect(x - 12, y - 14, 22, 8, '#6b5344');
+    rect(x + 8, y - 20, 8, 8, '#6b5344');
+    rect(x + 10, y - 22, 3, 4, '#6b5344');
+    rect(x - 10, y - 4, 3, 6, INK);
+    rect(x + 4, y - 4, 3, 6, INK);
+  }
+  function rect(x, y, w, h, col) { c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), w, h); }
+  function text(s, x, y, col, size, align) {
+    c.font = (size || 7) + 'px monospace';
+    c.fillStyle = col || TXT;
+    c.textAlign = align || 'left';
+    c.fillText(s, Math.round(x), Math.round(y));
+  }
+  function panel(x, y, w, h) {
+    rect(x, y, w, h, INK);
+    rect(x + 1, y + 1, w - 2, h - 2, '#17343a');
+  }
+
+  function spots() {
+    if (S.place === 'street') {
+      var list = [
+        { id: 'provisioner', x: 48, label: 'The Provisioner' },
+        { id: 'kettle', x: 144, label: 'The Kettle' },
+        { id: 'mend', x: 240, label: 'The Mend' },
+        { id: 'binder', x: 336, label: 'The Binder' }
+      ];
+      if (S.pell === 'here') list.push({ id: 'pell', x: 18, label: 'Pell' });
+      if (!S.nia && S.placed >= 4) list.push({ id: 'nia', x: 96, label: 'Nia' });
+      return list;
+    }
+    if (S.place === 'provisioner') {
+      return [
+        { id: 'exit', x: 28, label: 'Street' },
+        { id: 'crate', x: 96, label: 'Crate' },
+        { id: 'shelf', x: 190, label: 'Shelf' },
+        { id: 'till', x: 310, label: 'Till' }
+      ];
+    }
+    if (S.place === 'kettle') {
+      return [
+        { id: 'exit', x: 28, label: 'Street' },
+        { id: 'kettlepot', x: 140, label: 'Kettle' },
+        { id: 'serve', x: 280, label: 'Counter' }
+      ];
+    }
+    return [
+      { id: 'exit', x: 28, label: 'Street' },
+      { id: 'spring', x: 120, label: 'Spring' },
+      { id: 'needle', x: 190, label: 'Needle' },
+      { id: 'solder', x: 260, label: 'Solder' }
+    ];
+  }
+
+  function nearest(range) {
+    var best = null, bestD = range || 28;
+    spots().forEach(function (s) {
+      var d = Math.abs(S.x - s.x);
+      if (d < bestD) { best = s; bestD = d; }
+    });
+    return best;
+  }
+
+  function enter(place) {
+    var at = place === 'provisioner' ? 96 : place === 'kettle' ? 140 : place === 'mend' ? 120 : 72;
+    S.place = place;
+    S.x = at; S.dest = at; S.offer = null; S.arm = null; S.pouring = false; S.pour = 0;
+    if (place === 'kettle') { S.niaSold = false; S.niaT = 0; if (S.cafePhase === 'away') S.cafeWait = 0.3; }
+  }
+  function leave() {
+    var back = S.place === 'kettle' ? 144 : S.place === 'mend' ? 240 : 48;
+    S.place = 'street';
+    S.x = back; S.dest = back; S.offer = null; S.arm = null; S.pouring = false; S.pour = 0;
+  }
+
+  var FAULTS = [
+    { line: 'Otto: The little clock ticks, and it will not chime.', tool: 'spring', done: 'The chime comes back. Otto counts out six coins.' },
+    { line: 'Otto: The strap has split.', tool: 'needle', done: 'The strap holds. Otto counts out six coins.' },
+    { line: 'Otto: A joint has come loose.', tool: 'solder', done: 'The joint holds. Otto counts out six coins.' }
+  ];
+
+  function use() {
+    var h = nearest(30);
+    if (!h) { say('Walk up to a door, a crate, or a person.'); return; }
+    if (S.place === 'street') {
+      if (h.id === 'pell') {
+        S.heard = true; S.pell = 'leaving';
+        say('Pell: The key is yours. The crate is paid for. I am only passing through.');
+        return;
+      }
+      if (h.id === 'nia') {
+        S.nia = true;
+        say('Nia: I can mind the Provisioner till while you are in another shop. The shelf still needs you.');
+        return;
+      }
+      if (h.id === 'provisioner') { enter('provisioner'); say('The crate is by the wall. The shelf is empty.'); return; }
+      if (h.id === 'kettle') {
+        if (S.kettle) { enter('kettle'); say('The kettle is warm. Lark is waiting on a cup.'); return; }
+        if (S.coins < 12) { say('The boards say twelve coins. The tray does not have it yet.'); S.offer = null; return; }
+        if (S.offer !== 'kettle') { S.offer = 'kettle'; say('Hand over twelve coins for the Kettle?'); return; }
+        S.coins -= 12; S.kettle = true; S.offer = null;
+        say('The boards come down. The Kettle is yours.');
+        enter('kettle');
+        return;
+      }
+      if (h.id === 'mend') {
+        if (!S.kettle) { say('The Mend can wait. The Kettle is the next door.'); return; }
+        if (S.mend) { enter('mend'); say(FAULTS[S.fault].line); return; }
+        if (S.coins < 20) { say('The Mend is twenty coins.'); S.offer = null; return; }
+        if (S.offer !== 'mend') { S.offer = 'mend'; say('Hand over twenty coins for the Mend?'); return; }
+        S.coins -= 20; S.mend = true; S.offer = null;
+        say('The stall is yours. Otto is already at the bench.');
+        enter('mend');
+        return;
+      }
+      if (h.id === 'binder') {
+        say('The Binder stays shut. The cards are not printed yet.');
+        return;
+      }
+    }
+    if (S.place === 'provisioner') {
+      if (h.id === 'exit') { leave(); say('Main Street. The other doors are along the pavement.'); return; }
+      if (h.id === 'crate') {
+        if (S.hold) { say('Your hands are full.'); return; }
+        S.hold = 'jar'; say('A jar. The shelf is waiting.'); return;
+      }
+      if (h.id === 'shelf') {
+        if (S.hold !== 'jar') { say(S.jars ? 'The shelf has ' + S.jars + (S.jars === 1 ? ' jar.' : ' jars.') : 'Bring a jar from the crate.'); return; }
+        if (S.jars >= 3) { say('The shelf is full.'); return; }
+        S.jars += 1; S.hold = null; S.placed += 1;
+        say(S.placed === 4 && !S.nia ? 'Four jars placed. Nia is out on the pavement.' : 'The jar sits on the shelf.');
+        return;
+      }
+      if (h.id === 'till') {
+        if (!S.customer || S.customer.phase !== 'wait') { say('Nobody is waiting at the till.'); return; }
+        S.coins += 4; S.sales += 1; S.customer.phase = 'leave'; S.customer.dest = 16;
+        say('Four coins, into the tray.');
+        return;
+      }
+    }
+    if (S.place === 'kettle') {
+      if (h.id === 'exit') { leave(); return; }
+      if (h.id === 'kettlepot') {
+        if (S.hold) { say('Your hands are full.'); return; }
+        if (reduce) { S.hold = 'cup'; say('The cup is ready.'); return; }
+        say('Hold to pour. Let go when the fill sits in the gold.');
+        return;
+      }
+      if (h.id === 'serve') {
+        if (S.cafePhase !== 'wait') { say('Nobody is at the counter yet.'); return; }
+        if (S.hold !== 'cup' && S.hold !== 'weak') { say('Pour a cup first.'); return; }
+        var good = S.hold === 'cup';
+        S.coins += good ? 4 : 2; S.hold = null; S.pours += 1; S.cafePhase = 'leave'; S.cafeWait = 1.3;
+        if (good && !S.rush) { S.rush = true; say('Lark: First hot cup on the street in a long while.'); }
+        else say(good ? 'They count out four coins.' : 'A shy cup. They leave two coins.');
+        return;
+      }
+    }
+    if (S.place === 'mend') {
+      if (h.id === 'exit') { leave(); return; }
+      if (S.mendWait > 0) { say('Otto is settling the last mend.'); return; }
+      var fault = FAULTS[S.fault];
+      if (h.id !== 'spring' && h.id !== 'needle' && h.id !== 'solder') return;
+      if (h.id === fault.tool) {
+        S.coins += 6; S.mends += 1; S.fault = (S.fault + 1) % FAULTS.length; S.mendWait = 1.6;
+        say(fault.done);
+      } else say('Otto: That is not the trouble. Try another tool.');
+    }
+  }
+
+  function finishPour() {
+    if (!S.pouring) return;
+    S.pouring = false;
+    var p = S.pour;
+    S.pour = 0;
+    if (p < 0.12) return;
+    if (p >= 0.72 && p <= 1.02) { S.hold = 'cup'; say('Just right.'); }
+    else if (p > 1.02) { S.hold = 'weak'; say('It ran over the rim.'); }
+    else { S.hold = 'weak'; say('A little shy of hot.'); }
+  }
+
+  function step(dt) {
+    S.t += dt;
+    if (S.msgT > 0) S.msgT -= dt;
+    if (S.pouring) {
+      S.pour += dt * 0.42;
+      if (S.pour > 1.25) finishPour();
+    } else {
+      var left = keys.arrowleft || keys.a, right = keys.arrowright || keys.d;
+      if (left || right) {
+        S.face = right && !left ? 1 : -1;
+        S.x = clamp(S.x + (right && !left ? 1 : -1) * 78 * dt);
+        S.dest = S.x; S.arm = null;
+      } else if (S.dest !== S.x) {
+        var dir = S.dest > S.x ? 1 : -1;
+        S.face = dir;
+        S.x = clamp(approach(S.x, S.dest, 78, dt));
+        if (S.x === S.dest && S.arm) {
+          var arm = S.arm; S.arm = null;
+          if (Math.abs(S.x - arm.x) < 30) use();
+        }
+      }
+    }
+    if (S.pell === 'leaving') {
+      S.pellX += 40 * dt;
+      if (S.pellX > W + 20) S.pell = 'gone';
+    }
+    if (S.offer === 'kettle' && Math.abs(S.x - 144) > 40) S.offer = null;
+    if (S.offer === 'mend' && Math.abs(S.x - 240) > 40) S.offer = null;
+    if (S.place === 'provisioner') {
+      S.custWait -= dt;
+      var cu = S.customer;
+      if (!cu && S.custWait <= 0 && S.jars > 0) {
+        S.customer = { x: 16, dest: 190, phase: 'shelf' };
+      }
+      if (cu) {
+        if (cu.x !== cu.dest) cu.x = approach(cu.x, cu.dest, 46, dt);
+        else if (cu.phase === 'shelf') {
+          if (S.jars > 0) { S.jars -= 1; cu.phase = 'till'; cu.dest = 300; say('They take a jar and come to the till.'); }
+          else { cu.phase = 'leave'; cu.dest = 8; say('The shelf is bare. They head out.'); }
+        } else if (cu.phase === 'till') cu.phase = 'wait';
+        else if (cu.phase === 'leave') { S.customer = null; S.custWait = 1.1; }
+      }
+    }
+    if (S.place === 'kettle') {
+      if (S.cafePhase === 'away') {
+        S.cafeWait -= dt;
+        if (S.cafeWait <= 0) S.cafePhase = 'wait';
+      } else if (S.cafePhase === 'leave') {
+        S.cafeWait -= dt;
+        if (S.cafeWait <= 0) { S.cafePhase = 'wait'; }
+      }
+      if (S.nia && !S.niaSold && S.jars > 0) {
+        S.niaT += dt;
+        if (S.niaT > 2.4) {
+          S.jars -= 1; S.coins += 4; S.niaSold = true;
+          say('Nia took one sale at the Provisioner. The shelf still needs you.');
+        }
+      }
+    }
+    if (S.place === 'mend' && S.mendWait > 0) S.mendWait -= dt;
+  }
+
+  function hint() {
+    if (S.place === 'street') {
+      if (!S.heard && S.pell === 'here' && S.coins === 0 && S.placed === 0) return 'Pell is by the mule, or go straight into the Provisioner.';
+      if (!S.kettle && S.coins < 12) return 'Stock the Provisioner. A jar sells for four coins. The Kettle costs twelve.';
+      if (!S.kettle) return 'The Kettle is twelve coins. Stand at the boards and confirm.';
+      if (!S.rush) return 'The Kettle is open. Pour a cup, and let go in the gold.';
+      if (!S.nia && S.placed >= 4) return 'Nia is outside the Provisioner.';
+      if (!S.mend) return 'The Mend is twenty coins. The Binder at the end stays shut.';
+      return 'The Binder stays shut. The cards are not printed yet.';
+    }
+    if (S.place === 'provisioner') {
+      if (S.hold === 'jar') return 'Set the jar on the shelf.';
+      if (S.customer && S.customer.phase === 'wait') return 'They are at the till. Take their coins.';
+      if (S.jars === 0) return 'Take a jar from the crate.';
+      return 'Someone will come in for a jar.';
+    }
+    if (S.place === 'kettle') {
+      if (S.hold === 'jar') return 'Set the jar on the shelf at the Provisioner before you pour.';
+      if (S.hold === 'cup' || S.hold === 'weak') return 'Take the cup to the counter.';
+      if (S.pouring) return 'Let go when the fill sits in the gold.';
+      if (reduce) return 'Tap the kettle once. The cup fills without a timer.';
+      return 'Hold at the kettle. Let go in the gold band.';
+    }
+    return FAULTS[S.fault].line;
+  }
+
+  function glow(x) {
+    if (reduce) return;
+    c.strokeStyle = LAMP; c.lineWidth = 1;
+    c.beginPath(); c.arc(Math.round(x), 170, 12, 0, 7); c.stroke();
+  }
+
+  function sky() {
+    var g = c.createLinearGradient(0, 0, 0, 52);
+    g.addColorStop(0, S.rush ? '#24344a' : '#2a3d55');
+    g.addColorStop(1, '#d2b08a');
+    c.fillStyle = g; c.fillRect(0, 0, W, 56);
+  }
+
+  function purse() {
+    panel(6, 6, 78, 22);
+    text('Coins ' + S.coins, 12, 15, TXT, 7);
+    var n = Math.min(S.coins, 8);
+    for (var i = 0; i < n; i++) rect(12 + i * 8, 18, 5, 5, LAMP);
+  }
+
+  function heldMark() {
+    if (S.hold === 'jar') rect(S.x + 8 * S.face, 156, 6, 8, '#c4d2b0');
+    if (S.hold === 'cup' || S.hold === 'weak') rect(S.x + 8 * S.face, 156, 6, 7, S.hold === 'cup' ? '#f0e2c4' : '#b9a48a');
+  }
+
+  function boards() {
+    rect(0, 198, W, 18, INK);
+    text(S.msgT > 0 ? S.msg : hint(), 8, 210, TXT, 6);
+  }
+
+  function drawStreet() {
+    sky();
+    text('Hearthwick  ·  Main Street', 192, 14, INK, 7, 'center');
+    var bodies = ['#8d4d3a', '#6e5344', '#3d4f5c', '#3a3144'];
+    var awnings = ['#f0e2c4', '#e7d3bf', '#c5b59a', '#2a2433'];
+    var names = ['Provisioner', 'The Kettle', 'The Mend', 'The Binder'];
+    for (var i = 0; i < 4; i++) {
+      var x = i * 96;
+      rect(x, 58, 94, 86, bodies[i]);
+      for (var by = 64; by < 140; by += 6) rect(x, by, 94, 1, 'rgba(30,26,34,.25)');
+      rect(x + 4, 62, 86, 7, awnings[i]);
+      rect(x + 36, 86, 22, 42, INK);
+      var open = i === 0 || (i === 1 && S.kettle) || (i === 2 && S.mend);
+      rect(x + 38, 88, 18, 38, open ? '#3f6b4e' : '#4a3d34');
+      if (!open && i !== 3) {
+        rect(x + 38, 96, 18, 3, '#cbb892');
+        rect(x + 38, 104, 18, 3, '#cbb892');
+      }
+      if (i === 3) { rect(x + 34, 78, 26, 48, '#241e2c'); text('shut', x + 47, 104, MUTED, 6, 'center'); }
+      rect(x + 14, 74, 14, 12, '#9fd0d6');
+      rect(x + 66, 74, 14, 12, '#9fd0d6');
+      if (open) { rect(x + 16, 70, 10, 3, LAMP); }
+      rect(x + 8, 46, 78, 11, INK);
+      rect(x + 9, 47, 76, 9, '#17343a');
+      text(names[i], x + 47, 54, TXT, 6, 'center');
+    }
+    if (!S.kettle) { rect(120, 130, 48, 12, '#efe6cf'); text('12 coins', 144, 139, INK, 6, 'center'); }
+    else if (!S.mend) { rect(216, 130, 48, 12, '#efe6cf'); text('20 coins', 240, 139, INK, 6, 'center'); }
+    rect(0, 144, W, 56, '#6e6258');
+    rect(0, 144, W, 3, '#85766a');
+    for (var px = 0; px < W; px += 18) rect(px, 168, 8, 2, '#85766a');
+    if (S.pell !== 'gone') {
+      mule(S.pellX, 176);
+      person(S.pell === 'here' ? 20 : S.pellX + 18, 178, '#6b4a2a', '#2a241c');
+      if (S.pell === 'here') text('Pell', 20, 150, MUTED, 6, 'center');
+    }
+    if (!S.nia && S.placed >= 4) { person(96, 176, '#b0563e', '#3a2418'); text('Nia', 96, 148, LAMP, 6, 'center'); }
+    person(S.x, 178, '#3f5e86', '#1e2430');
+    heldMark();
+    var focus = nearest(34);
+    if (focus) glow(focus.x);
+    purse();
+    boards();
+  }
+
+  function room(title, wall) {
+    rect(0, 0, W, H, wall);
+    for (var y = 0; y < 120; y += 8) rect(0, y, W, 1, 'rgba(30,26,34,.2)');
+    rect(0, 132, W, 68, '#5a4232');
+    for (var x = 0; x < W; x += 24) rect(x, 132, 1, 68, '#4a3628');
+    text(title, 192, 16, TXT, 7, 'center');
+    rect(8, 100, 28, 32, INK);
+    rect(10, 102, 24, 28, '#3f6b4e');
+    text('Out', 22, 118, TXT, 6, 'center');
+  }
+
+  function drawProvisioner() {
+    room('The Provisioner', '#4a342c');
+    rect(70, 70, 40, 28, '#6b4a2a');
+    rect(74, 60, 32, 12, '#c4a574');
+    text('Crate', 90, 58, MUTED, 6, 'center');
+    rect(150, 48, 80, 50, '#3a2e28');
+    for (var i = 0; i < 3; i++) {
+      rect(158 + i * 24, 58, 16, 28, '#2a2422');
+      if (i < S.jars) rect(160 + i * 24, 64, 12, 16, '#c4d2b0');
+    }
+    text('Shelf', 190, 44, MUTED, 6, 'center');
+    rect(286, 108, 48, 16, '#6b4a2a');
+    rect(300, 96, 18, 14, LAMP);
+    text('Till', 310, 92, INK, 6, 'center');
+    if (S.customer) {
+      person(S.customer.x, 164, '#b0563e', '#3a2418');
+      if (S.customer.phase === 'wait') text('Lark', S.customer.x, 136, LAMP, 6, 'center');
+    }
+    person(S.x, 168, '#3f5e86', '#1e2430');
+    heldMark();
+    var focus = nearest(34); if (focus) glow(focus.x);
+    purse(); boards();
+  }
+
+  function drawKettle() {
+    room('The Kettle', '#3e342c');
+    rect(118, 78, 44, 28, '#2c2a28');
+    rect(124, 70, 18, 14, '#c0c4c8');
+    rect(146, 74, 8, 6, INK);
+    text('Kettle', 140, 64, MUTED, 6, 'center');
+    var p = S.pouring ? Math.max(0, Math.min(1.15, S.pour)) : (S.hold === 'cup' ? 0.86 : S.hold === 'weak' ? 0.4 : 0);
+    rect(166, 74, 16, 42, INK);
+    rect(168, 76, 12, 38, '#1a1614');
+    if (p > 0) {
+      var fill = Math.min(p, 1) * 38;
+      rect(168, 76 + (38 - fill), 12, fill, p > 1.02 ? '#8a3030' : '#d2b48a');
+    }
+    rect(166, 76, 16, 11, 'rgba(242,208,128,.55)');
+    text('gold', 186, 84, LAMP, 6);
+    rect(250, 108, 60, 14, '#6b4a2a');
+    if (S.cafePhase === 'wait') { person(300, 164, '#e0d4b4', '#6b5344'); text('Lark', 300, 136, LAMP, 6, 'center'); }
+    person(S.x, 168, '#3f5e86', '#1e2430');
+    heldMark();
+    var focus = nearest(34); if (focus) glow(focus.x);
+    purse(); boards();
+  }
+
+  function drawMend() {
+    room('The Mend', '#2e3840');
+    var tools = [['spring', 120, 'Spring'], ['needle', 190, 'Needle'], ['solder', 260, 'Solder']];
+    tools.forEach(function (t) {
+      rect(t[1] - 16, 86, 32, 22, '#243038');
+      text(t[2], t[1], 100, TXT, 6, 'center');
+    });
+    rect(120 - 4, 78, 8, 6, '#d0d4d8');
+    rect(186, 80, 8, 14, '#e6d7b0');
+    rect(256, 82, 10, 8, '#c0a060');
+    if (S.mendWait <= 0) { person(320, 164, '#8a6440', '#2a241c'); text('Otto', 320, 136, LAMP, 6, 'center'); }
+    person(S.x, 168, '#3f5e86', '#1e2430');
+    var focus = nearest(34); if (focus) glow(focus.x);
+    purse(); boards();
+  }
+
+  function draw() {
+    c.clearRect(0, 0, W, H);
+    if (S.place === 'street') drawStreet();
+    else if (S.place === 'provisioner') drawProvisioner();
+    else if (S.place === 'kettle') drawKettle();
+    else drawMend();
+    text('R  new morning', 378, 12, '#fff8', 6, 'right');
+  }
+
+  var keys = {};
+  function keyName(e) { return e.key.toLowerCase(); }
+  window.addEventListener('keydown', function (e) {
+    var k = keyName(e);
+    if (['arrowleft', 'arrowright', 'arrowup', 'arrowdown', ' ', 'a', 'd'].indexOf(k) >= 0) e.preventDefault();
+    if (e.repeat) return;
+    keys[k] = true;
+    canvas.focus();
+    if (k === 'r') { S = fresh(); return; }
+    if (k === ' ' || k === 'enter') {
+      var h = nearest(30);
+      if (S.place === 'kettle' && h && h.id === 'kettlepot' && !S.hold && !reduce) { S.pouring = true; S.pour = 0; }
+      else use();
+    }
+  });
+  window.addEventListener('keyup', function (e) {
+    var k = keyName(e);
+    keys[k] = false;
+    if (k === ' ' || k === 'enter') finishPour();
+  });
+
+  function pos(ev) {
+    var r = canvas.getBoundingClientRect();
+    return { x: (ev.clientX - r.left) * W / r.width, y: (ev.clientY - r.top) * H / r.height };
+  }
+  canvas.addEventListener('pointerdown', function (ev) {
+    canvas.focus();
+    var p = pos(ev);
+    if (S.place === 'kettle' && !S.hold && !reduce && Math.abs(p.x - 140) < 30 && Math.abs(S.x - 140) < 30) {
+      S.pouring = true; S.pour = 0; return;
+    }
+    var hit = null;
+    spots().forEach(function (s) { if (Math.abs(p.x - s.x) < 28) hit = s; });
+    if (hit && Math.abs(S.x - hit.x) < 30) { use(); return; }
+    S.dest = clamp(p.x);
+    S.arm = hit;
+  });
+  canvas.addEventListener('pointerup', function () { finishPour(); });
+  canvas.addEventListener('pointerleave', function () { finishPour(); });
+
+  window.MS = {
+    get state() { return S; },
+    reset: function () { S = fresh(); },
+    step: step,
+    draw: draw,
+    use: use,
+    finishPour: finishPour,
+    enter: enter,
+    nearest: nearest
+  };
+
+  var last = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - last) / 1000 || 0);
+    last = now;
+    step(dt);
+    draw();
+    requestAnimationFrame(frame);
+  }
+  canvas.focus();
+  var still = false;
+  try { still = new URLSearchParams(location.search).get('still') === '1'; } catch (e) {}
+  if (still) draw();
+  else requestAnimationFrame(frame);
+})();
+</script>
