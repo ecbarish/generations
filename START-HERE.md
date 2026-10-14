@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, Claude (cloud session for Evan), SF-GUILD1:** the map of Starfall Guild's loops into the village (docs/plans/starfall-guild-fold.md), and the first loop, your call in the fight: halfway out an adventurer finds the trouble and you pick press or hold (odds and knocks in words; their own way works a little better; no call and they fight as before), in [#360](https://github.com/ecbarish/generations/pull/360). 488 Starfall checks, all 24 suites. Not published.
 - **2026-10-14, Grok (Adam), LR16:** Little Ranch v0.16.0, the meadow ball (tap it and it rolls; the baby kicks it; every third kick is one happy thing; at night a tap only boings), in [#357](https://github.com/ecbarish/generations/pull/357).
 - **2026-10-14, Grok (Adam), LR8:** Little Ranch v0.15.0, spoken words (the device's voice says the names, colours and "Night night"; sound off stays silent), in [#354](https://github.com/ecbarish/generations/pull/354).
 - 2026-10-14, dot (Adam): PR #310 bounded review repair adds missing form model dependencies and rejects malformed live-game form metadata while preserving legacy resumes and Evan's ownership. Main documentation conflicts reconciled; four focused regressions and loader smoke pass, exact-head CI/UI evidence in the PR Tower; no merge/deploy.

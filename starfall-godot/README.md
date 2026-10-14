@@ -21,7 +21,10 @@ keys are shown at the bottom the first time you need them (walking, then using t
   adventurers (Aki the Swordsman, Ren the Mage, Yuna the Cleric) choose for themselves by their level and their nerve; a
   bold one may take a job a step too hard.
 - **Jobs:** they walk out through the gate, and come back later with the guild's share of the reward (three coins in
-  ten), or without it if it went badly. Hurt either way; badly hurt ones wear a bandage. **Nobody dies:** a disastrous
+  ten), or without it if it went badly. **Your call in the fight** (SF-GUILD1): halfway out they find the trouble, and a short
+  choice comes up at the foot of the screen, two ways to take it with the odds and the knocks in words (press 1 or 2, or
+  tap one). Ren, Kaito and the other quick hitters would rather go straight at it; Hana and Yuna would rather hold, and
+  doing it their way works a little better. Leave it, and they fight their own way, as before. Hurt either way; badly hurt ones wear a bandage. **Nobody dies:** a disastrous
   job means being carried home for a long rest.
 - **The inn's counter, by hand:** hungry adventurers come straight to the counter. Stand behind it and serve them (eight
   coins a bowl). Keep them waiting too long and they give up, grumbling.

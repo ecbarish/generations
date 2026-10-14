@@ -511,6 +511,7 @@ func _process(dt: float) -> void:
 	_watch_tick(dt)
 	_dark_tick(dt)
 	_spar_tick(dt)
+	_call_tick(dt)
 	_fen_tick(dt)
 	_brew(dt)
 	_construction(dt)
@@ -733,6 +734,9 @@ func _unhandled_input(e: InputEvent) -> void:
 		sfx.on = not sfx.on                      # N: sound effects on or off
 		get_viewport().set_input_as_handled()
 		return
+	if _call_input(e):                           # 1 or 2, or a tap on a call (SF-GUILD1)
+		get_viewport().set_input_as_handled()
+		return
 	if not pour.is_empty():
 		if e.is_action_pressed("ui_accept") or (e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_E) or _pointer_down(e):
 			pour_press()
@@ -899,6 +903,8 @@ func _hero(h: Mover, dt: float) -> void:
 		"away":
 			if a.timer <= 0.0:
 				_come_home(h)
+			elif not a.get("met", false) and a.timer <= float(job_of(a.job).time) * 0.5:
+				_find_trouble(h)                     # halfway out they find the trouble: your call (SF-GUILD1)
 		"to_tavern":
 			var tap := _step_of(finished("tavern"))
 			if h.path.is_empty():
@@ -994,10 +1000,11 @@ func _come_home(h: Mover) -> void:
 	var danger := int(j.danger)
 	var gear := int(a.get("gear", 0))
 	var tonic: bool = a.get("tonic", false)
-	var chance := clampf(0.55 + (int(a.lvl) - danger) * 0.18 + (int(a.morale) - 5) * 0.03 + gear * 0.06
-		+ (0.03 if a.get("fine", false) else 0.0) + (0.05 if tonic else 0.0) + (0.05 if "steady" in a.get("traits", []) else 0.0), 0.08, 0.95)
+	var call := str(a.get("call", ""))
+	var chance := job_chance(h, call)
 	var won := rng.randf() < chance
-	var hurt := int(float(a.max) * danger * rng.randf_range(0.08, 0.2) * (1.0 if won else 1.8) * (1.0 - 0.1 * gear) * (0.5 if tonic else 1.0))
+	var hurt := int(float(a.max) * danger * rng.randf_range(0.08, 0.2) * (1.0 if won else 1.8) * (1.0 - 0.1 * gear) * (0.5 if tonic else 1.0)
+		* float(CALLS[call].knocks if CALLS.has(call) else 1.0))
 	a.hp = maxi(1, int(a.hp) - hurt)
 	a.tonic = false
 	var reward := int(round(int(j.reward) * (1.1 if "mapper" in a.get("traits", []) else 1.0)))   # Ren's map knows the shortcuts
@@ -1018,21 +1025,166 @@ func _come_home(h: Mover) -> void:
 		a.morale = mini(10, int(a.morale) + 1)
 		total_jobs += 1
 		if not gain_xp(h, danger * 10):
-			bark(h, ["Done! The farmers can sleep tonight.", "Job's finished. I need food.", "Back in one piece. Mostly."][rng.randi() % 3])
+			if CALLS.has(call):
+				bark(h, CALLS[call].won)             # your call, remembered on the way home
+			else:
+				bark(h, ["Done! The farmers can sleep tonight.", "Job's finished. I need food.", "Back in one piece. Mostly."][rng.randi() % 3])
 		_check_rank()
 	else:
 		today.failed += 1
 		a.morale = maxi(0, int(a.morale) - 2)
-		bark(h, "It went badly. I couldn't finish it." if int(a.hp) > 1 else "...")
+		bark(h, "..." if int(a.hp) <= 1 else (str(CALLS[call].lost) if CALLS.has(call) else "It went badly. I couldn't finish it."))
 	if int(a.hp) <= 1:
 		# news, not an interruption: a line at the foot of the screen
 		caption.text = "%s is carried in through the gate by a passing carter, bruised all over. Nothing a long rest can't mend." % a.name
 		caption_t = 7.0
 	a.job = ""
+	a.call = ""
+	a.met = false
+	if not fight_call.is_empty() and fight_call.h == h:
+		fight_call = {}                          # home before you called it: they fought their own way
 	a.state = "to_counter"
 	a.timer = 0.0
 	a.waited = 0.0
 	queue.append(h)
+
+# ---------------------------------------------------------------- the call in the fight (SF-GUILD1)
+## Flint, round 3: "one tactical decision would convert watching into playing". Halfway through a job the adventurer
+## finds the trouble, and a short choice comes up at the foot of the screen: two ways to take it, each with its odds and
+## knocks in words. The town keeps going while you decide. Some adventurers say what they'd rather (a Mage wants to go
+## straight at it; a Knight or a Cleric would rather hold), and doing it their way works a little better. No call in
+## time and they fight their own way, exactly as before: never a chore you're punished for missing.
+const CALL_SECONDS := 9.0                       # how long the choice waits for you (game time)
+const CALLS := {
+	"press": { "odds": 0.15, "knocks": 1.5, "suits": ["mage", "archer", "thief", "monk"],
+		"won": "Straight at them, like you said!", "lost": "Too much, too fast. I'm sorry." },
+	"hold": { "odds": -0.08, "knocks": 0.5, "suits": ["knight", "cleric"],
+		"won": "Slow and careful. It worked.", "lost": "We held, but we couldn't finish it." },
+}
+const SUIT_ODDS := 0.06                          # their own way of fighting, when you call it
+const FIGHTS := {                                # what they find, and the two calls: press it, or hold
+	"slimes": ["the slimes in the creek", "Wade in after the big one", "Pick them off from the bank"],
+	"boar": ["the boar", "Meet its charge", "Lead it round the fence"],
+	"wolves": ["the wolves", "Go for the pack leader", "Stand with the wagons"],
+	"webs": ["the webs, and what spun them", "Cut straight through", "Burn a way round"],
+	"bandits": ["the bandits' quarry", "Rush the quarry gate", "Wait for them to come out"],
+	"barrow": ["the lights in the barrow", "Down into the barrow", "Hold the lantern at the door"],
+}
+var fight_call: Dictionary = {}                 # the open call: { h, t }
+var calls := 0                                   # calls you've made, all time (saved; for later loops)
+
+## The chance of finishing a job: level and spirits against danger, gear, a tonic, traits, and your call if you made one.
+func job_chance(h: Mover, call := "") -> float:
+	var a: Dictionary = h.a
+	var danger := int(job_of(str(a.get("job", ""))).danger)
+	var c := 0.55 + (int(a.lvl) - danger) * 0.18 + (int(a.morale) - 5) * 0.03 + int(a.get("gear", 0)) * 0.06 \
+		+ (0.03 if a.get("fine", false) else 0.0) + (0.05 if a.get("tonic", false) else 0.0) + (0.05 if "steady" in a.get("traits", []) else 0.0)
+	if CALLS.has(call):
+		c += float(CALLS[call].odds)
+		if suits_call(h, call):
+			c += SUIT_ODDS if call == "press" else -float(CALLS.hold.odds)   # a holder holds at no cost; a presser presses harder
+	return clampf(c, 0.08, 0.95)
+
+func suits_call(h: Mover, call: String) -> bool:
+	return CALLS.has(call) and str(h.a.get("cls", "")) in CALLS[call].suits
+
+## The odds and the knocks in words, the way the guildmaster would weigh them.
+func odds_word(c: float) -> String:
+	if c < 0.35:
+		return "long odds"
+	if c < 0.6:
+		return "even odds"
+	if c < 0.8:
+		return "good odds"
+	return "near certain"
+
+func knocks_word(call: String) -> String:
+	var k := float(CALLS[call].knocks) if CALLS.has(call) else 1.0
+	return "hard knocks" if k > 1.2 else ("light knocks" if k < 0.8 else "some knocks")
+
+func call_busy() -> bool:
+	return not lines.is_empty() or board_open or shelf_open or build_plot != "" or not story_pick.is_empty() \
+		or not forge.is_empty() or not pour.is_empty() or not spar.is_empty()
+
+func _find_trouble(h: Mover) -> void:
+	if not fight_call.is_empty() or call_busy():
+		if float(h.a.timer) <= float(job_of(h.a.job).time) * 0.25:
+			h.a.met = true                       # too late to call now: they'll fight their own way
+		return
+	h.a.met = true
+	fight_call = { "h": h, "t": CALL_SECONDS }
+	sfx.play("pick")
+
+func _call_tick(dt: float) -> void:
+	if fight_call.is_empty():
+		return
+	var h: Mover = fight_call.h
+	if h.where != "away" or h.a.get("state", "") != "away":
+		fight_call = {}
+		return
+	if call_busy():
+		return                                   # the choice waits while you finish what you're doing
+	fight_call.t = float(fight_call.t) - dt
+	if float(fight_call.t) <= 0.0:
+		fight_call = {}                          # they fight their own way
+
+## Make the call: 0 presses, 1 holds.
+func make_call(i: int) -> void:
+	if fight_call.is_empty() or i < 0 or i > 1:
+		return
+	var h: Mover = fight_call.h
+	h.a.call = ["press", "hold"][i]
+	calls += 1
+	fight_call = {}
+	caption.text = "You call it: %s. %s" % [str(FIGHTS.get(str(h.a.job), ["", "Press it", "Hold"])[i + 1]).to_lower(), "%s goes to it." % h.a.name]
+	caption_t = 4.0
+	sfx.play("pick")
+
+## What the adventurer would rather, said for them in the call (so you learn your people).
+func call_wish(h: Mover) -> String:
+	if suits_call(h, "press"):
+		return "%s would rather go straight at it." % h.a.name
+	if suits_call(h, "hold"):
+		return "%s would rather hold." % h.a.name
+	return ""
+
+func _call_rect(i: int) -> Rect2:
+	return Rect2(36 + i * 158, 164, 154, 22)
+
+func _call_input(e: InputEvent) -> bool:
+	if fight_call.is_empty() or call_busy():
+		return false
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode in [KEY_1, KEY_2, KEY_KP_1, KEY_KP_2]:
+		make_call(0 if e.physical_keycode in [KEY_1, KEY_KP_1] else 1)
+		return true
+	if _pointer_down(e):
+		var p := board_view.make_canvas_position_local(_view_point(e))
+		for i in 2:
+			if _call_rect(i).has_point(p):
+				make_call(i)
+				return true
+	return false
+
+## The call, drawn low over the town: what they found, and the two calls with their odds and knocks.
+func _draw_call(font: Font) -> void:
+	var h: Mover = fight_call.h
+	var f: Array = FIGHTS.get(str(h.a.job), ["trouble", "Press it", "Hold"])
+	var panel := Rect2(32, 134, 320, 56)
+	board_view.draw_rect(panel, Color(0.12, 0.09, 0.07, 0.94))
+	board_view.draw_rect(panel, Color("d8b878"), false, 1.0)
+	board_view.draw_string(font, Vector2(40, 145), "%s has found %s. Your call?" % [h.a.name, f[0]], HORIZONTAL_ALIGNMENT_LEFT, 304, 7, Color("f4e9cd"))
+	var wish := call_wish(h)
+	if wish != "":
+		board_view.draw_string(font, Vector2(40, 154), wish, HORIZONTAL_ALIGNMENT_LEFT, 304, 6, Color("d8b878"))
+	var left := clampf(float(fight_call.t) / CALL_SECONDS, 0.0, 1.0)
+	board_view.draw_rect(Rect2(40, 158, 304 * left, 2), Color("d8b878"))     # the time to call it, running down
+	for i in 2:
+		var r := _call_rect(i)
+		var call: String = ["press", "hold"][i]
+		board_view.draw_rect(r, Color("f4e9cd"))
+		board_view.draw_string(font, r.position + Vector2(5, 9), "%d  %s" % [i + 1, f[i + 1]], HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 10, 7, Color("3e2c20"))
+		board_view.draw_string(font, r.position + Vector2(5, 18), "%s, %s" % [odds_word(job_chance(h, call)), knocks_word(call)], HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 10, 6,
+			Color("3a6a3a") if suits_call(h, call) else Color("6a5444"))   # green: their own way
 
 func _queue_spot(h: Mover) -> Vector2i:
 	var i := queue.find(h)
@@ -2766,7 +2918,7 @@ func _update_ui() -> void:
 	next_list.visible = show_next and not busy and g.size() > 1
 	if next_list.visible:
 		next_list.text = "\n".join(g.slice(1, 4).map(func(x): return "then: " + str(x.text)))
-	hint.text = "" if busy else control_hint()
+	hint.text = "" if busy or not fight_call.is_empty() else control_hint()
 	var to_screen := get_viewport().get_canvas_transform()
 	bubble.visible = not lines.is_empty() and not board_open and not shelf_open and build_plot == ""
 	if bubble.visible:
@@ -2799,6 +2951,8 @@ func _draw_board_view() -> void:
 	if not story_pick.is_empty():
 		_draw_story(font)
 		return
+	if not fight_call.is_empty() and not call_busy():
+		_draw_call(font)
 	if not forge.is_empty():
 		_draw_forge(font, to_screen)
 	if not pour.is_empty():
@@ -2881,7 +3035,7 @@ func save_game() -> void:
 		"pieces": pieces, "smith": smith_hired, "apprentice": { "batches": batches, "hired": fen_hired, "here": fen.where == "town" }, "tavern": { "pours": pours, "hired": tamsin_hired, "here": tamsin.where == "town", "shut": tavern_shut, "quiet": tavern_quiet, "kept": kept }, "garrick": garrick.where == "town", "good": good_days, "bad": bad_days, "visitors": visitors,
 		"watch": { "lamps": lamps, "rounds": rounds, "hired": odo_hired, "here": odo.where == "town" },
 		"dark": { "mess": mess, "tried": creep_tried },
-		"drill": { "spars": spars, "hired": ilse_hired, "here": ilse.where == "town" }, "hints": hints,
+		"drill": { "spars": spars, "hired": ilse_hired, "here": ilse.where == "town" }, "hints": hints, "calls": calls,
 		"heroes": heroes.map(func(h): return h.a) }
 	SafeSave.write(save_path, d)                 # a spare file first, the last good save kept as a backup
 
@@ -2950,6 +3104,8 @@ func _load() -> bool:
 		ilse.tile = _drill_at()
 		ilse.pos = Vector2(ilse.tile) * TILE
 	hints = d.get("hints", { "walk": true, "use": true, "goals": true })   # (a town saved before SF2.10 knows its way around)
+	calls = int(d.get("calls", 0))               # (SF-GUILD1: older saves have made no calls yet)
+	fight_call = {}
 	good_days = int(d.get("good", 0))
 	bad_days = int(d.get("bad", 0))
 	visitors = Array(d.get("visitors", []))
@@ -2979,6 +3135,8 @@ func _load() -> bool:
 			a.state = "town"                         # (a bout isn't saved: saved mid-bout, they're just at home)
 		a.traits = Array(a.get("traits", []))
 		a.asked = false
+		a.call = ""                                  # (a fight isn't saved: whoever was out comes home to rest)
+		a.met = false
 		var m := Mover.new("hero%d" % i, TOWN_AREA.position + Vector2i(i * 3 + 1, i % 2))
 		m.a = a
 		# whoever was out or queuing comes home to rest; everyone else is in town

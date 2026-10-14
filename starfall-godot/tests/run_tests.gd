@@ -788,6 +788,7 @@ func _run() -> void:
 	_darkness()
 	_dressing()
 	_trust()
+	_fight_call()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -1758,3 +1759,126 @@ func _trust() -> void:
 	main.SafeSave.remove(main.save_path)
 	main.no_save = true
 	main.lines.clear()
+
+## SF-GUILD1, the call in the fight (Flint, round 3: "one tactical decision would convert watching into playing").
+## Halfway out the adventurer finds the trouble and you choose how they take it; no call and they fight their own way.
+func _send_out(h, job: String) -> void:
+	h.where = "away"
+	h.path.clear()
+	h.a.state = "away"
+	h.a.job = job
+	h.a.timer = float(main.job_of(job).time)
+	h.a.met = false
+	h.a.call = ""
+
+func _out_half(h) -> void:
+	for i in 400:                                # only this adventurer's clock and the call's, so nobody else interferes
+		main._hero(h, 0.05)
+		main._call_tick(0.05)
+		if not main.fight_call.is_empty() or h.a.get("met", false):
+			return
+
+func _fight_call() -> void:
+	main.lines.clear()
+	main.board_open = false
+	main.fight_call = {}
+	var h = hero("Aki")
+	var keep: Dictionary = h.a.duplicate(true)
+	h.a.cls = "swordsman"
+	h.a.lvl = 2
+	h.a.morale = 6
+	h.a.hp = h.a.max
+	_send_out(h, "wolves")
+	main._hero(h, 1.0)
+	check(main.fight_call.is_empty(), "no call while they're still on the road out")
+	_out_half(h)
+	check(not main.fight_call.is_empty() and main.fight_call.h == h, "halfway out they find the trouble, and the call comes up")
+	check(float(h.a.timer) <= float(main.job_of("wolves").time) * 0.5 + 0.06, "the call comes halfway through the trip")
+	var none: float = main.job_chance(h, "")
+	var press: float = main.job_chance(h, "press")
+	var hold: float = main.job_chance(h, "hold")
+	check(press > none and hold < none, "pressing raises the odds, holding lowers them (%.2f, %.2f, %.2f)" % [press, none, hold])
+	check(main.knocks_word("press") == "hard knocks" and main.knocks_word("hold") == "light knocks" and main.knocks_word("") == "some knocks", "the knocks are shown in words")
+	check(main.odds_word(0.2) == "long odds" and main.odds_word(0.5) == "even odds" and main.odds_word(0.7) == "good odds" and main.odds_word(0.9) == "near certain", "the odds are shown in words")
+	check(main.call_wish(h) == "", "a Swordsman has no preference")
+	# the class's own way works a little better
+	h.a.cls = "knight"
+	check(is_equal_approx(main.job_chance(h, "hold"), main.job_chance(h, "")) and main.call_wish(h).ends_with("would rather hold."), "a Knight holds at no cost to the odds, and says so")
+	h.a.cls = "mage"
+	check(main.job_chance(h, "press") > press and main.call_wish(h).ends_with("straight at it."), "a Mage pressing does better than a Swordsman pressing, and says so")
+	h.a.cls = "swordsman"
+	# chosen with a key
+	var k := InputEventKey.new()
+	k.pressed = true
+	k.physical_keycode = KEY_2
+	var calls0: int = main.calls
+	main._unhandled_input(k)
+	check(h.a.call == "hold" and main.fight_call.is_empty() and main.calls == calls0 + 1, "2 holds: the call is made and the choice goes")
+	_out_half(h)
+	check(main.fight_call.is_empty(), "one call per job")
+	# the call changes the knocks: same luck, lighter knocks when holding
+	main.rng.seed = 7
+	h.a.hp = h.a.max
+	main._come_home(h)
+	main.queue.erase(h)
+	var after_hold: int = int(h.a.hp)
+	check(h.a.call == "" and not h.a.met, "home again, the call is forgotten for the next job")
+	_send_out(h, "wolves")
+	main.rng.seed = 7
+	h.a.hp = h.a.max
+	main._come_home(h)
+	main.queue.erase(h)
+	check(after_hold >= int(h.a.hp), "holding takes fewer knocks than no call (%d vs %d)" % [after_hold, int(h.a.hp)])
+	# a tap on a call chooses it (phones)
+	h.a.hp = h.a.max
+	_send_out(h, "boar")
+	_out_half(h)
+	check(not main.fight_call.is_empty(), "the next job brings a new call")
+	_aim_view(main._call_rect(0).get_center(), true)
+	check(h.a.call == "press" and main.fight_call.is_empty(), "a tap on the first call presses")
+	# no call in time: they fight their own way, as before
+	_send_out(h, "webs")
+	_out_half(h)
+	for i in int(main.CALL_SECONDS / 0.05) + 4:
+		main._call_tick(0.05)
+	check(main.fight_call.is_empty() and h.a.call == "" and h.a.met, "no call in time: the choice goes and they fight their own way")
+	_out_half(h)
+	check(main.fight_call.is_empty(), "a missed call isn't asked again")
+	# busy at the board: no call yet, and an open call waits while you're busy
+	_send_out(h, "slimes")
+	main.board_open = true
+	main._hero(h, float(main.job_of("slimes").time) * 0.55)
+	check(main.fight_call.is_empty() and not h.a.met, "no call comes up while you're reading the board")
+	main.board_open = false
+	main._hero(h, 0.05)
+	check(not main.fight_call.is_empty(), "once you step away from the board, the call comes up")
+	var left: float = float(main.fight_call.t)
+	main.board_open = true
+	main._call_tick(3.0)
+	check(is_equal_approx(float(main.fight_call.t), left), "an open call waits while you're busy")
+	main.board_open = false
+	main._come_home(h)
+	main.queue.erase(h)
+	check(main.fight_call.is_empty(), "home before you called it: the choice goes")
+	# saves: the number of calls is kept; an older save loads with none, and nobody mid-fight
+	main.no_save = false
+	main.calls = 4
+	_send_out(h, "wolves")
+	h.a.call = "press"
+	main.save_game()
+	check(main._load() and main.calls == 4 and main.fight_call.is_empty(), "calls made save and load")
+	check(main.heroes.all(func(x): return str(x.a.get("call", "")) == "" and not x.a.get("met", false)), "a fight isn't saved: whoever was out loads at home")
+	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(main.save_path))
+	d.erase("calls")
+	for x in d.heroes:
+		x.erase("call")
+		x.erase("met")
+	var f := FileAccess.open(main.save_path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(d))
+	f.close()
+	check(main._load() and main.calls == 0 and main.heroes.all(func(x): return str(x.a.call) == ""), "a save from before the call loads, with no calls made")
+	main.SafeSave.remove(main.save_path)
+	main.no_save = true
+	main.queue.clear()
+	main.lines.clear()
+	hero("Aki").a = keep
