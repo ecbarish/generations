@@ -31,7 +31,7 @@ waiting on Evan, as long as the project's research supports one.
 
 ### DD-5 (2026-10-14): trust is required alongside a level, not instead of one
 
-**Asked by:** Flint, playtest round 2 note 3 (docs/COMMS.md, 2026-10-12 20:52), ticketed as WB-BOND. The bond meter did not change what a creature could become: almost every change waited on a level alone. Deeptide's own line already says it changes only for a tamer it trusts. The catalogue (docs/plans/wildbond-catalogue.md) also wants, later, one young creature whose final form depends on how it was raised.
+**Asked by:** Flint, playtest round 2 note 3 (docs/COMMS.md, 2026-10-12 20:52), ticketed as WB-BOND. The bond meter did not change what a creature could become: almost every change waited on a level alone. The Tide line already said its last change was only for a tamer it trusts (that form was Deeptide; EVO-1 retired it, and the final is Tidewyrm). The catalogue (docs/plans/wildbond-catalogue.md) also wants, later, one young creature whose final form depends on how it was raised.
 
 **How bond is earned.** Trust is a number on the creature, `bond`, starting at 0. It rises only while you are with that creature:
 
@@ -65,7 +65,7 @@ Every option asks for a level (`at`). It may also ask for a trust step (`bond`).
 
 Place, time of day, weather, a companion (`with`) and what it last ate (`ate`) still apply on top of the level, and on top of the trust step when the option names one.
 
-Tidewyrm becomes Deeptide at level 32 with Devoted trust (step 3). That is the path it already had. Bonded trust before level 32 does not make it Deeptide. It still changes only for a tamer it trusts. Other lines are unchanged until their own data opts in.
+The three starter lines use that shape, and no other. Each middle stage is a level alone: Ripplet becomes Riverwisp, Cindercub becomes Smoulderpup, and Mosshog becomes Thicketboar, at level 16. Each final asks for a level and a trust step: Riverwisp becomes Tidewyrm, Smoulderpup becomes Blazefang, and Thicketboar becomes Thornback, at level 36 with Devoted trust (step 3). Devoted is the highest trust those finals ask for. Bonded trust before level 36 does not make the final form. There is no trust-only route. Deeptide, Pyremane and Elderthorn are not stages. A version 1 save that still holds one is migrated to version 2: it becomes Tidewyrm, Blazefang or Thornback, and keeps the level, experience, trust, raising, held change, nickname and stats it had. A save newer than version 2 is left untouched, and saving stays off for that session. The other lines stay on level alone until their own data opts in. Starter lines are raised, never met in the wild.
 
 **How this enables a future bond-branch creature.** One young creature, several finals, chosen by how you raised it (the catalogue's bond branch, CAT-2, which will name it). The shape is already in the data under `bond_branch`, and it is not a creature you can meet yet. Each final is an option. Put the special ones first and the ordinary one last.
 
