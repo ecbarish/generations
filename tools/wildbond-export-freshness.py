@@ -222,9 +222,13 @@ def main(argv=None):
         print(REFRESH_HELP)
         return 1
     packed = sorted(path for path in changed if is_packed_source(path))
+    exported = [path for path in EXPORT_PATHS if path in changed]
     print(f"Wildbond export freshness passed for {label}.")
     if packed:
         print(f"The packed game changed in {len(packed)} file(s), and play/wildbond/ was exported to match.")
+        print(f"source_tree {tree} matches {args.head}:wildbond-godot.")
+    elif exported:
+        print("play/wildbond/ was exported again. The packed game files were already this tree.")
         print(f"source_tree {tree} matches {args.head}:wildbond-godot.")
     else:
         print("No packed Wildbond game files changed, so the existing web pack can stay.")
