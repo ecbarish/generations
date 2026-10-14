@@ -6,7 +6,7 @@ deciding (START-HERE.md "Questions for Evan" 1; docs/wildbond-plan.md).
 
 ## Unreleased
 
-- WBL-6: a battle uses `assets/creatures/battle/<id>_battle_front.png` when that file is there (64×64, whole pixels, your creature turned to face right, feet 4px above the command box). A creature without one keeps the old picture, drawn on whole pixels. Not published.
+- WBL-6 (merged #406, 2026-10-14): Wildbond battles show the real creature sprites, scaled by whole pixels, with their feet clear of the command box. Not published.
 - WBL-1 (merged #413, with WBL-14, 2026-10-14): Esc, I, the bag and Start open a pause menu (Party, Field book, Save, Close), and a status bar shows the area, the party lead and the coins. A click on a full-screen button stays on the button, so Choose Ripplet chooses. Not published.
 - WB-C4b (merged #399, 2026-10-14): the Thornwood pond outline breaks the box, and the reeds sway by whole pixels. Not published.
 - WB-FUNNEL1 (merged #380, 2026-10-14): a tap advances opening dialogue, and the opening records time to the first partner, first battle and first catch. Not published.

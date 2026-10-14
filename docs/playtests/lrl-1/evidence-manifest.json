@@ -1,0 +1,17 @@
+{
+  "head": "382ff23dfbcb44d33c42fcffc2681093197c025b",
+  "browser_run": "https://github.com/ecbarish/generations/actions/runs/38626698629",
+  "checks_run": "https://github.com/ecbarish/generations/actions/runs/38626698336",
+  "artifact_id": 11923938872,
+  "artifact_sha256": "d4cec6aa3b891d79ebe5b2c1acff8151cc0ce003be9965606551e8f15324f676",
+  "screenshots": {
+    "lrl1-dough-375x812-before.png": "419cbc2767d21179841ddd3497678a5674f89e62166d0906bac9673181562348",
+    "lrl1-dough-375x812-dusk.png": "fd7c1c3b8d37046f189dc4b76186f5be80e79653e83691950581bb6b8fbcff3d",
+    "lrl1-dough-375x812-asleep.png": "dea3ab2b2ffd65de78c6af18bc462b64be4ad41859023eac2f6c69f0b5709309",
+    "lrl1-dough-rotated-late-release.png": "4505501a30622eb3ff56a5f481b201dbc89f49bb54430c1139bd9a921d914d49",
+    "lrl1-shed-1024x768-dusk.png": "8d65232f4f614ef5bfdde960a7394b627025601b2f7ee427a49cebbc98d63d36",
+    "lrl1-wagon-3440x1440-asleep.png": "d918810046e3ffae76cb3fcf8e572485626627da7549926ec9b8bdce73c5e64b",
+    "contact-375x812.jpg": "94b5c7e951a9516041ab2e0ee4311cb3a65349e28186e8a2569f156ceb07d059"
+  },
+  "contact_sheet_note": "contact-375x812.jpg is a labelled thumbnail contact sheet made from 15 original screenshots; PNGs are unmodified artifact bytes."
+}
