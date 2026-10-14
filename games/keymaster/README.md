@@ -1,5 +1,7 @@
 # Keymaster (KM0: the smallest test)
 
+v0.1.0.
+
 One listing, one deal analyzer, one buy (docs/proposals/keymaster.md). 14 Alder Street is a 1962 duplex: Unit A is
 let, Unit B is empty and needs work, and the sellers have moved away and want a quick sale. You set three things:
 
@@ -25,3 +27,7 @@ real buttons, and phone and desktop sizes).
 
 Next, if the test is fun: a second listing that is a bad deal on purpose, then tenants with names (open questions for
 Evan in the proposal: title and tone).
+
+## Changelog
+
+- v0.1.0 (2026-10-14, KM0, PR #379): Keymaster KM0 prototype added.
