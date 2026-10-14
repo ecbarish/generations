@@ -7,9 +7,16 @@ extends RefCounted
 ## (1 in the world, so a 16px creature stays 16px).
 ## Tidewyrm's crawl and crawl_idle sheets are provisional. Walking asks for "walk", never "crawl".
 ## No PNG: try_draw returns false and the caller draws the procedural figure in figures.gd, unchanged.
+## A battle front is a separate file, res://assets/creatures/battle/<id>_battle_front.png.
+## The battle uses that when it exists. The world keeps the side sheets.
 
 const Figures := preload("res://scripts/figures.gd")
 const ROOT := "res://assets/creatures/"
+## A finished battle painting lives beside the walk cycles, named only by the species id.
+## Game Art Director can replace the file (Mosshog's is temporary) without a code change.
+const BATTLE_DIR := "res://assets/creatures/battle/"
+## The handed-over fronts are already 64×64. One screen pixel per sprite pixel stays on the grid.
+const BATTLE_FRONT_SCALE := 1.0
 
 static var _tex: Dictionary = {}
 
@@ -29,6 +36,41 @@ static func texture(species_id: String, pose: String) -> Texture2D:
 
 static func has(species_id: String) -> bool:
 	return texture(species_id, "idle") != null
+
+## res://assets/creatures/battle/<id>_battle_front.png. Nothing else is consulted.
+static func battle_file(species_id: String) -> String:
+	return "%s%s_battle_front.png" % [BATTLE_DIR, species_id]
+
+static func battle_texture(species_id: String) -> Texture2D:
+	var key := "battle/" + species_id
+	if _tex.has(key):
+		return _tex[key]
+	var path := battle_file(species_id)
+	var tex: Texture2D = null
+	if ResourceLoader.exists(path):
+		tex = load(path)
+	_tex[key] = tex
+	return tex
+
+static func has_battle_front(species_id: String) -> bool:
+	return battle_texture(species_id) != null
+
+static func battle_size(species_id: String) -> Vector2i:
+	var tex := battle_texture(species_id)
+	if tex == null:
+		return Vector2i.ZERO
+	return Vector2i(tex.get_width(), tex.get_height())
+
+## Whole sprite pixels only, and at least 1. A fraction would smear the outline.
+static func whole_scale(scale: float) -> float:
+	return float(maxi(1, int(floor(scale))))
+
+## The rectangle a battle front covers. Facing right mirrors it in place, so the feet stay put.
+static func battle_dest(foot: Vector2, sz: Vector2i, scale: float, facing_right: bool) -> Rect2:
+	var dest := dest_rect(foot, sz, whole_scale(scale))
+	if facing_right:
+		dest.size.x = -dest.size.x
+	return dest
 
 ## One frame's pixel size. The matching idle sheet (crawl_idle for the crawl poses) gives the frame width.
 static func frame_size(species_id: String, pose: String) -> Vector2i:
@@ -117,6 +159,24 @@ static func try_draw(ci: CanvasItem, species_id: String, foot: Vector2, facing_r
 		ci.draw_texture_rect_region(tex, dest, src)
 	if gear != "":
 		_paint_gear(ci, gear, origin, sz, scale, facing_right)
+	ci.texture_filter = prev
+	return true
+
+## The battle painting, when this species has one. Nearest filtering, whole pixels, feet on `foot`.
+## Returns false when the file is missing, so the caller keeps the overworld sheet or the figure.
+static func try_draw_battle(ci: CanvasItem, species_id: String, foot: Vector2, facing_right: bool, scale: float = BATTLE_FRONT_SCALE, gear: String = "") -> bool:
+	var tex := battle_texture(species_id)
+	if tex == null:
+		return false
+	var sz := Vector2i(tex.get_width(), tex.get_height())
+	var whole := whole_scale(scale)
+	var dest := battle_dest(foot, sz, whole, facing_right)
+	var origin := dest_rect(foot, sz, whole).position
+	var prev := ci.texture_filter
+	ci.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	ci.draw_texture_rect_region(tex, dest, Rect2(0, 0, sz.x, sz.y))
+	if gear != "":
+		_paint_gear(ci, gear, origin, sz, whole, facing_right)
 	ci.texture_filter = prev
 	return true
 
