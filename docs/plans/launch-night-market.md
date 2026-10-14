@@ -15,11 +15,11 @@ Playtester scores the first session once the stall exists, then every week. Fini
 | Item | Gap | Where it stands |
 |---|---|---|
 | A newcomer gets through the first 10 minutes without help | **NML-1** | #403 is merged. A newcomer still cannot find the stall from the hall. **NM-HUB** needs its own claim |
-| Playtester rates the first session as fun | **NML-2** | No score yet. The bar is at least 7/10. A tuning pull follows that pass |
-| No crashes and no broken saves | **NML-3** | #403 keeps the stall on the idle core. A reload must show the away summary and leave every other game's save alone |
-| Plays well on a phone | **NML-4** | Not tested yet. The stall has to be playable on a phone |
-| One clear goal | **NML-5** | One stall you work yourself. **NM-LABEL:** the "pays for itself in N seconds" line shows time-to-afford, not payback. Relabel it, or show the real payback |
-| Known bugs are fixed | **NML-6** | **NM-RETUNE:** 1M lifetime coins arrives in about 8 minutes. Section 8's target for the district move is 45–75 minutes. Retune before that slice. It does not block the first session. **NM-CLAMP** is below |
+| Playtester rates the first session as fun | **NML-2** | **5/10** on 2026-10-14. The bar is at least 7/10. This does not pass |
+| No crashes and no broken saves | **NML-3** | #403 keeps the stall on the idle core. **NM-FIX-6:** "Your save" should do something. A reload must show the away summary and leave every other game's save alone |
+| Plays well on a phone | **NML-4** | **NM-FIX-7.** The phone layout still needs a playtest. Owner: Playtester |
+| One clear goal | **NML-5** | One stall you work yourself. **NM-FIX-1** and **NM-LABEL:** the payback hint shows "2s" on every stall, and the line shows time-to-afford. **NM-FIX-5:** the pour takes 25 clicks and then the button vanishes |
+| Known bugs are fixed | **NML-6** | **NM-FIX-2:** say the 50% offline rate on screen. **NM-FIX-3** and **NM-FIX-4:** visual life, two pulls. **NM-FIX-8:** the back control and the fold. **NM-RETUNE** still waits for the district slice. **NM-CLAMP** is below |
 
 ## Finished means
 
@@ -41,7 +41,28 @@ Playable and fun. Further improvements do not hold the release.
 4. The stall plays on a phone (NML-4).
 5. Playtester's fun score is at least 7/10 (NML-2).
 6. A hub and launcher entry, so a newcomer can open the stall (**NM-HUB**). Size S. Its own claim. Not part of #403.
-7. The payback line tells the truth (**NM-LABEL**). Relabel "pays for itself in N seconds", or show real payback. Size S.
+7. The payback line tells the truth (**NM-LABEL**, **NM-FIX-1**). The hint shows "2s" on every stall. Relabel "pays for itself in N seconds", or show real payback. These two may be one pull.
+8. Offline earnings stay at 50% and the screen says so (**NM-FIX-2**).
+9. Visual life, two pulls, spec from Game Art Director. **NM-FIX-3:** lane-strip canvas, coin pop and flicker. **NM-FIX-4:** steam, flash and passers-by.
+10. "Back to the arcade" is large enough and does not cover another button, and a stall is on screen on a phone (**NM-FIX-8**).
+11. The pour keeps a button after 25 clicks (**NM-FIX-5**).
+12. "Your save" does something (**NM-FIX-6**).
+13. A phone layout playtest (**NM-FIX-7**). Owner: Playtester.
+
+## Playtest gaps (2026-10-14, fun 5/10)
+
+These come before the older gaps. Guest bots are welcome on the Side Games Dev Lead rows. One pull each.
+
+| ID | Size | Owner | What |
+|---|---|---|---|
+| NM-FIX-3 | S | Side Games Dev Lead | First task. Visual life, pull 1 of 2: lane-strip canvas, coin pop and flicker. Spec from Game Art Director |
+| NM-FIX-4 | S | Side Games Dev Lead | Visual life, pull 2 of 2: steam, flash and passers-by. Spec from Game Art Director. After NM-FIX-3 |
+| NM-FIX-8 | S | Side Games Dev Lead | "Back to the arcade" is 112×17 px and overlaps a button. The stalls sit below the fold on a phone |
+| NM-FIX-1 | S | Side Games Dev Lead | The payback hint shows "2s" on every stall. May be the same pull as NM-LABEL. Side Games Dev Lead's COMMS claim of 19:38 UTC also named the offline line; that line is NM-FIX-2 |
+| NM-FIX-5 | S | Side Games Dev Lead | Pour flow: 25 clicks, then the button vanishes |
+| NM-FIX-6 | S | Side Games Dev Lead | "Your save" does something |
+| NM-FIX-7 | — | Playtester | The phone layout still needs a playtest. Not a build pull |
+| NM-FIX-2 | S | Side Games Dev Lead | Offline honesty, placed before NM-RETUNE. Keep the 50% offline rate and say so, for example "stalls earned 50% while you were away" |
 
 **Reviewer notes that do not block the first session:**
 
@@ -55,20 +76,27 @@ Playable and fun. Further improvements do not hold the release.
 
 Measured 2026-10-14. Night Market's feature rate is 2 pulls in 7 days (0.29 a day) and the same 2 in 14 days (0.14 a day): IDLE-CORE and #403. The maths is in [launch-summary.md](launch-summary.md).
 
-**Pulls left that block finish:** 2 small ones. #403 is merged (`d9cde61`). Tuning is the fix inside a playtest round, not a third build pull. NM-RETUNE and NM-CLAMP are not in this count.
+**Pulls left that block finish:** 8 in the likely case, 9 in the slower case. #403 is merged (`d9cde61`). NM-FIX-7 is the confirmation session, not a build pull. NM-RETUNE and NM-CLAMP are not in this count. NM-FIX-1 shares NM-LABEL's pull in the likely count. Visual life is two pulls.
 
 | ID | Size | What |
 |---|---|---|
-| NM-HUB | S | Hall and launcher entry. Own claim |
-| NM-LABEL | S | Relabel "pays for itself", or show real payback |
+| NM-FIX-3 | S | Lane strip, coin pop, flicker |
+| NM-FIX-4 | S | Steam, flash, passers-by |
+| NM-FIX-8 | S | Back control and the fold |
+| NM-FIX-5 | S | Pour flow |
+| NM-FIX-6 | S | "Your save" |
+| NM-FIX-2 | S | Offline honesty |
+| NM-HUB | S | Hall entry |
+| NM-LABEL with NM-FIX-1 | S | Payback. Slower counts NM-FIX-1 as its own extra pull |
 
-**Likely:** 2 / 0.29 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-22.**
-**Slower:** 2 / 0.14 days of build, two playtest rounds, and a 2-day buffer. **2026-11-08.**
+**Likely:** 8 / 0.29 days of build, plus 1 confirmation day, plus 0 buffer. **2026-11-12.** Was 2026-10-22.
+**Slower:** 9 / 0.14 days of build, two playtest rounds, and a 2-day buffer. **2026-12-27.** Was 2026-11-08.
 
-## Owner and the first three tasks
+## Owner and the first tasks
 
-**Owner:** Side Games Dev Lead.
+**Owner:** Side Games Dev Lead, with guest bots welcome. The visual-life spec is from Game Art Director.
 
-1. **NM-HUB.** Claim the hall entry on its own, so a newcomer can open the stall.
-2. **NM-LABEL.** Make the payback line say what it measures.
-3. **Playtester.** Ask for the 7/10 score and a phone session. Shared Systems Architect rules on NM-CLAMP separately.
+1. **NM-FIX-3.** Lane-strip canvas, coin pop and flicker.
+2. **NM-FIX-4.** Steam, flash and passers-by.
+3. **NM-FIX-1.** Fix the "2s" hint. It may land with NM-LABEL.
+4. **NM-FIX-2** sits later, immediately before NM-RETUNE.

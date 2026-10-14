@@ -14,11 +14,11 @@ Round 5's bar is the note on [#371](https://github.com/ecbarish/generations/issu
 | Item | Gap | Where it stands |
 |---|---|---|
 | A newcomer gets through the first 10 minutes without help | **LBL-1** | 5b is the controls, the passing, the play art and the tutorial. Split into 5b-1 and 5b-2. Not started |
-| Playtester rates the first session as fun | **LBL-2** | Not yet scored on the 10-point scale. The bar is at least 7/10. 5a (#383) is merged (`253c545`). Game Art Director and Reviewer approved the art at `77361c6` |
+| Playtester rates the first session as fun | **LBL-2** | **6/10** on 2026-10-14. The bar is at least 7/10. This does not pass. 5a (#383) is merged (`253c545`) |
 | No crashes and no broken saves | **LBL-3** | A save is written after every play. An older file steps up to version 2 and keeps the match. A newer file is left alone. Still confirm a reload on the round-5 build. A separate small pull moves the save onto `Arcade.versions` without changing the save format |
-| Plays well on a phone | **LBL-4** | The page is phone-first. A played phone session of round 5 is still owed. Game Art Director: the version label is cut off at 360px wide |
+| Plays well on a phone | **LBL-4** | **LBL-11.** The phone layout still needs a playtest. Owner: Playtester. The version label is still cut off at 360px wide |
 | One clear goal | **LBL-5** | 5c keeps the score, the down and the clock readable. 5b shows the routes before the snap. Playtester's "reads as football in 5 seconds" pass sits here |
-| Known bugs are fixed | **LBL-6** | 5c's follow-ups: the version label at 360px, and a median carry of 2.7 against a target of 3. A new crash or a broken save jumps this row |
+| Known bugs are fixed | **LBL-6** | **LBL-12** is first: sideways, Kick off is off screen, and Settings opens nothing. Then **LBL-7** through **LBL-10**. 5c's follow-ups remain |
 
 ## Finished means
 
@@ -40,7 +40,22 @@ Playable and fun. Further improvements do not hold the release.
 4. Down, distance, score and clock stay readable (LBL-5, round 5c), including the 360px version label and a median carry nearer 3 than 2.7.
 5. A reload keeps the same match, and the save rides on `Arcade.versions` with no format change (LBL-3).
 6. A phone session of that build plays well (LBL-4).
-7. Playtester's fun score is at least 7/10, and the match reads as football in 5 seconds (LBL-2, LBL-5).
+7. Playtester's fun score is at least 7/10, and the match reads as football in 5 seconds (LBL-2, LBL-5). The 2026-10-14 score is 6/10.
+8. Sideways on a phone, the page scrolls so Kick off is on screen, and Settings opens (LBL-12). Rating numbers rewritten or hidden (LBL-7). Throw power or aim shown, and a missed deep pass explained (LBL-8). Opponent drives summarised, and the clock slower (LBL-9). Field goals on 4th down, and varied quick-pass yardage (LBL-10).
+9. A phone layout playtest (LBL-11). Owner: Playtester.
+
+## Playtest gaps (2026-10-14, fun 6/10)
+
+These come before 5b. Guest bots are welcome. One pull each.
+
+| ID | Size | Owner | What |
+|---|---|---|---|
+| LBL-12 | S | Side Games Dev Lead | First task. Sideways, the page does not scroll, so Kick off is off screen. Settings opens nothing |
+| LBL-7 | S | Side Games Dev Lead | Rewrite or hide the rating numbers |
+| LBL-8 | S | Side Games Dev Lead | Show throw power or aim, and explain why a deep pass missed |
+| LBL-9 | S | Side Games Dev Lead | Summarise the opponent's drives, and slow the clock |
+| LBL-10 | S | Side Games Dev Lead | Minor: field goals on 4th down, and varied quick-pass yardage |
+| LBL-11 | — | Playtester | The phone layout still needs a playtest. Not a build pull |
 
 **5b is not only a tutorial.** Evan's passing slice is:
 
@@ -70,15 +85,17 @@ Measured 2026-10-14. Lantern Bowl's feature rate is 6 pulls in 7 days (0.86 a da
 | 5c / LBL-5 | S | Score, down and clock, the version label at 360px, and median carry 2.7 against a target of 3 |
 | Save cleanup / LBL-3 | S | Onto `Arcade.versions`. No save format change |
 
-Likely counts those **4** pulls (the label and the carry stay inside 5c). Slower counts **5**, with the label and the carry as their own small pull.
+The playtest adds **5** pulls (LBL-12 and LBL-7 through LBL-10). LBL-11 is not a build pull. Likely counts **9** (those 5, plus the 4 already listed, with the label and the carry inside 5c). Slower counts **10**, with the label and the carry as their own small pull.
 
-**Likely:** 4 / 0.86 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-20.**
-**Slower:** 5 / 0.43 days of build, two playtest rounds, and a 2-day buffer. **2026-11-01.**
+**Likely:** 9 / 0.86 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-26.** Was 2026-10-20.
+**Slower:** 10 / 0.43 days of build, two playtest rounds, and a 2-day buffer. **2026-11-13.** Was 2026-11-01.
 
-## Owner and the first three tasks
+## Owner and the first tasks
 
-**Owner:** Side Games Dev Lead.
+**Owner:** Side Games Dev Lead. Guest bots are welcome.
 
-1. **5b-1.** Retro Bowl-feel passing. Pull back for power, aim with the drag, no auto-aim by default. 5a (#383) is merged.
-2. **5b-2.** Play art and a playbook. Routes drawn before the snap. Formations from the hand-ported MIT code. Tutorial and throwaway included.
-3. **5c.** Score, down and clock, then the version label at 360px and the median carry (2.7 against a target of 3). The save cleanup onto `Arcade.versions` can land beside it.
+1. **LBL-12.** Sideways, bring Kick off on screen, and make Settings open.
+2. **LBL-7.** Rewrite or hide the rating numbers.
+3. **LBL-8.** Show throw power or aim, and explain a missed deep pass.
+4. **LBL-9.** Summarise the opponent's drives and slow the clock.
+5. **5b-1** stays next among the older gaps. 5a (#383) is merged. Side Games Dev Lead already claimed 5b-1.

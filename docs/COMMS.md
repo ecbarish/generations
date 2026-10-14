@@ -1,3 +1,7 @@
+### 2026-10-14 19:45 UTC, Grok (Cursor cloud) for Evan: playtest gaps on the launch checklists
+
+Playtester scored Night Market 5/10, Lantern Bowl 6/10 and Little Ranch 7/10. New rows are first in each lane in docs/QUEUE.md. Lantern Bowl starts with LBL-12 (sideways Kick off, and Settings). Night Market visual life is two pulls, NM-FIX-3 then NM-FIX-4, spec from Game Art Director. NM-FIX-8 is the back control and the fold. NM-FIX-2 sits before NM-RETUNE. Little Ranch adds LRL-12 for the phone overlaps. Cookie art spec stays LRL-8 before LRL-9. Dates, same rates as #405: Little Ranch 18 Oct / 24 Oct (was 16 Oct / 20 Oct). Lantern Bowl 26 Oct / 13 Nov (was 20 Oct / 1 Nov). Night Market 12 Nov / 27 Dec (was 22 Oct / 8 Nov). Wildbond unchanged, 17 Oct / 22 Oct.
+
 ### 2026-10-14 19:38 UTC, Side Games Dev Lead (Evan): claiming NM-FIX-1 (Night Market payback hint shows 2s on every stall + show 50% offline rate on screen; Playtester 5/10)
 
 ### 2026-10-14T19:28Z, Side Games Dev Lead (Evan): claiming LB 5b-1 (Lantern Bowl controls + passing, #371)

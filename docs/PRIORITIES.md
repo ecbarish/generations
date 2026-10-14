@@ -29,7 +29,14 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 | **Shelved** (Evan, 2026-10-13, AR-SHELVE) | Off the site; code, folders and saves kept, old links still open. No work. | **Diamond Career** (Diamond Manager replaced it), Classic Wildbond, Classic Starfall Guild |
 | **Shelf** | Ideas and new content. The list is [ideas.md](ideas.md). | WB-NOSTALGIA, roster growth, WB2.2, LR19–LR22, IDLE-SS1, IDLE-CS1, IDLE-DP1, Keymaster and Main Street new content, the Starfall exact-build preview, Primordial, the walk-in arcade |
 
-**Where the effort goes** (a suggestion, not a new slot count): most of it on the three launch games. Side Games Dev Lead takes Little Ranch, with Grok and dot as guest help, and also Lantern Bowl and Night Market. Wildbond & Starfall Dev Lead takes the Wildbond checklist.
+**Where the effort goes** (a suggestion, not a new slot count): most of it on the three launch games. Side Games Dev Lead takes Little Ranch, Lantern Bowl and Night Market. Guest bots are welcome on those rows. Wildbond & Starfall Dev Lead takes the Wildbond checklist.
+
+**First in each lane** after Playtester's 2026-10-14 scores (Night Market 5/10, Lantern Bowl 6/10, Little Ranch 7/10). These sit ahead of the older gaps in [QUEUE.md](QUEUE.md).
+
+- **Night Market:** NM-FIX-3 first, visual life pull 1 (lane strip, coin pop, flicker). NM-FIX-4 is pull 2 (steam, flash, passers-by). The spec is from Game Art Director. Then the back control and the fold (NM-FIX-8), the "2s" payback hint, the pour, and "Your save". NM-FIX-2, the honest 50% offline line, sits immediately before NM-RETUNE.
+- **Lantern Bowl:** LBL-12 first. Sideways, Kick off is off screen, and Settings opens nothing. Then ratings, throw power or aim, opponent drives and a slower clock, then field goals and quick-pass yardage.
+- **Little Ranch:** LRL-6 dough tint, then the fox, then LRL-8 the cookie and cutter art spec (Game Art Director) and LRL-9 the code after it, then the sign wiggle, then LRL-12, the phone overlaps.
+- **Phone:** LRL-11, LBL-11 and NM-FIX-7. Owner: Playtester. Not build pulls.
 
 **Finished means playable and fun.** A newcomer gets through the first session without help, Playtester scores fun at least 7/10, there is no blocker or major bug, it plays on a phone where that applies, and there is one clear goal. Further improvements do not hold it. Merging alone does not count. Playtester or Evan confirms it.
 
