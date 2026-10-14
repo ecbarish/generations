@@ -186,7 +186,7 @@ document.querySelector('#run').onclick = function () {
       perf += 1500 * 1000;
       before = cash;
       pump();
-      check('a long loaded gap is not clamped', cash - before === 2400 * 1500);
+      check('an open-tab clock jump is held to the cap at the online rate', cash - before === 2400 * 1000);
       check('a loaded gap does not flag the away summary', summary.capped === false && summary.credited === snap);
 
       idle.stop();

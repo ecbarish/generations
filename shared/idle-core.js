@@ -3,8 +3,10 @@
 
    Offline means the page was closed. start(lastSeen) is the only offline
    catch-up: min(away, cap) at offlineRate, returned as a summary the game draws.
-   While the page is loaded, including a hidden tab, every tick credits the full
-   Date.now() gap at the online rate. No hidden threshold and no cap. A clock
+   While the page is loaded, including a hidden tab, every tick credits the
+   Date.now() gap at the online rate, held to maxOfflineSec so one forward clock
+   jump cannot pay more than the cap. Gaps inside the cap, including a hidden tab
+   woken every minute, credit in full. There is no hidden-tab threshold. A clock
    step backward credits 0.
 
    Pass save and the core calls it with lastSeen on visibilitychange (when the
@@ -203,7 +205,8 @@
       var wall = Date.now();
       var wallDt = (wall - lastWall) / 1000;
       lastWall = wall;
-      /* Loaded page, hidden or not: the whole gap at the online rate. No cap. */
+      /* Loaded page, hidden or not: online rate. One jump cannot exceed the cap. */
+      wallDt = Math.min(wallDt, maxOfflineSec);
       if (wallDt > 0) {
         var gained = rateNow() * wallDt;
         if (gained) apply(gained);
