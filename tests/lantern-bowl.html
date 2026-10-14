@@ -58,6 +58,36 @@ document.querySelector('#run').onclick = async () => {
     check('the side-on view is the field', !!sidePoint && sidePoint.x === 140 && sidePoint.y === V.sideProject({ x: 0, y: 0 }, { x: 0 }).y && typeof V.paintMatch === 'function');
     const rightThrow = V.dragToField(80, 0), upThrow = V.dragToField(0, -40);
     check('a drag to the right is downfield', rightThrow.dirX > 0.9 && Math.abs(rightThrow.dirY) < 0.1 && upThrow.dirY < -0.9);
+    const rangeLo = M.throwRange(0.2), rangeHi = M.throwRange(1);
+    check('power sets how far a throw travels (' + rangeLo.toFixed(1) + ' to ' + rangeHi.toFixed(1) + ')', rangeHi > rangeLo + 20 && M.throwRange(0.6) > M.throwRange(0.4) && M.throwRange(0) < rangeLo);
+    check('a harder throw has a wider landing circle', M.landingRadius(1) > M.landingRadius(0.25) + 1 && M.landingRadius(0.75) > M.landingRadius(0.25));
+    const calmAim = M.guideState(90, 0.8, 0.8, 18, 1), wildAim = M.guideState(25, 0.8, 0.8, 18, 1);
+    check('a higher accuracy rating holds the aim steady longer', M.aimSteady(90) > M.aimSteady(25) + 0.5 && calmAim.calm === true && wildAim.wobble > 0 && wildAim.error > calmAim.error && wildAim.radius > calmAim.radius);
+    const errPlain = M.passError(10, 1), errRush = M.passError(10, 1.9), errDeep = M.passError(24, 1);
+    check('pass error is a quarter yard plus three hundredths a yard, times pressure (' + errPlain.toFixed(2) + ' / ' + errRush.toFixed(2) + ')', Math.abs(errPlain - (0.25 + 0.03 * 10)) < 1e-9 && Math.abs(errRush - errPlain * 1.9) < 1e-9 && Math.abs(errDeep - (0.25 + 0.03 * 24)) < 1e-9 && M.pressureFactor({ rushersWinning: 6, pocket: 0 }) <= 1.9);
+    const slingGame = M.create({ seed: 1 });
+    M.callPlay(slingGame, 'quick');
+    const slingQb = slingGame.play.actors[slingGame.play.carrier];
+    const slingRec = slingGame.play.actors.filter(a => a.off && a.route)[0];
+    const sdx = slingRec.route.x - slingQb.x, sdy = slingRec.route.y - slingQb.y;
+    const placed = M.slingAim(slingGame.play, { dirX: sdx, dirY: sdy, power: 0.55 });
+    check('default passing does not auto-aim', M.DEFAULT_PASS === 'retro' && placed.autoAim === false && placed.target == null && Math.abs(Math.hypot(placed.x - slingQb.x, placed.y - slingQb.y) - M.throwRange(0.55)) < 1e-6 && Math.hypot(placed.x - slingRec.route.x, placed.y - slingRec.route.y) > 1);
+    const led = M.lockReceiver(slingGame.play, slingRec, 'lob');
+    const routeLeft = Math.hypot(slingRec.route.x - slingRec.x, slingRec.route.y - slingRec.y);
+    check('an All 22 throw leads that receiver by speed times flight', led && led.autoAim === true && led.target === slingRec && Math.abs(led.lead - Math.min(routeLeft, led.rate * led.air)) < 0.05);
+    const thrownAway = M.slingAim(slingGame.play, { dirX: 0.15, dirY: 1, power: 0.95 });
+    check('releasing past the sideline is a throwaway', thrownAway.throwaway === true && Math.abs(thrownAway.y) > M.SIDELINE);
+    let openCatches = 0, tightPicks = 0, tightDrops = 0, trials = 1600, rollState = 5;
+    const nextRoll = () => { rollState = (Math.imul(rollState, 1664525) + 1013904223) >>> 0; return rollState / 4294967296; };
+    for (let i = 0; i < trials; i++) if (M.arriveOutcome(nextRoll, { tight: false }) === 'catch') openCatches += 1;
+    for (let i = 0; i < trials; i++) {
+      const outcome = M.arriveOutcome(nextRoll, { tight: true, cover: 88, hands: 42 });
+      if (outcome === 'pick') tightPicks += 1;
+      if (outcome === 'drop') tightDrops += 1;
+    }
+    check('an open catch lands about 95 percent of the time (' + (openCatches / trials).toFixed(3) + ')', openCatches / trials >= 0.93 && openCatches / trials <= 0.97);
+    check('interceptions stay capped near 7.5 percent (' + (tightPicks / trials).toFixed(3) + ')', tightPicks / trials <= 0.09 && tightPicks / trials >= 0.05);
+    check('a tight defender breaks up at least a quarter of those throws (' + (tightDrops / trials).toFixed(3) + ')', tightDrops / trials >= 0.26);
     ['inside', 'outside', 'quick', 'deep'].forEach(id => {
       const snap = M.create({ seed: 4 });
       M.callPlay(snap, id);
@@ -657,6 +687,11 @@ document.querySelector('#run').onclick = async () => {
         banner.hidden = true; banner.textContent = '';
       }
     }
+    frame.style.width = '360px'; frame.style.height = '700px';
+    await wait();
+    const build360 = d2.querySelector('#build').getBoundingClientRect();
+    const root360 = d2.documentElement.getBoundingClientRect();
+    check('at 360px the version stays on the page', build360.width > 24 && build360.height > 8 && build360.left >= root360.left - 1 && build360.right <= root360.right + 1 && build360.top >= root360.top - 1 && build360.bottom <= root360.bottom + 1 && (d2.querySelector('#build').textContent || '').indexOf('v') === 0);
     frame.style.width = '375px'; frame.style.height = '812px';
     d2.documentElement.style.setProperty('--arc-text', '1');
     await wait();

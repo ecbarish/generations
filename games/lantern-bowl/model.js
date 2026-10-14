@@ -630,14 +630,26 @@
 
   function readInput(input) {
     input = input || {};
+    var thrown = null;
+    if (input.throw && (input.throw.receiver || (isFinite(input.throw.dirX) && isFinite(input.throw.dirY)))) {
+      thrown = {
+        dirX: Number(input.throw.dirX) || 0,
+        dirY: Number(input.throw.dirY) || 0,
+        power: clamp(Number(input.throw.power) || 0, 0, 1),
+        sling: !!input.throw.sling || input.throw.autoAim === false,
+        autoAim: !!input.throw.autoAim,
+        held: Math.max(0, Number(input.throw.held) || 0),
+        receiver: input.throw.receiver || null,
+        kind: input.throw.kind === 'lob' ? 'lob' : input.throw.kind === 'bullet' ? 'bullet' : null
+      };
+    }
     return {
       steer: clamp(Number(input.steer) || 0, -1, 1),
       turbo: !!input.turbo,
       juke: input.juke > 0 ? 1 : input.juke < 0 ? -1 : 0,
       dive: !!input.dive,
-      throw: input.throw && isFinite(input.throw.dirX) && isFinite(input.throw.dirY) ? {
-        dirX: input.throw.dirX, dirY: input.throw.dirY, power: clamp(Number(input.throw.power) || 0, 0, 1)
-      } : null
+      spin: !!input.spin,
+      throw: thrown
     };
   }
 
@@ -702,6 +714,116 @@
     var p = clamp(Number(power) || 0, 0, 1);
     return 7.5 + p * p * 35;
   }
+  /* Power sets how far the ball can travel. Harder throws go farther. */
+  function throwRange(power) { return throwReach(power); }
+  /* The same power widens the landing circle. A touch pass stays tight. */
+  function landingRadius(power) {
+    var p = clamp(Number(power) || 0, 0, 1);
+    return 0.85 + p * 2.15;
+  }
+  /* Accuracy is how long the aim stays steady, in seconds, before it wanders. */
+  function aimSteady(rating) {
+    var r = clamp(Number(rating) || 0, 0, 100);
+    return 0.32 + (r / 100) * 1.28;
+  }
+  function passError(yards, pressure) {
+    var p = clamp(Number(pressure) || 1, 0, 1.9);
+    return (0.25 + 0.03 * Math.max(0, Number(yards) || 0)) * p;
+  }
+  function pressureFactor(play) {
+    if (!play) return 1;
+    var winning = Math.max(0, play.rushersWinning || 0);
+    var pocket = play.pocket == null ? 7.4 : play.pocket;
+    var crowd = clamp((7.4 - pocket) / 6, 0, 1);
+    return clamp(1 + crowd * 0.55 + Math.min(winning, 4) * 0.12, 1, 1.9);
+  }
+  function guideState(rating, held, power, yards, pressure) {
+    var steady = aimSteady(rating);
+    var age = Math.max(0, Number(held) || 0);
+    var wobble = age <= steady ? 0 : clamp((age - steady) / 0.65, 0, 1);
+    return {
+      steady: steady,
+      wobble: wobble,
+      calm: wobble === 0,
+      error: passError(yards, pressure) * (1 + wobble * 1.25),
+      radius: landingRadius(power) * (1 + wobble * 1.35)
+    };
+  }
+  function receiverRate(actor) {
+    return 4.3 + ((actor && actor.speed) || 50) / 28;
+  }
+  function flightSeconds(dist, kind) {
+    var d = Math.max(0, Number(dist) || 0);
+    return kind === 'lob' ? 0.5 + d / 28 : 0.28 + d / 70;
+  }
+  /* Where a pull lands when nothing locks onto a receiver. */
+  function slingAim(play, thrown) {
+    var qb = carrierOf(play);
+    thrown = thrown || {};
+    var mag = Math.hypot(thrown.dirX, thrown.dirY) || 1;
+    var dirX = thrown.dirX / mag, dirY = thrown.dirY / mag;
+    var power = clamp(Number(thrown.power) || 0, 0, 1);
+    var reach = throwRange(power);
+    var x = qb.x + dirX * reach, y = qb.y + dirY * reach;
+    return {
+      autoAim: false, aimed: false, target: null, sling: true,
+      kind: power < 0.42 ? 'bullet' : 'lob', power: power, reach: reach,
+      x: x, y: y, dist: reach, radius: landingRadius(power),
+      throwaway: Math.abs(y) > SIDELINE
+    };
+  }
+  /* All 22 only: the ball is led to one named receiver. */
+  function lockReceiver(play, receiver, kind) {
+    var qb = carrierOf(play);
+    var who = receiver;
+    if (typeof receiver === 'string') {
+      who = null;
+      play.actors.forEach(function (a) {
+        if (!who && a.off && a.name === receiver) who = a;
+      });
+    }
+    if (!who) return null;
+    kind = kind === 'lob' ? 'lob' : 'bullet';
+    var dest = who.route || { x: who.x + 6, y: who.y };
+    var dx = dest.x - who.x, dy = dest.y - who.y;
+    var leg = Math.hypot(dx, dy) || 1;
+    var ux = dx / leg, uy = dy / leg;
+    var rate = receiverRate(who);
+    var x = dest.x, y = dest.y;
+    var air = flightSeconds(Math.hypot(x - qb.x, y - qb.y), kind);
+    var i, lead;
+    for (i = 0; i < 5; i++) {
+      lead = Math.min(leg, rate * air);
+      x = who.x + ux * lead;
+      y = who.y + uy * lead;
+      air = flightSeconds(Math.hypot(x - qb.x, y - qb.y), kind);
+    }
+    lead = Math.min(leg, rate * air);
+    x = who.x + ux * lead;
+    y = who.y + uy * lead;
+    air = flightSeconds(Math.hypot(x - qb.x, y - qb.y), kind);
+    return {
+      autoAim: true, aimed: true, target: who, sling: false,
+      kind: kind, power: kind === 'lob' ? 0.72 : 0.28,
+      x: x, y: y, dist: Math.hypot(x - qb.x, y - qb.y),
+      lead: lead, air: air, rate: rate, radius: landingRadius(kind === 'lob' ? 0.72 : 0.28)
+    };
+  }
+  /* Open throws come down. A tight defender breaks it up, and a pick stays rare. */
+  function arriveOutcome(rollFn, opts) {
+    opts = opts || {};
+    var r1 = rollFn();
+    if (opts.tight) {
+      var extra = Math.max(0, chance(opts.cover, opts.hands) - 0.5) * 0.45;
+      var dropP = Math.min(0.72, 0.26 + extra);
+      var pickP = 0.075;
+      if (r1 < pickP) return 'pick';
+      if (r1 < pickP + dropP) return 'drop';
+      return 'catch';
+    }
+    if (r1 < 0.05) return rollFn() < 0.5 ? 'drop' : 'miss';
+    return 'catch';
+  }
   /* Where this drag is headed. No dice, so the picture can show the same spot the snap will use.
      The aim line picks the receiver: the one closest to that line, not the deepest in a wide cone.
      Pull strength sets how far the ball can travel, and whether it is a bullet or a lob. */
@@ -741,12 +863,37 @@
   }
   function launch(game, play, thrown) {
     var qb = carrierOf(play);
-    var aim = aimThrow(play, thrown);
+    var aim;
+    if (thrown.receiver) aim = lockReceiver(play, thrown.receiver, thrown.kind || (thrown.power >= 0.42 ? 'lob' : 'bullet'));
+    else if (thrown.sling) aim = slingAim(play, thrown);
+    else aim = aimThrow(play, thrown);
+    if (!aim) {
+      game.events.push('miss');
+      return incomplete(game, qb.name + ' has nobody to throw to');
+    }
+    var landX = aim.x, landY = aim.y;
+    var scatter = 0;
+    if (aim.autoAim === false) {
+      var yards = Math.hypot(aim.x - qb.x, aim.y - qb.y);
+      var guide = guideState(qb.throw, thrown.held || 0, aim.power, yards, pressureFactor(play));
+      var ang = roll(game) * Math.PI * 2;
+      var mag = guide.error * Math.sqrt(roll(game));
+      landX = aim.x + Math.cos(ang) * mag;
+      landY = aim.y + Math.sin(ang) * mag;
+      scatter = guide.error;
+    }
+    if (aim.throwaway || Math.abs(landY) > SIDELINE || Math.abs(aim.y) > SIDELINE) {
+      play.thrown = true;
+      game.events.push('miss');
+      return incomplete(game, qb.name + ' throws it away');
+    }
+    var dist = aim.dist || Math.hypot(landX - qb.x, landY - qb.y);
     play.thrown = true;
     play.flight = {
-      x: qb.x, y: qb.y, fromX: qb.x, fromY: qb.y, toX: aim.x, toY: aim.y,
-      air: aim.kind === 'bullet' ? 0.28 + aim.dist / 70 : 0.5 + aim.dist / 28,
-      t: 0, kind: aim.kind, qb: qb.throw, target: aim.target
+      x: qb.x, y: qb.y, fromX: qb.x, fromY: qb.y, toX: landX, toY: landY,
+      air: flightSeconds(dist, aim.kind),
+      t: 0, kind: aim.kind, qb: qb.throw, target: aim.target || null,
+      sling: aim.autoAim === false, error: scatter
     };
     game.events.push(aim.kind === 'bullet' ? 'throw' : 'lob');
   }
@@ -951,6 +1098,15 @@
     game.fatigue[back.name] = clamp(fatigue, 0, 1);
     var engage = play.engage || 0;
     var reading = play.elapsed < engage;
+    if (inp.spin && !play.spinUsed && !play.jukeUsed) {
+      var spinDir = back.y >= 0 ? -1 : 1;
+      back.y += spinDir * 2.4;
+      play.spinUsed = true;
+      play.usedSpin = true;
+      play.spinUntil = play.elapsed + 0.45;
+      if (play.goalX != null) play.goalX += 0.25;
+      game.events.push('spin');
+    }
     if (inp.juke && !play.jukeUsed) {
       var jukeThreat = nearest(play, back.x, back.y, function (a) { return !a.off; });
       var jukeTackle = jukeThreat ? jukeThreat.actor.tackle : 50;
@@ -1040,6 +1196,7 @@
     var name = who.name;
     if (play.didCatch) {
       if (play.usedJuke && play.usedDive) return name + ' catches it, jukes and dives';
+      if (play.usedSpin) return name + ' catches it and spins';
       if (play.usedJuke) return name + ' catches it and jukes';
       if (play.usedDive) return name + ' catches it and dives';
       return name + ' catches it and is stopped';
@@ -1047,6 +1204,7 @@
     var inside = play.id === 'inside';
     var edge = play.id === 'outside';
     if (play.usedJuke && play.usedDive) return name + (inside ? ' jukes and dives between the tackles' : edge ? ' jukes and dives toward the sideline' : ' jukes and dives');
+    if (play.usedSpin) return name + (inside ? ' spins between the tackles' : edge ? ' spins toward the sideline' : ' spins');
     if (play.usedJuke) return name + (inside ? ' jukes between the tackles' : edge ? ' jukes toward the sideline' : ' jukes');
     if (play.usedDive) return name + (inside ? ' dives between the tackles' : edge ? ' dives toward the sideline' : ' dives');
     if (play.breakaway) return name + (inside ? ' breaks through the middle' : edge ? ' breaks it outside' : ' breaks away');
@@ -1071,6 +1229,7 @@
       if (!a.off && (a.role === 'cb' || a.role === 's')) moveToward(a, ball.toX, ball.toY, 4.5 + a.cover / 35, dt);
     });
     if (u < 1) return;
+    if (ball.sling) return settleSling(game, play, ball);
     var qb = carrierOf(play);
     var dist = Math.hypot(ball.toX - qb.x, ball.toY - qb.y);
     if (!ball.target) {
@@ -1089,6 +1248,7 @@
       play.flight = null; play.family = 'run'; play.didCatch = true;
       play.carrier = play.actors.indexOf(catcher.actor);
       play.diving = false; play.jukeUsed = false; play.usedJuke = false; play.usedDive = false;
+      play.spinUsed = false; play.usedSpin = false;
       play.engage = 0;
       play.catchRoom = cover ? cover.d : 8;
       play.ratingNote = ' ' + resultLine(catcher.actor.name + "'s hands", hands, 'the cover', cov);
@@ -1110,6 +1270,55 @@
     return incomplete(game, 'The throw misses ' + catcher.actor.name + '. ' + resultLine('the window', opening, 'the throw', ball.qb));
   }
 
+  function finishArrival(game, play, ball, catcher, cov, hands, outcome, opening) {
+    if (outcome === 'catch') {
+      catcher.actor.x = ball.toX; catcher.actor.y = ball.toY;
+      play.flight = null; play.family = 'run'; play.didCatch = true;
+      play.carrier = play.actors.indexOf(catcher.actor);
+      play.diving = false; play.jukeUsed = false; play.usedJuke = false; play.usedDive = false;
+      play.spinUsed = false; play.usedSpin = false;
+      play.engage = 0;
+      if (play.catchRoom == null) play.catchRoom = 4;
+      play.ratingNote = ' ' + resultLine(catcher.actor.name + "'s hands", hands, 'the cover', cov == null ? 30 : cov);
+      game.events.push('catch');
+      return;
+    }
+    if (outcome === 'pick') {
+      game.events.push('pick');
+      var landed = ball.x;
+      var field = clamp(play.startSpot + landed, 0, 100);
+      giveBall(game, other(play.offence), 100 - field);
+      return closePlay(game, 'Intercepted near ' + catcher.actor.name + '. ' + resultLine('the cover', cov == null ? 30 : cov, catcher.actor.name + "'s hands", hands), 'turnover', 0, 10, false);
+    }
+    if (outcome === 'drop') {
+      game.events.push('miss');
+      return incomplete(game, catcher.actor.name + ' cannot bring it in. ' + resultLine('the cover', cov == null ? 30 : cov, catcher.actor.name + "'s hands", hands));
+    }
+    game.events.push('miss');
+    return incomplete(game, 'The throw misses ' + catcher.actor.name + '. ' + resultLine('the window', opening, 'the throw', ball.qb));
+  }
+  function settleSling(game, play, ball) {
+    var qb = carrierOf(play);
+    if (Math.abs(ball.toY) > SIDELINE) {
+      game.events.push('miss');
+      return incomplete(game, qb.name + ' throws it away');
+    }
+    var catcher = nearest(play, ball.toX, ball.toY, function (a) { return a.off && a.role !== 'qb' && a.role !== 'ol'; });
+    var reach = ball.kind === 'bullet' ? 2.5 : 3.1;
+    if (!catcher || catcher.d > reach) {
+      game.events.push('miss');
+      return incomplete(game, 'The throw falls incomplete');
+    }
+    var cover = nearest(play, ball.toX, ball.toY, function (a) { return !a.off && a.role !== 'dl'; });
+    var tight = !!(cover && cover.d < (ball.kind === 'bullet' ? 2.6 : 3.4));
+    var cov = tight ? cover.actor.cover : (cover && cover.d < 6 ? cover.actor.cover * 0.45 : 28);
+    var hands = catcher.actor.catch;
+    var outcome = arriveOutcome(function () { return roll(game); }, {
+      tight: tight, qb: ball.qb, hands: hands, cover: cov
+    });
+    play.catchRoom = cover ? cover.d : 8;
+    return finishArrival(game, play, ball, catcher, tight ? cov : 28, hands, outcome, passError(ball.error || 1, 1));
+  }
   function incomplete(game, text) {
     var side = game.possession;
     var line = String(text).replace(/[. ]*$/, '');
@@ -1570,6 +1779,10 @@
     laneOpenRate: laneOpenRate, catchRate: catchRate, sampleRunYards: sampleRunYards,
     passCatchShare: passCatchShare, digestScript: digestScript, snapshot: snapshot, burn: burn,
     moveChains: moveChains, currentMessage: currentMessage, clockSpent: clockSpent, aimThrow: aimThrow,
+    throwRange: throwRange, landingRadius: landingRadius, aimSteady: aimSteady,
+    passError: passError, pressureFactor: pressureFactor, guideState: guideState,
+    slingAim: slingAim, lockReceiver: lockReceiver, arriveOutcome: arriveOutcome,
+    receiverRate: receiverRate, flightSeconds: flightSeconds, DEFAULT_PASS: 'retro',
     simulateGame: simulateGame, winSplit: winSplit, jukePolicy: jukePolicy, divePolicy: divePolicy,
     earlyJukePolicy: earlyJukePolicy, earlyDivePolicy: earlyDivePolicy, scriptedSeries: scriptedSeries,
     scriptedQuick: scriptedQuick,

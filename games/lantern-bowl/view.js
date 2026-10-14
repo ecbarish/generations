@@ -433,6 +433,38 @@
     if (moving) return { pose: 'run', frame: Math.floor(t * 8) % 4 };
     return { pose: 'idle', frame: Math.floor(t * 2) % 2 };
   }
+  /* A predicted arc and the landing circle. Lamplight stays on the aimed player, not the arc. */
+  function drawPassGuide(ctx, at, carrier, aim) {
+    var preview = aim.preview || {};
+    var from = at(carrier.x, carrier.y);
+    var end = at(preview.x, preview.y);
+    var wobble = clamp(Number(aim.wobble) || 0, 0, 1);
+    var time = Number(aim.time) || 0;
+    if (wobble > 0) {
+      end = {
+        x: end.x + Math.round(Math.sin(time * 9) * wobble * 14),
+        y: end.y + Math.round(Math.cos(time * 7) * wobble * 8)
+      };
+    }
+    var loft = (aim.kind === 'lob' ? 28 : 12) + wobble * 10;
+    var samples = 8, i;
+    var prev = from;
+    ctx.fillStyle = wobble > 0 ? '#ffb0a4' : '#f6edd4';
+    for (i = 1; i <= samples; i++) {
+      var t = i / samples;
+      var u = 1 - t;
+      var x = u * u * from.x + 2 * u * t * ((from.x + end.x) / 2) + t * t * end.x;
+      var y = u * u * from.y + 2 * u * t * (((from.y + end.y) / 2) - loft) + t * t * end.y;
+      var next = { x: Math.round(x), y: Math.round(y) };
+      pixelLine(ctx, prev.x, prev.y, next.x, next.y, 1, aim.kind === 'lob' ? [3, 3] : null);
+      prev = next;
+    }
+    var radius = Math.max(0.6, Number(aim.radius) || Number(preview.radius) || 1.2);
+    var rx = Math.max(3, Math.round(radius * SIDE.yard));
+    var ry = Math.max(2, Math.round(radius * (SIDE.fieldH / SIDE.widthY)));
+    ctx.fillStyle = '#4aa8ff';
+    pixelEllipse(ctx, end.x, end.y, rx, ry, 1, wobble > 0 ? [2, 2] : null);
+  }
   function paintMatch(ctx, spec) {
     spec = spec || {};
     var game = spec.game;
@@ -526,16 +558,22 @@
       var who = null;
       bodies.forEach(function (row) { if (row.p.link === carrier) who = row.s; });
       var juking = !!(play.jukeUntil && play.elapsed < play.jukeUntil);
+      var spinning = !!(play.spinUntil && play.elapsed < play.spinUntil);
       var diving = !!(play.diving || (play.diveUntil && play.elapsed < play.diveUntil));
-      if (who && (juking || diving || play.turboOn)) {
-        drawText(ctx, juking ? 'JUKE' : diving ? 'DIVE' : 'GO', who.x - 8, who.y - 22, '#f6edd4', 1);
+      if (who && (juking || spinning || diving || play.turboOn)) {
+        drawText(ctx, juking ? 'JUKE' : spinning ? 'SPIN' : diving ? 'DIVE' : 'GO', who.x - 8, who.y - 22, '#f6edd4', 1);
       }
     }
     if (play && play.family === 'pass' && !play.thrown && spec.aim && spec.aim.preview && carrier) {
-      var from = at(carrier.x, carrier.y);
-      var end = at(spec.aim.preview.x, spec.aim.preview.y);
-      ctx.fillStyle = spec.aim.kind === 'bullet' ? '#f6edd4' : '#ffffff';
-      pixelLine(ctx, from.x, from.y, end.x, end.y, 1, spec.aim.kind === 'lob' ? [3, 3] : null);
+      drawPassGuide(ctx, at, carrier, spec.aim);
+    }
+    if (play && play.family === 'pass' && !play.thrown && !spec.aim && spec.coach && carrier) {
+      drawPassGuide(ctx, at, carrier, {
+        preview: { x: carrier.x + 12, y: carrier.y - 2 },
+        kind: 'bullet',
+        radius: 1.4,
+        wobble: 0
+      });
     }
     ctx.restore();
     return { spot: spot, camX: camX, squad: (squad || []).length };

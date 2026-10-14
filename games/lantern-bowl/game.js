@@ -71,11 +71,14 @@
   var save = {
     v: SAVE_V, game: 'lantern-bowl',
     sound: migrated && [0, 1, 2].indexOf(migrated.sound) >= 0 ? migrated.sound : 0,
+    passing: migrated && migrated.passing === 'all22' ? 'all22' : 'retro',
+    tutored: !!(migrated && migrated.tutored),
     match: migrated && migrated.match ? migrated.match : null
   };
 
   var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null, lastSheet = '';
-  var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, throw: null };
+  var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, spin: false, throw: null };
+  var stick = null, receiverKey = '';
   var sheetDetail = false, watchLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0;
   var pointerNotes = [];
 
@@ -116,6 +119,12 @@
       options: [[0, 'Off'], [1, 'Effects'], [2, 'Effects and music']],
       get: function () { return save.sound; },
       set: function (v) { save.sound = v; persist(); audio.render(); audio.sfx('select'); }
+    }, {
+      label: 'Passing',
+      options: [['retro', 'Retro Bowl'], ['all22', 'All 22']],
+      get: function () { return save.passing === 'all22' ? 'all22' : 'retro'; },
+      set: function (v) { save.passing = v === 'all22' ? 'all22' : 'retro'; receiverKey = ''; persist(); },
+      note: 'Retro Bowl aims where you drag. All 22 puts a button on each receiver.'
     }]
   });
   var build = $('build');
@@ -163,7 +172,7 @@
     var again = save.match ? '<button type="button" data-continue>Continue the game</button>' : '';
     panel('Lamplight Field',
       '<p>The Brackenport Lanterns have Millrace under the lanterns. You call the offence. Their drives play out on the field.</p>' +
-      '<p>Two-minute quarters. Pick a play, then drag right to throw. A short pull stays short. Swipe to juke, tap to dive.</p>' +
+      '<p>Two-minute quarters. Pick a play, then pull back from the quarterback. Drag to aim, and let go to throw. Swipe or tap Juke and Spin with the ball.</p>' +
       '<div class="actions"><button type="button" data-kick>Kick off</button>' + again + '</div>');
     dock();
   }
@@ -268,8 +277,12 @@
       if (kickNote) parts.push(kickNote);
     }
     var passLive = live && state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
-    if (passLive) parts.push('Drag right to throw. A short pull stays short.');
-    if (live) parts.push('Swipe to juke. Tap to dive.');
+    if (passLive && save.passing === 'all22') parts.push('Tap a receiver for a bullet. Hold for a lob.');
+    else if (passLive) {
+      if (!save.tutored) parts.push('Pull back from the quarterback. Drag to aim, then let go.');
+      parts.push('Drag right to throw. A short pull stays short.');
+    }
+    if (live) parts.push('Swipe to juke or spin. Tap to dive.');
     return parts.join(' ');
   }
   function paintHint() {
@@ -352,13 +365,47 @@
   });
 
   function readGesture() {
-    var out = { steer: steer, turbo: turboHeld || keys.has('shift'), juke: queued.juke, dive: queued.dive || keys.has(' '), throw: queued.throw };
-    queued = { juke: 0, dive: false, throw: null };
+    var out = {
+      steer: steer, turbo: turboHeld || keys.has('shift'),
+      juke: queued.juke, dive: queued.dive || keys.has(' '), spin: queued.spin, throw: queued.throw
+    };
+    queued = { juke: 0, dive: false, spin: false, throw: null };
     if (keys.has('j')) out.juke = -1;
     if (keys.has('l')) out.juke = 1;
+    if (keys.has('k') && state && state.phase === 'live') out.spin = true;
     if (keys.has('arrowleft') || keys.has('a')) out.steer = -1;
     if (keys.has('arrowright') || keys.has('d')) out.steer = 1;
     return out;
+  }
+  var keyHeld = {};
+  function receiverNames() {
+    var names = [];
+    if (!state || !state.play) return names;
+    state.play.actors.forEach(function (a) {
+      if (a.off && a.route && a.role !== 'qb' && a.role !== 'ol') names.push(a.name);
+    });
+    return names;
+  }
+  function receiverThrow(name, kind) {
+    save.tutored = true;
+    return {
+      receiver: name, kind: kind, autoAim: true, sling: false,
+      dirX: 1, dirY: 0, power: kind === 'lob' ? 0.72 : 0.28
+    };
+  }
+  /* Direction tests hand-ported from cptx032/virtual-joystick (Willie Lawrence, CC0 / public domain).
+     https://github.com/cptx032/virtual-joystick
+     The base appears where the finger lands, instead of sitting in one corner. */
+  function stickFlags(dx, dy) {
+    return {
+      up: dy < 0 && Math.abs(dx) <= 2 * Math.abs(dy),
+      down: dy > 0 && Math.abs(dx) <= 2 * Math.abs(dy),
+      left: dx < 0 && Math.abs(dy) <= 2 * Math.abs(dx),
+      right: dx > 0 && Math.abs(dy) <= 2 * Math.abs(dx)
+    };
+  }
+  function carryingNow() {
+    return !!(state && state.play && state.phase === 'live' && (state.play.family === 'run' || state.play.didCatch) && !state.play.flight);
   }
 
   function armGesture(x, y, id) {
@@ -367,31 +414,56 @@
     if (state.phase !== 'live' || mode === 'watch') return;
     gesture = { x: x, y: y, t: performance.now(), id: id };
     aimDrag = null;
+    if (carryingNow()) stick = { x: x, y: y, dx: 0, dy: 0, flags: stickFlags(0, 0) };
+    else stick = null;
   }
   function dragGesture(x, y) {
     if (!gesture || !state || state.phase !== 'live') return;
-    if (state.play && state.play.family === 'run') steer = Math.max(-1, Math.min(1, (x - gesture.x) / 80));
-    var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
-    if (!pass) { aimDrag = null; return; }
     var dx = x - gesture.x, dy = y - gesture.y;
+    if (carryingNow()) {
+      var flags = stickFlags(dx, dy);
+      var analog = Math.max(-1, Math.min(1, dx / 64));
+      if (flags.left) analog = Math.min(analog, -0.45);
+      if (flags.right) analog = Math.max(analog, 0.45);
+      steer = analog;
+      stick = { x: gesture.x, y: gesture.y, dx: dx, dy: dy, flags: flags };
+      aimDrag = null;
+      return;
+    }
+    var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
+    if (!pass || save.passing === 'all22') { aimDrag = null; stick = null; return; }
     var rect = canvas.getBoundingClientRect();
     var pull = V.classifyPull(Math.hypot(dx, dy));
     var dir = V.dragToField(dx, dy);
+    var preview = M.slingAim(state.play, { dirX: dir.dirX, dirY: dir.dirY, power: pull.power });
+    var qb = state.play.actors[state.play.carrier];
+    var held = (performance.now() - gesture.t) / 1000;
+    var guide = M.guideState(qb ? qb.throw : 50, held, pull.power, preview.dist, M.pressureFactor(state.play));
     aimDrag = {
-      kind: pull.kind,
-      preview: M.aimThrow(state.play, { dirX: dir.dirX, dirY: dir.dirY, power: pull.power }),
+      kind: preview.kind,
+      preview: preview,
+      radius: guide.radius,
+      wobble: guide.wobble,
+      time: held,
       x: x - rect.left, y: y - rect.top
     };
   }
   function releaseGesture(x, y) {
     aimDrag = null;
+    stick = null;
     if (!gesture || !state || state.phase !== 'live') { gesture = null; steer = 0; return; }
     var dx = x - gesture.x, dy = y - gesture.y;
     var dist = Math.hypot(dx, dy), quick = performance.now() - gesture.t < 320;
-    var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
+    var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight && save.passing !== 'all22';
     if (pass && dist > 22) {
       var pull = V.classifyPull(dist), dir = V.dragToField(dx, dy);
-      queued.throw = { dirX: dir.dirX, dirY: dir.dirY, power: pull.power };
+      queued.throw = {
+        dirX: dir.dirX, dirY: dir.dirY, power: pull.power,
+        sling: true, autoAim: false, held: (performance.now() - gesture.t) / 1000
+      };
+      save.tutored = true;
+    } else if (quick && Math.abs(dy) > 28 && Math.abs(dy) > Math.abs(dx) * 1.2) {
+      queued.spin = true;
     } else if (quick && Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy) * 1.2) {
       queued.juke = dx > 0 ? 1 : -1;
     } else if (dist < 18) queued.dive = true;
@@ -429,7 +501,7 @@
   }, { passive: false });
   canvas.addEventListener('touchcancel', function () {
     touchGuard = performance.now() + 800;
-    gesture = null; aimDrag = null; steer = 0;
+    gesture = null; aimDrag = null; stick = null; steer = 0;
   });
   function mouseAfterTouch(e) {
     return !!(e && (e.pointerType === 'touch' || performance.now() < touchGuard));
@@ -460,6 +532,57 @@
     releaseGesture(e.clientX, e.clientY);
   });
   if ($('sheet')) $('sheet').addEventListener('click', function () { sheetDetail = !sheetDetail; hud(); });
+  var receiverHold = null;
+  function buttonTouch(el, down) {
+    if (!el) return;
+    el.addEventListener('touchstart', function (e) {
+      var p = fromTouch(e);
+      if (!p) return;
+      e.preventDefault();
+      e.stopPropagation();
+      touchGuard = performance.now() + 800;
+      notePointer('touch', p.x, p.y);
+      down(p);
+    }, { passive: false });
+    el.addEventListener('pointerdown', function (e) {
+      if (mouseAfterTouch(e)) { e.preventDefault(); notePointer('ignored', e.clientX, e.clientY); return; }
+      down({ x: e.clientX, y: e.clientY });
+    });
+  }
+  buttonTouch($('jukeBtn'), function () { queued.juke = 1; });
+  buttonTouch($('spinBtn'), function () { queued.spin = true; });
+  if ($('receivers')) {
+    $('receivers').addEventListener('touchstart', function (e) {
+      var b = e.target.closest('[data-receiver]');
+      var p = fromTouch(e);
+      if (!b || !p) return;
+      e.preventDefault();
+      e.stopPropagation();
+      touchGuard = performance.now() + 800;
+      notePointer('touch', p.x, p.y);
+      receiverHold = { name: b.dataset.receiver, t: performance.now(), touch: true };
+    }, { passive: false });
+    $('receivers').addEventListener('touchend', function (e) {
+      if (!receiverHold || !receiverHold.touch) return;
+      e.preventDefault();
+      touchGuard = performance.now() + 800;
+      var kind = performance.now() - receiverHold.t < 220 ? 'bullet' : 'lob';
+      queued.throw = receiverThrow(receiverHold.name, kind);
+      receiverHold = null;
+    }, { passive: false });
+    $('receivers').addEventListener('pointerdown', function (e) {
+      var b = e.target.closest('[data-receiver]');
+      if (!b) return;
+      if (mouseAfterTouch(e)) { e.preventDefault(); notePointer('ignored', e.clientX, e.clientY); return; }
+      receiverHold = { name: b.dataset.receiver, t: performance.now(), touch: false };
+    });
+    $('receivers').addEventListener('pointerup', function (e) {
+      if (!receiverHold || receiverHold.touch || mouseAfterTouch(e)) return;
+      var kind = performance.now() - receiverHold.t < 220 ? 'bullet' : 'lob';
+      queued.throw = receiverThrow(receiverHold.name, kind);
+      receiverHold = null;
+    });
+  }
 
   window.addEventListener('keydown', function (e) {
     if (e.target.closest && e.target.closest('input,button,a,select,textarea,.arc-set-bg')) return;
@@ -471,9 +594,21 @@
     }
     if (k === 'k' && state && state.phase === 'call' && state.down >= 4) { begin('kick'); return; }
     keys.add(k);
+    if (!keyHeld[k]) keyHeld[k] = performance.now();
     if (k === ' ' || k === 'arrowleft' || k === 'arrowright') e.preventDefault();
   });
-  window.addEventListener('keyup', function (e) { keys.delete(e.key.toLowerCase()); });
+  window.addEventListener('keyup', function (e) {
+    var k = e.key.toLowerCase();
+    if (save.passing === 'all22' && keyHeld[k] && '1234'.indexOf(k) >= 0) {
+      var names = receiverNames();
+      var who = names[Number(k) - 1];
+      if (who && state && state.phase === 'live' && state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight) {
+        queued.throw = receiverThrow(who, performance.now() - keyHeld[k] < 220 ? 'bullet' : 'lob');
+      }
+    }
+    delete keyHeld[k];
+    keys.delete(k);
+  });
 
   function togglePause() {
     if (!state || state.phase === 'final') return;
@@ -575,6 +710,7 @@
       cue.textContent = cueName === 'juke' ? 'Swipe to juke' : cueName === 'dive' ? 'Tap to dive' : cueName === 'turbo' ? 'Hold Turbo' : '';
     }
     paintHint();
+    paintTools();
     if (performance.now() >= promptUntil) {
       var msg = state.phase === 'live' || state.phase === 'final' ? '' : M.currentMessage(state);
       if ($('banner').textContent !== msg) say(msg);
@@ -638,11 +774,13 @@
   function draw() {
     var box = resize();
     var play = state && state.phase === 'live' ? state.play : null;
+    var passLive = !!(play && play.family === 'pass' && !play.thrown && !play.flight && play.offence === 'home');
     var paint = {
       game: state,
       play: play,
       camX: sideCam ? sideCam.x : (state ? state.spot : 25),
       aim: aimDrag,
+      coach: passLive && mode === 'play' && !save.tutored && save.passing !== 'all22' && !aimDrag,
       reduced: reduce
     };
     if (box.upright) {
@@ -650,6 +788,7 @@
       ctx.setTransform(mul, 0, 0, mul, 0, 0);
       ctx.imageSmoothingEnabled = false;
       V.paintMatch(ctx, paint);
+      drawStick(box);
       return;
     }
     var scale = Math.max(0.01, Math.min(box.w / V.SIDE.w, box.h / V.SIDE.h));
@@ -662,6 +801,57 @@
     ctx.setTransform(box.dpr * scale, 0, 0, box.dpr * scale, box.dpr * ox, box.dpr * oy);
     ctx.imageSmoothingEnabled = false;
     V.paintMatch(ctx, paint);
+    drawStick(box);
+  }
+  function drawStick(box) {
+    if (!stick || !carryingNow()) return;
+    var rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    var sx = canvas.width / rect.width, sy = canvas.height / rect.height;
+    var radius = Math.max(16, Math.round(28 * (canvas.width / V.SIDE.w)));
+    var x = Math.round((stick.x - rect.left) * sx);
+    var y = Math.round((stick.y - rect.top) * sy);
+    var dx = (stick.dx || 0) * sx, dy = (stick.dy || 0) * sy;
+    var mag = Math.hypot(dx, dy);
+    if (mag > radius) { dx *= radius / mag; dy *= radius / mag; }
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = '#f6edd4';
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = '#f6edd4';
+    ctx.lineWidth = Math.max(1, Math.round(sx));
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(Math.round(x + dx), Math.round(y + dy), Math.max(6, Math.round(radius / 2)), 0, Math.PI * 2);
+    ctx.fillStyle = '#c9bc9a';
+    ctx.fill();
+    ctx.restore();
+  }
+  function paintTools() {
+    var moves = $('moves'), row = $('receivers');
+    var ours = mode === 'play' && state && state.phase === 'live' && state.play && state.play.offence === 'home';
+    var passLive = !!(ours && state.play.family === 'pass' && !state.play.thrown && !state.play.flight);
+    if (moves) moves.hidden = !(ours && carryingNow());
+    if (!row) return;
+    var show = passLive && save.passing === 'all22';
+    row.hidden = !show;
+    if (!show) { receiverKey = ''; return; }
+    var names = receiverNames();
+    var key = names.join('|');
+    if (key === receiverKey) return;
+    receiverKey = key;
+    row.innerHTML = names.map(function (name) {
+      return '<button type="button" data-receiver="' + escapeAttr(name) + '">' + escapeText(name.split(' ')[0]) + '</button>';
+    }).join('');
+  }
+  function armMove(which, e) {
+    if (e && e.cancelable) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
+    touchGuard = performance.now() + 800;
+    if (which === 'spin') queued.spin = true;
+    else queued.juke = queued.juke || 1;
   }
 
   function frame(now) {
