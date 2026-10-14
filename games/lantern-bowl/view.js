@@ -66,6 +66,110 @@
     return { dirX: dirX / mag, dirY: dirY / mag };
   }
 
+  /* Run lane and pocket ring, drawn under the players. Colours and patterns from the art spec. */
+  var LANE_STYLE = {
+    open: { color: '#f2d080', pattern: 'solid', width: 2, chevron: true },
+    contested: { color: '#b89a5a', pattern: 'dashed', dash: [3, 3], width: 2 },
+    closed: { color: '#3a2a30', pattern: 'dotted', dash: [1, 2], width: 1, mark: '#f6edd4' }
+  };
+  var RING_STEPS = [
+    { rx: 28, color: '#f6edd4', width: 2, dash: null, pulse: 0, low: '#f6edd4' },
+    { rx: 22, color: '#f2d080', width: 2, dash: null, pulse: 1, low: '#ffb0a4' },
+    { rx: 16, color: '#f2d080', width: 2, dash: null, pulse: 0.5, low: '#ffb0a4' },
+    { rx: 10, color: '#ffb0a4', width: 1, dash: [3, 3], pulse: 0.25, low: '#e08d82' }
+  ];
+  function laneStyle(state) { return LANE_STYLE[state] || LANE_STYLE.open; }
+  /* Two rails, 9px apart, perpendicular to the downfield run. */
+  function laneRails(x0, y0, x1, y1) {
+    var dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy) || 1;
+    var px = -dy / len, py = dx / len, gap = 4.5;
+    return [1, -1].map(function (side) {
+      return {
+        x0: x0 + px * gap * side, y0: y0 + py * gap * side,
+        x1: x1 + px * gap * side, y1: y1 + py * gap * side
+      };
+    });
+  }
+  function drawRunLane(ctx, spec) {
+    spec = spec || {};
+    var style = laneStyle(spec.state);
+    var x0 = Number(spec.x0) || 0, y0 = Number(spec.y0) || 0;
+    var x1 = Number(spec.x1) || 0, y1 = Number(spec.y1) || 0;
+    var dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy) || 1;
+    var rails = laneRails(x0, y0, x1, y1);
+    ctx.save();
+    ctx.strokeStyle = style.color;
+    ctx.lineWidth = style.width;
+    ctx.lineCap = 'butt';
+    ctx.setLineDash(style.dash || []);
+    rails.forEach(function (rail) {
+      ctx.beginPath();
+      ctx.moveTo(rail.x0, rail.y0);
+      ctx.lineTo(rail.x1, rail.y1);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    if (style.chevron) {
+      var px = -(dy / len), py = dx / len;
+      for (var d = 10; d < len - 2; d += 10) {
+        var cx = x0 + dx / len * d, cy = y0 + dy / len * d;
+        var tipx = x0 + dx / len * (d + 4), tipy = y0 + dy / len * (d + 4);
+        ctx.beginPath();
+        ctx.moveTo(cx + px * 3.5, cy + py * 3.5);
+        ctx.lineTo(tipx, tipy);
+        ctx.lineTo(cx - px * 3.5, cy - py * 3.5);
+        ctx.stroke();
+      }
+    }
+    if (style.mark) {
+      var mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+      ctx.strokeStyle = style.mark;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(mx - 3, my - 3);
+      ctx.lineTo(mx + 3, my + 3);
+      ctx.moveTo(mx + 3, my - 3);
+      ctx.lineTo(mx - 3, my + 3);
+      ctx.stroke();
+    }
+    ctx.restore();
+    return style;
+  }
+  function pocketRing(step, time, reduced) {
+    var spec = RING_STEPS[Math.max(0, Math.min(3, step | 0))];
+    var color = spec.color, pulsing = false;
+    if (!reduced && spec.pulse) {
+      var phase = ((Number(time) || 0) % spec.pulse) / spec.pulse;
+      if (phase < 0.25) { color = spec.low; pulsing = true; }
+    }
+    return {
+      rx: spec.rx, ry: spec.rx / 2, color: color, width: spec.width,
+      dash: spec.dash, pulse: reduced ? 0 : spec.pulse, pulsing: pulsing
+    };
+  }
+  /* 120ms between pocket steps, snapped to whole pixels. */
+  function tweenRadius(fromR, toR, t) {
+    var u = clamp((Number(t) || 0) / 0.12, 0, 1);
+    return Math.round(fromR + (toR - fromR) * u);
+  }
+  function drawPocketRing(ctx, spec) {
+    spec = spec || {};
+    var fromStep = spec.from == null ? spec.step : spec.from;
+    var from = pocketRing(fromStep, 0, true);
+    var look = pocketRing(spec.step || 0, spec.time || 0, !!spec.reduced);
+    var rx = spec.tween == null || spec.tween >= 0.12 ? look.rx : tweenRadius(from.rx, look.rx, spec.tween);
+    var ry = Math.max(1, Math.round(rx / 2));
+    ctx.save();
+    ctx.beginPath();
+    ctx.strokeStyle = look.color;
+    ctx.lineWidth = look.width;
+    ctx.setLineDash(look.dash || []);
+    if (ctx.ellipse) ctx.ellipse(Number(spec.x) || 0, Number(spec.y) || 0, rx, ry, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+    return { rx: rx, ry: ry, color: look.color, width: look.width, dash: look.dash, pulse: look.pulse, pulsing: look.pulsing };
+  }
+
   /* One entry for every player. A later sprite replaces the figure; the game does not grow a second drawer. */
   function drawPlayer(ctx, spec) {
     spec = spec || {};
@@ -116,7 +220,8 @@
   var api = {
     RESERVED: RESERVED, project: project, classifyPull: classifyPull, dragToField: dragToField,
     fitCircle: fitCircle, fieldLocal: fieldLocal, followBall: followBall, spriteFile: spriteFile,
-    drawPlayer: drawPlayer
+    drawPlayer: drawPlayer, laneStyle: laneStyle, laneRails: laneRails, drawRunLane: drawRunLane,
+    pocketRing: pocketRing, tweenRadius: tweenRadius, drawPocketRing: drawPocketRing, RING_STEPS: RING_STEPS
   };
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.LanternView = api;
