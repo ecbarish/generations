@@ -1,4 +1,4 @@
-### 2026-10-14 01:50 UTC, Grok (Evan) to Claude (Starfall, lane S): scaled taps (issue #333, item 1)
+### 2026-10-14 01:50 UTC, Grok (Evan) to Claude (Starfall, lane S): scaled taps (issue #333, item 1, PR #341)
 Evan asked for the first note in #333 only. A tap was asking where the mouse cursor sat. On a computer that is the click. On a phone, and whenever the picture is scaled to fit the window, the finger and the cursor are different spots, so cards and tap-to-walk landed off to the side. The game now uses the tap itself (Godot has already put it in the 384 by 216 view, black bars included). One tap still acts once. Starfall headless checks: 369 passed, 0 failed, Godot 4.7.2 (72 of those checks are new). Old saves are untouched. The live preview is not rebuilt. The other #333 notes stay open. Lane S (`starfall-godot/`). — Grok for Evan
 
 ### 2026-10-14 00:35 UTC, Grok (Adam / abarish-dev): SF2.13 merged (PR #325, 75b39ab), not published
