@@ -5,9 +5,9 @@ run it again. The rules (sizes, tiers, world fit, how to add a creature) are in 
 Size and tier show the species' own `size` and `tier` fields when it has them, otherwise the defaults that page sets (marked *).
 
 **189 species** in 94 lines: 13 stay themselves, 73 lines of two, 8 lines of three.
-Shapes: bird 26, cat 20, sprite 19, horse 19, lizard 17, wolf 15, spider 15, hyena 11, boar 11, turtle 8, serpent 8, moth 8, croc 7, treefolk 5.
+Shapes: bird 26, cat 20, sprite 19, horse 19, lizard 18, wolf 15, spider 15, hyena 11, boar 11, turtle 8, moth 8, croc 7, serpent 7, treefolk 5.
 Elements: Tide 31, Gale 31, Radiant 29, Stone 29, Grove 25, Shade 23, Ember 21.
-Sizes: large 87, small 69, tiny 15, huge 13, medium 5. Tiers: Plain 121, Strong 56, Legend 12.
+Sizes: large 87, small 72, tiny 15, huge 10, medium 5. Tiers: Plain 121, Strong 59, Legend 9.
 
 | Creature | Shape | Element | Size | Tier | Stage | Strength | Lives in | Line |
 |---|---|---|---|---|---|---|---|---|
@@ -36,9 +36,9 @@ Sizes: large 87, small 69, tiny 15, huge 13, medium 5. Tiers: Plain 121, Strong 
 | Lookoutwing | bird | Gale | large | Plain | 2 of 2 | 460 | Farwatch Reach |  |
 | Chimespark | sprite | Radiant | small | Plain | 1 of 2 | 300 | Hollowecho Hills | Chimespark → Hollowchime |
 | Hollowchime | sprite | Radiant | large | Plain | 2 of 2 | 460 | Hollowecho Hills |  |
-| Cindercub | wolf | Ember | tiny | Strong | 1 of 3 | 307 | starter, Maren's barn | Cindercub → Blazefang → Pyremane |
-| Blazefang | wolf | Ember | large | Strong | 2 of 3 | 439 | raised |  |
-| Pyremane | wolf | Ember | huge | Legend | 3 of 3 | 530 | raised |  |
+| Cindercub | wolf | Ember | tiny | Strong | 1 of 3 | 307 | starter, Maren's barn | Cindercub → Smoulderpup → Blazefang |
+| Smoulderpup | wolf | Ember | small | Strong | 2 of 3 | 372 | raised |  |
+| Blazefang | wolf | Ember | large | Strong | 3 of 3 | 439 | raised |  |
 | Cinderstitch | spider | Ember | large | Strong | 1 of 1 | 420 | Emberfall Highlands | (stays itself) |
 | Cirrusmane | horse | Gale | small | Plain | 1 of 2 | 310 | Cloudglass Pass | Cirrusmane → Highmane |
 | Highmane | horse | Gale | large | Plain | 2 of 2 | 460 | Cloudglass Pass |  |
@@ -129,9 +129,9 @@ Sizes: large 87, small 69, tiny 15, huge 13, medium 5. Tiers: Plain 121, Strong 
 | Duskwing | bird | Shade | small | Strong | 2 of 2 | 410 | raised |  |
 | Moorweft | spider | Stone | small | Plain | 1 of 2 | 300 | Farwatch Reach | Moorweft → Moorbridge |
 | Moorbridge | spider | Stone | large | Plain | 2 of 2 | 460 | Farwatch Reach |  |
-| Mosshog | boar | Grove | tiny | Strong | 1 of 3 | 306 | starter, Maren's barn | Mosshog → Thornback → Elderthorn |
-| Thornback | boar | Grove | large | Strong | 2 of 3 | 440 | raised |  |
-| Elderthorn | boar | Grove | huge | Legend | 3 of 3 | 524 | raised |  |
+| Mosshog | boar | Grove | tiny | Strong | 1 of 3 | 306 | starter, Maren's barn | Mosshog → Thicketboar → Thornback |
+| Thicketboar | boar | Grove | small | Strong | 2 of 3 | 372 | raised |  |
+| Thornback | boar | Grove | large | Strong | 3 of 3 | 440 | raised |  |
 | Orchardroot | treefolk | Grove | small | Plain | 1 of 2 | 300 | Stillreed Basin | Orchardroot → Orchardcrown |
 | Orchardcrown | treefolk | Grove | large | Plain | 2 of 2 | 460 | Stillreed Basin |  |
 | Pallweaver | spider | Stone | small | Plain | 1 of 2 | 304 | Cloudglass Pass | Pallweaver → Pallspan |
@@ -154,9 +154,9 @@ Sizes: large 87, small 69, tiny 15, huge 13, medium 5. Tiers: Plain 121, Strong 
 | Ribbonmane | horse | Gale | large | Plain | 2 of 2 | 460 | Sunthread Commons |  |
 | Rillwhisk | serpent | Tide | small | Plain | 1 of 2 | 300 | Stillreed Basin | Rillwhisk → Channelwyrm |
 | Channelwyrm | serpent | Tide | large | Plain | 2 of 2 | 460 | Stillreed Basin |  |
-| Ripplet | lizard | Tide | tiny | Strong | 1 of 3 | 313 | starter, Maren's barn | Ripplet → Tidewyrm → Deeptide |
-| Tidewyrm | serpent | Tide | large | Strong | 2 of 3 | 450 | raised |  |
-| Deeptide | serpent | Tide | huge | Legend | 3 of 3 | 544 | raised |  |
+| Ripplet | lizard | Tide | tiny | Strong | 1 of 3 | 313 | starter, Maren's barn | Ripplet → Riverwisp → Tidewyrm |
+| Riverwisp | lizard | Tide | small | Strong | 2 of 3 | 379 | raised |  |
+| Tidewyrm | serpent | Tide | large | Strong | 3 of 3 | 450 | raised |  |
 | Saillet | lizard | Gale | tiny | Strong | 1 of 3 | 300 | Saltmarsh Coast, Moon Pool | Saillet → Draftscale → Stormfrill |
 | Draftscale | lizard | Gale | small | Strong | 2 of 3 | 420 | Cloudglass Pass |  |
 | Stormfrill | lizard | Gale | large | Strong | 3 of 3 | 510 | raised |  |

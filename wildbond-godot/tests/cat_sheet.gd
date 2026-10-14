@@ -55,7 +55,48 @@ func _initialize() -> void:
 	img.save_png(out)
 	print("CAT SHEET ", out, " ", img.get_width(), "x", img.get_height())
 	_audit_sheet(data, tamer)
+	_all_sheet(data, tamer)
 	quit(0)
+
+## Every new figure on one sheet, for art sign-off. New drawings are the ones that opted into marks.
+func _all_sheet(data: Dictionary, tamer: Array) -> void:
+	var ids: Array = []
+	for id in data.SPECIES:
+		if data.SPECIES[id].get("marks", false):
+			ids.append(str(id))
+	ids.sort_custom(func(a, b): return str(data.SPECIES[a].name) < str(data.SPECIES[b].name))
+	var cols := 5
+	var cell_w := 220
+	var cell_h := 156
+	var rows := int(ceil(float(ids.size() + 1) / float(cols)))
+	var sheet := Image.create(cols * cell_w, 36 + rows * cell_h, false, Image.FORMAT_RGBA8)
+	sheet.fill(Color("e6dcc6"))
+	_label(sheet, Vector2i(12, 8), "%d new figures at world scale" % ids.size())
+	var z := 4
+	for i in ids.size():
+		var id: String = ids[i]
+		var s: Dictionary = data.SPECIES[id]
+		var look: Dictionary = Figures.look_for(s)
+		var pose := { "walking": false, "wag": 0, "ears_up": true }
+		var parts: Array = Figures.parts_of(true, pose, look)
+		var span: Vector2i = Figures.pixel_span(parts)
+		var sc: float = float(SCALE.get(str(s.size), 1.0))
+		var c := i % cols
+		var r := int(i / cols)
+		var origin := Vector2i(c * cell_w + 28, 36 + r * cell_h + 6)
+		_stamp(sheet, origin, parts, sc, z)
+		var px_h := int(round(float(span.y) * sc))
+		_label(sheet, Vector2i(c * cell_w + 8, 36 + r * cell_h + cell_h - 34), s.name)
+		_label(sheet, Vector2i(c * cell_w + 8, 36 + r * cell_h + cell_h - 16), "%s  %dpx" % [s.size, px_h])
+	var t := ids.size()
+	_stamp(sheet, Vector2i((t % cols) * cell_w + 40, 36 + int(t / cols) * cell_h + 6), tamer, 1.0, z)
+	_label(sheet, Vector2i((t % cols) * cell_w + 8, 36 + int(t / cols) * cell_h + cell_h - 34), "Tamer")
+	_label(sheet, Vector2i((t % cols) * cell_w + 8, 36 + int(t / cols) * cell_h + cell_h - 16), "12x21px")
+	var all_out := OS.get_environment("ALL_SHEET")
+	if all_out == "":
+		all_out = "res://frames/all-figures.png"
+	sheet.save_png(all_out)
+	print("ALL SHEET ", all_out, " ", sheet.get_width(), "x", sheet.get_height(), " ", ids.size())
 
 ## The stages added by the roster audit, same world scale, so the new finals and the two young forms can be seen together.
 func _audit_sheet(data: Dictionary, tamer: Array) -> void:

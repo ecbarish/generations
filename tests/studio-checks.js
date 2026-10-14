@@ -36,10 +36,10 @@ async function studioChecks() {
   await check(`Reads every game (${T.SOURCES.length} sources, ${index.total} pieces of text, ${secs.toFixed(1)}s)`, () => T.SOURCES.every(g => index.perGame[g.id] > 0) && index.total > 2000);
   const least = { wildbond: 800, realmbound: 1000, 'starfall-guild': 100, otherworld: 300, 'diamond-career': 80, primordial: 40, 'wildbond-godot': 800, 'starfall-godot': 150 };
   await check('Each game gives at least the text it had on 2026-10-09 (a big drop means the reader broke)', () => Object.entries(least).every(([g, n]) => index.perGame[g] >= n) || (() => { throw Error(JSON.stringify(index.perGame)); })());
-  const dex = index.entries.find(e => e.text === 'A wolf pup with smoldering fur. It sleeps curled around warm stones.');
+  const dex = index.entries.find(e => e.text === 'Its feathers catch the light like glass.');
   await check('A creature description shows both games, the file, the line and the data path', () => dex && dex.kinds.includes('Description') &&
-    dex.places.some(p => p.game === 'wildbond' && p.file === 'games/wildbond/js/00-data.js' && p.line > 0 && p.path === 'SPECIES.cindercub.dex') &&
-    dex.places.some(p => p.game === 'wildbond-godot' && p.file === 'wildbond-godot/data/wildbond.json' && p.path === 'SPECIES.cindercub.dex'));
+    dex.places.some(p => p.game === 'wildbond' && p.file === 'games/wildbond/js/00-data.js' && p.line > 0 && p.path === 'SPECIES.glimmerwing.dex') &&
+    dex.places.some(p => p.game === 'wildbond-godot' && p.file === 'wildbond-godot/data/wildbond.json' && p.path === 'SPECIES.glimmerwing.dex'));
   await check('A creature name is found as a creature name', () => { const e = index.entries.find(x => x.text === 'Cindercub'); return e && e.kinds.includes('Creature name'); });
   await check('Starfall village stories are read from stories.json with their paths', () => index.entries.some(e => e.places.some(p => p.file === 'starfall-godot/data/stories.json' && /^(Aki|Ren|Yuna|Kaito|Hana|Sora)\b/.test(p.path))));
   await check('Text written straight into Godot scripts is found with its line', () => index.entries.some(e => e.places.some(p => p.game === 'starfall-godot' && /\.gd$/.test(p.file) && p.line > 0)));
@@ -69,7 +69,16 @@ async function studioChecks() {
   const real = await V.load('../');
   await check(`Viewers: the real data loads (Wildbond ${real.wildbond.species.length} and ${real['wildbond-godot'].species.length} creatures, ${real.realmbound.quests.length} Realmbound quests)`, () =>
     real.wildbond.species.length >= 100 && real['wildbond-godot'].species.length >= real.wildbond.species.length && real.wildbond.wild.length > 50 && real['wildbond-godot'].evolutions.length > real.wildbond.evolutions.length && real.realmbound.quests.length >= 60 && real.wildbond.moves.length >= 20);
-  await check('Viewers: the Godot evolutions include the new shapes (Pyremane in Emberfall, three Poolkit branches)', () => real['wildbond-godot'].evolutions.some(r => r.id === 'blazefang>pyremane' && /emberfall/.test(r.cells[3])) && real['wildbond-godot'].evolutions.filter(r => r.id.startsWith('poolkit>')).length === 3);
+  await check('Viewers: the Godot evolutions include the starter lines and three Poolkit branches', () => {
+    const ev = real['wildbond-godot'].evolutions;
+    const row = (id) => ev.find(r => r.id === id);
+    const mid = ['cindercub>smoulderpup', 'ripplet>riverwisp', 'mosshog>thicketboar'];
+    const fin = ['smoulderpup>blazefang', 'riverwisp>tidewyrm', 'thicketboar>thornback'];
+    return mid.every(id => row(id) && row(id).cells[2] === 16 && row(id).cells[3] === 'level only')
+      && fin.every(id => row(id) && row(id).cells[2] === 36 && row(id).cells[3] === 'trust 3')
+      && !ev.some(r => /pyremane|deeptide|elderthorn/.test(r.id))
+      && ev.filter(r => r.id.startsWith('poolkit>')).length === 3;
+  });
   await check('Viewers: the games\' current data has no problems (the same rules as the game checks)', () => { const f = Object.values(real).map(flagged).flat(); if (f.length) throw Error(f.slice(0, 5).join(' | ')); return true; });
   await check('No game save or setting was changed by the viewers', () => snapshot() === before);
 

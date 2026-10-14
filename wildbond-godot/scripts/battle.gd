@@ -7,6 +7,7 @@ extends Control
 
 signal finished(result: String)
 const Figures := preload("res://scripts/figures.gd")
+const Sprites := preload("res://scripts/creature_sprites.gd")
 const Effects := preload("res://scripts/battle_effects.gd")
 const R := preload("res://scripts/rules.gd")
 const INK := Color("2a2230")
@@ -812,9 +813,13 @@ func _draw() -> void:
 		if u.get("joined", false):
 			_draw_joined(u, at, pose, look)
 			continue
-		draw_set_transform(at - Vector2(9, 12) * sc, 0, Vector2(sc, sc))
-		Figures.creature(self, Vector2.ZERO, u.side == "a", pose, look)
-		draw_set_transform(Vector2.ZERO)
+		# Battle zooms in (your side closer than the foe). The sprite's own pixels already carry its size.
+		var zoom := 4.0 if u.side == "a" else 3.0
+		var gear := str(u.c.get("gear", ""))
+		if not Sprites.try_draw(self, str(u.c.sp), at + Vector2(0, 6), u.side == "a", "walk" if u.lunge > 0.0 else "idle", int(t * 8.0), zoom, 0.0, gear):
+			draw_set_transform(at - Vector2(9, 12) * sc, 0, Vector2(sc, sc))
+			Figures.creature(self, Vector2.ZERO, u.side == "a", pose, look)
+			draw_set_transform(Vector2.ZERO)
 	for u in allies + foes:
 		var status_line := Effects.label(u)
 		if u.c.hp > 0 and status_line != "":
@@ -942,10 +947,11 @@ func _draw_joined(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictionary
 	var glow := 0.5 + 0.5 * sin(t * 4.0)
 	for k in 3:                                  # a lamplight halo, brightest at the heart
 		_ellipse(at + Vector2(0, -30), 58.0 - k * 14.0 + glow * 3.0, 50.0 - k * 12.0 + glow * 3.0, Color(1.0, 0.86, 0.52, 0.16 + k * 0.08))
-	var sc := 4.6
-	draw_set_transform(at - Vector2(9, 12) * sc, 0, Vector2(sc, sc))
-	Figures.creature(self, Vector2.ZERO, true, pose, look)
-	draw_set_transform(Vector2.ZERO)
+	var sc := 5.0
+	if not Sprites.try_draw(self, str(u.c.sp), at + Vector2(0, 8), true, "idle", 0, sc, 0.0, str(u.c.get("gear", ""))):
+		draw_set_transform(at - Vector2(9, 12) * sc, 0, Vector2(sc, sc))
+		Figures.creature(self, Vector2.ZERO, true, pose, look)
+		draw_set_transform(Vector2.ZERO)
 	if not tamer_look.is_empty():
 		draw_set_transform(at + Vector2(-26, -70), 0, Vector2(2.4, 2.4))   # you, within its shape, facing the foe with it
 		Figures.person(self, Vector2.ZERO, Vector2i.RIGHT, false, 0, false, tamer_look)

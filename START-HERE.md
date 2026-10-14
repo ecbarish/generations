@@ -42,8 +42,8 @@ Add one START-HERE Session log line; planning owns Where we are/Up next. No full
 - Read COMMS and check open PR titles, then publish a small claim commit and open a draft PR whose title starts
   with the task ID **before building**. One task per PR.
 - Run the task's checks, include screenshots for visual changes, describe the result, and mark the PR ready.
-- Any AI may merge a ready PR after every PROCESS self-check line passes on the latest commit and the self-check
-  is recorded in a PR comment. Use a merge commit, record the release/session notes and tick the completed task.
+- Only Generations Reviewer merges; nobody merges their own PR. A ready PR merges after every PROCESS self-check line passes on the latest commit and the self-check
+  is recorded in a PR comment. Generations Reviewer squash-merges, records the release/session notes and ticks the completed task.
 
 ## Where we are (rewritten 2026-10-08, night)
 

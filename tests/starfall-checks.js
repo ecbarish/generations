@@ -261,11 +261,19 @@ async function starfallChecks(oldSave) {
       // The unchanged canvas uses its visible bounds; reopen it for repeated runs.
       document.querySelector('details').open = true;
       const frame = document.createElement('iframe'); frame.title = 'Starfall Guild test instance'; active.frame = frame;
+      document.querySelector('#game').appendChild(frame);
+      // The guild page's load event waits on fonts.googleapis.com. A stalled stylesheet
+      // never fires load, even after the game has booted. The localhost hook is the ready signal.
       await new Promise((resolve, reject) => {
-        const timer = setTimeout(() => reject(Error('Game iframe load timed out.')), 15000);
-        frame.onload = () => { clearTimeout(timer); resolve(); };
-        frame.onerror = () => { clearTimeout(timer); reject(Error('Game iframe failed to load.')); };
-        frame.src = '../games/starfall-guild/'; document.querySelector('#game').appendChild(frame);
+        let poll;
+        const timer = setTimeout(() => { clearInterval(poll); reject(Error('Game iframe load timed out.')); }, 15000);
+        const done = () => { clearTimeout(timer); clearInterval(poll); resolve(); };
+        frame.onerror = () => { clearTimeout(timer); clearInterval(poll); reject(Error('Game iframe failed to load.')); };
+        poll = setInterval(() => {
+          try { if (frame.contentWindow && frame.contentWindow.__sg) done(); }
+          catch (error) { /* The frame is still navigating. */ }
+        }, 50);
+        frame.src = '../games/starfall-guild/';
       });
       const w = frame.contentWindow;
       if (!w.__sg) throw Error('Starfall Guild localhost test hook is unavailable.');
