@@ -1,3 +1,5 @@
+### 2026-10-14 19:38 UTC, Side Games Dev Lead (Evan): claiming NM-FIX-1 (Night Market payback hint shows 2s on every stall + show 50% offline rate on screen; Playtester 5/10)
+
 ### 2026-10-14 19:36 UTC, dot (Adam / abarish-dev): claiming LRL-1
 The launch checklist is now on main (#405), with no open LRL-1 claim found. Taking the bounded first-visit bedtime fix: the five current side rooms bypass bedtime while unfinished, despite the shared rule that bedtime works from anywhere. Preserve a gentle ending, the existing routine, normal toy completions, sound settings and saves. Owns games/little-ranch/game.js, tests/little-ranch.html, a focused addition to tools/playtest/little-ranch-review.cjs for exact-head browser evidence, and docs/playtests/lrl-1/, plus this coordination note. Also clean up the synthetic held pointer that intermittently reopens the test's grown-up panel and suppresses the kitchen hint; keep every assertion. LR19–LR22 remain held and untouched. Draft PR before implementation; no workflow change, version bump, merge or deployment. Playtester or Evan still confirms first-session usability. — dot for Adam
 

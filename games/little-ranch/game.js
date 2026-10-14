@@ -18,7 +18,7 @@
    toothbrush, a cup of water and goodnight to each friend come before the lullaby. The device's own voice says the
    creatures' names, the colours and "night night" (LR8). No microphone, and nothing is saved. A big soft ball sits in the grass (LR16): tap it and it rolls, and the baby runs over and kicks it. Checks: tests/little-ranch.html. */
 (function () {
-  const VERSION = '0.18.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
+  const VERSION = '0.18.0', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, BEDTIME_GRACE = 6, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
   // LR-C1: things on the ranch, in the order an idle hint offers them (the first one not yet played with)
   const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'ball', 'sign', 'wsign', 'ksign', 'dsign', 'tsign'];
   // LR11: the Snack Kitchen. Four foods (berries, carrot, lemon, broccoli), one bowl, one baby who loves berries and pulls a
@@ -130,7 +130,7 @@
   /* ---------------- the visit ---------------- */
   let st;
   function newVisit() {
-    st = { t: 0, mode: 'play', dusk: 0, acts: 0, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0 },
+    st = { t: 0, mode: 'play', dusk: 0, acts: 0, bedtimeAt: null, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0 },
       bowl: { food: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null },
       place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, tsign: { shake: 0 }, dough: null, dsign: { shake: 0 }, door: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 }, ball: { from: -1, to: -1, at: -9, kicks: 0 }, routine: null, shut: 0 };
     if (forceFriend !== null ? forceFriend : Math.random() < FRIEND_ODDS) st.friend = { x: 1.1, tx: null, then: null, act: null, at: 0, soap: 0, dir: -1 };
@@ -538,10 +538,38 @@
       if (r.doing.what === 'teeth') drawItem('teeth', hx + b.dir * z * .5 + Math.sin(k * 20) * z * .12, my + z * .1, I.r * .7, b.dir > 0 ? .4 : -.4);
       else drawItem('water', hx + b.dir * z * .55, my + z * .15, I.r * .6, b.dir * -.6 * clamp(k / .4, 0, 1)); return; }
     ell(I.x, I.y + I.r * .55, I.r * .9, I.r * .22, 'rgba(255,240,200,.35)'); drawItem(ROUTINE[r.step], I.x, I.y - bob, I.r); }
-  function bedtime() { if (st.mode !== 'play') return; st.routine = useRoutine ? { step: 0, at: st.t, doing: null, said: {}, doneAt: null } : null; st.shut = 0; if (st.friend) { st.friend.act = null; fgo(L.fhome.x, null); } st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn'); st.sponge.drag = null; st.sponge.auto = null; }
+  // LRL-1: a place shares the ranch's day. Let a short motion finish, but never wait for
+  // another correct tap or let repeated play hold bedtime off forever. No visible timer.
+  function bedtimeWaiting() {
+    if (st.down || st.sponge.drag || st.sponge.auto) return true;
+    if (st.place === 'shed') return st.shed.doneAt !== null;
+    if (st.place === 'wagon') return ['ride', 'end'].includes(st.wagon.phase) || (st.wagon.phase === 'gate' && st.wagon.gate.at !== null);
+    if (st.place === 'kitchen') return st.kitchen.phase !== 'idle';
+    if (st.place === 'door') return st.door.phase === 'open';
+    if (st.place === 'dough') return !!st.dough.stamp || st.dough.phase !== 'play';
+    return busy();
+  }
+  function bedtime() {
+    if (st.mode !== 'play') return;
+    // Unfinished toys do not earn completion. Their normal finish still counts once.
+    const leave = { shed: leaveShed, wagon: leaveWagon, kitchen: leaveKitchen, door: leaveDoor, dough: leaveDough }[st.place];
+    if (leave) leave(false);
+    // A ranch walk may have been frozen while visiting a place. It must not replace
+    // the yawn with an old meal/peek callback; a lifted finger must not act on that place.
+    st.baby.tx = null; st.baby.then = null; st.down = null;
+    st.sponge.drag = null; st.sponge.auto = null; st.sponge.scrubbed = false;
+    st.routine = useRoutine ? { step: 0, at: st.t, doing: null, said: {}, doneAt: null } : null; st.shut = 0;
+    if (st.friend) { st.friend.act = null; fgo(L.fhome.x, null); }
+    st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn');
+  }
 
   function update(dt) {
     st.t += dt; const b = st.baby, sp = L.U * .9;
+    // Before the place-specific returns: the first visit ends wherever she is playing.
+    if (st.mode === 'play' && (st.acts >= BEDTIME_ACTS || st.t > BEDTIME_SECS)) {
+      if (st.bedtimeAt === null) st.bedtimeAt = st.t;
+      if (!bedtimeWaiting() || st.t - st.bedtimeAt >= BEDTIME_GRACE) bedtime();
+    }
     if (st.place === 'wagon') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); wagonUpdate(dt); return; }
     if (st.place === 'kitchen') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); kitchenUpdate(dt); return; }
     if (st.place === 'dough') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); doughUpdate(dt); return; }
@@ -576,8 +604,7 @@
     b.soap = Math.max(0, b.soap - dt * .08); b.happy = Math.max(0, b.happy - dt * .7); st.bush.shake = Math.max(0, st.bush.shake - dt * 1.5);
     for (const u of st.bubbles) u.y -= L.U * .08 * dt; st.bubbles = st.bubbles.filter(u => st.t - u.at < 7 && u.y > -u.r);
     st.fx = st.fx.filter(f => st.t - f.at < (f.kind === 'zzz' ? 3 : 1.4));
-    // bedtime: after enough play, the sky turns orange, then night; a lullaby; the baby curls up
-    if (st.mode === 'play' && !busy() && !s.drag && !s.auto && (st.acts >= BEDTIME_ACTS || st.t > BEDTIME_SECS)) bedtime();
+    // bedtime: the sky turns orange, then night; a lullaby; the baby curls up
     if (st.mode === 'dusk') { routineUpdate(dt); st.dusk = Math.min(st.routine && st.routine.step < 3 ? .22 : 1, st.dusk + dt / 10); // LR7: the sky waits at sunset for the routine
       if (st.dusk > .25 && st.lullabyAt === null) { st.lullabyAt = st.t; sfx('lullaby'); }
       if (st.dusk > .55 && !busy()) { if (b.act !== 'sleep') speakNight(); b.act = 'sleep'; b.at = st.t; }
@@ -1087,7 +1114,7 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, BEDTIME_ACTS, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, DOUGH_BABIES, STAMP_SECS, DOUGH_END_SECS, enterDough, leaveDough, GADGETS, DOOR_OPEN_SECS, DOOR_END_SECS, enterDoor, leaveDoor, doorPoke: k => doorPoke(k), thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
+  window.LR = { VERSION, PREF, BEDTIME_ACTS, BEDTIME_SECS, BEDTIME_GRACE, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, DOUGH_BABIES, STAMP_SECS, DOUGH_END_SECS, enterDough, leaveDough, GADGETS, DOOR_OPEN_SECS, DOOR_END_SECS, enterDoor, leaveDoor, doorPoke: k => doorPoke(k), thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();
