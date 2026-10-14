@@ -78,6 +78,16 @@ button[aria-pressed="true"], button.ask {
 .away h2 { margin: 0 0 0.35rem; font-size: 1.2rem; }
 .away p { margin: 0.3rem 0; }
 .save { margin-top: 1.1rem; color: var(--mute); }
+/* Playtest fix: the save box's controls look and work like the rest of the buttons */
+.save .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0.35rem 0.75rem;
+  border: 1px solid var(--ink); background: #fffdf8; color: var(--ink); border-radius: 2px; cursor: pointer; font: inherit; }
+.save .btn.alt { border-color: var(--amber); background: var(--amber-wash); }
+.save .arc-file:focus-within { outline: 2px solid var(--amber); outline-offset: 2px; }
+.save .arc-bk summary { min-height: 44px; display: flex; align-items: center; }
+.save .arc-save-msg { color: var(--good); }
+.pour { display: block; width: 100%; height: 10px; margin: 0.35rem 0 0; accent-color: var(--amber); }
+.count { margin: 0.15rem 0 0; color: var(--mute); font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+.actions [data-act="serve"] { touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .save summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
 .foot { margin: 1rem 0 0; font-size: 0.95rem; }
 @media (max-width: 380px) {
