@@ -1,14 +1,8 @@
-### 2026-10-14 22:05 UTC, Grok (Cursor cloud) for Evan: Lantern Bowl is landscape-only
+### 2026-10-14 21:55 UTC, Grok (Adam): Night Market playtest fixes ready (PR #434)
+Pouring by hand is now a press-and-hold: one press keeps pouring a few cups a second, and a counter with a bar shows "12 of 25 cups · press and hold to keep going". A single click still pours one cup. The pour button no longer vanishes after Mei takes the stall: it stays as "Pour a cup yourself · +1" beside the buy button. The "Your save" box now has real button-styled Download and Load controls, and its backup list refreshes each time it opens instead of showing 0 forever. Payback times show whole seconds ("22s", never "22.0s"). The 50% offline label was skipped because NM-FIX-1 (#421) already shipped it. No save-format change, no version bump, no shared/ or launcher files. 74 Night Market checks; all 28 suites pass locally; CI green. Generations Reviewer: please review and squash-merge. Next in my lane is "Night Market visuals", which I won't start until this merges. — Grok for Adam
 
-On #419, after merging main. On a phone, Lantern Bowl is landscape-only. Held upright, it shows "Turn your phone sideways", the way ALL-22 does. Portrait will not get its own layout. LB-PLAYSCREEN is #432, which replaces #422. The open Wildbond bundle is #429. LRL-1 is done (#417, e352a7b). WBL-6 is done (#406, 440e4d6). Bundle counts are unchanged, so the dates stay.
-
-### 2026-10-14 21:00 UTC, Grok (Cursor cloud) for Evan: three Little Ranch notes ride in toy polish
-
-On #419. Playtester's #417 pass adds three non-blocking notes to LR-POLISH, owned by Side Games Dev Lead: bigger, longer bedtime cues (the cup timed out), a slower dusk fade, and feedback for leaving the paint shed early. They do not add a bundle, so Little Ranch stays 16 Oct / 20 Oct. LRL-1 (#417) has passed review and playtest, and is waiting on a merge of main.
-
-### 2026-10-14 20:55 UTC, Grok (Cursor cloud) for Evan: play screen, upright phone, layout done
-
-On #419, after merging main. Lantern Bowl's small 5b fixes, phone rows and ratings rows are one bundle, LB-PLAYSCREEN, built on #422. It counts as one large bundle. Likely 19 Oct, slower 28 Oct. The redesign is new scope, so those dates are an estimate. Wildbond's phone bundle builds the upright layout and drops the rotate gate. The menu bundle also fixes the #413 Larkhaven menu. WBL-2 is done (#418). Little Ranch's layout row is done (#424, e66ddbc). LRL-1 (#417) is in review. Little Ranch dates stay 16 Oct / 20 Oct. Wildbond is 17 Oct / 21 Oct.
+### 2026-10-14 21:35 UTC, Grok (Adam): claiming NM playtest fixes (Night Market, #373)
+Night Market playtest fixes, one PR (Generations PM's assignment on #373): the Pour flow (hold to pour, a cups counter, the pour button stays after Mei takes the stall), working "Your save" controls, and "22.0s" reads "22s". The 50% offline label is skipped: NM-FIX-1 (#421) already shipped it. Files: games/night-market/ (game.js, model.js, style.css, index.html), tests/night-market.html, docs/playtests/nm-playtest-fixes/ (screenshots). No shared/ or launcher files, no save-format change, no version bump. Draft PR to follow. — Grok for Adam
 
 ### 2026-10-14 20:49 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LB-PLAYSCREEN (Lantern Bowl Retro Bowl-style play-screen redesign, one PR)
 This replaces the small 5b fixes and folds in 5b-2 and the Lantern Bowl phone and ratings rows. Scope: a full-screen field, a thin HUD, drag-to-throw passing with visible routes, steering and juking on runs, a small play-call overlay, and no rating narration. It builds on #422. Evan made the call after playing on his phone, relayed by the Director. Any sw.js or shared/ change gets flagged to SSA first.
@@ -16,27 +10,11 @@ This replaces the small 5b fixes and folds in 5b-2 and the Lantern Bowl phone an
 ### 2026-10-14 20:49 UTC, dot (Adam / abarish-dev): refreshing LRL-1 #417 after LR-LAYOUT-1 landed
 Generations Reviewer passed the bedtime code at 60ecc2ef; Playtester still confirms the natural first-session ending. The later #424 layout merge conflicts only where both browser-test groups were appended. Preserve both complete test groups and all #424 game changes, then rerun exact-head aggregate/browser checks and inspect fresh captures. The PR opening now states the player-visible change, Pass 2 motivation, both LRL-1 rows and pending acceptance. No version work from #430, merge or deployment. — dot for Adam
 
-### 2026-10-14 20:10 UTC, Grok (Cursor cloud) for Evan: pull requests need a full phrase
-
-On #419. A pull request title is a clear full phrase, never a fragment. The description is a few full sentences: what changed for the player, why, how it was tested, and which checklist items it ticks. A one-line body is not allowed. Generations Reviewer sends it back when it does not meet this. The rule is in CONTRIBUTING.md and .github/pull_request_template.md.
-
 ### 2026-10-14 20:07 UTC, Wildbond & Starfall Dev Lead (Evan), recorded by Generations PM: claiming WB-BUNDLE-1 "Wildbond menu and battle start"
 Scope: WBL-2, WBL-3, WBL-4 and a first phone check, in one PR. The cloud agent building it is bc-f84a88f3. #413 and #415 are merged. #406 (WBL-6) is green and waiting on GAD sign-off.
 
-### 2026-10-14 20:05 UTC, Grok (Cursor cloud) for Evan: launch work is now bundles
-
-On #419. One pull request per fix list or feature area, one game per pull request. Split only when an area is risky. Payback and the offline label are done (#421, 1459413). Guest lane (#373) has the Night Market bundles, starting with pour, save controls, and the 22.0s trailing zero, then both visuals as one pull. Side Games Dev Lead has Little Ranch toy polish and Lantern Bowl passing and ratings. The sideways Kick off fix is its own phone bundle. Wildbond & Starfall Dev Lead has menu and battle start as one pull. Dates count bundles with the old per-pull rates, so they are estimates: Little Ranch 16 Oct / 20 Oct, Lantern Bowl 21 Oct / 1 Nov, Night Market 29 Oct / 22 Nov (placeholders), Wildbond 16 Oct / 21 Oct.
-
 ### 2026-10-14 19:55 UTC, dot (Adam / abarish-dev): LRL-1 repair tested, evidence handoff in #417
 The five current places now return home for the existing bedtime routine, with a bounded six-second grace for an active gesture or finish. Implementation 382ff23d passes all 28 aggregate suites (465 Little Ranch checks), 274 browser-review checks and 122 baseline/fix model checks. Old sound choice and an unrelated save survive; no new storage writes. Independent code review is clear. Exact-head Chromium screenshots and report are in docs/playtests/lrl-1/; they are accelerated engineering evidence, not a physical-phone or newcomer acceptance. Evidence-only head will receive the final CI/self-check before ready. Playtester or Evan still confirms unaided first-session usability and gentleness. No LRL-2/3/4 completion, held LR19–LR22 work, merge or deployment claimed. — dot for Adam
-
-### 2026-10-14 19:50 UTC, Grok (Cursor cloud) for Evan: Night Market fixes for the guest lane
-
-On #419. Side Games Dev Lead keeps NM-FIX-1 (payback hint) and NM-FIX-2 (offline label). Those two are already in flight as NM-FIX-1 (COMMS 7d08257). Guest lane (#373) keeps NM-FIX-5 (pour) and NM-FIX-3 and NM-FIX-4 (visuals). Side Games Dev Lead also keeps Little Ranch and Lantern Bowl. The 12 November and 27 December Night Market dates are placeholders: the 0.29 and 0.14 rates are two merges.
-
-### 2026-10-14 19:45 UTC, Grok (Cursor cloud) for Evan: playtest gaps on the launch checklists
-
-Playtester scored Night Market 5/10, Lantern Bowl 6/10 and Little Ranch 7/10. New rows are first in each lane in docs/QUEUE.md. Lantern Bowl starts with LBL-12 (sideways Kick off, and Settings). Night Market visual life is two pulls, NM-FIX-3 then NM-FIX-4, spec from Game Art Director. NM-FIX-8 is the back control and the fold. NM-FIX-2 sits before NM-RETUNE. Little Ranch adds LRL-12 for the phone overlaps. Cookie art spec stays LRL-8 before LRL-9. Dates, same rates as #405: Little Ranch 18 Oct / 24 Oct (was 16 Oct / 20 Oct). Lantern Bowl 26 Oct / 13 Nov (was 20 Oct / 1 Nov). Night Market 12 Nov / 27 Dec (was 22 Oct / 8 Nov). Wildbond unchanged, 17 Oct / 22 Oct.
 
 ### 2026-10-14 19:45 UTC, Side Games Dev Lead (Evan): claiming LR-LAYOUT-1 (Little Ranch cookie/cutter + phone overlap fixes, from GAD spec; Playtester)
 

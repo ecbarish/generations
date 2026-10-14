@@ -31,7 +31,7 @@ var fx: Array = []                             # element effects playing: { u, e
 var sfx: Sfx = null                            # sound effects (main.gd hands over its own; scripts/sfx.gd)
 const SPEED := 2.5                            # battle time runs faster than real time between turns (outcomes are unchanged)
 var pace := 1.0                                # the Settings page's battle pace: 1, 1.5 or 2 (only the waiting changes)
-const MENU := ["Fight", "Guard", "Orders", "Bond", "Bag", "Run"]
+const MENU := ["Fight", "Guard", "Orders", "Catch", "Bag", "Run"]
 ## Tamer orders (docs/proposals/creature-catalogue-and-evolution.md §4): Rally for everyone, one from your family
 ## (the register's heritage), and orders people teach you along the way (Toren's Steady). Each costs orders, which
 ## come back as the battle goes on.
@@ -62,6 +62,8 @@ const WARDEN_PLANS := {"Warden Isolde": "shelter", "Warden Nerys": "setup", "War
 var allies: Array = []
 var foes: Array = []
 var state := "off"                            # fog_in, intro, run, choose, moves, beat, results, fog_out
+var press_here := false                       # the press began while the action menu was already open
+var tap_landed := false                       # that press already hit a command, so the lift must not act again
 var wait_u: Dictionary = {}                   # the ally whose turn it is
 var beat_t := 0.0
 var state_t := 0.0
@@ -85,7 +87,8 @@ var order_i := 0
 var tide_ready := false                       # Read the Tide: the next gathered attack is braced for
 var area := ""                                 # the area the battle happens in (main.gd sets it): its sky and skyline
 var max_level := 15                           # the level cap (main.gd sets it from your badges, CAP_TABLE)
-var bag: Dictionary = { "lures": 0, "berries": 0 }  # the satchel (main.gd owns it): lures for Bond, berries for Bag
+var bag: Dictionary = { "lures": 0, "berries": 0 }  # the satchel (main.gd owns it): lures for Catch, berries for Bag
+var sure_catch := false                       # the first wild meeting: the lure cannot miss (WBL-3)
 var caught: Array = []                        # creatures that chose you in this battle
 var cap: Dictionary = {}                      # the calm meter while you Bond: { u, pos, dir, zone }
 ## The wild bond (WB4.2; docs/proposals/creature-catalogue-and-evolution.md §5): never taught, never in a menu until it
@@ -140,6 +143,7 @@ func open(battle_kind: String, team: Array, foe_team: Array, who: String) -> voi
 	joined = {}
 	joined_t = 0.0
 	flood_t = -1.0
+	sure_catch = false
 	var names := ", ".join(foes.map(func(u): return "%s (Lv %d)" % [u.c.name, u.c.lvl]))
 	say("A wild %s appeared!" % names if kind == "wild" else "%s sends out %s!" % [trainer, names])
 	_go_to("fog_in")
@@ -206,8 +210,10 @@ func _process(dt: float) -> void:
 	queue_redraw()
 
 func _tick(h: float) -> void:
+	# A battle that is already over (the tests knock a foe out, and so can a last tick of poison) ends at once,
+	# instead of opening a menu for a fight nobody is left to fight.
 	if _check_end():
-		return                                       # already decided (every foe down): end it rather than open a menu
+		return
 	if not joined.is_empty():
 		joined_t -= h
 		if joined_t <= 0.0 or joined.c.hp <= 0:
@@ -414,9 +420,9 @@ func _choose(i: int) -> void:
 		"Orders":
 			order_i = 0
 			_go_to("orders")
-		"Bond":
+		"Catch":
 			if kind != "wild":
-				say("You can't bond with another tamer's creature.")
+				say("Another tamer's creature is not yours to catch.")
 			elif int(bag.get("lures", 0)) <= 0:
 				say("You're out of lures. You can find them in the grass, or buy them in Larkhaven.")
 			else:
@@ -426,13 +432,20 @@ func _choose(i: int) -> void:
 					if float(u.c.hp) / u.st.hp < float(tg.c.hp) / tg.st.hp:
 						tg = u
 				bag.lures -= 1
-				cap = { "u": tg, "pos": 0.0, "dir": 1.0, "zone": 0.62 + rng.randf() * 0.2 }
-				say("You throw a lure at %s. Calm it: press when the marker is in the green." % tg.c.name)
+				if sure_catch:
+					cap = { "u": tg, "pos": 0.0, "dir": 1.0, "zone": 0.5, "wide": 1.0 }
+					say("You throw a lure. This first one brings them with you.")
+				else:
+					cap = { "u": tg, "pos": 0.0, "dir": 1.0, "zone": 0.62 + rng.randf() * 0.2, "wide": 0.2 }
+					say("You throw a lure at %s. Press when the marker is in the green." % tg.c.name)
 				_sfx("whoosh")
 				_go_to("capture")
 		"Bag":
-			if int(bag.get("berries", 0)) <= 0:
+			if int(bag.get("berries", 0)) <= 0 and int(bag.get("lures", 0)) <= 0:
 				say("Your bag has nothing to use in battle yet. Berries heal; you find them in the grass.")
+			elif int(bag.get("berries", 0)) <= 0:
+				say("The lures in your bag are for Catch. A berry would heal.")
+				return
 			else:
 				var low: Dictionary = living("a")[0]
 				for a in living("a"):
@@ -633,12 +646,28 @@ func _end(r: String) -> void:
 # ---------------------------------------------------------------- input: keys, mouse or touch
 func _input(e: InputEvent) -> void:
 	if not visible:
+		press_here = false
+		tap_landed = false
 		return
 	var click: bool = Controls.pointing(e)
+	var up: bool = Controls.released(e)
 	var ok := Controls.pressed(e, "interact")      # named actions (controls.gd): keys, a gamepad, or the phone's button
 	var back := Controls.pressed(e, "back")
 	var key := Controls.dir(e)
-	if Controls.swallow_pointer(e) and not click:
+	if click:
+		press_here = state == "choose"
+	if up:
+		var missed := press_here and not tap_landed
+		press_here = false
+		tap_landed = false
+		# A press that already chose is swallowed. A press that began on this menu and missed still counts if the finger comes up on Fight.
+		# The lift that opened the menu is not a choice.
+		if missed and state == "choose":
+			click = true
+		else:
+			get_viewport().set_input_as_handled()
+			return
+	elif Controls.swallow_pointer(e) and not click:
 		get_viewport().set_input_as_handled()      # the duplicate touch under a real click must not reach the world
 		return
 	if not (click or ok or back or key != Vector2i.ZERO):
@@ -648,8 +677,13 @@ func _input(e: InputEvent) -> void:
 	match state:
 		"choose":
 			if click:
+				var hit := false
 				for i in MENU.size():
-					if _menu_rect(i).has_point(p): _choose(i)
+					if _menu_rect(i).has_point(p):
+						hit = true
+						_choose(i)
+				if Controls.pointing(e):
+					tap_landed = hit
 			elif ok: _choose(menu_i)
 			else: menu_i = _grid_move(menu_i, key, MENU.size(), 3)
 		"capture":
@@ -700,7 +734,26 @@ func _grid_move(i: int, d: Vector2i, n: int, cols: int) -> int:
 	return i
 
 func _menu_rect(i: int) -> Rect2:
-	return Rect2(244 + (i % 3) * 44, 170 + (i / 3) * 19, 41, 16)
+	# Two rows on the right of the message box. Tall enough for a thumb, and the words stay inside.
+	return Rect2(240 + (i % 3) * 46, 167 + (i / 3) * 22, 44, 20)
+
+## Greyed out: you can still press it, and it tells you why it will not act.
+func _dimmed(word: String) -> bool:
+	if word == "Guard" or word == "Orders":
+		return orders < 1.0
+	if word == "Run":
+		return kind != "wild"
+	if word == "Catch":
+		return kind != "wild" or int(bag.get("lures", 0)) <= 0
+	if word == "Bag":
+		return int(bag.get("berries", 0)) <= 0 and int(bag.get("lures", 0)) <= 0
+	return false
+
+func _label_size(word: String, width: float, size: int) -> int:
+	var s := size
+	while s > 5 and font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, s).x > width - 2.0:
+		s -= 1
+	return s
 
 func _move_rect(i: int) -> Rect2:
 	return Rect2(14 + (i % 2) * 96, 170 + (i / 2) * 19, 92, 16)
@@ -928,17 +981,19 @@ func _draw() -> void:
 	_box(COMMAND_BOX)
 	match state:
 		"choose":
-			_text("What will %s do?" % wait_u.c.name, Vector2(16, 180), 9, INK)
-			_text("Orders ready: %d of 3  (Guard uses 1)" % int(orders), Vector2(16, 198), 7, Color("6a5a4a"))
+			_text("What will %s do?" % wait_u.c.name, Vector2(16, 178), 8, INK, 216)
+			if not sure_catch:
+				_text("Orders ready: %d of 3" % int(orders), Vector2(16, 196), 7, Color("6a5a4a"), 216)
 			for i in MENU.size():
 				var r := _menu_rect(i)
 				var on := i == menu_i
 				draw_rect(r, INK if on else Color("e8dcc4"))
 				var word := menu_word(i)
-				var dim: bool = (word == "Guard" and orders < 1) or (word == "Orders" and orders < 1) or (word in ["Run", "Bond"] and kind != "wild") or (word == "Bond" and int(bag.get("lures", 0)) <= 0) or (word == "Bag" and int(bag.get("berries", 0)) <= 0)
-				if word == "Stand with it" and not on:
-					draw_rect(r, Color("f2d080"))         # lamplight: the one new thing on the page
-				_text(word, r.position + Vector2(0, 11 if word.length() > 7 else 12), 6 if word.length() > 7 else 8, (PAPER if on else INK) if not dim else Color("9a8a7a"), r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+				var dim := _dimmed(word)
+				if not on and (word == "Stand with it" or (word == "Catch" and kind == "wild" and not dim)):
+					draw_rect(r, Color("f2d080"))         # lamplight: the choice to notice
+				var px := _label_size(word, r.size.x, 8)
+				_text(word, r.position + Vector2(0, 8 + px), px, (PAPER if on else INK) if not dim else Color("9a8a7a"), r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 		"moves":
 			var mv := R.moves_of(wait_u.c)
 			for i in mv.size():
@@ -973,14 +1028,18 @@ func _draw() -> void:
 			draw_multiline_string(font, oinfo.position + Vector2(4, 10), "Page %d/%d. %s Orders ready: %d." % [order_i / 4 + 1, ceili(ol.size() / 4.0), so.text, int(orders)],
 				HORIZONTAL_ALIGNMENT_LEFT, oinfo.size.x - 8, 7, -1, INK)
 		"capture":
-			_text("Calm %s: press when the marker is in the green." % cap.u.c.name, Vector2(16, 180), 8, INK)
-			var bar := Rect2(16, 188, 352, 10)
+			var prompt := "Press anywhere. This one comes with you." if sure_catch else "Press when the marker is in the green."
+			_text(prompt, Vector2(16, 178), 8, INK, 250)
+			var bar := Rect2(16, 188, 352, 12)
 			draw_rect(bar.grow(1), INK)
 			draw_rect(bar, Color("d8ccb4"))
-			draw_rect(Rect2(bar.position.x + bar.size.x * (cap.zone - 0.1), bar.position.y, bar.size.x * 0.2, bar.size.y), Color("9ad08a"))
-			draw_rect(Rect2(bar.position.x + bar.size.x * (cap.zone - 0.04), bar.position.y, bar.size.x * 0.08, bar.size.y), Color("4aa84a"))
+			var span := float(cap.get("wide", 0.2))
+			var z := float(cap.zone)
+			var x0 := bar.position.x + bar.size.x * clampf(z - span * 0.5, 0.0, 1.0)
+			var x1 := bar.position.x + bar.size.x * clampf(z + span * 0.5, 0.0, 1.0)
+			draw_rect(Rect2(x0, bar.position.y, maxf(1.0, x1 - x0), bar.size.y), Color("4aa84a"))
 			draw_rect(Rect2(bar.position.x + bar.size.x * cap.pos - 1, bar.position.y - 3, 3, bar.size.y + 6), INK)
-			_text("Lures left: %d" % int(bag.get("lures", 0)), Vector2(300, 180), 7, Color("6a5a4a"))
+			_text("Lures left: %d" % int(bag.get("lures", 0)), Vector2(268, 178), 7, Color("6a5a4a"), 100, HORIZONTAL_ALIGNMENT_RIGHT)
 		"results":
 			_box(Rect2(60, 30, 264, 124))
 			_text("Battle results", Vector2(60, 48), 10, INK, 264, HORIZONTAL_ALIGNMENT_CENTER)
@@ -1104,8 +1163,9 @@ func _calm() -> void:
 		if "gentle" in a.c.traits:
 			ch *= 1.15
 			break
+	var chance := 1.0 if sure_catch else minf(0.95, ch)
 	cap = {}
-	if rng.randf() < minf(0.95, ch):
+	if rng.randf() < chance:
 		sparks.append({ "u": u, "col": Color("7cf08a"), "age": 0.0 })
 		foes.erase(u)
 		caught.append(c)
