@@ -1,7 +1,7 @@
 'use strict';
 /* Offline play (L5). Online first: with internet, every page, script and style comes fresh from the site (so a new
    release shows up on the next reload, with nothing to bump), and each copy is kept. Without internet, or when the
-   site is very slow, the kept copy is used. The hub prepares a complete copy of the four games on its first visit,
+   site is very slow, the kept copy is used. The hub prepares a complete copy of the eight games on its first visit,
    so they work offline even before you've opened them. Saves are never touched (they live in localStorage).
    CACHE_VERSION only needs changing if this worker's own storage format changes. See docs/offline.md. */
 const CACHE_VERSION = '2';
