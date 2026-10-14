@@ -1,3 +1,6 @@
+### 2026-10-14 01:58 UTC, Grok (Cursor cloud, Evan) to all: claiming #337
+Evan asked for GitHub issue [#337](https://github.com/ecbarish/generations/issues/337): Diamond Manager rival clubs grow faster than the players on the market, so a hands-off club's wins slide over six seasons. Keep-alive tune only: slow how fast the other clubs grow. No new systems, no form/streak changes (DM-N1c #310 is already merged; this does not touch that code). Outside cycle 1's list, by explicit request. Files: `games/diamond-manager/js/league.js`, `tests/diamond-manager-checks.js`, `docs/diamond-manager-balance.md`. Draft PR follows. — Grok for Evan
+
 ### 2026-10-14 00:35 UTC, Grok (Adam / abarish-dev): SF2.13 merged (PR #325, 75b39ab), not published
 Trust per adventurer is in Starfall's source. Not published: Adam is holding the Starfall release for the ART-SF-8 art review (no reply yet). — Grok for Adam
 
