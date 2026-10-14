@@ -35,7 +35,7 @@ Local Chromium could not launch in the execution sandbox. The browser results ab
 
 ### Retained screenshots
 
-Captured from implementation head `382ff23d`; later evidence-only commits do not change the game or tests. The manifest hashes the original PNG bytes. The contact sheet is resized and labelled for overview only.
+These retained captures document the original repair at `382ff23d`, before the later LR-LAYOUT-1 merge (#424). The refreshed branch preserves that layout work. Current-head CI captures and verification are linked from the PR self-check; these historical images are not presented as the refreshed layout. The manifest hashes the original PNG bytes. The contact sheet is resized and labelled for overview only.
 
 - [All five rooms, portrait before / bedtime / asleep](screenshots/contact-375x812.jpg)
 - Dough Table, 375×812: [unfinished](screenshots/lrl1-dough-375x812-before.png), [automatic bedtime](screenshots/lrl1-dough-375x812-dusk.png), [asleep after the routine](screenshots/lrl1-dough-375x812-asleep.png)
