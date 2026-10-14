@@ -28,7 +28,7 @@ Per day is the count divided by 7 or by 14. One of Wildbond's 31 feature pulls i
 
 **Likely** uses the 7-day feature rate on the bundle count, plus 1 playtest day. **Slower** uses the 14-day feature rate, two playtest rounds, and the 2-day buffer. These per-pull rates are applied to bundles, so the dates are estimates.
 
-Playtester scored the launch games on 2026-10-14: Night Market **5/10**, Lantern Bowl **6/10**, Little Ranch **7/10**. Open gaps are now bundles. A phone-layout playtest is the confirmation day, not an extra bundle. Payback hint and offline label are done (#421, `1459413`).
+Playtester scored the launch games on 2026-10-14: Night Market **5/10**, Lantern Bowl **6/10**, Little Ranch **7/10**. Open gaps are now bundles. For Little Ranch and Night Market, a phone-layout playtest is the confirmation day, not an extra bundle. Lantern Bowl's phone rows are inside LB-PLAYSCREEN. Wildbond's upright layout is the bundle WB-PHONE. Payback hint and offline label are done (#421, `1459413`). WBL-2 is done (#418). The Little Ranch layout row is done (#424).
 
 | Game | Bundles | Build, likely | Playtest, likely | Buffer | Total | Date | Build, slower | Playtest, slower | Buffer | Total | Date |
 |---|---:|---|---|---:|---:|---|---|---|---:|---:|---|
