@@ -100,7 +100,7 @@ var joined_t := 0.0
 var flood_t := -1.0                            # colour flooding the field as you join (seconds since)
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	Controls.fill(self)
 	mouse_filter = MOUSE_FILTER_STOP
 	font = ThemeDB.fallback_font
 	visible = false
@@ -627,14 +627,17 @@ func _end(r: String) -> void:
 func _input(e: InputEvent) -> void:
 	if not visible:
 		return
-	var click: bool = e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT
+	var click: bool = Controls.pointing(e)
 	var ok := Controls.pressed(e, "interact")      # named actions (controls.gd): keys, a gamepad, or the phone's button
 	var back := Controls.pressed(e, "back")
 	var key := Controls.dir(e)
+	if Controls.swallow_pointer(e) and not click:
+		get_viewport().set_input_as_handled()      # the duplicate touch under a real click must not reach the world
+		return
 	if not (click or ok or back or key != Vector2i.ZERO):
 		return
 	get_viewport().set_input_as_handled()
-	var p := get_local_mouse_position()
+	var p := Controls.at(self, e)
 	match state:
 		"choose":
 			if click:

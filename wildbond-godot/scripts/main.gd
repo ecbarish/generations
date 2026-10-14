@@ -111,7 +111,10 @@ var got_items := {}                          # items already picked up, by id
 var grass_n := 10                            # tall-grass steps until the next find (8-16, like the browser)
 var battle_story := ""                       # "rival1" for Wren's battle; empty for wild ones
 var key_learn := { "walk": 0, "act": 0, "book": 0 }   # WB-KEYS: how often each control has been used (its key shows until then)
-var satchel: Control                         # the satchel you carry, top right: tap it (or Tab/J) for the field book
+var satchel: Control                         # the bag, top right: tap it (or Esc or I) for the menu. Tab or J still opens the field book
+var menu: Control                            # pause menu: party, field book, save, close (WBL-1)
+var status: Control                          # the strip along the top: place, lead, coins
+var menu_return := false                     # the field book was opened from the menu, so closing it comes back here
 var place_t := 0.0                           # seconds since you arrived somewhere (the place name holds, then fades)
 var title: Control
 var touch: Control                               # the phone pad (touch_pad.gd)
@@ -284,6 +287,12 @@ func _ready() -> void:
 	$UI.add_child(howto)
 	howto.closed.connect(_on_howto_closed)
 	book.want_howto.connect(func(): howto.open("go on"))
+	book.closed.connect(_on_book_closed)
+	menu = preload("res://scripts/pause_menu.gd").new()
+	$UI.add_child(menu)
+	menu.chose.connect(_on_menu)
+	status = preload("res://scripts/status_bar.gd").new()
+	$UI.add_child(status)
 	if "--skip-opening" in OS.get_cmdline_user_args():
 		no_save = true
 		_skip_opening()
@@ -838,7 +847,7 @@ func _process(dt: float) -> void:
 		maren.face = me.tile - maren.tile
 		maren.right = maren.face.x > 0
 		say("maren", "There you are! I'm Maren. I keep the ranch. Every tamer signs our register. Write yourself in, love.")
-	var free_to_walk: bool = stage in ["to_barn", "barn_choose", "walk_out", "free"] and not lessons.visible and not card.visible and not battle.visible and not shop.visible and not book.visible and trans_t < 0.0
+	var free_to_walk: bool = stage in ["to_barn", "barn_choose", "walk_out", "free"] and not _covering() and trans_t < 0.0
 	if lines.is_empty() and free_to_walk and me.path.is_empty() and me.pos.distance_to(Vector2(me.tile) * TILE) < 0.5:
 		var d := Controls.held_dir()                 # keys, a gamepad, or the phone pad (WB6.1)
 		if d != Vector2i.ZERO:
@@ -919,17 +928,21 @@ func _unhandled_input(e: InputEvent) -> void:
 		sfx.on = not sfx.on                      # N: sound effects on or off
 		get_viewport().set_input_as_handled()
 		return
+	# Esc, I, or the bag. A battle, a conversation, or another page keeps the menu shut.
+	if (Controls.pressed(e, "open_menu") or _satchel_hit(e)) and menu and (menu.visible or _menu_allowed()):
+		_toggle_menu()
+		get_viewport().set_input_as_handled()
+		return
 	if e is InputEventScreenTouch:
 		# Normally Godot sends the emulated mouse press first. Let that existing path
 		# advance once; accepting its touch too would skip another line (or the first
 		# line after signing/choosing). Native touch also works when emulation is off;
 		# mouse-to-touch test events are duplicates of an already handled click too.
-		var covered := lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or turn_card.visible
-		if not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION and e.pressed and not covered and not lines.is_empty():
+		if not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION and e.pressed and not _covering() and not lines.is_empty():
 			advance()
 			get_viewport().set_input_as_handled()
 		return
-	var want_book: bool = Controls.pressed(e, "open_book") or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and satchel.visible and satchel.get_global_rect().has_point(satchel.get_global_mouse_position()))
+	var want_book: bool = Controls.pressed(e, "open_book")
 	if lessons.visible: return
 	if want_book and stage == "free" and lines.is_empty() and not battle.visible and not shop.visible and not book.visible:
 		_open_book()
@@ -963,9 +976,54 @@ func _unhandled_input(e: InputEvent) -> void:
 		if s:
 			_meet(s)
 
+## A page is covering the world, so walking and the menu stay put.
+func _covering() -> bool:
+	return lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or turn_card.visible or (menu != null and menu.visible)
+
+func _menu_allowed() -> bool:
+	return menu != null and not menu.visible and stage == "free" and lines.is_empty() and trans_t < 0.0 and not _covering()
+
+func _toggle_menu() -> void:
+	if menu.visible:
+		menu.close()
+		return
+	walk_to.clear()
+	meet_after = null
+	me.path.clear()
+	me.pos = Vector2(me.tile) * TILE
+	menu.open()
+
+func _satchel_hit(e: InputEvent) -> bool:
+	if satchel == null or not satchel.visible or not Controls.pointing(e):
+		return false
+	return Rect2(Vector2.ZERO, satchel.size).has_point(Controls.at(satchel, e))
+
+func _on_menu(action: String) -> void:
+	match action:
+		"party":
+			menu_return = true
+			_open_book()
+			book.tab = 1
+		"book":
+			menu_return = true
+			_open_book()
+			book.tab = 0
+		"save":
+			menu.note = "Saved." if save_game() else ""
+			menu.queue_redraw()
+		"close":
+			menu.close()
+
+func _on_book_closed() -> void:
+	if not menu_return:
+		return
+	menu_return = false
+	if _menu_allowed():
+		menu.open()
+
 ## Click or tap: walk there (around anything in the way). Tap a creature in the barn to walk up and meet it.
 func _tap(at: Vector2) -> void:
-	if not (stage in ["to_barn", "barn_choose", "walk_out", "free"] and not lessons.visible and not card.visible and not battle.visible and not shop.visible and not book.visible and trans_t < 0.0):
+	if not (stage in ["to_barn", "barn_choose", "walk_out", "free"] and not _covering() and trans_t < 0.0):
 		return
 	var goal := Vector2i((at / TILE).floor())
 	meet_after = null
@@ -1645,6 +1703,16 @@ func _update_ui() -> void:
 			bubble.position = Vector2((384 - w) / 2, 216 - bubble.size.y - 8)   # narration sits low, like a book's caption
 	satchel.visible = _satchel_shown()
 	satchel.queue_redraw()
+	if status:
+		var lead := ""
+		var cur := 0
+		var mx := 1
+		if not team.is_empty():
+			lead = str(team[0].get("name", ""))
+			cur = int(team[0].hp)
+			mx = int(R.stats(team[0]).hp)
+		status.visible = not (book.visible or battle.visible or card.visible or shop.visible or lessons.visible or register.visible or title.visible or howto.visible or turn_card.visible)
+		status.setup(place.text, lead, cur, mx, int(bag.get("coins", 0)))
 	# the place's name, large on arrival: it holds for a few seconds, then fades (hidden while you talk or fight)
 	place.modulate.a = 0.0 if battle.visible or book.visible else clampf(3.5 - place_t, 0.0, 1.0)
 	# the faded world: pass each restored circle on this map to the shader, in real screen pixels
@@ -3436,11 +3504,11 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		save_game()
 
-func save_game() -> void:
+func save_game() -> bool:
 	if no_save or hold_save or _newer_save(_peek_save()):
-		return
+		return false
 	if stage != "free" or battle.visible or lessons.visible or not lines.is_empty() or trans_t >= 0.0:
-		return
+		return false
 	var look := {}
 	for k in my_look:
 		look[k] = (my_look[k] as Color).to_html() if my_look[k] is Color else my_look[k]
@@ -3454,7 +3522,7 @@ func save_game() -> void:
 		"explored": explored_in, "story": story_done, "retry": story_retry, "egg": egg, "gear": gear_owned, "taught": taught, "letter": [letter_steps, letters], "calendar": cal.to_dict(), "festival": { "done": fest_done, "keep": keepsakes, "flowers": flowers }, "league": league_room,
 		"spire": { "floor": spire_floor, "best": spire_best, "active": spire_active }, "rematches": rematch_wins, "bondDay": bond_day, "keysLearned": key_learn,
 		"map": map_name, "x": me.tile.x, "y": me.tile.y, "partner": partner.id if partner else "" }
-	SafeSave.write(save_path, d)                 # a spare file first, the last good save kept as a backup
+	return SafeSave.write(save_path, d)          # a spare file first, the last good save kept as a backup
 
 ## Journey files. Version 2 is this game. A version 1 file climbs one step. A newer file is refused.
 const SAVE_V := 2
@@ -4437,7 +4505,7 @@ func _take_along(ri: int, ti: int) -> void:
 ## how things look (text size) or run (battle pace).
 func _thumbs_tick() -> void:
 	touch.mode = settings.buttons()
-	var menus := lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible
+	var menus := lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or (menu != null and menu.visible)
 	touch.pad_on = not menus and lines.is_empty() and trans_t < 0.0 and stage in ["to_barn", "barn_choose", "walk_out", "free"]
 	touch.word = action_word()
 	touch.btn_on = not menus and trans_t < 0.0 and touch.word != ""
@@ -4585,7 +4653,7 @@ func key_hint(what: String) -> String:
 	var use := HowTo.in_use()
 	if use == "touch" or demo or key_learn.get(what, 0) >= KEY_TIMES[what]:
 		return ""
-	if not lines.is_empty() or trans_t >= 0.0 or lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible:
+	if not lines.is_empty() or trans_t >= 0.0 or lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or (menu != null and menu.visible):
 		return ""
 	match what:
 		"walk":
