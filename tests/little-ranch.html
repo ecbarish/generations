@@ -522,6 +522,33 @@ document.querySelector('#run').onclick = async () => {
       check('With the sound off the Dough Table is silent', LR.tones === t9); LR.prefs.sound = mute;
       LR.newVisit(); LR.bedtime(); tap(L().tsign); check('At bedtime the dough sign does not open the table (bedtime goes on)', S().place === 'ranch');
     }
+    // ---- LR21: the Barn Band
+    LR.prefs.sound = true;
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180], [1920, 1080]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const sc = LR.scale, r = cv.getBoundingClientRect(), V = L().band, pts = [...V.babies, V.stick].map(q => LR.toScreen(q));
+      check(`${width}×${height}: the band sign is its own tap and the other signs still are; the three players and the stick are 64 px+, apart and on screen`, LR.ranchTarget(L().msign) === 'msign' && ['sign', 'wsign', 'ksign', 'dsign', 'tsign'].every(k => LR.ranchTarget(L()[k]) === k) && V.z * 2 * sc >= 64 && V.br * 2 * sc >= 64 && pts.every(q => q.x > r.left && q.x < r.right && q.y < r.bottom) && (V.babies[1].x - V.babies[0].x) * sc >= 64);
+      tap(L().msign); check(`${width}×${height}: tapping the band sign opens the Barn Band`, S().place === 'band'); tap(V.barn);
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    { const V = () => L().band, Bd = () => S().band, on = i => ({ x: V().babies[i].x, y: V().babies[i].y - V().z * .6 });
+      tap(L().msign); check('Tapping the band sign goes to the Barn Band: three players, nobody playing yet', S().place === 'band' && Bd().played.every(x => !x) && !Bd().song);
+      LR.advance(LR.HINT_SECS + .5); check('Left alone, the drummer glows (the hint)', LR.hint() && LR.hint().name === 'drum');
+      for (let i = 0; i < 3; i++) { const t0 = LR.tones; tap(on(i)); check(`Tapping the ${LR.BAND[i]} plays it at once`, LR.tones > t0 && Bd().played[i] && Bd().notes.some(n => n.i === i)); }
+      const t1 = LR.tones; tap(on(0)); tap(on(0)); tap(on(0)); check('...again and again (no limit, nothing wrong)', LR.tones >= t1 + 6);
+      LR.advance(LR.HINT_SECS + .5); check('Once all three have played, the conductor stick glows', LR.hint() && LR.hint().name === 'stick');
+      const a21 = S().acts; let t0 = LR.tones; tap(V().stick); LR.advance(.05); check('Tapping the stick: the band starts Twinkle Twinkle together', Bd().song && LR.tones > t0);
+      t0 = LR.tones; LR.advance(LR.BAND_BEAT * 3.1); check('...note by note, all playing', Bd().song.i >= 3 && LR.tones > t0);
+      const i0 = Bd().song.i; tap(V().stick); tap(on(1)); check('Taps during the song never restart or break it', Bd().song && Bd().song.i === i0);
+      check('...the moon\'s tune, the same notes', LR.TWINKLE.length > 20);
+      LR.advance(LR.BAND_BEAT * (LR.SONG_BEATS + 2)); check('The whole song: a cheer with hearts, one happy thing', !Bd().song && Bd().songs === 1 && S().acts === a21 + 1);
+      check(`Gentle volume: no band note is louder than ${LR.BAND_VOL}`, LR.bandLoud > 0 && LR.bandLoud <= LR.BAND_VOL);
+      tap(V().stick); LR.advance(.5); tap(V().barn); check('The barn picture goes home at any time, even mid-song (no count)', S().place === 'ranch' && S().band === null);
+      LR.advance(3); check('...and the song stops with it', S().band === null);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t9 = LR.tones; tap(L().msign); tap(on(0)); tap(on(2)); const h0 = Bd().hit[2]; tap(V().stick); LR.advance(2);
+      check('With the sound off the band is silent, but the players still bounce and the song still plays along', LR.tones === t9 && h0 > 0 && Bd().song && Bd().song.i > 2); tap(V().barn); LR.prefs.sound = mute;
+      LR.newVisit(); LR.bedtime(); tap(L().msign); check('At bedtime the band sign does not open the band (bedtime goes on)', S().place === 'ranch');
+    }
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
