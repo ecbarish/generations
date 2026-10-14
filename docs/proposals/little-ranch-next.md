@@ -51,6 +51,19 @@ every new thing, and one at a time keeps it calm.
 **An idea for later, Evan's call:** a grown-up could record their own voice for "night night" and her baby's name,
 kept only on that device. Lovely, but it asks the browser for the microphone, so it needs a yes first.
 
+## Six toddler places (Evan's ruling, 2026-10-14; Game Researcher's spec)
+
+Owner: Grok (Adam), in this order. Shared rules for every place: no words, nothing to fail, no timers, no links or purchases, a 5–10 minute visit, the barn picture goes home, bedtime works from anywhere, taps and drags only.
+
+| ID | Place | What she does | Smallest test (done when) | Sources | Caveats |
+|---|---|---|---|---|---|
+| LR17 | Busy Barn Door | The barn door has a latch, a doorbell, a light switch, a crank that turns a windmill and a slide bolt. Each gives a big reaction. Once all are touched, the door opens and the baby peeks out (peekaboo). No wrong order. | Bell, switch and latch, then the door opens. Each reacts in under 100 ms, and no order can get it stuck. Then one session with the toddler. | https://playpokpok.com/ ; https://www.luriechildrens.org/en/specialties-conditions/pediatric-occupational-therapy/developmental-milestones/play-developmental-milestones/ | None. |
+| LR18 | Dough Table | Tap the dough lump (in the baby's colour) to squish it flat, and drag to roll it into a ball. Tap the creature cutter to stamp out a little baby that hops off. | One lump, squish and roll, and one cutter that stamps a hopping baby. Drags checked on phone and tablet. | https://www.cdc.gov/act-early/milestones/3-years.html | The drag must be forgiving for small fingers. |
+| LR19 | Block Tower | Tap a soft creature-face block and it drops onto the stack with a clunk. Tap the baby to knock the tower down (giggle), then restack. No height limit, and it never falls by accident. | Five blocks that snap in, plus the knock-down. The stack never goes off screen (cap the visible height or pan). | Pok Pok blocks (https://playpokpok.com/) ; the Lurie link above | None. |
+| LR20 | Little Garden | Tap the seed bag to plant in one of three patches, then tap the watering can. Each watering is one growth stage (by taps, not time). The third watering gives a berry, carrot or flower, which the baby eats; berries also appear in the Snack Kitchen. | One patch, three waterings, a berry, and the baby eats it. Nothing is saved between visits. | https://www.cdc.gov/act-early/milestones/3-years.html | The Snack Kitchen tie-in is optional for the first slice. |
+| LR21 | Barn Band | Babies hold a drum, bells or a horn. Tap one and it plays. Tap the conductor stick and they all play Twinkle together (the same tune as the moon). | Two instruments plus play-together. With sound off it is silent, with the visuals still moving. | Pok Pok music (https://playpokpok.com/) ; the CDC songs tip (https://www.cdc.gov/act-early/milestones/3-years.html) | It overlaps with the singing flowers (LR3), so it must look and sound different. |
+| LR22 | Feel-Better Corner | The baby has a tiny bump. Tap a bandage, a cuddle blanket and a cup of water. Hearts appear and the baby bounces back. It's never really hurt and can't go wrong. | Bandage, cuddle, then hearts, plus one parent check on how the toddler reacts. | https://sagomini.com/en/ | Evan OK'd: keep the bump very mild, with no crying sounds and no blood. |
+
 ## New toddler toys (places inside Little Ranch)
 
 | Toy | Proven | Fits | Two birds | Different | Buildable | Short sessions | Score | Verdict |

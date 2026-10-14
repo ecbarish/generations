@@ -76,7 +76,7 @@ of what we have). Anyone, Evan included, can add to either. The flow:
 | Lantern Bowl, our Retro Bowl-style football game (LB0-LB5) | 15/18 | docs/plans/sports-management.md | **Started** (Evan said yes 2026-10-09): LB0 and LB1 are merged; LB2 onward has the sports slot since Diamond Manager reached v0.8.0 (lane P, 2026-10-12) |
 | "The Crossing", sailing between the worlds | 12/18 | docs/proposals/new-game-ideas.md | Waits |
 | Card shop, absorbing Main Street (CS1 + MS1) | 17/18 | docs/proposals/new-game-ideas.md | **At the back** (Evan, 2026-10-09: it is gated behind Wildbond's development). First step when its time comes: a one-PR Godot toy |
-| Keymaster, a property-portfolio game around Evan's deal analyzer (KM0) | 18-19/21 | docs/proposals/keymaster.md | **Parked** until Evan gives it a focus slot (2026-10-12); smallest test: one listing, one analyzer, one buy |
+| Keymaster, a property-portfolio game around Evan's deal analyzer (KM0) | 18-19/21 | docs/proposals/keymaster.md | **Approved** and in review in #379 (Evan gave it the go-ahead, 2026-10-14); smallest test: one listing, one analyzer, one buy |
 | Primordial beyond polish | 10 | docs/plans/primordial.md | Evan: lower priority |
 | Walk-in arcade (AR3.1) | 10 | docs/VISION.md | Evan: the games come first |
 
