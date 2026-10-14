@@ -67,14 +67,18 @@ static func run(host: Node, check: Callable) -> void:
 	game.get_viewport().push_input(joy)
 	check.call(game.menu.visible, "WBL-1: Start on a gamepad opens the menu")
 	click(game, Vector2(192, 73))
+	game._update_ui()
 	check.call(not game.menu.visible and game.book.visible and game.book.tab == 1, "WBL-1: Party opens the field book on your team")
 	check.call(not game.status.visible, "WBL-1: the status strip steps aside for the field book")
 	game.book.close()
-	check.call(not game.book.visible and game.menu.visible, "WBL-1: closing the book from Party returns to the menu")
+	game._update_ui()
+	check.call(not game.book.visible and game.menu.visible and game.status.visible, "WBL-1: closing the book from Party returns to the menu, and the strip comes back")
 	click(game, Vector2(192, 95))
-	check.call(game.book.visible and game.book.tab == 0 and not game.menu.visible, "WBL-1: Field book opens the Wilddex")
+	game._update_ui()
+	check.call(game.book.visible and game.book.tab == 0 and not game.menu.visible and not game.status.visible, "WBL-1: Field book opens the Wilddex and the strip steps aside")
 	game.book.close()
-	check.call(game.menu.visible, "WBL-1: closing the Wilddex returns to the menu")
+	game._update_ui()
+	check.call(game.menu.visible and game.status.visible and game.satchel.visible, "WBL-1: closing the Wilddex returns to the menu")
 	var coins: int = int(game.bag.coins)
 	click(game, Vector2(192, 117))
 	check.call(game.menu.visible and game.menu.note == "" and int(game.bag.coins) == coins, "WBL-1: Save stays quiet when this session is not saving")
@@ -104,7 +108,7 @@ static func run(host: Node, check: Callable) -> void:
 	tap(game, Vector2(192, 139))
 	check.call(not game.menu.visible and game.walk_to.is_empty() and game.me.tile == tile, "WBL-1: a finger on Close resumes and does not walk")
 	Input.emulate_mouse_from_touch = true
-	var neighbor := game.me.tile + Vector2i.DOWN
+	var neighbor: Vector2i = game.me.tile + Vector2i.DOWN
 	if not game.walkable(neighbor):
 		neighbor = game.me.tile + Vector2i.RIGHT
 	var route: Array = game.route(game.me.tile, neighbor)
@@ -119,6 +123,7 @@ static func run(host: Node, check: Callable) -> void:
 	game.battle.visible = false
 	game.battle.state = ""
 	game.say("", "Hold on.")
+	game._update_ui()
 	key(game, KEY_I)
 	check.call(not game.menu.visible and game.lines.size() == 1 and str(game.lines[0].text) == "Hold on.", "WBL-1: the menu stays shut during dialogue, and the line stays")
 	check.call(game.status.visible, "WBL-1: the status strip stays up while someone is talking")

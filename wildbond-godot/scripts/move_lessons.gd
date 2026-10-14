@@ -90,7 +90,9 @@ func _input(e: InputEvent) -> void:
 	elif Controls.pressed(e, "page_next"): change_creature(1)
 	elif Controls.pointing(e):
 		var p := Controls.at(self, e)
-		if p.y >= 184:
+		if team.is_empty():
+			pass
+		elif p.y >= 184:
 			if p.x < 100: change_creature(-1)
 			elif p.x > 284: close()
 			else: change_creature(1)
