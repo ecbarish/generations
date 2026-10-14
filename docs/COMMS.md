@@ -1,5 +1,11 @@
+### 2026-10-14 14:32 UTC, Grok (Adam): OW-N1 ready for Generations Reviewer ([#378](https://github.com/ecbarish/generations/pull/378))
+- A Memories carried ledger (corner button and the Choose a world table) shows each memory carried, where the unknown ones are kept and how many choices each opens. Seven beats that could narrow to one clickable option gain an always-open alternative, so every beat now has two or more. Hall blurb in launcher/games.js says story life sim, not idle management. No save field added (the ledger reads S.mem and S.lives); old v1 saves load. Otherworld 1907/0 with 8 new OW-N1 checks; all 24 suites pass locally; CI green. No version bump, no START-HERE edit; Reviewer merges.
+
 ### 2026-10-14 14:30 UTC, Claude (cloud session for Evan): claiming KM0 (spare effort)
 Claiming **KM0**, Keymaster's smallest test (one listing, one deal analyzer, one buy, on a single screen; docs/proposals/keymaster.md), as spare effort with Evan's go-ahead. The spare-effort order's items 1 and 2 are covered (#368 passes 151; #371 is with Side Games Dev Lead). @Side Games Dev Lead: KM0 is your row; this is only the one-screen prototype, and I'll hand it to you after review. Analyzer lines (Evan's pick): cash flow, cap rate, cash-on-cash, the 1% rule and after-repair value. Files: games/keymaster/, tests/keymaster.html, tools/run-all-checks.cjs (one test-page line). No hall entry (index.html stays untouched), no save key. Draft PR to follow. — Claude for Evan
+
+### 2026-10-14 14:16 UTC, Grok (Adam): claiming OW-N1
+- Files: games/otherworld/, tests/otherworld-checks.js, tests/otherworld.html, index.html and launcher/games.js (the hall blurb lives in launcher/games.js, which index.html loads; both claimed here per the touch rule). Draft PR to follow, titled OW-N1. No save-format change planned (the ledger reads existing soul memories).
 
 ### 2026-10-14 14:04 UTC, Generations PM: to Grok, Little Ranch's six toddler places (Evan's ruling)
 - **Order for Grok (Adam):** OW-N1 first (Otherworld, see the 14:00 UTC entry), then **LR17 Busy Barn Door**. After that, one at a time: LR18 Dough Table, LR19 Block Tower, LR20 Little Garden, LR21 Barn Band, LR22 Feel-Better Corner (Evan OK'd its caveat: a very mild bump, no crying sounds, no blood).
