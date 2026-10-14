@@ -78,7 +78,7 @@
 
   var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null, lastSheet = '';
   var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, spin: false, throw: null };
-  var stick = null, receiverKey = '';
+  var stick = null, receiverKey = '', throwKind = 'bullet', turboTouch = null;
   var sheetDetail = false, watchLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0;
   var pointerNotes = [];
 
@@ -124,7 +124,7 @@
       options: [['retro', 'Retro Bowl'], ['all22', 'All 22']],
       get: function () { return save.passing === 'all22' ? 'all22' : 'retro'; },
       set: function (v) { save.passing = v === 'all22' ? 'all22' : 'retro'; receiverKey = ''; persist(); },
-      note: 'Retro Bowl aims where you drag. All 22 puts a button on each receiver.'
+      note: 'The ball goes where you drag. A second finger switches a lob and a bullet.'
     }]
   });
   var build = $('build');
@@ -263,11 +263,10 @@
     var parts = [];
     if (live && state.play && state.play.load > 0 && state.play.offence === 'home') parts.push(M.READING_HINT);
     var passLive = live && state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight && state.play.offence === 'home';
-    if (passLive && save.passing === 'all22') parts.push('Tap a receiver for a bullet. Hold for a lob.');
-    else if (passLive) {
-      if (!save.tutored) parts.push('Pull back from the quarterback. Let go to throw.');
-      parts.push('Pull back to throw. A short pull stays short.');
-    } else if (live && carryingNow()) parts.push('Swipe to steer and juke. Tap to dive.');
+    if (passLive) {
+      if (!save.tutored) parts.push('Pull back from anywhere on the field. Let go to throw.');
+      parts.push('Pull back to throw. A second finger switches lob and bullet.');
+    } else if (live && carryingNow()) parts.push('Swipe to steer and juke. A second finger sprints.');
     return parts.join(' ');
   }
   function paintHint() {
@@ -372,6 +371,21 @@
   function carryingNow() {
     return !!(state && state.play && state.phase === 'live' && (state.play.family === 'run' || state.play.didCatch) && !state.play.flight);
   }
+  function passPocket() {
+    return !!(state && state.play && state.phase === 'live' && state.play.family === 'pass' && !state.play.thrown && !state.play.flight);
+  }
+  function fieldIsVertical() {
+    var rect = canvas.getBoundingClientRect();
+    var layout = V.layoutFor(rect.width, rect.height);
+    return !!(layout && layout.vertical);
+  }
+  function toggleThrowKind() {
+    throwKind = throwKind === 'lob' ? 'bullet' : 'lob';
+    if (aimDrag) {
+      aimDrag.kind = throwKind;
+      if (aimDrag.preview) aimDrag.preview.kind = throwKind;
+    }
+  }
 
   function armGesture(x, y, id) {
     if (!state) return;
@@ -396,16 +410,16 @@
       return;
     }
     var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
-    if (!pass || save.passing === 'all22') { aimDrag = null; stick = null; return; }
+    if (!pass) { aimDrag = null; stick = null; return; }
     var rect = canvas.getBoundingClientRect();
     var pull = V.classifyPull(Math.hypot(dx, dy));
-    var dir = V.dragToField(dx, dy);
-    var preview = M.slingAim(state.play, { dirX: dir.dirX, dirY: dir.dirY, power: pull.power });
+    var dir = V.dragToField(dx, dy, fieldIsVertical());
+    var preview = M.slingAim(state.play, { dirX: dir.dirX, dirY: dir.dirY, power: pull.power, kind: throwKind });
     var qb = state.play.actors[state.play.carrier];
     var held = (performance.now() - gesture.t) / 1000;
     var guide = M.guideState(qb ? qb.throw : 50, held, pull.power, preview.dist, M.pressureFactor(state.play));
     aimDrag = {
-      kind: preview.kind,
+      kind: throwKind,
       preview: preview,
       power: pull.power,
       radius: guide.radius,
@@ -420,11 +434,11 @@
     if (!gesture || !state || state.phase !== 'live') { gesture = null; steer = 0; return; }
     var dx = x - gesture.x, dy = y - gesture.y;
     var dist = Math.hypot(dx, dy), quick = performance.now() - gesture.t < 320;
-    var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight && save.passing !== 'all22';
+    var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
     if (pass && dist > 22) {
-      var pull = V.classifyPull(dist), dir = V.dragToField(dx, dy);
+      var pull = V.classifyPull(dist), dir = V.dragToField(dx, dy, fieldIsVertical());
       queued.throw = {
-        dirX: dir.dirX, dirY: dir.dirY, power: pull.power,
+        dirX: dir.dirX, dirY: dir.dirY, power: pull.power, kind: throwKind,
         sling: true, autoAim: false, held: (performance.now() - gesture.t) / 1000
       };
       save.tutored = true;
@@ -443,31 +457,52 @@
     pointerNotes.push({ source: source, x: x, y: y });
     if (pointerNotes.length > 12) pointerNotes.shift();
   }
+  function eachChangedTouch(e, fn) {
+    var list = e.changedTouches || [];
+    var i;
+    for (i = 0; i < list.length; i++) fn(list[i]);
+  }
   canvas.addEventListener('touchstart', function (e) {
-    var p = fromTouch(e);
-    if (!p) return;
+    if (!e.changedTouches || !e.changedTouches.length) return;
     e.preventDefault();
     touchGuard = performance.now() + 800;
-    notePointer('touch', p.x, p.y);
-    armGesture(p.x, p.y, p.id);
+    eachChangedTouch(e, function (t) {
+      notePointer('touch', t.clientX, t.clientY);
+      if (gesture && gesture.id !== t.identifier) {
+        if (carryingNow()) { turboHeld = true; turboTouch = t.identifier; }
+        else if (passPocket()) toggleThrowKind();
+        return;
+      }
+      armGesture(t.clientX, t.clientY, t.identifier);
+    });
   }, { passive: false });
   canvas.addEventListener('touchmove', function (e) {
-    var p = fromTouch(e);
-    if (!p) return;
+    if (!e.changedTouches || !e.changedTouches.length) return;
     e.preventDefault();
     touchGuard = performance.now() + 800;
-    dragGesture(p.x, p.y);
+    eachChangedTouch(e, function (t) {
+      if (!gesture || gesture.id !== t.identifier) return;
+      dragGesture(t.clientX, t.clientY);
+    });
   }, { passive: false });
   canvas.addEventListener('touchend', function (e) {
-    var p = fromTouch(e);
-    if (!p) return;
+    if (!e.changedTouches || !e.changedTouches.length) return;
     e.preventDefault();
     touchGuard = performance.now() + 800;
-    releaseGesture(p.x, p.y);
+    eachChangedTouch(e, function (t) {
+      if (turboTouch === t.identifier) { turboHeld = false; turboTouch = null; return; }
+      if (!gesture || gesture.id !== t.identifier) return;
+      releaseGesture(t.clientX, t.clientY);
+    });
   }, { passive: false });
   canvas.addEventListener('touchcancel', function () {
     touchGuard = performance.now() + 800;
-    gesture = null; aimDrag = null; stick = null; steer = 0;
+    gesture = null; aimDrag = null; stick = null; steer = 0; turboHeld = false; turboTouch = null;
+  });
+  canvas.addEventListener('contextmenu', function (e) {
+    if (!passPocket()) return;
+    e.preventDefault();
+    toggleThrowKind();
   });
   function mouseAfterTouch(e) {
     return !!(e && (e.pointerType === 'touch' || performance.now() < touchGuard));
@@ -481,6 +516,7 @@
     }, true);
   });
   canvas.addEventListener('pointerdown', function (e) {
+    if (e.button != null && e.button !== 0) return;
     if (mouseAfterTouch(e)) {
       if (e.pointerType !== 'touch') notePointer('ignored', e.clientX, e.clientY);
       return;
@@ -570,19 +606,13 @@
       return;
     }
     if (k === 'k' && state && state.phase === 'call' && state.down >= 4) { begin('kick'); return; }
+    if (k === 'shift' && !e.repeat && passPocket()) toggleThrowKind();
     keys.add(k);
     if (!keyHeld[k]) keyHeld[k] = performance.now();
-    if (k === ' ' || k === 'arrowleft' || k === 'arrowright') e.preventDefault();
+    if (k === ' ' || k === 'arrowleft' || k === 'arrowright' || k === 'shift') e.preventDefault();
   });
   window.addEventListener('keyup', function (e) {
     var k = e.key.toLowerCase();
-    if (save.passing === 'all22' && keyHeld[k] && '1234'.indexOf(k) >= 0) {
-      var names = receiverNames();
-      var who = names[Number(k) - 1];
-      if (who && state && state.phase === 'live' && state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight) {
-        queued.throw = receiverThrow(who, performance.now() - keyHeld[k] < 220 ? 'bullet' : 'lob');
-      }
-    }
     delete keyHeld[k];
     keys.delete(k);
   });
@@ -693,7 +723,7 @@
     var cueName = mode === 'play' && live && state.play && state.play.offence === 'home' ? state.play.cue : '';
     if (cue) {
       cue.hidden = !cueName;
-      cue.textContent = cueName === 'juke' ? 'Swipe to juke' : cueName === 'dive' ? 'Tap to dive' : cueName === 'turbo' ? 'Hold Turbo' : '';
+      cue.textContent = cueName === 'juke' ? 'Swipe to juke' : cueName === 'dive' ? 'Tap to dive' : cueName === 'turbo' ? 'Second finger sprints' : '';
     }
     paintHint();
     paintTools();
@@ -748,7 +778,7 @@
       play: play,
       camX: sideCam ? sideCam.x : (state ? state.spot : 25),
       aim: aimDrag,
-      coach: passLive && mode === 'play' && !save.tutored && save.passing !== 'all22' && !aimDrag,
+      coach: passLive && mode === 'play' && !save.tutored && !aimDrag,
       reduced: reduce,
       layout: layout,
       formation: previewId ? M.formationFor(previewId) : null,
@@ -795,20 +825,11 @@
   function paintTools() {
     var row = $('receivers');
     var turbo = $('turbo');
-    var ours = mode === 'play' && state && state.phase === 'live' && state.play && state.play.offence === 'home';
-    var passLive = !!(ours && state.play.family === 'pass' && !state.play.thrown && !state.play.flight);
-    if (turbo) turbo.hidden = !(ours && carryingNow());
+    if (turbo) turbo.hidden = true;
     if (!row) return;
-    var show = passLive && save.passing === 'all22';
-    row.hidden = !show;
-    if (!show) { receiverKey = ''; return; }
-    var names = receiverNames();
-    var key = names.join('|');
-    if (key === receiverKey) return;
-    receiverKey = key;
-    row.innerHTML = names.map(function (name) {
-      return '<button type="button" data-receiver="' + escapeAttr(name) + '">' + escapeText(name.split(' ')[0]) + '</button>';
-    }).join('');
+    row.hidden = true;
+    row.innerHTML = '';
+    receiverKey = '';
   }
   function armMove(which, e) {
     if (e && e.cancelable) e.preventDefault();

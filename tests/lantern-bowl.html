@@ -63,7 +63,7 @@ document.querySelector('#run').onclick = async () => {
     const offers = M.offerPlays({ down: 1, toGo: 10, spot: 25 });
     const fourthOffers = M.offerPlays({ down: 4, toGo: 10, spot: 40 });
     const shortOffers = M.offerPlays({ down: 3, toGo: 2, spot: 40 });
-    check('the call offers two or three plays', offers.length >= 2 && offers.length <= 3 && fourthOffers.indexOf('kick') >= 0 && fourthOffers.length <= 3 && shortOffers.length === 2);
+    check('the call offers three plays', offers.length === 3 && fourthOffers.indexOf('kick') >= 0 && fourthOffers.length === 3 && shortOffers.length === 3);
     const chalk = M.previewRoutes('quick');
     check('a pass has chalk routes before the snap', chalk.length >= 3 && chalk[0].x1 > chalk[0].x0);
     const rangeLo = M.throwRange(0.2), rangeHi = M.throwRange(1);
@@ -100,17 +100,34 @@ document.querySelector('#run').onclick = async () => {
     check('a missed deep pass names aim wobble', wideWobble === 'Wide: aim wobble (QB accuracy)');
     check('a deep pass that dies short says it was underthrown', underthrown === 'Underthrown: not enough power');
     check('a short miss stays a plain incompletion', plainMiss === 'The throw falls incomplete');
+    const lobHang = M.flightSeconds(40, 'lob'), bulletHang = M.flightSeconds(40, 'bullet');
+    check('a lob hangs about two seconds and a bullet is faster (' + lobHang.toFixed(2) + ' / ' + bulletHang.toFixed(2) + ')', lobHang > 1.8 && lobHang < 2.15 && bulletHang < lobHang - 0.7);
+    const onContest = M.catchContest(2.2, 2.6), offContest = M.catchContest(1, 2.7), closerDef = M.catchContest(2.4, 1.1), fartherDef = M.catchContest(1.2, 2.4);
+    check('a defender within 2.6 yards contests the catch', onContest.contested === true && onContest.yards === 2.6 && offContest.contested === false);
+    check('a pick needs the defender closer to the ball than the receiver', closerDef.closer === true && fartherDef.closer === false && fartherDef.contested === true);
+    check('separation paints an openness ring', M.opennessBand(1.2) === 'covered' && M.opennessBand(3.4) === 'window' && M.opennessBand(6) === 'open');
+    const tallField = V.layoutFor(390, 844), wideField = V.layoutFor(844, 390);
+    const portraitThrow = V.dragToField(0, 48, true);
+    check('portrait is a vertical field with a thin score strip', !!tallField && tallField.vertical === true && tallField.h > tallField.w && tallField.top >= 16 && tallField.top <= 20 && wideField.vertical === false && wideField.top >= 16 && wideField.top <= 20);
+    check('in portrait a pull down the screen throws upfield', portraitThrow.dirX > 0.9 && Math.abs(portraitThrow.dirY) < 0.1);
     let openCatches = 0, tightPicks = 0, tightDrops = 0, trials = 1600, rollState = 5;
     const nextRoll = () => { rollState = (Math.imul(rollState, 1664525) + 1013904223) >>> 0; return rollState / 4294967296; };
     for (let i = 0; i < trials; i++) if (M.arriveOutcome(nextRoll, { tight: false }) === 'catch') openCatches += 1;
     for (let i = 0; i < trials; i++) {
-      const outcome = M.arriveOutcome(nextRoll, { tight: true, cover: 88, hands: 42 });
+      const outcome = M.arriveOutcome(nextRoll, { tight: true, closer: true, cover: 88, hands: 42 });
       if (outcome === 'pick') tightPicks += 1;
       if (outcome === 'drop') tightDrops += 1;
     }
     check('an open catch lands about 95 percent of the time (' + (openCatches / trials).toFixed(3) + ')', openCatches / trials >= 0.93 && openCatches / trials <= 0.97);
     check('interceptions stay capped near 7.5 percent (' + (tightPicks / trials).toFixed(3) + ')', tightPicks / trials <= 0.09 && tightPicks / trials >= 0.05);
-    check('a tight defender breaks up at least a quarter of those throws (' + (tightDrops / trials).toFixed(3) + ')', tightDrops / trials >= 0.26);
+    check('a tight defender breaks up at least a quarter of those throws (' + (tightDrops / trials).toFixed(3) + ')', tightDrops / trials >= 0.26 && tightDrops > tightPicks * 2);
+    let guardedPicks = 0, guardedDrops = 0;
+    for (let i = 0; i < trials; i++) {
+      const outcome = M.arriveOutcome(nextRoll, { tight: true, closer: false, cover: 88, hands: 42 });
+      if (outcome === 'pick') guardedPicks += 1;
+      if (outcome === 'drop') guardedDrops += 1;
+    }
+    check('a defender who is not closer cannot pick it off (' + guardedPicks + ')', guardedPicks === 0 && guardedDrops / trials >= 0.26);
     ['inside', 'outside', 'quick', 'deep'].forEach(id => {
       const snap = M.create({ seed: 4 });
       M.callPlay(snap, id);
@@ -590,7 +607,8 @@ document.querySelector('#run').onclick = async () => {
     const offered = Array.from(d2.querySelectorAll('[data-play]'));
     check('the call is a short row with a diagram', offered.length >= 2 && offered.length <= 3 && offered.every(b => b.querySelector('svg') && b.textContent.trim().length > 1));
     check('kick stays off the call until fourth down', !d2.querySelector('[data-play="kick"]'));
-    check('turbo stays off until the ball is moving', d2.querySelector('#turbo').hidden);
+    check('the score strip is about 18 pixels', (() => { const box = d2.querySelector('.hud').getBoundingClientRect(); return box.height >= 16 && box.height <= 20; })());
+    check('turbo stays off the field', d2.querySelector('#turbo').hidden);
     resumed.down = 4;
     w2.__lantern.refresh();
     await wait();
@@ -601,11 +619,11 @@ document.querySelector('#run').onclick = async () => {
     await wait();
     w2.__lantern.begin('inside');
     await wait();
-    const liveTurbo = d2.querySelector('#turbo').getBoundingClientRect();
     check('a snap keeps only the score, the down and the clock', d2.querySelector('#sheet').hidden && d2.querySelectorAll('[data-play]').length === 0 && !d2.querySelector('#windLabel') && !d2.querySelector('#gas') && d2.querySelector('#clock').textContent.length > 0 && d2.querySelector('#down').textContent.length > 0);
     const liveHint = d2.querySelector('#hint').textContent || '';
     check('during a run the play cards are gone', liveHint.indexOf('Pull back to throw') < 0 && liveHint.indexOf('fourth down') < 0);
-    check('turbo is a small button on the field', !d2.querySelector('#turbo').hidden && liveTurbo.width > 40 && liveTurbo.width < 90 && liveTurbo.height < 70);
+    check('a live play has no action buttons', d2.querySelector('#turbo').hidden && d2.querySelector('#receivers').hidden && d2.querySelectorAll('#dock button, #receivers button').length === 0);
+    check('the page does not ask you to rotate', (d2.body.textContent || '').toLowerCase().indexOf('rotate your') < 0);
     w2.__lantern.finishLive();
     await wait();
     const carried = d2.querySelector('#sheet');

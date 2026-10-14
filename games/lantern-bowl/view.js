@@ -59,9 +59,17 @@
     return { power: power, kind: power < 0.42 ? 'bullet' : 'lob' };
   }
 
-  /* Pull back from the quarterback. The throw goes the other way: right on the field is downfield. */
-  function dragToField(dx, dy) {
-    var dirX = -(Number(dx) || 0), dirY = -(Number(dy) || 0);
+  /* Pull back from anywhere. The throw goes the other way.
+     On the side field, right is downfield. In portrait, up the screen is downfield. */
+  function dragToField(dx, dy, vertical) {
+    var dirX, dirY;
+    if (vertical) {
+      dirX = Number(dy) || 0;
+      dirY = -(Number(dx) || 0);
+    } else {
+      dirX = -(Number(dx) || 0);
+      dirY = -(Number(dy) || 0);
+    }
     var mag = Math.hypot(dirX, dirY) || 1;
     return { dirX: dirX / mag, dirY: dirY / mag };
   }
@@ -75,21 +83,27 @@
     var t = clamp(Number(u) || 0, 0, 1);
     return Math.sin(t * Math.PI) * (kind === 'lob' ? 36 : 16);
   }
-  /* The picture matches the screen, so the grass fills portrait and landscape. */
+  /* The picture matches the screen. Portrait turns the field vertical, offence moving up. Landscape stays side-on. */
   function layoutFor(cssW, cssH) {
     var w = Number(cssW) || 0, h = Number(cssH) || 0;
     if (w < 1 || h < 1) return null;
     if (h > w * 1.15) {
-      var pictureW = 192;
+      var pictureW = 216;
       var pictureH = Math.round(pictureW * h / w);
-      pictureH = Math.max(280, Math.min(pictureH, 480));
-      var top = 28;
-      return { w: pictureW, h: pictureH, yard: 8, top: top, fieldH: pictureH - top - 16, widthY: SIDE.widthY, anchor: 62, lead: 28 };
+      pictureH = Math.max(320, Math.min(pictureH, 560));
+      var span = pictureW - 8;
+      return {
+        w: pictureW, h: pictureH, yard: 12, top: 18, fieldH: span, widthY: SIDE.widthY,
+        anchor: Math.round(pictureH * 0.72), lead: 28, vertical: true
+      };
     }
     var pictureH = SIDE.h;
     var pictureW = Math.round(pictureH * (w / h));
     pictureW = Math.max(SIDE.w, Math.min(pictureW, 760));
-    return { w: pictureW, h: pictureH, yard: SIDE.yard, top: SIDE.top, fieldH: SIDE.fieldH, widthY: SIDE.widthY, anchor: Math.round(pictureW * 0.28), lead: SIDE.lead };
+    return {
+      w: pictureW, h: pictureH, yard: SIDE.yard, top: SIDE.top, fieldH: SIDE.fieldH,
+      widthY: SIDE.widthY, anchor: Math.round(pictureW * 0.28), lead: SIDE.lead, vertical: false
+    };
   }
 
   /* Run lane and pocket ring, drawn under the players. Colours and patterns from the art spec. */
@@ -247,7 +261,7 @@
   }
 
   /* Side-on field. 384×216, 12px per yard, the vertical axis squashed into 160px under a 28px strip. */
-  var SIDE = { w: 384, h: 216, yard: 12, top: 28, fieldH: 160, widthY: 53.333333, anchor: 140, lead: 40 };
+  var SIDE = { w: 384, h: 216, yard: 12, top: 18, fieldH: 180, widthY: 53.333333, anchor: 140, lead: 40, vertical: false };
   var STRIPES = ['#2d8a3c', '#38994a'];
   var PALETTE = [
     '#1e1a22', '#f2d080', '#e7c4a8', '#c99a78', '#8a5e48', '#f6edd4', '#c9bc9a', '#8a7e64',
@@ -320,12 +334,22 @@
     if (spec.family === 'run') return { target: (Number(spec.ballX) || spot) + SIDE.lead / SIDE.yard, chase: true, cut: false };
     return { target: spot, chase: true, cut: false };
   }
+  function alongPx(abs, camX) {
+    var delta = ((Number(abs) || 0) - (Number(camX) || 0)) * SIDE.yard;
+    if (SIDE.vertical) return Math.round(SIDE.anchor - delta);
+    return Math.round(SIDE.anchor + delta);
+  }
+  function crossPx(lat) {
+    var origin = SIDE.vertical ? Math.round((SIDE.w - SIDE.fieldH) / 2) : SIDE.top;
+    return Math.round(origin + SIDE.fieldH / 2 + (Number(lat) || 0) * (SIDE.fieldH / SIDE.widthY));
+  }
   function sideProject(point, cam, view) {
     point = point || {};
     cam = cam || {};
-    var sx = Math.round(SIDE.anchor + ((Number(point.x) || 0) - (Number(cam.x) || 0)) * SIDE.yard);
-    var sy = Math.round(SIDE.top + SIDE.fieldH / 2 + (Number(point.y) || 0) * (SIDE.fieldH / SIDE.widthY));
-    return { x: sx, y: sy, scale: 1, view: view || null };
+    var along = alongPx(point.x, cam.x);
+    var cross = crossPx(point.y);
+    if (SIDE.vertical) return { x: cross, y: along, scale: 1, view: view || null };
+    return { x: along, y: cross, scale: 1, view: view || null };
   }
   function rampFor(color) {
     var key = String(color || '').toLowerCase();
@@ -388,9 +412,64 @@
       drawGlyph(ctx, ch, Math.round(x + i * 4 * s), Math.round(y), s);
     });
   }
-  function yardX(abs, camX) { return Math.round(SIDE.anchor + (abs - camX) * SIDE.yard); }
-  function latY(lat) { return Math.round(SIDE.top + SIDE.fieldH / 2 + lat * (SIDE.fieldH / SIDE.widthY)); }
+  function yardX(abs, camX) { return alongPx(abs, camX); }
+  function latY(lat) { return crossPx(lat); }
+  function paintFieldVertical(ctx, spec) {
+    var camX = spec.camX;
+    var span = SIDE.fieldH;
+    var left = Math.round((SIDE.w - span) / 2);
+    ctx.fillStyle = '#141820';
+    ctx.fillRect(0, 0, SIDE.w, SIDE.h);
+    var nearYard = camX - (SIDE.h - SIDE.anchor) / SIDE.yard - 2;
+    var farYard = camX + SIDE.anchor / SIDE.yard + 2;
+    var band;
+    for (band = Math.floor(nearYard / 5) * 5; band < farYard; band += 5) {
+      var y0 = alongPx(band, camX), y1 = alongPx(band + 5, camX);
+      var zone = band < 0 ? spec.own : band >= 100 ? spec.far : null;
+      ctx.fillStyle = zone ? zone.color : STRIPES[Math.floor(Math.abs(band) / 5) % 2];
+      ctx.fillRect(left, Math.min(y0, y1), span, Math.abs(y1 - y0) || 1);
+    }
+    [spec.own, spec.far].forEach(function (zone) {
+      if (!zone) return;
+      var mid = zone.goal < 50 ? zone.goal - 5 : zone.goal + 5;
+      var ty = alongPx(mid, camX);
+      var tx = Math.round(SIDE.w / 2) - String(zone.name).length * 4;
+      if (ty > -20 && ty < SIDE.h) drawText(ctx, zone.name, tx, ty, '#f6edd4', 2);
+    });
+    var yard;
+    for (yard = Math.max(0, Math.floor(nearYard)); yard <= Math.min(100, Math.ceil(farYard)); yard++) {
+      var y = alongPx(yard, camX);
+      if (yard % 5 === 0) {
+        ctx.fillStyle = '#ffffff';
+        var thick = yard === 0 || yard === 100 ? 2 : 1;
+        ctx.fillRect(left, y, span, thick);
+      } else {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(crossPx(-11.8) - 1, y, 3, 1);
+        ctx.fillRect(crossPx(11.8) - 1, y, 3, 1);
+      }
+      if (yard % 10 === 0 && yard > 0 && yard < 100) {
+        var shown = yard <= 50 ? yard : 100 - yard;
+        drawText(ctx, String(shown), left + 6, y + 4, '#f6edd4', 2);
+      }
+    }
+    [0, 100].forEach(function (goal) {
+      var gy = alongPx(goal, camX);
+      ctx.fillStyle = '#ffdd33';
+      [-1, 1].forEach(function (side) {
+        var px = crossPx(side * 26.666);
+        ctx.fillRect(px - (side < 0 ? 5 : 0), gy - 1, 5, 3);
+      });
+    });
+    if (spec.marks) {
+      ctx.fillStyle = '#4aa8ff';
+      ctx.fillRect(left, alongPx(spec.marks.los, camX), span, 2);
+      ctx.fillStyle = '#ffdd33';
+      ctx.fillRect(left, alongPx(spec.marks.first, camX), span, 2);
+    }
+  }
   function paintField(ctx, spec) {
+    if (SIDE.vertical) return paintFieldVertical(ctx, spec);
     var camX = spec.camX;
     var spot = spec.spot;
     var marks = spec.marks;
@@ -494,7 +573,7 @@
         y: end.y + Math.round(Math.cos(time * 7) * wobble * 8)
       };
     }
-    var loft = (aim.kind === 'lob' ? 28 : 12) + wobble * 10;
+    var loft = (aim.kind === 'lob' ? 28 : 10) + wobble * 10;
     var samples = 8, i;
     var prev = from;
     ctx.fillStyle = wobble > 0 ? '#ffb0a4' : '#f6edd4';
@@ -504,22 +583,25 @@
       var x = u * u * from.x + 2 * u * t * ((from.x + end.x) / 2) + t * t * end.x;
       var y = u * u * from.y + 2 * u * t * (((from.y + end.y) / 2) - loft) + t * t * end.y;
       var next = { x: Math.round(x), y: Math.round(y) };
-      pixelLine(ctx, prev.x, prev.y, next.x, next.y, 2, aim.kind === 'lob' ? [3, 3] : null);
+      pixelLine(ctx, prev.x, prev.y, next.x, next.y, 2, [2, 3]);
       prev = next;
     }
     var radius = Math.max(0.6, Number(aim.radius) || Number(preview.radius) || 1.2);
-    var rx = Math.max(4, Math.round(radius * SIDE.yard));
-    var ry = Math.max(3, Math.round(radius * (SIDE.fieldH / SIDE.widthY)));
+    var alongR = Math.max(4, Math.round(radius * SIDE.yard));
+    var crossR = Math.max(3, Math.round(radius * (SIDE.fieldH / SIDE.widthY)));
+    var rx = SIDE.vertical ? crossR : alongR;
+    var ry = SIDE.vertical ? alongR : crossR;
     ctx.fillStyle = '#4aa8ff';
-    pixelEllipse(ctx, end.x, end.y, rx, ry, 2, wobble > 0 ? [2, 2] : null);
+    pixelEllipse(ctx, end.x, end.y, rx, ry, 2, [2, 3]);
     ctx.fillStyle = '#f6edd4';
     ctx.fillRect(end.x - 3, end.y, 7, 1);
     ctx.fillRect(end.x, end.y - 3, 1, 7);
+    drawText(ctx, aim.kind === 'lob' ? 'LOB' : 'BULLET', end.x + rx + 4, end.y - 6, '#f2d080', 1);
     if (aim.power != null) drawPowerMeter(ctx, aim.power);
   }
   function useSide(layout, fn) {
     if (!layout) return fn();
-    var keys = ['w', 'h', 'yard', 'top', 'fieldH', 'widthY', 'anchor', 'lead'];
+    var keys = ['w', 'h', 'yard', 'top', 'fieldH', 'widthY', 'anchor', 'lead', 'vertical'];
     var prev = {};
     keys.forEach(function (k) { prev[k] = SIDE[k]; if (layout[k] != null) SIDE[k] = layout[k]; });
     try { return fn(); }
@@ -569,14 +651,24 @@
     });
     function at(x, y) { return sideProject({ x: spot + x, y: y }, { x: camX }); }
     var drop = play && play.family === 'pass' && !play.thrown && !play.flight ? pocketDrop(play.elapsed) : 0;
-    var chalk = spec.chalk;
-    if (!chalk && play && play.family === 'pass') {
-      chalk = [];
-      play.actors.forEach(function (a) {
-        if (a.off && a.route && a.route.x0 != null) chalk.push({ x0: a.route.x0, y0: a.route.y0, x1: a.route.x, y1: a.route.y });
+    if (!live) drawChalk(ctx, at, spec.chalk);
+    var showRings = !live || (play && play.family === 'pass' && !play.didCatch);
+    if (showRings && squad && squad.length) {
+      var openColor = { open: '#38994a', window: '#ffdd33', covered: '#ffb0a4' };
+      squad.forEach(function (p) {
+        if (!p.off || (p.role !== 'wr' && p.role !== 'te' && p.role !== 'rb')) return;
+        var best = 99;
+        squad.forEach(function (o) {
+          if (o.off) return;
+          var d = Math.hypot(o.x - p.x, o.y - p.y);
+          if (d < best) best = d;
+        });
+        var band = root.LanternModel && root.LanternModel.opennessBand ? root.LanternModel.opennessBand(best) : (best <= 2.6 ? 'covered' : best < 5 ? 'window' : 'open');
+        var spotAt = at(p.x, p.y);
+        ctx.fillStyle = openColor[band] || openColor.open;
+        pixelEllipse(ctx, spotAt.x, spotAt.y + 2, 6, 3, 2, null);
       });
     }
-    drawChalk(ctx, at, chalk);
     if (play && (play.family === 'run' || play.didCatch) && play.lanes) {
       play.lanes.forEach(function (lane) {
         var stateName = play.laneStates && play.laneStates[lane.id] ? play.laneStates[lane.id].state : 'open';
@@ -609,14 +701,20 @@
       var posed = poseOf(p, play);
       var pose = spritePose(!!p.off, posed.pose);
       var aimed = !!(aimTarget && p.link && p.link === aimTarget);
+      ctx.save();
+      if (SIDE.vertical) {
+        ctx.translate(row.s.x, row.s.y);
+        ctx.rotate(-Math.PI / 2);
+      }
       drawPlayer(ctx, {
-        x: row.s.x, y: row.s.y, scale: 1,
+        x: SIDE.vertical ? 0 : row.s.x, y: SIDE.vertical ? 0 : row.s.y, scale: 1,
         file: spriteFile((p.off ? 'offence_' : 'defence_') + (p.body === 'line' ? 'line' : 'skill'), 'side', pose),
         id: p.role, view: 'side', pose: pose, frame: posed.frame,
         body: p.body, face: p.face, ramp: ramp, muted: p.body === 'line',
         fill: team.color, trim: ramp[0], role: p.role,
         outline: aimed ? '#f2d080' : '#1e1a22'
       });
+      ctx.restore();
       var ring = '';
       if (aimed) ring = '#f2d080';
       else if (carrier && p.link === carrier) ring = '#f6edd4';

@@ -398,12 +398,12 @@
     return [];
   }
   function previewRoutes(id) { return routeTable(id === 'kick' ? 'quick' : id); }
-  /* Two or three calls. Fourth down brings the kick in and leaves the grid behind. */
+  /* Three calls, every down. Fourth down brings the kick in beside two others. */
   function offerPlays(game) {
     if (!game) return ['inside', 'quick', 'outside'];
     var goal = 100 - (Number(game.spot) || 0);
-    if (game.down >= 4) return goal <= 38 ? ['kick', 'inside'] : ['kick', 'quick'];
-    if ((Number(game.toGo) || 10) <= 2) return ['inside', 'quick'];
+    if (game.down >= 4) return goal <= 38 ? ['kick', 'inside', 'quick'] : ['kick', 'quick', 'inside'];
+    if ((Number(game.toGo) || 10) <= 2) return ['inside', 'quick', 'outside'];
     if ((Number(game.toGo) || 10) >= 8) return ['quick', 'deep', 'outside'];
     return ['inside', 'quick', 'outside'];
   }
@@ -789,6 +789,7 @@
   function receiverRate(actor) {
     return 4.3 + ((actor && actor.speed) || 50) / 28;
   }
+  /* A lob hangs about two seconds over 40 yards. A bullet is flatter and gets there sooner. */
   function flightSeconds(dist, kind) {
     var d = Math.max(0, Number(dist) || 0);
     return kind === 'lob' ? 0.5 + d / 28 : 0.28 + d / 70;
@@ -800,11 +801,12 @@
     var mag = Math.hypot(thrown.dirX, thrown.dirY) || 1;
     var dirX = thrown.dirX / mag, dirY = thrown.dirY / mag;
     var power = clamp(Number(thrown.power) || 0, 0, 1);
+    var kind = thrown.kind === 'lob' ? 'lob' : thrown.kind === 'bullet' ? 'bullet' : (power < 0.42 ? 'bullet' : 'lob');
     var reach = throwRange(power);
     var x = qb.x + dirX * reach, y = qb.y + dirY * reach;
     return {
       autoAim: false, aimed: false, target: null, sling: true,
-      kind: power < 0.42 ? 'bullet' : 'lob', power: power, reach: reach,
+      kind: kind, power: power, reach: reach,
       x: x, y: y, dist: reach, radius: landingRadius(power),
       throwaway: Math.abs(y) > SIDELINE
     };
@@ -846,14 +848,30 @@
       lead: lead, air: air, rate: rate, radius: landingRadius(kind === 'lob' ? 0.72 : 0.28)
     };
   }
-  /* Open throws come down. A tight defender breaks it up, and a pick stays rare. */
+  /* A defender within this many yards of the landing spot contests the catch. */
+  var CONTEST_YARDS = 2.6;
+  function catchContest(catcherDist, defenderDist) {
+    var rec = Number(catcherDist), def = Number(defenderDist);
+    var contested = isFinite(def) && def <= CONTEST_YARDS + 1e-9;
+    var closer = contested && isFinite(rec) && def < rec - 1e-9;
+    return { contested: contested, closer: closer, yards: CONTEST_YARDS };
+  }
+  /* Green is a clean step, yellow is a window, red is inside the contest. */
+  function opennessBand(yards) {
+    var d = Number(yards);
+    if (!(d >= 0)) return 'open';
+    if (d <= CONTEST_YARDS) return 'covered';
+    if (d < 5) return 'window';
+    return 'open';
+  }
+  /* Open throws come down. A contest is usually a breakup. A pick needs the defender nearer the ball than the receiver. */
   function arriveOutcome(rollFn, opts) {
     opts = opts || {};
     var r1 = rollFn();
     if (opts.tight) {
       var extra = Math.max(0, chance(opts.cover, opts.hands) - 0.5) * 0.45;
       var dropP = Math.min(0.72, 0.26 + extra);
-      var pickP = 0.075;
+      var pickP = opts.closer ? 0.075 : 0;
       if (r1 < pickP) return 'pick';
       if (r1 < pickP + dropP) return 'drop';
       return 'catch';
@@ -1370,14 +1388,14 @@
       return incomplete(game, missReason(play, ball, catcher));
     }
     var cover = nearest(play, ball.toX, ball.toY, function (a) { return !a.off && a.role !== 'dl'; });
-    var tight = !!(cover && cover.d < (ball.kind === 'bullet' ? 2.6 : 3.4));
-    var cov = tight ? cover.actor.cover : (cover && cover.d < 6 ? cover.actor.cover * 0.45 : 28);
+    var contest = catchContest(catcher.d, cover ? cover.d : 1e9);
+    var cov = contest.contested ? cover.actor.cover : (cover && cover.d < 6 ? cover.actor.cover * 0.45 : 28);
     var hands = catcher.actor.catch;
     var outcome = arriveOutcome(function () { return roll(game); }, {
-      tight: tight, qb: ball.qb, hands: hands, cover: cov
+      tight: contest.contested, closer: contest.closer, qb: ball.qb, hands: hands, cover: cov
     });
     play.catchRoom = cover ? cover.d : 8;
-    return finishArrival(game, play, ball, catcher, tight ? cov : 28, hands, outcome, passError(ball.error || 1, 1));
+    return finishArrival(game, play, ball, catcher, contest.contested ? cov : 28, hands, outcome, passError(ball.error || 1, 1));
   }
   function incomplete(game, text) {
     var side = game.possession;
@@ -1842,6 +1860,7 @@
     throwRange: throwRange, landingRadius: landingRadius, aimSteady: aimSteady,
     passError: passError, pressureFactor: pressureFactor, guideState: guideState,
     slingAim: slingAim, lockReceiver: lockReceiver, arriveOutcome: arriveOutcome,
+    catchContest: catchContest, opennessBand: opennessBand, CONTEST_YARDS: CONTEST_YARDS,
     missReason: missReason,
     receiverRate: receiverRate, flightSeconds: flightSeconds, DEFAULT_PASS: 'retro',
     simulateGame: simulateGame, winSplit: winSplit, jukePolicy: jukePolicy, divePolicy: divePolicy,
