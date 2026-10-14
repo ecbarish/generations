@@ -230,7 +230,7 @@ static func _phone(game: Node, check: Callable) -> void:
 	game.battle.state = "off"
 
 ## Playtester: the two-line hint was clipped on the trees; Sign the register missed near clicks;
-## a key tap that was already up again never took a step. Holding a direction did keep walking.
+## a key tap that was already up again never took a step. A key that stays down keeps walking, tile to tile.
 static func _playtester(game: Node, check: Callable) -> void:
 	_stand(game)
 	game.settings.values.buttons = 2
@@ -275,22 +275,36 @@ static func _playtester(game: Node, check: Callable) -> void:
 		game._process(0.05)
 	check.call(game.me.tile == after_tap and game.me.path.is_empty(), "Playtester: that tap does not keep walking after the step")
 	_release_move()
+	var room: int = _open_steps(game, game.me.tile, way)
+	check.call(room >= 3, "Playtester: the held-key walk has room ahead (%d)" % room)
 	var held_from: Vector2i = game.me.tile
 	Input.action_press(action)
-	for _i in 40:
-		game._process(0.05)
+	var prev: Vector2 = game.me.pos
+	var stalls := 0
+	var crossings := 0
+	var seen: Vector2i = held_from
+	for i in 32:
+		game._process(1.0 / 60.0)
+		var step_px: float = game.me.pos.distance_to(prev)
+		if i > 0 and step_px < 0.5:
+			stalls += 1
+		if game.me.tile != seen:
+			crossings += 1
+			seen = game.me.tile
+		prev = game.me.pos
 	var held_mid: Vector2i = game.me.tile
+	var still_going: bool = not game.me.path.is_empty() and Input.is_action_pressed(action)
 	Input.action_release(action)
 	game.walk_tap = Vector2i.ZERO
-	for _i in 16:
-		game._process(0.05)
+	for _i in 20:
+		game._process(1.0 / 60.0)
 	var held_end: Vector2i = game.me.tile
 	var stepped: int = absi(held_mid.x - held_from.x) + absi(held_mid.y - held_from.y)
 	var extra: int = absi(held_end.x - held_mid.x) + absi(held_end.y - held_mid.y)
-	check.call(stepped >= 2 and game.me.face == way, "Playtester: holding a direction keeps walking (%d tiles)" % stepped)
+	check.call(stalls == 0 and crossings >= 2 and stepped >= 2 and still_going and game.me.face == way, "Playtester: a key held across frames walks tile to tile without stopping (%d tiles, %d stalls)" % [stepped, stalls])
 	var stopped: Vector2i = game.me.tile
 	for _i in 10:
-		game._process(0.05)
+		game._process(1.0 / 60.0)
 	check.call(extra <= 1 and game.me.tile == stopped and game.me.path.is_empty() and not Input.is_action_pressed(action), "Playtester: letting go stops, apart from the step already started")
 	_release_move()
 	game.register.keep = false
