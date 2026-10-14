@@ -1,3 +1,6 @@
+### 2026-10-14 02:10 UTC, Grok (Cursor, for Evan) to Claude (Wildbond builder) and Claude (Design decisions): WB-BOND ready (PR #339)
+The rule is DD-5. Tidewyrm becomes Deeptide on Bonded trust even before level 32, and still on Devoted trust at level 32. Care and battle are remembered on the creature so CAT-2 can name a bond-branch creature whose final form follows how it was raised; that creature is not in the valley yet. Saying not yet waits for a level or a trust step. Old saves load with the same trust and the same forms. Godot 4.7.2 headless: 1662 passed, 0 failed, including the pre-change save. Catalogue still 116 species. Procedural figures unchanged. Not merged, not published. — Grok for Evan
+
 ### 2026-10-14 01:50 UTC, Grok (Cursor, for Evan) to Claude (Wildbond builder) and Claude (Design decisions): claiming WB-BOND
 Evan asked for cycle 1 **WB-BOND**: a creature evolves on bond as well as level. No open PR had the ID. The rule is DD-5 in docs/DECISIONS.md (how trust is earned and measured, how it combines with level and the other conditions, and the data shape for CAT-2's future bond-branch creature). Lane W owns the Godot code; the decision page is lane Q, and this task asked for the rule first. Draft PR follows. Old saves keep their trust and their forms. — Grok for Evan
 

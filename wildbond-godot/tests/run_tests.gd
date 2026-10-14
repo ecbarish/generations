@@ -226,15 +226,15 @@ func _run() -> void:
 	held.lvl = 21
 	check(not main.evolution_held(held), "WB-BOND: that older not-yet asks again after a level")
 	var bond_save := { "sp": "tidewyrm", "name": "Tidewyrm", "lvl": 20, "xp": 0, "rar": 1, "hp": 10, "pot": { "hp": 1, "pow": 1, "grd": 1, "spd": 1, "wit": 1, "spi": 1 }, "bond": 12.5, "traits": [] }
-	var bond_fixed := main._fix_creature(bond_save.duplicate(true))
+	var bond_fixed: Dictionary = main._fix_creature(bond_save.duplicate(true))
 	check(not bond_fixed.has("raised") and is_equal_approx(float(bond_fixed.bond), 12.5), "WB-BOND: a save without a raising record loads as it was")
 	var bond_marked := bond_save.duplicate(true)
 	bond_marked["raised"] = { "care": 20, "battle": 4 }
-	var bond_fixed_marked := main._fix_creature(bond_marked)
+	var bond_fixed_marked: Dictionary = main._fix_creature(bond_marked)
 	check(is_equal_approx(float(bond_fixed_marked.raised.care), 20.0) and is_equal_approx(float(bond_fixed_marked.raised.battle), 4.0), "WB-BOND: a raising record loads back")
 	var bond_missing := bond_save.duplicate(true)
 	bond_missing.erase("bond")
-	var bond_fixed_old := main._fix_creature(bond_missing)
+	var bond_fixed_old: Dictionary = main._fix_creature(bond_missing)
 	check(is_equal_approx(float(bond_fixed_old.bond), 0.0) and R.bond_lvl(bond_fixed_old) == 0, "WB-BOND: a creature saved with no trust number is Wary")
 	var tb := R.make("thornback", 32, { "rar": 1 }, main.rng)
 	check(R.evo_target(tb, { "team": ["thornback"] }) == "" and R.evo_target(tb, { "team": ["thornback", "glimmerwing"] }) == "elderthorn", "Thornback becomes Elderthorn when raised alongside a Glimmerwing")
