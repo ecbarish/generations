@@ -116,3 +116,14 @@ footer { padding: 6px 0 0; }
   .panel { padding: 10px; }
   .panel h2 { font-size: calc(20px * var(--arc-text)); }
 }
+/* Upright phone: the field takes the width, and the play calls use the height under it. */
+@media (max-aspect-ratio: 3/4) {
+  .cabinet { grid-template-rows: auto auto minmax(0, 1fr); }
+  .screen { width: 100%; height: auto; aspect-ratio: 384 / 216; }
+  .curtain { position: fixed; inset: 0; z-index: 6; }
+  footer { min-height: 0; display: flex; flex-direction: column; gap: 4px; padding-top: 8px; }
+  .dock { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  .dock-plays { flex: 1 1 auto; min-height: 0; grid-template-rows: 1fr 1fr; }
+  .dock-plays button { height: 100%; min-height: 52px; font-size: calc(16px * var(--arc-text)); }
+  .hint { flex: 0 0 2.8em; height: 2.8em; min-height: 2.8em; overflow: hidden; }
+}

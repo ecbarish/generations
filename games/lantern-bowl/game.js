@@ -163,7 +163,7 @@
     var again = save.match ? '<button type="button" data-continue>Continue the game</button>' : '';
     panel('Lamplight Field',
       '<p>The Brackenport Lanterns have Millrace under the lanterns. You call the offence. Their drives play out on the field.</p>' +
-      '<p>Two-minute quarters. Pick a play, then drag to throw. A short pull stays short. Swipe to juke, tap to dive.</p>' +
+      '<p>Two-minute quarters. Pick a play, then drag right to throw. A short pull stays short. Swipe to juke, tap to dive.</p>' +
       '<div class="actions"><button type="button" data-kick>Kick off</button>' + again + '</div>');
     dock();
   }
@@ -268,7 +268,7 @@
       if (kickNote) parts.push(kickNote);
     }
     var passLive = live && state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
-    if (passLive) parts.push('Drag up to throw. A short pull stays short.');
+    if (passLive) parts.push('Drag right to throw. A short pull stays short.');
     if (live) parts.push('Swipe to juke. Tap to dive.');
     return parts.join(' ');
   }

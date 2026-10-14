@@ -54,7 +54,10 @@ document.querySelector('#run').onclick = async () => {
     check('a short pull is a bullet and a long pull is a lob', V.classifyPull(36).kind === 'bullet' && V.classifyPull(120).kind === 'lob');
     const shot = V.project('behind', { x: 4, y: 0 }, { x: 0, y: 0 }, { w: 400, h: 600 });
     check('the behind-the-play camera returns a point', !!shot && isFinite(shot.x) && isFinite(shot.y) && shot.scale > 0);
-    check('the side-on view is reserved and not built', V.RESERVED.indexOf('side') >= 0 && V.project('side', { x: 0, y: 0 }, { x: 0, y: 0 }, { w: 100, h: 100 }) === null);
+    const sidePoint = V.project('side', { x: 0, y: 0 }, { x: 0, y: 0 }, { w: 384, h: 216 });
+    check('the side-on view is the field', !!sidePoint && sidePoint.x === 140 && sidePoint.y === V.sideProject({ x: 0, y: 0 }, { x: 0 }).y && typeof V.paintMatch === 'function');
+    const rightThrow = V.dragToField(80, 0), upThrow = V.dragToField(0, -40);
+    check('a drag to the right is downfield', rightThrow.dirX > 0.9 && Math.abs(rightThrow.dirY) < 0.1 && upThrow.dirY < -0.9);
     ['inside', 'outside', 'quick', 'deep'].forEach(id => {
       const snap = M.create({ seed: 4 });
       M.callPlay(snap, id);
@@ -297,9 +300,27 @@ document.querySelector('#run').onclick = async () => {
     const mixRate = band.mixed.wins / band.n;
     const mixMargin = band.mixed.mean - band.mixed.opp;
     check('a single plan wins about six games in ten, and a mixed plan wins about three in four (run ' + band.run.mean.toFixed(1) + '–' + band.run.opp.toFixed(1) + ', ' + band.run.wins + ' of ' + band.n + '; pass ' + band.pass.mean.toFixed(1) + '–' + band.pass.opp.toFixed(1) + ', ' + band.pass.wins + ' of ' + band.n + '; mixed ' + band.mixed.mean.toFixed(1) + '–' + band.mixed.opp.toFixed(1) + ', ' + band.mixed.wins + ' of ' + band.n + ')', singleBand(band.run) && singleBand(band.pass) && bandGap <= 4 && mixRate >= 0.70 - 1e-9 && mixRate <= 0.75 + 1e-9 && band.mixed.wins > band.run.wins && band.mixed.wins > band.pass.wins && band.mixed.mean > band.run.mean && band.mixed.mean > band.pass.mean && mixMargin > band.run.mean - band.run.opp && mixMargin > band.pass.mean - band.pass.opp);
-    function humanLike(play, game) {
+    function humanThrow(play, game) {
+      if (!play || play.family !== 'pass' || play.thrown || play.flight) return null;
+      if (play.elapsed < 0.5) return M.policies.neutral();
+      const routes = [];
+      play.actors.forEach(a => { if (a.off && a.route) routes.push(a); });
+      if (!routes.length) return M.policies.neutral();
+      const mix = ((game.seed || 1) * 13 + (game.playSerial || 0) * 29 + (game.down || 1) * 7 + (play.id === 'deep' ? 5 : 1)) >>> 0;
+      let pick = routes[0], bestX = -1e9;
+      routes.forEach(a => { if (a.route.x > bestX) { bestX = a.route.x; pick = a; } });
+      if (mix % 5 === 0) pick = routes[mix % routes.length];
+      const qb = play.actors[play.carrier];
+      const target = pick.route;
+      const dx = target.x - qb.x, dy = target.y - qb.y, mag = Math.hypot(dx, dy) || 1;
+      const depth = Math.max(0, target.x);
+      const power = play.id === 'deep' ? (0.8 + (mix % 3) * 0.03) : Math.max(0.34, Math.min(0.58, 0.36 + (mix % 4) * 0.04 + depth / 120));
+      return { steer: 0, turbo: false, juke: 0, dive: false, throw: { dirX: dx / mag, dirY: dy / mag, power: power } };
+    }
+    function humanLike(play, game, mode) {
       if (!play) return M.policies.neutral();
       if (play.family === 'pass' && !play.thrown && !play.flight) {
+        if (mode === 'pass') return humanThrow(play, game);
         if (play.elapsed < 0.62) return M.policies.neutral();
         const qb = play.actors[play.carrier];
         let best = null, bestX = -1e9;
@@ -312,9 +333,16 @@ document.querySelector('#run').onclick = async () => {
       const read = M.laneRead(play, back.y);
       const open = !!(read.lane && read.lane.open && read.state !== 'closed');
       const tired = (game.fatigue[back.name] || 0) >= 0.72;
-      return { steer: play.id === 'outside' ? 0.35 : 0, turbo: open && !tired && !play.didCatch, juke: 0, dive: false, throw: null };
+      let juke = 0;
+      if (mode === 'timed' && !play.jukeUsed && play.cue === 'juke') juke = back.y >= 0 ? 1 : -1;
+      if (mode === 'random' && !play.jukeUsed && (play.family === 'run' || play.didCatch)) {
+        const slot = (((game.seed || 1) * 17 + (game.playSerial || 0) * 13) >>> 0) % 100;
+        const when = slot < 72 ? (0.02 + (slot / 72) * 0.24) : (0.55 + ((slot - 72) / 28) * 1.3);
+        if (play.elapsed + 1e-9 >= when && play.elapsed < when + 0.07) juke = ((game.seed + (game.playSerial || 0)) % 2) ? 1 : -1;
+      }
+      return { steer: play.id === 'outside' ? 0.35 : 0, turbo: open && !tired && !play.didCatch, juke: juke, dive: false, throw: null };
     }
-    function humanSample(style) {
+    function humanSample(style, mode) {
       const runs = [], passes = [];
       let tds = 0;
       for (let i = 0; i < 20; i++) {
@@ -328,7 +356,7 @@ document.querySelector('#run').onclick = async () => {
           called += 1;
           const before = game.score.home;
           if (!M.callPlay(game, id)) break;
-          M.finish(game, humanLike);
+          M.finish(game, (play, live) => humanLike(play, live, mode));
           if (game.score.home >= before + 6) tds += 1;
           if ((id === 'inside' || id === 'outside') && game.last) runs.push(game.last.gain || 0);
           if (game.last && game.last.caught) passes.push(game.last.gain || 0);
@@ -341,19 +369,26 @@ document.querySelector('#run').onclick = async () => {
       const i = (s.length - 1) >> 1;
       return s.length % 2 ? s[i] : (s[i] + s[i + 1]) / 2;
     }
-    const humanRun = humanSample('run'), humanPass = humanSample('pass');
-    const carries = humanRun.runs;
-    const lossRate = carries.filter(x => x < -0.05).length / carries.length;
-    const tenRate = carries.filter(x => x >= 10).length / carries.length;
-    const twentyRate = carries.filter(x => x >= 20).length / carries.length;
-    const carryMedian = medianOf(carries);
+    function carryShape(label, carries) {
+      const lossRate = carries.filter(x => x < -0.05).length / Math.max(1, carries.length);
+      const tenRate = carries.filter(x => x >= 10).length / Math.max(1, carries.length);
+      const twentyRate = carries.filter(x => x >= 20).length / Math.max(1, carries.length);
+      const carryMedian = medianOf(carries);
+      check(label + ' (' + carries.length + ' carries, ' + (lossRate * 100).toFixed(1) + '% lost, median ' + carryMedian.toFixed(2) + ', ' + (tenRate * 100).toFixed(1) + '% at 10+, ' + (twentyRate * 100).toFixed(1) + '% at 20+)', carries.length >= 200 && lossRate >= 0.06 && lossRate <= 0.16 && carryMedian >= 2.5 && carryMedian <= 3.7 && tenRate >= 0.06 && tenRate <= 0.16 && twentyRate >= 0.008 && twentyRate <= 0.05);
+    }
+    const humanRun = humanSample('run', 'none');
+    const humanTimed = humanSample('run', 'timed');
+    const humanRandom = humanSample('run', 'random');
+    const humanPass = humanSample('pass', 'pass');
     check('a mostly-run game and a mostly-pass game each score about a touchdown (' + humanRun.tds.toFixed(2) + ' and ' + humanPass.tds.toFixed(2) + ' a game)', humanRun.tds >= 1 && humanPass.tds >= 1);
-    check('carries lose about one in ten, sit near 3, and sometimes break (' + (lossRate * 100).toFixed(1) + '% lost, median ' + carryMedian.toFixed(2) + ', ' + (tenRate * 100).toFixed(1) + '% at 10+, ' + (twentyRate * 100).toFixed(1) + '% at 20+)', carries.length >= 200 && lossRate >= 0.06 && lossRate <= 0.16 && carryMedian >= 2.5 && carryMedian <= 3.7 && tenRate >= 0.06 && tenRate <= 0.16 && twentyRate >= 0.008 && twentyRate <= 0.05);
+    carryShape('carries without a juke lose about one in ten, sit near 3, and sometimes break', humanRun.runs);
+    carryShape('carries with a well-timed juke keep that shape', humanTimed.runs);
+    carryShape('carries with a juke at a random moment keep that shape', humanRandom.runs);
     const comps = humanPass.passes;
-    const piled = comps.filter(x => x >= 7 && x < 9).length / comps.length;
-    const deepShare = comps.filter(x => x >= 20).length / comps.length;
+    const piled = comps.filter(x => x >= 7 && x < 9).length / Math.max(1, comps.length);
+    const deepShare = comps.filter(x => x >= 20).length / Math.max(1, comps.length);
     const passMin = Math.min.apply(null, comps), passMax = Math.max.apply(null, comps);
-    check('completed passes spread past a 7-to-9 yard pile (' + passMin.toFixed(1) + ' to ' + passMax.toFixed(1) + ', ' + Math.round(piled * 100) + '% in that band)', comps.length >= 40 && passMin <= 6 && passMax >= 20 && passMax - passMin >= 14 && piled <= 0.45 && deepShare >= 0.05);
+    check('a human throw spreads completions past a 7-to-9 yard pile (' + comps.length + ' catches, ' + passMin.toFixed(1) + ' to ' + passMax.toFixed(1) + ', ' + Math.round(piled * 100) + '% in that band, ' + Math.round(deepShare * 100) + '% at 20+)', comps.length >= 40 && passMin <= 6 && passMax >= 20 && passMax - passMin >= 14 && piled <= 0.45 && deepShare >= 0.05);
     [1, 2, 3].forEach(q => {
       const crossing = M.create({ seed: 4 });
       crossing.quarter = q; crossing.clock = 5; crossing.spot = 40; crossing.down = 1; crossing.toGo = 10;
@@ -364,7 +399,7 @@ document.querySelector('#run').onclick = async () => {
     const ourEleven = M.create({ seed: 3, home: { line: 18, carry: 22, speed: 30 }, away: { rush: 92, tackle: 94 } });
     ourEleven.down = 4; ourEleven.toGo = 20; ourEleven.spot = 11;
     M.callPlay(ourEleven, 'inside'); M.finish(ourEleven, M.policies.neutral);
-    check('a turnover keeps the Lanterns\' map of the field', ourEleven.possession === 'away' && /at our 15/.test(ourEleven.last.text) && !/their 11/.test(ourEleven.last.text));
+    check('a turnover keeps the Lanterns\' map of the field', ourEleven.possession === 'away' && /at our 14/.test(ourEleven.last.text) && !/their 11/.test(ourEleven.last.text));
     const picked = M.create({ seed: 5, home: { throw: 30, catch: 30 }, away: { cover: 90, rush: 40 } });
     picked.spot = 43;
     M.callPlay(picked, 'quick');
@@ -392,15 +427,16 @@ document.querySelector('#run').onclick = async () => {
     check('an open lane is worth about 4 or 5, with a few breakaways (' + medianOf(openGains).toFixed(2) + ', ' + openGains.filter(x => x >= 15).length + ' long)', openGains.length >= 8 && medianOf(openGains) >= 3.8 && medianOf(openGains) <= 5.4 && openGains.filter(x => x >= 15).length >= 3);
     const rushed = M.runClockDrive(1);
     check('runs alone gain 50 yards inside 90 seconds (' + rushed.yards.toFixed(1) + ' yards in ' + rushed.clock.toFixed(1) + 's, seed ' + rushed.seed + ')', rushed.seed === 1 && rushed.yards >= 50 && rushed.clock <= 90);
-    const runGains = [];
-    let bigJukes = 0;
+    const runGains = [], jukeEdges = [];
     for (let i = 0; i < 24; i++) {
       const plainRun = M.create({ seed: 800 + i }); M.callPlay(plainRun, 'inside'); M.finish(plainRun, M.policies.neutral); runGains.push(plainRun.lastGain || 0);
       const broken = M.create({ seed: 800 + i }); M.callPlay(broken, 'inside'); M.finish(broken, M.jukePolicy);
-      if ((broken.lastGain || 0) > (plainRun.lastGain || 0) + 8) bigJukes += 1;
+      jukeEdges.push((broken.lastGain || 0) - (plainRun.lastGain || 0));
     }
+    const modestJukes = jukeEdges.filter(edge => edge >= 0.8 && edge <= 3.4).length;
+    const hugeJukes = jukeEdges.filter(edge => edge > 7).length;
     check('runs vary (' + Math.min.apply(null, runGains).toFixed(1) + ' to ' + Math.max.apply(null, runGains).toFixed(1) + ')', Math.max.apply(null, runGains) - Math.min.apply(null, runGains) >= 12);
-    check('a timed juke can break a big gain (' + bigJukes + ' of 24)', bigJukes >= 4);
+    check('a timed juke is usually a yard or three (' + modestJukes + ' of 24 in that band, ' + hugeJukes + ' past 7)', modestJukes >= 6 && hugeJukes <= 4);
     const swung = M.create({ seed: 1 }); swung.usage.inside = 14;
     const swing = M.tendencyLoad(swung, 'inside');
     const baseTackle = swung.away.tackle;
@@ -537,7 +573,7 @@ document.querySelector('#run').onclick = async () => {
     const liveHint = d2.querySelector('#hint').textContent || '';
     const liveKick = d2.querySelector('[data-play="kick"]').getAttribute('aria-label') || '';
     check('during a snap the hint matches the kick button', liveHint.indexOf('already going') >= 0 && liveKick.indexOf('already going') >= 0 && liveHint.indexOf('fourth down') < 0);
-    check('a run does not ask you to drag up to throw', liveHint.indexOf('Drag up to throw') < 0);
+    check('a run does not ask you to drag right to throw', liveHint.indexOf('Drag right to throw') < 0);
     const liveButtons = ['inside', 'outside', 'quick', 'deep', 'kick'].map(spotOf);
     check('the play buttons stay put during the snap', liveButtons.every((now, i) => Math.abs(now.left - beforeDown[['inside', 'outside', 'quick', 'deep', 'kick'][i]].left) < 2));
     w2.__lantern.finishLive();
@@ -551,12 +587,12 @@ document.querySelector('#run').onclick = async () => {
     if (ours) ours.click();
     else w2.__lantern.refresh();
     await wait();
-    check('drag to throw waits until a play is picked', (d2.querySelector('#hint').textContent || '').indexOf('Drag up to throw') < 0);
+    check('drag to throw waits until a play is picked', (d2.querySelector('#hint').textContent || '').indexOf('Drag right to throw') < 0);
     resumed.usage = { inside: 0, outside: 0, quick: 4, deep: 0 };
     w2.__lantern.begin('quick');
     await wait();
     const passHint = d2.querySelector('#hint').textContent || '';
-    check('a picked pass says to drag up to throw', passHint.indexOf('Drag up to throw') >= 0);
+    check('a picked pass says to drag right to throw', passHint.indexOf('Drag right to throw') >= 0);
     check("a repeated play shows they're reading it", passHint.indexOf("THEY'RE READING IT") >= 0);
     const touchCanvas = d2.querySelector('#field');
     const touchPoint = new w2.Touch({ identifier: 3, target: touchCanvas, clientX: 140, clientY: 220, pageX: 140, pageY: 220, screenX: 140, screenY: 220, radiusX: 1, radiusY: 1, rotationAngle: 0, force: 1 });

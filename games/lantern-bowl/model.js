@@ -810,14 +810,19 @@
     if (r < p * 0.36) return 'break';
     return 'gain';
   }
+  /* A juke that wins is a yard or three. The break tier is the occasional longer one, not eight yards on top. */
   function extendMove(game, play, kind) {
     if (play.goalX == null || play.moveExtended) return;
     play.moveExtended = true;
     var result = kind === 'juke' ? play.jukeResult : play.diveResult;
     if (play.hole === 'stuff' && result !== 'break') return;
-    var boost = result === 'break'
-      ? (kind === 'juke' ? (play.hole === 'break' ? 0.8 + roll(game) * 0.6 : 8.15 + roll(game) * 0.5) : 1.6 + roll(game) * 1.2)
-      : (result === 'gain' ? (kind === 'dive' ? 1.35 + roll(game) * 0.9 : 0.85 + roll(game) * 0.55) : 0);
+    var boost = 0;
+    if (result === 'break') {
+      if (kind === 'juke') boost = play.hole === 'break' ? (0.3 + roll(game) * 0.5) : (3.1 + roll(game) * 2.2);
+      else boost = 1.6 + roll(game) * 1.2;
+    } else if (result === 'gain') {
+      boost = kind === 'dive' ? (1.35 + roll(game) * 0.9) : (1.35 + roll(game) * 1.55);
+    }
     if (result === 'break') { play.breakaway = true; play.hole = 'break'; }
     if (play.offence === 'away') boost *= 0.8;
     play.goalX += boost;
@@ -875,19 +880,25 @@
     var tackle = threat ? threat.actor.tackle : 55;
     if (!play.didCatch && !held) {
       var piled = roll(game);
-      if (piled < 0.155) {
+      if (piled < 0.145) {
         play.hole = 'stuff';
-        play.goalX = -(0.7 + piled * 8);
-        play.arriveAt = 1.08 + piled * 2.2;
-      } else if (piled < 0.23) {
+        play.goalX = -(0.55 + piled * 5);
+        play.arriveAt = 1.08 + piled * 2;
+      } else if (piled < 0.20) {
         play.hole = 'stuff';
         play.goalX = 0;
         play.arriveAt = 1.12 + piled;
-      } else {
+      } else if (piled < 0.985) {
         play.hole = 'gain';
-        var along = (piled - 0.23) / 0.77;
-        play.goalX = 1.15 + along * 3.45;
+        var along = (piled - 0.20) / 0.785;
+        play.goalX = 0.7 + along * 3.15;
         play.arriveAt = 1.16 + along * 0.7;
+      } else {
+        play.hole = 'break';
+        play.breakaway = true;
+        var far = (piled - 0.985) / 0.015;
+        play.goalX = 20 + far * 5;
+        play.arriveAt = 2.4 + far * 0.4;
       }
       if (back.x > play.goalX) play.arriveAt = Math.max(play.arriveAt, play.elapsed + 0.35);
       play.ratingNote = play.ratingNote || (' ' + resultLine(play.hole === 'stuff' ? 'the rush' : 'the line', play.hole === 'stuff' ? play.rush : play.block, play.hole === 'stuff' ? 'the line' : 'the rush', play.hole === 'stuff' ? play.block : play.rush));
@@ -1213,7 +1224,7 @@
     else if (game.toGo >= 8) prefer = ['quick', 'outside', 'inside', 'deep'];
     else prefer = ['outside', 'inside', 'quick', 'deep'];
     var r = roll(game);
-    if (r < 0.30) return prefer[prefer.length - 1];
+    if (r < 0.36) return prefer[prefer.length - 1];
     var fresh = prefer.filter(function (id) { return tendencyLoad(game, id) < 8; });
     var pool = fresh.length ? fresh : prefer;
     return pool[Math.floor(roll(game) * Math.min(3, pool.length))];
@@ -1248,7 +1259,7 @@
     }
     if (style === 'pass') {
       if (game.toGo <= 1) return 'inside';
-      if (r < 0.55) return 'quick';
+      if (r < 0.40) return 'quick';
       if (r < 0.78) return 'deep';
       return r < 0.94 ? 'inside' : 'outside';
     }

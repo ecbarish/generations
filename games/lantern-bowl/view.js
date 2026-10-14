@@ -1,8 +1,6 @@
 /* Cameras and gestures for Lantern Bowl. Presentation only.
    The sim keeps yards. This file turns them into a picture, or a throw.
-   Built: behind (the old look; tests still use it) and the side-on field.
-   project('side') stays empty so the old reservation check still holds.
-   The side picture is sideProject / paintMatch. */
+   Built: behind (the older look the checks still use) and the side-on field. */
 (function (root) {
   'use strict';
 
@@ -51,6 +49,7 @@
 
   function project(name, point, cam, view) {
     if (name === 'behind') return behind(point, cam || { x: 0, y: 0 }, view || { w: 390, h: 520 });
+    if (name === 'side') return sideProject(point, cam, view);
     return null;
   }
 
@@ -60,9 +59,9 @@
     return { power: power, kind: power < 0.42 ? 'bullet' : 'lob' };
   }
 
-  /* Screen drag: up the glass is downfield, right is to the offence's right. */
+  /* Screen drag on the side field: right is downfield, up is toward the top sideline. */
   function dragToField(dx, dy) {
-    var dirX = -Number(dy) || 0, dirY = Number(dx) || 0;
+    var dirX = Number(dx) || 0, dirY = Number(dy) || 0;
     var mag = Math.hypot(dirX, dirY) || 1;
     return { dirX: dirX / mag, dirY: dirY / mag };
   }
@@ -509,7 +508,7 @@
       else if (carrier && p.link === carrier) ring = '#f6edd4';
       if (ring) {
         ctx.fillStyle = ring;
-        pixelEllipse(ctx, row.s.x, row.s.y - 8, 8, 5, 1, null);
+        pixelEllipse(ctx, row.s.x, row.s.y - 9, 11, 7, 2, null);
       }
     });
     var ball = live ? play.ball : spec.ball;
