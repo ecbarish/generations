@@ -50,6 +50,7 @@ func hero(name: String) -> Variant:
 func _run() -> void:
 	main.rng.seed = 2026
 	_display_scaling()
+	_pointer_aims()
 	_opening_view()
 	# ---- the town at the start
 	check(main.MAP.all(func(r): return r.length() == main.MAP[0].length()), "the town map is the same width on every row")
@@ -1275,6 +1276,141 @@ func _opening_view() -> void:
 		check(not main.route(main.me.tile, target, main.me).is_empty(), "the opening reaches service/door %s" % target)
 	for name in ["house", "nature", "floor"]:
 		check(not FileAccess.file_exists("res://assets/env/%s.png" % name) and not FileAccess.file_exists("res://assets/env/%s.png.import" % name), "unused %s tile and import are removed" % name)
+
+## #333: a click or tap lands on the card or tile under the finger, including when the
+## window is scaled and letterboxed. The hardware cursor is parked elsewhere on purpose:
+## the handler must use the event, which is already in the 384 by 216 view.
+func _pointer_aims() -> void:
+	var keep_lines: Array = main.lines.duplicate()
+	var keep_stretch := root.content_scale_stretch
+	var keep_size := root.size
+	var keep_tile: Vector2i = main.me.tile
+	var keep_pos: Vector2 = main.me.pos
+	var keep_board: bool = main.board_open
+	var keep_posted: Array = main.posted.duplicate()
+	var keep_plot: String = main.build_plot
+	var keep_built: Dictionary = main.built.duplicate(true)
+	var keep_coins: int = main.coins
+	var keep_walk: Array[Vector2i] = []
+	keep_walk.assign(main.walk_to)
+	var keep_show: bool = main.show_next
+	var keep_hints: Dictionary = main.hints.duplicate()
+	var sizes: Array[Dictionary] = [
+		{"size": Vector2i(1536, 864), "frac": false},
+		{"size": Vector2i(1280, 720), "frac": false},
+		{"size": Vector2i(800, 600), "frac": false},
+		{"size": Vector2i(1366, 768), "frac": false},
+		{"size": Vector2i(375, 812), "frac": true},
+		{"size": Vector2i(812, 375), "frac": true},
+		{"size": Vector2i(390, 844), "frac": true},
+		{"size": Vector2i(844, 390), "frac": true},
+		{"size": Vector2i(1366, 768), "frac": true},
+	]
+	for item in sizes:
+		var frac: bool = item.frac
+		root.content_scale_stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL if frac else Window.CONTENT_SCALE_STRETCH_INTEGER
+		root.size = item.size
+		var label := "%s %s" % [item.size, "fractional" if frac else "integer"]
+		_park_cursor()
+		_stand(Vector2i(15, 5))
+		main.lines.clear()
+		main.board_open = false
+		main.build_plot = ""
+		main.built = {}
+		main._update_ui()
+		check(main.goal.text != "", "a goal line is showing for the scaled tap check (%s)" % label)
+		main.show_next = false
+		_aim_view(Vector2(20, 10), true)
+		check(main.show_next and main.walk_to.is_empty(), "a tap on the goal line opens the next goals, not a walk (%s)" % label)
+		_aim_view(Vector2(20, 10), false)
+		check(not main.show_next, "a click on the goal line closes them again (%s)" % label)
+		var tile := Vector2i(16, 5)                      # open ground beside the opening tile; (12, 8) is a building
+		var view: Vector2 = main.get_canvas_transform() * (Vector2(tile) * float(main.TILE) + Vector2(8, 8))
+		_park_cursor()
+		_aim_view(view, true)
+		check(_arrived_tile() == tile, "a tap walks to the tile under the finger while the cursor is elsewhere (%s)" % label)
+		_stand(Vector2i(15, 5))
+		_park_cursor()
+		_aim_window(view)
+		check(_arrived_tile() == tile, "a window click, after stretch and letterboxing, walks to that same tile (%s)" % label)
+		main.walk_to.clear()
+		main.board_open = true
+		main.posted = []
+		var notice: String = main.notices[0]
+		_park_cursor()
+		_aim_view(main._note_rect(0).get_center(), false)
+		check(notice in main.posted, "a click pins the notice card under it, not wherever the cursor sits (%s)" % label)
+		main.posted = []
+		_park_cursor()
+		_aim_window(main._note_rect(0).get_center())
+		check(notice in main.posted, "the same card hit survives the scaled window's letterbox (%s)" % label)
+		main.board_open = false
+		main.posted = []
+		main.build_plot = "west"
+		var n: int = int(main.plans().size()) + 1
+		_park_cursor()
+		_aim_view(main._plan_rect(n - 1, n).get_center(), true)
+		check(main.build_plot == "", "a tap on Not now closes Hob's plans (%s)" % label)
+	root.content_scale_stretch = keep_stretch
+	root.size = keep_size
+	main.lines = keep_lines
+	main.me.tile = keep_tile
+	main.me.pos = keep_pos
+	main.me.path.clear()
+	main.board_open = keep_board
+	main.posted = keep_posted
+	main.build_plot = keep_plot
+	main.built = keep_built
+	main.coins = keep_coins
+	main.walk_to = keep_walk
+	main.show_next = keep_show
+	main.hints = keep_hints
+	main.cam.position = main.me.pos + Vector2(8, 8)
+	main.cam.reset_smoothing()
+
+func _park_cursor() -> void:
+	var away := InputEventMouseMotion.new()
+	away.position = Vector2(2, 2)
+	away.global_position = Vector2(2, 2)
+	Input.parse_input_event(away)
+	Input.flush_buffered_events()
+
+func _stand(tile: Vector2i) -> void:
+	main.me.tile = tile
+	main.me.pos = Vector2(tile) * float(main.TILE)
+	main.me.path.clear()
+	main.walk_to.clear()
+	main.cam.position = main.me.pos + Vector2(8, 8)
+	main.cam.reset_smoothing()
+	main.cam.force_update_scroll()
+
+func _arrived_tile() -> Vector2i:
+	return main.walk_to.back() if not main.walk_to.is_empty() else main.me.tile
+
+func _aim_view(at: Vector2, touch: bool) -> void:
+	if touch:
+		var t := InputEventScreenTouch.new()
+		t.pressed = true
+		t.index = 0
+		t.position = at
+		main._unhandled_input(t)
+	else:
+		var m := InputEventMouseButton.new()
+		m.button_index = MOUSE_BUTTON_LEFT
+		m.pressed = true
+		m.position = at
+		main._unhandled_input(m)
+
+## A click the way the window reports it: pixels of the real window, including the black bars.
+func _aim_window(at_view: Vector2) -> void:
+	var px: Vector2 = root.get_final_transform() * at_view
+	var m := InputEventMouseButton.new()
+	m.button_index = MOUSE_BUTTON_LEFT
+	m.pressed = true
+	m.position = px
+	m.global_position = px
+	Input.parse_input_event(m)
+	Input.flush_buffered_events()
 
 func _display_scaling() -> void:
 	var mobile := OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios")
