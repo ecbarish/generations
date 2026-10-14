@@ -109,6 +109,10 @@ document.querySelector('#run').onclick = async () => {
     const tallField = V.layoutFor(390, 844), wideField = V.layoutFor(844, 390);
     const portraitThrow = V.dragToField(0, 48, true);
     check('portrait is a vertical field with a thin score strip', !!tallField && tallField.vertical === true && tallField.h > tallField.w && tallField.top >= 16 && tallField.top <= 20 && wideField.vertical === false && wideField.top >= 16 && wideField.top <= 20);
+    const fitted = V.fitLayout(390, 700);
+    check('the picture scales by a whole number and fills the box', !!fitted && fitted.scale === Math.floor(fitted.scale) && fitted.scale >= 1 && fitted.w * fitted.scale <= 390 && fitted.h * fitted.scale <= 700 && fitted.w * fitted.scale >= 390 - fitted.scale);
+    const openMark = V.opennessMark('open'), windowMark = V.opennessMark('window'), coveredMark = V.opennessMark('covered');
+    check('openness marks differ by shape, with a light open ring', openMark.shape !== windowMark.shape && windowMark.shape !== coveredMark.shape && openMark.color === '#f6edd4' && openMark.outline === '#1e1a22' && coveredMark.shape === 'dotted');
     check('in portrait a pull down the screen throws upfield', portraitThrow.dirX > 0.9 && Math.abs(portraitThrow.dirY) < 0.1);
     let openCatches = 0, tightPicks = 0, tightDrops = 0, trials = 1600, rollState = 5;
     const nextRoll = () => { rollState = (Math.imul(rollState, 1664525) + 1013904223) >>> 0; return rollState / 4294967296; };
@@ -703,6 +707,11 @@ document.querySelector('#run').onclick = async () => {
     const build360 = d2.querySelector('#build').getBoundingClientRect();
     const root360 = d2.documentElement.getBoundingClientRect();
     check('at 360px the version stays on the page', build360.width > 24 && build360.height > 8 && build360.left >= root360.left - 1 && build360.right <= root360.right + 1 && build360.top >= root360.top - 1 && build360.bottom <= root360.bottom + 1 && (d2.querySelector('#build').textContent || '').indexOf('v') === 0);
+    const gear360 = d2.querySelector('.arc-set-btn').getBoundingClientRect();
+    const hud360 = d2.querySelector('.hud').getBoundingClientRect();
+    const down360 = d2.querySelector('#down');
+    check('at 360px Settings stays on the screen', gear360.right <= root360.right + 1 && gear360.left >= root360.left - 1 && gear360.width >= 16 && d2.querySelector('.arc-set-btn').getAttribute('aria-label') === 'Settings');
+    check('at 360px the score strip stays one line', hud360.height >= 16 && hud360.height <= 20 && down360.scrollHeight <= 20);
     frame.style.width = '375px'; frame.style.height = '812px';
     d2.documentElement.style.setProperty('--arc-text', '1');
     await wait();

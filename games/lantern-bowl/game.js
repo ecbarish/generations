@@ -263,16 +263,15 @@
     var parts = [];
     if (live && state.play && state.play.load > 0 && state.play.offence === 'home') parts.push(M.READING_HINT);
     var passLive = live && state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight && state.play.offence === 'home';
-    if (passLive) {
-      if (!save.tutored) parts.push('Pull back from anywhere on the field. Let go to throw.');
-      parts.push('Pull back to throw. A second finger switches lob and bullet.');
-    } else if (live && carryingNow()) parts.push('Swipe to steer and juke. A second finger sprints.');
+    if (passLive) parts.push('Pull back to throw.');
+    else if (live && carryingNow()) parts.push('Swipe to steer.');
     return parts.join(' ');
   }
   function paintHint() {
     var hint = $('hint');
     if (!hint) return;
     var text = hintText();
+    hint.hidden = !text;
     hint.textContent = text;
     hint.classList.toggle('reading', text.indexOf(M.READING_HINT) >= 0);
   }
@@ -707,7 +706,7 @@
     $('homeScore').textContent = Arcade.fmt(state.score.home);
     $('awayScore').textContent = Arcade.fmt(state.score.away);
     $('clock').textContent = state.quarter >= 5 ? 'OT' : 'Q' + state.quarter + ' ' + Arcade.fmtTime(Math.max(0, Math.ceil(state.clock)));
-    $('down').textContent = state.phase === 'final' ? 'Final' : M.downWords(state);
+    $('down').textContent = state.phase === 'final' ? 'Final' : M.downWords(state).replace(' and ', ' & ').replace(' at ', ' · ');
     var live = state.phase === 'live';
     if (live && state.play) lastSheet = snapLine(state);
     var sheet = $('sheet');
@@ -733,10 +732,20 @@
     }
   }
 
+  function fitChrome() {
+    var tight = window.innerWidth <= 380;
+    var gear = document.querySelector('#settingsMount .arc-set-btn');
+    if (gear) {
+      if (!gear.dataset.full) gear.dataset.full = gear.textContent || '⚙ Settings';
+      gear.textContent = tight ? '⚙' : gear.dataset.full;
+      gear.setAttribute('aria-label', 'Settings');
+    }
+  }
   function resize() {
     var r = canvas.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
     var w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    fitChrome();
     return { w: r.width, h: r.height, dpr: dpr };
   }
 
@@ -769,7 +778,7 @@
     var box = resize();
     var play = state && state.phase === 'live' ? state.play : null;
     var passLive = !!(play && play.family === 'pass' && !play.thrown && !play.flight && play.offence === 'home');
-    var layout = V.layoutFor(box.w, box.h);
+    var layout = V.fitLayout(box.w, box.h) || V.layoutFor(box.w, box.h);
     var picture = layout || V.SIDE;
     var offers = state && state.phase === 'call' ? M.offerPlays(state) : null;
     var previewId = offers && offers.length ? (offers[0] === 'kick' ? 'inside' : offers[0]) : null;
@@ -784,9 +793,9 @@
       formation: previewId ? M.formationFor(previewId) : null,
       chalk: !play && previewId ? M.previewRoutes(previewId) : null
     };
-    var scale = Math.max(0.01, Math.min(box.w / picture.w, box.h / picture.h));
-    var ox = (box.w - picture.w * scale) / 2;
-    var oy = (box.h - picture.h * scale) / 2;
+    var scale = picture.scale >= 1 ? picture.scale : Math.max(1, Math.floor(Math.min(box.w / picture.w, box.h / picture.h)));
+    var ox = Math.floor((box.w - picture.w * scale) / 2);
+    var oy = Math.floor((box.h - picture.h * scale) / 2);
     ctx.setTransform(box.dpr, 0, 0, box.dpr, 0, 0);
     ctx.imageSmoothingEnabled = false;
     ctx.fillStyle = '#141820';

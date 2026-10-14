@@ -35,11 +35,12 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
   padding: 0 6px; overflow: hidden; pointer-events: none;
   background: #141820ee; text-shadow: 0 1px 1px #000;
 }
-.hud span { display: flex; flex-direction: row; align-items: center; gap: 4px; min-width: 0; white-space: nowrap; }
+.hud span, .hud .mid { white-space: nowrap; }
+.hud span { display: flex; flex-direction: row; align-items: center; gap: 4px; min-width: 0; }
 .hud small, .hud b { font-size: 11px; line-height: 16px; font-weight: 700; letter-spacing: 0.02em; }
 .hud small { color: #d9c89a; }
 .hud b { color: var(--lamp); }
-.hud .mid { text-align: center; flex: 0 1 auto; }
+.hud .mid { text-align: center; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; }
 .hud .right { text-align: right; }
 .sheet {
   position: absolute; left: 50%; top: 22px; transform: translateX(-50%); z-index: 4;
@@ -86,12 +87,16 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 }
 .dock-plays svg { width: 28px; height: 16px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .hint, .held {
-  position: absolute; left: 12px; right: 84px; margin: 0; text-align: center;
-  color: #d9c89a; font-size: calc(12px * var(--arc-text)); line-height: 1.3; pointer-events: none;
+  position: absolute; margin: 0; text-align: center;
+  color: #d9c89a; font-size: 11px; line-height: 16px; pointer-events: none;
 }
-.hint { bottom: 78px; z-index: 4; max-height: 2.6em; overflow: hidden; }
+.hint {
+  top: 18px; left: 0; right: 0; height: 16px; max-height: 16px;
+  padding: 0 8px; z-index: 4; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; background: #141820f2;
+}
+.held { left: 12px; right: 12px; top: 40px; z-index: 6; color: var(--lamp); }
 .hint.reading { color: var(--lamp); font-weight: 700; }
-.held { top: 40px; z-index: 6; color: var(--lamp); right: 12px; }
 .curtain {
   position: absolute; inset: 0; z-index: 5; display: grid; align-items: end; justify-items: center;
   background: linear-gradient(to bottom, rgba(16, 20, 28, 0.05) 0%, rgba(16, 20, 28, 0.05) 42%, rgba(16, 20, 28, 0.94) 72%);
@@ -131,5 +136,15 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
   .panel { padding: 10px; }
   .panel h2 { font-size: calc(20px * var(--arc-text)); }
   .dock-plays button { min-height: 44px; max-height: 52px; width: 84px; }
-  .hint { bottom: 64px; }
+  .hint { top: 18px; bottom: auto; height: 16px; }
+}
+@media (max-width: 380px) {
+  header { gap: 2px; padding: 2px 0; }
+  header h1 { font-size: calc(12px * var(--arc-text)); }
+  header .home { min-width: 0; padding-inline: 2px; }
+  .build { font-size: 10px; }
+  #settingsMount { gap: 2px; }
+  #sound, #settingsMount .arc-set-btn {
+    min-width: 0; padding: 2px 4px; font-size: 10px;
+  }
 }

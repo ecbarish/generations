@@ -105,6 +105,31 @@
       widthY: SIDE.widthY, anchor: Math.round(pictureW * 0.28), lead: SIDE.lead, vertical: false
     };
   }
+  /* Whole-pixel scale. The picture then widens and grows so the field fills the box. */
+  function fitLayout(cssW, cssH) {
+    var base = layoutFor(cssW, cssH);
+    if (!base) return null;
+    var w = Number(cssW), h = Number(cssH);
+    var fit = Math.min(w / base.w, h / base.h);
+    var scale = Math.floor(fit);
+    if (!(scale >= 1)) scale = 1;
+    var fillW = Math.max(8, Math.floor(w / scale));
+    var fillH = Math.max(8, Math.floor(h / scale));
+    var picture = {
+      w: fillW, h: fillH, yard: base.yard, top: base.top, widthY: base.widthY,
+      lead: base.lead, vertical: !!base.vertical, scale: scale
+    };
+    if (picture.vertical) {
+      picture.fieldH = Math.max(32, fillW - 8);
+      picture.anchor = Math.round(fillH * 0.72);
+    } else {
+      var chrome = Math.max(0, base.h - base.fieldH);
+      var margin = Math.min(chrome, Math.max(base.top, Math.floor(fillH / 5)));
+      picture.fieldH = Math.max(16, fillH - margin);
+      picture.anchor = Math.round(fillW * 0.28);
+    }
+    return picture;
+  }
 
   /* Run lane and pocket ring, drawn under the players. Colours and patterns from the art spec. */
   var LANE_STYLE = {
@@ -573,6 +598,16 @@
         y: end.y + Math.round(Math.cos(time * 7) * wobble * 8)
       };
     }
+    var radius = Math.max(0.6, Number(aim.radius) || Number(preview.radius) || 1.2);
+    var alongR = Math.max(4, Math.round(radius * SIDE.yard));
+    var crossR = Math.max(3, Math.round(radius * (SIDE.fieldH / SIDE.widthY)));
+    var rx = Math.min(SIDE.vertical ? crossR : alongR, Math.max(4, Math.floor(SIDE.w / 2) - 2));
+    var ry = Math.min(SIDE.vertical ? alongR : crossR, Math.max(3, Math.floor(SIDE.h / 2) - 2));
+    rx = Math.max(4, rx); ry = Math.max(3, ry);
+    end = {
+      x: clamp(end.x, rx + 2, Math.max(rx + 2, SIDE.w - rx - 2)),
+      y: clamp(end.y, ry + 2, Math.max(ry + 2, SIDE.h - ry - 2))
+    };
     var loft = (aim.kind === 'lob' ? 28 : 10) + wobble * 10;
     var samples = 8, i;
     var prev = from;
@@ -586,18 +621,84 @@
       pixelLine(ctx, prev.x, prev.y, next.x, next.y, 2, [2, 3]);
       prev = next;
     }
-    var radius = Math.max(0.6, Number(aim.radius) || Number(preview.radius) || 1.2);
-    var alongR = Math.max(4, Math.round(radius * SIDE.yard));
-    var crossR = Math.max(3, Math.round(radius * (SIDE.fieldH / SIDE.widthY)));
-    var rx = SIDE.vertical ? crossR : alongR;
-    var ry = SIDE.vertical ? alongR : crossR;
     ctx.fillStyle = '#4aa8ff';
     pixelEllipse(ctx, end.x, end.y, rx, ry, 2, [2, 3]);
     ctx.fillStyle = '#f6edd4';
     ctx.fillRect(end.x - 3, end.y, 7, 1);
     ctx.fillRect(end.x, end.y - 3, 1, 7);
-    drawText(ctx, aim.kind === 'lob' ? 'LOB' : 'BULLET', end.x + rx + 4, end.y - 6, '#f2d080', 1);
     if (aim.power != null) drawPowerMeter(ctx, aim.power);
+    return { end: end, kind: aim.kind === 'lob' ? 'lob' : 'bullet', ry: ry };
+  }
+  /* The throw word sits above the sprites, inside the picture, at the 8px glyph size. */
+  function drawPassLabel(ctx, guide) {
+    if (!guide || !guide.end) return;
+    var text = guide.kind === 'lob' ? 'LOB' : 'BULLET';
+    var scale = 2;
+    var tw = text.length * 4 * scale;
+    var th = 5 * scale;
+    var x = clamp(Math.round(guide.end.x - tw / 2), 2, Math.max(2, SIDE.w - tw - 2));
+    var y = Math.round(guide.end.y - (guide.ry || 6) - th - 3);
+    if (y < 2) y = Math.min(Math.max(2, SIDE.h - th - 2), Math.round(guide.end.y + (guide.ry || 6) + 3));
+    ctx.fillStyle = '#1e1a22';
+    ctx.fillRect(x - 2, y - 2, tw + 4, th + 4);
+    drawText(ctx, text, x, y, '#f2d080', scale);
+  }
+  /* Open is a light ring with a chevron. A window is dashed. Covered is dotted, with a cross. */
+  function opennessMark(band) {
+    if (band === 'window') return { color: '#ffdd33', shape: 'dashed', outline: '#1e1a22' };
+    if (band === 'covered') return { color: '#ffb0a4', shape: 'dotted', outline: '#1e1a22' };
+    return { color: '#f6edd4', shape: 'chevron', outline: '#1e1a22' };
+  }
+  function drawOpenMark(ctx, x, y, band) {
+    var mark = opennessMark(band);
+    var rx = 7, ry = 4;
+    ctx.fillStyle = mark.outline;
+    pixelEllipse(ctx, x, y, rx + 2, ry + 2, 2, null);
+    ctx.fillStyle = mark.color;
+    if (mark.shape === 'dashed') pixelEllipse(ctx, x, y, rx, ry, 2, [3, 2]);
+    else if (mark.shape === 'dotted') pixelEllipse(ctx, x, y, rx, ry, 2, [1, 2]);
+    else pixelEllipse(ctx, x, y, rx, ry, 2, null);
+    ctx.fillStyle = mark.outline;
+    if (mark.shape === 'chevron') {
+      if (SIDE.vertical) {
+        pixelLine(ctx, x - 4, y + 2, x, y - 3, 1, null);
+        pixelLine(ctx, x, y - 3, x + 4, y + 2, 1, null);
+      } else {
+        pixelLine(ctx, x - 2, y - 3, x + 4, y, 1, null);
+        pixelLine(ctx, x - 2, y + 3, x + 4, y, 1, null);
+      }
+    } else if (mark.shape === 'dotted') {
+      pixelLine(ctx, x - 3, y - 2, x + 3, y + 2, 1, null);
+      pixelLine(ctx, x - 3, y + 2, x + 3, y - 2, 1, null);
+    }
+  }
+  /* Upright field: a figure seen from above, head toward the way he faces. Not a side sprite turned over. */
+  function drawUpright(ctx, spec) {
+    spec = spec || {};
+    var x = Math.round(Number(spec.x) || 0), y = Math.round(Number(spec.y) || 0);
+    var line = spec.body === 'line';
+    var rw = line ? 6 : 4, rh = line ? 8 : 7;
+    var up = spec.face > 0 ? -1 : 1;
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = '#1e1a22';
+    ctx.beginPath();
+    ctx.ellipse(x, y, rw + 1, rh + 1, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = spec.fill || '#c45a32';
+    ctx.beginPath();
+    ctx.ellipse(x, y, rw, rh, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = spec.outline || '#1e1a22';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#e7c4a8';
+    ctx.beginPath();
+    ctx.arc(x, y + up * (rh + 2), 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    return 'upright';
   }
   function useSide(layout, fn) {
     if (!layout) return fn();
@@ -652,22 +753,14 @@
     function at(x, y) { return sideProject({ x: spot + x, y: y }, { x: camX }); }
     var drop = play && play.family === 'pass' && !play.thrown && !play.flight ? pocketDrop(play.elapsed) : 0;
     if (!live) drawChalk(ctx, at, spec.chalk);
-    var showRings = !live || (play && play.family === 'pass' && !play.didCatch);
-    if (showRings && squad && squad.length) {
-      var openColor = { open: '#38994a', window: '#ffdd33', covered: '#ffb0a4' };
-      squad.forEach(function (p) {
-        if (!p.off || (p.role !== 'wr' && p.role !== 'te' && p.role !== 'rb')) return;
-        var best = 99;
-        squad.forEach(function (o) {
-          if (o.off) return;
-          var d = Math.hypot(o.x - p.x, o.y - p.y);
-          if (d < best) best = d;
-        });
-        var band = root.LanternModel && root.LanternModel.opennessBand ? root.LanternModel.opennessBand(best) : (best <= 2.6 ? 'covered' : best < 5 ? 'window' : 'open');
-        var spotAt = at(p.x, p.y);
-        ctx.fillStyle = openColor[band] || openColor.open;
-        pixelEllipse(ctx, spotAt.x, spotAt.y + 2, 6, 3, 2, null);
+    function openBand(p, list) {
+      var best = 99;
+      (list || []).forEach(function (o) {
+        if (o.off) return;
+        var d = Math.hypot(o.x - p.x, o.y - p.y);
+        if (d < best) best = d;
       });
+      return root.LanternModel && root.LanternModel.opennessBand ? root.LanternModel.opennessBand(best) : (best <= 2.6 ? 'covered' : best < 5 ? 'window' : 'open');
     }
     if (play && (play.family === 'run' || play.didCatch) && play.lanes) {
       play.lanes.forEach(function (lane) {
@@ -701,20 +794,21 @@
       var posed = poseOf(p, play);
       var pose = spritePose(!!p.off, posed.pose);
       var aimed = !!(aimTarget && p.link && p.link === aimTarget);
-      ctx.save();
       if (SIDE.vertical) {
-        ctx.translate(row.s.x, row.s.y);
-        ctx.rotate(-Math.PI / 2);
+        drawUpright(ctx, {
+          x: row.s.x, y: row.s.y, body: p.body, face: p.face,
+          fill: team.color, outline: aimed ? '#f2d080' : '#1e1a22'
+        });
+      } else {
+        drawPlayer(ctx, {
+          x: row.s.x, y: row.s.y, scale: 1,
+          file: spriteFile((p.off ? 'offence_' : 'defence_') + (p.body === 'line' ? 'line' : 'skill'), 'side', pose),
+          id: p.role, view: 'side', pose: pose, frame: posed.frame,
+          body: p.body, face: p.face, ramp: ramp, muted: p.body === 'line',
+          fill: team.color, trim: ramp[0], role: p.role,
+          outline: aimed ? '#f2d080' : '#1e1a22'
+        });
       }
-      drawPlayer(ctx, {
-        x: SIDE.vertical ? 0 : row.s.x, y: SIDE.vertical ? 0 : row.s.y, scale: 1,
-        file: spriteFile((p.off ? 'offence_' : 'defence_') + (p.body === 'line' ? 'line' : 'skill'), 'side', pose),
-        id: p.role, view: 'side', pose: pose, frame: posed.frame,
-        body: p.body, face: p.face, ramp: ramp, muted: p.body === 'line',
-        fill: team.color, trim: ramp[0], role: p.role,
-        outline: aimed ? '#f2d080' : '#1e1a22'
-      });
-      ctx.restore();
       var ring = '';
       if (aimed) ring = '#f2d080';
       else if (carrier && p.link === carrier) ring = '#f6edd4';
@@ -750,17 +844,26 @@
         drawText(ctx, juking ? 'JUKE' : spinning ? 'SPIN' : diving ? 'DIVE' : 'GO', who.x - 8, who.y - 22, '#f6edd4', 1);
       }
     }
-    if (play && play.family === 'pass' && !play.thrown && spec.aim && spec.aim.preview && carrier) {
-      drawPassGuide(ctx, at, { x: carrier.x + drop, y: carrier.y }, spec.aim);
+    var showRings = !live || (play && play.family === 'pass' && !play.didCatch);
+    if (showRings && squad && squad.length) {
+      squad.forEach(function (p) {
+        if (!p.off || (p.role !== 'wr' && p.role !== 'te' && p.role !== 'rb')) return;
+        var spotAt = at(p.x, p.y);
+        drawOpenMark(ctx, spotAt.x, spotAt.y + 2, openBand(p, squad));
+      });
     }
-    if (play && play.family === 'pass' && !play.thrown && !spec.aim && spec.coach && carrier) {
-      drawPassGuide(ctx, at, { x: carrier.x + drop, y: carrier.y }, {
+    var guide = null;
+    if (play && play.family === 'pass' && !play.thrown && spec.aim && spec.aim.preview && carrier) {
+      guide = drawPassGuide(ctx, at, { x: carrier.x + drop, y: carrier.y }, spec.aim);
+    } else if (play && play.family === 'pass' && !play.thrown && !spec.aim && spec.coach && carrier) {
+      guide = drawPassGuide(ctx, at, { x: carrier.x + drop, y: carrier.y }, {
         preview: { x: carrier.x + 12, y: carrier.y - 2 },
         kind: 'bullet',
         radius: 1.4,
         wobble: 0
       });
     }
+    if (guide) drawPassLabel(ctx, guide);
     ctx.restore();
     return { spot: spot, camX: camX, squad: (squad || []).length };
   }
@@ -840,7 +943,8 @@
     pocketRing: pocketRing, tweenRadius: tweenRadius, drawPocketRing: drawPocketRing, RING_STEPS: RING_STEPS,
     SIDE: SIDE, PALETTE: PALETTE, chainLines: chainLines, stepSideCamera: stepSideCamera,
     sideFocus: sideFocus, sideProject: sideProject, paintMatch: paintMatch, rampFor: rampFor,
-    pocketDrop: pocketDrop, ballLoft: ballLoft, layoutFor: layoutFor
+    pocketDrop: pocketDrop, ballLoft: ballLoft, layoutFor: layoutFor, fitLayout: fitLayout,
+    opennessMark: opennessMark, drawUpright: drawUpright
   };
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.LanternView = api;
