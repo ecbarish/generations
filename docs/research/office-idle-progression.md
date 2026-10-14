@@ -1,5 +1,7 @@
 # Office idle progression: research for the four first versions
 
+**Queue IDs:** A Night Market = IDLE-NM1, B Card Shop lite = IDLE-CS1, C Shipping Office = IDLE-SS1, D Desk Plant Lab = IDLE-DP1, all on IDLE-CORE. QUEUE build order: CORE, NM1, SS1, CS1, DP1. The build spec is §8.
+
 **For:** Night Market Stalls (A), Card Shop lite (B), Saltmarsh Shipping Office (C), Desk Plant Lab (D), all built on one shared idle core.
 **Evan's brief:** progression and improvement are the key features.
 **House rules this doc respects** ([village-and-business-review.md](village-and-business-review.md)): do the job yourself before you hire; managers are people with habits, not multipliers; a reset is a move somewhere new; offline time is capped and never beats active play; avoid the multiplier treadmill; information shows up in the world; no ads.
@@ -14,9 +16,9 @@ Labels used below: **[Sourced]** means the fact comes from the linked page. **[O
 |---|---|---|
 | Exponential generator costs | Every purchase costs more than the last, so income growth eventually slows and the next layer gets a reason to exist | AdCap's Lemonade Stand: cost growth 1.07 per unit, base cost 4, 1.67/s each ([Pecorella I](https://www.gamedeveloper.com/design/the-math-of-idle-games-part-i)). Cookie Clicker buildings: +15% per purchase, so the price roughly doubles every 5 ([CC wiki](https://cookieclicker.fandom.com/wiki/Building)) |
 | Ownership milestones | A big bump at a set count gives you a target to save toward | AdCap gives a stacking x2 at 25 and 50 owned, and purchases cluster just before those counts ([Pecorella I](https://www.gamedeveloper.com/design/the-math-of-idle-games-part-i)) |
-| Staggered tiers | Each new generator pays back more slowly, which spreads the pace out across days | Initial payoff time in Cookie Clicker: Cursor 2.5 min, Farm 2.3 min, Bank 16.7 min, Wizard Tower 2.1 h, Portal 1.16 days ([CC wiki](https://cookieclicker.fandom.com/wiki/Building)) |
+| Staggered tiers | Payback time mostly climbs tier by tier, though not strictly (Farm pays back faster than Cursor), which spreads the pace out across days | Initial payoff time in Cookie Clicker: Cursor 2.5 min, Grandma 1.7 min, Farm 2.3 min, Mine 4.3 min, Bank 16.7 min, Wizard Tower 2.1 h, Portal 1.16 days ([CC wiki](https://cookieclicker.fandom.com/wiki/Building)) |
 | Shifting priorities | Good tuning lets older generators matter again instead of the newest one always winning | Pecorella shows that varying the milestone multipliers per generator changes which one leads over time ([Pecorella I](https://www.gamedeveloper.com/design/the-math-of-idle-games-part-i)) |
-| Prestige / reset | Start over with a lasting boost, the "ladder climbing" effect | Prestige currency: AdCap 150·√(lifetime/1e15); Cookie Clicker ∛(lifetime/1e12); Egg Inc (run earnings/1e6)^0.14. Doubling it takes about 3-4x (AdCap), about 8x (Cookie Clicker), or 128x (Egg Inc) more earnings ([Pecorella III](https://www.gamedeveloper.com/design/the-math-of-idle-games-part-iii)) |
+| Prestige / reset | Start over with a lasting boost, the "ladder climbing" effect | Prestige currency: AdCap 150·√(lifetime/1e15); Cookie Clicker ∛(lifetime/1e12); Egg Inc (run earnings/1e6)^0.14. Doubling it takes exactly 4x lifetime earnings (AdCap, square root), 8x (Cookie Clicker, cube root), or 2^(1/0.14) ≈ 141x run earnings (Egg Inc) ([Pecorella III](https://www.gamedeveloper.com/design/the-math-of-idle-games-part-iii)) |
 | Phase changes / unfolding | New systems open up partway through, and the game changes shape | Universal Paperclips moves from making clips by hand, to business, to space, and ends ([play it](https://www.decisionproblem.com/paperclips/)). Pecorella names "unfolding new features" as one place the fun can live ([Pecorella III](https://www.gamedeveloper.com/design/the-math-of-idle-games-part-iii)) |
 | Minigames that open on level-up | Depth gets added without more multipliers | Cookie Clicker's Garden, Grimoire, Pantheon and Stock Market open when you level buildings with sugar lumps ([CC wiki](https://cookieclicker.fandom.com/wiki/Building)) |
 | Achievements and collections | Long-tail goals | Players report 637 achievements in Cookie Clicker and AdCap 100% runs lasting months (see §6) |
@@ -63,7 +65,8 @@ All timings are **[Opinion] tuning targets**.
 - **Borrow:** AdCap's 1.07 pace and its 25/50 milestones; Cookie Clicker's flavour text.
 
 ### B) Card Shop lite
-- **Spine:** run the till yourself, stock shelves, hire a clerk, open a branch (Main Street loop). The reset is a new town, and Wildbond cards slot in later.
+- **Wildbond gate:** the lite slice uses placeholder stock. Any tie-in to the Wildbond card roster stays gated behind Wildbond; that's Evan's call (see #389).
+- **Spine:** run the till yourself, stock shelves, hire a clerk, open a branch (Main Street loop). The reset is a new town, and Wildbond cards could come later, but only if Evan lifts the gate.
 - **First 5 min:** ring up customers, restock empty shelves (visible), and unlock placeholder stock types.
 - **First hour:** first clerk (with a habit); the second branch appears on a small street map.
 - **Day 2:** a restock wagon waits to be unpacked (capped offline). The first branch manager has a quirk.
@@ -100,8 +103,8 @@ All timings are **[Opinion] tuning targets**.
 | 8 | **Next-goal bar** (the nearest milestone) | [Opinion] |
 | 9 | **Tab-title income** (optional) | [Opinion], for office use |
 | 10 | **Muted by default** | [Opinion] |
-| 11 | **Boss-safe skin** (plain spreadsheet-like theme) | [Opinion] |
-| 12 | **Save versioning + migrations**, built on shared/engine.js backup strings | Melvor cloud-save complaints |
+| 11 | **Boss-safe skin** (plain spreadsheet-like theme). **Proposal for Game Art Director**, who also owns each slice's look | [Opinion] |
+| 12 | **Save versioning + migrations**. **Proposal owned by Shared Systems Architect and Evan**; follow the ENGINE-SAVEVER claim (optional version + migrate in shared/engine.js) | Melvor cloud-save complaints |
 | 13 | **Activity log** (C uses it, A uses it for gossip) | [Opinion] |
 
 Note: shared/engine.js uses plain JS numbers, which top out near 1.8e308. Cookie Clicker's building prices hit that ceiling ([CC wiki](https://cookieclicker.fandom.com/wiki/Building)). **[Opinion]** Keep our curves small (the house rule favours small numbers), so we don't need a big-number library.
@@ -148,3 +151,95 @@ All quotes are short excerpts from Steam reviews; each link was checked and load
 | 10 | Collections/catalogue | D B A | Melvor and CC love |
 | 11 | Boss-safe skin + mute + tab-title income | A B C D | Office use |
 | 12 | Clear ending | C | Paperclips |
+
+## 8. Build spec (tuning starting points, not sourced data)
+
+Every number in this section is **[Opinion] a tuning starting point**, picked to fit the sourced curves in §1-2. Playtesting will change them.
+
+### 8.1 IDLE-CORE defaults
+- Cost: next = base × r^owned. Default **r = 1.07** (AdCap-gentle), per-generator override allowed in 1.05-1.15.
+- Production: base × owned × milestoneMult. **No other global multipliers** (house rule).
+- Default milestones: **25, 50, 100 owned → ×2 each** (stacking, so ×8 at 100), each with a visual hook.
+- Bulk: x1/x10/max via Pecorella's closed forms. Worked check: base 5, r 1.07, owned 10, buy 10 → 135.90.
+- Offline: catch-up = min(elapsed, cap) × activeRate × offlineRate; per-game config; offlineRate < 1.
+- Tick: a Date.now delta per frame or timer, clamped; if delta > 60 s, take the offline path and show the summary.
+
+### 8.2 Generators (first 3 tiers)
+| Slice | Tier 1 (base / r / per s) | Tier 2 | Tier 3 | Payback t1/t2/t3 |
+|---|---|---|---|---|
+| NM1 Night Market | Tea stall 5 / 1.07 / 0.5 | Dumpling cart 60 / 1.08 / 4 | Lantern stand 720 / 1.09 / 30 | 10 / 15 / 24 s |
+| SS1 Shipping Office | Rowboat 8 / 1.07 / 0.6 | Sloop 120 / 1.08 / 5 | Schooner 1,800 / 1.10 / 40 | 13 / 24 / 45 s |
+| CS1 Card Shop lite | Sleeves 10 / 1.07 / 0.8 | Booster rack 150 / 1.08 / 6 | Binder shelf 2,000 / 1.09 / 45 | 12.5 / 25 / 44 s |
+| DP1 Desk Plant Lab | Pothos 6 / 1.07 / 0.4 | Desk cactus 90 / 1.08 / 3 | Odd fern 1,400 / 1.10 / 25 | 15 / 30 / 56 s |
+
+Hand work before hiring: NM1 serves 1 coin per tap (25 serves to the first vendor); SS1 rows 3 trips by hand (5 each); CS1 rings up 20 sales by hand (1 each); DP1 waters 15 times by hand (1 each).
+
+### 8.3 Prestige / reset (one formula each)
+| Game | Formula | Doubling | Unlocks | Carry-over |
+|---|---|---|---|---|
+| NM1 | Permits = floor(√(lifetime / 1e6)) | exactly 4x lifetime (1e6→1, 4e6→2, 1.6e7→4) | lifetime ≥ 1e6 | One favourite vendor plus permits; each permit opens one new stall type in the next district (not a % boost) |
+| SS1 | Finite: the run ends at the lighthouse network. Optional new harbour: Charts = floor(√(runEarnings / 1e7)) | 4x run earnings | after the ending only | One captain plus charts (each reveals a route early) |
+| CS1 | Towns = floor(∛(lifetime / 1e6)) | 8x lifetime (1e6→1, 8e6→2) | lifetime ≥ 1e6 | One clerk plus town count (each adds one starting shelf) |
+| DP1 | Cuttings = floor(∛(runEarnings / 1e5)) | 8x run earnings | first bloom (run ≥ 1e5) | Cuttings become starter species on the new desk |
+
+### 8.4 Offline cap and rate
+| Game | Cap | Rate vs active | Shown as |
+|---|---|---|---|
+| NM1 | 4 h | 0.5 | a cash box plus vendor gossip |
+| SS1 | 2 h per warehouse, max 4 warehouses (8 h) | 0.5 | warehouse crates plus the activity log |
+| CS1 | 4 h | 0.5 | a restock wagon to unpack |
+| DP1 | 24 h grow lamp | 0.25 | overnight growth, ready to harvest |
+
+### 8.5 Milestones and unlocks
+**NM1**
+| Condition | Opens | Visible change |
+|---|---|---|
+| 25 hand serves | First vendor (named, with a habit) | Vendor appears at the stall |
+| Tea stall 25 / 50 / 100 | ×2 each | Lanterns 1→2→string; awning; crowd |
+| 10 tea stalls | Dumpling cart | New cart rolls in |
+| 10 dumpling carts | Lantern stand | Market brightens |
+| lifetime 1e6 | Move district | Map with a new district |
+
+**SS1**
+| Condition | Opens | Visible change |
+|---|---|---|
+| 3 hand trips | Buy a second rowboat | Boat tied at the dock |
+| 10 rowboats | First captain plus the log | Captain on the pier |
+| 25 / 50 / 100 of a tier | ×2 each | Bigger dock, flags, crane |
+| 10 sloops | Phase 2 Fleet: timed routes | Sea chart unrolls |
+| 10 schooners | Phase 3 Trade routes | Distant ports on the chart |
+| 5 routes running | Phase 4 Lighthouses | Lights along the coast |
+| all lighthouses lit | Ending | Night-sea finale |
+
+**CS1**
+| Condition | Opens | Visible change |
+|---|---|---|
+| 20 hand sales | First clerk | Clerk behind the till |
+| 25 / 50 / 100 of a tier | ×2 each | Shelves fill up; a sign; a window display |
+| 10 sleeves | Booster rack | New rack |
+| 10 racks | Binder shelf | Wall shelf |
+| lifetime 2e5 | Second branch | Street map pin |
+| lifetime 1e6 | Move town | New town map |
+
+**DP1**
+| Condition | Opens | Visible change |
+|---|---|---|
+| 15 hand waterings | Watering can helper (an intern with a habit) | Intern at the desk |
+| 25 / 50 / 100 of a species | ×2 each | Plant grows: leaves, then a pot upgrade, then a bloom |
+| 10 pothos | Desk cactus | New pot |
+| 10 cacti | Odd fern | Fern unfurls |
+| run 1e5 | First bloom, then cuttings | Flower opens |
+
+### 8.6 Done-when criteria
+**IDLE-CORE**
+- Hide the tab for 10 min, then return: income credited is within 2% of 10 min × rate (if under the cap) and the away summary shows it.
+- Simulated 30 h away with a 4 h cap: the credit equals 4 h × rate × offlineRate within 1%, and the summary states the cap.
+- Bulk x1/x10/max costs match the closed form within 1e-9 relative error; max never overspends.
+- Milestone at 25 fires exactly once, survives save and load, and applies ×2.
+- An old-version save loads (via ENGINE-SAVEVER) or is refused safely without being overwritten.
+- Muted by default; the tab-title income is an opt-in setting.
+
+**NM1**: first vendor after exactly 25 serves; the first tea-stall ×2 (25 owned) reached in ≤ 10 min of active play by a first-timer; district move available by about the first hour (target 45-75 min); a 4 h-capped away summary.
+**SS1**: captain unlocked within ≤ 10 min; phase 2 within ≤ 30 min; the activity log records every completed route while away; warehouse cap enforced; the ending is reachable (a scripted fast-sim reaches it).
+**CS1**: first clerk after exactly 20 sales; second branch within about 1 h (target 40-80 min); no Wildbond roster content; move-town carries exactly one clerk.
+**DP1**: intern after exactly 15 waterings; first bloom in a session, or on return after the lamp; a 24 h lamp at 0.25 rate; cuttings formula matches the table (1e5→1, 8e5→2).
