@@ -6,8 +6,26 @@
   var M = window.LanternModel, V = window.LanternView;
   var $ = function (id) { return document.getElementById(id); };
   var canvas = $('field'), ctx = canvas.getContext('2d');
-  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.4', SAVE_V = 2;
+  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.5', SAVE_V = 2;
   var reduce = Settings.reduced();
+  var sideCam = null;
+  var STRIPS = [
+    'offence_skill_side_idle', 'offence_skill_side_run', 'offence_skill_side_throw', 'offence_skill_side_dive',
+    'defence_skill_side_idle', 'defence_skill_side_run', 'defence_skill_side_tackle',
+    'offence_line_side_idle', 'offence_line_side_run',
+    'defence_line_side_idle', 'defence_line_side_run', 'defence_line_side_tackle'
+  ];
+  function loadArt() {
+    STRIPS.forEach(function (name) {
+      var img = new Image();
+      img.onload = function () { V.drawPlayer.sprites[name + '.png'] = img; };
+      img.src = 'art/' + name + '.png';
+      var mask = new Image();
+      mask.onload = function () { V.drawPlayer.masks[name + '.png'] = mask; };
+      mask.src = 'art/' + name + '_mask.png';
+    });
+  }
+  loadArt();
 
   /* Older files climb: steps[1] turns a v1 save into v2, and so on, until SAVE_V.
      A file newer than this game is refused, so it is not reset into an older shape. */
@@ -145,7 +163,7 @@
     var again = save.match ? '<button type="button" data-continue>Continue the game</button>' : '';
     panel('Lamplight Field',
       '<p>The Brackenport Lanterns have Millrace under the lanterns. You call the offence. Their drives play out on the field.</p>' +
-      '<p>Two-minute quarters. Pick a play, then drag to throw. A short pull stays short. Swipe to juke, tap to dive.</p>' +
+      '<p>Two-minute quarters. Pick a play, then drag right to throw. A short pull stays short. Swipe to juke, tap to dive.</p>' +
       '<div class="actions"><button type="button" data-kick>Kick off</button>' + again + '</div>');
     dock();
   }
@@ -250,7 +268,7 @@
       if (kickNote) parts.push(kickNote);
     }
     var passLive = live && state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
-    if (passLive) parts.push('Drag up to throw. A short pull stays short.');
+    if (passLive) parts.push('Drag right to throw. A short pull stays short.');
     if (live) parts.push('Swipe to juke. Tap to dive.');
     return parts.join(' ');
   }
@@ -563,184 +581,87 @@
     }
   }
 
+  function uprightPhone() {
+    return !!(window.matchMedia && window.matchMedia('(max-aspect-ratio: 3/4)').matches);
+  }
+
   function resize() {
     var r = canvas.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (uprightPhone()) {
+      var slot = canvas.parentElement && canvas.parentElement.parentElement;
+      var avail = slot ? slot.getBoundingClientRect().width : r.width;
+      var cssScale = avail >= V.SIDE.w * 2 ? 2 : 1;
+      var cssW = V.SIDE.w * cssScale, cssH = V.SIDE.h * cssScale;
+      canvas.style.width = cssW + 'px';
+      canvas.style.height = cssH + 'px';
+      canvas.style.imageRendering = 'pixelated';
+      var k = Math.max(1, Math.round(window.devicePixelRatio || 1));
+      var bw = V.SIDE.w * cssScale * k, bh = V.SIDE.h * cssScale * k;
+      if (canvas.width !== bw || canvas.height !== bh) { canvas.width = bw; canvas.height = bh; }
+      return { w: cssW, h: cssH, dpr: k, scale: cssScale, upright: true };
+    }
+    if (canvas.style.width) {
+      canvas.style.width = '';
+      canvas.style.height = '';
+      canvas.style.imageRendering = '';
+    }
     var w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
     return { w: r.width, h: r.height, dpr: dpr };
   }
 
-  function strokeWorld(ax, ay, bx, by, cam, view, color, width) {
-    var a = V.project('behind', { x: ax, y: ay }, cam, view);
-    var b = V.project('behind', { x: bx, y: by }, cam, view);
-    if (!a || !b) return;
-    ctx.strokeStyle = color; ctx.lineWidth = width;
-    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  function updateCamera(dt) {
+    var play = state && state.play;
+    var live = !!(state && state.phase === 'live' && play);
+    var spot = live ? play.startSpot : (state ? state.spot : 25);
+    var ball = live && play.ball ? play.ball : { x: 0, y: 0 };
+    var family = 'pocket';
+    if (live && play.flight) family = 'air';
+    else if (live && (play.family === 'run' || play.didCatch)) family = 'run';
+    var qbX = spot;
+    var landX = spot;
+    if (live && play.flight) {
+      qbX = spot + play.flight.fromX;
+      landX = spot + play.flight.toX;
+    }
+    var focus = V.sideFocus({
+      family: family,
+      cut: !live,
+      spot: spot,
+      ballX: spot + ball.x,
+      qbX: qbX,
+      landX: landX
+    });
+    sideCam = V.stepSideCamera(sideCam, focus.target, dt, { chase: !!focus.chase, cut: !live });
   }
 
   function draw() {
     var box = resize();
+    var play = state && state.phase === 'live' ? state.play : null;
+    var paint = {
+      game: state,
+      play: play,
+      camX: sideCam ? sideCam.x : (state ? state.spot : 25),
+      aim: aimDrag,
+      reduced: reduce
+    };
+    if (box.upright) {
+      var mul = box.scale * box.dpr;
+      ctx.setTransform(mul, 0, 0, mul, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+      V.paintMatch(ctx, paint);
+      return;
+    }
+    var scale = Math.max(0.01, Math.min(box.w / V.SIDE.w, box.h / V.SIDE.h));
+    var ox = (box.w - V.SIDE.w * scale) / 2;
+    var oy = (box.h - V.SIDE.h * scale) / 2;
     ctx.setTransform(box.dpr, 0, 0, box.dpr, 0, 0);
     ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = '#1b2438'; ctx.fillRect(0, 0, box.w, box.h);
-    var view = { w: box.w, h: box.h };
-    var play = state && state.play;
-    var focus = play ? play.actors[play.carrier] : { x: 0, y: 0 };
-    var origin = state ? (play ? play.startSpot : state.spot) : 25;
-    var ballLocal = play && play.flight ? play.flight : focus;
-    var cam = V.followBall({ x: origin + (ballLocal.x || 0), y: ballLocal.y || 0 });
-    function at(x, y) { return V.project('behind', { x: origin + x, y: y }, cam, view); }
-    function atAbs(x, y) { return V.project('behind', { x: x, y: y }, cam, view); }
-    var offence = state ? (play ? play.offence : state.possession) : 'home';
-    var sky = ctx.createLinearGradient(0, 0, 0, box.h * 0.45);
-    sky.addColorStop(0, '#243456'); sky.addColorStop(1, '#6a4a52');
-    ctx.fillStyle = sky; ctx.fillRect(0, 0, box.w, box.h * 0.42);
-
-    for (var abs = 0; abs <= 100; abs += 5) {
-      if (Math.abs(abs - cam.x) > 36) continue;
-      var near = atAbs(abs, -26), far = atAbs(abs + 5, -26), farR = atAbs(abs + 5, 26), nearR = atAbs(abs, 26);
-      if (!near || !far || !farR || !nearR) continue;
-      ctx.fillStyle = (abs / 5) % 2 ? '#1f6b3c' : '#257445';
-      ctx.beginPath(); ctx.moveTo(near.x, near.y); ctx.lineTo(far.x, far.y); ctx.lineTo(farR.x, farR.y); ctx.lineTo(nearR.x, nearR.y); ctx.closePath(); ctx.fill();
-      if (abs % 10 === 0) {
-        ctx.fillStyle = '#f6edd4';
-        ctx.font = '12px ui-monospace, monospace';
-        ctx.textAlign = 'center';
-        var shown = abs <= 50 ? abs : 100 - abs;
-        ctx.fillText(String(shown), near.x, near.y - 4);
-      }
-    }
-    [-26, 26].forEach(function (y) { strokeWorld(Math.max(0, cam.x - 16), y, Math.min(100, cam.x + 30), y, cam, view, '#f2d080', 2); });
-    if (state) {
-      var los = at(0, 0);
-      if (los) strokeWorld(origin, -26, origin, 26, cam, view, '#7fb6ff', 2);
-      strokeWorld(origin + state.toGo, -26, origin + state.toGo, 26, cam, view, '#f2d080', 2);
-      if (Math.abs(100 - cam.x) < 40) strokeWorld(100, -26, 100, 26, cam, view, '#f6edd4', 3);
-    }
-    if (play) {
-      if ((play.family === 'run' || play.didCatch) && play.lanes) {
-        play.lanes.forEach(function (lane) {
-          var stateName = play.laneStates && play.laneStates[lane.id] ? play.laneStates[lane.id].state : 'open';
-          var near = at(0.3, lane.y), far = at(6.3, lane.y);
-          if (near && far) {
-            ctx.save();
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.imageSmoothingEnabled = false;
-            V.drawRunLane(ctx, { x0: near.x, y0: near.y, x1: far.x, y1: far.y, state: stateName, px: box.dpr });
-            ctx.restore();
-          }
-        });
-      }
-      if (play.family === 'pass' && !play.thrown && !play.flight) {
-        var qb = play.actors[play.carrier];
-        var pocketAt = qb && at(qb.x, qb.y);
-        if (pocketAt) {
-          ctx.save();
-          ctx.setTransform(1, 0, 0, 1, 0, 0);
-          ctx.imageSmoothingEnabled = false;
-          V.drawPocketRing(ctx, {
-            x: pocketAt.x, y: pocketAt.y, step: play.ringStep || 0, from: play.ringFrom || 0,
-            tween: play.ringTween == null ? 0.12 : play.ringTween, time: play.elapsed || 0, reduced: reduce,
-            px: box.dpr
-          });
-          ctx.restore();
-        }
-      }
-      var sprites = play.actors.map(function (a) {
-        var pt = at(a.x, a.y);
-        return { a: a, p: pt };
-      }).filter(function (s) { return s.p; }).sort(function (u, v) { return u.p.y - v.p.y; });
-      var carrier = play.actors[play.carrier];
-      var juking = !!(carrier && play.jukeUntil && play.elapsed < play.jukeUntil);
-      var diving = !!(carrier && (play.diving || (play.diveUntil && play.elapsed < play.diveUntil)));
-      sprites.forEach(function (s) {
-        var team = s.a.off ? state[play.offence] : state[play.offence === 'home' ? 'away' : 'home'];
-        var aimed = aimDrag && aimDrag.preview && aimDrag.preview.target === s.a;
-        var running = play.family === 'run' || play.didCatch || !s.a.off;
-        var poseName = 'idle';
-        if (s.a === carrier && diving) poseName = 'dive';
-        else if (s.a === carrier && juking) poseName = 'juke';
-        else if (running) poseName = Math.floor(play.elapsed * 6) % 2 ? 'run2' : 'run1';
-        V.drawPlayer(ctx, {
-          x: s.p.x, y: s.p.y, scale: s.p.scale, id: s.a.role || 'player', view: 'back', pose: poseName,
-          fill: team.color, outline: aimed ? '#f2d080' : M.teamOutline(team.color),
-          jukeDir: play.jukeDir || 1
-        });
-        if (s.a === carrier && (juking || diving || play.turboOn)) {
-          ctx.fillStyle = play.turboOn && !juking && !diving ? '#f2d080' : '#f6edd4';
-          ctx.font = '700 ' + Math.max(12, 13 * s.p.scale) + 'px ui-monospace, monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(juking ? 'Juke' : diving ? 'Dive' : 'Turbo', s.p.x, s.p.y - 28 * s.p.scale);
-          if (play.turboOn) {
-            ctx.strokeStyle = '#f2d080';
-            ctx.lineWidth = Math.max(2, 2 * s.p.scale);
-            ctx.beginPath();
-            ctx.moveTo(s.p.x - 8 * s.p.scale, s.p.y - 4 * s.p.scale);
-            ctx.lineTo(s.p.x - 20 * s.p.scale, s.p.y - 1 * s.p.scale);
-            ctx.moveTo(s.p.x - 6 * s.p.scale, s.p.y + 6 * s.p.scale);
-            ctx.lineTo(s.p.x - 18 * s.p.scale, s.p.y + 9 * s.p.scale);
-            ctx.stroke();
-          }
-        }
-        if (aimed) {
-          var mark = V.fitCircle(s.p, 16 * s.p.scale, view, 6);
-          ctx.strokeStyle = '#f2d080'; ctx.lineWidth = 3;
-          ctx.beginPath(); ctx.arc(mark.x, mark.y, Math.max(8, mark.r), 0, Math.PI * 2); ctx.stroke();
-        }
-      });
-      if (play.family === 'pass' && !play.thrown && carrier) {
-        var from = at(carrier.x, carrier.y);
-        if (from) {
-          var start = V.fitCircle(from, 14 * from.scale, view, 6);
-          ctx.strokeStyle = '#f6edd4'; ctx.lineWidth = 3;
-          ctx.beginPath(); ctx.arc(start.x, start.y, Math.max(7, start.r), 0, Math.PI * 2); ctx.stroke();
-          if (aimDrag && aimDrag.preview) {
-            var end = at(aimDrag.preview.x, aimDrag.preview.y) || { x: aimDrag.x, y: aimDrag.y, scale: 1 };
-            var tip = V.fitCircle(end, 8, view, 6);
-            ctx.strokeStyle = aimDrag.kind === 'bullet' ? '#f2d080' : '#d7ecff';
-            ctx.lineWidth = aimDrag.kind === 'bullet' ? 4 : 2;
-            ctx.setLineDash(aimDrag.kind === 'lob' ? [7, 6] : []);
-            ctx.beginPath();
-            ctx.moveTo(start.x, start.y);
-            if (aimDrag.kind === 'lob') ctx.quadraticCurveTo((start.x + tip.x) / 2, Math.min(start.y, tip.y) - 36, tip.x, tip.y);
-            else ctx.lineTo(tip.x, tip.y);
-            ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle = '#f6edd4';
-            ctx.font = '700 14px ui-monospace, monospace';
-            ctx.textAlign = 'center';
-            var labelAt = V.fitCircle({ x: (start.x + tip.x) / 2, y: (start.y + tip.y) / 2 - 16 }, 4, view, 8);
-            var yards = Math.max(0, Math.round(aimDrag.preview.x));
-            ctx.fillText((aimDrag.kind === 'bullet' ? 'Bullet' : 'Lob') + ' · ' + yards, labelAt.x, labelAt.y);
-          }
-        }
-      }
-      var ballAt = play.flight ? { x: play.flight.x, y: play.flight.y } : play.actors[play.carrier];
-      var ball = at(ballAt.x, ballAt.y);
-      if (ball) {
-        ctx.fillStyle = '#f2d080'; ctx.strokeStyle = '#1e1a22'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.ellipse(ball.x, ball.y, 4 * ball.scale, 2.4 * ball.scale, -0.4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      }
-    } else if (state) {
-      var off = state[offence], def = state[offence === 'home' ? 'away' : 'home'];
-      var standing = [
-        { off: true, x: -6, y: 0 }, { off: true, x: -1, y: 0 }, { off: true, x: 0, y: -10 }, { off: true, x: 0, y: 10 }, { off: true, x: 0, y: -3 },
-        { off: false, x: 1.4, y: -12 }, { off: false, x: 1.2, y: 0 }, { off: false, x: 1.4, y: 12 }, { off: false, x: 7, y: -4 }, { off: false, x: 8, y: 5 }
-      ];
-      standing.map(function (a) {
-        return { a: a, p: at(a.x, a.y), team: a.off ? off : def };
-      }).filter(function (s) { return s.p; }).sort(function (u, v) { return u.p.y - v.p.y; }).forEach(function (s) {
-        V.drawPlayer(ctx, {
-          x: s.p.x, y: s.p.y, scale: s.p.scale, id: s.a.off ? 'qb' : 'lb', view: 'back', pose: 'idle',
-          fill: s.team.color, outline: M.teamOutline(s.team.color)
-        });
-      });
-    }
-    if (!reduce) {
-      ctx.fillStyle = 'rgba(242, 208, 128, 0.08)';
-      var glow = V.fitCircle({ x: box.w * 0.5, y: 18 }, 70, view, 4);
-      ctx.beginPath(); ctx.arc(glow.x, glow.y, glow.r, 0, Math.PI * 2); ctx.fill();
-    }
+    ctx.fillStyle = '#141820';
+    ctx.fillRect(0, 0, box.w, box.h);
+    ctx.setTransform(box.dpr * scale, 0, 0, box.dpr * scale, box.dpr * ox, box.dpr * oy);
+    ctx.imageSmoothingEnabled = false;
+    V.paintMatch(ctx, paint);
   }
 
   function frame(now) {
@@ -773,6 +694,7 @@
         }
       }
     }
+    updateCamera(dt);
     hud();
     draw();
     requestAnimationFrame(frame);

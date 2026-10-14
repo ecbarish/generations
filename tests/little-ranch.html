@@ -36,7 +36,7 @@ document.querySelector('#run').onclick = async () => {
     const links = [...d.querySelectorAll('a[href]')];
     check('No links out: the only link is back to the arcade, inside the grown-up panel', links.length === 1 && new URL(links[0].href).origin === location.origin && /\/index\.html$/.test(links[0].href) && links[0].closest('#grown').hidden);
     check('No forms, frames, feedback buttons or outside scripts', !d.querySelector('form,iframe,input,[data-feedback],#feedback') && [...d.scripts].every(s => !s.src || new URL(s.src).origin === location.origin));
-    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.16.0');
+    check('The game starts in play, with one baby and nothing counted', S().mode === 'play' && S().acts === 0 && LR.VERSION === '0.18.0');
 
     // ---- big targets, away from the edges, on every screen
     for (const [width, height] of [[320, 568], [375, 812], [667, 375], [1366, 768], [1920, 1080], [3440, 1440]]) {
@@ -457,6 +457,71 @@ document.querySelector('#run').onclick = async () => {
     check('At night the ball only boings, and the baby sleeps on', S().mode === 'sleep' && S().wake === wakes && S().ball.kicks === 3);
     LR.prefs.sound = false; const quietBall = LR.words.length, quietTones = LR.tones; LR.newVisit(); tap(LR.ballNow());
     check('With the sound off, the ball is quiet', LR.words.length === quietBall && LR.tones === quietTones);
+    // ---- LR17: the Busy Barn Door
+    LR.prefs.sound = true;
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180], [1920, 1080]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const sc = LR.scale, r = cv.getBoundingClientRect(), D = L().door, gs = LR.GADGETS.map(k => D.g[k]), sp = gs.map(q => LR.toScreen(q));
+      check(`${width}×${height}: the barn-door sign is its own tap and the other signs still are; the door's five things are 64 px+, apart and on screen`, LR.ranchTarget(L().dsign) === 'dsign' && ['sign', 'wsign', 'ksign'].every(k => LR.ranchTarget(L()[k]) === k) && D.gr * 2 * sc >= 64 && sp.every((q, i) => q.x - D.gr * sc > r.left && q.x + D.gr * sc < r.right && q.y > r.top && q.y < r.bottom && sp.every((o, j) => i === j || Math.hypot(q.x - o.x, q.y - o.y) >= D.gr * 1.6 * sc)) && Math.hypot(D.barn.x - D.g.bell.x, D.barn.y - D.g.bell.y) > D.barn.r * 1.15 + D.gr * 1.25);
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    { const D = () => L().door, Ds = () => S().door, g = k => D().g[k];
+      tap(L().dsign); check('Tapping the barn-door sign goes to the Busy Barn Door, shut, nothing played with yet', S().place === 'door' && Ds().phase === 'shut' && Object.keys(Ds().touched).length === 0);
+      LR.advance(LR.HINT_SECS + .5); check('Left alone, the first thing glows (the hint)', LR.hint() && LR.hint().name === 'gbell');
+      let t0 = LR.tones; tap(g('bell')); check('The bell rings at once (same moment, no waiting) and swings', LR.tones > t0 && Ds().hit.bell === S().t && Ds().touched.bell);
+      t0 = LR.tones; const lit = Ds().light; tap(g('switch')); check('The switch turns the lamp over the door on, at once', Ds().light === !lit && LR.tones > t0 && Ds().hit.switch === S().t);
+      tap(g('switch')); check('...and off again (any number of times, nothing wrong)', Ds().light === lit);
+      tap(g('latch')); check('The latch flips at once', Ds().latch === true && Ds().hit.latch === S().t);
+      check('Bell, switch and latch: the door is still shut, waiting for the rest (no count, no timer)', Ds().phase === 'shut');
+      const sp0 = Ds().spin, m0 = Ds().mill; tap(g('crank')); LR.advance(.3); check('The crank spins the windmill fast', Ds().spin > sp0 && Ds().mill - m0 > .3);
+      t0 = LR.tones; tap({ x: D().x, y: D().top + D().dh * .2 }); check('Knocking on the shut door: a knock-knock wiggle (never wrong)', S().t - Ds().knock < .1 && LR.tones > t0 && Ds().phase === 'shut');
+      const a17 = S().acts; tap(g('bolt')); check('The last one (the bolt) slides, and the door starts to swing open', Ds().bolt === true && Ds().phase === 'open');
+      LR.advance(LR.DOOR_OPEN_SECS + .2); check('Peekaboo: the baby peeks out with hearts', Ds().boo && S().fx.some(f => f.kind === 'heart'));
+      tap(g('bell')); check('The bell still rings while the door is open', S().t - Ds().hit.bell < .05 && Ds().phase === 'open');
+      LR.advance(LR.DOOR_END_SECS); check('...then back to the ranch: one happy thing, the baby walks home', S().place === 'ranch' && S().door === null && S().acts === a17 + 1);
+      // every order opens the door, and none gets stuck (taps repeated, any order)
+      const orders = [[0, 1, 2, 3, 4], [4, 3, 2, 1, 0], [2, 0, 4, 1, 3], [1, 1, 3, 3, 0, 2, 2, 4], [3, 4, 0, 0, 0, 1, 2]]; let allOpen = true;
+      for (const o of orders) { tap(L().dsign); o.forEach(i => tap(g(LR.GADGETS[i]))); allOpen = allOpen && Ds().phase === 'open'; LR.advance(LR.DOOR_END_SECS + .2); allOpen = allOpen && S().place === 'ranch'; }
+      check('Any order (and repeats) opens the door, and it always comes home', allOpen);
+      tap(L().dsign); tap(g('bell')); tap(D().barn); check('The barn picture goes home from the door at any time (no count)', S().place === 'ranch' && S().door === null);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t9 = LR.tones; tap(L().dsign); LR.GADGETS.forEach(k => tap(g(k))); LR.advance(LR.DOOR_END_SECS + .2);
+      check('With the sound off the barn door is silent', LR.tones === t9); LR.prefs.sound = mute;
+      LR.newVisit(); LR.bedtime(); tap(L().dsign); check('At bedtime the sign does not open the door (bedtime goes on)', S().place === 'ranch');
+    }
+    // ---- LR18: the Dough Table
+    LR.prefs.sound = true;
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180], [1920, 1080]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const sc = LR.scale, r = cv.getBoundingClientRect(), V = L().dough, lp = LR.toScreen(V.lump), cp = LR.toScreen(V.cutter);
+      check(`${width}×${height}: the dough sign is its own tap and the other signs still are; the lump and the cutter are 64 px+, apart and on screen`, LR.ranchTarget(L().tsign) === 'tsign' && ['sign', 'wsign', 'ksign', 'dsign'].every(k => LR.ranchTarget(L()[k]) === k) && V.lr * 2 * sc >= 64 && V.cr * 2 * sc >= 64 && [lp, cp].every(q => q.x > r.left && q.x < r.right && q.y < r.bottom) && cp.x - lp.x >= (V.lr * 1.5 + V.cr) * sc * .9);
+      // a forgiving drag on phone and tablet: a short wobbly rub that starts off the lump still rolls it
+      tap(L().tsign); LR.state.dough.goal = 1; LR.advance(.5); const a = { x: V.lump.x - V.lr * 1.9, y: V.lump.y + V.lr * .9 };
+      for (let i = 0; i < 3; i++) drag(i % 2 ? { x: a.x + V.lr * 1.7, y: a.y - V.lr * .4 } : a, i % 2 ? a : { x: a.x + V.lr * 1.7, y: a.y - V.lr * .4 }, 6);
+      LR.advance(.5); check(`${width}×${height}: a rough rub near (not on) the flat dough rolls it back into a ball`, S().dough.goal === 0 && S().dough.flat < .1);
+      tap(L().dough.barn);
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    { const V = () => L().dough, Dg = () => S().dough;
+      tap(L().tsign); check('Tapping the dough sign goes to the Dough Table: one round lump, nothing made yet', S().place === 'dough' && Dg().flat === 0 && Dg().stamps === 0);
+      LR.advance(LR.HINT_SECS + .5); check('Left alone, the lump glows (the hint)', LR.hint() && LR.hint().name === 'lump');
+      let t0 = LR.tones; tap(V().lump); check('Tapping the lump squishes it (at once, with a splat)', Dg().goal === 1 && LR.tones > t0);
+      LR.advance(.4); check('...flat as a pancake', Dg().flat === 1);
+      t0 = LR.tones; tap(V().lump); check('Tapping the flat dough again just boings (nothing wrong)', Dg().goal === 1 && LR.tones > t0);
+      drag({ x: V().lump.x - V().lr, y: V().lump.y }, { x: V().lump.x + V().lr, y: V().lump.y }, 6); check('Half a rub: still flat, rolling along', Dg().goal === 1 && Dg().roll > 0);
+      drag({ x: V().lump.x + V().lr, y: V().lump.y }, { x: V().lump.x - V().lr * 1.5, y: V().lump.y }, 8); LR.advance(.4); check('A bit more rubbing rolls it back into a ball', Dg().goal === 0 && Dg().flat === 0);
+      drag({ x: V().lump.x - V().lr, y: V().lump.y }, { x: V().lump.x + V().lr, y: V().lump.y }, 6); check('Rolling the ball just wobbles it (nothing wrong)', Dg().goal === 0);
+      t0 = LR.tones; tap(V().cutter); check('Tapping the cutter: it hops over at once', Dg().stamp && LR.tones > t0);
+      tap(V().cutter); check('A tap while it is stamping is just a note (nothing queued)', Dg().stamps === 0);
+      LR.advance(LR.STAMP_SECS * .5); check('...it stamps out a little dough baby (the ball squishes flat under it)', Dg().stamps === 1 && Dg().hops.length === 1 && Dg().goal === 1);
+      LR.advance(1); const x1 = Dg().hops[0] && Dg().hops[0].at; LR.advance(.2); check('...that hops away with hearts', S().fx.some(f => f.kind === 'heart') || x1 !== undefined);
+      const a18 = S().acts; tap(V().cutter); LR.advance(LR.STAMP_SECS + .1); tap(V().cutter); LR.advance(LR.STAMP_SECS + .1);
+      check(`${LR.DOUGH_BABIES} little babies: a happy cheer`, Dg() && Dg().phase === 'done' && Dg().stamps === LR.DOUGH_BABIES);
+      LR.advance(LR.DOUGH_END_SECS + .1); check('...then back to the ranch: one happy thing, the baby walks home', S().place === 'ranch' && S().dough === null && S().acts === a18 + 1);
+      tap(L().tsign); tap(V().cutter); tap(V().barn); check('The barn picture goes home from the table at any time, even mid-stamp (no count)', S().place === 'ranch' && S().dough === null);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t9 = LR.tones; tap(L().tsign); tap(V().lump); tap(V().cutter); LR.advance(1); tap(V().barn);
+      check('With the sound off the Dough Table is silent', LR.tones === t9); LR.prefs.sound = mute;
+      LR.newVisit(); LR.bedtime(); tap(L().tsign); check('At bedtime the dough sign does not open the table (bedtime goes on)', S().place === 'ranch');
+    }
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);

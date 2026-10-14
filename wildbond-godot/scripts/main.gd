@@ -919,6 +919,16 @@ func _unhandled_input(e: InputEvent) -> void:
 		sfx.on = not sfx.on                      # N: sound effects on or off
 		get_viewport().set_input_as_handled()
 		return
+	if e is InputEventScreenTouch:
+		# Normally Godot sends the emulated mouse press first. Let that existing path
+		# advance once; accepting its touch too would skip another line (or the first
+		# line after signing/choosing). Native touch also works when emulation is off;
+		# mouse-to-touch test events are duplicates of an already handled click too.
+		var covered := lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or turn_card.visible
+		if not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION and e.pressed and not covered and not lines.is_empty():
+			advance()
+			get_viewport().set_input_as_handled()
+		return
 	var want_book: bool = Controls.pressed(e, "open_book") or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and satchel.visible and satchel.get_global_rect().has_point(satchel.get_global_mouse_position()))
 	if lessons.visible: return
 	if want_book and stage == "free" and lines.is_empty() and not battle.visible and not shop.visible and not book.visible:
@@ -2006,53 +2016,67 @@ func _draw_veg(o: Vector2, x: int, y: int, winter: bool) -> void:
 
 ## A woodland pond's edge: a dark muddy bank instead of a beach, rounded where two banks meet, with reeds standing in
 ## the shallows and now and then a flat stone. Draws over the water tile's edges only; the water itself stays.
+## WB-C4b (art review): the bank is BANK px wide (one more on the south side, the side you see), bulges BULGE px into the
+## water, and a corner tile keeps only a quarter circle of water BANK_CORNER px in radius, so the pond's outline breaks
+## the box at play zoom.
+const BANK := 3
+const BULGE := [2, 3]
+const BANK_CORNER := 13
 func _draw_bank(x: int, y: int, o: Vector2) -> void:
 	var wet := func(dx: int, dy: int) -> bool: return tile_at(Vector2i(x + dx, y + dy)) in ["~", "j", "q", "b"]
 	var deep := Color("2f5f7e")
 	var sides := { Vector2i.UP: not wet.call(0, -1), Vector2i.DOWN: not wet.call(0, 1), Vector2i.LEFT: not wet.call(-1, 0), Vector2i.RIGHT: not wet.call(1, 0) }
+	var b := BANK
 	if sides[Vector2i.UP]:
-		draw_rect(Rect2(o, Vector2(16, 2)), BARK[1]); draw_rect(Rect2(o + Vector2(0, 2), Vector2(16, 1)), deep)
+		draw_rect(Rect2(o, Vector2(16, b)), BARK[1]); draw_rect(Rect2(o + Vector2(0, b), Vector2(16, 1)), deep)
 	if sides[Vector2i.DOWN]:
-		draw_rect(Rect2(o + Vector2(0, 13), Vector2(16, 3)), BARK[1]); draw_rect(Rect2(o + Vector2(0, 13), Vector2(16, 1)), BARK[2]); draw_rect(Rect2(o + Vector2(0, 12), Vector2(16, 1)), deep)
+		draw_rect(Rect2(o + Vector2(0, 15 - b), Vector2(16, b + 1)), BARK[1]); draw_rect(Rect2(o + Vector2(0, 15 - b), Vector2(16, 1)), BARK[2]); draw_rect(Rect2(o + Vector2(0, 14 - b), Vector2(16, 1)), deep)
 	if sides[Vector2i.LEFT]:
-		draw_rect(Rect2(o, Vector2(2, 16)), BARK[1]); draw_rect(Rect2(o + Vector2(2, 0), Vector2(1, 16)), deep)
+		draw_rect(Rect2(o, Vector2(b, 16)), BARK[1]); draw_rect(Rect2(o + Vector2(b, 0), Vector2(1, 16)), deep)
 	if sides[Vector2i.RIGHT]:
-		draw_rect(Rect2(o + Vector2(14, 0), Vector2(2, 16)), BARK[0]); draw_rect(Rect2(o + Vector2(13, 0), Vector2(1, 16)), deep)
-	# a bank isn't ruled straight: it bulges a pixel or two here and there along each side
+		draw_rect(Rect2(o + Vector2(16 - b, 0), Vector2(b, 16)), BARK[0]); draw_rect(Rect2(o + Vector2(15 - b, 0), Vector2(1, 16)), deep)
+	# a bank isn't ruled straight: on two sides in three it bulges two or three pixels out into the water
 	var h := _hash(x, y, 2)
-	if sides[Vector2i.UP] and h % 3 == 0:
-		draw_rect(Rect2(o + Vector2(3 + h % 7, 2), Vector2(5, 1)), BARK[1])
-	if sides[Vector2i.DOWN] and h % 3 == 1:
-		draw_rect(Rect2(o + Vector2(2 + h % 8, 12), Vector2(6, 1)), BARK[1])
-	if sides[Vector2i.LEFT] and h % 3 == 2:
-		draw_rect(Rect2(o + Vector2(2, 4 + h % 6), Vector2(1, 5)), BARK[1])
-	if sides[Vector2i.RIGHT] and h % 3 == 0:
-		draw_rect(Rect2(o + Vector2(13, 3 + h % 7), Vector2(1, 6)), BARK[0])
-	# round the corners where two banks meet: fill the outside of a quarter circle with bank
-	var rad := 9
-	for c in [[Vector2i.UP, Vector2i.LEFT, Vector2(0, 0), Vector2(1, 1)], [Vector2i.UP, Vector2i.RIGHT, Vector2(16, 0), Vector2(-1, 1)],
-			[Vector2i.DOWN, Vector2i.LEFT, Vector2(0, 16), Vector2(1, -1)], [Vector2i.DOWN, Vector2i.RIGHT, Vector2(16, 16), Vector2(-1, -1)]]:
+	var bulge: int = BULGE[h % 2]
+	var at_ := 3 + h % 5                                  # where along the side it starts
+	var long := 5 + (h >> 3) % 4                          # and how far it runs
+	if sides[Vector2i.UP] and h % 3 != 2:
+		draw_rect(Rect2(o + Vector2(at_, b), Vector2(long, bulge)), BARK[1]); draw_rect(Rect2(o + Vector2(at_, b + bulge), Vector2(long, 1)), deep)
+	if sides[Vector2i.DOWN] and h % 3 != 0:
+		draw_rect(Rect2(o + Vector2(at_, 14 - b - bulge), Vector2(long, bulge + 1)), BARK[1]); draw_rect(Rect2(o + Vector2(at_, 14 - b - bulge), Vector2(long, 1)), deep)
+	if sides[Vector2i.LEFT] and h % 3 != 1:
+		draw_rect(Rect2(o + Vector2(b, at_), Vector2(bulge, long)), BARK[1]); draw_rect(Rect2(o + Vector2(b + bulge, at_), Vector2(1, long)), deep)
+	if sides[Vector2i.RIGHT] and h % 3 != 2:
+		draw_rect(Rect2(o + Vector2(16 - b - bulge, at_), Vector2(bulge, long)), BARK[0]); draw_rect(Rect2(o + Vector2(15 - b - bulge, at_), Vector2(1, long)), deep)
+	# a corner tile, where two banks meet, is mostly bank: its water is a quarter circle around the tile's inner corner,
+	# meeting the next tiles' banks, so the pond's outline steps in by most of a tile there instead of keeping the box
+	var rad := BANK_CORNER
+	for c in [[Vector2i.UP, Vector2i.LEFT, Vector2(16, 16)], [Vector2i.UP, Vector2i.RIGHT, Vector2(0, 16)],
+			[Vector2i.DOWN, Vector2i.LEFT, Vector2(16, 0)], [Vector2i.DOWN, Vector2i.RIGHT, Vector2(0, 0)]]:
 		if sides[c[0]] and sides[c[1]]:
-			for i in rad:
-				for j in rad:
-					var d := Vector2(rad - i, rad - j).length()
-					var px: Vector2 = o + c[2] + Vector2(i, j) * c[3] - Vector2(c[3].x < 0, c[3].y < 0)
+			for i in 16:
+				for j in 16:
+					var d := (Vector2(i, j) + Vector2(0.5, 0.5)).distance_to(c[2])
 					if d > rad:
-						draw_rect(Rect2(px, Vector2.ONE), BARK[1])
+						draw_rect(Rect2(o + Vector2(i, j), Vector2.ONE), BARK[1])
 					elif d > rad - 1.0:
-						draw_rect(Rect2(px, Vector2.ONE), deep)
-	# reeds in the shallows along each bank, swaying a little
-	var sway := sin(t * 1.3 + y * 0.9 + x) * 0.7
+						draw_rect(Rect2(o + Vector2(i, j), Vector2.ONE), deep)
+	# reeds in the shallows along each bank, swaying a whole pixel at a time (no sub-pixel shimmer)
+	var sway := Vector2(reed_sway(x, y, t), 0)
 	for side in sides:
 		if not sides[side]:
 			continue
 		var at: Vector2 = o + Vector2(8, 8) + Vector2(side) * 4.0 + (Vector2(h % 5 - 2, 0) if side.y != 0 else Vector2(0, h % 5 - 2))
 		for k in 2 + h % 2:
 			var off := Vector2((k - 1) * 3.0, 0) if side.y != 0 else Vector2(0, (k - 1) * 3.0)   # along the bank
-			var p: Vector2 = at + off + Vector2(sway, 0)
+			var p: Vector2 = at + off + sway
 			draw_rect(Rect2(p + Vector2(0, -4), Vector2(1, 6)), LEAF[1 + k % 2])
 			if k == 1 and h % 2:
 				draw_rect(Rect2(p + Vector2(0, -6), Vector2(1, 2)), BARK[0])        # a cattail head
+
+## How far a pond's reeds lean at time tt: -1, 0 or 1 whole pixels.
+static func reed_sway(x: int, y: int, tt: float) -> int:
+	return roundi(sin(tt * 1.3 + y * 0.9 + x))
 
 ## Water (Wildbond's own water tiles, tools/paint_tiles.gd): open water with now and then a lily pad or a glint, and a sandy shore with a dark
 ## edge drawn wherever the water meets land.
