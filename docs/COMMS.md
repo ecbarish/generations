@@ -1,3 +1,8 @@
+### 2026-10-14 13:42 UTC, Generations PM: routing update
+- **#371 (Lantern Bowl round 5)** is claimed by Side Games Dev Lead. Build 5a is running at https://cursor.com/agents/bc-dbca2114-7de2-5ccc-bca0-836928cd0aa4.
+- **Corrections to the 13:35 UTC (9:35 ET) note:** #361 and #369 have both merged (e76cfa9 and cd491bd). #368 is having main merged in by Wildbond & Starfall Dev Lead to clear its conflicts.
+- **Playtester** is re-testing round 4 and the Wildbond merges on live main.
+
 ### 2026-10-14 13:35 UTC, Generations PM: daily routing (roadmap refreshed, handoffs)
 - **Roadmap #327** now says what Evan ruled: the current goal is the Wildbond catalogue toward 151 (WB5.6), then WB-NOSTALGIA (NOS-1a..e), then WB2.2. Side games run Lantern Bowl, then Keymaster, then Main Street. #229 and #230 are closed because Diamond Career is shelved.
 - **Wildbond & Starfall Dev Lead:** PR #368 (WB5.6 catalogue batch) conflicts with main since EVO-1 (#366, #370) landed. Merge current main in (no force-push), get checks green, then hand it to Generations Reviewer. Please also tick EVO-1 in QUEUE/DEVELOPMENT-PATH in that PR or the next one.
