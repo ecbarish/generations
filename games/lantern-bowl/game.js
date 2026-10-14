@@ -373,10 +373,21 @@
   function passPocket() {
     return !!(state && state.play && state.phase === 'live' && state.play.family === 'pass' && !state.play.thrown && !state.play.flight);
   }
-  function fieldIsVertical() {
-    var rect = canvas.getBoundingClientRect();
-    var layout = V.layoutFor(rect.width, rect.height);
-    return !!(layout && layout.vertical);
+  function turnedAway() {
+    return !!(V.phoneTurn && V.phoneTurn(window.innerWidth, window.innerHeight));
+  }
+  function paintTurn() {
+    var card = $('turn');
+    var on = turnedAway();
+    if (card) card.hidden = !on;
+    if (on) {
+      gesture = null;
+      aimDrag = null;
+      stick = null;
+      steer = 0;
+      turboHeld = false;
+    }
+    return on;
   }
   function toggleThrowKind() {
     throwKind = throwKind === 'lob' ? 'bullet' : 'lob';
@@ -387,7 +398,7 @@
   }
 
   function armGesture(x, y, id) {
-    if (!state) return;
+    if (turnedAway() || !state) return;
     if (state.phase === 'call' && state.possession === 'home') { prompt('Pick a play first.'); return; }
     if (state.phase !== 'live' || mode === 'watch') return;
     gesture = { x: x, y: y, t: performance.now(), id: id };
@@ -412,7 +423,7 @@
     if (!pass) { aimDrag = null; stick = null; return; }
     var rect = canvas.getBoundingClientRect();
     var pull = V.classifyPull(Math.hypot(dx, dy));
-    var dir = V.dragToField(dx, dy, fieldIsVertical());
+    var dir = V.dragToField(dx, dy);
     var preview = M.slingAim(state.play, { dirX: dir.dirX, dirY: dir.dirY, power: pull.power, kind: throwKind });
     var qb = state.play.actors[state.play.carrier];
     var held = (performance.now() - gesture.t) / 1000;
@@ -435,7 +446,7 @@
     var dist = Math.hypot(dx, dy), quick = performance.now() - gesture.t < 320;
     var pass = state.play && state.play.family === 'pass' && !state.play.thrown && !state.play.flight;
     if (pass && dist > 22) {
-      var pull = V.classifyPull(dist), dir = V.dragToField(dx, dy, fieldIsVertical());
+      var pull = V.classifyPull(dist), dir = V.dragToField(dx, dy);
       queued.throw = {
         dirX: dir.dirX, dirY: dir.dirY, power: pull.power, kind: throwKind,
         sling: true, autoAim: false, held: (performance.now() - gesture.t) / 1000
@@ -595,6 +606,7 @@
   }
 
   window.addEventListener('keydown', function (e) {
+    if (turnedAway()) return;
     if (e.target.closest && e.target.closest('input,button,a,select,textarea,.arc-set-bg')) return;
     var k = e.key.toLowerCase();
     if (k === 'p' || k === 'escape') { e.preventDefault(); togglePause(); return; }
@@ -851,6 +863,12 @@
   function frame(now) {
     var dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
     last = now;
+    if (paintTurn()) {
+      hud();
+      draw();
+      requestAnimationFrame(frame);
+      return;
+    }
     if (mode === 'play' && state && state.phase === 'live' && !document.hidden) {
       if (state.play) lastSheet = snapLine(state);
       M.step(state, reduce ? Math.min(dt, 0.02) : dt, readGesture());

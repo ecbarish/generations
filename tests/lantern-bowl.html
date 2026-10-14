@@ -106,14 +106,14 @@ document.querySelector('#run').onclick = async () => {
     check('a defender within 2.6 yards contests the catch', onContest.contested === true && onContest.yards === 2.6 && offContest.contested === false);
     check('a pick needs the defender closer to the ball than the receiver', closerDef.closer === true && fartherDef.closer === false && fartherDef.contested === true);
     check('separation paints an openness ring', M.opennessBand(1.2) === 'covered' && M.opennessBand(3.4) === 'window' && M.opennessBand(6) === 'open');
-    const tallField = V.layoutFor(390, 844), wideField = V.layoutFor(844, 390);
-    const portraitThrow = V.dragToField(0, 48, true);
-    check('portrait is a vertical field with a thin score strip', !!tallField && tallField.vertical === true && tallField.h > tallField.w && tallField.top >= 16 && tallField.top <= 20 && wideField.vertical === false && wideField.top >= 16 && wideField.top <= 20);
-    const fitted = V.fitLayout(390, 700);
-    check('the picture scales by a whole number and fills the box', !!fitted && fitted.scale === Math.floor(fitted.scale) && fitted.scale >= 1 && fitted.w * fitted.scale <= 390 && fitted.h * fitted.scale <= 700 && fitted.w * fitted.scale >= 390 - fitted.scale);
+    const wideField = V.layoutFor(844, 390), desktopField = V.layoutFor(1024, 594);
+    check('a phone held upright waits for landscape', V.phoneTurn(390, 844) === true && V.phoneTurn(360, 780) === true && V.phoneTurn(844, 390) === false && V.phoneTurn(780, 360) === false && V.phoneTurn(1024, 594) === false);
+    check('the field stays side-on, with a thin score strip', !!wideField && !wideField.vertical && wideField.w > wideField.h && wideField.top >= 16 && wideField.top <= 20 && !!desktopField && !desktopField.vertical && desktopField.top >= 16 && desktopField.top <= 20);
+    const fittedPhone = V.fitLayout(844, 390), fittedNarrow = V.fitLayout(780, 360), fittedDesk = V.fitLayout(1024, 594);
+    const fills = (fitted, boxW, boxH) => !!fitted && fitted.scale === Math.floor(fitted.scale) && fitted.scale >= 1 && !fitted.vertical && fitted.w * fitted.scale <= boxW && fitted.h * fitted.scale <= boxH && fitted.w * fitted.scale >= boxW - fitted.scale && fitted.h * fitted.scale >= boxH - fitted.scale;
+    check('the picture scales by a whole number and fills the box', fills(fittedPhone, 844, 390) && fills(fittedNarrow, 780, 360) && fills(fittedDesk, 1024, 594));
     const openMark = V.opennessMark('open'), windowMark = V.opennessMark('window'), coveredMark = V.opennessMark('covered');
     check('openness marks differ by shape, with a light open ring', openMark.shape !== windowMark.shape && windowMark.shape !== coveredMark.shape && openMark.color === '#f6edd4' && openMark.outline === '#1e1a22' && coveredMark.shape === 'dotted');
-    check('in portrait a pull down the screen throws upfield', portraitThrow.dirX > 0.9 && Math.abs(portraitThrow.dirY) < 0.1);
     let openCatches = 0, tightPicks = 0, tightDrops = 0, trials = 1600, rollState = 5;
     const nextRoll = () => { rollState = (Math.imul(rollState, 1664525) + 1013904223) >>> 0; return rollState / 4294967296; };
     for (let i = 0; i < trials; i++) if (M.arriveOutcome(nextRoll, { tight: false }) === 'catch') openCatches += 1;
@@ -568,6 +568,8 @@ document.querySelector('#run').onclick = async () => {
 
     frame = document.createElement('iframe');
     frame.title = 'Lantern Bowl test instance';
+    frame.style.width = '844px';
+    frame.style.height = '390px';
     frame.src = '../games/lantern-bowl/index.html';
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(Error('load timed out')), 20000);
@@ -594,6 +596,8 @@ document.querySelector('#run').onclick = async () => {
     frame.remove();
     frame = document.createElement('iframe');
     frame.title = 'Lantern Bowl resume';
+    frame.style.width = '844px';
+    frame.style.height = '390px';
     frame.src = '../games/lantern-bowl/index.html';
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(Error('reload timed out')), 20000);
@@ -627,7 +631,26 @@ document.querySelector('#run').onclick = async () => {
     const liveHint = d2.querySelector('#hint').textContent || '';
     check('during a run the play cards are gone', liveHint.indexOf('Pull back to throw') < 0 && liveHint.indexOf('fourth down') < 0);
     check('a live play has no action buttons', d2.querySelector('#turbo').hidden && d2.querySelector('#receivers').hidden && d2.querySelectorAll('#dock button, #receivers button').length === 0);
-    check('the page does not ask you to rotate', (d2.body.textContent || '').toLowerCase().indexOf('rotate your') < 0);
+    check('a landscape phone does not ask you to turn', d2.querySelector('#turn').hidden);
+    frame.style.width = '390px'; frame.style.height = '844px';
+    await wait();
+    const pausedClock = w2.__lantern.state.clock;
+    const pausedBall = w2.__lantern.state.play.ball.x;
+    const turnCard = d2.querySelector('#turn');
+    const turnBox = turnCard.getBoundingClientRect();
+    await wait();
+    await wait();
+    check('a portrait phone asks you to turn it sideways and pauses the snap', !turnCard.hidden && (turnCard.textContent || '').indexOf('Turn your phone sideways') >= 0 && turnCard.querySelector('svg') && turnBox.width >= 388 && turnBox.height >= 800 && w2.__lantern.state.phase === 'live' && w2.__lantern.state.clock === pausedClock && w2.__lantern.state.play.ball.x === pausedBall);
+    frame.style.width = '844px'; frame.style.height = '390px';
+    await wait();
+    const resumeBall = w2.__lantern.state.play.ball.x;
+    let resumedMove = false;
+    const resumeWatch = performance.now();
+    while (performance.now() - resumeWatch < 1500 && !resumedMove) {
+      await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
+      resumedMove = w2.__lantern.state.phase === 'live' && Math.abs(w2.__lantern.state.play.ball.x - resumeBall) > 0.2;
+    }
+    check('turning the phone sideways resumes the same snap', d2.querySelector('#turn').hidden && resumedMove);
     w2.__lantern.finishLive();
     await wait();
     const carried = d2.querySelector('#sheet');
@@ -662,59 +685,53 @@ document.querySelector('#run').onclick = async () => {
     w2.__lantern.refresh();
     await wait();
 
-    for (const [width, height] of [[375, 812], [400, 700], [420, 780], [667, 375], [1366, 768]]) {
+    for (const [width, height] of [[375, 812], [390, 844], [420, 780]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px';
+      await wait();
+      const turn = d2.querySelector('#turn');
+      const box = turn.getBoundingClientRect();
+      check(width + '×' + height + ' asks you to turn the phone sideways', !turn.hidden && (turn.textContent || '').indexOf('Turn your phone sideways') >= 0 && box.width >= width - 2 && box.height >= height - 8 && d2.documentElement.scrollWidth <= width + 1 && d2.documentElement.scrollHeight <= height + 1);
+    }
+    for (const [width, height] of [[780, 360], [844, 390], [1024, 594], [1366, 768]]) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px';
       await wait();
       const pitch = d2.querySelector('.pitch').getBoundingClientRect();
       const cards = Array.from(d2.querySelectorAll('#dock button'));
-      check(width + '×' + height + ' stays on the screen', d2.documentElement.scrollWidth <= width + 1 && d2.documentElement.scrollHeight <= height + 1);
+      const hud = d2.querySelector('.hud').getBoundingClientRect();
+      check(width + '×' + height + ' stays on the screen', d2.querySelector('#turn').hidden && d2.documentElement.scrollWidth <= width + 1 && d2.documentElement.scrollHeight <= height + 1);
       check(width + '×' + height + ' field fills most of the screen', pitch.height >= height * 0.62 && pitch.width >= width * 0.85);
-      check(width + '×' + height + ' play buttons are thumb sized', Array.from(d2.querySelectorAll('#dock button, #settingsMount button, .home')).every(b => b.getBoundingClientRect().height >= 40));
+      check(width + '×' + height + ' keeps a thin score strip', hud.height >= 16 && hud.height <= 20);
+      check(width + '×' + height + ' play buttons are thumb sized', Array.from(d2.querySelectorAll('#dock button, #settingsMount button, .home')).every(b => b.getBoundingClientRect().height >= 44 && b.getBoundingClientRect().width >= 44));
       check(width + '×' + height + ' call is two or three plays along the bottom', cards.length >= 2 && cards.length <= 3 && cards[0].getBoundingClientRect().top > pitch.top + pitch.height * 0.55);
-      if (width === 400) {
+      if (width === 844) {
         const boxes = [d2.querySelector('h1'), d2.querySelector('.home'), d2.querySelector('#settingsMount button')].map(el => el.getBoundingClientRect());
         const mids = boxes.map(r => (r.top + r.bottom) / 2);
-        check('the 400px header stays on one line', d2.querySelector('header').getBoundingClientRect().height < 72 && Math.max.apply(null, mids) - Math.min.apply(null, mids) < 8);
+        check('the landscape header stays on one line', d2.querySelector('header').getBoundingClientRect().height < 72 && Math.max.apply(null, mids) - Math.min.apply(null, mids) < 8);
         const titleEl = d2.querySelector('h1');
-        check('the 400px title reads Lantern Bowl', titleEl.textContent === 'Lantern Bowl' && titleEl.scrollWidth <= titleEl.clientWidth + 1);
+        check('the landscape title reads Lantern Bowl', titleEl.textContent === 'Lantern Bowl' && titleEl.scrollWidth <= titleEl.clientWidth + 1);
+        const home = d2.querySelector('.home'), gear = d2.querySelector('.arc-set-btn'), sound = d2.querySelector('#sound');
+        const homeBox = home.getBoundingClientRect(), gearBox = gear.getBoundingClientRect(), soundBox = sound.getBoundingClientRect();
+        check('on a landscape phone Arcade, Settings and Sound stay whole', home.textContent.indexOf('Arcade') >= 0 && gear.textContent.indexOf('Settings') >= 0 && sound.textContent.indexOf('Sound') >= 0 && home.scrollWidth <= home.clientWidth + 2 && gear.scrollWidth <= gear.clientWidth + 2 && sound.scrollWidth <= sound.clientWidth + 2 && soundBox.height <= 52 && homeBox.top < 80 && gearBox.top < 80 && gearBox.width >= 44 && gearBox.height >= 44 && homeBox.width >= 44 && soundBox.width >= 44);
+        const fieldWide = d2.querySelector('.pitch').getBoundingClientRect();
+        const callWide = d2.querySelector('#dock button').getBoundingClientRect();
+        check('on a landscape phone the call stays along the bottom of the field', callWide.top > fieldWide.top + fieldWide.height * 0.55 && callWide.bottom <= fieldWide.bottom + 1);
+        const banner = d2.querySelector('#banner');
+        banner.hidden = false; banner.textContent = 'The result sits low.';
+        const players = fieldWide.top + fieldWide.height * 0.45;
+        const bannerBox = banner.getBoundingClientRect();
+        check('on a landscape phone the result sits below the players', bannerBox.top > players);
+        banner.hidden = true; banner.textContent = '';
         resumed.down = 4;
         w2.__lantern.refresh();
         await wait();
         const fourthCards = Array.from(d2.querySelectorAll('[data-play]'));
-        check('at 400px fourth down still offers a short call', fourthCards.length >= 2 && fourthCards.length <= 3 && !!d2.querySelector('[data-play="kick"]'));
-        check('at 400px fourth down still fits', d2.documentElement.scrollWidth <= 401 && d2.documentElement.scrollHeight <= 701);
+        check('on a landscape phone fourth down still offers a short call', fourthCards.length >= 2 && fourthCards.length <= 3 && !!d2.querySelector('[data-play="kick"]'));
+        check('on a landscape phone fourth down still fits', d2.documentElement.scrollWidth <= width + 1 && d2.documentElement.scrollHeight <= height + 1);
         resumed.down = 1;
         w2.__lantern.refresh();
         await wait();
       }
-      if (width === 420) {
-        const home = d2.querySelector('.home'), gear = d2.querySelector('.arc-set-btn'), sound = d2.querySelector('#sound');
-        const homeBox = home.getBoundingClientRect(), gearBox = gear.getBoundingClientRect(), soundBox = sound.getBoundingClientRect();
-        check('at 420px Arcade, Settings and Sound stay whole', home.textContent.indexOf('Arcade') >= 0 && gear.textContent.indexOf('Settings') >= 0 && sound.textContent.indexOf('Sound') >= 0 && home.scrollWidth <= home.clientWidth + 2 && gear.scrollWidth <= gear.clientWidth + 2 && sound.scrollWidth <= sound.clientWidth + 2 && soundBox.height <= 52 && homeBox.top < 80 && gearBox.top < 80);
-        const field420 = d2.querySelector('.pitch').getBoundingClientRect();
-        const call420 = d2.querySelector('#dock button').getBoundingClientRect();
-        check('at 420px the call stays along the bottom of the field', call420.top > field420.top + field420.height * 0.55 && call420.bottom <= field420.bottom + 1);
-        const banner = d2.querySelector('#banner');
-        banner.hidden = false; banner.textContent = 'The result sits low.';
-        const players = field420.top + field420.height * 0.45;
-        const bannerBox = banner.getBoundingClientRect();
-        check('at 420px the result sits below the players', bannerBox.top > players);
-        banner.hidden = true; banner.textContent = '';
-      }
     }
-    frame.style.width = '360px'; frame.style.height = '700px';
-    await wait();
-    const build360 = d2.querySelector('#build').getBoundingClientRect();
-    const root360 = d2.documentElement.getBoundingClientRect();
-    check('at 360px the version stays on the page', build360.width > 24 && build360.height > 8 && build360.left >= root360.left - 1 && build360.right <= root360.right + 1 && build360.top >= root360.top - 1 && build360.bottom <= root360.bottom + 1 && (d2.querySelector('#build').textContent || '').indexOf('v') === 0);
-    const gear360 = d2.querySelector('.arc-set-btn').getBoundingClientRect();
-    const hud360 = d2.querySelector('.hud').getBoundingClientRect();
-    const down360 = d2.querySelector('#down');
-    const home360 = d2.querySelector('.home').getBoundingClientRect();
-    const sound360 = d2.querySelector('#sound').getBoundingClientRect();
-    check('at 360px Settings stays on the screen', gear360.right <= root360.right + 1 && gear360.left >= root360.left - 1 && gear360.width >= 44 && gear360.height >= 44 && d2.querySelector('.arc-set-btn').getAttribute('aria-label') === 'Settings');
-    check('at 360px the back arrow and Sound are a 44 pixel tap', home360.width >= 44 && home360.height >= 44 && sound360.width >= 44 && sound360.height >= 44 && home360.left >= root360.left - 1 && sound360.right <= root360.right + 1 && d2.documentElement.scrollWidth <= 361);
-    check('at 360px the score strip stays one line', hud360.height >= 16 && hud360.height <= 20 && down360.scrollHeight <= 20);
     frame.style.width = '375px'; frame.style.height = '812px';
     d2.documentElement.style.setProperty('--arc-text', '1');
     await wait();
@@ -726,6 +743,9 @@ document.querySelector('#run').onclick = async () => {
     check('B and U are drawn in the pixel font', V.GLYPH.B === '110,101,110,101,110' && V.GLYPH.U === '101,101,101,101,111');
     check('every word on the field has a glyph', V.FIELD_WORDS.every(word => V.missingGlyphs(word).length === 0));
     check('larger text stays on a phone', d2.documentElement.scrollWidth <= 376 && d2.documentElement.scrollHeight <= 813);
+    frame.style.width = '844px'; frame.style.height = '390px';
+    d2.documentElement.style.setProperty('--arc-text', '1');
+    await wait();
 
     const again = w2.__lantern;
     again.state.quarter = 4; again.state.clock = 3; again.state.down = 1; again.state.toGo = 10; again.state.spot = 40; again.state.possession = 'home'; again.state.phase = 'call';

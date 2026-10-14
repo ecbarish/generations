@@ -59,17 +59,10 @@
     return { power: power, kind: power < 0.42 ? 'bullet' : 'lob' };
   }
 
-  /* Pull back from anywhere. The throw goes the other way.
-     On the side field, right is downfield. In portrait, up the screen is downfield. */
-  function dragToField(dx, dy, vertical) {
-    var dirX, dirY;
-    if (vertical) {
-      dirX = Number(dy) || 0;
-      dirY = -(Number(dx) || 0);
-    } else {
-      dirX = -(Number(dx) || 0);
-      dirY = -(Number(dy) || 0);
-    }
+  /* Pull back from anywhere. The throw goes the other way. Right on the side field is downfield. */
+  function dragToField(dx, dy) {
+    var dirX = -(Number(dx) || 0);
+    var dirY = -(Number(dy) || 0);
     var mag = Math.hypot(dirX, dirY) || 1;
     return { dirX: dirX / mag, dirY: dirY / mag };
   }
@@ -83,27 +76,22 @@
     var t = clamp(Number(u) || 0, 0, 1);
     return Math.sin(t * Math.PI) * (kind === 'lob' ? 36 : 16);
   }
-  /* The picture matches the screen. Portrait turns the field vertical, offence moving up. Landscape stays side-on. */
+  /* The picture matches a landscape screen. The field stays side-on. */
   function layoutFor(cssW, cssH) {
     var w = Number(cssW) || 0, h = Number(cssH) || 0;
     if (w < 1 || h < 1) return null;
-    if (h > w * 1.15) {
-      var pictureW = 216;
-      var pictureH = Math.round(pictureW * h / w);
-      pictureH = Math.max(320, Math.min(pictureH, 560));
-      var span = pictureW - 8;
-      return {
-        w: pictureW, h: pictureH, yard: 12, top: 18, fieldH: span, widthY: SIDE.widthY,
-        anchor: Math.round(pictureH * 0.72), lead: 28, vertical: true
-      };
-    }
     var pictureH = SIDE.h;
     var pictureW = Math.round(pictureH * (w / h));
     pictureW = Math.max(SIDE.w, Math.min(pictureW, 760));
     return {
       w: pictureW, h: pictureH, yard: SIDE.yard, top: SIDE.top, fieldH: SIDE.fieldH,
-      widthY: SIDE.widthY, anchor: Math.round(pictureW * 0.28), lead: SIDE.lead, vertical: false
+      widthY: SIDE.widthY, anchor: Math.round(pictureW * 0.28), lead: SIDE.lead
     };
+  }
+  /* A phone held upright. Desktop sizes, and a phone already sideways, play the field. */
+  function phoneTurn(cssW, cssH) {
+    var w = Number(cssW) || 0, h = Number(cssH) || 0;
+    return h > w && w > 0 && w <= 520;
   }
   /* Whole-pixel scale. The picture then widens and grows so the field fills the box. */
   function fitLayout(cssW, cssH) {
@@ -115,20 +103,14 @@
     if (!(scale >= 1)) scale = 1;
     var fillW = Math.max(8, Math.floor(w / scale));
     var fillH = Math.max(8, Math.floor(h / scale));
-    var picture = {
+    var chrome = Math.max(0, base.h - base.fieldH);
+    var margin = Math.min(chrome, Math.max(base.top, Math.floor(fillH / 5)));
+    return {
       w: fillW, h: fillH, yard: base.yard, top: base.top, widthY: base.widthY,
-      lead: base.lead, vertical: !!base.vertical, scale: scale
+      lead: base.lead, scale: scale,
+      fieldH: Math.max(16, fillH - margin),
+      anchor: Math.round(fillW * 0.28)
     };
-    if (picture.vertical) {
-      picture.fieldH = Math.max(32, fillW - 8);
-      picture.anchor = Math.round(fillH * 0.72);
-    } else {
-      var chrome = Math.max(0, base.h - base.fieldH);
-      var margin = Math.min(chrome, Math.max(base.top, Math.floor(fillH / 5)));
-      picture.fieldH = Math.max(16, fillH - margin);
-      picture.anchor = Math.round(fillW * 0.28);
-    }
-    return picture;
   }
 
   /* Run lane and pocket ring, drawn under the players. Colours and patterns from the art spec. */
@@ -286,7 +268,7 @@
   }
 
   /* Side-on field. 384×216, 12px per yard, the vertical axis squashed into 160px under a 28px strip. */
-  var SIDE = { w: 384, h: 216, yard: 12, top: 18, fieldH: 180, widthY: 53.333333, anchor: 140, lead: 40, vertical: false };
+  var SIDE = { w: 384, h: 216, yard: 12, top: 18, fieldH: 180, widthY: 53.333333, anchor: 140, lead: 40 };
   var STRIPES = ['#2d8a3c', '#38994a'];
   var PALETTE = [
     '#1e1a22', '#f2d080', '#e7c4a8', '#c99a78', '#8a5e48', '#f6edd4', '#c9bc9a', '#8a7e64',
@@ -374,20 +356,15 @@
   }
   function alongPx(abs, camX) {
     var delta = ((Number(abs) || 0) - (Number(camX) || 0)) * SIDE.yard;
-    if (SIDE.vertical) return Math.round(SIDE.anchor - delta);
     return Math.round(SIDE.anchor + delta);
   }
   function crossPx(lat) {
-    var origin = SIDE.vertical ? Math.round((SIDE.w - SIDE.fieldH) / 2) : SIDE.top;
-    return Math.round(origin + SIDE.fieldH / 2 + (Number(lat) || 0) * (SIDE.fieldH / SIDE.widthY));
+    return Math.round(SIDE.top + SIDE.fieldH / 2 + (Number(lat) || 0) * (SIDE.fieldH / SIDE.widthY));
   }
   function sideProject(point, cam, view) {
     point = point || {};
     cam = cam || {};
-    var along = alongPx(point.x, cam.x);
-    var cross = crossPx(point.y);
-    if (SIDE.vertical) return { x: cross, y: along, scale: 1, view: view || null };
-    return { x: along, y: cross, scale: 1, view: view || null };
+    return { x: alongPx(point.x, cam.x), y: crossPx(point.y), scale: 1, view: view || null };
   }
   function rampFor(color) {
     var key = String(color || '').toLowerCase();
@@ -452,62 +429,7 @@
   }
   function yardX(abs, camX) { return alongPx(abs, camX); }
   function latY(lat) { return crossPx(lat); }
-  function paintFieldVertical(ctx, spec) {
-    var camX = spec.camX;
-    var span = SIDE.fieldH;
-    var left = Math.round((SIDE.w - span) / 2);
-    ctx.fillStyle = '#141820';
-    ctx.fillRect(0, 0, SIDE.w, SIDE.h);
-    var nearYard = camX - (SIDE.h - SIDE.anchor) / SIDE.yard - 2;
-    var farYard = camX + SIDE.anchor / SIDE.yard + 2;
-    var band;
-    for (band = Math.floor(nearYard / 5) * 5; band < farYard; band += 5) {
-      var y0 = alongPx(band, camX), y1 = alongPx(band + 5, camX);
-      var zone = band < 0 ? spec.own : band >= 100 ? spec.far : null;
-      ctx.fillStyle = zone ? zone.color : STRIPES[Math.floor(Math.abs(band) / 5) % 2];
-      ctx.fillRect(left, Math.min(y0, y1), span, Math.abs(y1 - y0) || 1);
-    }
-    [spec.own, spec.far].forEach(function (zone) {
-      if (!zone) return;
-      var mid = zone.goal < 50 ? zone.goal - 5 : zone.goal + 5;
-      var ty = alongPx(mid, camX);
-      var tx = Math.round(SIDE.w / 2) - String(zone.name).length * 4;
-      if (ty > -20 && ty < SIDE.h) drawText(ctx, zone.name, tx, ty, '#f6edd4', 2);
-    });
-    var yard;
-    for (yard = Math.max(0, Math.floor(nearYard)); yard <= Math.min(100, Math.ceil(farYard)); yard++) {
-      var y = alongPx(yard, camX);
-      if (yard % 5 === 0) {
-        ctx.fillStyle = '#ffffff';
-        var thick = yard === 0 || yard === 100 ? 2 : 1;
-        ctx.fillRect(left, y, span, thick);
-      } else {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(crossPx(-11.8) - 1, y, 3, 1);
-        ctx.fillRect(crossPx(11.8) - 1, y, 3, 1);
-      }
-      if (yard % 10 === 0 && yard > 0 && yard < 100) {
-        var shown = yard <= 50 ? yard : 100 - yard;
-        drawText(ctx, String(shown), left + 6, y + 4, '#f6edd4', 2);
-      }
-    }
-    [0, 100].forEach(function (goal) {
-      var gy = alongPx(goal, camX);
-      ctx.fillStyle = '#ffdd33';
-      [-1, 1].forEach(function (side) {
-        var px = crossPx(side * 26.666);
-        ctx.fillRect(px - (side < 0 ? 5 : 0), gy - 1, 5, 3);
-      });
-    });
-    if (spec.marks) {
-      ctx.fillStyle = '#4aa8ff';
-      ctx.fillRect(left, alongPx(spec.marks.los, camX), span, 2);
-      ctx.fillStyle = '#ffdd33';
-      ctx.fillRect(left, alongPx(spec.marks.first, camX), span, 2);
-    }
-  }
   function paintField(ctx, spec) {
-    if (SIDE.vertical) return paintFieldVertical(ctx, spec);
     var camX = spec.camX;
     var spot = spec.spot;
     var marks = spec.marks;
@@ -614,8 +536,8 @@
     var radius = Math.max(0.6, Number(aim.radius) || Number(preview.radius) || 1.2);
     var alongR = Math.max(4, Math.round(radius * SIDE.yard));
     var crossR = Math.max(3, Math.round(radius * (SIDE.fieldH / SIDE.widthY)));
-    var rx = Math.min(SIDE.vertical ? crossR : alongR, Math.max(4, Math.floor(SIDE.w / 2) - 2));
-    var ry = Math.min(SIDE.vertical ? alongR : crossR, Math.max(3, Math.floor(SIDE.h / 2) - 2));
+    var rx = Math.min(alongR, Math.max(4, Math.floor(SIDE.w / 2) - 2));
+    var ry = Math.min(crossR, Math.max(3, Math.floor(SIDE.h / 2) - 2));
     rx = Math.max(4, rx); ry = Math.max(3, ry);
     end = {
       x: clamp(end.x, rx + 2, Math.max(rx + 2, SIDE.w - rx - 2)),
@@ -673,49 +595,16 @@
     else pixelEllipse(ctx, x, y, rx, ry, 2, null);
     ctx.fillStyle = mark.outline;
     if (mark.shape === 'chevron') {
-      if (SIDE.vertical) {
-        pixelLine(ctx, x - 4, y + 2, x, y - 3, 1, null);
-        pixelLine(ctx, x, y - 3, x + 4, y + 2, 1, null);
-      } else {
-        pixelLine(ctx, x - 2, y - 3, x + 4, y, 1, null);
-        pixelLine(ctx, x - 2, y + 3, x + 4, y, 1, null);
-      }
+      pixelLine(ctx, x - 2, y - 3, x + 4, y, 1, null);
+      pixelLine(ctx, x - 2, y + 3, x + 4, y, 1, null);
     } else if (mark.shape === 'dotted') {
       pixelLine(ctx, x - 3, y - 2, x + 3, y + 2, 1, null);
       pixelLine(ctx, x - 3, y + 2, x + 3, y - 2, 1, null);
     }
   }
-  /* Upright field: a figure seen from above, head toward the way he faces. Not a side sprite turned over. */
-  function drawUpright(ctx, spec) {
-    spec = spec || {};
-    var x = Math.round(Number(spec.x) || 0), y = Math.round(Number(spec.y) || 0);
-    var line = spec.body === 'line';
-    var rw = line ? 6 : 4, rh = line ? 8 : 7;
-    var up = spec.face > 0 ? -1 : 1;
-    ctx.save();
-    ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = '#1e1a22';
-    ctx.beginPath();
-    ctx.ellipse(x, y, rw + 1, rh + 1, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = spec.fill || '#c45a32';
-    ctx.beginPath();
-    ctx.ellipse(x, y, rw, rh, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = spec.outline || '#1e1a22';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.fillStyle = '#e7c4a8';
-    ctx.beginPath();
-    ctx.arc(x, y + up * (rh + 2), 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-    return 'upright';
-  }
   function useSide(layout, fn) {
     if (!layout) return fn();
-    var keys = ['w', 'h', 'yard', 'top', 'fieldH', 'widthY', 'anchor', 'lead', 'vertical'];
+    var keys = ['w', 'h', 'yard', 'top', 'fieldH', 'widthY', 'anchor', 'lead'];
     var prev = {};
     keys.forEach(function (k) { prev[k] = SIDE[k]; if (layout[k] != null) SIDE[k] = layout[k]; });
     try { return fn(); }
@@ -807,21 +696,14 @@
       var posed = poseOf(p, play);
       var pose = spritePose(!!p.off, posed.pose);
       var aimed = !!(aimTarget && p.link && p.link === aimTarget);
-      if (SIDE.vertical) {
-        drawUpright(ctx, {
-          x: row.s.x, y: row.s.y, body: p.body, face: p.face,
-          fill: team.color, outline: aimed ? '#f2d080' : '#1e1a22'
-        });
-      } else {
-        drawPlayer(ctx, {
-          x: row.s.x, y: row.s.y, scale: 1,
-          file: spriteFile((p.off ? 'offence_' : 'defence_') + (p.body === 'line' ? 'line' : 'skill'), 'side', pose),
-          id: p.role, view: 'side', pose: pose, frame: posed.frame,
-          body: p.body, face: p.face, ramp: ramp, muted: p.body === 'line',
-          fill: team.color, trim: ramp[0], role: p.role,
-          outline: aimed ? '#f2d080' : '#1e1a22'
-        });
-      }
+      drawPlayer(ctx, {
+        x: row.s.x, y: row.s.y, scale: 1,
+        file: spriteFile((p.off ? 'offence_' : 'defence_') + (p.body === 'line' ? 'line' : 'skill'), 'side', pose),
+        id: p.role, view: 'side', pose: pose, frame: posed.frame,
+        body: p.body, face: p.face, ramp: ramp, muted: p.body === 'line',
+        fill: team.color, trim: ramp[0], role: p.role,
+        outline: aimed ? '#f2d080' : '#1e1a22'
+      });
       var ring = '';
       if (aimed) ring = '#f2d080';
       else if (carrier && p.link === carrier) ring = '#f6edd4';
@@ -957,7 +839,7 @@
     SIDE: SIDE, PALETTE: PALETTE, chainLines: chainLines, stepSideCamera: stepSideCamera,
     sideFocus: sideFocus, sideProject: sideProject, paintMatch: paintMatch, rampFor: rampFor,
     pocketDrop: pocketDrop, ballLoft: ballLoft, layoutFor: layoutFor, fitLayout: fitLayout,
-    opennessMark: opennessMark, drawUpright: drawUpright,
+    opennessMark: opennessMark, phoneTurn: phoneTurn,
     GLYPH: GLYPH, FIELD_WORDS: FIELD_WORDS, missingGlyphs: missingGlyphs
   };
   if (typeof module === 'object' && module.exports) module.exports = api;
