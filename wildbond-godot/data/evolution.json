@@ -1,5 +1,5 @@
 {
- "about": "Evolution for the Godot version (docs/proposals/creature-catalogue-and-evolution.md section 2; DD-5). New forms and the ways creatures change, beyond the browser game's single level evolutions. Merged into the game data at start: species are added, and evos replace a species' old single evolution. Each evo: to, and at (the level; always required), and any of bond (an added trust step: 1 Friendly, 2 Loyal, 3 Devoted, 4 Bonded), place (a map), with (a species in your team), time, weather, ate, raised (care or battle) and raised_at (that record's trust step). Trust is added to the level. It does not replace it. The first matching option wins, so put special ones first and the ordinary one last. hint is what Maren thinks; the field book shows the first hint once you've seen the creature. bond_branch is the shape for CAT-2's future creature, not a creature you can meet yet.",
+ "about": "Evolution for the Godot version (docs/proposals/creature-catalogue-and-evolution.md section 2; DD-5). New forms and the ways creatures change, beyond the browser game's single level evolutions. Merged into the game data at start: species are added, and evos replace a species' old single evolution. Each evo: to, and at (the level; always required), and any of bond (an added trust step: 1 Friendly, 2 Loyal, 3 Devoted, 4 Bonded), place (a map), with (a species in your team), time, weather, ate, raised (care or battle) and raised_at (that record's trust step). Trust is added to the level. It does not replace it. The first matching option wins, so put special ones first and the ordinary one last. hint is what Maren thinks; the field book shows the first hint once you've seen the creature. bond_branch is the shape for CAT-2's future creature, not a creature you can meet yet. Wild lists Godot-only encounters as [species, weight] beside a map, kept off the shared map export.",
  "species": {
   "pyremane": {
    "name": "Pyremane",
@@ -376,6 +376,663 @@
     ]
    ],
    "dex": "A Brineskit fed on fish. It grew broad and strong."
+  },
+  "creekribbon": {
+   "name": "Creekribbon",
+   "fam": "lizard",
+   "el": "Shade",
+   "col": "#4a4e6a",
+   "shape": "serpent",
+   "size": "small",
+   "tier": "Strong",
+   "metres": 0.97,
+   "marks": true,
+   "look": {
+    "head": "fin-crest",
+    "back": "fin-ridge",
+    "tail": "fin",
+    "pattern": "rings"
+   },
+   "base": {
+    "hp": 42,
+    "pow": 48,
+    "grd": 40,
+    "spd": 68,
+    "wit": 55,
+    "spi": 47
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     5,
+     "shadowSting"
+    ],
+    [
+     8,
+     "duskLull"
+    ],
+    [
+     14,
+     "shadeThread"
+    ],
+    [
+     20,
+     "mistVeil"
+    ],
+    [
+     28,
+     "dreamBreak"
+    ]
+   ],
+   "evo": {
+    "at": 16,
+    "to": "murkcoil"
+   },
+   "dex": "A ribbon of dark water in the creeks of Saltmarsh Coast. A pale ring circles its middle, and it practises holding the surface still."
+  },
+  "murkcoil": {
+   "name": "Murkcoil",
+   "fam": "lizard",
+   "el": "Shade",
+   "col": "#34364c",
+   "shape": "serpent",
+   "size": "medium",
+   "tier": "Strong",
+   "metres": 1.05,
+   "marks": true,
+   "look": {
+    "head": "low-brow",
+    "back": "smooth",
+    "tail": "tapered",
+    "pattern": "mottled"
+   },
+   "base": {
+    "hp": 58,
+    "pow": 62,
+    "grd": 55,
+    "spd": 78,
+    "wit": 80,
+    "spi": 77
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     1,
+     "shadowSting"
+    ],
+    [
+     8,
+     "duskLull"
+    ],
+    [
+     14,
+     "shadeThread"
+    ],
+    [
+     20,
+     "mistVeil"
+    ],
+    [
+     28,
+     "dreamBreak"
+    ]
+   ],
+   "evo": {
+    "at": 34,
+    "to": "gloomtide"
+   },
+   "dex": "The pale ring has gone dull, and the body has thickened. It coils in the pools of Hollowecho Hills, still learning how to part the water."
+  },
+  "gloomtide": {
+   "name": "Gloomtide",
+   "fam": "lizard",
+   "el": "Shade",
+   "col": "#24304a",
+   "shape": "serpent",
+   "size": "large",
+   "tier": "Strong",
+   "metres": 1.3,
+   "marks": true,
+   "big": 1,
+   "look": {
+    "head": "fin-crest",
+    "back": "wave-ridge",
+    "tail": "fin",
+    "pattern": "bands"
+   },
+   "base": {
+    "hp": 74,
+    "pow": 82,
+    "grd": 68,
+    "spd": 96,
+    "wit": 92,
+    "spi": 88
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     1,
+     "shadowSting"
+    ],
+    [
+     8,
+     "duskLull"
+    ],
+    [
+     14,
+     "shadeThread"
+    ],
+    [
+     20,
+     "mistVeil"
+    ],
+    [
+     34,
+     "dreamBreak"
+    ]
+   ],
+   "dex": "The dull ring opened into a crest of still water. It crosses a creek without a splash, and the dark follows only where it allows."
+  },
+  "seedmoth": {
+   "name": "Seedmoth",
+   "fam": "sprite",
+   "el": "Grove",
+   "col": "#5d7a3e",
+   "shape": "moth",
+   "size": "small",
+   "tier": "Strong",
+   "metres": 0.97,
+   "marks": true,
+   "look": {
+    "head": "tassel-antennae",
+    "back": "narrow-wings",
+    "tail": "tassel",
+    "pattern": "speckles"
+   },
+   "base": {
+    "hp": 44,
+    "pow": 38,
+    "grd": 48,
+    "spd": 60,
+    "wit": 56,
+    "spi": 54
+   },
+   "learn": [
+    [
+     1,
+     "gust"
+    ],
+    [
+     5,
+     "vineLash"
+    ],
+    [
+     9,
+     "seedGrip"
+    ],
+    [
+     16,
+     "regrowth"
+    ],
+    [
+     24,
+     "bramblePress"
+    ],
+    [
+     32,
+     "groveShelter"
+    ]
+   ],
+   "evo": {
+    "at": 18,
+    "to": "sootcloak"
+   },
+   "dex": "It shelters one seed under a wing and dries it over the warm ash of Emberfall Highlands. The wing is still too small to be a garden."
+  },
+  "sootcloak": {
+   "name": "Sootcloak",
+   "fam": "sprite",
+   "el": "Grove",
+   "col": "#6a5840",
+   "shape": "moth",
+   "size": "medium",
+   "tier": "Strong",
+   "metres": 1.13,
+   "marks": true,
+   "look": {
+    "head": "feather-antennae",
+    "back": "crust-plates",
+    "tail": "stub",
+    "pattern": "cracks"
+   },
+   "base": {
+    "hp": 64,
+    "pow": 55,
+    "grd": 82,
+    "spd": 48,
+    "wit": 80,
+    "spi": 81
+   },
+   "learn": [
+    [
+     1,
+     "gust"
+    ],
+    [
+     1,
+     "vineLash"
+    ],
+    [
+     9,
+     "seedGrip"
+    ],
+    [
+     16,
+     "regrowth"
+    ],
+    [
+     24,
+     "bramblePress"
+    ],
+    [
+     32,
+     "groveShelter"
+    ]
+   ],
+   "evo": {
+    "at": 36,
+    "to": "hearthbloom"
+   },
+   "dex": "Ash has crusted the wings it meant to open. It drags them, heavy and lopsided, and it still keeps that one seed warm."
+  },
+  "hearthbloom": {
+   "name": "Hearthbloom",
+   "fam": "sprite",
+   "el": "Grove",
+   "col": "#a85a62",
+   "shape": "moth",
+   "size": "large",
+   "tier": "Strong",
+   "metres": 1.46,
+   "marks": true,
+   "big": 1,
+   "look": {
+    "head": "tassel-crown",
+    "back": "flower-canopy",
+    "tail": "plume",
+    "pattern": "rays"
+   },
+   "base": {
+    "hp": 82,
+    "pow": 68,
+    "grd": 88,
+    "spd": 72,
+    "wit": 98,
+    "spi": 92
+   },
+   "learn": [
+    [
+     1,
+     "gust"
+    ],
+    [
+     1,
+     "vineLash"
+    ],
+    [
+     9,
+     "seedGrip"
+    ],
+    [
+     16,
+     "regrowth"
+    ],
+    [
+     24,
+     "bramblePress"
+    ],
+    [
+     36,
+     "groveShelter"
+    ]
+   ],
+   "dex": "The crust split. Its wings open like a small garden, and the seed it carried is the first flower."
+  },
+  "dawnfoal": {
+   "name": "Dawnfoal",
+   "fam": "horse",
+   "el": "Radiant",
+   "col": "#e4d2a4",
+   "shape": "horse",
+   "size": "small",
+   "tier": "Strong",
+   "metres": 1.13,
+   "marks": true,
+   "look": {
+    "head": "swept-ears",
+    "back": "spark-orbit",
+    "tail": "ribbon",
+    "pattern": "socks"
+   },
+   "base": {
+    "hp": 46,
+    "pow": 52,
+    "grd": 40,
+    "spd": 80,
+    "wit": 42,
+    "spi": 40
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     5,
+     "spark"
+    ],
+    [
+     10,
+     "dawnRay"
+    ],
+    [
+     18,
+     "gleamTrail"
+    ],
+    [
+     26,
+     "herdRush"
+    ],
+    [
+     34,
+     "clearLight"
+    ]
+   ],
+   "evo": {
+    "at": 28,
+    "to": "sunford"
+   },
+   "dex": "A pale foal of Stillreed Basin that stands in the shallows at first light. One spark sleeps in its mane, and it sets each hoof down as if afraid to lose it."
+  },
+  "sunford": {
+   "name": "Sunford",
+   "fam": "horse",
+   "el": "Radiant",
+   "col": "#e0a24a",
+   "shape": "horse",
+   "size": "large",
+   "tier": "Strong",
+   "metres": 1.62,
+   "marks": true,
+   "big": 1,
+   "look": {
+    "head": "sun-rays",
+    "back": "sun-sail",
+    "tail": "plume",
+    "pattern": "rays"
+   },
+   "base": {
+    "hp": 76,
+    "pow": 84,
+    "grd": 68,
+    "spd": 102,
+    "wit": 82,
+    "spi": 78
+   },
+   "learn": [
+    [
+     1,
+     "charge"
+    ],
+    [
+     1,
+     "spark"
+    ],
+    [
+     10,
+     "dawnRay"
+    ],
+    [
+     18,
+     "gleamTrail"
+    ],
+    [
+     28,
+     "herdRush"
+    ],
+    [
+     36,
+     "clearLight"
+    ]
+   ],
+   "dex": "The spark became a mane of morning. Where it steps through a ford, the water lights, and people follow the bright hooves home."
+  },
+  "whisperpup": {
+   "name": "Whisperpup",
+   "fam": "wolf",
+   "el": "Gale",
+   "col": "#b4c2c6",
+   "shape": "wolf",
+   "size": "small",
+   "tier": "Strong",
+   "metres": 1.13,
+   "marks": true,
+   "look": {
+    "head": "tall-ears",
+    "back": "mist-ruff",
+    "tail": "brush",
+    "pattern": "speckles"
+   },
+   "base": {
+    "hp": 44,
+    "pow": 50,
+    "grd": 38,
+    "spd": 74,
+    "wit": 48,
+    "spi": 46
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     5,
+     "gust"
+    ],
+    [
+     8,
+     "howl"
+    ],
+    [
+     14,
+     "airCut"
+    ],
+    [
+     22,
+     "windLift"
+    ],
+    [
+     30,
+     "tailwind"
+    ]
+   ],
+   "evo": {
+    "at": 32,
+    "to": "ridgehowl"
+   },
+   "dex": "A small hound of Hollowecho Hills. Its ears are too big for its head, and it turns them until the wind in the stones matches a path."
+  },
+  "ridgehowl": {
+   "name": "Ridgehowl",
+   "fam": "wolf",
+   "el": "Gale",
+   "col": "#6a8494",
+   "shape": "wolf",
+   "size": "large",
+   "tier": "Strong",
+   "metres": 1.62,
+   "marks": true,
+   "big": 1,
+   "look": {
+    "head": "swept-ears",
+    "back": "wind-mane",
+    "tail": "plume",
+    "pattern": "chevrons"
+   },
+   "base": {
+    "hp": 70,
+    "pow": 90,
+    "grd": 62,
+    "spd": 108,
+    "wit": 82,
+    "spi": 78
+   },
+   "learn": [
+    [
+     1,
+     "bite"
+    ],
+    [
+     1,
+     "gust"
+    ],
+    [
+     8,
+     "howl"
+    ],
+    [
+     14,
+     "airCut"
+    ],
+    [
+     22,
+     "windLift"
+    ],
+    [
+     32,
+     "tailwind"
+    ]
+   ],
+   "dex": "Those oversized ears caught the ridge wind. Its howl runs ahead of a lost walker and lays the path back under their feet."
+  },
+  "charcup": {
+   "name": "Charcup",
+   "fam": "croc",
+   "el": "Ember",
+   "col": "#a85a3c",
+   "shape": "turtle",
+   "size": "medium",
+   "tier": "Strong",
+   "metres": 1.05,
+   "marks": true,
+   "look": {
+    "head": "round-cheeks",
+    "back": "ember-spots",
+    "tail": "stub",
+    "pattern": "spots"
+   },
+   "base": {
+    "hp": 52,
+    "pow": 40,
+    "grd": 72,
+    "spd": 28,
+    "wit": 46,
+    "spi": 62
+   },
+   "learn": [
+    [
+     1,
+     "tailWhip"
+    ],
+    [
+     5,
+     "emberSnap"
+    ],
+    [
+     9,
+     "harden"
+    ],
+    [
+     16,
+     "coalFlick"
+    ],
+    [
+     24,
+     "emberMantle"
+    ],
+    [
+     32,
+     "rockToss"
+    ]
+   ],
+   "evo": {
+    "at": 22,
+    "to": "kilnback"
+   },
+   "dex": "A little turtle of Saltmarsh Coast that cups one warm coal in a hollow of its shell. It keeps the coal alive."
+  },
+  "kilnback": {
+   "name": "Kilnback",
+   "fam": "croc",
+   "el": "Ember",
+   "col": "#7a342c",
+   "shape": "turtle",
+   "size": "huge",
+   "tier": "Strong",
+   "metres": 1.54,
+   "marks": true,
+   "big": 1,
+   "look": {
+    "head": "stone-crown",
+    "back": "crust-plates",
+    "tail": "stub",
+    "pattern": "cracks"
+   },
+   "base": {
+    "hp": 92,
+    "pow": 72,
+    "grd": 112,
+    "spd": 38,
+    "wit": 78,
+    "spi": 98
+   },
+   "learn": [
+    [
+     1,
+     "tailWhip"
+    ],
+    [
+     1,
+     "emberSnap"
+    ],
+    [
+     9,
+     "harden"
+    ],
+    [
+     16,
+     "coalFlick"
+    ],
+    [
+     24,
+     "emberMantle"
+    ],
+    [
+     32,
+     "rockToss"
+    ]
+   ],
+   "dex": "The coal became a kiln. Seams of heat glow between the plates of its shell, and cold hands are welcome on its back."
   }
  },
  "evos": {
@@ -459,6 +1116,60 @@
     "at": 18,
     "hint": "Most Brineskit become shoal crests. Most, not all."
    }
+  ],
+  "creekribbon": [
+   {
+    "to": "murkcoil",
+    "at": 16,
+    "hint": "Once it has grown, the pale ring goes dull and the body thickens."
+   }
+  ],
+  "murkcoil": [
+   {
+    "to": "gloomtide",
+    "at": 34,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the dull ring opens into a crest of still water."
+   }
+  ],
+  "seedmoth": [
+   {
+    "to": "sootcloak",
+    "at": 18,
+    "hint": "Once it has grown, warm ash crusts the wings it is trying to open."
+   }
+  ],
+  "sootcloak": [
+   {
+    "to": "hearthbloom",
+    "at": 36,
+    "bond": 3,
+    "hint": "Once it trusts you deeply and has grown, the crust splits and the wings open like a garden."
+   }
+  ],
+  "dawnfoal": [
+   {
+    "to": "sunford",
+    "at": 28,
+    "bond": 1,
+    "hint": "Once it trusts you a little and has grown, the spark in its mane lights the ford."
+   }
+  ],
+  "whisperpup": [
+   {
+    "to": "ridgehowl",
+    "at": 32,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, those ears catch the ridge wind."
+   }
+  ],
+  "charcup": [
+   {
+    "to": "kilnback",
+    "at": 22,
+    "bond": 2,
+    "hint": "Once it trusts you and has grown, the coal in its shell becomes a little kiln."
+   }
   ]
  },
  "bond_branch": {
@@ -485,6 +1196,70 @@
     "at": 16,
     "hint": "Left to grow up, it takes the ordinary form."
    }
+  ]
+ },
+ "wild": {
+  "saltmarsh": [
+   [
+    "creekribbon",
+    8
+   ],
+   [
+    "charcup",
+    6
+   ]
+  ],
+  "hollowecho": [
+   [
+    "murkcoil",
+    3
+   ],
+   [
+    "whisperpup",
+    10
+   ]
+  ],
+  "emberfall": [
+   [
+    "seedmoth",
+    7
+   ],
+   [
+    "kilnback",
+    2
+   ]
+  ],
+  "sunthread": [
+   [
+    "sootcloak",
+    3
+   ],
+   [
+    "hearthbloom",
+    2
+   ],
+   [
+    "sunford",
+    2
+   ]
+  ],
+  "stillreed": [
+   [
+    "dawnfoal",
+    8
+   ]
+  ],
+  "cloudglass": [
+   [
+    "ridgehowl",
+    2
+   ]
+  ],
+  "farwatch": [
+   [
+    "gloomtide",
+    2
+   ]
   ]
  }
 }

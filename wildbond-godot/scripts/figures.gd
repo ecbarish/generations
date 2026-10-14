@@ -19,6 +19,13 @@ static func paint(ci: CanvasItem, o: Vector2, parts: Array) -> void:
 ## apron (optional), body ("broad" | "narrow"), style ("cap" | "short" | "long" | "ponytail" | "bun" | "spiky"),
 ## outfit ("trousers" | "skirt" | "overalls").
 static func person(ci: CanvasItem, o: Vector2, face: Vector2i, walking: bool, frame: int, blink: bool, look: Dictionary) -> void:
+	var origin := o
+	var f := 0 if not walking else frame
+	if walking and f % 2 == 0:
+		origin.y -= 1
+	paint(ci, origin, person_parts(face, walking, frame, blink, look))
+
+static func person_parts(face: Vector2i, walking: bool, frame: int, blink: bool, look: Dictionary) -> Array:
 	if not walking:
 		frame = 0
 	var side := face.x != 0
@@ -36,8 +43,6 @@ static func person(ci: CanvasItem, o: Vector2, face: Vector2i, walking: bool, fr
 	var swing := 1 if frame == 1 else (-1 if frame == 3 else 0)
 	var up_l := 1 if frame == 1 else 0
 	var up_r := 1 if frame == 3 else 0
-	if walking and frame % 2 == 0:
-		o.y -= 1
 	var P: Array = []
 	# legs (or a skirt), the stepping foot lifted
 	if outfit == "skirt":
@@ -113,7 +118,7 @@ static func person(ci: CanvasItem, o: Vector2, face: Vector2i, walking: bool, fr
 		P.append([4, 3, 1, 1, eye]); P.append([7, 3, 1, 1, eye])
 	elif side:
 		P.append([7 if right else 4, 3, 1, 1, eye])
-	paint(ci, o, P)
+	return P
 
 ## A four-legged creature seen from the side, about 18x14 pixels (feet on y = 12 from the origin), facing right or
 ## mirrored left. Each body plan ("kind") is its own list of parts on the same frame, so new creatures are new plans.
@@ -121,6 +126,11 @@ static func person(ci: CanvasItem, o: Vector2, face: Vector2i, walking: bool, fr
 ## for a pounce), sit, sniff (head down), twitch (the nose, -1..1), ears_up, bird (a little bird rides a Mosshog).
 ## look keys: kind ("wolf" | "lizard" | "boar"), body, belly, dark, accent (fins, moss), snout.
 static func creature(ci: CanvasItem, o: Vector2, right: bool, pose: Dictionary, look: Dictionary) -> void:
+	paint(ci, o, parts_of(right, pose, look))
+
+## The parts of a creature, before they are painted. Marks (a promised feature that a later form cashes in) are
+## added only when the look names them, so an older body plan stays as it was.
+static func parts_of(right: bool, pose: Dictionary, look: Dictionary) -> Array:
 	var P: Array
 	match look.get("kind", "wolf"):
 		"lizard": P = _lizard(pose, look)
@@ -137,12 +147,27 @@ static func creature(ci: CanvasItem, o: Vector2, right: bool, pose: Dictionary, 
 		"moth": P = _moth(pose, look)
 		"treefolk": P = _treefolk(pose, look)
 		_: P = _wolf(pose, look)
+	if str(look.get("head", "")) != "":
+		P.append_array(_marks(pose, look))
 	if str(look.get("gear", "")) != "":
 		P.append_array(_gear_parts(P, str(look.gear)))
 	if not right:
 		for p in P:
 			p[0] = 17 - p[0] - p[2]
-	paint(ci, o, P)
+	return P
+
+## How tall and wide a figure reads, including the one-pixel outline. World size is this times the species scale.
+static func pixel_span(parts: Array) -> Vector2i:
+	var min_x := 999
+	var min_y := 999
+	var max_x := -999
+	var max_y := -999
+	for p in parts:
+		min_x = mini(min_x, int(p[0]))
+		min_y = mini(min_y, int(p[1]))
+		max_x = maxi(max_x, int(p[0]) + int(p[2]))
+		max_y = maxi(max_y, int(p[1]) + int(p[3]))
+	return Vector2i(max_x - min_x + 2, max_y - min_y + 2)
 
 ## Gear shows on whoever wears it (rules.gd GEAR): found on the body (the biggest part), so it fits every body plan.
 ## A harness is a strap round the middle with a buckle, a bell hangs at the chest, a ribbon flies at the back, and a
@@ -309,8 +334,106 @@ const SHAPE_FOR := {
 static func look_for(species: Dictionary) -> Dictionary:
 	var c := Color(species.get("col", "#a08060"))
 	var id := str(species.get("name", "")).to_lower()
-	return { "kind": species.get("shape", SHAPE_FOR.get(id, species.get("fam", "wolf"))), "body": c, "belly": c.lightened(0.45), "dark": c.darkened(0.6),
+	var out := { "kind": species.get("shape", SHAPE_FOR.get(id, species.get("fam", "wolf"))), "body": c, "belly": c.lightened(0.45), "dark": c.darkened(0.6),
 		"accent": c.lightened(0.25) if species.get("el", "") != "Grove" else Color("5d9a3e"), "snout": c.lightened(0.3) }
+	# Marks are opt-in. Existing species keep the body plan they already had.
+	if species.get("marks", false):
+		var lk: Dictionary = species.get("look", {})
+		out["head"] = str(lk.get("head", ""))
+		out["back"] = str(lk.get("back", ""))
+		out["tail"] = str(lk.get("tail", ""))
+		out["pattern"] = str(lk.get("pattern", ""))
+	return out
+
+## A few extra parts for a marked species: the promise in a young form, and the same promise opened in a later one.
+## Colours stay inside the valley palette (lamplight, leaf, the flower pixels Mosshog already grows).
+const LAMP := Color("f2d080")
+const FLOWER := Color("f0a0c0")
+const FLOWER_PALE := Color("f2e8a0")
+const LEAF := Color("5d9a3e")
+static func _marks(_pose: Dictionary, look: Dictionary) -> Array:
+	var c: Color = look.body
+	var belly: Color = look.belly
+	var dark: Color = look.dark
+	var accent: Color = look.get("accent", c.lightened(0.3))
+	var P: Array = []
+	match str(look.get("pattern", "")):
+		"rings":
+			P.append([7, 8, 3, 1, belly])
+		"mottled":
+			P.append([6, 7, 1, 1, dark]); P.append([9, 9, 1, 1, belly])
+		"bands":
+			P.append([5, 7, 6, 1, belly]); P.append([6, 9, 5, 1, accent])
+		"speckles":
+			P.append([7, 6, 1, 1, accent]); P.append([10, 8, 1, 1, belly])
+		"cracks":
+			P.append([6, 5, 1, 3, LAMP]); P.append([7, 7, 3, 1, LAMP])
+		"rays":
+			P.append([8, 4, 1, 3, LAMP]); P.append([11, 5, 1, 2, FLOWER_PALE])
+		"socks":
+			P.append([4, 11, 1, 1, belly]); P.append([11, 11, 1, 1, belly])
+		"spots":
+			P.append([8, 5, 2, 2, Color("e0602a")])
+		"chevrons":
+			P.append([6, 6, 2, 1, dark]); P.append([9, 7, 2, 1, dark])
+	match str(look.get("back", "")):
+		"fin-ridge":
+			P.append([7, 0, 1, 4, accent]); P.append([9, 1, 1, 3, accent])
+		"wave-ridge":
+			P.append([4, 3, 2, 3, accent]); P.append([7, 2, 2, 4, accent]); P.append([10, 3, 2, 3, belly])
+		"narrow-wings":
+			P.append([2, 5, 3, 1, accent.darkened(0.15)])
+		"crust-plates":
+			P.append([5, 3, 3, 2, dark]); P.append([9, 4, 3, 2, c.darkened(0.15)])
+		"flower-canopy":
+			P.append([3, 1, 3, 2, FLOWER]); P.append([7, 0, 3, 2, FLOWER_PALE]); P.append([11, 1, 3, 2, LEAF])
+		"spark-orbit":
+			P.append([9, 2, 1, 1, LAMP]); P.append([12, 4, 1, 1, FLOWER_PALE])
+		"sun-sail":
+			P.append([7, 1, 2, 4, LAMP]); P.append([9, 2, 1, 3, FLOWER_PALE])
+		"mist-ruff":
+			P.append([8, 4, 4, 2, belly])
+		"wind-mane":
+			P.append([0, 4, 4, 1, belly]); P.append([0, 5, 3, 1, accent])
+		"ember-spots":
+			P.append([7, 1, 2, 4, Color("e0602a")])
+	match str(look.get("head", "")):
+		"fin-crest":
+			P.append([12, 2, 2, 2, accent])
+		"low-brow":
+			P.append([12, 4, 4, 1, dark])
+		"tassel-antennae":
+			P.append([14, 1, 1, 2, LEAF]); P.append([16, 2, 1, 2, accent])
+		"feather-antennae":
+			P.append([13, 2, 2, 1, dark]); P.append([15, 1, 1, 2, dark])
+		"tassel-crown":
+			P.append([8, 0, 1, 2, LAMP]); P.append([10, 0, 1, 2, FLOWER])
+		"swept-ears":
+			P.append([12, 1, 2, 2, c]); P.append([15, 2, 2, 1, dark])
+		"sun-rays":
+			P.append([13, 0, 1, 2, LAMP]); P.append([15, 1, 1, 2, FLOWER_PALE]); P.append([16, 2, 1, 1, LAMP])
+		"tall-ears":
+			P.append([11, 1, 1, 3, c]); P.append([14, 1, 1, 3, dark])
+		"round-cheeks":
+			P.append([14, 6, 2, 2, belly])
+		"stone-crown":
+			P.append([6, 2, 5, 2, dark]); P.append([7, 1, 3, 1, LAMP])
+	match str(look.get("tail", "")):
+		"fin":
+			P.append([0, 7, 2, 2, accent])
+		"tapered":
+			P.append([0, 8, 2, 1, dark])
+		"tassel":
+			P.append([1, 9, 1, 2, LEAF])
+		"stub":
+			P.append([1, 9, 2, 1, dark])
+		"plume":
+			P.append([0, 5, 2, 3, accent]); P.append([0, 4, 1, 1, belly])
+		"ribbon":
+			P.append([0, 6, 1, 4, accent])
+		"brush":
+			P.append([0, 7, 3, 2, c])
+	return P
 
 ## Pebblepaw's family: a slim cat with pointed ears, a long tail that curls up, stripes.
 static func _cat(pose: Dictionary, look: Dictionary) -> Array:

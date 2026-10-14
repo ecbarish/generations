@@ -194,6 +194,7 @@ func _ready() -> void:
 		DATA.SPECIES[k] = ej.data.species[k]
 	DATA["EVOS"] = ej.data.evos
 	DATA["BOND_BRANCH"] = ej.data.get("bond_branch", {})   # DD-5: the future bond-branch shape; not a creature you can meet yet
+	DATA["WILD_EXTRA"] = ej.data.get("wild", {})           # catalogue batch: Godot-only encounters, kept off the shared map export
 	R.DATA = DATA
 	var rj: JSON = load("res://data/wildbond-reveal.json")   # T58: the evidence and the reveal (docs/lore/wildbond-reveal.md)
 	REVEAL = rj.data
@@ -2169,12 +2170,21 @@ func _season_air() -> void:
 ## This place's wild table for the season (ChatGPT's WS3 data: small shifts, a few visitors who favour one season and
 ## are rare in the others), or the usual table where there's none.
 func _wild_table() -> Array:
+	var base: Array
 	var seasonal: Dictionary = DATA.MAPS[map_name].get("seasonal", {})
 	if seasonal.has(cal.season()):
-		return seasonal[cal.season()].wild
-	if DATA.MAPS[map_name].has("wild"):
-		return DATA.MAPS[map_name].wild
-	return DATA.BIOMES[DATA.MAPS[map_name].biome].wild
+		base = seasonal[cal.season()].wild
+	elif DATA.MAPS[map_name].has("wild"):
+		base = DATA.MAPS[map_name].wild
+	else:
+		base = DATA.BIOMES[DATA.MAPS[map_name].biome].wild
+	var extra: Array = DATA.get("WILD_EXTRA", {}).get(map_name, [])
+	if extra.is_empty():
+		return base
+	var out: Array = base.duplicate()
+	for pair in extra:
+		out.append(pair)
+	return out
 
 func _maren_data() -> Dictionary:
 	for n in DATA.MAPS.larkhaven.npcs:

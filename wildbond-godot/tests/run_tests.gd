@@ -274,6 +274,73 @@ func _run() -> void:
 			if final_sc < young_sc:
 				scale_ok = false
 	check(scale_ok, "CR1: no final form is drawn smaller than its young form")
+	# ---- catalogue batch: twelve new species. Every change asks for a level; a final also asks for trust (DD-5).
+	var batch := ["creekribbon", "murkcoil", "gloomtide", "seedmoth", "sootcloak", "hearthbloom", "dawnfoal", "sunford", "whisperpup", "ridgehowl", "charcup", "kilnback"]
+	var batch_ok := true
+	for id in batch:
+		batch_ok = batch_ok and main.DATA.SPECIES.has(id)
+	check(batch_ok and main.DATA.SPECIES.size() == 128, "catalogue batch: 12 new species, 128 in the Wilddex (%d)" % main.DATA.SPECIES.size())
+	var finals := { "gloomtide": true, "hearthbloom": true, "sunford": true, "ridgehowl": true, "kilnback": true }
+	var evo_ok := true
+	var bond_ok := true
+	for id in batch:
+		if not main.DATA.EVOS.has(id):
+			continue
+		for o in main.DATA.EVOS[id]:
+			if not o.has("at"):
+				evo_ok = false
+			if finals.has(str(o.to)) and not o.has("bond"):
+				bond_ok = false
+	check(evo_ok, "catalogue batch: every new evolution asks for a level")
+	check(bond_ok, "catalogue batch: every final form also asks for trust")
+	check(int(main.DATA.SPECIES.cindercub.evo.at) == 14 and str(main.DATA.SPECIES.cindercub.evo.to) == "blazefang", "catalogue batch: Cindercub's line is untouched")
+	check(int(main.DATA.SPECIES.ripplet.evo.at) == 14 and str(main.DATA.SPECIES.ripplet.evo.to) == "tidewyrm", "catalogue batch: Ripplet's line is untouched")
+	check(int(main.DATA.SPECIES.mosshog.evo.at) == 14 and str(main.DATA.SPECIES.mosshog.evo.to) == "thornback", "catalogue batch: Mosshog's line is untouched")
+	check(str(main.DATA.EVOS.blazefang[0].to) == "pyremane" and not main.DATA.EVOS.blazefang[0].has("bond"), "catalogue batch: Pyremane's route is untouched")
+	check(int(main.DATA.EVOS.tidewyrm[0].at) == 32 and int(main.DATA.EVOS.tidewyrm[0].bond) == 3 and str(main.DATA.EVOS.tidewyrm[0].to) == "deeptide", "catalogue batch: Deeptide's route is untouched")
+	check(str(main.DATA.EVOS.thornback[0].to) == "elderthorn" and str(main.DATA.EVOS.thornback[0].with) == "glimmerwing", "catalogue batch: Elderthorn's route is untouched")
+	var ribbon: Dictionary = main.R.make("creekribbon", 16, {}, main.rng)
+	check(main.R.evo_target(ribbon) == "murkcoil", "catalogue batch: Creekribbon becomes Murkcoil at 16")
+	var coil: Dictionary = main.R.make("murkcoil", 34, {}, main.rng)
+	coil.bond = 59.0
+	check(main.R.evo_target(coil) == "", "catalogue batch: Murkcoil at 34 without Loyal trust stays")
+	coil.bond = 60.0
+	check(main.R.evo_target(coil) == "gloomtide", "catalogue batch: grown and Loyal, Murkcoil becomes Gloomtide")
+	var young_coil: Dictionary = main.R.make("murkcoil", 20, {}, main.rng)
+	young_coil.bond = 280.0
+	check(main.R.evo_target(young_coil) == "", "catalogue batch: Bonded before the level, Murkcoil still waits")
+	var px_scale := { "tiny": 0.7, "small": 0.85, "medium": 1.0, "large": 1.2, "huge": 1.45 }
+	var size_ok := true
+	var size_note := ""
+	for id in batch:
+		var sp: Dictionary = main.DATA.SPECIES[id]
+		var batch_look: Dictionary = main.Figures.look_for(sp)
+		var draw_sc: float = float(px_scale[str(sp.size)])
+		for pose in [{ "walking": false, "wag": 0 }, { "walking": true, "frame": 1, "wag": 1, "ears_up": true }]:
+			var span: Vector2i = main.Figures.pixel_span(main.Figures.parts_of(true, pose, batch_look))
+			var px_h := int(round(float(span.y) * draw_sc))
+			var px_w := int(round(float(span.x) * draw_sc))
+			if px_h < 12 or px_h > 32 or px_w < 12 or px_w > 32:
+				size_ok = false
+				size_note += "%s %dx%d " % [id, px_w, px_h]
+	check(size_ok, "catalogue batch: new creatures are 12 to 32px beside the 12x21 tamer" + ("" if size_note == "" else " (" + size_note + ")"))
+	var placed := {}
+	for mid in main.DATA.MAPS:
+		var area: Dictionary = main.DATA.MAPS[mid]
+		var lists: Array = [area.get("wild", [])]
+		for season in area.get("seasonal", {}):
+			lists.append(area.seasonal[season].get("wild", []))
+		for list in lists:
+			for pair in list:
+				placed[str(pair[0])] = true
+	for mid in main.DATA.get("WILD_EXTRA", {}):
+		for pair in main.DATA.WILD_EXTRA[mid]:
+			placed[str(pair[0])] = true
+	var unplaced: Array = []
+	for id in batch:
+		if not placed.has(id):
+			unplaced.append(id)
+	check(unplaced.is_empty(), "catalogue batch: every new species can be met in the wild" + ("" if unplaced.is_empty() else " (missing %s)" % ", ".join(unplaced)))
 	# ---- CR4: the evolution moment has staged phases; showpieces get the full version
 	main._evo_cine_start({ "sp": "cindercub", "name": "Test" }, "pyremane")
 	check(not main.evo_cine.is_empty(), "CR4: starting the cinematic sets state")
