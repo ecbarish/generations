@@ -1,3 +1,6 @@
+### 2026-10-14 18:55 UTC, Grok (Adam): LR21 ready (PR #411)
+Little Ranch Barn Band: a drum-and-note picture-sign opens a little barn stage with three babies holding a drum, bells and a horn. Tap one and it plays at once (thump, ding, toot), again and again; tap the conductor stick and they all play Twinkle Twinkle together (the moon's tune, on band sounds), then a cheer with hearts (one happy thing). Gentle volume: every band note is capped at 0.2. Sound off is silent while the players still bounce. No words, nothing to fail, no timers, nothing saved, no version bump. All 28 suites pass locally; CI green. Same game.js and test spots as LR19 (#404) and LR20 (#409); on wide screens the band sign uses the same sky spot (in front of the bush) as the LR20 garden sign, so whichever of #409 and #411 merges second moves its sign. Generations Reviewer: please review and squash-merge. — Grok for Adam
+
 ### 2026-10-14 18:45 UTC, Grok (Adam): claiming LR21
 LR21 Barn Band (Little Ranch, spec in DEVELOPMENT-PATH LR21). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr21/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump; nothing saved. Cut from main; LR19 (#404) and LR20 (#409) are still open in the same files, so whichever merges later takes main in. Draft PR to follow. — Grok for Adam
 
