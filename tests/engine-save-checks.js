@@ -175,6 +175,63 @@ async function engineSaveChecks() {
       return thrownLoad === null && localStorage.getItem(throwKey) === throwRaw && Arcade.held[throwKey] === NOTE && !!thrownNotice && thrownNotice.textContent === NOTE && Arcade.save(throwKey, { v: 3, coins: 0 }) === false && localStorage.getItem(throwKey) === throwRaw;
     });
 
+    const nullKey = PREFIX + 'null-migrate';
+    const nullRaw = '{"v":1,"coins":6,"kept":"byte"}';
+    localStorage.setItem(nullKey, nullRaw);
+    Arcade.versions[nullKey] = 4;
+    Arcade.migrates[nullKey] = () => null;
+    const nullLoad = Arcade.load(nullKey);
+    const nullNotice = document.querySelector('[data-arc-held="' + nullKey + '"]');
+    check('a migrate that returns null holds the session and leaves the stored text byte for byte', () => {
+      const held = nullLoad === null && Arcade.held[nullKey] === NOTE && !!nullNotice && nullNotice.textContent === NOTE;
+      const saved = Arcade.save(nullKey, { v: 4, coins: 0 }) === false;
+      return held && saved && localStorage.getItem(nullKey) === nullRaw;
+    });
+
+    const undefKey = PREFIX + 'undefined-migrate';
+    const undefRaw = '{"v":1,"coins":8,"flag":"kept"}';
+    let undefCalled = false;
+    check('a migrate that returns undefined still loads the save', () => {
+      localStorage.setItem(undefKey, undefRaw);
+      Arcade.versions[undefKey] = 2;
+      Arcade.migrates[undefKey] = (save, fromVersion) => { undefCalled = fromVersion; return undefined; };
+      const loaded = Arcade.load(undefKey);
+      const same = !!loaded && loaded.v === 1 && loaded.coins === 8 && loaded.flag === 'kept' && undefCalled === 1;
+      const stillSaves = Arcade.save(undefKey, loaded) === true && JSON.parse(localStorage.getItem(undefKey)).coins === 8;
+      return same && stillSaves && !Arcade.held[undefKey];
+    });
+
+    const heldEraseKey = PREFIX + 'held-erase';
+    const heldEraseRaw = '{"v":2,"coins":3,"kept":"hub"}';
+    const heldEraseId = 'engine-held-erase-game';
+    const heldIndexRaw = '{"' + heldEraseId + '":{"summary":"Held journey","detail":"still on the hub","last":1},"other-game":{"summary":"Other","detail":"stays","last":2}}';
+    check('erase on a held key keeps the save and the hub row', () => {
+      localStorage.setItem(heldEraseKey, heldEraseRaw);
+      localStorage.setItem('arcade-index-v1', heldIndexRaw);
+      Arcade.held[heldEraseKey] = NOTE;
+      Arcade.erase(heldEraseKey, heldEraseId);
+      const again = Arcade.save(heldEraseKey, { v: 2, coins: 0 }) === false;
+      return again && localStorage.getItem(heldEraseKey) === heldEraseRaw && localStorage.getItem('arcade-index-v1') === heldIndexRaw;
+    });
+
+    const normalEraseKey = PREFIX + 'normal-erase';
+    const normalEraseId = 'engine-normal-erase-game';
+    const keepId = 'engine-normal-erase-keep';
+    check('erase on a normal key removes the save and the hub row', () => {
+      delete Arcade.versions['arcade-index-v1'];
+      delete Arcade.migrates['arcade-index-v1'];
+      delete Arcade.held['arcade-index-v1'];
+      delete Arcade.held[normalEraseKey];
+      localStorage.setItem(normalEraseKey, '{"coins":3,"note":"plain"}');
+      localStorage.setItem('arcade-index-v1', JSON.stringify({
+        [normalEraseId]: { summary: 'Gone', detail: 'row', last: 4 },
+        [keepId]: { summary: 'Stay', detail: 'other', last: 5 }
+      }));
+      Arcade.erase(normalEraseKey, normalEraseId);
+      const idx = JSON.parse(localStorage.getItem('arcade-index-v1'));
+      return localStorage.getItem(normalEraseKey) === null && !!idx && !Object.prototype.hasOwnProperty.call(idx, normalEraseId) && idx[keepId].summary === 'Stay' && idx[keepId].detail === 'other';
+    });
+
     const importKey = PREFIX + 'import';
     const importCurrent = '{"v":2,"coins":3,"mine":true}';
     const importNewer = '{"v":8,"coins":99,"kept":"newer"}';
@@ -199,7 +256,7 @@ async function engineSaveChecks() {
     });
   } finally {
     wipe();
-    [PREFIX + 'plain', PREFIX + 'high', PREFIX + 'old', PREFIX + 'same', PREFIX + 'bare', PREFIX + 'newer', PREFIX + 'other', PREFIX + 'backup', PREFIX + 'export', PREFIX + 'recover', PREFIX + 'skip-newer-backup', PREFIX + 'throw', PREFIX + 'import'].forEach(forget);
+    [PREFIX + 'plain', PREFIX + 'high', PREFIX + 'old', PREFIX + 'same', PREFIX + 'bare', PREFIX + 'newer', PREFIX + 'other', PREFIX + 'backup', PREFIX + 'export', PREFIX + 'recover', PREFIX + 'skip-newer-backup', PREFIX + 'throw', PREFIX + 'null-migrate', PREFIX + 'undefined-migrate', PREFIX + 'held-erase', PREFIX + 'normal-erase', PREFIX + 'import'].forEach(forget);
   }
   return checks;
 }
