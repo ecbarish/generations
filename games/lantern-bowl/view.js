@@ -59,11 +59,37 @@
     return { power: power, kind: power < 0.42 ? 'bullet' : 'lob' };
   }
 
-  /* Screen drag on the side field: right is downfield, up is toward the top sideline. */
+  /* Pull back from the quarterback. The throw goes the other way: right on the field is downfield. */
   function dragToField(dx, dy) {
-    var dirX = Number(dx) || 0, dirY = Number(dy) || 0;
+    var dirX = -(Number(dx) || 0), dirY = -(Number(dy) || 0);
     var mag = Math.hypot(dirX, dirY) || 1;
     return { dirX: dirX / mag, dirY: dirY / mag };
+  }
+  /* Yards the quarterback slides back after the snap. Drawing only; the throw still leaves the pocket. */
+  function pocketDrop(elapsed) {
+    var u = clamp((Number(elapsed) || 0) / 0.55, 0, 1);
+    return -4.6 * (1 - (1 - u) * (1 - u));
+  }
+  /* Screen pixels of loft. The ball peaks halfway and comes down on the landing spot. */
+  function ballLoft(u, kind) {
+    var t = clamp(Number(u) || 0, 0, 1);
+    return Math.sin(t * Math.PI) * (kind === 'lob' ? 36 : 16);
+  }
+  /* The picture matches the screen, so the grass fills portrait and landscape. */
+  function layoutFor(cssW, cssH) {
+    var w = Number(cssW) || 0, h = Number(cssH) || 0;
+    if (w < 1 || h < 1) return null;
+    if (h > w * 1.15) {
+      var pictureW = 192;
+      var pictureH = Math.round(pictureW * h / w);
+      pictureH = Math.max(280, Math.min(pictureH, 480));
+      var top = 28;
+      return { w: pictureW, h: pictureH, yard: 8, top: top, fieldH: pictureH - top - 16, widthY: SIDE.widthY, anchor: 62, lead: 28 };
+    }
+    var pictureH = SIDE.h;
+    var pictureW = Math.round(pictureH * (w / h));
+    pictureW = Math.max(SIDE.w, Math.min(pictureW, 760));
+    return { w: pictureW, h: pictureH, yard: SIDE.yard, top: SIDE.top, fieldH: SIDE.fieldH, widthY: SIDE.widthY, anchor: Math.round(pictureW * 0.28), lead: SIDE.lead };
   }
 
   /* Run lane and pocket ring, drawn under the players. Colours and patterns from the art spec. */
@@ -434,12 +460,12 @@
     if (moving) return { pose: 'run', frame: Math.floor(t * 8) % 4 };
     return { pose: 'idle', frame: Math.floor(t * 2) % 2 };
   }
-  /* Sits in the dark strip above the grass, centred, so a 360px window still shows it. */
+  /* Sits on the near sideline, clear of the score line. */
   function drawPowerMeter(ctx, power) {
     var p = clamp(Number(power) || 0, 0, 1);
     var labelW = 40, gap = 6, bw = 88, bh = 10;
     var x = Math.round((SIDE.w - (labelW + gap + bw)) / 2);
-    var y = 8;
+    var y = Math.max(4, SIDE.h - bh - 4);
     drawText(ctx, 'POWER', x, y, '#f6edd4', 2);
     var bx = x + labelW + gap, by = y;
     ctx.fillStyle = '#1e1a22';
@@ -491,8 +517,27 @@
     ctx.fillRect(end.x, end.y - 3, 1, 7);
     if (aim.power != null) drawPowerMeter(ctx, aim.power);
   }
+  function useSide(layout, fn) {
+    if (!layout) return fn();
+    var keys = ['w', 'h', 'yard', 'top', 'fieldH', 'widthY', 'anchor', 'lead'];
+    var prev = {};
+    keys.forEach(function (k) { prev[k] = SIDE[k]; if (layout[k] != null) SIDE[k] = layout[k]; });
+    try { return fn(); }
+    finally { keys.forEach(function (k) { SIDE[k] = prev[k]; }); }
+  }
+  function drawChalk(ctx, at, lines) {
+    (lines || []).forEach(function (line) {
+      if (!line) return;
+      var a = at(line.x0, line.y0), b = at(line.x1, line.y1);
+      ctx.fillStyle = '#f6edd4';
+      pixelLine(ctx, a.x, a.y, b.x, b.y, 2, [3, 3]);
+    });
+  }
   function paintMatch(ctx, spec) {
     spec = spec || {};
+    return useSide(spec.layout, function () { return paintMatchDraw(ctx, spec); });
+  }
+  function paintMatchDraw(ctx, spec) {
     var game = spec.game;
     var play = spec.play;
     var live = !!(game && play && game.phase === 'live');
@@ -507,7 +552,7 @@
     var squad = live ? play.squad : (picture ? spec.squad : null);
     if (!live && game && !squad) {
       var preview = root.LanternModel && root.LanternModel.previewSquad
-        ? root.LanternModel.previewSquad(off, def, game.look || 'singleback')
+        ? root.LanternModel.previewSquad(off, def, spec.formation || game.look || 'singleback')
         : null;
       squad = preview ? preview.squad : [];
       spec.ball = spec.ball || (preview && preview.ball);
@@ -523,6 +568,15 @@
       marks: game ? chainLines({ spot: spot, toGo: game.toGo }) : null
     });
     function at(x, y) { return sideProject({ x: spot + x, y: y }, { x: camX }); }
+    var drop = play && play.family === 'pass' && !play.thrown && !play.flight ? pocketDrop(play.elapsed) : 0;
+    var chalk = spec.chalk;
+    if (!chalk && play && play.family === 'pass') {
+      chalk = [];
+      play.actors.forEach(function (a) {
+        if (a.off && a.route && a.route.x0 != null) chalk.push({ x0: a.route.x0, y0: a.route.y0, x1: a.route.x, y1: a.route.y });
+      });
+    }
+    drawChalk(ctx, at, chalk);
     if (play && (play.family === 'run' || play.didCatch) && play.lanes) {
       play.lanes.forEach(function (lane) {
         var stateName = play.laneStates && play.laneStates[lane.id] ? play.laneStates[lane.id].state : 'open';
@@ -532,7 +586,7 @@
     }
     if (play && play.family === 'pass' && !play.thrown && !play.flight) {
       var qb = play.actors[play.carrier];
-      var pocketAt = qb && at(qb.x, qb.y);
+      var pocketAt = qb && at(qb.x + drop, qb.y);
       if (pocketAt) {
         drawPocketRing(ctx, {
           x: pocketAt.x, y: pocketAt.y, step: play.ringStep || 0, from: play.ringFrom || 0,
@@ -542,7 +596,9 @@
       }
     }
     var bodies = (squad || []).map(function (p) {
-      return { p: p, s: at(p.x, p.y) };
+      var px = p.x;
+      if (drop && p.off && p.role === 'qb') px += drop;
+      return { p: p, s: at(px, p.y) };
     }).sort(function (a, b) { return a.p.y - b.p.y; });
     var carrier = play && play.actors ? play.actors[play.carrier] : null;
     var aimTarget = spec.aim && spec.aim.preview ? spec.aim.preview.target : null;
@@ -571,7 +627,13 @@
     });
     var ball = live ? play.ball : spec.ball;
     if (ball) {
-      var b = at(ball.x, ball.y - 0.2);
+      var bx = ball.x, by = ball.y - 0.2;
+      if (drop && carrier && carrier.role === 'qb' && !play.flight) bx += drop;
+      var b = at(bx, by);
+      if (play && play.flight) {
+        var flightU = clamp(play.flight.t / (play.flight.air || 1), 0, 1);
+        b.y -= ballLoft(flightU, play.flight.kind);
+      }
       ctx.fillStyle = '#8a4a2a';
       ctx.fillRect(b.x - 3, b.y - 2, 6, 3);
       ctx.fillStyle = '#f6edd4';
@@ -591,10 +653,10 @@
       }
     }
     if (play && play.family === 'pass' && !play.thrown && spec.aim && spec.aim.preview && carrier) {
-      drawPassGuide(ctx, at, carrier, spec.aim);
+      drawPassGuide(ctx, at, { x: carrier.x + drop, y: carrier.y }, spec.aim);
     }
     if (play && play.family === 'pass' && !play.thrown && !spec.aim && spec.coach && carrier) {
-      drawPassGuide(ctx, at, carrier, {
+      drawPassGuide(ctx, at, { x: carrier.x + drop, y: carrier.y }, {
         preview: { x: carrier.x + 12, y: carrier.y - 2 },
         kind: 'bullet',
         radius: 1.4,
@@ -679,7 +741,8 @@
     drawPlayer: drawPlayer, laneStyle: laneStyle, laneRails: laneRails, drawRunLane: drawRunLane,
     pocketRing: pocketRing, tweenRadius: tweenRadius, drawPocketRing: drawPocketRing, RING_STEPS: RING_STEPS,
     SIDE: SIDE, PALETTE: PALETTE, chainLines: chainLines, stepSideCamera: stepSideCamera,
-    sideFocus: sideFocus, sideProject: sideProject, paintMatch: paintMatch, rampFor: rampFor
+    sideFocus: sideFocus, sideProject: sideProject, paintMatch: paintMatch, rampFor: rampFor,
+    pocketDrop: pocketDrop, ballLoft: ballLoft, layoutFor: layoutFor
   };
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.LanternView = api;

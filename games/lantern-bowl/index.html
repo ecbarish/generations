@@ -11,6 +11,7 @@
 <header>
   <a class="home" href="../../index.html"><span class="wide">← Arcade</span><span class="narrow">←</span></a>
   <h1>Lantern Bowl</h1>
+  <small id="build" class="build">v0.1.5</small>
   <div id="settingsMount"><button id="sound" type="button" aria-label="Change sound setting">Sound off</button></div>
 </header>
 <section class="screen" aria-label="Lamplight Field">
@@ -22,24 +23,16 @@
   <div class="pitch">
     <canvas id="field" tabindex="0" aria-label="The field, seen from the side."></canvas>
   </div>
-  <small id="build" class="build">v0.1.5</small>
-  <div id="moves" class="moves" hidden>
-    <button type="button" id="jukeBtn">Juke</button>
-    <button type="button" id="spinBtn">Spin</button>
-  </div>
-  <div id="receivers" class="receivers" hidden></div>
-  <div class="under">
-    <p id="cue" class="field-cue" hidden></p>
-    <p id="sheet" class="sheet" hidden></p>
-    <p class="banner" id="banner" hidden></p>
-  </div>
-  <div class="curtain" id="curtain"><section class="panel" id="panel" role="dialog" aria-labelledby="panelTitle"></section></div>
-</section>
-<footer>
-  <div class="dock" id="dock" role="group" aria-label="Play call"></div>
+  <p id="sheet" class="sheet" hidden></p>
+  <p id="cue" class="field-cue" hidden></p>
+  <p class="banner" id="banner" hidden></p>
   <p class="hint" id="hint"></p>
   <p id="held" class="held" hidden></p>
-</footer>
+  <button type="button" id="turbo" hidden>Turbo</button>
+  <div id="receivers" class="receivers" hidden></div>
+  <div class="dock" id="dock" role="group" aria-label="Play call"></div>
+  <div class="curtain" id="curtain"><section class="panel" id="panel" role="dialog" aria-labelledby="panelTitle"></section></div>
+</section>
 </main>
 <script src="../../shared/engine.js"></script>
 <script src="../../shared/settings.js"></script>

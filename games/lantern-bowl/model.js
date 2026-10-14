@@ -182,12 +182,13 @@
     if (!cap) return s;
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
-  /* The winner is whoever the snap already decided. A lower number stopped the play; it did not "beat" a higher one. */
+  /* The winner is whoever the snap already decided. A lower number stopped the play; it did not "beat" a higher one.
+     The line the player reads has no rating numbers. */
   function resultLine(winner, wVal, loser, lVal) {
     wVal = Math.round(Number(wVal) || 0);
     lVal = Math.round(Number(lVal) || 0);
     var verb = wVal >= lVal ? 'beat' : 'stopped';
-    return phrase(winner, true) + ' (' + wVal + ') ' + verb + ' ' + phrase(loser, false) + ' (' + lVal + ').';
+    return phrase(winner, true) + ' ' + verb + ' ' + phrase(loser, false) + '.';
   }
   function decided(offName, offVal, defName, defVal) {
     offVal = Math.round(Number(offVal) || 0);
@@ -378,18 +379,54 @@
     });
     play.snapLane = id === 'outside' ? 'right' : 'mid';
   }
+  /* Chalk for the card and for the field. The same paths the receivers run. */
+  function routeTable(id) {
+    if (id === 'deep') return [
+      { x0: 1, y0: -14, x1: 28, y1: -3 },
+      { x0: 1, y0: 15, x1: 26, y1: 12 },
+      { x0: 0, y0: -6, x1: 16, y1: -14 },
+      { x0: -2, y0: 3, x1: 4, y1: 7 }
+    ];
+    if (id === 'quick') return [
+      { x0: 0, y0: -8, x1: 15, y1: -8 },
+      { x0: 0, y0: 12, x1: 9, y1: 16 },
+      { x0: 0, y0: -3, x1: 8, y1: -1 },
+      { x0: -2, y0: 3, x1: 4, y1: 7 }
+    ];
+    if (id === 'outside') return [{ x0: -6.4, y0: 10, x1: 8, y1: 16 }];
+    if (id === 'inside') return [{ x0: -9, y0: 0, x1: 5, y1: 0 }];
+    return [];
+  }
+  function previewRoutes(id) { return routeTable(id === 'kick' ? 'quick' : id); }
+  /* Two or three calls. Fourth down brings the kick in and leaves the grid behind. */
+  function offerPlays(game) {
+    if (!game) return ['inside', 'quick', 'outside'];
+    var goal = 100 - (Number(game.spot) || 0);
+    if (game.down >= 4) return goal <= 38 ? ['kick', 'inside'] : ['kick', 'quick'];
+    if ((Number(game.toGo) || 10) <= 2) return ['inside', 'quick'];
+    if ((Number(game.toGo) || 10) >= 8) return ['quick', 'deep', 'outside'];
+    return ['inside', 'quick', 'outside'];
+  }
   function buildPass(game, play, off, def, id) {
     var deep = id === 'deep';
     var qb = off.qb;
     play.actors.push(actor({ off: true, role: 'qb', name: qb.name, x: -6, y: 0, speed: qb.speed, carry: qb.carry, throw: qb.throw }));
     play.carrier = 0;
-    var routes = deep
-      ? [{ role: 'wr', who: off.wr[0], x: 1, y: -14, toX: 28, toY: -3 }, { role: 'wr', who: off.wr[1], x: 1, y: 15, toX: 26, toY: 12 }, { role: 'te', who: off.te, x: 0, y: -6, toX: 16, toY: -14 }]
-      : [{ role: 'wr', who: off.wr[0], x: 0, y: -8, toX: 15, toY: -8 }, { role: 'wr', who: off.wr[1], x: 0, y: 12, toX: 9, toY: 16 }, { role: 'te', who: off.te, x: 0, y: -3, toX: 8, toY: -1 }];
-    routes.forEach(function (r) {
-      play.actors.push(actor({ off: true, role: r.role, name: r.who.name, x: r.x, y: r.y, speed: r.who.speed, catch: r.who.catch, carry: 48, route: { x: r.toX, y: r.toY } }));
+    var table = routeTable(id);
+    var roles = ['wr', 'wr', 'te', 'rb'];
+    var whos = [off.wr[0], off.wr[1], off.te, off.rb];
+    table.forEach(function (r, i) {
+      var who = whos[i];
+      var role = roles[i];
+      play.actors.push(actor({
+        off: true, role: role, name: who.name, x: r.x0, y: r.y0,
+        speed: who.speed, catch: who.catch, carry: role === 'rb' ? who.carry : 48,
+        route: { x: r.x1, y: r.y1, x0: r.x0, y0: r.y0 }
+      }));
     });
-    play.actors.push(actor({ off: true, role: 'rb', name: off.rb.name, x: -2, y: 3, speed: off.rb.speed, catch: off.rb.catch, carry: off.rb.carry, route: { x: 4, y: 7 } }));
+    var routes = table.slice(0, 3).map(function (r, i) {
+      return { role: roles[i], who: whos[i], x: r.x0, y: r.y0, toX: r.x1, toY: r.y1 };
+    });
     [-4, 0, 4].forEach(function (y) {
       var held = roll(game) < chance(off.line, def.rush);
       play.actors.push(actor({
@@ -1262,11 +1299,11 @@
       var landed = ball.x;
       var field = clamp(play.startSpot + landed, 0, 100);
       giveBall(game, other(play.offence), 100 - field);
-      return closePlay(game, 'Intercepted near ' + catcher.actor.name + '. ' + resultLine('the cover', cov, catcher.actor.name + "'s hands", hands), 'turnover', 0, 10, false);
+      return closePlay(game, 'Picked near ' + catcher.actor.name + '. ' + resultLine('the cover', cov, catcher.actor.name + "'s hands", hands), 'turnover', 0, 10, false);
     }
     if (outcome === 'drop') {
       game.events.push('miss');
-      return incomplete(game, catcher.actor.name + ' cannot bring it in. ' + resultLine('the cover', cov, catcher.actor.name + "'s hands", hands));
+      return incomplete(game, 'Broken up. ' + resultLine('the cover', cov, catcher.actor.name + "'s hands", hands));
     }
     game.events.push('miss');
     return incomplete(game, 'The throw misses ' + catcher.actor.name + '. ' + resultLine('the window', opening, 'the throw', ball.qb));
@@ -1290,11 +1327,11 @@
       var landed = ball.x;
       var field = clamp(play.startSpot + landed, 0, 100);
       giveBall(game, other(play.offence), 100 - field);
-      return closePlay(game, 'Intercepted near ' + catcher.actor.name + '. ' + resultLine('the cover', cov == null ? 30 : cov, catcher.actor.name + "'s hands", hands), 'turnover', 0, 10, false);
+      return closePlay(game, 'Picked near ' + catcher.actor.name + '. ' + resultLine('the cover', cov == null ? 30 : cov, catcher.actor.name + "'s hands", hands), 'turnover', 0, 10, false);
     }
     if (outcome === 'drop') {
       game.events.push('miss');
-      return incomplete(game, catcher.actor.name + ' cannot bring it in. ' + resultLine('the cover', cov == null ? 30 : cov, catcher.actor.name + "'s hands", hands));
+      return incomplete(game, 'Broken up. ' + resultLine('the cover', cov == null ? 30 : cov, catcher.actor.name + "'s hands", hands));
     }
     game.events.push('miss');
     return incomplete(game, 'The throw misses ' + catcher.actor.name + '. ' + resultLine('the window', opening, 'the throw', ball.qb));
@@ -1571,7 +1608,7 @@
         if (/Touchdown/.test(text) && game.score.away > before) touchdown += 1;
         else if (/makes it|misses from/.test(text)) fieldGoal += 1;
         else if (/punts/.test(text)) punt += 1;
-        else if (/Intercept|Turnover|Fourth down fails|Safety/.test(text)) turnover += 1;
+        else if (/Intercept|Picked|Turnover|Fourth down fails|Safety/.test(text)) turnover += 1;
       }
     }
     return { drives: drives, punt: punt, fieldGoal: fieldGoal, turnover: turnover, touchdown: touchdown, n: n };
@@ -1815,7 +1852,8 @@
     simulateStyle: simulateStyle, styleBand: styleBand, millraceDrives: millraceDrives, runClockDrive: runClockDrive,
     callStyle: callStyle,
     laneRead: laneRead, updateRunLanes: updateRunLanes,
-    formationFor: formationFor, previewSquad: previewSquad, syncSquad: syncSquad
+    formationFor: formationFor, previewSquad: previewSquad, syncSquad: syncSquad,
+    offerPlays: offerPlays, previewRoutes: previewRoutes
   };
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.LanternModel = api;
