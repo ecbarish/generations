@@ -26,7 +26,7 @@ var t := 0.0
 var font: Font
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	Controls.fill(self)
 	mouse_filter = MOUSE_FILTER_STOP
 	font = ThemeDB.fallback_font
 	visible = false
@@ -66,11 +66,13 @@ func _input(e: InputEvent) -> void:
 		elif Controls.pressed(e, "interact"): _pick(sel)
 		elif Controls.pressed(e, "back"): _pick(_count() - 1)
 		get_viewport().set_input_as_handled()
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var p := get_local_mouse_position()
+	elif Controls.pointing(e):
+		var p := Controls.at(self, e)
 		for i in _count():
 			if _btn(i).has_point(p):
 				_pick(i)
+		get_viewport().set_input_as_handled()
+	elif Controls.swallow_pointer(e):
 		get_viewport().set_input_as_handled()
 
 func _btn(i: int) -> Rect2:

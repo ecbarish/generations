@@ -1853,6 +1853,7 @@ func _run() -> void:
 	main.battle.visible = false
 	main.battle.state = ""
 	preload("res://tests/battle_choices.gd").run(main, check)
+	preload("res://tests/fair_start.gd").run(main, check)
 	preload("res://tests/wild_bond.gd").run(main, check)
 	preload("res://tests/reveal.gd").run(main, check)
 	preload("res://tests/key_hints.gd").run(main, check)
@@ -1864,6 +1865,7 @@ func _run() -> void:
 	_dressing_checks()
 	preload("res://tests/roof_routes.gd").run(main, check)
 	preload("res://tests/door_taps.gd").run(main, check)
+	preload("res://tests/wbl1_menu.gd").run(main, check)
 	# ---- the done line
 	print("Wildbond Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)

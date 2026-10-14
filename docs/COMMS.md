@@ -1,6 +1,12 @@
+### 2026-10-14 20:49 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LB-PLAYSCREEN (Lantern Bowl Retro Bowl-style play-screen redesign, one PR)
+This replaces the small 5b fixes and folds in 5b-2 and the Lantern Bowl phone and ratings rows. Scope: a full-screen field, a thin HUD, drag-to-throw passing with visible routes, steering and juking on runs, a small play-call overlay, and no rating narration. It builds on #422. Evan made the call after playing on his phone, relayed by the Director. Any sw.js or shared/ change gets flagged to SSA first.
+
 ### 2026-10-14 20:10 UTC, Grok (Cursor cloud) for Evan: pull requests need a full phrase
 
 On #419. A pull request title is a clear full phrase, never a fragment. The description is a few full sentences: what changed for the player, why, how it was tested, and which checklist items it ticks. A one-line body is not allowed. Generations Reviewer sends it back when it does not meet this. The rule is in CONTRIBUTING.md and .github/pull_request_template.md.
+
+### 2026-10-14 20:07 UTC, Wildbond & Starfall Dev Lead (Evan), recorded by Generations PM: claiming WB-BUNDLE-1 "Wildbond menu and battle start"
+Scope: WBL-2, WBL-3, WBL-4 and a first phone check, in one PR. The cloud agent building it is bc-f84a88f3. #413 and #415 are merged. #406 (WBL-6) is green and waiting on GAD sign-off.
 
 ### 2026-10-14 20:05 UTC, Grok (Cursor cloud) for Evan: launch work is now bundles
 
@@ -13,6 +19,11 @@ On #419. Side Games Dev Lead keeps NM-FIX-1 (payback hint) and NM-FIX-2 (offline
 ### 2026-10-14 19:45 UTC, Grok (Cursor cloud) for Evan: playtest gaps on the launch checklists
 
 Playtester scored Night Market 5/10, Lantern Bowl 6/10 and Little Ranch 7/10. New rows are first in each lane in docs/QUEUE.md. Lantern Bowl starts with LBL-12 (sideways Kick off, and Settings). Night Market visual life is two pulls, NM-FIX-3 then NM-FIX-4, spec from Game Art Director. NM-FIX-8 is the back control and the fold. NM-FIX-2 sits before NM-RETUNE. Little Ranch adds LRL-12 for the phone overlaps. Cookie art spec stays LRL-8 before LRL-9. Dates, same rates as #405: Little Ranch 18 Oct / 24 Oct (was 16 Oct / 20 Oct). Lantern Bowl 26 Oct / 13 Nov (was 20 Oct / 1 Nov). Night Market 12 Nov / 27 Dec (was 22 Oct / 8 Nov). Wildbond unchanged, 17 Oct / 22 Oct.
+
+### 2026-10-14 19:45 UTC, Side Games Dev Lead (Evan): claiming LR-LAYOUT-1 (Little Ranch cookie/cutter + phone overlap fixes, from GAD spec; Playtester)
+
+### 2026-10-14 19:42 UTC, Claude (cloud session for Evan): claiming WBL-2 (battles start fair)
+From the Wildbond launch list (#405), with Evan's go-ahead. Every creature started a battle with a random head start, so a quicker foe often struck (or began winding up) before you could choose. Now your lead creature moves first and the battle opens on your menu. A battle with every foe already down ends instead of asking for a move. Files: wildbond-godot/scripts/battle.gd, tests/fair_start.gd, tests/run_tests.gd, tools/audit/wildbond_fair_start_view.gd, docs/screenshots/wbl2/. No save change. Generations Reviewer merges.
 
 ### 2026-10-14 19:38 UTC, Side Games Dev Lead (Evan): claiming NM-FIX-1 (Night Market payback hint shows 2s on every stall + show 50% offline rate on screen; Playtester 5/10)
 
