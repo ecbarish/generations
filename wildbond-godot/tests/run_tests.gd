@@ -464,21 +464,17 @@ func _run() -> void:
 	var young_coil: Dictionary = main.R.make("murkcoil", 20, {}, main.rng)
 	young_coil.bond = 280.0
 	check(main.R.evo_target(young_coil) == "", "catalogue batch: Bonded before the level, Murkcoil still waits")
-	var px_scale := { "tiny": 0.7, "small": 0.85, "medium": 1.0, "large": 1.2, "huge": 1.45 }
 	var size_ok := true
 	var size_note := ""
+	var stand_pose := { "walking": false, "wag": 0, "ears_up": true }
 	for id in batch:
 		var sp: Dictionary = main.DATA.SPECIES[id]
-		var batch_look: Dictionary = main.Figures.look_for(sp)
-		var draw_sc: float = float(px_scale[str(sp.size)])
-		for pose in [{ "walking": false, "wag": 0 }, { "walking": true, "frame": 1, "wag": 1, "ears_up": true }]:
-			var span: Vector2i = main.Figures.pixel_span(main.Figures.parts_of(true, pose, batch_look))
-			var px_h := int(round(float(span.y) * draw_sc))
-			var px_w := int(round(float(span.x) * draw_sc))
-			if px_h < 12 or px_h > 32 or px_w < 12 or px_w > 32:
-				size_ok = false
-				size_note += "%s %dx%d " % [id, px_w, px_h]
-	check(size_ok, "catalogue batch: new creatures are 12 to 32px beside the 12x21 tamer" + ("" if size_note == "" else " (" + size_note + ")"))
+		var want: int = main.Figures.drawn_px(float(sp.metres))
+		var span: Vector2i = main.Figures.pixel_span(main.Figures.sized_parts(sp, true, stand_pose))
+		if span.y != want or span.x < 8:
+			size_ok = false
+			size_note += "%s %dx%d want %d " % [id, span.x, span.y, want]
+	check(size_ok, "catalogue batch: drawn height is metres times 12.35" + ("" if size_note == "" else " (" + size_note + ")"))
 	var placed := {}
 	for mid in main.DATA.MAPS:
 		var area: Dictionary = main.DATA.MAPS[mid]
@@ -573,19 +569,65 @@ func _run() -> void:
 			ratio_three += 1
 	check(ratio_two + ratio_three > ratio_one, "roster shape: most families have 2 or 3 stages (%d of one, %d of two, %d of three)" % [ratio_one, ratio_two, ratio_three])
 	var mark_note := ""
+	var mark_colors := {}
+	var height_note := ""
+	var sheet_cols := { "e6dcc6": true, "1e1a22": true }
 	for sid in main.DATA.SPECIES:
 		var mark_sp: Dictionary = main.DATA.SPECIES[sid]
+		var mark_parts: Array = main.Figures.sized_parts(mark_sp, true, stand_pose)
+		for mark_p in mark_parts:
+			var mark_hex := (mark_p[4] as Color).to_html(false)
+			sheet_cols[mark_hex] = true
+			if not main.Figures.PALETTE_HEX.has(mark_hex):
+				mark_colors[mark_hex] = sid
 		if not mark_sp.get("marks", false):
 			continue
-		var mark_look: Dictionary = main.Figures.look_for(mark_sp)
-		var mark_sc: float = float(px_scale[str(mark_sp.size)])
-		for mark_pose in [{ "walking": false, "wag": 0 }, { "walking": true, "frame": 1, "wag": 1, "ears_up": true }]:
-			var mark_span: Vector2i = main.Figures.pixel_span(main.Figures.parts_of(true, mark_pose, mark_look))
-			var mark_h := int(round(float(mark_span.y) * mark_sc))
-			var mark_w := int(round(float(mark_span.x) * mark_sc))
-			if mark_h < 12 or mark_h > 32 or mark_w < 12 or mark_w > 32:
-				mark_note += "%s %dx%d " % [sid, mark_w, mark_h]
-	check(mark_note == "", "roster audit: marked creatures are 12 to 32px beside the tamer" + ("" if mark_note == "" else " (" + mark_note + ")"))
+		if not mark_sp.has("metres"):
+			height_note += "%s no metres " % sid
+			continue
+		var mark_want: int = main.Figures.drawn_px(float(mark_sp.metres))
+		var mark_span: Vector2i = main.Figures.pixel_span(mark_parts)
+		if mark_span.y != mark_want:
+			mark_note += "%s %dpx want %d " % [sid, mark_span.y, mark_want]
+		var mark_walk: Vector2i = main.Figures.pixel_span(main.Figures.sized_parts(mark_sp, true, { "walking": true, "frame": 1, "wag": 1, "ears_up": true }))
+		if mark_walk.y < 12 or mark_walk.y > 34:
+			mark_note += "%s walk %d " % [sid, mark_walk.y]
+	check(mark_note == "" and height_note == "", "roster audit: marked creatures draw at metres times 12.35" + ("" if mark_note == "" and height_note == "" else " (" + height_note + mark_note + ")"))
+	var grow_note := ""
+	for sid in main.DATA.SPECIES:
+		var grow_opts: Array = []
+		if main.DATA.EVOS.has(sid):
+			grow_opts = main.DATA.EVOS[sid]
+		elif main.DATA.SPECIES[sid].has("evo"):
+			grow_opts = [main.DATA.SPECIES[sid].evo]
+		for grow_o in grow_opts:
+			var grow_to := str(grow_o.get("to", ""))
+			if grow_to == "" or not main.DATA.SPECIES.has(grow_to):
+				continue
+			var grow_young: int = main.Figures.world_height(main.DATA.SPECIES[sid])
+			var grow_next: int = main.Figures.world_height(main.DATA.SPECIES[grow_to])
+			var young_new: bool = main.DATA.SPECIES[sid].get("marks", false)
+			var next_new: bool = main.DATA.SPECIES[grow_to].get("marks", false)
+			if young_new and next_new and grow_next <= grow_young:
+				grow_note += "%s %d→%s %d " % [sid, grow_young, grow_to, grow_next]
+			elif next_new and not young_new and grow_next <= grow_young:
+				grow_note += "%s %d→%s %d " % [sid, grow_young, grow_to, grow_next]
+			elif young_new and not next_new and grow_young > grow_next:
+				grow_note += "%s %d→%s %d " % [sid, grow_young, grow_to, grow_next]
+	check(grow_note == "", "catalogue height: a later stage is taller" + ("" if grow_note == "" else " (" + grow_note + ")"))
+	check(mark_colors.is_empty(), "palette: every creature colour is on the shared ramps" + ("" if mark_colors.is_empty() else " (" + ", ".join(mark_colors.keys()) + ")"))
+	var tamer_parts: Array = main.Figures.person_parts(Vector2i.DOWN, false, 0, false, {
+		"skin": Color("f4eddc"), "hair": Color("6a4a32"), "hat": Color("33465e"),
+		"shirt": Color("8e342c"), "legs": Color("435a78"), "shoes": Color("4a3426"),
+		"style": "short", "outfit": "trousers", "body": "broad",
+	})
+	for tamer_p in tamer_parts:
+		var snapped: Color = main.Figures.nearest_palette(tamer_p[4])
+		var snapped_hex := snapped.to_html(false)
+		sheet_cols[snapped_hex] = true
+	check(sheet_cols.size() <= 32, "palette: the figure sheet stays within 32 colours (%d)" % sheet_cols.size())
+	for sheet_hex in sheet_cols:
+		check(main.Figures.PALETTE_HEX.has(sheet_hex), "palette: sheet colour #%s is a ramp colour" % sheet_hex)
 	# ---- CR4: the evolution moment has staged phases; showpieces get the full version
 	main._evo_cine_start({ "sp": "cindercub", "name": "Test" }, "elderhorn")
 	check(not main.evo_cine.is_empty(), "CR4: starting the cinematic sets state")
@@ -1606,7 +1648,7 @@ func _run() -> void:
 	# Fast-forward through the cinematic
 	for i in 60:
 		tick(0.1)
-	check(cub.sp == "smoulderpup" and main.seen.has("smoulderpup") and main.partner.look.body == Color(main.DATA.SPECIES.smoulderpup.col), "Let it change: Smoulderpup, now walking with you")
+	check(cub.sp == "smoulderpup" and main.seen.has("smoulderpup") and main.partner.look.body == main.Figures.look_for(main.DATA.SPECIES.smoulderpup).body, "Let it change: Smoulderpup, now walking with you")
 	talk_through()
 	for c in keep_team:
 		c.erase("hold")

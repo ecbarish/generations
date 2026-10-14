@@ -5,6 +5,39 @@ extends RefCounted
 ## so any CanvasItem can draw them: Figures.person(self, ...) or Figures.creature(self, ...).
 
 const OUTLINE := Color("1e1a22")
+## Shared valley ramps (docs/art/wildbond-art-direction.md). Three values each, dark to light.
+## A creature uses one ramp: shadow, body, and the lit upper-left value. No further shades.
+const LAMP := Color("f2d080")
+const RAMP := {
+	"Ember": [Color("6e2620"), Color("8e342c"), Color("ab463a")],
+	"Tide": [Color("2f5f7e"), Color("3a7090"), Color("4a84a2")],
+	"Grove": [Color("2f6a4a"), Color("3f8558"), Color("5ea26a")],
+	"Stone": [Color("33465e"), Color("435a78"), Color("56708f")],
+	"Gale": [Color("1f4a44"), Color("2a5e54"), Color("37766a")],
+	"Shade": [Color("4a3426"), Color("6a4a32"), Color("8a6444")],
+	"Radiant": [Color("cfc4ac"), Color("e6dcc6"), Color("f4eddc")],
+}
+const PALETTE_HEX := [
+	"1e1a22", "f2d080",
+	"6e2620", "8e342c", "ab463a",
+	"2f5f7e", "3a7090", "4a84a2",
+	"2f6a4a", "3f8558", "5ea26a",
+	"33465e", "435a78", "56708f",
+	"1f4a44", "2a5e54", "37766a",
+	"4a3426", "6a4a32", "8a6444",
+	"cfc4ac", "e6dcc6", "f4eddc",
+]
+
+static func nearest_palette(c: Color) -> Color:
+	var best := OUTLINE
+	var best_d := 999.0
+	for hex in PALETTE_HEX:
+		var p := Color(str(hex))
+		var d := (p.r - c.r) * (p.r - c.r) + (p.g - c.g) * (p.g - c.g) + (p.b - c.b) * (p.b - c.b)
+		if d < best_d:
+			best_d = d
+			best = p
+	return best
 
 static func paint(ci: CanvasItem, o: Vector2, parts: Array) -> void:
 	for p in parts:
@@ -147,16 +180,22 @@ static func parts_of(right: bool, pose: Dictionary, look: Dictionary) -> Array:
 		"moth": P = _moth(pose, look)
 		"treefolk": P = _treefolk(pose, look)
 		_: P = _wolf(pose, look)
-	if str(look.get("head", "")) != "":
-		P.append_array(_marks(pose, look))
 	if str(look.get("gear", "")) != "":
 		P.append_array(_gear_parts(P, str(look.gear)))
 	if not right:
 		for p in P:
 			p[0] = 17 - p[0] - p[2]
+	if str(look.get("head", "")) != "":
+		P.append_array(_marks(P, look, right))
 	return P
 
-## How tall and wide a figure reads, including the one-pixel outline. World size is this times the species scale.
+## The body plan without marks, so a height fit can run before the 1px mark outlines are placed.
+static func _body(right: bool, pose: Dictionary, look: Dictionary) -> Array:
+	var bare := look.duplicate()
+	bare["head"] = ""
+	return parts_of(right, pose, bare)
+
+## How tall and wide a figure reads, including the one-pixel outline. Height is baked into the parts.
 static func pixel_span(parts: Array) -> Vector2i:
 	var min_x := 999
 	var min_y := 999
@@ -172,8 +211,8 @@ static func pixel_span(parts: Array) -> Vector2i:
 ## Gear shows on whoever wears it (rules.gd GEAR): found on the body (the biggest part), so it fits every body plan.
 ## A harness is a strap round the middle with a buckle, a bell hangs at the chest, a ribbon flies at the back, and a
 ## band or charm is a collar of its colour just behind the head.
-const GEAR_COL := { "harness": Color("8a5a32"), "bell": Color("e8c040"), "ribbon": Color("e04a8a"), "ember": Color("e0602a"),
-	"tide": Color("6ab0e8"), "grove": Color("5d9a3e"), "stone": Color("9a9488") }
+const GEAR_COL := { "harness": Color("6a4a32"), "bell": Color("f2d080"), "ribbon": Color("ab463a"), "ember": Color("f2d080"),
+	"tide": Color("4a84a2"), "grove": Color("5ea26a"), "stone": Color("56708f") }
 static func _gear_parts(P: Array, gear: String) -> Array:
 	var body: Array = P[0]
 	for p in P:
@@ -192,7 +231,7 @@ static func _gear_parts(P: Array, gear: String) -> Array:
 		"ribbon":
 			return [[x - 1, y - 1, 2, 2, col], [x - 3, y - 2, 2, 1, col, false]]
 		_:
-			return [[x + w - 2, y, 1, h, col, false], [x + w - 3, y, 1, h, col.darkened(0.25), false]]
+			return [[x + w - 2, y, 1, h, col, false], [x + w - 3, y, 1, h, Color("4a3426"), false]]
 
 static func _frame(pose: Dictionary) -> int:
 	return pose.get("frame", 0) if pose.get("walking", false) else 0
@@ -202,7 +241,7 @@ static func _lift(frame: int, pair: int) -> int:
 	return 1 if (frame == 1 and pair == 0) or (frame == 3 and pair == 1) else 0
 
 static func _eye(pose: Dictionary, c: Color) -> Color:
-	return Color("222222") if not pose.get("blink", false) else c.darkened(0.3)
+	return OUTLINE if not pose.get("blink", false) else c
 
 ## Cindercub's plan: a wolf pup with a brush of a tail, pricked ears and a pale muzzle.
 static func _wolf(pose: Dictionary, look: Dictionary) -> Array:
@@ -218,8 +257,8 @@ static func _wolf(pose: Dictionary, look: Dictionary) -> Array:
 	var legh := 3 - cr
 	# far legs
 	if not sit:
-		P.append([5 + _lift(f, 1), by + 5, 1, legh - _lift(f, 1), c.darkened(0.25)])
-	P.append([12 + _lift(f, 0), by + 5, 1, legh - _lift(f, 0), c.darkened(0.25)])
+		P.append([5 + _lift(f, 1), by + 5, 1, legh - _lift(f, 1), dark])
+	P.append([12 + _lift(f, 0), by + 5, 1, legh - _lift(f, 0), dark])
 	# the tail, wagging
 	if sit:
 		P.append([1, 10, 6, 2, c]); P.append([1, 10, 2, 2, belly])
@@ -231,7 +270,7 @@ static func _wolf(pose: Dictionary, look: Dictionary) -> Array:
 		P.append([3, by + 1, 8, 5, c]); P.append([4, by + 4, 4, 3, c]); P.append([6, 11, 2, 1, dark])   # haunch and paw
 	else:
 		P.append([3, by, 8, 5, c])
-	P.append([5, by + 3 + (1 if sit else 0), 5, 2, belly]); P.append([4, by + (1 if sit else 0), 6, 1, c.lightened(0.15)])
+	P.append([5, by + 3 + (1 if sit else 0), 5, 2, belly]); P.append([4, by + (1 if sit else 0), 6, 1, belly])
 	# near legs
 	if not sit:
 		P.append([4 + _lift(f, 0), by + 5, 1, legh - _lift(f, 0), c]); P.append([4 + _lift(f, 0), by + 4 + legh - _lift(f, 0), 1, 1, dark])
@@ -253,7 +292,8 @@ static func _wolf(pose: Dictionary, look: Dictionary) -> Array:
 static func _lizard(pose: Dictionary, look: Dictionary) -> Array:
 	var c: Color = look.body
 	var belly: Color = look.belly
-	var fin: Color = look.get("accent", c.lightened(0.3))
+	var dark: Color = look.dark
+	var fin: Color = look.get("accent", belly)
 	var cr: int = pose.get("crouch", 0)
 	var lie: bool = pose.get("sit", false)                                       # a lizard rests flat on its belly
 	var f := _frame(pose)
@@ -263,8 +303,8 @@ static func _lizard(pose: Dictionary, look: Dictionary) -> Array:
 	var legh := (12 - (by + 4)) if not lie else 0
 	# far legs, splayed
 	if legh > 0:
-		P.append([6 + _lift(f, 1), by + 4, 1, legh - _lift(f, 1), c.darkened(0.25)])
-		P.append([12 + _lift(f, 0), by + 4, 1, legh - _lift(f, 0), c.darkened(0.25)])
+		P.append([6 + _lift(f, 1), by + 4, 1, legh - _lift(f, 1), dark])
+		P.append([12 + _lift(f, 0), by + 4, 1, legh - _lift(f, 0), dark])
 	# the tail: long and tapering, the tip flicking
 	P.append([0, by + 2 - wag, 2, 1, c]); P.append([1, by + 2, 3, 2, c]); P.append([3, by + 1, 2, 3, c])
 	# the body, with a fin of spines down the back
@@ -277,8 +317,8 @@ static func _lizard(pose: Dictionary, look: Dictionary) -> Array:
 	# the head: flat, a frill behind it, a wide mouth line and one big eye
 	var hy := by - 1 + (1 if pose.get("sniff", false) else 0)
 	P.append([11, hy - 1, 2, 2, fin]); P.append([12, hy, 5, 4, c]); P.append([13, hy + 3, 4, 1, belly])
-	P.append([14, hy + 2, 3, 1, c.darkened(0.3)])
-	P.append([14, hy, 2, 2, Color("f4f4f4")]); P.append([15, hy + (0 if pose.get("ears_up", false) else 1), 1, 1, _eye(pose, c)])
+	P.append([14, hy + 2, 3, 1, dark])
+	P.append([14, hy, 2, 2, Color("f4eddc")]); P.append([15, hy + (0 if pose.get("ears_up", false) else 1), 1, 1, _eye(pose, c)])
 	return P
 
 ## Mosshog's plan: a stocky boar, moss and a few flowers growing on its back, a round snout and small tusks;
@@ -287,7 +327,7 @@ static func _boar(pose: Dictionary, look: Dictionary) -> Array:
 	var c: Color = look.body
 	var belly: Color = look.belly
 	var dark: Color = look.dark
-	var moss: Color = look.get("accent", Color("5d9a3e"))
+	var moss: Color = look.get("accent", belly)
 	var snout: Color = look.get("snout", Color("b07a5a"))
 	var cr: int = pose.get("crouch", 0)
 	var sit: bool = pose.get("sit", false)
@@ -298,15 +338,15 @@ static func _boar(pose: Dictionary, look: Dictionary) -> Array:
 	var legh := 12 - (by + 5)
 	# far legs, short and sturdy
 	if legh > 0:
-		P.append([4 + _lift(f, 1), by + 5, 2, legh - _lift(f, 1), c.darkened(0.25)]); P.append([10 + _lift(f, 0), by + 5, 2, legh - _lift(f, 0), c.darkened(0.25)])
+		P.append([4 + _lift(f, 1), by + 5, 2, legh - _lift(f, 1), dark]); P.append([10 + _lift(f, 0), by + 5, 2, legh - _lift(f, 0), dark])
 	# a curly little tail
 	P.append([1, by + wag, 1, 2, c]); P.append([1, by - 1 + wag, 1, 1, dark])
 	# the body and the garden on its back
 	P.append([2, by - 1, 9, 6, c]); P.append([4, by + 3, 6, 2, belly])
-	P.append([3, by - 2, 7, 2, moss]); P.append([4, by - 3, 4, 1, moss.lightened(0.15)])
-	P.append([5, by - 3, 1, 1, Color("f0a0c0")]); P.append([8, by - 2, 1, 1, Color("f2e8a0")])
+	P.append([3, by - 2, 7, 2, moss]); P.append([4, by - 3, 4, 1, belly])
+	P.append([5, by - 3, 1, 1, LAMP]); P.append([8, by - 2, 1, 1, Color("f4eddc")])
 	if pose.get("bird", false):
-		P.append([6, by - 6, 2, 2, Color("8a6a4a")]); P.append([8, by - 5, 1, 1, Color("f2b04a")]); P.append([7, by - 6, 1, 1, Color("222222")])
+		P.append([6, by - 6, 2, 2, Color("6a4a32")]); P.append([8, by - 5, 1, 1, LAMP]); P.append([7, by - 6, 1, 1, OUTLINE])
 	# near legs
 	if legh > 0:
 		P.append([3 + _lift(f, 0), by + 5, 2, legh - _lift(f, 0), c]); P.append([9 + _lift(f, 1), by + 5, 2, legh - _lift(f, 1), c])
@@ -316,7 +356,7 @@ static func _boar(pose: Dictionary, look: Dictionary) -> Array:
 	P.append([10, hy - 2, 2, 2, c]); P.append([13, hy - 2 - (1 if pose.get("ears_up", false) else 0), 2, 2, c])
 	P.append([10, hy, 5, 5, c])
 	P.append([15, hy + 2 + tw, 2, 3, snout]); P.append([16, hy + 3 + tw, 1, 1, dark])
-	P.append([15, hy + 5, 1, 1, Color("f4f0e0")])
+	P.append([15, hy + 5, 1, 1, Color("f4eddc")])
 	P.append([13, hy + 1, 1, 1, _eye(pose, c)])
 	return P
 
@@ -330,13 +370,15 @@ const SHAPE_FOR := {
 	"orchardroot": "treefolk", "flintroot": "treefolk", "meadowmantle": "treefolk", # roots, soil and a sheltering crown
 }
 
-## A look for any species from the game data: its family's body plan in its own colour (main.gd overrides a few).
+## A look for any species from the game data: its family's body plan, in the shared ramp for its element.
+## Three values only. The light value sits on the upper left; the dark value is the shadow. Nothing is lightened or darkened.
 static func look_for(species: Dictionary) -> Dictionary:
-	var c := Color(species.get("col", "#a08060"))
+	var ramp: Array = RAMP.get(str(species.get("el", "")), RAMP["Shade"])
 	var id := str(species.get("name", "")).to_lower()
-	var out := { "kind": species.get("shape", SHAPE_FOR.get(id, species.get("fam", "wolf"))), "body": c, "belly": c.lightened(0.45), "dark": c.darkened(0.6),
-		"accent": c.lightened(0.25) if species.get("el", "") != "Grove" else Color("5d9a3e"), "snout": c.lightened(0.3) }
-	# Marks are opt-in. Existing species keep the body plan they already had.
+	var out := {
+		"kind": species.get("shape", SHAPE_FOR.get(id, species.get("fam", "wolf"))),
+		"body": ramp[1], "belly": ramp[2], "dark": ramp[0], "accent": ramp[2], "snout": ramp[2],
+	}
 	if species.get("marks", false):
 		var lk: Dictionary = species.get("look", {})
 		out["head"] = str(lk.get("head", ""))
@@ -345,94 +387,272 @@ static func look_for(species: Dictionary) -> Dictionary:
 		out["pattern"] = str(lk.get("pattern", ""))
 	return out
 
-## A few extra parts for a marked species: the promise in a young form, and the same promise opened in a later one.
-## Colours stay inside the valley palette (lamplight, leaf, the flower pixels Mosshog already grows).
-const LAMP := Color("f2d080")
-const FLOWER := Color("f0a0c0")
-const FLOWER_PALE := Color("f2e8a0")
-const LEAF := Color("5d9a3e")
-static func _marks(_pose: Dictionary, look: Dictionary) -> Array:
+## Drawn height is metres times 12.35 pixels, clamped to the range beside the tamer.
+## A species without a catalogue height keeps the old world height (the former fractional scale, baked into pixels).
+const _LEGACY_SCALE := { "tiny": 0.7, "small": 0.85, "medium": 1.0, "large": 1.2, "huge": 1.45 }
+const _STAND := { "walking": false, "wag": 0, "ears_up": true }
+
+static func drawn_px(metres: float) -> int:
+	return clampi(int(round(metres * 12.35)), 12, 32)
+
+static func _target_height(species: Dictionary, canon: Array) -> int:
+	if species.has("metres"):
+		return drawn_px(float(species.metres))
+	var span := pixel_span(canon).y
+	var sc: float = float(_LEGACY_SCALE.get(str(species.get("size", "medium")), 1.0))
+	return clampi(int(round(float(span) * sc)), 12, 32)
+
+static func world_height(species: Dictionary) -> int:
+	var look := look_for(species)
+	return _target_height(species, _body(true, _STAND, look))
+
+static func _standing(pose: Dictionary) -> bool:
+	return not bool(pose.get("walking", false)) and int(pose.get("wag", 0)) == 0 and bool(pose.get("ears_up", false)) \
+		and not bool(pose.get("sit", false)) and int(pose.get("crouch", 0)) == 0 and not bool(pose.get("sniff", false)) \
+		and not bool(pose.get("bird", false))
+
+## Parts at the species' pixel height. Feet stay on y=12. Marks are added after the fit, so their outline stays one pixel.
+static func sized_parts(species: Dictionary, right: bool, pose: Dictionary, look_override: Dictionary = {}) -> Array:
+	var look := look_for(species)
+	if not look_override.is_empty():
+		look = look_override.duplicate()
+		if not look.has("kind"):
+			look["kind"] = look_for(species).get("kind", "wolf")
+		if species.get("marks", false) and not look.has("head"):
+			var base := look_for(species)
+			for key in ["head", "back", "tail", "pattern"]:
+				if base.has(key):
+					look[key] = base[key]
+	var canon := _body(right, _STAND, look)
+	var fitted := _fit_height(_body(right, pose, look), canon, _target_height(species, canon), _standing(pose))
+	if str(look.get("head", "")) != "":
+		fitted.append_array(_marks(fitted, look, right))
+	return fitted
+
+static func _bounds(parts: Array) -> Dictionary:
+	var min_x := 999
+	var min_y := 999
+	var max_x := -999
+	var max_y := -999
+	for p in parts:
+		min_x = mini(min_x, int(p[0]))
+		min_y = mini(min_y, int(p[1]))
+		max_x = maxi(max_x, int(p[0]) + int(p[2]))
+		max_y = maxi(max_y, int(p[1]) + int(p[3]))
+	return {"min_x": min_x, "min_y": min_y, "max_x": max_x, "max_y": max_y}
+
+static func _fit_height(parts: Array, canon: Array, target_h: int, exact: bool) -> Array:
+	if parts.is_empty() or canon.is_empty():
+		return parts
+	var cb: Dictionary = _bounds(canon)
+	var ch: int = maxi(1, int(cb.max_y) - int(cb.min_y))
+	var want: int = maxi(1, target_h - 2)
+	var scale := float(want) / float(ch)
+	var cx := (float(cb.min_x) + float(cb.max_x)) * 0.5
+	var out: Array = []
+	for p in parts:
+		var w := maxi(1, int(round(float(p[2]) * scale)))
+		var h := maxi(1, int(round(float(p[3]) * scale)))
+		var x := int(round(cx + (float(p[0]) - cx) * scale))
+		var bottom := int(p[1]) + int(p[3])
+		var yb := 12 - int(round(float(int(cb.max_y) - bottom) * scale))
+		var part: Array = [x, yb - h, w, h, p[4]]
+		if p.size() > 5:
+			part.append(p[5])
+		out.append(part)
+	if not exact:
+		return out
+	var guard := 0
+	while pixel_span(out).y != target_h and guard < 16:
+		var span_y := pixel_span(out).y
+		var top := 999
+		for q in out:
+			top = mini(top, int(q[1]))
+		if span_y < target_h:
+			for q in out:
+				if int(q[1]) == top:
+					q[1] = int(q[1]) - 1
+					q[3] = int(q[3]) + 1
+		else:
+			var moved := false
+			for q in out:
+				if int(q[1]) != top:
+					continue
+				if int(q[3]) > 1:
+					q[3] = int(q[3]) - 1
+				else:
+					q[1] = int(q[1]) + 1
+				moved = true
+			if not moved:
+				break
+		guard += 1
+	return out
+
+## Marks sit on the body plan's own anchors (the largest part, its top, the face, the tail), each with a 1px outline.
+const LEAF := Color("5ea26a")
+const PALE := Color("f4eddc")
+
+static func _anchors(parts: Array, facing_right: bool) -> Dictionary:
+	var body: Array = [0, 4, 4, 4, OUTLINE]
+	var best := -1
+	for p in parts:
+		if int(p[2]) < 2 or int(p[3]) < 2:
+			continue
+		var area := int(p[2]) * int(p[3])
+		if area > best:
+			best = area
+			body = p
+	var head: Array = body
+	var tail: Array = body
+	var head_at := -9999
+	var tail_at := 9999
+	for p in parts:
+		if int(p[2]) < 2 or int(p[3]) < 2:
+			continue
+		var front := int(p[0]) + int(p[2]) if facing_right else -int(p[0])
+		var back := int(p[0]) if facing_right else -(int(p[0]) + int(p[2]))
+		if front > head_at:
+			head_at = front
+			head = p
+		if back < tail_at:
+			tail_at = back
+			tail = p
+	return {"body": body, "head": head, "tail": tail}
+
+## A filled mark and its outline, both inside the host so they do not change the figure's height.
+static func _inked(host: Array, cx: float, cy: float, cw: int, ch: int, col: Color) -> Array:
+	var hx := int(host[0])
+	var hy := int(host[1])
+	var hw := int(host[2])
+	var hh := int(host[3])
+	if hw < 2 or hh < 2:
+		return []
+	var tw := mini(cw + 2, hw)
+	var th := mini(ch + 2, hh)
+	var x := hx + int(round(cx * float(hw))) - int(tw / 2.0)
+	var y := hy + int(round(cy * float(hh))) - int(th / 2.0)
+	x = clampi(x, hx, hx + hw - tw)
+	y = clampi(y, hy, hy + hh - th)
+	var iw := tw - 2 if tw >= 3 else 1
+	var ih := th - 2 if th >= 3 else 1
+	iw = maxi(1, iw)
+	ih = maxi(1, ih)
+	var ix := x + int((tw - iw) / 2.0)
+	var iy := y + int((th - ih) / 2.0)
+	return [[x, y, tw, th, OUTLINE, false], [ix, iy, iw, ih, col, false]]
+
+static func _marks(parts: Array, look: Dictionary, facing_right: bool) -> Array:
+	var a := _anchors(parts, facing_right)
+	var body: Array = a.body
+	var head: Array = a.head
+	var tail: Array = a.tail
 	var c: Color = look.body
 	var belly: Color = look.belly
 	var dark: Color = look.dark
-	var accent: Color = look.get("accent", c.lightened(0.3))
+	var accent: Color = look.get("accent", belly)
 	var P: Array = []
 	match str(look.get("pattern", "")):
 		"rings":
-			P.append([7, 8, 3, 1, belly])
+			P.append_array(_inked(body, 0.45, 0.42, 3, 1, belly))
+			P.append_array(_inked(body, 0.55, 0.68, 3, 1, dark))
 		"mottled":
-			P.append([6, 7, 1, 1, dark]); P.append([9, 9, 1, 1, belly])
+			P.append_array(_inked(body, 0.35, 0.4, 1, 1, dark))
+			P.append_array(_inked(body, 0.62, 0.62, 1, 1, belly))
 		"bands":
-			P.append([5, 7, 6, 1, belly]); P.append([6, 9, 5, 1, accent])
+			P.append_array(_inked(body, 0.5, 0.35, 4, 1, belly))
+			P.append_array(_inked(body, 0.5, 0.62, 4, 1, accent))
 		"speckles":
-			P.append([7, 6, 1, 1, accent]); P.append([10, 8, 1, 1, belly])
+			P.append_array(_inked(body, 0.38, 0.36, 1, 1, accent))
+			P.append_array(_inked(body, 0.64, 0.58, 1, 1, belly))
 		"cracks":
-			P.append([6, 5, 1, 3, LAMP]); P.append([7, 7, 3, 1, LAMP])
+			P.append_array(_inked(body, 0.42, 0.4, 1, 3, LAMP))
+			P.append_array(_inked(body, 0.58, 0.55, 3, 1, LAMP))
 		"rays":
-			P.append([8, 4, 1, 3, LAMP]); P.append([11, 5, 1, 2, FLOWER_PALE])
+			P.append_array(_inked(body, 0.4, 0.3, 1, 3, LAMP))
+			P.append_array(_inked(body, 0.66, 0.48, 1, 2, PALE))
 		"socks":
-			P.append([4, 11, 1, 1, belly]); P.append([11, 11, 1, 1, belly])
+			P.append_array(_inked(body, 0.28, 0.86, 1, 1, belly))
+			P.append_array(_inked(body, 0.72, 0.86, 1, 1, belly))
 		"spots":
-			P.append([8, 5, 2, 2, Color("e0602a")])
+			P.append_array(_inked(body, 0.48, 0.4, 2, 2, LAMP))
 		"chevrons":
-			P.append([6, 6, 2, 1, dark]); P.append([9, 7, 2, 1, dark])
+			P.append_array(_inked(body, 0.36, 0.38, 2, 1, dark))
+			P.append_array(_inked(body, 0.64, 0.58, 2, 1, dark))
 	match str(look.get("back", "")):
 		"fin-ridge":
-			P.append([7, 0, 1, 4, accent]); P.append([9, 1, 1, 3, accent])
+			P.append_array(_inked(body, 0.4, 0.12, 1, 3, accent))
+			P.append_array(_inked(body, 0.62, 0.18, 1, 2, accent))
 		"wave-ridge":
-			P.append([4, 3, 2, 3, accent]); P.append([7, 2, 2, 4, accent]); P.append([10, 3, 2, 3, belly])
+			P.append_array(_inked(body, 0.28, 0.2, 2, 2, accent))
+			P.append_array(_inked(body, 0.5, 0.14, 2, 2, accent))
+			P.append_array(_inked(body, 0.74, 0.24, 2, 2, belly))
 		"narrow-wings":
-			P.append([2, 5, 3, 1, accent.darkened(0.15)])
+			P.append_array(_inked(body, 0.22, 0.3, 3, 1, dark))
 		"crust-plates":
-			P.append([5, 3, 3, 2, dark]); P.append([9, 4, 3, 2, c.darkened(0.15)])
+			P.append_array(_inked(body, 0.32, 0.22, 3, 2, dark))
+			P.append_array(_inked(body, 0.68, 0.3, 3, 2, c))
 		"flower-canopy":
-			P.append([3, 1, 3, 2, FLOWER]); P.append([7, 0, 3, 2, FLOWER_PALE]); P.append([11, 1, 3, 2, LEAF])
+			P.append_array(_inked(body, 0.28, 0.16, 2, 2, LAMP))
+			P.append_array(_inked(body, 0.52, 0.12, 2, 2, PALE))
+			P.append_array(_inked(body, 0.76, 0.18, 2, 2, LEAF))
 		"spark-orbit":
-			P.append([9, 2, 1, 1, LAMP]); P.append([12, 4, 1, 1, FLOWER_PALE])
+			P.append_array(_inked(body, 0.72, 0.18, 1, 1, LAMP))
+			P.append_array(_inked(body, 0.88, 0.36, 1, 1, PALE))
 		"sun-sail":
-			P.append([7, 1, 2, 4, LAMP]); P.append([9, 2, 1, 3, FLOWER_PALE])
+			P.append_array(_inked(body, 0.55, 0.16, 2, 3, LAMP))
+			P.append_array(_inked(body, 0.75, 0.28, 1, 2, PALE))
 		"mist-ruff":
-			P.append([8, 4, 4, 2, belly])
+			P.append_array(_inked(body, 0.62, 0.22, 3, 2, belly))
 		"wind-mane":
-			P.append([0, 4, 4, 1, belly]); P.append([0, 5, 3, 1, accent])
+			P.append_array(_inked(body, 0.2, 0.28, 3, 1, belly))
+			P.append_array(_inked(body, 0.24, 0.48, 2, 1, accent))
 		"ember-spots":
-			P.append([7, 1, 2, 4, Color("e0602a")])
+			P.append_array(_inked(body, 0.48, 0.22, 2, 3, LAMP))
 	match str(look.get("head", "")):
 		"fin-crest":
-			P.append([12, 2, 2, 2, accent])
+			P.append_array(_inked(head, 0.7, 0.2, 2, 2, accent))
 		"low-brow":
-			P.append([12, 4, 4, 1, dark])
+			P.append_array(_inked(head, 0.62, 0.28, 3, 1, dark))
 		"tassel-antennae":
-			P.append([14, 1, 1, 2, LEAF]); P.append([16, 2, 1, 2, accent])
+			P.append_array(_inked(head, 0.55, 0.16, 1, 2, LEAF))
+			P.append_array(_inked(head, 0.78, 0.22, 1, 2, accent))
 		"feather-antennae":
-			P.append([13, 2, 2, 1, dark]); P.append([15, 1, 1, 2, dark])
+			P.append_array(_inked(head, 0.48, 0.18, 2, 1, dark))
+			P.append_array(_inked(head, 0.75, 0.14, 1, 2, dark))
 		"tassel-crown":
-			P.append([8, 0, 1, 2, LAMP]); P.append([10, 0, 1, 2, FLOWER])
+			P.append_array(_inked(head, 0.4, 0.14, 1, 2, LAMP))
+			P.append_array(_inked(head, 0.68, 0.14, 1, 2, LAMP))
 		"swept-ears":
-			P.append([12, 1, 2, 2, c]); P.append([15, 2, 2, 1, dark])
+			P.append_array(_inked(head, 0.35, 0.18, 2, 2, c))
+			P.append_array(_inked(head, 0.72, 0.22, 2, 1, dark))
 		"sun-rays":
-			P.append([13, 0, 1, 2, LAMP]); P.append([15, 1, 1, 2, FLOWER_PALE]); P.append([16, 2, 1, 1, LAMP])
+			P.append_array(_inked(head, 0.4, 0.12, 1, 2, LAMP))
+			P.append_array(_inked(head, 0.62, 0.16, 1, 2, PALE))
+			P.append_array(_inked(head, 0.82, 0.28, 1, 1, LAMP))
 		"tall-ears":
-			P.append([11, 1, 1, 3, c]); P.append([14, 1, 1, 3, dark])
+			P.append_array(_inked(head, 0.32, 0.16, 1, 3, c))
+			P.append_array(_inked(head, 0.7, 0.16, 1, 3, dark))
 		"round-cheeks":
-			P.append([14, 6, 2, 2, belly])
+			P.append_array(_inked(head, 0.78, 0.62, 2, 2, belly))
 		"stone-crown":
-			P.append([6, 2, 5, 2, dark]); P.append([7, 1, 3, 1, LAMP])
+			P.append_array(_inked(head, 0.5, 0.18, 3, 2, dark))
+			P.append_array(_inked(head, 0.5, 0.1, 2, 1, LAMP))
 	match str(look.get("tail", "")):
 		"fin":
-			P.append([0, 7, 2, 2, accent])
+			P.append_array(_inked(tail, 0.3, 0.45, 2, 2, accent))
 		"tapered":
-			P.append([0, 8, 2, 1, dark])
+			P.append_array(_inked(tail, 0.25, 0.5, 2, 1, dark))
 		"tassel":
-			P.append([1, 9, 1, 2, LEAF])
+			P.append_array(_inked(tail, 0.3, 0.55, 1, 2, LEAF))
 		"stub":
-			P.append([1, 9, 2, 1, dark])
+			P.append_array(_inked(tail, 0.35, 0.5, 2, 1, dark))
 		"plume":
-			P.append([0, 5, 2, 3, accent]); P.append([0, 4, 1, 1, belly])
+			P.append_array(_inked(tail, 0.35, 0.4, 2, 2, accent))
+			P.append_array(_inked(tail, 0.22, 0.22, 1, 1, belly))
 		"ribbon":
-			P.append([0, 6, 1, 4, accent])
+			P.append_array(_inked(tail, 0.3, 0.45, 1, 3, accent))
 		"brush":
-			P.append([0, 7, 3, 2, c])
+			P.append_array(_inked(tail, 0.3, 0.45, 2, 2, c))
 	return P
 
 ## Pebblepaw's family: a slim cat with pointed ears, a long tail that curls up, stripes.
@@ -448,8 +668,8 @@ static func _cat(pose: Dictionary, look: Dictionary) -> Array:
 	var P: Array = []
 	var legh := 12 - (by + 4)
 	if not sit:
-		P.append([5 + _lift(f, 1), by + 4, 1, legh - _lift(f, 1), c.darkened(0.25)])
-	P.append([12 + _lift(f, 0), by + 4, 1, legh - _lift(f, 0), c.darkened(0.25)])
+		P.append([5 + _lift(f, 1), by + 4, 1, legh - _lift(f, 1), dark])
+	P.append([12 + _lift(f, 0), by + 4, 1, legh - _lift(f, 0), dark])
 	# the tail: thin, rising and curling at the tip
 	P.append([2, by, 2, 1, c]); P.append([1, by - 3 - wag, 1, 4 + wag, c]); P.append([1, by - 4 - wag, 2, 1, dark])
 	if sit:
@@ -479,8 +699,8 @@ static func _hyena(pose: Dictionary, look: Dictionary) -> Array:
 	var by := 4 + cr
 	var P: Array = []
 	if not sit:
-		P.append([4 + _lift(f, 1), by + 6, 1, 12 - (by + 6) - _lift(f, 1), c.darkened(0.25)])
-	P.append([12 + _lift(f, 0), by + 5, 1, 12 - (by + 5) - _lift(f, 0), c.darkened(0.25)])
+		P.append([4 + _lift(f, 1), by + 6, 1, 12 - (by + 6) - _lift(f, 1), dark])
+	P.append([12 + _lift(f, 0), by + 5, 1, 12 - (by + 5) - _lift(f, 0), dark])
 	P.append([1, by + 2 - wag, 2, 2, dark])                                       # a short tufted tail
 	P.append([3, by + 2 + (1 if sit else 0), 4, 4, c]); P.append([6, by, 6, 5, c])  # the sloping back
 	P.append([7, by - 1, 5, 1, dark]); P.append([4, by + 3, 1, 1, dark]); P.append([7, by + 2, 1, 1, dark]); P.append([9, by + 3, 1, 1, dark])
@@ -491,7 +711,7 @@ static func _hyena(pose: Dictionary, look: Dictionary) -> Array:
 	var hy := by - 3 + (2 if pose.get("sniff", false) else 0)
 	P.append([11, hy - 1, 2, 2, c]); P.append([11, hy - 1, 1, 1, dark])
 	P.append([11, hy, 5, 4, c]); P.append([15, hy + 1, 2, 3, belly]); P.append([16, hy + 1, 1, 1, dark])
-	P.append([14, hy + 3, 2, 1, Color("f4f0e0")])                                 # the grin
+	P.append([14, hy + 3, 2, 1, Color("f4eddc")])                                 # the grin
 	P.append([13, hy + 1, 1, 1, _eye(pose, c)])
 	return P
 
@@ -499,38 +719,40 @@ static func _hyena(pose: Dictionary, look: Dictionary) -> Array:
 static func _croc(pose: Dictionary, look: Dictionary) -> Array:
 	var c: Color = look.body
 	var belly: Color = look.belly
+	var dark: Color = look.dark
 	var cr: int = pose.get("crouch", 0)
 	var f := _frame(pose)
 	var wag: int = pose.get("wag", 0)
 	var by := 7 + cr
 	var P: Array = []
 	var legh := 12 - (by + 3)
-	P.append([5 + _lift(f, 1), by + 3, 1, legh - _lift(f, 1), c.darkened(0.25)]); P.append([10 + _lift(f, 0), by + 3, 1, legh - _lift(f, 0), c.darkened(0.25)])
+	P.append([5 + _lift(f, 1), by + 3, 1, legh - _lift(f, 1), dark]); P.append([10 + _lift(f, 0), by + 3, 1, legh - _lift(f, 0), dark])
 	P.append([0, by + 1 - wag, 3, 2, c]); P.append([2, by, 3, 3, c])               # the heavy tail
 	P.append([4, by - 1, 8, 4, c]); P.append([5, by + 2, 6, 1, belly])
 	for i in 4:
-		P.append([3 + i * 2, by - 2, 1, 1, c.darkened(0.3)])                       # ridges
+		P.append([3 + i * 2, by - 2, 1, 1, dark])                       # ridges
 	P.append([4 + _lift(f, 0), by + 3, 2, legh - _lift(f, 0), c]); P.append([9 + _lift(f, 1), by + 3, 2, legh - _lift(f, 1), c])
 	var open := 1 if pose.get("ears_up", false) and wag == 1 else 0              # the jaw opens a little when it's excited
-	P.append([11, by - 2, 3, 3, c]); P.append([14, by - 1, 3, 2, c]); P.append([14, by + 1 + open, 3, 1, c.darkened(0.1)])
-	P.append([14, by + 1, 1, 1, Color("f4f0e0")]); P.append([16, by + 1, 1, 1, Color("f4f0e0")])
+	P.append([11, by - 2, 3, 3, c]); P.append([14, by - 1, 3, 2, c]); P.append([14, by + 1 + open, 3, 1, dark])
+	P.append([14, by + 1, 1, 1, Color("f4eddc")]); P.append([16, by + 1, 1, 1, Color("f4eddc")])
 	P.append([12, by - 2, 1, 1, _eye(pose, c)])
 	return P
 
 ## Galefoal's family: a horse, long legs, an arched neck, a flowing mane and tail.
 static func _horse(pose: Dictionary, look: Dictionary) -> Array:
 	var c: Color = look.body
+	var belly: Color = look.belly
 	var dark: Color = look.dark
-	var mane: Color = look.get("accent", c.lightened(0.3))
+	var mane: Color = look.get("accent", belly)
 	var f := _frame(pose)
 	var wag: int = pose.get("wag", 0)
 	var cr: int = pose.get("crouch", 0)
 	var by := 3 + cr
 	var P: Array = []
 	var legh := 12 - (by + 4)
-	P.append([4 + _lift(f, 1), by + 4, 1, legh - _lift(f, 1), c.darkened(0.25)]); P.append([11 + _lift(f, 0), by + 4, 1, legh - _lift(f, 0), c.darkened(0.25)])
+	P.append([4 + _lift(f, 1), by + 4, 1, legh - _lift(f, 1), dark]); P.append([11 + _lift(f, 0), by + 4, 1, legh - _lift(f, 0), dark])
 	P.append([1, by + 1 - wag, 2, 5, mane])                                       # the tail
-	P.append([3, by, 9, 4, c]); P.append([4, by + 3, 7, 1, c.lightened(0.15)])
+	P.append([3, by, 9, 4, c]); P.append([4, by + 3, 7, 1, belly])
 	P.append([3 + _lift(f, 0), by + 4, 1, legh - _lift(f, 0), c]); P.append([10 + _lift(f, 1), by + 4, 1, legh - _lift(f, 1), c])
 	P.append([3 + _lift(f, 0), 11 - _lift(f, 0), 1, 1, dark]); P.append([10 + _lift(f, 1), 11 - _lift(f, 1), 1, 1, dark])
 	var hy := by - 4 + (3 if pose.get("sniff", false) else 0)
@@ -550,16 +772,16 @@ static func _bird(pose: Dictionary, look: Dictionary) -> Array:
 	var by := 5 - (1 if flap == 1 else 0)
 	var P: Array = []
 	P.append([7 + (1 if f == 1 else 0), by + 5, 1, 12 - (by + 5), dark]); P.append([9 - (1 if f == 3 else 0), by + 5, 1, 12 - (by + 5), dark])
-	P.append([2, by + 1, 3, 2, c.darkened(0.15)]); P.append([1, by, 2, 1, c.darkened(0.15)])   # tail feathers
+	P.append([2, by + 1, 3, 2, dark]); P.append([1, by, 2, 1, dark])   # tail feathers
 	P.append([4, by, 7, 5, c]); P.append([6, by + 3, 4, 2, belly])
 	match flap:
-		1: P.append([5, by - 4, 4, 4, c.lightened(0.15)]); P.append([5, by - 4, 2, 1, c.lightened(0.35)])
-		-1: P.append([5, by + 2, 5, 2, c.darkened(0.1)])
-		_: P.append([5, by + 1, 5, 2, c.lightened(0.1)])
+		1: P.append([5, by - 4, 4, 4, belly]); P.append([5, by - 4, 2, 1, belly])
+		-1: P.append([5, by + 2, 5, 2, dark])
+		_: P.append([5, by + 1, 5, 2, belly])
 	var hy := by - 3 + (2 if pose.get("sniff", false) else 0)
-	P.append([10, hy, 4, 4, c]); P.append([14, hy + 2, 2, 1, Color("f2b04a")])
+	P.append([10, hy, 4, 4, c]); P.append([14, hy + 2, 2, 1, LAMP])
 	if pose.get("ears_up", false):
-		P.append([11, hy - 2, 1, 2, c.lightened(0.2)])                              # a crest
+		P.append([11, hy - 2, 1, 2, belly])                              # a crest
 	P.append([12, hy + 1, 1, 1, _eye(pose, c)])
 	return P
 
@@ -567,13 +789,14 @@ static func _bird(pose: Dictionary, look: Dictionary) -> Array:
 ## (the front pairs reaching forward, the back pairs back), rippling as it walks; a cluster of red eyes.
 static func _spider(pose: Dictionary, look: Dictionary) -> Array:
 	var c: Color = look.body
+	var belly: Color = look.belly
 	var dark: Color = look.dark
 	var f := _frame(pose)
 	var cr: int = pose.get("crouch", 0)
 	var by := 6 + cr
 	var P: Array = []
 	for side in 2:                                                                # far legs first, then near ones over the body
-		var col := dark if side == 0 else dark.lightened(0.2)
+		var col := dark if side == 0 else c
 		for i in 4:
 			var dir := -1 if i < 2 else 1
 			var kx := 4 + i * 3 + (1 if side == 1 else 0)
@@ -587,24 +810,25 @@ static func _spider(pose: Dictionary, look: Dictionary) -> Array:
 			P.append([kx + dir * 2, top + 1, 1, 2, col, false])                   # down and out
 			P.append([kx + dir * (3 + st), top + 3, 1, 12 - (top + 3), col, false])   # to the ground
 		if side == 0:
-			P.append([2, by, 7, 4, c]); P.append([3, by + 1, 3, 1, c.lightened(0.2)]); P.append([5, by + 2, 2, 1, look.get("accent", dark)])
+			P.append([2, by, 7, 4, c]); P.append([3, by + 1, 3, 1, belly]); P.append([5, by + 2, 2, 1, look.get("accent", dark)])
 			P.append([9, by + 1, 4, 3, c])
-	var e := Color("e84a5a") if not pose.get("blink", false) else c.darkened(0.3)
+	var e := Color("ab463a") if not pose.get("blink", false) else dark
 	P.append([11, by + 2, 1, 1, e]); P.append([12, by + 1, 1, 1, e]); P.append([12, by + 3, 1, 1, e])
 	return P
 
 ## Sunspark's family: a sprite, a little floating light with fluttering wings, bobbing, no feet on the ground.
 static func _sprite(pose: Dictionary, look: Dictionary) -> Array:
 	var c: Color = look.body
-	var glow := c.lightened(0.5)
+	var belly: Color = look.belly
+	var glow := belly
 	var flap: int = pose.get("wag", 0)
 	var by := 3 - flap
 	var P: Array = []
 	var lift := 1 if flap == 1 else 0
 	P.append([4, by + 1 - lift, 3, 3 + lift, glow]); P.append([11, by + 1 - lift, 3, 3 + lift, glow])   # wings
-	P.append([6, by, 6, 6, c]); P.append([7, by + 1, 4, 4, glow]); P.append([8, by + 2, 2, 2, Color("ffffff")])
-	P.append([8, by + 7, 2, 1, c.lightened(0.2)]); P.append([9, by + 9, 1, 1, c.lightened(0.3)])   # a trail of light
-	var e := Color("3a3020") if not pose.get("blink", false) else glow
+	P.append([6, by, 6, 6, c]); P.append([7, by + 1, 4, 4, glow]); P.append([8, by + 2, 2, 2, Color("f4eddc")])
+	P.append([8, by + 7, 2, 1, belly]); P.append([9, by + 9, 1, 1, belly])   # a trail of light
+	var e := OUTLINE if not pose.get("blink", false) else glow
 	P.append([8, by + 2, 1, 1, e]); P.append([10, by + 2, 1, 1, e])
 	return P
 
@@ -631,18 +855,20 @@ static func _serpent(pose: Dictionary, look: Dictionary) -> Array:
 	P.append([11, hy, 6, 4, c]); P.append([12, hy + 3, 5, 1, belly])
 	P.append([14, hy + 1, 1, 1, _eye(pose, c)]); P.append([16, hy + 1, 1, 1, look.dark])
 	if pose.get("sniff", false):
-		P.append([17, hy + 2, 1, 1, Color("e05a6a")])                             # tasting the air
+		P.append([17, hy + 2, 1, 1, Color("ab463a")])                             # tasting the air
 	return P
 
 ## Bogbough's shape: a turtle, a high domed shell with plates in its accent colour, a head that peeks out (and
 ## tucks in to sniff), short stout legs.
 static func _turtle(pose: Dictionary, look: Dictionary) -> Array:
 	var c: Color = look.body
-	var shell: Color = c.darkened(0.25)
-	var plate: Color = look.get("accent", c.lightened(0.2))
+	var belly: Color = look.belly
+	var dark: Color = look.dark
+	var shell: Color = dark
+	var plate: Color = look.get("accent", belly)
 	var f := _frame(pose)
 	var P: Array = []
-	P.append([4 + _lift(f, 1), 10, 2, 2 - _lift(f, 1), c.darkened(0.25)]); P.append([11 + _lift(f, 0), 10, 2, 2 - _lift(f, 0), c.darkened(0.25)])
+	P.append([4 + _lift(f, 1), 10, 2, 2 - _lift(f, 1), dark]); P.append([11 + _lift(f, 0), 10, 2, 2 - _lift(f, 0), dark])
 	P.append([1, 9, 2, 1, c])                                                     # a stub of a tail
 	P.append([3, 4, 11, 6, shell]); P.append([5, 3, 7, 1, shell])
 	P.append([5, 5, 2, 2, plate]); P.append([8, 4, 2, 2, plate]); P.append([11, 5, 2, 2, plate]); P.append([7, 7, 2, 1, plate])
@@ -657,13 +883,15 @@ static func _turtle(pose: Dictionary, look: Dictionary) -> Array:
 ## little above the ground with a drift of pale dust under it.
 static func _moth(pose: Dictionary, look: Dictionary) -> Array:
 	var c: Color = look.body
-	var body: Color = c.darkened(0.4)
-	var edge: Color = c.lightened(0.3)
-	var spot: Color = look.get("accent", c.lightened(0.4))
+	var belly: Color = look.belly
+	var dark: Color = look.dark
+	var body: Color = dark
+	var edge: Color = belly
+	var spot: Color = look.get("accent", belly)
 	var flap: int = pose.get("wag", 0)
 	var by := 2 + (1 if flap == -1 else 0)
 	var P: Array = []
-	P.append([4, by + 6, 4, 2, c.darkened(0.15)])                                 # the hind wing
+	P.append([4, by + 6, 4, 2, dark])                                 # the hind wing
 	var rows: Array
 	match flap:
 		1: rows = [[7, -3, 3], [6, -2, 5], [5, -1, 6], [5, 0, 7], [6, 1, 6], [6, 2, 6], [7, 3, 5]]      # raised
@@ -678,25 +906,27 @@ static func _moth(pose: Dictionary, look: Dictionary) -> Array:
 	P.append([6, by + 5, 7, 2, body]); P.append([7, by + 6, 1, 1, c]); P.append([9, by + 6, 1, 1, c])   # a banded body
 	P.append([13, by + 4, 2, 2, body])
 	P.append([15, by + 2, 1, 2, look.dark, false]); P.append([16, by + 1, 1, 1, look.dark, false])     # antennae
-	P.append([14, by + 4, 1, 1, Color("e8e0c8") if not pose.get("blink", false) else body])
-	P.append([9, by + 9, 1, 1, spot.lightened(0.3)]); P.append([7, by + 10, 1, 1, spot.lightened(0.4)])   # a drift of dust
+	P.append([14, by + 4, 1, 1, Color("f4eddc") if not pose.get("blink", false) else body])
+	P.append([9, by + 9, 1, 1, belly]); P.append([7, by + 10, 1, 1, belly])   # a drift of dust
 	return P
 
 ## Orchardroot's shape: tree-folk, a short trunk on root feet with a leafy crown, branch arms that sway, a kind face
 ## in the bark.
 static func _treefolk(pose: Dictionary, look: Dictionary) -> Array:
 	var c: Color = look.body
-	var bark: Color = c.darkened(0.45)
+	var belly: Color = look.belly
+	var dark: Color = look.dark
+	var bark: Color = dark
 	var leaves: Color = look.get("accent", c)
 	var f := _frame(pose)
 	var wag: int = pose.get("wag", 0)
 	var P: Array = []
-	P.append([5 + _lift(f, 1), 10, 2, 2 - _lift(f, 1), bark.darkened(0.3)]); P.append([10 + _lift(f, 0), 10, 2, 2 - _lift(f, 0), bark.darkened(0.3)])
-	P.append([5, 4, 7, 7, bark]); P.append([6, 9, 5, 1, bark.darkened(0.2)]); P.append([7, 5, 1, 3, bark.lightened(0.15)])
+	P.append([5 + _lift(f, 1), 10, 2, 2 - _lift(f, 1), dark]); P.append([10 + _lift(f, 0), 10, 2, 2 - _lift(f, 0), dark])
+	P.append([5, 4, 7, 7, bark]); P.append([6, 9, 5, 1, dark]); P.append([7, 5, 1, 3, belly])
 	P.append([3, 6 - maxi(0, wag), 2, 1, bark]); P.append([2, 5 - maxi(0, wag), 1, 2, leaves])     # branch arms
 	P.append([12, 6 + mini(0, wag), 2, 1, bark]); P.append([14, 5 + mini(0, wag), 1, 2, leaves])
 	var cy := 0 + (1 if pose.get("sniff", false) else 0)
-	P.append([3, cy, 11, 4, leaves]); P.append([2, cy + 1, 13, 2, leaves]); P.append([5, cy, 3, 1, leaves.lightened(0.2)])
-	P.append([10, cy + 1, 2, 1, leaves.lightened(0.15)])
-	P.append([8, 6, 1, 1, _eye(pose, bark)]); P.append([10, 6, 1, 1, _eye(pose, bark)]); P.append([9, 8, 1, 1, bark.darkened(0.4)])
+	P.append([3, cy, 11, 4, leaves]); P.append([2, cy + 1, 13, 2, leaves]); P.append([5, cy, 3, 1, belly])
+	P.append([10, cy + 1, 2, 1, belly])
+	P.append([8, 6, 1, 1, _eye(pose, bark)]); P.append([10, 6, 1, 1, _eye(pose, bark)]); P.append([9, 8, 1, 1, dark])
 	return P
