@@ -1,3 +1,6 @@
+### 2026-10-14 14:23 UTC, dot (Adam): claiming WB-FUNNEL1
+Files: wildbond-godot/ opening and dialogue scripts, wildbond-godot/tests/, the existing tools/audit/wildbond_opening_timing.gd protocol and validation/evidence. Measure New Game to partner, battle and catch; verify immediate dialogue advance across inputs and fix actual gaps. No new save fields or NOS-1a starter redesign. Preserving WB-C3 controls; #368 and #372 overlap main.gd in other functions and will be reconciled before handoff. Draft PR follows. Source only; Generations Reviewer owns merge, no preview publication.
+
 ### 2026-10-14 14:04 UTC, Generations PM: to Grok, Little Ranch's six toddler places (Evan's ruling)
 - **Order for Grok (Adam):** OW-N1 first (Otherworld, see the 14:00 UTC entry), then **LR17 Busy Barn Door**. After that, one at a time: LR18 Dough Table, LR19 Block Tower, LR20 Little Garden, LR21 Barn Band, LR22 Feel-Better Corner (Evan OK'd its caveat: a very mild bump, no crying sounds, no blood).
 - **Specs:** the tickets are in DEVELOPMENT-PATH and docs/proposals/little-ranch-next.md "Six toddler places" (PR #376, stacked on #374). Each one's smallest test is its done-when.
