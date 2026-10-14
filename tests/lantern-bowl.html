@@ -90,6 +90,7 @@ document.querySelector('#run').onclick = async () => {
     const rolled = M.create({ seed: 5 }); rolled.clock = 6; rolled.down = 1; rolled.toGo = 10; rolled.spot = 30;
     M.callPlay(rolled, 'inside'); M.finish(rolled, M.policies.neutral);
     check('a new quarter keeps the down and the ball', rolled.quarter === 2 && rolled.down === 2 && rolled.possession === 'home' && Math.round(rolled.toGo) !== 10);
+    check('the new quarter is announced', /Second quarter/.test(rolled.last.text));
     const spam = M.scriptedSeries(11, () => 'quick');
     const varied = M.scriptedSeries(11, (g, n) => ['inside', 'outside', 'quick', 'deep'][n % 4]);
     check('repeating one short pass loses (' + spam.score.home + '–' + spam.score.away + ')', spam.phase === 'final' && spam.score.home < spam.score.away && (spam.usage.quick || 0) > (spam.usage.inside || 0) + 8);
@@ -111,7 +112,7 @@ document.querySelector('#run').onclick = async () => {
     check('a rating line does not capitalise the middle', M.resultLine('the tackle', 62, 'The carry', 63) === 'The tackle (62) stopped the carry (63).');
     const half = M.create({ seed: 9 }); half.quarter = 2; half.clock = 4; half.down = 3; half.toGo = 6; half.spot = 42;
     M.callPlay(half, 'inside'); M.finish(half, M.policies.neutral);
-    check('the second half opens with a kickoff to Millrace', half.quarter === 3 && half.possession === 'away' && half.down === 1 && Math.round(half.spot) === 25 && /Halftime/.test(half.last.text) && /Millrace receives/.test(half.last.text));
+    check('the second half opens with a kickoff to Millrace', half.quarter === 3 && half.possession === 'away' && half.down === 1 && Math.round(half.spot) === 25 && /Halftime/.test(half.last.text) && /Millrace receives the kickoff/.test(half.last.text));
     const gun = M.create({ seed: 9 }); gun.quarter = 4; gun.clock = 4; gun.spot = 40; gun.score.home = 7;
     M.callPlay(gun, 'inside'); M.finish(gun, M.policies.neutral);
     check('the gun ends the game', gun.phase === 'final' && gun.clock === 0 && gun.quarter === 4);
@@ -208,6 +209,80 @@ document.querySelector('#run').onclick = async () => {
     const body = V.project('behind', { x: 0, y: 0 }, { x: -3, y: 0 }, { w: 400, h: 640 });
     check('players stay a readable size at 400px wide', body.scale >= 1.8);
 
+    const band = M.styleBand(20, 11);
+    const bandGap = Math.abs(band.run.mean - band.pass.mean);
+    const singleBand = row => {
+      const rate = row.wins / band.n;
+      const margin = row.mean - row.opp;
+      return rate >= 0.55 - 1e-9 && rate <= 0.60 + 1e-9 && margin >= -1 && margin <= 8;
+    };
+    const mixRate = band.mixed.wins / band.n;
+    const mixMargin = band.mixed.mean - band.mixed.opp;
+    check('a single plan wins about six games in ten, and a mixed plan wins about three in four (run ' + band.run.mean.toFixed(1) + '–' + band.run.opp.toFixed(1) + ', ' + band.run.wins + ' of ' + band.n + '; pass ' + band.pass.mean.toFixed(1) + '–' + band.pass.opp.toFixed(1) + ', ' + band.pass.wins + ' of ' + band.n + '; mixed ' + band.mixed.mean.toFixed(1) + '–' + band.mixed.opp.toFixed(1) + ', ' + band.mixed.wins + ' of ' + band.n + ')', singleBand(band.run) && singleBand(band.pass) && bandGap <= 4 && mixRate >= 0.70 - 1e-9 && mixRate <= 0.75 + 1e-9 && band.mixed.wins > band.run.wins && band.mixed.wins > band.pass.wins && band.mixed.mean > band.run.mean && band.mixed.mean > band.pass.mean && mixMargin > band.run.mean - band.run.opp && mixMargin > band.pass.mean - band.pass.opp);
+    const rushed = M.runClockDrive(1);
+    check('runs alone gain 50 yards inside 90 seconds (' + rushed.yards.toFixed(1) + ' yards in ' + rushed.clock.toFixed(1) + 's, seed ' + rushed.seed + ')', rushed.seed === 1 && rushed.yards >= 50 && rushed.clock <= 90);
+    const runGains = [];
+    let bigJukes = 0;
+    for (let i = 0; i < 24; i++) {
+      const plainRun = M.create({ seed: 800 + i }); M.callPlay(plainRun, 'inside'); M.finish(plainRun, M.policies.neutral); runGains.push(plainRun.lastGain || 0);
+      const broken = M.create({ seed: 800 + i }); M.callPlay(broken, 'inside'); M.finish(broken, M.jukePolicy);
+      if ((broken.lastGain || 0) > (plainRun.lastGain || 0) + 8) bigJukes += 1;
+    }
+    check('runs vary (' + Math.min.apply(null, runGains).toFixed(1) + ' to ' + Math.max.apply(null, runGains).toFixed(1) + ')', Math.max.apply(null, runGains) - Math.min.apply(null, runGains) >= 12);
+    check('a timed juke can break a big gain (' + bigJukes + ' of 24)', bigJukes >= 4);
+    const swung = M.create({ seed: 1 }); swung.usage.inside = 14;
+    const swing = M.tendencyLoad(swung, 'inside');
+    const baseTackle = swung.away.tackle;
+    M.callPlay(swung, 'inside');
+    const usedTackle = swung.play.actors.filter(a => !a.off && a.role === 'dl')[0].tackle;
+    check('adaptive defence swings a rating by at most ' + M.TENDENCY_CAP + ' (' + swing.toFixed(1) + ', tackle ' + baseTackle + ' to ' + usedTackle + ')', swing > 0 && swing <= M.TENDENCY_CAP && usedTackle - baseTackle <= M.TENDENCY_CAP + 0.01);
+    const stalls = M.millraceDrives(12, 5);
+    const stalled = stalls.punt + stalls.fieldGoal + stalls.turnover;
+    check('Millrace drives can stall (' + stalls.punt + ' punts, ' + stalls.fieldGoal + ' field goals, ' + stalls.turnover + ' turnovers, ' + stalls.touchdown + ' touchdowns of ' + stalls.drives + ')', stalls.drives > 20 && stalled > stalls.touchdown && stalls.punt > 0 && stalls.fieldGoal > 0 && stalls.turnover > 0 && stalls.touchdown > 0);
+    function yardsIn(text) {
+      if (/no gain/.test(text || '')) return 0;
+      const found = String(text || '').match(/for (\d+)|loss of (\d+)/);
+      return found ? +(found[1] || found[2]) : null;
+    }
+    let textOk = true;
+    for (let i = 0; i < 8 && textOk; i++) {
+      ['inside', 'outside'].forEach(id => {
+        const playedRun = M.create({ seed: 80 + i }); M.callPlay(playedRun, id); M.finish(playedRun, M.policies.neutral);
+        const said = yardsIn(playedRun.last.text);
+        if (said !== Math.round(playedRun.lastGain || 0)) textOk = false;
+        if (id === 'inside' && !/between the tackles|through the middle/.test(playedRun.last.text)) textOk = false;
+        if (id === 'outside' && !/edge|corner|sideline|outside/.test(playedRun.last.text)) textOk = false;
+      });
+    }
+    check('run text matches the yards, and inside and outside read differently', textOk);
+    const fourthFail = M.create({ seed: 3, home: { line: 18, carry: 22, speed: 30 }, away: { rush: 92, tackle: 94 } });
+    fourthFail.down = 4; fourthFail.toGo = 20; fourthFail.spot = 25;
+    M.callPlay(fourthFail, 'inside'); M.finish(fourthFail, M.policies.neutral);
+    check('a failed fourth down is announced', /Fourth down fails/.test(fourthFail.last.text) && /Turnover on downs/.test(fourthFail.last.text));
+    check('a touchdown is announced', /Touchdown/.test(M.currentMessage(diveGame)));
+    const laneGame = M.create({ seed: 2, home: { line: 15 }, away: { rush: 95 } });
+    M.callPlay(laneGame, 'inside');
+    let lanePrev = null, laneGapOk = true, laneSeen = [];
+    for (let i = 0; i < 80 && laneGame.phase === 'live'; i++) {
+      M.step(laneGame, 1 / 30, M.policies.neutral());
+      const row = laneGame.play && laneGame.play.laneStates && laneGame.play.laneStates.mid;
+      if (!row) continue;
+      if (row.state !== lanePrev) {
+        if (lanePrev && laneGame.play.elapsed - (laneSeen.length ? laneSeen[laneSeen.length - 1].t : 0) < 0.13) laneGapOk = false;
+        laneSeen.push({ t: laneGame.play.elapsed, state: row.state });
+        lanePrev = row.state;
+      }
+    }
+    check('a run lane holds each state and moves open, contested, closed', laneGapOk && laneSeen.some(s => s.state === 'open') && laneSeen.some(s => s.state === 'contested') && laneSeen.some(s => s.state === 'closed'));
+    const rails = V.laneRails(10, 40, 10, 100);
+    const railGap = Math.hypot(rails[0].x0 - rails[1].x0, rails[0].y0 - rails[1].y0);
+    check('run lane rails sit 9px apart', Math.abs(railGap - 9) < 0.01 && V.laneStyle('open').color === '#f2d080' && V.laneStyle('open').pattern === 'solid' && V.laneStyle('contested').color === '#b89a5a' && V.laneStyle('contested').dash[0] === 3 && V.laneStyle('closed').color === '#3a2a30' && V.laneStyle('closed').mark === '#f6edd4');
+    const cleanRing = V.pocketRing(0, 0, false), collapse = V.pocketRing(3, 0.1, false), collapsePulse = V.pocketRing(3, 0.01, false), collapseStill = V.pocketRing(3, 0.01, true);
+    check('the pocket ring shrinks 28, 22, 16, 10 and is half as tall', V.pocketRing(0, 0.2, false).rx === 28 && V.pocketRing(1, 0.4, false).rx === 22 && V.pocketRing(2, 0.2, false).rx === 16 && collapse.rx === 10 && cleanRing.ry === 14 && cleanRing.color === '#f6edd4' && cleanRing.pulse === 0 && collapse.color === '#ffb0a4' && collapse.dash && collapse.width === 1);
+    check('reduced motion keeps the pocket from pulsing', collapsePulse.pulsing === true && collapseStill.pulsing === false && collapseStill.color === '#ffb0a4' && collapseStill.pulse === 0 && V.tweenRadius(28, 22, 0.06) === 25);
+    const toldOutcome = M.simulateStyle(4, 'pass');
+    check('every logged outcome says what happened', toldOutcome.log.length > 8 && toldOutcome.log.every(line => line && line.length > 8) && toldOutcome.log.some(line => /Touchdown|punts|Turnover|Intercept|makes it|misses from|Fourth down fails|Safety/.test(line)));
+
     frame = document.createElement('iframe');
     frame.title = 'Lantern Bowl test instance';
     frame.src = '../games/lantern-bowl/index.html';
@@ -289,6 +364,7 @@ document.querySelector('#run').onclick = async () => {
     const liveHint = d2.querySelector('#hint').textContent || '';
     const liveKick = d2.querySelector('[data-play="kick"]').getAttribute('aria-label') || '';
     check('during a snap the hint matches the kick button', liveHint.indexOf('already going') >= 0 && liveKick.indexOf('already going') >= 0 && liveHint.indexOf('fourth down') < 0);
+    check('a run does not ask you to drag up to throw', liveHint.indexOf('Drag up to throw') < 0);
     const liveButtons = ['inside', 'outside', 'quick', 'deep', 'kick'].map(spotOf);
     check('the play buttons stay put during the snap', liveButtons.every((now, i) => Math.abs(now.left - beforeDown[['inside', 'outside', 'quick', 'deep', 'kick'][i]].left) < 2));
     w2.__lantern.finishLive();
@@ -301,6 +377,28 @@ document.querySelector('#run').onclick = async () => {
     const ours = d2.querySelector('[data-ours]');
     if (ours) ours.click();
     else w2.__lantern.refresh();
+    await wait();
+    check('drag to throw waits until a play is picked', (d2.querySelector('#hint').textContent || '').indexOf('Drag up to throw') < 0);
+    resumed.usage = { inside: 0, outside: 0, quick: 4, deep: 0 };
+    w2.__lantern.begin('quick');
+    await wait();
+    const passHint = d2.querySelector('#hint').textContent || '';
+    check('a picked pass says to drag up to throw', passHint.indexOf('Drag up to throw') >= 0);
+    check("a repeated play shows they're reading it", passHint.indexOf("THEY'RE READING IT") >= 0);
+    const touchCanvas = d2.querySelector('#field');
+    const touchPoint = new w2.Touch({ identifier: 3, target: touchCanvas, clientX: 140, clientY: 220, pageX: 140, pageY: 220, screenX: 140, screenY: 220, radiusX: 1, radiusY: 1, rotationAngle: 0, force: 1 });
+    touchCanvas.dispatchEvent(new w2.TouchEvent('touchstart', { touches: [touchPoint], changedTouches: [touchPoint], bubbles: true, cancelable: true }));
+    touchCanvas.dispatchEvent(new w2.MouseEvent('mousedown', { clientX: 4, clientY: 6, bubbles: true, cancelable: true }));
+    touchCanvas.dispatchEvent(new w2.MouseEvent('click', { clientX: 4, clientY: 6, bubbles: true, cancelable: true }));
+    const notes = w2.__lantern.pointerNotes;
+    check('a tap uses the touch point and ignores the click after it', notes.some(n => n.source === 'touch' && n.x === 140 && n.y === 220) && notes.some(n => n.source === 'ignored' && n.x === 4 && n.y === 6) && !notes.some(n => n.source === 'pointer' && n.x === 4));
+    w2.__lantern.finishLive();
+    await wait();
+    resumed.possession = 'home';
+    resumed.phase = 'call';
+    resumed.down = 1;
+    resumed.play = null;
+    w2.__lantern.refresh();
     await wait();
 
     for (const [width, height] of [[375, 812], [400, 700], [420, 780], [667, 375], [1366, 768]]) {
@@ -375,6 +473,33 @@ document.querySelector('#run').onclick = async () => {
     d2.querySelector('[data-kick]').click();
     await wait();
     check('the new kickoff is 1st and 10 at the 25', again.state.quarter === 1 && again.state.down === 1 && again.state.score.home === 0 && again.state.score.away === 0 && Math.round(again.state.spot) === 25);
+    again.rush(false);
+    again.state.quarter = 1; again.state.clock = 100; again.state.down = 1; again.state.toGo = 10; again.state.spot = 32;
+    again.state.possession = 'away'; again.state.phase = 'cpu'; again.state.score.home = 0; again.state.score.away = 0;
+    again.watchLive();
+    let sawLive = false, ballMoved = false, firstBall = null, staleStrip = false;
+    for (let i = 0; i < 36; i++) {
+      await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
+      const livePlay = again.state.phase === 'live' && again.state.play && again.state.play.offence === 'away';
+      if (!livePlay) continue;
+      sawLive = true;
+      const watching = again.state.play;
+      const ball = watching.flight ? watching.flight.x : watching.actors[watching.carrier].x;
+      if (firstBall == null) firstBall = ball;
+      else if (Math.abs(ball - firstBall) > 0.35) ballMoved = true;
+      const strip = d2.querySelector('#sheet');
+      if (strip && !strip.hidden && /throwing/.test(strip.textContent || '')) staleStrip = true;
+    }
+    check('a Millrace snap stays live and the ball moves', sawLive && ballMoved && !staleStrip);
+    again.state.play = null;
+    again.state.possession = 'home';
+    again.state.phase = 'call';
+    again.state.down = 1;
+    again.state.toGo = 10;
+    again.state.spot = 25;
+    again.state.quarter = 1;
+    again.state.clock = 120;
+    again.refresh();
     const emptyV1 = again.migrateSave({ v: 1, game: 'lantern-bowl', sound: 0, match: null });
     check('a v1 save still loads', !!emptyV1 && emptyV1.v === 2 && emptyV1.match === null && emptyV1.sound === 0);
     check('a save newer than this game is refused', again.migrateSave({ v: 3, game: 'lantern-bowl', sound: 0, match: null }) === null);

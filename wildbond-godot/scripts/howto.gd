@@ -44,6 +44,7 @@ static func in_use() -> String:
 func _process(dt: float) -> void:
 	if visible:
 		t += dt
+		queue_redraw()                         # the column in use follows the pad as it appears (a phone: touch, WB-C3)
 
 func _input(e: InputEvent) -> void:
 	if not visible:

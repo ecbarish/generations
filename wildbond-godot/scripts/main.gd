@@ -183,6 +183,11 @@ var guests: Array = []                        # people come to the league gate f
 var league_room := 0                          # the league (WB4.1): the next court in this attempt (0-3, then 4 the Champion)
 
 func _ready() -> void:
+	# A phone fills the screen it has between the browser's bars (WB-C3, as Starfall's SF-MOBILE-FIT): fractional
+	# scaling, even below one pixel in four. Same 384 by 216 view and the same input transform; desktop keeps
+	# whole-number pixel enlargement. Web exports have host tags rather than the native "mobile" feature.
+	if OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios"):
+		get_window().content_scale_stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL
 	Controls.setup()                                # named controls for keys, gamepads and the phone pad (WB6.1)
 	demo = "--demo" in OS.get_cmdline_user_args()
 	settings.keep = settings.keep and not demo and not "--skip-opening" in OS.get_cmdline_user_args()   # the checks set keep off
@@ -4223,6 +4228,12 @@ func _thumbs_tick() -> void:
 	touch.word = action_word()
 	touch.btn_on = not menus and trans_t < 0.0 and touch.word != ""
 	touch.refresh()
+	# the caption keeps clear of the thumbs: between the pad and the button while they show (WB-C3), and grows upward
+	var left := TouchPad.PAD.x + TouchPad.PAD_R + 4.0 if touch.visible and touch.pad_on else 8.0
+	var right := -(384.0 - TouchPad.BTN.x + TouchPad.BTN_R + 4.0) if touch.visible and touch.btn_on else -8.0
+	if caption.offset_left != left or caption.offset_right != right:   # only on a change, so it isn't laid out every frame
+		caption.offset_left = left
+		caption.offset_right = right
 	battle.pace = settings.pace()
 	var size := 10 if settings.large_text() else 8
 	if bubble_text.label_settings.font_size != size:  # only on a change, so the labels aren't laid out every frame
