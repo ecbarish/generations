@@ -16,6 +16,8 @@ const EL_COL := { "Ember": Color("e0602a"), "Tide": Color("3a8fd8"), "Grove": Co
 ## CR1: size classes to battle scale (spec 4.4, docs/wildbond-creatures.md).
 ## Whole-number zoom only. A creature's size is the height drawn into its pixels (metres × 12.35).
 const SIZE_SCALE := { "tiny": 1, "small": 1, "medium": 1, "large": 1, "huge": 1 }
+## Painted sprites stay this many pixels clear of the health panels. The zoom itself stays a whole number.
+const PANEL_CLEARANCE := 4.0
 ## Each element's hit has its own animated effect (Ninja Adventure FX, CC0; assets/fx): [file, frame width, frames, tint].
 const EL_FX := { "Ember": ["ember", 25, 8, Color.WHITE], "Tide": ["tide", 40, 11, Color.WHITE], "Grove": ["grove", 30, 8, Color.WHITE],
 	"Stone": ["stone", 30, 14, Color.WHITE], "Gale": ["gale", 20, 8, Color.WHITE], "Shade": ["shade", 40, 9, Color("b080e8")],
@@ -726,6 +728,25 @@ func _box(r: Rect2) -> void:
 	draw_rect(r, PAPER)
 	draw_rect(Rect2(r.position + Vector2(2, 2), r.size - Vector2(4, 4)), Color("e8dcc4"), false, 1.0)
 
+func _hp_panels() -> Array:
+	var panels: Array = []
+	for i in foes.size():
+		panels.append(Rect2(10, 8 + i * 30, 150, 26))
+	if allies.size() == 1:
+		panels.append(Rect2(222, 116, 154, 36))
+	elif allies.size() > 1:
+		for i in allies.size():
+			panels.append(Rect2(236, 162 - (allies.size() - i) * 22, 140, 20))
+	return panels
+
+## Feet on the bottom edge of the sprite. If that rect would sit under a health panel, slide the
+## feet aside. The caller keeps the same whole-number scale.
+func _painted_foot(spot: Vector2, species_id: String, pose: String, scale: float) -> Vector2:
+	var sz := Sprites.frame_size(species_id, pose)
+	if sz == Vector2i.ZERO:
+		return spot
+	return Sprites.foot_clear_of(spot, sz, scale, _hp_panels(), PANEL_CLEARANCE)
+
 func _spot(u: Dictionary) -> Vector2:
 	# where a creature stands: yours close at the bottom left, the foe further off at the top right
 	if u.side == "a":
@@ -813,10 +834,13 @@ func _draw() -> void:
 		if u.get("joined", false):
 			_draw_joined(u, at, pose, look)
 			continue
-		# Battle zooms in (your side closer than the foe). The sprite's own pixels already carry its size.
+		# Battle zooms in (your side closer than the foe) at a whole scale. The sprite's own pixels
+		# already carry its size, so a tall one is moved clear of the health panels rather than shrunk.
 		var zoom := 4.0 if u.side == "a" else 3.0
 		var gear := str(u.c.get("gear", ""))
-		if not Sprites.try_draw(self, str(u.c.sp), at + Vector2(0, 6), u.side == "a", "walk" if u.lunge > 0.0 else "idle", int(t * 8.0), zoom, 0.0, gear):
+		var pose_name := "walk" if u.lunge > 0.0 else "idle"
+		var foot := _painted_foot(at + Vector2(0, 6), str(u.c.sp), pose_name, zoom)
+		if not Sprites.try_draw(self, str(u.c.sp), foot, u.side == "a", pose_name, int(t * 8.0), zoom, 0.0, gear):
 			draw_set_transform(at - Vector2(9, 12) * zoom, 0, Vector2(zoom, zoom))
 			Figures.paint(self, Vector2.ZERO, Figures.sized_parts(R.sp(u.c), u.side == "a", pose, look))
 			draw_set_transform(Vector2.ZERO)
@@ -948,7 +972,8 @@ func _draw_joined(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictionary
 	for k in 3:                                  # a lamplight halo, brightest at the heart
 		_ellipse(at + Vector2(0, -30), 58.0 - k * 14.0 + glow * 3.0, 50.0 - k * 12.0 + glow * 3.0, Color(1.0, 0.86, 0.52, 0.16 + k * 0.08))
 	var sc := 5.0
-	if not Sprites.try_draw(self, str(u.c.sp), at + Vector2(0, 8), true, "idle", 0, sc, 0.0, str(u.c.get("gear", ""))):
+	var foot := _painted_foot(at + Vector2(0, 8), str(u.c.sp), "idle", sc)
+	if not Sprites.try_draw(self, str(u.c.sp), foot, true, "idle", 0, sc, 0.0, str(u.c.get("gear", ""))):
 		draw_set_transform(at - Vector2(9, 12) * sc, 0, Vector2(sc, sc))
 		Figures.paint(self, Vector2.ZERO, Figures.sized_parts(R.sp(u.c), true, pose, look))
 		draw_set_transform(Vector2.ZERO)
