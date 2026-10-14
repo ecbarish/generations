@@ -1,5 +1,5 @@
 {
- "about": "Evolution for the Godot version (docs/proposals/creature-catalogue-and-evolution.md section 2). New forms and the ways creatures change, beyond the browser game's single level evolutions. Merged into the game data at start: species are added, and evos replace a species' old single evolution. Each evo: to, at (level), and optional place (a map), bond (trust level: 1 Friendly, 2 Loyal, 3 Devoted, 4 Bonded), with (a species in your team). The first matching option wins, so put special ones first and the ordinary one last. hint is what Maren thinks; the field book shows it once you've seen the creature.",
+ "about": "Evolution for the Godot version (docs/proposals/creature-catalogue-and-evolution.md section 2; DD-5). New forms and the ways creatures change, beyond the browser game's single level evolutions. Merged into the game data at start: species are added, and evos replace a species' old single evolution. Each evo: to, and at (the level; always required), and any of bond (an added trust step: 1 Friendly, 2 Loyal, 3 Devoted, 4 Bonded), place (a map), with (a species in your team), time, weather, ate, raised (care or battle) and raised_at (that record's trust step). Trust is added to the level. It does not replace it. The first matching option wins, so put special ones first and the ordinary one last. hint is what Maren thinks; the field book shows the first hint once you've seen the creature. bond_branch is the shape for CAT-2's future creature, not a creature you can meet yet.",
  "species": {
   "pyremane": {
    "name": "Pyremane",
@@ -392,7 +392,7 @@
     "to": "deeptide",
     "at": 32,
     "bond": 3,
-    "hint": "It changes only for a tamer it trusts completely."
+    "hint": "It changes only for a tamer it trusts completely, once it has grown."
    }
   ],
   "thornback": [
@@ -458,6 +458,32 @@
     "to": "shoalcrest",
     "at": 18,
     "hint": "Most Brineskit become shoal crests. Most, not all."
+   }
+  ]
+ },
+ "bond_branch": {
+  "about": "CAT-2 will name this creature and point these options at it. Not placed, and not a species yet. Every option asks for a level. care is trust from feeding, a festival or a letter; battle is trust from fights together. The same five steps as bond. Trust and how it was raised are added to that level. They do not replace it. First match wins, so the gentle final is listed before the keen one, and the ordinary level change is last. A save with no raised record takes the ordinary option.",
+  "options": [
+   {
+    "to": "careform",
+    "at": 16,
+    "bond": 2,
+    "raised": "care",
+    "raised_at": 2,
+    "hint": "Cared for until it is Loyal, it grows gentle."
+   },
+   {
+    "to": "battleform",
+    "at": 16,
+    "bond": 2,
+    "raised": "battle",
+    "raised_at": 2,
+    "hint": "Raised in the fight until it is Loyal, it grows keen."
+   },
+   {
+    "to": "grownform",
+    "at": 16,
+    "hint": "Left to grow up, it takes the ordinary form."
    }
   ]
  }

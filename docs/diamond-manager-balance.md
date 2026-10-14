@@ -37,3 +37,23 @@ The existing active-versus-hands-off check now plays six seasons across the same
 No layouts, Godot files, shared office code, versions, save schema or stored player ratings are changed. The optional visitor marker defaults to absent in old saves. A six-season seeded study is a regression guard, not evidence that every possible long career is balanced. Live economic playtesting and longer-career runs remain useful.
 
 Validation: all 18 suites passed locally; after extending the sixth-winter bound and the final growth adjustment, all 84 Diamond Manager checks passed again. Other game suites are unaffected. Native suites use isolated writable temporary saves. GitHub CI runs separately on the final pushed commit.
+
+## Rival growth (#337)
+
+The table above is the DM-B2 study, from before hot/cold form. On current main (form included, commit 4fc9c7e) the same twelve seeds still show other clubs pulling away from the market, and a hands-off club sliding from 8.67 wins to 6.75. Issue #337 asks for a quality gap that only good roster choices close, with no new system.
+
+Other clubs now take half the natural winter step. The same dice are rolled. The Lanterns keep the full step, and Training Rooms, coaches and everyday playing time add what they did before. Ordinary recruits stay about five points under the other clubs. Standouts stay the better players on the market. Old saves load with the same ratings; the slower step applies on the next winter.
+
+Same harness as above, measured again on 4fc9c7e (before) and after the half step:
+
+| Season | Opponents before | Opponents after | Ordinary market before | Ordinary market after | Hands-off wins before | Hands-off wins after |
+|---|---:|---:|---:|---:|---:|---:|
+| 1 | 54.82 | 54.82 | 50.35 | 50.35 | 8.67 | 8.67 |
+| 2 | 55.52 | 54.85 | 50.73 | 49.96 | 9.83 | 10.58 |
+| 3 | 56.09 | 54.98 | 50.87 | 49.78 | 9.58 | 11.33 |
+| 4 | 57.08 | 55.46 | 51.73 | 49.05 | 7.58 | 9.92 |
+| 5 | 57.68 | 55.86 | 52.64 | 50.30 | 7.75 | 8.58 |
+| 6 | 58.48 | 56.20 | 52.96 | 49.36 | 6.75 | 8.42 |
+| After sixth winter | 59.10 | 56.48 | 53.49 | 50.66 | - | - |
+
+Mean opponent drift over the six winters falls from 4.28 to 1.66. The worst seed falls from 5.71 to 2.77. Hands-off wins stay near the opening mark: 8.67 in season 1 and 8.42 in season 6, still a losing club. Standouts after the tune sit at 62.13, 61.75, 63.58, 61.96, 63.50, 64.00 and 62.71, above the other clubs, so signing one is still the big lever. The same twelve seeds, played once by the hands-off filler and once by the active office (free agents, lineup, facilities), give the active office 6.47 more wins a season (16.19 against 9.72) and 31 finals. The existing check requires at least 2.5.

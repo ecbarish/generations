@@ -698,6 +698,23 @@ func _use() -> bool:
 		return true
 	return false
 
+## A real click or a finger tap. A touch also synthesises a mouse button; that copy is
+## ignored so one tap acts once.
+func _pointer_down(e: InputEvent) -> bool:
+	if e is InputEventScreenTouch:
+		return e.pressed
+	return e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and e.device != InputEvent.DEVICE_ID_EMULATION
+
+## Where the click or tap landed, in the 384 by 216 view. Stretch and the black bars are
+## already removed from the event. The hardware cursor is not this point once the window
+## is scaled, and on a touch screen it is not the finger (#333).
+func _view_point(e: InputEvent) -> Vector2:
+	return e.position
+
+## The same point in the town, under the camera.
+func _world_point(e: InputEvent) -> Vector2:
+	return get_canvas_transform().affine_inverse() * _view_point(e)
+
 func _unhandled_input(e: InputEvent) -> void:
 	if not story_pick.is_empty():
 		_story_input(e)
@@ -717,17 +734,17 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if not pour.is_empty():
-		if e.is_action_pressed("ui_accept") or (e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_E) or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT):
+		if e.is_action_pressed("ui_accept") or (e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_E) or _pointer_down(e):
 			pour_press()
 		get_viewport().set_input_as_handled()
 		return
 	if not spar.is_empty():
-		if e.is_action_pressed("ui_accept") or (e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_E) or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT):
+		if e.is_action_pressed("ui_accept") or (e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_E) or _pointer_down(e):
 			spar_press()
 		get_viewport().set_input_as_handled()
 		return
 	if not forge.is_empty():
-		if e.is_action_pressed("ui_accept") or (e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_E) or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT):
+		if e.is_action_pressed("ui_accept") or (e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_E) or _pointer_down(e):
 			strike()
 		get_viewport().set_input_as_handled()
 		return
@@ -750,15 +767,16 @@ func _unhandled_input(e: InputEvent) -> void:
 		else:
 			use()
 		get_viewport().set_input_as_handled()
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+	elif _pointer_down(e):
+		var p := _view_point(e)
 		if not lines.is_empty():
 			advance()
-		elif e.position.y < 22.0 * get_viewport().get_visible_rect().size.y / 216.0 and goal.text != "":
+		elif p.y < 22.0 and goal.text != "":
 			show_next = not show_next            # tap the goal line for the next few
 			hints["goals"] = true
 		else:
 			hints["use"] = true                  # on a phone, a tap walks up and uses things
-			tap(get_global_mouse_position())
+			tap(_world_point(e))
 		get_viewport().set_input_as_handled()
 
 ## Click or tap: walk there. Tap the board or the counter to walk up and use it; tap a person to go and talk.
@@ -1174,8 +1192,8 @@ func _build_input(e: InputEvent) -> void:
 			KEY_DOWN, KEY_S, KEY_RIGHT, KEY_D, KEY_TAB: board_sel = (board_sel + 1) % n
 			KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_E: plan_pick(board_sel)
 			KEY_ESCAPE, KEY_BACKSPACE: build_plot = ""
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var p: Vector2 = board_view.get_local_mouse_position()
+	elif _pointer_down(e):
+		var p := board_view.make_canvas_position_local(_view_point(e))
 		for i in n:
 			if _plan_rect(i, n).has_point(p):
 				plan_pick(i)
@@ -1338,8 +1356,8 @@ func _shelf_input(e: InputEvent) -> void:
 			KEY_DOWN, KEY_S, KEY_RIGHT, KEY_D, KEY_TAB: board_sel = (board_sel + 1) % n
 			KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_E: shelf_pick(board_sel)
 			KEY_ESCAPE, KEY_BACKSPACE: shelf_open = false
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var p: Vector2 = board_view.get_local_mouse_position()
+	elif _pointer_down(e):
+		var p := board_view.make_canvas_position_local(_view_point(e))
 		for i in n:
 			if _shelf_rect(i).has_point(p):
 				shelf_pick(i)
@@ -2258,8 +2276,8 @@ func _board_input(e: InputEvent) -> void:
 			KEY_DOWN, KEY_S, KEY_RIGHT, KEY_D, KEY_TAB: board_sel = (board_sel + 1) % n
 			KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_E: board_pick(board_sel)
 			KEY_ESCAPE, KEY_BACKSPACE: board_open = false
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var p: Vector2 = board_view.get_local_mouse_position()
+	elif _pointer_down(e):
+		var p := board_view.make_canvas_position_local(_view_point(e))
 		for i in n:
 			if _note_rect(i).has_point(p):
 				board_pick(i)
@@ -3361,8 +3379,8 @@ func _story_input(e: InputEvent) -> void:
 			KEY_UP, KEY_W, KEY_LEFT, KEY_A: board_sel = (board_sel + n - 1) % n
 			KEY_DOWN, KEY_S, KEY_RIGHT, KEY_D, KEY_TAB: board_sel = (board_sel + 1) % n
 			KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_E: story_choose(board_sel)
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var p: Vector2 = board_view.get_local_mouse_position()
+	elif _pointer_down(e):
+		var p := board_view.make_canvas_position_local(_view_point(e))
 		for i in n:
 			if _story_rect(i).has_point(p):
 				story_choose(i)

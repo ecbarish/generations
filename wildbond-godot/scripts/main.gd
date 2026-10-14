@@ -193,6 +193,7 @@ func _ready() -> void:
 	for k in ej.data.species:
 		DATA.SPECIES[k] = ej.data.species[k]
 	DATA["EVOS"] = ej.data.evos
+	DATA["BOND_BRANCH"] = ej.data.get("bond_branch", {})   # DD-5: the future bond-branch shape; not a creature you can meet yet
 	R.DATA = DATA
 	var rj: JSON = load("res://data/wildbond-reveal.json")   # T58: the evidence and the reveal (docs/lore/wildbond-reveal.md)
 	REVEAL = rj.data
@@ -2267,7 +2268,7 @@ func _festival_complete() -> void:
 	keepsakes[f.keepsake.id] = f.keepsake.name
 	say("", "Keepsake: %s. %s" % [f.keepsake.name, f.keepsake.description])
 	for c in team:
-		R.add_bond(c, 2.0)
+		R.add_bond(c, 2.0, "care")
 	fest_task = ""
 	fest_step = 0
 
@@ -3058,7 +3059,7 @@ func _letter_step() -> void:
 	else:
 		var c: Dictionary = ranch[letters % ranch.size()]
 		for r in ranch:
-			R.add_bond(r, 1.0)
+			R.add_bond(r, 1.0, "care")
 		news = ["%s has taken to sleeping by the barn door, waiting for you." % c.name,
 			"%s ate twice its share at the trough this morning and looked very pleased about it." % c.name,
 			"%s and the pup chased each other round the paddock till they both fell over." % c.name][letters % 3]
@@ -3219,7 +3220,10 @@ func _fix_creature(c: Dictionary) -> Dictionary:
 		c[k] = int(c[k])
 	for s in c.pot:
 		c.pot[s] = int(c.pot[s])
-	c.bond = float(c.bond)
+	c.bond = float(c.get("bond", 0.0))
+	if typeof(c.get("raised")) == TYPE_DICTIONARY:
+		for k in c.raised:
+			c.raised[k] = float(c.raised[k])
 	return c
 
 func _load_game() -> bool:
@@ -3614,7 +3618,7 @@ func _feed() -> void:
 		return
 	bag[food] = have - 2
 	for c in ranch:
-		R.add_bond(c, 3.0)
+		R.add_bond(c, 3.0, "care")
 		c["ate"] = food   # what it ate: an evolution condition (CR5)
 	for m in ranch_movers:
 		if m.where == "barn" and m.home == BARN_FLOOR:
@@ -3846,7 +3850,8 @@ func _on_card_pick(i: int) -> void:
 		if i == 0:
 			_evo_cine_start(c, evolve_to)   # CR4: the moment plays out, then _evo_cine_finish applies it
 		else:
-			c["hold"] = c.lvl                        # not yet: it won't ask again until it grows a level
+			c["hold"] = c.lvl                        # not yet: ask again after a level, or after trust steps up (DD-5)
+			c["hold_bond"] = R.bond_lvl(c)
 			say("", "%s shakes itself and settles down. It seems content as it is, for now." % c.name)
 		return
 	if card_mode == "ranch" and i == 0 and visiting >= 0:
@@ -3865,9 +3870,9 @@ func _on_card_pick(i: int) -> void:
 		return
 	visiting = -1
 
-## Evolution (docs/proposals/creature-catalogue-and-evolution.md section 2): when a creature in your team is ready to
-## change (its level, and sometimes the place, its trust in you or a companion), you're asked: let it change, or not
-## yet. Never forced. "Not yet" waits until it grows another level.
+## Evolution (docs/proposals/creature-catalogue-and-evolution.md section 2; DD-5): when a creature in your team is ready to
+## change (its level, its trust, and sometimes the place, a companion, or how it was raised), you're asked: let it
+## change, or not yet. Never forced. "Not yet" waits until it grows a level or its trust steps up.
 var evolving: Dictionary = {}
 var evolve_to := ""
 
@@ -4016,12 +4021,21 @@ func _check_evolution() -> void:
 	var ctx := { "place": str(DATA.MAPS.get(map_name, {}).get("biome", map_name)), "team": team.map(func(x): return x.sp),
 		"time": cal.time_of_day(), "weather": cal.weather() }   # CR5: new evolution conditions
 	for c in team:
-		if float(c.get("hold", 0)) >= c.lvl:
+		if evolution_held(c):
 			continue
 		var to := R.evo_target(c, ctx)
 		if to != "":
 			_ask_evolve(c, to)
 			return
+
+## "Not yet" waits until it grows a level, or until its trust steps up (DD-5).
+## An older save that only remembered the level still waits for a level.
+func evolution_held(c: Dictionary) -> bool:
+	if float(c.get("hold", 0)) < float(c.lvl):
+		return false
+	if not c.has("hold_bond"):
+		return true
+	return int(c.hold_bond) >= R.bond_lvl(c)
 
 func _ask_evolve(c: Dictionary, to: String) -> void:
 	evolving = c

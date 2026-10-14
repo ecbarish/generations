@@ -20,9 +20,9 @@ function questWork(id, n) {
   const c = charOf(id); if (!c) return;
   for (let i = 0; i < n; i++) {
     c.money += c.lvl * 25;
-    if (c.lvl >= LEVEL_CAP) continue;
+    if (c.lvl >= PLAY_CAP) continue;
     c.xp += Math.round(xpNeed(c.lvl) * .02);
-    while (c.lvl < LEVEL_CAP && c.xp >= xpNeed(c.lvl)) { c.xp -= xpNeed(c.lvl); c.lvl++; (c.log = c.log || []).unshift(`Reached level ${c.lvl} while questing on the jobs board.`); }
+    while (c.lvl < PLAY_CAP && c.xp >= xpNeed(c.lvl)) { c.xp -= xpNeed(c.lvl); c.lvl++; (c.log = c.log || []).unshift(`Reached level ${c.lvl} while questing on the jobs board.`); }
   }
 }
 const JOBS = {

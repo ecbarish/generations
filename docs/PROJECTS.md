@@ -1,3 +1,9 @@
+## Diamond Manager recent form
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| DM-N1c | Hot and cold streaks | Small | Ready: Codex / Evan, PR #310 | Current-cycle temporary ratings; no permanent development or contract changes |
+
 # Generations: the master project list
 
 Every outlined project in one place, so Evan can hand work to any assistant (Claude, ChatGPT/Codex, or another AI)

@@ -34,7 +34,7 @@ function makePlayer(r, id, level, pitcher, pos) {
   const p={id, name:DM.first[ri(r,0,DM.first.length-1)]+' '+DM.last[ri(r,0,DM.last.length-1)], age, pitcher:!!pitcher};
   if(pitcher) Object.assign(p,{pos:'P',stuff:g(),control:g(),stamina:g()});
   else Object.assign(p,{pos,contact:g(),power:g(),eye:g(),glove:g(),speed:speedFor(id,age)});
-  p.morale=freshMorale(); p.salary=askSalary(p); p.years=ri(r,1,3); p.pot=potentialFor(r,p); return p;
+  p.morale=freshMorale(); p.form=freshForm(); p.salary=askSalary(p); p.years=ri(r,1,3); p.pot=potentialFor(r,p); return p;
 }
 /* Speed (batters only) takes extra bases and makes a pinch runner; it is not part of overall. Drawn from the id so old
    saves can be given the same number. */
@@ -109,7 +109,7 @@ function dayKey(L) { return L.season*100+(L.phase==='final'&&L.final?30+L.final.
 
 /* Record a played game into the standings and the season stats. */
 function recordGame(L,g) {
-  recordMood(L,g);rememberGame(L,g);
+  recordMood(L,g);recordForm(L,g);rememberGame(L,g);
   const h=L.clubs[g.home], a=L.clubs[g.away];
   h.rs+=g.score[1]; h.ra+=g.score[0]; a.rs+=g.score[0]; a.ra+=g.score[1];
   if(g.winner===g.home){h.w++;a.l++;}else{a.w++;h.l++;}
@@ -148,7 +148,7 @@ function startFinalGame(L,manage) {
   L.live={g,final:true}; return g; }
 function finishFinalGame(L) {
   const g=L.live&&L.live.g, f=L.final; if(!g||!g.done||!L.live.final) return null; L.live=null; const top=f.teams[0], other=f.teams[1];
-  f.wins[g.winner===top?0:1]++; f.games.push({home:g.home,away:g.away,score:g.score,winner:g.winner}); L.lastBox=boxScore(L,g);
+  recordForm(L,g); f.wins[g.winner===top?0:1]++; f.games.push({home:g.home,away:g.away,score:g.score,winner:g.winner}); L.lastBox=boxScore(L,g);
   if(g.home===DM.you){ const gate=gateMoney(L); L.cash+=gate.money*2; }
   if(f.wins[0]===2||f.wins[1]===2){ f.champion=f.wins[0]===2?top:other; L.phase='offseason'; endSeason(L); }
   return g;
@@ -168,7 +168,7 @@ function endSeason(L) {
   L.freeAgents=L.freeAgents.filter(p=>{if(p.marketVisitor||p.bargain||p.star)return true;p.age++;return p.age<36;});
   L.clubs.forEach((c,ci)=>{
     const tr=ci===DM.you?L.upgrades.training*2:0, daily=new Set(c.players.filter(p=>playsDaily(c,p)));
-    for(const p of c.players.concat(c.farm||[])){ const before=overall(p), farm=(c.farm||[]).includes(p); const coach=ci===DM.you&&L.coaches?L.coaches[p.pitcher?"pitching":"hitting"]:null; const coached=develop(L,p,tr,farm||daily.has(p),coach&&coach.season===L.season?coach:null);if(coached)L.report.coaching.push(coached); const d=overall(p)-before;
+    for(const p of c.players.concat(c.farm||[])){ const before=overall(p), farm=(c.farm||[]).includes(p); const coach=ci===DM.you&&L.coaches?L.coaches[p.pitcher?"pitching":"hitting"]:null; const coached=develop(L,p,tr,farm||daily.has(p),coach&&coach.season===L.season?coach:null,ci===DM.you);if(coached)L.report.coaching.push(coached); const d=overall(p)-before;
       if(ci===DM.you){ if(d>=2)L.report.grew.push({name:p.name,d,farm}); if(d<=-2)L.report.slipped.push({name:p.name,d}); }
       if(p.season&&p.season.g){ p.last=Object.assign({year:L.season},p.season); p.career=p.career||{}; for(const k in p.season) p.career[k]=(p.career[k]||0)+p.season[k]; }
       if(!farm||p.sent)p.years--; if(farm&&p.sent&&p.years<=0){p.sent=false;p.salary=150;p.years=3;} p.season=null; }
@@ -219,10 +219,12 @@ function sendDown(L,id) { const c=L.clubs[DM.you], p=c.players.find(x=>x.id===id
   c.players.splice(c.players.indexOf(p),1); c.farm=c.farm||[]; c.farm.push(p); p.prospect=true; p.sent=true; setLineup(c); return ''; }
 function releaseFarm(L,id) { const c=L.clubs[DM.you], i=(c.farm||[]).findIndex(x=>x.id===id); if(i<0) return 'That player is not on the farm club.'; c.farm.splice(i,1); return ''; }
 /* Growth: young players climb toward their potential, faster when they play every day (in the lineup, in the top five
-   arms, or on the farm club) and with training rooms; past 30 they slip. Training also lifts a young ceiling a little. */
-function develop(L,p,training,playing,coach=null) {
+   arms, or on the farm club) and with training rooms; past 30 they slip. Training also lifts a young ceiling a little.
+   Other clubs take half that natural step (#337). The Lanterns keep the full step, so Training Rooms, coaches and
+   playing time are still what closes the gap. */
+function develop(L,p,training,playing,coach=null,yours=true) {
   const o=overall(p), room=Math.max(0,(p.pot||o)-o); let base;
-  if(p.age<=27){ base=Math.min(room, ri(L,0,2)+Math.ceil(room/10)+(playing&&p.age<=25&&room>0?1:0)) + (room>0?training:0); p.pot=Math.min(92,(p.pot||o)+Math.ceil(training/2)); }
+  if(p.age<=27){ const natural=ri(L,0,2)+Math.ceil(room/10)+(playing&&p.age<=25&&room>0?1:0); base=Math.min(room,(yours?natural:Math.floor(natural/2)))+(room>0?training:0); p.pot=Math.min(92,(p.pot||o)+Math.ceil(training/2)); }
   else base=p.age<=30?ri(L,-1,1):p.age<=33?ri(L,-3,0):ri(L,-5,-1);
   const keys=p.pitcher?['stuff','control','stamina']:['contact','power','eye','glove'];
   for(const k of keys) p[k]=clamp(p[k]+base+ri(L,-1,1),20,99);
@@ -262,6 +264,7 @@ function startSeason(L) {
   if(!canStartSeason(L)) return false;
   L.season++; L.day=0; L.results=[]; L.final=null; L.phase='season'; L.seasonLedger=freshSeasonLedger(L); L.report=null; L.offer=null; L.draft=null;
   L.clubs.forEach(c=>{c.w=0;c.l=0;c.rs=0;c.ra=0;c.rot=0;});
+  for(const p of L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents))p.form=freshForm();
   return true;
 }
 function rosterOk(c) { return batters(c).length>=DM.minBatters && pitchers(c).length>=DM.minPitchers && c.players.length<=DM.rosterMax; }
@@ -283,7 +286,7 @@ function validLeague(o) {
     const player = p => {
       if (!p || !int(p.id) || p.id < 1 || ids.has(p.id) || typeof p.name !== 'string' || typeof p.pitcher !== 'boolean' ||
           !int(p.age) || p.age < 1 || !number(p.salary) || p.salary < 0 || !int(p.years) || (p.pot !== undefined && !number(p.pot))) return false;
-      if(!validMorale(p.morale)||(p.marketVisitor!==undefined&&typeof p.marketVisitor!=='boolean')) return false;
+      if(!validForm(p.form)||!validMorale(p.morale)||(p.marketVisitor!==undefined&&typeof p.marketVisitor!=='boolean')) return false;
       ids.add(p.id);
       return (p.pitcher ? ['stuff','control','stamina'] : ['contact','power','eye','glove']).every(k => number(p[k]) && p[k] >= 0 && p[k] <= 99);
     };
@@ -306,7 +309,13 @@ function validLeague(o) {
     if (o.live) { const g = o.live.g, has = (side, id) => o.clubs[side ? g.home : g.away].players.some(p => p.id === id);
       if (!g || !team(g.home) || !team(g.away) || g.home === g.away || !Array.isArray(g.lineup) || !g.lineup.every((l, side) => Array.isArray(l) && l.length === 9 && l.every(id => has(side, id))) ||
           !Array.isArray(g.pitcher) || !g.pitcher.every((id, side) => has(side, id)) || !Array.isArray(g.bases) || g.bases.length !== 3 || !Array.isArray(g.events) ||
-          !int(g.inning) || g.inning < 1 || g.inning > 15 || ![0,1].includes(g.half) || !Array.isArray(g.score) || !g.box || !g.pbox) return false; }
+          !int(g.inning) || g.inning < 1 || g.inning > 15 || ![0,1].includes(g.half) || !Array.isArray(g.score) || !g.box || !g.pbox) return false;
+      // Older live saves omit form metadata. Present values must be safe to record and render.
+      if (g.formKey !== undefined && (typeof g.formKey !== 'string' || !g.formKey.length || g.formKey.length > 80)) return false;
+      if (g.formChanges !== undefined && (!Array.isArray(g.formChanges) || !g.formChanges.every(x => x &&
+          [g.home,g.away].includes(x.club) && int(x.id) && o.clubs[x.club].players.some(p => p.id === x.id) &&
+          typeof x.name === 'string' && [x.before,x.after].every(n => int(n) && n >= -3 && n <= 3)))) return false;
+    }
     if (o.report && (!Array.isArray(o.history) || !o.history.length || !['grew','slipped','expiring'].every(k => Array.isArray(o.report[k])))) return false;
     if(o.moraleNotes!==undefined&&(!Array.isArray(o.moraleNotes)||o.moraleNotes.length>12||!o.moraleNotes.every(x=>x&&Number.isInteger(x.id)&&Number.isInteger(x.key)&&typeof x.text==='string'&&typeof x.kind==='string')))return false;
     if(!validCoachState(o.coaches)||!validSeasonLedger(o.seasonLedger,o)||!Array.isArray(o.history)||!o.history.every(validSeasonHistory)) return false;
@@ -323,7 +332,7 @@ function migrateLeague(o) { if(!validLeague(o)) return newLeague((Date.now()>>>0
   // The game, pitch by pitch (v0.5.0): batters get a speed rating.
   if(!L.dmd){ L.dmd=true; const all=L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?L.draft.pool:[]); for(const p of all) if(!p.pitcher&&p.speed===undefined) p.speed=speedFor(p.id,p.age); }
   L.coaches=L.coaches||{hitting:null,pitching:null};
-  for(const p of L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?.pool||[]))playerMorale(p);
+  for(const p of L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents,L.draft?.pool||[])){playerMorale(p);if(p.form===undefined)p.form=freshForm();}
   L.moraleNotes=L.moraleNotes||[]; L.seasonLedger=L.seasonLedger||freshSeasonLedger(L);
   if(L.lastBox&&!(Array.isArray(L.lastBox.bat)&&Array.isArray(L.lastBox.pit))) delete L.lastBox;
   return L; }

@@ -25,6 +25,8 @@ function beginArrival(replay) {
     ARRIVAL_HERO = null;
     if (!replay && o) { o.arrival = true; if (H() === h) save(); }
     if (H() && C) { updateWorld(); renderRoadGuide(); }
+    const focus = document.activeElement;
+    if (focus && focus.blur && focus.closest && focus.closest('#modal,[hidden]')) focus.blur();
   });
   renderRoadGuide();
 }

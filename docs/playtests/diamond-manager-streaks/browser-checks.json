@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-13T18:01:36.544Z",
+  "views": [
+    {
+      "width": 390,
+      "height": 844,
+      "roster": "pass",
+      "rules": "pass",
+      "iona": "pass",
+      "overflow": "none",
+      "close": "pass"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "roster": "pass",
+      "rules": "pass",
+      "iona": "pass",
+      "overflow": "none",
+      "close": "pass"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "roster": "pass",
+      "rules": "pass",
+      "iona": "pass",
+      "overflow": "none",
+      "close": "pass"
+    }
+  ],
+  "pageErrors": [],
+  "saveIsolation": "fresh browser context per viewport; no user saves"
+}
