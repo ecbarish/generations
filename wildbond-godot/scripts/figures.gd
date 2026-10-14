@@ -411,18 +411,41 @@ static func _standing(pose: Dictionary) -> bool:
 		and not bool(pose.get("sit", false)) and int(pose.get("crouch", 0)) == 0 and not bool(pose.get("sniff", false)) \
 		and not bool(pose.get("bird", false))
 
+static func _posed_look(species: Dictionary, look_override: Dictionary) -> Dictionary:
+	var look := look_for(species)
+	if look_override.is_empty():
+		return look
+	look = look_override.duplicate()
+	if not look.has("kind"):
+		look["kind"] = look_for(species).get("kind", "wolf")
+	if species.get("marks", false) and not look.has("head"):
+		var base := look_for(species)
+		for key in ["head", "back", "tail", "pattern"]:
+			if base.has(key):
+				look[key] = base[key]
+	return look
+
+## The drawn pixels, before the fractional height fit. Feet stay on y=12.
+static func native_parts(species: Dictionary, right: bool, pose: Dictionary, look_override: Dictionary = {}) -> Array:
+	var look := _posed_look(species, look_override)
+	var parts := _body(right, pose, look)
+	if str(look.get("head", "")) != "":
+		parts.append_array(_marks(parts, look, right))
+	return parts
+
+## Battle fallback scale. The height fit used to multiply a fraction (a small creature at 0.85) by the
+## battle zoom, which pulled 1px marks apart. This is that same size, rounded to a whole number of pixels.
+static func battle_whole_scale(species: Dictionary, zoom: float) -> int:
+	var look := look_for(species)
+	var canon := _body(true, _STAND, look)
+	var ch := maxi(1, pixel_span(canon).y)
+	var target := _target_height(species, canon)
+	var effective := float(target) / float(ch) * maxf(zoom, 1.0)
+	return maxi(1, int(round(effective)))
+
 ## Parts at the species' pixel height. Feet stay on y=12. Marks are added after the fit, so their outline stays one pixel.
 static func sized_parts(species: Dictionary, right: bool, pose: Dictionary, look_override: Dictionary = {}) -> Array:
-	var look := look_for(species)
-	if not look_override.is_empty():
-		look = look_override.duplicate()
-		if not look.has("kind"):
-			look["kind"] = look_for(species).get("kind", "wolf")
-		if species.get("marks", false) and not look.has("head"):
-			var base := look_for(species)
-			for key in ["head", "back", "tail", "pattern"]:
-				if base.has(key):
-					look[key] = base[key]
+	var look := _posed_look(species, look_override)
 	var canon := _body(right, _STAND, look)
 	var fitted := _fit_height(_body(right, pose, look), canon, _target_height(species, canon), _standing(pose))
 	if str(look.get("head", "")) != "":
