@@ -9,6 +9,7 @@ extends Node2D
 ## Everything draws on a 384x216 pixel canvas scaled by whole numbers, so it stays crisp on any screen.
 
 const Figures := preload("res://scripts/figures.gd")
+const Sprites := preload("res://scripts/creature_sprites.gd")
 const Register := preload("res://scripts/register.gd")
 const Card := preload("res://scripts/card.gd")
 const Battle := preload("res://scripts/battle.gd")
@@ -1361,6 +1362,11 @@ func _draw_actor(ci: CanvasItem, m: Mover, i: int, fade_amt := 0.0) -> void:
 			"bird": m.look.kind == "boar" and not walking and fmod(t + 3.0, 16.0) < 10.0,
 		}
 		var wiggle := (1.0 if int(t * 16.0) % 2 == 0 else -1.0) if m.act == "pounce" and m.act_t > 0.4 and m.act_t < 0.8 else 0.0
+		var sid := _creature_species(m)
+		var foot := m.pos + Vector2(8.0 + wiggle, 16.0 + m.hop)
+		# Painted art is already the world size (12.35px per metre). Species without a PNG keep the procedural figure.
+		if Sprites.try_draw(ci, sid, foot, m.right, "walk" if walking else "idle", int(m.step_t * 10.0), 1.0, fade_amt, str(m.look.get("gear", ""))):
+			return
 		var sc: float = SIZE_SCALE.get(str(DATA.SPECIES.get(m.id, {}).get("size", "medium")), 1.0)   # CR1: draw at species size
 		var o := m.pos + Vector2(-1 + wiggle, 4 + m.hop)
 		ci.draw_set_transform(o, 0, Vector2(sc, sc))
@@ -1372,6 +1378,15 @@ func _draw_actor(ci: CanvasItem, m: Mover, i: int, fade_amt := 0.0) -> void:
 		face = Vector2i.LEFT if int(t + i) % 2 == 0 else Vector2i.RIGHT   # a glance around while standing
 	var look: Dictionary = my_look if m == me else (LOOKS[m.id] if LOOKS.has(m.id) else (KEEPER_LOOKS[m.id] if KEEPER_LOOKS.has(m.id) else _cast_look(m.id)))
 	Figures.person(ci, m.pos + Vector2(2, -5), face, walking, int(m.step_t * 8.0) % 4, fmod(t + i * 1.7, 3.3) < 0.12, _faded_look(look, fade_amt))
+
+## The species a creature on the map is showing. The partner's id stays the starter it was; the form is the one it has become.
+func _creature_species(m: Mover) -> String:
+	if m == partner and not team.is_empty():
+		return str(team[0].get("sp", m.id))
+	var i := ranch_movers.find(m)
+	if i >= 0 and i < ranch.size():
+		return str(ranch[i].get("sp", ""))
+	return m.id
 
 # ---------------------------------------------------------------- inside the barn (drawn in code: warm wood and straw)
 const WOOD := Color("7a5236")
@@ -3211,11 +3226,27 @@ func _save_summary() -> String:
 		return ""
 	var where: String = "Maren's barn" if d.map == "barn" else (str(INTERIORS[d.map].name) if INTERIORS.has(d.map) else str(DATA.MAPS.get(d.map, {}).get("name", d.map)))
 	var nb: int = d.badges.size()
-	return "%s and %s, in %s. %d badge%s, %d in the Wilddex." % [d.look.get("name", "You"), DATA.SPECIES[d.team[0].sp].name if d.team[0].name == null else d.team[0].name,
+	var lead_sp := str(d.team[0].get("sp", ""))
+	if RETIRED_FORMS.has(lead_sp):
+		lead_sp = RETIRED_FORMS[lead_sp]
+	var lead_name: String = str(d.team[0].name) if d.team[0].name != null else str(DATA.SPECIES.get(lead_sp, {}).get("name", "your partner"))
+	return "%s and %s, in %s. %d badge%s, %d in the Wilddex." % [d.look.get("name", "You"), lead_name,
 		where, nb, "" if nb == 1 else "s", d.seen.size()]
 
+## Retired third forms (EVO-1). An old save keeps the creature; only the species id changes, and a default name follows it.
+const RETIRED_FORMS := { "pyremane": "blazefang", "deeptide": "tidewyrm", "elderthorn": "thornback" }
+const RETIRED_NAMES := { "pyremane": "Pyremane", "deeptide": "Deeptide", "elderthorn": "Elderthorn" }
+
 ## A creature read back from the save: JSON stores every number as a decimal, so whole numbers are made whole again.
+## A retired third form becomes the final the line kept. Level, experience, trust, raising, hold, hold_bond,
+## nickname, potentials and the stored health number stay on the creature.
 func _fix_creature(c: Dictionary) -> Dictionary:
+	var old := str(c.get("sp", ""))
+	if RETIRED_FORMS.has(old):
+		var nick := str(c.get("name", ""))
+		c.sp = RETIRED_FORMS[old]
+		if nick == "" or nick == RETIRED_NAMES[old]:
+			c.name = str(DATA.SPECIES[c.sp].name)
 	for k in ["lvl", "xp", "rar", "hp"]:
 		c[k] = int(c[k])
 	for s in c.pot:
@@ -3225,6 +3256,18 @@ func _fix_creature(c: Dictionary) -> Dictionary:
 		for k in c.raised:
 			c.raised[k] = float(c.raised[k])
 	return c
+
+## Wilddex keys for a retired form follow the creature, without dropping a final the player had already seen.
+func _migrate_dex(box: Dictionary) -> Dictionary:
+	for old in RETIRED_FORMS:
+		if not box.has(old):
+			continue
+		var v = box[old]
+		box.erase(old)
+		var neu: String = RETIRED_FORMS[old]
+		if not box.has(neu):
+			box[neu] = v
+	return box
 
 func _load_game() -> bool:
 	var d := _read_save()
@@ -3239,8 +3282,8 @@ func _load_game() -> bool:
 	for k in d.bag:
 		bag[k] = int(d.bag[k])                       # the same satchel the battle screen holds
 	badges = d.badges
-	seen = d.seen
-	bonded = d.bonded
+	seen = _migrate_dex(d.seen)
+	bonded = _migrate_dex(d.bonded)
 	got_items = d.items
 	explored_in = d.get("explored", {})
 	story_done = d.get("story", {})
@@ -4003,7 +4046,10 @@ func _draw_evo_cine() -> void:
 	var o := center + Vector2(0, 10)
 	draw_set_transform(o, 0, Vector2(draw_sc, draw_sc))
 	var pose := { "walking": false, "frame": 0, "blink": false, "wag": 0, "sniff": false, "twitch": 0, "sit": false, "ears_up": true, "crouch": 0, "bird": false }
-	Figures.creature(self, Vector2.ZERO, true, pose, look)
+	# The reveal can show the painted form. The violet silhouette stays the procedural figure, so a species
+	# without art, and the shape of the change, still read the way they did.
+	if is_silhouette or not Sprites.try_draw(self, sp, Vector2(8, 16), true, "idle", 0):
+		Figures.creature(self, Vector2.ZERO, true, pose, look)
 	draw_set_transform(Vector2.ZERO)
 
 	# Glow ring around the creature (stronger during silhouette phases)

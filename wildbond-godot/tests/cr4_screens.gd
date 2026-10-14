@@ -20,11 +20,10 @@ func capture() -> void:
 	main.satchel.visible = false
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1
-	# Set up: Pyremane is Legend tier -> full 4.5s cinematic
+	# Elderhorn is still Legend, so this keeps the full 4.5s cinematic. The starter final is no longer a third form.
 	var cub: Dictionary = R.make("cindercub", 30, {}, rng)
 	main.team = [cub]
-	# Start the evolution cinematic directly (cindercub -> pyremane via debug)
-	main._evo_cine_start(cub, "pyremane")
+	main._evo_cine_start(cub, "elderhorn")
 	# Freeze at mid-grow phase for the silhouette shot (set t right before capture)
 	main.evo_cine["t"] = 2.8
 	await RenderingServer.frame_post_draw

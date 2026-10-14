@@ -8,6 +8,7 @@ signal chosen(id: String)
 signal closed
 signal picked(index: int)                     # with custom buttons (the ranch): which one was pressed
 const Figures := preload("res://scripts/figures.gd")
+const Sprites := preload("res://scripts/creature_sprites.gd")
 const INK := Color("3e2c20")
 const FAINT := Color("8a6e50")
 const STATS := [["hp", "Health"], ["pow", "Power"], ["grd", "Guard"], ["spd", "Speed"], ["wit", "Wits"], ["spi", "Spirit"]]
@@ -134,7 +135,9 @@ func _draw() -> void:
 	draw_set_transform(Vector2(68, 86), 0, Vector2(4, 4))
 	var pose := { "wag": [1, 0, -1, 0][int(t * 8.0) % 4], "blink": fmod(t, 2.7) < 0.12, "ears_up": true,
 		"twitch": int(t * 6.0) % 2 if fmod(t, 4.0) > 3.0 else 0, "bird": info.look.get("kind") == "boar" }
-	Figures.creature(self, Vector2.ZERO, true, pose, info.look)
+	# Four times life size, same as the procedural page. Feet rest on the shadow.
+	if not Sprites.try_draw(self, id, Vector2(9, 12), true, "idle", int(t * 6.0), 1.0, 0.0, str(info.get("look", {}).get("gear", ""))):
+		Figures.creature(self, Vector2.ZERO, true, pose, info.look)
 	draw_set_transform(Vector2.ZERO)
 	var y := _para(info.dex, Vector2(36, 156), 135, 7, FAINT)
 	# right page: what it is like

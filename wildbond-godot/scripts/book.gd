@@ -9,6 +9,7 @@ extends Control
 signal closed
 signal want_howto                              # the Settings page's last row: show the How to play page
 const Figures := preload("res://scripts/figures.gd")
+const Sprites := preload("res://scripts/creature_sprites.gd")
 const R := preload("res://scripts/rules.gd")
 const INK := Color("3e2c20")
 const FAINT := Color("8a6e50")
@@ -159,7 +160,13 @@ func _draw_dex() -> void:
 			draw_rect(r.grow(1), Color(0.85, 0.66, 0.36, 0.6))
 		var known := seen.has(id)
 		var look := _look(id) if known else _shadow(_look(id))
-		Figures.creature(self, r.position + Vector2(0, 2), true, { "wag": 0 }, look)
+		var drew := false
+		if known and Sprites.has(id):
+			var sz := Sprites.frame_size(id, "idle")
+			var fit := minf(minf(1.0, 16.0 / float(sz.x)), 16.0 / float(sz.y))
+			drew = Sprites.try_draw(self, id, r.position + Vector2(9, 17), true, "idle", 0, fit)
+		if not drew:
+			Figures.creature(self, r.position + Vector2(0, 2), true, { "wag": 0 }, look)
 		if bonded.has(id):
 			draw_rect(Rect2(r.position + Vector2(13, 0), Vector2(5, 5)), Color("4aa84a"))         # chose you
 	var pages := ceili(float(ids.size()) / (COLS * ROWS))
@@ -172,10 +179,16 @@ func _draw_dex() -> void:
 	var known2 := seen.has(id2)
 	_text("No. %03d" % (sel + 1), Vector2(200, 60), 7, FAINT)
 	_text(s.name if known2 else "???", Vector2(193, 44), 11, INK, 163, HORIZONTAL_ALIGNMENT_CENTER)
-	draw_set_transform(Vector2(238, 64), 0, Vector2(4, 4))
 	var look2 := _look(id2) if known2 else _shadow(_look(id2))
-	Figures.creature(self, Vector2.ZERO, true, { "wag": [1, 0, -1, 0][int(t * 6.0) % 4] if known2 else 0, "blink": fmod(t, 3.0) < 0.12, "ears_up": true }, look2)
-	draw_set_transform(Vector2.ZERO)
+	var drew2 := false
+	if known2 and Sprites.has(id2):
+		var sz2 := Sprites.frame_size(id2, "idle")
+		var fit2 := minf(minf(4.0, 120.0 / float(sz2.x)), 70.0 / float(sz2.y))
+		drew2 = Sprites.try_draw(self, id2, Vector2(274, 58 + float(sz2.y) * fit2), true, "idle", int(t * 6.0), fit2)
+	if not drew2:
+		draw_set_transform(Vector2(238, 64), 0, Vector2(4, 4))
+		Figures.creature(self, Vector2.ZERO, true, { "wag": [1, 0, -1, 0][int(t * 6.0) % 4] if known2 else 0, "blink": fmod(t, 3.0) < 0.12, "ears_up": true }, look2)
+		draw_set_transform(Vector2.ZERO)
 	if known2:
 		draw_rect(Rect2(250, 122, 48, 10), EL_COL.get(s.el, FAINT))
 		_text(s.el, Vector2(250, 130), 7, Color("fdf6e6"), 48, HORIZONTAL_ALIGNMENT_CENTER)
@@ -199,9 +212,14 @@ func _draw_team() -> void:
 	var y := 36.0
 	for c in team:
 		var st := R.stats(c)
-		draw_set_transform(Vector2(34, y), 0, Vector2(2, 2))
-		Figures.creature(self, Vector2.ZERO, true, { "wag": [1, 0, -1, 0][int(t * 5.0) % 4], "ears_up": true }, _look(c.sp))
-		draw_set_transform(Vector2.ZERO)
+		if Sprites.has(str(c.sp)):
+			var sz3 := Sprites.frame_size(str(c.sp), "idle")
+			var fit3 := minf(minf(2.0, 36.0 / float(sz3.x)), 30.0 / float(sz3.y))
+			Sprites.try_draw(self, str(c.sp), Vector2(52, y + 32), true, "idle", int(t * 5.0), fit3, 0.0, str(c.get("gear", "")))
+		else:
+			draw_set_transform(Vector2(34, y), 0, Vector2(2, 2))
+			Figures.creature(self, Vector2.ZERO, true, { "wag": [1, 0, -1, 0][int(t * 5.0) % 4], "ears_up": true }, _look(c.sp))
+			draw_set_transform(Vector2.ZERO)
 		_text("%s   Lv %d" % [c.name, c.lvl], Vector2(74, y + 8), 8, INK)
 		var bar := Rect2(74, y + 12, 100, 4)
 		draw_rect(bar.grow(1), INK)

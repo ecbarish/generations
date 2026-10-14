@@ -20,9 +20,9 @@ func capture() -> void:
 	main.satchel.visible = false
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1
-	# Small ally (cindercub, small) vs huge foe (pyremane, huge)
+	# Small ally (cindercub) vs a huge guardian (Elderhorn). Pyremane is retired.
 	var ally := R.make("cindercub", 5, {}, rng)
-	var foe := R.make("pyremane", 30, {}, rng)
+	var foe := R.make("elderhorn", 30, {}, rng)
 	main.team = [ally]
 	main.battle.open("wild", [ally], [foe], "")
 	# Let the battle draw a few frames

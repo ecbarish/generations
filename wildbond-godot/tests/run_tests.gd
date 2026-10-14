@@ -163,29 +163,61 @@ func _run() -> void:
 	g.lvl = 13
 	g.hp = 1
 	var msgs: Array = R.grow(g, 2000, 20)
-	check(g.lvl == 14 and g.sp == "cindercub" and R.evo_target(g) == "blazefang", "at 14 Cindercub is ready to become Blazefang (you're asked; it isn't forced): %s" % [msgs])
-	check(R.evolve(g, "blazefang") == "Cindercub" and g.sp == "blazefang" and g.name == "Blazefang", "letting it change: Cindercub becomes Blazefang")
-	# ---- evolution with shapes and conditions (data/evolution.json)
-	var bf := R.make("blazefang", 32, { "rar": 1 }, main.rng)
-	check(R.evo_target(bf, { "place": "thornwood" }) == "" and R.evo_target(bf, { "place": "emberfall" }) == "pyremane", "a third stage: Blazefang becomes Pyremane at 32, but only in the heat of Emberfall")
-	var tw := R.make("tidewyrm", 32, { "rar": 1 }, main.rng)
-	tw.bond = 10.0
-	check(R.evo_target(tw) == "", "Tidewyrm won't change for a tamer it doesn't trust completely")
-	tw.bond = 150.0
-	check(R.evo_target(tw) == "deeptide", "with complete trust (Devoted) it becomes Deeptide")
-	# ---- WB-BOND: trust is required with the level, not instead of it (DD-5)
-	var young_tw := R.make("tidewyrm", 20, { "rar": 1 }, main.rng)
-	young_tw.bond = 140.0
-	check(R.evo_target(young_tw) == "", "WB-BOND: Devoted but still young, Tidewyrm waits")
-	young_tw.bond = 280.0
-	check(R.evo_target(young_tw) == "", "WB-BOND: Bonded before level 32, Tidewyrm still waits")
-	var grown_tw := R.make("tidewyrm", 32, { "rar": 1 }, main.rng)
-	grown_tw.bond = 139.0
-	check(R.evo_target(grown_tw) == "", "WB-BOND: level 32 without Devoted trust does not change")
-	grown_tw.bond = 140.0
-	check(R.evo_target(grown_tw) == "deeptide", "WB-BOND: grown and Devoted, Tidewyrm becomes Deeptide")
-	grown_tw.bond = 280.0
-	check(R.evo_target(grown_tw) == "deeptide", "WB-BOND: Bonded at level 32 still becomes Deeptide")
+	check(g.lvl == 14 and g.sp == "cindercub" and R.evo_target(g) == "", "at 14 Cindercub is still a cub; the middle stage waits for 16: %s" % [msgs])
+	g.lvl = 16
+	check(R.evo_target(g) == "smoulderpup", "at 16 Cindercub is ready to become Smoulderpup (you're asked; it isn't forced)")
+	check(R.evolve(g, "smoulderpup") == "Cindercub" and g.sp == "smoulderpup" and g.name == "Smoulderpup", "letting it change: Cindercub becomes Smoulderpup")
+	# ---- EVO-1: three starter stages. A level on every change; Devoted trust as well on the final. No trust-only route.
+	var Sprites := load("res://scripts/creature_sprites.gd")
+	var lines := {
+		"cindercub": ["smoulderpup", "blazefang"],
+		"ripplet": ["riverwisp", "tidewyrm"],
+		"mosshog": ["thicketboar", "thornback"],
+	}
+	for base in lines:
+		var mid: String = lines[base][0]
+		var fin: String = lines[base][1]
+		var young := R.make(base, 15, { "rar": 1 }, main.rng)
+		check(R.evo_target(young) == "", "EVO-1: %s does not change before level 16" % base)
+		young.lvl = 16
+		young.bond = 0.0
+		check(R.evo_target(young) == mid, "EVO-1: %s becomes %s at 16 with no trust required" % [base, mid])
+		var teen := R.make(mid, 35, { "rar": 1 }, main.rng)
+		teen.bond = 280.0
+		check(R.evo_target(teen) == "", "EVO-1: Bonded before level 36, %s still waits" % mid)
+		teen.lvl = 36
+		teen.bond = 139.0
+		check(R.evo_target(teen) == "", "EVO-1: level 36 without Devoted trust does not change %s" % mid)
+		teen.bond = 140.0
+		check(R.evo_target(teen, { "place": "emberfall", "team": [mid, "glimmerwing"] }) == fin, "EVO-1: %s becomes %s at 36 with Devoted trust, and place or a companion does not choose it" % [mid, fin])
+		var done := R.make(fin, 50, { "rar": 1 }, main.rng)
+		done.bond = 280.0
+		check(R.evo_target(done, { "place": "emberfall", "team": [fin, "glimmerwing"] }) == "", "EVO-1: %s is the final form" % fin)
+		check(is_equal_approx(float(main.DATA.SPECIES[mid].metres) * 12.35, float(Sprites.frame_size(mid, "idle").y)), "EVO-1: %s height in metres matches its sprite (%dpx)" % [mid, Sprites.frame_size(mid, "idle").y])
+	check(not main.DATA.SPECIES.has("pyremane") and not main.DATA.SPECIES.has("deeptide") and not main.DATA.SPECIES.has("elderthorn"), "EVO-1: Deeptide, Pyremane and Elderthorn are retired")
+	var painted := ["cindercub", "smoulderpup", "blazefang", "ripplet", "riverwisp", "tidewyrm", "mosshog", "thicketboar", "thornback"]
+	for sid in painted:
+		check(Sprites.has(sid) and Sprites.frame_count(sid, "walk") == 4, "EVO-1: %s has an idle sheet and a 4-frame walk" % sid)
+	check(not Sprites.has("poolkit") and not Sprites.has("elderhorn"), "EVO-1: a species without a PNG is not claimed as painted")
+	check(Sprites.frame_size("smoulderpup", "idle").y == 16 and Sprites.frame_size("riverwisp", "idle").y == 14 and Sprites.frame_size("thicketboar", "idle").y == 15, "EVO-1: middle-stage sprites are 16, 14 and 15 pixels tall")
+	check(Sprites.frame_count("tidewyrm", "crawl") == 4 and Sprites.frame_size("tidewyrm", "walk").x == 32 and Sprites.frame_size("tidewyrm", "crawl").x == 38, "EVO-1: Tidewyrm's crawl sheet is separate from its walk, and provisional")
+	var wild_hits: Array = []
+	var banned := painted
+	for map_id in main.DATA.MAPS:
+		var map: Dictionary = main.DATA.MAPS[map_id]
+		var lists: Array = [map.get("wild", [])]
+		for season in map.get("seasonal", {}):
+			lists.append(map.seasonal[season].get("wild", []))
+		for list in lists:
+			for pair in list:
+				if str(pair[0]) in banned:
+					wild_hits.append(str(map_id) + ":" + str(pair[0]))
+	for biome_id in main.DATA.BIOMES:
+		for pair in main.DATA.BIOMES[biome_id].get("wild", []):
+			if str(pair[0]) in banned:
+				wild_hits.append("biome:" + str(pair[0]))
+	check(wild_hits.is_empty(), "EVO-1: starter lines are never in the wild" + ("" if wild_hits.is_empty() else " (%s)" % ", ".join(wild_hits.slice(0, 4))))
+	# ---- WB-BOND: trust is required with the level, not instead of it (DD-5). The example is now Riverwisp to Tidewyrm.
 	var cared := R.make("cindercub", 5, { "rar": 1, "traits": [] }, main.rng)
 	check(R.add_bond(cared, 20.0, "care") and is_equal_approx(float(cared.bond), 20.0) and is_equal_approx(float(cared.raised.care), 20.0) and R.raised_lvl(cared, "care") == 1, "WB-BOND: feeding-trust is remembered as care, and Friendly is step 1")
 	var loyal_cub := R.make("cindercub", 5, { "rar": 1, "traits": ["loyal"] }, main.rng)
@@ -222,6 +254,8 @@ func _run() -> void:
 	ordinary.sp = "bondbranch"
 	check(R.evo_target(ordinary) == "grownform", "WB-BOND: with no raising record, the level change is the ordinary form")
 	main.DATA.EVOS.erase("bondbranch")
+	var young_tw := R.make("riverwisp", 20, { "rar": 1 }, main.rng)
+	young_tw.bond = 280.0
 	var held := young_tw.duplicate(true)
 	held["hold"] = 20
 	held["hold_bond"] = 4
@@ -244,8 +278,61 @@ func _run() -> void:
 	bond_missing.erase("bond")
 	var bond_fixed_old: Dictionary = main._fix_creature(bond_missing)
 	check(is_equal_approx(float(bond_fixed_old.bond), 0.0) and R.bond_lvl(bond_fixed_old) == 0, "WB-BOND: a creature saved with no trust number is Wary")
-	var tb := R.make("thornback", 32, { "rar": 1 }, main.rng)
-	check(R.evo_target(tb, { "team": ["thornback"] }) == "" and R.evo_target(tb, { "team": ["thornback", "glimmerwing"] }) == "elderthorn", "Thornback becomes Elderthorn when raised alongside a Glimmerwing")
+	var retired := { "sp": "deeptide", "name": "Old Salt", "lvl": 40, "xp": 12, "rar": 2, "hp": 77, "pot": { "hp": 8, "pow": 11, "grd": 9, "spd": 4, "wit": 14, "spi": 7 }, "bond": 180.0, "traits": ["loyal"], "temp": "steady", "raised": { "care": 60.0, "battle": 40.0 }, "hold": 32, "hold_bond": 3, "moves": ["tidePulse", "harden"] }
+	var kept: Dictionary = retired.duplicate(true)
+	var fixed: Dictionary = main._fix_creature(retired)
+	check(fixed.sp == "tidewyrm" and fixed.name == "Old Salt" and int(fixed.lvl) == 40 and int(fixed.xp) == 12 and is_equal_approx(float(fixed.bond), 180.0), "EVO-1: a nicknamed Deeptide becomes Tidewyrm and keeps level, experience and trust")
+	check(is_equal_approx(float(fixed.raised.care), 60.0) and is_equal_approx(float(fixed.raised.battle), 40.0) and int(fixed.hold) == 32 and int(fixed.hold_bond) == 3, "EVO-1: raising, hold and hold_bond survive the conversion")
+	check(fixed.pot == kept.pot and int(fixed.hp) == 77 and fixed.moves == kept.moves and fixed.temp == "steady" and fixed.traits == ["loyal"], "EVO-1: potentials, stored health, moves, temperament and traits stay")
+	var plain := { "sp": "pyremane", "name": "Pyremane", "lvl": 36, "xp": 4, "rar": 1, "hp": 50, "pot": kept.pot.duplicate(), "bond": 140.0, "traits": [] }
+	var plain_fixed: Dictionary = main._fix_creature(plain)
+	check(plain_fixed.sp == "blazefang" and plain_fixed.name == "Blazefang" and int(plain_fixed.hp) == 50 and plain_fixed.pot == kept.pot and int(plain_fixed.xp) == 4, "EVO-1: a default-named Pyremane becomes Blazefang and keeps its stats")
+	var thorn := { "sp": "elderthorn", "name": "Elderthorn", "lvl": 33, "xp": 1, "rar": 1, "hp": 40, "pot": kept.pot.duplicate(), "bond": 20.0, "traits": [], "raised": { "care": 10.0 } }
+	var thorn_fixed: Dictionary = main._fix_creature(thorn)
+	check(thorn_fixed.sp == "thornback" and thorn_fixed.name == "Thornback" and is_equal_approx(float(thorn_fixed.raised.care), 10.0) and is_equal_approx(float(thorn_fixed.bond), 20.0), "EVO-1: Elderthorn becomes Thornback and keeps its raising and trust")
+	var dex := { "deeptide": true, "tidewyrm": true, "pyremane": true }
+	var dex2: Dictionary = main._migrate_dex(dex)
+	check(not dex2.has("deeptide") and not dex2.has("pyremane") and dex2.has("tidewyrm") and dex2.has("blazefang"), "EVO-1: the Wilddex follows a retired form, and does not drop a final already seen")
+	# Frozen v1 save written by current main's save_game() (origin/main b0cd249), before these forms were retired.
+	var retired_save: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/evo1-retired-forms.json"))
+	check(retired_save.team[0].sp == "deeptide" and retired_save.team[1].sp == "pyremane" and retired_save.ranch[0].sp == "elderthorn", "EVO-1: the frozen save still names Deeptide, Pyremane and Elderthorn")
+	var returned: Node = load("res://scenes/main.tscn").instantiate()
+	returned.no_save = true
+	returned.settings.keep = false
+	returned.show_howto = false
+	root.add_child(returned)
+	returned.register.keep = false
+	returned.save_path = "user://evo1_retired_load.json"
+	returned.lines.clear()
+	check(returned.SafeSave.write(returned.save_path, retired_save) and returned._load_game(), "EVO-1: a real pre-change save holding the retired forms still loads")
+	for i in 20: returned._process(0.05)
+	var old_lead: Dictionary = retired_save.team[0]
+	var new_lead: Dictionary = returned.team[0]
+	check(new_lead.sp == "tidewyrm" and new_lead.name == old_lead.name and int(new_lead.lvl) == int(old_lead.lvl) and int(new_lead.xp) == int(old_lead.xp) and is_equal_approx(float(new_lead.bond), float(old_lead.bond)), "EVO-1: Deeptide becomes Tidewyrm and keeps its nickname, level, experience and trust")
+	check(is_equal_approx(float(new_lead.raised.care), float(old_lead.raised.care)) and is_equal_approx(float(new_lead.raised.battle), float(old_lead.raised.battle)) and int(new_lead.hold) == int(old_lead.hold) and int(new_lead.hold_bond) == int(old_lead.hold_bond), "EVO-1: that Tidewyrm keeps its raising, hold and hold_bond")
+	check(int(new_lead.hp) == int(old_lead.hp) and new_lead.moves == old_lead.moves and new_lead.temp == old_lead.temp and new_lead.traits == old_lead.traits, "EVO-1: stored health, moves, temperament and traits stay on Tidewyrm")
+	var pot_same := true
+	for stat in old_lead.pot:
+		if int(new_lead.pot[stat]) != int(old_lead.pot[stat]):
+			pot_same = false
+	check(pot_same, "EVO-1: Tidewyrm's potentials stay")
+	var old_pyre: Dictionary = retired_save.team[1]
+	var new_pyre: Dictionary = returned.team[1]
+	check(new_pyre.sp == "blazefang" and new_pyre.name == "Blazefang" and int(new_pyre.lvl) == int(old_pyre.lvl) and int(new_pyre.xp) == int(old_pyre.xp) and is_equal_approx(float(new_pyre.bond), float(old_pyre.bond)) and int(new_pyre.hp) == int(old_pyre.hp), "EVO-1: a default-named Pyremane becomes Blazefang and keeps level, experience, trust and health")
+	var old_thorn: Dictionary = retired_save.ranch[0]
+	var new_thorn: Dictionary = returned.ranch[0]
+	check(new_thorn.sp == "thornback" and new_thorn.name == "Thornback" and int(new_thorn.lvl) == int(old_thorn.lvl) and is_equal_approx(float(new_thorn.bond), float(old_thorn.bond)) and is_equal_approx(float(new_thorn.raised.care), float(old_thorn.raised.care)) and int(new_thorn.hold) == int(old_thorn.hold), "EVO-1: Elderthorn becomes Thornback and keeps level, trust, raising and hold")
+	check(not returned.seen.has("deeptide") and not returned.seen.has("pyremane") and not returned.seen.has("elderthorn") and returned.seen.has("tidewyrm") and returned.seen.has("blazefang") and returned.seen.has("thornback"), "EVO-1: the loaded Wilddex follows the retired forms")
+	check(returned.seen.tidewyrm == retired_save.seen.tidewyrm, "EVO-1: a final already in the Wilddex is not replaced")
+	check(returned.partner != null and returned.partner.id == retired_save.partner and returned.stage == "free", "EVO-1: the partner you set out with, and the journey, stay")
+	var old_egg: Dictionary = retired_save.egg.child
+	var new_egg: Dictionary = returned.egg.child
+	check(returned.egg.steps == int(retired_save.egg.steps) and new_egg.sp == "thornback" and new_egg.name == old_egg.name and int(new_egg.lvl) == int(old_egg.lvl) and is_equal_approx(float(new_egg.bond), float(old_egg.bond)), "EVO-1: an egg that was going to be Elderthorn hatches as Thornback and keeps its nickname, level and trust")
+	returned.SafeSave.remove(returned.save_path)
+	returned.free()
+	var tb := R.make("thornback", 36, { "rar": 1 }, main.rng)
+	tb.bond = 280.0
+	check(R.evo_target(tb, { "team": ["thornback", "glimmerwing"] }) == "", "EVO-1: Thornback no longer becomes Elderthorn beside a Glimmerwing")
 	var pk := R.make("poolkit", 24, { "rar": 1 }, main.rng)
 	pk.bond = 0.0
 	check(R.evo_target(pk, { "place": "cloudglass" }) == "mistlynx", "a branching line: Poolkit in the cloud of the pass becomes Mistlynx")
@@ -253,7 +340,7 @@ func _run() -> void:
 	pk.bond = 150.0
 	check(R.evo_target(pk, { "place": "saltmarsh" }) == "sunlynx", "and one devoted to its tamer becomes Sunlynx")
 	check(R.evo_target(R.make("hearthlaugh", 60, { "rar": 1 }, main.rng)) == "", "Hearthlaugh never evolves; it's itself")
-	check(main.DATA.SPECIES.has("pyremane") and main.DATA.SPECIES.size() >= 98, "the new forms are in the Wilddex (%d creatures)" % main.DATA.SPECIES.size())
+	check(main.DATA.SPECIES.has("smoulderpup") and main.DATA.SPECIES.has("riverwisp") and main.DATA.SPECIES.has("thicketboar") and main.DATA.SPECIES.size() >= 98, "the middle stages are in the Wilddex (%d creatures)" % main.DATA.SPECIES.size())
 	# ---- CR1: every species has a size and tier; huge finals outscale their young forms
 	var sizes := { "tiny": 0.7, "small": 0.85, "medium": 1.0, "large": 1.2, "huge": 1.45 }
 	var tiers := ["Plain", "Strong", "Showpiece", "Legend"]
@@ -275,7 +362,7 @@ func _run() -> void:
 				scale_ok = false
 	check(scale_ok, "CR1: no final form is drawn smaller than its young form")
 	# ---- CR4: the evolution moment has staged phases; showpieces get the full version
-	main._evo_cine_start({ "sp": "cindercub", "name": "Test" }, "pyremane")
+	main._evo_cine_start({ "sp": "cindercub", "name": "Test" }, "elderhorn")
 	check(not main.evo_cine.is_empty(), "CR4: starting the cinematic sets state")
 	check(bool(main.evo_cine["full"]), "CR4: Legend-tier evolution gets the full version")
 	check(float(main.evo_cine["dur"]) > 3.0, "CR4: full version runs longer than the simple one")
@@ -1215,6 +1302,8 @@ func _run() -> void:
 	check(d_band < d_bare, "an Ember-Glass Band: Ember moves hurt less (%d against %d)" % [d_band, d_bare])
 	var shapes_ok := true
 	for sid in main.Figures.SHAPE_FOR:
+		if not main.DATA.SPECIES.has(sid):
+			continue
 		var lk: Dictionary = main.Figures.look_for(main.DATA.SPECIES[sid])
 		shapes_ok = shapes_ok and lk.kind == main.Figures.SHAPE_FOR[sid] and main.Figures.call("_" + str(lk.kind), { "wag": 1, "walking": true, "frame": 1 }, lk).size() > 8
 	check(shapes_ok and main.Figures.look_for(main.DATA.SPECIES.mosshog).kind == "boar", "WD2: twelve species take the new serpent, turtle, moth and tree-folk shapes; the rest keep their family's")
@@ -1270,23 +1359,23 @@ func _run() -> void:
 	main._set_map("larkhaven")
 	main.me.tile = keep_tile
 	# ---- a creature ready to change: you're asked, and "not yet" is respected until it grows again
-	var cub: Dictionary = main.R.make("cindercub", 14, { "rar": 1 }, main.rng)
+	var cub: Dictionary = main.R.make("cindercub", 16, { "rar": 1 }, main.rng)
 	main.team = [cub]
 	tick(0.1)
-	check(main.card.visible and main.card.buttons == ["Let it change", "Not yet"] and main.evolve_to == "blazefang", "after the battle that made it ready, Cindercub's change is offered")
+	check(main.card.visible and main.card.buttons == ["Let it change", "Not yet"] and main.evolve_to == "smoulderpup", "after the battle that made it ready, Cindercub's change is offered")
 	main.card._pick(1)
 	talk_through()
 	tick(0.2)
-	check(not main.card.visible and cub.sp == "cindercub" and int(cub.hold) == 14, "Not yet: it stays itself, and isn't asked again at this level")
-	cub.lvl = 15
+	check(not main.card.visible and cub.sp == "cindercub" and int(cub.hold) == 16, "Not yet: it stays itself, and isn't asked again at this level")
+	cub.lvl = 17
 	tick(0.1)
-	check(main.card.visible and main.evolve_to == "blazefang", "a level later, it's ready again")
+	check(main.card.visible and main.evolve_to == "smoulderpup", "a level later, it's ready again")
 	main.card._pick(0)
 	check(not main.evo_cine.is_empty(), "CR4: Let it change starts the evolution moment")
 	# Fast-forward through the cinematic
 	for i in 60:
 		tick(0.1)
-	check(cub.sp == "blazefang" and main.seen.has("blazefang") and main.partner.look.body == Color(main.DATA.SPECIES.blazefang.col), "Let it change: Blazefang, now walking with you")
+	check(cub.sp == "smoulderpup" and main.seen.has("smoulderpup") and main.partner.look.body == Color(main.DATA.SPECIES.smoulderpup.col), "Let it change: Smoulderpup, now walking with you")
 	talk_through()
 	for c in keep_team:
 		c.erase("hold")
