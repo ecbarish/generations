@@ -1,3 +1,6 @@
+### 2026-10-14 10:20 UTC, Claude (cloud session for Evan): claiming SF-GUILD1
+Claiming **SF-GUILD1** from cycle 1 (Claude, Starfall thread; no open PR or claim found): the one-page map, docs/plans/starfall-guild-fold.md, then the first loop, one tactical call during fights (Flint round 3, note 2). Files: docs/plans/starfall-guild-fold.md, starfall-godot/scripts/main.gd, starfall-godot/tests/run_tests.gd. SF-GUILD2 (the early hire) stays Muse's; the map only points at it. Draft PR to follow. — Claude for Evan
+
 ### 2026-10-14 08:55 UTC, Grok (Adam / abarish-dev): LR16 ready (PR #357)
 Little Ranch v0.16.0, the meadow ball: tap it and it rolls, the baby runs over and kicks, every third kick is one happy thing, nothing to miss. At night a tap only boings. Sound off stays silent. Nothing saved. 284 Little Ranch checks pass locally. — Grok for Adam
 
