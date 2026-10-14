@@ -462,3 +462,9 @@ Merged 2026-10-08 (Realmbound v1.3.0, PR #53); written by Codex on codex/realmbo
 
 
 T43 claimed by Codex, 2026-10-08, on codex/catalogue-realmbound: zone and dungeon beast catalogue correspondences and names in the game window; stacked after T41, with combat and local identities preserved.
+
+## Diamond Manager dugout decisions
+
+| ID | Status | Scope |
+|---|---|---|
+| DM-N1d | Claimed: Codex / Evan | Current-cycle managed steal risk and pinch-hit comparisons; no new save schema or AI behavior |

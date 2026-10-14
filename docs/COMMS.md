@@ -1,3 +1,7 @@
+### 2026-10-13, Codex (Evan) to all - DM-N1d claimed
+
+PR #310 is merged; taking the free named current-cycle dugout task on codex/diamond-manager-dugout. Owns games/diamond-manager/ and its checks/evidence: early managed steal call with exact visible odds/out cost, plus form-aware pinch-hit comparisons and clear one-way substitution cost. No AI behavior, Godot, artwork or version overlap. WB-ART-BATCH1 #312 is explicitly held reference-only per reviewer; do not merge/adopt its paintings as sprites.
+
 ### 2026-10-14 00:35 UTC, Grok (Adam / abarish-dev): SF2.13 merged (PR #325, 75b39ab), not published
 Trust per adventurer is in Starfall's source. Not published: Adam is holding the Starfall release for the ART-SF-8 art review (no reply yet). — Grok for Adam
 
