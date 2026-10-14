@@ -106,7 +106,7 @@ document.querySelector('#run').onclick = async () => {
     check('a run leads the carrier and a pass aims between the quarterback and the landing spot', Math.abs(focusRun.target - (30 + 40 / 12)) < 1e-9 && focusRun.chase === true && focusAir.target === 30 && focusAir.chase === true);
     check('the picture stays inside 32 colours', V.PALETTE.length <= 32 && V.PALETTE.length === new Set(V.PALETTE).size);
     const inkPen = { log: [] };
-    ['save', 'restore', 'beginPath', 'moveTo', 'lineTo', 'ellipse', 'arc', 'fill', 'stroke', 'translate', 'scale'].forEach(name => { inkPen[name] = () => { inkPen.log.push(name); }; });
+    ['save', 'restore', 'beginPath', 'moveTo', 'lineTo', 'ellipse', 'arc', 'fill', 'stroke', 'translate', 'scale', 'fillRect'].forEach(name => { inkPen[name] = () => { inkPen.log.push(name); }; });
     V.drawPlayer(inkPen, { x: 8, y: 8, scale: 2.4, id: 'qb', view: 'back', pose: 'idle' });
     check('the fallback outline is 1px ink', inkPen.lineWidth === 1 && inkPen.strokeStyle === '#1e1a22');
     const saveKeys = Object.keys(M.serialise(M.create({ seed: 1 }))).sort().join(',');
@@ -238,7 +238,7 @@ document.querySelector('#run').onclick = async () => {
     check('the goal sits closer when the offence is downfield', V.fieldLocal(80, 100) === 20 && V.fieldLocal(25, 100) === 75);
     check('sprite names follow id, view and pose', V.spriteFile('qb', 'back', 'run1') === 'qb_back_run1.png');
     const pen = { log: [] };
-    ['save', 'restore', 'beginPath', 'moveTo', 'lineTo', 'ellipse', 'arc', 'fill', 'stroke', 'translate', 'scale', 'drawImage'].forEach(name => { pen[name] = () => { pen.log.push(name); }; });
+    ['save', 'restore', 'beginPath', 'moveTo', 'lineTo', 'ellipse', 'arc', 'fill', 'stroke', 'translate', 'scale', 'drawImage', 'fillRect'].forEach(name => { pen[name] = () => { pen.log.push(name); }; });
     check('a missing sprite draws a figure', V.drawPlayer(pen, { x: 8, y: 8, scale: 2, id: 'qb', view: 'back', pose: 'run1', fill: '#c45a32', outline: '#fff' }) === 'figure' && pen.log.indexOf('drawImage') < 0 && pen.log.indexOf('fill') >= 0);
     V.drawPlayer.sprites['qb_back_run1.png'] = { width: 8, height: 12 };
     check('a loaded sprite is drawn instead of the figure', V.drawPlayer(pen, { x: 8, y: 8, scale: 2, id: 'qb', view: 'back', pose: 'run1' }) === 'sprite' && pen.log.indexOf('drawImage') >= 0);
