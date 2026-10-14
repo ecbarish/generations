@@ -96,6 +96,9 @@ func demo_step() -> void:
 		sign_it()
 
 # ---------------------------------------------------------------- input: arrows and Enter, typing, or the mouse
+func _sign_rect() -> Rect2:
+	return Rect2(198, 158, 158, 26)
+
 func _input(e: InputEvent) -> void:
 	if not visible:
 		return
@@ -120,7 +123,7 @@ func _input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif Controls.pointing(e):
 		var p := Controls.at(self, e)
-		if Rect2(204, 166, 146, 15).has_point(p):
+		if _sign_rect().has_point(p):
 			row = SIGN_ROW
 			sign_it()
 		else:
@@ -197,8 +200,9 @@ func _draw() -> void:
 	# what your family means, under its line
 	draw_multiline_string(font, Vector2(202, 147), FAMILY_TEXT[FAMILIES[pick[8]][1]], HORIZONTAL_ALIGNMENT_LEFT, 148, 6, 2, FAINT)
 	var on := row == SIGN_ROW
-	draw_rect(Rect2(204, 166, 146, 15), INK if on else Color("7a5a3a"))
-	_text("Sign the register", Vector2(204, 177), 9, Color("f4e9cd"), 146)
+	var sign := _sign_rect()
+	draw_rect(sign, INK if on else Color("7a5a3a"))
+	_text("Sign the register", Vector2(sign.position.x, sign.position.y + 17), 9, Color("f4e9cd"), sign.size.x)
 	var h := hints()
 	for i in h.size():
 		_text(h[i], Vector2(193, 198 - (h.size() - 1 - i) * 8), 6, FAINT, 163)
