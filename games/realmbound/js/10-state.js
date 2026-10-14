@@ -43,7 +43,7 @@ function save(){S.last=Date.now();const h=H();
 function offline(sec,hunt){
   const h=H();if(!h||!Number.isFinite(sec)||sec<60)return null;sec=Math.min(sec,86400);
   h.rested=Number.isFinite(h.rested)?Math.max(0,h.rested):0;
-  const restedGain=h.lvl<LEVEL_CAP?Math.max(0,Math.min(xpNeed(h.lvl)*1.5-h.rested,sec/3600*xpNeed(h.lvl)*.15)):0;h.rested+=restedGain;
+  const restedGain=h.lvl<PLAY_CAP?Math.max(0,Math.min(xpNeed(h.lvl)*1.5-h.rested,sec/3600*xpNeed(h.lvl)*.15)):0;h.rested+=restedGain;
   return {sec,kills:0,xp:0,money:0,levels:0,rested:restedGain};
 }
 

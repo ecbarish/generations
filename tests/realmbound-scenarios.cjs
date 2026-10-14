@@ -22,7 +22,7 @@ module.exports = function scenarios() {
         check(h.quests.done[q.id],'quest completed: '+q.id);
       }
       h.lvl=59;h.xp=0;rb.boot();rb.gainXP(rb.xpNeed(59)*10,false);
-      check(h.lvl===60&&h.xp===0,'XP stops at level 60');
+      check(h.lvl===59&&h.xp===0,'a saved hero above level 40 keeps that level and does not climb to 60');
       check(h.npcs.every(n=>rb.npcZone(n)==='crownheart'),'high-level companions visit the Crown heart');
       h.lvl=27;for(const n of h.npcs)n.offset=0;
       check(h.npcs.every(n=>rb.npcZone(n)==='ashen'),'level-27 companions still visit Ashen Ridge');
@@ -98,7 +98,7 @@ module.exports = function scenarios() {
         const old=resumed.chars.find(c=>c.id===b.id);rb.S.chars=resumed.chars;rb.S.cur=old.id;rb.boot();
         check(old.lvl===40&&old.quests.done.fm10&&rb.dungeonStats('foundry').clears===1&&rb.dungeonStats('sanctum').best===1,'level-40 save preserves chapter and dungeon progress: '+faction);
         rb.gainXP(Math.ceil(rb.xpNeed(40)/.6),false);
-        check(old.lvl===41,'old level-40 save earns XP to 41: '+faction);
+        check(old.lvl===40,'old level-40 save stays at the version cap: '+faction);
         old.lvl=45;rb.boot();
         for(const q of rb.QUESTS.barrowfield){
           old.bags=[];old.grind=null;
@@ -176,7 +176,7 @@ module.exports = function scenarios() {
           rb.boot();rb.save();const resumed=rb.migrate(JSON.parse(localStorage.getItem('realmbound-save-v1')));
           const old=resumed.chars.find(h=>h.id===c.id);rb.S.chars=resumed.chars;rb.S.cur=old.id;rb.boot();
           check(old.lvl===45&&old.zone==='barrowfield'&&old.quests.done.bf12&&rb.dungeonStats('barrows').clears===1&&rb.dungeonStats('sanctum').best===1,'level-45 save preserves chapter, zone and separate dungeon records: '+faction);
-          rb.gainXP(Math.ceil(rb.xpNeed(45)/.6),false);check(old.lvl===46,'old level-45 save earns XP to 46: '+faction);
+          rb.gainXP(Math.ceil(rb.xpNeed(45)/.6),false);check(old.lvl===45,'old level-45 save keeps its level: '+faction);
           travel();rb.boot();
           for(const q of chain){
             old.bags=[];old.grind=null;
@@ -246,7 +246,7 @@ module.exports = function scenarios() {
           c.zone='hollowcrown';c.quests.done.hc12=true;c.drecords={barrows:{clears:1,best:0,runs:1},rootrot:{clears:1,best:1,runs:2}};rb.boot();rb.save();
           const resumed=rb.migrate(JSON.parse(localStorage.getItem('realmbound-save-v1'))),old=resumed.chars.find(h=>h.id===c.id);rb.S.chars=resumed.chars;rb.S.cur=old.id;rb.boot();
           check(old.lvl===52&&old.zone==='hollowcrown'&&old.quests.done.hc12&&rb.dungeonStats('rootrot').best===1&&rb.dungeonStats('barrows').clears===1,'old level-52 save retains quests and dungeon records: '+faction);
-          rb.gainXP(Math.ceil(rb.xpNeed(52)/.6),false);check(old.lvl===53,'old level-52 save resumes XP to 53: '+faction);travel();rb.boot();check(musicKey()==='crownheart','new zone selects its tune: '+faction);
+          rb.gainXP(Math.ceil(rb.xpNeed(52)/.6),false);check(old.lvl===52,'old level-52 save keeps its level: '+faction);travel();rb.boot();check(musicKey()==='crownheart','new zone selects its tune: '+faction);
           for(const q of qs){
             old.bags=[];old.grind=null;
             check(q.type!=='collect'||z.mobs.find(m=>m.id===q.mob).drop,'collection target has an item: '+q.id+' '+faction);
@@ -274,7 +274,7 @@ module.exports = function scenarios() {
           old.zone='crownheart';rb.boot();rb.startDungeon(1,team,'heartwood');check(!old.dun,'Heartwood Heroic needs normal clear: '+faction);rb.startDungeon(0,team,'heartwood');check(old.dun&&old.dun.id==='heartwood','normal entry at 56: '+faction);
           for(let i=0;i<d.enc.length;i++){old.dun.step=i;rb.spawnDungeon();check(rb.C.mob.name.includes(d.enc[i].name)&&rb.C.mob.lvl===d.enc[i].lvl&&rb.C.mob.boss===!!d.enc[i].boss,'Heartwood encounter '+i+': '+faction);}
           rb.finishDungeon();check(rb.dungeonStats('heartwood').clears===1&&rb.dungeonStats('heartwood').best===0,'Heartwood clear unlocks Heroic: '+faction);check(rb.dungeonStats('barrows').clears===1&&rb.dungeonStats('rootrot').best===1,'Heartwood clear preserves earlier records: '+faction);
-          rb.startDungeon(1,team,'heartwood');check(old.dun.id==='heartwood'&&old.dun.mods.length===1,'earned Heartwood Heroic: '+faction);old.dun=null;old.lvl=59;old.xp=0;rb.boot();rb.gainXP(rb.xpNeed(59)*10,false);check(old.lvl===60&&old.xp===0,'cap at 60 discards overflow: '+faction);rb.save();
+          rb.startDungeon(1,team,'heartwood');check(old.dun.id==='heartwood'&&old.dun.mods.length===1,'earned Heartwood Heroic: '+faction);old.dun=null;old.lvl=59;old.xp=0;rb.boot();rb.gainXP(rb.xpNeed(59)*10,false);check(old.lvl===59&&old.xp===0,'level 59 does not climb to the shelved ceiling: '+faction);rb.save();
         }
       }
       // T1-A + T1-C: three talent trees, roles from your build, capstones, respec
@@ -471,7 +471,7 @@ module.exports = function scenarios() {
         const fr=A.npcs.slice(0,3);for(const n of fr){n.met=true;n.aff=AFFINITY[2].at;}
         check(foundProblem()===''&&foundGuild('The Testers')&&guildOn()&&A.money===10000&&rb.S.guild.name==='The Testers'&&rb.S.guild.level===1,'founding the guild takes the charter fee');
         check(Object.keys(rb.S.guild.members).length===3&&fr.every(n=>isMember(n,A)),'friends who signed join as members');
-        const x0=A.xp;rb.gainXP(1000,false);check(A.xp-x0===1020,'guild level 1 gives every character 2% more experience');
+        const x0=A.xp,keepLvl=A.lvl;A.lvl=39;rb.gainXP(1000,false);check(A.xp-x0===1020,'guild level 1 gives every character 2% more experience');A.lvl=keepLvl;
         guildXP(600);check(rb.S.guild.level===2&&jobSlots()===4,'guild experience raises the guild level and adds a job slot');
         guildXP(1e6);check(rb.S.guild.level===5&&jobSlots()===6&&guildXPMult()===1.1,'guild level 5: +10% experience and six job slots');
         const k=memberKey(A.id,fr[0].id);check(workerOf(k).name===fr[0].name&&workers().includes(k),'guild adventurers can work the jobs board');
@@ -712,22 +712,25 @@ module.exports = function scenarios() {
       const keepGuild=rb.S.guild,keepParty=rb.C.party;
       try{
         rb.S.guild={jobs:{}};rb.C.party=[];xpHero.pace='classic';
-        for(const zone of Object.keys(rb.ZONES))for(const level of [38,40]){
-          xpHero.zone=zone;xpHero.lvl=level;xpHero.xp=0;xpHero.rested=0;
+        for(const zone of Object.keys(rb.ZONES)){
+          xpHero.zone=zone;xpHero.lvl=38;xpHero.xp=0;xpHero.rested=0;
           rb.gainXP(1000,false);
-          const late=['barrowfield','hollowcrown','crownheart'].includes(zone)&&level>=40;
-          check(xpHero.xp===(late?600:1000),zone+' level '+level+': late budget leaves earlier zones and early entry unchanged');
+          check(xpHero.xp===1000,zone+' level 38: early entry keeps full experience');
+          xpHero.lvl=PLAY_CAP;xpHero.xp=0;xpHero.rested=5;
+          rb.gainXP(1000,false);
+          check(xpHero.lvl===PLAY_CAP&&xpHero.xp===0&&xpHero.rested===5,zone+' level 40: this version stops at Frostmere and leaves stored rested experience alone');
         }
         xpHero.zone='crownheart';xpHero.lvl=52;
         rb.S.guild={founded:1,level:5,jobs:{},members:{},xp:0};
         rb.C.party=[{},{},{},{}];
-        for(const [pace,mult] of [['breezy',1.6],['classic',1],['long',.6]]){
-          xpHero.pace=pace;xpHero.xp=0;xpHero.rested=100;
+        for(const pace of ['breezy','classic','long']){
+          xpHero.pace=pace;
+          check(zoneXPMult()===.6&&groupXP(1000)===280,pace+': late-zone pace and party split stay stored for a later version');
+          xpHero.xp=0;xpHero.rested=100;
           rb.gainXP(groupXP(1000),true);
-          const earned=Math.round(280*mult*1.1*.6);
-          check(xpHero.xp===earned+100&&xpHero.rested===0,pace+': party split, guild and zone budget compose before consuming rested XP');
-          xpHero.xp=0;xpHero.rested=100;rb.gainXP(1000,false);
-          check(xpHero.xp===Math.round(1000*mult*1.1*.6)&&xpHero.rested===100,pace+': quest award stays whole and does not consume rested XP');
+          check(xpHero.lvl===52&&xpHero.xp===0&&xpHero.rested===100,pace+': past level 40, stored pace does not grant levels or spend rested experience');
+          rb.gainXP(1000,false);
+          check(xpHero.xp===0&&xpHero.rested===100,pace+': a quest award past the version cap does not rewrite experience or rested experience');
         }
         xpHero.xp=12345;xpHero.rested=6789;rb.save();
         const old=rb.migrate(JSON.parse(localStorage.getItem('realmbound-save-v1'))).chars.find(c=>c.id===xpHero.id);
@@ -1161,6 +1164,52 @@ module.exports = function scenarios() {
         }
         hero.zone='thornvale';hero.lvl=20;hero.addons.unl.macro=true;hero.mode='auto';save();const saved=JSON.parse(localStorage.getItem(KEY));S=migrate(saved);boot();check(H().mode==='focus'&&H().lvl===20&&H().stats.kills===100,'RB1.11: old Auto save reloads in Focus with its earned progress intact');
       }finally{S=keep;C=keepC;if(H())boot();}}
+
+      // #336: version cap is 40, Auto stays visible, and a cleared road can be repeated at your own level.
+      {const keep=S,keepC=C;try{
+        const hero=newHero('Cap Road','concord','human','warrior');hero.onboarding={arrival:false,hints:{}};S=emptyS();S.chars=[hero];S.cur=hero.id;boot();closeModal();
+        hero.lvl=39;hero.xp=0;hero.zone='frostmere';boot();
+        gainXP(xpNeed(39)+xpNeed(40)*5,false);
+        check(hero.lvl===PLAY_CAP&&hero.xp===0&&PLAY_CAP===40&&LEVEL_CAP===60,'level 39 reaches 40 and discards overflow; 60 stays a ceiling stub');
+        const above=newHero('Old Cap','concord','human','mage');above.lvl=45;above.xp=12;above.rested=34;above.zone='barrowfield';
+        S.chars.push(above);S.cur=above.id;save();
+        const raw=JSON.parse(localStorage.getItem(KEY));
+        const loadedSave=migrate(JSON.parse(JSON.stringify(raw)));
+        const loaded=loadedSave.chars.find(c=>c.id===above.id);
+        check(loaded.lvl===45&&loaded.xp===12&&loaded.rested===34&&loaded.zone==='barrowfield','an old level-45 save loads with the same level, experience, rested experience and road');
+        check(JSON.stringify(loadedSave)===JSON.stringify(raw),'loading that save adds no fields');
+        S.chars=[loaded];S.cur=loaded.id;boot();closeModal();
+        gainXP(xpNeed(45)*3,false);
+        check(H().lvl===45&&H().xp===12&&H().rested===34,'experience above level 40 does not raise the level or rewrite stored experience');
+        const road=H();road.zone='thornvale';road.lvl=10;road.addons.unl.macro=true;road.mode='auto';road.quests.done={};
+        updateWorld();
+        check(!autoAllowed()&&!$('#mAuto').hidden&&$('#mAuto').disabled&&/finished|outgrown/.test($('#modeHint').textContent),'an unfinished road keeps Auto visible, disabled, and explained');
+        for(const q of QUESTS.thornvale)road.quests.done[q.id]=true;
+        updateWorld();
+        check(autoAllowed()&&aiOn()&&!$('#mAuto').hidden&&!$('#mAuto').disabled,'a cleared Thornvale road at level 10 allows Auto');
+        road.lvl=8;updateWorld();check(autoAllowed()&&aiOn(),'a cleared road still at your level allows Auto');
+        delete road.quests.done[QUESTS.thornvale[0].id];
+        check(!autoAllowed(),'one unfinished request keeps that road manual');
+        road.lvl=11;road.quests.done={};check(autoAllowed(),'outgrowing a road still allows earned Auto');
+        road.dun={id:'sanctum'};check(!autoAllowed(),'a cleared road still refuses Auto in a dungeon');road.dun=null;
+        const fresh=newHero('Skipper','concord','human','warrior');fresh.onboarding={arrival:false,hints:{}};S.chars=[fresh];S.cur=fresh.id;boot();closeModal();
+        accept(QUESTS.thornvale[0].id);beginArrival(false);
+        check(arrivalPaused()&&!$('#mAuto').hidden,'the arrival leaves the Auto control on screen');
+        document.querySelector('[data-road="skip"]').click();
+        check(!arrivalPaused()&&!RTALK&&!$('#mAuto').hidden&&$('#mAuto').disabled&&/500/.test($('#modeHint').textContent),'skipping the arrival does not hide Auto, and the gate is written beside Focus');
+        const purse=fresh.money;
+        holdFieldLoot({money:15,items:[]});updateWorld();
+        const creator=document.querySelector('#sheet button')||document.querySelector('#mFocus');
+        creator.focus();creator.dispatchEvent(new KeyboardEvent('keydown',{key:'l',bubbles:true}));
+        check(fresh.money===purse+15&&C.phase!=='loot','L collects loot while focus sits on a button');
+        const dock=document.querySelector('#fieldDock button');dock.focus();
+        holdFieldLoot({money:4,items:[genJunk(1,'beast')]});updateWorld();
+        dock.dispatchEvent(new KeyboardEvent('keydown',{key:'L',bubbles:true}));
+        check(fresh.money===purse+19&&fresh.bags.some(i=>i.junk)&&C.phase!=='loot','L still collects coins and the item when a carried-things button is focused');
+        holdFieldLoot({money:3,items:[]});updateWorld();
+        document.querySelector('[data-act="loot"]').click();
+        check(fresh.money===purse+22&&C.phase!=='loot','Loot all still collects the pile');
+      }finally{clearArrival();S=keep;C=keepC;if(H())boot();}}
 
       {const keep=S,keepC=C;try{
         const h=newHero('Patient Hunter','concord','human','hunter');h.onboarding=null;h.lvl=20;S=emptyS();S.chars=[h];S.cur=h.id;boot();closeModal();h.grind='wolf';spawn();startTame();finishTame();spawn();
