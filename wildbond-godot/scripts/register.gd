@@ -120,16 +120,18 @@ func _input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif Controls.pointing(e):
 		var p := Controls.at(self, e)
-		if Rect2(204, 166, 146, 15).has_point(p):
+		var on_row := false
+		for i in ROWS.size():
+			var y := ROW_Y + i * ROW_STEP
+			if p.y >= y - 9 and p.y < y + 4 and p.x > 196:
+				on_row = true
+				row = i
+				if p.x < 270: change(-1)
+				elif p.x > 332 or i != 0: change(1)
+		# The words, the button, and the line that says to click: a near miss used to do nothing.
+		if not on_row and Rect2(190, 156, 170, 52).has_point(p):
 			row = SIGN_ROW
 			sign_it()
-		else:
-			for i in ROWS.size():
-				var y := ROW_Y + i * ROW_STEP
-				if p.y >= y - 9 and p.y < y + 4 and p.x > 196:
-					row = i
-					if p.x < 270: change(-1)
-					elif p.x > 332 or i != 0: change(1)
 		get_viewport().set_input_as_handled()
 	elif Controls.swallow_pointer(e):
 		get_viewport().set_input_as_handled()

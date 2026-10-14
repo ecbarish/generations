@@ -115,6 +115,9 @@ var satchel: Control                         # the bag, top right: tap it (or Es
 var menu: Control                            # pause menu: party, field book, save, close (WBL-1)
 var status: Control                          # the strip along the top: place, lead, coins
 var objective: Control                       # what to do next (WBL-4)
+var caption_plate: ColorRect                 # the bar under the hint, so the words are not painted on the trees
+var caption_lift := 0.0                      # how far the view shifts up while that bar is showing
+var walk_tap := Vector2i.ZERO                # a key tap that went down and up before the next step (it still counts)
 var menu_return := false                     # the field book was opened from the menu, so closing it comes back here
 var place_t := 0.0                           # seconds since you arrived somewhere (the place name holds, then fades)
 var title: Control
@@ -296,6 +299,12 @@ func _ready() -> void:
 	$UI.add_child(status)
 	objective = preload("res://scripts/objective.gd").new()
 	$UI.add_child(objective)
+	caption_plate = ColorRect.new()
+	caption_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	caption_plate.color = Color(0.08, 0.07, 0.06, 0.94)
+	caption_plate.visible = false
+	$UI.add_child(caption_plate)
+	$UI.move_child(caption_plate, caption.get_index())
 	if "--skip-opening" in OS.get_cmdline_user_args():
 		no_save = true
 		_skip_opening()
@@ -853,6 +862,9 @@ func _process(dt: float) -> void:
 	var free_to_walk: bool = stage in ["to_barn", "barn_choose", "walk_out", "free"] and not _covering() and trans_t < 0.0
 	if lines.is_empty() and free_to_walk and me.path.is_empty() and me.pos.distance_to(Vector2(me.tile) * TILE) < 0.5:
 		var d := Controls.held_dir()                 # keys, a gamepad, or the phone pad (WB6.1)
+		if d == Vector2i.ZERO:
+			d = walk_tap                             # a short tap, released before this step, still takes the step
+		walk_tap = Vector2i.ZERO
 		if d != Vector2i.ZERO:
 			walk_to.clear()                          # the keys always win over a tapped walk
 			meet_after = null
@@ -880,7 +892,8 @@ func _process(dt: float) -> void:
 	_check_doors()
 	for r in restore:
 		r.r = move_toward(r.r, r.goal, dt * 70.0)
-	cam.position = cam.position.lerp(me.pos + Vector2(8, 8), min(1.0, dt * 8.0))
+	var look := me.pos + Vector2(8, 8 + caption_lift)   # the hint bar takes the bottom; the view shifts so you stay above it
+	cam.position = cam.position.lerp(look, min(1.0, dt * 8.0))
 	_update_ui()
 	queue_redraw()
 	colour_layer.queue_redraw()
@@ -923,6 +936,7 @@ func _walk(m: Mover, dt: float) -> void:
 			_check_spotted()
 
 func _unhandled_input(e: InputEvent) -> void:
+	_note_walk_tap(e)
 	if Controls.pressed(e, "toggle_music"):
 		music_on = not music_on                  # M: music on or off
 		get_viewport().set_input_as_handled()
@@ -978,6 +992,17 @@ func _unhandled_input(e: InputEvent) -> void:
 		var s := _starter_beside_me()
 		if s:
 			_meet(s)
+
+## A direction key that is pressed and let go in the same moment still counts as one step. The walk itself
+## looks at this on the next step, because a tap that short is already up again by the time the step is taken.
+func _note_walk_tap(e: InputEvent) -> void:
+	if _covering() or not lines.is_empty() or trans_t >= 0.0:
+		return
+	if not (stage in ["to_barn", "barn_choose", "walk_out", "free"]):
+		return
+	var d := Controls.dir(e)
+	if d != Vector2i.ZERO:
+		walk_tap = d
 
 ## A page is covering the world, so walking and the menu stay put.
 func _covering() -> bool:
@@ -4580,27 +4605,45 @@ func _place_name_at(top: float) -> void:
 	place.offset_top = top
 	place.offset_bottom = top + 26.0
 
-## The note at the foot of the screen grows upward until the whole sentence is inside it (WBL-4).
+## The note at the foot of the screen grows upward until the whole sentence, outline included, sits in a bar
+## on the screen, clear of the trees (WBL-4, Playtester).
 func _fit_caption() -> void:
 	if caption == null:
 		return
 	if caption.text == "":
+		caption_lift = 0.0
 		if caption.offset_top != -22.0:
 			caption.offset_top = -22.0
+		if caption.offset_bottom != -6.0:
+			caption.offset_bottom = -6.0
+		if caption_plate != null:
+			caption_plate.visible = false
 		return
+	var outline := float(caption.get_theme_constant("outline_size"))
+	var margin := outline + 3.0
+	if caption.offset_bottom != -margin:
+		caption.offset_bottom = -margin
 	var width := (384.0 + caption.offset_right) - caption.offset_left
 	if width < 16.0:
 		return
 	var font := caption.get_theme_font("font")
 	var sz := caption.get_theme_font_size("font_size")
-	var h := font.get_multiline_string_size(caption.text, HORIZONTAL_ALIGNMENT_CENTER, width, sz).y
-	h += float(caption.get_theme_constant("outline_size")) + 4.0
+	var gap := float(caption.get_theme_constant("line_spacing"))
+	var h := font.get_multiline_string_size(caption.text, HORIZONTAL_ALIGNMENT_CENTER, width, sz).y + gap + outline * 2.0 + 6.0
 	var top := caption.offset_bottom - h
-	var limit := 36.0 - 216.0
+	var limit := 48.0 - 216.0
 	if top < limit:
 		top = limit
 	if not is_equal_approx(caption.offset_top, top):
 		caption.offset_top = top
+	caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var band_top := 216.0 + top - 3.0
+	var band_bottom := 216.0
+	caption_lift = maxf(0.0, band_bottom - band_top)
+	if caption_plate != null:
+		caption_plate.visible = true
+		caption_plate.position = Vector2(0, band_top)
+		caption_plate.size = Vector2(384, band_bottom - band_top)
 
 # ---------------------------------------------------------------- the phone pad and the settings (WB6.1-6.2)
 ## Tells the phone pad when walking is possible and what its button would do, and applies the settings that change

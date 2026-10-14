@@ -28,6 +28,7 @@ static func run(host: Node, check: Callable) -> void:
 	_catch(game, check)
 	_objective(game, check)
 	_phone(game, check)
+	_playtester(game, check)
 	Input.emulate_mouse_from_touch = emulate
 	game.get_tree().paused = false
 	for action in ["move_down", "move_up", "move_left", "move_right"]:
@@ -227,6 +228,150 @@ static func _phone(game: Node, check: Callable) -> void:
 	check.call(game.battle.result == "caught", "phone: a finger on the bar brings the creature with you")
 	game.battle.visible = false
 	game.battle.state = "off"
+
+## Playtester: the two-line hint was clipped on the trees; Sign the register missed near clicks;
+## a key tap that was already up again never took a step. Holding a direction did keep walking.
+static func _playtester(game: Node, check: Callable) -> void:
+	_stand(game)
+	game.settings.values.buttons = 2
+	game.caption.text = "%s walks with you now. The north road leads to Thornwood. To talk to someone, stand beside them and press E; your field book: press J." % game._partner_name()
+	game._thumbs_tick()
+	for _i in 24:
+		game._process(0.05)
+	var plate: ColorRect = game.caption_plate
+	var prect := Rect2(plate.position, plate.size)
+	var crect: Rect2 = game.caption.get_global_rect()
+	var outline: float = float(game.caption.get_theme_constant("outline_size"))
+	var font: Font = game.caption.get_theme_font("font")
+	var sz: int = game.caption.get_theme_font_size("font_size")
+	var width: float = crect.size.x
+	var text_h: float = font.get_multiline_string_size(game.caption.text, HORIZONTAL_ALIGNMENT_CENTER, width, sz).y
+	var one_h: float = font.get_string_size("Note", HORIZONTAL_ALIGNMENT_LEFT, -1, sz).y
+	var view_h: float = game.get_viewport().get_visible_rect().size.y
+	var feet_y: float = (game.me.pos.y + float(game.TILE)) - game.cam.position.y + view_h * 0.5
+	check.call(text_h > one_h + 1.0, "Playtester: the hint after Wren wraps onto two lines")
+	check.call(plate.visible and plate.color.a > 0.9 and prect.position.x >= 0.0 and prect.end.x <= 384.0 and prect.position.y >= 0.0 and prect.end.y <= 216.0, "Playtester: the hint sits on a bar that stays fully on screen")
+	check.call(crect.position.x >= 0.0 and crect.end.x <= 384.0 and crect.position.y - outline >= prect.position.y and crect.end.y + outline <= prect.end.y and crect.end.y + outline <= 216.0, "Playtester: both lines, outline included, sit inside that bar")
+	check.call(feet_y < prect.position.y - 1.0, "Playtester: you stand above the hint, clear of the trees it used to cover (%s vs %s)" % [feet_y, prect.position.y])
+	var way: Vector2i = Vector2i.ZERO
+	var action := ""
+	var code: Key = KEY_UP
+	var best := 0
+	for choice in [["move_up", Vector2i.UP, KEY_UP], ["move_down", Vector2i.DOWN, KEY_DOWN], ["move_left", Vector2i.LEFT, KEY_LEFT], ["move_right", Vector2i.RIGHT, KEY_RIGHT]]:
+		var run_n: int = _open_steps(game, game.me.tile, choice[1])
+		if run_n > best:
+			best = run_n
+			way = choice[1]
+			action = choice[0]
+			code = choice[2]
+	check.call(best >= 3, "Playtester: Thornwood has a clear stretch to walk (%d)" % best)
+	var origin: Vector2i = game.me.tile
+	_key_tap(game, code)
+	for _i in 12:
+		game._process(0.05)
+	check.call(game.me.tile == origin + way and game.me.path.is_empty(), "Playtester: a short key tap takes one step (%s -> %s)" % [origin, game.me.tile])
+	var after_tap: Vector2i = game.me.tile
+	for _i in 12:
+		game._process(0.05)
+	check.call(game.me.tile == after_tap and game.me.path.is_empty(), "Playtester: that tap does not keep walking after the step")
+	_release_move()
+	var held_from: Vector2i = game.me.tile
+	Input.action_press(action)
+	for _i in 40:
+		game._process(0.05)
+	var held_mid: Vector2i = game.me.tile
+	Input.action_release(action)
+	game.walk_tap = Vector2i.ZERO
+	for _i in 16:
+		game._process(0.05)
+	var held_end: Vector2i = game.me.tile
+	var stepped: int = absi(held_mid.x - held_from.x) + absi(held_mid.y - held_from.y)
+	var extra: int = absi(held_end.x - held_mid.x) + absi(held_end.y - held_mid.y)
+	check.call(stepped >= 2 and game.me.face == way, "Playtester: holding a direction keeps walking (%d tiles)" % stepped)
+	var stopped: Vector2i = game.me.tile
+	for _i in 10:
+		game._process(0.05)
+	check.call(extra <= 1 and game.me.tile == stopped and game.me.path.is_empty() and not Input.is_action_pressed(action), "Playtester: letting go stops, apart from the step already started")
+	_release_move()
+	game.register.keep = false
+	game.lines.clear()
+	game.stage = "free"
+	game.register.open()
+	click(game, Vector2(250, 28))
+	check.call(game.register.visible and game.stage == "free", "Playtester: a click on a register line changes that line and does not sign")
+	click(game, Vector2(8, 8))
+	check.call(game.register.visible, "Playtester: a click on the rest of the page does not sign")
+	for spot in [Vector2(277, 181), Vector2(277, 190), Vector2(200, 173), Vector2(277, 164)]:
+		game.lines.clear()
+		game.stage = "free"
+		game.register.open()
+		click(game, spot)
+		check.call(not game.register.visible, "Playtester: a click at %s signs the register" % spot)
+	_release_move()
+
+static func _stand(game: Node) -> void:
+	for panel in [game.title, game.register, game.howto, game.lessons, game.card, game.battle, game.shop, game.book, game.turn_card, game.menu]:
+		panel.visible = false
+	game.get_tree().paused = false
+	game.stage = "free"
+	game.lines.clear()
+	game.trans_t = -1.0
+	game.walk_to.clear()
+	game.meet_after = null
+	game.walk_tap = Vector2i.ZERO
+	game.grass_n = 80
+	game.letter_steps = 80
+	game.battle.state = "off"
+	game._set_map("thornwood")
+	game.partner.where = "larkhaven"
+	game.partner.path.clear()
+	game.me.where = "thornwood"
+	game.me.tile = Vector2i(13, 14)
+	game.me.pos = Vector2(game.me.tile) * float(game.TILE)
+	game.me.path.clear()
+	game.cam.position = game.me.pos + Vector2(8, 8)
+	_release_move()
+
+static func _open_steps(game: Node, origin: Vector2i, d: Vector2i) -> int:
+	var n := 0
+	var p: Vector2i = origin
+	var tiles: Dictionary = game.DATA.TILES
+	while n < 6:
+		var nxt: Vector2i = p + d
+		if not game.walkable(nxt):
+			break
+		var ch: String = game.tile_at(nxt)
+		var info: Dictionary = tiles.get(ch, {})
+		if int(info.get("exit", 0)) == 1:
+			break
+		n += 1
+		p = nxt
+	return n
+
+static func _key_tap(game: Node, code: Key) -> void:
+	var event := InputEventKey.new()
+	event.physical_keycode = code
+	event.keycode = code
+	event.pressed = true
+	game.get_viewport().push_input(event)
+	event = event.duplicate()
+	event.pressed = false
+	game.get_viewport().push_input(event)
+
+static func _release_move() -> void:
+	for move_name in ["move_down", "move_up", "move_left", "move_right"]:
+		if Input.is_action_pressed(move_name):
+			Input.action_release(move_name)
+
+static func click(game: Node, at: Vector2) -> void:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = true
+	event.position = game.get_viewport().get_final_transform() * at
+	game.get_viewport().push_input(event)
+	event = event.duplicate()
+	event.pressed = false
+	game.get_viewport().push_input(event)
 
 static func tap(game: Node, at: Vector2) -> void:
 	var event := InputEventScreenTouch.new()
