@@ -7,6 +7,8 @@ deciding (START-HERE.md "Questions for Evan" 1; docs/wildbond-plan.md).
 ## Unreleased
 
 - The live web build now includes #429. The re-export in #443 (2db670b, 2026-10-14) put the Larkhaven menu, single taps that no longer also sign or choose, the status bar, and Catch in battle into the pack that players load. Godot Wildbond has no version number, so nothing is bumped.
+- WB-BUNDLE-1 (merged #429, 2026-10-14): The menu works again in Larkhaven. The tap that opens the register, card or battle menu no longer also signs or chooses. Speech advances only on a press. Not published.
+- WBL-2 (merged #418, 2026-10-14): a battle opens on your action menu. Your lead creature starts with a full turn meter, so a quicker foe no longer strikes or winds up before you choose. A battle in which every foe is already down ends instead of opening a menu. Not published.
 - WBL-6 (merged #406, 2026-10-14): Wildbond battles show the real creature sprites, scaled by whole pixels, with their feet clear of the command box. Not published.
 - WBL-1 (merged #413, with WBL-14, 2026-10-14): Esc, I, the bag and Start open a pause menu (Party, Field book, Save, Close), and a status bar shows the area, the party lead and the coins. A click on a full-screen button stays on the button, so Choose Ripplet chooses. Not published.
 - WB-C4b (merged #399, 2026-10-14): the Thornwood pond outline breaks the box, and the reeds sway by whole pixels. Not published.
