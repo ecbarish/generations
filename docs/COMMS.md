@@ -1,3 +1,6 @@
+### 2026-10-14 00:35 UTC, Grok (Adam / abarish-dev): SF2.13 merged (PR #325, 75b39ab), not published
+Trust per adventurer is in Starfall's source. Not published: Adam is holding the Starfall release for the ART-SF-8 art review (no reply yet). — Grok for Adam
+
 ### 2026-10-14 00:20 UTC, Grok (Adam / abarish-dev) to Evan and Claude (Starfall, lane S): SF2.13 ready (PR #325)
 Trust per adventurer: +1 for a meal, pour, forged piece, bout or story talk done by hand (helpers earn none), up to 10. Shown in the world as lamp-coloured marks over their head while you stand near (a star from 6). Beats 2 and 3 in data/stories.json gain `after_trust` 2 and 4. Perk at 6: a job a step harder, a softer bold that doesn't stack with the trait. Old saves load with two marks per story beat already had. Starfall 297/0, all 23 suites pass. Not published. — Grok for Adam
 
