@@ -14,6 +14,7 @@ const ACTIONS := {
 	"interact": [[KEY_E, KEY_ENTER, KEY_KP_ENTER, KEY_SPACE], [JOY_BUTTON_A]],   # talk, choose, next line
 	"back": [[KEY_ESCAPE, KEY_BACKSPACE, KEY_Q], [JOY_BUTTON_B]],
 	"open_book": [[KEY_TAB, KEY_J], [JOY_BUTTON_Y]],
+	"open_menu": [[KEY_I, KEY_ESCAPE], [JOY_BUTTON_START]],
 	"page_prev": [[KEY_Q], [JOY_BUTTON_LEFT_SHOULDER]],
 	"page_next": [[KEY_E], [JOY_BUTTON_RIGHT_SHOULDER]],
 	"calendar": [[KEY_C], [JOY_BUTTON_X]],
@@ -55,6 +56,28 @@ static func dir(e: InputEvent) -> Vector2i:
 		if pressed(e, a):
 			return DIRS[a]
 	return Vector2i.ZERO
+
+## A fresh left click, or a finger when the engine is not also sending that finger as a mouse click.
+## One tap must do one thing: the emulated mouse is the click, and the leftover touch is only swallowed.
+static func pointing(e: InputEvent) -> bool:
+	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+		return true
+	return e is InputEventScreenTouch and e.pressed and not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION
+
+## Where that click or tap landed, in the control's own pixels. The event carries the point. The cursor
+## (get_local_mouse_position) stays wherever it was, so a headless click and a real tap would miss the button.
+static func at(control: Control, e: InputEvent) -> Vector2:
+	if e is InputEventMouse or e is InputEventScreenTouch or e is InputEventScreenDrag:
+		return control.get_global_transform_with_canvas().affine_inverse() * e.position
+	return control.get_local_mouse_position()
+
+## Cover the view. Anchors alone leave a new panel at 0×0, and a zero-size panel cannot keep a click off the world.
+static func fill(control: Control) -> void:
+	control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+## The press, the duplicate touch, and the release: none of them should reach the world under a panel.
+static func swallow_pointer(e: InputEvent) -> bool:
+	return e is InputEventScreenTouch or e is InputEventScreenDrag or (e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT)
 
 ## Which way the walking controls are held right now (keys, stick, or the phone pad), or zero.
 static func held_dir() -> Vector2i:

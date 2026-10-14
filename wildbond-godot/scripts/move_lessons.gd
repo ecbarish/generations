@@ -13,7 +13,7 @@ var message := ""
 var font: Font
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	Controls.fill(self)
 	font = ThemeDB.fallback_font
 	mouse_filter = MOUSE_FILTER_STOP
 	visible = false
@@ -88,8 +88,8 @@ func _input(e: InputEvent) -> void:
 		else: pick_move(row)
 	elif Controls.pressed(e, "page_prev"): change_creature(-1)
 	elif Controls.pressed(e, "page_next"): change_creature(1)
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var p := get_local_mouse_position()
+	elif Controls.pointing(e):
+		var p := Controls.at(self, e)
 		if p.y >= 184:
 			if p.x < 100: change_creature(-1)
 			elif p.x > 284: close()
