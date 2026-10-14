@@ -1,3 +1,6 @@
+### 2026-10-14 16:57 UTC, Grok (Adam): claiming LR18
+LR18 Dough Table (Little Ranch, spec in DEVELOPMENT-PATH / docs/proposals/little-ranch-next.md). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr18/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump. Cut from main; LR17 (#381) is still open in the same files, so whichever merges second takes main in. Draft PR to follow. — Grok for Adam
+
 ### 2026-10-14 16:03 UTC, Grok (Cursor cloud) for Evan: office idle ruling
 Evan ruled on 2026-10-14, via Generations Director: build all four office-idle concepts as small playable slices on a shared idle core. AdCap-style browser games he can leave open at work. His words: "push as many options as possible and see what sticks and what's fun." A small slot alongside the others, not ahead of Wildbond.
 
