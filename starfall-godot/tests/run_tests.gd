@@ -1351,6 +1351,16 @@ func _pointer_aims() -> void:
 		_park_cursor()
 		_aim_view(main._plan_rect(n - 1, n).get_center(), true)
 		check(main.build_plot == "", "a tap on Not now closes Hob's plans (%s)" % label)
+		# Desktop mouse, not a finger. The cursor stays parked. The click is window pixels,
+		# including the black bars, and the card edges are only two pixels in.
+		for id in ["smithy", "apothecary"]:
+			for side in ["centre", "left", "right"]:
+				_mouse_plan(id, side, "%s %s %s" % [id, side, label])
+		_stand(Vector2i(15, 5))
+		var edges: Array[Vector2] = [Vector2(1, 108), Vector2(383, 108), Vector2(192, 214)]
+		for edge in edges:
+			_mouse_walk(edge, "picture edge %s %s" % [edge, label])
+		_mouse_black_bar(label)
 	root.content_scale_stretch = keep_stretch
 	root.size = keep_size
 	main.lines = keep_lines
@@ -1403,7 +1413,9 @@ func _aim_view(at: Vector2, touch: bool) -> void:
 
 ## A click the way the window reports it: pixels of the real window, including the black bars.
 func _aim_window(at_view: Vector2) -> void:
-	var px: Vector2 = root.get_final_transform() * at_view
+	_aim_window_px(root.get_final_transform() * at_view)
+
+func _aim_window_px(px: Vector2) -> void:
 	var m := InputEventMouseButton.new()
 	m.button_index = MOUSE_BUTTON_LEFT
 	m.pressed = true
@@ -1411,6 +1423,80 @@ func _aim_window(at_view: Vector2) -> void:
 	m.global_position = px
 	Input.parse_input_event(m)
 	Input.flush_buffered_events()
+
+func _plan_index(id: String) -> int:
+	var ps: Array = main.plans()
+	for i in ps.size():
+		if str(ps[i]) == id:
+			return i
+	return -1
+
+func _built_west() -> String:
+	var d: Dictionary = main.built
+	if not d.has("west"):
+		return ""
+	var plot: Dictionary = d.west
+	return str(plot.what)
+
+## A real left click, with the cursor parked, on one of Hob's cards.
+func _mouse_plan(id: String, side: String, label: String) -> void:
+	main.coins = 10000
+	main.built = {}
+	main.build_plot = "west"
+	main.board_open = false
+	main.lines.clear()
+	var n: int = int(main.plans().size()) + 1
+	var rect: Rect2 = main._plan_rect(_plan_index(id), n)
+	var at := rect.get_center()
+	if side == "left":
+		at = Vector2(rect.position.x + 2.0, rect.get_center().y)
+	elif side == "right":
+		at = Vector2(rect.end.x - 2.0, rect.get_center().y)
+	_park_cursor()
+	_aim_window(at)
+	check(_built_west() == id, "a mouse click builds %s (%s)" % [id, label])
+
+## The tile a view point walks to, using the same camera the click will use.
+func _mouse_walk(at: Vector2, label: String) -> void:
+	_stand(Vector2i(15, 5))
+	main.lines.clear()
+	main.board_open = false
+	main.build_plot = ""
+	var world: Vector2 = main.get_canvas_transform().affine_inverse() * at
+	var tile := Vector2i((world / float(main.TILE)).floor())
+	_park_cursor()
+	_aim_window(at)
+	check(_arrived_tile() == tile, "a mouse click walks to the tile under it (%s)" % label)
+
+## A click in the black bar, not on the picture. It must stay on the bar's side of the transform.
+func _mouse_black_bar(label: String) -> void:
+	var xf := root.get_final_transform()
+	var scale := xf.get_scale()
+	var px := Vector2.ZERO
+	var on_bar := false
+	if xf.origin.x >= 4.0:
+		px = Vector2(xf.origin.x - 2.0, xf.origin.y + scale.y * 108.0)
+		on_bar = true
+	elif xf.origin.y >= 4.0:
+		px = Vector2(xf.origin.x + scale.x * 192.0, xf.origin.y + scale.y * 216.0 + 2.0)
+		on_bar = true
+	if not on_bar:
+		return
+	var view: Vector2 = xf.affine_inverse() * px
+	check(view.x < 0.0 or view.y < 0.0 or view.y > 216.0, "a mouse click in the black bar is outside the picture (%s)" % label)
+	_stand(Vector2i(15, 5))
+	main.lines.clear()
+	main.board_open = false
+	main.build_plot = ""
+	main.show_next = false
+	var world: Vector2 = main.get_canvas_transform().affine_inverse() * view
+	var tile := Vector2i((world / float(main.TILE)).floor())
+	_park_cursor()
+	_aim_window_px(px)
+	if view.y >= 0.0 and view.y < 22.0 and main.goal.text != "":
+		check(main.show_next, "a mouse click in the top black bar is not shifted down onto the town (%s)" % label)
+	else:
+		check(_arrived_tile() == tile, "a mouse click in the black bar is not shifted onto the picture (%s)" % label)
 
 func _display_scaling() -> void:
 	var mobile := OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios")
