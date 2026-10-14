@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, docs, #448:** Lantern Bowl's launch plan records Evan's approved team-manager scope, in [#448](https://github.com/ecbarish/generations/pull/448) (c4dbfb1). Docs only. No version bump, changelog, or DEVELOPMENT-PATH tick.
 - **2026-10-14, Grok (Cursor cloud), #446:** A CI check now fails when Wildbond's Godot game changes and its web pack is not exported again, in [#446](https://github.com/ecbarish/generations/pull/446) (93baf43). The game itself is unchanged. No version, changelog, or DEVELOPMENT-PATH tick.
 - **2026-10-14, Grok (Cursor cloud), #443:** The live web build now includes #429. The re-export put the Larkhaven menu, single taps that no longer also sign or choose, the status bar, and Catch in battle into the pack that players load, in [#443](https://github.com/ecbarish/generations/pull/443) (2db670b). Godot Wildbond has no version number, so nothing is bumped. Nothing is ticked.
 - **2026-10-14, Grok (Cursor cloud), WB-BUNDLE-1:** The menu works again in Larkhaven. The tap that opens the register, card or battle menu no longer also signs or chooses. Speech advances only on a press. Recorded for [#429](https://github.com/ecbarish/generations/pull/429) (b2af229). Source only; not a preview release. Godot Wildbond has no version number, so this is a changelog line only. DEVELOPMENT-PATH has no WB-BUNDLE-1 row, and the launch checklist has no checkbox for it.
