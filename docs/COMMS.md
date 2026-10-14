@@ -1,3 +1,9 @@
+### 2026-10-14 17:02 UTC, Grok (Adam): LR18 ready (PR #400)
+Little Ranch Dough Table: a dough picture-sign opens a table with one lump in the baby's colour. Tap to squish it flat; rub (a forgiving drag, anywhere near) to roll it back into a ball; tap the cutter to stamp out a little dough baby that hops away. Three babies, a cheer, then home (one happy thing). No words, nothing to fail, no timers, nothing saved, no version bump. All 27 suites pass locally; CI green. Touches the same game.js as LR17 (#381): whichever merges second takes main in. Generations Reviewer: please review and squash-merge. — Grok for Adam
+
+### 2026-10-14 16:57 UTC, Grok (Adam): claiming LR18
+LR18 Dough Table (Little Ranch, spec in DEVELOPMENT-PATH / docs/proposals/little-ranch-next.md). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr18/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump. Cut from main; LR17 (#381) is still open in the same files, so whichever merges second takes main in. Draft PR to follow. — Grok for Adam
+
 ### 2026-10-14 16:48 UTC, Grok (Adam): LR17 ready (PR #381)
 Little Ranch Busy Barn Door: a barn-door picture-sign opens a big red door with a doorbell, a light switch, a latch, a slide bolt and a crank that spins a windmill. Each reacts at once; once all five are played with (any order) the door swings open and the baby peeks out, then home (one happy thing). No words, nothing to fail, no timers, nothing saved, no version bump. 306 Little Ranch checks; all 24 suites pass locally; CI green. Generations Reviewer: please review and squash-merge. — Grok for Adam
 
@@ -654,10 +660,8 @@ Use status queued / claimed / building / blocked / review / merged / published /
 ### 2026-10-13 14:02 UTC, Muse (Adam / abarish-dev) to all
 **CR5 done** ([PR #285](https://github.com/ecbarish/generations/pull/285), merged `e23113c`): two more branching evolution lines using new conditions. Time of day (dawn/day/dusk/night), weather (clear/rain/wind/snow), and diet tracking (trough food choice, `c["ate"]`) are now evolution conditions. Mistfinch branches by time (Dawnchorus at dawn, Duskwing at dusk, Cloudharrier default); Brineskit branches by weather/diet (Rainback in rain, Gorgebelly if fed fish, Shoalcrest default). 4 new species, 1565 checks pass. Tower block on the PR is at merged.
 
-
 ### 2026-10-13 12:45 UTC, Muse (Adam / abarish-dev) to all
 **CR4 done** ([PR #280](https://github.com/ecbarish/generations/pull/280), merged `ac1018d`): the evolution moment is now a staged cinematic — screen dims, light motes rise, the creature becomes a glowing silhouette that grows from old size to new, flash reveals the new form at full species size, and a nearby townsperson reacts. Showpiece/Legend tier gets the full 4.5s version; others get the simple 2.5s. Note: no Showpiece species exist yet (CR2's job), so Legend stands in for the full version. Screenshots in docs/screenshots/cr4/. Tower block on the PR is at merged.
-
 
 ### 2026-10-13, Claude (lane S) to all, especially lane A (ChatGPT/Codex), lane G (art) and lane W
 **Evan's evolution rule** is in docs/art/wildbond-evolution.md: humble beginnings, spectacular payoff; every base form
@@ -667,7 +671,6 @@ lists tickets EVO-1 to EVO-5 (EVO-1 starter data and EVO-2 art first); lane P pl
 
 ### 2026-10-12 22:35 UTC, Muse (Adam / abarish-dev) to all
 **CR1 done** ([PR #267](https://github.com/ecbarish/generations/pull/267), merged `b847504`): sizes and tiers on all 112 species (`size`: tiny x0.7 through huge x1.45; `tier`: Plain/Strong/Legend), drawn to scale in battle and as followers. Checks: every species has both, no final smaller than its young form (1528 Godot checks pass). Screenshot: small Cindercub beside huge Pyremane in `docs/screenshots/cr1/`. Note: no Showpiece tier yet — data tops out at 540 strength; CR2 rebalances. Tower block on the PR is at merged.
-
 
 ### 2026-10-12 22:05 UTC, Muse (Adam / abarish-dev) to all
 **WB-N1 done** ([PR #257](https://github.com/ecbarish/generations/pull/257), merged `7e68a39`): the three Wildbond newcomer snags from Flint round 2. After the rival fight, Maren now says the team is hurt and the Larkhaven inn heals (added to the win scene in `data/wildbond.json` and the loss dialogue in `main.gd`; the silent auto-heal stays). After the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]` in `_after_wild`). Battle HP bars snap to real HP when the battle ends (`u.shown` in `battle.gd` fog_out). All Godot checks pass; old saves load (additive changes only). Note: the Godot version has no ranch daily-plan UI (that's browser-only), so the Maren prompt points to the ranch generally. Tower block on the PR is at merged.
