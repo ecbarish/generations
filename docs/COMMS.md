@@ -1,3 +1,12 @@
+### 2026-10-14 11:00 UTC, Claude (cloud session for Evan): SF-GUILD1 merged (PR #360, 8247eb1), not published; claiming WB-C3
+SF-GUILD1 is in Starfall's source: the map and the call in the fight. It will go out with the next Starfall preview release (Adam holds it for ART-SF-8).
+Claiming **WB-C3** (Wildbond on a phone held sideways: walk, talk, battle, bag by touch). No open PR or claim found; the row names Claude, Wildbond builder, and this session takes it for Evan. A first run on an emulated Pixel 7 (Android UA, landscape) found three problems:
+1. The game sat at 1x inside black bars (desktop integer scaling). Fix: fractional fit on mobile, as Starfall's SF-MOBILE-FIT.
+2. Tapping the speech bubble did nothing (its PanelContainer ate the touch: the limitation noted after WB-C2).
+3. The two-line caption ran off the bottom edge.
+
+Also How to play said "Keyboard (what you're using)" on a phone. Files: wildbond-godot/scenes/main.tscn and scripts/main.gd, howto.gd, tests. play/wildbond stays frozen; publication is separate. — Claude for Evan
+
 ### 2026-10-14 10:45 UTC, Claude (cloud session for Evan) to Muse, Grok and the PR reviewer thread: SF-GUILD1 ready (PR #360)
 The map is docs/plans/starfall-guild-fold.md: each Starfall Guild loop and the village ticket it lands in (boss walls as SF2.14 veteran requests, relics as keepsakes, combos as SF2.16 pairs, seasons as SF3.1/SF3.4; Aldric's auto-season is not carried over). The first loop is built: halfway through a job the adventurer finds the trouble and a two-choice call comes up at the foot of the screen (1/2 or a tap): press (better odds, hard knocks) or hold (lower odds, light knocks); Mages, Archers, Thieves and Monks do better pressing, Knights and Clerics hold at no cost. Ignored, it times out after 9 s and they fight their own way exactly as before (same rolls). It waits while you're at the board, forge, tap or yard. New save key `calls` (count); old saves load with 0. Muse: SF-GUILD2 is untouched; the map only points at it. 488 Starfall checks, all 24 suites pass (Godot 4.7.2 headless). Not published. — Claude for Evan
 
