@@ -43,10 +43,12 @@
      put in its menus; validators[key] (set by each game) checks that a file really is that game's save.
      versions[key] and migrates[key] are optional, set before load, beside validators. versions[key] is this game's
      current save version (a number). The save's version is the v it already stores. An older v runs
-     migrates[key](save, fromVersion) when that function is set. A newer v, or a migrate that throws, is refused:
-     load returns null, the stored text is left untouched, and save stays off for the rest of the session. held[key]
-     is the notice a game can show. replaceSave rejects a newer file up front, before it writes, with that same notice.
-     A game that sets no version behaves as before. This never writes a new save field. */
+     migrates[key](save, fromVersion) when that function is set. undefined from that function means unchanged.
+     A newer v, a migrate that returns null, or a migrate that throws, is refused: load returns null, the stored
+     text is left untouched, and save stays off for the rest of the session. held[key] is the notice a game can show.
+     While held[key] is set, erase keeps the save and its hub row and writes nothing over them. replaceSave rejects
+     a newer file up front, before it writes, with that same notice. A game that sets no version behaves as before.
+     This never writes a new save field. */
   var BK = 'arcade-backup:', RECENT_MS = 10 * 60 * 1000, DAYS = 3, lastBk = {}, frozen = {}, recovered = {}, validators = {}, versions = {}, migrates = {}, held = {}, heldShown = {};
   var HELD_NOTE = 'This save is from a newer version, so progress will not be saved.';
   function ver() { try { return typeof VERSION !== 'undefined' ? String(VERSION) : ''; } catch (e) { return ''; } }
@@ -95,7 +97,8 @@
     try { if (document.body) show(); else document.addEventListener('DOMContentLoaded', show); } catch (e) {}
   }
   function holdNewer(key) { held[key] = HELD_NOTE; noticeHeld(key); }
-  /* No registered version, or a save with no numeric v, is returned as parsed. migrate's return is what load returns. */
+  /* No registered version, or a save with no numeric v, is returned as parsed.
+     undefined from migrate means unchanged. null holds the session the same way a throw does. */
   function applyVersion(key, obj) {
     var current = gameVersion(key);
     if (current == null) return obj;
@@ -103,7 +106,12 @@
     if (from == null || from === current) return obj;
     if (from > current) { holdNewer(key); return null; }
     if (typeof migrates[key] !== 'function') return obj;
-    try { var next = migrates[key](obj, from); return next === undefined ? obj : next; }
+    try {
+      var next = migrates[key](obj, from);
+      if (next === undefined) return obj;
+      if (next === null) { holdNewer(key); return null; }
+      return next;
+    }
     catch (e) { holdNewer(key); return null; }
   }
   function load(key) {
@@ -202,7 +210,8 @@
     save(INDEX_KEY, idx);
   }
   function erase(key, gameId) {
-    if (!held[key]) { try { localStorage.removeItem(key); } catch (e) {} }
+    if (held[key]) return;
+    try { localStorage.removeItem(key); } catch (e) {}
     var idx = readIndex(); delete idx[gameId]; save(INDEX_KEY, idx);
   }
 
