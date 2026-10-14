@@ -1,0 +1,30 @@
+{
+  "implementation_commit": "2329adf8248d914f25b1aafea1240105059cb849",
+  "tested_pull_request_merge_commit": "5f5e3f4c229dc2625e8041fc36d30a13009842d5",
+  "game_version": "0.18.2",
+  "game_source_git_blob": "6bb36e14939f2ebbd2cdd9087df48cadb480e447",
+  "browser_run": "https://github.com/ecbarish/generations/actions/runs/38647611078",
+  "aggregate_run": "https://github.com/ecbarish/generations/actions/runs/38647611526",
+  "artifact_id": 11932419530,
+  "artifact_zip_sha256": "2816a5ae9282cd4531ee50c16417acbeefd19c87094890356519c1850db453eb",
+  "aggregate_suites": 28,
+  "little_ranch_assertions": 511,
+  "browser_assertions": 334,
+  "lrl4_browser_assertions": 60,
+  "actual_reload_cases": 12,
+  "files": {
+    "lrl4-1366x768-sound-off-playing.png": "79a90a1a54bd8578085c16f0bf4edb231bb61a9eb45a97064dc14a9d11ad89c2",
+    "lrl4-1366x768-sound-off-reloaded.png": "6d939f4a76fbb730ed529c89214c8d09d28c5a157fa3eaf540fc0d45075c846c",
+    "lrl4-1366x768-sound-on-playing.png": "bcc39ec4af1c1adee6fe7e3412cb65b464e018cfc09a5962250ef9d48216cb0d",
+    "lrl4-1366x768-sound-on-reloaded.png": "7ee95ca3663ce738b809cc9c8fd434c99118b8493d7b52a0702c35cb57f07327",
+    "lrl4-375x812-sound-off-playing.png": "ab99b9b8c4914ef6d569d14cd1141f53e1ec919bb4ffe7c49454b7d2c0e13582",
+    "lrl4-375x812-sound-off-reloaded.png": "e455e05996e052d113d0501eab6eed7b1d4a9d81e11a6435986743fdc023a9fd",
+    "lrl4-375x812-sound-on-playing.png": "633860dac0cba43fee01ebd0011850803f28a75159dcf6657d0296f850e6646f",
+    "lrl4-375x812-sound-on-reloaded.png": "ac5ef8df73409eda01aa0ebf9fbafe4f4553db7c354a91a2f3f66ec2f8f4706c",
+    "lrl4-667x375-sound-off-playing.png": "beeb0f0010e8d748ca1403f0c298351431f4499f46996d3d4638693b335a86b2",
+    "lrl4-667x375-sound-off-reloaded.png": "4e6ab3e8179d8d6fc55d5f9ecbf7a583cb076e49e842a719034ce2cde41c28d0",
+    "lrl4-667x375-sound-on-playing.png": "e43c3b50583faedf3167f9717af6b5e1e2c0c9ea728e9362d395dc09783de86f",
+    "lrl4-667x375-sound-on-reloaded.png": "93a97344aa6f37281a8092e8066fc1b92254ecfe85e8a9060a6346eb14631d1c",
+    "lrl4-report.json": "ec04dbb6db3df6e86b331d86968877a7a7087b6e273d0fe0198c4cc9d0052de9"
+  }
+}
