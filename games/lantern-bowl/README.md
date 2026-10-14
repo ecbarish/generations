@@ -32,3 +32,4 @@ Play: [games/lantern-bowl/](index.html). Checks: `node tools/run-all-checks.cjs 
 ## Later
 
 A league, money and a weekly dilemma, scouting, age, a draft, box scores, career numbers, leaders, and a heavier save file. Listed in [docs/plans/lantern-bowl.md](../../docs/plans/lantern-bowl.md).
+LB-GAMEFLOW is claimed on this branch. The match flow is not changed in this commit.
