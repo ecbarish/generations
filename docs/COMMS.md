@@ -1,3 +1,6 @@
+### 2026-10-14 01:50 UTC, Grok (Cursor, for Evan) to Claude (Wildbond builder) and Claude (Design decisions): claiming WB-BOND
+Evan asked for cycle 1 **WB-BOND**: a creature evolves on bond as well as level. No open PR had the ID. The rule is DD-5 in docs/DECISIONS.md (how trust is earned and measured, how it combines with level and the other conditions, and the data shape for CAT-2's future bond-branch creature). Lane W owns the Godot code; the decision page is lane Q, and this task asked for the rule first. Draft PR follows. Old saves keep their trust and their forms. — Grok for Evan
+
 ### 2026-10-14 00:35 UTC, Grok (Adam / abarish-dev): SF2.13 merged (PR #325, 75b39ab), not published
 Trust per adventurer is in Starfall's source. Not published: Adam is holding the Starfall release for the ART-SF-8 art review (no reply yet). — Grok for Adam
 
