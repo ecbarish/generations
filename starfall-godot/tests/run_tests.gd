@@ -786,6 +786,7 @@ func _run() -> void:
 	_tamsin_kept()
 	_darkness()
 	_dressing()
+	_trust()
 	print("Starfall Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
@@ -1445,3 +1446,93 @@ func _dressing() -> void:
 	main.built = keep_built
 	main.rank = keep_rank
 	check(ResourceLoader.exists("res://assets/env/frontier/square.png"), "the square's dressing sheet is in the game")
+
+# ---- SF2.13: trust per adventurer
+func _trust() -> void:
+	var h = main.heroes[0]
+	var keep: Dictionary = h.a.duplicate(true)
+	main.lines.clear()
+	check(main.heroes.all(func(x): return int(x.a.get("trust", -1)) >= 0), "every adventurer has a trust value")
+	h.a.trust = 0
+	main.gain_trust(h)
+	check(main.trust_of(h) == 1, "doing something by hand for someone earns one trust")
+	for i in 20:
+		main.gain_trust(h)
+	check(main.trust_of(h) == main.TRUST_MAX, "trust stops at ten marks")
+	# each by-hand act counts; a helper's work does not
+	h.a.trust = 0
+	h.a.state = "to_counter"
+	main.serve(h, true)
+	check(main.trust_of(h) == 1, "a meal served by hand: +1 trust")
+	h.a.trust = 0
+	main.serve(h, false)
+	check(main.trust_of(h) == 0, "a meal Bryn serves earns no trust")
+	h.a.purse = 100
+	main.drink(h, 2, true)
+	check(main.trust_of(h) == 1, "a pour by hand: +1 trust")
+	main.drink(h, 1, false)
+	check(main.trust_of(h) == 1, "Tamsin's pour earns none")
+	h.a.gear = 0
+	h.a.purse = 200
+	main.finish_piece(h, 3, true)
+	check(main.trust_of(h) == 2, "a piece forged by hand: +1 trust")
+	main.finish_piece(h, 3, false)
+	check(main.trust_of(h) == 2, "Garrick's piece earns none")
+	main.spar = { "h": h, "fill": 0.5, "on": true }
+	h.a.state = "sparring"
+	main.finish_spar(0.5)
+	check(main.trust_of(h) == 3, "a bout: +1 trust")
+	# gating: a later beat waits for trust as well as jobs
+	var arc: Array = main.stories.get(h.a.name, [])
+	h.a.beat = 1
+	h.a.state = "town"
+	h.a.morale = 7
+	h.a.jobs_done = 20
+	h.a.trust = int(arc[1].get("after_trust", 0)) - 1
+	check(not main.story_ready(h), "the second story beat waits until you've done enough by hand for them")
+	h.a.trust = int(arc[1].after_trust)
+	check(main.story_ready(h), "and opens once you have")
+	main.story_pick = { "h": h, "opts": arc[1].options }
+	var before: int = main.trust_of(h)
+	main.story_choose(0)
+	check(main.trust_of(h) == before + 1 and int(h.a.beat) == 2, "a story talk: +1 trust")
+	check(int(arc[2].get("after_trust", 0)) > int(arc[1].after_trust), "the last beat asks for more trust than the second")
+	main.lines.clear()
+	# the perk: a job a step harder
+	h.a.hp = h.a.max
+	h.a.morale = 6
+	h.a.traits = []
+	var lvl := int(h.a.lvl)
+	main.posted = []
+	for j in main.JOBS:
+		if int(j.danger) == lvl + 1:
+			main.posted.append(j.id)
+	h.a.trust = main.TRUST_PERK - 1
+	check(main._pick_job(h) == "", "below high trust they won't take a job above their nerve")
+	main.gain_trust(h)
+	check(main.trusted(h) and main._pick_job(h) != "", "at high trust they'll take a job a step harder for you")
+	h.a.traits = ["bold"]
+	main.posted = []
+	for j in main.JOBS:
+		if int(j.danger) == lvl + 2:
+			main.posted.append(j.id)
+	check(main._pick_job(h) == "", "trust and bold don't stack: never two steps harder")
+	main.posted = []
+	main.lines.clear()
+	# saves: trust is kept, and an older save loads with trust from the story talks already had
+	main.no_save = false
+	h.a = keep.duplicate(true)
+	h.a.trust = 5
+	main.save_game()
+	check(main._load() and main.trust_of(main.heroes[0]) == 5, "trust saves and loads")
+	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(main.save_path))
+	for x in d.heroes:
+		x.erase("trust")
+	d.heroes[0].beat = 1
+	var f := FileAccess.open(main.save_path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(d))
+	f.close()
+	check(main._load() and main.trust_of(main.heroes[0]) == 2 and main.heroes.slice(1).all(func(x): return main.trust_of(x) == 2 * int(x.a.beat)), "a save from before trust loads, with two marks per story talk already had (0 for none)")
+	main.SafeSave.remove(main.save_path)
+	main.no_save = true
+	main.lines.clear()
