@@ -20,7 +20,7 @@ PR. Generations PM routes the work and handoffs. Nothing outside this block star
 | 1 | Wildbond | WB2.2 | Depth, after the catalogue | Wildbond & Starfall Dev Lead | As DEVELOPMENT-PATH WB2.2 |
 | 1 | Wildbond | WB-ART | Creature and area art for the above | Game Art Director | The art review passes |
 | 2 | Lantern Bowl | #359 | **Active now:** make running matter and show Millrace's drives on the field | Side Games Dev Lead | As the issue says; Generations Reviewer verifies on the live game |
-| 2 | Lantern Bowl | LB-SPRITES | Side-view player sprites (`<id>_<view>_<pose>.png`), after #359 merges; any sw.js precache change is its own follow-up PR | Side Games Dev Lead (art: Game Art Director) | Sprites draw with the code-drawn fallback; checks pass |
+| 2 | Lantern Bowl | LB-SPRITES | Side-view player sprites (`<id>_<view>_<pose>.png`), after #359 merges; any sw.js precache change is its own follow-up PR | Side Games Dev Lead | Depends on Game Art Director's art sign-off (Game Art Director supplies the art, doesn't own the task). Sprites draw with the code-drawn fallback; checks pass |
 | 2 | Lantern Bowl | LB-PT | Replay after #359 and the sprites land | Playtester | Fun and Comeback scores reported |
 | 3 | Keymaster | KM0 | The first slice, after Lantern Bowl | Side Games Dev Lead | As DEVELOPMENT-PATH KM0 |
 | 4 | Main Street | MS1 | The first slice, after Keymaster | Side Games Dev Lead | As DEVELOPMENT-PATH |
@@ -28,9 +28,23 @@ PR. Generations PM routes the work and handoffs. Nothing outside this block star
 **Paused:** new Realmbound work after #336; its endgame and late game are shelved. **Merges:** Generations Reviewer.
 **Routing:** Generations PM. **Questions for Evan:** Generations Director.
 
-**Superseded (folded so each task has one entry):** WB-BOND is now EVO-1 and #345; LB2 ("postponed to cycle 2") is now
-#359, which is active; WB-C2, WB-C3, WB-C4, SF-GUILD1 (done: #360 merged 2026-10-14 10:47 UTC), SF-GUILD2, DM-N1b-d, RB1.12a, OW-N1, SG-N1, AR-FRONT,
-AR-SHELVE, LR-C1, LR3 and LR10 left this block (done, in a PR, or outside the current priorities).
+**Superseded or done:** WB-BOND is folded into EVO-1 and #345. LB2 ("postponed to cycle 2") is now #359, which is active. Done: SF-GUILD1 (#360, merged 2026-10-14 10:47 UTC), DM-N1b (#269), DM-N1c (#310), SG-N1 (#264), AR-FRONT and AR-SHELVE (#316, #319). Every other cycle-1 row is unchanged under "Out of this cycle" below.
+
+## Out of this cycle (backlog; rows moved unchanged from cycle 1, 2026-10-14)
+
+These rows left "This cycle" when Evan reset the priorities. Text, owner and done-when are exactly as they were; only the Status column is new (and the Game cell is filled in where it was blank).
+
+| Game | ID | Task (Flint's note) | Who | Done when | Status |
+|---|---|---|---|---|---|
+| Wildbond | WB-C2 | Meet your partner sooner: time New Game to your first partner, trim it to three minutes or less | dot (Adam) | Measured before and after in the PR; tests pass; old saves load | open |
+| Wildbond | WB-C3 | Wildbond on a phone: the web preview held sideways walks, talks, battles and opens the bag by touch | Claude, Wildbond builder | A phone-size run recorded in the PR | in draft PR #361 |
+| Wildbond | WB-C4 | Larkhaven and the first route at their best | Claude, Game assets | Before and after screenshots; the Art direction thread approves | open |
+| Starfall | SF-GUILD2 | An early earned hire, so automation lands in the first five minutes (round 3, note 3) | Muse (Adam) | A helper earned within the first session, by doing the job by hand first; checks pass | open |
+| Diamond Manager | DM-N1d | Dugout calls with visible risk: steal, hit-and-run, intentional walk, pinch hitter (note 1) | ChatGPT/Codex | Same | in PR #347 (blocked) |
+| Realmbound | RB1.12a | Two or three quests at once in Thornvale, for the "one more quest" pull (round 2, note 3) | dot (Adam) | Old saves load; `tests/run.html` all-pass | paused (Realmbound paused after #336) |
+| Otherworld | OW-N1 | A "Memories carried" ledger, and at least two open choices at every beat (round 2) | Muse (Adam) | As DEVELOPMENT-PATH OW-N1; old saves load | open |
+| Little Ranch | LR-C1 | The first five minutes alone: nothing a three-year-old must read or ask about; big targets on a tablet | Grok (Adam) | A parent's checklist in the PR, tablet screenshots | open |
+| Little Ranch | LR3, LR10 | The singing flowers, then the Little Wagon | Grok (Adam) | As DEVELOPMENT-PATH; `tests/little-ranch.html` passes | open |
 
 ## The direction (the long view behind the cycles; Evan, 2026-10-12: "a large runway for the AIs to push, and a clear direction")
 
