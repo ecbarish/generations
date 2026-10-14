@@ -207,6 +207,39 @@ func _run() -> void:
 	var page: float = Sprites.fit_scale(thorn_sz, Vector2(120, 70), 4.0)
 	var row: float = Sprites.fit_scale(thorn_sz, Vector2(36, 30), 2.0)
 	check(slot == 1.0 and page == 3.0 and row == 1.0 and slot == floor(slot) and page == floor(page) and row == floor(row), "EVO-1: a sprite fits at a whole scale of at least 1 (Blazefang %s, Thornback page %s, row %s)" % [slot, page, row])
+	var pup_sz: Vector2i = Sprites.frame_size("smoulderpup", "idle")
+	var ally_foot := Vector2(100, 158) + Vector2(0, 6)
+	var ally_panel := Rect2(222, 116, 154, 36)
+	var pup_rect: Rect2 = Sprites.dest_rect(ally_foot, pup_sz, 4.0)
+	var pup_foot: Vector2 = Sprites.foot_clear_of(ally_foot, pup_sz, 4.0, [ally_panel], 4.0)
+	check(pup_rect.size == Vector2(float(pup_sz.x) * 4.0, float(pup_sz.y) * 4.0) and pup_foot == ally_foot, "EVO-1: Smoulderpup stays at 4x and its feet stay on the ally spot")
+	check(is_equal_approx(pup_rect.position.x + pup_rect.size.x * 0.5, ally_foot.x) and is_equal_approx(pup_rect.position.y + pup_rect.size.y, ally_foot.y), "EVO-1: a painted sprite is anchored on its bottom centre")
+	check(not pup_rect.intersects(ally_panel.grow(4.0)), "EVO-1: Smoulderpup at 4x stays clear of its HP panel")
+	var shifted := pup_rect
+	shifted.position.x += pup_rect.size.x
+	check(shifted.intersects(ally_panel), "EVO-1: shifting Smoulderpup by its own width would hide it behind the HP panel")
+	var wide := Vector2i(70, 16)
+	var wide_foot: Vector2 = Sprites.foot_clear_of(ally_foot, wide, 4.0, [ally_panel], 4.0)
+	var wide_rect: Rect2 = Sprites.dest_rect(wide_foot, wide, 4.0)
+	check(wide_rect.size.x == 280.0 and not wide_rect.intersects(ally_panel.grow(4.0)), "EVO-1: a wider sprite slides clear of the HP panel and is not shrunk")
+	var battle_clear := true
+	var spots := [
+		[Vector2(100, 164), 4.0, [ally_panel, Rect2(10, 8, 150, 26)]],
+		[Vector2(286, 98), 3.0, [Rect2(10, 8, 150, 26), ally_panel]],
+		[Vector2(168, 148), 4.0, [Rect2(236, 140, 140, 20)]],
+		[Vector2(100, 166), 5.0, [ally_panel]],
+	]
+	for sid in painted:
+		var bsz: Vector2i = Sprites.frame_size(sid, "idle")
+		for spot in spots:
+			var placed: Vector2 = Sprites.foot_clear_of(spot[0], bsz, spot[1], spot[2], 4.0)
+			var placed_rect: Rect2 = Sprites.dest_rect(placed, bsz, spot[1])
+			if placed_rect.size != Vector2(float(bsz.x) * spot[1], float(bsz.y) * spot[1]):
+				battle_clear = false
+			for panel in spot[2]:
+				if placed_rect.intersects((panel as Rect2).grow(4.0)):
+					battle_clear = false
+	check(battle_clear, "EVO-1: every painted battle sprite keeps its whole scale and stays clear of the HP panels")
 	var wash_tex: Texture2D = Sprites.texture("blazefang", "idle")
 	var wash_a: Texture2D = Sprites._washed(wash_tex, Rect2i(0, 0, fang_sz.x, fang_sz.y), 0.5)
 	var wash_b: Texture2D = Sprites._washed(wash_tex, Rect2i(0, 0, fang_sz.x, fang_sz.y), 0.51)
