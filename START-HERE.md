@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, docs:** Night Market's 12 Nov and 27 Dec dates are placeholders. Guest lane (#373) has the payback hint, the offline label, the pour, and both visual pulls. Little Ranch and Lantern Bowl stay with Side Games Dev Lead.
 - **2026-10-14, docs:** Playtest scores on the launch checklists. Night Market 5/10, Lantern Bowl 6/10, Little Ranch 7/10. Likely dates are 18 Oct, 26 Oct and 12 Nov. Summary in docs/plans/launch-summary.md.
 - **2026-10-14, docs:** Launch dates redone from the measured merge rate. Likely dates are 16 Oct (Little Ranch), 17 Oct (Wildbond), 20 Oct (Lantern Bowl) and 22 Oct (Night Market). #403, #400, #381, #383, #380 and #399 are merged. #404 and #409 are on hold. Summary in docs/plans/launch-summary.md.
 - **2026-10-14, Grok (Adam), LR18:** Little Ranch v0.18.0, the Dough Table (a dough picture-sign opens a table with one lump of dough in the baby's colour; tap squishes it flat, a forgiving rub rolls it back into a ball, the blue cutter stamps out a little dough baby that hops away; three babies, a cheer, then home as one happy thing), in [#400](https://github.com/ecbarish/generations/pull/400) (43785a4).
