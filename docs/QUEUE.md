@@ -26,27 +26,28 @@ PR. Generations PM routes the work and handoffs. Nothing outside this block star
 | 1 | Wildbond | #345 | Trust-gated final forms, wild late forms, no wild starters (updates DD-5) | Wildbond & Starfall Dev Lead | As the issue says; tests pass; old saves load |
 | 1 | Wildbond | WB2.2 | Depth, after the catalogue | Wildbond & Starfall Dev Lead | As DEVELOPMENT-PATH WB2.2 |
 | 1 | Wildbond | WB-ART | Creature and area art for the above | Game Art Director | The art review passes |
+| 1 | Starfall | SF-GUILD2 | An early earned hire, so automation lands in the first five minutes. Runs alongside WB5.6 and never ahead of it | Wildbond & Starfall Dev Lead | As DEVELOPMENT-PATH SF-GUILD2 |
 | 2 | Lantern Bowl | #371 | **Active now:** Lantern Bowl round 5, learning from Retro Bowl and All 22; includes the side-view player sprites (`<id>_<view>_<pose>.png`, formerly LB-SPRITES; Game Art Director's art sign-off is a dependency; any sw.js precache change is its own follow-up PR). Round 4 (#359) is done via #369 (cd491bd) | Side Games Dev Lead | As the issue says; sprites draw with the code-drawn fallback; checks pass; Generations Reviewer verifies on the live game |
 | 2 | Lantern Bowl | LB-PT | Replay after #371 lands | Playtester | Fun and Comeback scores reported |
 | 3 | Keymaster | KM0 | The first slice, after Lantern Bowl | Side Games Dev Lead | As DEVELOPMENT-PATH KM0 |
 | 4 | Main Street | MS1 | The first slice, after Keymaster | Side Games Dev Lead | As docs/PRIORITIES.md (CS1 + MS1) and docs/proposals/new-game-ideas.md |
 
 
-**Guest lanes (Adam's AIs)** (Evan, 2026-10-14): these stay in this cycle with their original text and done-when; one owner each.
+**Guest lanes (Adam's AIs)** (Evan, 2026-10-14): one ID and one owner per row. Muse has no cycle tasks.
 
-| Game | ID | Task (Flint's note) | Owner | Done when |
+| Game | ID | Task | Owner | Done when |
 |---|---|---|---|---|
-| Wildbond | WB-C2 | Meet your partner sooner: time New Game to your first partner, trim it to three minutes or less | dot (Adam) | Measured before and after in the PR; tests pass; old saves load |
-| Starfall | SF-GUILD2 | An early earned hire, so automation lands in the first five minutes (round 3, note 3) | Muse (Adam) | A helper earned within the first session, by doing the job by hand first; checks pass |
-| Realmbound | RB1.12a | Two or three quests at once in Thornvale, for the "one more quest" pull (round 2, note 3) | dot (Adam) | Old saves load; `tests/run.html` all-pass |
-| Otherworld | OW-N1 | A "Memories carried" ledger, and at least two open choices at every beat (round 2) | Muse (Adam) | As DEVELOPMENT-PATH OW-N1; old saves load |
-| Little Ranch | LR-C1 | The first five minutes alone: nothing a three-year-old must read or ask about; big targets on a tablet | Grok (Adam) | A parent's checklist in the PR, tablet screenshots |
-| Little Ranch | LR3, LR10 | The singing flowers, then the Little Wagon | Grok (Adam) | As DEVELOPMENT-PATH; `tests/little-ranch.html` passes |
+| Wildbond | WB-FUNNEL1 | First-three-minutes funnel (Evan's ruling, COMMS 2026-10-14 12:11 UTC): log times from New Game to first partner, first battle and first catch, and let every opening line be fast-forwarded. Doesn't touch the starter choice scene (NOS-1a) | dot (Adam) | As DEVELOPMENT-PATH WB-FUNNEL1 |
+| Otherworld | OW-N1 | A "Memories carried" ledger, and at least two open choices at every beat (round 2); includes the hall blurb in index.html (claim it in COMMS first) | Grok (Adam) | As DEVELOPMENT-PATH OW-N1; old saves load |
+
+**Touch rule for guests** (2026-10-14): guest AIs may post their own claims and handoffs at the top of docs/COMMS.md (newest first, never editing others' messages). Claim sw.js, index.html, shared/ or launcher files there before editing them. START-HERE stays off-limits; only Generations Reviewer merges, by squash.
 
 **Realmbound** (Evan, 2026-10-14): already-planned work (like RB1.12a) may finish; no new Realmbound work starts; resources go to the other games (new Realmbound work waits until every currently planned game has a playable version). Its endgame and late game stay shelved. **Merges:** Generations Reviewer.
 **Routing:** Generations PM. **Questions for Evan:** Generations Director.
 
-**Superseded or done:** WB-BOND is done (#339, merged; the bond-plus-level rule is DD-5). LB2 ("postponed to cycle 2") is now #359, which is active. Done: SF-GUILD1 (#360, merged 2026-10-14 10:47 UTC), DM-N1b (#269), DM-N1c (#310), SG-N1 (#264), AR-FRONT and AR-SHELVE (#316, #319). The other cycle-1 rows owned by Adam's AIs are under "Guest lanes" above. Every remaining cycle-1 row (WB-C3, WB-C4, DM-N1d) is under "Out of this cycle" below.
+**Spare-effort order** (when your own row is done or blocked; claim in COMMS first): 1. the Wildbond catalogue toward 151 (WB5.6): data, lore and catalogue checks, coordinated with Wildbond & Starfall Dev Lead; 2. Lantern Bowl round 5 (#371), coordinated with Side Games Dev Lead; 3. then Keymaster (KM0) and Main Street (MS1). No new Realmbound work.
+
+**Superseded or done:** WB-BOND is done (#339, merged; the bond-plus-level rule is DD-5). LB2 ("postponed to cycle 2") is now #359, which is active. Done: SF-GUILD1 (#360, merged 2026-10-14 10:47 UTC), DM-N1b (#269), DM-N1c (#310), SG-N1 (#264), AR-FRONT and AR-SHELVE (#316, #319), WB-C2 (#279), RB1.12a (#283), LR-C1 (#281), LR3 (#289), LR10 (#290). Little Ranch has no open rows left (LR1-LR16 are merged; the shape puzzle waits). Every remaining cycle-1 row (WB-C3, WB-C4, DM-N1d) is under "Out of this cycle" below.
 
 ## Out of this cycle (backlog; rows moved unchanged from cycle 1, 2026-10-14)
 

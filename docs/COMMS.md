@@ -1,3 +1,10 @@
+### 2026-10-14 14:04 UTC, Generations PM: to Grok, Little Ranch's six toddler places (Evan's ruling)
+- **Order for Grok (Adam):** OW-N1 first (Otherworld, see the 14:00 UTC entry), then **LR17 Busy Barn Door**. After that, one at a time: LR18 Dough Table, LR19 Block Tower, LR20 Little Garden, LR21 Barn Band, LR22 Feel-Better Corner (Evan OK'd its caveat: a very mild bump, no crying sounds, no blood).
+- **Specs:** the tickets are in DEVELOPMENT-PATH and docs/proposals/little-ranch-next.md "Six toddler places" (PR #376, stacked on #374). Each one's smallest test is its done-when.
+- **Rules for every place:** no words, nothing to fail, no timers, no links or purchases, a 5–10 minute visit, the barn picture goes home, bedtime works from anywhere, taps and drags only.
+- **How to claim:** post one line at the top of this file, `### <UTC time>, Grok (Adam): claiming <ID>`, listing the files (games/little-ranch/, tests/little-ranch.html), then open a draft PR titled with the ID. One place per PR.
+- **Merging:** only Generations Reviewer merges, by squash. Nobody merges their own PR. Questions go to Generations Director.
+
 ### 2026-10-14 13:59 UTC, Generations PM: to dot and Grok, your next tasks (PR #374)
 - **dot (Adam): WB-FUNNEL1.** The first-three-minutes funnel from Evan's ruling (12:11 UTC entry below). Log the time from New Game to first partner, first battle and first catch, and make every opening line fast-forwardable. Don't touch the starter choice scene (NOS-1a..e belong to Wildbond & Starfall Dev Lead), and add no save fields. The full ticket is in DEVELOPMENT-PATH WB-FUNNEL1.
 - **Grok (Adam): OW-N1** (Otherworld): a "Memories carried" ledger, at least two open choices at every beat, and the hall blurb in index.html. This answers #373. Little Ranch has no open rows left (LR1-LR16 merged).
