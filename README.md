@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Night Market Stalls v0.1.2 — playtest fixes (PR #434; version bumped on merge):** Holding the pour button keeps pouring, about eight cups a second. A cups bar and counter show how close the stall is to its vendor. The pour button stays after you hire. The save box is styled, and its backup list refreshes each time it opens. Payback times show whole seconds. The save stays version 1.
+- **Little Ranch v0.18.2 — LRL-1 (PR #417; version bumped on merge):** The visit ends at bedtime from any of the five rooms once 6 minutes or 12 activities are reached. A toy you are in the middle of gets at most 6 more seconds, and an unfinished toy earns no reward.
 - **Little Ranch v0.18.1 — LR-LAYOUT-1 (PR #424; version bumped on merge):** Cookies hop clear of the cutter. The sponge, ball and flowers no longer overlap on phones.
 - **Shared engine (2026-10-14, WBL-11 and WBL-12, PR #415):** an old-save upgrade step that returns nothing now holds the save untouched, and Erase does nothing to a held save. No game version bump.
 - **Night Market Stalls v0.1.1 — NM-FIX-1 (PR #421; version bumped on merge):** each stall says how long the next one pays for itself. Welcome back and the cash box say stalls earn 50% while you are away, and only four hours count.

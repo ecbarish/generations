@@ -115,6 +115,12 @@ var key_learn := { "walk": 0, "act": 0, "book": 0 }   # WB-KEYS: how often each 
 var satchel: Control                         # the bag, top right: tap it (or Esc or I) for the menu. Tab or J still opens the field book
 var menu: Control                            # pause menu: party, field book, save, close (WBL-1)
 var status: Control                          # the strip along the top: place, lead, coins
+var objective: Control                       # what to do next (WBL-4)
+var caption_plate: ColorRect                 # the bar under the hint, so the words are not painted on the trees
+var caption_lift := 0.0                      # how far the view shifts up while that bar is showing
+var walk_tap := Vector2i.ZERO                # a key tap that went down and up before the next step (it still counts)
+var bag_press := false                        # the press began while the bag was already showing
+var bag_landed := false                       # that press already hit the bag, so the lift must not toggle again
 var menu_return := false                     # the field book was opened from the menu, so closing it comes back here
 var place_t := 0.0                           # seconds since you arrived somewhere (the place name holds, then fades)
 var title: Control
@@ -297,6 +303,14 @@ func _ready() -> void:
 	menu.chose.connect(_on_menu)
 	status = preload("res://scripts/status_bar.gd").new()
 	$UI.add_child(status)
+	objective = preload("res://scripts/objective.gd").new()
+	$UI.add_child(objective)
+	caption_plate = ColorRect.new()
+	caption_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	caption_plate.color = Color(0.08, 0.07, 0.06, 0.94)
+	caption_plate.visible = false
+	$UI.add_child(caption_plate)
+	$UI.move_child(caption_plate, caption.get_index())
 	if "--skip-opening" in OS.get_cmdline_user_args():
 		no_save = true
 		_skip_opening()
@@ -865,6 +879,9 @@ func _process(dt: float) -> void:
 		phone.drop_pending()
 	if lines.is_empty() and free_to_walk and me.path.is_empty() and me.pos.distance_to(Vector2(me.tile) * TILE) < 0.5:
 		var d := Controls.held_dir()                 # keys, a gamepad, or the phone pad (WB6.1)
+		if d == Vector2i.ZERO:
+			d = walk_tap                             # a short tap, released before this step, still takes the step
+		walk_tap = Vector2i.ZERO
 		if phone != null and d != Vector2i.ZERO:
 			phone.mark_moved()
 		if d != Vector2i.ZERO:
@@ -900,7 +917,8 @@ func _process(dt: float) -> void:
 	_check_doors()
 	for r in restore:
 		r.r = move_toward(r.r, r.goal, dt * 70.0)
-	cam.position = cam.position.lerp(me.pos + Vector2(8, 8), min(1.0, dt * 8.0))
+	var look := me.pos + Vector2(8, 8 + caption_lift)   # the hint bar takes the bottom; the view shifts so you stay above it
+	cam.position = cam.position.lerp(look, min(1.0, dt * 8.0))
 	_update_ui()
 	queue_redraw()
 	colour_layer.queue_redraw()
@@ -943,6 +961,11 @@ func _walk(m: Mover, dt: float) -> void:
 			_check_spotted()
 
 func _unhandled_input(e: InputEvent) -> void:
+	_note_walk_tap(e)
+	Controls.note(e)
+	var release_kind := Controls.release_kind(e)
+	if Controls.pointing(e):
+		bag_press = satchel != null and satchel.visible
 	if Controls.pressed(e, "toggle_music"):
 		music_on = not music_on                  # M: music on or off
 		get_viewport().set_input_as_handled()
@@ -952,6 +975,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	# Esc, I, or the bag. A battle, a conversation, or another page keeps the menu shut.
+	# The bag opens this menu. It does not open the field book (Tab or J still does that).
 	if (Controls.pressed(e, "open_menu") or _satchel_hit(e)) and menu and (menu.visible or _menu_allowed()):
 		_toggle_menu()
 		get_viewport().set_input_as_handled()
@@ -961,7 +985,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		# advance once; accepting its touch too would skip another line (or the first
 		# line after signing/choosing). Native touch also works when emulation is off;
 		# mouse-to-touch test events are duplicates of an already handled click too.
-		if not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION and e.pressed and not _covering() and not lines.is_empty():
+		var native := not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION
+		if native and e.pressed and not _covering() and not lines.is_empty():
 			advance()
 			get_viewport().set_input_as_handled()
 		return
@@ -970,6 +995,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	if want_book and stage == "free" and lines.is_empty() and not battle.visible and not shop.visible and not book.visible:
 		_open_book()
 		get_viewport().set_input_as_handled()
+		return
+	if release_kind != 0:
+		# A lift moves the talk on only when the press already did, and only that once. A lift that opened the line does not skip it.
 		return
 	var pressed: bool = (Controls.pressed(e, "interact") or (e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT))
 	if not pressed:
@@ -999,12 +1027,24 @@ func _unhandled_input(e: InputEvent) -> void:
 		if s:
 			_meet(s)
 
+## A direction key that is pressed and let go in the same moment still counts as one step. The walk itself
+## looks at this on the next step, because a tap that short is already up again by the time the step is taken.
+func _note_walk_tap(e: InputEvent) -> void:
+	if _covering() or not lines.is_empty() or trans_t >= 0.0:
+		return
+	if not (stage in ["to_barn", "barn_choose", "walk_out", "free"]):
+		return
+	var d := Controls.dir(e)
+	if d != Vector2i.ZERO:
+		walk_tap = d
+
 ## A page is covering the world, so walking and the menu stay put.
 func _covering() -> bool:
 	return lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or turn_card.visible or (menu != null and menu.visible)
 
 func _menu_allowed() -> bool:
-	return menu != null and not menu.visible and stage == "free" and lines.is_empty() and trans_t < 0.0 and not _covering()
+	# Every area, including Larkhaven before the story sets you free. A conversation or a page still keeps it shut.
+	return menu != null and not menu.visible and lines.is_empty() and trans_t < 0.0 and not _covering()
 
 func _toggle_menu() -> void:
 	if menu.visible:
@@ -1017,9 +1057,24 @@ func _toggle_menu() -> void:
 	menu.open()
 
 func _satchel_hit(e: InputEvent) -> bool:
-	if satchel == null or not satchel.visible or not Controls.pointing(e):
+	if satchel == null or not satchel.visible:
+		if Controls.released(e):
+			bag_press = false
+			bag_landed = false
 		return false
-	return Rect2(Vector2.ZERO, satchel.size).has_point(Controls.at(satchel, e))
+	var down := Controls.pointing(e)
+	var on_bag := Rect2(Vector2(-14, -2), Vector2(42, 28)).has_point(Controls.at(satchel, e))
+	# A lift counts only when the press began while the menu was shut and the press itself missed the bag.
+	# A press that already opened or closed the menu is not repeated on the way up, and a lift with no press is not a tap.
+	var up := Controls.release_kind(e) == 1 and menu != null and not menu.visible and bag_press and not bag_landed
+	if down and on_bag:
+		bag_landed = true
+	if Controls.released(e):
+		bag_press = false
+		bag_landed = false
+	if not down and not up:
+		return false
+	return on_bag
 
 func _on_menu(action: String) -> void:
 	match action:
@@ -1744,6 +1799,7 @@ func _update_ui() -> void:
 			mx = int(R.stats(team[0]).hp)
 		status.visible = not (book.visible or battle.visible or card.visible or shop.visible or lessons.visible or register.visible or title.visible or howto.visible or turn_card.visible)
 		status.setup(place.text, lead, cur, mx, int(bag.get("coins", 0)))
+	_layout_objective()
 	# the place's name, large on arrival: it holds for a few seconds, then fades (hidden while you talk or fight)
 	place.modulate.a = 0.0 if battle.visible or book.visible else clampf(3.5 - place_t, 0.0, 1.0)
 	# the faded world: pass each restored circle on this map to the shader, in real screen pixels
@@ -2989,7 +3045,11 @@ func _wild_battle() -> void:
 	seen[id] = true
 	battle_story = ""
 	battle.max_level = level_cap()
+	var guide := _guide_first_catch()
+	if guide and int(bag.get("lures", 0)) < 5:
+		bag.lures = 5
 	battle.open("wild", team, [foe], "")
+	battle.sure_catch = guide
 
 func _after_wild(result: String) -> void:
 	if not battle.caught.is_empty() and not story_done.has("marenRanchTip"):
@@ -3025,7 +3085,9 @@ func _maren_heals() -> void:
 	_festival_invite()
 
 func _satchel_shown() -> bool:
-	return stage == "free" and not lessons.visible and not battle.visible and not book.visible and not shop.visible
+	if lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or turn_card.visible:
+		return false
+	return lines.is_empty() and trans_t < 0.0
 
 ## Each badge's colour, pinned to the satchel strap and shown in the field book (the element of its Warden's town).
 const BADGE_COL := { "thorn": Color("5d9a3e"), "tide": Color("3a8fd8"), "ember": Color("e0602a"), "beacon": Color("e8c84a"),
@@ -3035,7 +3097,7 @@ const BADGE_COL := { "thorn": Color("5d9a3e"), "tide": Color("3a8fd8"), "ember":
 func _draw_satchel() -> void:
 	var c := satchel
 	if key_hint("book") != "":
-		_keycap(c, Vector2(-12, 16), key_hint("book"))                     # WB-KEYS: the key that opens the bag, until you have
+		_keycap(c, Vector2(-12, 16), key_hint("book"))                     # the book's key, until it has been opened; the bag itself opens the menu
 	var ink := Color(0.1, 0.12, 0.14)
 	for r in [Rect2(4, 0, 16, 3), Rect2(4, 0, 3, 7), Rect2(17, 0, 3, 7)]:   # the strap, an arch over the bag
 		c.draw_rect(r, ink)
@@ -4531,6 +4593,105 @@ func _take_along(ri: int, ti: int) -> void:
 	_lead_look()
 	_place_ranch()
 
+# ---------------------------------------------------------------- what to do next (WBL-4)
+## True once a wild creature has already chosen to come with you. Reads the journey you already have.
+func _has_caught_wild() -> bool:
+	if story_done.has("marenRanchTip"):
+		return true
+	if ranch.size() > 0:
+		return true
+	return team.size() > 1
+
+## The opening wild meeting only: enough lures, and the lure cannot miss. A story guardian is not this meeting.
+func _guide_first_catch() -> bool:
+	return not _has_caught_wild()
+
+## One line for the tracker. Empty when a full-screen page is up, or once the first towns are behind you.
+func next_objective() -> String:
+	if objective == null:
+		return ""
+	if title.visible or register.visible or howto.visible or book.visible or shop.visible or lessons.visible or turn_card.visible or (menu != null and menu.visible):
+		return ""
+	if battle.visible:
+		if battle.sure_catch and battle.kind == "wild" and battle.state == "choose":
+			return "Press Catch. This first lure brings them with you."
+		return ""
+	if stage in ["barn_meet", "barn_choose"] or (card.visible and stage == "bonded"):
+		return "Choose who will walk with you."
+	match stage:
+		"intro", "maren_walks", "register", "signed", "to_barn":
+			return "Follow Maren into the barn."
+		"walk_out", "bonded", "spill":
+			return "Walk out into Larkhaven."
+		"free":
+			if not _has_caught_wild():
+				return "Meet someone wild in the tall grass."
+			if map_name == "larkhaven" and not badges.has("thorn"):
+				return "The north road leads to Thornwood."
+			if not badges.has("thorn"):
+				return "Find Thornwood's Warden."
+			return ""
+		_:
+			return ""
+
+func _layout_objective() -> void:
+	if objective == null:
+		return
+	var line := next_objective()
+	var px := 7 if battle.visible else 8
+	objective.setup(line, px)
+	if line == "":
+		_place_name_at(14.0)
+		return
+	if battle.visible:
+		objective.position = Vector2(12, 190)
+		objective.size = Vector2(222, maxf(16.0, objective.block_height(222.0)))
+		_place_name_at(14.0)
+		return
+	var width := 344.0
+	var h := clampf(objective.block_height(width), 16.0, 32.0)
+	objective.position = Vector2(4, 14)
+	objective.size = Vector2(width, h)
+	if card.visible:
+		objective.position = Vector2(28, 0)
+		objective.size = Vector2(328, h)
+		_place_name_at(14.0)
+		return
+	_place_name_at(14.0 + h + 2.0)
+
+func _place_name_at(top: float) -> void:
+	if place.offset_top == top and place.offset_bottom == top + 26.0:
+		return
+	place.offset_top = top
+	place.offset_bottom = top + 26.0
+
+## The note at the foot of the screen grows upward until the whole sentence, outline included, sits in a bar
+## on the screen, clear of the trees (WBL-4, Playtester).
+func _fit_caption() -> void:
+	if caption == null:
+		return
+	if caption.text == "":
+		caption_lift = 0.0
+		if caption.offset_top != -22.0:
+			caption.offset_top = -22.0
+		if caption.offset_bottom != -6.0:
+			caption.offset_bottom = -6.0
+		if caption_plate != null:
+			caption_plate.visible = false
+		return
+	# The words were already placed, above the walking pad when that pad is showing.
+	# The bar runs from those words to the foot of the screen, and the view shifts up with it.
+	caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var band_top := 216.0 + float(caption.offset_top) - 3.0
+	if band_top < 48.0:
+		band_top = 48.0
+	var band_bottom := 216.0
+	caption_lift = maxf(0.0, band_bottom - band_top)
+	if caption_plate != null:
+		caption_plate.visible = true
+		caption_plate.position = Vector2(0, band_top)
+		caption_plate.size = Vector2(384, maxf(1.0, band_bottom - band_top))
+
 # ---------------------------------------------------------------- the phone pad and the settings (WB6.1-6.2)
 ## An upright phone grows the Game Boy frame. Turning it sideways takes the frame away and leaves the journey,
 ## the open line, and the page of that line where they were.
@@ -4569,6 +4730,7 @@ func _thumbs_tick() -> void:
 		touch.inset_right = 0.0
 	touch.refresh()
 	_place_caption()
+	_fit_caption()
 	battle.pace = settings.pace()
 	battle.external_ui = upright
 	var size := 16 if side_phone else (10 if settings.large_text() else 8)

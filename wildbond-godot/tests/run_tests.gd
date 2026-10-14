@@ -1024,7 +1024,7 @@ func _run() -> void:
 				if int(main.bag.lures) > 0 and tries < 6:
 					var before_l: int = main.bag.lures
 					bt2._choose(3)
-					if tries == 0: check(bt2.state == "capture" and main.bag.lures == before_l - 1, "Bond throws a lure and starts the calm meter")
+					if tries == 0: check(bt2.state == "capture" and main.bag.lures == before_l - 1, "Catch throws a lure and starts the calm meter")
 					bt2.cap.pos = bt2.cap.zone
 					bt2._calm()
 					tries += 1
@@ -1915,6 +1915,7 @@ func _run() -> void:
 	preload("res://tests/roof_routes.gd").run(main, check)
 	preload("res://tests/door_taps.gd").run(main, check)
 	preload("res://tests/wbl1_menu.gd").run(main, check)
+	preload("res://tests/wbl_battle_start.gd").run(main, check)
 	preload("res://tests/phone_layout.gd").run(main, check)
 	# ---- the done line
 	print("Wildbond Godot checks: %d passed, %d failed" % [passed, failed])

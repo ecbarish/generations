@@ -139,6 +139,132 @@ static func run(main: Node, check: Callable) -> void:
 	main._thumbs_tick()
 	var acts: Array = main.menu.ACTIONS
 	check.call(acts.size() == 4 and str(acts[0]) == "party" and str(acts[1]) == "book" and str(acts[2]) == "save" and str(acts[3]) == "close", "Menu is the party, field book, save and close page")
+	_deck_menu(main, check)
+	_deck_once(main, check)
+	HowTo.note("")
+	main.touch.touched = false
+	main.touch.refresh()
+
+## The deck's Menu button, in Larkhaven while Maren is still leading, and again in Thornwood.
+static func _deck_menu(main: Node, check: Callable) -> void:
+	var shell = PhoneShell.new()
+	shell._main = main
+	_quiet(main)
+	main.stage = "to_barn"
+	main._set_map("larkhaven")
+	main._update_ui()
+	check.call(main.map_name == "larkhaven" and main.stage == "to_barn" and main._menu_allowed(), "Larkhaven still allows the menu while you follow Maren")
+	shell._do_menu()
+	_menu_rows(main, check, "Larkhaven, while following Maren")
+	main.menu.close()
+	_quiet(main)
+	main.stage = "free"
+	main._set_map("thornwood")
+	main._update_ui()
+	check.call(main.map_name == "thornwood" and main._menu_allowed(), "Thornwood allows the menu")
+	shell._do_menu()
+	_menu_rows(main, check, "Thornwood")
+	main.menu.close()
+	shell.free()
+
+static func _menu_rows(main: Node, check: Callable, where: String) -> void:
+	var rows: Array = main.menu.ROWS
+	check.call(main.menu.visible and rows.size() == 4 and str(rows[0]) == "Party" and str(rows[1]) == "Field book" and str(rows[2]) == "Save" and str(rows[3]) == "Close", "the deck Menu opens Party, Field book, Save and Close in %s" % where)
+
+## A deck press and the lift that follows it must count once: Choose, Sign, the bag, Fight, and a line of talk.
+static func _deck_once(main: Node, check: Callable) -> void:
+	_quiet(main)
+	main.stage = "barn_choose"
+	main.card.open("ripplet", main.card_info("ripplet"))
+	var picks := [0]
+	if main.card.chosen.is_connected(main._on_chosen):
+		main.card.chosen.disconnect(main._on_chosen)
+	var count_pick: Callable = func(_id): picks[0] += 1
+	main.card.chosen.connect(count_pick)
+	var choose_at: Vector2 = main.card._btn(0).get_center()
+	main.card.sel = 0
+	main.card._pick(0)
+	_release(main, choose_at)
+	check.call(picks[0] == 1 and not main.card.visible, "Choose: the deck press picks once, and the lift does not pick again")
+	main.card.chosen.disconnect(count_pick)
+	main.card.chosen.connect(main._on_chosen)
+
+	_quiet(main)
+	main.stage = "free"
+	main._set_map("thornwood")
+	main.register.keep = false
+	main.register.open()
+	_click(main, Vector2(277, 181))
+	check.call(not main.register.visible and main.stage == "signed" and main.lines.size() == 4, "Sign the register: press and lift sign once")
+
+	_quiet(main)
+	main.stage = "free"
+	main._set_map("larkhaven")
+	main._update_ui()
+	var bag_at: Vector2 = main.satchel.position + main.satchel.size * 0.5
+	_click(main, bag_at)
+	check.call(main.menu.visible, "the bag: press and lift open the menu once")
+	_click(main, bag_at)
+	check.call(not main.menu.visible, "the bag: the next press and lift close the menu once, and do not open it again")
+
+	_quiet(main)
+	var lead: Dictionary = main.R.make("ripplet", 8, { "rar": 1 }, main.rng)
+	var foe: Dictionary = main.R.make("mosshog", 8, { "rar": 1 }, main.rng)
+	main.battle.open("wild", [lead], [foe], "")
+	main.battle._go_to("choose")
+	main.battle.wait_u = main.battle.allies[0]
+	var fight: Vector2 = main.battle._menu_rect(0).get_center()
+	main.battle.deck_press(0)
+	_release(main, fight)
+	check.call(main.battle.state == "moves", "Fight: the deck press opens the moves, and the lift does not choose a move")
+	main.battle.visible = false
+	main.battle.state = "off"
+
+	_quiet(main)
+	main.stage = "free"
+	main.say("", "One.")
+	main.say("", "Two.")
+	main.say("", "Three.")
+	main._update_ui()
+	var bubble: Control = main.get_node("UI/Bubble")
+	var spot: Vector2 = Rect2(bubble.position, bubble.size).get_center()
+	_click(main, spot)
+	check.call(main.lines.size() == 2 and str(main.lines[0].text) == "Two.", "dialogue: press and lift advance one line")
+	_release(main, spot)
+	check.call(main.lines.size() == 2 and str(main.lines[0].text) == "Two.", "dialogue: a later lift does not advance again")
+	main.lines.clear()
+
+static func _quiet(main: Node) -> void:
+	main.lines.clear()
+	main.then_do = Callable()
+	main.trans_t = -1.0
+	main.walk_to.clear()
+	main.me.path.clear()
+	main.walk_tap = Vector2i.ZERO
+	main.get_tree().paused = false
+	for panel in [main.battle, main.book, main.card, main.shop, main.register, main.title, main.howto, main.lessons, main.turn_card]:
+		panel.visible = false
+	if main.menu.visible:
+		main.menu.close()
+	main.battle.state = "off"
+
+static func _click(main: Node, at: Vector2) -> void:
+	_press(main, at)
+	_release(main, at)
+
+static func _press(main: Node, at: Vector2) -> void:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = true
+	event.position = main.get_viewport().get_final_transform() * at
+	main.get_viewport().push_input(event)
+
+static func _release(main: Node, at: Vector2) -> void:
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = false
+	event.position = main.get_viewport().get_final_transform() * at
+	main.get_viewport().push_input(event)
 
 static func _targets_ok(L: Dictionary) -> bool:
 	var dpad: Rect2 = L["dpad"]
