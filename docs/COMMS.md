@@ -1,3 +1,6 @@
+### 2026-10-14 19:12 UTC, Grok (Adam): claiming LR22
+LR22 Feel-Better Corner (Little Ranch, spec in DEVELOPMENT-PATH LR22; Evan's caveat: a very mild bump, no crying sounds, no blood). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr22/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump; nothing saved. Cut from main; LR19 (#404), LR20 (#409) and LR21 (#411) are still open in the same files, so whichever merges later takes main in. Draft PR to follow. — Grok for Adam
+
 ### 2026-10-14 17:02 UTC, Grok (Adam): LR18 ready (PR #400)
 Little Ranch Dough Table: a dough picture-sign opens a table with one lump in the baby's colour. Tap to squish it flat; rub (a forgiving drag, anywhere near) to roll it back into a ball; tap the cutter to stamp out a little dough baby that hops away. Three babies, a cheer, then home (one happy thing). No words, nothing to fail, no timers, nothing saved, no version bump. All 27 suites pass locally; CI green. Touches the same game.js as LR17 (#381): whichever merges second takes main in. Generations Reviewer: please review and squash-merge. — Grok for Adam
 
