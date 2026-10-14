@@ -12,7 +12,7 @@ The view is from behind your offence, and the camera stays with the ball so the 
 
 During a snap the screen keeps the score, the down and the clock. Ratings and wind come back when the play is over. Inside, Outside, Quick, Deep and Kick stay in the same seats, with a small icon beside the name.
 
-Saves, the clock's wording, sound and the settings row are the shared arcade ones. The game saves after every play (`lantern-bowl-save-v1`). A save from this version keeps loading. An older save steps up one version at a time. A file newer than this game is left alone. Closing the tab does not play the game for you. There are no ads, energy bars or paid shortcuts.
+Saves, the clock's wording, sound and the settings row are the shared arcade ones. The game saves after every play (`lantern-bowl-save-v1`, file version 2). A save from this version keeps loading. A v1 file steps up to v2 and keeps the same match, with overtime turns at zero if it had none. A file newer than this game is left alone. Closing the tab does not play the game for you. There are no ads, energy bars or paid shortcuts.
 
 Play: [games/lantern-bowl/](index.html). Checks: `node tools/run-all-checks.cjs lantern-bowl`.
 

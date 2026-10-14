@@ -6,7 +6,7 @@
   var M = window.LanternModel, V = window.LanternView;
   var $ = function (id) { return document.getElementById(id); };
   var canvas = $('field'), ctx = canvas.getContext('2d');
-  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.3', SAVE_V = 1;
+  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.3', SAVE_V = 2;
   var reduce = Settings.reduced();
 
   /* Older files climb: steps[1] turns a v1 save into v2, and so on, until SAVE_V.
@@ -27,7 +27,18 @@
     if (data.match != null && !(data.match.score && data.match.home && data.match.away)) return null;
     return data;
   }
-  migrateSave.steps = {};
+  /* v1 files have no overtime count. The match itself is unchanged. */
+  migrateSave.steps = {
+    1: function (data) {
+      var next = Object.assign({}, data);
+      next.v = 2;
+      if (next.match && typeof next.match === 'object') {
+        next.match = Object.assign({}, next.match);
+        if (next.match.otTurns == null) next.match.otTurns = 0;
+      }
+      return next;
+    }
+  };
   migrateSave.SAVE_V = SAVE_V;
 
   Arcade.validators[KEY] = function (o) { return !!migrateSave(o); };
