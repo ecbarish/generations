@@ -73,7 +73,7 @@ function otherworldChecks() {
   const withLife = fn => { const old = ow.S; try { ow.S = { ...fresh(), life: fixture() }; return fn(ow.S.life); } finally { ow.S = old; } };
   check('every conditional choice has an authored reason', () => Object.values(NODES).every(n => (n.choices || []).every(c => !c.need || typeof c.why === 'string' || typeof c.why === 'function')));
   check('locked options remain in their original order, rather than disappearing', () => withLife(l => {
-    l.gift = 'pocket'; return ow.choicesOf(NODES.a_alone).length === 4 && !ow.choiceReady(NODES.a_alone.choices[0]) && !ow.choiceReady(NODES.a_alone.choices[1]);
+    l.gift = 'pocket'; return ow.choicesOf(NODES.a_alone).length === 5 && NODES.a_alone.choices[4].open && !ow.choiceReady(NODES.a_alone.choices[0]) && !ow.choiceReady(NODES.a_alone.choices[1]);
   }));
   check("Appraisal closes Ressa's private door but keeps bread and labor available", () => withLife(l => {
     ow.run('a_market'); ow.D.skip();
@@ -111,7 +111,7 @@ function otherworldChecks() {
   }));
   check('Sword Saint explicitly cannot choose the gentle ways at the heart', () => withLife(l => {
     l.gift = 'sword'; l.flags.mira = true; l.mem.oldroot = true;
-    return NODES.a_heart.choices.slice(1).every(c => !ow.choiceReady(c) && /will not let you/.test(c.why(l))) && ow.choiceReady(NODES.a_heart.choices[0]);
+    return NODES.a_heart.choices.slice(1).filter(c => !c.open).every(c => !ow.choiceReady(c) && /will not let you/.test(c.why(l))) && ow.choiceReady(NODES.a_heart.choices[0]);
   }));
   check('each new dawn consumes food and raises fear exactly once', () => {
     const l = fixture(); ow.townDay(l, 3); const before = JSON.stringify(l.town); ow.townDay(l, 3); ow.townDay(l, 1);
@@ -429,6 +429,57 @@ function otherworldChecks() {
       const l=mf('ashen',{},'return');ow.S={...fresh(),life:l};ow.run('s_stair');const before=sceneState;b.click();
       return sceneState===before&&!ow.D.el.querySelector('[data-between-shortcut]')&&!ow.D.el.classList.contains('asking');
     }finally{ow.S=old;panel().hidden=true;}
+  });
+  /* OW-N1: two open choices at every beat, and the Memories carried ledger */
+  check('OW-N1: every beat on every path offers at least two open choices (every gift, every memory set)',()=>{
+    const thin=new Set();
+    for(const w of built)for(const g of Object.keys(GIFTS[w]))for(const m of memSets){
+      const st=[[WORLDS[w].start,{world:w,gift:g,name:'T',flags:{},at:WORLDS[w].start,silver:0,status:false,mem:m},0]];
+      while(st.length){const [id,life,d]=st.pop(),n=NODES[id];if(!n||d>40)continue;ow.prepareLife(life);life.at=id;if(!life.entered[id]){if(n.fx)n.fx(life);life.entered[id]=true;}
+        const av=(n.choices||[]).filter(c=>!c.need||c.need(life));if(n.choices&&av.length<2)thin.add(id+' ('+w+'/'+g+')');
+        if(av.length)for(const c of av){const l2=clone(life);l2.mem=life.mem;if(c.fx)c.fx(l2);if(!c.end)st.push([typeof c.go==='function'?c.go(l2):c.go,l2,d+1]);}
+        else if(!n.end&&n.go)st.push([typeof n.go==='function'?n.go(life):n.go,life,d+1]);}}
+    if(thin.size)throw Error([...thin].slice(0,4).join('; '));return true;
+  });
+  check('OW-N1: each added open choice is always available and leads to a real scene or ending',()=>Object.entries(OPEN_CHOICES).every(([id,c])=>
+    NODES[id].choices.includes(c)&&!c.need&&(c.end?ENDINGS[c.end]&&EPILOGUES[c.end]:NODES[c.go])));
+  check('OW-N1: a fresh soul sees every memory in the ledger as not yet remembered, each with where to find it',()=>{
+    const old=ow.S;try{ow.S=fresh();const r=ledgerRows(ow.S.mem,ow.S.lives);
+      return r.length===Object.keys(MEMORIES).length&&r.every(x=>!x.carried&&x.keptBy.length>0&&x.keptBy.every(e=>!e.seen&&WORLDS[e.world]));
+    }finally{ow.S=old;}
+  });
+  check('OW-N1: the ledger names carried memories, seen endings by title, and how many choices each opens',()=>{
+    const old=ow.S;try{ow.S={...fresh(),mem:{tide:true,oldroot:true},lives:[{world:'asterhold',ending:'e_death_tide'}]};showLedger();
+      const el=document.getElementById('ledger'),html=el.innerHTML;
+      return !el.hidden&&el.querySelector('[data-ledger-count]').textContent===`2 of ${Object.keys(MEMORIES).length}`&&
+        el.querySelector('[data-memory="tide"]').classList.contains('carried')&&html.includes(MEMORIES.oldroot)&&
+        el.querySelector('[data-memory="mercy"]').classList.contains('unknown')&&
+        ledgerRows().find(x=>x.id==='tide').opens>=1&&ledgerRows().find(x=>x.id==='oldroot').opens>=2;
+    }finally{document.getElementById('ledger').hidden=true;ow.S=old;}
+  });
+  check('OW-N1: opening the ledger writes nothing to the save (no new save field)',()=>{
+    const old=ow.S;try{ow.S={...fresh(),mem:{seed:true}};const before=JSON.stringify(ow.S);showLedger();hideLedger();
+      return JSON.stringify(ow.S)===before&&Object.keys(ow.S).sort().join()===Object.keys(fresh()).sort().join();
+    }finally{document.getElementById('ledger').hidden=true;ow.S=old;}
+  });
+  check('OW-N1: an old v1 save from before the ledger loads and its ledger renders',()=>{
+    const old=ow.S,key='otherworld-save-v1',raw=localStorage.getItem(key);
+    try{Arcade.save(key,{v:1,name:'Old',look:{hair:'#2a1a12',skin:'#f1c9a0'},mem:{guildmaster:true},lives:[{world:'asterhold',gift:'pocket',name:'Old',ending:'e_walls',at:1}],life:null,met:true});
+      ow.load();showLedger();const html=document.getElementById('ledger').innerHTML;
+      return ow.S.name==='Old'&&html.includes(MEMORIES.guildmaster)&&html.includes('“The Wall Held”')===false&&ledgerRows().find(x=>x.id==='guildmaster').carried;
+    }finally{document.getElementById('ledger').hidden=true;ow.S=old;if(raw===null)localStorage.removeItem(key);else localStorage.setItem(key,raw);}
+  });
+  check('OW-N1: the Memories button opens the ledger mid-story, Escape closes it, and the story does not move',()=>{
+    const old=ow.S;try{const l=mf('ashen',{},'return');ow.S={...fresh(),life:l};ow.run('s_stair');const before=sceneState;
+      document.getElementById('ledgerBtn').click();const open=!document.getElementById('ledger').hidden;
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+      return open&&document.getElementById('ledger').hidden&&sceneState===before;
+    }finally{document.getElementById('ledger').hidden=true;ow.S=old;}
+  });
+  check('OW-N1: the Choose a world table shows memories carried and opens the ledger',()=>{
+    const old=ow.S;try{ow.S={...fresh(),mem:{tide:true}};chooseWorld();const b=panel().querySelector('[data-ledger-open]');
+      const ok=!!b&&panel().textContent.includes('Memories carried: 1 of');b.click();return ok&&!document.getElementById('ledger').hidden;
+    }finally{document.getElementById('ledger').hidden=true;panel().hidden=true;ow.S=old;}
   });
   return out;
 }

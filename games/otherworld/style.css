@@ -62,3 +62,7 @@
 
 /* OW1.1: an optional way onward, beside Continue and inside the scene. */
 .dlg .between-shortcut{margin:6px 0 0 8px;min-height:44px;font-size:calc(14px * var(--arc-text,1))}
+/* OW-N1: the Memories carried ledger */
+.ledger-panel{z-index:9}.ledger{list-style:none;margin:8px 0;padding:0}.ledger li{margin:8px 0;color:#e8f7ff}
+.ledger li b{display:block;font-weight:700}.ledger li small{display:block;opacity:.85;font-size:calc(13px * var(--arc-text,1))}
+.ledger li.unknown b{opacity:.7;font-style:italic}.ledger-line .chip{margin-left:6px}
