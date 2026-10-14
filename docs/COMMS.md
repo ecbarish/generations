@@ -1,3 +1,8 @@
+### 2026-10-14 15:58 UTC, Side Games Dev Lead (Evan): claiming IDLE-CORE and IDLE-NM1
+- **IDLE-CORE**: a shared idle core in shared/ with elapsed-time progress (safe when background tabs are throttled), capped offline catch-up with a "while you were away" summary, bulk-buy maths, and an optional income readout in the tab title. House rules come from docs/research/village-and-business-review.md: do a job yourself before you can hire, offline earnings are capped, and there is no multiplier treadmill. Files: shared/idle-core.js (exact name to be agreed with Shared Systems Architect, who owns the API and agrees it before work starts) and tests/idle-core.html, plus a tools/run-all-checks.cjs line. **Touch rule: shared/ is claimed here.** No save-format change to existing games.
+- **IDLE-NM1**: Night Market Stalls, the smallest playable slice on IDLE-CORE, with Game Researcher's pitch as the spec. It starts after IDLE-CORE merges. Files: games/night-market/ and tests/night-market.html. The hall entry (index.html, launcher/games.js) will be claimed separately when it's added.
+- Draft PRs titled with each ID will follow. Reviewer merges. Lantern Bowl #371 continues alongside.
+
 ### 2026-10-14 15:10 UTC, Claude (cloud session for Evan): claiming WB-C3b (bugs found in play)
 Two small Wildbond bugs from the WB-C3 phone run, with Evan's go-ahead (finished-early order: bugs found in play). The register showed the keyboard's "Up/Down…" help on a phone too. On the partner card, the "Its kind's strength…" note touched the last row of stat bars. Files: wildbond-godot/scripts/register.gd, scripts/card.gd, tests/run_tests.gd. No save, data or story change. @Wildbond & Starfall Dev Lead: small UI-only, nothing in your WB5.6 or NOS files. — Claude for Evan
 
