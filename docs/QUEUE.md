@@ -8,38 +8,56 @@ and how much creative freedom you have are in [CREATIVE.md](CREATIVE.md).
 
 ## This cycle: cycle 1, Tuesday 2026-10-13 to Monday 2026-10-19 (read this first; it overrides every list below)
 
-**Act on the notes we already have** (Evan, 2026-10-13: "the playtests are a waste until we update beyond Flint's
-notes"). Every task below comes from Flint's three playtest rounds (docs/COMMS.md, 2026-10-12 20:19, 20:52 and 21:02),
-apart from Little Ranch's next steps and two Wildbond builds from the studio plan. **No new playtests this cycle:** Flint
-replays the same games once these fixes land. Take your named task, claim it with a draft PR titled with its ID
-(PROCESS.md), and nothing else; one task is one pull request. Finished early? Bugs found in play, then the next row of
-your game's notes, then shared work (the onboarding kit). Nothing outside this block starts.
+**Priorities, in order** (Evan, 2026-10-14). Each task has exactly one current owner. Claim it with a draft PR titled
+with its ID (PROCESS.md); one task is one pull request. **Only Generations Reviewer merges**; nobody merges their own
+PR. Generations PM routes the work and handoffs. Nothing outside this block starts.
 
-| Game | ID | Task (Flint's note) | Who | Done when |
+**WB-NOSTALGIA (Evan 2026-10-14):** own creatures/lore only, no copied IP; save-format changes need Evan's sign-off; later: legendaries, hidden areas, warden trials, trading/variants, sound, champion/post-game. Roster milestone = WB5.6 done (creature catalogue toward 151 per DEVELOPMENT-PATH). Its first tasks are the NOS-1a..e rows after WB5.6 below.
+
+| # | Game | ID | Task | Owner | Done when |
+|---|---|---|---|---|---|
+| 1 | Wildbond | WB5.6 | The creature catalogue toward 151 (the main goal) | Wildbond & Starfall Dev Lead | Each batch passes the catalogue checks, with lore |
+| 1 | Wildbond | NOS-1a | Starter choice scene: an opening-town story scene where the player picks Ripplet, Mosshog or Cindercub, with intro lines, a confirm step, and the pick stored in the save; must fit WB-C2's first-partner-in-3-minutes-or-less target (short and skippable); Evan to confirm via Generations Director (needs Evan's sign-off: save format) (starts after roster milestone: WB5.6 done, see the WB-NOSTALGIA note) | Wildbond & Starfall Dev Lead | A new game leads into it, old saves get their starter worked out from the roster with no prompt, and headless tests cover all three picks plus the old-save path |
+| 1 | Wildbond | NOS-1b | Rival setup (after 1a): the rival takes the starter with the type advantage over yours, and the first battle comes right after the choice; losing isn't a game-over (needs Evan's sign-off: save format) (starts after roster milestone: WB5.6 done, see the WB-NOSTALGIA note) | Wildbond & Starfall Dev Lead | The rival's starter is decided from your pick, both winning and losing carry on with the story, a save flag records the rival, and tests pass |
+| 1 | Wildbond | NOS-1c | Rival grows with you (after 1b): 3-4 more battles at story beats, with the rival's team scaling and the starter evolving along its EVO-0 line (level plus trust, per DD-5), and a short dialogue line at each beat; depends on EVO-1 (needs Evan's sign-off) and #345 (starts after roster milestone: WB5.6 done, see the WB-NOSTALGIA note) | Wildbond & Starfall Dev Lead | The beats and teams are in the data, levels stay between their floor and cap, and tests check the starter's stage at each beat |
+| 1 | Wildbond | NOS-1d | Field journal UI (can run alongside 1b/1c): the Wilddex becomes a field journal, with entries showing unseen/seen/caught, habitat and a lore note, and silhouettes for unseen creatures (starts after roster milestone: WB5.6 done, see the WB-NOSTALGIA note) | Wildbond & Starfall Dev Lead | It opens from the menu with correct counts, uses sprites where they exist with the code-drawn fallback, and tests cover the counts |
+| 1 | Wildbond | NOS-1e | Journal entries and completion rewards (can run alongside 1b/1c): lore and habitat text for every species, plus professor rewards at 25%, 50% and 100% caught (needs Evan's sign-off: save format) (starts after roster milestone: WB5.6 done, see the WB-NOSTALGIA note) | Wildbond & Starfall Dev Lead | Every species has its text (enforced by the catalogue check), each reward fires exactly once and is saved, and tests pass |
+| 1 | Wildbond | EVO-1 | Starters as three-stage lines per docs/art/wildbond-evolution.md: three middle species (middle at 16, final at 36), old saves grandfathered (needs Evan's sign-off) | Wildbond & Starfall Dev Lead | Three middle species with dex lines and moves in the data; middle at 16, final at 36; old saves grandfathered; tests pass |
+| 1 | Wildbond | #345 | Trust-gated final forms, wild late forms, no wild starters (updates DD-5) | Wildbond & Starfall Dev Lead | As the issue says; tests pass; old saves load |
+| 1 | Wildbond | WB2.2 | Depth, after the catalogue | Wildbond & Starfall Dev Lead | As DEVELOPMENT-PATH WB2.2 |
+| 1 | Wildbond | WB-ART | Creature and area art for the above | Game Art Director | The art review passes |
+| 2 | Lantern Bowl | #359 | **Active now:** make running matter and show Millrace's drives on the field | Side Games Dev Lead | As the issue says; Generations Reviewer verifies on the live game |
+| 2 | Lantern Bowl | LB-SPRITES | Side-view player sprites (`<id>_<view>_<pose>.png`), after #359 merges; any sw.js precache change is its own follow-up PR. Depends on Game Art Director's art sign-off (Game Art Director supplies the art, doesn't own the task) | Side Games Dev Lead | Sprites draw with the code-drawn fallback; checks pass |
+| 2 | Lantern Bowl | LB-PT | Replay after #359 and the sprites land | Playtester | Fun and Comeback scores reported |
+| 3 | Keymaster | KM0 | The first slice, after Lantern Bowl | Side Games Dev Lead | As DEVELOPMENT-PATH KM0 |
+| 4 | Main Street | MS1 | The first slice, after Keymaster | Side Games Dev Lead | As docs/PRIORITIES.md (CS1 + MS1) and docs/proposals/new-game-ideas.md |
+
+
+**Guest lanes (Adam's AIs)** (Evan, 2026-10-14): these stay in this cycle with their original text and done-when; one owner each.
+
+| Game | ID | Task (Flint's note) | Owner | Done when |
 |---|---|---|---|---|
-| Wildbond | WB-BOND | Make the bond real: a creature evolves on bond as well as level (round 2, note 3). The Design decisions thread sets the rule first | Claude, Wildbond builder | The rule in DECISIONS.md; evolution follows it; tests pass; old saves load |
-| | WB-C2 | Meet your partner sooner: time New Game to your first partner, trim it to three minutes or less | dot (Adam) | Measured before and after in the PR; tests pass; old saves load |
-| | WB-C3 | Wildbond on a phone: the web preview held sideways walks, talks, battles and opens the bag by touch | Claude, Wildbond builder | A phone-size run recorded in the PR |
-| | WB-C4 | Larkhaven and the first route at their best | Claude, Game assets | Before and after screenshots; the Art direction thread approves |
-| Starfall | SF-GUILD1 | The one-page map of Starfall Guild's best loops (docs/plans/starfall-guild-fold.md), then the first: one tactical call during fights, so you act instead of watch (round 3, note 2) | Claude, Starfall thread | The map merged; the call works in the village's fights; old saves load |
-| | SF-GUILD2 | An early earned hire, so automation lands in the first five minutes (round 3, note 3) | Muse (Adam) | A helper earned within the first session, by doing the job by hand first; checks pass |
-| Diamond Manager | DM-N1b | Training Rooms show their effect on named players (round 3, note 2) | ChatGPT/Codex (PR #269) | Merged |
-| | DM-N1c | Hot and cold streaks, so ratings move from game to game (note 3) | ChatGPT/Codex | As DEVELOPMENT-PATH DM-N1; `tests/diamond-manager.html` passes |
-| | DM-N1d | Dugout calls with visible risk: steal, hit-and-run, intentional walk, pinch hitter (note 1) | ChatGPT/Codex | Same |
+| Wildbond | WB-C2 | Meet your partner sooner: time New Game to your first partner, trim it to three minutes or less | dot (Adam) | Measured before and after in the PR; tests pass; old saves load |
+| Starfall | SF-GUILD2 | An early earned hire, so automation lands in the first five minutes (round 3, note 3) | Muse (Adam) | A helper earned within the first session, by doing the job by hand first; checks pass |
 | Realmbound | RB1.12a | Two or three quests at once in Thornvale, for the "one more quest" pull (round 2, note 3) | dot (Adam) | Old saves load; `tests/run.html` all-pass |
 | Otherworld | OW-N1 | A "Memories carried" ledger, and at least two open choices at every beat (round 2) | Muse (Adam) | As DEVELOPMENT-PATH OW-N1; old saves load |
-| Starfall Guild | SG-N1 | Something to do during the rest after a wipe; the Ledger's time counts right (round 3, note 4) | ChatGPT/Codex (PR #264) | Merged |
-| The hall | AR-FRONT | Blurbs that match the games (AR2.16: Lighthouse Watch, Otherworld); Wildbond as the headline, Little Ranch for kids, Classic editions and Primordial hidden | PC Claude (backup: the PR reviewer thread) | The live hall shows it; a phone screenshot in the PR |
-| The hall | AR-SHELVE | **Evan, 2026-10-13: take the Classic editions and Diamond Career off the site.** Remove the Classic Wildbond and Classic Starfall Guild cabinets and Diamond Career from the hall (index.html), Come Play (playtest.html) and every list a visitor sees (README game list, guides index). Keep their code, folders and save keys in the repository; old saves stay untouched (the SAVE_KEYS map keeps them). Mark Diamond Career **Shelved** in docs/PRIORITIES.md and docs/GOALS.md (Diamond Manager replaced it) | Any AI, first to claim (it overlaps AR-FRONT: whoever takes one does both) | The live hall and Come Play show neither; old links to the games still open; `node tools/run-all-checks.cjs` passes; a phone screenshot in the PR |
 | Little Ranch | LR-C1 | The first five minutes alone: nothing a three-year-old must read or ask about; big targets on a tablet | Grok (Adam) | A parent's checklist in the PR, tablet screenshots |
-| | LR3, LR10 | The singing flowers, then the Little Wagon | Grok (Adam) | As DEVELOPMENT-PATH; `tests/little-ranch.html` passes |
+| Little Ranch | LR3, LR10 | The singing flowers, then the Little Wagon | Grok (Adam) | As DEVELOPMENT-PATH; `tests/little-ranch.html` passes |
 
-**Postponed to cycle 2:** Lantern Bowl's drive (LB2), every new playtest (Diamond Career's practice swing is dropped: the game is shelved, DD-4), and P-C1
-(fewer documents). **The PR reviewer thread** reviews and merges within a day, #264 and #269 first.
+**Realmbound** (Evan, 2026-10-14): already-planned work (like RB1.12a) may finish; no new Realmbound work starts; resources go to the other games (new Realmbound work waits until every currently planned game has a playable version). Its endgame and late game stay shelved. **Merges:** Generations Reviewer.
+**Routing:** Generations PM. **Questions for Evan:** Generations Director.
 
-**Sunday 2026-10-18:** Evan and Adam play whatever has landed, if they want to; no notes are required. **Review and
-rollover: Monday 2026-10-19, lane P** ticks what's done, asks Flint to replay the games whose notes are fixed, and
-posts cycle 2. If the block still says cycle 1 on Tuesday 2026-10-20, the PR reviewer thread posts cycle 2 instead.
+**Superseded or done:** WB-BOND is done (#339, merged; the bond-plus-level rule is DD-5). LB2 ("postponed to cycle 2") is now #359, which is active. Done: SF-GUILD1 (#360, merged 2026-10-14 10:47 UTC), DM-N1b (#269), DM-N1c (#310), SG-N1 (#264), AR-FRONT and AR-SHELVE (#316, #319). The other cycle-1 rows owned by Adam's AIs are under "Guest lanes" above. Every remaining cycle-1 row (WB-C3, WB-C4, DM-N1d) is under "Out of this cycle" below.
+
+## Out of this cycle (backlog; rows moved unchanged from cycle 1, 2026-10-14)
+
+These rows left "This cycle" when Evan reset the priorities. Text, owner and done-when are exactly as they were; only the Status column is new (and the Game cell is filled in where it was blank).
+
+| Game | ID | Task (Flint's note) | Who | Done when | Status |
+|---|---|---|---|---|---|
+| Wildbond | WB-C3 | Wildbond on a phone: the web preview held sideways walks, talks, battles and opens the bag by touch | Claude, Wildbond builder | A phone-size run recorded in the PR | in draft PR #361 |
+| Wildbond | WB-C4 | Larkhaven and the first route at their best | Claude, Game assets | Before and after screenshots; the Art direction thread approves | open |
+| Diamond Manager | DM-N1d | Dugout calls with visible risk: steal, hit-and-run, intentional walk, pinch hitter (note 1) | ChatGPT/Codex | Same | in PR #347 (blocked) |
 
 ## The direction (the long view behind the cycles; Evan, 2026-10-12: "a large runway for the AIs to push, and a clear direction")
 
@@ -96,7 +114,7 @@ more in another lane's files: ask that lane in COMMS, or keep it to a few lines 
 ## Claiming, submitting and merging: see [PROCESS.md](PROCESS.md)
 
 One page for every AI and thread: pick, claim with a draft pull request **before** building, build, submit (mark it
-ready), and merging: any AI may do any step, including merging its own pull request straight away, after a written self-check.
+ready) after a written self-check. **Only Generations Reviewer merges**; nobody merges their own pull request.
 
 ## Heavy lifting (for the AIs with the most usage: Evan's dad's AIs first; refreshed 2026-10-12)
 
@@ -204,7 +222,7 @@ LB0 (the pitch) and LB1 (the shared office), Ember Bricks (#185), Little Ranch L
 above (the Wildbond builder and Starfall threads check the open PR list too); keep to the files the deliverable needs;
 install Godot 4.7.2 (`docs/learning/`, or let GitHub do it) and run `node tools/run-all-checks.cjs`, which runs both
 Godot suites; **old saves must load** (add a check); add checks for what you build; for anything visual, put a
-screenshot in the PR; the GitHub "checks" tick must be green, and any AI merges after the self-check in docs/PROCESS.md. Take
+screenshot in the PR; the GitHub "checks" tick must be green, and after the self-check in docs/PROCESS.md only Generations Reviewer merges (nobody merges their own pull request). Take
 Godot deliverables from "Heavy lifting" above, in order, never one another open PR names.
 
 ## When the road is empty, or everything is waiting on review
@@ -244,7 +262,7 @@ Claude's weekly usage is the scarcest thing in the project. Claude threads:
    work" says: a draft pull request titled with the deliverable's ID, opened before you build.
 3. Build it on its own branch (`codex/<topic>`, `grok/<topic>`, `claude/<topic>`), with checks; all eight test pages pass
    (`tests/run.html`, `wildbond.html`, `starfall.html`, `sound.html`, `offline.html`, `diamond.html`, `otherworld.html`, `runner-safety.html`; Claude also runs the Godot checks).
-4. Open a pull request (then self-check and merge it yourself, docs/PROCESS.md). In the PR: what you built, the files you touched,
+4. Open a pull request and post the self-check (docs/PROCESS.md); only Generations Reviewer merges, never the author. In the PR: what you built, the files you touched,
    before/after screenshots for anything visual, and an "An idea" section if you have one.
 5. **Go straight to the next task in your lane.** Don't wait for the review.
    - If the next task needs files your open PR touches, branch from that PR's branch and say so in the new PR.
@@ -371,7 +389,7 @@ index.html or style.css until those phases are merged.
 Evan chose (2026-10-09) to add guests as collaborators: they push `guest/*` branches to this repo, never `main`.
 
 Self-contained tasks for someone new, each away from what the other lanes are building. Claim like everyone else (a
-draft pull request titled with the ID). Any AI merges after the self-check in docs/PROCESS.md. Lane P keeps this list stocked.
+draft pull request titled with the ID). After the self-check in docs/PROCESS.md, only Generations Reviewer merges; nobody, guests included, merges their own pull request. Lane P keeps this list stocked.
 
 | # | Task | Status | Notes |
 |---|---|---|---|
