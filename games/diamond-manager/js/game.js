@@ -44,7 +44,12 @@ function substitute(L,g,side,outId,inId,how) { const p=benchOf(L,g,side).find(x=
   snap(g,{kind:'move',side,t:how==='run'?p.name+' runs for '+lastName(old)+' at '+['first','second','third'][b]+'.':how==='field'?p.name+' comes in to play the field for '+lastName(old)+'.':p.name+' bats for '+lastName(old)+'.'}); return ''; }
 function defensiveSub(L,g,side,outId,inId) { return side===g.half?'We are batting.':substitute(L,g,side,outId,inId,'field'); }
 /* Send a runner: he goes on the first pitch to the next batter. */
-function sendRunner(L,g,side,base) { if(side!==g.half||g.pa) return 'Only between batters, while we bat.'; if(!g.bases[base]||base>1||g.bases[base+1]) return 'No runner can steal there.'; g.steal={side,base}; return ''; }
+function stealChance(L,g,side,base) {
+  if(g.done||![0,1].includes(side)||side!==g.half||![0,1].includes(base)||!g.bases[base]||g.bases[base+1]||g.outs>=3)return null;
+  const r=gPlayer(L,g,side,g.bases[base]),field=g.lineup[1-side].map(id=>gPlayer(L,g,1-side,id)),cat=field.find(p=>p.pos==='C')||field[0];
+  return r&&cat?clamp(.62+(spd(r)-50)*.01-(cat.glove-50)*.005,.35,.92):null;
+}
+function sendRunner(L,g,side,base) { if(side!==g.half||g.pa) return 'Only between batters, while we bat.'; if(stealChance(L,g,side,base)===null) return 'No runner can steal there.'; g.steal={side,base}; return ''; }
 function pinchHit(L,g,side,inId) { return side!==g.half?'We are not batting.':substitute(L,g,side,g.lineup[side][g.order[side]],inId,'hit'); }
 function pinchRun(L,g,side,base,inId) { const id=g.bases[base]; return side!==g.half||!id?'There is no runner there.':substitute(L,g,side,id,inId,'run'); }
 
@@ -64,6 +69,14 @@ function ionaBatting(L,g,side) { const diff=g.score[side]-g.score[1-side]; if(g.
     if(fast&&fast.id!==bat.id&&spd(fast)>=spd(r)+15) return {kind:'pr',side,id:fast.id,out:id,base}; } }
   return null; }
 const hitting=p=>(p.contact*2+p.power+p.eye)/4, spd=p=>p.speed||50;
+/* A close early-game call, offered only to the human manager. Declining uses no roll.
+   One offer per inning keeps it a decision, not an interruption at every batter. */
+function ionaSteal(L,g,side) {
+  if(g.manage!==side||g.half!==side||g.pa||g.steal||g.outs>=2||Math.abs(g.score[side]-g.score[1-side])>3)return null;
+  const key='steal-call:'+side+':'+g.inning;if(g.asked[key])return null;
+  for(const base of [1,0]){const chance=stealChance(L,g,side,base);if(chance!==null&&chance>=.6)return {kind:'steal',side,base,out:g.bases[base],key};}
+  return null;
+}
 function applyIdea(L,g,m) { if(m.kind==='def'){ g.asked['def:'+m.side+':'+g.inning]=true; return defensiveSub(L,g,m.side,m.out,m.id); } if(m.kind==='steal') return sendRunner(L,g,m.side,m.base); return m.kind==='ph'?pinchHit(L,g,m.side,m.id):m.kind==='pr'?pinchRun(L,g,m.side,m.base,m.id):changePitcher(L,g,m.side,m.id); }
 /* The player's answer to a question the game stopped for. */
 function answerAsk(L,g,yes) { const a=g.ask; g.ask=null; if(!a) return ''; g.asked[a.key]=true; return yes?applyIdea(L,g,a):''; }
@@ -108,8 +121,8 @@ function stepGame(L,g) {
   if(!g.pa){
     if(g.ask) return 'ask';
     if(g.hold) return 'hold';
-    for(const side of [def,bat]){ const idea=side===def?ionaPitching(L,g,side):ionaBatting(L,g,side); if(!idea) continue;
-      if(side===g.manage){ const key=idea.kind+':'+(idea.out||g.pitcher[side])+':'+(idea.kind==='ph'||idea.kind==='pr'?g.inning:''); if(g.asked[key]) continue; g.ask=Object.assign({key},idea); return 'ask'; }
+    for(const side of [def,bat]){ const idea=side===def?ionaPitching(L,g,side):(ionaBatting(L,g,side)||ionaSteal(L,g,side)); if(!idea) continue;
+      if(side===g.manage){ const key=idea.key||idea.kind+':'+(idea.out||g.pitcher[side])+':'+(idea.kind==='ph'||idea.kind==='pr'?g.inning:''); if(g.asked[key]) continue; g.ask=Object.assign({key},idea); return 'ask'; }
       applyIdea(L,g,idea); }
     const b=gPlayer(L,g,bat,g.lineup[bat][g.order[bat]]), p=gPlayer(L,g,def,g.pitcher[def]);
     const glove=g.lineup[def].reduce((n,id)=>n+gPlayer(L,g,def,id).glove,0)/9, res=plateAppearance(g,formRatings(b),effective(g,def,p),glove);
@@ -120,7 +133,7 @@ function stepGame(L,g) {
   const pa=g.pa, pb=g.pbox[g.pitcher[def]];
   if(g.steal&&pa.i===0){ const {base}=g.steal, id=g.bases[base]; g.steal=null;
     if(id&&!g.bases[base+1]&&base<2){ const r=gPlayer(L,g,bat,id), cat=gPlayer(L,g,def,g.lineup[def].map(x=>gPlayer(L,g,def,x)).find(x=>x.pos==='C')?.id||g.lineup[def][0]), st=g.box[id]||(g.box[id]=bline());
-      const safe=rnd(g)<clamp(.62+(spd(r)-50)*.01-(cat.glove-50)*.005,.35,.92), to=['second','third'][base];
+      const safe=rnd(g)<stealChance(L,g,bat,base), to=['second','third'][base];
       if(safe){ g.bases[base+1]=id; g.bases[base]=0; st.sb++; snap(g,{kind:'play',steal:true,moves:[{id,from:base+1,to:base+2}],runs:0,t:r.name+' steals '+to+'!'}); }
       else { g.bases[base]=0; st.cs++; g.outs++; pb.outs++; snap(g,{kind:'play',steal:true,moves:[{id,from:base+1,to:base+2,out:true}],runs:0,t:r.name+' is thrown out trying to steal '+to+' by '+lastName(cat)+'.'});
         if(g.outs>=3){ g.pa=null; g.balls=0; g.strikes=0; return endHalf(L,g); } }

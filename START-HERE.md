@@ -99,6 +99,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-13 Codex: DM-N1d / PR #347 adds early managed steal decisions with actual odds/out costs, form-aware pinch-hit comparisons and immediate between-batter move controls. 128 game checks and phone/desktop/ultrawide reviews pass; aggregate 22/23, existing Little Ranch hint failure.
+
 - 2026-10-14, dot (Adam): PR #310 bounded review repair adds missing form model dependencies and rejects malformed live-game form metadata while preserving legacy resumes and Evan's ownership. Main documentation conflicts reconciled; four focused regressions and loader smoke pass, exact-head CI/UI evidence in the PR Tower; no merge/deploy.
 - 2026-10-13 Grok (Adam / abarish-dev): SF2.13 (H7) trust per adventurer in PR #325; 297 Starfall checks (19 new), all 23 suites pass with Godot 4.7.2. Merged, not published (Adam is holding the Starfall release for the ART-SF-8 art review).
 - 2026-10-13 Grok (Adam / abarish-dev): ART-SF-8 (H3) dresses Starfall's square and roads in PR #323; tools/art/starfall_square.py, 278 Starfall checks (6 new), all suites pass. Merged, not published: the exact-build preview release needs Adam's approval.

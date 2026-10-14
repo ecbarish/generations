@@ -467,4 +467,4 @@ T43 claimed by Codex, 2026-10-08, on codex/catalogue-realmbound: zone and dungeo
 
 | ID | Status | Scope |
 |---|---|---|
-| DM-N1d | Claimed: Codex / Evan | Current-cycle managed steal risk and pinch-hit comparisons; no new save schema or AI behavior |
+| DM-N1d | Ready: Codex / Evan, PR #347 | Current-cycle managed steal risk and pinch-hit comparisons; no new save schema or AI behavior |

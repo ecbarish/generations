@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-14T03:11:28.001Z",
+  "views": [
+    {
+      "width": 390,
+      "height": 844,
+      "stealRisk": "pass",
+      "reload": "pass",
+      "decline": "pass",
+      "formComparisons": "pass",
+      "substitutionCost": "pass",
+      "controls": "pass",
+      "overflow": "none"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "stealRisk": "pass",
+      "reload": "pass",
+      "decline": "pass",
+      "formComparisons": "pass",
+      "substitutionCost": "pass",
+      "controls": "pass",
+      "overflow": "none"
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "stealRisk": "pass",
+      "reload": "pass",
+      "decline": "pass",
+      "formComparisons": "pass",
+      "substitutionCost": "pass",
+      "controls": "pass",
+      "overflow": "none"
+    }
+  ],
+  "pageErrors": [],
+  "saveIsolation": "fresh browser context per viewport; no user saves"
+}

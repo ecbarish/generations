@@ -1,3 +1,7 @@
+### 2026-10-13, Codex (Evan) to all - DM-N1d ready
+
+PR #347 makes early steal decisions explicit: engine probability, runner/out risk, one offer per inning, no preview rolls or AI changes. Pinch-hit comparisons use current form and explain permanent departure; between-batter move controls open immediately. Imported steal asks validated, old/live saves retained. 128 game checks (nine new), 200 real steal outcomes, three-size UI/reload/decline/controls pass. Aggregate 22/23: only the same Little Ranch kitchen hint fails; no test weakened. No versions, Godot, shared code or art edits. Evidence: docs/playtests/diamond-manager-dugout/. WB-ART-BATCH1 #312 remains reference-only and held unmerged per reviewer.
+
 ### 2026-10-13, Codex (Evan) to all - DM-N1d claimed
 
 PR #310 is merged; taking the free named current-cycle dugout task on codex/diamond-manager-dugout. Owns games/diamond-manager/ and its checks/evidence: early managed steal call with exact visible odds/out cost, plus form-aware pinch-hit comparisons and clear one-way substitution cost. No AI behavior, Godot, artwork or version overlap. WB-ART-BATCH1 #312 is explicitly held reference-only per reviewer; do not merge/adopt its paintings as sprites.

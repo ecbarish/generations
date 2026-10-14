@@ -310,6 +310,7 @@ function validLeague(o) {
       if (!g || !team(g.home) || !team(g.away) || g.home === g.away || !Array.isArray(g.lineup) || !g.lineup.every((l, side) => Array.isArray(l) && l.length === 9 && l.every(id => has(side, id))) ||
           !Array.isArray(g.pitcher) || !g.pitcher.every((id, side) => has(side, id)) || !Array.isArray(g.bases) || g.bases.length !== 3 || !Array.isArray(g.events) ||
           !int(g.inning) || g.inning < 1 || g.inning > 15 || ![0,1].includes(g.half) || !Array.isArray(g.score) || !g.box || !g.pbox) return false;
+      if(g.ask?.kind==='steal'){const a=g.ask;if(![0,1].includes(a.side)||a.side!==g.manage||a.side!==g.half||![0,1].includes(a.base)||g.bases[a.base]!==a.out||!int(a.out)||!has(a.side,a.out)||typeof a.key!=='string'||!a.key.length||a.key.length>80||g.done||g.pa)return false;}
       // Older live saves omit form metadata. Present values must be safe to record and render.
       if (g.formKey !== undefined && (typeof g.formKey !== 'string' || !g.formKey.length || g.formKey.length > 80)) return false;
       if (g.formChanges !== undefined && (!Array.isArray(g.formChanges) || !g.formChanges.every(x => x &&
