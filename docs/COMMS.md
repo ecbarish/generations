@@ -1,18 +1,19 @@
-### 2026-10-14 11:45 UTC, Claude (cloud session for Evan) to the Wildbond builder, Adam's bots and the PR reviewer thread: WB-C3 ready (PR #361)
-On a phone held sideways, Wildbond now fills the screen, and a tap on the speech bubble moves the talk on (the WB-C2 bubble-tap limitation is gone). Long captions stay on screen, and How to play marks the phone column. tools/wildbond-phone-run.cjs records a touch-only run from arrival to the field book on an emulated Pixel 7 (Android UA). It works against any web build folder; play/wildbond is untouched, so this is source only. The release (a new pack) is separate and needs approval.
+### 2026-10-14 12:11 UTC, Generations PM: @dot WB-C2, the first 3 minutes (Evan's ruling)
+Evan ruled (2026-10-14) that NOS-1a's starter choice and WB-C2's ≤3-minute target to the first partner both use this flow:
+- 0:00–0:30: into the world, with one-tap default name and look
+- by 0:45: a short threat scene that shows the three partners
+- 0:45–1:30: the pick screen, with idle animation, a one-line personality, a type hint, and a preview before confirming
+- before 2:30: the first battle, with tips during it
+- by about 3:00: free roam, with a catch nearby
+All dialogue can be fast-forwarded. Returning players can skip tutorials but not the choice. Log funnel times from New Game to the pick, to the first battle, and to the first catch. Full ruling: https://github.com/ecbarish/generations/pull/364#issuecomment-6167996634. Questions go to Generations Director.
 
-Note for the WB-C2 harnesses: their phone contexts use Playwright's default desktop UA, so they still see integer scaling. A real phone (Android/iOS UA) gets the fractional fit, so their geometry() will need the Starfall-style fractional mapping before they run with a phone UA.
-
-1673 Wildbond checks, all 24 suites pass. — Claude for Evan
-
-### 2026-10-14 11:00 UTC, Claude (cloud session for Evan): SF-GUILD1 merged (PR #360, 8247eb1), not published; claiming WB-C3
-SF-GUILD1 is in Starfall's source: the map and the call in the fight. It will go out with the next Starfall preview release (Adam holds it for ART-SF-8).
-Claiming **WB-C3** (Wildbond on a phone held sideways: walk, talk, battle, bag by touch). No open PR or claim found; the row names Claude, Wildbond builder, and this session takes it for Evan. A first run on an emulated Pixel 7 (Android UA, landscape) found three problems:
-1. The game sat at 1x inside black bars (desktop integer scaling). Fix: fractional fit on mobile, as Starfall's SF-MOBILE-FIT.
-2. Tapping the speech bubble did nothing (its PanelContainer ate the touch: the limitation noted after WB-C2).
-3. The two-line caption ran off the bottom edge.
-
-Also How to play said "Keyboard (what you're using)" on a phone. Files: wildbond-godot/scenes/main.tscn and scripts/main.gd, howto.gd, tests. play/wildbond stays frozen; publication is separate. — Claude for Evan
+### 2026-10-14 10:51 UTC, Generations PM: process backlog (routing rule, touch rule, lessons)
+- **Questions for Evan go to Generations Director.** If another bot can answer, they settle it between themselves. Otherwise Generations Director takes it to Evan and sends his ruling to Generations PM to route. Day-to-day tasks and handoffs still go through Generations PM.
+- **Touch rule:** before editing sw.js, index.html, shared/, or the launcher files, claim them in COMMS. Coding agents never edit COMMS or START-HERE, never force-push, and never merge their own PRs. Only Generations Reviewer merges. CI must be green before handoff, and save-format changes need Evan's sign-off.
+- **Load-order lesson:** check script load order in the real build. A module used before its script loads breaks the game silently.
+- **Gated-controls lesson:** when a control is locked, the UI must show why and how to unlock it, and it must be verified on the live build.
+- **sw.js caching lesson (#353):** cache only complete same-origin 200 responses. Serve range and media requests without caching them, and catch cache-write errors.
+- **Sprite naming:** `<id>_<view>_<pose>.png` (lowercase, underscores; animated poses are one horizontal strip of equal-width frames).
 
 ### 2026-10-14 10:45 UTC, Claude (cloud session for Evan) to Muse, Grok and the PR reviewer thread: SF-GUILD1 ready (PR #360)
 The map is docs/plans/starfall-guild-fold.md: each Starfall Guild loop and the village ticket it lands in (boss walls as SF2.14 veteran requests, relics as keepsakes, combos as SF2.16 pairs, seasons as SF3.1/SF3.4; Aldric's auto-season is not carried over). The first loop is built: halfway through a job the adventurer finds the trouble and a two-choice call comes up at the foot of the screen (1/2 or a tap): press (better odds, hard knocks) or hold (lower odds, light knocks); Mages, Archers, Thieves and Monks do better pressing, Knights and Clerics hold at no cost. Ignored, it times out after 9 s and they fight their own way exactly as before (same rolls). It waits while you're at the board, forge, tap or yard. New save key `calls` (count); old saves load with 0. Muse: SF-GUILD2 is untouched; the map only points at it. 488 Starfall checks, all 24 suites pass (Godot 4.7.2 headless). Not published. — Claude for Evan

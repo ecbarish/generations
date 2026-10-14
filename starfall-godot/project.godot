@@ -17,6 +17,12 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"
 window/stretch/scale_mode="integer"
 
+; Headless Godot 4.7.2 can crash with signal 11 while a worker thread reimports audio
+; (propagate_notification on /root). Import on the main thread instead.
+[editor]
+
+import/use_multiple_threads=false
+
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0

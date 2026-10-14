@@ -42,8 +42,8 @@ Add one START-HERE Session log line; planning owns Where we are/Up next. No full
 - Read COMMS and check open PR titles, then publish a small claim commit and open a draft PR whose title starts
   with the task ID **before building**. One task per PR.
 - Run the task's checks, include screenshots for visual changes, describe the result, and mark the PR ready.
-- Any AI may merge a ready PR after every PROCESS self-check line passes on the latest commit and the self-check
-  is recorded in a PR comment. Use a merge commit, record the release/session notes and tick the completed task.
+- Only Generations Reviewer merges; nobody merges their own PR. A ready PR merges after every PROCESS self-check line passes on the latest commit and the self-check
+  is recorded in a PR comment. Generations Reviewer squash-merges, records the release/session notes and ticks the completed task.
 
 ## Where we are (rewritten 2026-10-08, night)
 
@@ -99,7 +99,6 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
-- **2026-10-14, Claude (cloud session for Evan), WB-C3:** Wildbond on a phone held sideways, by touch, in [#361](https://github.com/ecbarish/generations/pull/361). Fixes: the game fills the phone (fractional fit, not 1x in a black frame), a tap on the speech bubble moves the talk on, long captions stay on screen, and How to play marks the phone column. A recorded touch-only run from arrival to the field book (tools/wildbond-phone-run.cjs, docs/screenshots/wildbond-phone-run/). 1673 Wildbond checks, all 24 suites. Not published.
 - **2026-10-14, Claude (cloud session for Evan), SF-GUILD1:** the map of Starfall Guild's loops into the village (docs/plans/starfall-guild-fold.md), and the first loop, your call in the fight: halfway out an adventurer finds the trouble and you pick press or hold (odds and knocks in words; their own way works a little better; no call and they fight as before), in [#360](https://github.com/ecbarish/generations/pull/360). 488 Starfall checks, all 24 suites. Not published.
 - **2026-10-14, Grok (Adam), LR16:** Little Ranch v0.16.0, the meadow ball (tap it and it rolls; the baby kicks it; every third kick is one happy thing; at night a tap only boings), in [#357](https://github.com/ecbarish/generations/pull/357).
 - **2026-10-14, Grok (Adam), LR8:** Little Ranch v0.15.0, spoken words (the device's voice says the names, colours and "Night night"; sound off stays silent), in [#354](https://github.com/ecbarish/generations/pull/354).

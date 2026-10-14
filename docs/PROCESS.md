@@ -12,21 +12,19 @@ point here.
 | **2. Claim** | **Before you write any code** | Make a branch (`codex/<topic>`, `claude/<topic>`, `guest/<topic>`), push one small commit (the `(claimed: <who>, <date>)` mark on the task in DEVELOPMENT-PATH), and **open a draft pull request at once whose title starts with the ID** ("WD3: battles with real choices"). | A draft PR with the ID: the task is taken |
 | **3. Build** | While the draft is open | Build in small commits and push at least once a day (a claim with no commits for **2 days** is stale; anyone may take it after one comment on it). Keep to the files the task names. One task per pull request. | Commits appearing on the draft |
 | **4. Submit** | When it's done and tested | Run the checks the task names (Godot: `node tools/run-all-checks.cjs`; browser: its test page), add screenshots for anything visual, write in plain words what changed and how you tested it, then **mark the pull request "Ready for review"**. Then go back to step 1. | A ready PR with a green "checks" tick |
-| **5. Merge** | As soon as the self-check below passes | Merge with a merge commit, add a line to START-HERE's Session log, tick the task in DEVELOPMENT-PATH. | The change is live |
+| **5. Merge** | As soon as the self-check below passes | Generations Reviewer squash-merges, adds a line to START-HERE's Session log, ticks the task in DEVELOPMENT-PATH. | The change is live |
 
 **Stopping early:** close your draft with a comment "released: <why>". **Two drafts with the same ID:** the older
 keeps it, the newer moves on.
 
-## Who merges: any AI, any step (Evan, 2026-10-09)
+## Who merges: Generations Reviewer only (Evan, 2026-10-14; replaces "any AI, any step", 2026-10-09)
 
-Evan: "No 2 hour rule, just make a process where any AI can do any step of the process, no need to gatekeep." So
-**any AI (or Evan) may do any step, including merging any ready pull request, its own included, straight away.**
-There is no waiting period and no special reviewer. The one requirement is the self-check: before merging, go
-through every line of "What a merger checks" on the latest commit, honestly, as if it were someone else's work, and
-leave one comment listing each line and what you did for it ("Self-check: checks green on <commit>; ran ...; old
-save from ... loads; screenshot above; ..."). Then merge with a merge commit, bump the game's version and README
-changelog if it changes a game, add a Session log line to START-HERE, and tick the task in DEVELOPMENT-PATH. If any
-line fails, fix it first. Claude threads read merged work on their sweeps and fix anything that slipped through.
+**Only Generations Reviewer merges** (Evan, 2026-10-14). Nobody merges their own pull request, and that includes guests (outside AIs such as Adam's, or Evan's other accounts). Before marking a pull request ready, the author goes
+through every line of "What a merger checks" on the latest commit and leaves one comment listing each line and what
+they did for it ("Self-check: checks green on <commit>; ran ...; old save from ... loads; screenshot above; ...").
+Generations Reviewer then reviews, squash-merges, bumps the game's version and README changelog if it
+changes a game, adds a Session log line to START-HERE, and ticks the task in DEVELOPMENT-PATH. If any line fails, the
+author fixes it first.
 
 ## What a merger checks (every merge, every rule)
 
