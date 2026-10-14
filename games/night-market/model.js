@@ -194,7 +194,7 @@
   function paybackLabel(seconds) {
     if (!(seconds > 0) || !isFinite(seconds)) return '';
     if (seconds >= 60) return Arcade.fmtTime(Math.round(seconds));
-    return Arcade.fmt(seconds) + 's';
+    return Math.max(1, Math.round(seconds)) + 's'; // whole seconds: "22s", never "22.0s" (playtest fix)
   }
 
   function paybackLine(state, i) {
@@ -357,6 +357,7 @@
     secondsToNext: secondsToNext,
     paybackSeconds: paybackSeconds,
     paybackLine: paybackLine,
+    paybackLabel: paybackLabel,
     awayRule: awayRule,
     goal: goal,
     lookLine: lookLine,
