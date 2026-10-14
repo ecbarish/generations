@@ -42,6 +42,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Lantern Bowl v0.1.6 — play screen and slingshot passing (PR #432; version bumped on merge):** The field has new play art and a playbook. Slingshot passing lets you pull back to throw. A landing circle stays on screen on deep throws. An overthrown pass says "Overthrown: too much power". On phones, a turn-sideways prompt in portrait pauses the game. The save stays version 2.
 - **Night Market Stalls v0.1.2 — playtest fixes (PR #434; version bumped on merge):** Holding the pour button keeps pouring, about eight cups a second. A cups bar and counter show how close the stall is to its vendor. The pour button stays after you hire. The save box is styled, and its backup list refreshes each time it opens. Payback times show whole seconds. The save stays version 1.
 - **Little Ranch v0.18.2 — LRL-1 (PR #417; version bumped on merge):** The visit ends at bedtime from any of the five rooms once 6 minutes or 12 activities are reached. A toy you are in the middle of gets at most 6 more seconds, and an unfinished toy earns no reward.
 - **Little Ranch v0.18.1 — LR-LAYOUT-1 (PR #424; version bumped on merge):** Cookies hop clear of the cutter. The sponge, ball and flowers no longer overlap on phones.
