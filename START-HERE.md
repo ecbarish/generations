@@ -43,7 +43,7 @@ Add one START-HERE Session log line; planning owns Where we are/Up next. No full
   with the task ID **before building**. One task per PR.
 - Run the task's checks, include screenshots for visual changes, describe the result, and mark the PR ready.
 - Only Generations Reviewer merges; nobody merges their own PR. A ready PR merges after every PROCESS self-check line passes on the latest commit and the self-check
-  is recorded in a PR comment. Use a merge commit, record the release/session notes and tick the completed task.
+  is recorded in a PR comment. Generations Reviewer squash-merges, record the release/session notes and tick the completed task.
 
 ## Where we are (rewritten 2026-10-08, night)
 
