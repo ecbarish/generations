@@ -68,6 +68,7 @@ func _run() -> void:
 	main.register.keep = false
 	main.rng.seed = 2026                          # the same rolls every run, so the checks always see the same story
 	main.battle.rng.seed = 2026
+	preload("res://tests/opening_dialogue.gd").run(main, check)
 	var D: Dictionary = main.DATA
 	# WB-C2: keep every heritage clue and every starter identity through the shorter opening.
 	for family in main.HERITAGES:

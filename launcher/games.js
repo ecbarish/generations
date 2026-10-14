@@ -59,7 +59,7 @@ window.ArcadeGames=[
    blurb:'Coach the Brackenport Lanterns for one game at Lamplight Field. Call the play, then throw, juke and dive against Millrace.',
    tags:['Football','You play the snaps','Two-minute quarters'],cover:'lantern',
    kind:'sports',goal:'Play your offence for a whole game. Drag to throw, swipe to juke, tap to dive, and hold Turbo until your wind gives out.',
-   controls:'Drag up to throw (a short pull is a bullet, a long pull is a lob). Swipe sideways to juke. Tap to dive. Turbo is the button. Keys 1–4 call a play.'},
+   controls:'Drag right to throw (a short pull is a bullet, a long pull is a lob). Swipe sideways to juke. Tap to dive. Turbo is the button. Keys 1–4 call a play.'},
   {id:'otherworld',title:'Otherworld',tcls:'t-otherworld',status:['Prototype','s-proto'],href:'games/otherworld/index.html',
    blurb:'A story life sim, not idle management. Your old life ends, and in the Between you choose a new world and one gift with a cost. Every scene gives you real choices. Reach an ending, and the Memories carried ledger shows what your soul keeps and which new choices it opens in the next life.',
    tags:['Story life sim','Branching choices','Reincarnation'],cover:'otherworld',

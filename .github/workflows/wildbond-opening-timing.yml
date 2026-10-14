@@ -31,6 +31,16 @@ jobs:
           echo "GODOT=$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends xvfb libgl1-mesa-dri imagemagick
+      - name: Headless default New Game through first catch
+        if: matrix.method == 'keyboard' && matrix.starter == 0
+        run: |
+          set -euo pipefail
+          export HOME="$RUNNER_TEMP/funnel-headless-home"
+          export XDG_DATA_HOME="$HOME/data" XDG_CACHE_HOME="$HOME/cache"
+          mkdir -p "$XDG_DATA_HOME" "$XDG_CACHE_HOME" opening-review/headless
+          timeout 180 "$GODOT" --headless --path wildbond-godot --editor --import --quit
+          SOURCE_SHA="$(git rev-parse HEAD)" OPENING_RAPID=1 OPENING_OUTPUT="$PWD/opening-review/headless" timeout 180 "$GODOT" --headless --path wildbond-godot --fixed-fps 60 --script "$PWD/tools/audit/wildbond_opening_timing.gd" |& tee opening-review/headless/run.log
+          python3 tools/audit/validate_wildbond_opening_timing.py opening-review/headless --single
       - name: Compare rendered baseline and current through normal inputs
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
