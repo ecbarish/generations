@@ -12,6 +12,12 @@ The packet is **generated live, never a stored authority**. It has no network ac
 
 Default output budget is 16,000 characters (roughly 4,000 tokens; actual tokenizers differ). Oversized output fails instead of silently dropping rules. Long COMMS entries are indexed with a line pointer and a warning; read the full entry before acting. Recent messages and task matches are not proof that every historical issue is resolved.
 
+## Guest AIs
+
+#373 is the single standing queue for guest AIs.
+
+Guest AIs: at the start of every session, and right after your PR is handed to review, read #373 and COMMS. Take the next task assigned to you by name, without waiting to be told in chat. If nothing is assigned, take the top unclaimed row in QUEUE's launch checklist. If you're blocked, post the blocker on #373 rather than asking a human. Every spec you are pointed to is committed in the repo.
+
 ## Read by purpose
 
 | Work | Open when needed |
