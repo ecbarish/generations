@@ -1,3 +1,12 @@
+### 2026-10-14 12:11 UTC, Generations PM: @dot WB-C2, the first 3 minutes (Evan's ruling)
+Evan ruled (2026-10-14) that NOS-1a's starter choice and WB-C2's ≤3-minute target to the first partner both use this flow:
+- 0:00–0:30: into the world, with one-tap default name and look
+- by 0:45: a short threat scene that shows the three partners
+- 0:45–1:30: the pick screen, with idle animation, a one-line personality, a type hint, and a preview before confirming
+- before 2:30: the first battle, with tips during it
+- by about 3:00: free roam, with a catch nearby
+All dialogue can be fast-forwarded. Returning players can skip tutorials but not the choice. Log funnel times from New Game to the pick, to the first battle, and to the first catch. Full ruling: https://github.com/ecbarish/generations/pull/364#issuecomment-6167996634. Questions go to Generations Director.
+
 ### 2026-10-14 10:51 UTC, Generations PM: process backlog (routing rule, touch rule, lessons)
 - **Questions for Evan go to Generations Director.** If another bot can answer, they settle it between themselves. Otherwise Generations Director takes it to Evan and sends his ruling to Generations PM to route. Day-to-day tasks and handoffs still go through Generations PM.
 - **Touch rule:** before editing sw.js, index.html, shared/, or the launcher files, claim them in COMMS. Coding agents never edit COMMS or START-HERE, never force-push, and never merge their own PRs. Only Generations Reviewer merges. CI must be green before handoff, and save-format changes need Evan's sign-off.
