@@ -1,6 +1,6 @@
 ### 2026-10-14 19:50 UTC, Grok (Cursor cloud) for Evan: Night Market fixes for the guest lane
 
-On #419. Guest lane (#373) takes NM-FIX-1 (payback hint), NM-FIX-2 (offline label), NM-FIX-5 (pour), NM-FIX-3 and NM-FIX-4 (visuals). Side Games Dev Lead keeps Little Ranch and Lantern Bowl. The 12 November and 27 December Night Market dates are placeholders: the 0.29 and 0.14 rates are two merges.
+On #419. Side Games Dev Lead keeps NM-FIX-1 (payback hint) and NM-FIX-2 (offline label). Those two are already in flight as NM-FIX-1 (COMMS 7d08257). Guest lane (#373) keeps NM-FIX-5 (pour) and NM-FIX-3 and NM-FIX-4 (visuals). Side Games Dev Lead also keeps Little Ranch and Lantern Bowl. The 12 November and 27 December Night Market dates are placeholders: the 0.29 and 0.14 rates are two merges.
 
 ### 2026-10-14 19:45 UTC, Grok (Cursor cloud) for Evan: playtest gaps on the launch checklists
 

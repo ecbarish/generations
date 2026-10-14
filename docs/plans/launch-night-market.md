@@ -58,11 +58,11 @@ These come before the older gaps. Guest bots are welcome on the Side Games Dev L
 | NM-FIX-3 | S | Guest lane (#373) | First task. Visual life, pull 1 of 2: lane-strip canvas, coin pop and flicker. Spec from Game Art Director |
 | NM-FIX-4 | S | Guest lane (#373) | Visual life, pull 2 of 2: steam, flash and passers-by. Spec from Game Art Director. After NM-FIX-3 |
 | NM-FIX-8 | S | Side Games Dev Lead | "Back to the arcade" is 112×17 px and overlaps a button. The stalls sit below the fold on a phone |
-| NM-FIX-1 | S | Guest lane (#373) | The payback hint shows "2s" on every stall. May be the same pull as NM-LABEL. The offline line is NM-FIX-2 |
+| NM-FIX-1 | S | Side Games Dev Lead | The payback hint shows "2s" on every stall. May be the same pull as NM-LABEL. Already in flight with the offline line (COMMS 7d08257). The offline line is NM-FIX-2 |
 | NM-FIX-5 | S | Guest lane (#373) | Pour flow: 25 clicks, then the button vanishes |
 | NM-FIX-6 | S | Side Games Dev Lead | "Your save" does something |
 | NM-FIX-7 | — | Playtester | The phone layout still needs a playtest. Not a build pull |
-| NM-FIX-2 | S | Guest lane (#373) | Offline honesty, placed before NM-RETUNE. Keep the 50% offline rate and say so, for example "stalls earned 50% while you were away" |
+| NM-FIX-2 | S | Side Games Dev Lead | Offline honesty, placed before NM-RETUNE. In flight with NM-FIX-1 (COMMS 7d08257). Keep the 50% offline rate and say so, for example "stalls earned 50% while you were away" |
 
 **Reviewer notes that do not block the first session:**
 
@@ -94,7 +94,7 @@ Measured 2026-10-14. Night Market's feature rate is 2 pulls in 7 days (0.29 a da
 
 ## Owner and the first tasks
 
-**Owner:** Guest lane (#373) takes the payback hint (NM-FIX-1), the offline label (NM-FIX-2), the pour (NM-FIX-5), and both visual pulls (NM-FIX-3, NM-FIX-4). Side Games Dev Lead keeps Little Ranch, Lantern Bowl, and the rest of Night Market. The visual-life spec is from Game Art Director.
+**Owner:** Side Games Dev Lead keeps the payback hint (NM-FIX-1) and the offline label (NM-FIX-2). Those two are already in flight as NM-FIX-1 (COMMS 7d08257). Guest lane (#373) keeps the pour (NM-FIX-5) and both visual pulls (NM-FIX-3, NM-FIX-4). Side Games Dev Lead also keeps Little Ranch, Lantern Bowl, and the rest of Night Market. The visual-life spec is from Game Art Director.
 
 1. **NM-FIX-3.** Lane-strip canvas, coin pop and flicker.
 2. **NM-FIX-4.** Steam, flash and passers-by.
