@@ -1,0 +1,77 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Keymaster checks</title><style>body{font:16px system-ui;background:#2a2420;color:#f4eddc;padding:20px}.pass{color:#9ee7ba}.fail{color:#ffaaa6}button{min-height:44px}iframe{width:375px;height:812px;border:0;background:#fff}</style><h1>Keymaster checks</h1><button id="run">Run checks</button><p id="summary">Ready.</p><ol id="results"></ol><div id="game"></div><script>
+'use strict';
+// KM0: the deal analyzer's arithmetic, the sellers' answers, the first year, and the real buttons on phone and desktop.
+document.querySelector('#run').onclick=async()=>{
+ const sum=document.querySelector('#summary'),list=document.querySelector('#results'),button=document.querySelector('#run');
+ button.disabled=true;list.replaceChildren();sum.textContent='Running…';let frame,n=0;
+ const keys=Object.keys(localStorage).slice().sort().join('|');
+ const check=(name,ok)=>{n++;const li=document.createElement('li');li.className=ok?'pass':'fail';li.textContent=(ok?'PASS — ':'FAIL — ')+name;list.appendChild(li);if(!ok)throw Error(name);};
+ const near=(a,b,e=0.01)=>Math.abs(a-b)<=e;const wait=(ms=60)=>new Promise(r=>setTimeout(r,ms));
+ try{
+  frame=document.createElement('iframe');frame.title='Keymaster test instance';frame.src='../games/keymaster/index.html';
+  await new Promise((r,j)=>{const t=setTimeout(()=>j(Error('load timed out')),20000);frame.onload=()=>{clearTimeout(t);r();};document.querySelector('#game').appendChild(frame);});
+  const w=frame.contentWindow,d=w.document,H=w.__keymaster,M=H.M,L=M.LISTING;
+  const click=sel=>{const b=d.querySelector(sel);if(!b)throw Error('no button '+sel);b.click();};
+  const text=sel=>d.querySelector(sel).textContent;
+  check('the game loads with its test hook and one listing',!!H&&L.ask===240000&&text('#addr')===L.address);
+  // ---- the arithmetic, checkable on paper
+  check('mortgage: $180,000 at 7% over 30 years is $1,197.54 a month',near(M.payment(180000,0.07,30),1197.54,0.01));
+  check('a zero loan has no payment',M.payment(0,0.07,30)===0);
+  check('first year pays down $1,828 of a $180,000 loan',near(M.principalYearOne(180000,0.07,30),1828,1));
+  const a=M.analyze({price:216000,down:0.25,rehab:'full'});
+  check('rent is both units: $1,100 + $1,200',a.rent===2300);
+  check('set aside 10% of rent for empty months and repairs',near(a.setAside,230));
+  check('taxes and insurance are $425 a month',near(a.fixed,425));
+  check('net income a year: (2300 − 230 − 425) × 12 = $19,740',near(a.noi,19740));
+  check('cap rate is net income on price (9.1%)',near(a.capRate,19740/216000,1e-9));
+  check('cash in is down payment + 3% closing + the work',near(a.cashIn,54000+6480+18000));
+  check('cash-on-cash is a year of cash flow on the cash in',near(a.cashOnCash,a.cashFlow*12/a.cashIn,1e-9));
+  check('the 1% rule: $2,300 on $216,000 passes',a.onePercent>=0.01);
+  check('after-repair value is net income over the 7.5% local cap rate, to the nearest $1,000',a.arv===263000);
+  check('equity on day one is value less price and work',a.equity===263000-216000-18000);
+  check('a bigger down payment means a smaller mortgage',M.analyze({price:216000,down:0.25,rehab:'full'}).mortgage<M.analyze({price:216000,down:0.2,rehab:'full'}).mortgage);
+  // ---- the sellers
+  check('at 90% of asking or more they say yes',M.respond(216000).answer==='yes'&&M.respond(240000).answer==='yes');
+  check('from 84% to just under 90% they counter at 90%',M.respond(210000).answer==='counter'&&M.respond(210000).price===216000&&M.respond(202000).answer==='counter');
+  check('below 84% they say no',M.respond(200000).answer==='no');
+  // ---- the first year and its verdict
+  const y=M.firstYear({price:216000,down:0.25,rehab:'full'});
+  check('the year has twelve months, the furnace in May and Unit A empty in September',y.months.length===12&&y.months[4].cost===1400&&y.months[8].rent===1200);
+  check('the year adds up: cash + loan paid down + day-one equity',near(y.total,y.cash+y.principal+y.equity,1e-6));
+  check('growth is shown but not counted',y.growth>0&&!near(y.total,y.cash+y.principal+y.equity+y.growth,1));
+  check('buying right is a great buy (216k, full renovation)',M.verdict(y.onCash).word==='A great buy');
+  check('overpaying as-is is a costly buy (240k)',M.verdict(M.firstYear({price:240000,down:0.25,rehab:'asis'}).onCash).word==='A costly buy');
+  check('asking price with the full renovation is solid, not great',M.verdict(M.firstYear({price:240000,down:0.25,rehab:'full'}).onCash).word==='A solid buy');
+  // ---- the real buttons
+  check('it opens at asking, 25% down, the refresh',text('#offer')==='$240,000'&&d.querySelector('[data-down="0.25"]').getAttribute('aria-checked')==='true'&&d.querySelector('[data-rehab="refresh"]').getAttribute('aria-checked')==='true');
+  const flow0=text('#flow');click('[data-offer="-2000"]');
+  check('− lowers the offer by $2,000 and the worksheet follows',text('#offer')==='$238,000'&&text('#flow')!==flow0);
+  click('[data-rehab="full"]');check('choosing the full renovation changes the rent',text('#rent')==='$2,300');
+  click('[data-down="0.2"]');check('20% down borrows 80%',/80% borrowed/.test(text('#loanLabel')));click('[data-down="0.25"]');
+  for(let i=0;i<14;i++)click('[data-offer="-2000"]');
+  check('offering $210,000 shows the measures in their colours',text('#offer')==='$210,000'&&d.querySelector('[data-m="one"]').className==='good');
+  click('#offerBtn');await wait();
+  check('a low offer gets a counter at $216,000',!d.querySelector('#answer').hidden&&/216,000/.test(text('#answer'))&&!!d.querySelector('[data-act="take"]'));
+  check('the worksheet is locked while you answer',d.querySelector('#offerBtn').disabled&&d.querySelector('[data-offer="2000"]').disabled);
+  click('[data-act="take"]');await wait();
+  check('taking the counter buys it: the year shows twelve months and a verdict',d.querySelectorAll('.months li').length===12&&/A great buy/.test(text('#answer'))&&text('#offer')==='$216,000');
+  click('[data-act="again"]');await wait();
+  check('try again goes back to the start',text('#offer')==='$240,000'&&d.querySelector('#answer').hidden&&!d.querySelector('#offerBtn').disabled);
+  for(let i=0;i<25;i++)click('[data-offer="-2000"]');
+  click('#offerBtn');await wait();check('a lowball gets a no, with one more try',/They say no/.test(text('#answer'))&&!d.querySelector('#offerBtn').disabled);
+  click('#offerBtn');await wait();check('a second no and they sell to someone else',/another buyer/.test(text('#answer'))&&d.querySelector('#offerBtn').disabled);
+  click('[data-act="again"]');await wait();click('#passBtn');await wait();
+  check('passing shows what the next buyer made',/Another investor bought it for \$216,000/.test(text('#answer')));
+  click('[data-act="again"]');await wait();
+  for(let i=0;i<30;i++)click('[data-offer="2000"]');check('the offer has a ceiling',text('#offer')==='$260,000'&&d.querySelector('[data-offer="2000"]').disabled);
+  // ---- phone and desktop
+  for(const [width,height] of [[320,568],[375,812],[812,375],[1366,768],[1920,1080]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(120);
+   check(width+'×'+height+': nothing spills sideways',d.documentElement.scrollWidth<=width);
+   check(width+'×'+height+': every button is at least 44px tall',Array.from(d.querySelectorAll('button')).filter(b=>b.offsetParent!==null).every(b=>b.getBoundingClientRect().height>=44));
+  }
+  check('nothing is saved',Object.keys(localStorage).slice().sort().join('|')===keys);
+  sum.textContent='PASS — '+n+' checks.';
+ }catch(e){sum.textContent='FAIL — '+e.message;}finally{if(frame)frame.remove();button.disabled=false;}
+};
+</script></html>
