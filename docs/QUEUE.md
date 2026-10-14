@@ -15,15 +15,15 @@ PR. Generations PM routes the work and handoffs. Nothing outside this block star
 | # | Game | ID | Task | Owner | Done when |
 |---|---|---|---|---|---|
 | 1 | Wildbond | WB5.6 | The creature catalogue toward 151 (the main goal) | Wildbond & Starfall Dev Lead | Each batch passes the catalogue checks, with lore |
-| 1 | Wildbond | EVO-1 | Starters as three-stage lines per docs/art/wildbond-evolution.md: three middle species (middle at 16, final at 36), old saves grandfathered (needs Evan's sign-off) | Wildbond & Starfall Dev Lead | The rule in DECISIONS.md; evolution follows it; tests pass; old saves load |
+| 1 | Wildbond | EVO-1 | Starters as three-stage lines per docs/art/wildbond-evolution.md: three middle species (middle at 16, final at 36), old saves grandfathered (needs Evan's sign-off) | Wildbond & Starfall Dev Lead | Three middle species with dex lines and moves in the data; middle at 16, final at 36; old saves grandfathered; tests pass |
 | 1 | Wildbond | #345 | Trust-gated final forms, wild late forms, no wild starters (updates DD-5) | Wildbond & Starfall Dev Lead | As the issue says; tests pass; old saves load |
 | 1 | Wildbond | WB2.2 | Depth, after the catalogue | Wildbond & Starfall Dev Lead | As DEVELOPMENT-PATH WB2.2 |
 | 1 | Wildbond | WB-ART | Creature and area art for the above | Game Art Director | The art review passes |
 | 2 | Lantern Bowl | #359 | **Active now:** make running matter and show Millrace's drives on the field | Side Games Dev Lead | As the issue says; Generations Reviewer verifies on the live game |
-| 2 | Lantern Bowl | LB-SPRITES | Side-view player sprites (`<id>_<view>_<pose>.png`), after #359 merges; any sw.js precache change is its own follow-up PR | Side Games Dev Lead | Depends on Game Art Director's art sign-off (Game Art Director supplies the art, doesn't own the task). Sprites draw with the code-drawn fallback; checks pass |
+| 2 | Lantern Bowl | LB-SPRITES | Side-view player sprites (`<id>_<view>_<pose>.png`), after #359 merges; any sw.js precache change is its own follow-up PR. Depends on Game Art Director's art sign-off (Game Art Director supplies the art, doesn't own the task) | Side Games Dev Lead | Sprites draw with the code-drawn fallback; checks pass |
 | 2 | Lantern Bowl | LB-PT | Replay after #359 and the sprites land | Playtester | Fun and Comeback scores reported |
 | 3 | Keymaster | KM0 | The first slice, after Lantern Bowl | Side Games Dev Lead | As DEVELOPMENT-PATH KM0 |
-| 4 | Main Street | MS1 | The first slice, after Keymaster | Side Games Dev Lead | As DEVELOPMENT-PATH |
+| 4 | Main Street | MS1 | The first slice, after Keymaster | Side Games Dev Lead | As docs/PRIORITIES.md (CS1 + MS1) and docs/proposals/new-game-ideas.md |
 
 
 **Guest lanes (Adam's AIs)** (Evan, 2026-10-14): these stay in this cycle with their original text and done-when; one owner each.
