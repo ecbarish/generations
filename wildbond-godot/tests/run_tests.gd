@@ -1853,6 +1853,7 @@ func _run() -> void:
 	main.battle.visible = false
 	main.battle.state = ""
 	preload("res://tests/battle_choices.gd").run(main, check)
+	preload("res://tests/fair_start.gd").run(main, check)
 	preload("res://tests/wild_bond.gd").run(main, check)
 	preload("res://tests/reveal.gd").run(main, check)
 	preload("res://tests/key_hints.gd").run(main, check)

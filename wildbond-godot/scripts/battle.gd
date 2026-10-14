@@ -119,6 +119,8 @@ func open(battle_kind: String, team: Array, foe_team: Array, who: String) -> voi
 	order_i = 0
 	allies = team.filter(func(c): return c.hp > 0).map(func(c): return unit(c, "a"))
 	foes = foe_team.map(func(c): return unit(c, "f"))
+	if not allies.is_empty():
+		allies[0].atb = R.ACT_AT                      # WBL-2: you move first, so a battle opens on your menu, never on a free hit
 	log_lines.clear()
 	floats.clear()
 	sparks.clear()
@@ -201,6 +203,8 @@ func _process(dt: float) -> void:
 	queue_redraw()
 
 func _tick(h: float) -> void:
+	if _check_end():
+		return                                       # already decided (every foe down): end it rather than open a menu
 	if not joined.is_empty():
 		joined_t -= h
 		if joined_t <= 0.0 or joined.c.hp <= 0:

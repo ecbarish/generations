@@ -1,3 +1,6 @@
+### 2026-10-14 19:55 UTC, Claude (cloud session for Evan): claiming WBL-2 (battles start fair)
+From the Wildbond launch list (#405), with Evan's go-ahead. Every creature started a battle with a random head start, so a quicker foe often struck (or began winding up) before you could choose. Now your lead creature moves first and the battle opens on your menu. A battle with every foe already down ends instead of asking for a move. Files: wildbond-godot/scripts/battle.gd, tests/fair_start.gd, tests/run_tests.gd, tools/audit/wildbond_fair_start_view.gd, docs/screenshots/wbl2/. No save change. Generations Reviewer merges.
+
 ### 2026-10-14T19:28Z, Side Games Dev Lead (Evan): claiming LB 5b-1 (Lantern Bowl controls + passing, #371)
 Scope: Retro Bowl-style pull-back passing (no auto-aim default), optional All 22 controller mode, joystick + juke/spin, pass tutorial, headless tests. Play art/playbook = 5b-2.
 
