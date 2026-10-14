@@ -99,7 +99,13 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
-- 2026-10-13 Codex: DM-N1c / PR #310 adds bounded hot/cold next-game ratings, visible base values and Iona result feedback; 114 Diamond Manager checks and phone/desktop/ultrawide views pass. Aggregate 21/22, existing Little Ranch kitchen hint still failing.
+- 2026-10-14, dot (Adam): PR #310 bounded review repair adds missing form model dependencies and rejects malformed live-game form metadata while preserving legacy resumes and Evan's ownership. Main documentation conflicts reconciled; four focused regressions and loader smoke pass, exact-head CI/UI evidence in the PR Tower; no merge/deploy.
+
+- 2026-10-13 Grok (Adam / abarish-dev): ART-SF-8 (H3) dresses Starfall's square and roads in PR #323; tools/art/starfall_square.py, 278 Starfall checks (6 new), all suites pass. Merged, not published: the exact-build preview release needs Adam's approval.
+- **2026-10-13, dot (Adam), CHAR-BROWSER1:** Completed portable character-bench browser selection in [#318](https://github.com/ecbarish/generations/pull/318); Adam authorized merge. Seven focused cases, 113 unchanged bench checks and 22 aggregate suites passed on 87e5852; refreshed main is rechecked before merge. [Evidence](docs/playtests/character-browser/README.md); final merge/check status in PR Tower. Tooling only, no game/art release.
+
+- **2026-10-13, Grok (Adam), LR7:** Little Ranch v0.14.0, the bedtime routine (toothbrush, cup, goodnight to the flowers and the Pebblit, then the lullaby; steps do themselves if left), in [#313](https://github.com/ecbarish/generations/pull/313).
+- 2026-10-13 18:02 UTC Codex (historical implementation result): DM-N1c / PR #310 adds bounded hot/cold next-game ratings, visible base values and Iona result feedback; 114 Diamond Manager checks and phone/desktop/ultrawide views pass. Aggregate 21/22, existing Little Ranch kitchen hint still failing.
 
 - **2026-10-13, Grok (Adam), LR-POLISH-1:** Little Ranch v0.13.1, toddler-rules polish (basket clear of the sign post, friend sleeps beside the baby, 80 px tablet targets checked), in [#308](https://github.com/ecbarish/generations/pull/308).
 - **2026-10-13, Grok (Adam), LR6:** Little Ranch v0.13.0, the hat basket (five hats in turn, then bare and round again; wide-screen puddle nudge), in [#305](https://github.com/ecbarish/generations/pull/305).

@@ -13,7 +13,7 @@
   try { localStorage.removeItem('arcade-launcher'); } catch (e) {} // the old style choice; only one style now
   let W = 0, H = 0, hover = null, lastT = 0;
   const playable = A.GAMES.filter(g => g.href), byId = id => A.GAMES.find(g => g.id === id);
-  const prog = id => { if (byId(id).preview) return 'Early preview · Classic saves stay separate'; const p = A.idx[id]; return p ? p.summary : 'Not started yet'; };
+  const prog = id => { if (byId(id).preview) return 'Early preview'; const p = A.idx[id]; return p ? p.summary : 'Not started yet'; };
   function size() {
     const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
     W = r.width; H = r.height; cv.width = Math.max(1, Math.round(W * d)); cv.height = Math.max(1, Math.round(H * d)); cx.setTransform(d, 0, 0, d, 0, 0);
@@ -34,7 +34,7 @@
   const kindAt = g => { const i = (window.ArcadeKinds || []).findIndex(k => k.id === g.kind); return i < 0 ? 99 : i; };
   /* Evan (2026-10-11): squeezing every cabinet onto one screen made them tiny. Cabinets now keep one readable size and
      stand in a row longer than the screen; the view follows you as you walk (HALL.x and the camera are in pixels). */
-  const HALL = { x: 0, cam: 0, target: null, go: null, dir: 1, keys: {} }, CABS = playable.concat(A.GAMES.filter(g => !g.href)).map((g, i) => [g, i]).sort((m, n) => kindAt(m[0]) - kindAt(n[0]) || m[1] - n[1]).map(m => m[0]); // grouped like the sections below, Classics last
+  const HALL = { x: 0, cam: 0, target: null, go: null, dir: 1, keys: {} }, CABS = playable.concat(A.GAMES.filter(g => !g.href)).map((g, i) => [g, i]).sort((m, n) => kindAt(m[0]) - kindAt(n[0]) || m[1] - n[1]).map(m => m[0]); // grouped like the sections below
   const screens = {};
   const cabW = () => Math.max(70, Math.min(150, H * .26)), gap = () => cabW() * 1.55, margin = () => Math.max(cabW() * 1.2, W * .12);
   function cabX(i) { return margin() + i * gap(); } // in hall pixels

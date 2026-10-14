@@ -25,8 +25,9 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 | **Second** | about 25% | Grows steadily, one milestone at a time. | **Starfall village (Godot)** |
 | **ChatGPT's own** | ChatGPT's time after flagship support | One browser game ChatGPT moves forward. | **Realmbound**: the first hour made fun (RB1.10-RB1.12); end-game parked (Evan, 2026-10-12) |
 | **Family games** (Evan said yes 2026-10-09) | small, alongside | Two small browser games "for everyone", each starting with its one-PR smallest test; never at the flagship's expense. | **Little Ranch** (a tap-and-play toy for ages 2-4) and **the Arcade Cabinets** (original 1978-85 style single-screen games, Storm Front first), docs/proposals/games-for-everyone.md. Little Ranch is a hit at home (2026-10-11): its next steps LR3-LR8 and new toddler toys as places inside it (LR9-LR11) follow docs/proposals/little-ranch-next.md |
-| **Keep alive** | about 15% | Bugs from friends, small fixes, playtests. No new systems. | Diamond Manager (replaced Diamond Career; DM2, its playability pass, may go ahead), Otherworld, browser Wildbond (Classic), the arcade and Come Play |
-| **Parked** | none | Ideas and proposals only, no builds. | Primordial, old Starfall Guild, card shop, Main Street, walk-in arcade, the AI storyteller |
+| **Keep alive** | about 15% | Bugs from friends, small fixes, playtests. No new systems. | Diamond Manager (DM2, its playability pass, may go ahead), Otherworld, the arcade and Come Play |
+| **Shelved** (Evan, 2026-10-13, AR-SHELVE) | none | Off the site; code, folders and saves kept, old links still open. No work. | **Diamond Career** (Diamond Manager replaced it), Classic Wildbond, Classic Starfall Guild |
+| **Parked** | none | Ideas and proposals only, no builds. | Primordial (hidden from the hall), old Starfall Guild, card shop, Main Street, walk-in arcade, the AI storyteller |
 
 Rules:
 - **Bugs friends report jump every queue**, in any slot (GitHub issues, Evan's messages).

@@ -95,6 +95,19 @@ const MARKERS := {
 	Vector2i(-14, 3): "The North Road runs on to the far farms, the old quarry and the barrow hill. That's adventurers' work; your guild is waiting in town.",
 }
 const F_PROPS := preload("res://assets/env/frontier/props.png")     # ART-SF-6
+## ART-SF-8, a lived-in square and road (assets/env/frontier/SQUARE.md): ruts, puddles, scuffs and tufts lie flat and
+## never block; the bench, the hitching rail and the inn's barrel and crate stand on their footprints like any prop.
+const F_SQUARE := preload("res://assets/env/frontier/square.png")
+const SQ := { "ruts-h": Rect2(0, 0, 16, 16), "ruts-v": Rect2(16, 0, 16, 16), "puddle-a": Rect2(32, 0, 16, 16),
+	"puddle-b": Rect2(48, 0, 16, 16), "tuft-a": Rect2(64, 0, 16, 16), "tuft-b": Rect2(80, 0, 16, 16),
+	"scuff": Rect2(96, 0, 16, 16), "step": Rect2(112, 0, 16, 8), "bench": Rect2(0, 16, 32, 16), "hitch": Rect2(32, 16, 32, 16) }
+const PUDDLES := { Vector2i(9, 9): "puddle-a", Vector2i(14, 12): "puddle-b", Vector2i(27, 9): "puddle-a", Vector2i(36, 9): "puddle-b" }
+## Standing dressing, by its left tile: what, and how many tiles wide (each blocks its footprint).
+const DRESSING := { Vector2i(8, 13): ["bench", 2], Vector2i(22, 10): ["hitch", 2],
+	Vector2i(17, 5): ["barrel", 1], Vector2i(17, 6): ["crate", 1] }
+## Where a finished building's door sits in its picture (x of the door's left edge, and its bottom row up from the
+## ground), for the plank step down (the hall and the inn have theirs drawn in; tools/art/starfall_hall_inn.py).
+const DOOR_STEP := { "apothecary": [10, 3], "healer": [18, 3], "tavern": [10, 6] }
 const ROCK := Rect2(64, 64, 16, 16)
 
 const SOLID := "TPSGrc#BDWwu~Fonmhl"
@@ -2342,6 +2355,7 @@ func _draw() -> void:
 		for x in range(-WILDS_W, MAP[0].length()):
 			_ground(x, y, tile_at(Vector2i(x, y)))
 	_draw_wilds()
+	_dress_ground()
 	for y in MAP.size():                         # the stockade: palisade pieces joined to their neighbours, stakes beyond
 		for x in MAP[0].length():
 			var ch: String = MAP[y][x]
@@ -2376,6 +2390,7 @@ func _draw() -> void:
 		for g in INN_GLASS:
 			_glow.append([F_INN[1], Rect2(g, Vector2(6, 6)), inn_at])
 	draw_texture(F_WELL, Vector2(11, 12 - 1) * TILE)
+	_dress_standing()
 	for k in PLOTS:
 		_draw_plot(k)
 	_counter_draw()
@@ -2473,6 +2488,15 @@ func _draw_built(_k: String, what: String, o: Vector2) -> void:
 	var tex: Texture2D = F_BUILT[what]
 	var at := o + Vector2(0, 32 - tex.get_height())
 	draw_texture(tex, at)
+	if DOOR_STEP.has(what):                      # a plank step from the door down to the ground (ART-SF-8)
+		var ds: Array = DOOR_STEP[what]
+		draw_texture_rect_region(F_SQUARE, Rect2(o + Vector2(int(ds[0]) - 2, 32 - 7), Vector2(16, 8)), SQ.step)
+	if what == "tavern":                         # barrels by the taproom door
+		var b := Vector2(_step_of(_k) + Vector2i(2, -1)) * TILE
+		draw_texture_rect_region(F_PROPS, Rect2(b, Vector2(16, 16)), Rect2(0, 0, 16, 16))
+		draw_texture_rect_region(F_PROPS, Rect2(b + Vector2(0, -6), Vector2(16, 16)), Rect2(0, 0, 16, 16))
+	if what == "smithy":
+		draw_texture_rect_region(F_PROPS, Rect2(Vector2(PLOTS[_k] + Vector2i(2, 0)) * TILE, Vector2(16, 16)), Rect2(32, 0, 16, 16))
 	match what:
 		"smithy":                                # the forge breathing through the open front, smoke from the chimney
 			var a := Vector2(_step_of(_k) + Vector2i.RIGHT) * TILE                    # and the anvil by the door, where you work
@@ -3028,10 +3052,53 @@ func _plot_done(k: String) -> bool:
 
 ## The tile beside a finished building where its own thing stands ("" if none there).
 func _prop_at(p: Vector2i) -> String:
+	for at in DRESSING:                          # the bench, the hitching rail, the inn's barrel and crate (ART-SF-8)
+		if p.y == at.y and p.x >= at.x and p.x < at.x + int(DRESSING[at][1]):
+			return str(DRESSING[at][0])
 	for k in PLOTS:
+		if _plot_done(k) and built[k].what == "smithy" and p == PLOTS[k] + Vector2i(2, 0):
+			return "firewood"                    # the forge's wood, stacked by its wall
 		if _plot_done(k) and p == PLOTS[k] + Vector2i(2, 1):
 			return built[k].what
 	return ""
+
+## ART-SF-8: what lies flat on the ground (drawn under everything that stands): wheel ruts worn into the road,
+## puddles, scuffed earth on the square and grass tufts where moss meets mud. Chosen by tile, so it never shifts.
+func _dress_ground() -> void:
+	for y in MAP.size():
+		for x in MAP[0].length():
+			var p := Vector2i(x, y)
+			var ch := tile_at(p)
+			var o := Vector2(p) * TILE
+			var h := posmod(x * 31 + y * 17, 11)
+			if PUDDLES.has(p):
+				draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(16, 16)), SQ[PUDDLES[p]])
+			elif ch == "." and _is_path(x - 1, y) and _is_path(x + 1, y) and h != 0:
+				draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(16, 16)), SQ["ruts-h"])
+			elif ch == "." and _is_path(x, y - 1) and _is_path(x, y + 1) and h < 6:
+				draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(16, 16)), SQ["ruts-v"])
+			elif ch == "q" and h < 3:
+				draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(16, 16)), SQ.scuff)
+			elif ch == "," and plot_at(p) == "" and h < 5 and _edge(p):
+				draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(16, 16)), SQ["tuft-a" if h % 2 == 0 else "tuft-b"])
+
+## Moss right beside the road or the square, where grass grows long out of reach of wheels and boots.
+func _edge(p: Vector2i) -> bool:
+	for d in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+		if tile_at(p + d) in ".q":
+			return true
+	return false
+
+## ART-SF-8: the bench by the well, the hitching rail and trough on the road by the inn, the inn's barrel and crate.
+func _dress_standing() -> void:
+	for at in DRESSING:
+		var what: String = DRESSING[at][0]
+		var o := Vector2(at) * TILE
+		draw_rect(Rect2(o + Vector2(3, 13), Vector2(int(DRESSING[at][1]) * 16 - 6, 3)), Color(0, 0, 0, 0.22))
+		if SQ.has(what):
+			draw_texture_rect_region(F_SQUARE, Rect2(o, Vector2(32, 16)), SQ[what])
+		else:
+			draw_texture_rect_region(F_PROPS, Rect2(o, Vector2(16, 16)), Rect2(0 if what == "barrel" else 16, 0, 16, 16))
 
 func _doorstep(k: String) -> void:
 	var s := Vector2(_step_of(k)) * TILE

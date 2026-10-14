@@ -177,6 +177,31 @@ function diamondManagerChecks(){
   check('DM-N1c live simulation uses displayed batting and pitching ratings',()=>{const A=d.newLeague(1206),B=clone(A);for(const c of A.clubs)for(const p of c.players)p.form.recent=[1,1,1];for(const c of B.clubs)for(const p of c.players)for(const k of p.pitcher?['stuff','control']:['contact','power','eye'])p[k]=Math.min(99,p[k]+3);const a=d.newGame(A,0,1,7),b=d.newGame(B,0,1,7);d.stepGame(A,a);d.stepGame(B,b);d.stepGame(A,a);d.stepGame(B,b);return !!a.pa&&JSON.stringify(a.pa)===JSON.stringify(b.pa)&&a.seed===b.seed;});
   check('DM-N1c form and in-progress games survive save/reload without replay',()=>{const L=d.newLeague(1207);d.playDay(L);const p=d.batters(L.clubs[0])[0];p.form.recent=[1,1];const g=d.startDay(L,true);d.stepGame(L,g);const M=d.migrateLeague(clone(L));assert(d.validLeague(M),'valid');assert(JSON.stringify(M.clubs[0].players.map(p=>p.form))===JSON.stringify(L.clubs[0].players.map(p=>p.form)),'form kept');return JSON.stringify(M.live.g)===JSON.stringify(g)&&M.seed===L.seed;});
   check('DM-N1c malformed form is rejected instead of silently neutralised',()=>{for(const form of [{recent:[4],lastGame:null},{recent:Array(6).fill(0),lastGame:null},{recent:[0],lastGame:7},null]){const L=d.newLeague(1208);L.clubs[0].players[0].form=form;assert(!d.validLeague(L),'reject '+JSON.stringify(form));}return true;});
+  check('DM-N1c malformed live form keys are rejected before imported players mutate',()=>{
+    for(const key of [7,'x'.repeat(81),'',null,{},[]]){const L=d.newLeague(318),g=d.startDay(L,true);g.formKey=key;const before=JSON.stringify(L);
+      assert(!d.validLeague(L),'reject key '+JSON.stringify(key));assert(JSON.stringify(L)===before,'validation is read-only');
+      const M=d.migrateLeague(L);assert(!M.live&&d.validLeague(M),'malformed live save is not resumed');assert(JSON.stringify(L)===before,'rejection did not mutate imported players');}return true;
+  });
+  check('DM-N1c malformed live form changes are rejected before recording or rendering',()=>{
+    const original=d.newLeague(318),g=d.startDay(original,true),p=original.clubs[g.home].players[0],entry={club:g.home,id:p.id,name:p.name,before:0,after:1};
+    for(const changes of ['bad',{},null,[null],[7],[{}],[{...entry,club:6}],[{...entry,id:original.nextId}],[{...entry,id:String(p.id)}],[{...entry,name:7}],[{...entry,before:-4}],[{...entry,after:4}],[{...entry,after:0.5}]]){
+      const L=clone(original);L.live.g.formChanges=changes;const before=JSON.stringify(L);assert(!d.validLeague(L),'reject changes '+JSON.stringify(changes));
+      const M=d.migrateLeague(L);assert(!M.live&&d.validLeague(M),'bad changes not resumed');assert(JSON.stringify(L)===before,'validation and rejection are read-only');}
+    g.formChanges=[entry];assert(d.validLeague(original),'well-formed entries accepted');g.formKey='x'.repeat(80);return d.validLeague(original);
+  });
+  check('DM-N1c legacy regular games without form metadata resume and finish once',()=>{
+    const L=d.newLeague(1211),g=d.startDay(L,true);d.stepGame(L,g);delete g.formKey;delete g.formChanges;
+    for(const p of L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents))delete p.form;
+    const before=JSON.stringify(g),seed=L.seed,M=d.migrateLeague(clone(L));assert(d.validLeague(M)&&M.seed===seed&&JSON.stringify(M.live.g)===before,'legacy game and rolls preserved');
+    const resumed=M.live.g;d.finishGame(M,resumed);d.recordForm(M,resumed);const clubs=[resumed.home,resumed.away],forms=JSON.stringify(clubs.map(i=>M.clubs[i].players.map(p=>p.form)));
+    d.finishDay(M);return d.validLeague(M)&&M.day===1&&JSON.stringify(clubs.map(i=>M.clubs[i].players.map(p=>p.form)))===forms;
+  });
+  check('DM-N1c legacy finals without form metadata resume and finish valid',()=>{
+    const L=d.newLeague(1212);while(L.phase==='season')d.playDay(L);const g=d.startFinalGame(L,true);d.stepGame(L,g);delete g.formKey;delete g.formChanges;
+    for(const p of L.clubs.flatMap(c=>c.players.concat(c.farm||[])).concat(L.freeAgents))delete p.form;
+    const before=JSON.stringify(g),seed=L.seed,M=d.migrateLeague(clone(L));assert(d.validLeague(M)&&M.seed===seed&&JSON.stringify(M.live.g)===before,'legacy final preserved');
+    d.finishGame(M,M.live.g);d.finishFinalGame(M);return d.validLeague(M)&&M.final.games.length===1&&M.clubs[M.final.teams[0]].players.some(p=>p.form.lastGame==='1:final:0');
+  });
   check('DM-N1c each final has its own key and winter starts everyone steady',()=>{const L=season(d.newLeague(1209));const p=d.batters(L.clubs[0])[0];p.form.recent=[1,1,1];L.phase='final';L.final.games=[];const a=d.formGameKey(L);L.final.games.push({});assert(a!==d.formGameKey(L),'distinct final');L.phase='offseason';L.cash=1e6;for(const c of L.clubs)for(const p of c.players)p.years=3;assert(d.startSeason(L),'new season');return L.clubs.every(c=>c.players.every(p=>d.formBonus(p)===0&&p.form.lastGame===null));});
   check('DM-N1c roster shows named next-game form without corrupting button labels',()=>{const old=d.L,L=d.newLeague(1210),p=d.batters(L.clubs[0])[0];try{p.form.recent=[1,1];d.L=L;const node=document.createElement('div');node.innerHTML=d.rosterTab();const label=node.querySelector('[data-form-player="'+p.id+'"]');assert(label&&label.textContent.includes('Hot')&&label.textContent.includes('+2'),'named hot form');assert(node.querySelector('.base-rating'),'base alongside adjusted');return [...node.querySelectorAll('[aria-label]')].every(b=>!b.getAttribute('aria-label').includes('<'));}finally{d.L=old;}});
   return out;

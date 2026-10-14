@@ -1,5 +1,6 @@
 /* Every check in the arcade with one command (docs/learning/saves-and-testing.md).
-   Opens the browser test pages (nine game pages and the Studio) in a hidden browser, presses "Run checks" on each and reads the result, then
+   Opens the browser test pages (nine game pages and the Studio) in a hidden browser, presses "Run checks" on each and reads the result,
+   runs the hall's launcher checks (tools/launcher-checks.cjs; two widths on CI), then
    (when Godot is found) runs both Godot suites. Prints one line per suite and exits 1 if anything failed.
 
      node tools/run-all-checks.cjs                  every suite
@@ -15,7 +16,7 @@ const PAGES=['run','wildbond','starfall','sound','offline','diamond','diamond-ma
 const GODOT_SUITES=['wildbond-godot','starfall-godot'];
 const only=process.argv.slice(2);
 const wanted=name=>!only.length||only.some(w=>name.includes(w));
-if(only.length&&!PAGES.concat(GODOT_SUITES,['wildbond-catalog','save-names','asset-library','agent-context']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['wildbond-catalog','save-names','asset-library','agent-context']).join(', '));process.exit(2);}
+if(only.length&&!PAGES.concat(GODOT_SUITES,['launcher','wildbond-catalog','save-names','asset-library','agent-context']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['wildbond-catalog','save-names','asset-library','agent-context']).join(', '));process.exit(2);}
 const TYPES={'.html':'text/html','.js':'text/javascript','.cjs':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.ogg':'audio/ogg','.wav':'audio/wav','.mp3':'audio/mpeg','.mp4':'video/mp4','.wasm':'application/wasm','.pck':'application/octet-stream','.webmanifest':'application/manifest+json','.ico':'image/x-icon','.txt':'text/plain','.md':'text/plain'};
 
 function serve(){return new Promise(ok=>{const server=http.createServer((req,res)=>{
@@ -51,7 +52,7 @@ function findGodot(){
 (async()=>{
   const results=[];
   const pages=PAGES.filter(wanted);
-  if(pages.length){
+  if(pages.length||wanted('launcher')){
     const {chromium}=require('playwright');
     const server=await serve(),origin='http://localhost:'+server.address().port;
     const exe=browserPath();
@@ -74,6 +75,18 @@ function findGodot(){
       results.push({name:'tests/'+name+'.html',ok,line,secs:Math.round((Date.now()-started)/1000)});
       console.log((ok?'ok  ':'FAIL')+'  tests/'+name+'.html  '+line+'  ('+results.at(-1).secs+'s)');
       await context.close();
+    }
+    if(wanted('launcher')){                     // the hall: cards, sections, links and saves (tools/launcher-checks.cjs; AR-CHECKS-1)
+      // CI runs two widths (phone and laptop) to keep it quick; locally every width. LAUNCHER_WIDTHS overrides.
+      const widths=process.env.LAUNCHER_WIDTHS||(process.env.CI?'375x812,1366x768':'');
+      const started=Date.now();
+      const run=await new Promise(done=>{const {spawn}=require('child_process');let out='';
+        const child=spawn(process.execPath,[path.join(ROOT,'tools/launcher-checks.cjs')],{env:{...process.env,ARCADE_TEST_ORIGIN:origin,CHROME_PATH:exe||'',LAUNCHER_WIDTHS:widths}});
+        child.stdout.on('data',d=>out+=d);child.stderr.on('data',d=>out+=d);child.on('close',status=>done({status,out}));});
+      const line=run.out.trim().split('\n').pop(),ok=run.status===0;
+      if(!ok)run.out.trim().split('\n').slice(-6,-1).forEach(l=>console.log('    '+l));
+      results.push({name:'launcher',ok,line,secs:Math.round((Date.now()-started)/1000)});
+      console.log((ok?'ok  ':'FAIL')+'  launcher  '+line+'  ('+results.at(-1).secs+'s)');
     }}finally{await browser.close();server.close();}
   }
   const suites=GODOT_SUITES.filter(wanted);

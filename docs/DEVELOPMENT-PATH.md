@@ -200,7 +200,7 @@ yard, smithy and Garrick, apothecary and prices, ranks and newcomers, music, det
   palette; and, after Evan spotted it, the hall's and inn's doors now sit centred on their map tile (so the inn's path
   meets the door) and stand on a plank step to the ground instead of floating on the stone base. Follow-ups: ART-SF-8 and
   SF2.6c below.
-- [ ] ART-SF-8 [any] Dress the square and roads: the square is one plain packed-earth rectangle. Add worn ruts and
+- [x] ART-SF-8 [any] (done: Grok for Adam / abarish-dev, 2026-10-13, H3, PR #323; 278 Starfall checks; before/after in docs/playtests/art-sf-8/) Dress the square and roads: the square is one plain packed-earth rectangle. Add worn ruts and
   puddles, grass tufts along the edges, a bench and a hitching post, and place ART-SF-6's barrels, crates and firewood
   by the buildings that would use them (inn, tavern, smithy). Pictures in `starfall-godot/assets/env/frontier/`,
   placement in main.gd. Also give the apothecary, healer and tavern doors a step down to the ground, as the
@@ -370,7 +370,9 @@ proposal (Evan picks the theme).
 rules; free local model first, as docs/otherworld-design.md says).
 
 ### The arcade (everything shared)
-- [ ] AR2.16 [any] Hall blurbs that match the games (Flint round 2): Lighthouse Watch is arcade action, not automation; Otherworld is a story life sim, not idle management. Files: index.html, launcher/.
+
+- [x] **CHAR-BROWSER1 [any]**: Make `tests/character-library.cjs` browser selection portable: preserve `CHROME_PATH`, use installed Windows Chrome when present, otherwise Playwright Chromium. Add focused selection regressions and rerun the unchanged three-size character bench plus aggregate. No artwork, game, save or rig changes. Explicit Adam request, 2026-10-13. (implementation complete: dot / Adam, 2026-10-13, [#318](https://github.com/ecbarish/generations/pull/318); Adam authorized merge. 7 focused + 113 bench checks and 22 suites passed on 87e5852; exact refreshed-head checks and final merge status are recorded in PR Tower.)
+- [x] AR2.16 [any] Hall blurbs that match the games (Flint round 2): Lighthouse Watch is arcade action, not automation; Otherworld is a story life sim, not idle management. Files: index.html, launcher/.
 **AR-M1: friends can play (done 2026-10-08).**
 - [x] Come Play, previews, trailer, Windows builds.
 **AR-M2: polish for everyone.**
@@ -418,7 +420,7 @@ Next steps, from docs/proposals/little-ranch-next.md (PR #203, 2026-10-11; Evan:
 - [x] LR4 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #297, v0.11.0; not yet tried with a toddler) A second friend: a baby Pebblit (or Glowmote) visits some days; both can be fed and bubbled; they nuzzle.
 - [x] LR5 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #303, v0.12.0; not yet tried with a toddler) Rain and rainbows: tap the cloud for soft rain and puddles to splash; tap the sun for a rainbow. (The sun's rainbow is done in LR13; the rain and puddles are still to do.)
 - [x] LR6 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #305, v0.13.0; not yet tried with a toddler) The hat basket: tap the basket and the baby tries on the next hat.
-- [ ] LR7 [any] The bedtime routine: teeth, a drink of water, goodnight to each friend, then the lullaby.
+- [x] LR7 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #313, v0.14.0; not yet tried with a toddler) The bedtime routine: teeth, a drink of water, goodnight to each friend, then the lullaby.
 - [ ] LR8 [any] Spoken words: names, colours and "night night" in the browser's voice (no microphone; recording a parent's voice needs Evan's yes).
 Places inside Little Ranch (a picture-sign at the ranch's edge leads there, the barn picture leads home; never a separate icon on the homepage). **Evan picked the Paint Shed first (2026-10-11)**, then the Little Wagon, then the Snack Kitchen; LR3-LR8 continue alongside.
 - [x] LR9 [any] (done 2026-10-13, Grok for Adam / abarish-dev, PR #262, v0.6.0; not yet tried with a toddler) The Paint Shed (16/18, Evan's pick): reached by a paint-drip picture sign; one creature outline, four fat paint pots, tap to fill a part, sparkles when every part is coloured, the painted baby walks out in its colours until bedtime.

@@ -107,6 +107,8 @@ is what the real games should be."
 
 ## Diamond Manager and Lantern Bowl (sports)
 
+**Diamond Career: Shelved** (Evan, 2026-10-13, AR-SHELVE). Diamond Manager replaced it; it is off the site, its code and saves are kept, and it has no goals.
+
 | Term | Goal | Path IDs |
 |---|---|---|
 | Short | **Lantern Bowl playable** (one drive, then one full game) and Diamond Manager's ballpark you see grow. (DM3, DM4, DM-B2, DM7, LB0 and LB1 are done.) | LB2, LB3, DM5 |

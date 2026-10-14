@@ -307,7 +307,13 @@ function validLeague(o) {
     if (o.live) { const g = o.live.g, has = (side, id) => o.clubs[side ? g.home : g.away].players.some(p => p.id === id);
       if (!g || !team(g.home) || !team(g.away) || g.home === g.away || !Array.isArray(g.lineup) || !g.lineup.every((l, side) => Array.isArray(l) && l.length === 9 && l.every(id => has(side, id))) ||
           !Array.isArray(g.pitcher) || !g.pitcher.every((id, side) => has(side, id)) || !Array.isArray(g.bases) || g.bases.length !== 3 || !Array.isArray(g.events) ||
-          !int(g.inning) || g.inning < 1 || g.inning > 15 || ![0,1].includes(g.half) || !Array.isArray(g.score) || !g.box || !g.pbox) return false; }
+          !int(g.inning) || g.inning < 1 || g.inning > 15 || ![0,1].includes(g.half) || !Array.isArray(g.score) || !g.box || !g.pbox) return false;
+      // Older live saves omit form metadata. Present values must be safe to record and render.
+      if (g.formKey !== undefined && (typeof g.formKey !== 'string' || !g.formKey.length || g.formKey.length > 80)) return false;
+      if (g.formChanges !== undefined && (!Array.isArray(g.formChanges) || !g.formChanges.every(x => x &&
+          [g.home,g.away].includes(x.club) && int(x.id) && o.clubs[x.club].players.some(p => p.id === x.id) &&
+          typeof x.name === 'string' && [x.before,x.after].every(n => int(n) && n >= -3 && n <= 3)))) return false;
+    }
     if (o.report && (!Array.isArray(o.history) || !o.history.length || !['grew','slipped','expiring'].every(k => Array.isArray(o.report[k])))) return false;
     if(o.moraleNotes!==undefined&&(!Array.isArray(o.moraleNotes)||o.moraleNotes.length>12||!o.moraleNotes.every(x=>x&&Number.isInteger(x.id)&&Number.isInteger(x.key)&&typeof x.text==='string'&&typeof x.kind==='string')))return false;
     if(!validCoachState(o.coaches)||!validSeasonLedger(o.seasonLedger,o)||!Array.isArray(o.history)||!o.history.every(validSeasonHistory)) return false;

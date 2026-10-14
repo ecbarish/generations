@@ -1,0 +1,67 @@
+# Additive PR evidence. The existing Checks workflow still owns the full aggregate and both Godot suites.
+name: Diamond Manager review
+on:
+  pull_request:
+    paths:
+      - 'games/diamond-manager/**'
+      - 'shared/sports-office.js'
+      - 'tests/diamond-manager*'
+      - 'tests/diamond-model-loaders.cjs'
+      - 'tools/diamond-balance-sim.cjs'
+      - 'launcher/sports-checks.cjs'
+      - '.github/workflows/diamond-manager-review.yml'
+permissions:
+  contents: read
+concurrency:
+  group: diamond-manager-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  recent-form-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    env:
+      REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check current, historical and sports-fixture model loaders
+        run: |
+          mkdir -p "$RUNNER_TEMP/diamond-manager-review"
+          node tests/diamond-model-loaders.cjs 2>&1 | tee "$RUNNER_TEMP/diamond-manager-review/model-loaders.log"
+      - name: Install pinned browser tooling
+        id: browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          echo "CHROME_PATH=$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
+      - name: Run Diamond Manager regression checks
+        run: node tools/run-all-checks.cjs diamond-manager 2>&1 | tee "$RUNNER_TEMP/diamond-manager-review/manager-checks.log"
+      - name: Review recent form at phone, desktop and ultrawide sizes
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: |
+          python3 -m http.server 8777 --bind 127.0.0.1 > "$RUNNER_TEMP/diamond-manager-review/server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://localhost:8777/games/diamond-manager/ > /dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://localhost:8777/games/diamond-manager/ > /dev/null
+          node tests/diamond-manager-review.cjs http://localhost:8777 "$RUNNER_TEMP/diamond-manager-review" 2>&1 | tee "$RUNNER_TEMP/diamond-manager-review/browser.log"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diamond-manager-review-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/diamond-manager-review/
+          retention-days: 14
+          if-no-files-found: warn
