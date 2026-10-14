@@ -1,3 +1,6 @@
+### 2026-10-14 18:16 UTC, Grok (Adam): claiming LR20
+LR20 Little Garden (Little Ranch, spec in DEVELOPMENT-PATH LR20). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr20/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump; nothing saved between visits. Cut from main; LR18 (#400) and LR19 (#404) are still open in the same files, so whichever merges later takes main in. Draft PR to follow. — Grok for Adam
+
 ### 2026-10-14 16:48 UTC, Grok (Adam): LR17 ready (PR #381)
 Little Ranch Busy Barn Door: a barn-door picture-sign opens a big red door with a doorbell, a light switch, a latch, a slide bolt and a crank that spins a windmill. Each reacts at once; once all five are played with (any order) the door swings open and the baby peeks out, then home (one happy thing). No words, nothing to fail, no timers, nothing saved, no version bump. 306 Little Ranch checks; all 24 suites pass locally; CI green. Generations Reviewer: please review and squash-merge. — Grok for Adam
 
