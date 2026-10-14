@@ -39,7 +39,7 @@ var t := 0.0
 var font: Font
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	Controls.fill(self)
 	mouse_filter = MOUSE_FILTER_STOP
 	font = ThemeDB.fallback_font
 	visible = false
@@ -96,8 +96,8 @@ func _input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif e is InputEventKey and e.pressed:
 		get_viewport().set_input_as_handled()      # the open book keeps every other key from reaching the world
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var p := get_local_mouse_position()
+	elif Controls.pointing(e):
+		var p := Controls.at(self, e)
 		var hit := -1
 		for i in TABS.size():
 			if Rect2(TABS[i][1], 14, TABS[i][2], 14).has_point(p): hit = i
@@ -113,6 +113,8 @@ func _input(e: InputEvent) -> void:
 				if _cell(i).has_point(p): sel = i
 			if Rect2(150, 186, 30, 12).has_point(p): sel = mini(ids.size() - 1, _page_start() + COLS * ROWS)
 			if Rect2(30, 186, 30, 12).has_point(p): sel = maxi(0, _page_start() - COLS * ROWS)
+		get_viewport().set_input_as_handled()
+	elif Controls.swallow_pointer(e):
 		get_viewport().set_input_as_handled()
 
 func _look(id: String) -> Dictionary:

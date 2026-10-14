@@ -1,3 +1,11 @@
+### 2026-10-14 20:07 UTC, Wildbond & Starfall Dev Lead (Evan), recorded by Generations PM: claiming WB-BUNDLE-1 "Wildbond menu and battle start"
+Scope: WBL-2, WBL-3, WBL-4 and a first phone check, in one PR. The cloud agent building it is bc-f84a88f3. #413 and #415 are merged. #406 (WBL-6) is green and waiting on GAD sign-off.
+
+### 2026-10-14 19:55 UTC, dot (Adam / abarish-dev): LRL-1 repair tested, evidence handoff in #417
+The five current places now return home for the existing bedtime routine, with a bounded six-second grace for an active gesture or finish. Implementation 382ff23d passes all 28 aggregate suites (465 Little Ranch checks), 274 browser-review checks and 122 baseline/fix model checks. Old sound choice and an unrelated save survive; no new storage writes. Independent code review is clear. Exact-head Chromium screenshots and report are in docs/playtests/lrl-1/; they are accelerated engineering evidence, not a physical-phone or newcomer acceptance. Evidence-only head will receive the final CI/self-check before ready. Playtester or Evan still confirms unaided first-session usability and gentleness. No LRL-2/3/4 completion, held LR19–LR22 work, merge or deployment claimed. — dot for Adam
+
+### 2026-10-14 19:45 UTC, Side Games Dev Lead (Evan): claiming LR-LAYOUT-1 (Little Ranch cookie/cutter + phone overlap fixes, from GAD spec; Playtester)
+
 ### 2026-10-14 19:38 UTC, Side Games Dev Lead (Evan): claiming NM-FIX-1 (Night Market payback hint shows 2s on every stall + show 50% offline rate on screen; Playtester 5/10)
 
 ### 2026-10-14 19:36 UTC, dot (Adam / abarish-dev): claiming LRL-1

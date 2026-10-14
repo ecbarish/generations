@@ -24,10 +24,24 @@ The grown-up-panel test emitted a synthetic lock `pointerdown` followed by `poin
 
 - `node docs/playtests/lrl-1/model-checks.cjs`: **122 deterministic logic checks pass**, including a baseline-before/repair-after comparison, six layouts, late room entry, frozen ranch actions, natural completions, continuous flower play, held/late pointer events, reset and stored data. DOM, canvas and audio are stubbed; this does not establish browser or phone usability.
 - `node --check games/little-ranch/game.js`: passes.
-- `node tools/run-all-checks.cjs`: required aggregate, pending exact-head CI.
-- `node tools/playtest/little-ranch-review.cjs`: required browser review, pending exact-head CI. The existing workflow uploads `little-ranch-browser-review` with screenshots and `report.json`. New scenarios stop the production animation loop after the original review, advance only through the existing test clock, use real pointer input/resize events, and label this accelerated QA. They add 259 checks and 80 captures; the original review cases remain unchanged.
+- Exact implementation head `382ff23dfbcb44d33c42fcffc2681093197c025b`: [aggregate CI](https://github.com/ecbarish/generations/actions/runs/38626698336) **all 28 suites pass**, including **465 Little Ranch assertions**.
+- [Browser review CI](https://github.com/ecbarish/generations/actions/runs/38626698629): **274 review checks pass; 96 screenshots**, including two complete 465-assertion Little Ranch runs. Existing muted sound preference and an unrelated saved level survive both runs and reload. The new scenarios produce no local/session storage writes. Little Ranch has no saved visit to migrate.
+- [Persisted browser report](browser-report-382ff23.json) and [provenance/hash manifest](evidence-manifest.json). The full [CI artifact](https://github.com/ecbarish/generations/actions/runs/38626698629/artifacts/11923938872) expires on 2026-10-28; selected original captures remain below.
+- Independent code review found no outstanding issue. It confirmed the prior assertions are retained; clock instrumentation starts only after every original review scenario. Adversarial held/late-event and natural-completion model checks were also reviewed.
 
-Local Chromium cannot launch in the current execution sandbox (`socket() failed: Operation not permitted`); the approved escalation failed before launch. Browser and aggregate results must therefore come from the exact-head CI runs, with screenshots inspected before handoff. A published-site check is not substituted for the modified branch.
+New browser scenarios stop the production animation loop after the original review, advance only through the existing test clock, use real pointer input/resize events, and label this accelerated QA. They add 259 checks and 80 captures across five sizes, with the normal bedtime routine enabled. This tests the transitions and controls, not wall-clock pacing. Sound is muted by the preserved preference; lullaby scheduling is checked in state, not by listening.
+
+Local Chromium could not launch in the execution sandbox. The browser results above are from GitHub CI's Chromium, not the user's browser or phone. Screenshots were inspected across all five room/size matrices and held/rotated cases: the toy is replaced by the ranch/yawn/toothbrush, followed by both babies asleep, without blank scenes or a stale room overlay. Physical touch ergonomics and perceived gentleness remain unconfirmed.
+
+### Retained screenshots
+
+Captured from implementation head `382ff23d`; later evidence-only commits do not change the game or tests. The manifest hashes the original PNG bytes. The contact sheet is resized and labelled for overview only.
+
+- [All five rooms, portrait before / bedtime / asleep](screenshots/contact-375x812.jpg)
+- Dough Table, 375×812: [unfinished](screenshots/lrl1-dough-375x812-before.png), [automatic bedtime](screenshots/lrl1-dough-375x812-dusk.png), [asleep after the routine](screenshots/lrl1-dough-375x812-asleep.png)
+- [Held gesture, rotation and late release at 667×375](screenshots/lrl1-dough-rotated-late-release.png)
+- [Shed return at 1024×768](screenshots/lrl1-shed-1024x768-dusk.png)
+- [Wagon visit asleep at 3440×1440](screenshots/lrl1-wagon-3440x1440-asleep.png)
 
 ## Acceptance still required
 

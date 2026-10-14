@@ -77,12 +77,7 @@
     }
     var rate = M.production(state, i);
     facts.textContent = st.owned + ' open · ' + money(rate) + ' coins a second. ' + M.lookLine(state, i);
-    var one = M.quote(state, i, 1);
-    var per = M.income(state);
-    var secs = per > 0 && one.cost > 0 ? Math.max(1, Math.ceil(one.cost / per)) : 0;
-    wait.textContent = secs
-      ? 'The next one pays for itself in ' + (secs < 60 ? secs + (secs === 1 ? ' second.' : ' seconds.') : Arcade.fmtTime(secs) + '.')
-      : stall.vendor + ' is running this stall.';
+    wait.textContent = M.paybackLine(state, i);
     ask.hidden = true;
     buy.hidden = false;
     buy.textContent = buyLabel(i);
@@ -91,6 +86,7 @@
 
   function render() {
     $('#coins').textContent = money(state.cash);
+    $('#away-rule').textContent = M.awayRule();
     var rate = M.income(state);
     $('#rate').textContent = rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.';
     $('#goal').textContent = M.goal(state);

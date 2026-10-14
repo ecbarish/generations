@@ -9,9 +9,9 @@ const INK := Color("3e2c20")
 const FAINT := Color("8a6e50")
 const COLS := [
 	["Keyboard", "keys", [["Walk", "Arrow keys or W A S D"], ["Talk, choose", "E or Enter"], ["Back", "Esc"],
-		["Field book", "J or Tab, or click the bag"], ["Book pages", "Q and E"], ["Music, sounds", "M and N"]]],
+		["Field book", "J or Tab; bag: menu"], ["Book pages", "Q and E"], ["Music, sounds", "M and N"]]],
 	["Phone or tablet", "touch", [["Walk", "The pad, or tap where to go"], ["Talk", "The button beside it"],
-		["Choose", "Tap what you want"], ["Field book", "Tap the bag, top right"], ["Close the book", "Tap outside it"]]],
+		["Choose", "Tap what you want"], ["Field book", "Bag opens the menu"], ["Close the book", "Tap outside it"]]],
 	["Gamepad", "pad", [["Walk", "Left stick or the cross"], ["Talk, choose", "A"], ["Back", "B"], ["Field book", "Y"],
 		["Book pages", "The shoulder buttons"], ["Calendar", "X"]]],
 ]
@@ -20,7 +20,7 @@ var font: Font
 var t := 0.0
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	Controls.fill(self)
 	mouse_filter = MOUSE_FILTER_STOP
 	font = ThemeDB.fallback_font
 	visible = false
