@@ -1,6 +1,6 @@
 # Launch checklist: Little Ranch
 
-**Owner:** Side Games Dev Lead. Grok and dot help, part-time.
+**Owner:** Side Games Dev Lead. Grok and dot help.
 **Build on main:** v0.16.0 (`games/little-ranch/game.js`).
 **Ruling:** Evan, 2026-10-14. Little Ranch is a launch game. Only work that ticks an item below. No new place until this checklist is done, except #400, which may finish.
 
@@ -46,32 +46,17 @@ Playable and fun. Further improvements do not hold the release.
 
 ## Timeline
 
-Pending dev-lead check. Guest help is part-time.
+Measured on 2026-10-14. The count, the split into build, playtest and buffer, and both dates are in [launch-summary.md](launch-summary.md). Little Ranch's feature rate is 21 pulls in 7 days (3.00 a day) and the same 21 in 14 days (1.50 a day).
 
-**Merge rate used.** First-parent history on `main` from 2026-09-30 through 2026-10-14 (14 days). A squash merge is a commit whose subject ends with `(#NNN)` and does not start with "Merge".
-
-| Game | Squash merges in those 14 days | Per week |
-|---|---|---|
-| Little Ranch | 1 (#315, a docs ask, not a toy) | 0.5 |
-| Lantern Bowl | 3 | 1.5 |
-| Night Market | 1 (IDLE-CORE, #393) | 0.5 |
-| Wildbond | 6 | 3.0 |
-
-Little Ranch's toys in that same window mostly landed as merge commits, not squashes (about eight feature pulls, plus matching "live" notes). The squash figure alone understates it. The forward dates do not use that burst. Side Games Dev Lead is also on Lantern Bowl and Night Market, and Grok and dot are part-time, so the likely pace is about one small Little Ranch pull a week.
-
-**Pulls left that block finish:**
+**Pulls left that block finish:** 2 small ones. LR17 (#381) and LR18 (#400, `43785a4`) are merged. #404 LR19 and #409 LR20 are on hold. They are not in this count.
 
 | ID | Size | What |
 |---|---|---|
 | LRL-1 | S | The first sitting reaches bedtime, and the day is obvious |
 | LRL-4 | S | The sound preference survives a reload, with a check |
 
-LRL-2 and LRL-3 are Playtester sessions. A phone bug found there is another S, and it is in the slower case only.
-
-**Likely:** LRL-1 one week, LRL-4 the next, Playtester the week after. **2026-11-04.**
-**Slower:** the first fun score is under 7/10, and the phone session needs a fix. **2026-11-18.**
-
-LR18 can land beside this. It does not move either date.
+**Likely:** 2 / 3.00 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-16.**
+**Slower:** 2 / 1.50 days of build, two playtest rounds, and a 2-day buffer. **2026-10-20.**
 
 ## Owner and the first three tasks
 

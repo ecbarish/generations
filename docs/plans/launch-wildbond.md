@@ -3,7 +3,7 @@
 **Owner:** Wildbond & Starfall Dev Lead.
 **Lane:** steady background. Wildbond is the long project, not the first to ship. New content waits until this checklist is done: WB-NOSTALGIA (NOS-1a through NOS-1e), roster growth, and WB2.2.
 **Ruling:** Evan, 2026-10-14.
-**Dates:** checked by dev lead, 2026-10-14. About two pulls a week. The 7/10 bar is confirmed, and a played phone session is a must-pass. Phone is not yet tested.
+**Dates:** measured 2026-10-14. See [launch-summary.md](launch-summary.md). The 7/10 bar is confirmed, and a played phone session is a must-pass. Phone is not yet tested. The earlier "2 pulls a week" dates are replaced.
 
 Playtester scores every week. Finished means the game is playable and fun. Merging a pull request does not finish it. Playtester or Evan confirms it.
 
@@ -30,15 +30,15 @@ Partial newcomer report. About **6 minutes**, on an **existing save**. **Fun 5/1
 
 ## Gaps, top priority first
 
-**WBL-6. Battle sprites. First task.** Battle screens still draw the overworld sprites scaled up. Game Art Director handed over **9 finished 64×64 battle sprites**. Wiring them in is already in progress as its own pull request. Size S. Mosshog uses the older Higgsfield art for now. Game Art Director will swap that sprite later, and that swap does not block finish. Ticks fun and known bugs.
-
-**WBL-1. Menu and status bar.** Esc, the briefcase icon, and I open a real menu, plus a status bar. The menu covers party, field book, and save. This same pull includes **WBL-14**: on the starter screen, clicking Choose Ripplet with the mouse walks instead of choosing. That blocks the first 10 minutes, so it is a must-have, not a minor. Ticks the first 10 minutes and one clear goal.
+**WBL-1. Menu and status bar. First task.** Esc, the briefcase icon, and I open a real menu, plus a status bar. The menu covers party, field book, and save. This same pull includes **WBL-14**: on the starter screen, clicking Choose Ripplet with the mouse walks instead of choosing. That blocks the first 10 minutes, so it is a must-have, not a minor. Ticks the first 10 minutes and one clear goal.
 
 **WBL-2. Battles start fair.** A battle opens on the action menu. The enemy does not get a free hit. Ticks fun and known bugs.
 
-**WBL-3. A first catch you can see.** Bag is greyed out today, and catching is hidden under Bond. Bag is enabled whenever you have items. Game Researcher's suggestion for this gap and for WBL-4: do it the way Pokémon stages a first catch. In the first wild encounter, show the Bond prompt on screen and give enough balls that the catch cannot fail. Not a wall of tutorial text. Ticks the first 10 minutes, fun, and one clear goal.
+**WBL-3. An obvious Catch, and a first catch you can see.** Add a Catch button. Bag is greyed out today, and catching is hidden under Bond. Bag is enabled whenever you have items. Game Researcher's suggestion for this gap and for WBL-4: do it the way Pokémon stages a first catch. In the first wild encounter, show the Bond prompt on screen and give enough balls that the catch cannot fail. Not a wall of tutorial text. Ticks the first 10 minutes, fun, and one clear goal.
 
-**WBL-4. An objective that fits.** An on-screen objective, and tutorial text that fits its box. The first-catch Bond prompt is that objective for the opening encounter. Ticks the first 10 minutes and one clear goal.
+**WBL-4. The objective tracker.** An on-screen objective, and tutorial text that fits its box. The first-catch Bond prompt is that objective for the opening encounter. Ticks the first 10 minutes and one clear goal.
+
+**WBL-6. Battle sprites. After WBL-4.** Battle screens still draw the overworld sprites scaled up. Game Art Director handed over **9 finished 64×64 battle sprites**. Wiring them in is its own pull, size S, and it waits until WBL-1 through WBL-4 are underway. Mosshog uses the older Higgsfield art for now. Game Art Director will swap that sprite later, and that swap does not block finish. Ticks fun and known bugs.
 
 **WBL-5. The early route moves.** A faster early encounter rate, and healing, so the first session is not a long walk with nothing to do. Ticks the first 10 minutes and fun.
 
@@ -67,7 +67,7 @@ Partial newcomer report. About **6 minutes**, on an **existing save**. **Fun 5/1
 - **WBL-19.** Bellwarden and Doorlamp float, and the leftover all-1 size table comes out (`SIZE_SCALE` in `wildbond-godot/scripts/main.gd`). Notes from #368.
 - **WBL-20.** True-scale cottage and barn doors, with an old-save fix. Needs Evan's sign-off.
 - **WBL-21.** #345, evolution story wording. Final forms read as level plus trust or bond, and DD-5 is updated.
-- **WBL-22.** #390, Thornwood pond shape and whole-pixel reed sway. Open as #399.
+- **WBL-22.** #390, Thornwood pond shape and whole-pixel reed sway. Merged as #399 (`59f78cb`). It was not a finish blocker.
 
 ## Finished means
 
@@ -83,13 +83,13 @@ Playable and fun. Further improvements do not hold the release.
 
 **Must-haves:**
 
-1. The 9 finished 64×64 battle sprites wired in (WBL-6). Mosshog stays on the older Higgsfield art until Game Art Director swaps it.
-2. A menu for party, field book and save, a status bar, and Choose Ripplet actually choosing (WBL-1, WBL-14).
-3. A battle that starts on the action menu (WBL-2).
-4. A guided first catch that cannot fail, with Bag usable when you have items (WBL-3, and the Bond prompt for WBL-4).
-5. Objective text that fits, and an early pace with encounters and healing (WBL-4, WBL-5).
+1. A menu for party, field book and save, a status bar, and Choose Ripplet actually choosing (WBL-1, WBL-14).
+2. A battle that starts on the action menu (WBL-2).
+3. An obvious Catch button, and a guided first catch that cannot fail, with Bag usable when you have items (WBL-3).
+4. An objective tracker whose text fits (WBL-4).
+5. An early pace with encounters and healing (WBL-5), then the 9 battle sprites (WBL-6). Mosshog stays on the older Higgsfield art until Game Art Director swaps it.
 6. The north exit stays in the world, the Thornwood road goes somewhere, and Continue returns through the title screen to the same place (WBL-7, WBL-8, WBL-9, WBL-10).
-7. Fun at least 7/10, and a played phone session. Both confirmed as must-pass. The phone session has not happened yet.
+7. Fun at least 7/10, and a played phone session. Both are must-pass. The phone session has not happened yet.
 
 **Does not block finish:**
 
@@ -99,33 +99,34 @@ Playable and fun. Further improvements do not hold the release.
 - WBL-18 through WBL-22 (duplicates, floating creatures, true-scale doors, evolution wording, the pond).
 - WB-NOSTALGIA, roster growth, WB2.2, and any new area or creature.
 - A played session past 30 minutes. Still worth doing. It does not hold the first-session bar.
-- WB-FUNNEL1 (#380) may finish. It logs the opening and does not add creatures. The checklist does not wait on it.
+- WB-FUNNEL1 (#380) is merged. It logs the opening and does not add creatures.
 
 ## Timeline
 
-Checked by dev lead. The measured squash count (2026-09-30 through 2026-10-14) is still **6 Wildbond squash merges, 3.0 a week**. The forward pace the lead is using is **about 2 pulls a week**.
+Measured 2026-10-14. Wildbond's feature rate is 31 pulls in 7 days (4.43 a day) and 34 in 14 days (2.43 a day). The maths is in [launch-summary.md](launch-summary.md). #380 and #399 are merged. They were not on this list.
 
-**Pulls left that block finish:**
+**Pulls left that block finish:** 7. Order is the order of the work.
 
 | Batch | Size | Gaps |
 |---|---|---|
-| Sprites | S | WBL-6. Nine sprites. Already in progress as its own pull request. Mosshog stays on the older Higgsfield art |
 | Menu | M | WBL-1 and WBL-14 (Choose Ripplet) |
 | Battles | M | WBL-2 |
-| First catch | M | WBL-3 and the Bond prompt in WBL-4 |
-| Early pace | S | WBL-4 text fit, WBL-5 |
+| Catch | M | WBL-3, the Catch button and the guided first catch |
+| Objective | S | WBL-4 |
+| Early pace | S | WBL-5 |
+| Sprites | S | WBL-6. Nine sprites, after WBL-4. Mosshog stays on the older Higgsfield art |
 | Road and Continue | M | WBL-7, WBL-8, WBL-9, WBL-10 |
 
 WBL-11 and WBL-12 are **SSA, parallel**. They are not on this list.
 
-**Likely:** about 2 pulls a week. **2026-11-11.**
-**Slower:** 1 pull a week, plus a second fun pass and a possible phone fix. **2026-12-09.**
+**Likely:** 7 / 4.43 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-17.**
+**Slower:** 7 / 2.43 days of build, two playtest rounds, and a 2-day buffer. **2026-10-22.**
 
 ## Owner and the first tasks
 
 **Owner:** Wildbond & Starfall Dev Lead. In this order:
 
-1. **WBL-6.** Finish wiring the 9 battle sprites. That pull is already in progress.
-2. **WBL-1.** The menu, the status bar, and Choose Ripplet (WBL-14).
-3. **WBL-2.** Battles start on the action menu, with no free hit.
-4. **WBL-3.** The guided first catch, after those three.
+1. **WBL-1.** The menu, the status bar, and Choose Ripplet (WBL-14).
+2. **WBL-2.** Battles open on the action menu, with no free hit.
+3. **WBL-3.** An obvious Catch button, and the guided first catch.
+4. **WBL-4.** The objective tracker. WBL-6, the nine battle sprites, comes after this.

@@ -29,13 +29,13 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 | **Shelved** (Evan, 2026-10-13, AR-SHELVE) | Off the site; code, folders and saves kept, old links still open. No work. | **Diamond Career** (Diamond Manager replaced it), Classic Wildbond, Classic Starfall Guild |
 | **Shelf** | Ideas and new content. The list is [ideas.md](ideas.md). | WB-NOSTALGIA, roster growth, WB2.2, LR19–LR22, IDLE-SS1, IDLE-CS1, IDLE-DP1, Keymaster and Main Street new content, the Starfall exact-build preview, Primordial, the walk-in arcade |
 
-**Where the effort goes** (a suggestion, not a new slot count): most of it on the three launch games. Side Games Dev Lead takes Little Ranch, with Grok and dot as guest help, and also Lantern Bowl and Night Market. Wildbond & Starfall Dev Lead takes the Wildbond checklist. Guest AIs work part-time.
+**Where the effort goes** (a suggestion, not a new slot count): most of it on the three launch games. Side Games Dev Lead takes Little Ranch, with Grok and dot as guest help, and also Lantern Bowl and Night Market. Wildbond & Starfall Dev Lead takes the Wildbond checklist.
 
 **Finished means playable and fun.** A newcomer gets through the first session without help, Playtester scores fun at least 7/10, there is no blocker or major bug, it plays on a phone where that applies, and there is one clear goal. Further improvements do not hold it. Merging alone does not count. Playtester or Evan confirms it.
 
 **Weekly playtest:** each week Playtester plays each launch game, and Wildbond, as a newcomer and scores it. The lowest-scoring part of that game becomes its next task.
 
-**Already open, and may finish:** Lantern Bowl round 5 counts toward that checklist. #383 (5a) is approved and merging. #400 LR18 (Grok, opened before the hold) may finish as Little Ranch launch polish. #381 LR17 was also opened before the hold and may finish; it is not required for the checklist. LR19–LR22 wait on the shelf until the Little Ranch checklist calls for them.
+**Already merged:** Lantern Bowl 5a (#383), Night Market (#403), LR17 (#381), LR18 (#400), #380 and #399. **On hold:** #404 LR19 and #409 LR20. #400 LR18 (Grok, opened before the hold) may finish as Little Ranch launch polish. #381 LR17 was also opened before the hold and may finish; it is not required for the checklist. LR19–LR22 wait on the shelf until the Little Ranch checklist calls for them.
 
 Rules:
 - **Bugs friends report on a launch game or on Wildbond** become the next gap on that checklist. A bug on a keep-alive game may be fixed. It does not start new content.

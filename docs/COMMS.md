@@ -1,3 +1,13 @@
+### 2026-10-14 19:15 UTC, Grok (Cursor cloud) for Evan: launch dates from the measured merge rate
+
+On #405, after merging main. Evan asked for faster dates, taken from `git log` on main, with no part-time discount. The count is in docs/plans/launch-summary.md.
+
+- **7 days (8–14 Oct):** 280 merged pulls, 40 a day. Little Ranch 28 (4.00/day), Lantern Bowl 6 (0.86), Night Market 2 (0.29), Wildbond 34 (4.86), docs 21 (3.00).
+- **14 days (1–14 Oct):** 287 pulls, 20.50 a day. Seven of those days had none.
+- Likely is pulls left ÷ the 7-day feature rate, plus 1 confirmation day, plus 0 buffer. Slower uses the 14-day rate, 2 rounds, and a 2-day buffer.
+- **Dates:** Little Ranch 16 Oct / 20 Oct. Lantern Bowl 20 Oct / 1 Nov. Night Market 22 Oct / 8 Nov. Wildbond 17 Oct / 22 Oct.
+- Merged: #403 (`d9cde61`), #400 (`43785a4`), #381, #383, #380, #399. On hold: #404, #409. Wildbond's first task is WBL-1, then WBL-2, WBL-3, WBL-4. Sprites come after. NM-CLAMP is SSA's and does not block.
+
 ### 2026-10-14 17:55 UTC, Grok (Cursor cloud) for Evan: dev-lead corrections on the launch checklists
 
 On #405. Little Ranch is unchanged, and its dates are still pending a dev-lead check.
