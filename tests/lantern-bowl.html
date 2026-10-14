@@ -40,8 +40,10 @@ document.querySelector('#run').onclick = async () => {
     check('thirty seconds leaves a minute and a half', Math.round(clock.clock) === 90 && clock.quarter === 1);
     M.burn(clock, 100);
     check('the clock carries into the next quarter', clock.quarter === 2 && Math.round(clock.clock) === 110);
-    const lastQ = M.create({ seed: 1 }); lastQ.quarter = 4; lastQ.clock = 10; M.burn(lastQ, 20);
+    const lastQ = M.create({ seed: 1 }); lastQ.quarter = 4; lastQ.clock = 10; lastQ.score.home = 3; M.burn(lastQ, 20);
     check('time expiring in the fourth quarter ends the game', lastQ.phase === 'final' && lastQ.clock === 0);
+    const tiedClock = M.create({ seed: 1 }); tiedClock.quarter = 4; tiedClock.clock = 10; M.burn(tiedClock, 20);
+    check('a tied gun opens overtime instead of ending', tiedClock.phase !== 'final' && tiedClock.quarter === 5 && tiedClock.possession === 'away' && Math.round(tiedClock.spot) === 75);
     const played = M.create({ seed: 11 }); M.callPlay(played, 'inside'); M.finish(played, M.policies.neutral);
     const back = M.restore(M.serialise(played));
     check('a saved match restores the same spot and dice', M.snapshot(back) === M.snapshot(played));
@@ -101,7 +103,7 @@ document.querySelector('#run').onclick = async () => {
     }
     check('a juke as the defender arrives gains more than a juke at the snap (' + (timedJuke / 20).toFixed(1) + ' vs ' + (earlyJuke / 20).toFixed(1) + ')', timedJuke > earlyJuke + 20);
     check('a dive as the defender arrives gains more than a dive at the snap (' + (timedDive / 20).toFixed(1) + ' vs ' + (earlyDive / 20).toFixed(1) + ')', timedDive > earlyDive + 20);
-    const dropped = M.create({ seed: 4 }); M.callPlay(dropped, 'quick'); M.finish(dropped, M.scriptedQuick);
+    const dropped = M.create({ seed: 43 }); M.callPlay(dropped, 'quick'); M.finish(dropped, M.scriptedQuick);
     const dropText = M.currentMessage(dropped);
     check('a drop uses the cover that stopped it', /cannot bring it in/.test(dropText) && /The cover \(\d+\) stopped /.test(dropText) && !/beat the cover/.test(dropText) && !/beat The /.test(dropText));
     const caught = M.create({ seed: 1 }); M.callPlay(caught, 'quick'); M.finish(caught, M.scriptedQuick);
@@ -110,12 +112,64 @@ document.querySelector('#run').onclick = async () => {
     const half = M.create({ seed: 9 }); half.quarter = 2; half.clock = 4; half.down = 3; half.toGo = 6; half.spot = 42;
     M.callPlay(half, 'inside'); M.finish(half, M.policies.neutral);
     check('the second half opens with a kickoff to Millrace', half.quarter === 3 && half.possession === 'away' && half.down === 1 && Math.round(half.spot) === 25 && /Halftime/.test(half.last.text) && /Millrace receives/.test(half.last.text));
-    const gun = M.create({ seed: 9 }); gun.quarter = 4; gun.clock = 4; gun.spot = 40;
+    const gun = M.create({ seed: 9 }); gun.quarter = 4; gun.clock = 4; gun.spot = 40; gun.score.home = 7;
     M.callPlay(gun, 'inside'); M.finish(gun, M.policies.neutral);
     check('the gun ends the game', gun.phase === 'final' && gun.clock === 0 && gun.quarter === 4);
-    const series = M.create({ seed: 4 }); series.quarter = 3; series.clock = 28; series.possession = 'away'; series.phase = 'cpu'; series.down = 1; series.toGo = 10; series.spot = 35;
-    M.cpuDrive(series);
-    check('a Millrace series stops when the quarter turns', series.phase === 'final' || series.quarter === 3 || series.clock > 90);
+    const ot = M.create({ seed: 9 }); ot.quarter = 4; ot.clock = 4; ot.spot = 40; ot.score.home = 7; ot.score.away = 7;
+    M.callPlay(ot, 'inside'); M.finish(ot, M.policies.neutral);
+    check('overtime gives Millrace one turn from the 25 and says so', ot.quarter === 5 && ot.possession === 'away' && ot.phase === 'cpu' && Math.round(ot.spot) === 75 && /Overtime/.test(ot.last.text) && /Millrace goes first/.test(ot.last.text) && /both turns/.test(ot.last.text));
+    const told = text => /punt|Turnover|Intercept|Touchdown|Safety|Halftime|makes it|misses from|Overtime|ball, on the 25|ball again/i.test(text || '');
+    const broken = M.create({ seed: 1 });
+    broken.quarter = 1; broken.clock = 12; broken.down = 2; broken.toGo = 10; broken.spot = 81; broken.possession = 'away'; broken.phase = 'cpu';
+    M.cpuDrive(broken);
+    check('a quarter ending does not hand the ball back without a cause', (broken.phase === 'final' || broken.possession === 'home') && told(broken.log.join(' ')) && !(broken.quarter === 2 && broken.clock >= 119 && broken.possession === 'away'));
+    const spotBug = M.create({ seed: 355 });
+    spotBug.quarter = 1; spotBug.clock = 54; spotBug.down = 2; spotBug.toGo = 10; spotBug.spot = 81; spotBug.possession = 'away'; spotBug.phase = 'cpu';
+    let spotSteps = 0, clockOk = true, causeOk = true;
+    while (spotBug.possession === 'away' && spotBug.phase !== 'final' && spotSteps < 20) {
+      const before = { quarter: spotBug.quarter, clock: spotBug.clock, possession: spotBug.possession };
+      const from = spotBug.log.length;
+      if (!M.cpuSnap(spotBug)) break;
+      const spent = M.clockSpent(before, spotBug);
+      if (spent > 14.01 || spent < -0.001 || spotBug.quarter > before.quarter + 1) clockOk = false;
+      if (before.quarter === 1 && spotBug.quarter === 2) {
+        const into = spent - before.clock;
+        if (Math.abs(spotBug.clock - (M.QUARTER - into)) > 0.05) clockOk = false;
+      }
+      if (before.quarter === 1 && before.clock > 20 && spotBug.quarter === 2 && spotBug.clock >= 119.5) clockOk = false;
+      if (spotBug.possession !== before.possession && !told(spotBug.log.slice(from).join(' '))) causeOk = false;
+      spotSteps += 1;
+    }
+    check('from Q1 0:54, 2nd and 10 at their 19, the clock stays honest (' + spotSteps + ' snaps)', clockOk && causeOk && spotSteps > 0 && M.downWords(M.create({ seed: 1 })) !== '');
+    const named = M.create({ seed: 355 }); named.quarter = 1; named.clock = 54; named.down = 2; named.toGo = 10; named.spot = 81;
+    check('that spot is 2nd and 10 at their 19', M.downWords(named) === '2nd and 10 at their 19');
+    function aimedPull(power, dirY) {
+      return function (play) {
+        if (!play || play.family !== 'pass' || play.thrown || play.flight) return M.policies.neutral();
+        if (play.elapsed < 0.35) return M.policies.neutral();
+        return { steer: 0, turbo: false, juke: 0, dive: false, throw: { dirX: 0.95, dirY: dirY, power: power } };
+      };
+    }
+    let weakYards = 0, strongYards = 0;
+    for (let i = 0; i < 12; i++) {
+      const opts = { seed: 40 + i, home: { throw: 84, catch: 82 }, away: { cover: 36, rush: 40 } };
+      const weakPull = M.create(opts); M.callPlay(weakPull, 'quick'); M.finish(weakPull, aimedPull(0.12, 0)); weakYards += weakPull.lastGain || 0;
+      const strongPull = M.create(opts); M.callPlay(strongPull, 'quick'); M.finish(strongPull, aimedPull(0.75, 0)); strongYards += strongPull.lastGain || 0;
+    }
+    check('a stronger pull gains more yards (' + (weakYards / 12).toFixed(1) + ' vs ' + (strongYards / 12).toFixed(1) + ')', strongYards > weakYards + 60);
+    const aimGame = M.create({ seed: 1 }); M.callPlay(aimGame, 'quick');
+    const aimWeak = M.aimThrow(aimGame.play, { dirX: 0.95, dirY: 0, power: 0.12 });
+    const aimStrong = M.aimThrow(aimGame.play, { dirX: 0.95, dirY: 0, power: 0.75 });
+    const aimLeft = M.aimThrow(aimGame.play, { dirX: 0.6, dirY: -0.8, power: 0.7 });
+    const aimRight = M.aimThrow(aimGame.play, { dirX: 0.6, dirY: 0.8, power: 0.7 });
+    check('aim moves the preview from one side to the other', aimStrong.x > aimWeak.x + 4 && aimLeft.y < -2 && aimRight.y > 2 && aimLeft.target !== aimRight.target);
+    let sawJuke = false;
+    const cueGame = M.create({ seed: 2 }); M.callPlay(cueGame, 'inside');
+    for (let i = 0; i < 180 && cueGame.phase === 'live'; i++) {
+      M.step(cueGame, 1 / 30, M.policies.neutral());
+      if (cueGame.play && cueGame.play.cue === 'juke') sawJuke = true;
+    }
+    check('a closing defender prompts a juke', sawJuke);
     const goalLine = M.create(); goalLine.spot = 100; goalLine.toGo = 0; goalLine.down = 1;
     check('the goal line is not their 0', M.spotWords(100) === 'the goal line' && M.spotWords(99) === 'their 1' && M.downWords(goalLine).indexOf('their 0') < 0);
     check('the goal sits closer when the offence is downfield', V.fieldLocal(80, 100) === 20 && V.fieldLocal(25, 100) === 75);
@@ -191,7 +245,12 @@ document.querySelector('#run').onclick = async () => {
     const resumed = w2.__lantern.state;
     const offRatings = resumed[resumed.possession];
     const defRatings = resumed[resumed.possession === 'home' ? 'away' : 'home'];
-    check('the quarterback, receiver and line ratings are readable', !!sheet && sheet.textContent.indexOf('throw ' + offRatings.qb.throw) >= 0 && sheet.textContent.indexOf('hands ' + offRatings.wr[0].catch) >= 0 && sheet.textContent.indexOf('vs rush ' + defRatings.rush) >= 0);
+    check('the ratings use plain words', !!sheet && /throwing/.test(sheet.textContent) && /catching/.test(sheet.textContent) && /blockers|rush is through/.test(sheet.textContent) && sheet.textContent.indexOf('vs rush') < 0);
+    sheet.click();
+    await wait();
+    check('a tap on the ratings shows the numbers', sheet.textContent.indexOf('throw ' + offRatings.qb.throw) >= 0 && sheet.textContent.indexOf('hands ' + offRatings.wr[0].catch) >= 0 && sheet.textContent.indexOf('rush ' + defRatings.rush) >= 0);
+    sheet.click();
+    await wait();
     const spotOf = id => {
       const el = d2.querySelector('[data-play="' + id + '"]');
       const r = el.getBoundingClientRect();
@@ -204,6 +263,9 @@ document.querySelector('#run').onclick = async () => {
       return btn && btn.querySelector('svg');
     }));
     check('kick keeps its seat before fourth down', beforeDown.kick.off === true);
+    const kickBtn = d2.querySelector('[data-play="kick"]'), turboBtn = d2.querySelector('#turbo');
+    check('a grey kick says it waits for fourth down', !!kickBtn && kickBtn.disabled && /fourth down/i.test(kickBtn.getAttribute('aria-label') || ''));
+    check('a grey turbo says it waits for the play', !!turboBtn && turboBtn.disabled && /ball is moving/i.test(turboBtn.getAttribute('aria-label') || ''));
     resumed.down = 4;
     w2.__lantern.refresh();
     await wait();
@@ -232,7 +294,7 @@ document.querySelector('#run').onclick = async () => {
     else w2.__lantern.refresh();
     await wait();
 
-    for (const [width, height] of [[375, 812], [400, 700], [667, 375], [1366, 768]]) {
+    for (const [width, height] of [[375, 812], [400, 700], [420, 780], [667, 375], [1366, 768]]) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px';
       await wait();
       check(width + '×' + height + ' stays on the screen', d2.documentElement.scrollWidth <= width + 1 && d2.documentElement.scrollHeight <= height + 1);
@@ -264,6 +326,20 @@ document.querySelector('#run').onclick = async () => {
         const ratings = d2.querySelector('#sheet').getBoundingClientRect();
         check('the 400px ratings stay on the field', ratings.width > 0 && ratings.left >= field.left - 1 && ratings.right <= field.right + 1 && ratings.bottom <= field.bottom + 1);
       }
+      if (width === 420) {
+        const home = d2.querySelector('.home'), gear = d2.querySelector('.arc-set-btn'), sound = d2.querySelector('#sound');
+        const homeBox = home.getBoundingClientRect(), gearBox = gear.getBoundingClientRect(), soundBox = sound.getBoundingClientRect();
+        check('at 420px Arcade, Settings and Sound stay whole', home.textContent.indexOf('Arcade') >= 0 && gear.textContent.indexOf('Settings') >= 0 && sound.textContent.indexOf('Sound') >= 0 && home.scrollWidth <= home.clientWidth + 2 && gear.scrollWidth <= gear.clientWidth + 2 && sound.scrollWidth <= sound.clientWidth + 2 && soundBox.height <= 52 && homeBox.top < 80 && gearBox.top < 80);
+        const ratings420 = d2.querySelector('#sheet').getBoundingClientRect();
+        const field420 = d2.querySelector('.screen').getBoundingClientRect();
+        check('at 420px the stats line stays on the field', ratings420.width > 40 && ratings420.left >= field420.left - 1 && ratings420.right <= field420.right + 1 && ratings420.bottom <= field420.bottom + 1);
+        const banner = d2.querySelector('#banner');
+        banner.hidden = false; banner.textContent = 'The result sits low.';
+        const players = field420.top + field420.height * 0.45;
+        const bannerBox = banner.getBoundingClientRect();
+        check('at 420px the result sits below the players', bannerBox.top > players);
+        banner.hidden = true; banner.textContent = '';
+      }
     }
     frame.style.width = '375px'; frame.style.height = '812px';
     d2.documentElement.style.setProperty('--arc-text', '1');
@@ -283,7 +359,9 @@ document.querySelector('#run').onclick = async () => {
     d2.querySelector('[data-again]').click();
     await wait();
     check('play again comes back to the kickoff', !!d2.querySelector('[data-kick]') && !d2.querySelector('[data-play]'));
-    check('play again clears the last play', (d2.querySelector('#banner').textContent || '') === '');
+    check('play again clears the last play', (d2.querySelector('#banner').textContent || '') === '' && (d2.querySelector('#sheet').textContent || '') === '');
+    check('the version is visible', (d2.querySelector('#build').textContent || '') === 'v' + again.VERSION);
+    check('the field and the dialog do not select text', w2.getComputedStyle(d2.querySelector('#field')).userSelect === 'none' && w2.getComputedStyle(d2.querySelector('.panel')).userSelect === 'none');
     d2.querySelector('[data-kick]').click();
     await wait();
     check('the new kickoff is 1st and 10 at the 25', again.state.quarter === 1 && again.state.down === 1 && again.state.score.home === 0 && again.state.score.away === 0 && Math.round(again.state.spot) === 25);
@@ -297,17 +375,28 @@ document.querySelector('#run').onclick = async () => {
     check('a v3 save is refused while the game is v2', again.migrateSave({ v: 3, game: 'lantern-bowl', sound: 0, match: null }) === null);
     delete again.migrateSave.steps[1];
     again.migrateSave.SAVE_V = savedVersion;
+    d2.querySelector('#field').dispatchEvent(new w2.PointerEvent('pointerdown', { clientX: 30, clientY: 80, pointerId: 7, bubbles: true }));
+    await wait();
+    check('a drag before a play asks for one', (d2.querySelector('#banner').textContent || '').indexOf('Pick a play') >= 0);
+    again.rush(true);
     again.state.down = 4; again.state.spot = 28; again.state.toGo = 10; again.state.phase = 'call'; again.state.possession = 'home';
     again.state.quarter = 1; again.state.clock = 120; again.state.seed = 1; again.state.rng = 1;
     again.begin('kick');
-    await wait();
-    const plays = Array.from(d2.querySelectorAll('.cpu-log li'));
-    const bits = Array.from(d2.querySelectorAll('.cpu-log p'));
-    check('Millrace\'s drive is one sentence per line (' + plays.length + ' plays)', plays.length >= 2 && bits.length >= plays.length && !d2.querySelector('.cpu-log br') && bits.every(p => /[.!?]$/.test(p.textContent.trim())));
-    again.state.quarter = 4; again.state.clock = 12; again.state.possession = 'away'; again.state.phase = 'cpu'; again.state.down = 1; again.state.toGo = 10; again.state.spot = 30;
+    let driveDone = false;
+    for (let i = 0; i < 40 && !driveDone; i++) {
+      await wait();
+      driveDone = again.state.possession === 'home' || again.state.phase === 'final';
+    }
+    const driveText = (again.state.log || []).join(' ');
+    check('Millrace\'s drive plays on the field and names why the ball changed', driveDone && !d2.querySelector('.cpu-log') && /punt|Turnover|Intercept|Touchdown|Safety|Halftime|makes it|misses from|Overtime/.test(driveText) && d2.querySelector('#field'));
+    again.state.quarter = 4; again.state.clock = 3; again.state.possession = 'away'; again.state.phase = 'cpu'; again.state.down = 1; again.state.toGo = 10; again.state.spot = 30; again.state.score.home = 14; again.state.score.away = 0;
     again.playCpu();
-    await wait();
-    check('the end of the game is the final screen', again.state.phase === 'final' && d2.querySelector('#panelTitle').textContent === 'Final' && !d2.querySelector('.cpu-log'));
+    let sawFinal = false;
+    for (let i = 0; i < 40 && !sawFinal; i++) {
+      await wait();
+      sawFinal = again.state.phase === 'final';
+    }
+    check('the end of the game is the final screen', sawFinal && d2.querySelector('#panelTitle').textContent === 'Final' && !d2.querySelector('.cpu-log'));
     sum.textContent = 'PASS — ' + n + ' checks.';
   } catch (e) {
     sum.textContent = 'FAIL — ' + e.message;
