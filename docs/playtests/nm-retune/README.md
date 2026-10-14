@@ -70,6 +70,6 @@ Existing players keep their earned cash, lifetime total, ownership, hires, hand 
 
 - Standalone deterministic measurement and scope/save checks: passed.
 - The model portion of the real HTML regression suite: 71 assertions passed in a Node VM. This is not a browser pass.
-- JavaScript syntax and `git diff --check`: passed.
-- Exact-head browser/aggregate CI: pending implementation push.
+- JavaScript syntax and `git diff --check`: passed. Independent code/pacing review found no blocking issue; additional hold/frontier, 250ms-buy and 5/15-second-buy sensitivity runs stayed within the active target.
+- Implementation head `a0f095bb2b6881062cadcddaf77fc786e160a7a2`: all 28 aggregate suites passed, including 98 Night Market real-browser assertions, in [Checks run 38653944153](https://github.com/ecbarish/generations/actions/runs/38653944153). The final documentation/main-reconciliation head receives a separate exact-head run; its result is recorded in the PR self-check.
 - No screenshot, human-session duration, phone-play score, visual approval, merge or publication is claimed. Local Chromium cannot launch because its process-singleton socket is denied. The dot cloud browser was available but could not reach this checkout's localhost server. This task changes no layout or art; browser CI checks the rendered numeric payback text and real controls.
