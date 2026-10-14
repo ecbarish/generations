@@ -42,6 +42,9 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Godot Wildbond (2026-10-14, WB-C4, PR #372):** Larkhaven gets a barn garden, door stones, straw in the pen and grass variety, and the Thornwood ponds get a muddy, reedy bank. Source only; the web preview is not rebuilt here.
+- **Godot Wildbond (2026-10-14, WB-C3b, PR #382):** the register shows only the tap hint on phones, and the partner-card note no longer touches the stat bars. Source only; the web preview is not rebuilt here.
+- **Keymaster v0.1.0 — KM0 (PR #379; version bumped on merge):** Keymaster KM0 prototype added.
 - **Otherworld v0.4.1 — OW-N1 (PR #378; version bumped on merge):** a Memories carried ledger, at least two open choices at every beat, and a hall blurb that calls it a story life sim.
 - **Lantern Bowl v0.1.4 — #359 (PR #369; version bumped on merge):** running matters, and Millrace's drives play on the field.
 - **Godot Wildbond (2026-10-14, WB5.6, PR #368):** the catalogue reaches 189 species, and evolved forms are at half. Source only; the web preview is not rebuilt here.
