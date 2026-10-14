@@ -163,6 +163,7 @@ Every number in this section is **[Opinion] a tuning starting point**, picked to
 - Bulk: x1/x10/max via Pecorella's closed forms. Worked check: base 5, r 1.07, owned 10, buy 10 → 135.90.
 - **Offline rule:** Offline = the page was closed. While the page stays loaded (visible or hidden tab), every tick credits the full elapsed real time at the full online rate, no matter how large the gap (throttled hidden tabs included). The offline rate and offline cap apply only on load from a save, to the time between the last save timestamp and now.
 - Tick: credit the Date.now delta since the last tick (no threshold, no clamp while loaded). Save on visibilitychange (hidden) and pagehide, and every 30 s, so the last-save timestamp is accurate. On load: offline credit = min(now − lastSave, cap) × activeRate × offlineRate, then show the away summary.
+- A single tick is held to `maxOfflineSec` (the hidden-tab clamp is kept; that's the Shared Systems Architect's NM-CLAMP ruling).
 
 ### 8.2 Generators (first 3 tiers)
 | Slice | Tier 1 (base / r / per s) | Tier 2 | Tier 3 | Payback t1/t2/t3 |
