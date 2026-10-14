@@ -11,31 +11,38 @@
 <header>
   <a class="home" href="../../index.html"><span class="wide">← Arcade</span><span class="narrow">←</span></a>
   <h1>Lantern Bowl</h1>
+  <small id="build" class="build">v0.1.5</small>
   <div id="settingsMount"><button id="sound" type="button" aria-label="Change sound setting">Sound off</button></div>
 </header>
 <section class="screen" aria-label="Lamplight Field">
   <div class="hud">
-    <span><small>LANTERNS</small><b id="homeScore">0</b></span>
-    <span class="mid"><small id="clock">Q1 2m 0s</small><b id="down">1st and 10</b></span>
-    <span class="right"><small>MILLRACE</small><b id="awayScore">0</b></span>
+    <span><small>LANTERNS</small> <b id="homeScore">0</b></span>
+    <b class="mid" id="down">1st and 10</b>
+    <small class="mid" id="clock">Q1 2m 0s</small>
+    <span class="right"><b id="awayScore">0</b> <small>MILLRACE</small></span>
   </div>
   <div class="pitch">
     <canvas id="field" tabindex="0" aria-label="The field, seen from the side."></canvas>
-    <small id="build" class="build">v0.1.5</small>
   </div>
-  <div class="under">
-    <p id="cue" class="field-cue" hidden></p>
-    <p id="sheet" class="sheet" hidden></p>
-    <p class="banner" id="banner" hidden></p>
-  </div>
-  <div class="curtain" id="curtain"><section class="panel" id="panel" role="dialog" aria-labelledby="panelTitle"></section></div>
-</section>
-<footer>
-  <div class="dock" id="dock" role="group" aria-label="Play call"></div>
+  <p id="sheet" class="sheet" hidden></p>
+  <p id="cue" class="field-cue" hidden></p>
+  <p class="banner" id="banner" hidden></p>
   <p class="hint" id="hint"></p>
   <p id="held" class="held" hidden></p>
-</footer>
+  <button type="button" id="turbo" hidden>Turbo</button>
+  <div id="receivers" class="receivers" hidden></div>
+  <div class="dock" id="dock" role="group" aria-label="Play call"></div>
+  <div class="curtain" id="curtain"><section class="panel" id="panel" role="dialog" aria-labelledby="panelTitle"></section></div>
+</section>
 </main>
+<div id="turn" class="turn" hidden role="status">
+  <svg viewBox="0 0 64 64" aria-hidden="true">
+    <rect x="26" y="8" width="18" height="32" rx="3" fill="none" stroke="#f2d080" stroke-width="3"/>
+    <path d="M12 40a20 20 0 0 0 28 16" fill="none" stroke="#f6edd4" stroke-width="3" stroke-linecap="round"/>
+    <path d="M36 50l6 8-9-1" fill="none" stroke="#f6edd4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <p>Turn your phone sideways</p>
+</div>
 <script src="../../shared/engine.js"></script>
 <script src="../../shared/settings.js"></script>
 <script src="../../shared/sound.js"></script>
