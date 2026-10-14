@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Fail when the packed Wildbond game changes without a matching web export.
 
-The live site serves play/wildbond/index.pck. play/wildbond/build.json records
-source_tree, the git tree id of wildbond-godot/ at export time
-(`git rev-parse <commit>:wildbond-godot`). When a pull request or a commit on
-main changes the packed game, this check requires a new pack, an updated shell
-byte count, and a source_tree that matches the reviewed commit.
+The live site serves play/wildbond/index.pck. tools/godot-export.ps1 copies
+browser JSON into the Godot project; it does not build this preview. The
+preview is a Godot pack export. play/wildbond/index.html stores the pack size,
+and play/wildbond/build.json stores the source commit and the pack hash. The
+main-branch live check downloads those files and matches them to build.json,
+so the record has to stay accurate. index.js and index.wasm stay the existing
+engine bytes. When a pull request or a commit on main changes the packed game,
+this check requires a new pack, an updated size, and a source_tree that matches
+the reviewed commit.
 
 A historically stale source_tree is allowed when the packed game did not change.
 That keeps current main, and docs-only commits, green until the next real export.
@@ -24,18 +28,23 @@ EXPORT_PATHS = tuple(f"play/wildbond/{name}" for name in EXPORT_NAMES)
 HASHED_NAMES = ("index.html", "index.js", "index.pck", "index.wasm")
 TREE_RE = re.compile(r"[0-9a-f]{40}")
 PACK_SIZE_RE = re.compile(br'"index\.pck"\s*:\s*(\d+)')
+# The committed Godot 4.7.2 web engine. A pack refresh must not replace these.
+ENGINE = {
+    "index.js": "33c94cb3175f3333b82e2a3be5e8e86f77986f0aa2042b1631f6367a4e5bb6ba",
+    "index.wasm": "fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0",
+}
 
 REFRESH_HELP = """
 How to refresh the Wildbond web export:
 
-The live page serves play/wildbond/. From the repository root, with Godot 4.7.2:
+tools/godot-export.ps1 does not build this preview. It copies browser JSON into wildbond-godot/data/. The preview is a Godot pack export written to play/wildbond/index.pck. From the repository root, with Godot 4.7.2:
 
     Godot --headless --path wildbond-godot --editor --import --quit
     Godot --headless --path wildbond-godot --export-pack Web "$PWD/play/wildbond/index.pck"
 
 On Windows the executable is Godot_v4.7.2-stable_win64_console.exe and the pack path is %CD%\\play\\wildbond\\index.pck.
 
-Then set the single "index.pck" byte count in play/wildbond/index.html to the new file size. Keep the existing index.js and index.wasm bytes. Update play/wildbond/build.json: built (UTC date), source_commit (the commit you exported), source_tree from `git rev-parse HEAD:wildbond-godot`, and the sha256 of index.html, index.js, index.pck and index.wasm. source_tree has to equal the wildbond-godot tree of the commit that contains the new pack. A later merge that leaves the game tree unchanged can keep the earlier source_commit. Commit index.pck, index.html and build.json together.
+Then set the single "index.pck" byte count in play/wildbond/index.html to the new file size. Leave index.js and index.wasm unchanged. Update play/wildbond/build.json so the live check can match it: source_commit (the commit you exported), the sha256 pack hash, and the sha256 of index.html, index.js and index.wasm. Also set source_tree from `git rev-parse <that commit>:wildbond-godot`. source_tree has to equal that commit's wildbond-godot tree. Commit index.pck, index.html and build.json together.
 
 python3 tools/wildbond-export-freshness.py --base origin/main --head HEAD
 
@@ -70,6 +79,38 @@ def parse_name_status(text):
         elif len(parts) >= 2:
             paths.add(parts[-1])
     return paths
+
+
+def engine_problems(files):
+    """The live pages keep the existing engine bytes. A pack export must not replace them."""
+    problems = []
+    for name, expected in ENGINE.items():
+        data = files.get(name)
+        if data is None:
+            continue
+        actual = hashlib.sha256(data).hexdigest()
+        if actual != expected:
+            problems.append(
+                f"play/wildbond/{name} is {actual}. It has to stay {expected}. "
+                "The pack export leaves the Godot engine files unchanged."
+            )
+    return problems
+
+
+def source_record_problems(manifest, source_commit_tree):
+    """source_commit and source_tree have to name the same exported game."""
+    if not isinstance(manifest, dict):
+        return []
+    commit = manifest.get("source_commit")
+    if not isinstance(commit, str) or not TREE_RE.fullmatch(commit):
+        return ["build.json source_commit must be the 40-character commit the pack was exported from."]
+    tree = manifest.get("source_tree")
+    if source_commit_tree is not None and tree != source_commit_tree:
+        return [
+            f"build.json source_commit {commit} has wildbond-godot tree {source_commit_tree}, "
+            f"and source_tree is {tree}. The source commit and the pack hash have to describe that same export."
+        ]
+    return []
 
 
 def shell_pack_size(html):
@@ -205,6 +246,10 @@ def main(argv=None):
         git_text("cat-file", "-e", f"{args.head}^{{commit}}")
         changed, label = changed_paths(args.base, args.head)
         files, manifest, tree = load_head(args.head)
+        source_commit = manifest.get("source_commit") if isinstance(manifest, dict) else None
+        source_commit_tree = None
+        if isinstance(source_commit, str) and TREE_RE.fullmatch(source_commit):
+            source_commit_tree = git_text("rev-parse", f"{source_commit}:wildbond-godot")
     except subprocess.CalledProcessError as error:
         print("Could not read the two commits. Fetch both, then run this again.", file=sys.stderr)
         print(error, file=sys.stderr)
@@ -214,6 +259,8 @@ def main(argv=None):
         print(REFRESH_HELP)
         return 1
     problems = collect_problems(changed, tree, manifest, files)
+    problems.extend(engine_problems(files))
+    problems.extend(source_record_problems(manifest, source_commit_tree))
     if problems:
         print(f"Wildbond export freshness failed for {label}.")
         for problem in problems:
@@ -233,7 +280,10 @@ def main(argv=None):
     else:
         print("No packed Wildbond game files changed, so the existing web pack can stay.")
     size = len(files["index.pck"])
-    print(f"index.pck is {size} bytes, and the shell byte count matches.")
+    print(
+        f"index.pck is {size} bytes. That size, the pack hash, and source_commit "
+        f"{manifest.get('source_commit')} agree, and the engine files are unchanged."
+    )
     return 0
 
 

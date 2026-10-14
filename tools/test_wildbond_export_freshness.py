@@ -73,6 +73,27 @@ class PackedPathRules(unittest.TestCase):
         )
 
 
+class ExportRecord(unittest.TestCase):
+    def test_engine_files_must_stay_the_committed_bytes(self):
+        problems = freshness.engine_problems({"index.js": b"replaced", "index.wasm": b"WASM"})
+        self.assertEqual(len(problems), 2)
+        self.assertIn("index.js", problems[0])
+        self.assertIn(freshness.ENGINE["index.js"], problems[0])
+        self.assertEqual(freshness.engine_problems({}), [])
+
+    def test_source_commit_must_name_the_recorded_tree(self):
+        blob = files_for(8)
+        manifest = manifest_for(blob, TREE)
+        self.assertEqual(freshness.source_record_problems(manifest, TREE), [])
+        problems = freshness.source_record_problems(manifest, OTHER)
+        self.assertEqual(len(problems), 1)
+        self.assertIn(manifest["source_commit"], problems[0])
+
+    def test_source_commit_must_be_a_commit_id(self):
+        problems = freshness.source_record_problems({"source_commit": "main", "source_tree": TREE}, None)
+        self.assertEqual(len(problems), 1)
+
+
 class FreshnessDecision(unittest.TestCase):
     def test_stale_stamp_passes_when_the_game_is_unchanged(self):
         blob = files_for(32)
@@ -169,7 +190,8 @@ class RepositoryFixtures(unittest.TestCase):
         result = self.run_check(base, head)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("web export was left stale", result.stdout)
-        self.assertIn("git rev-parse HEAD:wildbond-godot", result.stdout)
+        self.assertIn("git rev-parse <that commit>:wildbond-godot", result.stdout)
+        self.assertIn("tools/godot-export.ps1 does not build this preview", result.stdout)
         self.assertIn("--export-pack Web", result.stdout)
         manifest = json.loads(subprocess.check_output(["git", "show", head + ":play/wildbond/build.json"], cwd=ROOT))
         tree = subprocess.check_output(["git", "rev-parse", head + ":wildbond-godot"], cwd=ROOT, text=True).strip()

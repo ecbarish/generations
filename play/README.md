@@ -5,7 +5,13 @@ GitHub Pages without special headers). Linked from playtest.html. Each rebuilt p
 repository's history forever (docs/learning/web-and-shipping.md), so keep the Godot edits and the one new pack in
 the same pull request.
 
-The live Wildbond page serves `play/wildbond/`. A pull request or a commit on main that changes the packed game
+The live Wildbond page serves `play/wildbond/`. `tools/godot-export.ps1` does not build that preview: it copies
+browser JSON into `wildbond-godot/data/`. The preview is a Godot pack export written to `play/wildbond/index.pck`.
+The pack's byte count goes in `play/wildbond/index.html`, and `play/wildbond/build.json` records the source
+commit and the pack hash. The main-branch live check downloads those files and matches them to `build.json`, so
+that record has to stay accurate. `index.js` and `index.wasm` stay unchanged.
+
+A pull request or a commit on main that changes the packed game
 has to export that pack again, or `tools/wildbond-export-freshness.py` fails. The packed game is everything under
 `wildbond-godot/` except `tests/`, `frames/`, `.godot/`, `export/`, Markdown notes, and Windows `.bat` launchers.
 That includes scripts, scenes, assets, shaders, data, `tools/`, `project.godot`, `export_presets.cfg`, and
