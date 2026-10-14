@@ -10,6 +10,7 @@
   --night: #161326;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
   background: var(--night);
@@ -62,6 +63,7 @@ button[aria-pressed="true"], button.ask {
 .stall { border-top: 1px solid var(--rule); padding: 0.85rem 0 0.7rem; }
 .stall h2 { font-size: 1.15rem; margin: 0; font-weight: 600; }
 .habit, .facts, .wait { margin: 0.2rem 0; }
+.facts:empty, .wait:empty { display: none; }
 .habit { color: var(--mute); }
 .wait { color: var(--mute); }
 .actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.45rem; }

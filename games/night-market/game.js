@@ -64,22 +64,24 @@
     serve.hidden = !!st.hired;
     serve.textContent = stall.serve;
     if (!st.hired) {
-      facts.textContent = st.serves + ' done by hand.';
+      facts.textContent = '';
       var need = stall.serves - st.serves;
       wait.textContent = need > 0
         ? need + ' more ' + (need === 1 ? stall.left : stall.lefts) + ' to do yourself.'
         : stall.vendor + ' will take it whenever you ask.';
-      ask.hidden = false;
+      ask.hidden = !M.canHire(state, i);
       ask.textContent = stall.hire;
-      ask.disabled = !M.canHire(state, i);
+      ask.disabled = false;
       buy.hidden = true;
       return;
     }
     var rate = M.production(state, i);
     facts.textContent = st.owned + ' open · ' + money(rate) + ' coins a second. ' + M.lookLine(state, i);
     var one = M.quote(state, i, 1);
-    wait.textContent = one.cost > 0 && M.income(state) > 0
-      ? 'The next one pays for itself in ' + Arcade.fmtTime(Math.ceil(one.cost / M.income(state))) + '.'
+    var per = M.income(state);
+    var secs = per > 0 && one.cost > 0 ? Math.max(1, Math.ceil(one.cost / per)) : 0;
+    wait.textContent = secs
+      ? 'The next one pays for itself in ' + (secs < 60 ? secs + (secs === 1 ? ' second.' : ' seconds.') : Arcade.fmtTime(secs) + '.')
       : stall.vendor + ' is running this stall.';
     ask.hidden = true;
     buy.hidden = false;
@@ -92,6 +94,8 @@
     var rate = M.income(state);
     $('#rate').textContent = rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.';
     $('#goal').textContent = M.goal(state);
+    var hiring = state.stalls.some(function (s) { return s.hired; });
+    $('#bulk').hidden = !hiring;
     document.querySelectorAll('[data-bulk]').forEach(function (b) {
       var on = String(state.bulk) === b.dataset.bulk;
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
