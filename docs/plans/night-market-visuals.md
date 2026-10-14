@@ -3,7 +3,10 @@
 Status: draft from Game Art Director, 2026-10-14. Polish only: no changes to balance, save or model.
 Trigger: Playtester's note "no visual life" (Playtester screenshots nm_01 to nm_06 (on the PM box)).
 
-## What the game is today (read from `games/night-market/` on main, v0.1.0)
+## What the game is today (read from `games/night-market/` on main, v0.1.1)
+
+It will be v0.1.2 after the #434 bookkeeping.
+
 - **No canvas and no draw loop.** It is a DOM ledger: `index.html` + `style.css` + `game.js`, which calls `render()` from `setInterval(render, 250)`. The only "scene" is one sentence: "Lanterns over a short lane of stalls."
 - **Current palette (style.css): 10 colours.** `#241c16` ink, `#f4efe6` paper, `#ddd4c6` rule, `#8a4e1d` amber, `#f6e6cf` amber-wash, `#6e6258` mute, `#1d5c3e` good, `#161326` night, `#fffdf8` button face, `#fbf6ec` away box.
 - The house shared colours are missing: ink `#1e1a22` and lamplight `#f2d080`.
