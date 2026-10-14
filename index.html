@@ -152,7 +152,7 @@ details.more-games>summary .like{display:block}details.more-games .shelf{margin-
     <p class="tag"><b class="motto">Play for the fun. Automate the grind.</b> A stable of adventure and progression games, headlined by <b>Wildbond</b>: bond with creatures and bring colour back to a faded world. Little ones have <b>Little Ranch</b>, a gentle toy for ages 2 to 4. Each game saves on its own, so you can jump between them and pick up where you left off. New here? Meet <a href="promo.html" style="color:var(--marquee)">Realmbound →</a> or <a href="promo-wildbond.html" style="color:var(--ok)">Wildbond →</a></p>
     <div class="hero-cta"><a class="hero-play" id="heroPlay" href="play/wildbond/">▶ Play Wildbond</a><a class="hero-browse" href="#shelf">or browse all games ↓</a></div>
     <noscript><ul class="nojs"><li><a href="play/wildbond/">Wildbond</a></li><li><a href="play/starfall/">Starfall Guild</a></li><li><a href="games/realmbound/index.html">Realmbound</a></li><li><a href="games/little-ranch/index.html">Little Ranch</a> (ages 2 to 4)</li></ul></noscript>
-    <div class="header-tools"><a class="playtest-link" href="playtest.html">What to try →</a><a class="credits-link" href="credits.html">Credits</a><button class="install-btn" id="installArcade" hidden>Install arcade</button><span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span><span class="version-label">v1.7.1</span><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div></div>
+    <div class="header-tools"><a class="playtest-link" href="playtest.html">What to try →</a><a class="credits-link" href="credits.html">Credits</a><button class="install-btn" id="installArcade" hidden>Install arcade</button><span class="offline-status" id="offlineStatus" role="status" aria-live="polite"></span><span class="version-label">v1.7.2</span><div class="feedback-container"><button class="fb-btn" aria-haspopup="true" aria-expanded="false">Feedback</button></div></div>
     <details class="app-help"><summary>Play offline or add to your home screen</summary><p>Open this page online and wait for “Ready for offline play.” You can then open the arcade and its browser games without internet. The new versions of Wildbond and Starfall need internet on their first visit. Use Install arcade when it appears, or your browser’s Install / Add to Home Screen menu. Your saves stay in this browser on this device. Without internet, lettering may use device fonts and Wildbond may use its HD-2D view while the 3D renderer is unavailable.</p></details>
   </header>
 
@@ -176,7 +176,7 @@ details.more-games>summary .like{display:block}details.more-games .shelf{margin-
 <script>
 (function(){
 'use strict';
-const VERSION = '1.7.1'; // the arcade's version (L9)
+const VERSION = '1.7.2'; // the arcade's version (L9)
 setupFeedback('The arcade homepage', VERSION, () => '');
 const GAMES=window.ArcadeGames.filter(g=>g.edition!=='classic'&&g.kind!=='classic'); // Evan 2026-10-14: Classic editions are not shown on the hub (their files stay)
 const START=['wildbond-preview','starfall-preview','realmbound']; // 'Start here': the current headline games

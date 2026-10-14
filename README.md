@@ -42,6 +42,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Arcade v1.7.2 — #396 (PR #396; version bumped on merge):** a Play Wildbond header button, share and meta tags, a Start here section plus a collapsed More section, and Classic editions hidden.
 - **Godot Wildbond (2026-10-14, WB-C4, PR #372):** Larkhaven gets a barn garden, door stones, straw in the pen and grass variety, and the Thornwood ponds get a muddy, reedy bank. Source only; the web preview is not rebuilt here.
 - **Godot Wildbond (2026-10-14, WB-C3b, PR #382):** the register shows only the tap hint on phones, and the partner-card note no longer touches the stat bars. Source only; the web preview is not rebuilt here.
 - **Keymaster v0.1.0 — KM0 (PR #379; version bumped on merge):** Keymaster KM0 prototype added.
