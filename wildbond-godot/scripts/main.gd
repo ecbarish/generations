@@ -4084,6 +4084,12 @@ func _thumbs_tick() -> void:
 	touch.word = action_word()
 	touch.btn_on = not menus and trans_t < 0.0 and touch.word != ""
 	touch.refresh()
+	# the caption keeps clear of the thumbs: between the pad and the button while they show (WB-C3), and grows upward
+	var left := TouchPad.PAD.x + TouchPad.PAD_R + 4.0 if touch.visible and touch.pad_on else 8.0
+	var right := -(384.0 - TouchPad.BTN.x + TouchPad.BTN_R + 4.0) if touch.visible and touch.btn_on else -8.0
+	if caption.offset_left != left or caption.offset_right != right:   # only on a change, so it isn't laid out every frame
+		caption.offset_left = left
+		caption.offset_right = right
 	battle.pace = settings.pace()
 	var size := 10 if settings.large_text() else 8
 	if bubble_text.label_settings.font_size != size:  # only on a change, so the labels aren't laid out every frame

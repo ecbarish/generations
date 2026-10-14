@@ -35,8 +35,7 @@ const STEPS = [
   ['tap', 264, 178], ['wait', 1000], ['shot', '16-moves'],                      // Fight
   ['tap', 60, 178], ['wait', 2500], ['shot', '17-bite'],                        // Bite
   ['fight', 12], ['wait', 2000], ['shot', '18-after-battle'],                   // Fight, Bite, until the battle is over
-  ['tapUntil', 'free', 192, 100, 10], ['wait', 1500], ['shot', '19-walking-again'],
-  ['tapUntil', 'bag', 192, 100, 15], ['wait', 1000], ['shot', '20-bag-showing'],   // Maren's last words, until the bag shows
+  ['tapUntil', 'bag', 192, 100, 20], ['wait', 1000], ['shot', '19-walking-again'],  // the results and Maren's last words, until the bag shows
   ['tap', 366, 15], ['wait', 2000], ['shot', '20-field-book'],        // the bag, top right
   ['tap', 122, 23], ['wait', 1500], ['shot', '21-satchel'],
   ['tap', 80, 23], ['wait', 1500], ['shot', '22-team'],
@@ -80,7 +79,6 @@ const files = http.createServer((q, r) => {
   const SEEN = {
     battle: async () => { const [r, g, b] = await pixel(192, 30); return b > 190 && b > r + 30; },
     menu: async () => { const [r, g, b] = await pixel(247, 172); return r < 60 && g < 60 && b < 70; },   // the dark "Fight" button
-    free: async () => !(await SEEN.battle()),
     bag: async () => { const [r, g, b] = await pixel(362, 18); return r > 140 && r < 185 && g > 95 && g < 135 && b > 35 && b < 80; },
   };
   async function tap(x, y) { const p = at(x, y); await page.touchscreen.tap(p.x, p.y); await page.waitForTimeout(1200); }

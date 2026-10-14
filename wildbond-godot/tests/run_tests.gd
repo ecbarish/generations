@@ -1577,3 +1577,15 @@ func _phone_fixes() -> void:
 	tick(0.1)
 	# a caption two lines long grows upward from the foot of the screen, instead of running off it (the phone run shows it)
 	check(main.caption.grow_vertical == Control.GROW_DIRECTION_BEGIN and main.caption.anchor_bottom == 1.0 and main.caption.offset_bottom < 0.0, "a long caption grows upward and stays on screen")
+	# and keeps clear of the pad and the button while they show; the whole width otherwise
+	var keep_stage: String = main.stage
+	main.stage = "free"
+	main.touch.touched = true
+	main._thumbs_tick()
+	var pad_edge: float = main.TouchPad.PAD.x + main.TouchPad.PAD_R
+	check(not main.touch.visible or (main.caption.offset_left >= pad_edge), "with the pad showing, the caption starts past it")
+	check(main.touch.visible, "(the pad shows for that check)")
+	main.touch.touched = false
+	main._thumbs_tick()
+	check(main.caption.offset_left == 8.0 and main.caption.offset_right == -8.0, "without the pad, the caption has the whole width")
+	main.stage = keep_stage

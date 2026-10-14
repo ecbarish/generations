@@ -11,6 +11,6 @@ the user agent and the browser errors (none).
   fills the phone's height and the phone column is marked. A tap on Maren's bubble moves her talk on, which it didn't
   before (the bubble swallowed the tap). Then: register signed by touch, tap the barn door to walk in, tap Cindercub to
   walk up, Meet, Choose, walk with the pad, the battle with Wren (Fight, Bite, won), and the field book (the bag, its
-  Satchel and Team pages, and a tap outside to close it). Two-line captions now stay on screen.
+  Satchel and Team pages, and a tap outside to close it). Long captions now stay on screen, between the walking pad and the button while they show (after-19).
 
-Not claimed: a physical phone. The walking pad is drawn over the start of a long caption (a small follow-up).
+Not claimed: a physical phone.
