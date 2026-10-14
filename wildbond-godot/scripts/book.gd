@@ -187,7 +187,7 @@ func _draw_dex() -> void:
 		drew2 = Sprites.try_draw(self, id2, Vector2(274, 58 + float(sz2.y) * fit2), true, "idle", int(t * 6.0), fit2)
 	if not drew2:
 		draw_set_transform(Vector2(238, 64), 0, Vector2(4, 4))
-		Figures.creature(self, Vector2.ZERO, true, { "wag": [1, 0, -1, 0][int(t * 6.0) % 4] if known2 else 0, "blink": fmod(t, 3.0) < 0.12, "ears_up": true }, look2)
+		Figures.paint(self, Vector2.ZERO, Figures.sized_parts(s, true, { "wag": [1, 0, -1, 0][int(t * 6.0) % 4] if known2 else 0, "blink": fmod(t, 3.0) < 0.12, "ears_up": true }, look2))
 		draw_set_transform(Vector2.ZERO)
 	if known2:
 		draw_rect(Rect2(250, 122, 48, 10), EL_COL.get(s.el, FAINT))
@@ -218,7 +218,7 @@ func _draw_team() -> void:
 			Sprites.try_draw(self, str(c.sp), Vector2(52, y + 32), true, "idle", int(t * 5.0), fit3, 0.0, str(c.get("gear", "")))
 		else:
 			draw_set_transform(Vector2(34, y), 0, Vector2(2, 2))
-			Figures.creature(self, Vector2.ZERO, true, { "wag": [1, 0, -1, 0][int(t * 5.0) % 4], "ears_up": true }, _look(c.sp))
+			Figures.paint(self, Vector2.ZERO, Figures.sized_parts(R.DATA.SPECIES[str(c.sp)], true, { "wag": [1, 0, -1, 0][int(t * 5.0) % 4], "ears_up": true }, _look(c.sp)))
 			draw_set_transform(Vector2.ZERO)
 		_text("%s   Lv %d" % [c.name, c.lvl], Vector2(74, y + 8), 8, INK)
 		var bar := Rect2(74, y + 12, 100, 4)

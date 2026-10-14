@@ -138,7 +138,11 @@ func _draw() -> void:
 	var page_scale := 4
 	if not Sprites.try_draw(self, id, Vector2(104, 134), true, "idle", int(t * 6.0), float(page_scale), 0.0, str(info.get("look", {}).get("gear", ""))):
 		draw_set_transform(Vector2(68, 86), 0, Vector2(page_scale, page_scale))
-		Figures.creature(self, Vector2.ZERO, true, pose, info.look)
+		var species: Dictionary = info.get("species", {})
+		if species.is_empty():
+			Figures.creature(self, Vector2.ZERO, true, pose, info.look)
+		else:
+			Figures.paint(self, Vector2.ZERO, Figures.sized_parts(species, true, pose, info.look))
 		draw_set_transform(Vector2.ZERO)
 	var y := _para(info.dex, Vector2(36, 156), 135, 7, FAINT)
 	# right page: what it is like
