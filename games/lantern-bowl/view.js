@@ -349,10 +349,14 @@
     spec = spec || {};
     var spot = Number(spec.spot) || 0;
     if (spec.whistle || spec.family === 'dead') return { target: spot, chase: false, cut: false };
-    if (spec.cut) return { target: spot, chase: false, cut: true };
+    if (spec.cut) {
+      var behind = spec.qbX == null ? spot - 8 : Number(spec.qbX);
+      return { target: behind, chase: false, cut: true };
+    }
     if (spec.family === 'air') return { target: ((Number(spec.qbX) || 0) + (Number(spec.landX) || 0)) / 2, chase: true, cut: false };
     if (spec.family === 'run') return { target: (Number(spec.ballX) || spot) + SIDE.lead / SIDE.yard, chase: true, cut: false };
-    return { target: spot, chase: true, cut: false };
+    var pocket = spec.qbX == null ? spot - 8 : Number(spec.qbX);
+    return { target: pocket, chase: true, cut: false };
   }
   function alongPx(abs, camX) {
     var delta = ((Number(abs) || 0) - (Number(camX) || 0)) * SIDE.yard;
@@ -688,7 +692,11 @@
       return { p: p, s: at(px, p.y) };
     }).sort(function (a, b) { return a.p.y - b.p.y; });
     var carrier = play && play.actors ? play.actors[play.carrier] : null;
-    var aimTarget = spec.aim && spec.aim.preview ? spec.aim.preview.target : null;
+    var aimPreview = spec.aim && spec.aim.preview;
+    var aimTarget = null;
+    if (aimPreview && play && root.LanternModel && root.LanternModel.aimReceiver) {
+      aimTarget = root.LanternModel.aimReceiver(play, aimPreview.x, aimPreview.y);
+    } else if (aimPreview) aimTarget = aimPreview.target;
     bodies.forEach(function (row) {
       var p = row.p;
       var team = p.off ? off : def;

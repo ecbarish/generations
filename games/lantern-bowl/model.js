@@ -1313,14 +1313,14 @@
     var dist = Math.hypot(ball.toX - qb.x, ball.toY - qb.y);
     if (!ball.target) {
       game.events.push('miss');
-      return incomplete(game, 'The throw falls incomplete');
+      var missed = nearest(play, ball.toX, ball.toY, function (a) { return a.off && a.role !== 'qb' && a.role !== 'ol'; });
+      return incomplete(game, missReason(play, ball, missed));
     }
     var catcher = { actor: ball.target, d: 0 };
     var cover = nearest(play, ball.toX, ball.toY, function (a) { return !a.off && (a.role === 'cb' || a.role === 's'); });
     var cov = cover && cover.d < (ball.kind === 'bullet' ? 3.2 : 5.5) ? cover.actor.cover : 32;
     if (play.offence === 'away') cov += 3;
     var hands = catcher.actor.catch;
-    var opening = throwWindow(dist, ball.kind);
     var outcome = resolveCatch(function () { return roll(game); }, ball.qb, hands, cov, dist, ball.kind);
     if (outcome === 'catch') {
       catcher.actor.x = ball.toX; catcher.actor.y = ball.toY;
@@ -1346,7 +1346,7 @@
       return incomplete(game, 'Broken up. ' + resultLine('the cover', cov, catcher.actor.name + "'s hands", hands));
     }
     game.events.push('miss');
-    return incomplete(game, 'The throw misses ' + catcher.actor.name + '. ' + resultLine('the window', opening, 'the throw', ball.qb));
+    return incomplete(game, missReason(play, ball, catcher));
   }
 
   function finishArrival(game, play, ball, catcher, cov, hands, outcome, opening) {
@@ -1374,28 +1374,32 @@
       return incomplete(game, 'Broken up. ' + resultLine('the cover', cov == null ? 30 : cov, catcher.actor.name + "'s hands", hands));
     }
     game.events.push('miss');
-    return incomplete(game, 'The throw misses ' + catcher.actor.name + '. ' + resultLine('the window', opening, 'the throw', ball.qb));
+    return incomplete(game, missReason(play, ball, catcher));
   }
-  /* Why a deep sling miss missed. A short checkdown keeps the plain line. */
+  /* Why the ball missed the nearest receiver. Positive yards across the field are to the right. */
   function missReason(play, ball, catcher) {
     ball = ball || {};
     var qb = carrierOf(play);
-    var travel = Math.hypot((Number(ball.toX) || 0) - qb.x, (Number(ball.toY) || 0) - qb.y);
-    var power = Number(ball.power) || 0;
-    var deep = (play && play.id === 'deep') || travel >= 15 || power >= 0.55;
-    if (!deep || !catcher || !catcher.actor) return 'The throw falls incomplete';
-    var dx = (Number(ball.toX) || 0) - catcher.actor.x;
-    var dy = (Number(ball.toY) || 0) - catcher.actor.y;
-    var wide = Math.abs(dy);
-    var wobble = Number(ball.wobble) || 0;
-    if (wide >= 1.6 && wide >= Math.abs(dx)) {
-      return wobble > 0 ? 'Wide: aim wobble (QB accuracy)' : 'Wide: the aim was off';
-    }
-    if (dx >= 1.6) return 'Overthrown: too much power';
-    if (dx <= -1.6) return 'Underthrown: not enough power';
-    if (wobble > 0) return 'Wide: aim wobble (QB accuracy)';
-    if (power >= 0.55) return 'Overthrown: too much power';
-    return 'Underthrown: not enough power';
+    var tx = Number(ball.toX) || 0, ty = Number(ball.toY) || 0;
+    var who = catcher && catcher.actor;
+    var dx = who ? tx - who.x : tx - (qb ? qb.x : 0);
+    var dy = who ? ty - who.y : ty - (qb ? qb.y : 0);
+    var wide = Math.abs(dy), depth = Math.abs(dx);
+    if (wide >= 1.2 && wide >= depth * 0.65) return dy > 0 ? 'Wide right' : 'Wide left';
+    if (dx >= 1.2) return 'Overthrown';
+    if (dx <= -1.2) return 'Underthrown';
+    if (wide >= 0.6) return dy > 0 ? 'Wide right' : 'Wide left';
+    return (Number(ball.power) || 0) >= 0.55 ? 'Overthrown' : 'Underthrown';
+  }
+  /* The nearest receiver to a pull. Drawing only: the throw still lands where the drag let go. */
+  function aimReceiver(play, x, y) {
+    if (!play) return null;
+    var near = nearest(play, x, y, function (a) { return a.off && a.role !== 'qb' && a.role !== 'ol'; });
+    return near ? near.actor : null;
+  }
+  /* How close a sling throw has to land for that receiver to have a play on it. */
+  function catchReach(kind) {
+    return kind === 'bullet' ? 3.4 : 4.0;
   }
   function settleSling(game, play, ball) {
     var qb = carrierOf(play);
@@ -1404,7 +1408,7 @@
       return incomplete(game, qb.name + ' throws it away');
     }
     var catcher = nearest(play, ball.toX, ball.toY, function (a) { return a.off && a.role !== 'qb' && a.role !== 'ol'; });
-    var reach = ball.kind === 'bullet' ? 2.5 : 3.1;
+    var reach = catchReach(ball.kind);
     if (!catcher || catcher.d > reach) {
       game.events.push('miss');
       return incomplete(game, missReason(play, ball, catcher));
@@ -1964,7 +1968,7 @@
     passError: passError, pressureFactor: pressureFactor, guideState: guideState,
     slingAim: slingAim, lockReceiver: lockReceiver, arriveOutcome: arriveOutcome,
     catchContest: catchContest, opennessBand: opennessBand, CONTEST_YARDS: CONTEST_YARDS,
-    missReason: missReason,
+    missReason: missReason, aimReceiver: aimReceiver, catchReach: catchReach,
     receiverRate: receiverRate, flightSeconds: flightSeconds, DEFAULT_PASS: 'retro',
     simulateGame: simulateGame, winSplit: winSplit, jukePolicy: jukePolicy, divePolicy: divePolicy,
     earlyJukePolicy: earlyJukePolicy, earlyDivePolicy: earlyDivePolicy, scriptedSeries: scriptedSeries,

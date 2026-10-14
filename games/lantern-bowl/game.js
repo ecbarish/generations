@@ -79,7 +79,7 @@
   var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null, lastSheet = '';
   var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, spin: false, throw: null };
   var stick = null, receiverKey = '', throwKind = 'bullet', turboTouch = null;
-  var sheetDetail = false, watchLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0, summaryLine = '';
+  var sheetDetail = false, watchLeft = 0, resultLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0, summaryLine = '';
   var pointerNotes = [];
 
   function persist() {
@@ -205,10 +205,21 @@
   }
 
   function showCall() {
+    resultLeft = 0;
     if (!state || state.phase === 'final') return showFinal();
     if (state.possession !== 'home') return askDefence();
-    if (mode === 'watch') lastSheet = '';
+    if (mode === 'watch' || mode === 'result') lastSheet = '';
     mode = 'play';
+    dock();
+    say('');
+  }
+  /* The whistle's line stays up, with the next play cards held back so they cannot cover it. */
+  function showResult() {
+    if (!state || state.phase === 'final') return showFinal();
+    if (state.possession !== 'home') return holdWatch();
+    mode = 'result';
+    resultLeft = 1.15;
+    hidePanel();
     dock();
     say(summaryLine || M.currentMessage(state));
   }
@@ -303,7 +314,7 @@
     if (id === 'punt') return 'Punt';
     if (id === 'kick') return 'Kick';
     if (M.DEFENCE[id]) return M.DEFENCE[id].label;
-    if (M.PLAYS[id]) return M.PLAYS[id].label.replace(' run', '').replace(' pass', '');
+    if (M.PLAYS[id]) return M.PLAYS[id].label.replace(' pass', '');
     return id;
   }
   function hintText() {
@@ -346,6 +357,8 @@
 
   function begin(id) {
     if (!state || state.phase !== 'call' || state.possession !== 'home') return;
+    resultLeft = 0;
+    if (mode === 'result') mode = 'play';
     summaryLine = '';
     if (id === 'kick' || id === 'field' || id === 'punt') { M.kick(state, id === 'kick' ? null : id); afterWhistle(); return; }
     if (!M.callPlay(state, id)) return;
@@ -357,12 +370,13 @@
   }
 
   function afterWhistle() {
+    resultLeft = 0;
     audio.sfx(state.last && state.last.kind === 'score' ? 'win' : state.last && state.last.kind === 'turnover' ? 'warn' : 'hit');
     persist();
     turboHeld = false;
     if (state.phase === 'final') return showFinal();
     if (state.phase === 'cpu' || state.possession === 'away') return holdWatch();
-    showCall();
+    showResult();
   }
 
   function finishLive() {
@@ -809,7 +823,10 @@
     paintTools();
     if (performance.now() >= promptUntil) {
       var watching = mode === 'watch' || mode === 'defence';
-      var msg = (watching || state.phase === 'live' || state.phase === 'final') ? '' : (summaryLine || M.currentMessage(state));
+      var calling = mode === 'play' && state.phase === 'call';
+      var msg = '';
+      if (mode === 'result') msg = summaryLine || M.currentMessage(state) || '';
+      else if (!watching && !calling && state.phase !== 'live' && state.phase !== 'final') msg = summaryLine || M.currentMessage(state) || '';
       if ($('banner').textContent !== msg) say(msg);
     }
   }
@@ -839,11 +856,14 @@
     var family = 'pocket';
     if (live && play.flight) family = 'air';
     else if (live && (play.family === 'run' || play.didCatch)) family = 'run';
-    var qbX = spot;
+    var qbX = spot - 8;
     var landX = spot;
     if (live && play.flight) {
       qbX = spot + play.flight.fromX;
       landX = spot + play.flight.toX;
+    } else if (live && family === 'pocket') {
+      var carrier = play.actors[play.carrier];
+      qbX = spot + (carrier ? carrier.x : -6) + V.pocketDrop(play.elapsed);
     }
     var focus = V.sideFocus({
       family: family,
@@ -944,7 +964,10 @@
       requestAnimationFrame(frame);
       return;
     }
-    if (mode === 'play' && state && state.phase === 'live' && !document.hidden) {
+    if (mode === 'result' && state && !document.hidden) {
+      resultLeft -= dt;
+      if (resultLeft <= 0) showCall();
+    } else if (mode === 'play' && state && state.phase === 'live' && !document.hidden) {
       if (state.play) lastSheet = snapLine(state);
       M.step(state, reduce ? Math.min(dt, 0.02) : dt, readGesture());
       soundFor(state.events);
