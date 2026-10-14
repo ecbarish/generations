@@ -6,7 +6,7 @@
   var M = window.LanternModel, V = window.LanternView;
   var $ = function (id) { return document.getElementById(id); };
   var canvas = $('field'), ctx = canvas.getContext('2d');
-  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.1', SAVE_V = 1;
+  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.2', SAVE_V = 1;
   var reduce = Settings.reduced();
 
   /* Older files climb: steps[1] turns a v1 save into v2, and so on, until SAVE_V.
@@ -40,7 +40,7 @@
     match: migrated && migrated.match ? migrated.match : null
   };
 
-  var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null;
+  var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null, lastSheet = '';
   var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, throw: null };
 
   function persist() {
@@ -104,16 +104,18 @@
   function hidePanel() { $('curtain').hidden = true; }
 
   function title() {
-    mode = 'title'; state = null;
+    mode = 'title'; state = null; lastSheet = '';
+    say('');
     var again = save.match ? '<button type="button" data-continue>Continue the game</button>' : '';
     panel('Lamplight Field',
       '<p>The Brackenport Lanterns have Millrace under the lanterns. You call the offence. Their drives are told in a few lines.</p>' +
       '<p>Two-minute quarters. Drag to throw, swipe to juke, tap to dive. Turbo spends your wind.</p>' +
       '<div class="actions"><button type="button" data-kick>Kick off</button>' + again + '</div>');
-    dock([]);
+    dock();
   }
 
   function kickoff(seed) {
+    lastSheet = '';
     state = M.create({ seed: (seed >>> 0) || (Date.now() >>> 0) || 1 });
     mode = 'play';
     hidePanel();
@@ -124,6 +126,7 @@
 
   function resume() {
     if (!save.match) return title();
+    lastSheet = '';
     state = M.restore(save.match);
     hidePanel();
     if (state.phase === 'final') return showFinal();
@@ -137,14 +140,7 @@
     if (!state || state.phase === 'final') return showFinal();
     if (state.possession !== 'home') return showCpu();
     mode = 'play';
-    var fourth = state.down >= 4;
-    var buttons = [];
-    Object.keys(M.PLAYS).forEach(function (id) {
-      var p = M.PLAYS[id];
-      buttons.push({ id: id, label: p.label, detail: p.detail });
-    });
-    if (fourth) buttons.unshift({ id: 'kick', label: 'Kick', detail: state.spot >= 62 ? 'Try a field goal.' : 'Punt it away.' });
-    dock(buttons);
+    dock();
     say(M.currentMessage(state));
   }
 
@@ -160,7 +156,7 @@
     panel('Millrace had the ball',
       '<ol class="cpu-log">' + items + '</ol>' +
       '<div class="actions"><button type="button" data-ours>Our ball</button></div>');
-    dock([]);
+    dock();
   }
 
   function showFinal() {
@@ -168,20 +164,41 @@
     var s = state.score;
     var line = s.home === s.away ? 'Level at the lanterns.' : s.home > s.away ? 'The Lanterns take it.' : 'Millrace takes it.';
     panel('Final', '<p>' + line + '</p><p>Lanterns ' + s.home + ', Millrace ' + s.away + '.</p><div class="actions"><button type="button" data-again>Play again</button></div>');
-    dock([]);
+    dock();
+    say('');
     persist();
     audio.sfx(s.home >= s.away ? 'win' : 'lose');
   }
 
   function escapeText(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
 
-  function dock(buttons) {
-    $('dock').innerHTML = buttons.map(function (b) {
-      return '<button type="button" data-play="' + b.id + '">' + b.label + '</button>';
-    }).join('') + (mode === 'play' && state && state.phase === 'live'
-      ? '<button type="button" id="turbo" aria-label="Turbo">Turbo</button>' : '');
+  var GLYPH = {
+    inside: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M7 10l5-5 5 5"/></svg>',
+    outside: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18c8 0 12-6 12-12M14 6h4v4"/></svg>',
+    quick: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h10M12 8l4 4-4 4"/></svg>',
+    deep: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h14M14 7l5 5-5 5"/></svg>',
+    kick: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>',
+    turbo: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14c3-6 5 2 8-4s5 2 8-4"/></svg>'
+  };
+  function dock() {
+    var show = mode === 'play' && state && (state.phase === 'call' || state.phase === 'live');
+    if (!show) { $('dock').innerHTML = ''; return; }
+    var live = state.phase === 'live';
+    var fourth = state.down >= 4;
+    var cells = [
+      { id: 'inside', label: 'Inside', play: true, off: live },
+      { id: 'outside', label: 'Outside', play: true, off: live },
+      { id: 'quick', label: 'Quick', play: true, off: live },
+      { id: 'deep', label: 'Deep', play: true, off: live },
+      { id: 'kick', label: 'Kick', play: true, off: live || !fourth },
+      { id: 'turbo', label: 'Turbo', play: false, off: !live }
+    ];
+    $('dock').innerHTML = '<div class="dock-plays">' + cells.map(function (c) {
+      var attr = c.play ? ' data-play="' + c.id + '"' : ' id="turbo" aria-label="Turbo"';
+      return '<button type="button"' + attr + (c.off ? ' disabled' : '') + '>' + GLYPH[c.id] + '<span>' + c.label + '</span></button>';
+    }).join('') + '</div>';
     var turbo = $('turbo');
-    if (turbo) {
+    if (turbo && !turbo.disabled) {
       turbo.addEventListener('pointerdown', function (e) { e.preventDefault(); turboHeld = true; turbo.classList.add('held'); });
       ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
         turbo.addEventListener(ev, function () { turboHeld = false; turbo.classList.remove('held'); });
@@ -196,14 +213,7 @@
     audio.sfx('select');
     hidePanel();
     say('');
-    dock([]);
-    var live = '<button type="button" id="turbo" aria-label="Turbo">Turbo</button>';
-    $('dock').innerHTML = live;
-    var turbo = $('turbo');
-    turbo.addEventListener('pointerdown', function (e) { e.preventDefault(); turboHeld = true; turbo.classList.add('held'); });
-    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
-      turbo.addEventListener(ev, function () { turboHeld = false; if (turbo) turbo.classList.remove('held'); });
-    });
+    dock();
     canvas.focus();
   }
 
@@ -217,6 +227,7 @@
   }
 
   function finishLive() {
+    if (state && state.phase === 'live' && state.play) lastSheet = snapLine(state);
     if (state && state.phase === 'live') M.finish(state, M.policies.neutral);
     if (state && state.phase !== 'live') afterWhistle();
   }
@@ -313,37 +324,65 @@
     });
   }
 
+  function windClause(game) {
+    var note = '';
+    Object.keys(game.fatigue || {}).forEach(function (who) {
+      var left = Math.round((1 - (game.fatigue[who] || 0)) * 100);
+      if (left < 100) note = ' · ' + who + ' wind ' + Arcade.fmt(left);
+    });
+    return note;
+  }
+  function rosterLine(game) {
+    var off = game[game.possession === 'away' ? 'away' : 'home'];
+    var def = game[game.possession === 'away' ? 'home' : 'away'];
+    var hands = off.wr && off.wr[0] ? off.wr[0] : off.qb;
+    return off.qb.name + ' throw ' + Arcade.fmt(off.qb.throw) + ' · ' + hands.name + ' hands ' + Arcade.fmt(hands.catch) + ' · Line ' + Arcade.fmt(off.line) + ' vs rush ' + Arcade.fmt(def.rush) + windClause(game);
+  }
+  /* The strip names whoever has the ball on this snap: the carrier on a run,
+     or the passer and the target while the throw is still in the air. */
+  function snapLine(game) {
+    var play = game.play;
+    if (!play || !play.actors || !play.actors.length) return rosterLine(game);
+    var side = play.offence === 'away' ? 'away' : 'home';
+    var off = game[side];
+    var def = game[side === 'away' ? 'home' : 'away'];
+    var carrier = play.actors[play.carrier] || play.actors[0];
+    var line = ' · Line ' + Arcade.fmt(off.line) + ' vs rush ' + Arcade.fmt(def.rush);
+    var wind = windClause(game);
+    if (play.family === 'pass' && !play.didCatch) {
+      var target = play.flight && play.flight.target;
+      if (!target) {
+        play.actors.forEach(function (a) {
+          if (!a.off || a.role === 'qb' || !a.route) return;
+          if (!target || a.route.x > target.route.x) target = a;
+        });
+      }
+      var hands = target || (off.wr && off.wr[0]) || carrier;
+      return carrier.name + ' throw ' + Arcade.fmt(carrier.throw) + ' · ' + hands.name + ' hands ' + Arcade.fmt(hands.catch) + line + wind;
+    }
+    return carrier.name + ' carry ' + Arcade.fmt(carrier.carry) + ' · speed ' + Arcade.fmt(carrier.speed) + line + wind;
+  }
   function hud() {
     if (!state) {
       $('homeScore').textContent = '0'; $('awayScore').textContent = '0';
       $('clock').textContent = 'Q1 ' + Arcade.fmtTime(M.QUARTER);
       $('down').textContent = 'Kickoff';
-      $('gas').hidden = true;
-      $('windLabel').textContent = '';
       if ($('sheet')) $('sheet').hidden = true;
+      if ($('banner').textContent) say('');
       return;
     }
     $('homeScore').textContent = Arcade.fmt(state.score.home);
     $('awayScore').textContent = Arcade.fmt(state.score.away);
     $('clock').textContent = 'Q' + state.quarter + ' ' + Arcade.fmtTime(Math.max(0, Math.ceil(state.clock)));
     $('down').textContent = state.phase === 'final' ? 'Final' : M.downWords(state);
-    var play = state.play, name = play ? (play.actors[play.carrier] && play.actors[play.carrier].name) : '';
-    var wind = name ? 1 - (state.fatigue[name] || 0) : 1;
-    var showWind = !!(play && state.phase === 'live');
-    $('gas').hidden = !showWind;
-    $('gas').classList.toggle('low', wind < 0.28);
-    $('gas').querySelector('i').style.width = Math.round(wind * 100) + '%';
-    $('gas').setAttribute('aria-label', 'Wind ' + Math.round(wind * 100));
-    $('windLabel').textContent = showWind ? 'Wind ' + Arcade.fmt(Math.round(wind * 100)) : '';
+    var live = state.phase === 'live';
+    if (live && state.play) lastSheet = snapLine(state);
     var sheet = $('sheet');
     if (sheet) {
-      var off = state[state.possession === 'away' ? 'away' : 'home'];
-      var def = state[state.possession === 'away' ? 'home' : 'away'];
-      var hands = off.wr && off.wr[0] ? off.wr[0] : off.qb;
-      sheet.hidden = false;
-      sheet.textContent = off.qb.name + ' throw ' + Arcade.fmt(off.qb.throw) + ' · ' + hands.name + ' hands ' + Arcade.fmt(hands.catch) + ' · Line ' + Arcade.fmt(off.line) + ' vs rush ' + Arcade.fmt(def.rush);
+      sheet.hidden = live;
+      if (!live) sheet.textContent = lastSheet || rosterLine(state);
     }
-    var msg = state.phase === 'live' ? '' : M.currentMessage(state);
+    var msg = state.phase === 'live' || state.phase === 'final' ? '' : M.currentMessage(state);
     if ($('banner').textContent !== msg) say(msg);
   }
 
@@ -352,28 +391,6 @@
     var w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
     return { w: r.width, h: r.height, dpr: dpr };
-  }
-
-  function drawAthlete(p, fill, outline, pose) {
-    var s = p.scale;
-    var lean = pose && pose.juke ? pose.juke * 10 * s : 0;
-    var squash = pose && pose.dive ? 0.62 : 1;
-    ctx.save();
-    ctx.translate(p.x + lean, p.y);
-    ctx.scale(1, squash);
-    ctx.lineWidth = Math.max(1.4, 2 * s);
-    ctx.strokeStyle = outline;
-    ctx.fillStyle = fill;
-    ctx.beginPath(); ctx.ellipse(0, -7 * s, 3.1 * s, 5.2 * s, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#e4c2a4';
-    ctx.beginPath(); ctx.arc(0, -14 * s, 2.3 * s, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    ctx.restore();
-    if (pose && pose.word) {
-      ctx.fillStyle = '#f6edd4';
-      ctx.font = '700 ' + Math.max(12, 13 * s) + 'px ui-monospace, monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(pose.word, p.x + lean, p.y - 28 * s);
-    }
   }
 
   function strokeWorld(ax, ay, bx, by, cam, view, color, width) {
@@ -391,34 +408,42 @@
     var view = { w: box.w, h: box.h };
     var play = state && state.play;
     var focus = play ? play.actors[play.carrier] : { x: 0, y: 0 };
-    var cam = { x: (focus.x || 0) - 3, y: (focus.y || 0) * 0.25 };
+    var origin = state ? (play ? play.startSpot : state.spot) : 25;
+    var ballLocal = play && play.flight ? play.flight : focus;
+    var cam = V.followBall({ x: origin + (ballLocal.x || 0), y: ballLocal.y || 0 });
+    function at(x, y) { return V.project('behind', { x: origin + x, y: y }, cam, view); }
+    function atAbs(x, y) { return V.project('behind', { x: x, y: y }, cam, view); }
     var offence = state ? (play ? play.offence : state.possession) : 'home';
     var sky = ctx.createLinearGradient(0, 0, 0, box.h * 0.45);
     sky.addColorStop(0, '#243456'); sky.addColorStop(1, '#6a4a52');
     ctx.fillStyle = sky; ctx.fillRect(0, 0, box.w, box.h * 0.42);
 
-    for (var yard = -8; yard <= 36; yard += 5) {
-      var near = V.project('behind', { x: yard, y: -26 }, cam, view);
-      var far = V.project('behind', { x: yard + 5, y: -26 }, cam, view);
-      var farR = V.project('behind', { x: yard + 5, y: 26 }, cam, view);
-      var nearR = V.project('behind', { x: yard, y: 26 }, cam, view);
+    for (var abs = 0; abs <= 100; abs += 5) {
+      if (Math.abs(abs - cam.x) > 36) continue;
+      var near = atAbs(abs, -26), far = atAbs(abs + 5, -26), farR = atAbs(abs + 5, 26), nearR = atAbs(abs, 26);
       if (!near || !far || !farR || !nearR) continue;
-      ctx.fillStyle = Math.round(yard / 5) % 2 ? '#1f6b3c' : '#257445';
+      ctx.fillStyle = (abs / 5) % 2 ? '#1f6b3c' : '#257445';
       ctx.beginPath(); ctx.moveTo(near.x, near.y); ctx.lineTo(far.x, far.y); ctx.lineTo(farR.x, farR.y); ctx.lineTo(nearR.x, nearR.y); ctx.closePath(); ctx.fill();
+      if (abs % 10 === 0) {
+        ctx.fillStyle = '#f6edd4';
+        ctx.font = '12px ui-monospace, monospace';
+        ctx.textAlign = 'center';
+        var shown = abs <= 50 ? abs : 100 - abs;
+        ctx.fillText(String(shown), near.x, near.y - 4);
+      }
     }
-    [-26, 26].forEach(function (y) { strokeWorld(-8, y, 40, y, cam, view, '#f2d080', 2); });
+    [-26, 26].forEach(function (y) { strokeWorld(Math.max(0, cam.x - 16), y, Math.min(100, cam.x + 30), y, cam, view, '#f2d080', 2); });
     if (state) {
-      strokeWorld(0, -26, 0, 26, cam, view, '#7fb6ff', 2);
-      strokeWorld(state.toGo, -26, state.toGo, 26, cam, view, '#f2d080', 2);
+      var los = at(0, 0);
+      if (los) strokeWorld(origin, -26, origin, 26, cam, view, '#7fb6ff', 2);
+      strokeWorld(origin + state.toGo, -26, origin + state.toGo, 26, cam, view, '#f2d080', 2);
+      if (Math.abs(100 - cam.x) < 40) strokeWorld(100, -26, 100, 26, cam, view, '#f6edd4', 3);
     }
     if (play) {
       if (play.family === 'run' || play.didCatch) {
         play.lanes.forEach(function (lane) {
           var y0 = lane.y - 5, y1 = lane.y + 5;
-          var a = V.project('behind', { x: 0.2, y: y0 }, cam, view);
-          var b = V.project('behind', { x: 7, y: y0 }, cam, view);
-          var c = V.project('behind', { x: 7, y: y1 }, cam, view);
-          var d = V.project('behind', { x: 0.2, y: y1 }, cam, view);
+          var a = at(0.2, y0), b = at(7, y0), c = at(7, y1), d = at(0.2, y1);
           if (!a || !b || !c || !d) return;
           ctx.fillStyle = lane.open ? 'rgba(90, 210, 120, 0.38)' : 'rgba(210, 70, 60, 0.38)';
           ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c.x, c.y); ctx.lineTo(d.x, d.y); ctx.closePath(); ctx.fill();
@@ -432,7 +457,7 @@
           var outside = false;
           for (var i = 0; i <= 28; i++) {
             var ang = i / 28 * Math.PI * 2;
-            var pt = V.project('behind', { x: qb.x + Math.cos(ang) * rx, y: qb.y + Math.sin(ang) * ry }, cam, view);
+            var pt = at(qb.x + Math.cos(ang) * rx, qb.y + Math.sin(ang) * ry);
             if (!pt || pt.x < 6 || pt.y < 6 || pt.x > view.w - 6 || pt.y > view.h - 6) outside = true;
             if (pt) ring.push(pt);
           }
@@ -451,7 +476,7 @@
         }
       }
       var sprites = play.actors.map(function (a) {
-        var pt = V.project('behind', a, cam, view);
+        var pt = at(a.x, a.y);
         return { a: a, p: pt };
       }).filter(function (s) { return s.p; }).sort(function (u, v) { return u.p.y - v.p.y; });
       var carrier = play.actors[play.carrier];
@@ -460,8 +485,22 @@
       sprites.forEach(function (s) {
         var team = s.a.off ? state[play.offence] : state[play.offence === 'home' ? 'away' : 'home'];
         var aimed = aimDrag && aimDrag.preview && aimDrag.preview.target === s.a;
-        var pose = s.a === carrier ? { juke: juking ? (play.jukeDir || 1) : 0, dive: diving, word: juking ? 'Juke' : diving ? 'Dive' : '' } : null;
-        drawAthlete(s.p, team.color, aimed ? '#f2d080' : M.teamOutline(team.color), pose);
+        var running = play.family === 'run' || play.didCatch || !s.a.off;
+        var poseName = 'idle';
+        if (s.a === carrier && diving) poseName = 'dive';
+        else if (s.a === carrier && juking) poseName = 'juke';
+        else if (running) poseName = Math.floor(play.elapsed * 6) % 2 ? 'run2' : 'run1';
+        V.drawPlayer(ctx, {
+          x: s.p.x, y: s.p.y, scale: s.p.scale, id: s.a.role || 'player', view: 'back', pose: poseName,
+          fill: team.color, outline: aimed ? '#f2d080' : M.teamOutline(team.color),
+          jukeDir: play.jukeDir || 1
+        });
+        if (s.a === carrier && (juking || diving)) {
+          ctx.fillStyle = '#f6edd4';
+          ctx.font = '700 ' + Math.max(12, 13 * s.p.scale) + 'px ui-monospace, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(juking ? 'Juke' : 'Dive', s.p.x, s.p.y - 28 * s.p.scale);
+        }
         if (aimed) {
           var mark = V.fitCircle(s.p, 16 * s.p.scale, view, 6);
           ctx.strokeStyle = '#f2d080'; ctx.lineWidth = 3;
@@ -469,13 +508,13 @@
         }
       });
       if (play.family === 'pass' && !play.thrown && carrier) {
-        var from = V.project('behind', carrier, cam, view);
+        var from = at(carrier.x, carrier.y);
         if (from) {
           var start = V.fitCircle(from, 14 * from.scale, view, 6);
           ctx.strokeStyle = '#f6edd4'; ctx.lineWidth = 3;
           ctx.beginPath(); ctx.arc(start.x, start.y, Math.max(7, start.r), 0, Math.PI * 2); ctx.stroke();
           if (aimDrag && aimDrag.preview) {
-            var end = V.project('behind', { x: aimDrag.preview.x, y: aimDrag.preview.y }, cam, view) || { x: aimDrag.x, y: aimDrag.y, scale: 1 };
+            var end = at(aimDrag.preview.x, aimDrag.preview.y) || { x: aimDrag.x, y: aimDrag.y, scale: 1 };
             var tip = V.fitCircle(end, 8, view, 6);
             ctx.strokeStyle = aimDrag.kind === 'bullet' ? '#f2d080' : '#d7ecff';
             ctx.lineWidth = aimDrag.kind === 'bullet' ? 4 : 2;
@@ -495,7 +534,7 @@
         }
       }
       var ballAt = play.flight ? { x: play.flight.x, y: play.flight.y } : play.actors[play.carrier];
-      var ball = V.project('behind', ballAt, cam, view);
+      var ball = at(ballAt.x, ballAt.y);
       if (ball) {
         ctx.fillStyle = '#f2d080'; ctx.strokeStyle = '#1e1a22'; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.ellipse(ball.x, ball.y, 4 * ball.scale, 2.4 * ball.scale, -0.4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -507,9 +546,12 @@
         { off: false, x: 1.4, y: -12 }, { off: false, x: 1.2, y: 0 }, { off: false, x: 1.4, y: 12 }, { off: false, x: 7, y: -4 }, { off: false, x: 8, y: 5 }
       ];
       standing.map(function (a) {
-        return { a: a, p: V.project('behind', a, cam, view), team: a.off ? off : def };
+        return { a: a, p: at(a.x, a.y), team: a.off ? off : def };
       }).filter(function (s) { return s.p; }).sort(function (u, v) { return u.p.y - v.p.y; }).forEach(function (s) {
-        drawAthlete(s.p, s.team.color, M.teamOutline(s.team.color));
+        V.drawPlayer(ctx, {
+          x: s.p.x, y: s.p.y, scale: s.p.scale, id: s.a.off ? 'qb' : 'lb', view: 'back', pose: 'idle',
+          fill: s.team.color, outline: M.teamOutline(s.team.color)
+        });
       });
     }
     if (!reduce) {
@@ -523,6 +565,7 @@
     var dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
     last = now;
     if (mode === 'play' && state && state.phase === 'live' && !document.hidden) {
+      if (state.play) lastSheet = snapLine(state);
       M.step(state, reduce ? Math.min(dt, 0.02) : dt, readGesture());
       soundFor(state.events);
       if (state.phase !== 'live') afterWhistle();
@@ -542,6 +585,10 @@
       get save() { return save; },
       get mode() { return mode; },
       kickoff: kickoff, resume: resume, begin: begin, finishLive: finishLive, persist: persist,
+      refresh: function () {
+        if (state && state.phase !== 'live' && state.phase !== 'final' && state.possession === 'home') showCall();
+      },
+      playCpu: function () { if (state) showCpu(); },
       migrateSave: migrateSave
     };
   }

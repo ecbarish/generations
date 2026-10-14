@@ -88,6 +88,53 @@ document.querySelector('#run').onclick = async () => {
     const rolled = M.create({ seed: 5 }); rolled.clock = 6; rolled.down = 1; rolled.toGo = 10; rolled.spot = 30;
     M.callPlay(rolled, 'inside'); M.finish(rolled, M.policies.neutral);
     check('a new quarter keeps the down and the ball', rolled.quarter === 2 && rolled.down === 2 && rolled.possession === 'home' && Math.round(rolled.toGo) !== 10);
+    const spam = M.scriptedSeries(11, () => 'quick');
+    const varied = M.scriptedSeries(11, (g, n) => ['inside', 'outside', 'quick', 'deep'][n % 4]);
+    check('repeating one short pass loses (' + spam.score.home + '–' + spam.score.away + ')', spam.phase === 'final' && spam.score.home < spam.score.away && (spam.usage.quick || 0) > (spam.usage.inside || 0) + 8);
+    check('a mixed call sheet wins (' + varied.score.home + '–' + varied.score.away + ')', varied.phase === 'final' && varied.score.home > varied.score.away);
+    let earlyJuke = 0, timedJuke = 0, earlyDive = 0, timedDive = 0;
+    for (let i = 0; i < 20; i++) {
+      const tj = M.create({ seed: 400 + i }); M.callPlay(tj, 'inside'); M.finish(tj, M.jukePolicy); timedJuke += tj.lastGain || 0;
+      const ej = M.create({ seed: 400 + i }); M.callPlay(ej, 'inside'); M.finish(ej, M.earlyJukePolicy); earlyJuke += ej.lastGain || 0;
+      const td = M.create({ seed: 500 + i }); M.callPlay(td, 'inside'); M.finish(td, M.divePolicy); timedDive += td.lastGain || 0;
+      const ed = M.create({ seed: 500 + i }); M.callPlay(ed, 'inside'); M.finish(ed, M.earlyDivePolicy); earlyDive += ed.lastGain || 0;
+    }
+    check('a juke as the defender arrives gains more than a juke at the snap (' + (timedJuke / 20).toFixed(1) + ' vs ' + (earlyJuke / 20).toFixed(1) + ')', timedJuke > earlyJuke + 20);
+    check('a dive as the defender arrives gains more than a dive at the snap (' + (timedDive / 20).toFixed(1) + ' vs ' + (earlyDive / 20).toFixed(1) + ')', timedDive > earlyDive + 20);
+    const dropped = M.create({ seed: 4 }); M.callPlay(dropped, 'quick'); M.finish(dropped, M.scriptedQuick);
+    const dropText = M.currentMessage(dropped);
+    check('a drop uses the cover that stopped it', /cannot bring it in/.test(dropText) && /The cover \(\d+\) stopped /.test(dropText) && !/beat the cover/.test(dropText) && !/beat The /.test(dropText));
+    const caught = M.create({ seed: 1 }); M.callPlay(caught, 'quick'); M.finish(caught, M.scriptedQuick);
+    check('a catch does not say the receiver could not bring it in', /catches it/.test(M.currentMessage(caught)) && !/cannot bring it in/.test(M.currentMessage(caught)));
+    check('a rating line does not capitalise the middle', M.resultLine('the tackle', 62, 'The carry', 63) === 'The tackle (62) stopped the carry (63).');
+    const half = M.create({ seed: 9 }); half.quarter = 2; half.clock = 4; half.down = 3; half.toGo = 6; half.spot = 42;
+    M.callPlay(half, 'inside'); M.finish(half, M.policies.neutral);
+    check('the second half opens with a kickoff to Millrace', half.quarter === 3 && half.possession === 'away' && half.down === 1 && Math.round(half.spot) === 25 && /Halftime/.test(half.last.text) && /Millrace receives/.test(half.last.text));
+    const gun = M.create({ seed: 9 }); gun.quarter = 4; gun.clock = 4; gun.spot = 40;
+    M.callPlay(gun, 'inside'); M.finish(gun, M.policies.neutral);
+    check('the gun ends the game', gun.phase === 'final' && gun.clock === 0 && gun.quarter === 4);
+    const series = M.create({ seed: 4 }); series.quarter = 3; series.clock = 28; series.possession = 'away'; series.phase = 'cpu'; series.down = 1; series.toGo = 10; series.spot = 35;
+    M.cpuDrive(series);
+    check('a Millrace series stops when the quarter turns', series.phase === 'final' || series.quarter === 3 || series.clock > 90);
+    const goalLine = M.create(); goalLine.spot = 100; goalLine.toGo = 0; goalLine.down = 1;
+    check('the goal line is not their 0', M.spotWords(100) === 'the goal line' && M.spotWords(99) === 'their 1' && M.downWords(goalLine).indexOf('their 0') < 0);
+    check('the goal sits closer when the offence is downfield', V.fieldLocal(80, 100) === 20 && V.fieldLocal(25, 100) === 75);
+    check('sprite names follow id, view and pose', V.spriteFile('qb', 'back', 'run1') === 'qb_back_run1.png');
+    const pen = { log: [] };
+    ['save', 'restore', 'beginPath', 'moveTo', 'lineTo', 'ellipse', 'arc', 'fill', 'stroke', 'translate', 'scale', 'drawImage'].forEach(name => { pen[name] = () => { pen.log.push(name); }; });
+    check('a missing sprite draws a figure', V.drawPlayer(pen, { x: 8, y: 8, scale: 2, id: 'qb', view: 'back', pose: 'run1', fill: '#c45a32', outline: '#fff' }) === 'figure' && pen.log.indexOf('drawImage') < 0 && pen.log.indexOf('fill') >= 0);
+    V.drawPlayer.sprites['qb_back_run1.png'] = { width: 8, height: 12 };
+    check('a loaded sprite is drawn instead of the figure', V.drawPlayer(pen, { x: 8, y: 8, scale: 2, id: 'qb', view: 'back', pose: 'run1' }) === 'sprite' && pen.log.indexOf('drawImage') >= 0);
+    delete V.drawPlayer.sprites['qb_back_run1.png'];
+    const look = { w: 400, h: 640 };
+    const camNear = V.followBall({ x: 25, y: 0 }), camFar = V.followBall({ x: 55, y: 0 });
+    const ballNear = V.project('behind', { x: 25, y: 0 }, camNear, look);
+    const ballFar = V.project('behind', { x: 55, y: 0 }, camFar, look);
+    const yardNear = V.project('behind', { x: 40, y: 0 }, camNear, look);
+    const yardFar = V.project('behind', { x: 40, y: 0 }, camFar, look);
+    check('the camera stays with the ball and the field scrolls', Math.abs(ballNear.y - ballFar.y) < 1 && Math.abs(yardNear.y - yardFar.y) > 8);
+    const learned = M.create({ seed: 2 }); learned.usage.quick = 4;
+    check('a save keeps what the defence has learned', M.restore(M.serialise(learned)).usage.quick === 4);
     const stale = M.create({ seed: 4 });
     stale.spot = 98; stale.down = 3; stale.toGo = 2; stale.possession = 'home';
     stale.last = { text: 'Mara Holt is stopped for 5.', serial: 1, quarter: 1, down: 2, toGo: 7, spot: 93, possession: 'home' };
@@ -95,7 +142,7 @@ document.querySelector('#run').onclick = async () => {
     check('3rd and Goal from the 2 hides a stale stopped-for-5 line', M.currentMessage(stale).indexOf('stopped for 5') < 0);
     M.callPlay(stale, 'inside'); M.finish(stale, M.policies.neutral);
     const fresh = M.currentMessage(stale);
-    check('that snap\'s own message matches the down on the board', fresh.length > 0 && fresh.indexOf('stopped for 5') < 0 && stale.last.down === stale.down && Math.abs(stale.last.spot - stale.spot) < 0.25 && /Goal/.test(fresh));
+    check('that snap\'s own message matches the down on the board', fresh.length > 0 && fresh.indexOf('stopped for 5') < 0 && stale.last.down === stale.down && Math.abs(stale.last.spot - stale.spot) < 0.25 && (stale.last.kind === 'score' ? /Touchdown/.test(fresh) : /Goal/.test(fresh)));
     const ring = V.fitCircle({ x: 200, y: 300 }, 250, { w: 400, h: 600 }, 8);
     check('an aim ring stays inside a 400px field', ring.x - ring.r >= 8 && ring.x + ring.r <= 392 && ring.y - ring.r >= 8 && ring.y + ring.r <= 592);
     const body = V.project('behind', { x: 0, y: 0 }, { x: -3, y: 0 }, { w: 400, h: 640 });
@@ -145,6 +192,45 @@ document.querySelector('#run').onclick = async () => {
     const offRatings = resumed[resumed.possession];
     const defRatings = resumed[resumed.possession === 'home' ? 'away' : 'home'];
     check('the quarterback, receiver and line ratings are readable', !!sheet && sheet.textContent.indexOf('throw ' + offRatings.qb.throw) >= 0 && sheet.textContent.indexOf('hands ' + offRatings.wr[0].catch) >= 0 && sheet.textContent.indexOf('vs rush ' + defRatings.rush) >= 0);
+    const spotOf = id => {
+      const el = d2.querySelector('[data-play="' + id + '"]');
+      const r = el.getBoundingClientRect();
+      return { left: r.left, top: r.top, off: el.disabled };
+    };
+    const beforeDown = {};
+    ['inside', 'outside', 'quick', 'deep', 'kick'].forEach(id => { beforeDown[id] = spotOf(id); });
+    check('play buttons carry an icon and a short name', ['Inside', 'Outside', 'Quick', 'Deep', 'Kick'].every(word => {
+      const btn = Array.from(d2.querySelectorAll('#dock button')).find(b => b.textContent.indexOf(word) >= 0);
+      return btn && btn.querySelector('svg');
+    }));
+    check('kick keeps its seat before fourth down', beforeDown.kick.off === true);
+    resumed.down = 4;
+    w2.__lantern.refresh();
+    await wait();
+    const stayed = ['inside', 'outside', 'quick', 'deep', 'kick'].every(id => {
+      const now = spotOf(id);
+      return Math.abs(now.left - beforeDown[id].left) < 2 && Math.abs(now.top - beforeDown[id].top) < 2;
+    });
+    check('fourth down does not move the play buttons', stayed && spotOf('kick').off === false);
+    resumed.down = 1;
+    w2.__lantern.refresh();
+    await wait();
+    w2.__lantern.begin('inside');
+    await wait();
+    check('a snap keeps only the score, the down and the clock', d2.querySelector('#sheet').hidden && !d2.querySelector('#windLabel') && !d2.querySelector('#gas') && d2.querySelector('#clock').textContent.length > 0 && d2.querySelector('#down').textContent.length > 0);
+    const liveButtons = ['inside', 'outside', 'quick', 'deep', 'kick'].map(spotOf);
+    check('the play buttons stay put during the snap', liveButtons.every((now, i) => Math.abs(now.left - beforeDown[['inside', 'outside', 'quick', 'deep', 'kick'][i]].left) < 2));
+    w2.__lantern.finishLive();
+    await wait();
+    const carried = d2.querySelector('#sheet');
+    check('the ratings follow the ball carrier', !!carried && !carried.hidden && carried.textContent.indexOf('Mara Holt') >= 0 && carried.textContent.indexOf('carry') >= 0 && carried.textContent.indexOf('throw') < 0);
+    resumed.possession = 'home';
+    resumed.phase = 'call';
+    resumed.down = 1;
+    const ours = d2.querySelector('[data-ours]');
+    if (ours) ours.click();
+    else w2.__lantern.refresh();
+    await wait();
 
     for (const [width, height] of [[375, 812], [400, 700], [667, 375], [1366, 768]]) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px';
@@ -155,14 +241,38 @@ document.querySelector('#run').onclick = async () => {
         const boxes = [d2.querySelector('h1'), d2.querySelector('.home'), d2.querySelector('#settingsMount button')].map(el => el.getBoundingClientRect());
         const mids = boxes.map(r => (r.top + r.bottom) / 2);
         check('the 400px header stays on one line', d2.querySelector('header').getBoundingClientRect().height < 72 && Math.max.apply(null, mids) - Math.min.apply(null, mids) < 8);
+        const titleEl = d2.querySelector('h1');
+        check('the 400px title reads Lantern Bowl', titleEl.textContent === 'Lantern Bowl' && titleEl.scrollWidth <= titleEl.clientWidth + 1);
+        const lefts = {};
+        ['inside', 'outside', 'quick', 'deep', 'kick'].forEach(id => {
+          const r = d2.querySelector('[data-play="' + id + '"]').getBoundingClientRect();
+          lefts[id] = { left: r.left, top: r.top };
+        });
+        resumed.down = 4;
+        w2.__lantern.refresh();
+        await wait();
+        const held = ['inside', 'outside', 'quick', 'deep', 'kick'].every(id => {
+          const r = d2.querySelector('[data-play="' + id + '"]').getBoundingClientRect();
+          return Math.abs(r.left - lefts[id].left) < 2 && Math.abs(r.top - lefts[id].top) < 2;
+        });
+        check('at 400px the kick does not move the other plays', held && d2.querySelector('[data-play="kick"]').disabled === false);
+        check('at 400px fourth down still fits', d2.documentElement.scrollWidth <= 401 && d2.documentElement.scrollHeight <= 701);
+        resumed.down = 1;
+        w2.__lantern.refresh();
+        await wait();
         const field = d2.querySelector('.screen').getBoundingClientRect();
         const ratings = d2.querySelector('#sheet').getBoundingClientRect();
         check('the 400px ratings stay on the field', ratings.width > 0 && ratings.left >= field.left - 1 && ratings.right <= field.right + 1 && ratings.bottom <= field.bottom + 1);
       }
     }
-    d2.documentElement.style.setProperty('--arc-text', '1.3');
     frame.style.width = '375px'; frame.style.height = '812px';
+    d2.documentElement.style.setProperty('--arc-text', '1');
     await wait();
+    const baseTitle = parseFloat(w2.getComputedStyle(d2.querySelector('h1')).fontSize);
+    d2.documentElement.style.setProperty('--arc-text', '1.3');
+    await wait();
+    const bigTitle = parseFloat(w2.getComputedStyle(d2.querySelector('h1')).fontSize);
+    check('the title follows the text size', bigTitle > baseTitle * 1.2 && bigTitle < baseTitle * 1.45);
     check('larger text stays on a phone', d2.documentElement.scrollWidth <= 376 && d2.documentElement.scrollHeight <= 813);
 
     const again = w2.__lantern;
@@ -173,6 +283,7 @@ document.querySelector('#run').onclick = async () => {
     d2.querySelector('[data-again]').click();
     await wait();
     check('play again comes back to the kickoff', !!d2.querySelector('[data-kick]') && !d2.querySelector('[data-play]'));
+    check('play again clears the last play', (d2.querySelector('#banner').textContent || '') === '');
     d2.querySelector('[data-kick]').click();
     await wait();
     check('the new kickoff is 1st and 10 at the 25', again.state.quarter === 1 && again.state.down === 1 && again.state.score.home === 0 && again.state.score.away === 0 && Math.round(again.state.spot) === 25);
@@ -187,11 +298,16 @@ document.querySelector('#run').onclick = async () => {
     delete again.migrateSave.steps[1];
     again.migrateSave.SAVE_V = savedVersion;
     again.state.down = 4; again.state.spot = 28; again.state.toGo = 10; again.state.phase = 'call'; again.state.possession = 'home';
+    again.state.quarter = 1; again.state.clock = 120; again.state.seed = 1; again.state.rng = 1;
     again.begin('kick');
     await wait();
     const plays = Array.from(d2.querySelectorAll('.cpu-log li'));
     const bits = Array.from(d2.querySelectorAll('.cpu-log p'));
     check('Millrace\'s drive is one sentence per line (' + plays.length + ' plays)', plays.length >= 2 && bits.length >= plays.length && !d2.querySelector('.cpu-log br') && bits.every(p => /[.!?]$/.test(p.textContent.trim())));
+    again.state.quarter = 4; again.state.clock = 12; again.state.possession = 'away'; again.state.phase = 'cpu'; again.state.down = 1; again.state.toGo = 10; again.state.spot = 30;
+    again.playCpu();
+    await wait();
+    check('the end of the game is the final screen', again.state.phase === 'final' && d2.querySelector('#panelTitle').textContent === 'Final' && !d2.querySelector('.cpu-log'));
     sum.textContent = 'PASS — ' + n + ' checks.';
   } catch (e) {
     sum.textContent = 'FAIL — ' + e.message;
