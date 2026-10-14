@@ -152,8 +152,9 @@ document.querySelector('#run').onclick = async () => {
       check(width + '×' + height + ' stays on the screen', d2.documentElement.scrollWidth <= width + 1 && d2.documentElement.scrollHeight <= height + 1);
       check(width + '×' + height + ' play buttons are thumb sized', Array.from(d2.querySelectorAll('#dock button, #settingsMount button, .home')).every(b => b.getBoundingClientRect().height >= 40));
       if (width === 400) {
-        const tops = [d2.querySelector('h1'), d2.querySelector('.home'), d2.querySelector('#settingsMount button')].map(el => el.getBoundingClientRect().top);
-        check('the 400px header stays on one line', Math.max.apply(null, tops) - Math.min.apply(null, tops) < 10);
+        const boxes = [d2.querySelector('h1'), d2.querySelector('.home'), d2.querySelector('#settingsMount button')].map(el => el.getBoundingClientRect());
+        const mids = boxes.map(r => (r.top + r.bottom) / 2);
+        check('the 400px header stays on one line', d2.querySelector('header').getBoundingClientRect().height < 72 && Math.max.apply(null, mids) - Math.min.apply(null, mids) < 8);
         const field = d2.querySelector('.screen').getBoundingClientRect();
         const ratings = d2.querySelector('#sheet').getBoundingClientRect();
         check('the 400px ratings stay on the field', ratings.width > 0 && ratings.left >= field.left - 1 && ratings.right <= field.right + 1 && ratings.bottom <= field.bottom + 1);
