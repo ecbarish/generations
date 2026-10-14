@@ -462,3 +462,9 @@ Merged 2026-10-08 (Realmbound v1.3.0, PR #53); written by Codex on codex/realmbo
 
 
 T43 claimed by Codex, 2026-10-08, on codex/catalogue-realmbound: zone and dungeon beast catalogue correspondences and names in the game window; stacked after T41, with combat and local identities preserved.
+
+## Wildbond creature field study
+
+| ID | Project | Status | Scope |
+|---|---|---|---|
+| WB-ART-BATCH1 | Catalogue references and world scale | Codex / Evan, PR #312 | 15 species / six lines, isolated art preview; built-in fallback explicitly authorised; no engine/game edits |

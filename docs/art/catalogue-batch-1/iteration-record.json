@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-13",
+  "provider": "Built-in image generator; user-approved fallback",
+  "entries": [
+    {
+      "key": "hush-hyenas-clean",
+      "prompt": "Edit the supplied original Wildbond Hushpup/Hushmane sheet. Preserve both creatures' exact anatomy, fur, face markings, poses and placement. Remove ALL black/grey/violet backdrop and every diffuse glow halo behind and around both creatures; make all space outside their actual fur contours genuinely transparent with clean alpha edges. Do not remove interior shadows or the pale curved echo markings within Hushmane's fur. Keep both creatures separate and complete. No replacement background, no cast shadow, no scenery, no labels. This is a cutout cleanup, not a redesign.",
+      "reason": "The cleanup still retains a halo; not selected as a production cutout.",
+      "originalFile": "exec-536dee59-6ba6-425c-b585-099694e0263e.png",
+      "sourceSha256": "9041c11bf83a90dd55ac59883015dc57135eb048c405e604768503671cc2a810",
+      "preview": "iterations/hush-hyenas-clean.webp",
+      "status": "alternative-not-selected"
+    },
+    {
+      "key": "stormfrill-payoff",
+      "prompt": "Using the supplied original Wildbond Saillet/Draftscale/Stormfrill sheet as identity and style reference, generate ONLY a revised final STORMFRILL full-body cutout on a genuinely transparent background. Do not include the first two stages. Preserve Stormfrill's friendly amber eyes, dark cheek stripe, grey-blue skin, three pale tail bands, lizard snout and four existing reptile legs. Change the adult sail from one tall upright dorsal fin into a dramatic broad pair of wing-like FIN MEMBRANES that unfurl laterally from the existing sail's spine ribs, sweeping backwards and upwards like storm-catching sails. Frill fins are part of its dorsal/neck membrane anatomy, NOT new arms or arbitrary dragon wings. One near sail arches broadly over its back and the far sail makes a clearly separated outline above/behind the head. Lizard body long and low, four legs plainly visible, stable confident stance, same creature all the way. Major silhouette transformation: wider majestic storm canopy, not just a taller version of the adolescent sail. Thin restrained lightning seams within fins. Three-quarter side view facing LEFT. Entire tail/sails/feet in frame with generous padding. Crisp dark ink contour, soft painted texture, same subdued palette and upper-left light as sheet. No backdrop, no ground, no shadow or halo, no text.",
+      "reason": "A second sail is visible, but broad lateral construction and alpha cleanup still need acceptance; retained as an alternative, not selected.",
+      "originalFile": "exec-1c65cc65-31b8-490f-bbff-01ed567b8b26.png",
+      "sourceSha256": "ea212def0df696543be4e3f196d999cef7a0cc877fbc7403785f7310e214f752",
+      "preview": "iterations/stormfrill-payoff.webp",
+      "status": "alternative-not-selected"
+    }
+  ]
+}

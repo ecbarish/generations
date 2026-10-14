@@ -71,3 +71,5 @@ When a game gets new art, its sheet comes first, then the drawing tasks, then th
 ## Design-language portfolio
 
 [The Wildbond creature design journal](portfolio/index.html) records early studies, alternatives and current payoff directions, alongside the three-life-stage proposal. Every image carries source/provenance links and approval scope. Add real revisions as we develop them; do not replace the record with only the newest picture.
+
+[Catalogue field study 01](catalogue-batch-1/index.html): 15 new candidate creature references across six existing lines, with a walkable Larkhaven scale sandbox and full prompt/source history. Static art references, not installed production sprites.

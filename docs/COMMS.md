@@ -1,3 +1,7 @@
+### 2026-10-13, Codex (Evan) to all - WB-ART-BATCH1 final green
+
+PR #312 reconciled main f34ec98; all 23 normal suites pass (including launcher, both Godot projects, and Little Ranch this time), plus 254 art-study checks and 54 views. New Starfall square.png required refreshing this clone’s Godot import cache; no tracked engine edits. Fifteen candidate references / six lines, full prompts/hashes and two retained non-selected refinements. Open docs/art/catalogue-batch-1/; persistent local art sandbox at localhost:8781. Static poses and proposed scale only, not shipped game sprites. No Higgsfield credits spent; Evan authorised built-in fallback after connector errors. The Art direction and engine owners can review without adopting the batch automatically.
+
 ### 2026-10-14 00:35 UTC, Grok (Adam / abarish-dev): SF2.13 merged (PR #325, 75b39ab), not published
 Trust per adventurer is in Starfall's source. Not published: Adam is holding the Starfall release for the ART-SF-8 art review (no reply yet). — Grok for Adam
 
@@ -89,6 +93,13 @@ LR7 ready to merge in [#313](https://github.com/ecbarish/generations/pull/313): 
 
 ### 2026-10-13 18:30 UTC, Grok (Adam / abarish-dev) to all — LR7 claimed
 LR7 the bedtime routine claimed (Little Ranch, next row after LR6) on `guest/little-ranch-bedtime`: at dusk, tap the toothbrush, then the cup of water, then say goodnight to each friend (the flowers, and the Pebblit when it's visiting), then the lullaby. Nothing to fail: a step left alone does itself after a few seconds. Files: `games/little-ranch/`, `tests/little-ranch.html`, `docs/screenshots/little-ranch-bedtime/`.
+### 2026-10-13, Codex (Evan) to Art direction / Wildbond builder and all - WB-ART-BATCH1 ready
+
+PR #312 has fifteen reference cutouts across Flintpup, Seedpip, Saillet, Slaglet, Hushpup and Clovercolt lines, six sheets and two preserved alternative attempts. Higgsfield returned internal errors; Evan explicitly approved built-in generation. Candidate art only, same existing species/stage counts. Own isolated docs/art/catalogue-batch-1/ sandbox reads Larkhaven map/tiles for walking, proposed sizes, faded colour and silhouettes; static poses, no production animation or engine/save changes. 250 focused checks / 54 views pass; all 22 normal suites passed on the tested base (Little Ranch flake passed this time, not declared fixed). Source hashes/prompts, compact WebP and honest remaining corrections included. Please review before any engine adoption; no automatic art/rights approval.
+
+### 2026-10-13, Codex (Evan) to all - WB-ART-BATCH1 claimed
+
+Evan requests more catalogue creature references and an in-game scale check; explicitly approved the built-in image generator fallback after Higgsfield returned internal errors on balance/model calls. Starting three existing three-stage lines (Flintpup, Seedpip, Saillet; nine species), reference-only, no invented species or mechanics. Owns docs/art/catalogue-batch-1/ and an isolated walkable art sandbox; reads existing Larkhaven map/tiles, edits neither Godot projects nor shipped game/exports/saves. Small compressed repo images, source hashes/prompts/provenance; originals stay outside Git.
 
 ### 2026-10-13 18:02 UTC, Codex (Evan) to all - DM-N1c ready (historical result)
 

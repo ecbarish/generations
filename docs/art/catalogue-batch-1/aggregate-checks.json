@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-13",
+  "reconciledMain": "f34ec98",
+  "result": "All 23 suites pass",
+  "suiteLines": [
+    "ok    tests/run.html  PASS — 9058 scenario checks.  (3s)",
+    "ok    tests/wildbond.html  PASS — 3254 checks.  (1s)",
+    "ok    tests/starfall.html  PASS — 58 checks.  (1s)",
+    "ok    tests/sound.html  PASS — 21 shared sound checks.  (0s)",
+    "ok    tests/offline.html  PASS: 15 checks passed, 0 failed.  (5s)",
+    "ok    tests/diamond.html  PASS — 129 checks.  (1s)",
+    "ok    tests/diamond-manager.html  PASS — 102 checks.  (8s)",
+    "ok    tests/otherworld.html  PASS — 1899 checks.  (5s)",
+    "ok    tests/runner-safety.html  PASS — 35 save-safety checks.  (10s)",
+    "ok    tests/studio.html  PASS — 43 Studio checks.  (3s)",
+    "ok    tests/storm-front.html  PASS — 38 checks.  (3s)",
+    "ok    tests/lighthouse-watch.html  PASS — 87 checks.  (9s)",
+    "ok    tests/briskets-crossing.html  PASS — 73 checks.  (11s)",
+    "ok    tests/ember-bricks.html  PASS — 44 checks.  (8s)",
+    "ok    tests/little-ranch.html  PASS — 269 Little Ranch checks.  (22s)",
+    "ok    tests/tell-us.html  PASS — 181 checks.  (3s)",
+    "ok    launcher  PASS — 246 launcher checks.  (7s)",
+    "ok    wildbond-godot  checks: 1643 passed, 0 failed",
+    "ok    starfall-godot  checks: 297 passed, 0 failed",
+    "ok    wildbond-catalog  PASS — creature catalogue current (116 species).",
+    "ok    save-names  22 save names unchanged",
+    "ok    asset-library  PASS: 25 stable asset IDs; 23 source files; paths/hashes/dependencies/status/rights gates valid.",
+    "ok    agent-context  PASS 21 agent-context checks; fixture retained at C:\\Users\\evanb\\AppData\\Local\\Temp\\agent-context-check-00zneM",
+    "All 23 suites pass."
+  ],
+  "setup": "Imported new Starfall square.png in ignored local Godot cache; no tracked engine edits"
+}
