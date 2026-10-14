@@ -43,7 +43,7 @@ var font: Font
 var keep := true                             # false in the recorded demo, so it never touches your saved choices
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	Controls.fill(self)
 	mouse_filter = MOUSE_FILTER_STOP
 	font = ThemeDB.fallback_font
 	visible = false
@@ -118,8 +118,8 @@ func _input(e: InputEvent) -> void:
 			if row == SIGN_ROW: sign_it()
 			else: row += 1
 		get_viewport().set_input_as_handled()
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var p := get_local_mouse_position()
+	elif Controls.pointing(e):
+		var p := Controls.at(self, e)
 		if Rect2(204, 166, 146, 15).has_point(p):
 			row = SIGN_ROW
 			sign_it()
@@ -130,6 +130,8 @@ func _input(e: InputEvent) -> void:
 					row = i
 					if p.x < 270: change(-1)
 					elif p.x > 332 or i != 0: change(1)
+		get_viewport().set_input_as_handled()
+	elif Controls.swallow_pointer(e):
 		get_viewport().set_input_as_handled()
 
 func _process(dt: float) -> void:

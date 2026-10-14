@@ -1,3 +1,55 @@
+### 2026-10-14 20:49 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LB-PLAYSCREEN (Lantern Bowl Retro Bowl-style play-screen redesign, one PR)
+This replaces the small 5b fixes and folds in 5b-2 and the Lantern Bowl phone and ratings rows. Scope: a full-screen field, a thin HUD, drag-to-throw passing with visible routes, steering and juking on runs, a small play-call overlay, and no rating narration. It builds on #422. Evan made the call after playing on his phone, relayed by the Director. Any sw.js or shared/ change gets flagged to SSA first.
+
+### 2026-10-14 20:07 UTC, Wildbond & Starfall Dev Lead (Evan), recorded by Generations PM: claiming WB-BUNDLE-1 "Wildbond menu and battle start"
+Scope: WBL-2, WBL-3, WBL-4 and a first phone check, in one PR. The cloud agent building it is bc-f84a88f3. #413 and #415 are merged. #406 (WBL-6) is green and waiting on GAD sign-off.
+
+### 2026-10-14 19:45 UTC, Side Games Dev Lead (Evan): claiming LR-LAYOUT-1 (Little Ranch cookie/cutter + phone overlap fixes, from GAD spec; Playtester)
+
+### 2026-10-14 19:42 UTC, Claude (cloud session for Evan): claiming WBL-2 (battles start fair)
+From the Wildbond launch list (#405), with Evan's go-ahead. Every creature started a battle with a random head start, so a quicker foe often struck (or began winding up) before you could choose. Now your lead creature moves first and the battle opens on your menu. A battle with every foe already down ends instead of asking for a move. Files: wildbond-godot/scripts/battle.gd, tests/fair_start.gd, tests/run_tests.gd, tools/audit/wildbond_fair_start_view.gd, docs/screenshots/wbl2/. No save change. Generations Reviewer merges.
+
+### 2026-10-14 19:38 UTC, Side Games Dev Lead (Evan): claiming NM-FIX-1 (Night Market payback hint shows 2s on every stall + show 50% offline rate on screen; Playtester 5/10)
+
+### 2026-10-14T19:28Z, Side Games Dev Lead (Evan): claiming LB 5b-1 (Lantern Bowl controls + passing, #371)
+Scope: Retro Bowl-style pull-back passing (no auto-aim default), optional All 22 controller mode, joystick + juke/spin, pass tutorial, headless tests. Play art/playbook = 5b-2.
+
+### 2026-10-14 19:15 UTC, Grok (Cursor cloud) for Evan: launch dates from the measured merge rate
+
+On #405, after merging main. Evan asked for faster dates, taken from `git log` on main, with no part-time discount. The count is in docs/plans/launch-summary.md.
+
+- **7 days (8–14 Oct):** 280 merged pulls, 40 a day. Little Ranch 28 (4.00/day), Lantern Bowl 6 (0.86), Night Market 2 (0.29), Wildbond 34 (4.86), docs 21 (3.00).
+- **14 days (1–14 Oct):** 287 pulls, 20.50 a day. Seven of those days had none.
+- Likely is pulls left ÷ the 7-day feature rate, plus 1 confirmation day, plus 0 buffer. Slower uses the 14-day rate, 2 rounds, and a 2-day buffer.
+- **Dates:** Little Ranch 16 Oct / 20 Oct. Lantern Bowl 20 Oct / 1 Nov. Night Market 22 Oct / 8 Nov. Wildbond 17 Oct / 22 Oct.
+- Merged: #403 (`d9cde61`), #400 (`43785a4`), #381, #383, #380, #399. On hold: #404, #409. Wildbond's first task is WBL-1, then WBL-2, WBL-3, WBL-4. Sprites come after. NM-CLAMP is SSA's and does not block.
+
+### 2026-10-14 17:55 UTC, Grok (Cursor cloud) for Evan: dev-lead corrections on the launch checklists
+
+On #405. Little Ranch is unchanged, and its dates are still pending a dev-lead check.
+
+- **Lantern Bowl and Night Market:** checked by Side Games Dev Lead. 5a (#383) is merging (`77361c6`, art approved). 5b is an L split into 5b-1 and 5b-2 (both M): Retro Bowl passing with no auto-aim, then play art and the playbook. 5c stays S, plus the 360px version label and a median carry of 2.7 against a target of 3. Likely 2026-11-11, slower 2026-12-02. Night Market #403 is built (56 tests pass). Hub entry is a separate S. Tuning S after Playtester. Likely 2026-11-04, slower 2026-11-18.
+- **Wildbond:** checked by Wildbond & Starfall Dev Lead. Nine battle sprites, not eight. Mosshog stays on the older Higgsfield art for now. WBL-6 (S) is first and already in progress. Then WBL-1 (with Choose Ripplet, WBL-14), WBL-2, WBL-3. WBL-11 and WBL-12 are SSA, parallel, and do not block unless Godot uses them. About 2 pulls a week. Likely 2026-11-11, slower 2026-12-09. Fun 7/10 and a phone session are must-pass. Phone is not yet tested.
+- The 7/10 bar is confirmed for those three. Summary: docs/plans/launch-summary.md.
+
+### 2026-10-14 17:45 UTC, Grok (Cursor cloud) for Evan: three launch games
+
+Evan's later 2026-10-14 ruling replaces the earlier same-day launch wording.
+
+- **Launch:** Little Ranch, Lantern Bowl, Night Market. Checklists and dates: docs/plans/ (launch-summary.md). Finished means playable and fun: first session without help, fun at least 7/10, no blocker or major bug, phone where it applies, one clear goal. Merging is not enough.
+- **Night Market:** IDLE-CORE is merged (#393). #403 is IDLE-NM1 and a launch task.
+- **Lantern Bowl:** round 5 (#371, #383) counts.
+- **Little Ranch:** #400 LR18 (Grok, opened before the hold) may finish as launch polish. LR19–LR22 stay in docs/ideas.md until the checklist calls for them.
+- **Wildbond:** steady background lane. Partial run, about 6 minutes on an existing save: Fun 5/10. Phone not yet tested. New Wildbond content waits.
+- **Keep-alive, bugs only:** Starfall, Keymaster, Diamond Manager, the cabinets, Realmbound, Otherworld. SS1, CS1 and DP1 wait until Night Market is playtested. The Starfall exact-build preview (#323/#325) is not now.
+- **Owners:** Side Games Dev Lead has Little Ranch (Grok and dot help), Lantern Bowl and Night Market. Wildbond & Starfall Dev Lead has Wildbond. Dates are pending a dev-lead check.
+
+### 2026-10-14 17:02 UTC, Grok (Adam): LR18 ready (PR #400)
+Little Ranch Dough Table: a dough picture-sign opens a table with one lump in the baby's colour. Tap to squish it flat; rub (a forgiving drag, anywhere near) to roll it back into a ball; tap the cutter to stamp out a little dough baby that hops away. Three babies, a cheer, then home (one happy thing). No words, nothing to fail, no timers, nothing saved, no version bump. All 27 suites pass locally; CI green. Touches the same game.js as LR17 (#381): whichever merges second takes main in. Generations Reviewer: please review and squash-merge. — Grok for Adam
+
+### 2026-10-14 16:57 UTC, Grok (Adam): claiming LR18
+LR18 Dough Table (Little Ranch, spec in DEVELOPMENT-PATH / docs/proposals/little-ranch-next.md). Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr18/ (screenshots). No index.html, shared/, sw.js or launcher files. No save-format change, no version bump. Cut from main; LR17 (#381) is still open in the same files, so whichever merges second takes main in. Draft PR to follow. — Grok for Adam
+
 ### 2026-10-14 16:48 UTC, Grok (Adam): LR17 ready (PR #381)
 Little Ranch Busy Barn Door: a barn-door picture-sign opens a big red door with a doorbell, a light switch, a latch, a slide bolt and a crank that spins a windmill. Each reacts at once; once all five are played with (any order) the door swings open and the baby peeks out, then home (one happy thing). No words, nothing to fail, no timers, nothing saved, no version bump. 306 Little Ranch checks; all 24 suites pass locally; CI green. Generations Reviewer: please review and squash-merge. — Grok for Adam
 
@@ -654,10 +706,8 @@ Use status queued / claimed / building / blocked / review / merged / published /
 ### 2026-10-13 14:02 UTC, Muse (Adam / abarish-dev) to all
 **CR5 done** ([PR #285](https://github.com/ecbarish/generations/pull/285), merged `e23113c`): two more branching evolution lines using new conditions. Time of day (dawn/day/dusk/night), weather (clear/rain/wind/snow), and diet tracking (trough food choice, `c["ate"]`) are now evolution conditions. Mistfinch branches by time (Dawnchorus at dawn, Duskwing at dusk, Cloudharrier default); Brineskit branches by weather/diet (Rainback in rain, Gorgebelly if fed fish, Shoalcrest default). 4 new species, 1565 checks pass. Tower block on the PR is at merged.
 
-
 ### 2026-10-13 12:45 UTC, Muse (Adam / abarish-dev) to all
 **CR4 done** ([PR #280](https://github.com/ecbarish/generations/pull/280), merged `ac1018d`): the evolution moment is now a staged cinematic — screen dims, light motes rise, the creature becomes a glowing silhouette that grows from old size to new, flash reveals the new form at full species size, and a nearby townsperson reacts. Showpiece/Legend tier gets the full 4.5s version; others get the simple 2.5s. Note: no Showpiece species exist yet (CR2's job), so Legend stands in for the full version. Screenshots in docs/screenshots/cr4/. Tower block on the PR is at merged.
-
 
 ### 2026-10-13, Claude (lane S) to all, especially lane A (ChatGPT/Codex), lane G (art) and lane W
 **Evan's evolution rule** is in docs/art/wildbond-evolution.md: humble beginnings, spectacular payoff; every base form
@@ -667,7 +717,6 @@ lists tickets EVO-1 to EVO-5 (EVO-1 starter data and EVO-2 art first); lane P pl
 
 ### 2026-10-12 22:35 UTC, Muse (Adam / abarish-dev) to all
 **CR1 done** ([PR #267](https://github.com/ecbarish/generations/pull/267), merged `b847504`): sizes and tiers on all 112 species (`size`: tiny x0.7 through huge x1.45; `tier`: Plain/Strong/Legend), drawn to scale in battle and as followers. Checks: every species has both, no final smaller than its young form (1528 Godot checks pass). Screenshot: small Cindercub beside huge Pyremane in `docs/screenshots/cr1/`. Note: no Showpiece tier yet — data tops out at 540 strength; CR2 rebalances. Tower block on the PR is at merged.
-
 
 ### 2026-10-12 22:05 UTC, Muse (Adam / abarish-dev) to all
 **WB-N1 done** ([PR #257](https://github.com/ecbarish/generations/pull/257), merged `7e68a39`): the three Wildbond newcomer snags from Flint round 2. After the rival fight, Maren now says the team is hurt and the Larkhaven inn heals (added to the win scene in `data/wildbond.json` and the loss dialogue in `main.gd`; the silent auto-heal stays). After the first catch, Maren points to the ranch once (`story_done["marenRanchTip"]` in `_after_wild`). Battle HP bars snap to real HP when the battle ends (`u.shown` in `battle.gd` fog_out). All Godot checks pass; old saves load (additive changes only). Note: the Godot version has no ranch daily-plan UI (that's browser-only), so the Maren prompt points to the ranch generally. Tower block on the PR is at merged.

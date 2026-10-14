@@ -42,6 +42,10 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Little Ranch v0.18.1 — LR-LAYOUT-1 (PR #424; version bumped on merge):** Cookies hop clear of the cutter. The sponge, ball and flowers no longer overlap on phones.
+- **Shared engine (2026-10-14, WBL-11 and WBL-12, PR #415):** an old-save upgrade step that returns nothing now holds the save untouched, and Erase does nothing to a held save. No game version bump.
+- **Night Market Stalls v0.1.1 — NM-FIX-1 (PR #421; version bumped on merge):** each stall says how long the next one pays for itself. Welcome back and the cash box say stalls earn 50% while you are away, and only four hours count.
+- **Little Ranch v0.18.0 — LR18 (PR #400; version bumped on merge):** the Dough Table. A dough picture-sign opens a table with one lump of dough in the baby's colour. Tap squishes it flat, a forgiving rub rolls it back into a ball, and the blue cutter stamps out a little dough baby that hops away. Three babies, a cheer, then home as one happy thing. No words, nothing to fail, no timers, and nothing saved.
 - **Night Market Stalls v0.1.0 — IDLE-NM1 (PR #403):** six stalls you work yourself before a vendor runs them, then buy in bulk, with a capped welcome back. Not on the hall yet.
 - **Godot Wildbond (2026-10-14, WB-FUNNEL1, PR #380):** a tap advances opening dialogue, and the opening records time to the first partner, first battle and first catch. Source only; the web preview is not rebuilt here.
 - **Lantern Bowl v0.1.5 — 371-5a (PR #383; version bumped on merge):** a side-on field with eleven a side, and carries with a real spread.

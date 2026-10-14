@@ -1,6 +1,6 @@
 # Night Market Stalls (IDLE-NM1)
 
-v0.1.0.
+v0.1.1.
 
 A small night market you can leave open. Six stalls stand on one lane. You work each stall yourself, then ask its vendor to run it. After that you buy more of that stall, one, ten, or as many as you can afford. At 25, 50 and 100 the stall changes look and earns twice as much each time. That doubling is the only production change.
 
@@ -14,4 +14,5 @@ Checks: `node tools/run-all-checks.cjs night-market`
 
 ## Changelog
 
+- v0.1.1 (2026-10-14, NM-FIX-1, PR #421): each stall says how long the next one pays for itself. Welcome back and the cash box say stalls earn 50% while you are away, and only four hours count.
 - v0.1.0 (2026-10-14, IDLE-NM1): first playable lane. Six stalls, hire after the job, bulk buy, milestones, capped welcome back.

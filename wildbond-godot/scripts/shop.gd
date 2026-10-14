@@ -13,7 +13,7 @@ var note := ""
 var font: Font
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	Controls.fill(self)
 	mouse_filter = MOUSE_FILTER_STOP
 	font = ThemeDB.fallback_font
 	visible = false
@@ -59,12 +59,14 @@ func _input(e: InputEvent) -> void:
 			closed.emit()
 		get_viewport().set_input_as_handled()
 		queue_redraw()
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var p := get_local_mouse_position()
+	elif Controls.pointing(e):
+		var p := Controls.at(self, e)
 		for i in goods.size() + 1:
 			if _row(i).has_point(p):
 				sel = i
 				_buy(i)
+		get_viewport().set_input_as_handled()
+	elif Controls.swallow_pointer(e):
 		get_viewport().set_input_as_handled()
 
 func _draw() -> void:
