@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- **2026-10-14, docs, #389:** office idle ruling (Evan, via Director, 2026-10-14). PRIORITIES gets an Office idle slot, and QUEUE gets IDLE-CORE then NM1, SS1, CS1 and DP1. Card Shop lite is approved, and the full Wildbond tie-in stays gated. Docs only.
 - **2026-10-14, Claude, WB-C4:** Larkhaven gets a barn garden, door stones, straw in the pen and grass variety, and the Thornwood ponds get a muddy, reedy bank, in [#372](https://github.com/ecbarish/generations/pull/372). Source only; not a preview release.
 - **2026-10-14, Claude, WB-C3b:** the register shows only the tap hint on phones, and the partner-card note no longer touches the stat bars, in [#382](https://github.com/ecbarish/generations/pull/382). Source only; not a preview release.
 - **2026-10-14, Claude, KM0:** Keymaster v0.1.0, one listing, one analyzer, one buy, in [#379](https://github.com/ecbarish/generations/pull/379).
