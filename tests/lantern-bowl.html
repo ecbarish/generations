@@ -710,7 +710,10 @@ document.querySelector('#run').onclick = async () => {
     const gear360 = d2.querySelector('.arc-set-btn').getBoundingClientRect();
     const hud360 = d2.querySelector('.hud').getBoundingClientRect();
     const down360 = d2.querySelector('#down');
-    check('at 360px Settings stays on the screen', gear360.right <= root360.right + 1 && gear360.left >= root360.left - 1 && gear360.width >= 16 && d2.querySelector('.arc-set-btn').getAttribute('aria-label') === 'Settings');
+    const home360 = d2.querySelector('.home').getBoundingClientRect();
+    const sound360 = d2.querySelector('#sound').getBoundingClientRect();
+    check('at 360px Settings stays on the screen', gear360.right <= root360.right + 1 && gear360.left >= root360.left - 1 && gear360.width >= 44 && gear360.height >= 44 && d2.querySelector('.arc-set-btn').getAttribute('aria-label') === 'Settings');
+    check('at 360px the back arrow and Sound are a 44 pixel tap', home360.width >= 44 && home360.height >= 44 && sound360.width >= 44 && sound360.height >= 44 && home360.left >= root360.left - 1 && sound360.right <= root360.right + 1 && d2.documentElement.scrollWidth <= 361);
     check('at 360px the score strip stays one line', hud360.height >= 16 && hud360.height <= 20 && down360.scrollHeight <= 20);
     frame.style.width = '375px'; frame.style.height = '812px';
     d2.documentElement.style.setProperty('--arc-text', '1');
@@ -720,6 +723,8 @@ document.querySelector('#run').onclick = async () => {
     await wait();
     const bigTitle = parseFloat(w2.getComputedStyle(d2.querySelector('h1')).fontSize);
     check('the title follows the text size', bigTitle > baseTitle * 1.2 && bigTitle < baseTitle * 1.45);
+    check('B and U are drawn in the pixel font', V.GLYPH.B === '110,101,110,101,110' && V.GLYPH.U === '101,101,101,101,111');
+    check('every word on the field has a glyph', V.FIELD_WORDS.every(word => V.missingGlyphs(word).length === 0));
     check('larger text stays on a phone', d2.documentElement.scrollWidth <= 376 && d2.documentElement.scrollHeight <= 813);
 
     const again = w2.__lantern;

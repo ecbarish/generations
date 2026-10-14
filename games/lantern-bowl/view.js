@@ -300,16 +300,29 @@
     '#2d6f80': ['#4a93a4', '#2d6f80', '#1c4a58']
   };
   var GLYPH = {
-    A: '010,101,111,101,101', C: '111,100,100,100,111', E: '111,100,110,100,111',
-    I: '111,010,010,010,111', L: '100,100,100,100,111', M: '101,111,101,101,101',
-    N: '101,111,111,101,101', R: '110,101,110,101,101', S: '111,100,111,001,111',
-    O: '111,101,101,101,111', P: '111,101,111,100,100',
-    T: '111,010,010,010,010', W: '101,101,101,111,101',
+    A: '010,101,111,101,101', B: '110,101,110,101,110', C: '111,100,100,100,111',
+    D: '110,101,101,101,110', E: '111,100,110,100,111', G: '111,100,101,101,111',
+    I: '111,010,010,010,111', J: '001,001,001,101,110', K: '101,110,100,110,101',
+    L: '100,100,100,100,111', M: '101,111,101,101,101', N: '101,111,111,101,101',
+    O: '111,101,101,101,111', P: '111,101,111,100,100', R: '110,101,110,101,101',
+    S: '111,100,111,001,111', T: '111,010,010,010,010', U: '101,101,101,101,111',
+    V: '101,101,101,101,010', W: '101,101,101,111,101',
     '0': '111,101,101,101,111', '1': '010,110,010,010,111', '2': '111,001,111,100,111',
     '3': '111,001,111,001,111', '4': '101,101,111,001,001', '5': '111,100,111,001,111',
     '6': '111,100,111,101,111', '7': '111,001,010,010,010', '8': '111,101,111,101,111',
     '9': '111,101,111,001,111'
   };
+  /* Words the picture paints with GLYPH. A space leaves a gap. Anything else needs a lit cell. */
+  var FIELD_WORDS = ['Lanterns', 'Millrace', 'POWER', 'LOB', 'BULLET', 'JUKE', 'SPIN', 'DIVE', 'GO', '10', '20', '30', '40', '50'];
+  function missingGlyphs(text) {
+    var missing = [];
+    String(text || '').toUpperCase().split('').forEach(function (ch) {
+      if (ch === ' ') return;
+      var rows = GLYPH[ch];
+      if (!rows || String(rows).indexOf('1') < 0) missing.push(ch);
+    });
+    return missing;
+  }
   function snapWorld(x) { return Math.round((Number(x) || 0) * SIDE.yard) / SIDE.yard; }
   function chainLines(game) {
     game = game || {};
@@ -944,7 +957,8 @@
     SIDE: SIDE, PALETTE: PALETTE, chainLines: chainLines, stepSideCamera: stepSideCamera,
     sideFocus: sideFocus, sideProject: sideProject, paintMatch: paintMatch, rampFor: rampFor,
     pocketDrop: pocketDrop, ballLoft: ballLoft, layoutFor: layoutFor, fitLayout: fitLayout,
-    opennessMark: opennessMark, drawUpright: drawUpright
+    opennessMark: opennessMark, drawUpright: drawUpright,
+    GLYPH: GLYPH, FIELD_WORDS: FIELD_WORDS, missingGlyphs: missingGlyphs
   };
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.LanternView = api;
