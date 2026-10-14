@@ -522,6 +522,33 @@ document.querySelector('#run').onclick = async () => {
       check('With the sound off the Dough Table is silent', LR.tones === t9); LR.prefs.sound = mute;
       LR.newVisit(); LR.bedtime(); tap(L().tsign); check('At bedtime the dough sign does not open the table (bedtime goes on)', S().place === 'ranch');
     }
+    // ---- LR22: the Feel-Better Corner
+    LR.prefs.sound = true;
+    for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180], [1920, 1080]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const sc = LR.scale, r = cv.getBoundingClientRect(), V = L().care, pts = [...V.items, V.baby, L().csign].map(q => LR.toScreen(q));
+      check(`${width}×${height}: the comfort box is its own tap (64 px+) and the signs still are; the three comforts are 64 px+, apart and on screen`, LR.ranchTarget(L().csign) === 'csign' && L().R * .85 * 2 * sc >= 64 && ['sign', 'wsign', 'ksign', 'dsign', 'tsign'].every(k => LR.ranchTarget(L()[k]) === k) && V.ir * 2 * sc >= 64 && pts.every(q => q.x > r.left && q.x < r.right && q.y < r.bottom) && (V.items[1].x - V.items[0].x) * sc >= V.ir * 2 * sc);
+      tap(L().csign); check(`${width}×${height}: tapping the comfort box opens the Feel-Better Corner`, S().place === 'care'); tap(V.barn);
+    }
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    { const V = () => L().care, C = () => S().care, it = k => V().items[LR.CARE.indexOf(k)];
+      const w0 = LR.words.length, t0 = LR.tones; tap(L().csign);
+      check('Tapping the comfort box opens the corner: a tiny bump, nothing used yet', S().place === 'care' && C().phase === 'bump' && Object.keys(C().done).length === 0);
+      check('...quietly: no words, and only the soft door sound (no crying, no "ouch")', LR.words.length === w0 && LR.tones - t0 <= 2);
+      LR.advance(10); check('Left alone, nothing gets worse and nothing happens by itself', C().phase === 'bump');
+      check('...the bandage glows (the hint)', LR.hint() && LR.hint().name === 'bandage');
+      let t1 = LR.tones; tap(it('blanket')); check('Any order: the cuddle blanket first wraps the baby, with a soft note and a heart', C().done.blanket !== undefined && LR.tones > t1 && S().fx.some(f => f.kind === 'heart'));
+      t1 = LR.tones; tap(it('blanket')); check('Tapping it again is just another soft note (nothing wrong)', LR.tones > t1 && C().phase === 'bump');
+      tap(V().baby); check('Patting the baby gives a heart', S().fx.some(f => f.kind === 'heart'));
+      tap(it('bandage')); check('The bandage goes on the bump', C().done.bandage !== undefined && C().phase === 'bump');
+      const a22 = S().acts; tap(it('cup')); check('A sip of water: all three, so the baby feels better', C().done.cup !== undefined && C().phase === 'better');
+      LR.advance(LR.SIP_SECS + .2); check('...hearts float up and the baby bounces back', C().cheered && S().fx.filter(f => f.kind === 'heart').length >= 3);
+      LR.advance(LR.CARE_END_SECS + .1); check('...then home: one happy thing', S().place === 'ranch' && S().care === null && S().acts === a22 + 1);
+      tap(L().csign); tap(it('cup')); tap(V().barn); check('The barn picture goes home at any time (no count, no fuss)', S().place === 'ranch' && S().care === null && S().acts === a22 + 1);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t9 = LR.tones; tap(L().csign); for (const k of LR.CARE) tap(it(k)); LR.advance(1); tap(V().barn);
+      check('With the sound off the corner is silent', LR.tones === t9); LR.prefs.sound = mute;
+      LR.newVisit(); LR.bedtime(); tap(L().csign); check('At bedtime the comfort box does not open the corner (bedtime goes on)', S().place === 'ranch');
+    }
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
