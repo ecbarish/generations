@@ -238,6 +238,7 @@
     A: '010,101,111,101,101', C: '111,100,100,100,111', E: '111,100,110,100,111',
     I: '111,010,010,010,111', L: '100,100,100,100,111', M: '101,111,101,101,101',
     N: '101,111,111,101,101', R: '110,101,110,101,101', S: '111,100,111,001,111',
+    O: '111,101,101,101,111', P: '111,101,111,100,100',
     T: '111,010,010,010,010', W: '101,101,101,111,101',
     '0': '111,101,101,101,111', '1': '010,110,010,010,111', '2': '111,001,111,100,111',
     '3': '111,001,111,001,111', '4': '101,101,111,001,001', '5': '111,100,111,001,111',
@@ -433,6 +434,27 @@
     if (moving) return { pose: 'run', frame: Math.floor(t * 8) % 4 };
     return { pose: 'idle', frame: Math.floor(t * 2) % 2 };
   }
+  /* Sits in the dark strip above the grass, centred, so a 360px window still shows it. */
+  function drawPowerMeter(ctx, power) {
+    var p = clamp(Number(power) || 0, 0, 1);
+    var labelW = 40, gap = 6, bw = 88, bh = 10;
+    var x = Math.round((SIDE.w - (labelW + gap + bw)) / 2);
+    var y = 8;
+    drawText(ctx, 'POWER', x, y, '#f6edd4', 2);
+    var bx = x + labelW + gap, by = y;
+    ctx.fillStyle = '#1e1a22';
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.fillStyle = '#c9bc9a';
+    ctx.fillRect(bx, by, bw, 1);
+    ctx.fillRect(bx, by + bh - 1, bw, 1);
+    ctx.fillRect(bx, by, 1, bh);
+    ctx.fillRect(bx + bw - 1, by, 1, bh);
+    var fill = Math.round((bw - 2) * p);
+    if (fill > 0) {
+      ctx.fillStyle = '#4aa8ff';
+      ctx.fillRect(bx + 1, by + 1, fill, bh - 2);
+    }
+  }
   /* A predicted arc and the landing circle. Lamplight stays on the aimed player, not the arc. */
   function drawPassGuide(ctx, at, carrier, aim) {
     var preview = aim.preview || {};
@@ -456,14 +478,18 @@
       var x = u * u * from.x + 2 * u * t * ((from.x + end.x) / 2) + t * t * end.x;
       var y = u * u * from.y + 2 * u * t * (((from.y + end.y) / 2) - loft) + t * t * end.y;
       var next = { x: Math.round(x), y: Math.round(y) };
-      pixelLine(ctx, prev.x, prev.y, next.x, next.y, 1, aim.kind === 'lob' ? [3, 3] : null);
+      pixelLine(ctx, prev.x, prev.y, next.x, next.y, 2, aim.kind === 'lob' ? [3, 3] : null);
       prev = next;
     }
     var radius = Math.max(0.6, Number(aim.radius) || Number(preview.radius) || 1.2);
-    var rx = Math.max(3, Math.round(radius * SIDE.yard));
-    var ry = Math.max(2, Math.round(radius * (SIDE.fieldH / SIDE.widthY)));
+    var rx = Math.max(4, Math.round(radius * SIDE.yard));
+    var ry = Math.max(3, Math.round(radius * (SIDE.fieldH / SIDE.widthY)));
     ctx.fillStyle = '#4aa8ff';
-    pixelEllipse(ctx, end.x, end.y, rx, ry, 1, wobble > 0 ? [2, 2] : null);
+    pixelEllipse(ctx, end.x, end.y, rx, ry, 2, wobble > 0 ? [2, 2] : null);
+    ctx.fillStyle = '#f6edd4';
+    ctx.fillRect(end.x - 3, end.y, 7, 1);
+    ctx.fillRect(end.x, end.y - 3, 1, 7);
+    if (aim.power != null) drawPowerMeter(ctx, aim.power);
   }
   function paintMatch(ctx, spec) {
     spec = spec || {};

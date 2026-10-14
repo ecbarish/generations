@@ -872,7 +872,7 @@
       return incomplete(game, qb.name + ' has nobody to throw to');
     }
     var landX = aim.x, landY = aim.y;
-    var scatter = 0;
+    var scatter = 0, wobble = 0;
     if (aim.autoAim === false) {
       var yards = Math.hypot(aim.x - qb.x, aim.y - qb.y);
       var guide = guideState(qb.throw, thrown.held || 0, aim.power, yards, pressureFactor(play));
@@ -881,6 +881,7 @@
       landX = aim.x + Math.cos(ang) * mag;
       landY = aim.y + Math.sin(ang) * mag;
       scatter = guide.error;
+      wobble = guide.wobble;
     }
     if (aim.throwaway || Math.abs(landY) > SIDELINE || Math.abs(aim.y) > SIDELINE) {
       play.thrown = true;
@@ -893,7 +894,8 @@
       x: qb.x, y: qb.y, fromX: qb.x, fromY: qb.y, toX: landX, toY: landY,
       air: flightSeconds(dist, aim.kind),
       t: 0, kind: aim.kind, qb: qb.throw, target: aim.target || null,
-      sling: aim.autoAim === false, error: scatter
+      sling: aim.autoAim === false, error: scatter,
+      power: aim.power, wobble: wobble
     };
     game.events.push(aim.kind === 'bullet' ? 'throw' : 'lob');
   }
@@ -1297,6 +1299,27 @@
     game.events.push('miss');
     return incomplete(game, 'The throw misses ' + catcher.actor.name + '. ' + resultLine('the window', opening, 'the throw', ball.qb));
   }
+  /* Why a deep sling miss missed. A short checkdown keeps the plain line. */
+  function missReason(play, ball, catcher) {
+    ball = ball || {};
+    var qb = carrierOf(play);
+    var travel = Math.hypot((Number(ball.toX) || 0) - qb.x, (Number(ball.toY) || 0) - qb.y);
+    var power = Number(ball.power) || 0;
+    var deep = (play && play.id === 'deep') || travel >= 15 || power >= 0.55;
+    if (!deep || !catcher || !catcher.actor) return 'The throw falls incomplete';
+    var dx = (Number(ball.toX) || 0) - catcher.actor.x;
+    var dy = (Number(ball.toY) || 0) - catcher.actor.y;
+    var wide = Math.abs(dy);
+    var wobble = Number(ball.wobble) || 0;
+    if (wide >= 1.6 && wide >= Math.abs(dx)) {
+      return wobble > 0 ? 'Wide: aim wobble (QB accuracy)' : 'Wide: the aim was off';
+    }
+    if (dx >= 1.6) return 'Overthrown: too much power';
+    if (dx <= -1.6) return 'Underthrown: not enough power';
+    if (wobble > 0) return 'Wide: aim wobble (QB accuracy)';
+    if (power >= 0.55) return 'Overthrown: too much power';
+    return 'Underthrown: not enough power';
+  }
   function settleSling(game, play, ball) {
     var qb = carrierOf(play);
     if (Math.abs(ball.toY) > SIDELINE) {
@@ -1307,7 +1330,7 @@
     var reach = ball.kind === 'bullet' ? 2.5 : 3.1;
     if (!catcher || catcher.d > reach) {
       game.events.push('miss');
-      return incomplete(game, 'The throw falls incomplete');
+      return incomplete(game, missReason(play, ball, catcher));
     }
     var cover = nearest(play, ball.toX, ball.toY, function (a) { return !a.off && a.role !== 'dl'; });
     var tight = !!(cover && cover.d < (ball.kind === 'bullet' ? 2.6 : 3.4));
@@ -1782,6 +1805,7 @@
     throwRange: throwRange, landingRadius: landingRadius, aimSteady: aimSteady,
     passError: passError, pressureFactor: pressureFactor, guideState: guideState,
     slingAim: slingAim, lockReceiver: lockReceiver, arriveOutcome: arriveOutcome,
+    missReason: missReason,
     receiverRate: receiverRate, flightSeconds: flightSeconds, DEFAULT_PASS: 'retro',
     simulateGame: simulateGame, winSplit: winSplit, jukePolicy: jukePolicy, divePolicy: divePolicy,
     earlyJukePolicy: earlyJukePolicy, earlyDivePolicy: earlyDivePolicy, scriptedSeries: scriptedSeries,

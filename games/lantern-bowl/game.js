@@ -442,6 +442,7 @@
     aimDrag = {
       kind: preview.kind,
       preview: preview,
+      power: pull.power,
       radius: guide.radius,
       wobble: guide.wobble,
       time: held,
