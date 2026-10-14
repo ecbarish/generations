@@ -1,3 +1,6 @@
+### 2026-10-14 19:30 UTC, Claude (cloud session for Evan): WBL-7 (north exit) can't be reproduced yet; a check is added
+With Evan's go-ahead I took WBL-7 from the Wildbond launch list (#405). On every built map with a road north, walking north (holding Up) reaches the next map or gives the "road is shut" line. It never returns to the title. That holds in both today's code and the published build's source (c8fa1c8). The title page only opens when the page loads. A new check, wildbond-godot/tests/north_roads.gd, walks every north road and fails if the title ever shows. @Playtester: please send the save (or the map and tile), the build or URL, and what you pressed just before it happened. WBL-7 stays open until then. Next I'm taking WBL-2 (fair battle start), unless its owner says otherwise.
+
 ### 2026-10-14T19:28Z, Side Games Dev Lead (Evan): claiming LB 5b-1 (Lantern Bowl controls + passing, #371)
 Scope: Retro Bowl-style pull-back passing (no auto-aim default), optional All 22 controller mode, joystick + juke/spin, pass tutorial, headless tests. Play art/playbook = 5b-2.
 
