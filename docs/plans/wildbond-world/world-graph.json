@@ -1,0 +1,894 @@
+{
+ "schemaVersion": 1,
+ "source": "docs/plans/wildbond-world-design.md (sections 1, 2 and 9)",
+ "gateTypes": {
+  "badge": "a badge id from BADGES",
+  "badges": "all",
+  "field": "a field lesson; its story key is field:<id>",
+  "element": "a partner of that element on the walking team (the early pockets, no lesson needed)",
+  "story": "a story key already in the save"
+ },
+ "badges": [
+  "thorn",
+  "tide",
+  "ember",
+  "beacon",
+  "reed",
+  "echo",
+  "loom",
+  "horizon"
+ ],
+ "fieldLessons": [
+  "stone",
+  "tide",
+  "grove",
+  "lantern",
+  "glide",
+  "hush",
+  "daymark"
+ ],
+ "elements": [
+  "Stone",
+  "Tide"
+ ],
+ "ropesUntilOrder": [
+  {
+   "link": "emberfall--sootpath",
+   "badge": "ember",
+   "note": "Today's Emberfall north exit. WB-WORLD-ORDER's list does not name it."
+  },
+  {
+   "link": "cloudglass--passfoot",
+   "badge": "beacon"
+  },
+  {
+   "link": "stillreed--latepath",
+   "badge": "reed"
+  },
+  {
+   "link": "hollowecho--ribbonroad",
+   "badge": "echo"
+  },
+  {
+   "link": "sunthread--sheltermile",
+   "badge": "loom"
+  }
+ ],
+ "places": [
+  {
+   "id": "larkhaven",
+   "name": "Larkhaven",
+   "kind": "town",
+   "phase": 0,
+   "healer": "Old Ned",
+   "healerStatus": "exists",
+   "current": true
+  },
+  {
+   "id": "thornwood",
+   "name": "Thornwood",
+   "kind": "town",
+   "phase": 0,
+   "healer": "Hedda",
+   "healerStatus": "proposed",
+   "current": true,
+   "note": "Gains the Gate Loft in phase 1."
+  },
+  {
+   "id": "lanternquay",
+   "name": "Lantern Quay",
+   "kind": "town",
+   "phase": 1,
+   "healer": "Perrin",
+   "healerStatus": "proposed",
+   "note": "New, at the end of Wrackline."
+  },
+  {
+   "id": "emberfall",
+   "name": "Warmstep",
+   "kind": "town",
+   "phase": 0,
+   "healer": "Hest",
+   "healerStatus": "proposed",
+   "signNameToday": "Emberfall Highlands",
+   "current": true,
+   "note": "The existing highland screen keeps the id emberfall."
+  },
+  {
+   "id": "cloudglass",
+   "name": "Highlatch",
+   "kind": "town",
+   "phase": 0,
+   "healer": "Yarrow",
+   "healerStatus": "proposed",
+   "signNameToday": "Cloudglass Pass",
+   "current": true,
+   "note": "The existing pass keeps the id cloudglass."
+  },
+  {
+   "id": "stillreed",
+   "name": "Reedhold",
+   "kind": "town",
+   "phase": 0,
+   "healer": "Juna",
+   "healerStatus": "proposed",
+   "signNameToday": "Stillreed Basin",
+   "current": true,
+   "note": "The hub. The existing basin landing keeps the id stillreed."
+  },
+  {
+   "id": "hollowecho",
+   "name": "Bellstep",
+   "kind": "town",
+   "phase": 0,
+   "healer": "Iren",
+   "healerStatus": "proposed",
+   "signNameToday": "Hollowecho Hills",
+   "current": true,
+   "note": "The existing hamlet keeps the id hollowecho."
+  },
+  {
+   "id": "sunthread",
+   "name": "Threadmeet",
+   "kind": "town",
+   "phase": 0,
+   "healer": "Solla",
+   "healerStatus": "proposed",
+   "signNameToday": "Sunthread Commons",
+   "current": true,
+   "note": "The existing commons keeps the id sunthread."
+  },
+  {
+   "id": "farwatch",
+   "name": "The High Watch",
+   "kind": "town",
+   "phase": 0,
+   "healer": "Quen",
+   "healerStatus": "proposed",
+   "signNameToday": "Farwatch Reach",
+   "current": true,
+   "note": "The existing reach keeps the id farwatch."
+  },
+  {
+   "id": "league",
+   "name": "Returning Light League",
+   "kind": "town",
+   "phase": 0,
+   "healer": "Nelva",
+   "healerStatus": "exists",
+   "current": true
+  },
+  {
+   "id": "thornwood_route",
+   "name": "Thornwood Trail",
+   "kind": "route",
+   "phase": 0,
+   "current": true
+  },
+  {
+   "id": "millgrass",
+   "name": "Millgrass Lane",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "dewcut",
+   "name": "Dewcut",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "rootwater",
+   "name": "Rootwater Path",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "saltmarsh_route",
+   "name": "Saltmarsh Road",
+   "kind": "route",
+   "phase": 0,
+   "current": true
+  },
+  {
+   "id": "wrackline",
+   "name": "Wrackline",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "ashstair",
+   "name": "Ashstair",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "sootpath",
+   "name": "Sootpath",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "passfoot",
+   "name": "Pass Foot",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "glassfall",
+   "name": "Glassfall",
+   "kind": "route",
+   "phase": 4,
+   "isLink": true,
+   "note": "Drawn as one arrow in the design, so it is the link highlatch to stillreed (down only) and not a map. Split it into a map and two links if the dev lead builds one."
+  },
+  {
+   "id": "crestpath",
+   "name": "Crest Path",
+   "kind": "route",
+   "phase": 6
+  },
+  {
+   "id": "longboards",
+   "name": "The Long Boards",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "orchardfen",
+   "name": "Orchard Fen",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "latepath",
+   "name": "The Late Path",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "flintcut",
+   "name": "Flintcut",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "ribbonroad",
+   "name": "Ribbon Road",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "sheltermile",
+   "name": "Shelter Mile",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "chartroad",
+   "name": "Chart Road",
+   "kind": "route",
+   "phase": 1,
+   "note": "A loop of lookout ground that leaves the High Watch and returns to it."
+  },
+  {
+   "id": "seaward",
+   "name": "Seaward Ledge",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "trialroad",
+   "name": "Trial Road",
+   "kind": "route",
+   "phase": 1
+  },
+  {
+   "id": "answering",
+   "name": "The Answering Ways",
+   "kind": "cave",
+   "phase": 3,
+   "note": "Mouth is the hamlet's, not tile (19, 8)."
+  },
+  {
+   "id": "knothollow",
+   "name": "Knothollow",
+   "kind": "cave",
+   "phase": 2,
+   "note": "Front door from Rootwater Path; Grove Wake opens the back of Old Root Grove into it."
+  },
+  {
+   "id": "keelcave",
+   "name": "Keelcave",
+   "kind": "cave",
+   "phase": 6,
+   "note": "Off Greywash Sound. The design's flowchart does not draw it; the prose does."
+  },
+  {
+   "id": "kilnvent",
+   "name": "Kilnvent",
+   "kind": "cave",
+   "phase": 3,
+   "note": "Mouth is a shut trailhead on Ashstair from phase 1."
+  },
+  {
+   "id": "larkburrow",
+   "name": "Larkburrow",
+   "kind": "cave",
+   "phase": 6,
+   "note": "Mouth on Millgrass Lane is visible and shut from phase 1."
+  },
+  {
+   "id": "lowbell",
+   "name": "Lowbell",
+   "kind": "cave",
+   "phase": 6,
+   "note": "Under The Quiet Channels."
+  },
+  {
+   "id": "trialstair",
+   "name": "Trialstair",
+   "kind": "cave",
+   "phase": 6,
+   "note": "Until phase 6 Trial Road reaches the league directly."
+  },
+  {
+   "id": "greywash",
+   "name": "Greywash Sound",
+   "kind": "water",
+   "phase": 2,
+   "note": "First screen opens in phase 2; it grows east in phase 6."
+  },
+  {
+   "id": "quietchannels",
+   "name": "The Quiet Channels",
+   "kind": "water",
+   "phase": 6
+  },
+  {
+   "id": "opengrey",
+   "name": "The Open Grey",
+   "kind": "water",
+   "phase": 6
+  },
+  {
+   "id": "saltmarsh",
+   "name": "Saltmarsh Coast",
+   "kind": "other",
+   "phase": 0,
+   "role": "coast",
+   "current": true,
+   "note": "No healer, so not one of the ten towns."
+  },
+  {
+   "id": "spire",
+   "name": "The Lighthouse Spire",
+   "kind": "other",
+   "phase": 0,
+   "role": "tower",
+   "current": true
+  },
+  {
+   "id": "thornwood_grove",
+   "name": "Old Root Grove",
+   "kind": "other",
+   "phase": 0,
+   "role": "pocket",
+   "current": true
+  },
+  {
+   "id": "saltmarsh_pool",
+   "name": "Moon Pool",
+   "kind": "other",
+   "phase": 0,
+   "role": "pocket",
+   "current": true
+  },
+  {
+   "id": "lampcrown",
+   "name": "Lampcrown",
+   "kind": "other",
+   "phase": 6,
+   "role": "summit"
+  },
+  {
+   "id": "outershoal",
+   "name": "Outer Shoal",
+   "kind": "other",
+   "phase": 6,
+   "role": "shoal"
+  },
+  {
+   "id": "dryboards",
+   "name": "The Dry Boards",
+   "kind": "other",
+   "phase": 1,
+   "role": "passage",
+   "note": "A passage inside the Long Boards maps, not a route or a cave."
+  }
+ ],
+ "links": [
+  {
+   "a": "larkhaven",
+   "b": "thornwood_route",
+   "gate": [],
+   "phase": 0,
+   "id": "larkhaven--thornwood_route"
+  },
+  {
+   "a": "larkhaven",
+   "b": "millgrass",
+   "gate": [],
+   "phase": 1,
+   "id": "larkhaven--millgrass"
+  },
+  {
+   "a": "millgrass",
+   "b": "larkburrow",
+   "gate": [],
+   "phase": 6,
+   "note": "First room opens in phase 6 to anyone on Millgrass Lane.",
+   "id": "millgrass--larkburrow"
+  },
+  {
+   "a": "thornwood_route",
+   "b": "dewcut",
+   "gate": [],
+   "phase": 1,
+   "id": "thornwood_route--dewcut"
+  },
+  {
+   "a": "dewcut",
+   "b": "thornwood_grove",
+   "gate": [
+    {
+     "element": "Stone"
+    }
+   ],
+   "phase": 1,
+   "note": "Today the grove is the trail's east exit with the same Stone check; Dewcut takes over that door.",
+   "id": "dewcut--thornwood_grove"
+  },
+  {
+   "a": "thornwood_route",
+   "b": "thornwood",
+   "gate": [],
+   "phase": 0,
+   "id": "thornwood_route--thornwood"
+  },
+  {
+   "a": "thornwood",
+   "b": "rootwater",
+   "gate": [],
+   "phase": 1,
+   "id": "thornwood--rootwater"
+  },
+  {
+   "a": "rootwater",
+   "b": "knothollow",
+   "gate": [
+    {
+     "badge": "thorn"
+    }
+   ],
+   "phase": 2,
+   "note": "Front door is a Thorn Badge supply test.",
+   "id": "rootwater--knothollow"
+  },
+  {
+   "a": "thornwood_grove",
+   "b": "knothollow",
+   "gate": [
+    {
+     "field": "grove"
+    }
+   ],
+   "phase": 2,
+   "note": "Grove Wake opens the back ring.",
+   "id": "thornwood_grove--knothollow"
+  },
+  {
+   "a": "thornwood",
+   "b": "saltmarsh_route",
+   "gate": [
+    {
+     "badge": "thorn"
+    }
+   ],
+   "phase": 0,
+   "note": "Today this is Thornwood's north exit, locked by the Thorn Badge.",
+   "id": "thornwood--saltmarsh_route"
+  },
+  {
+   "a": "saltmarsh_route",
+   "b": "saltmarsh_pool",
+   "gate": [
+    {
+     "element": "Tide"
+    }
+   ],
+   "phase": 0,
+   "note": "Today's west exit, locked by a Tide partner alone.",
+   "id": "saltmarsh_route--saltmarsh_pool"
+  },
+  {
+   "a": "saltmarsh_route",
+   "b": "saltmarsh",
+   "gate": [],
+   "phase": 0,
+   "id": "saltmarsh_route--saltmarsh"
+  },
+  {
+   "a": "saltmarsh",
+   "b": "wrackline",
+   "gate": [],
+   "phase": 1,
+   "id": "saltmarsh--wrackline"
+  },
+  {
+   "a": "wrackline",
+   "b": "lanternquay",
+   "gate": [],
+   "phase": 1,
+   "id": "wrackline--lanternquay"
+  },
+  {
+   "a": "saltmarsh_pool",
+   "b": "greywash",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 2,
+   "note": "Moon Pool's far lip.",
+   "id": "saltmarsh_pool--greywash"
+  },
+  {
+   "a": "lanternquay",
+   "b": "greywash",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 2,
+   "id": "lanternquay--greywash"
+  },
+  {
+   "a": "saltmarsh",
+   "b": "ashstair",
+   "gate": [
+    {
+     "badge": "tide"
+    }
+   ],
+   "phase": 1,
+   "note": "Replaces the direct east hop into Emberfall.",
+   "id": "saltmarsh--ashstair"
+  },
+  {
+   "a": "ashstair",
+   "b": "kilnvent",
+   "gate": [],
+   "phase": 3,
+   "note": "Shut trailhead from phase 1; first room opens in phase 3.",
+   "id": "ashstair--kilnvent"
+  },
+  {
+   "a": "ashstair",
+   "b": "emberfall",
+   "gate": [],
+   "phase": 1,
+   "id": "ashstair--emberfall"
+  },
+  {
+   "a": "emberfall",
+   "b": "sootpath",
+   "gate": [],
+   "phase": 1,
+   "note": "Replaces Emberfall's north exit. Today it wants the Ember Badge; see world-graph.md, open question 1.",
+   "id": "emberfall--sootpath"
+  },
+  {
+   "a": "kilnvent",
+   "b": "sootpath",
+   "gate": [
+    {
+     "field": "lantern"
+    }
+   ],
+   "phase": 3,
+   "note": "The far door of the vent.",
+   "id": "kilnvent--sootpath"
+  },
+  {
+   "a": "sootpath",
+   "b": "cloudglass",
+   "gate": [],
+   "phase": 1,
+   "id": "sootpath--cloudglass"
+  },
+  {
+   "a": "cloudglass",
+   "b": "crestpath",
+   "gate": [],
+   "phase": 6,
+   "id": "cloudglass--crestpath"
+  },
+  {
+   "a": "crestpath",
+   "b": "lampcrown",
+   "gate": [],
+   "phase": 6,
+   "id": "crestpath--lampcrown"
+  },
+  {
+   "a": "cloudglass",
+   "b": "stillreed",
+   "gate": [
+    {
+     "field": "glide"
+    }
+   ],
+   "phase": 4,
+   "oneWay": true,
+   "note": "Down only. The way back up is Pass Foot.",
+   "id": "glassfall"
+  },
+  {
+   "a": "cloudglass",
+   "b": "passfoot",
+   "gate": [],
+   "phase": 1,
+   "id": "cloudglass--passfoot"
+  },
+  {
+   "a": "passfoot",
+   "b": "stillreed",
+   "gate": [],
+   "phase": 1,
+   "id": "passfoot--stillreed"
+  },
+  {
+   "a": "stillreed",
+   "b": "dryboards",
+   "gate": [],
+   "phase": 1,
+   "id": "stillreed--dryboards"
+  },
+  {
+   "a": "dryboards",
+   "b": "passfoot",
+   "gate": [],
+   "phase": 1,
+   "id": "dryboards--passfoot"
+  },
+  {
+   "a": "stillreed",
+   "b": "longboards",
+   "gate": [],
+   "phase": 1,
+   "id": "stillreed--longboards"
+  },
+  {
+   "a": "stillreed",
+   "b": "latepath",
+   "gate": [],
+   "phase": 1,
+   "id": "stillreed--latepath"
+  },
+  {
+   "a": "stillreed",
+   "b": "orchardfen",
+   "gate": [],
+   "phase": 1,
+   "id": "stillreed--orchardfen"
+  },
+  {
+   "a": "orchardfen",
+   "b": "sootpath",
+   "gate": [
+    {
+     "field": "stone"
+    }
+   ],
+   "phase": 2,
+   "note": "Stone Break, and both ends of the walk must have been walked.",
+   "needsBothEndsWalked": true,
+   "id": "orchardfen--sootpath"
+  },
+  {
+   "a": "orchardfen",
+   "b": "sunthread",
+   "gate": [],
+   "phase": 1,
+   "id": "orchardfen--sunthread"
+  },
+  {
+   "a": "latepath",
+   "b": "hollowecho",
+   "gate": [],
+   "phase": 1,
+   "id": "latepath--hollowecho"
+  },
+  {
+   "a": "hollowecho",
+   "b": "flintcut",
+   "gate": [],
+   "phase": 1,
+   "id": "hollowecho--flintcut"
+  },
+  {
+   "a": "flintcut",
+   "b": "answering",
+   "gate": [],
+   "phase": 3,
+   "id": "flintcut--answering"
+  },
+  {
+   "a": "hollowecho",
+   "b": "ribbonroad",
+   "gate": [],
+   "phase": 1,
+   "id": "hollowecho--ribbonroad"
+  },
+  {
+   "a": "ribbonroad",
+   "b": "sunthread",
+   "gate": [],
+   "phase": 1,
+   "id": "ribbonroad--sunthread"
+  },
+  {
+   "a": "larkburrow",
+   "b": "sunthread",
+   "gate": [
+    {
+     "field": "stone"
+    },
+    {
+     "badge": "loom"
+    }
+   ],
+   "phase": 6,
+   "note": "The Home Burrow. Both are needed together.",
+   "id": "larkburrow--sunthread"
+  },
+  {
+   "a": "sunthread",
+   "b": "sheltermile",
+   "gate": [],
+   "phase": 1,
+   "id": "sunthread--sheltermile"
+  },
+  {
+   "a": "sheltermile",
+   "b": "farwatch",
+   "gate": [],
+   "phase": 1,
+   "id": "sheltermile--farwatch"
+  },
+  {
+   "a": "farwatch",
+   "b": "chartroad",
+   "gate": [],
+   "phase": 1,
+   "loop": true,
+   "note": "Chart Road leaves the High Watch and returns to it.",
+   "id": "farwatch--chartroad"
+  },
+  {
+   "a": "farwatch",
+   "b": "seaward",
+   "gate": [],
+   "phase": 1,
+   "id": "farwatch--seaward"
+  },
+  {
+   "a": "seaward",
+   "b": "opengrey",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "id": "seaward--opengrey"
+  },
+  {
+   "a": "greywash",
+   "b": "opengrey",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "id": "greywash--opengrey"
+  },
+  {
+   "a": "opengrey",
+   "b": "outershoal",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "id": "opengrey--outershoal"
+  },
+  {
+   "a": "greywash",
+   "b": "keelcave",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "extraToFlowchart": true,
+   "note": "In the design's prose (caves, item 3), not in its flowchart.",
+   "id": "greywash--keelcave"
+  },
+  {
+   "a": "farwatch",
+   "b": "trialroad",
+   "gate": [],
+   "phase": 1,
+   "id": "farwatch--trialroad"
+  },
+  {
+   "a": "trialroad",
+   "b": "trialstair",
+   "gate": [],
+   "phase": 6,
+   "id": "trialroad--trialstair"
+  },
+  {
+   "a": "trialstair",
+   "b": "league",
+   "gate": [
+    {
+     "badges": "all"
+    }
+   ],
+   "phase": 6,
+   "note": "The league door asks for all eight badges. Until phase 6, Trial Road joins the league directly with the same gate.",
+   "id": "trialstair--league"
+  },
+  {
+   "a": "league",
+   "b": "spire",
+   "gate": [
+    {
+     "story": "leagueEnding"
+    }
+   ],
+   "phase": 0,
+   "id": "league--spire"
+  },
+  {
+   "a": "stillreed",
+   "b": "quietchannels",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "id": "stillreed--quietchannels"
+  },
+  {
+   "a": "quietchannels",
+   "b": "lowbell",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "id": "quietchannels--lowbell"
+  }
+ ]
+}

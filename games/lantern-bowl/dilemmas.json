@@ -1,0 +1,411 @@
+{
+  "schemaVersion": 1,
+  "cards": [
+    {
+      "id": "win-victory-lap",
+      "when": "afterWin",
+      "role": "team",
+      "text": "The crowd is still cheering after the final whistle. The team could run a victory lap, but the bus leaves in ten minutes.",
+      "choices": [
+        {
+          "label": "Take a victory lap",
+          "result": "The fans love it, but the players board the bus tired and a little late.",
+          "effects": {
+            "morale": -1,
+            "target": "team",
+            "fans": 3
+          }
+        },
+        {
+          "label": "Head straight to the bus",
+          "result": "The team rests well, and a few fans go home feeling ignored.",
+          "effects": {
+            "morale": 1,
+            "target": "team",
+            "fans": -2
+          }
+        }
+      ]
+    },
+    {
+      "id": "win-sore-runner",
+      "when": "afterWin",
+      "role": "rb",
+      "text": "{name} ran for a lot of yards today and the leg is sore. The next game is only a few days away.",
+      "choices": [
+        {
+          "label": "Train through it",
+          "result": "{name} keeps sharp in practice, but the sore leg gets no rest and the mood drops.",
+          "effects": {
+            "morale": -2,
+            "target": "player",
+            "points": 2
+          }
+        },
+        {
+          "label": "Rest for a week",
+          "result": "{name} heals up and feels looked after, but practice is quieter this week.",
+          "effects": {
+            "morale": 2,
+            "target": "player"
+          }
+        }
+      ]
+    },
+    {
+      "id": "win-owner-dinner",
+      "when": "afterWin",
+      "role": "team",
+      "text": "The owner invites the whole squad to a victory dinner tonight. Film study was planned for the same evening.",
+      "choices": [
+        {
+          "label": "Go to the dinner",
+          "result": "The squad enjoys a big meal and the owner is delighted, but no film gets watched.",
+          "effects": {
+            "morale": 2,
+            "target": "team",
+            "owner": 2
+          }
+        },
+        {
+          "label": "Stay for film study",
+          "result": "The coaches get a lot out of the film, but the owner is hurt that the invitation was turned down.",
+          "effects": {
+            "points": 2,
+            "owner": -1
+          }
+        }
+      ]
+    },
+    {
+      "id": "win-bakery-photo",
+      "when": "afterWin",
+      "role": "kicker",
+      "text": "{name} kicked the winning goal, and the bakery in town wants a photo with {name}. {name} is shy about being in the paper.",
+      "choices": [
+        {
+          "label": "Do the photo",
+          "result": "The picture goes up in the shop window and fans smile, though {name} feels awkward.",
+          "effects": {
+            "morale": -1,
+            "target": "player",
+            "fans": 2
+          }
+        },
+        {
+          "label": "Skip the photo",
+          "result": "{name} is relieved and relaxed, but the shop owner and some fans are disappointed.",
+          "effects": {
+            "morale": 1,
+            "target": "player",
+            "fans": -1
+          }
+        }
+      ]
+    },
+    {
+      "id": "loss-quiet-passer",
+      "when": "afterLoss",
+      "role": "qb",
+      "text": "{name} threw two bad passes and is sitting alone in the locker room. The rest of the team is waiting to review the game.",
+      "choices": [
+        {
+          "label": "Talk to them privately",
+          "result": "{name} opens up and feels much better, but the team review is put off.",
+          "effects": {
+            "morale": 3,
+            "target": "player"
+          }
+        },
+        {
+          "label": "Hold a team meeting",
+          "result": "The team studies the mistakes together, but {name} feels put on the spot.",
+          "effects": {
+            "morale": 1,
+            "target": "team",
+            "points": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "loss-boos",
+      "when": "afterLoss",
+      "role": "team",
+      "text": "Some fans booed as the team walked off the field. A reporter asks what {club} has to say to them.",
+      "choices": [
+        {
+          "label": "Apologise to the fans",
+          "result": "Fans appreciate the honesty, but the owner thinks the club sounded weak.",
+          "effects": {
+            "fans": 2,
+            "owner": -2
+          }
+        },
+        {
+          "label": "Defend the team",
+          "result": "The players feel backed up, but the fans are not happy to be brushed off.",
+          "effects": {
+            "morale": 2,
+            "target": "team",
+            "fans": -2
+          }
+        }
+      ]
+    },
+    {
+      "id": "loss-missed-block",
+      "when": "afterLoss",
+      "role": "line",
+      "text": "{name} missed a block that led to a big play, and the other linemen are grumbling about it.",
+      "choices": [
+        {
+          "label": "Run extra blocking drills",
+          "result": "The line works hard and learns a lot, but everyone is tired and grumpy.",
+          "effects": {
+            "morale": -2,
+            "target": "team",
+            "points": 3
+          }
+        },
+        {
+          "label": "Let it go this time",
+          "result": "The line calms down and moves on, but nothing new is learned.",
+          "effects": {
+            "morale": 1,
+            "target": "team"
+          }
+        }
+      ]
+    },
+    {
+      "id": "loss-late-points",
+      "when": "afterLoss",
+      "role": "defence",
+      "text": "The defence gave up points late, and {name} says the coaches chose the wrong plan. Other players heard it.",
+      "choices": [
+        {
+          "label": "Back the coaches",
+          "result": "The coaches are glad you stood by them, but {name} feels ignored.",
+          "effects": {
+            "morale": -2,
+            "target": "player",
+            "owner": 2
+          }
+        },
+        {
+          "label": "Hear them out",
+          "result": "{name} feels respected and the coaches take notes, but the owner is not pleased about open disagreement.",
+          "effects": {
+            "morale": 2,
+            "target": "player",
+            "points": 1,
+            "owner": -1
+          }
+        }
+      ]
+    },
+    {
+      "id": "bye-day-trip",
+      "when": "bye",
+      "role": "team",
+      "text": "There is no game this week. The squad can go on a day trip to the lake, or spend the time practising extra.",
+      "choices": [
+        {
+          "label": "Go on a day trip",
+          "result": "The players laugh and bond, but the trip costs money and the owner notices.",
+          "effects": {
+            "morale": 3,
+            "target": "team",
+            "owner": -2
+          }
+        },
+        {
+          "label": "Practise extra",
+          "result": "The coaches get a lot of practice time in, but the players start to feel worn out.",
+          "effects": {
+            "morale": -2,
+            "target": "team",
+            "points": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "bye-playground",
+      "when": "bye",
+      "role": "te",
+      "text": "The town is opening a new playground and asks {name} to cut the ribbon on the free day. {name} wanted to sleep in.",
+      "choices": [
+        {
+          "label": "Go to the opening",
+          "result": "Children cheer and parents take pictures, but {name} is tired all day.",
+          "effects": {
+            "morale": -1,
+            "target": "player",
+            "fans": 3
+          }
+        },
+        {
+          "label": "Stay home and rest",
+          "result": "{name} feels fresh and happy, but the town is let down.",
+          "effects": {
+            "morale": 2,
+            "target": "player",
+            "fans": -1
+          }
+        }
+      ]
+    },
+    {
+      "id": "bye-family-visit",
+      "when": "bye",
+      "role": "wr",
+      "text": "{name} wants to visit family during the bye week and would miss one practice.",
+      "choices": [
+        {
+          "label": "Let them go",
+          "result": "{name} comes back happy and ready, but a practice is missed.",
+          "effects": {
+            "morale": 3,
+            "target": "player"
+          }
+        },
+        {
+          "label": "Ask them to stay",
+          "result": "The practice goes ahead with everyone there, but {name} is upset.",
+          "effects": {
+            "morale": -2,
+            "target": "player",
+            "points": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "bye-reading-class",
+      "when": "bye",
+      "role": "qb",
+      "text": "A local school asks {name} to help with a reading class this week. It would take time away from studying game film.",
+      "choices": [
+        {
+          "label": "Go to the school",
+          "result": "The children adore {name} and the club looks kind, but no film gets studied.",
+          "effects": {
+            "fans": 2,
+            "owner": 1
+          }
+        },
+        {
+          "label": "Study the film",
+          "result": "{name} learns the other team inside out, but the school and a few fans are disappointed.",
+          "effects": {
+            "points": 2,
+            "fans": -1
+          }
+        }
+      ]
+    },
+    {
+      "id": "game-heavy-rain",
+      "when": "beforeGame",
+      "role": "team",
+      "text": "Heavy rain is coming for tonight's game, and the grounds crew says the field will be slow and slippery.",
+      "choices": [
+        {
+          "label": "Practise in the mud",
+          "result": "The team learns to cope with the wet field, but everyone gets cold and cranky.",
+          "effects": {
+            "morale": -1,
+            "target": "team",
+            "points": 2
+          }
+        },
+        {
+          "label": "Stay dry and rest",
+          "result": "The players stay warm and calm, but they have no practice in the mud.",
+          "effects": {
+            "morale": 2,
+            "target": "team"
+          }
+        }
+      ]
+    },
+    {
+      "id": "game-new-boots",
+      "when": "beforeGame",
+      "role": "rb",
+      "text": "{name} wants to wear a bright new pair of boots in the game. Nobody has tried them on the field yet.",
+      "choices": [
+        {
+          "label": "Allow the new boots",
+          "result": "{name} feels great and the fans love the colour, but the boots are a gamble.",
+          "effects": {
+            "morale": 3,
+            "target": "player",
+            "fans": 1
+          }
+        },
+        {
+          "label": "Stick to the old boots",
+          "result": "The old boots are a safe choice and the coaches are happy, but {name} is let down.",
+          "effects": {
+            "morale": -1,
+            "target": "player",
+            "points": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "game-empty-stadium",
+      "when": "beforeGame",
+      "role": "kicker",
+      "text": "{name} asks to practise kicks in the empty stadium before the gates open. The grounds crew is still working on the field.",
+      "choices": [
+        {
+          "label": "Allow the practice",
+          "result": "{name} gets good kicking practice, but the grounds crew is slowed down and the owner hears about it.",
+          "effects": {
+            "points": 2,
+            "owner": -1
+          }
+        },
+        {
+          "label": "Ask them to wait",
+          "result": "The grounds crew finishes on time and the owner is happy, but {name} feels rushed and nervous.",
+          "effects": {
+            "morale": -1,
+            "target": "player",
+            "owner": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "game-warmup-wave",
+      "when": "beforeGame",
+      "role": "defence",
+      "text": "A fan club leader asks {name} to wave to the crowd during warm-ups. It would be loud and distracting.",
+      "choices": [
+        {
+          "label": "Wave to the crowd",
+          "result": "The crowd roars and the stadium feels alive, but {name} is a bit rattled.",
+          "effects": {
+            "morale": -1,
+            "target": "player",
+            "fans": 2
+          }
+        },
+        {
+          "label": "Stay focused",
+          "result": "{name} stays calm and sharp, but some fans think the team is cold.",
+          "effects": {
+            "points": 1,
+            "fans": -1
+          }
+        }
+      ]
+    }
+  ]
+}

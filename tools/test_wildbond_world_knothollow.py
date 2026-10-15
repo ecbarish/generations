@@ -10,6 +10,7 @@ import json
 import math
 from pathlib import Path
 import re
+import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -93,6 +94,50 @@ def reachable(rows, tiles, start, blocked=()):
     return seen
 
 
+def validate_exit_landing(exit_record, *, runtime=False):
+    """Only a visibly planned exit may carry null destination fields."""
+    require(isinstance(exit_record, dict), "exit must be an object")
+    base = {"to", "x", "y", "dir"}
+    require(set(exit_record) in (base, base | {"landing"}), "exit: unexpected fields")
+    require(isinstance(exit_record["to"], str) and bool(exit_record["to"]), "exit needs a destination id")
+    planned = exit_record.get("landing") == "planned"
+    if "landing" in exit_record:
+        require(planned, "unknown landing marker")
+    if planned:
+        require(all(exit_record[key] is None for key in ("x", "y", "dir")),
+                "planned landing must leave position and arrival direction explicitly null")
+        require(not runtime, "planned landing must be resolved before runtime wiring")
+    else:
+        require(all(type(exit_record[key]) is int and exit_record[key] >= 0 for key in ("x", "y")),
+                "unmarked landing requires nonnegative integer x/y")
+        require(isinstance(exit_record["dir"], str) and exit_record["dir"] in DIRECTIONS,
+                "resolved landing requires an arrival direction")
+
+
+def validate_runtime_landings(data, game=None):
+    """Pre-wiring gate: no planned marker, and every landing exists and is safe.
+
+    This helper does not wire the blueprint into the engine or validate its other
+    runtime systems. The current planning artifact must fail this gate.
+    """
+    if game is None:
+        game = load_json(GAME.read_text(encoding="utf-8"))
+    require(isinstance(data, dict) and isinstance(data.get("map"), dict), "runtime map must be an object")
+    exits = data["map"].get("exits")
+    exact_keys(exits, {"S", "E"}, "runtime exits")
+    expected_to = {"S": "rootwater", "E": "thornwood_grove"}
+    for glyph, exit_record in exits.items():
+        validate_exit_landing(exit_record, runtime=True)
+        target = exit_record["to"]
+        require(target == expected_to[glyph], "runtime exit target differs from the designed connection")
+        require(target in game["MAPS"], "runtime destination map does not exist")
+        rows = game["MAPS"][target]["rows"]
+        x, y = coordinate([exit_record["x"], exit_record["y"]], len(rows[0]), len(rows), "landing")
+        tile = game["TILES"][rows[y][x]]
+        require(not tile.get("solid", 0) and not tile.get("exit", 0),
+                "runtime landing must be passable and must not immediately exit again")
+
+
 def validate(data, game=None, design=None):
     """Raise ValueError for malformed planning data, without mutating any input."""
     if game is None:
@@ -126,12 +171,10 @@ def validate(data, game=None, design=None):
     expected_to = {"S": "rootwater", "E": "thornwood_grove"}
     valid_targets = set(game["MAPS"]) | planned_route_ids(design)
     for glyph, exit_record in m["exits"].items():
-        exact_keys(exit_record, {"to", "x", "y", "dir"}, f"exit {glyph}")
+        validate_exit_landing(exit_record)
         target = exit_record["to"]
         require(isinstance(target, str) and target in valid_targets, "unknown exit destination")
         require(target == expected_to[glyph], "exit target differs from the designed connection")
-        require(exit_record["x"] is None and exit_record["y"] is None and exit_record["dir"] is None,
-                "landing position and arrival direction remain unresolved")
     actual_exits = {ch for row in rows for ch in row if tiles[ch].get("exit", 0)}
     require(actual_exits == set(m["exits"]), "exit glyph and exit record mismatch")
     exit_points = {(x, y) for x, y in walkable if rows[y][x] in actual_exits}
@@ -212,6 +255,8 @@ def validate(data, game=None, design=None):
     require(data["integration"]["status"] == "unresolved_landings", "landing status must remain explicit")
     require(data["integration"]["destinations"] == ["rootwater", "thornwood_grove"],
             "both destination landings must be listed as unresolved")
+    require(all(exit_record.get("landing") == "planned" for exit_record in m["exits"].values()),
+            "both landings listed as unresolved must be explicitly marked planned")
     require(data["integration"]["incoming_requirements"] == {
         "rootwater": {"badge": "thorn"}, "thornwood_grove": {"story": "field:grove"}},
         "future incoming doors must require Thorn Badge and Grove Wake respectively")
@@ -276,6 +321,62 @@ class KnothollowTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "level band"):
                 validate(self.data, game, self.design)
 
+    def test_null_landings_require_the_planned_marker(self):
+        for original in self.data["map"]["exits"].values():
+            validate_exit_landing(original)
+            without_marker = {k: v for k, v in original.items() if k != "landing"}
+            with self.assertRaisesRegex(ValueError, "integer x/y"):
+                validate_exit_landing(without_marker)
+            for marker in (None, False, "", "resolved"):
+                broken = {**original, "landing": marker}
+                with self.assertRaises(ValueError):
+                    validate_exit_landing(broken)
+            for key, value in (("x", 1), ("y", 1), ("dir", "up")):
+                with self.assertRaises(ValueError):
+                    validate_exit_landing({**original, key: value})
+
+    def test_other_exits_require_integer_coordinates_and_arrival_direction(self):
+        resolved = {"to": "thornwood_grove", "x": 1, "y": 8, "dir": "right"}
+        validate_exit_landing(resolved, runtime=True)
+        for key in ("x", "y"):
+            for value in (None, True, -1, 1.0, "1", [], {}):
+                with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                    validate_exit_landing({**resolved, key: value})
+        for value in (None, "north", 1, []):
+            with self.assertRaises(ValueError):
+                validate_exit_landing({**resolved, "dir": value})
+
+    def test_runtime_wiring_rejects_unresolved_or_unsafe_landings(self):
+        with self.assertRaisesRegex(ValueError, "resolved before runtime"):
+            validate_runtime_landings(self.data, self.game)
+        for exit_record in self.data["map"]["exits"].values():
+            with self.assertRaisesRegex(ValueError, "resolved before runtime"):
+                validate_exit_landing(exit_record, runtime=True)
+        resolved = deepcopy(self.data)
+        for exit_record in resolved["map"]["exits"].values():
+            del exit_record["landing"]
+            exit_record.update(x=1, y=8, dir="right")
+        with self.assertRaisesRegex(ValueError, "map does not exist"):
+            validate_runtime_landings(resolved, self.game)
+        fixture = deepcopy(self.game)
+        fixture["MAPS"]["rootwater"] = {"rows": ["###", "#.#", "###"]}
+        resolved["map"]["exits"]["S"].update(x=1, y=1)
+        validate_runtime_landings(resolved, fixture)
+        for exits in ({}, {"E": resolved["map"]["exits"]["E"]},
+                      {"S": resolved["map"]["exits"]["E"], "E": resolved["map"]["exits"]["E"]}):
+            broken = deepcopy(resolved)
+            broken["map"]["exits"] = exits
+            with self.assertRaises(ValueError):
+                validate_runtime_landings(broken, fixture)
+        for x, y in ((0, 0), (3, 1), (1, 3), (-1, 1)):
+            broken = deepcopy(resolved)
+            broken["map"]["exits"]["S"].update(x=x, y=y)
+            with self.assertRaises(ValueError):
+                validate_runtime_landings(broken, fixture)
+        fixture["MAPS"]["rootwater"]["rows"][1] = "#S#"
+        with self.assertRaisesRegex(ValueError, "immediately exit"):
+            validate_runtime_landings(resolved, fixture)
+
     def test_malformed_data_is_rejected(self):
         cases = []
         def changed(label, path, value):
@@ -308,6 +409,7 @@ class KnothollowTests(unittest.TestCase):
             (["map", "exits", "S", "to"], "elder"),
             (["map", "exits", "S", "to"], []),
             (["map", "exits", "S", "x"], 1),
+            (["map", "exits", "S", "landing"], "unknown"),
             (["map", "exits", "E", "dir"], "down"),
             (["map", "signs"], {"4,4": "Invented lore"}),
             (["map", "items"], [{"id": "unapproved", "give": {"coins": 1}}]),
@@ -348,4 +450,11 @@ class KnothollowTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    if sys.argv[1:] == ["--runtime-landings"]:
+        try:
+            validate_runtime_landings(load_json(BLUEPRINT.read_text(encoding="utf-8")))
+        except ValueError as error:
+            raise SystemExit(f"Runtime landing gate: {error}") from error
+        print("Runtime landing gate passed; other integration checks still apply.")
+    else:
+        unittest.main()

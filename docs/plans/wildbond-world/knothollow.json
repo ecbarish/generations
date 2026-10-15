@@ -34,13 +34,15 @@
         "to": "rootwater",
         "x": null,
         "y": null,
-        "dir": null
+        "dir": null,
+        "landing": "planned"
       },
       "E": {
         "to": "thornwood_grove",
         "x": null,
         "y": null,
-        "dir": null
+        "dir": null,
+        "landing": "planned"
       }
     },
     "signs": {},
