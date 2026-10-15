@@ -151,17 +151,12 @@ static func _starter(game: Node, check: Callable) -> void:
 	game.card.visible = false
 
 static func _heights(game: Node, check: Callable) -> void:
-	check.call(game.Figures.drawn_px(2.0) == 24, "a 2.0 m creature walks at 24px, on the door line")
-	check.call(game.Figures.drawn_px(2.66) == 28, "a 2.66 m creature walks at 28px")
-	check.call(game.Figures.drawn_px(0.24) == 12, "a creature under 12px is raised to the floor")
-	check.call(game.Figures.drawn_px(1.5) == 19, "1.5 m stays at round(metres × 12.35), which is 19px")
-	var sun_m := float(game.DATA.SPECIES.sunford.metres)
-	var sun_raw := int(round(sun_m * 12.35))
-	var sun_curved := int(round(24.0 + 8.0 * log(float(sun_raw) / 24.0) / log(2.0)))
-	check.call(sun_raw > 24 and game.Figures.drawn_px(sun_m) == mini(32, sun_curved) and game.Figures.drawn_px(sun_m) < sun_raw, "a catalogue height above the door line uses the walking curve")
-	var pup_m := float(game.DATA.SPECIES.smoulderpup.metres)
-	var pup_raw := int(round(pup_m * 12.35))
-	check.call(pup_raw <= 24 and pup_raw >= 12 and game.Figures.drawn_px(pup_m) == pup_raw, "a catalogue height on or under the door line keeps round(metres × 12.35)")
+	var locked := {2.0: 24, 2.24: 26, 2.66: 28, 2.8: 28, 3.22: 30, 3.64: 31, 1.5: 19, 0.24: 12}
+	for metres in locked:
+		var got: int = game.Figures.drawn_px(float(metres))
+		check.call(got == int(locked[metres]), "a %.2f m creature walks at %dpx (drawn %d)" % [float(metres), int(locked[metres]), got])
+	check.call(is_equal_approx(float(game.DATA.SPECIES.kilnback.metres), 1.94) and game.Figures.drawn_px(1.94) == 24, "Kilnback at 1.94 m follows the curve to 24px")
+	check.call(is_equal_approx(float(game.DATA.SPECIES.sunford.metres), 2.27) and game.Figures.drawn_px(2.27) == 26, "Sunford at 2.27 m follows the curve to 26px")
 
 static func _sprites(game: Node, check: Callable) -> void:
 	check.call(game.battle._stage_px(1) == 44 and game.battle._stage_px(2) == 54 and game.battle._stage_px(3) == 64, "a battle figure's stage height is 44, 54 or 64")
