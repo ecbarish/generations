@@ -163,6 +163,169 @@
           "hand": 40
         }
       ]
+    },
+    {
+      "id": "cedar-steps",
+      "name": "Cedar Steps",
+      "customers": "Hilltop neighbours, garden porters and late-shift potters stop beneath the cedar trees.",
+      "moveAtLifetime": 4000000,
+      "carryOver": {
+        "favouriteStall": {
+          "unlocked": true,
+          "owned": 1
+        },
+        "cash": 0,
+        "otherOwned": 0,
+        "permits": 0
+      },
+      "permitStalls": [
+        "sesame",
+        "ink",
+        "pickle",
+        "mending",
+        "glaze",
+        "shadow"
+      ],
+      "stalls": [
+        {
+          "id": "sesame",
+          "name": "Sesame Griddle",
+          "vendor": "Yan",
+          "habit": "Yan turns the little cakes until both sides catch the evening light.",
+          "serve": "Turn a cake",
+          "left": "cake",
+          "lefts": "cakes",
+          "hire": "Ask Yan to tend the griddle",
+          "looks": [
+            "One warm griddle",
+            "Two iron griddles",
+            "A tiled cooking nook",
+            "Golden cakes along the steps"
+          ],
+          "gossip": "Yan says a porter followed the warm sesame smell all the way uphill.",
+          "next": "Rui brings the Ink Table once ten griddles are warming.",
+          "base": 80,
+          "growth": 1.15,
+          "rate": 0.5,
+          "serves": 25,
+          "hand": 4
+        },
+        {
+          "id": "ink",
+          "name": "Ink Table",
+          "vendor": "Rui",
+          "habit": "Rui tests each brush with a tiny leaf in the corner of the paper.",
+          "serve": "Brush a leaf",
+          "left": "leaf",
+          "lefts": "leaves",
+          "hire": "Ask Rui to take the table",
+          "looks": [
+            "One ink stone",
+            "A pair of brush pots",
+            "A paper drying rail",
+            "Leaves drying above the steps"
+          ],
+          "gossip": "Rui says a gardener recognised her own tree in a painted leaf.",
+          "next": "Mina brings the Pickle Crock once ten ink tables are brushing.",
+          "base": 1200,
+          "growth": 1.15,
+          "rate": 1,
+          "serves": 12,
+          "hand": 2
+        },
+        {
+          "id": "pickle",
+          "name": "Pickle Crock",
+          "vendor": "Mina",
+          "habit": "Mina tucks a clean wooden spoon beside every jar.",
+          "serve": "Fill a jar",
+          "left": "jar",
+          "lefts": "jars",
+          "hire": "Ask Mina to tend the crock",
+          "looks": [
+            "One earthen crock",
+            "Two covered crocks",
+            "A shelf of little jars",
+            "Bright jars along a stone wall"
+          ],
+          "gossip": "Mina says the late-shift potters always ask for the crispest slices.",
+          "next": "Orin brings the Mending Basket once ten pickle crocks are filling.",
+          "base": 2400,
+          "growth": 1.15,
+          "rate": 2,
+          "serves": 10,
+          "hand": 4
+        },
+        {
+          "id": "mending",
+          "name": "Mending Basket",
+          "vendor": "Orin",
+          "habit": "Orin matches each patch by holding it beside the nearest lantern.",
+          "serve": "Sew a patch",
+          "left": "patch",
+          "lefts": "patches",
+          "hire": "Ask Orin to take the basket",
+          "looks": [
+            "One sewing cushion",
+            "A pair of thread boxes",
+            "A sheltered sewing bench",
+            "Mended coats on a wooden rail"
+          ],
+          "gossip": "Orin says a familiar coat came back with a new story in its pocket.",
+          "next": "Vela brings the Glaze Wheel once ten mending baskets are stitching.",
+          "base": 3500,
+          "growth": 1.15,
+          "rate": 4,
+          "serves": 8,
+          "hand": 8
+        },
+        {
+          "id": "glaze",
+          "name": "Glaze Wheel",
+          "vendor": "Vela",
+          "habit": "Vela leaves one small thumbprint underneath every bowl.",
+          "serve": "Glaze a bowl",
+          "left": "bowl",
+          "lefts": "bowls",
+          "hire": "Ask Vela to tend the wheel",
+          "looks": [
+            "One turning wheel",
+            "Two glaze bowls",
+            "A roof of cedar slats",
+            "Glazed bowls on stepped shelves"
+          ],
+          "gossip": "Vela says the neighbours can find their own bowls by touch.",
+          "next": "Jori brings the Shadow Screen once ten glaze wheels are turning.",
+          "base": 4700,
+          "growth": 1.15,
+          "rate": 8,
+          "serves": 8,
+          "hand": 16
+        },
+        {
+          "id": "shadow",
+          "name": "Shadow Screen",
+          "vendor": "Jori",
+          "habit": "Jori lets the smallest listener choose which paper bird flies first.",
+          "serve": "Raise a bird",
+          "left": "bird",
+          "lefts": "birds",
+          "hire": "Ask Jori to take the screen",
+          "looks": [
+            "One paper bird",
+            "Two little screens",
+            "A cloth theatre canopy",
+            "Bird shadows across the cedar wall"
+          ],
+          "gossip": "Jori says the last paper bird stayed for an encore after the shops closed.",
+          "next": "",
+          "base": 9500,
+          "growth": 1.15,
+          "rate": 16,
+          "serves": 6,
+          "hand": 40
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "clubs": {
+    "millrace": {
+      "runShare": 0.4,
+      "favourites": [
+        { "id": "quick", "weight": 0.42 },
+        { "id": "drag", "weight": 0.26 },
+        { "id": "inside", "weight": 0.2 },
+        { "id": "deep", "weight": 0.12 }
+      ],
+      "deepShare": 0.1,
+      "versus": {
+        "blitz": { "runShare": -0.06, "deepShare": -0.05 },
+        "balanced": { "runShare": 0, "deepShare": 0 },
+        "prevent": { "runShare": 0.1, "deepShare": -0.06 }
+      },
+      "note": "Millrace works quick throws and crossing routes, with an inside run to change the pace."
+    },
+    "harrowgate": {
+      "runShare": 0.32,
+      "favourites": [
+        { "id": "post", "weight": 0.44 },
+        { "id": "out", "weight": 0.25 },
+        { "id": "draw", "weight": 0.19 },
+        { "id": "deep", "weight": 0.12 }
+      ],
+      "deepShare": 0.34,
+      "versus": {
+        "blitz": { "runShare": 0.1, "deepShare": -0.12 },
+        "balanced": { "runShare": 0, "deepShare": 0 },
+        "prevent": { "runShare": 0.13, "deepShare": -0.15 }
+      },
+      "note": "The Bells look for long throws through the middle, then turn toward the sideline when the deep routes close."
+    },
+    "tollbridge": {
+      "runShare": 0.56,
+      "favourites": [
+        { "id": "counter", "weight": 0.43 },
+        { "id": "slant", "weight": 0.26 },
+        { "id": "outside", "weight": 0.19 },
+        { "id": "post", "weight": 0.12 }
+      ],
+      "deepShare": 0.14,
+      "versus": {
+        "blitz": { "runShare": 0.05, "deepShare": 0.07 },
+        "balanced": { "runShare": 0, "deepShare": 0 },
+        "prevent": { "runShare": 0.09, "deepShare": -0.08 }
+      },
+      "note": "The Otters change direction behind the line and mix in sharp slants before trying a longer throw."
+    },
+    "quarryhill": {
+      "runShare": 0.66,
+      "favourites": [
+        { "id": "inside", "weight": 0.5 },
+        { "id": "curl", "weight": 0.3 },
+        { "id": "post", "weight": 0.2 }
+      ],
+      "deepShare": 0.06,
+      "versus": {
+        "blitz": { "runShare": -0.12, "deepShare": 0.1 },
+        "balanced": { "runShare": 0, "deepShare": 0 },
+        "prevent": { "runShare": 0.04, "deepShare": -0.06 }
+      },
+      "note": "The Hammers lean on runs through the middle, with receivers turning back to the ball on their shorter throws."
+    },
+    "fernmoor": {
+      "runShare": 0.61,
+      "favourites": [
+        { "id": "outside", "weight": 0.41 },
+        { "id": "deep", "weight": 0.29 },
+        { "id": "flat", "weight": 0.18 },
+        { "id": "draw", "weight": 0.12 }
+      ],
+      "deepShare": 0.28,
+      "versus": {
+        "blitz": { "runShare": -0.07, "deepShare": 0.06 },
+        "balanced": { "runShare": 0, "deepShare": 0 },
+        "prevent": { "runShare": 0.07, "deepShare": -0.14 }
+      },
+      "note": "The Herons stretch runs toward the sideline and keep a long throw ready behind them."
+    }
+  }
+}

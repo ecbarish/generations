@@ -1,6 +1,16 @@
 # Lantern Bowl
 
+v0.1.8. When the crowd bed plays, it holds its peak until it is stopped, then fades out over 0.25 seconds (#489). The live play page may still not wire these cues; the listening page is what exercises the loop. Season standings and playoff pairings are in `standings.js` (#494), and the live game does not load that module yet. LB-SEASON stays open. One version covers both merges. The save stays version 2.
+
 v0.1.7. Before each Millrace drive you pick Blitz, Balanced, or Prevent, and the drive plays on the field as a short highlight (#444). A slower clock keeps a two-minute quarter and leaves room for a full game. On fourth down the call offers a punt, and a field goal when the goal is within 38 yards. A short completion no longer gains one fixed number of yards, and a typical carry lands nearer 3 yards. A miss says why: Overthrown, Underthrown, Wide left, Wide right, Broken up, or Picked. While you drag, the receiver nearest the aim point is highlighted, and Inside and Outside are labelled as runs. On a phone, a full throw takes a long drag, and the camera keeps the quarterback clear of the left edge. After the whistle one result line sits on the bottom edge, and the hint stays above the grass so the top receiver and the yard numbers stay visible. The version label stays whole at 360 pixels wide, and Settings stays on the screen at 390 pixels wide. A phone held upright still shows Turn your phone sideways and the game waits. The save stays version 2.
+
+Weekly training choices from #511 are in `training.json`: seven focuses, passing, running, blocking, pass rush, coverage, kicking and rest, plus a season-simulation checker. The game does not load that file yet, so the field stays as it is and Lantern Bowl stays at v0.1.8. LB-SEASON stays open.
+
+The palette merge spec from #505 is in `docs/art/lantern-bowl-palette-merge.md`: six merges that would take Lantern Bowl from 36 colours to 30, with the ink and the lamplight unchanged, plus a read-only counting tool. No game file reads that page, so the field stays as it is and Lantern Bowl stays at v0.1.8.
+
+The roster view from #495 is in `roster-view.js`: words-first ratings and star grades (the stars show the overall rating), plus a checker and a preview page. The live game does not load that file yet, so the field stays as it is and Lantern Bowl stays at v0.1.8.
+
+Opponent scouting data from #496 is in `scouting.json`: styles for the five rival clubs, plus a checker. The game does not load that file yet, so the field stays as it is and Lantern Bowl stays at v0.1.8.
 
 Decision-card data from #481 is in `dilemmas.json`: 16 between-games cards, plus a checker. The game does not load that file yet, so the field stays as it is and Lantern Bowl stays at v0.1.7.
 

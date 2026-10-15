@@ -1,0 +1,98 @@
+{
+ "page": "docs/playtests/lb-roster-view/index.html",
+ "browser": "Chrome/154.0.8037.97",
+ "sizes": {
+  "844x390": {
+   "rows": 22,
+   "minRowHeight": 77,
+   "maxRowHeight": 78,
+   "minHeadHeight": 44,
+   "minFont": 16,
+   "columns": 2,
+   "overflowX": false,
+   "pageHeight": 1084,
+   "errors": [],
+   "pageErrors": []
+  },
+  "780x360": {
+   "rows": 22,
+   "minRowHeight": 77,
+   "maxRowHeight": 78,
+   "minHeadHeight": 44,
+   "minFont": 16,
+   "columns": 2,
+   "overflowX": false,
+   "pageHeight": 1084,
+   "errors": [],
+   "pageErrors": []
+  },
+  "667x375": {
+   "rows": 22,
+   "minRowHeight": 77,
+   "maxRowHeight": 78,
+   "minHeadHeight": 44,
+   "minFont": 16,
+   "columns": 2,
+   "overflowX": false,
+   "pageHeight": 1084,
+   "errors": [],
+   "pageErrors": []
+  },
+  "1024x594": {
+   "rows": 22,
+   "minRowHeight": 77,
+   "maxRowHeight": 78,
+   "minHeadHeight": 44,
+   "minFont": 16,
+   "columns": 2,
+   "overflowX": false,
+   "pageHeight": 1064,
+   "errors": [],
+   "pageErrors": []
+  }
+ },
+ "clubs": {
+  "brackenport": {
+   "rows": 22,
+   "first": "Wren Talley",
+   "status": "Brackenport: 22 players, 5 stars is Elite and 1 star is Rough. Words first, numbers second."
+  },
+  "millrace": {
+   "rows": 22,
+   "first": "Ned Harrow",
+   "status": "Millrace: 22 players, 5 stars is Elite and 1 star is Rough. Words first, numbers second."
+  },
+  "harrowgate": {
+   "rows": 22,
+   "first": "Leona Gatewell",
+   "status": "Harrowgate: 22 players, 5 stars is Elite and 1 star is Rough. Words first, numbers second."
+  },
+  "tollbridge": {
+   "rows": 22,
+   "first": "Rhea Wicker",
+   "status": "Tollbridge: 22 players, 5 stars is Elite and 1 star is Rough. Words first, numbers second."
+  },
+  "quarryhill": {
+   "rows": 22,
+   "first": "Iona Flintvale",
+   "status": "Quarryhill: 22 players, 5 stars is Elite and 1 star is Rough. Words first, numbers second."
+  },
+  "fernmoor": {
+   "rows": 22,
+   "first": "Oona Fernley",
+   "status": "Fernmoor: 22 players, 5 stars is Elite and 1 star is Rough. Words first, numbers second."
+  }
+ },
+ "all": {
+  "clubs": 6,
+  "rows": 132,
+  "styleBlocks": 1,
+  "status": "All 6 clubs drawn: 132 rows.",
+  "errors": []
+ },
+ "pageErrors": [],
+ "unknownClubInUrl": {
+  "status": "Brackenport: 22 players, 5 stars is Elite and 1 star is Rough. Words first, numbers second.",
+  "rows": 22
+ }
+}
