@@ -1,0 +1,4125 @@
+{
+  "head": "ff2b5cb96168ddcdd4e2604013cefae1b7f2e48e",
+  "mode": "phone-regression",
+  "checks": [
+    {
+      "name": "The checkout is the requested PR head",
+      "pass": true,
+      "detail": "ff2b5cb96168ddcdd4e2604013cefae1b7f2e48e"
+    },
+    {
+      "name": "320x568 fresh: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "320x568 fresh: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "320x568 fresh: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 408.328125,
+        "width": 294.40625,
+        "height": 44,
+        "bottom": 452.328125,
+        "right": 307.203125
+      }
+    },
+    {
+      "name": "320x568 fresh: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "320x568 fresh: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 408.328125,
+          "width": 294.40625,
+          "height": 44,
+          "bottom": 452.328125,
+          "right": 307.203125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 374.453125,
+          "width": 294.40625,
+          "height": 26.6875,
+          "bottom": 401.140625,
+          "right": 307.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 320,
+        "scrollY": 0,
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "lane": {
+          "x": 0,
+          "y": 297.46875,
+          "width": 320,
+          "height": 60,
+          "bottom": 357.46875,
+          "right": 320
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "320x568 fresh: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "320x568 fresh: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "320x568: two real taps pour exactly two cups",
+      "pass": true
+    },
+    {
+      "name": "320x568: a held touch pours and stops after release",
+      "pass": true,
+      "detail": 8
+    },
+    {
+      "name": "320x568: cancelled active touch stops pouring",
+      "pass": true,
+      "detail": {
+        "held": 8,
+        "cancelled": 10
+      }
+    },
+    {
+      "name": "320x568 hire ready: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "320x568 hire ready: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "320x568 hire ready: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 408.328125,
+        "width": 144.015625,
+        "height": 62.46875,
+        "bottom": 470.796875,
+        "right": 156.8125
+      }
+    },
+    {
+      "name": "320x568 hire ready: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "320x568 hire ready: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 408.328125,
+          "width": 144.015625,
+          "height": 62.46875,
+          "bottom": 470.796875,
+          "right": 156.8125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 374.453125,
+          "width": 294.40625,
+          "height": 26.6875,
+          "bottom": 401.140625,
+          "right": 307.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 320,
+        "scrollY": 0,
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "lane": {
+          "x": 0,
+          "y": 297.46875,
+          "width": 320,
+          "height": 60,
+          "bottom": 357.46875,
+          "right": 320
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "320x568 hire ready: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "320x568 hire ready: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "320x568 hired: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "320x568 hired: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "320x568 hired: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 442.078125,
+        "width": 144.015625,
+        "height": 62.46875,
+        "bottom": 504.546875,
+        "right": 156.8125
+      }
+    },
+    {
+      "name": "320x568 hired: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "320x568 hired: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 442.078125,
+          "width": 144.015625,
+          "height": 62.46875,
+          "bottom": 504.546875,
+          "right": 156.8125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 408.203125,
+          "width": 294.40625,
+          "height": 26.6875,
+          "bottom": 434.890625,
+          "right": 307.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 320,
+        "scrollY": 0,
+        "viewport": {
+          "width": 320,
+          "height": 568
+        },
+        "lane": {
+          "x": 0,
+          "y": 272.828125,
+          "width": 320,
+          "height": 60,
+          "bottom": 332.828125,
+          "right": 320
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "320x568 hired: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "320x568 hired: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "320x568: the first hire and purchase still work",
+      "pass": true
+    },
+    {
+      "name": "320x568: unrelated save survives",
+      "pass": true
+    },
+    {
+      "name": "320x568: no page errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "360x640 fresh: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "360x640 fresh: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "360x640 fresh: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 390.6875,
+        "width": 334.40625,
+        "height": 44,
+        "bottom": 434.6875,
+        "right": 347.203125
+      }
+    },
+    {
+      "name": "360x640 fresh: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "360x640 fresh: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 390.6875,
+          "width": 334.40625,
+          "height": 44,
+          "bottom": 434.6875,
+          "right": 347.203125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 356.8125,
+          "width": 334.40625,
+          "height": 26.6875,
+          "bottom": 383.5,
+          "right": 347.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 360,
+        "scrollY": 0,
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "lane": {
+          "x": 0,
+          "y": 272.828125,
+          "width": 360,
+          "height": 67,
+          "bottom": 339.828125,
+          "right": 360
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "360x640 fresh: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "360x640 fresh: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "360x640: two real taps pour exactly two cups",
+      "pass": true
+    },
+    {
+      "name": "360x640: a held touch pours and stops after release",
+      "pass": true,
+      "detail": 8
+    },
+    {
+      "name": "360x640: cancelled active touch stops pouring",
+      "pass": true,
+      "detail": {
+        "held": 8,
+        "cancelled": 10
+      }
+    },
+    {
+      "name": "360x640 hire ready: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "360x640 hire ready: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "360x640 hire ready: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 366.046875,
+        "width": 164.015625,
+        "height": 62.46875,
+        "bottom": 428.515625,
+        "right": 176.8125
+      }
+    },
+    {
+      "name": "360x640 hire ready: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "360x640 hire ready: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 366.046875,
+          "width": 164.015625,
+          "height": 62.46875,
+          "bottom": 428.515625,
+          "right": 176.8125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 332.171875,
+          "width": 334.40625,
+          "height": 26.6875,
+          "bottom": 358.859375,
+          "right": 347.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 360,
+        "scrollY": 0,
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "lane": {
+          "x": 0,
+          "y": 248.1875,
+          "width": 360,
+          "height": 67,
+          "bottom": 315.1875,
+          "right": 360
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "360x640 hire ready: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "360x640 hire ready: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "360x640 hired: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "360x640 hired: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "360x640 hired: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 424.4375,
+        "width": 164.015625,
+        "height": 62.46875,
+        "bottom": 486.90625,
+        "right": 176.8125
+      }
+    },
+    {
+      "name": "360x640 hired: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "360x640 hired: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 424.4375,
+          "width": 164.015625,
+          "height": 62.46875,
+          "bottom": 486.90625,
+          "right": 176.8125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 390.5625,
+          "width": 334.40625,
+          "height": 26.6875,
+          "bottom": 417.25,
+          "right": 347.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 360,
+        "scrollY": 0,
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "lane": {
+          "x": 0,
+          "y": 248.1875,
+          "width": 360,
+          "height": 67,
+          "bottom": 315.1875,
+          "right": 360
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "360x640 hired: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "360x640 hired: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "360x640: the first hire and purchase still work",
+      "pass": true
+    },
+    {
+      "name": "360x640: unrelated save survives",
+      "pass": true
+    },
+    {
+      "name": "360x640: no page errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "390x844 fresh: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "390x844 fresh: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "390x844 fresh: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 375.65625,
+        "width": 364.40625,
+        "height": 44,
+        "bottom": 419.65625,
+        "right": 377.203125
+      }
+    },
+    {
+      "name": "390x844 fresh: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "390x844 fresh: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 375.65625,
+          "width": 364.40625,
+          "height": 44,
+          "bottom": 419.65625,
+          "right": 377.203125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 341.78125,
+          "width": 364.40625,
+          "height": 26.6875,
+          "bottom": 368.46875,
+          "right": 377.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 390,
+        "scrollY": 0,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "lane": {
+          "x": 3,
+          "y": 252.796875,
+          "width": 384,
+          "height": 72,
+          "bottom": 324.796875,
+          "right": 387
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "390x844 fresh: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "390x844 fresh: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "390x844: two real taps pour exactly two cups",
+      "pass": true
+    },
+    {
+      "name": "390x844: a held touch pours and stops after release",
+      "pass": true,
+      "detail": 8
+    },
+    {
+      "name": "390x844: cancelled active touch stops pouring",
+      "pass": true,
+      "detail": {
+        "held": 8,
+        "cancelled": 10
+      }
+    },
+    {
+      "name": "390x844 hire ready: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "390x844 hire ready: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "390x844 hire ready: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 375.65625,
+        "width": 179.015625,
+        "height": 62.46875,
+        "bottom": 438.125,
+        "right": 191.8125
+      }
+    },
+    {
+      "name": "390x844 hire ready: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "390x844 hire ready: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 375.65625,
+          "width": 179.015625,
+          "height": 62.46875,
+          "bottom": 438.125,
+          "right": 191.8125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 341.78125,
+          "width": 364.40625,
+          "height": 26.6875,
+          "bottom": 368.46875,
+          "right": 377.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 390,
+        "scrollY": 0,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "lane": {
+          "x": 3,
+          "y": 252.796875,
+          "width": 384,
+          "height": 72,
+          "bottom": 324.796875,
+          "right": 387
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "390x844 hire ready: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "390x844 hire ready: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "390x844 hired: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "390x844 hired: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "390x844 hired: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 434.046875,
+        "width": 179.015625,
+        "height": 62.46875,
+        "bottom": 496.515625,
+        "right": 191.8125
+      }
+    },
+    {
+      "name": "390x844 hired: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "390x844 hired: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 434.046875,
+          "width": 179.015625,
+          "height": 62.46875,
+          "bottom": 496.515625,
+          "right": 191.8125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 400.171875,
+          "width": 364.40625,
+          "height": 26.6875,
+          "bottom": 426.859375,
+          "right": 377.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 390,
+        "scrollY": 0,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "lane": {
+          "x": 3,
+          "y": 252.796875,
+          "width": 384,
+          "height": 72,
+          "bottom": 324.796875,
+          "right": 387
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "390x844 hired: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "390x844 hired: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "390x844: the first hire and purchase still work",
+      "pass": true
+    },
+    {
+      "name": "rotation 844x390: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "rotation 844x390: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "rotation 844x390: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 389.875,
+        "y": 254.859375,
+        "width": 217.46875,
+        "height": 44,
+        "bottom": 298.859375,
+        "right": 607.34375
+      }
+    },
+    {
+      "name": "rotation 844x390: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "rotation 844x390: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 161.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 205.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 389.875,
+          "y": 254.859375,
+          "width": 217.46875,
+          "height": 44,
+          "bottom": 298.859375,
+          "right": 607.34375
+        },
+        "title": {
+          "x": 389.875,
+          "y": 220.984375,
+          "width": 441.328125,
+          "height": 26.6875,
+          "bottom": 247.671875,
+          "right": 831.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 844,
+        "scrollY": 0,
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "lane": {
+          "x": 38,
+          "y": 9.59375,
+          "width": 768,
+          "height": 144,
+          "bottom": 153.59375,
+          "right": 806
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "rotation 844x390: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "rotation 844x390: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "rotation 390x844: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "rotation 390x844: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "rotation 390x844: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 458.6875,
+        "width": 179.015625,
+        "height": 62.46875,
+        "bottom": 521.15625,
+        "right": 191.8125
+      }
+    },
+    {
+      "name": "rotation 390x844: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "rotation 390x844: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 458.6875,
+          "width": 179.015625,
+          "height": 62.46875,
+          "bottom": 521.15625,
+          "right": 191.8125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 424.8125,
+          "width": 364.40625,
+          "height": 26.6875,
+          "bottom": 451.5,
+          "right": 377.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 390,
+        "scrollY": 0,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "lane": {
+          "x": 3,
+          "y": 277.4375,
+          "width": 384,
+          "height": 72,
+          "bottom": 349.4375,
+          "right": 387
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "rotation 390x844: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "rotation 390x844: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "rotation 844x390: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "rotation 844x390: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "rotation 844x390: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 389.875,
+        "y": 254.859375,
+        "width": 217.46875,
+        "height": 44,
+        "bottom": 298.859375,
+        "right": 607.34375
+      }
+    },
+    {
+      "name": "rotation 844x390: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "rotation 844x390: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 161.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 205.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 389.875,
+          "y": 254.859375,
+          "width": 217.46875,
+          "height": 44,
+          "bottom": 298.859375,
+          "right": 607.34375
+        },
+        "title": {
+          "x": 389.875,
+          "y": 220.984375,
+          "width": 441.328125,
+          "height": 26.6875,
+          "bottom": 247.671875,
+          "right": 831.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 844,
+        "scrollY": 0,
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "lane": {
+          "x": 38,
+          "y": 9.59375,
+          "width": 768,
+          "height": 144,
+          "bottom": 153.59375,
+          "right": 806
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "rotation 844x390: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "rotation 844x390: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "rotation 390x844: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "rotation 390x844: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "rotation 390x844: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 458.6875,
+        "width": 179.015625,
+        "height": 62.46875,
+        "bottom": 521.15625,
+        "right": 191.8125
+      }
+    },
+    {
+      "name": "rotation 390x844: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "rotation 390x844: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 458.6875,
+          "width": 179.015625,
+          "height": 62.46875,
+          "bottom": 521.15625,
+          "right": 191.8125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 424.8125,
+          "width": 364.40625,
+          "height": 26.6875,
+          "bottom": 451.5,
+          "right": 377.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 390,
+        "scrollY": 0,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "lane": {
+          "x": 3,
+          "y": 277.4375,
+          "width": 384,
+          "height": 72,
+          "bottom": 349.4375,
+          "right": 387
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "rotation 390x844: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "rotation 390x844: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "Keyboard first stops at Back with visible focus",
+      "pass": true
+    },
+    {
+      "name": "Keyboard then reaches the first bulk control",
+      "pass": true
+    },
+    {
+      "name": "Keyboard Back reaches the arcade",
+      "pass": true,
+      "detail": "http://127.0.0.1:38277/index.html"
+    },
+    {
+      "name": "Browser Back returns with the first stall intact",
+      "pass": true
+    },
+    {
+      "name": "Browser Forward returns to the arcade",
+      "pass": true
+    },
+    {
+      "name": "A second Browser Back keeps the stall intact",
+      "pass": true
+    },
+    {
+      "name": "Touch Back reaches arcade 0",
+      "pass": true
+    },
+    {
+      "name": "Touch Back reaches arcade 1",
+      "pass": true
+    },
+    {
+      "name": "A return still shows the away summary",
+      "pass": true
+    },
+    {
+      "name": "after away dismiss: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "after away dismiss: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "after away dismiss: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 458.6875,
+        "width": 179.015625,
+        "height": 62.46875,
+        "bottom": 521.15625,
+        "right": 191.8125
+      }
+    },
+    {
+      "name": "after away dismiss: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "after away dismiss: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 9.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 53.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 12.796875,
+          "y": 458.6875,
+          "width": 179.015625,
+          "height": 62.46875,
+          "bottom": 521.15625,
+          "right": 191.8125
+        },
+        "title": {
+          "x": 12.796875,
+          "y": 424.8125,
+          "width": 364.40625,
+          "height": 26.6875,
+          "bottom": 451.5,
+          "right": 377.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 390,
+        "scrollY": 0,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "lane": {
+          "x": 3,
+          "y": 277.4375,
+          "width": 384,
+          "height": 72,
+          "bottom": 349.4375,
+          "right": 387
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "after away dismiss: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "after away dismiss: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "Save disclosure opens 0",
+      "pass": true
+    },
+    {
+      "name": "Save disclosure closes 0",
+      "pass": true
+    },
+    {
+      "name": "Save disclosure opens 1",
+      "pass": true
+    },
+    {
+      "name": "Save disclosure closes 1",
+      "pass": true
+    },
+    {
+      "name": "200% body and rem text stays horizontally scroll-free",
+      "pass": true
+    },
+    {
+      "name": "390x844: unrelated save survives",
+      "pass": true
+    },
+    {
+      "name": "390x844: no page errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "568x320 fresh: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "568x320 fresh: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "568x320 fresh: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 265.671875,
+        "y": 134.0625,
+        "width": 289.53125,
+        "height": 44,
+        "bottom": 178.0625,
+        "right": 555.203125
+      }
+    },
+    {
+      "name": "568x320 fresh: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "568x320 fresh: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 89.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 133.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 265.671875,
+          "y": 134.0625,
+          "width": 289.53125,
+          "height": 44,
+          "bottom": 178.0625,
+          "right": 555.203125
+        },
+        "title": {
+          "x": 265.671875,
+          "y": 100.1875,
+          "width": 289.53125,
+          "height": 26.6875,
+          "bottom": 126.875,
+          "right": 555.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 568,
+        "scrollY": 0,
+        "viewport": {
+          "width": 568,
+          "height": 320
+        },
+        "lane": {
+          "x": 92,
+          "y": 9.59375,
+          "width": 384,
+          "height": 72,
+          "bottom": 81.59375,
+          "right": 476
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "568x320 fresh: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "568x320 fresh: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "568x320: two real taps pour exactly two cups",
+      "pass": true
+    },
+    {
+      "name": "568x320: a held touch pours and stops after release",
+      "pass": true,
+      "detail": 8
+    },
+    {
+      "name": "568x320: cancelled active touch stops pouring",
+      "pass": true,
+      "detail": {
+        "held": 8,
+        "cancelled": 10
+      }
+    },
+    {
+      "name": "568x320 hire ready: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "568x320 hire ready: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "568x320 hire ready: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 265.671875,
+        "y": 134.0625,
+        "width": 141.578125,
+        "height": 62.46875,
+        "bottom": 196.53125,
+        "right": 407.25
+      }
+    },
+    {
+      "name": "568x320 hire ready: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "568x320 hire ready: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 89.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 133.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 265.671875,
+          "y": 134.0625,
+          "width": 141.578125,
+          "height": 62.46875,
+          "bottom": 196.53125,
+          "right": 407.25
+        },
+        "title": {
+          "x": 265.671875,
+          "y": 100.1875,
+          "width": 289.53125,
+          "height": 26.6875,
+          "bottom": 126.875,
+          "right": 555.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 568,
+        "scrollY": 0,
+        "viewport": {
+          "width": 568,
+          "height": 320
+        },
+        "lane": {
+          "x": 92,
+          "y": 9.59375,
+          "width": 384,
+          "height": 72,
+          "bottom": 81.59375,
+          "right": 476
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "568x320 hire ready: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "568x320 hire ready: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "568x320 hired: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "568x320 hired: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "568x320 hired: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 265.671875,
+        "y": 182.859375,
+        "width": 141.578125,
+        "height": 62.46875,
+        "bottom": 245.328125,
+        "right": 407.25
+      }
+    },
+    {
+      "name": "568x320 hired: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "568x320 hired: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 89.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 133.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 265.671875,
+          "y": 182.859375,
+          "width": 141.578125,
+          "height": 62.46875,
+          "bottom": 245.328125,
+          "right": 407.25
+        },
+        "title": {
+          "x": 265.671875,
+          "y": 148.984375,
+          "width": 289.53125,
+          "height": 26.6875,
+          "bottom": 175.671875,
+          "right": 555.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 568,
+        "scrollY": 0,
+        "viewport": {
+          "width": 568,
+          "height": 320
+        },
+        "lane": {
+          "x": 92,
+          "y": 9.59375,
+          "width": 384,
+          "height": 72,
+          "bottom": 81.59375,
+          "right": 476
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "568x320 hired: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "568x320 hired: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "568x320: the first hire and purchase still work",
+      "pass": true
+    },
+    {
+      "name": "568x320: unrelated save survives",
+      "pass": true
+    },
+    {
+      "name": "568x320: no page errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "667x375 fresh: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "667x375 fresh: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "667x375 fresh: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 310.21875,
+        "y": 134.0625,
+        "width": 343.984375,
+        "height": 44,
+        "bottom": 178.0625,
+        "right": 654.203125
+      }
+    },
+    {
+      "name": "667x375 fresh: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "667x375 fresh: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 89.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 133.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 310.21875,
+          "y": 134.0625,
+          "width": 343.984375,
+          "height": 44,
+          "bottom": 178.0625,
+          "right": 654.203125
+        },
+        "title": {
+          "x": 310.21875,
+          "y": 100.1875,
+          "width": 343.984375,
+          "height": 26.6875,
+          "bottom": 126.875,
+          "right": 654.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 667,
+        "scrollY": 0,
+        "viewport": {
+          "width": 667,
+          "height": 375
+        },
+        "lane": {
+          "x": 141.5,
+          "y": 9.59375,
+          "width": 384,
+          "height": 72,
+          "bottom": 81.59375,
+          "right": 525.5
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "667x375 fresh: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "667x375 fresh: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "667x375: two real taps pour exactly two cups",
+      "pass": true
+    },
+    {
+      "name": "667x375: a held touch pours and stops after release",
+      "pass": true,
+      "detail": 8
+    },
+    {
+      "name": "667x375: cancelled active touch stops pouring",
+      "pass": true,
+      "detail": {
+        "held": 8,
+        "cancelled": 10
+      }
+    },
+    {
+      "name": "667x375 hire ready: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "667x375 hire ready: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "667x375 hire ready: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 310.21875,
+        "y": 134.0625,
+        "width": 168.796875,
+        "height": 62.46875,
+        "bottom": 196.53125,
+        "right": 479.015625
+      }
+    },
+    {
+      "name": "667x375 hire ready: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "667x375 hire ready: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 89.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 133.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 310.21875,
+          "y": 134.0625,
+          "width": 168.796875,
+          "height": 62.46875,
+          "bottom": 196.53125,
+          "right": 479.015625
+        },
+        "title": {
+          "x": 310.21875,
+          "y": 100.1875,
+          "width": 343.984375,
+          "height": 26.6875,
+          "bottom": 126.875,
+          "right": 654.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 667,
+        "scrollY": 0,
+        "viewport": {
+          "width": 667,
+          "height": 375
+        },
+        "lane": {
+          "x": 141.5,
+          "y": 9.59375,
+          "width": 384,
+          "height": 72,
+          "bottom": 81.59375,
+          "right": 525.5
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "667x375 hire ready: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "667x375 hire ready: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "667x375 hired: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "667x375 hired: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "667x375 hired: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 310.21875,
+        "y": 182.859375,
+        "width": 168.796875,
+        "height": 62.46875,
+        "bottom": 245.328125,
+        "right": 479.015625
+      }
+    },
+    {
+      "name": "667x375 hired: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "667x375 hired: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 89.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 133.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 310.21875,
+          "y": 182.859375,
+          "width": 168.796875,
+          "height": 62.46875,
+          "bottom": 245.328125,
+          "right": 479.015625
+        },
+        "title": {
+          "x": 310.21875,
+          "y": 148.984375,
+          "width": 343.984375,
+          "height": 26.6875,
+          "bottom": 175.671875,
+          "right": 654.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 667,
+        "scrollY": 0,
+        "viewport": {
+          "width": 667,
+          "height": 375
+        },
+        "lane": {
+          "x": 141.5,
+          "y": 9.59375,
+          "width": 384,
+          "height": 72,
+          "bottom": 81.59375,
+          "right": 525.5
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "667x375 hired: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "667x375 hired: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "667x375: the first hire and purchase still work",
+      "pass": true
+    },
+    {
+      "name": "667x375: unrelated save survives",
+      "pass": true
+    },
+    {
+      "name": "667x375: no page errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "844x390 fresh: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "844x390 fresh: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "844x390 fresh: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 389.875,
+        "y": 206.0625,
+        "width": 441.328125,
+        "height": 44,
+        "bottom": 250.0625,
+        "right": 831.203125
+      }
+    },
+    {
+      "name": "844x390 fresh: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "844x390 fresh: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 161.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 205.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 389.875,
+          "y": 206.0625,
+          "width": 441.328125,
+          "height": 44,
+          "bottom": 250.0625,
+          "right": 831.203125
+        },
+        "title": {
+          "x": 389.875,
+          "y": 172.1875,
+          "width": 441.328125,
+          "height": 26.6875,
+          "bottom": 198.875,
+          "right": 831.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 844,
+        "scrollY": 0,
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "lane": {
+          "x": 38,
+          "y": 9.59375,
+          "width": 768,
+          "height": 144,
+          "bottom": 153.59375,
+          "right": 806
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "844x390 fresh: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "844x390 fresh: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "844x390: two real taps pour exactly two cups",
+      "pass": true
+    },
+    {
+      "name": "844x390: a held touch pours and stops after release",
+      "pass": true,
+      "detail": 8
+    },
+    {
+      "name": "844x390: cancelled active touch stops pouring",
+      "pass": true,
+      "detail": {
+        "held": 8,
+        "cancelled": 10
+      }
+    },
+    {
+      "name": "844x390 hire ready: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "844x390 hire ready: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "844x390 hire ready: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 389.875,
+        "y": 206.0625,
+        "width": 217.46875,
+        "height": 44,
+        "bottom": 250.0625,
+        "right": 607.34375
+      }
+    },
+    {
+      "name": "844x390 hire ready: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "844x390 hire ready: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 161.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 205.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 389.875,
+          "y": 206.0625,
+          "width": 217.46875,
+          "height": 44,
+          "bottom": 250.0625,
+          "right": 607.34375
+        },
+        "title": {
+          "x": 389.875,
+          "y": 172.1875,
+          "width": 441.328125,
+          "height": 26.6875,
+          "bottom": 198.875,
+          "right": 831.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 844,
+        "scrollY": 0,
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "lane": {
+          "x": 38,
+          "y": 9.59375,
+          "width": 768,
+          "height": 144,
+          "bottom": 153.59375,
+          "right": 806
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "844x390 hire ready: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "844x390 hire ready: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "844x390 hired: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "844x390 hired: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "844x390 hired: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 389.875,
+        "y": 254.859375,
+        "width": 217.46875,
+        "height": 44,
+        "bottom": 298.859375,
+        "right": 607.34375
+      }
+    },
+    {
+      "name": "844x390 hired: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "844x390 hired: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 161.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 205.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 389.875,
+          "y": 254.859375,
+          "width": 217.46875,
+          "height": 44,
+          "bottom": 298.859375,
+          "right": 607.34375
+        },
+        "title": {
+          "x": 389.875,
+          "y": 220.984375,
+          "width": 441.328125,
+          "height": 26.6875,
+          "bottom": 247.671875,
+          "right": 831.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 844,
+        "scrollY": 0,
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "lane": {
+          "x": 38,
+          "y": 9.59375,
+          "width": 768,
+          "height": 144,
+          "bottom": 153.59375,
+          "right": 806
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "844x390 hired: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "844x390 hired: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "844x390: the first hire and purchase still work",
+      "pass": true
+    },
+    {
+      "name": "844x390: unrelated save survives",
+      "pass": true
+    },
+    {
+      "name": "844x390: no page errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "932x430 fresh: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "932x430 fresh: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "932x430 fresh: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 429.46875,
+        "y": 206.0625,
+        "width": 489.734375,
+        "height": 44,
+        "bottom": 250.0625,
+        "right": 919.203125
+      }
+    },
+    {
+      "name": "932x430 fresh: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "932x430 fresh: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 161.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 205.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 429.46875,
+          "y": 206.0625,
+          "width": 489.734375,
+          "height": 44,
+          "bottom": 250.0625,
+          "right": 919.203125
+        },
+        "title": {
+          "x": 429.46875,
+          "y": 172.1875,
+          "width": 489.734375,
+          "height": 26.6875,
+          "bottom": 198.875,
+          "right": 919.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 932,
+        "scrollY": 0,
+        "viewport": {
+          "width": 932,
+          "height": 430
+        },
+        "lane": {
+          "x": 82,
+          "y": 9.59375,
+          "width": 768,
+          "height": 144,
+          "bottom": 153.59375,
+          "right": 850
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "932x430 fresh: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "932x430 fresh: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "932x430: two real taps pour exactly two cups",
+      "pass": true
+    },
+    {
+      "name": "932x430: a held touch pours and stops after release",
+      "pass": true,
+      "detail": 8
+    },
+    {
+      "name": "932x430: cancelled active touch stops pouring",
+      "pass": true,
+      "detail": {
+        "held": 8,
+        "cancelled": 10
+      }
+    },
+    {
+      "name": "932x430 hire ready: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "932x430 hire ready: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "932x430 hire ready: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 429.46875,
+        "y": 206.0625,
+        "width": 241.671875,
+        "height": 44,
+        "bottom": 250.0625,
+        "right": 671.140625
+      }
+    },
+    {
+      "name": "932x430 hire ready: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "932x430 hire ready: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 161.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 205.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 429.46875,
+          "y": 206.0625,
+          "width": 241.671875,
+          "height": 44,
+          "bottom": 250.0625,
+          "right": 671.140625
+        },
+        "title": {
+          "x": 429.46875,
+          "y": 172.1875,
+          "width": 489.734375,
+          "height": 26.6875,
+          "bottom": 198.875,
+          "right": 919.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 932,
+        "scrollY": 0,
+        "viewport": {
+          "width": 932,
+          "height": 430
+        },
+        "lane": {
+          "x": 82,
+          "y": 9.59375,
+          "width": 768,
+          "height": 144,
+          "bottom": 153.59375,
+          "right": 850
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "932x430 hire ready: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "932x430 hire ready: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "932x430 hired: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      }
+    },
+    {
+      "name": "932x430 hired: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "932x430 hired: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 429.46875,
+        "y": 254.859375,
+        "width": 241.671875,
+        "height": 44,
+        "bottom": 298.859375,
+        "right": 671.140625
+      }
+    },
+    {
+      "name": "932x430 hired: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "932x430 hired: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 12.796875,
+          "y": 161.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 205.59375,
+          "right": 148.171875
+        },
+        "serve": {
+          "x": 429.46875,
+          "y": 254.859375,
+          "width": 241.671875,
+          "height": 44,
+          "bottom": 298.859375,
+          "right": 671.140625
+        },
+        "title": {
+          "x": 429.46875,
+          "y": 220.984375,
+          "width": 489.734375,
+          "height": 26.6875,
+          "bottom": 247.671875,
+          "right": 919.203125
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 932,
+        "scrollY": 0,
+        "viewport": {
+          "width": 932,
+          "height": 430
+        },
+        "lane": {
+          "x": 82,
+          "y": 9.59375,
+          "width": 768,
+          "height": 144,
+          "bottom": 153.59375,
+          "right": 850
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "932x430 hired: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "932x430 hired: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "932x430: the first hire and purchase still work",
+      "pass": true
+    },
+    {
+      "name": "932x430: unrelated save survives",
+      "pass": true
+    },
+    {
+      "name": "932x430: no page errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "1280x800 fresh: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 321.59375,
+        "y": 17.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 61.59375,
+        "right": 456.96875
+      }
+    },
+    {
+      "name": "1280x800 fresh: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "1280x800 fresh: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 321.59375,
+        "y": 637.453125,
+        "width": 636.8125,
+        "height": 44,
+        "bottom": 681.453125,
+        "right": 958.40625
+      }
+    },
+    {
+      "name": "1280x800 fresh: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "1280x800 fresh: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 321.59375,
+          "y": 17.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 61.59375,
+          "right": 456.96875
+        },
+        "serve": {
+          "x": 321.59375,
+          "y": 637.453125,
+          "width": 636.8125,
+          "height": 44,
+          "bottom": 681.453125,
+          "right": 958.40625
+        },
+        "title": {
+          "x": 321.59375,
+          "y": 508.609375,
+          "width": 636.8125,
+          "height": 26.6875,
+          "bottom": 535.296875,
+          "right": 958.40625
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 1280,
+        "scrollY": 0,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "lane": {
+          "x": 64,
+          "y": 271.625,
+          "width": 1152,
+          "height": 216,
+          "bottom": 487.625,
+          "right": 1216
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "1280x800 fresh: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "1280x800 fresh: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "1280x800: two real taps pour exactly two cups",
+      "pass": true
+    },
+    {
+      "name": "1280x800 hire ready: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 321.59375,
+        "y": 17.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 61.59375,
+        "right": 456.96875
+      }
+    },
+    {
+      "name": "1280x800 hire ready: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "1280x800 hire ready: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 321.59375,
+        "y": 637.453125,
+        "width": 315.21875,
+        "height": 44,
+        "bottom": 681.453125,
+        "right": 636.8125
+      }
+    },
+    {
+      "name": "1280x800 hire ready: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "1280x800 hire ready: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 321.59375,
+          "y": 17.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 61.59375,
+          "right": 456.96875
+        },
+        "serve": {
+          "x": 321.59375,
+          "y": 637.453125,
+          "width": 315.21875,
+          "height": 44,
+          "bottom": 681.453125,
+          "right": 636.8125
+        },
+        "title": {
+          "x": 321.59375,
+          "y": 508.609375,
+          "width": 636.8125,
+          "height": 26.6875,
+          "bottom": 535.296875,
+          "right": 958.40625
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 1280,
+        "scrollY": 0,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "lane": {
+          "x": 64,
+          "y": 271.625,
+          "width": 1152,
+          "height": 216,
+          "bottom": 487.625,
+          "right": 1216
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "1280x800 hire ready: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "1280x800 hire ready: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "1280x800 hired: Back is fully visible and at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 321.59375,
+        "y": 17.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 61.59375,
+        "right": 456.96875
+      }
+    },
+    {
+      "name": "1280x800 hired: Back is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "1280x800 hired: first whole serve button is above the fold",
+      "pass": true,
+      "detail": {
+        "x": 321.59375,
+        "y": 684.359375,
+        "width": 315.21875,
+        "height": 44,
+        "bottom": 728.359375,
+        "right": 636.8125
+      }
+    },
+    {
+      "name": "1280x800 hired: first serve is unobstructed at center and corners",
+      "pass": true
+    },
+    {
+      "name": "1280x800 hired: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "home": {
+          "x": 321.59375,
+          "y": 17.59375,
+          "width": 135.375,
+          "height": 44,
+          "bottom": 61.59375,
+          "right": 456.96875
+        },
+        "serve": {
+          "x": 321.59375,
+          "y": 684.359375,
+          "width": 315.21875,
+          "height": 44,
+          "bottom": 728.359375,
+          "right": 636.8125
+        },
+        "title": {
+          "x": 321.59375,
+          "y": 567,
+          "width": 636.8125,
+          "height": 26.6875,
+          "bottom": 593.6875,
+          "right": 958.40625
+        },
+        "homeHits": true,
+        "serveHits": true,
+        "scrollWidth": 1280,
+        "scrollY": 0,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "lane": {
+          "x": 64,
+          "y": 271.625,
+          "width": 1152,
+          "height": 216,
+          "bottom": 487.625,
+          "right": 1216
+        },
+        "visibleInfo": true
+      }
+    },
+    {
+      "name": "1280x800 hired: informational text is retained without horizontal clipping",
+      "pass": true
+    },
+    {
+      "name": "1280x800 hired: Back and serve never overlap",
+      "pass": true
+    },
+    {
+      "name": "1280x800: the first hire and purchase still work",
+      "pass": true
+    },
+    {
+      "name": "1280x800: unrelated save survives",
+      "pass": true
+    },
+    {
+      "name": "1280x800: no page errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "screens": [
+    "fresh-320x568.png",
+    "hire-ready-320x568.png",
+    "hired-320x568.png",
+    "fresh-360x640.png",
+    "hire-ready-360x640.png",
+    "hired-360x640.png",
+    "fresh-390x844.png",
+    "hire-ready-390x844.png",
+    "hired-390x844.png",
+    "portrait-after-rotation.png",
+    "away-portrait.png",
+    "large-text-portrait.png",
+    "fresh-568x320.png",
+    "hire-ready-568x320.png",
+    "hired-568x320.png",
+    "fresh-667x375.png",
+    "hire-ready-667x375.png",
+    "hired-667x375.png",
+    "fresh-844x390.png",
+    "hire-ready-844x390.png",
+    "hired-844x390.png",
+    "fresh-932x430.png",
+    "hire-ready-932x430.png",
+    "hired-932x430.png",
+    "fresh-1280x800.png",
+    "hire-ready-1280x800.png",
+    "hired-1280x800.png"
+  ],
+  "measurements": [
+    {
+      "label": "320x568 fresh",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 408.328125,
+        "width": 294.40625,
+        "height": 44,
+        "bottom": 452.328125,
+        "right": 307.203125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 374.453125,
+        "width": 294.40625,
+        "height": 26.6875,
+        "bottom": 401.140625,
+        "right": 307.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 320,
+      "scrollY": 0,
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lane": {
+        "x": 0,
+        "y": 297.46875,
+        "width": 320,
+        "height": 60,
+        "bottom": 357.46875,
+        "right": 320
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "320x568 hire ready",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 408.328125,
+        "width": 144.015625,
+        "height": 62.46875,
+        "bottom": 470.796875,
+        "right": 156.8125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 374.453125,
+        "width": 294.40625,
+        "height": 26.6875,
+        "bottom": 401.140625,
+        "right": 307.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 320,
+      "scrollY": 0,
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lane": {
+        "x": 0,
+        "y": 297.46875,
+        "width": 320,
+        "height": 60,
+        "bottom": 357.46875,
+        "right": 320
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "320x568 hired",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 442.078125,
+        "width": 144.015625,
+        "height": 62.46875,
+        "bottom": 504.546875,
+        "right": 156.8125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 408.203125,
+        "width": 294.40625,
+        "height": 26.6875,
+        "bottom": 434.890625,
+        "right": 307.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 320,
+      "scrollY": 0,
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "lane": {
+        "x": 0,
+        "y": 272.828125,
+        "width": 320,
+        "height": 60,
+        "bottom": 332.828125,
+        "right": 320
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "360x640 fresh",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 390.6875,
+        "width": 334.40625,
+        "height": 44,
+        "bottom": 434.6875,
+        "right": 347.203125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 356.8125,
+        "width": 334.40625,
+        "height": 26.6875,
+        "bottom": 383.5,
+        "right": 347.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 360,
+      "scrollY": 0,
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "lane": {
+        "x": 0,
+        "y": 272.828125,
+        "width": 360,
+        "height": 67,
+        "bottom": 339.828125,
+        "right": 360
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "360x640 hire ready",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 366.046875,
+        "width": 164.015625,
+        "height": 62.46875,
+        "bottom": 428.515625,
+        "right": 176.8125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 332.171875,
+        "width": 334.40625,
+        "height": 26.6875,
+        "bottom": 358.859375,
+        "right": 347.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 360,
+      "scrollY": 0,
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "lane": {
+        "x": 0,
+        "y": 248.1875,
+        "width": 360,
+        "height": 67,
+        "bottom": 315.1875,
+        "right": 360
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "360x640 hired",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 424.4375,
+        "width": 164.015625,
+        "height": 62.46875,
+        "bottom": 486.90625,
+        "right": 176.8125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 390.5625,
+        "width": 334.40625,
+        "height": 26.6875,
+        "bottom": 417.25,
+        "right": 347.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 360,
+      "scrollY": 0,
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "lane": {
+        "x": 0,
+        "y": 248.1875,
+        "width": 360,
+        "height": 67,
+        "bottom": 315.1875,
+        "right": 360
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "390x844 fresh",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 375.65625,
+        "width": 364.40625,
+        "height": 44,
+        "bottom": 419.65625,
+        "right": 377.203125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 341.78125,
+        "width": 364.40625,
+        "height": 26.6875,
+        "bottom": 368.46875,
+        "right": 377.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 390,
+      "scrollY": 0,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "lane": {
+        "x": 3,
+        "y": 252.796875,
+        "width": 384,
+        "height": 72,
+        "bottom": 324.796875,
+        "right": 387
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "390x844 hire ready",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 375.65625,
+        "width": 179.015625,
+        "height": 62.46875,
+        "bottom": 438.125,
+        "right": 191.8125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 341.78125,
+        "width": 364.40625,
+        "height": 26.6875,
+        "bottom": 368.46875,
+        "right": 377.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 390,
+      "scrollY": 0,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "lane": {
+        "x": 3,
+        "y": 252.796875,
+        "width": 384,
+        "height": 72,
+        "bottom": 324.796875,
+        "right": 387
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "390x844 hired",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 434.046875,
+        "width": 179.015625,
+        "height": 62.46875,
+        "bottom": 496.515625,
+        "right": 191.8125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 400.171875,
+        "width": 364.40625,
+        "height": 26.6875,
+        "bottom": 426.859375,
+        "right": 377.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 390,
+      "scrollY": 0,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "lane": {
+        "x": 3,
+        "y": 252.796875,
+        "width": 384,
+        "height": 72,
+        "bottom": 324.796875,
+        "right": 387
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "rotation 844x390",
+      "home": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 389.875,
+        "y": 254.859375,
+        "width": 217.46875,
+        "height": 44,
+        "bottom": 298.859375,
+        "right": 607.34375
+      },
+      "title": {
+        "x": 389.875,
+        "y": 220.984375,
+        "width": 441.328125,
+        "height": 26.6875,
+        "bottom": 247.671875,
+        "right": 831.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 844,
+      "scrollY": 0,
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lane": {
+        "x": 38,
+        "y": 9.59375,
+        "width": 768,
+        "height": 144,
+        "bottom": 153.59375,
+        "right": 806
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "rotation 390x844",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 458.6875,
+        "width": 179.015625,
+        "height": 62.46875,
+        "bottom": 521.15625,
+        "right": 191.8125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 424.8125,
+        "width": 364.40625,
+        "height": 26.6875,
+        "bottom": 451.5,
+        "right": 377.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 390,
+      "scrollY": 0,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "lane": {
+        "x": 3,
+        "y": 277.4375,
+        "width": 384,
+        "height": 72,
+        "bottom": 349.4375,
+        "right": 387
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "rotation 844x390",
+      "home": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 389.875,
+        "y": 254.859375,
+        "width": 217.46875,
+        "height": 44,
+        "bottom": 298.859375,
+        "right": 607.34375
+      },
+      "title": {
+        "x": 389.875,
+        "y": 220.984375,
+        "width": 441.328125,
+        "height": 26.6875,
+        "bottom": 247.671875,
+        "right": 831.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 844,
+      "scrollY": 0,
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lane": {
+        "x": 38,
+        "y": 9.59375,
+        "width": 768,
+        "height": 144,
+        "bottom": 153.59375,
+        "right": 806
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "rotation 390x844",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 458.6875,
+        "width": 179.015625,
+        "height": 62.46875,
+        "bottom": 521.15625,
+        "right": 191.8125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 424.8125,
+        "width": 364.40625,
+        "height": 26.6875,
+        "bottom": 451.5,
+        "right": 377.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 390,
+      "scrollY": 0,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "lane": {
+        "x": 3,
+        "y": 277.4375,
+        "width": 384,
+        "height": 72,
+        "bottom": 349.4375,
+        "right": 387
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "after away dismiss",
+      "home": {
+        "x": 12.796875,
+        "y": 9.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 53.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 12.796875,
+        "y": 458.6875,
+        "width": 179.015625,
+        "height": 62.46875,
+        "bottom": 521.15625,
+        "right": 191.8125
+      },
+      "title": {
+        "x": 12.796875,
+        "y": 424.8125,
+        "width": 364.40625,
+        "height": 26.6875,
+        "bottom": 451.5,
+        "right": 377.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 390,
+      "scrollY": 0,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "lane": {
+        "x": 3,
+        "y": 277.4375,
+        "width": 384,
+        "height": 72,
+        "bottom": 349.4375,
+        "right": 387
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "568x320 fresh",
+      "home": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 265.671875,
+        "y": 134.0625,
+        "width": 289.53125,
+        "height": 44,
+        "bottom": 178.0625,
+        "right": 555.203125
+      },
+      "title": {
+        "x": 265.671875,
+        "y": 100.1875,
+        "width": 289.53125,
+        "height": 26.6875,
+        "bottom": 126.875,
+        "right": 555.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 568,
+      "scrollY": 0,
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "lane": {
+        "x": 92,
+        "y": 9.59375,
+        "width": 384,
+        "height": 72,
+        "bottom": 81.59375,
+        "right": 476
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "568x320 hire ready",
+      "home": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 265.671875,
+        "y": 134.0625,
+        "width": 141.578125,
+        "height": 62.46875,
+        "bottom": 196.53125,
+        "right": 407.25
+      },
+      "title": {
+        "x": 265.671875,
+        "y": 100.1875,
+        "width": 289.53125,
+        "height": 26.6875,
+        "bottom": 126.875,
+        "right": 555.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 568,
+      "scrollY": 0,
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "lane": {
+        "x": 92,
+        "y": 9.59375,
+        "width": 384,
+        "height": 72,
+        "bottom": 81.59375,
+        "right": 476
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "568x320 hired",
+      "home": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 265.671875,
+        "y": 182.859375,
+        "width": 141.578125,
+        "height": 62.46875,
+        "bottom": 245.328125,
+        "right": 407.25
+      },
+      "title": {
+        "x": 265.671875,
+        "y": 148.984375,
+        "width": 289.53125,
+        "height": 26.6875,
+        "bottom": 175.671875,
+        "right": 555.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 568,
+      "scrollY": 0,
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "lane": {
+        "x": 92,
+        "y": 9.59375,
+        "width": 384,
+        "height": 72,
+        "bottom": 81.59375,
+        "right": 476
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "667x375 fresh",
+      "home": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 310.21875,
+        "y": 134.0625,
+        "width": 343.984375,
+        "height": 44,
+        "bottom": 178.0625,
+        "right": 654.203125
+      },
+      "title": {
+        "x": 310.21875,
+        "y": 100.1875,
+        "width": 343.984375,
+        "height": 26.6875,
+        "bottom": 126.875,
+        "right": 654.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 667,
+      "scrollY": 0,
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "lane": {
+        "x": 141.5,
+        "y": 9.59375,
+        "width": 384,
+        "height": 72,
+        "bottom": 81.59375,
+        "right": 525.5
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "667x375 hire ready",
+      "home": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 310.21875,
+        "y": 134.0625,
+        "width": 168.796875,
+        "height": 62.46875,
+        "bottom": 196.53125,
+        "right": 479.015625
+      },
+      "title": {
+        "x": 310.21875,
+        "y": 100.1875,
+        "width": 343.984375,
+        "height": 26.6875,
+        "bottom": 126.875,
+        "right": 654.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 667,
+      "scrollY": 0,
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "lane": {
+        "x": 141.5,
+        "y": 9.59375,
+        "width": 384,
+        "height": 72,
+        "bottom": 81.59375,
+        "right": 525.5
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "667x375 hired",
+      "home": {
+        "x": 12.796875,
+        "y": 89.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 133.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 310.21875,
+        "y": 182.859375,
+        "width": 168.796875,
+        "height": 62.46875,
+        "bottom": 245.328125,
+        "right": 479.015625
+      },
+      "title": {
+        "x": 310.21875,
+        "y": 148.984375,
+        "width": 343.984375,
+        "height": 26.6875,
+        "bottom": 175.671875,
+        "right": 654.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 667,
+      "scrollY": 0,
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "lane": {
+        "x": 141.5,
+        "y": 9.59375,
+        "width": 384,
+        "height": 72,
+        "bottom": 81.59375,
+        "right": 525.5
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "844x390 fresh",
+      "home": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 389.875,
+        "y": 206.0625,
+        "width": 441.328125,
+        "height": 44,
+        "bottom": 250.0625,
+        "right": 831.203125
+      },
+      "title": {
+        "x": 389.875,
+        "y": 172.1875,
+        "width": 441.328125,
+        "height": 26.6875,
+        "bottom": 198.875,
+        "right": 831.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 844,
+      "scrollY": 0,
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lane": {
+        "x": 38,
+        "y": 9.59375,
+        "width": 768,
+        "height": 144,
+        "bottom": 153.59375,
+        "right": 806
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "844x390 hire ready",
+      "home": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 389.875,
+        "y": 206.0625,
+        "width": 217.46875,
+        "height": 44,
+        "bottom": 250.0625,
+        "right": 607.34375
+      },
+      "title": {
+        "x": 389.875,
+        "y": 172.1875,
+        "width": 441.328125,
+        "height": 26.6875,
+        "bottom": 198.875,
+        "right": 831.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 844,
+      "scrollY": 0,
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lane": {
+        "x": 38,
+        "y": 9.59375,
+        "width": 768,
+        "height": 144,
+        "bottom": 153.59375,
+        "right": 806
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "844x390 hired",
+      "home": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 389.875,
+        "y": 254.859375,
+        "width": 217.46875,
+        "height": 44,
+        "bottom": 298.859375,
+        "right": 607.34375
+      },
+      "title": {
+        "x": 389.875,
+        "y": 220.984375,
+        "width": 441.328125,
+        "height": 26.6875,
+        "bottom": 247.671875,
+        "right": 831.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 844,
+      "scrollY": 0,
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "lane": {
+        "x": 38,
+        "y": 9.59375,
+        "width": 768,
+        "height": 144,
+        "bottom": 153.59375,
+        "right": 806
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "932x430 fresh",
+      "home": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 429.46875,
+        "y": 206.0625,
+        "width": 489.734375,
+        "height": 44,
+        "bottom": 250.0625,
+        "right": 919.203125
+      },
+      "title": {
+        "x": 429.46875,
+        "y": 172.1875,
+        "width": 489.734375,
+        "height": 26.6875,
+        "bottom": 198.875,
+        "right": 919.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 932,
+      "scrollY": 0,
+      "viewport": {
+        "width": 932,
+        "height": 430
+      },
+      "lane": {
+        "x": 82,
+        "y": 9.59375,
+        "width": 768,
+        "height": 144,
+        "bottom": 153.59375,
+        "right": 850
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "932x430 hire ready",
+      "home": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 429.46875,
+        "y": 206.0625,
+        "width": 241.671875,
+        "height": 44,
+        "bottom": 250.0625,
+        "right": 671.140625
+      },
+      "title": {
+        "x": 429.46875,
+        "y": 172.1875,
+        "width": 489.734375,
+        "height": 26.6875,
+        "bottom": 198.875,
+        "right": 919.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 932,
+      "scrollY": 0,
+      "viewport": {
+        "width": 932,
+        "height": 430
+      },
+      "lane": {
+        "x": 82,
+        "y": 9.59375,
+        "width": 768,
+        "height": 144,
+        "bottom": 153.59375,
+        "right": 850
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "932x430 hired",
+      "home": {
+        "x": 12.796875,
+        "y": 161.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 205.59375,
+        "right": 148.171875
+      },
+      "serve": {
+        "x": 429.46875,
+        "y": 254.859375,
+        "width": 241.671875,
+        "height": 44,
+        "bottom": 298.859375,
+        "right": 671.140625
+      },
+      "title": {
+        "x": 429.46875,
+        "y": 220.984375,
+        "width": 489.734375,
+        "height": 26.6875,
+        "bottom": 247.671875,
+        "right": 919.203125
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 932,
+      "scrollY": 0,
+      "viewport": {
+        "width": 932,
+        "height": 430
+      },
+      "lane": {
+        "x": 82,
+        "y": 9.59375,
+        "width": 768,
+        "height": 144,
+        "bottom": 153.59375,
+        "right": 850
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "1280x800 fresh",
+      "home": {
+        "x": 321.59375,
+        "y": 17.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 61.59375,
+        "right": 456.96875
+      },
+      "serve": {
+        "x": 321.59375,
+        "y": 637.453125,
+        "width": 636.8125,
+        "height": 44,
+        "bottom": 681.453125,
+        "right": 958.40625
+      },
+      "title": {
+        "x": 321.59375,
+        "y": 508.609375,
+        "width": 636.8125,
+        "height": 26.6875,
+        "bottom": 535.296875,
+        "right": 958.40625
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 1280,
+      "scrollY": 0,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "lane": {
+        "x": 64,
+        "y": 271.625,
+        "width": 1152,
+        "height": 216,
+        "bottom": 487.625,
+        "right": 1216
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "1280x800 hire ready",
+      "home": {
+        "x": 321.59375,
+        "y": 17.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 61.59375,
+        "right": 456.96875
+      },
+      "serve": {
+        "x": 321.59375,
+        "y": 637.453125,
+        "width": 315.21875,
+        "height": 44,
+        "bottom": 681.453125,
+        "right": 636.8125
+      },
+      "title": {
+        "x": 321.59375,
+        "y": 508.609375,
+        "width": 636.8125,
+        "height": 26.6875,
+        "bottom": 535.296875,
+        "right": 958.40625
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 1280,
+      "scrollY": 0,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "lane": {
+        "x": 64,
+        "y": 271.625,
+        "width": 1152,
+        "height": 216,
+        "bottom": 487.625,
+        "right": 1216
+      },
+      "visibleInfo": true
+    },
+    {
+      "label": "1280x800 hired",
+      "home": {
+        "x": 321.59375,
+        "y": 17.59375,
+        "width": 135.375,
+        "height": 44,
+        "bottom": 61.59375,
+        "right": 456.96875
+      },
+      "serve": {
+        "x": 321.59375,
+        "y": 684.359375,
+        "width": 315.21875,
+        "height": 44,
+        "bottom": 728.359375,
+        "right": 636.8125
+      },
+      "title": {
+        "x": 321.59375,
+        "y": 567,
+        "width": 636.8125,
+        "height": 26.6875,
+        "bottom": 593.6875,
+        "right": 958.40625
+      },
+      "homeHits": true,
+      "serveHits": true,
+      "scrollWidth": 1280,
+      "scrollY": 0,
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "lane": {
+        "x": 64,
+        "y": 271.625,
+        "width": 1152,
+        "height": 216,
+        "bottom": 487.625,
+        "right": 1216
+      },
+      "visibleInfo": true
+    }
+  ]
+}
