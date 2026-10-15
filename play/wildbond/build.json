@@ -1,13 +1,13 @@
 {
-  "built": "2026-10-13",
+  "built": "2026-10-15",
   "godot": "4.7.2-stable",
-  "source_commit": "c8fa1c8eb2105b32c1c387caa562c67317ede441",
-  "source_tree": "2bd2ebab5fa157c9ac5a143a8308e7fd7da54afe",
-  "review_run": "https://github.com/ecbarish/generations/actions/runs/38407995978",
+  "source_commit": "6205f4481ae870f473e2b308760c33189b385c9a",
+  "source_tree": "a8a0175aa7a2c121018196263d9fe678f5ed0a87",
+  "review_run": null,
   "sha256": {
-    "index.html": "ac6a686a6e9d80d539da8add8cdb1d1a95bec32c582f1a1bcfc3e251af31ca12",
+    "index.html": "86200884c7797dc1bebaf24f8cf0312b72c18ea2003d4e5704c5a80791737708",
     "index.js": "33c94cb3175f3333b82e2a3be5e8e86f77986f0aa2042b1631f6367a4e5bb6ba",
-    "index.pck": "e07fb136963268fee136c46fbc3b9b80ba89e0517b17b728392097453a214100",
+    "index.pck": "f3297911fe761a1a7d71db75e2e26c3be92440f26c890ba121c9367db3e6834e",
     "index.wasm": "fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0"
   }
 }

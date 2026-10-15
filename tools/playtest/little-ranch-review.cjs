@@ -81,10 +81,94 @@ const server = http.createServer((req, res) => {
     await reviewBedtime(page, shot);
     check('No browser errors', errors.length === 0, errors);
     await context.close();
+    await reviewSoundReload(browser, origin);
   } finally { await browser.close(); server.close(); fs.writeFileSync(path.join(out, 'report.json'), JSON.stringify(report, null, 2)); }
   console.log('PASS: ' + report.checks.length + ' review checks; ' + report.screenshots.length + ' screenshots.');
 })().catch(e => { server.close(); console.error(e); process.exitCode = 1; });
 function documentWidth(home) { return home * 2; }
+
+// LRL-4: trusted pointer input and real page.reload() in fresh, isolated contexts.
+// Observe native Web Audio calls without replacing them. This proves scheduling and
+// gating, not what a human hears or how a physical phone/WebView behaves.
+async function reviewSoundReload(browser, origin) {
+  report.soundReload = { method: 'Chromium mouse input, the real three-second grown-up lock, real page reloads, and native Web Audio observation. Fresh isolated local/session storage; no production saves. Not an audible or physical-phone acceptance.', cases: [] };
+  for (const [width, height] of [[375, 812], [667, 375], [1366, 768]]) {
+    const context = await browser.newContext({ viewport: { width, height }, serviceWorkers: 'block' });
+    try {
+      await context.addInitScript(() => {
+        window.lrl4Audio = [];
+        window.lrl4Writes = [];
+        const Audio = window.AudioContext || window.webkitAudioContext;
+        if (Audio) {
+          const create = Audio.prototype.createOscillator;
+          Audio.prototype.createOscillator = function (...args) { const node = create.apply(this, args); window.lrl4Audio.push(this); return node; };
+        }
+        for (const op of ['setItem', 'removeItem', 'clear']) {
+          const original = Storage.prototype[op];
+          Storage.prototype[op] = function (...args) { window.lrl4Writes.push({ area: this === localStorage ? 'local' : 'session', op, key: args[0] ?? null }); return original.apply(this, args); };
+        }
+      });
+      const page = await context.newPage(), errors = [];
+      page.on('pageerror', e => errors.push(e.message));
+      await page.goto(origin + '/games/little-ranch/');
+      await page.waitForFunction(() => !!window.LR);
+      // Seed only once. Never reseed in an init script or across the reload being tested.
+      await page.evaluate(() => {
+        localStorage.setItem('lrl4-unrelated-save', '{"level":27,"coins":1234}');
+        sessionStorage.setItem('lrl4-unrelated-session', '{"room":"kept"}');
+        window.lrl4Writes.length = 0;
+      });
+      const storage = () => page.evaluate(() => [localStorage, sessionStorage].map(s => Object.keys(s).filter(k => s !== localStorage || k !== LR.PREF).sort().map(k => [k, s.getItem(k)])));
+      const preserved = await storage();
+      const open = async () => {
+        const r = await page.locator('#lock').boundingBox();
+        await page.mouse.move(r.x + r.width / 2, r.y + r.height / 2); await page.mouse.down();
+        try { await page.waitForFunction(() => !document.querySelector('#grown').hidden, null, { timeout: 6000 }); }
+        finally { await page.mouse.up(); }
+      };
+      const snapshot = () => page.evaluate(() => ({
+        sound: LR.prefs.sound, stored: localStorage.getItem(LR.PREF), navigation: performance.getEntriesByType('navigation')[0].type,
+        panelHidden: document.querySelector('#grown').hidden, label: document.querySelector('#gSoundLabel').textContent,
+        pressed: document.querySelector('#gSound').getAttribute('aria-pressed'), off: document.querySelector('#gSound').classList.contains('off'),
+        waves: getComputedStyle(document.querySelector('#gWaves')).display !== 'none', mute: getComputedStyle(document.querySelector('#gMute')).display !== 'none',
+        mode: LR.state.mode, acts: LR.state.acts, place: LR.state.place, tones: LR.tones, words: LR.words.length,
+        oscillators: window.lrl4Audio.length, audioStates: [...new Set(window.lrl4Audio.map(a => a.state))], writes: window.lrl4Writes
+      }));
+      const shot = async name => {
+        await page.locator('#grown').evaluate(panel => Promise.all(panel.getAnimations({ subtree: true }).map(animation => animation.finished)));
+        await page.screenshot({ path: path.join(out, name + '.png') }); report.screenshots.push(name + '.png');
+      };
+      check(`LRL-4 ${width}x${height}: a fresh profile defaults to sound on without storing a visit`, (await snapshot()).sound === true && (await snapshot()).stored === null);
+      for (const sound of [false, true]) {
+        const label = `LRL-4 ${width}x${height} sound ${sound ? 'on' : 'off'}`;
+        await open(); await page.click('#gSound');
+        const chosen = await snapshot();
+        check(label + ': the real switch saves only the sound choice', chosen.sound === sound && chosen.stored === JSON.stringify({ sound }) && chosen.writes.length === 1 && chosen.writes[0].area === 'local' && chosen.writes[0].op === 'setItem' && chosen.writes[0].key === 'little-ranch-settings-v1', chosen);
+        for (let reload = 1; reload <= 2; reload++) {
+          await page.reload(); await page.waitForFunction(() => !!window.LR);
+          const loaded = await snapshot();
+          check(label + ` reload ${reload}: a real reload restores the choice and starts a playable visit`, loaded.navigation === 'reload' && loaded.sound === sound && loaded.stored === JSON.stringify({ sound }) && loaded.panelHidden && loaded.mode === 'play' && loaded.acts === 0 && loaded.place === 'ranch', loaded);
+          await open(); const control = await snapshot();
+          check(label + ` reload ${reload}: the visible control matches the loaded choice`, control.label === (sound ? 'Sound on' : 'Sound off') && control.pressed === String(sound) && control.off === !sound && control.waves === sound && control.mute === !sound, control);
+          if (reload === 1) await shot(`lrl4-${width}x${height}-sound-${sound ? 'on' : 'off'}-reloaded`);
+          await page.click('#gX');
+          const flowers = await page.evaluate(() => LR.layout.flowers.map(p => LR.toScreen(p)));
+          for (const p of flowers) await page.mouse.click(p.x, p.y);
+          await page.waitForFunction(() => LR.state.sung === 5 && LR.state.acts === 1);
+          if (sound) await page.waitForFunction(() => window.lrl4Audio.length > 0 && window.lrl4Audio.every(a => a.state === 'running'));
+          const played = await snapshot();
+          check(label + ` reload ${reload}: five real flower taps complete an activity and obey both audio and speech gates`, played.panelHidden && played.mode === 'play' && played.acts === 1 && (sound ? played.tones > 0 && played.words > 0 && played.oscillators > 0 && played.audioStates.every(s => s === 'running') : played.tones === 0 && played.words === 0 && played.oscillators === 0), played);
+          if (reload === 1) await shot(`lrl4-${width}x${height}-sound-${sound ? 'on' : 'off'}-playing`);
+          await open(); await page.click('#gNew'); const restarted = await snapshot();
+          check(label + ` reload ${reload}: New visit stays playable without rewriting any save`, restarted.panelHidden && restarted.mode === 'play' && restarted.acts === 0 && restarted.sound === sound && restarted.stored === JSON.stringify({ sound }) && restarted.writes.length === 0 && JSON.stringify(await storage()) === JSON.stringify(preserved), restarted);
+          report.soundReload.cases.push({ width, height, sound, reload, loaded, control, played, restarted });
+        }
+      }
+      check(`LRL-4 ${width}x${height}: no page errors across both choices and repeated reloads`, errors.length === 0, errors);
+    } finally { await context.close(); }
+  }
+  fs.writeFileSync(path.join(out, 'lrl4-report.json'), JSON.stringify(report.soundReload, null, 2));
+}
 
 // LRL-1 accelerated QA: real browser pointer input and the existing LR.advance clock.
 // Stop the production animation loop only after the original review has finished,
@@ -157,7 +241,7 @@ async function reviewBedtime(page, shot) {
     if (await page.evaluate(() => !!LR.state.friend)) await tap('friend');
     s = await snapshot();
     check(label + ': real goodnight taps finish the routine before the lullaby', s.routine.step === 3 && s.routine.said.flowers && (s.friend === null || s.routine.said.friend), s);
-    await advance(12); s = await snapshot();
+    await advance(await page.evaluate(() => LR.DUSK_SECS) + 2); s = await snapshot();
     check(label + ': the lullaby leads to sleep', s.mode === 'sleep' && s.act === 'sleep' && s.dusk === 1 && s.lullabyAt !== null && (s.friend === null || s.friend === 'sleep'), s);
     return s;
   };
@@ -213,7 +297,7 @@ async function reviewBedtime(page, shot) {
     const item = await point('item'); await page.mouse.move(item.x, item.y); await page.mouse.up(); s = await snapshot();
     check(label + ': late pointerup does not brush, reopen a room or grant a reward', s.place === 'ranch' && s.mode === 'dusk' && s.routine.step === 0 && !s.routine.doing && s.acts === 0, s);
     await shot('lrl1-' + room + '-rotated-late-release');
-    await advance(55); s = await snapshot();
+    await advance(await page.evaluate(() => LR.ROUTINE_WAIT * 3 + LR.DUSK_SECS) + 20); s = await snapshot();
     check(label + ': the unattended real routine reaches sleep without a stale reward', s.mode === 'sleep' && s.act === 'sleep' && s.routine.step === 3 && s.routine.said.flowers && s.routine.said.friend && s.lullabyAt !== null && s.acts === 0, s);
   }
   await viewport(1024, 768); await fresh(false);
@@ -232,3 +316,4 @@ async function reviewBedtime(page, shot) {
     'Also: held gestures, frozen ranch activities, rotation, late pointerup, unattended routine, twelve real activities and storage-write audit.\n' +
     'Sound remains muted by the existing saved preference; lullaby scheduling is checked in state.\n');
 }
+

@@ -1,5 +1,7 @@
 # Lantern Bowl
 
+v0.1.6. The field has new play art and a playbook. Slingshot passing lets you pull back to throw. A landing circle stays on screen on deep throws. An overthrown pass says "Overthrown: too much power". On phones, a turn-sideways prompt in portrait pauses the game (#432). The save stays version 2.
+
 v0.1.5. The field is side-on, with eleven a side, and carries have a real spread (#383, 371-5a).
 
 v0.1.4. Running matters, and Millrace's drives play on the field (#369, closes #359).

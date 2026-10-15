@@ -151,6 +151,9 @@ func refresh_render() -> void:
 	await wait_frames()
 	await RenderingServer.frame_post_draw
 
+func framed() -> bool:
+	return main.get("phone") != null and is_instance_valid(main.phone) and not main.phone.L.is_empty()
+
 func position_pointer(screen: Vector2, viewport: Vector2, world: Vector2) -> Dictionary:
 	# parse_input_event dispatches coordinates but does not move the OS cursor.
 	# On desktop/X11, the game's get_global_mouse_position() reads that cursor.
@@ -161,7 +164,7 @@ func position_pointer(screen: Vector2, viewport: Vector2, world: Vector2) -> Dic
 	Input.warp_mouse(screen)
 	await wait_frames(4)  # Let X11 deliver its actual pointer motion.
 	var os_mouse := Vector2(DisplayServer.mouse_get_position())
-	var viewport_mouse := root.get_mouse_position()
+	var viewport_mouse := main.get_viewport().get_mouse_position() if framed() else root.get_mouse_position()
 	var world_mouse: Vector2 = main.get_global_mouse_position()
 	check(os_mouse.distance_to(screen + Vector2(root.position)) < 0.5, "OS pointer positioning failed")
 	check(viewport_mouse.distance_to(viewport) < 0.5, "OS pointer did not round-trip through viewport stretch/letterboxing")
@@ -224,6 +227,10 @@ func transition(method: String, destination: String, goal: Vector2i, phase: Stri
 	# Godot converts it back through stretch/letterboxing before _input.
 	var viewport: Vector2 = main.get_global_transform_with_canvas() * world
 	var screen: Vector2 = root.get_screen_transform() * viewport
+	if framed():
+		var view: Rect2 = main.phone.L["view"]
+		var k := float(main.phone.L.get("k", 1))
+		screen = root.get_screen_transform() * (view.position + viewport * k)
 	var expected_route: Array = main.route(main.me.tile, goal)
 	var record := {
 		"case": current_case, "suite": suite, "method": method, "phase": phase, "expected_map": destination,
@@ -235,7 +242,10 @@ func transition(method: String, destination: String, goal: Vector2i, phase: Stri
 		"target_hits_pad": main.touch._on_pad(viewport), "target_hits_button": main.touch._on_btn(viewport),
 	}
 	if suite == "visible-auto-pad":
-		check(main.touch.visible and main.settings.buttons() == "auto", "Default phone controls were not visible")
+		if framed():
+			check(not main.touch.visible and main.settings.buttons() == "auto", "The old pad should stay hidden while the phone frame is up")
+		else:
+			check(main.touch.visible and main.settings.buttons() == "auto", "Default phone controls were not visible")
 		check(not main.touch._on_pad(viewport) and not main.touch._on_btn(viewport), "Visible phone controls cover a required door target")
 	check(Rect2(Vector2.ZERO, Vector2(size)).has_point(screen), "Target falls outside rendered window")
 	check(root.position == Vector2i.ZERO, "Input fixture requires window origin (0,0)")
@@ -266,7 +276,8 @@ func transition(method: String, destination: String, goal: Vector2i, phase: Stri
 			if event.kind == "InputEventMouseButton":
 				if event.phase == "input":
 					received_mouse = true
-					check(Vector2(event.viewport_position[0], event.viewport_position[1]).distance_to(viewport) < 0.5, "Mouse event was not transformed into expected viewport coordinates")
+					if not framed():
+						check(Vector2(event.viewport_position[0], event.viewport_position[1]).distance_to(viewport) < 0.5, "Mouse event was not transformed into expected viewport coordinates")
 					if method == "touch":
 						check(event.device == InputEvent.DEVICE_ID_EMULATION, "Touch case did not use Godot's emulated mouse")
 				if event.phase == "unhandled_input":
@@ -325,9 +336,10 @@ func set_phone_mode(value: int, touched: bool) -> void:
 func settings_check(size: Vector2i, label: String, value: int, touched: bool, visible: bool) -> void:
 	current_case = "%dx%d/settings/%s" % [size.x, size.y, label]
 	set_phone_mode(value, touched)
-	check(main.touch.visible == visible, "Phone button setting changed its visibility behavior")
+	var expect_visible := visible and not framed()
+	check(main.touch.visible == expect_visible, "Phone button setting changed its visibility behavior")
 	check(main.settings.keep == false and main.no_save, "Fixture enabled saved settings or game writes")
-	settings_checks.append({"case": current_case, "size": xy(Vector2(size)), "label": label, "setting": main.settings.buttons(), "touched": main.touch.touched, "visible": main.touch.visible, "expected_visible": visible})
+	settings_checks.append({"case": current_case, "size": xy(Vector2(size)), "label": label, "setting": main.settings.buttons(), "touched": main.touch.touched, "visible": main.touch.visible, "expected_visible": expect_visible, "phone_frame": framed()})
 	await shot(current_case.replace("/", "-"), size)
 
 func phone_settings(size: Vector2i) -> void:
@@ -337,6 +349,10 @@ func phone_settings(size: Vector2i) -> void:
 	var world: Vector2 = main.me.pos + Vector2(8, 8)
 	var viewport: Vector2 = main.get_global_transform_with_canvas() * world
 	var screen: Vector2 = root.get_screen_transform() * viewport
+	if framed():
+		var view: Rect2 = main.phone.L["view"]
+		var k := float(main.phone.L.get("k", 1))
+		screen = root.get_screen_transform() * (view.position + viewport * k)
 	await position_pointer(screen, viewport, world)
 	pointer_event("touch", screen, true)
 	pointer_event("touch", screen, false)
@@ -350,16 +366,28 @@ func pad_control(size: Vector2i, direction: Vector2i, action: String) -> void:
 	place_initial(Vector2i.ZERO, Vector2i(11, 7))
 	set_phone_mode(0, true)
 	await refresh_render()
+	var phone_frame := framed()
 	var viewport: Vector2 = main.touch.PAD + Vector2(direction) * main.touch.ARM
 	var screen: Vector2 = root.get_screen_transform() * viewport
 	var world: Vector2 = main.get_global_transform_with_canvas().affine_inverse() * viewport
-	var preflight := await position_pointer(screen, viewport, world)
+	if phone_frame:
+		var dpad: Rect2 = main.phone.L["dpad"]
+		screen = dpad.get_center() + Vector2(direction) * (dpad.size.x * 0.35)
+		viewport = screen
+		world = main.me.pos + Vector2(8, 8)
+	var preflight := await position_pointer(screen, viewport, world) if not phone_frame else {"setup": "phone frame d-pad", "os_position": xy(screen), "viewport_position": xy(screen), "world_position": xy(world)}
+	if phone_frame:
+		Input.warp_mouse(screen)
+		await wait_frames(4)
 	var start: Vector2i = main.me.tile
 	var position_before: Vector2 = main.me.pos
 	witness.events.clear()
 	witness.observing = true
 	pointer_event("touch", screen, true)
-	check(main.touch.held == action and Input.is_action_pressed(action), "D-pad press did not hold the requested direction")
+	if phone_frame:
+		check(Input.is_action_pressed(action), "D-pad press did not hold the requested direction")
+	else:
+		check(main.touch.held == action and Input.is_action_pressed(action), "D-pad press did not hold the requested direction")
 	check(main.walk_to.is_empty(), "D-pad press leaked into tap-to-walk")
 	for frame in 10:
 		main._process(DT)
@@ -381,7 +409,7 @@ func pad_control(size: Vector2i, direction: Vector2i, action: String) -> void:
 			leaked = true
 	check(not leaked, "Emulated D-pad click reached the world tap handler")
 	witness.observing = false
-	pad_checks.append({"case": current_case, "kind": "hold-release", "size": xy(Vector2(size)), "action": action, "direction": xy(Vector2(direction)), "pad_center": xy(main.touch.PAD), "pad_radius": main.touch.PAD_R, "viewport_target": xy(viewport), "screen_target": xy(screen), "world_target": xy(world), "pointer_preflight": preflight, "start": xy(Vector2(start)), "after": state(), "moved_while_held": moved_while_held, "released": main.touch.held == "", "world_tap_leaked": leaked, "input_events": witness.events.duplicate(true)})
+	pad_checks.append({"case": current_case, "kind": "hold-release", "size": xy(Vector2(size)), "action": action, "direction": xy(Vector2(direction)), "phone_frame": phone_frame, "pad_center": xy(main.touch.PAD), "pad_radius": main.touch.PAD_R, "viewport_target": xy(viewport), "screen_target": xy(screen), "world_target": xy(world), "pointer_preflight": preflight, "start": xy(Vector2(start)), "after": state(), "moved_while_held": moved_while_held, "released": (main.phone.held_action == "" if phone_frame else main.touch.held == ""), "world_tap_leaked": leaked, "input_events": witness.events.duplicate(true)})
 	await shot(current_case.replace("/", "-") + "-released", size)
 	write_report()
 
@@ -390,18 +418,30 @@ func pad_hide_releases(size: Vector2i) -> void:
 	place_initial(Vector2i.ZERO, Vector2i(11, 7))
 	set_phone_mode(1, false)
 	await refresh_render()
+	var phone_frame := framed()
 	var viewport: Vector2 = main.touch.PAD + Vector2.UP * main.touch.ARM
 	var screen: Vector2 = root.get_screen_transform() * viewport
 	var world: Vector2 = main.get_global_transform_with_canvas().affine_inverse() * viewport
-	var preflight := await position_pointer(screen, viewport, world)
+	if phone_frame:
+		var dpad: Rect2 = main.phone.L["dpad"]
+		screen = dpad.get_center() + Vector2(0, -dpad.size.y * 0.35)
+		viewport = screen
+		world = main.me.pos + Vector2(8, 8)
+	var preflight := await position_pointer(screen, viewport, world) if not phone_frame else {"setup": "phone frame d-pad", "os_position": xy(screen), "viewport_position": xy(screen), "world_position": xy(world)}
+	if phone_frame:
+		Input.warp_mouse(screen)
+		await wait_frames(4)
 	pointer_event("touch", screen, true)
 	check(Input.is_action_pressed("move_up"), "Always-visible pad did not activate")
 	await shot(current_case.replace("/", "-") + "-held", size)
+	if phone_frame:
+		pointer_event("touch", screen, false)
 	set_phone_mode(2, true)
 	var released: bool = not Input.is_action_pressed("move_up") and main.touch.held == "" and main.touch.pad_finger == -1
 	check(released and not main.touch.visible, "Hiding phone controls failed to release the held direction")
-	pointer_event("touch", screen, false)
-	pad_checks.append({"case": current_case, "kind": "hide-release", "size": xy(Vector2(size)), "released": released, "visible": main.touch.visible, "pad_center": xy(main.touch.PAD), "pad_radius": main.touch.PAD_R, "viewport_target": xy(viewport), "screen_target": xy(screen), "world_target": xy(world), "pointer_preflight": preflight})
+	if not phone_frame:
+		pointer_event("touch", screen, false)
+	pad_checks.append({"case": current_case, "kind": "hide-release", "size": xy(Vector2(size)), "phone_frame": phone_frame, "released": released, "visible": main.touch.visible, "pad_center": xy(main.touch.PAD), "pad_radius": main.touch.PAD_R, "viewport_target": xy(viewport), "screen_target": xy(screen), "world_target": xy(world), "pointer_preflight": preflight})
 	await shot(current_case.replace("/", "-") + "-hidden", size)
 
 func write_report() -> void:

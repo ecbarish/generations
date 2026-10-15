@@ -788,7 +788,7 @@ func _run() -> void:
 		if main.card.visible:
 			break
 	check(main.card.visible and main.card.id == "ripplet", "tapping Ripplet walks you up to it and opens its page")
-	check(main.card.sel == 1, "the page starts on Not yet (no accidental choice)")
+	check(main.card.sel == 0, "the page starts on Choose, the confirm")
 	main.card._close(false)
 	check(not main.card.visible and main.partner == null, "Not yet closes the page and chooses nothing")
 	main._meet(main.starters[2])
@@ -1477,9 +1477,9 @@ func _run() -> void:
 	check(main.bubble_text.label_settings.font_size == 8 and not AudioServer.is_bus_mute(AudioServer.get_bus_index("Music")), "and back to normal")
 	check(main.FLOOR.resource_path.contains("/wild/") and main.NATURE.resource_path.contains("/wild/") and main.HOUSE.resource_path.contains("/wild/") and main.WATER.resource_path.contains("/wild/"), "the ground, trees, houses and water are Wildbond's own tiles (assets/env/wild), not the pack Starfall uses")
 	main.turn_card.check(Vector2(390, 844))
-	check(main.turn_card.visible and main.get_tree().paused, "a phone held upright gets the \"turn your phone sideways\" card, and the game holds still")
+	check(not main.turn_card.visible and not main.get_tree().paused, "an upright phone keeps playing; there is no turn-your-phone page")
 	main.turn_card.check(Vector2(844, 390))
-	check(not main.turn_card.visible and not main.get_tree().paused, "turned sideways, the card goes and the game carries on")
+	check(not main.turn_card.visible and not main.get_tree().paused, "turned sideways, the game carries on with no turn page")
 	# ---- How to play, and solid roofs (Evan's feedback, 2026-10-09)
 	main.touch.touched = false                    # (the pad checks above touched the screen)
 	tick(0.05)
@@ -1916,6 +1916,8 @@ func _run() -> void:
 	preload("res://tests/door_taps.gd").run(main, check)
 	preload("res://tests/wbl1_menu.gd").run(main, check)
 	preload("res://tests/wbl_battle_start.gd").run(main, check)
+	preload("res://tests/phone_layout.gd").run(main, check)
+	preload("res://tests/north_roads.gd").run(main, check)
 	# ---- the done line
 	print("Wildbond Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
