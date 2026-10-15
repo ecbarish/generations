@@ -757,12 +757,16 @@ document.querySelector('#run').onclick = async () => {
       check('LR-POLISH: feeding the fox answers in the same instant: a sound, hearts, a hop and a bouncing bowl', LR.tones > t0 && S().fx.filter(f => f.kind === 'heart').length >= h0 + 2 && S().baby.perk === S().t && S().bowl.pop > 0);
       LR.advance(.5); const t1 = LR.tones; tap(L().bowl); check('LR-POLISH: tapping the bowl again still answers (a sound and a bounce) and queues nothing', LR.tones > t1 && S().bowl.pop > 0 && S().bowl.food > 0 && S().acts === 0);
       LR.advance(6); check('LR-POLISH: the meal still ends once, with the usual cheer', S().acts === 1 && S().bowl.food === 0 && S().baby.act === null && S().bowl.pop === 0); }
-    // signs take turns to wiggle when nobody is touching anything
-    { const SG = ['sign', 'wsign', 'ksign', 'tsign', 'dsign']; LR.newVisit(); LR.advance(.1); const seen = new Set(); for (let i = 0; i < 80; i++) { LR.advance(.5); for (const k of SG) if (S()[k].shake > 1.5) seen.add(k); }
-      check('LR-POLISH: left alone, every sign takes a turn to wiggle (all five within 40 seconds)', seen.size === 5);
+    // signs take turns to give one small wiggle when nobody is touching anything
+    { const SG = ['sign', 'wsign', 'ksign', 'tsign', 'dsign']; LR.newVisit(); LR.advance(.1); const seen = new Set(); let frames = 0, big = 0; for (let i = 0; i < 200; i++) { LR.advance(.25); let any = false; for (const k of SG) { if (S()[k].shake > .5) seen.add(k); if (S()[k].shake > 0) any = true; if (S()[k].shake > 1) big++; } if (any) frames++; }
+      check('LR-POLISH: left alone, every sign takes a turn to wiggle (all five within 50 seconds)', seen.size === 5);
+      check('LR-POLISH: the wiggle is gentle: no bigger than a tap, one every 9 seconds, and a sign moves in under a third of the frames', LR.SIGN_WIGGLE_GAP >= 8 && big === 0 && frames / 200 < .3);
+      const mm = frame.contentWindow.matchMedia; frame.contentWindow.matchMedia = q => ({ matches: /reduce/.test(q), addEventListener() {}, addListener() {} });
+      LR.newVisit(); LR.advance(.1); let moved = false; for (let i = 0; i < 200; i++) { LR.advance(.25); for (const k of SG) if (S()[k].shake > 0) moved = true; } frame.contentWindow.matchMedia = mm;
+      check('LR-POLISH: with reduced motion the signs do not wiggle on their own', !moved);
       LR.newVisit(); LR.advance(.1); let still = true; for (let i = 0; i < 30; i++) { tap({ x: L().home.x, y: L().ground * .2 }); LR.advance(1); for (const k of SG) if (S()[k].shake > 0) still = false; }
       check('LR-POLISH: while someone is playing the signs stay still', still);
-      LR.newVisit(); LR.advance(.1); tap(L().tsign); LR.advance(.1); let in2 = true; for (let i = 0; i < 30; i++) { LR.advance(1); if (S().sign.shake > 1.5 || S().wsign.shake > 1.5) in2 = false; }
+      LR.newVisit(); LR.advance(.1); tap(L().tsign); LR.advance(.1); let in2 = true; for (let i = 0; i < 30; i++) { LR.advance(1); if (S().sign.shake > .5 || S().wsign.shake > .5) in2 = false; }
       check('LR-POLISH: inside a toy room the ranch signs do not wiggle', in2); tap(L().dough.barn); }
     // bedtime cues last, and the dusk fade is slow
     { LR.setRoutine(true); LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(LR.ROUTINE_WAIT - 3);
