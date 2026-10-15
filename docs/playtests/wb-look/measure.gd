@@ -17,9 +17,13 @@ func reset(seed_value: int, heritage: String, starter: String) -> void:
 	game.music_on = false
 	game.battle.set_process(false)
 	game.get_tree().paused = false
-	game.my_look = { "name": "Rowan", "heritage": heritage }
+	game.my_look = game.LOOKS.tamer.duplicate(true)
+	game.my_look.name = "Rowan"
+	game.my_look.heritage = heritage
 	game._set_map("thornwood_route")
 	game.stage = "free"
+	game.painted = true
+	game.spilled = true
 	game.rng.seed = seed_value
 	game.team = [game.R.make(starter, 5, { "rar": 1 }, game.rng)]
 	game.badges = []
@@ -37,13 +41,21 @@ func reset(seed_value: int, heritage: String, starter: String) -> void:
 	game.me.tile = Vector2i(17, 12)
 	game.me.pos = Vector2(game.me.tile) * game.TILE
 	game.me.path.clear()
+	game.partner = game.starters.filter(func(m): return m.id == starter)[0]
+	game.partner.where = game.map_name
+	game.partner.tile = game.me.tile + Vector2i.DOWN
+	game.partner.pos = Vector2(game.partner.tile) * game.TILE
+	game.partner.path.clear()
 	game.walk_to.clear()
 	game.bag = { "berries": 0, "coins": 120, "lures": 5 }
 	game.trans_t = -1.0
 	for page in [game.battle, game.card, game.title, game.howto, game.menu, game.register, game.book, game.shop, game.lessons, game.turn_card]:
 		page.visible = false
 	game.battle.state = "off"
-	game.cam.position = game.me.pos
+	game.cam.position = game.me.pos + Vector2(8, 8)
+	game.cam.reset_smoothing()
+	game.cam.force_update_scroll()
+	game.place_t = 4.0
 	game.fade_in = 1.0
 	game.fade_rect.color.a = 0.0
 	game.rng.seed = seed_value
@@ -170,6 +182,8 @@ func capture(name: String, info: Dictionary) -> void:
 		game._thumbs_tick()
 		game._update_ui()
 		game.queue_redraw()
+		game.colour_layer.queue_redraw()
+		game.canopy.queue_redraw()
 		game.battle.queue_redraw()
 		await process_frame
 	await RenderingServer.frame_post_draw

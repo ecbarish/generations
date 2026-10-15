@@ -16,6 +16,7 @@ assert re.search(r'^WB-LOOK early pace: \d+ passed, 0 failed\. Engine: .+$', (ro
 summary = {'baseline_sha': base['source_sha'], 'head_sha': now['source_sha'], 'engine': now['engine'], 'comparisons': []}
 for name, data in [('baseline', base), ('current', now)]:
     assert not data['failures'], data['failures']
+    assert not re.search(r'(^|\n)(SCRIPT ERROR:|ERROR:)', (root / name / 'run.log').read_text()), 'Runtime errors invalidate rendered evidence.'
     assert len(data['rows']) == 600 and all(row['battle_opened'] for row in data['rows'])
     assert {(r['heritage'], r['starter'], r['seed']) for r in data['rows']} == {(h, s, n) for h in ['farm', 'wander'] for s in ['cindercub', 'ripplet', 'mosshog'] for n in range(1, 101)}
     assert len(data['story_cadence']) == 400
