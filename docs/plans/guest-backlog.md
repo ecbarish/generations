@@ -24,14 +24,163 @@ Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" 
 
 Checked against the merged pulls and the latest #373 comments on 2026-10-15.
 
-- **Grok:** WBW-4 (now), LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15, WBW-17. Open priority rows left: 8.
-- **dot:** WBW-5 (now, #501), NM-G3 (#499), WBW-8, WBW-10, WBW-12, WBW-14, WBW-16, WBW-18. Open priority rows left: 8.
+- **Grok:** WBW-4 (now, already in progress), then LR-G2, LB-G13, LB-G14, LR-G3, NM-G8, then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15, WBW-17. Open priority rows left: 13.
+- **dot:** WBW-5 (now, #501) and NM-G3 (#499) are already in progress. Then NM-G6, LB-G11, LB-G12, NM-G9, NM-G7, then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16, WBW-18. Open priority rows left: 13.
 - There is no LB-G4b row. A row that is merged, or already in review, is done for this queue. Do not start a second copy.
 - **LB-PAL** is unassigned. It is not on either guest's ready list until Game Art Director posts the merge spec.
 
+### Batch 3
+
+Side Games Dev Lead drafted these on 2026-10-15. Launch games come before the Wildbond rows, and these rows sit below work that is already in progress. In these rows, "I", "mine" and "my" mean Side Games Dev Lead. The row text below is copied from the spec.
+
+LR-G2 and LR-G3 both go to Grok. They edit the same files, and dot cannot take browser screenshots. The spec names LR-G3 for dot and NM-G7 for Grok. This queue gives LR-G3 to Grok and NM-G7 to dot.
+
+Each bundle starts by re-checking its items on current main and dropping any that no longer reproduce, with a note in the pull. The bundles are LR-G2, LR-G3 and NM-G8.
+
+The held toy pulls #404 to #412 will conflict with LR-G2 and LR-G3, and that is expected. They stay on hold. The open ones are #404, #409, #411 and #412, and they edit `games/little-ranch/game.js`. Do not wait for them.
+
+### Dev lead keeps
+
+- Night Market reset and new game
+- Mooncake and cart balance
+- NM-HUB
+- The district move, since it is a save change
+- All Lantern Bowl wiring into `game.js` and `model.js`, and the season save design
+
+### LR-G2. Layout and depth bundle: the fox and the ball, signs, bubbles, Pebblit, puddles
+
+**Status:** Grok, ready now, after WBW-4. Merge only after Playtester confirms it does not regress the 8/10 build, because Little Ranch launches on 16 October. Start by re-checking each item on main and drop any that no longer reproduce.
+
+- **Guest:** Grok. This bundle is mostly screenshots, and Grok can run Chromium.
+- **Scope:** Fix the five layout and draw-order problems from Playtester's 8/10 report and Reviewer's LRL-11 phone notes, in one PR.
+  1. **The fox hides the ball at the start and after every roll.** This is the top item. Draw the ball in front of the fox, or keep the fox's resting spot clear of where `ballSpot()` puts the ball.
+  2. **The five signs overlap in portrait.** Space `sign`, `wsign`, `ksign`, `tsign` and `dsign` so no two tap zones or drawings overlap on tall screens. Wide layouts stay as they are.
+  3. **The bedtime toothbrush and cup bubble covers the hat basket and the bowl.** Move the bubble so it clears both.
+  4. **Pebblit walks over the hat basket in landscape.** Keep its path off `L.basket`.
+  5. **Puddles sit behind the ball or the bush.** Place `L.puddles` so they are not hidden, or draw them above the ground layer, and keep their tap zones clear.
+- **Files:** `games/little-ranch/game.js` (layout in the `L.*` setup, `ballSpot()`, the friend's path and the draw order only), `tests/little-ranch.html` (new checks), and `docs/playtests/lr-layout-depth/` (screenshots and a README). Do not change the toys, timings, sounds or the settings key.
+- **Done check:** new checks in `tests/little-ranch.html` show that the ball's rectangle is never covered by the fox at the start or after a roll, that no two sign tap circles overlap at 390x844 and 360x780, that the bedtime bubble does not intersect the basket or the bowl, that Pebblit's path never enters the basket circle at 844x390, and that both puddles are visible and not covered by the ball or the bush. The existing Little Ranch checks still pass, and CI is green. Before and after screenshots at 390x844, 844x390, 360x780 and 1024x594 go to GAD for review. The only stored value is still `little-ranch-settings-v1`.
+- **What I wire later:** nothing. Playtester re-checks the layout on a phone.
+- **Dependencies:** none.
+
+### LB-G13. Headless full-season simulation test (LB-SEASON)
+
+**Status:** Grok, ready now, after LR-G2.
+
+- **Guest:** Grok.
+- **Scope:** Write a test that plays whole seasons headlessly, using `season.json`, `roster.json`, `standings.js` and `progression.json` from main. Each match uses a simple score model written inside the test, which is not the game's engine. It proves that the season pieces fit together before I build LB-SEASON.
+- **Files:** create `tests/lantern-bowl-season-sim.cjs` and `docs/playtests/lb-season-sim/README.md`. Edit nothing else. Do not import `lineup.js` or `training.json`, because they may not have merged yet.
+- **What it does:** for each seeded season, play the 30 fixtures (each club's strength is the average of its roster ratings, and the winner is drawn with a logistic on the difference), build the table with `LanternBowlStandings.table`, the bracket with `bracket`, play the semis and the final with `advance`, then age and level every player once with `progression.json`'s rules. Run 200 seasons.
+- **Done check:** `node tests/lantern-bowl-season-sim.cjs` passes, and it checks that every season has 10 weeks and 30 games, each club plays 10, the bracket is valid with a champion, the strongest club (`harrowgate`) wins the Lamplight Cup more often than the weakest (`fernmoor`) but less than 70% of the time, every rating stays within 35 to 90 after five chained seasons, and the same seed gives the same result. The README has the title-share table. CI is green.
+- **What I wire later:** I use the results to tune LB-SEASON, and I add this check to `tests/lantern-bowl.html` when the season is wired.
+- **Dependencies:** none.
+
+### LB-G14. Dilemma picker, headless (LB-SEASON)
+
+**Status:** Grok, ready now, after LB-G13.
+
+- **Guest:** Grok, who wrote the dilemma cards (LB-G6).
+- **Scope:** Write a pure module that chooses which card from `dilemmas.json` to show after a match, in a bye week or before a game, with no repeats in a season and a fair spread of roles. It is seeded, with no save of its own.
+- **Files:** create `games/lantern-bowl/dilemma-pick.js` and `tests/lantern-bowl-dilemma-pick.cjs`. Do not edit `dilemmas.json`.
+- **Shape:** a UMD file exposing `LanternBowlDilemmaPick`. `pick(cards, { when, used, rng })` returns one card whose `when` matches and whose `id` is not in `used`, or `null` if none is left. `used` is a plain array of card IDs that the caller keeps. It prefers a role it hasn't shown recently. `apply(card, choiceIndex, state)` returns a new effects summary (`morale`, `points`, `fans`, `owner`) and does not change the `state` it was given.
+- **Done check:** `node tests/lantern-bowl-dilemma-pick.cjs` passes, and it checks that each `when` only gets matching cards, no card repeats within a ten-week season, the result is `null` when that `when` is used up, the same seed gives the same sequence, `apply` returns the card's exact effects and leaves its input untouched, and a bad `when` throws. CI is green.
+- **What I wire later:** LB-SEASON shows the picked card and stores `used` and the effects in the season save, which goes to Evan through Director.
+- **Dependencies:** none.
+
+### LR-G3. Toys and timing bundle: cutter tint, head paint, shed pet, bedtime waits, hints
+
+**Status:** Grok, after LR-G2 merges. The spec names dot. This queue gives it to Grok, because LR-G2 and LR-G3 edit the same files and dot cannot take browser screenshots. Same Playtester gate as LR-G2: merge only after Playtester confirms it does not regress the 8/10 build. Little Ranch launches on 16 October. Start by re-checking each item on main and drop any that no longer reproduce. The held toy pulls #404 to #412 will conflict, and that is expected.
+
+- **Guest:** dot. **Start after LR-G2 merges.** Both edit `games/little-ranch/game.js` and `tests/little-ranch.html`. Merge `main` normally when you start, and do not rebase onto LR-G2's branch.
+- **Scope:** Fix five toy and timing items in one PR.
+  1. **The cutter ignores the dough tint and makes a peach bunny.** The stamped dough baby should use `doughCol()`, which is the tinted colour.
+  2. **Head paint tints one eye.** Painting the head should colour the head, not an eye. Keep the eyes their normal colours.
+  3. **The paint-shed pet is a white cat, but the yard pet is the fox (Cindercub).** Draw the shed outline as Cindercub's shape, so what you paint is the pet you see in the yard. Paint already comes back to the ranch through `st.paint`, which is visit memory and not a save, and bedtime washes it off. Check that a painted pet shows its colours in the yard. If it does not, fix it in `st.paint`. Do not add a stored value.
+  4. **Bedtime step waits.** `ROUTINE_WAIT` is 18 seconds in the code, but the README says about 8. Set it to 9 seconds (inside the 8 to 10 that suits toddlers), and make the README's bedtime line match.
+  5. **The wagon horse and the barn door are a little hidden for toddlers.** Add them to the idle-hint glow, the way the other ranch things get it: the wagon's puller once you are inside the wagon place, and the barn door's sign (`dsign`) on the ranch if it hasn't been tried. A hint is enough. Don't move them.
+- **Files:** `games/little-ranch/game.js`, `games/little-ranch/README.md` (the bedtime wait and the new hints), `tests/little-ranch.html`, and `docs/playtests/lr-toys-timing/`.
+- **Done check:** new checks in `tests/little-ranch.html` show that a stamp after tinting uses the tinted colour, that painting the head leaves the eye colours unchanged, that the shed outline matches the yard pet's shape, that `ROUTINE_WAIT` is 9 and the README agrees, that the hint list reaches the wagon's puller and the barn-door sign, and that a painted pet keeps its colours in the yard until bedtime. No new localStorage key is written. Existing checks pass, and CI is green. Screenshots of the cutter, head paint and shed outline go to GAD, because the shed outline is drawing work.
+- **What I wire later:** nothing. Playtester re-checks.
+- **Dependencies:** LR-G2 must merge first (same files).
+
+### NM-G8. Playtester fix bundle: dumpling hold, sideways scroll, walkers on counters, page icon, busier lane
+
+**Status:** Grok, after #499 merges. If it needs `model.js` or a save change, it stops and reports on #373. Start by re-checking each item on main and drop any that no longer reproduce.
+
+- **Guest:** Grok. **Start after #499 merges.** #499 edits `style.css` and `tests/night-market.html`.
+- **Scope:** Fix the guest-safe items from Playtester's Night Market report (7/10) in one PR. None of them needs `model.js` or a save change.
+  1. **"Fold a dumpling" stays active past 12 of 12 before Bo is hired.** By design (#434), the serve button stays, and each serve still pays the hand amount. So keep the button, but stop the hold-to-repeat at the vendor's count before the hire, and change the line under the bar to point at the Ask button. This is in `game.js` (`render` and the hold handler).
+  2. **A horizontal scrollbar may appear.** `lane.js` sets the lane's wrapper to `document.documentElement.clientWidth` pixels inside the padded `.window`. Make sure the page never scrolls sideways at any width from 320 to 1920 pixels (`lane.js` sizing or `style.css` `.lane`).
+  3. **Walker silhouettes overlap the counter fronts.** Draw the passers-by on a lane line in front of or below the counters (`drawWalker` and its y-position in `lane.js`), so they don't cut across a counter.
+  4. **favicon.ico returns a 404.** Add `<link rel="icon" href="../../icons/arcade.svg">` to `games/night-market/index.html`, as Little Ranch did. `icons/arcade.svg` is on main.
+  5. **The lane does not get busier from 30 to 66 stalls.** `walkerCap()` in `lane.js` tops out at 2. Let it rise with the total stalls owned, for example 3 from 30, 4 from 50 and 5 from 66, and keep 0 under reduced motion.
+- **Files:** `games/night-market/game.js`, `games/night-market/lane.js`, `games/night-market/style.css`, `games/night-market/index.html` (the game's page only), `tests/night-market.html`, and `docs/playtests/nm-playtest-fixes-2/`. Do not edit `model.js`, the save, or the root `index.html`.
+- **Done check:** new checks in `tests/night-market.html` show that a hold before the hire stops at the vendor's count and the hint names the Ask button, that `document.documentElement.scrollWidth <= clientWidth` at 320, 390, 844, 1366 and 1920 widths, that no walker's box intersects a counter box, that the page requests the icon and no `favicon.ico`, and that `walkerCap` gives at least 3, 4 and 5 at 30, 50 and 66 owned and 0 under reduced motion. Existing checks pass, old saves load, and CI is green. Lane screenshots go to GAD.
+- **What I wire later:** nothing.
+- **Dependencies:** #499 must merge first (same CSS and test page).
+
+### NM-G6. Third district data, on #483's schema
+
+**Status:** dot, ready now, after NM-G3.
+
+- **Guest:** dot, who wrote `districts.json` and the sim.
+- **Scope:** Add a third district as a second entry in `districts.json`, with six new stall types and its own customers, and change the sim so it validates and paces each district in turn. Follow my NM-G2 ruling (comment 6183588332): the first type is open on arrival, the chain opens each later type at ten of the one before it, a permit opens the next locked type early, and the favourite vendor's stall type arrives unlocked with one owned. Set the third district's `moveAtLifetime` to 4,000,000, the second permit in §8.3's `floor(sqrt(lifetime / 1e6))`.
+- **Files:** `games/night-market/districts.json` (append one district) and `tools/night-market-district-sim.cjs` (replace the "only one district" rule with checks that run for each district). Edit nothing else.
+- **Done check:** `node tools/night-market-district-sim.cjs` passes for both districts. Stall IDs are unique across all three districts, including the first district's `STALLS`. The third district's time to unlock all six types through the chain alone lands in the same 48 to 66 minute band, and its first stall can be bought within 2 minutes of arriving. Every malformed-file case still fails for the right reason. If the rules make a check impossible, change the cost numbers, not the rules, and say so. The PR pastes the table, and CI is green.
+- **What I wire later:** the district move, which changes the save and goes to Evan through Director.
+- **Dependencies:** none.
+
+### LB-G11. Weekly training focus data, on #480's progression.json
+
+**Status:** dot, ready now, after NM-G6.
+
+- **Guest:** dot, who wrote the progression table.
+- **Scope:** Write the weekly training choices as data. Each choice is a focus the player picks between games (passing, running, blocking, pass rush, coverage, kicking, or rest). It adds a small amount of XP toward named rating keys, using the XP and level rules in `progression.json`. Add a validator that simulates a season. No save field is added.
+- **Files:** create `games/lantern-bowl/training.json` and `tests/lantern-bowl-training.cjs`. Do not edit `progression.json`.
+- **Shape:** `schemaVersion: 1` and `focuses`, each with an `id`, a `label` of at most 20 characters, a one-sentence `detail`, `ratings` (one to three of the shared rating keys), `bonusXp` (1 to 4 per player who matches), and `appliesTo` (roster groups from `roster.json`: `qb`, `rb`, `wr`, `te`, `line`, `front`, `backers`, `secondary`, `kicker`). `rest` gives no XP and has `recovery: true` for my fatigue wiring.
+- **Done check:** `node tests/lantern-bowl-training.cjs` passes. It reads `progression.json` and `roster.json` from main, runs one seeded ten-week season for each focus, and checks that every rating stays within 35 to 90, no player passes their age-band `potential` cap, a focused group gains more than an unfocused one but no more than one extra level per season, every `appliesTo` group and rating key exists, and malformed files are rejected. CI is green.
+- **What I wire later:** the training card between games, and storing the choice in the season save, which goes to Evan through Director.
+- **Dependencies:** none.
+
+### LB-G12. Depth chart and auto-lineup, headless (LB-MANAGER)
+
+**Status:** dot, ready now, after LB-G11.
+
+- **Guest:** dot. It bridges dot's roster and playbook data.
+- **Scope:** Write a pure module that picks a club's starters from `roster.json` and turns them into what the engine needs. That means the playbook's roster identities (`qb`, `rb`, `wr[0]`, `wr[1]`, `te`), the named blockers and rushers for LB-MANAGER, and the old team-level numbers (`line`, `rush`, `cover`, `tackle`, `kick`) that `model.js` reads today. It changes no game file.
+- **Files:** create `games/lantern-bowl/lineup.js` and `tests/lantern-bowl-lineup.cjs`. Edit nothing else.
+- **Shape:** a UMD file exposing `LanternBowlLineup`. `starters(club, opts)` returns the 23 starters by group, best first, by a per-slot weighting that is written in the file (for example, a QB by `throw`, then `speed`). `opts.out` is a list of player IDs who can't play, and the next best player fills in, even from another group if one group runs out. `teamNumbers(starters)` returns `{ line, rush, cover, tackle, kick }` as rounded averages within 35 to 90. `playbookSlots(starters)` returns `{ qb, rb, wr: [a, b], te }`.
+- **Done check:** `node tests/lantern-bowl-lineup.cjs` passes, for all six clubs in `roster.json`: 23 unique starters, the kept names in their slots when nobody is out, a correct substitute when a starter is out, team numbers within 35 to 90 that rise when a better player starts, the same input always giving the same output, and a clear error for an unknown group. CI is green.
+- **What I wire later:** LB-MANAGER replaces the team-level numbers in `model.js` with this module's output and uses `playbookSlots` for the playbook.
+- **Dependencies:** none.
+
+### NM-G9. Willow Quay vendor tales
+
+**Status:** dot, ready now, after LB-G12.
+
+- **Guest:** dot, who named the Willow Quay vendors.
+- **Scope:** Write four tales for each of the six Willow Quay vendors, using the same schema as `vendor-tales.json` and the same milestones (`hired`, `25`, `50`, `100`), so the second district has its own stories. This is data only.
+- **Files:** create `games/night-market/district-tales.json` and `tests/nm-district-tales.cjs`. Do not edit `vendor-tales.json` or `districts.json` (NM-G6 edits `districts.json`).
+- **Shape:** `schemaVersion: 1` and `districts: { "willow-quay": { <stallId>: [4 tales] } }` for `chestnut`, `ribbon`, `soup`, `kite`, `flower` and `music`. Each tale has `at`, a `title` of at most 32 characters, and a `text` of two or three sentences and at most 280 characters, naming its vendor and matching that vendor's habit in `districts.json` (for example, Lin saves the warmest cone for the last ferry worker).
+- **Done check:** `node tests/nm-district-tales.cjs` passes. It reads the Willow Quay stall IDs and vendor names from `districts.json` on main and checks every stall, every `at`, the lengths, that each tale names its vendor, and that malformed files are rejected. Calm, child-safe, original text. CI is green.
+- **What I wire later:** the Tales list for the second district, once the district move exists.
+- **Dependencies:** none. It reads only the first district entry, which NM-G6 does not change.
+
+### NM-G7. Per-tale art prompts for GAD, text only
+
+**Status:** dot, ready now, after NM-G9. The spec names Grok. This queue gives it to dot. Game Art Director reviews it.
+
+- **Guest:** Grok, who wrote the tales (NM-G1).
+- **Scope:** Write a short illustration prompt for each of the 24 tales in `games/night-market/vendor-tales.json`, so GAD can plan one small picture per tale. This is text only. No images are made in this PR.
+- **Files:** create `docs/art/night-market-tale-prompts.md`. Edit nothing else. Do not edit #498's `night-market-vendor-prompts.md`. If #498 has merged by then, link it for each vendor's look. If it hasn't, describe the vendor from `model.js`'s habit line.
+- **Content:** one entry per tale, in the file's order, with the stall ID, the `at` value and the tale title, then a prompt of at most 50 words that shows the tale's moment. Use the house art rules (ink outline, dusk and lamplight palette, real proportions, `docs/art/README.md`). Add a size note for a small card at the lane's pixel scale. No real people, no brands, and nothing copied from another game.
+- **Done check:** 24 entries that match `vendor-tales.json` exactly by stall, `at` and title (a short note in the PR says how this was checked), every prompt is 50 words or fewer, and GAD reviews the file. CI is green.
+- **What I wire later:** nothing directly. GAD uses it for tale art, and any art PR gets GAD's review.
+- **Dependencies:** none.
+
 ### WBW-7 to WBW-12
 
-Wildbond & Starfall Dev Lead scoped these on 2026-10-15. Grok takes WBW-7, WBW-9 and WBW-11 after WBW-4 and LR-G1. Dot takes WBW-8, WBW-10 and WBW-12 after WBW-5. NM-G3 (#499) stays dot's next row after WBW-5, because that pull is already claimed. The spec below is copied as written.
+Wildbond & Starfall Dev Lead scoped these on 2026-10-15. They come after the batch 3 launch rows. Grok takes WBW-7, WBW-9 and WBW-11 after LR-G1. Dot takes WBW-8, WBW-10 and WBW-12 after NM-G7. The spec below is copied as written.
 
 None of these depends on another.
 
@@ -631,7 +780,7 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ## Grok, now
 
-Grok's current task is WBW-4, Answering Ways. It was claimed on #373. No pull is open yet. Then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15 and WBW-17. Open priority rows left: 8.
+Grok's current task is WBW-4, Answering Ways. It was claimed on #373. No pull is open yet. After that, launch games come first: LR-G2 (ready now), LB-G13, LB-G14, LR-G3 (after LR-G2 merges) and NM-G8 (after #499 merges). Then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15 and WBW-17. Open priority rows left: 13. LR-G2 and LR-G3 both belong to Grok. Merge each only after Playtester confirms it does not regress the 8/10 build, because Little Ranch launches on 16 October. LB-PAL is not on this list.
 
 In review, counted done for this queue, and not a wait: LB-G7 is #495, NM-G4 is #498, and NM-G5 is #500.
 
@@ -652,7 +801,7 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, now
 
-Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499), WBW-8, WBW-10, WBW-12, WBW-14, WBW-16 and WBW-18. The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. Open priority rows left: 8.
+Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499). The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. After that in-progress work, launch games come first: NM-G6, LB-G11, LB-G12, NM-G9 and NM-G7. Then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16 and WBW-18. Open priority rows left: 13.
 
 In review, counted done for this queue, and not a wait: LB-G10 is #496.
 
@@ -688,7 +837,8 @@ These stay off this backlog. Do not claim them.
 - LB-GAMEFLOW stays with Side Games Dev Lead. LB-FEEL, LB-MANAGER and LB-SEASON integration stays with Side Games Dev Lead, and their data pieces (LB-G1 to LB-G6) are now guest rows in Priority rows above. The LB-SEASON save-format change is not a guest row.
 - Wildbond fix bundle 2 merged as #458. Do not reopen it.
 - LR-TOY-POLISH is the kitchen bowl, the console 404, and sign tap responses. Side Games Dev Lead owns it.
-- LR19 to LR22 are on hold.
+- LR19 to LR22 are on hold. The held toy pulls #404 to #412 will conflict with LR-G2 and LR-G3, and that is expected.
+- Dev lead keeps the Night Market reset and new game, Mooncake and cart balance, NM-HUB, the district move, and all Lantern Bowl wiring into `game.js` and `model.js` plus the season save design.
 - There is no new Realmbound work.
 - NM-HUB stays with Side Games Dev Lead.
 - NM-FIX-7 and LRL-11 are Playtester sessions, not build pulls.
