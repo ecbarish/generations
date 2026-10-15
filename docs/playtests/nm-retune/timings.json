@@ -1,0 +1,847 @@
+{
+  "kind": "deterministic simulation; seconds are simulated, not human playtime",
+  "durationSec": 7200,
+  "baseline": {
+    "oldSaveRoundTrip": true,
+    "source": "5e5a3893a0478a7aa4816348c1dba85cbd7a6829",
+    "modelSha256": "510ca108fea7ffb5088aefccf7434d55a854d30004a5ed259a1cc337b092cd25",
+    "stalls": [
+      {
+        "id": "tea",
+        "base": 5,
+        "growth": 1.07,
+        "rate": 0.5,
+        "serves": 25,
+        "hand": 1
+      },
+      {
+        "id": "dumpling",
+        "base": 60,
+        "growth": 1.08,
+        "rate": 4,
+        "serves": 12,
+        "hand": 2
+      },
+      {
+        "id": "lantern",
+        "base": 720,
+        "growth": 1.09,
+        "rate": 30,
+        "serves": 10,
+        "hand": 4
+      },
+      {
+        "id": "mooncake",
+        "base": 9000,
+        "growth": 1.1,
+        "rate": 250,
+        "serves": 8,
+        "hand": 8
+      },
+      {
+        "id": "incense",
+        "base": 130000,
+        "growth": 1.11,
+        "rate": 2200,
+        "serves": 8,
+        "hand": 16
+      },
+      {
+        "id": "stories",
+        "base": 2200000,
+        "growth": 1.12,
+        "rate": 22000,
+        "serves": 6,
+        "hand": 40
+      }
+    ],
+    "profiles": [
+      {
+        "longestPurchaseGapBeforeMillion": 3,
+        "profile": "active",
+        "hireAt": [
+          25,
+          51,
+          112,
+          209,
+          473,
+          1143
+        ],
+        "tea25": 65,
+        "million": 485,
+        "snapshots": {
+          "600": {
+            "income": 9018,
+            "lifetime": 1920957.5,
+            "owned": [
+              132,
+              85,
+              48,
+              17,
+              0,
+              0
+            ]
+          },
+          "1800": {
+            "income": 115576,
+            "lifetime": 68832907.5,
+            "owned": [
+              182,
+              129,
+              86,
+              52,
+              22,
+              0
+            ]
+          },
+          "3600": {
+            "income": 628272,
+            "lifetime": 765824279.5,
+            "owned": [
+              216,
+              159,
+              113,
+              76,
+              43,
+              15
+            ]
+          }
+        },
+        "purchaseActions": 758
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 39,
+        "profile": "saver",
+        "hireAt": [
+          25,
+          53,
+          99,
+          162,
+          277,
+          480
+        ],
+        "tea25": 67,
+        "million": 394,
+        "snapshots": {
+          "600": {
+            "income": 49394,
+            "lifetime": 6993997,
+            "owned": [
+              63,
+              41,
+              23,
+              17,
+              10,
+              1
+            ]
+          },
+          "1800": {
+            "income": 1700448,
+            "lifetime": 876066657,
+            "owned": [
+              110,
+              83,
+              69,
+              58,
+              41,
+              33
+            ]
+          },
+          "3600": {
+            "income": 2710960,
+            "lifetime": 5049143045,
+            "owned": [
+              134,
+              112,
+              87,
+              74,
+              63,
+              47
+            ]
+          }
+        },
+        "purchaseActions": 601
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 60,
+        "profile": "minute-glance",
+        "hireAt": [
+          25,
+          132,
+          250,
+          368,
+          548,
+          786
+        ],
+        "tea25": null,
+        "million": 669,
+        "snapshots": {
+          "600": {
+            "income": 6200,
+            "lifetime": 516401,
+            "owned": [
+              16,
+              18,
+              14,
+              14,
+              1,
+              0
+            ]
+          },
+          "1800": {
+            "income": 562800,
+            "lifetime": 295320641,
+            "owned": [
+              16,
+              18,
+              14,
+              14,
+              14,
+              24
+            ]
+          },
+          "3600": {
+            "income": 2459200,
+            "lifetime": 3709440641,
+            "owned": [
+              16,
+              18,
+              14,
+              14,
+              69,
+              42
+            ]
+          }
+        },
+        "purchaseActions": 120
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 40,
+        "profile": "hold-saver",
+        "hireAt": [
+          3.23,
+          14.39,
+          41.15,
+          93.95,
+          201.95,
+          405.71
+        ],
+        "tea25": 28,
+        "million": 324.75,
+        "snapshots": {
+          "600": {
+            "income": 93142,
+            "lifetime": 12477192,
+            "owned": [
+              62,
+              41,
+              23,
+              16,
+              10,
+              3
+            ]
+          },
+          "1800": {
+            "income": 1749992,
+            "lifetime": 999239490,
+            "owned": [
+              112,
+              84,
+              70,
+              59,
+              42,
+              34
+            ]
+          },
+          "3600": {
+            "income": 2755992,
+            "lifetime": 5245581494,
+            "owned": [
+              134,
+              113,
+              87,
+              75,
+              63,
+              48
+            ]
+          }
+        },
+        "purchaseActions": 601
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 178,
+        "profile": "milestone-saver",
+        "hireAt": [
+          25,
+          53,
+          171,
+          301,
+          526,
+          949
+        ],
+        "tea25": 67,
+        "million": 519,
+        "snapshots": {
+          "600": {
+            "income": 34816,
+            "lifetime": 2963851,
+            "owned": [
+              58,
+              50,
+              50,
+              25,
+              7,
+              0
+            ]
+          },
+          "1800": {
+            "income": 1276464,
+            "lifetime": 323470045,
+            "owned": [
+              100,
+              64,
+              52,
+              50,
+              27,
+              25
+            ]
+          },
+          "3600": {
+            "income": 1869424,
+            "lifetime": 3572760241,
+            "owned": [
+              106,
+              100,
+              65,
+              54,
+              50,
+              31
+            ]
+          }
+        },
+        "purchaseActions": 603
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 175,
+        "profile": "hold-milestone",
+        "hireAt": [
+          3.23,
+          14.39,
+          94.19,
+          216.95,
+          437.87,
+          861.71
+        ],
+        "tea25": 28,
+        "million": 438.25,
+        "snapshots": {
+          "600": {
+            "income": 39220,
+            "lifetime": 6137550,
+            "owned": [
+              60,
+              50,
+              50,
+              25,
+              9,
+              0
+            ]
+          },
+          "1800": {
+            "income": 1289952,
+            "lifetime": 431546192,
+            "owned": [
+              100,
+              67,
+              54,
+              50,
+              30,
+              25
+            ]
+          },
+          "3600": {
+            "income": 1869424,
+            "lifetime": 3730121220,
+            "owned": [
+              106,
+              100,
+              65,
+              54,
+              50,
+              31
+            ]
+          }
+        },
+        "purchaseActions": 603
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 116,
+        "profile": "tea-only",
+        "hireAt": [
+          25
+        ],
+        "tea25": 69,
+        "million": 2304,
+        "snapshots": {
+          "600": {
+            "income": 436,
+            "lifetime": 117633,
+            "owned": [
+              109,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "1800": {
+            "income": 544,
+            "lifetime": 721413,
+            "owned": [
+              136,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "3600": {
+            "income": 596,
+            "lifetime": 1752417,
+            "owned": [
+              149,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "purchaseActions": 158
+      }
+    ]
+  },
+  "current": {
+    "oldSaveRoundTrip": true,
+    "source": "working-tree",
+    "modelSha256": "9901b93a4b28057dd8ce3b3ab2ce3507136853b63ef214e605cedc2bc7c13780",
+    "stalls": [
+      {
+        "id": "tea",
+        "base": 5,
+        "growth": 1.11,
+        "rate": 0.5,
+        "serves": 25,
+        "hand": 1
+      },
+      {
+        "id": "dumpling",
+        "base": 60,
+        "growth": 1.15,
+        "rate": 0.5,
+        "serves": 12,
+        "hand": 2
+      },
+      {
+        "id": "lantern",
+        "base": 720,
+        "growth": 1.15,
+        "rate": 2.5,
+        "serves": 10,
+        "hand": 4
+      },
+      {
+        "id": "mooncake",
+        "base": 9000,
+        "growth": 1.15,
+        "rate": 5,
+        "serves": 8,
+        "hand": 8
+      },
+      {
+        "id": "incense",
+        "base": 130000,
+        "growth": 1.15,
+        "rate": 50,
+        "serves": 8,
+        "hand": 16
+      },
+      {
+        "id": "stories",
+        "base": 2200000,
+        "growth": 1.15,
+        "rate": 500,
+        "serves": 6,
+        "hand": 40
+      }
+    ],
+    "profiles": [
+      {
+        "longestPurchaseGapBeforeMillion": 80,
+        "profile": "active",
+        "hireAt": [
+          25,
+          56,
+          180,
+          694,
+          3750
+        ],
+        "tea25": 100,
+        "million": 3928,
+        "snapshots": {
+          "600": {
+            "income": 159,
+            "lifetime": 41389,
+            "owned": [
+              57,
+              25,
+              8,
+              0,
+              0,
+              0
+            ]
+          },
+          "1800": {
+            "income": 248,
+            "lifetime": 294585.5,
+            "owned": [
+              75,
+              38,
+              20,
+              2,
+              0,
+              0
+            ]
+          },
+          "3600": {
+            "income": 393,
+            "lifetime": 868678.5,
+            "owned": [
+              84,
+              45,
+              27,
+              9,
+              0,
+              0
+            ]
+          }
+        },
+        "purchaseActions": 194
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 443,
+        "profile": "saver",
+        "hireAt": [
+          25,
+          58,
+          229,
+          582,
+          2446
+        ],
+        "tea25": 97,
+        "million": 3931,
+        "snapshots": {
+          "600": {
+            "income": 151.5,
+            "lifetime": 41273,
+            "owned": [
+              59,
+              17,
+              10,
+              0,
+              0,
+              0
+            ]
+          },
+          "1800": {
+            "income": 261,
+            "lifetime": 293556,
+            "owned": [
+              72,
+              32,
+              20,
+              7,
+              0,
+              0
+            ]
+          },
+          "3600": {
+            "income": 393.5,
+            "lifetime": 861256.5,
+            "owned": [
+              76,
+              34,
+              23,
+              10,
+              2,
+              0
+            ]
+          }
+        },
+        "purchaseActions": 166
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 120,
+        "profile": "minute-glance",
+        "hireAt": [
+          25,
+          132,
+          310,
+          1028,
+          4868
+        ],
+        "tea25": 2220,
+        "million": 5320,
+        "snapshots": {
+          "600": {
+            "income": 24.5,
+            "lifetime": 6869,
+            "owned": [
+              13,
+              11,
+              5,
+              0,
+              0,
+              0
+            ]
+          },
+          "1800": {
+            "income": 75.5,
+            "lifetime": 64563,
+            "owned": [
+              13,
+              29,
+              16,
+              0,
+              0,
+              0
+            ]
+          },
+          "3600": {
+            "income": 243,
+            "lifetime": 384993,
+            "owned": [
+              53,
+              42,
+              24,
+              7,
+              0,
+              0
+            ]
+          }
+        },
+        "purchaseActions": 105
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 326,
+        "profile": "hold-saver",
+        "hireAt": [
+          3.23,
+          14.39,
+          116.15,
+          366.95,
+          1805.87,
+          5964.71
+        ],
+        "tea25": 31,
+        "million": 2886.25,
+        "snapshots": {
+          "600": {
+            "income": 183,
+            "lifetime": 91886.5,
+            "owned": [
+              65,
+              21,
+              15,
+              1,
+              0,
+              0
+            ]
+          },
+          "1800": {
+            "income": 288.5,
+            "lifetime": 468055.5,
+            "owned": [
+              76,
+              34,
+              23,
+              9,
+              0,
+              0
+            ]
+          },
+          "3600": {
+            "income": 543.5,
+            "lifetime": 1444352.5,
+            "owned": [
+              76,
+              34,
+              23,
+              10,
+              5,
+              0
+            ]
+          }
+        },
+        "purchaseActions": 167
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 1352,
+        "profile": "milestone-saver",
+        "hireAt": [
+          25,
+          58,
+          380,
+          654,
+          7145
+        ],
+        "tea25": 97,
+        "million": 3804,
+        "snapshots": {
+          "600": {
+            "income": 157,
+            "lifetime": 39277.5,
+            "owned": [
+              56,
+              25,
+              8,
+              0,
+              0,
+              0
+            ]
+          },
+          "1800": {
+            "income": 312,
+            "lifetime": 288676,
+            "owned": [
+              69,
+              29,
+              25,
+              4,
+              0,
+              0
+            ]
+          },
+          "3600": {
+            "income": 363,
+            "lifetime": 926045,
+            "owned": [
+              75,
+              33,
+              27,
+              9,
+              0,
+              0
+            ]
+          }
+        },
+        "purchaseActions": 188
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 1142,
+        "profile": "hold-milestone",
+        "hireAt": [
+          3.23,
+          14.39,
+          210.11,
+          430.91,
+          5842.91
+        ],
+        "tea25": 31,
+        "million": 2983,
+        "snapshots": {
+          "600": {
+            "income": 177,
+            "lifetime": 87911,
+            "owned": [
+              61,
+              25,
+              12,
+              0,
+              0,
+              0
+            ]
+          },
+          "1800": {
+            "income": 356,
+            "lifetime": 491939,
+            "owned": [
+              74,
+              33,
+              27,
+              8,
+              0,
+              0
+            ]
+          },
+          "3600": {
+            "income": 363,
+            "lifetime": 1265187,
+            "owned": [
+              75,
+              33,
+              27,
+              9,
+              0,
+              0
+            ]
+          }
+        },
+        "purchaseActions": 194
+      },
+      {
+        "longestPurchaseGapBeforeMillion": 484,
+        "profile": "tea-only",
+        "hireAt": [
+          25
+        ],
+        "tea25": 99,
+        "million": 6118,
+        "snapshots": {
+          "600": {
+            "income": 132,
+            "lifetime": 45169.5,
+            "owned": [
+              66,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "1800": {
+            "income": 162,
+            "lifetime": 225343.5,
+            "owned": [
+              81,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "3600": {
+            "income": 178,
+            "lifetime": 533787.5,
+            "owned": [
+              89,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "purchaseActions": 94
+      }
+    ]
+  },
+  "productionChangesAreOnlyGrowthAndRateNumbers": true,
+  "validation": "passed"
+}
