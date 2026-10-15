@@ -1,0 +1,43 @@
+# Additive browser evidence only. Checks still runs every normal suite.
+name: Night Market phone review
+on:
+  pull_request:
+    paths:
+      - 'games/night-market/**'
+      - 'tests/night-market.html'
+      - 'tools/playtest/night-market-phone.cjs'
+      - '.github/workflows/night-market-phone-review.yml'
+permissions:
+  contents: read
+concurrency:
+  group: night-market-phone-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  phone-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      REVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned browser tooling
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Check phone layout and capture the exact head
+        run: node tools/playtest/night-market-phone.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: night-market-phone-${{ github.event.pull_request.head.sha }}
+          path: night-market-phone-review/
+          retention-days: 14
+          if-no-files-found: error
