@@ -421,7 +421,7 @@
   // a happy yum and hearts. The rest: a funny face (carrot: puffed cheeks; lemon: a sour squeeze; broccoli: tongue out) and
   // a giggly sound, never a wrong answer. After three bowls of berries it's full: a cheer, then home to the ranch (one happy thing).
   function enterKitchen() { if (st.mode !== 'play' || st.place !== 'ranch') return; st.place = 'kitchen'; st.ksign.shake = 1; st.sponge.drag = null;
-    st.kitchen = { phase: 'idle', food: null, at: st.t, berries: 0, face: null, wig: FOODS.map(() => 0), giggle: -9 }; sfx('door'); }
+    st.kitchen = { phase: 'idle', food: null, at: st.t, berries: 0, face: null, wig: FOODS.map(() => 0), giggle: -9, bowlPop: 0 }; sfx('door'); }
   function leaveKitchen(fed) { st.place = 'ranch'; sfx('door'); st.kitchen = null;
     if (fed) { const b = st.baby; b.act = null; b.then = null; b.x = L.ksign.x; go(L.home.x, () => { b.act = 'cheer'; b.at = st.t; }); done(); } }
   const foodAt = p => { let best = -1, bd = 1; L.kitchen.foods.forEach((q, i) => { const k = Math.hypot(p.x - q.x, p.y - q.y) / (L.kitchen.fr * 1.25); if (k <= bd) { bd = k; best = i; } }); return best; };
@@ -432,8 +432,9 @@
     const i = foodAt(p); if (i >= 0) return feedKitchen(i);
     if (Math.hypot(p.x - V.baby.x, p.y - (V.baby.y - V.z * 1.1)) <= V.z * 1.1) { k.giggle = st.t; sfx('giggle'); return; }
     fx('spark', p.x, p.y); sfx('note'); }
-  function kitchenUpdate(dt) { const k = st.kitchen, V = L.kitchen, e = st.t - k.at; k.wig = k.wig.map(v => Math.max(0, v - dt * 2.5));
-    if (k.phase === 'fly' && e >= FLY_SECS) { k.phase = 'eat'; k.at = st.t; sfx('munch'); }
+  function kitchenUpdate(dt) { const k = st.kitchen, V = L.kitchen, e = st.t - k.at; k.wig = k.wig.map(v => Math.max(0, v - dt * 2.5)); k.bowlPop = Math.max(0, k.bowlPop - dt * 2.4);
+    if (k.phase === 'fly' && e >= FLY_SECS) { k.phase = 'eat'; k.at = st.t; k.bowlPop = 1; sfx('munch');
+      for (let j = 0; j < 5; j++) { fx('blob', V.bowl.x + (j - 2) * V.bowl.r * .28, V.bowl.y - V.bowl.r * .35); st.fx[st.fx.length - 1].col = k.food === 0 ? '#7a5ad0' : '#ffd03a'; } }
     else if (k.phase === 'eat' && e >= EAT_SECS) { k.phase = 'face'; k.at = st.t; k.face = FOOD_FACES[k.food]; const hx = V.baby.x, hy = V.baby.y - V.z * 1.6;
       if (k.food === 0) { k.berries++; sfx('yum'); for (let j = 0; j < 3; j++) fx('heart', hx + (j - 1) * V.z * .5, hy); } else { sfx('funny', k.food); fx('spark', hx, hy); } }
     else if (k.phase === 'face' && e >= FACE_SECS) { k.face = null; k.food = null; k.at = st.t;
@@ -960,11 +961,15 @@
     cx.fillStyle = '#fff4e0'; cx.fillRect(0, R(V.ty), W, H - R(V.ty)); const cs = Math.max(8, U * .06); cx.fillStyle = 'rgba(230,80,90,.35)';
     for (let y = V.ty, r2 = 0; y < H; y += cs, r2++) for (let x = (r2 % 2) * cs; x < W; x += cs * 2) cx.fillRect(R(x), R(y), R(cs), R(cs));
     cx.fillStyle = '#e8504a'; cx.fillRect(0, R(V.ty), W, Math.max(2, R(U * .015)));
-    // the bowl, and what's in it
-    const B = V.bowl; shadow(B.x, B.y + B.r * .45, B.r * .9);
-    if (k.phase === 'eat' && k.food !== null) drawFood(k.food, B.x, B.y - B.r * .25 + e / EAT_SECS * B.r * .3, V.fr * .6 * (1 - e / EAT_SECS * .7));
+    // the bowl, and the food sitting in it (drawn after the bowl, so a meal is visible)
+    const B = V.bowl, pop = Math.sin(Math.min(1, k.bowlPop) * Math.PI) * k.bowlPop * B.r * .22;
+    shadow(B.x, B.y + B.r * .45, B.r * .9);
+    cx.save(); cx.translate(0, -R(pop));
     cx.fillStyle = '#4fa6e8'; cx.beginPath(); cx.moveTo(R(B.x - B.r), R(B.y - B.r * .2)); cx.lineTo(R(B.x + B.r), R(B.y - B.r * .2)); cx.quadraticCurveTo(R(B.x + B.r * .9), R(B.y + B.r * .55), R(B.x), R(B.y + B.r * .55)); cx.quadraticCurveTo(R(B.x - B.r * .9), R(B.y + B.r * .55), R(B.x - B.r), R(B.y - B.r * .2)); cx.fill();
     ell(B.x, B.y - B.r * .2, B.r, B.r * .16, '#7cc0f4'); for (const dx of [-.5, 0, .5]) ell(B.x + dx * B.r, B.y + B.r * .15, B.r * .08, B.r * .08, '#fff');
+    if (k.phase === 'eat' && k.food !== null) drawFood(k.food, B.x, B.y - B.r * .55, Math.max(V.fr * .72, B.r * .62));
+    if (k.bowlPop > .05) { cx.strokeStyle = `rgba(255,248,220,${k.bowlPop})`; cx.lineWidth = Math.max(2, B.r * .08); cx.beginPath(); cx.ellipse(R(B.x), R(B.y - B.r * .2), R(B.r * (1.05 + (1 - k.bowlPop) * .35)), R(B.r * .2), 0, 0, 7); cx.stroke(); }
+    cx.restore();
     // the four foods (always there: there's always more), and the one hopping to the bowl
     const hint2 = hint();
     V.foods.forEach((q, i) => { const lift = (hint2 && hint2.name === 'food' + i && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.fr * .2 : 0) + Math.abs(Math.sin(st.t * 30)) * k.wig[i] * V.fr * .12;
@@ -1056,17 +1061,19 @@
   }
 
   /* ---------------- touch and mouse ---------------- */
-  const at = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H }; };
+  // A finger's position lives on the touch. The click that follows is synthetic and can sit at 0,0, so it is ignored.
+  const at = e => { const r = cv.getBoundingClientRect(); const src = (e.changedTouches && e.changedTouches[0]) || (e.touches && e.touches[0]) || e; return { x: (src.clientX - r.left) / r.width * W, y: (src.clientY - r.top) / r.height * H }; };
+  const signFace = q => ({ x: q.x, y: q.y - L.R * .45 }); // the painted board, not the post underneath it
   // LR-C1: where tap zones overlap (big zones on a tablet), the thing whose middle is nearest wins, so a tap on the
   // baby's head beside the bush tickles the baby rather than starting peekaboo.
   function ranchTarget(p) { const s = st.sponge, c = [];
-    if (!s.auto) c.push(['sponge', s, L.R * 1.1]); c.push(['sign', L.sign, L.R * 1.1], ['wsign', L.wsign, L.R * 1.1], ['ksign', L.ksign, L.R * 1.1], ['tsign', L.tsign, L.R * 1.1], ['dsign', L.dsign, L.R * 1.1], ['bowl', L.bowl, L.R * 1.2], ['bush', { x: L.bush.x, y: L.bush.y - L.R * .4 }, L.R * 1.4]);
+    if (!s.auto) c.push(['sponge', s, L.R * 1.1]); c.push(['sign', signFace(L.sign), L.R * 1.25], ['wsign', signFace(L.wsign), L.R * 1.25], ['ksign', signFace(L.ksign), L.R * 1.25], ['tsign', signFace(L.tsign), L.R * 1.25], ['dsign', signFace(L.dsign), L.R * 1.25], ['bowl', L.bowl, L.R * 1.2], ['bush', { x: L.bush.x, y: L.bush.y - L.R * .4 }, L.R * 1.4]);
     if (st.baby.act !== 'hide') c.push(['baby', babyCentre(), L.size * 1.2]); if (st.friend) c.push(['friend', fCentre(), L.fz * 1.25]); if (daytime()) c.push(['sun', sunAt(), Math.max(L.U * .16, L.R)], ['cloud', L.cloud, L.cloud.r * 1.35]);
     for (const q of st.puddles) c.push(['puddle' + q.i, L.puddles[q.i], L.puddles[q.i].r]); c.push(['basket', { x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05]);
     L.flowers.forEach((q, i) => c.push(['flower' + i, { x: q.x, y: q.y }, q.r * 1.15]));
     { const q = ballNow(); c.push(['ball', q, q.r * 1.2]); }
     let best = null, bk = 1; for (const [n, q, r] of c) { const k = Math.hypot(p.x - q.x, p.y - q.y) / r; if (k <= bk) { bk = k; best = n; } } return best; }
-  cv.addEventListener('pointerdown', e => {
+  const onDown = e => {
     e.preventDefault(); audio(); const p = at(e), s = st.sponge; st.idleAt = st.t;
     // LR9: the shed and the sign act when the finger lifts (like the grown-up panel, LR15); a drag over the outline paints
     if (st.place === 'dough') { st.down = { id: e.pointerId, p, last: p, moved: 0 }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; } // LR18: a tap or a rub
@@ -1085,11 +1092,11 @@
     st.idleAt = st.t;
     const pick = ranchTarget(p); if (pick) st.used[/^flower/.test(pick) ? 'flowers' : /^puddle/.test(pick) ? 'puddle' : pick] = 1;
     if (pick === 'sponge') { s.drag = { id: e.pointerId, x: p.x, y: p.y, at: performance.now(), moved: 0 }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; }
-    if (pick === 'sign') { st.down = { id: e.pointerId, p, sign: 'paint' }; st.sign.shake = .5; return; }
-    if (pick === 'wsign') { st.down = { id: e.pointerId, p, sign: 'wagon' }; st.wsign.shake = .5; return; }
-    if (pick === 'dsign') { st.down = { id: e.pointerId, p, sign: 'door' }; st.dsign.shake = .5; return; }
-    if (pick === 'tsign') { st.down = { id: e.pointerId, p, sign: 'dough' }; st.tsign.shake = .5; return; }
-    if (pick === 'ksign') { st.down = { id: e.pointerId, p, sign: 'kitchen' }; st.ksign.shake = .5; return; }
+    if (pick === 'sign') { st.down = { id: e.pointerId, p, sign: 'paint' }; st.sign.shake = Math.max(st.sign.shake, 2); return; }
+    if (pick === 'wsign') { st.down = { id: e.pointerId, p, sign: 'wagon' }; st.wsign.shake = Math.max(st.wsign.shake, 2); return; }
+    if (pick === 'dsign') { st.down = { id: e.pointerId, p, sign: 'door' }; st.dsign.shake = Math.max(st.dsign.shake, 2); return; }
+    if (pick === 'tsign') { st.down = { id: e.pointerId, p, sign: 'dough' }; st.tsign.shake = Math.max(st.tsign.shake, 2); return; }
+    if (pick === 'ksign') { st.down = { id: e.pointerId, p, sign: 'kitchen' }; st.ksign.shake = Math.max(st.ksign.shake, 2); return; }
     if (/^flower/.test(pick)) { const i = +pick.slice(6); st.down = { id: e.pointerId, p, flower: i }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return sing(i); }
     if (pick === 'bowl') return act.feed();
     if (pick === 'bush') return act.peek();
@@ -1101,19 +1108,31 @@
     if (/^puddle/.test(pick)) return puddleTap(+pick.slice(6));
     if (pick === 'ball') return kickBall();
     act.sparkle(p);
-  });
-  cv.addEventListener('pointermove', e => { const d = st.down;
+  };
+  const onMove = e => { const d = st.down;
     if (d && d.id === e.pointerId && st.place === 'dough') { const p = at(e), k = Math.hypot(p.x - d.last.x, p.y - d.last.y); d.moved += k; d.last = p; if (d.moved > L.dough.lr * .3 && st.dough.phase === 'play') rollDough(k); return; }
     if (d && d.id === e.pointerId && d.flower !== undefined) { const i = flowerAt(at(e)); if (i >= 0 && i !== d.flower) { d.flower = i; sing(i); } return; } if (d && d.id === e.pointerId && st.place === 'shed') { const p = at(e);
       if (!d.drag && Math.hypot(p.x - d.p.x, p.y - d.p.y) > L.shed.z * .15) { d.drag = true; paintPart(partAt(d.p), d.p); } if (d.drag) paintPart(partAt(p), p); return; }
     const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return; const p = at(e);
-    s.drag.moved += Math.hypot(p.x - s.x, p.y - s.y); s.x = p.x; s.y = p.y; if (near(p, babyCentre(), L.size * 1.3)) act.scrub(p); else if (st.friend && near(p, fCentre(), L.fz * 1.2)) scrubFriend(p); });
-  const release = e => { const d = st.down; if (d && d.id === e.pointerId) { st.down = null; if (e.type === 'pointercancel') return; const p = at(e);
-      if (d.sign === 'paint') { if (near(p, L.sign, L.R * 1.3)) enterShed(); return; } if (d.sign === 'wagon') { if (near(p, L.wsign, L.R * 1.3)) enterWagon(); return; } if (d.sign === 'kitchen') { if (near(p, L.ksign, L.R * 1.3)) enterKitchen(); return; } if (d.sign === 'dough') { if (near(p, L.tsign, L.R * 1.3)) enterDough(); return; } if (st.place === 'dough') { if (d.moved <= L.dough.lr * .3) doughTap(p); return; } if (d.sign === 'door') { if (near(p, L.dsign, L.R * 1.3)) enterDoor(); return; } if (d.flower !== undefined) return; if (!d.drag && st.place === 'shed') shedTap(p); if (st.place === 'wagon') wagonTap(p); if (st.place === 'kitchen') kitchenTap(p); if (st.place === 'door') doorTap(p); return; }
+    s.drag.moved += Math.hypot(p.x - s.x, p.y - s.y); s.x = p.x; s.y = p.y; if (near(p, babyCentre(), L.size * 1.3)) act.scrub(p); else if (st.friend && near(p, fCentre(), L.fz * 1.2)) scrubFriend(p); };
+  const onSign = (p, q) => near(p, q, L.R * 1.35) || near(p, signFace(q), L.R * 1.35);
+  const release = e => { const d = st.down; if (d && d.id === e.pointerId) { st.down = null; if (e.type === 'pointercancel' || e.type === 'touchcancel') return; const p = at(e);
+      if (d.sign === 'paint') { if (onSign(p, L.sign)) enterShed(); return; } if (d.sign === 'wagon') { if (onSign(p, L.wsign)) enterWagon(); return; } if (d.sign === 'kitchen') { if (onSign(p, L.ksign)) enterKitchen(); return; } if (d.sign === 'dough') { if (onSign(p, L.tsign)) enterDough(); return; } if (st.place === 'dough') { if (d.moved <= L.dough.lr * .3) doughTap(p); return; } if (d.sign === 'door') { if (onSign(p, L.dsign)) enterDoor(); return; } if (d.flower !== undefined) return; if (!d.drag && st.place === 'shed') shedTap(p); if (st.place === 'wagon') wagonTap(p); if (st.place === 'kitchen') kitchenTap(p); if (st.place === 'door') doorTap(p); return; }
     const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return;
     const tap = s.drag.moved < L.R * .5 && performance.now() - s.drag.at < 500; s.drag = null;
     if (tap) act.bath(); else if (s.scrubbed) { s.scrubbed = false; done(); } };
-  cv.addEventListener('pointerup', release); cv.addEventListener('pointercancel', release);
+  let touchAt = 0;
+  const ownTouch = e => e.pointerType === 'touch';
+  const fromTouch = e => { const t = e.changedTouches[0]; touchAt = performance.now(); return { pointerId: t.identifier, clientX: t.clientX, clientY: t.clientY, changedTouches: e.changedTouches, type: e.type === 'touchcancel' ? 'touchcancel' : e.type === 'touchend' ? 'pointerup' : e.type === 'touchmove' ? 'pointermove' : 'pointerdown', preventDefault() { e.preventDefault(); } }; };
+  cv.addEventListener('pointerdown', e => { if (ownTouch(e)) return; onDown(e); });
+  cv.addEventListener('pointermove', e => { if (ownTouch(e)) return; onMove(e); });
+  cv.addEventListener('pointerup', e => { if (ownTouch(e)) return; release(e); });
+  cv.addEventListener('pointercancel', e => { if (ownTouch(e)) return; release(e); });
+  cv.addEventListener('touchstart', e => { if (!e.changedTouches[0]) return; e.preventDefault(); onDown(fromTouch(e)); }, { passive: false });
+  cv.addEventListener('touchmove', e => { if (!e.changedTouches[0]) return; e.preventDefault(); onMove(fromTouch(e)); }, { passive: false });
+  cv.addEventListener('touchend', e => { if (!e.changedTouches[0]) return; e.preventDefault(); release(fromTouch(e)); }, { passive: false });
+  cv.addEventListener('touchcancel', e => { if (!e.changedTouches[0]) return; release(fromTouch(e)); });
+  cv.addEventListener('click', e => { if (performance.now() - touchAt < 700) { e.preventDefault(); e.stopPropagation(); } });
   addEventListener('contextmenu', e => e.preventDefault());
 
   /* ---------------- the grown-up lock: hold three seconds ---------------- */
@@ -1155,7 +1174,7 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, DUSK_SECS, doughCol: () => doughCol(), BEDTIME_ACTS, BEDTIME_SECS, BEDTIME_GRACE, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, DOUGH_BABIES, STAMP_SECS, DOUGH_END_SECS, enterDough, leaveDough, GADGETS, DOOR_OPEN_SECS, DOOR_END_SECS, enterDoor, leaveDoor, doorPoke: k => doorPoke(k), thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
+  window.LR = { VERSION, PREF, DUSK_SECS, doughCol: () => doughCol(), BEDTIME_ACTS, BEDTIME_SECS, BEDTIME_GRACE, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, FLY_SECS, DOUGH_BABIES, STAMP_SECS, DOUGH_END_SECS, enterDough, leaveDough, GADGETS, DOOR_OPEN_SECS, DOOR_END_SECS, enterDoor, leaveDoor, doorPoke: k => doorPoke(k), thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     redraw() { draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
