@@ -24,9 +24,105 @@ Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" 
 
 Checked against the merged pulls and the latest #373 comments on 2026-10-15.
 
-- **Grok:** WBW-4 (now), then LR-G1. Open priority rows left: 2.
-- **dot:** WBW-5 (now, #501), then NM-G3 (#499). Open priority rows left: 2.
+- **Grok:** WBW-4 (now), LR-G1, WBW-7, WBW-9, WBW-11. Open priority rows left: 5.
+- **dot:** WBW-5 (now, #501), NM-G3 (#499), WBW-8, WBW-10, WBW-12. Open priority rows left: 5.
 - There is no LB-G4b row. A row that is merged, or already in review, is done for this queue. Do not start a second copy.
+
+### WBW-7 to WBW-12
+
+Wildbond & Starfall Dev Lead scoped these on 2026-10-15. Grok takes WBW-7, WBW-9 and WBW-11 after WBW-4 and LR-G1. Dot takes WBW-8, WBW-10 and WBW-12 after WBW-5. NM-G3 (#499) stays dot's next row after WBW-5, because that pull is already claimed. The spec below is copied as written.
+
+None of these depends on another.
+
+Shared rules:
+- Each one is one PR.
+- Files go only under docs/plans/wildbond-world/ and tools/. Nothing changes under wildbond-godot/, so there's no re-export, no art and no save change.
+- Each comes with a standalone Python unittest at tools/test_wildbond_world_<name>.py that runs with `python3 -m unittest`.
+- Every place, route and town id must exist in docs/plans/wildbond-world/world-graph.json, and the test checks that.
+- Anything the design doc calls a proposal (keepers, lines, rosters) gets "status": "proposed".
+- The source of truth is docs/plans/wildbond-world-design.md, and the PR names the section it follows. Nothing in a PR may contradict it.
+- No PR touches COMMS, START-HERE or DEVELOPMENT-PATH.
+- Reading wildbond-godot/ data is fine (species and move ids, CAP_TABLE). Editing it isn't.
+- Every done check also runs `python3 tools/wildbond-export-freshness.py --base origin/main --head HEAD`, which must print 'No packed Wildbond game files changed'.
+
+## WBW-7: towns.json plus towns.md
+
+**Guest:** Grok, after LR-G1.
+
+The 10 towns from the Towns table in section 2. For each town:
+- id, name and the world-graph node
+- the proposed healer
+- the indoor rooms
+- the outdoor people who stay outside
+- the keeper's shelf: lures and berries only, except that Reedhold has Colm's full shop
+
+The test checks that every town is in the graph. It also checks that no walkable route node is more than 3 route steps from a town with a healer (BFS over the graph, with water routes counted only when they're flagged Tide Ride).
+
+## WBW-8: kilnvent.json plus kilnvent.md
+
+**Guest:** dot, after WBW-5. NM-G3 (#499) is still the next claimed row.
+
+Uses the knothollow format. Section 2, cave 4.
+- The mouth is on Ashstair and the first chamber is lit. The warm dark beyond needs Lantern, and the far door opens onto Sootpath.
+- It holds slip-ember-mantle (after Lantern) and Sela's warm stone for sq-sela-warmth.
+- Exits with no landing yet use null x/y with "landing": "planned", the same as #490.
+- Gates must use ids from gates.json (#492).
+- Encounter bands stay inside the cap for the Tide and Ember badge counts.
+
+## WBW-9: larkburrow.json plus larkburrow.md
+
+**Guest:** Grok, after WBW-7.
+
+Uses the knothollow format. Section 2, cave 5.
+- The mouth is on Millgrass Lane, visible from the start and shut until the late cave phase.
+- The first room holds Nora's wooden bird (sq-nora-bird).
+- The through-path to the back of Threadmeet needs Stone Break and the Loom Badge together. Until then the far door is stone.
+
+The test checks that the Home Burrow loop from section 2 (Millgrass, Larkburrow, Threadmeet) is closed only when both requirements are present.
+
+## WBW-10: lessons.json
+
+**Guest:** dot, after WBW-8.
+
+Section 4. The 8 lesson slips, each with slip id, move id, element (or any), source place, and the gate or person that gives it.
+
+The test checks that:
+- every move id exists in the game's move data under wildbond-godot/ (read only)
+- every source place is in world-graph.json or in a cave json that's present
+- every gate id is in gates.json
+
+Leave the save field (lessons) out entirely; that waits on Evan.
+
+## WBW-11: trainers.json
+
+**Guest:** Grok, after WBW-9.
+
+Proposed trainer rosters for the 20 routes in section 2's Routes table.
+- 1 to 4 trainers per route, each with a name and a team of 1 to 3 species.
+- Each route records the badge count at which it's first reachable under WB-WORLD-ORDER.
+- Don't use Wardens or named story characters.
+- Store level as an offset from the cap, not a fixed number, because the design picks it when the battle starts.
+
+The test checks that every species id is in the game's catalogue, that each team is one to three, and that no route is missing.
+
+## WBW-12: banner-copy.json plus a fit test
+
+**Guest:** dot, after WBW-10.
+
+Section 3's table. For each badge count 0 to 8:
+- the banner line
+- Maren's where-next sentence
+- the "before the new routes" wording, with today's place names (the high road, the ferry path and so on)
+
+The test checks that:
+- every banner line is one sentence and fits the walking banner, which is 344 wide at font size 8. If the font can't be measured from Python, use a character budget worked out from that width and font size, and state the estimate.
+- the before-routes wording never names a route that isn't in today's build (Ashstair, Pass Foot, The Late Path, Ribbon Road, Orchard Fen, Shelter Mile, Trial Road).
+
+This is the copy the clarity PR will wire in, so it guards the Where next confusion Playtester reported.
+
+## Next ones the dev lead would write
+
+finds.json (item and berry spots per route), keelcave and lowbell layouts, and route encounter tables for the 3 water routes.
 
 ### Batch 2
 
@@ -426,7 +522,7 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ## Grok, now
 
-Grok's current task is WBW-4, Answering Ways. It was claimed on #373. No pull is open yet. Then LR-G1, if it is still unclaimed. Open priority rows left: 2.
+Grok's current task is WBW-4, Answering Ways. It was claimed on #373. No pull is open yet. Then LR-G1, WBW-7, WBW-9 and WBW-11. Open priority rows left: 5.
 
 In review, counted done for this queue, and not a wait: LB-G7 is #495, NM-G4 is #498, and NM-G5 is #500.
 
@@ -447,7 +543,7 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, now
 
-Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499). The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. Open priority rows left: 2.
+Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499), WBW-8, WBW-10 and WBW-12. The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. Open priority rows left: 5.
 
 In review, counted done for this queue, and not a wait: LB-G10 is #496.
 
