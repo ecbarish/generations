@@ -18,8 +18,13 @@
   const PLAYOFF_FIELDS = ['teams', 'rounds', 'seeding'];
   const INK = '#1e1a22';
   const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
-  const object = value => value !== null && typeof value === 'object' && !Array.isArray(value) &&
-    Object.prototype.toString.call(value) === '[object Object]';
+  const object = value => {
+    if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
+    const prototype = Object.getPrototypeOf(value);
+    // Also accepts plain objects from a browser frame or VM, without invoking
+    // a user-defined Symbol.toStringTag getter to identify the object.
+    return prototype === null || Object.getPrototypeOf(prototype) === null;
+  };
   const hex = value => typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value);
   const rgb = color => [1, 3, 5].map(at => parseInt(color.slice(at, at + 2), 16));
   function luminance(color) {
@@ -118,10 +123,11 @@
           for (let game = 0; game < 3; game++) {
             const pair = day[game], here = path + '[' + game + ']';
             if (!array(pair, 2, here)) continue;
-            if (!pair.every(index => Number.isInteger(index) && index >= 0 && index < 6)) {
+            const home = pair[0], away = pair[1];
+            if (!Number.isInteger(home) || home < 0 || home >= 6 ||
+                !Number.isInteger(away) || away < 0 || away >= 6) {
               error(here, 'club indices must be integers from 0 to 5'); continue;
             }
-            const [home, away] = pair;
             if (home === away) { error(here, 'a club cannot play itself'); continue; }
             seen[home]++; seen[away]++;
             homes[home]++; aways[away]++; meetings[home][away]++;
@@ -277,7 +283,19 @@
     report('no accessor was invoked', !accessed);
     reject('rejects inherited required fields', value => {
       const inherited = { name: value.clubs[2].name }; delete value.clubs[2].name; Object.setPrototypeOf(value.clubs[2], inherited);
-    }, '.name');
+    });
+    reject('rejects forged array methods and iterators', value => {
+      const pair = value.fixtures[0][0], originalHome = pair[0], originalAway = pair[1];
+      pair[0] = 'invalid'; pair[1] = -3;
+      Object.setPrototypeOf(pair, Object.assign(Object.create(Array.prototype), {
+        every: () => true, [Symbol.iterator]: function* () { yield originalHome; yield originalAway; }
+      }));
+    }, 'indices');
+    let tagRead = false;
+    reject('rejects a toStringTag getter without invoking it', value => {
+      Object.defineProperty(value.clubs[2], Symbol.toStringTag, { get() { tagRead = true; throw new Error('not data'); } });
+    }, 'unknown field');
+    report('no object-tag accessor was invoked', !tagRead);
     reject('rejects non-enumerable required fields', value => {
       Object.defineProperty(value.clubs[2], 'name', { value: value.clubs[2].name, enumerable: false });
     }, 'enumerable data field');
