@@ -18,6 +18,7 @@ Everything is drawn at the lane's own scale: the strip is **384x72 pixels**, six
 - **The lane sprite** of each vendor is at most 16 wide and 24 tall, and sits inside one 64-pixel slot behind the counter. A face is a few pixels, so the pose and the prop carry the picture.
 - **A larger portrait**, if GAD wants one for a card or a welcome-back box, is the same drawing at a whole-number multiple, never a smoothed scale: 2x is 32x48 and 3x is 48x72 (the height of the strip). Nearest-neighbour scaling only.
 - The prompts below are written for a **reference picture**, which GAD or an artist then reduces to the lane's pixel grid and the nine colours above. They describe the figure, not a final sprite.
+- **Skin and cloth have no ramp in the nine colours.** README rule 5 asks for a light, middle and dark value per material. Whoever reduces the reference should either draw the lane vendors as ink silhouettes with an amber rim from the lamp, the way the passers-by are drawn (`docs/plans/night-market-visuals.md`), or propose a few new colours for a vendor ramp in the art pull request. Night Market uses about 12 colours today, so there is room under the 32-colour cap.
 
 ## What every portrait must not look like
 
@@ -55,11 +56,11 @@ The order is the lane's order, left to right. A vendor's pronoun is the one the 
 
 **Habit in `model.js`:** "An trims each wick until the flame sits still."
 
-**Description.** An is the quiet one, and the whole figure is about attention. She stands close to one lantern on its pole with her head bent and a small trimming tool at the wick, watching the flame until it stops moving. The lantern is the brightest thing in her picture and lights her face from the front, which is why she can be drawn in very few pixels. Her stall has one pole, then a pair of poles, then a string of lamps, so the poles stand behind her at the sides. The pose is a still crouch or lean, with a steady hand, and no hurry. Her tool is a choice for GAD, and any small trimming tool will do.
+**Description.** An is the quiet one, and the whole figure is about attention. She stands close to one lantern on its pole with her head bent and small scissors at the wick, watching the flame until it stops moving. The lantern is the brightest thing in her picture and lights her face from the front, which is why she can be drawn in very few pixels. Her stall has one pole, then a pair of poles, then a string of lamps, so the poles stand behind her at the sides. The pose is a still crouch or lean, with a steady hand, and no hurry. Her tool is settled by the tale "An Trims the Wicks" in `vendor-tales.json`: a small pair of silver scissors. Silver is not one of the nine colours, so draw the blades in `#ddd4c6` (rule) with `#6e6258` (mute) for the shadow side.
 
 **Prompt (for a reference picture, at most 60 words):**
 
-> Full-length pixel-art lantern seller, adult woman, real proportions, leaning close to a paper lantern on a tall wooden pole, head bent, steady hand trimming the wick with a small tool, flame perfectly still and lighting her face. Second pole behind her. One-pixel warm near-black outline, light from upper left, limited dusk palette, lamp yellow brightest.
+> Full-length pixel-art lantern seller, adult woman, real proportions, leaning close to a paper lantern on a tall wooden pole, head bent, steady hand trimming the wick with small scissors, flame perfectly still and lighting her face. Second pole behind her. One-pixel warm near-black outline, light from upper left, limited dusk palette, lamp yellow brightest.
 
 **Must not look like:** a lantern-festival poster figure, or a genie-lamp or wizard character.
 
@@ -79,11 +80,11 @@ The order is the lane's order, left to right. A vendor's pronoun is the one the 
 
 **Habit in `model.js`:** "Ren lights one stick for the stall and one for the alley."
 
-**Description.** Ren's picture is two sticks. He holds one lit stick over his tray, and with the other hand he points a second stick out toward the mouth of the alley, so the figure faces two ways at once: the stall and the lane. The tray is a small dark wooden box with sticks standing in it, and thin smoke rises from the sticks (a bronze stand comes later). He is slow, calm, and a little ceremonial. The smoke is the second character in the picture, a pale mute-grey ribbon that you can see from the gate, so leave room above his head for it. The pose is a half turn, with one arm out toward the alley.
+**Description.** Ren's picture is two sticks. He holds one lit stick over his tray, and with the other hand he points a second stick out toward the mouth of the alley, so the figure faces two ways at once: the stall and the lane. The tray is a small dark wooden box with sticks standing in it, and thin smoke rises from the sticks (a small bronze stand at the alley's mouth comes later, for the second stick). He is slow, calm, and a little ceremonial. The smoke is the second character in the picture, a pale mute-grey ribbon that you can see from the gate, so leave room above his head for it. The pose is a half turn, with one arm out toward the alley.
 
 **Prompt (for a reference picture, at most 60 words):**
 
-> Full-length pixel-art incense seller, adult man, real proportions, calm and unhurried, one lit incense stick held over a small dark wooden tray, other arm out toward an alley, thin grey smoke ribbons rising above his head. Bronze stand on the counter. One-pixel warm near-black outline, light from upper left, limited dusk palette, lamp glow.
+> Full-length pixel-art incense seller, adult man, real proportions, calm and unhurried, one lit incense stick held over a small dark wooden tray, other arm out toward an alley, thin grey smoke ribbons rising above his head. Small bronze stand at the alley's mouth holding the second stick. One-pixel warm near-black outline, light from upper left, limited dusk palette, lamp glow.
 
 **Must not look like:** a stock "mystic" or fortune-teller, or any real religion's monk, priest or holy figure. Ren is a shopkeeper.
 
@@ -91,7 +92,7 @@ The order is the lane's order, left to right. A vendor's pronoun is the one the 
 
 **Habit in `model.js`:** "Old Wen stops just before the ending. The crowd pays to hear the rest."
 
-**Description.** Old Wen sits on a low mat in the lane, with his back straight and one hand raised mid-gesture, and he has stopped. His mouth is closed. That closed mouth and the held hand are the picture: the moment before the ending, with the crowd leaning in. He is the oldest on the lane, so he is drawn with a stooped, settled body and a long, patient face, sitting on the ground between cushions (one cushion, then two, then a paper screen, then listeners sitting in the lane). Unlike the others he is not behind a counter, so his whole sitting figure shows. The pose is seated, one hand lifted, a small smile held back.
+**Description.** Old Wen sits on a low mat in the lane, with his back straight and one hand raised mid-gesture, and he has stopped. His mouth is closed. That closed mouth and the held hand are the picture: the moment before the ending, with the crowd leaning in. He is the oldest on the lane, so he is drawn with a long, patient face and a settled, unhurried body, sitting on the ground between cushions (one cushion, then two, then a paper screen, then listeners sitting in the lane). **Lane sprite versus portrait.** On the lane, `lane.js` draws the same 56x14 counter in front of every open stall, Old Wen's included, with his mat below it, so the lane sprite shows only his head, shoulders and raised hand above the counter, like the other five. The full seated figure on the mat is for the larger portrait only. The pose is seated, one hand lifted, a small smile held back.
 
 **Prompt (for a reference picture, at most 60 words):**
 
@@ -101,4 +102,4 @@ The order is the lane's order, left to right. A vendor's pronoun is the one the 
 
 ## For the Game Art Director
 
-Please read the six briefs and say yes, or ask for changes on the pull request. Choices that are yours to make: each vendor's age, build, clothing and small props that `model.js` does not state (An's trimming tool, Qiao's tins, the sticks' holder); whether the larger portrait is wanted at all, or only the 16x24 lane sprite; and whether the vendors should keep the pronouns from the tales.
+Please read the six briefs and say yes, or ask for changes on the pull request. Choices that are yours to make: each vendor's age, build, clothing and small props that `model.js` does not state (Qiao's tins and the holder for Ren's second stick); whether the larger portrait is wanted at all, or only the 16x24 lane sprite; and whether the vendors should keep the pronouns from the tales.
