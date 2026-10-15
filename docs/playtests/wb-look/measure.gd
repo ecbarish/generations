@@ -39,13 +39,14 @@ func reset(seed_value: int, heritage: String, starter: String) -> void:
 	game.grass_n = 10
 	game.me.where = "thornwood_route"
 	game.me.tile = Vector2i(17, 12)
+	game.me.face = Vector2i.DOWN
 	game.me.pos = Vector2(game.me.tile) * game.TILE
 	game.me.path.clear()
-	game.partner = game.starters.filter(func(m): return m.id == starter)[0]
-	game.partner.where = game.map_name
-	game.partner.tile = game.me.tile + Vector2i.DOWN
-	game.partner.pos = Vector2(game.partner.tile) * game.TILE
-	game.partner.path.clear()
+	# Isolate movement timing from the un-ticked follower; render it below.
+	game.partner = null
+	for creature_actor in game.starters:
+		creature_actor.where = "gone"
+		creature_actor.path.clear()
 	game.walk_to.clear()
 	game.bag = { "berries": 0, "coins": 120, "lures": 5 }
 	game.trans_t = -1.0
@@ -178,6 +179,12 @@ func capture_views() -> void:
 		await capture("encounter-%dx%d" % [dims.x, dims.y], { "battle": game.battle.visible, "foe": game.battle.foes[0].c.name })
 
 func capture(name: String, info: Dictionary) -> void:
+	game.partner = game.starters.filter(func(m): return m.id == game.team[0].sp)[0]
+	game.partner.where = game.map_name
+	game.partner.tile = game.me.tile + Vector2i.LEFT
+	game.partner.face = Vector2i.DOWN
+	game.partner.pos = Vector2(game.partner.tile) * game.TILE
+	game.partner.path.clear()
 	for _i in 6:
 		game._thumbs_tick()
 		game._update_ui()
