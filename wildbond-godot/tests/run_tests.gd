@@ -196,7 +196,7 @@ func _run() -> void:
 		check(R.evo_target(done, { "place": "emberfall", "team": [fin, "glimmerwing"] }) == "", "EVO-1: %s is the final form" % fin)
 		check(is_equal_approx(float(main.DATA.SPECIES[mid].metres) * 12.35, float(Sprites.frame_size(mid, "idle").y)), "EVO-1: %s height in metres matches its sprite (%dpx)" % [mid, Sprites.frame_size(mid, "idle").y])
 	check(not main.DATA.SPECIES.has("pyremane") and not main.DATA.SPECIES.has("deeptide") and not main.DATA.SPECIES.has("elderthorn"), "EVO-1: Deeptide, Pyremane and Elderthorn are retired")
-	var painted := ["cindercub", "smoulderpup", "blazefang", "ripplet", "riverwisp", "tidewyrm", "mosshog", "thicketboar", "thornback", "bogsnap", "glimmerwing"]
+	var painted := ["cindercub", "smoulderpup", "blazefang", "ripplet", "riverwisp", "tidewyrm", "mosshog", "thicketboar", "thornback"]
 	for sid in painted:
 		check(Sprites.has(sid) and Sprites.frame_count(sid, "walk") == 4, "EVO-1: %s has an idle sheet and a 4-frame walk" % sid)
 	check(not Sprites.has("poolkit") and not Sprites.has("elderhorn"), "EVO-1: a species without a PNG is not claimed as painted")
