@@ -53,10 +53,42 @@
     return null;
   }
 
-  /* Screen pixels. A short pull is a bullet; a long pull is a lob. */
-  function classifyPull(pixels) {
-    var power = clamp((Number(pixels) || 0) / 150, 0, 1);
-    return { power: power, kind: power < 0.42 ? 'bullet' : 'lob' };
+  /* How the pocket is framed, and how far a finger must drag for a full throw.
+     Full power uses the room behind the quarterback, and still leaves a deep route on screen. */
+  function passFrame(cssW, cssH) {
+    var w = Number(cssW) || 844, h = Number(cssH) || 390;
+    var layout = fitLayout(w, h);
+    var scale = layout && layout.scale >= 1 ? layout.scale : 1;
+    var pictureW = layout ? layout.w : w;
+    var yard = layout && layout.yard ? layout.yard : 12;
+    var anchor = layout ? layout.anchor : Math.round(pictureW * 0.28);
+    var ahead = 30 * yard;
+    var maxX = Math.max(anchor + yard, pictureW - ahead);
+    var want = Math.min(pictureW * 0.48, maxX);
+    var screenX = want * scale;
+    return {
+      span: Math.max(160, Math.round(screenX - 36)),
+      screenX: screenX,
+      pictureX: want,
+      scale: scale,
+      anchor: anchor,
+      yard: yard
+    };
+  }
+  function pullSpan(cssW, cssH) {
+    return passFrame(cssW, cssH).span;
+  }
+  /* Screen pixels. Power fills across that span, so a short drag stays a short throw. */
+  function classifyPull(pixels, span) {
+    var full = Number(span);
+    if (!(full > 40)) full = pullSpan(844, 390);
+    var power = clamp((Number(pixels) || 0) / full, 0, 1);
+    return { power: power, kind: power < 0.42 ? 'bullet' : 'lob', span: full };
+  }
+  /* Camera target that puts the quarterback far enough from the left edge to make that drag. */
+  function pocketAim(qbWorld, cssW, cssH) {
+    var frame = passFrame(cssW, cssH);
+    return (Number(qbWorld) || 0) - (frame.pictureX - frame.anchor) / frame.yard;
   }
 
   /* Pull back from anywhere. The throw goes the other way. Right on the side field is downfield. */
@@ -103,12 +135,20 @@
     if (!(scale >= 1)) scale = 1;
     var fillW = Math.max(8, Math.floor(w / scale));
     var fillH = Math.max(8, Math.floor(h / scale));
-    var chrome = Math.max(0, base.h - base.fieldH);
-    var margin = Math.min(chrome, Math.max(base.top, Math.floor(fillH / 5)));
+    /* The score strip is 18px and the hint under it is 24px. The grass starts
+       below both, so the top receiver and the yard numbers stay visible.
+       The bottom strip stays clear for the cards. The extra there keeps the
+       lowest receiver from dropping when the top reserve grows. */
+    var top = Math.max(base.top, Math.ceil(42 / scale));
+    var dockPx = Math.ceil(64 / scale);
+    var grown = Math.max(0, top - base.top);
+    var fromTop = 0.5 - 20 / base.widthY;
+    var fromBottom = 0.5 + 20 / base.widthY;
+    dockPx += Math.ceil(grown * fromTop / fromBottom);
     return {
-      w: fillW, h: fillH, yard: base.yard, top: base.top, widthY: base.widthY,
+      w: fillW, h: fillH, yard: base.yard, top: top, widthY: base.widthY,
       lead: base.lead, scale: scale,
-      fieldH: Math.max(16, fillH - margin),
+      fieldH: Math.max(16, fillH - top - dockPx),
       anchor: Math.round(fillW * 0.28)
     };
   }
@@ -349,10 +389,14 @@
     spec = spec || {};
     var spot = Number(spec.spot) || 0;
     if (spec.whistle || spec.family === 'dead') return { target: spot, chase: false, cut: false };
-    if (spec.cut) return { target: spot, chase: false, cut: true };
+    if (spec.cut) {
+      var behind = spec.qbX == null ? spot - 8 : Number(spec.qbX);
+      return { target: behind, chase: false, cut: true };
+    }
     if (spec.family === 'air') return { target: ((Number(spec.qbX) || 0) + (Number(spec.landX) || 0)) / 2, chase: true, cut: false };
     if (spec.family === 'run') return { target: (Number(spec.ballX) || spot) + SIDE.lead / SIDE.yard, chase: true, cut: false };
-    return { target: spot, chase: true, cut: false };
+    var pocket = spec.qbX == null ? spot - 8 : Number(spec.qbX);
+    return { target: pocket, chase: true, cut: false };
   }
   function alongPx(abs, camX) {
     var delta = ((Number(abs) || 0) - (Number(camX) || 0)) * SIDE.yard;
@@ -499,12 +543,19 @@
     if (moving) return { pose: 'run', frame: Math.floor(t * 8) % 4 };
     return { pose: 'idle', frame: Math.floor(t * 2) % 2 };
   }
+  /* The bar is the whole drag. A 130px pull on a phone fills only part of it. */
+  function powerMeter(power, pictureW) {
+    var p = clamp(Number(power) || 0, 0, 1);
+    var bw = Math.round(Math.max(110, Math.min(200, (Number(pictureW) || 384) * 0.34)));
+    return { power: p, width: bw, fill: Math.max(0, Math.round((bw - 2) * p)) };
+  }
   /* Sits on the near sideline, clear of the score line. */
   function drawPowerMeter(ctx, power) {
-    var p = clamp(Number(power) || 0, 0, 1);
-    var labelW = 40, gap = 6, bw = 88, bh = 10;
+    var meter = powerMeter(power, SIDE.w);
+    var p = meter.power;
+    var labelW = 40, gap = 6, bw = meter.width, bh = 10;
     var x = Math.round((SIDE.w - (labelW + gap + bw)) / 2);
-    var y = Math.max(4, SIDE.h - bh - 4);
+    var y = Math.max(4, SIDE.h - bh - 8);
     drawText(ctx, 'POWER', x, y, '#f6edd4', 2);
     var bx = x + labelW + gap, by = y;
     ctx.fillStyle = '#1e1a22';
@@ -688,7 +739,11 @@
       return { p: p, s: at(px, p.y) };
     }).sort(function (a, b) { return a.p.y - b.p.y; });
     var carrier = play && play.actors ? play.actors[play.carrier] : null;
-    var aimTarget = spec.aim && spec.aim.preview ? spec.aim.preview.target : null;
+    var aimPreview = spec.aim && spec.aim.preview;
+    var aimTarget = null;
+    if (aimPreview && play && root.LanternModel && root.LanternModel.aimReceiver) {
+      aimTarget = root.LanternModel.aimReceiver(play, aimPreview.x, aimPreview.y);
+    } else if (aimPreview) aimTarget = aimPreview.target;
     bodies.forEach(function (row) {
       var p = row.p;
       var team = p.off ? off : def;
@@ -832,7 +887,8 @@
   drawPlayer.painted = {};
 
   var api = {
-    RESERVED: RESERVED, project: project, classifyPull: classifyPull, dragToField: dragToField,
+    RESERVED: RESERVED, project: project, classifyPull: classifyPull, pullSpan: pullSpan,
+    pocketAim: pocketAim, passFrame: passFrame, powerMeter: powerMeter, dragToField: dragToField,
     fitCircle: fitCircle, fieldLocal: fieldLocal, followBall: followBall, spriteFile: spriteFile,
     drawPlayer: drawPlayer, laneStyle: laneStyle, laneRails: laneRails, drawRunLane: drawRunLane,
     pocketRing: pocketRing, tweenRadius: tweenRadius, drawPocketRing: drawPocketRing, RING_STEPS: RING_STEPS,
