@@ -178,8 +178,11 @@
       const sourceNodes = r.ev.filter(e => e.call === 'create' && /^(osc|src)/.test(e.node)).map(e => e.node);
       add('after stop() every source (noise and wobble) is stopped', sourceNodes.length >= 2 && sourceNodes.every(n => stops.some(e => e.node === n)), sourceNodes.join());
       add('every source is stopped no sooner than now and within 0.3 s', stops.every(e => e.args[0] >= 30 && e.args[0] <= 30.3), stops.map(e => e.text).join('; '));
-      const fade = after.filter(isZeroRamp);
+      const fade = after.filter(e => isZeroRamp(e) && e.node === 'gain0');
       add('after stop() the gain ramps to 0 within 0.3 s', fade.length === 1 && fade[0].args[1] > 30 && fade[0].args[1] <= 30.3, fade.map(e => e.text).join('; '));
+      const gainNodes = r.ev.filter(e => e.call === 'create' && /^gain/.test(e.node)).map(e => e.node);
+      add('stop() fades every gain, the wobble depth too, to 0 within 0.3 s (the wobble adds to the gain, so it must not still swing when the sources stop)',
+        gainNodes.length >= 2 && gainNodes.every(n => after.some(e => e.node === n && isZeroRamp(e) && e.args[1] > 30 && e.args[1] <= 30.3)), gainNodes.join());
       add('stop() cancels the old plan and starts the fade from the held peak', after.some(e => e.call === 'cancelScheduledValues' && e.args[0] === 30) && after.some(e => e.call === 'setValueAtTime' && e.args[0] === peak && e.args[1] === 30));
       add('the fade finishes no later than the sources stop', fade.length === 1 && stops.every(e => e.args[0] >= fade[0].args[1]));
       const n1 = r.ev.length; h.stop();

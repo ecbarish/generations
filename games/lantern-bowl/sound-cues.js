@@ -138,7 +138,7 @@
   function play(ctx, dest, name) {
     var cue = cues[name];
     if (!cue || !ctx || !dest) return null;
-    var t0 = ctx.currentTime || 0, sources = [], holds = [], stopped = false;
+    var t0 = ctx.currentTime || 0, sources = [], holds = [], wobbles = [], stopped = false;
     cue.voices.forEach(function (v, vi) {
       var g = ctx.createGain(), start = t0 + v.at, end = start + v.dur;
       if (cue.loop) {
@@ -157,7 +157,7 @@
         if (v.filter.to && !cue.loop) f.frequency.exponentialRampToValueAtTime(v.filter.to, end);
         if (v.filter.q != null) f.Q.setValueAtTime(v.filter.q, start);
         src.connect(f); f.connect(g);
-        if (v.lfo) wobble(ctx, g.gain, v, start, end, sources, cue.loop);
+        if (v.lfo) wobble(ctx, g.gain, v, start, end, sources, cue.loop && wobbles);
         src.start(start); if (!cue.loop) src.stop(end);
         sources.push(src);
       } else {
@@ -167,7 +167,7 @@
           osc.type = WAVES[v.wave];
           osc.frequency.setValueAtTime(hz(n), start);
           if (v.to && !cue.loop) osc.frequency.exponentialRampToValueAtTime(hz(v.to), end);
-          if (v.lfo) wobble(ctx, osc.frequency, { lfo: { rate: v.lfo.rate, depth: v.lfo.depth * hz(n) } }, start, end, sources, cue.loop);
+          if (v.lfo) wobble(ctx, osc.frequency, { lfo: { rate: v.lfo.rate, depth: v.lfo.depth * hz(n) } }, start, end, sources, cue.loop && wobbles);
           osc.connect(g);
           osc.start(start); if (!cue.loop) osc.stop(end);
           sources.push(osc);
@@ -189,18 +189,25 @@
           h.g.gain.setValueAtTime(h.peak * done, now);
           h.g.gain.linearRampToValueAtTime(0, until);
         });
+        // The wobble adds to the gain, so fade it too; otherwise it would still be swinging when the sources stop.
+        wobbles.forEach(function (w) {
+          w.g.gain.cancelScheduledValues(now);
+          w.g.gain.setValueAtTime(w.depth, now);
+          w.g.gain.linearRampToValueAtTime(0, until);
+        });
         sources.forEach(function (s) { try { s.stop(until); } catch (e) { /* already stopped */ } });
       }
     };
   }
 
   /* A slow or fast wobble on a parameter: a low-frequency oscillator feeding it through a gain. */
-  function wobble(ctx, param, v, start, end, sources, loop) {
+  function wobble(ctx, param, v, start, end, sources, loopFades) {
     var lfo = ctx.createOscillator(), amount = ctx.createGain();
     lfo.type = 'sine'; lfo.frequency.setValueAtTime(v.lfo.rate, start);
     amount.gain.setValueAtTime(v.lfo.depth, start);
     lfo.connect(amount); amount.connect(param);
-    lfo.start(start); if (!loop) lfo.stop(end);
+    lfo.start(start); if (!loopFades) lfo.stop(end);
+    else loopFades.push({ g: amount, depth: v.lfo.depth });   // a loop's wobble is faded out by stop(), not stopped at `end`
     sources.push(lfo);
   }
 
