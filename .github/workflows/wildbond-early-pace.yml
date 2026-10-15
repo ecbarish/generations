@@ -1,0 +1,76 @@
+name: Wildbond early pace review
+on:
+  pull_request:
+    paths:
+      - 'wildbond-godot/scripts/early_pace.gd'
+      - 'wildbond-godot/tests/early_pace.gd'
+      - 'docs/playtests/wb-look/**'
+      - '.github/workflows/wildbond-early-pace.yml'
+permissions:
+  contents: read
+concurrency:
+  group: wildbond-early-pace-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  pacing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+          filter: blob:none
+      - name: Install official Godot and rendered display
+        run: |
+          set -euo pipefail
+          curl --fail --retry 2 --connect-timeout 15 --max-time 120 -sSLo "$RUNNER_TEMP/godot.zip" https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends xvfb libgl1-mesa-dri
+      - name: Standalone early pacing regression
+        run: |
+          set -euo pipefail
+          export HOME="$RUNNER_TEMP/wb-early-pace-import-home"
+          export XDG_DATA_HOME="$HOME/data" XDG_CACHE_HOME="$HOME/cache" XDG_CONFIG_HOME="$HOME/config"
+          mkdir -p "$XDG_DATA_HOME" "$XDG_CACHE_HOME" "$XDG_CONFIG_HOME" early-pace-review
+          git rev-parse HEAD | tee early-pace-review/head.txt
+          "$GODOT" --version | tee early-pace-review/engine.txt
+          timeout 180 "$GODOT" --headless --path wildbond-godot --editor --import --quit
+          export HOME="$RUNNER_TEMP/wb-early-pace-test-home"
+          export XDG_DATA_HOME="$HOME/data" XDG_CACHE_HOME="$HOME/cache" XDG_CONFIG_HOME="$HOME/config" WB_EARLY_PACE_TEST_HOME="$HOME"
+          mkdir -p "$XDG_DATA_HOME" "$XDG_CACHE_HOME" "$XDG_CONFIG_HOME"
+          timeout 180 "$GODOT" --headless --path wildbond-godot --script res://tests/early_pace.gd |& tee early-pace-review/regression.log
+      - name: Measure unchanged baseline and candidate and capture real frames
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          baseline=90802ca04aaa8ffcf9055d5ba5aae6edb578ec80
+          git worktree add --detach "$RUNNER_TEMP/wb-pace-baseline" "$baseline"
+          git -C "$RUNNER_TEMP/wb-pace-baseline" rev-parse HEAD | tee early-pace-review/baseline.txt
+          fixture="$PWD/docs/playtests/wb-look/measure.gd"
+          for variant in baseline current; do
+            project="$PWD/wildbond-godot"
+            sha="$(git rev-parse HEAD)"
+            if [ "$variant" = baseline ]; then
+              project="$RUNNER_TEMP/wb-pace-baseline/wildbond-godot"
+              sha="$(cat early-pace-review/baseline.txt)"
+            fi
+            export HOME="$RUNNER_TEMP/wb-pace-$variant-home"
+            export XDG_DATA_HOME="$HOME/data" XDG_CACHE_HOME="$HOME/cache" XDG_CONFIG_HOME="$HOME/config"
+            mkdir -p "$XDG_DATA_HOME" "$XDG_CACHE_HOME" "$XDG_CONFIG_HOME" "early-pace-review/$variant"
+            timeout 180 "$GODOT" --headless --path "$project" --editor --import --quit
+            SOURCE_SHA="$sha" PACE_RENDER=1 PACE_OUTPUT="$PWD/early-pace-review/$variant/pacing.json" timeout 600 xvfb-run -a -s "-screen 0 2000x1200x24" "$GODOT" --path "$project" --audio-driver Dummy --rendering-method gl_compatibility --script "$fixture" |& tee "early-pace-review/$variant/run.log"
+          done
+      - name: Validate timing, story cadence and rendered evidence
+        if: always()
+        run: python3 docs/playtests/wb-look/validate.py early-pace-review
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wildbond-early-pace-review
+          path: early-pace-review/
+          if-no-files-found: error

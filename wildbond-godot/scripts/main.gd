@@ -2990,7 +2990,7 @@ func _arrived(p: Vector2i) -> void:
 	if tile_at(p) == "\"" and DATA.MAPS[map_name].has("biome"):
 		grass_n -= 1
 		if grass_n <= 0:
-			grass_n = rng.randi_range(6, 12) if heritage() == "wander" else rng.randi_range(8, 16)   # wanderers find more in the grass
+			grass_n = preload("res://scripts/early_pace.gd").next_steps(self) # WB-LOOK: early grass pace
 			walk_to.clear()
 			_explore()
 
@@ -3018,8 +3018,10 @@ func _explore() -> void:
 			sfx.play("pick")
 			say("", "You find a lure caught in some brambles.")
 	else:
+		var flavour_index := rng.randi() % 5 # WB-LOOK: preserve the original quiet-find RNG draw
+		if preload("res://scripts/early_pace.gd").rest(self): return # WB-LOOK: early quiet-find recovery
 		say("", ["You follow a stream deeper into Thornwood.", "Birdsong all around. Your team looks happy.", "You rest in a sunny clearing for a moment.",
-			"Pawprints in the mud lead off between the trees.", "A breeze rustles the old oaks."][rng.randi() % 5])
+			"Pawprints in the mud lead off between the trees.", "A breeze rustles the old oaks."][flavour_index])
 
 ## A wild creature from this place's table (wildPick and wildLvl): weighted by how common each is, its level near your
 ## team's, within the area's range.
