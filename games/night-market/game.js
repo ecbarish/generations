@@ -71,7 +71,7 @@
     var bar = li.querySelector('.pour');
     bar.hidden = !!st.hired;
     if (!st.hired) { var k = Math.min(st.serves, stall.serves); bar.value = k; bar.max = stall.serves; bar.textContent = k + ' of ' + stall.serves;
-      li.querySelector('.count').textContent = k + ' of ' + stall.serves + ' ' + stall.lefts + (k < stall.serves ? ' · press and hold to keep going' : ''); }
+      li.querySelector('.count').textContent = k + ' of ' + stall.serves + ' ' + stall.lefts + (k < stall.serves ? ' · press and hold to keep going' : ' · now press “' + stall.hire + '”'); }
     li.querySelector('.count').hidden = !!st.hired;
     if (!st.hired) {
       facts.textContent = '';
@@ -133,15 +133,21 @@
 
   // Hold to pour: press and hold a serve button and it keeps serving, a few a second, until you let go
   // (playtest: 25 single clicks was a chore). A plain click still serves once.
+  // NM-G8: before the hire, a hold stops at the vendor's count (12 of 12 dumplings). A plain click still serves, and still pays.
   var HOLD_DELAY = 350, HOLD_EVERY = 120, hold = null;
   function serveOnce(i) { if (M.handSell(state, i).ok) lane('serve', i); persist(); render(); }
+  function atCount(i) { return !state.stalls[i].hired && state.stalls[i].serves >= M.STALLS[i].serves; }
   function stopHold() { if (!hold) return; clearTimeout(hold.t); clearInterval(hold.iv); hold.done = true; }
   document.addEventListener('pointerdown', function (e) {
     var b = e.target.closest && e.target.closest('[data-act="serve"]');
     if (!b || b.disabled || e.button > 0) return;
     stopHold();
     var i = +b.closest('[data-i]').dataset.i, h = { b: b, i: i, n: 0, done: false };
-    h.t = setTimeout(function () { h.iv = setInterval(function () { h.n++; serveOnce(i); }, HOLD_EVERY); h.n++; serveOnce(i); }, HOLD_DELAY);
+    h.t = setTimeout(function () {
+      if (atCount(i)) return;                                                   // already at the count: the release is a plain click
+      h.iv = setInterval(function () { if (atCount(i)) { stopHold(); return; } h.n++; serveOnce(i); if (atCount(i)) stopHold(); }, HOLD_EVERY);
+      h.n++; serveOnce(i); if (atCount(i)) stopHold();
+    }, HOLD_DELAY);
     hold = h;
   });
   ['pointerup', 'pointercancel', 'blur'].forEach(function (ev) { (ev === 'blur' ? window : document).addEventListener(ev, stopHold); });
