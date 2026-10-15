@@ -340,7 +340,7 @@ document.querySelector('#run').onclick = async function () {
     check('a new market has no welcome back', d.querySelector('#away').hidden && /25 more cups/.test(d.querySelector('#goal').textContent));
     // NM-PHONE: the first real control, not merely a row heading, fits above the fold.
     async function checkPhoneLayout(label) {
-      for (var dims of [[320,568], [390,844], [568,320], [844,390], [390,844]]) {
+      for (var dims of [[320,568], [390,844], [568,320], [844,390], [932,430], [390,844]]) {
         frame.style.width = dims[0] + 'px'; frame.style.height = dims[1] + 'px';
         w.scrollTo(0, 0);
         await new Promise(function (r) { setTimeout(r, 100); });

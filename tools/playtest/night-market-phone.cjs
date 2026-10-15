@@ -49,7 +49,7 @@ async function shot(page,name){await page.screenshot({path:path.join(out,name+'.
     await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
     const origin='http://127.0.0.1:'+server.address().port;
     browser=await chromium.launch({executablePath:process.env.CHROME_PATH});
-    for(const [width,height] of [[320,568],[360,640],[390,844],[568,320],[667,375],[844,390],[1280,800]]){
+    for(const [width,height] of [[320,568],[360,640],[390,844],[568,320],[667,375],[844,390],[932,430],[1280,800]]){
       const phone=width<1000;
       const context=await browser.newContext({viewport:{width,height},hasTouch:phone,isMobile:phone,deviceScaleFactor:1,serviceWorkers:'block'});
       const page=await context.newPage(),errors=[];
@@ -104,7 +104,7 @@ async function shot(page,name){await page.screenshot({path:path.join(out,name+'.
         await page.goForward();check('Browser Forward returns to the arcade',new URL(page.url()).pathname==='/index.html');
         await page.goBack();await page.waitForFunction(()=>window.__nightMarket);
         check('A second Browser Back keeps the stall intact',await page.evaluate(()=>__nightMarket.state.stalls[0].owned===1));
-        for(let n=0;n<2;n++){await page.locator('.home').tap();check('Touch Back reaches arcade '+n,new URL(page.url()).pathname==='/index.html');await page.goBack();await page.waitForFunction(()=>window.__nightMarket);}
+        for(let n=0;n<2;n++){await Promise.all([page.waitForURL('**/index.html'),page.locator('.home').tap()]);check('Touch Back reaches arcade '+n,new URL(page.url()).pathname==='/index.html');await page.goBack();await page.waitForFunction(()=>window.__nightMarket);}
         await page.evaluate(()=>{__nightMarket.idle.stop();const k=NightMarket.SAVE_KEY;const s=JSON.parse(localStorage.getItem(k));s.seen=Date.now()-3600000;localStorage.setItem(k,JSON.stringify(s));});
         await page.reload();await page.waitForFunction(()=>window.__nightMarket);
         check('A return still shows the away summary',await page.locator('#away').isVisible());await shot(page,'away-portrait');

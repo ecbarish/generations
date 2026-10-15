@@ -111,7 +111,7 @@ button[aria-pressed="true"], button.ask {
 }
 
 /* NM-PHONE: navigation and the cash box share one line; every label remains in the page. */
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
   .window {
     padding-top: max(0.6rem, env(safe-area-inset-top));
     padding-left: max(0.8rem, env(safe-area-inset-left));
