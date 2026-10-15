@@ -1,0 +1,231 @@
+{
+  "id": "kilnvent",
+  "map": {
+    "name": "Kilnvent",
+    "biome": "emberfall",
+    "start": [
+      5,
+      17,
+      "up"
+    ],
+    "rows": [
+      "###############################",
+      "###############################",
+      "###############################",
+      "#################...........###",
+      "#################.\"\"........###",
+      "#################.\"\"........###",
+      "#################.............E",
+      "#################.............E",
+      "#################.............E",
+      "#################...........###",
+      "#################........\"\".###",
+      "##...........####........\"\".###",
+      "##.\"\".......................###",
+      "##.\"\".......................###",
+      "##...........####..\"\".......###",
+      "##...........####...........###",
+      "##........\"\".##################",
+      "##........\"\".##################",
+      "##...........##################",
+      "####...########################",
+      "####SSS########################"
+    ],
+    "exits": {
+      "S": {
+        "to": "ashstair",
+        "x": null,
+        "y": null,
+        "dir": null,
+        "landing": "planned"
+      },
+      "E": {
+        "to": "sootpath",
+        "x": null,
+        "y": null,
+        "dir": null,
+        "landing": "planned"
+      }
+    },
+    "signs": {},
+    "items": [],
+    "wild": [
+      [
+        "slaglet",
+        24
+      ],
+      [
+        "ashskip",
+        20
+      ],
+      [
+        "cragskein",
+        16
+      ],
+      [
+        "ventwhisk",
+        16
+      ],
+      [
+        "thermwing",
+        14
+      ],
+      [
+        "screegrin",
+        10
+      ],
+      [
+        "glowmote",
+        3
+      ],
+      [
+        "cairnclasp",
+        6
+      ],
+      [
+        "kilnchirp",
+        6
+      ],
+      [
+        "hearthlaugh",
+        2
+      ],
+      [
+        "flintpup",
+        6
+      ],
+      [
+        "cinderstitch",
+        4
+      ]
+    ]
+  },
+  "gates": [
+    {
+      "id": "kilnvent-deep-room:field:lantern",
+      "door": "kilnvent-deep-room",
+      "key": "field:lantern",
+      "at": [
+        [
+          15,
+          12
+        ],
+        [
+          15,
+          13
+        ]
+      ],
+      "beyond": [
+        20,
+        12
+      ]
+    },
+    {
+      "id": "kilnvent--sootpath:field:lantern",
+      "door": "kilnvent--sootpath",
+      "key": "field:lantern",
+      "at": [
+        [
+          28,
+          6
+        ],
+        [
+          28,
+          7
+        ],
+        [
+          28,
+          8
+        ]
+      ],
+      "beyond": [
+        29,
+        7
+      ]
+    }
+  ],
+  "zones": [
+    {
+      "id": "lit-chamber",
+      "kind": "lit",
+      "rects": [
+        [
+          2,
+          11,
+          11,
+          8
+        ],
+        [
+          4,
+          19,
+          3,
+          2
+        ],
+        [
+          13,
+          12,
+          2,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "warm-dark",
+      "kind": "dark",
+      "rects": [
+        [
+          16,
+          12,
+          1,
+          2
+        ],
+        [
+          17,
+          3,
+          11,
+          13
+        ]
+      ]
+    }
+  ],
+  "markers": [
+    {
+      "id": "slip-ember-mantle",
+      "kind": "lesson-slip",
+      "move": "emberMantle",
+      "at": [
+        21,
+        5
+      ]
+    },
+    {
+      "id": "sela-warm-stone",
+      "kind": "quest-prop",
+      "quest": "sq-sela-warmth",
+      "at": [
+        24,
+        12
+      ]
+    }
+  ],
+  "layout": {
+    "mouth_px": [
+      48,
+      48
+    ],
+    "ceiling_px": 48,
+    "mounts_allowed": true
+  },
+  "integration": {
+    "status": "unresolved_landings",
+    "destinations": [
+      "ashstair",
+      "sootpath"
+    ],
+    "incoming_requirements": {
+      "sootpath": [
+        "field:lantern"
+      ]
+    }
+  }
+}
