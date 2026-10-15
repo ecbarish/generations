@@ -6,6 +6,7 @@ deciding (START-HERE.md "Questions for Evan" 1; docs/wildbond-plan.md).
 
 ## Unreleased
 
+- WB-PHONE (merged #431, 2026-10-15): Wildbond now plays upright on phones, with a d-pad, A, B and Menu under the picture. The web pack in that merge includes this layout. Godot Wildbond has no version number, so this is a changelog line only.
 - The live web build now includes #429. The re-export in #443 (2db670b, 2026-10-14) put the Larkhaven menu, single taps that no longer also sign or choose, the status bar, and Catch in battle into the pack that players load. Godot Wildbond has no version number, so nothing is bumped.
 - WB-BUNDLE-1 (merged #429, 2026-10-14): The menu works again in Larkhaven. The tap that opens the register, card or battle menu no longer also signs or chooses. Speech advances only on a press. Not published.
 - WBL-2 (merged #418, 2026-10-14): a battle opens on your action menu. Your lead creature starts with a full turn meter, so a quicker foe no longer strikes or winds up before you choose. A battle in which every foe is already down ends instead of opening a menu. Not published.
