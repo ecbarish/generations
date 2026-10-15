@@ -1,4 +1,5 @@
 extends RefCounted
+const PhoneShell := preload("res://scripts/phone_shell.gd")
 ## The second playtest bundle. Each check is the thing a player reported: a click lands once, a held
 ## walk keeps up with a tap, Choose is ready, a placeholder stays on screen, one press reads one
 ## battle line, closing a talk does not open it again, the menu appears at once, the barn's words
@@ -22,6 +23,7 @@ static func run(host: Node, check: Callable) -> void:
 	_starter(game, check)
 	_heights(game, check)
 	_sprites(game, check)
+	_next_labels(game, check)
 	_battle_lines(game, check)
 	_talk(game, check)
 	_menu(game, check)
@@ -171,38 +173,118 @@ static func _sprites(game: Node, check: Callable) -> void:
 		if not game.Sprites.has(sid) and not game.Sprites.has_battle_front(sid):
 			bare.append(sid)
 	check.call(not bare.is_empty(), "a species with no sheet still uses the procedural battle figure")
+	var named := ["bellwarden", "hearthhem", "harborgleam", "luckflare", "moonfoam", "homeglow", "doorlamp", "hollowchime", "havenlight", "dawntassel", "seedmoth", "fogslip", "veilmote", "fogsail", "sootcloak", "clovercolt", "shoalpup", "fernruff", "poolkit", "flintpup"]
+	var named_ok := true
+	var missing := ""
+	for nid in named:
+		if not bare.has(nid):
+			named_ok = false
+			missing = nid
+	check.call(named_ok, "every species whose idle used to change size is still a fallback figure (%s)" % missing)
 	game.battle.allies = [{}]
 	game.battle.foes = [{}]
 	var limit: Rect2 = game.battle.FIGURE_LIMIT
+	var poses: Array = game.battle._battle_poses()
 	for id in bare:
 		var species: Dictionary = game.DATA.SPECIES[id]
-		var stage: int = int(game.battle._battle_stage(str(id)))
-		var stage_h: int = int(game.battle._stage_px(stage))
-		var parts: Array = game.Figures.sized_parts(species, true, pose)
-		var span: Vector2i = game.Figures.pixel_span(parts)
-		var k: int = int(game.battle._figure_scale(span, stage))
-		var expect: int = maxi(1, mini(int(floor(float(stage_h) / float(span.y))), int(floor(float(game.battle.FIGURE_WIDTH_CAP) / float(span.x)))))
-		check.call(k == expect and k >= 1, "%s scales by a whole number from its stage height and the 62px cap (k %d, span %s)" % [id, k, span])
-		check.call(span.y * k <= stage_h or k == 1, "%s stays within its stage height of %d" % [id, stage_h])
-		check.call(span.x * k <= int(game.battle.FIGURE_WIDTH_CAP) or k == 1, "%s stays within the 62px width cap" % id)
+		var steady := true
+		var detail := ""
+		for facing in [true, false]:
+			var fit: Dictionary = game.battle._figure_fit(str(id), facing)
+			var span: Vector2i = fit.span
+			var k: int = int(fit.scale)
+			var stage: int = int(fit.stage)
+			var stage_h: int = int(game.battle._stage_px(stage))
+			var expect: int = maxi(1, mini(int(floor(float(stage_h) / float(span.y))), int(floor(float(game.battle.FIGURE_WIDTH_CAP) / float(span.x)))))
+			if k != expect or k < 1 or (span.y * k > stage_h and k != 1) or (span.x * k > int(game.battle.FIGURE_WIDTH_CAP) and k != 1):
+				steady = false
+				detail = "k %d span %s stage %d" % [k, span, stage_h]
+			var seen_scale := -1
+			var seen_size := Vector2.ZERO
+			var seen_at := Vector2.ZERO
+			for step in poses:
+				var parts: Array = game.Figures.sized_parts(species, facing, step)
+				var place: Dictionary = game.battle._figure_place(Vector2(100, 158), str(id), parts, facing)
+				var rect: Rect2 = place.rect
+				if seen_scale < 0:
+					seen_scale = int(place.scale)
+					seen_size = rect.size
+					seen_at = rect.position
+				elif int(place.scale) != seen_scale or rect.size.distance_to(seen_size) > 0.01 or rect.position.distance_to(seen_at) > 0.01:
+					steady = false
+					detail = "pose scale %s size %s at %s, first was %d %s at %s" % [place.scale, rect.size, rect.position, seen_scale, seen_size, seen_at]
+					break
+			if not steady:
+				break
+			if seen_scale != k or seen_size.distance_to(Vector2(span) * float(k)) > 0.01:
+				steady = false
+				detail = "drawn %s at %d×, fit span %s" % [seen_size, k, span]
+				break
+		check.call(steady, "%s keeps one scale and one drawn size on both sides (%s)" % [id, detail])
+		var stand: Array = game.Figures.sized_parts(species, true, pose)
+		var fit_r: Dictionary = game.battle._figure_fit(str(id), true)
+		var fit_k: int = int(fit_r.scale)
 		for spot in [Vector2(100, 158), Vector2(286, 92), Vector2(168, 142)]:
-			var place: Dictionary = game.battle._figure_place(spot, str(id), parts)
-			var rect: Rect2 = place.rect
+			var placed: Dictionary = game.battle._figure_place(spot, str(id), stand, true)
+			var box: Rect2 = placed.rect
 			var clear := true
-			for box in game.battle._clearance_boxes():
-				if rect.intersects((box as Rect2).grow(float(game.battle.PANEL_CLEARANCE))):
+			for panel in game.battle._clearance_boxes():
+				if box.intersects((panel as Rect2).grow(float(game.battle.PANEL_CLEARANCE))):
 					clear = false
-			check.call(int(place.scale) == k and limit.encloses(rect) and rect.end.y <= 160.01 and clear, "%s at %s stays on screen, at %d×, and clear of the panels" % [id, spot, k])
+			check.call(int(placed.scale) == fit_k and limit.encloses(box) and box.end.y <= 160.01 and clear, "%s at %s stays on screen, at %d×, and clear of the panels" % [id, spot, fit_k])
 	var sample := str(bare[0])
 	var sample_parts: Array = game.Figures.sized_parts(game.DATA.SPECIES[sample], true, pose)
-	var sample_k: int = int(game.battle._figure_scale(game.Figures.pixel_span(sample_parts), game.battle._battle_stage(sample)))
+	var sample_k: int = int(game.battle._figure_fit(sample, true).scale)
 	game.battle.phone_view = Rect2(0, 0, 140, 216)
-	var phone_place: Dictionary = game.battle._figure_place(Vector2(100, 158), sample, sample_parts)
+	var phone_place: Dictionary = game.battle._figure_place(Vector2(100, 158), sample, sample_parts, true)
 	var phone_rect: Rect2 = phone_place.rect
 	check.call(int(phone_place.scale) == sample_k and game.battle.phone_view.encloses(phone_rect) and limit.encloses(phone_rect), "the upright frame keeps the same whole scale and holds the figure inside the view")
 	game.battle.phone_view = Rect2()
 	game.battle.allies = []
 	game.battle.foes = []
+
+static func _longest_name(game: Node) -> String:
+	var best := ""
+	for id in game.DATA.SPECIES:
+		var nm := str(game.DATA.SPECIES[id].name)
+		if nm.length() > best.length():
+			best = nm
+	return best
+
+## The word sits 4px in from each side of a landscape chip, so the chip must be the word plus 8px.
+static func _landscape_name_fits(game: Node, name: String) -> bool:
+	var saved: float = game.battle.layout_scale
+	game.battle.layout_scale = 4.0
+	var chips: Dictionary = game.battle._chip_boxes(PackedStringArray([name]))
+	game.battle.layout_scale = saved
+	var rects: Array = chips["rects"]
+	if rects.is_empty():
+		return false
+	var r: Rect2 = rects[0]
+	var size := int(chips["font"])
+	var word: float = game.battle.font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	return word <= r.size.x - 8.0 + 0.01 and r.position.x >= 192.0 and r.end.x <= 376.01
+
+static func _upright_name_fits(font: Font, strip: Rect2, name: String) -> bool:
+	var chips: Dictionary = PhoneShell.battle_next_chips(strip, font, PackedStringArray([name]))
+	var rects: Array = chips["rects"]
+	var labs: PackedStringArray = chips["labels"]
+	if rects.is_empty() or labs.is_empty() or str(labs[0]) != name:
+		return false
+	var r: Rect2 = rects[0]
+	var size := int(chips["font"])
+	var word: float = font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	return word <= r.size.x + 0.01 and r.position.x >= strip.position.x and r.end.x <= strip.end.x + 0.01
+
+static func _next_labels(game: Node, check: Callable) -> void:
+	var name := _longest_name(game)
+	check.call(_landscape_name_fits(game, name), "the longest species name, %s, fits on the landscape Next row" % name)
+	var font: Font = game.battle.font
+	var wide: Dictionary = PhoneShell.layout_for(Vector2(390, 844), Vector4(0, 47, 0, 34), 3.0)
+	var slim: Dictionary = PhoneShell.layout_for(Vector2(360, 780), Vector4(0, 24, 0, 16), 3.0)
+	var strip_w: Rect2 = wide["strip"]
+	var strip_s: Rect2 = slim["strip"]
+	check.call(_upright_name_fits(font, strip_w, name) and _upright_name_fits(font, strip_s, name), "the longest species name, %s, fits on the upright Next row" % name)
 
 static func _shut(game: Node) -> void:
 	for page in [game.title, game.howto, game.register, game.card, game.book, game.shop, game.lessons, game.turn_card]:

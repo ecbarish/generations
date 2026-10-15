@@ -98,6 +98,8 @@ var tide_ready := false                       # Read the Tide: the next gathered
 var area := ""                                 # the area the battle happens in (main.gd sets it): its sky and skyline
 var _parent_of: Dictionary = {}               # species id -> the forms it evolves from
 var _stage_memo: Dictionary = {}
+var _fit_memo: Dictionary = {}                # species, side and gear -> the span and factor for every battle pose
+var _pose_list: Array = []
 var _parents_built := false
 var max_level := 15                           # the level cap (main.gd sets it from your badges, CAP_TABLE)
 var bag: Dictionary = { "lures": 0, "berries": 0 }  # the satchel (main.gd owns it): lures for Catch, berries for Bag
@@ -861,29 +863,17 @@ func _ally_line_rect(i: int, n: int) -> Rect2:
 	return Rect2(236, 162.0 - (n - i) * 22.0 - lift, 140, 20)
 
 ## Where the "Next:" names sit. They shrink, then wrap, and stay inside the top of the screen.
+## A chip is the word plus 8px (4px of padding on each side). The word is drawn from that padding, with no clip.
 func _chip_boxes(labels: PackedStringArray) -> Dictionary:
 	if _view_scale() < 2.0:
-		return PhoneShell.place_chips(labels, font, 8.0, 4.0, 376.0, 14, 28.0)
+		var room := 376.0 - 8.0
+		var fitted := PhoneShell.chip_font_size(labels, font, room, 14)
+		return PhoneShell.place_chips(labels, font, 8.0, 4.0, 376.0, fitted, 28.0)
 	var size := 7
 	var limit := 376.0
 	var x0 := 192.0
-	while size > 5:
-		var x := x0
-		var rows := 1
-		var fits := true
-		for lab in labels:
-			var w := font.get_string_size(lab, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 8.0
-			if w > limit - x0:
-				fits = false
-				break
-			if x + w > limit:
-				rows += 1
-				x = x0
-			if rows > 2:
-				fits = false
-				break
-			x += w + 3.0
-		if fits:
+	while size > 1:
+		if _chips_fit(labels, size, x0, limit):
 			break
 		size -= 1
 	var rects: Array = []
@@ -897,6 +887,21 @@ func _chip_boxes(labels: PackedStringArray) -> Dictionary:
 		rects.append(Rect2(x, y, w, size + 3.0))
 		x += w + 3.0
 	return {"font": size, "rects": rects}
+
+func _chips_fit(labels: PackedStringArray, size: int, x0: float, limit: float) -> bool:
+	var x := x0
+	var rows := 1
+	for lab in labels:
+		var w := font.get_string_size(lab, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 8.0
+		if w > limit - x0:
+			return false
+		if x > x0 and x + w > limit:
+			rows += 1
+			x = x0
+		if rows > 2:
+			return false
+		x += w + 3.0
+	return true
 
 ## How good a move looks against the foe in front: power, type advantage and same-element bonus (the demo and the
 ## automated checks pick moves this way, as a sensible player would).
@@ -1079,27 +1084,65 @@ func _figure_scale(span: Vector2i, stage: int) -> int:
 	var by_w := int(floor(float(FIGURE_WIDTH_CAP) / float(span.x)))
 	return maxi(1, mini(by_h, by_w))
 
-## Feet start where a battle front's feet start. Clearance runs first, then the view clamp.
+## Every pose a battle can draw: the wag cycle, a blink, the turn crouch, and the four lunge frames.
+func _battle_poses() -> Array:
+	if not _pose_list.is_empty():
+		return _pose_list
+	for wag in [1, 0, -1]:
+		for blink in [false, true]:
+			for crouch in [0, 1]:
+				_pose_list.append({ "wag": wag, "blink": blink, "ears_up": true, "crouch": crouch, "walking": false, "frame": 0 })
+				for frame in 4:
+					_pose_list.append({ "wag": wag, "blink": blink, "ears_up": true, "crouch": crouch, "walking": true, "frame": frame })
+	return _pose_list
+
+## One factor per species and side. The span is the widest and tallest frame of every battle pose,
+## so a wag or a crouch cannot pick a new k. Cached like the stage lookup.
+func _figure_fit(species_id: String, facing_right: bool, look: Dictionary = {}) -> Dictionary:
+	var gear := str(look.get("gear", ""))
+	var key := "%s|%d|%s|%s|%s|%s|%s" % [species_id, 1 if facing_right else 0, gear, str(look.get("head", "")), str(look.get("back", "")), str(look.get("tail", "")), str(look.get("pattern", ""))]
+	if _fit_memo.has(key):
+		return _fit_memo[key]
+	var species: Dictionary = R.sp({ "sp": species_id })
+	var max_w := 1
+	var max_h := 1
+	for pose in _battle_poses():
+		var posed: Array = Figures.sized_parts(species, facing_right, pose, look)
+		if posed.is_empty():
+			continue
+		var posed_span := Figures.pixel_span(posed)
+		max_w = maxi(max_w, posed_span.x)
+		max_h = maxi(max_h, posed_span.y)
+	var span := Vector2i(max_w, max_h)
+	var stage := _battle_stage(species_id)
+	var fit := { "span": span, "scale": _figure_scale(span, stage), "stage": stage }
+	_fit_memo[key] = fit
+	return fit
+
+## Feet start where a battle front's feet start. Clearance, the ground line and the phone clamp all use the
+## cached span, so the figure does not move or resize when the pose changes.
 ## The phone frame, when it is set, keeps that same scale and slides the figure back inside.
-func _figure_place(at: Vector2, species_id: String, parts: Array) -> Dictionary:
-	var bounds: Dictionary = Figures._bounds(parts)
-	var span := Figures.pixel_span(parts)
-	var k := _figure_scale(span, _battle_stage(species_id))
+func _figure_place(at: Vector2, species_id: String, parts: Array, facing_right: bool = true, look: Dictionary = {}) -> Dictionary:
+	var fit: Dictionary = _figure_fit(species_id, facing_right, look)
+	var span: Vector2i = fit.span
+	var k := int(fit.scale)
 	var foot := Vector2(round(at.x), round(at.y)) + Vector2(0, 6)
 	foot = Sprites.foot_clear_of(foot, span, float(k), _clearance_boxes(), PANEL_CLEARANCE)
 	foot = _slide_foot(foot, span, float(k), FIGURE_LIMIT)
 	if phone_view.size.x >= 1.0:
 		foot = _slide_foot(foot, span, float(k), phone_view)
+	foot = Vector2(round(foot.x), round(foot.y))
+	var bounds: Dictionary = Figures._bounds(parts)
 	var origin := Vector2(
 		foot.x - float(bounds.min_x + bounds.max_x) * float(k) / 2.0,
 		foot.y - float(int(bounds.max_y) + 1) * float(k)
 	)
 	origin = Vector2(round(origin.x), round(origin.y))
-	var rect := Rect2(origin + Vector2(int(bounds.min_x) - 1, int(bounds.min_y) - 1) * float(k), Vector2(span) * float(k))
+	var rect := Sprites.dest_rect(foot, span, float(k))
 	var nudge := _nudge_figure(rect)
 	origin += nudge
 	rect.position += nudge
-	return {"origin": origin, "rect": rect, "scale": k, "span": span, "stage": _battle_stage(species_id)}
+	return {"origin": origin, "rect": rect, "scale": k, "span": span, "stage": int(fit.stage)}
 
 func _slide_foot(foot: Vector2, span: Vector2i, scale: float, limit: Rect2) -> Vector2:
 	if limit.size.x < 1.0 or span.x <= 0 or span.y <= 0:
@@ -1165,7 +1208,7 @@ func _draw_figure(at: Vector2, species_id: String, species: Dictionary, facing_r
 	var parts := Figures.sized_parts(species, facing_right, pose, look)
 	if parts.is_empty():
 		return
-	var place: Dictionary = _figure_place(at, species_id, parts)
+	var place: Dictionary = _figure_place(at, species_id, parts, facing_right, look)
 	var k := int(place.scale)
 	var prev := texture_filter
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -1561,7 +1604,8 @@ func _queue() -> void:
 		draw_rect(r.grow(1), Color("1e1a22"))
 		draw_rect(r, fill)
 		var baseline := r.position.y + (r.size.y + float(chip_size)) * 0.5
-		_text(lab, Vector2(r.position.x + 8.0, baseline), chip_size, word, r.size.x - 16.0)
+		# 4px of padding on each side. The chip is the word plus 8px, so the whole name fits.
+		_text(lab, Vector2(r.position.x + 4.0, baseline), chip_size, word)
 
 # ---------------------------------------------------------------- bonding with a wild creature (calmNow)
 func _calm() -> void:
