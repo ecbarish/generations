@@ -56,34 +56,45 @@ pass. Until then, new briefs cite this section, not the old pixels.
 | Lookout | door 12×24 | |
 | Boathouse | door 20×24 | wider than a cottage, still on the 24px line |
 
-Anything taller than the 24px door line waits outside. A creature of 24px or less, or a crawler whose crawl pose is
-12px tall or less, follows the tamer indoors. Battle figures in the pixel tiers are drawn from 12px to 32px. That
-battle range does not change the walking heights below.
+Anything taller than the 24px door line waits outside. A creature at 24px or under follows the tamer indoors. A
+creature taller than the door may crawl in only when the crawl pose is 12px tall or less and at least twice as long
+as it is tall. Today that is Deeptide, and only in that pose. Standing, Deeptide waits outside.
 
-Overworld height is 12px for every species, except the rows in this table. The names are the locked table. Three of
-them are retired in the current save (`RETIRED_FORMS` in `main.gd`, line 3588): Deeptide is stored as Tidewyrm,
-Pyremane as Blazefang, and Elderthorn as Thornback. The heights stay, so an old picture is not drawn through a door
-it cannot use.
+Overworld creatures in the pixel tiers are 12px at the floor and 32px at the cap. `figures.gd` `drawn_px` (lines
+395–396) is that clamp: metres times 12.35, held between 12 and 32. The rows below are walking heights.
 
-| Height | Species |
+The pixel table is a view of the metres. In 3D the door is the 2.0 m door, and creatures use their true heights in
+metres, not these compressed pixels. Mistfinch is 0.24 m, Elderhorn is 3.64 m, and the tamer is 1.70 m. Tier T3
+draws a creature at about metres times 12.35, clamped to 10–48px. The 24px door line is the 2.0 m door rounded for
+pixels: 2.0 times 12.35 is 24.7, drawn as 24.
+
+Overworld height is 12px for every species in the locked table, except the rows below. 113 of the 189 catalogue
+species match a row in that table. The other 76 have no locked height yet, and they wait for one. Three names in
+the table are retired in the current save (`RETIRED_FORMS` in `main.gd`, line 3588): Deeptide is stored as
+Tidewyrm, Pyremane as Blazefang, and Elderthorn as Thornback. Tidewyrm itself is 15px and follows indoors. The
+retired heights stay on the table so an old picture is not drawn through a door it cannot use.
+
+| Height | Species in the locked table |
 |---|---|
 | 13px | Sunfrill, Cloudharrier, Boughchorus |
-| 14px | Riverwisp |
-| 15px | Tidewyrm, Shoalcrest, Ferrycrest, Fogsail, Rainback, Gorgebelly, Thicketboar |
-| 16px | Bramblestag, Smoulderpup |
+| 15px | Tidewyrm, Shoalcrest, Ferrycrest, Fogsail, Rainback, Gorgebelly |
+| 16px | Bramblestag |
 | 17px | Stormfrill |
 | 18px | Thornback, Kilntusk |
 | 19px | Blazefang, Soundhowl, Briarwatch, Rilllynx, Hearthlaugh, Ridgewarden, Laughrill, Mistlynx, Sunlynx |
 | 20px | Fordfoal |
 | 24px | Bloomcourser, Lanterncrest, Stillwake, Watchlight, Veilmote |
-| 26px | Deeptide, Elderthorn. Deeptide is slender and may crawl indoors only if that pose is drawn at 12px or less |
+| 26px | Deeptide, Elderthorn. Deeptide may crawl indoors only when that pose is 12px tall or less and at least twice as long as it is tall |
 | 28px | Meadowmantle, Breakwatermane, Undertone |
 | 30px | Pyremane |
 | 31px | Elderhorn, Hearthcrown |
 
-The eight from 26px to 31px are the mounts. They wait outside on foot. Lanterncrest, Stillwake, Watchlight and
-Veilmote are 24px, so they may follow through a 24px door with no headroom left. Tidewyrm is 15px. It comes inside
-only once a slender crawl pose measures 12px or less. Until that pose exists, it waits on the same pad as a mount.
+Current sprite heights, not part of the locked table (`run_tests.gd` line 203): Riverwisp 14px, Thicketboar 15px,
+Smoulderpup 16px. A later update of the locked table may add them. Until then they are not a rule for doors.
+
+The eight from 26px to 31px are the mounts. They wait outside on foot, except Deeptide in the crawl pose above.
+Lanterncrest, Stillwake, Watchlight and Veilmote are 24px, so they may follow through a 24px door with no headroom
+left. Tidewyrm is 15px and follows indoors.
 
 ## 3. The palette (part 1)
 

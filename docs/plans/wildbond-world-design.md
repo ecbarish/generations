@@ -459,18 +459,17 @@ Each of the ten healer doors has a clear waiting pad beside it, off the step, so
 
 Who follows the tamer through a door, from the locked table:
 
-- 24px or shorter, on foot, follows. Lanterncrest, Stillwake, Watchlight and Veilmote are exactly 24px. They fit a 24px opening with no headroom. A 12px-wide leaf is a tight step for them. The hall's 24×24 pair is the comfortable width.
-- A crawler comes in only when the crawl pose is 12px tall or less. Deeptide is 26px standing and slender. It may crawl in only if that pose is drawn at 12px or less. Standing, it waits on the pad.
-- Tidewyrm is 15px. It is not yet a crawler at 12px. Until a crawl pose measures 12px or less, Tidewyrm waits on the pad too.
-- The eight mounts wait outside on foot: Deeptide 26, Elderthorn 26, Meadowmantle 28, Breakwatermane 28, Undertone 28, Pyremane 30, Elderhorn 31, Hearthcrown 31. Three of those names are retired in a current save (`RETIRED_FORMS`, `main.gd` line 3588). Deeptide is stored as Tidewyrm, Pyremane as Blazefang (19px, follows indoors), and Elderthorn as Thornback (18px, follows indoors). The pads are still drawn for the locked heights, so the old picture is never squeezed through the door.
+- 24px or shorter, on foot, follows. Tidewyrm is 15px and follows. Lanterncrest, Stillwake, Watchlight and Veilmote are exactly 24px. They fit a 24px opening with no headroom. A 12px-wide leaf is a tight step for them. The hall's 24×24 pair is the comfortable width.
+- A creature taller than the door may crawl in only when the crawl pose is 12px tall or less and at least twice as long as it is tall. Deeptide is 26px standing. It may crawl in only in that pose. Standing, it waits on the pad.
+- The eight mounts wait outside on foot: Deeptide 26, Elderthorn 26, Meadowmantle 28, Breakwatermane 28, Undertone 28, Pyremane 30, Elderhorn 31, Hearthcrown 31. Deeptide is the one mount with the crawl exception above. Three of those names are retired in a current save (`RETIRED_FORMS`, `main.gd` line 3588). A current save stores Tidewyrm, not Deeptide, and Tidewyrm follows. It stores Blazefang (19px, follows) rather than Pyremane, and Thornback (18px, follows) rather than Elderthorn. The pads are still drawn for the locked mount heights, so an old picture is never squeezed through the door.
 
-Mounts may walk into a cave when the mouth and the ceiling are both at least 48px (3 tiles) wide and tall. That leaves headroom over a 31px back. A lower cave keeps the mount on a pad at the mouth, the same rule as a door. They do not duck a 24px lintel.
+Mounts may walk into a cave when the mouth and the ceiling are both at least 48px (3 tiles) wide and tall. That leaves headroom over a 31px back. A lower cave keeps every mount on a pad at the mouth. They do not duck a 24px lintel. Knothollow is the lower cave: its ceiling stays 32px, and no mount goes in.
 
 | Cave | Mouth | Ceiling | Who may enter |
 |---|---|---|---|
 | Larkburrow | 3 tiles wide, 3 tall (48×48px). The shut mouth on Millgrass stays this wide even while it is shut | 48px | Meadowmantle (28) on the late through-path. Taller mounts use it too |
 | The Answering Ways | 48×48px. Not tile (19, 8) | 48px | Undertone (28) lives at the first bend. Any mount may follow |
-| Knothollow | 48px wide, 32px tall (2 tiles) | 32px | A 26px mount, including the locked Elderthorn height, with 6px over the back. Elderhorn (31) waits at the mouth. The cave is a supply crack, not the grove |
+| Knothollow | 48px wide, 32px tall (2 tiles) | 32px | No mount enters. The ceiling is under the 48px rule, so Elderthorn and Elderhorn both wait at the mouth. The cave is a supply crack, not the grove |
 | Keelcave | 48×48px, the arch sitting on the waterline | 48px above the rideable water | Deeptide's locked 26px height, and Stillwake at 24px. Breakwatermane may come in from the beach |
 | Kilnvent | 48×48px, the red mouth read from Ashstair | 48px in the first room and the deep room | A 30px mount fits. Hearthcrown does not live here. It stays on the spring terrace |
 | Lowbell | The flooded stair is one tile wide for the tamer and a Tide partner | 32px of air above the water | Mounts wait on the 2×2 pad at Reedhold's jetty. Stillwake's meeting stays on the surface |
@@ -483,11 +482,12 @@ The earlier Cave proposal, `#1a1c22`, `#2a2e38`, `#3e4656`, sits at about 1.01, 
 
 | Shade | Hex | Contrast with `#1e1a22` | Use |
 |---|---|---|---|
-| Cave dark | `#82848e` | 4.60 to 1 | The walkable floor, and the wall. Nothing in the cave paint is darker than this |
+| Cave dark | `#82848e` | 4.60 to 1 | The walkable floor, and the wall. This is as dark as a tile a tamer can stand on |
+| Mouth interior | `#2a2e38` | 1.26 to 1, and not a floor | One darker shade, only inside a mouth, past the first walkable tile. It is not walked on, so the 4.5 to 1 floor rule still holds |
 | Cave mid | `#969ea4` | 6.30 to 1 | The middle of a block, the wet streak |
 | Cave light | `#b0b0bf` | 8.00 to 1 | The top-left face |
 
-These three, plus the ink and Lamplight `#f2d080`, are a cave palette. They are not added to the world palette. The director writes them into the direction page before a painter uses them. Until that sign, they stay a proposal with the contrast already checked.
+The cave palette is those shades plus the ramps a cave already borrows. It is not added to the world set. Counted, it is 24 colours, under the cap of about 32: the cave trio (3), the ink (1), Lamplight (1), Water (4), Bark (3), Sand (3), Grass (4), Slate (4) and one Barn red. The unwalkable mouth shade `#2a2e38` is a 25th, still under the cap. The director writes the ramp into the direction page before a painter uses it. Until that sign, it stays a proposal with the contrast already checked.
 
 Darkness is an overlay, not a paint. `docs/art/README.md` rule 1 already says mood sits on top of the sprite. Kilnvent's deep room, the Answering Ways after the first hall, Trialstair's unlit flights, and the night path on The Late Path all use that overlay.
 
@@ -506,9 +506,9 @@ The brief has to survive more than the pixel picture.
 | Tier | What the player sees | What this brief owes it |
 |---|---|---|
 | T1 Pocket | A 4-shade remap. No light overlay | Rideable water and solid water must differ by pattern, not only by colour. A lit hall and Lantern-dark must differ by a shape (a lamp, a pale two-tile path), not only by brightness |
-| T2 Pixel | 16px tiles, the ramps, this brief's doors and mouths | The sizes in Scale (locked v3). Battle figures in this tier are 12 to 32px |
-| T3 HD-2D | The same tile data, with height and real lights. Creatures in that view may be drawn from 10 to 48px, in the same order as the locked heights | Point lights, as above. The overworld table does not change |
-| 3D | A later picture of the same world data | Section 9. Not a new map |
+| T2 Pixel | 16px tiles, the ramps, this brief's doors and mouths | The sizes in Scale (locked v3). Overworld creatures in this tier are 12px at the floor and 32px at the cap |
+| T3 HD-2D | The same tile data, with height and real lights. A creature is drawn at about its metres times 12.35, clamped to 10–48px | Point lights, as above. The overworld clamp stays 12–32. T3 does not use it |
+| 3D | The 2.0 m door and the true heights in metres | Section 9. Not a new map |
 
 The Water ramp's two middle shades, `#3a7090` and `#4a84a2`, are only about 1.31 to 1 apart, so a colour-only difference collapses in Pocket. Rideable water reuses the Water ramp and adds a pattern.
 
@@ -517,20 +517,19 @@ Today's water is a still tile, a glint, and a lily (`paint_tiles.gd` lines 335�
 | Piece | Frames | Speed | Edges |
 |---|---|---|---|
 | Solid `~` | The two cells that exist: still, and still with a glint | The glint holds. No new loop | The darkest water, `#2f5f7e`, one pixel against grass, sand or path. Already the bank |
-| Rideable water | 4 | 0.35 seconds a frame, one loop of about 1.4 seconds | Chevrons of `#8cc0d4`, two pixels, pointing with the current, on `#4a84a2`. Four shore edges (north, east, south, west) and four outside corners, each 16×16, where ground meets this tile |
+| Rideable water | 4 | 0.35 seconds a frame, one loop of about 1.4 seconds | Chevrons of `#8cc0d4`, two pixels, pointing with the current, on `#4a84a2`. Four shore edges (north, east, south, west), four outside corners, and four inside corners for bays and channel bends. Each is 16×16, where ground meets this tile |
 | The lip at Moon Pool | 1 special edge, plus the rideable frames on the far side | Same as rideable | Solid `~` on the near side, rideable on the far side, with one tile of `#8cc0d4` between them so the meeting reads when the colours collapse |
 | Wake | 4, an overlay sprite, not a tile | 0.2 seconds a frame | A V behind the partner. Reduced motion holds frame 0, with the steam and the mill wheel |
 | Flooded stair, drowned floor, waterline arch | The rideable frames, laid on Cave or Slate | Same as rideable | No new water colour. The arch is Cave light against the waterline |
 
 Tide Ride takes any Tide partner at level 18 or Friendly. Most of them are small. The picture depends on the partner's height, not on a second lesson.
 
-- Under 24px, the tamer swims or wades beside the partner. A 12px Ripplet does not carry a 21px tamer.
+- Under 24px, the tamer swims or wades beside the partner. A 12px Ripplet does not carry a 21px tamer. Tidewyrm is 15px, so the tamer wades beside it, and Tidewyrm still follows indoors.
 - At 24px and above, the partner carries the tamer. That is Stillwake, and the Tide mounts Breakwatermane and Deeptide when the locked height is the one on screen.
-- Tidewyrm at 15px is the wading picture, until a carry pose is drawn on purpose. This brief does not ask for one.
 
 ### What is new, counted against the cap
 
-`paint_tiles.gd` already names 54 distinct colours. That is over the house cap of about 32 per palette (`docs/art/README.md` rule 6). This plan adds no hex to that world set. The cave trio lives on the cave palette above, which is five colours with the ink and Lamplight, under the cap. A flooded cave may also show the existing Water ramp. It still does not join the world list.
+`paint_tiles.gd` already names 54 distinct colours. That is over the house cap of about 32 per palette (`docs/art/README.md` rule 6). This plan adds no hex to that world set. The cave palette is the 24 colours listed above, or 25 with the unwalkable mouth shade. A flooded cave shows the Water ramp inside that count. It does not join the world list.
 
 Names that are not ramps, and the ramp they actually use:
 
@@ -574,9 +573,9 @@ Phone: the entrance of every new place has to read at a phone width, and the ban
 
 | Place | Silhouette the player learns | Materials | Notes for the director |
 |---|---|---|---|
-| Millgrass Lane, Dewcut, Rootwater Path | A lane, a meadow cut, a stream | Grass, Path, Leaf, Water for the stream, which stays solid `~` | The Larkburrow mouth is a 48×48px arch in a grass bank, painted with Cave dark, not a near-black that eats the ink. Visible, shut, not a painting you can walk through by accident |
+| Millgrass Lane, Dewcut, Rootwater Path | A lane, a meadow cut, a stream | Grass, Path, Leaf, Water for the stream, which stays solid `~` | The Larkburrow mouth is a 48×48px arch. The arch is drawn in the ink outline `#1e1a22`. Inside the arch, past the first walkable tile, the shade is `#2a2e38`. That inner shade is not a floor. Cave dark alone sits too close to the grass to read as an opening |
 | Old Root Grove, back ring | The same grove, with a living curtain | Leaf, Bark | The curtain reads as plants, not as a fence. Grove Wake parts it |
-| Knothollow | A root ceiling and a pale crack | Bark, the cave palette, a little Grass at the mouth | Mouth 48px wide and 32px tall. Elderhorn waits outside. A supply cave, not a second Thornwood |
+| Knothollow | A root ceiling and a pale crack | Bark, the cave palette, a little Grass at the mouth | Mouth 48px wide and 32px tall. Mounts wait at the mouth. A supply cave, not a second Thornwood |
 | Wrackline, Lantern Quay | Net reels, a low inn, the lighthouse behind | Sand, Whitewash, Slate, Lamplight, Water | The quay inn is a cottage with a blue door, so it is not Juniper's shop and not Maren's barn. Perrin's counter faces the door |
 | Moon Pool's far lip | The pool you know, plus a channel mouth | Water | The special lip edge: solid `~` on the near side, rideable chevrons on the far side, one tile of `#8cc0d4` between them |
 | Greywash Sound, The Open Grey | Open water, a wake under the partner, a low island | Water, Sand | Rideable tiles reuse the Water ramp and add chevrons. Four frames at 0.35s. The wake is a four-frame overlay. A small partner wades beside the tamer. Stillwake and Breakwatermane carry |
@@ -726,11 +725,13 @@ The world is data. The picture is a reading of that data. A 2D tile painter, a l
 | Errand | The `sq:` keys in section 3 | A log widget |
 | Encounter | The wild table for that region, or a story id such as `hearthstag` | A battle backdrop |
 
-Height is a number on the tile, in quarter-metres. Flat ground is 0. A step up is positive. Water depth is negative. Today's maps are flat, so a missing height means 0, and old saves do not notice. Ashstair, Glassfall, the cave stairs and the flooded floors are the first places that should write a real height, because a later picture cannot invent the climb from a flat tile. One tile in 3D is the locked metre: 16px at 12.35px per metre, about 1.30 m. A 24px door is about 1.94 m tall in that picture too.
+Height is a number on the tile, in quarter-metres. Flat ground is 0. A step up is positive. Water depth is negative. Today's maps are flat, so a missing height means 0, and old saves do not notice. Ashstair, Glassfall, the cave stairs and the flooded floors are the first places that should write a real height, because a later picture cannot invent the climb from a flat tile. One tile in 3D is about 1.30 m, from the 16px tile at 12.35px per metre. The door in 3D is the 2.0 m door. The 24px line is that door rounded for pixels.
 
-Each map also carries a prop list. A prop is an id, a tile, a footprint in tiles, a height in pixels from the locked table, and a role: door, mouth, pad, lantern, wheel, steam, wake, bell, rope, curtain. Steam, the wake and the mill wheel are props with a motion flag. They are not tiles, which is the same rule as the overlay in section 5. A 3D scene builds from this list. It does not scrape the pixels.
+Creatures in 3D use their true heights in metres, not the compressed walking pixels. Mistfinch is 0.24 m, Elderhorn is 3.64 m, and the tamer is 1.70 m. The pixel table in Scale (locked v3) is a view of those metres. Overworld pixels are about metres times 12.35, clamped to 12–32 (`figures.gd` `drawn_px`, lines 395–396). Tier T3 uses the same multiplication, clamped to 10–48px. A species with no locked height, 76 of the 189, has no metre yet.
 
-The camera is a reading, not a place. In 2D it sits above the tile the tamer is on. In 2.5D it tilts over that same tile. In 3D it follows at about the tamer's eye, 21px in the locked scale, which is about 1.70 m. The save does not store the camera.
+Each map also carries a prop list. A prop is an id, a tile, a footprint in tiles, a height in metres when the locked table has one, and a role: door, mouth, pad, lantern, wheel, steam, wake, bell, rope, curtain. Steam, the wake and the mill wheel are props with a motion flag. They are not tiles, which is the same rule as the overlay in section 5. A 3D scene builds from this list. It does not scrape the pixels.
+
+The camera is a reading, not a place. In 2D it sits above the tile the tamer is on. In 2.5D it tilts over that same tile. In 3D it follows near the tamer's height, 1.70 m. The save does not store the camera.
 
 ### What the save keeps
 
@@ -746,7 +747,7 @@ If a later map moves a solid tile, the existing nudge still applies: the tamer s
 |---|---|---|---|
 | 2D, the picture now | The painter, 16px tiles, the overlays in section 5 | No new renderer. The world phases already have a game to finish | While WB-WORLD-1 through WB-WORLD-7 are still laying roads. A second picture before the roads exist draws the line twice |
 | 2.5D, lights and height on the same tiles | A height mesh from the tile heights, and real lights for Lantern, the bell, the vent and night. Sprites can stay billboards in a Godot 3D scene with a pixel-art camera, which is the HD-2D tier | One mesh per map, a light rig, a camera. Creatures stay the pixel sheets. No creature mesh yet. The sun stays top-left | After the caves and Lantern exist (WB-WORLD-3), when darkness needs to read and the tile ids are stable. Not instead of the 2D build |
-| Full 3D | A mesh per building silhouette and per creature family, collision taken from the same solid tiles, a follow camera | A model for each silhouette in section 5, and for each family, at the locked sizes. Hand-made models can replace a first block-in later. This is its own project | After this region is in the game and the shapes in the art direction have stopped moving. A 3D Larkhaven built from `buildings()` and the prop list is the first experiment, as the art direction already says. It is not a world-map phase, and it does not change the save |
+| Full 3D | A mesh per building silhouette and per creature family, collision taken from the same solid tiles, a follow camera. Doors are 2.0 m. Creatures use their true metres | A model for each silhouette in section 5, and for each family that has a locked height. Hand-made models can replace a first block-in later. This is its own project | After this region is in the game and the shapes in the art direction have stopped moving. A 3D Larkhaven built from `buildings()` and the prop list is the first experiment, as the art direction already says. It is not a world-map phase, and it does not change the save |
 
 Godot 4 already has the 3D engine. The browser eras named in `docs/creature-game-design.md` (Pocket, 16-bit, HD-2D, Diorama, modern 3D) are the same ladder. This plan does not turn those eras on, and it does not move the colour's return off the Thorn Badge. A later picture may show more depth. The story does not wait for it.
 
