@@ -48,12 +48,12 @@ static func _gear(game: Node, check: Callable) -> void:
 	var foot := Vector2(100, 164)
 	var small: Vector2 = game.Sprites.tamer_anchor(foot, Vector2i(64, 64), 1.0, tex, true)
 	var bleed: Vector2 = game.Sprites.tamer_anchor(foot, Vector2i(64, 64), 1.0, full_tex, true)
-	var bleed_line := _back_line(full, Vector2(68, 100), 64, true, bleed.x, bleed.x + game.Sprites.TAMER_SRC_W * game.Sprites.TAMER_SCALE)
-	var bleed_feet := bleed.y + game.Sprites.TAMER_FEET * game.Sprites.TAMER_SCALE
+	var bleed_line: float = _back_line(full, Vector2(68, 100), 64, true, bleed.x, bleed.x + float(game.Sprites.TAMER_SRC_W) * float(game.Sprites.TAMER_SCALE))
+	var bleed_feet: float = bleed.y + float(game.Sprites.TAMER_FEET) * float(game.Sprites.TAMER_SCALE)
 	check.call(bleed.distance_to(Vector2(74, 68)) < 1.0, "a full-bleed front seats the tamer on the back (%s)" % bleed)
 	check.call(bleed_feet - bleed_line <= 8.0 and bleed_feet >= bleed_line, "the tamer's feet stay within 8px under that ink (%.1f under %.1f)" % [bleed_feet, bleed_line])
-	var small_line := _back_line(img, Vector2(68, 100), 64, true, small.x, small.x + game.Sprites.TAMER_SRC_W * game.Sprites.TAMER_SCALE)
-	var small_feet := small.y + game.Sprites.TAMER_FEET * game.Sprites.TAMER_SCALE
+	var small_line: float = _back_line(img, Vector2(68, 100), 64, true, small.x, small.x + float(game.Sprites.TAMER_SRC_W) * float(game.Sprites.TAMER_SCALE))
+	var small_feet: float = small.y + float(game.Sprites.TAMER_FEET) * float(game.Sprites.TAMER_SCALE)
 	check.call(absf(small.x - 86.0) < 1.0 and small_feet - small_line <= 8.0 and small_feet >= small_line, "a shorter front seats the tamer on the ink under its own columns (%s)" % small)
 	var spike := Image.create(64, 64, false, Image.FORMAT_RGBA8)
 	spike.fill(Color(0, 0, 0, 0))
@@ -65,8 +65,8 @@ static func _gear(game: Node, check: Callable) -> void:
 			spike.set_pixel(x, y, Color(1, 1, 1, 1))
 	var spike_tex := ImageTexture.create_from_image(spike)
 	var seated: Vector2 = game.Sprites.tamer_anchor(foot, Vector2i(64, 64), 1.0, spike_tex, true)
-	var seat_line := _back_line(spike, Vector2(68, 100), 64, true, seated.x, seated.x + game.Sprites.TAMER_SRC_W * game.Sprites.TAMER_SCALE)
-	var seat_feet := seated.y + game.Sprites.TAMER_FEET * game.Sprites.TAMER_SCALE
+	var seat_line: float = _back_line(spike, Vector2(68, 100), 64, true, seated.x, seated.x + float(game.Sprites.TAMER_SRC_W) * float(game.Sprites.TAMER_SCALE))
+	var seat_feet: float = seated.y + float(game.Sprites.TAMER_FEET) * float(game.Sprites.TAMER_SCALE)
 	check.call(seat_line > 120.0 and seat_feet - seat_line <= 8.0 and seat_feet >= seat_line, "a spike at the chest does not pull the tamer off the lower back (feet %.1f, line %.1f)" % [seat_feet, seat_line])
 	var gapped := Image.create(64, 64, false, Image.FORMAT_RGBA8)
 	gapped.fill(Color(0, 0, 0, 0))
