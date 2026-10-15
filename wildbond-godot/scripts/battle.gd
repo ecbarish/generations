@@ -737,6 +737,7 @@ func _grid_move(i: int, d: Vector2i, n: int, cols: int) -> int:
 
 var layout_scale := 0.0                      # tests set a phone scale; 0 uses the real window
 var external_ui := false                      # upright phone: the deck draws the commands, the scene stays in the view
+var phone_view := Rect2()                     # the phone frame's visible canvas; empty on the desktop
 
 ## Device pixels per canvas pixel. A headless window reports no size; treat that as the desktop's whole-pixel scale.
 func _view_scale() -> float:
@@ -800,13 +801,16 @@ func _detail_rect() -> Rect2:
 
 func _ally_panel() -> Rect2:
 	var panel := Rect2(222, 116, 154, 36)
+	# The upright frame does not draw the command box, so the health panel stays beside the player.
+	if external_ui:
+		return panel
 	var limit := _command_box().position.y - 4.0
 	if panel.end.y > limit:
 		panel.position.y = limit - panel.size.y
 	return panel
 
 func _ally_line_rect(i: int, n: int) -> Rect2:
-	var lift := maxf(0.0, 160.0 - (_command_box().position.y - 4.0))
+	var lift := 0.0 if external_ui else maxf(0.0, 160.0 - (_command_box().position.y - 4.0))
 	return Rect2(236, 162.0 - (n - i) * 22.0 - lift, 140, 20)
 
 ## Where the "Next:" names sit. They shrink, then wrap, and stay inside the top of the screen.
@@ -891,10 +895,12 @@ func _hp_panels() -> Array:
 			panels.append(_ally_line_rect(i, allies.size()))
 	return panels
 
-## Health panels, plus the command box, so a player's feet are not hidden under its border.
+## Health panels, plus the command box when it is actually drawn, so a player's feet are not hidden under its border.
+## The upright phone draws that box on the strip. Treating the hidden box as a wall slides the player off the left.
 func _clearance_boxes() -> Array:
 	var boxes := _hp_panels()
-	boxes.append(_command_box())
+	if not external_ui:
+		boxes.append(_command_box())
 	return boxes
 
 ## A finished battle front when the file exists; otherwise the overworld sheet, or the pixel figure.
@@ -921,7 +927,53 @@ func _battle_front_foot(spot: Vector2, species_id: String, scale: float) -> Vect
 	var sz := Sprites.battle_size(species_id)
 	if sz == Vector2i.ZERO:
 		return spot
-	return Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
+	var foot := Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
+	return _keep_on_phone(foot, sz, scale)
+
+## The rectangle a battle sprite covers, in view pixels. Same feet as the picture, including a lunge.
+func sprite_rect(u: Dictionary) -> Rect2:
+	var at := _drawn_at(u)
+	var species_id := str(u.c.sp)
+	var stand := Vector2(round(at.x), round(at.y))
+	if Sprites.has_battle_front(species_id):
+		var scale := Sprites.BATTLE_FRONT_SCALE
+		var foot := _battle_front_foot(stand + Vector2(0, 6), species_id, scale)
+		return Sprites.dest_rect(foot, Sprites.battle_size(species_id), Sprites.whole_scale(scale))
+	var zoom := 4.0 if str(u.side) == "a" else 3.0
+	var pose_name := "walk" if u.lunge > 0.0 else "idle"
+	var sz := Sprites.frame_size(species_id, pose_name)
+	if sz == Vector2i.ZERO:
+		pose_name = "idle"
+		sz = Sprites.frame_size(species_id, pose_name)
+	if sz == Vector2i.ZERO:
+		return Rect2(stand, Vector2.ZERO)
+	var foot := _painted_foot(stand + Vector2(0, 6), species_id, pose_name, zoom)
+	return Sprites.dest_rect(foot, sz, zoom)
+
+func _drawn_at(u: Dictionary) -> Vector2:
+	var at := _spot(u)
+	var dir := 1.0 if str(u.side) == "a" else -1.0
+	at.x += sin(clampf(float(u.lunge) / 0.35, 0.0, 1.0) * PI) * 10.0 * dir
+	if float(u.hit) > 0.0:
+		at.x += 2.0 if int(float(u.hit) * 30.0) % 2 == 0 else -2.0
+	return at
+
+## Slide a phone-frame sprite back inside the view. Scale stays as it was.
+func _keep_on_phone(foot: Vector2, sz: Vector2i, scale: float) -> Vector2:
+	if phone_view.size.x < 1.0 or sz.x <= 0 or sz.y <= 0:
+		return foot
+	var rect := Sprites.dest_rect(foot, sz, Sprites.whole_scale(scale))
+	var dx := 0.0
+	var dy := 0.0
+	if rect.position.x < phone_view.position.x:
+		dx = phone_view.position.x - rect.position.x
+	elif rect.end.x > phone_view.end.x:
+		dx = phone_view.end.x - rect.end.x
+	if rect.position.y < phone_view.position.y:
+		dy = phone_view.position.y - rect.position.y
+	elif rect.end.y > phone_view.end.y:
+		dy = phone_view.end.y - rect.end.y
+	return foot + Vector2(dx, dy)
 
 ## The pixel figure, at a whole multiple of its own pixels. The old path scaled a fractional height fit.
 func _draw_figure(at: Vector2, species: Dictionary, facing_right: bool, pose: Dictionary, look: Dictionary, zoom: float) -> void:
@@ -937,7 +989,8 @@ func _painted_foot(spot: Vector2, species_id: String, pose: String, scale: float
 	var sz := Sprites.frame_size(species_id, pose)
 	if sz == Vector2i.ZERO:
 		return spot
-	return Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
+	var foot := Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
+	return _keep_on_phone(foot, sz, scale)
 
 func _spot(u: Dictionary) -> Vector2:
 	# where a creature stands: yours close at the bottom left, the foe further off at the top right
@@ -1010,13 +1063,9 @@ func _draw() -> void:
 	for u in order:
 		if u.c.hp <= 0 and u.hit <= 0.0:
 			continue
-		var at := _spot(u)
-		var dir := 1.0 if u.side == "a" else -1.0
-		at.x += sin(clampf(u.lunge / 0.35, 0.0, 1.0) * PI) * 10.0 * dir
-		if u.hit > 0.0:
-			at.x += (2.0 if int(u.hit * 30.0) % 2 == 0 else -2.0)
-			if int(u.hit * 20.0) % 2 == 0:
-				continue                                          # a blink when hit (soft: no full-screen flash)
+		var at := _drawn_at(u)
+		if u.hit > 0.0 and int(u.hit * 20.0) % 2 == 0:
+			continue                                          # a blink when hit (soft: no full-screen flash)
 		var look: Dictionary = looks.get(u.c.sp, Figures.look_for(R.sp(u.c)))
 		if u.c.get("gear", "") != "":
 			look = look.duplicate()

@@ -4736,6 +4736,10 @@ func _thumbs_tick() -> void:
 	_fit_caption()
 	battle.pace = settings.pace()
 	battle.external_ui = framed and not side
+	if framed and not phone.L.is_empty():
+		battle.phone_view = Rect2(0, 0, float(phone.L["game_w"]), 216.0)
+	else:
+		battle.phone_view = Rect2()
 	var size := 16 if side_phone else (10 if settings.large_text() else 8)
 	if bubble_text.label_settings.font_size != size:  # only on a change, so the labels aren't laid out every frame
 		bubble_text.label_settings.font_size = size

@@ -163,6 +163,7 @@ static func run(main: Node, check: Callable) -> void:
 	HowTo.note("")
 	main.touch.touched = false
 	main.touch.refresh()
+	_sprites_inside(main, check)
 
 ## The deck's Menu button, in Larkhaven while Maren is still leading, and again in Thornwood.
 static func _deck_menu(main: Node, check: Callable) -> void:
@@ -252,6 +253,44 @@ static func _deck_once(main: Node, check: Callable) -> void:
 	_release(main, spot)
 	check.call(main.lines.size() == 2 and str(main.lines[0].text) == "Two.", "dialogue: a later lift does not advance again")
 	main.lines.clear()
+
+## After the intro, both battle fronts sit inside the phone view. Upright and sideways, wide and narrow.
+static func _sprites_inside(main: Node, check: Callable) -> void:
+	var saved_scale: float = main.battle.layout_scale
+	var saved_ui: bool = main.battle.external_ui
+	var saved_view: Rect2 = main.battle.phone_view
+	var cases: Array = [
+		["390x844 upright", Vector2(390, 844), 384.0, true],
+		["360x780 upright", Vector2(360, 780), 352.0, true],
+		["844x390 sideways", Vector2(844, 390), 384.0, false],
+		["780x360 sideways", Vector2(780, 360), 384.0, false],
+	]
+	for row in cases:
+		_quiet(main)
+		var win: Vector2 = row[1]
+		var view_w: float = row[2]
+		main.battle.layout_scale = minf(win.x / 384.0, win.y / 216.0)
+		main.battle.external_ui = row[3]
+		main.battle.phone_view = Rect2(0, 0, view_w, 216)
+		var lead: Dictionary = main.R.make("ripplet", 8, { "rar": 1 }, main.rng)
+		var foe: Dictionary = main.R.make("cindercub", 8, { "rar": 1 }, main.rng)
+		main.battle.open("wild", [lead], [foe], "")
+		var guard := 0
+		while (main.battle.state == "fog_in" or main.battle.state == "intro") and guard < 80:
+			main.battle._process(0.05)
+			guard += 1
+		var view := Rect2(0, 0, view_w, 216)
+		var ally: Rect2 = main.battle.sprite_rect(main.battle.allies[0])
+		var opp: Rect2 = main.battle.sprite_rect(main.battle.foes[0])
+		var past: bool = main.battle.state != "fog_in" and main.battle.state != "intro"
+		check.call(past and _rect_inside(view, ally) and _rect_inside(view, opp) and ally.size == Vector2(64, 64) and opp.size == Vector2(64, 64), "after the intro, both battle sprites sit inside the %s view (ally %s, foe %s, %s)" % [row[0], ally, opp, main.battle.state])
+	_quiet(main)
+	main.battle.layout_scale = saved_scale
+	main.battle.external_ui = saved_ui
+	main.battle.phone_view = saved_view
+
+static func _rect_inside(view: Rect2, rect: Rect2) -> bool:
+	return rect.position.x >= view.position.x - 0.01 and rect.position.y >= view.position.y - 0.01 and rect.end.x <= view.end.x + 0.01 and rect.end.y <= view.end.y + 0.01
 
 static func _quiet(main: Node) -> void:
 	main.lines.clear()
