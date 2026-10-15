@@ -10,7 +10,7 @@ The numbers come from `wildbond-godot/data/wildbond.json` (the main game data), 
 
 | What | Wildbond today | Where |
 | --- | --- | --- |
-| Creature species | 119 species in 10 families (`fam`) | `data/wildbond.json` → `SPECIES` |
+| Creature species | 189 in total, matching the in-game book: 119 in `SPECIES` plus 82 in `evolution.json`, with 12 in both. 188 can be obtained; veilmote cannot. | `data/wildbond.json` → `SPECIES`, `data/evolution.json` → `species` |
 | Moves | 60, of which 11 cause a status | `data/wildbond.json` → `MOVES` |
 | Elements (types) | 7: Ember, Tide, Grove, Stone, Gale, Shade, Radiant | `data/wildbond.json` → `ELEMENTS` |
 | Status effects | 5 kinds named on moves: marked, sleep, soaked, scorched, rooted | `MOVES[*].status` |
@@ -32,7 +32,8 @@ The numbers come from `wildbond-godot/data/wildbond.json` (the main game data), 
 | Music and sound | 11 music tracks, 23 sound effects (CC0 Ninja Adventure pack) | `assets/music`, `assets/sfx` |
 | Saving | Manual save from the pause menu, with a crash-safe spare and backup | `scripts/pause_menu.gd`, `scripts/safe_save.gd` |
 | Field book (Pokédex equivalent) | Yes, in the pause menu | `scripts/pause_menu.gd` line 10 |
-| Not found in code | Trading, abilities, held items, double battles, TMs, field moves (Cut, Surf and so on), running shoes, fast travel, shinies | searched `scripts/` for each term |
+| Element gates | Two side maps open only with a partner of the right element: a Stone partner for Old Root Grove off Thornwood Trail, and a Tide partner for Moon Pool off Saltmarsh Road | `MAPS.thornwood_route.exits.E` and `MAPS.saltmarsh_route.exits.W` (`requiresElement`) |
+| Not found in code | Trading, abilities, held items, double battles, TMs, a general field-move system beyond the two element gates, running shoes, fast travel, shinies | searched `scripts/` for each term |
 
 ## 2. Pokémon reference figures (Generations 1 to 4)
 
@@ -43,7 +44,7 @@ The numbers come from `wildbond-godot/data/wildbond.json` (the main game data), 
 | Abilities | None | None | Introduced | Expanded | [Ability](https://bulbapedia.bulbagarden.net/wiki/Ability) |
 | Held items | None | Introduced | Yes | Yes | [Held item](https://bulbapedia.bulbagarden.net/wiki/Held_item) |
 | Double battles | No | No | Introduced | Yes | [Double Battle](https://bulbapedia.bulbagarden.net/wiki/Double_Battle) |
-| Weather | No | Rain, sun and sandstorm via moves | Weather also set by the overworld and by abilities | Yes, plus fog | [Weather](https://bulbapedia.bulbagarden.net/wiki/Weather) |
+| Weather | No | Rain, sun and sandstorm via moves | Rain, sun, sandstorm and Hail (new), also set by the overworld and by abilities | Yes, plus fog | [Weather](https://bulbapedia.bulbagarden.net/wiki/Weather) |
 | Breeding | No | Introduced | Yes | Yes | [Breeding](https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_breeding) |
 | Day and night | No | Introduced (real-time clock) | Clock used for some events | Yes | [Time](https://bulbapedia.bulbagarden.net/wiki/Time) |
 | Running shoes | No | No | Introduced | Yes | [Running Shoes](https://bulbapedia.bulbagarden.net/wiki/Running_Shoes) |
@@ -76,7 +77,7 @@ These are the community's current favourites. A 2023 r/PokemonROMhacks favourite
 | Radical Red (FireRed hack) | Pokémon up to Gen 8, the physical and special split, much harder AI and boss teams with no items in boss fights, HMs used without taking a move slot, natures changeable at Pokémon Centres, and a mode that removes EV and IV grinding | It feels like FireRed rebuilt for today; one reviewer calls it "the best rom hack I've ever played" | Grinding for items and tutors, slow eggs and friendship, and an AI that rarely switches | [r/PokemonROMhacks review](https://www.reddit.com/r/PokemonROMhacks/comments/uc38h4/radical_red_review_and_comparisons_to_other_rom/), [Hard Drive](https://hard-drive.net/best-pokemon-fan-games-2d-sprite-based/) |
 | Unbound (FireRed hack) | A new region (Borrius) with a new story, a quest log of side missions, special battle rules in every gym, four difficulty modes, and a post-game | It "set a new precedent" and gave the scene its battle engine and quest log | Few criticisms surfaced in the sources checked | [r/PokemonROMhacks favourites](https://www.reddit.com/r/PokemonROMhacks/comments/12xnlze/whats_your_favorite_rom_hack/), [Hard Drive](https://hard-drive.net/best-pokemon-fan-games-2d-sprite-based/), [Pocket Deal Radar](https://pocketdealradar.com/en/rom-hacks/compare/emerald-rogue-vs-unbound) |
 | Emerald Rogue (Emerald hack) | Turns Pokémon into a roguelite: randomised routes, Pokémon, trainers and items per run, single and double battles, and many run settings | "Like replaying Emerald, except now it's fun"; almost unlimited replay | No bag sorting, hidden route encounter lists, tedious nature changes, and the same Pokémon repeating too often | [r/PokemonROMhacks spotlight](https://www.reddit.com/r/PokemonROMhacks/comments/193ars1/rom_hack_spotlight_pok%C3%A9mon_emerald_rogue/), [Hard Drive](https://hard-drive.net/best-pokemon-fan-games-2d-sprite-based/) |
-| Run & Bun (Emerald hack) | Very hard Nuzlocke-focused Emerald with fixed level caps at every story fight, from 12 up to 99 for the Champion, and Mega Evolution from early on | Hard but generally fair, with planning tools | Repetitive, tedious trainer routes | [GBACodes FAQ](https://gbacodes.com/pokemon-run-bun-faq/) |
+| Run & Bun (Emerald hack) | Very hard Nuzlocke-focused Emerald with fixed level caps at every story fight, from 12 up to 99 for the Champion. Trainers use Mega Evolution from the third Gym, and the player gets the Mega Ring after the fifth Gym | Hard but generally fair, with planning tools | Repetitive, tedious trainer routes | [GBACodes FAQ](https://gbacodes.com/pokemon-run-bun-faq/) |
 | Crystal Clear (Crystal hack) | Open world: start in Johto or Kanto, take all 16 gyms in any order, gym teams scale with your badge count (about level 7 to 75), no HMs needed to reach gyms, running shoes, and rematchable gyms | The freedom of an open world in a classic game | Level scaling gets steep around gyms 6 and 7, so some grinding is needed | [r/PokemonROMhacks review](https://www.reddit.com/r/PokemonROMhacks/comments/o3nenb/i_made_a_review_of_pokemon_crystal_clear/), [r/Games thread](https://www.reddit.com/r/Games/comments/9cb9m6/pokemon_crystal_clear_an_open_world_rom_hack/), [feature list](https://seatgem.com/2018/10/feature-details-of-pokemon-crystal-clear.html) |
 | Infinite Fusion (fan game) | Fuse any two Pokémon, giving a huge number of combinations, many with custom art from the community; an expanded Kanto with new areas and town, and all of Johto as the post-game | "The most fun I've had with Pokémon in years"; endless variety | Joke NPCs, frustrating quests, occasional bugs and a brutal difficulty curve | [TheGamer](https://www.thegamer.com/pokemon-infinite-fusion-fangame-most-fun/), [r/pokemon thread](https://www.reddit.com/r/pokemon/comments/1653cj7/is_there_any_highly_rated_faninspired_pok%C3%A9mon/) |
 | Reborn (fan game) | 18 gym leaders, field effects that change battles by location, a dark story, and over 100 hours of content | Deep story and some of the hardest fair battles | Often called too dark or edgy | [PokeCoders](https://www.pokemoncoders.com/best-fan-made-pokemon-games/), [r/pokemon thread](https://www.reddit.com/r/pokemon/comments/1653cj7/is_there_any_highly_rated_faninspired_pok%C3%A9mon/) |
@@ -90,12 +91,12 @@ These are the community's current favourites. A 2023 r/PokemonROMhacks favourite
 | World size | Kanto has 25 routes, about 10 towns and several caves; HGSS has two regions | 15 maps in a line, one town (`MAPS`) | High | Build out the plan in PR #452: about 20 routes, 10 towns, 7 caves and 3 water routes |
 | Towns | Every town has a Pokémon Centre, shop and houses with people | Only Larkhaven has buildings (`MAPS.larkhaven.doors` = 3) | High | Give every badge area a town with a healer, shop, Warden hall and 2 to 3 houses |
 | Caves and water | Caves and sea routes are part of the main path | None (`MAPS`) | High | Add a cave between badge areas 2 and 3 and a water route mid-game |
-| Field moves and gating | HMs open earlier areas on return | None found in `scripts/` | High | Field abilities from PR #452, used without a move slot, as in Radical Red and Insurgence |
+| Field moves and gating | HMs open earlier areas on return | Two element gates only: Stone opens Old Root Grove (Thornwood) and Tide opens Moon Pool (Saltmarsh) (`MAPS.*.exits[*].requiresElement`); no wider field-move system | High | Grow the element gates into the field abilities from PR #452, used without a move slot, as in Radical Red and Insurgence, and use them on the main path for shortcuts and returns |
 | Fast travel | Fly | None found | High | Glide from PR #452, unlocked by mid-game |
 | Party size | 6 | 3 (`main.gd` line 3026) | High | Raise to 6, or explain and justify 3 as a design choice with Evan |
 | Battle depth | Abilities, held items, double battles, 17 types | 7 elements, no abilities, no held items, no double battles (`ELEMENTS`, `scripts/battle.gd`) | High | Add one ability per family, held items and Warden double battles |
 | Items | Potions, status cures, Poké Ball tiers, TMs, key items | Lures and berries only (`battle.gd` line 90, `shop.gd`) | High | Add ball-style lure tiers, status cures, repels and TM-style lessons |
-| Creature count | 151 to 493 | 119 in 10 families (`SPECIES`) | Med | Grow families first, since 10 families feels thin even with 119 forms |
+| Creature count | 151 to 493 | 189 species, 188 obtainable (`SPECIES` plus `evolution.json` → `species`) | Low | Already above Gen 1's 151; spend effort on placing them across a larger world rather than adding more |
 | Moves | Hundreds | 60 (`MOVES`) | Med | Grow to roughly 120, with a move per element per role |
 | Status effects | 5 main plus temporary ones | 5 on 11 moves (`MOVES[*].status`) | Low | Fine in kind; make sure each element has one |
 | Weather | Battle weather from moves and abilities | Overworld weather that changes spawns (`WEATHER`) | Med | Also let weather change battles, like Reborn's field effects |
@@ -121,7 +122,7 @@ These are the community's current favourites. A 2023 r/PokemonROMhacks favourite
 1. The world is a single line of 15 maps, with no loops.
 2. There is only one town with buildings.
 3. There are no caves or water routes.
-4. There are no field abilities that make returning to old areas worthwhile.
+4. Only two element gates exist (Stone and Tide, both on side maps), so there is no field-ability system that makes returning to old areas worthwhile.
 5. Routes have very few trainers to battle.
 6. The party holds 3 creatures, not 6.
 7. There is no fast travel.
