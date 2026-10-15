@@ -2,6 +2,8 @@
    node tests/lantern-bowl-scouting.cjs [optional-scouting.json]
    References are the checked-out main-derived season.json and playbook.json.
    API: validate(data, season, playbook) -> error strings; parse(text) -> JSON data.
+   runChecks is the regression suite for the authored repository fixture only.
+   Optional-file CLI mode performs generic schema validation, not that suite.
 
    Shares: runShare is the fraction of calls that run; deepShare is the fraction
    of PASSES that go deep. versus[call] contains additive percentage-point deltas,
@@ -190,7 +192,7 @@ function validate(data, season, playbook) {
         }
       }
       if (typeof club.note !== 'string' || !club.note.trim() || club.note !== club.note.trim() ||
-          Array.from(club.note).length > 140 || /[\r\n\t\x00-\x1f\x7f]/.test(club.note)) {
+          Array.from(club.note).length > 140 || /[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/u.test(club.note)) {
         error(here + '.note', 'must be one trimmed line of 1 to 140 characters');
       } else {
         if (/\b(blitz|balanced|prevent)\b/i.test(club.note.normalize('NFKC'))) error(here + '.note', 'must not name a defence call');
@@ -287,11 +289,17 @@ function runChecks(data, season, playbook) {
     rejects('note must not name ' + spelling, f => { first(f).note = 'They prefer ' + spelling + '.'; }, 'defence call');
   }
   rejects('fullwidth call name', f => { first(f).note = 'They prefer Ｂｌｉｔｚ.'; }, 'defence call');
+  for (const hidden of ['\u200b', '\u200d', '\u202e', '\u2028', '\u2029']) {
+    rejects('hidden formatting or line separator in note', f => { first(f).note = 'They prefer Bli' + hidden + 'tz.'; }, '.note');
+  }
   accepts('exactly 140 characters', f => { first(f).note = 'A'.repeat(139) + '.'; });
   accepts('unicode characters counted once', f => { first(f).note = '🏈'.repeat(139) + '.'; });
   accepts('lower-ranked weight ties allowed', f => { first(f).favourites = [{id:'quick',weight:0.4},{id:'inside',weight:0.3},{id:'deep',weight:0.3}]; });
   accepts('favourite order is not ranking', f => { for (const c of Object.values(f.clubs)) c.favourites.reverse(); });
   accepts('club order is not identity', f => { f.clubs = Object.fromEntries(Object.entries(f.clubs).reverse()); });
+  accepts('valid fractional shares need not be hundredths', f => {
+    first(f).runShare = 0.401; first(f).deepShare = 0.10001;
+  });
   rejects('sparse favourites', f => { delete first(f).favourites[1]; }, 'sparse');
   rejects('enormous sparse array', f => { first(f).favourites.length = 1e9; }, 'entries');
   rejects('custom array field', f => { first(f).favourites.extra = 1; }, 'unknown array');
@@ -386,10 +394,17 @@ if (require.main === module) {
   try {
     const read = name => parse(fs.readFileSync(path.join(__dirname, '../games/lantern-bowl/', name), 'utf8'));
     const data = process.argv[2] ? parse(fs.readFileSync(process.argv[2], 'utf8')) : read('scouting.json');
-    const result = runChecks(data, read('season.json'), read('playbook.json'));
-    console.log('LB-G10: ' + result.checks + ' checks passed; ' + result.malformed + ' malformed cases rejected.');
-    console.log('15 deterministic 10,000-call diagnostic grids passed; no game engine or save integration.');
-    console.log(JSON.stringify(result.rows, null, 2));
+    const season = read('season.json'), playbook = read('playbook.json');
+    if (process.argv[2]) {
+      const errors = validate(data, season, playbook);
+      if (errors.length) throw new Error(errors.join('\n'));
+      console.log('PASS LB-G10: supplied scouting file satisfies the data contract.');
+    } else {
+      const result = runChecks(data, season, playbook);
+      console.log('LB-G10: ' + result.checks + ' checks passed; ' + result.malformed + ' malformed cases rejected.');
+      console.log('15 deterministic 10,000-call diagnostic grids passed; no game engine or save integration.');
+      console.log(JSON.stringify(result.rows, null, 2));
+    }
   } catch (error) {
     console.error('FAIL LB-G10: ' + error.message); process.exitCode = 1;
   }
