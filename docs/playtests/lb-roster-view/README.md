@@ -35,7 +35,7 @@ Rows are 72px tall at the phone sizes and never under 44px, and no text is under
 
 ## Checks
 
-`node tests/lantern-bowl-roster-view.cjs` (no packages, no browser) checks that every club gives 22 rows in order (the backlog row says 23, but the roster file and the Director's correction on #373 say 22), every star grade sits in its band, the best two ratings are picked correctly and ties are broken the same way every time, the same input gives the same rows, an unknown club ID throws a clear error, 16 kinds of malformed club are refused, and the list draws with the right rows, groups, stars, word-before-number order, one style block, `lbrv-` classes, 16px text and 44px rows. It also runs 21 deliberately broken copies of the module and requires every one to fail a check.
+`node tests/lantern-bowl-roster-view.cjs` (no packages, no browser) checks that every club gives 22 rows in order (the backlog row says 23, but the roster file and the Director's correction on #373 say 22), every star grade sits in its band, the best two ratings are picked correctly and ties are broken the same way every time, the same input gives the same rows, an unknown club ID throws a clear error, malformed rosters and clubs (wrong slot counts, a rating outside 35-90, a text or fractional rating, an unknown rating key, no name) are refused, as is a club ID that is not one of the six, and the list draws with the right rows, groups, stars, word-before-number order, one style block, `lbrv-` classes, 16px text and 44px rows. It also runs 21 deliberately broken copies of the module and requires every one to fail a check.
 
 ## For the Game Art Director
 
