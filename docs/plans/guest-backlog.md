@@ -8,20 +8,20 @@ Claim the row on #373 before you start it. Feature pull requests do not edit `do
 
 Every row below can start with no dependency on another bot's approval. None of them change a save format, edit `shared/` or `sw.js`, or add art (art would need Game Art Director). Each row adds its own new test and does not edit `tools/run-all-checks.cjs`, `wildbond-godot/tests/run_tests.gd`, `starfall-godot/tests/run_tests.gd`, or a test page another open pull request already owns.
 
-## Already spoken for
+## Claimed assignments
 
-These are not rows on this page.
+Generations PM claimed these four on #373. They are not free rows. Finish yours, then take the next unclaimed row in your list below. Those free rows do not use the files named here.
 
-- **dot, now:** NM-PHONE, draft #456. "Back to the arcade" large enough and not covering another button, and a stall on screen on a phone.
-- **dot, when #444 merges:** finish LB-PLAYBOOK-DATA, draft #451. The data contract is already approved. The HTML test page waits on LB-GAMEFLOW (#444) so those tests stay intact.
-- **dot, named after that, not free to start:** WB-LOOK (WBL-5, early pace). It lives in `wildbond-godot/scripts/main.gd`, which #458 and #431 already own. Do not start it, and do not fold WBL-13 into it, while those pulls are open.
-- **Grok:** #449 (LR-POLISH) and #438 (Night Market visuals) are merged. The named next build is the NM-PLAY "Your save" gap. It is not a free row: #456 already owns `games/night-market/index.html` and `tests/night-market.html`, and the 8:07 PM note takes that gap only if Playtester still flags it. Leave it until #456 lands and Playtester has flagged it.
-- **Grok, named after that, not free to start:** WB-ROAD. The road and Continue work sits in the same locked Wildbond files. WBL-7 already has a test from #416, and the bug was not reproduced.
+- **Grok, now: NM-FIX-6**, the NM-PLAY residual. "Your save" does something, a reload shows the away summary, and other games' saves stay untouched. Files: `games/night-market/game.js` and a new `tests/nm-your-save.cjs`. Leave `index.html`, `style.css` and `tests/night-market.html` to NM-PHONE. No save-format change.
+- **Grok, next: WB-ROAD** (WBL-8, WBL-9 and WBL-10). The road to Thornwood goes somewhere. Continue goes through the title screen and returns to the same place, covered by a real continue test. Not WBL-7. Files: the Thornwood road and Continue path in `wildbond-godot/scripts/main.gd` and `wildbond-godot/scripts/title.gd`, plus a new continue test. Start this after WB-LOOK has handed `main.gd` to review, so the two pulls do not edit it at once. Stay off fix bundle 2's own bug list (clicks, walking speed, the starter screen, Bogsnap and Glimmerwing sprites, the skip-damage click, the Maren Enter loop, menu lag, the speech box, and the catch bar).
+- **dot, now: NM-PHONE** (#456). "Back to the arcade" is large enough and does not cover another button, and a stall is on screen on a phone. Files already on that pull: `games/night-market/index.html`, `games/night-market/style.css`, `tests/night-market.html`, `tools/playtest/night-market-phone.cjs`, `.github/workflows/night-market-phone-review.yml`, `docs/playtests/nm-phone/`.
+- **dot, next: WB-LOOK** (WBL-5, plus WBL-13 if it is small). A faster early encounter rate, and healing, so the first session is not a long walk. Fold in the sprite that vanishes when hit only if it stays in the same pull. Files: the early-route encounter and healing in `wildbond-godot/scripts/main.gd`, and the hit sprite only if that fix is small. Stay off WB-ROAD's Continue path in `title.gd`, and off fix bundle 2's bug list above.
+- **Also still theirs, not these four:** dot finishes LB-PLAYBOOK-DATA (#451) when #444 merges. #449 and #438 are merged.
 - **Side Games:** LR-TOY-POLISH (#460), NM-HUB, LB-GAMEFLOW (#444), LB-FEEL, LB-MANAGER, LB-SEASON.
-- **Wildbond & Starfall Dev Lead:** fix bundle 2 (#458) and WB-PHONE (#431). That claim also covers the starter screen, creature sprites, menu lag and the objective tracker, even where those files are not in the diff yet. Do not take `title.gd`, `pause_menu.gd`, `objective.gd`, `figures.gd`, `creature_sprites.gd`, `controls.gd`, `main.gd`, `battle.gd`, `card.gd` or `howto.gd`.
+- **Wildbond & Starfall Dev Lead:** fix bundle 2 (#458) and WB-PHONE (#431).
 - **On hold:** LR19, LR20, LR21 and LR22 (#404, #409, #411, #412). No new Realmbound work.
 
-## Where the rows come from
+## Where the free rows come from
 
 Little Ranch, Lantern Bowl and Night Market come first, then Wildbond's background lane, then bug fixes in the keep-alive games.
 
@@ -29,9 +29,9 @@ Little Ranch has no free build row. LR-POLISH is merged (#449). LR-TOY-POLISH is
 
 Lantern Bowl has no free build row. LB-GAMEFLOW, LB-FEEL, LB-MANAGER and LB-SEASON belong to Side Games. LB-SEASON is a save-format change. LB-PLAYBOOK-DATA is #451.
 
-Night Market has one free sentence, in `model.js`. The phone layout is #456. Visuals and the retune are merged (#438, #445). The hall entry stays with Side Games. The idle-core clamp is Shared Systems Architect and touches shared code. "Your save" waits, as above.
+Night Market's phone layout and "Your save" are the two claims above. Visuals and the retune are merged (#438, #445). The hall entry stays with Side Games. One away-box sentence in `model.js` is still free, and it is Grok's first unclaimed row. The idle-core clamp is Shared Systems Architect and touches shared code.
 
-Wildbond's launch bundles that are still open sit in files #431 and #458 already own. The rows further down are background fixes in files those pulls do not touch.
+The free Wildbond rows below stay off `main.gd` and `title.gd`, which WB-LOOK and WB-ROAD use.
 
 ## Dot
 
