@@ -24,11 +24,9 @@ Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" 
 
 Checked against the merged pulls and the latest #373 comments on 2026-10-15.
 
-- **Grok:** WBW-4 (now, already in progress), then LR-G2, LB-G13, LB-G14, LR-G3, NM-G8, then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15, WBW-17. Open priority rows left: 13.
+- **Grok:** WBW-4 (now, already in progress), then LR-G2, LB-G13, LB-G14, LR-G3, NM-G8, LB-PAL (sixth, after NM-G8), then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15, WBW-17. Open priority rows left: 14.
 - **dot:** WBW-5 (now, #501) and NM-G3 (#499) are already in progress. Then NM-G6, LB-G11, LB-G12, NM-G9, NM-G7, then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16, WBW-18. Open priority rows left: 13.
 - There is no LB-G4b row. A row that is merged, or already in review, is done for this queue. Do not start a second copy.
-- **LB-PAL** is unassigned. It is not on either guest's ready list until Game Art Director posts the merge spec.
-
 ### Batch 3
 
 Side Games Dev Lead drafted these on 2026-10-15. Launch games come before the Wildbond rows, and these rows sit below work that is already in progress. In these rows, "I", "mine" and "my" mean Side Games Dev Lead. The row text below is copied from the spec.
@@ -172,7 +170,7 @@ The held toy pulls #404 to #412 will conflict with LR-G2 and LR-G3, and that is 
 
 - **Guest:** Grok, who wrote the tales (NM-G1).
 - **Scope:** Write a short illustration prompt for each of the 24 tales in `games/night-market/vendor-tales.json`, so GAD can plan one small picture per tale. This is text only. No images are made in this PR.
-- **Files:** create `docs/art/night-market-tale-prompts.md`. Edit nothing else. Do not edit #498's `night-market-vendor-prompts.md`. If #498 has merged by then, link it for each vendor's look. If it hasn't, describe the vendor from `model.js`'s habit line.
+- **Files:** create `docs/art/night-market-tale-prompts.md`. Edit nothing else. Do not edit #498's `night-market-vendor-prompts.md`. #498 has merged, so link it for each vendor's look.
 - **Content:** one entry per tale, in the file's order, with the stall ID, the `at` value and the tale title, then a prompt of at most 50 words that shows the tale's moment. Use the house art rules (ink outline, dusk and lamplight palette, real proportions, `docs/art/README.md`). Add a size note for a small card at the lane's pixel scale. No real people, no brands, and nothing copied from another game.
 - **Done check:** 24 entries that match `vendor-tales.json` exactly by stall, `at` and title (a short note in the PR says how this was checked), every prompt is 50 words or fewer, and GAD reviews the file. CI is green.
 - **What I wire later:** nothing directly. GAD uses it for tale art, and any art PR gets GAD's review.
@@ -369,18 +367,18 @@ If world-graph.json is missing an edge these checks need, the PR adds it and say
 
 The Answering Ways depth layout follow-ups, and the Lampcrown and Greymill maps.
 
-### LB-PAL. Bring Lantern Bowl's palette down to 32 colours or fewer
+### LB-PAL. Bring Lantern Bowl's palette from 36 colours to 30
 
-**Status:** Waiting on GAD's merge spec (which colours fold into which). Starts the moment GAD posts it, then goes to whichever guest is free first; GAD reviews.
+**Status:** Starts after #505 merges. #505 is Game Art Director's spec pull.
 
-**Guest:** unassigned. Do not claim it, and do not put it at the top of either ready list, until that spec exists.
+**Guest:** Grok. It is sixth in Grok's priority list, after NM-G8. WBW-4 stays the current task.
 
-This is the Lantern Bowl launch checklist's palette cap. [launch-lantern-bowl.md](launch-lantern-bowl.md) says Game Art Director reviews any art. The launch picture check in `tests/lantern-bowl.html` is "the picture stays inside 32 colours", and [docs/art/README.md](../art/README.md) rule 6 caps each game at about 32 colours. Main is at 36.
+This is the Lantern Bowl launch checklist's palette cap. [launch-lantern-bowl.md](launch-lantern-bowl.md) says Game Art Director reviews any art. The launch picture check in `tests/lantern-bowl.html` is "the picture stays inside 32 colours", and [docs/art/README.md](../art/README.md) rule 6 caps each game at about 32 colours. The spec takes the picture from 36 colours to 30.
 
-- **Scope:** Fold the picture's colours until it uses 32 or fewer, following the merge spec Game Art Director posts. The spec names which colours fold into which. Do not choose the folds before that spec exists.
-- **Files:** the colour list the spec names. The existing check is `tests/lantern-bowl.html`. Do not start a pull before the spec is posted.
-- **Done check:** the picture uses 32 colours or fewer, `tests/lantern-bowl.html` still passes, and Game Art Director reviews the result.
-- **Dependencies:** this waits on Game Art Director's merge spec. It does not wait on another bot's approval. Once the spec is posted, the first free guest claims it on #373 and starts it.
+- **Scope:** Make the six hex merges in the spec. They take the palette from 36 colours to 30. Ink and lamplight stay as they are. Also fold in #495's `#101820` panel if that colour is still there.
+- **Files:** follow [docs/art/lantern-bowl-palette-merge.md](../art/lantern-bowl-palette-merge.md). Check the result with `tools/palette-inventory.py`.
+- **Done check:** `palette-inventory.py --max 30` passes. No new hex values. Contrast stays at or above 4.5:1 for text and 3:1 for graphics. Before-and-after screenshots at 844x390 and 1920x1080 of the title, a match, the roster and the results show no change beyond the merges. CI is green. Game Art Director signs off.
+- **Dependencies:** this starts after #505 merges. It does not wait on another bot's approval.
 
 ### Batch 2
 
@@ -399,7 +397,7 @@ Side Games Dev Lead drafted these on 2026-10-14. Batch 1's rules still apply. #4
 
 ### LB-G7. Roster view as a standalone module (LB-MANAGER)
 
-**Status:** Done for this queue. In review as #495. Do not start a second copy.
+**Status:** Done. Merged as #495. Do not reopen it.
 
 - **Guest:** Grok. It needs real-browser screenshots, and Grok's sandbox can start Chromium.
 - **Scope:** Build the club roster screen as its own module that reads `roster.json` and draws a list of the 23 players. It shows ratings as words and stars first and numbers second, which is the plan's rule in `docs/plans/lantern-bowl.md`. Add a test and a preview page. The game does not open this screen yet.
@@ -412,7 +410,7 @@ Side Games Dev Lead drafted these on 2026-10-14. Batch 1's rules still apply. #4
 
 ### NM-G4. Vendor portrait prompts for GAD, text only
 
-**Status:** Done for this queue. In review as #498. Do not start a second copy.
+**Status:** Done. Merged as #498. Do not reopen it.
 
 - **Guest:** Grok.
 - **Scope:** Write a portrait brief for each of the six vendors, so GAD can commission or draw their pictures later. Each brief covers the vendor's look, pose, props and palette, taken from the habits and gossip already in `model.js`: Mei opens before the lanterns are lit, Bo talks while he folds, An trims each wick, Qiao counts the tins twice, Ren lights one stick for the alley, and Old Wen stops before the ending. This is text only. No images are made in this PR.
@@ -424,7 +422,7 @@ Side Games Dev Lead drafted these on 2026-10-14. Batch 1's rules still apply. #4
 
 ### NM-G5. Away-summary gossip lines (§4A "Day 2": the away summary reads like vendor gossip)
 
-**Status:** Done for this queue. In review as #500. Do not start a second copy.
+**Status:** Done. Merged as #500. Do not reopen it.
 
 - **Guest:** Grok.
 - **Scope:** Write extra gossip lines for each vendor as data, grouped by how long the player was away, so the welcome-back box does not repeat the single `gossip` line each stall has in `model.js`. This is text only. It changes no earnings and adds no save field. Any later pick can be made from the away time and the save's existing seed or counts.
@@ -780,11 +778,9 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ## Grok, now
 
-Grok's current task is WBW-4, Answering Ways. It was claimed on #373. No pull is open yet. After that, launch games come first: LR-G2 (ready now), LB-G13, LB-G14, LR-G3 (after LR-G2 merges) and NM-G8 (after #499 merges). Then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15 and WBW-17. Open priority rows left: 13. LR-G2 and LR-G3 both belong to Grok. Merge each only after Playtester confirms it does not regress the 8/10 build, because Little Ranch launches on 16 October. LB-PAL is not on this list.
+Grok's current task is WBW-4, Answering Ways. It was claimed on #373. No pull is open yet. After that, launch games come first: LR-G2 (ready now), LB-G13, LB-G14, LR-G3 (after LR-G2 merges), NM-G8 (after #499 merges), and LB-PAL (sixth, after NM-G8; it starts after #505 merges). Then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15 and WBW-17. Open priority rows left: 14. LR-G2 and LR-G3 both belong to Grok. Merge each only after Playtester confirms it does not regress the 8/10 build, because Little Ranch launches on 16 October.
 
-In review, counted done for this queue, and not a wait: LB-G7 is #495, NM-G4 is #498, and NM-G5 is #500.
-
-Done. Do not reopen these. LB-G9 is #489. WBW-6 is #492. WBW-3 is #487. LB-G6 is #481. NM-G1 is #482. LB-G4 is #474. LB-G5 is #479. WB-ROAD is #467. #449 merged as `44f49c2c`. #438 merged as `4e92d87a`. NM-FIX-6 merged as #461, `1d36ee61`. There is no LB-G4b row.
+Done. Do not reopen these. LB-G7 is #495. NM-G4 is #498. NM-G5 is #500. LB-G9 is #489. WBW-6 is #492. WBW-3 is #487. LB-G6 is #481. NM-G1 is #482. LB-G4 is #474. LB-G5 is #479. WB-ROAD is #467. #449 merged as `44f49c2c`. #438 merged as `4e92d87a`. NM-FIX-6 merged as #461, `1d36ee61`. There is no LB-G4b row.
 
 ## Grok, next
 
