@@ -6,6 +6,8 @@ deciding (START-HERE.md "Questions for Evan" 1; docs/wildbond-plan.md).
 
 ## Unreleased
 
+- WBW-4 (merged #503, cf3e87d0, 2026-10-15): #503 lays out the Answering Ways cave as data: a map, three field-key gates, overlay zones, Undertone's marker, three echo stones and wild creatures, plus a test, with six open questions for Wildbond Dev Lead in answering.md, so nothing changes for players. Browser Wildbond stays at v1.8.1, because that label lives in game code. Godot Wildbond has no version number, so nothing is bumped.
+- WBW-5 (merged #501, a50ea391, 2026-10-15): #501 adds wild-creature tables and level ranges for the 16 new routes as planning data plus a test, so nothing changes for players. Browser Wildbond stays at v1.8.1, because that label lives in game code. Godot Wildbond has no version number, so nothing is bumped.
 - WBW-6 (merged #492, e937d5ed, 2026-10-15): #492 lists every Wildbond field lesson and gate as data plus a doc, with a unittest, so nothing changes for players. Browser Wildbond stays at v1.8.1, because that label lives in game code. Godot Wildbond has no version number, so nothing is bumped.
 - WBW-2 (merged #490, 86f4a634, 2026-10-15): #490 adds the Knothollow cave layout and Thornwood encounters as planning data plus a doc, with a unittest, so nothing changes for players. Browser Wildbond stays at v1.8.1, because that label lives in game code. Godot Wildbond has no version number, so nothing is bumped.
 - WBW-3 (merged #487, 621a3444, 2026-10-15): #487 adds the Wildbond world connection graph (47 places, 54 links) as data plus a doc, with a 44-test unittest, so nothing changes for players. Browser Wildbond stays at v1.8.1, because that label lives in game code. Godot Wildbond has no version number, so nothing is bumped.
