@@ -20,20 +20,21 @@ Take these before any row under "Unclaimed rows". The nine bug-fix rows for each
 
 Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" mean Side Games Dev Lead. Wildbond & Starfall Dev Lead scoped three world-build rows from [wildbond-world-design.md](wildbond-world-design.md) (#455) and will review each Wildbond pull. Side Games Dev Lead will review each launch-game pull. That review is not a wait. There is no dependency on another bot's approval.
 
-Take them in this order.
+Checked against the open pulls and the latest #373 comments on 2026-10-15.
 
-- **Grok, now:** LB-G4 (sounds). Then LB-G5 (kick rules), LB-G6 (dilemmas), NM-G1 (vendor tales), WBW-3 (world graph), and LR-G1 (Little Ranch phone pre-check).
-- **dot, now:** LB-PLAYBOOK-DATA (#451), which is still open. Next is LB-G1 (roster and ratings), then LB-G2 (season schedule data), LB-G3 (progression), NM-G2 (second district), and WBW-1 (errands).
-- **WBW-2** (Knothollow) goes to whichever guest finishes first.
+- **Grok, now:** LB-G4b, the crowd-loop fix on the merged sound cues. Then WBW-3, which has no pull yet, then LR-G1.
+- **dot, now:** NM-G2 (#483). The permit question is answered, so this is the task to finish. WBW-1 is already claimed as #485 and stays in progress.
+- **WBW-2** has no pull and no claim. The latest #373 note names it for dot. Grok does not start it.
+- **WBW-3** has no pull and no claim. It is Grok's, after LB-G4b.
 
 ### Notes every launch-game row inherits
 
 - Never merge your own PR. Generations Reviewer merges. Stop at ready for review with CI green, and never force-push.
 - Do not edit `shared/`, `sw.js`, the root `index.html`, `launcher/`, `.github/workflows/`, `docs/COMMS.md`, `START-HERE.md` or `docs/DEVELOPMENT-PATH.md`. Claims and handoffs go on #373.
-- Do not edit `games/lantern-bowl/game.js`, `model.js`, `view.js`, `style.css`, `index.html` or `tests/lantern-bowl.html`. #444 is changing them, and Side Games Dev Lead does the wiring after it merges.
-- Do not edit `games/lantern-bowl/playbook.json` or `tests/lantern-bowl-playbook.cjs`. Those are dot's #451.
-- Do not edit `games/night-market/game.js`, `model.js`, `lane.js`, `style.css`, `index.html` or `tests/night-market.html`. #456 is open on the phone files. #461 has merged, and these rows still do not edit those files.
-- Do not edit `games/little-ranch/game.js`, `index.html`, `tests/little-ranch.html` or `tools/playtest/little-ranch-review.cjs`. #460 is open on them.
+- Do not edit `games/lantern-bowl/game.js`, `model.js`, `view.js`, `style.css`, `index.html` or `tests/lantern-bowl.html`. #444 has merged. Side Games Dev Lead still does the wiring.
+- Do not edit `games/lantern-bowl/playbook.json` or `tests/lantern-bowl-playbook.cjs`. Those merged as #451.
+- Do not edit `games/night-market/game.js`, `model.js`, `lane.js`, `style.css`, `index.html` or `tests/night-market.html`. #456 and #461 have merged, and these rows still do not edit those files.
+- Do not edit `games/little-ranch/game.js`, `index.html`, `tests/little-ranch.html` or `tools/playtest/little-ranch-review.cjs`. #460 has merged, and LR-G1 still does not edit them.
 - No save-format change. Any new art needs Game Art Director (GAD) review. These rows add no art.
 - Only MIT-style code, and no code, data, text, melodies or assets from Retro Bowl, ALL-22 or any other commercial or unlicensed game. You may describe a technique. Every name, number and line of text is original.
 - Each PR has a full-sentence title. Its description says what changed for the player (for a data row, say that nothing changes in the game yet), why, how it was tested, and which row it closes.
@@ -44,9 +45,9 @@ Shared club IDs. LB-G1 and LB-G2 both use these six club IDs, so neither waits o
 
 Shared rating keys. LB-G1, LB-G3 and LB-G5 use the rating keys that `person()` in `games/lantern-bowl/model.js` already defines: `throw`, `catch`, `speed`, `carry`, `block`, `rush`, `cover`, `tackle` and `kick`. Every rating is a whole number from 35 to 90, which is Evan's approved range.
 
-Night Market's launch rows that are still open are NM-PHONE, dot's #456. Done: NM-FIX-6 as #461 (`1d36ee61`), NM-VIS as #438 (`4e92d87a`), and NM-RETUNE as #445. NM-HUB stays with Side Games Dev Lead, NM-CLAMP waits on SSA, and NM-FIX-7 is a Playtester session. NM-G1 and NM-G2 are the checklist's later items, "a collection of vendor stories" and "moving to a new district, permits", which were waiting on NM-RETUNE. NM-RETUNE has merged, so they are free. Both are new data files, so they do not touch any file on #456.
+Night Market's phone layout merged as NM-PHONE #456. Done: NM-FIX-6 as #461 (`1d36ee61`), NM-VIS as #438 (`4e92d87a`), and NM-RETUNE as #445. NM-HUB stays with Side Games Dev Lead, NM-CLAMP waits on SSA, and NM-FIX-7 is a Playtester session. NM-G1 and NM-G2 are the checklist's later items, "a collection of vendor stories" and "moving to a new district, permits", which were waiting on NM-RETUNE. NM-RETUNE has merged, so they are free. Both are new data files, so they do not touch any file on #456.
 
-Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered LRL-6 (dough dots), LRL-7 (the fox), LRL-10 (the sign wiggle), and LRL-13, LRL-14 and LRL-15 (bedtime cues, the dusk fade, leaving the paint shed early). Do not reopen it. #460 is open for the kitchen bowl, the picture-sign tap, the ball's double roll and the favicon 404. LRL-4 (the sound choice after a reload) is waiting for Playtester or Evan to confirm. LRL-11, the phone playtest, belongs to Playtester and is not a build PR. LR-G1 is a tool that gets that phone playtest ready without touching game files.
+Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered LRL-6 (dough dots), LRL-7 (the fox), LRL-10 (the sign wiggle), and LRL-13, LRL-14 and LRL-15 (bedtime cues, the dusk fade, leaving the paint shed early). Do not reopen it. #460 has merged for the kitchen bowl, the picture-sign tap, the ball's double roll and the favicon 404. LRL-4 (the sound choice after a reload) is waiting for Playtester or Evan to confirm. LRL-11, the phone playtest, belongs to Playtester and is not a build PR. LR-G1 is a tool that gets that phone playtest ready without touching game files.
 
 ### Notes for the three Wildbond world-build rows
 
@@ -60,6 +61,8 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 
 ### LB-G4. Touchdown fanfare and game-feel sound cues (LB-FEEL)
 
+**Status:** Done. Merged as #474.
+
 - **Guest:** Grok.
 - **Scope:** Write Lantern Bowl's new sounds as code-generated Web Audio cues: a touchdown fanfare, a tackle thud, a catch pop, a crowd bed and crowd swell, a whistle, a kick thump, a first-down chime and an interception sting. Add a validator and a page where anyone can listen to each one. Nothing plays in the game yet.
 - **Files:** create `games/lantern-bowl/sound-cues.js`, `tests/lantern-bowl-sound-cues.cjs` and `docs/playtests/lb-feel-sounds/index.html`. Do not edit `shared/sound.js`. Shared code goes in its own PR, and that one is mine.
@@ -72,6 +75,8 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 
 ### LB-G5. Two-tap kick model, headless (LB-FEEL)
 
+**Status:** Done. Merged as #479.
+
 - **Guest:** Grok.
 - **Scope:** Write the rules for a two-tap kick as its own headless module. The first tap sets power and the second sets aim on a sweeping needle, and the kicker's rating sets how fast and steady the needle is. This is the comparison's fix 10. It describes the technique only and copies no code. The game does not use it yet.
 - **Files:** create `games/lantern-bowl/kick.js` and `tests/lantern-bowl-kick.cjs`. Edit nothing else. Field goals and punts on fourth down are #444's, in `model.js`, so do not touch them.
@@ -81,6 +86,8 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 - **Dependencies:** none.
 
 ### LB-G6. Between-games dilemma cards (LB-SEASON)
+
+**Status:** In review as #481. Do not start a second copy.
 
 - **Guest:** Grok.
 - **Scope:** Write at least 12 original between-games decision cards as data. Each card has a short situation and two choices, and each choice has small effects on morale, coaching points, fans or the owner. This is the comparison's fix 7. It is data only, with no save change.
@@ -93,6 +100,8 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 
 ### NM-G1. Vendor tales for the six stalls (later row: a collection of vendor stories)
 
+**Status:** In review as #482. Do not start a second copy.
+
 - **Guest:** Grok.
 - **Scope:** Write four short tales for each of the six vendors as data, one unlocked when the vendor is hired and one at 25, 50 and 100 owned. That reuses the existing milestones in `model.js`, so the game can work out which tales are unlocked from the current save with no new field. The game does not show them yet.
 - **Files:** create `games/night-market/vendor-tales.json` and `tests/nm-vendor-tales.cjs`. Edit nothing else.
@@ -103,6 +112,8 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 - **Dependencies:** none.
 
 **WBW-3.** Grok. World connection graph.
+
+**Status:** No pull and no claim on #373. It is Grok's after LB-G4b. Dot does not start it.
 
 Section 9's Region, Map and Connection records are one data file listing 20 routes, 10 towns, 7 caves and 3 water routes. Each link has its gate (a badge, a story key, or a field lesson), its phase, and a one-way flag, which is set only for Glassfall.
 
@@ -115,17 +126,21 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 
 ### LR-G1. Phone pre-check for the LRL-11 playtest
 
+**Status:** No pull and no claim. It is Grok's after WBW-3.
+
 - **Guest:** Grok. Grok ran real Chromium for #461, which has merged (`1d36ee61`), and dot's sandbox could not start Chromium on #451 and #456.
 - **Scope:** Write a real-browser script that opens Little Ranch at phone sizes, visits every place, and reports any tap target smaller than 44 by 44 pixels, any two tappable things that overlap, and anything cut off the screen. It also saves one screenshot per place and size, so Playtester starts LRL-11 with a known list. It changes no game file.
 - **Files:** create `docs/playtests/lrl-11/phone-precheck.cjs`, `docs/playtests/lrl-11/README.md`, and the screenshots and `report.json` it writes in `docs/playtests/lrl-11/`. Follow the pattern of `docs/playtests/lr-polish-2/shots.cjs`. Do not edit `tools/playtest/little-ranch-review.cjs`, which #460 changes.
 - **Sizes:** 390x844 and 844x390 (iPhone 12 held upright and sideways, as in the checklist), 360x780, and 1024x594 for a tablet.
 - **Done check:** the script runs against `main` with real taps (touch events, with the follow-up synthetic click ignored as the game does), writes the screenshots and `report.json`, and exits cleanly. The README lists every finding in plain sentences with its screenshot, or says there were none. It does not fix anything. If it finds a real bug, the README says so and I take the fix. Normal CI stays green.
-- **What I wire later:** nothing in the game. I hand the report to Playtester for LRL-11 and fold any real bug into my next Little Ranch fix list. If #460 merges first, run the script again on the new `main` before going to review.
+- **What I wire later:** nothing in the game. I hand the report to Playtester for LRL-11 and fold any real bug into my next Little Ranch fix list. #460 has merged, so run the script on current main.
 - **Dependencies:** none. It runs on whatever `main` is.
 
 ### dot
 
 ### LB-G1. Roster and ratings data for six clubs (LB-MANAGER)
+
+**Status:** Done. Merged as #472.
 
 - **Guest:** dot. It fits next to dot's playbook data.
 - **Scope:** Write the full roster for all six clubs as data, with every player rated from 35 to 90, and replace the single team numbers for the line, rush, cover and tackle with named starters. Add a validator. The live game does not load this file yet.
@@ -139,6 +154,8 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 
 ### LB-G2. Season schedule and club data, data only (LB-SEASON)
 
+**Status:** Done. Merged as #478.
+
 - **Guest:** dot.
 - **Scope:** Write the season as data: the six clubs' names, colours and home grounds, a ten-week fixture list, and the playoff format. Add a validator. This does not touch the save and the game does not load it yet.
 - **Files:** create `games/lantern-bowl/season.json` and `tests/lantern-bowl-season.cjs`. Edit nothing else.
@@ -150,6 +167,8 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 
 ### LB-G3. Player progression table and five-season simulation (LB-SEASON)
 
+**Status:** In review as #480. Do not start a second copy.
+
 - **Guest:** dot.
 - **Scope:** Write how players grow and age as a data table, plus a seeded simulation that proves ratings stay inside 35–90 over five seasons. This is the "XP per match, level-up toward a potential cap" item in the comparison (fix 8). It is data and a test only. It adds no save field.
 - **Files:** create `games/lantern-bowl/progression.json` and `tests/lantern-bowl-progression.cjs`. Edit nothing else.
@@ -160,6 +179,8 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 
 ### NM-G2. Second district data and a pacing check (later row: moving to a new district, permits)
 
+**Status:** Dot's current task, #483. It was blocked on the permit question: https://github.com/ecbarish/generations/issues/373#issuecomment-6183489310. Side Games Dev Lead answered, and that ruling unblocks it: https://github.com/ecbarish/generations/pull/483#issuecomment-6183588332. Finish #483 with that ruling. Do not open a second pull.
+
 - **Guest:** dot. dot knows Night Market's pacing from NM-PHONE, and these files are separate from #456's.
 - **Scope:** Write the second district as data, with its own six stall types in the same shape as `STALLS` in `model.js`, and add a pacing tool that shows how a fresh run in that district would play. This follows §8.3 of `docs/research/office-idle-progression.md`: permits are `floor(sqrt(lifetime / 1e6))`, the move is offered at a lifetime of 1,000,000, one favourite vendor comes along, and each permit opens one new stall type instead of a percentage boost. It is data and tooling only. It adds no save field.
 - **Files:** create `games/night-market/districts.json` and `tools/night-market-district-sim.cjs`. Do not edit `tools/night-market-pacing.cjs`, `model.js` or any test page.
@@ -169,6 +190,8 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 - **Dependencies:** none.
 
 **WBW-1.** Dot. Errand data for the quest log.
+
+**Status:** Claimed by dot as #485. The pull is still a draft. Keep it moving. Grok does not start it.
 
 The ten errands from design section 3 are data. Each has an id, a town, a giver, requires gates (badges, `field:*` keys, map ids), steps, and log text of 120 characters or fewer. Rewards may only use the existing bag keys `lures`, `coins` and `berries`. Progress is stored only as story keys `sq:<id>:heard`, `:step` and `:done`, so there is no save change. There is no character dialogue yet, and Perrin's and Juna's items in `sq-halen-passing` stay placeholders.
 
@@ -181,7 +204,9 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ### Whichever guest finishes first
 
-**WBW-2.** Whichever guest finishes first. Knothollow cave layout and encounters.
+**WBW-2.** Knothollow cave layout and encounters.
+
+**Status:** No pull and no claim. The latest #373 note names it for dot, after NM-G2 and the claimed WBW-1 draft. Grok does not start it.
 
 `knothollow` is a map entry in the exact MAPS shape (`name`, biome `thornwood`, `start`, `rows`, `exits`, `signs`, `items`, `wild`). It uses only the existing TILES glyphs. The Stone Break and Grove Wake spots go in a separate gates list keyed to `field:stone` and `field:grove`. Exits go to `rootwater` and `thornwood_grove`. `wild` uses only Thornwood's BIOMES species at levels 2 to 12, with nothing unique and no Elderhorn. It includes the layout notes from section 5: a 48×32 mouth, a 32px ceiling, and no mounts.
 
@@ -192,15 +217,17 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ## Grok, now
 
-Grok's current task is LB-G4. Then take LB-G5, LB-G6, NM-G1, WBW-3, and LR-G1, in that order.
+Grok's current task is LB-G4b. Make the crowd cue in `games/lantern-bowl/sound-cues.js` loop seamlessly, per the review note on #474: https://github.com/ecbarish/generations/pull/474#issuecomment-6183447752. Update `tests/lantern-bowl-sound-cues.cjs` and the listening page, and paste the node test output in the pull. Then take WBW-3. It has no pull. Then LR-G1.
 
-Done. Do not reopen these. #449 merged as `44f49c2c`. #438 merged as `4e92d87a`. NM-FIX-6 merged as #461, `1d36ee61`.
+In review, and not a wait: LB-G6 is #481, and NM-G1 is #482.
+
+Done. Do not reopen these. LB-G4 is #474. LB-G5 is #479. WB-ROAD is #467. #449 merged as `44f49c2c`. #438 merged as `4e92d87a`. NM-FIX-6 merged as #461, `1d36ee61`.
 
 ## Grok, next
 
-WB-ROAD stays assigned. It is not the current task. It waits until Grok's Priority rows are in review.
+WB-ROAD is done. It merged as #467. Do not reopen it. The note below is the record of that row.
 
-**WB-ROAD.** One Godot pull for WBL-8, WBL-9 and WBL-10, and WBL-16 because it is the same title screen. The road from Larkhaven to Thornwood goes somewhere a newcomer can walk (WBL-8). Continue goes through the title screen and returns to the same place (WBL-9). Clicking "Continue your journey" chooses Continue (WBL-16). A real end-to-end Continue test starts a journey, quits, continues, and lands in the same place, not only a fixture load (WBL-10). WBL-7 stays with the north-roads check from #416. Stay out of the Wildbond dev lead's fix bundle (#458: mouse clicks on buttons, walking speed, and the opening tidy). Old saves must load. There is no save-format change.
+**WB-ROAD.** Done. Merged as #467. One Godot pull for WBL-8, WBL-9 and WBL-10, and WBL-16 because it is the same title screen. The road from Larkhaven to Thornwood goes somewhere a newcomer can walk (WBL-8). Continue goes through the title screen and returns to the same place (WBL-9). Clicking "Continue your journey" chooses Continue (WBL-16). A real end-to-end Continue test starts a journey, quits, continues, and lands in the same place, not only a fixture load (WBL-10). WBL-7 stays with the north-roads check from #416. Stay out of the Wildbond dev lead's fix bundle (#458: mouse clicks on buttons, walking speed, and the opening tidy). Old saves must load. There is no save-format change.
 
 The map data already connects Larkhaven north to the Thornwood route, and that route north to Thornwood. Reproduce the "does nothing" path. If a walkable exit tile is missing, or the exit character is not marked as an exit, fix that in `wildbond-godot/data/wildbond.json` only. If the only block is the "Not yet" sentence or the door check in `wildbond-godot/scripts/main.gd`, do not edit `main.gd`. Say what you reproduced on #373 and leave that part. WBL-9, WBL-10 and WBL-16 still go ahead in the title screen.
 
@@ -211,9 +238,9 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, now
 
-Dot's current task is LB-PLAYBOOK-DATA. LB-G1 is next.
+Dot's current task is NM-G2 (#483). The permit question is answered, so finish that pull with the ruling linked on the row. WBW-1 is already claimed as #485 and stays in progress. WBW-2 has no pull. The latest #373 note names it for dot after those two. Grok does not take it.
 
-**LB-PLAYBOOK-DATA.** Still open as #451. Play and route definitions live in a data file. Breaking routes are in that file. The match engine stays unchanged. This row feeds LB-MANAGER later, and that later row is Side Games Dev Lead's. Do not wait on #444 to keep moving. When #444 merges, finish the approved HTML integration on #451 and preserve #444's final tests. If #444 is still unmerged when the next row goes to review, say so on #451 and switch. Do not wait.
+**LB-PLAYBOOK-DATA.** Done. Merged as #451. Do not reopen it. The sentences below are the record of that row. #444 has also merged.
 
 - **Files:** `games/lantern-bowl/playbook.json` and `tests/lantern-bowl-playbook.cjs`. Leave `tests/lantern-bowl.html`, `games/lantern-bowl/game.js`, `model.js`, `style.css` and `view.js` until the #444 handoff, and do not edit the match engine.
 - **Done when:** the data file holds the plays and the breaking routes, and the match engine is unchanged.
@@ -221,9 +248,9 @@ Dot's current task is LB-PLAYBOOK-DATA. LB-G1 is next.
 
 ## dot, next
 
-LB-G1 is next, after #451. Then LB-G2, LB-G3, NM-G2, and WBW-1. NM-PHONE and WB-LOOK stay assigned and wait until those Priority rows are in review.
+LB-G1 is done (#472). LB-G2 is done (#478). LB-G3 is in review as #480. NM-PHONE is done (#456). WB-LOOK is still open as draft #466 and is not the current task. Its remaining gates stay with Wildbond & Starfall Dev Lead.
 
-**NM-PHONE.** Already claimed as #456. "Back to the arcade" is large enough and stops covering another button. A stall is on screen on a phone without scrolling. One Night Market pull, with phone-size screenshots held upright and sideways. This closes checklist item 10 (NM-FIX-8). The save work is done: NM-FIX-6 merged as #461 (`1d36ee61`). The approved art is done: #438 merged as `4e92d87a`. Do not edit `games/night-market/game.js` or `games/night-market/lane.js`.
+**NM-PHONE.** Done. Merged as #456. "Back to the arcade" is large enough and stops covering another button. A stall is on screen on a phone without scrolling. One Night Market pull, with phone-size screenshots held upright and sideways. This closes checklist item 10 (NM-FIX-8). The save work is done: NM-FIX-6 merged as #461 (`1d36ee61`). The approved art is done: #438 merged as `4e92d87a`. Do not edit `games/night-market/game.js` or `games/night-market/lane.js`.
 
 - **Files:** `games/night-market/index.html`, `games/night-market/style.css`, `tests/night-market.html`, `.github/workflows/night-market-phone-review.yml`, and `tools/playtest/night-market-phone.cjs`. These files are already on #456. Do not edit `games/night-market/game.js` or `games/night-market/lane.js`.
 - **Done when:** the back control does not cover another button, and a phone shows a stall without a scroll.
