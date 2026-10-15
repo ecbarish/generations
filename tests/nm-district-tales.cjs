@@ -76,10 +76,11 @@
     if (district.stalls.length !== IDS.length || !district.stalls.every((s, i) => object(s) && s.id === IDS[i])) return ['district source must give the six Willow Quay stall IDs in order'];
     const errs = [], vendors = new Set();
     district.stalls.forEach(s => {
-      if (!clean(s.vendor) || !/^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/.test(s.vendor)) errs.push(s.id + ': source vendor must be a capitalised name');
+      const validVendor = clean(s.vendor) && /^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/.test(s.vendor);
+      if (!validVendor) errs.push(s.id + ': source vendor must be a capitalised name');
       else if (vendors.has(s.vendor)) errs.push(s.id + ': source vendor repeats');
       vendors.add(s.vendor);
-      if (!clean(s.habit) || !names(s.habit, String(s.vendor)) || !HABITS[s.id].every(k => s.habit.toLowerCase().includes(k))) errs.push(s.id + ': source habit changed; review its tale anchors');
+      if (!validVendor || !clean(s.habit) || !names(s.habit, s.vendor) || !HABITS[s.id].every(k => s.habit.toLowerCase().includes(k))) errs.push(s.id + ': source habit changed; review its tale anchors');
     });
     return errs;
   }
@@ -222,6 +223,10 @@
       ['id', 'vendor', 'habit'].forEach(k => {
         const bad = clone(districts); bad.districts[0].stalls[i][k] = null;
         add('rejects source ' + id + ' ' + k, validate(data, bad).length > 0);
+      });
+      [false, 3, [], {}, { toString: null }, { toString: {}, valueOf: null }].forEach((vendor, j) => {
+        const bad = clone(districts); bad.districts[0].stalls[i].vendor = vendor;
+        add('rejects non-string source vendor ' + id + ' ' + j, validate(data, bad).some(e => e.includes('source vendor must')));
       });
       const bad = clone(districts); bad.districts[0].stalls[i].vendor = 'Other';
       bad.districts[0].stalls[i].habit = bad.districts[0].stalls[i].habit.replace(districts.districts[0].stalls[i].vendor, 'Other');
