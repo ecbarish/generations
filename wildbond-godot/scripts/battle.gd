@@ -30,6 +30,8 @@ var fx_tex: Dictionary = {}
 var fx: Array = []                             # element effects playing: { u, el, age }
 var sfx: Sfx = null                            # sound effects (main.gd hands over its own; scripts/sfx.gd)
 const SPEED := 2.5                            # battle time runs faster than real time between turns (outcomes are unchanged)
+## The catch marker crosses the whole bar in about three quarters of a second. Slow enough to aim, fast enough to feel alive.
+const CATCH_RATE := 1.35
 var pace := 1.0                                # the Settings page's battle pace: 1, 1.5 or 2 (only the waiting changes)
 const MENU := ["Fight", "Guard", "Orders", "Catch", "Bag", "Run"]
 ## Tamer orders (docs/proposals/creature-catalogue-and-evolution.md §4): Rally for everyone, one from your family
@@ -89,6 +91,11 @@ var area := ""                                 # the area the battle happens in 
 var max_level := 15                           # the level cap (main.gd sets it from your badges, CAP_TABLE)
 var bag: Dictionary = { "lures": 0, "berries": 0 }  # the satchel (main.gd owns it): lures for Catch, berries for Bag
 var sure_catch := false                       # the first wild meeting: the lure cannot miss (WBL-3)
+var line_queue: Array = []                     # battle lines still waiting to be read, one click each
+var shown_line := ""                           # the line on screen during a beat
+var line_frame := -100                         # the frame that line appeared; input on that frame does not skip it
+var catch_note := ""                           # "hit" or "miss", drawn over the bar after you press
+var catch_note_t := 0.0
 var caught: Array = []                        # creatures that chose you in this battle
 var cap: Dictionary = {}                      # the calm meter while you Bond: { u, pos, dir, zone }
 ## The wild bond (WB4.2; docs/proposals/creature-catalogue-and-evolution.md §5): never taught, never in a menu until it
@@ -144,6 +151,11 @@ func open(battle_kind: String, team: Array, foe_team: Array, who: String) -> voi
 	joined_t = 0.0
 	flood_t = -1.0
 	sure_catch = false
+	line_queue.clear()
+	shown_line = ""
+	line_frame = -100
+	catch_note = ""
+	catch_note_t = 0.0
 	var names := ", ".join(foes.map(func(u): return "%s (Lv %d)" % [u.c.name, u.c.lvl]))
 	say("A wild %s appeared!" % names if kind == "wild" else "%s sends out %s!" % [trainer, names])
 	_go_to("fog_in")
@@ -158,6 +170,9 @@ func say(s: String) -> void:
 	log_lines.append(s)
 	if log_lines.size() > 30:
 		log_lines.pop_front()
+	# Lines said while a turn is resolving wait their own click. A line said on a menu does not.
+	if state in ["run", "moves", "orders", "beat"]:
+		line_queue.append(s)
 
 func _go_to(s: String) -> void:
 	state = s
@@ -172,6 +187,7 @@ func _process(dt: float) -> void:
 		return
 	t += dt
 	state_t += dt
+	catch_note_t = maxf(0.0, catch_note_t - dt)
 	for u in allies + foes:
 		u.shown = move_toward(u.shown, float(u.c.hp), dt * maxf(8.0, u.st.hp * 0.8))   # health bars drain smoothly
 		u.lunge = maxf(0.0, u.lunge - dt)
@@ -192,12 +208,15 @@ func _process(dt: float) -> void:
 		"run":
 			_tick(dt * SPEED * pace)
 		"capture":
-			cap.pos += cap.dir * dt * 0.9
+			cap.pos += cap.dir * dt * CATCH_RATE
 			if cap.pos > 1.0: cap.pos = 1.0; cap.dir = -1.0
 			if cap.pos < 0.0: cap.pos = 0.0; cap.dir = 1.0
 		"beat":
 			if state_t * pace > beat_t:
-				_after_beat()
+				if not line_queue.is_empty():
+					_show_next_line()
+				else:
+					_after_beat()
 		"fog_out":
 			if state_t > 1.0:
 				visible = false
@@ -295,6 +314,16 @@ func _check_end() -> bool:
 func _beat(seconds: float) -> void:
 	beat_t = seconds
 	_go_to("beat")
+	_show_next_line()
+
+## Put the next waiting line on screen and ignore the click that arrived with it.
+func _show_next_line() -> void:
+	if not line_queue.is_empty():
+		shown_line = str(line_queue.pop_front())
+	elif not log_lines.is_empty():
+		shown_line = str(log_lines[-1])
+	line_frame = Engine.get_process_frames()
+	state_t = 0.0
 
 func _after_beat() -> void:
 	if not _check_end():
@@ -340,18 +369,19 @@ func _resolve(u: Dictionary, m: String, mult: float) -> void:
 		"hit":
 			var tg := _target(u, m)
 			var r := R.damage(u, tg, mv, mult, rng.randf(), rng.randf())
+			# The blow is read first. Fainting and a status come after, each on its own click.
+			say("%s used %s%s on %s for %d%s" % [nm(u), mv.name, ", a critical hit" if r.crit else "", nm(tg), r.d,
+				". It hits hard!" if r.adv > 1 else (". Not very effective." if r.adv < 1 else ".")])
 			_hurt(tg, r.d, r.crit, mv.get("el"))
 			Effects.after_hit(tg, mv)
 			if mv.has("status") and Effects.active(tg, str(mv.status)):
 				say("%s is %s." % [nm(tg), Effects.LABEL[str(mv.status)].to_lower()])
-			say("%s used %s%s on %s for %d%s" % [nm(u), mv.name, ", a critical hit" if r.crit else "", nm(tg), r.d,
-				". It hits hard!" if r.adv > 1 else (". Not very effective." if r.adv < 1 else ".")])
 		"aoe":
+			say("%s used %s on everyone!" % [u.c.name, mv.name])
 			for tg in them:
 				var r := R.damage(u, tg, mv, mult * 0.75, rng.randf(), rng.randf())
 				_hurt(tg, r.d, r.crit, mv.get("el"))
 				Effects.after_hit(tg, mv)
-			say("%s used %s on everyone!" % [u.c.name, mv.name])
 		"dot":
 			var tg := _target(u, m)
 			tg.dots.append({ "per": maxi(1, roundi(R.damage(u, tg, mv, mult, rng.randf(), 1.0).d / 2.0)), "left": 4, "tick": 1.0 })
@@ -721,7 +751,14 @@ func _input(e: InputEvent) -> void:
 			elif back: _go_to("choose")
 			else: order_i = _grid_move(order_i, key, ol.size(), 2)
 		"beat":
-			if ok or click: state_t = beat_t                 # skip ahead
+			if ok or click:
+				# The press that made this line appear must not also dismiss it.
+				if Engine.get_process_frames() == line_frame:
+					pass
+				elif not line_queue.is_empty():
+					_show_next_line()
+				else:
+					state_t = beat_t                 # the last line: skip ahead
 		"results":
 			if (ok or click) and state_t > 0.5: _go_to("fog_out")
 
@@ -834,12 +871,31 @@ func _battle_front_foot(spot: Vector2, species_id: String, scale: float) -> Vect
 		return spot
 	return Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
 
-## The pixel figure, at a whole multiple of its own pixels. The old path scaled a fractional height fit.
-func _draw_figure(at: Vector2, species: Dictionary, facing_right: bool, pose: Dictionary, look: Dictionary, zoom: float) -> void:
-	var whole := float(Figures.battle_whole_scale(species, zoom))
-	var origin := Vector2(round(at.x - 9.0 * whole), round(at.y - 12.0 * whole))
-	draw_set_transform(origin, 0.0, Vector2(whole, whole))
-	Figures.paint(self, Vector2.ZERO, Figures.native_parts(species, facing_right, pose, look))
+## The pixel figure at the locked size: metres × 12.35, clamped to 12–32px, then the battle view's
+## integer factor of 1. The window's own integer stretch enlarges the whole view. The old zoom of 3 or 4
+## drew a placeholder several times that size and off the left edge.
+## Where the locked-size figure is drawn so its pixels stay inside the battle view.
+func _figure_origin(at: Vector2, parts: Array) -> Vector2:
+	var bounds: Dictionary = Figures._bounds(parts)
+	var origin := Vector2(round(at.x - 9.0), round(at.y - 12.0))
+	var rect := Rect2(origin + Vector2(bounds.min_x, bounds.min_y), Vector2(bounds.max_x - bounds.min_x, bounds.max_y - bounds.min_y))
+	var limit := Rect2(2, 2, 380, 160)
+	if rect.position.x < limit.position.x:
+		origin.x += limit.position.x - rect.position.x
+	elif rect.end.x > limit.end.x:
+		origin.x -= rect.end.x - limit.end.x
+	if rect.position.y < limit.position.y:
+		origin.y += limit.position.y - rect.position.y
+	elif rect.end.y > limit.end.y:
+		origin.y -= rect.end.y - limit.end.y
+	return origin
+
+func _draw_figure(at: Vector2, species: Dictionary, facing_right: bool, pose: Dictionary, look: Dictionary, _zoom: float) -> void:
+	var parts := Figures.sized_parts(species, facing_right, pose, look)
+	if parts.is_empty():
+		return
+	draw_set_transform(_figure_origin(at, parts), 0.0, Vector2.ONE)
+	Figures.paint(self, Vector2.ZERO, parts)
 	draw_set_transform(Vector2.ZERO)
 
 ## Feet on the bottom edge of the sprite. If that rect would sit under a health panel, slide the
@@ -1051,9 +1107,17 @@ func _draw() -> void:
 			if not log_lines.is_empty():
 				_text(log_lines[-1], Vector2(16, 182), 8, INK)
 		_:
-			var last := log_lines.slice(-2)
-			for i in last.size():
-				draw_multiline_string(font, Vector2(16, 180 + i * 14), last[i], HORIZONTAL_ALIGNMENT_LEFT, 352, 8, -1, INK if i == last.size() - 1 else Color("7a6a5a"))
+			if state == "beat" and shown_line != "":
+				draw_multiline_string(font, Vector2(16, 180), shown_line, HORIZONTAL_ALIGNMENT_LEFT, 352, 8, -1, INK)
+			else:
+				var last := log_lines.slice(-2)
+				for i in last.size():
+					draw_multiline_string(font, Vector2(16, 180 + i * 14), last[i], HORIZONTAL_ALIGNMENT_LEFT, 352, 8, -1, INK if i == last.size() - 1 else Color("7a6a5a"))
+	if catch_note_t > 0.0 and catch_note != "":
+		var hit := catch_note == "hit"
+		var banner := Rect2(96, 78, 192, 28)
+		draw_rect(banner, Color("1d6b32") if hit else Color("8a2e2e"))
+		_text("In the green!" if hit else "Missed the green", banner.position + Vector2(0, 18), 12, PAPER, banner.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 	# the grey fog that rolls in at the start and out at the end (soft; never a flash)
 	var fog := 0.0
 	if state == "fog_in": fog = 1.0 - state_t
@@ -1164,6 +1228,9 @@ func _calm() -> void:
 			ch *= 1.15
 			break
 	var chance := 1.0 if sure_catch else minf(0.95, ch)
+	# The banner matches the green. The guided first lure is the whole bar, so it never reads as a miss.
+	catch_note = "hit" if sure_catch or q != "miss" else "miss"
+	catch_note_t = 1.1
 	cap = {}
 	if rng.randf() < chance:
 		sparks.append({ "u": u, "col": Color("7cf08a"), "age": 0.0 })

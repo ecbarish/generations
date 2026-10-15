@@ -37,7 +37,9 @@ func open(creature_id: String, data: Dictionary, btns: Array = []) -> void:
 	id = creature_id
 	info = data
 	buttons = btns
-	sel = _count() - 1                         # the last choice ("Not yet") first, so a stray Enter never chooses by accident
+	# The starter page highlights Choose, so the confirm is the one that looks ready.
+	# A custom row (a change, the ranch) still opens on its last line, the one that waits.
+	sel = 0 if buttons.is_empty() else _count() - 1
 	t = 0.0
 	visible = true
 

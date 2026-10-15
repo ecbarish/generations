@@ -118,6 +118,7 @@ var objective: Control                       # what to do next (WBL-4)
 var caption_plate: ColorRect                 # the bar under the hint, so the words are not painted on the trees
 var caption_lift := 0.0                      # how far the view shifts up while that bar is showing
 var walk_tap := Vector2i.ZERO                # a key tap that went down and up before the next step (it still counts)
+var swallow_talk := false                    # the press that finished a conversation must not start the next one
 var bag_press := false                        # the press began while the bag was already showing
 var menu_return := false                     # the field book was opened from the menu, so closing it comes back here
 var place_t := 0.0                           # seconds since you arrived somewhere (the place name holds, then fades)
@@ -378,6 +379,8 @@ func advance() -> void:
 			f.call()                                     # what happens when this conversation ends (a battle, a badge...)
 		else:
 			_after_talk()
+		if lines.is_empty():
+			swallow_talk = true
 
 func _after_talk() -> void:
 	match stage:
@@ -805,6 +808,8 @@ func _switch() -> void:
 
 # ---------------------------------------------------------------- the loop
 func _process(dt: float) -> void:
+	# Input for this frame has already arrived. A second press after this can start a new talk.
+	swallow_talk = false
 	t += dt
 	place_t += dt
 	cal.advance(dt)
@@ -818,6 +823,7 @@ func _process(dt: float) -> void:
 	fade_in = min(1.0, fade_in + dt * 0.7)
 	var door_dark := 0.0
 	if trans_t >= 0.0:
+		Input.flush_buffered_events()
 		var before := trans_t
 		trans_t += dt
 		if before < 0.3 and trans_t >= 0.3:
@@ -825,6 +831,7 @@ func _process(dt: float) -> void:
 		door_dark = 1.0 - absf(trans_t - 0.3) / 0.3
 		if trans_t >= 0.6:
 			trans_t = -1.0
+			Input.flush_buffered_events()
 	fade_rect.color.a = maxf(1.0 - fade_in, clampf(door_dark, 0.0, 1.0))
 	if paint_t >= 0.0:
 		paint_t += dt
@@ -920,21 +927,41 @@ func _step(d: Vector2i) -> void:
 			partner.path = [was]
 
 func _walk(m: Mover, dt: float) -> void:
-	if m.path.is_empty():
-		return
-	var nxt: Vector2i = m.path[0]
-	var goal := Vector2(nxt) * TILE
-	m.face = nxt - m.tile
-	if goal.x != m.pos.x:
-		m.right = goal.x > m.pos.x
-	m.pos = m.pos.move_toward(goal, dt * m.speed * TILE)
-	m.step_t += dt
-	if m.pos.distance_to(goal) < 0.01:
+	var budget := dt
+	var hops := 0
+	while budget > 0.000001 and not m.path.is_empty() and hops < 4:
+		hops += 1
+		var nxt: Vector2i = m.path[0]
+		var goal := Vector2(nxt) * TILE
+		m.face = nxt - m.tile
+		if goal.x != m.pos.x:
+			m.right = goal.x > m.pos.x
+		var px := m.speed * float(TILE)
+		var dist := m.pos.distance_to(goal)
+		if px <= 0.0 or dist > px * budget + 0.01:
+			m.pos = m.pos.move_toward(goal, px * budget)
+			m.step_t += budget
+			return
+		var used := 0.0 if px <= 0.0 else dist / px
+		m.pos = goal
+		m.step_t += used
+		budget -= used
 		m.tile = nxt
 		m.path.pop_front()
-		if m == me:
-			_arrived(nxt)
-			_check_spotted()
+		if m != me:
+			return
+		_arrived(nxt)
+		_check_spotted()
+		if not lines.is_empty() or _covering() or trans_t >= 0.0:
+			m.path.clear()
+			return
+		# Keep a held direction moving through the rest of this frame, so a hold is not slower than a tap.
+		if m.path.is_empty():
+			var held := Controls.held_dir()
+			if held != Vector2i.ZERO and stage in ["to_barn", "barn_choose", "walk_out", "free"]:
+				_step(held)
+			if m.path.is_empty():
+				return
 
 func _unhandled_input(e: InputEvent) -> void:
 	_note_walk_tap(e)
@@ -982,6 +1009,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		key_learn.act += 1
 	if not lines.is_empty():
 		advance()
+	elif swallow_talk:
+		swallow_talk = false
 	elif stage == "free" and not (e is InputEventMouseButton) and not battle.visible and _talk_here():
 		pass
 	elif stage == "free" and not (e is InputEventMouseButton) and not lessons.visible and not card.visible and _festival_here():
@@ -1023,6 +1052,7 @@ func _menu_allowed() -> bool:
 	return menu != null and not menu.visible and lines.is_empty() and trans_t < 0.0 and not _covering()
 
 func _toggle_menu() -> void:
+	Input.flush_buffered_events()
 	if menu.visible:
 		menu.close()
 		return
@@ -1733,6 +1763,7 @@ func _draw_tile(x: int, y: int, ch: String) -> void:
 # ---------------------------------------------------------------- the speech bubble, captions and the faded world
 func _update_ui() -> void:
 	var to_screen := get_viewport().get_canvas_transform()
+	_layout_objective()
 	var line: Dictionary = lines[0] if not lines.is_empty() else {}
 	bubble.visible = not line.is_empty() and trans_t < 0.0
 	if bubble.visible:
@@ -1746,11 +1777,15 @@ func _update_ui() -> void:
 		bubble.custom_minimum_size.x = w
 		bubble.size = Vector2(w, 0)
 		bubble.reset_size()
+		var floor_y := _speech_floor()
 		if who:
 			var p := to_screen * (Vector2(who.pos.x, min(who.pos.y, me.pos.y)) + Vector2(8, -6))   # above the speaker, never over you
-			bubble.position = Vector2(clamp(p.x - w / 2, 4, 384 - w - 4), max(4, p.y - bubble.size.y - 6))
+			var y := maxf(floor_y, p.y - bubble.size.y - 6.0)
+			bubble.position = Vector2(clamp(p.x - w / 2, 4, 384 - w - 4), y)
 		else:
-			bubble.position = Vector2((384 - w) / 2, 216 - bubble.size.y - 8)   # narration sits low, like a book's caption
+			var y := 216.0 - bubble.size.y - 8.0 - caption_lift   # narration sits low, clear of the hint bar
+			bubble.position = Vector2((384.0 - w) / 2.0, maxf(floor_y, y))
+		_clear_of_objective()
 	satchel.visible = _satchel_shown()
 	satchel.queue_redraw()
 	if status:
@@ -1763,7 +1798,6 @@ func _update_ui() -> void:
 			mx = int(R.stats(team[0]).hp)
 		status.visible = not (book.visible or battle.visible or card.visible or shop.visible or lessons.visible or register.visible or title.visible or howto.visible or turn_card.visible)
 		status.setup(place.text, lead, cur, mx, int(bag.get("coins", 0)))
-	_layout_objective()
 	# the place's name, large on arrival: it holds for a few seconds, then fades (hidden while you talk or fight)
 	place.modulate.a = 0.0 if battle.visible or book.visible else clampf(3.5 - place_t, 0.0, 1.0)
 	# the faded world: pass each restored circle on this map to the shader, in real screen pixels
@@ -4621,7 +4655,56 @@ func _layout_objective() -> void:
 		objective.size = Vector2(328, h)
 		_place_name_at(14.0)
 		return
+	if _covers_stall_signs(Rect2(objective.position, objective.size)):
+		var y := 216.0 - caption_lift - h - 4.0
+		objective.position = Vector2(4, clampf(y, 52.0, 216.0 - h - 2.0))
+		var guard := 0
+		while _covers_stall_signs(Rect2(objective.position, objective.size)) and guard < 6:
+			objective.position.y = maxf(52.0, objective.position.y - h - 2.0)
+			guard += 1
 	_place_name_at(14.0 + h + 2.0)
+
+## Under the status strip, and under the objective when that banner sits at the top.
+func _speech_floor() -> float:
+	var y := 14.0
+	if status != null and status.visible:
+		y = maxf(y, status.position.y + status.size.y + 2.0)
+	if objective != null and objective.visible and objective.position.y < 80.0:
+		y = maxf(y, objective.position.y + objective.size.y + 2.0)
+	return y
+
+func _clear_of_objective() -> void:
+	if objective == null or not objective.visible or not bubble.visible:
+		return
+	var ob := Rect2(objective.position, objective.size)
+	var bub := Rect2(bubble.position, bubble.size)
+	if not bub.intersects(ob):
+		return
+	var below := ob.end.y + 2.0
+	var above := ob.position.y - bubble.size.y - 2.0
+	if below + bubble.size.y <= 214.0:
+		bubble.position.y = below
+	elif above >= 14.0:
+		bubble.position.y = above
+
+func _stall_sign_rects() -> Array:
+	if map_name != "barn":
+		return []
+	var xf := get_viewport().get_canvas_transform()
+	var out: Array = []
+	for i in starters.size():
+		var o := Vector2(7 + i * 4, 2) * float(TILE) + Vector2(8, 3)
+		var wr := Rect2(o, Vector2(32, 10))
+		var a: Vector2 = xf * wr.position
+		var b: Vector2 = xf * wr.end
+		out.append(Rect2(Vector2(minf(a.x, b.x), minf(a.y, b.y)), (b - a).abs()))
+	return out
+
+func _covers_stall_signs(r: Rect2) -> bool:
+	for s in _stall_sign_rects():
+		if r.intersects(s):
+			return true
+	return false
 
 func _place_name_at(top: float) -> void:
 	if place.offset_top == top and place.offset_bottom == top + 26.0:
