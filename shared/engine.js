@@ -181,6 +181,9 @@
       var box = el.closest('.arc-save'), key = box && box.dataset.key, rd = new FileReader();
       rd.onload = function () {
         try { var o = decodeAny(rd.result);
+          // check it is this game's save before asking, so a wrong file never gets a "Replace your save?" question first
+          if (!o || typeof o !== 'object' || (validators[key] && !validators[key](o))) throw new Error('not a save for this game');
+          if (newerThanGame(key, o)) throw new Error(HELD_NOTE);
           if (!confirm('Replace your save with this file? Your current save is backed up first, then the game reloads.')) { el.value = ''; return; }
           replaceSave(key, JSON.stringify(o), 'before loading a file');
         } catch (err) { el.value = ''; say(box, err && err.message === HELD_NOTE ? HELD_NOTE : "That file isn't a save for this game."); }

@@ -13,8 +13,19 @@
   var READING_HINT = "THEY'RE READING IT";
   var RING_RADII = [28, 22, 16, 10];
   /* One snap, including a score, never takes more than this off the clock.
-     A whole defence series is several snaps, each capped on its own. */
+     A whole defence series is several snaps, each capped on its own.
+     CLOCK_SCALE slows that clock so a game holds about 8 Lanterns drives.
+     Quarters stay two minutes. The save still stores the same clock number. */
   var MAX_CLOCK = 14;
+  var CLOCK_SCALE = 0.64;
+  /* A field goal is offered when the goal is at most this many yards away. */
+  var FG_RANGE = 38;
+  /* One choice before Millrace's drive. Ratings shift for that drive only. */
+  var DEFENCE = {
+    blitz: { id: 'blitz', label: 'Blitz', rush: 12, tackle: 6, cover: -10 },
+    balanced: { id: 'balanced', label: 'Balanced', rush: 0, tackle: 0, cover: 0 },
+    prevent: { id: 'prevent', label: 'Prevent', rush: -8, tackle: -4, cover: 12 }
+  };
 
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
   function roll(game) {
@@ -208,7 +219,8 @@
     recover(game);
     game.lastGain = gain || 0;
     game.play = null;
-    var spent = Math.max(4, Math.min(MAX_CLOCK, Number(seconds) || 4));
+    var raw = Math.max(4, Math.min(MAX_CLOCK, Number(seconds) || 4));
+    var spent = Math.max(4, Math.min(MAX_CLOCK, raw * CLOCK_SCALE));
     burn(game, spent);
     text = openHalf(game, text);
     if (game.quarterNote) {
@@ -397,22 +409,30 @@
     if (id === 'inside') return [{ x0: -9, y0: 0, x1: 5, y1: 0 }];
     return [];
   }
-  function previewRoutes(id) { return routeTable(id === 'kick' ? 'quick' : id); }
-  /* Three calls, every down. Fourth down brings the kick in beside two others. */
+  /* The chalk route stays the call. A quick completion's yards vary after the catch. */
+  function quickRoutes() {
+    return routeTable('quick');
+  }
+  function previewRoutes(id) {
+    if (id === 'kick' || id === 'field' || id === 'punt') return [];
+    return routeTable(id);
+  }
+  /* Three calls, every down. Fourth down brings the kick in beside a play.
+     In range, that kick is a field goal and a punt. Farther out, it is a punt. */
   function offerPlays(game) {
     if (!game) return ['inside', 'quick', 'outside'];
     var goal = 100 - (Number(game.spot) || 0);
-    if (game.down >= 4) return goal <= 38 ? ['kick', 'inside', 'quick'] : ['kick', 'quick', 'inside'];
+    if (game.down >= 4) return goal <= FG_RANGE ? ['field', 'punt', 'inside'] : ['punt', 'quick', 'inside'];
     if ((Number(game.toGo) || 10) <= 2) return ['inside', 'quick', 'outside'];
     if ((Number(game.toGo) || 10) >= 8) return ['quick', 'deep', 'outside'];
     return ['inside', 'quick', 'outside'];
   }
-  function buildPass(game, play, off, def, id) {
+  function buildPass(game, play, off, def, id, quickTable) {
     var deep = id === 'deep';
     var qb = off.qb;
     play.actors.push(actor({ off: true, role: 'qb', name: qb.name, x: -6, y: 0, speed: qb.speed, carry: qb.carry, throw: qb.throw }));
     play.carrier = 0;
-    var table = routeTable(id);
+    var table = quickTable || routeTable(id);
     var roles = ['wr', 'wr', 'te', 'rb'];
     var whos = [off.wr[0], off.wr[1], off.te, off.rb];
     table.forEach(function (r, i) {
@@ -618,10 +638,11 @@
     var off = game[game.possession], def = game[other(game.possession)];
     var load = tendencyLoad(game, spec.id);
     if (game.possession === 'home') noteUsage(game, spec.id);
-    var rush = def.rush + (spec.family === 'run' ? load * 0.85 : load * 0.22);
+    var tilt = game.possession === 'away' ? (DEFENCE[game.defenceCall] || DEFENCE.balanced) : DEFENCE.balanced;
+    var rush = def.rush + tilt.rush + (spec.family === 'run' ? load * 0.85 : load * 0.22);
     var tuned = {
-      cover: def.cover + (spec.family === 'pass' ? load : load * 0.3),
-      tackle: def.tackle + (spec.family === 'run' ? load : load * 0.2),
+      cover: def.cover + tilt.cover + (spec.family === 'pass' ? load : load * 0.3),
+      tackle: def.tackle + tilt.tackle + (spec.family === 'run' ? load : load * 0.2),
       rush: rush, line: def.line
     };
     var lanes = ['left', 'mid', 'right'].map(function (name, i) {
@@ -636,7 +657,7 @@
       ringStep: 0, ringFrom: 0, ringTween: 0.12, rushersWinning: 0
     };
     if (spec.family === 'run') buildRun(play, off, tuned, spec.id);
-    else buildPass(game, play, off, tuned, spec.id);
+    else buildPass(game, play, off, tuned, spec.id, null);
     var picture = composeSquad(off, def, play);
     play.squad = picture.squad;
     play.formation = picture.formation;
@@ -1084,7 +1105,7 @@
     var tackle = threat ? threat.actor.tackle : 55;
     if (!play.didCatch && !held) {
       var piled = roll(game);
-      if (piled < 0.145) {
+      if (piled < 0.18) {
         play.hole = 'stuff';
         play.goalX = -(0.55 + piled * 5);
         play.arriveAt = 1.08 + piled * 2;
@@ -1095,7 +1116,7 @@
       } else if (piled < 0.985) {
         play.hole = 'gain';
         var along = (piled - 0.20) / 0.785;
-        play.goalX = 0.7 + along * 3.15;
+        play.goalX = 1.0 + along * 3.05;
         play.arriveAt = 1.16 + along * 0.7;
       } else {
         play.hole = 'break';
@@ -1121,6 +1142,7 @@
         var after = roll(game);
         var bonus = room >= 4.2 ? (2.6 + after * 9.4) : (0.4 + after * (1.1 + Math.min(room, 4) * 0.55));
         if (play.offence === 'home') bonus += 1.3;
+        if (play.id === 'quick') bonus = Math.max(0.2, bonus + (roll(game) - 0.42) * 6);
         play.hole = 'catch';
         play.goalX = back.x + bonus;
         play.arriveAt = play.elapsed + 0.42 + after * 0.5;
@@ -1291,14 +1313,14 @@
     var dist = Math.hypot(ball.toX - qb.x, ball.toY - qb.y);
     if (!ball.target) {
       game.events.push('miss');
-      return incomplete(game, 'The throw falls incomplete');
+      var missed = nearest(play, ball.toX, ball.toY, function (a) { return a.off && a.role !== 'qb' && a.role !== 'ol'; });
+      return incomplete(game, missReason(play, ball, missed));
     }
     var catcher = { actor: ball.target, d: 0 };
     var cover = nearest(play, ball.toX, ball.toY, function (a) { return !a.off && (a.role === 'cb' || a.role === 's'); });
     var cov = cover && cover.d < (ball.kind === 'bullet' ? 3.2 : 5.5) ? cover.actor.cover : 32;
     if (play.offence === 'away') cov += 3;
     var hands = catcher.actor.catch;
-    var opening = throwWindow(dist, ball.kind);
     var outcome = resolveCatch(function () { return roll(game); }, ball.qb, hands, cov, dist, ball.kind);
     if (outcome === 'catch') {
       catcher.actor.x = ball.toX; catcher.actor.y = ball.toY;
@@ -1324,7 +1346,7 @@
       return incomplete(game, 'Broken up. ' + resultLine('the cover', cov, catcher.actor.name + "'s hands", hands));
     }
     game.events.push('miss');
-    return incomplete(game, 'The throw misses ' + catcher.actor.name + '. ' + resultLine('the window', opening, 'the throw', ball.qb));
+    return incomplete(game, missReason(play, ball, catcher));
   }
 
   function finishArrival(game, play, ball, catcher, cov, hands, outcome, opening) {
@@ -1352,28 +1374,32 @@
       return incomplete(game, 'Broken up. ' + resultLine('the cover', cov == null ? 30 : cov, catcher.actor.name + "'s hands", hands));
     }
     game.events.push('miss');
-    return incomplete(game, 'The throw misses ' + catcher.actor.name + '. ' + resultLine('the window', opening, 'the throw', ball.qb));
+    return incomplete(game, missReason(play, ball, catcher));
   }
-  /* Why a deep sling miss missed. A short checkdown keeps the plain line. */
+  /* Why the ball missed the nearest receiver. Positive yards across the field are to the right. */
   function missReason(play, ball, catcher) {
     ball = ball || {};
     var qb = carrierOf(play);
-    var travel = Math.hypot((Number(ball.toX) || 0) - qb.x, (Number(ball.toY) || 0) - qb.y);
-    var power = Number(ball.power) || 0;
-    var deep = (play && play.id === 'deep') || travel >= 15 || power >= 0.55;
-    if (!deep || !catcher || !catcher.actor) return 'The throw falls incomplete';
-    var dx = (Number(ball.toX) || 0) - catcher.actor.x;
-    var dy = (Number(ball.toY) || 0) - catcher.actor.y;
-    var wide = Math.abs(dy);
-    var wobble = Number(ball.wobble) || 0;
-    if (wide >= 1.6 && wide >= Math.abs(dx)) {
-      return wobble > 0 ? 'Wide: aim wobble (QB accuracy)' : 'Wide: the aim was off';
-    }
-    if (dx >= 1.6) return 'Overthrown: too much power';
-    if (dx <= -1.6) return 'Underthrown: not enough power';
-    if (wobble > 0) return 'Wide: aim wobble (QB accuracy)';
-    if (power >= 0.55) return 'Overthrown: too much power';
-    return 'Underthrown: not enough power';
+    var tx = Number(ball.toX) || 0, ty = Number(ball.toY) || 0;
+    var who = catcher && catcher.actor;
+    var dx = who ? tx - who.x : tx - (qb ? qb.x : 0);
+    var dy = who ? ty - who.y : ty - (qb ? qb.y : 0);
+    var wide = Math.abs(dy), depth = Math.abs(dx);
+    if (wide >= 1.2 && wide >= depth * 0.65) return dy > 0 ? 'Wide right' : 'Wide left';
+    if (dx >= 1.2) return 'Overthrown';
+    if (dx <= -1.2) return 'Underthrown';
+    if (wide >= 0.6) return dy > 0 ? 'Wide right' : 'Wide left';
+    return (Number(ball.power) || 0) >= 0.55 ? 'Overthrown' : 'Underthrown';
+  }
+  /* The nearest receiver to a pull. Drawing only: the throw still lands where the drag let go. */
+  function aimReceiver(play, x, y) {
+    if (!play) return null;
+    var near = nearest(play, x, y, function (a) { return a.off && a.role !== 'qb' && a.role !== 'ol'; });
+    return near ? near.actor : null;
+  }
+  /* How close a sling throw has to land for that receiver to have a play on it. */
+  function catchReach(kind) {
+    return kind === 'bullet' ? 3.4 : 4.0;
   }
   function settleSling(game, play, ball) {
     var qb = carrierOf(play);
@@ -1382,7 +1408,7 @@
       return incomplete(game, qb.name + ' throws it away');
     }
     var catcher = nearest(play, ball.toX, ball.toY, function (a) { return a.off && a.role !== 'qb' && a.role !== 'ol'; });
-    var reach = ball.kind === 'bullet' ? 2.5 : 3.1;
+    var reach = catchReach(ball.kind);
     if (!catcher || catcher.d > reach) {
       game.events.push('miss');
       return incomplete(game, missReason(play, ball, catcher));
@@ -1408,15 +1434,17 @@
     return closePlay(game, line + '.', 'miss', 0, 6, false);
   }
 
-  function kick(game) {
+  function kick(game, which) {
     if (game.phase !== 'call' && game.phase !== 'cpu') return false;
-    if (100 - game.spot <= 38) return fieldGoal(game);
+    if (which === 'field') return fieldGoal(game);
+    if (which === 'punt') return punt(game);
+    if (100 - game.spot <= FG_RANGE) return fieldGoal(game);
     return punt(game);
   }
   function fieldGoal(game) {
     var side = game.possession;
     var dist = Math.round((100 - game.spot) + 17);
-    var good = roll(game) < chance(game[side].kick, 18 + dist * 0.62);
+    var good = roll(game) < chance(game[side].kick, dist * 1.35 - 8);
     if (good) game.score[side] += 3;
     var text = game[side].kicker + (good ? ' makes it from ' : ' misses from ') + dist + '.';
     giveBall(game, other(side), good ? 25 : clamp(100 - game.spot, 20, 80));
@@ -1655,6 +1683,22 @@
     finish(game, policies.cpu);
     return true;
   }
+  /* One line for the highlight. The play log stays; the screen does not read it all. */
+  function driveSummary(lines, call) {
+    var text = (lines || []).map(function (row) {
+      return typeof row === 'string' ? row : (row && row.text) || '';
+    }).join(' ');
+    var name = (DEFENCE[call] && DEFENCE[call].label) || 'Balanced';
+    var line = 'Millrace is stopped.';
+    if (/Touchdown/.test(text)) line = 'Millrace scores.';
+    else if (/makes it/.test(text)) line = 'Millrace makes the kick.';
+    else if (/misses from/.test(text)) line = 'Millrace misses the kick.';
+    else if (/punts|Touchback/.test(text)) line = 'Millrace punts.';
+    else if (/Picked|Intercept/.test(text)) line = 'The Lanterns pick it off.';
+    else if (/Safety/.test(text)) line = 'Safety.';
+    else if (/Turnover|Fourth down fails/.test(text)) line = 'Millrace turns it over.';
+    return name + '. ' + line;
+  }
   function cpuDrive(game, onPlay) {
     var lines = [], n = 0;
     while (game.possession === 'away' && game.phase !== 'final' && n < 24) {
@@ -1697,6 +1741,68 @@
       sum += game.lastGain || 0;
     }
     return sum / n;
+  }
+  /* A plain carry: steer the call, sprint in an open lane, no juke. Used to read the spread. */
+  function plainCarry(play, game) {
+    if (!play || play.family === 'pass') return policies.neutral();
+    var back = carrierOf(play);
+    var read = laneRead(play, back.y);
+    var open = !!(read.lane && read.lane.open && read.state !== 'closed');
+    var tired = game && fatigueOf(game, back.name) >= 0.72;
+    return { steer: play.id === 'outside' ? 0.35 : 0, turbo: !!open && !tired && !play.didCatch, juke: 0, dive: false, throw: null };
+  }
+  function carryDistribution(games, seed) {
+    games = games || 16;
+    var gains = [], i, called, guard;
+    for (i = 0; i < games; i++) {
+      var game = create({ seed: ((seed + i * 17) >>> 0) || 1 });
+      guard = 0;
+      called = 0;
+      while (game.phase !== 'final' && guard++ < 420) {
+        if (game.possession !== 'home') { cpuDrive(game); continue; }
+        var going = (game.toGo <= 8 && game.spot >= 45) || game.toGo <= 4;
+        if (game.down >= 4 && !going) { kick(game); continue; }
+        var id = ['inside', 'outside', 'quick', 'inside', 'outside', 'quick', 'inside', 'deep'][called % 8];
+        called += 1;
+        if (!callPlay(game, id)) break;
+        finish(game, plainCarry);
+        if ((id === 'inside' || id === 'outside') && game.last) gains.push(game.last.gain || 0);
+      }
+    }
+    gains.sort(function (a, b) { return a - b; });
+    var mid = Math.max(0, (gains.length - 1) >> 1);
+    var median = !gains.length ? 0 : gains.length % 2 ? gains[mid] : (gains[mid] + gains[mid + 1]) / 2;
+    var loss = 0, ten = 0, twenty = 0;
+    gains.forEach(function (x) {
+      if (x < -0.05) loss += 1;
+      if (x >= 10) ten += 1;
+      if (x >= 20) twenty += 1;
+    });
+    var n = Math.max(1, gains.length);
+    return { n: gains.length, median: median, loss: loss / n, ten: ten / n, twenty: twenty / n };
+  }
+  /* How many Lanterns drives a mixed game lasts. The target is about 8 to 12. */
+  function drivePace(n, seed) {
+    n = n || 8;
+    var home = 0, away = 0, i;
+    for (i = 0; i < n; i++) {
+      var game = create({ seed: ((seed + i * 13) >>> 0) || 1 });
+      var guard = 0, onHome = false, h = 0, a = 0;
+      while (game.phase !== 'final' && guard++ < 480) {
+        if (game.possession === 'home') {
+          if (!onHome) { h += 1; onHome = true; }
+          if (game.down >= 4) { kick(game); continue; }
+          if (!callPlay(game, callStyle(game, 'mixed'))) break;
+          finish(game, policies.cpu);
+        } else {
+          if (onHome || h + a === 0) { a += 1; onHome = false; }
+          if (!cpuDrive(game).length && game.possession !== 'home' && game.phase !== 'final') break;
+        }
+      }
+      home += h;
+      away += a;
+    }
+    return { n: n, home: home / n, away: away / n };
   }
   function scriptedQuick(play) {
     if (!play || play.thrown || play.flight || play.family !== 'pass') return policies.neutral();
@@ -1850,7 +1956,8 @@
   }
 
   var api = {
-    QUARTER: QUARTER, SIDELINE: SIDELINE, MAX_CLOCK: MAX_CLOCK, PLAYS: PLAYS,
+    QUARTER: QUARTER, SIDELINE: SIDELINE, MAX_CLOCK: MAX_CLOCK, CLOCK_SCALE: CLOCK_SCALE,
+    FG_RANGE: FG_RANGE, DEFENCE: DEFENCE, PLAYS: PLAYS,
     chance: chance, teamOutline: teamOutline, create: create, restore: restore, serialise: serialise,
     callPlay: callPlay, kick: kick, step: step, finish: finish, cpuDrive: cpuDrive, cpuSnap: cpuSnap, cpuCall: cpuCall,
     policies: policies, downWords: downWords, spotWords: spotWords, resolveCatch: resolveCatch,
@@ -1861,7 +1968,7 @@
     passError: passError, pressureFactor: pressureFactor, guideState: guideState,
     slingAim: slingAim, lockReceiver: lockReceiver, arriveOutcome: arriveOutcome,
     catchContest: catchContest, opennessBand: opennessBand, CONTEST_YARDS: CONTEST_YARDS,
-    missReason: missReason,
+    missReason: missReason, aimReceiver: aimReceiver, catchReach: catchReach,
     receiverRate: receiverRate, flightSeconds: flightSeconds, DEFAULT_PASS: 'retro',
     simulateGame: simulateGame, winSplit: winSplit, jukePolicy: jukePolicy, divePolicy: divePolicy,
     earlyJukePolicy: earlyJukePolicy, earlyDivePolicy: earlyDivePolicy, scriptedSeries: scriptedSeries,
@@ -1872,7 +1979,8 @@
     callStyle: callStyle,
     laneRead: laneRead, updateRunLanes: updateRunLanes,
     formationFor: formationFor, previewSquad: previewSquad, syncSquad: syncSquad,
-    offerPlays: offerPlays, previewRoutes: previewRoutes
+    offerPlays: offerPlays, previewRoutes: previewRoutes, quickRoutes: quickRoutes,
+    driveSummary: driveSummary, carryDistribution: carryDistribution, drivePace: drivePace
   };
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.LanternModel = api;

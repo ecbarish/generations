@@ -1,0 +1,136 @@
+WILDBOND WORLD CONCEPT ART: PROMPT SHEET FOR GROK BOT'S IMAGE GENERATOR
+=======================================================================
+Sources: the world design doc (PR #455 at c47af4fa, sections 2 and 5), the world references (#452, section 5), the art direction
+page (docs/art/wildbond-art-direction.md section 3 ramps) and the house rules (docs/art/README.md). Names come only from those.
+Output: 16:9, 1280x720 PNG, saved as /workspace/wildbond/world-map/gen/<slug>.png (slug given on each prompt).
+These are concept and mood images for planning. They are reference only, not shipped art, and they never replace the code
+painter (#455 hard rule 11).
+
+HOUSE STYLE (applies to every prompt; paste it under each one)
+- "A storybook valley that lost its colour and is getting it back." Old-souled, handmade, never candy-bright. The greens are deep and cool, stone and timber are warm, roofs are slate blue, and barns are red.
+- Light comes from the upper left, and the shadow side is lower right.
+- Every lit window and lamp is warm lamplight #f2d080. Outlines and the darkest accents are warm near-black ink #1e1a22, never pure black.
+- Real proportions, no chibi. A person is about 1.5 tiles tall, a cottage is a whitewashed 4-by-4-tile house with a steep slate roof, and Maren's barn is red with a gambrel roof.
+- Simple readable shapes first (boxes, roof prisms, cylinders, cones), with detail inside the shapes.
+- NO text, letters, numbers, signs with writing, map labels, borders, compass roses or UI. Labels are stamped on later by script.
+- No creatures in the foreground unless a prompt asks for one. No people bigger than a few pixels in the map prompt. No logos, no franchise look, no copied maps.
+
+-----------------------------------------------------------------------
+0. ILLUSTRATED OVERWORLD MAP  slug: overworld-map
+-----------------------------------------------------------------------
+A painted fantasy region map of one valley, seen from above at a top-down three-quarter angle, like a hand-painted storybook
+endpaper. 16:9. Light from the upper left. Muted storybook colour, a little washed out at the edges as if the colour is still
+returning. NO text or labels of any kind.
+Layout (north is up; keep these positions, because labels are overlaid later at fixed points):
+- A grey-blue sea runs along the whole top edge from the far left to about 60% across (Water #2f5f7e #3a7090 #4a84a2, glints #8cc0d4). Near the top middle of that sea sits one low, pale sand island with a single small shelter (Outer Shoal). Near the top left, a small dark sea-cave arch sits at the waterline (Keelcave).
+- Top left, under the sea: a sandy salt-marsh coast with a tide line of weed and shells, a small quay with a low inn, net reels and a lighthouse behind it (Saltmarsh Coast and Lantern Quay). A round pool sits a little inland on the west side (Moon Pool), with a channel mouth toward the sea. Sand #d2b886 #e0c896 #ead6a8.
+- Left middle: deep cool woodland of broadleaf and pine, with a settlement at a hawthorn gate, a stream, a hidden grove to its east and a root-hollow cave (Thornwood, Old Root Grove, Knothollow). Leaf #24503e #2f6a4a #3f8558 #5ea26a, Pine #1f4a44 #2a5e54 #37766a.
+- Bottom left corner: a small village of whitewashed cottages with slate roofs and one red barn, lanes and meadow, with a black burrow arch in a grass bank to its west (Larkhaven, Millgrass Lane, Larkburrow).
+- Centre left: warm ash-brown highlands climbing in stair-cut steps, with hot springs and a spring-house venting steam, and a red-glowing cave mouth in a black hill (Emberfall Highlands: Ashstair, Warmstep, Kilnvent). Barn red #6e2620 #8e342c only as ember glow.
+- Top centre, just under the sea: a mountain pass of slate-blue rock with a roped lodge, a sheer drop (a cliff lip with a view down to the basin), and a path climbing to an open bare summit (Cloudglass Pass: Highlatch, Glassfall, Crest Path, Lampcrown). Slate #33465e #435a78 #56708f #7290ad.
+- The centre: the hub, a broad basin of reed channels and boardwalks on still water, with a low boathouse, a dry shed, a raised orchard to the east, and a stair that goes down into dark water (Stillreed Basin: Reedhold, the Long Boards, Orchard Fen, the Quiet Channels, Lowbell).
+- Bottom centre: rolling grey-green hills with worn flagstones, a small hamlet with a bell house, a quarry cut and a cave mouth in the rock (Hollowecho Hills: Bellstep, Flintcut, the Answering Ways). Flagstone greys #6e6e62 #8c8c80 #a4a496.
+- Centre right: bright open commons, meadow and posts with ribbons, a long meeting hall, and a grey mill beside a meadow, its wheel still (Sunthread Commons: Threadmeet, Ribbon Road, Greymill). Grass #4f8a50 #5c9a5a #6aa862 #7cb86c.
+- Top right: high sea cliffs and a stone lookout with a ledger house, a path down to a pier on the sea (Farwatch Reach: the High Watch, Seaward Ledge).
+- Far top right corner: a stair climbing to a court on a height, and a slim tall spire to its west (the Returning Light League and the Lighthouse Spire).
+- Thin pale paths join everything, and the main road snakes from the bottom-left village up the west side, east across the highlands and pass, through the central basin, then east and north to the cliffs and the far top-right court.
+Keep generous empty ground around each landmark (labels go there later). Lamplight #f2d080 in a few windows only.
+
+-----------------------------------------------------------------------
+1. THORNWOOD  slug: region-thornwood
+-----------------------------------------------------------------------
+Mood key art, 16:9, a top-down three-quarter view of a pixel-art-inspired storybook scene, painted. Morning, low sun from the upper left
+through deep cool trees. Thornwood: a settlement at a hawthorn gate path with a small loft above the gate (the Gate Loft),
+whitewashed cottages with slate roofs. To one side, a lane under broadleaf crowns and stacked pines (Thornwood Trail), a short
+meadow cut (Dewcut), and a stream that floods where mushrooms grow (Rootwater Path; the stream is still water, not a road).
+In the grove to the east, a ring of old trees with a living curtain of plants (it must read as plants, not a fence) and a carved
+antler sign with no writing (Old Root Grove). A low cave under a root ceiling with one pale crack (Knothollow).
+Palette: Leaf #24503e #2f6a4a #3f8558 #5ea26a #8ccf7e; Pine #1f4a44 #2a5e54 #37766a #4f9480; Bark #4a3426 #6a4a32 #8a6444;
+Grass #4f8a50 #5c9a5a #6aa862 #7cb86c; Path #a8875a #bb9a6a #ccad7c #dcc092; Water #2f5f7e #3a7090 #4a84a2 #8cc0d4;
+Whitewash #cfc4ac #e6dcc6 #f4eddc; Slate #33465e #435a78; lamplight #f2d080 in two windows; ink #1e1a22.
+[house style] No text.
+
+-----------------------------------------------------------------------
+2. SALTMARSH COAST  slug: region-saltmarsh
+-----------------------------------------------------------------------
+Mood key art, 16:9, top-down three-quarter. Late afternoon, sun from the upper left over a grey sea. Saltmarsh Coast's dunes
+and marsh, a tide line of weed and shells (Wrackline) leading to Lantern Quay: net reels, a net loft, and a low quay inn that is a
+whitewashed cottage with a blue door, with a lighthouse behind it. An early pier. Inland, a round still pool (Moon Pool) whose far
+lip opens into a channel to the sea. Show the two kinds of water clearly apart: the pool is still, and the channel and the sound
+(Greywash Sound) carry a visible current pattern and a small wake. At the waterline, a keel-scraped sea-cave arch (Keelcave).
+The sea is grey until the colour is back, but honest.
+Palette: Sand #d2b886 #e0c896 #ead6a8; Water #2f5f7e #3a7090 #4a84a2 #8cc0d4; Whitewash #cfc4ac #e6dcc6 #f4eddc;
+Slate #33465e #435a78 #56708f #7290ad; Grass #4f8a50 #5c9a5a; lamplight #f2d080 in the inn window and the lighthouse; ink #1e1a22.
+[house style] No text.
+
+-----------------------------------------------------------------------
+3. EMBERFALL HIGHLANDS  slug: region-emberfall
+-----------------------------------------------------------------------
+Mood key art, 16:9, top-down three-quarter. Dusk, the last light from the upper left, with warm glows below. Ash-brown highlands
+climbing in stair-cut steps of ash (Ashstair) from the coast. Warm springs and Hest's spring-house, with a round vent and a lit
+window, steam rising above the roof (steam sits over the house and never blocks the door) (Warmstep). A red mouth in a black
+hill, seen from the climb, warm at its centre and dark at the edges (Kilnvent). A path past the vent toward the pass (Sootpath).
+Toren's ridge above the springs.
+Palette: Path #a8875a #bb9a6a #ccad7c #dcc092; Barn red #6e2620 #8e342c #ab463a #c45e4e used only as ember and glow;
+Whitewash #cfc4ac #e6dcc6 #f4eddc; Slate #33465e #435a78 for the dark hill; Bark #4a3426 #6a4a32; lamplight #f2d080; ink #1e1a22.
+[house style] No text.
+
+-----------------------------------------------------------------------
+4. CLOUDGLASS PASS  slug: region-cloudglass
+-----------------------------------------------------------------------
+Mood key art, 16:9, top-down three-quarter. Clear early morning, cold light from the upper left, mist below. A mountain pass of
+slate-blue rock and pines. Highlatch: Vessa's shelter grown into a lodge with a door and a lit kitchen window, and Ilka's ropes
+strung along the path. Glassfall: a cliff lip with a long view down to a reed basin far below. The slow way down winds away to
+one side (Pass Foot). A climbing path (Crest Path) ends on an open, bare summit with room for a very large creature and a person
+(Lampcrown), under a wide bright sky. Optionally, one huge radiant bird silhouette far off in the sky, small in frame.
+Palette: Slate #33465e #435a78 #56708f #7290ad; Pine #1f4a44 #2a5e54 #37766a #4f9480; Whitewash #cfc4ac #e6dcc6 #f4eddc;
+Path #a8875a #bb9a6a #ccad7c; lamplight #f2d080 in the lodge; ink #1e1a22.
+[house style] No text.
+
+-----------------------------------------------------------------------
+5. STILLREED BASIN  slug: region-stillreed
+-----------------------------------------------------------------------
+Mood key art, 16:9, top-down three-quarter. Golden late afternoon, light from the upper left on still water. Reedhold, the hub
+town on boards over the water: Juna's low boathouse inn (not a lighthouse), Colm's dry shed with a slate roof, the ferry house, a
+moored skiff tied up, and a landing. The Long Boards run west across the reeds, with a covered, lamplit walk (the Dry Boards) that
+clearly is not a cave. Raised orchard ground to the east (Orchard Fen). Reed channels with a visible current pattern (the Quiet
+Channels), and from the jetty, a stone stair going down into dark water (Lowbell) with a bell just visible below.
+Palette: Water #2f5f7e #3a7090 #4a84a2 #8cc0d4; Bark #4a3426 #6a4a32 #8a6444 (all the boards); Grass #4f8a50 #5c9a5a #6aa862 #7cb86c;
+Whitewash #cfc4ac #e6dcc6 #f4eddc; Slate #33465e #435a78; Leaf #2f6a4a #3f8558 (orchard); lamplight #f2d080; ink #1e1a22.
+[house style] No text.
+
+-----------------------------------------------------------------------
+6. HOLLOWECHO HILLS  slug: region-hollowecho
+-----------------------------------------------------------------------
+Mood key art, 16:9, top-down three-quarter. Night, a cool moon from the upper left, warm lamplight in the hamlet. Rolling grey-green
+hills with worn flagstone paths (The Late Path), a quarry cut through loose stone (Flintcut), and Bellstep: a hamlet with a bell
+house and a bell hanging beside it. In the rock face, a real cave mouth whose first hall glows softly from small radiant motes
+and the bell outside (the Answering Ways). Deeper inside it is dark, but the floor near the mouth is still readable. A second, older
+painted-dark mouth sits nearby as scenery. Quiet, a sense of answers arriving a beat late.
+Palette: flagstone greys #6e6e62 #8c8c80 #a4a496 (Hollowecho's painted floor in main.gd); Slate #33465e #435a78 #56708f;
+Grass #4f8a50 #5c9a5a; Whitewash #cfc4ac #e6dcc6; lamplight #f2d080 for the bell house and the motes; ink #1e1a22.
+Darkness reads as a soft overlay, never as black paint: keep cave floors above the ink tone.
+[house style] No text.
+
+-----------------------------------------------------------------------
+7. SUNTHREAD COMMONS  slug: region-sunthread
+-----------------------------------------------------------------------
+Mood key art, 16:9, top-down three-quarter. Bright early afternoon, light from the upper left. Broad open commons. Ribbon posts
+along a road, with ribbons tied back on them (Ribbon Road). Threadmeet's long whitewashed meeting hall, and a small stall under its
+eaves (Pell's counter). Shelter ties along a road (Shelter Mile). To one side, a grey mill beside a bright meadow, its whitewash
+gone grey, its wheel still and its door stuck (Greymill). A nursery gate at the edge of town, opening onto open meadow ground.
+Palette: Grass #4f8a50 #5c9a5a #6aa862 #7cb86c; Whitewash #cfc4ac #e6dcc6 #f4eddc; Barn red #8e342c #ab463a only for small ribbon
+ties; Path #bb9a6a #ccad7c; warm flagstones #9a8a64 #c4b48c (Sunthread's painted floor in main.gd); Bark #6a4a32; Slate #435a78;
+lamplight #f2d080; ink #1e1a22.
+[house style] No text.
+
+-----------------------------------------------------------------------
+8. FARWATCH REACH  slug: region-farwatch
+-----------------------------------------------------------------------
+Mood key art, 16:9, top-down three-quarter. Blue hour at evening, the last light from the upper left over the sea. High sea cliffs.
+The High Watch: a stone lookout, and Quen's ledger house (a stone room with a desk, not a cottage). A loop of lookout ground on the
+headland (Chart Road). A ledge path down to a pier (Seaward Ledge), the open sea beyond with a visible current pattern (The Open
+Grey), and far out, a low sand island with one shelter (Outer Shoal). One harbour lantern lit.
+Palette: Slate #33465e #435a78 #56708f #7290ad; Sand #d2b886 #e0c896 #ead6a8; Whitewash #cfc4ac #e6dcc6 #f4eddc;
+Water #2f5f7e #3a7090 #4a84a2 #8cc0d4; Grass #4f8a50 #5c9a5a; lamplight #f2d080; ink #1e1a22.
+[house style] No text.
