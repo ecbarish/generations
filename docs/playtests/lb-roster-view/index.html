@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Lantern Bowl roster view: preview page</title>
+<style>
+  /* This page's own chrome only. The roster list gets its styles from roster-view.js (every class there starts with lbrv-). */
+  :root { color-scheme: dark; }
+  [hidden] { display: none !important; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 8px max(8px, env(safe-area-inset-right)) 16px max(8px, env(safe-area-inset-left)); background: #10141c; color: #f6edd4; font: 16px/1.25 ui-monospace, SFMono-Regular, Consolas, monospace; }
+  header { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-bottom: 8px; }
+  h1 { margin: 0; font-size: 18px; color: #f2d080; white-space: nowrap; }
+  label { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  select { font: inherit; min-height: 44px; min-width: 150px; padding: 6px 10px; color: #f6edd4; background: #243044; border: 1px solid #6d5a38; border-radius: 8px; }
+  select:focus-visible { outline: 3px solid #f2d080; outline-offset: 2px; }
+  #status { margin: 0 0 8px; color: #c9bf9f; }
+  #status.bad { color: #ff9b8f; }
+  .club { margin: 0 0 24px; }
+  .club > h2 { margin: 0 0 8px; font-size: 18px; color: #f2d080; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Roster</h1>
+  <label>Club <select id="club" aria-label="Club"></select></label>
+</header>
+<p id="status">Loading roster.json&hellip;</p>
+<main id="list"></main>
+<script src="../../../games/lantern-bowl/roster-view.js"></script>
+<script>
+(function () {
+  'use strict';
+  /* Nothing in the game opens this screen yet. This page only reads games/lantern-bowl/roster.json and draws it.
+     ?club=millrace shows one club. ?all=1 draws all six one under the other (the automatic check uses that). Serve the repo over http, since a page opened from a file cannot fetch the roster. */
+  var V = window.LanternBowlRosterView, errors = [];
+  window.__rosterViewErrors = errors;
+  window.addEventListener('error', function (e) { errors.push(String(e.message || e)); });
+  window.addEventListener('unhandledrejection', function (e) { errors.push(String(e.reason && e.reason.message || e.reason)); });
+  var $ = function (id) { return document.getElementById(id); };
+  var NAMES = { brackenport: 'Brackenport', millrace: 'Millrace', harrowgate: 'Harrowgate', tollbridge: 'Tollbridge', quarryhill: 'Quarryhill', fernmoor: 'Fernmoor' };
+  var params = new URLSearchParams(location.search);
+
+  function title(id) { return NAMES[id] || id; }
+  function showOne(roster, id) {
+    var list = $('list');
+    V.render(list, V.rows(roster, id));
+    $('status').textContent = title(id) + ': ' + list.querySelectorAll('.lbrv-row').length + ' players, 5 stars is Elite and 1 star is Rough. Words first, numbers second.';
+  }
+  function showAll(roster) {
+    var list = $('list'), total = 0;
+    list.textContent = '';
+    Object.keys(roster.clubs).forEach(function (id) {
+      var wrap = document.createElement('section'), h = document.createElement('h2'), box = document.createElement('div');
+      wrap.className = 'club'; h.textContent = title(id); wrap.appendChild(h); wrap.appendChild(box); list.appendChild(wrap);
+      V.render(box, V.rows(roster, id));
+      total += box.querySelectorAll('.lbrv-row').length;
+    });
+    $('status').textContent = 'All ' + Object.keys(roster.clubs).length + ' clubs drawn: ' + total + ' rows.';
+  }
+
+  fetch('../../../games/lantern-bowl/roster.json').then(function (r) {
+    if (!r.ok) throw new Error('roster.json answered ' + r.status);
+    return r.json();
+  }).then(function (roster) {
+    var sel = $('club'), ids = Object.keys(roster.clubs);
+    ids.forEach(function (id) { var o = document.createElement('option'); o.value = id; o.textContent = title(id); sel.appendChild(o); });
+    var want = params.get('club');
+    if (want && ids.indexOf(want) >= 0) sel.value = want;
+    sel.addEventListener('change', function () { history.replaceState(null, '', '?club=' + sel.value); showOne(roster, sel.value); });
+    if (params.get('all')) { document.querySelector('header').hidden = true; showAll(roster); } else showOne(roster, sel.value);
+    document.documentElement.setAttribute('data-ready', '1');
+  }).catch(function (e) {
+    errors.push(String(e.message || e));
+    $('status').className = 'bad';
+    $('status').textContent = 'Could not draw the roster: ' + (e.message || e) + '. Serve the repo over http and open this page again.';
+  });
+})();
+</script>
+</body>
+</html>
