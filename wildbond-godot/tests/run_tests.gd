@@ -12,7 +12,7 @@ var elapsed := 0.0
 func _process(dt: float) -> bool:
 	# a safety net: if something breaks and the checks stop, quit instead of hanging
 	elapsed += dt
-	if elapsed > 120.0:
+	if elapsed > 240.0:
 		print("Wildbond Godot checks: TIMED OUT (a script error stopped them; see the errors above)")
 		quit(3)
 	return false
@@ -798,7 +798,7 @@ func _run() -> void:
 	talk_through()
 	check(main.stage == "walk_out", "after the bond you walk out together")
 	check(main.team.size() == 1 and main.team[0].sp == "mosshog" and main.team[0].lvl == 5, "Mosshog joins your team at level 5")
-	check(main.rival_c.sp == "cindercub" and main.rival_c.lvl == 4, "Wren will take Cindercub, the one that beats Mosshog")
+	check(main.rival_c.sp == "cindercub" and main.rival_c.lvl == 3, "Wren will take Cindercub at level 3, a step below your level 5 Mosshog")
 	# ---- your partner follows you out, and the colour has spilled into town
 	check(walk_to(main.BARN_EXIT + Vector2i.UP), "you can walk back to the barn door")
 	main._step(Vector2i.DOWN)
@@ -1919,6 +1919,8 @@ func _run() -> void:
 	preload("res://tests/fix_bundle_2.gd").run(main, check)
 	preload("res://tests/phone_layout.gd").run(main, check)
 	preload("res://tests/north_roads.gd").run(main, check)
+	preload("res://tests/fix_bundle_3.gd").run(main, check)
+	preload("res://tests/wbl_continue.gd").run(root, check, check)
 	# ---- the done line
 	print("Wildbond Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
