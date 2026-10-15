@@ -935,9 +935,11 @@ document.querySelector('#run').onclick = async () => {
     }
     frame.style.width = '844px'; frame.style.height = '390px';
     await wait();
+    /* The kickoff spends a varying number of rolls, so pin the drive before the snap. */
+    again.state.seed = 1; again.state.rng = 1;
     d2.querySelector('[data-defence="balanced"]').click();
     let sawLive = false, ballMoved = false, firstBall = null, staleStrip = false, firstSquad = null, playersMoved = false, buttonsDuring = false;
-    for (let i = 0; i < 48; i++) {
+    for (let i = 0; i < 90 && !(sawLive && ballMoved && playersMoved); i++) {
       await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
       const livePlay = again.state.phase === 'live' && again.state.play && again.state.play.offence === 'away';
       if (!livePlay) continue;
@@ -956,12 +958,16 @@ document.querySelector('#run').onclick = async () => {
     check('a Millrace snap moves the players on the field', sawLive && playersMoved);
     again.rush(true);
     again.playCpu();
-    const driveWatch = performance.now();
-    while (performance.now() - driveWatch < 5000 && again.state.possession === 'away' && again.state.phase !== 'final') {
+    /* The one-line result stays up for just over a second of frames, then the cards replace it.
+       Read that line on the frame the drive ends, instead of after a wall-clock wait. */
+    let driveLine = '';
+    for (let i = 0; i < 360 && !driveLine; i++) {
       await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
+      const ended = again.state.possession !== 'away' || again.state.phase === 'final';
+      if (!ended) continue;
+      const shown = ((d2.querySelector('#sheet') && d2.querySelector('#sheet').textContent) || '') + ' ' + ((d2.querySelector('#banner') && d2.querySelector('#banner').textContent) || '');
+      if (shown.length > 8 && shown.length < 120 && shown.indexOf('Balanced') >= 0) driveLine = shown;
     }
-    await wait();
-    const driveLine = ((d2.querySelector('#sheet') && d2.querySelector('#sheet').textContent) || '') + ' ' + ((d2.querySelector('#banner') && d2.querySelector('#banner').textContent) || '');
     check('a Millrace drive ends as one line', again.state.possession !== 'away' && driveLine.length > 8 && driveLine.length < 120 && driveLine.indexOf('Balanced') >= 0 && !d2.querySelector('.cpu-log'));
     again.rush(false);
     again.state.play = null;
@@ -974,10 +980,10 @@ document.querySelector('#run').onclick = async () => {
     again.state.clock = 120;
     again.refresh();
     await wait();
+    again.state.seed = 1; again.state.rng = 1;
     again.begin('inside');
     let homeBall = null, homeBallMoved = false, homeSquad = null, homePlayersMoved = false, homeLive = false;
-    const homeWatch = performance.now();
-    while (performance.now() - homeWatch < 2500 && !(homeBallMoved && homePlayersMoved)) {
+    for (let i = 0; i < 180 && !(homeBallMoved && homePlayersMoved); i++) {
       await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
       const live = again.state.phase === 'live' && again.state.play && again.state.play.offence === 'home';
       if (!live) continue;
