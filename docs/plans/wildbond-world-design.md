@@ -334,8 +334,22 @@ The reference puts a guardian on a summit, a guardian under the lake, a roamer a
 
 - **Lampcrown** is where you return to Lanterncrest after the pass story, or where the sign sends you if you have not met them and you climb anyway. The surface story encounter on Cloudglass is not deleted. The peak adds the view of Kilnvent's warmth, which is Toren's clue seen from above, still unexplained.
 - **Lowbell** is Stillwake's deep water and the bell errand. The surface meeting at fourteen explores stays the meeting.
-- **Greymill** can release a roamer only if Evan accepts a new unique. The proposal is **Greysail**, a Gale bird, family bird, unique, shut in the mill and walking the roads after the door opens. Until that yes, Greymill is the clue dungeon and the Hush door, with no new species. Catching a roamer uses the bond the game already saves. Its place on the road, if it roams, is chosen from the calendar day and the roads you have opened, so the position is not a save field.
+- **Greymill** is the clue dungeon and the Hush door. **Greysail**, a Gale bird, would be a 190th species on top of the 189 in `docs/wildbond-creatures/catalog.md`. It is not drawn, and it is not added, unless Evan says yes. Until that yes, the mill has no roamer. If he accepts it, catching it uses the bond the game already saves, and its place on the road is chosen from the calendar day and the roads you have opened, so the position is not a save field.
 - **The Spire** stays Orla's floors. Trialstair is the cave before the league, not a new guardian's room.
+
+The catalogue has nine Legends. Four already have a place in this plan. The other five are placed here, on ground the lore already gives them, so a later pass does not invent a site. None of these moves an encounter that the game already plays. A return visit uses the site. The first meeting stays where it is.
+
+| Legend | Walking height | Site in this plan | First meeting, unchanged |
+|---|---|---|---|
+| Elderhorn | 31px, waits outside | The oldest trees in Old Root Grove, on the side a Stone partner can already walk. Not behind Grove Wake | Thornwood, at 20 explores (`00-data.js`, the `elder` scene) |
+| Breakwatermane | 28px, waits outside | The Wrackline beach, where the tide draws back. Outdoors. It may enter Keelcave; it does not enter the quay inn | Saltmarsh, at 14 explores (`tidewolf`) |
+| Hearthcrown | 31px, waits outside | The Warmstep spring terrace, the spring it warms. Outdoors. It does not enter Kilnvent or the spring-house | Emberfall, at 14 explores (`hearthstag`) |
+| Lanterncrest | 24px, no headroom at a 24px door | Lampcrown, a clear pad of 4×4 tiles so the bird and the tamer stand apart | Cloudglass, the surface meeting that already exists |
+| Stillwake | 24px, no headroom | The Reedhold jetty, the surface crossing. Lowbell is the bell errand, not a second guardian | Stillreed, at 14 explores |
+| Undertone | 28px, waits outside buildings | The first bend of the Answering Ways, where the call carries. The mouth is sized for it | Beside the hamlet bell, at 14 explores (`undertone`). The cave is the return |
+| Meadowmantle | 28px, waits outside | The Threadmeet nursery, outdoors | Sunthread, at 14 explores (`meadowmantle`) |
+| Watchlight | 24px, no headroom | The harbor light on Seaward Ledge, the mooring the Farwatch scene already uses | Farwatch, at 14 explores (`watchlight`) |
+| Veilmote | 24px, no headroom | A nest ledge on The Late Path, on the night path after Hush. The nests stay unowned. This is not Greymill, and it does not say whose nests they were | No meeting exists yet. This ledge is the place a later encounter would use |
 
 ## 3. Town stories, the banner, and the errand list
 
@@ -424,9 +438,135 @@ If the partner's level list already contains the move, the keeper says they know
 
 ## 5. Art brief for Game Art Director
 
-This is the ask. It is not the art. Pictures stay on the ramps in `docs/art/wildbond-art-direction.md` section 3. Light stays top-left. Outlines stay `#1e1a22` on figures and standing objects. One tile is about a metre. Cottages stay 4 by 3. A barn stays 4 by 5. A door footprint has to match the picture, which `buildings()` already does for Larkhaven. Every new colour has to read under the fade, because the Thorn Badge is still the moment colour returns, and a player may walk a new road before that.
+This is the ask. It is not the art. Pictures stay on the ramps in `docs/art/wildbond-art-direction.md` section 3. Sizes stay on **Scale (locked v3)** in that same file. Light stays top-left. Outlines stay `#1e1a22` on figures and standing objects. A tile is 16px, about 1.30 m at 12.35px per metre. The tamer is about 12×21. The door line is 24px tall, not 25. A cottage is 64×64 (4×4 tiles) with a 12×24 door. Maren's barn is 64×80 with 16×26 doors. `buildings()` (`main.gd` line 1901) and `_cottage` (`paint_tiles.gd` line 250) still use the older 4×3 cottage. New places in this plan are drawn to the locked sizes. The old cells change in the paint pass that adopts v3, not in a world-map pull request. Every new colour has to read under the fade, because the Thorn Badge is still the moment colour returns, and a player may walk a new road before that.
 
-No pack art. No borrowed map. If a phase needs a ramp the direction page does not have, the phase adds the ramp to that page first and waits for the director's sign before the painter uses it. The one ramp this plan expects to ask for is Cave, dark to light `#1a1c22`, `#2a2e38`, `#3e4656`, for wet stone. It is a proposal until the director writes it into the direction page.
+No pack art. No borrowed map. If a phase needs a ramp the direction page does not have, the phase adds the ramp to that page first and waits for the director's sign before the painter uses it.
+
+### Doors, and where a mount waits
+
+Every new door uses the 24px line.
+
+| Building | Door | Notes |
+|---|---|---|
+| Gate Loft, quay inn, net loft, spring-house, lodge, Colm's shop, ferry house, ledger house, Greymill | 12×24 | A cottage door. The quay inn's door is blue, so it is not Juniper's shop and not the barn |
+| Bell house | 12×24 | On the footprint `buildings()` already draws at Hollowecho (`main.gd` line 1904) |
+| Meeting hall | 24×24, a pair | On the hall footprint at line 1905. This is the wide opening |
+| Lookout | 12×24 | On the Farwatch lookout footprint |
+| Boathouse inn | 20×24 | Juna's inn. Wider than a cottage, still 24px tall |
+| Maren's barn | 16×26 | Already the tall doors. Not a new building |
+
+Each of the ten healer doors has a clear waiting pad beside it, off the step, so a creature that cannot come in is still in the picture. The pad is 2×2 tiles (32×32px) for a mount of 26 or 28px. Pyremane (30), Elderhorn (31) and Hearthcrown (31) use a 3×2 pad, so the body is not standing in the doorway. The ten doors are Ned's inn, the Gate Loft, the quay inn, the spring-house, the lodge, Juna's inn, the bell house, the meeting hall, the ledger house, and Nelva's league rest.
+
+Who follows the tamer through a door, from the locked table:
+
+- 24px or shorter, on foot, follows. Lanterncrest, Stillwake, Watchlight and Veilmote are exactly 24px. They fit a 24px opening with no headroom. A 12px-wide leaf is a tight step for them. The hall's 24×24 pair is the comfortable width.
+- A crawler comes in only when the crawl pose is 12px tall or less. Deeptide is 26px standing and slender. It may crawl in only if that pose is drawn at 12px or less. Standing, it waits on the pad.
+- Tidewyrm is 15px. It is not yet a crawler at 12px. Until a crawl pose measures 12px or less, Tidewyrm waits on the pad too.
+- The eight mounts wait outside on foot: Deeptide 26, Elderthorn 26, Meadowmantle 28, Breakwatermane 28, Undertone 28, Pyremane 30, Elderhorn 31, Hearthcrown 31. Three of those names are retired in a current save (`RETIRED_FORMS`, `main.gd` line 3588). Deeptide is stored as Tidewyrm, Pyremane as Blazefang (19px, follows indoors), and Elderthorn as Thornback (18px, follows indoors). The pads are still drawn for the locked heights, so the old picture is never squeezed through the door.
+
+Mounts may walk into a cave when the mouth and the ceiling are both at least 48px (3 tiles) wide and tall. That leaves headroom over a 31px back. A lower cave keeps the mount on a pad at the mouth, the same rule as a door. They do not duck a 24px lintel.
+
+| Cave | Mouth | Ceiling | Who may enter |
+|---|---|---|---|
+| Larkburrow | 3 tiles wide, 3 tall (48×48px). The shut mouth on Millgrass stays this wide even while it is shut | 48px | Meadowmantle (28) on the late through-path. Taller mounts use it too |
+| The Answering Ways | 48×48px. Not tile (19, 8) | 48px | Undertone (28) lives at the first bend. Any mount may follow |
+| Knothollow | 48px wide, 32px tall (2 tiles) | 32px | A 26px mount, including the locked Elderthorn height, with 6px over the back. Elderhorn (31) waits at the mouth. The cave is a supply crack, not the grove |
+| Keelcave | 48×48px, the arch sitting on the waterline | 48px above the rideable water | Deeptide's locked 26px height, and Stillwake at 24px. Breakwatermane may come in from the beach |
+| Kilnvent | 48×48px, the red mouth read from Ashstair | 48px in the first room and the deep room | A 30px mount fits. Hearthcrown does not live here. It stays on the spring terrace |
+| Lowbell | The flooded stair is one tile wide for the tamer and a Tide partner | 32px of air above the water | Mounts wait on the 2×2 pad at Reedhold's jetty. Stillwake's meeting stays on the surface |
+| Trialstair | 48×48px at the road | 48px on the main stair | A mount can climb to the league with the tamer. A side room may be lower, and then the mount waits at that room's mouth |
+| Lampcrown | No door. A clear pad of 4×4 tiles (64×64px) | Open sky | Lanterncrest (24) and the tamer (12×21) stand side by side. "Room for a big creature" means this pad |
+
+### The cave ramp, the dark, and the lights
+
+The earlier Cave proposal, `#1a1c22`, `#2a2e38`, `#3e4656`, sits at about 1.01, 1.26 and 1.81 to 1 against the ink `#1e1a22`. On that floor the outline disappears, and so does the tamer. The walkable cave shades are now a cool stone that clears 4.5 to 1:
+
+| Shade | Hex | Contrast with `#1e1a22` | Use |
+|---|---|---|---|
+| Cave dark | `#82848e` | 4.60 to 1 | The walkable floor, and the wall. Nothing in the cave paint is darker than this |
+| Cave mid | `#969ea4` | 6.30 to 1 | The middle of a block, the wet streak |
+| Cave light | `#b0b0bf` | 8.00 to 1 | The top-left face |
+
+These three, plus the ink and Lamplight `#f2d080`, are a cave palette. They are not added to the world palette. The director writes them into the direction page before a painter uses them. Until that sign, they stay a proposal with the contrast already checked.
+
+Darkness is an overlay, not a paint. `docs/art/README.md` rule 1 already says mood sits on top of the sprite. Kilnvent's deep room, the Answering Ways after the first hall, Trialstair's unlit flights, and the night path on The Late Path all use that overlay.
+
+- The darkest a walkable tile is painted is Cave dark, `#82848e`. The overlay may dim what is farther away. It does not replace the tile with a darker colour.
+- Before Lantern, the tamer's tile and the eight tiles around it stay readable, at the painted contrast. Past that ring the overlay may fall off.
+- The edges still show the crack, the mouth, and the way back, as the lighter cave face, not as a new picture.
+- "Warm at the centre" in Kilnvent is a Lamplight glow in the overlay. The floor is not painted Barn red. Barn red is a small ember shape on the stone, the way a lamp is a small shape on a cottage.
+- Night is the last quarter of the day (`calendar.gd` lines 94–104). On every new place, night is the same kind of overlay: a cool dim over the tiles that already exist. Windows stay Lamplight. Night is not a second set of tiles.
+
+Sprites keep their top-left shading in the paint. Lantern, Bellmote-light, the bell, and the vent's embers are additive glows on top. They do not move the painted shadow. In the HD-2D tier those same sources may become real point lights. The sun in that tier stays at the top left. A point light adds. It does not become the sun.
+
+### Tiers, water, and a small partner
+
+The brief has to survive more than the pixel picture.
+
+| Tier | What the player sees | What this brief owes it |
+|---|---|---|
+| T1 Pocket | A 4-shade remap. No light overlay | Rideable water and solid water must differ by pattern, not only by colour. A lit hall and Lantern-dark must differ by a shape (a lamp, a pale two-tile path), not only by brightness |
+| T2 Pixel | 16px tiles, the ramps, this brief's doors and mouths | The sizes in Scale (locked v3). Battle figures in this tier are 12 to 32px |
+| T3 HD-2D | The same tile data, with height and real lights. Creatures in that view may be drawn from 10 to 48px, in the same order as the locked heights | Point lights, as above. The overworld table does not change |
+| 3D | A later picture of the same world data | Section 9. Not a new map |
+
+The Water ramp's two middle shades, `#3a7090` and `#4a84a2`, are only about 1.31 to 1 apart, so a colour-only difference collapses in Pocket. Rideable water reuses the Water ramp and adds a pattern.
+
+Today's water is a still tile, a glint, and a lily (`paint_tiles.gd` lines 335–354). Solid `~` stays that tile. It does not gain a wake.
+
+| Piece | Frames | Speed | Edges |
+|---|---|---|---|
+| Solid `~` | The two cells that exist: still, and still with a glint | The glint holds. No new loop | The darkest water, `#2f5f7e`, one pixel against grass, sand or path. Already the bank |
+| Rideable water | 4 | 0.35 seconds a frame, one loop of about 1.4 seconds | Chevrons of `#8cc0d4`, two pixels, pointing with the current, on `#4a84a2`. Four shore edges (north, east, south, west) and four outside corners, each 16×16, where ground meets this tile |
+| The lip at Moon Pool | 1 special edge, plus the rideable frames on the far side | Same as rideable | Solid `~` on the near side, rideable on the far side, with one tile of `#8cc0d4` between them so the meeting reads when the colours collapse |
+| Wake | 4, an overlay sprite, not a tile | 0.2 seconds a frame | A V behind the partner. Reduced motion holds frame 0, with the steam and the mill wheel |
+| Flooded stair, drowned floor, waterline arch | The rideable frames, laid on Cave or Slate | Same as rideable | No new water colour. The arch is Cave light against the waterline |
+
+Tide Ride takes any Tide partner at level 18 or Friendly. Most of them are small. The picture depends on the partner's height, not on a second lesson.
+
+- Under 24px, the tamer swims or wades beside the partner. A 12px Ripplet does not carry a 21px tamer.
+- At 24px and above, the partner carries the tamer. That is Stillwake, and the Tide mounts Breakwatermane and Deeptide when the locked height is the one on screen.
+- Tidewyrm at 15px is the wading picture, until a carry pose is drawn on purpose. This brief does not ask for one.
+
+### What is new, counted against the cap
+
+`paint_tiles.gd` already names 54 distinct colours. That is over the house cap of about 32 per palette (`docs/art/README.md` rule 6). This plan adds no hex to that world set. The cave trio lives on the cave palette above, which is five colours with the ink and Lamplight, under the cap. A flooded cave may also show the existing Water ramp. It still does not join the world list.
+
+Names that are not ramps, and the ramp they actually use:
+
+| Asked for | Use this, already on a ramp |
+|---|---|
+| Warm stone | Path `#dcc092` |
+| Radiant speck, Bellmote-light | Lamplight `#f2d080` |
+| Whitewash gone grey | Whitewash `#cfc4ac`, with Slate `#56708f` on the mill roof |
+| Ember in the vent | Barn red `#8e342c`, a small shape, plus the Lamplight overlay |
+
+| Kind | Count | New colours? |
+|---|---|---|
+| Tile sets | 6: cave wet stone, rideable water and its shores, boardwalk, ash stair, Outer Shoal sand, the Greymill yard | Only the cave trio, on the cave palette. Water, boards (Bark), ash (Path), sand (Sand) and the mill yard (Whitewash and Slate) are reused |
+| Building silhouettes | 10: quay inn, net loft, boathouse inn, dry shed, spring-house, lodge, ledger house, Greymill, and doors on the bell house and the hall | No. Whitewash, Slate, Bark, Lamplight, and one blue from the existing Water light `#8cc0d4` for the quay door |
+| Interiors | 11: the eight healer rooms that are new, Colm's shop, the ferry house, and the net loft | No. The room alphabet in `main.gd` lines 489–491, painted from the ramps |
+| Props and obstacles | 15: net reels, ribbon posts, the bell, the mill wheel, the rope, steam, the wake, a crack, the living curtain, a false wall, a faded stone, a thicket, the shut trailhead, the warm ember shape, the lily-less current chevron | No new hex. Steam, wake and the wheel are overlays. Reduced motion holds one frame |
+
+### Who lives in the new places
+
+The nine Legend sites are in section 2. Greysail is not among them. It is not painted.
+
+Kilnback is a huge Ember turtle whose catalogue row is the Emberfall Highlands. It has no locked height. Kilnvent is not signed as its home until a height exists. Do not guess one.
+
+Wild tables below are the ones the game already has (`BIOMES` in `games/wildbond/js/00-data.js`). A cave or a water route uses the table of the country it opens from. It does not invent a species. Unique guardians are the story meetings, not a roll in the grass.
+
+| Place | Species already in that country's table | Guardians, story only |
+|---|---|---|
+| Knothollow and the grove | Thornwood: Glimmerwing, Pebblepaw, Duskweaver, Bogsnap, Emberling, Gnawhound, Galefoal, Sunspark, Fernruff, Bogbough, Seedpip | Elderhorn, in the grove, not in the deep crack |
+| Keelcave and Greywash | Saltmarsh: Brineskit, Dunepounce, Reedtusk, Wrackjaw, Kiteskirl, Spindriftfoal, Foamglint, Poolkit, Dewspinner, Saillet | Breakwatermane, on the Wrackline beach |
+| Kilnvent | Emberfall: Slaglet, Ashskip, Cragskein, Ventwhisk, Thermwing, Screegrin, Glowmote, Cairnclasp, Kilnchirp, Hearthlaugh, Flintpup, Cinderstitch | Hearthcrown stays at the spring. Kilnback is unsigned until it has a height |
+| The Answering Ways | Hollowecho: Hushpup, Umbrelace, Flintroot, Ledgewhisk, Bellmote, Dripdart, Chimespark | Undertone, at the first bend on a return. The first meeting stays at the bell |
+| Larkburrow | No wild table. The wooden bird is a prop | Meadowmantle stays at the Threadmeet nursery. The burrow is a road |
+| The Quiet Channels and Lowbell | Stillreed: Reedlet, Siltjaw, Rillwhisk, Orchardroot, Gustreed, Duskcord, Glassbill, Laughrill, Fordfoal | Stillwake, on the jetty, not under the bell |
+| The Open Grey | Farwatch: Shoalpup, Keeljaw, Chartwing, Moorweft, Inkwhisk, Buoyglint, Isleglimmer | Watchlight, at the harbor light |
+| The Late Path night ledge | No new table. Hollowecho's grass is the country's | Veilmote, when an encounter is written. The nests stay unowned |
+| Trialstair | No wild table | None. The stair is a lesson, not a guardian's room |
 
 Interiors use the room alphabet already in `main.gd` lines 489–491: `X` dark, `W` wall, `,` floor, `c` counter, `t` table, `s` shelf, `h` hearth, `k` crates, `b` bed, `n` chair, `e` bench, `a` barrel, `d` the way out. A new keeper stands behind a counter the way Ned does. Homes without a counter, if any phase adds one, follow Nora's cottage.
 
@@ -434,27 +574,27 @@ Phone: the entrance of every new place has to read at a phone width, and the ban
 
 | Place | Silhouette the player learns | Materials | Notes for the director |
 |---|---|---|---|
-| Millgrass Lane, Dewcut, Rootwater Path | A lane, a meadow cut, a stream | Grass, Path, Leaf, Water for the stream, which stays solid `~` | The Larkburrow mouth is a black arch, three tiles wide, in a grass bank. Visible, shut, not a painting you can walk through by accident |
+| Millgrass Lane, Dewcut, Rootwater Path | A lane, a meadow cut, a stream | Grass, Path, Leaf, Water for the stream, which stays solid `~` | The Larkburrow mouth is a 48×48px arch in a grass bank, painted with Cave dark, not a near-black that eats the ink. Visible, shut, not a painting you can walk through by accident |
 | Old Root Grove, back ring | The same grove, with a living curtain | Leaf, Bark | The curtain reads as plants, not as a fence. Grove Wake parts it |
-| Knothollow | A root ceiling and a pale crack | Bark, Cave proposal, a little Grass at the mouth | Short. A supply cave, not a second Thornwood |
+| Knothollow | A root ceiling and a pale crack | Bark, the cave palette, a little Grass at the mouth | Mouth 48px wide and 32px tall. Elderhorn waits outside. A supply cave, not a second Thornwood |
 | Wrackline, Lantern Quay | Net reels, a low inn, the lighthouse behind | Sand, Whitewash, Slate, Lamplight, Water | The quay inn is a cottage with a blue door, so it is not Juniper's shop and not Maren's barn. Perrin's counter faces the door |
-| Moon Pool's far lip | The pool you know, plus a channel mouth | Water | The lip is the moment solid water and rideable water meet. They must not look identical |
-| Greywash Sound, The Open Grey | Open water, a wake under the partner, a low island | Water, Sand | Rideable tiles are the new water tile, never `~`. A wake shows that this water holds you. Solid ponds do not draw that wake |
-| Keelcave | A keel-scraped arch at the waterline | Cave, Sand, Water | Dry inside. One ledge for the slip |
-| Ashstair, Sootpath, Warmstep | Stair-cut ash, then the spring-house steam | Path, a warm stone, Lamplight, Whitewash | Hest's spring-house has a round vent and a lit window. Steam is animation on top of the house, not a new tile that blocks the door |
-| Kilnvent | A red mouth in a black hill, seen from Ashstair | Cave, Barn red used only as ember, Lamplight | The mouth reads from the coast climb, between Saltmarsh and Warmstep. The first room is readable without Lantern. The deep room is dark at the edges and warm at the centre. Both states need a screenshot |
-| Highlatch, Pass Foot, Glassfall, Crest Path | Rope, a lodge, a drop, a crest | Slate, Whitewash, Path | Yarrow's lodge is the shelter that already exists in the pass story, given a door. Glassfall's top is a lip with a view down. The bottom is Reedhold's west grass. Crest Path ends in an open summit, Lampcrown, with room for a big creature and a person |
-| Reedhold, Long Boards, Dry Boards, Orchard Fen, Quiet Channels | Boards, a ferry inn, orchard, a stair into dark water | Wood from Bark, Grass, Water, Whitewash | Juna's inn is a low boathouse, not a second lighthouse. Colm's shop is a dry shed with a slate roof. The Dry Boards are a covered walk, lamplit, clearly not a cave. Lowbell's stair is visible from the jetty before it can be ridden |
+| Moon Pool's far lip | The pool you know, plus a channel mouth | Water | The special lip edge: solid `~` on the near side, rideable chevrons on the far side, one tile of `#8cc0d4` between them |
+| Greywash Sound, The Open Grey | Open water, a wake under the partner, a low island | Water, Sand | Rideable tiles reuse the Water ramp and add chevrons. Four frames at 0.35s. The wake is a four-frame overlay. A small partner wades beside the tamer. Stillwake and Breakwatermane carry |
+| Keelcave | A keel-scraped arch at the waterline | Cave, Sand, Water | Mouth 48×48px. Dry inside. One ledge for the slip. A 2×2 pad on the beach if the mount does not come in |
+| Ashstair, Sootpath, Warmstep | Stair-cut ash, then the spring-house steam | Path (`#dcc092` for the warm stone), Lamplight, Whitewash | Hest's door is 12×24. Hearthcrown's pad is 3×2 tiles on the terrace. Steam is an overlay, not a tile that blocks the door |
+| Kilnvent | A red mouth in a dark hill, seen from Ashstair | Cave palette, Barn red `#8e342c` as a small ember, Lamplight overlay | Mouth 48×48px. The first room is readable without Lantern. The deep room's dark and its warm centre are overlays, not a red floor. Both states need a screenshot |
+| Highlatch, Pass Foot, Glassfall, Crest Path | Rope, a lodge, a drop, a crest | Slate, Whitewash, Path | Yarrow's door is 12×24, with a 2×2 pad. Glassfall's top is a lip with a view down. Crest Path ends at Lampcrown's 4×4 tile pad, open sky, Lanterncrest and the tamer side by side |
+| Reedhold, Long Boards, Dry Boards, Orchard Fen, Quiet Channels | Boards, a ferry inn, orchard, a stair into dark water | Wood from Bark, Grass, Water, Whitewash | Juna's door is 20×24, with Stillwake's pad on the jetty. Colm's door is 12×24. The Dry Boards are a covered walk, lamplit, clearly not a cave. Lowbell's stair is visible from the jetty before it can be ridden |
 | Lowbell | A drowned landing and a bell | Cave, Water, Lamplight on the bell only | The bell is the silhouette. The rest is quiet. No shrine architecture, no copied sacred plan |
-| The Late Path, Flintcut, Bellstep | Flagstones, the bell house, a real mouth | The hollowecho stone floor already in `main.gd` | Iren's interior is the bell house that is already drawn at `main.gd` line 1876. Give it a door on the existing footprint. The playable mouth is not the reveal mouth |
-| The Answering Ways | A lit first hall, then dark | Cave, Lamplight, a Radiant speck for Bellmote-light | Three states for the director: lit hall, Lantern dark, Hush door that looks like wall until it opens |
-| Ribbon Road, Shelter Mile, Threadmeet | Ribbon posts, the meeting hall | Grass, Whitewash, Barn red only as a small tie, not a barn | Solla's interior is the hall already drawn at `main.gd` line 1878. Pell's counter is a stall under the eaves, one room, no new shop silhouette |
-| Greymill | A grey mill beside a bright meadow | Whitewash gone grey, Bark, Slate | The wheel does not turn until the errand's last knot, and then only a little. The door reads as stuck. Hush opens it. The hum is not written on a sign here |
-| Chart Road, Seaward Ledge, The High Watch, Trial Road | Lookout, ledger house, pier | Slate, Sand, Whitewash, Water | Quen's ledger house is a stone room with a desk, not a cottage. The pier is where the cast happens. Outer Shoal is a low sand island with one shelter and no town |
+| The Late Path, Flintcut, Bellstep | Flagstones, the bell house, a real mouth | The hollowecho stone floor already in `main.gd` | Iren's door is 12×24 on the footprint at `main.gd` line 1904. Undertone's pad is beside it. The playable mouth is 48×48px and is not the reveal mouth. Veilmote's nest ledge is on the night path |
+| The Answering Ways | A lit first hall, then dark | Cave palette, Lamplight for Bellmote-light | Three states, and they must differ by shape in Pocket: lit hall, Lantern-dark with the two-tile pale path, Hush door that looks like wall until it opens. The dark is an overlay |
+| Ribbon Road, Shelter Mile, Threadmeet | Ribbon posts, the meeting hall | Grass, Whitewash, Barn red only as a small tie, not a barn | The hall's doors are a 24×24 pair, on the footprint at `main.gd` line 1905. Meadowmantle's 2×2 pad is at the nursery, not in the hall |
+| Greymill | A grey mill beside a bright meadow | Whitewash `#cfc4ac`, Bark, Slate `#56708f` | No new grey. The wheel does not turn until the errand's last knot, and then only a little. The door is 12×24 and reads as stuck. Hush opens it. Do not paint Greysail |
+| Chart Road, Seaward Ledge, The High Watch, Trial Road | Lookout, ledger house, pier | Slate, Sand, Whitewash, Water | Quen's door and the lookout door are each 12×24. Watchlight's pad is at the harbor light. The pier is where the cast happens. Outer Shoal is a low sand island with one shelter and no town |
 | Trialstair | A stair that uses every lesson as a different silhouette | All of the above, in small | Each obstacle is the same shape the player met earlier: crack, dark, flood, thicket, false wall, faded stone. The director's job is making them readable as a set |
-| Larkburrow | A burrow that becomes a road | Cave, Grass at both mouths | The Threadmeet mouth should be recognisable as the back of the hall hill. The Larkhaven mouth matches Millgrass |
+| Larkburrow | A burrow that becomes a road | Cave palette, Grass at both mouths | Both mouths are 48×48px. The Threadmeet mouth should be recognisable as the back of the hall hill. The Larkhaven mouth matches Millgrass |
 
-Per phase, the director gets the rows that phase builds, plus a contact sheet of the entrance at phone width and at 1920 by 1080. Ultrawide stays the same scene, not a new layout. Reduced motion: steam, wakes, and the mill wheel respect `prefers-reduced-motion` by holding a single frame.
+Per phase, the director gets the rows that phase builds, plus a contact sheet of the entrance at 844×390 and at 1920×1080. Ultrawide stays the same scene, not a new layout. Reduced motion: steam, wakes, and the mill wheel respect `prefers-reduced-motion` by holding a single frame.
 
 ## 6. Save-format impact
 
@@ -474,7 +614,7 @@ Old saves load. That is the rule, and it is testable. A synthetic version-2 file
 | Second region, after its own design doc | New map ids in the existing `map` string. Team, badges, lessons, and `story` carry over | No, if it adds no new key. The region itself needs Evan's yes before it is drawn | A Champion save is still on the league or the Spire. The boat is not there yet |
 | Section 8, if it is ever built | See that section. Party size and extra trainers add no key. A battle trait or a held item on a creature does | Yes for any new creature field | Old teams of one to three stay valid either way |
 
-`taught`, letters, badges, and the workbench's four moves are untouched. A phase that needs a version bump has failed this plan and should stop.
+`taught`, letters, badges, and the workbench's four moves are untouched. A phase that needs a version bump has failed this plan and should stop. Which picture draws the world is not a journey key. Section 9.
 
 ## 7. Phased build
 
@@ -567,8 +707,51 @@ The valley today has 32 people placed on maps, and 16 of those placements bring 
 | More items: lure strengths, something for a status, and a step that keeps wild meetings back for a while | New integer keys in `bag` survive the existing `int()` load. They are still new fields | Yes |
 | One special rule on each Warden's fight | Data on that Warden. Not a save field unless the rule changes the journey | No, while it stays data |
 
+## 9. The world, apart from how it is drawn
+
+Evan, the evening of 2026-10-14: the world has to be planned so it can go from 2D all the way to modern 3D. The same ask is already in the art direction, from 2026-10-09: every picture is also a plan for a 3D object, and one day a first-person game should resemble the assets we used. This section is how the region in this file stays that plan. It does not build a renderer.
+
+Game Art Director's world concept map, the region mood paintings, and the notes on 2D against 3D live under [docs/art/wildbond-world/](../art/wildbond-world/). That folder may land in its own pull request. This plan links it and does not wait on those pictures to be right. The sizes those pictures have to obey are Scale (locked v3) in `docs/art/wildbond-art-direction.md`.
+
+### What is the world
+
+The world is data. The picture is a reading of that data. A 2D tile painter, a lit 2.5D view, and a 3D scene in Godot are three readings. They do not each own a copy of the valley.
+
+| Record | What it holds | What it does not hold |
+|---|---|---|
+| Region | The country's name, its wild table id, its level band, the badge that opens it | A palette, a tileset, a sky colour |
+| Map | An id, a width and height in tiles, the tile at each coordinate, and a height for that tile | The PNG that draws the tile |
+| Connection | From map and tile, to map and tile, plus the gate: a badge, a `story` key, or a field lesson | A picture of a door |
+| Person | An id, a map, a tile, their lines, and a trainer team id if they battle | A sprite |
+| Errand | The `sq:` keys in section 3 | A log widget |
+| Encounter | The wild table for that region, or a story id such as `hearthstag` | A battle backdrop |
+
+Height is a number on the tile, in quarter-metres. Flat ground is 0. A step up is positive. Water depth is negative. Today's maps are flat, so a missing height means 0, and old saves do not notice. Ashstair, Glassfall, the cave stairs and the flooded floors are the first places that should write a real height, because a later picture cannot invent the climb from a flat tile. One tile in 3D is the locked metre: 16px at 12.35px per metre, about 1.30 m. A 24px door is about 1.94 m tall in that picture too.
+
+Each map also carries a prop list. A prop is an id, a tile, a footprint in tiles, a height in pixels from the locked table, and a role: door, mouth, pad, lantern, wheel, steam, wake, bell, rope, curtain. Steam, the wake and the mill wheel are props with a motion flag. They are not tiles, which is the same rule as the overlay in section 5. A 3D scene builds from this list. It does not scrape the pixels.
+
+The camera is a reading, not a place. In 2D it sits above the tile the tamer is on. In 2.5D it tilts over that same tile. In 3D it follows at about the tamer's eye, 21px in the locked scale, which is about 1.70 m. The save does not store the camera.
+
+### What the save keeps
+
+A save already points at world ids. `map` is a string such as `larkhaven`. The tile is a coordinate. `story`, `badges`, `team` and `beaten` are ids and flags. None of them is a tile picture, a palette, or a renderer name. A tamer who saved in Hollowecho loads in Hollowecho whether the screen is pixels or meshes.
+
+The choice of picture, if the player can change it, belongs with the other device settings in `user://settings.cfg` (`settings.gd` lines 1–4), not in the journey. Missing means the 2D picture, which is what the game draws today. No new journey key, and no version bump.
+
+If a later map moves a solid tile, the existing nudge still applies: the tamer steps to the open tile in front of the door. The save is not rewritten to mention the art.
+
+### From 2D to 3D
+
+| Step | What is built | What it costs | When it is worth it |
+|---|---|---|---|
+| 2D, the picture now | The painter, 16px tiles, the overlays in section 5 | No new renderer. The world phases already have a game to finish | While WB-WORLD-1 through WB-WORLD-7 are still laying roads. A second picture before the roads exist draws the line twice |
+| 2.5D, lights and height on the same tiles | A height mesh from the tile heights, and real lights for Lantern, the bell, the vent and night. Sprites can stay billboards in a Godot 3D scene with a pixel-art camera, which is the HD-2D tier | One mesh per map, a light rig, a camera. Creatures stay the pixel sheets. No creature mesh yet. The sun stays top-left | After the caves and Lantern exist (WB-WORLD-3), when darkness needs to read and the tile ids are stable. Not instead of the 2D build |
+| Full 3D | A mesh per building silhouette and per creature family, collision taken from the same solid tiles, a follow camera | A model for each silhouette in section 5, and for each family, at the locked sizes. Hand-made models can replace a first block-in later. This is its own project | After this region is in the game and the shapes in the art direction have stopped moving. A 3D Larkhaven built from `buildings()` and the prop list is the first experiment, as the art direction already says. It is not a world-map phase, and it does not change the save |
+
+Godot 4 already has the 3D engine. The browser eras named in `docs/creature-game-design.md` (Pocket, 16-bit, HD-2D, Diorama, modern 3D) are the same ladder. This plan does not turn those eras on, and it does not move the colour's return off the Thorn Badge. A later picture may show more depth. The story does not wait for it.
+
 ## What this plan leaves alone
 
-The Thorn Badge still brings the colour. The reveal still happens at Hollowecho's warm stones with Toren and Isolde. The eight badges and `CAP_TABLE` stay. The letters still recommend an order. The league and the Spire stay the end and the after the valley already has, and the second region waits for its own doc. Maren's ranch, the workbench, breeding, and the orders from badges stay. Wren's meetings stay on the roads they already use. Section 8 stays undesigned. No new full Auto. No shared engine change. `shared/` and `sw.js` are out of scope for this plan and for the phases as written.
+The Thorn Badge still brings the colour. The reveal still happens at Hollowecho's warm stones with Toren and Isolde. The eight badges and `CAP_TABLE` stay. The letters still recommend an order. The league and the Spire stay the end and the after the valley already has, and the second region waits for its own doc. Maren's ranch, the workbench, breeding, and the orders from badges stay. Wren's meetings stay on the roads they already use. Section 8 stays undesigned. The picture can change later without a new save, as section 9 says. No new full Auto. No shared engine change. `shared/` and `sw.js` are out of scope for this plan and for the phases as written.
 
 The next step is a review of this plan. After it is accepted, Planning can add WB-WORLD-1 to the path, and the first build waits until the live Wildbond Godot claim is free.
