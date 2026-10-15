@@ -119,7 +119,7 @@ document.querySelector('#run').onclick = async () => {
     const wideField = V.layoutFor(844, 390), desktopField = V.layoutFor(1024, 594);
     check('a phone held upright waits for landscape', V.phoneTurn(390, 844) === true && V.phoneTurn(360, 780) === true && V.phoneTurn(844, 390) === false && V.phoneTurn(780, 360) === false && V.phoneTurn(1024, 594) === false);
     check('the field stays side-on, with a thin score strip', !!wideField && !wideField.vertical && wideField.w > wideField.h && wideField.top >= 16 && wideField.top <= 20 && !!desktopField && !desktopField.vertical && desktopField.top >= 16 && desktopField.top <= 20);
-    const fittedPhone = V.fitLayout(844, 390), fittedNarrow = V.fitLayout(780, 360), fittedDesk = V.fitLayout(1024, 594);
+    const fittedPhone = V.fitLayout(844, 390), fittedNarrow = V.fitLayout(780, 360), fittedDesk = V.fitLayout(1024, 594), fittedSe = V.fitLayout(667, 375);
     const fills = (fitted, boxW, boxH) => !!fitted && fitted.scale === Math.floor(fitted.scale) && fitted.scale >= 1 && !fitted.vertical && fitted.w * fitted.scale <= boxW && fitted.h * fitted.scale <= boxH && fitted.w * fitted.scale >= boxW - fitted.scale && fitted.h * fitted.scale >= boxH - fitted.scale;
     check('the picture scales by a whole number and fills the box', fills(fittedPhone, 844, 390) && fills(fittedNarrow, 780, 360) && fills(fittedDesk, 1024, 594));
     const aboveCards = (fitted) => {
@@ -127,7 +127,14 @@ document.querySelector('#run').onclick = async () => {
       const feet = fitted.top + fitted.fieldH * (0.5 + 20 / fitted.widthY) + 2;
       return fitted.top + fitted.fieldH <= fitted.h - reserve + 0.5 && feet <= fitted.h - reserve;
     };
-    check('the grass and the widest receiver stay above the bottom cards', aboveCards(fittedPhone) && aboveCards(fittedNarrow) && aboveCards(fittedDesk));
+    check('the grass and the widest receiver stay above the bottom cards', aboveCards(fittedPhone) && aboveCards(fittedNarrow) && aboveCards(fittedDesk) && aboveCards(fittedSe));
+    const underHint = (fitted) => {
+      const band = 42 / fitted.scale;
+      const numbers = fitted.top + 16;
+      const spriteTop = fitted.top + fitted.fieldH * (0.5 - 20 / fitted.widthY) - 16;
+      return fitted.top + 0.01 >= band && numbers >= band && spriteTop >= band;
+    };
+    check('the top receiver and the yard numbers stay below the hint', underHint(fittedPhone) && underHint(fittedNarrow) && underHint(fittedSe) && underHint(fittedDesk));
     const openMark = V.opennessMark('open'), windowMark = V.opennessMark('window'), coveredMark = V.opennessMark('covered');
     check('openness marks differ by shape, with a light open ring', openMark.shape !== windowMark.shape && windowMark.shape !== coveredMark.shape && openMark.color === '#f6edd4' && openMark.outline === '#1e1a22' && coveredMark.shape === 'dotted');
     let openCatches = 0, tightPicks = 0, tightDrops = 0, trials = 1600, rollState = 5;
@@ -769,6 +776,22 @@ document.querySelector('#run').onclick = async () => {
     const passHint = d2.querySelector('#hint').textContent || '';
     check('a picked pass says to pull back to throw', passHint.indexOf('Pull back to throw') >= 0);
     check("a repeated play shows they're reading it", passHint.indexOf("THEY'RE READING IT") >= 0);
+    function topPairClears(doc, win) {
+      const hint = doc.querySelector('#hint');
+      const pitch = doc.querySelector('.pitch').getBoundingClientRect();
+      const band = hint.getBoundingClientRect();
+      const layout = win.LanternView.fitLayout(pitch.width, pitch.height);
+      const numbers = pitch.top + (layout.top + 16) * layout.scale;
+      const spriteTop = pitch.top + (layout.top + layout.fieldH * (0.5 - 20 / layout.widthY) - 16) * layout.scale;
+      return !hint.hidden && band.height >= 20 && spriteTop >= band.bottom - 0.5 && numbers >= band.bottom - 0.5;
+    }
+    for (const [aimW, aimH] of [[780, 360], [844, 390], [667, 375]]) {
+      frame.style.width = aimW + 'px'; frame.style.height = aimH + 'px';
+      await wait();
+      check(aimW + '×' + aimH + ' aiming hint stays off the top receiver and the yard numbers', topPairClears(d2, w2));
+    }
+    frame.style.width = '844px'; frame.style.height = '390px';
+    await wait();
     const touchCanvas = d2.querySelector('#field');
     const touchPoint = new w2.Touch({ identifier: 3, target: touchCanvas, clientX: 140, clientY: 220, pageX: 140, pageY: 220, screenX: 140, screenY: 220, radiusX: 1, radiusY: 1, rotationAngle: 0, force: 1 });
     touchCanvas.dispatchEvent(new w2.TouchEvent('touchstart', { touches: [touchPoint], changedTouches: [touchPoint], bubbles: true, cancelable: true }));
@@ -903,7 +926,13 @@ document.querySelector('#run').onclick = async () => {
     const defenceLayout = w2.LanternView.fitLayout(defencePitch.width, defencePitch.height);
     const defenceFeet = defencePitch.top + (defenceLayout.top + defenceLayout.fieldH * (0.5 + 20 / defenceLayout.widthY) + 2) * defenceLayout.scale;
     const defenceLabels = Array.from(d2.querySelectorAll('[data-defence]'));
-    check('at 780×360 the defence cards stay off the bottom receivers', defenceBtn.top + 1 >= defenceFeet && defenceLabels.every(b => { const s = b.querySelector('span'); return parseFloat(w2.getComputedStyle(b).fontSize) >= 16 && s && s.getClientRects().length === 1 && Math.round(b.getBoundingClientRect().height) === 48; }));
+    check('at 780×360 the defence cards stay off the bottom receivers', defenceBtn.top - defenceFeet >= 34 && defenceLabels.every(b => { const s = b.querySelector('span'); return parseFloat(w2.getComputedStyle(b).fontSize) >= 16 && s && s.getClientRects().length === 1 && Math.round(b.getBoundingClientRect().height) === 48; }));
+    check('at 780×360 the defence hint stays off the top receiver and the yard numbers', topPairClears(d2, w2));
+    for (const [defW, defH] of [[844, 390], [667, 375]]) {
+      frame.style.width = defW + 'px'; frame.style.height = defH + 'px';
+      await wait();
+      check(defW + '×' + defH + ' defence hint stays off the top receiver and the yard numbers', topPairClears(d2, w2));
+    }
     frame.style.width = '844px'; frame.style.height = '390px';
     await wait();
     d2.querySelector('[data-defence="balanced"]').click();

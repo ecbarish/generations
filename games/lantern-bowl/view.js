@@ -135,13 +135,20 @@
     if (!(scale >= 1)) scale = 1;
     var fillW = Math.max(8, Math.floor(w / scale));
     var fillH = Math.max(8, Math.floor(h / scale));
-    /* Play cards and the result line share the bottom edge. The grass stops
-       above that strip, so the widest receiver's feet stay off the cards. */
+    /* The score strip is 18px and the hint under it is 24px. The grass starts
+       below both, so the top receiver and the yard numbers stay visible.
+       The bottom strip stays clear for the cards. The extra there keeps the
+       lowest receiver from dropping when the top reserve grows. */
+    var top = Math.max(base.top, Math.ceil(42 / scale));
     var dockPx = Math.ceil(64 / scale);
+    var grown = Math.max(0, top - base.top);
+    var fromTop = 0.5 - 20 / base.widthY;
+    var fromBottom = 0.5 + 20 / base.widthY;
+    dockPx += Math.ceil(grown * fromTop / fromBottom);
     return {
-      w: fillW, h: fillH, yard: base.yard, top: base.top, widthY: base.widthY,
+      w: fillW, h: fillH, yard: base.yard, top: top, widthY: base.widthY,
       lead: base.lead, scale: scale,
-      fieldH: Math.max(16, fillH - base.top - dockPx),
+      fieldH: Math.max(16, fillH - top - dockPx),
       anchor: Math.round(fillW * 0.28)
     };
   }
