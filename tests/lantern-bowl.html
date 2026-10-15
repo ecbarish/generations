@@ -938,11 +938,24 @@ document.querySelector('#run').onclick = async () => {
     /* The kickoff spends a varying number of rolls, so pin the drive before the snap. */
     again.state.seed = 1; again.state.rng = 1;
     d2.querySelector('[data-defence="balanced"]').click();
-    let sawLive = false, ballMoved = false, firstBall = null, staleStrip = false, firstSquad = null, playersMoved = false, buttonsDuring = false;
-    for (let i = 0; i < 90 && !(sawLive && ballMoved && playersMoved); i++) {
+    let sawLive = false, ballMoved = false, firstBall = null, staleStrip = false, firstSquad = null, playersMoved = false, buttonsDuring = false, liveFrames = 0;
+    /* Movement can show up in a few frames. Keep watching for 48 live frames anyway,
+       so a button or a stale strip later in the snap still fails the check.
+       If the drive ends inside that watch, keep the one-line result from that frame. */
+    let driveLine = '';
+    const driveShown = () => ((d2.querySelector('#sheet') && d2.querySelector('#sheet').textContent) || '') + ' ' + ((d2.querySelector('#banner') && d2.querySelector('#banner').textContent) || '');
+    for (let i = 0; i < 90 && !(sawLive && ballMoved && playersMoved && liveFrames >= 48); i++) {
       await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
       const livePlay = again.state.phase === 'live' && again.state.play && again.state.play.offence === 'away';
-      if (!livePlay) continue;
+      if (!livePlay) {
+        const ended = again.state.possession !== 'away' || again.state.phase === 'final';
+        if (ended) {
+          const shown = driveShown();
+          if (shown.length > 8 && shown.length < 120 && shown.indexOf('Balanced') >= 0) driveLine = shown;
+        }
+        continue;
+      }
+      liveFrames += 1;
       if (d2.querySelectorAll('#dock button, #receivers button').length) buttonsDuring = true;
       sawLive = true;
       const watching = again.state.play;
@@ -960,7 +973,6 @@ document.querySelector('#run').onclick = async () => {
     again.playCpu();
     /* The one-line result stays up for just over a second of frames, then the cards replace it.
        Read that line on the frame the drive ends, instead of after a wall-clock wait. */
-    let driveLine = '';
     for (let i = 0; i < 360 && !driveLine; i++) {
       await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
       const ended = again.state.possession !== 'away' || again.state.phase === 'final';
