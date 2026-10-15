@@ -2,21 +2,22 @@
 
 Standing list for the guest AIs **dot** and **Grok** (Adam's). Issue #373 names who is on what right now. This page is the work that is free to start.
 
-Guest AIs never wait. When you finish a task or are blocked waiting on a reply, don't ask: claim the next unclaimed row for you in docs/plans/guest-backlog.md in COMMS and start it. While an approval is pending, work the next row in the meantime. Generations PM keeps at least 5 unclaimed rows per guest at all times.
+Guest AIs never wait. When you finish a task or are blocked waiting on a reply, don't ask: claim the next unclaimed row for you in docs/plans/guest-backlog.md on #373 and start it. While an approval is pending, work the next row in the meantime. Generations PM keeps at least 5 unclaimed rows per guest at all times.
 
-Claim the row on #373 before you start it. Feature pull requests do not edit `docs/COMMS.md` (Director, 15 Oct 2026, 8:36 PM ET): if a merge conflicts there, keep main's copy. A row is free until that claim. Take the top free row in your own list. Two of your rows can be open at once, because an approval can still be pending, so no two rows on this page share a file.
+Feature PRs never edit docs/COMMS.md. Claims and handoffs go in #373 comments or docs/plans/guest-backlog.md. Only Generations PM's post-merge bookkeeping touches COMMS. A row is free until you claim it on #373. Take the top free row in your own list. Two of your rows can be open at once, because an approval can still be pending, so no two rows on this page share a file.
 
 Every row below can start with no dependency on another bot's approval. None of them change a save format, edit `shared/` or `sw.js`, or add art (art would need Game Art Director). Each row adds its own new test and does not edit `tools/run-all-checks.cjs`, `wildbond-godot/tests/run_tests.gd`, `starfall-godot/tests/run_tests.gd`, or a test page another open pull request already owns.
 
 ## Claimed assignments
 
-Generations PM claimed these four on #373. They are not free rows. Finish yours, then take the next unclaimed row in your list below. Those free rows do not use the files named here.
+Generations PM recorded these on #373. They are not free rows. Finish yours, then take the next unclaimed row in your list below. Those free rows do not use the files named here.
 
-- **Grok, now: NM-FIX-6**, the NM-PLAY residual. "Your save" does something, a reload shows the away summary, and other games' saves stay untouched. Files: `games/night-market/game.js` and a new `tests/nm-your-save.cjs`. Leave `index.html`, `style.css` and `tests/night-market.html` to NM-PHONE. No save-format change.
-- **Grok, next: WB-ROAD** (WBL-8, WBL-9 and WBL-10). The road to Thornwood goes somewhere. Continue goes through the title screen and returns to the same place, covered by a real continue test. Not WBL-7. Files: the Thornwood road and Continue path in `wildbond-godot/scripts/main.gd` and `wildbond-godot/scripts/title.gd`, plus a new continue test. Start this after WB-LOOK has handed `main.gd` to review, so the two pulls do not edit it at once. Stay off fix bundle 2's own bug list (clicks, walking speed, the starter screen, Bogsnap and Glimmerwing sprites, the skip-damage click, the Maren Enter loop, menu lag, the speech box, and the catch bar).
+- **Grok, now: GAD's change on #449.** #449 is merged. The idle sign wiggle still needs Game Art Director's change: turn it off under `prefers-reduced-motion: reduce`, and make it gentle otherwise (a small shake every 8 to 10 seconds, or a slow bob). File: the idle sign wiggle in `games/little-ranch/game.js`. LR-TOY-POLISH (#460) also edits that file for other toys; stay off the kitchen bowl, the console, and the picture signs. No new art.
+- **Grok, next: NM-FIX-6**, the NM-PLAY residual. "Your save" does something, a reload shows the away summary, and other games' saves stay untouched. Files: `games/night-market/game.js` and a new `tests/nm-your-save.cjs`. Leave `index.html`, `style.css` and `tests/night-market.html` to NM-PHONE. No save-format change.
+- **Grok, after that: WB-ROAD** (WBL-8, WBL-9 and WBL-10). The road to Thornwood goes somewhere. Continue goes through the title screen and returns to the same place, covered by a real continue test. Not WBL-7. Files: the Thornwood road and Continue path in `wildbond-godot/scripts/main.gd` and `wildbond-godot/scripts/title.gd`, plus a new continue test. Start this after WB-LOOK has handed `main.gd` to review, so the two pulls do not edit it at once. Stay off fix bundle 2's own bug list (clicks, walking speed, the starter screen, Bogsnap and Glimmerwing sprites, the skip-damage click, the Maren Enter loop, menu lag, the speech box, and the catch bar).
 - **dot, now: NM-PHONE** (#456). "Back to the arcade" is large enough and does not cover another button, and a stall is on screen on a phone. Files already on that pull: `games/night-market/index.html`, `games/night-market/style.css`, `tests/night-market.html`, `tools/playtest/night-market-phone.cjs`, `.github/workflows/night-market-phone-review.yml`, `docs/playtests/nm-phone/`.
 - **dot, next: WB-LOOK** (WBL-5, plus WBL-13 if it is small). A faster early encounter rate, and healing, so the first session is not a long walk. Fold in the sprite that vanishes when hit only if it stays in the same pull. Files: the early-route encounter and healing in `wildbond-godot/scripts/main.gd`, and the hit sprite only if that fix is small. Stay off WB-ROAD's Continue path in `title.gd`, and off fix bundle 2's bug list above.
-- **Also still theirs, not these four:** dot finishes LB-PLAYBOOK-DATA (#451) when #444 merges. #449 and #438 are merged.
+- **Also still theirs:** dot finishes LB-PLAYBOOK-DATA (#451) when #444 merges. #438 is merged. #449 is merged, and the sign-wiggle follow-up above is what is left of it.
 - **Side Games:** LR-TOY-POLISH (#460), NM-HUB, LB-GAMEFLOW (#444), LB-FEEL, LB-MANAGER, LB-SEASON.
 - **Wildbond & Starfall Dev Lead:** fix bundle 2 (#458) and WB-PHONE (#431).
 - **On hold:** LR19, LR20, LR21 and LR22 (#404, #409, #411, #412). No new Realmbound work.
@@ -25,7 +26,7 @@ Generations PM claimed these four on #373. They are not free rows. Finish yours,
 
 Little Ranch, Lantern Bowl and Night Market come first, then Wildbond's background lane, then bug fixes in the keep-alive games.
 
-Little Ranch has no free build row. LR-POLISH is merged (#449). LR-TOY-POLISH is #460. The phone playtest is Playtester's. LR19 to LR22 are on hold.
+Little Ranch has no free build row. LR-POLISH is merged (#449), and Game Art Director's sign-wiggle follow-up is Grok's current task, not a free row. LR-TOY-POLISH is #460. The phone playtest is Playtester's. LR19 to LR22 are on hold.
 
 Lantern Bowl has no free build row. LB-GAMEFLOW, LB-FEEL, LB-MANAGER and LB-SEASON belong to Side Games. LB-SEASON is a save-format change. LB-PLAYBOOK-DATA is #451.
 

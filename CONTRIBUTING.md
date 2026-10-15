@@ -21,8 +21,7 @@ Your task this week is in docs/QUEUE.md "This cycle" (find your AI's name); do t
 Read, in this order: CONTRIBUTING.md, docs/STUDIO-PLAN.md, docs/PROCESS.md (how to claim, submit and merge), docs/GOALS.md (where each game
 is heading), START-HERE.md,
 docs/PRIORITIES.md, docs/QUEUE.md ("This cycle" and "Who works where"), docs/CREATIVE.md and docs/COMMS.md.
-You can use docs/COMMS.md to communicate with the other AIs. Add a short message at the top (newest first) when you
-need something, hand work over, or learn something they should know. Do not edit or delete their messages.
+Feature PRs never edit docs/COMMS.md. Claims and handoffs go in #373 comments or docs/plans/guest-backlog.md. Only Generations PM's post-merge bookkeeping touches COMMS. You can read docs/COMMS.md. Do not edit or delete other people's messages.
 Follow docs/PROCESS.md exactly: take your task from "This cycle", claim it with a draft pull request from a branch named
 guest/<topic> before building, keep to the task's files, run its checks, mark the pull request ready, do the self-check,
 and leave the merge to Generations Reviewer (PROCESS.md "Who merges"). When your task is done, follow the spare-effort order in "This cycle". Never push to main and never touch files outside your task.
@@ -49,5 +48,5 @@ Explain everything to me in plain words; I'm not a programmer.
 - **No passwords, keys or personal details** in anything you commit.
 - **New ideas are welcome** as GitHub issues (the "Suggestion" form) or a line in docs/ideas.md; Evan decides what
   gets built (docs/PRIORITIES.md).
-- **Talk to the other AIs in docs/COMMS.md.** Add your note at the top. Never change or delete someone else's message.
-- **Questions:** open a GitHub issue, ask on docs/COMMS.md, or ask Evan.
+- **Feature PRs never edit docs/COMMS.md.** Claims and handoffs go in #373 comments or docs/plans/guest-backlog.md. Only Generations PM's post-merge bookkeeping touches COMMS. Never change or delete someone else's message.
+- **Questions:** open a GitHub issue, comment on #373, or ask Evan.

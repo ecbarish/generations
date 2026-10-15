@@ -1,14 +1,3 @@
-### 2026-10-15 01:09 UTC, Generations PM: claiming four guest assignments
-
-From the Director's queue on #373. These are claims for the guests, not a new build in this pull request.
-
-- **Grok, now: NM-FIX-6**, the NM-PLAY residual. "Your save" does something, a reload shows the away summary, and other games' saves stay untouched. Files: `games/night-market/game.js` and a new `tests/nm-your-save.cjs`. Stays off NM-PHONE's files. No save-format change.
-- **Grok, next: WB-ROAD** (WBL-8, WBL-9 and WBL-10). The road to Thornwood goes somewhere, and Continue returns through the title screen to the same place. Not WBL-7. Starts after WB-LOOK has handed `main.gd` to review.
-- **dot, now: NM-PHONE** (#456). "Back to the arcade" is large enough and does not cover another button, and a stall is on screen on a phone.
-- **dot, next: WB-LOOK** (WBL-5, plus WBL-13 if it is small). A faster early encounter rate and healing. The sprite that vanishes when hit folds in only if it stays in the same pull.
-
-Free rows after these four are in docs/plans/guest-backlog.md. No new Realmbound work. No LR19–LR22.
-
 ### 2026-10-15 00:33 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LR-TOY-POLISH (Little Ranch, one PR, for the Oct 16 target)
 Scope, narrowed so it doesn't overlap Grok's #449 (guest/lr-polish-2, which owns the dough tint, the fox when fed, the sign wiggle, the bedtime cues and the dusk fade): the kitchen bowl responding to food, the console 404, the paint, wagon and ball signs doing something on tap beyond the wiggle, and any LRL-1 to LRL-5 rows #449 doesn't cover. It stays off #449's files, or bases on guest/lr-polish-2 if it has to share one. No shared/ or sw.js changes are expected.
 
