@@ -20,20 +20,230 @@ Take these before any row under "Unclaimed rows". The nine bug-fix rows for each
 
 Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" mean Side Games Dev Lead. Wildbond & Starfall Dev Lead scoped three world-build rows from [wildbond-world-design.md](wildbond-world-design.md) (#455) and will review each Wildbond pull. Side Games Dev Lead will review each launch-game pull. That review is not a wait. There is no dependency on another bot's approval.
 
-Take them in this order.
+Checked against the open pulls and the latest #373 comments on 2026-10-15.
 
-- **Grok, now:** LB-G4 (sounds). Then LB-G5 (kick rules), LB-G6 (dilemmas), NM-G1 (vendor tales), WBW-3 (world graph), and LR-G1 (Little Ranch phone pre-check).
-- **dot, now:** LB-PLAYBOOK-DATA (#451), which is still open. Next is LB-G1 (roster and ratings), then LB-G2 (season schedule data), LB-G3 (progression), NM-G2 (second district), and WBW-1 (errands).
-- **WBW-2** (Knothollow) goes to whichever guest finishes first.
+- **Grok:** LB-G9 (now), WBW-6, LB-G7, NM-G4, NM-G5, WBW-4, then WBW-3 if it is still unclaimed.
+- **dot:** WBW-2 (now), NM-G2, LB-G8, LB-G10, NM-G3, WBW-5.
+- WBW-1 stays claimed as #485. LB-G9 is the crowd-loop fix. There is no LB-G4b row.
+
+### Batch 2
+
+Side Games Dev Lead drafted these on 2026-10-14. Batch 1's rules still apply. #444 has merged, but `games/lantern-bowl/game.js`, `model.js`, `view.js`, `style.css` and `index.html` are still off limits: the wiring is Side Games Dev Lead's. Two rows edit an existing file. LB-G9 edits `sound-cues.js` and its test, and no open pull has them. NM-G3 edits `games/night-market/style.css` and `tests/night-market.html`, and no open pull has those since #456 and #461 merged.
+
+### LB-G9. Crowd bed holds its volume until stop() (LB-FEEL fix, from Reviewer's comment 6183447752 on #474)
+
+**Status:** Grok's current task. This is the crowd-loop fix. There is no separate LB-G4b row.
+
+- **Guest:** Grok, who wrote LB-G4.
+- **Scope:** Make the `crowdBed` cue really loop. Today `play()` gives every voice the one-shot `envelope()`, which ramps the gain to 0 at `start + dur`. For `crowdBed` that is 4 seconds, so the buffer keeps looping silently after that, and the crowd's LFO also stops at `end`. For a cue with `loop: true`, hold the gain at its peak after the attack, skip the release and the LFO's `stop(end)`, and have `stop()` fade out over a short release (about 0.25 seconds) before stopping the sources. Add a checker case that fails if a loop cue schedules a ramp to 0 or a stop before `stop()` is called.
+- **Files:** edit `games/lantern-bowl/sound-cues.js` and `tests/lantern-bowl-sound-cues.cjs`. You may update the crowd line in `docs/playtests/lb-feel-sounds/README.md` if it describes the old behaviour. Edit nothing else.
+- **Done check:** `node tests/lantern-bowl-sound-cues.cjs` passes with these new cases: using a recording stub `AudioContext`, playing `crowdBed` schedules no `linearRampToValueAtTime(0, …)` and no `stop()` on any source or LFO until the handle's `stop()` is called; after `stop()`, every source is stopped and the gain ramps to 0 within 0.3 seconds; and every one-shot cue still schedules its end exactly as before, so their timing is unchanged. On the listening page in Chrome, the crowd bed is still audible after 30 seconds and goes quiet when stopped. Say so in the PR. Normal CI stays green.
+- **What I wire later:** the crowd bed under each drive in LB-FEEL, started at the snap and stopped at the whistle or on pause.
+- **Dependencies:** none.
+
+### LB-G7. Roster view as a standalone module (LB-MANAGER)
+
+**Status:** Grok, after WBW-6.
+
+- **Guest:** Grok. It needs real-browser screenshots, and Grok's sandbox can start Chromium.
+- **Scope:** Build the club roster screen as its own module that reads `roster.json` and draws a list of the 23 players. It shows ratings as words and stars first and numbers second, which is the plan's rule in `docs/plans/lantern-bowl.md`. Add a test and a preview page. The game does not open this screen yet.
+- **Files:** create `games/lantern-bowl/roster-view.js`, `tests/lantern-bowl-roster-view.cjs`, and `docs/playtests/lb-roster-view/index.html`, plus its screenshots and `README.md`. Do not edit `style.css`. The module's few styles live in one `<style>` block that it adds with a `lbrv-` class prefix, so nothing in the game changes.
+- **Shape:** a UMD file like `kick.js`, exposing `LanternBowlRosterView`. `rows(roster, clubId)` is pure, with no DOM. It returns one row per player in this order: QB, RB, WR, WR, TE, line, front, backers, secondary, kicker. Each row has the slot label, name, age, the player's two best ratings, a 1-to-5 star grade, and a short word ("Solid", "Strong", "Elite" and so on). The star bands are 35–45, 46–56, 57–67, 68–78 and 79–90. `render(container, rows)` builds the list. Rows are 44px or taller, and the text is 16px or larger.
+- **Phone rule:** Lantern Bowl is landscape-only on phones. Screenshot the preview page at 844x390, 780x360 and 667x375, plus 1024x594. Do not design a portrait layout.
+- **Done check:** `node tests/lantern-bowl-roster-view.cjs` passes, and it checks that every club gives 23 rows in that order, every star grade sits in its band, the best two ratings are picked correctly, the same input always gives the same output, and an unknown club ID throws a clear error. The preview page renders all six clubs with no page error. The PR includes the four screenshots, and GAD reviews them, since this is a new screen. Normal CI stays green.
+- **What I wire later:** a Roster button between games in LB-MANAGER that opens this view, plus moving the styles into `style.css` if GAD asks.
+- **Dependencies:** none. `roster.json` is on main.
+
+### NM-G4. Vendor portrait prompts for GAD, text only
+
+**Status:** Grok, after LB-G7.
+
+- **Guest:** Grok.
+- **Scope:** Write a portrait brief for each of the six vendors, so GAD can commission or draw their pictures later. Each brief covers the vendor's look, pose, props and palette, taken from the habits and gossip already in `model.js`: Mei opens before the lanterns are lit, Bo talks while he folds, An trims each wick, Qiao counts the tins twice, Ren lights one stick for the alley, and Old Wen stops before the ending. This is text only. No images are made in this PR.
+- **Files:** create `docs/art/night-market-vendor-prompts.md`. Edit nothing else.
+- **Content:** for each vendor, write a one-paragraph description in plain sentences and a short prompt of at most 60 words. Follow the house art rules already written down: the arcade's ink outline, the dusk-and-lamplight palette that #438's lane uses, and real proportions with no big heads (art guide rule 2, which `docs/plans/lantern-bowl.md` cites). Add a note on size, matching the lane's 384x72 canvas scale. Add a line on what each portrait must not look like: no real people, no brands, and no copying another game's characters.
+- **Done check:** the file has six briefs that each match the vendor's habit in `model.js`, every prompt is 60 words or fewer, and the file links `docs/art/README.md` for the art rules. GAD reads it and says yes or asks for changes on the PR. Normal CI stays green.
+- **What I wire later:** nothing directly. GAD uses the briefs for the vendor art, and any art PR gets GAD's review.
+- **Dependencies:** none. It uses `model.js` on main, not #482's tales.
+
+### NM-G5. Away-summary gossip lines (§4A "Day 2": the away summary reads like vendor gossip)
+
+**Status:** Grok, after NM-G4.
+
+- **Guest:** Grok.
+- **Scope:** Write extra gossip lines for each vendor as data, grouped by how long the player was away, so the welcome-back box does not repeat the single `gossip` line each stall has in `model.js`. This is text only. It changes no earnings and adds no save field. Any later pick can be made from the away time and the save's existing seed or counts.
+- **Files:** create `games/night-market/gossip.json` and `tests/nm-gossip.cjs`. Edit nothing else. This is not #482's `vendor-tales.json`. Tales unlock at milestones. Gossip is the short away line.
+- **Shape:** `schemaVersion: 1` and `gossip`, keyed by the six stall IDs in `model.js` (`tea`, `dumpling`, `lantern`, `mooncake`, `incense`, `stories`). Each has three bands, `short` (under 30 minutes away), `evening` (30 minutes to 2 hours) and `long` (2 to 4 hours, the offline cap), with at least 3 lines per band. Each line is one sentence of at most 100 characters that names its own vendor. Lines never promise extra coins or mention a multiplier, because offline pay stays at 50% for at most four hours.
+- **Done check:** `node tests/nm-gossip.cjs` passes. It reads the stall IDs and vendor names from `model.js` the way `tools/night-market-pacing.cjs` does, and it checks every stall, band and line count, the length limit, that each line names its vendor, that no line repeats, and that no line contains a number or the words "double", "bonus" or "multiplier". Normal CI stays green.
+- **What I wire later:** the welcome-back box picks one line from the right band for the stall that earned the most while the player was away. That goes in a Night Market PR of mine.
+- **Dependencies:** none.
+
+### LB-G8. Standings, tiebreakers and the playoff bracket, headless (LB-SEASON)
+
+**Status:** dot, after NM-G2.
+
+- **Guest:** dot. dot already knows `season.json`'s fixtures.
+- **Scope:** Write the season table and the playoff bracket as a pure module that reads `season.json` and a list of results. It works out wins, losses, points for and against, the order of the clubs with clear tiebreakers, the top-four seeding and the semi-final and final pairings. It has no save and no DOM.
+- **Files:** create `games/lantern-bowl/standings.js` and `tests/lantern-bowl-standings.cjs`. Do not edit `shared/sports-office.js`. Its `standings()` needs a global `SPORT` and only sorts by wins, then run difference, then index, so this module stands alone.
+- **Shape:** a UMD file exposing `LanternBowlStandings`. `table(season, results)` takes results as `{ week, home, away, homeScore, awayScore }` with club indexes, and returns rows of `{ index, id, w, l, pf, pa, diff, played }` in order. `bracket(season, table)` returns `{ semis: [[1, 4], [2, 3]], final: null }` in seed order, with the higher seed at home. `advance(bracket, semiResults)` fills in the final. Lantern Bowl overtime keeps playing until one side leads, so a tie is invalid input and throws.
+- **Tiebreakers, in order:** most wins; head-to-head wins among the tied clubs; points difference; points for; then the club's index in `season.json`, so the result never depends on luck.
+- **Done check:** `node tests/lantern-bowl-standings.cjs` passes, with fixtures for a clean table, a two-way tie broken head-to-head, a three-way tie that drops to points difference, a tie broken by index, a partial season, a result for a week or pairing that is not in `fixtures` (rejected), a tie score (rejected), and the bracket and final from a full ten-week season. Normal CI stays green.
+- **What I wire later:** the standings board and the playoffs in LB-SEASON. The season save holds the results list, and that save design goes to Evan through Director.
+- **Dependencies:** none. `season.json` is on main.
+
+### LB-G10. Opponent scouting data (LB-SEASON, comparison fix 9 and the "opponents of varied strength" gap)
+
+**Status:** dot, after LB-G8.
+
+- **Guest:** dot. It uses dot's playbook IDs.
+- **Scope:** Give each of the five opponent clubs an attacking style as data: how often it runs or passes, which playbook plays it likes, how it reacts to each of the three defence calls, and a one-sentence scouting note the player reads before the game. Then, when you pick Blitz, Balanced or Prevent before a drive, the choice means something different against each club. Add a validator.
+- **Files:** create `games/lantern-bowl/scouting.json` and `tests/lantern-bowl-scouting.cjs`. Edit nothing else.
+- **Shape:** `schemaVersion: 1` and `clubs`, keyed by the five opponent IDs from `season.json` (not `brackenport`). Each has `runShare` (0.3 to 0.7), `favourites` (3 or 4 play IDs that exist in `playbook.json`, with weights adding up to 1), `deepShare` (0 to 0.4), a `versus` block for `blitz`, `balanced` and `prevent` that nudges those shares by at most ±0.15, and a `note` of at most 140 characters. Notes describe a style, such as "Herons run outside and test you deep late". They never tell the player which defence to pick, because the choice stays the player's.
+- **Variety rule:** no two clubs share the same top favourite play, and at least one club leans run (`runShare` 0.6 or more) and one leans pass (0.4 or less).
+- **Done check:** `node tests/lantern-bowl-scouting.cjs` passes. It reads `season.json` and `playbook.json` from main to check the club IDs and play IDs, and it also checks all the ranges, the weight sums, the variety rule, the note length, that no note names a defence call, and that malformed files are rejected. Normal CI stays green.
+- **What I wire later:** `cpuCall` in `model.js` reads the opponent's style, and the pre-drive defence card shows the note.
+- **Dependencies:** none. `season.json` and `playbook.json` are on main.
+
+### NM-G3. Back and footer links at 1rem on one line (GAD's NM-PHONE follow-up)
+
+**Status:** dot, after LB-G10.
+
+- **Guest:** dot, who built NM-PHONE (#456).
+- **Scope:** Make "Back to the arcade" in the header and in the footer read at 1rem and never wrap onto two lines. Today `.home, .foot a` and `.foot` in `games/night-market/style.css` are `font-size: 0.95rem`, and nothing stops the text from wrapping.
+- **Files:** edit `games/night-market/style.css`, only the `.home, .foot a` rule and the `.foot` rule, and add checks to `tests/night-market.html`. No open PR touches either file (#456 and #461 have merged, #482 and #483 are new data files). Do not edit `game.js`, `lane.js`, `model.js` or `index.html`.
+- **Change:** set `font-size: 1rem` and `white-space: nowrap` on `.home, .foot a`, and `font-size: 1rem` on `.foot`. Keep `min-height: 44px` and the NM-PHONE grid placement as they are.
+- **Done check:** `tests/night-market.html` gains checks that both links compute to at least 16px, have `white-space: nowrap`, are 44px or taller, and sit on one line, with a height under 2 lines of text at 320px, 390px and 844px widths. The existing Night Market checks still pass, and normal CI is green. The PR includes screenshots at 390x844, 844x390 and 320x568 for GAD.
+- **What I wire later:** nothing. GAD re-checks the screenshots, and Reviewer merges.
+- **Dependencies:** none.
+
+### Held until dependencies merge
+
+- Third-district content waits on #483.
+- Training-focus data waits on #480.
+- Per-tale art prompts wait on #482. NM-G4 writes prompts per vendor from `model.js`, so it does not need #482.
+
+### WBW-4 to WBW-6
+
+Wildbond & Starfall Dev Lead scoped these on 2026-10-14. Copy of the spec:
+
+Shared rules (same as WBW-1 to 3):
+
+- One PR from main per piece. Files only under docs/plans/wildbond-world/ and tools/.
+- Each piece has a standalone Python unittest.
+- Every done check ends with `python3 tools/wildbond-export-freshness.py --base origin/main --head HEAD`, which must print 'No packed Wildbond game files changed'.
+- Species come only from wildbond.json SPECIES plus evolution.json (189 species, no Greysail).
+- The nine uniques never appear in a wild list: elderhorn, breakwatermane, hearthcrown, lanterncrest, stillwake, undertone, meadowmantle, watchlight, veilmote.
+- Cross-checks against other WBW files are skipped if those files aren't on main yet.
+- No new art, no save-format change, and no approval to wait on.
+- Suggested order: whoever finishes first takes WBW-6 (it anchors the gate keys), then WBW-5, then WBW-4.
+
+## WBW-6: Field-lesson and gate list
+
+**Status:** Grok. Either guest can take it if it is still free. Take it before WBW-5 and WBW-4. No pull yet.
+
+Scope:
+
+- One record for every gate in the design doc, with id, place, kind, key, teacher, ready rule, phase and source section.
+- Kinds:
+  - field: stone, tide, grove, lantern, glide, hush, daymark
+  - badge: the BADGES ids
+  - story: depthReturns, leagueEnding, inn:<map>
+  - element: today's two requiresElement exits, which stay
+- Each lesson's ready rule (element, level, bond step) comes from section 1.
+
+Files:
+
+- docs/plans/wildbond-world/gates.json
+- docs/plans/wildbond-world/gates.md
+- tools/test_wildbond_world_gates.py
+
+Done check: `python3 -m unittest tools/test_wildbond_world_gates.py` passes. It checks that:
+
+- all 7 lessons are present, with one teacher and one teaching badge each
+- every key matches the allowed pattern or is a BADGES id
+- bond thresholds are only 20, 60 or 140 (rules.gd BOND)
+- each ready level is at or below the cap after its teaching badge (Stone 12 ≤ 25, Tide 18 ≤ 35, Glide 36 ≤ 55, Daymark 64 ≤ 70)
+- the league needs all 8 badges
+- both existing requiresElement exits appear
+- it agrees with world-graph.json, knothollow.json and answering.json if present
+
+The dev lead wires up later: the gate and obstacle checks beside _team_has_element, and the teaching scenes (WB-WORLD-2 to 6).
+
+## WBW-5: Encounter tables for the 16 new routes
+
+**Status:** dot. Either guest can take it if it is still free. It comes after WBW-6. No pull yet.
+
+Scope:
+
+- A wild table and level band for each of the 16 new routes.
+- Each table is a reweighted subset of its parent country's table:
+  - Thornwood: millgrass, dewcut, rootwater
+  - Saltmarsh: wrackline
+  - Emberfall: ashstair, sootpath
+  - Cloudglass: passfoot
+  - Stillreed: longboards, orchardfen
+  - Hollowecho: latepath, flintcut
+  - Sunthread: ribbonroad, sheltermile
+  - Farwatch: chartroad, seaward, trialroad
+- Use the [[species, weight], ...] shape that _wild_table() already reads.
+
+Files:
+
+- docs/plans/wildbond-world/route-encounters.json
+- docs/plans/wildbond-world/route-encounters.md
+- tools/test_wildbond_world_route_encounters.py
+
+Done check: the unittest passes. It checks that:
+
+- there are exactly those 16 ids
+- every species is in its country's BIOMES or WILD_EXTRA table, with no uniques and no Kilnback
+- weights are positive
+- each band is inside the country's BIOMES.lv
+- each band's top is at or below the CAP_TABLE cap for the badges that route needs (section 7)
+
+The dev lead wires up later: the route maps in WB-WORLD-1.
+
+## WBW-4: Answering Ways cave layout and encounters
+
+**Status:** Grok. Either guest can take it if it is still free. It comes after WBW-6 and WBW-5. No pull yet.
+
+Scope:
+
+- `answering`, the first enterable cave (section 2 cave 1, WB-WORLD-3), in the same map-entry format as WBW-2, with biome hollowecho.
+- A gates list:
+  - the Lantern dark line past the first hall: field:lantern
+  - side cracks: field:stone
+  - wall-doors: field:hush
+- A zones list (the lit hall, the Lantern-dark area and the Hush doors), as overlays rather than new tiles.
+- A story-only marker for Undertone's return at the first bend.
+- Three echo-stone markers for sq-senna-stones.
+- The mouth is 48x48, and it is not the reveal mouth at (19,8).
+
+Files:
+
+- docs/plans/wildbond-world/answering.json
+- docs/plans/wildbond-world/answering.md
+- tools/test_wildbond_world_answering.py
+
+Done check: the unittest passes. It checks that:
+
+- the rows are rectangular and use only TILES glyphs
+- a BFS from start reaches every walkable, exit, gate and marker tile
+- the lit first hall is reachable with no field key
+- wild uses only Hollowecho species and no uniques (Undertone is not in wild)
+- exits go only to bellstep or flintcut
+- there are exactly 3 echo stones, with the last one behind field:hush
+
+The dev lead wires up later: the map, dark overlay, gates and painter, with GAD's cave palette and mouth sign-off (WB-WORLD-3). Also the level-cap clamp, since Hollowecho's 58 to 64 tops the 5-badge cap of 60; the .md just records that.
 
 ### Notes every launch-game row inherits
 
 - Never merge your own PR. Generations Reviewer merges. Stop at ready for review with CI green, and never force-push.
 - Do not edit `shared/`, `sw.js`, the root `index.html`, `launcher/`, `.github/workflows/`, `docs/COMMS.md`, `START-HERE.md` or `docs/DEVELOPMENT-PATH.md`. Claims and handoffs go on #373.
-- Do not edit `games/lantern-bowl/game.js`, `model.js`, `view.js`, `style.css`, `index.html` or `tests/lantern-bowl.html`. #444 is changing them, and Side Games Dev Lead does the wiring after it merges.
-- Do not edit `games/lantern-bowl/playbook.json` or `tests/lantern-bowl-playbook.cjs`. Those are dot's #451.
-- Do not edit `games/night-market/game.js`, `model.js`, `lane.js`, `style.css`, `index.html` or `tests/night-market.html`. #456 is open on the phone files. #461 has merged, and these rows still do not edit those files.
-- Do not edit `games/little-ranch/game.js`, `index.html`, `tests/little-ranch.html` or `tools/playtest/little-ranch-review.cjs`. #460 is open on them.
+- Do not edit `games/lantern-bowl/game.js`, `model.js`, `view.js`, `style.css`, `index.html` or `tests/lantern-bowl.html`. #444 has merged. Side Games Dev Lead still does the wiring.
+- Do not edit `games/lantern-bowl/playbook.json` or `tests/lantern-bowl-playbook.cjs`. Those merged as #451.
+- Do not edit `games/night-market/game.js`, `model.js`, `lane.js`, `style.css`, `index.html` or `tests/night-market.html`. #456 and #461 have merged, and these rows still do not edit those files.
+- Do not edit `games/little-ranch/game.js`, `index.html`, `tests/little-ranch.html` or `tools/playtest/little-ranch-review.cjs`. #460 has merged, and LR-G1 still does not edit them.
 - No save-format change. Any new art needs Game Art Director (GAD) review. These rows add no art.
 - Only MIT-style code, and no code, data, text, melodies or assets from Retro Bowl, ALL-22 or any other commercial or unlicensed game. You may describe a technique. Every name, number and line of text is original.
 - Each PR has a full-sentence title. Its description says what changed for the player (for a data row, say that nothing changes in the game yet), why, how it was tested, and which row it closes.
@@ -44,9 +254,9 @@ Shared club IDs. LB-G1 and LB-G2 both use these six club IDs, so neither waits o
 
 Shared rating keys. LB-G1, LB-G3 and LB-G5 use the rating keys that `person()` in `games/lantern-bowl/model.js` already defines: `throw`, `catch`, `speed`, `carry`, `block`, `rush`, `cover`, `tackle` and `kick`. Every rating is a whole number from 35 to 90, which is Evan's approved range.
 
-Night Market's launch rows that are still open are NM-PHONE, dot's #456. Done: NM-FIX-6 as #461 (`1d36ee61`), NM-VIS as #438 (`4e92d87a`), and NM-RETUNE as #445. NM-HUB stays with Side Games Dev Lead, NM-CLAMP waits on SSA, and NM-FIX-7 is a Playtester session. NM-G1 and NM-G2 are the checklist's later items, "a collection of vendor stories" and "moving to a new district, permits", which were waiting on NM-RETUNE. NM-RETUNE has merged, so they are free. Both are new data files, so they do not touch any file on #456.
+Night Market's phone layout merged as NM-PHONE #456. Done: NM-FIX-6 as #461 (`1d36ee61`), NM-VIS as #438 (`4e92d87a`), and NM-RETUNE as #445. NM-HUB stays with Side Games Dev Lead, NM-CLAMP waits on SSA, and NM-FIX-7 is a Playtester session. NM-G1 and NM-G2 are the checklist's later items, "a collection of vendor stories" and "moving to a new district, permits", which were waiting on NM-RETUNE. NM-RETUNE has merged, so they are free. Both are new data files, so they do not touch any file on #456.
 
-Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered LRL-6 (dough dots), LRL-7 (the fox), LRL-10 (the sign wiggle), and LRL-13, LRL-14 and LRL-15 (bedtime cues, the dusk fade, leaving the paint shed early). Do not reopen it. #460 is open for the kitchen bowl, the picture-sign tap, the ball's double roll and the favicon 404. LRL-4 (the sound choice after a reload) is waiting for Playtester or Evan to confirm. LRL-11, the phone playtest, belongs to Playtester and is not a build PR. LR-G1 is a tool that gets that phone playtest ready without touching game files.
+Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered LRL-6 (dough dots), LRL-7 (the fox), LRL-10 (the sign wiggle), and LRL-13, LRL-14 and LRL-15 (bedtime cues, the dusk fade, leaving the paint shed early). Do not reopen it. #460 has merged for the kitchen bowl, the picture-sign tap, the ball's double roll and the favicon 404. LRL-4 (the sound choice after a reload) is waiting for Playtester or Evan to confirm. LRL-11, the phone playtest, belongs to Playtester and is not a build PR. LR-G1 is a tool that gets that phone playtest ready without touching game files.
 
 ### Notes for the three Wildbond world-build rows
 
@@ -60,6 +270,8 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 
 ### LB-G4. Touchdown fanfare and game-feel sound cues (LB-FEEL)
 
+**Status:** Done. Merged as #474.
+
 - **Guest:** Grok.
 - **Scope:** Write Lantern Bowl's new sounds as code-generated Web Audio cues: a touchdown fanfare, a tackle thud, a catch pop, a crowd bed and crowd swell, a whistle, a kick thump, a first-down chime and an interception sting. Add a validator and a page where anyone can listen to each one. Nothing plays in the game yet.
 - **Files:** create `games/lantern-bowl/sound-cues.js`, `tests/lantern-bowl-sound-cues.cjs` and `docs/playtests/lb-feel-sounds/index.html`. Do not edit `shared/sound.js`. Shared code goes in its own PR, and that one is mine.
@@ -72,6 +284,8 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 
 ### LB-G5. Two-tap kick model, headless (LB-FEEL)
 
+**Status:** Done. Merged as #479.
+
 - **Guest:** Grok.
 - **Scope:** Write the rules for a two-tap kick as its own headless module. The first tap sets power and the second sets aim on a sweeping needle, and the kicker's rating sets how fast and steady the needle is. This is the comparison's fix 10. It describes the technique only and copies no code. The game does not use it yet.
 - **Files:** create `games/lantern-bowl/kick.js` and `tests/lantern-bowl-kick.cjs`. Edit nothing else. Field goals and punts on fourth down are #444's, in `model.js`, so do not touch them.
@@ -81,6 +295,8 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 - **Dependencies:** none.
 
 ### LB-G6. Between-games dilemma cards (LB-SEASON)
+
+**Status:** In review as #481. Do not start a second copy.
 
 - **Guest:** Grok.
 - **Scope:** Write at least 12 original between-games decision cards as data. Each card has a short situation and two choices, and each choice has small effects on morale, coaching points, fans or the owner. This is the comparison's fix 7. It is data only, with no save change.
@@ -93,6 +309,8 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 
 ### NM-G1. Vendor tales for the six stalls (later row: a collection of vendor stories)
 
+**Status:** In review as #482. Do not start a second copy.
+
 - **Guest:** Grok.
 - **Scope:** Write four short tales for each of the six vendors as data, one unlocked when the vendor is hired and one at 25, 50 and 100 owned. That reuses the existing milestones in `model.js`, so the game can work out which tales are unlocked from the current save with no new field. The game does not show them yet.
 - **Files:** create `games/night-market/vendor-tales.json` and `tests/nm-vendor-tales.cjs`. Edit nothing else.
@@ -103,6 +321,8 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 - **Dependencies:** none.
 
 **WBW-3.** Grok. World connection graph.
+
+**Status:** No pull and no claim on #373. It is Grok's after NM-G5 and WBW-4, if it is still unclaimed. Dot does not start it.
 
 Section 9's Region, Map and Connection records are one data file listing 20 routes, 10 towns, 7 caves and 3 water routes. Each link has its gate (a badge, a story key, or a field lesson), its phase, and a one-way flag, which is set only for Glassfall.
 
@@ -115,17 +335,21 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 
 ### LR-G1. Phone pre-check for the LRL-11 playtest
 
+**Status:** No pull and no claim. It is Grok's after WBW-3.
+
 - **Guest:** Grok. Grok ran real Chromium for #461, which has merged (`1d36ee61`), and dot's sandbox could not start Chromium on #451 and #456.
 - **Scope:** Write a real-browser script that opens Little Ranch at phone sizes, visits every place, and reports any tap target smaller than 44 by 44 pixels, any two tappable things that overlap, and anything cut off the screen. It also saves one screenshot per place and size, so Playtester starts LRL-11 with a known list. It changes no game file.
 - **Files:** create `docs/playtests/lrl-11/phone-precheck.cjs`, `docs/playtests/lrl-11/README.md`, and the screenshots and `report.json` it writes in `docs/playtests/lrl-11/`. Follow the pattern of `docs/playtests/lr-polish-2/shots.cjs`. Do not edit `tools/playtest/little-ranch-review.cjs`, which #460 changes.
 - **Sizes:** 390x844 and 844x390 (iPhone 12 held upright and sideways, as in the checklist), 360x780, and 1024x594 for a tablet.
 - **Done check:** the script runs against `main` with real taps (touch events, with the follow-up synthetic click ignored as the game does), writes the screenshots and `report.json`, and exits cleanly. The README lists every finding in plain sentences with its screenshot, or says there were none. It does not fix anything. If it finds a real bug, the README says so and I take the fix. Normal CI stays green.
-- **What I wire later:** nothing in the game. I hand the report to Playtester for LRL-11 and fold any real bug into my next Little Ranch fix list. If #460 merges first, run the script again on the new `main` before going to review.
+- **What I wire later:** nothing in the game. I hand the report to Playtester for LRL-11 and fold any real bug into my next Little Ranch fix list. #460 has merged, so run the script on current main.
 - **Dependencies:** none. It runs on whatever `main` is.
 
 ### dot
 
 ### LB-G1. Roster and ratings data for six clubs (LB-MANAGER)
+
+**Status:** Done. Merged as #472.
 
 - **Guest:** dot. It fits next to dot's playbook data.
 - **Scope:** Write the full roster for all six clubs as data, with every player rated from 35 to 90, and replace the single team numbers for the line, rush, cover and tackle with named starters. Add a validator. The live game does not load this file yet.
@@ -139,6 +363,8 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 
 ### LB-G2. Season schedule and club data, data only (LB-SEASON)
 
+**Status:** Done. Merged as #478.
+
 - **Guest:** dot.
 - **Scope:** Write the season as data: the six clubs' names, colours and home grounds, a ten-week fixture list, and the playoff format. Add a validator. This does not touch the save and the game does not load it yet.
 - **Files:** create `games/lantern-bowl/season.json` and `tests/lantern-bowl-season.cjs`. Edit nothing else.
@@ -150,6 +376,8 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 
 ### LB-G3. Player progression table and five-season simulation (LB-SEASON)
 
+**Status:** In review as #480. Do not start a second copy.
+
 - **Guest:** dot.
 - **Scope:** Write how players grow and age as a data table, plus a seeded simulation that proves ratings stay inside 35–90 over five seasons. This is the "XP per match, level-up toward a potential cap" item in the comparison (fix 8). It is data and a test only. It adds no save field.
 - **Files:** create `games/lantern-bowl/progression.json` and `tests/lantern-bowl-progression.cjs`. Edit nothing else.
@@ -160,6 +388,8 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 
 ### NM-G2. Second district data and a pacing check (later row: moving to a new district, permits)
 
+**Status:** Ready for dot. #483. Side Games Dev Lead's ruling unblocks it: https://github.com/ecbarish/generations/pull/483#issuecomment-6183588332. The question it answers is https://github.com/ecbarish/generations/issues/373#issuecomment-6183489310. It is not the current task. Dot is on WBW-2. Do not open a second pull.
+
 - **Guest:** dot. dot knows Night Market's pacing from NM-PHONE, and these files are separate from #456's.
 - **Scope:** Write the second district as data, with its own six stall types in the same shape as `STALLS` in `model.js`, and add a pacing tool that shows how a fresh run in that district would play. This follows §8.3 of `docs/research/office-idle-progression.md`: permits are `floor(sqrt(lifetime / 1e6))`, the move is offered at a lifetime of 1,000,000, one favourite vendor comes along, and each permit opens one new stall type instead of a percentage boost. It is data and tooling only. It adds no save field.
 - **Files:** create `games/night-market/districts.json` and `tools/night-market-district-sim.cjs`. Do not edit `tools/night-market-pacing.cjs`, `model.js` or any test page.
@@ -169,6 +399,8 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 - **Dependencies:** none.
 
 **WBW-1.** Dot. Errand data for the quest log.
+
+**Status:** Claimed by dot as #485. The pull is still a draft. Keep it moving. Grok does not start it.
 
 The ten errands from design section 3 are data. Each has an id, a town, a giver, requires gates (badges, `field:*` keys, map ids), steps, and log text of 120 characters or fewer. Rewards may only use the existing bag keys `lures`, `coins` and `berries`. Progress is stored only as story keys `sq:<id>:heard`, `:step` and `:done`, so there is no save change. There is no character dialogue yet, and Perrin's and Juna's items in `sq-halen-passing` stay placeholders.
 
@@ -181,7 +413,9 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ### Whichever guest finishes first
 
-**WBW-2.** Whichever guest finishes first. Knothollow cave layout and encounters.
+**WBW-2.** Knothollow cave layout and encounters.
+
+**Status:** Dot's current task. No competing pull was open. Grok does not start it.
 
 `knothollow` is a map entry in the exact MAPS shape (`name`, biome `thornwood`, `start`, `rows`, `exits`, `signs`, `items`, `wild`). It uses only the existing TILES glyphs. The Stone Break and Grove Wake spots go in a separate gates list keyed to `field:stone` and `field:grove`. Exits go to `rootwater` and `thornwood_grove`. `wild` uses only Thornwood's BIOMES species at levels 2 to 12, with nothing unique and no Elderhorn. It includes the layout notes from section 5: a 48×32 mouth, a 32px ceiling, and no mounts.
 
@@ -192,15 +426,17 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ## Grok, now
 
-Grok's current task is LB-G4. Then take LB-G5, LB-G6, NM-G1, WBW-3, and LR-G1, in that order.
+Grok's current task is LB-G9, the crowd-loop fix. There is no LB-G4b row. Then WBW-6, LB-G7, NM-G4, NM-G5, WBW-4, and WBW-3 if it is still unclaimed.
 
-Done. Do not reopen these. #449 merged as `44f49c2c`. #438 merged as `4e92d87a`. NM-FIX-6 merged as #461, `1d36ee61`.
+In review, and not a wait: LB-G6 is #481, and NM-G1 is #482.
+
+Done. Do not reopen these. LB-G4 is #474. LB-G5 is #479. WB-ROAD is #467. #449 merged as `44f49c2c`. #438 merged as `4e92d87a`. NM-FIX-6 merged as #461, `1d36ee61`.
 
 ## Grok, next
 
-WB-ROAD stays assigned. It is not the current task. It waits until Grok's Priority rows are in review.
+WB-ROAD is done. It merged as #467. Do not reopen it. The WBL-8 to WBL-10 fixes now belong to Wildbond & Starfall Dev Lead. No guest-safe piece is left. The dev lead is taking those fixes into a follow-up after #458, along with registering `wbl_continue.gd` in `run_tests.gd`. The note below is the record of the guest row.
 
-**WB-ROAD.** One Godot pull for WBL-8, WBL-9 and WBL-10, and WBL-16 because it is the same title screen. The road from Larkhaven to Thornwood goes somewhere a newcomer can walk (WBL-8). Continue goes through the title screen and returns to the same place (WBL-9). Clicking "Continue your journey" chooses Continue (WBL-16). A real end-to-end Continue test starts a journey, quits, continues, and lands in the same place, not only a fixture load (WBL-10). WBL-7 stays with the north-roads check from #416. Stay out of the Wildbond dev lead's fix bundle (#458: mouse clicks on buttons, walking speed, and the opening tidy). Old saves must load. There is no save-format change.
+**WB-ROAD.** Done. Merged as #467. The WBL-8 to WBL-10 fixes belong to the Wildbond dev lead. One Godot pull for WBL-8, WBL-9 and WBL-10, and WBL-16 because it is the same title screen. The road from Larkhaven to Thornwood goes somewhere a newcomer can walk (WBL-8). Continue goes through the title screen and returns to the same place (WBL-9). Clicking "Continue your journey" chooses Continue (WBL-16). A real end-to-end Continue test starts a journey, quits, continues, and lands in the same place, not only a fixture load (WBL-10). WBL-7 stays with the north-roads check from #416. Stay out of the Wildbond dev lead's fix bundle (#458: mouse clicks on buttons, walking speed, and the opening tidy). Old saves must load. There is no save-format change.
 
 The map data already connects Larkhaven north to the Thornwood route, and that route north to Thornwood. Reproduce the "does nothing" path. If a walkable exit tile is missing, or the exit character is not marked as an exit, fix that in `wildbond-godot/data/wildbond.json` only. If the only block is the "Not yet" sentence or the door check in `wildbond-godot/scripts/main.gd`, do not edit `main.gd`. Say what you reproduced on #373 and leave that part. WBL-9, WBL-10 and WBL-16 still go ahead in the title screen.
 
@@ -211,9 +447,9 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, now
 
-Dot's current task is LB-PLAYBOOK-DATA. LB-G1 is next.
+Dot's current task is WBW-2. Then NM-G2 (#483), which is ready and unblocked by https://github.com/ecbarish/generations/pull/483#issuecomment-6183588332, then LB-G8, LB-G10, NM-G3, and WBW-5. WBW-1 stays claimed as #485.
 
-**LB-PLAYBOOK-DATA.** Still open as #451. Play and route definitions live in a data file. Breaking routes are in that file. The match engine stays unchanged. This row feeds LB-MANAGER later, and that later row is Side Games Dev Lead's. Do not wait on #444 to keep moving. When #444 merges, finish the approved HTML integration on #451 and preserve #444's final tests. If #444 is still unmerged when the next row goes to review, say so on #451 and switch. Do not wait.
+**LB-PLAYBOOK-DATA.** Done. Merged as #451. Do not reopen it. The sentences below are the record of that row. #444 has also merged.
 
 - **Files:** `games/lantern-bowl/playbook.json` and `tests/lantern-bowl-playbook.cjs`. Leave `tests/lantern-bowl.html`, `games/lantern-bowl/game.js`, `model.js`, `style.css` and `view.js` until the #444 handoff, and do not edit the match engine.
 - **Done when:** the data file holds the plays and the breaking routes, and the match engine is unchanged.
@@ -221,9 +457,9 @@ Dot's current task is LB-PLAYBOOK-DATA. LB-G1 is next.
 
 ## dot, next
 
-LB-G1 is next, after #451. Then LB-G2, LB-G3, NM-G2, and WBW-1. NM-PHONE and WB-LOOK stay assigned and wait until those Priority rows are in review.
+LB-G1 is done (#472). LB-G2 is done (#478). LB-G3 is in review as #480. NM-PHONE is done (#456). WB-LOOK is still open as draft #466 and is not the current task. Its remaining gates stay with Wildbond & Starfall Dev Lead.
 
-**NM-PHONE.** Already claimed as #456. "Back to the arcade" is large enough and stops covering another button. A stall is on screen on a phone without scrolling. One Night Market pull, with phone-size screenshots held upright and sideways. This closes checklist item 10 (NM-FIX-8). The save work is done: NM-FIX-6 merged as #461 (`1d36ee61`). The approved art is done: #438 merged as `4e92d87a`. Do not edit `games/night-market/game.js` or `games/night-market/lane.js`.
+**NM-PHONE.** Done. Merged as #456. "Back to the arcade" is large enough and stops covering another button. A stall is on screen on a phone without scrolling. One Night Market pull, with phone-size screenshots held upright and sideways. This closes checklist item 10 (NM-FIX-8). The save work is done: NM-FIX-6 merged as #461 (`1d36ee61`). The approved art is done: #438 merged as `4e92d87a`. Do not edit `games/night-market/game.js` or `games/night-market/lane.js`.
 
 - **Files:** `games/night-market/index.html`, `games/night-market/style.css`, `tests/night-market.html`, `.github/workflows/night-market-phone-review.yml`, and `tools/playtest/night-market-phone.cjs`. These files are already on #456. Do not edit `games/night-market/game.js` or `games/night-market/lane.js`.
 - **Done when:** the back control does not cover another button, and a phone shows a stall without a scroll.
@@ -257,7 +493,7 @@ Take a Priority row above before any bug-fix row in this section. The nine rows 
 
 Little Ranch, Lantern Bowl and Night Market data and tool rows are the LB-G, NM-G and LR-G rows above. They create new files only. #449 has merged (`44f49c2c`). Little Ranch's remaining live files are LR-TOY-POLISH (#460). Lantern Bowl's live game files stay with LB-GAMEFLOW (#444) and with dot's playbook (#451). #438 (`4e92d87a`) and NM-FIX-6 (#461, `1d36ee61`) have merged. Night Market's open guest pull is #456. Do not start a second edit of a file a Priority row or an open pull already names. LRL-11 is a Playtester session. LR19 to LR22 are on hold. NM-HUB stays with Side Games. NM-RETUNE is merged. NM-CLAMP waits on Shared Systems Architect. NM-FIX-7 is a Playtester session.
 
-Wildbond's background lane was next. WB-ROAD and WB-LOOK are the assigned rows above. WBL-7 stays with the north-roads check from #416. WBL-16 rides inside WB-ROAD because it is `title.gd`. WBL-15 (long captions) and WBL-17 (the ranch prompt) sit in `main.gd` beside the fix bundle and beside WB-LOOK, so they are not separate rows. WBL-19 (the size table) sits in `main.gd` and `battle.gd`. WBL-18 was checked on 2026-10-15: `wildbond.json` does not contain duplicate species names, and DD-5 already says which lines use trust plus level, so it is not a build row. WBL-20 needs Evan. WBL-21 is wording, and DD-5 is already updated. WBL-22 is merged (#399). Shop clicks use `controls.gd`, which the fix bundle owns. There is no further Wildbond file that is free of the fix bundle, the phone-layout pull, WB-ROAD and WB-LOOK.
+Wildbond's background lane was next. WB-ROAD is done via #467, and the WBL-8 to WBL-10 fixes belong to the Wildbond dev lead. WB-LOOK is the assigned draft #466. WBL-7 stays with the north-roads check from #416. WBL-16 rides inside WB-ROAD because it is `title.gd`. WBL-15 (long captions) and WBL-17 (the ranch prompt) sit in `main.gd` beside the fix bundle and beside WB-LOOK, so they are not separate rows. WBL-19 (the size table) sits in `main.gd` and `battle.gd`. WBL-18 was checked on 2026-10-15: `wildbond.json` does not contain duplicate species names, and DD-5 already says which lines use trust plus level, so it is not a build row. WBL-20 needs Evan. WBL-21 is wording, and DD-5 is already updated. WBL-22 is merged (#399). Shop clicks use `controls.gd`, which the fix bundle owns. There is no further Wildbond file that is free of the fix bundle, the phone-layout pull, WB-ROAD and WB-LOOK.
 
 The rows below are keep-alive bug fixes for the other games. Brisket's Crossing already says "1 life" and already starts from get-ready on Space or an arrow. Only its short back link is still open, as BC-HOME. Each row has an ID, a scope in plain sentences, the files it touches, a done check, and an explicit statement that it has no dependency on another bot's approval. That statement is true: there is no save-format change, no `shared/` or `sw.js` edit, and no new art. No two of these rows touch the same files, and none of them touch a file named under Now or Next.
 
