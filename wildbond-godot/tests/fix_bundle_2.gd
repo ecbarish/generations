@@ -41,7 +41,10 @@ static func _clicks(game: Node, check: Callable) -> void:
 	var boxed := Vector2(192.0 * 3.0 + 107.0, 115.0 * 3.0 + 60.0)
 	var lettered: Vector2 = Controls.into_view(boxed, view, Vector2(1366, 768), Transform2D.IDENTITY)
 	check.call(lettered.distance_to(Vector2(192, 115)) < 1.0, "a click in a letterboxed window lands on the same pixel")
-	check.call(Controls.into_view(title_at, view, Vector2(1536, 864), Transform2D.IDENTITY).distance_to(title_at) < 1.0, "a click already inside the view is not scaled twice")
+	var scaled_corner: Vector2 = Controls.into_view(title_at, view, Vector2(1536, 864), Transform2D.IDENTITY)
+	check.call(scaled_corner.distance_to(title_at / 4.0) < 1.5, "a window point that only looks inside the view is still scaled when the window is larger")
+	var stretched := Transform2D(Vector2(4, 0), Vector2(0, 4), Vector2.ZERO)
+	check.call(Controls.into_view(title_at * 4.0, view, Vector2(1536, 864), stretched).distance_to(title_at) < 1.0, "a point the stretch transform already mapped is not scaled twice")
 	var picks := [0]
 	game.title.chosen.connect(func(_choice: String) -> void: picks[0] += 1)
 	game.title.open("Rowan and Ripplet, in Thornwood.")

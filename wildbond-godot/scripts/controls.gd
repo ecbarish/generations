@@ -118,26 +118,40 @@ static func _up(e: InputEvent) -> bool:
 
 ## Where that click or tap landed, in the control's own pixels. The event carries the point. The cursor
 ## (get_local_mouse_position) stays wherever it was, so a headless click and a real tap would miss the button.
-## A point already inside the 384×216 view is used as it is. A point still in window pixels (the web canvas
-## reports those when the stretch transform has not brought them back) is scaled into that view first.
+## Only a pointer event is scaled. A key or a joypad button keeps the control's own mouse position.
 static func at(control: Control, e: InputEvent) -> Vector2:
 	var raw := control.get_local_mouse_position()
-	if e is InputEventMouse or e is InputEventScreenTouch or e is InputEventScreenDrag:
-		raw = e.position
+	var pointer := e is InputEventMouse or e is InputEventScreenTouch or e is InputEventScreenDrag
+	if not pointer:
+		return raw
+	raw = e.position
 	var view := control.get_viewport().get_visible_rect().size
+	if view.x < 2.0 or view.y < 2.0:
+		view = _base_view()
 	var local := into_view(raw, view, Vector2(DisplayServer.window_get_size()), control.get_viewport().get_screen_transform())
 	return control.get_global_transform_with_canvas().affine_inverse() * local
 
+static func _base_view() -> Vector2:
+	return Vector2(
+		float(ProjectSettings.get_setting("display/window/size/viewport_width", 384)),
+		float(ProjectSettings.get_setting("display/window/size/viewport_height", 216)))
+
 ## Window pixels to view pixels. view is the game's own size. win is the window or the canvas backing store.
-## screen is the viewport stretch. A point already in the view is returned unchanged, so a headless click is not scaled twice.
+## screen is the viewport stretch. A point the stretch has already mapped is left alone.
+## A point whose numbers merely sit inside 384×216 is still a window point when the window is larger, so it is scaled.
+## Headless, where the window is no bigger than the view, a point inside the view is already in view pixels.
 static func into_view(raw: Vector2, view: Vector2, win: Vector2, screen: Transform2D) -> Vector2:
+	if view.x < 2.0 or view.y < 2.0:
+		view = _base_view()
 	var box := Rect2(Vector2.ZERO, view).grow(1.0)
-	if box.has_point(raw):
+	var win_bigger := win.x > view.x + 1.0 and win.y > view.y + 1.0
+	if screen != Transform2D.IDENTITY:
+		var mapped: Vector2 = screen.affine_inverse() * raw
+		if box.has_point(mapped):
+			return mapped
+	if not win_bigger and box.has_point(raw):
 		return raw
-	var mapped: Vector2 = screen.affine_inverse() * raw
-	if box.has_point(mapped):
-		return mapped
-	if win.x > view.x + 1.0 and win.y > view.y + 1.0 and view.x > 1.0 and view.y > 1.0:
+	if win_bigger and view.x > 1.0 and view.y > 1.0:
 		var fit := minf(win.x / view.x, win.y / view.y)
 		# Desktop keeps whole-number enlargement, with black bars when the window is not an exact multiple.
 		var whole := float(int(floor(fit)))
@@ -152,7 +166,19 @@ static func into_view(raw: Vector2, view: Vector2, win: Vector2, screen: Transfo
 			var phone := (raw - edge) / fit
 			if box.has_point(phone):
 				return phone
+	if box.has_point(raw):
+		return raw
 	return raw
+
+## Drop presses that arrived during a fade or a menu toggle. Input.flush_buffered_events delivers them.
+static func flush_buffered_events() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var window: Window = tree.root if tree != null else null
+	if window != null:
+		window.set_disable_input(true)
+	Input.flush_buffered_events()
+	if window != null:
+		window.set_disable_input(false)
 
 ## Cover the view. Anchors alone leave a new panel at 0×0, and a zero-size panel cannot keep a click off the world.
 static func fill(control: Control) -> void:
@@ -172,15 +198,19 @@ static func held_dir() -> Vector2i:
 	for a in DIRS:
 		if InputMap.has_action(a) and Input.is_action_pressed(a):
 			return DIRS[a]
-	if _key_down(KEY_UP, KEY_W):
-		return Vector2i.UP
-	if _key_down(KEY_DOWN, KEY_S):
-		return Vector2i.DOWN
-	if _key_down(KEY_LEFT, KEY_A):
-		return Vector2i.LEFT
-	if _key_down(KEY_RIGHT, KEY_D):
-		return Vector2i.RIGHT
+	for a in DIRS:
+		if _action_key_down(a):
+			return DIRS[a]
 	return Vector2i.ZERO
 
-static func _key_down(physical: Key, named: Key) -> bool:
-	return Input.is_physical_key_pressed(physical) or Input.is_key_pressed(named) or Input.is_physical_key_pressed(named) or Input.is_key_pressed(physical)
+## Keys currently bound to the action, so a remap still walks and an unbound key does not.
+static func _action_key_down(action: String) -> bool:
+	if not InputMap.has_action(action):
+		return false
+	for ev in InputMap.action_get_events(action):
+		if ev is InputEventKey:
+			if ev.physical_keycode != KEY_NONE and Input.is_physical_key_pressed(ev.physical_keycode):
+				return true
+			if ev.keycode != KEY_NONE and Input.is_key_pressed(ev.keycode):
+				return true
+	return false

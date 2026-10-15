@@ -2,10 +2,9 @@ extends SceneTree
 ## WBL-9, WBL-10 and WBL-16: a journey that really starts, walks out of Larkhaven onto the Thornwood road, is quit, and is
 ## continued through the title screen, landing in the same place. Nothing here loads a fixture file: the save is the one
 ## the game wrote itself (autosave, or the window closing), and Continue is pressed on the title page with a real key,
-## a mouse click and a touch. It runs by itself, with no line in run_tests.gd:
+## a mouse click and a touch. run_tests.gd calls run(). It can also run by itself:
 ##   godot --headless --path wildbond-godot --script res://tests/wbl_continue.gd
-## A "gap" is something this test reproduced in scripts/main.gd, which this pull leaves alone (the Wildbond fix bundle owns
-## that file). A gap is printed, never failed, and the line says what to change. When main.gd closes it, it reports "closed".
+## The four road gaps are real checks now. A miss fails the run.
 const SAVE := "user://wbl_continue.json"
 
 var passed := 0
@@ -20,11 +19,7 @@ func check(ok: bool, what: String) -> void:
 		print("FAIL: ", what)
 
 func gap(ok: bool, what: String) -> void:
-	if ok:
-		print("GAP CLOSED: ", what)
-	else:
-		gaps_open.append(what)
-		print("GAP (main.gd, left alone): ", what)
+	check(ok, what)
 
 func _initialize() -> void:
 	_go.call_deferred()

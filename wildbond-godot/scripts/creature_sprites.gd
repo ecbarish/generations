@@ -19,6 +19,7 @@ const BATTLE_DIR := "res://assets/creatures/battle/"
 const BATTLE_FRONT_SCALE := 1.0
 
 static var _tex: Dictionary = {}
+static var _ink: Dictionary = {}
 
 static func _file(species_id: String, pose: String) -> String:
 	return "%s%s_side_%s.png" % [ROOT, species_id, pose]
@@ -60,6 +61,83 @@ static func battle_size(species_id: String) -> Vector2i:
 	if tex == null:
 		return Vector2i.ZERO
 	return Vector2i(tex.get_width(), tex.get_height())
+
+## res://assets/creatures/battle/<id>_battle_back.png. The player's own creature uses it, facing the foe.
+static func battle_back_file(species_id: String) -> String:
+	return "%s%s_battle_back.png" % [BATTLE_DIR, species_id]
+
+static func battle_back_texture(species_id: String) -> Texture2D:
+	var key := "battle-back/" + species_id
+	if _tex.has(key):
+		return _tex[key]
+	var path := battle_back_file(species_id)
+	var tex: Texture2D = null
+	if ResourceLoader.exists(path):
+		tex = load(path)
+	_tex[key] = tex
+	return tex
+
+static func has_battle_back(species_id: String) -> bool:
+	return battle_back_texture(species_id) != null
+
+static func battle_back_size(species_id: String) -> Vector2i:
+	var tex := battle_back_texture(species_id)
+	if tex == null:
+		return Vector2i.ZERO
+	return Vector2i(tex.get_width(), tex.get_height())
+
+## Opaque pixels of one frame. Empty art falls back to the whole frame. Cached per texture and region.
+static func ink_box(tex: Texture2D, region: Rect2i = Rect2i()) -> Rect2i:
+	if tex == null:
+		return Rect2i()
+	var reg := region
+	if reg.size.x <= 0 or reg.size.y <= 0:
+		reg = Rect2i(0, 0, tex.get_width(), tex.get_height())
+	var key := "%d|%d|%d|%d|%d" % [tex.get_instance_id(), reg.position.x, reg.position.y, reg.size.x, reg.size.y]
+	if _ink.has(key):
+		return _ink[key]
+	var img := tex.get_image()
+	var box := Rect2i(0, 0, reg.size.x, reg.size.y)
+	if img != null:
+		var slice := img.get_region(reg)
+		var min_x := slice.get_width()
+		var min_y := slice.get_height()
+		var max_x := -1
+		var max_y := -1
+		for y in slice.get_height():
+			for x in slice.get_width():
+				if slice.get_pixel(x, y).a > 0.0:
+					min_x = mini(min_x, x)
+					min_y = mini(min_y, y)
+					max_x = maxi(max_x, x)
+					max_y = maxi(max_y, y)
+		if max_x >= min_x and max_y >= min_y:
+			box = Rect2i(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
+	_ink[key] = box
+	return box
+
+## Gear sits on the visible body: the middle half of the ink, across its full width.
+## A sprite that fills the frame keeps the old band. A small figure does not wear the gear on empty canvas.
+static func gear_band(tex: Texture2D, region: Rect2i, sz: Vector2i) -> Rect2i:
+	var ink := ink_box(tex, region) if tex != null else Rect2i(0, 0, sz.x, sz.y)
+	if ink.size.x <= 0 or ink.size.y <= 0:
+		ink = Rect2i(0, 0, maxi(1, sz.x), maxi(1, sz.y))
+	var top := ink.position.y + int(floor(float(ink.size.y) * 0.25))
+	var h := maxi(1, int(floor(float(ink.size.y) * 0.5)))
+	return Rect2i(ink.position.x, top, maxi(1, ink.size.x), h)
+
+## Where the tamer stands on a battle sprite: just behind the ink and a little above it.
+## `mirrored` is a front that was flipped to face right. A back sprite is not mirrored.
+## A full-bleed 64px front with its feet 6px under `at` lands on the old (-26, -70) spot.
+static func tamer_anchor(foot: Vector2, sz: Vector2i, scale: float, tex: Texture2D, mirrored: bool) -> Vector2:
+	var whole := whole_scale(scale)
+	var dest := dest_rect(foot, sz, whole)
+	var ink := ink_box(tex)
+	if ink.size.x <= 0 or ink.size.y <= 0:
+		ink = Rect2i(0, 0, sz.x, sz.y)
+	var back_x := dest.position.x + (float(sz.x - ink.position.x - ink.size.x) if mirrored else float(ink.position.x)) * whole
+	var top_y := dest.position.y + float(ink.position.y) * whole
+	return Vector2(back_x + 6.0, top_y - 12.0)
 
 ## Whole sprite pixels only, and at least 1. A fraction would smear the outline.
 static func whole_scale(scale: float) -> float:
@@ -166,7 +244,7 @@ static func try_draw(ci: CanvasItem, species_id: String, foot: Vector2, facing_r
 	else:
 		ci.draw_texture_rect_region(tex, dest, src)
 	if gear != "":
-		_paint_gear(ci, gear, origin, sz, scale, facing_right)
+		_paint_gear(ci, gear, origin, sz, scale, facing_right, tex, Rect2i(i * sz.x, 0, sz.x, sz.y))
 	ci.texture_filter = prev
 	return true
 
@@ -184,7 +262,23 @@ static func try_draw_battle(ci: CanvasItem, species_id: String, foot: Vector2, f
 	ci.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	ci.draw_texture_rect_region(tex, dest, Rect2(0, 0, sz.x, sz.y))
 	if gear != "":
-		_paint_gear(ci, gear, origin, sz, whole, facing_right)
+		_paint_gear(ci, gear, origin, sz, whole, facing_right, tex, Rect2i(0, 0, sz.x, sz.y))
+	ci.texture_filter = prev
+	return true
+
+## The back view, when this species has one. It already faces the foe, so it is not mirrored.
+static func try_draw_battle_back(ci: CanvasItem, species_id: String, foot: Vector2, scale: float = BATTLE_FRONT_SCALE, gear: String = "") -> bool:
+	var tex := battle_back_texture(species_id)
+	if tex == null:
+		return false
+	var sz := Vector2i(tex.get_width(), tex.get_height())
+	var whole := whole_scale(scale)
+	var dest := dest_rect(foot, sz, whole)
+	var prev := ci.texture_filter
+	ci.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	ci.draw_texture_rect_region(tex, dest, Rect2(0, 0, sz.x, sz.y))
+	if gear != "":
+		_paint_gear(ci, gear, dest.position, sz, whole, false, tex, Rect2i(0, 0, sz.x, sz.y))
 	ci.texture_filter = prev
 	return true
 
@@ -211,9 +305,10 @@ static func _washed(tex: Texture2D, region: Rect2i, amount: float) -> Texture2D:
 	_wash[key] = made
 	return made
 
-## The same gear marks as figures.gd, fitted to the sprite's body so a bell or a harness still shows.
-static func _paint_gear(ci: CanvasItem, gear: String, origin: Vector2, sz: Vector2i, scale: float, facing_right: bool) -> void:
-	var body := [0, int(float(sz.y) * 0.25), sz.x, maxi(1, int(float(sz.y) * 0.5)), Color.WHITE]
+## The same gear marks as figures.gd, fitted to the visible body so a bell or a harness still shows.
+static func _paint_gear(ci: CanvasItem, gear: String, origin: Vector2, sz: Vector2i, scale: float, facing_right: bool, tex: Texture2D = null, region: Rect2i = Rect2i()) -> void:
+	var band := gear_band(tex, region, sz)
+	var body := [band.position.x, band.position.y, band.size.x, band.size.y, Color.WHITE]
 	var parts: Array = Figures._gear_parts([body], gear)
 	var box_w := int(round(float(sz.x) * scale))
 	for p in parts:

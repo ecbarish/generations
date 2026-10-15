@@ -12,7 +12,8 @@ const Sprites := preload("res://scripts/creature_sprites.gd")
 const INK := Color("3e2c20")
 const FAINT := Color("8a6e50")
 const STATS := [["hp", "Health"], ["pow", "Power"], ["grd", "Guard"], ["spd", "Speed"], ["wit", "Wits"], ["spi", "Spirit"]]
-const STATS_H := 40                             # three rows of stat bars, and a gap before the note under them
+const STATS_H := 40                             # three rows of stat bars
+const STRENGTH_GAP := 16                        # from the end of those bars to the strength line, so the line has room
 ## The bars measure a creature's kind against the strongest creature known in the valley (the highest natural strength in the
 ## Wilddex is about 116), so every page uses the same yardstick and a full bar means "as strong as any".
 const STRONGEST := 120.0
@@ -200,15 +201,14 @@ func _draw() -> void:
 		draw_rect(Rect2(sx + 30, sy + 2, 36, 5), Color("e4d6b4"))
 		draw_rect(Rect2(sx + 30, sy + 2, 36.0 * clampf(v / STRONGEST, 0.0, 1.0), 5), el_col.darkened(0.1))
 		_text(str(int(v)), Vector2(sx + 68, sy + 7), 6, INK)
-	y += STATS_H                                    # (room enough that the note below doesn't touch the last bars, WB-C3b)
-	_text("Its kind's strength. Full bar: the strongest known (%d)." % int(STRONGEST), Vector2(190, y + 1), 6, FAINT, 158)
-	y += 10
+	y = strength_baseline(y)
+	_text("Its kind's strength. Full bar: the strongest known (%d)." % int(STRONGEST), Vector2(190, y), 6, FAINT, 158)
+	y += 12
 	y = _para(info.get("moves_line", "Starts with %s." % preload("res://scripts/rules.gd").words(info.moves)), Vector2(190, y), 158, 7, INK) + 1
 	y = _para("Strong against %s, weak to %s." % [info.strong, info.weak], Vector2(190, y), 158, 7, INK) + 3
 	var stop := _btn(0).position.y - 4.0
 	if y < stop - 8.0:
 		_para(info.get("note", "Maren: \"%s\"" % info.get("maren", "")), Vector2(190, y), 158, 7, FAINT)
-	# the choices
 	for i in _count():
 		var r := _btn(i)
 		var on := sel == i
@@ -217,3 +217,6 @@ func _draw() -> void:
 			draw_rect(Rect2(r.position - Vector2(1, 1), r.size + Vector2(2, 2)), Color("f2d24a"), false, 1.0)
 		var baseline := 11.0 if r.size.y <= 16.0 else r.size.y * 0.5 + 3.0
 		_text(_label(i), r.position + Vector2(0, baseline), _btn_size(), Color("f4e9cd"), r.size.x)
+
+func strength_baseline(after_bars: float) -> float:
+	return after_bars + STATS_H + STRENGTH_GAP
