@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "districts": {
+    "willow-quay": {
+      "chestnut": [
+        { "at": "hired", "title": "A Cone Kept Ready", "text": "Lin keeps a paper cone ready beside the brazier while the last ferry worker coils the ropes. She waits until the footsteps reach her stall before filling it with the warmest chestnuts." },
+        { "at": "25", "title": "A Little Paper Cuff", "text": "With twenty-five braziers glowing, Lin spots the last ferry worker rubbing cold hands together. She folds the waiting cone's rim into a little cuff before filling it from the warmest pan." },
+        { "at": "50", "title": "A Fold to Share", "text": "At fifty braziers, the last ferry worker brings Lin a careful paper fold to try. She copies it on the waiting cone, and the warmest chestnuts sit snugly inside. They agree that it fits a hand rather well." },
+        { "at": "100", "title": "The Last Rope", "text": "A hundred braziers glow, but Lin still watches for the last rope to be coiled. Tonight the ferry worker holds out a neatly folded cone of their own, and she fills it from the warmest pan." }
+      ],
+      "ribbon": [
+        { "at": "hired", "title": "The Breeze Has a Turn", "text": "Suri ties a bow at the cart, unties it, and ties it once more. Held out into the breeze, its loops lift without coming loose." },
+        { "at": "25", "title": "One Loop Higher", "text": "Twenty-five ribbon carts line the quay, and Suri has a narrow green ribbon that will not sit straight. After the second tying, the breeze lifts one loop higher than the other. Suri laughs and gives it another try." },
+        { "at": "50", "title": "An Uneven Little Wave", "text": "At fifty carts, a regular brings Suri a bow with one loop taller than its twin. Suri ties it twice just as it is, then lets the breeze lift both ends. The regular likes the uneven little wave." },
+        { "at": "100", "title": "Bows Along the Rail", "text": "A hundred carts carry ribbon, and Suri no longer minds when two loops look a little different. Every bow is still tied twice before the breeze has its turn. Along the rail, no two bows wave quite alike." }
+      ],
+      "soup": [
+        { "at": "hired", "title": "Warmth Before Supper", "text": "Tao warms an empty bowl beside the kettle before ladling in the soup. A walker wraps cold fingers around it and stays for a while, watching the steam curl toward the lamplight." },
+        { "at": "25", "title": "A Place Near the Steam", "text": "With twenty-five kettles simmering, Tao keeps the empty bowls warming near the steam. One walker asks to hold a bowl for a moment before the soup goes in. There is a little sigh as its warmth reaches both palms." },
+        { "at": "50", "title": "The Little Blue Fish", "text": "At fifty kettles, a regular brings Tao a bowl with a little blue fish painted inside. Tao warms it carefully before adding the soup. The fish disappears beneath a quiet ripple." },
+        { "at": "100", "title": "At the Bottom of Supper", "text": "A hundred kettles simmer, and the little blue fish returns to Tao each evening. The empty bowl is warmed, then filled, and its owner settles on the bench. At the bottom of every supper, the fish is waiting." }
+      ],
+      "kite": [
+        { "at": "hired", "title": "Paper Against the Light", "text": "Neri lifts the first kite into the lamplight before tying its tail. The thin wooden ribs show through the paper, and a small shadow stretches across the bench." },
+        { "at": "25", "title": "A Branch in the Paper", "text": "With twenty-five kite benches busy, Neri holds a new kite to the lamp and notices a pale crease. A brush turns the crease into a slender painted branch. Only then does Neri tie the tail." },
+        { "at": "50", "title": "Leaves in the Light", "text": "At fifty benches, a child asks Neri why the branch on a kite has no leaves. Neri paints three small leaves, then holds the paper to the lamplight before adding its tail. The child counts each leaf's tiny shadow." },
+        { "at": "100", "title": "The Old Crease", "text": "A hundred kite benches fill the quay, and the first branch kite returns to Neri with a worn tail. Held up to the lamplight, the old crease still shows beneath the paint. Neri ties on a fresh tail and sends the branch back into the evening." }
+      ],
+      "flower": [
+        { "at": "hired", "title": "Flowers Facing the Water", "text": "Asha turns the flowers toward the water while she fills their jars. A pale blossom and its reflection nod to each other whenever a ferry passes." },
+        { "at": "25", "title": "Room for One Reflection", "text": "At twenty-five barrows, Asha notices a bent stem leaning away from the water. She turns its jar while pouring, until the flower's small reflection appears beside the others." },
+        { "at": "50", "title": "Every Flower Twice", "text": "At fifty barrows, a child brings Asha a drawing of the jars, with every flower painted twice. She sets it beside the barrow before turning the next bunch toward the water and filling its jar." },
+        { "at": "100", "title": "A Jar for the Drawing", "text": "A hundred barrows hold flowers, and Asha still turns each bunch toward the water as she fills the jars. The drawing beside her barrow has curled at the corners. She puts it in an empty jar where it can look out too." }
+      ],
+      "music": [
+        { "at": "hired", "title": "Room for an Answer", "text": "Fen lets the last note fade before beginning another tune. A ferry bell answers across the water, and the quiet space seems just the right size." },
+        { "at": "25", "title": "Two Notes from the Ferry", "text": "With twenty-five music corners playing, Fen lifts a hand at the end of the tune. The listeners leave room for the ferry bell. When it rings twice, a few heads nod along." },
+        { "at": "50", "title": "The Ferry's Favourite", "text": "At fifty corners, a child asks Fen which tune the ferries like best. Fen leaves the next ending open and waits. A low bell sounds across the water, and the child decides it likes that one." },
+        { "at": "100", "title": "The Quiet Between Tunes", "text": "A hundred music corners fill the evening, but Fen still leaves a little silence between tunes. Tonight the ferry is late, so the listeners wait together. When its bell finally sounds, their smiles arrive before the next note." }
+      ]
+    }
+  }
+}
