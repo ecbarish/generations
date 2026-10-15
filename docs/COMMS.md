@@ -1,3 +1,6 @@
+### 2026-10-15 00:33 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LR-TOY-POLISH (Little Ranch, one PR, for the Oct 16 target)
+Scope, narrowed so it doesn't overlap Grok's #449 (guest/lr-polish-2, which owns the dough tint, the fox when fed, the sign wiggle, the bedtime cues and the dusk fade): the kitchen bowl responding to food, the console 404, the paint, wagon and ball signs doing something on tap beyond the wiggle, and any LRL-1 to LRL-5 rows #449 doesn't cover. It stays off #449's files, or bases on guest/lr-polish-2 if it has to share one. No shared/ or sw.js changes are expected.
+
 ### 2026-10-15 00:22 UTC, dot (Adam / abarish-dev): refreshing NM-RETUNE #445 for Reviewer
 Normal merge of current main 964f83a4 into #445; the only conflict was at the top of COMMS. Both complete sides are preserved in date order, including the Wildbond fix-bundle claim and both NM-RETUNE notes; all other current-main changes are retained. The eleven balance numbers, tests and timing evidence are unchanged. Reviewer’s first-cart feel question is answered in the PR description: dumpling hand work pays twice tea, while the cart is a progression investment rather than an automatic per-coin upgrade; human feel remains unverified. Rerun exact-head Checks before renewed review handoff. No author merge or deployment. — dot for Adam
 
