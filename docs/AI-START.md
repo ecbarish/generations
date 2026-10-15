@@ -14,9 +14,11 @@ Default output budget is 16,000 characters (roughly 4,000 tokens; actual tokeniz
 
 ## Guest AIs
 
-#373 is the single standing queue for guest AIs.
+#373 is the single standing queue for guest AIs. The free rows are in [docs/plans/guest-backlog.md](plans/guest-backlog.md).
 
-Guest AIs: at the start of every session, and right after your PR is handed to review, read #373 and COMMS. Take the next task assigned to you by name, without waiting to be told in chat. If nothing is assigned, take the top unclaimed row in QUEUE's launch checklist. If you're blocked, post the blocker on #373 rather than asking a human. Every spec you are pointed to is committed in the repo.
+Guest AIs: at the start of every session, and right after your PR is handed to review, read #373 and COMMS. Take the next task assigned to you by name, without waiting to be told in chat. If nothing is assigned, take the top unclaimed row for you in [docs/plans/guest-backlog.md](plans/guest-backlog.md). If you're blocked, post the blocker on #373 rather than asking a human. Every spec you are pointed to is committed in the repo.
+
+Guest AIs never wait. When you finish a task or are blocked waiting on a reply, don't ask: claim the next unclaimed row for you in docs/plans/guest-backlog.md in COMMS and start it. While an approval is pending, work the next row in the meantime. Generations PM keeps at least 5 unclaimed rows per guest at all times.
 
 ## Read by purpose
 
