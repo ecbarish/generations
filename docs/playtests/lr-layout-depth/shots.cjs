@@ -3,12 +3,12 @@
 let chromium;try{({chromium}=require('playwright-core'));}catch(e){({chromium}=require('playwright'));}const http=require('http'),fs=require('fs'),path=require('path');
 const ROOT=process.argv[2],OUT=process.argv[3],PRE='';fs.mkdirSync(OUT,{recursive:true});
 const T={'.js':'text/javascript','.css':'text/css','.html':'text/html','.png':'image/png','.svg':'image/svg+xml','.json':'application/json'};
-const SIZES=[[390,844],[844,390],[360,780],[1024,594]];
+const SIZES=[[390,844],[844,390],[360,780],[1024,594],[1920,1080]]; // the big desktop window only gets three moments: 1a, 3 and 4
 const srv=http.createServer((q,r)=>{let p=decodeURIComponent(new URL(q.url,'http://x').pathname);if(p.endsWith('/'))p+='index.html';fs.readFile(path.join(ROOT,p),(e,d)=>{if(e){r.writeHead(404);return r.end()}r.writeHead(200,{'Content-Type':T[path.extname(p)]||'application/octet-stream'});r.end(d)})}).listen(0,'127.0.0.1',async()=>{
  const b=await chromium.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox']});const facts={};
  for(const [w,h] of SIZES){const sz=w+'x'+h;const ctx=await b.newContext({viewport:{width:w,height:h},isMobile:true,hasTouch:true,deviceScaleFactor:1,serviceWorkers:'block'});const pg=await ctx.newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
   await pg.goto('http://127.0.0.1:'+srv.address().port+'/games/little-ranch/');await pg.waitForFunction(()=>window.LR);
-  const shot=async n=>{await pg.evaluate(()=>LR.redraw());await pg.waitForTimeout(80);await pg.screenshot({path:path.join(OUT,`${PRE}${sz}-${n}.png`)})};
+  const shot=async n=>{if(sz==='1920x1080'&&!/^(1a|3|4)-/.test(n))return;await pg.evaluate(()=>LR.redraw());await pg.waitForTimeout(80);await pg.screenshot({path:path.join(OUT,`${PRE}${sz}-${n}.png`)})};
   const tap=async q=>{const p=await pg.evaluate(q=>LR.toScreen(q),q);await pg.touchscreen.tap(p.x,p.y);await pg.waitForTimeout(60)};
   await pg.evaluate(()=>{LR.prefs.sound=false;LR.setRoutine(false);LR.setFriend(false);LR.newVisit();LR.advance(.6)});
   await shot('1a-fox-ball-start');

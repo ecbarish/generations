@@ -197,7 +197,7 @@
         if (d <= c[2] || ((c[0] - e.x) / e.rx) ** 2 + ((c[1] - e.y) / e.ry) ** 2 <= 1) return true;
         for (let k = 0; k < 24; k++) { const a = k * Math.PI / 12; if (Math.hypot(e.x + Math.cos(a) * e.rx - c[0], e.y + Math.sin(a) * e.ry - c[1]) <= c[2]) return true; }
         return false; };
-      const still = [[B.x, B.y, B.r * 1.1], ...[-.55, 0, .55].map(k => [L.bowl.x + k * L.R, L.bowl.y - L.R * .25, L.R * .5]), ...[-.6, 0, .6].map(k => [L.sponge.x + k * sw, L.sponge.y, sw * .62]), ...[[-.55, .4, .6], [.55, .4, .6], [0, .65, .75]].map(([kx, ky, kr]) => [bb.x + kx * L.R * 1.25, bb.y - ky * L.R * 1.25, kr * L.R * 1.25]), ...kids.map(q => [q.x, q.y, q.r + 2])];
+      const still = [[B.x, B.y, B.r * 1.1], ...[-.55, 0, .55].map(k => [L.bowl.x + k * L.R, L.bowl.y - L.R * .25, L.R * .5]), ...[-.6, 0, .6].map(k => [L.sponge.x + k * sw, L.sponge.y, sw * .62]), ...[[-.55, .4, .6], [.55, .4, .6], [0, .65, .75]].map(([kx, ky, kr]) => [bb.x + kx * L.R * 1.25, bb.y - ky * L.R * 1.25, kr * L.R * 1.25]), ...[-.7, 0, .7].map(k => [bb.x + k * L.R * 1.25, bb.y + L.R * .25, L.R * .4]), ...kids.map(q => [q.x, q.y, q.r + 2])]; // (the bush's own shadow too)
       const spot = (want, box, rx, ry, hard, soft, need) => { let best = null, bestCost = Infinity;
         for (let y = box.y0; y <= box.y1; y += 2) for (let x = box.x0; x <= box.x1; x += 2) {
           const e = { x, y, rx, ry }; if (hard.some(c => clash(e, c)) || (need && !need(x, y))) continue;
@@ -207,11 +207,15 @@
       const fCircle = [L.fhome.x, L.fhome.y - L.fz * .7, L.fz * .9], babyC = [L.home.x, bodyY, L.size * .95];
       { // the bubble: its soft glow counts as part of it, and the existing rule (clear of the baby) stays
         const I = L.item, gr = I.r * 1.27, tr = I.r * 1.1;
-        const hard = [[B.x, B.y, B.r * 1.1 + gr + 2], [L.bowl.x, L.bowl.y - L.R * .25, L.R * 1.05 + gr + 2]], box = { x0: gr, x1: W - gr, y0: L.ground, y1: H - gr };
-        const bubbleClash = (x, y) => hard.every(c => Math.hypot(x - c[0], y - c[1]) > c[2]) && Math.hypot(x - L.home.x, y - bodyY) > I.r + L.size * .8 + 1 && Math.hypot(x - L.home.x, y - bodyY) <= L.size * 3.4;
-        const soft = [fCircle.concat(.8), ...kids.map(q => [q.x, q.y, q.r, .9]), [L.sponge.x, L.sponge.y, sw, .8], [bb.x, bb.y - L.R * .6, L.R * 1.4, .4], ...L.flowers.map(f => [f.x, f.y, f.r, .9]),
+        const hard = [[B.x, B.y, B.r * 1.1 + gr + 2], [L.bowl.x, L.bowl.y - L.R * .25, L.R * 1.05 + gr + 2]], core = [[B.x, B.y, B.r * 1.1 + I.r + 2], [L.bowl.x, L.bowl.y - L.R * .25, L.R * 1.05 + I.r + 2]], box = { x0: gr, x1: W - gr, y0: L.ground, y1: H - gr };
+        const rs = L.R * .95, boards = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'].map(n => L[n]); // the bubble's core must stay off every sign board (each is a box, post excluded)
+        const onBoard = (x, y) => boards.some(b => Math.hypot(Math.max(b.x - rs * .95 - x, 0, x - b.x - rs * .95), Math.max(b.y - rs * 1.17 - y, 0, y - b.y - rs * .27)) <= I.r);
+        // Three tries, strictest first: the whole glow clear of the basket and the bowl and the core off every sign; then only the core clear of all of them
+        // (the soft glow may touch, on a crowded wide screen); then the core clear of the basket and the bowl alone.
+        const bubbleClash = tier => (x, y) => (tier ? core : hard).every(c => Math.hypot(x - c[0], y - c[1]) > c[2]) && (tier > 1 || !onBoard(x, y)) && Math.hypot(x - L.home.x, y - bodyY) > I.r + L.size * .8 + 1 && Math.hypot(x - L.home.x, y - bodyY) <= (wide ? W : L.size * 3.4);
+        const soft = [fCircle.concat(.8), babyC.concat(wide ? 2.5 : 1.2), ...kids.map(q => [q.x, q.y, q.r, 4]), [L.sponge.x, L.sponge.y, sw, .8], [bb.x, bb.y - L.R * .6, L.R * 1.4, .4], ...L.flowers.map(f => [f.x, f.y, f.r, .9]),
           ...['sign', 'wsign', 'ksign', 'tsign', 'dsign'].map(n => [L[n].x, L[n].y - L.R * .45, L.R * 1.25, .25])];
-        const best = spot(I, box, tr, tr, [], soft, bubbleClash); if (best) { L.item = { ...I, x: best.x, y: best.y }; } }
+        const best = [0, 1, 2].reduce((got, t) => got || spot(I, box, tr, tr, [], soft, bubbleClash(t)), null); if (best) { L.item = { ...I, x: best.x, y: best.y }; } }
       { // the puddles: the full size when it fits, a little smaller on a crowded screen (never under 66 px across on a phone, 84 on a tablet)
         const left = L.puddles[0], right = L.puddles[1], f0 = L.flowers[0];
         const hard = still.concat(['sign', 'wsign', 'ksign', 'tsign', 'dsign'].map(n => [L[n].x, L[n].y - L.R * .45, L.R * 1.0])), soft = [babyC.concat(2), fCircle.concat(.5), ...L.flowers.map(f => [f.x, f.y, f.r * 1.15, 1.5])];
@@ -405,7 +409,8 @@
   const BALL_ROLL = .7, BALL_KICKS = 3;
   function ballSpot(side) { const ballR = L.R * .88, wide = W > H * 1.3, span = Math.min(L.size * 1.15, W * .18);
     let y = L.ground + L.R * 1.35, x = clamp(L.home.x + side * span, W * .24, W * .76);
-    if (wide && L.flowers && L.flowers.length) { const f = L.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); } // wide: rest above the petals
+    if (!wide) y = L.home.y - L.size * .62 + ballR; // LR-G2: tall: rest below the fox's face, on the line of its feet, so it sorts in front of the fox and never hides the face
+    if (L.flowers && L.flowers.length) { const f = L.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); } // rest above the petals
     if (!wide && L.basket) x = Math.max(x, L.basket.x + L.basket.r + ballR + 3); // tall: keep the ball off the hat basket
     return { x: R(x), y: R(y), r: ballR }; }
   // LR-G2: the baby kicks from beside the ball, on the side nearest the middle, facing it, so neither hides the other.
@@ -1086,12 +1091,15 @@
     const bw = L.R, bb = hintBob('bowl') + Math.sin(Math.min(1, 1 - st.bowl.pop) * Math.PI) * st.bowl.pop * L.R * .25; shadow(L.bowl.x, L.bowl.y, bw); cx.save(); cx.translate(0, -R(bb)); ell(L.bowl.x, L.bowl.y - bw * .25, bw, bw * .45, pick3('#4a90d8', '#5a7ab8', '#2a3a68', g)); ell(L.bowl.x, L.bowl.y - bw * .45, bw * .82, bw * .2, '#2a4a7a');
     if (st.bowl.food > 0) for (let i = 0; i < 9 * st.bowl.food; i++) ell(L.bowl.x + (i % 5 - 2) * bw * .3, L.bowl.y - bw * (.5 + (i % 2) * .12), bw * .14, bw * .11, '#c8823a'); cx.restore();
     drawFlowers(g);
+    const bq0 = ballNow(), faces = [[st.baby.x + st.baby.dir * L.size * .4, L.size], st.friend ? [st.friend.x * W + st.friend.dir * L.fz * .4, L.fz] : null].filter(Boolean), // each head sits a little ahead of its body
+      ballInFront = bq0.y >= L.home.y || faces.every(([fx0, z]) => Math.hypot((bq0.x - fx0) / (z * .5 + bq0.r), (bq0.y - (L.home.y - z * 1.2)) / (z * .4 + bq0.r)) >= 1);
+    if (!ballInFront) drawBall(); // LR-G2: the ball is drawn after the fox, except where it would cover a face (a ball resting behind the fox's feet): then the fox stands in front
     if (hidden) { // peekaboo: behind the bush, then up comes the head
       const k = st.baby.act === 'peek' ? Math.sin(clamp((st.t - st.baby.at) / 1.4, 0, 1) * Math.PI) : 0, save = st.baby.x;
       const base = L.bush.y + L.R * .3; cx.save(); cx.beginPath(); cx.rect(0, 0, W, R(base)); cx.clip(); // only what rises above the bush's foot shows
       cx.translate(0, L.bush.y - L.home.y + L.size * .9 - k * L.size * 1.4); st.baby.x = L.bush.x; drawBaby(); st.baby.x = save; cx.restore(); drawBush(true); }
     else { drawFriend(); drawBaby(); }
-    drawBall(); // LR-G2: the ball is drawn after the fox, so it is never hidden behind it
+    if (ballInFront) drawBall(); // LR-G2: in front of the fox, unless it would cover a face
     drawHatFly(); if (st.mode === 'dusk') drawRoutine(g);
     // the sponge
     const s = st.sponge, sw = L.R * .8; if (!s.drag && !s.auto) shadow(s.x, s.y + sw * .3, sw);
@@ -1116,7 +1124,10 @@
     for (const q of st.puddles) c.push(['puddle' + q.i, L.puddles[q.i], L.puddles[q.i].r]); c.push(['basket', { x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05]);
     L.flowers.forEach((q, i) => c.push(['flower' + i, { x: q.x, y: q.y }, q.r * 1.15]));
     { const q = ballNow(); c.push(['ball', q, q.r * 1.2]); }
-    let best = null, bk = 1; for (const [n, q, r] of c) { const k = Math.hypot(p.x - q.x, p.y - q.y) / r; if (k <= bk) { bk = k; best = n; } } return best; }
+    let best = null, bk = 1, rs = L.R * .95;
+    for (const [n, q, r] of c) { let k = Math.hypot(p.x - q.x, p.y - q.y) / r;
+      if (/^[wktd]?sign$/.test(n)) { const b = L[n]; if (Math.abs(p.x - b.x) <= rs * .95 && p.y >= b.y - rs * 1.17 && p.y <= b.y + rs * .27) k *= .4; } // LR-G2: a tap anywhere on a drawn board is that sign's (its lower edge used to fall to the bush)
+      if (k <= bk) { bk = k; best = n; } } return best; }
   const onDown = e => {
     e.preventDefault(); audio(); const p = at(e), s = st.sponge; st.idleAt = st.t;
     // LR9: the shed and the sign act when the finger lifts (like the grown-up panel, LR15); a drag over the outline paints
