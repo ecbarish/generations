@@ -122,6 +122,12 @@ document.querySelector('#run').onclick = async () => {
     const fittedPhone = V.fitLayout(844, 390), fittedNarrow = V.fitLayout(780, 360), fittedDesk = V.fitLayout(1024, 594);
     const fills = (fitted, boxW, boxH) => !!fitted && fitted.scale === Math.floor(fitted.scale) && fitted.scale >= 1 && !fitted.vertical && fitted.w * fitted.scale <= boxW && fitted.h * fitted.scale <= boxH && fitted.w * fitted.scale >= boxW - fitted.scale && fitted.h * fitted.scale >= boxH - fitted.scale;
     check('the picture scales by a whole number and fills the box', fills(fittedPhone, 844, 390) && fills(fittedNarrow, 780, 360) && fills(fittedDesk, 1024, 594));
+    const aboveCards = (fitted) => {
+      const reserve = Math.ceil(64 / fitted.scale);
+      const feet = fitted.top + fitted.fieldH * (0.5 + 20 / fitted.widthY) + 2;
+      return fitted.top + fitted.fieldH <= fitted.h - reserve + 0.5 && feet <= fitted.h - reserve;
+    };
+    check('the grass and the widest receiver stay above the bottom cards', aboveCards(fittedPhone) && aboveCards(fittedNarrow) && aboveCards(fittedDesk));
     const openMark = V.opennessMark('open'), windowMark = V.opennessMark('window'), coveredMark = V.opennessMark('covered');
     check('openness marks differ by shape, with a light open ring', openMark.shape !== windowMark.shape && windowMark.shape !== coveredMark.shape && openMark.color === '#f6edd4' && openMark.outline === '#1e1a22' && coveredMark.shape === 'dotted');
     let openCatches = 0, tightPicks = 0, tightDrops = 0, trials = 1600, rollState = 5;
@@ -675,7 +681,7 @@ document.querySelector('#run').onclick = async () => {
     const sheet = d2.querySelector('#sheet');
     const resumed = w2.__lantern.state;
     const resultLine = d2.querySelector('#banner');
-    check('the toast names the play without a rating number', !!resultLine && !resultLine.hidden && sheet.hidden && resultLine.textContent.length > 8 && !/\(\d+\)/.test(resultLine.textContent) && resultLine.textContent.indexOf('throw ') < 0);
+    check('continuing a drive does not lay the last result over the cards', sheet.hidden && resultLine.hidden);
     const offered = Array.from(d2.querySelectorAll('[data-play]'));
     check('the call is a short row with a diagram', offered.length >= 2 && offered.length <= 3 && offered.every(b => b.querySelector('svg') && b.textContent.trim().length > 1));
     check('kick stays off the call until fourth down', !d2.querySelector('[data-play="kick"]') && !d2.querySelector('[data-play="field"]') && !d2.querySelector('[data-play="punt"]'));
@@ -733,7 +739,7 @@ document.querySelector('#run').onclick = async () => {
     check('the toast names the ball carrier without a rating number', !!carried && !carried.hidden && topCopy.hidden && carried.textContent.indexOf('Mara Holt') >= 0 && !/\(\d+\)/.test(carried.textContent) && carried.textContent.indexOf('throw ') < 0);
     const bannerZ = parseInt(w2.getComputedStyle(carried).zIndex, 10);
     const dockZ = parseInt(w2.getComputedStyle(d2.querySelector('#dock')).zIndex, 10);
-    check('one result toast sits clear of the yard numbers, with the play cards hidden', w2.__lantern.state.phase !== 'final' && d2.querySelectorAll('[data-play]').length === 0 && topCopy.hidden && !carried.hidden && carriedBox.top > carriedPitch.top + carriedPitch.height * 0.45 && carriedBox.bottom <= carriedPitch.bottom && bannerZ > dockZ);
+    check('one result toast sits on the bottom edge, clear of the players, with the play cards hidden', w2.__lantern.state.phase !== 'final' && d2.querySelectorAll('[data-play]').length === 0 && topCopy.hidden && !carried.hidden && carriedBox.top >= carriedPitch.bottom - 56 && carriedPitch.bottom - carriedBox.bottom <= 16 && carriedPitch.bottom - carriedBox.bottom >= 0 && bannerZ > dockZ);
     let cardsBack = false;
     const backWatch = performance.now();
     while (performance.now() - backWatch < 4000 && !cardsBack) {
@@ -741,9 +747,8 @@ document.querySelector('#run').onclick = async () => {
       cardsBack = w2.__lantern.mode === 'play' && d2.querySelectorAll('[data-play]').length >= 2 && d2.querySelectorAll('[data-play]').length <= 3;
     }
     check('the next play can be called once the result has been shown', cardsBack);
-    const callBanner = d2.querySelector('#banner').getBoundingClientRect();
     const callCard = d2.querySelector('#dock button') && d2.querySelector('#dock button').getBoundingClientRect();
-    check('the one result toast stays above the next play cards', d2.querySelector('#sheet').hidden && !!callCard && callBanner.bottom <= callCard.top + 4);
+    check('the result line leaves once the next play cards return', d2.querySelector('#sheet').hidden && !!callCard && d2.querySelector('#banner').hidden);
     resumed.possession = 'home';
     resumed.phase = 'call';
     resumed.down = 1;
@@ -797,7 +802,17 @@ document.querySelector('#run').onclick = async () => {
       check(width + '×' + height + ' field fills most of the screen', pitch.height >= height * 0.62 && pitch.width >= width * 0.85);
       check(width + '×' + height + ' keeps a thin score strip', hud.height >= 16 && hud.height <= 20);
       check(width + '×' + height + ' play buttons are thumb sized', Array.from(d2.querySelectorAll('#dock button, #settingsMount button, .home')).every(b => b.getBoundingClientRect().height >= 44 && b.getBoundingClientRect().width >= 44));
+      const labelRows = cards.map(b => b.querySelector('span')).filter(Boolean);
+      const labelFonts = cards.map(b => parseFloat(w2.getComputedStyle(b).fontSize));
+      const labelHeights = cards.map(b => Math.round(b.getBoundingClientRect().height));
+      check(width + '×' + height + ' labels are 16px on one line', labelFonts.every(n => n >= 16) && labelRows.every(s => s.getClientRects().length === 1 && s.scrollWidth <= s.clientWidth + 1) && labelHeights.every(h => h === labelHeights[0] && h <= 48));
+      check(width + '×' + height + ' hint text is readable', parseFloat(w2.getComputedStyle(d2.querySelector('#hint')).fontSize) >= 16 && parseFloat(w2.getComputedStyle(d2.querySelector('#hint')).lineHeight) >= 20);
       check(width + '×' + height + ' call is two or three plays along the bottom', cards.length >= 2 && cards.length <= 3 && cards[0].getBoundingClientRect().top > pitch.top + pitch.height * 0.55);
+      if (width === 780) {
+        const layout = w2.LanternView.fitLayout(pitch.width, pitch.height);
+        const feet = pitch.top + (layout.top + layout.fieldH * (0.5 + 20 / layout.widthY) + 2) * layout.scale;
+        check('at 780×360 the cards stay off the bottom receivers', cards[0].getBoundingClientRect().top + 1 >= feet);
+      }
       if (width === 844) {
         const boxes = [d2.querySelector('h1'), d2.querySelector('.home'), d2.querySelector('#settingsMount button')].map(el => el.getBoundingClientRect());
         const mids = boxes.map(r => (r.top + r.bottom) / 2);
@@ -814,7 +829,7 @@ document.querySelector('#run').onclick = async () => {
         banner.hidden = false; banner.textContent = 'The result sits low.';
         const players = fieldWide.top + fieldWide.height * 0.45;
         const bannerBox = banner.getBoundingClientRect();
-        check('on a landscape phone the result sits below the players', bannerBox.top > players);
+        check('on a landscape phone the result sits on the bottom edge', bannerBox.top > players && bannerBox.top >= fieldWide.bottom - 56 && fieldWide.bottom - bannerBox.bottom <= 16);
         banner.hidden = true; banner.textContent = '';
         resumed.down = 4;
         resumed.spot = 70;
@@ -822,6 +837,10 @@ document.querySelector('#run').onclick = async () => {
         await wait();
         const fourthCards = Array.from(d2.querySelectorAll('[data-play]'));
         check('on a landscape phone fourth down still offers a short call', fourthCards.length >= 2 && fourthCards.length <= 3 && !!d2.querySelector('[data-play="field"]') && !!d2.querySelector('[data-play="punt"]') && !d2.querySelector('[data-play="kick"]'));
+        const fourthLabels = fourthCards.map(b => b.querySelector('span')).filter(Boolean);
+        const fourthFonts = fourthCards.map(b => parseFloat(w2.getComputedStyle(b).fontSize));
+        const fourthHeights = fourthCards.map(b => Math.round(b.getBoundingClientRect().height));
+        check('fourth down labels stay on one 16px line', fourthFonts.every(n => n >= 16) && fourthLabels.every(s => s.getClientRects().length === 1 && s.scrollWidth <= s.clientWidth + 1) && fourthHeights.every(h => h === fourthHeights[0] && h <= 48));
         check('on a landscape phone fourth down still fits', d2.documentElement.scrollWidth <= width + 1 && d2.documentElement.scrollHeight <= height + 1);
         resumed.down = 1;
         resumed.spot = 28;
@@ -877,6 +896,16 @@ document.querySelector('#run').onclick = async () => {
     again.watchLive();
     await wait();
     check('before a Millrace drive you pick blitz, balanced or prevent', d2.querySelectorAll('[data-defence]').length === 3 && d2.querySelectorAll('[data-play]').length === 0 && (d2.querySelector('#hint').textContent || '').indexOf('Pick a defence') >= 0 && !d2.querySelector('.cpu-log'));
+    frame.style.width = '780px'; frame.style.height = '360px';
+    await wait();
+    const defencePitch = d2.querySelector('.pitch').getBoundingClientRect();
+    const defenceBtn = d2.querySelector('[data-defence]').getBoundingClientRect();
+    const defenceLayout = w2.LanternView.fitLayout(defencePitch.width, defencePitch.height);
+    const defenceFeet = defencePitch.top + (defenceLayout.top + defenceLayout.fieldH * (0.5 + 20 / defenceLayout.widthY) + 2) * defenceLayout.scale;
+    const defenceLabels = Array.from(d2.querySelectorAll('[data-defence]'));
+    check('at 780×360 the defence cards stay off the bottom receivers', defenceBtn.top + 1 >= defenceFeet && defenceLabels.every(b => { const s = b.querySelector('span'); return parseFloat(w2.getComputedStyle(b).fontSize) >= 16 && s && s.getClientRects().length === 1 && Math.round(b.getBoundingClientRect().height) === 48; }));
+    frame.style.width = '844px'; frame.style.height = '390px';
+    await wait();
     d2.querySelector('[data-defence="balanced"]').click();
     let sawLive = false, ballMoved = false, firstBall = null, staleStrip = false, firstSquad = null, playersMoved = false, buttonsDuring = false;
     for (let i = 0; i < 48; i++) {
@@ -952,7 +981,10 @@ document.querySelector('#run').onclick = async () => {
     check('an overtime save round-trips at v2', !!otLoaded && otLoaded.v === 2 && otBack.quarter === 5 && otBack.otTurns === 2 && otWritten.quarter === 5 && otWritten.otTurns === 2 && otWritten.possession === 'away' && Math.round(otWritten.spot) === 75 && JSON.stringify(otWritten) === JSON.stringify(otLoaded.match));
     d2.querySelector('#field').dispatchEvent(new w2.PointerEvent('pointerdown', { clientX: 30, clientY: 80, pointerId: 7, bubbles: true }));
     await wait();
-    check('a drag before a play asks for one', (d2.querySelector('#banner').textContent || '').indexOf('Pick a play') >= 0);
+    const askHint = d2.querySelector('#hint').textContent || '';
+    const askBanner = d2.querySelector('#banner');
+    const askCards = d2.querySelector('#dock button');
+    check('a drag before a play asks for one', (askHint + (askBanner.textContent || '')).indexOf('Pick a play') >= 0 && (!askCards || askBanner.hidden));
     again.rush(true);
     again.state.down = 4; again.state.spot = 28; again.state.toGo = 10; again.state.phase = 'call'; again.state.possession = 'home';
     again.state.quarter = 1; again.state.clock = 120; again.state.seed = 1; again.state.rng = 1;

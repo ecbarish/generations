@@ -135,12 +135,13 @@
     if (!(scale >= 1)) scale = 1;
     var fillW = Math.max(8, Math.floor(w / scale));
     var fillH = Math.max(8, Math.floor(h / scale));
-    var chrome = Math.max(0, base.h - base.fieldH);
-    var margin = Math.min(chrome, Math.max(base.top, Math.floor(fillH / 5)));
+    /* Play cards and the result line share the bottom edge. The grass stops
+       above that strip, so the widest receiver's feet stay off the cards. */
+    var dockPx = Math.ceil(64 / scale);
     return {
       w: fillW, h: fillH, yard: base.yard, top: base.top, widthY: base.widthY,
       lead: base.lead, scale: scale,
-      fieldH: Math.max(16, fillH - margin),
+      fieldH: Math.max(16, fillH - base.top - dockPx),
       anchor: Math.round(fillW * 0.28)
     };
   }

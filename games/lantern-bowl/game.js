@@ -79,7 +79,7 @@
   var state = null, mode = 'title', last = 0, bannerUntil = 0, aimDrag = null, lastSheet = '';
   var keys = new Set(), turboHeld = false, gesture = null, steer = 0, queued = { juke: 0, dive: false, spin: false, throw: null };
   var stick = null, receiverKey = '', throwKind = 'bullet', turboTouch = null;
-  var sheetDetail = false, watchLeft = 0, resultLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0, summaryLine = '';
+  var sheetDetail = false, watchLeft = 0, resultLeft = 0, touchGuard = 0, rushWatch = false, promptUntil = 0, promptLine = '', summaryLine = '';
   var pointerNotes = [];
 
   function persist() {
@@ -141,8 +141,16 @@
     bannerUntil = 0;
   }
   function prompt(text) {
-    say(text);
     promptUntil = performance.now() + 2200;
+    var cardsUp = $('dock') && $('dock').querySelector('button');
+    if (cardsUp) {
+      promptLine = text || '';
+      say('');
+      paintHint();
+      return;
+    }
+    promptLine = '';
+    say(text);
   }
   function sentences(text) {
     var parts = String(text || '').match(/[^.!?]+[.!?]+/g);
@@ -218,9 +226,9 @@
     mode = 'play';
     hideSheet();
     dock();
-    say(shortToast(summaryLine || M.currentMessage(state)));
+    say('');
   }
-  /* The whistle's line stays up, with the next play cards held back so they cannot cover it. */
+  /* The whistle's line sits on the bottom edge. The next cards stay hidden until it has been read. */
   function showResult() {
     if (!state || state.phase === 'final') return showFinal();
     if (state.possession !== 'home') return holdWatch();
@@ -326,6 +334,7 @@
     return id;
   }
   function hintText() {
+    if (promptLine && performance.now() < promptUntil) return promptLine;
     if (mode === 'defence') return 'Pick a defence.';
     var live = !!(mode === 'play' && state && state.phase === 'live');
     var parts = [];
@@ -366,6 +375,8 @@
   function begin(id) {
     if (!state || state.phase !== 'call' || state.possession !== 'home') return;
     resultLeft = 0;
+    promptLine = '';
+    promptUntil = 0;
     if (mode === 'result') mode = 'play';
     summaryLine = '';
     if (id === 'kick' || id === 'field' || id === 'punt') { M.kick(state, id === 'kick' ? null : id); afterWhistle(); return; }
@@ -829,9 +840,8 @@
     paintTools();
     if (performance.now() >= promptUntil) {
       var watching = mode === 'watch' || mode === 'defence';
-      var calling = mode === 'play' && state.phase === 'call' && state.possession === 'home';
       var msg = '';
-      if (!curtainUp && (mode === 'result' || calling)) msg = shortToast(summaryLine || M.currentMessage(state) || '');
+      if (!curtainUp && mode === 'result') msg = shortToast(summaryLine || M.currentMessage(state) || '');
       else if (!watching && state.phase !== 'live' && state.phase !== 'final' && mode !== 'title') msg = '';
       if ($('banner').textContent !== msg) say(msg);
     }
@@ -1002,7 +1012,7 @@
             else beginWatch();
           } else {
             finishDrive();
-            showCall();
+            showResult();
           }
         }
       }
