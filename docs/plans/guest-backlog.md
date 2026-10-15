@@ -22,9 +22,105 @@ Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" 
 
 Checked against the open pulls and the latest #373 comments on 2026-10-15.
 
-- **Grok, now:** LB-G4b, the crowd-loop fix in `sound-cues.js`. Then WBW-6, then WBW-4. WBW-3 and LR-G1 stay after those if they are still free.
-- **dot, now:** WBW-2. NM-G2 (#483) is ready, not blocked. WBW-1 stays claimed as #485. Then WBW-5.
-- **Free-row order:** WBW-6 first, then WBW-5, then WBW-4. WBW-6 and WBW-4 are Grok's. WBW-5 is dot's. Either guest can take any of the three that is still free.
+- **Grok:** LB-G9 (now), WBW-6, LB-G7, NM-G4, NM-G5, WBW-4, then WBW-3 if it is still unclaimed.
+- **dot:** WBW-2 (now), NM-G2, LB-G8, LB-G10, NM-G3, WBW-5.
+- WBW-1 stays claimed as #485. LB-G9 is the crowd-loop fix. There is no LB-G4b row.
+
+### Batch 2
+
+Side Games Dev Lead drafted these on 2026-10-14. Batch 1's rules still apply. #444 has merged, but `games/lantern-bowl/game.js`, `model.js`, `view.js`, `style.css` and `index.html` are still off limits: the wiring is Side Games Dev Lead's. Two rows edit an existing file. LB-G9 edits `sound-cues.js` and its test, and no open pull has them. NM-G3 edits `games/night-market/style.css` and `tests/night-market.html`, and no open pull has those since #456 and #461 merged.
+
+### LB-G9. Crowd bed holds its volume until stop() (LB-FEEL fix, from Reviewer's comment 6183447752 on #474)
+
+**Status:** Grok's current task. This is the crowd-loop fix. There is no separate LB-G4b row.
+
+- **Guest:** Grok, who wrote LB-G4.
+- **Scope:** Make the `crowdBed` cue really loop. Today `play()` gives every voice the one-shot `envelope()`, which ramps the gain to 0 at `start + dur`. For `crowdBed` that is 4 seconds, so the buffer keeps looping silently after that, and the crowd's LFO also stops at `end`. For a cue with `loop: true`, hold the gain at its peak after the attack, skip the release and the LFO's `stop(end)`, and have `stop()` fade out over a short release (about 0.25 seconds) before stopping the sources. Add a checker case that fails if a loop cue schedules a ramp to 0 or a stop before `stop()` is called.
+- **Files:** edit `games/lantern-bowl/sound-cues.js` and `tests/lantern-bowl-sound-cues.cjs`. You may update the crowd line in `docs/playtests/lb-feel-sounds/README.md` if it describes the old behaviour. Edit nothing else.
+- **Done check:** `node tests/lantern-bowl-sound-cues.cjs` passes with these new cases: using a recording stub `AudioContext`, playing `crowdBed` schedules no `linearRampToValueAtTime(0, …)` and no `stop()` on any source or LFO until the handle's `stop()` is called; after `stop()`, every source is stopped and the gain ramps to 0 within 0.3 seconds; and every one-shot cue still schedules its end exactly as before, so their timing is unchanged. On the listening page in Chrome, the crowd bed is still audible after 30 seconds and goes quiet when stopped. Say so in the PR. Normal CI stays green.
+- **What I wire later:** the crowd bed under each drive in LB-FEEL, started at the snap and stopped at the whistle or on pause.
+- **Dependencies:** none.
+
+### LB-G7. Roster view as a standalone module (LB-MANAGER)
+
+**Status:** Grok, after WBW-6.
+
+- **Guest:** Grok. It needs real-browser screenshots, and Grok's sandbox can start Chromium.
+- **Scope:** Build the club roster screen as its own module that reads `roster.json` and draws a list of the 23 players. It shows ratings as words and stars first and numbers second, which is the plan's rule in `docs/plans/lantern-bowl.md`. Add a test and a preview page. The game does not open this screen yet.
+- **Files:** create `games/lantern-bowl/roster-view.js`, `tests/lantern-bowl-roster-view.cjs`, and `docs/playtests/lb-roster-view/index.html`, plus its screenshots and `README.md`. Do not edit `style.css`. The module's few styles live in one `<style>` block that it adds with a `lbrv-` class prefix, so nothing in the game changes.
+- **Shape:** a UMD file like `kick.js`, exposing `LanternBowlRosterView`. `rows(roster, clubId)` is pure, with no DOM. It returns one row per player in this order: QB, RB, WR, WR, TE, line, front, backers, secondary, kicker. Each row has the slot label, name, age, the player's two best ratings, a 1-to-5 star grade, and a short word ("Solid", "Strong", "Elite" and so on). The star bands are 35–45, 46–56, 57–67, 68–78 and 79–90. `render(container, rows)` builds the list. Rows are 44px or taller, and the text is 16px or larger.
+- **Phone rule:** Lantern Bowl is landscape-only on phones. Screenshot the preview page at 844x390, 780x360 and 667x375, plus 1024x594. Do not design a portrait layout.
+- **Done check:** `node tests/lantern-bowl-roster-view.cjs` passes, and it checks that every club gives 23 rows in that order, every star grade sits in its band, the best two ratings are picked correctly, the same input always gives the same output, and an unknown club ID throws a clear error. The preview page renders all six clubs with no page error. The PR includes the four screenshots, and GAD reviews them, since this is a new screen. Normal CI stays green.
+- **What I wire later:** a Roster button between games in LB-MANAGER that opens this view, plus moving the styles into `style.css` if GAD asks.
+- **Dependencies:** none. `roster.json` is on main.
+
+### NM-G4. Vendor portrait prompts for GAD, text only
+
+**Status:** Grok, after LB-G7.
+
+- **Guest:** Grok.
+- **Scope:** Write a portrait brief for each of the six vendors, so GAD can commission or draw their pictures later. Each brief covers the vendor's look, pose, props and palette, taken from the habits and gossip already in `model.js`: Mei opens before the lanterns are lit, Bo talks while he folds, An trims each wick, Qiao counts the tins twice, Ren lights one stick for the alley, and Old Wen stops before the ending. This is text only. No images are made in this PR.
+- **Files:** create `docs/art/night-market-vendor-prompts.md`. Edit nothing else.
+- **Content:** for each vendor, write a one-paragraph description in plain sentences and a short prompt of at most 60 words. Follow the house art rules already written down: the arcade's ink outline, the dusk-and-lamplight palette that #438's lane uses, and real proportions with no big heads (art guide rule 2, which `docs/plans/lantern-bowl.md` cites). Add a note on size, matching the lane's 384x72 canvas scale. Add a line on what each portrait must not look like: no real people, no brands, and no copying another game's characters.
+- **Done check:** the file has six briefs that each match the vendor's habit in `model.js`, every prompt is 60 words or fewer, and the file links `docs/art/README.md` for the art rules. GAD reads it and says yes or asks for changes on the PR. Normal CI stays green.
+- **What I wire later:** nothing directly. GAD uses the briefs for the vendor art, and any art PR gets GAD's review.
+- **Dependencies:** none. It uses `model.js` on main, not #482's tales.
+
+### NM-G5. Away-summary gossip lines (§4A "Day 2": the away summary reads like vendor gossip)
+
+**Status:** Grok, after NM-G4.
+
+- **Guest:** Grok.
+- **Scope:** Write extra gossip lines for each vendor as data, grouped by how long the player was away, so the welcome-back box does not repeat the single `gossip` line each stall has in `model.js`. This is text only. It changes no earnings and adds no save field. Any later pick can be made from the away time and the save's existing seed or counts.
+- **Files:** create `games/night-market/gossip.json` and `tests/nm-gossip.cjs`. Edit nothing else. This is not #482's `vendor-tales.json`. Tales unlock at milestones. Gossip is the short away line.
+- **Shape:** `schemaVersion: 1` and `gossip`, keyed by the six stall IDs in `model.js` (`tea`, `dumpling`, `lantern`, `mooncake`, `incense`, `stories`). Each has three bands, `short` (under 30 minutes away), `evening` (30 minutes to 2 hours) and `long` (2 to 4 hours, the offline cap), with at least 3 lines per band. Each line is one sentence of at most 100 characters that names its own vendor. Lines never promise extra coins or mention a multiplier, because offline pay stays at 50% for at most four hours.
+- **Done check:** `node tests/nm-gossip.cjs` passes. It reads the stall IDs and vendor names from `model.js` the way `tools/night-market-pacing.cjs` does, and it checks every stall, band and line count, the length limit, that each line names its vendor, that no line repeats, and that no line contains a number or the words "double", "bonus" or "multiplier". Normal CI stays green.
+- **What I wire later:** the welcome-back box picks one line from the right band for the stall that earned the most while the player was away. That goes in a Night Market PR of mine.
+- **Dependencies:** none.
+
+### LB-G8. Standings, tiebreakers and the playoff bracket, headless (LB-SEASON)
+
+**Status:** dot, after NM-G2.
+
+- **Guest:** dot. dot already knows `season.json`'s fixtures.
+- **Scope:** Write the season table and the playoff bracket as a pure module that reads `season.json` and a list of results. It works out wins, losses, points for and against, the order of the clubs with clear tiebreakers, the top-four seeding and the semi-final and final pairings. It has no save and no DOM.
+- **Files:** create `games/lantern-bowl/standings.js` and `tests/lantern-bowl-standings.cjs`. Do not edit `shared/sports-office.js`. Its `standings()` needs a global `SPORT` and only sorts by wins, then run difference, then index, so this module stands alone.
+- **Shape:** a UMD file exposing `LanternBowlStandings`. `table(season, results)` takes results as `{ week, home, away, homeScore, awayScore }` with club indexes, and returns rows of `{ index, id, w, l, pf, pa, diff, played }` in order. `bracket(season, table)` returns `{ semis: [[1, 4], [2, 3]], final: null }` in seed order, with the higher seed at home. `advance(bracket, semiResults)` fills in the final. Lantern Bowl overtime keeps playing until one side leads, so a tie is invalid input and throws.
+- **Tiebreakers, in order:** most wins; head-to-head wins among the tied clubs; points difference; points for; then the club's index in `season.json`, so the result never depends on luck.
+- **Done check:** `node tests/lantern-bowl-standings.cjs` passes, with fixtures for a clean table, a two-way tie broken head-to-head, a three-way tie that drops to points difference, a tie broken by index, a partial season, a result for a week or pairing that is not in `fixtures` (rejected), a tie score (rejected), and the bracket and final from a full ten-week season. Normal CI stays green.
+- **What I wire later:** the standings board and the playoffs in LB-SEASON. The season save holds the results list, and that save design goes to Evan through Director.
+- **Dependencies:** none. `season.json` is on main.
+
+### LB-G10. Opponent scouting data (LB-SEASON, comparison fix 9 and the "opponents of varied strength" gap)
+
+**Status:** dot, after LB-G8.
+
+- **Guest:** dot. It uses dot's playbook IDs.
+- **Scope:** Give each of the five opponent clubs an attacking style as data: how often it runs or passes, which playbook plays it likes, how it reacts to each of the three defence calls, and a one-sentence scouting note the player reads before the game. Then, when you pick Blitz, Balanced or Prevent before a drive, the choice means something different against each club. Add a validator.
+- **Files:** create `games/lantern-bowl/scouting.json` and `tests/lantern-bowl-scouting.cjs`. Edit nothing else.
+- **Shape:** `schemaVersion: 1` and `clubs`, keyed by the five opponent IDs from `season.json` (not `brackenport`). Each has `runShare` (0.3 to 0.7), `favourites` (3 or 4 play IDs that exist in `playbook.json`, with weights adding up to 1), `deepShare` (0 to 0.4), a `versus` block for `blitz`, `balanced` and `prevent` that nudges those shares by at most ±0.15, and a `note` of at most 140 characters. Notes describe a style, such as "Herons run outside and test you deep late". They never tell the player which defence to pick, because the choice stays the player's.
+- **Variety rule:** no two clubs share the same top favourite play, and at least one club leans run (`runShare` 0.6 or more) and one leans pass (0.4 or less).
+- **Done check:** `node tests/lantern-bowl-scouting.cjs` passes. It reads `season.json` and `playbook.json` from main to check the club IDs and play IDs, and it also checks all the ranges, the weight sums, the variety rule, the note length, that no note names a defence call, and that malformed files are rejected. Normal CI stays green.
+- **What I wire later:** `cpuCall` in `model.js` reads the opponent's style, and the pre-drive defence card shows the note.
+- **Dependencies:** none. `season.json` and `playbook.json` are on main.
+
+### NM-G3. Back and footer links at 1rem on one line (GAD's NM-PHONE follow-up)
+
+**Status:** dot, after LB-G10.
+
+- **Guest:** dot, who built NM-PHONE (#456).
+- **Scope:** Make "Back to the arcade" in the header and in the footer read at 1rem and never wrap onto two lines. Today `.home, .foot a` and `.foot` in `games/night-market/style.css` are `font-size: 0.95rem`, and nothing stops the text from wrapping.
+- **Files:** edit `games/night-market/style.css`, only the `.home, .foot a` rule and the `.foot` rule, and add checks to `tests/night-market.html`. No open PR touches either file (#456 and #461 have merged, #482 and #483 are new data files). Do not edit `game.js`, `lane.js`, `model.js` or `index.html`.
+- **Change:** set `font-size: 1rem` and `white-space: nowrap` on `.home, .foot a`, and `font-size: 1rem` on `.foot`. Keep `min-height: 44px` and the NM-PHONE grid placement as they are.
+- **Done check:** `tests/night-market.html` gains checks that both links compute to at least 16px, have `white-space: nowrap`, are 44px or taller, and sit on one line, with a height under 2 lines of text at 320px, 390px and 844px widths. The existing Night Market checks still pass, and normal CI is green. The PR includes screenshots at 390x844, 844x390 and 320x568 for GAD.
+- **What I wire later:** nothing. GAD re-checks the screenshots, and Reviewer merges.
+- **Dependencies:** none.
+
+### Held until dependencies merge
+
+- Third-district content waits on #483.
+- Training-focus data waits on #480.
+- Per-tale art prompts wait on #482. NM-G4 writes prompts per vendor from `model.js`, so it does not need #482.
 
 ### WBW-4 to WBW-6
 
@@ -172,15 +268,6 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 
 ### Grok
 
-### LB-G4b. Crowd loop on the touchdown sound cues
-
-**Status:** Grok's current task. No pull yet.
-
-- **Scope:** Make the crowd cue in `games/lantern-bowl/sound-cues.js` loop seamlessly, per the review note on #474: https://github.com/ecbarish/generations/pull/474#issuecomment-6183447752.
-- **Files:** `games/lantern-bowl/sound-cues.js`, `tests/lantern-bowl-sound-cues.cjs`, and the listening page in `docs/playtests/lb-feel-sounds/`. Paste the node test output in the pull. Edit nothing else.
-- **Done when:** `node tests/lantern-bowl-sound-cues.cjs` passes, the crowd cue loops seamlessly, and normal CI stays green.
-- **Approval:** this has no dependency on another bot's approval.
-
 ### LB-G4. Touchdown fanfare and game-feel sound cues (LB-FEEL)
 
 **Status:** Done. Merged as #474.
@@ -235,7 +322,7 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 
 **WBW-3.** Grok. World connection graph.
 
-**Status:** No pull and no claim on #373. It is Grok's after LB-G4b. Dot does not start it.
+**Status:** No pull and no claim on #373. It is Grok's after NM-G5 and WBW-4, if it is still unclaimed. Dot does not start it.
 
 Section 9's Region, Map and Connection records are one data file listing 20 routes, 10 towns, 7 caves and 3 water routes. Each link has its gate (a badge, a story key, or a field lesson), its phase, and a one-way flag, which is set only for Glassfall.
 
@@ -339,7 +426,7 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ## Grok, now
 
-Grok's current task is LB-G4b. Make the crowd cue in `games/lantern-bowl/sound-cues.js` loop seamlessly, per the review note on #474: https://github.com/ecbarish/generations/pull/474#issuecomment-6183447752. Update `tests/lantern-bowl-sound-cues.cjs` and the listening page, and paste the node test output in the pull. After that, take WBW-6 if it is still free, then WBW-4. WBW-3 and LR-G1 stay on the list if nobody has claimed them. Either guest can take a free WBW-4, WBW-5 or WBW-6.
+Grok's current task is LB-G9, the crowd-loop fix. There is no LB-G4b row. Then WBW-6, LB-G7, NM-G4, NM-G5, WBW-4, and WBW-3 if it is still unclaimed.
 
 In review, and not a wait: LB-G6 is #481, and NM-G1 is #482.
 
@@ -360,7 +447,7 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, now
 
-Dot's current task is WBW-2. NM-G2 (#483) is ready, unblocked by https://github.com/ecbarish/generations/pull/483#issuecomment-6183588332. WBW-1 stays claimed as #485. After WBW-2, take WBW-5 if it is still free. Either guest can take a free WBW-4, WBW-5 or WBW-6.
+Dot's current task is WBW-2. Then NM-G2 (#483), which is ready and unblocked by https://github.com/ecbarish/generations/pull/483#issuecomment-6183588332, then LB-G8, LB-G10, NM-G3, and WBW-5. WBW-1 stays claimed as #485.
 
 **LB-PLAYBOOK-DATA.** Done. Merged as #451. Do not reopen it. The sentences below are the record of that row. #444 has also merged.
 
