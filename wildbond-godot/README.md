@@ -6,6 +6,7 @@ deciding (START-HERE.md "Questions for Evan" 1; docs/wildbond-plan.md).
 
 ## Unreleased
 
+- WB-ROAD (merged #467, 0002cb96, 2026-10-15): #467 only adds a Continue test and a report of the gaps it found, so nothing changes for players. Browser Wildbond stays at v1.8.1, because that label lives in game code. Godot Wildbond has no version number, so nothing is bumped.
 - #462 (merged 81e6ace, 2026-10-15): Bogsnap and Glimmerwing get real battle art and overworld sprites, in place of the blocky placeholders. The web pack in that merge includes the new art. Godot Wildbond has no version number, so this is a changelog line only.
 - WB-PHONE (merged #431, 2026-10-15): Wildbond now plays upright on phones, with a d-pad, A, B and Menu under the picture. The web pack in that merge includes this layout. Godot Wildbond has no version number, so this is a changelog line only.
 - The live web build now includes #429. The re-export in #443 (2db670b, 2026-10-14) put the Larkhaven menu, single taps that no longer also sign or choose, the status bar, and Catch in battle into the pack that players load. Godot Wildbond has no version number, so nothing is bumped.
