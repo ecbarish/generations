@@ -25,7 +25,7 @@ const OTHERS = { 'little-ranch-settings-v1': '{"sound":false}', 'wildbond-save-v
   const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true });
   const page = await ctx.newPage(); const errors = []; page.on('pageerror', e => errors.push(e.message)); const missing = []; page.on('response', r => { if (r.status() >= 400) missing.push(new URL(r.url()).pathname); }); page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
-  const shot = async name => { const f = path.join(out, name + '.png'); await page.screenshot({ path: f }); report.shots.push(name + '.png'); };
+  const shot = async (name, sel) => { if (sel) await page.locator(sel).scrollIntoViewIfNeeded(); else await page.evaluate(() => window.scrollTo(0, 0)); const f = path.join(out, name + '.png'); await page.screenshot({ path: f, fullPage: true }); report.shots.push(name + '.png'); };
   const ls = () => page.evaluate(() => Object.fromEntries(Object.keys(localStorage).sort().map(k => [k, localStorage.getItem(k)])));
   const save = () => page.evaluate(k => Arcade.load(k), KEY);
   const others = all => Object.fromEntries(Object.entries(all).filter(([k]) => !k.includes('night-market') && k !== 'arcade-index-v1'));
@@ -54,7 +54,7 @@ const OTHERS = { 'little-ranch-settings-v1': '{"sound":false}', 'wildbond-save-v
   check('Real serve clicks are saved straight away', played && played.cash > 0 || played && played.lifetime > 0, played && { cash: played.cash, lifetime: played.lifetime });
   await page.click('details.save summary'); await page.waitForSelector('#tools [data-arcsave="download"]');
   check('"Your save" opens and shows Download, Load a file and the automatic backups', await page.locator('#tools [data-arcsave="download"]').count() === 1 && await page.locator('#tools input[data-arcsave="file"]').count() === 1 && /Automatic backups \(\d+\)/.test(await page.locator('#tools .arc-bk summary').innerText()), await page.locator('#tools').innerText());
-  await shot('1-your-save-open');
+  await shot('1-your-save-open', 'details.save');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#tools [data-arcsave="download"]')]);
   const dlPath = path.join(out, 'downloaded-save.json'); await dl.saveAs(dlPath); const dlText = fs.readFileSync(dlPath, 'utf8');
   check('Download my save hands over a real file that is this game\'s save', /night-market-save-v1-\d{4}-\d\d-\d\d\.json$/.test(dl.suggestedFilename()) && JSON.parse(dlText).game === 'night-market' && JSON.parse(dlText).lifetime === played.lifetime, { name: dl.suggestedFilename() });
@@ -69,7 +69,7 @@ const OTHERS = { 'little-ranch-settings-v1': '{"sound":false}', 'wildbond-save-v
   await page.reload(); await page.waitForSelector('#away:not([hidden])', { timeout: 5000 }).catch(() => {});
   const awayText = await page.locator('#away').innerText();
   check('A reload after 2 hours away shows "While you were away" with the time and the coins earned', /While you were away/.test(awayText) && /2h/.test(awayText) && /coin/i.test(awayText), awayText);
-  await shot('2-away-summary-after-reload');
+  await shot('2-away-summary-after-reload', '#away');
   const afterAway = await save();
   check('The away coins are in the saved cash', afterAway.cash > played.cash, { before: played.cash, after: afterAway.cash });
   await page.click('#away [data-act="away"]');
@@ -90,7 +90,7 @@ const OTHERS = { 'little-ranch-settings-v1': '{"sound":false}', 'wildbond-save-v
   await page.click('details.save summary'); await page.waitForSelector('#tools input[data-arcsave="file"]'); const keep = await save(); dialogs = [];
   await page.setInputFiles('#tools input[data-arcsave="file"]', bad); await page.waitForFunction(() => /isn't a save/.test(document.querySelector('#tools .arc-save-msg').textContent));
   check('Another game\'s file is refused with a message and the save is untouched', (now => now.game === 'night-market' && JSON.stringify(now.stalls) === JSON.stringify(keep.stalls) && now.cash >= keep.cash)(await save()) && dialogs.length === 0, { msg: await page.locator('#tools .arc-save-msg').innerText(), dialogs, keep, now: await save() });
-  await shot('3-wrong-file-refused');
+  await shot('3-wrong-file-refused', 'details.save');
 
   // 4. Restore an automatic backup.
   await page.reload(); await page.click('details.save summary'); await page.waitForSelector('#tools .arc-bk');

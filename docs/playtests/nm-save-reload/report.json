@@ -54,7 +54,7 @@
       "pass": true,
       "detail": {
         "before": 20,
-        "after": 1820.004
+        "after": 1820.00425
       }
     },
     {
@@ -95,7 +95,7 @@
           "game": "night-market",
           "cash": 12345,
           "lifetime": 25,
-          "seen": 1792026010630,
+          "seen": 1792026068605,
           "bulk": 1,
           "stalls": [
             {
@@ -135,7 +135,7 @@
           "game": "night-market",
           "cash": 12345,
           "lifetime": 25,
-          "seen": 1792026010630,
+          "seen": 1792026068605,
           "bulk": 1,
           "stalls": [
             {
@@ -181,7 +181,7 @@
       "name": "Restore asks first, then reloads with the older save (the one from before the file load)",
       "pass": true,
       "detail": {
-        "cash": 1820.004
+        "cash": 1820.00425
       }
     },
     {
