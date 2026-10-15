@@ -150,20 +150,50 @@ static func _starter(game: Node, check: Callable) -> void:
 	game.card.visible = false
 
 static func _sprites(game: Node, check: Callable) -> void:
-	for id in ["bogsnap", "glimmerwing"]:
-		check.call(not game.Sprites.has(id) and not game.Sprites.has_battle_front(id), "%s has no painted sheet or battle front in the repo" % id)
+	check.call(game.battle._stage_px(1) == 44 and game.battle._stage_px(2) == 54 and game.battle._stage_px(3) == 64, "a battle figure's stage height is 44, 54 or 64")
+	check.call(game.battle.FIGURE_WIDTH_CAP == 62 and is_equal_approx(game.battle.FIGURE_LIMIT.end.y, 160.0), "a battle figure is at most 62 px wide and stands on the ground line at y160")
+	check.call(game.battle._figure_scale(Vector2i(26, 10), 1) == 2, "a 26×10 stage-1 figure is drawn at 2×, which is 52×20")
+	check.call(game.battle._figure_scale(Vector2i(15, 12), 1) == 3, "a 15×12 stage-1 figure is drawn at 3×, which is 45×36")
+	check.call(game.battle._battle_stage("bogsnap") == 1 and game.battle._battle_stage("glimmerwing") == 1 and game.battle._battle_stage("blazefang") == 3, "Bogsnap and Glimmerwing are stage 1, and a final form is stage 3")
 	var pose := { "ears_up": true }
-	var spot := Vector2(100, 158)
-	var limit := Rect2(2, 2, 380, 160)
-	for id in ["bogsnap", "glimmerwing"]:
+	var bare: Array = []
+	for id in game.DATA.SPECIES:
+		var sid := str(id)
+		if not game.Sprites.has(sid) and not game.Sprites.has_battle_front(sid):
+			bare.append(sid)
+	check.call(not bare.is_empty(), "a species with no sheet still uses the procedural battle figure")
+	game.battle.allies = [{}]
+	game.battle.foes = [{}]
+	var limit: Rect2 = game.battle.FIGURE_LIMIT
+	for id in bare:
 		var species: Dictionary = game.DATA.SPECIES[id]
+		var stage: int = int(game.battle._battle_stage(str(id)))
+		var stage_h: int = int(game.battle._stage_px(stage))
 		var parts: Array = game.Figures.sized_parts(species, true, pose)
 		var span: Vector2i = game.Figures.pixel_span(parts)
-		check.call(span.y >= 12 and span.y <= 32, "%s is drawn at the locked height (%d px)" % [id, span.y])
-		var bounds: Dictionary = game.Figures._bounds(parts)
-		var origin: Vector2 = game.battle._figure_origin(spot, parts)
-		var rect := Rect2(origin + Vector2(bounds.min_x, bounds.min_y), Vector2(bounds.max_x - bounds.min_x, bounds.max_y - bounds.min_y))
-		check.call(limit.encloses(rect) and rect.size.y <= 34.0, "%s stays fully on the battle screen at life size" % id)
+		var k: int = int(game.battle._figure_scale(span, stage))
+		var expect: int = maxi(1, mini(int(floor(float(stage_h) / float(span.y))), int(floor(float(game.battle.FIGURE_WIDTH_CAP) / float(span.x)))))
+		check.call(k == expect and k >= 1, "%s scales by a whole number from its stage height and the 62px cap (k %d, span %s)" % [id, k, span])
+		check.call(span.y * k <= stage_h or k == 1, "%s stays within its stage height of %d" % [id, stage_h])
+		check.call(span.x * k <= int(game.battle.FIGURE_WIDTH_CAP) or k == 1, "%s stays within the 62px width cap" % id)
+		for spot in [Vector2(100, 158), Vector2(286, 92), Vector2(168, 142)]:
+			var place: Dictionary = game.battle._figure_place(spot, str(id), parts)
+			var rect: Rect2 = place.rect
+			var clear := true
+			for box in game.battle._clearance_boxes():
+				if rect.intersects((box as Rect2).grow(float(game.battle.PANEL_CLEARANCE))):
+					clear = false
+			check.call(int(place.scale) == k and limit.encloses(rect) and rect.end.y <= 160.01 and clear, "%s at %s stays on screen, at %d×, and clear of the panels" % [id, spot, k])
+	var sample := str(bare[0])
+	var sample_parts: Array = game.Figures.sized_parts(game.DATA.SPECIES[sample], true, pose)
+	var sample_k: int = int(game.battle._figure_scale(game.Figures.pixel_span(sample_parts), game.battle._battle_stage(sample)))
+	game.battle.phone_view = Rect2(0, 0, 140, 216)
+	var phone_place: Dictionary = game.battle._figure_place(Vector2(100, 158), sample, sample_parts)
+	var phone_rect: Rect2 = phone_place.rect
+	check.call(int(phone_place.scale) == sample_k and game.battle.phone_view.encloses(phone_rect) and limit.encloses(phone_rect), "the upright frame keeps the same whole scale and holds the figure inside the view")
+	game.battle.phone_view = Rect2()
+	game.battle.allies = []
+	game.battle.foes = []
 
 static func _shut(game: Node) -> void:
 	for page in [game.title, game.howto, game.register, game.card, game.book, game.shop, game.lessons, game.turn_card]:

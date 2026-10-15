@@ -21,6 +21,13 @@ const SIZE_SCALE := { "tiny": 1, "small": 1, "medium": 1, "large": 1, "huge": 1 
 const PANEL_CLEARANCE := 4.0
 ## The message and command box. _box draws a 1px border outside this rect, so the top ink is y163.
 const COMMAND_BOX := Rect2(8, 164, 368, 46)
+## A procedural battle figure uses the locked battle frame, not the overworld height.
+## Stages 1, 2 and 3 stand 44, 54 and 64 px tall, and nothing is drawn wider than 62 px.
+## The factor is a whole number, so the 1px outline stays one pixel.
+const FIGURE_STAGE_H := [44, 54, 64]
+const FIGURE_WIDTH_CAP := 62
+## The battle view, ending on the fronts' ground line at y160. The command box's top ink is y163.
+const FIGURE_LIMIT := Rect2(2, 2, 380, 158)
 ## Each element's hit has its own animated effect (Ninja Adventure FX, CC0; assets/fx): [file, frame width, frames, tint].
 const EL_FX := { "Ember": ["ember", 25, 8, Color.WHITE], "Tide": ["tide", 40, 11, Color.WHITE], "Grove": ["grove", 30, 8, Color.WHITE],
 	"Stone": ["stone", 30, 14, Color.WHITE], "Gale": ["gale", 20, 8, Color.WHITE], "Shade": ["shade", 40, 9, Color("b080e8")],
@@ -88,6 +95,10 @@ var taught: Array = []                        # orders people have taught you (m
 var order_i := 0
 var tide_ready := false                       # Read the Tide: the next gathered attack is braced for
 var area := ""                                 # the area the battle happens in (main.gd sets it): its sky and skyline
+var phone_view := Rect2()                     # the phone frame's visible canvas; empty on the desktop
+var _parent_of: Dictionary = {}               # species id -> the forms it evolves from
+var _stage_memo: Dictionary = {}
+var _parents_built := false
 var max_level := 15                           # the level cap (main.gd sets it from your badges, CAP_TABLE)
 var bag: Dictionary = { "lures": 0, "berries": 0 }  # the satchel (main.gd owns it): lures for Catch, berries for Bag
 var sure_catch := false                       # the first wild meeting: the lure cannot miss (WBL-3)
@@ -863,7 +874,7 @@ func _draw_creature(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictiona
 	var foot := _painted_foot(stand + Vector2(0, 6), species_id, pose_name, zoom)
 	if Sprites.try_draw(self, species_id, foot, facing_right, pose_name, int(t * 8.0), zoom, 0.0, gear):
 		return
-	_draw_figure(stand, R.sp(u.c), facing_right, pose, look, zoom)
+	_draw_figure(stand, species_id, R.sp(u.c), facing_right, pose, look)
 
 func _battle_front_foot(spot: Vector2, species_id: String, scale: float) -> Vector2:
 	var sz := Sprites.battle_size(species_id)
@@ -871,32 +882,157 @@ func _battle_front_foot(spot: Vector2, species_id: String, scale: float) -> Vect
 		return spot
 	return Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
 
-## The pixel figure at the locked size: metres × 12.35, clamped to 12–32px, then the battle view's
-## integer factor of 1. The window's own integer stretch enlarges the whole view. The old zoom of 3 or 4
-## drew a placeholder several times that size and off the left edge.
-## Where the locked-size figure is drawn so its pixels stay inside the battle view.
-func _figure_origin(at: Vector2, parts: Array) -> Vector2:
-	var bounds: Dictionary = Figures._bounds(parts)
-	var origin := Vector2(round(at.x - 9.0), round(at.y - 12.0))
-	var rect := Rect2(origin + Vector2(bounds.min_x, bounds.min_y), Vector2(bounds.max_x - bounds.min_x, bounds.max_y - bounds.min_y))
-	var limit := Rect2(2, 2, 380, 160)
-	if rect.position.x < limit.position.x:
-		origin.x += limit.position.x - rect.position.x
-	elif rect.end.x > limit.end.x:
-		origin.x -= rect.end.x - limit.end.x
-	if rect.position.y < limit.position.y:
-		origin.y += limit.position.y - rect.position.y
-	elif rect.end.y > limit.end.y:
-		origin.y -= rect.end.y - limit.end.y
-	return origin
+## Stage 1, 2 or 3 from the evolution chain. A form nobody evolves into is stage 1.
+## A form two steps down a chain is stage 3. The height for that stage is 44, 54 or 64.
+func _stage_px(stage: int) -> int:
+	return int(FIGURE_STAGE_H[clampi(stage, 1, 3) - 1])
 
-func _draw_figure(at: Vector2, species: Dictionary, facing_right: bool, pose: Dictionary, look: Dictionary, _zoom: float) -> void:
+func _ensure_parents() -> void:
+	if _parents_built:
+		return
+	_parents_built = true
+	var evos: Dictionary = R.DATA.get("EVOS", {})
+	for from_id in evos.keys():
+		for opt in evos[from_id]:
+			if typeof(opt) != TYPE_DICTIONARY:
+				continue
+			_note_parent(str(opt.get("to", "")), str(from_id))
+	var species: Dictionary = R.DATA.get("SPECIES", {})
+	for from_id in species.keys():
+		var evo = species[from_id].get("evo", null)
+		if typeof(evo) != TYPE_DICTIONARY:
+			continue
+		_note_parent(str(evo.get("to", "")), str(from_id))
+
+func _note_parent(child: String, parent: String) -> void:
+	if child == "" or parent == "":
+		return
+	if not _parent_of.has(child):
+		_parent_of[child] = []
+	var parents: Array = _parent_of[child]
+	if parent not in parents:
+		parents.append(parent)
+
+func _battle_stage(species_id: String) -> int:
+	_ensure_parents()
+	return _stage_depth(species_id, {})
+
+func _stage_depth(species_id: String, stack: Dictionary) -> int:
+	if _stage_memo.has(species_id):
+		return int(_stage_memo[species_id])
+	if stack.has(species_id):
+		return 1
+	stack[species_id] = true
+	var depth := 1
+	for parent in _parent_of.get(species_id, []):
+		depth = maxi(depth, _stage_depth(str(parent), stack) + 1)
+	stack.erase(species_id)
+	depth = mini(depth, 3)
+	_stage_memo[species_id] = depth
+	return depth
+
+## k = max(1, min(floor(stage_h / h), floor(62 / w))). Whole pixels only.
+func _figure_scale(span: Vector2i, stage: int) -> int:
+	if span.x <= 0 or span.y <= 0:
+		return 1
+	var by_h := int(floor(float(_stage_px(stage)) / float(span.y)))
+	var by_w := int(floor(float(FIGURE_WIDTH_CAP) / float(span.x)))
+	return maxi(1, mini(by_h, by_w))
+
+## Feet start where a battle front's feet start. Clearance runs first, then the view clamp.
+## The phone frame, when it is set, keeps that same scale and slides the figure back inside.
+func _figure_place(at: Vector2, species_id: String, parts: Array) -> Dictionary:
+	var bounds: Dictionary = Figures._bounds(parts)
+	var span := Figures.pixel_span(parts)
+	var k := _figure_scale(span, _battle_stage(species_id))
+	var foot := Vector2(round(at.x), round(at.y)) + Vector2(0, 6)
+	foot = Sprites.foot_clear_of(foot, span, float(k), _clearance_boxes(), PANEL_CLEARANCE)
+	foot = _slide_foot(foot, span, float(k), FIGURE_LIMIT)
+	if phone_view.size.x >= 1.0:
+		foot = _slide_foot(foot, span, float(k), phone_view)
+	var origin := Vector2(
+		foot.x - float(bounds.min_x + bounds.max_x) * float(k) / 2.0,
+		foot.y - float(int(bounds.max_y) + 1) * float(k)
+	)
+	origin = Vector2(round(origin.x), round(origin.y))
+	var rect := Rect2(origin + Vector2(int(bounds.min_x) - 1, int(bounds.min_y) - 1) * float(k), Vector2(span) * float(k))
+	var nudge := _nudge_figure(rect)
+	origin += nudge
+	rect.position += nudge
+	return {"origin": origin, "rect": rect, "scale": k, "span": span, "stage": _battle_stage(species_id)}
+
+func _slide_foot(foot: Vector2, span: Vector2i, scale: float, limit: Rect2) -> Vector2:
+	if limit.size.x < 1.0 or span.x <= 0 or span.y <= 0:
+		return foot
+	var rect := Sprites.dest_rect(foot, span, scale)
+	var dx := 0.0
+	var dy := 0.0
+	if rect.position.x < limit.position.x:
+		dx = limit.position.x - rect.position.x
+	elif rect.end.x > limit.end.x:
+		dx = limit.end.x - rect.end.x
+	if rect.position.y < limit.position.y:
+		dy = limit.position.y - rect.position.y
+	elif rect.end.y > limit.end.y:
+		dy = limit.end.y - rect.end.y
+	return foot + Vector2(dx, dy)
+
+## A last whole-pixel shove, after rounding, so the drawn rect stays in the view and off the panels.
+func _nudge_figure(rect: Rect2) -> Vector2:
+	var shift := Vector2.ZERO
+	var moved := rect
+	for _step in 4:
+		var delta := _limit_delta(moved, FIGURE_LIMIT)
+		if phone_view.size.x >= 1.0:
+			delta += _limit_delta(moved, phone_view)
+		for box in _clearance_boxes():
+			var keep: Rect2 = (box as Rect2).grow(PANEL_CLEARANCE)
+			if not moved.intersects(keep):
+				continue
+			var hit := moved.intersection(keep)
+			if hit.size.x <= 0.0 or hit.size.y <= 0.0:
+				continue
+			var spans_the_sprite := hit.size.x + 0.5 >= moved.size.x
+			var clips_the_feet := hit.position.y >= moved.position.y + moved.size.y * 0.5
+			if spans_the_sprite and clips_the_feet:
+				delta.y += floor(keep.position.y) - moved.end.y
+			elif moved.get_center().x <= keep.get_center().x:
+				delta.x -= ceil(hit.size.x)
+			else:
+				delta.x += ceil(hit.size.x)
+		delta = Vector2(round(delta.x), round(delta.y))
+		if delta == Vector2.ZERO:
+			break
+		moved.position += delta
+		shift += delta
+	return shift
+
+func _limit_delta(rect: Rect2, limit: Rect2) -> Vector2:
+	var delta := Vector2.ZERO
+	if rect.position.x < limit.position.x:
+		delta.x += limit.position.x - rect.position.x
+	elif rect.end.x > limit.end.x:
+		delta.x += limit.end.x - rect.end.x
+	if rect.position.y < limit.position.y:
+		delta.y += limit.position.y - rect.position.y
+	elif rect.end.y > limit.end.y:
+		delta.y += limit.end.y - rect.end.y
+	return delta
+
+## The procedural figure, scaled by a whole factor and filtered nearest. Painted fronts and side sheets
+## take the earlier paths. This is the fallback for a species with neither.
+func _draw_figure(at: Vector2, species_id: String, species: Dictionary, facing_right: bool, pose: Dictionary, look: Dictionary) -> void:
 	var parts := Figures.sized_parts(species, facing_right, pose, look)
 	if parts.is_empty():
 		return
-	draw_set_transform(_figure_origin(at, parts), 0.0, Vector2.ONE)
+	var place: Dictionary = _figure_place(at, species_id, parts)
+	var k := int(place.scale)
+	var prev := texture_filter
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	draw_set_transform(place.origin, 0.0, Vector2(k, k))
 	Figures.paint(self, Vector2.ZERO, parts)
 	draw_set_transform(Vector2.ZERO)
+	texture_filter = prev
 
 ## Feet on the bottom edge of the sprite. If that rect would sit under a health panel, slide the
 ## feet aside. The caller keeps the same whole-number scale.
@@ -1145,7 +1281,7 @@ func _draw_joined(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictionary
 		var sc := 5.0
 		var foot := _painted_foot(stand + Vector2(0, 8), species_id, "idle", sc)
 		if not Sprites.try_draw(self, species_id, foot, true, "idle", 0, sc, 0.0, str(u.c.get("gear", ""))):
-			_draw_figure(stand, R.sp(u.c), true, pose, look, sc)
+			_draw_figure(stand, species_id, R.sp(u.c), true, pose, look)
 	if not tamer_look.is_empty():
 		draw_set_transform(at + Vector2(-26, -70), 0, Vector2(2.4, 2.4))   # you, within its shape, facing the foe with it
 		Figures.person(self, Vector2.ZERO, Vector2i.RIGHT, false, 0, false, tamer_look)
