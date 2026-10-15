@@ -4,7 +4,8 @@
 document.querySelector('#run').onclick=async()=>{
  const sum=document.querySelector('#summary'),list=document.querySelector('#results'),button=document.querySelector('#run');
  button.disabled=true;list.replaceChildren();sum.textContent='Running…';let frame,n=0;
- const keys=Object.keys(localStorage).slice().sort().join('|');
+ const stored=()=>JSON.stringify(Object.keys(localStorage).sort().map(k=>[k,localStorage.getItem(k)]));
+ const storageBefore=stored();
  const check=(name,ok)=>{n++;const li=document.createElement('li');li.className=ok?'pass':'fail';li.textContent=(ok?'PASS — ':'FAIL — ')+name;list.appendChild(li);if(!ok)throw Error(name);};
  const near=(a,b,e=0.01)=>Math.abs(a-b)<=e;const wait=(ms=60)=>new Promise(r=>setTimeout(r,ms));
  try{
@@ -55,6 +56,28 @@ document.querySelector('#run').onclick=async()=>{
   check('the worksheet is locked while you answer',d.querySelector('#offerBtn').disabled&&d.querySelector('[data-offer="2000"]').disabled);
   click('[data-act="take"]');await wait();
   check('taking the counter buys it: the year shows twelve months and a verdict',d.querySelectorAll('.months li').length===12&&/A great buy/.test(text('#answer'))&&text('#offer')==='$216,000');
+  // KM-MONTH: inspect real bought-year cells, including the old 420px breakpoint.
+  // A Range measures the amount's text rather than only its parent's border box.
+  const monthLayout=async(label)=>{
+   for(const [width,height] of [[320,568],[360,800],[375,812],[390,844],[420,812],[421,812],[479,812],[480,812],[481,812],[600,800],[812,375],[859,768],[860,768],[1366,768],[1920,1080]]){
+    frame.style.width=width+'px';frame.style.height=height+'px';await wait(120);
+    const cells=Array.from(d.querySelectorAll('.months li')),grid=d.querySelector('.months');
+    check(label+' '+width+'×'+height+': twelve months stay visible',cells.length===12&&cells.every(c=>c.getBoundingClientRect().width>0));
+    check(label+' '+width+'×'+height+': the year does not scroll sideways',d.documentElement.scrollWidth<=width&&grid.scrollWidth<=grid.clientWidth);
+    check(label+' '+width+'×'+height+': amounts remain whole and inside their cells',cells.every(c=>{
+     const node=Array.from(c.childNodes).find(n=>n.nodeType===3&&n.textContent.trim());
+     if(!node)return false;
+     const range=d.createRange();range.selectNodeContents(node);
+     const rects=Array.from(range.getClientRects()),box=c.getBoundingClientRect(),style=w.getComputedStyle(c);
+     const left=box.left+parseFloat(style.borderLeftWidth)+parseFloat(style.paddingLeft),right=box.right-parseFloat(style.borderRightWidth)-parseFloat(style.paddingRight);
+     return rects.length===1&&rects[0].left>=left-0.5&&rects[0].right<=right+0.5;
+    }));
+    check(label+' '+width+'×'+height+': event notes stay inside their cells',cells.every(c=>c.scrollWidth<=c.clientWidth));
+   }
+  };
+  const boughtBefore=JSON.stringify(H.S),yearBefore=text('#answer');
+  await monthLayout('Counter/full renovation');
+  check('resizing preserves the bought deal and scripted year',JSON.stringify(H.S)===boughtBefore&&text('#answer')===yearBefore);
   click('[data-act="again"]');await wait();
   check('try again goes back to the start',text('#offer')==='$240,000'&&d.querySelector('#answer').hidden&&!d.querySelector('#offerBtn').disabled);
   for(let i=0;i<25;i++)click('[data-offer="-2000"]');
@@ -64,13 +87,19 @@ document.querySelector('#run').onclick=async()=>{
   check('passing shows what the next buyer made',/Another investor bought it for \$216,000/.test(text('#answer')));
   click('[data-act="again"]');await wait();
   for(let i=0;i<30;i++)click('[data-offer="2000"]');check('the offer has a ceiling',text('#offer')==='$260,000'&&d.querySelector('[data-offer="2000"]').disabled);
+  click('[data-rehab="asis"]');click('[data-down="0.2"]');click('#offerBtn');await wait();
+  check('a repeated purchase shows the low-rent year with negative event amounts',d.querySelectorAll('.months li').length===12&&Array.from(d.querySelectorAll('.months li.event')).some(c=>c.textContent.includes('−$')));
+  await monthLayout('As-is/20% down/highest offer');
+  click('[data-act="again"]');await wait();click('#offerBtn');await wait();
+  await monthLayout('Refresh/default offer');
+  click('[data-act="again"]');await wait();
   // ---- phone and desktop
   for(const [width,height] of [[320,568],[375,812],[812,375],[1366,768],[1920,1080]]){
    frame.style.width=width+'px';frame.style.height=height+'px';await wait(120);
    check(width+'×'+height+': nothing spills sideways',d.documentElement.scrollWidth<=width);
    check(width+'×'+height+': every button is at least 44px tall',Array.from(d.querySelectorAll('button')).filter(b=>b.offsetParent!==null).every(b=>b.getBoundingClientRect().height>=44));
   }
-  check('nothing is saved',Object.keys(localStorage).slice().sort().join('|')===keys);
+  check('existing storage keys and values are unchanged',stored()===storageBefore);
   sum.textContent='PASS — '+n+' checks.';
  }catch(e){sum.textContent='FAIL — '+e.message;}finally{if(frame)frame.remove();button.disabled=false;}
 };
