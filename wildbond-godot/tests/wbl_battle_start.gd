@@ -118,13 +118,8 @@ static func _objective(game: Node, check: Callable) -> void:
 	game.map_name = "larkhaven"
 	game.badges.clear()
 	game._update_ui()
-	check.call(game.objective.line == "Take the north road to Thornwood, then meet someone wild in the tall grass.", "WBL-8: before the first catch, Larkhaven's objective names the road to the tall grass")
-	_fits(game, check, "WBL-8: the road objective fits its box")
-	game.map_name = "thornwood_route"
-	game._update_ui()
-	check.call(game.objective.line == "Meet someone wild in the tall grass.", "WBL-4: out on the road, before the first catch, the objective is a wild meeting")
+	check.call(game.objective.line == "Meet someone wild in the tall grass.", "WBL-4: before the first catch, the objective is a wild meeting")
 	_fits(game, check, "WBL-4: the wild-meeting objective fits its box")
-	game.map_name = "larkhaven"
 	game.battle.sure_catch = true
 	game.battle.kind = "wild"
 	game.battle.state = "choose"

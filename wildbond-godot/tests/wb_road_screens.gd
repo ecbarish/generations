@@ -1,7 +1,7 @@
 extends SceneTree
-## WB-ROAD pictures: the Larkhaven north road before you set out, the first step onto the Thornwood road, and the title
-## page and the place you land after Continue. Needs a real window (xvfb-run is fine). OUT=/dir picks the folder.
-const RC := preload("res://tests/road_continue.gd")
+## WB-ROAD pictures: the Larkhaven goal before you set out, the first step onto the Thornwood road, and the title page
+## and the place you land after Continue when the game is closed a moment after crossing the road (the quick-quit gap). Needs a real window (xvfb-run is fine). OUT=/dir picks the folder.
+const RC := preload("res://tests/wbl_continue.gd")
 var out := OS.get_environment("OUT") if OS.get_environment("OUT") != "" else "/tmp/wb-road"
 
 func _initialize() -> void:
