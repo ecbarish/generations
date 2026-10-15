@@ -224,7 +224,7 @@ static func modal_handoffs(game: Node, check: Callable) -> void:
 		game.lines.clear()
 		game.stage = "barn_choose"
 		game.card.open("ripplet", game.card_info("ripplet"))
-		check.call(game.card.sel == 1, "WB-FUNNEL1 %s: the starter card retains its safe Not yet default" % mode)
+		check.call(game.card.sel == 0, "WB-FUNNEL1 %s: the starter card opens on Choose" % mode)
 		game.card.sel = 0
 		event = event_for(game, mode, true)
 		if mode == "emulated": event.position = game.get_viewport().get_screen_transform() * Vector2(230, 190)
