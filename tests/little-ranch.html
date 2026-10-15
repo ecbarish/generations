@@ -26,6 +26,8 @@ document.querySelector('#run').onclick = async () => {
     LR.setRoutine(false); // LR7: the older bedtime checks run straight to the lullaby; LR7's own section turns the routine on
     LR.setFriend(false); LR.newVisit(); // LR4: the friend's visits are random; the older checks run without it, LR4's with it
     const ev = (el, type, p) => el.dispatchEvent(new w.PointerEvent(type, { pointerId: pid, clientX: p.x, clientY: p.y, bubbles: true, cancelable: true, isPrimary: true }));
+    const DUSK_FULL = LR.DUSK_SECS + 1;
+    const NIGHT_FULL = LR.ROUTINE_WAIT * 3 + LR.DUSK_SECS + 25;
     const tap = q => { const p = LR.toScreen(q); pid++; ev(cv, 'pointerdown', p); ev(cv, 'pointerup', p); };
     const drag = (a, b, steps) => { pid++; ev(cv, 'pointerdown', LR.toScreen(a)); for (let i = 1; i <= steps; i++) { ev(cv, 'pointermove', LR.toScreen({ x: a.x + (b.x - a.x) * i / steps, y: a.y + (b.y - a.y) * i / steps })); LR.advance(.05); } ev(cv, 'pointerup', LR.toScreen(b)); };
     const S = () => LR.state, L = () => LR.layout, baby = () => ({ x: S().baby.x, y: L().home.y - L().size * .9 });
@@ -78,7 +80,7 @@ document.querySelector('#run').onclick = async () => {
     LR.advance(LR.BOW_SECS + .5); check('After a few seconds the rainbow fades, the count starts again and the baby settles', !S().sun.bow && S().sun.taps === 0 && S().baby.act === null);
     LR.advance(3); check('...and the sun goes back to normal', S().sun.glow === 0);
     tap(sun()); LR.advance(11); check('A forgotten tap or two just wears off (no rush, nothing lost)', S().sun.taps === 0);
-    LR.newVisit(); S().acts = LR.BEDTIME_ACTS; LR.advance(14); for (let i = 0; i < 6; i++) tap(sun());
+    LR.newVisit(); S().acts = LR.BEDTIME_ACTS; LR.advance(DUSK_FULL); for (let i = 0; i < 6; i++) tap(sun());
     check('At night there is no sun to tap: no rainbow', S().mode === 'sleep' && S().sun.taps === 0 && !S().sun.bow);
 
     // ---- choosing a different toy must not leave a meal stuck forever
@@ -128,7 +130,7 @@ document.querySelector('#run').onclick = async () => {
 
     // ---- bedtime ends the visit gently
     LR.newVisit(); S().acts = LR.BEDTIME_ACTS; LR.advance(.2); check('After enough play the baby yawns and the sky starts to turn', S().mode === 'dusk' && S().baby.act === 'yawn');
-    LR.advance(12); check('Then night: the baby curls up asleep and the visit is over', S().mode === 'sleep' && S().baby.act === 'sleep' && S().dusk === 1 && S().lullabyAt !== null);
+    LR.advance(DUSK_FULL); check('Then night: the baby curls up asleep and the visit is over', S().mode === 'sleep' && S().baby.act === 'sleep' && S().dusk === 1 && S().lullabyAt !== null);
     tap(L().bowl); tap({ x: L().bush.x, y: L().bush.y }); tap({ x: L().home.x - L().size * 3, y: L().ground * .4 }); LR.advance(1); check('At bedtime taps away from the baby only twinkle; it stays asleep', S().mode === 'sleep' && S().baby.act === 'sleep' && S().bowl.food === 0 && S().wake === 0);
 
     // ---- LR12: six taps on the sleeping baby wake it up for a fresh day
@@ -142,7 +144,7 @@ document.querySelector('#run').onclick = async () => {
     check('The sky starts at night and brightens', S().dawn === true && S().dusk > .9);
     LR.advance(3); check('A few seconds later: sunny morning, ready to play', S().dawn === false && S().dusk === 0 && S().mode === 'play' && S().baby.act === null);
     tap(L().bowl); check('And the day works as before (the bowl fills)', S().bowl.food === 1);
-    LR.advance(5); S().acts = LR.BEDTIME_ACTS; LR.advance(14); check('The new day ends in bedtime again', S().mode === 'sleep' && S().baby.act === 'sleep');
+    LR.advance(5); S().acts = LR.BEDTIME_ACTS; LR.advance(DUSK_FULL + 3); check('The new day ends in bedtime again', S().mode === 'sleep' && S().baby.act === 'sleep');
 
     // ---- LR14: the moon's song (night only; the baby sleeps on)
     const moon = () => LR.moonAt(), M = () => S().moon;
@@ -415,8 +417,8 @@ document.querySelector('#run').onclick = async () => {
       LR.advance(12); check('...and sleep', S().mode === 'sleep' && S().baby.act === 'sleep' && S().friend.act === 'sleep');
       LR.setFriend(false); LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(4);
       check('Without the friend, goodnight is just the flowers', JSON.stringify(Rt().said) === '{}');
-      LR.advance(9); check('Never stuck: a step left alone does itself (teeth)', Rt().step >= 1);
-      LR.advance(40); check('...all the way to the lullaby and sleep, with no taps at all', S().mode === 'sleep' && S().baby.act === 'sleep' && Rt().step === 3);
+      LR.advance(LR.ROUTINE_WAIT + 2); check('Never stuck: a step left alone does itself (teeth)', Rt().step >= 1);
+      LR.advance(LR.ROUTINE_WAIT * 2 + LR.DUSK_SECS + 20); check('...all the way to the lullaby and sleep, with no taps at all', S().mode === 'sleep' && S().baby.act === 'sleep' && Rt().step === 3);
       LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(4); const t9 = LR.tones; LR.prefs.sound = false; tap(I()); LR.advance(2); tap(I()); LR.advance(2); tap(L().flowers[0]); LR.advance(30);
       check('With the sound off the routine and lullaby are silent', LR.tones === t9 && S().mode === 'sleep'); LR.prefs.sound = true;
       tap(baby()); check('The six wake taps still work after the routine', S().wake === 1);
@@ -436,7 +438,7 @@ document.querySelector('#run').onclick = async () => {
     tap(L().ksign); const wFood = heard('berries'); tap(L().kitchen.foods[0]);
     check('Tapping a food says its name', heard('berries') === wFood + 1);
     tap(L().kitchen.barn); LR.advance(.2);
-    const nights = heard('Night night'); LR.setRoutine(true); LR.bedtime(); LR.advance(50);
+    const nights = heard('Night night'); LR.setRoutine(true); LR.bedtime(); LR.advance(LR.ROUTINE_WAIT * 4 + LR.DUSK_SECS + 20);
     check('Bedtime says night night once, then the baby is asleep', heard('Night night') === nights + 1 && S().mode === 'sleep');
     LR.prefs.sound = false; const quiet = LR.words.length;
     tap(baby()); for (let i = 0; i < 6; i++) { tap(baby()); LR.advance(.2); }
@@ -554,7 +556,7 @@ document.querySelector('#run').onclick = async () => {
         check(`${room.name}, ${friend ? 'with' : 'without'} friend: no early bedtime before six minutes`, S().mode === 'play' && S().place === room.name && S().routine === null);
         LR.advance(LR.BEDTIME_GRACE + .5);
         check(`${room.name}, ${friend ? 'with' : 'without'} friend: unfinished play returns home to the real bedtime routine without a reward`, S().place === 'ranch' && S().mode === 'dusk' && !!S().routine && S().routine.step === 0 && S().lullabyAt === null && S().acts === 0);
-        LR.advance(50);
+        LR.advance(NIGHT_FULL);
         check(`${room.name}, ${friend ? 'with' : 'without'} friend: the unattended routine reaches sleep, with nothing stale left active`, asleep() && clean() && S().acts === 0 && S().paint === null);
       }
 
@@ -576,7 +578,7 @@ document.querySelector('#run').onclick = async () => {
         fresh(); enter(room); prepare(); S().acts = LR.BEDTIME_ACTS;
         LR.advance(LR.BEDTIME_GRACE + .2);
         check(`${name}: the action limit starts bedtime within the same grace, without an unfinished-room reward`, S().mode === 'dusk' && S().place === 'ranch' && S().acts === LR.BEDTIME_ACTS && !!S().routine);
-        LR.advance(50); check(`${name}: no delayed completion or stale callback after sleep`, asleep() && clean() && S().acts === LR.BEDTIME_ACTS);
+        LR.advance(NIGHT_FULL); check(`${name}: no delayed completion or stale callback after sleep`, asleep() && clean() && S().acts === LR.BEDTIME_ACTS);
       }
       fresh(); enter(rooms[1]); loadWagon(); LR.advance(15); S().t = LR.BEDTIME_SECS - .2; tap(L().wagon.cars[0]);
       LR.advance(.5); check('A wagon gate already swinging open at 359.8 seconds gets its short finish grace', S().place === 'wagon' && S().mode === 'play' && S().wagon.gate.at !== null);
@@ -597,7 +599,7 @@ document.querySelector('#run').onclick = async () => {
         const shift = LR.BEDTIME_SECS - .1 - S().t; S().t += shift; toy[clock] += shift;
         LR.advance(.3); check(`${room.name}: bedtime allows the already-started completion animation to finish`, S().mode === 'play' && S().place === room.name && S().acts === 0);
         LR.advance(LR.BEDTIME_GRACE + .2); check(`${room.name}: a natural finish near expiry awards exactly once and then starts bedtime`, S().place === 'ranch' && S().mode === 'dusk' && S().acts === 1);
-        LR.advance(50); check(`${room.name}: the completed toy cannot award again during the routine`, asleep() && clean() && S().acts === 1);
+        LR.advance(NIGHT_FULL); check(`${room.name}: the completed toy cannot award again during the routine`, asleep() && clean() && S().acts === 1);
       }
 
       // A room can freeze a ranch walk/meal/bath. Neither automatic nor explicit bedtime may revive it.
@@ -610,7 +612,7 @@ document.querySelector('#run').onclick = async () => {
       ]) {
         fresh(true); prepare(); enter(room); S().acts = LR.BEDTIME_ACTS; LR.advance(LR.BEDTIME_GRACE + .2);
         check(`Entering ${room.name} during a ${name}: bedtime clears the frozen work`, S().mode === 'dusk' && S().place === 'ranch' && clean());
-        LR.advance(50); check(`Frozen ${name}: the yawn and routine reach sleep without a late award`, asleep() && S().acts === LR.BEDTIME_ACTS);
+        LR.advance(NIGHT_FULL); check(`Frozen ${name}: the yawn and routine reach sleep without a late award`, asleep() && S().acts === LR.BEDTIME_ACTS);
       }
       for (const room of rooms) {
         fresh(); LR.act.feed(); LR.act.bath(); enter(room); LR.bedtime();
@@ -626,27 +628,27 @@ document.querySelector('#run').onclick = async () => {
         check(`${room.name}: the held finger cannot defer bedtime forever`, S().mode === 'dusk' && S().place === 'ranch' && clean() && !!routine);
         ev(cv, 'pointermove', p); ev(cv, 'pointerup', p); ev(cv, 'pointercancel', p);
         check(`${room.name}: late move, lift and cancel cannot re-enter or change bedtime`, S().mode === 'dusk' && S().place === 'ranch' && S().routine === routine && S().acts === LR.BEDTIME_ACTS && clean());
-        LR.advance(50); ev(cv, 'pointerup', p); ev(cv, 'pointercancel', p);
+        LR.advance(NIGHT_FULL); ev(cv, 'pointerup', p); ev(cv, 'pointercancel', p);
         check(`${room.name}: late release stays harmless after sleep too`, asleep() && S().wake === 0 && S().acts === LR.BEDTIME_ACTS);
       }
 
       fresh(); S().t = LR.BEDTIME_SECS - .1;
       for (let i = 0; i < 40 && S().mode === 'play'; i++) { tap(L().flowers[i % L().flowers.length]); LR.advance(.2); }
       check('Continuous flower taps cannot keep resetting the six-minute bedtime grace', S().mode === 'dusk' && S().t <= LR.BEDTIME_SECS + LR.BEDTIME_GRACE + .3 && !!S().routine);
-      LR.advance(50); check('A nonstop flower song still ends with the normal routine and sleep', asleep());
+      LR.advance(NIGHT_FULL); check('A nonstop flower song still ends with the normal routine and sleep', asleep());
 
       fresh(); pid++; ev(cv, 'pointerdown', LR.toScreen(L().flowers[0])); S().acts = LR.BEDTIME_ACTS;
       for (let i = 0; i < 32; i++) { ev(cv, 'pointermove', LR.toScreen(L().flowers[i % L().flowers.length])); LR.advance(.2); }
       check('A continuous held flower drag also reaches bedtime and releases its gesture', S().mode === 'dusk' && !!S().routine && !S().down);
       const sungAtBedtime = S().sung, actsAtBedtime = S().acts;
       ev(cv, 'pointermove', LR.toScreen(L().flowers[4])); ev(cv, 'pointerup', LR.toScreen(L().flowers[4])); ev(cv, 'pointercancel', LR.toScreen(L().flowers[4]));
-      LR.advance(50); check('The old flower drag cannot sing, award play or wake the baby after bedtime', asleep() && S().sung === sungAtBedtime && S().acts === actsAtBedtime && S().wake === 0);
+      LR.advance(NIGHT_FULL); check('The old flower drag cannot sing, award play or wake the baby after bedtime', asleep() && S().sung === sungAtBedtime && S().acts === actsAtBedtime && S().wake === 0);
 
       fresh(); pid++; ev(cv, 'pointerdown', LR.toScreen(L().sponge)); ev(cv, 'pointermove', LR.toScreen(baby()));
       check('The held-sponge fixture really is mid-scrub', !!S().sponge.drag && S().sponge.scrubbed);
       S().acts = LR.BEDTIME_ACTS; LR.advance(LR.BEDTIME_GRACE + .2);
       check('A held sponge is released at bedtime without crediting an unfinished bath', S().mode === 'dusk' && clean() && S().acts === LR.BEDTIME_ACTS);
-      ev(cv, 'pointerup', LR.toScreen(baby())); ev(cv, 'pointercancel', LR.toScreen(baby())); LR.advance(50);
+      ev(cv, 'pointerup', LR.toScreen(baby())); ev(cv, 'pointercancel', LR.toScreen(baby())); LR.advance(NIGHT_FULL);
       check('Lifting the old sponge cannot start a new bath or add a reward after bedtime', asleep() && clean() && S().acts === LR.BEDTIME_ACTS);
 
       for (let i = 0; i < LR.WAKE_TAPS; i++) { tap(baby()); LR.advance(.2); }
@@ -657,7 +659,7 @@ document.querySelector('#run').onclick = async () => {
       LR.newVisit(); ev(cv, 'pointerup', LR.toScreen(L().flowers[0])); LR.advance(LR.BEDTIME_GRACE + 1);
       check('New visit cancels even a pending grace and held finger', S().mode === 'play' && S().bedtimeAt === null && S().acts === 0 && S().routine === null && clean());
       LR.advance(LR.BEDTIME_SECS - S().t - .2); check('The reset visit gets its own full six minutes', S().mode === 'play');
-      LR.advance(.5); LR.advance(50); check('That fresh visit still ends normally when its own clock expires', asleep());
+      LR.advance(.5); LR.advance(NIGHT_FULL); check('That fresh visit still ends normally when its own clock expires', asleep());
       check('The full bedtime matrix is silent when muted and never changes saved sound or unrelated storage', LR.tones === silentTones && LR.words.length === silentWords && localStorage.getItem(PREF) === savedPref && others() === before);
       LR.prefs.sound = savedSound;
     }
@@ -734,6 +736,50 @@ document.querySelector('#run').onclick = async () => {
       if (width === 1024 && height === 594) check('Desktop 1024×594: the stamped cookie is 18 px', round(L().dough.cr * .9) === 18);
       await watchCookies(label);
     }
+    // ---- LR-POLISH: colour dots, the fox's answer, sign wiggle, bedtime cues, dusk fade, leaving the shed early
+    LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false);
+    for (const [width, height] of [[375, 812], [1280, 800], [820, 1180]]) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const V = L().dough, sc = LR.scale, r = cv.getBoundingClientRect(), dists = (a, b2) => Math.hypot(a.x - b2.x, a.y - b2.y);
+      check(`LR-POLISH ${width}×${height}: four colour dots, each 64 px+, on screen, on the wall and clear of the barn picture`, V.dots.length === 4 && V.dots.every(q => V.dr * 2 * sc >= 64 && LR.toScreen(q).x - V.dr * sc > r.left && LR.toScreen(q).x + V.dr * sc < r.right && q.y + V.dr < V.ty && dists(q, V.barn) > V.dr + V.barn.r) && V.dots.every((q, i) => i === 0 || q.x - V.dots[i - 1].x >= V.dr * 2));
+      tap(L().tsign); const acts0 = S().acts, base = LR.doughCol(), cols = []; let tonesOk = true;
+      for (let i = 0; i < 4; i++) { const t0 = LR.tones; tap(V.dots[i]); cols.push(LR.doughCol()); tonesOk = tonesOk && LR.tones > t0 && S().dough.col === i; }
+      check(`LR-POLISH ${width}×${height}: tapping a colour dot tints the dough at once, each dot a different colour, with a sound and no count`, new Set(cols).size === 4 && !cols.includes(base) && tonesOk && S().acts === acts0 && S().dough.phase === 'play');
+      tap(V.dots[2]); tap(V.lump); tap(V.cutter); LR.advance(LR.STAMP_SECS + .1);
+      check('LR-POLISH: the dough keeps the chosen colour while you squish and stamp', S().dough.col === 2 && LR.doughCol() === cols[2]);
+      LR.advance(1.2); const hp = S().dough.pose && S().dough.pose.hops[0];
+      check(`LR-POLISH ${width}×${height}: a hopping cookie is clear of the cutter (LRL-8, LRL-9 stay fixed)`, !hp || Math.abs(hp.x - V.cutter.x) > V.cr * 1.2 || Math.abs(hp.y - V.cutter.y) > V.cr * 1.2);
+      tap(V.barn); LR.advance(.2);
+    }
+    LR.newVisit(); LR.advance(.1); tap(L().tsign); check('LR-POLISH: a new visit starts with the usual dough colour', S().dough.col === -1); tap(L().dough.barn);
+    // the fox answers when fed
+    { LR.newVisit(); LR.advance(.1); const t0 = LR.tones, h0 = S().fx.filter(f => f.kind === 'heart').length; tap(L().bowl);
+      check('LR-POLISH: feeding the fox answers in the same instant: a sound, hearts, a hop and a bouncing bowl', LR.tones > t0 && S().fx.filter(f => f.kind === 'heart').length >= h0 + 2 && S().baby.perk === S().t && S().bowl.pop > 0);
+      LR.advance(.5); const t1 = LR.tones; tap(L().bowl); check('LR-POLISH: tapping the bowl again still answers (a sound and a bounce) and queues nothing', LR.tones > t1 && S().bowl.pop > 0 && S().bowl.food > 0 && S().acts === 0);
+      LR.advance(6); check('LR-POLISH: the meal still ends once, with the usual cheer', S().acts === 1 && S().bowl.food === 0 && S().baby.act === null && S().bowl.pop === 0); }
+    // signs take turns to give one small wiggle when nobody is touching anything
+    { const SG = ['sign', 'wsign', 'ksign', 'tsign', 'dsign']; LR.newVisit(); LR.advance(.1); const seen = new Set(); let frames = 0, big = 0; for (let i = 0; i < 200; i++) { LR.advance(.25); let any = false; for (const k of SG) { if (S()[k].shake > .5) seen.add(k); if (S()[k].shake > 0) any = true; if (S()[k].shake > 1) big++; } if (any) frames++; }
+      check('LR-POLISH: left alone, every sign takes a turn to wiggle (all five within 50 seconds)', seen.size === 5);
+      check('LR-POLISH: the wiggle is gentle: no bigger than a tap, one every 9 seconds, and a sign moves in under a third of the frames', LR.SIGN_WIGGLE_GAP >= 8 && big === 0 && frames / 200 < .3);
+      const mm = frame.contentWindow.matchMedia; frame.contentWindow.matchMedia = q => ({ matches: /reduce/.test(q), addEventListener() {}, addListener() {} });
+      LR.newVisit(); LR.advance(.1); let moved = false; for (let i = 0; i < 200; i++) { LR.advance(.25); for (const k of SG) if (S()[k].shake > 0) moved = true; } frame.contentWindow.matchMedia = mm;
+      check('LR-POLISH: with reduced motion the signs do not wiggle on their own', !moved);
+      LR.newVisit(); LR.advance(.1); let still = true; for (let i = 0; i < 30; i++) { tap({ x: L().home.x, y: L().ground * .2 }); LR.advance(1); for (const k of SG) if (S()[k].shake > 0) still = false; }
+      check('LR-POLISH: while someone is playing the signs stay still', still);
+      LR.newVisit(); LR.advance(.1); tap(L().tsign); LR.advance(.1); let in2 = true; for (let i = 0; i < 30; i++) { LR.advance(1); if (S().sign.shake > .5 || S().wsign.shake > .5) in2 = false; }
+      check('LR-POLISH: inside a toy room the ranch signs do not wiggle', in2); tap(L().dough.barn); }
+    // bedtime cues last, and the dusk fade is slow
+    { LR.setRoutine(true); LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(LR.ROUTINE_WAIT - 3);
+      check('LR-POLISH: the toothbrush waits at least 15 seconds before it does itself', LR.ROUTINE_WAIT >= 15 && S().routine.step === 0 && !S().routine.doing);
+      LR.setRoutine(false); LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(LR.DUSK_SECS * .6);
+      check('LR-POLISH: the dusk fade takes at least 15 seconds (not asleep and not dark at 60%)', LR.DUSK_SECS >= 15 && S().mode === 'dusk' && S().dusk < .7);
+      LR.advance(LR.DUSK_SECS * .5 + 1); check('LR-POLISH: ...and then she is asleep as before', S().mode === 'sleep' && S().dusk === 1); }
+    // leaving the paint shed early is answered, with no reward and nothing lost
+    { LR.setRoutine(false); LR.newVisit(); LR.advance(.1); tap(L().sign); tap(L().shed.pots[1]); tap(LR.partPoint('tail')); const a0 = S().acts, t0 = LR.tones, n0 = S().fx.length;
+      tap(L().shed.barn);
+      check('LR-POLISH: leaving the paint shed early: she trots home from the sign, the colours puff out, a sound plays', S().place === 'ranch' && S().baby.tx !== null && Math.abs(S().baby.x - L().sign.x) < 1 && S().fx.length >= n0 + 2 && LR.tones > t0);
+      LR.advance(8); check('LR-POLISH: ...then she waves at home, with no reward and nothing painted lost', S().acts === a0 && S().baby.tx === null && S().shed.parts.tail === 1 && S().paint === null);
+      LR.newVisit(); LR.advance(.1); tap(L().sign); const n1 = S().fx.length; tap(L().shed.barn); check('LR-POLISH: leaving before painting anything is answered too', S().baby.tx !== null && S().fx.length > n1 && S().acts === 0); LR.advance(8); }
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);

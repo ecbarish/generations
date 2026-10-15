@@ -26,6 +26,10 @@
 
   var idle = M.createIdle(state, persist);
 
+  // ART-NM-1: the lane strip only hears about sales, hires and buys; it reads state and never changes it
+  function lane(what, i, a, b) { var L = window.NightLane; if (L && L[what]) L[what](i, a, b); }
+  if (window.NightLane && document.getElementById('lane')) window.NightLane.init(document.getElementById('lane'), function () { return state; }, M.unlocked);
+
   function bulkLabel(mode) {
     if (mode === 'max') return 'Buy max';
     if (mode === 10) return 'Buy 10';
@@ -130,7 +134,7 @@
   // Hold to pour: press and hold a serve button and it keeps serving, a few a second, until you let go
   // (playtest: 25 single clicks was a chore). A plain click still serves once.
   var HOLD_DELAY = 350, HOLD_EVERY = 120, hold = null;
-  function serveOnce(i) { M.handSell(state, i); persist(); render(); }
+  function serveOnce(i) { if (M.handSell(state, i).ok) lane('serve', i); persist(); render(); }
   function stopHold() { if (!hold) return; clearTimeout(hold.t); clearInterval(hold.iv); hold.done = true; }
   document.addEventListener('pointerdown', function (e) {
     var b = e.target.closest && e.target.closest('[data-act="serve"]');
@@ -163,9 +167,9 @@
     var li = b.closest('[data-i]');
     if (!li) return;
     var i = +li.dataset.i;
-    if (b.dataset.act === 'serve') M.handSell(state, i);
-    else if (b.dataset.act === 'hire') M.hire(state, i);
-    else if (b.dataset.act === 'buy') M.buy(state, i, state.bulk);
+    if (b.dataset.act === 'serve') { if (M.handSell(state, i).ok) lane('serve', i); }
+    else if (b.dataset.act === 'hire') { if (M.hire(state, i).ok) lane('hire', i); }
+    else if (b.dataset.act === 'buy') { var had = state.stalls[i].owned; if (M.buy(state, i, state.bulk).ok) lane('buy', i, had, state.stalls[i].owned); }
     else return;
     persist();
     render();
