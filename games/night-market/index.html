@@ -17,6 +17,7 @@
     <p class="rate" id="rate"></p>
     <p class="goal" id="goal"></p>
   </header>
+  <div class="lane" aria-hidden="true"><canvas id="lane" width="384" height="72"></canvas></div>
   <div class="bulk" id="bulk" hidden role="group" aria-label="How many to buy at once">
     <button type="button" data-bulk="1" aria-pressed="true">Buy 1</button>
     <button type="button" data-bulk="10" aria-pressed="false">Buy 10</button>
@@ -33,6 +34,7 @@
 <script src="../../shared/engine.js"></script>
 <script src="../../shared/idle-core.js"></script>
 <script src="model.js"></script>
+<script src="lane.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
