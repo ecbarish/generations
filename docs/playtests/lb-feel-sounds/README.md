@@ -9,7 +9,7 @@ Open `index.html` in this folder through any static server (for example `python3
 | `touchdown` | 1.90 s | Original fanfare: a climb from G4, a dip and lift, then a held chord with a bright top note |
 | `tackle` | 0.18 s | Falling low sine and a burst of low-passed noise |
 | `catch` | 0.10 s | Rising triangle and a tick of high noise |
-| `crowdBed` | loop | Band-passed noise that breathes slowly; plays until `stop()` |
+| `crowdBed` | loop | Band-passed noise that breathes slowly; plays until `stop()`, then fades out over 0.25 s |
 | `crowdSwell` | 2.40 s | The same noise opening up and rising, then falling away |
 | `whistle` | 0.45 s | High sine with a fast wobble, plus breath noise |
 | `kick` | 0.40 s | Deep falling sine and a click |
