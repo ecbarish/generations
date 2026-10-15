@@ -35,10 +35,10 @@ def ruts(vertical):
     im, d = new((16, 16))
     for a in (6, 9):                           # two wheel ruts, worn dark, a lighter lip on the lit (upper left) side
         for b in range(16):
-            if (b * 5 + a) % 7 == 0:
-                continue                       # broken here and there, so the tiles don't read as rails
             x, y = (a, b) if vertical else (b, a)
-            d.point((x, y), fill=C['mud_d'])
+            d.point((x, y), fill=C['mud_d'])   # the rut itself runs unbroken edge to edge, so roads tile (ART-SF-8a)
+            if 0 < b < 15 and (b * 5 + a) % 7 == 0:
+                continue                       # the lip is worn away here and there, so the tiles don't read as rails
             lx, ly = (x - 1, y) if vertical else (x, y - 1)
             d.point((lx, ly), fill=C['mud_l'])
     return im, flat()
@@ -129,6 +129,11 @@ def atlas_of(made):
 def validate(atlas, made):
     assert atlas.size == ATLAS and atlas.mode == 'P'
     assert set(atlas.tobytes()) <= set(range(len(ground.COLOURS))), 'palette colours only'
+    for name, vertical in (('ruts-h', False), ('ruts-v', True)):   # ART-SF-8a: the ruts tile seamlessly
+        im = made[name][0].convert('RGBA')
+        for i in range(16):
+            a, b = ((i, 0), (i, 15)) if vertical else ((0, i), (15, i))
+            assert im.getpixel(a) == im.getpixel(b), name + ' edges must match pixel for pixel'
     for name, (im, meta) in made.items():
         x, y, w, h = meta['rect']
         assert x + w <= ATLAS[0] and y + h <= ATLAS[1], name
