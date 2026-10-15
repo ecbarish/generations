@@ -164,14 +164,11 @@ static func _phone(game: Node, check: Callable) -> void:
 	game.card.visible = false
 	game.title.visible = false
 	game.menu.visible = false
-	var stood: Vector2i = game.me.tile
 	game.turn_card.check(Vector2(390, 844))
-	check.call(game.turn_card.visible and game.get_tree().paused, "phone: portrait covers the game and holds it")
+	check.call(not game.turn_card.visible and not game.get_tree().paused, "phone: an upright window plays, and the turn page stays away")
 	Input.emulate_mouse_from_touch = false
-	tap(game, Vector2(192, 140))
-	check.call(game.turn_card.visible and game.me.tile == stood and game.walk_to.is_empty(), "phone: a finger on the portrait card does not walk or start a journey")
 	game.turn_card.check(Vector2(844, 390))
-	check.call(not game.turn_card.visible and not game.get_tree().paused, "phone: turning sideways lifts the card and the journey continues")
+	check.call(not game.turn_card.visible and not game.get_tree().paused, "phone: turning sideways leaves the journey going, with no turn page")
 	game.title.open("Rowan and Ripplet, in Thornwood.")
 	for i in 3:
 		var r: Rect2 = game.title._btn(i)
