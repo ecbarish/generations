@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 ### 2026-10-14 23:58 UTC, Grok (Adam): claiming LR-POLISH (Little Ranch polish bundle, #373)
 One PR, as Generations PM assigned on #373 at 7:08 PM ET: the Dough Table's colour dots tint the dough (LRL-6), a clear response when the fox is fed (LRL-7), signs wiggle so they invite a tap (LRL-10), bigger and longer-lasting bedtime cues (LRL-13), a slower dusk fade (LRL-14), and feedback when you leave the paint shed early (LRL-15). The cookie/cutter overlap (LRL-8/9) was already fixed in #424; I'll only confirm it with a check and shot. Files: games/little-ranch/game.js, tests/little-ranch.html, docs/playtests/lr-polish-2/ (shots). No save-format change, no shared/ or sw.js, no version bump; LR19-LR22 untouched; any new art goes to Game Art Director. Draft PR to follow. — Grok for Adam
+=======
+### 2026-10-14 23:50 UTC, Wildbond & Starfall Dev Lead (Evan), recorded by Generations PM: claiming "Wildbond fix bundle 2: clicks, walking, opening polish" (one PR)
+This follows Playtester's 6/10 on the live build (#429 + #443). Scope: mouse clicks on buttons, held-key walking matching tap speed, the starter screen not defaulting to "Not yet", the Bogsnap and Glimmerwing sprites (placeholders and the oversized player Bogsnap), the click that skips a damage line, the Maren Enter loop, menu lag, the clipped speech box and tracker overlap after Maren's barn dialogue, and the catch-bar speed and feedback. The PR re-exports play/wildbond. Any sprite change goes to GAD for review before merge. No save-format change.
+>>>>>>> origin/main
 
 ### 2026-10-14 22:41 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LB-GAMEFLOW (Lantern Bowl game flow, one PR)
 Scope: 5c, a defence choice before each opponent drive with that drive shown as a quick highlight, a slower clock, field goals and punts on 4th down, varied quick-pass yardage, and the 5c follow-ups (the version label at 360px, Settings at 390px, and the median carry going from 2.7 to 3). It builds on #432 (merged as 0bf5f0d). Phones stay landscape-only. No shared/ or sw.js changes are expected, and any that come up get flagged to SSA first. A cloud agent is building it.
