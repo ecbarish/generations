@@ -387,13 +387,20 @@ static func look_for(species: Dictionary) -> Dictionary:
 		out["pattern"] = str(lk.get("pattern", ""))
 	return out
 
-## Drawn height is metres times 12.35 pixels, clamped to the range beside the tamer.
+## Walking height from the locked overworld scale. Take px = round(metres × 12.35).
+## At 24 or under, that height is used, and anything under 12 is raised to 12.
+## Above 24, the height is 24 + 8 × log2(px / 24), rounded, and capped at 32.
+## A 2.0 m creature is 24px, on the door line. A 2.66 m creature is 28px.
 ## A species without a catalogue height keeps the old world height (the former fractional scale, baked into pixels).
 const _LEGACY_SCALE := { "tiny": 0.7, "small": 0.85, "medium": 1.0, "large": 1.2, "huge": 1.45 }
 const _STAND := { "walking": false, "wag": 0, "ears_up": true }
 
 static func drawn_px(metres: float) -> int:
-	return clampi(int(round(metres * 12.35)), 12, 32)
+	var px := int(round(metres * 12.35))
+	if px <= 24:
+		return maxi(12, px)
+	var curved := int(round(24.0 + 8.0 * log(float(px) / 24.0) / log(2.0)))
+	return clampi(curved, 12, 32)
 
 static func _target_height(species: Dictionary, canon: Array) -> int:
 	if species.has("metres"):

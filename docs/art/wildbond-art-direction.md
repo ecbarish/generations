@@ -71,8 +71,8 @@ Meadowmantle at 2.66 m is the tall worked case.
 times 8 is about 3.68, and 27.68 rounds to 28. Meadowmantle is 28px. Holding 33 down to a cap of 32 would have
 left it at 32.
 
-`figures.gd` `drawn_px` (lines 395–396) still multiplies metres by 12.35 and holds the result between 12 and 32.
-That code is being fixed separately. It is not the locked rule. The rows below are the walking heights the curve
+`figures.gd` `drawn_px` follows this rule. At 24 or under it keeps round(metres × 12.35), with a 12px floor.
+Above 24 it uses the curve and the 32px cap. The rows below are the walking heights the curve
 produces.
 
 The pixel table is a view of the metres. In 3D the door is the 2.0 m door, and creatures use their true heights in

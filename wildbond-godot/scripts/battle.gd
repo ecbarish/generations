@@ -15,13 +15,20 @@ const INK := Color("2a2230")
 const PAPER := Color("f8f2e4")
 const EL_COL := { "Ember": Color("e0602a"), "Tide": Color("3a8fd8"), "Grove": Color("5d9a3e") }
 ## CR1: size classes to battle scale (spec 4.4, docs/wildbond-creatures.md).
-## Whole-number zoom only. A creature's size is the height drawn into its pixels (metres × 12.35).
+## Whole-number zoom only. Walking height is Figures.drawn_px (metres × 12.35, then the curve above 24px).
 const SIZE_SCALE := { "tiny": 1, "small": 1, "medium": 1, "large": 1, "huge": 1 }
 ## Painted sprites stay this many pixels clear of the health panels and the command box.
 ## The zoom itself stays a whole number.
 const PANEL_CLEARANCE := 4.0
 ## The message and command box. _box draws a 1px border outside this rect, so the top ink is y163.
 const COMMAND_BOX := Rect2(8, 164, 368, 46)
+## A procedural battle figure uses the locked battle frame, not the overworld height.
+## Stages 1, 2 and 3 stand 44, 54 and 64 px tall, and nothing is drawn wider than 62 px.
+## The factor is a whole number, so the 1px outline stays one pixel.
+const FIGURE_STAGE_H := [44, 54, 64]
+const FIGURE_WIDTH_CAP := 62
+## The battle view, ending on the fronts' ground line at y160. The command box's top ink is y163.
+const FIGURE_LIMIT := Rect2(2, 2, 380, 158)
 ## Each element's hit has its own animated effect (Ninja Adventure FX, CC0; assets/fx): [file, frame width, frames, tint].
 const EL_FX := { "Ember": ["ember", 25, 8, Color.WHITE], "Tide": ["tide", 40, 11, Color.WHITE], "Grove": ["grove", 30, 8, Color.WHITE],
 	"Stone": ["stone", 30, 14, Color.WHITE], "Gale": ["gale", 20, 8, Color.WHITE], "Shade": ["shade", 40, 9, Color("b080e8")],
@@ -31,6 +38,8 @@ var fx_tex: Dictionary = {}
 var fx: Array = []                             # element effects playing: { u, el, age }
 var sfx: Sfx = null                            # sound effects (main.gd hands over its own; scripts/sfx.gd)
 const SPEED := 2.5                            # battle time runs faster than real time between turns (outcomes are unchanged)
+## The catch marker crosses the whole bar in about three quarters of a second. Slow enough to aim, fast enough to feel alive.
+const CATCH_RATE := 1.35
 var pace := 1.0                                # the Settings page's battle pace: 1, 1.5 or 2 (only the waiting changes)
 const MENU := ["Fight", "Guard", "Orders", "Catch", "Bag", "Run"]
 ## Tamer orders (docs/proposals/creature-catalogue-and-evolution.md §4): Rally for everyone, one from your family
@@ -87,9 +96,19 @@ var taught: Array = []                        # orders people have taught you (m
 var order_i := 0
 var tide_ready := false                       # Read the Tide: the next gathered attack is braced for
 var area := ""                                 # the area the battle happens in (main.gd sets it): its sky and skyline
+var _parent_of: Dictionary = {}               # species id -> the forms it evolves from
+var _stage_memo: Dictionary = {}
+var _fit_memo: Dictionary = {}                # species, side and gear -> the span and factor for every battle pose
+var _pose_list: Array = []
+var _parents_built := false
 var max_level := 15                           # the level cap (main.gd sets it from your badges, CAP_TABLE)
 var bag: Dictionary = { "lures": 0, "berries": 0 }  # the satchel (main.gd owns it): lures for Catch, berries for Bag
 var sure_catch := false                       # the first wild meeting: the lure cannot miss (WBL-3)
+var line_queue: Array = []                     # battle lines still waiting to be read, one click each
+var shown_line := ""                           # the line on screen during a beat
+var line_frame := -100                         # the frame that line appeared; input on that frame does not skip it
+var catch_note := ""                           # "hit" or "miss", drawn over the bar after you press
+var catch_note_t := 0.0
 var caught: Array = []                        # creatures that chose you in this battle
 var cap: Dictionary = {}                      # the calm meter while you Bond: { u, pos, dir, zone }
 ## The wild bond (WB4.2; docs/proposals/creature-catalogue-and-evolution.md §5): never taught, never in a menu until it
@@ -145,6 +164,11 @@ func open(battle_kind: String, team: Array, foe_team: Array, who: String) -> voi
 	joined_t = 0.0
 	flood_t = -1.0
 	sure_catch = false
+	line_queue.clear()
+	shown_line = ""
+	line_frame = -100
+	catch_note = ""
+	catch_note_t = 0.0
 	var names := ", ".join(foes.map(func(u): return "%s (Lv %d)" % [u.c.name, u.c.lvl]))
 	say("A wild %s appeared!" % names if kind == "wild" else "%s sends out %s!" % [trainer, names])
 	_go_to("fog_in")
@@ -159,6 +183,9 @@ func say(s: String) -> void:
 	log_lines.append(s)
 	if log_lines.size() > 30:
 		log_lines.pop_front()
+	# Lines said while a turn is resolving wait their own click. A line said on a menu does not.
+	if state in ["run", "moves", "orders", "beat"]:
+		line_queue.append(s)
 
 func _go_to(s: String) -> void:
 	state = s
@@ -173,6 +200,7 @@ func _process(dt: float) -> void:
 		return
 	t += dt
 	state_t += dt
+	catch_note_t = maxf(0.0, catch_note_t - dt)
 	for u in allies + foes:
 		u.shown = move_toward(u.shown, float(u.c.hp), dt * maxf(8.0, u.st.hp * 0.8))   # health bars drain smoothly
 		u.lunge = maxf(0.0, u.lunge - dt)
@@ -193,12 +221,15 @@ func _process(dt: float) -> void:
 		"run":
 			_tick(dt * SPEED * pace)
 		"capture":
-			cap.pos += cap.dir * dt * 0.9
+			cap.pos += cap.dir * dt * CATCH_RATE
 			if cap.pos > 1.0: cap.pos = 1.0; cap.dir = -1.0
 			if cap.pos < 0.0: cap.pos = 0.0; cap.dir = 1.0
 		"beat":
 			if state_t * pace > beat_t:
-				_after_beat()
+				if not line_queue.is_empty():
+					_show_next_line()
+				else:
+					_after_beat()
 		"fog_out":
 			if state_t > 1.0:
 				visible = false
@@ -296,6 +327,16 @@ func _check_end() -> bool:
 func _beat(seconds: float) -> void:
 	beat_t = seconds
 	_go_to("beat")
+	_show_next_line()
+
+## Put the next waiting line on screen and ignore the click that arrived with it.
+func _show_next_line() -> void:
+	if not line_queue.is_empty():
+		shown_line = str(line_queue.pop_front())
+	elif not log_lines.is_empty():
+		shown_line = str(log_lines[-1])
+	line_frame = Engine.get_process_frames()
+	state_t = 0.0
 
 func _after_beat() -> void:
 	if not _check_end():
@@ -341,18 +382,19 @@ func _resolve(u: Dictionary, m: String, mult: float) -> void:
 		"hit":
 			var tg := _target(u, m)
 			var r := R.damage(u, tg, mv, mult, rng.randf(), rng.randf())
+			# The blow is read first. Fainting and a status come after, each on its own click.
+			say("%s used %s%s on %s for %d%s" % [nm(u), mv.name, ", a critical hit" if r.crit else "", nm(tg), r.d,
+				". It hits hard!" if r.adv > 1 else (". Not very effective." if r.adv < 1 else ".")])
 			_hurt(tg, r.d, r.crit, mv.get("el"))
 			Effects.after_hit(tg, mv)
 			if mv.has("status") and Effects.active(tg, str(mv.status)):
 				say("%s is %s." % [nm(tg), Effects.LABEL[str(mv.status)].to_lower()])
-			say("%s used %s%s on %s for %d%s" % [nm(u), mv.name, ", a critical hit" if r.crit else "", nm(tg), r.d,
-				". It hits hard!" if r.adv > 1 else (". Not very effective." if r.adv < 1 else ".")])
 		"aoe":
+			say("%s used %s on everyone!" % [u.c.name, mv.name])
 			for tg in them:
 				var r := R.damage(u, tg, mv, mult * 0.75, rng.randf(), rng.randf())
 				_hurt(tg, r.d, r.crit, mv.get("el"))
 				Effects.after_hit(tg, mv)
-			say("%s used %s on everyone!" % [u.c.name, mv.name])
 		"dot":
 			var tg := _target(u, m)
 			tg.dots.append({ "per": maxi(1, roundi(R.damage(u, tg, mv, mult, rng.randf(), 1.0).d / 2.0)), "left": 4, "tick": 1.0 })
@@ -723,7 +765,14 @@ func _input(e: InputEvent) -> void:
 			elif back: _go_to("choose")
 			else: order_i = _grid_move(order_i, key, ol.size(), 2)
 		"beat":
-			if ok or click: state_t = beat_t                 # skip ahead
+			if ok or click:
+				# The press that made this line appear must not also dismiss it.
+				if Engine.get_process_frames() == line_frame:
+					pass
+				elif not line_queue.is_empty():
+					_show_next_line()
+				else:
+					state_t = beat_t                 # the last line: skip ahead
 		"results":
 			if (ok or click) and state_t > 0.5: _go_to("fog_out")
 
@@ -814,29 +863,17 @@ func _ally_line_rect(i: int, n: int) -> Rect2:
 	return Rect2(236, 162.0 - (n - i) * 22.0 - lift, 140, 20)
 
 ## Where the "Next:" names sit. They shrink, then wrap, and stay inside the top of the screen.
+## A chip is the word plus 8px (4px of padding on each side). The word is drawn from that padding, with no clip.
 func _chip_boxes(labels: PackedStringArray) -> Dictionary:
 	if _view_scale() < 2.0:
-		return PhoneShell.place_chips(labels, font, 8.0, 4.0, 376.0, 14, 28.0)
+		var room := 376.0 - 8.0
+		var fitted := PhoneShell.chip_font_size(labels, font, room, 14)
+		return PhoneShell.place_chips(labels, font, 8.0, 4.0, 376.0, fitted, 28.0)
 	var size := 7
 	var limit := 376.0
 	var x0 := 192.0
-	while size > 5:
-		var x := x0
-		var rows := 1
-		var fits := true
-		for lab in labels:
-			var w := font.get_string_size(lab, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 8.0
-			if w > limit - x0:
-				fits = false
-				break
-			if x + w > limit:
-				rows += 1
-				x = x0
-			if rows > 2:
-				fits = false
-				break
-			x += w + 3.0
-		if fits:
+	while size > 1:
+		if _chips_fit(labels, size, x0, limit):
 			break
 		size -= 1
 	var rects: Array = []
@@ -850,6 +887,21 @@ func _chip_boxes(labels: PackedStringArray) -> Dictionary:
 		rects.append(Rect2(x, y, w, size + 3.0))
 		x += w + 3.0
 	return {"font": size, "rects": rects}
+
+func _chips_fit(labels: PackedStringArray, size: int, x0: float, limit: float) -> bool:
+	var x := x0
+	var rows := 1
+	for lab in labels:
+		var w := font.get_string_size(lab, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 8.0
+		if w > limit - x0:
+			return false
+		if x > x0 and x + w > limit:
+			rows += 1
+			x = x0
+		if rows > 2:
+			return false
+		x += w + 3.0
+	return true
 
 ## How good a move looks against the foe in front: power, type advantage and same-element bonus (the demo and the
 ## automated checks pick moves this way, as a sensible player would).
@@ -921,7 +973,7 @@ func _draw_creature(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictiona
 	var foot := _painted_foot(stand + Vector2(0, 6), species_id, pose_name, zoom)
 	if Sprites.try_draw(self, species_id, foot, facing_right, pose_name, int(t * 8.0), zoom, 0.0, gear):
 		return
-	_draw_figure(stand, R.sp(u.c), facing_right, pose, look, zoom)
+	_draw_figure(stand, species_id, R.sp(u.c), facing_right, pose, look)
 
 func _battle_front_foot(spot: Vector2, species_id: String, scale: float) -> Vector2:
 	var sz := Sprites.battle_size(species_id)
@@ -975,13 +1027,195 @@ func _keep_on_phone(foot: Vector2, sz: Vector2i, scale: float) -> Vector2:
 		dy = phone_view.end.y - rect.end.y
 	return foot + Vector2(dx, dy)
 
-## The pixel figure, at a whole multiple of its own pixels. The old path scaled a fractional height fit.
-func _draw_figure(at: Vector2, species: Dictionary, facing_right: bool, pose: Dictionary, look: Dictionary, zoom: float) -> void:
-	var whole := float(Figures.battle_whole_scale(species, zoom))
-	var origin := Vector2(round(at.x - 9.0 * whole), round(at.y - 12.0 * whole))
-	draw_set_transform(origin, 0.0, Vector2(whole, whole))
-	Figures.paint(self, Vector2.ZERO, Figures.native_parts(species, facing_right, pose, look))
+## Stage 1, 2 or 3 from the evolution chain. A form nobody evolves into is stage 1.
+## A form two steps down a chain is stage 3. The height for that stage is 44, 54 or 64.
+func _stage_px(stage: int) -> int:
+	return int(FIGURE_STAGE_H[clampi(stage, 1, 3) - 1])
+
+func _ensure_parents() -> void:
+	if _parents_built:
+		return
+	_parents_built = true
+	var evos: Dictionary = R.DATA.get("EVOS", {})
+	for from_id in evos.keys():
+		for opt in evos[from_id]:
+			if typeof(opt) != TYPE_DICTIONARY:
+				continue
+			_note_parent(str(opt.get("to", "")), str(from_id))
+	var species: Dictionary = R.DATA.get("SPECIES", {})
+	for from_id in species.keys():
+		var evo = species[from_id].get("evo", null)
+		if typeof(evo) != TYPE_DICTIONARY:
+			continue
+		_note_parent(str(evo.get("to", "")), str(from_id))
+
+func _note_parent(child: String, parent: String) -> void:
+	if child == "" or parent == "":
+		return
+	if not _parent_of.has(child):
+		_parent_of[child] = []
+	var parents: Array = _parent_of[child]
+	if parent not in parents:
+		parents.append(parent)
+
+func _battle_stage(species_id: String) -> int:
+	_ensure_parents()
+	return _stage_depth(species_id, {})
+
+func _stage_depth(species_id: String, stack: Dictionary) -> int:
+	if _stage_memo.has(species_id):
+		return int(_stage_memo[species_id])
+	if stack.has(species_id):
+		return 1
+	stack[species_id] = true
+	var depth := 1
+	for parent in _parent_of.get(species_id, []):
+		depth = maxi(depth, _stage_depth(str(parent), stack) + 1)
+	stack.erase(species_id)
+	depth = mini(depth, 3)
+	_stage_memo[species_id] = depth
+	return depth
+
+## k = max(1, min(floor(stage_h / h), floor(62 / w))). Whole pixels only.
+func _figure_scale(span: Vector2i, stage: int) -> int:
+	if span.x <= 0 or span.y <= 0:
+		return 1
+	var by_h := int(floor(float(_stage_px(stage)) / float(span.y)))
+	var by_w := int(floor(float(FIGURE_WIDTH_CAP) / float(span.x)))
+	return maxi(1, mini(by_h, by_w))
+
+## Every pose a battle can draw: the wag cycle, a blink, the turn crouch, and the four lunge frames.
+func _battle_poses() -> Array:
+	if not _pose_list.is_empty():
+		return _pose_list
+	for wag in [1, 0, -1]:
+		for blink in [false, true]:
+			for crouch in [0, 1]:
+				_pose_list.append({ "wag": wag, "blink": blink, "ears_up": true, "crouch": crouch, "walking": false, "frame": 0 })
+				for frame in 4:
+					_pose_list.append({ "wag": wag, "blink": blink, "ears_up": true, "crouch": crouch, "walking": true, "frame": frame })
+	return _pose_list
+
+## One factor per species and side. The span is the widest and tallest frame of every battle pose,
+## so a wag or a crouch cannot pick a new k. Cached like the stage lookup.
+func _figure_fit(species_id: String, facing_right: bool, look: Dictionary = {}) -> Dictionary:
+	var gear := str(look.get("gear", ""))
+	var key := "%s|%d|%s|%s|%s|%s|%s" % [species_id, 1 if facing_right else 0, gear, str(look.get("head", "")), str(look.get("back", "")), str(look.get("tail", "")), str(look.get("pattern", ""))]
+	if _fit_memo.has(key):
+		return _fit_memo[key]
+	var species: Dictionary = R.sp({ "sp": species_id })
+	var max_w := 1
+	var max_h := 1
+	for pose in _battle_poses():
+		var posed: Array = Figures.sized_parts(species, facing_right, pose, look)
+		if posed.is_empty():
+			continue
+		var posed_span := Figures.pixel_span(posed)
+		max_w = maxi(max_w, posed_span.x)
+		max_h = maxi(max_h, posed_span.y)
+	var span := Vector2i(max_w, max_h)
+	var stage := _battle_stage(species_id)
+	var fit := { "span": span, "scale": _figure_scale(span, stage), "stage": stage }
+	_fit_memo[key] = fit
+	return fit
+
+## Feet start where a battle front's feet start. Clearance, the ground line and the phone clamp all use the
+## cached span, so the figure does not move or resize when the pose changes.
+## The phone frame, when it is set, keeps that same scale and slides the figure back inside.
+func _figure_place(at: Vector2, species_id: String, parts: Array, facing_right: bool = true, look: Dictionary = {}) -> Dictionary:
+	var fit: Dictionary = _figure_fit(species_id, facing_right, look)
+	var span: Vector2i = fit.span
+	var k := int(fit.scale)
+	var foot := Vector2(round(at.x), round(at.y)) + Vector2(0, 6)
+	foot = Sprites.foot_clear_of(foot, span, float(k), _clearance_boxes(), PANEL_CLEARANCE)
+	foot = _slide_foot(foot, span, float(k), FIGURE_LIMIT)
+	if phone_view.size.x >= 1.0:
+		foot = _slide_foot(foot, span, float(k), phone_view)
+	foot = Vector2(round(foot.x), round(foot.y))
+	var bounds: Dictionary = Figures._bounds(parts)
+	var origin := Vector2(
+		foot.x - float(bounds.min_x + bounds.max_x) * float(k) / 2.0,
+		foot.y - float(int(bounds.max_y) + 1) * float(k)
+	)
+	origin = Vector2(round(origin.x), round(origin.y))
+	var rect := Sprites.dest_rect(foot, span, float(k))
+	var nudge := _nudge_figure(rect)
+	origin += nudge
+	rect.position += nudge
+	return {"origin": origin, "rect": rect, "scale": k, "span": span, "stage": int(fit.stage)}
+
+func _slide_foot(foot: Vector2, span: Vector2i, scale: float, limit: Rect2) -> Vector2:
+	if limit.size.x < 1.0 or span.x <= 0 or span.y <= 0:
+		return foot
+	var rect := Sprites.dest_rect(foot, span, scale)
+	var dx := 0.0
+	var dy := 0.0
+	if rect.position.x < limit.position.x:
+		dx = limit.position.x - rect.position.x
+	elif rect.end.x > limit.end.x:
+		dx = limit.end.x - rect.end.x
+	if rect.position.y < limit.position.y:
+		dy = limit.position.y - rect.position.y
+	elif rect.end.y > limit.end.y:
+		dy = limit.end.y - rect.end.y
+	return foot + Vector2(dx, dy)
+
+## A last whole-pixel shove, after rounding, so the drawn rect stays in the view and off the panels.
+func _nudge_figure(rect: Rect2) -> Vector2:
+	var shift := Vector2.ZERO
+	var moved := rect
+	for _step in 4:
+		var delta := _limit_delta(moved, FIGURE_LIMIT)
+		if phone_view.size.x >= 1.0:
+			delta += _limit_delta(moved, phone_view)
+		for box in _clearance_boxes():
+			var keep: Rect2 = (box as Rect2).grow(PANEL_CLEARANCE)
+			if not moved.intersects(keep):
+				continue
+			var hit := moved.intersection(keep)
+			if hit.size.x <= 0.0 or hit.size.y <= 0.0:
+				continue
+			var spans_the_sprite := hit.size.x + 0.5 >= moved.size.x
+			var clips_the_feet := hit.position.y >= moved.position.y + moved.size.y * 0.5
+			if spans_the_sprite and clips_the_feet:
+				delta.y += floor(keep.position.y) - moved.end.y
+			elif moved.get_center().x <= keep.get_center().x:
+				delta.x -= ceil(hit.size.x)
+			else:
+				delta.x += ceil(hit.size.x)
+		delta = Vector2(round(delta.x), round(delta.y))
+		if delta == Vector2.ZERO:
+			break
+		moved.position += delta
+		shift += delta
+	return shift
+
+func _limit_delta(rect: Rect2, limit: Rect2) -> Vector2:
+	var delta := Vector2.ZERO
+	if rect.position.x < limit.position.x:
+		delta.x += limit.position.x - rect.position.x
+	elif rect.end.x > limit.end.x:
+		delta.x += limit.end.x - rect.end.x
+	if rect.position.y < limit.position.y:
+		delta.y += limit.position.y - rect.position.y
+	elif rect.end.y > limit.end.y:
+		delta.y += limit.end.y - rect.end.y
+	return delta
+
+## The procedural figure, scaled by a whole factor and filtered nearest. Painted fronts and side sheets
+## take the earlier paths. This is the fallback for a species with neither.
+func _draw_figure(at: Vector2, species_id: String, species: Dictionary, facing_right: bool, pose: Dictionary, look: Dictionary) -> void:
+	var parts := Figures.sized_parts(species, facing_right, pose, look)
+	if parts.is_empty():
+		return
+	var place: Dictionary = _figure_place(at, species_id, parts, facing_right, look)
+	var k := int(place.scale)
+	var prev := texture_filter
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	draw_set_transform(place.origin, 0.0, Vector2(k, k))
+	Figures.paint(self, Vector2.ZERO, parts)
 	draw_set_transform(Vector2.ZERO)
+	texture_filter = prev
 
 ## Feet on the bottom edge of the sprite. If that rect would sit under a health panel, slide the
 ## feet aside. The caller keeps the same whole-number scale.
@@ -1123,6 +1357,11 @@ func _draw() -> void:
 		var box := _command_box()
 		_box(box)
 		_draw_commands(box)
+	if catch_note_t > 0.0 and catch_note != "":
+		var hit := catch_note == "hit"
+		var banner := Rect2(96, 78, 192, 28)
+		draw_rect(banner, Color("1d6b32") if hit else Color("8a2e2e"))
+		_text("In the green!" if hit else "Missed the green", banner.position + Vector2(0, 18), 12, PAPER, banner.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 	# the grey fog that rolls in at the start and out at the end (soft; never a flash)
 	var fog := 0.0
 	if state == "fog_in": fog = 1.0 - state_t
@@ -1200,9 +1439,12 @@ func _draw_commands(box: Rect2) -> void:
 			if not log_lines.is_empty():
 				_text(log_lines[-1], Vector2(16, 182), 8, INK)
 		_:
-			var last := log_lines.slice(-2)
-			for i in last.size():
-				draw_multiline_string(font, Vector2(16, 180 + i * 14), last[i], HORIZONTAL_ALIGNMENT_LEFT, 352, 8, -1, INK if i == last.size() - 1 else Color("7a6a5a"))
+			if state == "beat" and shown_line != "":
+				draw_multiline_string(font, Vector2(16, 180), shown_line, HORIZONTAL_ALIGNMENT_LEFT, 352, 8, -1, INK)
+			else:
+				var last := log_lines.slice(-2)
+				for i in last.size():
+					draw_multiline_string(font, Vector2(16, 180 + i * 14), last[i], HORIZONTAL_ALIGNMENT_LEFT, 352, 8, -1, INK if i == last.size() - 1 else Color("7a6a5a"))
 
 ## The catch marker stays in the scene. It is the catch itself, not the command row.
 func _draw_capture_marker() -> void:
@@ -1235,7 +1477,7 @@ func _draw_joined(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictionary
 		var sc := 5.0
 		var foot := _painted_foot(stand + Vector2(0, 8), species_id, "idle", sc)
 		if not Sprites.try_draw(self, species_id, foot, true, "idle", 0, sc, 0.0, str(u.c.get("gear", ""))):
-			_draw_figure(stand, R.sp(u.c), true, pose, look, sc)
+			_draw_figure(stand, species_id, R.sp(u.c), true, pose, look)
 	if not tamer_look.is_empty():
 		draw_set_transform(at + Vector2(-26, -70), 0, Vector2(2.4, 2.4))   # you, within its shape, facing the foe with it
 		Figures.person(self, Vector2.ZERO, Vector2i.RIGHT, false, 0, false, tamer_look)
@@ -1362,7 +1604,8 @@ func _queue() -> void:
 		draw_rect(r.grow(1), Color("1e1a22"))
 		draw_rect(r, fill)
 		var baseline := r.position.y + (r.size.y + float(chip_size)) * 0.5
-		_text(lab, Vector2(r.position.x + 8.0, baseline), chip_size, word, r.size.x - 16.0)
+		# 4px of padding on each side. The chip is the word plus 8px, so the whole name fits.
+		_text(lab, Vector2(r.position.x + 4.0, baseline), chip_size, word)
 
 # ---------------------------------------------------------------- bonding with a wild creature (calmNow)
 func _calm() -> void:
@@ -1380,6 +1623,9 @@ func _calm() -> void:
 			ch *= 1.15
 			break
 	var chance := 1.0 if sure_catch else minf(0.95, ch)
+	# The banner matches the green. The guided first lure is the whole bar, so it never reads as a miss.
+	catch_note = "hit" if sure_catch or q != "miss" else "miss"
+	catch_note_t = 1.1
 	cap = {}
 	if rng.randf() < chance:
 		sparks.append({ "u": u, "col": Color("7cf08a"), "age": 0.0 })

@@ -247,6 +247,7 @@ func run() -> void:
 			# Not yet must close the page without taking a partner. Back picks that last
 			# choice whether the page opens on Not yet (the older build) or on Choose.
 			# Touch hits the button the page actually drew, not a frozen pixel.
+			var opened_on := int(main.card.sel)
 			await read_for(2.0)
 			if method == "touch": await tap_game(main.card._btn(1).get_center())
 			else: await press(KEY_BACKSPACE)
@@ -257,6 +258,9 @@ func run() -> void:
 			await interact()
 			if not main.card.visible:
 				failures.append("Card did not reopen through input")
+				break
+			if int(main.card.sel) != opened_on:
+				failures.append("Card highlight changed after it was declined and reopened")
 				break
 			await read_for(12.0)
 			if method == "touch": await tap_game(main.card._btn(0).get_center())

@@ -171,6 +171,31 @@ static func paginate(text: String, font: Font, size: int, width: float, max_line
 		i += take
 	return pages
 
+## Largest size at or under `start` where every name's chip (the word plus 16px) fits in `room`.
+static func chip_font_size(labels: PackedStringArray, font: Font, room: float, start: int) -> int:
+	var size := start
+	while size > 6:
+		var fits := true
+		for lab in labels:
+			var word := font.get_string_size(str(lab), HORIZONTAL_ALIGNMENT_LEFT, -1, size).x if font != null else str(lab).length() * float(size) * 0.6
+			if 16.0 + word > room + 0.01:
+				fits = false
+				break
+		if fits:
+			return size
+		size -= 1
+	return size
+
+## The upright "Next:" row. Font stays at 14 while every name fits; a longer name steps down until it does.
+static func battle_next_chips(strip: Rect2, font: Font, labels: PackedStringArray) -> Dictionary:
+	var label_w := 42.0
+	if font != null:
+		label_w = font.get_string_size("Next:", HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+	var x0 := strip.position.x + 12.0 + label_w + 4.0 + 6.0
+	var room := maxf(36.0, strip.end.x - x0)
+	var size := chip_font_size(labels, font, room, 14)
+	return place_chips(labels, font, x0, strip.position.y + 6.0, strip.end.x, size, 28.0)
+
 ## Turn-order chips. Two lines, then a +N chip. Right edge stays at or inside `limit`.
 static func place_chips(labels: PackedStringArray, font: Font, x0: float, y0: float, limit: float, font_size: int, chip_h: float) -> Dictionary:
 	var gap := 6.0
@@ -907,7 +932,8 @@ func _draw_battle(strip: Rect2) -> void:
 	var label_w := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
 	var row := Rect2(strip.position.x + 12.0, strip.position.y + 6.0, label_w + 4.0, 28.0)
 	_text_in(row, label, 16, INK)
-	var chips: Dictionary = place_chips(names, font, row.end.x + 6.0, strip.position.y + 6.0, strip.end.x, 14, 28.0)
+	var chips: Dictionary = battle_next_chips(strip, font, names)
+	var chip_size := int(chips["font"])
 	var rects: Array = chips["rects"]
 	var labs: PackedStringArray = chips["labels"]
 	for i in rects.size():
@@ -921,7 +947,7 @@ func _draw_battle(strip: Rect2) -> void:
 		draw_rect(r.grow(1), INK)
 		draw_rect(r, fill)
 		var ink := INK if lab.begins_with("+") else CREAM
-		_text_in(r, lab, 14, ink)
+		_text_in(r, lab, chip_size, ink)
 	for i in mini(slots.size(), buttons.size()):
 		var r: Rect2 = buttons[i]
 		var on: bool = bool(slots[i]["on"])
