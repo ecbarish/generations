@@ -180,6 +180,8 @@ The held toy pulls #404 to #412 will conflict with LR-G2 and LR-G3, and that is 
 
 Wildbond & Starfall Dev Lead scoped these on 2026-10-15. They come after the batch 3 launch rows. Grok takes WBW-7, WBW-9 and WBW-11 after LR-G1. Dot takes WBW-8, WBW-10 and WBW-12 after NM-G7. The spec below is copied as written.
 
+The level cap stays as data at 58 to 64 and the runtime clamps it, the echo-stone errand finishing after Hush is intended, the dark behaviour belongs to the runtime and the painter, and the placements are accepted, so none of these need guest work.
+
 None of these depends on another.
 
 Shared rules:
@@ -240,6 +242,8 @@ The test checks that:
 - every gate id is in gates.json
 
 Leave the save field (lessons) out entirely; that waits on Evan.
+
+put `slip-mist-veil` in the empty north wall-door niche, behind field:hush. Its source is answering, at the north niche's tile, with the gate `answering-wall-doors`. WBW-10's test checks that this tile is inside answering.json's hush-doors niche.
 
 ## WBW-11: trainers.json
 
@@ -362,6 +366,8 @@ The test checks these loops from section 2 on world-graph.json:
 - The Home Burrow needs both Stone Break and the Loom Badge.
 
 If world-graph.json is missing an edge these checks need, the PR adds it and says so in its description.
+
+add the edge `hollowecho--answering` to world-graph.json. The cave's mouth is in the hamlet, and Flintcut is the second door. Add a test that the answering cave can be reached from both hollowecho and flintcut.
 
 ## Next from the dev lead
 
