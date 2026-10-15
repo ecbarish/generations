@@ -20,7 +20,7 @@ Playtester scores the first session once the stall exists, then every week. Fini
 | No crashes and no broken saves | **NML-3** | #403 keeps the stall on the idle core. **NM-FIX-6:** "Your save" should do something. A reload must show the away summary and leave every other game's save alone. 2026-10-14: Playtester confirmed on the live build (#434, `9195865`) that the welcome-back box works. The reload check is still open |
 | Plays well on a phone | **NML-4** | **NM-FIX-7.** The phone layout still needs a playtest. Owner: Playtester. 2026-10-14: Generations Reviewer confirmed hold-to-pour on the live build (#434, `9195865`), on a fresh save, on the pre-hire stall, using an iPhone 12 held upright (390x844) and sideways (844x390). A single tap poured 1 cup. A roughly 2-second touch hold poured 16 cups, about 8 a second. A played phone session is still open |
 | One clear goal | **NML-5** | One stall you work yourself. Payback hint and the time-to-afford line are done (#421). 2026-10-14: on the live build (#434, `9195865`), Playtester confirmed the pour button stays after hiring, payback times show whole seconds, the welcome-back box works and the cups bar works. Generations Reviewer confirmed hold-to-pour on a fresh save, on the pre-hire stall: a single tap poured 1 cup, a roughly 2-second touch hold poured 16 cups (about 8 a second), and a mouse hold poured until the 25-cup cap, and the counter and bar rose with it |
-| Known bugs are fixed | **NML-6** | The offline label is done (#421). **NM-VIS** is visual life, one pull. **NM-PHONE** is the back control and the fold. **NM-RETUNE** still waits for the district slice. **NM-CLAMP** is below |
+| Known bugs are fixed | **NML-6** | The offline label is done (#421). **NM-VIS** is visual life, one pull. **NM-PHONE** is done (#456, `f2f8a261`): the back control and the fold. **NM-RETUNE** still waits for the district slice. **NM-CLAMP** is below |
 
 ## Finished means
 
@@ -45,7 +45,7 @@ Playable and fun. Further improvements do not hold the release.
 7. Done (#421, `1459413`): the payback line tells the truth (**NM-LABEL**, **NM-FIX-1**).
 8. Done (#421, `1459413`): offline earnings stay at 50% and the screen says so (**NM-FIX-2**).
 9. Visual life, one pull (**NM-VIS**), spec from Game Art Director. Lane-strip canvas, coin pop and flicker (**NM-FIX-3**), plus steam, flash and passers-by (**NM-FIX-4**).
-10. "Back to the arcade" is large enough and does not cover another button, and a stall is on screen on a phone (**NM-PHONE**, **NM-FIX-8**).
+10. Done (#456, `f2f8a261`): "Back to the arcade" is large enough and does not cover another button, and a stall is on screen on a phone (**NM-PHONE**, **NM-FIX-8**).
 11. The pour keeps a button after 25 clicks, "Your save" does something, and a time hint does not print a trailing zero (**NM-PLAY**: **NM-FIX-5**, **NM-FIX-6**). 2026-10-14, live build (#434, `9195865`): Playtester confirmed the pour button stays after hiring and that payback times show whole seconds. Generations Reviewer confirmed hold-to-pour on a fresh save at the pre-hire stall: a single tap poured 1 cup, a roughly 2-second touch hold poured 16 cups (about 8 a second), and a mouse hold poured until the 25-cup cap, and the counter and bar rose with it. "Your save" is not in this confirmation, so this line stays open.
 12. A phone layout playtest (**NM-FIX-7**). Owner: Playtester. 2026-10-14: Generations Reviewer confirmed hold-to-pour on an iPhone 12 held upright (390x844) and sideways (844x390). A played phone session is still open.
 
@@ -57,7 +57,7 @@ These are bundles, not one pull each. Guest lane (#373) owns them. Payback hint 
 |---|---|---|
 | NM-PLAY | Guest lane (#373) | First bundle. Pour flow (NM-FIX-5), save controls (NM-FIX-6), and the 22.0s trailing-zero fix. 2026-10-14, live build (#434, `9195865`): Playtester confirmed the pour button stays after hiring, payback times show whole seconds, the welcome-back box works and the cups bar works. Generations Reviewer confirmed hold-to-pour on a fresh save, on the pre-hire stall, on an iPhone 12 held upright (390x844) and sideways (844x390): a single tap poured 1 cup, a roughly 2-second touch hold poured 16 cups (about 8 a second), and a mouse hold poured until the 25-cup cap, and the counter and bar rose with it. "Your save" is still open |
 | NM-VIS | Guest lane (#373) | Visuals, one pull: lane-strip canvas, coin pop and flicker (NM-FIX-3), plus steam, flash and passers-by (NM-FIX-4). Spec from Game Art Director, who reviews the art |
-| NM-PHONE | Guest lane (#373) | "Back to the arcade" is 112×17 px and overlaps a button. The stalls sit below the fold (NM-FIX-8) |
+| NM-PHONE | Guest lane (#373) | Done (#456, `f2f8a261`). "Back to the arcade" is large enough and does not cover another button, and a stall is on screen on a phone (NM-FIX-8) |
 | NM-HUB | Guest lane (#373) | Hall and launcher entry. #403 did not add this |
 | NM-FIX-7 | Playtester | The phone layout still needs a playtest. Not a build pull. 2026-10-14: Generations Reviewer confirmed hold-to-pour on the live build (#434, `9195865`) on an iPhone 12 held upright (390x844) and sideways (844x390). A played phone session is still open |
 
@@ -79,7 +79,7 @@ Measured 2026-10-14. Night Market's feature rate is 2 pulls in 7 days (0.29 a da
 |---|---|
 | NM-PLAY | Pour flow, save controls, and the 22.0s trailing-zero fix. 2026-10-14: the pour, whole-second times, the welcome-back box and the cups bar were confirmed on the live build (#434, `9195865`). "Your save" is still open |
 | NM-VIS | Lane strip, coin pop, flicker, steam, flash, and passers-by. One pull. Game Art Director reviews the art |
-| NM-PHONE | The back control and the stalls below the fold |
+| NM-PHONE | Done (#456, `f2f8a261`): the back control and the stalls below the fold |
 | NM-HUB | Hall and launcher entry |
 
 **Likely:** 4 / 0.29 days of build, plus 1 confirmation day, plus 0 buffer. **2026-10-29.**

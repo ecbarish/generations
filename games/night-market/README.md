@@ -1,6 +1,6 @@
 # Night Market Stalls (IDLE-NM1)
 
-v0.1.5.
+v0.1.6.
 
 A small night market you can leave open. Six stalls stand on one lane. You work each stall yourself, then ask its vendor to run it. After that you buy more of that stall, one, ten, or as many as you can afford. At 25, 50 and 100 the stall changes look and earns twice as much each time.
 
@@ -14,6 +14,7 @@ Checks: `node tools/run-all-checks.cjs night-market`
 
 ## Changelog
 
+- v0.1.6 (2026-10-15, NM-PHONE, PR #456): On phones, Night Market keeps its Back control and first stall within reach. Every touch target is at least 44px at all seven tested sizes. Contrast is at least 5.16:1. The Pour button now sits above the fold on sideways phones. The save stays version 1.
 - v0.1.5 (2026-10-15, NM-FIX-6, PR #461): Choosing Load a save file with another game's save is refused straight away. The box says that file isn't a save for this game, and it does not ask to replace the save. A real Night Market save still asks first. The save stays version 1.
 - v0.1.4 (2026-10-15, visuals, PR #438): A picture of the lane now sits under the header, with the six stalls in order. An open stall shows a striped awning, a counter and its own wares, and a shuttered stall stays dark. Each sale pops a coin up from that stall. Lanterns flicker along the top of the lane and on the awnings. The tea stall, the dumpling cart and the mooncake table steam, and the incense tray smokes, once that stall is open and has been served or hired. Buying or hiring outlines that stall for a moment, and reaching 25, 50 or 100 plays a brighter flash. The awning's light stripe changes colour at those same counts. Once a stall is staffed, people stroll along the lane. When reduced motion is on, the lane holds still, and a sale or a flash shows as one still picture. The save stays version 1.
 - v0.1.3 (2026-10-14, NM-RETUNE, PR #445): The first million now takes a longer evening, about 48 to 66 minutes of active play. Later stalls cost more and earn less. The dumpling cart earns 0.5/s like the tea stall. Old saves keep their coins and stalls. The save stays version 1.
