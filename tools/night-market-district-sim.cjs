@@ -1,3 +1,4 @@
+// NM-G6 claimed by dot for Adam, 2026-10-15: validate and pace the third district.
 /* NM-G2: data-only measurements, never a runtime loader or save migration.
  * Spec-owner ruling: https://github.com/ecbarish/generations/pull/483#issuecomment-6183588332
  * Chain-only includes Mei as the canonical favourite, with no permits spent.
