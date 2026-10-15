@@ -44,5 +44,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
  .desk{grid-template-columns:minmax(300px,2fr) 3fr;align-items:start}
  header,.answer{grid-column:1/-1}
 }
-@media (max-width:420px){.choices,.measures{grid-template-columns:1fr}.months{grid-template-columns:repeat(4,1fr)}}
+/* Keep a full negative month amount together on narrow screens. */
+@media (max-width:480px){.months{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:420px){.choices,.measures{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.answer{animation:rise .25s ease-out}@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1}}}
