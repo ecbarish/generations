@@ -60,8 +60,20 @@ Anything taller than the 24px door line waits outside. A creature at 24px or und
 creature taller than the door may crawl in only when the crawl pose is 12px tall or less and at least twice as long
 as it is tall. Today that is Deeptide, and only in that pose. Standing, Deeptide waits outside.
 
-Overworld creatures in the pixel tiers are 12px at the floor and 32px at the cap. `figures.gd` `drawn_px` (lines
-395–396) is that clamp: metres times 12.35, held between 12 and 32. The rows below are walking heights.
+Overworld creatures in the pixel tiers run from a 12px floor to a 32px cap. Walking pixels use this rule. Take
+px = round(metres × 12.35). If px is 24 or less, the walking height is px, and anything under 12 is raised to 12.
+If px is over 24, the walking height is 24 + 8 × log2(px / 24), rounded, and capped at 32.
+
+The four Legends at 2.0 m show the first branch. 2.0 × 12.35 is 24.7, which rounds to 25. That is over 24, so the
+curve is 24 + 8 × log2(25 / 24). log2(25 / 24) is about 0.059, times 8 is about 0.47, and 24.47 rounds to 24. They
+are 24px. A plain rounding of 24.7 would have left them at 25. Meadowmantle at 2.66 m shows the tall branch.
+2.66 × 12.35 is 32.851, which rounds to 33. The curve is 24 + 8 × log2(33 / 24). log2(33 / 24) is about 0.459,
+times 8 is about 3.68, and 27.68 rounds to 28. Meadowmantle is 28px. Holding 33 down to a cap of 32 would have
+left it at 32.
+
+`figures.gd` `drawn_px` (lines 395–396) still multiplies metres by 12.35 and holds the result between 12 and 32.
+That code is being fixed separately. It is not the locked rule. The rows below are the walking heights the curve
+produces.
 
 The pixel table is a view of the metres. In 3D the door is the 2.0 m door, and creatures use their true heights in
 metres, not these compressed pixels. Mistfinch is 0.24 m, Elderhorn is 3.64 m, and the tamer is 1.70 m. Tier T3
