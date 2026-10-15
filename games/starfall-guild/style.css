@@ -13,7 +13,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
   background-image:linear-gradient(var(--bg-deep) 2px,transparent 2px),linear-gradient(90deg,var(--bg-deep) 2px,transparent 2px);background-size:32px 32px}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-.home{display:inline-flex;align-items:center;min-height:44px;color:var(--blue-d);text-decoration:none;border:2px solid var(--blue-d);border-radius:999px;padding:4px 11px;font-size:13px;letter-spacing:0;text-transform:none;margin-right:6px;background:var(--paper)}
+/* Keep the 44px target above the shared coarse-pointer a.home minimum. */
+.app .home{display:inline-flex;align-items:center;min-height:44px;color:var(--blue-d);text-decoration:none;border:2px solid var(--blue-d);border-radius:999px;padding:4px 11px;font-size:13px;letter-spacing:0;text-transform:none;margin-right:6px;background:var(--paper)}
 .home:hover{text-decoration:underline}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}

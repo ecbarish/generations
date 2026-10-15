@@ -34,13 +34,14 @@ function declarations(selector, expectedRules = 1) {
   }));
 }
 function sourceChecks() {
-  for (const selector of ['.home', '.tabs button', '.seg button']) {
+  for (const selector of ['.app .home', '.tabs button', '.seg button']) {
     const rule = declarations(selector);
     check(/^\d+(?:\.\d+)?px$/.test(rule['min-height']), selector + ' has a pixel minimum');
     check(parseFloat(rule['min-height']) >= 44, selector + ' is at least 44px tall');
     check(!rule.height && !rule['max-height'], selector + ' may grow with larger text');
   }
-  const home = declarations('.home');
+  const home = declarations('.app .home');
+  // .app .home (0,2,0) outranks shared settings' coarse-pointer a.home (0,1,1).
   equal(home.display, 'inline-flex', 'Arcade link has a box that accepts min-height');
   equal(home['align-items'], 'center', 'Arcade link text is vertically centered');
   equal(declarations('.tabs')['flex-wrap'], 'wrap', 'tabs can still wrap on narrow screens');
@@ -118,10 +119,13 @@ async function renderedChecks() {
         const dimensions=[];
         async function measure(selector,label) {
           const data=await page.locator(selector).evaluateAll(els=>els.filter(e=>e.getClientRects().length).map(e=>{
-            const r=e.getBoundingClientRect();return {text:e.textContent.trim(),height:r.height,width:r.width};
+            const r=e.getBoundingClientRect();return {text:e.textContent.trim(),height:r.height,width:r.width,minHeight:parseFloat(getComputedStyle(e).minHeight)};
           }));
           check(data.length>0, label+' exists at '+width);
-          data.forEach(d=>check(d.height>=43.99,label+' '+d.text+' is at least 44px at '+width));
+          data.forEach(d=>{
+            check(d.height>=43.99,label+' '+d.text+' is at least 44px at '+width);
+            check(d.minHeight>=44,label+' '+d.text+' keeps a computed 44px minimum before zoom');
+          });
           dimensions.push({label,controls:data});
         }
         await measure('.home','Arcade');
