@@ -123,6 +123,22 @@
     const errors = validate(data);
     if (errors.length) throw new TypeError(errors.join('; '));
   }
+  // Copy only validated own data fields. This ignores inherited array methods
+  // and toJSON hooks on direct-JavaScript inputs to the public check runner.
+  function tableCopy(data) {
+    const result = {};
+    for (const k of ['schemaVersion', 'levelUp', 'floor', 'ceiling']) result[k] = data[k];
+    result.xp = {};
+    for (const k of EVENTS) result.xp[k] = data.xp[k];
+    result.levels = [];
+    for (let i = 0; i < data.levels.length; i++) result.levels.push(data.levels[i]);
+    for (const field of ['potential', 'aging']) {
+      const valueKey = field === 'potential' ? 'cap' : 'change';
+      result[field] = [];
+      for (let i = 0; i < data[field].length; i++) result[field].push({ throughAge: data[field][i].throughAge, [valueKey]: data[field][i][valueKey] });
+    }
+    return result;
+  }
   function rng(seed) {
     if (!integer(seed) || seed < 0 || seed > 0xffffffff) throw new TypeError('Seed must be a uint32');
     let state = seed;
@@ -211,6 +227,8 @@
     const errors = validate(data);
     check('authored progression validates: ' + errors.join('; '), errors.length === 0);
     if (errors.length) return count;
+    const supplied = data;
+    data = tableCopy(data);
     const original = JSON.stringify(data), clone = () => JSON.parse(original);
     function reject(name, mutate) { const v = clone(); mutate(v); check(name, validate(v).length > 0); }
     const result = simulate(data);
@@ -323,6 +341,10 @@
     const poison = clone();
     for (const field of ['levels', 'potential', 'aging']) Object.setPrototypeOf(poison[field], { map() { throw new Error('inherited method'); } });
     check('validation does not invoke inherited array methods', validate(poison).length === 0);
+    let hookReads = 0;
+    Object.setPrototypeOf(poison.levels, { get toJSON() { hookReads++; throw new Error('inherited hook'); } });
+    check('canonical check input ignores inherited JSON hooks', JSON.stringify(tableCopy(poison)) === original && hookReads === 0);
+    check('simulation ignores inherited array/JSON hooks', JSON.stringify(simulate(poison)) === JSON.stringify(result) && hookReads === 0);
     const nullProto = clone(); Object.setPrototypeOf(nullProto, null); Object.setPrototypeOf(nullProto.xp, null);
     check('null-prototype data accepted', validate(nullProto).length === 0);
     const frozen = clone(); Object.freeze(frozen.xp); Object.freeze(frozen.levels); Object.freeze(frozen);
@@ -333,7 +355,7 @@
     }
     let throws = false; try { simulate({}); } catch (_) { throws = true; }
     check('simulation rejects malformed table before running', throws);
-    check('checks leave supplied data unchanged', original === JSON.stringify(data));
+    check('checks leave supplied data unchanged', original === JSON.stringify(tableCopy(supplied)));
     return count;
   }
   return Object.freeze({ validate, runChecks, fixture, simulate, overall, seed: SEED });
