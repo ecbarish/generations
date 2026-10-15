@@ -127,34 +127,48 @@ static func _backs(game: Node, check: Callable) -> void:
 	game.battle.state = "off"
 
 static func _chips(game: Node, check: Callable) -> void:
-	var ally: Dictionary = game.R.make("ripplet", 8, { "rar": 1 }, game.rng)
-	var foe: Dictionary = game.R.make("mosshog", 8, { "rar": 1 }, game.rng)
-	var foe2: Dictionary = game.R.make("cindercub", 8, { "rar": 1 }, game.rng)
-	game.battle.open("wild", [ally], [foe, foe2], "")
-	game.battle._go_to("choose")
-	game.battle.wait_u = game.battle.allies[0]
-	game.battle.external_ui = false
 	var names := PackedStringArray(["Breakwatermane", "Ripplet", "Mosshog", "Cindercub"])
-	for win in [Vector2(780, 360), Vector2(844, 390)]:
-		game.battle.layout_scale = minf(win.x / 384.0, win.y / 216.0)
-		var chips: Dictionary = game.battle._chip_boxes(names)
-		var first := Rect2(10, 8, 150, 26).grow(1.0)
-		var second := Rect2(10, 38, 150, 26).grow(1.0)
-		var ally_box: Rect2 = game.battle._ally_panel().grow(1.0)
-		var clear := true
-		var detail := ""
-		var nxt: Rect2 = chips.get("next", Rect2())
-		if nxt.position.y < 68.5 or nxt.intersects(first) or nxt.intersects(second) or nxt.intersects(ally_box):
-			clear = false
-			detail = "Next: %s" % nxt
-		for r in chips["rects"]:
-			var box: Rect2 = r
-			if box.position.y < 68.5 or box.intersects(first) or box.intersects(second) or box.intersects(ally_box):
-				clear = false
-				detail = "%s" % box
-		var word: float = game.battle.font.get_string_size("Breakwatermane", HORIZONTAL_ALIGNMENT_LEFT, -1, int(chips["font"])).x
-		var chip: Rect2 = chips["rects"][0]
-		check.call(clear and word <= chip.size.x - 8.0 + 0.5, "at %s the Next row starts at y69, under both foe panels, and Breakwatermane fits (%s)" % [win, detail])
+	var strip := Rect2(162, 8, 214, 19)
+	for count in [1, 2]:
+		var ally: Dictionary = game.R.make("ripplet", 8, { "rar": 1 }, game.rng)
+		var tall: Dictionary = game.R.make("bogsnap", 8, { "rar": 1 }, game.rng)
+		tall.name = "Breakwatermane"
+		var party: Array = [tall]
+		if count == 2:
+			party.append(game.R.make("mosshog", 8, { "rar": 1 }, game.rng))
+		game.battle.open("wild", [ally], party, "")
+		game.battle._go_to("choose")
+		game.battle.wait_u = game.battle.allies[0]
+		game.battle.external_ui = false
+		for win in [Vector2(780, 360), Vector2(844, 390)]:
+			game.battle.layout_scale = minf(win.x / 384.0, win.y / 216.0)
+			var chips: Dictionary = game.battle._chip_boxes(names)
+			var obstacles: Array = []
+			for i in game.battle.foes.size():
+				obstacles.append(Rect2(10, 8 + i * 30, 150, 26))
+			obstacles.append(game.battle._ally_panel())
+			for u in game.battle.foes + game.battle.allies:
+				var body: Rect2 = game.battle.sprite_rect(u)
+				if body.size.x > 1.0:
+					obstacles.append(body)
+			var nxt: Rect2 = chips.get("next", Rect2())
+			var clear := nxt.size.x > 8.0
+			var detail := "Next: %s" % nxt
+			var boxes: Array = [nxt]
+			for r in chips["rects"]:
+				boxes.append(r)
+			for r in boxes:
+				var box: Rect2 = r
+				for ob in obstacles:
+					var block: Rect2 = ob
+					if box.intersects(block):
+						clear = false
+						detail = "%s hits %s" % [box, block]
+			var home: Rect2 = game.battle._command_box()
+			var placed := _inside(strip, boxes) or _inside(home, boxes)
+			var word: float = game.battle.font.get_string_size("Breakwatermane", HORIZONTAL_ALIGNMENT_LEFT, -1, int(chips["font"])).x
+			var chip: Rect2 = chips["rects"][0]
+			check.call(clear and placed and word <= chip.size.x - 8.0 + 0.5, "at %s with %d foes the Next row misses the panels and Breakwatermane (%s)" % [win, count, detail])
 	game.battle.layout_scale = 0.0
 	game.battle.visible = false
 	game.battle.state = "off"
@@ -375,6 +389,22 @@ static func _hud(game: Node, check: Callable) -> void:
 	check.call(natural.intersects(door_s) and game.bubble.visible and not bub.intersects(door_s) and not blocked, "speech moves off the barn door and stays off the other blocks")
 	game.lines.clear()
 	game.caption.text = ""
+	game.caption_lift = 0.0
+	game.me.tile = game.BARN_EXIT + Vector2i(0, -2)
+	game.me.pos = Vector2(game.me.tile) * float(game.TILE)
+	var focus: Vector2 = pen.get_center() + Vector2(0, 70)
+	game.get_viewport().canvas_transform = Transform2D(Vector2(1, 0), Vector2(0, 1), Vector2(192, 108) - focus)
+	game.say("", "The name is written on the stall.")
+	game._update_ui()
+	bub = Rect2(game.bubble.position, game.bubble.size)
+	var stacked := false
+	for b in game._hud_blocks():
+		var block: Rect2 = b
+		if bub.intersects(block):
+			stacked = true
+	check.call(game.bubble.visible and not stacked, "with you two tiles above the barn door, speech misses you, the door, the signs and the pens")
+	game.lines.clear()
+	game.caption.text = ""
 	game.get_viewport().canvas_transform = Transform2D.IDENTITY
 
 static func _howto(game: Node, check: Callable) -> void:
@@ -520,6 +550,15 @@ static func _card(game: Node, check: Callable) -> void:
 	var btn: Rect2 = game.card._btn(0)
 	check.call(note.size.y > 4.0 and note.end.y <= btn.position.y + 0.01 and "pleased with itself" in str(game.card.info.maren), "Maren's last line ends above the Choose button (%.1f, button %.1f)" % [note.end.y, btn.position.y])
 	game.card.visible = false
+
+static func _inside(area: Rect2, boxes: Array) -> bool:
+	for r in boxes:
+		var box: Rect2 = r
+		if box.position.x < area.position.x - 0.01 or box.position.y < area.position.y - 0.01:
+			return false
+		if box.end.x > area.end.x + 0.01 or box.end.y > area.end.y + 0.01:
+			return false
+	return true
 
 static func _back_line(img: Image, dest: Vector2, sz_x: int, mirrored: bool, left: float, right: float) -> float:
 	var x0 := int(floor(left - dest.x))

@@ -910,7 +910,7 @@ func _ally_line_rect(i: int, n: int) -> Rect2:
 
 ## Where the "Next:" names sit. They shrink, then wrap, and stay inside the top of the screen.
 ## A chip is the word plus 8px (4px of padding on each side). The word is drawn from that padding, with no clip.
-## A landscape phone (scale under 2) keeps the chips and the Next: label clear of both health panels.
+## A landscape phone (scale under 2) keeps the chips and the Next: label off the health panels and the creatures.
 func _chip_boxes(labels: PackedStringArray) -> Dictionary:
 	if _view_scale() < 2.0:
 		return _landscape_chips(labels)
@@ -933,35 +933,94 @@ func _chip_boxes(labels: PackedStringArray) -> Dictionary:
 		x += w + 3.0
 	return {"font": size, "rects": rects}
 
-## Below the last foe's health panel and above yours, with a Next: label the chips do not cover.
-## Two foes stack at y8 and y38, so the row starts at y69.
+## Beside the foe panels, in the strip above the sprites (x162–376, y8–27).
+## A row that does not fit there, or that would cover a creature, goes inside the command box.
 func _landscape_chips(labels: PackedStringArray) -> Dictionary:
-	var n := maxi(1, foes.size())
-	var foe := Rect2(10, 8 + 30 * (n - 1), 150, 26)
-	var ally := _ally_panel().grow(1.0)
-	var label_size := 8
-	var label_w := 36.0
-	if font != null:
-		label_w = font.get_string_size("Next:", HORIZONTAL_ALIGNMENT_LEFT, -1, label_size).x
-	var y0 := foe.end.y + 5.0
-	var limit_y := ally.position.y - 2.0
-	var x0 := 8.0 + label_w + 6.0
-	var limit := 376.0
-	var chip_h := 16.0
-	var size := 8
-	while size > 6:
-		var trial := PhoneShell.place_chips(labels, font, x0, y0, limit, size, chip_h)
-		var bottom := y0
-		for r in trial["rects"]:
+	var strip := Rect2(162, 8, 214, 19)
+	var on_strip := _fit_chip_row(labels, strip, 1)
+	if not on_strip.is_empty() and _chips_clear(on_strip):
+		return on_strip
+	var box := _command_box()
+	var room := Rect2(box.position.x + 4.0, box.position.y + 4.0, 220.0, box.size.y - 8.0)
+	var in_box := _fit_chip_row(labels, room, 2)
+	if not in_box.is_empty() and _chips_clear(in_box):
+		return in_box
+	if not on_strip.is_empty():
+		return on_strip
+	return in_box
+
+## One font size whose chips and Next: label stay inside `area`. Empty when none of 8, 7 or 6 fit.
+func _fit_chip_row(labels: PackedStringArray, area: Rect2, max_rows: int) -> Dictionary:
+	for size in range(8, 5, -1):
+		var label_w := 24.0
+		if font != null:
+			label_w = font.get_string_size("Next:", HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		var chip_h := minf(16.0, area.size.y)
+		if max_rows > 1:
+			chip_h = minf(16.0, floor((area.size.y - 3.0) / 2.0))
+		if chip_h < float(size) + 2.0:
+			continue
+		var x0 := area.position.x + label_w + 4.0
+		var placed := _place_chip_rows(labels, x0, area.position.y, area.end.x, size, chip_h, max_rows)
+		if placed.is_empty():
+			continue
+		var bottom := area.position.y
+		for r in placed["rects"]:
 			bottom = maxf(bottom, (r as Rect2).end.y)
-		if bottom <= limit_y + 0.01:
-			trial["next"] = Rect2(8.0, y0, label_w, chip_h)
-			return trial
-		size -= 1
-		chip_h = float(size) + 8.0
-	var placed := PhoneShell.place_chips(labels, font, x0, y0, limit, 6, 14.0)
-	placed["next"] = Rect2(8.0, y0, label_w, 14.0)
-	return placed
+		if bottom > area.end.y + 0.01:
+			continue
+		placed["next"] = Rect2(area.position.x, area.position.y, label_w, chip_h)
+		return placed
+	return {}
+
+func _place_chip_rows(labels: PackedStringArray, x0: float, y0: float, limit: float, size: int, chip_h: float, max_rows: int) -> Dictionary:
+	var rects: Array = []
+	var x := x0
+	var y := y0
+	var row := 1
+	for lab in labels:
+		var word := float(lab.length() * size) * 0.6
+		if font != null:
+			word = font.get_string_size(lab, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		var w := word + 8.0
+		if w > limit - x0 + 0.01:
+			return {}
+		if x > x0 + 0.5 and x + w > limit + 0.01:
+			row += 1
+			if row > max_rows:
+				return {}
+			x = x0
+			y += chip_h + 3.0
+		rects.append(Rect2(x, y, w, chip_h))
+		x += w + 3.0
+	return {"font": size, "rects": rects, "labels": labels}
+
+## True when the chips and the Next: label miss every health panel and every creature.
+func _chips_clear(placed: Dictionary) -> bool:
+	var obstacles: Array = []
+	for i in foes.size():
+		obstacles.append(Rect2(10, 8 + i * 30, 150, 26))
+	if allies.size() <= 1:
+		obstacles.append(_ally_panel())
+	else:
+		for i in allies.size():
+			obstacles.append(_ally_line_rect(i, allies.size()))
+	for u in foes + allies:
+		var body: Rect2 = sprite_rect(u)
+		if body.size.x > 1.0 and body.size.y > 1.0:
+			obstacles.append(body)
+	var rects: Array = []
+	for r in placed.get("rects", []):
+		rects.append(r)
+	if placed.has("next"):
+		rects.append(placed["next"])
+	for r in rects:
+		var box: Rect2 = r
+		for ob in obstacles:
+			var block: Rect2 = ob
+			if box.intersects(block):
+				return false
+	return true
 
 func _chips_fit(labels: PackedStringArray, size: int, x0: float, limit: float) -> bool:
 	var x := x0

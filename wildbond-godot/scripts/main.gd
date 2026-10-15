@@ -4763,32 +4763,52 @@ func _clear_of_objective() -> void:
 	var blocks: Array = []
 	if objective != null and objective.visible:
 		blocks.append(Rect2(objective.position, objective.size))
-	blocks.append_array(_pen_sign_rects())
 	blocks.append_array(_hud_blocks())
-	for _pass in maxi(1, blocks.size()):
-		var bub := Rect2(bubble.position, bubble.size)
-		var hit := false
-		for b in blocks:
-			var ob: Rect2 = b
-			if bub.intersects(ob):
-				_nudge_bubble(ob)
-				hit = true
-				break
-		if not hit:
-			return
-
-func _nudge_bubble(ob: Rect2) -> void:
-	if not bubble.visible:
-		return
 	var bub := Rect2(bubble.position, bubble.size)
-	if not bub.intersects(ob):
+	if _clear_of_blocks(bub, blocks):
 		return
-	var below := ob.end.y + 2.0
-	var above := ob.position.y - bubble.size.y - 2.0
-	if below + bubble.size.y <= 214.0:
-		bubble.position.y = below
-	elif above >= 14.0:
-		bubble.position.y = above
+	bubble.position.y = _bubble_clear_y(bub, blocks)
+
+## A spot that misses every block at once. Above the highest block in the stack first
+## (the player standing over the door, not the door alone), then the top of the view.
+func _bubble_clear_y(bub: Rect2, blocks: Array) -> float:
+	var stack: Array = []
+	for i in blocks.size():
+		var ob: Rect2 = blocks[i]
+		if bub.intersects(ob):
+			stack.append(i)
+	var grew := true
+	while grew:
+		grew = false
+		var top := bub.position.y
+		var bot := bub.end.y
+		for i in stack:
+			var stacked: Rect2 = blocks[i]
+			top = minf(top, stacked.position.y)
+			bot = maxf(bot, stacked.end.y)
+		for i in blocks.size():
+			if i in stack:
+				continue
+			var ob: Rect2 = blocks[i]
+			if ob.position.x >= bub.end.x or ob.end.x <= bub.position.x:
+				continue
+			if ob.end.y < top - 24.0 or ob.position.y > bot + 24.0:
+				continue
+			stack.append(i)
+			grew = true
+	var highest := bub.position.y
+	for i in stack:
+		var stacked: Rect2 = blocks[i]
+		highest = minf(highest, stacked.position.y)
+	var candidates: Array = [highest - bub.size.y - 2.0, _speech_floor()]
+	for candidate in candidates:
+		var y := float(candidate)
+		var moved := Rect2(bub.position.x, y, bub.size.x, bub.size.y)
+		if moved.position.y < 0.0 or moved.end.y > 214.0:
+			continue
+		if _clear_of_blocks(moved, blocks):
+			return y
+	return _speech_floor()
 
 func _world_screen(r: Rect2) -> Rect2:
 	var xf := get_viewport().get_canvas_transform()
