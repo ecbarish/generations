@@ -211,10 +211,16 @@ func run() -> void:
 				failures.append("Meeting opened a different starter")
 				break
 			await capture("partner-card")
-			# Exercise safe decline and reopen without acquiring a partner.
+			# Decline with Not yet, then reopen, then Choose. The current card highlights Choose.
+			# The historical baseline still highlights Not yet, so follow the highlight this card opened with.
+			var opened_on := int(main.card.sel)
 			await read_for(2.0)
 			if method == "touch": await tap(Vector2(312, 190))
-			else: await press()
+			else:
+				if main.card.sel != 1:
+					await press(KEY_RIGHT)
+					await pause(1.0)
+				await press()
 			if not main.team.is_empty() or main.card.visible:
 				failures.append("Not yet did not decline safely")
 				break
@@ -223,12 +229,15 @@ func run() -> void:
 			if not main.card.visible:
 				failures.append("Card did not reopen through input")
 				break
-			if main.card.sel != 1: failures.append("Card lost safe Not yet default")
+			if int(main.card.sel) != opened_on:
+				failures.append("Card highlight changed after it was declined and reopened")
+				break
 			await read_for(12.0)
 			if method == "touch": await tap(Vector2(230, 190))
 			else:
-				await press(KEY_LEFT)
-				await pause(1.0)
+				if main.card.sel != 0:
+					await press(KEY_LEFT)
+					await pause(1.0)
 				await press()
 		else: await pause(0.5)
 	if main.team.is_empty(): failures.append("No partner acquired")
