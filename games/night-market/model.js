@@ -18,7 +18,7 @@
       id: 'tea', name: 'Tea Stall', vendor: 'Mei',
       habit: 'Mei opens before the lanterns are lit.',
       serve: 'Pour a cup', left: 'cup', lefts: 'cups', hire: 'Ask Mei to take the stall',
-      base: 5, growth: 1.07, rate: 0.5, serves: 25, hand: 1,
+      base: 5, growth: 1.11, rate: 0.5, serves: 25, hand: 1,
       looks: ['One lantern', 'Two lanterns', 'A striped awning', 'A crowd at the cups'],
       gossip: 'Mei says the regulars were waiting in the dark.',
       next: 'Bo brings the Dumpling Cart once ten tea stalls are pouring.'
@@ -27,7 +27,7 @@
       id: 'dumpling', name: 'Dumpling Cart', vendor: 'Bo',
       habit: 'Bo talks while he folds, and regulars stay to listen.',
       serve: 'Fold a dumpling', left: 'dumpling', lefts: 'dumplings', hire: 'Ask Bo to take the cart',
-      base: 60, growth: 1.08, rate: 4, serves: 12, hand: 2,
+      base: 60, growth: 1.15, rate: 0.5, serves: 12, hand: 2,
       looks: ['One steamer', 'Two steamers', 'A cloth awning', 'A queue down the lane'],
       gossip: 'Bo says he talked the whole time, and the dumplings still sold.',
       next: 'An brings the Lantern Stand once ten carts are folding.'
@@ -36,7 +36,7 @@
       id: 'lantern', name: 'Lantern Stand', vendor: 'An',
       habit: 'An trims each wick until the flame sits still.',
       serve: 'Light a lantern', left: 'lantern', lefts: 'lanterns', hire: 'Ask An to take the stand',
-      base: 720, growth: 1.09, rate: 30, serves: 10, hand: 4,
+      base: 720, growth: 1.15, rate: 2.5, serves: 10, hand: 4,
       looks: ['One pole', 'A pair of poles', 'A string of lamps', 'The alley lit'],
       gossip: 'An says the wicks burned clean the whole time.',
       next: 'Qiao brings the Mooncake Table once ten stands are lit.'
@@ -45,7 +45,7 @@
       id: 'mooncake', name: 'Mooncake Table', vendor: 'Qiao',
       habit: 'Qiao counts the tins twice, then parts with the one she likes least.',
       serve: 'Wrap a mooncake', left: 'mooncake', lefts: 'mooncakes', hire: 'Ask Qiao to take the table',
-      base: 9000, growth: 1.10, rate: 250, serves: 8, hand: 8,
+      base: 9000, growth: 1.15, rate: 5, serves: 8, hand: 8,
       looks: ['One stack of tins', 'Two stacks of tins', 'A painted sign', 'Tins along the table'],
       gossip: 'Qiao says she counted the tins twice, and they still sold.',
       next: 'Ren brings the Incense Tray once ten tables are wrapping.'
@@ -54,7 +54,7 @@
       id: 'incense', name: 'Incense Tray', vendor: 'Ren',
       habit: 'Ren lights one stick for the stall and one for the alley.',
       serve: 'Light a stick', left: 'stick', lefts: 'sticks', hire: 'Ask Ren to take the tray',
-      base: 130000, growth: 1.11, rate: 2200, serves: 8, hand: 16,
+      base: 130000, growth: 1.15, rate: 50, serves: 8, hand: 16,
       looks: ['One tray', 'Two trays', 'A bronze stand', 'Smoke you can see from the gate'],
       gossip: 'Ren says the alley smelled of smoke before anyone arrived.',
       next: 'Old Wen unrolls the Story Mat once ten trays are burning.'
@@ -63,7 +63,7 @@
       id: 'stories', name: 'Story Mat', vendor: 'Old Wen',
       habit: 'Old Wen stops just before the ending. The crowd pays to hear the rest.',
       serve: 'Tell a piece of the story', left: 'piece of the story', lefts: 'pieces of the story', hire: 'Ask Old Wen to take the mat',
-      base: 2200000, growth: 1.12, rate: 22000, serves: 6, hand: 40,
+      base: 2200000, growth: 1.15, rate: 500, serves: 6, hand: 40,
       looks: ['One cushion', 'Two cushions', 'A paper screen', 'Listeners sitting in the lane'],
       gossip: 'Old Wen says he reached the ending, then started again.',
       next: ''
