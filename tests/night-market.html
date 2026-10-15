@@ -368,6 +368,10 @@ document.querySelector('#run').onclick = async function () {
         });
         check(label + ' ' + dims.join('x') + ': footer type computes to at least 16px',
           parseFloat(w.getComputedStyle(d.querySelector('.foot')).fontSize) >= 16);
+        var cashRect = d.querySelector('.coins').getBoundingClientRect();
+        check(label + ' ' + dims.join('x') + ': Back and cash fit beside each other without overlap',
+          hr.right <= cashRect.left && Math.abs((hr.top + hr.bottom) / 2 - (cashRect.top + cashRect.bottom) / 2) < 1 &&
+          cashRect.right <= dims[0] + 1);
         check(label + ' ' + dims.join('x') + ': Back is a visible 44px target', hr.height >= 44 && inside(hr) && onTop(home, hr));
         check(label + ' ' + dims.join('x') + ': the whole first serve button is above the fold', sr.height >= 44 && inside(sr) && onTop(serve, sr));
         check(label + ' ' + dims.join('x') + ': navigation and work never overlap or spill sideways',
@@ -377,6 +381,34 @@ document.querySelector('#run').onclick = async function () {
       await new Promise(function (r) { setTimeout(r, 100); });
     }
     await checkPhoneLayout('Fresh lane');
+    // NM-G3: nowrap must not paint Back over the neighbouring cash at enlarged text.
+    var priorRootFont = d.documentElement.style.fontSize, priorBodyFont = d.body.style.fontSize;
+    var priorWidth = frame.style.width, priorHeight = frame.style.height;
+    var priorCash = w.__nightMarket.state.cash;
+    try {
+      frame.style.width = '390px'; frame.style.height = '844px';
+      d.documentElement.style.fontSize = '32px'; d.body.style.fontSize = '34px';
+      w.__nightMarket.state.cash = 920; w.__nightMarket.render();
+      await new Promise(function (r) { setTimeout(r, 100); });
+      var zoomHome = d.querySelector('.home'), zoomCoins = d.querySelector('.coins');
+      var zoomBackRect = zoomHome.getBoundingClientRect(), zoomCashRect = zoomCoins.getBoundingClientRect();
+      check('200% text at 390px uses the reproduced 920-coins state and a 32px Back label',
+        d.querySelector('#coins').textContent === '920' && w.getComputedStyle(zoomHome).fontSize === '32px');
+      check('200% text: Back and cash rectangles do not overlap',
+        !(zoomBackRect.left < zoomCashRect.right && zoomBackRect.right > zoomCashRect.left &&
+          zoomBackRect.top < zoomCashRect.bottom && zoomBackRect.bottom > zoomCashRect.top));
+      check('200% text: cash wraps below Back and before the title',
+        zoomCashRect.top >= zoomBackRect.bottom && d.querySelector('h1').getBoundingClientRect().top >= zoomCashRect.bottom);
+      check('200% text: both header labels remain inside the viewport without sideways scrolling',
+        zoomBackRect.left >= 0 && zoomBackRect.right <= 390 && zoomCashRect.left >= 0 && zoomCashRect.right <= 390 &&
+        zoomHome.scrollWidth <= zoomHome.clientWidth + 1 && zoomCoins.scrollWidth <= zoomCoins.clientWidth + 1 &&
+        d.documentElement.scrollWidth <= 390);
+    } finally {
+      d.documentElement.style.fontSize = priorRootFont; d.body.style.fontSize = priorBodyFont;
+      frame.style.width = priorWidth; frame.style.height = priorHeight;
+      w.__nightMarket.state.cash = priorCash; w.__nightMarket.render();
+      await new Promise(function (r) { setTimeout(r, 100); });
+    }
     var pourBtn = d.querySelector('#stalls [data-act="serve"]'), firstLi = d.querySelector('#stalls .stall');
     check('the tea stall shows how many cups are done, and that you can hold', /0 of 25 cups/.test(firstLi.querySelector('.count').textContent) && /hold/.test(firstLi.querySelector('.count').textContent) && !firstLi.querySelector('.pour').hidden);
     pourBtn.click(); w.__nightMarket.render();
