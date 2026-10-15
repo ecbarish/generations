@@ -13,8 +13,8 @@ The exact-head Chromium capture at `7e6273380417015f409c4bac828156ea35def063`
 - Back to the arcade was 112.6 × 17 CSS pixels at all seven measured sizes.
 - At 844 × 390, the first Pour button extended to y=433.3, below the viewport.
 - At 568 × 320, it extended to y=457.9. At 667 × 375, it extended to y=433.3.
-- The plain-ledger portrait first action was already visible. The upcoming visual
-  strip adds height, so the final portrait checks must include that strip too.
+- The plain-ledger portrait first action was already visible. The final checks
+  below also include the merged visual strip, which adds height.
 - The reported overlap was not reproduced on this baseline. The repair keeps
   navigation in normal flow and regression-checks unobstructed hit targets.
 
@@ -59,9 +59,46 @@ or art-asset changes are made by this task. Grok owns the NM-PLAY save residual.
 - Every context uses disposable storage; an unrelated sentinel save must remain
   unchanged. The aggregate retains the literal pre-retune v1 save reload tests.
 
-## Verification status
+## Integrated evidence
 
-Final exact-head results and reconciled visual-strip captures are pending.
+Source head: `ff2b5cb96168ddcdd4e2604013cefae1b7f2e48e`, a normal merge of
+main `92e8b990e7a451015b9f3dd4660616aa533f194d`, including the approved lane
+from #438. The sole index conflict was resolved by keeping the decorative lane
+outside and before the work wrapper. The original art code and tests survive.
+
+[Phone review run 38665372361](https://github.com/ecbarish/generations/actions/runs/38665372361)
+passed **264/264 checks** and produced **27 screenshots**. The retained
+[integrated report](integrated-report.json) records the exact source head, all
+assertions and measurements. The full screen set is in
+[artifact 11940856804](https://github.com/ecbarish/generations/actions/runs/38665372361/artifacts/11940856804).
+The durable images below are copied directly from that artifact; the two
+baseline images come from the unchanged pre-art baseline identified above.
+
+| View | Before (pre-art) | After (with merged art) |
+| --- | --- | --- |
+| Fresh portrait, 390×844 | ![Old portrait](before-390x844.png) | ![Integrated portrait](fresh-390x844.png) |
+| Fresh landscape, 844×390 | ![Old landscape](before-844x390.png) | ![Integrated landscape](fresh-844x390.png) |
+
+The two tightest hired-state views retain the whole first serve and buy actions:
+
+![Hired at 320×568](hired-320x568.png)
+![Hired at 568×320](hired-568x320.png)
+
+Back is now 135.4×44 CSS pixels in the measured normal-size phone views.
+At 844×390, the fresh Pour button ends at y=250.1 (previously y=433.3 even
+without art); at 568×320, it ends at y=178.1 (previously y=457.9).
+The hired serve button ends at y=504.5 on 320×568 and y=245.3 on 568×320.
+The strip remains whole and centered: 320×60 on the narrowest portrait,
+384×72 on 568px landscape, and 768×144 on 844px landscape.
+
+## Verification limits and review
+
+These screenshots are source-head evidence, not a claim that their report names
+its later documentation commit. The final exact PR-head aggregate and refreshed
+phone evidence are linked in [#456's self-check](https://github.com/ecbarish/generations/pull/456).
+Source-head [aggregate Checks](https://github.com/ecbarish/generations/actions/runs/38665372284)
+passed, alongside Wildbond export freshness. The normal aggregate retains the prior literal-v1-save and art assertions;
+no test or required workflow has been weakened or replaced.
 Local Chromium cannot start (`socket() failed: Operation not permitted`), so
 actual-browser evidence comes from the documented CI runs, not a local claim.
 No physical handset, Safari, audible response, human feel or deployment pass is
