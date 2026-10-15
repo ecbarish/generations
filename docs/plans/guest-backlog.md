@@ -99,9 +99,9 @@ Night Market's leftover build rows are Grok's NM-FIX-6 and #438, and dot's NM-PH
 
 Wildbond's background lane was next. WB-ROAD and WB-LOOK are the assigned rows above. WBL-7 stays with the north-roads check from #416. WBL-16 rides inside WB-ROAD because it is `title.gd`. WBL-15 (long captions) and WBL-17 (the ranch prompt) sit in `main.gd` beside the fix bundle and beside WB-LOOK, so they are not separate rows. WBL-19 (the size table) sits in `main.gd` and `battle.gd`. WBL-18 was checked on 2026-10-15: `wildbond.json` does not contain duplicate species names, and DD-5 already says which lines use trust plus level, so it is not a build row. WBL-20 needs Evan. WBL-21 is wording, and DD-5 is already updated. WBL-22 is merged (#399). Shop clicks use `controls.gd`, which the fix bundle owns. There is no further Wildbond file that is free of the fix bundle, the phone-layout pull, WB-ROAD and WB-LOOK.
 
-The rows below are keep-alive bug fixes for the other games. Brisket's Crossing is not here: its newcomer fixes, including "1 life", are already done. Each row has an ID, a scope in plain sentences, the files it touches, a done check, and an explicit statement that it has no dependency on another bot's approval. That statement is true: there is no save-format change, no `shared/` or `sw.js` edit, and no new art. No two of these rows touch the same files, and none of them touch a file named under Now or Next.
+The rows below are keep-alive bug fixes for the other games. Brisket's Crossing already says "1 life" and already starts from get-ready on Space or an arrow. Only its short back link is still open, as BC-HOME. Each row has an ID, a scope in plain sentences, the files it touches, a done check, and an explicit statement that it has no dependency on another bot's approval. That statement is true: there is no save-format change, no `shared/` or `sw.js` edit, and no new art. No two of these rows touch the same files, and none of them touch a file named under Now or Next.
 
-Five unclaimed rows are ready for each guest. That is the verified set whose files do not collide. Generations PM adds the next verified bug when one appears, and keeps at least five unclaimed rows per guest.
+Nine unclaimed rows are ready for each guest.
 
 ### Grok, unclaimed
 
@@ -111,16 +111,34 @@ Five unclaimed rows are ready for each guest. That is the verified set whose fil
 - **Done when:** a seeded league does not generate two identical full names on the same club, a better new batter is not stuck on the bench solely because the old nine was already full, and `node tests/dm-roster.cjs` passes. The existing Diamond Manager checks still pass. Old saves load.
 - **Approval:** this has no dependency on another bot's approval.
 
-**DM-SIM.** A home run sentence already ends with an exclamation mark, and the play step adds a period, so the line reads "to left!." Simulated games have also been reported leaving a starter in well past the 90 to 120 pitches the roster page states. The tired-pitcher hook returns nothing when no rested arm is available. Reproduce a simulated game that still does that, and fix only the path that still fails. Do not restyle the rest of the play-by-play. Surnames in the other sentences are the existing broadcast style.
+**DM-SIM.** A home run sentence already ends with an exclamation mark, and the play step adds a period, so the line reads "to left!." A strikeout names the pitcher by surname only, so "against Ember" can be read as an element instead of a person. Use the pitcher's full name in that one sentence. Simulated games have also been reported leaving a starter in well past the 90 to 120 pitches the roster page states. The tired-pitcher hook returns nothing when no rested arm is available. Reproduce a simulated game that still does that, and fix only the path that still fails. Leave the other play-by-play sentences as they are.
 
-- **Files:** `games/diamond-manager/js/game.js` and a new `tests/dm-sim.cjs`. Do not edit `league.js`, `ui.js`, `tests/diamond-manager.html`, or `tests/diamond-manager-checks.js`.
-- **Done when:** a home run line does not end with "!." . If a simulated starter still throws past the stated band, that path stops doing so, and the test shows the pitch count. If the band already holds, the test says so and the sentence fix still lands. `node tests/dm-sim.cjs` passes. Old saves load.
+- **Files:** `games/diamond-manager/js/game.js` and a new `tests/dm-sim.cjs`. Do not edit `league.js`, `ui.js`, `form.js`, `tests/diamond-manager.html`, or `tests/diamond-manager-checks.js`.
+- **Done when:** a home run line does not end with "!." A strikeout names the pitcher in full. If a simulated starter still throws past the stated band, that path stops doing so, and the test shows the pitch count. If the band already holds, the test says so and the sentence fixes still land. `node tests/dm-sim.cjs` passes. Old saves load.
 - **Approval:** this has no dependency on another bot's approval.
 
 **DM-UI.** The scoreboard says "1 wins" and "1 losses". The ceiling line can also show a rounded scout figure below the player's current overall, such as "about 60" for a player who is already 63. Say "1 win" and "1 loss", and never show a ceiling below the overall the player already has. Leave the scout-rounding rule itself in `league.js` alone.
 
 - **Files:** `games/diamond-manager/js/ui.js` and a new `tests/dm-ui.cjs`. Do not edit `league.js`, `game.js`, `tests/diamond-manager.html`, or `tests/diamond-manager-checks.js`.
 - **Done when:** one win and one loss read as "1 win" and "1 loss", a displayed ceiling is never below overall, and `node tests/dm-ui.cjs` passes. Old saves load.
+- **Approval:** this has no dependency on another bot's approval.
+
+**DM-FORM.** Issue #340 says pitchers always show Steady. `form.js` already has a pitcher rule: three innings, warm at a 3.00 ERA or better, cool at 6.00 or worse. Reproduce a pitcher who met that bar and still reads Steady. If the mark never lands, fix `recordForm` so a qualifying good outing reads warm and a qualifying bad outing reads cool. If every Steady pitcher you can reproduce was under three innings, leave that bar in place and say so on #373. Do not add Sim week, streak icons, or an Iona bench suggestion. Those are tuning, not this row.
+
+- **Files:** `games/diamond-manager/js/form.js` and a new `tests/dm-form.cjs`. Do not edit `ui.js`, `game.js`, `league.js`, `tests/diamond-manager.html`, or `tests/diamond-manager-checks.js`.
+- **Done when:** a qualifying good outing and a qualifying bad outing are no longer both Steady, or the #373 note says the three-inning bar is why they still read Steady and the code is unchanged. `node tests/dm-form.cjs` passes. Old saves load.
+- **Approval:** this has no dependency on another bot's approval.
+
+**DM-TRAIN.** The winter outlook asks `scoutCeiling`, which rounds. A player whose overall is already 63 can be shown a before-figure of about 60. The numbers `trainingForecast` returns must not sit below the overall the player already has. Leave the scout-rounding function in `league.js` alone. The outlook screen already prints these numbers, so this row does not edit that screen.
+
+- **Files:** `games/diamond-manager/js/training.js` and a new `tests/dm-train.cjs`. Do not edit `ui.js`, `league.js`, `tests/diamond-manager.html`, or `tests/diamond-manager-checks.js`.
+- **Done when:** a forecast's before and after figures are never below the player's overall, and `node tests/dm-train.cjs` passes. Old saves load.
+- **Approval:** this has no dependency on another bot's approval.
+
+**DM-TAGS.** Field name tags are drawn centred on a point and are never kept inside the canvas. A tag on a foul line or a high fly can run off the edge of Lamplight Field. Keep every tag inside the drawable field. Drawing must not change the league.
+
+- **Files:** `games/diamond-manager/js/field.js` and a new `tests/dm-tags.cjs`. Do not edit `ui.js`, `game.js`, `tests/diamond-manager.html`, or `tests/diamond-manager-checks.js`.
+- **Done when:** a tag placed at the left edge, the right edge, and the top of the field stays inside the canvas, and `node tests/dm-tags.cjs` passes. Old saves load.
 - **Approval:** this has no dependency on another bot's approval.
 
 **EB-READY.** Ember Bricks tells the screen reader "1 lives". The get-ready panel also ignores Space and the arrow keys, because a key press returns early while focus is on the start button. Brisket's Crossing already starts from get-ready on Space or an arrow, and it already says "1 life". Match that. The back link is an anchor with a 44px minimum width, and a 44px minimum height only on a short screen. Give it a 44px minimum height as well.
@@ -133,6 +151,12 @@ Five unclaimed rows are ready for each guest. That is the verified set whose fil
 
 - **Files:** `games/storm-front/game.js`, `games/storm-front/style.css`, and `tests/storm-front.html`.
 - **Done when:** one light reads as "1 light", Space or an arrow starts the run from get-ready, the back link is at least 44px tall, and `tests/storm-front.html` still passes. Old scores load.
+- **Approval:** this has no dependency on another bot's approval.
+
+**BC-HOME.** Brisket's Crossing already says "1 life" and already starts from get-ready on Space or an arrow. The back link is still an anchor with a 44px minimum width, and a 44px minimum height only when the screen is shorter than 500px. On a normal phone the link is shorter than 44px. Give it a 44px minimum height in the ordinary layout. Do not change the hop, the lives, or the recovery.
+
+- **Files:** `games/briskets-crossing/style.css` and `tests/briskets-crossing.html`. Do not edit `games/briskets-crossing/game.js` or `games/briskets-crossing/model.js`.
+- **Done when:** the back link is at least 44px tall on a phone-height screen above 500px, and `tests/briskets-crossing.html` still passes. Old scores load.
 - **Approval:** this has no dependency on another bot's approval.
 
 ### dot, unclaimed
@@ -165,4 +189,28 @@ Five unclaimed rows are ready for each guest. That is the verified set whose fil
 
 - **Files:** `games/otherworld/js/99-boot.js` and a new `tests/ow-key.cjs`. Do not edit `tests/otherworld-checks.js`, `tests/otherworld.html`, `games/otherworld/js/08-open-choices.js`, or anything under `shared/`.
 - **Done when:** with two ready choices, Space and Enter leave the choice open, a number key or a click still picks one, a single ready choice still advances, and `node tests/ow-key.cjs` passes. The existing Otherworld checks still pass. Old saves load.
+- **Approval:** this has no dependency on another bot's approval.
+
+**SG-TAP.** Starfall Guild's tab buttons use 6px of vertical padding at 13px type, and the buy-amount buttons use 4px. The arcade link has no 44px minimum. The recovery buttons are already 44px tall. Raise the short controls to a 44px minimum height. Leave the recovery panel's rules as they are.
+
+- **Files:** `games/starfall-guild/style.css` and a new `tests/sg-tap.cjs`. Do not edit `games/starfall-guild/js/04-loop.js`, `tests/starfall.html`, or `tests/starfall-checks.js`.
+- **Done when:** tabs, buy-amount buttons, and the arcade link are at least 44px tall, the recovery buttons stay usable, and `node tests/sg-tap.cjs` passes. Old saves load.
+- **Approval:** this has no dependency on another bot's approval.
+
+**OW-TAP.** Otherworld's arcade link, header buttons, and chips use about 6px of padding at 13px type. The colour swatches are 34px circles. Give those controls a 44px minimum box so a finger can hit them. Do not change the story, the choices, or the shared accessibility sheet.
+
+- **Files:** `games/otherworld/style.css` and a new `tests/ow-tap.cjs`. Do not edit `games/otherworld/js/99-boot.js`, `tests/otherworld.html`, `tests/otherworld-checks.js`, or anything under `shared/`.
+- **Done when:** the arcade link, header buttons, chips, and swatches are at least 44px in both directions, and `node tests/ow-tap.cjs` passes. The existing Otherworld checks still pass. Old saves load.
+- **Approval:** this has no dependency on another bot's approval.
+
+**PR-AWAY.** Primordial's away path adds nutrients before the player does anything, and the modal says "Your pool kept growing while you were away." That is the open note AR2.14b. The growth must wait until the player spends a welcome-back gift by pressing the button. Do not add a save field. If the gift cannot be done without a new save field, say so on #373 and stop. In the same file, the arcade link is 13px type with 5px of padding, and the tabs and buy-amount buttons are shorter than 44px. Give those controls a 44px minimum height.
+
+- **Files:** `games/primordial/index.html` and a new `tests/pr-away.cjs`. Do not edit `shared/` or `sw.js`.
+- **Done when:** returning to the page does not add nutrients until the player spends the gift, the away line no longer says the pool grew by itself, the arcade link and the short buttons are at least 44px tall, and `node tests/pr-away.cjs` passes. Old saves load.
+- **Approval:** this has no dependency on another bot's approval.
+
+**DM-MOOD.** When a finished game has no used-pitcher list for a club, morale treats `g.starters` as the pitchers who played. That list holds both clubs' starters, so the other club's starter can be marked as having pitched here. Count only this club's used list. If that list is missing, count this side's own starter and nobody else. Do not change mood numbers, contracts, or the save shape.
+
+- **Files:** `games/diamond-manager/js/morale.js` and a new `tests/dm-mood.cjs`. Do not edit `ui.js`, `game.js`, `form.js`, `league.js`, `tests/diamond-manager.html`, or `tests/diamond-manager-checks.js`.
+- **Done when:** a game with no used-list for one club does not mark the other club's starter as having pitched for it, and `node tests/dm-mood.cjs` passes. Old saves load.
 - **Approval:** this has no dependency on another bot's approval.
