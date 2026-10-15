@@ -22,8 +22,8 @@ Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" 
 
 Take them in this order.
 
-- **Grok:** LB-G4 (sounds), LB-G5 (kick rules), LB-G6 (dilemmas), NM-G1 (vendor tales), WBW-3 (world graph), LR-G1 (Little Ranch phone pre-check).
-- **dot:** LB-G1 (roster and ratings), LB-G2 (season schedule data), LB-G3 (progression), NM-G2 (second district), WBW-1 (errands).
+- **Grok, now:** LB-G4 (sounds). Then LB-G5 (kick rules), LB-G6 (dilemmas), NM-G1 (vendor tales), WBW-3 (world graph), and LR-G1 (Little Ranch phone pre-check).
+- **dot, now:** LB-PLAYBOOK-DATA (#451), which is still open. Next is LB-G1 (roster and ratings), then LB-G2 (season schedule data), LB-G3 (progression), NM-G2 (second district), and WBW-1 (errands).
 - **WBW-2** (Knothollow) goes to whichever guest finishes first.
 
 ### Notes every launch-game row inherits
@@ -44,9 +44,9 @@ Shared club IDs. LB-G1 and LB-G2 both use these six club IDs, so neither waits o
 
 Shared rating keys. LB-G1, LB-G3 and LB-G5 use the rating keys that `person()` in `games/lantern-bowl/model.js` already defines: `throw`, `catch`, `speed`, `carry`, `block`, `rush`, `cover`, `tackle` and `kick`. Every rating is a whole number from 35 to 90, which is Evan's approved range.
 
-Night Market's launch rows are already taken: NM-PHONE is dot's #456, the save and reload residual (NM-FIX-6) is Grok's #461, NM-VIS merged as #438, NM-RETUNE merged as #445, NM-HUB stays with Side Games Dev Lead, NM-CLAMP waits on SSA, and NM-FIX-7 is a Playtester session. NM-G1 and NM-G2 are the checklist's later items, "a collection of vendor stories" and "moving to a new district, permits", which were waiting on NM-RETUNE. NM-RETUNE has merged, so they are free. Both are new data files, so they do not touch any file on #456 or #461.
+Night Market's launch rows that are still open are NM-PHONE, dot's #456. Done: NM-FIX-6 as #461 (`1d36ee61`), NM-VIS as #438 (`4e92d87a`), and NM-RETUNE as #445. NM-HUB stays with Side Games Dev Lead, NM-CLAMP waits on SSA, and NM-FIX-7 is a Playtester session. NM-G1 and NM-G2 are the checklist's later items, "a collection of vendor stories" and "moving to a new district, permits", which were waiting on NM-RETUNE. NM-RETUNE has merged, so they are free. Both are new data files, so they do not touch any file on #456.
 
-Little Ranch has almost no build row left. #449 merged and covered LRL-6 (dough dots), LRL-7 (the fox), LRL-10 (the sign wiggle), and LRL-13, LRL-14 and LRL-15 (bedtime cues, the dusk fade, leaving the paint shed early). #460 is open for the kitchen bowl, the picture-sign tap, the ball's double roll and the favicon 404. LRL-4 (the sound choice after a reload) is waiting for Playtester or Evan to confirm. LRL-11, the phone playtest, belongs to Playtester and is not a build PR. LR-G1 is a tool that gets that phone playtest ready without touching game files.
+Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered LRL-6 (dough dots), LRL-7 (the fox), LRL-10 (the sign wiggle), and LRL-13, LRL-14 and LRL-15 (bedtime cues, the dusk fade, leaving the paint shed early). Do not reopen it. #460 is open for the kitchen bowl, the picture-sign tap, the ball's double roll and the favicon 404. LRL-4 (the sound choice after a reload) is waiting for Playtester or Evan to confirm. LRL-11, the phone playtest, belongs to Playtester and is not a build PR. LR-G1 is a tool that gets that phone playtest ready without touching game files.
 
 ### Notes for the three Wildbond world-build rows
 
@@ -99,7 +99,7 @@ Little Ranch has almost no build row left. #449 merged and covered LRL-6 (dough 
 - **Shape:** `schemaVersion: 1` and a `tales` object keyed by the stall IDs in `model.js` (`tea`, `dumpling`, `lantern`, `mooncake`, `incense`, `stories`). Each holds exactly four entries with `at` set to `hired`, `25`, `50` or `100`, a `title` of at most 32 characters, and a `text` of two or three sentences and at most 280 characters. Each tale matches that vendor's habit and gossip in `model.js` (Mei opens early, Bo talks while he folds, An trims each wick, Qiao counts the tins twice, Ren lights one stick for the alley, and Old Wen stops before the ending).
 - **Writing rules:** original, calm, warm text that a child can hear read aloud. No real brands or places. Do not copy text from another idle or market game.
 - **Done check:** `node tests/nm-vendor-tales.cjs` passes. It reads the stall IDs and vendor names from `games/night-market/model.js` by loading that file the same way `tools/night-market-pacing.cjs` does, without editing it. It checks that every stall has its four tales with the right `at` values, each tale names its own vendor, and the length limits hold. Normal CI stays green.
-- **What I wire later:** a "Tales" list in the save box or under each stall. That goes in a Night Market PR once #456 and #461 have merged.
+- **What I wire later:** a "Tales" list in the save box or under each stall. That goes in a Night Market PR once #456 has merged. #461 (`1d36ee61`) has already merged.
 - **Dependencies:** none.
 
 **WBW-3.** Grok. World connection graph.
@@ -115,7 +115,7 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 
 ### LR-G1. Phone pre-check for the LRL-11 playtest
 
-- **Guest:** Grok. Grok runs real Chromium for #461, and dot's sandbox could not start Chromium on #451 and #456.
+- **Guest:** Grok. Grok ran real Chromium for #461, which has merged (`1d36ee61`), and dot's sandbox could not start Chromium on #451 and #456.
 - **Scope:** Write a real-browser script that opens Little Ranch at phone sizes, visits every place, and reports any tap target smaller than 44 by 44 pixels, any two tappable things that overlap, and anything cut off the screen. It also saves one screenshot per place and size, so Playtester starts LRL-11 with a known list. It changes no game file.
 - **Files:** create `docs/playtests/lrl-11/phone-precheck.cjs`, `docs/playtests/lrl-11/README.md`, and the screenshots and `report.json` it writes in `docs/playtests/lrl-11/`. Follow the pattern of `docs/playtests/lr-polish-2/shots.cjs`. Do not edit `tools/playtest/little-ranch-review.cjs`, which #460 changes.
 - **Sizes:** 390x844 and 844x390 (iPhone 12 held upright and sideways, as in the checklist), 360x780, and 1024x594 for a tablet.
@@ -192,29 +192,13 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ## Grok, now
 
-#449 and #438 have both merged. The sign-wiggle change landed in #449. The Night Market visuals pull merged, so there is no conflict left to clear. Do not reopen either pull. Start at LB-G4 in Priority rows.
+Grok's current task is LB-G4. Then take LB-G5, LB-G6, NM-G1, WBW-3, and LR-G1, in that order.
 
-**#449 sign wiggle.** Done. Merged. Do not start this. Game Art Director asked for one change on the Little Ranch polish pull. Turn the idle sign wiggle off under `prefers-reduced-motion: reduce`. Otherwise make it gentle: a small shake every 8 to 10 seconds, or a slow bob. Push that fix together with a normal merge of main. Do not rebase or force-push. If the branch still has docs/COMMS.md edits, take main's version of that file and do not commit a new COMMS edit. Ask Game Art Director to re-check.
-
-- **Files:** `games/little-ranch/game.js`, `tests/little-ranch.html`, and `tools/playtest/little-ranch-review.cjs`. Do not take the kitchen bowl, the console 404, or the sign tap responses. Those are LR-TOY-POLISH, and Side Games Dev Lead owns them.
-- **Done when:** reduced motion shows no wiggle, the ordinary wiggle is the slower motion above, and the pull is clean against main.
-- **Approval:** this change does not depend on another bot's approval. Game Art Director re-checks the motion after the push. That review is the ordinary art check, not a blocker that stops the next row.
-
-**#438 conflict.** Done. Merged. Do not start this. Night Market visuals is already approved by Game Art Director. Merge current main into that branch with a normal merge. Do not rebase or force-push. Take main's version of docs/COMMS.md and do not commit a new COMMS edit. Leave the games, tests and art as Game Art Director approved them.
-
-- **Files:** the #438 branch only, to resolve the conflict. That branch already contains `games/night-market/game.js`, `games/night-market/index.html`, `games/night-market/lane.js`, `games/night-market/style.css`, and `tests/night-market.html`. Do not start a second Night Market art pass, and do not take the phone-layout edits that belong to #456.
-- **Done when:** the branch merges cleanly with main and the approved visuals are unchanged.
-- **Approval:** this does not depend on another bot's approval.
+Done. Do not reopen these. #449 merged as `44f49c2c`. #438 merged as `4e92d87a`. NM-FIX-6 merged as #461, `1d36ee61`.
 
 ## Grok, next
 
-NM-FIX-6 merged as #461. Do not reopen it. WB-ROAD stays assigned. Take the Priority rows first. WB-ROAD is not in that list, so it waits until those rows are in review.
-
-**NM-FIX-6.** Done. Merged as #461. Do not open a second save pull. "Your save" and the away summary after a reload are in that pull. The rest of this note is the record of what the row was.
-
-- **Files:** the save-control path in `games/night-market/game.js`, and a new `tests/nm-save.cjs`. Do not edit `games/night-market/index.html`, `games/night-market/style.css`, `games/night-market/lane.js`, or `tests/night-market.html` while #438 or #456 is open. If "Your save" cannot be fixed without one of those files, say so on #373 and stop. Leave the phone layout to NM-PHONE.
-- **Done when:** "Your save" does something on the live page, a reload shows the away summary, and other games' saves are untouched. Old saves load. `node tests/nm-save.cjs` passes, and the existing Night Market page check still passes.
-- **Approval:** this has no dependency on another bot's approval.
+WB-ROAD stays assigned. It is not the current task. It waits until Grok's Priority rows are in review.
 
 **WB-ROAD.** One Godot pull for WBL-8, WBL-9 and WBL-10, and WBL-16 because it is the same title screen. The road from Larkhaven to Thornwood goes somewhere a newcomer can walk (WBL-8). Continue goes through the title screen and returns to the same place (WBL-9). Clicking "Continue your journey" chooses Continue (WBL-16). A real end-to-end Continue test starts a journey, quits, continues, and lands in the same place, not only a fixture load (WBL-10). WBL-7 stays with the north-roads check from #416. Stay out of the Wildbond dev lead's fix bundle (#458: mouse clicks on buttons, walking speed, and the opening tidy). Old saves must load. There is no save-format change.
 
@@ -227,7 +211,9 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, now
 
-**LB-PLAYBOOK-DATA.** Already open as #451. Play and route definitions live in a data file. Breaking routes are in that file. The match engine stays unchanged. This row feeds LB-MANAGER later, and that later row is Side Games Dev Lead's. Do not wait on #444 to keep moving. When #444 merges, finish the approved HTML integration on #451 and preserve #444's final tests. If #444 is still unmerged when the next row goes to review, say so on #451 and switch. Do not wait.
+Dot's current task is LB-PLAYBOOK-DATA. LB-G1 is next.
+
+**LB-PLAYBOOK-DATA.** Still open as #451. Play and route definitions live in a data file. Breaking routes are in that file. The match engine stays unchanged. This row feeds LB-MANAGER later, and that later row is Side Games Dev Lead's. Do not wait on #444 to keep moving. When #444 merges, finish the approved HTML integration on #451 and preserve #444's final tests. If #444 is still unmerged when the next row goes to review, say so on #451 and switch. Do not wait.
 
 - **Files:** `games/lantern-bowl/playbook.json` and `tests/lantern-bowl-playbook.cjs`. Leave `tests/lantern-bowl.html`, `games/lantern-bowl/game.js`, `model.js`, `style.css` and `view.js` until the #444 handoff, and do not edit the match engine.
 - **Done when:** the data file holds the plays and the breaking routes, and the match engine is unchanged.
@@ -235,9 +221,11 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, next
 
-**NM-PHONE.** Already claimed as #456. "Back to the arcade" is large enough and stops covering another button. A stall is on screen on a phone without scrolling. One Night Market pull, with phone-size screenshots held upright and sideways. This closes checklist item 10 (NM-FIX-8). Leave "Your save" to Grok's NM-FIX-6. Leave #438's art as approved. Do not edit `games/night-market/game.js` or `games/night-market/lane.js`, which #438 and NM-FIX-6 already use.
+LB-G1 is next, after #451. Then LB-G2, LB-G3, NM-G2, and WBW-1. NM-PHONE and WB-LOOK stay assigned and wait until those Priority rows are in review.
 
-- **Files:** `games/night-market/index.html`, `games/night-market/style.css`, `tests/night-market.html`, `.github/workflows/night-market-phone-review.yml`, and `tools/playtest/night-market-phone.cjs`. These files are already on #456. Do not edit the save-control code NM-FIX-6 owns.
+**NM-PHONE.** Already claimed as #456. "Back to the arcade" is large enough and stops covering another button. A stall is on screen on a phone without scrolling. One Night Market pull, with phone-size screenshots held upright and sideways. This closes checklist item 10 (NM-FIX-8). The save work is done: NM-FIX-6 merged as #461 (`1d36ee61`). The approved art is done: #438 merged as `4e92d87a`. Do not edit `games/night-market/game.js` or `games/night-market/lane.js`.
+
+- **Files:** `games/night-market/index.html`, `games/night-market/style.css`, `tests/night-market.html`, `.github/workflows/night-market-phone-review.yml`, and `tools/playtest/night-market-phone.cjs`. These files are already on #456. Do not edit `games/night-market/game.js` or `games/night-market/lane.js`.
 - **Done when:** the back control does not cover another button, and a phone shows a stall without a scroll.
 - **Approval:** this has no dependency on another bot's approval.
 
@@ -267,7 +255,7 @@ These stay off this backlog. Do not claim them.
 
 Take a Priority row above before any bug-fix row in this section. The nine rows in each list below stay as the fallback, after that guest's Priority rows are taken.
 
-Little Ranch, Lantern Bowl and Night Market data and tool rows are the LB-G, NM-G and LR-G rows above. They create new files only. Little Ranch's live files stay with #449 and with LR-TOY-POLISH. Lantern Bowl's live game files stay with LB-GAMEFLOW (#444) and with dot's playbook (#451). Night Market's live files stay with #438, NM-FIX-6 and #456. Do not start a second edit of a file a Priority row or an open pull already names. LRL-11 is a Playtester session. LR19 to LR22 are on hold. NM-HUB stays with Side Games. NM-RETUNE is merged. NM-CLAMP waits on Shared Systems Architect. NM-FIX-7 is a Playtester session.
+Little Ranch, Lantern Bowl and Night Market data and tool rows are the LB-G, NM-G and LR-G rows above. They create new files only. #449 has merged (`44f49c2c`). Little Ranch's remaining live files are LR-TOY-POLISH (#460). Lantern Bowl's live game files stay with LB-GAMEFLOW (#444) and with dot's playbook (#451). #438 (`4e92d87a`) and NM-FIX-6 (#461, `1d36ee61`) have merged. Night Market's open guest pull is #456. Do not start a second edit of a file a Priority row or an open pull already names. LRL-11 is a Playtester session. LR19 to LR22 are on hold. NM-HUB stays with Side Games. NM-RETUNE is merged. NM-CLAMP waits on Shared Systems Architect. NM-FIX-7 is a Playtester session.
 
 Wildbond's background lane was next. WB-ROAD and WB-LOOK are the assigned rows above. WBL-7 stays with the north-roads check from #416. WBL-16 rides inside WB-ROAD because it is `title.gd`. WBL-15 (long captions) and WBL-17 (the ranch prompt) sit in `main.gd` beside the fix bundle and beside WB-LOOK, so they are not separate rows. WBL-19 (the size table) sits in `main.gd` and `battle.gd`. WBL-18 was checked on 2026-10-15: `wildbond.json` does not contain duplicate species names, and DD-5 already says which lines use trust plus level, so it is not a build row. WBL-20 needs Evan. WBL-21 is wording, and DD-5 is already updated. WBL-22 is merged (#399). Shop clicks use `controls.gd`, which the fix bundle owns. There is no further Wildbond file that is free of the fix bundle, the phone-layout pull, WB-ROAD and WB-LOOK.
 
