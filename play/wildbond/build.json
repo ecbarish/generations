@@ -1,8 +1,8 @@
 {
   "built": "2026-10-15",
   "godot": "4.7.2-stable",
-  "source_commit": "a6b09ce94424d5a6e7b7f0464762fb49780dd80d",
-  "source_tree": "4c3274daaa98a1c2c460c1e62ba5efb9e65e44c9",
+  "source_commit": "6205f4481ae870f473e2b308760c33189b385c9a",
+  "source_tree": "a8a0175aa7a2c121018196263d9fe678f5ed0a87",
   "review_run": null,
   "sha256": {
     "index.html": "86200884c7797dc1bebaf24f8cf0312b72c18ea2003d4e5704c5a80791737708",
