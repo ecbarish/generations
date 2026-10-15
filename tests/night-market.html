@@ -390,6 +390,18 @@ document.querySelector('#run').onclick = async function () {
     dlBtn.click(); w.URL.createObjectURL = realCreate;
     check('Download my save makes a file and says so', made === 1 && /Downloaded/.test(d.querySelector('.arc-save-msg').textContent));
     check('Load a save file opens a real file picker', !!fileLbl.querySelector('input[type=file][data-arcsave="file"]'));
+    // a wrong file is refused before any "Replace your save?" question, and the save is not touched
+    var fin = fileLbl.querySelector('input[type=file]'), asked = 0, realConfirm = w.confirm; w.confirm = function () { asked++; return false; };
+    var storedBefore = w.localStorage.getItem(KEY);
+    var wrongFile = new w.File([JSON.stringify({ v: 1, game: 'wildbond', cash: 1 })], 'wrong.json', { type: 'application/json' }), dt = new w.DataTransfer(); dt.items.add(wrongFile); fin.files = dt.files;
+    fin.dispatchEvent(new w.Event('change', { bubbles: true }));
+    await new Promise(function (r) { setTimeout(r, 150); });
+    check('Loading another game\'s file says it isn\'t a save for this game, without asking to replace anything', asked === 0 && /isn't a save for this game/.test(d.querySelector('.arc-save-msg').textContent));
+    check('...and the stored save is untouched', w.localStorage.getItem(KEY) === storedBefore);
+    var rightFile = new w.File([storedBefore], 'mine.json', { type: 'application/json' }), dt2 = new w.DataTransfer(); dt2.items.add(rightFile); fin.files = dt2.files;
+    fin.dispatchEvent(new w.Event('change', { bubbles: true }));
+    await new Promise(function (r) { setTimeout(r, 150); });
+    check('Loading this game\'s own file does ask first (and declining changes nothing)', asked === 1 && w.localStorage.getItem(KEY) === storedBefore); w.confirm = realConfirm;
 
     for (var size = 0; size < 2; size++) {
       var width = size === 0 ? 320 : 1280;
