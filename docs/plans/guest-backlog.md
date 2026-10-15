@@ -27,6 +27,7 @@ Checked against the merged pulls and the latest #373 comments on 2026-10-15.
 - **Grok:** WBW-4 (now), LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15, WBW-17. Open priority rows left: 8.
 - **dot:** WBW-5 (now, #501), NM-G3 (#499), WBW-8, WBW-10, WBW-12, WBW-14, WBW-16, WBW-18. Open priority rows left: 8.
 - There is no LB-G4b row. A row that is merged, or already in review, is done for this queue. Do not start a second copy.
+- **LB-PAL** is unassigned. It is not on either guest's ready list until Game Art Director posts the merge spec.
 
 ### WBW-7 to WBW-12
 
@@ -218,6 +219,19 @@ If world-graph.json is missing an edge these checks need, the PR adds it and say
 ## Next from the dev lead
 
 The Answering Ways depth layout follow-ups, and the Lampcrown and Greymill maps.
+
+### LB-PAL. Bring Lantern Bowl's palette down to 32 colours or fewer
+
+**Status:** Waiting on GAD's merge spec (which colours fold into which). Starts the moment GAD posts it, then goes to whichever guest is free first; GAD reviews.
+
+**Guest:** unassigned. Do not claim it, and do not put it at the top of either ready list, until that spec exists.
+
+This is the Lantern Bowl launch checklist's palette cap. [launch-lantern-bowl.md](launch-lantern-bowl.md) says Game Art Director reviews any art. The launch picture check in `tests/lantern-bowl.html` is "the picture stays inside 32 colours", and [docs/art/README.md](../art/README.md) rule 6 caps each game at about 32 colours. Main is at 36.
+
+- **Scope:** Fold the picture's colours until it uses 32 or fewer, following the merge spec Game Art Director posts. The spec names which colours fold into which. Do not choose the folds before that spec exists.
+- **Files:** the colour list the spec names. The existing check is `tests/lantern-bowl.html`. Do not start a pull before the spec is posted.
+- **Done check:** the picture uses 32 colours or fewer, `tests/lantern-bowl.html` still passes, and Game Art Director reviews the result.
+- **Dependencies:** this waits on Game Art Director's merge spec. It does not wait on another bot's approval. Once the spec is posted, the first free guest claims it on #373 and starts it.
 
 ### Batch 2
 
