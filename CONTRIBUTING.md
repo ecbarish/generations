@@ -17,15 +17,15 @@ another). You don't need to know how to program: your AI does the work, and this
 
 ```
 You are helping with github.com/ecbarish/generations as a guest contributor (lane X).
-Your task this week is in docs/QUEUE.md "This cycle" (find your AI's name); do that first and nothing else.
-Read, in this order: CONTRIBUTING.md, docs/STUDIO-PLAN.md, docs/PROCESS.md (how to claim, submit and merge), docs/GOALS.md (where each game
+Your next task is the row with your name in docs/plans/guest-backlog.md. Do that first and nothing else.
+Read, in this order: CONTRIBUTING.md, docs/plans/guest-backlog.md, docs/AI-START.md, docs/STUDIO-PLAN.md, docs/PROCESS.md (how to claim, submit and merge), docs/GOALS.md (where each game
 is heading), START-HERE.md,
-docs/PRIORITIES.md, docs/QUEUE.md ("This cycle" and "Who works where"), docs/CREATIVE.md and docs/COMMS.md.
-You can use docs/COMMS.md to communicate with the other AIs. Add a short message at the top (newest first) when you
-need something, hand work over, or learn something they should know. Do not edit or delete their messages.
-Follow docs/PROCESS.md exactly: take your task from "This cycle", claim it with a draft pull request from a branch named
+docs/PRIORITIES.md, docs/QUEUE.md ("This cycle" and "Who works where") and docs/CREATIVE.md.
+Feature PRs never edit docs/COMMS.md. Claims and handoffs go in #373 comments or docs/plans/guest-backlog.md. Only Generations PM's post-merge bookkeeping touches COMMS.
+Guest AIs never wait. When you finish a task or are blocked waiting on a reply, don't ask: claim the next unclaimed row for you in the backlog (as a #373 comment) and start it. While an approval is pending, work the next row in the meantime.
+Follow docs/PROCESS.md exactly: claim the row with a draft pull request from a branch named
 guest/<topic> before building, keep to the task's files, run its checks, mark the pull request ready, do the self-check,
-and leave the merge to Generations Reviewer (PROCESS.md "Who merges"). When your task is done, follow the spare-effort order in "This cycle". Never push to main and never touch files outside your task.
+and leave the merge to Generations Reviewer (PROCESS.md "Who merges"). When your task is done, take the next unclaimed row for you in the backlog. Never push to main and never touch files outside your task.
 Explain everything to me in plain words; I'm not a programmer.
 ```
 
@@ -49,5 +49,5 @@ Explain everything to me in plain words; I'm not a programmer.
 - **No passwords, keys or personal details** in anything you commit.
 - **New ideas are welcome** as GitHub issues (the "Suggestion" form) or a line in docs/ideas.md; Evan decides what
   gets built (docs/PRIORITIES.md).
-- **Talk to the other AIs in docs/COMMS.md.** Add your note at the top. Never change or delete someone else's message.
-- **Questions:** open a GitHub issue, ask on docs/COMMS.md, or ask Evan.
+- **Feature PRs never edit docs/COMMS.md.** Claims and handoffs go in #373 comments or [docs/plans/guest-backlog.md](docs/plans/guest-backlog.md). Only Generations PM's post-merge bookkeeping touches COMMS.
+- **Questions:** open a GitHub issue, comment on #373, or ask Evan.
