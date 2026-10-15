@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "focuses": [
+    {
+      "id": "passing",
+      "label": "Passing",
+      "detail": "Quarterbacks and receivers sharpen their throws and catches together.",
+      "ratings": ["throw", "catch"],
+      "bonusXp": 2,
+      "appliesTo": ["qb", "wr", "te"]
+    },
+    {
+      "id": "running",
+      "label": "Running",
+      "detail": "Quarterbacks and running backs practise quick feet and a secure grip.",
+      "ratings": ["speed", "carry"],
+      "bonusXp": 2,
+      "appliesTo": ["qb", "rb"]
+    },
+    {
+      "id": "blocking",
+      "label": "Blocking",
+      "detail": "The line and tight ends work on holding their ground together.",
+      "ratings": ["block"],
+      "bonusXp": 2,
+      "appliesTo": ["line", "te"]
+    },
+    {
+      "id": "pass-rush",
+      "label": "Pass Rush",
+      "detail": "The front and linebackers practise reaching the passer and finishing tackles.",
+      "ratings": ["rush", "tackle"],
+      "bonusXp": 2,
+      "appliesTo": ["front", "backers"]
+    },
+    {
+      "id": "coverage",
+      "label": "Coverage",
+      "detail": "Linebackers and the secondary work on staying close to their receivers.",
+      "ratings": ["cover"],
+      "bonusXp": 2,
+      "appliesTo": ["backers", "secondary"]
+    },
+    {
+      "id": "kicking",
+      "label": "Kicking",
+      "detail": "Kickers repeat their approach and strike for a steadier kick.",
+      "ratings": ["kick"],
+      "bonusXp": 2,
+      "appliesTo": ["kicker"]
+    },
+    {
+      "id": "rest",
+      "label": "Rest",
+      "detail": "The whole squad takes a quiet week to recover between games.",
+      "ratings": [],
+      "bonusXp": 0,
+      "appliesTo": ["qb", "rb", "wr", "te", "line", "front", "backers", "secondary", "kicker"],
+      "recovery": true
+    }
+  ]
+}
