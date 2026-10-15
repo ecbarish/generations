@@ -211,7 +211,9 @@ func _process(dt: float) -> void:
 	if not visible:
 		return
 	t += dt
-	state_t += dt
+	# A held pointer pauses the line timer. Time spent on the previous line is not part of this one.
+	if not (state == "beat" and pointer_held and not end_next_frame):
+		state_t += dt
 	catch_note_t = maxf(0.0, catch_note_t - dt)
 	for u in allies + foes:
 		u.shown = move_toward(u.shown, float(u.c.hp), dt * maxf(8.0, u.st.hp * 0.8))   # health bars drain smoothly
@@ -345,7 +347,7 @@ func _beat(seconds: float) -> void:
 	_go_to("beat")
 	_show_next_line()
 
-## Put the next waiting line on screen and ignore the click that arrived with it.
+## Put the next waiting line on screen and start its timer now. Time already spent on the previous line does not count.
 func _show_next_line() -> void:
 	if not line_queue.is_empty():
 		shown_line = str(line_queue.pop_front())

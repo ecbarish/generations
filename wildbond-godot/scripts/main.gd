@@ -837,7 +837,7 @@ func _process(dt: float) -> void:
 	fade_in = min(1.0, fade_in + dt * 0.7)
 	var door_dark := 0.0
 	if trans_t >= 0.0:
-		Controls.flush_buffered_events()
+		_flush_presses()
 		var before := trans_t
 		trans_t += dt
 		if before < 0.3 and trans_t >= 0.3:
@@ -845,7 +845,7 @@ func _process(dt: float) -> void:
 		door_dark = 1.0 - absf(trans_t - 0.3) / 0.3
 		if trans_t >= 0.6:
 			trans_t = -1.0
-			Controls.flush_buffered_events()
+			_flush_presses()
 	fade_rect.color.a = maxf(1.0 - fade_in, clampf(door_dark, 0.0, 1.0))
 	if paint_t >= 0.0:
 		paint_t += dt
@@ -1078,8 +1078,14 @@ func _menu_allowed() -> bool:
 	# Every area, including Larkhaven before the story sets you free. A conversation or a page still keeps it shut.
 	return menu != null and not menu.visible and lines.is_empty() and trans_t < 0.0 and not _covering()
 
-func _toggle_menu() -> void:
+## Drop queued presses from a fade or a menu toggle. The release still arrives, and the bag is not left held down.
+func _flush_presses() -> void:
 	Controls.flush_buffered_events()
+	bag_press = false
+	bag_landed = false
+
+func _toggle_menu() -> void:
+	_flush_presses()
 	if menu.visible:
 		menu.close()
 		return
@@ -4785,8 +4791,21 @@ func _world_screen(r: Rect2) -> Rect2:
 	var b: Vector2 = xf * r.end
 	return Rect2(Vector2(minf(a.x, b.x), minf(a.y, b.y)), (b - a).abs())
 
+var _hud_block_cache: Array = []
+var _hud_block_key := ""
+
 ## The player, a sign, a door or a pen: the tracker and the hint move when one of these is underneath.
+## The same map, place and camera are asked for several times a frame, so the scan is kept until one of those changes.
 func _hud_blocks() -> Array:
+	var xf := get_viewport().get_canvas_transform()
+	var cam_at := Vector2.ZERO
+	var cam_zoom := Vector2.ONE
+	if cam != null:
+		cam_at = cam.get_screen_center_position()
+		cam_zoom = cam.zoom
+	var key := "%s|%s|%s|%s|%s|%d" % [map_name, me.pos, xf, cam_at, cam_zoom, starters.size()]
+	if key == _hud_block_key:
+		return _hud_block_cache
 	var out: Array = []
 	out.append(_world_screen(Rect2(me.pos + Vector2(1, -12), Vector2(14, 28))))
 	if map_name == "larkhaven":
@@ -4804,6 +4823,8 @@ func _hud_blocks() -> Array:
 			out.append(_world_screen(pen))
 		for s in _pen_sign_rects():
 			out.append(s)
+	_hud_block_key = key
+	_hud_block_cache = out
 	return out
 
 func _pen_world_rects() -> Array:

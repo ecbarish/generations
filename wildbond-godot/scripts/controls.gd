@@ -66,6 +66,8 @@ static func _bind_key(action: String, key: Key) -> void:
 
 ## True when this event is a fresh press of the action (held-key repeats don't count).
 static func pressed(e: InputEvent, action: String) -> bool:
+	if _drop_presses:
+		return false
 	return InputMap.has_action(action) and e.is_action_pressed(action, false)
 
 ## Which way a fresh press points in a menu, or zero.
@@ -78,6 +80,7 @@ static func dir(e: InputEvent) -> Vector2i:
 static var _down := false
 static var _release_seen: InputEvent
 static var _release_kind := 0
+static var _drop_presses := false
 
 ## A fresh left click, or a finger when the engine is not also sending that finger as a mouse click.
 ## One tap must do one thing: the emulated mouse is the click, and the leftover touch is only swallowed.
@@ -92,6 +95,8 @@ static func note(e: InputEvent) -> void:
 		_down = true
 
 static func _press(e: InputEvent) -> bool:
+	if _drop_presses:
+		return false
 	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		return true
 	return e is InputEventScreenTouch and e.pressed and not Input.emulate_mouse_from_touch and e.device != InputEvent.DEVICE_ID_EMULATION
@@ -118,67 +123,25 @@ static func _up(e: InputEvent) -> bool:
 
 ## Where that click or tap landed, in the control's own pixels. The event carries the point. The cursor
 ## (get_local_mouse_position) stays wherever it was, so a headless click and a real tap would miss the button.
-## Only a pointer event is scaled. A key or a joypad button keeps the control's own mouse position.
+## Godot has already mapped the pointer into the 384×216 view before _input. Scaling by the window size
+## would do it a second time. A key or a joypad button keeps the control's own mouse position.
 static func at(control: Control, e: InputEvent) -> Vector2:
-	var raw := control.get_local_mouse_position()
-	var pointer := e is InputEventMouse or e is InputEventScreenTouch or e is InputEventScreenDrag
-	if not pointer:
-		return raw
-	raw = e.position
-	var view := control.get_viewport().get_visible_rect().size
-	if view.x < 2.0 or view.y < 2.0:
-		view = _base_view()
-	var local := into_view(raw, view, Vector2(DisplayServer.window_get_size()), control.get_viewport().get_screen_transform())
-	return control.get_global_transform_with_canvas().affine_inverse() * local
+	if e is InputEventMouse or e is InputEventScreenTouch or e is InputEventScreenDrag:
+		return control.make_input_local(e).position
+	return control.get_local_mouse_position()
 
-static func _base_view() -> Vector2:
-	return Vector2(
-		float(ProjectSettings.get_setting("display/window/size/viewport_width", 384)),
-		float(ProjectSettings.get_setting("display/window/size/viewport_height", 216)))
-
-## Window pixels to view pixels. view is the game's own size. win is the window or the canvas backing store.
-## screen is the viewport stretch. A point the stretch has already mapped is left alone.
-## A point whose numbers merely sit inside 384×216 is still a window point when the window is larger, so it is scaled.
-## Headless, where the window is no bigger than the view, a point inside the view is already in view pixels.
-static func into_view(raw: Vector2, view: Vector2, win: Vector2, screen: Transform2D) -> Vector2:
-	if view.x < 2.0 or view.y < 2.0:
-		view = _base_view()
-	var box := Rect2(Vector2.ZERO, view).grow(1.0)
-	var win_bigger := win.x > view.x + 1.0 and win.y > view.y + 1.0
-	if screen != Transform2D.IDENTITY:
-		var mapped: Vector2 = screen.affine_inverse() * raw
-		if box.has_point(mapped):
-			return mapped
-	if not win_bigger and box.has_point(raw):
-		return raw
-	if win_bigger and view.x > 1.0 and view.y > 1.0:
-		var fit := minf(win.x / view.x, win.y / view.y)
-		# Desktop keeps whole-number enlargement, with black bars when the window is not an exact multiple.
-		var whole := float(int(floor(fit)))
-		if whole >= 2.0:
-			var margin := (win - view * whole) * 0.5
-			var brought := (raw - margin) / whole
-			if box.has_point(brought):
-				return brought
-		# A phone uses fractional stretch, so the same point is scaled by the exact fit.
-		if fit > 1.01 and not is_equal_approx(fit, whole):
-			var edge := (win - view * fit) * 0.5
-			var phone := (raw - edge) / fit
-			if box.has_point(phone):
-				return phone
-	if box.has_point(raw):
-		return raw
+## A point already in view pixels. The window size and the stretch transform are not applied again:
+## a real window has already done that mapping before the event arrives.
+static func into_view(raw: Vector2, _view: Vector2, _win: Vector2, _screen: Transform2D) -> Vector2:
 	return raw
 
-## Drop presses that arrived during a fade or a menu toggle. Input.flush_buffered_events delivers them.
+## Deliver anything still queued, but ignore presses. A release in that same batch still arrives,
+## so a bag click does not stay pressed after the menu opens. Presses are ignored for this flush only.
 static func flush_buffered_events() -> void:
-	var tree := Engine.get_main_loop() as SceneTree
-	var window: Window = tree.root if tree != null else null
-	if window != null:
-		window.set_disable_input(true)
+	_drop_presses = true
 	Input.flush_buffered_events()
-	if window != null:
-		window.set_disable_input(false)
+	_drop_presses = false
+	_down = false
 
 ## Cover the view. Anchors alone leave a new panel at 0×0, and a zero-size panel cannot keep a click off the world.
 static func fill(control: Control) -> void:

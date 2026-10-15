@@ -177,13 +177,29 @@ static func _lines(game: Node, check: Callable) -> void:
 	_pointer(game.battle, false)
 	check.call(game.battle.state == "beat" and game.battle.state_t >= game.battle.beat_t - 0.001, "the click that owns the stat line dismisses it on the lift")
 	var hp_before: int = int(game.battle.allies[0].c.hp)
+	game.battle.state_t = game.battle.beat_t
 	game.battle._process(0.05)
 	game.battle._process(0.05)
 	game.battle.foes[0].atb = game.R.ACT_AT
 	game.battle._process(0.05)
 	var enemy_line: String = game.battle.shown_line
 	check.call(game.battle.state == "beat" and enemy_line != stat_line and "used" in enemy_line.to_lower(), "the enemy's damaging line is on screen before the menu (%s)" % enemy_line)
+	check.call(game.battle.state_t < 0.02, "the enemy line's timer starts when that line appears (%.3f)" % game.battle.state_t)
 	check.call(int(game.battle.allies[0].c.hp) < hp_before, "the enemy's hit has already landed")
+	var budget: float = game.battle.beat_t / maxf(game.battle.pace, 0.01)
+	var step := 0.05
+	var spent := 0.0
+	while game.battle.state == "beat" and game.battle.shown_line == enemy_line and (game.battle.state_t + step) * game.battle.pace <= game.battle.beat_t:
+		game.battle._process(step)
+		spent += step
+	var shown_hp: float = float(game.battle.allies[0].shown)
+	check.call(game.battle.state == "beat" and game.battle.shown_line == enemy_line and spent > budget - step - 0.001, "the enemy damage line stays for its full timer after it appears (%.2f of %.2f)" % [spent, budget])
+	check.call(shown_hp < float(hp_before) - 0.5, "the health number falls while the enemy's damage line is up (%.1f from %d)" % [shown_hp, hp_before])
+	var frozen: float = game.battle.state_t
+	game.battle.pointer_held = true
+	game.battle._process(0.4)
+	check.call(game.battle.state == "beat" and game.battle.shown_line == enemy_line and absf(game.battle.state_t - frozen) < 0.001, "a held pointer pauses the enemy line's timer")
+	game.battle.pointer_held = false
 	check.call(game.battle.state != "choose", "that same click does not open the command menu")
 	var during: int = game.battle.line_id
 	game.battle.pointer_held = true

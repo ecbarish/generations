@@ -9,7 +9,6 @@ const SAVE := "user://wbl_continue.json"
 
 var passed := 0
 var failed := 0
-var gaps_open: Array[String] = []
 
 func check(ok: bool, what: String) -> void:
 	if ok:
@@ -26,7 +25,7 @@ func _initialize() -> void:
 
 func _go() -> void:
 	run(root, check, gap)
-	print("Wildbond Continue checks: %d passed, %d failed, %d gaps reproduced in main.gd" % [passed, failed, gaps_open.size()])
+	print("Wildbond Continue checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
 
 static func fresh(root: Window, keep_saves: bool) -> Node:
