@@ -24,8 +24,8 @@ Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" 
 
 Checked against the merged pulls and the latest #373 comments on 2026-10-15.
 
-- **Grok:** WBW-4 (now), LR-G1, WBW-7, WBW-9, WBW-11. Open priority rows left: 5.
-- **dot:** WBW-5 (now, #501), NM-G3 (#499), WBW-8, WBW-10, WBW-12. Open priority rows left: 5.
+- **Grok:** WBW-4 (now), LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15, WBW-17. Open priority rows left: 8.
+- **dot:** WBW-5 (now, #501), NM-G3 (#499), WBW-8, WBW-10, WBW-12, WBW-14, WBW-16, WBW-18. Open priority rows left: 8.
 - There is no LB-G4b row. A row that is merged, or already in review, is done for this queue. Do not start a second copy.
 
 ### WBW-7 to WBW-12
@@ -123,6 +123,101 @@ This is the copy the clarity PR will wire in, so it guards the Where next confus
 ## Next ones the dev lead would write
 
 finds.json (item and berry spots per route), keelcave and lowbell layouts, and route encounter tables for the 3 water routes.
+
+### WBW-13 to WBW-18
+
+Wildbond & Starfall Dev Lead scoped these on 2026-10-15. They follow the WBW-7 to WBW-12 rows. Grok takes WBW-13, WBW-15 and WBW-17 after WBW-11. Dot takes WBW-14, WBW-16 and WBW-18 after WBW-12. The spec below is copied as written.
+
+The shared rules are the same as WBW-7 to 12 (see wbw-7-12.md):
+- one PR each
+- files only under docs/plans/wildbond-world/ and tools/
+- a standalone Python unittest for each
+- ids checked against world-graph.json
+- proposals marked "status": "proposed"
+- docs/plans/wildbond-world-design.md is the source
+- the freshness check prints 'No packed Wildbond game files changed'
+
+## WBW-13: finds.json
+
+**Guest:** Grok, after WBW-11.
+
+Item and berry spots for the 20 routes and the 7 caves.
+- Each spot has a place id, an item id, a count, and a gate: null, or an id from gates.json when it sits behind a field lesson.
+- Lesson slips stay in lessons.json (WBW-10), so they aren't repeated here.
+- Use only items that already exist in the game's item data under wildbond-godot/ (read only).
+
+The test checks that:
+- every item id exists
+- every gate id is in gates.json
+- every route has at least one find
+- no gated find is the only find on its route, so an early player always finds something
+
+## WBW-14: keelcave.json and keelcave.md
+
+**Guest:** dot, after WBW-12.
+
+Uses the knothollow format. Keelcave is cave 3 in section 2.
+- It opens off Greywash Sound, which needs Tide Ride.
+- Inside, it is short and dry.
+- slip-rinse sits on the back ledge.
+
+The test also checks that the only way in is from greywash.
+
+## WBW-15: lowbell.json and lowbell.md
+
+**Guest:** Grok, after WBW-13.
+
+Uses the knothollow format. Lowbell is cave 6 in section 2.
+- It lies under The Quiet Channels.
+- The flooded stair shows from Reedhold's jetty, and the floor needs Tide Ride.
+- It holds the bell-ring count for sq-lowbell, which is turned in to Veslin in Bellstep.
+- There's no second guardian here. Stillwake stays on the surface.
+
+The test fails if any Legend species appears in Lowbell's encounter list.
+
+## WBW-16: water-encounters.json
+
+**Guest:** dot, after WBW-14.
+
+Encounter tables for Greywash Sound, The Quiet Channels and The Open Grey.
+- Same schema as WBW-5's route-encounters.json.
+- Use Tide and Gale species from the catalogue.
+- Each band sits inside CAP_TABLE for the earliest badge count that can reach that water with Tide Ride.
+- The Open Grey is late, in the Horizon country.
+
+The test reuses WBW-5's schema check if it has merged, otherwise it carries its own. It also checks that no Legend appears as a normal encounter.
+
+## WBW-17: trialstair.json and trialstair.md
+
+**Guest:** Grok, after WBW-15.
+
+Uses the knothollow format. Trialstair is cave 7 in section 2.
+- The main stair can be walked with all eight badges.
+- The side rooms need Lantern, Stone Break, Tide Ride, Grove Wake, Hush and Daymark.
+- Glide is never required.
+
+The key test does a BFS from the Trial Road door: with all eight badges and no lessons, it must reach the league door. It also checks that:
+- every side room has a rest or a slip
+- no lesson gate sits on the main path
+
+## WBW-18: dry-boards.json and a loop test
+
+**Guest:** dot, after WBW-16.
+
+The Dry Boards are a passage inside the Long Boards maps that links Pass Foot to the west end of the boards (see section 2, below the Routes table).
+
+The test checks these loops from section 2 on world-graph.json:
+- The Pass Ring can be walked both ways before Glide, through Pass Foot and the Dry Boards.
+- Glassfall only goes down.
+- The Dry Boards don't reach Bellstep.
+- The Coast Ring needs Tide Ride.
+- The Home Burrow needs both Stone Break and the Loom Badge.
+
+If world-graph.json is missing an edge these checks need, the PR adds it and says so in its description.
+
+## Next from the dev lead
+
+The Answering Ways depth layout follow-ups, and the Lampcrown and Greymill maps.
 
 ### Batch 2
 
@@ -522,7 +617,7 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ## Grok, now
 
-Grok's current task is WBW-4, Answering Ways. It was claimed on #373. No pull is open yet. Then LR-G1, WBW-7, WBW-9 and WBW-11. Open priority rows left: 5.
+Grok's current task is WBW-4, Answering Ways. It was claimed on #373. No pull is open yet. Then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15 and WBW-17. Open priority rows left: 8.
 
 In review, counted done for this queue, and not a wait: LB-G7 is #495, NM-G4 is #498, and NM-G5 is #500.
 
@@ -543,7 +638,7 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, now
 
-Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499), WBW-8, WBW-10 and WBW-12. The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. Open priority rows left: 5.
+Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499), WBW-8, WBW-10, WBW-12, WBW-14, WBW-16 and WBW-18. The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. Open priority rows left: 8.
 
 In review, counted done for this queue, and not a wait: LB-G10 is #496.
 
