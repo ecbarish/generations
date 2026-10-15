@@ -14,7 +14,7 @@ Checks: `node tools/run-all-checks.cjs night-market`
 
 Vendor tales from #482 are in `vendor-tales.json`: 24 tales, four for each of the six vendors, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.6.
 
-Second-district data from #483 is in `districts.json`: Willow Quay and six stalls, plus a pacing checker. The game does not load the new district into play yet, so the lane stays as it is and Night Market Stalls stays at v0.1.6. The save stays version 1.
+District data is in `districts.json`. #483 adds Willow Quay and six stalls, opening at 1,000,000 lifetime, plus a pacing checker. #507 adds Cedar Steps, a third district with six new stall types, opening at 4,000,000 lifetime, and the district checker now checks each district. The game does not load the new districts into play yet, so the lane stays as it is and Night Market Stalls stays at v0.1.6. The save stays version 1.
 
 Away gossip from #500 is in `gossip.json`: 72 away-summary lines for the six vendors, across three away-time bands, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.6.
 
