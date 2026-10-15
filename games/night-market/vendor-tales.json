@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "tales": {
+    "tea": [
+      { "at": "hired", "title": "Mei Opens Early", "text": "Mei takes over the tea stall and opens it before the lanterns are lit. A few regulars are already waiting in the dark, hands wrapped around their coats. She pours the first cup and says nothing, because the steam says enough." },
+      { "at": "25", "title": "Warm Bread for the Row", "text": "Mei has twenty-five tea stalls pouring now, and the first one still opens before the lanterns. A baker stops by on his way to work and leaves a loaf of warm bread as thanks. Mei shares it with the whole row." },
+      { "at": "50", "title": "The Quiet Hour", "text": "At fifty tea stalls, Mei still wakes before anyone else. She likes the quiet hour when the lane is blue and the kettles begin to sing. By the time the lanterns are lit, there is already a line." },
+      { "at": "100", "title": "No One Waits in the Dark", "text": "Mei has a hundred tea stalls, and no one waits in the dark any more. Each one opens just before the lanterns, as if the lane were taking a breath. She smiles and pours one more cup for the street sweeper." }
+    ],
+    "dumpling": [
+      { "at": "hired", "title": "Bo Folds and Talks", "text": "Bo rolls up his sleeves at the dumpling cart and begins to talk. He tells the regulars about his cousin's goat while his fingers pinch each fold. Nobody leaves until the steamer is full." },
+      { "at": "25", "title": "The Goat Gets a Name", "text": "Twenty-five carts are folding now, and the goat in Bo's story has finally been given a name. The regulars argue about whether it suits her. Bo laughs, folds three more dumplings, and says it suits her fine." },
+      { "at": "50", "title": "Listeners in the Lane", "text": "At fifty carts, people stay after their dumplings are gone just to hear how the story goes. Bo never rushes, because a good fold takes the time it takes. The steam rises, the goat gets lost again, and everyone cheers." },
+      { "at": "100", "title": "One Long Story", "text": "Bo has a hundred carts, and every one is steaming while he tells the story he started on his first day. He says the goat is still lost, but nobody believes him. The dumplings sell, and the story goes on." }
+    ],
+    "lantern": [
+      { "at": "hired", "title": "An Trims the Wicks", "text": "An takes the lantern stand and trims each wick with a small pair of silver scissors. She waits until the flame sits perfectly still before she hangs the lantern. She says a calm flame is a kind flame." },
+      { "at": "25", "title": "Twenty-Five Steady Flames", "text": "Twenty-five lantern stands glow along the lane now, and An has trimmed every wick herself. A child asks why she takes so long. An says the light looks after the people, so she looks after the light." },
+      { "at": "50", "title": "Clean Light", "text": "At fifty stands, An's wicks burn so clean that there is no smoke at all. The moths come to look, and then they simply sit and rest. An lets them, because a lantern should welcome everyone." },
+      { "at": "100", "title": "The Alley, Lit", "text": "An has a hundred lantern stands, and the whole alley glows as softly as a sleeping cat. She trims the last wick of the night and waits for the flame to go still. Then she lets the lane see itself." }
+    ],
+    "mooncake": [
+      { "at": "hired", "title": "Qiao Counts Twice", "text": "Qiao sets out her tins of mooncakes and counts them once, then counts them again. When a customer asks for one, she hands over the tin she likes least and keeps the best for later. The customer says it is delicious anyway." },
+      { "at": "25", "title": "The Tin She Likes Best", "text": "Qiao has twenty-five tables now, and she counts every tin twice. She still gives away the one she likes least, and somehow it is always the first one asked for. She is starting to think the lane knows her secret." },
+      { "at": "50", "title": "A Painted Sign", "text": "At fifty tables, a painter offers to make Qiao a sign. She counts her coins twice, nods, and asks for tins painted along the edge. The sign is finished by dusk, and the whole table looks proud of itself." },
+      { "at": "100", "title": "Tins Along the Table", "text": "Qiao has a hundred tables, and tins line every one. She counts them twice that evening, just to be sure, and the number comes out the same both times. Qiao pats the nearest tin and smiles." }
+    ],
+    "incense": [
+      { "at": "hired", "title": "Ren Lights Two Sticks", "text": "Ren takes the incense tray and lights one stick for the stall. Then he lights a second stick and sets it at the mouth of the alley, for anyone passing by. He says a lane should smell welcome before it looks it." },
+      { "at": "25", "title": "Cedar Before Dusk", "text": "With twenty-five trays burning, the alley smells of cedar before anyone has arrived. Ren says that is the point of the second stick. Visitors follow the smell and find a smiling lane." },
+      { "at": "50", "title": "A Bronze Stand", "text": "At fifty trays, Ren buys a small bronze stand for the alley stick. It holds the smoke in a thin ribbon that curls up toward the lanterns. Ren watches it for a while and lights the next stick." },
+      { "at": "100", "title": "Smoke from the Gate", "text": "Ren has a hundred trays, and the smoke rises in soft ribbons you can see from the gate. He still lights one stick for the stall and one for the alley, just as he did on the first night. Some things stay the same." }
+    ],
+    "stories": [
+      { "at": "hired", "title": "Old Wen Unrolls the Mat", "text": "Old Wen unrolls the story mat and sits down slowly, one knee at a time. He begins a tale about a tortoise who carried a lantern up a hill. Just before the ending, Old Wen stops, and the crowd leans in to pay for the rest." },
+      { "at": "25", "title": "The Tortoise Climbs", "text": "Twenty-five mats are spread across the lane, and Old Wen's tortoise has reached the middle of the hill. The listeners bring cushions and tea. Old Wen smiles and stops right before the best part." },
+      { "at": "50", "title": "A Paper Screen", "text": "At fifty mats, Old Wen paints a paper screen so the children can see the hill. The tortoise is very small and very brave on it. Just before the tortoise reaches the top, Old Wen pauses and asks who wants to hear the rest." },
+      { "at": "100", "title": "The Ending, Twice", "text": "Old Wen has a hundred mats, and tonight he finally reaches the ending of the tortoise's tale. The crowd sighs happily, and then he begins again from the start. Nobody minds, because the lane loves the hill." }
+    ]
+  }
+}
