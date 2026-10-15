@@ -452,6 +452,72 @@ class DesignDoc(unittest.TestCase):
             self.assertIn(heading, text)
 
 
+def exit_targets(exits):
+    """The set of places a MAPS-shaped exits block leads to.
+
+    A MAPS exit is {"to": place, "x": .., "y": .., "dir": ..}, keyed by a label such as "S" or "E"; only its "to" counts, never "dir".
+    A bare string value is also accepted as a target (a legacy exit written as just the place id). The block may be a dict of exits
+    or a list of them. Anything else is an error, so a malformed file fails loudly and is not read as "no exits".
+    """
+    items = exits.values() if isinstance(exits, dict) else exits
+    if not isinstance(items, (list, type({}.values()))):
+        raise ValueError("exits must be a dict or a list, got %r" % type(exits).__name__)
+    targets = set()
+    for e in items:
+        if isinstance(e, str):
+            targets.add(e)
+        elif isinstance(e, dict) and isinstance(e.get("to"), str):
+            targets.add(e["to"])
+        else:
+            raise ValueError("an exit needs a string \"to\" (or to be a plain place id): %r" % (e,))
+    return targets
+
+
+class ExitTargets(unittest.TestCase):
+    """The reader WBW-2's agreement check uses, tested on its own so it does not wait for knothollow.json."""
+
+    def test_only_the_to_value_of_a_maps_exit_counts(self):
+        exits = {"S": {"to": "rootwater", "x": 1, "y": 1, "dir": "down"}, "E": {"to": "thornwood_grove", "x": 1, "y": 8, "dir": "right"}}
+        self.assertEqual(exit_targets(exits), {"rootwater", "thornwood_grove"})
+
+    def test_dir_values_are_never_read_as_places(self):
+        got = exit_targets({"N": {"to": "larkhaven", "x": 0, "y": 0, "dir": "up"}})
+        self.assertEqual(got, {"larkhaven"})
+        self.assertNotIn("up", got)
+
+    def test_a_bare_string_exit_is_a_legacy_target(self):
+        self.assertEqual(exit_targets({"W": "larkhaven", "E": {"to": "rootwater", "dir": "right"}}), {"larkhaven", "rootwater"})
+
+    def test_a_list_of_exits_works_too(self):
+        self.assertEqual(exit_targets([{"to": "a", "dir": "up"}, {"to": "b", "dir": "down"}]), {"a", "b"})
+
+    def test_two_exits_to_one_place_count_once(self):
+        self.assertEqual(exit_targets({"N": {"to": "a", "dir": "up"}, "S": {"to": "a", "dir": "down"}}), {"a"})
+
+    def test_an_empty_block_is_no_targets(self):
+        self.assertEqual(exit_targets({}), set())
+
+    def test_malformed_exits_are_errors_not_silence(self):
+        for bad in ({"S": {"x": 1, "dir": "down"}}, {"S": {"to": 5}}, {"S": 7}, {"S": None}, "rootwater", 3):
+            with self.assertRaises(ValueError, msg=repr(bad)):
+                exit_targets(bad)
+
+    def test_the_old_nested_walk_would_have_got_it_wrong(self):
+        # The first version of this check collected every nested string. Kept as a mutant so the reader cannot slide back to it.
+        def nested(v, out):
+            if isinstance(v, dict):
+                if "to" in v:
+                    out.add(v["to"])
+                for x in v.values():
+                    nested(x, out)
+            elif isinstance(v, str):
+                out.add(v)
+            return out
+        exits = {"S": {"to": "rootwater", "x": 1, "y": 1, "dir": "down"}, "E": {"to": "thornwood_grove", "x": 1, "y": 8, "dir": "right"}}
+        self.assertNotEqual(nested(exits, set()), exit_targets(exits))
+        self.assertEqual(len(nested(exits, set())), 4)
+
+
 class KnothollowAgreement(unittest.TestCase):
     def test_wbw2_exits_agree_with_the_graph_if_that_file_exists(self):
         if not KNOTHOLLOW.exists():
@@ -459,21 +525,7 @@ class KnothollowAgreement(unittest.TestCase):
         data = json.loads(KNOTHOLLOW.read_text(encoding="utf-8"))
         exits = data.get("exits", data.get("map", {}).get("exits"))
         self.assertIsNotNone(exits, "knothollow.json has no exits")
-        targets = set()
-
-        def walk(v):
-            if isinstance(v, dict):
-                if "to" in v:
-                    targets.add(v["to"])
-                for x in v.values():
-                    walk(x)
-            elif isinstance(v, list):
-                for x in v:
-                    walk(x)
-            elif isinstance(v, str):
-                targets.add(v)
-        walk(exits)
-        self.assertEqual(targets, neighbours()["knothollow"])
+        self.assertEqual(exit_targets(exits), neighbours()["knothollow"])
 
 
 if __name__ == "__main__":
