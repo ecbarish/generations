@@ -19,9 +19,11 @@ function farmRate(){
   return m.gold*D.goldM*(1+D.thief)/(ticks*0.5/D.speed);
 }
 function offline(sec){
-  if(!Number.isFinite(sec)||sec<30)return null;sec=Math.min(sec,86400);if(S.regionOffer){countTime(sec);return null;}D=derive();
+  if(!Number.isFinite(sec)||sec<=0)return null;sec=Math.min(sec,86400);
+  // Short returns earn no offline rewards, but their elapsed time still counts.
+  countTime(sec);if(sec<30||S.regionOffer)return null;D=derive();
   const eff=0.5+0.1*(S.crest.night||0),rate=D.gps+farmRate(),g=rate*sec*eff;gain(g);
-  S.stats.play+=sec;S.stats.run+=sec;S.boardT=Math.min(S.boardT,0);if(S.resting){S.resting=0;S.php=D.pmax;}
+  S.boardT=Math.min(S.boardT,0);if(S.resting){S.resting=0;S.php=D.pmax;}
   return {sec,eff,gain:g,farm:farmRate()>0};
 }
 
