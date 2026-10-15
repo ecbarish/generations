@@ -1,1 +1,163 @@
-{}
+{
+  "schemaVersion": 1,
+  "source": "docs/plans/wildbond-world-design.md (section 4; locations and proposed keepers in section 2); Mist Veil: https://github.com/ecbarish/generations/issues/373#issuecomment-6186013258",
+  "note": "Planning data only. A gate is a canonical requirement ID from gates.json, not a door name. Null means no specific obstacle is named for that gift; requires records its field or badge conditions, all required, rather than every prerequisite along the route. A null tile is deliberately unplaced. Mist Veil uses the north wall-door beyond tile from answering.json. Proposed keepers remain proposals. This file adds no runtime behavior or persisted data.",
+  "slips": [
+    {
+      "id": "slip-standing-stone",
+      "move": "standingStone",
+      "element": "Stone",
+      "source": {
+        "place": "knothollow",
+        "description": "Knothollow's deep room, after Stone Break",
+        "gate": "knothollow-deep-cracks:field:stone",
+        "person": null,
+        "requires": [
+          {
+            "kind": "field",
+            "key": "field:stone"
+          }
+        ],
+        "tile": null,
+        "layoutGate": null
+      }
+    },
+    {
+      "id": "slip-rinse",
+      "move": "rinse",
+      "element": "Tide",
+      "source": {
+        "place": "keelcave",
+        "description": "Keelcave",
+        "gate": null,
+        "person": null,
+        "requires": [
+          {
+            "kind": "field",
+            "key": "field:tide"
+          }
+        ],
+        "tile": null,
+        "layoutGate": null
+      }
+    },
+    {
+      "id": "slip-grove-shelter",
+      "move": "groveShelter",
+      "element": "Grove",
+      "source": {
+        "place": "thornwood_grove",
+        "description": "The back ring of Old Root Grove, after Grove Wake",
+        "gate": null,
+        "person": null,
+        "requires": [
+          {
+            "kind": "field",
+            "key": "field:grove"
+          }
+        ],
+        "tile": null,
+        "layoutGate": null
+      }
+    },
+    {
+      "id": "slip-ember-mantle",
+      "move": "emberMantle",
+      "element": "Ember",
+      "source": {
+        "place": "kilnvent",
+        "description": "Kilnvent, after Lantern",
+        "gate": "kilnvent-deep-room:field:lantern",
+        "person": null,
+        "requires": [
+          {
+            "kind": "field",
+            "key": "field:lantern"
+          }
+        ],
+        "tile": null,
+        "layoutGate": null
+      }
+    },
+    {
+      "id": "slip-wind-lift",
+      "move": "windLift",
+      "element": "Gale",
+      "source": {
+        "place": "crestpath",
+        "description": "Crest Path, on the way to Lampcrown",
+        "gate": null,
+        "person": null,
+        "requires": [],
+        "tile": null,
+        "layoutGate": null
+      }
+    },
+    {
+      "id": "slip-mist-veil",
+      "move": "mistVeil",
+      "element": "Shade",
+      "source": {
+        "place": "answering",
+        "description": "The Answering Ways, behind Hush",
+        "gate": "answering-wall-doors:field:hush",
+        "person": null,
+        "requires": [
+          {
+            "kind": "field",
+            "key": "field:hush"
+          }
+        ],
+        "tile": [
+          16,
+          3
+        ],
+        "layoutGate": "wall-door-north"
+      }
+    },
+    {
+      "id": "slip-bright-care",
+      "move": "brightCare",
+      "element": "Radiant",
+      "source": {
+        "place": "sunthread",
+        "description": "Solla, at Threadmeet, after Daymark",
+        "gate": null,
+        "person": {
+          "name": "Solla",
+          "status": "proposed"
+        },
+        "requires": [
+          {
+            "kind": "field",
+            "key": "field:daymark"
+          }
+        ],
+        "tile": null,
+        "layoutGate": null
+      }
+    },
+    {
+      "id": "slip-helping-paw",
+      "move": "helpingPaw",
+      "element": "any",
+      "source": {
+        "place": "thornwood",
+        "description": "Hedda, at the Gate Loft, after the Thorn Badge. A care lesson, from a person who rests teams",
+        "gate": null,
+        "person": {
+          "name": "Hedda",
+          "status": "proposed"
+        },
+        "requires": [
+          {
+            "kind": "badge",
+            "key": "thorn"
+          }
+        ],
+        "tile": null,
+        "layoutGate": null
+      }
+    }
+  ]
+}
