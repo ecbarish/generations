@@ -22,6 +22,7 @@ const server = http.createServer((req, res) => {
   fs.readFile(file, (err, bytes) => {if(err){res.writeHead(404); return res.end();} res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');res.end(bytes);});
 });
 async function measure(page, label, requireServe=true) {
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   const m = await page.evaluate(() => {
     const rect = el => {const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom,right:r.right};};
     const home=document.querySelector('.home'),serve=document.querySelector('[data-act="serve"]');
@@ -76,7 +77,7 @@ async function shot(page,name){await page.screenshot({path:path.join(out,name+'.
         await session.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});
         const cancelled=await page.evaluate(()=>__nightMarket.state.stalls[0].serves);
         await page.waitForTimeout(400);
-        check(label+': cancelled touch stops pouring',await page.evaluate(n=>__nightMarket.state.stalls[0].serves===n,cancelled));
+        check(label+': cancelled active touch stops pouring',cancelled>held&&await page.evaluate(n=>__nightMarket.state.stalls[0].serves===n,cancelled),{held,cancelled});
         await session.detach();
       }
       // Real repeated presses reach the existing hire threshold; no model shortcut.
@@ -96,20 +97,23 @@ async function shot(page,name){await page.screenshot({path:path.join(out,name+'.
         check('Keyboard first stops at Back with visible focus',await page.evaluate(()=>document.activeElement.matches('.home')&&getComputedStyle(document.activeElement).outlineStyle!=='none'));
         await page.keyboard.press('Tab');
         check('Keyboard then reaches the first bulk control',await page.evaluate(()=>document.activeElement.matches('[data-bulk="1"]')));
-        await page.keyboard.press('Shift+Tab');await page.keyboard.press('Enter');
+        await page.keyboard.press('Shift+Tab');await Promise.all([page.waitForURL('**/index.html'),page.keyboard.press('Enter')]);
         check('Keyboard Back reaches the arcade',new URL(page.url()).pathname==='/index.html',page.url());
         await page.goBack();await page.waitForFunction(()=>window.__nightMarket);
         check('Browser Back returns with the first stall intact',await page.evaluate(()=>__nightMarket.state.stalls[0].owned===1));
+        await page.goForward();check('Browser Forward returns to the arcade',new URL(page.url()).pathname==='/index.html');
+        await page.goBack();await page.waitForFunction(()=>window.__nightMarket);
+        check('A second Browser Back keeps the stall intact',await page.evaluate(()=>__nightMarket.state.stalls[0].owned===1));
         for(let n=0;n<2;n++){await page.locator('.home').tap();check('Touch Back reaches arcade '+n,new URL(page.url()).pathname==='/index.html');await page.goBack();await page.waitForFunction(()=>window.__nightMarket);}
-        await page.evaluate(()=>{const k=NightMarket.SAVE_KEY;const s=JSON.parse(localStorage.getItem(k));s.seen=Date.now()-3600000;localStorage.setItem(k,JSON.stringify(s));});
+        await page.evaluate(()=>{__nightMarket.idle.stop();const k=NightMarket.SAVE_KEY;const s=JSON.parse(localStorage.getItem(k));s.seen=Date.now()-3600000;localStorage.setItem(k,JSON.stringify(s));});
         await page.reload();await page.waitForFunction(()=>window.__nightMarket);
         check('A return still shows the away summary',await page.locator('#away').isVisible());await shot(page,'away-portrait');
         await page.locator('[data-act="away"]').tap();await page.evaluate(()=>scrollTo(0,0));
         await measure(page,'after away dismiss');
         const box=page.locator('details.save');
         for(let n=0;n<2;n++){await box.locator('> summary').tap();check('Save disclosure opens '+n,await box.getAttribute('open')!==null);await box.locator('> summary').tap();check('Save disclosure closes '+n,await box.getAttribute('open')===null);}
-        await page.evaluate(()=>{document.body.style.fontSize='34px';scrollTo(0,0);});
-        check('200% body text stays horizontally scroll-free',await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+        await page.evaluate(()=>{document.body.style.fontSize='34px';document.documentElement.style.fontSize='32px';scrollTo(0,0);});
+        check('200% body and rem text stays horizontally scroll-free',await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
         await shot(page,'large-text-portrait');
       }
       check(label+': unrelated save survives',await page.evaluate(()=>localStorage.getItem('nm-phone-unrelated-save')==='{"level":27}'));

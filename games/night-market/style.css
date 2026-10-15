@@ -124,7 +124,9 @@ button[aria-pressed="true"], button.ask {
   header > .coins { grid-column: 2; grid-row: 1; font-size: 1.35rem; }
   h1 { margin-top: 0.4rem; }
   .scene { margin-bottom: 0.35rem; }
-  .stall { padding-top: 0.6rem; }
+  .stall { padding-top: 0.6rem; display: flex; flex-direction: column; }
+  .stall h2 { order: -2; }
+  .stall .actions { order: -1; margin-bottom: 0.3rem; }
 }
 /* A short, wide phone has room beside the ledger. Keep controls in normal flow.
    The decorative strip keeps its full-page pixel scale, above the two columns. */
@@ -133,11 +135,9 @@ button[aria-pressed="true"], button.ask {
   header { grid-column: 1; grid-row: 2; min-width: 0; }
   .market-work { grid-column: 2; grid-row: 2; }
   .lane { grid-column: 1 / -1; grid-row: 1; margin-top: 0; margin-bottom: 0.5rem; }
-  .save, .foot { grid-column: 1 / -1; }
+  .save { grid-column: 1 / -1; grid-row: 3; }
+  .foot { grid-column: 1 / -1; grid-row: 4; }
   .bulk { margin-top: 0; }
   .stalls { margin-top: 0; }
-  .stall { display: flex; flex-direction: column; }
-  .stall h2 { order: -2; }
-  .stall .actions { order: -1; margin-bottom: 0.3rem; }
   .actions button { flex-basis: 8rem; }
 }
