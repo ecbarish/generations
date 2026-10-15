@@ -4758,11 +4758,24 @@ func _speech_floor() -> float:
 	return y
 
 func _clear_of_objective() -> void:
-	if objective == null or not objective.visible or not bubble.visible:
+	if not bubble.visible:
 		return
-	_nudge_bubble(Rect2(objective.position, objective.size))
-	for s in _pen_sign_rects():
-		_nudge_bubble(s)
+	var blocks: Array = []
+	if objective != null and objective.visible:
+		blocks.append(Rect2(objective.position, objective.size))
+	blocks.append_array(_pen_sign_rects())
+	blocks.append_array(_hud_blocks())
+	for _pass in maxi(1, blocks.size()):
+		var bub := Rect2(bubble.position, bubble.size)
+		var hit := false
+		for b in blocks:
+			var ob: Rect2 = b
+			if bub.intersects(ob):
+				_nudge_bubble(ob)
+				hit = true
+				break
+		if not hit:
+			return
 
 func _nudge_bubble(ob: Rect2) -> void:
 	if not bubble.visible:

@@ -933,15 +933,17 @@ func _chip_boxes(labels: PackedStringArray) -> Dictionary:
 		x += w + 3.0
 	return {"font": size, "rects": rects}
 
-## Below the foe's health panel and above yours, with a Next: label the chips do not cover.
+## Below the last foe's health panel and above yours, with a Next: label the chips do not cover.
+## Two foes stack at y8 and y38, so the row starts at y69.
 func _landscape_chips(labels: PackedStringArray) -> Dictionary:
-	var foe := Rect2(10, 8, 150, 26).grow(1.0)
+	var n := maxi(1, foes.size())
+	var foe := Rect2(10, 8 + 30 * (n - 1), 150, 26)
 	var ally := _ally_panel().grow(1.0)
 	var label_size := 8
 	var label_w := 36.0
 	if font != null:
 		label_w = font.get_string_size("Next:", HORIZONTAL_ALIGNMENT_LEFT, -1, label_size).x
-	var y0 := foe.end.y + 4.0
+	var y0 := foe.end.y + 5.0
 	var limit_y := ally.position.y - 2.0
 	var x0 := 8.0 + label_w + 6.0
 	var limit := 376.0
@@ -1590,7 +1592,7 @@ func _draw_joined(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictionary
 			_draw_figure(stand, species_id, R.sp(u.c), true, pose, look)
 			tamer_at = (place.rect as Rect2).position + Vector2(6, -12)
 	if not tamer_look.is_empty():
-		draw_set_transform(tamer_at, 0, Vector2(2.4, 2.4))   # you, just behind the ink, facing the foe with it
+		draw_set_transform(tamer_at, 0, Vector2(Sprites.TAMER_SCALE, Sprites.TAMER_SCALE))   # you, seated on the back, facing the foe with it
 		Figures.person(self, Vector2.ZERO, Vector2i.RIGHT, false, 0, false, tamer_look)
 		draw_set_transform(Vector2.ZERO)
 	for k in 9:

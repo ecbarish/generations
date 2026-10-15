@@ -48,8 +48,49 @@ static func _gear(game: Node, check: Callable) -> void:
 	var foot := Vector2(100, 164)
 	var small: Vector2 = game.Sprites.tamer_anchor(foot, Vector2i(64, 64), 1.0, tex, true)
 	var bleed: Vector2 = game.Sprites.tamer_anchor(foot, Vector2i(64, 64), 1.0, full_tex, true)
-	check.call(bleed.distance_to(Vector2(74, 88)) < 1.0, "a full-bleed front keeps the tamer on the old spot (%s)" % bleed)
-	check.call(absf(small.y - 108.0) < 1.0 and small.y > bleed.y, "a shorter front drops the tamer to just above its ink (%s)" % small)
+	var bleed_line := _back_line(full, Vector2(68, 100), 64, true, bleed.x, bleed.x + game.Sprites.TAMER_SRC_W * game.Sprites.TAMER_SCALE)
+	var bleed_feet := bleed.y + game.Sprites.TAMER_FEET * game.Sprites.TAMER_SCALE
+	check.call(bleed.distance_to(Vector2(74, 68)) < 1.0, "a full-bleed front seats the tamer on the back (%s)" % bleed)
+	check.call(bleed_feet - bleed_line <= 8.0 and bleed_feet >= bleed_line, "the tamer's feet stay within 8px under that ink (%.1f under %.1f)" % [bleed_feet, bleed_line])
+	var small_line := _back_line(img, Vector2(68, 100), 64, true, small.x, small.x + game.Sprites.TAMER_SRC_W * game.Sprites.TAMER_SCALE)
+	var small_feet := small.y + game.Sprites.TAMER_FEET * game.Sprites.TAMER_SCALE
+	check.call(absf(small.x - 86.0) < 1.0 and small_feet - small_line <= 8.0 and small_feet >= small_line, "a shorter front seats the tamer on the ink under its own columns (%s)" % small)
+	var spike := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	spike.fill(Color(0, 0, 0, 0))
+	for y in range(0, 64):
+		for x in range(0, 6):
+			spike.set_pixel(x, y, Color(1, 1, 1, 1))
+	for y in range(28, 64):
+		for x in range(8, 64):
+			spike.set_pixel(x, y, Color(1, 1, 1, 1))
+	var spike_tex := ImageTexture.create_from_image(spike)
+	var seated: Vector2 = game.Sprites.tamer_anchor(foot, Vector2i(64, 64), 1.0, spike_tex, true)
+	var seat_line := _back_line(spike, Vector2(68, 100), 64, true, seated.x, seated.x + game.Sprites.TAMER_SRC_W * game.Sprites.TAMER_SCALE)
+	var seat_feet := seated.y + game.Sprites.TAMER_FEET * game.Sprites.TAMER_SCALE
+	check.call(seat_line > 120.0 and seat_feet - seat_line <= 8.0 and seat_feet >= seat_line, "a spike at the chest does not pull the tamer off the lower back (feet %.1f, line %.1f)" % [seat_feet, seat_line])
+	var gapped := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	gapped.fill(Color(0, 0, 0, 0))
+	for y in range(16, 57):
+		for x in range(8, 41):
+			gapped.set_pixel(x, y, Color(1, 1, 1, 1))
+	gapped.set_pixel(58, 16, Color(1, 1, 1, 1))
+	var gapped_tex := ImageTexture.create_from_image(gapped)
+	var hook: Vector2i = game.Sprites.bell_hook(gapped_tex, Rect2i(), Vector2i(64, 64), false)
+	var marks: Array = game.Sprites.gear_marks(gapped_tex, Rect2i(), Vector2i(64, 64), "bell", false)
+	check.call(hook.x < 20 and _opaque_at(gapped, hook.x, hook.y) and _covers(marks, hook.x, hook.y), "the bell hangs on the first opaque chest pixel (%s)" % hook)
+	check.call(_marks_on_ink(marks, gapped) and not _covers(marks, 58, 45), "the bell is masked to the creature, off the empty corner")
+	var harness: Array = game.Sprites.gear_marks(gapped_tex, Rect2i(), Vector2i(64, 64), "harness", false)
+	check.call(harness.size() > 0 and _marks_on_ink(harness, gapped), "the harness is masked to the creature's opaque pixels")
+	var back := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	back.fill(Color(0, 0, 0, 0))
+	for y in range(16, 57):
+		for x in range(24, 56):
+			back.set_pixel(x, y, Color(1, 1, 1, 1))
+	back.set_pixel(4, 16, Color(1, 1, 1, 1))
+	var back_tex := ImageTexture.create_from_image(back)
+	var back_hook: Vector2i = game.Sprites.bell_hook(back_tex, Rect2i(), Vector2i(64, 64), true)
+	var back_marks: Array = game.Sprites.gear_marks(back_tex, Rect2i(), Vector2i(64, 64), "bell", true)
+	check.call(back_hook.x > 40 and _covers(back_marks, back_hook.x, back_hook.y) and _marks_on_ink(back_marks, back), "a back sprite hangs the bell on the chest, the high side (%s)" % back_hook)
 
 static func _figures(game: Node, check: Callable) -> void:
 	var bare: Array = []
@@ -88,7 +129,8 @@ static func _backs(game: Node, check: Callable) -> void:
 static func _chips(game: Node, check: Callable) -> void:
 	var ally: Dictionary = game.R.make("ripplet", 8, { "rar": 1 }, game.rng)
 	var foe: Dictionary = game.R.make("mosshog", 8, { "rar": 1 }, game.rng)
-	game.battle.open("wild", [ally], [foe], "")
+	var foe2: Dictionary = game.R.make("cindercub", 8, { "rar": 1 }, game.rng)
+	game.battle.open("wild", [ally], [foe, foe2], "")
 	game.battle._go_to("choose")
 	game.battle.wait_u = game.battle.allies[0]
 	game.battle.external_ui = false
@@ -96,22 +138,23 @@ static func _chips(game: Node, check: Callable) -> void:
 	for win in [Vector2(780, 360), Vector2(844, 390)]:
 		game.battle.layout_scale = minf(win.x / 384.0, win.y / 216.0)
 		var chips: Dictionary = game.battle._chip_boxes(names)
-		var foe_box := Rect2(10, 8, 150, 26).grow(1.0)
+		var first := Rect2(10, 8, 150, 26).grow(1.0)
+		var second := Rect2(10, 38, 150, 26).grow(1.0)
 		var ally_box: Rect2 = game.battle._ally_panel().grow(1.0)
 		var clear := true
 		var detail := ""
-		for r in chips["rects"]:
-			var box: Rect2 = r
-			if box.intersects(foe_box) or box.intersects(ally_box):
-				clear = false
-				detail = "%s hits foe %s or ally %s" % [box, foe_box, ally_box]
 		var nxt: Rect2 = chips.get("next", Rect2())
-		if nxt.size.x < 8.0 or nxt.intersects(foe_box) or nxt.intersects(ally_box):
+		if nxt.position.y < 68.5 or nxt.intersects(first) or nxt.intersects(second) or nxt.intersects(ally_box):
 			clear = false
 			detail = "Next: %s" % nxt
+		for r in chips["rects"]:
+			var box: Rect2 = r
+			if box.position.y < 68.5 or box.intersects(first) or box.intersects(second) or box.intersects(ally_box):
+				clear = false
+				detail = "%s" % box
 		var word: float = game.battle.font.get_string_size("Breakwatermane", HORIZONTAL_ALIGNMENT_LEFT, -1, int(chips["font"])).x
 		var chip: Rect2 = chips["rects"][0]
-		check.call(clear and word <= chip.size.x - 8.0 + 0.5, "at %s the Next row is clear of both health panels and Breakwatermane fits (%s)" % [win, detail])
+		check.call(clear and word <= chip.size.x - 8.0 + 0.5, "at %s the Next row starts at y69, under both foe panels, and Breakwatermane fits (%s)" % [win, detail])
 	game.battle.layout_scale = 0.0
 	game.battle.visible = false
 	game.battle.state = "off"
@@ -312,6 +355,26 @@ static func _hud(game: Node, check: Callable) -> void:
 	check.call(game.bubble.visible and not hit, "a speech box stays off the pen signs")
 	game.lines.clear()
 	game.caption.text = ""
+	game.caption_lift = 0.0
+	game.get_viewport().canvas_transform = Transform2D.IDENTITY
+	game.say("", "The name is written on the stall.")
+	game._update_ui()
+	var bw: float = game.bubble.size.x
+	var bh: float = game.bubble.size.y
+	var natural := Rect2((384.0 - bw) / 2.0, 216.0 - bh - 8.0, bw, bh)
+	var door_screen := natural.get_center() - Vector2(8, 8)
+	game.get_viewport().canvas_transform = Transform2D(Vector2(1, 0), Vector2(0, 1), door_screen - door.position)
+	game._update_ui()
+	door_s = game._world_screen(door)
+	bub = Rect2(game.bubble.position, game.bubble.size)
+	var blocked := false
+	for b in game._hud_blocks():
+		var block: Rect2 = b
+		if bub.intersects(block):
+			blocked = true
+	check.call(natural.intersects(door_s) and game.bubble.visible and not bub.intersects(door_s) and not blocked, "speech moves off the barn door and stays off the other blocks")
+	game.lines.clear()
+	game.caption.text = ""
 	game.get_viewport().canvas_transform = Transform2D.IDENTITY
 
 static func _howto(game: Node, check: Callable) -> void:
@@ -452,3 +515,41 @@ static func _follower(game: Node, check: Callable) -> void:
 static func _card(game: Node, check: Callable) -> void:
 	check.call(is_equal_approx(game.card.strength_baseline(100.0), 100.0 + game.card.STATS_H + game.card.STRENGTH_GAP), "the strength line is measured from the bars")
 	check.call(game.card.STRENGTH_GAP >= 12, "the strength line has room under the bars")
+	game.card.open("ripplet", game.card_info("ripplet"))
+	var note: Rect2 = game.card.maren_note_rect()
+	var btn: Rect2 = game.card._btn(0)
+	check.call(note.size.y > 4.0 and note.end.y <= btn.position.y + 0.01 and "pleased with itself" in str(game.card.info.maren), "Maren's last line ends above the Choose button (%.1f, button %.1f)" % [note.end.y, btn.position.y])
+	game.card.visible = false
+
+static func _back_line(img: Image, dest: Vector2, sz_x: int, mirrored: bool, left: float, right: float) -> float:
+	var x0 := int(floor(left - dest.x))
+	var x1 := int(ceil(right - dest.x)) - 1
+	x0 = clampi(x0, 0, sz_x - 1)
+	x1 = clampi(x1, 0, sz_x - 1)
+	var best := 999
+	for vx in range(x0, x1 + 1):
+		var sx := (sz_x - 1 - vx) if mirrored else vx
+		for y in img.get_height():
+			if img.get_pixel(sx, y).a > 0.0:
+				best = mini(best, y)
+				break
+	return dest.y + float(best)
+
+static func _opaque_at(img: Image, x: int, y: int) -> bool:
+	return x >= 0 and y >= 0 and x < img.get_width() and y < img.get_height() and img.get_pixel(x, y).a > 0.0
+
+static func _covers(parts: Array, x: int, y: int) -> bool:
+	for p in parts:
+		if x >= int(p[0]) and x < int(p[0]) + int(p[2]) and y >= int(p[1]) and y < int(p[1]) + int(p[3]):
+			return true
+	return false
+
+static func _marks_on_ink(parts: Array, img: Image) -> bool:
+	if parts.is_empty():
+		return false
+	for p in parts:
+		for y in range(int(p[1]), int(p[1]) + int(p[3])):
+			for x in range(int(p[0]), int(p[0]) + int(p[2])):
+				if not _opaque_at(img, x, y):
+					return false
+	return true
