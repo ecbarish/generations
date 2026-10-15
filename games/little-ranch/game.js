@@ -51,7 +51,7 @@
   // LR3: the singing flowers, a row of five along the front of the meadow, each with its own note (C D E G A: any order sounds sweet)
   const FLOWERS = ['#ff6f91', '#ffa040', '#b07aff', '#4fb4ff', '#ff5a5a'], FLOWER_NOTES = [72, 74, 76, 79, 81], SONG_TAPS = 5;
   // LR9: the Paint Shed's four fat pots and the four parts of the baby's outline (in the order they're drawn)
-  const SIGNS = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'], PAINT = ['#ff6fa8', '#4fa6ff', '#ffd03a', '#5fd06a'], PARTS = ['tail', 'legs', 'body', 'head'];
+  const SIGN_WIGGLE_GAP = 9, SIGNS = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'], PAINT = ['#ff6fa8', '#4fa6ff', '#ffd03a', '#5fd06a'], PARTS = ['tail', 'legs', 'body', 'head'];
   // LR8: spoken words, the browser's own voice. Names, colours and "night night". No microphone, nothing saved.
   // Sound off means silence. A real parent's recording still needs Evan's yes.
   const POT_WORDS = ['pink', 'blue', 'yellow', 'green'], FLOWER_WORDS = ['pink', 'orange', 'purple', 'blue', 'red'], CAR_WORDS = ['red', 'blue'], FOOD_WORDS = ['berries', 'carrot', 'lemon', 'broccoli'];
@@ -603,8 +603,9 @@
     if (st.place === 'door') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); doorUpdate(dt); return; }
     if (st.place === 'shed') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); if (st.shed.doneAt !== null && st.t - st.shed.doneAt > SHED_WALK_SECS) leaveShed(true); return; }
     st.sign.shake = Math.max(0, st.sign.shake - dt * 1.5); st.wsign.shake = Math.max(0, st.wsign.shake - dt * 1.5); st.ksign.shake = Math.max(0, st.ksign.shake - dt * 1.5); st.tsign.shake = Math.max(0, st.tsign.shake - dt * 1.5); st.dsign.shake = Math.max(0, st.dsign.shake - dt * 1.5);
-    // LR-POLISH: when nobody is touching anything the signs take turns to wiggle, so they say "tap me" (a smaller wiggle with reduced motion)
-    if (st.place === 'ranch' && st.t - st.idleAt > 2 && st.t >= st.nextWig) { const k = SIGNS[st.wigI++ % SIGNS.length]; st[k].shake = Math.max(st[k].shake, reduce() ? 1 : 3); st.nextWig = st.t + 3.2; }
+    // LR-POLISH: when nobody is touching anything the signs take turns to give one small wiggle (the same size as a tap's), so they say "tap me".
+    // One every 9 seconds, and none at all with reduced motion.
+    if (st.place === 'ranch' && st.t - st.idleAt > 2 && st.t >= st.nextWig) { const k = SIGNS[st.wigI++ % SIGNS.length]; if (!reduce()) st[k].shake = Math.max(st[k].shake, 1); st.nextWig = st.t + SIGN_WIGGLE_GAP; }
     st.stir = Math.max(0, st.stir - dt * 2.5); song(dt);
     { const u = st.sun; if (u.bow && st.t - u.bow.at > BOW_SECS) { u.bow = null; u.taps = 0; } // the rainbow fades, the count starts again
       if (!u.bow) { if (u.taps && st.t - u.last > 10) u.taps = 0; u.glow = Math.max(u.taps / SUN_TAPS, u.glow - dt * .5); } } if (st.dawn) { st.dusk = Math.max(0, st.dusk - dt / 2.5); if (st.dusk === 0) st.dawn = false; }
@@ -886,7 +887,7 @@
     const U = L.U, V = L.dough, D = st.dough, m = reduce() ? .3 : 1, col = doughCol(), hb = hint(), bob = n => hb && hb.name === n && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.lr * .12 : 0;
     const wall = cx.createLinearGradient(0, 0, 0, V.ty); wall.addColorStop(0, '#d8ecf8'); wall.addColorStop(1, '#bcdcef'); cx.fillStyle = wall; cx.fillRect(0, 0, W, V.ty);
     for (let i = 0; i < 4; i++) { const q = V.dots[i], on = D && D.col === i, pop = on && !reduce() ? Math.max(0, 1 - (st.t - D.dotAt) * 3) : 0, rr = V.dr * (1 + pop * .25);
-      ell(q.x, q.y + rr * .95, rr * .9, rr * .22, 'rgba(60,40,30,.18)'); if (on) ell(q.x, q.y, rr * 1.2, rr * 1.2, '#ffffff'); ell(q.x, q.y, rr, rr, PAINT[i]); ell(q.x - rr * .3, q.y - rr * .3, rr * .26, rr * .2, 'rgba(255,255,255,.55)'); } // LR-POLISH: tap one and the dough turns that colour
+      ell(q.x, q.y + rr * .95, rr * .9, rr * .22, 'rgba(60,40,30,.18)'); if (on) ell(q.x, q.y, rr * 1.15, rr * 1.15, '#ffffff'); ell(q.x, q.y, rr, rr, PAINT[i]); ell(q.x - rr * .3, q.y - rr * .3, rr * .26, rr * .2, 'rgba(255,255,255,.55)'); } // LR-POLISH: tap one and the dough turns that colour
     cx.fillStyle = '#c8955a'; cx.fillRect(0, R(V.ty), W, H - R(V.ty)); cx.fillStyle = '#b8854a'; for (let y = V.ty + U * .06; y < H; y += U * .09) cx.fillRect(0, R(y), W, Math.max(1, R(U * .008)));
     cx.fillStyle = '#8a5a34'; cx.fillRect(0, R(V.ty), W, Math.max(2, R(U * .02)));
     // the lump: a ball (0) or a flat pancake (1), wobbling as it rolls
@@ -1174,7 +1175,7 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, DUSK_SECS, doughCol: () => doughCol(), BEDTIME_ACTS, BEDTIME_SECS, BEDTIME_GRACE, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, FLY_SECS, DOUGH_BABIES, STAMP_SECS, DOUGH_END_SECS, enterDough, leaveDough, GADGETS, DOOR_OPEN_SECS, DOOR_END_SECS, enterDoor, leaveDoor, doorPoke: k => doorPoke(k), thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
+  window.LR = { VERSION, PREF, DUSK_SECS, SIGN_WIGGLE_GAP, doughCol: () => doughCol(), BEDTIME_ACTS, BEDTIME_SECS, BEDTIME_GRACE, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, FLY_SECS, DOUGH_BABIES, STAMP_SECS, DOUGH_END_SECS, enterDough, leaveDough, GADGETS, DOOR_OPEN_SECS, DOOR_END_SECS, enterDoor, leaveDoor, doorPoke: k => doorPoke(k), thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     redraw() { draw(); },
     toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };

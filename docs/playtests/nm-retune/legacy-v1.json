@@ -1,0 +1,16 @@
+{
+  "v": 1,
+  "game": "night-market",
+  "cash": 12345.625,
+  "lifetime": 2345678.875,
+  "seen": 1792018271000,
+  "bulk": "max",
+  "stalls": [
+    { "owned": 100, "serves": 31, "hired": true },
+    { "owned": 50, "serves": 18, "hired": true },
+    { "owned": 25, "serves": 10, "hired": true },
+    { "owned": 10, "serves": 8, "hired": true },
+    { "owned": 1, "serves": 8, "hired": true },
+    { "owned": 0, "serves": 0, "hired": false }
+  ]
+}
