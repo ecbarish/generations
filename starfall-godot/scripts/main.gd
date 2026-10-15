@@ -137,19 +137,22 @@ const MAX_POSTED := 2
 ## Cleared plots (p on the map, 2x2) where the town can grow; each keeps its anchor (top left) tile.
 ## (SF2.6: the plots keep their names, so old saves keep their buildings; they now line the road east of the inn.)
 const PLOTS := { "west": Vector2i(24, 6), "east": Vector2i(32, 6), "north": Vector2i(24, 12), "south": Vector2i(32, 12) }
+# Player directions follow the moved plots; the old keys remain stable for saves.
+const PLOT_DIRECTIONS := { "west": "east of the inn, by the road", "east": "farther east, by the road",
+	"north": "southeast of the inn, across the road", "south": "farther southeast, across the road" }
 const PLOT_RANK := { "west": 0, "east": 0, "north": 1, "south": 2 }   # Hob stakes out more ground as the town grows
 ## What can stand on a plot. Each does one clear thing for your adventurers.
 const BUILDINGS := {
 	"healer": { "name": "The Healer's Hut", "cost": 120, "time": 20.0,
-		"text": "Hurt adventurers go straight to Ama for treatment, and mend twice as fast as in bed at the inn." },
+		"text": "Ama treats hurt adventurers. They mend twice as fast as at the inn." },
 	"yard": { "name": "A Training Yard", "cost": 150, "time": 25.0,
-		"text": "Posts and straw dummies. Adventurers with nothing to do practise here and slowly grow stronger." },
+		"text": "Idle adventurers practise here and slowly grow stronger." },
 	"smithy": { "name": "The Smithy", "cost": 140, "time": 22.0,
-		"text": "A forge and an anvil. Adventurers bring their savings for better gear, and you work the hammer." },
+		"text": "Work the hammer. Adventurers pay from savings for better gear." },
 	"tavern": { "name": "The Tavern", "cost": 130, "time": 20.0,
-		"text": "A taproom for the evenings. Adventurers spend a little of their savings on a drink and go to bed in better spirits. You pour." },
+		"text": "Pour evening drinks. Adventurers pay and go to bed happier." },
 	"apothecary": { "name": "The Apothecary", "cost": 110, "time": 18.0,
-		"text": "Herbs from the jobs become tonics. A tonic before a hard job means coming home less hurt. You set the price." },
+		"text": "Brew herbs into tonics that soften a hard job. You set the price." },
 }
 ## The town's rank grows with what you've built and the jobs your guild has done. Each new rank brings someone new.
 const RANKS := [
@@ -523,7 +526,8 @@ func _process(dt: float) -> void:
 	for f in feels:
 		f.t -= dt
 	feels = feels.filter(func(f): return f.t > 0.0)
-	caption_t = maxf(0.0, caption_t - dt)
+	if not _notice_blocked():
+		caption_t = maxf(0.0, caption_t - dt)
 	if hints.get("use", false) and not hints.get("goals", false):
 		goals_hint_t += dt
 		if goals_hint_t >= 12.0:
@@ -1353,10 +1357,10 @@ func _build_input(e: InputEvent) -> void:
 func _plan_rect(i: int, n: int) -> Rect2:
 	if i == n - 1:
 		return Rect2(158, 186, 68, 16)               # "Not now"
-	var k := maxi(1, n - 1)                        # up to four plans side by side
+	var k := maxi(1, n - 1)                        # up to five plans side by side
 	var w := minf(96.0, (312.0 - (k - 1) * 6.0) / k)
 	var x0 := 192.0 - (k * w + (k - 1) * 6.0) / 2.0
-	return Rect2(x0 + i * (w + 6.0), 46, w, 124)
+	return Rect2(x0 + i * (w + 6.0), 42, w, 128)
 
 func plan_pick(i: int) -> void:
 	var ps := plans()
@@ -1520,7 +1524,9 @@ func shelf_pick(i: int) -> void:
 	board_sel = i
 	match i:
 		0:
-			if herbs < 2:
+			if brewing > 0.0:
+				shelf_note = "This batch is still brewing. Wait for the three tonics before starting another."
+			elif herbs < 2:
 				shelf_note = "You need two herbs for a batch. Adventurers bring them home from the creek, the farms and the woods."
 			elif stock >= TONIC_MAX:
 				shelf_note = "The shelf is full."
@@ -1545,6 +1551,7 @@ func _brew(dt: float) -> void:
 	brewing -= dt
 	if brewing <= 0.0:
 		brewing = 0.0
+		shelf_note = ""
 		stock = mini(TONIC_MAX, stock + 3)
 		caption.text = "Three tonics, corked and on the shelf. Adventurers help themselves and leave the coins in the jar."
 		caption_t = 5.0
@@ -1639,6 +1646,8 @@ func _day(dt: float) -> void:
 	if int(today.failed) > 0:
 		report += ", gone badly: %d" % today.failed
 	report += ". Meals served: %d." % today.meals
+	if int(today.get("pot", 0)) > 0:
+		report += " Helpings from the stew pot: %d." % int(today.pot)
 	if int(today.get("gear", 0)) > 0:
 		report += " Gear made: %d." % int(today.gear)
 	if int(today.get("tonics", 0)) > 0:
@@ -1821,12 +1830,12 @@ func plan_note(id: String, plot: String) -> String:
 	var spot: Vector2 = Vector2(PLOTS[plot])
 	match id:
 		"tavern":
-			return " Here, near the inn: a livelier room, drinks lift spirits more." if (spot - Vector2(INN_DOOR)).length() <= 9.0 else " Here, away from the inn: a quieter room."
+			return " Here, near the inn: drinks lift spirits more." if (spot - Vector2(INN_DOOR)).length() <= 9.0 else " Here, away from the inn: a quieter room."
 		"smithy", "yard":
 			var other := "yard" if id == "smithy" else "smithy"
 			var k := finished(other)
 			if k != "" and (spot - Vector2(PLOTS[k])).length() <= 9.0:
-				return " Next to the %s: training counts double." % ("training yard" if other == "yard" else "smithy")
+				return " Beside the %s: double training." % ("yard" if other == "yard" else "smithy")
 	return ""
 
 func wants_drink(h: Mover) -> bool:
@@ -2904,21 +2913,29 @@ func _make_ui() -> void:
 	board_view.draw.connect(_draw_board_view)
 	ui.add_child(board_view)
 
+func _notice_blocked() -> bool:
+	return not lines.is_empty() or board_open or shelf_open or build_plot != "" or not story_pick.is_empty()
+
 func _update_ui() -> void:
 	status.text = "Day %d   %s of Starfall   Coins %d" % [day, RANKS[rank].name, coins]
 	if finished("apothecary") != "" or herbs > 0:
 		status.text += "   Herbs %d" % herbs
 	if finished("apothecary") != "":
 		status.text += "   Tonics %d" % stock
+		if brewing > 0.0:
+			status.text += " (brewing)"
 	if caption_t <= 0.0:
 		caption.text = ""
-	var busy := not lines.is_empty() or board_open or shelf_open or build_plot != "" or not story_pick.is_empty()
+	var busy := _notice_blocked()
+	caption.visible = not busy and caption_t > 0.0
+	caption.size = Vector2(368, maxf(20.0, caption.get_minimum_size().y))
+	caption.position.y = 212.0 - caption.size.y
 	var g := goals()
 	goal.text = "" if busy or g.is_empty() else "Next: " + str(g[0].text)
 	next_list.visible = show_next and not busy and g.size() > 1
 	if next_list.visible:
 		next_list.text = "\n".join(g.slice(1, 4).map(func(x): return "then: " + str(x.text)))
-	hint.text = "" if busy or not fight_call.is_empty() else control_hint()
+	hint.text = "" if busy or not fight_call.is_empty() or (caption.visible and caption.position.y < 192.0) else control_hint()
 	var to_screen := get_viewport().get_canvas_transform()
 	bubble.visible = not lines.is_empty() and not board_open and not shelf_open and build_plot == ""
 	if bubble.visible:
@@ -2989,6 +3006,30 @@ func _draw_board_view() -> void:
 	board_view.draw_string(font, done.position + Vector2(0, 11), "Done", HORIZONTAL_ALIGNMENT_CENTER, done.size.x, 8, Color("f4e9cd"))
 	board_view.draw_string(font, Vector2(32, 182), "Up to %d pinned. The guild keeps three coins in ten of each reward." % MAX_POSTED, HORIZONTAL_ALIGNMENT_CENTER, 320, 7, Color("e8d8b8"))
 
+## Measure every block before drawing so names, descriptions and the action never share a line.
+## Adaptive wrapping also keeps a long word inside the narrow five-plan cards.
+const PLAN_WRAP := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
+
+func _plan_words(font: Font, id: String, plot: String, r: Rect2, afford: bool) -> Array:
+	var b: Dictionary = BUILDINGS[id]
+	var narrow := r.size.x <= 90.0
+	var width := floorf(r.size.x - 10.0)
+	var entries: Array = [
+		{ "text": b.name, "size": 7 if narrow else 8, "color": Color("2f3a46") },
+		{ "text": "%d coins" % int(b.cost), "size": 6 if narrow else 7, "color": Color("3a6a3a") if afford else Color("a03a2a") },
+		{ "text": b.text + plan_note(id, plot), "size": 6 if narrow else 7, "color": Color("4a5560") },
+		{ "text": "Build it" if afford else "Not enough coins", "size": 6 if narrow else 7, "color": Color("2f3a46") if afford else Color("8a8a8a") },
+	]
+	var y := r.position.y + 5.0
+	for i in entries.size():
+		var e: Dictionary = entries[i]
+		var measured := font.get_multiline_string_size(e.text, HORIZONTAL_ALIGNMENT_LEFT, width, e.size, -1, PLAN_WRAP)
+		if i == entries.size() - 1:
+			y = r.end.y - 5.0 - measured.y
+		e.rect = Rect2(r.position.x + 5.0, y, width, measured.y)
+		y += measured.y + 3.0
+	return entries
+
 ## Hob's plans for a plot, close up: what could stand here, what it costs, what it does for your adventurers.
 func _draw_plans(font: Font) -> void:
 	var ps := plans()
@@ -2996,7 +3037,7 @@ func _draw_plans(font: Font) -> void:
 	board_view.draw_rect(Rect2(0, 0, 384, 216), Color(0.05, 0.04, 0.06, 0.55))
 	board_view.draw_rect(Rect2(28, 14, 328, 196), Color("2f3a46"))
 	board_view.draw_rect(Rect2(32, 18, 320, 188), Color("d8e0e8"))
-	board_view.draw_string(font, Vector2(32, 34), "Hob's plans for the %s plot" % build_plot, HORIZONTAL_ALIGNMENT_CENTER, 320, 11, Color("2f3a46"))
+	board_view.draw_string(font, Vector2(32, 34), "Hob's plans: %s" % PLOT_DIRECTIONS[build_plot], HORIZONTAL_ALIGNMENT_CENTER, 320, 11, Color("2f3a46"))
 	if ps.is_empty():
 		board_view.draw_string(font, Vector2(32, 100), "Everything Hob knows how to build already stands in Starfall.", HORIZONTAL_ALIGNMENT_CENTER, 320, 8, Color("2f3a46"))
 	for i in ps.size():
@@ -3005,10 +3046,9 @@ func _draw_plans(font: Font) -> void:
 		var afford := coins >= int(b.cost)
 		board_view.draw_rect(r.grow(1), Color("f2d24a") if board_sel == i else Color(0, 0, 0, 0.3))
 		board_view.draw_rect(r, Color("f4f6f8"))
-		board_view.draw_multiline_string(font, r.position + Vector2(5, 13), b.name, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 10, 8, -1, Color("2f3a46"))
-		board_view.draw_string(font, r.position + Vector2(5, 40), "%d coins" % int(b.cost), HORIZONTAL_ALIGNMENT_LEFT, -1, 7, Color("3a6a3a") if afford else Color("a03a2a"))
-		board_view.draw_multiline_string(font, r.position + Vector2(5, 52), b.text + plan_note(ps[i], build_plot), HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 10, 7 if r.size.x > 90.0 else 6, -1, Color("4a5560"))
-		board_view.draw_string(font, r.position + Vector2(5, r.size.y - 5), "Build it" if afford else "Not enough coins", HORIZONTAL_ALIGNMENT_LEFT, -1, 7, Color("2f3a46") if afford else Color("8a8a8a"))
+		for words in _plan_words(font, ps[i], build_plot, r, afford):
+			board_view.draw_multiline_string(font, words.rect.position + Vector2(0, font.get_ascent(words.size)), words.text,
+				HORIZONTAL_ALIGNMENT_LEFT, words.rect.size.x, words.size, -1, words.color, PLAN_WRAP)
 	var done := _plan_rect(n - 1, n)
 	board_view.draw_rect(done, Color("2f3a46") if board_sel == n - 1 else Color("4a5866"))
 	board_view.draw_string(font, done.position + Vector2(0, 11), "Not now", HORIZONTAL_ALIGNMENT_CENTER, done.size.x, 8, Color("f4f6f8"))
@@ -3458,10 +3498,18 @@ func goals() -> Array:
 			parts.append("%d more %s" % [build_left, "building" if build_left == 1 else "buildings"])
 		if not parts.is_empty():
 			out.append({ "text": "%s: Starfall becomes a %s." % [" and ".join(parts), RANKS[rank + 1].name], "left": jobs_left + build_left * 3 })
-	if not plans().is_empty():
+	var available := plans()
+	if not available.is_empty():
+		var cheapest := int(BUILDINGS[available[0]].cost)
+		for id in available:
+			cheapest = mini(cheapest, int(BUILDINGS[id].cost))
 		for k in PLOTS:
 			if int(PLOT_RANK[k]) <= rank and not built.has(k):
-				out.append({ "text": "Hob has an empty plot to the %s: walk up to it to see what could stand there." % k, "left": 2 })
+				var shortfall := maxi(0, cheapest - coins)
+				var text := "See Hob's plans at the empty plot %s." % PLOT_DIRECTIONS[k]
+				if shortfall > 0:
+					text = "Earn %d more %s from jobs or the counter for Hob's empty plot %s." % [shortfall, "coin" if shortfall == 1 else "coins", PLOT_DIRECTIONS[k]]
+				out.append({ "text": text, "left": maxi(2, shortfall) })
 				break
 	var crafts := [
 		[finished("smithy") != "" and garrick.where == "gone", SMITH_AFTER - pieces, "Forge %d more %s: a smith might ask for the forge.", "piece", "pieces"],
