@@ -2,6 +2,14 @@
 
 v0.1.7. Before each Millrace drive you pick Blitz, Balanced, or Prevent, and the drive plays on the field as a short highlight (#444). A slower clock keeps a two-minute quarter and leaves room for a full game. On fourth down the call offers a punt, and a field goal when the goal is within 38 yards. A short completion no longer gains one fixed number of yards, and a typical carry lands nearer 3 yards. A miss says why: Overthrown, Underthrown, Wide left, Wide right, Broken up, or Picked. While you drag, the receiver nearest the aim point is highlighted, and Inside and Outside are labelled as runs. On a phone, a full throw takes a long drag, and the camera keeps the quarterback clear of the left edge. After the whistle one result line sits on the bottom edge, and the hint stays above the grass so the top receiver and the yard numbers stay visible. The version label stays whole at 360 pixels wide, and Settings stays on the screen at 390 pixels wide. A phone held upright still shows Turn your phone sideways and the game waits. The save stays version 2.
 
+Sound-cue work from #474 is in `sound-cues.js`, with a checker and a listening page. The game does not play those cues yet, so the field stays as it is and Lantern Bowl stays at v0.1.7.
+
+Kick rules from #479 are in `kick.js`, plus a checker. The game does not use that module yet, so the field stays as it is and Lantern Bowl stays at v0.1.7.
+
+Season schedule data from #478 is in `season.json`, plus a checker. The game does not load that file yet, so the field stays as it is and Lantern Bowl stays at v0.1.7.
+
+Roster and ratings data from #472 is in `roster.json`, plus a checker. The game does not load that file yet, so the field stays as it is and Lantern Bowl stays at v0.1.7.
+
 Play and route data from #451 is in `playbook.json`: 4 runs and 8 passes, with 32 receiver routes, plus a checker. The game does not load that file yet, so the field stays as it is and Lantern Bowl stays at v0.1.7.
 
 v0.1.6. The field has new play art and a playbook. Slingshot passing lets you pull back to throw. A landing circle stays on screen on deep throws. An overthrown pass says "Overthrown: too much power". On phones, a turn-sideways prompt in portrait pauses the game (#432). The save stays version 2.
