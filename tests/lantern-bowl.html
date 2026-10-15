@@ -3,6 +3,7 @@
 <h1>Lantern Bowl checks</h1><button id="run">Run checks</button><p id="summary">Ready.</p><ol id="results"></ol><div id="game"></div>
 <script src="../games/lantern-bowl/model.js"></script>
 <script src="../games/lantern-bowl/view.js"></script>
+<script src="lantern-bowl-playbook.cjs"></script>
 <script>
 'use strict';
 document.querySelector('#run').onclick = async () => {
@@ -51,7 +52,11 @@ document.querySelector('#run').onclick = async () => {
     check('an older match still loads', aged.spot === 40 && aged.down === 2 && aged.quarter === 3 && aged.score.home === 7 && aged.fatigue['Mara Holt'] === 0.4 && aged.log[0] === 'old play');
     const outline = M.teamOutline('#c45a32');
     check('team outlines are generated and stable', outline !== '#c45a32' && outline === M.teamOutline('#c45a32') && /^#[0-9a-f]{6}$/.test(outline));
-    check('a short pull is a bullet and a long pull is a lob', V.classifyPull(36).kind === 'bullet' && V.classifyPull(120).kind === 'lob');
+    const phoneSpan = V.pullSpan(844, 390);
+    const phonePull = V.classifyPull(130, phoneSpan);
+    const phoneMeter = V.powerMeter(phonePull.power, 844);
+    check('a short pull is a bullet and a long pull is a lob', V.classifyPull(phoneSpan * 0.2, phoneSpan).kind === 'bullet' && V.classifyPull(phoneSpan * 0.75, phoneSpan).kind === 'lob');
+    check('130px on a phone is not full power, and the meter shows that', phoneSpan > 240 && phonePull.power < 0.5 && phonePull.power > 0.15 && V.classifyPull(phoneSpan, phoneSpan).power === 1 && phoneMeter.fill > 0 && phoneMeter.fill < phoneMeter.width * 0.5);
     const shot = V.project('behind', { x: 4, y: 0 }, { x: 0, y: 0 }, { w: 400, h: 600 });
     check('the behind-the-play camera returns a point', !!shot && isFinite(shot.x) && isFinite(shot.y) && shot.scale > 0);
     const sidePoint = V.project('side', { x: 0, y: 0 }, { x: 0, y: 0 }, { w: 384, h: 216 });
@@ -61,9 +66,10 @@ document.querySelector('#run').onclick = async () => {
     check('the quarterback drops back after the snap', V.pocketDrop(0) === 0 && V.pocketDrop(0.55) < -4);
     check('the ball peaks in the middle of its flight', V.ballLoft(0.5, 'lob') > V.ballLoft(0.05, 'lob') + 20 && V.ballLoft(1, 'lob') < 1 && V.ballLoft(0.5, 'lob') > V.ballLoft(0.5, 'bullet'));
     const offers = M.offerPlays({ down: 1, toGo: 10, spot: 25 });
-    const fourthOffers = M.offerPlays({ down: 4, toGo: 10, spot: 40 });
+    const fourthFar = M.offerPlays({ down: 4, toGo: 10, spot: 40 });
+    const fourthNear = M.offerPlays({ down: 4, toGo: 6, spot: 70 });
     const shortOffers = M.offerPlays({ down: 3, toGo: 2, spot: 40 });
-    check('the call offers three plays', offers.length === 3 && fourthOffers.indexOf('kick') >= 0 && fourthOffers.length === 3 && shortOffers.length === 3);
+    check('the call offers three plays', offers.length === 3 && offers.indexOf('punt') < 0 && offers.indexOf('field') < 0 && fourthFar.indexOf('punt') >= 0 && fourthFar.indexOf('field') < 0 && fourthFar.length === 3 && fourthNear.indexOf('field') >= 0 && fourthNear.indexOf('punt') >= 0 && fourthNear.length === 3 && shortOffers.length === 3);
     const chalk = M.previewRoutes('quick');
     check('a pass has chalk routes before the snap', chalk.length >= 3 && chalk[0].x1 > chalk[0].x0);
     const rangeLo = M.throwRange(0.2), rangeHi = M.throwRange(1);
@@ -89,17 +95,22 @@ document.querySelector('#run').onclick = async () => {
     M.callPlay(deepPlay, 'deep');
     const deepRec = deepPlay.play.actors.filter(a => a.off && a.role !== 'qb' && a.role !== 'ol')[0];
     const overthrown = M.missReason(deepPlay.play, { toX: deepRec.x + 8, toY: deepRec.y, power: 0.9, wobble: 0 }, { actor: deepRec, d: 8 });
-    const wideWobble = M.missReason(deepPlay.play, { toX: deepRec.x + 0.4, toY: deepRec.y + 4, power: 0.7, wobble: 0.6 }, { actor: deepRec, d: 4 });
+    const wideRight = M.missReason(deepPlay.play, { toX: deepRec.x + 0.4, toY: deepRec.y + 4, power: 0.7, wobble: 0.6 }, { actor: deepRec, d: 4 });
+    const wideLeft = M.missReason(deepPlay.play, { toX: deepRec.x, toY: deepRec.y - 5, power: 0.7, wobble: 0 }, { actor: deepRec, d: 5 });
     const underthrown = M.missReason(deepPlay.play, { toX: deepRec.x - 6, toY: deepRec.y, power: 0.35, wobble: 0 }, { actor: deepRec, d: 6 });
     const quickPlay = M.create({ seed: 2 });
     M.callPlay(quickPlay, 'quick');
     const quickQb = quickPlay.play.actors[quickPlay.play.carrier];
     const quickRec = quickPlay.play.actors.filter(a => a.off && a.route)[0];
     const plainMiss = M.missReason(quickPlay.play, { toX: quickQb.x + 8, toY: quickQb.y, power: 0.2, wobble: 0 }, { actor: quickRec, d: 5 });
-    check('a missed deep pass says it was overthrown', overthrown === 'Overthrown: too much power');
-    check('a missed deep pass names aim wobble', wideWobble === 'Wide: aim wobble (QB accuracy)');
-    check('a deep pass that dies short says it was underthrown', underthrown === 'Underthrown: not enough power');
-    check('a short miss stays a plain incompletion', plainMiss === 'The throw falls incomplete');
+    const missWords = ['Overthrown', 'Underthrown', 'Wide left', 'Wide right'];
+    check('a missed deep pass says it was overthrown', overthrown === 'Overthrown');
+    check('a throw wide of the receiver says which side', wideRight === 'Wide right' && wideLeft === 'Wide left');
+    check('a deep pass that dies short says it was underthrown', underthrown === 'Underthrown');
+    check('a short miss names the miss (' + plainMiss + ')', missWords.indexOf(plainMiss) >= 0 && plainMiss.indexOf('aim was off') < 0 && plainMiss !== 'The throw falls incomplete');
+    check('a sling catch window is a bit wider, and a lob reaches farther than a bullet', M.catchReach('bullet') > 2.5 && M.catchReach('bullet') < 4.2 && M.catchReach('lob') > M.catchReach('bullet'));
+    const aimedNear = M.aimReceiver(slingGame.play, slingRec.x + 0.4, slingRec.y - 0.2);
+    check('the receiver nearest the aim point is the one under the drag', aimedNear === slingRec && placed.autoAim === false && placed.target == null);
     const lobHang = M.flightSeconds(40, 'lob'), bulletHang = M.flightSeconds(40, 'bullet');
     check('a lob hangs about two seconds and a bullet is faster (' + lobHang.toFixed(2) + ' / ' + bulletHang.toFixed(2) + ')', lobHang > 1.8 && lobHang < 2.15 && bulletHang < lobHang - 0.7);
     const onContest = M.catchContest(2.2, 2.6), offContest = M.catchContest(1, 2.7), closerDef = M.catchContest(2.4, 1.1), fartherDef = M.catchContest(1.2, 2.4);
@@ -109,9 +120,22 @@ document.querySelector('#run').onclick = async () => {
     const wideField = V.layoutFor(844, 390), desktopField = V.layoutFor(1024, 594);
     check('a phone held upright waits for landscape', V.phoneTurn(390, 844) === true && V.phoneTurn(360, 780) === true && V.phoneTurn(844, 390) === false && V.phoneTurn(780, 360) === false && V.phoneTurn(1024, 594) === false);
     check('the field stays side-on, with a thin score strip', !!wideField && !wideField.vertical && wideField.w > wideField.h && wideField.top >= 16 && wideField.top <= 20 && !!desktopField && !desktopField.vertical && desktopField.top >= 16 && desktopField.top <= 20);
-    const fittedPhone = V.fitLayout(844, 390), fittedNarrow = V.fitLayout(780, 360), fittedDesk = V.fitLayout(1024, 594);
+    const fittedPhone = V.fitLayout(844, 390), fittedNarrow = V.fitLayout(780, 360), fittedDesk = V.fitLayout(1024, 594), fittedSe = V.fitLayout(667, 375);
     const fills = (fitted, boxW, boxH) => !!fitted && fitted.scale === Math.floor(fitted.scale) && fitted.scale >= 1 && !fitted.vertical && fitted.w * fitted.scale <= boxW && fitted.h * fitted.scale <= boxH && fitted.w * fitted.scale >= boxW - fitted.scale && fitted.h * fitted.scale >= boxH - fitted.scale;
     check('the picture scales by a whole number and fills the box', fills(fittedPhone, 844, 390) && fills(fittedNarrow, 780, 360) && fills(fittedDesk, 1024, 594));
+    const aboveCards = (fitted) => {
+      const reserve = Math.ceil(64 / fitted.scale);
+      const feet = fitted.top + fitted.fieldH * (0.5 + 20 / fitted.widthY) + 2;
+      return fitted.top + fitted.fieldH <= fitted.h - reserve + 0.5 && feet <= fitted.h - reserve;
+    };
+    check('the grass and the widest receiver stay above the bottom cards', aboveCards(fittedPhone) && aboveCards(fittedNarrow) && aboveCards(fittedDesk) && aboveCards(fittedSe));
+    const underHint = (fitted) => {
+      const band = 42 / fitted.scale;
+      const numbers = fitted.top + 16;
+      const spriteTop = fitted.top + fitted.fieldH * (0.5 - 20 / fitted.widthY) - 16;
+      return fitted.top + 0.01 >= band && numbers >= band && spriteTop >= band;
+    };
+    check('the top receiver and the yard numbers stay below the hint', underHint(fittedPhone) && underHint(fittedNarrow) && underHint(fittedSe) && underHint(fittedDesk));
     const openMark = V.opennessMark('open'), windowMark = V.opennessMark('window'), coveredMark = V.opennessMark('covered');
     check('openness marks differ by shape, with a light open ring', openMark.shape !== windowMark.shape && windowMark.shape !== coveredMark.shape && openMark.color === '#f6edd4' && openMark.outline === '#1e1a22' && coveredMark.shape === 'dotted');
     let openCatches = 0, tightPicks = 0, tightDrops = 0, trials = 1600, rollState = 5;
@@ -181,6 +205,17 @@ document.querySelector('#run').onclick = async () => {
     const focusRun = V.sideFocus({ family: 'run', spot: 25, ballX: 30 });
     const focusAir = V.sideFocus({ family: 'air', spot: 25, qbX: 20, landX: 40 });
     check('a run leads the carrier and a pass aims between the quarterback and the landing spot', Math.abs(focusRun.target - (30 + 40 / 12)) < 1e-9 && focusRun.chase === true && focusAir.target === 30 && focusAir.chase === true);
+    const droppedAt = 40 - 10.6;
+    const focusPocket = V.sideFocus({ family: 'pocket', spot: 40, qbX: droppedAt });
+    const pocketPx = V.sideProject({ x: droppedAt, y: 0 }, { x: focusPocket.target });
+    const focusBack = V.sideFocus({ cut: true, spot: 40 });
+    const phoneFrame = V.passFrame(844, 390);
+    const phoneCam = V.pocketAim(droppedAt, 844, 390);
+    const phoneLayout = V.fitLayout(844, 390);
+    const phoneQb = (phoneLayout.anchor + (droppedAt - phoneCam) * phoneLayout.yard) * phoneLayout.scale;
+    check('after the snap the quarterback stays in from the left edge', focusPocket.chase === true && focusPocket.target === droppedAt && focusPocket.target < 40 && pocketPx.x >= 80);
+    check('before the snap the camera leaves room behind the quarterback', focusBack.cut === true && focusBack.target === 32);
+    check('a pass on a phone leaves more than 70px behind the quarterback', phoneQb > 160 && phoneQb >= phoneFrame.span - 4 && phoneCam < droppedAt);
     check('the picture stays inside 32 colours', V.PALETTE.length <= 32 && V.PALETTE.length === new Set(V.PALETTE).size);
     const inkPen = { log: [] };
     ['save', 'restore', 'beginPath', 'moveTo', 'lineTo', 'ellipse', 'arc', 'fill', 'stroke', 'translate', 'scale', 'fillRect'].forEach(name => { inkPen[name] = () => { inkPen.log.push(name); }; });
@@ -220,7 +255,7 @@ document.querySelector('#run').onclick = async () => {
       maxSpent = Math.max(maxSpent, M.clockSpent(before, playedClock));
     }
     check('one play never takes more than 14 seconds (' + maxSpent.toFixed(1) + ')', maxSpent > 0 && maxSpent <= 14);
-    const rolled = M.create({ seed: 5 }); rolled.clock = 6; rolled.down = 1; rolled.toGo = 10; rolled.spot = 30;
+    const rolled = M.create({ seed: 5 }); rolled.clock = 3; rolled.down = 1; rolled.toGo = 10; rolled.spot = 30;
     M.callPlay(rolled, 'inside'); M.finish(rolled, M.policies.neutral);
     check('a new quarter keeps the down and the ball', rolled.quarter === 2 && rolled.down === 2 && rolled.possession === 'home' && Math.round(rolled.toGo) !== 10);
     check('the new quarter is announced', /Second quarter/.test(rolled.last.text));
@@ -458,6 +493,36 @@ document.querySelector('#run').onclick = async () => {
     carryShape('carries without a juke lose about one in ten, sit near 3, and sometimes break', humanRun.runs);
     carryShape('carries with a well-timed juke keep that shape', humanTimed.runs);
     carryShape('carries with a juke at a random moment keep that shape', humanRandom.runs);
+    const carryDist = M.carryDistribution(16, 11);
+    check('the median carry sits near 3 (' + carryDist.n + ' carries, median ' + carryDist.median.toFixed(2) + ', ' + (carryDist.loss * 100).toFixed(1) + '% lost, ' + (carryDist.ten * 100).toFixed(1) + '% at 10+)', carryDist.n >= 200 && carryDist.median >= 2.9 && carryDist.median <= 3.3 && carryDist.loss >= 0.06 && carryDist.loss <= 0.16 && carryDist.ten >= 0.06 && carryDist.ten <= 0.16 && carryDist.twenty >= 0.008 && carryDist.twenty <= 0.05);
+    const quickGains = [];
+    for (let i = 0; i < 48; i++) {
+      const quickGame = M.create({ seed: ((30 + i * 13) >>> 0) || 1 });
+      if (!M.callPlay(quickGame, 'quick')) continue;
+      M.finish(quickGame, M.scriptedQuick);
+      if (quickGame.last && quickGame.last.caught) quickGains.push(quickGame.last.gain || 0);
+    }
+    const quickMin = Math.min.apply(null, quickGains), quickMax = Math.max.apply(null, quickGains);
+    check('a short completion is not one fixed gain (' + quickGains.length + ' catches, ' + quickMin.toFixed(1) + ' to ' + quickMax.toFixed(1) + ')', quickGains.length >= 20 && quickMax - quickMin >= 4);
+    function kickMakes(spot, n) {
+      let made = 0;
+      for (let i = 0; i < n; i++) {
+        const kickGame = M.create({ seed: ((i * 97 + spot * 13) >>> 0) || 1 });
+        kickGame.spot = spot; kickGame.down = 4; kickGame.phase = 'call'; kickGame.toGo = 6;
+        M.kick(kickGame, 'field');
+        if (/makes it/.test(kickGame.last && kickGame.last.text)) made += 1;
+      }
+      return made / n;
+    }
+    const chip = kickMakes(80, 48), longKick = kickMakes(62, 48);
+    check('a field goal is harder from farther away (' + (chip * 100).toFixed(0) + '% from 37, ' + (longKick * 100).toFixed(0) + '% from 55)', chip > longKick + 0.2 && chip > 0.55 && longKick < 0.55);
+    const pace = M.drivePace(8, 4);
+    check('a game lasts about 8 to 12 Lanterns drives (' + pace.home.toFixed(1) + ' home, ' + pace.away.toFixed(1) + ' away)', pace.home >= 8 && pace.home <= 12 && pace.away >= 6);
+    const blitz = M.create({ seed: 3 }); blitz.possession = 'away'; blitz.phase = 'cpu'; blitz.defenceCall = 'blitz';
+    const prevent = M.create({ seed: 3 }); prevent.possession = 'away'; prevent.phase = 'cpu'; prevent.defenceCall = 'prevent';
+    M.callPlay(blitz, 'inside'); M.callPlay(prevent, 'inside');
+    check('a blitz brings more pressure than prevent', blitz.play.rush > prevent.play.rush + 10 && blitz.play.actors.some(a => !a.off && prevent.play.actors.some(b => !b.off && b.role === a.role && a.cover < b.cover)));
+    check('a drive highlight reads as one line', M.driveSummary([{ text: 'Pat Low punts, about 40 yards.' }], 'blitz') === 'Blitz. Millrace punts.' && M.driveSummary([{ text: 'Touchdown, and the kick is good.' }], 'prevent') === 'Prevent. Millrace scores.');
     const comps = humanPass.passes;
     const piled = comps.filter(x => x >= 7 && x < 9).length / Math.max(1, comps.length);
     const deepShare = comps.filter(x => x >= 20).length / Math.max(1, comps.length);
@@ -465,7 +530,7 @@ document.querySelector('#run').onclick = async () => {
     check('a human throw spreads completions past a 7-to-9 yard pile (' + comps.length + ' catches, ' + passMin.toFixed(1) + ' to ' + passMax.toFixed(1) + ', ' + Math.round(piled * 100) + '% in that band, ' + Math.round(deepShare * 100) + '% at 20+)', comps.length >= 40 && passMin <= 6 && passMax >= 20 && passMax - passMin >= 14 && piled <= 0.45 && deepShare >= 0.05);
     [1, 2, 3].forEach(q => {
       const crossing = M.create({ seed: 4 });
-      crossing.quarter = q; crossing.clock = 5; crossing.spot = 40; crossing.down = 1; crossing.toGo = 10;
+      crossing.quarter = q; crossing.clock = 3; crossing.spot = 40; crossing.down = 1; crossing.toGo = 10;
       M.callPlay(crossing, 'inside'); M.finish(crossing, M.policies.neutral);
       const named = { 1: /Second quarter/, 2: /Third quarter/, 3: /Fourth quarter/ }[q];
       check('the quarter change announces itself (' + q + ')', crossing.quarter === q + 1 && named.test(crossing.last.text) && (q !== 2 || /Halftime/.test(crossing.last.text)));
@@ -482,7 +547,10 @@ document.querySelector('#run').onclick = async () => {
       if (play.elapsed < 0.4) return M.policies.neutral();
       return { steer: 0, turbo: false, juke: 0, dive: false, throw: { dirX: 8, dirY: -1, power: 0.35 } };
     });
-    check('an interception is spotted where the ball came down', Math.round(picked.spot) === 49 && /Picked/.test(picked.last.text) && /at their 49/.test(picked.last.text) && !/our 49/.test(picked.last.text));
+    const pickedYard = Math.round(picked.spot);
+    const pickedFromHome = 100 - pickedYard;
+    const pickedLabel = pickedFromHome <= 50 ? ('our ' + pickedFromHome) : ('their ' + (100 - pickedFromHome));
+    check('an interception is spotted where the ball came down', picked.possession === 'away' && /Picked/.test(picked.last.text) && picked.last.text.indexOf('at ' + pickedLabel) >= 0 && pickedYard > 0 && pickedYard < 100);
     let stuffedFirst = 0, runFast = 0, runSlow = 0;
     const openGains = [];
     for (let i = 0; i < 24; i++) {
@@ -620,18 +688,28 @@ document.querySelector('#run').onclick = async () => {
     check('continue loads the saved drive', w2.__lantern.state.spot === spot && w2.__lantern.state.rng === rng && w2.__lantern.state.seed === 5);
     const sheet = d2.querySelector('#sheet');
     const resumed = w2.__lantern.state;
-    check('the toast names the play without a rating number', !!sheet && !sheet.hidden && sheet.textContent.length > 8 && !/\(\d+\)/.test(sheet.textContent) && sheet.textContent.indexOf('throw ') < 0);
+    const resultLine = d2.querySelector('#banner');
+    check('continuing a drive does not lay the last result over the cards', sheet.hidden && resultLine.hidden);
     const offered = Array.from(d2.querySelectorAll('[data-play]'));
     check('the call is a short row with a diagram', offered.length >= 2 && offered.length <= 3 && offered.every(b => b.querySelector('svg') && b.textContent.trim().length > 1));
-    check('kick stays off the call until fourth down', !d2.querySelector('[data-play="kick"]'));
+    check('kick stays off the call until fourth down', !d2.querySelector('[data-play="kick"]') && !d2.querySelector('[data-play="field"]') && !d2.querySelector('[data-play="punt"]'));
     check('the score strip is about 18 pixels', (() => { const box = d2.querySelector('.hud').getBoundingClientRect(); return box.height >= 16 && box.height <= 20; })());
     check('turbo stays off the field', d2.querySelector('#turbo').hidden);
     resumed.down = 4;
+    resumed.spot = 40;
+    w2.__lantern.refresh();
+    await wait();
+    const fourthOut = Array.from(d2.querySelectorAll('[data-play]'));
+    check('fourth down out of range offers a punt and no field goal', fourthOut.length >= 2 && fourthOut.length <= 3 && !!d2.querySelector('[data-play="punt"]') && !d2.querySelector('[data-play="field"]') && !d2.querySelector('[data-play="kick"]'));
+    resumed.spot = 70;
     w2.__lantern.refresh();
     await wait();
     const fourth = Array.from(d2.querySelectorAll('[data-play]'));
-    check('fourth down offers the kick among two or three plays', fourth.length >= 2 && fourth.length <= 3 && !!d2.querySelector('[data-play="kick"]'));
+    const fourthWords = fourth.map(b => (b.textContent || '').replace(/\s+/g, ' ').trim()).join(' ');
+    check('fourth down in range offers a field goal and a punt', fourth.length >= 2 && fourth.length <= 3 && !!d2.querySelector('[data-play="field"]') && !!d2.querySelector('[data-play="punt"]') && !d2.querySelector('[data-play="kick"]') && fourthWords.length < 80 && !d2.querySelector('.cpu-log'));
     resumed.down = 1;
+    resumed.spot = 28;
+    resumed.toGo = 10;
     w2.__lantern.refresh();
     await wait();
     w2.__lantern.begin('inside');
@@ -662,11 +740,32 @@ document.querySelector('#run').onclick = async () => {
     check('turning the phone sideways resumes the same snap', d2.querySelector('#turn').hidden && resumedMove);
     w2.__lantern.finishLive();
     await wait();
-    const carried = d2.querySelector('#sheet');
-    check('the toast names the ball carrier without a rating number', !!carried && !carried.hidden && carried.textContent.indexOf('Mara Holt') >= 0 && !/\(\d+\)/.test(carried.textContent) && carried.textContent.indexOf('throw ') < 0);
+    const carried = d2.querySelector('#banner');
+    const topCopy = d2.querySelector('#sheet');
+    const carriedBox = carried.getBoundingClientRect();
+    const carriedPitch = d2.querySelector('.pitch').getBoundingClientRect();
+    check('the toast names the ball carrier without a rating number', !!carried && !carried.hidden && topCopy.hidden && carried.textContent.indexOf('Mara Holt') >= 0 && !/\(\d+\)/.test(carried.textContent) && carried.textContent.indexOf('throw ') < 0);
+    const bannerZ = parseInt(w2.getComputedStyle(carried).zIndex, 10);
+    const dockZ = parseInt(w2.getComputedStyle(d2.querySelector('#dock')).zIndex, 10);
+    check('one result toast sits on the bottom edge, clear of the players, with the play cards hidden', w2.__lantern.state.phase !== 'final' && d2.querySelectorAll('[data-play]').length === 0 && topCopy.hidden && !carried.hidden && carriedBox.top >= carriedPitch.bottom - 56 && carriedPitch.bottom - carriedBox.bottom <= 16 && carriedPitch.bottom - carriedBox.bottom >= 0 && bannerZ > dockZ);
+    let cardsBack = false;
+    const backWatch = performance.now();
+    while (performance.now() - backWatch < 4000 && !cardsBack) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      cardsBack = w2.__lantern.mode === 'play' && d2.querySelectorAll('[data-play]').length >= 2 && d2.querySelectorAll('[data-play]').length <= 3;
+    }
+    check('the next play can be called once the result has been shown', cardsBack);
+    const callCard = d2.querySelector('#dock button') && d2.querySelector('#dock button').getBoundingClientRect();
+    check('the result line leaves once the next play cards return', d2.querySelector('#sheet').hidden && !!callCard && d2.querySelector('#banner').hidden);
     resumed.possession = 'home';
     resumed.phase = 'call';
     resumed.down = 1;
+    resumed.toGo = 5;
+    w2.__lantern.refresh();
+    await wait();
+    const runWords = Array.from(d2.querySelectorAll('[data-play]')).map(b => (b.textContent || '').replace(/\s+/g, ' ').trim()).join(' ');
+    check('inside and outside are labelled as runs', /Inside run/.test(runWords) && /Outside run/.test(runWords));
+    resumed.toGo = 10;
     const ours = d2.querySelector('[data-ours]');
     if (ours) ours.click();
     else w2.__lantern.refresh();
@@ -678,6 +777,22 @@ document.querySelector('#run').onclick = async () => {
     const passHint = d2.querySelector('#hint').textContent || '';
     check('a picked pass says to pull back to throw', passHint.indexOf('Pull back to throw') >= 0);
     check("a repeated play shows they're reading it", passHint.indexOf("THEY'RE READING IT") >= 0);
+    function topPairClears(doc, win) {
+      const hint = doc.querySelector('#hint');
+      const pitch = doc.querySelector('.pitch').getBoundingClientRect();
+      const band = hint.getBoundingClientRect();
+      const layout = win.LanternView.fitLayout(pitch.width, pitch.height);
+      const numbers = pitch.top + (layout.top + 16) * layout.scale;
+      const spriteTop = pitch.top + (layout.top + layout.fieldH * (0.5 - 20 / layout.widthY) - 16) * layout.scale;
+      return !hint.hidden && band.height >= 20 && spriteTop >= band.bottom - 0.5 && numbers >= band.bottom - 0.5;
+    }
+    for (const [aimW, aimH] of [[780, 360], [844, 390], [667, 375]]) {
+      frame.style.width = aimW + 'px'; frame.style.height = aimH + 'px';
+      await wait();
+      check(aimW + '×' + aimH + ' aiming hint stays off the top receiver and the yard numbers', topPairClears(d2, w2));
+    }
+    frame.style.width = '844px'; frame.style.height = '390px';
+    await wait();
     const touchCanvas = d2.querySelector('#field');
     const touchPoint = new w2.Touch({ identifier: 3, target: touchCanvas, clientX: 140, clientY: 220, pageX: 140, pageY: 220, screenX: 140, screenY: 220, radiusX: 1, radiusY: 1, rotationAngle: 0, force: 1 });
     touchCanvas.dispatchEvent(new w2.TouchEvent('touchstart', { touches: [touchPoint], changedTouches: [touchPoint], bubbles: true, cancelable: true }));
@@ -711,7 +826,17 @@ document.querySelector('#run').onclick = async () => {
       check(width + '×' + height + ' field fills most of the screen', pitch.height >= height * 0.62 && pitch.width >= width * 0.85);
       check(width + '×' + height + ' keeps a thin score strip', hud.height >= 16 && hud.height <= 20);
       check(width + '×' + height + ' play buttons are thumb sized', Array.from(d2.querySelectorAll('#dock button, #settingsMount button, .home')).every(b => b.getBoundingClientRect().height >= 44 && b.getBoundingClientRect().width >= 44));
+      const labelRows = cards.map(b => b.querySelector('span')).filter(Boolean);
+      const labelFonts = cards.map(b => parseFloat(w2.getComputedStyle(b).fontSize));
+      const labelHeights = cards.map(b => Math.round(b.getBoundingClientRect().height));
+      check(width + '×' + height + ' labels are 16px on one line', labelFonts.every(n => n >= 16) && labelRows.every(s => s.getClientRects().length === 1 && s.scrollWidth <= s.clientWidth + 1) && labelHeights.every(h => h === labelHeights[0] && h <= 48));
+      check(width + '×' + height + ' hint text is readable', parseFloat(w2.getComputedStyle(d2.querySelector('#hint')).fontSize) >= 16 && parseFloat(w2.getComputedStyle(d2.querySelector('#hint')).lineHeight) >= 20);
       check(width + '×' + height + ' call is two or three plays along the bottom', cards.length >= 2 && cards.length <= 3 && cards[0].getBoundingClientRect().top > pitch.top + pitch.height * 0.55);
+      if (width === 780) {
+        const layout = w2.LanternView.fitLayout(pitch.width, pitch.height);
+        const feet = pitch.top + (layout.top + layout.fieldH * (0.5 + 20 / layout.widthY) + 2) * layout.scale;
+        check('at 780×360 the cards stay off the bottom receivers', cards[0].getBoundingClientRect().top + 1 >= feet);
+      }
       if (width === 844) {
         const boxes = [d2.querySelector('h1'), d2.querySelector('.home'), d2.querySelector('#settingsMount button')].map(el => el.getBoundingClientRect());
         const mids = boxes.map(r => (r.top + r.bottom) / 2);
@@ -728,18 +853,35 @@ document.querySelector('#run').onclick = async () => {
         banner.hidden = false; banner.textContent = 'The result sits low.';
         const players = fieldWide.top + fieldWide.height * 0.45;
         const bannerBox = banner.getBoundingClientRect();
-        check('on a landscape phone the result sits below the players', bannerBox.top > players);
+        check('on a landscape phone the result sits on the bottom edge', bannerBox.top > players && bannerBox.top >= fieldWide.bottom - 56 && fieldWide.bottom - bannerBox.bottom <= 16);
         banner.hidden = true; banner.textContent = '';
         resumed.down = 4;
+        resumed.spot = 70;
         w2.__lantern.refresh();
         await wait();
         const fourthCards = Array.from(d2.querySelectorAll('[data-play]'));
-        check('on a landscape phone fourth down still offers a short call', fourthCards.length >= 2 && fourthCards.length <= 3 && !!d2.querySelector('[data-play="kick"]'));
+        check('on a landscape phone fourth down still offers a short call', fourthCards.length >= 2 && fourthCards.length <= 3 && !!d2.querySelector('[data-play="field"]') && !!d2.querySelector('[data-play="punt"]') && !d2.querySelector('[data-play="kick"]'));
+        const fourthLabels = fourthCards.map(b => b.querySelector('span')).filter(Boolean);
+        const fourthFonts = fourthCards.map(b => parseFloat(w2.getComputedStyle(b).fontSize));
+        const fourthHeights = fourthCards.map(b => Math.round(b.getBoundingClientRect().height));
+        check('fourth down labels stay on one 16px line', fourthFonts.every(n => n >= 16) && fourthLabels.every(s => s.getClientRects().length === 1 && s.scrollWidth <= s.clientWidth + 1) && fourthHeights.every(h => h === fourthHeights[0] && h <= 48));
         check('on a landscape phone fourth down still fits', d2.documentElement.scrollWidth <= width + 1 && d2.documentElement.scrollHeight <= height + 1);
         resumed.down = 1;
+        resumed.spot = 28;
         w2.__lantern.refresh();
         await wait();
       }
+    }
+    for (const narrow of [360, 390]) {
+      frame.style.width = narrow + 'px'; frame.style.height = '780px';
+      await wait();
+      const viewW = d2.documentElement.clientWidth;
+      const build = d2.querySelector('#build');
+      const gear = d2.querySelector('.arc-set-btn');
+      const buildBox = build.getBoundingClientRect();
+      const gearBox = gear.getBoundingClientRect();
+      check(narrow + ' wide keeps the version whole', (build.textContent || '').indexOf('v') === 0 && buildBox.width >= 28 && buildBox.left >= -1 && buildBox.right <= viewW + 1 && build.scrollWidth <= build.clientWidth + 1);
+      check(narrow + ' wide keeps Settings on the screen', gear.getAttribute('aria-label') === 'Settings' && gearBox.width >= 44 && gearBox.height >= 44 && gearBox.left >= -1 && gearBox.right <= viewW + 1 && gear.scrollWidth <= gear.clientWidth + 2 && (narrow < 390 || (gear.textContent || '').indexOf('Settings') >= 0));
     }
     frame.style.width = '375px'; frame.style.height = '812px';
     d2.documentElement.style.setProperty('--arc-text', '1');
@@ -774,12 +916,33 @@ document.querySelector('#run').onclick = async () => {
     again.rush(false);
     again.state.quarter = 1; again.state.clock = 100; again.state.down = 1; again.state.toGo = 10; again.state.spot = 32;
     again.state.possession = 'away'; again.state.phase = 'cpu'; again.state.score.home = 0; again.state.score.away = 0;
+    again.state.defenceCall = null;
     again.watchLive();
-    let sawLive = false, ballMoved = false, firstBall = null, staleStrip = false, firstSquad = null, playersMoved = false;
-    for (let i = 0; i < 36; i++) {
+    await wait();
+    check('before a Millrace drive you pick blitz, balanced or prevent', d2.querySelectorAll('[data-defence]').length === 3 && d2.querySelectorAll('[data-play]').length === 0 && (d2.querySelector('#hint').textContent || '').indexOf('Pick a defence') >= 0 && !d2.querySelector('.cpu-log'));
+    frame.style.width = '780px'; frame.style.height = '360px';
+    await wait();
+    const defencePitch = d2.querySelector('.pitch').getBoundingClientRect();
+    const defenceBtn = d2.querySelector('[data-defence]').getBoundingClientRect();
+    const defenceLayout = w2.LanternView.fitLayout(defencePitch.width, defencePitch.height);
+    const defenceFeet = defencePitch.top + (defenceLayout.top + defenceLayout.fieldH * (0.5 + 20 / defenceLayout.widthY) + 2) * defenceLayout.scale;
+    const defenceLabels = Array.from(d2.querySelectorAll('[data-defence]'));
+    check('at 780×360 the defence cards stay off the bottom receivers', defenceBtn.top - defenceFeet >= 34 && defenceLabels.every(b => { const s = b.querySelector('span'); return parseFloat(w2.getComputedStyle(b).fontSize) >= 16 && s && s.getClientRects().length === 1 && Math.round(b.getBoundingClientRect().height) === 48; }));
+    check('at 780×360 the defence hint stays off the top receiver and the yard numbers', topPairClears(d2, w2));
+    for (const [defW, defH] of [[844, 390], [667, 375]]) {
+      frame.style.width = defW + 'px'; frame.style.height = defH + 'px';
+      await wait();
+      check(defW + '×' + defH + ' defence hint stays off the top receiver and the yard numbers', topPairClears(d2, w2));
+    }
+    frame.style.width = '844px'; frame.style.height = '390px';
+    await wait();
+    d2.querySelector('[data-defence="balanced"]').click();
+    let sawLive = false, ballMoved = false, firstBall = null, staleStrip = false, firstSquad = null, playersMoved = false, buttonsDuring = false;
+    for (let i = 0; i < 48; i++) {
       await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
       const livePlay = again.state.phase === 'live' && again.state.play && again.state.play.offence === 'away';
       if (!livePlay) continue;
+      if (d2.querySelectorAll('#dock button, #receivers button').length) buttonsDuring = true;
       sawLive = true;
       const watching = again.state.play;
       const ball = watching.flight ? watching.flight.x : watching.actors[watching.carrier].x;
@@ -790,8 +953,18 @@ document.querySelector('#run').onclick = async () => {
       const strip = d2.querySelector('#sheet');
       if (strip && !strip.hidden && /throwing/.test(strip.textContent || '')) staleStrip = true;
     }
-    check('a Millrace snap stays live and the ball moves', sawLive && ballMoved && !staleStrip);
+    check('a Millrace snap stays live and the ball moves', sawLive && ballMoved && !staleStrip && !buttonsDuring);
     check('a Millrace snap moves the players on the field', sawLive && playersMoved);
+    again.rush(true);
+    again.playCpu();
+    const driveWatch = performance.now();
+    while (performance.now() - driveWatch < 5000 && again.state.possession === 'away' && again.state.phase !== 'final') {
+      await new Promise(resolve => w2.requestAnimationFrame(() => resolve()));
+    }
+    await wait();
+    const driveLine = ((d2.querySelector('#sheet') && d2.querySelector('#sheet').textContent) || '') + ' ' + ((d2.querySelector('#banner') && d2.querySelector('#banner').textContent) || '');
+    check('a Millrace drive ends as one line', again.state.possession !== 'away' && driveLine.length > 8 && driveLine.length < 120 && driveLine.indexOf('Balanced') >= 0 && !d2.querySelector('.cpu-log'));
+    again.rush(false);
     again.state.play = null;
     again.state.possession = 'home';
     again.state.phase = 'call';
@@ -838,7 +1011,10 @@ document.querySelector('#run').onclick = async () => {
     check('an overtime save round-trips at v2', !!otLoaded && otLoaded.v === 2 && otBack.quarter === 5 && otBack.otTurns === 2 && otWritten.quarter === 5 && otWritten.otTurns === 2 && otWritten.possession === 'away' && Math.round(otWritten.spot) === 75 && JSON.stringify(otWritten) === JSON.stringify(otLoaded.match));
     d2.querySelector('#field').dispatchEvent(new w2.PointerEvent('pointerdown', { clientX: 30, clientY: 80, pointerId: 7, bubbles: true }));
     await wait();
-    check('a drag before a play asks for one', (d2.querySelector('#banner').textContent || '').indexOf('Pick a play') >= 0);
+    const askHint = d2.querySelector('#hint').textContent || '';
+    const askBanner = d2.querySelector('#banner');
+    const askCards = d2.querySelector('#dock button');
+    check('a drag before a play asks for one', (askHint + (askBanner.textContent || '')).indexOf('Pick a play') >= 0 && (!askCards || askBanner.hidden));
     again.rush(true);
     again.state.down = 4; again.state.spot = 28; again.state.toGo = 10; again.state.phase = 'call'; again.state.possession = 'home';
     again.state.quarter = 1; again.state.clock = 120; again.state.seed = 1; again.state.rng = 1;
@@ -889,6 +1065,13 @@ document.querySelector('#run').onclick = async () => {
     await wait();
     const heldAfter = d3.querySelector('#held');
     check('play again leaves a newer save byte for byte', sameFile() && !!heldAfter && !heldAfter.hidden && /will not be saved/.test(heldAfter.textContent));
+    // LB-PLAYBOOK-DATA: run the shared data-only suite after all existing game/save checks.
+    check('the shared playbook validator loads in the browser', !!window.LanternPlaybookChecks && typeof window.LanternPlaybookChecks.runChecks === 'function');
+    const playbookResponse = await fetch('../games/lantern-bowl/playbook.json', { cache: 'no-store' });
+    check('the playbook JSON loads successfully', playbookResponse.ok);
+    const playbookData = await playbookResponse.json(), beforePlaybook = n;
+    const playbookCount = window.LanternPlaybookChecks.runChecks(playbookData, (name, ok) => check('playbook: ' + name, ok));
+    check('the browser runs all 396 shared playbook checks', playbookCount === 396 && n - beforePlaybook === playbookCount);
     sum.textContent = 'PASS — ' + n + ' checks.';
   } catch (e) {
     sum.textContent = 'FAIL — ' + e.message;

@@ -37,7 +37,9 @@ func open(creature_id: String, data: Dictionary, btns: Array = []) -> void:
 	id = creature_id
 	info = data
 	buttons = btns
-	sel = _count() - 1                         # the last choice ("Not yet") first, so a stray Enter never chooses by accident
+	# The starter page highlights Choose, so the confirm is the one that looks ready.
+	# A custom row (a change, the ranch) still opens on its last line, the one that waits.
+	sel = 0 if buttons.is_empty() else _count() - 1
 	t = 0.0
 	visible = true
 
@@ -94,9 +96,27 @@ func _input(e: InputEvent) -> void:
 	elif Controls.swallow_pointer(e):
 		get_viewport().set_input_as_handled()
 
+## How tall a choice must be so a thumb can hit it: 44 device pixels, and never shorter than the page's 16.
+func _choice_h() -> float:
+	return _choice_h_for(_screen_scale())
+
+func _screen_scale() -> float:
+	var win := Vector2(DisplayServer.window_get_size())
+	if win.x < 8.0 or win.y < 8.0:
+		return 4.0
+	return maxf(0.25, minf(win.x / 384.0, win.y / 216.0))
+
+func _choice_h_for(scale: float) -> float:
+	return maxf(16.0, ceil(44.0 / maxf(scale, 0.01)))
+
 func _btn(i: int) -> Rect2:
-	if _count() == 2:
+	var h := _choice_h()
+	if _count() == 2 and h <= 16.0:
 		return Rect2(196 + i * 82, 182, 76, 16)
+	if _count() == 2:
+		var gap := 4.0
+		var top := 208.0 - 2.0 * h - gap
+		return Rect2(188, top + i * (h + gap), 160, h)
 	# more choices share the same 160-pixel row, each as wide as its words need ("Have it made (90 coins)" next to "Next")
 	var size := _btn_size()
 	var need: Array = []
@@ -108,7 +128,7 @@ func _btn(i: int) -> Rect2:
 	var x := 192.0
 	for k in i:
 		x += need[k] * room / total + 4.0
-	return Rect2(x, 182, need[i] * room / total, 16)
+	return Rect2(x, 182.0 if h <= 16.0 else 208.0 - h, need[i] * room / total, h)
 
 func _label(i: int) -> String:
 	return buttons[i] if not buttons.is_empty() else (("Choose " + info.name) if i == 0 else "Not yet")
@@ -185,7 +205,9 @@ func _draw() -> void:
 	y += 10
 	y = _para(info.get("moves_line", "Starts with %s." % preload("res://scripts/rules.gd").words(info.moves)), Vector2(190, y), 158, 7, INK) + 1
 	y = _para("Strong against %s, weak to %s." % [info.strong, info.weak], Vector2(190, y), 158, 7, INK) + 3
-	_para(info.get("note", "Maren: \"%s\"" % info.get("maren", "")), Vector2(190, y), 158, 7, FAINT)
+	var stop := _btn(0).position.y - 4.0
+	if y < stop - 8.0:
+		_para(info.get("note", "Maren: \"%s\"" % info.get("maren", "")), Vector2(190, y), 158, 7, FAINT)
 	# the choices
 	for i in _count():
 		var r := _btn(i)
@@ -193,4 +215,5 @@ func _draw() -> void:
 		draw_rect(r, INK if on else Color("7a5a3a"))
 		if on:
 			draw_rect(Rect2(r.position - Vector2(1, 1), r.size + Vector2(2, 2)), Color("f2d24a"), false, 1.0)
-		_text(_label(i), r.position + Vector2(0, 11), _btn_size(), Color("f4e9cd"), r.size.x)
+		var baseline := 11.0 if r.size.y <= 16.0 else r.size.y * 0.5 + 3.0
+		_text(_label(i), r.position + Vector2(0, baseline), _btn_size(), Color("f4e9cd"), r.size.x)

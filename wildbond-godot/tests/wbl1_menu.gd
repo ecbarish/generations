@@ -171,7 +171,7 @@ static func run(host: Node, check: Callable) -> void:
 	game.stage = "barn_choose"
 	var stood: Vector2i = game.me.tile
 	game.card.open("ripplet", game.card_info("ripplet"))
-	check.call(game.card.visible and game.card.sel == 1, "WBL-14: the starter card still opens on Not yet")
+	check.call(game.card.visible and game.card.sel == 0, "WBL-14: the starter card opens on Choose")
 	click(game, Vector2(30, 30))
 	check.call(game.card.visible and game.stage == "barn_choose" and game.me.tile == stood and game.walk_to.is_empty(), "WBL-14: a click off the choice buttons does not choose and does not walk")
 	click(game, game.card._btn(0).get_center())

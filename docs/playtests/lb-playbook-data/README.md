@@ -103,9 +103,11 @@ node tools/run-all-checks.cjs lantern-bowl
 node tools/run-all-checks.cjs
 ```
 
-The Node and browser paths use the same validator and malformed-data fixtures. The browser entry will run within the existing Lantern Bowl test page and aggregate runner, after preserving #444. No test runner or workflow change is needed.
+The Node and browser paths use the same validator and malformed-data fixtures. The browser entry now runs within the existing Lantern Bowl test page and aggregate runner, after preserving #444. No test runner or workflow was changed. The page loads the shared validator as a script, fetches the actual JSON, sends every shared assertion to its ordinary failure-reporting callback, and verifies all 396 ran. A missing script, HTTP failure, malformed JSON or failed assertion makes the page fail.
 
-Draft implementation verification, 2026-10-15:
+### Historical draft verification, 2026-10-15
+
+These checkpoints preceded HTML integration and are not final-head browser evidence:
 
 - `node tests/lantern-bowl-playbook.cjs`: **396 passed, 0 failed**, including all 32 route-intent assertions, malformed-data rejections, inclusive field bounds, primary-read depth boundaries, curl reversals and JSON round trips.
 - `node --check tests/lantern-bowl-playbook.cjs`: passed. The same 396 checks pass through the browser-style export in an isolated Node VM with frozen input and no DOM, storage, timer or network access. This is **VM parity evidence, not a real-browser run**.
@@ -116,3 +118,14 @@ Draft implementation verification, 2026-10-15:
 - Implementation head `34f17629` passed [all 28 existing aggregate suites](https://github.com/ecbarish/generations/actions/runs/38660087760), including 216 existing Lantern Bowl browser assertions and unchanged save-name checks; export freshness also passed. Those existing suites do **not** execute the new data checks before HTML integration, so this is regression evidence only.
 
 The PR stays draft until those remaining gates are met. Static data and automated checks do not establish game feel, a phone playtest or a launch pass.
+
+
+### Browser integration after #444
+
+#444 merged as `095ec172`. A normal two-parent merge brings current main into this branch without rewriting published history. Main's COMMS is retained verbatim. All of #444's HTML assertions and save tests are preserved; the only HTML changes are one shared script load and an appended data-only block. No runtime game file, runner or workflow is changed by this task.
+
+- The direct Node suite and syntax check still pass: **396 checks, 0 failures**.
+- The HTML block contributes those same 396 checks plus three integration guards (the browser export exists, the JSON fetch succeeds, and all shared checks ran). Together with #444's 258 checks, the expected full page result is **657 checks**. This is an expected count until confirmed by the actual browser run.
+- The normal local Lantern Bowl runner was attempted again after integration. Chromium could not start in this environment, so no local real-browser pass is claimed.
+- Exact-head browser and aggregate CI, including the preserved v1 migration / newer-save byte-preservation tests, are recorded in the final self-check on [PR #451](https://github.com/ecbarish/generations/pull/451). Only that exact-head result establishes completion; neither the older draft runs above nor Node VM parity substitutes for it.
+- This remains inactive data. No screenshot, live expanded-playbook behavior, human football feel, merge or deployment is claimed.

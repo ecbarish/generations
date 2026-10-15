@@ -17,8 +17,10 @@ covers sources, licences and sound.
    with nearest filtering. No smoothing, no blur, no anti-aliased edges inside a sprite. Mood (light, fog, weather,
    the faded colour) is added on top by the game, never painted into the sprite.
 2. **Real proportions, no chibi.** A person is 16 pixels wide and about 24 tall (1 by 1.5 tiles), with legs (Evan
-   rejected big-headed figures on 2026-10-08). Everything is sized against a person: a door 12 by 20, a window 6 to 8
-   square, a cottage 3 to 4 tiles wide, a hall 5 to 6, a tree 2 to 3 tiles tall, a cart 2 tiles long.
+   rejected big-headed figures on 2026-10-08). Everything is sized against a person: a door 12 by 24, a window 6 to 8
+   square, a cottage 3 to 4 tiles wide, a hall 5 to 6, a tree 2 to 3 tiles tall, a cart 2 tiles long. Wildbond's
+   locked sizes, including the 12×21 tamer and that 12×24 door, are Scale (locked v3) in
+   [wildbond-art-direction.md](wildbond-art-direction.md).
 3. **The footprint is the picture.** What you bump into is exactly the base drawn on the ground (a stone footing, a
    trunk, a fence line), and each object's footprint and height in tiles is written down in data beside the picture.
    That is what lets a 3D or first-person version rebuild the same place (VISION.md V10, Wildbond's WB-M7).
