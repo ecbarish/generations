@@ -808,6 +808,65 @@ document.querySelector('#run').onclick = async () => {
       check('LR-TOY-POLISH: food in the kitchen bowl is visible, and the bowl bounces', S().kitchen.phase === 'eat' && S().kitchen.food === 0 && S().kitchen.bowlPop > 0 && berries >= 3);
       const icon = d.querySelector('link[rel="icon"]');
       check('LR-TOY-POLISH: the page uses the arcade icon, so the browser does not ask for a missing favicon', !!icon && new URL(icon.href).pathname.endsWith('/icons/arcade.svg')); }
+    // ---- LR-G2: layout and depth. The ball in front of the fox, five signs that do not overlap on tall phones, a bedtime bubble that
+    // clears the basket and the bowl, Pebblit's path off the basket, and two puddles that can be seen
+    LR.prefs.sound = false; LR.setRoutine(false); LR.setFriend(false);
+    { const G2 = [['390×844', 390, 844], ['844×390', 844, 390], ['360×780', 360, 780], ['1024×594', 1024, 594]];
+      const ctx2 = cv.getContext('2d'), fits = (q, rgbs, tol) => { const img = ctx2.getImageData(0, 0, cv.width, cv.height).data; let n = 0, tot = 0; // how much of a disc or ellipse shows these colours
+        for (let y = Math.floor(q.y - q.ry); y <= Math.ceil(q.y + q.ry); y++) for (let x = Math.floor(q.x - q.rx); x <= Math.ceil(q.x + q.rx); x++) {
+          if (x < 0 || y < 0 || x >= cv.width || y >= cv.height || ((x + .5 - q.x) / q.rx) ** 2 + ((y + .5 - q.y) / q.ry) ** 2 > 1) continue; tot++;
+          const i = (y * cv.width + x) * 4; if (rgbs.some(c => Math.abs(img[i] - c[0]) <= tol && Math.abs(img[i + 1] - c[1]) <= tol && Math.abs(img[i + 2] - c[2]) <= tol)) n++; }
+        return tot ? n / tot : 0; };
+      const ballRed = [[255, 91, 110]], puddleBlue = [[90, 168, 224], [168, 220, 248]];
+      const ballShows = () => { LR.redraw(); const q = LR.ballNow(); return fits({ x: q.x, y: q.y, rx: q.r * .8, ry: q.r * .8 }, ballRed, 14); };
+      const settle = async (w, h) => { frame.style.width = w + 'px'; frame.style.height = h + 'px'; await sleep(150); LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.3); };
+      for (const [label, width, height] of G2) {
+        await settle(width, height);
+        // 1. the ball is in front of the fox: at the start, on both sides, and after every roll
+        const start = ballShows(), sides = [-1, 1].map(side => { const b = S().ball; b.from = side; b.to = side; b.at = -9; return ballShows(); });
+        check(`${label}: the ball is in front of the fox at the start, on both sides (${[start, ...sides].map(v => Math.round(v * 100)).join('%, ')}% of its disc shows)`, [start, ...sides].every(v => v >= .85));
+        await settle(width, height); const rolls = [];
+        for (let k = 0; k < 4; k++) { tap(LR.ballNow()); LR.advance(2.2); rolls.push(ballShows()); const q = LR.ballNow(); rolls.push(Math.abs(S().baby.x - q.x) >= q.r + L().size * .9 ? 1 : 0); }
+        check(`${label}: after every roll the whole ball shows, and the baby kicks from beside it, not on top of it`, rolls.every((v, i) => i % 2 ? v === 1 : v >= .85));
+      }
+      for (const [label, width, height] of [['390×844', 390, 844], ['360×780', 360, 780], ['375×812', 375, 812], ['430×932', 430, 932], ['820×1180', 820, 1180]]) {
+        await settle(width, height); const Ls = L(), r = Ls.R, names = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'], face = n => ({ x: Ls[n].x, y: Ls[n].y - r * .45 });
+        let min = Infinity; for (let a = 0; a < 5; a++) for (let b = a + 1; b < 5; b++) min = Math.min(min, Math.hypot(face(names[a]).x - face(names[b]).x, face(names[a]).y - face(names[b]).y));
+        const rs = r * .95, board = n => ({ x0: Ls[n].x - rs * .95, x1: Ls[n].x + rs * .95, y0: Ls[n].y - rs * 1.17, y1: Ls[n].y + rs * .27 }), post = n => ({ x0: Ls[n].x - rs * .08, x1: Ls[n].x + rs * .08, y0: Ls[n].y - rs * .2, y1: Ls[n].y + rs * 1.2 });
+        const hit = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1; let drawn = 0;
+        for (const a of names) for (const b of names) if (a !== b && (hit(board(a), board(b)) || hit(board(a), post(b)))) drawn++;
+        check(`${label}: no two of the five signs' tap circles overlap (nearest are ${(min / r).toFixed(2)} R apart, 2.5 R needed)`, min >= r * 2.5 - 1e-6);
+        check(`${label}: no sign's board or post is drawn over another sign`, drawn === 0);
+        check(`${label}: each sign is its own tap, at its post foot and at its board`, names.every(n => LR.ranchTarget(face(n)) === n));
+        check(`${label}: every sign board is on the screen`, names.every(n => board(n).x0 >= 0 && board(n).x1 <= cv.width && board(n).y0 >= 0));
+      }
+      { await settle(844, 390); const Ls = L(), U = Ls.U, r = U * .14, W2 = cv.width, H2 = cv.height, sx = Math.max(W2 * .11, r * 1.3), kx = W2 * .45;
+        const same = (q, x, y) => Math.abs(q.x - x) < 1e-6 && Math.abs(q.y - y) < 1e-6;
+        check('844×390: the wide layout keeps the five signs where they were', same(Ls.sign, sx, H2 * .5) && same(Ls.wsign, W2 - Math.max(W2 * .12, r * 1.3), Ls.ground - r * 1.7) && same(Ls.ksign, kx, Ls.ground - r * 1.7) && same(Ls.dsign, W2 - r * 1.1, H2 * .72) && same(Ls.tsign, (sx + kx) / 2, H2 * .48) && !Ls.stack); }
+      // 3. the bedtime bubble clears the basket and the bowl (its soft glow counts), and the existing rule about the baby holds
+      for (const [label, width, height] of G2.concat([['375×812', 375, 812], ['667×375', 667, 375], ['1024×768', 1024, 768], ['820×1180', 820, 1180]])) {
+        await settle(width, height); LR.setRoutine(true); LR.newVisit(); LR.advance(5); LR.bedtime(); LR.advance(4);
+        const I = L().item, Bk = L().basket, Bw = L().bowl, glow = I.r * 1.27, dB = Math.hypot(I.x - Bk.x, I.y - Bk.y) - glow - Bk.r, dW = Math.hypot(I.x - Bw.x, I.y - Bw.y) - glow - L().R;
+        check(`${label}: the bedtime bubble (glow included) clears the hat basket by ${Math.round(dB)} px and the bowl by ${Math.round(dW)} px, and is still a tap`, dB > 0 && dW > 0 && S().mode === 'dusk' && LR.hint() && LR.hint().name === 'item' && LR.ranchTarget(I) !== 'basket' && LR.ranchTarget(I) !== 'bowl' && Math.hypot(I.x - baby().x, I.y - baby().y) > I.r + L().size * .8);
+        LR.setRoutine(false);
+      }
+      // 4. Pebblit walks to the bowl without standing on the hat basket (wide screens)
+      for (const [label, width, height] of [['844×390', 844, 390], ['1024×594', 1024, 594], ['667×375', 667, 375]]) {
+        await settle(width, height); LR.setFriend(true); LR.newVisit(); LR.advance(.3); const Bk = L().basket; let nearest = Infinity, ate = false;
+        LR.advance(8); tap(L().bowl);
+        for (let k = 0; k < 90; k++) { LR.advance(.1); const f = S().friend; if (!f) break; if (f.act === 'eat') ate = true; const c = LR.fCentre(); nearest = Math.min(nearest, Math.hypot(c.x - Bk.x, c.y - Bk.y) - L().fz * .7 - Bk.r); }
+        check(`${label}: Pebblit walks in, eats at the bowl and never enters the hat basket circle (closest ${Math.round(nearest)} px away)`, ate && nearest > 0);
+        LR.setFriend(false);
+      }
+      // 5. both puddles show in full, with the ball on either side and the bush in place, and each is its own tap
+      for (const [label, width, height] of G2.concat([['375×812', 375, 812], ['667×375', 667, 375], ['820×1180', 820, 1180]])) {
+        const shown = [];
+        for (const side of [-1, 1]) { await settle(width, height); const b = S().ball; b.from = side; b.to = side; b.at = -9; S().puddles = [0, 1].map(i => ({ i, at: S().t - 1, splash: -9 })); LR.redraw();
+          for (const P of L().puddles) shown.push(fits({ x: P.x, y: P.y, rx: P.r * .9, ry: P.r * .36 * .9 }, puddleBlue, 6)); }
+        check(`${label}: both puddles show whole (${shown.map(v => Math.round(v * 100)).join('%, ')}% of each), with the ball on either side`, shown.every(v => v >= .85));
+        check(`${label}: each puddle is its own tap across its middle`, [0, 1].every(i => { const P = L().puddles[i]; return [-.5, 0, .5].every(k => LR.ranchTarget({ x: P.x + P.r * k, y: P.y }) === 'puddle' + i); }));
+      }
+      frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1); }
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
