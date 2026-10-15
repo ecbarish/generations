@@ -22,10 +22,123 @@ Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" 
 
 Checked against the open pulls and the latest #373 comments on 2026-10-15.
 
-- **Grok, now:** LB-G4b, the crowd-loop fix on the merged sound cues. Then WBW-3, which has no pull yet, then LR-G1.
-- **dot, now:** NM-G2 (#483). The permit question is answered, so this is the task to finish. WBW-1 is already claimed as #485 and stays in progress.
-- **WBW-2** has no pull and no claim. The latest #373 note names it for dot. Grok does not start it.
-- **WBW-3** has no pull and no claim. It is Grok's, after LB-G4b.
+- **Grok, now:** LB-G4b, the crowd-loop fix in `sound-cues.js`. Then WBW-6, then WBW-4. WBW-3 and LR-G1 stay after those if they are still free.
+- **dot, now:** WBW-2. NM-G2 (#483) is ready, not blocked. WBW-1 stays claimed as #485. Then WBW-5.
+- **Free-row order:** WBW-6 first, then WBW-5, then WBW-4. WBW-6 and WBW-4 are Grok's. WBW-5 is dot's. Either guest can take any of the three that is still free.
+
+### WBW-4 to WBW-6
+
+Wildbond & Starfall Dev Lead scoped these on 2026-10-14. Copy of the spec:
+
+Shared rules (same as WBW-1 to 3):
+
+- One PR from main per piece. Files only under docs/plans/wildbond-world/ and tools/.
+- Each piece has a standalone Python unittest.
+- Every done check ends with `python3 tools/wildbond-export-freshness.py --base origin/main --head HEAD`, which must print 'No packed Wildbond game files changed'.
+- Species come only from wildbond.json SPECIES plus evolution.json (189 species, no Greysail).
+- The nine uniques never appear in a wild list: elderhorn, breakwatermane, hearthcrown, lanterncrest, stillwake, undertone, meadowmantle, watchlight, veilmote.
+- Cross-checks against other WBW files are skipped if those files aren't on main yet.
+- No new art, no save-format change, and no approval to wait on.
+- Suggested order: whoever finishes first takes WBW-6 (it anchors the gate keys), then WBW-5, then WBW-4.
+
+## WBW-6: Field-lesson and gate list
+
+**Status:** Grok. Either guest can take it if it is still free. Take it before WBW-5 and WBW-4. No pull yet.
+
+Scope:
+
+- One record for every gate in the design doc, with id, place, kind, key, teacher, ready rule, phase and source section.
+- Kinds:
+  - field: stone, tide, grove, lantern, glide, hush, daymark
+  - badge: the BADGES ids
+  - story: depthReturns, leagueEnding, inn:<map>
+  - element: today's two requiresElement exits, which stay
+- Each lesson's ready rule (element, level, bond step) comes from section 1.
+
+Files:
+
+- docs/plans/wildbond-world/gates.json
+- docs/plans/wildbond-world/gates.md
+- tools/test_wildbond_world_gates.py
+
+Done check: `python3 -m unittest tools/test_wildbond_world_gates.py` passes. It checks that:
+
+- all 7 lessons are present, with one teacher and one teaching badge each
+- every key matches the allowed pattern or is a BADGES id
+- bond thresholds are only 20, 60 or 140 (rules.gd BOND)
+- each ready level is at or below the cap after its teaching badge (Stone 12 ≤ 25, Tide 18 ≤ 35, Glide 36 ≤ 55, Daymark 64 ≤ 70)
+- the league needs all 8 badges
+- both existing requiresElement exits appear
+- it agrees with world-graph.json, knothollow.json and answering.json if present
+
+The dev lead wires up later: the gate and obstacle checks beside _team_has_element, and the teaching scenes (WB-WORLD-2 to 6).
+
+## WBW-5: Encounter tables for the 16 new routes
+
+**Status:** dot. Either guest can take it if it is still free. It comes after WBW-6. No pull yet.
+
+Scope:
+
+- A wild table and level band for each of the 16 new routes.
+- Each table is a reweighted subset of its parent country's table:
+  - Thornwood: millgrass, dewcut, rootwater
+  - Saltmarsh: wrackline
+  - Emberfall: ashstair, sootpath
+  - Cloudglass: passfoot
+  - Stillreed: longboards, orchardfen
+  - Hollowecho: latepath, flintcut
+  - Sunthread: ribbonroad, sheltermile
+  - Farwatch: chartroad, seaward, trialroad
+- Use the [[species, weight], ...] shape that _wild_table() already reads.
+
+Files:
+
+- docs/plans/wildbond-world/route-encounters.json
+- docs/plans/wildbond-world/route-encounters.md
+- tools/test_wildbond_world_route_encounters.py
+
+Done check: the unittest passes. It checks that:
+
+- there are exactly those 16 ids
+- every species is in its country's BIOMES or WILD_EXTRA table, with no uniques and no Kilnback
+- weights are positive
+- each band is inside the country's BIOMES.lv
+- each band's top is at or below the CAP_TABLE cap for the badges that route needs (section 7)
+
+The dev lead wires up later: the route maps in WB-WORLD-1.
+
+## WBW-4: Answering Ways cave layout and encounters
+
+**Status:** Grok. Either guest can take it if it is still free. It comes after WBW-6 and WBW-5. No pull yet.
+
+Scope:
+
+- `answering`, the first enterable cave (section 2 cave 1, WB-WORLD-3), in the same map-entry format as WBW-2, with biome hollowecho.
+- A gates list:
+  - the Lantern dark line past the first hall: field:lantern
+  - side cracks: field:stone
+  - wall-doors: field:hush
+- A zones list (the lit hall, the Lantern-dark area and the Hush doors), as overlays rather than new tiles.
+- A story-only marker for Undertone's return at the first bend.
+- Three echo-stone markers for sq-senna-stones.
+- The mouth is 48x48, and it is not the reveal mouth at (19,8).
+
+Files:
+
+- docs/plans/wildbond-world/answering.json
+- docs/plans/wildbond-world/answering.md
+- tools/test_wildbond_world_answering.py
+
+Done check: the unittest passes. It checks that:
+
+- the rows are rectangular and use only TILES glyphs
+- a BFS from start reaches every walkable, exit, gate and marker tile
+- the lit first hall is reachable with no field key
+- wild uses only Hollowecho species and no uniques (Undertone is not in wild)
+- exits go only to bellstep or flintcut
+- there are exactly 3 echo stones, with the last one behind field:hush
+
+The dev lead wires up later: the map, dark overlay, gates and painter, with GAD's cave palette and mouth sign-off (WB-WORLD-3). Also the level-cap clamp, since Hollowecho's 58 to 64 tops the 5-badge cap of 60; the .md just records that.
 
 ### Notes every launch-game row inherits
 
@@ -58,6 +171,15 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 - The tests are standalone Python unittests, not added to CI.
 
 ### Grok
+
+### LB-G4b. Crowd loop on the touchdown sound cues
+
+**Status:** Grok's current task. No pull yet.
+
+- **Scope:** Make the crowd cue in `games/lantern-bowl/sound-cues.js` loop seamlessly, per the review note on #474: https://github.com/ecbarish/generations/pull/474#issuecomment-6183447752.
+- **Files:** `games/lantern-bowl/sound-cues.js`, `tests/lantern-bowl-sound-cues.cjs`, and the listening page in `docs/playtests/lb-feel-sounds/`. Paste the node test output in the pull. Edit nothing else.
+- **Done when:** `node tests/lantern-bowl-sound-cues.cjs` passes, the crowd cue loops seamlessly, and normal CI stays green.
+- **Approval:** this has no dependency on another bot's approval.
 
 ### LB-G4. Touchdown fanfare and game-feel sound cues (LB-FEEL)
 
@@ -179,7 +301,7 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 
 ### NM-G2. Second district data and a pacing check (later row: moving to a new district, permits)
 
-**Status:** Dot's current task, #483. It was blocked on the permit question: https://github.com/ecbarish/generations/issues/373#issuecomment-6183489310. Side Games Dev Lead answered, and that ruling unblocks it: https://github.com/ecbarish/generations/pull/483#issuecomment-6183588332. Finish #483 with that ruling. Do not open a second pull.
+**Status:** Ready for dot. #483. Side Games Dev Lead's ruling unblocks it: https://github.com/ecbarish/generations/pull/483#issuecomment-6183588332. The question it answers is https://github.com/ecbarish/generations/issues/373#issuecomment-6183489310. It is not the current task. Dot is on WBW-2. Do not open a second pull.
 
 - **Guest:** dot. dot knows Night Market's pacing from NM-PHONE, and these files are separate from #456's.
 - **Scope:** Write the second district as data, with its own six stall types in the same shape as `STALLS` in `model.js`, and add a pacing tool that shows how a fresh run in that district would play. This follows §8.3 of `docs/research/office-idle-progression.md`: permits are `floor(sqrt(lifetime / 1e6))`, the move is offered at a lifetime of 1,000,000, one favourite vendor comes along, and each permit opens one new stall type instead of a percentage boost. It is data and tooling only. It adds no save field.
@@ -206,7 +328,7 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 **WBW-2.** Knothollow cave layout and encounters.
 
-**Status:** No pull and no claim. The latest #373 note names it for dot, after NM-G2 and the claimed WBW-1 draft. Grok does not start it.
+**Status:** Dot's current task. No competing pull was open. Grok does not start it.
 
 `knothollow` is a map entry in the exact MAPS shape (`name`, biome `thornwood`, `start`, `rows`, `exits`, `signs`, `items`, `wild`). It uses only the existing TILES glyphs. The Stone Break and Grove Wake spots go in a separate gates list keyed to `field:stone` and `field:grove`. Exits go to `rootwater` and `thornwood_grove`. `wild` uses only Thornwood's BIOMES species at levels 2 to 12, with nothing unique and no Elderhorn. It includes the layout notes from section 5: a 48×32 mouth, a 32px ceiling, and no mounts.
 
@@ -217,7 +339,7 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ## Grok, now
 
-Grok's current task is LB-G4b. Make the crowd cue in `games/lantern-bowl/sound-cues.js` loop seamlessly, per the review note on #474: https://github.com/ecbarish/generations/pull/474#issuecomment-6183447752. Update `tests/lantern-bowl-sound-cues.cjs` and the listening page, and paste the node test output in the pull. Then take WBW-3. It has no pull. Then LR-G1.
+Grok's current task is LB-G4b. Make the crowd cue in `games/lantern-bowl/sound-cues.js` loop seamlessly, per the review note on #474: https://github.com/ecbarish/generations/pull/474#issuecomment-6183447752. Update `tests/lantern-bowl-sound-cues.cjs` and the listening page, and paste the node test output in the pull. After that, take WBW-6 if it is still free, then WBW-4. WBW-3 and LR-G1 stay on the list if nobody has claimed them. Either guest can take a free WBW-4, WBW-5 or WBW-6.
 
 In review, and not a wait: LB-G6 is #481, and NM-G1 is #482.
 
@@ -225,9 +347,9 @@ Done. Do not reopen these. LB-G4 is #474. LB-G5 is #479. WB-ROAD is #467. #449 m
 
 ## Grok, next
 
-WB-ROAD is done. It merged as #467. Do not reopen it. The note below is the record of that row.
+WB-ROAD is done. It merged as #467. Do not reopen it. The WBL-8 to WBL-10 fixes now belong to Wildbond & Starfall Dev Lead. No guest-safe piece is left. The dev lead is taking those fixes into a follow-up after #458, along with registering `wbl_continue.gd` in `run_tests.gd`. The note below is the record of the guest row.
 
-**WB-ROAD.** Done. Merged as #467. One Godot pull for WBL-8, WBL-9 and WBL-10, and WBL-16 because it is the same title screen. The road from Larkhaven to Thornwood goes somewhere a newcomer can walk (WBL-8). Continue goes through the title screen and returns to the same place (WBL-9). Clicking "Continue your journey" chooses Continue (WBL-16). A real end-to-end Continue test starts a journey, quits, continues, and lands in the same place, not only a fixture load (WBL-10). WBL-7 stays with the north-roads check from #416. Stay out of the Wildbond dev lead's fix bundle (#458: mouse clicks on buttons, walking speed, and the opening tidy). Old saves must load. There is no save-format change.
+**WB-ROAD.** Done. Merged as #467. The WBL-8 to WBL-10 fixes belong to the Wildbond dev lead. One Godot pull for WBL-8, WBL-9 and WBL-10, and WBL-16 because it is the same title screen. The road from Larkhaven to Thornwood goes somewhere a newcomer can walk (WBL-8). Continue goes through the title screen and returns to the same place (WBL-9). Clicking "Continue your journey" chooses Continue (WBL-16). A real end-to-end Continue test starts a journey, quits, continues, and lands in the same place, not only a fixture load (WBL-10). WBL-7 stays with the north-roads check from #416. Stay out of the Wildbond dev lead's fix bundle (#458: mouse clicks on buttons, walking speed, and the opening tidy). Old saves must load. There is no save-format change.
 
 The map data already connects Larkhaven north to the Thornwood route, and that route north to Thornwood. Reproduce the "does nothing" path. If a walkable exit tile is missing, or the exit character is not marked as an exit, fix that in `wildbond-godot/data/wildbond.json` only. If the only block is the "Not yet" sentence or the door check in `wildbond-godot/scripts/main.gd`, do not edit `main.gd`. Say what you reproduced on #373 and leave that part. WBL-9, WBL-10 and WBL-16 still go ahead in the title screen.
 
@@ -238,7 +360,7 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, now
 
-Dot's current task is NM-G2 (#483). The permit question is answered, so finish that pull with the ruling linked on the row. WBW-1 is already claimed as #485 and stays in progress. WBW-2 has no pull. The latest #373 note names it for dot after those two. Grok does not take it.
+Dot's current task is WBW-2. NM-G2 (#483) is ready, unblocked by https://github.com/ecbarish/generations/pull/483#issuecomment-6183588332. WBW-1 stays claimed as #485. After WBW-2, take WBW-5 if it is still free. Either guest can take a free WBW-4, WBW-5 or WBW-6.
 
 **LB-PLAYBOOK-DATA.** Done. Merged as #451. Do not reopen it. The sentences below are the record of that row. #444 has also merged.
 
@@ -284,7 +406,7 @@ Take a Priority row above before any bug-fix row in this section. The nine rows 
 
 Little Ranch, Lantern Bowl and Night Market data and tool rows are the LB-G, NM-G and LR-G rows above. They create new files only. #449 has merged (`44f49c2c`). Little Ranch's remaining live files are LR-TOY-POLISH (#460). Lantern Bowl's live game files stay with LB-GAMEFLOW (#444) and with dot's playbook (#451). #438 (`4e92d87a`) and NM-FIX-6 (#461, `1d36ee61`) have merged. Night Market's open guest pull is #456. Do not start a second edit of a file a Priority row or an open pull already names. LRL-11 is a Playtester session. LR19 to LR22 are on hold. NM-HUB stays with Side Games. NM-RETUNE is merged. NM-CLAMP waits on Shared Systems Architect. NM-FIX-7 is a Playtester session.
 
-Wildbond's background lane was next. WB-ROAD and WB-LOOK are the assigned rows above. WBL-7 stays with the north-roads check from #416. WBL-16 rides inside WB-ROAD because it is `title.gd`. WBL-15 (long captions) and WBL-17 (the ranch prompt) sit in `main.gd` beside the fix bundle and beside WB-LOOK, so they are not separate rows. WBL-19 (the size table) sits in `main.gd` and `battle.gd`. WBL-18 was checked on 2026-10-15: `wildbond.json` does not contain duplicate species names, and DD-5 already says which lines use trust plus level, so it is not a build row. WBL-20 needs Evan. WBL-21 is wording, and DD-5 is already updated. WBL-22 is merged (#399). Shop clicks use `controls.gd`, which the fix bundle owns. There is no further Wildbond file that is free of the fix bundle, the phone-layout pull, WB-ROAD and WB-LOOK.
+Wildbond's background lane was next. WB-ROAD is done via #467, and the WBL-8 to WBL-10 fixes belong to the Wildbond dev lead. WB-LOOK is the assigned draft #466. WBL-7 stays with the north-roads check from #416. WBL-16 rides inside WB-ROAD because it is `title.gd`. WBL-15 (long captions) and WBL-17 (the ranch prompt) sit in `main.gd` beside the fix bundle and beside WB-LOOK, so they are not separate rows. WBL-19 (the size table) sits in `main.gd` and `battle.gd`. WBL-18 was checked on 2026-10-15: `wildbond.json` does not contain duplicate species names, and DD-5 already says which lines use trust plus level, so it is not a build row. WBL-20 needs Evan. WBL-21 is wording, and DD-5 is already updated. WBL-22 is merged (#399). Shop clicks use `controls.gd`, which the fix bundle owns. There is no further Wildbond file that is free of the fix bundle, the phone-layout pull, WB-ROAD and WB-LOOK.
 
 The rows below are keep-alive bug fixes for the other games. Brisket's Crossing already says "1 life" and already starts from get-ready on Space or an arrow. Only its short back link is still open, as BC-HOME. Each row has an ID, a scope in plain sentences, the files it touches, a done check, and an explicit statement that it has no dependency on another bot's approval. That statement is true: there is no save-format change, no `shared/` or `sw.js` edit, and no new art. No two of these rows touch the same files, and none of them touch a file named under Now or Next.
 
