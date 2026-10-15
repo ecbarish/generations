@@ -1,0 +1,1252 @@
+{
+  "schemaVersion": 1,
+  "errands": [
+    {
+      "id": "sq-nora-bird",
+      "town": {
+        "name": "Larkhaven",
+        "map": "larkhaven"
+      },
+      "giver": "pip_gran",
+      "requires": {
+        "badges": [],
+        "fields": [],
+        "maps": [
+          "larkhaven"
+        ],
+        "story": []
+      },
+      "log": "Find Nora’s wooden bird in the first room of Larkburrow and bring it home.",
+      "storyKeys": {
+        "heard": "sq:sq-nora-bird:heard",
+        "step": "sq:sq-nora-bird:step",
+        "done": "sq:sq-nora-bird:done"
+      },
+      "steps": [
+        {
+          "kind": "hear",
+          "log": "Nora misses a wooden bird she remembers with paint.",
+          "locations": [
+            {
+              "map": "larkhaven"
+            }
+          ],
+          "actors": [
+            "pip_gran"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-nora-bird:heard",
+            "value": true
+          }
+        },
+        {
+          "kind": "recover",
+          "log": "Look for the wooden bird in Larkburrow’s first room.",
+          "locations": [
+            {
+              "map": "larkburrow"
+            }
+          ],
+          "actors": [],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [
+              "larkburrow"
+            ],
+            "story": []
+          },
+          "object": "wooden bird",
+          "write": {
+            "key": "sq:sq-nora-bird:step",
+            "value": 1
+          }
+        },
+        {
+          "kind": "return",
+          "log": "Bring the wooden bird back to Nora.",
+          "locations": [
+            {
+              "map": "larkhaven"
+            }
+          ],
+          "actors": [
+            "pip_gran"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-nora-bird:done",
+            "value": true
+          }
+        }
+      ],
+      "rewards": {}
+    },
+    {
+      "id": "sq-isolde-path",
+      "town": {
+        "name": "Thornwood",
+        "map": "thornwood"
+      },
+      "giver": "isolde",
+      "requires": {
+        "badges": [
+          "thorn"
+        ],
+        "fields": [],
+        "maps": [
+          "thornwood",
+          "knothollow"
+        ],
+        "story": []
+      },
+      "log": "Find Bram in Knothollow and walk him out of the closed path.",
+      "storyKeys": {
+        "heard": "sq:sq-isolde-path:heard",
+        "step": "sq:sq-isolde-path:step",
+        "done": "sq:sq-isolde-path:done"
+      },
+      "steps": [
+        {
+          "kind": "hear",
+          "log": "Ask Isolde about the path Bram followed.",
+          "locations": [
+            {
+              "map": "thornwood"
+            }
+          ],
+          "actors": [
+            "isolde"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-isolde-path:heard",
+            "value": true
+          }
+        },
+        {
+          "kind": "find",
+          "log": "Find Bram inside Knothollow.",
+          "locations": [
+            {
+              "map": "knothollow"
+            }
+          ],
+          "actors": [
+            "bram"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-isolde-path:step",
+            "value": 1
+          }
+        },
+        {
+          "kind": "escort",
+          "log": "Walk Bram out to Rootwater Path.",
+          "locations": [
+            {
+              "map": "knothollow"
+            },
+            {
+              "map": "rootwater"
+            }
+          ],
+          "actors": [
+            "bram"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-isolde-path:done",
+            "value": true
+          }
+        }
+      ],
+      "rewards": {}
+    },
+    {
+      "id": "sq-tobin-tally",
+      "town": {
+        "name": "Lantern Quay",
+        "map": "saltmarsh_route"
+      },
+      "giver": "tobin",
+      "requires": {
+        "badges": [],
+        "fields": [],
+        "maps": [
+          "saltmarsh_route"
+        ],
+        "story": []
+      },
+      "log": "Help Tobin tally Tide creatures and return Cato’s humming shell.",
+      "storyKeys": {
+        "heard": "sq:sq-tobin-tally:heard",
+        "step": "sq:sq-tobin-tally:step",
+        "done": "sq:sq-tobin-tally:done"
+      },
+      "steps": [
+        {
+          "kind": "hear",
+          "log": "Tobin needs help with his Tide-creature tally.",
+          "locations": [
+            {
+              "map": "saltmarsh_route"
+            }
+          ],
+          "actors": [
+            "tobin"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-tobin-tally:heard",
+            "value": true
+          }
+        },
+        {
+          "kind": "observe",
+          "log": "Count the Tide creatures seen from the piers and in the grass.",
+          "locations": [
+            {
+              "map": "wrackline"
+            },
+            {
+              "place": "Lantern Quay"
+            },
+            {
+              "map": "saltmarsh_route"
+            }
+          ],
+          "actors": [],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [
+              "wrackline"
+            ],
+            "story": []
+          },
+          "subject": "Tide creatures",
+          "write": {
+            "key": "sq:sq-tobin-tally:step",
+            "value": 1
+          }
+        },
+        {
+          "kind": "return-object",
+          "log": "Put Cato’s humming shell back where Tobin said.",
+          "locations": [
+            {
+              "map": "saltmarsh_route"
+            },
+            {
+              "map": "saltmarsh"
+            }
+          ],
+          "actors": [
+            "tobin",
+            "cato"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "object": "humming shell",
+          "write": {
+            "key": "sq:sq-tobin-tally:done",
+            "value": true
+          }
+        }
+      ],
+      "rewards": {}
+    },
+    {
+      "id": "sq-sela-warmth",
+      "town": {
+        "name": "Warmstep",
+        "map": "emberfall"
+      },
+      "giver": "sela",
+      "requires": {
+        "badges": [
+          "tide"
+        ],
+        "fields": [],
+        "maps": [
+          "emberfall"
+        ],
+        "story": []
+      },
+      "log": "Bring Sela a stone from the warm dark beyond Kilnvent’s first room.",
+      "storyKeys": {
+        "heard": "sq:sq-sela-warmth:heard",
+        "step": "sq:sq-sela-warmth:step",
+        "done": "sq:sq-sela-warmth:done"
+      },
+      "steps": [
+        {
+          "kind": "hear",
+          "log": "Sela needs a stone that stays warm for the spring-house.",
+          "locations": [
+            {
+              "map": "emberfall"
+            }
+          ],
+          "actors": [
+            "sela"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-sela-warmth:heard",
+            "value": true
+          }
+        },
+        {
+          "kind": "recover",
+          "log": "Find a warm stone beyond Kilnvent’s first room.",
+          "locations": [
+            {
+              "map": "kilnvent"
+            }
+          ],
+          "actors": [],
+          "requires": {
+            "badges": [],
+            "fields": [
+              "field:lantern"
+            ],
+            "maps": [
+              "kilnvent"
+            ],
+            "story": []
+          },
+          "object": "warm stone",
+          "write": {
+            "key": "sq:sq-sela-warmth:step",
+            "value": 1
+          }
+        },
+        {
+          "kind": "return",
+          "log": "Carry the warm stone back to Sela.",
+          "locations": [
+            {
+              "map": "emberfall"
+            }
+          ],
+          "actors": [
+            "sela"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-sela-warmth:done",
+            "value": true
+          }
+        }
+      ],
+      "rewards": {}
+    },
+    {
+      "id": "sq-vessa-beacon",
+      "town": {
+        "name": "Highlatch",
+        "map": "cloudglass"
+      },
+      "giver": "vessa",
+      "requires": {
+        "badges": [
+          "beacon"
+        ],
+        "fields": [],
+        "maps": [
+          "cloudglass"
+        ],
+        "story": []
+      },
+      "log": "Help Ilka retie the lodge rope, learn Glide with Vessa, and light the beacon.",
+      "storyKeys": {
+        "heard": "sq:sq-vessa-beacon:heard",
+        "step": "sq:sq-vessa-beacon:step",
+        "done": "sq:sq-vessa-beacon:done"
+      },
+      "steps": [
+        {
+          "kind": "hear",
+          "log": "Vessa and Ilka need help with the dark lodge beacon.",
+          "locations": [
+            {
+              "map": "cloudglass"
+            }
+          ],
+          "actors": [
+            "vessa",
+            "ilka"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-vessa-beacon:heard",
+            "value": true
+          }
+        },
+        {
+          "kind": "help",
+          "log": "Help Ilka retie the rope on the pass.",
+          "locations": [
+            {
+              "map": "cloudglass"
+            }
+          ],
+          "actors": [
+            "ilka"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-vessa-beacon:step",
+            "value": 1
+          }
+        },
+        {
+          "kind": "lesson",
+          "log": "Return to Vessa for the Glide lesson when your partner is ready.",
+          "locations": [
+            {
+              "map": "cloudglass"
+            }
+          ],
+          "actors": [
+            "vessa"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-vessa-beacon:step",
+            "value": 2
+          }
+        },
+        {
+          "kind": "light",
+          "log": "Light the lodge beacon.",
+          "locations": [
+            {
+              "map": "cloudglass"
+            }
+          ],
+          "actors": [
+            "ilka",
+            "vessa"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [
+              "field:glide"
+            ],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-vessa-beacon:done",
+            "value": true
+          }
+        }
+      ],
+      "rewards": {}
+    },
+    {
+      "id": "sq-lowbell",
+      "town": {
+        "name": "Reedhold",
+        "map": "stillreed"
+      },
+      "giver": "tavil",
+      "requires": {
+        "badges": [],
+        "fields": [],
+        "maps": [
+          "stillreed"
+        ],
+        "story": []
+      },
+      "log": "Listen for Lowbell’s rings and bring their count to Veslin in Bellstep.",
+      "storyKeys": {
+        "heard": "sq:sq-lowbell:heard",
+        "step": "sq:sq-lowbell:step",
+        "done": "sq:sq-lowbell:done"
+      },
+      "steps": [
+        {
+          "kind": "hear",
+          "log": "Ask Tavil, then Olan, about the bell beneath the channels.",
+          "locations": [
+            {
+              "map": "stillreed"
+            }
+          ],
+          "actors": [
+            "tavil",
+            "olan"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-lowbell:heard",
+            "value": true
+          }
+        },
+        {
+          "kind": "listen",
+          "log": "Cross the Quiet Channels and count the rings in Lowbell.",
+          "locations": [
+            {
+              "map": "quietchannels"
+            },
+            {
+              "map": "lowbell"
+            }
+          ],
+          "actors": [],
+          "requires": {
+            "badges": [],
+            "fields": [
+              "field:tide"
+            ],
+            "maps": [
+              "quietchannels",
+              "lowbell"
+            ],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-lowbell:step",
+            "value": 1
+          }
+        },
+        {
+          "kind": "report",
+          "log": "Bring the count of the rings to Veslin in Bellstep.",
+          "locations": [
+            {
+              "map": "hollowecho"
+            }
+          ],
+          "actors": [
+            "veslin"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-lowbell:done",
+            "value": true
+          }
+        }
+      ],
+      "rewards": {}
+    },
+    {
+      "id": "sq-senna-stones",
+      "town": {
+        "name": "Bellstep",
+        "map": "hollowecho"
+      },
+      "giver": "senna",
+      "requires": {
+        "badges": [],
+        "fields": [],
+        "maps": [
+          "hollowecho",
+          "answering"
+        ],
+        "story": []
+      },
+      "log": "Gather three echo stones in the Answering Ways for Veslin’s bell.",
+      "storyKeys": {
+        "heard": "sq:sq-senna-stones:heard",
+        "step": "sq:sq-senna-stones:step",
+        "done": "sq:sq-senna-stones:done"
+      },
+      "steps": [
+        {
+          "kind": "hear",
+          "log": "Senna and Veslin are listening for three echo stones.",
+          "locations": [
+            {
+              "map": "hollowecho"
+            }
+          ],
+          "actors": [
+            "senna",
+            "veslin"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-senna-stones:heard",
+            "value": true
+          }
+        },
+        {
+          "kind": "recover",
+          "log": "Find the first two echo stones in the Answering Ways.",
+          "locations": [
+            {
+              "map": "answering"
+            }
+          ],
+          "actors": [],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "count": 2,
+          "object": "echo stones",
+          "write": {
+            "key": "sq:sq-senna-stones:step",
+            "value": 1
+          }
+        },
+        {
+          "kind": "recover",
+          "log": "Find the last echo stone behind the wall-door.",
+          "locations": [
+            {
+              "map": "answering"
+            }
+          ],
+          "actors": [],
+          "requires": {
+            "badges": [],
+            "fields": [
+              "field:hush"
+            ],
+            "maps": [],
+            "story": []
+          },
+          "count": 1,
+          "object": "echo stones",
+          "write": {
+            "key": "sq:sq-senna-stones:step",
+            "value": 2
+          }
+        },
+        {
+          "kind": "arrange",
+          "log": "Set the three stones where Veslin can hear the hamlet bell answered.",
+          "locations": [
+            {
+              "map": "hollowecho"
+            }
+          ],
+          "actors": [
+            "veslin"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "count": 3,
+          "object": "echo stones",
+          "write": {
+            "key": "sq:sq-senna-stones:done",
+            "value": true
+          }
+        }
+      ],
+      "rewards": {}
+    },
+    {
+      "id": "sq-halen-passing",
+      "town": {
+        "name": "Threadmeet",
+        "map": "sunthread"
+      },
+      "giver": "halen",
+      "requires": {
+        "badges": [],
+        "fields": [],
+        "maps": [
+          "sunthread"
+        ],
+        "story": []
+      },
+      "log": "Carry the mended things along Pell’s list, then return to Halen for the last knot.",
+      "storyKeys": {
+        "heard": "sq:sq-halen-passing:heard",
+        "step": "sq:sq-halen-passing:step",
+        "done": "sq:sq-halen-passing:done"
+      },
+      "steps": [
+        {
+          "kind": "hear",
+          "log": "Take Halen’s passing-along list from Pell.",
+          "locations": [
+            {
+              "map": "sunthread"
+            }
+          ],
+          "actors": [
+            "halen",
+            "pell"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-halen-passing:heard",
+            "value": true
+          }
+        },
+        {
+          "kind": "carry",
+          "log": "Pass along Nora’s thread.",
+          "locations": [
+            {
+              "map": "larkhaven"
+            },
+            {
+              "map": "thornwood_route"
+            }
+          ],
+          "actors": [
+            "pip_gran",
+            "bram"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "cargo": {
+            "name": "Nora’s thread",
+            "from": "pip_gran",
+            "to": "bram",
+            "placeholder": false
+          },
+          "write": {
+            "key": "sq:sq-halen-passing:step",
+            "value": 1
+          }
+        },
+        {
+          "kind": "carry",
+          "log": "Pass along Bram’s dried mushroom.",
+          "locations": [
+            {
+              "map": "thornwood_route"
+            },
+            {
+              "place": "Lantern Quay"
+            }
+          ],
+          "actors": [
+            "bram"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "cargo": {
+            "name": "Bram’s dried mushroom",
+            "from": "bram",
+            "to": null,
+            "placeholder": false,
+            "toPlaceholder": "Perrin"
+          },
+          "write": {
+            "key": "sq:sq-halen-passing:step",
+            "value": 2
+          }
+        },
+        {
+          "kind": "carry",
+          "log": "Pass along Perrin’s quay knot.",
+          "locations": [
+            {
+              "place": "Lantern Quay"
+            },
+            {
+              "map": "emberfall"
+            }
+          ],
+          "actors": [
+            "sela"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "cargo": {
+            "name": "Perrin’s quay knot",
+            "from": null,
+            "to": "sela",
+            "placeholder": true,
+            "fromPlaceholder": "Perrin"
+          },
+          "write": {
+            "key": "sq:sq-halen-passing:step",
+            "value": 3
+          }
+        },
+        {
+          "kind": "carry",
+          "log": "Pass along Sela’s warm nail.",
+          "locations": [
+            {
+              "map": "emberfall"
+            },
+            {
+              "map": "cloudglass"
+            }
+          ],
+          "actors": [
+            "sela",
+            "ilka"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "cargo": {
+            "name": "Sela’s warm nail",
+            "from": "sela",
+            "to": "ilka",
+            "placeholder": false
+          },
+          "write": {
+            "key": "sq:sq-halen-passing:step",
+            "value": 4
+          }
+        },
+        {
+          "kind": "carry",
+          "log": "Pass along Ilka’s rope splice.",
+          "locations": [
+            {
+              "map": "cloudglass"
+            },
+            {
+              "map": "stillreed"
+            }
+          ],
+          "actors": [
+            "ilka"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "cargo": {
+            "name": "Ilka’s rope splice",
+            "from": "ilka",
+            "to": null,
+            "placeholder": false,
+            "toPlaceholder": "Juna"
+          },
+          "write": {
+            "key": "sq:sq-halen-passing:step",
+            "value": 5
+          }
+        },
+        {
+          "kind": "carry",
+          "log": "Pass along Juna’s reed bundle.",
+          "locations": [
+            {
+              "map": "stillreed"
+            },
+            {
+              "map": "hollowecho"
+            }
+          ],
+          "actors": [
+            "veslin"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "cargo": {
+            "name": "Juna’s reed bundle",
+            "from": null,
+            "to": "veslin",
+            "placeholder": true,
+            "fromPlaceholder": "Juna"
+          },
+          "write": {
+            "key": "sq:sq-halen-passing:step",
+            "value": 6
+          }
+        },
+        {
+          "kind": "carry",
+          "log": "Pass along Veslin’s spare echo stone.",
+          "locations": [
+            {
+              "map": "hollowecho"
+            },
+            {
+              "map": "sunthread"
+            }
+          ],
+          "actors": [
+            "veslin",
+            "mirel"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "cargo": {
+            "name": "Veslin’s spare echo stone",
+            "from": "veslin",
+            "to": "mirel",
+            "placeholder": false
+          },
+          "write": {
+            "key": "sq:sq-halen-passing:step",
+            "value": 7
+          }
+        },
+        {
+          "kind": "carry",
+          "log": "Pass along Mirel’s ribbon.",
+          "locations": [
+            {
+              "map": "sunthread"
+            },
+            {
+              "map": "farwatch"
+            }
+          ],
+          "actors": [
+            "mirel",
+            "delka"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "cargo": {
+            "name": "Mirel’s ribbon",
+            "from": "mirel",
+            "to": "delka",
+            "placeholder": false
+          },
+          "write": {
+            "key": "sq:sq-halen-passing:step",
+            "value": 8
+          }
+        },
+        {
+          "kind": "carry",
+          "log": "Pass along Delka’s corrected chart.",
+          "locations": [
+            {
+              "map": "farwatch"
+            },
+            {
+              "map": "sunthread"
+            }
+          ],
+          "actors": [
+            "delka",
+            "halen"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "cargo": {
+            "name": "Delka’s corrected chart",
+            "from": "delka",
+            "to": "halen",
+            "placeholder": false
+          },
+          "write": {
+            "key": "sq:sq-halen-passing:step",
+            "value": 9
+          }
+        },
+        {
+          "kind": "finish",
+          "log": "Bring the passing-along back to Halen for the last knot.",
+          "locations": [
+            {
+              "map": "sunthread"
+            }
+          ],
+          "actors": [
+            "halen"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-halen-passing:done",
+            "value": true
+          }
+        }
+      ],
+      "rewards": {}
+    },
+    {
+      "id": "sq-rysa-skiffs",
+      "town": {
+        "name": "The High Watch",
+        "map": "farwatch"
+      },
+      "giver": "rysa",
+      "requires": {
+        "badges": [],
+        "fields": [],
+        "maps": [
+          "farwatch"
+        ],
+        "story": []
+      },
+      "log": "Take the corrected heading to the two skiff crews on Outer Shoal.",
+      "storyKeys": {
+        "heard": "sq:sq-rysa-skiffs:heard",
+        "step": "sq:sq-rysa-skiffs:step",
+        "done": "sq:sq-rysa-skiffs:done"
+      },
+      "steps": [
+        {
+          "kind": "hear",
+          "log": "Rysa and Sivren have a corrected heading for the skiff crews.",
+          "locations": [
+            {
+              "map": "farwatch"
+            }
+          ],
+          "actors": [
+            "rysa",
+            "sivren"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-rysa-skiffs:heard",
+            "value": true
+          }
+        },
+        {
+          "kind": "deliver",
+          "log": "Reach Outer Shoal and bring the heading to both skiff crews.",
+          "locations": [
+            {
+              "place": "Outer Shoal"
+            }
+          ],
+          "actors": [],
+          "requires": {
+            "badges": [],
+            "fields": [
+              "field:tide"
+            ],
+            "maps": [
+              "opengrey"
+            ],
+            "story": []
+          },
+          "count": 2,
+          "subject": "skiff crews",
+          "write": {
+            "key": "sq:sq-rysa-skiffs:done",
+            "value": true
+          }
+        }
+      ],
+      "rewards": {}
+    },
+    {
+      "id": "sq-spire-memory",
+      "town": {
+        "name": "Returning Light League",
+        "map": "league"
+      },
+      "giver": "orla",
+      "requires": {
+        "badges": [],
+        "fields": [],
+        "maps": [
+          "league",
+          "spire"
+        ],
+        "story": [
+          "leagueEnding"
+        ]
+      },
+      "log": "Listen to the regulars’ colours from home, then tell Orla which floor felt familiar.",
+      "storyKeys": {
+        "heard": "sq:sq-spire-memory:heard",
+        "step": "sq:sq-spire-memory:step",
+        "done": "sq:sq-spire-memory:done"
+      },
+      "steps": [
+        {
+          "kind": "hear",
+          "log": "After the ending, listen to the league regulars’ colours from home.",
+          "locations": [
+            {
+              "map": "league"
+            }
+          ],
+          "actors": [],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "group": "league regulars",
+          "write": {
+            "key": "sq:sq-spire-memory:heard",
+            "value": true
+          }
+        },
+        {
+          "kind": "remember",
+          "log": "Think of a Spire floor that felt like somewhere you have been.",
+          "locations": [
+            {
+              "map": "spire"
+            }
+          ],
+          "actors": [],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-spire-memory:step",
+            "value": 1
+          }
+        },
+        {
+          "kind": "reflect",
+          "log": "Tell Orla which floor felt familiar.",
+          "locations": [
+            {
+              "map": "spire"
+            }
+          ],
+          "actors": [
+            "orla"
+          ],
+          "requires": {
+            "badges": [],
+            "fields": [],
+            "maps": [],
+            "story": []
+          },
+          "write": {
+            "key": "sq:sq-spire-memory:done",
+            "value": true
+          }
+        }
+      ],
+      "rewards": {}
+    }
+  ]
+}
