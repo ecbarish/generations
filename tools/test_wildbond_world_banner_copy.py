@@ -141,6 +141,15 @@ def validate(data, sources=None):
     # Also exclude renamed towns that share an existing map ID: Warmstep is not
     # today's Emberfall Highlands sign. Normalize punctuation/case to fail closed.
     forbidden = []
+    place_names = {}
+    for place_id, place in places.items():
+        name = re.sub(r"^the ", "", place["name"], flags=re.I)
+        place_names.setdefault(name.lower(), set()).add(place_id)
+    for place_id, place in game["MAPS"].items():
+        name = re.sub(r"^the ", "", place["name"], flags=re.I)
+        short = re.sub(r" (Coast|Highlands|Pass|Basin|Hills|Commons|Reach|Road|Trail)$", "", name)
+        for alias in (name, short):
+            place_names.setdefault(alias.lower(), set()).add(place_id)
     for place_id, place in places.items():
         if place_id not in built or place["name"] != game["MAPS"][place_id]["name"]:
             name = re.sub(r"^the ", "", place["name"], flags=re.I)
@@ -166,6 +175,11 @@ def validate(data, sources=None):
             require(value["placeIds"] == expected, variant + " exact place references")
             require(all(p in places for p in expected), variant + " missing graph place")
             combined = value["banner"] + " " + value["maren"]
+            # Known names must agree with the references, even if another field
+            # still points correctly. Shared short names can denote either map.
+            for name, ids in place_names.items():
+                if re.search(r"\b" + re.escape(name) + r"\b", combined, re.I):
+                    require(bool(ids.intersection(expected)), variant + " names an unrelated place: " + name)
             cardinal = CARDINALS[DIRECTIONS[count]]
             written_directions = set(re.findall(r"\b(north|south|east|west)\b", combined.lower()))
             require(written_directions <= {cardinal}, variant + " wrong direction in prose")
@@ -299,6 +313,13 @@ class BannerCopyTests(unittest.TestCase):
         for index, phrase in CURRENT_WALKS.items():
             self.bad(lambda d, i=index, p=phrase: d["entries"][i]["beforeRoutes"].update(
                 maren=d["entries"][i]["beforeRoutes"]["maren"].replace(p, "mysterious road")))
+
+    def test_known_place_prose_agrees_with_its_references(self):
+        for variant in ("beforeRoutes", "afterRoutes"):
+            self.bad(lambda d, v=variant: d["entries"][4][v].update(banner="Take the ferry path to Olan in Farwatch."))
+            self.bad(lambda d, v=variant: d["entries"][4][v].update(banner="Olan waits in Sunthread Commons."))
+            self.bad(lambda d, v=variant: d["entries"][1][v].update(banner="Find Nerys on Thornwood Trail."))
+        self.bad(lambda d: d["entries"][4]["afterRoutes"].update(banner="Olan waits in Warmstep."))
 
     def test_sources_fail_closed_when_map_contract_changes(self):
         changes = [lambda s: s["graph"]["places"].pop(0),
