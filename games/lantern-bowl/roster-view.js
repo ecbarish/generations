@@ -89,18 +89,18 @@
   }
 
   var CSS =
-    '.lbrv-root{--lbrv-ink:#f6edd4;--lbrv-lamp:#f2d080;--lbrv-dim:#c9bf9f;--lbrv-line:#6d5a38;--lbrv-panel:#101820;--lbrv-row:#182230;' +
+    '.lbrv-root{--lbrv-ink:#f6edd4;--lbrv-lamp:#f2d080;--lbrv-dim:#d9c89a;--lbrv-line:#6d5a38;--lbrv-panel:#101820;--lbrv-row:#1b2430;' +
     'font:16px/1.25 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--lbrv-ink);display:grid;grid-template-columns:1fr;gap:12px;align-items:start}' +
     '@media (min-width:640px){.lbrv-root{grid-template-columns:1fr 1fr}' +
     '.lbrv-group[data-group="Offence"]{grid-column:1;grid-row:1}' +
     '.lbrv-group[data-group="Defence"]{grid-column:2;grid-row:1 / span 2}' +
     '.lbrv-group[data-group="Kicker"]{grid-column:1;grid-row:2}}' +
-    '.lbrv-group{border:1px solid var(--lbrv-line);border-radius:10px;background:var(--lbrv-panel);overflow:hidden;min-width:0}' +
+    '.lbrv-group{border:1px solid var(--lbrv-line);border-radius:8px;background:var(--lbrv-panel);overflow:hidden;min-width:0}' +
     '.lbrv-head{margin:0;padding:8px 12px;min-height:44px;display:flex;align-items:center;font-size:16px;font-weight:700;color:var(--lbrv-lamp);border-bottom:1px solid var(--lbrv-line)}' +
     '.lbrv-rows{list-style:none;margin:0;padding:0}' +
     '.lbrv-row{display:grid;grid-template-columns:1.7rem minmax(0,1fr) auto;column-gap:8px;align-items:center;min-height:44px;padding:6px 10px;background:var(--lbrv-row)}' +
-    '.lbrv-row+.lbrv-row{border-top:1px solid #2b3a4f}' +
-    '.lbrv-row:nth-child(even){background:#141d2a}' +
+    '.lbrv-row+.lbrv-row{border-top:1px solid #243044}' +
+    '.lbrv-row:nth-child(even){background:#141820}' +
     '.lbrv-slot{font-weight:700;color:var(--lbrv-lamp)}' +
     '.lbrv-who{min-width:0}' +
     '.lbrv-name{display:block;font-weight:700;overflow-wrap:anywhere}' +
@@ -109,8 +109,8 @@
     '.lbrv-rw{font-weight:700}' +
     '.lbrv-rn{color:var(--lbrv-dim)}' +
     '.lbrv-grade{text-align:right;white-space:nowrap}' +
-    '.lbrv-stars{display:block;font-size:16px;letter-spacing:0;color:var(--lbrv-lamp)}' +
-    '.lbrv-off{color:#4a4a50}' +
+    '.lbrv-stars{display:block;font-size:20px;letter-spacing:0;color:var(--lbrv-lamp)}' +
+    '.lbrv-off{color:#d9c89a}' +
     '.lbrv-word{display:block;font-weight:700}';
 
   function el(doc, tag, cls, text) {

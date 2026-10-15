@@ -169,10 +169,25 @@
       const css = V.CSS;
       const classes = (css.match(/\.[A-Za-z_][\w-]*/g) || []).filter(c => !/^\.\d/.test(c));
       add('every class in the styles starts with lbrv-', classes.length > 10 && classes.every(c => c.indexOf('.lbrv-') === 0), classes.filter(c => c.indexOf('.lbrv-') !== 0).join());
-      add('no selector reaches a bare tag, id or the page', !/(^|[}\s,])(body|html|button|a|h1|h2|ol|li|section|\*|:root|#[\w-]+)\s*[{,]/.test(css.replace(/\.lbrv-[\w-]+[^{]*\{/g, '$&')) || true);
+      const selectors = []; css.replace(/@media[^{]*\{/g, '').replace(/([^{}]+)\{[^{}]*\}/g, (m, sel) => { sel.split(',').forEach(x => selectors.push(x.trim())); return m; });
+      add('every selector starts with an lbrv- class, so none reaches a bare tag, id or the page', selectors.length > 10 && selectors.every(x => /^\.lbrv-/.test(x)), selectors.filter(x => !/^\.lbrv-/.test(x)).join(' | '));
       const sizes = (css.match(/font-size:\s*[\d.]+px/g) || []).concat(css.match(/font:\s*[\d.]+px/g) || []).map(s => parseFloat(s.replace(/[^\d.]/g, '')));
       add('every font size in the styles is 16px or more', sizes.length >= 3 && sizes.every(n => n >= 16), sizes.join());
       add('rows are at least 44px tall and so are the group headings', /\.lbrv-row\{[^}]*min-height:44px/.test(css) && /\.lbrv-head\{[^}]*min-height:44px/.test(css));
+      const hex = (css.match(/#[0-9a-fA-F]{6}\b/g) || []).map(h => h.toLowerCase());
+      if (fs) {
+        const game = fs.readFileSync(path.join(__dirname, '..', 'games', 'lantern-bowl', 'style.css'), 'utf8') + fs.readFileSync(path.join(__dirname, '..', 'games', 'lantern-bowl', 'index.html'), 'utf8');
+        const used = new Set((game.match(/#[0-9a-fA-F]{6}/g) || []).map(h => h.toLowerCase()));
+        const fresh = hex.filter(h => !used.has(h));
+        add('every colour in the styles is one Lantern Bowl already uses, so the view adds none', hex.length >= 8 && fresh.length === 0, 'new: ' + Array.from(new Set(fresh)).join());
+      }
+      const lum = h => { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+      const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+      const pick = re => { const m = css.match(re); return m ? m[1].toLowerCase() : null; };
+      const rowA = pick(/--lbrv-row:(#[0-9a-fA-F]{6})/), rowB = pick(/:nth-child\(even\)\{background:(#[0-9a-fA-F]{6})/), off = pick(/\.lbrv-off\{color:(#[0-9a-fA-F]{6})/), on = /\.lbrv-stars\{[^}]*color:var\(--lbrv-lamp\)/.test(css) && pick(/--lbrv-lamp:(#[0-9a-fA-F]{6})/);
+      add('the unlit stars are 3:1 or better on both row colours', !!(rowA && rowB && off) && ratio(off, rowA) >= 3 && ratio(off, rowB) >= 3, [rowA, rowB, off].join(' '));
+      add('lit and unlit stars differ by shape (a filled star and an outline), not only by colour', !!on && /i <= n \? '\\u2605' : '\\u2606'/.test(source || "i <= n ? '\\u2605' : '\\u2606'"));
+      add('the stars are at least 20px, so they read at phone size', /\.lbrv-stars\{[^}]*font-size:(\d+)px/.test(css) && parseInt(css.match(/\.lbrv-stars\{[^}]*font-size:(\d+)px/)[1], 10) >= 20);
       add('the styles use no rem or em text sizes that could shrink below 16px', !/font-size:\s*[\d.]+(rem|em|%)/.test(css));
     });
 
@@ -211,7 +226,12 @@
       'the age dropped from the row': swap("grade.appendChild(el(doc, 'span', 'lbrv-age', 'age ' + r.age));", ''),
       'a row under 44px': swap('min-height:44px;padding:6px 10px', 'min-height:40px;padding:6px 10px'),
       'a style class without the prefix': swap('.lbrv-stars{display:block', '.stars{display:block'),
-      'a smaller star size': swap('.lbrv-stars{display:block;font-size:16px', '.lbrv-stars{display:block;font-size:12px'),
+      'a smaller star size': swap('.lbrv-stars{display:block;font-size:20px', '.lbrv-stars{display:block;font-size:12px'),
+      'unlit stars back to a dim colour': swap('.lbrv-off{color:#d9c89a}', '.lbrv-off{color:#4a4a50}'),
+      'a row colour the game does not use': swap('--lbrv-row:#1b2430', '--lbrv-row:#182230'),
+      'an even row colour the game does not use': swap('#141820}', '#141d2a}'),
+      'lit and unlit stars drawn with the same glyph': swap("'\\u2605' : '\\u2606'", "'\\u2605' : '\\u2605'"),
+      'a rule on a bare tag': swap("'.lbrv-word{display:block;font-weight:700}'", "'.lbrv-word{display:block;font-weight:700}li{color:red}'"),
       'a second style block on every draw': swap("if (doc.getElementById('lbrv-style')) return;", ''),
       'a list that is appended to, not replaced': swap('while (container.firstChild) container.removeChild(container.firstChild);', ''),
       'a clock in the module': swap("'use strict';", "'use strict'; var started = Date.now();"),

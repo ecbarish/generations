@@ -19,7 +19,7 @@ http://localhost:8731/docs/playtests/lb-roster-view/index.html
 - the player's **two best ratings**, each as a word then its number (`Pass rush Elite 80`);
 - a **1-to-5 star grade** and its word, from the player's overall (the mean of the ratings they have, as `tests/lantern-bowl-roster.cjs` defines it, rounded to a whole number): 35-45 one star (Rough), 46-56 two (Fair), 57-67 three (Solid), 68-78 four (Strong), 79-90 five (Elite).
 
-Rows are 72px tall at the phone sizes and never under 44px, and no text is under 16px. Offence (10) and the kicker (1) sit on the left on a wide screen and defence (11) on the right, so both sides are 11 rows. Below 640px wide it is one column. Reading order stays Offence, Defence, Kicker.
+Rows are 77px tall at the phone sizes and never under 44px, and no text is under 16px. Offence (10) and the kicker (1) sit on the left on a wide screen and defence (11) on the right, so both sides are 11 rows. Below 640px wide it is one column. Reading order stays Offence, Defence, Kicker.
 
 ## Screenshots (Chrome 154, 2x pixel ratio, Brackenport)
 
@@ -31,7 +31,7 @@ Rows are 72px tall at the phone sizes and never under 44px, and no text is under
 | `roster-1024x594.png` | 1024x594 | Top of the list on a small tablet or desktop window |
 | `roster-1024x594-full.png` | 1024 wide, full page | All 22 rows, for the full picture |
 
-`report.json` holds the measurements from the same run: 22 rows at each size, smallest row 72px, smallest text 16px, two columns, no sideways overflow, and no page error at any size, for all six clubs picked from the selector, and with all six drawn at once (132 rows).
+`report.json` holds the measurements from the same run: 22 rows at each size, smallest row 77px, smallest text 16px, two columns, no sideways overflow, and no page error at any size, for all six clubs picked from the selector, and with all six drawn at once (132 rows).
 
 ## Checks
 
@@ -39,4 +39,4 @@ Rows are 72px tall at the phone sizes and never under 44px, and no text is under
 
 ## For the Game Art Director
 
-Please look at the five screenshots. Things I would like a view on: the star and word treatment (filled and empty stars, with the word under them), the row density at 667x375, the dim empty stars (`#4a4a50` on the row colour), and whether the slot tags should be words (Line, Front, Backer) instead of OL, DL, LB, DB. The colours are the game's own (`#f6edd4` ink, `#f2d080` lamp, `#6d5a38` border). If you want the styles moved into `style.css`, that is the later LB-MANAGER wiring.
+Please look at the five screenshots. Things I would like a view on: the star and word treatment (filled and empty stars, with the word under them), the row density at 667x375, the empty stars (outline stars in `#d9c89a`, 9:1 or better on both row colours, drawn as outlines so they cannot be taken for lit ones), and whether the slot tags should be words (Line, Front, Backer) instead of OL, DL, LB, DB. The colours are the game's own (`#f6edd4` ink, `#f2d080` lamp, `#d9c89a` dim text, `#6d5a38` border, `#101820` panel, `#1b2430` and `#141820` rows, `#243044` row divider). If you want the styles moved into `style.css`, that is the later LB-MANAGER wiring.
