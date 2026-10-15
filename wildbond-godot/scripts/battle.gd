@@ -10,6 +10,7 @@ const Figures := preload("res://scripts/figures.gd")
 const Sprites := preload("res://scripts/creature_sprites.gd")
 const Effects := preload("res://scripts/battle_effects.gd")
 const R := preload("res://scripts/rules.gd")
+const PhoneShell := preload("res://scripts/phone_shell.gd")
 const INK := Color("2a2230")
 const PAPER := Color("f8f2e4")
 const EL_COL := { "Ember": Color("e0602a"), "Tide": Color("3a8fd8"), "Grove": Color("5d9a3e") }
@@ -704,7 +705,8 @@ func _input(e: InputEvent) -> void:
 		"orders":
 			var ol := known_orders()
 			if click:
-				if p.y >= 145 and p.y < 161 and ol.size() > 4:
+				var nav_y := _order_nav_y()
+				if p.y >= nav_y and p.y < nav_y + 16.0 and ol.size() > 4:
 					if p.x < 92: order_i = maxi(0, (order_i / 4 - 1) * 4)
 					elif p.x < 180: order_i = mini(ol.size() - 1, (order_i / 4 + 1) * 4)
 					return
@@ -733,9 +735,39 @@ func _grid_move(i: int, d: Vector2i, n: int, cols: int) -> int:
 		Vector2i.DOWN: i = i + cols if i + cols < n else i
 	return i
 
+var layout_scale := 0.0                      # tests set a phone scale; 0 uses the real window
+var external_ui := false                      # upright phone: the deck draws the commands, the scene stays in the view
+var phone_view := Rect2()                     # the phone frame's visible canvas; empty on the desktop
+
+## Device pixels per canvas pixel. A headless window reports no size; treat that as the desktop's whole-pixel scale.
+func _view_scale() -> float:
+	if layout_scale > 0.0:
+		return layout_scale
+	var win := Vector2(DisplayServer.window_get_size())
+	if win.x < 8.0 or win.y < 8.0:
+		return 4.0
+	return maxf(0.25, minf(win.x / 384.0, win.y / 216.0))
+
+## A command is at least 44 device pixels tall, and never shorter than the desktop's 16 canvas pixels.
+func _row_h() -> float:
+	return _row_h_for(_view_scale())
+
+func _row_h_for(scale: float) -> float:
+	return maxf(16.0, ceil(44.0 / maxf(scale, 0.01)))
+
+func _command_box() -> Rect2:
+	var h := _row_h()
+	var box_h := 2.0 * h + 14.0
+	return Rect2(8, 216.0 - 6.0 - box_h, 368, box_h)
+
 func _menu_rect(i: int) -> Rect2:
-	# Two rows on the right of the message box. Tall enough for a thumb, and the words stay inside.
-	return Rect2(240 + (i % 3) * 46, 167 + (i / 3) * 22, 44, 20)
+	var h := _row_h()
+	# Desktop keeps Catch's 44 by 20 buttons inside the 46-pixel command box.
+	# A phone scale grows them so a thumb still has 44 device pixels.
+	if h <= 20.0:
+		return Rect2(240 + (i % 3) * 46, 167 + (i / 3) * 22, 44, 20)
+	var box := _command_box()
+	return Rect2(box.position.x + 232.0 + (i % 3) * 46.0, box.position.y + 6.0 + (i / 3) * (h + 3.0), 44, h)
 
 ## Greyed out: you can still press it, and it tells you why it will not act.
 func _dimmed(word: String) -> bool:
@@ -756,7 +788,68 @@ func _label_size(word: String, width: float, size: int) -> int:
 	return s
 
 func _move_rect(i: int) -> Rect2:
-	return Rect2(14 + (i % 2) * 96, 170 + (i / 2) * 19, 92, 16)
+	var h := _row_h()
+	var box := _command_box()
+	return Rect2(14 + (i % 2) * 96, box.position.y + 6.0 + (i / 2) * (h + 3.0), 92, h)
+
+func _order_nav_y() -> float:
+	return _command_box().position.y - 19.0
+
+func _detail_rect() -> Rect2:
+	var box := _command_box()
+	return Rect2(208, box.position.y + 2.0, 164, box.size.y - 4.0)
+
+func _ally_panel() -> Rect2:
+	var panel := Rect2(222, 116, 154, 36)
+	# The upright frame does not draw the command box, so the health panel stays beside the player.
+	if external_ui:
+		return panel
+	var limit := _command_box().position.y - 4.0
+	if panel.end.y > limit:
+		panel.position.y = limit - panel.size.y
+	return panel
+
+func _ally_line_rect(i: int, n: int) -> Rect2:
+	var lift := 0.0 if external_ui else maxf(0.0, 160.0 - (_command_box().position.y - 4.0))
+	return Rect2(236, 162.0 - (n - i) * 22.0 - lift, 140, 20)
+
+## Where the "Next:" names sit. They shrink, then wrap, and stay inside the top of the screen.
+func _chip_boxes(labels: PackedStringArray) -> Dictionary:
+	if _view_scale() < 2.0:
+		return PhoneShell.place_chips(labels, font, 8.0, 4.0, 376.0, 14, 28.0)
+	var size := 7
+	var limit := 376.0
+	var x0 := 192.0
+	while size > 5:
+		var x := x0
+		var rows := 1
+		var fits := true
+		for lab in labels:
+			var w := font.get_string_size(lab, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 8.0
+			if w > limit - x0:
+				fits = false
+				break
+			if x + w > limit:
+				rows += 1
+				x = x0
+			if rows > 2:
+				fits = false
+				break
+			x += w + 3.0
+		if fits:
+			break
+		size -= 1
+	var rects: Array = []
+	var x := x0
+	var y := 7.0
+	for lab in labels:
+		var w := minf(font.get_string_size(lab, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x + 8.0, limit - x0)
+		if x > x0 and x + w > limit:
+			x = x0
+			y += size + 5.0
+		rects.append(Rect2(x, y, w, size + 3.0))
+		x += w + 3.0
+	return {"font": size, "rects": rects}
 
 ## How good a move looks against the foe in front: power, type advantage and same-element bonus (the demo and the
 ## automated checks pick moves this way, as a sensible player would).
@@ -796,16 +889,18 @@ func _hp_panels() -> Array:
 	for i in foes.size():
 		panels.append(Rect2(10, 8 + i * 30, 150, 26))
 	if allies.size() == 1:
-		panels.append(Rect2(222, 116, 154, 36))
+		panels.append(_ally_panel())
 	elif allies.size() > 1:
 		for i in allies.size():
-			panels.append(Rect2(236, 162 - (allies.size() - i) * 22, 140, 20))
+			panels.append(_ally_line_rect(i, allies.size()))
 	return panels
 
-## Health panels, plus the command box, so a player's feet are not hidden under its border.
+## Health panels, plus the command box when it is actually drawn, so a player's feet are not hidden under its border.
+## The upright phone draws that box on the strip. Treating the hidden box as a wall slides the player off the left.
 func _clearance_boxes() -> Array:
 	var boxes := _hp_panels()
-	boxes.append(COMMAND_BOX)
+	if not external_ui:
+		boxes.append(_command_box())
 	return boxes
 
 ## A finished battle front when the file exists; otherwise the overworld sheet, or the pixel figure.
@@ -832,7 +927,53 @@ func _battle_front_foot(spot: Vector2, species_id: String, scale: float) -> Vect
 	var sz := Sprites.battle_size(species_id)
 	if sz == Vector2i.ZERO:
 		return spot
-	return Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
+	var foot := Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
+	return _keep_on_phone(foot, sz, scale)
+
+## The rectangle a battle sprite covers, in view pixels. Same feet as the picture, including a lunge.
+func sprite_rect(u: Dictionary) -> Rect2:
+	var at := _drawn_at(u)
+	var species_id := str(u.c.sp)
+	var stand := Vector2(round(at.x), round(at.y))
+	if Sprites.has_battle_front(species_id):
+		var scale := Sprites.BATTLE_FRONT_SCALE
+		var foot := _battle_front_foot(stand + Vector2(0, 6), species_id, scale)
+		return Sprites.dest_rect(foot, Sprites.battle_size(species_id), Sprites.whole_scale(scale))
+	var zoom := 4.0 if str(u.side) == "a" else 3.0
+	var pose_name := "walk" if u.lunge > 0.0 else "idle"
+	var sz := Sprites.frame_size(species_id, pose_name)
+	if sz == Vector2i.ZERO:
+		pose_name = "idle"
+		sz = Sprites.frame_size(species_id, pose_name)
+	if sz == Vector2i.ZERO:
+		return Rect2(stand, Vector2.ZERO)
+	var foot := _painted_foot(stand + Vector2(0, 6), species_id, pose_name, zoom)
+	return Sprites.dest_rect(foot, sz, zoom)
+
+func _drawn_at(u: Dictionary) -> Vector2:
+	var at := _spot(u)
+	var dir := 1.0 if str(u.side) == "a" else -1.0
+	at.x += sin(clampf(float(u.lunge) / 0.35, 0.0, 1.0) * PI) * 10.0 * dir
+	if float(u.hit) > 0.0:
+		at.x += 2.0 if int(float(u.hit) * 30.0) % 2 == 0 else -2.0
+	return at
+
+## Slide a phone-frame sprite back inside the view. Scale stays as it was.
+func _keep_on_phone(foot: Vector2, sz: Vector2i, scale: float) -> Vector2:
+	if phone_view.size.x < 1.0 or sz.x <= 0 or sz.y <= 0:
+		return foot
+	var rect := Sprites.dest_rect(foot, sz, Sprites.whole_scale(scale))
+	var dx := 0.0
+	var dy := 0.0
+	if rect.position.x < phone_view.position.x:
+		dx = phone_view.position.x - rect.position.x
+	elif rect.end.x > phone_view.end.x:
+		dx = phone_view.end.x - rect.end.x
+	if rect.position.y < phone_view.position.y:
+		dy = phone_view.position.y - rect.position.y
+	elif rect.end.y > phone_view.end.y:
+		dy = phone_view.end.y - rect.end.y
+	return foot + Vector2(dx, dy)
 
 ## The pixel figure, at a whole multiple of its own pixels. The old path scaled a fractional height fit.
 func _draw_figure(at: Vector2, species: Dictionary, facing_right: bool, pose: Dictionary, look: Dictionary, zoom: float) -> void:
@@ -848,7 +989,8 @@ func _painted_foot(spot: Vector2, species_id: String, pose: String, scale: float
 	var sz := Sprites.frame_size(species_id, pose)
 	if sz == Vector2i.ZERO:
 		return spot
-	return Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
+	var foot := Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
+	return _keep_on_phone(foot, sz, scale)
 
 func _spot(u: Dictionary) -> Vector2:
 	# where a creature stands: yours close at the bottom left, the foe further off at the top right
@@ -921,13 +1063,9 @@ func _draw() -> void:
 	for u in order:
 		if u.c.hp <= 0 and u.hit <= 0.0:
 			continue
-		var at := _spot(u)
-		var dir := 1.0 if u.side == "a" else -1.0
-		at.x += sin(clampf(u.lunge / 0.35, 0.0, 1.0) * PI) * 10.0 * dir
-		if u.hit > 0.0:
-			at.x += (2.0 if int(u.hit * 30.0) % 2 == 0 else -2.0)
-			if int(u.hit * 20.0) % 2 == 0:
-				continue                                          # a blink when hit (soft: no full-screen flash)
+		var at := _drawn_at(u)
+		if u.hit > 0.0 and int(u.hit * 20.0) % 2 == 0:
+			continue                                          # a blink when hit (soft: no full-screen flash)
 		var look: Dictionary = looks.get(u.c.sp, Figures.look_for(R.sp(u.c)))
 		if u.c.get("gear", "") != "":
 			look = look.duplicate()
@@ -970,20 +1108,38 @@ func _draw() -> void:
 	for i in foes.size():
 		_info(foes[i], Rect2(10, 8 + i * 30, 150, 26), false)
 	if allies.size() == 1:
-		_info(allies[0], Rect2(222, 116, 154, 36), true)
+		_info(allies[0], _ally_panel(), true)
 	else:
 		for i in allies.size():                                  # a compact line each, so the foe stays in view
-			_info_line(allies[i], Rect2(236, 162 - (allies.size() - i) * 22, 140, 20))
-	_queue()
-	if not tele.is_empty():
-		_text("%s is gathering power! Guard!" % tele.u.c.name, Vector2(10, 70), 8, Color("c83a2a"))
-	# the message box, and the commands on your turn
-	_box(COMMAND_BOX)
+			_info_line(allies[i], _ally_line_rect(i, allies.size()))
+	# Upright phone: chips, the command box and the results card live on the strip. The view keeps the fight and the fog.
+	if external_ui:
+		if state == "capture":
+			_draw_capture_marker()
+	else:
+		_queue()
+		if not tele.is_empty():
+			_text("%s is gathering power! Guard!" % tele.u.c.name, Vector2(10, 70), 8, Color("c83a2a"))
+		var box := _command_box()
+		_box(box)
+		_draw_commands(box)
+	# the grey fog that rolls in at the start and out at the end (soft; never a flash)
+	var fog := 0.0
+	if state == "fog_in": fog = 1.0 - state_t
+	elif state == "fog_out": fog = state_t
+	if fog > 0.0:
+		for k in 14:
+			var cx := fmod(k * 61.0 + t * 30.0, 440.0) - 28.0
+			var cy := fmod(k * 37.0, 230.0)
+			draw_circle(Vector2(cx, cy), 60.0 + 30.0 * fog, Color(0.72, 0.74, 0.76, clampf(fog, 0.0, 1.0) * 0.5))
+		draw_rect(Rect2(0, 0, 384, 216), Color(0.7, 0.72, 0.74, clampf(fog, 0.0, 1.0)))
+
+func _draw_commands(box: Rect2) -> void:
 	match state:
 		"choose":
-			_text("What will %s do?" % wait_u.c.name, Vector2(16, 178), 8, INK, 216)
+			_text("What will %s do?" % wait_u.c.name, Vector2(16, box.position.y + 14), 8, INK, 216)
 			if not sure_catch:
-				_text("Orders ready: %d of 3" % int(orders), Vector2(16, 196), 7, Color("6a5a4a"), 216)
+				_text("Orders ready: %d of 3" % int(orders), Vector2(16, box.position.y + 32), 7, Color("6a5a4a"), 216)
 			for i in MENU.size():
 				var r := _menu_rect(i)
 				var on := i == menu_i
@@ -993,7 +1149,8 @@ func _draw() -> void:
 				if not on and (word == "Stand with it" or (word == "Catch" and kind == "wild" and not dim)):
 					draw_rect(r, Color("f2d080"))         # lamplight: the choice to notice
 				var px := _label_size(word, r.size.x, 8)
-				_text(word, r.position + Vector2(0, 8 + px), px, (PAPER if on else INK) if not dim else Color("9a8a7a"), r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+				var baseline := (8.0 + px) if r.size.y <= 20.0 else r.size.y * 0.5 + px * 0.5
+				_text(word, r.position + Vector2(0, baseline), px, (PAPER if on else INK) if not dim else Color("9a8a7a"), r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 		"moves":
 			var mv := R.moves_of(wait_u.c)
 			for i in mv.size():
@@ -1004,42 +1161,34 @@ func _draw() -> void:
 				draw_rect(r, INK if on else Color("e8dcc4"))
 				if m.get("el") != null:
 					draw_rect(Rect2(r.position + Vector2(3, 5), Vector2(5, 6)), EL_COL.get(m.el, INK))
-				_text(m.name, r.position + Vector2(11, 12), 8, (PAPER if on else INK) if not resting else Color("9a8a7a"))
+				var move_base := 12.0 if r.size.y <= 16.0 else r.size.y * 0.5 + 3.0
+				_text(m.name, r.position + Vector2(11, move_base), 8, (PAPER if on else INK) if not resting else Color("9a8a7a"))
 			var sel: Dictionary = R.DATA.MOVES[mv[move_i]]
 			var desc := R.move_info(mv[move_i])
-			var info_r := Rect2(208, 166, 164, 42)
+			var info_r := _detail_rect()
 			draw_multiline_string(font, info_r.position + Vector2(4, 10), "%s: %s.%s" % [sel.name, desc,
 				" Resting." if wait_u.cds.get(mv[move_i], 0.0) > 0 else ""], HORIZONTAL_ALIGNMENT_LEFT, info_r.size.x - 8, 7, -1, INK)
 		"orders":
 			var ol := known_orders()
 			if ol.size() > 4:
+				var nav_y := _order_nav_y()
 				for button in [[12, "Previous"], [100, "Next"]]:
-					draw_rect(Rect2(button[0], 145, 80, 16), INK)
-					_text(button[1], Vector2(button[0] + 5, 156), 7, PAPER)
+					draw_rect(Rect2(button[0], nav_y, 80, 16), INK)
+					_text(button[1], Vector2(button[0] + 5, nav_y + 11), 7, PAPER)
 			for i in range((order_i / 4) * 4, mini(ol.size(), (order_i / 4) * 4 + 4)):
 				var r := _move_rect(i % 4)
 				var on := i == order_i
 				var o: Dictionary = ORDERS[ol[i]]
 				var short: bool = orders < int(o.cost)
 				draw_rect(r, INK if on else Color("e8dcc4"))
-				_text("%s (%d)" % [o.name, int(o.cost)], r.position + Vector2(5, 12), 8, (PAPER if on else INK) if not short else Color("9a8a7a"))
+				var order_base := 12.0 if r.size.y <= 16.0 else r.size.y * 0.5 + 3.0
+				_text("%s (%d)" % [o.name, int(o.cost)], r.position + Vector2(5, order_base), 8, (PAPER if on else INK) if not short else Color("9a8a7a"))
 			var so: Dictionary = ORDERS[ol[order_i]]
-			var oinfo := Rect2(208, 166, 164, 42)
+			var oinfo := _detail_rect()
 			draw_multiline_string(font, oinfo.position + Vector2(4, 10), "Page %d/%d. %s Orders ready: %d." % [order_i / 4 + 1, ceili(ol.size() / 4.0), so.text, int(orders)],
 				HORIZONTAL_ALIGNMENT_LEFT, oinfo.size.x - 8, 7, -1, INK)
 		"capture":
-			var prompt := "Press anywhere. This one comes with you." if sure_catch else "Press when the marker is in the green."
-			_text(prompt, Vector2(16, 178), 8, INK, 250)
-			var bar := Rect2(16, 188, 352, 12)
-			draw_rect(bar.grow(1), INK)
-			draw_rect(bar, Color("d8ccb4"))
-			var span := float(cap.get("wide", 0.2))
-			var z := float(cap.zone)
-			var x0 := bar.position.x + bar.size.x * clampf(z - span * 0.5, 0.0, 1.0)
-			var x1 := bar.position.x + bar.size.x * clampf(z + span * 0.5, 0.0, 1.0)
-			draw_rect(Rect2(x0, bar.position.y, maxf(1.0, x1 - x0), bar.size.y), Color("4aa84a"))
-			draw_rect(Rect2(bar.position.x + bar.size.x * cap.pos - 1, bar.position.y - 3, 3, bar.size.y + 6), INK)
-			_text("Lures left: %d" % int(bag.get("lures", 0)), Vector2(268, 178), 7, Color("6a5a4a"), 100, HORIZONTAL_ALIGNMENT_RIGHT)
+			_draw_capture_marker()
 		"results":
 			_box(Rect2(60, 30, 264, 124))
 			_text("Battle results", Vector2(60, 48), 10, INK, 264, HORIZONTAL_ALIGNMENT_CENTER)
@@ -1054,16 +1203,21 @@ func _draw() -> void:
 			var last := log_lines.slice(-2)
 			for i in last.size():
 				draw_multiline_string(font, Vector2(16, 180 + i * 14), last[i], HORIZONTAL_ALIGNMENT_LEFT, 352, 8, -1, INK if i == last.size() - 1 else Color("7a6a5a"))
-	# the grey fog that rolls in at the start and out at the end (soft; never a flash)
-	var fog := 0.0
-	if state == "fog_in": fog = 1.0 - state_t
-	elif state == "fog_out": fog = state_t
-	if fog > 0.0:
-		for k in 14:
-			var cx := fmod(k * 61.0 + t * 30.0, 440.0) - 28.0
-			var cy := fmod(k * 37.0, 230.0)
-			draw_circle(Vector2(cx, cy), 60.0 + 30.0 * fog, Color(0.72, 0.74, 0.76, clampf(fog, 0.0, 1.0) * 0.5))
-		draw_rect(Rect2(0, 0, 384, 216), Color(0.7, 0.72, 0.74, clampf(fog, 0.0, 1.0)))
+
+## The catch marker stays in the scene. It is the catch itself, not the command row.
+func _draw_capture_marker() -> void:
+	var prompt := "Press anywhere. This one comes with you." if sure_catch else "Press when the marker is in the green."
+	_text(prompt, Vector2(16, 178), 8, INK, 250)
+	var bar := Rect2(16, 188, 352, 12)
+	draw_rect(bar.grow(1), INK)
+	draw_rect(bar, Color("d8ccb4"))
+	var span := float(cap.get("wide", 0.2))
+	var z := float(cap.zone)
+	var x0 := bar.position.x + bar.size.x * clampf(z - span * 0.5, 0.0, 1.0)
+	var x1 := bar.position.x + bar.size.x * clampf(z + span * 0.5, 0.0, 1.0)
+	draw_rect(Rect2(x0, bar.position.y, maxf(1.0, x1 - x0), bar.size.y), Color("4aa84a"))
+	draw_rect(Rect2(bar.position.x + bar.size.x * cap.pos - 1, bar.position.y - 3, 3, bar.size.y + 6), INK)
+	_text("Lures left: %d" % int(bag.get("lures", 0)), Vector2(268, 178), 7, Color("6a5a4a"), 100, HORIZONTAL_ALIGNMENT_RIGHT)
 
 ## The joined form (the wild bond): you and your partner as one, you standing within its shape like living armour,
 ## a lamplight edge around you both and motes of colour rising. Larger than either of you alone.
@@ -1117,16 +1271,16 @@ func _info(u: Dictionary, r: Rect2, mine: bool) -> void:
 		draw_rect(xr, Color("d8ccb4"))
 		draw_rect(Rect2(xr.position, Vector2(xr.size.x * clampf(float(u.c.xp) / R.xp_need(u.c.lvl), 0.0, 1.0), xr.size.y)), Color("4a8ad8"))
 
-func _queue() -> void:
-	# who acts next: simulate the turn meters forward and list the next four turns
+## The next few turns, without touching the real turn meters. The field shows four. The upright strip asks for more, so a long order can wrap and end in +N.
+func upcoming(count := 4) -> Array:
 	var sim: Array = []
 	for u in allies + foes:
 		if u.c.hp > 0:
 			sim.append({ "u": u, "atb": u.atb, "rate": maxf(0.01, R.atb_rate(u)) })
-	if sim.is_empty():
-		return
 	var order: Array = []
-	for n in 4:
+	if sim.is_empty():
+		return order
+	for n in maxi(1, count):
 		var best: Dictionary = sim[0]
 		var best_t := INF
 		for s in sim:
@@ -1138,15 +1292,77 @@ func _queue() -> void:
 			s.atb += best_t * s.rate
 		best.atb = 0.0
 		order.append(best.u)
-	var x := 166.0
-	_text("Next:", Vector2(x, 15), 7, INK)
-	x += 26
+	return order
+
+func next_names(count := 4) -> PackedStringArray:
+	var labels := PackedStringArray()
+	for u in upcoming(count):
+		labels.append(str(u.c.name))
+	return labels
+
+func next_sides(count := 4) -> PackedStringArray:
+	var sides := PackedStringArray()
+	for u in upcoming(count):
+		sides.append(str(u.side))
+	return sides
+
+## A command that can be tapped but will not do the thing yet (no orders, no lure, a tamer blocking the way).
+func command_dim(i: int) -> bool:
+	return _dimmed(menu_word(i))
+
+## The upright deck's button. `i` is the command, the move, or the order.
+func deck_press(i: int) -> void:
+	match state:
+		"choose":
+			if i >= 0 and i < MENU.size():
+				menu_i = i
+				_choose(i)
+		"moves":
+			var mv: Array = R.moves_of(wait_u.c)
+			if i >= 0 and i < mv.size():
+				if i == move_i:
+					_use_move(mv[i])
+				else:
+					move_i = i
+		"orders":
+			var ol: Array = known_orders()
+			if i >= 0 and i < ol.size():
+				if i == order_i:
+					if use_order(ol[i]):
+						_go_to("choose")
+				else:
+					order_i = i
+		"capture":
+			_calm()
+		"beat":
+			state_t = beat_t
+		"results":
+			if state_t > 0.5:
+				_go_to("fog_out")
+
+func _queue() -> void:
+	var order := upcoming()
+	if order.is_empty():
+		return
+	var labels := PackedStringArray()
 	for u in order:
-		var nm: String = u.c.name
-		var w := font.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, 7).x + 8
-		draw_rect(Rect2(x, 7, w, 10), Color("2e5a8a") if u.side == "a" else Color("8a3a2e"))
-		_text(nm, Vector2(x + 4, 15), 7, PAPER)
-		x += w + 3
+		labels.append(str(u.c.name))
+	var chips: Dictionary = _chip_boxes(labels)
+	var chip_size: int = int(chips["font"])
+	var rects: Array = chips["rects"]
+	var shown: PackedStringArray = chips["labels"] if chips.has("labels") else labels
+	if _view_scale() >= 2.0:
+		_text("Next:", Vector2(166, 7.0 + chip_size + 1.0), chip_size, INK)
+	for i in rects.size():
+		var r: Rect2 = rects[i]
+		var lab := shown[i] if i < shown.size() else ""
+		var ally := i < order.size() and str(order[i].side) == "a" and not lab.begins_with("+")
+		var fill := Color("e6dcc6") if lab.begins_with("+") else (Color("435a78") if ally else Color("8e342c"))
+		var word := Color("1e1a22") if lab.begins_with("+") else Color("f4eddc")
+		draw_rect(r.grow(1), Color("1e1a22"))
+		draw_rect(r, fill)
+		var baseline := r.position.y + (r.size.y + float(chip_size)) * 0.5
+		_text(lab, Vector2(r.position.x + 8.0, baseline), chip_size, word, r.size.x - 16.0)
 
 # ---------------------------------------------------------------- bonding with a wild creature (calmNow)
 func _calm() -> void:

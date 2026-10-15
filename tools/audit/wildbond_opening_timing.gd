@@ -78,6 +78,20 @@ func touch(p: Vector2, down: bool) -> void:
 	Input.flush_buffered_events()
 	events += 1
 
+func _framed() -> bool:
+	return main.get("phone") != null and is_instance_valid(main.phone) and not main.phone.L.is_empty()
+
+## Game pixels sit inside the phone picture. The old touch pad is the whole window.
+func _into_view(game_p: Vector2) -> Vector2:
+	if not _framed():
+		return game_p
+	var view: Rect2 = main.phone.L["view"]
+	var k := float(main.phone.L.get("k", 1))
+	return view.position + game_p * k
+
+func tap_game(p: Vector2) -> void:
+	await tap(_into_view(p))
+
 func tap(p: Vector2) -> void:
 	# Real desktop cursor positioning is necessary for menu get_local_mouse_position.
 	# This is X11-injected touch, not a physical mobile/browser test.
@@ -98,6 +112,15 @@ func press(code: int = KEY_ENTER) -> void:
 func interact() -> void:
 	if method == "touch":
 		await tick(2)  # _thumbs_tick refreshes the context button after arrival.
+		if _framed():
+			# One reading already happened. Further presses only turn strip pages.
+			for guard in 6:
+				var before: int = main.lines.size()
+				var page := int(main.talk_page)
+				await tap(main.phone.L["a"])
+				if main.lines.is_empty() or main.lines.size() != before or int(main.talk_page) == page:
+					break
+			return
 		await tap(main.touch.BTN)
 	else: await press()
 
@@ -128,12 +151,22 @@ func move_to(goal: Vector2i, one_step := false) -> bool:
 		var direction: Vector2i = path[0] - main.me.tile
 		var code: int = KEY_RIGHT if direction.x > 0 else KEY_LEFT if direction.x < 0 else KEY_DOWN if direction.y > 0 else KEY_UP
 		var before: Vector2i = main.me.tile
-		if method == "touch": touch(main.touch.PAD + Vector2(direction) * main.touch.ARM, true)
+		if method == "touch":
+			var at: Vector2 = main.touch.PAD + Vector2(direction) * main.touch.ARM
+			if _framed():
+				var dpad: Rect2 = main.phone.L["dpad"]
+				at = dpad.get_center() + Vector2(direction) * (dpad.size.x * 0.35)
+			touch(at, true)
 		else: key(code, true)
 		for i in 60:
 			await tick()
 			if not main.me.path.is_empty() or main.me.tile != before: break
-		if method == "touch": touch(main.touch.PAD + Vector2(direction) * main.touch.ARM, false)
+		if method == "touch":
+			var at: Vector2 = main.touch.PAD + Vector2(direction) * main.touch.ARM
+			if _framed():
+				var dpad: Rect2 = main.phone.L["dpad"]
+				at = dpad.get_center() + Vector2(direction) * (dpad.size.x * 0.35)
+			touch(at, false)
 		else: key(code, false)
 		await tick()
 		while not main.me.path.is_empty() and not main.battle.visible and main.lines.is_empty(): await tick()
@@ -151,7 +184,7 @@ func run() -> void:
 	await capture("howto")
 	await read_for(12.0)
 	while main.howto.t <= 0.3: await tick()  # Respect the existing opening-press grace period.
-	if method == "touch": await tap(Vector2(190, 100))
+	if method == "touch": await tap_game(Vector2(190, 100))
 	else: await press()
 	var loops := 0
 	while main.team.is_empty() and loops < 100:
@@ -159,7 +192,7 @@ func run() -> void:
 		if main.register.visible:
 			await capture("register")
 			await read_for(30.0)
-			if method == "touch": await tap(Vector2(270, 173))
+			if method == "touch": await tap_game(Vector2(270, 173))
 			else:
 				for i in 9: await press(KEY_DOWN)
 				await press()
@@ -211,10 +244,12 @@ func run() -> void:
 				failures.append("Meeting opened a different starter")
 				break
 			await capture("partner-card")
-			# Exercise safe decline and reopen without acquiring a partner.
+			# Not yet must close the page without taking a partner. Back picks that last
+			# choice whether the page opens on Not yet (the older build) or on Choose.
+			# Touch hits the button the page actually drew, not a frozen pixel.
 			await read_for(2.0)
-			if method == "touch": await tap(Vector2(312, 190))
-			else: await press()
+			if method == "touch": await tap_game(main.card._btn(1).get_center())
+			else: await press(KEY_BACKSPACE)
 			if not main.team.is_empty() or main.card.visible:
 				failures.append("Not yet did not decline safely")
 				break
@@ -223,12 +258,13 @@ func run() -> void:
 			if not main.card.visible:
 				failures.append("Card did not reopen through input")
 				break
-			if main.card.sel != 1: failures.append("Card lost safe Not yet default")
 			await read_for(12.0)
-			if method == "touch": await tap(Vector2(230, 190))
+			if method == "touch": await tap_game(main.card._btn(0).get_center())
 			else:
-				await press(KEY_LEFT)
-				await pause(1.0)
+				# The older page opens on Not yet, so step onto Choose. This page already highlights it.
+				if main.card.sel != 0:
+					await press(KEY_LEFT)
+					await pause(1.0)
 				await press()
 		else: await pause(0.5)
 	if main.team.is_empty(): failures.append("No partner acquired")
@@ -259,7 +295,7 @@ func run() -> void:
 		root.size = normal_size
 		await tick(6)
 	await complete_funnel()
-	var report := {"source_sha": OS.get_environment("SOURCE_SHA"), "main_sha256": FileAccess.get_sha256("res://scripts/main.gd"), "engine": Engine.get_version_info().string, "method": method, "display": DisplayServer.get_name(), "rendered": rendered, "window_size": [root.size.x, root.size.y], "protocol": "60Hz simulated elapsed time; wandering seed 20261013; redraw paused only during simulated reading budgets (all game frames still advance); how-to 12s; dialogue 180wpm + 0.75s each; character creator 30s; Not yet/reopen 2s; first partner card 12s; keyboard deliberate selection 1s; optimal read-only route navigation via actual keyboard/touch-pad inputs. Fresh New Game starts directly without saved-title menu. Continues via barn exit and Wren, first rival battle, north road to Thornwood Trail, grass patrol at (18,12)-(20,12), Bond at full health with precise timing. Battle seed 20261014; ready highest-value attacks in trainer battles; results read 2s; no battle pace override. OPENING_RAPID=1 replaces reading budgets by two frames. No novice guarantee or physical mobile claim.", "rapid": rapid, "partner_control_seconds": partner_control_seconds, "first_battle_seconds": first_battle_seconds, "first_catch_seconds": first_catch_seconds, "catch_attempts": catch_attempts, "catch_joined_team": main.team.size() > 1, "starter_index": starter_index, "partner_id": main.partner.id if main.partner else "", "first_partner_seconds": first_partner_seconds, "elapsed_seconds": frames / 60.0, "input_events": events, "partner_acquired": not main.team.is_empty(), "milestones": milestones, "transcript": transcript, "failures": failures}
+	var report := {"source_sha": OS.get_environment("SOURCE_SHA"), "main_sha256": FileAccess.get_sha256("res://scripts/main.gd"), "engine": Engine.get_version_info().string, "method": method, "display": DisplayServer.get_name(), "rendered": rendered, "window_size": [root.size.x, root.size.y], "protocol": "60Hz simulated elapsed time; wandering seed 20261013; redraw paused only during simulated reading budgets (all game frames still advance); how-to 12s; dialogue 180wpm + 0.75s each; character creator 30s; Not yet/reopen 2s; first partner card 12s; Back declines, then Choose is confirmed (1s only when the highlight must move); optimal read-only route navigation via actual keyboard/touch-pad inputs. Fresh New Game starts directly without saved-title menu. Continues via barn exit and Wren, first rival battle, north road to Thornwood Trail, grass patrol at (18,12)-(20,12), Bond at full health with precise timing. Battle seed 20261014; ready highest-value attacks in trainer battles; results read 2s; no battle pace override. OPENING_RAPID=1 replaces reading budgets by two frames. No novice guarantee or physical mobile claim.", "rapid": rapid, "partner_control_seconds": partner_control_seconds, "first_battle_seconds": first_battle_seconds, "first_catch_seconds": first_catch_seconds, "catch_attempts": catch_attempts, "catch_joined_team": main.team.size() > 1, "starter_index": starter_index, "partner_id": main.partner.id if main.partner else "", "first_partner_seconds": first_partner_seconds, "elapsed_seconds": frames / 60.0, "input_events": events, "partner_acquired": not main.team.is_empty(), "milestones": milestones, "transcript": transcript, "failures": failures}
 	var f := FileAccess.open(folder + "/report.json", FileAccess.WRITE)
 	f.store_string(JSON.stringify(report, "\t"))
 	print("OPENING_RESULT ", JSON.stringify(report))
@@ -283,9 +319,9 @@ func select_grid(target: int, property: String, columns: int, rect_method: Strin
 	var bt: Control = main.battle
 	if method == "touch":
 		var rect: Rect2 = bt.call(rect_method, target)
-		await tap(rect.get_center())
+		await tap_game(rect.get_center())
 		# Move selection is a preview; a second tap confirms the selected move.
-		if property == "move_i" and bt.state == "moves": await tap(rect.get_center())
+		if property == "move_i" and bt.state == "moves": await tap_game(rect.get_center())
 	else:
 		for attempt in 12:
 			var selected: int = bt.get(property)
@@ -300,7 +336,7 @@ func select_grid(target: int, property: String, columns: int, rect_method: Strin
 		await press()
 
 func battle_input() -> void:
-	if method == "touch": await tap(Vector2(192, 110))
+	if method == "touch": await tap_game(Vector2(192, 110))
 	else: await press()
 
 func finish_battle() -> void:

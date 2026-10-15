@@ -5,6 +5,7 @@ extends Control
 ## (the book, battles, shops) is tapped directly, so the pad only shows while you walk and talk.
 ## Shown on touch screens, or always, or never (the Settings page, settings.gd "Phone buttons").
 
+const HowTo := preload("res://scripts/howto.gd")
 const PAD := Vector2(80, 184)                  # between Larkhaven's lower doors; full hit circle stays on screen
 const PAD_R := 32.0                            # how far from the middle a thumb still counts
 const ARM := 12.0
@@ -21,7 +22,16 @@ var held := ""                                 # the walking action held down ri
 var pad_finger := -1
 var btn_finger := -1
 var btn_t := 0.0                               # the button's press flash
+var inset_left := 0.0                          # a sideways notch: the pad moves in from the left
+var inset_right := 0.0                         # and the button moves in from the right
+var _was_wanted := false
 var font: Font
+
+func pad_at() -> Vector2:
+	return PAD + Vector2(inset_left, 0)
+
+func btn_at() -> Vector2:
+	return BTN + Vector2(inset_left - inset_right, 0)
 
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
@@ -37,17 +47,23 @@ func _process(dt: float) -> void:
 
 ## main.gd calls this each frame after saying what's possible: show or hide, and let go when the pad goes away.
 func refresh() -> void:
-	Controls.touch = wanted()
-	visible = wanted() and (pad_on or btn_on)
+	var show := wanted()
+	Controls.touch = show
+	if show and not _was_wanted:
+		HowTo.note("touch")
+	elif not show and HowTo.last_kind == "touch" and not HowTo.touch_device():
+		HowTo.note("")
+	_was_wanted = show
+	visible = show and (pad_on or btn_on)
 	if not (visible and pad_on) and held != "":
 		_aim(PAD)                              # the pad went away (a battle, a door): let go
 		pad_finger = -1
 
 func _on_pad(p: Vector2) -> bool:
-	return visible and pad_on and p.distance_to(PAD) <= PAD_R
+	return visible and pad_on and p.distance_to(pad_at()) <= PAD_R
 
 func _on_btn(p: Vector2) -> bool:
-	return visible and btn_on and p.distance_to(BTN) <= BTN_R
+	return visible and btn_on and p.distance_to(btn_at()) <= BTN_R
 
 func _input(e: InputEvent) -> void:
 	if e is InputEventScreenTouch:
@@ -81,7 +97,7 @@ func _finger(i: int, p: Vector2, down: bool) -> void:
 	else:
 		if i == pad_finger:
 			pad_finger = -1
-			_aim(PAD)
+			_aim(pad_at())
 			get_viewport().set_input_as_handled()
 		if i == btn_finger:
 			btn_finger = -1
@@ -97,7 +113,7 @@ func press(action: String) -> void:
 
 ## Points the walk the way the thumb leans from the pad's middle (none when it's right in the middle).
 func _aim(p: Vector2) -> void:
-	var v := p - PAD
+	var v := p - pad_at()
 	var want := ""
 	if v.length() >= 5.0:
 		if absf(v.x) > absf(v.y):
@@ -114,16 +130,18 @@ func _aim(p: Vector2) -> void:
 
 func _draw() -> void:
 	if pad_on:
-		draw_circle(PAD, PAD_R - 4, Color(0.05, 0.05, 0.07, 0.35))
+		var at := pad_at()
+		draw_circle(at, PAD_R - 4, Color(0.05, 0.05, 0.07, 0.35))
 		for a in Controls.DIRS:
 			var d: Vector2 = Vector2(Controls.DIRS[a])
-			var c := PAD + d * ARM
+			var c := at + d * ARM
 			var lit: bool = held == a
 			draw_rect(Rect2(c - Vector2(7, 7), Vector2(14, 14)), Color(0.96, 0.92, 0.8, 0.85 if lit else 0.45))
 			var side := Vector2(-d.y, d.x)       # a small arrow pointing outwards
 			draw_colored_polygon(PackedVector2Array([c + d * 4, c - d * 2 + side * 4, c - d * 2 - side * 4]),
 				Color(0.24, 0.17, 0.12, 0.95 if lit else 0.7))
 	if btn_on:
-		draw_circle(BTN, BTN_R - 2, Color(0.96, 0.92, 0.8, 0.85 if btn_t > 0.0 else 0.55))
-		draw_arc(BTN, BTN_R - 2, 0, TAU, 32, Color(0.24, 0.17, 0.12, 0.8), 1.0)
-		draw_string(font, BTN + Vector2(-BTN_R, 3), word, HORIZONTAL_ALIGNMENT_CENTER, BTN_R * 2, 8, Color(0.24, 0.17, 0.12))
+		var at := btn_at()
+		draw_circle(at, BTN_R - 2, Color(0.96, 0.92, 0.8, 0.85 if btn_t > 0.0 else 0.55))
+		draw_arc(at, BTN_R - 2, 0, TAU, 32, Color(0.24, 0.17, 0.12, 0.8), 1.0)
+		draw_string(font, at + Vector2(-BTN_R, 3), word, HORIZONTAL_ALIGNMENT_CENTER, BTN_R * 2, 8, Color(0.24, 0.17, 0.12))
