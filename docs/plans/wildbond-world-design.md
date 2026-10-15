@@ -1,0 +1,514 @@
+# Wildbond world design
+
+Status: design plan only. Written 2026-10-15 from current `main` (`5764d95a`). This pull request adds this file and nothing else. It does not change the game, the save format, the web pack, or the export.
+
+Evan, 2026-10-14: "I want this game to be much more woven together and more interesting than a linear map and a one dimensional story. I want the world to be beautiful and interesting and I want players to want to explore and for different stories to be told throughout it and have it truly do Pokemon justice as a passion project based on it."
+
+The shape below follows the skeleton in [PR #452](https://github.com/ecbarish/generations/pull/452) (`docs/research/wildbond-world-references.md` on `research/wildbond-world-references`): Stillreed Basin as the hub, 20 routes, 10 towns, 7 caves, 3 water routes, 3 loops, one one-way shortcut, four travel abilities plus one for each remaining element, a side story in every town, guardians at the high places, and a phased build. Every placeholder name from that skeleton is replaced here with a name that fits the valley we already have. Nothing in this plan uses another game's names, maps, or pictures. The techniques are ours to use. The places are ours.
+
+This is a plan for later pull requests, one feature area each. It is not yet canon. New people, the proposed roamer, and any new save field wait for Evan's yes, named in the phase that needs them. Clues stay inside the ledger in `docs/lore/wildbond-threads.md`. The decided account of the fading is not restated early, and it is not replaced.
+
+## Where the valley is today
+
+`wildbond-godot/data/wildbond.json` has 15 maps. `BUILT` in `wildbond-godot/scripts/main.gd` (line 146) is that same list. They form one path:
+
+| Step | Map id | Name on the sign | How you leave |
+|---|---|---|---|
+| 1 | `larkhaven` | Larkhaven | North to the trail |
+| 2 | `thornwood_route` | Thornwood Trail | North to Thornwood; east, Stone only, into the grove |
+| 3 | `thornwood` | Thornwood | North, Thorn Badge, onto Saltmarsh Road |
+| 4 | `saltmarsh_route` | Saltmarsh Road | North to the coast; west, Tide only, down to the pool |
+| 5 | `saltmarsh` | Saltmarsh Coast | East, Tide Badge, into the highlands |
+| 6 | `emberfall` | Emberfall Highlands | North, Ember Badge, onto the pass |
+| 7 | `cloudglass` | Cloudglass Pass | East, Beacon Badge, into the basin |
+| 8 | `stillreed` | Stillreed Basin | East, Reed Badge, into the hills |
+| 9 | `hollowecho` | Hollowecho Hills | East, Echo Badge, into the commons |
+| 10 | `sunthread` | Sunthread Commons | East, Loom Badge, toward the reach |
+| 11 | `farwatch` | Farwatch Reach | North, all eight badges, to the league |
+| 12 | `league` | Returning Light League | West, after the Champion ending, to the Spire |
+| 13 | `spire` | The Lighthouse Spire | East, back to the league |
+| pocket | `thornwood_grove` | Old Root Grove | West, back to the trail. Nowhere else |
+| pocket | `saltmarsh_pool` | Moon Pool | Back to Saltmarsh Road. Nowhere else |
+
+Checked against `MAPS` exits in `wildbond.json`. No exit points at a map that does not continue this line, except the two pockets. There is no loop.
+
+The only element gates are those two pockets. `main.gd` lines 709–710 block an exit that has `requiresElement` unless `_team_has_element` (lines 730–734) finds that element on the walking team. Thornwood Trail's east exit requires Stone. Saltmarsh Road's west exit requires Tide. Both destinations have a single exit home. Tests lock this: `wildbond-godot/tests/run_tests.gd` lines 859–860 and 986 for the grove, lines 1066–1067 for the pool. A Stone or Tide partner opens a dead end. Nothing you learn later opens a way through.
+
+Hollowecho's caves are paint. `main.gd` lines 2244–2245 say the flagstones run under the rock "so you can see they go somewhere (no interior yet)." Lines 2254–2258 darken that tile. The comment at line 2261 says the tool roll, the survey cord, and the resting stones block nothing. The reveal stands on either side of the mouth at tile (19, 8) (`REVEAL_SPOT`, `main.gd` line 4735). Walking into the dark does not change maps.
+
+Rooms exist only in Larkhaven. `INTERIORS` (`main.gd` lines 493–568) is the inn, Juniper's shop, Pip's home, and Nora's cottage. `DOORS` (line 27) places them on Larkhaven tiles. `_check_doors` (lines 698–699) sends every other room back to Larkhaven. Later regions have people and, in three cases, a building drawn on the ground: the bell house (`main.gd` line 1876), Sunthread's meeting hall (line 1878), and the league courts. None of those is a door. Farwatch's lore already says the islands past the pier are scenery and that water is solid (`docs/lore/wildbond.md`, the Farwatch section). Stillreed's skiff is drawn moored (`main.gd` lines 1708–1709) and its tile `j` is solid in `TILES`.
+
+Water never carries you. Tile `~` is `solid: 1` in `TILES`. `solid()` (`main.gd` lines 472–477) trusts that flag. Ponds, the basin channels, and the sea are walls.
+
+Nothing teaches a creature a move except its level-up list. `rules.gd` `learned_moves` (lines 180–185) returns moves on `SPECIES.learn` at or below the creature's level. Maren's workbench (`move_lessons.gd`) lets you bring four of those. The satchel starts as lures, coins, and berries (`main.gd` line 104). Loading a save forces every bag value through `int()` (lines 3722–3723), so the bag cannot hold a list. `TEACHERS` (`main.gd` lines 3452–3464) teaches the tamer an order (Shelter, Rain Call, Tailwind, and the rest) into `taught` (line 3466) after a badge. Those are battle orders. They are not field travel, and they are not creature moves.
+
+The journey's goal goes quiet after the first badge. `next_objective` (`main.gd` lines 4573–4599) fills the banner from `objective.gd` through the barn, the first catch, and "Find Thornwood's Warden." Once the Thorn Badge is in hand, the free-walk branch returns an empty string (line 4597). Maren's letters still arrive every 220 steps (`LETTER_STEPS`, line 3424) and end with `where_next()` (lines 3419–3420). `WHERE_NEXT` (lines 3412–3417) has five sentences. From the fifth badge on, every letter says the road toward Stillreed is not safe to travel yet, including for a tamer who is already past it. The Thornwood sentence says the coast is down a south road. The exit that actually opens is Thornwood's north exit.
+
+`explored` counts grass visits per area (`main.gd` line 3814). It is not a list of towns. Fast travel has nowhere to read.
+
+Level caps by badges already in hand are `CAP_TABLE`: 15, 25, 35, 45, 55, 60, 65, 70, 75, then 100 after the league (`LEVEL_CAP`). Bond steps are Wary 0, Friendly 20, Loyal 60, Devoted 140, Bonded 280 (`rules.gd` line 27). Field lessons below stay inside the cap you have when the story offers them.
+
+Saves are version 2 (`SAVE_V`, `main.gd` line 3585). The file stores map id, tile, team, ranch, bag, badges, `story`, `taught`, letters, and the rest (lines 3576–3581). A missing key already has a default on load. A version newer than 2 is refused.
+
+## Hard rules for every later phase
+
+1. The 15 map ids above keep working. A save standing on one of them still loads there. New places get new ids. A tile that becomes solid nudges the tamer to the nearest open tile in front of a door, the same idea as `_off_new_homes` (`main.gd` lines 582–589).
+2. A badge gate stays on the road it guards. A field ability, a cave, or a tunnel never puts you on the far side of a badge you have not earned. You are allowed to see the shut rope from the near side.
+3. Tile `~` stays solid. Rideable water is a new tile, used only on the three water routes, and only after Tide Ride is learned. Ponds, the skiff, and today's tests keep their meaning.
+4. The reveal mouth at Hollowecho (19, 8) stays scenery until `depthReturns` is in `story`. The first real cave is a different mouth.
+5. Colour returning on the Thorn Badge stays where it is. This plan does not move that scene, the reveal, or the league.
+6. Field travel is the partner at the obstacle, on the action key you already use to talk. It is not a battle move, and it does not spend one of the four workbench slots. Glide's list of inns opens over the world, the way the field book does, and closes back to the same tile.
+7. The banner is the main road only. Side errands never replace it.
+8. Orders in `TEACHERS` stay orders. Lesson slips teach creature moves. The two lists do not merge.
+9. Outdoor maps are authored in `games/wildbond/js/11-maps.js` (`MAPS` begins at line 44) and copied into `wildbond-godot/data/wildbond.json` by `tools/godot-export.ps1`. A hand edit to the json is wiped by the next copy. Rooms, door handling, and field abilities live in the Godot game, beside `INTERIORS`, because a fresh copy of the outdoor map must not delete them.
+10. Any new persisted field needs Evan's yes before that phase writes it. Prefer a key inside the existing `story` dictionary, which old saves already load. Do not bump `SAVE_V` unless an old file must be rewritten.
+11. Our own words, creatures, and pictures. Game Art Director signs each phase's pictures before they replace the painter. The brief in section 5 is the ask, not the art.
+12. No new way for the game to walk itself.
+
+On 2026-10-14, Wildbond & Starfall Dev Lead claimed a fix bundle on the Godot game and the web pack (COMMS, that date). WB-WORLD-1 waits until that claim is merged or its owner agrees the files are free. This design does not touch those files.
+
+## Names that replace the skeleton's placeholders
+
+| In the reference skeleton | In this plan | Why this name |
+|---|---|---|
+| Meadow Track | Millgrass Lane | The west lane out of Larkhaven, toward a burrow you cannot open yet |
+| Briar Path | Rootwater Path | Bram already says the stream floods and the mushrooms grow where it stops |
+| Bramble Hollow cave | Knothollow | A hollow under the roots, not a second grove |
+| Dune Walk | Wrackline | The tide line of weed and shells, where Cato already walks |
+| a fishing hamlet | Lantern Quay | The lighthouse is already the coast's landmark |
+| Saltmarsh Sound | Greywash Sound | Rideable water, grey until the colour is back, and still honest after |
+| Tidegrotto | Keelcave | A sea cave a keel could scrape, not a shrine |
+| Kiln Road | Ashstair | The climb off the coast toward the warm springs |
+| Ashfall Climb | Sootpath | The path past the vent toward the pass |
+| Emberfall Vent | Kilnvent | Toren's kiln country, and the first dark that wants a light |
+| Glass Steps | Glassfall | One way, down, once a Gale partner will carry you |
+| the walk the pass uses today | Pass Foot | The slow way down, which stays after Glassfall exists |
+| Summit Trail | Crest Path | Up from Highlatch to the summit |
+| a mountain lodge | Highlatch | Vessa's shelter and Ilka's ropes become a place you can go inside |
+| Cloudglass Peak | Lampcrown | The high rock under Lanterncrest's sky. Lanterncrest already exists; this is not a new creature |
+| Reed Causeway | The Long Boards | The basin already crosses water on boards |
+| Fen Path | Orchard Fen | Evren's orchard is already the raised ground |
+| a dry shortcut under the hub | The Dry Boards | A passage, not an eighth cave |
+| Stillreed Lake | The Quiet Channels | The channels you can ride after Tide Ride |
+| Sunken Shrine | Lowbell | A bell under the water. The hills already hear answers a beat late |
+| the central town | Reedhold | Olan's landing, grown into the hub town |
+| Echo Ridge | The Late Path | Senna's country, where echoes answer late |
+| Quarry Track | Flintcut | Flintroot already clears loose stone here |
+| Hollow Echo Caverns | The Answering Ways | The first cave you can enter. Undertone already carries a call through stone |
+| the hamlet | Bellstep | Veslin's bell, as a town you can walk into |
+| Loom Road | Ribbon Road | Ribbonstride already brings ribbons back to their posts |
+| Market Lane | Shelter Mile | The commons are shelter ties, not a second shop street |
+| the commons town | Threadmeet | The meeting hall that is already drawn |
+| Old Mill | Greymill | A side door off Threadmeet. The harvest hum stays unanswered |
+| Watch Road | Chart Road | Delka already writes where a plan changed |
+| Cliff Walk | Seaward Ledge | Down to the pier the lore already describes |
+| Farwatch Sea | The Open Grey | The third water route |
+| Far Isle | Outer Shoal | The islands Farwatch's lore already points at and does not let you reach |
+| the lookout town | The High Watch | The ledger house and the lookout |
+| Victory Climb | Trial Road | The last road before the league |
+| Victory Cave | Trialstair | The last cave, using every field lesson |
+| Larkhaven Burrow | Larkburrow | Home, the long way under the ground, late |
+
+Thornwood Trail, Thornwood, Old Root Grove, Saltmarsh Road, Saltmarsh Coast, Moon Pool, Emberfall Highlands, Cloudglass Pass, Stillreed Basin, Hollowecho Hills, Sunthread Commons, Farwatch Reach, the Returning Light League, and the Lighthouse Spire keep their names.
+
+## 1. Field abilities
+
+Seven elements, seven lessons. Stone Break, Tide Ride, Lantern, and Glide are the four that change how you cross the map. Grove Wake, Hush, and Daymark reopen layers inside places you already reached. Each one is learned from a person, after the badge that makes that person trust you, and only when the partner beside you is ready by level or by bond. The partner has to be on the walking team. A partner resting at the ranch does not open the way.
+
+Today's Stone and Tide checks stay as the first look. Any Stone partner may still enter Old Root Grove. Any Tide partner may still enter Moon Pool. The tests that say so stay true until a phase deliberately updates them. The earned lesson is a later `story` key, `field:stone` and `field:tide`, set when the person finishes teaching. Cracks, water routes, and through-paths read that key. The early pockets do not.
+
+You walk into the obstacle and press the action key. If the partner can do it, they step forward and the way opens. If they cannot, the person or the sign says what is missing, in the world's words. There is no field menu on the walking view.
+
+| Lesson | Element | Who teaches it | Ready when | What it reopens |
+|---|---|---|---|---|
+| Stone Break | Stone | Isolde, after the Thorn Badge | A Stone partner at level 12 or better, or Friendly (bond at least 20). The cap after one badge is 25, so 12 is reachable and not free | Knothollow's deep cracks. The rockfall on Orchard Fen that returns to Sootpath, and only after the Reed Badge as well. Larkburrow's through-path, and only after the Loom Badge as well. Side cracks inside the Answering Ways |
+| Tide Ride | Tide | Nerys, after the Tide Badge, walking you to the water | A Tide partner at level 18 or better, or Friendly. The cap after two badges is 35 | Moon Pool's far lip, so the pool joins Greywash Sound and stops being a dead end. Greywash Sound, The Quiet Channels, The Open Grey. Lowbell's flooded floor |
+| Grove Wake | Grove | The grove itself, at the antler sign in Old Root Grove | A Grove partner at Loyal (bond at least 60). Bond, not level: this place is about trust. The sign text already mentions an antler (`run_tests.gd` line 988) | Thickets on Thornwood Trail and Rootwater Path that hide a bend and a patch of berries, not a new region. The back ring of Old Root Grove, which then opens into Knothollow. The nursery gate on the edge of Threadmeet, beside Meadowmantle's ground |
+| Lantern | Ember | Toren, after the Ember Badge, at the Warmstep spring-house | Stay the night there with an Ember partner who is Loyal (bond at least 60). The night is the story. Loyal is the bond. Cap after three badges is 45 | Past the first room of Kilnvent. Past the first lit hall of the Answering Ways. The unlit flights of Trialstair |
+| Glide | Gale | Vessa, after the Beacon Badge, once you have helped Ilka retie a rope on the pass | A Gale partner at level 36 or better, or Loyal. Cap after four badges is 55 | Glassfall, one way down from Highlatch to Reedhold. Fast travel to any inn you have walked into |
+| Hush | Shade | Senna, after the Echo Badge | You stand still at a cave mouth until the Shade partner moves first. No level | Doors in the Answering Ways that look like wall. Greymill's stuck door. A night path on The Late Path, with a carving you can read afterward |
+| Daymark | Radiant | Halen, after the Loom Badge, at a shelter tie | A Radiant partner at level 64 or better, or Devoted (bond at least 140). Cap after seven badges is 70 | Faded carvings in towns you have already visited. The last stair of Lampcrown. The outdoor stone on the Spire approach. Daymark is not required for Glide. Glide is earned at the pass, long before the Loom Badge |
+
+Glide's list is the inns whose doors you have entered. The first entry sets `story` key `inn:<map id>`. Old saves have no such keys, so they glide nowhere until they walk into an inn again, including Ned's inn if they have been to Larkhaven. That is the right kind of revisit. Glide never offers a cave, a water route, the league, or the Spire. The league and the Spire stay walks.
+
+Glassfall refuses the climb back up. The way back to Highlatch is Pass Foot. A partner who has learned Glide can still only take Glassfall downward.
+
+Fishing, small and physical: after Tobin has spoken to you, a marked pier on Wrackline and another on Seaward Ledge will answer the action key when a Tide partner is with you. One meeting comes out of that map's wild table, the same as tall grass. It does not need Tide Ride. Riding water and casting a line are different lessons. It adds no save field. Tobin's line about the tide going out too far stays his line. The cast does not explain it.
+
+## 2. The connected map
+
+Twenty routes, ten towns, seven caves, three water routes, three loops, and Glassfall as the one-way shortcut. Towns are the places with a healer indoors. Routes are the walks between them. The current region screens become the towns and landings, with new route maps inserted on their outward exits. A save already standing in Emberfall still loads in Emberfall. A save standing on Saltmarsh's east edge next walks onto Ashstair instead of appearing in the highlands.
+
+### The picture
+
+```mermaid
+flowchart TB
+  LH[Larkhaven] --> TT[Thornwood Trail]
+  LH --> MG[Millgrass Lane]
+  MG --> LB[Larkburrow]
+  TT --> DC[Dewcut]
+  DC --> ORG[Old Root Grove]
+  TT --> TW[Thornwood]
+  TW --> RW[Rootwater Path]
+  RW --> KH[Knothollow]
+  ORG -->|Grove Wake| KH
+  TW --> SR[Saltmarsh Road]
+  SR --> MP[Moon Pool]
+  SR --> SC[Saltmarsh Coast]
+  SC --> WL[Wrackline]
+  WL --> LQ[Lantern Quay]
+  MP -->|Tide Ride| GS[Greywash Sound]
+  LQ --> GS
+  SC --> AS[Ashstair]
+  AS --> WS[Warmstep]
+  WS --> SP[Sootpath]
+  SP --> KV[Kilnvent]
+  SP --> HL[Highlatch]
+  HL --> CP[Crest Path]
+  CP --> LC[Lampcrown]
+  HL -->|Glassfall one way| RH[Reedhold]
+  HL --> PF[Pass Foot]
+  PF --> RH
+  RH --> DB[The Dry Boards]
+  DB --> PF
+  RH --> LBo[The Long Boards]
+  RH --> LP[The Late Path]
+  RH --> OF[Orchard Fen]
+  OF -->|Stone Break and Reed Badge| SP
+  OF --> MEET[Threadmeet]
+  LP --> BS[Bellstep]
+  BS --> FC[Flintcut]
+  FC --> AW[The Answering Ways]
+  BS --> RR[Ribbon Road]
+  RR --> MEET
+  LB -->|Stone Break and Loom Badge| MEET
+  MEET --> SM[Shelter Mile]
+  SM --> HW[The High Watch]
+  HW --> CR[Chart Road]
+  CR --> HW
+  HW --> SL[Seaward Ledge]
+  SL --> OG[The Open Grey]
+  GS --> OG
+  OG --> OS[Outer Shoal]
+  HW --> TR[Trial Road]
+  TR --> TS[Trialstair]
+  TS --> LG[Returning Light League]
+  LG --> SPI[The Lighthouse Spire]
+  RH --> QC[The Quiet Channels]
+  QC --> LO[Lowbell]
+```
+
+```text
+Larkhaven -- Thornwood Trail -- Thornwood -- Saltmarsh Road -- Saltmarsh Coast
+    |              |                |                                |          \
+ Millgrass       Dewcut         Rootwater                      Wrackline    Ashstair
+    |              |                |                                |          |
+ Larkburrow    Old Root Grove   Knothollow                     Lantern Quay  Warmstep
+    |              \               /                                |          |
+    |               +-- Grove Wake                                  |       Sootpath -- Kilnvent
+    |                                                               |          |
+    +-- late, into Threadmeet                                  Greywash    Highlatch
+                                                                    \       /   |    \
+                                                                     \     / Glassfall  Crest Path
+                                                                      \   /   (down)        |
+                                                                   The Open Grey      Lampcrown
+                                                                        |                 Pass Foot
+                                                                    Outer Shoal              |
+                                                                        |                Reedhold
+                                                                        |               /   |   \
+                                                                        |     Long Boards  |  Orchard Fen -- back to Sootpath
+                                                                        |          |    Late Path        |
+                                                                        |     Dry Boards   |         Threadmeet
+                                                                        |          |    Bellstep           |
+                                                                        |          +-- Flintcut        Shelter Mile
+                                                                        |               |                 |
+                                                                        |        Answering Ways      The High Watch
+                                                                        |               |              /    |     \
+                                                                        +-- Seaward Ledge        Chart  Trial Road  (water above)
+                                                                                                    |         |
+                                                                                               Trialstair   League -- Spire
+                                                                        Reedhold also rides The Quiet Channels down to Lowbell
+```
+
+### Routes (20)
+
+| # | Id | Name | Joins |
+|---|---|---|---|
+| 1 | `thornwood_route` | Thornwood Trail | Larkhaven to Thornwood. Exists. Dewcut branches off it. The grove's east exit stays here until Dewcut is in, then the shelf is Dewcut's door and the trail's east exit remains as a sign pointing at Dewcut, so old steps still find it |
+| 2 | `millgrass` | Millgrass Lane | Larkhaven west to the Larkburrow mouth. The mouth is visible from the first visit |
+| 3 | `dewcut` | Dewcut | A short meadow off the trail to the Old Root Grove shelf |
+| 4 | `rootwater` | Rootwater Path | Thornwood to Knothollow |
+| 5 | `saltmarsh_route` | Saltmarsh Road | Thornwood to Saltmarsh Coast. Exists. Moon Pool stays on its west side |
+| 6 | `wrackline` | Wrackline | Saltmarsh Coast to Lantern Quay, with the early pier |
+| 7 | `ashstair` | Ashstair | Saltmarsh Coast to Warmstep. Replaces the direct east hop into Emberfall |
+| 8 | `sootpath` | Sootpath | Warmstep to Highlatch, past the Kilnvent mouth |
+| 9 | `passfoot` | Pass Foot | Highlatch down to Reedhold, both ways. Replaces Cloudglass's direct east hop |
+| 10 | `glassfall` | Glassfall | Highlatch to Reedhold, down only, after Glide |
+| 11 | `crestpath` | Crest Path | Highlatch up to Lampcrown |
+| 12 | `longboards` | The Long Boards | Reedhold toward the west boardwalk and the Dry Boards |
+| 13 | `orchardfen` | Orchard Fen | Reedhold to Threadmeet. A rockfall branch returns to Sootpath after Stone Break and the Reed Badge |
+| 14 | `latepath` | The Late Path | Reedhold to Bellstep. This is the Reed Badge gate |
+| 15 | `flintcut` | Flintcut | Bellstep to the Answering Ways |
+| 16 | `ribbonroad` | Ribbon Road | Bellstep to Threadmeet, so the hills and the commons meet twice |
+| 17 | `sheltermile` | Shelter Mile | Threadmeet to the High Watch |
+| 18 | `chartroad` | Chart Road | A loop of lookout ground off the High Watch, back to itself |
+| 19 | `seaward` | Seaward Ledge | The High Watch down to the pier and The Open Grey |
+| 20 | `trialroad` | Trial Road | The High Watch to the league. Phase 6 inserts Trialstair between them. Until that phase the road still reaches the league, so the ending is never shut |
+
+The Dry Boards are a passage inside the Long Boards maps, not a route of their own and not a cave. They connect Pass Foot to the west end of the boards so a tamer in Reedhold can return to the pass without climbing Glassfall backward.
+
+### Towns (10)
+
+Healers are indoors. Outdoor trainers stay outdoors, so one person is not asked to stand in two places. Nine keepers below are proposals. They are not canon until the town phase is accepted and their lines are recorded. Each one rests a tired team for nothing, the way Ned does, and keeps a short shelf of lures and berries. Reedhold is the only new full shop.
+
+| Town | Where it sits | Healer, proposed | Also indoors |
+|---|---|---|---|
+| Larkhaven | Exists | Old Ned | Juniper, Mira, Nora, Maren's barn. Unchanged |
+| Thornwood | The existing settlement gains the Gate Loft | Hedda | A loft over the gate path. Isolde stays at the hawthorn gate |
+| Lantern Quay | New, at the end of Wrackline | Perrin | A net loft and the quay inn under the lighthouse. Marit and Cato stay outside. Tobin stays on Saltmarsh Road |
+| Warmstep | The existing highland screen, at the springs | Hest | The spring-house. Sela stays on the path outside. Toren stays above the springs |
+| Highlatch | The existing pass, at Vessa's shelter | Yarrow | The lodge kitchen. Vessa and Ilka stay on the rope and the door |
+| Reedhold | The existing basin landing. This is the hub | Juna | Colm's dry-goods shop, proposed, and the ferry house. Olan stays at the landing. Tavil stays with the ropes. Evren stays in the orchard. The skiff stays scenery |
+| Bellstep | The existing hamlet | Iren, inside the bell house that is already drawn | Veslin stays with the bell rope outside. Senna stays by the resting stones |
+| Threadmeet | The existing commons, at the hall that is already drawn | Solla | Pell's stall becomes a counter you walk up to, still Pell, still not a coin shop. Halen stays on the forecourt |
+| The High Watch | The existing reach, at the ledger house | Quen | Sivren stays on the harbor path. Rysa stays at the lookout. Delka stays on the trail |
+| Returning Light League | Exists | Nelva, already the league keeper | The courts stay the courts |
+
+Between towns the rule from the reference holds in our geography: you are never asked to cross more than three routes without a healer, and two towns do not sit on adjacent tiles with no walk between them. Larkhaven to Thornwood is one route. The coast to Warmstep is Ashstair, one route, with Lantern Quay one step off Wrackline if you need the quay's beds first.
+
+### Caves and depths (7), Hollowecho first
+
+1. **The Answering Ways** (`answering`). The first cave a player enters. A hamlet mouth that is not tile (19, 8) becomes a real exit once the Reed Badge is earned, even before Lantern. The first hall is lit by Bellmote-light and the bell outside. Deeper halls turn you around until Lantern. Side cracks open with Stone Break. Wall-doors open with Hush. The mouth at (19, 8) stays the reveal's scenery until the reveal is done, and only then may Hush offer a stair there. Senna's battle stays on the surface where her test already is.
+2. **Knothollow** (`knothollow`). Between Rootwater Path and, once Grove Wake is learned, the back of Old Root Grove. The front door is a Thorn Badge cave, a supply test, not a skip toward the basin. Its deep cracks need Stone Break and still come out in Thornwood's country.
+3. **Keelcave** (`keelcave`). Off Greywash Sound. Needs Tide Ride to reach the sound, then a short dry cave. A Tide lesson slip is on the back ledge.
+4. **Kilnvent** (`kilnvent`). The mouth is on Sootpath from the first time you climb it. The first chamber is walkable after the Ember Badge. The warm dark beyond needs Lantern. This is the first place Lantern matters, before Hollowecho's depths, so the lesson is taught where Toren can see the vent from his ridge.
+5. **Larkburrow** (`larkburrow`). The mouth on Millgrass Lane is visible in phase 1 and shut. It opens through to the back of Threadmeet only with Stone Break and the Loom Badge. Before both, you can go in one room and find Nora's wooden bird, and the far door is stone. That is the early shortcut you are meant to remember and use late.
+6. **Lowbell** (`lowbell`). Under The Quiet Channels. The jetty at Reedhold shows the flooded stair as soon as you can stand on the landing. The floor needs Tide Ride. Stillwake stays the basin's guardian on the surface encounter that already exists. Lowbell is where you go back to hear the bell, not a second guardian.
+7. **Trialstair** (`trialstair`). Between Trial Road and the league. The near flights are walkable with all eight badges. The unlit flights need Lantern. A cracked landing needs Stone Break. A flooded step needs Tide Ride. A living curtain needs Grove Wake. A wall-door needs Hush. The last outdoor stone, if you leave and return, needs Daymark. Glide is not required inside. Missing one lesson means a side room, not a locked league: the main stair still reaches the league once the badges are earned, and the side rooms hold the lesson slips and a rest. The cave demonstrates the lessons. It does not trap a tamer who learned six of them.
+
+### Water routes (3)
+
+| Id | Name | Needs | Joins |
+|---|---|---|---|
+| `greywash` | Greywash Sound | Tide Ride | Lantern Quay and Moon Pool's far lip to The Open Grey. Keelcave opens off it |
+| `quietchannels` | The Quiet Channels | Tide Ride | Reedhold's jetty to Lowbell. The skiff stays tied up. You and a Tide partner cross |
+| `opengrey` | The Open Grey | Tide Ride | Seaward Ledge to Outer Shoal, and the far end of Greywash Sound |
+
+### Loops and the one-way shortcut
+
+- **Pass Ring.** Highlatch, Glassfall down to Reedhold, the Dry Boards, Pass Foot, back to Highlatch. Before Glide, Pass Foot is the only link and it walks both ways, so the ring is a walk. Glassfall is the shortcut that makes the ring feel like a gift. The Dry Boards are on the near side of Olan's gate. They do not reach Bellstep.
+- **Coast Ring.** Lantern Quay, Greywash Sound, The Open Grey, Seaward Ledge, the High Watch, and the long road home through Threadmeet, Bellstep, and Reedhold. This is the late curl from the last shore back to the first quay. It needs Tide Ride and the Horizon Badge's country. It does not open Farwatch early.
+- **Home Burrow.** Millgrass Lane, Larkburrow, the back of Threadmeet. Stone Break and the Loom Badge together. A way home, and a way back out to a meadow you saw in the first hour.
+- **Glassfall** is the one-way shortcut inside the Pass Ring. Orchard Fen's rockfall is a second, later shortcut from the hub back to Warmstep. It is not a fourth loop. It is a chord across the Pass Ring once the Reed Badge exists.
+
+### Guardians, without inventing a second sky
+
+The reference puts a guardian on a summit, a guardian under the lake, a roamer at a mill, and a last guardian in the Spire. The valley already has Lanterncrest on the pass, Stillwake in the basin, and Orla's climb in the Spire. This plan uses those.
+
+- **Lampcrown** is where you return to Lanterncrest after the pass story, or where the sign sends you if you have not met them and you climb anyway. The surface story encounter on Cloudglass is not deleted. The peak adds the view of Kilnvent's warmth, which is Toren's clue seen from above, still unexplained.
+- **Lowbell** is Stillwake's deep water and the bell errand. The surface meeting at fourteen explores stays the meeting.
+- **Greymill** can release a roamer only if Evan accepts a new unique. The proposal is **Greysail**, a Gale bird, family bird, unique, shut in the mill and walking the roads after the door opens. Until that yes, Greymill is the clue dungeon and the Hush door, with no new species. Catching a roamer uses the bond the game already saves. Its place on the road, if it roams, is chosen from the calendar day and the roads you have opened, so the position is not a save field.
+- **The Spire** stays Orla's floors. Trialstair is the cave before the league, not a new guardian's room.
+
+## 3. Town stories, the banner, and the errand list
+
+Every town has one local errand, and Threadmeet's errand is the thread that visits the others. The errands are about the fading the way the ledger already is: a player can see a trace, and at least two explanations still fit. Nobody in these errands names a ritual, an entity, or a turned friend. The reveal at the warm stones is still the place those truths are said. Nora's song stays unanswered. Tobin's tide stays his. Toren's warm stones stay unexplained. Rysa's chronology stays as the ledger has it: the fading had begun, and she saw a last local pallor.
+
+New lines from these errands are proposals until the phase that writes them also adds the placed clues to `docs/lore/wildbond-threads.md`. That ledger edit belongs to the errand phase, not to this plan.
+
+### What is already planned beside this
+
+On 2026-10-15 the open Wildbond design pull request is #452, the reference this plan builds on. There is no open pull request yet for a clarity pass, and none for a quest log. Both are planned work this design has to fit, because the game already has the pieces they would extend.
+
+**The clarity pass** owns two things that already exist, and only those:
+
+- The objective banner. `objective.gd` draws one cream box. `next_objective` decides its sentence. After the Thorn Badge the sentence is empty (`main.gd` line 4597). The clarity pass fills that one box through all eight badges. It does not add a second banner, a tracker window, or a log.
+- Maren's letters. They already bring ranch news and then `where_next()`. The clarity pass replaces the five-line `WHERE_NEXT` with one sentence per badge count, including the badges after Stillreed, and it corrects Thornwood's coast to the north gate. Letters stay a runner, a ranch note, and one direction. They do not become a list of errands.
+
+The sentences below are the shared copy. If the clarity pass merges first, it may use the "before the new routes" wording. Each world phase that adds a route updates only the sentence that names that walk. If this plan is accepted first, the clarity pass copies this table instead of writing another.
+
+The banner has to fit the box. `_layout_objective` (`main.gd` lines 4615–4618) gives the walking banner a width of 344 and a height clamped at 32, at font size 8. These lines are one short sentence so they fit.
+
+| Badges | Banner | Maren's where-next sentence, once the routes exist |
+|---|---|---|
+| 0 | The north road leads to Thornwood. (already said after the first catch) | Warden Isolde keeps the Thorn Badge, up the north road in Thornwood. Show her what you and {starter} can do. (already in the game) |
+| 1 | Find Warden Nerys on the Saltmarsh flats. | The north gate of Thornwood leads to Saltmarsh Coast. Warden Nerys tests tamers on the tide flats there. |
+| 2 | Climb Ashstair. Toren waits in Warmstep. | Ashstair climbs from the coast to Warmstep. Warden Toren is patient, so be patient back. |
+| 3 | Vessa waits on Cloudglass Pass. | North of Warmstep is Cloudglass Pass. Warden Vessa waits up in the cloud with the Beacon Badge. |
+| 4 | Follow the ferry path to Olan in Reedhold. | Past the pass, Pass Foot leads down to Reedhold. Warden Olan keeps the landing and the Reed Badge. |
+| 5 | The cave mouths in Bellstep open toward Senna. | The Late Path runs from Reedhold to Bellstep. Warden Senna listens at the hills, and the mouths there finally go somewhere. |
+| 6 | Halen is gathering teams in Threadmeet. | Ribbon Road and Orchard Fen both reach Threadmeet. Warden Halen is making room for every partner. |
+| 7 | Rysa keeps the Horizon Badge at the High Watch. | Shelter Mile leads east to the High Watch. Warden Rysa wants the team's notes corrected before the league. |
+| 8 | The league road is open. Rest, then go north. | Trial Road runs north from the High Watch, through Trialstair, to the Returning Light League. Rest the team before you climb. |
+
+Before Ashstair, Pass Foot, and the later roads exist, the clarity pass should keep today's place names in those sentences: "the high road" for Emberfall, "the ferry path" for Stillreed, "the hill trail" for Hollowecho, "the gathering trail" for Sunthread, "the coastal road" for Farwatch. The meaning stays the same. A letter must not send a player to a sign that is not in the build they are playing.
+
+After the Champion ending, the banner may say "Orla keeps the Spire, west of the league." That is still the main road. It is not an errand.
+
+**The quest-log pass** owns the list you open on purpose. Wildbond has no quest log now. Realmbound's log is a different game and is not the widget to copy. When the Wildbond log exists, it reads the keys in the next section. It does not invent a second set of ids, and it does not write a new top-level `quests` object unless Evan has signed that field. This plan stores errands in `story`, which is already on the save. Heard, a middle step, and done are enough. The log, when it comes, is a page in the field book, which already opens over the world. It is not a panel beside the world, and it is not a second strip on the walking view. The banner does not mention it.
+
+If the log pass lands first and has already chosen ids, the errand phase uses those ids. If this table lands first, the log pass uses these.
+
+### One errand in each town
+
+Progress keys, all inside `story`:
+
+| Id | Town | Who asks | What you do | What it leaves in the mystery | Done key |
+|---|---|---|---|---|---|
+| `sq-nora-bird` | Larkhaven, paid off in Larkburrow | Nora | She misses a wooden bird that used to have paint. It is in the first room of Larkburrow, reachable in the late cave phase even before the through-path opens. Bring it back | The paint is gone. She does not know if it wore away or was never as bright as she remembers. The hum stays unanswered | `sq:sq-nora-bird:done` |
+| `sq-isolde-path` | Thornwood | Isolde | Bram followed a path he says the wood still remembers, and the rock has closed. He is in Knothollow. Walk him out | He remembers a path the ground does not have. That fits a lost depth, and it also fits a tired man and a mushroom. Isolde does not pick | `sq:sq-isolde-path:done` |
+| `sq-tobin-tally` | Saltmarsh Road and Lantern Quay | Tobin | Count the Tide creatures the piers and the grass will show you, and put Cato's humming shell back where Tobin said. The shell beat already exists in his and Cato's lines | A page of his tally has gone pale. He still says the sea was always this colour. Both can stand | `sq:sq-tobin-tally:done` |
+| `sq-sela-warmth` | Warmstep | Sela | The spring-house wants a stone that stays warm. It is past Lantern in Kilnvent. Toren's warm-stone clue is the same warmth, seen from the other side, and still not explained | The stone is warm from the inside. Sela thinks it is the vent. Toren thinks it is older. You carry it. You do not decide | `sq:sq-sela-warmth:done` |
+| `sq-vessa-beacon` | Highlatch | Vessa and Ilka | The lodge beacon is dark. Helping Ilka with the rope is the same scene that teaches Glide. Lighting the beacon is the end of it | Ilka says the fog is thicker than her ropes remember. Vessa says the beacon was for people who already knew the way. Neither names a cause | `sq:sq-vessa-beacon:done` |
+| `sq-lowbell` | Reedhold | Tavil, then Olan | From the jetty you hear a bell under the channels. Tide Ride reaches Lowbell. Bring the count of the rings back to Veslin in Bellstep, because the hills know late answers | A flooded landing, a sound carried from Bellstep, or the water remembering a bell: all three fit. Stillwake's wake is not the answer | `sq:sq-lowbell:done` |
+| `sq-senna-stones` | Bellstep | Senna and Veslin | Three echo stones in the Answering Ways. The last one is behind Hush. Set them where Veslin can hear them answer the hamlet bell, a beat late, as the hills already do | The lateness is the clue the area already tells. The stones do not say who is late | `sq:sq-senna-stones:done` |
+| `sq-halen-passing` | Threadmeet, and every town before it | Halen, with Pell carrying the list | A passing-along, not a trade of creatures. Carry one mended thing from each town to the next: Nora's thread, Bram's dried mushroom, Perrin's quay knot, Sela's warm nail, Ilka's rope splice, a reed bundle from Juna, an echo stone Veslin can spare, a ribbon from Mirel, and Delka's corrected chart. Halen ties the last knot | The last ribbon shows a colour the cloth seemed to remember when it was tied. Halen treats that as a reason to make room, not as an explanation | `sq:sq-halen-passing:done` |
+| `sq-rysa-skiffs` | The High Watch | Rysa and Sivren | Two skiffs are on Outer Shoal. The crews are fine. They followed a light that was not the harbor lantern. Bring them the corrected heading | Watchlight already marks safe approaches. The other light might be an older beacon remembered by the fog, or a lantern a crew miscounted. Rysa corrects her own note and does not pick | `sq:sq-rysa-skiffs:done` |
+| `sq-spire-memory` | The league and the Spire, after the ending | The league regulars, then Orla | Each regular names one colour from home. Orla asks which floor felt like a place you have already been. Nothing is blocked on this | A small payoff after the tapestry is already visible. It does not add a new truth | `sq:sq-spire-memory:done` |
+
+Hearing an errand sets `sq:<id>:heard`. A middle step, when the table needs one, sets `sq:<id>:step`. Done sets the done key and the person says a different line after that. Old saves have none of these keys, so every errand is still waiting, which is correct.
+
+The passing-along is the only errand that crosses towns. The others can be finished beside the person who asked, once you can reach their place. None of them is required for a badge. The banner never names them. Maren may mention, in the ranch half of a letter, that Nora is glad of the bird or that the loft misses you. She does not assign the errand.
+
+## 4. Tutors and lesson slips
+
+Creatures already remember every move on their level list and bring four of them (`rules.gd` `learned_moves` and `keep_moves`). Tutors add a move that list does not contain, for a partner whose element can bear it. The workbench is where it becomes one of the four. A full set of four is not overwritten. The workbench says the partner learned the lesson and that you choose what they bring.
+
+A lesson slip is a folded card, found in a cave or given by a keeper. Once it is yours, `story` remembers `slip:<id>`, and any later partner of the right element can be shown it. The slip is not used up. That fits a game about keeping a partner: you are not punished for teaching the wrong one first.
+
+The move is stored on that creature as `lessons`, a list of move ids. `learned_moves` unions the level list with that field, and treats a missing field as empty, so a save from today still loads. **This is a new persisted field on every creature in `team` and `ranch`. WB-WORLD-5 does not start until Evan says yes.** If he says no, the tutors wait. Do not hide the list inside `bag`. Load casts every bag value to an integer (`main.gd` lines 3722–3723), and a slip is not a count.
+
+Showing a slip or talking to a tutor uses the action key, indoors or at the ledge where the slip lies. A page like the workbench opens over the world. Left and right change partners. The action key teaches the partner on screen. The page then closes. Nothing new is pinned to the walking view.
+
+| Slip id | Move already in the game | Who can learn it | Where it comes from |
+|---|---|---|---|
+| `slip-standing-stone` | Standing Stone | Stone | Knothollow's deep room, after Stone Break |
+| `slip-rinse` | Rinse | Tide | Keelcave |
+| `slip-grove-shelter` | Grove Shelter | Grove | The back ring of Old Root Grove, after Grove Wake |
+| `slip-ember-mantle` | Ember Mantle | Ember | Kilnvent, after Lantern |
+| `slip-wind-lift` | Wind Lift | Gale | Crest Path, on the way to Lampcrown |
+| `slip-mist-veil` | Mist Veil | Shade | The Answering Ways, behind Hush |
+| `slip-bright-care` | Bright Care | Radiant | Solla, at Threadmeet, after Daymark |
+| `slip-helping-paw` | Helping Paw | Any partner | Hedda, at the Gate Loft, after the Thorn Badge. A care lesson, from a person who rests teams |
+
+If the partner's level list already contains the move, the keeper says they know it and nothing is written. Unique guardians can be taught the slip for their element. They do not get a private move. No new move ids are required for this phase. A later catalogue pass may add moves. It is not part of these seven pull requests.
+
+`TEACHERS` continues to grant orders from badges. A player who has the Ember Badge still learns Steady as an order. Ember Mantle is a separate gift, from the vent, for an Ember partner.
+
+## 5. Art brief for Game Art Director
+
+This is the ask. It is not the art. Pictures stay on the ramps in `docs/art/wildbond-art-direction.md` section 3. Light stays top-left. Outlines stay `#1e1a22` on figures and standing objects. One tile is about a metre. Cottages stay 4 by 3. A barn stays 4 by 5. A door footprint has to match the picture, which `buildings()` already does for Larkhaven. Every new colour has to read under the fade, because the Thorn Badge is still the moment colour returns, and a player may walk a new road before that.
+
+No pack art. No borrowed map. If a phase needs a ramp the direction page does not have, the phase adds the ramp to that page first and waits for the director's sign before the painter uses it. The one ramp this plan expects to ask for is Cave, dark to light `#1a1c22`, `#2a2e38`, `#3e4656`, for wet stone. It is a proposal until the director writes it into the direction page.
+
+Interiors use the room alphabet already in `main.gd` lines 489–491: `X` dark, `W` wall, `,` floor, `c` counter, `t` table, `s` shelf, `h` hearth, `k` crates, `b` bed, `n` chair, `e` bench, `a` barrel, `d` the way out. A new keeper stands behind a counter the way Ned does. Homes without a counter, if any phase adds one, follow Nora's cottage.
+
+Phone: the entrance of every new place has to read at a phone width, and the banner occupies the top of the walking view. The mouth of a cave, the inn door, and the rideable water's edge each need a silhouette that survives that banner. The director signs those three silhouettes before a phase is ready. Code-painted stand-ins may be used for the build, from the existing painter, and they are replaced only after that sign. A waiver in the phase's pull request is the other way through, as with earlier art reviews.
+
+| Place | Silhouette the player learns | Materials | Notes for the director |
+|---|---|---|---|
+| Millgrass Lane, Dewcut, Rootwater Path | A lane, a meadow cut, a stream | Grass, Path, Leaf, Water for the stream, which stays solid `~` | The Larkburrow mouth is a black arch, three tiles wide, in a grass bank. Visible, shut, not a painting you can walk through by accident |
+| Old Root Grove, back ring | The same grove, with a living curtain | Leaf, Bark | The curtain reads as plants, not as a fence. Grove Wake parts it |
+| Knothollow | A root ceiling and a pale crack | Bark, Cave proposal, a little Grass at the mouth | Short. A supply cave, not a second Thornwood |
+| Wrackline, Lantern Quay | Net reels, a low inn, the lighthouse behind | Sand, Whitewash, Slate, Lamplight, Water | The quay inn is a cottage with a blue door, so it is not Juniper's shop and not Maren's barn. Perrin's counter faces the door |
+| Moon Pool's far lip | The pool you know, plus a channel mouth | Water | The lip is the moment solid water and rideable water meet. They must not look identical |
+| Greywash Sound, The Open Grey | Open water, a wake under the partner, a low island | Water, Sand | Rideable tiles are the new water tile, never `~`. A wake shows that this water holds you. Solid ponds do not draw that wake |
+| Keelcave | A keel-scraped arch at the waterline | Cave, Sand, Water | Dry inside. One ledge for the slip |
+| Ashstair, Sootpath, Warmstep | Stair-cut ash, then the spring-house steam | Path, a warm stone, Lamplight, Whitewash | Hest's spring-house has a round vent and a lit window. Steam is animation on top of the house, not a new tile that blocks the door |
+| Kilnvent | A red mouth in a black hill | Cave, Barn red used only as ember, Lamplight | The first room is readable without Lantern. The deep room is dark at the edges and warm at the centre. Both states need a screenshot |
+| Highlatch, Pass Foot, Glassfall, Crest Path | Rope, a lodge, a drop, a crest | Slate, Whitewash, Path | Yarrow's lodge is the shelter that already exists in the pass story, given a door. Glassfall's top is a lip with a view down. The bottom is Reedhold's west grass. Crest Path ends in an open summit, Lampcrown, with room for a big creature and a person |
+| Reedhold, Long Boards, Dry Boards, Orchard Fen, Quiet Channels | Boards, a ferry inn, orchard, a stair into dark water | Wood from Bark, Grass, Water, Whitewash | Juna's inn is a low boathouse, not a second lighthouse. Colm's shop is a dry shed with a slate roof. The Dry Boards are a covered walk, lamplit, clearly not a cave. Lowbell's stair is visible from the jetty before it can be ridden |
+| Lowbell | A drowned landing and a bell | Cave, Water, Lamplight on the bell only | The bell is the silhouette. The rest is quiet. No shrine architecture, no copied sacred plan |
+| The Late Path, Flintcut, Bellstep | Flagstones, the bell house, a real mouth | The hollowecho stone floor already in `main.gd` | Iren's interior is the bell house that is already drawn at `main.gd` line 1876. Give it a door on the existing footprint. The playable mouth is not the reveal mouth |
+| The Answering Ways | A lit first hall, then dark | Cave, Lamplight, a Radiant speck for Bellmote-light | Three states for the director: lit hall, Lantern dark, Hush door that looks like wall until it opens |
+| Ribbon Road, Shelter Mile, Threadmeet | Ribbon posts, the meeting hall | Grass, Whitewash, Barn red only as a small tie, not a barn | Solla's interior is the hall already drawn at `main.gd` line 1878. Pell's counter is a stall under the eaves, one room, no new shop silhouette |
+| Greymill | A grey mill beside a bright meadow | Whitewash gone grey, Bark, Slate | The wheel does not turn until the errand's last knot, and then only a little. The door reads as stuck. Hush opens it. The hum is not written on a sign here |
+| Chart Road, Seaward Ledge, The High Watch, Trial Road | Lookout, ledger house, pier | Slate, Sand, Whitewash, Water | Quen's ledger house is a stone room with a desk, not a cottage. The pier is where the cast happens. Outer Shoal is a low sand island with one shelter and no town |
+| Trialstair | A stair that uses every lesson as a different silhouette | All of the above, in small | Each obstacle is the same shape the player met earlier: crack, dark, flood, thicket, false wall, faded stone. The director's job is making them readable as a set |
+| Larkburrow | A burrow that becomes a road | Cave, Grass at both mouths | The Threadmeet mouth should be recognisable as the back of the hall hill. The Larkhaven mouth matches Millgrass |
+
+Per phase, the director gets the rows that phase builds, plus a contact sheet of the entrance at phone width and at 1920 by 1080. Ultrawide stays the same scene, not a new layout. Reduced motion: steam, wakes, and the mill wheel respect `prefers-reduced-motion` by holding a single frame.
+
+## 6. Save-format impact
+
+Old saves load. That is the rule, and it is testable. A synthetic version-2 file, with `map` set to each of the 15 current ids and a walkable tile, must come back on that map. The keys listed in `wildbond-godot/tests/wbl1_menu.gd` (`SAVE_KEYS`) stay sufficient. New keys are optional. Missing means the new feature has not happened yet.
+
+| Phase | New persisted state | Needs Evan's yes? | What an old save does |
+|---|---|---|---|
+| 1. Towns and routes | None. New map ids exist, old ids remain. A solid tile nudges, using the homes pattern | No | Loads on its old map and tile. If that tile was rebuilt into a wall, it steps to the door |
+| 2. Stone Break, Tide Ride, Grove Wake, first through-paths | `story` keys `field:stone`, `field:tide`, `field:grove` | No. `story` is already saved | Those keys are absent, so the new paths stay shut. The grove and the pool still open on element alone |
+| 3. Caves and Lantern | `story` key `field:lantern`. Visited cave maps are just `map` | No | Hollowecho still has painted mouths. Kilnvent's deep room stays dark |
+| 4. Glide and Glassfall | `story` keys `field:glide` and `inn:<map id>` | No | No inns are marked, so Glide has an empty list until the player walks into one. Glassfall is shut |
+| 5. Lesson slips and tutors | `story` keys `slip:<id>`, and `lessons` on the creature | **Yes, for `lessons`.** Slips alone could live in `story`, but the move has to live on the creature or two partners of the same kind cannot be told apart. Creatures have no separate id (`rules.gd` `make`, lines 62–79) | If Evan says yes: missing `lessons` means no extra moves, and `learned_moves` ignores the gap. `SAVE_V` stays 2. If he says no: this phase does not ship |
+| 6. Water, loops, optional depths | `story` keys `field:hush`, `field:daymark`. Roamer position derived from the calendar, not stored. A caught Greysail, if accepted, uses `bonded` like any unique | No for the keys. **Yes for Greysail as a species**, separately, before it is added to `SPECIES` | Water routes stay shut. Greymill's door stays stuck. No roamer if the species was refused |
+| 7. Errands | `story` keys `sq:<id>:heard`, `sq:<id>:step`, `sq:<id>:done` | No, while they stay inside `story`. A new `quests` object would need its own yes, and this plan does not add one | Every errand is still available. Nothing is marked done by mistake |
+
+`taught`, letters, badges, and the workbench's four moves are untouched. A phase that needs a version bump has failed this plan and should stop.
+
+## 7. Phased build
+
+Seven pull requests, one feature area each. They are not tickets in `DEVELOPMENT-PATH.md` yet. Planning adds those lines when a phase is actually claimed. This document does not claim them. Each phase merges before the next starts, because each one leaves a game you can finish.
+
+Every phase, the same checks:
+
+- `node tools/run-all-checks.cjs` passes. That is the browser pages plus the Godot, catalogue, save, and asset checks.
+- The Godot suite `wildbond-godot/tests/run_tests.gd` passes, including `door_problems` (from line 1924), which already requires every door and every road exit to be open in front and reachable.
+- New exits are reciprocal. If A walks into B, B walks back to A, except Glassfall, which tests the refusal on the way up.
+- A fixture save on each of the 15 old map ids loads. A save from before the phase, with no new `story` keys, still finishes a walk from Larkhaven to the furthest map that phase allows.
+- Outdoor map edits land in `games/wildbond/js/11-maps.js` and are copied with `tools/godot-export.ps1`. Godot rooms stay in `INTERIORS`.
+- Any change under `wildbond-godot/` re-exports the web pack the way `play/wildbond/BUILD.md` describes (`Godot --headless --path wildbond-godot --export-pack Web ../play/wildbond/index.pck`, then the byte count and `build.json`). `tools/wildbond-export-freshness.py` and `.github/workflows/wildbond-export-freshness.yml` fail the phase if the pack's stamped tree does not match. `tools/godot-export.ps1` is the data copy. It does not build that pack.
+- Phone screenshots of each new entrance, the healer's room, and the banner, at a phone width (the preview sizes 812×375 and 844×390, and portrait if the upright-phone pull request #431 has merged). Also one 1920×1080 shot. The banner must not cover the door. `tools/wildbond-phone-run.cjs` is the existing phone harness.
+- Game Art Director has signed that phase's rows in section 5, or has waived them in the pull request.
+- Player-facing words follow `docs/CREATIVE.md`: capitalised names, the world's words, no rule jargon.
+
+### WB-WORLD-1 — Towns and the routes between them
+
+Files: `games/wildbond/js/11-maps.js`, the copied `wildbond-godot/data/wildbond.json`, `wildbond-godot/scripts/main.gd` for `INTERIORS`, doors, and keepers, and the Godot tests. No field flags.
+
+Build Millgrass Lane, Dewcut, Rootwater Path, Wrackline, Ashstair, Sootpath, Pass Foot, The Long Boards, Orchard Fen, The Late Path, Flintcut, Ribbon Road, Shelter Mile, Chart Road, Seaward Ledge, and Trial Road. Trial Road reaches the league in this phase. Build eight new interiors and their keepers: the Gate Loft, Lantern Quay, the Warmstep spring-house, Highlatch, Reedhold's inn, Bellstep's bell house, Threadmeet's hall, and the High Watch ledger house. Reedhold also gets Colm's shop. Badge gates stay on the same steps as now: Ashstair is still the Tide Badge, Pass Foot is still the Beacon Badge, The Late Path is still the Reed Badge, Shelter Mile is still the Loom Badge, and Trial Road is still all eight badges. Shut trailheads, visible and not yet doors, mark Larkburrow, Kilnvent, the Answering Ways, Crest Path, Glassfall, and the three water edges. Larkburrow's first room arrives in phase 6. Where a new route replaces a direct hop, update only the Maren sentence for that walk, so a letter never names a road the build does not have.
+
+Done when a new game walks Larkhaven to the league through the new routes, every new inn heals, every new shelf sells, `door_problems` is clean, and an old save in Hollowecho is still in Hollowecho.
+
+### WB-WORLD-2 — Stone Break, Tide Ride, Grove Wake
+
+Files: teaching scenes in the Godot story flow, exit checks beside `_team_has_element`, tests that the old grove and pool gates still pass.
+
+Isolde, Nerys, and the grove sign teach the three lessons. This phase also builds Knothollow, the one cave those lessons need early. Its front door opens from Rootwater Path. Its deep cracks need Stone Break. Grove Wake opens Old Root Grove's back ring into the same cave. Thickets on the early routes part. Moon Pool's far lip opens onto the first screen of `greywash`, which returns to Wrackline, so the pool is a loop back to the quay road. The same map id grows east in phase 6 until it reaches The Open Grey. Early tiles stay put, so a save standing on that first screen still loads. This phase's water does not reach Farwatch. No badge can be skipped.
+
+Done when a team with no Stone partner still cannot enter the grove, a team with a Stone partner still can, and a team that has been taught Stone Break can enter Knothollow's deep crack while a team that has only the element cannot.
+
+### WB-WORLD-3 — Hollowecho's cave, then the other dark, and Lantern
+
+The Answering Ways, from the hamlet mouth that is not tile (19, 8). Kilnvent's two rooms. Toren teaches Lantern. The reveal mouth and `REVEAL_SPOT` stay put. Trial Road still reaches the league. Trialstair's mouth stays a shut trailhead.
+
+Done when the painted comment at `main.gd` lines 2244–2245 is no longer the whole truth for the playable mouth, the tile (19, 8) still does not change maps before the reveal, and walking the first hall without Lantern turns you around at the dark.
+
+### WB-WORLD-4 — Glide, Glassfall, and fast travel
+
+Vessa and Ilka teach Glide. Glassfall goes down only. The inn list is an in-world page. `inn:<id>` is set by walking through a door, not by seeing a town from the road.
+
+Done when a tamer who has never entered Juna's inn cannot glide there, a tamer who has entered it can, Glassfall rejects the return climb, and Pass Foot still walks both ways.
+
+### WB-WORLD-5 — Tutors and lesson slips
+
+Blocked on Evan's yes for `lessons`. Hedda's Helping Paw can be the first, since the Gate Loft exists from phase 1, and the cave slips turn on as their caves exist. `learned_moves` and the workbench tests cover a partner with an extra move, a partner who already knew it, and an old creature with no `lessons` field.
+
+Done when the workbench shows the new move, the four battle slots stay under the player's choice, and a version-2 save from before the field still loads its team.
+
+### WB-WORLD-6 — Water, the coast, the burrow, and the optional depths
+
+Lengthen `greywash` from its first screen to The Open Grey, and add The Quiet Channels, Keelcave, Outer Shoal, and Lowbell. Build Crest Path and Lampcrown. Open Larkburrow's first room to anyone who can reach Millgrass Lane, and open the through-path to Threadmeet only with Stone Break and the Loom Badge. Insert Trialstair into Trial Road, with the main stair still reaching the league and the side rooms gated by the matching lesson. Add Greymill's door, Hush, and Daymark. Greysail only with Evan's species yes. The Pass Ring, Coast Ring, and Home Burrow all walk as written. Rideable water uses the new tile. `~` stays solid, with a test that a basin pond still blocks.
+
+Done when Tide Ride crosses Greywash from the quay to the reach, Larkburrow's far door stays shut without both the Loom Badge and Stone Break, the first room still holds Nora's bird, Trialstair's main stair reaches the league, and its side rooms open only with the matching lesson.
+
+### WB-WORLD-7 — The errands
+
+The ten errands, their `story` keys, and the ledger lines in `docs/lore/wildbond-threads.md` for the clues this phase actually places. The banner and `WHERE_NEXT` stay the main road. If the quest-log pass exists by then, it lists these ids. If it does not, the people still speak the errands, and the keys are there for the log later.
+
+Done when each errand can be heard, advanced, and finished, a second conversation does not give the reward twice, the banner text is unchanged by picking up an errand, and a save with none of the keys still has every errand waiting.
+
+## What this plan leaves alone
+
+The Thorn Badge still brings the colour. The reveal still happens at Hollowecho's warm stones with Toren and Isolde. The eight Wardens, their badges, and the cap table stay in order. The league and the Spire stay the end and the after. Maren's ranch, the workbench, breeding, and the orders from badges stay. Wren's meetings stay on the roads they already use. No new full Auto. No shared engine change. `shared/` and `sw.js` are out of scope for this plan and for the phases as written.
+
+The next step is a review of this plan. After it is accepted, Planning can add WB-WORLD-1 to the path, and the first build waits until the live Wildbond Godot claim is free.
