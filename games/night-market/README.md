@@ -18,6 +18,8 @@ Second-district data from #483 is in `districts.json`: Willow Quay and six stall
 
 Away gossip from #500 is in `gossip.json`: 72 away-summary lines for the six vendors, across three away-time bands, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.6.
 
+Portrait prompts from #498 are in `docs/art/night-market-vendor-prompts.md`: text-only briefs for the six vendors. No game file reads that page, so the lane stays as it is and Night Market Stalls stays at v0.1.6.
+
 ## Changelog
 
 - v0.1.6 (2026-10-15, NM-PHONE, PR #456): On phones, Night Market keeps its Back control and first stall within reach. Every touch target is at least 44px at all seven tested sizes. Contrast is at least 5.16:1. The Pour button now sits above the fold on sideways phones. The save stays version 1.
