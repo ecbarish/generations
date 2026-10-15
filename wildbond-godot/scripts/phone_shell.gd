@@ -60,7 +60,9 @@ var battle_note := ""
 var battle_page := 0
 
 func _ready() -> void:
-	mouse_filter = MOUSE_FILTER_STOP
+	# Ignore, not stop: deck presses are taken in _input. A stop filter would mark a
+	# picture click handled during the GUI pass, so the root would never see _unhandled_input.
+	mouse_filter = MOUSE_FILTER_IGNORE
 	font = _pixel_font()
 
 ## The deck's letters are stepped. The fallback font is gray-antialiased, which would put
@@ -425,7 +427,7 @@ func _mount(main: Node) -> void:
 	# control at 0×0, and the inset paint (which uses that size) never showed.
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	position = Vector2.ZERO
-	mouse_filter = MOUSE_FILTER_STOP
+	mouse_filter = MOUSE_FILTER_IGNORE
 	_root.remove_child(main)
 	_sv.add_child(main)
 	if font == null:
@@ -440,6 +442,9 @@ func detach() -> void:
 	if _sv != null and _main != null and is_instance_valid(_main) and _main.get_parent() == _sv:
 		_sv.remove_child(_main)
 		_root.add_child(_main)
+		# The game was the first root child. Putting it back at the end lets its pad mark a
+		# touch handled before a later witness sees it. Keep it first, as it was at startup.
+		_root.move_child(_main, 0)
 	if _root != null and not _saved.is_empty():
 		_root.content_scale_mode = int(_saved["mode"])
 		_root.content_scale_aspect = int(_saved["aspect"])
@@ -489,9 +494,11 @@ func _at(e: InputEvent) -> Vector2:
 func _input(e: InputEvent) -> void:
 	if _main == null or L.is_empty():
 		return
-	if e is InputEventKey and e.pressed and not e.echo:
-		HowTo.note("keys")
-		_forward(e)
+	# Keys have no position. A release or a repeat must not fall through into the pointer path.
+	if e is InputEventKey:
+		if e.pressed and not e.echo:
+			HowTo.note("keys")
+			_forward(e)
 		return
 	if e is InputEventJoypadButton or e is InputEventJoypadMotion:
 		if e is InputEventJoypadButton and e.pressed:
@@ -501,8 +508,13 @@ func _input(e: InputEvent) -> void:
 	var screen := e is InputEventScreenTouch or e is InputEventScreenDrag
 	var mouse: bool = e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT
 	var motion := e is InputEventMouseMotion
+	var p := _at(e)
+	# A finger on the picture belongs to the scene. The deck still takes its own controls.
 	if mouse and e.device == InputEvent.DEVICE_ID_EMULATION:
-		get_viewport().set_input_as_handled()
+		if _over_view(p):
+			_relay_to_view(e, p)
+		else:
+			get_viewport().set_input_as_handled()
 		return
 	if not (screen or mouse or motion):
 		return
@@ -523,61 +535,72 @@ func _input(e: InputEvent) -> void:
 		id = -2
 	elif motion:
 		id = -2
-	var p := _at(e)
 	if e is InputEventScreenDrag or (motion and finger == -2):
 		_drag(p)
 		get_viewport().set_input_as_handled()
 		return
+	if motion and _over_view(p):
+		_relay_to_view(e, p)
+		return
 	if down:
-		_press(p, id)
-		get_viewport().set_input_as_handled()
+		if _press(p, id):
+			get_viewport().set_input_as_handled()
+		elif _over_view(p):
+			_relay_to_view(e, p)
+		else:
+			get_viewport().set_input_as_handled()
 	elif up:
+		var holding := finger == id
 		_release(id)
-		get_viewport().set_input_as_handled()
+		if holding or not _over_view(p):
+			get_viewport().set_input_as_handled()
+		else:
+			_relay_to_view(e, p)
 
-func _press(p: Vector2, id: int) -> void:
+## True when the deck, the strip, or a card button used the press. A press on the picture returns false
+## so the scene in the view receives it.
+func _press(p: Vector2, id: int) -> bool:
 	var dpad: Rect2 = L["dpad"]
 	if _can_walk() and dpad.has_point(p):
 		var d := dpad_dir(dpad, p)
 		if d != Vector2i.ZERO:
 			_begin_dir(d, id)
-			return
+			return true
 	if _hit_circle(L["a"], float(L["a_r"]), p):
 		flash = "A"
 		flash_t = 0.12
 		_do_a()
-		return
+		return true
 	if _hit_circle(L["b"], float(L["b_r"]), p):
 		flash = "B"
 		flash_t = 0.12
 		_do_b()
-		return
+		return true
 	var menu: Rect2 = L["menu"]
 	if menu.has_point(p):
 		flash = "M"
 		flash_t = 0.12
 		_do_menu()
-		return
+		return true
 	if bool(L.get("side", false)):
 		var side_strip: Rect2 = L["strip"]
 		if side_strip.has_point(p) and not _main.lines.is_empty():
 			_advance_talk()
-			return
-		var side_view: Rect2 = L["view"]
-		if side_view.has_point(p):
-			_forward_point(p)
-		return
+			return true
+		if _over_view(p):
+			return false
+		return true
 	if _main.card.visible:
 		var choose: Rect2 = L["choose"]
 		var wait: Rect2 = L["not_yet"]
 		if choose.has_point(p):
 			_main.card.sel = 0
 			_main.card._pick(0)
-			return
+			return true
 		if wait.has_point(p):
 			_main.card._pick(_main.card._count() - 1)
-			return
-		return
+			return true
+		return true
 	if _main.battle.visible and _main.battle.state in ["choose", "moves", "orders"]:
 		var slots: Array = _slots()
 		var buttons: Array = L["buttons"]
@@ -585,20 +608,42 @@ func _press(p: Vector2, id: int) -> void:
 			var r: Rect2 = buttons[i]
 			if r.has_point(p):
 				_main.battle.deck_press(int(slots[i]["i"]))
-				return
+				return true
 	if _main.battle.visible and _main.battle.state in ["beat", "results"]:
 		var note_strip: Rect2 = L["strip"]
 		if note_strip.has_point(p):
 			if not _page_battle_note():
 				_main.battle.deck_press(0)
-			return
+			return true
 	var strip: Rect2 = L["strip"]
 	if strip.has_point(p) and not _main.lines.is_empty():
 		_advance_talk()
-		return
+		return true
+	if _over_view(p):
+		return false
+	return true
+
+func _over_view(p: Vector2) -> bool:
+	return not L.is_empty() and (L["view"] as Rect2).has_point(p)
+
+func _view_local(p: Vector2) -> Vector2:
 	var view: Rect2 = L["view"]
-	if view.has_point(p):
-		_forward_point(p)
+	var k := maxf(1.0, float(L.get("k", 1)))
+	return (p - view.position) / k
+
+## The picture lives in its own viewport. A pointer on that rectangle is retargeted into it,
+## and the original event stays on the window so a desktop click still round-trips.
+func _relay_to_view(e: InputEvent, p: Vector2) -> void:
+	if _sv == null or not _over_view(p):
+		return
+	var local := _view_local(p)
+	var copy: InputEvent = e.duplicate()
+	if copy is InputEventMouse:
+		copy.position = local
+		copy.global_position = local
+	elif copy is InputEventScreenTouch or copy is InputEventScreenDrag:
+		copy.position = local
+	_sv.push_input(copy)
 
 func _drag(p: Vector2) -> void:
 	if finger == -1 or held_vec == Vector2i.ZERO:

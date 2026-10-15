@@ -78,6 +78,20 @@ func touch(p: Vector2, down: bool) -> void:
 	Input.flush_buffered_events()
 	events += 1
 
+func _framed() -> bool:
+	return main.get("phone") != null and is_instance_valid(main.phone) and not main.phone.L.is_empty()
+
+## Game pixels sit inside the phone picture. The old touch pad is the whole window.
+func _into_view(game_p: Vector2) -> Vector2:
+	if not _framed():
+		return game_p
+	var view: Rect2 = main.phone.L["view"]
+	var k := float(main.phone.L.get("k", 1))
+	return view.position + game_p * k
+
+func tap_game(p: Vector2) -> void:
+	await tap(_into_view(p))
+
 func tap(p: Vector2) -> void:
 	# Real desktop cursor positioning is necessary for menu get_local_mouse_position.
 	# This is X11-injected touch, not a physical mobile/browser test.
@@ -98,6 +112,15 @@ func press(code: int = KEY_ENTER) -> void:
 func interact() -> void:
 	if method == "touch":
 		await tick(2)  # _thumbs_tick refreshes the context button after arrival.
+		if _framed():
+			# One reading already happened. Further presses only turn strip pages.
+			for guard in 6:
+				var before: int = main.lines.size()
+				var page := int(main.talk_page)
+				await tap(main.phone.L["a"])
+				if main.lines.is_empty() or main.lines.size() != before or int(main.talk_page) == page:
+					break
+			return
 		await tap(main.touch.BTN)
 	else: await press()
 
@@ -128,12 +151,22 @@ func move_to(goal: Vector2i, one_step := false) -> bool:
 		var direction: Vector2i = path[0] - main.me.tile
 		var code: int = KEY_RIGHT if direction.x > 0 else KEY_LEFT if direction.x < 0 else KEY_DOWN if direction.y > 0 else KEY_UP
 		var before: Vector2i = main.me.tile
-		if method == "touch": touch(main.touch.PAD + Vector2(direction) * main.touch.ARM, true)
+		if method == "touch":
+			var at: Vector2 = main.touch.PAD + Vector2(direction) * main.touch.ARM
+			if _framed():
+				var dpad: Rect2 = main.phone.L["dpad"]
+				at = dpad.get_center() + Vector2(direction) * (dpad.size.x * 0.35)
+			touch(at, true)
 		else: key(code, true)
 		for i in 60:
 			await tick()
 			if not main.me.path.is_empty() or main.me.tile != before: break
-		if method == "touch": touch(main.touch.PAD + Vector2(direction) * main.touch.ARM, false)
+		if method == "touch":
+			var at: Vector2 = main.touch.PAD + Vector2(direction) * main.touch.ARM
+			if _framed():
+				var dpad: Rect2 = main.phone.L["dpad"]
+				at = dpad.get_center() + Vector2(direction) * (dpad.size.x * 0.35)
+			touch(at, false)
 		else: key(code, false)
 		await tick()
 		while not main.me.path.is_empty() and not main.battle.visible and main.lines.is_empty(): await tick()
@@ -151,7 +184,7 @@ func run() -> void:
 	await capture("howto")
 	await read_for(12.0)
 	while main.howto.t <= 0.3: await tick()  # Respect the existing opening-press grace period.
-	if method == "touch": await tap(Vector2(190, 100))
+	if method == "touch": await tap_game(Vector2(190, 100))
 	else: await press()
 	var loops := 0
 	while main.team.is_empty() and loops < 100:
@@ -159,7 +192,7 @@ func run() -> void:
 		if main.register.visible:
 			await capture("register")
 			await read_for(30.0)
-			if method == "touch": await tap(Vector2(270, 173))
+			if method == "touch": await tap_game(Vector2(270, 173))
 			else:
 				for i in 9: await press(KEY_DOWN)
 				await press()
@@ -215,7 +248,7 @@ func run() -> void:
 			# choice whether the page opens on Not yet (the older build) or on Choose.
 			# Touch hits the button the page actually drew, not a frozen pixel.
 			await read_for(2.0)
-			if method == "touch": await tap(main.card._btn(1).get_center())
+			if method == "touch": await tap_game(main.card._btn(1).get_center())
 			else: await press(KEY_BACKSPACE)
 			if not main.team.is_empty() or main.card.visible:
 				failures.append("Not yet did not decline safely")
@@ -226,7 +259,7 @@ func run() -> void:
 				failures.append("Card did not reopen through input")
 				break
 			await read_for(12.0)
-			if method == "touch": await tap(main.card._btn(0).get_center())
+			if method == "touch": await tap_game(main.card._btn(0).get_center())
 			else:
 				# The older page opens on Not yet, so step onto Choose. This page already highlights it.
 				if main.card.sel != 0:
@@ -286,9 +319,9 @@ func select_grid(target: int, property: String, columns: int, rect_method: Strin
 	var bt: Control = main.battle
 	if method == "touch":
 		var rect: Rect2 = bt.call(rect_method, target)
-		await tap(rect.get_center())
+		await tap_game(rect.get_center())
 		# Move selection is a preview; a second tap confirms the selected move.
-		if property == "move_i" and bt.state == "moves": await tap(rect.get_center())
+		if property == "move_i" and bt.state == "moves": await tap_game(rect.get_center())
 	else:
 		for attempt in 12:
 			var selected: int = bt.get(property)
@@ -303,7 +336,7 @@ func select_grid(target: int, property: String, columns: int, rect_method: Strin
 		await press()
 
 func battle_input() -> void:
-	if method == "touch": await tap(Vector2(192, 110))
+	if method == "touch": await tap_game(Vector2(192, 110))
 	else: await press()
 
 func finish_battle() -> void:
