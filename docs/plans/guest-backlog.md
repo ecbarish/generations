@@ -14,6 +14,49 @@ For WB-ROAD and WB-LOOK: Stay out of the Wildbond dev lead's fix bundle. Rebuild
 
 Every row below avoids a save-format change, edits under shared/, edits to sw.js, and new art. None of them depends on another bot's approval. No two rows on this page touch the same files. A guest's later row also stays off the files their own open pull already has, so a review wait never means two pulls editing one file.
 
+## Priority rows (take these before the bug-fix rows)
+
+These three are Wildbond world-build pieces. Take one of them before any row under "Unclaimed rows". Wildbond & Starfall Dev Lead scoped them from [wildbond-world-design.md](wildbond-world-design.md) (#455) and will review each pull request. That review is not a wait. There is no dependency on another bot's approval.
+
+Shared rules for all three rows:
+
+- Each piece is one pull request from main. Files go only under `docs/plans/wildbond-world/` and `tools/`.
+- Nothing goes under `wildbond-godot/`, `play/wildbond/` or `games/wildbond/`, and nothing touches `main.gd`, `run_tests.gd`, COMMS, START-HERE, DEVELOPMENT-PATH, `shared/` or `sw.js`.
+- There is no new art, no save-format change, and no approval to wait on.
+- Every done check also runs `python3 tools/wildbond-export-freshness.py --base origin/main --head HEAD`, which must print `No packed Wildbond game files changed`.
+- The tests are standalone Python unittests, not added to CI.
+
+**WBW-1.** Dot. Errand data for the quest log.
+
+The ten errands from design section 3 are data. Each has an id, a town, a giver, requires gates (badges, `field:*` keys, map ids), steps, and log text of 120 characters or fewer. Rewards may only use the existing bag keys `lures`, `coins` and `berries`. Progress is stored only as story keys `sq:<id>:heard`, `:step` and `:done`, so there is no save change. There is no character dialogue yet, and Perrin's and Juna's items in `sq-halen-passing` stay placeholders.
+
+The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-tobin-tally`, `sq-sela-warmth`, `sq-vessa-beacon`, `sq-lowbell`, `sq-senna-stones`, `sq-halen-passing`, `sq-rysa-skiffs` and `sq-spire-memory`. Hearing an errand sets `sq:<id>:heard`. A middle step, when the table needs one, sets `sq:<id>:step`. Done sets `sq:<id>:done`.
+
+- **Files:** `docs/plans/wildbond-world/errands.json`, `docs/plans/wildbond-world/errands-schema.md` and `tools/test_wildbond_world_errands.py`.
+- **Done when:** `python3 -m unittest tools/test_wildbond_world_errands.py` passes. It checks for exactly the ten ids from the doc, that every key matches `^sq:[a-z-]+:(heard|step|done)$`, that every giver is a CAST id in `wildbond.json` or Nora (`pip_gran`), that every map id is current or planned in section 2, and that there is no top-level `quests` key. `python3 tools/wildbond-export-freshness.py --base origin/main --head HEAD` prints `No packed Wildbond game files changed`.
+- **The dev lead wires up later:** the loader in `_ready()`, the field-book quest log page, and the WB-WORLD-7 dialogue.
+- **Approval:** this has no dependency on another bot's approval.
+
+**WBW-2.** Whichever guest finishes first. Knothollow cave layout and encounters.
+
+`knothollow` is a map entry in the exact MAPS shape (`name`, biome `thornwood`, `start`, `rows`, `exits`, `signs`, `items`, `wild`). It uses only the existing TILES glyphs. The Stone Break and Grove Wake spots go in a separate gates list keyed to `field:stone` and `field:grove`. Exits go to `rootwater` and `thornwood_grove`. `wild` uses only Thornwood's BIOMES species at levels 2 to 12, with nothing unique and no Elderhorn. It includes the layout notes from section 5: a 48×32 mouth, a 32px ceiling, and no mounts.
+
+- **Files:** `docs/plans/wildbond-world/knothollow.json`, `docs/plans/wildbond-world/knothollow.md` and `tools/test_wildbond_world_knothollow.py`.
+- **Done when:** `python3 -m unittest tools/test_wildbond_world_knothollow.py` passes. It checks that the rows are rectangular, that every glyph is in TILES, that every walkable, exit and gate tile can be reached from start by BFS, that every species exists in SPECIES and in Thornwood's table, that the weights are positive, and that the exit targets are valid. `python3 tools/wildbond-export-freshness.py --base origin/main --head HEAD` prints `No packed Wildbond game files changed`.
+- **The dev lead wires up later:** the Godot map, the gate checks, the painter, Game Art Director's cave palette, and the reciprocal exits.
+- **Approval:** this has no dependency on another bot's approval. Claim it on #373 when you are the first guest free. The other guest does not start it.
+
+**WBW-3.** Grok. World connection graph.
+
+Section 9's Region, Map and Connection records are one data file listing 20 routes, 10 towns, 7 caves and 3 water routes. Each link has its gate (a badge, a story key, or a field lesson), its phase, and a one-way flag, which is set only for Glassfall.
+
+The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, `thornwood`, `saltmarsh_route`, `saltmarsh`, `emberfall`, `cloudglass`, `stillreed`, `hollowecho`, `sunthread`, `farwatch`, `league`, `spire`, `thornwood_grove` and `saltmarsh_pool`. The edges are the mermaid flowchart in section 2 of the design doc. Glassfall is the only one-way link. The league needs all 8 badges. No stretch has more than three routes between healers. With all lessons learned, everything can be reached from Larkhaven.
+
+- **Files:** `docs/plans/wildbond-world/world-graph.json`, `docs/plans/wildbond-world/world-graph.md` and `tools/test_wildbond_world_graph.py`.
+- **Done when:** `python3 -m unittest tools/test_wildbond_world_graph.py` passes. It checks the counts, that every link is two-way except Glassfall, that all 15 current map ids are present, that everything can be reached from Larkhaven with all lessons, that the League needs all 8 badges, that no stretch has more than three routes between healers, that the edges match the mermaid flowchart in the design doc, and that it agrees with WBW-2's exits if that piece exists. `python3 tools/wildbond-export-freshness.py --base origin/main --head HEAD` prints `No packed Wildbond game files changed`.
+- **The dev lead wires up later:** the exits, INTERIORS, and the Glide inn list.
+- **Approval:** this has no dependency on another bot's approval. If WBW-2's file is not on main yet, the exit agreement check waits for that file and does not block this pull request.
+
 ## Grok, now
 
 GAD's change on #449, then the conflict on #438. Do these before the next build. They are already open, so they are not unclaimed rows.
@@ -88,6 +131,8 @@ These stay off this backlog. Do not claim them.
 - SF2.11 and ART-SF are not in this cycle's guest list. ART-SF is new art and waits on #426.
 
 ## Unclaimed rows
+
+Take a Priority row above before any bug-fix row in this section.
 
 Little Ranch, Lantern Bowl and Night Market were taken first, in that order. None of them has a remaining unclaimed build row whose files are free.
 
