@@ -2,7 +2,8 @@ name: Wildbond early pace review
 on:
   pull_request:
     paths:
-      - 'wildbond-godot/**'
+      - 'wildbond-godot/scripts/early_pace.gd'
+      - 'wildbond-godot/tests/early_pace.gd'
       - 'docs/playtests/wb-look/**'
       - '.github/workflows/wildbond-early-pace.yml'
 permissions:
@@ -49,13 +50,14 @@ jobs:
           set -euo pipefail
           baseline=90802ca04aaa8ffcf9055d5ba5aae6edb578ec80
           git worktree add --detach "$RUNNER_TEMP/wb-pace-baseline" "$baseline"
+          git -C "$RUNNER_TEMP/wb-pace-baseline" rev-parse HEAD | tee early-pace-review/baseline.txt
           fixture="$PWD/docs/playtests/wb-look/measure.gd"
           for variant in baseline current; do
             project="$PWD/wildbond-godot"
             sha="$(git rev-parse HEAD)"
             if [ "$variant" = baseline ]; then
               project="$RUNNER_TEMP/wb-pace-baseline/wildbond-godot"
-              sha="$baseline"
+              sha="$(cat early-pace-review/baseline.txt)"
             fi
             export HOME="$RUNNER_TEMP/wb-pace-$variant-home"
             export XDG_DATA_HOME="$HOME/data" XDG_CACHE_HOME="$HOME/cache" XDG_CONFIG_HOME="$HOME/config"

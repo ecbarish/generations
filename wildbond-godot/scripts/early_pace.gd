@@ -15,7 +15,8 @@ static func next_steps(game: Node) -> int:
 
 ## A quiet find can give a tired team a breather. Fainted partners still need
 ## Maren or the inn; the existing exhausted-team guard remains in main.gd.
-## No RNG is consumed here, and story beats still take precedence over finds.
+## The caller retains the original flavour RNG draw before trying this helper.
+## No extra RNG is consumed here; story beats still take precedence over finds.
 static func rest(game: Node) -> bool:
 	if not is_early(game):
 		return false
@@ -28,5 +29,5 @@ static func rest(game: Node) -> bool:
 		recovered = true
 	if recovered:
 		game.sfx.play("heal")
-		game.say("", "You rest in a sunny clearing. Your team recovers some health.")
+		game.say("", "Your partners catch their breath and recover some health.")
 	return recovered

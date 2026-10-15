@@ -13,7 +13,8 @@ extends SceneTree
 const Pace := preload("res://scripts/early_pace.gd")
 const EARLY_MAPS := ["thornwood_route", "thornwood", "thornwood_grove"]
 const FAMILIES := ["farm", "coast", "highland", "wander", "missing"]
-const REST_NOTE := "You rest in a sunny clearing. Your team recovers some health."
+const REST_NOTE := "Your partners catch their breath and recover some health."
+const QUIET_FLAVOUR := ["You follow a stream deeper into Thornwood.", "Birdsong all around. Your team looks happy.", "You rest in a sunny clearing for a moment.", "Pawprints in the mud lead off between the trees.", "A breeze rustles the old oaks."]
 const EXHAUSTED := "Your team is exhausted. Rest with Maren in Larkhaven first."
 const LEGACY := "res://tests/fixtures/wb-c2-pre-change.json"
 const SCRATCH := "user://early-pace-test"
@@ -114,6 +115,7 @@ func _run() -> void:
 	_test_initial_and_non_grass()
 	_test_intervals()
 	_test_rest()
+	_test_quiet_rng_continuity()
 	_test_odds_and_loot()
 	_test_story()
 	_test_first_catch()
@@ -369,11 +371,11 @@ func _test_rest() -> void:
 					check(main.sfx.count == sounds_before + (1 if recovered else 0) and (not recovered or main.sfx.last == "heal"), label + ": healing sound occurs once only when recovery happens")
 					if living:
 						check(int(main.explored_in.get("thornwood", 0)) == 1, label + ": one quiet encounter advances exploration once")
-						if recovered:
-							var mirror := RandomNumberGenerator.new()
-							mirror.seed = int(seeds.quiet)
-							mirror.randf()
-							check(main.rng.state == mirror.state, label + ": recovery consumes no additional RNG")
+						var mirror := RandomNumberGenerator.new()
+						mirror.seed = int(seeds.quiet)
+						mirror.randf()
+						mirror.randi()
+						_check_rng_continuity(mirror, label + ": quiet recovery preserves the original flavour draw")
 					else:
 						check(main.lines[0].text == EXHAUSTED and main.explored_in.is_empty() and main.rng.state == rng_before, label + ": exhausted guard wins without encounter roll or exploration progress")
 	for where in main.DATA.MAPS:
@@ -386,6 +388,94 @@ func _test_rest() -> void:
 			main.rng.seed = int(seeds.quiet)
 			main._explore()
 			check(main.team == before and main.lines.size() == 1 and main.lines[0].text != REST_NOTE, "%s/badge=%s: later quiet finds preserve HP and original narration" % [where, has_badge])
+			var mirror := RandomNumberGenerator.new()
+			mirror.seed = int(seeds.quiet)
+			mirror.randf()
+			var flavour_index := mirror.randi() % 5
+			check(main.lines[0].text == QUIET_FLAVOUR[flavour_index], "%s/badge=%s: excluded quiet find keeps its exact original flavour selection" % [where, has_badge])
+			_check_rng_continuity(mirror, "%s/badge=%s: excluded quiet find" % [where, has_badge])
+
+## Compare both the saved generator state and the rolls that follow without
+## advancing either tested stream: restore both states after the actual rolls.
+## Identical quiet-find seeds must not drift
+## when healing starts, caps at maximum, or stops because everyone is healthy.
+func _check_rng_continuity(expected: RandomNumberGenerator, label: String) -> void:
+	check(main.rng.state == expected.state, label + ": RNG state matches one encounter randf plus one flavour randi")
+	var actual_state: int = main.rng.state
+	var expected_state: int = expected.state
+	var next_roll_matches: bool = main.rng.randf() == expected.randf()
+	var next_integer_matches: bool = main.rng.randi() == expected.randi()
+	check(next_roll_matches and next_integer_matches, label + ": next encounter roll and following integer stay aligned")
+	main.rng.state = actual_state
+	expected.state = expected_state
+
+func _quiet_chain_seed(length: int) -> int:
+	var probe := RandomNumberGenerator.new()
+	for number in 200000:
+		probe.seed = number
+		var matches := true
+		for step in length:
+			if probe.randf() < 0.76:
+				matches = false
+				break
+			probe.randi()
+		if matches: return number
+	check(false, "a deterministic six-quiet-find sequence exists for this engine")
+	return 0
+
+func _test_quiet_rng_continuity() -> void:
+	# Six uninterrupted quiet finds allow every injured living starter to reach
+	# full HP, followed by at least two healthy finds. Never reseed mid-sequence.
+	var chain_length := 6
+	var chain_seed := _quiet_chain_seed(chain_length)
+	var scopes := [["thornwood_route", false], ["thornwood", false], ["thornwood_grove", false], ["thornwood_route", true], ["saltmarsh_route", false]]
+	for starter in main.DATA.STARTERS:
+		for family in FAMILIES:
+			for scope in scopes:
+				for shape in ["injured", "full", "mixed", "capped"]:
+					_reset(scope[0], family, starter, scope[1])
+					if shape == "injured": main.team[0].hp = 1
+					if shape == "capped": main.team[0].hp = int(main.R.stats(main.team[0]).hp) - 1
+					if shape == "mixed":
+						main.team[0].hp = 0
+						main.team.append(main.R.make("ripplet", 6, { "rar": 1 }, main.rng))
+						main.team.append(main.R.make("mosshog", 7, { "rar": 1 }, main.rng))
+						main.team[1].hp = 1
+						main.team[2].hp = int(main.R.stats(main.team[2]).hp) - 1
+					var expected_team: Array = main.team.duplicate(true)
+					var ranch_before: Array = main.ranch.duplicate(true)
+					var bag_before: Dictionary = main.bag.duplicate(true)
+					var eligible: bool = scope[0] in EARLY_MAPS and not scope[1]
+					var healing_events := 0
+					var ordinary_events := 0
+					var mirror := RandomNumberGenerator.new()
+					mirror.seed = chain_seed
+					main.rng.seed = chain_seed
+					var label := "%s/%s/%s/badge=%s/%s" % [starter, family, scope[0], scope[1], shape]
+					for step in chain_length:
+						check(mirror.randf() >= 0.76, label + ": continuous reference event %d is quiet" % (step + 1))
+						var flavour_index := mirror.randi() % 5
+						var healed := false
+						if eligible:
+							for creature in expected_team:
+								var cap: int = main.R.stats(creature).hp
+								if int(creature.hp) > 0 and int(creature.hp) < cap:
+									creature.hp = mini(cap, int(creature.hp) + maxi(1, roundi(cap * 0.3)))
+									healed = true
+						var sounds_before: int = main.sfx.count
+						main.lines.clear()
+						main._explore()
+						check(main.team == expected_team and main.ranch == ranch_before and main.bag == bag_before, label + ": quiet event %d changes only eligible injured HP" % (step + 1))
+						check(main.lines.size() == 1 and main.lines[0].text == (REST_NOTE if healed else QUIET_FLAVOUR[flavour_index]), label + ": recovery/full/excluded narration uses the same original flavour draw")
+						check(main.sfx.count == sounds_before + (1 if healed else 0), label + ": healing sound stops exactly when HP reaches full")
+						_check_rng_continuity(mirror, label + ": continuous quiet event %d" % (step + 1))
+						check(not main.battle.visible and not main.then_do.is_valid() and int(main.explored_in.get(main.DATA.MAPS[scope[0]].biome, 0)) == step + 1, label + ": the continuous quiet sequence advances once per event")
+						if healed: healing_events += 1
+						else: ordinary_events += 1
+					if eligible and shape != "full":
+						check(healing_events > 0 and healing_events <= 4 and ordinary_events >= 2 and main.team.all(func(c): return c.hp == 0 or int(c.hp) == int(main.R.stats(c).hp)), label + ": sequence reaches full recovery and remains RNG-aligned through two or more healthy finds")
+					else:
+						check(healing_events == 0 and ordinary_events == chain_length, label + ": full or excluded team preserves the entire legacy quiet sequence")
 
 func _test_odds_and_loot() -> void:
 	for scope in [["thornwood_route", false], ["thornwood", true], ["saltmarsh_route", false]]:

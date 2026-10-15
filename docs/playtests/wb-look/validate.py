@@ -9,7 +9,9 @@ import sys
 root = Path(sys.argv[1])
 base = json.loads((root / 'baseline/pacing.json').read_text())
 now = json.loads((root / 'current/pacing.json').read_text())
-assert base['source_sha'] == '90802ca04aaa8ffcf9055d5ba5aae6edb578ec80'
+baseline_sha = (root / 'baseline.txt').read_text().strip()
+assert re.fullmatch(r'[0-9a-f]{40}', baseline_sha), 'Missing or invalid baseline checkout SHA.'
+assert base['source_sha'] == baseline_sha
 assert now['source_sha'] == (root / 'head.txt').read_text().strip()
 assert base['engine'] == now['engine']
 assert re.search(r'^WB-LOOK early pace: \d+ passed, 0 failed\. Engine: .+$', (root / 'regression.log').read_text(), re.MULTILINE)
