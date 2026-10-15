@@ -1,0 +1,1331 @@
+[
+  {
+    "name": "LRL-4 375x812: a fresh profile defaults to sound on without storing a visit",
+    "pass": true
+  },
+  {
+    "name": "LRL-4 375x812 sound off: the real switch saves only the sound choice",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "navigate",
+      "panelHidden": false,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": [
+        {
+          "area": "local",
+          "op": "setItem",
+          "key": "little-ranch-settings-v1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound off reload 1: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound off reload 1: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound off reload 1: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound off reload 1: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound off reload 2: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound off reload 2: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound off reload 2: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound off reload 2: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound on: the real switch saves only the sound choice",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": [
+        {
+          "area": "local",
+          "op": "setItem",
+          "key": "little-ranch-settings-v1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound on reload 1: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound on reload 1: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound on reload 1: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound on reload 1: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound on reload 2: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound on reload 2: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound on reload 2: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812 sound on reload 2: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 375x812: no page errors across both choices and repeated reloads",
+    "pass": true,
+    "detail": []
+  },
+  {
+    "name": "LRL-4 667x375: a fresh profile defaults to sound on without storing a visit",
+    "pass": true
+  },
+  {
+    "name": "LRL-4 667x375 sound off: the real switch saves only the sound choice",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "navigate",
+      "panelHidden": false,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": [
+        {
+          "area": "local",
+          "op": "setItem",
+          "key": "little-ranch-settings-v1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound off reload 1: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound off reload 1: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound off reload 1: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound off reload 1: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound off reload 2: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound off reload 2: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound off reload 2: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound off reload 2: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound on: the real switch saves only the sound choice",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": [
+        {
+          "area": "local",
+          "op": "setItem",
+          "key": "little-ranch-settings-v1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound on reload 1: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound on reload 1: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound on reload 1: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound on reload 1: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound on reload 2: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound on reload 2: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound on reload 2: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375 sound on reload 2: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 667x375: no page errors across both choices and repeated reloads",
+    "pass": true,
+    "detail": []
+  },
+  {
+    "name": "LRL-4 1366x768: a fresh profile defaults to sound on without storing a visit",
+    "pass": true
+  },
+  {
+    "name": "LRL-4 1366x768 sound off: the real switch saves only the sound choice",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "navigate",
+      "panelHidden": false,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": [
+        {
+          "area": "local",
+          "op": "setItem",
+          "key": "little-ranch-settings-v1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound off reload 1: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound off reload 1: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound off reload 1: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound off reload 1: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound off reload 2: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound off reload 2: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound off reload 2: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound off reload 2: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": false,
+      "stored": "{\"sound\":false}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound off",
+      "pressed": "false",
+      "off": true,
+      "waves": false,
+      "mute": true,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound on: the real switch saves only the sound choice",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": [
+        {
+          "area": "local",
+          "op": "setItem",
+          "key": "little-ranch-settings-v1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound on reload 1: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound on reload 1: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound on reload 1: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound on reload 1: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound on reload 2: a real reload restores the choice and starts a playable visit",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound on reload 2: the visible control matches the loaded choice",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": false,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 0,
+      "words": 0,
+      "oscillators": 0,
+      "audioStates": [],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound on reload 2: five real flower taps complete an activity and obey both audio and speech gates",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 1,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768 sound on reload 2: New visit stays playable without rewriting any save",
+    "pass": true,
+    "detail": {
+      "sound": true,
+      "stored": "{\"sound\":true}",
+      "navigation": "reload",
+      "panelHidden": true,
+      "label": "Sound on",
+      "pressed": "true",
+      "off": false,
+      "waves": true,
+      "mute": false,
+      "mode": "play",
+      "acts": 0,
+      "place": "ranch",
+      "tones": 10,
+      "words": 5,
+      "oscillators": 10,
+      "audioStates": [
+        "running"
+      ],
+      "writes": []
+    }
+  },
+  {
+    "name": "LRL-4 1366x768: no page errors across both choices and repeated reloads",
+    "pass": true,
+    "detail": []
+  }
+]

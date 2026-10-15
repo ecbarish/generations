@@ -12,6 +12,7 @@ document.querySelector('#run').onclick = async () => {
   const PREF = 'little-ranch-settings-v1', keep = localStorage.getItem(PREF);
   const others = () => JSON.stringify(Object.keys(localStorage).filter(k => k !== PREF).sort().map(k => [k, localStorage.getItem(k)]));
   const before = others();
+  const sessionBefore = JSON.stringify(Object.keys(sessionStorage).sort().map(k => [k, sessionStorage.getItem(k)]));
   const check = (name, ok) => { n++; const li = document.createElement('li'); li.className = ok ? 'pass' : 'fail'; li.textContent = (ok ? 'PASS — ' : 'FAIL — ') + name; list.appendChild(li); if (!ok) throw Error(name); };
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   try {
@@ -752,9 +753,38 @@ document.querySelector('#run').onclick = async () => {
     aw.LR.openPanel(); atouch(ad.querySelector('#gX'), 602); check('The X goes back to play', ad.querySelector('#grown').hidden && exits === 0);
     aw.LR.openPanel(); atouch(ad.querySelector('#gExit'), 603); check('Exit asks the app to close (once)', exits === 1 && ad.querySelector('#grown').hidden);
     app.remove();
+    // ---- LRL-4: reload the real document, not only its stored JSON or in-memory preferences.
+    // These run last because every reload replaces the LR/document handles used above.
+    for (const sound of [false, true]) {
+      let rw = frame.contentWindow, rd = frame.contentDocument, rlr = rw.LR;
+      rlr.openPanel();
+      if (rlr.prefs.sound !== sound) rd.querySelector('#gSound').click();
+      check('The grown-up switch stores sound ' + sound, rlr.prefs.sound === sound && JSON.parse(localStorage.getItem(PREF)).sound === sound);
+      for (let reload = 1; reload <= 2; reload++) {
+        const oldLR = rlr;
+        await new Promise((ok, no) => { const t = setTimeout(() => no(Error('sound reload timed out')), 20000); frame.onload = () => { clearTimeout(t); ok(); }; rw.location.reload(); });
+        rw = frame.contentWindow; rd = frame.contentDocument; rlr = rw.LR;
+        rw.addEventListener('error', e => errors.push(e.message));
+        const label = 'Sound ' + sound + ', actual reload ' + reload;
+        check(label + ': a new document loads the saved boolean', rlr && rlr !== oldLR && rlr.prefs.sound === sound && rw.performance.getEntriesByType('navigation')[0].type === 'reload');
+        check(label + ': the new visit starts behind a closed grown-up panel', rd.querySelector('#grown').hidden && rlr.state.mode === 'play' && rlr.state.acts === 0);
+        rlr.openPanel();
+        check(label + ': label, pressed state and both sound icons agree', rd.querySelector('#gSoundLabel').textContent === (sound ? 'Sound on' : 'Sound off') && rd.querySelector('#gSound').getAttribute('aria-pressed') === String(sound) && rd.querySelector('#gSound').classList.contains('off') === !sound && (rd.querySelector('#gWaves').style.display !== 'none') === sound && (rd.querySelector('#gMute').style.display !== 'none') === !sound);
+        rd.querySelector('#gX').click();
+        const quiet = rlr.tones, spoken = rlr.words.length;
+        const rc = rd.querySelector('#ranch');
+        rlr.layout.flowers.forEach((flower, i) => { const p = rlr.toScreen(flower); ['pointerdown', 'pointerup'].forEach(type => rc.dispatchEvent(new rw.PointerEvent(type, { pointerId: 901 + i, clientX: p.x, clientY: p.y, bubbles: true, cancelable: true, isPrimary: true }))); });
+        check(label + ': five flower taps complete a happy thing after the panel closes', rd.querySelector('#grown').hidden && rlr.state.sung === 5 && rlr.state.acts === 1 && rlr.state.baby.act === 'dance');
+        check(label + ': the loaded choice gates notes and spoken words', sound ? rlr.tones > quiet && rlr.words.length > spoken : rlr.tones === quiet && rlr.words.length === spoken);
+        rlr.openPanel(); rd.querySelector('#gNew').click();
+        check(label + ': New visit works without changing sound or unrelated saves', rd.querySelector('#grown').hidden && rlr.state.mode === 'play' && rlr.state.acts === 0 && rlr.prefs.sound === sound && JSON.parse(localStorage.getItem(PREF)).sound === sound && others() === before && JSON.stringify(Object.keys(sessionStorage).sort().map(k => [k, sessionStorage.getItem(k)])) === sessionBefore);
+      }
+    }
+    check('No errors after the real sound reloads', errors.length === 0);
     sum.className = 'pass'; sum.textContent = 'PASS — ' + n + ' Little Ranch checks.';
   } catch (e) { sum.className = 'fail'; sum.textContent = 'FAIL — ' + e.message; }
   finally { if (frame) frame.remove(); if (keep === null) localStorage.removeItem(PREF); else localStorage.setItem(PREF, keep); button.disabled = false; }
 };
 </script></body></html>
+
 
