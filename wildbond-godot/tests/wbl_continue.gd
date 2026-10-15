@@ -4,8 +4,8 @@ extends SceneTree
 ## the game wrote itself (autosave, or the window closing), and Continue is pressed on the title page with a real key,
 ## a mouse click and a touch. It runs by itself, with no line in run_tests.gd:
 ##   godot --headless --path wildbond-godot --script res://tests/wbl_continue.gd
-## A "gap" is something this test reproduced in walking code that fix bundle 2 (#458) owns. A gap is printed, never failed,
-## and when the code is fixed it reports "closed".
+## A "gap" is something this test reproduced in scripts/main.gd, which this pull leaves alone (the Wildbond fix bundle owns
+## that file). A gap is printed, never failed, and the line says what to change. When main.gd closes it, it reports "closed".
 const SAVE := "user://wbl_continue.json"
 
 var passed := 0
@@ -24,7 +24,7 @@ func gap(ok: bool, what: String) -> void:
 		print("GAP CLOSED: ", what)
 	else:
 		gaps_open.append(what)
-		print("GAP (walking code owned by #458, left alone): ", what)
+		print("GAP (main.gd, left alone): ", what)
 
 func _initialize() -> void:
 	_go.call_deferred()
@@ -200,7 +200,7 @@ static func run(root: Window, check: Callable, gap: Callable) -> void:
 			_one_journey(root, starter, how, check)
 	_click_paths(root, check)
 	_unfinished_opening(root, check)
-	_gaps(root, check, gap)
+	_gaps(root, gap)
 	wipe()
 
 ## WBL-10: start a journey, walk it onto the Thornwood road, quit, come back, press Continue, and be in the same place.
@@ -273,15 +273,14 @@ static func _unfinished_opening(root: Window, check: Callable) -> void:
 	check.call(not again.title.visible and not again.lines.is_empty(), "WBL-9: with no saved journey the game opens on the story, not on Continue")
 	again.free()
 
-## What this test found in scripts/main.gd. Findings 1 to 3 are fixed in this pull and are plain checks now. Finding 4 is in
-## the walking code that fix bundle 2 (#458) owns, so it stays a printed gap.
-static func _gaps(root: Window, check: Callable, gap: Callable) -> void:
+## What this test found in scripts/main.gd. The Wildbond fix bundle owns that file, so these are reported, not changed.
+static func _gaps(root: Window, gap: Callable) -> void:
 	# 1. Larkhaven's goal before the first catch names tall grass the village does not have, and not the road to it.
 	wipe()
 	var game := journey_to_road(root, "ripplet")
 	game._update_ui()
-	check.call("north road" in game.objective.line and "Thornwood" in game.objective.line,
-		"WBL-8: before the first catch, Larkhaven's goal names the north road to Thornwood (says '%s')" % game.objective.line)
+	gap.call("north road" in game.objective.line and "Thornwood" in game.objective.line,
+		"before the first catch, Larkhaven's goal says '%s' and never names the north road (next_objective in main.gd)" % game.objective.line)
 	game.free()
 	# 2. Quit a moment after crossing the road with no warning: the crossing was never saved, so Continue is a map behind.
 	wipe()
@@ -291,8 +290,8 @@ static func _gaps(root: Window, check: Callable, gap: Callable) -> void:
 	hold_up(game, 6.0, "thornwood_route")
 	tick(game, 0.7)
 	var relaunched := quit_and_relaunch(root, game, "autosave")
-	check.call(relaunched.title.visible and "Thornwood Trail" in relaunched.title.summary,
-		"WBL-9: killed under a second after crossing onto Thornwood Trail, Continue still says Thornwood Trail (says '%s')" % relaunched.title.summary)
+	gap.call(relaunched.title.visible and "Thornwood Trail" in relaunched.title.summary,
+		"killed under a second after crossing onto Thornwood Trail, Continue says '%s' (the save waits for the next five-second tick; _autosave in main.gd)" % relaunched.title.summary)
 	relaunched.free()
 	# 3. The tab hidden or the app switched away is not a close request, and nothing saves on it.
 	wipe()
@@ -303,8 +302,8 @@ static func _gaps(root: Window, check: Callable, gap: Callable) -> void:
 	tick(game, 0.7)
 	game.propagate_notification(Node.NOTIFICATION_WM_WINDOW_FOCUS_OUT)
 	relaunched = quit_and_relaunch(root, game, "autosave")
-	check.call(relaunched.title.visible and "Thornwood Trail" in relaunched.title.summary,
-		"WBL-9: hiding the tab right after crossing onto Thornwood Trail saves it, so Continue says Thornwood Trail (says '%s')" % relaunched.title.summary)
+	gap.call(relaunched.title.visible and "Thornwood Trail" in relaunched.title.summary,
+		"hiding the tab right after crossing onto Thornwood Trail, Continue says '%s' (a browser tab or phone app never sends the close request; _notification in main.gd)" % relaunched.title.summary)
 	relaunched.free()
 	# 4. The first click on the road after Wren's battle does nothing: Wren is still standing on the way, and the
 	#    walk is dropped without a word. A second click, a few seconds later, works.

@@ -3587,23 +3587,15 @@ func _gentle_at(p: Vector2i) -> Mover:
 ## window closes. The opening isn't saved part-way: a journey is saved from the moment you're free in Larkhaven.
 var save_t := 0.0
 
-var saved_map := ""                           # the map the last save was written on
-
 func _autosave(dt: float) -> void:
 	save_t += dt
-	# Arriving somewhere new is saved within half a second, so a quit right after a road leaves you on that road.
-	var arrived := map_name != saved_map and trans_t < 0.0 and stage == "free"
-	if save_t >= 5.0 or (arrived and save_t >= 0.5):
+	if save_t >= 5.0:
 		save_t = 0.0
-		if save_game():
-			saved_map = map_name
+		save_game()
 
 func _notification(what: int) -> void:
-	# A closed window, and, because a browser tab or a phone app never gets a close request, the moment the game loses
-	# the screen (tab hidden, app switched away or paused). All of them write the same save.
-	if what in [NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED]:
-		if save_game():
-			saved_map = map_name
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save_game()
 
 func save_game() -> bool:
 	if no_save or hold_save or _newer_save(_peek_save()):
@@ -3818,7 +3810,6 @@ func _load_game() -> bool:
 	maren.tile = BARN_DOOR + Vector2i(1, 1)
 	maren.pos = Vector2(maren.tile) * TILE
 	fade_in = 1.0
-	saved_map = str(d.map)                           # this is the place the file already holds
 	_go(d.map, _off_new_homes(str(d.map), Vector2i(int(d.x), int(d.y))), Vector2i.DOWN)
 	trans_t = 0.29
 	say("", "Welcome back, %s." % my_look.get("name", "tamer"))
@@ -4615,8 +4606,6 @@ func _has_caught_wild() -> bool:
 func _guide_first_catch() -> bool:
 	return not _has_caught_wild()
 
-const ROAD_OBJECTIVE := "Take the north road to Thornwood, then meet someone wild in the tall grass."
-
 ## One line for the tracker. Empty when a full-screen page is up, or once the first towns are behind you.
 func next_objective() -> String:
 	if objective == null:
@@ -4636,8 +4625,6 @@ func next_objective() -> String:
 			return "Walk out into Larkhaven."
 		"free":
 			if not _has_caught_wild():
-				if map_name == "larkhaven" and not badges.has("thorn"):
-					return ROAD_OBJECTIVE          # WBL-8: Larkhaven has no tall grass, so the goal names the road that leads to it
 				return "Meet someone wild in the tall grass."
 			if map_name == "larkhaven" and not badges.has("thorn"):
 				return "The north road leads to Thornwood."
