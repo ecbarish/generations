@@ -1,0 +1,414 @@
+{
+ "schemaVersion": 1,
+ "source": "docs/plans/wildbond-world-design.md: section 2 (Routes (20), Caves and depths (7)) and section 1 (Grove Wake's thickets); items from wildbond-godot/data/wildbond.json",
+ "status": "proposed",
+ "items": [
+  "berries",
+  "fish",
+  "grain",
+  "lures",
+  "meat"
+ ],
+ "finds": [
+  {
+   "id": "thornwood_route-1",
+   "place": "thornwood_route",
+   "item": "berries",
+   "count": 3,
+   "gate": "thornwood_route-thickets:field:grove",
+   "status": "proposed"
+  },
+  {
+   "id": "thornwood_route-2",
+   "place": "thornwood_route",
+   "item": "lures",
+   "count": 1,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "millgrass-1",
+   "place": "millgrass",
+   "item": "berries",
+   "count": 2,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "millgrass-2",
+   "place": "millgrass",
+   "item": "lures",
+   "count": 1,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "dewcut-1",
+   "place": "dewcut",
+   "item": "berries",
+   "count": 2,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "rootwater-1",
+   "place": "rootwater",
+   "item": "berries",
+   "count": 3,
+   "gate": "rootwater-thickets:field:grove",
+   "status": "proposed"
+  },
+  {
+   "id": "rootwater-2",
+   "place": "rootwater",
+   "item": "lures",
+   "count": 2,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "saltmarsh_route-1",
+   "place": "saltmarsh_route",
+   "item": "fish",
+   "count": 2,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "wrackline-1",
+   "place": "wrackline",
+   "item": "fish",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "wrackline-2",
+   "place": "wrackline",
+   "item": "lures",
+   "count": 2,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "ashstair-1",
+   "place": "ashstair",
+   "item": "meat",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "ashstair-2",
+   "place": "ashstair",
+   "item": "lures",
+   "count": 2,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "sootpath-1",
+   "place": "sootpath",
+   "item": "meat",
+   "count": 4,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "sootpath-2",
+   "place": "sootpath",
+   "item": "lures",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "passfoot-1",
+   "place": "passfoot",
+   "item": "berries",
+   "count": 4,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "passfoot-2",
+   "place": "passfoot",
+   "item": "lures",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "glassfall-1",
+   "place": "glassfall",
+   "item": "berries",
+   "count": 2,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "crestpath-1",
+   "place": "crestpath",
+   "item": "lures",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "crestpath-2",
+   "place": "crestpath",
+   "item": "berries",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "longboards-1",
+   "place": "longboards",
+   "item": "fish",
+   "count": 5,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "longboards-2",
+   "place": "longboards",
+   "item": "berries",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "orchardfen-1",
+   "place": "orchardfen",
+   "item": "berries",
+   "count": 5,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "orchardfen-2",
+   "place": "orchardfen",
+   "item": "grain",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "latepath-1",
+   "place": "latepath",
+   "item": "berries",
+   "count": 4,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "latepath-2",
+   "place": "latepath",
+   "item": "lures",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "flintcut-1",
+   "place": "flintcut",
+   "item": "lures",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "flintcut-2",
+   "place": "flintcut",
+   "item": "berries",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "ribbonroad-1",
+   "place": "ribbonroad",
+   "item": "grain",
+   "count": 5,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "ribbonroad-2",
+   "place": "ribbonroad",
+   "item": "berries",
+   "count": 4,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "sheltermile-1",
+   "place": "sheltermile",
+   "item": "grain",
+   "count": 4,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "sheltermile-2",
+   "place": "sheltermile",
+   "item": "lures",
+   "count": 4,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "chartroad-1",
+   "place": "chartroad",
+   "item": "lures",
+   "count": 5,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "chartroad-2",
+   "place": "chartroad",
+   "item": "fish",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "seaward-1",
+   "place": "seaward",
+   "item": "fish",
+   "count": 6,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "seaward-2",
+   "place": "seaward",
+   "item": "lures",
+   "count": 4,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "trialroad-1",
+   "place": "trialroad",
+   "item": "lures",
+   "count": 6,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "trialroad-2",
+   "place": "trialroad",
+   "item": "berries",
+   "count": 5,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "knothollow-1",
+   "place": "knothollow",
+   "item": "lures",
+   "count": 2,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "knothollow-2",
+   "place": "knothollow",
+   "item": "berries",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "knothollow-3",
+   "place": "knothollow",
+   "item": "meat",
+   "count": 4,
+   "gate": "knothollow-deep-cracks:field:stone",
+   "status": "proposed"
+  },
+  {
+   "id": "answering-1",
+   "place": "answering",
+   "item": "berries",
+   "count": 4,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "answering-2",
+   "place": "answering",
+   "item": "lures",
+   "count": 4,
+   "gate": "answering-side-cracks:field:stone",
+   "status": "proposed"
+  },
+  {
+   "id": "kilnvent-1",
+   "place": "kilnvent",
+   "item": "meat",
+   "count": 3,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "kilnvent-2",
+   "place": "kilnvent",
+   "item": "lures",
+   "count": 5,
+   "gate": "kilnvent-deep-room:field:lantern",
+   "status": "proposed"
+  },
+  {
+   "id": "keelcave-1",
+   "place": "keelcave",
+   "item": "fish",
+   "count": 4,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "larkburrow-1",
+   "place": "larkburrow",
+   "item": "berries",
+   "count": 2,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "lowbell-1",
+   "place": "lowbell",
+   "item": "fish",
+   "count": 4,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "lowbell-2",
+   "place": "lowbell",
+   "item": "lures",
+   "count": 5,
+   "gate": "lowbell-flooded-floor:field:tide",
+   "status": "proposed"
+  },
+  {
+   "id": "trialstair-1",
+   "place": "trialstair",
+   "item": "lures",
+   "count": 4,
+   "gate": null,
+   "status": "proposed"
+  },
+  {
+   "id": "trialstair-2",
+   "place": "trialstair",
+   "item": "grain",
+   "count": 4,
+   "gate": "trialstair-cracked-landing:field:stone",
+   "status": "proposed"
+  }
+ ]
+}
