@@ -99,7 +99,10 @@ async function renderedChecks() {
   });
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'localhost',resolve);});
   let browser;
-  const report={css: path.relative(ROOT,cssFile), viewports:[], fontPolicy:'External requests are blocked; system fallback fonts are tested.', screenshots:[]};
+  const hash = file => require('node:crypto').createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  let checkoutHead = null;
+  try { checkoutHead = require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{cwd:ROOT,encoding:'utf8'}).trim(); } catch {}
+  const report={checkoutHead,cssSha256:hash(cssFile),testSha256:hash(__filename),css: path.relative(ROOT,cssFile), viewports:[], fontPolicy:'External requests are blocked; system fallback fonts are tested.', screenshots:[]};
   try {
     browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||undefined});
     const origin='http://localhost:'+server.address().port;
@@ -107,7 +110,7 @@ async function renderedChecks() {
       const context=await browser.newContext({viewport:{width,height},hasTouch:true,serviceWorkers:'block'});
       try {
         await context.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
-        await context.addInitScript(()=>{window.setInterval=()=>0;window.requestAnimationFrame=()=>0;});
+        await context.addInitScript(()=>{window.setInterval=()=>0;});
         const page=await context.newPage(),errors=[];
         page.on('pageerror',e=>errors.push(e.message));
         await page.goto(origin+'/games/starfall-guild/');
@@ -177,7 +180,7 @@ async function renderedChecks() {
         }
         // Load the existing old-save fixture through the game's real storage API.
         const fixture=oldSave();fixture.last=Date.now();
-        await page.evaluate(o=>Arcade.save('starfall-guild-save-v1',o),fixture);
+        await page.evaluate(o=>importSave(Arcade.encode(o)),fixture);
         await page.reload();
         equal(await page.evaluate(()=>S.party.map(a=>[a.id,a.name,a.lvl])),fixture.party.map(a=>[a.id,a.name,a.lvl]),'old-save party survives browser reload');
         equal(await page.evaluate(()=>S.renownLife),fixture.renownLife,'old-save permanent progress survives reload');
