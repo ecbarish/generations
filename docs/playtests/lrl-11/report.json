@@ -1,0 +1,9402 @@
+{
+ "script": "docs/playtests/lrl-11/phone-precheck.cjs",
+ "head": "56fa9611eb51a9a81e3daf2799697354ba168429",
+ "browser": "154.0.8037.97",
+ "game": "0.18.2",
+ "minTapTarget": 44,
+ "sampleStepPx": 2,
+ "sizes": [
+  {
+   "size": "390x844",
+   "label": "iPhone 12 upright",
+   "places": [
+    {
+     "place": "ranch",
+     "shot": "390x844-ranch.png",
+     "mode": "play",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "sponge",
+       "centre": [
+        304.2,
+        714
+       ],
+       "nominalHalfExtent": [
+        60.1,
+        60.1
+       ],
+       "areaPx": 10412,
+       "bboxPx": [
+        244,
+        654,
+        364,
+        770
+       ],
+       "largestSquarePx": 80,
+       "underLockPx": 0
+      },
+      {
+       "name": "sign (paint shed)",
+       "centre": [
+        71,
+        397.4
+       ],
+       "nominalHalfExtent": [
+        68.3,
+        68.3
+       ],
+       "areaPx": 14020,
+       "bboxPx": [
+        2,
+        330,
+        138,
+        466
+       ],
+       "largestSquarePx": 94,
+       "underLockPx": 0
+      },
+      {
+       "name": "wsign (wagon)",
+       "centre": [
+        319,
+        355.3
+       ],
+       "nominalHalfExtent": [
+        68.3,
+        68.3
+       ],
+       "areaPx": 13964,
+       "bboxPx": [
+        250,
+        288,
+        388,
+        422
+       ],
+       "largestSquarePx": 90,
+       "underLockPx": 0
+      },
+      {
+       "name": "ksign (snack kitchen)",
+       "centre": [
+        175.5,
+        355.3
+       ],
+       "nominalHalfExtent": [
+        68.3,
+        68.3
+       ],
+       "areaPx": 12860,
+       "bboxPx": [
+        108,
+        288,
+        244,
+        424
+       ],
+       "largestSquarePx": 88,
+       "underLockPx": 0
+      },
+      {
+       "name": "tsign (dough)",
+       "centre": [
+        117,
+        262.4
+       ],
+       "nominalHalfExtent": [
+        68.3,
+        68.3
+       ],
+       "areaPx": 13748,
+       "bboxPx": [
+        48,
+        194,
+        184,
+        330
+       ],
+       "largestSquarePx": 90,
+       "underLockPx": 0
+      },
+      {
+       "name": "dsign (barn door)",
+       "centre": [
+        249.6,
+        262.4
+       ],
+       "nominalHalfExtent": [
+        68.3,
+        68.3
+       ],
+       "areaPx": 13664,
+       "bboxPx": [
+        184,
+        194,
+        318,
+        330
+       ],
+       "largestSquarePx": 90,
+       "underLockPx": 0
+      },
+      {
+       "name": "bowl",
+       "centre": [
+        85.8,
+        709
+       ],
+       "nominalHalfExtent": [
+        65.5,
+        65.5
+       ],
+       "areaPx": 12428,
+       "bboxPx": [
+        20,
+        644,
+        152,
+        770
+       ],
+       "largestSquarePx": 88,
+       "underLockPx": 0
+      },
+      {
+       "name": "bush",
+       "centre": [
+        282.4,
+        484.6
+       ],
+       "nominalHalfExtent": [
+        76.4,
+        76.4
+       ],
+       "areaPx": 17428,
+       "bboxPx": [
+        206,
+        408,
+        358,
+        560
+       ],
+       "largestSquarePx": 100,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        195,
+        581.8
+       ],
+       "nominalHalfExtent": [
+        79.6,
+        79.6
+       ],
+       "areaPx": 15268,
+       "bboxPx": [
+        116,
+        502,
+        274,
+        662
+       ],
+       "largestSquarePx": 80,
+       "underLockPx": 0
+      },
+      {
+       "name": "sun",
+       "centre": [
+        85.8,
+        143.5
+       ],
+       "nominalHalfExtent": [
+        62.4,
+        62.4
+       ],
+       "areaPx": 12104,
+       "bboxPx": [
+        24,
+        82,
+        148,
+        206
+       ],
+       "largestSquarePx": 88,
+       "underLockPx": 0
+      },
+      {
+       "name": "cloud",
+       "centre": [
+        249.6,
+        67.5
+       ],
+       "nominalHalfExtent": [
+        52.7,
+        52.7
+       ],
+       "areaPx": 8712,
+       "bboxPx": [
+        196,
+        14,
+        302,
+        120
+       ],
+       "largestSquarePx": 74,
+       "underLockPx": 0
+      },
+      {
+       "name": "basket (hats)",
+       "centre": [
+        51.9,
+        582.6
+       ],
+       "nominalHalfExtent": [
+        57.3,
+        57.3
+       ],
+       "areaPx": 10096,
+       "bboxPx": [
+        0,
+        526,
+        110,
+        640
+       ],
+       "largestSquarePx": 80,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower0",
+       "centre": [
+        39,
+        789.1
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 5696,
+       "bboxPx": [
+        0,
+        746,
+        78,
+        834
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower1",
+       "centre": [
+        117,
+        789.1
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 5504,
+       "bboxPx": [
+        78,
+        750,
+        156,
+        834
+       ],
+       "largestSquarePx": 58,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower2",
+       "centre": [
+        195,
+        789.1
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 5972,
+       "bboxPx": [
+        156,
+        744,
+        234,
+        834
+       ],
+       "largestSquarePx": 62,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower3",
+       "centre": [
+        273,
+        789.1
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 5520,
+       "bboxPx": [
+        234,
+        748,
+        312,
+        834
+       ],
+       "largestSquarePx": 58,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower4",
+       "centre": [
+        351,
+        789.1
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 5712,
+       "bboxPx": [
+        312,
+        744,
+        390,
+        834
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "ball",
+       "centre": [
+        156,
+        546
+       ],
+       "nominalHalfExtent": [
+        57.7,
+        57.7
+       ],
+       "areaPx": 6860,
+       "bboxPx": [
+        98,
+        488,
+        194,
+        588
+       ],
+       "largestSquarePx": 56,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "tsign (dough)",
+       "b": "sun",
+       "areaPx": 232,
+       "shareOfSmaller": 0.02,
+       "winner": "sun",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "tsign (dough)",
+       "b": "dsign (barn door)",
+       "areaPx": 84,
+       "shareOfSmaller": 0.01,
+       "winner": "tsign (dough)",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "tsign (dough)",
+       "areaPx": 1448,
+       "shareOfSmaller": 0.1,
+       "winner": "neither",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.05
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "dsign (barn door)",
+       "areaPx": 816,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "wsign (wagon)",
+       "b": "dsign (barn door)",
+       "areaPx": 1008,
+       "shareOfSmaller": 0.07,
+       "winner": "wsign (wagon)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "ksign (snack kitchen)",
+       "areaPx": 1240,
+       "shareOfSmaller": 0.08,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.04,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "wsign (wagon)",
+       "b": "bush",
+       "areaPx": 392,
+       "shareOfSmaller": 0.03,
+       "winner": "wsign (wagon)",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "baby",
+       "b": "ball",
+       "areaPx": 7404,
+       "shareOfSmaller": 0.71,
+       "winner": "ball",
+       "shareLostByA": 0.19,
+       "shareLostByB": 0.34
+      },
+      {
+       "a": "bush",
+       "b": "baby",
+       "areaPx": 1468,
+       "shareOfSmaller": 0.08,
+       "winner": "bush",
+       "shareLostByA": 0.04,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "basket (hats)",
+       "b": "ball",
+       "areaPx": 96,
+       "shareOfSmaller": 0.01,
+       "winner": "neither",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "bowl",
+       "b": "flower0",
+       "areaPx": 692,
+       "shareOfSmaller": 0.11,
+       "winner": "flower0",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "bowl",
+       "b": "flower1",
+       "areaPx": 1116,
+       "shareOfSmaller": 0.18,
+       "winner": "flower1",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.07
+      },
+      {
+       "a": "sponge",
+       "b": "flower3",
+       "areaPx": 1060,
+       "shareOfSmaller": 0.17,
+       "winner": "flower3",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.07
+      },
+      {
+       "a": "sponge",
+       "b": "flower4",
+       "areaPx": 624,
+       "shareOfSmaller": 0.1,
+       "winner": "flower4",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "flower0",
+       "b": "flower1",
+       "areaPx": 360,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower1",
+       "b": "flower2",
+       "areaPx": 360,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower2",
+       "b": "flower3",
+       "areaPx": 360,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower3",
+       "b": "flower4",
+       "areaPx": 360,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "ranch-with-friend",
+     "shot": "390x844-ranch-with-friend.png",
+     "mode": "play",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "sponge",
+       "centre": [
+        304.2,
+        714
+       ],
+       "nominalHalfExtent": [
+        60.1,
+        60.1
+       ],
+       "areaPx": 10012,
+       "bboxPx": [
+        244,
+        662,
+        364,
+        770
+       ],
+       "largestSquarePx": 80,
+       "underLockPx": 0
+      },
+      {
+       "name": "sign (paint shed)",
+       "centre": [
+        71,
+        397.4
+       ],
+       "nominalHalfExtent": [
+        68.3,
+        68.3
+       ],
+       "areaPx": 14020,
+       "bboxPx": [
+        2,
+        330,
+        138,
+        466
+       ],
+       "largestSquarePx": 94,
+       "underLockPx": 0
+      },
+      {
+       "name": "wsign (wagon)",
+       "centre": [
+        319,
+        355.3
+       ],
+       "nominalHalfExtent": [
+        68.3,
+        68.3
+       ],
+       "areaPx": 13964,
+       "bboxPx": [
+        250,
+        288,
+        388,
+        422
+       ],
+       "largestSquarePx": 90,
+       "underLockPx": 0
+      },
+      {
+       "name": "ksign (snack kitchen)",
+       "centre": [
+        175.5,
+        355.3
+       ],
+       "nominalHalfExtent": [
+        68.3,
+        68.3
+       ],
+       "areaPx": 12860,
+       "bboxPx": [
+        108,
+        288,
+        244,
+        424
+       ],
+       "largestSquarePx": 88,
+       "underLockPx": 0
+      },
+      {
+       "name": "tsign (dough)",
+       "centre": [
+        117,
+        262.4
+       ],
+       "nominalHalfExtent": [
+        68.3,
+        68.3
+       ],
+       "areaPx": 13748,
+       "bboxPx": [
+        48,
+        194,
+        184,
+        330
+       ],
+       "largestSquarePx": 90,
+       "underLockPx": 0
+      },
+      {
+       "name": "dsign (barn door)",
+       "centre": [
+        249.6,
+        262.4
+       ],
+       "nominalHalfExtent": [
+        68.3,
+        68.3
+       ],
+       "areaPx": 13664,
+       "bboxPx": [
+        184,
+        194,
+        318,
+        330
+       ],
+       "largestSquarePx": 90,
+       "underLockPx": 0
+      },
+      {
+       "name": "bowl",
+       "centre": [
+        85.8,
+        709
+       ],
+       "nominalHalfExtent": [
+        65.5,
+        65.5
+       ],
+       "areaPx": 12428,
+       "bboxPx": [
+        20,
+        644,
+        152,
+        770
+       ],
+       "largestSquarePx": 88,
+       "underLockPx": 0
+      },
+      {
+       "name": "bush",
+       "centre": [
+        282.4,
+        484.6
+       ],
+       "nominalHalfExtent": [
+        76.4,
+        76.4
+       ],
+       "areaPx": 16024,
+       "bboxPx": [
+        206,
+        408,
+        358,
+        542
+       ],
+       "largestSquarePx": 100,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        195,
+        581.8
+       ],
+       "nominalHalfExtent": [
+        79.6,
+        79.6
+       ],
+       "areaPx": 12956,
+       "bboxPx": [
+        116,
+        502,
+        250,
+        662
+       ],
+       "largestSquarePx": 78,
+       "underLockPx": 0
+      },
+      {
+       "name": "friend",
+       "centre": [
+        293.3,
+        594.2
+       ],
+       "nominalHalfExtent": [
+        78.7,
+        78.7
+       ],
+       "areaPx": 14908,
+       "bboxPx": [
+        238,
+        532,
+        372,
+        668
+       ],
+       "largestSquarePx": 104,
+       "underLockPx": 0
+      },
+      {
+       "name": "sun",
+       "centre": [
+        85.8,
+        143.5
+       ],
+       "nominalHalfExtent": [
+        62.4,
+        62.4
+       ],
+       "areaPx": 12104,
+       "bboxPx": [
+        24,
+        82,
+        148,
+        206
+       ],
+       "largestSquarePx": 88,
+       "underLockPx": 0
+      },
+      {
+       "name": "cloud",
+       "centre": [
+        249.6,
+        67.5
+       ],
+       "nominalHalfExtent": [
+        52.7,
+        52.7
+       ],
+       "areaPx": 8712,
+       "bboxPx": [
+        196,
+        14,
+        302,
+        120
+       ],
+       "largestSquarePx": 74,
+       "underLockPx": 0
+      },
+      {
+       "name": "basket (hats)",
+       "centre": [
+        51.9,
+        582.6
+       ],
+       "nominalHalfExtent": [
+        57.3,
+        57.3
+       ],
+       "areaPx": 10096,
+       "bboxPx": [
+        0,
+        526,
+        110,
+        640
+       ],
+       "largestSquarePx": 80,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower0",
+       "centre": [
+        39,
+        789.1
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 5696,
+       "bboxPx": [
+        0,
+        746,
+        78,
+        834
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower1",
+       "centre": [
+        117,
+        789.1
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 5504,
+       "bboxPx": [
+        78,
+        750,
+        156,
+        834
+       ],
+       "largestSquarePx": 58,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower2",
+       "centre": [
+        195,
+        789.1
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 5972,
+       "bboxPx": [
+        156,
+        744,
+        234,
+        834
+       ],
+       "largestSquarePx": 62,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower3",
+       "centre": [
+        273,
+        789.1
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 5520,
+       "bboxPx": [
+        234,
+        748,
+        312,
+        834
+       ],
+       "largestSquarePx": 58,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower4",
+       "centre": [
+        351,
+        789.1
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 5712,
+       "bboxPx": [
+        312,
+        744,
+        390,
+        834
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "ball",
+       "centre": [
+        156,
+        546
+       ],
+       "nominalHalfExtent": [
+        57.7,
+        57.7
+       ],
+       "areaPx": 6860,
+       "bboxPx": [
+        98,
+        488,
+        194,
+        588
+       ],
+       "largestSquarePx": 56,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "tsign (dough)",
+       "b": "sun",
+       "areaPx": 232,
+       "shareOfSmaller": 0.02,
+       "winner": "sun",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "tsign (dough)",
+       "b": "dsign (barn door)",
+       "areaPx": 84,
+       "shareOfSmaller": 0.01,
+       "winner": "tsign (dough)",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "tsign (dough)",
+       "areaPx": 1448,
+       "shareOfSmaller": 0.1,
+       "winner": "neither",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.05
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "dsign (barn door)",
+       "areaPx": 816,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "wsign (wagon)",
+       "b": "dsign (barn door)",
+       "areaPx": 1008,
+       "shareOfSmaller": 0.07,
+       "winner": "wsign (wagon)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "ksign (snack kitchen)",
+       "areaPx": 1240,
+       "shareOfSmaller": 0.08,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.04,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "wsign (wagon)",
+       "b": "bush",
+       "areaPx": 392,
+       "shareOfSmaller": 0.03,
+       "winner": "wsign (wagon)",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "baby",
+       "b": "ball",
+       "areaPx": 7404,
+       "shareOfSmaller": 0.71,
+       "winner": "ball",
+       "shareLostByA": 0.19,
+       "shareLostByB": 0.34
+      },
+      {
+       "a": "bush",
+       "b": "baby",
+       "areaPx": 1468,
+       "shareOfSmaller": 0.08,
+       "winner": "bush",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "bush",
+       "b": "friend",
+       "areaPx": 3356,
+       "shareOfSmaller": 0.18,
+       "winner": "bush",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "baby",
+       "b": "friend",
+       "areaPx": 5096,
+       "shareOfSmaller": 0.26,
+       "winner": "baby",
+       "shareLostByA": 0.12,
+       "shareLostByB": 0.13
+      },
+      {
+       "a": "basket (hats)",
+       "b": "ball",
+       "areaPx": 96,
+       "shareOfSmaller": 0.01,
+       "winner": "neither",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "sponge",
+       "b": "friend",
+       "areaPx": 852,
+       "shareOfSmaller": 0.08,
+       "winner": "sponge",
+       "shareLostByA": 0.04,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "bowl",
+       "b": "flower0",
+       "areaPx": 692,
+       "shareOfSmaller": 0.11,
+       "winner": "flower0",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "bowl",
+       "b": "flower1",
+       "areaPx": 1116,
+       "shareOfSmaller": 0.18,
+       "winner": "flower1",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.07
+      },
+      {
+       "a": "sponge",
+       "b": "flower3",
+       "areaPx": 1060,
+       "shareOfSmaller": 0.17,
+       "winner": "flower3",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.07
+      },
+      {
+       "a": "sponge",
+       "b": "flower4",
+       "areaPx": 624,
+       "shareOfSmaller": 0.1,
+       "winner": "flower4",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "flower0",
+       "b": "flower1",
+       "areaPx": 360,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower1",
+       "b": "flower2",
+       "areaPx": 360,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower2",
+       "b": "flower3",
+       "areaPx": 360,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower3",
+       "b": "flower4",
+       "areaPx": 360,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      }
+     ],
+     "note": "a friend is visiting"
+    },
+    {
+     "place": "shed",
+     "shot": "390x844-shed.png",
+     "mode": "play",
+     "uiPlace": "shed",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        48.4,
+        76
+       ],
+       "nominalHalfExtent": [
+        46,
+        46
+       ],
+       "areaPx": 6668,
+       "bboxPx": [
+        2,
+        30,
+        94,
+        122
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot0",
+       "centre": [
+        48.8,
+        725.9
+       ],
+       "nominalHalfExtent": [
+        48.4,
+        48.4
+       ],
+       "areaPx": 7356,
+       "bboxPx": [
+        0,
+        678,
+        98,
+        774
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot1",
+       "centre": [
+        146.3,
+        725.9
+       ],
+       "nominalHalfExtent": [
+        48.4,
+        48.4
+       ],
+       "areaPx": 7364,
+       "bboxPx": [
+        98,
+        678,
+        194,
+        774
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot2",
+       "centre": [
+        243.8,
+        725.9
+       ],
+       "nominalHalfExtent": [
+        48.4,
+        48.4
+       ],
+       "areaPx": 7364,
+       "bboxPx": [
+        196,
+        678,
+        292,
+        774
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot3",
+       "centre": [
+        341.3,
+        725.9
+       ],
+       "nominalHalfExtent": [
+        48.4,
+        48.4
+       ],
+       "areaPx": 7356,
+       "bboxPx": [
+        292,
+        678,
+        390,
+        774
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: head",
+       "centre": [
+        184.3,
+        457.6
+       ],
+       "nominalHalfExtent": [
+        253.2,
+        253.2
+       ],
+       "areaPx": 81808,
+       "bboxPx": [
+        4,
+        204,
+        390,
+        514
+       ],
+       "largestSquarePx": 202,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: legs",
+       "centre": [
+        184.3,
+        457.6
+       ],
+       "nominalHalfExtent": [
+        253.2,
+        253.2
+       ],
+       "areaPx": 49756,
+       "bboxPx": [
+        6,
+        488,
+        390,
+        710
+       ],
+       "largestSquarePx": 104,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: tail",
+       "centre": [
+        184.3,
+        457.6
+       ],
+       "nominalHalfExtent": [
+        253.2,
+        253.2
+       ],
+       "areaPx": 28952,
+       "bboxPx": [
+        0,
+        280,
+        142,
+        636
+       ],
+       "largestSquarePx": 100,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: body",
+       "centre": [
+        184.3,
+        457.6
+       ],
+       "nominalHalfExtent": [
+        253.2,
+        253.2
+       ],
+       "areaPx": 11444,
+       "bboxPx": [
+        72,
+        432,
+        298,
+        592
+       ],
+       "largestSquarePx": 52,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "pot1",
+       "b": "outline: legs",
+       "areaPx": 1872,
+       "shareOfSmaller": 0.25,
+       "winner": "pot1",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "pot2",
+       "b": "outline: legs",
+       "areaPx": 1556,
+       "shareOfSmaller": 0.21,
+       "winner": "pot2",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "pot0",
+       "b": "outline: legs",
+       "areaPx": 4,
+       "shareOfSmaller": 0,
+       "winner": "pot0",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "wagon",
+     "shot": "390x844-wagon.png",
+     "mode": "play",
+     "uiPlace": "wagon",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        48.4,
+        76
+       ],
+       "nominalHalfExtent": [
+        46,
+        46
+       ],
+       "areaPx": 6668,
+       "bboxPx": [
+        2,
+        30,
+        94,
+        122
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "waiting baby 0",
+       "centre": [
+        85.8,
+        738.2
+       ],
+       "nominalHalfExtent": [
+        47.2,
+        47.2
+       ],
+       "areaPx": 6996,
+       "bboxPx": [
+        38,
+        690,
+        132,
+        786
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "waiting baby 1",
+       "centre": [
+        195,
+        738.2
+       ],
+       "nominalHalfExtent": [
+        47.2,
+        47.2
+       ],
+       "areaPx": 6968,
+       "bboxPx": [
+        148,
+        690,
+        242,
+        786
+       ],
+       "largestSquarePx": 66,
+       "underLockPx": 0
+      },
+      {
+       "name": "car 0",
+       "centre": [
+        46.8,
+        556.5
+       ],
+       "nominalHalfExtent": [
+        49.3,
+        47.2
+       ],
+       "areaPx": 9024,
+       "bboxPx": [
+        0,
+        510,
+        96,
+        604
+       ],
+       "largestSquarePx": 94,
+       "underLockPx": 0
+      },
+      {
+       "name": "car 1",
+       "centre": [
+        147.6,
+        556.5
+       ],
+       "nominalHalfExtent": [
+        49.3,
+        47.2
+       ],
+       "areaPx": 9212,
+       "bboxPx": [
+        98,
+        510,
+        196,
+        604
+       ],
+       "largestSquarePx": 94,
+       "underLockPx": 0
+      },
+      {
+       "name": "puller",
+       "centre": [
+        257,
+        556.5
+       ],
+       "nominalHalfExtent": [
+        49.3,
+        49.3
+       ],
+       "areaPx": 7644,
+       "bboxPx": [
+        208,
+        508,
+        306,
+        606
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [],
+     "note": null
+    },
+    {
+     "place": "kitchen",
+     "shot": "390x844-kitchen.png",
+     "mode": "play",
+     "uiPlace": "kitchen",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        48.4,
+        76
+       ],
+       "nominalHalfExtent": [
+        46,
+        46
+       ],
+       "areaPx": 6668,
+       "bboxPx": [
+        2,
+        30,
+        94,
+        122
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "food0",
+       "centre": [
+        48.8,
+        734.3
+       ],
+       "nominalHalfExtent": [
+        52.7,
+        52.7
+       ],
+       "areaPx": 8508,
+       "bboxPx": [
+        0,
+        682,
+        98,
+        786
+       ],
+       "largestSquarePx": 74,
+       "underLockPx": 0
+      },
+      {
+       "name": "food1",
+       "centre": [
+        146.3,
+        734.3
+       ],
+       "nominalHalfExtent": [
+        52.7,
+        52.7
+       ],
+       "areaPx": 8428,
+       "bboxPx": [
+        98,
+        682,
+        194,
+        786
+       ],
+       "largestSquarePx": 74,
+       "underLockPx": 0
+      },
+      {
+       "name": "food2",
+       "centre": [
+        243.8,
+        734.3
+       ],
+       "nominalHalfExtent": [
+        52.7,
+        52.7
+       ],
+       "areaPx": 8508,
+       "bboxPx": [
+        194,
+        682,
+        292,
+        786
+       ],
+       "largestSquarePx": 74,
+       "underLockPx": 0
+      },
+      {
+       "name": "food3",
+       "centre": [
+        341.3,
+        734.3
+       ],
+       "nominalHalfExtent": [
+        52.7,
+        52.7
+       ],
+       "areaPx": 8508,
+       "bboxPx": [
+        292,
+        682,
+        390,
+        786
+       ],
+       "largestSquarePx": 74,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        195,
+        445.8
+       ],
+       "nominalHalfExtent": [
+        94.4,
+        94.4
+       ],
+       "areaPx": 28000,
+       "bboxPx": [
+        100,
+        352,
+        290,
+        540
+       ],
+       "largestSquarePx": 134,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "food1",
+       "b": "food2",
+       "areaPx": 192,
+       "shareOfSmaller": 0.02,
+       "winner": "food2",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "food0",
+       "b": "food1",
+       "areaPx": 208,
+       "shareOfSmaller": 0.02,
+       "winner": "food0",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "food2",
+       "b": "food3",
+       "areaPx": 208,
+       "shareOfSmaller": 0.02,
+       "winner": "food3",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "dough",
+     "shot": "390x844-dough.png",
+     "mode": "play",
+     "uiPlace": "dough",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        48.4,
+        76
+       ],
+       "nominalHalfExtent": [
+        46,
+        46
+       ],
+       "areaPx": 6668,
+       "bboxPx": [
+        2,
+        30,
+        94,
+        122
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot0",
+       "centre": [
+        78,
+        232.1
+       ],
+       "nominalHalfExtent": [
+        42.1,
+        42.1
+       ],
+       "areaPx": 5480,
+       "bboxPx": [
+        36,
+        190,
+        116,
+        274
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot1",
+       "centre": [
+        156,
+        232.1
+       ],
+       "nominalHalfExtent": [
+        42.1,
+        42.1
+       ],
+       "areaPx": 5440,
+       "bboxPx": [
+        116,
+        190,
+        194,
+        274
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot2",
+       "centre": [
+        234,
+        232.1
+       ],
+       "nominalHalfExtent": [
+        42.1,
+        42.1
+       ],
+       "areaPx": 5440,
+       "bboxPx": [
+        194,
+        190,
+        272,
+        274
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot3",
+       "centre": [
+        312,
+        232.1
+       ],
+       "nominalHalfExtent": [
+        42.1,
+        42.1
+       ],
+       "areaPx": 5544,
+       "bboxPx": [
+        272,
+        190,
+        354,
+        274
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "cutter",
+       "centre": [
+        312,
+        540.2
+       ],
+       "nominalHalfExtent": [
+        54.6,
+        54.6
+       ],
+       "areaPx": 9360,
+       "bboxPx": [
+        258,
+        486,
+        366,
+        594
+       ],
+       "largestSquarePx": 76,
+       "underLockPx": 0
+      },
+      {
+       "name": "dough lump",
+       "centre": [
+        163.8,
+        557
+       ],
+       "nominalHalfExtent": [
+        106.1,
+        81.6
+       ],
+       "areaPx": 26808,
+       "bboxPx": [
+        58,
+        476,
+        268,
+        638
+       ],
+       "largestSquarePx": 130,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "colour dot0",
+       "b": "colour dot1",
+       "areaPx": 144,
+       "shareOfSmaller": 0.03,
+       "winner": "colour dot1",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "colour dot1",
+       "b": "colour dot2",
+       "areaPx": 144,
+       "shareOfSmaller": 0.03,
+       "winner": "colour dot2",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "colour dot2",
+       "b": "colour dot3",
+       "areaPx": 144,
+       "shareOfSmaller": 0.03,
+       "winner": "colour dot3",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "cutter",
+       "b": "dough lump",
+       "areaPx": 380,
+       "shareOfSmaller": 0.04,
+       "winner": "cutter",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "door",
+     "shot": "390x844-door.png",
+     "mode": "play",
+     "uiPlace": "door",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        48.4,
+        76
+       ],
+       "nominalHalfExtent": [
+        46,
+        46
+       ],
+       "areaPx": 6668,
+       "bboxPx": [
+        2,
+        30,
+        94,
+        122
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget bell",
+       "centre": [
+        342,
+        468.5
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7460,
+       "bboxPx": [
+        294,
+        420,
+        390,
+        518
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget switch",
+       "centre": [
+        342,
+        583.3
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7464,
+       "bboxPx": [
+        294,
+        534,
+        390,
+        632
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget latch",
+       "centre": [
+        240.3,
+        542.2
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7448,
+       "bboxPx": [
+        192,
+        494,
+        290,
+        590
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget bolt",
+       "centre": [
+        157.3,
+        631.7
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7456,
+       "bboxPx": [
+        108,
+        582,
+        206,
+        680
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget crank",
+       "centre": [
+        48,
+        593
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7432,
+       "bboxPx": [
+        0,
+        544,
+        96,
+        642
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "door",
+       "centre": [
+        195,
+        548.5
+       ],
+       "nominalHalfExtent": [
+        113.2,
+        126.8
+       ],
+       "areaPx": 40504,
+       "bboxPx": [
+        82,
+        422,
+        308,
+        676
+       ],
+       "largestSquarePx": 110,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "gadget bell",
+       "b": "door",
+       "areaPx": 704,
+       "shareOfSmaller": 0.09,
+       "winner": "gadget bell",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget latch",
+       "b": "door",
+       "areaPx": 7448,
+       "shareOfSmaller": 1,
+       "winner": "gadget latch",
+       "shareLostByA": 0,
+       "shareLostByB": 0.13
+      },
+      {
+       "a": "gadget switch",
+       "b": "door",
+       "areaPx": 708,
+       "shareOfSmaller": 0.09,
+       "winner": "gadget switch",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget crank",
+       "b": "door",
+       "areaPx": 700,
+       "shareOfSmaller": 0.09,
+       "winner": "gadget crank",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget bolt",
+       "b": "door",
+       "areaPx": 7340,
+       "shareOfSmaller": 0.98,
+       "winner": "gadget bolt",
+       "shareLostByA": 0,
+       "shareLostByB": 0.13
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "bedtime-routine",
+     "shot": "390x844-bedtime-routine.png",
+     "mode": "dusk",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "toothbrush or cup",
+       "centre": [
+        71,
+        588.4
+       ],
+       "nominalHalfExtent": [
+        72.1,
+        72.1
+       ],
+       "areaPx": 16300,
+       "bboxPx": [
+        0,
+        516,
+        144,
+        660
+       ],
+       "largestSquarePx": 102,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [],
+     "note": "the toothbrush or cup is waiting"
+    },
+    {
+     "place": "bedtime-asleep",
+     "shot": "390x844-bedtime-asleep.png",
+     "mode": "sleep",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "ball",
+       "centre": [
+        156,
+        546
+       ],
+       "nominalHalfExtent": [
+        57.7,
+        57.7
+       ],
+       "areaPx": 6908,
+       "bboxPx": [
+        98,
+        488,
+        194,
+        588
+       ],
+       "largestSquarePx": 56,
+       "underLockPx": 0
+      },
+      {
+       "name": "sleeping baby",
+       "centre": [
+        195,
+        581.8
+       ],
+       "nominalHalfExtent": [
+        79.6,
+        79.6
+       ],
+       "areaPx": 16016,
+       "bboxPx": [
+        116,
+        502,
+        274,
+        662
+       ],
+       "largestSquarePx": 80,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "ball",
+       "b": "sleeping baby",
+       "areaPx": 7404,
+       "shareOfSmaller": 0.71,
+       "winner": "ball",
+       "shareLostByA": 0.34,
+       "shareLostByB": 0.19
+      }
+     ],
+     "note": "the baby is asleep"
+    },
+    {
+     "place": "grown-ups-panel",
+     "shot": "390x844-grown-ups-panel.png",
+     "buttons": [
+      {
+       "sel": "#gX",
+       "shown": true,
+       "x": 320,
+       "y": 271.2,
+       "w": 44,
+       "h": 44,
+       "right": 364,
+       "bottom": 315.2,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gNew",
+       "shown": true,
+       "x": 34,
+       "y": 316,
+       "w": 155,
+       "h": 118.4,
+       "right": 189,
+       "bottom": 434.4,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gSound",
+       "shown": true,
+       "x": 201,
+       "y": 316,
+       "w": 155,
+       "h": 118.4,
+       "right": 356,
+       "bottom": 434.4,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gHome",
+       "shown": true,
+       "x": 34,
+       "y": 446.4,
+       "w": 155,
+       "h": 118.4,
+       "right": 189,
+       "bottom": 564.8,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gClose",
+       "shown": true,
+       "x": 201,
+       "y": 446.4,
+       "w": 155,
+       "h": 118.4,
+       "right": 356,
+       "bottom": 564.8,
+       "centreHit": true,
+       "labelCut": false
+      }
+     ],
+     "card": {
+      "scrolls": false,
+      "top": 259.2,
+      "bottom": 584.8,
+      "left": 14,
+      "right": 376
+     },
+     "zones": [],
+     "overlaps": []
+    }
+   ],
+   "page": {
+    "sw": 390,
+    "sh": 844,
+    "iw": 390,
+    "ih": 844,
+    "canvas": [
+     390,
+     844
+    ]
+   },
+   "pageErrors": []
+  },
+  {
+   "size": "844x390",
+   "label": "iPhone 12 sideways",
+   "places": [
+    {
+     "place": "ranch",
+     "shot": "844x390-ranch.png",
+     "mode": "play",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "sponge",
+       "centre": [
+        675.2,
+        335.4
+       ],
+       "nominalHalfExtent": [
+        69.1,
+        69.1
+       ],
+       "areaPx": 12812,
+       "bboxPx": [
+        610,
+        268,
+        744,
+        390
+       ],
+       "largestSquarePx": 92,
+       "underLockPx": 0
+      },
+      {
+       "name": "sign (paint shed)",
+       "centre": [
+        92.8,
+        166.7
+       ],
+       "nominalHalfExtent": [
+        78.5,
+        78.5
+       ],
+       "areaPx": 17212,
+       "bboxPx": [
+        14,
+        88,
+        166,
+        242
+       ],
+       "largestSquarePx": 96,
+       "underLockPx": 0
+      },
+      {
+       "name": "wsign (wagon)",
+       "centre": [
+        742.7,
+        83.4
+       ],
+       "nominalHalfExtent": [
+        78.5,
+        78.5
+       ],
+       "areaPx": 19384,
+       "bboxPx": [
+        664,
+        4,
+        822,
+        162
+       ],
+       "largestSquarePx": 110,
+       "underLockPx": 768
+      },
+      {
+       "name": "ksign (snack kitchen)",
+       "centre": [
+        379.8,
+        83.4
+       ],
+       "nominalHalfExtent": [
+        78.5,
+        78.5
+       ],
+       "areaPx": 18860,
+       "bboxPx": [
+        302,
+        4,
+        458,
+        160
+       ],
+       "largestSquarePx": 110,
+       "underLockPx": 0
+      },
+      {
+       "name": "tsign (dough)",
+       "centre": [
+        236.3,
+        158.9
+       ],
+       "nominalHalfExtent": [
+        78.5,
+        78.5
+       ],
+       "areaPx": 17044,
+       "bboxPx": [
+        164,
+        84,
+        314,
+        238
+       ],
+       "largestSquarePx": 94,
+       "underLockPx": 0
+      },
+      {
+       "name": "dsign (barn door)",
+       "centre": [
+        774.9,
+        252.5
+       ],
+       "nominalHalfExtent": [
+        78.5,
+        78.5
+       ],
+       "areaPx": 18268,
+       "bboxPx": [
+        696,
+        174,
+        844,
+        332
+       ],
+       "largestSquarePx": 106,
+       "underLockPx": 0
+      },
+      {
+       "name": "bowl",
+       "centre": [
+        168.8,
+        327.6
+       ],
+       "nominalHalfExtent": [
+        75.3,
+        75.3
+       ],
+       "areaPx": 16808,
+       "bboxPx": [
+        94,
+        252,
+        244,
+        390
+       ],
+       "largestSquarePx": 106,
+       "underLockPx": 0
+      },
+      {
+       "name": "bush",
+       "centre": [
+        624.6,
+        208.9
+       ],
+       "nominalHalfExtent": [
+        87.9,
+        87.9
+       ],
+       "areaPx": 23476,
+       "bboxPx": [
+        536,
+        120,
+        712,
+        296
+       ],
+       "largestSquarePx": 124,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        422,
+        227.8
+       ],
+       "nominalHalfExtent": [
+        91.5,
+        91.5
+       ],
+       "areaPx": 21828,
+       "bboxPx": [
+        344,
+        138,
+        514,
+        314
+       ],
+       "largestSquarePx": 118,
+       "underLockPx": 0
+      },
+      {
+       "name": "sun",
+       "centre": [
+        185.7,
+        66.3
+       ],
+       "nominalHalfExtent": [
+        71.8,
+        71.8
+       ],
+       "areaPx": 14132,
+       "bboxPx": [
+        114,
+        0,
+        258,
+        134
+       ],
+       "largestSquarePx": 90,
+       "underLockPx": 0
+      },
+      {
+       "name": "cloud",
+       "centre": [
+        540.2,
+        35.9
+       ],
+       "nominalHalfExtent": [
+        57.9,
+        57.9
+       ],
+       "areaPx": 9156,
+       "bboxPx": [
+        482,
+        0,
+        598,
+        94
+       ],
+       "largestSquarePx": 78,
+       "underLockPx": 0
+      },
+      {
+       "name": "basket (hats)",
+       "centre": [
+        50.8,
+        259.7
+       ],
+       "nominalHalfExtent": [
+        65.9,
+        65.9
+       ],
+       "areaPx": 11352,
+       "bboxPx": [
+        0,
+        200,
+        116,
+        326
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower0",
+       "centre": [
+        281.6,
+        351
+       ],
+       "nominalHalfExtent": [
+        50.7,
+        50.7
+       ],
+       "areaPx": 6716,
+       "bboxPx": [
+        234,
+        300,
+        318,
+        390
+       ],
+       "largestSquarePx": 72,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower1",
+       "centre": [
+        355,
+        351
+       ],
+       "nominalHalfExtent": [
+        50.7,
+        50.7
+       ],
+       "areaPx": 6092,
+       "bboxPx": [
+        318,
+        302,
+        392,
+        390
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower2",
+       "centre": [
+        428.3,
+        351
+       ],
+       "nominalHalfExtent": [
+        50.7,
+        50.7
+       ],
+       "areaPx": 5792,
+       "bboxPx": [
+        392,
+        306,
+        464,
+        390
+       ],
+       "largestSquarePx": 72,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower3",
+       "centre": [
+        501.6,
+        351
+       ],
+       "nominalHalfExtent": [
+        50.7,
+        50.7
+       ],
+       "areaPx": 6256,
+       "bboxPx": [
+        464,
+        300,
+        538,
+        390
+       ],
+       "largestSquarePx": 72,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower4",
+       "centre": [
+        574.9,
+        351
+       ],
+       "nominalHalfExtent": [
+        50.7,
+        50.7
+       ],
+       "areaPx": 6576,
+       "bboxPx": [
+        538,
+        300,
+        620,
+        390
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "ball",
+       "centre": [
+        334,
+        246
+       ],
+       "nominalHalfExtent": [
+        66.3,
+        66.3
+       ],
+       "areaPx": 10688,
+       "bboxPx": [
+        268,
+        180,
+        374,
+        312
+       ],
+       "largestSquarePx": 78,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "tsign (dough)",
+       "b": "sun",
+       "areaPx": 3292,
+       "shareOfSmaller": 0.2,
+       "winner": "sun",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.1
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "sun",
+       "areaPx": 564,
+       "shareOfSmaller": 0.03,
+       "winner": "sun",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "tsign (dough)",
+       "areaPx": 568,
+       "shareOfSmaller": 0.03,
+       "winner": "sign (paint shed)",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "baby",
+       "areaPx": 1048,
+       "shareOfSmaller": 0.05,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "baby",
+       "b": "ball",
+       "areaPx": 6032,
+       "shareOfSmaller": 0.44,
+       "winner": "ball",
+       "shareLostByA": 0.13,
+       "shareLostByB": 0.19
+      },
+      {
+       "a": "tsign (dough)",
+       "b": "ball",
+       "areaPx": 580,
+       "shareOfSmaller": 0.04,
+       "winner": "ball",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "basket (hats)",
+       "areaPx": 2984,
+       "shareOfSmaller": 0.22,
+       "winner": "basket (hats)",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.1
+      },
+      {
+       "a": "dsign (barn door)",
+       "b": "bush",
+       "areaPx": 368,
+       "shareOfSmaller": 0.02,
+       "winner": "dsign (barn door)",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "sponge",
+       "b": "bush",
+       "areaPx": 1064,
+       "shareOfSmaller": 0.07,
+       "winner": "sponge",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "sponge",
+       "b": "dsign (barn door)",
+       "areaPx": 856,
+       "shareOfSmaller": 0.06,
+       "winner": "sponge",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "bowl",
+       "b": "basket (hats)",
+       "areaPx": 128,
+       "shareOfSmaller": 0.01,
+       "winner": "basket (hats)",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "flower1",
+       "b": "ball",
+       "areaPx": 320,
+       "shareOfSmaller": 0.04,
+       "winner": "flower1",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "baby",
+       "b": "flower2",
+       "areaPx": 864,
+       "shareOfSmaller": 0.11,
+       "winner": "flower2",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "baby",
+       "b": "flower1",
+       "areaPx": 32,
+       "shareOfSmaller": 0,
+       "winner": "neither",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "flower0",
+       "b": "flower1",
+       "areaPx": 1360,
+       "shareOfSmaller": 0.17,
+       "winner": "flower1",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "flower1",
+       "b": "flower2",
+       "areaPx": 1360,
+       "shareOfSmaller": 0.17,
+       "winner": "flower1",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.09
+      },
+      {
+       "a": "flower2",
+       "b": "flower3",
+       "areaPx": 1336,
+       "shareOfSmaller": 0.17,
+       "winner": "flower3",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "flower3",
+       "b": "flower4",
+       "areaPx": 1352,
+       "shareOfSmaller": 0.17,
+       "winner": "flower4",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "sponge",
+       "b": "flower4",
+       "areaPx": 780,
+       "shareOfSmaller": 0.1,
+       "winner": "flower4",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "bowl",
+       "b": "flower0",
+       "areaPx": 356,
+       "shareOfSmaller": 0.04,
+       "winner": "flower0",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.02
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "ranch-with-friend",
+     "shot": "844x390-ranch-with-friend.png",
+     "mode": "play",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "sponge",
+       "centre": [
+        675.2,
+        335.4
+       ],
+       "nominalHalfExtent": [
+        69.1,
+        69.1
+       ],
+       "areaPx": 10988,
+       "bboxPx": [
+        612,
+        288,
+        744,
+        390
+       ],
+       "largestSquarePx": 84,
+       "underLockPx": 0
+      },
+      {
+       "name": "sign (paint shed)",
+       "centre": [
+        92.8,
+        166.7
+       ],
+       "nominalHalfExtent": [
+        78.5,
+        78.5
+       ],
+       "areaPx": 17212,
+       "bboxPx": [
+        14,
+        88,
+        166,
+        242
+       ],
+       "largestSquarePx": 96,
+       "underLockPx": 0
+      },
+      {
+       "name": "wsign (wagon)",
+       "centre": [
+        742.7,
+        83.4
+       ],
+       "nominalHalfExtent": [
+        78.5,
+        78.5
+       ],
+       "areaPx": 19384,
+       "bboxPx": [
+        664,
+        4,
+        822,
+        162
+       ],
+       "largestSquarePx": 110,
+       "underLockPx": 768
+      },
+      {
+       "name": "ksign (snack kitchen)",
+       "centre": [
+        379.8,
+        83.4
+       ],
+       "nominalHalfExtent": [
+        78.5,
+        78.5
+       ],
+       "areaPx": 18860,
+       "bboxPx": [
+        302,
+        4,
+        458,
+        160
+       ],
+       "largestSquarePx": 110,
+       "underLockPx": 0
+      },
+      {
+       "name": "tsign (dough)",
+       "centre": [
+        236.3,
+        158.9
+       ],
+       "nominalHalfExtent": [
+        78.5,
+        78.5
+       ],
+       "areaPx": 17044,
+       "bboxPx": [
+        164,
+        84,
+        314,
+        238
+       ],
+       "largestSquarePx": 94,
+       "underLockPx": 0
+      },
+      {
+       "name": "dsign (barn door)",
+       "centre": [
+        774.9,
+        252.5
+       ],
+       "nominalHalfExtent": [
+        78.5,
+        78.5
+       ],
+       "areaPx": 17040,
+       "bboxPx": [
+        716,
+        174,
+        844,
+        332
+       ],
+       "largestSquarePx": 106,
+       "underLockPx": 0
+      },
+      {
+       "name": "bowl",
+       "centre": [
+        168.8,
+        327.6
+       ],
+       "nominalHalfExtent": [
+        75.3,
+        75.3
+       ],
+       "areaPx": 16808,
+       "bboxPx": [
+        94,
+        252,
+        244,
+        390
+       ],
+       "largestSquarePx": 106,
+       "underLockPx": 0
+      },
+      {
+       "name": "bush",
+       "centre": [
+        624.6,
+        208.9
+       ],
+       "nominalHalfExtent": [
+        87.9,
+        87.9
+       ],
+       "areaPx": 15416,
+       "bboxPx": [
+        536,
+        120,
+        702,
+        274
+       ],
+       "largestSquarePx": 78,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        422,
+        227.8
+       ],
+       "nominalHalfExtent": [
+        91.5,
+        91.5
+       ],
+       "areaPx": 21828,
+       "bboxPx": [
+        344,
+        138,
+        514,
+        314
+       ],
+       "largestSquarePx": 118,
+       "underLockPx": 0
+      },
+      {
+       "name": "friend",
+       "centre": [
+        649.9,
+        242.1
+       ],
+       "nominalHalfExtent": [
+        90.5,
+        90.5
+       ],
+       "areaPx": 12124,
+       "bboxPx": [
+        566,
+        168,
+        724,
+        320
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "sun",
+       "centre": [
+        185.7,
+        66.3
+       ],
+       "nominalHalfExtent": [
+        71.8,
+        71.8
+       ],
+       "areaPx": 14132,
+       "bboxPx": [
+        114,
+        0,
+        258,
+        134
+       ],
+       "largestSquarePx": 90,
+       "underLockPx": 0
+      },
+      {
+       "name": "cloud",
+       "centre": [
+        540.2,
+        35.9
+       ],
+       "nominalHalfExtent": [
+        57.9,
+        57.9
+       ],
+       "areaPx": 9156,
+       "bboxPx": [
+        482,
+        0,
+        598,
+        94
+       ],
+       "largestSquarePx": 78,
+       "underLockPx": 0
+      },
+      {
+       "name": "basket (hats)",
+       "centre": [
+        50.8,
+        259.7
+       ],
+       "nominalHalfExtent": [
+        65.9,
+        65.9
+       ],
+       "areaPx": 11352,
+       "bboxPx": [
+        0,
+        200,
+        116,
+        326
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower0",
+       "centre": [
+        281.6,
+        351
+       ],
+       "nominalHalfExtent": [
+        50.7,
+        50.7
+       ],
+       "areaPx": 6716,
+       "bboxPx": [
+        234,
+        300,
+        318,
+        390
+       ],
+       "largestSquarePx": 72,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower1",
+       "centre": [
+        355,
+        351
+       ],
+       "nominalHalfExtent": [
+        50.7,
+        50.7
+       ],
+       "areaPx": 6092,
+       "bboxPx": [
+        318,
+        302,
+        392,
+        390
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower2",
+       "centre": [
+        428.3,
+        351
+       ],
+       "nominalHalfExtent": [
+        50.7,
+        50.7
+       ],
+       "areaPx": 5792,
+       "bboxPx": [
+        392,
+        306,
+        464,
+        390
+       ],
+       "largestSquarePx": 72,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower3",
+       "centre": [
+        501.6,
+        351
+       ],
+       "nominalHalfExtent": [
+        50.7,
+        50.7
+       ],
+       "areaPx": 6256,
+       "bboxPx": [
+        464,
+        300,
+        538,
+        390
+       ],
+       "largestSquarePx": 72,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower4",
+       "centre": [
+        574.9,
+        351
+       ],
+       "nominalHalfExtent": [
+        50.7,
+        50.7
+       ],
+       "areaPx": 6488,
+       "bboxPx": [
+        538,
+        300,
+        620,
+        390
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "ball",
+       "centre": [
+        334,
+        246
+       ],
+       "nominalHalfExtent": [
+        66.3,
+        66.3
+       ],
+       "areaPx": 10688,
+       "bboxPx": [
+        268,
+        180,
+        374,
+        312
+       ],
+       "largestSquarePx": 78,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "tsign (dough)",
+       "b": "sun",
+       "areaPx": 3292,
+       "shareOfSmaller": 0.2,
+       "winner": "sun",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.1
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "sun",
+       "areaPx": 564,
+       "shareOfSmaller": 0.03,
+       "winner": "sun",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "tsign (dough)",
+       "areaPx": 568,
+       "shareOfSmaller": 0.03,
+       "winner": "sign (paint shed)",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "baby",
+       "areaPx": 1048,
+       "shareOfSmaller": 0.05,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "bush",
+       "b": "friend",
+       "areaPx": 17580,
+       "shareOfSmaller": 0.72,
+       "winner": "friend",
+       "shareLostByA": 0.36,
+       "shareLostByB": 0.34
+      },
+      {
+       "a": "baby",
+       "b": "ball",
+       "areaPx": 6032,
+       "shareOfSmaller": 0.44,
+       "winner": "ball",
+       "shareLostByA": 0.13,
+       "shareLostByB": 0.19
+      },
+      {
+       "a": "tsign (dough)",
+       "b": "ball",
+       "areaPx": 580,
+       "shareOfSmaller": 0.04,
+       "winner": "ball",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "dsign (barn door)",
+       "b": "friend",
+       "areaPx": 3360,
+       "shareOfSmaller": 0.17,
+       "winner": "dsign (barn door)",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.07
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "basket (hats)",
+       "areaPx": 2984,
+       "shareOfSmaller": 0.22,
+       "winner": "basket (hats)",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.1
+      },
+      {
+       "a": "dsign (barn door)",
+       "b": "bush",
+       "areaPx": 368,
+       "shareOfSmaller": 0.02,
+       "winner": "neither",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "sponge",
+       "b": "bush",
+       "areaPx": 1064,
+       "shareOfSmaller": 0.07,
+       "winner": "neither",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "sponge",
+       "b": "friend",
+       "areaPx": 5468,
+       "shareOfSmaller": 0.36,
+       "winner": "sponge",
+       "shareLostByA": 0.16,
+       "shareLostByB": 0.11
+      },
+      {
+       "a": "sponge",
+       "b": "dsign (barn door)",
+       "areaPx": 856,
+       "shareOfSmaller": 0.06,
+       "winner": "sponge",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "bowl",
+       "b": "basket (hats)",
+       "areaPx": 128,
+       "shareOfSmaller": 0.01,
+       "winner": "basket (hats)",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "flower1",
+       "b": "ball",
+       "areaPx": 320,
+       "shareOfSmaller": 0.04,
+       "winner": "flower1",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "baby",
+       "b": "flower2",
+       "areaPx": 864,
+       "shareOfSmaller": 0.11,
+       "winner": "flower2",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "friend",
+       "b": "flower4",
+       "areaPx": 288,
+       "shareOfSmaller": 0.04,
+       "winner": "flower4",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "baby",
+       "b": "flower1",
+       "areaPx": 32,
+       "shareOfSmaller": 0,
+       "winner": "neither",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "flower0",
+       "b": "flower1",
+       "areaPx": 1360,
+       "shareOfSmaller": 0.17,
+       "winner": "flower1",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "flower1",
+       "b": "flower2",
+       "areaPx": 1360,
+       "shareOfSmaller": 0.17,
+       "winner": "flower1",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.09
+      },
+      {
+       "a": "flower2",
+       "b": "flower3",
+       "areaPx": 1336,
+       "shareOfSmaller": 0.17,
+       "winner": "flower3",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "flower3",
+       "b": "flower4",
+       "areaPx": 1352,
+       "shareOfSmaller": 0.17,
+       "winner": "flower4",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "sponge",
+       "b": "flower4",
+       "areaPx": 780,
+       "shareOfSmaller": 0.1,
+       "winner": "flower4",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "bowl",
+       "b": "flower0",
+       "areaPx": 356,
+       "shareOfSmaller": 0.04,
+       "winner": "flower0",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.02
+      }
+     ],
+     "note": "a friend is visiting"
+    },
+    {
+     "place": "shed",
+     "shot": "844x390-shed.png",
+     "mode": "play",
+     "uiPlace": "shed",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        84.4,
+        44.8
+       ],
+       "nominalHalfExtent": [
+        42.6,
+        42.6
+       ],
+       "areaPx": 5704,
+       "bboxPx": [
+        42,
+        2,
+        128,
+        88
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot0",
+       "centre": [
+        105.5,
+        327.6
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 6332,
+       "bboxPx": [
+        60,
+        282,
+        150,
+        372
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot1",
+       "centre": [
+        316.5,
+        327.6
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 6332,
+       "bboxPx": [
+        272,
+        282,
+        362,
+        372
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot2",
+       "centre": [
+        527.5,
+        327.6
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 6332,
+       "bboxPx": [
+        482,
+        282,
+        572,
+        372
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot3",
+       "centre": [
+        738.5,
+        327.6
+       ],
+       "nominalHalfExtent": [
+        44.8,
+        44.8
+       ],
+       "areaPx": 6332,
+       "bboxPx": [
+        694,
+        282,
+        784,
+        372
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: head",
+       "centre": [
+        414.6,
+        180.1
+       ],
+       "nominalHalfExtent": [
+        176.4,
+        176.4
+       ],
+       "areaPx": 42656,
+       "bboxPx": [
+        290,
+        4,
+        590,
+        220
+       ],
+       "largestSquarePx": 140,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: legs",
+       "centre": [
+        414.6,
+        180.1
+       ],
+       "nominalHalfExtent": [
+        176.4,
+        176.4
+       ],
+       "areaPx": 22400,
+       "bboxPx": [
+        310,
+        200,
+        590,
+        356
+       ],
+       "largestSquarePx": 78,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: tail",
+       "centre": [
+        414.6,
+        180.1
+       ],
+       "nominalHalfExtent": [
+        176.4,
+        176.4
+       ],
+       "areaPx": 21880,
+       "bboxPx": [
+        238,
+        56,
+        384,
+        298
+       ],
+       "largestSquarePx": 106,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: body",
+       "centre": [
+        414.6,
+        180.1
+       ],
+       "nominalHalfExtent": [
+        176.4,
+        176.4
+       ],
+       "areaPx": 5700,
+       "bboxPx": [
+        336,
+        160,
+        494,
+        274
+       ],
+       "largestSquarePx": 38,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "pot1",
+       "b": "outline: legs",
+       "areaPx": 2764,
+       "shareOfSmaller": 0.44,
+       "winner": "pot1",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "pot2",
+       "b": "outline: legs",
+       "areaPx": 2200,
+       "shareOfSmaller": 0.35,
+       "winner": "pot2",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "pot1",
+       "b": "outline: tail",
+       "areaPx": 180,
+       "shareOfSmaller": 0.03,
+       "winner": "pot1",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "wagon",
+     "shot": "844x390-wagon.png",
+     "mode": "play",
+     "uiPlace": "wagon",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        84.4,
+        44.8
+       ],
+       "nominalHalfExtent": [
+        42.6,
+        42.6
+       ],
+       "areaPx": 5704,
+       "bboxPx": [
+        42,
+        2,
+        128,
+        88
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "waiting baby 0",
+       "centre": [
+        185.7,
+        321.8
+       ],
+       "nominalHalfExtent": [
+        64.4,
+        64.4
+       ],
+       "areaPx": 13016,
+       "bboxPx": [
+        122,
+        258,
+        250,
+        386
+       ],
+       "largestSquarePx": 92,
+       "underLockPx": 0
+      },
+      {
+       "name": "waiting baby 1",
+       "centre": [
+        422,
+        321.8
+       ],
+       "nominalHalfExtent": [
+        64.4,
+        64.4
+       ],
+       "areaPx": 13008,
+       "bboxPx": [
+        358,
+        258,
+        486,
+        386
+       ],
+       "largestSquarePx": 92,
+       "underLockPx": 0
+      },
+      {
+       "name": "car 0",
+       "centre": [
+        101.3,
+        226.2
+       ],
+       "nominalHalfExtent": [
+        67.3,
+        64.4
+       ],
+       "areaPx": 16420,
+       "bboxPx": [
+        34,
+        162,
+        168,
+        290
+       ],
+       "largestSquarePx": 110,
+       "underLockPx": 0
+      },
+      {
+       "name": "car 1",
+       "centre": [
+        238.8,
+        226.2
+       ],
+       "nominalHalfExtent": [
+        67.3,
+        64.4
+       ],
+       "areaPx": 15416,
+       "bboxPx": [
+        172,
+        162,
+        306,
+        290
+       ],
+       "largestSquarePx": 100,
+       "underLockPx": 0
+      },
+      {
+       "name": "puller",
+       "centre": [
+        387.9,
+        226.2
+       ],
+       "nominalHalfExtent": [
+        67.3,
+        67.3
+       ],
+       "areaPx": 12512,
+       "bboxPx": [
+        320,
+        158,
+        456,
+        290
+       ],
+       "largestSquarePx": 84,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "waiting baby 0",
+       "b": "car 1",
+       "areaPx": 1736,
+       "shareOfSmaller": 0.13,
+       "winner": "waiting baby 0",
+       "shareLostByA": 0,
+       "shareLostByB": 0.1
+      },
+      {
+       "a": "waiting baby 1",
+       "b": "puller",
+       "areaPx": 1724,
+       "shareOfSmaller": 0.13,
+       "winner": "waiting baby 1",
+       "shareLostByA": 0,
+       "shareLostByB": 0.12
+      },
+      {
+       "a": "waiting baby 0",
+       "b": "car 0",
+       "areaPx": 732,
+       "shareOfSmaller": 0.06,
+       "winner": "waiting baby 0",
+       "shareLostByA": 0,
+       "shareLostByB": 0.04
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "kitchen",
+     "shot": "844x390-kitchen.png",
+     "mode": "play",
+     "uiPlace": "kitchen",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        84.4,
+        44.8
+       ],
+       "nominalHalfExtent": [
+        42.6,
+        42.6
+       ],
+       "areaPx": 5704,
+       "bboxPx": [
+        42,
+        2,
+        128,
+        88
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "food0",
+       "centre": [
+        105.5,
+        339.3
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7476,
+       "bboxPx": [
+        56,
+        290,
+        154,
+        388
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "food1",
+       "centre": [
+        316.5,
+        339.3
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7476,
+       "bboxPx": [
+        268,
+        290,
+        366,
+        388
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "food2",
+       "centre": [
+        527.5,
+        339.3
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7476,
+       "bboxPx": [
+        478,
+        290,
+        576,
+        388
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "food3",
+       "centre": [
+        738.5,
+        339.3
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7476,
+       "bboxPx": [
+        690,
+        290,
+        788,
+        388
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        422,
+        146.6
+       ],
+       "nominalHalfExtent": [
+        103,
+        103
+       ],
+       "areaPx": 33280,
+       "bboxPx": [
+        320,
+        44,
+        524,
+        250
+       ],
+       "largestSquarePx": 146,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [],
+     "note": null
+    },
+    {
+     "place": "dough",
+     "shot": "844x390-dough.png",
+     "mode": "play",
+     "uiPlace": "dough",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        84.4,
+        44.8
+       ],
+       "nominalHalfExtent": [
+        42.6,
+        42.6
+       ],
+       "areaPx": 5704,
+       "bboxPx": [
+        42,
+        2,
+        128,
+        88
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot0",
+       "centre": [
+        227.9,
+        107.3
+       ],
+       "nominalHalfExtent": [
+        46.8,
+        46.8
+       ],
+       "areaPx": 6884,
+       "bboxPx": [
+        182,
+        60,
+        274,
+        154
+       ],
+       "largestSquarePx": 66,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot1",
+       "centre": [
+        396.7,
+        107.3
+       ],
+       "nominalHalfExtent": [
+        46.8,
+        46.8
+       ],
+       "areaPx": 6900,
+       "bboxPx": [
+        350,
+        60,
+        444,
+        154
+       ],
+       "largestSquarePx": 66,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot2",
+       "centre": [
+        565.5,
+        107.3
+       ],
+       "nominalHalfExtent": [
+        46.8,
+        46.8
+       ],
+       "areaPx": 6888,
+       "bboxPx": [
+        518,
+        60,
+        612,
+        154
+       ],
+       "largestSquarePx": 66,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot3",
+       "centre": [
+        734.3,
+        107.3
+       ],
+       "nominalHalfExtent": [
+        46.8,
+        46.8
+       ],
+       "areaPx": 6884,
+       "bboxPx": [
+        688,
+        60,
+        782,
+        154
+       ],
+       "largestSquarePx": 66,
+       "underLockPx": 0
+      },
+      {
+       "name": "cutter",
+       "centre": [
+        675.2,
+        249.6
+       ],
+       "nominalHalfExtent": [
+        54.6,
+        54.6
+       ],
+       "areaPx": 9360,
+       "bboxPx": [
+        620,
+        196,
+        730,
+        304
+       ],
+       "largestSquarePx": 78,
+       "underLockPx": 0
+      },
+      {
+       "name": "dough lump",
+       "centre": [
+        354.5,
+        257.4
+       ],
+       "nominalHalfExtent": [
+        106.1,
+        81.6
+       ],
+       "areaPx": 27168,
+       "bboxPx": [
+        248,
+        176,
+        460,
+        338
+       ],
+       "largestSquarePx": 130,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [],
+     "note": null
+    },
+    {
+     "place": "door",
+     "shot": "844x390-door.png",
+     "mode": "play",
+     "uiPlace": "door",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        84.4,
+        44.8
+       ],
+       "nominalHalfExtent": [
+        42.6,
+        42.6
+       ],
+       "areaPx": 5704,
+       "bboxPx": [
+        42,
+        2,
+        128,
+        88
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget bell",
+       "centre": [
+        559.8,
+        128.7
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7460,
+       "bboxPx": [
+        512,
+        80,
+        608,
+        178
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget switch",
+       "centre": [
+        559.8,
+        229
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7448,
+       "bboxPx": [
+        512,
+        180,
+        608,
+        278
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget latch",
+       "centre": [
+        462.9,
+        191.9
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7452,
+       "bboxPx": [
+        414,
+        144,
+        512,
+        240
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget bolt",
+       "centre": [
+        387.9,
+        272.7
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7460,
+       "bboxPx": [
+        340,
+        224,
+        436,
+        322
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget crank",
+       "centre": [
+        284.2,
+        237.7
+       ],
+       "nominalHalfExtent": [
+        48.8,
+        48.8
+       ],
+       "areaPx": 7444,
+       "bboxPx": [
+        236,
+        190,
+        332,
+        286
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "door",
+       "centre": [
+        422,
+        197
+       ],
+       "nominalHalfExtent": [
+        102.2,
+        115.1
+       ],
+       "areaPx": 30664,
+       "bboxPx": [
+        320,
+        82,
+        524,
+        312
+       ],
+       "largestSquarePx": 96,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "gadget bell",
+       "b": "door",
+       "areaPx": 572,
+       "shareOfSmaller": 0.08,
+       "winner": "gadget bell",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget latch",
+       "b": "door",
+       "areaPx": 7452,
+       "shareOfSmaller": 1,
+       "winner": "gadget latch",
+       "shareLostByA": 0,
+       "shareLostByB": 0.16
+      },
+      {
+       "a": "gadget switch",
+       "b": "door",
+       "areaPx": 568,
+       "shareOfSmaller": 0.08,
+       "winner": "gadget switch",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget crank",
+       "b": "door",
+       "areaPx": 580,
+       "shareOfSmaller": 0.08,
+       "winner": "gadget crank",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget bolt",
+       "b": "door",
+       "areaPx": 7084,
+       "shareOfSmaller": 0.95,
+       "winner": "gadget bolt",
+       "shareLostByA": 0,
+       "shareLostByB": 0.15
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "bedtime-routine",
+     "shot": "844x390-bedtime-routine.png",
+     "mode": "dusk",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "toothbrush or cup",
+       "centre": [
+        206.5,
+        289.9
+       ],
+       "nominalHalfExtent": [
+        76,
+        76
+       ],
+       "areaPx": 18120,
+       "bboxPx": [
+        130,
+        214,
+        282,
+        366
+       ],
+       "largestSquarePx": 108,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [],
+     "note": "the toothbrush or cup is waiting"
+    },
+    {
+     "place": "bedtime-asleep",
+     "shot": "844x390-bedtime-asleep.png",
+     "mode": "sleep",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "ball",
+       "centre": [
+        334,
+        246
+       ],
+       "nominalHalfExtent": [
+        66.3,
+        66.3
+       ],
+       "areaPx": 11136,
+       "bboxPx": [
+        268,
+        180,
+        374,
+        312
+       ],
+       "largestSquarePx": 80,
+       "underLockPx": 0
+      },
+      {
+       "name": "sleeping baby",
+       "centre": [
+        422,
+        227.8
+       ],
+       "nominalHalfExtent": [
+        91.5,
+        91.5
+       ],
+       "areaPx": 22944,
+       "bboxPx": [
+        344,
+        136,
+        514,
+        320
+       ],
+       "largestSquarePx": 118,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "ball",
+       "b": "sleeping baby",
+       "areaPx": 6032,
+       "shareOfSmaller": 0.44,
+       "winner": "ball",
+       "shareLostByA": 0.19,
+       "shareLostByB": 0.13
+      }
+     ],
+     "note": "the baby is asleep"
+    },
+    {
+     "place": "grown-ups-panel",
+     "shot": "844x390-grown-ups-panel.png",
+     "buttons": [
+      {
+       "sel": "#gX",
+       "shown": true,
+       "x": 646,
+       "y": 122.9,
+       "w": 44,
+       "h": 44,
+       "right": 690,
+       "bottom": 166.9,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gNew",
+       "shown": true,
+       "x": 162,
+       "y": 161.7,
+       "w": 121,
+       "h": 97.4,
+       "right": 283,
+       "bottom": 259.1,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gSound",
+       "shown": true,
+       "x": 295,
+       "y": 161.7,
+       "w": 121,
+       "h": 97.4,
+       "right": 416,
+       "bottom": 259.1,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gHome",
+       "shown": true,
+       "x": 428,
+       "y": 161.7,
+       "w": 121,
+       "h": 97.4,
+       "right": 549,
+       "bottom": 259.1,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gClose",
+       "shown": true,
+       "x": 561,
+       "y": 161.7,
+       "w": 121,
+       "h": 97.4,
+       "right": 682,
+       "bottom": 259.1,
+       "centreHit": true,
+       "labelCut": false
+      }
+     ],
+     "card": {
+      "scrolls": false,
+      "top": 110.9,
+      "bottom": 279.1,
+      "left": 142,
+      "right": 702
+     },
+     "zones": [],
+     "overlaps": []
+    }
+   ],
+   "page": {
+    "sw": 844,
+    "sh": 390,
+    "iw": 844,
+    "ih": 390,
+    "canvas": [
+     844,
+     390
+    ]
+   },
+   "pageErrors": []
+  },
+  {
+   "size": "360x780",
+   "label": "small Android",
+   "places": [
+    {
+     "place": "ranch",
+     "shot": "360x780-ranch.png",
+     "mode": "play",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "sponge",
+       "centre": [
+        280.8,
+        660
+       ],
+       "nominalHalfExtent": [
+        55.4,
+        55.4
+       ],
+       "areaPx": 8852,
+       "bboxPx": [
+        226,
+        604,
+        336,
+        712
+       ],
+       "largestSquarePx": 74,
+       "underLockPx": 0
+      },
+      {
+       "name": "sign (paint shed)",
+       "centre": [
+        65.5,
+        367.3
+       ],
+       "nominalHalfExtent": [
+        63,
+        63
+       ],
+       "areaPx": 11940,
+       "bboxPx": [
+        2,
+        304,
+        128,
+        430
+       ],
+       "largestSquarePx": 86,
+       "underLockPx": 0
+      },
+      {
+       "name": "wsign (wagon)",
+       "centre": [
+        294.5,
+        328.4
+       ],
+       "nominalHalfExtent": [
+        63,
+        63
+       ],
+       "areaPx": 11888,
+       "bboxPx": [
+        232,
+        266,
+        358,
+        390
+       ],
+       "largestSquarePx": 84,
+       "underLockPx": 0
+      },
+      {
+       "name": "ksign (snack kitchen)",
+       "centre": [
+        162,
+        328.4
+       ],
+       "nominalHalfExtent": [
+        63,
+        63
+       ],
+       "areaPx": 10964,
+       "bboxPx": [
+        100,
+        266,
+        224,
+        392
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "tsign (dough)",
+       "centre": [
+        108,
+        242.8
+       ],
+       "nominalHalfExtent": [
+        63,
+        63
+       ],
+       "areaPx": 11712,
+       "bboxPx": [
+        46,
+        180,
+        170,
+        306
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "dsign (barn door)",
+       "centre": [
+        230.4,
+        242.8
+       ],
+       "nominalHalfExtent": [
+        63,
+        63
+       ],
+       "areaPx": 11652,
+       "bboxPx": [
+        170,
+        180,
+        294,
+        306
+       ],
+       "largestSquarePx": 84,
+       "underLockPx": 0
+      },
+      {
+       "name": "bowl",
+       "centre": [
+        79.2,
+        655.2
+       ],
+       "nominalHalfExtent": [
+        60.5,
+        60.5
+       ],
+       "areaPx": 10616,
+       "bboxPx": [
+        18,
+        594,
+        140,
+        712
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "bush",
+       "centre": [
+        260.6,
+        447.8
+       ],
+       "nominalHalfExtent": [
+        70.6,
+        70.6
+       ],
+       "areaPx": 14892,
+       "bboxPx": [
+        190,
+        378,
+        332,
+        518
+       ],
+       "largestSquarePx": 92,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        180,
+        537.7
+       ],
+       "nominalHalfExtent": [
+        73.4,
+        73.4
+       ],
+       "areaPx": 13012,
+       "bboxPx": [
+        106,
+        464,
+        254,
+        612
+       ],
+       "largestSquarePx": 74,
+       "underLockPx": 0
+      },
+      {
+       "name": "sun",
+       "centre": [
+        79.2,
+        132.6
+       ],
+       "nominalHalfExtent": [
+        57.6,
+        57.6
+       ],
+       "areaPx": 10304,
+       "bboxPx": [
+        22,
+        76,
+        136,
+        190
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "cloud",
+       "centre": [
+        230.4,
+        62.4
+       ],
+       "nominalHalfExtent": [
+        48.6,
+        48.6
+       ],
+       "areaPx": 7400,
+       "bboxPx": [
+        182,
+        14,
+        278,
+        110
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "basket (hats)",
+       "centre": [
+        47.9,
+        538.4
+       ],
+       "nominalHalfExtent": [
+        52.9,
+        52.9
+       ],
+       "areaPx": 8608,
+       "bboxPx": [
+        0,
+        486,
+        100,
+        592
+       ],
+       "largestSquarePx": 76,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower0",
+       "centre": [
+        36,
+        729.3
+       ],
+       "nominalHalfExtent": [
+        41.4,
+        41.4
+       ],
+       "areaPx": 4844,
+       "bboxPx": [
+        0,
+        688,
+        72,
+        770
+       ],
+       "largestSquarePx": 54,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower1",
+       "centre": [
+        108,
+        729.3
+       ],
+       "nominalHalfExtent": [
+        41.4,
+        41.4
+       ],
+       "areaPx": 4688,
+       "bboxPx": [
+        72,
+        692,
+        144,
+        770
+       ],
+       "largestSquarePx": 54,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower2",
+       "centre": [
+        180,
+        729.3
+       ],
+       "nominalHalfExtent": [
+        41.4,
+        41.4
+       ],
+       "areaPx": 5080,
+       "bboxPx": [
+        144,
+        688,
+        216,
+        770
+       ],
+       "largestSquarePx": 58,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower3",
+       "centre": [
+        252,
+        729.3
+       ],
+       "nominalHalfExtent": [
+        41.4,
+        41.4
+       ],
+       "areaPx": 4696,
+       "bboxPx": [
+        216,
+        692,
+        288,
+        770
+       ],
+       "largestSquarePx": 54,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower4",
+       "centre": [
+        324,
+        729.3
+       ],
+       "nominalHalfExtent": [
+        41.4,
+        41.4
+       ],
+       "areaPx": 4856,
+       "bboxPx": [
+        288,
+        688,
+        360,
+        770
+       ],
+       "largestSquarePx": 54,
+       "underLockPx": 0
+      },
+      {
+       "name": "ball",
+       "centre": [
+        144,
+        504
+       ],
+       "nominalHalfExtent": [
+        53.2,
+        53.2
+       ],
+       "areaPx": 5900,
+       "bboxPx": [
+        90,
+        450,
+        180,
+        542
+       ],
+       "largestSquarePx": 52,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "tsign (dough)",
+       "b": "sun",
+       "areaPx": 180,
+       "shareOfSmaller": 0.02,
+       "winner": "sun",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "tsign (dough)",
+       "b": "dsign (barn door)",
+       "areaPx": 56,
+       "shareOfSmaller": 0,
+       "winner": "tsign (dough)",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "tsign (dough)",
+       "areaPx": 1260,
+       "shareOfSmaller": 0.1,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.05
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "dsign (barn door)",
+       "areaPx": 688,
+       "shareOfSmaller": 0.06,
+       "winner": "dsign (barn door)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "wsign (wagon)",
+       "b": "dsign (barn door)",
+       "areaPx": 852,
+       "shareOfSmaller": 0.07,
+       "winner": "dsign (barn door)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "ksign (snack kitchen)",
+       "areaPx": 1040,
+       "shareOfSmaller": 0.08,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.04,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "wsign (wagon)",
+       "b": "bush",
+       "areaPx": 312,
+       "shareOfSmaller": 0.03,
+       "winner": "neither",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "baby",
+       "b": "ball",
+       "areaPx": 6260,
+       "shareOfSmaller": 0.7,
+       "winner": "ball",
+       "shareLostByA": 0.2,
+       "shareLostByB": 0.33
+      },
+      {
+       "a": "bush",
+       "b": "baby",
+       "areaPx": 1232,
+       "shareOfSmaller": 0.08,
+       "winner": "bush",
+       "shareLostByA": 0.04,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "basket (hats)",
+       "b": "ball",
+       "areaPx": 76,
+       "shareOfSmaller": 0.01,
+       "winner": "ball",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0
+      },
+      {
+       "a": "bowl",
+       "b": "flower0",
+       "areaPx": 588,
+       "shareOfSmaller": 0.11,
+       "winner": "flower0",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "bowl",
+       "b": "flower1",
+       "areaPx": 956,
+       "shareOfSmaller": 0.18,
+       "winner": "flower1",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.07
+      },
+      {
+       "a": "sponge",
+       "b": "flower3",
+       "areaPx": 908,
+       "shareOfSmaller": 0.17,
+       "winner": "flower3",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.07
+      },
+      {
+       "a": "sponge",
+       "b": "flower4",
+       "areaPx": 532,
+       "shareOfSmaller": 0.1,
+       "winner": "flower4",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "flower0",
+       "b": "flower1",
+       "areaPx": 312,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower1",
+       "b": "flower2",
+       "areaPx": 312,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower2",
+       "b": "flower3",
+       "areaPx": 312,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower3",
+       "b": "flower4",
+       "areaPx": 312,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "ranch-with-friend",
+     "shot": "360x780-ranch-with-friend.png",
+     "mode": "play",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "sponge",
+       "centre": [
+        280.8,
+        660
+       ],
+       "nominalHalfExtent": [
+        55.4,
+        55.4
+       ],
+       "areaPx": 8520,
+       "bboxPx": [
+        226,
+        612,
+        336,
+        712
+       ],
+       "largestSquarePx": 74,
+       "underLockPx": 0
+      },
+      {
+       "name": "sign (paint shed)",
+       "centre": [
+        65.5,
+        367.3
+       ],
+       "nominalHalfExtent": [
+        63,
+        63
+       ],
+       "areaPx": 11940,
+       "bboxPx": [
+        2,
+        304,
+        128,
+        430
+       ],
+       "largestSquarePx": 86,
+       "underLockPx": 0
+      },
+      {
+       "name": "wsign (wagon)",
+       "centre": [
+        294.5,
+        328.4
+       ],
+       "nominalHalfExtent": [
+        63,
+        63
+       ],
+       "areaPx": 11888,
+       "bboxPx": [
+        232,
+        266,
+        358,
+        390
+       ],
+       "largestSquarePx": 84,
+       "underLockPx": 0
+      },
+      {
+       "name": "ksign (snack kitchen)",
+       "centre": [
+        162,
+        328.4
+       ],
+       "nominalHalfExtent": [
+        63,
+        63
+       ],
+       "areaPx": 10964,
+       "bboxPx": [
+        100,
+        266,
+        224,
+        392
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "tsign (dough)",
+       "centre": [
+        108,
+        242.8
+       ],
+       "nominalHalfExtent": [
+        63,
+        63
+       ],
+       "areaPx": 11712,
+       "bboxPx": [
+        46,
+        180,
+        170,
+        306
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "dsign (barn door)",
+       "centre": [
+        230.4,
+        242.8
+       ],
+       "nominalHalfExtent": [
+        63,
+        63
+       ],
+       "areaPx": 11652,
+       "bboxPx": [
+        170,
+        180,
+        294,
+        306
+       ],
+       "largestSquarePx": 84,
+       "underLockPx": 0
+      },
+      {
+       "name": "bowl",
+       "centre": [
+        79.2,
+        655.2
+       ],
+       "nominalHalfExtent": [
+        60.5,
+        60.5
+       ],
+       "areaPx": 10616,
+       "bboxPx": [
+        18,
+        594,
+        140,
+        712
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "bush",
+       "centre": [
+        260.6,
+        447.8
+       ],
+       "nominalHalfExtent": [
+        70.6,
+        70.6
+       ],
+       "areaPx": 13684,
+       "bboxPx": [
+        190,
+        378,
+        332,
+        500
+       ],
+       "largestSquarePx": 92,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        180,
+        537.7
+       ],
+       "nominalHalfExtent": [
+        73.4,
+        73.4
+       ],
+       "areaPx": 11032,
+       "bboxPx": [
+        106,
+        464,
+        232,
+        612
+       ],
+       "largestSquarePx": 72,
+       "underLockPx": 0
+      },
+      {
+       "name": "friend",
+       "centre": [
+        270.7,
+        549.2
+       ],
+       "nominalHalfExtent": [
+        72.7,
+        72.7
+       ],
+       "areaPx": 12728,
+       "bboxPx": [
+        218,
+        492,
+        344,
+        618
+       ],
+       "largestSquarePx": 96,
+       "underLockPx": 0
+      },
+      {
+       "name": "sun",
+       "centre": [
+        79.2,
+        132.6
+       ],
+       "nominalHalfExtent": [
+        57.6,
+        57.6
+       ],
+       "areaPx": 10304,
+       "bboxPx": [
+        22,
+        76,
+        136,
+        190
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "cloud",
+       "centre": [
+        230.4,
+        62.4
+       ],
+       "nominalHalfExtent": [
+        48.6,
+        48.6
+       ],
+       "areaPx": 7400,
+       "bboxPx": [
+        182,
+        14,
+        278,
+        110
+       ],
+       "largestSquarePx": 68,
+       "underLockPx": 0
+      },
+      {
+       "name": "basket (hats)",
+       "centre": [
+        47.9,
+        538.4
+       ],
+       "nominalHalfExtent": [
+        52.9,
+        52.9
+       ],
+       "areaPx": 8608,
+       "bboxPx": [
+        0,
+        486,
+        100,
+        592
+       ],
+       "largestSquarePx": 76,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower0",
+       "centre": [
+        36,
+        729.3
+       ],
+       "nominalHalfExtent": [
+        41.4,
+        41.4
+       ],
+       "areaPx": 4844,
+       "bboxPx": [
+        0,
+        688,
+        72,
+        770
+       ],
+       "largestSquarePx": 54,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower1",
+       "centre": [
+        108,
+        729.3
+       ],
+       "nominalHalfExtent": [
+        41.4,
+        41.4
+       ],
+       "areaPx": 4688,
+       "bboxPx": [
+        72,
+        692,
+        144,
+        770
+       ],
+       "largestSquarePx": 54,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower2",
+       "centre": [
+        180,
+        729.3
+       ],
+       "nominalHalfExtent": [
+        41.4,
+        41.4
+       ],
+       "areaPx": 5080,
+       "bboxPx": [
+        144,
+        688,
+        216,
+        770
+       ],
+       "largestSquarePx": 58,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower3",
+       "centre": [
+        252,
+        729.3
+       ],
+       "nominalHalfExtent": [
+        41.4,
+        41.4
+       ],
+       "areaPx": 4696,
+       "bboxPx": [
+        216,
+        692,
+        288,
+        770
+       ],
+       "largestSquarePx": 54,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower4",
+       "centre": [
+        324,
+        729.3
+       ],
+       "nominalHalfExtent": [
+        41.4,
+        41.4
+       ],
+       "areaPx": 4856,
+       "bboxPx": [
+        288,
+        688,
+        360,
+        770
+       ],
+       "largestSquarePx": 54,
+       "underLockPx": 0
+      },
+      {
+       "name": "ball",
+       "centre": [
+        144,
+        504
+       ],
+       "nominalHalfExtent": [
+        53.2,
+        53.2
+       ],
+       "areaPx": 5900,
+       "bboxPx": [
+        90,
+        450,
+        180,
+        542
+       ],
+       "largestSquarePx": 52,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "tsign (dough)",
+       "b": "sun",
+       "areaPx": 180,
+       "shareOfSmaller": 0.02,
+       "winner": "sun",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "tsign (dough)",
+       "b": "dsign (barn door)",
+       "areaPx": 56,
+       "shareOfSmaller": 0,
+       "winner": "tsign (dough)",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "tsign (dough)",
+       "areaPx": 1260,
+       "shareOfSmaller": 0.1,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.05
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "dsign (barn door)",
+       "areaPx": 688,
+       "shareOfSmaller": 0.06,
+       "winner": "dsign (barn door)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "wsign (wagon)",
+       "b": "dsign (barn door)",
+       "areaPx": 852,
+       "shareOfSmaller": 0.07,
+       "winner": "dsign (barn door)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "ksign (snack kitchen)",
+       "areaPx": 1040,
+       "shareOfSmaller": 0.08,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.04,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "wsign (wagon)",
+       "b": "bush",
+       "areaPx": 312,
+       "shareOfSmaller": 0.03,
+       "winner": "neither",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "baby",
+       "b": "ball",
+       "areaPx": 6260,
+       "shareOfSmaller": 0.7,
+       "winner": "ball",
+       "shareLostByA": 0.2,
+       "shareLostByB": 0.33
+      },
+      {
+       "a": "bush",
+       "b": "baby",
+       "areaPx": 1232,
+       "shareOfSmaller": 0.08,
+       "winner": "bush",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "bush",
+       "b": "friend",
+       "areaPx": 2876,
+       "shareOfSmaller": 0.18,
+       "winner": "bush",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "baby",
+       "b": "friend",
+       "areaPx": 4348,
+       "shareOfSmaller": 0.26,
+       "winner": "baby",
+       "shareLostByA": 0.12,
+       "shareLostByB": 0.13
+      },
+      {
+       "a": "basket (hats)",
+       "b": "ball",
+       "areaPx": 76,
+       "shareOfSmaller": 0.01,
+       "winner": "ball",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0
+      },
+      {
+       "a": "sponge",
+       "b": "friend",
+       "areaPx": 724,
+       "shareOfSmaller": 0.08,
+       "winner": "sponge",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "bowl",
+       "b": "flower0",
+       "areaPx": 588,
+       "shareOfSmaller": 0.11,
+       "winner": "flower0",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "bowl",
+       "b": "flower1",
+       "areaPx": 956,
+       "shareOfSmaller": 0.18,
+       "winner": "flower1",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.07
+      },
+      {
+       "a": "sponge",
+       "b": "flower3",
+       "areaPx": 908,
+       "shareOfSmaller": 0.17,
+       "winner": "flower3",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.07
+      },
+      {
+       "a": "sponge",
+       "b": "flower4",
+       "areaPx": 532,
+       "shareOfSmaller": 0.1,
+       "winner": "flower4",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "flower0",
+       "b": "flower1",
+       "areaPx": 312,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower1",
+       "b": "flower2",
+       "areaPx": 312,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower2",
+       "b": "flower3",
+       "areaPx": 312,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "flower3",
+       "b": "flower4",
+       "areaPx": 312,
+       "shareOfSmaller": 0.06,
+       "winner": "neither",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      }
+     ],
+     "note": "a friend is visiting"
+    },
+    {
+     "place": "shed",
+     "shot": "360x780-shed.png",
+     "mode": "play",
+     "uiPlace": "shed",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        44.7,
+        70.2
+       ],
+       "nominalHalfExtent": [
+        42.5,
+        42.5
+       ],
+       "areaPx": 5684,
+       "bboxPx": [
+        2,
+        28,
+        88,
+        112
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot0",
+       "centre": [
+        45,
+        670.8
+       ],
+       "nominalHalfExtent": [
+        44.7,
+        44.7
+       ],
+       "areaPx": 6292,
+       "bboxPx": [
+        0,
+        626,
+        90,
+        716
+       ],
+       "largestSquarePx": 62,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot1",
+       "centre": [
+        135,
+        670.8
+       ],
+       "nominalHalfExtent": [
+        44.7,
+        44.7
+       ],
+       "areaPx": 6292,
+       "bboxPx": [
+        90,
+        626,
+        180,
+        716
+       ],
+       "largestSquarePx": 62,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot2",
+       "centre": [
+        225,
+        670.8
+       ],
+       "nominalHalfExtent": [
+        44.7,
+        44.7
+       ],
+       "areaPx": 6292,
+       "bboxPx": [
+        180,
+        626,
+        270,
+        716
+       ],
+       "largestSquarePx": 62,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot3",
+       "centre": [
+        315,
+        670.8
+       ],
+       "nominalHalfExtent": [
+        44.7,
+        44.7
+       ],
+       "areaPx": 6292,
+       "bboxPx": [
+        270,
+        626,
+        360,
+        716
+       ],
+       "largestSquarePx": 62,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: head",
+       "centre": [
+        170.2,
+        423
+       ],
+       "nominalHalfExtent": [
+        233.7,
+        233.7
+       ],
+       "areaPx": 69660,
+       "bboxPx": [
+        4,
+        190,
+        360,
+        476
+       ],
+       "largestSquarePx": 186,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: legs",
+       "centre": [
+        170.2,
+        423
+       ],
+       "nominalHalfExtent": [
+        233.7,
+        233.7
+       ],
+       "areaPx": 42340,
+       "bboxPx": [
+        4,
+        450,
+        360,
+        656
+       ],
+       "largestSquarePx": 96,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: tail",
+       "centre": [
+        170.2,
+        423
+       ],
+       "nominalHalfExtent": [
+        233.7,
+        233.7
+       ],
+       "areaPx": 24660,
+       "bboxPx": [
+        0,
+        260,
+        130,
+        586
+       ],
+       "largestSquarePx": 90,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: body",
+       "centre": [
+        170.2,
+        423
+       ],
+       "nominalHalfExtent": [
+        233.7,
+        233.7
+       ],
+       "areaPx": 9852,
+       "bboxPx": [
+        66,
+        398,
+        276,
+        548
+       ],
+       "largestSquarePx": 50,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "pot1",
+       "b": "outline: legs",
+       "areaPx": 1584,
+       "shareOfSmaller": 0.25,
+       "winner": "pot1",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "pot2",
+       "b": "outline: legs",
+       "areaPx": 1316,
+       "shareOfSmaller": 0.21,
+       "winner": "pot2",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "pot0",
+       "b": "outline: legs",
+       "areaPx": 4,
+       "shareOfSmaller": 0,
+       "winner": "pot0",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "wagon",
+     "shot": "360x780-wagon.png",
+     "mode": "play",
+     "uiPlace": "wagon",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        44.7,
+        70.2
+       ],
+       "nominalHalfExtent": [
+        42.5,
+        42.5
+       ],
+       "areaPx": 5684,
+       "bboxPx": [
+        2,
+        28,
+        88,
+        112
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "waiting baby 0",
+       "centre": [
+        79.2,
+        682.2
+       ],
+       "nominalHalfExtent": [
+        43.6,
+        43.6
+       ],
+       "areaPx": 5956,
+       "bboxPx": [
+        36,
+        638,
+        122,
+        726
+       ],
+       "largestSquarePx": 62,
+       "underLockPx": 0
+      },
+      {
+       "name": "waiting baby 1",
+       "centre": [
+        180,
+        682.2
+       ],
+       "nominalHalfExtent": [
+        43.6,
+        43.6
+       ],
+       "areaPx": 5968,
+       "bboxPx": [
+        136,
+        638,
+        224,
+        726
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "car 0",
+       "centre": [
+        43.2,
+        514.3
+       ],
+       "nominalHalfExtent": [
+        45.5,
+        43.6
+       ],
+       "areaPx": 7744,
+       "bboxPx": [
+        0,
+        470,
+        88,
+        558
+       ],
+       "largestSquarePx": 88,
+       "underLockPx": 0
+      },
+      {
+       "name": "car 1",
+       "centre": [
+        136.3,
+        514.3
+       ],
+       "nominalHalfExtent": [
+        45.5,
+        43.6
+       ],
+       "areaPx": 8096,
+       "bboxPx": [
+        90,
+        470,
+        182,
+        558
+       ],
+       "largestSquarePx": 88,
+       "underLockPx": 0
+      },
+      {
+       "name": "puller",
+       "centre": [
+        237.2,
+        514.3
+       ],
+       "nominalHalfExtent": [
+        45.5,
+        45.5
+       ],
+       "areaPx": 6516,
+       "bboxPx": [
+        192,
+        468,
+        282,
+        560
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [],
+     "note": null
+    },
+    {
+     "place": "kitchen",
+     "shot": "360x780-kitchen.png",
+     "mode": "play",
+     "uiPlace": "kitchen",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        44.7,
+        70.2
+       ],
+       "nominalHalfExtent": [
+        42.5,
+        42.5
+       ],
+       "areaPx": 5684,
+       "bboxPx": [
+        2,
+        28,
+        88,
+        112
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "food0",
+       "centre": [
+        45,
+        678.6
+       ],
+       "nominalHalfExtent": [
+        48.6,
+        48.6
+       ],
+       "areaPx": 7260,
+       "bboxPx": [
+        0,
+        630,
+        90,
+        728
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "food1",
+       "centre": [
+        135,
+        678.6
+       ],
+       "nominalHalfExtent": [
+        48.6,
+        48.6
+       ],
+       "areaPx": 7260,
+       "bboxPx": [
+        90,
+        630,
+        180,
+        728
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "food2",
+       "centre": [
+        225,
+        678.6
+       ],
+       "nominalHalfExtent": [
+        48.6,
+        48.6
+       ],
+       "areaPx": 7260,
+       "bboxPx": [
+        180,
+        630,
+        270,
+        728
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "food3",
+       "centre": [
+        315,
+        678.6
+       ],
+       "nominalHalfExtent": [
+        48.6,
+        48.6
+       ],
+       "areaPx": 7260,
+       "bboxPx": [
+        270,
+        630,
+        360,
+        728
+       ],
+       "largestSquarePx": 70,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        180,
+        412.1
+       ],
+       "nominalHalfExtent": [
+        87.1,
+        87.1
+       ],
+       "areaPx": 23816,
+       "bboxPx": [
+        92,
+        324,
+        268,
+        500
+       ],
+       "largestSquarePx": 124,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "food0",
+       "b": "food1",
+       "areaPx": 192,
+       "shareOfSmaller": 0.03,
+       "winner": "neither",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "food1",
+       "b": "food2",
+       "areaPx": 192,
+       "shareOfSmaller": 0.03,
+       "winner": "neither",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "food2",
+       "b": "food3",
+       "areaPx": 192,
+       "shareOfSmaller": 0.03,
+       "winner": "neither",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "dough",
+     "shot": "360x780-dough.png",
+     "mode": "play",
+     "uiPlace": "dough",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        44.7,
+        70.2
+       ],
+       "nominalHalfExtent": [
+        42.5,
+        42.5
+       ],
+       "areaPx": 5684,
+       "bboxPx": [
+        2,
+        28,
+        88,
+        112
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot0",
+       "centre": [
+        72,
+        214.5
+       ],
+       "nominalHalfExtent": [
+        38.9,
+        38.9
+       ],
+       "areaPx": 4696,
+       "bboxPx": [
+        34,
+        176,
+        108,
+        254
+       ],
+       "largestSquarePx": 56,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot1",
+       "centre": [
+        144,
+        214.5
+       ],
+       "nominalHalfExtent": [
+        38.9,
+        38.9
+       ],
+       "areaPx": 4648,
+       "bboxPx": [
+        108,
+        176,
+        180,
+        254
+       ],
+       "largestSquarePx": 56,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot2",
+       "centre": [
+        216,
+        214.5
+       ],
+       "nominalHalfExtent": [
+        38.9,
+        38.9
+       ],
+       "areaPx": 4648,
+       "bboxPx": [
+        180,
+        176,
+        252,
+        254
+       ],
+       "largestSquarePx": 56,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot3",
+       "centre": [
+        288,
+        214.5
+       ],
+       "nominalHalfExtent": [
+        38.9,
+        38.9
+       ],
+       "areaPx": 4696,
+       "bboxPx": [
+        252,
+        176,
+        326,
+        254
+       ],
+       "largestSquarePx": 56,
+       "underLockPx": 0
+      },
+      {
+       "name": "cutter",
+       "centre": [
+        288,
+        499.2
+       ],
+       "nominalHalfExtent": [
+        50.4,
+        50.4
+       ],
+       "areaPx": 7984,
+       "bboxPx": [
+        238,
+        448,
+        338,
+        550
+       ],
+       "largestSquarePx": 72,
+       "underLockPx": 0
+      },
+      {
+       "name": "dough lump",
+       "centre": [
+        151.2,
+        514.8
+       ],
+       "nominalHalfExtent": [
+        97.9,
+        75.3
+       ],
+       "areaPx": 22820,
+       "bboxPx": [
+        54,
+        440,
+        248,
+        590
+       ],
+       "largestSquarePx": 118,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "colour dot0",
+       "b": "colour dot1",
+       "areaPx": 96,
+       "shareOfSmaller": 0.02,
+       "winner": "neither",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "colour dot1",
+       "b": "colour dot2",
+       "areaPx": 96,
+       "shareOfSmaller": 0.02,
+       "winner": "neither",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "colour dot2",
+       "b": "colour dot3",
+       "areaPx": 96,
+       "shareOfSmaller": 0.02,
+       "winner": "neither",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "cutter",
+       "b": "dough lump",
+       "areaPx": 312,
+       "shareOfSmaller": 0.04,
+       "winner": "cutter",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "door",
+     "shot": "360x780-door.png",
+     "mode": "play",
+     "uiPlace": "door",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        44.7,
+        70.2
+       ],
+       "nominalHalfExtent": [
+        42.5,
+        42.5
+       ],
+       "areaPx": 5684,
+       "bboxPx": [
+        2,
+        28,
+        88,
+        112
+       ],
+       "largestSquarePx": 60,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget bell",
+       "centre": [
+        315.6,
+        433.2
+       ],
+       "nominalHalfExtent": [
+        45,
+        45
+       ],
+       "areaPx": 6368,
+       "bboxPx": [
+        270,
+        388,
+        360,
+        478
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget switch",
+       "centre": [
+        315.6,
+        539.2
+       ],
+       "nominalHalfExtent": [
+        45,
+        45
+       ],
+       "areaPx": 6364,
+       "bboxPx": [
+        270,
+        494,
+        360,
+        584
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget latch",
+       "centre": [
+        221.8,
+        501.2
+       ],
+       "nominalHalfExtent": [
+        45,
+        45
+       ],
+       "areaPx": 6368,
+       "bboxPx": [
+        176,
+        456,
+        266,
+        546
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget bolt",
+       "centre": [
+        145.2,
+        583.8
+       ],
+       "nominalHalfExtent": [
+        45,
+        45
+       ],
+       "areaPx": 6368,
+       "bboxPx": [
+        100,
+        538,
+        190,
+        628
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget crank",
+       "centre": [
+        44.4,
+        548.1
+       ],
+       "nominalHalfExtent": [
+        45,
+        45
+       ],
+       "areaPx": 6348,
+       "bboxPx": [
+        0,
+        504,
+        90,
+        594
+       ],
+       "largestSquarePx": 64,
+       "underLockPx": 0
+      },
+      {
+       "name": "door",
+       "centre": [
+        180,
+        507
+       ],
+       "nominalHalfExtent": [
+        104.5,
+        117
+       ],
+       "areaPx": 34284,
+       "bboxPx": [
+        76,
+        390,
+        284,
+        624
+       ],
+       "largestSquarePx": 102,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "gadget bell",
+       "b": "door",
+       "areaPx": 592,
+       "shareOfSmaller": 0.09,
+       "winner": "gadget bell",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget latch",
+       "b": "door",
+       "areaPx": 6368,
+       "shareOfSmaller": 1,
+       "winner": "gadget latch",
+       "shareLostByA": 0,
+       "shareLostByB": 0.13
+      },
+      {
+       "a": "gadget switch",
+       "b": "door",
+       "areaPx": 592,
+       "shareOfSmaller": 0.09,
+       "winner": "gadget switch",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget crank",
+       "b": "door",
+       "areaPx": 592,
+       "shareOfSmaller": 0.09,
+       "winner": "gadget crank",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget bolt",
+       "b": "door",
+       "areaPx": 6244,
+       "shareOfSmaller": 0.98,
+       "winner": "gadget bolt",
+       "shareLostByA": 0,
+       "shareLostByB": 0.13
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "bedtime-routine",
+     "shot": "360x780-bedtime-routine.png",
+     "mode": "dusk",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "toothbrush or cup",
+       "centre": [
+        65.5,
+        543.8
+       ],
+       "nominalHalfExtent": [
+        66.5,
+        66.5
+       ],
+       "areaPx": 13888,
+       "bboxPx": [
+        0,
+        478,
+        132,
+        610
+       ],
+       "largestSquarePx": 94,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [],
+     "note": "the toothbrush or cup is waiting"
+    },
+    {
+     "place": "bedtime-asleep",
+     "shot": "360x780-bedtime-asleep.png",
+     "mode": "sleep",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "ball",
+       "centre": [
+        144,
+        504
+       ],
+       "nominalHalfExtent": [
+        53.2,
+        53.2
+       ],
+       "areaPx": 5932,
+       "bboxPx": [
+        90,
+        450,
+        180,
+        542
+       ],
+       "largestSquarePx": 52,
+       "underLockPx": 0
+      },
+      {
+       "name": "sleeping baby",
+       "centre": [
+        180,
+        537.7
+       ],
+       "nominalHalfExtent": [
+        73.4,
+        73.4
+       ],
+       "areaPx": 13640,
+       "bboxPx": [
+        106,
+        464,
+        254,
+        612
+       ],
+       "largestSquarePx": 74,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "ball",
+       "b": "sleeping baby",
+       "areaPx": 6260,
+       "shareOfSmaller": 0.7,
+       "winner": "ball",
+       "shareLostByA": 0.33,
+       "shareLostByB": 0.2
+      }
+     ],
+     "note": "the baby is asleep"
+    },
+    {
+     "place": "grown-ups-panel",
+     "shot": "360x780-grown-ups-panel.png",
+     "buttons": [
+      {
+       "sel": "#gX",
+       "shown": true,
+       "x": 290,
+       "y": 256.1,
+       "w": 44,
+       "h": 44,
+       "right": 334,
+       "bottom": 300.1,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gNew",
+       "shown": true,
+       "x": 28,
+       "y": 296.9,
+       "w": 147.5,
+       "h": 108,
+       "right": 175.5,
+       "bottom": 404.9,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gSound",
+       "shown": true,
+       "x": 184.5,
+       "y": 296.9,
+       "w": 147.5,
+       "h": 108,
+       "right": 332,
+       "bottom": 404.9,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gHome",
+       "shown": true,
+       "x": 28,
+       "y": 413.9,
+       "w": 147.5,
+       "h": 108,
+       "right": 175.5,
+       "bottom": 521.9,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gClose",
+       "shown": true,
+       "x": 184.5,
+       "y": 413.9,
+       "w": 147.5,
+       "h": 108,
+       "right": 332,
+       "bottom": 521.9,
+       "centreHit": true,
+       "labelCut": false
+      }
+     ],
+     "card": {
+      "scrolls": false,
+      "top": 244.1,
+      "bottom": 535.9,
+      "left": 14,
+      "right": 346
+     },
+     "zones": [],
+     "overlaps": []
+    }
+   ],
+   "page": {
+    "sw": 360,
+    "sh": 780,
+    "iw": 360,
+    "ih": 780,
+    "canvas": [
+     360,
+     780
+    ]
+   },
+   "pageErrors": []
+  },
+  {
+   "size": "1024x594",
+   "label": "tablet",
+   "places": [
+    {
+     "place": "ranch",
+     "shot": "1024x594-ranch.png",
+     "mode": "play",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "sponge",
+       "centre": [
+        819.2,
+        510.8
+       ],
+       "nominalHalfExtent": [
+        105,
+        105.2
+       ],
+       "areaPx": 27576,
+       "bboxPx": [
+        716,
+        418,
+        924,
+        594
+       ],
+       "largestSquarePx": 130,
+       "underLockPx": 0
+      },
+      {
+       "name": "sign (paint shed)",
+       "centre": [
+        124.1,
+        254
+       ],
+       "nominalHalfExtent": [
+        119.3,
+        119.5
+       ],
+       "areaPx": 35412,
+       "bboxPx": [
+        4,
+        134,
+        214,
+        368
+       ],
+       "largestSquarePx": 140,
+       "underLockPx": 0
+      },
+      {
+       "name": "wsign (wagon)",
+       "centre": [
+        899.9,
+        127
+       ],
+       "nominalHalfExtent": [
+        119.3,
+        119.5
+       ],
+       "areaPx": 44388,
+       "bboxPx": [
+        780,
+        8,
+        1020,
+        246
+       ],
+       "largestSquarePx": 164,
+       "underLockPx": 528
+      },
+      {
+       "name": "ksign (snack kitchen)",
+       "centre": [
+        460.8,
+        127
+       ],
+       "nominalHalfExtent": [
+        119.3,
+        119.5
+       ],
+       "areaPx": 42032,
+       "bboxPx": [
+        342,
+        8,
+        580,
+        240
+       ],
+       "largestSquarePx": 160,
+       "underLockPx": 0
+      },
+      {
+       "name": "tsign (dough)",
+       "centre": [
+        292.4,
+        242.1
+       ],
+       "nominalHalfExtent": [
+        119.3,
+        119.5
+       ],
+       "areaPx": 32744,
+       "bboxPx": [
+        204,
+        128,
+        412,
+        362
+       ],
+       "largestSquarePx": 132,
+       "underLockPx": 0
+      },
+      {
+       "name": "dsign (barn door)",
+       "centre": [
+        919,
+        384.6
+       ],
+       "nominalHalfExtent": [
+        119.3,
+        119.5
+       ],
+       "areaPx": 35636,
+       "bboxPx": [
+        820,
+        266,
+        1024,
+        504
+       ],
+       "largestSquarePx": 146,
+       "underLockPx": 0
+      },
+      {
+       "name": "bowl",
+       "centre": [
+        204.8,
+        499
+       ],
+       "nominalHalfExtent": [
+        114.5,
+        114.8
+       ],
+       "areaPx": 37264,
+       "bboxPx": [
+        90,
+        384,
+        320,
+        594
+       ],
+       "largestSquarePx": 150,
+       "underLockPx": 0
+      },
+      {
+       "name": "bush",
+       "centre": [
+        757.8,
+        318.1
+       ],
+       "nominalHalfExtent": [
+        133.6,
+        133.9
+       ],
+       "areaPx": 48284,
+       "bboxPx": [
+        632,
+        184,
+        882,
+        450
+       ],
+       "largestSquarePx": 170,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        512,
+        346.9
+       ],
+       "nominalHalfExtent": [
+        139.1,
+        139.4
+       ],
+       "areaPx": 50684,
+       "bboxPx": [
+        390,
+        212,
+        644,
+        484
+       ],
+       "largestSquarePx": 174,
+       "underLockPx": 0
+      },
+      {
+       "name": "sun",
+       "centre": [
+        225.3,
+        101
+       ],
+       "nominalHalfExtent": [
+        109.1,
+        109.3
+       ],
+       "areaPx": 31460,
+       "bboxPx": [
+        116,
+        0,
+        334,
+        192
+       ],
+       "largestSquarePx": 136,
+       "underLockPx": 0
+      },
+      {
+       "name": "cloud",
+       "centre": [
+        655.4,
+        54.6
+       ],
+       "nominalHalfExtent": [
+        88,
+        88.2
+       ],
+       "areaPx": 21136,
+       "bboxPx": [
+        568,
+        0,
+        744,
+        142
+       ],
+       "largestSquarePx": 120,
+       "underLockPx": 0
+      },
+      {
+       "name": "basket (hats)",
+       "centre": [
+        60.1,
+        395.5
+       ],
+       "nominalHalfExtent": [
+        100.2,
+        100.4
+       ],
+       "areaPx": 22508,
+       "bboxPx": [
+        0,
+        306,
+        160,
+        496
+       ],
+       "largestSquarePx": 116,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower0",
+       "centre": [
+        358.8,
+        534.6
+       ],
+       "nominalHalfExtent": [
+        57,
+        57.1
+       ],
+       "areaPx": 8944,
+       "bboxPx": [
+        304,
+        482,
+        400,
+        592
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower1",
+       "centre": [
+        440.2,
+        534.6
+       ],
+       "nominalHalfExtent": [
+        57,
+        57.1
+       ],
+       "areaPx": 8296,
+       "bboxPx": [
+        400,
+        478,
+        480,
+        592
+       ],
+       "largestSquarePx": 80,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower2",
+       "centre": [
+        521.5,
+        534.6
+       ],
+       "nominalHalfExtent": [
+        57,
+        57.1
+       ],
+       "areaPx": 8400,
+       "bboxPx": [
+        480,
+        480,
+        562,
+        592
+       ],
+       "largestSquarePx": 80,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower3",
+       "centre": [
+        602.9,
+        534.6
+       ],
+       "nominalHalfExtent": [
+        57,
+        57.1
+       ],
+       "areaPx": 8492,
+       "bboxPx": [
+        562,
+        478,
+        644,
+        592
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower4",
+       "centre": [
+        684.3,
+        534.6
+       ],
+       "nominalHalfExtent": [
+        57,
+        57.1
+       ],
+       "areaPx": 8800,
+       "bboxPx": [
+        644,
+        478,
+        734,
+        592
+       ],
+       "largestSquarePx": 78,
+       "underLockPx": 0
+      },
+      {
+       "name": "ball",
+       "centre": [
+        377.3,
+        393
+       ],
+       "nominalHalfExtent": [
+        100.8,
+        101
+       ],
+       "areaPx": 23540,
+       "bboxPx": [
+        276,
+        298,
+        446,
+        492
+       ],
+       "largestSquarePx": 116,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "tsign (dough)",
+       "b": "sun",
+       "areaPx": 8364,
+       "shareOfSmaller": 0.22,
+       "winner": "sun",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.1
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "sun",
+       "areaPx": 4208,
+       "shareOfSmaller": 0.11,
+       "winner": "sun",
+       "shareLostByA": 0.04,
+       "shareLostByB": 0.05
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "tsign (dough)",
+       "areaPx": 2936,
+       "shareOfSmaller": 0.07,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "tsign (dough)",
+       "areaPx": 8124,
+       "shareOfSmaller": 0.18,
+       "winner": "sign (paint shed)",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.09
+      },
+      {
+       "a": "wsign (wagon)",
+       "b": "bush",
+       "areaPx": 856,
+       "shareOfSmaller": 0.02,
+       "winner": "wsign (wagon)",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "baby",
+       "areaPx": 2812,
+       "shareOfSmaller": 0.06,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "tsign (dough)",
+       "b": "baby",
+       "areaPx": 896,
+       "shareOfSmaller": 0.02,
+       "winner": "tsign (dough)",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "dsign (barn door)",
+       "b": "bush",
+       "areaPx": 9936,
+       "shareOfSmaller": 0.22,
+       "winner": "dsign (barn door)",
+       "shareLostByA": 0.1,
+       "shareLostByB": 0.09
+      },
+      {
+       "a": "bush",
+       "b": "baby",
+       "areaPx": 1968,
+       "shareOfSmaller": 0.04,
+       "winner": "bush",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "tsign (dough)",
+       "b": "ball",
+       "areaPx": 4404,
+       "shareOfSmaller": 0.14,
+       "winner": "ball",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.06
+      },
+      {
+       "a": "baby",
+       "b": "ball",
+       "areaPx": 12872,
+       "shareOfSmaller": 0.4,
+       "winner": "ball",
+       "shareLostByA": 0.12,
+       "shareLostByB": 0.18
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "basket (hats)",
+       "areaPx": 6872,
+       "shareOfSmaller": 0.22,
+       "winner": "basket (hats)",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.1
+      },
+      {
+       "a": "bowl",
+       "b": "basket (hats)",
+       "areaPx": 3036,
+       "shareOfSmaller": 0.1,
+       "winner": "basket (hats)",
+       "shareLostByA": 0.04,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "sponge",
+       "b": "dsign (barn door)",
+       "areaPx": 6848,
+       "shareOfSmaller": 0.2,
+       "winner": "sponge",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "sponge",
+       "b": "bush",
+       "areaPx": 3152,
+       "shareOfSmaller": 0.09,
+       "winner": "sponge",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "bowl",
+       "b": "ball",
+       "areaPx": 636,
+       "shareOfSmaller": 0.02,
+       "winner": "ball",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "flower0",
+       "b": "ball",
+       "areaPx": 672,
+       "shareOfSmaller": 0.07,
+       "winner": "flower0",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "flower1",
+       "b": "ball",
+       "areaPx": 56,
+       "shareOfSmaller": 0.01,
+       "winner": "flower1",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "baby",
+       "b": "flower2",
+       "areaPx": 292,
+       "shareOfSmaller": 0.03,
+       "winner": "flower2",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "sponge",
+       "b": "flower4",
+       "areaPx": 1404,
+       "shareOfSmaller": 0.14,
+       "winner": "flower4",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.05
+      },
+      {
+       "a": "bowl",
+       "b": "flower0",
+       "areaPx": 576,
+       "shareOfSmaller": 0.06,
+       "winner": "flower0",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "flower1",
+       "b": "flower2",
+       "areaPx": 1812,
+       "shareOfSmaller": 0.18,
+       "winner": "flower2",
+       "shareLostByA": 0.1,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "flower0",
+       "b": "flower1",
+       "areaPx": 1792,
+       "shareOfSmaller": 0.18,
+       "winner": "flower0",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.09
+      },
+      {
+       "a": "flower2",
+       "b": "flower3",
+       "areaPx": 1804,
+       "shareOfSmaller": 0.18,
+       "winner": "flower3",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.09
+      },
+      {
+       "a": "flower3",
+       "b": "flower4",
+       "areaPx": 1796,
+       "shareOfSmaller": 0.18,
+       "winner": "flower3",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.09
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "ranch-with-friend",
+     "shot": "1024x594-ranch-with-friend.png",
+     "mode": "play",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "sponge",
+       "centre": [
+        819.2,
+        510.8
+       ],
+       "nominalHalfExtent": [
+        105,
+        105.2
+       ],
+       "areaPx": 24528,
+       "bboxPx": [
+        716,
+        444,
+        924,
+        594
+       ],
+       "largestSquarePx": 128,
+       "underLockPx": 0
+      },
+      {
+       "name": "sign (paint shed)",
+       "centre": [
+        124.1,
+        254
+       ],
+       "nominalHalfExtent": [
+        119.3,
+        119.5
+       ],
+       "areaPx": 35412,
+       "bboxPx": [
+        4,
+        134,
+        214,
+        368
+       ],
+       "largestSquarePx": 140,
+       "underLockPx": 0
+      },
+      {
+       "name": "wsign (wagon)",
+       "centre": [
+        899.9,
+        127
+       ],
+       "nominalHalfExtent": [
+        119.3,
+        119.5
+       ],
+       "areaPx": 44388,
+       "bboxPx": [
+        780,
+        8,
+        1020,
+        246
+       ],
+       "largestSquarePx": 164,
+       "underLockPx": 528
+      },
+      {
+       "name": "ksign (snack kitchen)",
+       "centre": [
+        460.8,
+        127
+       ],
+       "nominalHalfExtent": [
+        119.3,
+        119.5
+       ],
+       "areaPx": 42032,
+       "bboxPx": [
+        342,
+        8,
+        580,
+        240
+       ],
+       "largestSquarePx": 160,
+       "underLockPx": 0
+      },
+      {
+       "name": "tsign (dough)",
+       "centre": [
+        292.4,
+        242.1
+       ],
+       "nominalHalfExtent": [
+        119.3,
+        119.5
+       ],
+       "areaPx": 32744,
+       "bboxPx": [
+        204,
+        128,
+        412,
+        362
+       ],
+       "largestSquarePx": 132,
+       "underLockPx": 0
+      },
+      {
+       "name": "dsign (barn door)",
+       "centre": [
+        919,
+        384.6
+       ],
+       "nominalHalfExtent": [
+        119.3,
+        119.5
+       ],
+       "areaPx": 32588,
+       "bboxPx": [
+        856,
+        266,
+        1024,
+        504
+       ],
+       "largestSquarePx": 144,
+       "underLockPx": 0
+      },
+      {
+       "name": "bowl",
+       "centre": [
+        204.8,
+        499
+       ],
+       "nominalHalfExtent": [
+        114.5,
+        114.8
+       ],
+       "areaPx": 37264,
+       "bboxPx": [
+        90,
+        384,
+        320,
+        594
+       ],
+       "largestSquarePx": 150,
+       "underLockPx": 0
+      },
+      {
+       "name": "bush",
+       "centre": [
+        757.8,
+        318.1
+       ],
+       "nominalHalfExtent": [
+        133.6,
+        133.9
+       ],
+       "areaPx": 33660,
+       "bboxPx": [
+        632,
+        184,
+        880,
+        404
+       ],
+       "largestSquarePx": 118,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        512,
+        346.9
+       ],
+       "nominalHalfExtent": [
+        139.1,
+        139.4
+       ],
+       "areaPx": 50684,
+       "bboxPx": [
+        390,
+        212,
+        644,
+        484
+       ],
+       "largestSquarePx": 174,
+       "underLockPx": 0
+      },
+      {
+       "name": "friend",
+       "centre": [
+        788.5,
+        368.7
+       ],
+       "nominalHalfExtent": [
+        137.6,
+        137.9
+       ],
+       "areaPx": 22704,
+       "bboxPx": [
+        656,
+        266,
+        884,
+        486
+       ],
+       "largestSquarePx": 94,
+       "underLockPx": 0
+      },
+      {
+       "name": "sun",
+       "centre": [
+        225.3,
+        101
+       ],
+       "nominalHalfExtent": [
+        109.1,
+        109.3
+       ],
+       "areaPx": 31460,
+       "bboxPx": [
+        116,
+        0,
+        334,
+        192
+       ],
+       "largestSquarePx": 136,
+       "underLockPx": 0
+      },
+      {
+       "name": "cloud",
+       "centre": [
+        655.4,
+        54.6
+       ],
+       "nominalHalfExtent": [
+        88,
+        88.2
+       ],
+       "areaPx": 21136,
+       "bboxPx": [
+        568,
+        0,
+        744,
+        142
+       ],
+       "largestSquarePx": 120,
+       "underLockPx": 0
+      },
+      {
+       "name": "basket (hats)",
+       "centre": [
+        60.1,
+        395.5
+       ],
+       "nominalHalfExtent": [
+        100.2,
+        100.4
+       ],
+       "areaPx": 22508,
+       "bboxPx": [
+        0,
+        306,
+        160,
+        496
+       ],
+       "largestSquarePx": 116,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower0",
+       "centre": [
+        358.8,
+        534.6
+       ],
+       "nominalHalfExtent": [
+        57,
+        57.1
+       ],
+       "areaPx": 8944,
+       "bboxPx": [
+        304,
+        482,
+        400,
+        592
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower1",
+       "centre": [
+        440.2,
+        534.6
+       ],
+       "nominalHalfExtent": [
+        57,
+        57.1
+       ],
+       "areaPx": 8296,
+       "bboxPx": [
+        400,
+        478,
+        480,
+        592
+       ],
+       "largestSquarePx": 80,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower2",
+       "centre": [
+        521.5,
+        534.6
+       ],
+       "nominalHalfExtent": [
+        57,
+        57.1
+       ],
+       "areaPx": 8400,
+       "bboxPx": [
+        480,
+        480,
+        562,
+        592
+       ],
+       "largestSquarePx": 80,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower3",
+       "centre": [
+        602.9,
+        534.6
+       ],
+       "nominalHalfExtent": [
+        57,
+        57.1
+       ],
+       "areaPx": 8492,
+       "bboxPx": [
+        562,
+        478,
+        644,
+        592
+       ],
+       "largestSquarePx": 82,
+       "underLockPx": 0
+      },
+      {
+       "name": "flower4",
+       "centre": [
+        684.3,
+        534.6
+       ],
+       "nominalHalfExtent": [
+        57,
+        57.1
+       ],
+       "areaPx": 8800,
+       "bboxPx": [
+        644,
+        478,
+        734,
+        592
+       ],
+       "largestSquarePx": 78,
+       "underLockPx": 0
+      },
+      {
+       "name": "ball",
+       "centre": [
+        377.3,
+        393
+       ],
+       "nominalHalfExtent": [
+        100.8,
+        101
+       ],
+       "areaPx": 23540,
+       "bboxPx": [
+        276,
+        298,
+        446,
+        492
+       ],
+       "largestSquarePx": 116,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "tsign (dough)",
+       "b": "sun",
+       "areaPx": 8364,
+       "shareOfSmaller": 0.22,
+       "winner": "sun",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.1
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "sun",
+       "areaPx": 4208,
+       "shareOfSmaller": 0.11,
+       "winner": "sun",
+       "shareLostByA": 0.04,
+       "shareLostByB": 0.05
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "tsign (dough)",
+       "areaPx": 2936,
+       "shareOfSmaller": 0.07,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.03
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "tsign (dough)",
+       "areaPx": 8124,
+       "shareOfSmaller": 0.18,
+       "winner": "sign (paint shed)",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.09
+      },
+      {
+       "a": "wsign (wagon)",
+       "b": "bush",
+       "areaPx": 856,
+       "shareOfSmaller": 0.02,
+       "winner": "wsign (wagon)",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "ksign (snack kitchen)",
+       "b": "baby",
+       "areaPx": 2812,
+       "shareOfSmaller": 0.06,
+       "winner": "ksign (snack kitchen)",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "bush",
+       "b": "friend",
+       "areaPx": 41956,
+       "shareOfSmaller": 0.75,
+       "winner": "bush",
+       "shareLostByA": 0.33,
+       "shareLostByB": 0.35
+      },
+      {
+       "a": "tsign (dough)",
+       "b": "baby",
+       "areaPx": 896,
+       "shareOfSmaller": 0.02,
+       "winner": "tsign (dough)",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "dsign (barn door)",
+       "b": "friend",
+       "areaPx": 19528,
+       "shareOfSmaller": 0.44,
+       "winner": "dsign (barn door)",
+       "shareLostByA": 0.18,
+       "shareLostByB": 0.16
+      },
+      {
+       "a": "dsign (barn door)",
+       "b": "bush",
+       "areaPx": 9936,
+       "shareOfSmaller": 0.22,
+       "winner": "dsign (barn door)",
+       "shareLostByA": 0,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "bush",
+       "b": "baby",
+       "areaPx": 1968,
+       "shareOfSmaller": 0.04,
+       "winner": "bush",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "tsign (dough)",
+       "b": "ball",
+       "areaPx": 4404,
+       "shareOfSmaller": 0.14,
+       "winner": "ball",
+       "shareLostByA": 0.05,
+       "shareLostByB": 0.06
+      },
+      {
+       "a": "baby",
+       "b": "ball",
+       "areaPx": 12872,
+       "shareOfSmaller": 0.4,
+       "winner": "ball",
+       "shareLostByA": 0.12,
+       "shareLostByB": 0.18
+      },
+      {
+       "a": "sign (paint shed)",
+       "b": "basket (hats)",
+       "areaPx": 6872,
+       "shareOfSmaller": 0.22,
+       "winner": "basket (hats)",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.1
+      },
+      {
+       "a": "bowl",
+       "b": "basket (hats)",
+       "areaPx": 3036,
+       "shareOfSmaller": 0.1,
+       "winner": "basket (hats)",
+       "shareLostByA": 0.04,
+       "shareLostByB": 0.04
+      },
+      {
+       "a": "sponge",
+       "b": "dsign (barn door)",
+       "areaPx": 6848,
+       "shareOfSmaller": 0.2,
+       "winner": "sponge",
+       "shareLostByA": 0.07,
+       "shareLostByB": 0.06
+      },
+      {
+       "a": "sponge",
+       "b": "bush",
+       "areaPx": 3152,
+       "shareOfSmaller": 0.09,
+       "winner": "neither",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "sponge",
+       "b": "friend",
+       "areaPx": 13048,
+       "shareOfSmaller": 0.38,
+       "winner": "sponge",
+       "shareLostByA": 0.15,
+       "shareLostByB": 0.11
+      },
+      {
+       "a": "bowl",
+       "b": "ball",
+       "areaPx": 636,
+       "shareOfSmaller": 0.02,
+       "winner": "ball",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "flower0",
+       "b": "ball",
+       "areaPx": 672,
+       "shareOfSmaller": 0.07,
+       "winner": "flower0",
+       "shareLostByA": 0.02,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "flower1",
+       "b": "ball",
+       "areaPx": 56,
+       "shareOfSmaller": 0.01,
+       "winner": "flower1",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "baby",
+       "b": "flower2",
+       "areaPx": 292,
+       "shareOfSmaller": 0.03,
+       "winner": "flower2",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "sponge",
+       "b": "flower4",
+       "areaPx": 1404,
+       "shareOfSmaller": 0.14,
+       "winner": "flower4",
+       "shareLostByA": 0.03,
+       "shareLostByB": 0.05
+      },
+      {
+       "a": "bowl",
+       "b": "flower0",
+       "areaPx": 576,
+       "shareOfSmaller": 0.06,
+       "winner": "flower0",
+       "shareLostByA": 0.01,
+       "shareLostByB": 0.02
+      },
+      {
+       "a": "flower1",
+       "b": "flower2",
+       "areaPx": 1812,
+       "shareOfSmaller": 0.18,
+       "winner": "flower2",
+       "shareLostByA": 0.1,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "flower0",
+       "b": "flower1",
+       "areaPx": 1792,
+       "shareOfSmaller": 0.18,
+       "winner": "flower0",
+       "shareLostByA": 0.08,
+       "shareLostByB": 0.09
+      },
+      {
+       "a": "flower2",
+       "b": "flower3",
+       "areaPx": 1804,
+       "shareOfSmaller": 0.18,
+       "winner": "flower3",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.09
+      },
+      {
+       "a": "flower3",
+       "b": "flower4",
+       "areaPx": 1796,
+       "shareOfSmaller": 0.18,
+       "winner": "flower3",
+       "shareLostByA": 0.09,
+       "shareLostByB": 0.09
+      }
+     ],
+     "note": "a friend is visiting"
+    },
+    {
+     "place": "shed",
+     "shot": "1024x594-shed.png",
+     "mode": "play",
+     "uiPlace": "shed",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        102.4,
+        68.3
+       ],
+       "nominalHalfExtent": [
+        64.8,
+        64.9
+       ],
+       "areaPx": 13200,
+       "bboxPx": [
+        38,
+        4,
+        168,
+        134
+       ],
+       "largestSquarePx": 92,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot0",
+       "centre": [
+        128,
+        499
+       ],
+       "nominalHalfExtent": [
+        68.2,
+        68.3
+       ],
+       "areaPx": 14648,
+       "bboxPx": [
+        60,
+        430,
+        196,
+        568
+       ],
+       "largestSquarePx": 96,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot1",
+       "centre": [
+        384,
+        499
+       ],
+       "nominalHalfExtent": [
+        68.2,
+        68.3
+       ],
+       "areaPx": 14648,
+       "bboxPx": [
+        316,
+        430,
+        452,
+        568
+       ],
+       "largestSquarePx": 96,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot2",
+       "centre": [
+        640,
+        499
+       ],
+       "nominalHalfExtent": [
+        68.2,
+        68.3
+       ],
+       "areaPx": 14648,
+       "bboxPx": [
+        572,
+        430,
+        708,
+        568
+       ],
+       "largestSquarePx": 96,
+       "underLockPx": 0
+      },
+      {
+       "name": "pot3",
+       "centre": [
+        896,
+        499
+       ],
+       "nominalHalfExtent": [
+        68.2,
+        68.3
+       ],
+       "areaPx": 14648,
+       "bboxPx": [
+        828,
+        430,
+        964,
+        568
+       ],
+       "largestSquarePx": 96,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: head",
+       "centre": [
+        500.7,
+        274.4
+       ],
+       "nominalHalfExtent": [
+        268.2,
+        268.7
+       ],
+       "areaPx": 98776,
+       "bboxPx": [
+        310,
+        6,
+        768,
+        334
+       ],
+       "largestSquarePx": 214,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: legs",
+       "centre": [
+        500.7,
+        274.4
+       ],
+       "nominalHalfExtent": [
+        268.2,
+        268.7
+       ],
+       "areaPx": 46992,
+       "bboxPx": [
+        312,
+        304,
+        768,
+        544
+       ],
+       "largestSquarePx": 116,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: tail",
+       "centre": [
+        500.7,
+        274.4
+       ],
+       "nominalHalfExtent": [
+        268.2,
+        268.7
+       ],
+       "areaPx": 51016,
+       "bboxPx": [
+        232,
+        86,
+        456,
+        464
+       ],
+       "largestSquarePx": 160,
+       "underLockPx": 0
+      },
+      {
+       "name": "outline: body",
+       "centre": [
+        500.7,
+        274.4
+       ],
+       "nominalHalfExtent": [
+        268.2,
+        268.7
+       ],
+       "areaPx": 13024,
+       "bboxPx": [
+        382,
+        246,
+        622,
+        418
+       ],
+       "largestSquarePx": 56,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "pot1",
+       "b": "outline: legs",
+       "areaPx": 9036,
+       "shareOfSmaller": 0.62,
+       "winner": "pot1",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      },
+      {
+       "a": "pot2",
+       "b": "outline: legs",
+       "areaPx": 7512,
+       "shareOfSmaller": 0.51,
+       "winner": "pot2",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "wagon",
+     "shot": "1024x594-wagon.png",
+     "mode": "play",
+     "uiPlace": "wagon",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        102.4,
+        68.3
+       ],
+       "nominalHalfExtent": [
+        64.8,
+        64.9
+       ],
+       "areaPx": 13200,
+       "bboxPx": [
+        38,
+        4,
+        168,
+        134
+       ],
+       "largestSquarePx": 92,
+       "underLockPx": 0
+      },
+      {
+       "name": "waiting baby 0",
+       "centre": [
+        225.3,
+        490.1
+       ],
+       "nominalHalfExtent": [
+        97.8,
+        98
+       ],
+       "areaPx": 30116,
+       "bboxPx": [
+        128,
+        392,
+        324,
+        588
+       ],
+       "largestSquarePx": 138,
+       "underLockPx": 0
+      },
+      {
+       "name": "waiting baby 1",
+       "centre": [
+        512,
+        490.1
+       ],
+       "nominalHalfExtent": [
+        97.8,
+        98
+       ],
+       "areaPx": 30128,
+       "bboxPx": [
+        414,
+        392,
+        610,
+        588
+       ],
+       "largestSquarePx": 140,
+       "underLockPx": 0
+      },
+      {
+       "name": "car 0",
+       "centre": [
+        122.9,
+        344.5
+       ],
+       "nominalHalfExtent": [
+        102.3,
+        98
+       ],
+       "areaPx": 37312,
+       "bboxPx": [
+        20,
+        246,
+        226,
+        442
+       ],
+       "largestSquarePx": 158,
+       "underLockPx": 0
+      },
+      {
+       "name": "car 1",
+       "centre": [
+        331.9,
+        344.5
+       ],
+       "nominalHalfExtent": [
+        102.3,
+        98
+       ],
+       "areaPx": 37156,
+       "bboxPx": [
+        230,
+        246,
+        434,
+        442
+       ],
+       "largestSquarePx": 160,
+       "underLockPx": 0
+      },
+      {
+       "name": "puller",
+       "centre": [
+        558.6,
+        344.5
+       ],
+       "nominalHalfExtent": [
+        102.3,
+        102.5
+       ],
+       "areaPx": 28688,
+       "bboxPx": [
+        456,
+        242,
+        660,
+        440
+       ],
+       "largestSquarePx": 128,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "waiting baby 0",
+       "b": "car 0",
+       "areaPx": 3064,
+       "shareOfSmaller": 0.1,
+       "winner": "waiting baby 0",
+       "shareLostByA": 0,
+       "shareLostByB": 0.08
+      },
+      {
+       "a": "waiting baby 0",
+       "b": "car 1",
+       "areaPx": 2788,
+       "shareOfSmaller": 0.09,
+       "winner": "waiting baby 0",
+       "shareLostByA": 0,
+       "shareLostByB": 0.07
+      },
+      {
+       "a": "waiting baby 1",
+       "b": "puller",
+       "areaPx": 4208,
+       "shareOfSmaller": 0.14,
+       "winner": "waiting baby 1",
+       "shareLostByA": 0,
+       "shareLostByB": 0.13
+      },
+      {
+       "a": "waiting baby 1",
+       "b": "car 1",
+       "areaPx": 40,
+       "shareOfSmaller": 0,
+       "winner": "waiting baby 1",
+       "shareLostByA": 0,
+       "shareLostByB": 0
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "kitchen",
+     "shot": "1024x594-kitchen.png",
+     "mode": "play",
+     "uiPlace": "kitchen",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        102.4,
+        68.3
+       ],
+       "nominalHalfExtent": [
+        64.8,
+        64.9
+       ],
+       "areaPx": 13200,
+       "bboxPx": [
+        38,
+        4,
+        168,
+        134
+       ],
+       "largestSquarePx": 92,
+       "underLockPx": 0
+      },
+      {
+       "name": "food0",
+       "centre": [
+        128,
+        516.8
+       ],
+       "nominalHalfExtent": [
+        74.1,
+        74.3
+       ],
+       "areaPx": 17272,
+       "bboxPx": [
+        54,
+        442,
+        202,
+        592
+       ],
+       "largestSquarePx": 104,
+       "underLockPx": 0
+      },
+      {
+       "name": "food1",
+       "centre": [
+        384,
+        516.8
+       ],
+       "nominalHalfExtent": [
+        74.1,
+        74.3
+       ],
+       "areaPx": 17272,
+       "bboxPx": [
+        310,
+        442,
+        458,
+        592
+       ],
+       "largestSquarePx": 104,
+       "underLockPx": 0
+      },
+      {
+       "name": "food2",
+       "centre": [
+        640,
+        516.8
+       ],
+       "nominalHalfExtent": [
+        74.1,
+        74.3
+       ],
+       "areaPx": 17272,
+       "bboxPx": [
+        566,
+        442,
+        714,
+        592
+       ],
+       "largestSquarePx": 104,
+       "underLockPx": 0
+      },
+      {
+       "name": "food3",
+       "centre": [
+        896,
+        516.8
+       ],
+       "nominalHalfExtent": [
+        74.1,
+        74.3
+       ],
+       "areaPx": 17272,
+       "bboxPx": [
+        822,
+        442,
+        970,
+        592
+       ],
+       "largestSquarePx": 104,
+       "underLockPx": 0
+      },
+      {
+       "name": "baby",
+       "centre": [
+        512,
+        223.3
+       ],
+       "nominalHalfExtent": [
+        156.5,
+        156.8
+       ],
+       "areaPx": 77136,
+       "bboxPx": [
+        356,
+        66,
+        668,
+        380
+       ],
+       "largestSquarePx": 222,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [],
+     "note": null
+    },
+    {
+     "place": "dough",
+     "shot": "1024x594-dough.png",
+     "mode": "play",
+     "uiPlace": "dough",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        102.4,
+        68.3
+       ],
+       "nominalHalfExtent": [
+        64.8,
+        64.9
+       ],
+       "areaPx": 13200,
+       "bboxPx": [
+        38,
+        4,
+        168,
+        134
+       ],
+       "largestSquarePx": 92,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot0",
+       "centre": [
+        276.5,
+        163.4
+       ],
+       "nominalHalfExtent": [
+        71.1,
+        71.3
+       ],
+       "areaPx": 15924,
+       "bboxPx": [
+        206,
+        92,
+        348,
+        234
+       ],
+       "largestSquarePx": 100,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot1",
+       "centre": [
+        481.3,
+        163.4
+       ],
+       "nominalHalfExtent": [
+        71.1,
+        71.3
+       ],
+       "areaPx": 15940,
+       "bboxPx": [
+        410,
+        92,
+        552,
+        234
+       ],
+       "largestSquarePx": 102,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot2",
+       "centre": [
+        686.1,
+        163.4
+       ],
+       "nominalHalfExtent": [
+        71.1,
+        71.3
+       ],
+       "areaPx": 15920,
+       "bboxPx": [
+        614,
+        92,
+        758,
+        234
+       ],
+       "largestSquarePx": 100,
+       "underLockPx": 0
+      },
+      {
+       "name": "colour dot3",
+       "centre": [
+        890.9,
+        163.4
+       ],
+       "nominalHalfExtent": [
+        71.1,
+        71.3
+       ],
+       "areaPx": 15936,
+       "bboxPx": [
+        820,
+        92,
+        962,
+        234
+       ],
+       "largestSquarePx": 102,
+       "underLockPx": 0
+      },
+      {
+       "name": "cutter",
+       "centre": [
+        819.2,
+        380.2
+       ],
+       "nominalHalfExtent": [
+        83,
+        83.2
+       ],
+       "areaPx": 21692,
+       "bboxPx": [
+        736,
+        298,
+        902,
+        464
+       ],
+       "largestSquarePx": 118,
+       "underLockPx": 0
+      },
+      {
+       "name": "dough lump",
+       "centre": [
+        430.1,
+        392
+       ],
+       "nominalHalfExtent": [
+        161.3,
+        124.3
+       ],
+       "areaPx": 62952,
+       "bboxPx": [
+        268,
+        268,
+        592,
+        516
+       ],
+       "largestSquarePx": 196,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [],
+     "note": null
+    },
+    {
+     "place": "door",
+     "shot": "1024x594-door.png",
+     "mode": "play",
+     "uiPlace": "door",
+     "zones": [
+      {
+       "name": "barn (leave)",
+       "centre": [
+        102.4,
+        68.3
+       ],
+       "nominalHalfExtent": [
+        64.8,
+        64.9
+       ],
+       "areaPx": 13200,
+       "bboxPx": [
+        38,
+        4,
+        168,
+        134
+       ],
+       "largestSquarePx": 92,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget bell",
+       "centre": [
+        721.5,
+        196
+       ],
+       "nominalHalfExtent": [
+        74.1,
+        74.3
+       ],
+       "areaPx": 17280,
+       "bboxPx": [
+        648,
+        122,
+        796,
+        270
+       ],
+       "largestSquarePx": 104,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget switch",
+       "centre": [
+        721.5,
+        348.8
+       ],
+       "nominalHalfExtent": [
+        74.1,
+        74.3
+       ],
+       "areaPx": 17288,
+       "bboxPx": [
+        648,
+        274,
+        796,
+        424
+       ],
+       "largestSquarePx": 106,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget latch",
+       "centre": [
+        574.1,
+        292.2
+       ],
+       "nominalHalfExtent": [
+        74.1,
+        74.3
+       ],
+       "areaPx": 17304,
+       "bboxPx": [
+        500,
+        218,
+        648,
+        366
+       ],
+       "largestSquarePx": 104,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget bolt",
+       "centre": [
+        460.2,
+        415.3
+       ],
+       "nominalHalfExtent": [
+        74.1,
+        74.3
+       ],
+       "areaPx": 17276,
+       "bboxPx": [
+        386,
+        342,
+        534,
+        490
+       ],
+       "largestSquarePx": 104,
+       "underLockPx": 0
+      },
+      {
+       "name": "gadget crank",
+       "centre": [
+        302.5,
+        362.1
+       ],
+       "nominalHalfExtent": [
+        74.1,
+        74.3
+       ],
+       "areaPx": 17280,
+       "bboxPx": [
+        228,
+        288,
+        376,
+        436
+       ],
+       "largestSquarePx": 104,
+       "underLockPx": 0
+      },
+      {
+       "name": "door",
+       "centre": [
+        512,
+        300
+       ],
+       "nominalHalfExtent": [
+        155.4,
+        175.2
+       ],
+       "areaPx": 71704,
+       "bboxPx": [
+        356,
+        124,
+        668,
+        476
+       ],
+       "largestSquarePx": 148,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "gadget bell",
+       "b": "door",
+       "areaPx": 1440,
+       "shareOfSmaller": 0.08,
+       "winner": "gadget bell",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget latch",
+       "b": "door",
+       "areaPx": 17304,
+       "shareOfSmaller": 1,
+       "winner": "gadget latch",
+       "shareLostByA": 0,
+       "shareLostByB": 0.16
+      },
+      {
+       "a": "gadget switch",
+       "b": "door",
+       "areaPx": 1456,
+       "shareOfSmaller": 0.08,
+       "winner": "gadget switch",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget crank",
+       "b": "door",
+       "areaPx": 1440,
+       "shareOfSmaller": 0.08,
+       "winner": "gadget crank",
+       "shareLostByA": 0,
+       "shareLostByB": 0.01
+      },
+      {
+       "a": "gadget bolt",
+       "b": "door",
+       "areaPx": 16480,
+       "shareOfSmaller": 0.95,
+       "winner": "gadget bolt",
+       "shareLostByA": 0,
+       "shareLostByB": 0.15
+      }
+     ],
+     "note": null
+    },
+    {
+     "place": "bedtime-routine",
+     "shot": "1024x594-bedtime-routine.png",
+     "mode": "dusk",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "toothbrush or cup",
+       "centre": [
+        262.1,
+        441.6
+       ],
+       "nominalHalfExtent": [
+        115.5,
+        115.7
+       ],
+       "areaPx": 42004,
+       "bboxPx": [
+        146,
+        326,
+        378,
+        558
+       ],
+       "largestSquarePx": 164,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [],
+     "note": "the toothbrush or cup is waiting"
+    },
+    {
+     "place": "bedtime-asleep",
+     "shot": "1024x594-bedtime-asleep.png",
+     "mode": "sleep",
+     "uiPlace": "ranch",
+     "zones": [
+      {
+       "name": "ball",
+       "centre": [
+        377.3,
+        393
+       ],
+       "nominalHalfExtent": [
+        100.8,
+        101
+       ],
+       "areaPx": 26300,
+       "bboxPx": [
+        276,
+        292,
+        446,
+        494
+       ],
+       "largestSquarePx": 120,
+       "underLockPx": 0
+      },
+      {
+       "name": "sleeping baby",
+       "centre": [
+        512,
+        346.9
+       ],
+       "nominalHalfExtent": [
+        139.1,
+        139.4
+       ],
+       "areaPx": 53688,
+       "bboxPx": [
+        384,
+        208,
+        652,
+        486
+       ],
+       "largestSquarePx": 174,
+       "underLockPx": 0
+      }
+     ],
+     "overlaps": [
+      {
+       "a": "ball",
+       "b": "sleeping baby",
+       "areaPx": 12872,
+       "shareOfSmaller": 0.4,
+       "winner": "ball",
+       "shareLostByA": 0.18,
+       "shareLostByB": 0.12
+      }
+     ],
+     "note": "the baby is asleep"
+    },
+    {
+     "place": "grown-ups-panel",
+     "shot": "1024x594-grown-ups-panel.png",
+     "buttons": [
+      {
+       "sel": "#gX",
+       "shown": true,
+       "x": 736,
+       "y": 211.4,
+       "w": 44,
+       "h": 44,
+       "right": 780,
+       "bottom": 255.4,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gNew",
+       "shown": true,
+       "x": 252,
+       "y": 256.2,
+       "w": 121,
+       "h": 118.4,
+       "right": 373,
+       "bottom": 374.6,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gSound",
+       "shown": true,
+       "x": 385,
+       "y": 256.2,
+       "w": 121,
+       "h": 118.4,
+       "right": 506,
+       "bottom": 374.6,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gHome",
+       "shown": true,
+       "x": 518,
+       "y": 256.2,
+       "w": 121,
+       "h": 118.4,
+       "right": 639,
+       "bottom": 374.6,
+       "centreHit": true,
+       "labelCut": false
+      },
+      {
+       "sel": "#gClose",
+       "shown": true,
+       "x": 651,
+       "y": 256.2,
+       "w": 121,
+       "h": 118.4,
+       "right": 772,
+       "bottom": 374.6,
+       "centreHit": true,
+       "labelCut": false
+      }
+     ],
+     "card": {
+      "scrolls": false,
+      "top": 199.4,
+      "bottom": 394.6,
+      "left": 232,
+      "right": 792
+     },
+     "zones": [],
+     "overlaps": []
+    }
+   ],
+   "page": {
+    "sw": 1024,
+    "sh": 594,
+    "iw": 1024,
+    "ih": 594,
+    "canvas": [
+     1024,
+     594
+    ]
+   },
+   "pageErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "kind": "check-on-a-phone",
+   "size": "390x844",
+   "place": "grown-ups-panel",
+   "thing": "the panel after the finger lifts",
+   "shot": "390x844-grown-ups-panel.png",
+   "text": "after a three-second hold the panel opens, but in Chromium's touch emulation it closes again about 1 ms after the finger lifts, because a click lands on the dimmed backdrop and the backdrop closes the panel. A real phone may send no click after a long press, so Playtester should hold the lock for three seconds, lift, and see whether the panel stays"
+  },
+  {
+   "kind": "small",
+   "size": "844x390",
+   "place": "shed",
+   "thing": "outline: body",
+   "shot": "844x390-shed.png",
+   "text": "outline: body has a tap area whose biggest square is 38 by 38 px, under 44 by 44",
+   "squarePx": 38
+  },
+  {
+   "kind": "overlap",
+   "size": "844x390",
+   "place": "grown-ups-panel",
+   "thing": "#gX and #gClose",
+   "shot": "844x390-grown-ups-panel.png",
+   "text": "#gX and #gClose overlap by 36 by 5.2 px"
+  },
+  {
+   "kind": "check-on-a-phone",
+   "size": "844x390",
+   "place": "grown-ups-panel",
+   "thing": "the panel after the finger lifts",
+   "shot": "844x390-grown-ups-panel.png",
+   "text": "after a three-second hold the panel opens, but in Chromium's touch emulation it closes again about 1 ms after the finger lifts, because a click lands on the dimmed backdrop and the backdrop closes the panel. A real phone may send no click after a long press, so Playtester should hold the lock for three seconds, lift, and see whether the panel stays"
+  },
+  {
+   "kind": "overlap",
+   "size": "360x780",
+   "place": "grown-ups-panel",
+   "thing": "#gX and #gSound",
+   "shot": "360x780-grown-ups-panel.png",
+   "text": "#gX and #gSound overlap by 42 by 3.2 px"
+  },
+  {
+   "kind": "check-on-a-phone",
+   "size": "360x780",
+   "place": "grown-ups-panel",
+   "thing": "the panel after the finger lifts",
+   "shot": "360x780-grown-ups-panel.png",
+   "text": "after a three-second hold the panel opens, but in Chromium's touch emulation it closes again about 1 ms after the finger lifts, because a click lands on the dimmed backdrop and the backdrop closes the panel. A real phone may send no click after a long press, so Playtester should hold the lock for three seconds, lift, and see whether the panel stays"
+  },
+  {
+   "kind": "check-on-a-phone",
+   "size": "1024x594",
+   "place": "grown-ups-panel",
+   "thing": "the panel after the finger lifts",
+   "shot": "1024x594-grown-ups-panel.png",
+   "text": "after a three-second hold the panel opens, but in Chromium's touch emulation it closes again about 1 ms after the finger lifts, because a click lands on the dimmed backdrop and the backdrop closes the panel. A real phone may send no click after a long press, so Playtester should hold the lock for three seconds, lift, and see whether the panel stays"
+  }
+ ],
+ "probes": [
+  {
+   "size": "390x844",
+   "place": "ranch",
+   "check": "the script's ranch zones agree with LR.ranchTarget",
+   "pass": true,
+   "detail": "82290 sampled points, 0 differ"
+  },
+  {
+   "size": "390x844",
+   "place": "ranch-with-friend",
+   "check": "the script's ranch zones agree with LR.ranchTarget",
+   "pass": true,
+   "detail": "82290 sampled points, 0 differ"
+  },
+  {
+   "size": "390x844",
+   "check": "a real tap on the sign opens the shed",
+   "pass": true,
+   "detail": "place is \"shed\""
+  },
+  {
+   "size": "390x844",
+   "check": "shed: a real tap at the middle of pot 2 picks it",
+   "pass": true,
+   "detail": "pot is 2"
+  },
+  {
+   "size": "390x844",
+   "check": "a real tap at the middle of the barn picture leaves the shed",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "390x844",
+   "check": "a real tap on the wsign opens the wagon",
+   "pass": true,
+   "detail": "place is \"wagon\""
+  },
+  {
+   "size": "390x844",
+   "check": "wagon: a real tap at the middle of waiting baby 0 loads her",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "390x844",
+   "check": "a real tap at the middle of the barn picture leaves the wagon",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "390x844",
+   "check": "a real tap on the ksign opens the kitchen",
+   "pass": true,
+   "detail": "place is \"kitchen\""
+  },
+  {
+   "size": "390x844",
+   "check": "kitchen: a real tap at the middle of food 1 sends it to the bowl",
+   "pass": true,
+   "detail": "phase fly"
+  },
+  {
+   "size": "390x844",
+   "check": "a real tap at the middle of the barn picture leaves the kitchen",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "390x844",
+   "check": "a real tap on the tsign opens the dough",
+   "pass": true,
+   "detail": "place is \"dough\""
+  },
+  {
+   "size": "390x844",
+   "check": "dough: a real tap at the middle of colour dot 0 colours the dough",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "390x844",
+   "check": "a real tap at the middle of the barn picture leaves the dough",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "390x844",
+   "check": "a real tap on the dsign opens the door",
+   "pass": true,
+   "detail": "place is \"door\""
+  },
+  {
+   "size": "390x844",
+   "check": "door: a real tap at the middle of the bell rings it",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "390x844",
+   "check": "a real tap at the middle of the barn picture leaves the door",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "390x844",
+   "check": "the grown-ups lock is at least 44 by 44",
+   "pass": true,
+   "detail": "48 by 48"
+  },
+  {
+   "size": "390x844",
+   "check": "holding the lock with a real finger opens the grown-ups panel",
+   "pass": true,
+   "detail": "hold of 3000 ms"
+  },
+  {
+   "size": "390x844",
+   "check": "a real tap on the panel's close button closes it",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "844x390",
+   "place": "ranch",
+   "check": "the script's ranch zones agree with LR.ranchTarget",
+   "pass": true,
+   "detail": "82290 sampled points, 0 differ"
+  },
+  {
+   "size": "844x390",
+   "place": "ranch-with-friend",
+   "check": "the script's ranch zones agree with LR.ranchTarget",
+   "pass": true,
+   "detail": "82290 sampled points, 0 differ"
+  },
+  {
+   "size": "844x390",
+   "check": "a real tap on the sign opens the shed",
+   "pass": true,
+   "detail": "place is \"shed\""
+  },
+  {
+   "size": "844x390",
+   "check": "shed: a real tap at the middle of pot 2 picks it",
+   "pass": true,
+   "detail": "pot is 2"
+  },
+  {
+   "size": "844x390",
+   "check": "a real tap at the middle of the barn picture leaves the shed",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "844x390",
+   "check": "a real tap on the wsign opens the wagon",
+   "pass": true,
+   "detail": "place is \"wagon\""
+  },
+  {
+   "size": "844x390",
+   "check": "wagon: a real tap at the middle of waiting baby 0 loads her",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "844x390",
+   "check": "a real tap at the middle of the barn picture leaves the wagon",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "844x390",
+   "check": "a real tap on the ksign opens the kitchen",
+   "pass": true,
+   "detail": "place is \"kitchen\""
+  },
+  {
+   "size": "844x390",
+   "check": "kitchen: a real tap at the middle of food 1 sends it to the bowl",
+   "pass": true,
+   "detail": "phase fly"
+  },
+  {
+   "size": "844x390",
+   "check": "a real tap at the middle of the barn picture leaves the kitchen",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "844x390",
+   "check": "a real tap on the tsign opens the dough",
+   "pass": true,
+   "detail": "place is \"dough\""
+  },
+  {
+   "size": "844x390",
+   "check": "dough: a real tap at the middle of colour dot 0 colours the dough",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "844x390",
+   "check": "a real tap at the middle of the barn picture leaves the dough",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "844x390",
+   "check": "a real tap on the dsign opens the door",
+   "pass": true,
+   "detail": "place is \"door\""
+  },
+  {
+   "size": "844x390",
+   "check": "door: a real tap at the middle of the bell rings it",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "844x390",
+   "check": "a real tap at the middle of the barn picture leaves the door",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "844x390",
+   "check": "the grown-ups lock is at least 44 by 44",
+   "pass": true,
+   "detail": "48 by 48"
+  },
+  {
+   "size": "844x390",
+   "check": "holding the lock with a real finger opens the grown-ups panel",
+   "pass": true,
+   "detail": "hold of 3000 ms"
+  },
+  {
+   "size": "844x390",
+   "check": "a real tap on the panel's close button closes it",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "360x780",
+   "place": "ranch",
+   "check": "the script's ranch zones agree with LR.ranchTarget",
+   "pass": true,
+   "detail": "70200 sampled points, 0 differ"
+  },
+  {
+   "size": "360x780",
+   "place": "ranch-with-friend",
+   "check": "the script's ranch zones agree with LR.ranchTarget",
+   "pass": true,
+   "detail": "70200 sampled points, 0 differ"
+  },
+  {
+   "size": "360x780",
+   "check": "a real tap on the sign opens the shed",
+   "pass": true,
+   "detail": "place is \"shed\""
+  },
+  {
+   "size": "360x780",
+   "check": "shed: a real tap at the middle of pot 2 picks it",
+   "pass": true,
+   "detail": "pot is 2"
+  },
+  {
+   "size": "360x780",
+   "check": "a real tap at the middle of the barn picture leaves the shed",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "360x780",
+   "check": "a real tap on the wsign opens the wagon",
+   "pass": true,
+   "detail": "place is \"wagon\""
+  },
+  {
+   "size": "360x780",
+   "check": "wagon: a real tap at the middle of waiting baby 0 loads her",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "360x780",
+   "check": "a real tap at the middle of the barn picture leaves the wagon",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "360x780",
+   "check": "a real tap on the ksign opens the kitchen",
+   "pass": true,
+   "detail": "place is \"kitchen\""
+  },
+  {
+   "size": "360x780",
+   "check": "kitchen: a real tap at the middle of food 1 sends it to the bowl",
+   "pass": true,
+   "detail": "phase fly"
+  },
+  {
+   "size": "360x780",
+   "check": "a real tap at the middle of the barn picture leaves the kitchen",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "360x780",
+   "check": "a real tap on the tsign opens the dough",
+   "pass": true,
+   "detail": "place is \"dough\""
+  },
+  {
+   "size": "360x780",
+   "check": "dough: a real tap at the middle of colour dot 0 colours the dough",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "360x780",
+   "check": "a real tap at the middle of the barn picture leaves the dough",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "360x780",
+   "check": "a real tap on the dsign opens the door",
+   "pass": true,
+   "detail": "place is \"door\""
+  },
+  {
+   "size": "360x780",
+   "check": "door: a real tap at the middle of the bell rings it",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "360x780",
+   "check": "a real tap at the middle of the barn picture leaves the door",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "360x780",
+   "check": "the grown-ups lock is at least 44 by 44",
+   "pass": true,
+   "detail": "48 by 48"
+  },
+  {
+   "size": "360x780",
+   "check": "holding the lock with a real finger opens the grown-ups panel",
+   "pass": true,
+   "detail": "hold of 3000 ms"
+  },
+  {
+   "size": "360x780",
+   "check": "a real tap on the panel's close button closes it",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "1024x594",
+   "place": "ranch",
+   "check": "the script's ranch zones agree with LR.ranchTarget",
+   "pass": true,
+   "detail": "152064 sampled points, 0 differ"
+  },
+  {
+   "size": "1024x594",
+   "place": "ranch-with-friend",
+   "check": "the script's ranch zones agree with LR.ranchTarget",
+   "pass": true,
+   "detail": "152064 sampled points, 0 differ"
+  },
+  {
+   "size": "1024x594",
+   "check": "a real tap on the sign opens the shed",
+   "pass": true,
+   "detail": "place is \"shed\""
+  },
+  {
+   "size": "1024x594",
+   "check": "shed: a real tap at the middle of pot 2 picks it",
+   "pass": true,
+   "detail": "pot is 2"
+  },
+  {
+   "size": "1024x594",
+   "check": "a real tap at the middle of the barn picture leaves the shed",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "1024x594",
+   "check": "a real tap on the wsign opens the wagon",
+   "pass": true,
+   "detail": "place is \"wagon\""
+  },
+  {
+   "size": "1024x594",
+   "check": "wagon: a real tap at the middle of waiting baby 0 loads her",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "1024x594",
+   "check": "a real tap at the middle of the barn picture leaves the wagon",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "1024x594",
+   "check": "a real tap on the ksign opens the kitchen",
+   "pass": true,
+   "detail": "place is \"kitchen\""
+  },
+  {
+   "size": "1024x594",
+   "check": "kitchen: a real tap at the middle of food 1 sends it to the bowl",
+   "pass": true,
+   "detail": "phase fly"
+  },
+  {
+   "size": "1024x594",
+   "check": "a real tap at the middle of the barn picture leaves the kitchen",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "1024x594",
+   "check": "a real tap on the tsign opens the dough",
+   "pass": true,
+   "detail": "place is \"dough\""
+  },
+  {
+   "size": "1024x594",
+   "check": "dough: a real tap at the middle of colour dot 0 colours the dough",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "1024x594",
+   "check": "a real tap at the middle of the barn picture leaves the dough",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "1024x594",
+   "check": "a real tap on the dsign opens the door",
+   "pass": true,
+   "detail": "place is \"door\""
+  },
+  {
+   "size": "1024x594",
+   "check": "door: a real tap at the middle of the bell rings it",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "size": "1024x594",
+   "check": "a real tap at the middle of the barn picture leaves the door",
+   "pass": true,
+   "detail": "place is \"ranch\""
+  },
+  {
+   "size": "1024x594",
+   "check": "the grown-ups lock is at least 44 by 44",
+   "pass": true,
+   "detail": "48 by 48"
+  },
+  {
+   "size": "1024x594",
+   "check": "holding the lock with a real finger opens the grown-ups panel",
+   "pass": true,
+   "detail": "hold of 3000 ms"
+  },
+  {
+   "size": "1024x594",
+   "check": "a real tap on the panel's close button closes it",
+   "pass": true,
+   "detail": ""
+  }
+ ],
+ "notes": [],
+ "summary": {
+  "findings": 7,
+  "small": 1,
+  "overlap": 2,
+  "checkOnAPhone": 4,
+  "cutOff": 0,
+  "probesFailed": 0,
+  "probes": 80
+ }
+}
