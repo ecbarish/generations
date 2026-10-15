@@ -127,6 +127,15 @@ def source_contract():
                         for route, badge in FLOOR_BADGE.items()})
 
 
+def positive_finite(value):
+    if type(value) not in (int, float) or value <= 0:
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
+
+
 def validate(data, source=None, phase=PHASE):
     """Raise ValueError on invalid data. Return the input, without modifying it.
 
@@ -169,8 +178,7 @@ def validate(data, source=None, phase=PHASE):
                     f'{route}: unique species forbidden')
             require(species != 'kilnback', f'{route}: Kilnback is excluded')
             # bool is an int subclass; enormous JSON ints can overflow float().
-            require(type(weight) in (int, float) and 0 < weight <= 1e308 and
-                    math.isfinite(weight), f'{route}: weight must be positive and finite')
+            require(positive_finite(weight), f'{route}: weight must be positive and finite')
             weights.append(weight)
         try:
             total = math.fsum(weights)
@@ -280,6 +288,10 @@ class RouteEncounters(unittest.TestCase):
             for pair in row['wild']:
                 pair[1] *= 0.125
         validate(scaled, self.source)
+        # A single large finite weight is valid; only a non-finite sum fails.
+        large = deepcopy(self.data)
+        large['routes']['millgrass']['wild'] = [['seedpip', 1.5e308]]
+        validate(large, self.source)
 
     def test_source_changes_are_not_hidden_by_cached_species_or_caps(self):
         source = deepcopy(self.source)
