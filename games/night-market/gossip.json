@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "gossip": {
+    "tea": {
+      "short": [
+        "Mei says the kettle had barely gone cold when you came back.",
+        "Mei says she kept the stall open and no one waited in the dark.",
+        "Mei says a few regulars stopped by and left with warm hands.",
+        "Mei says she opened early out of habit, though you were only gone a moment."
+      ],
+      "evening": [
+        "Mei says she opened before the lanterns were lit, and a line was already waiting.",
+        "Mei says the regulars came in out of the cold and stayed for a second cup.",
+        "Mei says the kettle sang all evening and she never let it run dry.",
+        "Mei says she poured while the lane turned from blue to gold."
+      ],
+      "long": [
+        "Mei says the lanterns were lit, burned low, and the kettle was still warm.",
+        "Mei says the whole night passed and she was first to open again before dawn.",
+        "Mei says she poured until the lane went quiet, then put the kettle on once more.",
+        "Mei says the regulars came and went all night, and the cups never ran short."
+      ]
+    },
+    "dumpling": {
+      "short": [
+        "Bo says he started a story, and a few regulars were already listening.",
+        "Bo says the steamer was still warm when you came back.",
+        "Bo says he folded a few dumplings and talked through every one.",
+        "Bo says he did not lose a single fold, though he never stopped talking."
+      ],
+      "evening": [
+        "Bo says the regulars stayed to hear the end of his story, and the dumplings kept coming.",
+        "Bo says he talked while he folded and never lost track of a pleat.",
+        "Bo says the steamer was filled and emptied while he told the whole story again.",
+        "Bo says a crowd gathered to listen, and nobody left hungry."
+      ],
+      "long": [
+        "Bo says he talked until the lane went quiet, and his hands kept folding all the while.",
+        "Bo says the regulars stayed to listen long after the last dumpling was gone.",
+        "Bo says he told a story, then another, and folded through both.",
+        "Bo says the steam rose all night while he talked."
+      ]
+    },
+    "lantern": {
+      "short": [
+        "An says the flames sat still the whole time you were gone.",
+        "An says she trimmed one more wick, and the flame did not so much as flicker.",
+        "An says nothing needed her but one patient wick.",
+        "An says the lantern light stayed steady."
+      ],
+      "evening": [
+        "An says she trimmed each wick until its flame stood still.",
+        "An says the lamps burned clean while the lane filled up.",
+        "An says a few moths came to look and found only a calm flame.",
+        "An says she walked the poles at dusk, trimming each wick in turn."
+      ],
+      "long": [
+        "An says the wicks burned clean all night, and she trimmed them again at dawn.",
+        "An says the flames never wavered, though the night was long.",
+        "An says the whole alley stayed lit and not one flame needed hurrying.",
+        "An says she trimmed wick after wick until the alley glowed softly."
+      ]
+    },
+    "mooncake": {
+      "short": [
+        "Qiao says she counted the tins, then counted them again, just to be sure.",
+        "Qiao says only one tin left the table, and it was the one she liked least.",
+        "Qiao says every tin was still in its row when you came back.",
+        "Qiao says she kept counting and nobody rushed her."
+      ],
+      "evening": [
+        "Qiao says she counted the tins at dusk and again at dark, and they matched.",
+        "Qiao says the tin she liked least was the first one asked for.",
+        "Qiao says she wrapped each mooncake slowly while the lane filled.",
+        "Qiao says she lined up the tins again and kept the best one for later."
+      ],
+      "long": [
+        "Qiao says she counted the tins so many times that the lane began to tease her.",
+        "Qiao says every tin the lane asked for was the one she liked least.",
+        "Qiao says she wrapped, counted and wrapped again until the night grew late.",
+        "Qiao says the table was never empty, and the best tin stayed hers."
+      ]
+    },
+    "incense": {
+      "short": [
+        "Ren says he lit one stick for the stall and one for the alley.",
+        "Ren says the smoke was still curling when you came back.",
+        "Ren says the alley smelled welcome before anyone arrived.",
+        "Ren says he had only just set the second stick at the mouth of the alley."
+      ],
+      "evening": [
+        "Ren says the alley stick burned down while the stall stick kept the tray warm.",
+        "Ren says visitors followed the smoke down the alley and found the tray.",
+        "Ren says he lit a fresh stick each time the old one went out.",
+        "Ren says the smoke rose in slow ribbons above the lane."
+      ],
+      "long": [
+        "Ren says he lit stick after stick through the night, one for the stall and one for the alley.",
+        "Ren says the alley smelled of cedar from dusk until the lamps burned low.",
+        "Ren says the smoke could be seen from the gate long after dark.",
+        "Ren says the ribbons of smoke never thinned, because he never let a stick burn out."
+      ]
+    },
+    "stories": {
+      "short": [
+        "Old Wen says he began a story and stopped just before the ending.",
+        "Old Wen says the crowd leaned in and waited, and he let them.",
+        "Old Wen says the mat was still warm and the tale was still unfinished.",
+        "Old Wen says he told only the start, since you would want to hear the rest."
+      ],
+      "evening": [
+        "Old Wen says the crowd begged for the rest, and he stopped just before the ending again.",
+        "Old Wen says the listeners brought tea and sat close for the middle of the tale.",
+        "Old Wen says he reached the edge of the ending, then paused to let the crowd wonder.",
+        "Old Wen says he told the story slowly, one breath at a time, and the crowd stayed."
+      ],
+      "long": [
+        "Old Wen says the crowd stayed until the lanterns burned low, waiting for the ending.",
+        "Old Wen says he told the whole night's story and stopped, once more, just before the ending.",
+        "Old Wen says the crowd changed and changed again, and the tale was still not finished.",
+        "Old Wen says he saved the ending for you, and the crowd agreed to wait."
+      ]
+    }
+  }
+}
