@@ -37,7 +37,8 @@ a { color: var(--amber); }
   border-radius: 2px;
   color: var(--amber);
   background: #fffdf8;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  white-space: nowrap;
   text-decoration: none;
   touch-action: manipulation;
 }
@@ -116,7 +117,7 @@ button[aria-pressed="true"], button.ask {
 .count { margin: 0.15rem 0 0; color: var(--mute); font-size: 0.92rem; font-variant-numeric: tabular-nums; }
 .actions [data-act="serve"] { touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .save summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
-.foot { margin: 1rem 0 0; font-size: 0.95rem; }
+.foot { margin: 1rem 0 0; font-size: 1rem; }
 @media (max-width: 380px) {
   .window { padding-left: 0.8rem; padding-right: 0.8rem; }
   h1 { font-size: 1.45rem; }
