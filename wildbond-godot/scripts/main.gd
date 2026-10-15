@@ -18,7 +18,7 @@ const TouchPad := preload("res://scripts/touch_pad.gd")
 const HowTo := preload("res://scripts/howto.gd")
 const Shop := preload("res://scripts/shop.gd")
 ## CR1: size classes to world scale (spec 4.4, docs/wildbond-creatures.md).
-## Whole-number zoom only. A creature's size is the height drawn into its pixels (metres × 12.35).
+## Whole-number zoom only. Walking height is Figures.drawn_px (metres × 12.35, then the curve above 24px).
 const SIZE_SCALE := { "tiny": 1, "small": 1, "medium": 1, "large": 1, "huge": 1 }
 const Book := preload("res://scripts/book.gd")
 const Calendar := preload("res://scripts/calendar.gd")

@@ -14,7 +14,7 @@ const INK := Color("2a2230")
 const PAPER := Color("f8f2e4")
 const EL_COL := { "Ember": Color("e0602a"), "Tide": Color("3a8fd8"), "Grove": Color("5d9a3e") }
 ## CR1: size classes to battle scale (spec 4.4, docs/wildbond-creatures.md).
-## Whole-number zoom only. A creature's size is the height drawn into its pixels (metres × 12.35).
+## Whole-number zoom only. Walking height is Figures.drawn_px (metres × 12.35, then the curve above 24px).
 const SIZE_SCALE := { "tiny": 1, "small": 1, "medium": 1, "large": 1, "huge": 1 }
 ## Painted sprites stay this many pixels clear of the health panels and the command box.
 ## The zoom itself stays a whole number.

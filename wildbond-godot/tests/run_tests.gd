@@ -557,7 +557,7 @@ func _run() -> void:
 		if span.y != want or span.x < 8:
 			size_ok = false
 			size_note += "%s %dx%d want %d " % [id, span.x, span.y, want]
-	check(size_ok, "catalogue batch: drawn height is metres times 12.35" + ("" if size_note == "" else " (" + size_note + ")"))
+	check(size_ok, "catalogue batch: drawn height is the locked walking height" + ("" if size_note == "" else " (" + size_note + ")"))
 	var placed := {}
 	for mid in main.DATA.MAPS:
 		var area: Dictionary = main.DATA.MAPS[mid]
@@ -675,7 +675,7 @@ func _run() -> void:
 		var mark_walk: Vector2i = main.Figures.pixel_span(main.Figures.sized_parts(mark_sp, true, { "walking": true, "frame": 1, "wag": 1, "ears_up": true }))
 		if mark_walk.y < 12 or mark_walk.y > 34:
 			mark_note += "%s walk %d " % [sid, mark_walk.y]
-	check(mark_note == "" and height_note == "", "roster audit: marked creatures draw at metres times 12.35" + ("" if mark_note == "" and height_note == "" else " (" + height_note + mark_note + ")"))
+	check(mark_note == "" and height_note == "", "roster audit: marked creatures draw at the locked walking height" + ("" if mark_note == "" and height_note == "" else " (" + height_note + mark_note + ")"))
 	var grow_note := ""
 	for sid in main.DATA.SPECIES:
 		var grow_opts: Array = []

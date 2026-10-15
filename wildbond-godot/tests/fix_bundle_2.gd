@@ -20,6 +20,7 @@ static func run(host: Node, check: Callable) -> void:
 	_clicks(game, check)
 	_walk(game, check)
 	_starter(game, check)
+	_heights(game, check)
 	_sprites(game, check)
 	_battle_lines(game, check)
 	_talk(game, check)
@@ -148,6 +149,19 @@ static func _starter(game: Node, check: Callable) -> void:
 	game.card.open("bench", { "name": "Bench" }, ["Have it made", "Next"])
 	check.call(game.card.sel == 1 and game.card._label(1) == "Next", "a custom row still opens on its waiting choice")
 	game.card.visible = false
+
+static func _heights(game: Node, check: Callable) -> void:
+	check.call(game.Figures.drawn_px(2.0) == 24, "a 2.0 m creature walks at 24px, on the door line")
+	check.call(game.Figures.drawn_px(2.66) == 28, "a 2.66 m creature walks at 28px")
+	check.call(game.Figures.drawn_px(0.24) == 12, "a creature under 12px is raised to the floor")
+	check.call(game.Figures.drawn_px(1.5) == 19, "1.5 m stays at round(metres × 12.35), which is 19px")
+	var sun_m := float(game.DATA.SPECIES.sunford.metres)
+	var sun_raw := int(round(sun_m * 12.35))
+	var sun_curved := int(round(24.0 + 8.0 * log(float(sun_raw) / 24.0) / log(2.0)))
+	check.call(sun_raw > 24 and game.Figures.drawn_px(sun_m) == mini(32, sun_curved) and game.Figures.drawn_px(sun_m) < sun_raw, "a catalogue height above the door line uses the walking curve")
+	var pup_m := float(game.DATA.SPECIES.smoulderpup.metres)
+	var pup_raw := int(round(pup_m * 12.35))
+	check.call(pup_raw <= 24 and pup_raw >= 12 and game.Figures.drawn_px(pup_m) == pup_raw, "a catalogue height on or under the door line keeps round(metres × 12.35)")
 
 static func _sprites(game: Node, check: Callable) -> void:
 	check.call(game.battle._stage_px(1) == 44 and game.battle._stage_px(2) == 54 and game.battle._stage_px(3) == 64, "a battle figure's stage height is 44, 54 or 64")
