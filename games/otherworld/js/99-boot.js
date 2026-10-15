@@ -37,7 +37,10 @@ document.addEventListener('keydown', e => {
   else if (e.key === ' ' || e.key === 'Enter') {
     if (e.target.closest?.('.dlg button')) return; // native focused button wins
     e.preventDefault();
-    if (asking) { const i = choicesOf(NODES[S.life.at]).findIndex(c => choiceReady(c)); if (i >= 0) D.choose(i); }
+    if (asking) {
+      const ready = choicesOf(NODES[S.life.at]).map((c, i) => choiceReady(c) ? i : -1).filter(i => i >= 0);
+      if (ready.length === 1) D.choose(ready[0]);
+    }
     else D.advance();
   } else if (e.key === 'Escape') { e.preventDefault(); D.skip(); }
 });
