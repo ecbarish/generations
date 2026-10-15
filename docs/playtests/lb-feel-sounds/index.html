@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lantern Bowl sound cues: listening page</title>
+<style>
+  body { font: 16px/1.4 system-ui, sans-serif; margin: 0; padding: 16px; background: #14202b; color: #f2ecd8; max-width: 640px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p { margin: 4px 0 12px; color: #c9c3ad; }
+  .row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+  button { font: inherit; min-height: 48px; min-width: 150px; padding: 8px 14px; border: 2px solid #f2b84b; border-radius: 10px; background: #243746; color: #f2ecd8; cursor: pointer; }
+  button:active, button.on { background: #f2b84b; color: #14202b; }
+  .info { color: #c9c3ad; font-size: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 8px; }
+  th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #34495a; }
+  .ok { color: #8fe08f; } .bad { color: #ff8f8f; }
+  label { display: block; margin: 12px 0; }
+</style>
+</head>
+<body>
+<h1>Lantern Bowl sound cues</h1>
+<p>One button per cue. Nothing in the game plays these yet. Every sound is made live from oscillators and filtered noise in <code>games/lantern-bowl/sound-cues.js</code>.</p>
+<label>Volume <input id="vol" type="range" min="0" max="100" value="40"></label>
+<div id="buttons"></div>
+<div class="row"><button id="all">Play each in turn</button><span class="info" id="status">Tap a button to hear a cue.</span></div>
+<h2 style="font-size:16px">Automatic check (renders each cue offline)</h2>
+<p>Renders every cue with an offline audio context with the volume slider at its top, then reports its length and loudest sample. A cue is fine when it is not silent and never clips.</p>
+<table id="report"><thead><tr><th>Cue</th><th>Length</th><th>Peak</th><th>Not silent</th><th>No clipping</th></tr></thead><tbody></tbody></table>
+<script src="../../../games/lantern-bowl/sound-cues.js"></script>
+<script>
+(function () {
+  'use strict';
+  var C = window.LanternBowlCues, ctx = null, master = null, bed = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var status = $('status');
+  var LABEL = { touchdown: 'Touchdown fanfare', tackle: 'Tackle thud', catch: 'Catch pop', crowdBed: 'Crowd bed (loop)', crowdSwell: 'Crowd swell',
+    whistle: 'Whistle', kick: 'Kick thump', firstDown: 'First-down chime', interception: 'Interception sting' };
+  var MASTER_AT_1 = 0.5;   // headroom the page leaves, like the game's master volume
+
+  function audio() {
+    if (!ctx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      ctx = new AC(); master = ctx.createGain(); master.connect(ctx.destination); setVol();
+    }
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function setVol() { if (master) master.gain.value = $('vol').value / 100 * MASTER_AT_1; }
+  $('vol').addEventListener('input', setVol);
+
+  function playCue(name, btn) {
+    audio();
+    if (C.cues[name].loop) {
+      if (bed) { bed.stop(); bed = null; btn.classList.remove('on'); status.textContent = 'Crowd bed stopped.'; return; }
+      bed = C.play(ctx, master, name); btn.classList.add('on'); status.textContent = 'Crowd bed looping. Tap again to stop.'; return;
+    }
+    var h = C.play(ctx, master, name);
+    status.textContent = 'Played: ' + name + ' (' + h.duration.toFixed(2) + ' s)';
+    btn.classList.add('on'); setTimeout(function () { btn.classList.remove('on'); }, h.duration * 1000);
+    return h;
+  }
+
+  C.names.forEach(function (name) {
+    var row = document.createElement('div'); row.className = 'row';
+    var b = document.createElement('button'); b.textContent = LABEL[name] || name; b.setAttribute('data-cue', name);
+    b.addEventListener('click', function () { playCue(name, b); });
+    var i = document.createElement('span'); i.className = 'info';
+    i.textContent = (C.cues[name].loop ? 'loop' : C.cues[name].duration.toFixed(2) + ' s') + ', level ' + C.cues[name].level.toFixed(2);
+    row.appendChild(b); row.appendChild(i); $('buttons').appendChild(row);
+  });
+
+  $('all').addEventListener('click', function () {
+    audio(); var t = 0;
+    C.names.filter(function (n) { return !C.cues[n].loop; }).forEach(function (n) {
+      setTimeout(function () { playCue(n, document.querySelector('[data-cue=' + n + ']')); }, t * 1000);
+      t += C.cues[n].duration + 0.5;
+    });
+  });
+
+  /* The automatic check. */
+  var results = window.__cueReport = [];
+  function renderAll() {
+    var OC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!OC) return;
+    var rate = 22050, chain = Promise.resolve();
+    C.names.forEach(function (name) {
+      chain = chain.then(function () {
+        var secs = Math.min(C.cues[name].duration, 3) + 0.1;
+        var off = new OC(1, Math.ceil(rate * secs), rate), g = off.createGain();
+        g.gain.value = MASTER_AT_1; g.connect(off.destination);
+        C.play(off, g, name);
+        return off.startRendering().then(function (buf) {
+          var d = buf.getChannelData(0), peak = 0, i;
+          for (i = 0; i < d.length; i++) peak = Math.max(peak, Math.abs(d[i]));
+          var r = { name: name, seconds: C.cues[name].duration, peak: +peak.toFixed(3), silent: peak < 0.002, clipped: peak >= 0.999 };
+          results.push(r);
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td>' + name + '</td><td>' + r.seconds.toFixed(2) + ' s' + (C.cues[name].loop ? ' (loop, first pass)' : '') + '</td><td>' + r.peak + '</td>' +
+            '<td class="' + (r.silent ? 'bad">no' : 'ok">yes') + '</td><td class="' + (r.clipped ? 'bad">clips' : 'ok">yes') + '</td>';
+          document.querySelector('#report tbody').appendChild(tr);
+        });
+      });
+    });
+    return chain.then(function () { window.__cueReportDone = true; });
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
