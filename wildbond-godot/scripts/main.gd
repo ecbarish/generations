@@ -15,6 +15,7 @@ const Card := preload("res://scripts/card.gd")
 const Battle := preload("res://scripts/battle.gd")
 const Title := preload("res://scripts/title.gd")
 const TouchPad := preload("res://scripts/touch_pad.gd")
+const PhoneShell := preload("res://scripts/phone_shell.gd")
 const HowTo := preload("res://scripts/howto.gd")
 const Shop := preload("res://scripts/shop.gd")
 ## CR1: size classes to world scale (spec 4.4, docs/wildbond-creatures.md).
@@ -120,12 +121,14 @@ var caption_lift := 0.0                      # how far the view shifts up while 
 var walk_tap := Vector2i.ZERO                # a key tap that went down and up before the next step (it still counts)
 var swallow_talk := false                    # the press that finished a conversation must not start the next one
 var bag_press := false                        # the press began while the bag was already showing
+var bag_landed := false                       # that press already hit the bag, so the lift must not toggle again
 var menu_return := false                     # the field book was opened from the menu, so closing it comes back here
 var place_t := 0.0                           # seconds since you arrived somewhere (the place name holds, then fades)
 var title: Control
 var touch: Control                               # the phone pad (touch_pad.gd)
 var howto: Control                               # the How to play page (howto.gd)
-var turn_card: Control                             # covers the game while a phone is held upright
+var turn_card: Control                             # kept so an old test can still cover the screen; it no longer asks you to turn the phone
+var phone = null                                 # the phone frame (phone_shell.gd), or null on a wide window
 var show_howto := true                           # it opens before a new journey (the checks turn it off)
 var howto_then_title := false                    # opened from the title page: go back to it after
 var settings := Settings.new()                   # sound, text size, battle pace, phone buttons (settings.gd, WB6.2)
@@ -154,6 +157,8 @@ var paint_t := -1.0
 var spilled := false                         # the colour has spilled out of the barn into town
 var restore: Array = []                      # [{where, at: Vector2 world px, r: float, goal: float}]
 var lines: Array = []                        # dialogue queue: [{who: "maren" | "" (narration), text}]
+var talk_page := 0                            # which page of the current line the upright strip is showing
+var talk_key := ""                            # the line that page belongs to, so a turn of the phone keeps it
 var stage := "intro"
 var t := 0.0
 var fade_in := 0.0
@@ -807,6 +812,15 @@ func _switch() -> void:
 		say("", arrive)
 
 # ---------------------------------------------------------------- the loop
+func _input(e: InputEvent) -> void:
+	# Last input wins when a keyboard and a touch screen are both in reach. Noting it does not swallow the key.
+	if e is InputEventKey and e.pressed and not e.echo:
+		HowTo.note("keys")
+	elif e is InputEventScreenTouch and e.pressed:
+		HowTo.note("touch")
+	elif e is InputEventJoypadButton and e.pressed:
+		HowTo.note("pad")
+
 func _process(dt: float) -> void:
 	# Input for this frame has already arrived. A second press after this can start a new talk.
 	swallow_talk = false
@@ -868,15 +882,25 @@ func _process(dt: float) -> void:
 		maren.right = maren.face.x > 0
 		say("maren", "There you are! I'm Maren. I keep the ranch. Every tamer signs our register. Write yourself in, love.")
 	var free_to_walk: bool = stage in ["to_barn", "barn_choose", "walk_out", "free"] and not _covering() and trans_t < 0.0
+	if phone != null and not (lines.is_empty() and free_to_walk):
+		phone.drop_pending()
 	if lines.is_empty() and free_to_walk and me.path.is_empty() and me.pos.distance_to(Vector2(me.tile) * TILE) < 0.5:
 		var d := Controls.held_dir()                 # keys, a gamepad, or the phone pad (WB6.1)
 		if d == Vector2i.ZERO:
 			d = walk_tap                             # a short tap, released before this step, still takes the step
 		walk_tap = Vector2i.ZERO
+		if phone != null and d != Vector2i.ZERO:
+			phone.mark_moved()
 		if d != Vector2i.ZERO:
 			walk_to.clear()                          # the keys always win over a tapped walk
 			meet_after = null
 			_step(d)
+		elif phone != null and phone.has_tap():
+			var tap: Vector2i = phone.consume_tap()
+			if tap != Vector2i.ZERO:
+				walk_to.clear()
+				meet_after = null
+				_step(tap)
 		elif not walk_to.is_empty():
 			var nxt: Vector2i = walk_to.pop_front()
 			if (nxt - me.tile).length() == 1 and (walkable(nxt) or _gentle_at(nxt) != null or DOORS.has(nxt)):
@@ -1066,17 +1090,21 @@ func _satchel_hit(e: InputEvent) -> bool:
 	if satchel == null or not satchel.visible:
 		if Controls.released(e):
 			bag_press = false
+			bag_landed = false
 		return false
 	var down := Controls.pointing(e)
-	# The lift counts only if the press began while the bag was already showing, and the menu is still shut.
-	# The press that opened the menu is not undone on the way up, and a lift with no press is not a tap.
-	var up := Controls.release_kind(e) == 1 and menu != null and not menu.visible and bag_press
+	var on_bag := Rect2(Vector2(-14, -2), Vector2(42, 28)).has_point(Controls.at(satchel, e))
+	# A lift counts only when the press began while the menu was shut and the press itself missed the bag.
+	# A press that already opened or closed the menu is not repeated on the way up, and a lift with no press is not a tap.
+	var up := Controls.release_kind(e) == 1 and menu != null and not menu.visible and bag_press and not bag_landed
+	if down and on_bag:
+		bag_landed = true
 	if Controls.released(e):
 		bag_press = false
+		bag_landed = false
 	if not down and not up:
 		return false
-	# The bag, and the key drawn just beside it.
-	return Rect2(Vector2(-14, -2), Vector2(42, 28)).has_point(Controls.at(satchel, e))
+	return on_bag
 
 func _on_menu(action: String) -> void:
 	match action:
@@ -1766,7 +1794,12 @@ func _update_ui() -> void:
 	_layout_objective()
 	var line: Dictionary = lines[0] if not lines.is_empty() else {}
 	bubble.visible = not line.is_empty() and trans_t < 0.0
-	if bubble.visible:
+	if phone != null:
+		bubble.visible = false
+		caption.visible = false
+	else:
+		caption.visible = true
+	if phone == null and bubble.visible:
 		bubble_text.text = line.text + "   »"
 		var who: Mover = null
 		for m in [maren, wren] + npcs + keepers + guests:
@@ -1786,6 +1819,9 @@ func _update_ui() -> void:
 			var y := 216.0 - bubble.size.y - 8.0 - caption_lift   # narration sits low, clear of the hint bar
 			bubble.position = Vector2((384.0 - w) / 2.0, maxf(floor_y, y))
 		_clear_of_objective()
+	var view_w := get_viewport().get_visible_rect().size.x
+	if view_w >= 16.0:
+		satchel.position.x = minf(356.0, view_w - 28.0)
 	satchel.visible = _satchel_shown()
 	satchel.queue_redraw()
 	if status:
@@ -4726,54 +4762,99 @@ func _fit_caption() -> void:
 		if caption_plate != null:
 			caption_plate.visible = false
 		return
-	var outline := float(caption.get_theme_constant("outline_size"))
-	var margin := outline + 3.0
-	if caption.offset_bottom != -margin:
-		caption.offset_bottom = -margin
-	var width := (384.0 + caption.offset_right) - caption.offset_left
-	if width < 16.0:
-		return
-	var font := caption.get_theme_font("font")
-	var sz := caption.get_theme_font_size("font_size")
-	var gap := float(caption.get_theme_constant("line_spacing"))
-	var h := font.get_multiline_string_size(caption.text, HORIZONTAL_ALIGNMENT_CENTER, width, sz).y + gap + outline * 2.0 + 6.0
-	var top := caption.offset_bottom - h
-	var limit := 48.0 - 216.0
-	if top < limit:
-		top = limit
-	if not is_equal_approx(caption.offset_top, top):
-		caption.offset_top = top
+	# The words were already placed, above the walking pad when that pad is showing.
+	# The bar runs from those words to the foot of the screen, and the view shifts up with it.
 	caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	var band_top := 216.0 + top - 3.0
+	var band_top := 216.0 + float(caption.offset_top) - 3.0
+	if band_top < 48.0:
+		band_top = 48.0
 	var band_bottom := 216.0
 	caption_lift = maxf(0.0, band_bottom - band_top)
 	if caption_plate != null:
 		caption_plate.visible = true
 		caption_plate.position = Vector2(0, band_top)
-		caption_plate.size = Vector2(384, band_bottom - band_top)
+		caption_plate.size = Vector2(384, maxf(1.0, band_bottom - band_top))
 
 # ---------------------------------------------------------------- the phone pad and the settings (WB6.1-6.2)
+## An upright phone grows the Game Boy frame. A phone held sideways keeps the 384×216 view, an ink
+## letterbox, a hint band under the view, and a deck on either side. Turning never drops the open line.
+func _phone_sync() -> void:
+	var win := Vector2(DisplayServer.window_get_size())
+	if PhoneShell.wants(win):
+		if phone == null or not is_instance_valid(phone):
+			phone = PhoneShell.attach(self)
+		else:
+			phone.relayout(win)
+		if str(HowTo.last_kind) == "":
+			HowTo.note("touch")
+	elif phone != null and is_instance_valid(phone):
+		var shell = phone
+		phone = null
+		shell.detach()
+
 ## Tells the phone pad when walking is possible and what its button would do, and applies the settings that change
 ## how things look (text size) or run (battle pace).
 func _thumbs_tick() -> void:
+	_phone_sync()
 	touch.mode = settings.buttons()
 	var menus := lessons.visible or battle.visible or book.visible or shop.visible or card.visible or register.visible or title.visible or howto.visible or (menu != null and menu.visible)
-	touch.pad_on = not menus and lines.is_empty() and trans_t < 0.0 and stage in ["to_barn", "barn_choose", "walk_out", "free"]
+	var framed := phone != null
+	var side := false
+	if framed and not phone.L.is_empty():
+		side = bool(phone.L.get("side", false))
+	touch.pad_on = not framed and not menus and lines.is_empty() and trans_t < 0.0 and stage in ["to_barn", "barn_choose", "walk_out", "free"]
 	touch.word = action_word()
-	touch.btn_on = not menus and trans_t < 0.0 and touch.word != ""
+	touch.btn_on = not framed and not menus and trans_t < 0.0 and touch.word != ""
+	var win := Vector2(DisplayServer.window_get_size())
+	var side_phone := phone == null and win.x > win.y * 1.05 and win.y >= 8.0 and win.y <= 520.0 and win.x <= 1000.0
+	if side_phone:
+		var ins := PhoneShell.read_insets()
+		touch.inset_left = ins.x
+		touch.inset_right = ins.z
+	else:
+		touch.inset_left = 0.0
+		touch.inset_right = 0.0
 	touch.refresh()
-	# the caption keeps clear of the thumbs: between the pad and the button while they show (WB-C3), and grows upward
-	var left := TouchPad.PAD.x + TouchPad.PAD_R + 4.0 if touch.visible and touch.pad_on else 8.0
-	var right := -(384.0 - TouchPad.BTN.x + TouchPad.BTN_R + 4.0) if touch.visible and touch.btn_on else -8.0
-	if caption.offset_left != left or caption.offset_right != right:   # only on a change, so it isn't laid out every frame
-		caption.offset_left = left
-		caption.offset_right = right
+	_place_caption()
 	_fit_caption()
 	battle.pace = settings.pace()
-	var size := 10 if settings.large_text() else 8
+	battle.external_ui = framed and not side
+	if framed and not phone.L.is_empty():
+		battle.phone_view = Rect2(0, 0, float(phone.L["game_w"]), 216.0)
+	else:
+		battle.phone_view = Rect2()
+	var size := 16 if side_phone else (10 if settings.large_text() else 8)
 	if bubble_text.label_settings.font_size != size:  # only on a change, so the labels aren't laid out every frame
 		bubble_text.label_settings.font_size = size
-		caption.add_theme_font_size_override("font_size", size - 1)
+		caption.add_theme_font_size_override("font_size", size if side_phone else size - 1)
+
+## The hint sits above the walking pad and the talk button, and the box is as tall as the wrapped words,
+## so a long line is not cut off on the bottom edge and does not sit under the pad.
+func _place_caption() -> void:
+	var left := 8.0
+	var right := -8.0
+	var bottom := -6.0
+	if touch.visible and touch.pad_on:
+		var pad_at: Vector2 = touch.pad_at()
+		left = pad_at.x + TouchPad.PAD_R + 8.0
+		bottom = minf(bottom, pad_at.y - TouchPad.PAD_R - 8.0 - 216.0)
+	if touch.visible and touch.btn_on:
+		var btn_at: Vector2 = touch.btn_at()
+		right = -(384.0 - btn_at.x + TouchPad.BTN_R + 4.0)
+		bottom = minf(bottom, btn_at.y - TouchPad.BTN_R - 8.0 - 216.0)
+	var width := maxf(32.0, 384.0 - left + right)
+	var font := caption.get_theme_font("font")
+	var size := caption.get_theme_font_size("font_size")
+	var text_h := 12.0
+	if caption.text != "" and font != null:
+		text_h = font.get_multiline_string_size(caption.text, HORIZONTAL_ALIGNMENT_CENTER, width, size).y
+		text_h += caption.get_theme_constant("outline_size") + 2.0
+	var top := bottom - maxf(text_h, 12.0)
+	if caption.offset_left != left or caption.offset_right != right or caption.offset_bottom != bottom or caption.offset_top != top:
+		caption.offset_left = left
+		caption.offset_right = right
+		caption.offset_bottom = bottom
+		caption.offset_top = top
 
 ## What pressing Talk would do here, in a word for the phone button ("" when there's nothing to do). While someone
 ## speaks the button steps aside (the bubble sits low): a tap anywhere moves the talk on.
@@ -4967,9 +5048,9 @@ func _keycap(c: CanvasItem, at: Vector2, key: String, word := "") -> void:
 func keys_for(what: String) -> String:
 	var use := HowTo.in_use()
 	match what:
-		"walk": return { "touch": "the pad in the corner, or tap where to go", "pad": "the left stick" }.get(use, "the arrow keys or W A S D")
-		"talk": return { "touch": "tap Talk", "pad": "press A" }.get(use, "press E")
-		"book": return { "touch": "open the menu and choose Field book", "pad": "press Y" }.get(use, "press J")
+		"walk": return { "touch": "the d-pad", "pad": "the left stick" }.get(use, "the arrow keys or W A S D")
+		"talk": return { "touch": "A or the dialogue box", "pad": "press A" }.get(use, "press E")
+		"book": return { "touch": "Menu", "pad": "press Y" }.get(use, "press J")
 	return ""
 
 ## How to press: "tap Meet" on a phone, a key on a computer (for the few hints that name a control).

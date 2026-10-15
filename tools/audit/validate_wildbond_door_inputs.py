@@ -61,9 +61,13 @@ for case in report["cases"]:
     else:
         assert case["expected_map"] == building and tuple(case["goal"]) == buildings[building], key
     assert 0 < case["simulation_frames"] <= 240, key
+    frame = tuple(case["size"]) in {(812, 375), (844, 390)}
     if key in expected_auto:
         assert case["suite"] == "visible-auto-pad" and method == "touch", key
-        assert case["phone_buttons_setting"] == "auto" and case["touch_buttons_visible"], key
+        if frame:
+            assert case["phone_buttons_setting"] == "auto" and not case["touch_buttons_visible"], key
+        else:
+            assert case["phone_buttons_setting"] == "auto" and case["touch_buttons_visible"], key
         assert not case["target_hits_pad"] and not case["target_hits_button"], key
     else:
         assert case["suite"] == "core" and method == input_label, key
@@ -102,6 +106,8 @@ for case in report["settings_checks"]:
         "on": ("on", False, True),
         "off": ("off", True, False),
     }[case["label"]]
+    if tuple(case["size"]) in {(812, 375), (844, 390)}:
+        visible = False
     assert (case["setting"], case["touched"], case["visible"]) == (setting, touched, visible), case
 assert settings_seen == expected_settings
 
@@ -112,6 +118,17 @@ for case in report["pad_checks"]:
     name = case["case"]
     assert name not in pad_seen
     pad_seen.add(name)
+    if case.get("phone_frame"):
+        assert case["released"], name
+        if case["kind"] == "hold-release":
+            direction = directions[case["action"]]
+            assert tuple(case["direction"]) == direction and case["moved_while_held"], name
+            assert not case["world_tap_leaked"], name
+            assert case["after"]["player"] == [case["start"][0] + direction[0], case["start"][1] + direction[1]], name
+            assert case["after"]["player_path"] == [], name
+        else:
+            assert case["kind"] == "hide-release" and not case["visible"], name
+        continue
     verify_pointer_preflight(case)
     x, y = case["pad_center"]
     radius = case["pad_radius"]
