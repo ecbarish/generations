@@ -1,0 +1,77 @@
+diff --git a/wildbond-godot/scripts/main.gd b/wildbond-godot/scripts/main.gd
+index bddbf074..1328f773 100644
+--- a/wildbond-godot/scripts/main.gd
++++ b/wildbond-godot/scripts/main.gd
+@@ -3587,15 +3587,23 @@ func _gentle_at(p: Vector2i) -> Mover:
+ ## window closes. The opening isn't saved part-way: a journey is saved from the moment you're free in Larkhaven.
+ var save_t := 0.0
+ 
++var saved_map := ""                           # the map the last save was written on
++
+ func _autosave(dt: float) -> void:
+ 	save_t += dt
+-	if save_t >= 5.0:
++	# Arriving somewhere new is saved within half a second, so a quit right after a road leaves you on that road.
++	var arrived := map_name != saved_map and trans_t < 0.0 and stage == "free"
++	if save_t >= 5.0 or (arrived and save_t >= 0.5):
+ 		save_t = 0.0
+-		save_game()
++		if save_game():
++			saved_map = map_name
+ 
+ func _notification(what: int) -> void:
+-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+-		save_game()
++	# A closed window, and, because a browser tab or a phone app never gets a close request, the moment the game loses
++	# the screen (tab hidden, app switched away or paused). All of them write the same save.
++	if what in [NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED]:
++		if save_game():
++			saved_map = map_name
+ 
+ func save_game() -> bool:
+ 	if no_save or hold_save or _newer_save(_peek_save()):
+@@ -3810,6 +3818,7 @@ func _load_game() -> bool:
+ 	maren.tile = BARN_DOOR + Vector2i(1, 1)
+ 	maren.pos = Vector2(maren.tile) * TILE
+ 	fade_in = 1.0
++	saved_map = str(d.map)                           # this is the place the file already holds
+ 	_go(d.map, _off_new_homes(str(d.map), Vector2i(int(d.x), int(d.y))), Vector2i.DOWN)
+ 	trans_t = 0.29
+ 	say("", "Welcome back, %s." % my_look.get("name", "tamer"))
+@@ -4606,6 +4615,8 @@ func _has_caught_wild() -> bool:
+ func _guide_first_catch() -> bool:
+ 	return not _has_caught_wild()
+ 
++const ROAD_OBJECTIVE := "Take the north road to Thornwood, then meet someone wild in the tall grass."
++
+ ## One line for the tracker. Empty when a full-screen page is up, or once the first towns are behind you.
+ func next_objective() -> String:
+ 	if objective == null:
+@@ -4625,6 +4636,8 @@ func next_objective() -> String:
+ 			return "Walk out into Larkhaven."
+ 		"free":
+ 			if not _has_caught_wild():
++				if map_name == "larkhaven" and not badges.has("thorn"):
++					return ROAD_OBJECTIVE          # WBL-8: Larkhaven has no tall grass, so the goal names the road that leads to it
+ 				return "Meet someone wild in the tall grass."
+ 			if map_name == "larkhaven" and not badges.has("thorn"):
+ 				return "The north road leads to Thornwood."
+diff --git a/wildbond-godot/tests/wbl_battle_start.gd b/wildbond-godot/tests/wbl_battle_start.gd
+index ff700597..82b71e5a 100644
+--- a/wildbond-godot/tests/wbl_battle_start.gd
++++ b/wildbond-godot/tests/wbl_battle_start.gd
+@@ -118,8 +118,13 @@ static func _objective(game: Node, check: Callable) -> void:
+ 	game.map_name = "larkhaven"
+ 	game.badges.clear()
+ 	game._update_ui()
+-	check.call(game.objective.line == "Meet someone wild in the tall grass.", "WBL-4: before the first catch, the objective is a wild meeting")
++	check.call(game.objective.line == "Take the north road to Thornwood, then meet someone wild in the tall grass.", "WBL-8: before the first catch, Larkhaven's objective names the road to the tall grass")
++	_fits(game, check, "WBL-8: the road objective fits its box")
++	game.map_name = "thornwood_route"
++	game._update_ui()
++	check.call(game.objective.line == "Meet someone wild in the tall grass.", "WBL-4: out on the road, before the first catch, the objective is a wild meeting")
+ 	_fits(game, check, "WBL-4: the wild-meeting objective fits its box")
++	game.map_name = "larkhaven"
+ 	game.battle.sure_catch = true
+ 	game.battle.kind = "wild"
+ 	game.battle.state = "choose"
