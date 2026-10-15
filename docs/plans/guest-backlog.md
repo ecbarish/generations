@@ -24,8 +24,8 @@ Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" 
 
 Checked against the merged pulls and the latest #373 comments on 2026-10-15.
 
-- **Grok:** WBW-4 (now, already in progress), then LR-G2, LB-G13, LB-G14, LR-G3, NM-G8, LB-PAL (sixth, after NM-G8), then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15, WBW-17. Open priority rows left: 14.
-- **dot:** WBW-5 (now, #501) and NM-G3 (#499) are already in progress. Then NM-G6, LB-G12, NM-G7, then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16, WBW-18. Open priority rows left: 11. LB-G11 and NM-G9 are merged. Do not start a second copy.
+- **Grok:** WBW-4 (now, already in progress), then LR-G2, LB-G13, LB-G14, LR-G3, LR-G4, NM-G8, LB-PAL (seventh, after NM-G8), then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15, WBW-17. Open priority rows left: 15.
+- **dot:** WBW-5 (now, #501) and NM-G3 (#499) are already in progress. Then NM-G6, LB-G12, NM-G7, NM-G10, then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16, WBW-18. Open priority rows left: 12. LB-G11 and NM-G9 are merged. Do not start a second copy.
 - There is no LB-G4b row. A row that is merged, or already in review, is done for this queue. Do not start a second copy.
 ### Batch 3
 
@@ -35,7 +35,7 @@ LR-G2 and LR-G3 both go to Grok. They edit the same files, and dot cannot take b
 
 Each bundle starts by re-checking its items on current main and dropping any that no longer reproduce, with a note in the pull. The bundles are LR-G2, LR-G3 and NM-G8.
 
-The held toy pulls #404 to #412 will conflict with LR-G2 and LR-G3, and that is expected. They stay on hold. The open ones are #404, #409, #411 and #412, and they edit `games/little-ranch/game.js`. Do not wait for them.
+The held toy pulls #404 to #412 will conflict with LR-G2, LR-G3 and LR-G4, and that is expected. They stay on hold. The open ones are #404, #409, #411 and #412, and they edit `games/little-ranch/game.js`. Do not wait for them.
 
 ### Dev lead keeps
 
@@ -100,6 +100,20 @@ The held toy pulls #404 to #412 will conflict with LR-G2 and LR-G3, and that is 
 - **Done check:** new checks in `tests/little-ranch.html` show that a stamp after tinting uses the tinted colour, that painting the head leaves the eye colours unchanged, that the shed outline matches the yard pet's shape, that `ROUTINE_WAIT` is 9 and the README agrees, that the hint list reaches the wagon's puller and the barn-door sign, and that a painted pet keeps its colours in the yard until bedtime. No new localStorage key is written. Existing checks pass, and CI is green. Screenshots of the cutter, head paint and shed outline go to GAD, because the shed outline is drawing work.
 - **What I wire later:** nothing. Playtester re-checks.
 - **Dependencies:** LR-G2 must merge first (same files).
+
+### LR-G4. Shed outline tap and the grown-ups close button
+
+**Status:** Grok, right after LR-G3. Starts after LR-G3 merges, because both edit `games/little-ranch/game.js` and `tests/little-ranch.html`. Same merge gate as LR-G2 and LR-G3: merge only after Playtester confirms it does not drop below 8/10. Little Ranch launches on 16 October. The held toy pulls #404 to #412 will conflict, and that is expected.
+
+- **Guest:** Grok.
+- **Scope:**
+  1. The baby outline in the shed gets a tap area of at least 44px at 844x390.
+  2. The grown-ups panel's close button moves so it no longer overlaps the action card.
+  3. Add a geometry test for both.
+  4. The panel closing on finger lift after the hold gets flagged in the PR for a real-phone check, and is not marked fixed from emulation.
+- **Files:** `games/little-ranch/game.js` and `tests/little-ranch.html`.
+- **Done check:** the new geometry checks in `tests/little-ranch.html` show that the shed outline's tap area is at least 44px at 844x390, and that the grown-ups close button does not overlap the action card. Existing checks pass, and CI is green. The PR says the panel still closes on finger lift after the hold, and that this needs a real phone, not an emulated fix. Playtester confirms the build does not drop below 8/10 before merge.
+- **Dependencies:** LR-G3 must merge first (same files).
 
 ### NM-G8. Playtester fix bundle: dumpling hold, sideways scroll, walkers on counters, page icon, busier lane
 
@@ -176,9 +190,19 @@ The held toy pulls #404 to #412 will conflict with LR-G2 and LR-G3, and that is 
 - **What I wire later:** nothing directly. GAD uses it for tale art, and any art PR gets GAD's review.
 - **Dependencies:** none.
 
+### NM-G10. Stall count at 16px on a phone
+
+**Status:** dot, at the end of the priority launch rows, after NM-G7. Starts after NM-G8 merges, because both touch `games/night-market/style.css`. #499 has already merged.
+
+- **Guest:** dot.
+- **Scope:** The stall's `.count` line goes from 14.72px to 16px on a phone. Today `.count` in `games/night-market/style.css` is `font-size: 0.92rem`.
+- **Files:** `games/night-market/style.css` (the `.count` size on a phone) and `tests/night-market.html`. Screenshots go with the pull for Game Art Director.
+- **Done check:** a test check at 390 and 844 widths shows the stall's `.count` line is 16px. Existing checks pass, old saves load, and CI is green. Game Art Director reviews the screenshots.
+- **Dependencies:** NM-G8 must merge first (same `style.css`).
+
 ### WBW-7 to WBW-12
 
-Wildbond & Starfall Dev Lead scoped these on 2026-10-15. They come after the batch 3 launch rows. Grok takes WBW-7, WBW-9 and WBW-11 after LR-G1. Dot takes WBW-8, WBW-10 and WBW-12 after NM-G7. The spec below is copied as written.
+Wildbond & Starfall Dev Lead scoped these on 2026-10-15. They come after the batch 3 launch rows. Grok takes WBW-7, WBW-9 and WBW-11 after LR-G1. Dot takes WBW-8, WBW-10 and WBW-12 after NM-G10. The spec below is copied as written.
 
 The level cap stays as data at 58 to 64 and the runtime clamps it, the echo-stone errand finishing after Hush is intended, the dark behaviour belongs to the runtime and the painter, and the placements are accepted, so none of these need guest work.
 
@@ -377,7 +401,7 @@ The Answering Ways depth layout follow-ups, and the Lampcrown and Greymill maps.
 
 **Status:** Starts after #505 merges. #505 is Game Art Director's spec pull.
 
-**Guest:** Grok. It is sixth in Grok's priority list, after NM-G8. WBW-4 stays the current task.
+**Guest:** Grok. It is seventh in Grok's priority list, after NM-G8. WBW-4 stays the current task.
 
 This is the Lantern Bowl launch checklist's palette cap. [launch-lantern-bowl.md](launch-lantern-bowl.md) says Game Art Director reviews any art. The launch picture check in `tests/lantern-bowl.html` is "the picture stays inside 32 colours", and [docs/art/README.md](../art/README.md) rule 6 caps each game at about 32 colours. The spec takes the picture from 36 colours to 30.
 
@@ -784,7 +808,7 @@ The ten ids, copied from section 3, are `sq-nora-bird`, `sq-isolde-path`, `sq-to
 
 ## Grok, now
 
-Grok's current task is WBW-4, Answering Ways. It was claimed on #373. No pull is open yet. After that, launch games come first: LR-G2 (ready now), LB-G13, LB-G14, LR-G3 (after LR-G2 merges), NM-G8 (after #499 merges), and LB-PAL (sixth, after NM-G8; it starts after #505 merges). Then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15 and WBW-17. Open priority rows left: 14. LR-G2 and LR-G3 both belong to Grok. Merge each only after Playtester confirms it does not regress the 8/10 build, because Little Ranch launches on 16 October.
+Grok's current task is WBW-4, Answering Ways. It was claimed on #373. No pull is open yet. After that, launch games come first: LR-G2 (ready now), LB-G13, LB-G14, LR-G3 (after LR-G2 merges), LR-G4 (after LR-G3 merges), NM-G8 (after #499 merges), and LB-PAL (seventh, after NM-G8; it starts after #505 merges). Then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15 and WBW-17. Open priority rows left: 15. LR-G2, LR-G3 and LR-G4 all belong to Grok. Merge each only after Playtester confirms it does not drop below 8/10, because Little Ranch launches on 16 October.
 
 Done. Do not reopen these. LB-G7 is #495. NM-G4 is #498. NM-G5 is #500. LB-G9 is #489. WBW-6 is #492. WBW-3 is #487. LB-G6 is #481. NM-G1 is #482. LB-G4 is #474. LB-G5 is #479. WB-ROAD is #467. #449 merged as `44f49c2c`. #438 merged as `4e92d87a`. NM-FIX-6 merged as #461, `1d36ee61`. There is no LB-G4b row.
 
@@ -803,7 +827,7 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, now
 
-Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499). The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. After that in-progress work, launch games come first: NM-G6, LB-G12 and NM-G7. Then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16 and WBW-18. Open priority rows left: 11. LB-G11 and NM-G9 are merged. Do not start a second copy.
+Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499). The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. After that in-progress work, launch games come first: NM-G6, LB-G12, NM-G7 and NM-G10 (after NM-G8 merges). Then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16 and WBW-18. Open priority rows left: 12. LB-G11 and NM-G9 are merged. Do not start a second copy.
 
 In review, counted done for this queue, and not a wait: LB-G10 is #496.
 
