@@ -53,7 +53,8 @@ def source_references(world=None, design=None):
     section = design.split('## 2. The connected map\n', 1)[1].split('\n## 3.', 1)[0]
     # Route/water tables and parenthesized cave IDs are the actual machine-ID declarations.
     planned = set(re.findall(r'^\|(?: \d+ \|)? `([a-z_]+)` \|', section, re.M))
-    planned.update(re.findall(r'\(`([a-z_]+)`\)', section))
+    caves = section.split('### Caves and depths (7), Hollowecho first\n', 1)[1].split('\n### Water routes', 1)[0]
+    planned.update(re.findall(r'^\d+\. \*\*[^\n]+?\*\* \(`([a-z_]+)`\)', caves, re.M))
     return {'actors': set(world['CAST']) | {'pip_gran'}, 'badges': set(world['BADGES']),
             'maps': set(world['MAPS']) | planned, 'design': design, 'world': world}
 
@@ -231,6 +232,8 @@ class ErrandContractTests(unittest.TestCase):
         self.assertEqual(len(self.refs['world']['MAPS']), 15)
         for name in NAMED_PLACES:
             self.assertIn(name, self.refs['design'].split('## 2.', 1)[1].split('## 3.', 1)[0])
+        for encounter in ('tidewolf', 'hearthstag', 'undertone', 'meadowmantle', 'watchlight'):
+            self.assertNotIn(encounter, self.refs['maps'])
         self.assertNotIn('perrin', self.refs['actors'])
         self.assertNotIn('juna', self.refs['actors'])
         locations = [loc for q in self.data['errands'] for s in q['steps'] for loc in s['locations']]
@@ -346,6 +349,9 @@ class ErrandContractTests(unittest.TestCase):
                  put(['errands', 7, 'steps', 3, 'cargo', 'fromPlaceholder'], 'New Keeper'),
                  put(['errands', 7, 'steps', 3, 'cargo', 'toPlaceholder'], 'Juna'),
                  put(['errands', 8, 'steps', 1, 'count'], True)]
+        for encounter in ('tidewolf', 'hearthstag', 'undertone', 'meadowmantle', 'watchlight'):
+            cases.append(put(s + ['locations'], [{'map': encounter}]))
+            cases.append(put(s + ['requires', 'maps'], [encounter]))
         for field in ('quests', 'dialogue', 'saveVersion', 'inventory'):
             cases.append(put([field], {}))
             cases.append(put(q + [field], {}))
