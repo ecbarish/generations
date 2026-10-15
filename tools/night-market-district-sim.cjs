@@ -66,6 +66,9 @@
       need(Number.isSafeInteger(s.serves), 'serves must be a positive whole number');
       need(s.habit.includes(s.vendor) && s.gossip.includes(s.vendor) && s.hire.includes(s.vendor), 'vendor must match their writing');
       need(d.permitStalls[i] === s.id, 'permitStalls must list every type once in chain order');
+    });
+    // All scalar fields are known text before a neighbouring name is inspected.
+    d.stalls.forEach(function (s, i) {
       need(i === 5 ? s.next === '' : s.next.includes(d.stalls[i + 1].vendor) && s.next.includes(d.stalls[i + 1].name), 'next must name the next vendor and stall');
     });
     return true;
@@ -213,6 +216,12 @@
       coercing.districts[districtIndex].stalls[0].id = { toString: function () { coercions++; return 'forged'; } };
       rejects(function () { validate(coercing, firstStalls); }, 'nonstring stall id', /stall id: plain text required/);
       check(coercions === 0, 'validator never coerces a stall id');
+      ['name', 'vendor'].forEach(function (key) {
+        var later = clone(data);
+        later.districts[districtIndex].stalls[1][key] = { toString: function () { coercions++; return d.stalls[1][key]; } };
+        rejects(function () { validate(later, firstStalls); }, 'nonstring next-stall ' + key, /(?:name|vendor): plain text required/);
+        check(coercions === 0, 'validator never coerces cross-stall text');
+      });
       var getters = 0, districtHook = clone(data), thresholdHook = clone(data);
       Object.defineProperty(districtHook.districts, districtIndex, { enumerable: true, get: function () { getters++; return d; } });
       Object.defineProperty(thresholdHook.districts[districtIndex], 'moveAtLifetime', { enumerable: true, get: function () { getters++; return d.moveAtLifetime; } });
