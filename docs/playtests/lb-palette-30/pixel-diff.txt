@@ -1,0 +1,10 @@
+final-1920x1080         2073600 px  merge   127052  shadow   224  edge     0  blend     2256  other    178  other bbox x24-1903 y62-70
+final-844x390            329160 px  merge    41461  shadow   224  edge     0  blend     2246  other    175  other bbox x24-827 y54-62
+pass-aim-1920x1080      2073600 px  merge   132156  shadow   224  edge     0  blend     2256  other    178  other bbox x24-1903 y62-70
+pass-aim-844x390         329160 px  merge    41856  shadow   224  edge     0  blend     2243  other    175  other bbox x24-827 y54-62
+roster-1920x1080        2073600 px  merge   120412  shadow     0  edge     0  blend      764  other      0
+roster-844x390           329160 px  merge    33963  shadow     0  edge     0  blend      495  other      0
+run-stick-1920x1080     2073600 px  merge   142036  shadow   224  edge   259  blend     2492  other    178  other bbox x24-1903 y62-70
+run-stick-844x390        329160 px  merge    44006  shadow   224  edge   111  blend     2416  other    175  other bbox x24-827 y54-62
+title-1920x1080         2073600 px  merge   147923  shadow   197  edge     0  blend  1535482  other    142  other bbox x24-1903 y62-70
+title-844x390            329160 px  merge    47651  shadow   192  edge     0  blend   118741  other    147  other bbox x24-827 y54-62

@@ -1,0 +1,10 @@
+final-1920x1080         2073600 px  merge        0  shadow     0  edge     0  blend       15  other      0
+final-844x390            329160 px  merge        0  shadow     0  edge     0  blend       43  other      0
+pass-aim-1920x1080      2073600 px  merge        0  shadow     0  edge     0  blend       33  other      0
+pass-aim-844x390         329160 px  merge        0  shadow     0  edge     0  blend       22  other   1669  other bbox x509-708 y104-290
+roster-1920x1080        2073600 px  merge        0  shadow     0  edge     0  blend        0  other      0
+roster-844x390           329160 px  merge        0  shadow     0  edge     0  blend        0  other      0
+run-stick-1920x1080     2073600 px  merge        0  shadow     0  edge     0  blend       33  other      0
+run-stick-844x390        329160 px  merge        0  shadow     0  edge     0  blend       34  other      0
+title-1920x1080         2073600 px  merge        0  shadow     0  edge     0  blend       24  other      0
+title-844x390            329160 px  merge        0  shadow     0  edge     0  blend       35  other      0

@@ -1,0 +1,13 @@
+defence_line_side_idle.png           2 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+defence_line_side_run.png            4 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+defence_line_side_tackle.png         2 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+defence_skill_side_idle.png          2 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+defence_skill_side_run.png           4 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+defence_skill_side_tackle.png        2 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+offence_line_side_idle.png          14 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+offence_line_side_run.png           27 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+offence_skill_side_dive.png         12 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+offence_skill_side_idle.png         13 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+offence_skill_side_run.png          27 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+offence_skill_side_throw.png        14 pixels changed, 0 not a #c9bc9a -> #d9c89a swap
+12 files, 123 pixels in total (spec: 12 and 123), 0 stray pixels, 0 mask files changed
