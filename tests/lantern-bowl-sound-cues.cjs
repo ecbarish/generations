@@ -1,4 +1,4 @@
-/* Checks for games/lantern-bowl/sound-cues.js (LB-G4). Plain Node, no packages:  node tests/lantern-bowl-sound-cues.cjs
+/* Checks for games/lantern-bowl/sound-cues.js (LB-G4, loop fix LB-G9). Plain Node, no packages:  node tests/lantern-bowl-sound-cues.cjs
    Exports { run, checks } for other tools; in a page with no `module` it sets window.LanternBowlCuesChecks. */
 (function (root, factory) {
   const api = factory(typeof require === 'function' ? require : null);
@@ -34,6 +34,7 @@
       const chk = (n, args) => args.forEach(a => { if (typeof a !== 'number' || !isFinite(a)) log.bad.push(label + '.' + n + '(' + args.join(',') + ')'); });
       return {
         setValueAtTime(...a) { chk('setValueAtTime', a); }, linearRampToValueAtTime(...a) { chk('linearRamp', a); },
+        cancelScheduledValues(...a) { chk('cancelScheduledValues', a); },
         exponentialRampToValueAtTime(...a) { chk('expRamp', a); if (a[0] <= 0) log.bad.push(label + ' expRamp to ' + a[0]); }
       };
     };
@@ -52,6 +53,47 @@
     };
     return { ctx, log };
   }
+
+  /* A stand-in that writes down every call play() makes, in order, with the time each call was given. Used to prove what a cue
+     schedules and when. `at` is the clock the context reports, which a check can move forward. */
+  function recorder() {
+    const ev = []; let id = 0;
+    const f = n => (typeof n === 'number' ? Math.round(n * 1e6) / 1e6 : String(n));
+    const mkParam = (nid, label) => {
+      const p = {};
+      ['setValueAtTime', 'linearRampToValueAtTime', 'exponentialRampToValueAtTime', 'cancelScheduledValues'].forEach(m => {
+        p[m] = (...a) => { ev.push({ node: nid, param: label, call: m, args: a, text: nid + '.' + label + '.' + m + '(' + a.map(f).join(',') + ')' }); return p; };
+      });
+      return p;
+    };
+    const node = (kind) => {
+      const nid = kind + (id++); ev.push({ node: nid, call: 'create', args: [], text: 'create ' + nid });
+      return {
+        nid, connect(to) { ev.push({ node: nid, call: 'connect', args: [], text: nid + '.connect(' + ((to && to.nid) || 'dest') + ')' }); return to; },
+        start(t) { ev.push({ node: nid, call: 'start', args: [t], text: nid + '.start(' + f(t) + ')' }); },
+        stop(t) { ev.push({ node: nid, call: 'stop', args: [t], text: nid + '.stop(' + f(t) + ')' }); }
+      };
+    };
+    const ctx = {
+      currentTime: 0, sampleRate: 8000,
+      createGain() { const n = node('gain'); n.gain = mkParam(n.nid, 'gain'); return n; },
+      createOscillator() { const n = node('osc'); n.frequency = mkParam(n.nid, 'freq'); return n; },
+      createBiquadFilter() { const n = node('filter'); n.frequency = mkParam(n.nid, 'ffreq'); n.Q = mkParam(n.nid, 'Q'); return n; },
+      createBufferSource() { return node('src'); },
+      createBuffer(ch, len) { ev.push({ call: 'buffer', args: [len], text: 'buffer ' + len }); const d = new Float32Array(len); return { getChannelData() { return d; } }; }
+    };
+    return { ctx, ev };
+  }
+  function fingerprint(ev) {
+    const s = ev.map(e => e.text).join('\n'); let x = 2166136261;
+    for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619) >>> 0; }
+    return x.toString(16) + ':' + ev.length;
+  }
+  /* Taken from sound-cues.js as it was on main before LB-G9 (play at time 0, stop at 0.05 s). A one-shot cue's schedule must not move. */
+  const ONE_SHOT_BEFORE = {
+    touchdown: 'c6690fbb:174', tackle: '955ff4cd:29', catch: '8023faa8:28', crowdSwell: 'ae9dfd1d:17',
+    whistle: '3ce8d4b1:37', kick: '82c7663e:28', firstDown: '50fc57de:48', interception: 'd2a77f01:62'
+  };
 
   function checks() {
     const out = [], add = (name, ok, detail) => out.push({ name, ok: !!ok, detail: ok ? '' : (detail || '') });
@@ -112,6 +154,63 @@
       add('play with an unknown name or missing context does nothing and throws nothing', !err && r.every(x => x === null), err && err.message);
     }
 
+
+    // LB-G9: a loop cue holds its volume until stop(), then fades out.
+    {
+      const bed = cues.crowdBed, peak = bed.voices[0].gain, attack = bed.voices[0].attack;
+      add('crowdBed voices have no release of their own (stop() does the fade)', bed.voices.every(v => v.release === undefined));
+      add('the loop release is 0.25 s and under the 0.3 s the row allows', L.loopRelease === 0.25 && L.loopRelease <= 0.3, L.loopRelease);
+      const isZeroRamp = e => e.call === 'linearRampToValueAtTime' && e.args[0] === 0;
+
+      // 30 seconds later and stop() never called: nothing ramped to 0, nothing stopped, and the gain was only ever raised to its peak.
+      let r = recorder(), h = api.play(r.ctx, { nid: 'dest' }, 'crowdBed'); r.ctx.currentTime = 30;
+      add('crowdBed schedules no ramp to 0 before stop()', !r.ev.some(isZeroRamp), r.ev.filter(isZeroRamp).map(e => e.text).join('; '));
+      add('crowdBed schedules no source stop before stop() (sources and the wobble run on)', !r.ev.some(e => e.call === 'stop'), r.ev.filter(e => e.call === 'stop').map(e => e.text).join('; '));
+      const gainSets = r.ev.filter(e => e.param === 'gain' && e.node === 'gain0');   // the voice's own gain, not the wobble's
+      add('crowdBed gain is raised once to its peak and then held (no later gain event)',
+        gainSets.length === 2 && gainSets[0].call === 'setValueAtTime' && gainSets[0].args[0] === 0 && gainSets[1].call === 'linearRampToValueAtTime' && gainSets[1].args[0] === peak && gainSets[1].args[1] === attack,
+        gainSets.map(e => e.text).join('; '));
+      add('crowdBed noise buffer is set to loop', (function () { const q = recorder(); let src = null, orig = q.ctx.createBufferSource; q.ctx.createBufferSource = function () { src = orig(); return src; }; api.play(q.ctx, { nid: 'd' }, 'crowdBed'); return !!src && src.loop === true; })());
+      const beforeStop = r.ev.length;
+
+      r.ctx.currentTime = 30; h.stop();
+      const after = r.ev.slice(beforeStop), stops = after.filter(e => e.call === 'stop');
+      const sourceNodes = r.ev.filter(e => e.call === 'create' && /^(osc|src)/.test(e.node)).map(e => e.node);
+      add('after stop() every source (noise and wobble) is stopped', sourceNodes.length >= 2 && sourceNodes.every(n => stops.some(e => e.node === n)), sourceNodes.join());
+      add('every source is stopped no sooner than now and within 0.3 s', stops.every(e => e.args[0] >= 30 && e.args[0] <= 30.3), stops.map(e => e.text).join('; '));
+      const fade = after.filter(isZeroRamp);
+      add('after stop() the gain ramps to 0 within 0.3 s', fade.length === 1 && fade[0].args[1] > 30 && fade[0].args[1] <= 30.3, fade.map(e => e.text).join('; '));
+      add('stop() cancels the old plan and starts the fade from the held peak', after.some(e => e.call === 'cancelScheduledValues' && e.args[0] === 30) && after.some(e => e.call === 'setValueAtTime' && e.args[0] === peak && e.args[1] === 30));
+      add('the fade finishes no later than the sources stop', fade.length === 1 && stops.every(e => e.args[0] >= fade[0].args[1]));
+      const n1 = r.ev.length; h.stop();
+      add('a second stop() schedules nothing more', r.ev.length === n1);
+
+      // stop() while the attack is still rising fades from where the gain is, not from the peak.
+      r = recorder(); h = api.play(r.ctx, { nid: 'dest' }, 'crowdBed'); r.ctx.currentTime = attack / 2; const mark = r.ev.length; h.stop();
+      const start = r.ev.slice(mark).filter(e => e.call === 'setValueAtTime' && e.param === 'gain')[0];
+      add('stop() halfway through the attack starts the fade from half the peak', start && Math.abs(start.args[0] - peak / 2) < 1e-9, start && start.text);
+      // stop() before the loop has started (a cue played ahead of the clock) cannot go negative.
+      r = recorder(); r.ctx.currentTime = 5; h = api.play(r.ctx, { nid: 'dest' }, 'crowdBed'); r.ctx.currentTime = 4; h.stop();
+      const early = r.ev.filter(e => e.call === 'setValueAtTime' && e.param === 'gain' && e.args[1] === 4)[0];
+      add('stop() before the start time fades from 0, never from a negative gain', early && early.args[0] === 0, early && early.text);
+      add('a loop cue made on the fly with a release would still not schedule it (release is ignored on a loop)', (function () {
+        const saved = bed.voices[0].release; bed.voices[0].release = 0.5;
+        const q = recorder(); api.play(q.ctx, { nid: 'd' }, 'crowdBed'); bed.voices[0].release = saved;
+        return !q.ev.some(isZeroRamp);
+      })());
+
+      // Every one-shot cue still schedules exactly what it did before this row (same calls, same times, same order).
+      Object.keys(ONE_SHOT_BEFORE).forEach(n => {
+        const q = recorder(), hh = api.play(q.ctx, { nid: 'dest' }, n); q.ctx.currentTime = 0.05; hh.stop();
+        add('one-shot ' + n + ' schedules exactly what it did before', fingerprint(q.ev) === ONE_SHOT_BEFORE[n], fingerprint(q.ev) + ' vs ' + ONE_SHOT_BEFORE[n]);
+        add('one-shot ' + n + ' still ends itself (a ramp to 0 and a stop for every source)', q.ev.some(isZeroRamp) && q.ev.filter(e => e.call === 'stop').length >= q.ev.filter(e => e.call === 'start').length);
+      });
+      add('every one-shot cue is covered by the before-fingerprints', NEEDED.filter(n => !cues[n].loop).every(n => ONE_SHOT_BEFORE[n]));
+      // Through the old stand-in too: a loop's play() and stop() send only finite numbers.
+      const s2 = stubContext(); const h2 = api.play(s2.ctx, {}, 'crowdBed'); s2.ctx.currentTime = 12; h2.stop();
+      add('a crowdBed play and stop send no non-finite number to the audio', s2.log.bad.length === 0, s2.log.bad.join('; '));
+    }
+
     // Source rules: no own AudioContext, no DOM, no samples, no network, no timers or clocks.
     if (fs) {
       const src = fs.readFileSync(SRC, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
@@ -130,5 +229,5 @@
     return bad.length === 0;
   }
 
-  return { run, checks, stubContext, NEEDED };
+  return { run, checks, stubContext, recorder, NEEDED };
 });
