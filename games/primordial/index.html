@@ -21,7 +21,7 @@ html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.45}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-.home{display:inline-block;color:var(--cyan);text-decoration:none;border:1px solid var(--cyan);border-radius:999px;padding:5px 12px;font-size:13px;letter-spacing:.02em;text-transform:none;margin-right:6px}
+a.home{display:inline-flex;align-items:center;min-height:44px;color:var(--cyan);text-decoration:none;border:1px solid var(--cyan);border-radius:999px;padding:5px 12px;font-size:13px;letter-spacing:.02em;text-transform:none;margin-right:6px}
 .home:hover{text-decoration:underline}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
@@ -67,6 +67,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
 .nfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
 .verdict{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid currentColor}
 .v-good{color:var(--good)} .v-even{color:var(--amber)} .v-bad{color:var(--coral)}
+.btn[data-act="spend-away"]{min-height:44px}
 .btn{padding:8px 14px;border-radius:9px;border:1px solid var(--line2);background:var(--panel);font-weight:600}
 .btn:hover:not(:disabled){border-color:var(--amber)}
 .btn:disabled{opacity:.45;cursor:default}
@@ -78,14 +79,14 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
 
 /* tabs */
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
-.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:9px 12px;color:var(--muted);font-weight:600;white-space:nowrap;display:flex;gap:6px;align-items:center}
+.tabs button{min-height:44px;background:none;border:0;border-bottom:2px solid transparent;padding:9px 12px;color:var(--muted);font-weight:600;white-space:nowrap;display:flex;gap:6px;align-items:center}
 .tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--amber)}
 .badge{font-family:var(--f-mono);font-size:11px;background:var(--violet);color:#1b0f33;border-radius:999px;padding:0 6px;font-weight:600}
 .tabhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .tabhead h2{font-family:var(--f-display);font-weight:400;font-size:26px;margin:0;line-height:1.1}
 .sub{color:var(--muted);margin:3px 0 0;font-size:13px;max-width:60ch}
 .seg{display:inline-flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden}
-.seg button{background:none;border:0;padding:6px 12px;color:var(--muted);font-weight:600;font-family:var(--f-mono);font-size:12px}
+.seg button{min-height:44px;background:none;border:0;padding:6px 12px;color:var(--muted);font-weight:600;font-family:var(--f-mono);font-size:12px}
 .seg button.on{background:var(--line2);color:var(--fg)}
 
 /* organisms */
@@ -344,7 +345,7 @@ const GENOME=[
   {id:'reflex',name:'Hardwired Reflexes',desc:l=>`Organism reflexes act 30% faster. Now every ${reflexIv(l).toFixed(2)}s.`,cost:l=>Math.ceil(3*2.5**l),max:10},
   {id:'pool',name:'Wider Gene Pool',desc:()=>'+1 option in every mutation draft.',cost:l=>[15,150][l],max:2},
   {id:'inherit',name:'Inherited Trait',desc:l=>`Carry ${l+1} random mutation${l?'s':''} through each extinction.`,cost:l=>Math.ceil(8*6**l),max:3},
-  {id:'spores',name:'Dormant Spores',desc:l=>`Growth while you're away: ${50+10*(l+1)}% of normal (now ${50+10*l}%).`,cost:l=>Math.ceil(4*3**l),max:5},
+  {id:'spores',name:'Dormant Spores',desc:l=>`Welcome-back gift: ${50+10*(l+1)}% of normal growth (now ${50+10*l}%). Spend it when you return.`,cost:l=>Math.ceil(4*3**l),max:5},
 ];
 const headStart=l=>l?10*8**l:0;
 const reflexIv=l=>Math.max(0.1,5*Math.pow(0.7,l));
@@ -395,6 +396,8 @@ function merge(o){
 }
 let S=fresh();
 let D=null;
+// The unspent gift is a preview, never a new save field. S.last is the unchanged checkpoint.
+let pendingAway=null,lastTick=performance.now();
 function log(m){S.log.unshift({t:S.stats.play,m});if(S.log.length>40)S.log.length=40;}
 
 /* ---------- derived ---------- */
@@ -446,8 +449,8 @@ function absorb(){const v=clickValue();gain(v);S.stats.clicks++;return v;}
 /* ---------- mutations ---------- */
 function nextMut(){return 100*Math.pow(D.mutGrowth,S.mutGranted)*D.drift;}
 const MAX_PENDING=3;
-function checkMut(){let g=0,got=0;while(S.pending<MAX_PENDING&&S.runTotal>=nextMut()&&g++<60){S.mutGranted++;S.pending++;got++;}
-  if(got&&!(S.inst.unl.select&&S.inst.on.select))toast(got>1?`${got} mutations ready`:'A mutation is ready','var(--violet)');}
+function checkMut(quiet=false){let g=0,got=0;while(S.pending<MAX_PENDING&&S.runTotal>=nextMut()&&g++<60){S.mutGranted++;S.pending++;got++;}
+  if(got&&!quiet&&!(S.inst.unl.select&&S.inst.on.select))toast(got>1?`${got} mutations ready`:'A mutation is ready','var(--violet)');}
 function ensureOffer(){
   if(S.offer||S.pending<=0)return;
   const n=3+(S.genome.pool||0)+(W().extraChoice||0);
@@ -518,7 +521,7 @@ function chooseWorld(id,auto){
   S.world=id;S.worldOffer=null;D=derive();
   log(`New lineage <i>${binomial(rng(S.seed))}</i> begins in the ${WORLDS[id].name}.`);
   toast(`${auto?'Mass Extinction: ':''}Life begins again in the ${WORLDS[id].name}.`,'var(--violet)');
-  closeModal();
+  S.last=now();lastTick=performance.now();closeModal();
 }
 
 /* ---------- instincts ---------- */
@@ -540,7 +543,7 @@ function runInstincts(h){
 
 /* ---------- loop ---------- */
 function advance(dt){
-  if(S.worldOffer||!(dt>0))return;
+  if(pendingAway||document.hidden||S.worldOffer||!Number.isFinite(dt)||!(dt>0))return;
   const steps=Math.min(400,Math.max(1,Math.ceil(dt/0.25)));const h=dt/steps;
   for(let k=0;k<steps;k++){
     D=derive();step(h);S.stats.play+=h;S.stats.run+=h;
@@ -551,27 +554,57 @@ function advance(dt){
   checkInstincts();
 }
 function offline(sec){
-  if(S.worldOffer||sec<30)return null;
-  sec=Math.min(sec,86400);const eff=0.5+0.1*(S.genome.spores||0);const t=sec*eff;const n0=S.runTotal;
-  const steps=300,h=t/steps;
-  for(let k=0;k<steps;k++){D=derive();step(h);S.stats.run+=h;}
-  S.stats.play+=sec;D=derive();checkMut();
-  if(S.runTotal>S.stats.best)S.stats.best=S.runTotal;
-  return {sec,eff,gain:S.runTotal-n0};
+  if(S.worldOffer||!Number.isFinite(sec)||sec<30)return null;
+  sec=Math.min(sec,86400);const eff=0.5+0.1*(S.genome.spores||0),live=S;
+  // Simulate on a detached copy: nutrients, organisms, clocks and mutations stay untouched until spent.
+  S=JSON.parse(JSON.stringify(live));
+  try{
+    const steps=300,h=sec*eff/steps;
+    for(let k=0;k<steps;k++){D=derive();step(h);S.stats.run+=h;}
+    S.stats.play+=sec;D=derive();checkMut(true);
+    if(S.runTotal>S.stats.best)S.stats.best=S.runTotal;
+    return {sec,eff,gain:S.n-live.n,state:S};
+  }finally{S=live;D=derive();}
+}
+function awaySeconds(){return Number.isFinite(S.last)&&S.last>0?Math.max(0,(now()-S.last)/1000):0;}
+function offerAway(sec){
+  if(pendingAway)return pendingAway;
+  const r=offline(sec);
+  if(!r||!(r.gain>0||r.state.tiers.some((t,i)=>t.amt>S.tiers[i].amt))){S.last=now();return null;}
+  // Keep the dormant interval recoverable even if the wall clock moved backwards during a timer stall.
+  S.last=now()-sec*1000;pendingAway=r;save();
+  openModal('offline',offlineHTML(r));$('.app').inert=true;
+  return r;
+}
+function checkAway(){
+  if(document.hidden||pendingAway)return false;
+  const t=performance.now(),gap=Math.max((t-lastTick)/1000,awaySeconds());
+  if(gap<30)return false;
+  offerAway(gap);lastTick=t;return true;
+}
+function spendAway(){
+  if(!pendingAway||document.hidden)return false;
+  const r=pendingAway,live=S;S={...r.state,last:now()};D=derive();
+  // The reward and its consumed timestamp are one atomic save. Keep the gift if storage refuses it.
+  if(!save()){S=live;D=derive();$('#awayMsg').textContent='Your gift is still here. This browser could not save it. Check your storage settings, then try again.';return false;}
+  pendingAway=null;lastTick=performance.now();$('.app').inert=false;closeModal();$('#absorb').focus({preventScroll:true});
+  const got=S.pending-live.pending;
+  if(got>0&&!(S.inst.unl.select&&S.inst.on.select))toast(got>1?`${got} mutations ready`:'A mutation is ready','var(--violet)');
+  return true;
 }
 
 /* ---------- save ---------- */
-function save(){S.last=now();Arcade.save(KEY,S);Arcade.report('primordial',{summary:`Run ${S.stats.ext+1} · ${fmt(S.runTotal)} nutrients earned`,detail:`${fmt(S.gmLife)} Genetic Memory earned · ${W().name}`});}
+function save(){const ok=Arcade.save(KEY,S);if(ok)Arcade.report('primordial',{summary:`Run ${S.stats.ext+1} · ${fmt(S.runTotal)} nutrients earned`,detail:`${fmt(S.gmLife)} Genetic Memory earned · ${W().name}`});return ok;}
 function load(){return Arcade.load(KEY);}
 function exportSave(){return Arcade.encode(S);}
-function importSave(txt){const o=Arcade.decode(txt);if(!o||!o.tiers)throw new Error('bad');S=merge(o);S.last=now();D=derive();save();}
+function importSave(txt){const o=Arcade.decode(txt);if(!o||!o.tiers)throw new Error('bad');S=merge(o);pendingAway=null;S.last=now();lastTick=performance.now();D=derive();save();}
 
 /* ---------- toasts / modal ---------- */
 function toast(m,c){const el=document.createElement('div');el.className='toast';el.style.setProperty('--tc',c||'var(--amber)');el.textContent=m;
   const box=$('#toasts');box.appendChild(el);while(box.children.length>4)box.firstChild.remove();setTimeout(()=>el.remove(),4200);}
 let modalKind=null;
 function openModal(kind,html){modalKind=kind;$('#sheet').innerHTML=html;$('#modal').hidden=false;const b=$('#sheet').querySelector('button');if(b)b.focus({preventScroll:true});}
-function closeModal(){modalKind=null;$('#modal').hidden=true;}
+function closeModal(){if(pendingAway&&modalKind==='offline')return;modalKind=null;$('#modal').hidden=true;}
 function draftHTML(){
   ensureOffer();const o=S.offer||[];
   return `<div class="eyebrow">Mutation${S.pending>1?` · ${S.pending} ready`:''}</div><h2>Choose one trait to carry forward</h2>
@@ -585,11 +618,12 @@ function worldHTML(){
   <div class="cards">${S.worldOffer.map(id=>{const w=WORLDS[id];return `<button class="card" data-act="world" data-arg="${id}"><span class="era2">${w.era}</span><span class="cname">${w.name}</span><span class="cdesc">${w.flavor}</span><ul>${w.mods.map(x=>`<li>${x}</li>`).join('')}</ul></button>`;}).join('')}</div>`;
 }
 function offlineHTML(r){
-  return `<div class="eyebrow">Dormant for ${fmtTime(r.sec)}</div><h2>Your pool kept growing while you were away</h2>
-  <p class="sub">Growth ran at ${Math.round(r.eff*100)}% of normal. Dormant Spores in the Genome raise that.</p>
-  <div class="big" style="margin:14px 0">+${fmt(r.gain)}</div>
-  ${S.pending?`<p class="sub">${S.pending} mutation${S.pending>1?'s are':' is'} waiting for you.</p>`:''}
-  <div class="mfoot"><button class="btn primary" data-act="close">Back to the pool</button></div>`;
+  return `<div class="eyebrow">Welcome back · ${fmtTime(r.sec)} away</div><h2>A gift for your pool</h2>
+  <p class="sub">Spend this gift to grow your pool. Nothing has grown while you were away.</p>
+  <p class="sub">Your gift holds ${Math.round(r.eff*100)}% of normal growth, for up to one day away. Dormant Spores in the Genome raise that.</p>
+  <div class="big" style="margin:14px 0">${r.gain>0?`+${fmt(r.gain)} nutrients`:'Growth for your organisms'}</div>
+  <p class="sub" id="awayMsg" role="status">The pool waits until you spend your gift.</p>
+  <div class="mfoot"><button class="btn primary" data-act="spend-away">Spend gift and grow</button></div>`;
 }
 
 /* ---------- tabs ---------- */
@@ -737,7 +771,10 @@ function updateUI(){
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]');if(!el)return;const a=el.dataset.act,arg=el.dataset.arg;
+  checkAway();
+  if(document.hidden||(pendingAway&&a!=='spend-away'))return;
   switch(a){
+    case 'spend-away':spendAway();break;
     case 'absorb':{const v=absorb();const r=$('#poolWrap').getBoundingClientRect();spawnFloat(r.width*(0.35+Math.random()*0.3),r.height*(0.4+Math.random()*0.2),v);break;}
     case 'tab':S.tab=arg;renderTab(true);break;
     case 'mode':S.buy=arg==='max'?'max':Number(arg);break;
@@ -756,11 +793,11 @@ document.addEventListener('click',e=>{
       try{navigator.clipboard.writeText(t.value).then(done,()=>{t.select();$('#saveMsg').textContent='Selected. Press Ctrl+C to copy.';});}catch(err){t.select();$('#saveMsg').textContent='Selected. Press Ctrl+C to copy.';}break;}
     case 'import':try{importSave($('#saveTxt').value);closeModal();curKey=null;$('#saveMsg').textContent='Save imported.';}catch(err){$('#saveMsg').textContent="That text isn't a Primordial save. Paste the whole exported block.";}break;
     case 'reset':if(!el.classList.contains('armed')){el.classList.add('armed');el.textContent='Click again to erase';setTimeout(()=>{el.classList.remove('armed');el.textContent='Erase everything';},4000);}
-      else{S=fresh();D=derive();save();closeModal();curKey=null;toast('Everything erased. Life begins again.');}break;
+      else{S=fresh();pendingAway=null;lastTick=performance.now();D=derive();save();closeModal();curKey=null;toast('Everything erased. Life begins again.');}break;
   }
   updateUI();
 });
-document.addEventListener('change',e=>{if(e.target.id==='extAt'){S.extinctAt=Math.max(1,Math.floor(Number(e.target.value)||1));e.target.value=S.extinctAt;}});
+document.addEventListener('change',e=>{checkAway();if(pendingAway||document.hidden)return;if(e.target.id==='extAt'){S.extinctAt=Math.max(1,Math.floor(Number(e.target.value)||1));e.target.value=S.extinctAt;}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalKind&&modalKind!=='world')closeModal();});
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal'&&modalKind!=='world')closeModal();});
 
@@ -780,7 +817,7 @@ function syncCritters(){
   }
 }
 function spawnFloat(x,y,v){if(reduce)return;floats.push({x,y,t:0,txt:'+'+fmt(v)});if(floats.length>24)floats.shift();}
-cv.parentElement.addEventListener('click',e=>{if(e.target.closest('[data-act]'))return;const r=cv.getBoundingClientRect();const v=absorb();spawnFloat(e.clientX-r.left,e.clientY-r.top,v);updateUI();});
+cv.parentElement.addEventListener('click',e=>{checkAway();if(pendingAway||document.hidden||e.target.closest('[data-act]'))return;const r=cv.getBoundingClientRect();const v=absorb();spawnFloat(e.clientX-r.left,e.clientY-r.top,v);updateUI();});
 function cell(r,col){cx.fillStyle=col+'33';cx.strokeStyle=col;cx.lineWidth=1.2;cx.beginPath();cx.arc(0,0,r,0,6.283);cx.fill();cx.stroke();cx.fillStyle=col;cx.beginPath();cx.arc(r*.25,-r*.15,r*.33,0,6.283);cx.fill();}
 function drawCritter(c,t){
   const col=TCOL[c.k],r=c.r;cx.save();cx.translate(c.x,c.y);
@@ -832,20 +869,21 @@ if(location.hostname==='localhost')window.__pr={get S(){return S;},get D(){retur
 let started=false;
 function start(data){
   if(started)return;started=true;
-  let away=null;
-  if(data&&data.S){S=merge(data.S);D=derive();}
-  else{const o=load();S=merge(o);D=derive();if(o)away=offline((now()-(S.last||now()))/1000);}
-  D=derive();S.last=now();
+  const o=data&&data.S?data.S:load();S=merge(o);D=derive();
   if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({S:JSON.parse(JSON.stringify(S))}));}catch(e){}}
   resize();renderTab(true);updateUI();
-  if(away&&away.gain>0&&!S.worldOffer)openModal('offline',offlineHTML(away));
-  let lastT=performance.now(),uiT=0;
-  setInterval(()=>{const t=performance.now();const dt=(t-lastT)/1000;lastT=t;
-    if(dt>60){const r=offline(dt);if(r&&r.gain>0&&!modalKind)openModal('offline',offlineHTML(r));}else advance(dt);
+  if(o)offerAway(awaySeconds());else S.last=now();
+  lastTick=performance.now();let uiT=0;
+  setInterval(()=>{const t=performance.now(),dt=(t-lastTick)/1000;
+    if(document.hidden||pendingAway){lastTick=t;return;}
+    if(!checkAway()){advance(dt);S.last=now();}lastTick=t;
     uiT+=dt;if(uiT>=0.2){uiT=0;updateUI();}},100);
   setInterval(save,10000);
   addEventListener('beforeunload',save);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)save();
+    else{if(!pendingAway)offerAway(awaySeconds());lastTick=performance.now();updateUI();}
+  });
   requestAnimationFrame(frame);
 }
 if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(start);
