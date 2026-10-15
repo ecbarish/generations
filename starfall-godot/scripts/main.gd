@@ -3069,10 +3069,14 @@ func _notification(what: int) -> void:
 func save_game() -> void:
 	if no_save:
 		return
+	# Herbs are already spent. Keep a pending batch's result in the existing save fields
+	# so closing mid-stir cannot lose it; leave the live three-second brew untouched.
+	var saved_stock := mini(TONIC_MAX, stock + 3) if brewing > 0.0 else stock
+	var saved_fen_here := fen.where == "town" or (brewing > 0.0 and batches >= BREW_AFTER)
 	var d := { "v": 1, "coins": coins, "day": day, "day_t": day_t, "meals": meals, "recipe": recipe, "hired": hired, "offered": bryn_offered,
 		"notices": notices, "posted": posted, "today": today, "me": [me.tile.x, me.tile.y],
-		"built": built, "jobs": total_jobs, "rank": rank, "herbs": herbs, "stock": stock, "price": price_i,
-		"pieces": pieces, "smith": smith_hired, "apprentice": { "batches": batches, "hired": fen_hired, "here": fen.where == "town" }, "tavern": { "pours": pours, "hired": tamsin_hired, "here": tamsin.where == "town", "shut": tavern_shut, "quiet": tavern_quiet, "kept": kept }, "garrick": garrick.where == "town", "good": good_days, "bad": bad_days, "visitors": visitors,
+		"built": built, "jobs": total_jobs, "rank": rank, "herbs": herbs, "stock": saved_stock, "price": price_i,
+		"pieces": pieces, "smith": smith_hired, "apprentice": { "batches": batches, "hired": fen_hired, "here": saved_fen_here }, "tavern": { "pours": pours, "hired": tamsin_hired, "here": tamsin.where == "town", "shut": tavern_shut, "quiet": tavern_quiet, "kept": kept }, "garrick": garrick.where == "town", "good": good_days, "bad": bad_days, "visitors": visitors,
 		"watch": { "lamps": lamps, "rounds": rounds, "hired": odo_hired, "here": odo.where == "town" },
 		"dark": { "mess": mess, "tried": creep_tried },
 		"drill": { "spars": spars, "hired": ilse_hired, "here": ilse.where == "town" }, "hints": hints, "calls": calls,
@@ -3100,6 +3104,8 @@ func _load() -> bool:
 	rank = int(d.get("rank", 0))
 	herbs = int(d.get("herbs", 0))
 	stock = int(d.get("stock", 0))
+	brewing = 0.0                              # a saved pending batch is already on the shelf
+	shelf_note = ""
 	price_i = int(d.get("price", 1))
 	pieces = int(d.get("pieces", 0))
 	var ap: Dictionary = d.get("apprentice", {})

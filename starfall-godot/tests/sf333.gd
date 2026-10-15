@@ -239,8 +239,49 @@ func brewing() -> void:
 	check(game.stock == 6 and game.herbs == 2 and game.batches == 2, "a later batch still works")
 	game.shelf_pick(0)
 	check(game.herbs == 2 and game.brewing == 0.0, "a full shelf never spends herbs")
+	brew_save_reload()
 	completed.append("brewing")
 	fresh()
+
+## Exercise both same-instance and fresh-instance reloads; neither may finish a batch twice.
+func brew_save_reload() -> void:
+	for initial_stock in [0, 1, 3, 5]:
+		for elapsed in [0.0, 1.0, 2.9]:
+			for prior_batches in [0, 3]:
+				fresh()
+				game.built = { "west": { "what": "apothecary", "left": 0.0 } }
+				game.herbs = 2
+				game.stock = initial_stock
+				game.batches = prior_batches
+				game.shelf_pick(0)
+				game._brew(elapsed)
+				var expected := mini(game.TONIC_MAX, initial_stock + 3)
+				var path := "user://sf333-brew-%d-%d.json" % [OS.get_process_id(), Time.get_ticks_usec()]
+				game.save_path = path
+				game.no_save = false
+				for save in 3:
+					game.save_game()
+					var snapshot: Dictionary = game.SafeSave.read(path)
+					check(snapshot.herbs == 0 and snapshot.stock == expected and snapshot.apprentice.batches == prior_batches + 1, "pending batch is saved exactly once")
+					check(snapshot.apprentice.here == (prior_batches == 3), "fourth-batch arrival survives interruption")
+					check(not snapshot.has("brewing") and snapshot.v == 1, "pending batch uses only existing save fields")
+				check(game.stock == initial_stock and is_equal_approx(game.brewing,3.0-elapsed) and game.fen.where == "gone", "saving does not finish or mutate the live brew")
+				check(game._load() and game.brewing == 0.0 and game.stock == expected, "same-instance load clears the old brewing timer")
+				game._brew(5.0)
+				check(game.stock == expected, "same-instance reload cannot finish the saved batch twice")
+				# Two fresh reload/save cycles cannot duplicate a pending result.
+				for reload in 2:
+					fresh()
+					game.save_path = path
+					game.no_save = false
+					check(game._load(), "load interrupted batch into a fresh instance")
+					check(game.stock == expected and game.herbs == 0 and game.batches == prior_batches + 1 and game.brewing == 0.0, "fresh reload neither loses nor duplicates the batch")
+					check((game.fen.where == "town") == (prior_batches == 3), "fresh reload retains the earned apprentice arrival")
+					game._brew(5.0)
+					game.save_game()
+					check(game.stock == expected and game.SafeSave.read(path).stock == expected, "reload and another save do not mint extra tonics")
+				game.SafeSave.remove(path)
+				game.no_save = true
 
 func plot_goal() -> String:
 	for item in game.goals():
