@@ -241,7 +241,7 @@ async function reviewBedtime(page, shot) {
     if (await page.evaluate(() => !!LR.state.friend)) await tap('friend');
     s = await snapshot();
     check(label + ': real goodnight taps finish the routine before the lullaby', s.routine.step === 3 && s.routine.said.flowers && (s.friend === null || s.routine.said.friend), s);
-    await advance(12); s = await snapshot();
+    await advance(await page.evaluate(() => LR.DUSK_SECS) + 2); s = await snapshot();
     check(label + ': the lullaby leads to sleep', s.mode === 'sleep' && s.act === 'sleep' && s.dusk === 1 && s.lullabyAt !== null && (s.friend === null || s.friend === 'sleep'), s);
     return s;
   };
@@ -297,7 +297,7 @@ async function reviewBedtime(page, shot) {
     const item = await point('item'); await page.mouse.move(item.x, item.y); await page.mouse.up(); s = await snapshot();
     check(label + ': late pointerup does not brush, reopen a room or grant a reward', s.place === 'ranch' && s.mode === 'dusk' && s.routine.step === 0 && !s.routine.doing && s.acts === 0, s);
     await shot('lrl1-' + room + '-rotated-late-release');
-    await advance(55); s = await snapshot();
+    await advance(await page.evaluate(() => LR.ROUTINE_WAIT * 3 + LR.DUSK_SECS) + 20); s = await snapshot();
     check(label + ': the unattended real routine reaches sleep without a stale reward', s.mode === 'sleep' && s.act === 'sleep' && s.routine.step === 3 && s.routine.said.flowers && s.routine.said.friend && s.lullabyAt !== null && s.acts === 0, s);
   }
   await viewport(1024, 768); await fresh(false);
