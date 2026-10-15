@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "clubs": [
+    {
+      "id": "brackenport",
+      "name": "Brackenport Lanterns",
+      "short": "Lanterns",
+      "color": "#c45a32",
+      "field": "Lamplight Field"
+    },
+    {
+      "id": "millrace",
+      "name": "Millrace",
+      "short": "Millrace",
+      "color": "#2d6f80",
+      "field": "Wheelwright Ground"
+    },
+    {
+      "id": "harrowgate",
+      "name": "Harrowgate Bells",
+      "short": "Bells",
+      "color": "#d6b34c",
+      "field": "Bellfounders Field"
+    },
+    {
+      "id": "tollbridge",
+      "name": "Tollbridge Otters",
+      "short": "Otters",
+      "color": "#8e86c4",
+      "field": "Riverstep Ground"
+    },
+    {
+      "id": "quarryhill",
+      "name": "Quarryhill Hammers",
+      "short": "Hammers",
+      "color": "#b47e9b",
+      "field": "Stonecutters Field"
+    },
+    {
+      "id": "fernmoor",
+      "name": "Fernmoor Herons",
+      "short": "Herons",
+      "color": "#75a46e",
+      "field": "Reedbank Ground"
+    }
+  ],
+  "weeks": 10,
+  "quarterSeconds": 120,
+  "fixtures": [
+    [
+      [0, 5],
+      [1, 4],
+      [2, 3]
+    ],
+    [
+      [0, 1],
+      [2, 5],
+      [3, 4]
+    ],
+    [
+      [0, 2],
+      [3, 1],
+      [4, 5]
+    ],
+    [
+      [0, 3],
+      [4, 2],
+      [5, 1]
+    ],
+    [
+      [0, 4],
+      [5, 3],
+      [1, 2]
+    ],
+    [
+      [5, 0],
+      [4, 1],
+      [3, 2]
+    ],
+    [
+      [1, 0],
+      [5, 2],
+      [4, 3]
+    ],
+    [
+      [2, 0],
+      [1, 3],
+      [5, 4]
+    ],
+    [
+      [3, 0],
+      [2, 4],
+      [1, 5]
+    ],
+    [
+      [4, 0],
+      [3, 5],
+      [2, 1]
+    ]
+  ],
+  "playoffs": {
+    "teams": 4,
+    "rounds": [
+      "semi",
+      "final"
+    ],
+    "seeding": "standings"
+  },
+  "trophy": "Lamplight Cup"
+}
