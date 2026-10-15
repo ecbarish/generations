@@ -89,7 +89,7 @@
   }
 
   var CSS =
-    '.lbrv-root{--lbrv-ink:#f6edd4;--lbrv-lamp:#f2d080;--lbrv-dim:#d9c89a;--lbrv-line:#6d5a38;--lbrv-panel:#101820;--lbrv-row:#1b2430;' +
+    '.lbrv-root{--lbrv-ink:#f6edd4;--lbrv-lamp:#f2d080;--lbrv-dim:#d9c89a;--lbrv-line:#6d5a38;--lbrv-panel:#141820;--lbrv-row:#1b2430;' +
     'font:16px/1.25 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--lbrv-ink);display:grid;grid-template-columns:1fr;gap:12px;align-items:start}' +
     '@media (min-width:640px){.lbrv-root{grid-template-columns:1fr 1fr}' +
     '.lbrv-group[data-group="Offence"]{grid-column:1;grid-row:1}' +

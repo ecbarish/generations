@@ -1,0 +1,30 @@
+| Kind | Pairing | Foreground | Background | Before | After | Spec |
+|---|---|---|---|---|---|---|
+| Text | Body text on the page | `#f6edd4` | `#10141c → #141820` | 15.79 | 15.22 | 15.22 |
+| Text | Title and Home link on the page | `#f2d080` | `#10141c → #141820` | 12.39 | 11.94 | 11.94 |
+| Text | Version label, 11px | `#d9c89a` | `#10141c → #141820` | 11.13 | 10.73 | 10.73 |
+| Text | Turbo while held | `#1a120c → #1e1a22` | `#f2d080` | 12.42 | 11.51 | 11.51 |
+| Graphic | Power meter frame on its well | `#c9bc9a → #d9c89a` | `#1e1a22` | 9.09 | 10.34 | 10.34 |
+| Graphic | Sprite trim against the ink outline | `#c9bc9a → #d9c89a` | `#1e1a22` | 9.09 | 10.34 | 10.34 |
+| Graphic | Power meter frame on dark grass | `#c9bc9a → #d9c89a` | `#2d8a3c` | 2.32 | 2.63 | 2.63 |
+| Graphic | Power meter frame on light grass | `#c9bc9a → #d9c89a` | `#38994a` | 1.91 | 2.18 | 2.18 |
+| Graphic | Stick knob on dark grass | `#c9bc9a → #d9c89a` | `#2d8a3c` | 2.32 | 2.63 | 2.63 |
+| Graphic | Stick knob on light grass | `#c9bc9a → #d9c89a` | `#38994a` | 1.91 | 2.18 | 2.18 |
+| Decorative | Screen frame border on the page | `#6d5a38` | `#10141c → #141820` | 2.78 | 2.68 | 2.68 |
+| Decorative | Screen frame border on the screen fill | `#6d5a38` | `#101820 → #141820` | 2.70 | 2.68 | 2.68 |
+| Decorative | Button fill on the page | `#243044` | `#10141c → #141820` | 1.39 | 1.34 | 1.34 |
+| Decorative | HUD text shadow | `#000000 → #141820` | `#141820` | 1.18 | 1.00 | 1.00 |
+| Graphic (#495) | Unlit star on a row | `#4a4a50 → #8a7e64` | `#182230 → #1b2430` | 1.82 | 3.91 | 3.91 |
+| Graphic (#495) | Unlit star on an even row | `#4a4a50 → #8a7e64` | `#141d2a → #141820` | 1.93 | 4.44 | 4.44 |
+| Text (#495) | Dim text on a row | `#c9bf9f → #d9c89a` | `#182230 → #1b2430` | 8.73 | 9.45 | 9.45 |
+| Text (#495) | Lamplight on a row | `#f2d080` | `#182230 → #1b2430` | 10.77 | 10.52 | 10.52 |
+| Text (#495) | Main text on a row | `#f6edd4` | `#182230 → #1b2430` | 13.72 | 13.40 | 13.40 |
+
+lowest text ratio after: 9.45 (needs 4.5)
+graphics that fall from >= 3:1 to below: none
+ok   style.css has no #10141c, #101820, #000 or #1a120c
+ok   style.css turbo text is #1e1a22
+ok   view.js has no #c9bc9a or #2a3040
+ok   view.js meter frame is #d9c89a
+ok   game.js knob is #d9c89a and no #c9bc9a
+ok   roster-view.js panel is #141820

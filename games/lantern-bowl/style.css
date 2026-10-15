@@ -4,7 +4,7 @@
 html, body { margin: 0; height: 100%; overflow: hidden; }
 body {
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  color: var(--ink); background: #10141c;
+  color: var(--ink); background: var(--dusk);
 }
 button, a { font: inherit; }
 button {
@@ -29,7 +29,7 @@ header a.home,
 header .home .narrow { display: none; }
 #settingsMount { margin-left: auto; display: flex; flex: 0 0 auto; gap: 6px; }
 #settingsMount button { font-size: calc(12px * var(--arc-text)); }
-.screen { position: relative; min-height: 0; height: 100%; overflow: hidden; border: 1px solid #6d5a38; border-radius: 12px; background: #101820; }
+.screen { position: relative; min-height: 0; height: 100%; overflow: hidden; border: 1px solid #6d5a38; border-radius: 12px; background: var(--dusk); }
 .pitch { position: absolute; inset: 0; }
 .screen, canvas, .curtain, .panel, .banner, .sheet, .dock, .hud, .field-cue, .pitch, .hint, .held {
   -webkit-user-select: none; user-select: none;
@@ -39,7 +39,7 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
   position: absolute; left: 0; right: 0; top: 0; height: 18px; z-index: 4;
   display: flex; align-items: center; justify-content: space-between; gap: 6px;
   padding: 0 6px; overflow: hidden; pointer-events: none;
-  background: #141820ee; text-shadow: 0 1px 1px #000;
+  background: #141820ee; text-shadow: 0 1px 1px var(--dusk);
 }
 .hud span, .hud .mid { white-space: nowrap; }
 .hud span { display: flex; flex-direction: row; align-items: center; gap: 4px; min-width: 0; }
@@ -118,7 +118,7 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 }
 .curtain {
   position: absolute; inset: 0; z-index: 5; display: grid; align-items: end; justify-items: center;
-  background: linear-gradient(to bottom, rgba(16, 20, 28, 0.05) 0%, rgba(16, 20, 28, 0.05) 42%, rgba(16, 20, 28, 0.94) 72%);
+  background: linear-gradient(to bottom, rgba(20, 24, 32, 0.05) 0%, rgba(20, 24, 32, 0.05) 42%, rgba(20, 24, 32, 0.94) 72%);
   padding: 12px; overflow: auto;
 }
 .panel {
@@ -135,7 +135,7 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
   padding-top: 8px; background: #1b2430;
 }
 .panel .actions button { min-width: 44px; min-height: 44px; }
-#turbo.held { background: #f2d080; color: #1a120c; font-weight: 700; }
+#turbo.held { background: #f2d080; color: #1e1a22; font-weight: 700; }
 @media (max-width: 720px) {
   header h1 { font-size: calc(14px * var(--arc-text)); }
   #settingsMount button { padding-inline: 8px; }

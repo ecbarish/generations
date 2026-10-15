@@ -952,7 +952,7 @@
     ctx.stroke();
     ctx.beginPath();
     ctx.arc(Math.round(x + dx), Math.round(y + dy), Math.max(6, Math.round(radius / 2)), 0, Math.PI * 2);
-    ctx.fillStyle = '#c9bc9a';
+    ctx.fillStyle = '#d9c89a';
     ctx.fill();
     ctx.restore();
   }

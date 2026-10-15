@@ -311,8 +311,8 @@
   var SIDE = { w: 384, h: 216, yard: 12, top: 18, fieldH: 180, widthY: 53.333333, anchor: 140, lead: 40 };
   var STRIPES = ['#2d8a3c', '#38994a'];
   var PALETTE = [
-    '#1e1a22', '#f2d080', '#e7c4a8', '#c99a78', '#8a5e48', '#f6edd4', '#c9bc9a', '#8a7e64',
-    '#5a6478', '#3e4658', '#2a3040', '#8a4a2a', '#5e3020',
+    '#1e1a22', '#f2d080', '#e7c4a8', '#c99a78', '#8a5e48', '#f6edd4', '#d9c89a', '#8a7e64',
+    '#5a6478', '#3e4658', '#8a4a2a', '#5e3020',
     '#e07a48', '#c45a32', '#8a3420', '#4a93a4', '#2d6f80', '#1c4a58',
     '#2d8a3c', '#38994a', '#ffffff', '#4aa8ff', '#ffdd33',
     '#b89a5a', '#3a2a30', '#ffb0a4', '#141820'
@@ -560,7 +560,7 @@
     var bx = x + labelW + gap, by = y;
     ctx.fillStyle = '#1e1a22';
     ctx.fillRect(bx, by, bw, bh);
-    ctx.fillStyle = '#c9bc9a';
+    ctx.fillStyle = '#d9c89a';
     ctx.fillRect(bx, by, bw, 1);
     ctx.fillRect(bx, by + bh - 1, bw, 1);
     ctx.fillRect(bx, by, 1, bh);
