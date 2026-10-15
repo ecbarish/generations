@@ -20,9 +20,9 @@ The rendered CI workflow checks out the exact PR head with credentials disabled 
 
 All runtime homes are isolated. The standalone test refuses a reused or nonisolated home and uses only scratch save paths; it tests actual legacy loading and a real writer round-trip. No personal saves are read or rewritten.
 
-## Local working-tree measurements (Godot 4.6.3)
+## Measured results (Godot 4.6.3 locally; reproduced on 4.7.2 CI)
 
-These are simulated movement-only seconds, excluding the opening, navigation decisions, reading and combat. They are preliminary, not exact-head CI or human acceptance.
+These are simulated movement-only seconds, excluding the opening, navigation decisions, reading and combat. The exact-head 4.7.2 run reproduced these values. They are not human acceptance.
 
 | Heritage | Mean first battle, before → after | Median | 95th percentile, before → after |
 | --- | --- | --- | --- |
@@ -40,12 +40,17 @@ The 1,000 independent find seeds produced 605 battles, 139 loot events and 256 q
 | Wander / Wren | 108.47 → 58.80 | 12 unchanged |
 | Wander / Elderhorn | 180.22 → 94.06 | 20 unchanged |
 
-## Current validation status
+## Source/evidence handoff
 
-- Standalone early-pace regression: 11,255 assertions passed locally; exact-head CI pending.
+[Exact-head rendered run on f9503192](https://github.com/ecbarish/generations/actions/runs/38668214861) passed with official Godot 4.7.2. [The artifact](https://github.com/ecbarish/generations/actions/runs/38668214861/artifacts/11943422799) contains eight X11/OpenGL PNGs, full trial data, logs, source IDs and summary. Archive SHA-256: `7d96991a8ca91ea602fbed4039b6bb66c3ae9b0fdbf287597870c158dcbfcf1e`. Both source variants have no runtime errors. The first rendered attempt was rejected for an incomplete fixture appearance; the second was correctly rejected for an unticked follower obstructing isolated timing. Those harness bugs are fixed, not suppressed. Timing excludes follower motion; still captures restore the actual chosen starter beside the player.
+
+The [Director assigned the integration-fixture issue to its owner](https://github.com/ecbarish/generations/issues/373#issuecomment-6182646603) and requested this standalone-evidence handoff. **Source/evidence work is handed off for owner integration; this is not merge-ready.** The draft state and required checks are not bypassed.
+
+- Standalone early-pace regression: **11,255 passed / 0 failed** locally on 4.6.3 and in exact-head CI on 4.7.2. Real legacy loading and scratch writer round-trip passed.
 - Baseline full suite: 18,943 passed / 0 failed.
 - Current unchanged full suite: 18,841 passed / 54 failed. Independent diagnosis traced the cascade to the Isolde navigation fixture: its six-grass-tile route now correctly finds a lure, but the helper never dismisses incidental dialogue. A temporary diagnostic that dismisses that line and resumes the same route passes all 18,943 original assertions. This is diagnostic evidence only, not a passing unmodified suite.
-- [Owner coordination for the explicitly excluded integration test](https://github.com/ecbarish/generations/issues/373#issuecomment-6182469836) is pending; no test assertions were removed or bypassed in this PR.
-- Rendered frames, exact-head Checks, export freshness and final independent review are pending. Draft remains held.
+- `run_tests.gd` stays untouched, per the Director. The owner should dismiss the incidental lure dialogue and resume the same Warden destination while retaining every battle/gate/save assertion; no encounters or checks should be disabled. The local diagnostic demonstrates this approach, but is not an integrated fix.
+- The same cascade is visible in the existing 4.7.2 WD3 workflow (18,849 passed / 54 failed). Aggregate Checks remains a required owner gate. Export freshness is intentionally red because no pack was rebuilt; the owner must coordinate the fresh main merge and single export after #458. Rebaseline the comparison at that fresh main if its movement/art has changed.
+- Independent source/security/test and all-eight-frame visual review passed. Recovery text fits at both sizes; the player, Ripplet and Pebblepaw remain visible; quiet HP changes from 1/23 to 8/23. This is staged-render acceptance only. The latest head/check state is in the PR handoff comment.
 
 No physical-phone, first-ten-minutes playtest or human-fun acceptance is claimed. Playtester retains those checks.
