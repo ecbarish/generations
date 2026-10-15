@@ -14,13 +14,13 @@
   },
   "integration": {
     "owner": "The clarity PR and later world phases; no runtime loading is added here.",
-    "selection": "Use beforeRoutes until the named route and place signs actually exist in the player build. Switch only the affected row as its world phase lands; badge count alone does not select afterRoutes.",
+    "selection": "Use beforeRoutes until the named route and place signs actually exist in the player build. Switch only the affected row as its world phase lands; badge count alone does not select afterRoutes. Row 5 also needs the intended Bellstep cave connections to work; retain each mouth's own gate, including depthReturns, rather than promising every mouth is open. Row 8 names Trialstair, so Trial Road or its sign alone is insufficient: that cave connection must also be usable.",
     "opening": "Badge count 0 applies only after the first wild catch; preserve the existing introduction, partner-choice, first-catch and full-screen/battle suppression rules.",
     "order": "These rows follow the current ordered eight-badge journey. The later open-order phase must select an unmet destination by badge identity, not just count.",
     "champion": "Badge count 8 is pre-Champion league guidance. Preserve Champion/post-game handling separately; this file does not choose an ending or Spire objective.",
     "letters": "Keep ranch news and one direction in Maren's existing letter; no errand list, new tracker or quest/save field.",
     "copy": "sourceCopy preserves section 3 verbatim without its parenthetical editorial notes. afterRoutes joins the two-sentence examples and shortens banners to one sentence within the estimate; beforeRoutes substitutes the current map names and walks. Maren lines are also single sentences; only badge 0 retains {starter}.",
-    "review": "All copy remains proposed for Wildbond lead review. The wiring PR must inspect the actual screen, font, wrapping and accessibility; no new lore clue is placed."
+    "review": "All copy remains proposed for Wildbond lead review. The wiring PR must inspect the actual screen, font, wrapping and accessibility; no new lore clue is placed. The 344px estimate does not cover the 328px speech-card layout; the wiring PR must measure that narrower case too, including its existing height reuse."
   },
   "entries": [
     {

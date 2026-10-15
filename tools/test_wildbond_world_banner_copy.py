@@ -26,6 +26,9 @@ PATHS = [
     ["hollowecho", "sunthread"], ["sunthread", "farwatch"], ["farwatch", "league"],
 ]
 DIRECTIONS = ["N", "N", "E", "N", "E", "E", "E", "E", "N"]
+CARDINALS = {"N": "north", "E": "east"}
+CURRENT_WALKS = {2: "high road", 4: "ferry path", 5: "hill trail",
+                 6: "gathering trail", 7: "coastal road", 8: "league road"}
 PLANNED = [
     ["thornwood_route", "thornwood"],
     ["thornwood", "saltmarsh_route", "saltmarsh"],
@@ -163,6 +166,13 @@ def validate(data, sources=None):
             require(value["placeIds"] == expected, variant + " exact place references")
             require(all(p in places for p in expected), variant + " missing graph place")
             combined = value["banner"] + " " + value["maren"]
+            cardinal = CARDINALS[DIRECTIONS[count]]
+            written_directions = set(re.findall(r"\b(north|south|east|west)\b", combined.lower()))
+            require(written_directions <= {cardinal}, variant + " wrong direction in prose")
+            if ((variant == "beforeRoutes" and count != 2)
+                    or (variant == "afterRoutes" and count in (0, 1, 3, 7, 8))):
+                require(re.search(r"\b" + cardinal + r"\b", value["maren"], re.I) is not None,
+                        variant + " Maren direction missing")
             if count < 8:
                 require(WARDENS[count].title() in value["maren"], variant + " Maren target Warden missing")
                 require(all(w.title() not in combined for w in WARDENS if w != WARDENS[count]), variant + " wrong Warden")
@@ -180,6 +190,8 @@ def validate(data, sources=None):
                             "current path does not match the real directional exit")
                 if count == 1:
                     require("north gate of Thornwood" in value["maren"], "Thornwood uses its north gate")
+                if count in CURRENT_WALKS:
+                    require(CURRENT_WALKS[count] in value["maren"], "current walk phrase missing")
                 if count >= 4:
                     require(not re.search(r"\b(wait|unsafe|not safe|isn't safe|cave mouths)\b", combined, re.I), "stale closed-route or cave promise")
         if count >= 2:
@@ -267,6 +279,26 @@ class BannerCopyTests(unittest.TestCase):
         self.bad(lambda d: d["entries"][2]["afterRoutes"].update(banner="Toren has the Tide Badge."))
         self.bad(lambda d: d["entries"][8]["beforeRoutes"].update(maren="The Reed Badge opens the league."))
         self.bad(lambda d: d["entries"][4]["beforeRoutes"].update(maren="Warden Olan asks you to wait."))
+
+    def test_direction_prose_is_checked_not_only_reference_paths(self):
+        for index, row in enumerate(self.data["entries"]):
+            for variant in ("beforeRoutes", "afterRoutes"):
+                for key in ("banner", "maren"):
+                    original = row[variant][key]
+                    for direction in ("north", "south", "east", "west"):
+                        if direction == CARDINALS[DIRECTIONS[index]]:
+                            continue
+                        # Inject a contrary direction without breaking sentence shape.
+                        changed = original[:-1] + " toward the " + direction + "."
+                        self.bad(lambda d, i=index, v=variant, k=key, s=changed: d["entries"][i][v].update({k: s}))
+                    if re.search(r"\b(north|east)\b", original, re.I):
+                        changed = re.sub(r"\bnorth\b", "south", original, flags=re.I)
+                        changed = re.sub(r"\beast\b", "west", changed, flags=re.I)
+                        changed = changed[0].upper() + changed[1:]
+                        self.bad(lambda d, i=index, v=variant, k=key, s=changed: d["entries"][i][v].update({k: s}))
+        for index, phrase in CURRENT_WALKS.items():
+            self.bad(lambda d, i=index, p=phrase: d["entries"][i]["beforeRoutes"].update(
+                maren=d["entries"][i]["beforeRoutes"]["maren"].replace(p, "mysterious road")))
 
     def test_sources_fail_closed_when_map_contract_changes(self):
         changes = [lambda s: s["graph"]["places"].pop(0),
