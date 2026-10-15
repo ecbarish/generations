@@ -22,7 +22,7 @@
     actual.forEach(function (k) { need(typeof k === 'string' && own(Object.getOwnPropertyDescriptor(o, k), 'value'), label + ': data fields only'); });
   }
   function array(a, length, label) {
-    need(Array.isArray(a) && a.length === length && Reflect.ownKeys(a).length === length + 1, label + ': exact dense array required');
+    need(Array.isArray(a) && Object.getPrototypeOf(a) === Array.prototype && a.length === length && Reflect.ownKeys(a).length === length + 1, label + ': exact dense array required');
     for (var i = 0; i < length; i++) need(own(a, i) && own(Object.getOwnPropertyDescriptor(a, String(i)), 'value'), label + ': missing or computed element');
   }
   function text(s, label, empty) { need(typeof s === 'string' && s === s.trim() && (empty || s.length > 0) && s.length <= 200 && !/[\x00-\x1f]/.test(s), label + ': plain text required'); }
@@ -188,6 +188,10 @@
     broken(function (c) { c.districts[0].carryOver.favouriteStall.hired = true; }, 'no carried hiring flag');
     broken(function (c) { c.districts[0].stalls.pop(); }, 'six stalls');
     broken(function (c) { delete c.districts[0].stalls[2]; }, 'dense stalls');
+    broken(function (c) {
+      var fake = [null, null, null, null, null, null], proto = Object.create(Array.prototype);
+      proto.forEach = function () {}; Object.setPrototypeOf(fake, proto); c.districts[0].stalls = fake;
+    }, 'custom array prototype cannot bypass validation');
     broken(function (c) { c.districts[0].stalls[0].id = firstStalls[0].id; }, 'no original stall id');
     broken(function (c) { c.districts[0].stalls[1].id = c.districts[0].stalls[0].id; }, 'no duplicate stall id');
     broken(function (c) { c.districts[0].stalls[0].incomeMultiplier = 2; }, 'no extra stall fields');
