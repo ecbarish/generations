@@ -1,0 +1,64 @@
+# Fails when a pull request, or a commit on main, changes the packed Wildbond game
+# and leaves play/wildbond/ serving an older export. The live site loads that folder.
+# A green tick means the pack byte count matches and, when the game changed, the
+# source_tree stamped at export time matches this commit's wildbond-godot tree.
+# Docs, tests and frame dumps do not require a new pack. How to refresh: play/README.md.
+name: Wildbond export freshness
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: wildbond-export-freshness-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pack-matches-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+
+      - name: Fetch the export that should pass, and the script change that should fail
+        run: |
+          git fetch --depth=1 origin 8cdcb97361a96a60c51d0eb61d44b352dbd82f2a
+          git fetch --depth=1 origin 5e5a3893a0478a7aa4816348c1dba85cbd7a6829
+          git fetch --depth=1 origin b2af229b7bd4257b70900aa05573dca8a07a6088
+          git fetch --depth=1 origin a13258f70bb47cd2facb724e6cab4e4459f69cf6
+
+      - name: Run the freshness unit tests, including those two commits
+        env:
+          REQUIRE_FIXTURES: "1"
+        run: python3 -m unittest tools/test_wildbond_export_freshness.py
+
+      - name: Compare this pull request or main commit with its parent
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_SHA: ${{ github.sha }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            BASE="$PR_BASE"
+            HEAD="$PR_HEAD"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            BASE="$(git rev-parse HEAD^)"
+            HEAD="$(git rev-parse HEAD)"
+          else
+            BASE="$PUSH_BEFORE"
+            HEAD="$PUSH_SHA"
+            if [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+              BASE="$(git rev-parse "$HEAD^")"
+            fi
+          fi
+          python3 tools/wildbond-export-freshness.py --base "$BASE" --head "$HEAD"
