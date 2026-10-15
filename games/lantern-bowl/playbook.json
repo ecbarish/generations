@@ -1,0 +1,849 @@
+{
+  "schemaVersion": 1,
+  "coordinates": {
+    "units": "yards",
+    "origin": "line-of-scrimmage-at-snap",
+    "xDirection": "downfield",
+    "yDirection": "offense-right",
+    "sidelineY": 24.5,
+    "startAuthority": "first-waypoint",
+    "authoredXMin": -12,
+    "authoredXMax": 40
+  },
+  "depthTiers": {
+    "short": {
+      "min": 0,
+      "max": 8
+    },
+    "intermediate": {
+      "min": 8,
+      "max": 20
+    },
+    "deep": {
+      "min": 20,
+      "max": 40
+    }
+  },
+  "plays": [
+    {
+      "id": "inside",
+      "label": "Inside run",
+      "detail": "Follow the middle lane between the tackles.",
+      "family": "run",
+      "formation": "iform",
+      "carrierSlot": "rb",
+      "runPath": [
+        {
+          "x": -9,
+          "y": 0
+        },
+        {
+          "x": -2,
+          "y": 0
+        },
+        {
+          "x": 3,
+          "y": 0
+        },
+        {
+          "x": 7,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "id": "outside",
+      "label": "Outside run",
+      "detail": "Take the edge, then turn upfield.",
+      "family": "run",
+      "formation": "singleback",
+      "carrierSlot": "rb",
+      "runPath": [
+        {
+          "x": -6.4,
+          "y": 10
+        },
+        {
+          "x": -2,
+          "y": 15
+        },
+        {
+          "x": 3,
+          "y": 19
+        },
+        {
+          "x": 9,
+          "y": 19
+        }
+      ]
+    },
+    {
+      "id": "counter",
+      "label": "Counter run",
+      "detail": "Show one edge, then cut back across the line.",
+      "family": "run",
+      "formation": "singleback",
+      "carrierSlot": "rb",
+      "runPath": [
+        {
+          "x": -6.4,
+          "y": 10
+        },
+        {
+          "x": -3,
+          "y": 12
+        },
+        {
+          "x": -1,
+          "y": 4
+        },
+        {
+          "x": 4,
+          "y": -3
+        },
+        {
+          "x": 9,
+          "y": -5
+        }
+      ]
+    },
+    {
+      "id": "draw",
+      "label": "Draw run",
+      "detail": "From the backfield, turn into the middle.",
+      "family": "run",
+      "formation": "shotgun",
+      "carrierSlot": "rb",
+      "runPath": [
+        {
+          "x": -5,
+          "y": 5
+        },
+        {
+          "x": -3,
+          "y": 3
+        },
+        {
+          "x": 2,
+          "y": 1
+        },
+        {
+          "x": 8,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "id": "quick",
+      "label": "Quick pass",
+      "detail": "A short inside break, with the back nearby.",
+      "family": "pass",
+      "formation": "shotgun",
+      "depthTier": "short",
+      "readOrder": [
+        "wr0",
+        "te",
+        "rb",
+        "wr1"
+      ],
+      "routes": {
+        "wr0": {
+          "routeType": "slant",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": -18
+            },
+            {
+              "x": 2,
+              "y": -18
+            },
+            {
+              "x": 6,
+              "y": -11
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "wr1": {
+          "routeType": "out",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": 16
+            },
+            {
+              "x": 5,
+              "y": 16
+            },
+            {
+              "x": 5,
+              "y": 22
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "te": {
+          "routeType": "curl",
+          "waypoints": [
+            {
+              "x": -1,
+              "y": -6
+            },
+            {
+              "x": 6,
+              "y": -6
+            },
+            {
+              "x": 4,
+              "y": -5
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "rb": {
+          "routeType": "flat",
+          "waypoints": [
+            {
+              "x": -5,
+              "y": 5
+            },
+            {
+              "x": -2,
+              "y": 5
+            },
+            {
+              "x": 2,
+              "y": 13
+            }
+          ],
+          "releaseDelaySeconds": 0.35,
+          "endBehavior": "hold"
+        }
+      }
+    },
+    {
+      "id": "deep",
+      "label": "Deep pass",
+      "detail": "Send the wide receiver long and keep a short outlet.",
+      "family": "pass",
+      "formation": "shotgun",
+      "depthTier": "deep",
+      "readOrder": [
+        "wr0",
+        "wr1",
+        "te",
+        "rb"
+      ],
+      "routes": {
+        "wr0": {
+          "routeType": "go",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": -18
+            },
+            {
+              "x": 31,
+              "y": -18
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "continue"
+        },
+        "wr1": {
+          "routeType": "post",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": 16
+            },
+            {
+              "x": 13,
+              "y": 16
+            },
+            {
+              "x": 28,
+              "y": 3
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "continue"
+        },
+        "te": {
+          "routeType": "out",
+          "waypoints": [
+            {
+              "x": -1,
+              "y": -6
+            },
+            {
+              "x": 11,
+              "y": -6
+            },
+            {
+              "x": 11,
+              "y": -15
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "rb": {
+          "routeType": "flat",
+          "waypoints": [
+            {
+              "x": -5,
+              "y": 5
+            },
+            {
+              "x": -2,
+              "y": 5
+            },
+            {
+              "x": 3,
+              "y": 13
+            }
+          ],
+          "releaseDelaySeconds": 0.55,
+          "endBehavior": "hold"
+        }
+      }
+    },
+    {
+      "id": "slant",
+      "label": "Slant pass",
+      "detail": "Read the wide receivers breaking toward the middle.",
+      "family": "pass",
+      "formation": "shotgun",
+      "depthTier": "short",
+      "readOrder": [
+        "wr1",
+        "wr0",
+        "te",
+        "rb"
+      ],
+      "routes": {
+        "wr0": {
+          "routeType": "slant",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": -18
+            },
+            {
+              "x": 3,
+              "y": -18
+            },
+            {
+              "x": 7,
+              "y": -10
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "wr1": {
+          "routeType": "slant",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": 16
+            },
+            {
+              "x": 2,
+              "y": 16
+            },
+            {
+              "x": 6,
+              "y": 8
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "te": {
+          "routeType": "go",
+          "waypoints": [
+            {
+              "x": -1,
+              "y": -6
+            },
+            {
+              "x": 17,
+              "y": -6
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "continue"
+        },
+        "rb": {
+          "routeType": "flat",
+          "waypoints": [
+            {
+              "x": -5,
+              "y": 5
+            },
+            {
+              "x": -2,
+              "y": 5
+            },
+            {
+              "x": 2,
+              "y": 12
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        }
+      }
+    },
+    {
+      "id": "out",
+      "label": "Out pass",
+      "detail": "Watch the sideline break after the receiver gets upfield.",
+      "family": "pass",
+      "formation": "shotgun",
+      "depthTier": "intermediate",
+      "readOrder": [
+        "wr1",
+        "te",
+        "wr0",
+        "rb"
+      ],
+      "routes": {
+        "wr0": {
+          "routeType": "curl",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": -18
+            },
+            {
+              "x": 12,
+              "y": -18
+            },
+            {
+              "x": 9,
+              "y": -16
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "wr1": {
+          "routeType": "out",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": 16
+            },
+            {
+              "x": 10,
+              "y": 16
+            },
+            {
+              "x": 10,
+              "y": 23
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "te": {
+          "routeType": "out",
+          "waypoints": [
+            {
+              "x": -1,
+              "y": -6
+            },
+            {
+              "x": 7,
+              "y": -6
+            },
+            {
+              "x": 7,
+              "y": -14
+            }
+          ],
+          "releaseDelaySeconds": 0.2,
+          "endBehavior": "hold"
+        },
+        "rb": {
+          "routeType": "flat",
+          "waypoints": [
+            {
+              "x": -5,
+              "y": 5
+            },
+            {
+              "x": -2,
+              "y": 5
+            },
+            {
+              "x": 3,
+              "y": 13
+            }
+          ],
+          "releaseDelaySeconds": 0.4,
+          "endBehavior": "hold"
+        }
+      }
+    },
+    {
+      "id": "curl",
+      "label": "Curl pass",
+      "detail": "Throw as the receiver turns back toward you.",
+      "family": "pass",
+      "formation": "shotgun",
+      "depthTier": "intermediate",
+      "readOrder": [
+        "wr0",
+        "wr1",
+        "rb",
+        "te"
+      ],
+      "routes": {
+        "wr0": {
+          "routeType": "curl",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": -18
+            },
+            {
+              "x": 12,
+              "y": -18
+            },
+            {
+              "x": 9,
+              "y": -16
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "wr1": {
+          "routeType": "curl",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": 16
+            },
+            {
+              "x": 11,
+              "y": 16
+            },
+            {
+              "x": 8,
+              "y": 14
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "te": {
+          "routeType": "go",
+          "waypoints": [
+            {
+              "x": -1,
+              "y": -6
+            },
+            {
+              "x": 22,
+              "y": -6
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "continue"
+        },
+        "rb": {
+          "routeType": "flat",
+          "waypoints": [
+            {
+              "x": -5,
+              "y": 5
+            },
+            {
+              "x": -2,
+              "y": 5
+            },
+            {
+              "x": 3,
+              "y": 12
+            }
+          ],
+          "releaseDelaySeconds": 0.25,
+          "endBehavior": "hold"
+        }
+      }
+    },
+    {
+      "id": "post",
+      "label": "Post pass",
+      "detail": "Follow the deep break toward the middle of the field.",
+      "family": "pass",
+      "formation": "shotgun",
+      "depthTier": "deep",
+      "readOrder": [
+        "wr0",
+        "wr1",
+        "te",
+        "rb"
+      ],
+      "routes": {
+        "wr0": {
+          "routeType": "post",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": -18
+            },
+            {
+              "x": 14,
+              "y": -18
+            },
+            {
+              "x": 29,
+              "y": -3
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "continue"
+        },
+        "wr1": {
+          "routeType": "go",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": 16
+            },
+            {
+              "x": 30,
+              "y": 16
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "continue"
+        },
+        "te": {
+          "routeType": "curl",
+          "waypoints": [
+            {
+              "x": -1,
+              "y": -6
+            },
+            {
+              "x": 10,
+              "y": -6
+            },
+            {
+              "x": 7,
+              "y": -4
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "rb": {
+          "routeType": "flat",
+          "waypoints": [
+            {
+              "x": -5,
+              "y": 5
+            },
+            {
+              "x": -2,
+              "y": 5
+            },
+            {
+              "x": 3,
+              "y": 13
+            }
+          ],
+          "releaseDelaySeconds": 0.5,
+          "endBehavior": "hold"
+        }
+      }
+    },
+    {
+      "id": "flat",
+      "label": "Flat pass",
+      "detail": "Find the back outside while the receivers clear space.",
+      "family": "pass",
+      "formation": "shotgun",
+      "depthTier": "short",
+      "readOrder": [
+        "rb",
+        "te",
+        "wr1",
+        "wr0"
+      ],
+      "routes": {
+        "wr0": {
+          "routeType": "go",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": -18
+            },
+            {
+              "x": 25,
+              "y": -18
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "continue"
+        },
+        "wr1": {
+          "routeType": "post",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": 16
+            },
+            {
+              "x": 12,
+              "y": 16
+            },
+            {
+              "x": 25,
+              "y": 4
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "continue"
+        },
+        "te": {
+          "routeType": "out",
+          "waypoints": [
+            {
+              "x": -1,
+              "y": -6
+            },
+            {
+              "x": 6,
+              "y": -6
+            },
+            {
+              "x": 6,
+              "y": -14
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "rb": {
+          "routeType": "flat",
+          "waypoints": [
+            {
+              "x": -5,
+              "y": 5
+            },
+            {
+              "x": -2,
+              "y": 5
+            },
+            {
+              "x": 3,
+              "y": 14
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        }
+      }
+    },
+    {
+      "id": "drag",
+      "label": "Drag pass",
+      "detail": "Find the tight end crossing the shallow middle.",
+      "family": "pass",
+      "formation": "shotgun",
+      "depthTier": "short",
+      "readOrder": [
+        "te",
+        "rb",
+        "wr1",
+        "wr0"
+      ],
+      "routes": {
+        "wr0": {
+          "routeType": "go",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": -18
+            },
+            {
+              "x": 26,
+              "y": -18
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "continue"
+        },
+        "wr1": {
+          "routeType": "curl",
+          "waypoints": [
+            {
+              "x": 0,
+              "y": 16
+            },
+            {
+              "x": 12,
+              "y": 16
+            },
+            {
+              "x": 9,
+              "y": 14
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "te": {
+          "routeType": "drag",
+          "waypoints": [
+            {
+              "x": -1,
+              "y": -6
+            },
+            {
+              "x": 3,
+              "y": -6
+            },
+            {
+              "x": 5,
+              "y": 9
+            }
+          ],
+          "releaseDelaySeconds": 0,
+          "endBehavior": "hold"
+        },
+        "rb": {
+          "routeType": "flat",
+          "waypoints": [
+            {
+              "x": -5,
+              "y": 5
+            },
+            {
+              "x": -2,
+              "y": 5
+            },
+            {
+              "x": 2,
+              "y": 14
+            }
+          ],
+          "releaseDelaySeconds": 0.65,
+          "endBehavior": "hold"
+        }
+      }
+    }
+  ]
+}

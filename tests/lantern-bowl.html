@@ -3,6 +3,7 @@
 <h1>Lantern Bowl checks</h1><button id="run">Run checks</button><p id="summary">Ready.</p><ol id="results"></ol><div id="game"></div>
 <script src="../games/lantern-bowl/model.js"></script>
 <script src="../games/lantern-bowl/view.js"></script>
+<script src="lantern-bowl-playbook.cjs"></script>
 <script>
 'use strict';
 document.querySelector('#run').onclick = async () => {
@@ -1064,6 +1065,13 @@ document.querySelector('#run').onclick = async () => {
     await wait();
     const heldAfter = d3.querySelector('#held');
     check('play again leaves a newer save byte for byte', sameFile() && !!heldAfter && !heldAfter.hidden && /will not be saved/.test(heldAfter.textContent));
+    // LB-PLAYBOOK-DATA: run the shared data-only suite after all existing game/save checks.
+    check('the shared playbook validator loads in the browser', !!window.LanternPlaybookChecks && typeof window.LanternPlaybookChecks.runChecks === 'function');
+    const playbookResponse = await fetch('../games/lantern-bowl/playbook.json', { cache: 'no-store' });
+    check('the playbook JSON loads successfully', playbookResponse.ok);
+    const playbookData = await playbookResponse.json(), beforePlaybook = n;
+    const playbookCount = window.LanternPlaybookChecks.runChecks(playbookData, (name, ok) => check('playbook: ' + name, ok));
+    check('the browser runs all 396 shared playbook checks', playbookCount === 396 && n - beforePlaybook === playbookCount);
     sum.textContent = 'PASS — ' + n + ' checks.';
   } catch (e) {
     sum.textContent = 'FAIL — ' + e.message;
