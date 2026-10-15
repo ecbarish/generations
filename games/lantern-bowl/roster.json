@@ -1,0 +1,1085 @@
+{
+  "schemaVersion": 1,
+  "clubs": {
+    "brackenport": {
+      "qb": {
+        "id": "brackenport-wren-talley",
+        "name": "Wren Talley",
+        "age": 21,
+        "throw": 70,
+        "speed": 46,
+        "carry": 38
+      },
+      "rb": {
+        "id": "brackenport-mara-holt",
+        "name": "Mara Holt",
+        "age": 28,
+        "speed": 74,
+        "carry": 68,
+        "catch": 50
+      },
+      "wr": [
+        {
+          "id": "brackenport-ada-brisk",
+          "name": "Ada Brisk",
+          "age": 35,
+          "speed": 82,
+          "catch": 78
+        },
+        {
+          "id": "brackenport-tomas-reed",
+          "name": "Tomas Reed",
+          "age": 26,
+          "speed": 62,
+          "catch": 58
+        }
+      ],
+      "te": {
+        "id": "brackenport-bram-okafor",
+        "name": "Bram Okafor",
+        "age": 33,
+        "speed": 38,
+        "catch": 62,
+        "block": 66
+      },
+      "line": [
+        {
+          "id": "brackenport-oren-fenwick",
+          "name": "Oren Fenwick",
+          "age": 24,
+          "block": 69,
+          "tackle": 61
+        },
+        {
+          "id": "brackenport-nessa-copperly",
+          "name": "Nessa Copperly",
+          "age": 31,
+          "block": 62,
+          "tackle": 54
+        },
+        {
+          "id": "brackenport-eli-thistledown",
+          "name": "Eli Thistledown",
+          "age": 22,
+          "block": 66,
+          "tackle": 58
+        },
+        {
+          "id": "brackenport-jori-ashlane",
+          "name": "Jori Ashlane",
+          "age": 29,
+          "block": 58,
+          "tackle": 50
+        },
+        {
+          "id": "brackenport-soren-bellwick",
+          "name": "Soren Bellwick",
+          "age": 36,
+          "block": 63,
+          "tackle": 55
+        }
+      ],
+      "front": [
+        {
+          "id": "brackenport-tessa-halloway",
+          "name": "Tessa Halloway",
+          "age": 27,
+          "rush": 80,
+          "tackle": 58,
+          "speed": 54
+        },
+        {
+          "id": "brackenport-corin-mossford",
+          "name": "Corin Mossford",
+          "age": 34,
+          "rush": 74,
+          "tackle": 52,
+          "speed": 48
+        },
+        {
+          "id": "brackenport-leda-brindle",
+          "name": "Leda Brindle",
+          "age": 25,
+          "rush": 78,
+          "tackle": 56,
+          "speed": 52
+        },
+        {
+          "id": "brackenport-hugo-cresswell",
+          "name": "Hugo Cresswell",
+          "age": 32,
+          "rush": 70,
+          "tackle": 51,
+          "speed": 47
+        }
+      ],
+      "backers": [
+        {
+          "id": "brackenport-iris-waystone",
+          "name": "Iris Waystone",
+          "age": 23,
+          "tackle": 82,
+          "cover": 63,
+          "rush": 59
+        },
+        {
+          "id": "brackenport-davin-hearth",
+          "name": "Davin Hearth",
+          "age": 30,
+          "tackle": 75,
+          "cover": 56,
+          "rush": 52
+        },
+        {
+          "id": "brackenport-mina-sedgeley",
+          "name": "Mina Sedgeley",
+          "age": 21,
+          "tackle": 71,
+          "cover": 52,
+          "rush": 48
+        }
+      ],
+      "secondary": [
+        {
+          "id": "brackenport-ronan-fable",
+          "name": "Ronan Fable",
+          "age": 28,
+          "cover": 84,
+          "speed": 59,
+          "tackle": 55
+        },
+        {
+          "id": "brackenport-anya-barlewick",
+          "name": "Anya Barlewick",
+          "age": 35,
+          "cover": 79,
+          "speed": 57,
+          "tackle": 53
+        },
+        {
+          "id": "brackenport-perrin-alderby",
+          "name": "Perrin Alderby",
+          "age": 26,
+          "cover": 76,
+          "speed": 49,
+          "tackle": 46
+        },
+        {
+          "id": "brackenport-celia-dunfern",
+          "name": "Celia Dunfern",
+          "age": 33,
+          "cover": 40,
+          "speed": 42,
+          "tackle": 38
+        }
+      ],
+      "kicker": {
+        "id": "brackenport-sol-varga",
+        "name": "Sol Varga",
+        "age": 24,
+        "kick": 64,
+        "speed": 40
+      }
+    },
+    "millrace": {
+      "qb": {
+        "id": "millrace-ned-harrow",
+        "name": "Ned Harrow",
+        "age": 26,
+        "throw": 70,
+        "speed": 50,
+        "carry": 42
+      },
+      "rb": {
+        "id": "millrace-cole-pimm",
+        "name": "Cole Pimm",
+        "age": 33,
+        "speed": 70,
+        "carry": 66,
+        "catch": 54
+      },
+      "wr": [
+        {
+          "id": "millrace-lise-venn",
+          "name": "Lise Venn",
+          "age": 24,
+          "speed": 74,
+          "catch": 66
+        },
+        {
+          "id": "millrace-otto-brant",
+          "name": "Otto Brant",
+          "age": 31,
+          "speed": 62,
+          "catch": 58
+        }
+      ],
+      "te": {
+        "id": "millrace-ivo-pell",
+        "name": "Ivo Pell",
+        "age": 22,
+        "speed": 44,
+        "catch": 58,
+        "block": 54
+      },
+      "line": [
+        {
+          "id": "millrace-esme-rillford",
+          "name": "Esme Rillford",
+          "age": 29,
+          "block": 72,
+          "tackle": 64
+        },
+        {
+          "id": "millrace-tobin-greylock",
+          "name": "Tobin Greylock",
+          "age": 36,
+          "block": 68,
+          "tackle": 60
+        },
+        {
+          "id": "millrace-niko-pennwood",
+          "name": "Niko Pennwood",
+          "age": 27,
+          "block": 74,
+          "tackle": 66
+        },
+        {
+          "id": "millrace-mira-hollows",
+          "name": "Mira Hollows",
+          "age": 34,
+          "block": 64,
+          "tackle": 56
+        },
+        {
+          "id": "millrace-alden-wickmere",
+          "name": "Alden Wickmere",
+          "age": 25,
+          "block": 70,
+          "tackle": 62
+        }
+      ],
+      "front": [
+        {
+          "id": "millrace-vera-flintrow",
+          "name": "Vera Flintrow",
+          "age": 32,
+          "rush": 76,
+          "tackle": 72,
+          "speed": 68
+        },
+        {
+          "id": "millrace-callan-oswell",
+          "name": "Callan Oswell",
+          "age": 23,
+          "rush": 70,
+          "tackle": 69,
+          "speed": 65
+        },
+        {
+          "id": "millrace-della-marden",
+          "name": "Della Marden",
+          "age": 30,
+          "rush": 65,
+          "tackle": 67,
+          "speed": 63
+        },
+        {
+          "id": "millrace-bryn-hazelbank",
+          "name": "Bryn Hazelbank",
+          "age": 21,
+          "rush": 61,
+          "tackle": 63,
+          "speed": 59
+        }
+      ],
+      "backers": [
+        {
+          "id": "millrace-ansel-bellmere",
+          "name": "Ansel Bellmere",
+          "age": 28,
+          "tackle": 77,
+          "cover": 70,
+          "rush": 66
+        },
+        {
+          "id": "millrace-nola-wainscot",
+          "name": "Nola Wainscot",
+          "age": 35,
+          "tackle": 67,
+          "cover": 64,
+          "rush": 61
+        },
+        {
+          "id": "millrace-rafe-goldfern",
+          "name": "Rafe Goldfern",
+          "age": 26,
+          "tackle": 60,
+          "cover": 59,
+          "rush": 55
+        }
+      ],
+      "secondary": [
+        {
+          "id": "millrace-edra-bellhaven",
+          "name": "Edra Bellhaven",
+          "age": 33,
+          "cover": 84,
+          "speed": 86,
+          "tackle": 82
+        },
+        {
+          "id": "millrace-lyle-thimble",
+          "name": "Lyle Thimble",
+          "age": 24,
+          "cover": 63,
+          "speed": 72,
+          "tackle": 69
+        },
+        {
+          "id": "millrace-suri-northwick",
+          "name": "Suri Northwick",
+          "age": 31,
+          "cover": 59,
+          "speed": 67,
+          "tackle": 63
+        },
+        {
+          "id": "millrace-ines-alderlock",
+          "name": "Ines Alderlock",
+          "age": 22,
+          "cover": 38,
+          "speed": 46,
+          "tackle": 42
+        }
+      ],
+      "kicker": {
+        "id": "millrace-pat-low",
+        "name": "Pat Low",
+        "age": 29,
+        "kick": 58,
+        "speed": 46
+      }
+    },
+    "harrowgate": {
+      "qb": {
+        "id": "harrowgate-leona-gatewell",
+        "name": "Leona Gatewell",
+        "age": 31,
+        "throw": 89,
+        "speed": 80,
+        "carry": 80
+      },
+      "rb": {
+        "id": "harrowgate-arlo-ternby",
+        "name": "Arlo Ternby",
+        "age": 22,
+        "speed": 80,
+        "carry": 78,
+        "catch": 70
+      },
+      "wr": [
+        {
+          "id": "harrowgate-fenna-wold",
+          "name": "Fenna Wold",
+          "age": 29,
+          "speed": 81,
+          "catch": 77
+        },
+        {
+          "id": "harrowgate-remy-stonelea",
+          "name": "Remy Stonelea",
+          "age": 36,
+          "speed": 72,
+          "catch": 68
+        }
+      ],
+      "te": {
+        "id": "harrowgate-basil-quillford",
+        "name": "Basil Quillford",
+        "age": 27,
+        "block": 76,
+        "catch": 72,
+        "speed": 68
+      },
+      "line": [
+        {
+          "id": "harrowgate-cora-duskett",
+          "name": "Cora Duskett",
+          "age": 34,
+          "block": 79,
+          "tackle": 71
+        },
+        {
+          "id": "harrowgate-ilan-broadfen",
+          "name": "Ilan Broadfen",
+          "age": 25,
+          "block": 77,
+          "tackle": 69
+        },
+        {
+          "id": "harrowgate-petra-thornley",
+          "name": "Petra Thornley",
+          "age": 32,
+          "block": 75,
+          "tackle": 67
+        },
+        {
+          "id": "harrowgate-harlan-foxmere",
+          "name": "Harlan Foxmere",
+          "age": 23,
+          "block": 72,
+          "tackle": 64
+        },
+        {
+          "id": "harrowgate-neri-wattle",
+          "name": "Neri Wattle",
+          "age": 30,
+          "block": 76,
+          "tackle": 68
+        }
+      ],
+      "front": [
+        {
+          "id": "harrowgate-dara-marchwood",
+          "name": "Dara Marchwood",
+          "age": 21,
+          "rush": 88,
+          "tackle": 84,
+          "speed": 80
+        },
+        {
+          "id": "harrowgate-olin-brookgate",
+          "name": "Olin Brookgate",
+          "age": 28,
+          "rush": 81,
+          "tackle": 77,
+          "speed": 73
+        },
+        {
+          "id": "harrowgate-veda-ruskley",
+          "name": "Veda Ruskley",
+          "age": 35,
+          "rush": 74,
+          "tackle": 70,
+          "speed": 66
+        },
+        {
+          "id": "harrowgate-tarin-woodmere",
+          "name": "Tarin Woodmere",
+          "age": 26,
+          "rush": 72,
+          "tackle": 68,
+          "speed": 64
+        }
+      ],
+      "backers": [
+        {
+          "id": "harrowgate-bela-dawnwick",
+          "name": "Bela Dawnwick",
+          "age": 33,
+          "tackle": 81,
+          "cover": 78,
+          "rush": 75
+        },
+        {
+          "id": "harrowgate-lucan-fenbar",
+          "name": "Lucan Fenbar",
+          "age": 24,
+          "tackle": 76,
+          "cover": 73,
+          "rush": 70
+        },
+        {
+          "id": "harrowgate-enna-marten",
+          "name": "Enna Marten",
+          "age": 31,
+          "tackle": 70,
+          "cover": 67,
+          "rush": 64
+        }
+      ],
+      "secondary": [
+        {
+          "id": "harrowgate-kellan-moorby",
+          "name": "Kellan Moorby",
+          "age": 22,
+          "cover": 84,
+          "speed": 81,
+          "tackle": 78
+        },
+        {
+          "id": "harrowgate-faye-harthill",
+          "name": "Faye Harthill",
+          "age": 29,
+          "cover": 75,
+          "speed": 72,
+          "tackle": 69
+        },
+        {
+          "id": "harrowgate-noel-greenlock",
+          "name": "Noel Greenlock",
+          "age": 36,
+          "cover": 68,
+          "speed": 65,
+          "tackle": 62
+        },
+        {
+          "id": "harrowgate-pella-riven",
+          "name": "Pella Riven",
+          "age": 27,
+          "cover": 46,
+          "speed": 43,
+          "tackle": 40
+        }
+      ],
+      "kicker": {
+        "id": "harrowgate-emrys-cobble",
+        "name": "Emrys Cobble",
+        "age": 34,
+        "kick": 76,
+        "speed": 64
+      }
+    },
+    "tollbridge": {
+      "qb": {
+        "id": "tollbridge-rhea-wicker",
+        "name": "Rhea Wicker",
+        "age": 36,
+        "throw": 66,
+        "speed": 57,
+        "carry": 57
+      },
+      "rb": {
+        "id": "tollbridge-jonah-bellcross",
+        "name": "Jonah Bellcross",
+        "age": 27,
+        "speed": 62,
+        "carry": 60,
+        "catch": 52
+      },
+      "wr": [
+        {
+          "id": "tollbridge-nell-fallow",
+          "name": "Nell Fallow",
+          "age": 34,
+          "speed": 84,
+          "catch": 80
+        },
+        {
+          "id": "tollbridge-kiran-towpath",
+          "name": "Kiran Towpath",
+          "age": 25,
+          "speed": 57,
+          "catch": 53
+        }
+      ],
+      "te": {
+        "id": "tollbridge-dorian-ashbell",
+        "name": "Dorian Ashbell",
+        "age": 32,
+        "block": 57,
+        "catch": 53,
+        "speed": 49
+      },
+      "line": [
+        {
+          "id": "tollbridge-etta-burlow",
+          "name": "Etta Burlow",
+          "age": 23,
+          "block": 60,
+          "tackle": 52
+        },
+        {
+          "id": "tollbridge-tavi-copperbank",
+          "name": "Tavi Copperbank",
+          "age": 30,
+          "block": 58,
+          "tackle": 50
+        },
+        {
+          "id": "tollbridge-lena-wheelwright",
+          "name": "Lena Wheelwright",
+          "age": 21,
+          "block": 55,
+          "tackle": 47
+        },
+        {
+          "id": "tollbridge-ari-bridgefern",
+          "name": "Ari Bridgefern",
+          "age": 28,
+          "block": 61,
+          "tackle": 53
+        },
+        {
+          "id": "tollbridge-bramley-oaks",
+          "name": "Bramley Oaks",
+          "age": 35,
+          "block": 54,
+          "tackle": 46
+        }
+      ],
+      "front": [
+        {
+          "id": "tollbridge-maren-redwillow",
+          "name": "Maren Redwillow",
+          "age": 26,
+          "rush": 66,
+          "tackle": 62,
+          "speed": 58
+        },
+        {
+          "id": "tollbridge-cato-fenleigh",
+          "name": "Cato Fenleigh",
+          "age": 33,
+          "rush": 60,
+          "tackle": 56,
+          "speed": 52
+        },
+        {
+          "id": "tollbridge-fia-lockwell",
+          "name": "Fia Lockwell",
+          "age": 24,
+          "rush": 53,
+          "tackle": 49,
+          "speed": 45
+        },
+        {
+          "id": "tollbridge-wystan-reedmere",
+          "name": "Wystan Reedmere",
+          "age": 31,
+          "rush": 57,
+          "tackle": 53,
+          "speed": 49
+        }
+      ],
+      "backers": [
+        {
+          "id": "tollbridge-milo-hearthford",
+          "name": "Milo Hearthford",
+          "age": 22,
+          "tackle": 62,
+          "cover": 59,
+          "rush": 56
+        },
+        {
+          "id": "tollbridge-sena-buckle",
+          "name": "Sena Buckle",
+          "age": 29,
+          "tackle": 57,
+          "cover": 54,
+          "rush": 51
+        },
+        {
+          "id": "tollbridge-alba-ferrymere",
+          "name": "Alba Ferrymere",
+          "age": 36,
+          "tackle": 51,
+          "cover": 48,
+          "rush": 45
+        }
+      ],
+      "secondary": [
+        {
+          "id": "tollbridge-deni-stonebrook",
+          "name": "Deni Stonebrook",
+          "age": 27,
+          "cover": 63,
+          "speed": 60,
+          "tackle": 57
+        },
+        {
+          "id": "tollbridge-elin-moorlock",
+          "name": "Elin Moorlock",
+          "age": 34,
+          "cover": 55,
+          "speed": 52,
+          "tackle": 49
+        },
+        {
+          "id": "tollbridge-osric-wicklow",
+          "name": "Osric Wicklow",
+          "age": 25,
+          "cover": 49,
+          "speed": 46,
+          "tackle": 43
+        },
+        {
+          "id": "tollbridge-rina-valecrest",
+          "name": "Rina Valecrest",
+          "age": 32,
+          "cover": 42,
+          "speed": 39,
+          "tackle": 36
+        }
+      ],
+      "kicker": {
+        "id": "tollbridge-toren-sedgewick",
+        "name": "Toren Sedgewick",
+        "age": 23,
+        "kick": 61,
+        "speed": 49
+      }
+    },
+    "quarryhill": {
+      "qb": {
+        "id": "quarryhill-iona-flintvale",
+        "name": "Iona Flintvale",
+        "age": 25,
+        "throw": 79,
+        "speed": 70,
+        "carry": 70
+      },
+      "rb": {
+        "id": "quarryhill-evanne-rockwell",
+        "name": "Evanne Rockwell",
+        "age": 32,
+        "speed": 73,
+        "carry": 71,
+        "catch": 63
+      },
+      "wr": [
+        {
+          "id": "quarryhill-asa-clifford",
+          "name": "Asa Clifford",
+          "age": 23,
+          "speed": 83,
+          "catch": 79
+        },
+        {
+          "id": "quarryhill-milo-granite",
+          "name": "Milo Granite",
+          "age": 30,
+          "speed": 64,
+          "catch": 60
+        }
+      ],
+      "te": {
+        "id": "quarryhill-selma-chalkley",
+        "name": "Selma Chalkley",
+        "age": 21,
+        "block": 69,
+        "catch": 65,
+        "speed": 61
+      },
+      "line": [
+        {
+          "id": "quarryhill-orla-ridgeford",
+          "name": "Orla Ridgeford",
+          "age": 28,
+          "block": 75,
+          "tackle": 67
+        },
+        {
+          "id": "quarryhill-benji-felspar",
+          "name": "Benji Felspar",
+          "age": 35,
+          "block": 72,
+          "tackle": 64
+        },
+        {
+          "id": "quarryhill-yara-stonefen",
+          "name": "Yara Stonefen",
+          "age": 26,
+          "block": 69,
+          "tackle": 61
+        },
+        {
+          "id": "quarryhill-cedric-ashridge",
+          "name": "Cedric Ashridge",
+          "age": 33,
+          "block": 67,
+          "tackle": 59
+        },
+        {
+          "id": "quarryhill-nessa-barrowby",
+          "name": "Nessa Barrowby",
+          "age": 24,
+          "block": 71,
+          "tackle": 63
+        }
+      ],
+      "front": [
+        {
+          "id": "quarryhill-tarin-cinderley",
+          "name": "Tarin Cinderley",
+          "age": 31,
+          "rush": 84,
+          "tackle": 80,
+          "speed": 76
+        },
+        {
+          "id": "quarryhill-mina-flintbrook",
+          "name": "Mina Flintbrook",
+          "age": 22,
+          "rush": 76,
+          "tackle": 72,
+          "speed": 68
+        },
+        {
+          "id": "quarryhill-eamon-gravelly",
+          "name": "Eamon Gravelly",
+          "age": 29,
+          "rush": 70,
+          "tackle": 66,
+          "speed": 62
+        },
+        {
+          "id": "quarryhill-oda-cragmere",
+          "name": "Oda Cragmere",
+          "age": 36,
+          "rush": 65,
+          "tackle": 61,
+          "speed": 57
+        }
+      ],
+      "backers": [
+        {
+          "id": "quarryhill-niven-greystone",
+          "name": "Niven Greystone",
+          "age": 27,
+          "tackle": 75,
+          "cover": 72,
+          "rush": 69
+        },
+        {
+          "id": "quarryhill-seren-fellbank",
+          "name": "Seren Fellbank",
+          "age": 34,
+          "tackle": 71,
+          "cover": 68,
+          "rush": 65
+        },
+        {
+          "id": "quarryhill-jessa-mound",
+          "name": "Jessa Mound",
+          "age": 25,
+          "tackle": 65,
+          "cover": 62,
+          "rush": 59
+        }
+      ],
+      "secondary": [
+        {
+          "id": "quarryhill-leif-ruskwick",
+          "name": "Leif Ruskwick",
+          "age": 32,
+          "cover": 79,
+          "speed": 76,
+          "tackle": 73
+        },
+        {
+          "id": "quarryhill-rumi-slateford",
+          "name": "Rumi Slateford",
+          "age": 23,
+          "cover": 70,
+          "speed": 67,
+          "tackle": 64
+        },
+        {
+          "id": "quarryhill-alina-pebble",
+          "name": "Alina Pebble",
+          "age": 30,
+          "cover": 62,
+          "speed": 59,
+          "tackle": 56
+        },
+        {
+          "id": "quarryhill-dara-hillcross",
+          "name": "Dara Hillcross",
+          "age": 21,
+          "cover": 46,
+          "speed": 43,
+          "tackle": 40
+        }
+      ],
+      "kicker": {
+        "id": "quarryhill-seth-stonebell",
+        "name": "Seth Stonebell",
+        "age": 28,
+        "kick": 72,
+        "speed": 60
+      }
+    },
+    "fernmoor": {
+      "qb": {
+        "id": "fernmoor-oona-fernley",
+        "name": "Oona Fernley",
+        "age": 30,
+        "throw": 62,
+        "speed": 53,
+        "carry": 53
+      },
+      "rb": {
+        "id": "fernmoor-rafi-marshwick",
+        "name": "Rafi Marshwick",
+        "age": 21,
+        "speed": 57,
+        "carry": 55,
+        "catch": 47
+      },
+      "wr": [
+        {
+          "id": "fernmoor-mabli-willowby",
+          "name": "Mabli Willowby",
+          "age": 28,
+          "speed": 84,
+          "catch": 80
+        },
+        {
+          "id": "fernmoor-cian-rushmere",
+          "name": "Cian Rushmere",
+          "age": 35,
+          "speed": 50,
+          "catch": 46
+        }
+      ],
+      "te": {
+        "id": "fernmoor-isla-mosswell",
+        "name": "Isla Mosswell",
+        "age": 26,
+        "block": 51,
+        "catch": 47,
+        "speed": 43
+      },
+      "line": [
+        {
+          "id": "fernmoor-aven-clover",
+          "name": "Aven Clover",
+          "age": 33,
+          "block": 55,
+          "tackle": 47
+        },
+        {
+          "id": "fernmoor-lumi-brackenby",
+          "name": "Lumi Brackenby",
+          "age": 24,
+          "block": 53,
+          "tackle": 45
+        },
+        {
+          "id": "fernmoor-ivo-reedbank",
+          "name": "Ivo Reedbank",
+          "age": 31,
+          "block": 50,
+          "tackle": 42
+        },
+        {
+          "id": "fernmoor-merrit-sedgeford",
+          "name": "Merrit Sedgeford",
+          "age": 22,
+          "block": 48,
+          "tackle": 40
+        },
+        {
+          "id": "fernmoor-zora-greenmere",
+          "name": "Zora Greenmere",
+          "age": 29,
+          "block": 52,
+          "tackle": 44
+        }
+      ],
+      "front": [
+        {
+          "id": "fernmoor-nessa-quillbank",
+          "name": "Nessa Quillbank",
+          "age": 36,
+          "rush": 63,
+          "tackle": 59,
+          "speed": 55
+        },
+        {
+          "id": "fernmoor-corin-peatley",
+          "name": "Corin Peatley",
+          "age": 27,
+          "rush": 54,
+          "tackle": 50,
+          "speed": 46
+        },
+        {
+          "id": "fernmoor-eira-ferncross",
+          "name": "Eira Ferncross",
+          "age": 34,
+          "rush": 47,
+          "tackle": 43,
+          "speed": 39
+        },
+        {
+          "id": "fernmoor-toma-birchwell",
+          "name": "Toma Birchwell",
+          "age": 25,
+          "rush": 50,
+          "tackle": 46,
+          "speed": 42
+        }
+      ],
+      "backers": [
+        {
+          "id": "fernmoor-nalin-dewford",
+          "name": "Nalin Dewford",
+          "age": 32,
+          "tackle": 58,
+          "cover": 55,
+          "rush": 52
+        },
+        {
+          "id": "fernmoor-lyra-marshbell",
+          "name": "Lyra Marshbell",
+          "age": 23,
+          "tackle": 52,
+          "cover": 49,
+          "rush": 46
+        },
+        {
+          "id": "fernmoor-pavo-fencrest",
+          "name": "Pavo Fencrest",
+          "age": 30,
+          "tackle": 44,
+          "cover": 41,
+          "rush": 38
+        }
+      ],
+      "secondary": [
+        {
+          "id": "fernmoor-tilda-softwood",
+          "name": "Tilda Softwood",
+          "age": 21,
+          "cover": 57,
+          "speed": 54,
+          "tackle": 51
+        },
+        {
+          "id": "fernmoor-hadi-rushbank",
+          "name": "Hadi Rushbank",
+          "age": 28,
+          "cover": 50,
+          "speed": 47,
+          "tackle": 44
+        },
+        {
+          "id": "fernmoor-beren-frondley",
+          "name": "Beren Frondley",
+          "age": 35,
+          "cover": 43,
+          "speed": 40,
+          "tackle": 37
+        },
+        {
+          "id": "fernmoor-mira-wickfern",
+          "name": "Mira Wickfern",
+          "age": 26,
+          "cover": 41,
+          "speed": 38,
+          "tackle": 35
+        }
+      ],
+      "kicker": {
+        "id": "fernmoor-oren-willowgate",
+        "name": "Oren Willowgate",
+        "age": 33,
+        "kick": 56,
+        "speed": 44
+      }
+    }
+  }
+}
