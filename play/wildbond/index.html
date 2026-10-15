@@ -2,13 +2,27 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
 		<title>Wildbond (Godot trial)</title>
 		<style>
+:root {
+	--wb-sal: env(safe-area-inset-left, 0px);
+	--wb-sat: env(safe-area-inset-top, 0px);
+	--wb-sar: env(safe-area-inset-right, 0px);
+	--wb-sab: env(safe-area-inset-bottom, 0px);
+}
+
 html, body, #canvas {
 	margin: 0;
 	padding: 0;
 	border: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#canvas {
+	image-rendering: pixelated;
+	touch-action: none;
 }
 
 body {
@@ -109,9 +123,29 @@ body {
 			<div id="status-notice"></div>
 		</div>
 
+		<script>
+function wildbondInsets() {
+	var s = getComputedStyle(document.documentElement);
+	function px(name) {
+		var v = parseFloat(s.getPropertyValue(name));
+		return isNaN(v) ? 0 : v;
+	}
+	return [px('--wb-sal'), px('--wb-sat'), px('--wb-sar'), px('--wb-sab')].join(',');
+}
+function wildbondVisual() {
+	var vv = window.visualViewport;
+	if (!vv) {
+		return window.innerWidth + ',' + window.innerHeight + ',1';
+	}
+	return vv.width + ',' + vv.height + ',' + (vv.scale || 1);
+}
+function wildbondDpr() {
+	return String(window.devicePixelRatio || 1);
+}
+		</script>
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":20571912,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":20610348,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 

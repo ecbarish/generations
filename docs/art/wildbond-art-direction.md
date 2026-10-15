@@ -27,12 +27,86 @@ never look candy-bright. The faded world is the game's premise, so every colour 
    the same colour.
 4. **Light from the top left.** Light at the top left, the darkest shade at the bottom right. A 3D sun goes in the
    same place.
-5. **Real sizes.** One tile is about one metre. The tamer is about 1.5 tiles tall. A cottage is 4 x 3 tiles (its
-   walls are about 2 m high, with a steep roof above). Maren's barn is 4 x 5 tiles, a head taller than the cottages.
-   main.gd already gives every building a footprint (`buildings()`). Keep pictures and footprints the same size, so a
-   3D version can stand the same buildings on the same ground (and so nobody walks on a roof).
+5. **Real sizes.** The locked numbers are in **Scale (locked v3)** below. A tile is 16px, about 1.30 m at 12.35px
+   per metre. The tamer is about 12×21. A cottage is 64×64 (4×4 tiles) with a 12×24 door. Maren's barn is 64×80 with
+   16×26 doors. The door line is 24px, not 25. `buildings()` in `main.gd` (line 1893) still records the older 4×3
+   cottage until a paint pass adopts this scale. Pictures and footprints stay the same size, so a 3D version can
+   stand the same buildings on the same ground.
 6. **A palette, not loose colours.** Every colour comes from the named ramps below, which are kept in
    `wildbond-godot/tools/paint_tiles.gd`. A new material gets a new ramp of three to five shades, recorded here.
+   The house cap is about 32 colours per palette (`docs/art/README.md` rule 6). A new place that needs its own
+   shades gets its own palette, not more colours on the world set.
+
+## Scale (locked v3)
+
+Evan approved this overworld scale on 2026-10-13. It replaces the older "one tile is one metre" and "cottage 4×3"
+notes wherever they disagree. The painter has not caught up yet: `_cottage` in `paint_tiles.gd` (line 250) is still
+64×48, and the barn doors in `_barn` (around line 319) are still about 16×18. Those cells change in a later paint
+pass. Until then, new briefs cite this section, not the old pixels.
+
+| Thing | Locked size | In metres, at 12.35px per metre |
+|---|---|---|
+| Tile | 16×16 px | about 1.30 m |
+| Tamer | about 12×21 px (`figures.gd` line 50) | about 1.70 m tall |
+| Door line | 24 px tall. Not 25 | about 1.94 m, which is the 2.0 m door rounded to 1.5 tiles |
+| Cottage | 64×64 px, 4×4 tiles, door 12×24 | the opening is one tile and a half tall |
+| Maren's barn | 64×80 px, doors 16×26 | the footprint is already 4×5 tiles in `buildings()` |
+| Bell house | door 12×24, on the 5×3 footprint `buildings()` already gives Hollowecho | |
+| Meeting hall | double doors 24×24, on the 8×3 footprint at Sunthread | a 24px-tall creature can pass without turning sideways |
+| Lookout | door 12×24 | |
+| Boathouse | door 20×24 | wider than a cottage, still on the 24px line |
+
+Anything taller than the 24px door line waits outside. A creature at 24px or under follows the tamer indoors. A
+creature taller than the door may crawl in only when the crawl pose is 12px tall or less and at least twice as long
+as it is tall. Today that is Deeptide, and only in that pose. Standing, Deeptide waits outside.
+
+Overworld creatures in the pixel tiers run from a 12px floor to a 32px cap. Walking pixels use this rule. Take
+px = round(metres × 12.35). If px is 24 or less, the walking height is px, and anything under 12 is raised to 12.
+If px is over 24, the walking height is 24 + 8 × log2(px / 24), rounded, and capped at 32.
+
+The four Legends at 2.0 m go through the curve and come out at 24px. px = round(2.0 × 12.35) = 25, which is above
+24, so px = min(32, round(24 + 8 × log2(25 / 24))) = 24. A plain rounding of 24.7 would have left them at 25.
+Meadowmantle at 2.66 m is the tall worked case.
+2.66 × 12.35 is 32.851, which rounds to 33. The curve is 24 + 8 × log2(33 / 24). log2(33 / 24) is about 0.459,
+times 8 is about 3.68, and 27.68 rounds to 28. Meadowmantle is 28px. Holding 33 down to a cap of 32 would have
+left it at 32.
+
+`figures.gd` `drawn_px` (lines 395–396) still multiplies metres by 12.35 and holds the result between 12 and 32.
+That code is being fixed separately. It is not the locked rule. The rows below are the walking heights the curve
+produces.
+
+The pixel table is a view of the metres. In 3D the door is the 2.0 m door, and creatures use their true heights in
+metres, not these compressed pixels. Mistfinch is 0.24 m, Elderhorn is 3.64 m, and the tamer is 1.70 m. Tier T3
+draws a creature at about metres times 12.35, clamped to 10–48px. The 24px door line is the 2.0 m door rounded for
+pixels: 2.0 times 12.35 is 24.7, drawn as 24.
+
+Overworld height is 12px for every species in the locked table, except the rows below. 113 of the 189 catalogue
+species match a row in that table. The other 76 have no locked height yet, and they wait for one. Three names in
+the table are retired in the current save (`RETIRED_FORMS` in `main.gd`, line 3588): Deeptide is stored as
+Tidewyrm, Pyremane as Blazefang, and Elderthorn as Thornback. Tidewyrm itself is 15px and follows indoors. The
+retired heights stay on the table so an old picture is not drawn through a door it cannot use.
+
+| Height | Species in the locked table |
+|---|---|
+| 13px | Sunfrill, Cloudharrier, Boughchorus |
+| 15px | Tidewyrm, Shoalcrest, Ferrycrest, Fogsail, Rainback, Gorgebelly |
+| 16px | Bramblestag |
+| 17px | Stormfrill |
+| 18px | Thornback, Kilntusk |
+| 19px | Blazefang, Soundhowl, Briarwatch, Rilllynx, Hearthlaugh, Ridgewarden, Laughrill, Mistlynx, Sunlynx |
+| 20px | Fordfoal |
+| 24px | Bloomcourser, Lanterncrest, Stillwake, Watchlight, Veilmote |
+| 26px | Deeptide, Elderthorn. Deeptide may crawl indoors only when that pose is 12px tall or less and at least twice as long as it is tall |
+| 28px | Meadowmantle, Breakwatermane, Undertone |
+| 30px | Pyremane |
+| 31px | Elderhorn, Hearthcrown |
+
+Current sprite heights, not part of the locked table (`run_tests.gd` line 203): Riverwisp 14px, Thicketboar 15px,
+Smoulderpup 16px. A later update of the locked table may add them. Until then they are not a rule for doors.
+
+The eight from 26px to 31px are the mounts. They wait outside on foot, except Deeptide in the crawl pose above.
+Lanterncrest, Stillwake, Watchlight and Veilmote are 24px, so they may follow through a 24px door with no headroom
+left. Tidewyrm is 15px and follows indoors.
 
 ## 3. The palette (part 1)
 
@@ -62,10 +136,12 @@ Each object is listed with its shapes, so the same thing can be redrawn bigger o
 - **Tall grass** (1 tile, drawn twice and swaying): a clump of long blades, dark at the root and pale at the tip.
 - **Flowers** (1 tile): a leafy clump with three blooms. There are bluebells, poppies and daisies.
 - **Path**: packed earth, with a flat stone pressed in now and then, and grass curling over the edges.
-- **Cottage** (4 x 3 tiles): whitewashed walls with dark timber posts, a round-topped door in the second column, two
-  lit windows with green shutters, a steep slate roof in staggered rows, and a stone chimney.
-- **Maren's barn** (4 x 5 tiles): red boards with white trim and a gambrel roof (steep sides, a gentler top). It has a
-  hayloft door with an X brace and the big doors in the second column, one swung open.
+- **Cottage** (4 x 4 tiles, 64×64, door 12×24): whitewashed walls with dark timber posts, a round-topped door in the
+  second column, two lit windows with green shutters, a steep slate roof in staggered rows, and a stone chimney.
+  The painted cell is still the older 64×48 cottage until the v3 paint pass.
+- **Maren's barn** (64×80): red boards with white trim and a gambrel roof (steep sides, a gentler top). It has a
+  hayloft door with an X brace and the big doors, 16×26, in the second column, one swung open. The painted doors
+  are still the shorter pair until that same pass.
 
 ## 5. What is still borrowed (and the order to replace it)
 
@@ -87,9 +163,10 @@ The steps that keep that door open, in order of value:
 3. **One palette file** (section 3). A 3D material per ramp, with a toon shader using the same light direction and
    outline colour, keeps a 3D Wildbond recognisably the same game.
 4. **Godot can do both.** The game is already in Godot 4, which has a full 3D engine, so a first-person or 3D
-   version can share data (maps, creatures, story) with this one. A first experiment, when it's time, is a 3D
-   Larkhaven built from `buildings()` and the tile map. It would be a new ticket in docs/DEVELOPMENT-PATH.md, not a
-   switch.
+   version can share data (maps, creatures, story) with this one. How the world stays independent of the picture,
+   and what each step costs, is in `docs/plans/wildbond-world-design.md`, section 9. A first experiment, when it's
+   time, is a 3D Larkhaven built from `buildings()` and the tile map. It would be a new ticket in
+   docs/DEVELOPMENT-PATH.md, not a switch.
 
 ## 7. How to change the art
 
