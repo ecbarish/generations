@@ -242,7 +242,7 @@ func _run() -> void:
 					battle_clear = false
 	check(battle_clear, "EVO-1: every painted battle sprite keeps its whole scale and stays clear of the HP panels")
 	# ---- WBL-6: a battle front is the file <id>_battle_front.png. A missing file keeps the old figure.
-	var fronts := ["cindercub", "smoulderpup", "blazefang", "ripplet", "riverwisp", "tidewyrm", "mosshog", "thicketboar", "thornback"]
+	var fronts := ["cindercub", "smoulderpup", "blazefang", "ripplet", "riverwisp", "tidewyrm", "mosshog", "thicketboar", "thornback", "bogsnap", "glimmerwing"]
 	var Figures := load("res://scripts/figures.gd")
 	for sid in fronts:
 		var front: Texture2D = Sprites.battle_texture(sid)

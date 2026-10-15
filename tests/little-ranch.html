@@ -780,6 +780,34 @@ document.querySelector('#run').onclick = async () => {
       check('LR-POLISH: leaving the paint shed early: she trots home from the sign, the colours puff out, a sound plays', S().place === 'ranch' && S().baby.tx !== null && Math.abs(S().baby.x - L().sign.x) < 1 && S().fx.length >= n0 + 2 && LR.tones > t0);
       LR.advance(8); check('LR-POLISH: ...then she waves at home, with no reward and nothing painted lost', S().acts === a0 && S().baby.tx === null && S().shed.parts.tail === 1 && S().paint === null);
       LR.newVisit(); LR.advance(.1); tap(L().sign); const n1 = S().fx.length; tap(L().shed.barn); check('LR-POLISH: leaving before painting anything is answered too', S().baby.tx !== null && S().fx.length > n1 && S().acts === 0); LR.advance(8); }
+    // LR-TOY-POLISH: the picture itself answers a touch, and the kitchen bowl shows the food
+    { const crest = q => ({ x: q.x, y: q.y - L().R * 1.12 });
+      LR.newVisit(); LR.advance(.1);
+      check('LR-TOY-POLISH: the top of the paint picture is the paint sign, and the post still is', LR.ranchTarget(crest(L().sign)) === 'sign' && LR.ranchTarget(L().sign) === 'sign');
+      check('LR-TOY-POLISH: the top of the wagon picture is the wagon sign, and the post still is', LR.ranchTarget(crest(L().wsign)) === 'wsign' && LR.ranchTarget(L().wsign) === 'wsign');
+      tap(crest(L().sign)); check('LR-TOY-POLISH: tapping the top of the paint picture opens the Paint Shed', S().place === 'shed');
+      tap(L().shed.barn); tap(crest(L().wsign)); check('LR-TOY-POLISH: tapping the top of the wagon picture opens the Little Wagon', S().place === 'wagon');
+      const finger = world => { const p = LR.toScreen(world);
+        const bad = type => cv.dispatchEvent(new w.PointerEvent(type, { pointerId: 42, clientX: 0, clientY: 0, pointerType: 'touch', bubbles: true, cancelable: true, isPrimary: true }));
+        const touch = new w.Touch({ identifier: 42, target: cv, clientX: p.x, clientY: p.y, pageX: p.x, pageY: p.y });
+        bad('pointerdown');
+        cv.dispatchEvent(new w.TouchEvent('touchstart', { bubbles: true, cancelable: true, touches: [touch], changedTouches: [touch] }));
+        bad('pointerup');
+        cv.dispatchEvent(new w.TouchEvent('touchend', { bubbles: true, cancelable: true, touches: [], changedTouches: [touch] }));
+        cv.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true, clientX: 0, clientY: 0 })); };
+      LR.newVisit(); LR.advance(.1); const side = S().ball.to; finger(LR.ballNow());
+      check('LR-TOY-POLISH: a touch on the ball reads the touch position, and the synthetic click does not kick again', S().place === 'ranch' && S().ball.at >= 0 && S().ball.to === -side);
+      LR.newVisit(); LR.advance(.1); finger(crest(L().wsign));
+      check('LR-TOY-POLISH: a touch on the wagon picture opens it, and the synthetic click is ignored', S().place === 'wagon');
+      LR.newVisit(); LR.advance(.1); tap(L().ksign); tap(L().kitchen.foods[0]); LR.advance(LR.FLY_SECS + .12); LR.redraw();
+      const bowl = L().kitchen.bowl, Vk = L().kitchen, kpop = Math.sin(Math.min(1, S().kitchen.bowlPop) * Math.PI) * S().kitchen.bowlPop * bowl.r * .22;
+      const foodR = Math.max(Vk.fr * .72, bowl.r * .62), foodAt2 = { x: bowl.x, y: bowl.y - bowl.r * .55 - kpop };
+      let berries = 0;
+      const read = q => { const p = LR.toScreen(q), rect = cv.getBoundingClientRect(); const x = Math.max(0, Math.min(cv.width - 1, Math.round((p.x - rect.left) / rect.width * cv.width))), y = Math.max(0, Math.min(cv.height - 1, Math.round((p.y - rect.top) / rect.height * cv.height))); return cv.getContext('2d').getImageData(x, y, 1, 1).data; };
+      for (let dy = -foodR * .4; dy <= foodR * .4; dy += foodR * .2) for (let dx = -foodR * .5; dx <= foodR * .5; dx += foodR * .25) { const c = read({ x: foodAt2.x + dx, y: foodAt2.y + dy }); if (c[2] > 150 && c[1] < 130 && c[0] > 60 && c[2] > c[1]) berries++; }
+      check('LR-TOY-POLISH: food in the kitchen bowl is visible, and the bowl bounces', S().kitchen.phase === 'eat' && S().kitchen.food === 0 && S().kitchen.bowlPop > 0 && berries >= 3);
+      const icon = d.querySelector('link[rel="icon"]');
+      check('LR-TOY-POLISH: the page uses the arcade icon, so the browser does not ask for a missing favicon', !!icon && new URL(icon.href).pathname.endsWith('/icons/arcade.svg')); }
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
