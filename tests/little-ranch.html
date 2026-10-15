@@ -796,9 +796,12 @@ document.querySelector('#run').onclick = async () => {
       LR.newVisit(); LR.advance(.1); finger(crest(L().wsign));
       check('LR-TOY-POLISH: a touch on the wagon picture opens it, and the synthetic click is ignored', S().place === 'wagon');
       LR.newVisit(); LR.advance(.1); tap(L().ksign); tap(L().kitchen.foods[0]); LR.advance(LR.FLY_SECS + .12); LR.redraw();
-      const bowl = L().kitchen.bowl, sampleAt = { x: bowl.x, y: bowl.y - bowl.r * .55 };
-      const pix = (() => { const p = LR.toScreen(sampleAt), r = cv.getBoundingClientRect(); const x = Math.max(0, Math.min(cv.width - 1, Math.round((p.x - r.left) / r.width * cv.width))), y = Math.max(0, Math.min(cv.height - 1, Math.round((p.y - r.top) / r.height * cv.height))); const g = cv.getContext('2d').getImageData(x, y, 1, 1).data; return { r: g[0], g: g[1], b: g[2] }; })();
-      check('LR-TOY-POLISH: food in the kitchen bowl is visible, and the bowl bounces', S().kitchen.phase === 'eat' && S().kitchen.food === 0 && S().kitchen.bowlPop > 0 && pix.g < 140 && pix.r > 40);
+      const bowl = L().kitchen.bowl, Vk = L().kitchen, kpop = Math.sin(Math.min(1, S().kitchen.bowlPop) * Math.PI) * S().kitchen.bowlPop * bowl.r * .22;
+      const foodR = Math.max(Vk.fr * .72, bowl.r * .62), foodAt2 = { x: bowl.x, y: bowl.y - bowl.r * .55 - kpop };
+      let berries = 0;
+      const read = q => { const p = LR.toScreen(q), rect = cv.getBoundingClientRect(); const x = Math.max(0, Math.min(cv.width - 1, Math.round((p.x - rect.left) / rect.width * cv.width))), y = Math.max(0, Math.min(cv.height - 1, Math.round((p.y - rect.top) / rect.height * cv.height))); return cv.getContext('2d').getImageData(x, y, 1, 1).data; };
+      for (let dy = -foodR * .4; dy <= foodR * .4; dy += foodR * .2) for (let dx = -foodR * .5; dx <= foodR * .5; dx += foodR * .25) { const c = read({ x: foodAt2.x + dx, y: foodAt2.y + dy }); if (c[2] > 150 && c[1] < 130 && c[0] > 60 && c[2] > c[1]) berries++; }
+      check('LR-TOY-POLISH: food in the kitchen bowl is visible, and the bowl bounces', S().kitchen.phase === 'eat' && S().kitchen.food === 0 && S().kitchen.bowlPop > 0 && berries >= 3);
       const icon = d.querySelector('link[rel="icon"]');
       check('LR-TOY-POLISH: the page uses the arcade icon, so the browser does not ask for a missing favicon', !!icon && new URL(icon.href).pathname.endsWith('/icons/arcade.svg')); }
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);

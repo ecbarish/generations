@@ -1092,11 +1092,11 @@
     st.idleAt = st.t;
     const pick = ranchTarget(p); if (pick) st.used[/^flower/.test(pick) ? 'flowers' : /^puddle/.test(pick) ? 'puddle' : pick] = 1;
     if (pick === 'sponge') { s.drag = { id: e.pointerId, x: p.x, y: p.y, at: performance.now(), moved: 0 }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; }
-    if (pick === 'sign') { st.down = { id: e.pointerId, p, sign: 'paint' }; st.sign.shake = Math.max(st.sign.shake, 2); return; }
-    if (pick === 'wsign') { st.down = { id: e.pointerId, p, sign: 'wagon' }; st.wsign.shake = Math.max(st.wsign.shake, 2); return; }
-    if (pick === 'dsign') { st.down = { id: e.pointerId, p, sign: 'door' }; st.dsign.shake = Math.max(st.dsign.shake, 2); return; }
-    if (pick === 'tsign') { st.down = { id: e.pointerId, p, sign: 'dough' }; st.tsign.shake = Math.max(st.tsign.shake, 2); return; }
-    if (pick === 'ksign') { st.down = { id: e.pointerId, p, sign: 'kitchen' }; st.ksign.shake = Math.max(st.ksign.shake, 2); return; }
+    if (pick === 'sign') { st.down = { id: e.pointerId, p, sign: 'paint' }; st.sign.shake = .5; return; }
+    if (pick === 'wsign') { st.down = { id: e.pointerId, p, sign: 'wagon' }; st.wsign.shake = .5; return; }
+    if (pick === 'dsign') { st.down = { id: e.pointerId, p, sign: 'door' }; st.dsign.shake = .5; return; }
+    if (pick === 'tsign') { st.down = { id: e.pointerId, p, sign: 'dough' }; st.tsign.shake = .5; return; }
+    if (pick === 'ksign') { st.down = { id: e.pointerId, p, sign: 'kitchen' }; st.ksign.shake = .5; return; }
     if (/^flower/.test(pick)) { const i = +pick.slice(6); st.down = { id: e.pointerId, p, flower: i }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return sing(i); }
     if (pick === 'bowl') return act.feed();
     if (pick === 'bush') return act.peek();
