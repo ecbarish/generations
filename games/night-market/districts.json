@@ -1,3 +1,168 @@
 {
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "districts": [
+    {
+      "id": "willow-quay",
+      "name": "Willow Quay",
+      "customers": "Ferry workers, evening walkers and families shop beside the quiet water.",
+      "moveAtLifetime": 1000000,
+      "carryOver": {
+        "favouriteStall": {
+          "unlocked": true,
+          "owned": 1
+        },
+        "cash": 0,
+        "otherOwned": 0,
+        "permits": 0
+      },
+      "permitStalls": [
+        "chestnut",
+        "ribbon",
+        "soup",
+        "kite",
+        "flower",
+        "music"
+      ],
+      "stalls": [
+        {
+          "id": "chestnut",
+          "name": "Chestnut Brazier",
+          "vendor": "Lin",
+          "habit": "Lin saves the warmest paper cone for the last ferry worker.",
+          "serve": "Fill a cone",
+          "left": "cone",
+          "lefts": "cones",
+          "hire": "Ask Lin to tend the brazier",
+          "looks": [
+            "One iron pan",
+            "Two warm pans",
+            "A copper chimney",
+            "Steam above the quay"
+          ],
+          "gossip": "Lin says the ferries ran late, so she kept the coals warm.",
+          "next": "Suri brings the Ribbon Cart once ten braziers are roasting.",
+          "base": 80,
+          "growth": 1.15,
+          "rate": 0.5,
+          "serves": 25,
+          "hand": 4
+        },
+        {
+          "id": "ribbon",
+          "name": "Ribbon Cart",
+          "vendor": "Suri",
+          "habit": "Suri ties each bow twice, then lets the breeze try it.",
+          "serve": "Tie a bow",
+          "left": "bow",
+          "lefts": "bows",
+          "hire": "Ask Suri to take the cart",
+          "looks": [
+            "One spool",
+            "A row of spools",
+            "A bright canopy",
+            "Bows along the rail"
+          ],
+          "gossip": "Suri says a loose ribbon found its way home on the breeze.",
+          "next": "Tao brings the Soup Kettle once ten ribbon carts are tying.",
+          "base": 1168,
+          "growth": 1.15,
+          "rate": 1,
+          "serves": 12,
+          "hand": 2
+        },
+        {
+          "id": "soup",
+          "name": "Soup Kettle",
+          "vendor": "Tao",
+          "habit": "Tao warms each empty bowl before the soup goes in.",
+          "serve": "Fill a bowl",
+          "left": "bowl",
+          "lefts": "bowls",
+          "hire": "Ask Tao to tend the kettle",
+          "looks": [
+            "One little kettle",
+            "Two copper kettles",
+            "A sheltered bench",
+            "A table full of bowls"
+          ],
+          "gossip": "Tao says the bowl returned first, and its owner stayed to talk.",
+          "next": "Neri brings the Kite Bench once ten kettles are simmering.",
+          "base": 2367,
+          "growth": 1.15,
+          "rate": 2,
+          "serves": 10,
+          "hand": 4
+        },
+        {
+          "id": "kite",
+          "name": "Kite Bench",
+          "vendor": "Neri",
+          "habit": "Neri holds every kite up to the lamplight before tying its tail.",
+          "serve": "Fold a kite",
+          "left": "kite",
+          "lefts": "kites",
+          "hire": "Ask Neri to take the bench",
+          "looks": [
+            "One paper kite",
+            "A pair of kites",
+            "A rack of bright tails",
+            "Kites above the water"
+          ],
+          "gossip": "Neri says the smallest kite flew higher than anyone expected.",
+          "next": "Asha brings the Flower Barrow once ten kite benches are folding.",
+          "base": 3480,
+          "growth": 1.15,
+          "rate": 4,
+          "serves": 8,
+          "hand": 8
+        },
+        {
+          "id": "flower",
+          "name": "Flower Barrow",
+          "vendor": "Asha",
+          "habit": "Asha turns the flowers toward the water while she fills their jars.",
+          "serve": "Wrap a bunch",
+          "left": "bunch",
+          "lefts": "bunches",
+          "hire": "Ask Asha to take the barrow",
+          "looks": [
+            "One flower jar",
+            "Two full jars",
+            "A woven sunshade",
+            "Blossoms along the quay"
+          ],
+          "gossip": "Asha says someone brought an empty jar back with a thank-you note.",
+          "next": "Fen brings the Music Corner once ten flower barrows are wrapping.",
+          "base": 4673,
+          "growth": 1.15,
+          "rate": 8,
+          "serves": 8,
+          "hand": 16
+        },
+        {
+          "id": "music",
+          "name": "Music Corner",
+          "vendor": "Fen",
+          "habit": "Fen leaves a quiet space between tunes for the ferries to answer.",
+          "serve": "Play a tune",
+          "left": "tune",
+          "lefts": "tunes",
+          "hire": "Ask Fen to take the corner",
+          "looks": [
+            "One wooden stool",
+            "A second music stand",
+            "A little awning",
+            "Listeners by the water"
+          ],
+          "gossip": "Fen says a ferry bell joined the tune at just the right moment.",
+          "next": "",
+          "base": 9000,
+          "growth": 1.15,
+          "rate": 16,
+          "serves": 6,
+          "hand": 40
+        }
+      ]
+    }
+  ]
 }
