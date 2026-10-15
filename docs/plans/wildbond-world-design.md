@@ -1,12 +1,12 @@
 # Wildbond world design
 
-Status: design plan only. Written 2026-10-15 from current `main` (`5764d95a`). This pull request adds this file and nothing else. It does not change the game, the save format, the web pack, or the export.
+Status: design plan only. Written 2026-10-15 from current `main` (`5764d95a`). This pull request adds this file. It also edits two files in docs/art: `docs/art/wildbond-art-direction.md`, including the Scale (locked v3) section, and `docs/art/README.md`. It does not change the game, the save format, the web pack, or the export.
 
 Evan, 2026-10-14: "I want this game to be much more woven together and more interesting than a linear map and a one dimensional story. I want the world to be beautiful and interesting and I want players to want to explore and for different stories to be told throughout it and have it truly do Pokemon justice as a passion project based on it."
 
 The shape below follows two research documents, both read from their own branches and both measured against main at `5764d95a`.
 
-[PR #452](https://github.com/ecbarish/generations/pull/452) (`docs/research/wildbond-world-references.md`) supplies the skeleton: Stillreed Basin as the hub, 20 routes, 10 towns, 7 caves, 3 water routes, 3 loops, one one-way shortcut, four travel abilities plus one for each remaining element, a side story in every town, guardians at the high places, and a phased build. Every placeholder name from that skeleton is replaced here with a name that fits the valley we already have.
+[PR #452](https://github.com/ecbarish/generations/pull/452) (`docs/research/wildbond-world-references.md`) supplies the skeleton: Stillreed Basin as the hub, 20 routes, 10 towns, 7 caves, 3 water routes, 3 loops, one one-way shortcut, four travel abilities (Stone Break, Tide Ride, Lantern, and Glide), a side story in every town, guardians at the high places, and a phased build. Grove Wake, Hush, and Daymark are introduced by this plan. Every placeholder name from that skeleton is replaced here with a name that fits the valley we already have.
 
 [PR #453](https://github.com/ecbarish/generations/pull/453) (`docs/research/wildbond-vs-pokemon-benchmark.md`) ranks what makes the valley feel thin. Its top gaps, in order, are a line-shaped world, one town, no caves or water, no field lessons, few trainers, a party of three, no fast travel, shallow battles, two item types, and no quest log. The world-related gaps and the world-related ideas from its fan-game list are folded into the sections below: lessons that do not spend a move slot, a difficulty choice on top of the level caps, Wardens who can be met in more than one order, the quest log already named in section 3, and a second region after the league. Party size, battle traits, held items, two partners on the field at once, weather that changes a battle, and more trainers are listed in section 8 and are not designed here.
 
@@ -60,7 +60,7 @@ Saves are version 2 (`SAVE_V`, `main.gd` line 3585). The file stores map id, til
 
 1. The 15 map ids above keep working. A save standing on one of them still loads there. New places get new ids. A tile that becomes solid nudges the tamer to the nearest open tile in front of a door, the same idea as `_off_new_homes` (`main.gd` lines 582–589).
 2. The Thorn Badge and the Tide Badge stay in that order, so the opening and the first two field lessons stay taught. After those two, the roads to the other six Wardens are open, and each of those Wardens scales to the badges you already hold (section 2). A field lesson never stands in for a lesson you have not been taught. The league still needs all eight badges. Until the order phase ships, the roads keep today's ropes, one badge at a time.
-3. Tile `~` stays solid. Rideable water is a new tile, used only on the three water routes, and only after Tide Ride is learned. Ponds, the skiff, and today's tests keep their meaning.
+3. Tile `~` stays solid. Rideable water is a new tile. After Tide Ride is learned, it is used on the three water routes, on Moon Pool's far lip, and in the flooded caves, Lowbell, and Trialstair. Ponds, the skiff, and today's tests keep their meaning.
 4. The reveal mouth at Hollowecho (19, 8) stays scenery until `depthReturns` is in `story`. The first real cave is a different mouth.
 5. Colour returning on the Thorn Badge stays where it is. This plan does not move that scene, the reveal, or the league.
 6. Field travel is the partner at the obstacle, on the action key you already use to talk. It is not a battle move, and it does not spend one of the four workbench slots. Glide's list of inns opens over the world, the way the field book does, and closes back to the same tile.
@@ -213,36 +213,70 @@ flowchart TB
   QC --> LO[Lowbell]
 ```
 
+The text map below names the same places and the same links as the flowchart. Each place is drawn once. A branch that says `to` a place is a link to that drawing, and any words before `-->` are the lesson that opens the link.
+
 ```text
-Larkhaven -- Thornwood Trail -- Thornwood -- Saltmarsh Road -- Saltmarsh Coast
-    |              |                |                                |          \
- Millgrass       Dewcut         Rootwater                      Wrackline    Ashstair -- Kilnvent
-    |              |                |                                |          |          |
- Larkburrow    Old Root Grove   Knothollow                     Lantern Quay  Warmstep      |
-    |              \                /                                |          |          |
-    |               +-- Grove Wake                                  |       Sootpath ------+
-    |                                                               |          |
-    +-- late, into Threadmeet                                  Greywash    Highlatch
-                                                                    \       /   |    \
-                                                                     \     / Glassfall  Crest Path
-                                                                      \   /   (down)        |
-                                                                   The Open Grey      Lampcrown
-                                                                        |                 Pass Foot
-                                                                    Outer Shoal              |
-                                                                        |                Reedhold
-                                                                        |               /   |   \
-                                                                        |     Long Boards  |  Orchard Fen -- back to Sootpath
-                                                                        |          |    Late Path        |
-                                                                        |     Dry Boards   |         Threadmeet
-                                                                        |          |    Bellstep           |
-                                                                        |          +-- Flintcut        Shelter Mile
-                                                                        |               |                 |
-                                                                        |        Answering Ways      The High Watch
-                                                                        |               |              /    |     \
-                                                                        +-- Seaward Ledge        Chart  Trial Road  (water above)
-                                                                                                    |         |
-                                                                                               Trialstair   League -- Spire
-                                                                        Reedhold also rides The Quiet Channels down to Lowbell
+Larkhaven
++-- Thornwood Trail
+|   +-- Dewcut
+|   |   +-- Old Root Grove
+|   |       +-- Grove Wake --> Knothollow
+|   +-- Thornwood
+|       +-- Rootwater Path
+|       |   +-- Knothollow
+|       +-- Saltmarsh Road
+|           +-- Moon Pool
+|           |   +-- Tide Ride --> Greywash Sound
+|           |       +-- The Open Grey
+|           |           +-- Outer Shoal
+|           +-- Saltmarsh Coast
+|               +-- Wrackline
+|               |   +-- Lantern Quay
+|               |       +-- to Greywash Sound
+|               +-- Ashstair
+|                   +-- Kilnvent
+|                   |   +-- to Sootpath
+|                   +-- Warmstep
+|                       +-- to Sootpath
++-- Millgrass Lane
+    +-- Larkburrow
+        +-- Stone Break and Loom Badge --> Threadmeet
+
+Sootpath
++-- Highlatch
+    +-- Crest Path
+    |   +-- Lampcrown
+    +-- Glassfall one way --> Reedhold
+    +-- Pass Foot
+        +-- to Reedhold
+
+Reedhold
++-- The Dry Boards
+|   +-- to Pass Foot
++-- The Long Boards
++-- The Late Path
+|   +-- Bellstep
+|       +-- Flintcut
+|       |   +-- The Answering Ways
+|       +-- Ribbon Road
+|           +-- to Threadmeet
++-- Orchard Fen
+|   +-- Stone Break, both ends walked --> Sootpath
+|   +-- to Threadmeet
++-- The Quiet Channels
+    +-- Lowbell
+
+Threadmeet
++-- Shelter Mile
+    +-- The High Watch
+        +-- Chart Road
+        |   +-- to The High Watch
+        +-- Seaward Ledge
+        |   +-- to The Open Grey
+        +-- Trial Road
+            +-- Trialstair
+                +-- Returning Light League
+                    +-- The Lighthouse Spire
 ```
 
 ### Routes (20)
@@ -727,7 +761,7 @@ The world is data. The picture is a reading of that data. A 2D tile painter, a l
 
 Height is a number on the tile, in quarter-metres. Flat ground is 0. A step up is positive. Water depth is negative. Today's maps are flat, so a missing height means 0, and old saves do not notice. Ashstair, Glassfall, the cave stairs and the flooded floors are the first places that should write a real height, because a later picture cannot invent the climb from a flat tile. One tile in 3D is about 1.30 m, from the 16px tile at 12.35px per metre. The door in 3D is the 2.0 m door. The 24px line is that door rounded for pixels.
 
-Creatures in 3D use their true heights in metres. Mistfinch is 0.24 m, Elderhorn is 3.64 m, and the tamer is 1.70 m. Walking pixels are a view of those metres, by the curve in Scale (locked v3). Take px = round(metres × 12.35). If px is 24 or less, the walking height is px, raised to a floor of 12. Above 24, the walking height is 24 + 8 × log2(px / 24), rounded and capped at 32. The four Legends at 2.0 m are the short worked case: 2.0 × 12.35 is 24.7, which rounds to 25, and 24 + 8 × log2(25 / 24) rounds to 24. They are 24px. Meadowmantle at 2.66 m is the tall worked case: 2.66 × 12.35 is 32.851, which rounds to 33, and 24 + 8 × log2(33 / 24) rounds to 28. Meadowmantle is 28px. `figures.gd` `drawn_px` (lines 395–396) still multiplies metres by 12.35 and holds the result between 12 and 32. That code is being fixed separately. It is not this rule. Tier T3 draws about metres times 12.35, clamped to 10–48px, and does not use the walking curve. A species with no locked height, 76 of the 189, has no metre yet.
+Creatures in 3D use their true heights in metres. Mistfinch is 0.24 m, Elderhorn is 3.64 m, and the tamer is 1.70 m. Walking pixels are a view of those metres, by the curve in Scale (locked v3). Take px = round(metres × 12.35). If px is 24 or less, the walking height is px, raised to a floor of 12. Above 24, the walking height is 24 + 8 × log2(px / 24), rounded and capped at 32. The four Legends at 2.0 m go through the curve and come out at 24px. px = round(2.0 × 12.35) = 25, which is above 24, so px = min(32, round(24 + 8 × log2(25 / 24))) = 24. Meadowmantle at 2.66 m is the tall worked case: 2.66 × 12.35 is 32.851, which rounds to 33, and 24 + 8 × log2(33 / 24) rounds to 28. Meadowmantle is 28px. `figures.gd` `drawn_px` (lines 395–396) still multiplies metres by 12.35 and holds the result between 12 and 32. That code is being fixed separately. It is not this rule. Tier T3 draws about metres times 12.35, clamped to 10–48px, and does not use the walking curve. A species with no locked height, 76 of the 189, has no metre yet.
 
 Each map also carries a prop list. A prop is an id, a tile, a footprint in tiles, a height in metres when the locked table has one, and a role: door, mouth, pad, lantern, wheel, steam, wake, bell, rope, curtain. Steam, the wake and the mill wheel are props with a motion flag. They are not tiles, which is the same rule as the overlay in section 5. A 3D scene builds from this list. It does not scrape the pixels.
 

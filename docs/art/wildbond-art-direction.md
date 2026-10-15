@@ -64,9 +64,9 @@ Overworld creatures in the pixel tiers run from a 12px floor to a 32px cap. Walk
 px = round(metres × 12.35). If px is 24 or less, the walking height is px, and anything under 12 is raised to 12.
 If px is over 24, the walking height is 24 + 8 × log2(px / 24), rounded, and capped at 32.
 
-The four Legends at 2.0 m show the first branch. 2.0 × 12.35 is 24.7, which rounds to 25. That is over 24, so the
-curve is 24 + 8 × log2(25 / 24). log2(25 / 24) is about 0.059, times 8 is about 0.47, and 24.47 rounds to 24. They
-are 24px. A plain rounding of 24.7 would have left them at 25. Meadowmantle at 2.66 m shows the tall branch.
+The four Legends at 2.0 m go through the curve and come out at 24px. px = round(2.0 × 12.35) = 25, which is above
+24, so px = min(32, round(24 + 8 × log2(25 / 24))) = 24. A plain rounding of 24.7 would have left them at 25.
+Meadowmantle at 2.66 m is the tall worked case.
 2.66 × 12.35 is 32.851, which rounds to 33. The curve is 24 + 8 × log2(33 / 24). log2(33 / 24) is about 0.459,
 times 8 is about 3.68, and 27.68 rounds to 28. Meadowmantle is 28px. Holding 33 down to a cap of 32 would have
 left it at 32.
