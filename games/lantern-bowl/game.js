@@ -6,7 +6,7 @@
   var M = window.LanternModel, V = window.LanternView;
   var $ = function (id) { return document.getElementById(id); };
   var canvas = $('field'), ctx = canvas.getContext('2d');
-  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.6', SAVE_V = 2;
+  var KEY = 'lantern-bowl-save-v1', VERSION = '0.1.7', SAVE_V = 2;
   var reduce = Settings.reduced();
   var sideCam = null;
   var STRIPS = [
