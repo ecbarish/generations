@@ -66,20 +66,20 @@ cap 70. Exploration thresholds are the existing local story counters, not a requ
 
 | Encounter | Local explores | Team / result |
 |---|---:|---|
-| `rival8` | 6 | Hearthrunner 64, Ribbonstride 66, `$rival` 67; existing partner substitution |
+| `rival8` | 6 | Blazefang 64, Ribbonstride 66, `$rival` 67; existing partner substitution |
 | `meadowmantle` | 14 | Wild tuple `['meadowmantle',67,4]`; unique guardian |
 | `warden7` | 24 | Tilthtusk 63, Hemglow 64, Bloomcourser 65; Loom Badge |
 | Mirel | Route trainer, sight 2 | Clovercolt 64, Hemglow 65 |
-| Aldren | Route trainer, sight 2 | Pennantlark 65, Hearthrunner 66, Ribbonstride 67 |
+| Aldren | Route trainer, sight 2 | Pennantlark 65, Blazefang 66, Ribbonstride 67 |
 
 **Stale lore:** Area 7's older paragraph gives Halen 65/66/68. Runtime/browser export is **63/64/65**. Keep the
 implemented team unless a separate balance decision changes it. The area range does not override that team.
 Guardian lures/calm, uniqueness and knockout retry keep their existing rules. The tuple's final value is encounter
 metadata; do not create a new rarity mechanic or ordinary wild entry for Meadowmantle.
 
-## Species: eleven represented, nine ordinary wild entries
+## Species: ten represented, eight ordinary wild entries
 
-The original nine remain; T37 added Sunfrill and Boughchorus to the current regional wild table. Do not port an
+The original eight remain (Hearthrunner is cut from the roster, WILD-CUT-1); T37 added Sunfrill and Boughchorus to the current regional wild table. Do not port an
 older seven-entry table or drop those catalogue creatures. Relative weights are not percentages.
 
 | ID / name | Element / family | Current encounter route |
@@ -89,7 +89,6 @@ older seven-entry table or drop those catalogue creatures. Relative weights are 
 | `tilthtusk` Tilthtusk | Grove / boar | 18 |
 | `hemglow` Hemglow | Radiant / sprite | 18 |
 | `pennantlark` Pennantlark | Radiant / bird | 16 |
-| `hearthrunner` Hearthrunner | Ember / wolf | 16 |
 | `ribbonstride` Ribbonstride | Gale / horse | 14 |
 | `dawntassel` Dawntassel | Radiant / sprite | 3; uncommon, not unique |
 | `meadowmantle` Meadowmantle | Grove / boar | Unique large guardian, story only |
@@ -146,7 +145,7 @@ new music is supplied here. Off/effects/music and reduced-motion settings apply;
 - Echo permits arrival; west return and every actor/sign/supply/Halen approach are reachable. Decorations and
   following partner leave a gap. Meeting-hall geometry has real footprints and height.
 - Loom opens east only when Farwatch is actually available; a pending build gets an honest explanation.
-- Eleven species, nine weights, both trainer teams, three story IDs/thresholds and cap match the current export.
+- Ten species, eight weights, both trainer teams, three story IDs/thresholds and cap match the current export.
 - Every heritage gets the five shared clues and ribbon payoff; origin reactions remain once-only across reload.
 - Wren, nursery and guardian beats preserve physical space, player control and readable text with sound off.
 - Claude should play from a six-badge save, retry the guardian/Warden, return west, reload and inspect phone,

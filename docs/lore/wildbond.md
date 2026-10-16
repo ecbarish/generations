@@ -194,7 +194,7 @@ shared forecourt, welcoming teams from several settlements. Clear mornings can g
 strong partners carry the cloth while smaller ones hold loose ties and guide late arrivals beneath it.
 
 **Mirel**, a shelter mender, works with Clovercolt and Hemglow and offers a friendly battle on the meadow path.
-**Aldren**, a gathering runner, brings Pennantlark, Hearthrunner and Ribbonstride: carrying messages, drying
+**Aldren**, a gathering runner, brings Pennantlark, Blazefang and Ribbonstride: carrying messages, drying
 ribbons and keeping track of the last returning teams. Both trainers battle at levels 64–67. Three supplies lie
 beside the western field, the lower path and the nursery. **Pell**, the visiting peddler, keeps the shelter ties
 together while his patient mule Brisket rests in the shade. He is a townsperson to talk to, with no new shop.
@@ -206,7 +206,6 @@ Nine species enter the record:
 - **Tilthtusk**, a Grove boar, loosens worn soil while leaving marked nursery beds undisturbed.
 - **Hemglow**, a Radiant sprite, lights the edge of shelter cloth for tired arrivals.
 - **Pennantlark**, a Radiant bird, flashes its wings when the last returning team reaches the hall.
-- **Hearthrunner**, an Ember wolf, warms cold paws beneath benches and carries messages between teams.
 - **Ribbonstride**, a Gale horse, collects wind-loosened ribbons and brings them back to their posts.
 - **Dawntassel**, a rare Radiant sprite, leaves gold glimmers on well-mended shelter knots at first light.
   It has a low wild-table weight and is not a unique guardian.
@@ -215,7 +214,7 @@ Nine species enter the record:
   calm can earn its companionship; knocking it out leaves the existing later retry.
 
 At six local explores, **Wren** helps a nervous young tamer find a role: their small partner holds a loose tie
-while hers makes the knot. Then she brings Hearthrunner, Ribbonstride and her original partner to a varied
+while hers makes the knot. Then she brings Blazefang, Ribbonstride and her original partner to a varied
 level-64–67 rematch. She still intends to win, but notices useful work beyond the biggest performer.
 
 At fourteen, Meadowmantle waits for a sudden wind to ease and the gathered teams to settle before inviting
@@ -300,7 +299,7 @@ The four trainers bring existing species, with distinct themes and voices:
 
 - **Edrin**, the listening court: Hushmane 70, Dripdart 71, Bloomcourser 72. He learned to leave a silence for a warning.
 - **Maela**, the shelter court: Keeljaw 71, Flintroot 72, Ferrycrest 73. Strength must leave a safe place for another.
-- **Corven**, the shared-work court: Hearthrunner 72, Ribbonstride 73, Tilthtusk 74. Partners need different useful roles.
+- **Corven**, the shared-work court: Blazefang 72, Ribbonstride 73, Tilthtusk 74. Partners need different useful roles.
 - **Liora**, the honest-record court: Buoyglint 72, Moorweft 73, Pennantlark 74. Corrections belong where others can see them.
 
 The same team fights the courts in order. Nelva offers a short healing rest after each victory, including Wren's;

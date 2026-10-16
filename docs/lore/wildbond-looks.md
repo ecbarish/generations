@@ -51,7 +51,6 @@ The eleven present species assigned the new serpent, turtle, moth or treefolk bo
 | breakwatermane | wolf | fin-ears | wave-mane | fin | chevrons |
 | slaglet | boar | short-tusks | crust-plates | stub | cracks |
 | kilntusk | boar | glowing-tusks | crust-plates | brush | cracks |
-| ashskip | lizard | pointed-cheeks | smooth | hook | socks |
 | cragskein | spider | stone-fangs | crystal-ridge | thread | cracks |
 | ventwhisk | cat | long-whiskers | steam-ruff | copper | bands |
 | thermwing | bird | swept-crest | broad-wings | fan | rays |
@@ -90,7 +89,6 @@ The eleven present species assigned the new serpent, turtle, moth or treefolk bo
 | tilthtusk | boar | curved-tusks | soil-bed | stub | vines |
 | hemglow | sprite | tassel-crown | light-orbit | tassel | bars |
 | pennantlark | bird | pennant-crest | broad-wings | ribbon | chevrons |
-| hearthrunner | wolf | pointed-ears | ember-ruff | brush | socks |
 | ribbonstride | horse | swept-ears | wind-mane | ribbon | chevrons |
 | dawntassel | moth | tassel-antennae | broad-wings | tassel | rays |
 | meadowmantle | treefolk | branch-antlers | flower-canopy | root | vines |

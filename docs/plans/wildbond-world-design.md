@@ -368,7 +368,7 @@ The reference puts a guardian on a summit, a guardian under the lake, a roamer a
 
 - **Lampcrown** is where you return to Lanterncrest after the pass story, or where the sign sends you if you have not met them and you climb anyway. The surface story encounter on Cloudglass is not deleted. The peak adds the view of Kilnvent's warmth, which is Toren's clue seen from above, still unexplained.
 - **Lowbell** is Stillwake's deep water and the bell errand. The surface meeting at fourteen explores stays the meeting.
-- **Greymill** is the clue dungeon and the Hush door. **Greysail**, a Gale bird, would be a 190th species on top of the 189 in `docs/wildbond-creatures/catalog.md`. It is not drawn, and it is not added, unless Evan says yes. Until that yes, the mill has no roamer. If he accepts it, catching it uses the bond the game already saves, and its place on the road is chosen from the calendar day and the roads you have opened, so the position is not a save field.
+- **Greymill** is the clue dungeon and the Hush door. **Greysail**, a Gale bird, would be a 186th species on top of the 185 in `docs/wildbond-creatures/catalog.md`. It is not drawn, and it is not added, unless Evan says yes. Until that yes, the mill has no roamer. If he accepts it, catching it uses the bond the game already saves, and its place on the road is chosen from the calendar day and the roads you have opened, so the position is not a save field.
 - **The Spire** stays Orla's floors. Trialstair is the cave before the league, not a new guardian's room.
 
 The catalogue has nine Legends. Four already have a place in this plan. The other five are placed here, on ground the lore already gives them, so a later pass does not invent a site. None of these moves an encounter that the game already plays. A return visit uses the site. The first meeting stays where it is.
@@ -593,7 +593,7 @@ Wild tables below are the ones the game already has (`BIOMES` in `games/wildbond
 |---|---|---|
 | Knothollow and the grove | Thornwood: Glimmerwing, Pebblepaw, Duskweaver, Bogsnap, Emberling, Gnawhound, Galefoal, Sunspark, Fernruff, Bogbough, Seedpip | Elderhorn, in the grove, not in the deep crack |
 | Keelcave and Greywash | Saltmarsh: Brineskit, Dunepounce, Reedtusk, Wrackjaw, Kiteskirl, Spindriftfoal, Foamglint, Poolkit, Dewspinner, Saillet | Breakwatermane, on the Wrackline beach |
-| Kilnvent | Emberfall: Slaglet, Ashskip, Cragskein, Ventwhisk, Thermwing, Screegrin, Glowmote, Cairnclasp, Kilnchirp, Hearthlaugh, Flintpup, Cinderstitch | Hearthcrown stays at the spring. Kilnback is unsigned until it has a height |
+| Kilnvent | Emberfall: Slaglet, Cragskein, Ventwhisk, Thermwing, Screegrin, Glowmote, Cairnclasp, Kilnchirp, Hearthlaugh, Flintpup, Cinderstitch | Hearthcrown stays at the spring. Kilnback is unsigned until it has a height |
 | The Answering Ways | Hollowecho: Hushpup, Umbrelace, Flintroot, Ledgewhisk, Bellmote, Dripdart, Chimespark | Undertone, at the first bend on a return. The first meeting stays at the bell |
 | Larkburrow | No wild table. The wooden bird is a prop | Meadowmantle stays at the Threadmeet nursery. The burrow is a road |
 | The Quiet Channels and Lowbell | Stillreed: Reedlet, Siltjaw, Rillwhisk, Orchardroot, Gustreed, Duskcord, Glassbill, Laughrill, Fordfoal | Stillwake, on the jetty, not under the bell |
