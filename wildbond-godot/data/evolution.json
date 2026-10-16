@@ -1815,59 +1815,6 @@
    ],
    "dex": "The morning webs have become a mantle, and the shore drinks before the sun takes it."
   },
-  "ashstride": {
-   "name": "Ashstride",
-   "fam": "lizard",
-   "el": "Ember",
-   "col": "#a56e40",
-   "shape": "lizard",
-   "size": "large",
-   "tier": "Plain",
-   "big": 1,
-   "metres": 1.86,
-   "marks": true,
-   "look": {
-    "head": "low-brow",
-    "back": "mist-ruff",
-    "tail": "plume",
-    "pattern": "socks"
-   },
-   "base": {
-    "hp": 72,
-    "pow": 80,
-    "grd": 70,
-    "spd": 82,
-    "wit": 80,
-    "spi": 76
-   },
-   "learn": [
-    [
-     1,
-     "bite"
-    ],
-    [
-     6,
-     "emberSnap"
-    ],
-    [
-     12,
-     "coalFlick"
-    ],
-    [
-     20,
-     "flameRush"
-    ],
-    [
-     28,
-     "emberMantle"
-    ],
-    [
-     36,
-     "steamBurst"
-    ]
-   ],
-   "dex": "The tiny tail prints have become a warm trail the highland rocks remember."
-  },
   "cragbridge": {
    "name": "Cragbridge",
    "fam": "spider",
@@ -3238,59 +3185,6 @@
    ],
    "dex": "The wing-flash over a gathering has become the pennant of the hall."
   },
-  "emberrunner": {
-   "name": "Emberrunner",
-   "fam": "wolf",
-   "el": "Ember",
-   "col": "#9a5834",
-   "shape": "wolf",
-   "size": "large",
-   "tier": "Plain",
-   "big": 1,
-   "metres": 1.94,
-   "marks": true,
-   "look": {
-    "head": "swept-ears",
-    "back": "narrow-wings",
-    "tail": "ribbon",
-    "pattern": "socks"
-   },
-   "base": {
-    "hp": 70,
-    "pow": 84,
-    "grd": 68,
-    "spd": 88,
-    "wit": 76,
-    "spi": 74
-   },
-   "learn": [
-    [
-     1,
-     "bite"
-    ],
-    [
-     6,
-     "emberSnap"
-    ],
-    [
-     12,
-     "coalFlick"
-    ],
-    [
-     20,
-     "flameRush"
-    ],
-    [
-     28,
-     "emberMantle"
-    ],
-    [
-     36,
-     "steamBurst"
-    ]
-   ],
-   "dex": "The warmth under the benches now travels with it, and the message arrives still warm."
-  },
   "ribbonmane": {
    "name": "Ribbonmane",
    "fam": "horse",
@@ -4554,14 +4448,6 @@
     "hint": "Once it trusts you and has grown, the morning webs have become a mantle, and the shore drinks before the sun takes it."
    }
   ],
-  "ashskip": [
-   {
-    "to": "ashstride",
-    "at": 26,
-    "bond": 2,
-    "hint": "Once it trusts you and has grown, the tiny tail prints have become a warm trail the highland rocks remember."
-   }
-  ],
   "cragskein": [
    {
     "to": "cragbridge",
@@ -4768,14 +4654,6 @@
     "at": 36,
     "bond": 2,
     "hint": "Once it trusts you and has grown, the wing-flash over a gathering has become the pennant of the hall."
-   }
-  ],
-  "hearthrunner": [
-   {
-    "to": "emberrunner",
-    "at": 36,
-    "bond": 2,
-    "hint": "Once it trusts you and has grown, the warmth under the benches now travels with it, and the message arrives still warm."
    }
   ],
   "ribbonstride": [
@@ -5116,10 +4994,6 @@
     2
    ],
    [
-    "ashstride",
-    2
-   ],
-   [
     "cragbridge",
     2
    ],
@@ -5175,10 +5049,6 @@
    ],
    [
     "pennantflare",
-    2
-   ],
-   [
-    "emberrunner",
     2
    ],
    [

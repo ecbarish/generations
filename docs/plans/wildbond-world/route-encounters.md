@@ -44,6 +44,10 @@ The selected bands are authored subsets of the safe intersections; neighbouring
 roads have different weighted distributions. No new creature habitat or story is
 claimed by the weighting.
 
+The Ashskip → Ashstride and Hearthrunner → Emberrunner lines are cut from the roster (WILD-CUT-1). Their
+weights on `ashstair`, `sootpath` and `sheltermile` were shared out across the other species on the same
+road in proportion, rounded so each table still totals 100, and the rare entries keep their weight.
+
 The **badge floor** is a conservative first-visit safety bound for phase one,
 not a new lock to install. Its cap is read from `CAP_TABLE[badge floor]`. The
 design's retained ropes and [WBW-6's gate records](gates.json) supply the order.
@@ -55,14 +59,14 @@ design's retained ropes and [WBW-6's gate records](gates.json) supply the order.
 | `rootwater` | Thornwood | 7–12 | 0 / 15 | Bogsnap |
 | `wrackline` | Saltmarsh | 12–22 | 1 / 25 | Brineskit |
 | `ashstair` | Emberfall | 22–28 | 2 / 35 | Slaglet |
-| `sootpath` | Emberfall | 26–32 | 3 / 45 | Ashskip |
+| `sootpath` | Emberfall | 26–32 | 3 / 45 | Ventwhisk |
 | `passfoot` | Cloudglass | 32–42 | 4 / 55 | Shalecat |
 | `longboards` | Stillreed | 46–52 | 4 / 55 | Reedlet |
 | `orchardfen` | Stillreed | 49–55 | 4 / 55, conservative | Orchardroot |
 | `latepath` | Hollowecho | 58–60 | 5 / 60 | Hushpup |
 | `flintcut` | Hollowecho | 58–60 | 5 / 60 | Flintroot |
 | `ribbonroad` | Sunthread | 62–65 | 6 / 65 | Ribbonstride |
-| `sheltermile` | Sunthread | 64–68 | 7 / 70 | Hearthrunner |
+| `sheltermile` | Sunthread | 64–68 | 7 / 70 | Tilthtusk |
 | `chartroad` | Farwatch | 66–68 | 7 / 70 | Chartwing |
 | `seaward` | Farwatch | 66–70 | 7 / 70 | Keeljaw |
 | `trialroad` | Farwatch | 68–70 | 7 / 70 | Moorweft |

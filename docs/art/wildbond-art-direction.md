@@ -80,8 +80,8 @@ metres, not these compressed pixels. Mistfinch is 0.24 m, Elderhorn is 3.64 m, a
 draws a creature at about metres times 12.35, clamped to 10–48px. The 24px door line is the 2.0 m door rounded for
 pixels: 2.0 times 12.35 is 24.7, drawn as 24.
 
-Overworld height is 12px for every species in the locked table, except the rows below. 113 of the 189 catalogue
-species match a row in that table. The other 76 have no locked height yet, and they wait for one. Three names in
+Overworld height is 12px for every species in the locked table, except the rows below. 113 of the 185 catalogue
+species match a row in that table. The other 72 have no locked height yet, and they wait for one. Three names in
 the table are retired in the current save (`RETIRED_FORMS` in `main.gd`, line 3588): Deeptide is stored as
 Tidewyrm, Pyremane as Blazefang, and Elderthorn as Thornback. Tidewyrm itself is 15px and follows indoors. The
 retired heights stay on the table so an old picture is not drawn through a door it cannot use.
