@@ -1,3 +1,9 @@
+## Wildbond sprite battle study
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| WB-BATTLE-SLICE | Playable round battle with separate presentation | Small | Built: Codex / Evan, PR #546 | Native save-free battle; 392 focused checks, all 28 suites pass including 25,795 Wildbond; seven inspected captures; stacks on #544; human feel and external-engine adoption remain unverified |
+
 ## Wildbond species registry foundation
 
 | ID | Project | Size | Status | Scope |
