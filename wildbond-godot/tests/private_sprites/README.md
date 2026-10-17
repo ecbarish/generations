@@ -49,3 +49,9 @@ Ranch Berry retains the existing study heal (half maximum HP); Bond Ball retains
 ## Private world-art pilot
 
 The optional pack now decodes the original Emerald general tileset with its six palettes and both metatile layers, including tile flips. It preserves raw PNG/palettes/metatiles and verifies two assembled images offline. The clearing uses that grass on a repeating ground material and a complete transparent tree assembled from source metatiles 30/31/38/39. Imported art remains external; path/pond placement, collision and encounter positions remain our prototype layout. This is a small terrain/foliage pilot: paths, water, rocks and buildings are not converted yet. These are flat tiles/props in a 3D scene, not native 3D Pokemon models. More polished modern biomes will need suitable 3D assets or authored scenery.
+
+## Quiet automated browser checks
+
+Evan reported repeated “Night night” and “berries.” Both phrases are emitted by Little Ranch's native browser speech synthesis, exercised by the full repository suite. No automated test browser remained in the subsequent process inventory; the native Wildbond clearing does not produce these spoken phrases.
+
+For future local runs, use `node wildbond-godot/tests/private_sprites/quiet-checks.cjs` with the same Playwright dependency setup as the normal runner. Arguments still filter suites; `little-ranch` verifies the affected one. The helper invokes the unchanged repository runner, mutes its launched browser audio and replaces only native speech output before test pages/iframes load. Little Ranch's game word log, sound-setting logic and assertions remain active. It does not change normal browser sessions, global volume, game preferences or production code. The quiet Little Ranch run passes all 546 checks; this is not an audible speech acceptance test.
