@@ -44,7 +44,11 @@ Species identity and art representation stay separate. Existing IDs and evolutio
 
 Game Boy, GBA, DS/HD-2D and modern toon 3D preserve silhouette, face, colour landmarks and evolution motifs. Simplify the same identity for small pixel budgets; add shading, animation and depth later. Controls can gain polish while familiar actions and accessible input remain consistent. A new renderer does not reroll a creature.
 
-Directional/billboard sprites in a small lit 3D scene are a practical intermediate candidate. Full 3D still requires modelling, rigging and animation; concept pictures do not supply those assets.
+Evan explicitly identified Pokemon Battle Advanced as the goal on 2026-10-17. Its sprite-creatures-in-a-3D-world presentation is now the concrete target for Wildbond's modern world, rather than a distant optional reference. Keep the approved original starter identities, Wildbond locations/story and earlier visual-era progression.
+
+Next implementation milestone: one bounded Thornwood clearing in Godot, using the approved starter identity, a readable camera, ground contact/shadows, depth/occlusion and a day/night or weather variation. Walk, encounter, enter battle, return to the same world position, and preserve the existing journey. Measure browser performance and input readability before expanding the region. Reuse suitable licensed environment props where practical; build recognizable Wildbond landmarks around them. This milestone is a plan, not an implemented 3D scene.
+
+Directional/billboard sprites in a lit 3D scene can achieve this target without requiring every creature to have a fully rigged model. Later full-3D creature versions remain possible after modelling/rigging/animation work. The world target is approved; whether to also explore the reference's real-time combat has been asked separately. Until answered, the earlier turn-based combat direction remains in force.
 
 ## Browser reference Evan supplied
 

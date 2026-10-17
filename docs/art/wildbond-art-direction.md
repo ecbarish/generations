@@ -8,6 +8,10 @@ Preserve the selected Bogsnap design and existing species/evolution identities. 
 across the Game Boy-to-modern presentation progression. [Creature vision and starter concepts](creature-vision/README.md)
 define the rollout and distinguish concept illustrations from production sprite/animation requirements.
 This direction supersedes ordinary-animal styling; it does not waive game-size, framing or palette checks.
+Evan also explicitly chose [Pokemon Battle Advanced](https://thedaigan.itch.io/pba) as the modern-world
+presentation target: expressive sprite creatures in a 3D environment with lighting, depth and weather.
+Start with one playable Thornwood clearing; preserve approved identities and the progression through visual eras.
+The reference's real-time combat is a separate unresolved choice, not an automatic battle-system replacement.
 
 
 Started 2026-10-09, after Evan chose **"Our own tiles"** for Wildbond. Evan, the same day: *"it's important we do our
