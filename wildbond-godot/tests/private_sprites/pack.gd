@@ -6,6 +6,8 @@ var issue := ""
 var source_root := ""
 var trainer: Dictionary = {}
 var items: Dictionary = {}
+var world: Texture2D
+var world_tree: Texture2D
 
 static func configured_root() -> String:
 	for arg in OS.get_cmdline_user_args():
@@ -23,6 +25,8 @@ func _reject(reason: String) -> bool:
 	textures.clear()
 	trainer.clear()
 	items.clear()
+	world = null
+	world_tree = null
 	issue = reason
 	return false
 
@@ -40,6 +44,8 @@ func open_pack(folder: String) -> bool:
 	textures.clear()
 	trainer.clear()
 	items.clear()
+	world = null
+	world_tree = null
 	issue = ""
 	source_root = folder.replace("\\", "/").trim_suffix("/").simplify_path()
 	if source_root == "" or not source_root.is_absolute_path() or source_root.begins_with("res://"):
@@ -116,6 +122,16 @@ func open_pack(folder: String) -> bool:
 		var tex := _load_texture(str(item_art[id]))
 		if tex == null or tex.get_width() > 64 or tex.get_height() > 64: return _reject("Private item icon is invalid.")
 	items = item_art.duplicate()
+	var terrain = manifest.get("world", {})
+	if not terrain is Dictionary: return _reject("Private world metadata is invalid.")
+	if not terrain.is_empty():
+		if not verified.has(terrain.get("atlas", "")) or terrain.get("metatiles") != 512 or terrain.get("tile_size") != 16:
+			return _reject("Private world atlas metadata is invalid.")
+		world = _load_texture(str(terrain.atlas))
+		if world == null or world.get_size() != Vector2(256, 512): return _reject("Private world atlas grid is invalid.")
+		if not verified.has(terrain.get("tree", "")): return _reject("Private world tree is missing.")
+		world_tree = _load_texture(str(terrain.tree))
+		if world_tree == null or world_tree.get_size() != Vector2(32, 32): return _reject("Private world tree grid is invalid.")
 	entries = pending
 	return true
 

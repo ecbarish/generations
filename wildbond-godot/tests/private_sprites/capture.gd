@@ -79,6 +79,43 @@ func run() -> void:
 		key.keycode = code
 		key.pressed = false
 		Input.parse_input_event(key)
+	for spec in [[KEY_W, -1, "bogsnap-back"], [KEY_S, 1, "bogsnap-front"]]:
+		scene.companion.position = scene.player.position + Vector3(0, 0, -spec[1] * 1.3)
+		scene.trail.clear()
+		scene.trail.append(scene.player.position)
+		key = InputEventKey.new()
+		key.keycode = spec[0]
+		key.physical_keycode = spec[0]
+		key.pressed = true
+		Input.parse_input_event(key)
+		await create_timer(0.3).timeout
+		assert(scene.partner_gait.moving and scene.partner_atlas.atlas == scene.axial_texture, "straight following uses actual front/back walking art")
+		await capture(spec[2])
+		if spec[1] == 1:
+			scene.human.hide()
+			await capture("bogsnap-front-unoccluded")
+			scene.human.show()
+		key = key.duplicate()
+		key.pressed = false
+		Input.parse_input_event(key)
+	scene.player.position = Vector3(0, 0, 5)
+	scene.companion.position = Vector3(0, 0, 6.5)
+	scene.trail.clear()
+	scene.trail.append(scene.player.position)
+	key = InputEventKey.new()
+	key.physical_keycode = KEY_W
+	key.keycode = KEY_W
+	key.pressed = true
+	Input.parse_input_event(key)
+	var stride_poses := {}
+	for i in 24:
+		await create_timer(0.05).timeout
+		if scene.partner_gait.moving: stride_poses[scene.partner_gait.phase()] = true
+	assert(stride_poses.size() >= 3, "actual sustained following advances through the walking poses")
+	await capture("bogsnap-stride")
+	key = key.duplicate()
+	key.pressed = false
+	Input.parse_input_event(key)
 	var bag_button: Button
 	for child in scene.ui.get_children():
 		if child is Button and child.text == "Bag [B]": bag_button = child

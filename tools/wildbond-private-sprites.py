@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build/check a small external sprite pack. Never writes copyrighted bytes into Git."""
-import argparse, hashlib, json, os, pathlib, sys, urllib.request
+import argparse, hashlib, json, os, pathlib, struct, sys, urllib.request
 import xml.etree.ElementTree as ET
 from PIL import Image
 
@@ -72,6 +72,51 @@ def animation(root, species_dir, name):
             "direction_order": ["down", "down_right", "right", "up_right", "up", "up_left", "left", "down_left"],
             "durations": durations, "anchors": anchors}
 
+def world_atlas(root):
+    """Decode the original indexed GBA tiles/metatiles, not a creative repaint."""
+    folder = root / "world/general"
+    with Image.open(folder / "tiles.png") as source:
+        if source.mode != "P" or source.size != (128, 256):
+            raise ValueError("Unexpected world tile source")
+        indices = source.copy()
+    palettes = []
+    for i in range(6):
+        lines = (folder / f"{i:02d}.pal").read_text().splitlines()
+        if lines[:3] != ["JASC-PAL", "0100", "16"]:
+            raise ValueError("Unexpected world palette")
+        palettes.append([tuple(map(int, line.split())) for line in lines[3:19]])
+    data = (folder / "metatiles.bin").read_bytes()
+    if len(data) != 8192: raise ValueError("Unexpected world metatile count")
+    words = struct.unpack("<4096H", data)
+    atlas = Image.new("RGBA", (256, 512))
+    for block in range(512):
+        for layer in range(2):
+            for tile in range(4):
+                value = words[block * 8 + layer * 4 + tile]
+                number, palette = value & 1023, value >> 12
+                if number >= 512 or palette >= 6: raise ValueError("World tile outside source")
+                for y in range(8):
+                    for x in range(8):
+                        sx = 7 - x if value & 1024 else x
+                        sy = 7 - y if value & 2048 else y
+                        index = indices.getpixel(((number % 16) * 8 + sx, (number // 16) * 8 + sy))
+                        if index == 0: continue
+                        at = ((block % 16) * 16 + (tile % 2) * 8 + x,
+                              (block // 16) * 16 + (tile // 2) * 8 + y)
+                        atlas.putpixel(at, palettes[palette][index] + (255,))
+    return atlas
+
+def world_tree(atlas):
+    tree = Image.new("RGBA", (32, 32))
+    # Source metatiles 30/31 form the canopy; 38/39 form the lower tree.
+    tree.paste(atlas.crop((224, 16, 256, 32)), (0, 0))
+    tree.paste(atlas.crop((96, 32, 128, 48)), (0, 16))
+    grass = {atlas.getpixel((x, y)) for y in range(16) for x in range(16, 32)}
+    for y in range(32):
+        for x in range(32):
+            if tree.getpixel((x, y)) in grass: tree.putpixel((x, y), (0, 0, 0, 0))
+    return tree
+
 def check(root):
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     if manifest.get("schema") != 1 or len(manifest.get("species", {})) != 3:
@@ -94,7 +139,13 @@ def check(root):
         with Image.open(safe(root, rel)) as image:
             if image.size != (144, 32):
                 raise ValueError("Invalid trainer sheet: " + name)
-    print(f"PASS: 3 species, {len(manifest['files'])} pinned files, 6 battle views, 6 eight-direction animations.")
+    if manifest.get("world"):
+        with Image.open(safe(root, manifest["world"]["atlas"])) as decoded:
+            if decoded.size != (256, 512) or decoded.tobytes() != world_atlas(root).tobytes():
+                raise ValueError("World atlas differs from its pinned source decoding")
+            with Image.open(safe(root, manifest["world"]["tree"])) as tree:
+                if tree.tobytes() != world_tree(decoded).tobytes(): raise ValueError("World tree differs from source assembly")
+    print(f"PASS: 3 species, {len(manifest['files'])} verified files, 6 battle views, 6 eight-direction animations.")
     return manifest
 
 def build(root):
@@ -132,8 +183,21 @@ def build(root):
         rel = f"items/{name}.png"
         files.append(download(root, "PokeAPI/sprites", f"sprites/items/{name}.png", rel))
         items[name] = rel
+    for source in ["tiles.png", "metatiles.bin"] + [f"palettes/{i:02d}.pal" for i in range(6)]:
+        files.append(download(root, "pret/pokeemerald", "data/tilesets/primary/general/" + source,
+                              "world/general/" + source.split("/")[-1]))
+    files.append(download(root, "pret/pokeemerald", "include/constants/metatile_labels.h", "world/metatile_labels.h"))
+    rel = "world/general/decoded-metatiles.png"
+    world_atlas(root).save(root / rel)
+    files.append({"file": rel, "sha256": digest(root / rel), "bytes": (root / rel).stat().st_size,
+                  "derived": "Exact indexed-tile/palette/metatile decoding; importer version 1"})
+    tree_rel = "world/general/tree.png"
+    world_tree(world_atlas(root)).save(root / tree_rel)
+    files.append({"file": tree_rel, "sha256": digest(root / tree_rel), "bytes": (root / tree_rel).stat().st_size,
+                  "derived": "Source metatiles 30/31/38/39; background grass colours made transparent for upright prop"})
     result = {"schema": 1, "private": True, "scope": "native save-free prototype; not a public asset distribution",
         "revisions": REVISIONS, "files": files, "species": entries, "trainer": trainer, "items": items,
+        "world": {"atlas": rel, "tree": tree_rel, "metatiles": 512, "tile_size": 16},
         "rights": "Pokemon artwork retains its owners' rights; SpriteCollab credits/terms preserved per source. Private use is not a new license."}
     # Publish the manifest only once every required source and geometry is present.
     staging = root / "manifest.pending.json"
@@ -147,6 +211,7 @@ def build(root):
         "Emerald Brendan walking/running: original Game Freak / Nintendo / Creatures artwork, preserved via pret/pokeemerald.\n"
         "Trainer source animation layout/revision/hash: trainer/source-animation-layout.h and manifest.json.\n"
         "Oran Berry/Poke Ball icons: PokeAPI/sprites. Ranch Berry/Bond Ball are study visual aliases, not canonical item mechanics.\n"
+        "World tiles: original Emerald artwork via pret/pokeemerald, exact source palettes/layout preserved. World layout: Wildbond prototype.\n"
         "No permission for public redistribution is implied by this prototype.\n", encoding="utf-8")
 
 def main():

@@ -17,8 +17,12 @@ var human_atlas := AtlasTexture.new()
 var partner_atlas := AtlasTexture.new()
 var fallback_people: Dictionary = {}
 var partner_frames: Array = []
+var axial_frames: Array = []
+var axial_texture: Texture2D
+var diagonal_texture: Texture2D
 var partner_idle := 0.0
 var trail: Array[Vector3] = []
+var following := false
 var pack := Pack.new()
 var pack_path := ""
 var selected := "pokemon:16"
@@ -57,6 +61,16 @@ func _material(color: Color, roughness: float = 1.0) -> StandardMaterial3D:
 	m.roughness = roughness
 	return m
 
+func _world_material(area: Rect2i, repeat: Vector2) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = ImageTexture.create_from_image(pack.world.get_image().get_region(area))
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	m.texture_repeat = true
+	m.uv1_scale = Vector3(repeat.x, repeat.y, 1)
+	m.albedo_color = Color(0.6, 0.7, 0.65)
+	m.roughness = 1
+	return m
+
 func _mesh(shape: Mesh, at: Vector3, material: Material) -> MeshInstance3D:
 	var node := MeshInstance3D.new()
 	node.mesh = shape
@@ -72,6 +86,12 @@ func _box(at: Vector3, size3: Vector3, color: Color) -> MeshInstance3D:
 
 func _tree(at: Vector3, height: float, tint: Color) -> void:
 	obstacles.append(Vector2(at.x, at.z))
+	if pack.world != null:
+		var tree := _sprite(_actor(at))
+		tree.texture = pack.world_tree
+		tree.pixel_size = height / 32.0
+		tree.offset.y = 16
+		return
 	var trunk := CylinderMesh.new()
 	trunk.top_radius = 0.18
 	trunk.bottom_radius = 0.26
@@ -146,20 +166,27 @@ func _animate_tamer() -> void:
 
 func _animate_partner() -> void:
 	if partner_frames.is_empty(): return
+	var direction: int = partner_gait.direction8
 	var row := 0
 	var frame: int = Motion.idle_frame(partner_idle)
-	if partner_gait.face.y >= 0:
-		row = 2 if partner_gait.face.y > 0 else 3
+	if direction in [0, 1, 2, 6, 7]:
+		row = 2 if direction in [0, 1, 7] else 3
 		frame = 1
 	if partner_gait.moving:
-		row = 1 if partner_gait.face.y < 0 else (2 if partner_gait.face.y > 0 else 3)
+		row = 1 if direction in [3, 4, 5] else (2 if direction in [0, 1, 7] else 3)
 		frame = partner_gait.phase()
 	var meta: Dictionary = partner_frames[row * 4 + frame]
+	partner_atlas.atlas = diagonal_texture
+	var axial := direction in [0, 4] and not axial_frames.is_empty()
+	if axial:
+		var phase: int = partner_gait.phase() if partner_gait.moving else 1
+		meta = axial_frames[(0 if direction == 4 else 4) + phase]
+		partner_atlas.atlas = axial_texture
 	partner_atlas.region = Rect2(meta.region[0], meta.region[1], meta.region[2], meta.region[3])
 	partner.texture = partner_atlas
-	partner.pixel_size = 0.0052
-	partner.flip_h = partner_gait.face.x < 0
-	partner.scale.y = 1.0 if partner_gait.moving or row == 0 else 1.0 + sin(partner_idle * 2.6) * 0.012
+	partner.pixel_size = 0.00335 if axial else 0.0052
+	partner.flip_h = direction in [5, 6, 7]
+	partner.scale.y = 1.0 if partner_gait.moving or (row == 0 and not axial) else 1.0 + sin(partner_idle * 2.6) * 0.012
 	partner.offset = Vector2(meta.region[2] * 0.5 - meta.anchor[0], meta.anchor[1] - meta.region[3] * 0.5)
 
 func _build_world() -> void:
@@ -175,6 +202,11 @@ func _build_world() -> void:
 	sun.shadow_enabled = true
 	add_child(sun)
 	_box(Vector3(0, -0.2, 0), Vector3(70, 0.4, 70), Color("5c8654"))
+	if pack.world != null:
+		var grass := _world_material(Rect2(16, 0, 16, 16), Vector2(70, 70))
+		var ground := PlaneMesh.new()
+		ground.size = Vector2(70, 70)
+		_mesh(ground, Vector3(0, 0.003, 0), grass)
 	_box(Vector3(0, 0.008, 3), Vector3(3.4, 0.025, 17), Color("b6a17c"))
 	_box(Vector3(4, 0.009, 0), Vector3(10, 0.025, 2.7), Color("b6a17c"))
 	_box(Vector3(-6, 0.015, 1), Vector3(5, 0.035, 5), Color("7199a1"))
@@ -204,7 +236,9 @@ func _build_world() -> void:
 	_shadow(companion, 0.55)
 	partner = _sprite(companion)
 	partner_frames = JSON.parse_string(FileAccess.get_file_as_string("res://tests/private_sprites/bogsnap/frames.json"))
-	partner_atlas.atlas = load("res://tests/private_sprites/bogsnap/walk-idle-v2.png")
+	diagonal_texture = load("res://tests/private_sprites/bogsnap/walk-idle-v2.png")
+	axial_frames = JSON.parse_string(FileAccess.get_file_as_string("res://tests/private_sprites/bogsnap/axial-frames.json"))
+	axial_texture = load("res://tests/private_sprites/bogsnap/axial-walk-v1.png")
 	_animate_partner()
 	creature = _actor(Vector3(2, 0, 1.5))
 	_shadow(creature, 0.3)
@@ -346,8 +380,12 @@ func _process(dt: float) -> void:
 	for i in closest: trail.pop_front()
 	while trail.size() > 1 and companion.position.distance_to(trail[0]) < 0.12: trail.pop_front()
 	if trail.size() > 128: trail.pop_front()
-	if companion.position.distance_to(player.position) > 1.15 and not trail.is_empty():
-		var proposed := companion.position.move_toward(trail[0], dt * (5.0 if gait.running else 3.4))
+	var separation := companion.position.distance_to(player.position)
+	if separation > 1.35: following = true
+	if separation < 0.8 or (not gait.moving and separation < 1.12): following = false
+	if following and not trail.is_empty():
+		var follow_speed := (4.8 if gait.running else 3.0) + clampf((separation - 1.3) * 2.0, -1.5, 2.0)
+		var proposed := companion.position.move_toward(trail[0], dt * follow_speed)
 		if not _blocked(proposed): companion.position = proposed
 	var travelled := companion.position - partner_before
 	partner_gait.advance(Vector2(travelled.x, travelled.z), travelled, gait.running)

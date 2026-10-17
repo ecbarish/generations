@@ -35,9 +35,9 @@ func run() -> void:
 	scene.bag.use_item(1)
 	check(scene.bag == null and scene.supplies.team[1].hp == original_hp and scene.supplies.berries == 1, "world bag heals chosen partner and consumes one berry")
 	scene.supplies.berries = 2
-	for meta in scene.partner_frames:
+	for meta in scene.partner_frames + scene.axial_frames:
 		var rect := Rect2i(meta.region[0], meta.region[1], meta.region[2], meta.region[3])
-		var image: Image = scene.partner_atlas.atlas.get_image()
+		var image: Image = (scene.diagonal_texture if meta in scene.partner_frames else scene.axial_texture).get_image()
 		check(Rect2i(Vector2i.ZERO, image.get_size()).encloses(rect), "complete Bogsnap pose lies within atlas")
 		var clear_edges := true
 		for x in range(rect.position.x, rect.end.x):
@@ -48,6 +48,7 @@ func run() -> void:
 	if not scene.pack.trainer.is_empty():
 		check(scene.pack.trainer_texture(false).get_image().get_pixel(0, 0).a == 0, "trainer source colour key decodes to transparency")
 		check(scene.pack.trainer_texture(true) != null and scene.pack.item_texture("poke-ball") != null, "private run poses and item icons are installed")
+		check(scene.pack.world != null and scene.pack.world_tree != null and scene.pack.world_tree.get_image().get_pixel(0, 0).a == 0, "private terrain and complete transparent tree load")
 	var before := scene.player.position
 	scene.move_player(Vector2.RIGHT, 0.2)
 	check(scene.player.position.x > before.x, "world movement advances player")
