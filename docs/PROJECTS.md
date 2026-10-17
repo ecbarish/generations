@@ -1,3 +1,9 @@
+## Wildbond development audit
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| WB-DEV-AUDIT | Current Godot audit and playable-slice plan | Small | Audit complete: Codex / Evan, draft PR #543 | Report and read-only inventory; Wildbond 19,717 checks pass; unrelated baseline Night Market layout failure holds review gate; no runtime/export edits |
+
 ## Diamond Manager recent form
 
 | ID | Project | Size | Status | Scope |
