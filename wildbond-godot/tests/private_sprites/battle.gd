@@ -36,4 +36,3 @@ func _creature(c: Dictionary, foot: Vector2, back: bool, side: String) -> void:
 	var box: Rect2 = frame.region
 	var zoom := minf(78.0 / box.size.x, 64.0 / box.size.y)
 	draw_texture_rect_region(frame.texture, Rect2(foot - Vector2(box.size.x * zoom * 0.5, box.size.y * zoom), box.size * zoom), box)
-

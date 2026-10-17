@@ -86,4 +86,3 @@ func run() -> void:
 	await process_frame
 	print("Private sprites/clearing checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed else 0)
-

@@ -14,4 +14,3 @@ if errorlevel 1 (
 )
 echo Private sprites are ready. Open Play Private Clearing.bat next.
 pause
-

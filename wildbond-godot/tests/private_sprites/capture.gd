@@ -96,4 +96,3 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	print("Native clearing keyboard/pointer capture passed: ", output)
 	quit()
-

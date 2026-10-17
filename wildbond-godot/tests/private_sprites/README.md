@@ -39,4 +39,3 @@ Godot --headless --path wildbond-godot --script res://tests/private_sprites/runn
 ```
 
 The first command is portable and verifies the missing-pack path. The second verifies the installed pilot's actual frames/directions, battle selection and return. The normal Wildbond suite also runs the synthetic malformed-pack checks without requiring any downloads or proprietary sprites. capture.gd exercises actual held-key walking and pointer Fight/Run/Return in the native Compatibility renderer.
-

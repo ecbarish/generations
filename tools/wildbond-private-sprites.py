@@ -153,4 +153,3 @@ if __name__ == "__main__":
         main()
     except (ValueError, OSError, KeyError, ET.ParseError, StopIteration) as error:
         sys.exit("Private sprite setup failed: " + str(error))
-

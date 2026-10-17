@@ -138,4 +138,3 @@ func world_frame(sid: String, state: String, direction: int, seconds: float) -> 
 	var foot: Array = a.anchors[row][frame]
 	return {"texture": textures[a.file], "region": Rect2(Vector2(frame, row) * dims, dims),
 		"anchor": Vector2(float(foot[0]), float(foot[1])), "frame": frame, "direction": row}
-

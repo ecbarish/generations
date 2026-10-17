@@ -330,4 +330,3 @@ func _return(result: String) -> void:
 	ui.show()
 	status.text = {"won": "A good battle! Back on the Thornwood trail.", "lost": "Bogsnap needs a rest. This clearing is a practice visit.",
 		"caught": "Caught! A good practice encounter. Back on the trail.", "escaped": "Back on the trail, right where you left it."}.get(result, "Back on the trail.")
-

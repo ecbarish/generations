@@ -71,4 +71,3 @@ static func run(check: Callable) -> void:
 static func _write(folder: String, value: Dictionary) -> void:
 	var file := FileAccess.open(folder.path_join("manifest.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(value))
-

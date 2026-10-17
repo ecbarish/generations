@@ -7,4 +7,3 @@ if not exist "%GODOT%" (
   exit /b 1
 )
 "%GODOT%" --rendering-method gl_compatibility --path "%~dp0..\.." res://tests/private_sprites/play.tscn
-
