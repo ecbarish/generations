@@ -2,20 +2,21 @@
 
 Claimed by Codex for Evan on 2026-10-17, following the explicit request to continue the Wildbond implementation plan in #543.
 
-Scope: a read-only legacy-data adapter, stable namespaced IDs and transactional validation for additional species definitions, with meaningful Godot checks against all 189 existing species. Existing combat, startup, saves, art and exports stay unchanged. The module will be integration-ready; it will not compete with #491's main/battle/input work or #475's art/export work.
+Scope, extended by Evan's next request: connect the read-only species registry to real startup and creature construction/lookup, preserving all 189 existing species, RNG behavior and save IDs. The Night Market baseline failure is repaired in #545. Pending battle/input fixes from #491 are merged as a dependency before the combined source is exported; #475 remains separate art work.
 
-Owned paths: `wildbond-godot/tests/support/species_registry.gd`, `wildbond-godot/tests/species_registry.gd`, `tests/species_registry_runner.gd`, its call in `tests/run_tests.gd`, this report, the Godot README changelog and project/session bookkeeping. Staging under `tests/support/` is deliberate: both export presets exclude tests, and #491 owns the next game pack. Runtime promotion needs its own integration/export change.
+Owned paths: `wildbond-godot/scripts/species_registry.gd`, the narrow hooks in `scripts/main.gd` and `scripts/rules.gd`, registry tests/runners and their call in `tests/run_tests.gd`, the source-matched Web pack/manifest, this report and project/session bookkeeping. The module was initially test-staged, then moved into runtime by the explicit integration request. PR #544 targets #545's branch so its diff contains Wildbond work; review #545 and #491 first, then retarget to main after they merge. No author merge or deployment.
 
 No private sprites, copied Pokémon data, runtime pack picker, battle replacement or save migration in this increment.
 
 ## Implemented behavior
 
-The integration candidate is [species_registry.gd](../../wildbond-godot/tests/support/species_registry.gd). It owns deep copies of accepted definitions, so reading a creature or move cannot change the registry or the current game.
+The runtime module is [species_registry.gd](../../wildbond-godot/scripts/species_registry.gd). It owns deep copies of accepted definitions, so reading a normalized creature or move cannot change the registry or the current game.
 
 | Method | Behavior |
 |---|---|
 | `load_legacy(DATA)` | Normalize the already-merged runtime catalogue; return an empty error list on success. A failure leaves the previous registry intact. |
 | `resolve(id)` | Resolve an old bare ID or a canonical ID; unknown IDs return an empty string. |
+| `legacy_id(id)` | Map only a registered original species back to its existing bare save/data key; imported metadata cannot impersonate an original. |
 | `species(id)` / `move(id)` | Return detached definitions; unknown IDs return empty dictionaries. Missing accuracy defaults to 1.0. |
 | `legacy_snapshot()` | Return an unchanged copy of the original runtime data; imported definitions never overwrite it. |
 | `add_pack(dictionary)` | Stage species, move, type-profile and ability metadata together; commit all or nothing. |
@@ -35,7 +36,7 @@ The synthetic fixture in [the tests](../../wildbond-godot/tests/species_registry
 
 The fixture defines `prototype:first` and `prototype:second`, a profile with two invented type names, two moves and ability metadata. The first evolves into the second and deliberately shares Bogsnap's display name, proving it cannot overwrite the original. The numbers and move names are synthetic; no Pokémon data or image was copied.
 
-This is a definition adapter, **not a file importer**. It never loads files, images, pack scripts or saved creatures. Missing private packs and persistence still require the separate save/import work in [audit PR #543](https://github.com/ecbarish/generations/pull/543). Callers must handle an empty resolution before looking up an individual creature; no runtime loader has been changed yet.
+This is a definition adapter, **not a file importer**. It never loads files, images or pack scripts. Missing private packs and persistence still require the separate save/import work in [audit PR #543](https://github.com/ecbarish/generations/pull/543). Callers must handle an empty resolution before adding imported individuals to a party; that feature is not enabled here.
 
 ## Checks and integration handoff
 
@@ -45,10 +46,12 @@ The focused runner uses the actual merged game data and frozen v1 migration fixt
 Godot_v4.7.2-stable_win64_console.exe --headless --path wildbond-godot -s tests/species_registry_runner.gd
 ```
 
-Result: **3,508 passed, zero failed**, with clean shutdown. It covers all 189 species, every lesson and evolution branch, all move accuracy defaults, detached queries, old-save migration, a successful two-species pack and malformed imports/rollback. The same checks are appended to `tests/run_tests.gd`; existing checks are untouched.
+The focused runner now passes **5,223 checks, zero failed**, with clean shutdown. It retains the original definition/rollback coverage and adds actual startup, identical fixed-seed construction of all 189 species at levels 5/18/36/60 through bare and canonical IDs, derived-stat equality, live content overrides, failed-rebuild isolation and a frozen-v1 load/migrate/save round trip through the unchanged writer. The same cases are appended to the normal suite; inherited checks remain intact.
 
-The final `node tools/run-all-checks.cjs` run passes **27 of 28 suites**. Wildbond Godot passes **23,225 checks** (the 19,717 baseline plus 3,508 registry checks); Starfall Godot passes 488, Wildbond Classic 3,254, and catalogue/save-name/asset-library/agent-context checks pass. The one failure is unchanged from #543's baseline: Night Market, **“Ready to hire 568x320: Back and cash fit beside each other without overlap.”** The aggregate exits 1; this PR stays draft under the normal review gate. No tests are disabled, weakened or skipped.
+Earlier test-staged evidence was 3,508 registry / 23,225 Wildbond checks, with the Night Market baseline failure. #545 fixes that failure and passes all 28 suites locally and its three GitHub workflows. The combined runtime aggregate and pack checks are recorded below after completion. No check is disabled, weakened or skipped.
 
-The export-freshness command is `python tools/wildbond-export-freshness.py --base origin/main --head HEAD`, run on the implementation commit. The build-manifest source commit `246d62f57c5a9fc97ea290dd11de594afc9681e2` was fetched to allow that check to inspect its tree. There are no changes under runtime `scripts/`, `data/` or `play/wildbond/`; all executable additions are in the preset's excluded `tests/` tree. No public release, imported asset, phone acceptance or new battle behavior is claimed.
+The registry is built after startup merges evolution data and prepares move lessons. `Rules.make` accepts a namespaced original ID and stores the original bare key on the individual; `Rules.sp` resolves namespaced original lookup to the same live `DATA` record. Bare-ID access remains direct, including content/test overrides. Damage, XP, evolution, party capacity and save schema are unchanged.
 
-Promotion should be one owner-coordinated integration/export step after #491: move the candidate from `tests/support/` to `scripts/`, update the test preload, build a registry after `_ready` merges data and prepares move choices, then consume it at an explicit new-feature boundary. Do not point existing battle/save code at an untested replacement dictionary. Re-run parity/save checks and rebuild the pack through its designated owner. This PR does not claim that players can import sprites or encounter new species yet.
+A failed startup rebuild creates a fresh empty registry rather than reusing another scene's definitions, and reports a developer error; current bare-ID rules still read the current scene's data. All shipped definitions pass validation. Runtime tests create an isolated real scene and restore the prior static Rules context; the first combined run exposed a shared test-context mismatch, which was corrected without weakening the live-override assertion.
+
+This PR does not add a private-asset picker, new species encounters or a new battle scheduler. It connects the validated identity/data boundary while keeping legacy saves and play behavior stable. The next gameplay increment remains separating battle calculations from presentation events.

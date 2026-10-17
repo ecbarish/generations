@@ -222,6 +222,9 @@ func _ready() -> void:
 	REVEAL = rj.data
 	_build_homes()
 	R.prepare_move_choices()
+	var registry_errors := R.prepare_species_registry()
+	if not registry_errors.is_empty():
+		push_error("Wildbond species registry: %s" % "; ".join(registry_errors))
 	pup.look = CREATURE_LOOKS.pup
 	pup.home = PADDOCK
 	_make_npcs()

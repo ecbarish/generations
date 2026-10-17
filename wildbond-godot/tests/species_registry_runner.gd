@@ -21,6 +21,7 @@ func check(ok: bool, label: String) -> void:
 func run() -> void:
 	main.register.keep = false
 	preload("res://tests/species_registry.gd").run(main, check)
+	preload("res://tests/species_registry_runtime.gd").run(main, check)
 	print("Wildbond registry checks: %d passed, %d failed" % [passed, failed])
 	main.queue_free()
 	await process_frame

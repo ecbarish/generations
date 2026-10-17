@@ -1,5 +1,5 @@
 extends RefCounted
-const Registry := preload("res://tests/support/species_registry.gd")
+const Registry := preload("res://scripts/species_registry.gd")
 
 static func run(main: Node, check: Callable) -> void:
 	var before: Dictionary = main.DATA.duplicate(true)
@@ -45,6 +45,7 @@ static func run(main: Node, check: Callable) -> void:
 	changed_move.accuracy = 0.0
 	check.call(registry.species("bogsnap").base_stats.hp == 58 and registry.move("wildbond:bite").accuracy == 1.0 and main.DATA == before, "WB-REGISTRY: queries return detached copies")
 	check.call(registry.species("missing").is_empty() and registry.resolve("missing") == "" and registry.move("missing").is_empty(), "WB-REGISTRY: unknown IDs fail safely")
+	check.call(registry.legacy_id("wildbond:bogsnap") == "bogsnap" and registry.legacy_id("bogsnap") == "bogsnap" and registry.legacy_id("missing") == "", "WB-REGISTRY: built-in legacy keys are explicit and unknown keys remain unresolved")
 	# A real v1 migration remains usable through bare aliases; no save mutation or new save fields.
 	var raw: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/evo1-retired-forms.json"))
 	var untouched: Dictionary = raw.duplicate(true)
@@ -60,6 +61,7 @@ static func run(main: Node, check: Callable) -> void:
 	check.call(var_to_bytes(pack) == input_bytes, "WB-REGISTRY: successful validation does not normalize caller-owned data in place")
 	check.call(registry.resolve("fixture-first") == "prototype:first" and registry.species("prototype:first").name == "Bogsnap" and registry.species("bogsnap").id == "wildbond:bogsnap", "WB-REGISTRY: same display name never overwrites an original")
 	check.call(registry.species("prototype:first").profiles["prototype-round"].types == ["plant", "toxin"], "WB-REGISTRY: imported data can describe dual types without changing legacy types")
+	check.call(registry.legacy_id("prototype:first") == "", "WB-REGISTRY: matching display names never give imported definitions a built-in save key")
 	check.call(registry.move("prototype:tap").accuracy == 1.0 and registry.move("prototype:mist").accuracy == 0.75, "WB-REGISTRY: missing accuracy defaults and explicit accuracy survives")
 	pack.species[0].name = "Changed by caller"
 	pack.profiles["prototype-round"].append("unexpected")

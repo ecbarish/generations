@@ -1920,6 +1920,7 @@ func _run() -> void:
 	preload("res://tests/phone_layout.gd").run(main, check)
 	preload("res://tests/north_roads.gd").run(main, check)
 	preload("res://tests/species_registry.gd").run(main, check)
+	preload("res://tests/species_registry_runtime.gd").run(main, check)
 	preload("res://tests/fix_bundle_3.gd").run(main, check)
 	preload("res://tests/wbl_continue.gd").run(root, check, check)
 	# ---- the done line

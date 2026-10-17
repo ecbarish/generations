@@ -2,7 +2,7 @@
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| WB-REGISTRY | Validated mixed-content species definitions | Small | Built: Codex / Evan, draft PR #544 | Registry 3,508 / Wildbond 23,225 checks pass; unrelated Night Market baseline failure holds review gate; runtime integration/export follow separately |
+| WB-REGISTRY | Compatible runtime species identities | Small | Building: Codex / Evan, PR #544 | Runtime registry connected; 5,223 focused checks pass; dependencies #545 and #491; combined export and aggregate validation underway |
 ## Night Market narrow landscape header
 
 | ID | Project | Size | Status | Scope |

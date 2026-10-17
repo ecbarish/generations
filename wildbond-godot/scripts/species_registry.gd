@@ -1,5 +1,5 @@
 extends RefCounted
-## WB-REGISTRY: integration candidate, deliberately outside public exports until runtime promotion.
+## WB-REGISTRY: compatible species definitions, initialized from merged data at startup.
 ## Definition storage only: never reads/writes saves, loads files or changes Rules.DATA.
 ## All writes stage a complete copy and commit only after references/aliases/cycles validate.
 
@@ -17,6 +17,15 @@ func ids() -> Array:
 
 func resolve(id: String) -> String:
 	return str(_state.aliases.get(id, ""))
+
+## Only an existing built-in species may map back into Rules.DATA/save IDs.
+## Imported metadata cannot impersonate a built-in by choosing the same display name or origin fields.
+func legacy_id(id: String) -> String:
+	var canonical := resolve(id)
+	if not canonical.begins_with("wildbond:"):
+		return ""
+	var bare := canonical.trim_prefix("wildbond:")
+	return bare if _state.legacy.get("SPECIES", {}).has(bare) else ""
 
 func species(id: String) -> Dictionary:
 	return _state.species.get(resolve(id), {}).duplicate(true)
