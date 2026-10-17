@@ -3,6 +3,11 @@
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
 | WB-REGISTRY | Validated mixed-content species definitions | Small | Built: Codex / Evan, draft PR #544 | Registry 3,508 / Wildbond 23,225 checks pass; unrelated Night Market baseline failure holds review gate; runtime integration/export follow separately |
+## Night Market narrow landscape header
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| NM-HEADER-FIT | Keep Back and cash on one line at 568px | Small | Review: Codex / Evan, PR #545 | One CSS ratio change; all 28 suites and 423 Night Market checks pass; before/after screenshots inspected |
 
 ## Diamond Manager recent form
 

@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 - 2026-10-17 Codex (Evan): WB-REGISTRY in draft PR #544 adds an export-excluded species-registry candidate: legacy aliases, all 189 definitions, atomic pack validation and rollback. Focused 3,508 / Wildbond 23,225 checks pass; aggregate 27/28, with the unchanged Night Market layout failure. Existing game code, saves, assets and pack untouched; runtime promotion follows the active fix/export owner.
+- 2026-10-17 Codex (Evan): NM-HEADER-FIT in PR #545 fixes the baseline 568×320 Back/cash wrap with equal landscape columns. All 28 suites pass (423 unchanged Night Market checks); six before/after viewport/text pairs inspected. No save, balance or version change; source ready for review, not published. Wildbond registry integration follows.
 
 
 - **2026-10-15, dot (guest), NM-G9:** Twenty-four Willow Quay vendor tales are in `games/night-market/district-tales.json` as data, four for each of the six vendors, plus a checker, `tests/nm-district-tales.cjs` (918 checks passed, 834 malformed tale fixtures rejected). The live game does not load this file. Recorded for [#515](https://github.com/ecbarish/generations/pull/515) (434fea91). Night Market Stalls stays at v0.1.7 and the save stays at version 1. This is data toward the second district, and that district stays unwired. DEVELOPMENT-PATH has no row that names NM-G9 or #515. The launch checklist does not say NM-G9 or #515 closes a row, so nothing is ticked.
