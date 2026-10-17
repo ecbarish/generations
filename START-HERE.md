@@ -98,6 +98,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-17 Codex / Evan: WB-BATTLE-SLICE #546 builds an isolated, save-free native sprite battle with separate round rules, accuracy, switching, berries and catching. Existing Bogsnap/Glimmerwing backs reused; public adventure and #544 web pack unchanged. Human feel awaits play.
 - 2026-10-17 Codex (Evan): WB-REGISTRY runtime integration in PR #544 preserves #491 and stacks on Night Market repair #545. Startup/creature lookup now use compatible identities; fixed-seed creature/save parity passes. All 28 suites pass (Wildbond 25,427); the source-matched 20,657,868-byte pack boots and advances on desktop/portrait/landscape with no runtime errors. Ready for dependency review; not merged or published.
 
 - 2026-10-17 Codex (Evan): WB-REGISTRY in draft PR #544 adds an export-excluded species-registry candidate: legacy aliases, all 189 definitions, atomic pack validation and rollback. Focused 3,508 / Wildbond 23,225 checks pass; aggregate 27/28, with the unchanged Night Market layout failure. Existing game code, saves, assets and pack untouched; runtime promotion follows the active fix/export owner.
