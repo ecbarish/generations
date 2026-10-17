@@ -1,3 +1,9 @@
+## Wildbond Muse source intake
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| WB-MUSE-INTAKE | Reuse supplied battle art, idle and isolated math | Small | Built: Codex / Evan, PR #547 | Seven byte-preserved images; four-frame idle; native damage/catch adapter; 348 JS cases, 1,406 focused checks, all 28 suites pass (Wildbond 26,809); stacks on #546; native study only |
+
 ## Wildbond sprite battle study
 
 | ID | Project | Size | Status | Scope |

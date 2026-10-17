@@ -11,6 +11,7 @@ static func drain(model: RefCounted) -> Array:
 	return events
 
 static func run(check: Callable) -> void:
+	preload("res://tests/battle_slice/muse_checks.gd").run(check)
 	var old_data := var_to_bytes(R.DATA)
 	var m := Fixture.create()
 	check.call(var_to_bytes(R.DATA) == old_data, "battle study does not change the running catalogue")

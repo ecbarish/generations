@@ -1,4 +1,5 @@
 extends RefCounted
+const MuseMath := preload("res://tests/battle_slice/muse_math.gd")
 ## Experimental round rules. No nodes, file access, clock, save writes or rendering.
 ## Input consists of copied combatants and move definitions; output is one applied event per advance().
 var team: Array = []
@@ -106,8 +107,9 @@ func advance() -> Dictionary:
 			event.text = "%s recovered %d health." % [actor.name, healed]
 		"catch":
 			lures -= 1
-			var chance: float = 0.15 + 0.75 * (1.0 - float(foe.hp) / foe.max_hp)
-			if rng.randf() < chance:
+			var values := MuseMath.catch_values(int(foe.max_hp), int(foe.hp), 1.0, str(foe.get("status", "")))
+			event["shakes"] = MuseMath.shake_count(values, rng)
+			if event.shakes == 4:
 				event.text = "%s joined you!" % foe.name
 				_end("caught")
 			else: event.text = "%s slipped away from the lure." % foe.name
@@ -123,13 +125,9 @@ func advance() -> Dictionary:
 				event.text += " It missed!"
 			else:
 				event.hit = true
-				var special := int(mv.get("spec", 0)) == 1
-				var attack: float = actor.wits if special else actor.power
-				var defense: float = target.spirit if special else target.guard
 				var advantage := effectiveness(mv.get("el"), target)
-				var damage: float = ((2.0 * actor.level / 5.0 + 2.0) * mv.pow * attack / maxf(1, defense)) / 50.0 + 2.0
-				damage *= advantage * (1.2 if mv.get("el") == actor.element else 1.0) * rng.randf_range(0.85, 1.0)
-				event.damage = mini(int(target.hp), maxi(1, roundi(damage)))
+				var hit := MuseMath.damage(_math_record(actor), _math_record(target), {"category": "special" if int(mv.get("spec", 0)) == 1 else "physical", "type": mv.get("el"), "power": mv.pow}, rng.randf(), advantage)
+				event.damage = mini(int(target.hp), int(hit.damage))
 				target.hp -= event.damage
 				event.text += " %d damage." % event.damage
 				if advantage > 1: event.text += " Super effective!"
@@ -149,3 +147,7 @@ func advance() -> Dictionary:
 		state = "switch"
 		queue.clear()
 	return event
+
+func _math_record(c: Dictionary) -> Dictionary:
+	return {"level": c.level, "attack": c.power, "defense": c.guard, "spAttack": c.wits, "spDefense": c.spirit,
+		"type": c.element, "stages": c.get("stages", {}), "status": c.get("status", "")}

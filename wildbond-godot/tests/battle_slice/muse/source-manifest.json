@@ -1,0 +1,45 @@
+{
+  "source": "User-provided Wildbond demo source package.zip",
+  "archive_sha256": "8fcc08fd909e0039d0d45e24b26acc4c8b8be205735eb019a844b2db466c54f0",
+  "files": {
+    "INTEGRATION-NOTES.md": {
+      "bytes": 1869,
+      "sha256": "0cb486994f49e405b9b611b540b0f8f949efbf7fddd827abdb2bfc1812d18653"
+    },
+    "wildbond-battle-slice.html": {
+      "bytes": 2301774,
+      "sha256": "75e70565f8122b3383a2ff59b1ef0cb0699be69019fde5c35dc4e416b70a586c"
+    },
+    "assets/cindercub-front.png": {
+      "bytes": 3544,
+      "sha256": "8ab77d312ea34b72d20e169607c7ffb9368026bb6cdeb5584c8d6c6c5796107c"
+    },
+    "assets/bogsnap-idle-4.png": {
+      "bytes": 25167,
+      "sha256": "b3f999822f4f36518be98cf381f1cad99ac601e3a7fa499170cd952f6bcea183"
+    },
+    "assets/bogsnap-idle-3.png": {
+      "bytes": 31620,
+      "sha256": "5a3705d93d947293c1e76554f73016dfc2c4f64c6bd7cae69e6ad870e4e054d1"
+    },
+    "assets/bogsnap-idle-2.png": {
+      "bytes": 29783,
+      "sha256": "1a451a6a7963e874d7dd6aa9eb762dd5f27d87476f23ffebe60741be5771ef47"
+    },
+    "assets/bogsnap-idle-1.png": {
+      "bytes": 26113,
+      "sha256": "863eba658088efd7eafeb4ce058ad73cd1227fdc7fe117e573be5b4cdd1e5676"
+    },
+    "assets/bogsnap-back.png": {
+      "bytes": 624349,
+      "sha256": "c832043f85e301bad1b315a51c95be95ba6afb6d0f86d5ae7370bb5b8588f4ec"
+    },
+    "assets/battle-bg.png": {
+      "bytes": 309497,
+      "sha256": "5da1b61d4b14e6b6a53935ac4974d69830517ae6cfe9f114d9457817d509fd98"
+    }
+  },
+  "installed_paths": {
+    "assets/battle-bg.png": "battle-bg.jpg"
+  }
+}

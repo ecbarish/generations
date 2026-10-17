@@ -1,6 +1,14 @@
 extends SceneTree
 var passed := 0
 var failed := 0
+var elapsed := 0.0
+
+func _process(dt: float) -> bool:
+	elapsed += dt
+	if elapsed > 15:
+		print("Wildbond round battle checks: TIMED OUT after a script error")
+		quit(3)
+	return false
 
 func _initialize() -> void:
 	run.call_deferred()
