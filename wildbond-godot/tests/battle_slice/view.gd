@@ -3,6 +3,7 @@ extends Control
 const Fixture := preload("res://tests/battle_slice/fixture.gd")
 const Sprites := preload("res://scripts/creature_sprites.gd")
 const Sounds := preload("res://scripts/sfx.gd")
+const MuseArt := preload("res://tests/battle_slice/muse_art.gd")
 const INK := Color("2a2230")
 const PAPER := Color("f8f2e4")
 var model: RefCounted
@@ -171,10 +172,15 @@ func _paper() -> StyleBoxFlat:
 
 func _creature(c: Dictionary, foot: Vector2, back: bool, side: String) -> void:
 	if c.hp <= 0: return
-	var tex: Texture2D = Sprites.battle_back_texture(c.id) if back else Sprites.battle_texture(c.id)
+	var supplied: bool = c.id == "bogsnap" and back
+	var tex: Texture2D
+	if supplied: tex = MuseArt.texture(MuseArt.player_frame(clock, motion and model.state != "ended"))
+	elif c.id == "cindercub" and not back: tex = MuseArt.texture("cindercub-front.png")
+	else: tex = Sprites.battle_back_texture(c.id) if back else Sprites.battle_texture(c.id)
 	if tex == null: tex = Sprites.battle_texture(c.id)
 	if tex == null: return
 	var ink: Rect2i = Sprites.ink_box(tex)
+	if supplied: ink = MuseArt.APPROVED_INK
 	var zoom := minf(1.0, minf(78.0 / ink.size.x, 64.0 / ink.size.y))
 	var bob := roundf(sin(clock * 2.5) * 1.0) if motion else 0.0
 	var recoil := 0.0
@@ -184,22 +190,19 @@ func _creature(c: Dictionary, foot: Vector2, back: bool, side: String) -> void:
 	draw_circle(Vector2.ZERO, 24, Color(0.1, 0.2, 0.15, 0.22))
 	draw_set_transform(Vector2.ZERO)
 	var dest := Rect2(foot + Vector2(-ink.size.x * zoom * 0.5 + recoil, -ink.size.y * zoom + bob), Vector2(ink.size) * zoom)
+	if supplied: dest = MuseArt.destination(ink, foot + Vector2(recoil, bob), 64)
 	draw_texture_rect_region(tex, dest, Rect2(ink))
 
 func _draw() -> void:
 	if model == null: return
 	draw_rect(Rect2(0, 0, 384, 216), Color("7fada1"))
-	# A small woodland stage; existing creature paintings remain the visual focus.
-	for i in 12:
-		var x := float(i * 37 - 10)
-		draw_rect(Rect2(x + 10, 28, 9, 66), Color("686650"))
-		draw_circle(Vector2(x + 14, 30), 31, Color("466e62"))
-		draw_circle(Vector2(x + 3, 21), 21, Color("547d65"))
-	draw_rect(Rect2(0, 90, 384, 66), Color("a4b477"))
+	var background: Texture2D = MuseArt.texture("battle-bg.jpg")
+	# Uniform scale; a vertical crop puts both painted platforms under their creatures.
+	draw_texture_rect(background, Rect2(0, -40, 384, 384.0 * background.get_height() / background.get_width()), false)
 	draw_style_box(_paper(), Rect2(7, 3, 370, 17))
 	_text(Vector2(13, 15), "Thornwood · Battle Study", 10)
 	_text(Vector2(282, 15), "Round %d" % model.round_number, 9)
-	_creature(model.foe, Vector2(282, 99), false, "foe")
+	_creature(model.foe, Vector2(297, 84), false, "foe")
 	_creature(model.team[model.active], Vector2(83, 132), true, "ally")
 	_panel(Vector2(8, 27), model.foe, shown[1])
 	_panel(Vector2(219, 94), model.team[model.active], shown[0])

@@ -98,6 +98,9 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-17 Codex / Evan: #547 now uses the Battle Back design from Evan's selected `15642.jpg` sheet; the ZIP's different Bogsnap and clipped idle frames are reference-only. Source sheet, derived cutout, hashes and prompts preserved; native captures refreshed; 1,433 focused checks pass.
+- 2026-10-17 Codex / Evan: corrected #547's fragmented Bogsnap: supplied idle extracts clip the snout and vary in silhouette, so playback now uses the complete back with whole-sprite motion. Source extracts retained as references; captures refreshed; 1,429 focused checks pass.
+- 2026-10-17 Codex / Evan: WB-MUSE-INTAKE #547 reuses the supplied Muse background/Bogsnap idle and ports damage/catch calculations into the native study, with 348 original-JS cases and source hashes. Existing world, saves and public pack unchanged; full status/timing controls remain next.
 - 2026-10-17 Codex / Evan: WB-BATTLE-SLICE #546 builds an isolated, save-free native sprite battle with separate round rules, accuracy, switching, berries and catching. Existing Bogsnap/Glimmerwing backs reused; public adventure and #544 web pack unchanged. Human feel awaits play.
 - 2026-10-17 Codex (Evan): WB-REGISTRY runtime integration in PR #544 preserves #491 and stacks on Night Market repair #545. Startup/creature lookup now use compatible identities; fixed-seed creature/save parity passes. All 28 suites pass (Wildbond 25,427); the source-matched 20,657,868-byte pack boots and advances on desktop/portrait/landscape with no runtime errors. Ready for dependency review; not merged or published.
 

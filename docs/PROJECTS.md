@@ -1,3 +1,9 @@
+## Wildbond Muse source intake
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| WB-MUSE-INTAKE | Reuse supplied battle art and isolated math | Small | Built: Codex / Evan, PR #547 | Selected-sheet Bogsnap replaces ZIP variant; ZIP back/idles reference-only; Muse background/math reused; 1,433 focused / 26,836 Wildbond assertions pass; harness shutdown caveat recorded; stacks on #546; native study only |
+
 ## Wildbond sprite battle study
 
 | ID | Project | Size | Status | Scope |
