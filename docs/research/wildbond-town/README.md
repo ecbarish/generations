@@ -20,6 +20,8 @@ The red healing center/blue shop and menu/dialogue conventions are intentional v
 
 ## Evidence
 
+All **28 repository suites pass**, including **26,962 Wildbond Godot assertions**, 488 Starfall assertions, the current 189-species catalogue and 23 unchanged save names. Town's focused runner passes **35 portable assertions** or **36 with the installed private trainer**. The added Godot-suite hook runs the portable checks. Export freshness passes against #550: no packed game files changed, and the existing web pack/provenance still agrees. Git whitespace checks pass. These are local results; PR CI and independent review remain separate.
+
 Focused checks cover the two interiors, building/fountain collision, doorstep reachability, movement, healing HP/status/stages/PP, prices/stock/insufficient funds, exact door returns, held-key pause, building fading, party/map/weather menus, bag, indoor weather/backdrop, trail transitions and exact-position battle return. The private variant also verifies the installed walk/run trainer textures.
 
 Native Forward+ (Vulkan) and Compatibility (OpenGL) both pass held-key walking, pointer menu/party, keyboard center entry, pointer healing, pointer purchase and pointer battle Run/return on an RTX 4090. Both capture runs exit cleanly. This is desktop functional evidence, not a low-end performance benchmark.
