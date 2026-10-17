@@ -1919,6 +1919,7 @@ func _run() -> void:
 	preload("res://tests/fix_bundle_2.gd").run(main, check)
 	preload("res://tests/phone_layout.gd").run(main, check)
 	preload("res://tests/north_roads.gd").run(main, check)
+	preload("res://tests/species_registry.gd").run(main, check)
 	# ---- the done line
 	print("Wildbond Godot checks: %d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
