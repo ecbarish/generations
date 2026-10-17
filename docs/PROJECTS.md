@@ -1,3 +1,9 @@
+## Wildbond private sprite setup
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| WB-PRIVATE-SPRITES | External creature pack and native 3D clearing | Small prototype | Built: Codex / Evan, PR #549 | Three imported species; validated directional animation/anchors; walk/encounter/battle/return; absent-pack fallback; 345 focused/26,867 Wildbond checks; no adventure/save/public export change; stacks on #547 |
+
 ## Wildbond Muse source intake
 
 | ID | Project | Size | Status | Scope |
