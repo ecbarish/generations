@@ -1924,6 +1924,7 @@ func _run() -> void:
 	preload("res://tests/battle_slice/checks.gd").run(check)
 	preload("res://tests/private_sprites/checks.gd").run(check)
 	await preload("res://tests/thornwood_environment/checks.gd").run(self, check)
+	await preload("res://tests/town/checks.gd").run(self, check)
 	preload("res://tests/fix_bundle_3.gd").run(main, check)
 	preload("res://tests/wbl_continue.gd").run(root, check, check)
 	# ---- the done line

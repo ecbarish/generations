@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Wildbond town study (2026-10-17, PR #551):** A walkable 3D town with healing-center and mart interiors, shared visit supplies, a short encounter trail and Pokemon-inspired menus/dialogue. Uses the installed animated trainer; separate native study with no adventure save or public export change.
+
 - **Wildbond Thornwood atmosphere study (2026-10-17, PR #550):** A native forest slice with reusable 3D scenery, sunlight/shadows, sunset/night/rain, animated water and existing sprite encounters. Separate study launch; adventure saves and public exports are unchanged.
 
 - **Wildbond private clearing study (2026-10-17, PR #549):** Directional trainer walking/running, approved-design-derived Bogsnap idle/walk frames, and a pocketed practice bag with item counts, party targeting and supplies carried between encounters. Native study only; adventure saves and public exports are unchanged.
