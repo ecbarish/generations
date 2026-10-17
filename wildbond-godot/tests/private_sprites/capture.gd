@@ -50,6 +50,54 @@ func run() -> void:
 	Input.parse_input_event(key)
 	assert(scene.player.position.z < before.z, "actual held W moves the player")
 	await capture("walking")
+	for spec in [[KEY_S, "down", Vector2i.DOWN], [KEY_A, "left", Vector2i.LEFT], [KEY_D, "right", Vector2i.RIGHT], [KEY_W, "up", Vector2i.UP]]:
+		key = InputEventKey.new()
+		key.physical_keycode = spec[0]
+		key.keycode = spec[0]
+		key.pressed = true
+		Input.parse_input_event(key)
+		await create_timer(0.22).timeout
+		assert(scene.gait.face == spec[2] and scene.gait.moving, "real held input changes facing and walking")
+		await capture("walk-" + spec[1])
+		key = key.duplicate()
+		key.pressed = false
+		Input.parse_input_event(key)
+		await settle()
+		assert(not scene.gait.moving and scene.gait.face == spec[2], "release stops feet without resetting facing")
+	for code in [KEY_W, KEY_SHIFT]:
+		key = InputEventKey.new()
+		key.physical_keycode = code
+		key.keycode = code
+		key.pressed = true
+		Input.parse_input_event(key)
+	await create_timer(0.15).timeout
+	assert(scene.gait.running, "actual Shift changes to running gait")
+	await capture("running")
+	for code in [KEY_W, KEY_SHIFT]:
+		key = InputEventKey.new()
+		key.physical_keycode = code
+		key.keycode = code
+		key.pressed = false
+		Input.parse_input_event(key)
+	var bag_button: Button
+	for child in scene.ui.get_children():
+		if child is Button and child.text == "Bag [B]": bag_button = child
+	scene.supplies.team[1].hp -= 10 # Wounded fixture, so native target selection has an effect to verify.
+	await tap(bag_button)
+	assert(scene.bag != null, "pointer opens world bag")
+	await capture("bag-world")
+	for control in scene.bag.controls:
+		if control is Button and control.text.begins_with("Ranch Berry"):
+			await tap(control)
+			break
+	await capture("bag-party")
+	var stock: int = scene.supplies.berries
+	for control in scene.bag.controls:
+		if control is Button and control.text.begins_with("Glimmerwing"):
+			await tap(control)
+			break
+	assert(scene.bag == null and scene.supplies.berries == stock - 1 and scene.supplies.team[1].hp == scene.supplies.team[1].max_hp, "pointer targets wounded partner and consumes one berry")
+	await settle()
 	scene.player.position = Vector3(1, 0, 2)
 	await settle()
 	var first: Button
@@ -60,6 +108,19 @@ func run() -> void:
 	assert(scene.battle != null, "pointer opens battle")
 	scene.battle.sounds.on = false
 	await capture("battle")
+	await tap(scene.battle.buttons[2])
+	assert(scene.battle.bag != null, "pointer Bag opens item pockets")
+	await capture("bag-battle")
+	for control in scene.battle.bag.controls:
+		if control is Button and control.text == "Balls":
+			await tap(control)
+			break
+	await capture("bag-balls")
+	for control in scene.battle.bag.controls:
+		if control is Button and control.text == "Close Bag":
+			await tap(control)
+			break
+	await settle()
 	await tap(scene.battle.buttons[0])
 	assert(scene.battle.page == "moves", "pointer Fight opens moves")
 	await capture("moves")

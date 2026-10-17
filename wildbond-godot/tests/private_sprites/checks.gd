@@ -2,6 +2,32 @@ extends RefCounted
 const Pack := preload("res://tests/private_sprites/pack.gd")
 
 static func run(check: Callable) -> void:
+	var motion := preload("res://tests/private_sprites/actor_motion.gd").new()
+	motion.advance(Vector2.UP, Vector3(0, 0, -0.5), false)
+	check.call(motion.face == Vector2i.UP and motion.moving, "movement faces toward actual travel")
+	motion.advance(Vector2.ZERO, Vector3.ZERO, false)
+	check.call(not motion.moving and motion.face == Vector2i.UP and motion.trainer_frame() == 1, "release keeps facing in an idle pose")
+	motion.advance(Vector2.LEFT, Vector3.ZERO, true)
+	check.call(motion.face == Vector2i.LEFT and not motion.moving and not motion.running, "wall can turn actor but cannot cycle walking feet")
+	motion.advance(Vector2(0.01, 0), Vector3(0.02, 0, 0), false)
+	check.call(motion.face == Vector2i.RIGHT, "small companion displacements retain a real direction")
+	var slow := preload("res://tests/private_sprites/actor_motion.gd").new()
+	var fast := preload("res://tests/private_sprites/actor_motion.gd").new()
+	for i in 30: slow.advance(Vector2.DOWN, Vector3(0, 0, 3.0 / 30), false)
+	for i in 120: fast.advance(Vector2.DOWN, Vector3(0, 0, 3.0 / 120), false)
+	check.call(slow.phase() == fast.phase(), "same travelled distance gives the same gait at different frame rates")
+	var rounds := preload("res://tests/battle_slice/fixture.gd").create()
+	var stock: int = rounds.berries
+	check.call(rounds.validate({"kind": "berry", "target": 1}) != "" and rounds.berries == stock, "full-health target rejects item without consumption")
+	for bad in [-1, 99, "one", true]:
+		check.call(rounds.validate({"kind": "berry", "target": bad}) != "", "invalid medicine target rejected")
+	rounds.team[1].hp = 0
+	check.call(rounds.validate({"kind": "berry", "target": 1}) != "", "berry cannot revive a fainted partner")
+	rounds.team[1].hp = 1
+	var active_hp: int = rounds.team[0].hp
+	check.call(rounds.submit({"kind": "berry", "target": 1}) == "", "berry may target another party member")
+	rounds.advance()
+	check.call(rounds.team[1].hp > 1 and rounds.team[0].hp == active_hp and rounds.berries == stock - 1, "healing applies to selected partner and consumes one item before foe turn")
 	var pack := Pack.new()
 	check.call(not pack.open_pack(""), "absent pack cleanly falls back")
 	check.call(pack.entries.is_empty() and pack.textures.is_empty(), "failed open clears entries and textures")

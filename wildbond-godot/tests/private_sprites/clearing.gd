@@ -4,6 +4,21 @@ const Pack := preload("res://tests/private_sprites/pack.gd")
 const Battle := preload("res://tests/private_sprites/battle.gd")
 const Figures := preload("res://scripts/figures.gd")
 const Art := preload("res://tests/battle_slice/muse_art.gd")
+const Motion := preload("res://tests/private_sprites/actor_motion.gd")
+const Bag := preload("res://tests/private_sprites/bag.gd")
+const Fixture := preload("res://tests/battle_slice/fixture.gd")
+var supplies: RefCounted
+var bag: Control
+var gait := Motion.new()
+var partner_gait := Motion.new()
+var human: Sprite3D
+var partner: Sprite3D
+var human_atlas := AtlasTexture.new()
+var partner_atlas := AtlasTexture.new()
+var fallback_people: Dictionary = {}
+var partner_frames: Array = []
+var partner_idle := 0.0
+var trail: Array[Vector3] = []
 var pack := Pack.new()
 var pack_path := ""
 var selected := "pokemon:16"
@@ -29,6 +44,7 @@ var last_region := Rect2()
 var active := true
 
 func _ready() -> void:
+	supplies = Fixture.create()
 	pack.open_pack(pack_path if pack_path != "" else Pack.configured_root())
 	_build_world()
 	_build_ui()
@@ -93,20 +109,58 @@ func _sprite(owner_node: Node3D) -> Sprite3D:
 	s.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 	s.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
 	s.shaded = false
+	s.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	owner_node.add_child(s)
 	return s
 
 func _tamer_texture() -> Texture2D:
+	var key := str(gait.face) + ":" + str(gait.phase())
+	if fallback_people.has(key): return fallback_people[key]
 	var image := Image.create(18, 28, false, Image.FORMAT_RGBA8)
 	var look := {"skin": Color("d7a878"), "hair": Color("593b2c"), "shirt": Color("638d80"),
 		"legs": Color("34464c"), "shoes": Color("49382c"), "hat": Color("dfb76c"), "style": "cap"}
-	var parts := Figures.person_parts(Vector2i.DOWN, false, 0, false, look)
+	var parts := Figures.person_parts(gait.face, gait.moving, gait.phase(), false, look)
 	for part in parts:
 		var rect := Rect2i(int(part[0]) + 3, int(part[1]) + 3, int(part[2]), int(part[3]))
 		image.fill_rect(rect.grow(1).intersection(Rect2i(0, 0, 18, 28)), Figures.OUTLINE)
 	for part in parts:
 		image.fill_rect(Rect2i(int(part[0]) + 3, int(part[1]) + 3, int(part[2]), int(part[3])), part[4])
-	return ImageTexture.create_from_image(image)
+	var result := ImageTexture.create_from_image(image)
+	fallback_people[key] = result
+	return result
+
+func _animate_tamer() -> void:
+	var texture := pack.trainer_texture(gait.running)
+	if texture != null:
+		human_atlas.atlas = texture
+		human_atlas.region = Rect2(gait.trainer_frame() * 16, 0, 16, 32)
+		human.texture = human_atlas
+		human.flip_h = gait.face.x > 0
+		human.pixel_size = 0.063
+		human.offset = Vector2(0, 16)
+	else:
+		human.texture = _tamer_texture()
+		human.flip_h = false
+		human.pixel_size = 0.065
+		human.offset = Vector2(0, 10)
+
+func _animate_partner() -> void:
+	if partner_frames.is_empty(): return
+	var row := 0
+	var frame: int = Motion.idle_frame(partner_idle)
+	if partner_gait.face.y >= 0:
+		row = 2 if partner_gait.face.y > 0 else 3
+		frame = 1
+	if partner_gait.moving:
+		row = 1 if partner_gait.face.y < 0 else (2 if partner_gait.face.y > 0 else 3)
+		frame = partner_gait.phase()
+	var meta: Dictionary = partner_frames[row * 4 + frame]
+	partner_atlas.region = Rect2(meta.region[0], meta.region[1], meta.region[2], meta.region[3])
+	partner.texture = partner_atlas
+	partner.pixel_size = 0.0052
+	partner.flip_h = partner_gait.face.x < 0
+	partner.scale.y = 1.0 if partner_gait.moving or row == 0 else 1.0 + sin(partner_idle * 2.6) * 0.012
+	partner.offset = Vector2(meta.region[2] * 0.5 - meta.anchor[0], meta.anchor[1] - meta.region[3] * 0.5)
 
 func _build_world() -> void:
 	environment = Environment.new()
@@ -143,19 +197,15 @@ func _build_world() -> void:
 		_mesh(rock, Vector3(x, 0.08, z), _material(Color("8f9685")))
 	player = _actor(Vector3(0, 0, 5))
 	_shadow(player, 0.27)
-	var human := _sprite(player)
-	human.texture = _tamer_texture()
-	human.pixel_size = 0.065
-	human.offset.y = 10
+	human = _sprite(player)
+	_animate_tamer()
 	companion = _actor(Vector3(-1.2, 0, 5.6))
+	trail.append(player.position)
 	_shadow(companion, 0.55)
-	var partner := _sprite(companion)
-	var atlas := AtlasTexture.new()
-	atlas.atlas = Art.texture(Art.APPROVED_BACK)
-	atlas.region = Rect2(Art.APPROVED_INK)
-	partner.texture = atlas
-	partner.pixel_size = 1.05 / Art.APPROVED_INK.size.y
-	partner.offset.y = Art.APPROVED_INK.size.y * 0.5
+	partner = _sprite(companion)
+	partner_frames = JSON.parse_string(FileAccess.get_file_as_string("res://tests/private_sprites/bogsnap/frames.json"))
+	partner_atlas.atlas = load("res://tests/private_sprites/bogsnap/walk-idle-v2.png")
+	_animate_partner()
 	creature = _actor(Vector3(2, 0, 1.5))
 	_shadow(creature, 0.3)
 	sprite = _sprite(creature)
@@ -176,12 +226,13 @@ func _build_ui() -> void:
 	add_child(ui)
 	var panel := PanelContainer.new()
 	panel.position = Vector2(6, 5)
-	panel.size = Vector2(372, 17)
+	panel.size = Vector2(306, 17)
 	var title := Label.new()
 	title.text = "THORNWOOD  /  Private Clearing Study"
 	title.add_theme_font_size_override("font_size", 9)
 	panel.add_child(title)
 	ui.add_child(panel)
+	_button("Bag [B]", Vector2(316, 5), Vector2(64, 18), open_bag)
 	status = Label.new()
 	var footer := Panel.new()
 	footer.position = Vector2(4, 148)
@@ -198,7 +249,7 @@ func _build_ui() -> void:
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ui.add_child(status)
 	var help := Label.new()
-	help.text = "Move: WASD / Arrows   E: Encounter   1-3: Creature"
+	help.text = "WASD / Arrows: Walk   Shift: Run   E: Meet   1-3: Creature"
 	help.position = Vector2(8, 150)
 	help.add_theme_font_size_override("font_size", 8)
 	ui.add_child(help)
@@ -215,6 +266,7 @@ func _button(text: String, at: Vector2, dims: Vector2, action: Callable) -> void
 	b.add_theme_font_size_override("font_size", 10)
 	b.pressed.connect(action)
 	ui.add_child(b)
+	b.size = dims
 
 func _refresh_creature() -> void:
 	if pack.entries.has(selected):
@@ -250,10 +302,13 @@ func _blocked(at: Vector3) -> bool:
 		if p.distance_to(Vector2(at.x, at.z)) < 0.65: return true
 	return false
 
-func move_player(direction: Vector2, dt: float) -> void:
-	var delta3 := Vector3(direction.x, 0, direction.y).limit_length() * dt * 3.0
+func move_player(direction: Vector2, dt: float, sprint: bool = false) -> void:
+	var before := player.position
+	var delta3 := Vector3(direction.x, 0, direction.y).limit_length() * dt * (4.8 if sprint else 3.0)
 	var next := player.position + delta3
 	if not _blocked(next): player.position = next
+	gait.advance(direction, player.position - before, sprint)
+	_animate_tamer()
 
 func _update_camera() -> void:
 	camera.position = player.position + Vector3(0, 9, 12)
@@ -276,14 +331,28 @@ func _animate_creature() -> void:
 
 func _process(dt: float) -> void:
 	seconds += dt
-	if not active or player == null: return
+	if not active or player == null or bag != null: return
 	var move := Vector2.ZERO
 	if Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT): move.x -= 1
 	if Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT): move.x += 1
 	if Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP): move.y -= 1
 	if Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN): move.y += 1
-	move_player(move, dt)
-	companion.position = companion.position.lerp(player.position + Vector3(-1.2, 0, 0.6), 1.0 - exp(-dt * 4))
+	move_player(move, dt, Input.is_physical_key_pressed(KEY_SHIFT))
+	var partner_before := companion.position
+	if trail.is_empty() or trail.back().distance_to(player.position) > 0.18: trail.append(player.position)
+	var closest := 0
+	for i in trail.size():
+		if companion.position.distance_squared_to(trail[i]) < companion.position.distance_squared_to(trail[closest]): closest = i
+	for i in closest: trail.pop_front()
+	while trail.size() > 1 and companion.position.distance_to(trail[0]) < 0.12: trail.pop_front()
+	if trail.size() > 128: trail.pop_front()
+	if companion.position.distance_to(player.position) > 1.15 and not trail.is_empty():
+		var proposed := companion.position.move_toward(trail[0], dt * (5.0 if gait.running else 3.4))
+		if not _blocked(proposed): companion.position = proposed
+	var travelled := companion.position - partner_before
+	partner_gait.advance(Vector2(travelled.x, travelled.z), travelled, gait.running)
+	partner_idle += dt
+	_animate_partner()
 	_update_camera()
 	if pack.entries.has(selected): _animate_creature()
 	for i in rain_nodes.size():
@@ -292,8 +361,9 @@ func _process(dt: float) -> void:
 			if rain_nodes[i].position.y < 0: rain_nodes[i].position.y += 8
 
 func _unhandled_key_input(e: InputEvent) -> void:
-	if not active or not e is InputEventKey or not e.pressed or e.echo: return
+	if not active or bag != null or not e is InputEventKey or not e.pressed or e.echo: return
 	match e.keycode:
+		KEY_B: open_bag()
 		KEY_E: enter_battle()
 		KEY_N: set_night(not night)
 		KEY_R: set_rain(not rainy)
@@ -304,7 +374,7 @@ func _unhandled_key_input(e: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 func enter_battle() -> void:
-	if not active: return
+	if not active or bag != null: return
 	if player.position.distance_to(creature.position) > 2.4:
 		status.text = "Walk closer to the creature first."
 		return
@@ -313,6 +383,7 @@ func enter_battle() -> void:
 	ui.hide()
 	battle = Battle.new()
 	battle.pack = pack
+	battle.supplies = supplies
 	battle.opponent_id = selected
 	battle.return_to_world.connect(_return)
 	var layer := CanvasLayer.new()
@@ -322,6 +393,11 @@ func enter_battle() -> void:
 
 func _return(result: String) -> void:
 	visited_result = result
+	supplies.team = battle.model.team.duplicate(true)
+	supplies.berries = battle.model.berries
+	supplies.lures = battle.model.lures
+	if result == "lost":
+		for c in supplies.team: c.hp = c.max_hp
 	var layer := battle.get_parent()
 	battle = null
 	layer.queue_free()
@@ -330,3 +406,24 @@ func _return(result: String) -> void:
 	ui.show()
 	status.text = {"won": "A good battle! Back on the Thornwood trail.", "lost": "Bogsnap needs a rest. This clearing is a practice visit.",
 		"caught": "Caught! A good practice encounter. Back on the trail.", "escaped": "Back on the trail, right where you left it."}.get(result, "Back on the trail.")
+
+func open_bag() -> void:
+	if not active or bag != null: return
+	gait.advance(Vector2.ZERO, Vector3.ZERO, false)
+	_animate_tamer()
+	bag = Bag.new()
+	bag.model = supplies
+	bag.pack = pack
+	bag.closed.connect(close_bag)
+	bag.used.connect(func(action: Dictionary):
+		var c: Dictionary = supplies.team[action.target]
+		var restored := mini(int(c.max_hp) - int(c.hp), maxi(1, roundi(c.max_hp * 0.5)))
+		c.hp += restored
+		supplies.berries -= 1
+		status.text = "%s recovered %d HP." % [c.name, restored]
+		close_bag())
+	ui.add_child(bag)
+
+func close_bag() -> void:
+	if bag != null: bag.queue_free()
+	bag = null

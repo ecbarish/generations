@@ -2,18 +2,18 @@
 
 Open **[Play Private Clearing.bat](<Play Private Clearing.bat>)** to play the native study. Evan's local private pack is already installed. On a new checkout/computer, run **[Setup Private Sprites.bat](<Setup Private Sprites.bat>)** first. The launchers use the installed Godot 4.7.2 and bundled Python; GODOT/PYTHON environment variables can override those executable paths.
 
-- Move with WASD/Arrows. Walk toward the creature, then E or Encounter.
+- Move with WASD/Arrows; hold Shift to run. B opens the bag. Walk toward the creature, then E or Encounter.
 - 1/2/3 or Next chooses Pidgey/Vulpix/Wooper.
 - N toggles day/night; R toggles rain. Both also have buttons.
 - Fight, switch, heal, catch or run in the existing turn-based study. After its final result, choose Return to Clearing. N in battle controls sound, as in the original battle study.
 
 This is a separate, save-free native prototype. It does not open, alter or write the adventure, add captured creatures to its party, or update the public browser game. Imported encounter stats/type aliases are deliberate study proxies using Wildbond's existing seven elements and move rules, not full Pokemon mechanics. The turn-based engine is reused rather than rebuilt.
 
-The world currently uses simple built-in meshes, a pitched follow camera, shadows, a pond barrier and tree-trunk collision. It establishes sprite-in-3D loading and the encounter/return loop; final Thornwood environment art, atmospheric polish, mobile/browser controls and performance are later work. Bogsnap retains Evan's selected representation; its single back painting has no directional walk animation. The tamer reuses the game's existing code-drawn figure. The newly approved starter concept art remains unchanged and still needs proper production frames.
+The world currently uses simple built-in meshes, a pitched follow camera, shadows, a pond barrier and tree-trunk collision. It establishes sprite-in-3D loading and the encounter/return loop; final Thornwood environment art, atmospheric polish, mobile/browser controls and performance are later work. Bogsnap now has approved-design-derived breathing/blinking and three walking views, using individually measured frame regions and movement-driven steps. The private pack supplies Emerald trainer walk/run poses with four-way facing; the original procedural figure remains the animated fallback. The newly approved starter concept art remains unchanged and still needs proper production frames.
 
 ## External pack
 
-The setup tool downloads **26 pinned source files** outside this checkout, with six Platinum battle views and Idle/Walk/Shadow/XML/credit metadata for three species. It derives per-frame anchors from the single white marker on each PMD shadow frame, not guessed cropping. Eight directions and source durations are retained. Every image, source XML, individual credit file and license notice is hashed. Sources are PokeAPI/sprites and PMDCollab/SpriteCollab at the exact revisions in the setup script.
+The setup tool downloads **31 pinned source files** outside this checkout, with six Platinum battle views and Idle/Walk/Shadow/XML/credit metadata for three species. It derives per-frame anchors from the single white marker on each PMD shadow frame, not guessed cropping. Eight directions and source durations are retained. Every image, source XML, individual credit file and license notice is hashed. Sources are PokeAPI/sprites, PMDCollab/SpriteCollab and pret/pokeemerald at the exact revisions in the setup script.
 
 No source PNGs or generated manifest are included in Git. The tool writes only an ignored local-pack.json locator in this test directory; an explicit --pack=PATH argument or WILDBOND_PRIVATE_PACK overrides it. Godot's public Web/Windows export presets already exclude tests/* and *.bat, so this prototype/locator is excluded too. No public pack was rebuilt.
 
@@ -39,3 +39,9 @@ Godot --headless --path wildbond-godot --script res://tests/private_sprites/runn
 ```
 
 The first command is portable and verifies the missing-pack path. The second verifies the installed pilot's actual frames/directions, battle selection and return. The normal Wildbond suite also runs the synthetic malformed-pack checks without requiring any downloads or proprietary sprites. capture.gd exercises actual held-key walking and pointer Fight/Run/Return in the native Compatibility renderer.
+
+## Bag and visit state
+
+B opens the pocketed bag in the clearing; Bag opens it during a battle. Berries select a party member, show HP, and consume one berry only on successful healing. Balls are usable during battle. Key Items is presently empty. Arrow keys/Tab and Enter operate the focused controls; Escape/B returns or closes the bag. The practice party HP and supplies carry between encounters in this visit and reset when the scene is relaunched. Defeat rests the party so the practice visit cannot become stuck. Captures remain practice outcomes without adding creatures to a saved party.
+
+Ranch Berry retains the existing study heal (half maximum HP); Bond Ball retains the existing lure odds. Private Oran Berry/Poke Ball icons are visual aliases, not a claim of canonical Oran Berry mechanics. Missing packs use original drawn item symbols. There is no shop, sorting, inventory save or full canonical item catalogue yet.

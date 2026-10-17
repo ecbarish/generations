@@ -4,6 +4,8 @@ var entries: Dictionary = {}
 var textures: Dictionary = {}
 var issue := ""
 var source_root := ""
+var trainer: Dictionary = {}
+var items: Dictionary = {}
 
 static func configured_root() -> String:
 	for arg in OS.get_cmdline_user_args():
@@ -19,6 +21,8 @@ static func configured_root() -> String:
 func _reject(reason: String) -> bool:
 	entries.clear()
 	textures.clear()
+	trainer.clear()
+	items.clear()
 	issue = reason
 	return false
 
@@ -34,6 +38,8 @@ func _path(rel: String) -> String:
 func open_pack(folder: String) -> bool:
 	entries.clear()
 	textures.clear()
+	trainer.clear()
+	items.clear()
 	issue = ""
 	source_root = folder.replace("\\", "/").trim_suffix("/").simplify_path()
 	if source_root == "" or not source_root.is_absolute_path() or source_root.begins_with("res://"):
@@ -87,8 +93,38 @@ func open_pack(folder: String) -> bool:
 			if not _valid_animation(a, tex): return _reject("Private animation grid or anchors are invalid.")
 		pending[sid] = e.duplicate(true)
 	if pending.is_empty(): return _reject("Private pack has no creatures.")
+	var human = manifest.get("trainer", {})
+	if not human is Dictionary: return _reject("Private trainer metadata is invalid.")
+	for state in human:
+		if state not in ["walking", "running"] or not verified.has(human[state]): return _reject("Private trainer file is invalid.")
+		var tex := _load_texture(str(human[state]))
+		if tex == null or tex.get_size() != Vector2(144, 32): return _reject("Private trainer grid is invalid.")
+		# GBA source PNGs retain palette-index-zero as an opaque editor colour.
+		# Decode that colour key in memory; keep the downloaded source byte-identical.
+		var image := tex.get_image()
+		image.convert(Image.FORMAT_RGBA8)
+		var clear := image.get_pixel(0, 0)
+		for y in image.get_height():
+			for x in image.get_width():
+				if image.get_pixel(x, y) == clear: image.set_pixel(x, y, Color.TRANSPARENT)
+		textures[human[state]] = ImageTexture.create_from_image(image)
+	trainer = human.duplicate()
+	var item_art = manifest.get("items", {})
+	if not item_art is Dictionary: return _reject("Private item metadata is invalid.")
+	for id in item_art:
+		if id not in ["oran-berry", "poke-ball"] or not verified.has(item_art[id]): return _reject("Private item file is invalid.")
+		var tex := _load_texture(str(item_art[id]))
+		if tex == null or tex.get_width() > 64 or tex.get_height() > 64: return _reject("Private item icon is invalid.")
+	items = item_art.duplicate()
 	entries = pending
 	return true
+
+func trainer_texture(running: bool) -> Texture2D:
+	var key := "running" if running else "walking"
+	return textures.get(trainer.get(key, ""))
+
+func item_texture(id: String) -> Texture2D:
+	return textures.get(items.get(id, ""))
 
 func _load_texture(rel: String) -> Texture2D:
 	if textures.has(rel): return textures[rel]

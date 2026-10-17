@@ -51,7 +51,10 @@ func validate(action: Dictionary) -> String:
 			if target == active or team[target].hp <= 0: return "Choose another healthy partner."
 		"berry":
 			if berries <= 0: return "There are no berries left."
-			if team[active].hp >= team[active].max_hp: return "Your partner is already healthy."
+			var recipient = action.get("target", active)
+			if typeof(recipient) != TYPE_INT or recipient < 0 or recipient >= team.size(): return "Choose a partner."
+			if team[recipient].hp <= 0: return "A fainted partner needs a rest."
+			if team[recipient].hp >= team[recipient].max_hp: return "Your partner is already healthy."
 		"catch":
 			if lures <= 0: return "There are no lures left."
 		"run": pass
@@ -102,6 +105,7 @@ func advance() -> Dictionary:
 			event.text = "Go, %s!" % team[active].name
 		"berry":
 			berries -= 1
+			actor = team[action.get("target", active)]
 			var healed := mini(int(actor.max_hp) - int(actor.hp), maxi(1, roundi(actor.max_hp * 0.5)))
 			actor.hp += healed
 			event.text = "%s recovered %d health." % [actor.name, healed]

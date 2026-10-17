@@ -6,7 +6,8 @@ from PIL import Image
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 REVISIONS = {"PokeAPI/sprites": "289e842364648ec0495ae4ba12f48d5cbfbf670b",
-             "PMDCollab/SpriteCollab": "aae7a436af894efab3ff24915f0b645bb4907750"}
+             "PMDCollab/SpriteCollab": "aae7a436af894efab3ff24915f0b645bb4907750",
+             "pret/pokeemerald": "731ad5bfd6e6f265508d0efcca0ba42f9dcf5881"}
 PILOT = [(16, "Pidgey"), (37, "Vulpix"), (194, "Wooper")]
 CACHE = {}
 DEFAULT = pathlib.Path(os.environ.get("LOCALAPPDATA", pathlib.Path.home())) / "Wildbond" / "private-sprites" / "v1"
@@ -89,6 +90,10 @@ def check(root):
         for name, anim in entry["animations"].items():
             if animation(root, entry["directory"], name) != anim:
                 raise ValueError("Invalid animation/anchor metadata")
+    for name, rel in manifest.get("trainer", {}).items():
+        with Image.open(safe(root, rel)) as image:
+            if image.size != (144, 32):
+                raise ValueError("Invalid trainer sheet: " + name)
     print(f"PASS: 3 species, {len(manifest['files'])} pinned files, 6 battle views, 6 eight-direction animations.")
     return manifest
 
@@ -116,8 +121,19 @@ def build(root):
             "credits_file": f"{folder}/credits.txt", "display_height_m": {16: 0.5, 37: 0.65, 194: 0.55}[number]}
     for repo, file in (("PokeAPI/sprites", "LICENCE.txt"), ("PMDCollab/SpriteCollab", "LICENSE.md")):
         files.append(download(root, repo, file, "notices/" + repo.split("/")[0] + ".txt"))
+    trainer = {}
+    for state in ("walking", "running"):
+        rel = f"trainer/brendan-{state}.png"
+        files.append(download(root, "pret/pokeemerald", f"graphics/object_events/pics/people/brendan/{state}.png", rel))
+        trainer[state] = rel
+    files.append(download(root, "pret/pokeemerald", "src/data/object_events/object_event_anims.h", "trainer/source-animation-layout.h"))
+    items = {}
+    for name in ("oran-berry", "poke-ball"):
+        rel = f"items/{name}.png"
+        files.append(download(root, "PokeAPI/sprites", f"sprites/items/{name}.png", rel))
+        items[name] = rel
     result = {"schema": 1, "private": True, "scope": "native save-free prototype; not a public asset distribution",
-        "revisions": REVISIONS, "files": files, "species": entries,
+        "revisions": REVISIONS, "files": files, "species": entries, "trainer": trainer, "items": items,
         "rights": "Pokemon artwork retains its owners' rights; SpriteCollab credits/terms preserved per source. Private use is not a new license."}
     # Publish the manifest only once every required source and geometry is present.
     staging = root / "manifest.pending.json"
@@ -128,6 +144,9 @@ def build(root):
         "Wildbond optional private pilot\nPokemon artwork: The Pokemon Company / Nintendo / Game Freak / Creatures; "
         "PMD original sprites: Spike Chunsoft.\nCommunity contributions: see each pokemon/<id>/credits.txt.\n"
         "PokeAPI and PMDCollab source URLs/revisions/hashes: manifest.json.\nOriginal license notices: notices/.\n"
+        "Emerald Brendan walking/running: original Game Freak / Nintendo / Creatures artwork, preserved via pret/pokeemerald.\n"
+        "Trainer source animation layout/revision/hash: trainer/source-animation-layout.h and manifest.json.\n"
+        "Oran Berry/Poke Ball icons: PokeAPI/sprites. Ranch Berry/Bond Ball are study visual aliases, not canonical item mechanics.\n"
         "No permission for public redistribution is implied by this prototype.\n", encoding="utf-8")
 
 def main():

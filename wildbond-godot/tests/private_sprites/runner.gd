@@ -28,6 +28,26 @@ func run() -> void:
 	check(scene.active and scene.battle == null, "clearing starts in exploration")
 	check(scene.player.position == Vector3(0, 0, 5), "player starts on the trail")
 	check(scene.pack.entries.size() == 3 if "--private" in OS.get_cmdline_user_args() else scene.pack.entries.is_empty(), "optional pack state matches launch")
+	var original_hp: int = scene.supplies.team[1].hp
+	scene.supplies.team[1].hp -= 10
+	scene.open_bag()
+	check(scene.bag != null, "bag opens in world")
+	scene.bag.use_item(1)
+	check(scene.bag == null and scene.supplies.team[1].hp == original_hp and scene.supplies.berries == 1, "world bag heals chosen partner and consumes one berry")
+	scene.supplies.berries = 2
+	for meta in scene.partner_frames:
+		var rect := Rect2i(meta.region[0], meta.region[1], meta.region[2], meta.region[3])
+		var image: Image = scene.partner_atlas.atlas.get_image()
+		check(Rect2i(Vector2i.ZERO, image.get_size()).encloses(rect), "complete Bogsnap pose lies within atlas")
+		var clear_edges := true
+		for x in range(rect.position.x, rect.end.x):
+			if image.get_pixel(x, rect.position.y).a > 0.5 or image.get_pixel(x, rect.end.y - 1).a > 0.5: clear_edges = false
+		for y in range(rect.position.y, rect.end.y):
+			if image.get_pixel(rect.position.x, y).a > 0.5 or image.get_pixel(rect.end.x - 1, y).a > 0.5: clear_edges = false
+		check(clear_edges, "Bogsnap pose has transparent margins without chopped limbs")
+	if not scene.pack.trainer.is_empty():
+		check(scene.pack.trainer_texture(false).get_image().get_pixel(0, 0).a == 0, "trainer source colour key decodes to transparency")
+		check(scene.pack.trainer_texture(true) != null and scene.pack.item_texture("poke-ball") != null, "private run poses and item icons are installed")
 	var before := scene.player.position
 	scene.move_player(Vector2.RIGHT, 0.2)
 	check(scene.player.position.x > before.x, "world movement advances player")
