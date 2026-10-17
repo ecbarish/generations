@@ -11,7 +11,9 @@ This direction supersedes ordinary-animal styling; it does not waive game-size, 
 Evan also explicitly chose [Pokemon Battle Advanced](https://thedaigan.itch.io/pba) as the modern-world
 presentation target: expressive sprite creatures in a 3D environment with lighting, depth and weather.
 Start with one playable Thornwood clearing; preserve approved identities and the progression through visual eras.
-The reference's real-time combat is a separate unresolved choice, not an automatic battle-system replacement.
+Evan clarified that world presentation is the priority; explore both combat approaches, favouring standard
+turn-based and whichever is easier to develop into a cohesive game. The first slice reuses existing turn-based
+work. Any real-time comparison stays bounded and shares species data/presentation rather than requiring two full systems.
 
 
 Started 2026-10-09, after Evan chose **"Our own tiles"** for Wildbond. Evan, the same day: *"it's important we do our
