@@ -36,6 +36,9 @@ Quality and playable needs set batch size. Existing art remains usable until rep
 
 ## Pokemon inspiration and compatibility
 
+[Reuse-first source shortlist](reuse-sources.md) maps Evan's spreadsheet, PokeAPI, SpriteCollab and licensed
+environment/effect packs to concrete roles, with a small optional-private-pack intake plan.
+
 Gen 1-4 provide design language: compact memorable silhouettes, bold anatomy motifs, anime expressions, personality and coherent evolution. We can reimagine a particular Pokemon too; record its source identity instead of relabelling a recognizable Pokemon as an original species. Broader inspiration can produce original Wildbond monsters while preserving their lore.
 
 Species identity and art representation stay separate. Existing IDs and evolution links remain stable; new art gains a version/asset identity. Private Pokemon imports retain their own namespace, provenance and private storage. Registry work in #544 supports this boundary; this art task does not install imports or migrate saves.
