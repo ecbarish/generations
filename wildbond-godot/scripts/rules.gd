@@ -6,6 +6,7 @@ extends RefCounted
 ## checks in tests/run_tests.gd can fix them and compare with the browser.
 
 const Effects := preload("res://scripts/battle_effects.gd")
+const SpeciesRegistry := preload("res://scripts/species_registry.gd")
 
 const STATS := ["hp", "pow", "grd", "spd", "wit", "spi"]
 const STAT_NAME := { "hp": "Health", "pow": "Power", "grd": "Guard", "spd": "Speed", "wit": "Wits", "spi": "Spirit" }
@@ -28,6 +29,24 @@ const BOND := [["Wary", 0], ["Friendly", 20], ["Loyal", 60], ["Devoted", 140], [
 const ACT_AT := 2.2                           # a creature acts when its turn meter reaches this
 
 static var DATA: Dictionary = {}
+static var REGISTRY: RefCounted = null
+
+## Register only after the shared catalogue, Godot evolution overlay and lessons are merged.
+## A failed rebuild never reuses a prior scene's catalogue; bare-ID rules still use this scene's DATA.
+static func prepare_species_registry() -> Array[String]:
+	REGISTRY = SpeciesRegistry.new()
+	return REGISTRY.load_legacy(DATA)
+
+## Preserve direct live-data access for existing IDs (including test/content overrides).
+## Qualified built-in input resolves to the same legacy key; individuals continue storing that bare key.
+static func species_key(id: String) -> String:
+	if DATA.get("SPECIES", {}).has(id):
+		return id
+	if REGISTRY != null:
+		var bare: String = REGISTRY.legacy_id(id)
+		if bare != "" and DATA.get("SPECIES", {}).has(bare):
+			return bare
+	return id
 
 ## Godot adds evolution forms after importing the shared catalogue. Give those forms the same lessons.
 static func prepare_move_choices() -> void:
@@ -49,7 +68,7 @@ static func prepare_move_choices() -> void:
 		species.learn.sort_custom(func(a, b): return a[0] < b[0])
 
 static func sp(c: Dictionary) -> Dictionary:
-	return DATA.SPECIES[c.sp]
+	return DATA.SPECIES[species_key(str(c.sp))]
 
 static func bond_lvl(c: Dictionary) -> int:
 	var l := 0
@@ -60,6 +79,7 @@ static func bond_lvl(c: Dictionary) -> int:
 
 ## A new creature (Creatures.make). opts: rar, temp, traits, pot, name. Rolls what isn't given.
 static func make(species_id: String, lvl: int, opts: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
+	species_id = species_key(species_id)
 	var rar: int = opts.get("rar", 0)
 	var pr: Array = RARITY[rar].pot
 	var pot := {}

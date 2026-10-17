@@ -1,0 +1,35 @@
+{
+  "source_commit": "d24b181f1742ba91bc338a75a26c1ca3310d0516",
+  "source_tree": "449540e6f61c23bfc68b7dcb5df52ea2a4354b99",
+  "pack_sha256": "02e179255f32cc72198af1cdd8bd58d0852f47c8ee6cf0fa1c48d59394c89cca",
+  "pack_bytes": 20657868,
+  "results": [
+    {
+      "width": 1366,
+      "height": 768,
+      "touch": false,
+      "booted": true,
+      "errors": [],
+      "before": "howto-1366x768.png",
+      "after": "arrival-1366x768.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "touch": true,
+      "booted": true,
+      "errors": [],
+      "before": "howto-390x844.png",
+      "after": "arrival-390x844.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "touch": true,
+      "booted": true,
+      "errors": [],
+      "before": "howto-844x390.png",
+      "after": "arrival-844x390.png"
+    }
+  ]
+}
