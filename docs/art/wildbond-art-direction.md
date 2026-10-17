@@ -1,5 +1,15 @@
 # Wildbond: art direction
 
+## Creature direction update — Evan, 2026-10-17
+
+All existing and future creatures should read as expressive anime monster characters, drawing on Pokemon
+Generations 1-4: memorable silhouettes, exaggerated proportions, signature anatomy and visible personality.
+Preserve the selected Bogsnap design and existing species/evolution identities. Apply the same character
+across the Game Boy-to-modern presentation progression. [Creature vision and starter concepts](creature-vision/README.md)
+define the rollout and distinguish concept illustrations from production sprite/animation requirements.
+This direction supersedes ordinary-animal styling; it does not waive game-size, framing or palette checks.
+
+
 Started 2026-10-09, after Evan chose **"Our own tiles"** for Wildbond. Evan, the same day: *"it's important we do our
 own art because the goal is to push the graphics over time further and further. And I want eventually to be able to
 have a first person game that resembles the assets we've used. So the more we design and set ourselves up right, the
