@@ -31,9 +31,21 @@
       "hash_mode": "utf8-lf-no-bom"
     },
     "docs/art/creature-vision/roster-review.csv": {
-      "sha256": "08d82e45d918f48cd17c7c179e5286950ad6081901ea52eef2e2349b002e402c",
-      "bytes": 43975,
+      "sha256": "7ccd2c6762e67396af4b4f120ebac6d08691ef249dc434ae5e81db25ffd2a9f0",
+      "bytes": 44002,
       "hash_mode": "utf8-lf-no-bom"
     }
+  },
+  "approval": {
+    "operator": "Evan",
+    "date": "2026-10-17",
+    "quote": "That generation is perfect for the starters.",
+    "species": [
+      "mosshog",
+      "ripplet",
+      "cindercub"
+    ],
+    "asset": "starter-personalities-v1.png",
+    "scope": "concept identities as drawn; production frames and animation remain unverified"
   }
 }
