@@ -1,0 +1,51 @@
+{
+  "task": "WB-CREATURE-VISION",
+  "base_commit": "b8493ff05e08073a7255968a83d015bd520d1c28",
+  "species_count": 189,
+  "kind": "concept-reference-not-production",
+  "generator": "built-in image_gen",
+  "files": {
+    "wildbond-godot/data/wildbond.json": {
+      "sha256": "8463e0bb241e49874b33a72051863d064d8f53dee1973f86dde45c64b5b6028c",
+      "bytes": 192233,
+      "hash_mode": "utf8-lf-no-bom"
+    },
+    "wildbond-godot/data/evolution.json": {
+      "sha256": "16ac98bb8e8a603208597690fffbc3a566742a0c0c6faedfe3e20068138d20f2",
+      "bytes": 86345,
+      "hash_mode": "utf8-lf-no-bom"
+    },
+    "docs/art/creature-vision/bogsnap-selected-reference.jpg": {
+      "sha256": "f7bfee867a10c3bc2bb5cdafc4af0a898e0548a998c3ba828a8a87ad4767111b",
+      "bytes": 205939,
+      "hash_mode": "raw-bytes"
+    },
+    "docs/art/creature-vision/starter-personalities-v1.png": {
+      "sha256": "19de641538cdb3a21f154016472e5af634dd564755b7c5ed8c803536cc646d5a",
+      "bytes": 2748174,
+      "hash_mode": "raw-bytes"
+    },
+    "docs/art/creature-vision/prompt.txt": {
+      "sha256": "65146a7e39856d6490533b1181aea0262106259d2daafe8cae263541cc73a18b",
+      "bytes": 3494,
+      "hash_mode": "utf8-lf-no-bom"
+    },
+    "docs/art/creature-vision/roster-review.csv": {
+      "sha256": "7ccd2c6762e67396af4b4f120ebac6d08691ef249dc434ae5e81db25ffd2a9f0",
+      "bytes": 44002,
+      "hash_mode": "utf8-lf-no-bom"
+    }
+  },
+  "approval": {
+    "operator": "Evan",
+    "date": "2026-10-17",
+    "quote": "That generation is perfect for the starters.",
+    "species": [
+      "mosshog",
+      "ripplet",
+      "cindercub"
+    ],
+    "asset": "starter-personalities-v1.png",
+    "scope": "concept identities as drawn; production frames and animation remain unverified"
+  }
+}

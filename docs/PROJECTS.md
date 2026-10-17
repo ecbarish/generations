@@ -1,3 +1,9 @@
+## Wildbond creature vision
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| WB-CREATURE-VISION | Expressive monster identities across the roster | Small first study | Built: Codex / Evan, PR #548 | Evan approved all three starter concept identities; 189-species review snapshot; selected Bogsnap preserved; production frames pending |
+
 ## Diamond Manager recent form
 
 | ID | Project | Size | Status | Scope |

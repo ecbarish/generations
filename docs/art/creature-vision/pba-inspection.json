@@ -1,0 +1,149 @@
+{
+  "observed_at": "2026-10-17",
+  "url": "https://html-classic.itch.zone/html/19746934/index.pck",
+  "bytes": 31553628,
+  "sha256": "bb704b67362da64bd84b5542ade0fe2e17b58a9c4ec19a39f4cda82ab3572366",
+  "pack_version": 4,
+  "pack_flags": 2,
+  "engine": [
+    4,
+    7,
+    1
+  ],
+  "entries": 5631,
+  "verified_payload_md5": 5631,
+  "extensions": {
+    ".scn": 767,
+    ".res": 8,
+    ".cfg": 2,
+    ".ctex": 1625,
+    ".fontdata": 2,
+    ".oggvorbisstr": 124,
+    ".sample": 51,
+    ".bin": 1,
+    ".remap": 191,
+    ".gdc": 146,
+    ".gdextension": 1,
+    ".json": 151,
+    ".import": 2532,
+    ".png": 14,
+    ".svg": 1,
+    ".binary": 1,
+    ".gdshader": 12,
+    ".gdshaderinc": 2
+  },
+  "selected_modules": {
+    "scripts/camera_rig.gdc": {
+      "identifier_count": 144,
+      "observed_symbols": [
+        "pitch_deg",
+        "distance",
+        "Camera3D",
+        "focus_battle",
+        "fov",
+        "focus_follow",
+        "_fade_occluders",
+        "_fade_buildings",
+        "Sprite3D"
+      ]
+    },
+    "scripts/pokemon_sprites.gdc": {
+      "identifier_count": 159,
+      "observed_symbols": [
+        "pmd_anims",
+        "hframes",
+        "vframes",
+        "pixel_size",
+        "front_frames",
+        "back_frames",
+        "Sprite3D",
+        "frames_per_row"
+      ]
+    },
+    "scripts/creature.gdc": {
+      "identifier_count": 478,
+      "observed_symbols": [
+        "Sprite3D",
+        "pmd_anims",
+        "_pmd_frame_at",
+        "hframes",
+        "vframes"
+      ]
+    },
+    "scripts/world/world_builder.gdc": {
+      "identifier_count": 486,
+      "observed_symbols": [
+        "frame_budget",
+        "_per_frame",
+        "pixel_size",
+        "Sprite3D"
+      ]
+    },
+    "scripts/world/zone_streamer.gdc": {
+      "identifier_count": 184,
+      "observed_symbols": [
+        "zone_changed",
+        "_in_flight"
+      ]
+    },
+    "scripts/world/water_reflections.gdc": {
+      "identifier_count": 144,
+      "observed_symbols": [
+        "Sprite3D",
+        "pixel_size",
+        "hframes",
+        "vframes",
+        "get_camera_projection"
+      ]
+    },
+    "scripts/world/time_of_day.gdc": {
+      "identifier_count": 166,
+      "observed_symbols": [
+        "zone_changed",
+        "ambient_light_color",
+        "fog_density"
+      ]
+    }
+  },
+  "animation_metadata_example": {
+    "source_path": "assets/pokemon/bulbasaur/pmd/anims.json",
+    "states": 36,
+    "samples": {
+      "Idle": {
+        "directions": 8,
+        "frames": 3,
+        "frame_width": 32,
+        "frame_height": 40,
+        "anchor_directions": 8
+      },
+      "Walk": {
+        "directions": 8,
+        "frames": 6,
+        "frame_width": 40,
+        "frame_height": 40,
+        "anchor_directions": 8
+      },
+      "Attack": {
+        "directions": 8,
+        "frames": 11,
+        "frame_width": 64,
+        "frame_height": 72,
+        "anchor_directions": 8
+      },
+      "Hurt": {
+        "directions": 8,
+        "frames": 2,
+        "frame_width": 40,
+        "frame_height": 56,
+        "anchor_directions": 8
+      },
+      "Sleep": {
+        "directions": 1,
+        "frames": 2,
+        "frame_width": 24,
+        "frame_height": 24,
+        "anchor_directions": 1
+      }
+    }
+  }
+}
