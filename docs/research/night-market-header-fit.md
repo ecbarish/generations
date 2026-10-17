@@ -12,4 +12,4 @@ The CSS now divides the two columns equally. The header has 263.203125px, so Bac
 
 The unchanged Night Market suite passes **423 checks**, including fresh/ready-to-hire/hired layouts, portrait and landscape controls, 200% text, save reloads and unrelated-save isolation. Before/after captures and measured boxes cover 568×320, 390×844, 844×390, 1366×768, 3440×1440 and 390×844 at 200% text. All after captures were inspected. These are browser engineering checks, not a physical-device playtest.
 
-Evidence: [screenshots and capture script](../screenshots/night-market-header-fit/README.md). The required full aggregate run is recorded before submission.
+Evidence: [screenshots and capture script](../screenshots/night-market-header-fit/README.md). The required full `node tools/run-all-checks.cjs` run passes **all 28 suites** on implementation `5f6d150d238d4a486dfd29716d3a33b0c8f8d86d`: Night Market 423, Wildbond Godot 19,717, Starfall Godot 488, plus every browser/catalogue/save/asset/context suite. No tests were changed. The remaining commit only records these results and the session handoff.
