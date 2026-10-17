@@ -28,8 +28,14 @@ static func run(check: Callable) -> void:
 	var sample: Dictionary = fixtures.rows[0]
 	check.call(MathRules.damage(sample.attacker, sample.defender, sample.move, 0.5, 0).damage == 0, "explicit immunity is not coerced to neutral")
 	for frame in 24:
-		check.call(Art.player_frame(frame / 16.0, true) == "bogsnap-back.png", "entire former idle cycle uses the complete back, never clipped poses")
-	check.call(Art.player_frame(2, false) == "bogsnap-back.png", "reduced motion uses supplied resting back")
+		check.call(Art.player_frame(frame / 16.0, true) == Art.APPROVED_BACK, "entire cycle uses Evan's approved design, never the different ZIP sprite")
+	check.call(Art.player_frame(2, false) == Art.APPROVED_BACK, "reduced motion keeps the approved design")
+	var approved: Texture2D = Art.texture(Art.APPROVED_BACK)
+	check.call(FileAccess.get_sha256(Art.APPROVED_ROOT + Art.APPROVED_BACK) == "48ee37d4c84217680e22610e42df464b00592d781bd4ce107c05ddb69a72d222", "selected battle representation retains its recorded identity")
+	check.call(FileAccess.get_sha256(Art.APPROVED_ROOT + "approved-model-sheet.jpg") == "f7bfee867a10c3bc2bb5cdafc4af0a898e0548a998c3ba828a8a87ad4767111b", "Evan's authoritative source sheet is byte-preserved")
+	check.call(approved != null and Rect2i(Vector2i.ZERO, approved.get_size()).encloses(Art.APPROVED_INK), "approved sprite crop is inside its source canvas")
+	var approved_dest := Art.destination(Art.APPROVED_INK, Vector2(83, 132), 64)
+	check.call(is_equal_approx(approved_dest.end.y, 132) and is_equal_approx(approved_dest.size.y, 64), "approved design keeps the battle foot anchor and height")
 	for i in range(1, 5):
 		var tex: Texture2D = Art.texture("bogsnap-idle-%d.png" % i)
 		check.call(tex != null, "supplied idle texture loads")

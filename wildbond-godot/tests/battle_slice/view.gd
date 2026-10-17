@@ -180,6 +180,7 @@ func _creature(c: Dictionary, foot: Vector2, back: bool, side: String) -> void:
 	if tex == null: tex = Sprites.battle_texture(c.id)
 	if tex == null: return
 	var ink: Rect2i = Sprites.ink_box(tex)
+	if supplied: ink = MuseArt.APPROVED_INK
 	var zoom := minf(1.0, minf(78.0 / ink.size.x, 64.0 / ink.size.y))
 	var bob := roundf(sin(clock * 2.5) * 1.0) if motion else 0.0
 	var recoil := 0.0

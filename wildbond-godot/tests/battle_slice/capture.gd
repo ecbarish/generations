@@ -33,6 +33,7 @@ func run() -> void:
 	DirAccess.make_dir_recursive_absolute(output)
 	view = load("res://tests/battle_slice/play.tscn").instantiate()
 	root.add_child(view)
+	view.sounds.on = false # This runner captures visuals/input; native play retains its normal sound control.
 	await capture("commands")
 	await tap(view.buttons[0])
 	assert(view.page == "moves", "pointer Fight must open moves")
@@ -65,7 +66,12 @@ func run() -> void:
 			if not view.event.is_empty(): await tap(view.buttons[0])
 	assert(view.model.result == "won", "real Fight/move flow reaches victory")
 	await capture("victory")
+	view.MuseArt.cache.clear()
+	view.Sprites._tex.clear()
+	view.Sprites._ink.clear()
 	view.queue_free()
 	await process_frame
+	await process_frame
+	await RenderingServer.frame_post_draw
 	print("Battle study captures and real pointer flow passed: ", output)
 	quit()
