@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Wildbond Thornwood atmosphere study (2026-10-17, PR #550):** A native forest slice with reusable 3D scenery, sunlight/shadows, sunset/night/rain, animated water and existing sprite encounters. Separate study launch; adventure saves and public exports are unchanged.
+
 - **Wildbond private clearing study (2026-10-17, PR #549):** Directional trainer walking/running, approved-design-derived Bogsnap idle/walk frames, and a pocketed practice bag with item counts, party targeting and supplies carried between encounters. Native study only; adventure saves and public exports are unchanged.
 
 - **Night Market Stalls v0.1.7 — NM-G3 (PR #499; version bumped on merge):** The Back and footer links are now 1rem and stay on one line. The header reflows when the text is larger, as Generations Director approved. Game Art Director approved the change at 9548a7bb. The save stays version 1.

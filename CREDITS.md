@@ -29,6 +29,10 @@ Google Fonts source revision: `5e8a3ba899557829a76cfdac30fa512bda91d7ca` (notice
 
 **three.js r134**, copyright © 2010–2021 three.js authors, MIT License. Wildbond's Diorama loads the unmodified library from [cdnjs](https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js); its offline fallback is the existing HD-2D renderer. The isolated Realmbound third-person inn trial also uses this same pinned library (plus its GLTFLoader); its default characters and textures are original procedural code, and its optional comparison uses the Quaternius models credited below. [Version-specific source notice](https://raw.githubusercontent.com/mrdoob/three.js/r134/LICENSE) · [Full local MIT notice](licenses/three-r134-MIT.txt).
 
+## Wildbond Thornwood atmosphere study
+
+The isolated, export-excluded `wildbond-godot/tests/thornwood_environment/` study uses 15 unchanged GLB models from **Kenney Nature Kit**, created/distributed by Kenney (www.kenney.nl), CC0 1.0. The supplied notice labels the archive **2.1**, dated 2020-04-29; the creator's web listing calls it 1.0. Retrieved 2026-10-17 from [Kenney's Nature Kit page](https://kenney.nl/assets/nature-kit). [Supplied CC0 notice](licenses/Kenney-NatureKit-CC0.txt). Individual original paths/hashes and the exact archive URL/hash are recorded in `wildbond-godot/tests/thornwood_environment/assets/kenney/sources.json`. Source bytes are unchanged; runtime placement/scaling, nonmetallic materials and forest colour overrides are project-authored. Ground/water shaders, lighting and composition are authored for Wildbond. No models or code from Pokemon Battle Advanced are included.
+
 ## Maintaining the credits
 
 Before adding an outside asset or library, record its name, author/copyright, exact source, version where applicable, use in the arcade, license and any changes here. Copy the supplied notice into licenses/ and update credits.html. Keep attribution required by the asset's license; CREATIVE.md sets the permitted-source rules. Third-party notices describe those components only; they do not grant a license for the entire arcade.
