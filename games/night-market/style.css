@@ -144,7 +144,7 @@ button[aria-pressed="true"], button.ask {
 /* A short, wide phone has room beside the ledger. Keep controls in normal flow.
    The decorative strip keeps its full-page pixel scale, above the two columns. */
 @media (min-width: 568px) and (max-width: 1000px) and (max-height: 500px) {
-  .window { max-width: none; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); column-gap: 1rem; align-items: start; align-content: start; }
+  .window { max-width: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 1rem; align-items: start; align-content: start; }
   header { grid-column: 1; grid-row: 2; min-width: 0; }
   .market-work { grid-column: 2; grid-row: 2; }
   .lane { grid-column: 1 / -1; grid-row: 1; margin-top: 0; margin-bottom: 0.5rem; }

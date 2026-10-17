@@ -1,3 +1,9 @@
+## Night Market narrow landscape header
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| NM-HEADER-FIT | Keep Back and cash on one line at 568px | Small | Built: Codex / Evan, PR #545 | One CSS ratio change; all 423 existing Night Market checks pass; full aggregate validation pending |
+
 ## Diamond Manager recent form
 
 | ID | Project | Size | Status | Scope |
