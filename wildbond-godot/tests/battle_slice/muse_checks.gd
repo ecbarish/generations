@@ -27,7 +27,8 @@ static func run(check: Callable) -> void:
 	check.call(MathRules.shake_count(impossible, rng) == 0, "zero-rate catch never succeeds")
 	var sample: Dictionary = fixtures.rows[0]
 	check.call(MathRules.damage(sample.attacker, sample.defender, sample.move, 0.5, 0).damage == 0, "explicit immunity is not coerced to neutral")
-	check.call(Art.player_frame(0, true) == "bogsnap-idle-1.png" and Art.player_frame(0.75, true) == "bogsnap-idle-4.png" and Art.player_frame(1, true) == "bogsnap-idle-3.png", "supplied idle plays ping-pong at four frames per second")
+	for frame in 24:
+		check.call(Art.player_frame(frame / 16.0, true) == "bogsnap-back.png", "entire former idle cycle uses the complete back, never clipped poses")
 	check.call(Art.player_frame(2, false) == "bogsnap-back.png", "reduced motion uses supplied resting back")
 	for i in range(1, 5):
 		var tex: Texture2D = Art.texture("bogsnap-idle-%d.png" % i)

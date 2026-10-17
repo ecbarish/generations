@@ -189,7 +189,7 @@ func _creature(c: Dictionary, foot: Vector2, back: bool, side: String) -> void:
 	draw_circle(Vector2.ZERO, 24, Color(0.1, 0.2, 0.15, 0.22))
 	draw_set_transform(Vector2.ZERO)
 	var dest := Rect2(foot + Vector2(-ink.size.x * zoom * 0.5 + recoil, -ink.size.y * zoom + bob), Vector2(ink.size) * zoom)
-	if supplied: dest = MuseArt.destination(ink, foot + Vector2(recoil, 0), 64)
+	if supplied: dest = MuseArt.destination(ink, foot + Vector2(recoil, bob), 64)
 	draw_texture_rect_region(tex, dest, Rect2(ink))
 
 func _draw() -> void:
