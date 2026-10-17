@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Wildbond map planning study (2026-10-17, PR #552):** A measured Larkhaven/Thornwood plan, reusable location brief, generated art reference and walkable blockout aligned with the existing interconnected-region design. Separates current map geometry from the planned west branch; no production map/save/export change.
+
 - **Wildbond town study (2026-10-17, PR #551):** A walkable 3D town with healing-center and mart interiors, shared visit supplies, a short encounter trail and Pokemon-inspired menus/dialogue. Uses the installed animated trainer; separate native study with no adventure save or public export change.
 
 - **Wildbond Thornwood atmosphere study (2026-10-17, PR #550):** A native forest slice with reusable 3D scenery, sunlight/shadows, sunset/night/rain, animated water and existing sprite encounters. Separate study launch; adventure saves and public exports are unchanged.

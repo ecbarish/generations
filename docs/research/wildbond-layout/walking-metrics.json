@@ -1,0 +1,76 @@
+{
+  "cell_metres": 1.25,
+  "walk_metres_per_second": 3,
+  "paths": [
+    {
+      "from": "Larkhaven start (11,7)",
+      "to": "Healing Inn",
+      "cells": 10,
+      "metres": 12.5,
+      "movement_only_seconds": 4.2
+    },
+    {
+      "from": "Larkhaven start (11,7)",
+      "to": "Shop",
+      "cells": 10,
+      "metres": 12.5,
+      "movement_only_seconds": 4.2
+    },
+    {
+      "from": "Larkhaven start (11,7)",
+      "to": "Ranch",
+      "cells": 9,
+      "metres": 11.25,
+      "movement_only_seconds": 3.8
+    },
+    {
+      "from": "Larkhaven start (11,7)",
+      "to": "Maren",
+      "cells": 6,
+      "metres": 7.5,
+      "movement_only_seconds": 2.5
+    },
+    {
+      "from": "Larkhaven start (11,7)",
+      "to": "Pip",
+      "cells": 10,
+      "metres": 12.5,
+      "movement_only_seconds": 4.2
+    },
+    {
+      "from": "Larkhaven start (11,7)",
+      "to": "Town item",
+      "cells": 16,
+      "metres": 20,
+      "movement_only_seconds": 6.7
+    },
+    {
+      "from": "Larkhaven start (11,7)",
+      "to": "Bram",
+      "cells": 20,
+      "metres": 25,
+      "movement_only_seconds": 8.3
+    },
+    {
+      "from": "Larkhaven start (11,7)",
+      "to": "Trail item",
+      "cells": 28,
+      "metres": 35,
+      "movement_only_seconds": 11.7
+    },
+    {
+      "from": "Larkhaven start (11,7)",
+      "to": "North continuation",
+      "cells": 28,
+      "metres": 35,
+      "movement_only_seconds": 11.7
+    },
+    {
+      "from": "Larkhaven start (11,7)",
+      "to": "East grove branch",
+      "cells": 31,
+      "metres": 38.75,
+      "movement_only_seconds": 12.9
+    }
+  ]
+}

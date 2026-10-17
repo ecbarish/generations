@@ -1,0 +1,429 @@
+{
+  "schema": 1,
+  "title": "Larkhaven / Thornwood local layout study",
+  "source": "wildbond-godot/data/wildbond.json",
+  "source_sha256": "8463e0bb241e49874b33a72051863d064d8f53dee1973f86dde45c64b5b6028c",
+  "regional_authority": "docs/plans/wildbond-world/world-graph.json",
+  "units": {
+    "cell_metres": 1.25,
+    "north": "negative world Z",
+    "origin_global_cell": [
+      11,
+      0
+    ]
+  },
+  "status": "study_only",
+  "solid": [
+    "T",
+    "~",
+    "o",
+    "R",
+    "r",
+    "#",
+    "=",
+    "P",
+    "j",
+    "q"
+  ],
+  "maps": [
+    {
+      "id": "larkhaven",
+      "name": "Larkhaven",
+      "offset": [
+        0,
+        0
+      ],
+      "rows": [
+        "TTTTTTTTTTNNTTTTTTTTTTTT",
+        "T,,,,,,,,,..P,,,,,,,,,,T",
+        "T,rrrrr,,,..,,,,rrrrr,,T",
+        "T,rrrrr,,,..,,,,rrrrr,,T",
+        "T,##D##,,,..,,,,##D##,,T",
+        "T,,,.,,,,,..,,,,,,.,,,,T",
+        "T,,.................,f,T",
+        "T,f,,,,,,,..,,,,,,,,,,,T",
+        "T,,,,rrrrr..,=======,,,T",
+        "T,,,,rrrrr..,=,,,,,=,,,T",
+        "T,,,,##D##..,=,,,,,=,f,T",
+        "T,f,,,,.,,..,===.===,,,T",
+        "T,,,,,,..........,,,,,,T",
+        "TTTTTTTTTTTTTTTTTTTTTTTT"
+      ],
+      "start": [
+        11,
+        7,
+        "down"
+      ],
+      "exits": {
+        "N": {
+          "to": "thornwood_route",
+          "x": 13,
+          "y": 16,
+          "dir": "up"
+        }
+      },
+      "doors": {
+        "4,4": "inn",
+        "18,4": "shop",
+        "7,10": "ranch"
+      },
+      "pen": [
+        14,
+        9,
+        18,
+        10
+      ],
+      "npcs": [
+        {
+          "who": "maren",
+          "at": [
+            9,
+            11
+          ],
+          "act": "ranch"
+        },
+        {
+          "who": "pip",
+          "at": [
+            21,
+            7
+          ],
+          "act": null
+        }
+      ],
+      "items": [
+        {
+          "id": "lh1",
+          "at": [
+            22,
+            12
+          ]
+        }
+      ],
+      "signs": {
+        "12,1": "North: Thornwood. Mind the tall grass, and mind your partner."
+      }
+    },
+    {
+      "id": "thornwood_route",
+      "name": "Thornwood Trail",
+      "offset": [
+        -3,
+        -20
+      ],
+      "rows": [
+        "TTTTTTTTTTTTTNNTTTTTTTTTTTTTTT",
+        "TTTTTTTTTTTT.....TTTTTTTTTTTTT",
+        "TTTTTTTTTTTT.....TTTTTTTTTTTTT",
+        "TTTTTTTTTTT.....TTTTTTTTTTTTTT",
+        "TTT,,\",,\",.....TTTTTTTTTTTTTTT",
+        "TTT,\",,\",,....TTTTTTTTTTTTTTTT",
+        "TTT\",,\",,,,,,.TTTTTTTTTTTTTTTT",
+        "TTT,,\",,\",.....TTTTTTTTTTTTTTT",
+        "TTT,\",,\",,T.....TTTTTTTTTTTTTT",
+        "TTTTTTTTTTTT.....T,,,,,,,,,TTT",
+        "TT~~~TTTTTTTT...,,,,,,,,,,,,,E",
+        "TT~~~TTTTTTTTT....,,,,,,,,,TTT",
+        "TT~~~,,,,,TTTT....\",\",\",\",\"TTT",
+        "TT~~~TTTTTTTT.....,,,,,,,,,TTT",
+        "TT~~~TTTTTTT.....TTTTTTTTTTTTT",
+        "TTTTTTTTTTTTP....TTTTTTTTTTTTT",
+        "TTTTTTTTTTTT.....TTTTTTTTTTTTT",
+        "TTTTTTTTTTTTTSSTTTTTTTTTTTTTTT"
+      ],
+      "start": [
+        13,
+        16,
+        "up"
+      ],
+      "exits": {
+        "S": {
+          "to": "larkhaven",
+          "x": 10,
+          "y": 1,
+          "dir": "down"
+        },
+        "N": {
+          "to": "thornwood",
+          "x": 13,
+          "y": 14,
+          "dir": "up"
+        },
+        "E": {
+          "to": "thornwood_grove",
+          "x": 1,
+          "y": 8,
+          "dir": "right",
+          "requiresElement": "Stone",
+          "locked": "A steep shelf of old stone blocks the way into the grove. A Stone partner could find a safe path up."
+        }
+      },
+      "doors": {},
+      "pen": null,
+      "npcs": [
+        {
+          "who": "bram",
+          "at": [
+            14,
+            7
+          ],
+          "act": null
+        }
+      ],
+      "items": [
+        {
+          "id": "tw1",
+          "at": [
+            8,
+            5
+          ]
+        }
+      ],
+      "signs": {
+        "12,15": "Thornwood Trail. North: the hollow and Warden Isolde. East: an old grove beyond the stone shelf."
+      }
+    }
+  ],
+  "connector": [
+    [
+      10,
+      -2
+    ],
+    [
+      11,
+      -2
+    ],
+    [
+      10,
+      -1
+    ],
+    [
+      11,
+      -1
+    ]
+  ],
+  "proposals": [
+    {
+      "id": "millgrass",
+      "name": "Millgrass Lane",
+      "status": "candidate_geometry",
+      "offset": [
+        -15,
+        3
+      ],
+      "rows": [
+        "TTTTTTTTTTTTTTTT",
+        "T,,,,,,,,,,,,,,T",
+        "T,,,,,,,,,,,,,,T",
+        "T,,............T",
+        "C...,,,,,,,,,...",
+        "T,,,,,,,,,,,,,,T",
+        "T,,,,,,,,,,,,,,T",
+        "T,,,,,,,,,,,,,,T",
+        "TTTTTTTTTTTTTTTT"
+      ],
+      "notes": "Proposed west opening at Larkhaven (0,7); no production landing assignment. C is the visible closed Larkburrow mouth; no new cave or shortcut is opened."
+    }
+  ],
+  "reserved": [
+    {
+      "id": "west_lane",
+      "at": [
+        0,
+        7
+      ],
+      "target": "millgrass",
+      "status": "planned_phase_1"
+    },
+    {
+      "id": "dewcut",
+      "at": [
+        25,
+        -10
+      ],
+      "target": "dewcut",
+      "status": "planned_phase_1",
+      "note": "Current east exit goes directly to Old Root Grove; planned Dewcut takes over that connection, retaining the Stone-partner requirement at its far shelf."
+    }
+  ],
+  "regional": {
+    "places": [
+      {
+        "id": "larkhaven",
+        "name": "Larkhaven",
+        "kind": "town",
+        "phase": 0,
+        "healer": "Old Ned",
+        "healerStatus": "exists",
+        "current": true
+      },
+      {
+        "id": "thornwood",
+        "name": "Thornwood",
+        "kind": "town",
+        "phase": 0,
+        "healer": "Hedda",
+        "healerStatus": "proposed",
+        "current": true,
+        "note": "Gains the Gate Loft in phase 1."
+      },
+      {
+        "id": "sunthread",
+        "name": "Threadmeet",
+        "kind": "town",
+        "phase": 0,
+        "healer": "Solla",
+        "healerStatus": "proposed",
+        "signNameToday": "Sunthread Commons",
+        "current": true,
+        "note": "The existing commons keeps the id sunthread."
+      },
+      {
+        "id": "thornwood_route",
+        "name": "Thornwood Trail",
+        "kind": "route",
+        "phase": 0,
+        "current": true
+      },
+      {
+        "id": "millgrass",
+        "name": "Millgrass Lane",
+        "kind": "route",
+        "phase": 1
+      },
+      {
+        "id": "dewcut",
+        "name": "Dewcut",
+        "kind": "route",
+        "phase": 1
+      },
+      {
+        "id": "rootwater",
+        "name": "Rootwater Path",
+        "kind": "route",
+        "phase": 1
+      },
+      {
+        "id": "knothollow",
+        "name": "Knothollow",
+        "kind": "cave",
+        "phase": 2,
+        "note": "Front door from Rootwater Path; Grove Wake opens the back of Old Root Grove into it."
+      },
+      {
+        "id": "larkburrow",
+        "name": "Larkburrow",
+        "kind": "cave",
+        "phase": 6,
+        "note": "Mouth on Millgrass Lane is visible and shut from phase 1."
+      },
+      {
+        "id": "thornwood_grove",
+        "name": "Old Root Grove",
+        "kind": "other",
+        "phase": 0,
+        "role": "pocket",
+        "current": true
+      }
+    ],
+    "links": [
+      {
+        "a": "larkhaven",
+        "b": "thornwood_route",
+        "gate": [],
+        "phase": 0,
+        "id": "larkhaven--thornwood_route"
+      },
+      {
+        "a": "larkhaven",
+        "b": "millgrass",
+        "gate": [],
+        "phase": 1,
+        "id": "larkhaven--millgrass"
+      },
+      {
+        "a": "millgrass",
+        "b": "larkburrow",
+        "gate": [],
+        "phase": 6,
+        "note": "First room opens in phase 6 to anyone on Millgrass Lane.",
+        "id": "millgrass--larkburrow"
+      },
+      {
+        "a": "thornwood_route",
+        "b": "dewcut",
+        "gate": [],
+        "phase": 1,
+        "id": "thornwood_route--dewcut"
+      },
+      {
+        "a": "dewcut",
+        "b": "thornwood_grove",
+        "gate": [
+          {
+            "element": "Stone"
+          }
+        ],
+        "phase": 1,
+        "note": "Today the grove is the trail's east exit with the same Stone check; Dewcut takes over that door.",
+        "id": "dewcut--thornwood_grove"
+      },
+      {
+        "a": "thornwood_route",
+        "b": "thornwood",
+        "gate": [],
+        "phase": 0,
+        "id": "thornwood_route--thornwood"
+      },
+      {
+        "a": "thornwood",
+        "b": "rootwater",
+        "gate": [],
+        "phase": 1,
+        "id": "thornwood--rootwater"
+      },
+      {
+        "a": "rootwater",
+        "b": "knothollow",
+        "gate": [
+          {
+            "badge": "thorn"
+          }
+        ],
+        "phase": 2,
+        "note": "Front door is a Thorn Badge supply test.",
+        "id": "rootwater--knothollow"
+      },
+      {
+        "a": "thornwood_grove",
+        "b": "knothollow",
+        "gate": [
+          {
+            "field": "grove"
+          }
+        ],
+        "phase": 2,
+        "note": "Grove Wake opens the back ring.",
+        "id": "thornwood_grove--knothollow"
+      },
+      {
+        "a": "larkburrow",
+        "b": "sunthread",
+        "gate": [
+          {
+            "field": "stone"
+          },
+          {
+            "badge": "loom"
+          }
+        ],
+        "phase": 6,
+        "note": "The Home Burrow. Both are needed together.",
+        "id": "larkburrow--sunthread"
+      }
+    ],
+    "total_places": 47,
+    "total_links": 54,
+    "source_note": "The region graph is planning data, not loaded by the current adventure."
+  }
+}
