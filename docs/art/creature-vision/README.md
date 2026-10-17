@@ -52,6 +52,10 @@ Directional/billboard sprites in a lit 3D scene can achieve this target without 
 
 ## Browser reference Evan supplied
 
+Follow-up: [Public build architecture inspection](pba-inspection.md) confirms the Godot pack, Sprite3D/camera
+boundaries and directional animation metadata. Read it for verified findings, REA assessment and limits;
+the earlier page-only review below is historical.
+
 Reviewed 2026-10-17: [GamingBible article](https://www.gamingbible.com/news/pokemon-firered-browser-game-is-the-glorious-kanto-remake-we-deserved-687652-20261016) and primary [Pokemon Battle Advanced developer page](https://thedaigan.itch.io/pba).
 
 The developer describes pixel sprites in a 3D world, made in Godot 4.7, with real-time combat, weather and browser play. This supports exploring HD-2D presentation; Wildbond retains its requested turn-based direction. The page lists incomplete abilities and placeholder move effects. No source-code license was found on that page. No gameplay or performance testing was performed for this reference review.
