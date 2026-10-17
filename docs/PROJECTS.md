@@ -2,7 +2,7 @@
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| WB-REGISTRY | Compatible runtime species identities | Small | Building: Codex / Evan, PR #544 | Runtime registry connected; 5,223 focused checks pass; dependencies #545 and #491; combined export and aggregate validation underway |
+| WB-REGISTRY | Compatible runtime species identities | Small | Built: Codex / Evan, PR #544 | Runtime registry connected; 5,223 focused / 25,427 Wildbond checks; all 28 suites pass; exact-pack boot/input on desktop and both phone orientations; depends on #545 and #491 review |
 ## Night Market narrow landscape header
 
 | ID | Project | Size | Status | Scope |
