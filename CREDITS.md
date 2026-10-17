@@ -68,6 +68,10 @@ second or longer are stored as OGG Vorbis. `starfall-godot/assets/emote/` and `w
 emotes from *Ui/Emote*, unchanged and renamed by meaning. The pack's 53-colour palette is copied (enlarged, and as a
 palette file) in `docs/learning/art/` for drawing our own art to match.
 
+## Wildbond location planning reference
+
+`docs/research/wildbond-layout/art-reference.png` is an original generated design reference made with the built-in image-generation tool on 2026-10-17, using the source-derived measured map. Exact prompt, hashes and limitations are recorded beside it. It is a visual proposal, not a runtime asset or an implemented map. The regional schematic is reused from the existing Wildbond world concept-map work.
+
 ## Realmbound 3D trial: Quaternius characters
 
 Models and animations by **Quaternius** (https://quaternius.com), CC0 1.0 (public domain dedication; attribution not

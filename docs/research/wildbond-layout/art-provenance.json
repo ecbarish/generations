@@ -1,0 +1,13 @@
+{
+  "kind": "generated_design_reference",
+  "tool": "built-in image_gen",
+  "created": "2026-10-17",
+  "image": "art-reference.png",
+  "image_sha256": "cc7303c9786370fbc909e724f435c25d2e4e0306db44f82706e639ec40eaa279",
+  "prompt": "art-prompt.txt",
+  "reference": "local-layout.png",
+  "reference_sha256": "9353bbdd3524839577ecec3d01dd7036bbda34ad60480266567d315738275b1d",
+  "runtime_asset": false,
+  "approval": "visual proposal; independent art review pending",
+  "authority": "Measured layout.json and existing world-graph.json govern geometry/topology."
+}
