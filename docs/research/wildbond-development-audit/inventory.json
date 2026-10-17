@@ -1,0 +1,4598 @@
+{
+  "baseline": "b8493ff05e08073a7255968a83d015bd520d1c28",
+  "checkout": "f03d24b962c22b67063362b4c73fdc27a42197ba",
+  "counts": {
+    "base_species": 119,
+    "overlay_species": 82,
+    "overlapping_species": 12,
+    "effective_species": 189,
+    "moves": 60,
+    "elements": 7,
+    "maps": 15,
+    "biomes": 8,
+    "story_beats": 30,
+    "scripts": 24,
+    "front_sprites": 11,
+    "back_sprite_files": 2,
+    "world_idle": 11,
+    "world_walk": 11
+  },
+  "maps": [
+    {
+      "id": "larkhaven",
+      "name": "Larkhaven",
+      "biome": null,
+      "width": 24,
+      "height": 14,
+      "exits": {
+        "N": {
+          "to": "thornwood_route",
+          "x": 13,
+          "y": 16,
+          "dir": "up"
+        }
+      }
+    },
+    {
+      "id": "thornwood",
+      "name": "Thornwood",
+      "biome": "thornwood",
+      "width": 30,
+      "height": 16,
+      "exits": {
+        "S": {
+          "to": "thornwood_route",
+          "x": 13,
+          "y": 1,
+          "dir": "down"
+        },
+        "N": {
+          "to": "saltmarsh_route",
+          "x": 13,
+          "y": 14,
+          "dir": "up",
+          "locked": "The hawthorn gate is shut tight. Warden Isolde keeps it, and she opens it only for tamers who have earned the Thorn Badge."
+        }
+      }
+    },
+    {
+      "id": "saltmarsh",
+      "name": "Saltmarsh Coast",
+      "biome": "saltmarsh",
+      "width": 30,
+      "height": 14,
+      "exits": {
+        "S": {
+          "to": "saltmarsh_route",
+          "x": 13,
+          "y": 1,
+          "dir": "down"
+        },
+        "E": {
+          "to": "emberfall",
+          "x": 1,
+          "y": 8,
+          "dir": "right",
+          "locked": "The cliff path up to the highlands is roped off. A sign reads: \"Tide Badge holders only. By order of Warden Nerys.\""
+        }
+      }
+    },
+    {
+      "id": "emberfall",
+      "name": "Emberfall Highlands",
+      "biome": "emberfall",
+      "width": 30,
+      "height": 14,
+      "exits": {
+        "W": {
+          "to": "saltmarsh",
+          "x": 28,
+          "y": 8,
+          "dir": "left"
+        },
+        "N": {
+          "to": "cloudglass",
+          "x": 13,
+          "y": 12,
+          "dir": "up",
+          "locked": "A rope bars the high path into the cloud. A tag on it reads: \"Ember Badge holders only. The pass is no place to learn patience. Toren.\""
+        }
+      }
+    },
+    {
+      "id": "cloudglass",
+      "name": "Cloudglass Pass",
+      "biome": "cloudglass",
+      "width": 30,
+      "height": 14,
+      "exits": {
+        "S": {
+          "to": "emberfall",
+          "x": 13,
+          "y": 1,
+          "dir": "down"
+        },
+        "E": {
+          "to": "stillreed",
+          "x": 1,
+          "y": 8,
+          "dir": "right",
+          "locked": "The basin ferry path waits for the Beacon Badge. Vessa asks every team to learn the pass before descending."
+        }
+      }
+    },
+    {
+      "id": "stillreed",
+      "name": "Stillreed Basin",
+      "biome": "stillreed",
+      "width": 30,
+      "height": 14,
+      "exits": {
+        "W": {
+          "to": "cloudglass",
+          "x": 27,
+          "y": 8,
+          "dir": "left"
+        },
+        "E": {
+          "to": "hollowecho",
+          "x": 1,
+          "y": 9,
+          "dir": "right",
+          "locked": "The hill survey trail requires the Reed Badge. Leave the basin crossing safe before exploring the caverns."
+        }
+      }
+    },
+    {
+      "id": "hollowecho",
+      "name": "Hollowecho Hills",
+      "biome": "hollowecho",
+      "width": 30,
+      "height": 14,
+      "exits": {
+        "W": {
+          "to": "stillreed",
+          "x": 28,
+          "y": 9,
+          "dir": "left"
+        },
+        "E": {
+          "to": "sunthread",
+          "x": 1,
+          "y": 9,
+          "dir": "right",
+          "locked": "The gathering trail requires the Echo Badge. Listen to your partners before joining Sunthread Commons."
+        }
+      }
+    },
+    {
+      "id": "sunthread",
+      "name": "Sunthread Commons",
+      "biome": "sunthread",
+      "width": 30,
+      "height": 14,
+      "exits": {
+        "E": {
+          "to": "farwatch",
+          "x": 1,
+          "y": 9,
+          "dir": "right",
+          "locked": "The coastal road requires the Loom Badge. Make room for every partner before Farwatch Reach."
+        },
+        "W": {
+          "to": "hollowecho",
+          "x": 28,
+          "y": 9,
+          "dir": "left"
+        }
+      }
+    },
+    {
+      "id": "farwatch",
+      "name": "Farwatch Reach",
+      "biome": "farwatch",
+      "width": 30,
+      "height": 14,
+      "exits": {
+        "N": {
+          "to": "league",
+          "x": 3,
+          "y": 16,
+          "dir": "up",
+          "locked": "The league requires all eight badges. Every road has something to teach your team."
+        },
+        "W": {
+          "to": "sunthread",
+          "x": 28,
+          "y": 9,
+          "dir": "left"
+        }
+      }
+    },
+    {
+      "id": "league",
+      "name": "Returning Light League",
+      "biome": null,
+      "width": 40,
+      "height": 18,
+      "exits": {
+        "W": {
+          "to": "spire",
+          "x": 17,
+          "y": 14,
+          "dir": "left",
+          "locked": "The Spire opens after the Champion ending. Take your team home in the story first."
+        },
+        "S": {
+          "to": "farwatch",
+          "x": 12,
+          "y": 1,
+          "dir": "down"
+        }
+      }
+    },
+    {
+      "id": "spire",
+      "name": "The Lighthouse Spire",
+      "biome": null,
+      "width": 19,
+      "height": 18,
+      "exits": {
+        "E": {
+          "to": "league",
+          "x": 1,
+          "y": 15,
+          "dir": "right"
+        }
+      }
+    },
+    {
+      "id": "thornwood_route",
+      "name": "Thornwood Trail",
+      "biome": "thornwood",
+      "width": 30,
+      "height": 18,
+      "exits": {
+        "S": {
+          "to": "larkhaven",
+          "x": 10,
+          "y": 1,
+          "dir": "down"
+        },
+        "N": {
+          "to": "thornwood",
+          "x": 13,
+          "y": 14,
+          "dir": "up"
+        },
+        "E": {
+          "to": "thornwood_grove",
+          "x": 1,
+          "y": 8,
+          "dir": "right",
+          "requiresElement": "Stone",
+          "locked": "A steep shelf of old stone blocks the way into the grove. A Stone partner could find a safe path up."
+        }
+      }
+    },
+    {
+      "id": "thornwood_grove",
+      "name": "Old Root Grove",
+      "biome": "thornwood",
+      "width": 26,
+      "height": 16,
+      "exits": {
+        "W": {
+          "to": "thornwood_route",
+          "x": 28,
+          "y": 10,
+          "dir": "left"
+        }
+      }
+    },
+    {
+      "id": "saltmarsh_route",
+      "name": "Saltmarsh Road",
+      "biome": "saltmarsh",
+      "width": 30,
+      "height": 16,
+      "exits": {
+        "S": {
+          "to": "thornwood",
+          "x": 13,
+          "y": 1,
+          "dir": "down"
+        },
+        "N": {
+          "to": "saltmarsh",
+          "x": 13,
+          "y": 12,
+          "dir": "up"
+        },
+        "W": {
+          "to": "saltmarsh_pool",
+          "x": 1,
+          "y": 8,
+          "dir": "right",
+          "requiresElement": "Tide",
+          "locked": "The shelf drops into a moonlit pool. A Tide partner could find the way down."
+        }
+      }
+    },
+    {
+      "id": "saltmarsh_pool",
+      "name": "Moon Pool",
+      "biome": "saltmarsh",
+      "width": 26,
+      "height": 16,
+      "exits": {
+        "W": {
+          "to": "saltmarsh_route",
+          "x": 1,
+          "y": 8,
+          "dir": "right"
+        }
+      }
+    }
+  ],
+  "move_fields": [
+    "bonus",
+    "breakGuard",
+    "cd",
+    "cleanse",
+    "combo",
+    "duration",
+    "el",
+    "heal",
+    "kind",
+    "name",
+    "pierce",
+    "pow",
+    "spec",
+    "status"
+  ],
+  "same_description": [],
+  "battle_files": [
+    {
+      "name": "blazefang_battle_front.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "bogsnap_battle_back.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "bogsnap_battle_front.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "cindercub_battle_front.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "glimmerwing_battle_back.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "glimmerwing_battle_front.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "mosshog_battle_front.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "ripplet_battle_front.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "riverwisp_battle_front.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "smoulderpup_battle_front.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "thicketboar_battle_front.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "thornback_battle_front.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    },
+    {
+      "name": "tidewyrm_battle_front.png",
+      "dimensions": [
+        64,
+        64
+      ]
+    }
+  ],
+  "problems": [],
+  "scripts": [
+    {
+      "name": "battle.gd",
+      "lines": 1662,
+      "sha256": "e4ec555bb5b2c180e37e10cfddda80adf93bd7feeee7a838aec17084eea68134",
+      "functions": [
+        "_ready",
+        "unit",
+        "open",
+        "_sfx",
+        "say",
+        "_go_to",
+        "living",
+        "_process",
+        "_tick",
+        "_check_end",
+        "_beat",
+        "_show_next_line",
+        "_after_beat",
+        "_act",
+        "_target",
+        "_resolve",
+        "_hurt",
+        "_choose",
+        "menu_word",
+        "can_join",
+        "_join",
+        "_unjoin",
+        "known_orders",
+        "use_order",
+        "has_ready_move",
+        "_use_move",
+        "_end",
+        "_input",
+        "_grid_move",
+        "_view_scale",
+        "_row_h",
+        "_row_h_for",
+        "_command_box",
+        "_menu_rect",
+        "_dimmed",
+        "_label_size",
+        "_move_rect",
+        "_order_nav_y",
+        "_detail_rect",
+        "_ally_panel",
+        "_ally_line_rect",
+        "_chip_boxes",
+        "_chips_fit",
+        "best_value",
+        "_demo",
+        "_text",
+        "_box",
+        "_hp_panels",
+        "_clearance_boxes",
+        "_draw_creature",
+        "_battle_front_foot",
+        "sprite_rect",
+        "_drawn_at",
+        "_keep_on_phone",
+        "_stage_px",
+        "_ensure_parents",
+        "_note_parent",
+        "_battle_stage",
+        "_stage_depth",
+        "_figure_scale",
+        "_battle_poses",
+        "_figure_fit",
+        "_figure_place",
+        "_slide_foot",
+        "_nudge_figure",
+        "_limit_delta",
+        "_draw_figure",
+        "_painted_foot",
+        "_spot",
+        "_draw_highlands",
+        "_draw",
+        "_draw_commands",
+        "_draw_capture_marker",
+        "_draw_joined",
+        "_ellipse",
+        "_info",
+        "upcoming",
+        "next_names",
+        "next_sides",
+        "command_dim",
+        "deck_press",
+        "_queue",
+        "_calm",
+        "_info_line",
+        "nm"
+      ]
+    },
+    {
+      "name": "battle_effects.gd",
+      "lines": 77,
+      "sha256": "26a5e150c7daec59162a8c08ee2f9c617f096c6f0593a44adda4fb129471c0a2",
+      "functions": [
+        "active",
+        "apply",
+        "cleanse",
+        "wake",
+        "tick",
+        "modifier",
+        "after_hit",
+        "label"
+      ]
+    },
+    {
+      "name": "book.gd",
+      "lines": 334,
+      "sha256": "5339c65440b508cec96e691aa0d18f3f783facf17c7791ebc2ffdc5d4ecd7acf",
+      "functions": [
+        "_ready",
+        "open",
+        "close",
+        "_process",
+        "_page_start",
+        "_cell",
+        "_input",
+        "_look",
+        "_shadow",
+        "_text",
+        "_draw",
+        "_draw_dex",
+        "_draw_team",
+        "_draw_satchel",
+        "_row_rect",
+        "_settings_key",
+        "_draw_settings",
+        "_date"
+      ]
+    },
+    {
+      "name": "calendar.gd",
+      "lines": 132,
+      "sha256": "d8a0969838a2055e208cb1e1306ad8ae39161875818ecdd5de4329b87c5f5087",
+      "functions": [
+        "advance",
+        "_real",
+        "season",
+        "day",
+        "date_text",
+        "mode_text",
+        "festival",
+        "year",
+        "next_mode",
+        "time_of_day",
+        "weather",
+        "to_dict",
+        "from_dict"
+      ]
+    },
+    {
+      "name": "card.gd",
+      "lines": 219,
+      "sha256": "27b72edbd1f13210008b16c890aea4e430bf9b39cd0db1c6faa358b6941c7b07",
+      "functions": [
+        "_ready",
+        "open",
+        "_count",
+        "_pick",
+        "_close",
+        "_input",
+        "_choice_h",
+        "_screen_scale",
+        "_choice_h_for",
+        "_btn",
+        "_label",
+        "_label_w",
+        "_btn_size",
+        "_process",
+        "_text",
+        "_para",
+        "_draw"
+      ]
+    },
+    {
+      "name": "controls.gd",
+      "lines": 186,
+      "sha256": "e492e92b889931f23911ed5c3ff221db16ba471562d76ae8664d22dd75128de5",
+      "functions": [
+        "setup",
+        "_bind_key",
+        "pressed",
+        "dir",
+        "pointing",
+        "note",
+        "_press",
+        "released",
+        "release_kind",
+        "_up",
+        "at",
+        "into_view",
+        "fill",
+        "swallow_pointer",
+        "held_dir",
+        "_key_down"
+      ]
+    },
+    {
+      "name": "creature_sprites.gd",
+      "lines": 226,
+      "sha256": "fe13b412f1858a7434993d1160a93b666e0414f2d2a73555018fdad8bf7c1e05",
+      "functions": [
+        "_file",
+        "texture",
+        "has",
+        "battle_file",
+        "battle_texture",
+        "has_battle_front",
+        "battle_size",
+        "whole_scale",
+        "battle_dest",
+        "frame_size",
+        "frame_count",
+        "fit_scale",
+        "dest_rect",
+        "foot_clear_of",
+        "try_draw",
+        "try_draw_battle",
+        "_washed",
+        "_paint_gear"
+      ]
+    },
+    {
+      "name": "figures.gd",
+      "lines": 962,
+      "sha256": "a577a6ab8280fa80bbe53692a14c1b972a3e33ded9fce7e1fc30283694c25d3f",
+      "functions": [
+        "nearest_palette",
+        "paint",
+        "person",
+        "person_parts",
+        "creature",
+        "parts_of",
+        "_body",
+        "pixel_span",
+        "_gear_parts",
+        "_frame",
+        "_lift",
+        "_eye",
+        "_wolf",
+        "_lizard",
+        "_boar",
+        "look_for",
+        "drawn_px",
+        "_target_height",
+        "world_height",
+        "_standing",
+        "_posed_look",
+        "native_parts",
+        "battle_whole_scale",
+        "sized_parts",
+        "_bounds",
+        "_fit_height",
+        "_anchors",
+        "_inked",
+        "_marks",
+        "_cat",
+        "_hyena",
+        "_croc",
+        "_horse",
+        "_bird",
+        "_spider",
+        "_sprite",
+        "_serpent",
+        "_turtle",
+        "_moth",
+        "_treefolk"
+      ]
+    },
+    {
+      "name": "howto.gd",
+      "lines": 133,
+      "sha256": "8dfeca633773118dba4531236c6f8e27c5d9e248512a8c3408517432d144409e",
+      "functions": [
+        "_ready",
+        "note",
+        "open",
+        "in_use",
+        "touch_device",
+        "touch_device_size",
+        "leads_with",
+        "_process",
+        "_input",
+        "_draw",
+        "_draw_touch"
+      ]
+    },
+    {
+      "name": "main.gd",
+      "lines": 5275,
+      "sha256": "ee6abfc01170930fda7182cce8d915eeb1edbd05006b1f614c532df90dcd21b2",
+      "functions": [
+        "_ready",
+        "_begin_intro",
+        "_on_howto_closed",
+        "_on_title",
+        "_set_map",
+        "say",
+        "advance",
+        "_after_talk",
+        "_on_signed",
+        "heritage",
+        "_partner_name",
+        "cur_map",
+        "solid",
+        "tile_at",
+        "indoors",
+        "_build_homes",
+        "_off_new_homes",
+        "_make_keepers",
+        "_near_keeper",
+        "_keeper_talk",
+        "actors",
+        "walkable",
+        "route",
+        "_check_doors",
+        "_team_has_element",
+        "_go",
+        "_switch",
+        "_input",
+        "_process",
+        "_step",
+        "_walk",
+        "_unhandled_input",
+        "_note_walk_tap",
+        "_covering",
+        "_menu_allowed",
+        "_toggle_menu",
+        "_satchel_hit",
+        "_on_menu",
+        "_on_book_closed",
+        "_tap",
+        "_starter_beside_me",
+        "_meet",
+        "card_info",
+        "role_of",
+        "_on_chosen",
+        "_stop",
+        "_think",
+        "_butterfly",
+        "_bubbles",
+        "_demo",
+        "_draw",
+        "_draw_outdoor",
+        "_is_painted",
+        "_draw_painted",
+        "_tree_cell",
+        "_tree_at",
+        "_draw_canopy",
+        "_restored_at",
+        "_faded_look",
+        "_draw_actor",
+        "_creature_species",
+        "_draw_barn",
+        "_draw_barn_light",
+        "_boards",
+        "_sacks",
+        "_bale",
+        "_stall_board",
+        "_bench",
+        "_trough",
+        "_draw_tile",
+        "_update_ui",
+        "_tex",
+        "_is_path",
+        "_draw_ground",
+        "_draw_structures",
+        "buildings",
+        "_under_roof",
+        "_beside_me",
+        "_fill",
+        "_on_battle",
+        "_today",
+        "_on_battle_result",
+        "_hash",
+        "_draw_dressing",
+        "_draw_clover",
+        "_draw_daisies",
+        "_draw_tuft",
+        "_draw_pebbles",
+        "_draw_fern",
+        "_draw_mushrooms",
+        "_draw_step",
+        "_draw_straw",
+        "_draw_veg",
+        "_draw_bank",
+        "reed_sway",
+        "_draw_basin",
+        "_draw_dragonflies",
+        "_draw_stone_floor",
+        "_draw_hills",
+        "_draw_bell_house",
+        "_draw_meeting_hall",
+        "_draw_commons",
+        "_draw_pier",
+        "_draw_lookout",
+        "_draw_boathouse",
+        "_draw_harbor",
+        "_draw_shore_lights",
+        "_leaf_tint",
+        "_season_crown",
+        "_snow_on",
+        "_season_ground",
+        "_season_air",
+        "_wild_table",
+        "_maren_data",
+        "_season_word",
+        "_festival",
+        "_fest_key",
+        "_festival_invite",
+        "_festival_here",
+        "_festival_gift",
+        "_npc_name",
+        "_festival_tick",
+        "_festival_complete",
+        "_draw_flowers",
+        "_league_next",
+        "_league_talk",
+        "_court_who",
+        "_after_league",
+        "_homecoming",
+        "_draw_court",
+        "_draw_festival",
+        "_table",
+        "_draw_bells",
+        "_draw_mist",
+        "_draw_water",
+        "_arrived",
+        "_explore",
+        "_wild_battle",
+        "_after_wild",
+        "_maren_heals",
+        "_satchel_shown",
+        "_draw_satchel",
+        "_skip_opening",
+        "_make_npcs",
+        "_cast_look",
+        "_gate_open",
+        "_check_spotted",
+        "_spotter_tick",
+        "_challenge",
+        "_after_trainer",
+        "_postgame_open",
+        "_grown_for_level",
+        "_spire_floor_data",
+        "_spire_talk",
+        "_spire_fight",
+        "_after_spire",
+        "_start_warden_rematch",
+        "_after_warden_rematch",
+        "where_next",
+        "_letter_step",
+        "_talk_here",
+        "_someone_standing",
+        "_gentle_at",
+        "_autosave",
+        "_notification",
+        "save_game",
+        "_save_version",
+        "_peek_save",
+        "_newer_save",
+        "migrate_save",
+        "_migrate_v1",
+        "_remap_list",
+        "_remap_retired",
+        "_read_save",
+        "_save_summary",
+        "_fix_creature",
+        "_migrate_dex",
+        "_load_game",
+        "_door",
+        "_open_book",
+        "level_cap",
+        "_beat_here",
+        "_story_beat",
+        "_after_story",
+        "_draw_sand",
+        "_mountain",
+        "_draw_cliff",
+        "_turf",
+        "_draw_spring",
+        "_draw_steam",
+        "_draw_clouds",
+        "_draw_embers",
+        "_draw_rock",
+        "_place_ranch",
+        "in_stall",
+        "_near_trough",
+        "_near_stall",
+        "_feed",
+        "_choose_feed",
+        "_breed_here",
+        "_lay_egg",
+        "_egg_step",
+        "_near_bench",
+        "_open_bench",
+        "_bench_pick",
+        "wear",
+        "geared_look",
+        "_lead_look",
+        "_stand_by",
+        "_visit",
+        "ranch_info",
+        "_on_card_pick",
+        "_evo_cine_start",
+        "_evo_cine_tick",
+        "_evo_cine_finish",
+        "_evo_witness",
+        "_draw_evo_cine",
+        "_check_evolution",
+        "evolution_held",
+        "_ask_evolve",
+        "_take_along",
+        "_has_caught_wild",
+        "_guide_first_catch",
+        "next_objective",
+        "_layout_objective",
+        "_speech_floor",
+        "_clear_of_objective",
+        "_stall_sign_rects",
+        "_covers_stall_signs",
+        "_place_name_at",
+        "_fit_caption",
+        "_phone_sync",
+        "_thumbs_tick",
+        "_place_caption",
+        "action_word",
+        "_observation",
+        "_evidence_shown",
+        "_evidence_at",
+        "_evidence_ahead",
+        "_read_evidence",
+        "_reveal_ready",
+        "_stage_reveal",
+        "_reveal",
+        "_draw_evidence",
+        "_long_shadow",
+        "key_hint",
+        "_draw_key_hints",
+        "_keycap",
+        "keys_for",
+        "how",
+        "_music_key",
+        "music_path",
+        "_music_tick",
+        "_ambience_tick",
+        "_draw_room",
+        "_heritage_line"
+      ]
+    },
+    {
+      "name": "move_lessons.gd",
+      "lines": 136,
+      "sha256": "a1c6ae988277544fa82324d8fd4e7540b97e8e87d7465b33fdbd705073c26147",
+      "functions": [
+        "_ready",
+        "open",
+        "close",
+        "change_creature",
+        "pick_move",
+        "replace_slot",
+        "_input",
+        "text",
+        "_draw"
+      ]
+    },
+    {
+      "name": "objective.gd",
+      "lines": 33,
+      "sha256": "04f34e7656d79615bf1c2893086b70b45c64a7eb7472f7a6cebed978292067b5",
+      "functions": [
+        "_ready",
+        "setup",
+        "block_height",
+        "_draw"
+      ]
+    },
+    {
+      "name": "pause_menu.gd",
+      "lines": 82,
+      "sha256": "07718838caf331f5c30c35eaddeccb17289f75f72dfcb7f81c8306d71f223298",
+      "functions": [
+        "_ready",
+        "open",
+        "close",
+        "_row",
+        "_pick",
+        "_input",
+        "_draw"
+      ]
+    },
+    {
+      "name": "phone_shell.gd",
+      "lines": 1168,
+      "sha256": "59fd7a9344f5ffff21e429509aba99d1a14599f8cdcf9560b1ce9545b64c9566",
+      "functions": [
+        "_ready",
+        "_pixel_font",
+        "wants",
+        "side_wants",
+        "read_insets",
+        "read_dpr",
+        "_parse_insets",
+        "release_is_step",
+        "contrast",
+        "_lum",
+        "_chan",
+        "dpad_dir",
+        "paginate",
+        "chip_font_size",
+        "battle_next_chips",
+        "place_chips",
+        "_chip_w",
+        "_put_plus",
+        "layout_for",
+        "_layout_side",
+        "strip_lines",
+        "portrait_rect",
+        "_menu_rect",
+        "box_gap",
+        "circle_box",
+        "has_tap",
+        "consume_tap",
+        "mark_moved",
+        "drop_pending",
+        "attach",
+        "_mount",
+        "detach",
+        "relayout",
+        "_process",
+        "_can_walk",
+        "_at",
+        "_input",
+        "_press",
+        "_over_view",
+        "_view_local",
+        "_relay_to_view",
+        "_drag",
+        "_release",
+        "_begin_dir",
+        "_swap_dir",
+        "_end_dir",
+        "_hit_circle",
+        "_do_a",
+        "_do_b",
+        "_do_menu",
+        "_advance_talk",
+        "_pages",
+        "_slots",
+        "_push_action",
+        "_forward",
+        "_forward_point",
+        "_draw",
+        "_draw_side",
+        "_paint_deck",
+        "_draw_strip",
+        "_draw_battle",
+        "_draw_battle_note",
+        "_battle_note_text",
+        "_battle_pages",
+        "_page_battle_note",
+        "_draw_card",
+        "_choice_button",
+        "_draw_pad",
+        "_glyph",
+        "_text_in",
+        "_disc",
+        "_plus",
+        "_arm",
+        "_pill",
+        "_capsule"
+      ]
+    },
+    {
+      "name": "register.gd",
+      "lines": 236,
+      "sha256": "f5844258d6736fd009552ca4ac08fd5ac27e37719977dcfb9f68c3b1a446fde1",
+      "functions": [
+        "_ready",
+        "open",
+        "look",
+        "change",
+        "sign_it",
+        "demo_step",
+        "_input",
+        "_process",
+        "_text",
+        "_arrow",
+        "_draw",
+        "hints"
+      ]
+    },
+    {
+      "name": "rules.gd",
+      "lines": 472,
+      "sha256": "fe6b8a0361279e1789a846c40d232959d552018a20b5bc10735232314ff080d4",
+      "functions": [
+        "prepare_move_choices",
+        "sp",
+        "bond_lvl",
+        "make",
+        "base_form",
+        "breed_info",
+        "breed",
+        "stats",
+        "xp_need",
+        "win_xp",
+        "default_moves",
+        "learned_moves",
+        "moves_of",
+        "keep_moves",
+        "grow",
+        "evo_options",
+        "raised_lvl",
+        "evo_target",
+        "evolve",
+        "add_bond",
+        "advantage",
+        "damage",
+        "choose_move",
+        "move_value",
+        "tactical_move",
+        "move_info",
+        "atb_rate",
+        "roll_rarity",
+        "words",
+        "gear_of"
+      ]
+    },
+    {
+      "name": "safe_save.gd",
+      "lines": 50,
+      "sha256": "3838b29f63814e53d5e0a8e9e1c972784a1dc31f04708541f063f14047af6406",
+      "functions": [
+        "write",
+        "read",
+        "exists",
+        "remove",
+        "_parse"
+      ]
+    },
+    {
+      "name": "settings.gd",
+      "lines": 88,
+      "sha256": "ea61de1b737daab8b9722b137025b87fe5482748a3741a40c326d79fa27b51aa",
+      "functions": [
+        "load_file",
+        "save_file",
+        "top",
+        "step",
+        "shown",
+        "large_text",
+        "pace",
+        "buttons",
+        "apply"
+      ]
+    },
+    {
+      "name": "sfx.gd",
+      "lines": 51,
+      "sha256": "aef79964bbca82b17f358f86155cadbb4eda8fb7e5b53c7dc691a083088213a1",
+      "functions": [
+        "_ready",
+        "play",
+        "_stream",
+        "has"
+      ]
+    },
+    {
+      "name": "shop.gd",
+      "lines": 89,
+      "sha256": "9b71ecd07746d4916f91072cb12a5a61610592ae202a4bc69cf70be022e207d4",
+      "functions": [
+        "_ready",
+        "open",
+        "_buy",
+        "_row",
+        "_input",
+        "_draw"
+      ]
+    },
+    {
+      "name": "status_bar.gd",
+      "lines": 41,
+      "sha256": "7e4652111f2e88a5bc01f77c041d9f4f4f91ff61c37eb48c921cacfdfc50d800",
+      "functions": [
+        "_ready",
+        "setup",
+        "_draw"
+      ]
+    },
+    {
+      "name": "title.gd",
+      "lines": 75,
+      "sha256": "6f91a8e98a5ffee7da6c1201cc250567854d6ff57ef05ff8fdf2c823d9b68754",
+      "functions": [
+        "_ready",
+        "open",
+        "_pick",
+        "_btn",
+        "_input",
+        "_draw"
+      ]
+    },
+    {
+      "name": "touch_pad.gd",
+      "lines": 147,
+      "sha256": "877419b184ee0e5224b66d9266039dcbac220c8b32961ab2e68406c44e68fb36",
+      "functions": [
+        "pad_at",
+        "btn_at",
+        "_ready",
+        "wanted",
+        "_process",
+        "refresh",
+        "_on_pad",
+        "_on_btn",
+        "_input",
+        "_finger",
+        "press",
+        "_aim",
+        "_draw"
+      ]
+    },
+    {
+      "name": "turn_card.gd",
+      "lines": 69,
+      "sha256": "3fbc243b28490854a519cecb8ba1142144597d66eaf2c12c02f6ed690272c7ff",
+      "functions": [
+        "_ready",
+        "upright",
+        "message",
+        "_process",
+        "check",
+        "_fit_window",
+        "_input",
+        "_draw"
+      ]
+    }
+  ],
+  "species_review": [
+    {
+      "id": "ashskip",
+      "name": "Ashskip",
+      "family": "lizard",
+      "element": "Ember",
+      "description": "It hops between cooling rocks and leaves tiny tail prints in the soft ash.",
+      "evolutions": [
+        {
+          "to": "ashstride",
+          "at": 26,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the tiny tail prints have become a warm trail the highland rocks remember."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ashstride",
+      "name": "Ashstride",
+      "family": "lizard",
+      "element": "Ember",
+      "description": "The tiny tail prints have become a warm trail the highland rocks remember.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "bellmote",
+      "name": "Bellmote",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "It rests inside a silent bell and lights the rim when a returning team approaches.",
+      "evolutions": [
+        {
+          "to": "bellwarden",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the light inside a silent bell now rings the hill when a team comes home."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "bellwarden",
+      "name": "Bellwarden",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "The light inside a silent bell now rings the hill when a team comes home.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "blazefang",
+      "name": "Blazefang",
+      "family": "wolf",
+      "element": "Ember",
+      "description": "The fire has learned to breathe. A mane of living flame, glowing fangs, and heat shimmering behind a wolf that stands proud.",
+      "evolutions": [],
+      "art": {
+        "front": true,
+        "back": false,
+        "idle": true,
+        "walk": true
+      }
+    },
+    {
+      "id": "bloomcourser",
+      "name": "Bloomcourser",
+      "family": "horse",
+      "element": "Grove",
+      "description": "Flowers open along its mane where young creatures lean against it during a storm.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "bogbough",
+      "name": "Bogbough",
+      "family": "croc",
+      "element": "Grove",
+      "description": "Willow seedlings root in its ridged back; it rests where the bank needs holding together.",
+      "evolutions": [
+        {
+          "to": "willowback",
+          "at": 18,
+          "bond": 1,
+          "hint": "Once it trusts you a little and has grown, the seedlings in its back have taken root, and the bank holds where it rests."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "bogsnap",
+      "name": "Bogsnap",
+      "family": "croc",
+      "element": "Tide",
+      "description": "It waits in still water for hours without moving.",
+      "evolutions": [
+        {
+          "to": "stillmaw",
+          "at": 18,
+          "bond": 1,
+          "hint": "Once it trusts you a little and has grown, the long wait in the water has become a pool that stays quiet around it."
+        }
+      ],
+      "art": {
+        "front": true,
+        "back": true,
+        "idle": true,
+        "walk": true
+      }
+    },
+    {
+      "id": "boughchorus",
+      "name": "Boughchorus",
+      "family": "bird",
+      "element": "Grove",
+      "description": "In Sunthread Commons, it sings from orchard branches, leaving the first ripe fruit for the smaller birds.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "bramblestag",
+      "name": "Bramblestag",
+      "family": "horse",
+      "element": "Grove",
+      "description": "A boar-horse hybrid crowned with thorny antlers. Steady, strong and gentle with foals.",
+      "evolutions": [
+        {
+          "to": "briarstag",
+          "at": 28,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the thorny antlers have become a briar crown, and foals still rest beneath it."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "breakwatermane",
+      "name": "Breakwatermane",
+      "family": "wolf",
+      "element": "Tide",
+      "description": "The coast falls silent when this ancient wolf walks the breakers, its mane carrying the rhythm of every tide.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "briarstag",
+      "name": "Briarstag",
+      "family": "horse",
+      "element": "Grove",
+      "description": "The thorny antlers have become a briar crown, and foals still rest beneath it.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "briarwatch",
+      "name": "Briarwatch",
+      "family": "wolf",
+      "element": "Grove",
+      "description": "It walks the hedge at dawn, gently carrying lost hatchlings back to their nests.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "brineskit",
+      "name": "Brineskit",
+      "family": "lizard",
+      "element": "Tide",
+      "description": "It skims shallow tide pools on its wide toes and shelters beneath empty shells.",
+      "evolutions": [
+        {
+          "to": "rainback",
+          "at": 18,
+          "weather": "rain",
+          "hint": "Once it trusts you a little and has grown, the rain teaches it to love the wet.",
+          "bond": 1
+        },
+        {
+          "to": "gorgebelly",
+          "at": 18,
+          "ate": "fish",
+          "hint": "Once it trusts you a little and has grown, a diet of fish makes it broad and strong.",
+          "bond": 1
+        },
+        {
+          "to": "shoalcrest",
+          "at": 18,
+          "hint": "Once it trusts you a little and has grown, most of them become the shelter they used to borrow.",
+          "bond": 1
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "buoyglint",
+      "name": "Buoyglint",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "It lights the sheltered side of a mooring post until the last returning team has landed.",
+      "evolutions": [
+        {
+          "to": "harborgleam",
+          "at": 38,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the light on one mooring post has become the gleam that brings the last team in."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "cairnback",
+      "name": "Cairnback",
+      "family": "lizard",
+      "element": "Stone",
+      "description": "The cairn it gripped with four feet now rides its back, and the loose stones stay put.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "cairnclasp",
+      "name": "Cairnclasp",
+      "family": "lizard",
+      "element": "Stone",
+      "description": "It grips a cairn with all four feet and refuses to let a loose stone fall on the trail.",
+      "evolutions": [
+        {
+          "to": "cairnback",
+          "at": 26,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the cairn it gripped with four feet now rides its back, and the loose stones stay put."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "cairnhound",
+      "name": "Cairnhound",
+      "family": "wolf",
+      "element": "Stone",
+      "description": "It keeps Cloudglass Pass's cairns upright through winter, resting against the smallest stones when the wind rises.",
+      "evolutions": [
+        {
+          "to": "ridgewarden",
+          "at": 36,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the piled stone becomes a ridge that holds the slope."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "channelwyrm",
+      "name": "Channelwyrm",
+      "family": "lizard",
+      "element": "Tide",
+      "description": "The whiskers that felt the rise have grown into a long body that leads the channel.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "charcup",
+      "name": "Charcup",
+      "family": "croc",
+      "element": "Ember",
+      "description": "A little turtle of Saltmarsh Coast that cups one warm coal in a hollow of its shell. It keeps the coal alive.",
+      "evolutions": [
+        {
+          "to": "kilnback",
+          "at": 22,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the coal in its shell becomes a little kiln."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "chartwing",
+      "name": "Chartwing",
+      "family": "bird",
+      "element": "Gale",
+      "description": "It circles a lookout twice when fog closes the usual approach, then waits for the shore signal.",
+      "evolutions": [
+        {
+          "to": "lookoutwing",
+          "at": 38,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the two circles in the fog have become wings that hold the lookout's pattern."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "chimespark",
+      "name": "Chimespark",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "Rarely seen outside quiet hollows, it answers distant bells with a single bright note.",
+      "evolutions": [
+        {
+          "to": "hollowchime",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the single bright note has become the chime of the hollow."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "cindercub",
+      "name": "Cindercub",
+      "family": "wolf",
+      "element": "Ember",
+      "description": "A wolf pup whose fur is banked embers, not yet a flame. It sleeps curled around warm stones.",
+      "evolutions": [
+        {
+          "to": "smoulderpup",
+          "at": 16,
+          "hint": "It grows lanky before the fire really wakes."
+        }
+      ],
+      "art": {
+        "front": true,
+        "back": false,
+        "idle": true,
+        "walk": true
+      }
+    },
+    {
+      "id": "cinderstitch",
+      "name": "Cinderstitch",
+      "family": "spider",
+      "element": "Ember",
+      "description": "Beside the Emberfall Highlands' warm vents, it stitches ash into a snug nest. It never evolves: eight careful feet already make all the shelter its family needs.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "cirrusmane",
+      "name": "Cirrusmane",
+      "family": "horse",
+      "element": "Gale",
+      "description": "Its mane streams like a wisp of high cloud, and it never runs a ridge its herd can't follow.",
+      "evolutions": [
+        {
+          "to": "highmane",
+          "at": 32,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the wisp of high cloud has become a mane the whole herd can follow along the ridge."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "cloudharrier",
+      "name": "Cloudharrier",
+      "family": "bird",
+      "element": "Gale",
+      "description": "It circles above a stranded traveler until someone climbs up to see what it has found.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "clovercolt",
+      "name": "Clovercolt",
+      "family": "horse",
+      "element": "Grove",
+      "description": "It carries loose shelter ties in its mane and waits while slower partners cross the meadow.",
+      "evolutions": [
+        {
+          "to": "bloomcourser",
+          "at": 64,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the loose ties in its mane become a banner of blossom."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "coalheart",
+      "name": "Coalheart",
+      "family": "lizard",
+      "element": "Ember",
+      "description": "The faint night glow has settled into a coal that keeps the rocks warm until dawn.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "cragbridge",
+      "name": "Cragbridge",
+      "family": "spider",
+      "element": "Stone",
+      "description": "The webs that bridged one crack now hold a path across the crag.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "cragskein",
+      "name": "Cragskein",
+      "family": "spider",
+      "element": "Stone",
+      "description": "Its mineral-dusted webs bridge narrow cracks, giving smaller creatures a safe path across the crags.",
+      "evolutions": [
+        {
+          "to": "cragbridge",
+          "at": 26,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the webs that bridged one crack now hold a path across the crag."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "creekribbon",
+      "name": "Creekribbon",
+      "family": "lizard",
+      "element": "Shade",
+      "description": "A ribbon of dark water in the creeks of Saltmarsh Coast. A pale ring circles its middle, and it practises holding the surface still.",
+      "evolutions": [
+        {
+          "to": "murkcoil",
+          "at": 16,
+          "hint": "Once it has grown, the pale ring goes dull and the body thickens."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "dawnchorus",
+      "name": "Dawnchorus",
+      "family": "bird",
+      "element": "Radiant",
+      "description": "A Mistfinch that greeted the dawn. Its song carries the first light.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "dawnfoal",
+      "name": "Dawnfoal",
+      "family": "horse",
+      "element": "Radiant",
+      "description": "A pale foal of Stillreed Basin that stands in the shallows at first light. One spark sleeps in its mane, and it sets each hoof down as if afraid to lose it.",
+      "evolutions": [
+        {
+          "to": "sunford",
+          "at": 28,
+          "bond": 1,
+          "hint": "Once it trusts you a little and has grown, the spark in its mane lights the ford."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "dawntassel",
+      "name": "Dawntassel",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "A rare visitor at first light, it leaves a gold glimmer on the knots of a well-mended shelter.",
+      "evolutions": [
+        {
+          "to": "goldknot",
+          "at": 36,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the glimmer on a mended knot has become a tassel of dawn gold."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "dewmantle",
+      "name": "Dewmantle",
+      "family": "spider",
+      "element": "Tide",
+      "description": "The morning webs have become a mantle, and the shore drinks before the sun takes it.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "dewspinner",
+      "name": "Dewspinner",
+      "family": "spider",
+      "element": "Tide",
+      "description": "Its cupped webs collect morning dew; thirsty shore creatures drink before it rebuilds them.",
+      "evolutions": [
+        {
+          "to": "dewmantle",
+          "at": 22,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the morning webs have become a mantle, and the shore drinks before the sun takes it."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "doorlamp",
+      "name": "Doorlamp",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "The glow beside an open door has become the lamp that marks it.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "draftscale",
+      "name": "Draftscale",
+      "family": "lizard",
+      "element": "Gale",
+      "description": "Above Cloudglass Pass, its broad sail catches the rising air; it circles back whenever a young Saillet falls behind.",
+      "evolutions": [
+        {
+          "to": "stormfrill",
+          "at": 36,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the outgrown sail spreads and the storm answers it."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "drakelet",
+      "name": "Drakelet",
+      "family": "lizard",
+      "element": "Ember",
+      "description": "Part lizard, part bird. It glides on hot air and dreams of becoming a dragon.",
+      "evolutions": [
+        {
+          "to": "emberdrake",
+          "at": 36,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the dream of a dragon becomes a body that can carry it."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "driftjaw",
+      "name": "Driftjaw",
+      "family": "hyena",
+      "element": "Stone",
+      "description": "The pebble jaws that cracked shells now break the driftwood open for everyone smaller.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "dripdart",
+      "name": "Dripdart",
+      "family": "lizard",
+      "element": "Tide",
+      "description": "It follows falling drops to shallow pools, then taps the rock to call its neighbors.",
+      "evolutions": [
+        {
+          "to": "pooldart",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the tap that called the neighbours has become a pool that answers."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "dunemantle",
+      "name": "Dunemantle",
+      "family": "cat",
+      "element": "Stone",
+      "description": "The sand it used to spring from now rides its shoulders like a mantle.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "dunepounce",
+      "name": "Dunepounce",
+      "family": "cat",
+      "element": "Stone",
+      "description": "It buries its stone-tipped paws in warm dunes before springing at shadows on the sand.",
+      "evolutions": [
+        {
+          "to": "dunemantle",
+          "at": 22,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the sand it used to spring from now rides its shoulders like a mantle."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "duskcord",
+      "name": "Duskcord",
+      "family": "spider",
+      "element": "Shade",
+      "description": "Its dusk webs catch drifting seeds above the water while leaving a gap for passing wings.",
+      "evolutions": [
+        {
+          "to": "seedshroud",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the dusk web that caught seeds now plants them, and a dark garden follows it."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "duskweaver",
+      "name": "Duskweaver",
+      "family": "spider",
+      "element": "Shade",
+      "description": "It weaves webs only at dusk, and they vanish by morning.",
+      "evolutions": [
+        {
+          "to": "nightloom",
+          "at": 18,
+          "bond": 1,
+          "hint": "Once it trusts you a little and has grown, the webs that used to vanish by morning now hang as a cloak of lasting dusk."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "duskwing",
+      "name": "Duskwing",
+      "family": "bird",
+      "element": "Shade",
+      "description": "A Mistfinch that hunts at dusk. It flies without a sound.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "echoledge",
+      "name": "Echoledge",
+      "family": "cat",
+      "element": "Stone",
+      "description": "The whiskers that found the broad ledge have become the ledge the others step on.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "elderhorn",
+      "name": "Elderhorn",
+      "family": "horse",
+      "element": "Grove",
+      "description": "The ancient guardian of Thornwood. Few have seen it and fewer have earned its trust.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "emberdrake",
+      "name": "Emberdrake",
+      "family": "lizard",
+      "element": "Ember",
+      "description": "The dragon it practised in its sleep. Hot air has become a long wing of cinder, and the glide is a real flight.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "emberling",
+      "name": "Emberling",
+      "family": "lizard",
+      "element": "Ember",
+      "description": "It basks on hot rocks and glows faintly at night.",
+      "evolutions": [
+        {
+          "to": "coalheart",
+          "at": 18,
+          "bond": 1,
+          "hint": "Once it trusts you a little and has grown, the faint night glow has settled into a coal that keeps the rocks warm until dawn."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "emberrunner",
+      "name": "Emberrunner",
+      "family": "wolf",
+      "element": "Ember",
+      "description": "The warmth under the benches now travels with it, and the message arrives still warm.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "fernruff",
+      "name": "Fernruff",
+      "family": "wolf",
+      "element": "Grove",
+      "description": "This fern-maned pup leaves gaps in its den hedge so smaller neighbours can shelter with it.",
+      "evolutions": [
+        {
+          "to": "briarwatch",
+          "at": 18,
+          "bond": 1,
+          "hint": "Once it trusts you a little and has grown, the gaps in its hedge become doorways."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ferrycrest",
+      "name": "Ferrycrest",
+      "family": "croc",
+      "element": "Tide",
+      "description": "Its broad crest parts a quiet channel through reeds without overturning their nests.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "flintbole",
+      "name": "Flintbole",
+      "family": "boar",
+      "element": "Stone",
+      "description": "The shoulder that rubbed the trail clear has become a trunk of flint.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "flintpup",
+      "name": "Flintpup",
+      "family": "wolf",
+      "element": "Stone",
+      "description": "On the Emberfall Highlands' cool scree, it taps loose stones with its paws before leading the pack across.",
+      "evolutions": [
+        {
+          "at": 18,
+          "to": "cairnhound"
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "flintroot",
+      "name": "Flintroot",
+      "family": "boar",
+      "element": "Stone",
+      "description": "It rubs loose stone from the trail with its shoulders before settling down to sleep.",
+      "evolutions": [
+        {
+          "to": "flintbole",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the shoulder that rubbed the trail clear has become a trunk of flint."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "foamglint",
+      "name": "Foamglint",
+      "family": "sprite",
+      "element": "Tide",
+      "description": "This elusive fleck of living foam glows only where moonlit waves meet the marsh.",
+      "evolutions": [
+        {
+          "to": "moonfoam",
+          "at": 22,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the fleck of living foam has become a moonlit crest over the marsh."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "fogsail",
+      "name": "Fogsail",
+      "family": "lizard",
+      "element": "Shade",
+      "description": "It drifts along Cloudglass Pass's fog banks, showing the pale edge of its sail to companions who might lose the path.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "fogslip",
+      "name": "Fogslip",
+      "family": "lizard",
+      "element": "Shade",
+      "description": "A small sail stays folded against its side while it practises standing still in the fog of Cloudglass Pass.",
+      "evolutions": [
+        {
+          "to": "fogsail",
+          "at": 32,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the folded sail opens and shows the pale edge of the path."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "fogtail",
+      "name": "Fogtail",
+      "family": "cat",
+      "element": "Gale",
+      "description": "When the cloud rolls in it vanishes completely, except for the tip of its tail.",
+      "evolutions": [
+        {
+          "to": "mistbound",
+          "at": 32,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the cloud still hides it, and the lantern of its tail is what the others follow."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "fordfoal",
+      "name": "Fordfoal",
+      "family": "horse",
+      "element": "Tide",
+      "description": "At Stillreed Basin's shallow crossings, it tests the riverbed before anyone follows. It never evolves: a small, sure-footed body is just right for the reed paths.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "galecharger",
+      "name": "Galecharger",
+      "family": "horse",
+      "element": "Gale",
+      "description": "The foal born to race has become a horse that runs as the wind itself.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "galefoal",
+      "name": "Galefoal",
+      "family": "horse",
+      "element": "Gale",
+      "description": "A wild foal that runs with the wind. Born to race.",
+      "evolutions": [
+        {
+          "to": "galecharger",
+          "at": 18,
+          "bond": 1,
+          "hint": "Once it trusts you a little and has grown, the foal born to race has become a horse that runs as the wind itself."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "glassbill",
+      "name": "Glassbill",
+      "family": "bird",
+      "element": "Gale",
+      "description": "Rarely seen among the reeds, it taps clear notes on rain-filled shells before dawn.",
+      "evolutions": [
+        {
+          "to": "shellsong",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the notes it tapped on shells have become a clear song before dawn."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "glassharrier",
+      "name": "Glassharrier",
+      "family": "bird",
+      "element": "Gale",
+      "description": "The glass in its feathers has opened into wings that throw the grove light down the path.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "glimmerwing",
+      "name": "Glimmerwing",
+      "family": "bird",
+      "element": "Gale",
+      "description": "Its feathers catch the light like glass.",
+      "evolutions": [
+        {
+          "to": "glassharrier",
+          "at": 18,
+          "bond": 1,
+          "hint": "Once it trusts you a little and has grown, the glass in its feathers has opened into wings that throw the grove light down the path."
+        }
+      ],
+      "art": {
+        "front": true,
+        "back": true,
+        "idle": true,
+        "walk": true
+      }
+    },
+    {
+      "id": "gloomtide",
+      "name": "Gloomtide",
+      "family": "lizard",
+      "element": "Shade",
+      "description": "The dull ring opened into a crest of still water. It crosses a creek without a splash, and the dark follows only where it allows.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "glowmote",
+      "name": "Glowmote",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "This seldom-seen spark drifts through the steam, lighting the way home when mist covers the highlands.",
+      "evolutions": [
+        {
+          "to": "homeglow",
+          "at": 26,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the steam-spark has become the lamp that leads a team home through the mist."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "gnawhound",
+      "name": "Gnawhound",
+      "family": "hyena",
+      "element": "Shade",
+      "description": "Packs of them laugh at night to frighten travelers.",
+      "evolutions": [
+        {
+          "to": "nightcackle",
+          "at": 18,
+          "bond": 1,
+          "hint": "Once it trusts you a little and has grown, the laugh that used to startle travelers now rolls the dark back from the path."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "goldknot",
+      "name": "Goldknot",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "The glimmer on a mended knot has become a tassel of dawn gold.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "gorgebelly",
+      "name": "Gorgebelly",
+      "family": "lizard",
+      "element": "Tide",
+      "description": "A Brineskit fed on fish. It grew broad and strong.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "granitepaw",
+      "name": "Granitepaw",
+      "family": "cat",
+      "element": "Stone",
+      "description": "The claws it wore down on granite have become paws that hold a slope in place.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "gritbeak",
+      "name": "Gritbeak",
+      "family": "bird",
+      "element": "Stone",
+      "description": "It cracks seeds on the rocks with its stone-hard beak, and the noise carries a long way in fog.",
+      "evolutions": [
+        {
+          "to": "ridgebeak",
+          "at": 32,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the beak that cracked seeds now splits the fog-bound rock so the path can continue."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "gustchorus",
+      "name": "Gustchorus",
+      "family": "bird",
+      "element": "Gale",
+      "description": "The whistle between the reeds has become a song the whole bank answers.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "gustreed",
+      "name": "Gustreed",
+      "family": "bird",
+      "element": "Gale",
+      "description": "It whistles between reed stems, then falls quiet when a tired ferry reaches the bank.",
+      "evolutions": [
+        {
+          "to": "gustchorus",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the whistle between the reeds has become a song the whole bank answers."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "harborback",
+      "name": "Harborback",
+      "family": "croc",
+      "element": "Tide",
+      "description": "The planks it nudged into the shallows now rest on a back that is a landing.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "harborgleam",
+      "name": "Harborgleam",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "The light on one mooring post has become the gleam that brings the last team in.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "havenlight",
+      "name": "Havenlight",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "The glimmer over a dry foothold has become a light that holds the landing.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "hearthbloom",
+      "name": "Hearthbloom",
+      "family": "sprite",
+      "element": "Grove",
+      "description": "The crust split. Its wings open like a small garden, and the seed it carried is the first flower.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "hearthcrown",
+      "name": "Hearthcrown",
+      "family": "horse",
+      "element": "Ember",
+      "description": "The guardian of Emberfall warms frozen springs with its ember-lit antlers so every creature can drink.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "hearthhem",
+      "name": "Hearthhem",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "The small light on a shelter cloth has become the lit hem of the whole tent.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "hearthlaugh",
+      "name": "Hearthlaugh",
+      "family": "hyena",
+      "element": "Radiant",
+      "description": "It never evolves; its warm chuckle steadies frightened companions, and its light grows with practice.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "hearthrunner",
+      "name": "Hearthrunner",
+      "family": "wolf",
+      "element": "Ember",
+      "description": "It warms cold paws beneath the meeting benches, then trots out to carry a message.",
+      "evolutions": [
+        {
+          "to": "emberrunner",
+          "at": 36,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the warmth under the benches now travels with it, and the message arrives still warm."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "hedgelark",
+      "name": "Hedgelark",
+      "family": "bird",
+      "element": "Grove",
+      "description": "Thornwood's hedges shelter its leafy nests; its dawn call waits until every nestling answers.",
+      "evolutions": [
+        {
+          "to": "boughchorus",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the twigs in its feathers open into leafy boughs."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "hemglow",
+      "name": "Hemglow",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "Its small light marks the edge of a shelter cloth so tired travelers can find a place beneath it.",
+      "evolutions": [
+        {
+          "to": "hearthhem",
+          "at": 36,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the small light on a shelter cloth has become the lit hem of the whole tent."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "highmane",
+      "name": "Highmane",
+      "family": "horse",
+      "element": "Gale",
+      "description": "The wisp of high cloud has become a mane the whole herd can follow along the ridge.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "hollowchime",
+      "name": "Hollowchime",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "The single bright note has become the chime of the hollow.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "homeglow",
+      "name": "Homeglow",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "The steam-spark has become the lamp that leads a team home through the mist.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "hushmane",
+      "name": "Hushmane",
+      "family": "hyena",
+      "element": "Shade",
+      "description": "Its soft call carries around stone bends without startling the creatures sheltering there.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "hushpup",
+      "name": "Hushpup",
+      "family": "hyena",
+      "element": "Shade",
+      "description": "It stops at a fork until the returning echo matches the footfalls of its friends.",
+      "evolutions": [
+        {
+          "to": "hushmane",
+          "at": 60,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the listening becomes a mane that swallows sound."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "inkwarden",
+      "name": "Inkwarden",
+      "family": "cat",
+      "element": "Shade",
+      "description": "The whiskers that followed fresh ink now trace the safe chart in the dark.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "inkwhisk",
+      "name": "Inkwhisk",
+      "family": "cat",
+      "element": "Shade",
+      "description": "It rests beside corrected charts and follows the fresh ink when an old shortcut becomes unsafe.",
+      "evolutions": [
+        {
+          "to": "inkwarden",
+          "at": 38,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the whiskers that followed fresh ink now trace the safe chart in the dark."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "isleglimmer",
+      "name": "Isleglimmer",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "Rarely seen beyond the lookouts, it hovers over a dry foothold before vanishing into sea fog.",
+      "evolutions": [
+        {
+          "to": "havenlight",
+          "at": 38,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the glimmer over a dry foothold has become a light that holds the landing."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "keeljaw",
+      "name": "Keeljaw",
+      "family": "croc",
+      "element": "Tide",
+      "description": "It nudges drifting planks into the harbor shallows and leaves them where smaller paws can climb.",
+      "evolutions": [
+        {
+          "to": "harborback",
+          "at": 38,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the planks it nudged into the shallows now rest on a back that is a landing."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "kilnback",
+      "name": "Kilnback",
+      "family": "croc",
+      "element": "Ember",
+      "description": "The coal became a kiln. Seams of heat glow between the plates of its shell, and cold hands are welcome on its back.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "kilnchirp",
+      "name": "Kilnchirp",
+      "family": "bird",
+      "element": "Ember",
+      "description": "It dries its clay-lined nest beside warm vents, singing when the mud is ready for chicks.",
+      "evolutions": [
+        {
+          "to": "kilnsong",
+          "at": 26,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the clay nest has fired into wings, and the song means the mud is ready."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "kilnsong",
+      "name": "Kilnsong",
+      "family": "bird",
+      "element": "Ember",
+      "description": "The clay nest has fired into wings, and the song means the mud is ready.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "kilntusk",
+      "name": "Kilntusk",
+      "family": "boar",
+      "element": "Ember",
+      "description": "Its glowing tusks loosen hardened lava so its herd can root for tender shoots beneath the stone.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "kiteskirl",
+      "name": "Kiteskirl",
+      "family": "bird",
+      "element": "Gale",
+      "description": "It rides the sea breeze without flapping and whistles whenever a storm approaches.",
+      "evolutions": [
+        {
+          "to": "stormkite",
+          "at": 22,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, it still rides the breeze without flapping, and the storm answers its whistle."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "lanterncrest",
+      "name": "Lanterncrest",
+      "family": "bird",
+      "element": "Radiant",
+      "description": "The guardian of Cloudglass Pass. Its crest burns like a lamp through the thickest cloud, lighting the way to shelter.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "lanternwisp",
+      "name": "Lanternwisp",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "Rarely seen. It glows brightest beside the shelters, as if it knows which doors are open.",
+      "evolutions": [
+        {
+          "to": "doorlamp",
+          "at": 32,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the glow beside an open door has become the lamp that marks it."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "laughrill",
+      "name": "Laughrill",
+      "family": "hyena",
+      "element": "Tide",
+      "description": "In Stillreed Basin, its bubbling chuckle carries over the pools. It never evolves; the same familiar voice guides its family home through every flood.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ledgerunner",
+      "name": "Ledgerunner",
+      "family": "horse",
+      "element": "Stone",
+      "description": "The hooves that tested each ledge have become the path the herd walks.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ledgeveil",
+      "name": "Ledgeveil",
+      "family": "spider",
+      "element": "Shade",
+      "description": "The silk beside an unsafe ledge has become a veil that closes the bad path.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ledgewhisk",
+      "name": "Ledgewhisk",
+      "family": "cat",
+      "element": "Stone",
+      "description": "Its whiskers brush the wall while its paws find the broadest ledge in the dark.",
+      "evolutions": [
+        {
+          "to": "echoledge",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the whiskers that found the broad ledge have become the ledge the others step on."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "lookoutwing",
+      "name": "Lookoutwing",
+      "family": "bird",
+      "element": "Gale",
+      "description": "The two circles in the fog have become wings that hold the lookout's pattern.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "luckflare",
+      "name": "Luckflare",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "The lucky spark has opened into a flare that stays with the people who saw it.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "lynxhound",
+      "name": "Lynxhound",
+      "family": "cat",
+      "element": "Shade",
+      "description": "A wolf-cat hybrid that hunts in silence. Only ever seen on ranches.",
+      "evolutions": [
+        {
+          "to": "silentmane",
+          "at": 34,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the silent hunt has become a mane that swallows its own footsteps."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "marshcrown",
+      "name": "Marshcrown",
+      "family": "boar",
+      "element": "Grove",
+      "description": "The trails it combed have grown into a crown of living reed.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "meadowmantle",
+      "name": "Meadowmantle",
+      "family": "boar",
+      "element": "Grove",
+      "description": "The guardian rests across the windward edge of nursery ground, keeping tender roots and sleeping young sheltered.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "mistbound",
+      "name": "Mistbound",
+      "family": "cat",
+      "element": "Gale",
+      "description": "The cloud still hides it, and the lantern of its tail is what the others follow.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "mistfinch",
+      "name": "Mistfinch",
+      "family": "bird",
+      "element": "Gale",
+      "description": "It sings only when the cloud is thick, so lost walkers can follow the sound down to a ledge.",
+      "evolutions": [
+        {
+          "to": "dawnchorus",
+          "at": 18,
+          "time": "dawn",
+          "hint": "Once it trusts you a little and has grown, a dawn flight becomes a song that belongs to the morning.",
+          "bond": 1
+        },
+        {
+          "to": "duskwing",
+          "at": 18,
+          "time": "dusk",
+          "hint": "Once it trusts you a little and has grown, a dusk flight becomes the quiet of the evening.",
+          "bond": 1
+        },
+        {
+          "to": "cloudharrier",
+          "at": 18,
+          "hint": "Once it trusts you a little and has grown, most of them part the cloud they used to sing in.",
+          "bond": 1
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "mistlynx",
+      "name": "Mistlynx",
+      "family": "cat",
+      "element": "Shade",
+      "description": "A Poolkit that grew up in the cloud of the high pass. It slips through fog without a sound and is gone before you see it move.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "moonfoam",
+      "name": "Moonfoam",
+      "family": "sprite",
+      "element": "Tide",
+      "description": "The fleck of living foam has become a moonlit crest over the marsh.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "moorbridge",
+      "name": "Moorbridge",
+      "family": "spider",
+      "element": "Stone",
+      "description": "The silk that caught loose pebbles has become a marked road over the moor.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "moorweft",
+      "name": "Moorweft",
+      "family": "spider",
+      "element": "Stone",
+      "description": "Its stout silk catches loose pebbles above paths without hiding the marks travelers follow.",
+      "evolutions": [
+        {
+          "to": "moorbridge",
+          "at": 38,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the silk that caught loose pebbles has become a marked road over the moor."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "mosshog",
+      "name": "Mosshog",
+      "family": "boar",
+      "element": "Grove",
+      "description": "The moss on its back is a little garden. Birds nest there, and it lets them.",
+      "evolutions": [
+        {
+          "to": "thicketboar",
+          "at": 16,
+          "hint": "The garden on its back grows wild before it can settle."
+        }
+      ],
+      "art": {
+        "front": true,
+        "back": false,
+        "idle": true,
+        "walk": true
+      }
+    },
+    {
+      "id": "murkcoil",
+      "name": "Murkcoil",
+      "family": "lizard",
+      "element": "Shade",
+      "description": "The pale ring has gone dull, and the body has thickened. It coils in the pools of Hollowecho Hills, still learning how to part the water.",
+      "evolutions": [
+        {
+          "to": "gloomtide",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the dull ring opens into a crest of still water."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "nightcackle",
+      "name": "Nightcackle",
+      "family": "hyena",
+      "element": "Shade",
+      "description": "The laugh that used to startle travelers now rolls the dark back from the path.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "nightloom",
+      "name": "Nightloom",
+      "family": "spider",
+      "element": "Shade",
+      "description": "The webs that used to vanish by morning now hang as a cloak of lasting dusk.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "orchardcrown",
+      "name": "Orchardcrown",
+      "family": "boar",
+      "element": "Grove",
+      "description": "The fruit it turned to soil now hangs in a small orchard on its crown.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "orchardroot",
+      "name": "Orchardroot",
+      "family": "boar",
+      "element": "Grove",
+      "description": "It turns fallen orchard fruit into soft soil and leaves the growing roots undisturbed.",
+      "evolutions": [
+        {
+          "to": "orchardcrown",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the fruit it turned to soil now hangs in a small orchard on its crown."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "pallspan",
+      "name": "Pallspan",
+      "family": "spider",
+      "element": "Stone",
+      "description": "The morning threads have become a span the pass can trust.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "pallweaver",
+      "name": "Pallweaver",
+      "family": "spider",
+      "element": "Stone",
+      "description": "Its silk bridges the narrow cracks in the pass, and small creatures cross on them every morning.",
+      "evolutions": [
+        {
+          "to": "pallspan",
+          "at": 32,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the morning threads have become a span the pass can trust."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "pebblepaw",
+      "name": "Pebblepaw",
+      "family": "cat",
+      "element": "Stone",
+      "description": "It sharpens its claws on granite and naps in the sun.",
+      "evolutions": [
+        {
+          "to": "granitepaw",
+          "at": 18,
+          "bond": 1,
+          "hint": "Once it trusts you a little and has grown, the claws it wore down on granite have become paws that hold a slope in place."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "pennantflare",
+      "name": "Pennantflare",
+      "family": "bird",
+      "element": "Radiant",
+      "description": "The wing-flash over a gathering has become the pennant of the hall.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "pennantlark",
+      "name": "Pennantlark",
+      "family": "bird",
+      "element": "Radiant",
+      "description": "It flashes its wings above a gathering when the last returning team reaches the hall.",
+      "evolutions": [
+        {
+          "to": "pennantflare",
+          "at": 36,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the wing-flash over a gathering has become the pennant of the hall."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "pooldart",
+      "name": "Pooldart",
+      "family": "lizard",
+      "element": "Tide",
+      "description": "The tap that called the neighbours has become a pool that answers.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "poolkit",
+      "name": "Poolkit",
+      "family": "cat",
+      "element": "Tide",
+      "description": "It pats rain rings in shallow pools, then watches the ripples reach the reeds.",
+      "evolutions": [
+        {
+          "to": "mistlynx",
+          "at": 24,
+          "place": "cloudglass",
+          "hint": "Once it trusts you a little and has grown, the cloud of the pass turns it quiet.",
+          "bond": 1
+        },
+        {
+          "to": "sunlynx",
+          "at": 24,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, devotion turns it warm and bright."
+        },
+        {
+          "to": "rilllynx",
+          "at": 24,
+          "hint": "Once it trusts you a little and has grown, most of them become river cats.",
+          "bond": 1
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "rainback",
+      "name": "Rainback",
+      "family": "lizard",
+      "element": "Tide",
+      "description": "A Brineskit raised in the rain. Water beads on its back and never falls.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "raylet",
+      "name": "Raylet",
+      "family": "lizard",
+      "element": "Radiant",
+      "description": "A little lizard naps on the rails of Sunthread Commons, holding up a stub of sail like a scrap of shade.",
+      "evolutions": [
+        {
+          "to": "sunfrill",
+          "at": 36,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, that stub of sail opens and the little ones gather underneath."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "reedlet",
+      "name": "Reedlet",
+      "family": "lizard",
+      "element": "Tide",
+      "description": "It balances on floating reeds and nudges loose ferry ropes toward the landing.",
+      "evolutions": [
+        {
+          "to": "ferrycrest",
+          "at": 54,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the reed it balanced on becomes a back that can carry."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "reedmaw",
+      "name": "Reedmaw",
+      "family": "croc",
+      "element": "Tide",
+      "description": "The mossy nose under the water has risen into a reed-crowned head the channel knows.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "reedtusk",
+      "name": "Reedtusk",
+      "family": "boar",
+      "element": "Grove",
+      "description": "It combs the marsh with curved tusks, leaving narrow trails that fill with fresh reeds.",
+      "evolutions": [
+        {
+          "to": "marshcrown",
+          "at": 22,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the trails it combed have grown into a crown of living reed."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ribbonmane",
+      "name": "Ribbonmane",
+      "family": "horse",
+      "element": "Gale",
+      "description": "The ribbons it brought home now stream in its mane, and the posts keep their colours.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ribbonstride",
+      "name": "Ribbonstride",
+      "family": "horse",
+      "element": "Gale",
+      "description": "It runs ahead of sudden gusts and brings wind-loosened ribbons back to their posts.",
+      "evolutions": [
+        {
+          "to": "ribbonmane",
+          "at": 36,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the ribbons it brought home now stream in its mane, and the posts keep their colours."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ridgebeak",
+      "name": "Ridgebeak",
+      "family": "bird",
+      "element": "Stone",
+      "description": "The beak that cracked seeds now splits the fog-bound rock so the path can continue.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ridgehowl",
+      "name": "Ridgehowl",
+      "family": "wolf",
+      "element": "Gale",
+      "description": "Those oversized ears caught the ridge wind. Its howl runs ahead of a lost walker and lays the path back under their feet.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ridgewarden",
+      "name": "Ridgewarden",
+      "family": "wolf",
+      "element": "Stone",
+      "description": "Cloudglass Pass's oldest ridge packs follow its patient steps; it returns for the last pup before leaving a ledge.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "rilllynx",
+      "name": "Rilllynx",
+      "family": "cat",
+      "element": "Tide",
+      "description": "Its whiskers read currents beneath the bank; it crosses streams without disturbing a nest.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "rillwhisk",
+      "name": "Rillwhisk",
+      "family": "lizard",
+      "element": "Tide",
+      "description": "Its whiskers tremble before the channel rises, giving boat families time to loosen their lines.",
+      "evolutions": [
+        {
+          "to": "channelwyrm",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the whiskers that felt the rise have grown into a long body that leads the channel."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ripplet",
+      "name": "Ripplet",
+      "family": "lizard",
+      "element": "Tide",
+      "description": "A little river lizard. It blows bubbles when it is pleased, and a folded frill at its neck practises the shape of a wave.",
+      "evolutions": [
+        {
+          "to": "riverwisp",
+          "at": 16,
+          "hint": "It stretches between the bank and the river before it learns the tide."
+        }
+      ],
+      "art": {
+        "front": true,
+        "back": false,
+        "idle": true,
+        "walk": true
+      }
+    },
+    {
+      "id": "riverwisp",
+      "name": "Riverwisp",
+      "family": "lizard",
+      "element": "Tide",
+      "description": "Gangly and stretched, half swimming and half walking. Its neck frill hangs floppy, and it has not chosen the bank or the river.",
+      "evolutions": [
+        {
+          "to": "tidewyrm",
+          "at": 36,
+          "bond": 3,
+          "hint": "It becomes a river dragon once it has grown, and only for a tamer it trusts."
+        }
+      ],
+      "art": {
+        "front": true,
+        "back": false,
+        "idle": true,
+        "walk": true
+      }
+    },
+    {
+      "id": "saillet",
+      "name": "Saillet",
+      "family": "lizard",
+      "element": "Gale",
+      "description": "On Saltmarsh Coast, it lifts its little back sail to dry after rain, leaning into whichever breeze smells of home.",
+      "evolutions": [
+        {
+          "at": 18,
+          "to": "draftscale"
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "screegrin",
+      "name": "Screegrin",
+      "family": "hyena",
+      "element": "Stone",
+      "description": "Its cheerful chatter carries down the slopes as it gathers smooth stones for its den.",
+      "evolutions": [
+        {
+          "to": "screehowl",
+          "at": 26,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the chatter and the gathered stones have become a den that sings down the slope."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "screehold",
+      "name": "Screehold",
+      "family": "cat",
+      "element": "Stone",
+      "description": "It still knows which stones will slide, and now it pins them until the herd is past.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "screehowl",
+      "name": "Screehowl",
+      "family": "hyena",
+      "element": "Stone",
+      "description": "The chatter and the gathered stones have become a den that sings down the slope.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "seedmoth",
+      "name": "Seedmoth",
+      "family": "sprite",
+      "element": "Grove",
+      "description": "It shelters one seed under a wing and dries it over the warm ash of Emberfall Highlands. The wing is still too small to be a garden.",
+      "evolutions": [
+        {
+          "to": "sootcloak",
+          "at": 18,
+          "hint": "Once it has grown, warm ash crusts the wings it is trying to open."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "seedpip",
+      "name": "Seedpip",
+      "family": "bird",
+      "element": "Grove",
+      "description": "In Thornwood, it tucks fallen seeds into fence cracks and checks them again after rain.",
+      "evolutions": [
+        {
+          "at": 16,
+          "to": "hedgelark"
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "seedshroud",
+      "name": "Seedshroud",
+      "family": "spider",
+      "element": "Shade",
+      "description": "The dusk web that caught seeds now plants them, and a dark garden follows it.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "shalecat",
+      "name": "Shalecat",
+      "family": "cat",
+      "element": "Stone",
+      "description": "It naps on loose scree and knows, before anyone, which stones are about to slide.",
+      "evolutions": [
+        {
+          "to": "screehold",
+          "at": 32,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, it still knows which stones will slide, and now it pins them until the herd is past."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "shellsong",
+      "name": "Shellsong",
+      "family": "bird",
+      "element": "Gale",
+      "description": "The notes it tapped on shells have become a clear song before dawn.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "shoalcrest",
+      "name": "Shoalcrest",
+      "family": "croc",
+      "element": "Tide",
+      "description": "Its ridged back parts the surf into calm channels where smaller creatures can cross.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "shoalpup",
+      "name": "Shoalpup",
+      "family": "wolf",
+      "element": "Tide",
+      "description": "It waits at the tideline until every returning paw has reached dry sand.",
+      "evolutions": [
+        {
+          "to": "soundhowl",
+          "at": 68,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the wait at the tideline becomes a howl that calls everyone home."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "silentmane",
+      "name": "Silentmane",
+      "family": "cat",
+      "element": "Shade",
+      "description": "The silent hunt has become a mane that swallows its own footsteps.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "siltjaw",
+      "name": "Siltjaw",
+      "family": "croc",
+      "element": "Tide",
+      "description": "It rests under grey-green water with only its mossy nose above the surface.",
+      "evolutions": [
+        {
+          "to": "reedmaw",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the mossy nose under the water has risen into a reed-crowned head the channel knows."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "slaglet",
+      "name": "Slaglet",
+      "family": "boar",
+      "element": "Ember",
+      "description": "It rolls in warm volcanic dust until its coat forms a snug crust that keeps out the mountain chill.",
+      "evolutions": [
+        {
+          "to": "kilntusk",
+          "at": 22,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the dust-crust becomes a kiln."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "slatehoof",
+      "name": "Slatehoof",
+      "family": "horse",
+      "element": "Stone",
+      "description": "Its broad hooves test each ledge before it lets the rest of the herd follow.",
+      "evolutions": [
+        {
+          "to": "ledgerunner",
+          "at": 32,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the hooves that tested each ledge have become the path the herd walks."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "smoulderpup",
+      "name": "Smoulderpup",
+      "family": "wolf",
+      "element": "Ember",
+      "description": "A lanky young wolf, always too warm to hold. Glowing cracks run down its spine, and it steams when the rain finds it.",
+      "evolutions": [
+        {
+          "to": "blazefang",
+          "at": 36,
+          "bond": 3,
+          "hint": "The fire breathes once it has grown, and only for a tamer it trusts."
+        }
+      ],
+      "art": {
+        "front": true,
+        "back": false,
+        "idle": true,
+        "walk": true
+      }
+    },
+    {
+      "id": "sootcloak",
+      "name": "Sootcloak",
+      "family": "sprite",
+      "element": "Grove",
+      "description": "Ash has crusted the wings it meant to open. It drags them, heavy and lopsided, and it still keeps that one seed warm.",
+      "evolutions": [
+        {
+          "to": "hearthbloom",
+          "at": 36,
+          "bond": 3,
+          "hint": "Once it trusts you deeply and has grown, the crust splits and the wings open like a garden."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "soundhowl",
+      "name": "Soundhowl",
+      "family": "wolf",
+      "element": "Tide",
+      "description": "Its low call passes along the shore, letting separated teams find the same sheltered inlet.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "spindriftfoal",
+      "name": "Spindriftfoal",
+      "family": "horse",
+      "element": "Gale",
+      "description": "It races along the waterline, scattering ribbons of sea spray with every stride.",
+      "evolutions": [
+        {
+          "to": "spraymane",
+          "at": 22,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the ribbons of spray have become a mane that the shoreline follows."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "spraymane",
+      "name": "Spraymane",
+      "family": "horse",
+      "element": "Gale",
+      "description": "The ribbons of spray have become a mane that the shoreline follows.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "stillmaw",
+      "name": "Stillmaw",
+      "family": "croc",
+      "element": "Tide",
+      "description": "The long wait in the water has become a pool that stays quiet around it.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "stillwake",
+      "name": "Stillwake",
+      "family": "croc",
+      "element": "Tide",
+      "description": "Stillreed Basin's guardian shelters small creatures in its calm wake as flooded channels carry them across.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "stormfrill",
+      "name": "Stormfrill",
+      "family": "lizard",
+      "element": "Gale",
+      "description": "Cloudglass Pass's storm winds bend its great frill, but it folds the sail to shelter its companions from the worst gusts.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "stormkite",
+      "name": "Stormkite",
+      "family": "bird",
+      "element": "Gale",
+      "description": "It still rides the breeze without flapping, and the storm answers its whistle.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "sunford",
+      "name": "Sunford",
+      "family": "horse",
+      "element": "Radiant",
+      "description": "The spark became a mane of morning. Where it steps through a ford, the water lights, and people follow the bright hooves home.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "sunfrill",
+      "name": "Sunfrill",
+      "family": "lizard",
+      "element": "Radiant",
+      "description": "Sunthread Commons's fence rails are its sunny resting places; its bright sail shades the little creatures gathered underneath.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "sunlynx",
+      "name": "Sunlynx",
+      "family": "cat",
+      "element": "Radiant",
+      "description": "A Poolkit that grew up devoted to its tamer. Its coat holds the morning light, and it lies across the doorway at night to keep it in.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "sunspark",
+      "name": "Sunspark",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "A rare spark of living light. Seeing one is said to be good luck.",
+      "evolutions": [
+        {
+          "to": "luckflare",
+          "at": 18,
+          "bond": 1,
+          "hint": "Once it trusts you a little and has grown, the lucky spark has opened into a flare that stays with the people who saw it."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "thermglide",
+      "name": "Thermglide",
+      "family": "bird",
+      "element": "Gale",
+      "description": "The circling call has become a long glide that shows every sheltered ledge.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "thermwing",
+      "name": "Thermwing",
+      "family": "bird",
+      "element": "Gale",
+      "description": "It circles on rising warmth, calling out sheltered ledges to the creatures climbing below.",
+      "evolutions": [
+        {
+          "to": "thermglide",
+          "at": 26,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the circling call has become a long glide that shows every sheltered ledge."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "thicketboar",
+      "name": "Thicketboar",
+      "family": "boar",
+      "element": "Grove",
+      "description": "Burly and shaggy, and the garden on its back has not settled. Saplings sprout lopsided, and it sheds twigs as it walks.",
+      "evolutions": [
+        {
+          "to": "thornback",
+          "at": 36,
+          "bond": 3,
+          "hint": "It carries a grove once it has grown, and only for a tamer it trusts."
+        }
+      ],
+      "art": {
+        "front": true,
+        "back": false,
+        "idle": true,
+        "walk": true
+      }
+    },
+    {
+      "id": "thornback",
+      "name": "Thornback",
+      "family": "boar",
+      "element": "Grove",
+      "description": "A walking grove. A young tree and a crown of thorns grow from its shoulders, the birds still nest, and flowers open where it steps.",
+      "evolutions": [],
+      "art": {
+        "front": true,
+        "back": false,
+        "idle": true,
+        "walk": true
+      }
+    },
+    {
+      "id": "tidewyrm",
+      "name": "Tidewyrm",
+      "family": "croc",
+      "element": "Tide",
+      "description": "A river dragon at last. The folded frill is a crest of fins, and it carries a ring of its own tide.",
+      "evolutions": [],
+      "art": {
+        "front": true,
+        "back": false,
+        "idle": true,
+        "walk": true
+      }
+    },
+    {
+      "id": "tilthcrown",
+      "name": "Tilthcrown",
+      "family": "boar",
+      "element": "Grove",
+      "description": "The loosened soil has become a planted bed it carries beside the shared paths.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "tilthtusk",
+      "name": "Tilthtusk",
+      "family": "boar",
+      "element": "Grove",
+      "description": "It loosens worn soil beside shared paths, carefully circling the marked nursery beds.",
+      "evolutions": [
+        {
+          "to": "tilthcrown",
+          "at": 36,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the loosened soil has become a planted bed it carries beside the shared paths."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "tumblecrown",
+      "name": "Tumblecrown",
+      "family": "boar",
+      "element": "Gale",
+      "description": "The tumble in the headwind has become a crest that throws seed across the high meadow.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "tumbletusk",
+      "name": "Tumbletusk",
+      "family": "boar",
+      "element": "Gale",
+      "description": "It rolls into a headwind, scattering seeds through the high meadows with every tumble.",
+      "evolutions": [
+        {
+          "to": "tumblecrown",
+          "at": 32,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the tumble in the headwind has become a crest that throws seed across the high meadow."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "umbrelace",
+      "name": "Umbrelace",
+      "family": "spider",
+      "element": "Shade",
+      "description": "It hangs silk beside unsafe ledges, leaving the familiar passage open.",
+      "evolutions": [
+        {
+          "to": "ledgeveil",
+          "at": 34,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the silk beside an unsafe ledge has become a veil that closes the bad path."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "undertone",
+      "name": "Undertone",
+      "family": "hyena",
+      "element": "Shade",
+      "description": "Its low call passes through winding stone to guide separated groups back to one another.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "veilmote",
+      "name": "Veilmote",
+      "family": "sprite",
+      "element": "Shade",
+      "description": "A solitary mote folds deep shade around abandoned nests, keeping their last warmth through the night.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ventmane",
+      "name": "Ventmane",
+      "family": "cat",
+      "element": "Ember",
+      "description": "The copper fan of its tail has become a mane of steam over the warm vents.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "ventwhisk",
+      "name": "Ventwhisk",
+      "family": "cat",
+      "element": "Ember",
+      "description": "It curls beside warm vents and fans little clouds of steam with its copper-coloured tail.",
+      "evolutions": [
+        {
+          "to": "ventmane",
+          "at": 26,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the copper fan of its tail has become a mane of steam over the warm vents."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "watchlight",
+      "name": "Watchlight",
+      "family": "sprite",
+      "element": "Radiant",
+      "description": "Farwatch Reach's guardian marks a safe approach through fog, waiting for travelers to answer before moving on.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "whisperpup",
+      "name": "Whisperpup",
+      "family": "wolf",
+      "element": "Gale",
+      "description": "A small hound of Hollowecho Hills. Its ears are too big for its head, and it turns them until the wind in the stones matches a path.",
+      "evolutions": [
+        {
+          "to": "ridgehowl",
+          "at": 32,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, those ears catch the ridge wind."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "willowback",
+      "name": "Willowback",
+      "family": "croc",
+      "element": "Grove",
+      "description": "The seedlings in its back have taken root, and the bank holds where it rests.",
+      "evolutions": [],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    },
+    {
+      "id": "wrackjaw",
+      "name": "Wrackjaw",
+      "family": "hyena",
+      "element": "Stone",
+      "description": "Its rattling laugh echoes through driftwood piles as it cracks shellfish with pebble-hard jaws.",
+      "evolutions": [
+        {
+          "to": "driftjaw",
+          "at": 22,
+          "bond": 2,
+          "hint": "Once it trusts you and has grown, the pebble jaws that cracked shells now break the driftwood open for everyone smaller."
+        }
+      ],
+      "art": {
+        "front": false,
+        "back": false,
+        "idle": false,
+        "walk": false
+      }
+    }
+  ],
+  "limits": [
+    "Back file existence does not mean main renders it.",
+    "Species review rows expose descriptions and evolution lines; they do not grade originality or visual quality.",
+    "Graph/move checks do not prove every encounter, quest or save is valid; run the existing suites too."
+  ]
+}
