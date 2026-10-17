@@ -100,6 +100,48 @@ func _input(e: InputEvent) -> void:
 		visible = false
 		closed.emit()
 
+## Rects the checks measure: every block sits inside the paper, and the footer does not meet the lines above it.
+func layout_blocks(use: String) -> Array:
+	var paper := Rect2(14, 14, 356, 188)
+	var blocks: Array = [paper]
+	if use == "touch":
+		var body := _touch_body()
+		blocks.append(body)
+		blocks.append(_footer_rect(body.end.y + 14.0, 328.0, 28.0, 16))
+		return blocks
+	var rows := _keyboard_rows()
+	for row in rows:
+		blocks.append(row)
+	var lowest := 90.0
+	for row in rows:
+		lowest = maxf(lowest, (row as Rect2).end.y)
+	blocks.append(_footer_rect(lowest + 8.0, 356.0, 14.0, 8))
+	return blocks
+
+func _footer_rect(top: float, width: float, x: float, size: int) -> Rect2:
+	return Rect2(x, top, width, float(size) + 2.0)
+
+func _keyboard_rows() -> Array:
+	var rows: Array = []
+	var y := 88.0
+	for i in COLS.size():
+		var x := 22.0 + i * 116.0
+		var local_y := y
+		for r in COLS[i][2]:
+			var detail: String = r[1]
+			var h := 14.0
+			if font != null:
+				h = maxf(14.0, font.get_multiline_string_size(detail, HORIZONTAL_ALIGNMENT_LEFT, 104.0, 6, -1).y + 8.0)
+			rows.append(Rect2(x, local_y - 7.0, 104, h))
+			local_y += h
+	return rows
+
+func _touch_body() -> Rect2:
+	var h := 48.0
+	if font != null:
+		h = font.get_multiline_string_size(TOUCH_COPY, HORIZONTAL_ALIGNMENT_LEFT, 328.0, 14, -1).y
+	return Rect2(28, 92, 328, h)
+
 func _draw() -> void:
 	draw_rect(Rect2(0, 0, 384, 216), INK)
 	draw_rect(Rect2(10, 10, 364, 196), BARK)
@@ -109,25 +151,38 @@ func _draw() -> void:
 		_draw_touch()
 		return
 	draw_string(font, Vector2(14, TITLE_BASELINE), "How to play", HORIZONTAL_ALIGNMENT_CENTER, 356, 16, INK)
+	var rows := _keyboard_rows()
+	var cursor := 0
+	var lowest := 90.0
 	for i in COLS.size():
 		var x := 22.0 + i * 116.0
 		var mine: bool = COLS[i][1] == use
+		var col_top := 52.0
+		var col_bottom := 80.0
+		for r in COLS[i][2]:
+			col_bottom = maxf(col_bottom, (rows[cursor] as Rect2).end.y)
+			cursor += 1
 		if mine:
-			draw_rect(Rect2(x - 4, 52, 112, 120), DECK)
+			draw_rect(Rect2(x - 4, col_top, 112, col_bottom - col_top), DECK)
 		draw_string(font, Vector2(x, 66), COLS[i][0], HORIZONTAL_ALIGNMENT_CENTER, 104, 8, INK)
 		if mine:
 			draw_string(font, Vector2(x, 76), "(what you're using)", HORIZONTAL_ALIGNMENT_CENTER, 104, 6, BARK)
-		var y := 90.0
+		cursor -= COLS[i][2].size()
 		for r in COLS[i][2]:
-			draw_string(font, Vector2(x, y), r[0], HORIZONTAL_ALIGNMENT_LEFT, -1, 7, INK)
-			draw_string(font, Vector2(x, y + 8), r[1], HORIZONTAL_ALIGNMENT_LEFT, 104, 6, BARK)
-			y += 17.0
+			var box: Rect2 = rows[cursor]
+			draw_string(font, Vector2(x, box.position.y + 7.0), r[0], HORIZONTAL_ALIGNMENT_LEFT, 104, 7, INK)
+			draw_multiline_string(font, Vector2(x, box.position.y + 15.0), r[1], HORIZONTAL_ALIGNMENT_LEFT, 104, 6, -1, BARK)
+			lowest = maxf(lowest, box.end.y)
+			cursor += 1
 	var how := "Press any button" if use == "pad" else "Press any key"
-	draw_string(font, Vector2(14, 186), "%s to %s.  This page is also on the Settings page of your field book." % [how, foot], HORIZONTAL_ALIGNMENT_CENTER, 356, 8, BARK)
+	var foot_box := _footer_rect(lowest + 8.0, 356.0, 14.0, 8)
+	draw_string(font, Vector2(14, foot_box.position.y + 8.0), "%s to %s.  This page is also on the Settings page of your field book." % [how, foot], HORIZONTAL_ALIGNMENT_CENTER, 356, 8, BARK)
 
 ## One readable page of the phone controls. The title and "Phone or tablet" each have their own line.
 func _draw_touch() -> void:
 	draw_string(font, Vector2(28, TITLE_BASELINE), "How to play", HORIZONTAL_ALIGNMENT_CENTER, 328, 16, INK)
 	draw_string(font, Vector2(28, SUB_BASELINE), "Phone or tablet", HORIZONTAL_ALIGNMENT_CENTER, 328, 16, INK)
-	draw_multiline_string(font, Vector2(28, 100), TOUCH_COPY, HORIZONTAL_ALIGNMENT_LEFT, 328, 16, 6, INK)
-	draw_string(font, Vector2(28, 186), "Tap anywhere to %s." % foot, HORIZONTAL_ALIGNMENT_CENTER, 328, 16, BARK)
+	var body := _touch_body()
+	draw_multiline_string(font, Vector2(body.position.x, body.position.y + 14.0), TOUCH_COPY, HORIZONTAL_ALIGNMENT_LEFT, body.size.x, 14, -1, INK)
+	var foot_box := _footer_rect(body.end.y + 14.0, 328.0, 28.0, 16)
+	draw_string(font, Vector2(28, foot_box.position.y + 14.0), "Tap anywhere to %s." % foot, HORIZONTAL_ALIGNMENT_CENTER, 328, 14, BARK)
