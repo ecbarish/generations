@@ -76,7 +76,7 @@ func run() -> void:
 	var before := FileAccess.get_sha256(path)
 	check(not broken.save() and FileAccess.get_sha256(path)==before,"broken save is never overwritten by a fresh default")
 	var future := Profile.fresh()
-	future.version=3
+	future.version=4
 	write_raw(path,JSON.stringify(future))
 	var newer := Profile.new()
 	check(not newer.open_profile(path) and newer.hold and not newer.save(),"future schema stays protected")

@@ -1,16 +1,25 @@
 extends RefCounted
 ## Small, local Pokemon rules catalogue. No network or artwork dependency.
-static var DATA: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/journey/core-data.json"))
+static var DATA: Dictionary = definitions()
 const Legacy := preload("res://tests/journey/legacy_catalogue.gd")
 const IDS := ["pokemon:16","pokemon:37","pokemon:194"]
-const NAMES := {"pokemon:16":"Pidgey","pokemon:37":"Vulpix","pokemon:194":"Wooper"}
+const STARTERS := ["wildbond:mosshog","wildbond:ripplet","wildbond:cindercub"]
+const ALL_IDS := ["pokemon:16","pokemon:37","pokemon:194","wildbond:mosshog","wildbond:ripplet","wildbond:cindercub"]
+const NAMES := {"pokemon:16":"Pidgey","pokemon:37":"Vulpix","pokemon:194":"Wooper","wildbond:mosshog":"Mosshog","wildbond:ripplet":"Ripplet","wildbond:cindercub":"Cindercub"}
 const ALIASES := Legacy.ALIASES
+
+static func definitions() -> Dictionary:
+	var data: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://tests/journey/core-data.json"))
+	var originals: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://tests/journey/original-data.json"))
+	data.species.merge(originals.species)
+	data.moves.merge(originals.moves)
+	return data
 
 static func threshold(sid: String, level: int) -> int:
 	return int(DATA.growth[DATA.species[sid].growth][clampi(level,1,100)])
 
 static func creature(sid: String, level: int = 5) -> Dictionary:
-	if sid not in IDS: return {}
+	if sid not in ALL_IDS: return {}
 	level=clampi(level,1,100)
 	var s: Dictionary=DATA.species[sid]
 	var c := {"id":sid,"name":s.name,"individual":"","level":level,"xp":threshold(sid,level),"types":s.types.duplicate(),"element":" / ".join(s.types).capitalize(),"moves":[],"pp":{},"status":"","stages":{},"catch_rate":int(s.catch_rate),"base_experience":int(s.base_experience)}

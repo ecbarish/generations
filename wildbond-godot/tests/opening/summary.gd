@@ -39,7 +39,11 @@ static func build(scene: Node, index: int, selected: int) -> void:
 	scene._label(scene.detail,v.types,Vector2(10,27),Vector2(155,15),10)
 	scene._label(scene.detail,v.status,Vector2(10,43),Vector2(100,15),10)
 	var art: Dictionary=scene.pack.battle_frame(c.id,false)
-	if not art.is_empty():
+	if c.id in Catalogue.STARTERS:
+		var portrait := preload("res://tests/starter_sprites/presentation.gd").new()
+		scene.detail.add_child(portrait)
+		portrait.configure(scene.original_art,str(c.id).trim_prefix("wildbond:"),false,Vector2(54,126),Vector2(88,65))
+	elif not art.is_empty():
 		var atlas := AtlasTexture.new();atlas.atlas=art.texture;atlas.region=art.region
 		var portrait := TextureRect.new();portrait.texture=atlas;portrait.position=Vector2(12,61);portrait.size=Vector2(88,65)
 		portrait.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;portrait.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED;portrait.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST;portrait.mouse_filter=Control.MOUSE_FILTER_IGNORE

@@ -2,6 +2,7 @@ extends RefCounted
 const Safe := preload("res://scripts/safe_save.gd")
 const Catalogue := preload("res://tests/journey/catalogue.gd")
 const Legacy := preload("res://tests/journey/legacy_profile.gd")
+const V2 := preload("res://tests/journey/profile_v2.gd")
 const PATH := "user://wildbond_pokemon_chapter_v1.json"
 const FORMAT := "wildbond-pokemon-chapter"
 var path := PATH
@@ -12,13 +13,13 @@ var state: Dictionary
 func _init() -> void: state=fresh()
 
 static func fresh() -> Dictionary:
-	return {"format":FORMAT,"version":2,"started":false,"team":[],"box":[],"next_id":1,"berries":2,"balls":5,"coins":300,"room":"town","position":[0,6],"first_catch":false,"healed_after_catch":false,"wins":0,"encounters":0}
+	return {"format":FORMAT,"version":3,"original_starter":0,"started":false,"team":[],"box":[],"next_id":1,"berries":2,"balls":5,"coins":300,"room":"town","position":[0,6],"first_catch":false,"healed_after_catch":false,"wins":0,"encounters":0}
 
 static func integer(value: Variant, low: int, high: int) -> bool:
 	return (value is int or value is float) and is_finite(float(value)) and float(value)==floorf(float(value)) and value>=low and value<=high
 
 static func valid(d: Dictionary) -> bool:
-	if d.get("format")!=FORMAT or d.get("version")!=2: return false
+	if d.get("format")!=FORMAT or d.get("version")!=3: return false
 	for key in ["started","first_catch","healed_after_catch"]:
 		if not d.get(key) is bool: return false
 	for key in ["berries","balls"]:
@@ -37,7 +38,7 @@ static func valid(d: Dictionary) -> bool:
 	if (d.room=="town" and (absf(x)>15.7 or absf(z)>13.5)) or (d.room=="trail" and (absf(x-120)>8 or absf(z)>9)): return false
 	var seen := {}
 	for record in d.team+d.box:
-		if not record is Dictionary or record.get("species") not in Catalogue.IDS: return false
+		if not record is Dictionary or record.get("species") not in Catalogue.ALL_IDS: return false
 		if not integer(record.get("individual"),1,int(d.next_id)-1) or seen.has(int(record.individual)): return false
 		seen[int(record.individual)]=true
 		if not integer(record.get("level"),1,100): return false
@@ -48,6 +49,8 @@ static func valid(d: Dictionary) -> bool:
 		if not integer(record.get("hp"),0,int(c.max_hp)) or not record.get("pp") is Dictionary or record.pp.size()!=c.moves.size(): return false
 		for move in c.moves:
 			if not integer(record.pp.get(move),0,int(c.pp[move])): return false
+	if not integer(d.get("original_starter"),0,int(d.next_id)-1):return false
+	if d.original_starter>0 and not (d.team+d.box).any(func(c):return c.individual==d.original_starter and c.species in Catalogue.STARTERS):return false
 	if d.has("opening"):
 		var opening = d.opening
 		if not opening is Dictionary or opening.get("version")!=1: return false
@@ -80,9 +83,9 @@ func open_profile(target: String = PATH) -> bool:
 			hold=true; issue="Chapter save cannot be read safely. It has been kept."; return false
 		var json := JSON.new()
 		if json.parse(file.get_as_text())==OK and json.data is Dictionary:
-			if json.data.get("format")==FORMAT and (integer(json.data.get("version"),3,999999) or (json.data.get("opening") is Dictionary and integer(json.data.opening.get("version"),2,999999))):
+			if json.data.get("format")==FORMAT and (integer(json.data.get("version"),4,999999) or (json.data.get("opening") is Dictionary and integer(json.data.opening.get("version"),2,999999))):
 				hold=true; issue="This chapter save needs a newer game. It has been kept."; return false
-	var loaded := Safe.read(path,func(d: Dictionary): return valid(d) or Legacy.valid(d))
+	var loaded := Safe.read(path,func(d: Dictionary): return valid(d) or V2.valid(d) or Legacy.valid(d))
 	if loaded.is_empty():
 		if Safe.exists(path):
 			hold=true; issue="Chapter save could not be recovered. This visit will not overwrite it."
@@ -99,11 +102,23 @@ func open_profile(target: String = PATH) -> bool:
 			if not Safe.write(original,loaded):
 				hold=true; issue="Could not preserve the old chapter save. Your save has been kept."; return false
 		state=loaded.duplicate(true)
-		state.version=2
+		state.version=3
+		state.original_starter=0
 		state.team=loaded.team.map(Catalogue.migrate)
 		state.box=loaded.box.map(Catalogue.migrate)
 		if not valid(state) or not save():
 			hold=true; issue="Could not finish the chapter upgrade. The original is kept."; return false
+	elif loaded.version==2:
+		var original := path+".pre-v3"
+		if FileAccess.file_exists(original):
+			var prior := JSON.new();var file := FileAccess.open(original,FileAccess.READ)
+			if file==null or file.get_length()>524288 or prior.parse(file.get_as_text())!=OK or not prior.data is Dictionary or not V2.valid(prior.data):
+				hold=true;issue="The starter upgrade backup needs attention. Your save has been kept.";return false
+		elif not Safe.write(original,loaded):
+			hold=true;issue="Could not preserve the old chapter save. Your save has been kept.";return false
+		state=loaded.duplicate(true);state.version=3;state.original_starter=0
+		if not valid(state) or not save():
+			hold=true;issue="Could not finish the starter upgrade. The original is kept.";return false
 	else:
 		state=loaded.duplicate(true)
 	return true
@@ -121,10 +136,19 @@ func assign(c: Dictionary) -> Dictionary:
 	return result
 
 func start(sid: String) -> bool:
-	if state.started or sid not in Catalogue.IDS: return false
+	if state.started or sid not in Catalogue.ALL_IDS: return false
 	state.team=[Catalogue.encode(assign(Catalogue.creature(sid)))]
+	if sid in Catalogue.STARTERS:state.original_starter=state.team[0].individual
 	state.started=true
 	return true
+
+func grant_starter(sid: String) -> String:
+	if not state.started or sid not in Catalogue.STARTERS or state.original_starter!=0:return "unavailable"
+	if not room_for_capture():return "full"
+	var record := Catalogue.encode(assign(Catalogue.creature(sid)))
+	state.original_starter=record.individual
+	if state.team.size()<6:state.team.append(record);return "party"
+	state.box.append(record);return "box"
 
 func room_for_capture() -> bool: return state.team.size()<6 or state.box.size()<60
 
