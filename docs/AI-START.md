@@ -1,5 +1,7 @@
 # A short path into the project
 
+**Wildbond:** read [WILDBOND-HANDOFF.md](WILDBOND-HANDOFF.md) before continuing. It captures Evan's current vision, the native chapter versus main/public-build distinction, source/asset/save boundaries, PR dependencies and suggested next step. Fetch live state; its snapshot is not permission to merge or deploy.
+
 Evan, 2026-10-13: stop reloading the whole project to do one task. This page defines the new startup route; it overrides older instructions to read every planning document or the entire Session log each session.
 
 1. Read the short root `AGENTS.md` (the same rules apply to Claude).

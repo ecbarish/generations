@@ -1,5 +1,7 @@
 # Generations: common rules for AI assistants
 
+**Wildbond continuation:** first read [docs/WILDBOND-HANDOFF.md](docs/WILDBOND-HANDOFF.md) for Evan's current private Pokémon-first direction, native chapter, open PR stack, asset/save boundaries and next increment. Older main/public-build notes do not describe that unmerged chapter; reconcile live heads before building.
+
 **Efficient startup (Evan, 2026-10-13):** follow [docs/AI-START.md](docs/AI-START.md). This short file and a fresh task packet replace old full-document startup sweeps. Use `node tools/agent-context.cjs --agent <your name> --task TASK-ID --project PROJECT`; read only its scoped pointers and the exact ticket/source/tests. START-HERE's Session log and archived instructions are searchable history, not required full reads.
 
 - **Current work:** docs/QUEUE.md **This cycle** overrides old lanes/ticket-factory autopilot. Take your named task, or an explicit current user request; check live open PR ownership first. Read STUDIO-PLAN section 4 and your game for planning. Do not start another game/backlog task just because the current lane is empty.

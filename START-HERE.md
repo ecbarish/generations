@@ -1,5 +1,7 @@
 # START HERE
 
+**Continuing Wildbond?** Read [the current AI handoff](docs/WILDBOND-HANDOFF.md) before choosing code or assets. It explains Evan's newer direction, the playable native chapter and its unmerged PR dependencies; the historical status below is not the current feature-build record.
+
 **AI quick route (Evan, 2026-10-13):** read AGENTS.md, then run `node tools/agent-context.cjs --agent Codex --task TASK-ID --project PROJECT`. Follow docs/AI-START.md; read this file by relevant section/search, not the whole Session log. Current cycle and live PRs outrank historical status. This overrides older full-document reading instructions.
 
 **Control Tower reporting (Adam, 2026-10-12):** update the fenced `json` block with a top-level `tower` object in your task's PR description when claiming work, changing status, handing off, becoming blocked, submitting for review, merging or publishing. Use the format in [docs/COMMS.md](docs/COMMS.md) (TOWER-COMMS, 2026-10-12) and the PR template. Report your actual AI/thread, operator, project/lane, task ID, owned paths, dependencies, blocker/next action, check evidence and release details; leave unknown values null. Never infer AI identity from a shared GitHub account, or equate merged with published. At session start, reconcile your open PR metadata even if you missed COMMS. [Control Tower](https://idle-arcade-tower.abarish227759.chatgpt.site) is Adam's private viewer; the reporting format is in the repository.

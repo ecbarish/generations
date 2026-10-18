@@ -1,7 +1,7 @@
 /* Build fresh, bounded startup context. Read-only; no network, writes, model calls or task claiming. */
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),{execFileSync}=require('node:child_process');
 const routes={
- wildbond:['docs/wildbond-plan.md','docs/art/wildbond-art-direction.md'],
+ wildbond:['docs/WILDBOND-HANDOFF.md','docs/wildbond-plan.md','docs/art/wildbond-art-direction.md'],
  realmbound:['docs/realmbound-40-60.md'],
  starfall:['docs/plans/starfall-village.md','docs/plans/starfall-guild.md'],
  'diamond-manager':['docs/diamond-manager-balance.md'],
