@@ -28,6 +28,10 @@ Evan's clearest statement was: “I basically now want a pokemon game but we bui
 
 **Efficiency.** Adapt proven, appropriately licensed code and reusable assets where practical. Preserve functionality and saves, test small increments, and spend effort on the first playable adventure. No whole-game rewrite, hundreds-of-sprites generation batch, or expansion of the original catalogue just to increase its count. Private use is Evan's stated intent; imported copyrighted files and their screenshots stay outside Git and public exports.
 
+## Original starter production follow-up
+
+[PR #559](https://github.com/ecbarish/generations/pull/559), branch `codex/wildbond-starter-sprites`, adds the approved trio's first usable sprite candidates and a save-free native art audition at `wildbond-godot/tests/starter_sprites/play.tscn`. [Production report](art/starter-production/README.md) lists exact prompts, unchanged raw PNGs, 72 measured poses, five drawn/mirrored eight-way views, four stride frames, battle blink/breathing poses, 32/64-pixel reference rendering and 16-colour palettes. Use its launcher to inspect them beside optional private Pokémon references. This is not persistent starter choice/rules integration, a full idle/attack/evolution set or final human art acceptance. Original saved species identities must remain distinct from Pokémon. Main still needs dependency-order review/merge; use the appropriate feature branch rather than assuming the preview is deployed.
+
 ## What actually works in the current chapter
 
 | System | Current behavior |
