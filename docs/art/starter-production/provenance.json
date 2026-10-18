@@ -1,0 +1,63 @@
+{
+  "task": "WB-STARTER-SPRITES",
+  "date": "2026-10-18",
+  "generator": "built-in image_gen",
+  "mode": "reference-guided generation and style correction",
+  "model": null,
+  "reference": {
+    "branch": "codex/wildbond-creature-vision",
+    "commit": "9905917e8186e1424b2b0c0af7397d28e8488099",
+    "file": "docs/art/creature-vision/starter-personalities-v1.png",
+    "sha256": "19de641538cdb3a21f154016472e5af634dd564755b7c5ed8c803536cc646d5a",
+    "approval": "Evan: That generation is perfect for the starters. (2026-10-17)"
+  },
+  "raw_outputs": {
+    "cindercub-v1.png": {
+      "sha256": "224602a2f4a7841fbea9eb50c51d35ab6909d7438f6a21cef3ebb43ffcb54ad8",
+      "bytes": 2111266,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "runtime": true
+    },
+    "mosshog-v1.png": {
+      "sha256": "a318ade3b49dc2c36a81448be0ca7a03a184d494ff04abe447f865cfc9740ef3",
+      "bytes": 2256068,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "runtime": true
+    },
+    "ripplet-v1.png": {
+      "sha256": "ec41db6f1154fa93c11ed04bc375cea5ab3c64c146ab2a4a9f51f977be1f7a6c",
+      "bytes": 2222116,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "runtime": false
+    },
+    "ripplet-v2.png": {
+      "sha256": "e5419e8de82eab6af08146fd9b656496043a5ec6a47d54964d847d2ca48abba6",
+      "bytes": 2068776,
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "runtime": true
+    }
+  },
+  "processing": "Source PNG bytes are unchanged. measure_frames.py reads alpha to record nonuniform regions and feet. Godot renderers sample a stable 32/64-pixel canvas and nearest 16-color palette; discard alpha below 0.5. No Python raster editing.",
+  "limitations": [
+    "First production candidate, not final human art acceptance.",
+    "Five drawn walk directions; three mirrored. Four stride poses per drawn direction.",
+    "Two battle poses per front/back view; no attack/hurt/faint sheets.",
+    "Art preview only: not selectable saved starters or changed species rules."
+  ]
+}

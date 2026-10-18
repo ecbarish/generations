@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond original starters: Mosshog, Ripplet and Cindercub have a first sprite-production candidate with measured battle/walking poses and a save-free native comparison preview. [Sources, launcher and review limits](docs/art/starter-production/README.md).
+
 - Wildbond private chapter: inspect partner types, stats, HP/status, experience progress and actual move details/PP in the Party menu, with existing lead/storage actions. [Scope and checks](docs/research/wildbond-party-summary/README.md).
 
 - Wildbond private chapter: six matching Pokémon NPC roles replace rough people, with facing/steps, measured feet, readable service staff and stable animated creature scale. [Presentation checks and scope](docs/research/wildbond-actor-polish/README.md).
