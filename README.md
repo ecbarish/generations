@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond private chapter: inspect partner types, stats, HP/status, experience progress and actual move details/PP in the Party menu, with existing lead/storage actions. [Scope and checks](docs/research/wildbond-party-summary/README.md).
+
 - Wildbond private chapter: six matching Pokémon NPC roles replace rough people, with facing/steps, measured feet, readable service staff and stable animated creature scale. [Presentation checks and scope](docs/research/wildbond-actor-polish/README.md).
 
 - Wildbond private chapter now connects measured Larkhaven, Thornwood, Millgrass and the Dewcut approach, with Maren's return outing, original NPC hooks, friendly trainer battles, inn/shop/ranch services and an in-game map. [Scope and checks](docs/research/wildbond-opening-chapter/README.md).
