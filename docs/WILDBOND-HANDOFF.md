@@ -49,6 +49,12 @@ The three species have neutral nature, IV 15 and zero EVs. Base XP uses pinned c
 
 Deeper Thornwood, deeper Dewcut and Larkburrow remain closed. Respect the graph's badge/field requirements: the Larkburrow home shortcut still needs Stone Break **and** the Loom Badge, and the later Stone-partner shelf must not be moved to the entrance. Do not imply these destinations already work.
 
+## References and characters: read before new designs
+
+The [reference and lessons guide](research/wildbond-reference-guide.md) maps Evan’s examples (PBA, Gen 1–4, Muse, approved art and reuse sources) to what we learned, what we actually implemented and the supporting reports. It explains historical proposals versus current plans and points to the separate creature-vision branch when files are absent here. Use it instead of repeating research or guessing from a screenshot.
+
+The [cast guide](lore/wildbond-cast-guide.md) introduces Maren, Wren, Pip, Bram, the home community, eight Wardens and regional companions. It distinguishes established character details, interpretation and proposed introductions, with source routes and spoiler boundaries. Read it alongside the writer-only lore ledger before adding dialogue; no proposed introduction there has been added to the game yet.
+
 ## Where to work and what to read
 
 Work in your own clone/branch; do not switch branches or edit Claude's shared `C:/Users/evanb/OneDrive/Desktop/idle-arcade` checkout. The current Codex checkout on Evan's PC is `C:/Users/evanb/AppData/Local/Temp/generations-wildbond-audit-20261016`; that is a machine-specific location, not a portable requirement. The repository is [ecbarish/generations](https://github.com/ecbarish/generations).
