@@ -90,3 +90,7 @@ The paired Swordsman, Mage and Cleric sheets are additional Higgsfield reference
 ### Wildbond private chapter: Pokémon factual data (2026-10-17)
 
 The export-excluded `wildbond-godot/tests/journey/core-data.json` contains selected numerical facts normalized from [PokéAPI](https://pokeapi.co/docs/v2), pinned `PokeAPI/api-data` revision `3eef329da031136b2206bedb6216c65bd9e095d8`. URLs and input hashes are in `source-manifest.json`; the PokéAPI BSD notice is preserved in `POKEAPI-LICENSE.md` (from `PokeAPI/pokeapi` revision `6fd69dfe90465ba96534f6816fc817737d1f97f6`). This credits the dataset and does not grant rights to Pokémon artwork or trademarks; private artwork remains outside Git and public exports. No descriptions, engine code or additional artwork copied.
+
+### Wildbond private NPC presentation (2026-10-17)
+
+The external private pack optionally uses Emerald Mom, May walking, Little Boy, Hiker, Nurse and Mart Employee sheets from `pret/pokeemerald` revision `731ad5bfd6e6f265508d0efcca0ba42f9dcf5881`, matching the existing Brendan trainer source. Original Pokémon artwork rights remain with its owners. Raw indexed PNGs, source animation/picture/graphics headers, exact URLs/hashes and private credits remain outside this repository. The roles provide temporary appearances for Wildbond's own characters; no source artwork or imported-art capture is committed or added to public exports. Loader, role mapping, movement/presentation code and synthetic tests are project code.

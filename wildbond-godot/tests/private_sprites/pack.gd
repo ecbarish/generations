@@ -6,6 +6,8 @@ var issue := ""
 var source_root := ""
 var trainer: Dictionary = {}
 var items: Dictionary = {}
+var npcs: Dictionary = {}
+var world_pixel_sizes: Dictionary = {}
 var world: Texture2D
 var world_tree: Texture2D
 
@@ -25,6 +27,8 @@ func _reject(reason: String) -> bool:
 	textures.clear()
 	trainer.clear()
 	items.clear()
+	npcs.clear()
+	world_pixel_sizes.clear()
 	world = null
 	world_tree = null
 	issue = reason
@@ -44,6 +48,8 @@ func open_pack(folder: String) -> bool:
 	textures.clear()
 	trainer.clear()
 	items.clear()
+	npcs.clear()
+	world_pixel_sizes.clear()
 	world = null
 	world_tree = null
 	issue = ""
@@ -97,6 +103,14 @@ func open_pack(folder: String) -> bool:
 			if not a is Dictionary or not verified.has(a.get("file", "")): return _reject("Private animation is missing.")
 			var tex := _load_texture(str(a.file))
 			if not _valid_animation(a, tex): return _reject("Private animation grid or anchors are invalid.")
+		var height = e.get("display_height_m",0.6)
+		if not _number(height) or height<0.2 or height>2.5: return _reject("Private creature display height is invalid.")
+		# One stable neutral pose defines scale; animated wing/tail motion never rescales the actor.
+		var reference: Dictionary=e.animations.get("Idle",e.animations.values()[0])
+		var image := _load_texture(str(reference.file)).get_image()
+		var neutral := image.get_region(Rect2i(0,0,int(reference.frame_size[0]),int(reference.frame_size[1]))).get_used_rect()
+		if neutral.size.y<=0: return _reject("Private creature neutral pose is empty.")
+		world_pixel_sizes[sid]=float(height)/neutral.size.y
 		pending[sid] = e.duplicate(true)
 	if pending.is_empty(): return _reject("Private pack has no creatures.")
 	var human = manifest.get("trainer", {})
@@ -132,6 +146,15 @@ func open_pack(folder: String) -> bool:
 		if not verified.has(terrain.get("tree", "")): return _reject("Private world tree is missing.")
 		world_tree = _load_texture(str(terrain.tree))
 		if world_tree == null or world_tree.get_size() != Vector2(32, 32): return _reject("Private world tree grid is invalid.")
+	var people = manifest.get("npcs",{})
+	if not people is Dictionary or people.size()>6: return _reject("Private NPC metadata is invalid.")
+	for role in people:
+		if role not in ["caretaker","rival","child","forager","healer","shopkeeper"]: return _reject("Private NPC role is unknown.")
+		var meta = people[role]
+		if not meta is Dictionary or not verified.has(meta.get("file","")): return _reject("Private NPC file is missing.")
+		var texture := _key_texture(str(meta.file))
+		if not _valid_npc(meta,texture): return _reject("Private NPC grid or anchors are invalid: "+str(role))
+	npcs=people.duplicate(true)
 	entries = pending
 	return true
 
@@ -189,4 +212,48 @@ func world_frame(sid: String, state: String, direction: int, seconds: float) -> 
 	var dims := Vector2(float(a.frame_size[0]), float(a.frame_size[1]))
 	var foot: Array = a.anchors[row][frame]
 	return {"texture": textures[a.file], "region": Rect2(Vector2(frame, row) * dims, dims),
-		"anchor": Vector2(float(foot[0]), float(foot[1])), "frame": frame, "direction": row}
+		"anchor": Vector2(float(foot[0]), float(foot[1])), "frame": frame, "direction": row, "pixel_size":world_pixel_sizes.get(sid,0.028)}
+
+func _key_texture(rel: String) -> Texture2D:
+	var texture := _load_texture(rel)
+	if texture==null: return null
+	var image := texture.get_image()
+	image.convert(Image.FORMAT_RGBA8)
+	var clear := image.get_pixel(0,0)
+	for y in image.get_height():
+		for x in image.get_width():
+			if image.get_pixel(x,y)==clear: image.set_pixel(x,y,Color.TRANSPARENT)
+	textures[rel]=ImageTexture.create_from_image(image)
+	return textures[rel]
+
+func _valid_npc(meta: Dictionary, texture: Texture2D) -> bool:
+	if texture==null or not meta.get("frame_size") is Array or meta.frame_size.size()!=2: return false
+	if meta.frame_size[0]!=16 or not _number(meta.frame_size[1]) or meta.frame_size[1]!=floorf(meta.frame_size[1]) or int(meta.frame_size[1]) not in [16,32]: return false
+	if not _number(meta.get("source_frames")) or meta.source_frames!=floorf(meta.source_frames) or int(meta.source_frames) not in [4,9]: return false
+	var width := int(meta.frame_size[0]);var height := int(meta.frame_size[1]);var count := int(meta.source_frames)
+	if texture.get_size()!=Vector2(width*count,height): return false
+	if not _number(meta.get("pixel_size")) or meta.pixel_size<0.03 or meta.pixel_size>0.09 or not meta.get("walks") is bool: return false
+	if not meta.get("frame_map") is Array or meta.frame_map.size()!=9: return false
+	for index in meta.frame_map:
+		if not _number(index) or index!=floorf(index) or index<0 or index>=count: return false
+	if meta.get("bow_frame")!=null and (not _number(meta.bow_frame) or meta.bow_frame!=floorf(meta.bow_frame) or meta.bow_frame<0 or meta.bow_frame>=count): return false
+	if not meta.get("anchors") is Array or meta.anchors.size()!=count or not meta.get("ink") is Array or meta.ink.size()!=count: return false
+	var image := texture.get_image()
+	for index in count:
+		var anchor = meta.anchors[index];var ink = meta.ink[index]
+		if not anchor is Array or anchor.size()!=2 or not ink is Array or ink.size()!=4: return false
+		for value in anchor+ink:
+			if not _number(value) or value!=floorf(value): return false
+		var actual := image.get_region(Rect2i(index*width,0,width,height)).get_used_rect()
+		if actual.size==Vector2i.ZERO or Rect2i(int(ink[0]),int(ink[1]),int(ink[2])-int(ink[0]),int(ink[3])-int(ink[1]))!=actual: return false
+		if anchor[0]!=width/2 or anchor[1]!=actual.end.y: return false
+	return true
+
+func npc_frame(role: String, logical_frame: int, flip: bool = false, bow: bool = false) -> Dictionary:
+	if not npcs.has(role): return {}
+	var meta: Dictionary=npcs[role]
+	var index: int=meta.frame_map[clampi(logical_frame,0,8)]
+	if bow and meta.bow_frame!=null: index=int(meta.bow_frame)
+	var dims := Vector2(meta.frame_size[0],meta.frame_size[1])
+	var anchor: Array=meta.anchors[index]
+	return {"texture":textures[meta.file],"region":Rect2(index*dims.x,0,dims.x,dims.y),"anchor":Vector2(anchor[0],anchor[1]),"pixel_size":float(meta.pixel_size),"flip":flip,"frame":index}

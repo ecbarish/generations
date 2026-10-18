@@ -55,3 +55,9 @@ The optional pack now decodes the original Emerald general tileset with its six 
 Evan reported repeated “Night night” and “berries.” Both phrases are emitted by Little Ranch's native browser speech synthesis, exercised by the full repository suite. No automated test browser remained in the subsequent process inventory; the native Wildbond clearing does not produce these spoken phrases.
 
 For future local runs, use `node wildbond-godot/tests/private_sprites/quiet-checks.cjs` with the same Playwright dependency setup as the normal runner. Arguments still filter suites; `little-ranch` verifies the affected one. The helper invokes the unchanged repository runner, mutes its launched browser audio and replaces only native speech output before test pages/iframes load. Little Ranch's game word log, sound-setting logic and assertions remain active. It does not change normal browser sessions, global volume, game preferences or production code. The quiet Little Ranch run passes all 546 checks; this is not an audible speech acceptance test.
+
+## Matching chapter NPCs
+
+The importer now includes six optional NPC roles from the same pinned Emerald revision as Brendan. It preserves the six raw indexed PNGs and two original layout headers externally, with exact source URLs/hashes and measured per-frame anchors in the manifest (50 verified files total). Older packs without NPC metadata still load. Invalid role/grid/pose/anchor data rejects the pack atomically; in-memory colour-key decoding never rewrites source art. The opening scene applies these roles to its original people and both service staff; it does not replace their names or dialogue.
+
+The loader also returns a stable world pixel scale from each Pokémon's neutral Idle pose and intended display height. Opening actors use this fixed scale throughout Idle/Walk rather than rescaling on every pose. Optional imported art remains excluded from public exports and Git.

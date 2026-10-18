@@ -105,6 +105,43 @@ static func run(check: Callable) -> void:
 	bad.species["pokemon:16"].battle.front.image.ink[0] = "invalid"
 	_write(folder, bad)
 	check.call(not pack.open_pack(path), "wrong-type source bounds rejected without crashing")
+	var npc_image := Image.create(144,16,false,Image.FORMAT_RGBA8)
+	npc_image.fill(Color.MAGENTA)
+	var npc_anchors := [];var npc_ink := []
+	for frame in 9:
+		npc_image.fill_rect(Rect2i(frame*16+4,2,8,10),Color("579760"))
+		npc_anchors.append([8,12]);npc_ink.append([4,2,12,12])
+	npc_image.save_png(folder.path_join("npc.png"))
+	var npc_manifest := manifest.duplicate(true)
+	npc_manifest.files.append({"file":"npc.png","sha256":FileAccess.get_sha256(folder.path_join("npc.png"))})
+	npc_manifest.npcs={"child":{"file":"npc.png","frame_size":[16,16],"source_frames":9,"frame_map":[0,1,2,3,4,5,6,7,8],"anchors":npc_anchors,"ink":npc_ink,"walks":true,"bow_frame":null,"pixel_size":0.063}}
+	_write(folder,npc_manifest)
+	check.call(pack.open_pack(path) and pack.npcs.size()==1,"optional NPC metadata loads from an ordinary JSON manifest")
+	var npc_frame := pack.npc_frame("child",8,true)
+	check.call(npc_frame.region==Rect2(128,0,16,16) and npc_frame.anchor==Vector2(8,12) and npc_frame.flip,"NPC source frame, facing and measured ground anchor retained")
+	check.call(npc_frame.texture.get_image().get_pixel(0,0).a==0,"NPC editor colour key is transparent in memory")
+	for field in ["source_frames","frame_map","anchors","ink","pixel_size","frame_size","file","walks"]:
+		bad=npc_manifest.duplicate(true)
+		match field:
+			"source_frames": bad.npcs.child.source_frames=4.5
+			"frame_map": bad.npcs.child.frame_map[0]=99
+			"anchors": bad.npcs.child.anchors[0]=[8,99]
+			"ink": bad.npcs.child.ink[0]=[0,0,16,16]
+			"pixel_size": bad.npcs.child.pixel_size="large"
+			"frame_size": bad.npcs.child.frame_size=[16,"tall"]
+			"file": bad.npcs.child.file="../outside.png"
+			"walks": bad.npcs.child.walks="yes"
+		_write(folder,bad)
+		check.call(not pack.open_pack(path) and pack.npcs.is_empty() and pack.world_pixel_sizes.is_empty(),"malformed NPC "+field+" rejects atomically")
+	bad=npc_manifest.duplicate(true);bad.npcs.child.bow_frame=88
+	_write(folder,bad)
+	check.call(not pack.open_pack(path),"outside-sheet NPC bow pose rejected")
+	bad=manifest.duplicate(true);bad.species["pokemon:16"].display_height_m="giant"
+	_write(folder,bad)
+	check.call(not pack.open_pack(path),"invalid creature presentation scale rejected")
+	_write(folder,manifest)
+	check.call(pack.open_pack(path) and pack.npcs.is_empty(),"older creature packs without NPC metadata remain valid")
+	DirAccess.remove_absolute(path.path_join("npc.png"))
 	# Tiny fixture files are test-owned; do not touch external packs or journeys.
 	DirAccess.remove_absolute(path.path_join("manifest.json"))
 	DirAccess.remove_absolute(path.path_join("fixture.png"))

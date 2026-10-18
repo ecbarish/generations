@@ -9,6 +9,8 @@ REVISIONS = {"PokeAPI/sprites": "289e842364648ec0495ae4ba12f48d5cbfbf670b",
              "PMDCollab/SpriteCollab": "aae7a436af894efab3ff24915f0b645bb4907750",
              "pret/pokeemerald": "731ad5bfd6e6f265508d0efcca0ba42f9dcf5881"}
 PILOT = [(16, "Pidgey"), (37, "Vulpix"), (194, "Wooper")]
+NPC_ROLES = {"caretaker": "mom.png", "rival": "may/walking.png", "child": "little_boy.png",
+             "forager": "hiker.png", "healer": "nurse.png", "shopkeeper": "mart_employee.png"}
 CACHE = {}
 DEFAULT = pathlib.Path(os.environ.get("LOCALAPPDATA", pathlib.Path.home())) / "Wildbond" / "private-sprites" / "v1"
 
@@ -117,6 +119,33 @@ def world_tree(atlas):
             if tree.getpixel((x, y)) in grass: tree.putpixel((x, y), (0, 0, 0, 0))
     return tree
 
+def npc_info(path, rel, role):
+    # Parse the source's indexed editor background without rewriting its PNG.
+    with Image.open(path) as source:
+        image = source.convert("RGBA")
+        w, h = image.size
+        count = 4 if role == "healer" else 9
+        if w != count * 16 or h != (16 if role == "child" else 32):
+            raise ValueError("Unexpected NPC source grid: " + role)
+        key = image.getpixel((0, 0))
+        anchors = []
+        bounds = []
+        for frame in range(count):
+            pixels = [(x, y) for y in range(h) for x in range(16)
+                      if image.getpixel((frame * 16 + x, y)) != key]
+            if not pixels:
+                raise ValueError("Empty NPC frame: " + role)
+            ink = [min(x for x, _ in pixels), min(y for _, y in pixels),
+                   max(x for x, _ in pixels) + 1, max(y for _, y in pixels) + 1]
+            bounds.append(ink)
+            anchors.append([8, ink[3]])
+    return {"file": rel, "frame_size": [16, h], "source_frames": count,
+            "frame_map": [0, 1, 2, 0, 0, 1, 1, 2, 2] if role == "healer" else list(range(9)),
+            "anchors": anchors, "ink": bounds, "walks": role != "healer",
+            "bow_frame": 3 if role == "healer" else None,
+            "pixel_size": 0.063}
+
+
 def check(root):
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     if manifest.get("schema") != 1 or len(manifest.get("species", {})) != 3:
@@ -139,13 +168,16 @@ def check(root):
         with Image.open(safe(root, rel)) as image:
             if image.size != (144, 32):
                 raise ValueError("Invalid trainer sheet: " + name)
+    for role, meta in manifest.get("npcs", {}).items():
+        if role not in NPC_ROLES or npc_info(safe(root, meta["file"]), meta["file"], role) != meta:
+            raise ValueError("Invalid NPC geometry: " + role)
     if manifest.get("world"):
         with Image.open(safe(root, manifest["world"]["atlas"])) as decoded:
             if decoded.size != (256, 512) or decoded.tobytes() != world_atlas(root).tobytes():
                 raise ValueError("World atlas differs from its pinned source decoding")
             with Image.open(safe(root, manifest["world"]["tree"])) as tree:
                 if tree.tobytes() != world_tree(decoded).tobytes(): raise ValueError("World tree differs from source assembly")
-    print(f"PASS: 3 species, {len(manifest['files'])} verified files, 6 battle views, 6 eight-direction animations.")
+    print(f"PASS: 3 species, {len(manifest['files'])} verified files, 6 battle views, 6 eight-direction animations; {len(manifest.get('npcs', {}))} NPC roles.")
     return manifest
 
 def build(root):
@@ -178,6 +210,13 @@ def build(root):
         files.append(download(root, "pret/pokeemerald", f"graphics/object_events/pics/people/brendan/{state}.png", rel))
         trainer[state] = rel
     files.append(download(root, "pret/pokeemerald", "src/data/object_events/object_event_anims.h", "trainer/source-animation-layout.h"))
+    npcs = {}
+    for role, source in NPC_ROLES.items():
+        rel = f"npcs/{role}.png"
+        files.append(download(root, "pret/pokeemerald", "graphics/object_events/pics/people/" + source, rel))
+        npcs[role] = npc_info(root / rel, rel, role)
+    for source in ["object_event_pic_tables.h", "object_event_graphics_info.h"]:
+        files.append(download(root, "pret/pokeemerald", "src/data/object_events/" + source, "npcs/" + source))
     items = {}
     for name in ("oran-berry", "poke-ball"):
         rel = f"items/{name}.png"
@@ -195,8 +234,8 @@ def build(root):
     world_tree(world_atlas(root)).save(root / tree_rel)
     files.append({"file": tree_rel, "sha256": digest(root / tree_rel), "bytes": (root / tree_rel).stat().st_size,
                   "derived": "Source metatiles 30/31/38/39; background grass colours made transparent for upright prop"})
-    result = {"schema": 1, "private": True, "scope": "native save-free prototype; not a public asset distribution",
-        "revisions": REVISIONS, "files": files, "species": entries, "trainer": trainer, "items": items,
+    result = {"schema": 1, "private": True, "scope": "native private chapter; not a public asset distribution",
+        "revisions": REVISIONS, "files": files, "species": entries, "trainer": trainer, "items": items, "npcs": npcs,
         "world": {"atlas": rel, "tree": tree_rel, "metatiles": 512, "tile_size": 16},
         "rights": "Pokemon artwork retains its owners' rights; SpriteCollab credits/terms preserved per source. Private use is not a new license."}
     # Publish the manifest only once every required source and geometry is present.
@@ -209,6 +248,8 @@ def build(root):
         "PMD original sprites: Spike Chunsoft.\nCommunity contributions: see each pokemon/<id>/credits.txt.\n"
         "PokeAPI and PMDCollab source URLs/revisions/hashes: manifest.json.\nOriginal license notices: notices/.\n"
         "Emerald Brendan walking/running: original Game Freak / Nintendo / Creatures artwork, preserved via pret/pokeemerald.\n"
+        "Emerald NPC appearances: Mom, May, Little Boy, Hiker, Nurse and Mart Employee. Original owner rights retained.\n"
+        "NPC roles are visual aliases for Wildbond people; original source frames/layouts are recorded in manifest.json and npcs/.\n"
         "Trainer source animation layout/revision/hash: trainer/source-animation-layout.h and manifest.json.\n"
         "Oran Berry/Poke Ball icons: PokeAPI/sprites. Ranch Berry/Bond Ball are study visual aliases, not canonical item mechanics.\n"
         "World tiles: original Emerald artwork via pret/pokeemerald, exact source palettes/layout preserved. World layout: Wildbond prototype.\n"

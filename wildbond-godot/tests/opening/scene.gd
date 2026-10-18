@@ -1,6 +1,7 @@
 extends "res://tests/journey/scene.gd"
 ## Measured geography and authored character hooks over the persistent chapter systems.
 const Map := preload("res://tests/opening/map.gd")
+const NpcActor := preload("res://tests/opening/npc_actor.gd")
 const OpeningBattle := preload("res://tests/opening/battle.gd")
 var world_map := Map.new()
 var outdoors: Node3D
@@ -13,6 +14,10 @@ var previous_wild := "pokemon:16"
 var npc_art: Dictionary = {}
 var last_area := ""
 var item_nodes := {}
+var npc_actors := {}
+var wild_gait := Motion.new()
+var wild_home := Map.point(Vector2i(15,-7))
+var wild_atlas := AtlasTexture.new()
 
 static func fresh_chapter() -> Dictionary:
 	return {"version":1,"position":[0.0,8.75],"met_maren":false,"wren":false,"bram":false,"reported":false,"items":[]}
@@ -35,6 +40,7 @@ func _build_world() -> void:
 	keep.append_array(rain_nodes);keep.append_array(motes)
 	for node in get_children():
 		if node is Node3D and node not in keep and not node.is_queued_for_deletion(): node.queue_free()
+	npc_actors.clear();npc_art.clear()
 	props.clear();occluders.clear();obstacles.clear();lamps.clear();splashes.clear();healing_lights.clear();building_bounds.clear();places.clear()
 	town_ground=null;trail_ground=null;fountain=null
 	outdoors=Node3D.new();add_child(outdoors)
@@ -100,6 +106,19 @@ func _build_world() -> void:
 	_apply_light()
 
 func _npc(who: String, at: Vector3) -> void:
+	var role: String={"maren":"caretaker","wren":"rival","pip":"child","bram":"forager","healer":"healer","shopkeeper":"shopkeeper"}.get(who,"forager")
+	if pack.npcs.has(role):
+		var actor := NpcActor.new()
+		actor.configure(pack,role,who,at,who in ["maren","wren","pip","bram"],npc_actors.size()*1.7)
+		add_child(actor);_shadow(actor,.16 if role=="child" else .22)
+		var label := Label3D.new()
+		label.text=str(Map.SOURCE.CAST.get(who,{}).get("name",who.capitalize()))
+		label.position=Vector3(0,1.14 if role=="child" else 1.65,0)
+		label.font_size=32;label.pixel_size=.008;label.outline_size=5
+		label.modulate=PAPER;label.outline_modulate=INK;label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+		actor.add_child(label);actor.set_meta("label",label)
+		npc_actors[who]=actor;npc_art[who]=actor
+		return
 	var owner_node := _actor(at)
 	_shadow(owner_node,.22)
 	var image := Image.create(18,28,false,Image.FORMAT_RGBA8)
@@ -266,11 +285,18 @@ func _apply_light() -> void:
 	super._apply_light()
 	if is_instance_valid(outdoors): outdoors.visible=room not in ["center","mart"]
 	if creature!=null: creature.visible=room not in ["center","mart"]
+	if human!=null:
+		for actor in npc_actors.values(): actor.body.modulate=human.modulate
 
 func _process(dt: float) -> void:
 	super._process(dt)
 	if player==null or location==null: return
 	hint.visible=active and not _modal()
+	for actor in npc_actors.values():
+		actor.step(dt,seconds,player.position,active and not _modal() and room=="town",world_map,actor.role=="healer" and heal_time>0)
+		actor.get_meta("label").visible=actor.position.distance_to(player.position)<3.8
+	_step_wild(dt)
+	_actor_visibility()
 	if room=="town":
 		var area := world_map.area(player.position)
 		if area!=last_area: location.text=area.to_upper();last_area=area
@@ -314,9 +340,62 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _make_room(origin: float, kind: String) -> void:
 	super._make_room(origin,kind)
 	for child in get_children():
+		# A waist-height counter keeps the source NPC's face and upper body readable.
+		if child is MeshInstance3D and child.mesh is BoxMesh and absf(child.position.x-origin)<.01 and is_equal_approx(child.position.z,-1.4):
+			if is_equal_approx(child.mesh.size.y,1.2): child.mesh.size.y=.8;child.position.y=.4
+			elif is_equal_approx(child.mesh.size.y,.15): child.position.y=.86
+	for child in get_children():
 		if child is Label3D and absf(child.position.x-origin)<1 and child.text in ["PARTNER CENTER","TOWN MART"]:
 			child.text="HEALING INN" if kind=="center" else "LARKHAVEN SHOP"
+	if pack.npcs.has("healer" if kind=="center" else "shopkeeper"):
+		_npc("healer" if kind=="center" else "shopkeeper",Vector3(origin+(2.2 if kind=="center" else 0.0),0,-2.5))
 
 func heal_party() -> void:
 	super.heal_party()
 	say("HEALING INN","Your partners are fully restored. Take care out there!")
+
+func _animate_partner() -> void:
+	super._animate_partner()
+	if supplies==null or supplies.team.is_empty(): return
+	var sid: String=str(supplies.team[0].id)
+	if pack.world_pixel_sizes.has(sid): partner.pixel_size=float(pack.world_pixel_sizes[sid])
+
+func _step_wild(dt: float) -> void:
+	if creature==null or not pack.entries.has(selected): return
+	var before := creature.position
+	if room=="town" and active and not _modal() and player.position.distance_to(creature.position)>2.8:
+		var phase := fposmod(seconds,10.0)
+		var target := wild_home+Vector3(.38 if phase>2 and phase<6 else 0,0,0)
+		var proposed := creature.position.move_toward(target,.6*dt)
+		if not world_map.blocked(proposed): creature.position=proposed
+	var delta := creature.position-before
+	var intent := player.position-creature.position if player.position.distance_to(creature.position)<2.8 else delta
+	wild_gait.advance(Vector2(intent.x,intent.z),delta,false)
+	_animate_creature()
+
+func _animate_creature() -> void:
+	if sprite==null: return
+	var frame: Dictionary=pack.world_frame(selected,"Walk" if wild_gait.moving else "Idle",wild_gait.direction8,seconds)
+	if frame.is_empty(): return
+	wild_atlas.atlas=frame.texture;wild_atlas.region=frame.region;sprite.texture=wild_atlas
+	sprite.pixel_size=float(frame.pixel_size);sprite.flip_h=false
+	sprite.offset=Vector2(frame.region.size.x*.5-frame.anchor.x,frame.anchor.y-frame.region.size.y*.5)
+	last_region=frame.region
+
+func _actor_visibility() -> void:
+	if camera==null or room!="town": return
+	var points: Array[Vector3]=[player.position,companion.position]
+	if creature.position.distance_to(player.position)<4:points.append(creature.position)
+	for actor in npc_actors.values():
+		if actor.position.distance_to(player.position)<3.2:points.append(actor.position)
+	var camera_at := Vector2(camera.position.x,camera.position.z)
+	for tree in occluders:
+		var point := Vector2(tree.position.x,tree.position.z)
+		if point.distance_to(Vector2(player.position.x,player.position.z))>13:continue
+		var covered := false
+		for at in points:
+			var focus := Vector2(at.x,at.z)
+			if point.distance_to(focus)<.7:continue
+			if point.distance_to(camera_at)<focus.distance_to(camera_at) and point.distance_to(Geometry2D.get_closest_point_to_segment(point,focus,camera_at))<1.4:covered=true;break
+		if covered:
+			for mesh in tree.get_meta("meshes"):mesh.transparency=.96
