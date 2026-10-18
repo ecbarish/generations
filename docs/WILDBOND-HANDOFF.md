@@ -53,6 +53,8 @@ Deeper Thornwood, deeper Dewcut and Larkburrow remain closed. Respect the graph'
 
 The [reference and lessons guide](research/wildbond-reference-guide.md) maps Evan’s examples (PBA, Gen 1–4, Muse, approved art and reuse sources) to what we learned, what we actually implemented and the supporting reports. It explains historical proposals versus current plans and points to the separate creature-vision branch when files are absent here. Use it instead of repeating research or guessing from a screenshot.
 
+Evan subsequently requested broad Pokémon art intake. The [private library guide](research/wildbond-private-library/README.md) describes the external, resumable base-species library, actual coverage, private browsing gallery and explicit small-pack selection. Library availability does not add species data or encounters to this chapter; its active pilot pack remains the existing three Pokémon. Read that guide before collecting duplicate art or trying to load the whole library through the eager-loading pilot.
+
 The [cast guide](lore/wildbond-cast-guide.md) introduces Maren, Wren, Pip, Bram, the home community, eight Wardens and regional companions. It distinguishes established character details, interpretation and proposed introductions, with source routes and spoiler boundaries. Read it alongside the writer-only lore ledger before adding dialogue; no proposed introduction there has been added to the game yet.
 
 ## Where to work and what to read

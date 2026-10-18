@@ -48,27 +48,50 @@ def image_info(p):
             raise ValueError("Empty sprite")
         return {"width": image.width, "height": image.height, "ink": list(ink)}
 
-def animation(root, species_dir, name):
+def animation_source(root, species_dir, name):
     xml = ET.parse(root / species_dir / "AnimData.xml")
-    anim = next(a for a in xml.findall("./Anims/Anim") if a.findtext("Name") == name)
+    states = {a.findtext("Name"): a for a in xml.findall("./Anims/Anim")}
+    visited = set()
+    while True:
+        if name in visited or name not in states:
+            raise ValueError("Missing/cyclic animation alias")
+        visited.add(name)
+        anim = states[name]
+        alias = anim.findtext("CopyOf")
+        if not alias:
+            return name, anim
+        name = alias
+
+def animation(root, species_dir, name):
+    name, anim = animation_source(root, species_dir, name)
     w, h = int(anim.findtext("FrameWidth")), int(anim.findtext("FrameHeight"))
     durations = [int(d.text) / 60.0 for d in anim.findall("./Durations/Duration")]
+    if w <= 0 or h <= 0 or not durations or any(t <= 0 or t > 10 for t in durations):
+        raise ValueError("Invalid animation dimensions or timing")
     rel = f"{species_dir}/{name}-Anim.png"
     shadow = root / species_dir / f"{name}-Shadow.png"
     with Image.open(root / rel) as image, Image.open(shadow) as marker:
-        if image.size != marker.size or image.width != w * len(durations) or image.height != h * 8:
+        if image.size != marker.size or image.width != w * len(durations) or image.height != h * 8 or max(image.size) > 4096:
             raise ValueError(f"Unexpected {name} frame grid")
         pixels = marker.convert("RGBA")
+        # Search packed pixels once in C rather than calling getpixel for every
+        # canvas position. Alignment rejects byte patterns crossing pixel edges.
+        marks = [[[] for _ in durations] for _ in range(8)]
+        raw = pixels.tobytes()
+        offset = raw.find(b"\xff\xff\xff\xff")
+        while offset >= 0:
+            if offset % 4 == 0:
+                pixel = offset // 4
+                x, y = pixel % pixels.width, pixel // pixels.width
+                marks[y // h][x // w].append([x % w, y % h])
+            offset = raw.find(b"\xff\xff\xff\xff", offset + 1)
         anchors = []
         for row in range(8):
             frame_anchors = []
             for frame in range(len(durations)):
-                # PMD shadow sheets use a white marker for the frame's ground anchor.
-                marks = [(x, y) for y in range(h) for x in range(w)
-                         if pixels.getpixel((frame * w + x, row * h + y)) == (255, 255, 255, 255)]
-                if len(marks) != 1:
+                if len(marks[row][frame]) != 1:
                     raise ValueError(f"Expected one shadow anchor: {species_dir}/{name}/{row}/{frame}")
-                frame_anchors.append(list(marks[0]))
+                frame_anchors.append(marks[row][frame][0])
             anchors.append(frame_anchors)
     return {"file": rel, "frame_size": [w, h], "directions": 8,
             "direction_order": ["down", "down_right", "right", "up_right", "up", "up_left", "left", "down_left"],
@@ -148,14 +171,16 @@ def npc_info(path, rel, role):
 
 def check(root):
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
-    if manifest.get("schema") != 1 or len(manifest.get("species", {})) != 3:
-        raise ValueError("Wrong pilot schema/roster")
+    if manifest.get("schema") != 1 or not 1 <= len(manifest.get("species", {})) <= 12:
+        raise ValueError("Wrong private pack schema/roster")
+    if len(manifest.get("files", [])) > 128:
+        raise ValueError("Private pack exceeds runtime file budget")
     for item in manifest["files"]:
         p = safe(root, item["file"])
         if not p.is_file() or digest(p) != item["sha256"]:
             raise ValueError("Missing/changed asset: " + item["file"])
     for sid, entry in manifest["species"].items():
-        if sid not in ("pokemon:16", "pokemon:37", "pokemon:194"):
+        if not sid.startswith("pokemon:") or not sid[8:].isdigit() or not 1 <= int(sid[8:]) <= 1025:
             raise ValueError("Unexpected species ID")
         for facing in ("front", "back"):
             p = safe(root, entry["battle"][facing]["file"])
@@ -177,7 +202,8 @@ def check(root):
                 raise ValueError("World atlas differs from its pinned source decoding")
             with Image.open(safe(root, manifest["world"]["tree"])) as tree:
                 if tree.tobytes() != world_tree(decoded).tobytes(): raise ValueError("World tree differs from source assembly")
-    print(f"PASS: 3 species, {len(manifest['files'])} verified files, 6 battle views, 6 eight-direction animations; {len(manifest.get('npcs', {}))} NPC roles.")
+    count = len(manifest['species'])
+    print(f"PASS: {count} species, {len(manifest['files'])} verified files, {count * 2} battle views, {sum(len(e['animations']) for e in manifest['species'].values())} eight-direction animations; {len(manifest.get('npcs', {}))} NPC roles.")
     return manifest
 
 def build(root):
