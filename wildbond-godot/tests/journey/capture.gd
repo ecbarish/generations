@@ -52,9 +52,12 @@ func run() -> void:
 	scene.interact()
 	scene.battle.sounds.on=false
 	await capture("pokemon-battle")
+	scene.battle._show("moves")
+	await capture("pokemon-moves")
+	scene.battle._show("commands")
 	# Controlled weak wild encounter for deterministic catch/save UI evidence.
 	scene.battle.model.foe.hp=1
-	var values := preload("res://tests/battle_slice/muse_math.gd").catch_values(scene.battle.model.foe.max_hp,1)
+	var values := preload("res://tests/battle_slice/muse_math.gd").catch_values(scene.battle.model.foe.max_hp,1,1.0,scene.battle.model.foe.status,1.0,scene.battle.model.foe.catch_rate)
 	var rng := RandomNumberGenerator.new()
 	for seed_value in 1000:
 		rng.seed=seed_value

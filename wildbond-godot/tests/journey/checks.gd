@@ -18,7 +18,7 @@ func caught_fixture(scene: Node) -> void:
 	scene.enter_battle()
 	scene.battle.sounds.on=false
 	scene.battle.model.foe.hp=1
-	var values := preload("res://tests/battle_slice/muse_math.gd").catch_values(scene.battle.model.foe.max_hp,1)
+	var values := preload("res://tests/battle_slice/muse_math.gd").catch_values(scene.battle.model.foe.max_hp,1,1.0,scene.battle.model.foe.status,1.0,scene.battle.model.foe.catch_rate)
 	var rng := RandomNumberGenerator.new()
 	for seed_value in 1000:
 		rng.seed=seed_value
@@ -76,7 +76,7 @@ func run() -> void:
 	var before := FileAccess.get_sha256(path)
 	check(not broken.save() and FileAccess.get_sha256(path)==before,"broken save is never overwritten by a fresh default")
 	var future := Profile.fresh()
-	future.version=2
+	future.version=3
 	write_raw(path,JSON.stringify(future))
 	var newer := Profile.new()
 	check(not newer.open_profile(path) and newer.hold and not newer.save(),"future schema stays protected")
@@ -99,10 +99,15 @@ func run() -> void:
 	scene.player.position=Vector3(0,0,12)
 	scene.interact()
 	scene.player.position=Vector3(122,0,-2)
-	scene.supplies.team[0].pp["bubbleJet"]=0
+	scene.supplies.team[0].pp["water-gun"]=0
 	scene.enter_battle()
 	scene.battle.sounds.on=false
-	check(scene.battle.model.team[0].pp.bubbleJet==0,"new battle cannot refill spent PP")
+	check(scene.battle.model.team[0].pp["water-gun"]==0,"new battle cannot refill spent PP")
+	scene.battle._show("moves")
+	var water_index: int=scene.battle.model.team[0].moves.find("water-gun")
+	scene.battle.buttons[water_index].mouse_entered.emit()
+	check("Water Gun" in scene.battle.message,"move help stays attached to its own button when PP is exhausted")
+	scene.battle._show("commands")
 	check(scene.battle.model.team[0].id=="pokemon:194" and scene.battle.model.foe.id=="pokemon:16","battle uses Pokemon on both sides")
 	scene.battle._act({"kind":"run"})
 	drain(scene.battle)
@@ -123,12 +128,28 @@ func run() -> void:
 	scene.change_room("town")
 	scene.change_room("center")
 	scene.heal_party()
-	check(scene.profile.state.healed_after_catch and scene.supplies.team[1].pp.bubbleJet>0,"center completes return goal and restores PP")
+	check(scene.profile.state.healed_after_catch and scene.supplies.team[1].pp["water-gun"]>0,"center completes return goal and restores PP")
 	scene.close_dialogue()
 	check(scene.save_progress(),"chapter state checkpoints after services")
 	var final := Profile.new()
 	check(final.open_profile(scene.save_path) and final.state.team.size()==2 and final.state.healed_after_catch,"party and first-journey goal survive reopening")
 	check(final.state.room=="town" and absf(final.state.position[0])<20,"saving inside service resumes at outdoor doorstep")
+	scene.change_room("trail")
+	scene.player.position=Vector3(122,0,-2)
+	var xp_before: int=scene.supplies.team[0].xp
+	scene.enter_battle()
+	scene.battle.sounds.on=false
+	scene.battle.model._end("won")
+	scene.battle.return_to_world.emit("won")
+	check(scene.supplies.team[0].xp>xp_before and scene.profile.state.wins==1,"victory commits XP to the active partner alongside the reward")
+	var xp_after: int=scene.supplies.team[0].xp
+	scene._return("won")
+	check(scene.supplies.team[0].xp==xp_after,"duplicate return never repeats XP")
+	scene.close_dialogue()
+	scene.supplies.team[0].status="burn"
+	scene.change_room("town");scene.change_room("center");scene.heal_party()
+	check(scene.supplies.team[0].status=="","Center cures persistent burns")
+	scene.close_dialogue()
 	while scene.supplies.team.size()<6:
 		scene.supplies.team.append(scene.profile.assign(Catalogue.creature("pokemon:16")))
 	scene._snapshot()
@@ -161,10 +182,11 @@ func run() -> void:
 	check(scene.battle.model.lures==balls_before and "full" in scene.battle.message,"full storage cannot consume a ball or lose a caught Pokemon")
 	for c in scene.battle.model.team:
 		c.hp=0
+		c.status="burn"
 		for id in c.moves: c.pp[id]=0
 	scene.battle.model._end("lost")
 	scene.battle.return_to_world.emit("lost")
-	check(scene.room=="town" and scene.supplies.team.all(func(c): return c.hp==c.max_hp and c.pp[c.moves[0]]>0),"defeat safely returns to town with restored HP and PP")
+	check(scene.room=="town" and scene.supplies.team.all(func(c): return c.hp==c.max_hp and c.pp[c.moves[0]]>0 and c.status==""),"defeat safely returns to town with restored HP and PP")
 	if "--private" in OS.get_cmdline_user_args():
 		check(scene.pack.trainer_texture(false)!=null and not scene.pack.world_frame(scene.supplies.team[0].id,"Idle",0,0).is_empty(),"private trainer and Pokemon follower frames exist")
 	scene.Art.cache.clear()

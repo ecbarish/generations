@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond private chapter: source-backed Pokémon types/stats/moves, catching rates, burns and experience/leveling; original pilot saves migrate with a preserved backup. [Bounded rules and checks](docs/research/wildbond-pokemon-rules/README.md).
+
 - **Wildbond First Journey foundation (2026-10-17, PR #553):** Pokemon partner choice and follower, six-member party/storage, caught collection and saved HP/PP/items/wallet around the town/trail loop. Separate chapter save; canonical battle data and measured-map/story integration remain next work. Existing adventure and public exports are unchanged.
 
 - **Wildbond map planning study (2026-10-17, PR #552):** A measured Larkhaven/Thornwood plan, reusable location brief, generated art reference and walkable blockout aligned with the existing interconnected-region design. Separates current map geometry from the planned west branch; no production map/save/export change.
