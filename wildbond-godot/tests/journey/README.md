@@ -14,7 +14,7 @@ The chapter saves after partner choice, services, party/storage changes, map cha
 
 ## Scope
 
-This is the first durable chapter foundation built on the existing town prototype. It is **not yet the measured Larkhaven map, original opening/story integration or full regional redesign**. It currently reuses Wildbond study combat proxies: seven element aliases, prototype stats/moves, catch odds and half-maximum-HP berries. It does not implement canonical Pokemon typing, abilities, XP, leveling, evolution, complete learnsets or status mechanics. Existing level 12 records are pilot values. The next data pass must migrate this version's proxy records rather than silently reject or reinterpret saves.
+This is the first durable chapter foundation built on the existing town prototype. It is **not yet the measured Larkhaven map, original opening/story integration or full regional redesign**. It now uses source-backed Pokémon stats, dual typing, a ten-move subset, species catch rates and persistent XP/leveling. Burns, Tail Whip, Sand Attack, Mud Shot and Quick Attack have their documented effects. Full learnsets, abilities, evolution, other statuses and exact cartridge parity remain future work. Half-maximum-HP Ranch Berries and guaranteed escape are still pilot rules. Existing implicit Level 12 records migrate safely; new partners begin at Level 5.
 
 No new artwork is generated or downloaded. Imported images remain in the optional external pack. Without it, original placeholder art makes automated/public review possible; that is not the actual private trainer/roster presentation. Existing original species, story and saves remain untouched in the adventure. New runtime files stay under export-excluded `tests/`, with no public PCK change.
 
@@ -28,3 +28,11 @@ Godot --path wildbond-godot --rendering-method gl_compatibility --script res://t
 ```
 
 Checks/captures create only their own process-specific chapter test saves and remove them afterward. They do not touch the player's chapter or adventure. The native capture uses a controlled low-HP encounter and deterministic catch RNG to test pointer Catch/Return, healing, saving and fresh-scene resume; it is regression evidence, not a human playthrough or catch-balance measurement. Use `--fallback` for public captures. The full suite runs quietly with `node wildbond-godot/tests/private_sprites/quiet-checks.cjs`.
+
+## Rules update (WB-POKE-RULES)
+
+This chapter now uses the bounded Pokémon core described in [the rules report](../../../docs/research/wildbond-pokemon-rules/README.md). Fresh partners start at Level 5. Old pilot individuals migrate at their implicit Level 12 with a separate `.pre-v2` backup and retained identities, HP/PP fractions, supplies and progress. The filename remains `wildbond_pokemon_chapter_v1.json`; the payload is now schema 2. Do not run the old and new chapter simultaneously. The original adventure file remains separate.
+
+Victory grants XP to the active surviving partner when returning to the trail. Party details show level and experience remaining. Only the ten documented moves, burn and three stat reductions are supported; there are no abilities, evolution or full cartridge simulation yet. Full HP/PP/status restoration happens at the Center or after defeat.
+
+Additional focused check: `Godot --headless --path wildbond-godot --script res://tests/journey/rules_checks.gd`. Data provenance: `python -B wildbond-godot/tests/journey/normalize_data.py CACHE_DIRECTORY --fetch` (35 pinned cached inputs, no runtime download).

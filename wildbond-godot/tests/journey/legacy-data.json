@@ -1,0 +1,68 @@
+{
+  "pokemon:16": {
+    "element": "Gale",
+    "guard": 15,
+    "hp": 32,
+    "id": "pokemon:16",
+    "individual": "",
+    "level": 12,
+    "max_hp": 32,
+    "moves": [
+      "peck",
+      "gust"
+    ],
+    "name": "Pidgey",
+    "power": 18,
+    "pp": {
+      "gust": 20,
+      "peck": 20
+    },
+    "speed": 23,
+    "spirit": 16,
+    "wits": 18
+  },
+  "pokemon:194": {
+    "element": "Tide",
+    "guard": 19,
+    "hp": 37,
+    "id": "pokemon:194",
+    "individual": "",
+    "level": 12,
+    "max_hp": 37,
+    "moves": [
+      "bite",
+      "bubbleJet"
+    ],
+    "name": "Wooper",
+    "power": 21,
+    "pp": {
+      "bite": 20,
+      "bubbleJet": 20
+    },
+    "speed": 14,
+    "spirit": 17,
+    "wits": 15
+  },
+  "pokemon:37": {
+    "element": "Ember",
+    "guard": 15,
+    "hp": 34,
+    "id": "pokemon:37",
+    "individual": "",
+    "level": 12,
+    "max_hp": 34,
+    "moves": [
+      "bite",
+      "emberSnap"
+    ],
+    "name": "Vulpix",
+    "power": 20,
+    "pp": {
+      "bite": 20,
+      "emberSnap": 20
+    },
+    "speed": 21,
+    "spirit": 17,
+    "wits": 19
+  }
+}

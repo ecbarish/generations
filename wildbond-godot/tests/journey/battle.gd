@@ -3,9 +3,9 @@ const Catalogue := preload("res://tests/journey/catalogue.gd")
 var can_store := true
 
 func restart() -> void:
-	model=Fixture.create()
-	var foe := Catalogue.creature(opponent_id)
-	model.setup(supplies.team,foe,model.moves,model.elements,randi())
+	model=preload("res://tests/journey/rounds.gd").new()
+	var foe := Catalogue.creature(opponent_id,clampi(int(supplies.team[0].level)-1,3,15))
+	model.setup(supplies.team,foe,Catalogue.DATA.moves,{},randi())
 	# The reused setup initializes PP; restore the chapter party's actual remaining uses.
 	for i in model.team.size():
 		for move in model.team[i].moves: model.team[i].pp[move]=int(supplies.team[i].pp[move])
@@ -36,6 +36,22 @@ func _build_menu() -> void:
 	elif model.state=="choose" and page=="party" and buttons.size()>6:
 		buttons.back().position=Vector2(302,3)
 		buttons.back().size=Vector2(74,17)
+
+	if model.state=="choose" and page=="moves" and event.is_empty():
+		var ids: Array=model.team[model.active].moves
+		var offset := 1 if model.available(model.team[model.active]).is_empty() else 0
+		for i in ids.size():
+			var id: String=ids[i]
+			buttons[i+offset].focus_entered.connect(func(): describe_move(id))
+			buttons[i+offset].mouse_entered.connect(func(): describe_move(id))
+		var usable: Array=model.available(model.team[model.active])
+		if not usable.is_empty(): describe_move(usable[0])
+
+func describe_move(id: String) -> void:
+	var move: Dictionary=model.moves[id]
+	var effects := {"tail-whip":"Lowers the target's Defense.","sand-attack":"Lowers the target's accuracy.","mud-shot":"Lowers the target's Speed.","quick-attack":"Usually strikes first.","ember":"May burn the target.","flamethrower":"May burn the target."}
+	message="%s / %s / %s" % [move.name,str(move.el).capitalize(),effects.get(id,"Power %d. %s." % [move.pow,"Special" if move.spec==1 else "Physical"])]
+	queue_redraw()
 
 func _act(action: Dictionary) -> void:
 	if action.kind=="catch" and not can_store:
@@ -71,3 +87,7 @@ func _continue() -> void:
 	super._continue()
 	if model.state=="ended" and event.is_empty():
 		message={"won":"Victory! Return to the trail to collect your reward.","lost":"Your team needs the Center.","caught":"You caught %s!" % model.foe.name,"escaped":"You got away safely."}.get(model.result,message)
+
+func _panel(at: Vector2, c: Dictionary, hp: float) -> void:
+	super._panel(at,c,hp)
+	if c.status!="": _text(at+Vector2(124,31),"BRN",8,Color("ad522d"))

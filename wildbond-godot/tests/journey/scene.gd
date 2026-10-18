@@ -31,6 +31,7 @@ func _ready() -> void:
 	_goal_hint()
 
 func _hydrate() -> void:
+	supplies.moves=Catalogue.DATA.moves
 	supplies.team=[]
 	for c in profile.state.team: supplies.team.append(Catalogue.decode(c))
 	supplies.berries=int(profile.state.berries)
@@ -140,7 +141,7 @@ func show_party() -> void:
 	_detail("PARTY  /  %d of 6" % supplies.team.size())
 	for i in supplies.team.size():
 		var c: Dictionary=supplies.team[i]
-		_choice(detail,"%s  %d/%d HP%s" % [c.name,c.hp,c.max_hp,"  *" if i==0 else ""],Vector2(8,29+i*20),Vector2(219,19),func(): party_action(i))
+		_choice(detail,"%s L%d  %d/%d%s" % [c.name,c.level,c.hp,c.max_hp,"  *" if i==0 else ""],Vector2(8,29+i*20),Vector2(219,19),func(): party_action(i))
 		var bar := ColorRect.new()
 		bar.position=Vector2(137,45+i*20)
 		bar.size=Vector2(81,2)
@@ -156,7 +157,7 @@ func show_party() -> void:
 func party_action(index: int) -> void:
 	close_menu()
 	var c: Dictionary=supplies.team[index]
-	say(c.name.to_upper(),"Choose what %s does next." % c.name,[{"text":"Lead","call":func(): set_lead(index)},{"text":"Store","call":func(): store_partner(index)},{"text":"Back","call":close_dialogue}])
+	say(c.name.to_upper(),"Level %d · %s · %d experience to the next level.%s" % [c.level,c.element,0 if c.level==100 else Catalogue.threshold(c.id,c.level+1)-int(c.xp)," Burned — visit the Center." if c.status=="burn" else ""],[{"text":"Lead","call":func(): set_lead(index)},{"text":"Store","call":func(): store_partner(index)},{"text":"Back","call":close_dialogue}])
 
 func set_lead(index: int) -> bool:
 	if index<0 or index>=supplies.team.size(): return false
@@ -272,6 +273,9 @@ func _return(result: String) -> void:
 	if battle==null or battle.model.state!="ended" or result!=battle.model.result: return
 	var caught: Dictionary=battle.model.foe.duplicate(true)
 	var lead: int=battle.model.active
+	var xp_text := ""
+	if result=="won" and battle.model.team[lead].hp>0:
+		xp_text=Catalogue.gain_xp(battle.model.team[lead],maxi(1,floori(caught.base_experience*caught.level/7.0)))
 	super._return(result)
 	if lead>0 and supplies.team[lead].hp>0: supplies.team.push_front(supplies.team.pop_at(lead))
 	_snapshot()
@@ -285,6 +289,8 @@ func _return(result: String) -> void:
 		coins=mini(999999,coins+30)
 	elif result=="lost":
 		for c in supplies.team:
+			c.status=""
+			c.stages={}
 			for move in c.moves: c.pp[move]=int(supplies.moves[move].pp)
 		super.change_room("town")
 		player.position=Vector3(-7,0,-1.4)
@@ -294,7 +300,7 @@ func _return(result: String) -> void:
 	_animate_partner()
 	save_progress()
 	if result=="caught": say("A NEW PARTNER","%s joined your %s! You received 20 coins." % [caught.name,"party" if destination=="party" else "storage"])
-	elif result=="won": say("VICTORY","You received 30 coins. Your party's health and moves carry into the next battle.")
+	elif result=="won": say("VICTORY",xp_text+" You received 30 coins.")
 	elif result=="lost": say("PARTNER CENTER","Your team has rested. You're safe beside the Center.")
 
 func _process(dt: float) -> void:

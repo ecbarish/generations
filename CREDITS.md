@@ -86,3 +86,7 @@ required, given with thanks). Downloaded free from the creator on 2026-10-10: [U
 Quaternius female Superhero base and Peasant/Ranger composites: CC0-1.0, notices preserved in shared/assets/characters/quaternius/. Original male resources remain credited in the Realmbound prototype. Two Higgsfield adult body reference sheets: generated design references only, rights unverified; exact prompts/jobs in docs/art/starfall-higgsfield/body-provenance.json. Not shipping meshes or sprites.
 
 The paired Swordsman, Mage and Cleric sheets are additional Higgsfield references (2026-10-13), rights unverified; see kit-provenance.json. The isolated character-library fitting bench reuses the credited Quaternius CC0 assets and THREE/GLTFLoader r134 (MIT, licenses/three-r134-MIT.txt). Its sword attachment probe is project-authored.
+
+### Wildbond private chapter: Pokémon factual data (2026-10-17)
+
+The export-excluded `wildbond-godot/tests/journey/core-data.json` contains selected numerical facts normalized from [PokéAPI](https://pokeapi.co/docs/v2), pinned `PokeAPI/api-data` revision `3eef329da031136b2206bedb6216c65bd9e095d8`. URLs and input hashes are in `source-manifest.json`; the PokéAPI BSD notice is preserved in `POKEAPI-LICENSE.md` (from `PokeAPI/pokeapi` revision `6fd69dfe90465ba96534f6816fc817737d1f97f6`). This credits the dataset and does not grant rights to Pokémon artwork or trademarks; private artwork remains outside Git and public exports. No descriptions, engine code or additional artwork copied.
