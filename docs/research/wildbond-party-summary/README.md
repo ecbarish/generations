@@ -1,6 +1,6 @@
 # Party summaries for the native chapter
 
-WB-PARTY-SUMMARY · Codex / Evan · 2026-10-18.
+WB-PARTY-SUMMARY · Codex / Evan · 2026-10-18 · [PR #557](https://github.com/ecbarish/generations/pull/557), stacked on #556.
 
 Claimed under Evan's request to continue the playable Pokemon chapter. Stacks on #556. Add a readable, in-game party summary showing current HP/status, types, calculated stats, supported moves/PP and level progress, while retaining the existing lead/storage actions. Reuse existing catalogue and optional private sprites; no new assets, story, mechanics or save fields.
 
@@ -18,7 +18,7 @@ No species, move, battle, story or save schema changes. The existing separate ch
 
 The focused suite passes **88 checks**, including catalogue values at levels 1/5/12/36/100, partial experience, faint/burn display, depleted PP, support effects, keyboard opening, pointer move selection, all controls within the panel, paused walking, six-partner navigation/wrapping, record immutability, Lead/Store restrictions and actions, Escape/Back and an existing-schema save/reopen. Fixtures use only a process-specific profile and remove it; captures never use the player's profile.
 
-Forward+ with public fallback and Compatibility with installed private portraits both pass all 88 checks and were visually inspected. [Public fallback capture](captures/party-summary.png) contains no imported Pokémon art. Actual private evidence is external at `C:/Users/evanb/AppData/Local/Temp/wildbond-summary-private/party-summary.png`. The connected opening's existing 50 checks also pass in private mode. Full aggregate verification is recorded at handoff; human feel and mobile acceptance remain unverified.
+Forward+ with public fallback and Compatibility with installed private portraits both pass all 88 checks and were visually inspected. [Public fallback capture](captures/party-summary.png) contains no imported Pokémon art. Actual private evidence is external at `C:/Users/evanb/AppData/Local/Temp/wildbond-summary-private/party-summary.png`. The connected opening's existing 50 checks also pass in private mode. All **28 repository suites pass**, including **26,976 Wildbond**, **488 Starfall**, the unchanged 189-species catalogue and 23 save names. Godot import, committed export freshness and whitespace checks pass. Human feel and mobile acceptance remain unverified.
 
 Commands from repository root:
 
