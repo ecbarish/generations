@@ -1,0 +1,81 @@
+{
+  "summary": {
+    "species_scanned": 1025,
+    "battle_pairs": 1025,
+    "directional_world_sets": 971,
+    "ready_for_pack": 971,
+    "files": 7882,
+    "bytes": 32717383,
+    "styles": {
+      "platinum": 493,
+      "black-white": 156,
+      "default": 376
+    }
+  },
+  "revisions": {
+    "PokeAPI/sprites": "289e842364648ec0495ae4ba12f48d5cbfbf670b",
+    "PMDCollab/SpriteCollab": "aae7a436af894efab3ff24915f0b645bb4907750",
+    "pret/pokeemerald": "731ad5bfd6e6f265508d0efcca0ba42f9dcf5881"
+  },
+  "native": {
+    "failures": [],
+    "frame_checks": 17478,
+    "verified_species": 971
+  },
+  "generations": [
+    {
+      "generation": 1,
+      "species": 151,
+      "battle_pairs": 151,
+      "directional_world_sets": 151
+    },
+    {
+      "generation": 2,
+      "species": 100,
+      "battle_pairs": 100,
+      "directional_world_sets": 100
+    },
+    {
+      "generation": 3,
+      "species": 135,
+      "battle_pairs": 135,
+      "directional_world_sets": 135
+    },
+    {
+      "generation": 4,
+      "species": 107,
+      "battle_pairs": 107,
+      "directional_world_sets": 107
+    },
+    {
+      "generation": 5,
+      "species": 156,
+      "battle_pairs": 156,
+      "directional_world_sets": 142
+    },
+    {
+      "generation": 6,
+      "species": 72,
+      "battle_pairs": 72,
+      "directional_world_sets": 70
+    },
+    {
+      "generation": 7,
+      "species": 88,
+      "battle_pairs": 88,
+      "directional_world_sets": 83
+    },
+    {
+      "generation": 8,
+      "species": 96,
+      "battle_pairs": 96,
+      "directional_world_sets": 89
+    },
+    {
+      "generation": 9,
+      "species": 120,
+      "battle_pairs": 120,
+      "directional_world_sets": 94
+    }
+  ]
+}
