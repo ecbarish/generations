@@ -6,9 +6,9 @@
 
 - **Goal:** a genuinely enjoyable, private Pokémon-style RPG in Godot, built efficiently around Wildbond's original interconnected world, story and characters. Familiar Pokémon gameplay and reusable assets come first; distinctive original creatures can join over time.
 - **Active implementation:** the native Larkhaven–Thornwood chapter at `wildbond-godot/tests/opening/play.tscn`. Its location under `tests/` is historical/export isolation; it is the actual playable development chapter, not merely an automated test.
-- **Latest gameplay continuation:** PR [#560](https://github.com/ecbarish/generations/pull/560), branch `codex/wildbond-live-starters`, integrates the original starter trio on top of #559 sprite production and #558 handoff. Fetch its current head and reconcile review/CI before continuing. #558 is the earlier handoff branch; this document is also updated on the newer feature branches. None of these local source changes imply a published production replacement.
+- **Latest gameplay continuation:** PR [#566](https://github.com/ecbarish/generations/pull/566), branch `codex/wildbond-thornwood-destination`, adds connected Thornwood town, Gate Loft and Isolde’s bounded first badge challenge. It stacks on #565 encounter planning, #564 audit and the earlier original-starter implementation. Fetch current heads and reconcile review/CI before continuing. Source changes do not imply publication.
 - **Do not start from main and assume this chapter is there.** At the 2026-10-18 snapshot, #543–#557 remain open; most are draft. Reconcile live state first, then use the appropriate current feature head in your own checkout. Main, the old public web build, earlier standalone studies and the current native chapter are distinct.
-- **Next suggested gameplay increment:** extend the connected Thornwood expedition using the existing regional graph and measured-map workflow. First play the current outing and fix blockers. Do not create another disconnected demo or rewrite the engine.
+- **Next suggested gameplay increment:** play/review the connected outing and first badge, then measure the next Rootwater/Knothollow leg against the graph, field lesson and arrival points before implementation. Claude’s separate immediate task is a report-only encounter blueprint review; see [copyable task](research/wildbond-thornwood-destination/CLAUDE-TASK.md).
 
 ## Evan's current creative direction
 
@@ -47,7 +47,7 @@ Evan's clearest statement was: “I basically now want a pokemon game but we bui
 
 The three species have neutral nature, IV 15 and zero EVs. Base XP uses pinned current API values, so this is not cartridge parity. Abilities, held items, critical hits, most statuses, full learnsets/move forgetting, evolution, complete trainer AI and weather battle mechanics remain unimplemented in this chapter. Original ranch simulation and full register/heritage/bond opening still need integration. Original adventure features do not automatically exist in this newer chapter.
 
-Deeper Thornwood, deeper Dewcut and Larkburrow remain closed. Respect the graph's badge/field requirements: the Larkburrow home shortcut still needs Stone Break **and** the Loom Badge, and the later Stone-partner shelf must not be moved to the entrance. Do not imply these destinations already work.
+Thornwood town now works in #566: Gate Loft heals locally, and Isolde challenges with explicitly adapted Pidgey 6 / Wooper 7 / Mosshog 8 partners after the Maren outing. Victory grants one Thorn Badge and opens only a short Saltmarsh approach. Canonical source teams and graph gates remain unchanged. Full canonical badge/story/visual-era progression is not integrated. Nested opening version two preserves old checkpoints in `.pre-opening-v2`; older pre-town readers hold it without writing. Deeper Saltmarsh, deeper Dewcut and Larkburrow remain closed. Respect the graph's badge/field requirements: the Larkburrow home shortcut still needs Stone Break **and** the Loom Badge, and the later Stone-partner shelf must not be moved to the entrance. Do not imply these destinations already work.
 
 ## References and characters: read before new designs
 
