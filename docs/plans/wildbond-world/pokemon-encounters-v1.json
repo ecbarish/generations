@@ -1,0 +1,1937 @@
+{
+  "schema_version": 1,
+  "status": "proposal",
+  "runtime_activation": false,
+  "task": "WB-ENCOUNTER-BLUEPRINT",
+  "date": "2026-10-18",
+  "source_audit_pr": 564,
+  "level_policy": {
+    "relative_band": [
+      -13,
+      -5
+    ],
+    "difficulty_offsets": {
+      "gentle": -2,
+      "ordinary": 0,
+      "demanding": 3
+    },
+    "fixed_areas": [
+      "thornwood_route",
+      "millgrass",
+      "dewcut",
+      "rootwater",
+      "thornwood",
+      "thornwood_grove",
+      "knothollow"
+    ],
+    "resolve_at": "encounter_start",
+    "mutate_saved_creatures": false,
+    "special_and_trainers": "unchanged"
+  },
+  "coverage_policy": {
+    "eligible_areas": 33,
+    "minimum_original_areas": 17,
+    "target_original_areas": 18,
+    "counts_placements_not_distinct_species": true,
+    "starters": "exclusive_to_starter_selection"
+  },
+  "allocation_swaps": [
+    {
+      "from": "thornwood_route",
+      "to": "millgrass"
+    },
+    {
+      "from": "knothollow",
+      "to": "dewcut"
+    }
+  ],
+  "source_snapshots": {
+    "docs/plans/wildbond-world/world-graph.json": "aa76c791860cfa0bd1986eae281e116f715e0f5258d05ffc8cecd8b1b630b3e4",
+    "docs/plans/wildbond-world/region-audit.json": "c489a261db56f14f4946993ea61052d6e2b02c6ff7dfffdc9f96573a82254589",
+    "docs/research/wildbond-private-library/coverage.csv": "31cb16f5224bf1b3a3f5df576464f53d5d205b9b666c9e696b798aced1f5ea8d"
+  },
+  "areas": {
+    "thornwood_route": {
+      "name": "Thornwood Trail",
+      "region": "thornwood",
+      "habitat": "Forest trail with tall grass and an item detour (country thornwood).",
+      "habitat_rationale": "A familiar forest-edge bird, small mammal and caterpillar make the first grass readable.",
+      "encounter_role": "Introduce ordinary encounters on the first outward walk.",
+      "progression": {
+        "firstReachPhase1Ropes": 0,
+        "firstReachAfterOrder": 0,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "fixed",
+        "band": [
+          2,
+          4
+        ]
+      },
+      "pool_status": "weighted_proposal",
+      "pool": [
+        {
+          "species": "pokemon:16",
+          "weight": 45
+        },
+        {
+          "species": "pokemon:161",
+          "weight": 30
+        },
+        {
+          "species": "pokemon:10",
+          "weight": 25
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [
+        "RA-08",
+        "RA-20"
+      ],
+      "integration_status": "not_activated"
+    },
+    "millgrass": {
+      "name": "Millgrass Lane",
+      "region": "thornwood",
+      "habitat": "Meadow lane (name and design: 'the west lane'); country thornwood in the historical tables.",
+      "habitat_rationale": "Meadow-edge birds and small mammals share seed-bearing fence lines with Oddish and Seedpip; Seedpip's existing seed-tucking behavior motivates the original slot.",
+      "encounter_role": "Make the west branch feel distinct while keeping it approachable.",
+      "progression": {
+        "firstReachPhase1Ropes": 0,
+        "firstReachAfterOrder": 0,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "fixed",
+        "band": [
+          2,
+          5
+        ]
+      },
+      "pool_status": "weighted_proposal",
+      "pool": [
+        {
+          "species": "pokemon:16",
+          "weight": 30
+        },
+        {
+          "species": "pokemon:161",
+          "weight": 25
+        },
+        {
+          "species": "pokemon:43",
+          "weight": 20
+        },
+        {
+          "species": "wildbond:seedpip",
+          "weight": 25
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "regular",
+      "dependencies": [
+        "RA-08"
+      ],
+      "integration_status": "not_activated"
+    },
+    "dewcut": {
+      "name": "Dewcut",
+      "region": "thornwood",
+      "habitat": "Short meadow (design route table).",
+      "habitat_rationale": "Caterpillars occupy meadow margins, Shroomish is proposed for damp shaded edges, and Glimmerwing provides the occasional bright bird above the grass.",
+      "encounter_role": "Reward the first optional eastern detour with a different collection mix.",
+      "progression": {
+        "firstReachPhase1Ropes": 0,
+        "firstReachAfterOrder": 0,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "fixed",
+        "band": [
+          4,
+          8
+        ]
+      },
+      "pool_status": "weighted_proposal",
+      "pool": [
+        {
+          "species": "pokemon:10",
+          "weight": 30
+        },
+        {
+          "species": "pokemon:13",
+          "weight": 25
+        },
+        {
+          "species": "pokemon:285",
+          "weight": 30
+        },
+        {
+          "species": "wildbond:glimmerwing",
+          "weight": 15
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "uncommon",
+      "dependencies": [
+        "RA-08",
+        "RA-10"
+      ],
+      "integration_status": "not_activated"
+    },
+    "rootwater": {
+      "name": "Rootwater Path",
+      "region": "thornwood",
+      "habitat": "Stream path that floods (design names table).",
+      "habitat_rationale": "Wooper and Psyduck suit shallow stream margins; Paras is proposed around wet roots. Bogsnap's established still-water patience makes it the rarer original discovery.",
+      "encounter_role": "Give the stream path a memorable catch before the badge-locked cave entrance.",
+      "progression": {
+        "firstReachPhase1Ropes": 0,
+        "firstReachAfterOrder": 0,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "fixed",
+        "band": [
+          7,
+          12
+        ]
+      },
+      "pool_status": "weighted_proposal",
+      "pool": [
+        {
+          "species": "pokemon:194",
+          "weight": 45
+        },
+        {
+          "species": "pokemon:54",
+          "weight": 30
+        },
+        {
+          "species": "pokemon:46",
+          "weight": 17
+        },
+        {
+          "species": "wildbond:bogsnap",
+          "weight": 8
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "rare",
+      "dependencies": [
+        "RA-08",
+        "RA-10"
+      ],
+      "integration_status": "not_activated"
+    },
+    "saltmarsh_route": {
+      "name": "Saltmarsh Road",
+      "region": "saltmarsh",
+      "habitat": "Marsh road (country saltmarsh), 119 tall-grass tiles today.",
+      "habitat_rationale": "Shallows, wet grass and open coastal air motivate Wooper, Poliwag and Wingull as candidate occupants.",
+      "encounter_role": "Bridge the forest and coast without repeating the first trail pool.",
+      "progression": {
+        "firstReachPhase1Ropes": 1,
+        "firstReachAfterOrder": 1,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "gentle"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:194",
+          "weight": null
+        },
+        {
+          "species": "pokemon:278",
+          "weight": null
+        },
+        {
+          "species": "pokemon:60",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [
+        "RA-15"
+      ],
+      "integration_status": "not_activated"
+    },
+    "wrackline": {
+      "name": "Wrackline",
+      "region": "saltmarsh",
+      "habitat": "Tide line of weed and shells (design names table).",
+      "habitat_rationale": "Crab and shallow-water candidates share the wrack line with Brineskit, whose existing description places it beneath empty shells in tide pools.",
+      "encounter_role": "Give the road to Lantern Quay its own shoreline identity; keep special encounters separate.",
+      "progression": {
+        "firstReachPhase1Ropes": 1,
+        "firstReachAfterOrder": 1,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "ordinary"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:98",
+          "weight": null
+        },
+        {
+          "species": "pokemon:278",
+          "weight": null
+        },
+        {
+          "species": "pokemon:72",
+          "weight": null
+        },
+        {
+          "species": "wildbond:brineskit",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "uncommon",
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "ashstair": {
+      "name": "Ashstair",
+      "region": "emberfall",
+      "habitat": "Climb off the coast toward the warm springs; first real tile heights.",
+      "habitat_rationale": "Geodude, Vulpix and Numel are proposed along the warming rocky climb. Slaglet's existing volcanic-dust coat anchors the original slot.",
+      "encounter_role": "Signal the transition from coastal shallows to warm highland ground.",
+      "progression": {
+        "firstReachPhase1Ropes": 2,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "ordinary"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:74",
+          "weight": null
+        },
+        {
+          "species": "pokemon:37",
+          "weight": null
+        },
+        {
+          "species": "pokemon:322",
+          "weight": null
+        },
+        {
+          "species": "wildbond:slaglet",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "regular",
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "sootpath": {
+      "name": "Sootpath",
+      "region": "emberfall",
+      "habitat": "Path past the vent toward the pass.",
+      "habitat_rationale": "Slugma and Numel favor the proposed warm stretches while Sandshrew occupies dry margins. Ashskip's existing cooling-rock behavior ties it to ash beside the vent.",
+      "encounter_role": "Differentiate the overland approach from the cave crossing.",
+      "progression": {
+        "firstReachPhase1Ropes": 3,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "ordinary"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:218",
+          "weight": null
+        },
+        {
+          "species": "pokemon:322",
+          "weight": null
+        },
+        {
+          "species": "pokemon:27",
+          "weight": null
+        },
+        {
+          "species": "wildbond:ashskip",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "uncommon",
+      "dependencies": [
+        "RA-06"
+      ],
+      "integration_status": "not_activated"
+    },
+    "passfoot": {
+      "name": "Pass Foot",
+      "region": "cloudglass",
+      "habitat": "Mountain descent (country cloudglass in the historical tables).",
+      "habitat_rationale": "Swablu, Mareep and Geodude are slope and ledge candidates. Mistfinch's established cloud-song behavior gives the descent a local original.",
+      "encounter_role": "Keep the slower return route worth walking after Glide becomes available.",
+      "progression": {
+        "firstReachPhase1Ropes": 4,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "ordinary"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:333",
+          "weight": null
+        },
+        {
+          "species": "pokemon:179",
+          "weight": null
+        },
+        {
+          "species": "pokemon:74",
+          "weight": null
+        },
+        {
+          "species": "wildbond:mistfinch",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "uncommon",
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "crestpath": {
+      "name": "Crest Path",
+      "region": "cloudglass",
+      "habitat": "Summit trail.",
+      "habitat_rationale": "Snover, Sneasel and Snorunt are proposed specifically for the colder exposed summit stretches, subject to the final environment brief.",
+      "encounter_role": "Provide a tougher optional ascent; do not turn the guardian site into an ordinary pool.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "demanding"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:459",
+          "weight": null
+        },
+        {
+          "species": "pokemon:215",
+          "weight": null
+        },
+        {
+          "species": "pokemon:361",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "longboards": {
+      "name": "The Long Boards",
+      "region": "stillreed",
+      "habitat": "Boardwalk over basin water.",
+      "habitat_rationale": "Psyduck and Marill suit channels beside the boards; Yanma is proposed over reed margins.",
+      "encounter_role": "Offer approachable water-edge variety near the basin hub.",
+      "progression": {
+        "firstReachPhase1Ropes": 4,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "gentle"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:54",
+          "weight": null
+        },
+        {
+          "species": "pokemon:183",
+          "weight": null
+        },
+        {
+          "species": "pokemon:193",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [
+        "RA-12"
+      ],
+      "integration_status": "not_activated"
+    },
+    "orchardfen": {
+      "name": "Orchard Fen",
+      "region": "stillreed",
+      "habitat": "Orchard on raised fen ground.",
+      "habitat_rationale": "Sunkern, Combee and Hoppip are orchard/meadow candidates. Orchardroot's existing fallen-fruit soil behavior anchors the original slot.",
+      "encounter_role": "Make the orchard chord a collection detour after its missing rope is resolved.",
+      "progression": {
+        "firstReachPhase1Ropes": 4,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "gentle"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:191",
+          "weight": null
+        },
+        {
+          "species": "pokemon:415",
+          "weight": null
+        },
+        {
+          "species": "pokemon:187",
+          "weight": null
+        },
+        {
+          "species": "wildbond:orchardroot",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "regular",
+      "dependencies": [
+        "RA-03"
+      ],
+      "integration_status": "not_activated"
+    },
+    "latepath": {
+      "name": "The Late Path",
+      "region": "hollowecho",
+      "habitat": "Echoing ridge path.",
+      "habitat_rationale": "Zubat, Gastly and Hoothoot are shaded-ridge candidates, not a new all-day spawn commitment. Hushpup's existing echo-checking behavior belongs at forks.",
+      "encounter_role": "Introduce the region's listening theme without revealing mystery answers.",
+      "progression": {
+        "firstReachPhase1Ropes": 5,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "ordinary"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:41",
+          "weight": null
+        },
+        {
+          "species": "pokemon:92",
+          "weight": null
+        },
+        {
+          "species": "pokemon:163",
+          "weight": null
+        },
+        {
+          "species": "wildbond:hushpup",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "uncommon",
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "flintcut": {
+      "name": "Flintcut",
+      "region": "hollowecho",
+      "habitat": "Quarry track.",
+      "habitat_rationale": "Geodude, Onix and Nosepass are proposed around the quarry's loose stone and worked faces.",
+      "encounter_role": "Contrast an exposed rocky approach with the echoing cavern pool.",
+      "progression": {
+        "firstReachPhase1Ropes": 5,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "ordinary"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:74",
+          "weight": null
+        },
+        {
+          "species": "pokemon:95",
+          "weight": null
+        },
+        {
+          "species": "pokemon:299",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "ribbonroad": {
+      "name": "Ribbon Road",
+      "region": "sunthread",
+      "habitat": "Loom road with ribbon posts.",
+      "habitat_rationale": "Mareep, Kricketot and Cherubi are meadow-side candidates. Hemglow's existing shelter-cloth light is proposed near the road's ties and posts.",
+      "encounter_role": "Make the approach to the shared-work region recognizable through small useful companions.",
+      "progression": {
+        "firstReachPhase1Ropes": 4,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "gentle"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:179",
+          "weight": null
+        },
+        {
+          "species": "pokemon:401",
+          "weight": null
+        },
+        {
+          "species": "pokemon:420",
+          "weight": null
+        },
+        {
+          "species": "wildbond:hemglow",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "uncommon",
+      "dependencies": [
+        "RA-03"
+      ],
+      "integration_status": "not_activated"
+    },
+    "sheltermile": {
+      "name": "Shelter Mile",
+      "region": "sunthread",
+      "habitat": "Road of shelter ties (not a market street).",
+      "habitat_rationale": "Growlithe, Mareep and Eevee are proposed along sheltered, traveled edges; exact abundance remains undesigned.",
+      "encounter_role": "Provide a welcoming connective road rather than another mandatory difficulty spike.",
+      "progression": {
+        "firstReachPhase1Ropes": 7,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "gentle"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:58",
+          "weight": null
+        },
+        {
+          "species": "pokemon:179",
+          "weight": null
+        },
+        {
+          "species": "pokemon:133",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "chartroad": {
+      "name": "Chart Road",
+      "region": "farwatch",
+      "habitat": "Lookout ground.",
+      "habitat_rationale": "Starly, Hoothoot and Murkrow are lookout-ground candidates. Chartwing's established fog-approach signaling motivates the original slot.",
+      "encounter_role": "Give the approach to the High Watch a useful coastal-observation identity.",
+      "progression": {
+        "firstReachPhase1Ropes": 7,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "ordinary"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:396",
+          "weight": null
+        },
+        {
+          "species": "pokemon:163",
+          "weight": null
+        },
+        {
+          "species": "pokemon:198",
+          "weight": null
+        },
+        {
+          "species": "wildbond:chartwing",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "uncommon",
+      "dependencies": [
+        "RA-19"
+      ],
+      "integration_status": "not_activated"
+    },
+    "seaward": {
+      "name": "Seaward Ledge",
+      "region": "farwatch",
+      "habitat": "Cliff walk to the pier.",
+      "habitat_rationale": "Wingull, Krabby and Buizel are proposed along cliff-foot shallows and the pier approach.",
+      "encounter_role": "Separate the coastal walk's ordinary species from its special story encounters.",
+      "progression": {
+        "firstReachPhase1Ropes": 7,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "ordinary"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:278",
+          "weight": null
+        },
+        {
+          "species": "pokemon:98",
+          "weight": null
+        },
+        {
+          "species": "pokemon:418",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "trialroad": {
+      "name": "Trial Road",
+      "region": "farwatch",
+      "habitat": "Victory road.",
+      "habitat_rationale": "Ponyta, Machop and Rhyhorn are candidates for the final road's exposed ground and physical climb.",
+      "encounter_role": "Offer an optional preparation challenge while preserving the all-badges League requirement.",
+      "progression": {
+        "firstReachPhase1Ropes": 7,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "demanding"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:77",
+          "weight": null
+        },
+        {
+          "species": "pokemon:66",
+          "weight": null
+        },
+        {
+          "species": "pokemon:111",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [
+        "RA-05"
+      ],
+      "integration_status": "not_activated"
+    },
+    "answering": {
+      "name": "The Answering Ways",
+      "region": "hollowecho",
+      "habitat": "Echoing caverns lit by Bellmote-light near the mouth.",
+      "habitat_rationale": "Zubat, Whismur and Bronzor are cavern candidates. Bellmote's established silent-bell light is proposed near the cave's lit mouth, pending final layout.",
+      "encounter_role": "Reward entering the listening cave after its missing Bellstep connection is reconciled.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "demanding"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:41",
+          "weight": null
+        },
+        {
+          "species": "pokemon:293",
+          "weight": null
+        },
+        {
+          "species": "pokemon:436",
+          "weight": null
+        },
+        {
+          "species": "wildbond:bellmote",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "rare",
+      "dependencies": [
+        "RA-04",
+        "RA-17"
+      ],
+      "integration_status": "not_activated"
+    },
+    "knothollow": {
+      "name": "Knothollow",
+      "region": "thornwood",
+      "habitat": "Root cave in Thornwood country.",
+      "habitat_rationale": "Zubat, Paras and Diglett give the root cave a distinct mix without requiring another original in the first loop.",
+      "encounter_role": "Make the post-badge loop a change of habitat; entrances and landings remain gated by their briefs.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 1,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "fixed",
+        "band": [
+          2,
+          12
+        ]
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:41",
+          "weight": null
+        },
+        {
+          "species": "pokemon:46",
+          "weight": null
+        },
+        {
+          "species": "pokemon:50",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [
+        "RA-08",
+        "RA-09",
+        "RA-17"
+      ],
+      "integration_status": "not_activated"
+    },
+    "keelcave": {
+      "name": "Keelcave",
+      "region": "saltmarsh",
+      "habitat": "Sea cave a keel could scrape.",
+      "habitat_rationale": "Zubat occupies proposed dry recesses, with Shellder and Krabby beside the tidal floor; exact encounter surfaces need layout review.",
+      "encounter_role": "Make a supplied sea-cave outing distinct from the open water routes.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "demanding"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:41",
+          "weight": null
+        },
+        {
+          "species": "pokemon:90",
+          "weight": null
+        },
+        {
+          "species": "pokemon:98",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [
+        "RA-14"
+      ],
+      "integration_status": "not_activated"
+    },
+    "kilnvent": {
+      "name": "Kilnvent",
+      "region": "emberfall",
+      "habitat": "Warm volcanic dark, Toren's kiln country.",
+      "habitat_rationale": "Slugma, Torkoal and Numel are warm-cave candidates. Glowmote's existing seldom-seen steam light makes it a rare original.",
+      "encounter_role": "Give the Lantern crossing a discovery alongside its through-route purpose.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "demanding"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:218",
+          "weight": null
+        },
+        {
+          "species": "pokemon:324",
+          "weight": null
+        },
+        {
+          "species": "pokemon:322",
+          "weight": null
+        },
+        {
+          "species": "wildbond:glowmote",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "rare",
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "larkburrow": {
+      "name": "Larkburrow",
+      "region": "thornwood",
+      "habitat": "Burrow under the meadow.",
+      "habitat_rationale": "Diglett, Sandshrew and Dunsparce are proposed under-meadow burrow occupants.",
+      "encounter_role": "Keep the early accessible first room separate from the later Stone Break and Loom Badge through-path.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 0,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "gentle"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:50",
+          "weight": null
+        },
+        {
+          "species": "pokemon:27",
+          "weight": null
+        },
+        {
+          "species": "pokemon:206",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "lowbell": {
+      "name": "Lowbell",
+      "region": "stillreed",
+      "habitat": "Flooded shrine floor (Tide Ride).",
+      "habitat_rationale": "Wooper, Lotad and Bronzor are flooded-floor candidates. Reedlet's established floating-reed behavior is proposed around accessible water margins.",
+      "encounter_role": "Reward Tide Ride exploration without treating the shrine's special history as a random spawn.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "demanding"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:194",
+          "weight": null
+        },
+        {
+          "species": "pokemon:270",
+          "weight": null
+        },
+        {
+          "species": "pokemon:436",
+          "weight": null
+        },
+        {
+          "species": "wildbond:reedlet",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "uncommon",
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "trialstair": {
+      "name": "Trialstair",
+      "region": "farwatch",
+      "habitat": "Victory cave.",
+      "habitat_rationale": "Onix, Machop and Nosepass are climbing-cave candidates. Moorweft's existing pebble-catching silk supports a proposed original placement along loose-stone passages.",
+      "encounter_role": "Make the final cave a coherent supply test while League access remains a graph dependency.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "demanding"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:95",
+          "weight": null
+        },
+        {
+          "species": "pokemon:66",
+          "weight": null
+        },
+        {
+          "species": "pokemon:299",
+          "weight": null
+        },
+        {
+          "species": "wildbond:moorweft",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "uncommon",
+      "dependencies": [
+        "RA-05"
+      ],
+      "integration_status": "not_activated"
+    },
+    "greywash": {
+      "name": "Greywash Sound",
+      "region": "saltmarsh",
+      "habitat": "Grey sound (water route).",
+      "habitat_rationale": "Tentacool, Chinchou and Magikarp are water-route candidates; reuse Brineskit specifically in shallow edges consistent with its existing tide-pool behavior.",
+      "encounter_role": "Extend familiar coastal life into the first navigable water route.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "ordinary"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:72",
+          "weight": null
+        },
+        {
+          "species": "pokemon:170",
+          "weight": null
+        },
+        {
+          "species": "pokemon:129",
+          "weight": null
+        },
+        {
+          "species": "wildbond:brineskit",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "uncommon",
+      "dependencies": [
+        "RA-14"
+      ],
+      "integration_status": "not_activated"
+    },
+    "quietchannels": {
+      "name": "The Quiet Channels",
+      "region": "stillreed",
+      "habitat": "Basin channels (water route).",
+      "habitat_rationale": "Psyduck, Marill and Lotad are basin-channel candidates; only navigable surfaces qualify.",
+      "encounter_role": "Make water traversal feel different from the boardwalk while sharing a believable local ecosystem.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "gentle"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:54",
+          "weight": null
+        },
+        {
+          "species": "pokemon:183",
+          "weight": null
+        },
+        {
+          "species": "pokemon:270",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "opengrey": {
+      "name": "The Open Grey",
+      "region": "farwatch",
+      "habitat": "Open sea (water route).",
+      "habitat_rationale": "Wailmer, Remoraid and Wingull are open-sea candidates; this does not invent underwater or fishing mechanics.",
+      "encounter_role": "Provide a tougher optional water outing and a reason to reach distant shorelines.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "demanding"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:320",
+          "weight": null
+        },
+        {
+          "species": "pokemon:223",
+          "weight": null
+        },
+        {
+          "species": "pokemon:278",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [
+        "RA-16"
+      ],
+      "integration_status": "not_activated"
+    },
+    "saltmarsh": {
+      "name": "Saltmarsh Coast",
+      "region": "saltmarsh",
+      "habitat": "Flooding coastal flats, 72 tall-grass tiles today (country saltmarsh).",
+      "habitat_rationale": "Krabby, Wingull and Wooper are proposed across the coastal flats' land and shallow margins.",
+      "encounter_role": "Keep ordinary catches separate from Nerys and the guardian's existing special meeting.",
+      "progression": {
+        "firstReachPhase1Ropes": 1,
+        "firstReachAfterOrder": 1,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "ordinary"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:98",
+          "weight": null
+        },
+        {
+          "species": "pokemon:278",
+          "weight": null
+        },
+        {
+          "species": "pokemon:194",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [
+        "RA-11"
+      ],
+      "integration_status": "not_activated"
+    },
+    "thornwood_grove": {
+      "name": "Old Root Grove",
+      "region": "thornwood",
+      "habitat": "Old grove (country thornwood) with its own extra species today.",
+      "habitat_rationale": "Oddish, Exeggcute and Shroomish are sheltered-grove candidates. Reuse Seedpip around root cracks rather than commissioning another original.",
+      "encounter_role": "Reward an early Stone-partner revisit while preserving guardian and Grove Wake events.",
+      "progression": {
+        "firstReachPhase1Ropes": 0,
+        "firstReachAfterOrder": 0,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "fixed",
+        "band": [
+          2,
+          12
+        ]
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:43",
+          "weight": null
+        },
+        {
+          "species": "pokemon:102",
+          "weight": null
+        },
+        {
+          "species": "pokemon:285",
+          "weight": null
+        },
+        {
+          "species": "wildbond:seedpip",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "regular",
+      "dependencies": [
+        "RA-08",
+        "RA-09",
+        "RA-10",
+        "RA-16"
+      ],
+      "integration_status": "not_activated"
+    },
+    "saltmarsh_pool": {
+      "name": "Moon Pool",
+      "region": "saltmarsh",
+      "habitat": "Moonlit pool (country saltmarsh) with its own extra species today.",
+      "habitat_rationale": "Marill, Poliwag and Chinchou are pool candidates. Poolkit's existing rain-ring behavior gives this small original a specific watery setting.",
+      "encounter_role": "Reward the early Tide-partner pocket and its later water-route connection.",
+      "progression": {
+        "firstReachPhase1Ropes": 1,
+        "firstReachAfterOrder": 1,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "gentle"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:183",
+          "weight": null
+        },
+        {
+          "species": "pokemon:60",
+          "weight": null
+        },
+        {
+          "species": "pokemon:170",
+          "weight": null
+        },
+        {
+          "species": "wildbond:poolkit",
+          "weight": null
+        }
+      ],
+      "original_feature": true,
+      "original_rarity": "uncommon",
+      "dependencies": [],
+      "integration_status": "not_activated"
+    },
+    "outershoal": {
+      "name": "Outer Shoal",
+      "region": "farwatch",
+      "habitat": "Shoal islands.",
+      "habitat_rationale": "Corsola, Krabby and Shellos are proposed for the shoal's small islands and shallow edges.",
+      "encounter_role": "Offer optional island variety after the route and return landings are actually built.",
+      "progression": {
+        "firstReachPhase1Ropes": null,
+        "firstReachAfterOrder": 2,
+        "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+      },
+      "levels": {
+        "mode": "regional",
+        "difficulty": "demanding"
+      },
+      "pool_status": "candidate_pool",
+      "pool": [
+        {
+          "species": "pokemon:222",
+          "weight": null
+        },
+        {
+          "species": "pokemon:98",
+          "weight": null
+        },
+        {
+          "species": "pokemon:422",
+          "weight": null
+        }
+      ],
+      "original_feature": false,
+      "original_rarity": null,
+      "dependencies": [
+        "RA-15",
+        "RA-16"
+      ],
+      "integration_status": "not_activated"
+    }
+  },
+  "species": {
+    "pokemon:16": {
+      "name": "Pidgey",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "supported_in_chapter"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:161": {
+      "name": "Sentret",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:10": {
+      "name": "Caterpie",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:43": {
+      "name": "Oddish",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:seedpip": {
+      "name": "Seedpip",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:13": {
+      "name": "Weedle",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:285": {
+      "name": "Shroomish",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:glimmerwing": {
+      "name": "Glimmerwing",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:194": {
+      "name": "Wooper",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "supported_in_chapter"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:54": {
+      "name": "Psyduck",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:46": {
+      "name": "Paras",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:bogsnap": {
+      "name": "Bogsnap",
+      "readiness": {
+        "art": "approved_design_candidate_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:278": {
+      "name": "Wingull",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:60": {
+      "name": "Poliwag",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:98": {
+      "name": "Krabby",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:72": {
+      "name": "Tentacool",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:brineskit": {
+      "name": "Brineskit",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:74": {
+      "name": "Geodude",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:37": {
+      "name": "Vulpix",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "supported_in_chapter"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:322": {
+      "name": "Numel",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:slaglet": {
+      "name": "Slaglet",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:218": {
+      "name": "Slugma",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:27": {
+      "name": "Sandshrew",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:ashskip": {
+      "name": "Ashskip",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:333": {
+      "name": "Swablu",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:179": {
+      "name": "Mareep",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:mistfinch": {
+      "name": "Mistfinch",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:459": {
+      "name": "Snover",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:215": {
+      "name": "Sneasel",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:361": {
+      "name": "Snorunt",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:183": {
+      "name": "Marill",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:193": {
+      "name": "Yanma",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:191": {
+      "name": "Sunkern",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:415": {
+      "name": "Combee",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:187": {
+      "name": "Hoppip",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:orchardroot": {
+      "name": "Orchardroot",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:41": {
+      "name": "Zubat",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:92": {
+      "name": "Gastly",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:163": {
+      "name": "Hoothoot",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:hushpup": {
+      "name": "Hushpup",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:95": {
+      "name": "Onix",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:299": {
+      "name": "Nosepass",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:401": {
+      "name": "Kricketot",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:420": {
+      "name": "Cherubi",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:hemglow": {
+      "name": "Hemglow",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:58": {
+      "name": "Growlithe",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:133": {
+      "name": "Eevee",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:396": {
+      "name": "Starly",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:198": {
+      "name": "Murkrow",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:chartwing": {
+      "name": "Chartwing",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:418": {
+      "name": "Buizel",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:77": {
+      "name": "Ponyta",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:66": {
+      "name": "Machop",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:111": {
+      "name": "Rhyhorn",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:293": {
+      "name": "Whismur",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:436": {
+      "name": "Bronzor",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:bellmote": {
+      "name": "Bellmote",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:50": {
+      "name": "Diglett",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:90": {
+      "name": "Shellder",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:324": {
+      "name": "Torkoal",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:glowmote": {
+      "name": "Glowmote",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:206": {
+      "name": "Dunsparce",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:270": {
+      "name": "Lotad",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:reedlet": {
+      "name": "Reedlet",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "wildbond:moorweft": {
+      "name": "Moorweft",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:170": {
+      "name": "Chinchou",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:129": {
+      "name": "Magikarp",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:320": {
+      "name": "Wailmer",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:223": {
+      "name": "Remoraid",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:102": {
+      "name": "Exeggcute",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "wildbond:poolkit": {
+      "name": "Poolkit",
+      "readiness": {
+        "art": "legacy_design_needs_redesign_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "wildbond-godot/data/wildbond.json + evolution.json"
+    },
+    "pokemon:222": {
+      "name": "Corsola",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    },
+    "pokemon:422": {
+      "name": "Shellos",
+      "readiness": {
+        "art": "private_library_verified_needs_scene_review",
+        "combat": "needs_catalogue_integration"
+      },
+      "source_definition": "docs/research/wildbond-private-library/coverage.csv"
+    }
+  },
+  "source_snapshot_format": "sha256_utf8_lf"
+}
