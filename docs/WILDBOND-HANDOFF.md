@@ -57,6 +57,8 @@ Evan subsequently requested broad Pokémon art intake. The [private library guid
 
 The [cast guide](lore/wildbond-cast-guide.md) introduces Maren, Wren, Pip, Bram, the home community, eight Wardens and regional companions. It distinguishes established character details, interpretation and proposed introductions, with source routes and spoiler boundaries. Read it alongside the writer-only lore ledger before adding dialogue; no proposed introduction there has been added to the game yet.
 
+**Encounter planning after the region audit:** [the Pokémon-first blueprint](plans/wildbond-world/pokemon-encounters-v1.md), PR #565 stacked on Claude’s #564 audit, covers all 33 ordinary areas and targets originals in 18. It fully weights the first four proposed tables and records later habitat candidates, art/combat readiness and outstanding map dependencies. Early Thornwood stays fixed; other ordinary areas use badge-cap-relative bands with local difficulty. This is planning data only: no live encounter, saved level, trainer or guardian has changed. Starter species remain starter-exclusive in this proposal. Follow the blueprint before adding species or assuming the old all-original tables are the new roster.
+
 ## Where to work and what to read
 
 Work in your own clone/branch; do not switch branches or edit Claude's shared `C:/Users/evanb/OneDrive/Desktop/idle-arcade` checkout. The current Codex checkout on Evan's PC is `C:/Users/evanb/AppData/Local/Temp/generations-wildbond-audit-20261016`; that is a machine-specific location, not a portable requirement. The repository is [ecbarish/generations](https://github.com/ecbarish/generations).
