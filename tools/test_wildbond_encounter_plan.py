@@ -29,6 +29,10 @@ class EncounterPlanTests(unittest.TestCase):
             with self.subTest(text=text), self.assertRaises(ValueError):
                 model.parse_json(text)
 
+    def test_source_hashes_survive_windows_and_linux_checkouts(self):
+        self.assertEqual(model.source_digest(b"dex,name\r\n16,Pidgey\r\n"), model.source_digest(b"dex,name\n16,Pidgey\n"))
+        self.assertNotEqual(model.source_digest(b"16,Pidgey\n"), model.source_digest(b"16,Vulpix\n"))
+
     def test_all_nine_badge_stages_and_offsets(self):
         examples = {"larkburrow": -2, "ashstair": 0, "opengrey": 3}
         for aid, offset in examples.items():

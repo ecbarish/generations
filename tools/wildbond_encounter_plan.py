@@ -39,6 +39,11 @@ def load(path):
     return parse_json(path.read_text(encoding="utf-8-sig"))
 
 
+def source_digest(raw):
+    """Text-source snapshots are portable across Git's Windows LF/CRLF checkouts."""
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+
+
 def sources():
     game = load(ROOT / "wildbond-godot/data/wildbond.json")
     evolution = load(ROOT / "wildbond-godot/data/evolution.json")
@@ -89,6 +94,7 @@ def validate(plan, src=None):
             errors.append(message)
     require(plan.get("schema_version") == 1 and plan.get("status") == "proposal", "Expected planning-only schema one")
     require(plan.get("runtime_activation") is False, "Runtime activation must stay false")
+    require(plan.get("source_snapshot_format") == "sha256_utf8_lf", "Expected portable LF-normalized source snapshots")
     require(plan.get("coverage_policy") == {"eligible_areas": 33, "minimum_original_areas": 17, "target_original_areas": 18,
             "counts_placements_not_distinct_species": True, "starters": "exclusive_to_starter_selection"}, "Coverage policy changed")
     require(plan.get("allocation_swaps") == [{"from": "thornwood_route", "to": "millgrass"}, {"from": "knothollow", "to": "dewcut"}],
@@ -188,7 +194,7 @@ def validate(plan, src=None):
         p = (ROOT / rel).resolve()
         require(p.is_relative_to(ROOT) and p.is_file(), f"Invalid source snapshot path: {rel}")
         if p.is_relative_to(ROOT) and p.is_file():
-            require(hashlib.sha256(p.read_bytes()).hexdigest() == digest, f"Source changed; reconcile blueprint: {rel}")
+            require(source_digest(p.read_bytes()) == digest, f"Source changed; reconcile blueprint: {rel}")
     require(set(plan.get("source_snapshots", {})) == {"docs/plans/wildbond-world/world-graph.json", "docs/plans/wildbond-world/region-audit.json", "docs/research/wildbond-private-library/coverage.csv"}, "Missing source snapshot")
     return errors
 

@@ -48,7 +48,7 @@
   "source_snapshots": {
     "docs/plans/wildbond-world/world-graph.json": "aa76c791860cfa0bd1986eae281e116f715e0f5258d05ffc8cecd8b1b630b3e4",
     "docs/plans/wildbond-world/region-audit.json": "c489a261db56f14f4946993ea61052d6e2b02c6ff7dfffdc9f96573a82254589",
-    "docs/research/wildbond-private-library/coverage.csv": "7c0752268eb2e711fe47e8e9b6c2abab95fb17aa28cb582fefb5e7f1bedddd38"
+    "docs/research/wildbond-private-library/coverage.csv": "31cb16f5224bf1b3a3f5df576464f53d5d205b9b666c9e696b798aced1f5ea8d"
   },
   "areas": {
     "thornwood_route": {
@@ -1932,5 +1932,6 @@
       },
       "source_definition": "docs/research/wildbond-private-library/coverage.csv"
     }
-  }
+  },
+  "source_snapshot_format": "sha256_utf8_lf"
 }
