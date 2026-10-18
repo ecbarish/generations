@@ -34,7 +34,7 @@ The plan is sound. It is one connected valley with a clear hub (Reedhold, seven 
 place is within three links of a healer, the league needs all eight badges, and no lesson ever locks the main road. Four
 things need deciding before encounter tables are final:
 
-1. **RA-01 (P0): pick a wild-level rule for the open order.** After WB-WORLD-ORDER, 38 of the 46 map nodes are reachable
+1. **RA-01 (P0, decided by Evan 2026-10-18: scale to badges).** After WB-WORLD-ORDER, 38 of the 46 map nodes are reachable
    with just two badges and a level cap of 35. Fixed country bands (32–72) don't fit that. Wardens already scale to the
    badges held, and wild levels should do the same.
 2. **RA-02 (P0): fix what counts as an encounter area.** One graph place id is one area. This audit counts **33**, so
@@ -188,7 +188,7 @@ it isn't built, and its healer is only proposed. Until then the outing turns bac
 - Build Thornwood the town next, as the destination: Isolde, the badge, and the Gate Loft healer in one step.
 - Keep the return on the same trail, the shape every first route in the genre uses.
 - Keep the visible promises for later: Larkburrow, the Dewcut shelf and Rootwater's cave door.
-- Make the Knothollow ring the first reward loop, and confirm that Grove Wake comes with the Thorn Badge (RA-09).
+- Make the Knothollow ring the first reward loop, and confirm that Grove Wake comes with the Thorn Badge (RA-09, decided by Evan 2026-10-18: after the Thorn Badge).
 
 
 ## Every place
@@ -336,7 +336,8 @@ P0 blocks finalising encounters. P1 must be settled before the affected phase is
 - **Established:** WB-WORLD-ORDER opens the later roads after the Thorn and Tide Badges; Wardens scale to badges held; CAP_TABLE caps a 2-badge team at 35; the historical country bands run 32 to 72.
 - **Finding:** After ORDER, 38 of the 46 map nodes are reachable with only Thorn and Tide and no lessons. Fixed per-country bands would put the later roads above the cap. route-encounters.md (integration 3) and PR #539 both flag it; nothing decides it.
 - **Recommendation (proposal):** Decide one rule before finalising tables: each encounter area stores a relative band, and the level is chosen when the encounter starts from the badges held, clamped to CAP_TABLE, the same way Wardens already scale. Areas reachable at 0 or 1 badge keep fixed low bands.
-- **Owner:** Evan decides; Codex applies it in the encounter proposal. **Sources:** wildbond-world-design.md §2 Wardens, route-encounters.md, PR #539.
+- **Decided:** Evan, 2026-10-18: scale to badges (the recommended rule). Wild levels follow the badges held, like the Wardens; early roads keep fixed low bands.
+- **Owner:** Decided by Evan; Codex applies it in the encounter proposal. **Sources:** wildbond-world-design.md §2 Wardens, route-encounters.md, PR #539.
 
 ### RA-02 (P0, encounters): Encounter areas need a fixed denominator tied to graph ids
 
@@ -398,8 +399,9 @@ P0 blocks finalising encounters. P1 must be settled before the affected phase is
 
 - **Established:** The grove teaches Grove Wake at the antler sign; the design gives no badge. gates.json records thorn as inferred.
 - **Finding:** If Grove Wake is later than Thorn, the Knothollow ring opens later still.
-- **Recommendation (proposal):** Confirm Thorn (keeps the early loop early) or record the intended badge.
-- **Owner:** Wildbond dev lead / Evan. **Sources:** gates.md open point 1.
+- **Recommendation (proposal):** Record thorn as decided rather than inferred in gates.json when it is next edited.
+- **Decided:** Evan, 2026-10-18: Grove Wake is learnable after the Thorn Badge (still needing a Loyal Grove partner).
+- **Owner:** Decided by Evan; gates.json owner records it. **Sources:** gates.md open point 1.
 
 ### RA-11 (P2, encounters): Today's region screens become towns but hold most of today's grass and the Legends' first meetings
 

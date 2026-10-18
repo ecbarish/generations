@@ -2521,7 +2521,8 @@
    "established": "WB-WORLD-ORDER opens the later roads after the Thorn and Tide Badges; Wardens scale to badges held; CAP_TABLE caps a 2-badge team at 35; the historical country bands run 32 to 72.",
    "finding": "After ORDER, 38 of the 46 map nodes are reachable with only Thorn and Tide and no lessons. Fixed per-country bands would put the later roads above the cap. route-encounters.md (integration 3) and PR #539 both flag it; nothing decides it.",
    "recommendation": "Decide one rule before finalising tables: each encounter area stores a relative band, and the level is chosen when the encounter starts from the badges held, clamped to CAP_TABLE, the same way Wardens already scale. Areas reachable at 0 or 1 badge keep fixed low bands.",
-   "owner": "Evan decides; Codex applies it in the encounter proposal",
+   "decision": "Evan, 2026-10-18: scale to badges (the recommended rule). Wild levels follow the badges held, like the Wardens; early roads keep fixed low bands.",
+   "owner": "Decided by Evan; Codex applies it in the encounter proposal",
    "affects": [
     "all ordinary areas reachable at 2 badges"
    ],
@@ -2675,8 +2676,9 @@
    "title": "Grove Wake's teaching badge is inferred, and it sets when the first loop opens",
    "established": "The grove teaches Grove Wake at the antler sign; the design gives no badge. gates.json records thorn as inferred.",
    "finding": "If Grove Wake is later than Thorn, the Knothollow ring opens later still.",
-   "recommendation": "Confirm Thorn (keeps the early loop early) or record the intended badge.",
-   "owner": "Wildbond dev lead / Evan",
+   "recommendation": "Record thorn as decided rather than inferred in gates.json when it is next edited.",
+   "decision": "Evan, 2026-10-18: Grove Wake is learnable after the Thorn Badge (still needing a Loyal Grove partner).",
+   "owner": "Decided by Evan; gates.json owner records it",
    "affects": [
     "thornwood_grove",
     "knothollow"
