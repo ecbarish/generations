@@ -24,13 +24,17 @@ var wild_home := Map.point(Vector2i(15,-7))
 var wild_atlas := AtlasTexture.new()
 
 static func fresh_chapter() -> Dictionary:
-	return {"version":1,"position":[0.0,8.75],"met_maren":false,"wren":false,"bram":false,"reported":false,"items":[]}
+	return {"version":2,"position":[0.0,8.75],"met_maren":false,"wren":false,"bram":false,"reported":false,"items":[],"thorn_badge":false,"thornwood_healed":false}
 
 func _ready() -> void:
 	original_art.open()
 	original_material.shader=preload("res://tests/starter_sprites/world_pixels.gdshader")
 	super._ready()
 	chapter=profile.state.get("opening",fresh_chapter()).duplicate(true)
+	chapter.version=2
+	for key in ["thorn_badge","thornwood_healed"]:
+		if not chapter.has(key):chapter[key]=false
+	_update_thorn_gate()
 	room="town"
 	player.position=Vector3(float(chapter.position[0]),0,float(chapter.position[1]))
 	if world_map.blocked(player.position): player.position=Map.point(Vector2i(11,7))
@@ -58,7 +62,7 @@ func _build_world() -> void:
 	# A single green base keeps the measured crop inside a larger landscape, not floating in a void.
 	_mesh(backdrop,Vector3(0,-.10,-5),_material(Color("6d8c54")))
 	for x in range(-22,39):
-		for y in range(-27,21):
+		for y in range(-48,21):
 			var cell := Vector2i(x,y)
 			if world_map.cells.has(cell) or posmod(x*3+y*2,7)!=0: continue
 			_tree(Map.point(cell),2.6+fposmod(x*.3+y*.4,1.0),Color.WHITE)
@@ -87,6 +91,9 @@ func _build_world() -> void:
 	_building(Map.point(Vector2i(4,3)),Vector2(6.1,3.3),Color("bd5b54"),"HEALING INN","center")
 	_building(Map.point(Vector2i(18,3)),Vector2(6.1,3.3),Color("528baf"),"SHOP","mart")
 	_building(Map.point(Vector2i(7,9)),Vector2(6.1,3.3),Color("819552"),"MAREN'S RANCH","ranch")
+	_building(Map.point(Vector2i(3,-29)),Vector2(6.1,3.3),Color("bd5b54"),"GATE LOFT / REST","thornwood_center")
+	_building(Map.point(Vector2i(17,-29)),Vector2(5.7,3.3),Color("aa7a52"),"THORNWOOD HOME","thornwood_home")
+	_building(Map.point(Vector2i(17,-35)),Vector2(5.7,3.3),Color("687d79"),"THORNWOOD HOME","thornwood_home")
 	places.clear()
 	for row in [["center",4,5,"Healing Inn"],["mart",18,5,"Shop"],["ranch",7,11,"Ranch Storage"],["maren",9,11,"Talk to Maren"],["wren",13,7,"Talk to Wren"],["pip",21,7,"Talk to Pip"],["bram",11,-13,"Talk to Bram"],["sign",12,1,"Read the Sign"],["cave",-14,7,"Larkburrow"],["dewcut",30,-10,"Dewcut Approach"],["north",10,-20,"Thornwood Hollow"],["paddock",16,11,"Visit the Paddock"],["item_lh1",22,12,"Pick Up"],["item_tw1",5,-15,"Pick Up"]]:
 		places.append({"kind":row[0],"at":Map.point(Vector2i(row[1],row[2])),"label":row[3]})
@@ -97,6 +104,11 @@ func _build_world() -> void:
 			var marker := MeshInstance3D.new();marker.mesh=ball;marker.position.y=.19;marker.material_override=_material(Color("dfb456"));holder.add_child(marker)
 			_shadow(holder,.18);item_nodes[str(place.kind).trim_prefix("item_")]=holder
 	for row in [["maren",9,11],["wren",13,7],["pip",21,7],["bram",11,-13]]: _npc(row[0],Map.point(Vector2i(row[1],row[2])))
+	for row in [["thornwood_center",3,-27,"Rest at the Gate Loft"],["isolde",9,-38,"Talk to Warden Isolde"],["thorn_gate",10,-39,"Hawthorn Gate"],["thornwood_home",17,-27,"Thornwood Home"],["thornwood_home",17,-33,"Thornwood Home"]]:
+		places.append({"kind":row[0],"at":Map.point(Vector2i(row[1],row[2])),"label":row[3]})
+	_npc("isolde",Map.point(Map.Thornwood.ISOLDE))
+	_sign(Map.point(Vector2i(11,-26)),"THORNWOOD",Color("4f7353"))
+	for cell in [Vector2i(6,-27),Vector2i(11,-36)]:_lantern(Map.point(cell))
 	_sign(Map.point(Vector2i(12,1)),"THORNWOOD",Color("4f7353"))
 	_sign(Map.point(Vector2i(-4,6)),"MILLGRASS",Color("88724f"))
 	_sign(Map.point(Vector2i(29,-11)),"DEWCUT",Color("648869"))
@@ -112,7 +124,7 @@ func _build_world() -> void:
 	_apply_light()
 
 func _npc(who: String, at: Vector3) -> void:
-	var role: String={"maren":"caretaker","wren":"rival","pip":"child","bram":"forager","healer":"healer","shopkeeper":"shopkeeper"}.get(who,"forager")
+	var role: String={"maren":"caretaker","wren":"rival","pip":"child","bram":"forager","isolde":"caretaker","healer":"healer","shopkeeper":"shopkeeper"}.get(who,"forager")
 	if pack.npcs.has(role):
 		var actor := NpcActor.new()
 		actor.configure(pack,role,who,at,who in ["maren","wren","pip","bram"],npc_actors.size()*1.7)
@@ -163,7 +175,8 @@ func _goal_hint() -> void:
 		elif not profile.state.first_catch: goal="Explore Thornwood / Catch a wild Pokemon"
 		elif not profile.state.healed_after_catch: goal="Bring your new partner to the Healing Inn"
 		elif not chapter.reported: goal="Return to Maren at the ranch"
-		else: goal="First outing complete / Wren and Bram await"
+		elif not chapter.thorn_badge:goal="Follow the north trail / Meet Warden Isolde"
+		else: goal="Thorn Badge earned / Visit the hawthorn gate"
 	hint.text=goal+(" / "+save_note if save_note!="" else "");hint.position=Vector2(8,188);hint.size=Vector2(218,24)
 
 func _nearest() -> Dictionary:
@@ -181,6 +194,10 @@ func interact() -> void:
 	var near := _nearest()
 	match near.get("kind",""):
 		"center","mart": change_room(near.kind)
+		"thornwood_center":change_room("center")
+		"thornwood_home":say("THORNWOOD HOME","The door is closed. The Gate Loft welcomes travelers who need a rest.")
+		"isolde":talk_isolde()
+		"thorn_gate":say("HAWTHORN GATE","Your Thorn Badge opens the hawthorn gate. The Saltmarsh road beyond is still being cleared." if chapter.thorn_badge else "Warden Isolde keeps this gate. Speak to her beside the hawthorn.")
 		"exit": change_room("town")
 		"heal": say("HEALING INN","Shall we restore your partners?",[{"text":"Restore","call":heal_party},{"text":"Later","call":close_dialogue}])
 		"shop": open_shop()
@@ -192,7 +209,7 @@ func interact() -> void:
 		"sign": say("LARKHAVEN",Map.SOURCE.MAPS.larkhaven.signs["12,1"])
 		"cave": say("LARKBURROW","The old burrow is blocked. Stone Break and the Loom Badge will reopen the way home from Threadmeet.")
 		"dewcut": say("DEWCUT APPROACH","The trail continues east. This stretch is closed for now.")
-		"north": say("THORNWOOD HOLLOW","The path deeper into Thornwood is closed for now. Larkhaven is south along the trail.")
+		"north": say("THORNWOOD","Follow the trail north to Thornwood and the Gate Loft. Larkhaven lies south.")
 		"item_lh1","item_tw1":
 			var id: String=str(near.kind).trim_prefix("item_")
 			if id not in chapter.items:
@@ -221,6 +238,22 @@ func talk_trainer(who: String) -> void:
 		other=Catalogue.STARTERS[(Catalogue.STARTERS.find(lead)+2)%3]
 	line=line.replace("{starter}",supplies.team[0].name).replace("{rival}",Catalogue.NAMES[other])
 	tell([[who,line]],func(): say(who.capitalize(),"Ready for a friendly battle?",[{"text":"Battle","call":func(): close_dialogue();begin_encounter(who,other)},{"text":"Later","call":close_dialogue}]))
+
+func talk_isolde() -> void:
+	if chapter.thorn_badge:
+		tell([Map.SOURCE.STORY.filter(func(s):return s.id=="warden")[0].win[0]])
+		return
+	if not chapter.reported:
+		say("WARDEN ISOLDE","Visit Maren in Larkhaven first. Bring a new partner home safely, rest at the inn, and tell her how you fared.")
+		return
+	var source: Dictionary=Map.SOURCE.STORY.filter(func(s):return s.id=="warden")[0]
+	tell(source.lines.slice(1,3),func():say("WARDEN ISOLDE","Pidgey, Wooper and Mosshog will test your team. The Gate Loft can restore your partners before we begin.",[{"text":"Challenge","call":func():close_dialogue();begin_encounter("isolde","pokemon:16")},{"text":"Prepare","call":close_dialogue}]))
+
+func _update_thorn_gate() -> void:
+	Map.Thornwood.apply_badge(world_map.cells,bool(chapter.get("thorn_badge",false)))
+	if not is_instance_valid(outdoors):return
+	for node in outdoors.get_children():
+		if node is MeshInstance3D and node.mesh is BoxMesh and is_equal_approx(node.mesh.size.y,1.0) and is_equal_approx(node.position.z,Map.point(Map.Thornwood.GATE).z):node.visible=not chapter.get("thorn_badge",false)
 
 func tell(lines: Array, then := Callable()) -> void:
 	story_queue=[];story_done=then
@@ -261,7 +294,10 @@ func change_room(destination: String) -> void:
 	else:
 		room="town";player.position=outdoor_return if outdoor_return!=Vector3.ZERO else Map.point(Vector2i(11,7))
 	_reset_follow();_apply_light();_update_camera()
-	if location!=null: location.text="HEALING INN" if room=="center" else ("LARKHAVEN / SHOP" if room=="mart" else world_map.area(player.position).to_upper())
+	if location!=null: location.text=("THORNWOOD / GATE LOFT" if world_map.area(outdoor_return)=="Thornwood" else "HEALING INN") if room=="center" else ("LARKHAVEN / SHOP" if room=="mart" else world_map.area(player.position).to_upper())
+	if room=="center":
+		for node in get_children():
+			if node is Label3D and absf(node.position.x-60)<1 and node.text in ["HEALING INN","GATE LOFT"]:node.text="GATE LOFT" if world_map.area(outdoor_return)=="Thornwood" else "HEALING INN"
 	save_progress()
 
 func enter_battle() -> void:
@@ -270,25 +306,33 @@ func enter_battle() -> void:
 
 func begin_encounter(who: String, sid: String) -> void:
 	if not active or _modal() or not profile.state.started: return
-	if who!="" and chapter[who]: return
+	if who!="" and (chapter.get(who,false) or (who=="isolde" and (chapter.thorn_badge or not chapter.reported))): return
 	encounter_trainer=who;previous_wild=selected
 	profile.state.encounters=mini(999999,int(profile.state.encounters)+1)
 	save_progress();return_position=player.position;active=false;ui.hide()
 	battle=OpeningBattle.new();battle.pack=pack;battle.supplies=supplies;battle.opponent_id=sid;battle.can_store=profile.room_for_capture()
 	battle.trainer_name=who.capitalize()
+	if who=="isolde":battle.trainer_name="Warden Isolde";battle.trainer_roster=Map.Thornwood.ROSTER.duplicate(true)
 	battle.return_to_world.connect(_return)
 	var layer := CanvasLayer.new();layer.name="BattleOverlay";add_child(layer);layer.add_child(battle)
 
 func _return(result: String) -> void:
 	if battle==null or battle.model.state!="ended" or result!=battle.model.result: return
 	var who := encounter_trainer
-	if who!="" and result=="won": chapter[who]=true
+	if who!="" and result=="won":
+		if who=="isolde":
+			chapter.thorn_badge=true
+			var lead: int=battle.model.active
+			if battle.model.team[lead].hp>0:Catalogue.gain_xp(battle.model.team[lead],battle.model.defeated_xp)
+		else:chapter[who]=true
 	super._return(result)
 	room="town"
-	if result=="lost": player.position=Map.point(Vector2i(4,5))
+	if result=="lost": player.position=Map.point(Map.Thornwood.HEALER if who=="isolde" else Vector2i(4,5))
 	if who!="": selected=previous_wild
-	encounter_trainer="";_reset_follow();_apply_light();_update_camera();save_progress()
-	if who!="" and result=="won": tell(Map.SOURCE.SCENES.rival1Win.slice(0,2) if who=="wren" else Map.SOURCE.MAPS.thornwood_route.npcs[0].trainer.win)
+	encounter_trainer="";_update_thorn_gate();_reset_follow();_apply_light();_update_camera();save_progress()
+	if who=="isolde" and result=="won":
+		say("THORN BADGE","Your bond is real. Isolde awarded you the Thorn Badge! The hawthorn gate is open. You can rest at the Gate Loft before returning home.")
+	elif who!="" and result=="won": tell(Map.SOURCE.SCENES.rival1Win.slice(0,2) if who=="wren" else Map.SOURCE.MAPS.thornwood_route.npcs[0].trainer.win)
 
 func _apply_light() -> void:
 	super._apply_light()
@@ -313,8 +357,8 @@ func _process(dt: float) -> void:
 			if rain_nodes[i].position.distance_to(player.position)>15: rain_nodes[i].position=player.position+Vector3(sin(i*2.3)*8,4+fposmod(i*.3,4),cos(i*1.3)*7)
 
 func show_journey() -> void:
-	_detail("LARKHAVEN / FIRST OUTING")
-	_label(detail,"Maren: %s\nNew partner: %s\nInn visit: %s\nSafe return: %s\n\nWren: %s\nBram: %s\n\nNorth: Thornwood\nWest: Millgrass Lane\nEast: Dewcut Approach" % ["Met" if chapter.met_maren else "Waiting","Caught" if profile.state.first_catch else "Not yet","Rested" if profile.state.healed_after_catch else "Not yet","Complete" if chapter.reported else "Return to Maren","Won" if chapter.wren else "Ready","Won" if chapter.bram else "Ready"],Vector2(12,32),Vector2(210,128),9)
+	_detail("FIRST JOURNEY")
+	_label(detail,"Maren: %s\nNew partner: %s\nInn visit: %s\nSafe return: %s\nWren: %s / Bram: %s\n\nThorn Badge: %s\nGate Loft: %s\n\nNorth: Thornwood\nWest: Millgrass / East: Dewcut" % ["Met" if chapter.met_maren else "Waiting","Caught" if profile.state.first_catch else "Not yet","Rested" if profile.state.healed_after_catch else "Not yet","Complete" if chapter.reported else "Return to Maren","Won" if chapter.wren else "Ready","Won" if chapter.bram else "Ready","Earned" if chapter.thorn_badge else "Not yet","Rested" if chapter.thornwood_healed else "Open in Thornwood"],Vector2(12,32),Vector2(210,140),9)
 
 
 func save_progress() -> bool:
@@ -383,7 +427,7 @@ func open_map() -> void:
 	show_map()
 
 func show_map() -> void:
-	_detail("LARKHAVEN / LOCAL MAP")
+	_detail("LARKHAVEN / THORNWOOD")
 	var view := preload("res://tests/opening/map_view.gd").new()
 	view.world_map=world_map;view.player_at=outdoor_return if room in ["center","mart"] else player.position
 	view.position=Vector2(8,29);view.size=Vector2(219,132);view.mouse_filter=Control.MOUSE_FILTER_IGNORE
@@ -408,8 +452,10 @@ func _make_room(origin: float, kind: String) -> void:
 		_npc("healer" if kind=="center" else "shopkeeper",Vector3(origin+(2.2 if kind=="center" else 0.0),0,-2.5))
 
 func heal_party() -> void:
+	var local := room=="center" and world_map.area(outdoor_return)=="Thornwood"
+	if local:chapter.thornwood_healed=true
 	super.heal_party()
-	say("HEALING INN","Your partners are fully restored. Take care out there!")
+	say("GATE LOFT" if local else "HEALING INN","Your partners are fully restored. Take care out there!")
 
 func _animate_partner() -> void:
 	if partner!=null and supplies!=null and not supplies.team.is_empty() and str(supplies.team[0].id) in Catalogue.STARTERS:

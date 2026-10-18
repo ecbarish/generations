@@ -9,6 +9,7 @@ var path := PATH
 var hold := false
 var issue := ""
 var state: Dictionary
+var opening_upgrade_source := {}
 
 func _init() -> void: state=fresh()
 
@@ -53,14 +54,18 @@ static func valid(d: Dictionary) -> bool:
 	if d.original_starter>0 and not (d.team+d.box).any(func(c):return c.individual==d.original_starter and c.species in Catalogue.STARTERS):return false
 	if d.has("opening"):
 		var opening = d.opening
-		if not opening is Dictionary or opening.get("version")!=1: return false
+		if not opening is Dictionary or not integer(opening.get("version"),1,2): return false
 		for key in ["met_maren","wren","bram","reported"]:
 			if not opening.get(key) is bool: return false
 		if opening.reported and (not opening.met_maren or not d.first_catch or not d.healed_after_catch): return false
 		if not opening.get("position") is Array or opening.position.size()!=2: return false
 		for value in opening.position:
 			if not (value is int or value is float) or not is_finite(float(value)): return false
-		if opening.position[0]<-34 or opening.position[0]>26 or opening.position[1]<-26 or opening.position[1]>17: return false
+		if opening.position[0]<-34 or opening.position[0]>26 or opening.position[1]<(-58 if opening.version==2 else -26) or opening.position[1]>17: return false
+		if opening.version==2:
+			for key in ["thorn_badge","thornwood_healed"]:
+				if not opening.get(key) is bool:return false
+			if opening.thorn_badge and not opening.reported:return false
 		if not opening.get("items") is Array or opening.items.size()>2: return false
 		var unique := {}
 		for id in opening.items:
@@ -73,6 +78,7 @@ func open_profile(target: String = PATH) -> bool:
 	hold=false
 	issue=""
 	state=fresh()
+	opening_upgrade_source={}
 	if not path.begins_with("user://") or ".." in path:
 		hold=true; issue="Chapter save path is invalid."; return false
 	# Never roll back and overwrite a newer primary/spare/backup with this older schema.
@@ -83,7 +89,7 @@ func open_profile(target: String = PATH) -> bool:
 			hold=true; issue="Chapter save cannot be read safely. It has been kept."; return false
 		var json := JSON.new()
 		if json.parse(file.get_as_text())==OK and json.data is Dictionary:
-			if json.data.get("format")==FORMAT and (integer(json.data.get("version"),4,999999) or (json.data.get("opening") is Dictionary and integer(json.data.opening.get("version"),2,999999))):
+			if json.data.get("format")==FORMAT and (integer(json.data.get("version"),4,999999) or (json.data.get("opening") is Dictionary and integer(json.data.opening.get("version"),3,999999))):
 				hold=true; issue="This chapter save needs a newer game. It has been kept."; return false
 	var loaded := Safe.read(path,func(d: Dictionary): return valid(d) or V2.valid(d) or Legacy.valid(d))
 	if loaded.is_empty():
@@ -121,11 +127,21 @@ func open_profile(target: String = PATH) -> bool:
 			hold=true;issue="Could not finish the starter upgrade. The original is kept.";return false
 	else:
 		state=loaded.duplicate(true)
+	if state.started and (not state.has("opening") or state.opening.version==1):opening_upgrade_source=state.duplicate(true)
 	return true
 
 func save() -> bool:
 	if hold or not valid(state): return false
+	if not opening_upgrade_source.is_empty() and state.get("opening",{}).get("version")==2:
+		var original := path+".pre-opening-v2"
+		if FileAccess.file_exists(original):
+			var file := FileAccess.open(original,FileAccess.READ);var prior := JSON.new()
+			if file==null or file.get_length()>524288 or prior.parse(file.get_as_text())!=OK or not prior.data is Dictionary or not valid(prior.data) or (prior.data.has("opening") and prior.data.opening.version!=1):
+				hold=true;issue="The town upgrade backup needs attention. Your save has been kept.";return false
+		elif not Safe.write(original,opening_upgrade_source):
+			hold=true;issue="Could not preserve the earlier chapter. Your save has been kept.";return false
 	if not Safe.write(path,state): issue="Could not save this chapter. Keep the game open and try Save again."; return false
+	opening_upgrade_source={}
 	issue=""
 	return true
 

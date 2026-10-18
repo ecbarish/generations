@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond development chapter (#566): walk into Thornwood, heal at Gate Loft and challenge Isolde for the first chapter badge; local returns and one-time rewards persist. [Scope and save compatibility](docs/research/wildbond-thornwood-destination/README.md). Not a published production update.
+
 - Wildbond chapter: choose an original starter and use its real follower, party/battle art, moves and XP. Existing Pokémon parties can add one through Storage → Meet Starters; prior saves upgrade with an independent backup. [Scope, save policy and Claude review task](docs/research/wildbond-live-starters/README.md).
 
 - Wildbond original starters: Mosshog, Ripplet and Cindercub have a first sprite-production candidate with measured battle/walking poses and a save-free native comparison preview. [Sources, launcher and review limits](docs/art/starter-production/README.md).

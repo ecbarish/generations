@@ -1,5 +1,6 @@
 extends "res://tests/journey/battle.gd"
 var trainer_name := ""
+var trainer_roster: Array=[]
 var original_art := preload("res://tests/starter_sprites/art.gd").new()
 var original_portraits := {}
 
@@ -25,7 +26,10 @@ func restart() -> void:
 	super.restart()
 	if trainer_name!="":
 		model=preload("res://tests/opening/trainer_rounds.gd").new()
-		model.setup(supplies.team,Catalogue.creature(opponent_id,5),Catalogue.DATA.moves,{},randi())
+		if not trainer_roster.is_empty():
+			var opponents := trainer_roster.map(func(row):return Catalogue.creature(row[0],row[1]))
+			model.setup_roster(supplies.team,opponents,Catalogue.DATA.moves,randi())
+		else:model.setup(supplies.team,Catalogue.creature(opponent_id,5),Catalogue.DATA.moves,{},randi())
 		for i in model.team.size():
 			for id in model.team[i].moves: model.team[i].pp[id]=int(supplies.team[i].pp[id])
 			if model.team[model.active].hp<=0 and model.team[i].hp>0: model.active=i
@@ -33,6 +37,9 @@ func restart() -> void:
 		shown=[float(model.team[model.active].hp),float(model.foe.hp)]
 		message="%s sent out %s!" % [trainer_name,model.foe.name]
 		_build_menu()
+func _continue() -> void:
+	super._continue()
+	if event.get("sent_out",false):shown[1]=float(model.foe.hp)
 func _build_menu() -> void:
 	super._build_menu()
 	if trainer_name!="" and model!=null and model.state=="choose" and page=="commands" and event.is_empty():
@@ -47,4 +54,5 @@ func _draw() -> void:
 	if trainer_name!="":
 		draw_style_box(_paper(),Rect2(7,3,370,17))
 		_text(Vector2(13,15),"%s / Friendly Battle" % trainer_name,10)
+		if not trainer_roster.is_empty():_text(Vector2(204,15),"Partner %d/%d" % [model.sent_out,trainer_roster.size()],8)
 		_text(Vector2(282,15),"Round %d" % model.round_number,9)

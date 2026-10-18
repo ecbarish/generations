@@ -129,9 +129,10 @@ func run() -> void:
 	check(not Profile.valid(invalid),"duplicate item claims rejected")
 	invalid=saved.state.duplicate(true);invalid.opening.reported=true;invalid.first_catch=false
 	check(not Profile.valid(invalid),"inconsistent quest completion rejected")
-	var future := saved.state.duplicate(true);future.opening.version=2
+	var future := saved.state.duplicate(true);future.opening.version=3
 	var f := FileAccess.open(path+".tmp",FileAccess.WRITE);f.store_string(JSON.stringify(future));f.close()
 	var held := Profile.new();check(not held.open_profile(path) and held.hold and not held.save(),"future nested checkpoint protects the earlier valid primary")
 	reopened.no_save=true;reopened.Art.cache.clear();reopened.queue_free();await process_frame;await process_frame
 	Profile.Safe.remove(path)
+	Profile.Safe.remove(path+".pre-opening-v2")
 	print("Opening chapter checks: %d passed, %d failed" % [passed,failed]);quit(1 if failed else 0)
