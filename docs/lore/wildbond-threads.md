@@ -88,6 +88,12 @@ Next: ChatGPT writes the observations' text and the reveal (T58), Claude places 
 
 The four existing HERITAGES tales and Maren's four-tellings-at-harvest-supper line now follow the first bond in the barn, immediately after "the world remembered a little." Their text is unchanged and remains mandatory for every new journey. Family recognition stays at the register. This moves existing fading / conflicting-family-account clues; it adds no new canon or save flag. Returning saves do not replay them.
 
+## WB-OPENING-CHAPTER placement (Codex / Evan, 2026-10-17)
+
+The separate Pokémon chapter reuses the existing Larkhaven/Thornwood grids and NPC anchors, Maren's SCENES.intro greeting/Thornwood guidance, her existing safe-return invitation, optional colour/fading account, Wren's first challenge with installed partner names substituted, Pip's original base chatter and Bram's mushroom challenge/win/after lines. The fading account remains optional conversation; it introduces no new explanation or restoration event. Wren/Bram use a small one-partner Pokémon battle adaptation, not their production rosters. Maren's catch → inn → return supply errand makes the existing safe-return theme playable; the reward and six-member storage wording are chapter UI, not new mystery clues.
+
+No new mythology, heritage evidence, reveal, ancient names or colour/depth unlock is placed. This modern rendering preview is not an early narrative restoration of depth. Larkburrow stays blocked by its planned Stone Break + Loom Badge requirement; Dewcut's unfinished approach does not move the later Stone-partner shelf to the town entrance. Production story text, NPC data, original saves and quest flags remain unchanged.
+
 ## The threads (living ledger)
 
 For each: what players can see, the candidate explanations, the decided truth (if decided), and the clues placed.

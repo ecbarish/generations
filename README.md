@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond private chapter now connects measured Larkhaven, Thornwood, Millgrass and the Dewcut approach, with Maren's return outing, original NPC hooks, friendly trainer battles, inn/shop/ranch services and an in-game map. [Scope and checks](docs/research/wildbond-opening-chapter/README.md).
+
 - Wildbond private chapter: source-backed Pokémon types/stats/moves, catching rates, burns and experience/leveling; original pilot saves migrate with a preserved backup. [Bounded rules and checks](docs/research/wildbond-pokemon-rules/README.md).
 
 - **Wildbond First Journey foundation (2026-10-17, PR #553):** Pokemon partner choice and follower, six-member party/storage, caught collection and saved HP/PP/items/wallet around the town/trail loop. Separate chapter save; canonical battle data and measured-map/story integration remain next work. Existing adventure and public exports are unchanged.
