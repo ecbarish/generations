@@ -1,0 +1,3 @@
+# Consistent private NPC and creature presentation
+
+WB-ACTOR-POLISH, Codex / Evan, 2026-10-17. Evan explicitly requests Pokémon NPC placeholders that match the current trainer instead of the rough procedural people, plus a consistent creature quality bar. Stacks on #555. Owns the optional private importer/pack NPC boundary, opening actor rendering/animation/scale, focused checks/captures, relevant actor docs/credits and this report. Use the same pinned Emerald source family as the trainer; retain original Wildbond NPC identities, dialogue, roles and save data. Source PNGs remain external. No mass sprite generation, new roster, production-map rewrite or public artwork distribution.
