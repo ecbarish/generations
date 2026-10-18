@@ -1,10 +1,13 @@
 extends "res://tests/journey/scene.gd"
 ## Measured geography and authored character hooks over the persistent chapter systems.
 const Map := preload("res://tests/opening/map.gd")
+const Community := preload("res://tests/opening/community_center.gd")
 const SightLines := preload("res://tests/opening/sight_lines.gd")
 const VISITORS := {
-	"resting_traveler":{"role":"forager","name":"Resting Traveler","room":"center","at":Vector3(57.6,0,2.5),"line":"A quiet seat and a little rest. That is all we needed before heading out again."},
-	"young_tamer":{"role":"child","name":"Young Tamer","room":"center","at":Vector3(62.4,0,1.9),"line":"I always let my partner catch its breath before we go back outside."},
+	"resting_traveler":{"role":"forager","name":"Resting Traveler","room":"center","at":Vector3(54.8,0,1.9),"line":"A quiet seat and a little rest. That is all we needed before heading out again."},
+	"young_tamer":{"role":"child","name":"Young Tamer","room":"center","at":Vector3(64,0,2.1),"line":"I always let my partner catch its breath before we go back outside."},
+	"route_planner":{"role":"forager","name":"Route Planner","room":"center","at":Vector3(65.6,0,-1.8),"line":"Someone always has a good suggestion at the shared table. I like to hear how the road treated everyone."},
+	"community_helper":{"role":"rival","name":"Center Volunteer","room":"center","at":Vector3(53,0,-.9),"line":"Stay a while if you need to. The lounge is for people and partners alike."},
 	"inn_neighbor":{"role":"caretaker","name":"Inn Neighbor","room":"town","cell":Vector2i(7,6),"line":"The inn is just there. There is always time to stop and check on your partners."},
 	"loft_walker":{"role":"forager","name":"Trail Walker","room":"town","cell":Vector2i(7,-27),"line":"We stopped at the Gate Loft after the walk from Larkhaven. My feet needed the rest too!"}
 }
@@ -171,12 +174,16 @@ func _reset_follow() -> void:
 	gait.advance(Vector2.ZERO,Vector3.ZERO,false);_animate_tamer()
 
 func _blocked(at: Vector3) -> bool:
-	if room in ["center","mart"]: return super._blocked(at)
+	if room=="center":return Community.blocked(at)
+	if room=="mart":return super._blocked(at)
 	return world_map.blocked(at)
 
 func _update_camera() -> void:
 	super._update_camera()
-	if camera!=null and room in ["center","mart"]:camera.fov=30
+	if camera!=null and room=="mart":camera.fov=30
+	if camera!=null and room=="center":
+		camera.position=Vector3(60,13.5,18)
+		camera.look_at(Vector3(60,0,0));camera.fov=45
 
 func _snapshot() -> void:
 	# Retain schema-two's safe legacy landing for older chapter builds. New coordinates are additive.
@@ -207,7 +214,13 @@ func _nearest() -> Dictionary:
 		var distance := player.position.distance_to(npc_art[who].position)
 		if distance<closest:visitor={"kind":"visitor","who":who,"label":"Talk to "+VISITORS[who].name};closest=distance
 	if not visitor.is_empty():return visitor
-	if room in ["center","mart"]: return super._nearest()
+	if room=="center":
+		if absf(player.position.x-60)<1.6 and player.position.z>4.7:return {"kind":"exit","label":"Leave"}
+		if player.position.distance_to(Community.BOARD)<1.4:return {"kind":"community_board","label":"Read Local Notices"}
+		if player.position.distance_to(Community.STORAGE)<1.4:return {"kind":"community_storage","label":"Partner Storage"}
+		if absf(player.position.x-60)<2.7 and player.position.z<.8:return {"kind":"heal","label":"Restore Party"}
+		return {}
+	if room=="mart":return super._nearest()
 	var nearest := {};var distance := 1.65
 	for place in places:
 		if str(place.kind).begins_with("item_") and str(place.kind).trim_prefix("item_") in chapter.items: continue
@@ -220,6 +233,8 @@ func interact() -> void:
 	if not active or _modal() or not profile.state.started: return
 	var near := _nearest()
 	match near.get("kind",""):
+		"community_storage":toggle_menu();show_storage()
+		"community_board":say("LOCAL NOTICES","Thornwood Trail joins Larkhaven and Thornwood. Both healing houses welcome travelers. Share the table, rest your partners and leave the doorway clear.")
 		"visitor":say(str(VISITORS[near.who].name).to_upper(),VISITORS[near.who].line)
 		"center","mart": change_room(near.kind)
 		"thornwood_center":change_room("center")
@@ -318,7 +333,7 @@ func change_room(destination: String) -> void:
 	close_dialogue();close_menu()
 	if destination in ["center","mart"]:
 		outdoor_return=player.position;room=destination
-		player.position=Vector3(60 if room=="center" else 90,0,2.6)
+		player.position=Community.ENTRY if room=="center" else Vector3(90,0,2.6)
 	else:
 		room="town";player.position=outdoor_return if outdoor_return!=Vector3.ZERO else Map.point(Vector2i(11,7))
 	_reset_follow();_apply_light();_update_camera()
@@ -467,6 +482,12 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	super._unhandled_key_input(event)
 
 func _make_room(origin: float, kind: String) -> void:
+	if kind=="center":
+		Community.build(self,origin)
+		_npc("healer",Vector3(origin+2.8,0,-4.6))
+		for who in VISITORS:
+			if VISITORS[who].room=="center":_npc(who,VISITORS[who].at)
+		return
 	super._make_room(origin,kind)
 	for child in get_children():
 		# A waist-height counter keeps the source NPC's face and upper body readable.
@@ -477,9 +498,6 @@ func _make_room(origin: float, kind: String) -> void:
 		if child is Label3D and absf(child.position.x-origin)<1 and child.text in ["PARTNER CENTER","TOWN MART"]:
 			child.text="HEALING INN" if kind=="center" else "LARKHAVEN SHOP"
 	_npc("healer" if kind=="center" else "shopkeeper",Vector3(origin+(2.2 if kind=="center" else 0.0),0,-2.5))
-	if kind=="center":
-		for who in VISITORS:
-			if VISITORS[who].room=="center":_npc(who,VISITORS[who].at)
 
 func heal_party() -> void:
 	var local := room=="center" and world_map.area(outdoor_return)=="Thornwood"

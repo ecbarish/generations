@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond development chapter (#568): larger community centers add a reception hall, rest lounge, shared table, four visitors, local notices and an existing partner-storage terminal. [Scope and evidence](docs/research/wildbond-community-centers/README.md).
+
 - Wildbond development chapter (#567): meet waiting visitors and townspeople around healing spaces, see centers closer, and keep the player and nearby people visible behind wide buildings. Missing-pack battles explicitly label test art. [Scope and evidence](docs/research/wildbond-lived-in-centers/README.md).
 
 - Wildbond development chapter (#566): walk into Thornwood, heal at Gate Loft and challenge Isolde for the first chapter badge; local returns and one-time rewards persist. [Scope and save compatibility](docs/research/wildbond-thornwood-destination/README.md). Not a published production update.

@@ -80,7 +80,7 @@ func run() -> void:
 	scene.interact();check(scene.room=="center","measured inn door opens the existing healing room")
 	scene.player.position.z=.5;scene.interact();scene.heal_party();scene.close_dialogue()
 	check(scene.profile.state.healed_after_catch,"healing fulfills the saved return requirement")
-	scene.player.position.z=3;scene.interact()
+	scene.player.position=scene.Community.ENTRY;scene.interact()
 	check(scene.room=="town" and Map.tile(scene.player.position)==Vector2i(4,5),"leaving inn restores its exact measured doorstep")
 	walk(scene,Vector2i(9,11));scene.interact();scene.close_dialogue()
 	check(scene.chapter.reported,"reporting to Maren completes the outing")

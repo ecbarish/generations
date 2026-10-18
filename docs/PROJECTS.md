@@ -1,3 +1,9 @@
+## Wildbond community centers
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| WB-COMMUNITY-CENTERS | Wildbond private chapter | Small feature area | Codex / Evan, PR #568 | Evan's direct request: larger centers as social hubs, with reception, lounge, shared table, noticeboard, storage access and existing Pokemon NPC roles. Stacks on #567; no save/data/export change. |
+
 ## Wildbond populated centers and visibility
 
 | ID | Project | Size | Status | Scope |
