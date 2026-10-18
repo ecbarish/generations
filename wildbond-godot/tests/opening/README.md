@@ -44,3 +44,7 @@ The three installed Pokémon use fixed scale derived from their neutral Idle pos
 ## Thornwood destination
 
 See [implementation and evidence](../../../docs/research/wildbond-thornwood-destination/README.md). `thornwood_checks.gd` verifies connected walking, actual challenge buttons, sequential opponents, local healing, defeat/retry, one-time rewards, gate collision/reload and old-reader/future-save protection. Add `-- --capture ABSOLUTE_OUTPUT` for isolated native captures; add `--private` only for external private evidence. `profile_before_town.gd` is a frozen test-only prior reader, with its source commit recorded in the file.
+
+## Populated centers and sight lines
+
+Healing Inn / Gate Loft has two waiting visitors and a nurse, plus an Inn Neighbor and Trail Walker outdoors. These reuse the installed complete Pokemon NPC roles; use the real private pack to judge art quality. Eleven actors share six roles. Visitors can be spoken to without occupying door thresholds, center service approach or exit. A closer indoor camera shows the people more clearly. All six buildings fade their complete geometry/signs if they obstruct the player, follower, nearby people or an entrance approach, and return to solid when clear. Collision is unchanged. `centers_checks.gd` checks the populated rooms and camera rays; `-- --private --capture EXTERNAL_OUTPUT` creates private evidence. Without the pack, generic test art remains and battles label it TEST ART. [Report](../../../docs/research/wildbond-lived-in-centers/README.md).

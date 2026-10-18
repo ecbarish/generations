@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond development chapter (#567): meet waiting visitors and townspeople around healing spaces, see centers closer, and keep the player and nearby people visible behind wide buildings. Missing-pack battles explicitly label test art. [Scope and evidence](docs/research/wildbond-lived-in-centers/README.md).
+
 - Wildbond development chapter (#566): walk into Thornwood, heal at Gate Loft and challenge Isolde for the first chapter badge; local returns and one-time rewards persist. [Scope and save compatibility](docs/research/wildbond-thornwood-destination/README.md). Not a published production update.
 
 - Wildbond chapter: choose an original starter and use its real follower, party/battle art, moves and XP. Existing Pokémon parties can add one through Storage → Meet Starters; prior saves upgrade with an independent backup. [Scope, save policy and Claude review task](docs/research/wildbond-live-starters/README.md).

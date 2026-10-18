@@ -58,7 +58,7 @@ func run() -> void:
 	scene.no_save=true;scene.save_path="user://wb_actor_checks_%d.json" % OS.get_process_id()
 	root.add_child(scene);await process_frame
 	scene.start_journey("pokemon:194");scene.close_dialogue()
-	check(scene.npc_actors.size()==7 and scene.npc_actors.maren.role=="caretaker" and scene.npc_actors.wren.role=="rival" and scene.npc_actors.isolde.role=="caretaker","opening replaces all seven outdoor/service actors with imported roles, including Isolde's chapter alias")
+	check(scene.npc_actors.size()==11 and scene.npc_actors.maren.role=="caretaker" and scene.npc_actors.wren.role=="rival" and scene.npc_actors.isolde.role=="caretaker","opening replaces all eleven outdoor/service/visitor actors with imported roles, including Isolde's chapter alias")
 	check(scene.npc_art.pip.body.texture is AtlasTexture and scene.npc_art.pip.body.texture.region.size==Vector2(16,16),"Pip uses a complete atlas frame without procedural parts")
 	var initial: Vector3=scene.creature.position
 	scene.seconds=3;scene.player.position=Map.point(Vector2i(11,7))

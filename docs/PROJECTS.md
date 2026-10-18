@@ -1,3 +1,9 @@
+## Wildbond populated centers and visibility
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| WB-LIVED-IN-CENTERS | Wildbond private chapter | Small polish | Codex / Evan, PR #567 | Evan's direct request: complete Pokemon NPC art, visitors inside/outside healing spaces, clear approaches and full-building sight-line cutaways. Stacks on #566; no save/data/export change. |
+
 ## Wildbond private sprite setup
 
 | ID | Project | Size | Status | Scope |

@@ -1,6 +1,13 @@
 extends "res://tests/journey/scene.gd"
 ## Measured geography and authored character hooks over the persistent chapter systems.
 const Map := preload("res://tests/opening/map.gd")
+const SightLines := preload("res://tests/opening/sight_lines.gd")
+const VISITORS := {
+	"resting_traveler":{"role":"forager","name":"Resting Traveler","room":"center","at":Vector3(57.6,0,2.5),"line":"A quiet seat and a little rest. That is all we needed before heading out again."},
+	"young_tamer":{"role":"child","name":"Young Tamer","room":"center","at":Vector3(62.4,0,1.9),"line":"I always let my partner catch its breath before we go back outside."},
+	"inn_neighbor":{"role":"caretaker","name":"Inn Neighbor","room":"town","cell":Vector2i(7,6),"line":"The inn is just there. There is always time to stop and check on your partners."},
+	"loft_walker":{"role":"forager","name":"Trail Walker","room":"town","cell":Vector2i(7,-27),"line":"We stopped at the Gate Loft after the walk from Larkhaven. My feet needed the rest too!"}
+}
 const NpcActor := preload("res://tests/opening/npc_actor.gd")
 const OpeningBattle := preload("res://tests/opening/battle.gd")
 const OriginalArt := preload("res://tests/starter_sprites/art.gd")
@@ -22,6 +29,7 @@ var npc_actors := {}
 var wild_gait := Motion.new()
 var wild_home := Map.point(Vector2i(15,-7))
 var wild_atlas := AtlasTexture.new()
+var sight_buildings: Array[Node3D]=[]
 
 static func fresh_chapter() -> Dictionary:
 	return {"version":2,"position":[0.0,8.75],"met_maren":false,"wren":false,"bram":false,"reported":false,"items":[],"thorn_badge":false,"thornwood_healed":false}
@@ -50,7 +58,7 @@ func _build_world() -> void:
 	keep.append_array(rain_nodes);keep.append_array(motes)
 	for node in get_children():
 		if node is Node3D and node not in keep and not node.is_queued_for_deletion(): node.queue_free()
-	npc_actors.clear();npc_art.clear()
+	npc_actors.clear();npc_art.clear();sight_buildings.clear()
 	props.clear();occluders.clear();obstacles.clear();lamps.clear();splashes.clear();healing_lights.clear();building_bounds.clear();places.clear()
 	town_ground=null;trail_ground=null;fountain=null
 	outdoors=Node3D.new();add_child(outdoors)
@@ -107,6 +115,8 @@ func _build_world() -> void:
 	for row in [["thornwood_center",3,-27,"Rest at the Gate Loft"],["isolde",9,-38,"Talk to Warden Isolde"],["thorn_gate",10,-39,"Hawthorn Gate"],["thornwood_home",17,-27,"Thornwood Home"],["thornwood_home",17,-33,"Thornwood Home"]]:
 		places.append({"kind":row[0],"at":Map.point(Vector2i(row[1],row[2])),"label":row[3]})
 	_npc("isolde",Map.point(Map.Thornwood.ISOLDE))
+	for who in VISITORS:
+		if VISITORS[who].room=="town":_npc(who,Map.point(VISITORS[who].cell))
 	_sign(Map.point(Vector2i(11,-26)),"THORNWOOD",Color("4f7353"))
 	for cell in [Vector2i(6,-27),Vector2i(11,-36)]:_lantern(Map.point(cell))
 	_sign(Map.point(Vector2i(12,1)),"THORNWOOD",Color("4f7353"))
@@ -123,14 +133,21 @@ func _build_world() -> void:
 	_reset_follow()
 	_apply_light()
 
+func _building(at: Vector3, dims: Vector2, roof_color: Color, title: String, kind: String) -> void:
+	super._building(at,dims,roof_color,title,kind)
+	var building: Node3D=occluders.back()
+	building.set_meta("building",true);building.set_meta("sight_fade",0.0)
+	sight_buildings.append(building)
+
 func _npc(who: String, at: Vector3) -> void:
 	var role: String={"maren":"caretaker","wren":"rival","pip":"child","bram":"forager","isolde":"caretaker","healer":"healer","shopkeeper":"shopkeeper"}.get(who,"forager")
+	if VISITORS.has(who):role=VISITORS[who].role
 	if pack.npcs.has(role):
 		var actor := NpcActor.new()
-		actor.configure(pack,role,who,at,who in ["maren","wren","pip","bram"],npc_actors.size()*1.7)
+		actor.configure(pack,role,who,at,who in ["maren","wren","pip","bram","inn_neighbor","loft_walker"],npc_actors.size()*1.7)
 		add_child(actor);_shadow(actor,.16 if role=="child" else .22)
 		var label := Label3D.new()
-		label.text=str(Map.SOURCE.CAST.get(who,{}).get("name",who.capitalize()))
+		label.text=str(VISITORS[who].name if VISITORS.has(who) else Map.SOURCE.CAST.get(who,{}).get("name",who.capitalize()))
 		label.position=Vector3(0,1.14 if role=="child" else 1.65,0)
 		label.font_size=32;label.pixel_size=.008;label.outline_size=5
 		label.modulate=PAPER;label.outline_modulate=INK;label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
@@ -144,7 +161,7 @@ func _npc(who: String, at: Vector3) -> void:
 	var look := {"skin":Color(cast.get("skin","#d7a878")),"hair":Color(cast.get("hairCol","#593b2c")),"shirt":Color(cast.get("shirt","#a76682")),"legs":Color("34464c"),"shoes":Color("49382c"),"hat":Color(cast.get("hatCol","#dfb76c")),"style":"cap" if cast.get("hair")=="hat" else "short"}
 	for bit in Figures.person_parts(Vector2i.DOWN,false,0,false,look): image.fill_rect(Rect2i(int(bit[0])+3,int(bit[1])+3,int(bit[2]),int(bit[3])).intersection(Rect2i(0,0,18,28)),bit[4])
 	var face := _sprite(owner_node);face.texture=ImageTexture.create_from_image(image);face.pixel_size=.055;face.offset=Vector2(0,10)
-	_text3(str(cast.get("name",who.capitalize())),at+Vector3(0,1.8,0),25)
+	_text3(str(VISITORS[who].name if VISITORS.has(who) else cast.get("name",who.capitalize())),at+Vector3(0,1.8,0),25)
 	npc_art[who]=owner_node
 
 func _reset_follow() -> void:
@@ -156,6 +173,10 @@ func _reset_follow() -> void:
 func _blocked(at: Vector3) -> bool:
 	if room in ["center","mart"]: return super._blocked(at)
 	return world_map.blocked(at)
+
+func _update_camera() -> void:
+	super._update_camera()
+	if camera!=null and room in ["center","mart"]:camera.fov=30
 
 func _snapshot() -> void:
 	# Retain schema-two's safe legacy landing for older chapter builds. New coordinates are additive.
@@ -180,6 +201,12 @@ func _goal_hint() -> void:
 	hint.text=goal+(" / "+save_note if save_note!="" else "");hint.position=Vector2(8,188);hint.size=Vector2(218,24)
 
 func _nearest() -> Dictionary:
+	var visitor := {};var closest := 1.05
+	for who in VISITORS:
+		if VISITORS[who].room!=room:continue
+		var distance := player.position.distance_to(npc_art[who].position)
+		if distance<closest:visitor={"kind":"visitor","who":who,"label":"Talk to "+VISITORS[who].name};closest=distance
+	if not visitor.is_empty():return visitor
 	if room in ["center","mart"]: return super._nearest()
 	var nearest := {};var distance := 1.65
 	for place in places:
@@ -193,6 +220,7 @@ func interact() -> void:
 	if not active or _modal() or not profile.state.started: return
 	var near := _nearest()
 	match near.get("kind",""):
+		"visitor":say(str(VISITORS[near.who].name).to_upper(),VISITORS[near.who].line)
 		"center","mart": change_room(near.kind)
 		"thornwood_center":change_room("center")
 		"thornwood_home":say("THORNWOOD HOME","The door is closed. The Gate Loft welcomes travelers who need a rest.")
@@ -349,7 +377,7 @@ func _process(dt: float) -> void:
 		actor.step(dt,seconds,player.position,active and not _modal() and room=="town",world_map,actor.role=="healer" and heal_time>0)
 		actor.get_meta("label").visible=actor.position.distance_to(player.position)<3.8
 	_step_wild(dt)
-	_actor_visibility()
+	_actor_visibility(dt)
 	if room=="town":
 		var area := world_map.area(player.position)
 		if area!=last_area: location.text=area.to_upper();last_area=area
@@ -448,8 +476,10 @@ func _make_room(origin: float, kind: String) -> void:
 	for child in get_children():
 		if child is Label3D and absf(child.position.x-origin)<1 and child.text in ["PARTNER CENTER","TOWN MART"]:
 			child.text="HEALING INN" if kind=="center" else "LARKHAVEN SHOP"
-	if pack.npcs.has("healer" if kind=="center" else "shopkeeper"):
-		_npc("healer" if kind=="center" else "shopkeeper",Vector3(origin+(2.2 if kind=="center" else 0.0),0,-2.5))
+	_npc("healer" if kind=="center" else "shopkeeper",Vector3(origin+(2.2 if kind=="center" else 0.0),0,-2.5))
+	if kind=="center":
+		for who in VISITORS:
+			if VISITORS[who].room=="center":_npc(who,VISITORS[who].at)
 
 func heal_party() -> void:
 	var local := room=="center" and world_map.area(outdoor_return)=="Thornwood"
@@ -500,14 +530,15 @@ func _animate_creature() -> void:
 	sprite.offset=Vector2(frame.region.size.x*.5-frame.anchor.x,frame.anchor.y-frame.region.size.y*.5)
 	last_region=frame.region
 
-func _actor_visibility() -> void:
+func _actor_visibility(dt := 1.0/60) -> void:
 	if camera==null or room!="town": return
 	var points: Array[Vector3]=[player.position,companion.position]
 	if creature.position.distance_to(player.position)<4:points.append(creature.position)
-	for actor in npc_actors.values():
+	for actor in npc_art.values():
 		if actor.position.distance_to(player.position)<3.2:points.append(actor.position)
 	var camera_at := Vector2(camera.position.x,camera.position.z)
 	for tree in occluders:
+		if tree.has_meta("building"):continue
 		var point := Vector2(tree.position.x,tree.position.z)
 		if point.distance_to(Vector2(player.position.x,player.position.z))>13:continue
 		var covered := false
@@ -517,3 +548,19 @@ func _actor_visibility() -> void:
 			if point.distance_to(camera_at)<focus.distance_to(camera_at) and point.distance_to(Geometry2D.get_closest_point_to_segment(point,focus,camera_at))<1.4:covered=true;break
 		if covered:
 			for mesh in tree.get_meta("meshes"):mesh.transparency=.96
+
+	# Nearby entrances also need a clear approach, even before an interaction prompt.
+	for place in places:
+		if place.kind in ["center","mart","ranch","thornwood_center","thornwood_home"] and place.at.distance_to(player.position)<6:
+			points.append(place.at)
+	for building in sight_buildings:
+		var meshes: Array=building.get_meta("meshes")
+		var bounds := SightLines.world_bounds(meshes)
+		var covered := false
+		for focus in points:
+			if SightLines.covers(bounds,camera.global_position,focus):covered=true;break
+		var fade := move_toward(float(building.get_meta("sight_fade")),.94 if covered else 0.0,dt*9.6)
+		building.set_meta("sight_fade",fade)
+		for mesh in meshes:mesh.transparency=fade
+		for child in building.get_children():
+			if child is Label3D:child.modulate.a=1.0-fade
