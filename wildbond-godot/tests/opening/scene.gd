@@ -3,6 +3,10 @@ extends "res://tests/journey/scene.gd"
 const Map := preload("res://tests/opening/map.gd")
 const NpcActor := preload("res://tests/opening/npc_actor.gd")
 const OpeningBattle := preload("res://tests/opening/battle.gd")
+const OriginalArt := preload("res://tests/starter_sprites/art.gd")
+const OriginalPortrait := preload("res://tests/starter_sprites/presentation.gd")
+var original_art := OriginalArt.new()
+var original_material := ShaderMaterial.new()
 var world_map := Map.new()
 var outdoors: Node3D
 var chapter := fresh_chapter()
@@ -23,6 +27,8 @@ static func fresh_chapter() -> Dictionary:
 	return {"version":1,"position":[0.0,8.75],"met_maren":false,"wren":false,"bram":false,"reported":false,"items":[]}
 
 func _ready() -> void:
+	original_art.open()
+	original_material.shader=preload("res://tests/starter_sprites/world_pixels.gdshader")
 	super._ready()
 	chapter=profile.state.get("opening",fresh_chapter()).duplicate(true)
 	room="town"
@@ -209,7 +215,10 @@ func talk_trainer(who: String) -> void:
 		tell(Map.SOURCE.SCENES.rival1Win.slice(0,1) if who=="wren" else Map.SOURCE.MAPS.thornwood_route.npcs[0].trainer.after)
 		return
 	var line: String=Map.SOURCE.SCENES.rival1[3][1] if who=="wren" else Map.SOURCE.MAPS.thornwood_route.npcs[0].lines[0][1]
-	var other: String = Catalogue.IDS[(Catalogue.IDS.find(str(supplies.team[0].id))+1)%3] if who=="wren" else "pokemon:37"
+	var lead: String=supplies.team[0].id
+	var other: String = Catalogue.IDS[(Catalogue.IDS.find(lead)+1)%3] if who=="wren" else "pokemon:37"
+	if who=="wren" and lead in Catalogue.STARTERS:
+		other=Catalogue.STARTERS[(Catalogue.STARTERS.find(lead)+2)%3]
 	line=line.replace("{starter}",supplies.team[0].name).replace("{rival}",Catalogue.NAMES[other])
 	tell([[who,line]],func(): say(who.capitalize(),"Ready for a friendly battle?",[{"text":"Battle","call":func(): close_dialogue();begin_encounter(who,other)},{"text":"Later","call":close_dialogue}]))
 
@@ -320,6 +329,43 @@ func _build_ui() -> void:
 	super._build_ui()
 	_choice(ui,"Map [Tab]",Vector2(228,5),Vector2(74,20),open_map)
 
+func choose_partner() -> void:
+	close_menu()
+	menu=_panel(Vector2(20,29),Vector2(344,160))
+	_label(menu,"CHOOSE YOUR PARTNER",Vector2(12,5),Vector2(320,22),15)
+	_label(menu,"Choose one original partner. Your current team stays." if profile.state.started else "Who will walk beside you?",Vector2(12,29),Vector2(320,18),10)
+	modal_buttons.clear()
+	for i in Catalogue.STARTERS.size():
+		var sid: String=Catalogue.STARTERS[i]
+		var portrait := OriginalPortrait.new();menu.add_child(portrait)
+		portrait.configure(original_art,sid.trim_prefix("wildbond:"),false,Vector2(64+i*108,106),Vector2(68,57))
+		var s: Dictionary=Catalogue.DATA.species[sid]
+		_label(menu,"%s / %s" % [s.world_element,str(s.types[0]).capitalize()],Vector2(12+i*108,107),Vector2(104,16),9)
+		var button := _choice(menu,Catalogue.NAMES[sid],Vector2(12+i*108,128),Vector2(104,25),func():start_journey(sid))
+		button.set_meta("starter",sid);modal_buttons.append(button)
+	modal_buttons[0].grab_focus();prompt.hide()
+
+func start_journey(sid: String) -> void:
+	if profile.state.started:
+		_snapshot()
+		var result := profile.grant_starter(sid)
+		if result=="full":close_menu();say("PARTNERS","Your party and storage are full. Make room for a new partner first.");return
+		if result not in ["party","box"]:return
+		_hydrate();close_menu();save_progress()
+		if result=="party":
+			var index: int=supplies.team.size()-1
+			say("NEW PARTNER",Catalogue.NAMES[sid]+" joined your party. Walk together?",[{"text":"Walk Together","call":func():set_lead(index)},{"text":"Keep Lead","call":close_dialogue}])
+		else:say("NEW PARTNER",Catalogue.NAMES[sid]+" is in storage. Withdraw your new partner when there is space in the party.")
+		return
+	if not profile.start(sid):return
+	_hydrate();close_menu();_animate_partner();save_progress()
+	say("YOUR FIRST JOURNEY","%s is ready! Explore Thornwood, catch a partner, then visit the Healing Inn." % Catalogue.NAMES[sid])
+
+func show_storage() -> void:
+	super.show_storage()
+	if profile.state.original_starter==0:
+		_choice(detail,"Meet Starters",Vector2(140,6),Vector2(85,20),choose_partner).add_theme_font_size_override("font_size",9)
+
 func show_party() -> void:
 	if menu!=null:menu.show()
 	super.show_party()
@@ -366,6 +412,21 @@ func heal_party() -> void:
 	say("HEALING INN","Your partners are fully restored. Take care out there!")
 
 func _animate_partner() -> void:
+	if partner!=null and supplies!=null and not supplies.team.is_empty() and str(supplies.team[0].id) in Catalogue.STARTERS:
+		var name: String=str(supplies.team[0].id).trim_prefix("wildbond:")
+		var f := original_art.walking(name,partner_gait.direction8,partner_gait.phase())
+		if f.is_empty():return
+		partner.texture=f.texture;partner.region_enabled=true;partner.region_rect=f.region
+		original_material.set_shader_parameter("sheet",f.texture)
+		original_material.set_shader_parameter("palette",original_art.palettes[name])
+		original_material.set_shader_parameter("source_rect",Vector4(f.region.position.x/f.texture.get_width(),f.region.position.y/f.texture.get_height(),f.region.size.x/f.texture.get_width(),f.region.size.y/f.texture.get_height()))
+		var step: float=float(original_art.entries[name].frames[5].region[3])/32
+		original_material.set_shader_parameter("pixel_dims",Vector2(roundf(f.region.size.x/step),roundf(f.region.size.y/step)))
+		partner.material_override=original_material;partner.pixel_size=f.pixel_size;partner.flip_h=f.flip;partner.scale=Vector3.ONE
+		partner.offset=Vector2(f.region.size.x*.5-f.anchor.x,f.anchor.y-f.region.size.y*.5)
+		partner.alpha_cut=SpriteBase3D.ALPHA_CUT_DISCARD;partner.alpha_scissor_threshold=.5
+		return
+	if partner!=null:partner.material_override=null;partner.region_enabled=false
 	super._animate_partner()
 	if supplies==null or supplies.team.is_empty(): return
 	var sid: String=str(supplies.team[0].id)

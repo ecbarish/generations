@@ -1,5 +1,26 @@
 extends "res://tests/journey/battle.gd"
 var trainer_name := ""
+var original_art := preload("res://tests/starter_sprites/art.gd").new()
+var original_portraits := {}
+
+func _ready() -> void:
+	original_art.open();super._ready()
+
+func _creature(c: Dictionary, foot: Vector2, back: bool, side: String) -> void:
+	if c.id not in Catalogue.STARTERS:
+		if original_portraits.has(side):original_portraits[side].hide()
+		super._creature(c,foot,back,side);return
+	if not original_portraits.has(side):
+		var portrait := preload("res://tests/starter_sprites/presentation.gd").new()
+		add_child(portrait);original_portraits[side]=portrait
+	var portrait: TextureRect=original_portraits[side]
+	portrait.visible=c.hp>0
+	if not portrait.visible:return
+	var recoil := 0.0
+	if motion and event.get("hit",false) and event.get("side",side)!=side and message_time>0:recoil=roundf(sin(clock*35)*minf(2,message_time))
+	portrait.animate=motion and model.state!="ended"
+	portrait.configure(original_art,str(c.id).trim_prefix("wildbond:"),back,foot+Vector2(recoil,0))
+	draw_set_transform(foot,0,Vector2(1,.22));draw_circle(Vector2.ZERO,24,Color(.1,.2,.15,.22));draw_set_transform(Vector2.ZERO)
 func restart() -> void:
 	super.restart()
 	if trainer_name!="":

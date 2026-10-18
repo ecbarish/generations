@@ -122,7 +122,7 @@ func run() -> void:
 	check(Profile.Legacy.valid(old),"migration fixture is independently valid v1")
 	raw(path,old)
 	var profile := Profile.new()
-	check(profile.open_profile(path) and Profile.valid(profile.state) and profile.state.version==2,"valid v1 migrates and immediately writes a valid v2 checkpoint")
+	check(profile.open_profile(path) and Profile.valid(profile.state) and profile.state.version==3,"valid v1 migrates and immediately writes a valid v3 checkpoint")
 	check(profile.state.team[0].individual==1 and profile.state.team[1].individual==2 and profile.state.box[0].individual==3 and profile.state.next_id==4,"migration keeps party/storage order and individual IDs")
 	check(profile.state.coins==713 and profile.state.first_catch and float(profile.state.position[0])==122.0 and float(profile.state.position[1]) == -2.0,"migration retains wallet, milestones and route position")
 	check(profile.state.team[0].level==12 and profile.state.team[0].hp==0 and profile.state.team[0].pp.values().all(func(v):return v==0),"legacy fainted/exhausted partner is never silently healed")
@@ -131,7 +131,7 @@ func run() -> void:
 	var backup_hash := FileAccess.get_sha256(path+".pre-v2")
 	check(JSON.stringify(JSON.parse_string(FileAccess.get_file_as_string(path+".pre-v2")))==JSON.stringify(JSON.parse_string(JSON.stringify(old))),"independent pre-upgrade backup retains all verified old data")
 	profile=Profile.new()
-	check(profile.open_profile(path) and profile.state.team[0].level==12 and FileAccess.get_sha256(path+".pre-v2")==backup_hash,"reopening v2 never repeats migration or rewrites original backup")
+	check(profile.open_profile(path) and profile.state.team[0].level==12 and FileAccess.get_sha256(path+".pre-v2")==backup_hash,"reopening v3 never repeats migration or rewrites original backup")
 	profile.state.team[1].status="burn";profile.save()
 	var reopened := Profile.new()
 	check(reopened.open_profile(path) and reopened.state.team[1].status=="burn","burn persists through save/reload")
@@ -140,7 +140,7 @@ func run() -> void:
 		check(not Profile.valid(bad),"invalid level rejected: %s" % value)
 	var bad := profile.state.duplicate(true);bad.team[0].xp=0
 	check(not Profile.valid(bad),"XP inconsistent with level rejected")
-	var future := Profile.fresh();future.version=3
+	var future := Profile.fresh();future.version=4
 	raw(path+".tmp",future)
 	var held := Profile.new()
 	check(not held.open_profile(path) and held.hold and not held.save(),"future temporary checkpoint protects current primary from rollback")
@@ -152,7 +152,7 @@ func run() -> void:
 	clean(path)
 	raw(path,"broken");raw(path+".bak",old)
 	held=Profile.new()
-	check(held.open_profile(path) and held.state.version==2,"valid legacy backup recovers and migrates a truncated primary")
+	check(held.open_profile(path) and held.state.version==3,"valid legacy backup recovers and migrates a truncated primary")
 	clean(path)
 	print("Pokemon rules checks: %d passed, %d failed" % [passed,failed])
 	quit(1 if failed else 0)

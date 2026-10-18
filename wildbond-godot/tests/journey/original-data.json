@@ -1,0 +1,169 @@
+{
+  "species": {
+    "wildbond:mosshog": {
+      "name": "Mosshog",
+      "stats": {
+        "hp": 60,
+        "attack": 58,
+        "defense": 58,
+        "speed": 38,
+        "special-attack": 42,
+        "special-defense": 50
+      },
+      "types": [
+        "grass"
+      ],
+      "world_element": "Grove",
+      "catch_rate": 45,
+      "base_experience": 60,
+      "growth": "medium-slow",
+      "learnset": [
+        {
+          "level": 1,
+          "move": "wildbond:charge"
+        },
+        {
+          "level": 5,
+          "move": "wildbond:vineLash"
+        }
+      ]
+    },
+    "wildbond:ripplet": {
+      "name": "Ripplet",
+      "stats": {
+        "hp": 50,
+        "attack": 48,
+        "defense": 55,
+        "speed": 45,
+        "special-attack": 60,
+        "special-defense": 55
+      },
+      "types": [
+        "water"
+      ],
+      "world_element": "Tide",
+      "catch_rate": 45,
+      "base_experience": 60,
+      "growth": "medium-slow",
+      "learnset": [
+        {
+          "level": 1,
+          "move": "wildbond:tailWhip"
+        },
+        {
+          "level": 5,
+          "move": "wildbond:bubbleJet"
+        }
+      ]
+    },
+    "wildbond:cindercub": {
+      "name": "Cindercub",
+      "stats": {
+        "hp": 45,
+        "attack": 60,
+        "defense": 40,
+        "speed": 62,
+        "special-attack": 55,
+        "special-defense": 45
+      },
+      "types": [
+        "fire"
+      ],
+      "world_element": "Ember",
+      "catch_rate": 45,
+      "base_experience": 60,
+      "growth": "medium-slow",
+      "learnset": [
+        {
+          "level": 1,
+          "move": "wildbond:bite"
+        },
+        {
+          "level": 5,
+          "move": "wildbond:emberSnap"
+        },
+        {
+          "level": 11,
+          "move": "wildbond:flameRush"
+        }
+      ]
+    }
+  },
+  "moves": {
+    "wildbond:charge": {
+      "name": "Charge",
+      "pow": 55,
+      "accuracy": 1.0,
+      "pp": 35,
+      "el": "normal",
+      "spec": 0,
+      "priority": 0,
+      "effect_chance": 0
+    },
+    "wildbond:vineLash": {
+      "name": "Vine Lash",
+      "pow": 55,
+      "accuracy": 1.0,
+      "pp": 25,
+      "el": "grass",
+      "spec": 0,
+      "priority": 0,
+      "effect_chance": 0
+    },
+    "wildbond:tailWhip": {
+      "name": "Tail Whip",
+      "pow": 38,
+      "accuracy": 1.0,
+      "pp": 35,
+      "el": "normal",
+      "spec": 0,
+      "priority": 0,
+      "effect_chance": 0
+    },
+    "wildbond:bubbleJet": {
+      "name": "Bubble Jet",
+      "pow": 55,
+      "accuracy": 1.0,
+      "pp": 25,
+      "el": "water",
+      "spec": 1,
+      "priority": 0,
+      "effect_chance": 0
+    },
+    "wildbond:bite": {
+      "name": "Bite",
+      "pow": 40,
+      "accuracy": 1.0,
+      "pp": 35,
+      "el": "normal",
+      "spec": 0,
+      "priority": 0,
+      "effect_chance": 0
+    },
+    "wildbond:emberSnap": {
+      "name": "Ember Snap",
+      "pow": 55,
+      "accuracy": 1.0,
+      "pp": 25,
+      "el": "fire",
+      "spec": 1,
+      "priority": 0,
+      "effect_chance": 0
+    },
+    "wildbond:flameRush": {
+      "name": "Flame Rush",
+      "pow": 85,
+      "accuracy": 1.0,
+      "pp": 15,
+      "el": "fire",
+      "spec": 0,
+      "priority": 0,
+      "effect_chance": 0
+    }
+  },
+  "provenance": {
+    "source": "wildbond-godot/data/wildbond.json",
+    "sha256": "8463e0bb241e49874b33a72051863d064d8f53dee1973f86dde45c64b5b6028c",
+    "policy": "Original base stats and selected hit-move names/powers/spec/learn levels; Grove/Tide/Ember map to grass/water/fire, untyped to normal. Medium-slow chapter growth; catch_rate45, base_experience60. Chapter PP: neutral35, elemental25, Flame Rush15; accuracy1, priority0. Original cooldowns are not turns. Unsupported utility/AOE/breakGuard/status moves remain excluded, not silently reinterpreted."
+  }
+}
