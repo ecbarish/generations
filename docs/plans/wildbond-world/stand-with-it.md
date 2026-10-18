@@ -10,6 +10,14 @@ Direction recorded from Evan on 2026-10-18. This replaces the old hidden near-de
 
 A signature system does not require hundreds of new forms. Reuse a small supported existing Mega first; add a few distinctive original/custom forms once the whole activation/reversion loop is enjoyable. Long-term design eligibility does not make every owned species immediately transformable. Original starters keep their approved identities and normal evolution lines; final forms/evolution readiness must be settled before choosing their Mega designs.
 
+## Approved coverage policy (Evan, 2026-10-18)
+
+Evan accepted selective coverage rather than a form for every species. Guarantee a signature transformation for the fully evolved lines of Mosshog, Ripplet and Cindercub once their ordinary final evolutions are settled and implemented. This is a design coverage commitment, not permission to transform unevolved starters immediately or invent their final designs.
+
+Prioritize existing official Megas as their base species become supported; standout Wildbond originals and important story partners; selected strong Pokemon/favorites with a compelling design opportunity; and a few overlooked creatures that gain a useful niche. Bogsnap's eventual final evolution is a candidate, with its evolutionary placement still unresolved. Not every strong creature is automatically promised a form.
+
+Ordinary creatures must remain useful. The goal is that players can build varied teams with a transformation they are excited about, not that only transformed partners matter. Ship one excellent complete transformation before expanding the set; no universal-roster art project or fixed form-count target is approved.
+
 ## Reliable first awakening
 
 Separate **unlocking the ability** from **activating it in a battle**.
