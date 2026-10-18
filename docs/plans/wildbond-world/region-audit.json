@@ -1,0 +1,2896 @@
+{
+ "schemaVersion": 1,
+ "task": "WB-REGION-AUDIT",
+ "author": "Claude (independent review)",
+ "date": "2026-10-18",
+ "graph": {
+  "file": "docs/plans/wildbond-world/world-graph.json",
+  "mapNodes": 46,
+  "links": 54,
+  "glassfallIsLink": true
+ },
+ "labels": {
+  "established": "Exists in today's game data or approved by Evan",
+  "planned": "In the merged world design or graph; a plan, not canon",
+  "proposal": "An open PR or a recommendation in this audit"
+ },
+ "places": [
+  {
+   "id": "larkhaven",
+   "name": "Larkhaven",
+   "kind": "town",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "Home town: Maren's ranch, Old Ned's inn (healer, exists), Juniper's shop; start and return point of every early outing.",
+   "habitat": "Town, no grass in the current map.",
+   "connections": [
+    "larkhaven--thornwood_route",
+    "larkhaven--millgrass"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 0,
+    "firstReachAfterOrder": 0,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 0,
+   "healerStepsAllLessons": 0,
+   "encounters": "none",
+   "originalArea": false,
+   "revisit": [
+    "Ranch and party storage",
+    "Old Ned's inn",
+    "Nora's errand (sq-nora-bird)",
+    "Home Burrow return from Threadmeet (phase 6)"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Towns",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES",
+    "opening chapter README"
+   ],
+   "healer": {
+    "name": "Old Ned",
+    "status": "exists"
+   },
+   "issues": [
+    "RA-08"
+   ]
+  },
+  {
+   "id": "thornwood",
+   "name": "Thornwood",
+   "kind": "town",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "First Warden town: Isolde at the hawthorn gate (Thorn Badge); gains the Gate Loft and Hedda (healer, proposed) in phase 1.",
+   "habitat": "Thornwood forest settlement; today's map carries 113 tall-grass tiles (country thornwood).",
+   "connections": [
+    "thornwood_route--thornwood",
+    "thornwood--rootwater",
+    "thornwood--saltmarsh_route"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 0,
+    "firstReachAfterOrder": 0,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 0,
+   "healerStepsAllLessons": 0,
+   "encounters": "special",
+   "originalArea": false,
+   "revisit": [
+    "Isolde's errand via Knothollow (sq-isolde-path)",
+    "Gate Loft tutor (WB-WORLD-5)",
+    "Rootwater/Knothollow ring"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Towns",
+    "wildbond-world-design.md §2 Guardians",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES",
+    "errands.json"
+   ],
+   "healer": {
+    "name": "Hedda",
+    "status": "proposed"
+   },
+   "specialEncounters": [
+    "Elderhorn first meeting (thornwood country, 20 explores) is unchanged; its return site is Old Root Grove"
+   ],
+   "issues": [
+    "RA-08",
+    "RA-10",
+    "RA-11",
+    "RA-20"
+   ]
+  },
+  {
+   "id": "lanternquay",
+   "name": "Lantern Quay",
+   "kind": "town",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "New coast town at the end of Wrackline: quay inn under the lighthouse (Perrin, proposed), net loft; Tide Ride entry to Greywash Sound.",
+   "habitat": "Harbour town.",
+   "connections": [
+    "wrackline--lanternquay",
+    "lanternquay--greywash"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 1,
+    "firstReachAfterOrder": 1,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 0,
+   "healerStepsAllLessons": 0,
+   "encounters": "none",
+   "originalArea": false,
+   "revisit": [
+    "Greywash Sound launch (Tide Ride)",
+    "Glide inn",
+    "Tobin's tally errand ends here (sq-tobin-tally)"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Towns",
+    "world-graph.json",
+    "errands.json"
+   ],
+   "healer": {
+    "name": "Perrin",
+    "status": "proposed"
+   },
+   "issues": [
+    "RA-15"
+   ]
+  },
+  {
+   "id": "emberfall",
+   "name": "Warmstep",
+   "kind": "town",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "Warmstep: the springs and spring-house (Hest, proposed); Toren (Ember Badge) teaches Lantern here.",
+   "habitat": "Warm highland springs; today's map carries 109 tall-grass tiles (country emberfall).",
+   "connections": [
+    "ashstair--emberfall",
+    "emberfall--sootpath"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 2,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 0,
+   "healerStepsAllLessons": 0,
+   "encounters": "special",
+   "originalArea": false,
+   "revisit": [
+    "Lantern lesson night",
+    "Sela's errand (sq-sela-warmth)",
+    "Glide inn"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Towns",
+    "wildbond-world-design.md §1",
+    "wildbond-world-design.md §2 Guardians",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES"
+   ],
+   "healer": {
+    "name": "Hest",
+    "status": "proposed"
+   },
+   "specialEncounters": [
+    "Hearthcrown return site on the spring terrace (outdoors)",
+    "Hearthcrown first meeting at 14 explores is unchanged"
+   ],
+   "issues": [
+    "RA-06",
+    "RA-11"
+   ]
+  },
+  {
+   "id": "cloudglass",
+   "name": "Highlatch",
+   "kind": "town",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "Highlatch: Vessa's shelter and lodge (Yarrow, proposed), Beacon Badge, Glide lesson; junction of Sootpath, Pass Foot, Crest Path and Glassfall.",
+   "habitat": "High pass in cloud; today's map carries 108 tall-grass tiles (country cloudglass).",
+   "connections": [
+    "sootpath--cloudglass",
+    "cloudglass--crestpath",
+    "glassfall",
+    "cloudglass--passfoot"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 3,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 0,
+   "healerStepsAllLessons": 0,
+   "encounters": "special",
+   "originalArea": false,
+   "revisit": [
+    "Glide and Glassfall",
+    "Crest Path to Lampcrown (phase 6)",
+    "Vessa's errand (sq-vessa-beacon)"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Towns",
+    "wildbond-world-design.md §1",
+    "wildbond-world-design.md §2 Guardians",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES"
+   ],
+   "healer": {
+    "name": "Yarrow",
+    "status": "proposed"
+   },
+   "specialEncounters": [
+    "Lanterncrest surface meeting already exists and is kept"
+   ],
+   "issues": [
+    "RA-11"
+   ]
+  },
+  {
+   "id": "stillreed",
+   "name": "Reedhold",
+   "kind": "town",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "Reedhold, the hub (seven links): Olan's ferry landing (Reed Badge), Juna (healer, proposed), Colm's shop (the only new full shop, proposed), ferry house.",
+   "habitat": "Basin landing among reeds and channels; today's map carries 61 tall-grass tiles (country stillreed).",
+   "connections": [
+    "glassfall",
+    "passfoot--stillreed",
+    "stillreed--dryboards",
+    "stillreed--longboards",
+    "stillreed--latepath",
+    "stillreed--orchardfen",
+    "stillreed--quietchannels"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 4,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 0,
+   "healerStepsAllLessons": 0,
+   "encounters": "special",
+   "originalArea": false,
+   "revisit": [
+    "Quiet Channels to Lowbell (Tide Ride)",
+    "Lowbell errand (sq-lowbell)",
+    "Glassfall landing",
+    "Glide inn"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Towns",
+    "wildbond-world-design.md §2 Guardians",
+    "wildbond-world-design.md §2",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES"
+   ],
+   "healer": {
+    "name": "Juna",
+    "status": "proposed"
+   },
+   "specialEncounters": [
+    "Stillwake return site at the Reedhold jetty; the surface meeting at 14 explores stays"
+   ],
+   "issues": [
+    "RA-11"
+   ]
+  },
+  {
+   "id": "hollowecho",
+   "name": "Bellstep",
+   "kind": "town",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "Bellstep: Senna (Echo Badge), Veslin's bell, the bell house (Iren, proposed); mouth of the Answering Ways; the reveal mouth at (19, 8) stays scenery until depthReturns.",
+   "habitat": "Hill hamlet over caves; today's map carries 57 tall-grass tiles (country hollowecho).",
+   "connections": [
+    "latepath--hollowecho",
+    "hollowecho--flintcut",
+    "hollowecho--ribbonroad"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 5,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 0,
+   "healerStepsAllLessons": 0,
+   "encounters": "special",
+   "originalArea": false,
+   "revisit": [
+    "The Answering Ways",
+    "Senna's echo stones (sq-senna-stones; last stone needs Hush)",
+    "Reveal stair (depthReturns + Hush)"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Towns",
+    "wildbond-world-design.md §2 Caves",
+    "answering.md",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES"
+   ],
+   "healer": {
+    "name": "Iren",
+    "status": "proposed"
+   },
+   "specialEncounters": [
+    "Undertone first meeting beside the hamlet bell at 14 explores is unchanged; its return is the cave"
+   ],
+   "issues": [
+    "RA-04",
+    "RA-11"
+   ]
+  },
+  {
+   "id": "sunthread",
+   "name": "Threadmeet",
+   "kind": "town",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "Threadmeet: Halen (Loom Badge) at the hall (Solla, proposed); Pell's counter; nursery gate (Grove Wake); Greymill's stuck door (Hush); far end of Larkburrow.",
+   "habitat": "Commons and fields; today's map carries 64 tall-grass tiles (country sunthread).",
+   "connections": [
+    "orchardfen--sunthread",
+    "ribbonroad--sunthread",
+    "larkburrow--sunthread",
+    "sunthread--sheltermile"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 4,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 0,
+   "healerStepsAllLessons": 0,
+   "encounters": "special",
+   "originalArea": false,
+   "revisit": [
+    "Halen's passing-along (sq-halen-passing)",
+    "Nursery gate",
+    "Greymill",
+    "Home Burrow"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Towns",
+    "wildbond-world-design.md §2 Guardians",
+    "gates.md",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES"
+   ],
+   "healer": {
+    "name": "Solla",
+    "status": "proposed"
+   },
+   "specialEncounters": [
+    "Meadowmantle return site at the nursery, outdoors",
+    "Greymill roamer only if Evan approves Greysail (not added)"
+   ],
+   "issues": [
+    "RA-03",
+    "RA-11",
+    "RA-13"
+   ]
+  },
+  {
+   "id": "farwatch",
+   "name": "The High Watch",
+   "kind": "town",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "The High Watch: Rysa (Horizon Badge), the ledger house (Quen, proposed); gateway to Chart Road, Seaward Ledge and Trial Road.",
+   "habitat": "Coastal lookout; today's map carries 31 tall-grass tiles (country farwatch).",
+   "connections": [
+    "sheltermile--farwatch",
+    "farwatch--chartroad",
+    "farwatch--seaward",
+    "farwatch--trialroad"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 7,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 0,
+   "healerStepsAllLessons": 0,
+   "encounters": "special",
+   "originalArea": false,
+   "revisit": [
+    "Rysa's errand (sq-rysa-skiffs)",
+    "Coast Ring end point",
+    "Glide inn"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Towns",
+    "wildbond-world-design.md §2 Guardians",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES"
+   ],
+   "healer": {
+    "name": "Quen",
+    "status": "proposed"
+   },
+   "specialEncounters": [
+    "Watchlight first meeting at 14 explores unchanged; its return site is the harbour light on Seaward Ledge"
+   ],
+   "issues": [
+    "RA-11",
+    "RA-19"
+   ]
+  },
+  {
+   "id": "league",
+   "name": "Returning Light League",
+   "kind": "town",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "Returning Light League: Nelva (healer, exists) and the courts; needs all eight badges.",
+   "habitat": "League grounds.",
+   "connections": [
+    "trialstair--league",
+    "league--spire"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 8,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 0,
+   "healerStepsAllLessons": 0,
+   "encounters": "none",
+   "originalArea": false,
+   "revisit": [
+    "Rematches",
+    "Spire after the ending",
+    "Orla's reflection errand (sq-spire-memory)"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Towns",
+    "wildbond-cast-guide.md"
+   ],
+   "healer": {
+    "name": "Nelva",
+    "status": "exists"
+   },
+   "issues": [
+    "RA-05"
+   ]
+  },
+  {
+   "id": "thornwood_route",
+   "name": "Thornwood Trail",
+   "kind": "route",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "First route (exists; in the native chapter): Larkhaven north to Thornwood; Bram forages here; Dewcut branches east.",
+   "habitat": "Forest trail with tall grass and an item detour (country thornwood).",
+   "connections": [
+    "larkhaven--thornwood_route",
+    "thornwood_route--dewcut",
+    "thornwood_route--thornwood"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 0,
+    "firstReachAfterOrder": 0,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Grove Wake thickets hide a bend and berries",
+    "Bram's rematch/patch"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2",
+    "wildbond-layout README",
+    "gates.md"
+   ],
+   "issues": [
+    "RA-08",
+    "RA-20"
+   ]
+  },
+  {
+   "id": "millgrass",
+   "name": "Millgrass Lane",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "West lane out of Larkhaven to the visible, shut Larkburrow mouth: the early promise of the Home Burrow.",
+   "habitat": "Meadow lane (name and design: 'the west lane'); country thornwood in the historical tables.",
+   "connections": [
+    "larkhaven--millgrass",
+    "millgrass--larkburrow"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 0,
+    "firstReachAfterOrder": 0,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Larkburrow first room and Nora's wooden bird (phase 6)",
+    "Home Burrow exit"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2",
+    "route-encounters.md (historical tables)"
+   ],
+   "issues": [
+    "RA-08"
+   ]
+  },
+  {
+   "id": "dewcut",
+   "name": "Dewcut",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Short meadow spur off the trail to the Old Root Grove shelf; takes over today's Stone-partner door.",
+   "habitat": "Short meadow (design route table).",
+   "connections": [
+    "thornwood_route--dewcut",
+    "dewcut--thornwood_grove"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 0,
+    "firstReachAfterOrder": 0,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 2,
+   "healerStepsAllLessons": 2,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Grove shelf with a Stone partner",
+    "Knothollow ring via the grove back ring"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2",
+    "world-graph.json"
+   ],
+   "issues": [
+    "RA-08",
+    "RA-10"
+   ]
+  },
+  {
+   "id": "rootwater",
+   "name": "Rootwater Path",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Thornwood to Knothollow; Bram's flooding stream where the mushrooms grow; the cave front door is a Thorn Badge test.",
+   "habitat": "Stream path that floods (design names table).",
+   "connections": [
+    "thornwood--rootwater",
+    "rootwater--knothollow"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 0,
+    "firstReachAfterOrder": 0,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Knothollow front door (Thorn Badge)",
+    "Grove Wake thickets"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2",
+    "gates.md"
+   ],
+   "issues": [
+    "RA-08",
+    "RA-10"
+   ]
+  },
+  {
+   "id": "saltmarsh_route",
+   "name": "Saltmarsh Road",
+   "kind": "route",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "Thornwood to Saltmarsh Coast past the Thorn gate (exists); Tobin; Moon Pool on its west side.",
+   "habitat": "Marsh road (country saltmarsh), 119 tall-grass tiles today.",
+   "connections": [
+    "thornwood--saltmarsh_route",
+    "saltmarsh_route--saltmarsh_pool",
+    "saltmarsh_route--saltmarsh"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 1,
+    "firstReachAfterOrder": 1,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Moon Pool (Tide partner)"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES"
+   ],
+   "issues": [
+    "RA-15"
+   ]
+  },
+  {
+   "id": "wrackline",
+   "name": "Wrackline",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Coast to Lantern Quay along the tide line where Cato walks; the early fishing pier.",
+   "habitat": "Tide line of weed and shells (design names table).",
+   "connections": [
+    "saltmarsh--wrackline",
+    "wrackline--lanternquay"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 1,
+    "firstReachAfterOrder": 1,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary+special",
+   "originalArea": true,
+   "revisit": [
+    "Fishing after Tobin",
+    "Breakwatermane site"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §1",
+    "wildbond-world-design.md §2 Guardians"
+   ],
+   "specialEncounters": [
+    "Breakwatermane return site on the beach where the tide draws back",
+    "Fishing pier (Tide partner, map's wild table)"
+   ],
+   "issues": []
+  },
+  {
+   "id": "ashstair",
+   "name": "Ashstair",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "The climb from Saltmarsh Coast to Warmstep behind the Tide Badge; Kilnvent's mouth sits on it.",
+   "habitat": "Climb off the coast toward the warm springs; first real tile heights.",
+   "connections": [
+    "saltmarsh--ashstair",
+    "ashstair--kilnvent",
+    "ashstair--emberfall"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 2,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Kilnvent (phase 3)"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2",
+    "wildbond-world-design.md §9"
+   ],
+   "issues": []
+  },
+  {
+   "id": "sootpath",
+   "name": "Sootpath",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Warmstep to Highlatch past the vent; Kilnvent's far door and the Orchard Fen rockfall chord arrive here.",
+   "habitat": "Path past the vent toward the pass.",
+   "connections": [
+    "emberfall--sootpath",
+    "kilnvent--sootpath",
+    "sootpath--cloudglass",
+    "orchardfen--sootpath"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 3,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Kilnvent far door (Lantern)",
+    "Orchard Fen chord (Stone Break)"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2"
+   ],
+   "issues": [
+    "RA-06"
+   ]
+  },
+  {
+   "id": "passfoot",
+   "name": "Pass Foot",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Highlatch down to Reedhold and back: the slow way that stays after Glassfall; the Pass Ring's walk.",
+   "habitat": "Mountain descent (country cloudglass in the historical tables).",
+   "connections": [
+    "cloudglass--passfoot",
+    "passfoot--stillreed",
+    "dryboards--passfoot"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 4,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Pass Ring return climb"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2",
+    "route-encounters.md (historical tables)"
+   ],
+   "issues": []
+  },
+  {
+   "id": "crestpath",
+   "name": "Crest Path",
+   "kind": "route",
+   "graphPhase": 6,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Up from Highlatch to Lampcrown (phase 6).",
+   "habitat": "Summit trail.",
+   "connections": [
+    "cloudglass--crestpath",
+    "crestpath--lampcrown"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Lampcrown and Lanterncrest's return"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2"
+   ],
+   "issues": []
+  },
+  {
+   "id": "longboards",
+   "name": "The Long Boards",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Reedhold toward the west boardwalk; the Dry Boards passage lies inside its maps.",
+   "habitat": "Boardwalk over basin water.",
+   "connections": [
+    "stillreed--longboards"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 4,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Dry Boards back to Pass Foot"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2"
+   ],
+   "issues": [
+    "RA-12"
+   ]
+  },
+  {
+   "id": "orchardfen",
+   "name": "Orchard Fen",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Reedhold to Threadmeet over Evren's raised orchard ground; a rockfall branch returns to Sootpath after Stone Break.",
+   "habitat": "Orchard on raised fen ground.",
+   "connections": [
+    "stillreed--orchardfen",
+    "orchardfen--sootpath",
+    "orchardfen--sunthread"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 4,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Rockfall chord to Sootpath"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2"
+   ],
+   "issues": [
+    "RA-03"
+   ]
+  },
+  {
+   "id": "latepath",
+   "name": "The Late Path",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Reedhold to Bellstep through Senna's country, where echoes answer late; a Hush night path with a carving.",
+   "habitat": "Echoing ridge path.",
+   "connections": [
+    "stillreed--latepath",
+    "latepath--hollowecho"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 5,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary+special",
+   "originalArea": true,
+   "revisit": [
+    "Night path (Hush)"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2 Guardians",
+    "gates.md"
+   ],
+   "specialEncounters": [
+    "Veilmote nest ledge on the Hush night path (site only; no meeting exists yet)"
+   ],
+   "issues": []
+  },
+  {
+   "id": "flintcut",
+   "name": "Flintcut",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Bellstep to the Answering Ways' second door; Flintroot clears loose stone.",
+   "habitat": "Quarry track.",
+   "connections": [
+    "hollowecho--flintcut",
+    "flintcut--answering"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 5,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Answering Ways"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2"
+   ],
+   "issues": []
+  },
+  {
+   "id": "ribbonroad",
+   "name": "Ribbon Road",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Bellstep to Threadmeet so the hills and the commons meet twice; Ribbonstride's ribbons.",
+   "habitat": "Loom road with ribbon posts.",
+   "connections": [
+    "hollowecho--ribbonroad",
+    "ribbonroad--sunthread"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 4,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Second hills-to-commons crossing"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2"
+   ],
+   "issues": [
+    "RA-03"
+   ]
+  },
+  {
+   "id": "sheltermile",
+   "name": "Shelter Mile",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Threadmeet to the High Watch along the shelter ties.",
+   "habitat": "Road of shelter ties (not a market street).",
+   "connections": [
+    "sunthread--sheltermile",
+    "sheltermile--farwatch"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 7,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Daymark at a shelter tie (Halen)"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §1"
+   ],
+   "issues": []
+  },
+  {
+   "id": "chartroad",
+   "name": "Chart Road",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Lookout loop that leaves the High Watch and returns to it; Delka writes where a plan changed.",
+   "habitat": "Lookout ground.",
+   "connections": [
+    "farwatch--chartroad"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 7,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Loop walk; Delka"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "world-graph.json"
+   ],
+   "issues": [
+    "RA-19"
+   ]
+  },
+  {
+   "id": "seaward",
+   "name": "Seaward Ledge",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "The High Watch down to the pier and The Open Grey; second fishing pier.",
+   "habitat": "Cliff walk to the pier.",
+   "connections": [
+    "farwatch--seaward",
+    "seaward--opengrey"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 7,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary+special",
+   "originalArea": false,
+   "revisit": [
+    "Open Grey (Tide Ride)",
+    "Fishing"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §1",
+    "wildbond-world-design.md §2 Guardians"
+   ],
+   "specialEncounters": [
+    "Watchlight return site at the harbour light",
+    "Fishing pier"
+   ],
+   "issues": []
+  },
+  {
+   "id": "trialroad",
+   "name": "Trial Road",
+   "kind": "route",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Last road from the High Watch to the league; Trialstair is inserted in phase 6.",
+   "habitat": "Victory road.",
+   "connections": [
+    "farwatch--trialroad",
+    "trialroad--trialstair"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 7,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Trialstair side rooms"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2"
+   ],
+   "issues": [
+    "RA-05"
+   ]
+  },
+  {
+   "id": "answering",
+   "name": "The Answering Ways",
+   "kind": "cave",
+   "graphPhase": 3,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "First enterable cave (Bellstep mouth, not the reveal tile); lit first hall, deeper halls need Lantern; Stone Break cracks; Hush wall-doors.",
+   "habitat": "Echoing caverns lit by Bellmote-light near the mouth.",
+   "connections": [
+    "flintcut--answering"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 2,
+   "healerStepsAllLessons": 2,
+   "encounters": "ordinary+special",
+   "originalArea": true,
+   "revisit": [
+    "Lantern halls",
+    "Stone Break cracks",
+    "Hush doors and Mist Veil niche"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Caves",
+    "answering.md",
+    "wildbond-world-design.md §2 Guardians"
+   ],
+   "specialEncounters": [
+    "Undertone return site at the first bend"
+   ],
+   "issues": [
+    "RA-04",
+    "RA-17"
+   ]
+  },
+  {
+   "id": "knothollow",
+   "name": "Knothollow",
+   "kind": "cave",
+   "graphPhase": 2,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Hollow under the roots between Rootwater Path (Thorn Badge supply test) and Old Root Grove's back ring (Grove Wake); Stone Break deep cracks.",
+   "habitat": "Root cave in Thornwood country.",
+   "connections": [
+    "rootwater--knothollow",
+    "thornwood_grove--knothollow"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 1,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 2,
+   "healerStepsAllLessons": 2,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Deep cracks (Stone Break)",
+    "Isolde's errand"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Caves",
+    "knothollow.md"
+   ],
+   "issues": [
+    "RA-08",
+    "RA-09",
+    "RA-17"
+   ]
+  },
+  {
+   "id": "keelcave",
+   "name": "Keelcave",
+   "kind": "cave",
+   "graphPhase": 6,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Short dry sea cave off Greywash Sound; a Tide lesson slip on the back ledge.",
+   "habitat": "Sea cave a keel could scrape.",
+   "connections": [
+    "greywash--keelcave"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": null,
+   "healerStepsAllLessons": 2,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Lesson slip (WB-WORLD-5)",
+    "Breakwatermane may enter"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Caves",
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §2 Guardians"
+   ],
+   "issues": [
+    "RA-14"
+   ]
+  },
+  {
+   "id": "kilnvent",
+   "name": "Kilnvent",
+   "kind": "cave",
+   "graphPhase": 3,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Cave between Tide and Ember country on Ashstair; first room opens with Ashstair, the warm dark needs Lantern; far door to Sootpath.",
+   "habitat": "Warm volcanic dark, Toren's kiln country.",
+   "connections": [
+    "ashstair--kilnvent",
+    "kilnvent--sootpath"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 2,
+   "healerStepsAllLessons": 2,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Lantern deep room",
+    "Sootpath far door",
+    "Sela's stone"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Caves",
+    "wildbond-world-design.md Names"
+   ],
+   "issues": []
+  },
+  {
+   "id": "larkburrow",
+   "name": "Larkburrow",
+   "kind": "cave",
+   "graphPhase": 6,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Home the long way: first room with Nora's wooden bird is open from Millgrass Lane in phase 6; the through-path to Threadmeet needs Stone Break and the Loom Badge.",
+   "habitat": "Burrow under the meadow.",
+   "connections": [
+    "millgrass--larkburrow",
+    "larkburrow--sunthread"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 0,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 2,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Home Burrow loop",
+    "Nora's errand"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Caves",
+    "PR #538 (proposal)"
+   ],
+   "issues": []
+  },
+  {
+   "id": "lowbell",
+   "name": "Lowbell",
+   "kind": "cave",
+   "graphPhase": 6,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "A bell under the water below The Quiet Channels; Stillwake's deep water and the bell errand, not a second guardian.",
+   "habitat": "Flooded shrine floor (Tide Ride).",
+   "connections": [
+    "quietchannels--lowbell"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": null,
+   "healerStepsAllLessons": 2,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Bell errand (sq-lowbell)"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Caves",
+    "wildbond-world-design.md Names"
+   ],
+   "issues": []
+  },
+  {
+   "id": "trialstair",
+   "name": "Trialstair",
+   "kind": "cave",
+   "graphPhase": 6,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Last cave before the league (phase 6): main stair with all eight badges, side rooms per lesson with slips and a rest.",
+   "habitat": "Victory cave.",
+   "connections": [
+    "trialroad--trialstair",
+    "trialstair--league"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Lesson side rooms"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Caves"
+   ],
+   "issues": [
+    "RA-05"
+   ]
+  },
+  {
+   "id": "greywash",
+   "name": "Greywash Sound",
+   "kind": "water",
+   "graphPhase": 2,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Mid-game rideable water: first screen in phase 2 loops Moon Pool to Lantern Quay; grows to The Open Grey in phase 6; Keelcave opens off it.",
+   "habitat": "Grey sound (water route).",
+   "connections": [
+    "saltmarsh_pool--greywash",
+    "lanternquay--greywash",
+    "greywash--opengrey",
+    "greywash--keelcave"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": null,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Coast Ring",
+    "Keelcave"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Water",
+    "wildbond-world-design.md §1"
+   ],
+   "issues": [
+    "RA-14"
+   ]
+  },
+  {
+   "id": "quietchannels",
+   "name": "The Quiet Channels",
+   "kind": "water",
+   "graphPhase": 6,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Reedhold's jetty to Lowbell; you and a Tide partner cross while the skiff stays tied.",
+   "habitat": "Basin channels (water route).",
+   "connections": [
+    "stillreed--quietchannels",
+    "quietchannels--lowbell"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": null,
+   "healerStepsAllLessons": 1,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Lowbell"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Water"
+   ],
+   "issues": []
+  },
+  {
+   "id": "opengrey",
+   "name": "The Open Grey",
+   "kind": "water",
+   "graphPhase": 6,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Third water route: Seaward Ledge to Outer Shoal and the far end of Greywash Sound; closes the Coast Ring.",
+   "habitat": "Open sea (water route).",
+   "connections": [
+    "seaward--opengrey",
+    "greywash--opengrey",
+    "opengrey--outershoal"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": null,
+   "healerStepsAllLessons": 2,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Outer Shoal",
+    "Coast Ring"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Water"
+   ],
+   "issues": [
+    "RA-16"
+   ]
+  },
+  {
+   "id": "saltmarsh",
+   "name": "Saltmarsh Coast",
+   "kind": "coast",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "Saltmarsh Coast (exists): Nerys's flats (Tide Badge); junction to Wrackline and Ashstair; no healer, so not a town.",
+   "habitat": "Flooding coastal flats, 72 tall-grass tiles today (country saltmarsh).",
+   "connections": [
+    "saltmarsh_route--saltmarsh",
+    "saltmarsh--wrackline",
+    "saltmarsh--ashstair"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 1,
+    "firstReachAfterOrder": 1,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 2,
+   "healerStepsAllLessons": 2,
+   "encounters": "ordinary+special",
+   "originalArea": false,
+   "revisit": [
+    "Wrackline and Lantern Quay",
+    "Ashstair"
+   ],
+   "sources": [
+    "world-graph.json",
+    "wildbond-world-design.md §2 Guardians",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES",
+    "wildbond-cast-guide.md"
+   ],
+   "specialEncounters": [
+    "Breakwatermane first meeting at 14 explores is unchanged"
+   ],
+   "issues": [
+    "RA-11"
+   ]
+  },
+  {
+   "id": "spire",
+   "name": "The Lighthouse Spire",
+   "kind": "tower",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "The Lighthouse Spire after the Champion ending: Orla's floors and the Spire regulars.",
+   "habitat": "Tower.",
+   "connections": [
+    "league--spire"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 8,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "none",
+   "originalArea": false,
+   "revisit": [
+    "Post-game floors"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Guardians",
+    "gates.md",
+    "wildbond-cast-guide.md"
+   ],
+   "specialEncounters": [
+    "Daymark outdoor stone on the approach",
+    "SPIRE_REGULARS trainer encounters, not wild"
+   ],
+   "issues": []
+  },
+  {
+   "id": "thornwood_grove",
+   "name": "Old Root Grove",
+   "kind": "pocket",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "Old Root Grove pocket (exists): Stone partner shelf; Grove Wake taught at the antler sign; back ring opens into Knothollow.",
+   "habitat": "Old grove (country thornwood) with its own extra species today.",
+   "connections": [
+    "dewcut--thornwood_grove",
+    "thornwood_grove--knothollow"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 0,
+    "firstReachAfterOrder": 0,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 3,
+   "healerStepsAllLessons": 3,
+   "encounters": "ordinary+special",
+   "originalArea": true,
+   "revisit": [
+    "Grove Wake",
+    "Back ring to Knothollow"
+   ],
+   "sources": [
+    "wildbond-world-design.md §1",
+    "wildbond-world-design.md §2 Guardians",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES"
+   ],
+   "specialEncounters": [
+    "Elderhorn return site among the oldest trees, on the Stone-partner side"
+   ],
+   "issues": [
+    "RA-08",
+    "RA-09",
+    "RA-10",
+    "RA-16"
+   ]
+  },
+  {
+   "id": "saltmarsh_pool",
+   "name": "Moon Pool",
+   "kind": "pocket",
+   "graphPhase": 0,
+   "status": "current map (established)",
+   "purpose": "Moon Pool pocket (exists): Tide partner door; Tide Ride opens its far lip onto Greywash Sound so it stops being a dead end.",
+   "habitat": "Moonlit pool (country saltmarsh) with its own extra species today.",
+   "connections": [
+    "saltmarsh_route--saltmarsh_pool",
+    "saltmarsh_pool--greywash"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 1,
+    "firstReachAfterOrder": 1,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 2,
+   "healerStepsAllLessons": 2,
+   "encounters": "ordinary",
+   "originalArea": true,
+   "revisit": [
+    "Far lip to Greywash (Tide Ride)"
+   ],
+   "sources": [
+    "wildbond-world-design.md §1",
+    "wildbond-godot/data/wildbond.json MAPS/BIOMES"
+   ],
+   "issues": []
+  },
+  {
+   "id": "lampcrown",
+   "name": "Lampcrown",
+   "kind": "summit",
+   "graphPhase": 6,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Summit under Lanterncrest's sky (phase 6); the return to Lanterncrest and the view of Kilnvent's warmth; last stair needs Daymark.",
+   "habitat": "High rock summit with a clear 4x4 pad.",
+   "connections": [
+    "crestpath--lampcrown"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 2,
+   "healerStepsAllLessons": 2,
+   "encounters": "special",
+   "originalArea": false,
+   "revisit": [
+    "Daymark last stair"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Guardians",
+    "wildbond-world-design.md Names",
+    "gates.md"
+   ],
+   "specialEncounters": [
+    "Lanterncrest return"
+   ],
+   "issues": []
+  },
+  {
+   "id": "outershoal",
+   "name": "Outer Shoal",
+   "kind": "shoal",
+   "graphPhase": 6,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "The islands Farwatch's lore points at (phase 6); a later boat to a second region after leagueEnding.",
+   "habitat": "Shoal islands.",
+   "connections": [
+    "opengrey--outershoal"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": null,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": null,
+   "healerStepsAllLessons": 3,
+   "encounters": "ordinary",
+   "originalArea": false,
+   "revisit": [
+    "Second-region boat (separate design doc)"
+   ],
+   "sources": [
+    "wildbond-world-design.md Names",
+    "wildbond-world-design.md §7"
+   ],
+   "issues": [
+    "RA-15",
+    "RA-16"
+   ]
+  },
+  {
+   "id": "dryboards",
+   "name": "The Dry Boards",
+   "kind": "passage",
+   "graphPhase": 1,
+   "status": "planned in the merged world design (not canon until built)",
+   "purpose": "Covered passage inside the Long Boards that returns a tamer from Reedhold to Pass Foot without climbing Glassfall.",
+   "habitat": "Passage, not a route or cave.",
+   "connections": [
+    "stillreed--dryboards",
+    "dryboards--passfoot"
+   ],
+   "progression": {
+    "firstReachPhase1Ropes": 4,
+    "firstReachAfterOrder": 2,
+    "note": "Badges in the main order (thorn..horizon); null = not reachable in that state."
+   },
+   "healerStepsNoLessons": 1,
+   "healerStepsAllLessons": 1,
+   "encounters": "none",
+   "originalArea": false,
+   "revisit": [
+    "Pass Ring return"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2",
+    "PR #523 (proposal)"
+   ],
+   "issues": [
+    "RA-12"
+   ]
+  }
+ ],
+ "glassfall": {
+  "id": "glassfall",
+  "link": "glassfall",
+  "purpose": "One-way descent from Highlatch to Reedhold after Glide; the gift inside the Pass Ring.",
+  "habitat": "Drawn as an arrow, not a map.",
+  "enc": "none",
+  "note": "Counted as a link. If the dev lead builds it as a map (graph note), classify it then; a descent map with no grass needs no encounter table.",
+  "sources": [
+   "wildbond-world-design.md §2",
+   "world-graph.json"
+  ],
+  "progression": {
+   "firstReachAfterOrder": 4,
+   "note": "Needs Glide, taught after the Beacon Badge (4th in the main order); one way down."
+  }
+ },
+ "links": [
+  {
+   "id": "larkhaven--thornwood_route",
+   "a": "larkhaven",
+   "b": "thornwood_route",
+   "gate": [],
+   "phase": 0,
+   "landing": {
+    "status": "verified-legacy-2d",
+    "arriveAtB": {
+     "x": 13,
+     "y": 16,
+     "dir": "up"
+    },
+    "arriveAtA": {
+     "x": 10,
+     "y": 1,
+     "dir": "down"
+    },
+    "note": "Today's 2D MAPS exits; both landing tiles are in bounds, open and off the edge. Not native-grid coordinates.",
+    "native": "continuous seam in the native measured grid (no landing transition)"
+   }
+  },
+  {
+   "id": "larkhaven--millgrass",
+   "a": "larkhaven",
+   "b": "millgrass",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end.",
+    "native": "native chapter: candidate west lane joined at Larkhaven (0, 7); no production landing assigned"
+   }
+  },
+  {
+   "id": "millgrass--larkburrow",
+   "a": "millgrass",
+   "b": "larkburrow",
+   "gate": [],
+   "phase": 6,
+   "landing": {
+    "status": "planned-null",
+    "source": "PR #538 larkburrow.json (proposal)",
+    "note": "Brief keeps both landings null with landing: planned. Not resolved here."
+   }
+  },
+  {
+   "id": "thornwood_route--dewcut",
+   "a": "thornwood_route",
+   "b": "dewcut",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end.",
+    "native": "native chapter: short east approach with a closed boundary; Dewcut map not built"
+   }
+  },
+  {
+   "id": "dewcut--thornwood_grove",
+   "a": "dewcut",
+   "b": "thornwood_grove",
+   "gate": [
+    {
+     "element": "Stone"
+    }
+   ],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "thornwood_grove",
+     "x": 1,
+     "y": 8,
+     "dir": "right"
+    },
+    "note": "Grove-side arrival exists for today's trail shelf; the design moves the shelf to Dewcut. Dewcut side has no map."
+   }
+  },
+  {
+   "id": "thornwood_route--thornwood",
+   "a": "thornwood_route",
+   "b": "thornwood",
+   "gate": [],
+   "phase": 0,
+   "landing": {
+    "status": "verified-legacy-2d",
+    "arriveAtB": {
+     "x": 13,
+     "y": 14,
+     "dir": "up"
+    },
+    "arriveAtA": {
+     "x": 13,
+     "y": 1,
+     "dir": "down"
+    },
+    "note": "Today's 2D MAPS exits; both landing tiles are in bounds, open and off the edge. Not native-grid coordinates."
+   }
+  },
+  {
+   "id": "thornwood--rootwater",
+   "a": "thornwood",
+   "b": "rootwater",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "rootwater--knothollow",
+   "a": "rootwater",
+   "b": "knothollow",
+   "gate": [
+    {
+     "badge": "thorn"
+    }
+   ],
+   "phase": 2,
+   "landing": {
+    "status": "planned-null",
+    "source": "knothollow.json",
+    "note": "Brief keeps both landings null with landing: planned. Not resolved here."
+   }
+  },
+  {
+   "id": "thornwood_grove--knothollow",
+   "a": "thornwood_grove",
+   "b": "knothollow",
+   "gate": [
+    {
+     "field": "grove"
+    }
+   ],
+   "phase": 2,
+   "landing": {
+    "status": "planned-null",
+    "source": "knothollow.json",
+    "note": "Brief keeps both landings null with landing: planned. Not resolved here."
+   }
+  },
+  {
+   "id": "thornwood--saltmarsh_route",
+   "a": "thornwood",
+   "b": "saltmarsh_route",
+   "gate": [
+    {
+     "badge": "thorn"
+    }
+   ],
+   "phase": 0,
+   "landing": {
+    "status": "verified-legacy-2d",
+    "arriveAtB": {
+     "x": 13,
+     "y": 14,
+     "dir": "up"
+    },
+    "arriveAtA": {
+     "x": 13,
+     "y": 1,
+     "dir": "down"
+    },
+    "note": "Today's 2D MAPS exits; both landing tiles are in bounds, open and off the edge. Not native-grid coordinates."
+   }
+  },
+  {
+   "id": "saltmarsh_route--saltmarsh_pool",
+   "a": "saltmarsh_route",
+   "b": "saltmarsh_pool",
+   "gate": [
+    {
+     "element": "Tide"
+    }
+   ],
+   "phase": 0,
+   "landing": {
+    "status": "verified-legacy-2d",
+    "arriveAtB": {
+     "x": 1,
+     "y": 8,
+     "dir": "right"
+    },
+    "arriveAtA": {
+     "x": 1,
+     "y": 8,
+     "dir": "right"
+    },
+    "note": "Today's 2D MAPS exits; both landing tiles are in bounds, open and off the edge. Not native-grid coordinates."
+   }
+  },
+  {
+   "id": "saltmarsh_route--saltmarsh",
+   "a": "saltmarsh_route",
+   "b": "saltmarsh",
+   "gate": [],
+   "phase": 0,
+   "landing": {
+    "status": "verified-legacy-2d",
+    "arriveAtB": {
+     "x": 13,
+     "y": 12,
+     "dir": "up"
+    },
+    "arriveAtA": {
+     "x": 13,
+     "y": 1,
+     "dir": "down"
+    },
+    "note": "Today's 2D MAPS exits; both landing tiles are in bounds, open and off the edge. Not native-grid coordinates."
+   }
+  },
+  {
+   "id": "saltmarsh--wrackline",
+   "a": "saltmarsh",
+   "b": "wrackline",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "wrackline--lanternquay",
+   "a": "wrackline",
+   "b": "lanternquay",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "saltmarsh_pool--greywash",
+   "a": "saltmarsh_pool",
+   "b": "greywash",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 2,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "lanternquay--greywash",
+   "a": "lanternquay",
+   "b": "greywash",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 2,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "saltmarsh--ashstair",
+   "a": "saltmarsh",
+   "b": "ashstair",
+   "gate": [
+    {
+     "badge": "tide"
+    }
+   ],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "saltmarsh",
+     "x": 28,
+     "y": 8,
+     "dir": "left"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "ashstair--kilnvent",
+   "a": "ashstair",
+   "b": "kilnvent",
+   "gate": [],
+   "phase": 3,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "ashstair--emberfall",
+   "a": "ashstair",
+   "b": "emberfall",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "emberfall",
+     "x": 1,
+     "y": 8,
+     "dir": "right"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "emberfall--sootpath",
+   "a": "emberfall",
+   "b": "sootpath",
+   "gate": [],
+   "phase": 1,
+   "ropeUntilOrder": "ember",
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "emberfall",
+     "x": 13,
+     "y": 1,
+     "dir": "down"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "kilnvent--sootpath",
+   "a": "kilnvent",
+   "b": "sootpath",
+   "gate": [
+    {
+     "field": "lantern"
+    }
+   ],
+   "phase": 3,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "sootpath--cloudglass",
+   "a": "sootpath",
+   "b": "cloudglass",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "cloudglass",
+     "x": 13,
+     "y": 12,
+     "dir": "up"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "cloudglass--crestpath",
+   "a": "cloudglass",
+   "b": "crestpath",
+   "gate": [],
+   "phase": 6,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "crestpath--lampcrown",
+   "a": "crestpath",
+   "b": "lampcrown",
+   "gate": [],
+   "phase": 6,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "glassfall",
+   "a": "cloudglass",
+   "b": "stillreed",
+   "gate": [
+    {
+     "field": "glide"
+    }
+   ],
+   "phase": 4,
+   "oneWay": true,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "cloudglass--passfoot",
+   "a": "cloudglass",
+   "b": "passfoot",
+   "gate": [],
+   "phase": 1,
+   "ropeUntilOrder": "beacon",
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "cloudglass",
+     "x": 27,
+     "y": 8,
+     "dir": "left"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "passfoot--stillreed",
+   "a": "passfoot",
+   "b": "stillreed",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "stillreed",
+     "x": 1,
+     "y": 8,
+     "dir": "right"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "stillreed--dryboards",
+   "a": "stillreed",
+   "b": "dryboards",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "dryboards--passfoot",
+   "a": "dryboards",
+   "b": "passfoot",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "stillreed--longboards",
+   "a": "stillreed",
+   "b": "longboards",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "stillreed--latepath",
+   "a": "stillreed",
+   "b": "latepath",
+   "gate": [],
+   "phase": 1,
+   "ropeUntilOrder": "reed",
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "stillreed",
+     "x": 28,
+     "y": 9,
+     "dir": "left"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "stillreed--orchardfen",
+   "a": "stillreed",
+   "b": "orchardfen",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "orchardfen--sootpath",
+   "a": "orchardfen",
+   "b": "sootpath",
+   "gate": [
+    {
+     "field": "stone"
+    }
+   ],
+   "phase": 2,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "orchardfen--sunthread",
+   "a": "orchardfen",
+   "b": "sunthread",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "latepath--hollowecho",
+   "a": "latepath",
+   "b": "hollowecho",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "hollowecho",
+     "x": 1,
+     "y": 9,
+     "dir": "right"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "hollowecho--flintcut",
+   "a": "hollowecho",
+   "b": "flintcut",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "flintcut--answering",
+   "a": "flintcut",
+   "b": "answering",
+   "gate": [],
+   "phase": 3,
+   "landing": {
+    "status": "planned-null",
+    "source": "answering.json",
+    "note": "Brief keeps both landings null with landing: planned. Not resolved here."
+   }
+  },
+  {
+   "id": "hollowecho--ribbonroad",
+   "a": "hollowecho",
+   "b": "ribbonroad",
+   "gate": [],
+   "phase": 1,
+   "ropeUntilOrder": "echo",
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "hollowecho",
+     "x": 28,
+     "y": 9,
+     "dir": "left"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "ribbonroad--sunthread",
+   "a": "ribbonroad",
+   "b": "sunthread",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "sunthread",
+     "x": 1,
+     "y": 9,
+     "dir": "right"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "larkburrow--sunthread",
+   "a": "larkburrow",
+   "b": "sunthread",
+   "gate": [
+    {
+     "field": "stone"
+    },
+    {
+     "badge": "loom"
+    }
+   ],
+   "phase": 6,
+   "landing": {
+    "status": "planned-null",
+    "source": "PR #538 larkburrow.json (proposal)",
+    "note": "Brief keeps both landings null with landing: planned. Not resolved here."
+   }
+  },
+  {
+   "id": "sunthread--sheltermile",
+   "a": "sunthread",
+   "b": "sheltermile",
+   "gate": [],
+   "phase": 1,
+   "ropeUntilOrder": "loom",
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "sunthread",
+     "x": 28,
+     "y": 9,
+     "dir": "left"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "sheltermile--farwatch",
+   "a": "sheltermile",
+   "b": "farwatch",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "farwatch",
+     "x": 1,
+     "y": 9,
+     "dir": "right"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "farwatch--chartroad",
+   "a": "farwatch",
+   "b": "chartroad",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "farwatch--seaward",
+   "a": "farwatch",
+   "b": "seaward",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "seaward--opengrey",
+   "a": "seaward",
+   "b": "opengrey",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "greywash--opengrey",
+   "a": "greywash",
+   "b": "opengrey",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "opengrey--outershoal",
+   "a": "opengrey",
+   "b": "outershoal",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "greywash--keelcave",
+   "a": "greywash",
+   "b": "keelcave",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "farwatch--trialroad",
+   "a": "farwatch",
+   "b": "trialroad",
+   "gate": [],
+   "phase": 1,
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "farwatch",
+     "x": 12,
+     "y": 1,
+     "dir": "down"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   }
+  },
+  {
+   "id": "trialroad--trialstair",
+   "a": "trialroad",
+   "b": "trialstair",
+   "gate": [],
+   "phase": 6,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "trialstair--league",
+   "a": "trialstair",
+   "b": "league",
+   "gate": [
+    {
+     "badges": "all"
+    }
+   ],
+   "phase": 6,
+   "landing": {
+    "status": "unresolved",
+    "townSideCandidate": {
+     "map": "league",
+     "x": 3,
+     "y": 16,
+     "dir": "up"
+    },
+    "note": "The route is inserted on a legacy direct exit. The town-side arrival tile of that exit is a candidate only; the route side has no map yet."
+   },
+   "issues": [
+    "RA-05"
+   ]
+  },
+  {
+   "id": "league--spire",
+   "a": "league",
+   "b": "spire",
+   "gate": [
+    {
+     "story": "leagueEnding"
+    }
+   ],
+   "phase": 0,
+   "landing": {
+    "status": "verified-legacy-2d",
+    "arriveAtB": {
+     "x": 17,
+     "y": 14,
+     "dir": "left"
+    },
+    "arriveAtA": {
+     "x": 1,
+     "y": 15,
+     "dir": "right"
+    },
+    "note": "Today's 2D MAPS exits; both landing tiles are in bounds, open and off the edge. Not native-grid coordinates."
+   }
+  },
+  {
+   "id": "stillreed--quietchannels",
+   "a": "stillreed",
+   "b": "quietchannels",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  },
+  {
+   "id": "quietchannels--lowbell",
+   "a": "quietchannels",
+   "b": "lowbell",
+   "gate": [
+    {
+     "field": "tide"
+    }
+   ],
+   "phase": 6,
+   "landing": {
+    "status": "unresolved",
+    "note": "No measured map or brief for at least one end."
+   }
+  }
+ ],
+ "issues": [
+  {
+   "id": "RA-01",
+   "priority": "P0",
+   "category": "encounters",
+   "title": "Wild levels have no policy once the later roads open after two badges",
+   "established": "WB-WORLD-ORDER opens the later roads after the Thorn and Tide Badges; Wardens scale to badges held; CAP_TABLE caps a 2-badge team at 35; the historical country bands run 32 to 72.",
+   "finding": "After ORDER, 38 of the 46 map nodes are reachable with only Thorn and Tide and no lessons. Fixed per-country bands would put the later roads above the cap. route-encounters.md (integration 3) and PR #539 both flag it; nothing decides it.",
+   "recommendation": "Decide one rule before finalising tables: each encounter area stores a relative band, and the level is chosen when the encounter starts from the badges held, clamped to CAP_TABLE, the same way Wardens already scale. Areas reachable at 0 or 1 badge keep fixed low bands.",
+   "decision": "Evan, 2026-10-18: scale to badges (the recommended rule). Wild levels follow the badges held, like the Wardens; early roads keep fixed low bands.",
+   "owner": "Decided by Evan; Codex applies it in the encounter proposal",
+   "affects": [
+    "all ordinary areas reachable at 2 badges"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Wardens",
+    "route-encounters.md",
+    "PR #539"
+   ]
+  },
+  {
+   "id": "RA-02",
+   "priority": "P0",
+   "category": "encounters",
+   "title": "Encounter areas need a fixed denominator tied to graph ids",
+   "established": "The native chapter joins Larkhaven, Thornwood Trail, Millgrass Lane and the Dewcut approach in one continuous grid. Evan's rule counts encounter areas.",
+   "finding": "Without a fixed list, the at-least-half-originals rule cannot be checked, and grass inside one grid can blur two graph places.",
+   "recommendation": "An encounter area is one graph place id. Tag every grass patch, cave floor and water surface with the place id it belongs to. The denominator is the 33 places this audit classes as ordinary (including ordinary+special); at least 17 need an original. This audit marks 18 recommended areas across every country and the water. Codex may swap areas if both counts and the spread still hold.",
+   "owner": "Codex",
+   "affects": [
+    "every ordinary area"
+   ],
+   "sources": [
+    "WILDBOND-HANDOFF.md",
+    "opening chapter README"
+   ]
+  },
+  {
+   "id": "RA-03",
+   "priority": "P1",
+   "category": "progression",
+   "title": "Orchard Fen has no rope, so Threadmeet opens two badges early in WB-WORLD-1",
+   "established": "WB-WORLD-1 keeps today's ropes and says Orchard Fen and Ribbon Road stay behind the later ropes so Threadmeet does not open early. Today Sunthread is behind the Echo Badge.",
+   "finding": "Computed on the graph with phase-1 ropes: Reedhold (4 badges) to Orchard Fen to Threadmeet reaches Threadmeet and Ribbon Road at 4 badges instead of 6. gates.md open point 4 and route-encounters.md integration 1 flag it unresolved.",
+   "recommendation": "Add {link: orchardfen--sunthread, badge: echo} to ropesUntilOrder (today's Hollowecho to Sunthread rope, placed at the Threadmeet end). Orchard Fen itself stays walkable from Reedhold. WB-WORLD-ORDER lifts it with the others.",
+   "owner": "Graph owner / Wildbond dev lead",
+   "affects": [
+    "orchardfen",
+    "sunthread",
+    "ribbonroad"
+   ],
+   "sources": [
+    "wildbond-world-design.md §7 WB-WORLD-1",
+    "gates.md",
+    "route-encounters.md"
+   ]
+  },
+  {
+   "id": "RA-04",
+   "priority": "P1",
+   "category": "connections",
+   "title": "The Answering Ways has no link from Bellstep, its own mouth",
+   "established": "The design puts the first cave's mouth in the hamlet (not tile 19, 8). answering.json has an S exit to hollowecho. The lead ruled the edge on #373.",
+   "finding": "The graph has only flintcut--answering, so the cave is a dead end from Flintcut and the mouth Bellstep is promised is missing.",
+   "recommendation": "Adopt PR #523's ungated two-way phase-3 hollowecho--answering edge (the ruled change). The graph then has 55 links.",
+   "owner": "Graph owner via PR #523",
+   "affects": [
+    "answering",
+    "hollowecho"
+   ],
+   "sources": [
+    "answering.md point 1",
+    "PR #523",
+    "#373 ruling"
+   ]
+  },
+  {
+   "id": "RA-05",
+   "priority": "P1",
+   "category": "connections",
+   "title": "Trial Road's direct way into the league before phase 6 is only a note",
+   "established": "The design keeps Trial Road reaching the league until Trialstair is inserted in phase 6. Today's Farwatch north exit asks for all eight badges.",
+   "finding": "The graph has no link for phases 1 to 5, so a validator cannot show the ending stays reachable then (gates.md open point 9).",
+   "recommendation": "Record a trialroad--league link (gate: all eight badges, phase 1) marked as replaced by trialstair in phase 6, or add a phase-range field the tests honour. Do not move the league door.",
+   "owner": "Graph owner",
+   "affects": [
+    "trialroad",
+    "league",
+    "trialstair"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Routes",
+    "gates.md open point 9"
+   ]
+  },
+  {
+   "id": "RA-06",
+   "priority": "P1",
+   "category": "progression",
+   "title": "Sootpath's Ember rope is assumed lifted but not named",
+   "established": "Today's Emberfall north exit asks for the Ember Badge. WB-WORLD-ORDER's lifted list omits it, but its done check needs Sootpath open after two badges.",
+   "finding": "The graph and gates file follow the done check; the design text still disagrees with itself.",
+   "recommendation": "Keep ember on emberfall--sootpath until WB-WORLD-ORDER, and add the Ember rope to that phase's lifted list when the design is next edited.",
+   "owner": "Wildbond dev lead confirms",
+   "affects": [
+    "sootpath",
+    "emberfall"
+   ],
+   "sources": [
+    "world-graph.md question 1",
+    "gates.md open point 3"
+   ]
+  },
+  {
+   "id": "RA-07",
+   "priority": "P1",
+   "category": "landings",
+   "title": "Most arrival landings are unknown and must stay unknown until each grid is measured",
+   "established": "Six phase-0 links have verified 2D landings. Knothollow, the Answering Ways and Larkburrow briefs keep landings null with landing: planned.",
+   "finding": "See the per-link landing status counts in region-audit.md. The native chapter's grid uses different coordinates, so legacy tiles are not native landings.",
+   "recommendation": "Resolve each landing when its place is drafted with location-template.md, on the runtime that will use it, and keep the runtime-landing validators rejecting nulls at wiring. The per-link status is recorded here; none is filled in.",
+   "owner": "Whoever builds each place",
+   "affects": [
+    "every link"
+   ],
+   "sources": [
+    "knothollow.md",
+    "answering.md",
+    "wildbond-layout README",
+    "location-template.md"
+   ]
+  },
+  {
+   "id": "RA-08",
+   "priority": "P1",
+   "category": "first-expedition",
+   "title": "The first expedition is an out-and-back with no destination yet and no loop until Grove Wake",
+   "established": "The native chapter plays Maren's catch, inn and return. Deeper Thornwood and Dewcut have closed boundaries. In the graph, Rootwater and Dewcut are spurs until the Thorn Badge and Grove Wake join them through Knothollow.",
+   "finding": "Larkhaven to Thornwood Trail and back is a sound first outing, but Thornwood (the town) is not built in the chapter, so there is no Warden, healer or arrival moment at the far end. The first loop (Trail, Dewcut, Old Root Grove, Knothollow, Rootwater, Thornwood) needs the Thorn Badge and Grove Wake (bond 60), so it may come late.",
+   "recommendation": "Next, build Thornwood (the town) as the destination: Isolde at the hawthorn gate and the Gate Loft healer together, so the outing ends with a rest and a goal. Keep the return home on the same trail (the classic first-route shape) and keep the visible future access: Larkburrow's shut mouth, the Dewcut shelf, Rootwater's cave door. Treat the Knothollow ring as the first loop and confirm Grove Wake's timing (RA-09).",
+   "owner": "Codex (chapter); Evan for pacing",
+   "affects": [
+    "larkhaven",
+    "thornwood_route",
+    "thornwood",
+    "dewcut",
+    "rootwater",
+    "millgrass",
+    "knothollow",
+    "thornwood_grove"
+   ],
+   "sources": [
+    "opening chapter README",
+    "world-graph.json",
+    "gates.json"
+   ]
+  },
+  {
+   "id": "RA-09",
+   "priority": "P2",
+   "category": "progression",
+   "title": "Grove Wake's teaching badge is inferred, and it sets when the first loop opens",
+   "established": "The grove teaches Grove Wake at the antler sign; the design gives no badge. gates.json records thorn as inferred.",
+   "finding": "If Grove Wake is later than Thorn, the Knothollow ring opens later still.",
+   "recommendation": "Record thorn as decided rather than inferred in gates.json when it is next edited.",
+   "decision": "Evan, 2026-10-18: Grove Wake is learnable after the Thorn Badge (still needing a Loyal Grove partner).",
+   "owner": "Decided by Evan; gates.json owner records it",
+   "affects": [
+    "thornwood_grove",
+    "knothollow"
+   ],
+   "sources": [
+    "gates.md open point 1"
+   ]
+  },
+  {
+   "id": "RA-10",
+   "priority": "P1",
+   "category": "healing",
+   "title": "Thornwood's healer is a proposal; the first destination has no rest yet",
+   "established": "Hedda and the Gate Loft are proposed for phase 1. Old Ned's inn exists.",
+   "finding": "The three-step healer rule holds early only if Hedda exists; Old Root Grove is already at three steps.",
+   "recommendation": "Ship the Gate Loft healer with the first Thornwood town build (RA-08). The other proposed keepers follow their town phases.",
+   "owner": "Codex (chapter)",
+   "affects": [
+    "thornwood",
+    "thornwood_grove",
+    "dewcut",
+    "rootwater"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Towns"
+   ]
+  },
+  {
+   "id": "RA-11",
+   "priority": "P2",
+   "category": "encounters",
+   "title": "Today's region screens become towns but hold most of today's grass and the Legends' first meetings",
+   "established": "Eight current maps become towns (31 to 113 tall-grass tiles each), and Saltmarsh Coast keeps 72. Legends' first meetings fire on explores counted by country (biome id), not map (main.gd explored_in).",
+   "finding": "Creature-game towns usually have no grass; removing it is safe only if the same country's routes keep counting explores.",
+   "recommendation": "Towns get no ordinary encounters in new layouts. Each new route keeps its parent country's biome id, so explore-driven first meetings still fire. Check each Legend threshold stays reachable. Old saves on removed grass use hard rule 1's nudge.",
+   "owner": "Codex (encounter data) and the map builder",
+   "affects": [
+    "thornwood",
+    "emberfall",
+    "cloudglass",
+    "stillreed",
+    "hollowecho",
+    "sunthread",
+    "farwatch",
+    "saltmarsh"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Guardians",
+    "wildbond.json MAPS",
+    "main.gd explored_in"
+   ]
+  },
+  {
+   "id": "RA-12",
+   "priority": "P2",
+   "category": "connections",
+   "title": "The Long Boards is a dead end although the Dry Boards are inside it",
+   "established": "The design places the Dry Boards inside the Long Boards maps. The graph links dryboards to stillreed and passfoot, never to longboards.",
+   "finding": "longboards has one link (Reedhold). The data hides that the Dry Boards are reached through it.",
+   "recommendation": "Record longboards as the Dry Boards' parent (a field or note), or describe the Reedhold to Dry Boards link as the Long Boards' west end, following PR #523's descriptor. No new route.",
+   "owner": "Graph owner via PR #523",
+   "affects": [
+    "longboards",
+    "dryboards"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Routes",
+    "PR #523"
+   ]
+  },
+  {
+   "id": "RA-13",
+   "priority": "P2",
+   "category": "connections",
+   "title": "Greymill is named but has no node",
+   "established": "Greymill is a side door off Threadmeet with a Hush stuck door; gates.json places it as a spot on sunthread.",
+   "finding": "Encounter and finds work could treat it as a missing map.",
+   "recommendation": "Keep it a Threadmeet sub-area, not a node. Class it as no encounters until Evan approves Greysail.",
+   "owner": "Graph owner",
+   "affects": [
+    "sunthread"
+   ],
+   "sources": [
+    "wildbond-world-design.md §2 Guardians",
+    "gates.md open point 8"
+   ]
+  },
+  {
+   "id": "RA-14",
+   "priority": "P2",
+   "category": "consistency",
+   "title": "Keelcave is in the prose and graph but not the flowchart",
+   "established": "The caves list puts Keelcave off Greywash Sound; the graph marks greywash--keelcave extraToFlowchart.",
+   "finding": "The design text disagrees with itself.",
+   "recommendation": "The prose and graph stand. Add Keelcave to the flowchart the next time the design doc is edited.",
+   "owner": "Design doc owner",
+   "affects": [
+    "keelcave",
+    "greywash"
+   ],
+   "sources": [
+    "world-graph.md question 2"
+   ]
+  },
+  {
+   "id": "RA-15",
+   "priority": "P2",
+   "category": "consistency",
+   "title": "errands.json treats Lantern Quay and Outer Shoal as unassigned places",
+   "established": "The graph assigns lanternquay and outershoal.",
+   "finding": "Tobin's errand is anchored on saltmarsh_route with a named place although the ids exist.",
+   "recommendation": "Use the graph ids in errands.json when it is next revised.",
+   "owner": "Errands data owner",
+   "affects": [
+    "lanternquay",
+    "outershoal",
+    "saltmarsh_route"
+   ],
+   "sources": [
+    "errands-schema.md"
+   ]
+  },
+  {
+   "id": "RA-16",
+   "priority": "P3",
+   "category": "healing",
+   "title": "Optional lesson chains are long without a town",
+   "established": "With every lesson, the longest town-free walk is six routes (world-graph.md question 5); every place stays within three steps of a healer.",
+   "finding": "Old Root Grove and Outer Shoal sit at three steps, the limit.",
+   "recommendation": "Accept: nothing forces the long walk. Revisit only if playtests show tired teams on the Coast Ring.",
+   "owner": "None now",
+   "affects": [
+    "thornwood_grove",
+    "outershoal",
+    "opengrey"
+   ],
+   "sources": [
+    "world-graph.md question 5",
+    "PR #537"
+   ]
+  },
+  {
+   "id": "RA-17",
+   "priority": "P2",
+   "category": "encounters",
+   "title": "Existing wild lists are historical, original-only tables",
+   "established": "route-encounters.json (WBW-5), knothollow.json and answering.json copy the legacy BIOMES lists of original species.",
+   "finding": "Evan's current direction makes Pokémon the main reusable roster with originals in at least half the areas.",
+   "recommendation": "Label those wild lists historical. Use their level bands only as evidence. Codex's proposal supersedes them.",
+   "owner": "Codex",
+   "affects": [
+    "knothollow",
+    "answering",
+    "every route in route-encounters.json"
+   ],
+   "sources": [
+    "route-encounters.md",
+    "knothollow.md",
+    "answering.md",
+    "WILDBOND-HANDOFF.md"
+   ]
+  },
+  {
+   "id": "RA-18",
+   "priority": "P3",
+   "category": "consistency",
+   "title": "Glassfall appears both as a place and as a link",
+   "established": "The graph stores glassfall in places with isLink and in links.",
+   "finding": "Counting places without skipping isLink gives 47.",
+   "recommendation": "Keep it. Consumers skip isLink; this audit counts it once, as the link.",
+   "owner": "None",
+   "affects": [
+    "glassfall"
+   ],
+   "sources": [
+    "world-graph.md"
+   ]
+  },
+  {
+   "id": "RA-19",
+   "priority": "P3",
+   "category": "landings",
+   "title": "Chart Road's loop is one link but needs two High Watch landings",
+   "established": "farwatch--chartroad has loop: true.",
+   "finding": "One record cannot carry the out and back arrival tiles.",
+   "recommendation": "At wiring, give Chart Road two exits into the High Watch and record both landings.",
+   "owner": "Map builder",
+   "affects": [
+    "chartroad",
+    "farwatch"
+   ],
+   "sources": [
+    "world-graph.json"
+   ]
+  },
+  {
+   "id": "RA-20",
+   "priority": "P3",
+   "category": "consistency",
+   "title": "Use the graph's names for Thornwood the town and Thornwood Trail",
+   "established": "The graph separates thornwood_route (Thornwood Trail) and thornwood (the town).",
+   "finding": "Chapter notes say 'deeper Thornwood' for both.",
+   "recommendation": "Name the place id in tickets and reports.",
+   "owner": "Everyone",
+   "affects": [
+    "thornwood",
+    "thornwood_route"
+   ],
+   "sources": [
+    "opening chapter README",
+    "WILDBOND-HANDOFF.md"
+   ]
+  }
+ ]
+}
