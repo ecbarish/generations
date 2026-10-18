@@ -320,6 +320,17 @@ func _build_ui() -> void:
 	super._build_ui()
 	_choice(ui,"Map [Tab]",Vector2(228,5),Vector2(74,20),open_map)
 
+func show_party() -> void:
+	if menu!=null:menu.show()
+	super.show_party()
+	if detail!=null:
+		for child in detail.get_children():
+			if child is Button:child.grab_focus();break
+
+func party_action(index: int, selected_move: int = 0) -> void:
+	if index<0 or index>=supplies.team.size():return
+	preload("res://tests/opening/summary.gd").build(self,index,selected_move)
+
 func open_map() -> void:
 	if not active or _modal() or not profile.state.started: return
 	toggle_menu()

@@ -24,6 +24,10 @@ Godot --path wildbond-godot --rendering-method gl_compatibility --script res://t
 
 Checks create only process-specific saves and clean them up. Capture never saves and uses isolated paths, controlled battles and camera placements. It also verifies held-key walking and pointer map input. These checks do not establish human fun, mobile delivery or low-end performance.
 
+## Party summary
+
+Menu → Party → select a partner now opens its summary: actual types, HP/condition, calculated stats, experience progress and supported move details/PP. Select moves by keyboard or pointer; Previous/Next browses the team; Back restores the party list. Lead/Store retain their existing actions and safety restrictions. Escape closes the menu. The optional private pack provides portraits. `summary_checks.gd` verifies the UI and existing profile round trip; `-- --capture ABSOLUTE_OUTPUT` saves a native capture (add `--private` only for external private evidence).
+
 ## Private actor pass
 
 The current six NPC roles now use the same pinned Emerald source family as the player: caretaker/Mom, rival/May, child/Little Boy, forager/Hiker, healer/Nurse and shopkeeper/Mart Employee. Wildbond names/dialogue remain unchanged. The four outdoor people face nearby players and take small distance-driven steps close to their existing anchors; dialogue/menus pause pacing. Nurse uses its real four-frame mapping and bow, not the nine-frame walker layout. Adult/child canvas sizes and per-frame feet are validated. Future unnamed/unassigned people default to the private forager role until given a deliberate visual role. Missing packs keep original procedural review placeholders.
