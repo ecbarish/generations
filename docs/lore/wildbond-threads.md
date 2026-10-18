@@ -113,6 +113,7 @@ For each: what players can see, the candidate explanations, the decided truth (i
   than the Wardens.
 
 ### 2. The wild bond
+- **Mechanic direction update (Evan, 2026-10-18):** [Stand with it](../plans/wildbond-world/stand-with-it.md) should use Mega-style transformations and reliable story trigger points. The old last-survivor/low-HP/maximum-trust activation must not drive future design. No new clue or scene is placed here. Preserve existing witnesses and final truth; reconcile literal fusion and depth/first-person wording before new player-facing scenes. Exact event and balance remain proposals.
 - **Seen:** a legend almost nobody believes; later, the player's own fusion (proposals/creature-catalogue-and-evolution.md §5).
 - **Decided:** real; it is what the Unbound's founder saw.
 - **Open:** who the tamer and creature in the old fight were, and what became of them (candidates: both lost; the

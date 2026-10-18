@@ -1,3 +1,9 @@
+## Wildbond Mega-style bond direction
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| WB-MEGA-BOND-DIRECTION | Wildbond | Planning | Codex / Evan, PR #570 | Record Evan's Mega-style Stand with it direction, reliable unlock/activation proposal and legacy/native integration boundaries. Documentation only, stacked on #568. |
+
 ## Wildbond community centers
 
 | ID | Project | Size | Status | Scope |

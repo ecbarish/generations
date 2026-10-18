@@ -58,6 +58,8 @@ The tamer already gives orders in battle (Guard, Rally). Grow that into the tame
 
 ## 5. The wild bond: fusing with a creature (Evan's idea, 2026-10-08)
 
+> Historical design. Evan's 2026-10-18 [Mega-style direction](../plans/wildbond-world/stand-with-it.md) supersedes the hidden near-defeat activation requirements below for future work. Preserve the history and audit existing lore before replacing literal fusion presentation. The native chapter has not yet implemented this new system.
+
 Evan: an ultimate power for a creature you've maxed your bond with: you fuse and become an ultimate form for the
 toughest battles (Digimon, Power Rangers). Not usable every fight with no reason not to (Pokémon's Mega Evolution),
 not reserved for a scripted story moment; it happens when you're backed against a wall and push beyond the limit, and
