@@ -51,6 +51,9 @@ func _act(action: Dictionary) -> void:
 	super._act(action)
 func _draw() -> void:
 	super._draw()
+	if model!=null and model.foe.id not in Catalogue.STARTERS and not pack.entries.has(model.foe.id):
+		draw_style_box(_paper(),Rect2(177,84,200,10))
+		_text(Vector2(181,91),"TEST ART / private sprite pack missing",6)
 	if trainer_name!="":
 		draw_style_box(_paper(),Rect2(7,3,370,17))
 		_text(Vector2(13,15),"%s / Friendly Battle" % trainer_name,10)

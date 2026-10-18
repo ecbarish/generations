@@ -100,6 +100,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+
+- 2026-10-18, Codex / Evan: WB-LIVED-IN-CENTERS, PR #567 stacked on #566, populates healing rooms/approaches with existing Pokemon NPC roles and adds full-building sight-line cutaways. Missing-pack battle art is explicitly labeled; scoped native checks and evidence are in docs/research/wildbond-lived-in-centers/. Source review only, not published.
 - 2026-10-18 Claude / Evan: WB-REGION-AUDIT (#564) audits all 46 graph places, 54 links and Glassfall before encounters are finalised (docs/plans/wildbond-world/region-audit.md/.json, `tools/test_wildbond_region_audit.py`). There are 20 issues, and two P0s need deciding first: a badge-scaled wild-level rule for the open order, and 33 encounter areas with 17+ originals (18 recommended). The Orchard Fen rope leak is proven. No runtime, save or graph change.
 
 - **2026-10-17, Codex / Evan, WB-PRIVATE-SPRITES:** [#549](https://github.com/ecbarish/generations/pull/549) sets up an external three-species sprite pack with pinned credits/hashes and directional anchors, plus a save-free native 3D clearing and existing turn-based encounter/return. All 28 suites pass (26,867 Wildbond); 345 focused private / 57 absent-pack checks; native keyboard/pointer captures inspected. Simple placeholder environment, no adventure integration/public export; stacks on #547.
