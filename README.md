@@ -42,6 +42,8 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- Wildbond private chapter: six matching Pokémon NPC roles replace rough people, with facing/steps, measured feet, readable service staff and stable animated creature scale. [Presentation checks and scope](docs/research/wildbond-actor-polish/README.md).
+
 - Wildbond private chapter now connects measured Larkhaven, Thornwood, Millgrass and the Dewcut approach, with Maren's return outing, original NPC hooks, friendly trainer battles, inn/shop/ranch services and an in-game map. [Scope and checks](docs/research/wildbond-opening-chapter/README.md).
 
 - Wildbond private chapter: source-backed Pokémon types/stats/moves, catching rates, burns and experience/leveling; original pilot saves migrate with a preserved backup. [Bounded rules and checks](docs/research/wildbond-pokemon-rules/README.md).

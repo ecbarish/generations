@@ -23,3 +23,11 @@ Godot --path wildbond-godot --rendering-method gl_compatibility --script res://t
 ```
 
 Checks create only process-specific saves and clean them up. Capture never saves and uses isolated paths, controlled battles and camera placements. It also verifies held-key walking and pointer map input. These checks do not establish human fun, mobile delivery or low-end performance.
+
+## Private actor pass
+
+The current six NPC roles now use the same pinned Emerald source family as the player: caretaker/Mom, rival/May, child/Little Boy, forager/Hiker, healer/Nurse and shopkeeper/Mart Employee. Wildbond names/dialogue remain unchanged. The four outdoor people face nearby players and take small distance-driven steps close to their existing anchors; dialogue/menus pause pacing. Nurse uses its real four-frame mapping and bow, not the nine-frame walker layout. Adult/child canvas sizes and per-frame feet are validated. Future unnamed/unassigned people default to the private forager role until given a deliberate visual role. Missing packs keep original procedural review placeholders.
+
+The three installed Pokémon use fixed scale derived from their neutral Idle pose and existing display-height metadata, with source timing/directions/ground anchors retained. Wild creatures play Walk only while displaced and settle near the player. Nearby actors get stronger foliage fading, and service counters are waist-height so staff remain visible. No party/save/story or battle-stat change.
+
+`Godot --headless --path wildbond-godot --script res://tests/opening/actor_checks.gd` verifies the installed actors. `actor_capture.gd` accepts the same output/renderer arguments as `capture.gd` and shows all current roles, the nurse bow and all three creatures. Captures containing imported art stay external.
