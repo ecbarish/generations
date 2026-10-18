@@ -1,3 +1,5 @@
+> The launcher now opens the measured **Larkhaven–Thornwood chapter**. Its [controls, routes, save policy and limits](../opening/README.md) supersede the generic town/trail presentation below. The old scene remains available for regression checks and does not contain the new geography.
+
 # First Journey: persistent Pokemon-party pilot
 
 Open **Play First Journey.bat**. Evan's existing private pack supplies the animated trainer, three Pokemon, directional followers and battle front/back views. Choose Pidgey, Vulpix or Wooper, explore the town, enter the southern trail, catch a Pokemon and bring the party back to the Center. These three are the installed pilot roster, not the final starter selection.

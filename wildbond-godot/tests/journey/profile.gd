@@ -48,6 +48,21 @@ static func valid(d: Dictionary) -> bool:
 		if not integer(record.get("hp"),0,int(c.max_hp)) or not record.get("pp") is Dictionary or record.pp.size()!=c.moves.size(): return false
 		for move in c.moves:
 			if not integer(record.pp.get(move),0,int(c.pp[move])): return false
+	if d.has("opening"):
+		var opening = d.opening
+		if not opening is Dictionary or opening.get("version")!=1: return false
+		for key in ["met_maren","wren","bram","reported"]:
+			if not opening.get(key) is bool: return false
+		if opening.reported and (not opening.met_maren or not d.first_catch or not d.healed_after_catch): return false
+		if not opening.get("position") is Array or opening.position.size()!=2: return false
+		for value in opening.position:
+			if not (value is int or value is float) or not is_finite(float(value)): return false
+		if opening.position[0]<-34 or opening.position[0]>26 or opening.position[1]<-26 or opening.position[1]>17: return false
+		if not opening.get("items") is Array or opening.items.size()>2: return false
+		var unique := {}
+		for id in opening.items:
+			if id not in ["lh1","tw1"] or unique.has(id): return false
+			unique[id]=true
 	return true
 
 func open_profile(target: String = PATH) -> bool:
@@ -65,7 +80,7 @@ func open_profile(target: String = PATH) -> bool:
 			hold=true; issue="Chapter save cannot be read safely. It has been kept."; return false
 		var json := JSON.new()
 		if json.parse(file.get_as_text())==OK and json.data is Dictionary:
-			if json.data.get("format")==FORMAT and integer(json.data.get("version"),3,999999):
+			if json.data.get("format")==FORMAT and (integer(json.data.get("version"),3,999999) or (json.data.get("opening") is Dictionary and integer(json.data.opening.get("version"),2,999999))):
 				hold=true; issue="This chapter save needs a newer game. It has been kept."; return false
 	var loaded := Safe.read(path,func(d: Dictionary): return valid(d) or Legacy.valid(d))
 	if loaded.is_empty():
