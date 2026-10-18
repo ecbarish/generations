@@ -1,6 +1,8 @@
 /* T44 browser regressions. Run against an isolated local server with Playwright installed.
    Every page uses a fresh browser context: the player's saves/settings are never read or changed. */
-const {chromium}=require('playwright'),fs=require('fs');
+const {chromium}=require('playwright'),fs=require('fs'),os=require('os'),nodePath=require('path'),browserPath=require('./find-browser.cjs');
+// Screenshots go to the system temp folder (TEMP on Windows, /tmp elsewhere), or ACCESSIBILITY_SHOTS.
+const shots=process.env.ACCESSIBILITY_SHOTS||os.tmpdir();
 async function auditText(page) { return page.evaluate(() => {
  const parse=s=>s.match(/[\d.]+/g)?.map(Number), luminance=a=>{const x=a.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4});return x[0]*.2126+x[1]*.7152+x[2]*.0722};
  const failures=[];let checked=0;
@@ -14,7 +16,7 @@ async function auditText(page) { return page.evaluate(() => {
  }); }
 const origin=process.env.ARCADE_TEST_ORIGIN||'http://localhost:8766';
 let count=0;function check(ok,why){if(!ok)throw Error(why);count++;}
-(async()=>{const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});try{
+(async()=>{const browser=await chromium.launch({executablePath:browserPath(),headless:true});try{
 for(const [width,height]of [[375,812],[1366,768],[1920,1080],[3440,1440]]){
  const c=await browser.newContext({viewport:{width,height},reducedMotion:'reduce'}),p=await c.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));
  // Exercise the real shared scene with a deliberately different second decision.
@@ -51,7 +53,7 @@ for(const [width,height]of [[375,812],[1366,768],[1920,1080],[3440,1440]]){
   // Device motion and shared user override both feed the same preference.
   check(await p.evaluate(()=>Settings.reduced()&&document.documentElement.classList.contains('arc-reduce')),name+' reduced motion on');
   const contrast=await auditText(p);check(contrast.failures.length===0,name+' text contrast: '+contrast.failures.join(';'));check(contrast.checked>0,name+' contrast samples present');
-  await p.screenshot({path:require('path').join(process.env.TEMP,'accessibility-'+name+'-'+width+'.png')});
+  await p.screenshot({path:nodePath.join(shots,'accessibility-'+name+'-'+width+'.png')});
  }
  await p.evaluate(()=>localStorage.setItem('arcade-settings-v1',JSON.stringify({text:1,motion:'off'})));await p.reload();
  check(await p.evaluate(()=>!Settings.reduced()&&!matchMedia('(prefers-reduced-motion: reduce)').matches),'explicit Full motion overrides device');
