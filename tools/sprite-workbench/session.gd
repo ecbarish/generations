@@ -31,17 +31,19 @@ func read_json(path: String) -> Variant:
     var f := FileAccess.open(path,FileAccess.READ)
     if f==null or f.get_length()>2*1024*1024:return null
     return JSON.parse_string(f.get_as_text())
-func valid_frame(f: Variant,size: Vector2i) -> bool:
+func valid_geometry(f: Variant,size: Vector2i) -> bool:
     if not f is Dictionary or not f.get("region") is Array or f.region.size()!=4 or not f.get("anchor") is Array or f.anchor.size()!=2:return false
+    # Bound raw JSON numbers before any narrowing to 32-bit vectors.
     for v in f.region:
-        if not number(v) or float(v)!=floorf(float(v)):return false
+        if not number(v) or float(v)!=floorf(float(v)) or v<0 or v>4096:return false
+    if f.region[2]<=0 or f.region[3]<=0 or f.region[0]+f.region[2]>size.x or f.region[1]+f.region[3]>size.y:return false
     for v in f.anchor:
         if not number(v):return false
-    var r := Rect2i(f.region[0],f.region[1],f.region[2],f.region[3])
-    if r.size.x<=0 or r.size.y<=0 or not Rect2i(Vector2i.ZERO,size).encloses(r):return false
-    if f.anchor[0]<0 or f.anchor[1]<0 or f.anchor[0]>r.size.x or f.anchor[1]>r.size.y:return false
+    return f.anchor[0]>=0 and f.anchor[1]>=0 and f.anchor[0]<=f.region[2] and f.anchor[1]<=f.region[3]
+func valid_frame(f: Variant,size: Vector2i) -> bool:
+    if not valid_geometry(f,size):return false
     var step: Variant=f.get("sample_step",1.0)
-    return number(step) and step>=.25 and step<=128 and r.size.x/step<=512 and r.size.y/step<=512
+    return number(step) and step>=.25 and step<=128 and f.region[2]/step<=512 and f.region[3]/step<=512
 func load_manifest(path: String) -> bool:
     var data: Variant=read_json(path)
     if not data is Dictionary or data.is_empty() or data.size()>64:return fail("Choose a measured frames.json containing 1–64 creatures.")
@@ -66,14 +68,20 @@ func load_manifest(path: String) -> bool:
             var frame: Variant=e.frames[i]
             if not frame is Dictionary:return fail("Invalid frame: "+name)
             if not frame.has("sample_step"):
-                var ref: Dictionary=e.frames[0 if i<4 else mini(5,e.frames.size()-1)]
-                var h: float=float(ref.get("ink",[0,0,ref.region[2],ref.region[3]])[3])
+                var ref: Variant=e.frames[0 if i<4 else mini(5,e.frames.size()-1)]
+                if not valid_geometry(ref,image.get_size()):return fail("Invalid legacy sampling reference: "+name)
+                var ink: Variant=ref.get("ink",[0,0,ref.region[2],ref.region[3]])
+                if not ink is Array or ink.size()!=4:return fail("Invalid legacy ink bounds: "+name)
+                for v in ink:
+                    if not number(v) or absf(float(v))>4096:return fail("Invalid legacy ink bounds: "+name)
+                if ink[2]<=0 or ink[3]<=0:return fail("Invalid legacy ink size: "+name)
+                var h: float=float(ink[3])
                 frame.sample_step=maxf(h/(48.0 if i<2 else (60.0 if i<4 else 32.0)),float(ref.region[2])/80.0)
             if not valid_frame(frame,image.get_size()):return fail("Invalid bounds, anchor or sampling step: "+name+" frame "+str(i))
         if e.has("palette"):
             if not e.palette is Array or e.palette.size()!=16:return fail("Palette must contain sixteen colours.")
             for hex in e.palette:
-                if not hex is String or not Color.html_is_valid(hex):return fail("Invalid palette colour.")
+                if not hex is String or not Color.html_is_valid(hex) or Color(hex).a!=1.0:return fail("Palette colours must be opaque; erase pixels for transparency.")
         loaded[name]=image
     entries=candidate;original=candidate.duplicate(true);images=loaded;source_path=path;manifest_hash=FileAccess.get_sha256(path)
     pixels.clear();cache.clear();undo_stack.clear();redo_stack.clear();dirty=false;issue=""
@@ -149,10 +157,26 @@ func native_frame(name: String,index: int) -> Dictionary:
             image.set_pixel(x,y,selected)
     var result := {"image":image,"texture":ImageTexture.create_from_image(image),"anchor":-lo,"lo":lo}
     cache[key]=result;return result
-func save_draft(path: String) -> bool:
+static func path_identity(path: String) -> String:
+    var absolute := ProjectSettings.globalize_path(path).simplify_path()
+    if not absolute.is_absolute_path():absolute=DirAccess.open(".").get_current_dir().path_join(absolute).simplify_path()
+    return absolute.to_lower() if OS.get_name()=="Windows" else absolute
+func sources_unchanged() -> bool:
     if source_path=="":return fail("Load measurements first.")
     if FileAccess.get_sha256(source_path)!=manifest_hash:return fail("Source measurements changed; reload before saving or exporting.")
-    if ProjectSettings.globalize_path(path).simplify_path()==ProjectSettings.globalize_path(source_path).simplify_path():return fail("Save a separate draft; source measurements are read-only.")
+    for name in entries:
+        var file: String=source_path.get_base_dir().path_join(entries[name].file)
+        if FileAccess.get_sha256(file)!=entries[name].sha256:return fail("Original source changed; reload before saving or exporting.")
+    return true
+func safe_draft_destination(path: String) -> bool:
+    var protected := [path_identity(source_path)]
+    for name in entries:protected.append(path_identity(source_path.get_base_dir().path_join(entries[name].file)))
+    # Every path written by this transaction must be separate from all inputs.
+    for suffix in ["",".tmp",".bak"]:
+        if path_identity(path+suffix) in protected:return fail("Save a separate draft; source measurements and PNGs are read-only.")
+    return true
+func save_draft(path: String) -> bool:
+    if not sources_unchanged() or not safe_draft_destination(path):return false
     if path.get_extension().to_lower()!="json":return fail("Drafts must be JSON files.")
     if DirAccess.make_dir_recursive_absolute(path.get_base_dir())!=OK:return fail("Cannot create draft folder.")
     var file := FileAccess.open(path+".tmp",FileAccess.WRITE)
@@ -188,10 +212,10 @@ func load_draft(path: String) -> bool:
         var parts: PackedStringArray=str(key).split(":")
         if parts.size()!=2 or not test.entries.has(parts[0]) or not parts[1].is_valid_int():return fail("Invalid draft pixel frame.")
         var index := int(parts[1])
-        if index<0 or index>=test.entries[parts[0]].frames.size() or not data.pixels[key] is Dictionary or data.pixels[key].size()>512*512:return fail("Invalid draft pixel edits.")
+        if parts[1]!=str(index) or index<0 or index>=test.entries[parts[0]].frames.size() or not data.pixels[key] is Dictionary or data.pixels[key].size()>512*512:return fail("Invalid draft pixel edits.")
         for pixel in data.pixels[key]:
             var xy: PackedStringArray=str(pixel).split(",");var color: Variant=data.pixels[key][pixel]
-            if xy.size()!=2 or not xy[0].is_valid_int() or not xy[1].is_valid_int() or absi(int(xy[0]))>512 or absi(int(xy[1]))>512 or not number(color) or color!=floorf(color) or color < -1 or color>15:return fail("Invalid draft pixel.")
+            if xy.size()!=2 or not xy[0].is_valid_int() or not xy[1].is_valid_int() or xy[0]!=str(int(xy[0])) or xy[1]!=str(int(xy[1])) or absi(int(xy[0]))>512 or absi(int(xy[1]))>512 or not number(color) or color!=floorf(color) or color < -1 or color>15:return fail("Invalid draft pixel.")
     entries=test.entries.duplicate(true);original=test.original;images=test.images;source_path=test.source_path;manifest_hash=test.manifest_hash
     for name in entries:
         for i in entries[name].frames.size():entries[name].frames[i].anchor=data.entries[name].frames[i].anchor.duplicate()
@@ -202,15 +226,13 @@ func load_draft(path: String) -> bool:
     cache.clear();undo_stack.clear();redo_stack.clear();dirty=false;issue="";return true
 func export_atlas(name: String,parent: String) -> String:
     if not entries.has(name):issue="Load a creature first.";return ""
-    if FileAccess.get_sha256(source_path)!=manifest_hash:issue="Source measurements changed; reload before export.";return ""
-    for id in entries:
-        var source_file: String=source_path.get_base_dir().path_join(entries[id].file)
-        if FileAccess.get_sha256(source_file)!=entries[id].sha256:issue="Original source changed; reload measurements before export.";return ""
+    if not sources_unchanged():return ""
     var native: Array=[];var before := Vector2i.ZERO;var after := Vector2i.ZERO
     for i in entries[name].frames.size():
         var f := native_frame(name,i);native.append(f)
         before=before.max(f.anchor);after=after.max(f.image.get_size()-f.anchor)
     var cell := before+after+Vector2i(4,4);var root := before+Vector2i(2,2)
+    if cell.x>512 or cell.y>512:issue="Padded native cell exceeds 512 pixels; reduce the frame size or sampling resolution.";return ""
     var columns := mini(4,native.size());var rows := ceili(float(native.size())/columns)
     if cell.x*columns>4096 or cell.y*rows>4096:issue="Atlas exceeds 4096 pixels; split this manifest into smaller sets.";return ""
     var atlas := Image.create(cell.x*columns,cell.y*rows,false,Image.FORMAT_RGBA8)

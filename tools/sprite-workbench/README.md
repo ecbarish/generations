@@ -43,3 +43,5 @@ Run the dedicated checks with a graphical Godot renderer:
 The checks use the real family/base sheets and isolated process-specific tool output. They verify bounded palettes and binary alpha; anchor editing/cycle offsets; paint/erase/undo/redo; backed-up and portable drafts; invalid/future/stale-input rejection without state loss; exact atlas pixels/roots and repeated versioned exports; unchanged source bytes; real pointer playback/painting/Undo; optional references; unsaved-change protection; and four desktop layouts. They require a rendering display for pointer/canvas and capture checks.
 
 [Evidence and review report](../../docs/art/sprite-workbench/README.md).
+
+Safety limits: palette entries must be opaque (use Erase for transparent pixels); padded export cells must fit the 512px native reader limit. Draft save checks all source hashes and protects the destination, staging and backup paths from colliding with any source input. See [independent findings and repairs](../../docs/art/sprite-workbench/safety-fixes/README.md).
