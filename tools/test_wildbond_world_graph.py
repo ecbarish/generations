@@ -30,8 +30,9 @@ PHASE0_LINKS = [("larkhaven", "thornwood_route"), ("thornwood_route", "thornwood
                 ("saltmarsh_route", "saltmarsh_pool"), ("saltmarsh_route", "saltmarsh"), ("league", "spire")]
 # With every badge and element but no field lesson, only the places behind Tide Ride are out of reach. Lessons never lock the main road.
 WATER_ONLY = {"greywash", "opengrey", "outershoal", "keelcave", "quietchannels", "lowbell"}
-# The design's flowchart does not draw this link, but section 2's prose does (caves, item 3). Keep it explicit.
-PROSE_ONLY_LINKS = [("greywash", "keelcave")]
+# The flowchart omits these prose links: section 2 caves 3 and 1. WBW-18 explicitly
+# adds the lit hamlet mouth under #373 comment 6186013258; keep the whitelist exact.
+PROSE_ONLY_LINKS = [("greywash", "keelcave"), ("hollowecho", "answering")]
 
 DATA = json.loads(GRAPH.read_text(encoding="utf-8"))
 PLACES = {p["id"]: p for p in DATA["places"]}
