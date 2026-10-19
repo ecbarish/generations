@@ -1,11 +1,11 @@
 {
   "kind": "candidate-data-arithmetic-and-structure-only",
-  "checks_passed": 97,
+  "checks_passed": 101,
   "checks_failed": 0,
   "battle_matchups_run": false,
   "runtime_implemented": false,
   "final_normal_totals": {
-    "Stillmaw": 530,
+    "Stillmaw": 600,
     "Thornback": 530,
     "Tidewyrm": 530,
     "Blazefang": 530
@@ -23,6 +23,13 @@
   ],
   "notes": [
     "Equal totals do not establish equal competitive strength.",
-    "No move, ability, damage, save or live catalogue was changed."
-  ]
+    "No move, ability, damage, save or live catalogue was changed.",
+    "Rerun after approved Tyranitar-tier target: 600/700 Stillmaw; starter budgets unchanged. Includes four family-stage checks."
+  ],
+  "mega_totals": {
+    "Mega Stillmaw": 700,
+    "Mega Thornback": 630,
+    "Mega Tidewyrm": 630,
+    "Mega Blazefang": 630
+  }
 }

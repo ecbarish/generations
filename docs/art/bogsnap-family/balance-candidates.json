@@ -55,14 +55,14 @@
         "grass"
       ],
       "base_stats": {
-        "hp": 95,
-        "attack": 110,
-        "defense": 115,
-        "special-attack": 55,
-        "special-defense": 100,
-        "speed": 55
+        "hp": 105,
+        "attack": 135,
+        "defense": 125,
+        "special-attack": 65,
+        "special-defense": 110,
+        "speed": 60
       },
-      "base_stat_total": 530,
+      "base_stat_total": 600,
       "ability_candidate": "shell-armor"
     },
     {
@@ -75,14 +75,14 @@
         "grass"
       ],
       "base_stats": {
-        "hp": 95,
-        "attack": 140,
-        "defense": 145,
-        "special-attack": 65,
-        "special-defense": 125,
-        "speed": 60
+        "hp": 105,
+        "attack": 165,
+        "defense": 155,
+        "special-attack": 75,
+        "special-defense": 135,
+        "speed": 65
       },
-      "base_stat_total": 630,
+      "base_stat_total": 700,
       "ability_candidate": "thick-fat",
       "temporary_form_of": "wildbond:stillmaw"
     },
@@ -369,12 +369,12 @@
     "spd": "speed"
   },
   "unresolved": [
-    "Final art/shape/name acceptance",
     "Starter Mega abilities remain unchosen, not inherited automatically",
     "Custom abilities only after same-power-budget evaluation",
     "Mega unlock/item and exact suppression/critical-hit semantics",
     "Move pools/coverage/learn timing and measured matchups",
-    "Explicit existing-save/evolution/Isolde-roster integration contract"
+    "Explicit existing-save/evolution/Isolde-roster integration contract",
+    "Production sprite validation; final name and progression timing remain separate from concept approval"
   ],
   "reference_sources": [
     {
@@ -385,5 +385,21 @@
       "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/master/data/abilities.ts",
       "accessed": "2026-10-19"
     }
-  ]
+  ],
+  "art_direction": {
+    "status": "approved-concept-direction",
+    "approved_by": "Evan",
+    "date": "2026-10-19",
+    "normal_reference": "selected-final-mega-reference-v5.png",
+    "mega_reference": "mega-living-wetland-study-v7.png",
+    "production_sprites_approved": false
+  },
+  "power_tier": {
+    "family": "bogsnap",
+    "approved_target": "Tyranitar tier",
+    "normal_final_total": 600,
+    "mega_total": 700,
+    "spread_status": "candidate-not-playtested",
+    "starter_targets_unchanged": true
+  }
 }

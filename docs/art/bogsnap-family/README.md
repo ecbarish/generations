@@ -3,14 +3,14 @@ WB-BOGSNAP-FAMILY · Codex / root for Evan · 2026-10-19 · PR #600.
 
 Evan explicitly requested a three-stage test of the approved Bogsnap direction, a Mega concept, dual Water/Grass identity and Pokemon-aligned starter stats/abilities. This is an independent art/balance study. It does not replace runtime art, change saves or edit Claude's active gameplay paths.
 
-## Current Mega concept, v7: living wetland kaiju
+## Approved Mega direction, v7: living wetland kaiju
 ![Stillmaw and Mega Stillmaw living wetland comparison](mega-living-wetland-study-v7.png)
 
 Evan's latest direction returns to a leaner, stronger upright kaiju stance and asks for actual grass/branch growth with flowing water, while keeping clear steps between forms. V7 combines powerful hindquarters and a heavy balancing tail with three main branching reed-wood structures growing from the dorsal scales. Small leaf clusters and a visible water channel along the back/tail communicate Water/Grass without covering the animal in a forest.
 
 The intended staircase is **Boglet: youthful, sparse scutes → Bogsnap: developing natural armour → Stillmaw: mature overlapping scale armour → Mega: upright kaiju with visibly living plant growth and flowing water**. Mega remains temporary, not a fourth permanent evolution. Boglet/Bogsnap source art and the v5 normal reference are unchanged; v7's left creature is only a comparison illustration. The board does not set exact game dimensions.
 
-Built-in image_gen used inspected v5 and v6 references; [exact v7 prompt](generation-prompt-v7.txt). This concept awaits visual acceptance. Full bodies, stance, branching growth and water path were visually inspected. Exact dorsal layout, matching rear view and simplification at native sprite size remain production work. Existing 530/630 candidate budgets and ability data are unchanged; water imagery does not establish a new mechanic.
+Built-in image_gen used inspected v5 and v6 references; [exact v7 prompt](generation-prompt-v7.txt). Evan approved this concept direction on 2026-10-19 and set the family at Tyranitar-level power. Approval covers the visual direction, not finished production sprites or measured battle balance. Full bodies, stance, branching growth and water path were visually inspected. Exact dorsal layout, matching rear view and simplification at native sprite size remain production work. The family now targets 600/700 normal/Mega totals; starter targets stay 530/630. Ability candidates are unchanged; water imagery does not establish a new mechanic.
 
 ## Previous Mega exploration, v6: opened marsh reservoir
 ![Mega Stillmaw reservoir transformation](mega-reservoir-study-v6.png)
@@ -23,7 +23,7 @@ The [v5 board](selected-final-mega-reference-v5.png) remains the normal-form ref
 
 Built-in image_gen used the inspected v5 board; [exact v6 prompt](generation-prompt-v6.txt). Visually inspected for preserved bulk, broad jaw, connected natural scutes, changed dorsal/tail silhouette, full limbs and a secondary rear-angle view. Exact reservoir/scute count and matching projections must be fixed during production; the generated sheet is not a technical anatomy guarantee. Avoid adding gauntlets, crowns, boots, trees, water rings or decorative clutter.
 
-The530/630 candidate budgets and existing candidate ability data remain unchanged. Reservoir imagery alone does not approve a new custom passive, healing, water immunity, rain or extra battle power. Choose any eventual mechanic through the existing balance/runtime handoff.
+At the v6 study stage, candidate budgets were 530/630. The later approved Tyranitar-tier target below supersedes those totals; existing ability candidates remain unchanged. Reservoir imagery alone does not approve a new custom passive, healing, water immunity, rain or extra battle power. Choose any eventual mechanic through the existing balance/runtime handoff.
 
 ## Selected direction, refined reference v5
 ![Matched Stillmaw and Mega Stillmaw reference](selected-final-mega-reference-v5.png)
@@ -43,7 +43,7 @@ V5 includes front-three-quarter and smaller rear-angle references for both forms
 2. Build Stillmaw and Mega from the selected brief above, with separate explicit front/back/overworld output specs when the asset task is claimed. Do not slice this decorative board and call it production animation.
 3. Keep silhouettes recognisable at native size: C-like stocky normal, B-like taller Mega. Preserve feet and full tail, establish logical dimensions and common contact anchors, and use true alpha for actual sprites.
 4. Animation should convey weight and wetland behaviour: restrained breathing/jaw/eye reactions, planted steps, swimming-tail motion and a modest shake-off after water. These are ideas for the future owned asset task, not an existing frame set.
-5. The530 normal /630 Mega candidate stat budgets, unchanged Mega HP and ability contracts below stay intact. Visual size does not grant extra battle power. No gameplay/save/art integration occurs in this study.
+5. Use 600 normal /700 Mega candidate budgets for Stillmaw, unchanged Mega HP and the ability contracts below. Starter budgets remain 530/630. Visual size does not grant extra battle power. No gameplay/save/art integration occurs in this study.
 
 **Accepted early anchors:** [v1 board](family-study-v1.png) Boglet/Bogsnap only. Authoritative Bogsnap model sheet: [pinned source](https://github.com/ecbarish/generations/blob/7c535ffa896abfc00bf01a96a12df2d7ad308d09/wildbond-godot/tests/battle_slice/approved_bogsnap/approved-model-sheet.jpg), SHA256 f7bfee867a10c3bc2bb5cdafc4af0a898e0548a998c3ba828a8a87ad4767111b.
 
@@ -58,14 +58,16 @@ The separate legacy Godot evolution overlay totals372/379/372 for the middle sta
 
 The current chapter explicitly lacks abilities, critical hits, held items, evolution and Mega mechanics. The existing legacy bond/species mechanics are not a substitute for Pokemon passive abilities. A stat declaration or label cannot claim these features work.
 
-The [Pokemon Showdown species reference](https://raw.githubusercontent.com/smogon/pokemon-showdown/master/data/pokedex.ts), accessed2026-10-19, supplies comparison values: Venusaur530, Charizard534 and Blastoise530; their listed traditional Mega forms add100 without changing base HP. Our choice of530 for every normal final is a shared design budget, not a claim every Pokemon starter has the same total.
+The [Pokemon Showdown species reference](https://raw.githubusercontent.com/smogon/pokemon-showdown/master/data/pokedex.ts), accessed2026-10-19, supplies comparison values: Venusaur530, Charizard534 and Blastoise530; their listed traditional Mega forms add100 without changing base HP. Our choice of530 for the starter finals is a shared design budget, not a claim every Pokemon starter has the same total.
 
 | Family | Stage1 | Stage2 candidate | Final candidate | Mega candidate |
 |---|---:|---:|---:|---:|
 | Mosshog | 306 unchanged | 405 | 530 | 630 |
 | Ripplet | 313 unchanged | 405 | 530 | 630 |
 | Cindercub | 307 unchanged | 405 | 530 | 630 |
-| Boglet / Bogsnap / Stillmaw | 310 | 405 | 530 | 630 |
+| Boglet / Bogsnap / Stillmaw | 310 | 405 | 600 | 700 |
+
+**Evan's approved power target (2026-10-19):** Stillmaw is Tyranitar-tier: 600 base-stat total, with a 700-total Mega. [Tyranitar comparison](https://pokemondb.net/pokedex/tyranitar). The proposed spread favours physical strength and durability over speed; it is a candidate, not a demonstrated matchup result. Boglet/Bogsnap budgets and starter targets are unchanged. The earlier level16/36 evolution proposal is not finalized for this stronger tier: late maturation, learn timing, availability and Isolde's roster need the runtime owner's balance review. No silent level, save or roster change.
 
 Canonical stat order: HP / Attack / Defense / Sp.Atk / Sp.Def / Speed.
 
@@ -73,8 +75,8 @@ Canonical stat order: HP / Attack / Defense / Sp.Atk / Sp.Def / Speed.
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Boglet | 55 | 55 | 65 | 35 | 60 | 40 | 310 |
 | Bogsnap | 75 | 85 | 85 | 40 | 70 | 50 | 405 |
-| Stillmaw | 95 | 110 | 115 | 55 | 100 | 55 | 530 |
-| Mega Stillmaw | 95 | 140 | 145 | 65 | 125 | 60 | 630 |
+| Stillmaw | 105 | 135 | 125 | 65 | 110 | 60 | 600 |
+| Mega Stillmaw | 105 | 165 | 155 | 75 | 135 | 65 | 700 |
 | Thornback | 100 | 110 | 105 | 65 | 85 | 65 | 530 |
 | Tidewyrm | 85 | 75 | 90 | 115 | 95 | 70 | 530 |
 | Blazefang | 78 | 105 | 70 | 92 | 75 | 110 | 530 |
@@ -100,6 +102,6 @@ Water/Grass retains ordinary weaknesses to Flying, Poison and Bug, with neutral 
 6. Matchups must compare equal levels, individual modifiers, legal move sets and equivalent item/form access, then test the real first-Warden experience for each starter. Stat arithmetic is not a matchup simulation. Only claim supported mechanics; record the chosen generation/extension contract instead of promising full cartridge parity.
 
 ## Verification and scope
-Candidate generation checked97 arithmetic/structure assertions: exact six stats, integer bounds, totals, four distinct stages per family, unique IDs, every Mega plus100, unchanged Mega HP and nondecreasing Mega component stats. [Machine-readable result](validation.json). These are candidate-data checks, not native gameplay tests or simulated matchups. All passed; no battle simulation ran.
+Candidate generation checked101 arithmetic/structure assertions: exact six stats, integer bounds, totals, four distinct stages per family, unique IDs, every Mega plus100, unchanged Mega HP and nondecreasing Mega component stats. [Machine-readable result](validation.json). These are candidate-data checks, not native gameplay tests or simulated matchups. All passed; no battle simulation ran.
 
-No runtime, save, move, existing art, lore clue or story text changes. No need to rerun full runtime suites for this isolated study; normal PR CI remains a separate gate. The concept board and balance candidates need review before any production integration.
+No runtime, save, move, existing art, lore clue or story text changes. No need to rerun full runtime suites for this isolated study; normal PR CI remains a separate gate. The concept direction is approved; production assets and battle-balance candidates still need their respective checks before integration.
