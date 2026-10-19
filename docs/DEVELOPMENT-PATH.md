@@ -684,3 +684,7 @@ line or two, with the page that holds the detail.
 ## Shared first-impression kit (cycle 1 spare effort)
 
 - [x] ONBOARD-KIT1 [dot / Adam] (merged: dot, PR #294, 2026-10-13; all 21 suites / 526 focused browser checks; authorized public verification in #301) Reusable browser newcomer guidance with one Realmbound adapter and a neutral reference fixture. Files: `shared/onboarding.*`, `games/realmbound/` guidance integration, focused tests/tools/workflow and evidence, one-line coordination notes. Done when goal/input/orientation hints remain inside the game, current story/dismissal/save behavior is retained, keyboard/touch portrait/landscape/desktop/large-font/rotation/reload/old-save checks and current aggregates pass, and an independent review is recorded. No other production adapter or new playtest campaign; Adam approved #294 merge and live verification on 2026-10-13.
+
+## Review integration, 2026-10-19
+
+- [ ] REVIEW-INTEGRATION-20261019 [ChatGPT] Record Evan-authorized merge batch, completed scoped tasks, exact checks and holds. Own README changelog, START-HERE Session log, task records and docs/research/review-integration-20261019.md. (claimed: Codex / root for Evan, 2026-10-19, codex/review-integration-20261019). No runtime, save or publication changes.
