@@ -86,10 +86,12 @@ func _build_world() -> void:
 		surfaces.set_instance_color(index,color);index+=1
 		if glyph=="T" and posmod(cell.x+cell.y*2,3)==0: _tree(at,2.4+fposmod(cell.x*.3+cell.y*.4,1.0),Color.WHITE)
 		elif glyph=="=":
-			var vertical: bool=world_map.glyph(cell+Vector2i.UP)=="=" or world_map.glyph(cell+Vector2i.DOWN)=="="
-			var horizontal: bool=world_map.glyph(cell+Vector2i.LEFT)=="=" or world_map.glyph(cell+Vector2i.RIGHT)=="="
 			_solid(at+Vector3(0,.45,0),Vector3(.13,.9,.13),PAPER)
-			for y in [.28,.63]: _solid(at+Vector3(0,y,0),Vector3(.09,.09,Map.CELL) if vertical and not horizontal else Vector3(Map.CELL,.09,.09),Color("ded3b5"))
+			# One half-rail toward each fence neighbour: corners join on both axes, runs meet once at cell edges, gaps and end posts stay open.
+			for step in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
+				if world_map.glyph(cell+step)!="=": continue
+				var half := Vector3(step.x,0,step.y)*Map.CELL*.25
+				for y in [.28,.63]: _solid(at+half+Vector3(0,y,0),Vector3(Map.CELL*.5 if step.x else .09,.09,Map.CELL*.5 if step.y else .09),Color("ded3b5"))
 		elif glyph=="\"": _prop("grass_leafs",at,.35,cell.x+cell.y)
 		elif glyph=="f": _prop("flower_yellowC" if cell.x%2 else "flower_purpleA",at,.35)
 		elif glyph=="~":
