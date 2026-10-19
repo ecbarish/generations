@@ -19,26 +19,26 @@
           "id": "wildbond:mosshog",
           "stage": "base",
           "identity_status": "Established species identity; visual concept approved by Evan; runtime asset readiness separate.",
-          "art_approval": "concept approved by Evan; not runtime-ready"
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         },
         {
           "id": "wildbond:thicketboar",
           "stage": "middle",
           "identity_status": "Established species identity; visual concept approved by Evan; runtime asset readiness separate.",
-          "art_approval": "concept approved by Evan; not runtime-ready"
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         },
         {
           "id": "wildbond:thornback",
           "stage": "final",
           "identity_status": "Established species identity; visual concept approved by Evan; runtime asset readiness separate.",
-          "art_approval": "concept approved by Evan; not runtime-ready"
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         },
         {
           "concept_id": "wildbond:mega-thornback",
           "base_species": "wildbond:thornback",
           "stage": "temporary_mega",
           "identity_status": "Proposed form ID; visual concept approved by Evan; no runtime record.",
-          "art_approval": "concept approved by Evan; not runtime-ready"
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         }
       ],
       "legacy_normal_evolution": {
@@ -52,7 +52,7 @@
       "previous_board": "mosshog-family-v1.png",
       "facial_progression": "Baby roundness -> adolescent muzzle/jaw/eye transition -> mature angular skull, longer muzzle and narrower gaze; not the same face enlarged.",
       "mega_design_bar": "Dramatic structural and silhouette change beyond the normal final; do not rely only on added glow, foliage or flames.",
-      "concept_approval": "Evan explicitly approved the entire Mosshog family; preserve board and silhouettes."
+      "concept_approval": "Selected concept designs approved by Evan, 2026-10-18; production acceptance separate."
     },
     {
       "theme": "tide",
@@ -71,26 +71,27 @@
           "id": "wildbond:ripplet",
           "stage": "base",
           "identity_status": "Established species identity; visual concept approved by Evan; runtime asset readiness separate.",
-          "art_approval": "concept approved by Evan; not runtime-ready"
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         },
         {
           "id": "wildbond:riverwisp",
           "stage": "middle",
           "identity_status": "Established species identity; visual concept approved by Evan; runtime asset readiness separate.",
-          "art_approval": "concept approved by Evan; not runtime-ready"
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         },
         {
           "id": "wildbond:tidewyrm",
           "stage": "final",
           "identity_status": "Established species identity; visual concept approved by Evan; runtime asset readiness separate.",
-          "art_approval": "concept approved by Evan; not runtime-ready"
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         },
         {
           "concept_id": "wildbond:mega-tidewyrm",
           "base_species": "wildbond:tidewyrm",
           "stage": "temporary_mega",
           "identity_status": "proposed form ID and art; no runtime record",
-          "art_reference": "mega-tidewyrm-wings-v1.png"
+          "art_reference": "mega-tidewyrm-wings-v1.png",
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         }
       ],
       "legacy_normal_evolution": {
@@ -104,7 +105,7 @@
       "previous_board": "ripplet-family-v1.png",
       "facial_progression": "Baby roundness -> adolescent muzzle/jaw/eye transition -> mature angular skull, longer muzzle and narrower gaze; not the same face enlarged.",
       "mega_design_bar": "Dramatic structural and silhouette change beyond the normal final; do not rely only on added glow, foliage or flames.",
-      "concept_approval": "Base/middle/final explicitly approved; standalone water-wing Mega candidate pending.",
+      "concept_approval": "Selected concept designs approved by Evan, 2026-10-18; production acceptance separate.",
       "mega_art": "mega-tidewyrm-wings-v1.png"
     },
     {
@@ -123,24 +124,28 @@
         {
           "id": "wildbond:cindercub",
           "stage": "base",
-          "identity_status": "previously approved; current runtime sprites unchanged"
+          "identity_status": "previously approved; current runtime sprites unchanged",
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         },
         {
           "id": "wildbond:smoulderpup",
           "stage": "middle",
-          "identity_status": "existing legacy evolution-overlay species; new art candidate"
+          "identity_status": "existing legacy evolution-overlay species; new art candidate",
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         },
         {
           "id": "wildbond:blazefang",
           "stage": "final",
-          "identity_status": "existing legacy species; new art candidate"
+          "identity_status": "existing legacy species; new art candidate",
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         },
         {
           "concept_id": "wildbond:mega-blazefang",
           "base_species": "wildbond:blazefang",
           "stage": "temporary_mega",
           "identity_status": "proposed form ID and art; no runtime record",
-          "art_reference": "mega-blazefang-blue-v1.png"
+          "art_reference": "mega-blazefang-blue-v1.png",
+          "art_approval": "Concept approved by Evan; production acceptance separate."
         }
       ],
       "legacy_normal_evolution": {
@@ -155,7 +160,14 @@
       "facial_progression": "Baby roundness -> adolescent muzzle/jaw/eye transition -> mature angular skull, longer muzzle and narrower gaze; not the same face enlarged.",
       "mega_design_bar": "Dramatic structural and silhouette change beyond the normal final; do not rely only on added glow, foliage or flames.",
       "mega_art": "mega-blazefang-blue-v1.png",
-      "mega_palette": "Obsidian, deep cobalt, silver-white and blue/cyan fire. Visual palette only; no Ice/Water type or ability inferred."
+      "mega_palette": "Obsidian, deep cobalt, silver-white and blue/cyan fire. Visual palette only; no Ice/Water type or ability inferred.",
+      "concept_approval": "Selected concept designs approved by Evan, 2026-10-18; production acceptance separate."
     }
-  ]
+  ],
+  "approval_update": {
+    "date": "2026-10-18",
+    "operator": "Evan",
+    "statement": "These megas are perfect and we've completed the starters artwork",
+    "scope": "All selected concept designs approved; production sprite/animation acceptance and runtime readiness remain separate."
+  }
 }

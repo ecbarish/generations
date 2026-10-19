@@ -2,6 +2,10 @@
 
 WB-STARTER-FAMILIES, Codex / root for Evan, 2026-10-18. PR #571, stacked on #570. Three complete family concept boards, **12 stage/form designs**: base, middle, final and temporary Mega for each approved original starter. Mosshog's complete concept line and Ripplet's normal line are now approved; the two standalone Mega revisions and other unapproved appearances remain candidates. The approved base identities remain the authority; no saved creature, live evolution, combat stat, sprite atlas or public build changes.
 
+## Concept approval complete (2026-10-18)
+
+Evan approved the two standalone Mega revisions and declared the starter concept artwork complete: "These megas are perfect and we've completed the starters artwork." This later approval supersedes candidate/pending language below for the selected designs. Preserve every selected design. Production sprites, animation acceptance, permanent evolution and temporary Mega combat remain separate work.
+
 ## Current approved direction and focused Mega revisions
 
 Evan explicitly approved **the entire Mosshog line** and **Ripplet's normal line**. Their current boards and normal designs remain byte-for-byte unchanged. He requested a more ultimate Mega Blazefang with a dramatic color change, supplying Mega Charizard X as the reference, and suggested water wings for Mega Tidewyrm.
