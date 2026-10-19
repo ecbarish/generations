@@ -1,6 +1,7 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><title>Keymaster checks</title><style>body{font:16px system-ui;background:#2a2420;color:#f4eddc;padding:20px}.pass{color:#9ee7ba}.fail{color:#ffaaa6}button{min-height:44px}iframe{width:375px;height:812px;border:0;background:#fff}</style><h1>Keymaster checks</h1><button id="run">Run checks</button><p id="summary">Ready.</p><ol id="results"></ol><div id="game"></div><script>
 'use strict';
-// KM0: the deal analyzer's arithmetic, the sellers' answers, the first year, and the real buttons on phone and desktop.
+// Keymaster: the deal analyzer's arithmetic, the sellers' answers, the first year, KM-STREET's five lessons and a full run
+// along Alder Street with the real buttons, on phone and desktop.
 document.querySelector('#run').onclick=async()=>{
  const sum=document.querySelector('#summary'),list=document.querySelector('#results'),button=document.querySelector('#run');
  button.disabled=true;list.replaceChildren();sum.textContent='Running…';let frame,n=0;
@@ -13,7 +14,7 @@ document.querySelector('#run').onclick=async()=>{
   const w=frame.contentWindow,d=w.document,H=w.__keymaster,M=H.M,L=M.LISTING;
   const click=sel=>{const b=d.querySelector(sel);if(!b)throw Error('no button '+sel);b.click();};
   const text=sel=>d.querySelector(sel).textContent;
-  check('the game loads with its test hook and one listing',!!H&&L.ask===240000&&text('#addr')===L.address);
+  check('the game loads with its test hook on the first home of the street',!!H&&L.ask===240000&&text('#addr')===L.address+', Millbrook'&&M.STREET.length===5);
   // ---- the arithmetic, checkable on paper
   check('mortgage: $180,000 at 7% over 30 years is $1,197.54 a month',near(M.payment(180000,0.07,30),1197.54,0.01));
   check('a zero loan has no payment',M.payment(0,0.07,30)===0);
@@ -42,28 +43,54 @@ document.querySelector('#run').onclick=async()=>{
   check('buying right is a great buy (216k, full renovation)',M.verdict(y.onCash).word==='A great buy');
   check('overpaying as-is is a costly buy (240k)',M.verdict(M.firstYear({price:240000,down:0.25,rehab:'asis'}).onCash).word==='A costly buy');
   check('asking price with the full renovation is solid, not great',M.verdict(M.firstYear({price:240000,down:0.25,rehab:'full'}).onCash).word==='A solid buy');
-  // ---- the real buttons
-  check('it opens at asking, 25% down, the refresh',text('#offer')==='$240,000'&&d.querySelector('[data-down="0.25"]').getAttribute('aria-checked')==='true'&&d.querySelector('[data-rehab="refresh"]').getAttribute('aria-checked')==='true');
+  // ---- KM-STREET: each home teaches its lesson, checked as a fact over every price, down payment and plan
+  const every=(h,f)=>{for(const price of [h.ask,M.lowestOf(h)])for(const down of [0.2,0.25])for(const rehab of Object.keys(h.plans))if(!f(M.firstYear({price,down,rehab},h)))return false;return true;};
+  const home=id=>M.STREET.find(h=>h.id===id);
+  check('3 Alder, the pretty one, never pays at any price or plan',every(home('alder3'),y=>y.onCash<0));
+  check('9 Alder passes the 1% rule yet is always worth less than its price',every(home('alder9'),y=>y.analysis.onePercent>=0.01&&y.analysis.equity<0&&y.onCash<0));
+  check('22 Alder barely pays as it is, but pays well refreshed',M.firstYear({price:235000,down:0.2,rehab:'asis'},home('alder22')).onCash<0&&M.firstYear({price:235000,down:0.2,rehab:'refresh'},home('alder22')).onCash>=0.3);
+  check('14 Alder is a costly buy at asking as it is, and a great one at the sellers\' lowest',M.firstYear({price:240000,down:0.25,rehab:'asis'},home('alder14')).onCash<0&&M.firstYear({price:216000,down:0.25,rehab:'refresh'},home('alder14')).onCash>=0.3);
+  const plan=M.newRun();[[216000,0.25],[null],[235000,0.2],[null],[138000,0.2]].forEach(([price,down])=>price?M.buyHome(plan,{price,down,rehab:'refresh'}):M.passHome(plan));
+  check('the three good homes, refreshed, fit in $200,000 and win the street',M.finished(plan)&&M.won(plan)&&M.paying(plan)===3&&plan.cash>0);
+  const big=M.newRun();M.buyHome(big,{price:216000,down:0.25,rehab:'full'});M.passHome(big);M.buyHome(big,{price:235000,down:0.25,rehab:'full'});M.passHome(big);
+  check('full work everywhere leaves too little cash for the cottage',!M.canAfford(big,{price:138000,down:0.2,rehab:'asis'}));
+  check('a run cannot buy what it cannot afford',(()=>{try{M.buyHome(big,{price:150000,down:0.25,rehab:'full'});return false;}catch(e){return /cash/.test(e.message);}})());
+  // ---- the real buttons, one run along the street
+  check('it opens on 14 Alder at asking, 25% down, the refresh, with $200,000 and the goal',text('#offer')==='$240,000'&&d.querySelector('[data-down="0.25"]').getAttribute('aria-checked')==='true'&&d.querySelector('[data-rehab="refresh"]').getAttribute('aria-checked')==='true'&&text('#cash')==='$200,000'&&/0 of 3/.test(text('#goal'))&&d.querySelectorAll('#doors li').length===5);
   const flow0=text('#flow');click('[data-offer="-2000"]');
   check('− lowers the offer by $2,000 and the worksheet follows',text('#offer')==='$238,000'&&text('#flow')!==flow0);
   click('[data-rehab="full"]');check('choosing the full renovation changes the rent',text('#rent')==='$2,300');
-  click('[data-down="0.2"]');check('20% down borrows 80%',/80% borrowed/.test(text('#loanLabel')));click('[data-down="0.25"]');
+  click('[data-down="0.2"]');check('20% down borrows 80%',/80% borrowed/.test(text('#loanLabel')));click('[data-down="0.25"]');click('[data-rehab="refresh"]');
   for(let i=0;i<14;i++)click('[data-offer="-2000"]');
   check('offering $210,000 shows the measures in their colours',text('#offer')==='$210,000'&&d.querySelector('[data-m="one"]').className==='good');
   click('#offerBtn');await wait();
   check('a low offer gets a counter at $216,000',!d.querySelector('#answer').hidden&&/216,000/.test(text('#answer'))&&!!d.querySelector('[data-act="take"]'));
   check('the worksheet is locked while you answer',d.querySelector('#offerBtn').disabled&&d.querySelector('[data-offer="2000"]').disabled);
   click('[data-act="take"]');await wait();
-  check('taking the counter buys it: the year shows twelve months and a verdict',d.querySelectorAll('.months li').length===12&&/A great buy/.test(text('#answer'))&&text('#offer')==='$216,000');
-  click('[data-act="again"]');await wait();
-  check('try again goes back to the start',text('#offer')==='$240,000'&&d.querySelector('#answer').hidden&&!d.querySelector('#offerBtn').disabled);
-  for(let i=0;i<25;i++)click('[data-offer="-2000"]');
+  check('taking the counter buys it: twelve months, a verdict, and it counts',d.querySelectorAll('.months li').length===12&&/A great buy/.test(text('#answer'))&&/counts toward your street/.test(text('#answer')));
+  check('the cash and the street follow: $68,480 spent, 1 of 3',text('#cash')==='$131,520'&&/1 of 3/.test(text('#goal'))&&d.querySelector('#doors li').className==='owned');
+  click('[data-act="next"]');await wait();
+  check('the next listing is 3 Alder, at its own asking price and plans',/^3 Alder Street/.test(text('#addr'))&&text('#offer')==='$285,000'&&/basement/.test(text('.rehab'))&&d.querySelector('#answer').hidden);
+  for(let i=0;i<30;i++)click('[data-offer="-2000"]');
   click('#offerBtn');await wait();check('a lowball gets a no, with one more try',/They say no/.test(text('#answer'))&&!d.querySelector('#offerBtn').disabled);
   check('a no offers a way back to the offer',!!d.querySelector('[data-act="change"]'));click('[data-act="change"]');check('Change your offer moves focus to Offer more',d.activeElement===d.querySelector('[data-offer="2000"]'));
-  click('#offerBtn');await wait();check('a second no and they sell to someone else',/another buyer/.test(text('#answer'))&&d.querySelector('#offerBtn').disabled);
-  click('[data-act="again"]');await wait();click('#passBtn');await wait();
-  check('passing shows what the next buyer made',/Another investor bought it for \$216,000/.test(text('#answer')));
+  click('#offerBtn');await wait();check('a second no and they sell to someone else, with the lesson',/another buyer/.test(text('#answer'))&&/not always a good rental/.test(text('#answer'))&&d.querySelector('#offerBtn').disabled);
+  click('[data-act="next"]');await wait();
+  check('22 Alder, the triplex, is next',/^22 Alder Street/.test(text('#addr'))&&text('#offer')==='$255,000');
+  for(let i=0;i<10;i++)click('[data-offer="-2000"]');click('[data-down="0.2"]');click('#offerBtn');await wait();
+  check('buying the triplex refreshed at $235,000 is a great buy',/You own 22 Alder Street/.test(text('#answer'))&&/A great buy/.test(text('#answer'))&&/2 of 3/.test(text('#goal')));
+  click('[data-act="next"]');await wait();click('#passBtn');await wait();
+  check('passing on 9 Alder shows what the next buyer did, and the lesson',/You pass on 9 Alder Street/.test(text('#answer'))&&/only a quick screen/.test(text('#answer')));
+  click('[data-act="next"]');await wait();
+  const cash=H.run().cash;H.run().cash=20000;H.render();
+  check('without the cash, the offer is shut and the page says why',d.querySelector('#offerBtn').disabled&&!d.querySelector('#afford').hidden&&/you have \$20,000/.test(text('#afford')));
+  H.run().cash=cash;H.render();
+  for(let i=0;i<6;i++)click('[data-offer="-2000"]');click('[data-down="0.2"]');click('#offerBtn');await wait();
+  check('the cottage finishes the street: 3 of 3',/You own 31 Alder Street/.test(text('#answer'))&&/See your street/.test(text('#answer')));
+  click('[data-act="next"]');await wait();
+  check('your street: won, five homes listed, the worksheet put away',/You built a street that pays/.test(text('#answer'))&&d.querySelectorAll('.yours li').length===5&&d.querySelector('.sheet').hidden);
   click('[data-act="again"]');await wait();
+  check('walking the street again starts over with $200,000',/^14 Alder Street/.test(text('#addr'))&&text('#cash')==='$200,000'&&text('#offer')==='$240,000'&&!d.querySelector('.sheet').hidden);
   for(let i=0;i<30;i++)click('[data-offer="2000"]');check('the offer has a ceiling',text('#offer')==='$260,000'&&d.querySelector('[data-offer="2000"]').disabled);
   // ---- phone and desktop
   for(const [width,height] of [[320,568],[375,812],[812,375],[1366,768],[1920,1080]]){
