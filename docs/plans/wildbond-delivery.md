@@ -27,7 +27,7 @@ Current prototypes already implement parts of this. Inspect and improve them; do
 The studio's existing newcomer target (17/18, with full marks for objective, controls and phone) and launch fun floor (7/10) remain. A higher score is a goal, not a substitute for watching Evan actually play. No schedule is inferred from PR throughput.
 
 ## Immediate unblockers
-- **#593:** owner Windows fallback capture passes 53/0; six images inspected; all 28 aggregate suites pass at 2d0f0da. Dot must repair the Windows fake-engine argument transport; 39 fixture assertions pass before its strict private-pack assertion fails. Keep draft until corrected final-head checks pass. Native capture access is no longer the blocker.
+- **#593:** the fixture repair at 7c535ffa now passes all 40 Windows checks and actual Godot 4.7.2 fallback capture 53/0; all six final-head images inspected. Current-head CI Checks (all 28 suites) and export freshness pass. Owner blockers cleared; ready for deliberate integration with parent #591. Earlier fixture/native-access blockers are historical.
 - **Fence:** Dad's Grok owns WB-GUEST-FENCE-CONNECTIONS. Obtain its status and deliver the existing bounded repair; do not start a second fence implementation.
 - **Integration:** current chapter reference is #591 / c94e856b, pending the two bounded follow-ups above. It is a reference, not a claim that it is the published game. List each earlier relevant PR as retain, replace or defer, with source evidence. Consolidate deliberately and retire duplicates when their work is preserved.
 - **Legacy screenshot:** #491 is already in that chapter's ancestry. Its old scripts/battle.gd issue is not evidence against tests/opening/battle.gd. Review retained legacy entry paths separately. Older branches and web exports overlap; never apply an old pack over the chosen chapter accidentally.
@@ -69,7 +69,7 @@ Builders handle deterministic sheet slicing, animation/frame wiring, asset valid
 Claude and Dad's AIs are actively working: their current claimed paths and assignments continue. This plan does not stop, duplicate or transfer an active task. Codex creates key art outside those owned runtime paths and hands off finished assets through an explicit PR/reference revision.
 
 ## Before and after Grok returns
-**Until the return:** close #593's fixture defect, obtain the fence handoff, pin the chosen chapter and resolve the integration inventory. Prepare a single ready work order for Grok; do not spend the two days inventing more far-future content.
+**Until the return:** retain #593's validated handoff, obtain the fence handoff, pin the chosen chapter and resolve the integration inventory. Prepare a single ready work order for Grok; do not spend the two days inventing more far-future content.
 
 **On return:** Grok takes the highest-priority READY bundle with disjoint owned paths. Environment/presentation work is a good default only if integration has established its base and fence ownership is clear. If it would collide with Claude, use a scoped asset/motion deliverable outside the shared scene instead. Finish, review and land the first bundle before claiming another. No deadline or guaranteed output is inferred from the subscription.
 
