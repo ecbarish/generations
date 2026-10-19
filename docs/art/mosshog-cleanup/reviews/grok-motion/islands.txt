@@ -1,0 +1,1 @@
+thicketboar assets [(11, 'down-side p3', [(6, -13, -8)])]
