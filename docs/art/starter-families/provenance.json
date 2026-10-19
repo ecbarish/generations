@@ -21,7 +21,8 @@
       "mode": "RGB",
       "source_output": "exec-494962d6-4872-4074-8298-6942dc6731c8.png",
       "runtime_ready": false,
-      "status": "concept candidate"
+      "status": "retained earlier concept; superseded after Evan facial/Mega feedback",
+      "selected": false
     },
     {
       "file": "ripplet-family-v1.png",
@@ -34,7 +35,8 @@
       "mode": "RGB",
       "source_output": "exec-12ed8db8-a24e-4030-abb0-2c694af2bcbd.png",
       "runtime_ready": false,
-      "status": "concept candidate"
+      "status": "retained earlier concept; superseded after Evan facial/Mega feedback",
+      "selected": false
     },
     {
       "file": "cindercub-family-v2.png",
@@ -47,16 +49,60 @@
       "mode": "RGB",
       "source_output": "exec-9abe243d-bcb1-405a-a94d-6c31019369bc.png",
       "runtime_ready": false,
-      "status": "concept candidate"
+      "status": "retained earlier concept; superseded after Evan facial/Mega feedback",
+      "selected": false
+    },
+    {
+      "file": "mosshog-family-v2.png",
+      "sha256": "35265133a32fe1155a19fc134df41284c94c01acf5929d0fdc591dda97713d94",
+      "bytes": 2577510,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-cbc9b1aa-6c08-4a09-9173-852fe5359fbb.png",
+      "runtime_ready": false,
+      "selected": true,
+      "status": "revised concept candidate; visual acceptance pending"
+    },
+    {
+      "file": "ripplet-family-v2.png",
+      "sha256": "eebbdad70e0a8e2bde965f11fecb24c7a4d60c1fe09ff0fff64e9e86bb6a7c34",
+      "bytes": 2369707,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-12a712e8-f231-4d16-94d1-5446222cbbf5.png",
+      "runtime_ready": false,
+      "selected": true,
+      "status": "revised concept candidate; visual acceptance pending"
+    },
+    {
+      "file": "cindercub-family-v3.png",
+      "sha256": "23039ef5a120cd452c4b005478bc024beeea50a682c2dadaadbe90563d6beec3",
+      "bytes": 2362574,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-b28a9aea-c07f-4c91-9bb9-6045c6fdfbda.png",
+      "runtime_ready": false,
+      "selected": true,
+      "status": "revised concept candidate; visual acceptance pending"
     }
   ],
   "processing": "Generated PNG bytes copied unchanged. No cropping, resampling, pixel rewriting or runtime atlas generation.",
-  "iteration": "First Cindercub board had an insufficiently distinct Mega; final v2 revises its crescent mantle, brace and forked tail. Earlier output remains at the built-in generated-image location, not selected for this delivery.",
+  "iteration": "First Cindercub board had an insufficiently distinct Mega; final v2 revises its crescent mantle, brace and forked tail. Earlier output remains at the built-in generated-image location, not selected for this delivery. Subsequent user-feedback revision selects Mosshog v2, Ripplet v2 and Cindercub v3. Prior project boards are retained. Whole-board regeneration may alter pixels beyond the intended regions; no byte-identical base-panel claim.",
   "limits": [
     "Concept boards, not sprite atlases or animation sheets.",
     "New middle/final/Mega appearances are review candidates; only base identities were previously approved.",
     "No live evolution, Mega combat, saved species or stats changed.",
     "Simplify foliage, flowing fins and flame clusters during native sprite production.",
     "The Cindercub Mega-focused edit re-rendered the board; other panels are visually consistent, not byte/pixel-identical to the discarded v1."
-  ]
+  ],
+  "revision_feedback": "Evan requested real facial maturation analogous in degree to Charmander evolving, plus much more dramatic Mega forms. Base identities retained; later skull/muzzle/jaw/eye proportions and Mega silhouette revised."
 }

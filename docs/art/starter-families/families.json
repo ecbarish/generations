@@ -4,7 +4,7 @@
   "families": [
     {
       "theme": "grove",
-      "board": "mosshog-family-v1.png",
+      "board": "mosshog-family-v2.png",
       "personality_arc": "stubborn gardener to protective grove keeper",
       "identity_landmarks": [
         "dark snout",
@@ -44,11 +44,14 @@
         "source": "wildbond-godot/data/evolution.json",
         "changed": false
       },
-      "runtime_ready": false
+      "runtime_ready": false,
+      "previous_board": "mosshog-family-v1.png",
+      "facial_progression": "Baby roundness -> adolescent muzzle/jaw/eye transition -> mature angular skull, longer muzzle and narrower gaze; not the same face enlarged.",
+      "mega_design_bar": "Dramatic structural and silhouette change beyond the normal final; do not rely only on added glow, foliage or flames."
     },
     {
       "theme": "tide",
-      "board": "ripplet-family-v1.png",
+      "board": "ripplet-family-v2.png",
       "personality_arc": "playful bubble-maker to composed river guardian",
       "identity_landmarks": [
         "golden eyes",
@@ -88,11 +91,14 @@
         "source": "wildbond-godot/data/evolution.json",
         "changed": false
       },
-      "runtime_ready": false
+      "runtime_ready": false,
+      "previous_board": "ripplet-family-v1.png",
+      "facial_progression": "Baby roundness -> adolescent muzzle/jaw/eye transition -> mature angular skull, longer muzzle and narrower gaze; not the same face enlarged.",
+      "mega_design_bar": "Dramatic structural and silhouette change beyond the normal final; do not rely only on added glow, foliage or flames."
     },
     {
       "theme": "ember",
-      "board": "cindercub-family-v2.png",
+      "board": "cindercub-family-v3.png",
       "personality_arc": "cocky ember puppy to loyal hearth guardian",
       "identity_landmarks": [
         "pointed ears",
@@ -132,7 +138,10 @@
         "source": "wildbond-godot/data/evolution.json",
         "changed": false
       },
-      "runtime_ready": false
+      "runtime_ready": false,
+      "previous_board": "cindercub-family-v2.png",
+      "facial_progression": "Baby roundness -> adolescent muzzle/jaw/eye transition -> mature angular skull, longer muzzle and narrower gaze; not the same face enlarged.",
+      "mega_design_bar": "Dramatic structural and silhouette change beyond the normal final; do not rely only on added glow, foliage or flames."
     }
   ]
 }
