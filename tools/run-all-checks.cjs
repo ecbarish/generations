@@ -28,19 +28,7 @@ function serve(){return new Promise(ok=>{const server=http.createServer((req,res
 /* Any browser already on the computer, before Playwright's own Chromium (which needs a download that some machines
    and sandboxes can't make). Chrome or Edge on Windows (every Windows 10/11 PC has Edge), Chrome, Chromium or Edge on
    macOS and Linux. CHROME_PATH still wins. Returns undefined to let Playwright use its own browser. */
-function browserPath(){
-  if(process.env.CHROME_PATH)return process.env.CHROME_PATH;
-  const local=process.env.LOCALAPPDATA||'',pf=process.env.ProgramFiles||'C:/Program Files',pf86=process.env['ProgramFiles(x86)']||'C:/Program Files (x86)';
-  const candidates={
-    win32:[pf+'/Google/Chrome/Application/chrome.exe',pf86+'/Google/Chrome/Application/chrome.exe',local+'/Google/Chrome/Application/chrome.exe',
-      pf86+'/Microsoft/Edge/Application/msedge.exe',pf+'/Microsoft/Edge/Application/msedge.exe'],
-    darwin:['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome','/Applications/Chromium.app/Contents/MacOS/Chromium',
-      '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge'],
-    linux:['/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser',
-      '/snap/bin/chromium','/usr/bin/microsoft-edge','/opt/pw-browsers/chromium'],
-  }[process.platform]||[];
-  return candidates.find(p=>{try{return fs.statSync(p).isFile();}catch(e){return false;}});
-}
+const browserPath=require('./find-browser.cjs');
 
 function findGodot(){
   if(process.env.GODOT)return process.env.GODOT;

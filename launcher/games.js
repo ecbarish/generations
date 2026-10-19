@@ -6,7 +6,7 @@ window.ArcadeKinds=[
   {id:'adventure',name:'Adventures',like:'Explore a world on foot, meet people, fight and grow stronger. Wildbond, the headline game, is about bonding with creatures and bringing colour back to the world; Realmbound is a classic MMO with quests and a guild.'},
   {id:'kids',name:'For little ones',like:'Gentle toys for ages 2 to 4: no reading, nothing to lose, and big things to tap. Sit with them and play together.'},
   {id:'build',name:'Build and manage',like:'Run a place and the people in it: post jobs, earn coin, upgrade buildings and hire helpers who take work off your hands.'},
-  {id:'sports',name:'Sports',like:'Run a baseball club, or play a short football game under the lanterns. Hockey is still to come.'},
+  {id:'sports',name:'Sports',like:'Run a baseball club: set the lineup, make trades and grow the ballpark. Hockey is still to come.'},
   {id:'story',name:'Stories',like:'Story life sims: live a whole life, read, choose and live with what you chose. Lives branch toward different endings. Nothing plays itself.'},
   {id:'different',name:'Arcade cabinets',like:'Quick arcade cabinets with high scores and two-player turns: aim, dodge and beat your best. Pure action, nothing runs itself.'},
 ];
@@ -55,11 +55,12 @@ window.ArcadeGames=[
    blurb:'Take over the worst club in the league. Watch your games play out, set the batting order, trade with five rival clubs, sign free agents, re-sign or let go, and grow Lamplight Field with the gate money.',
    tags:['Baseball','Team manager','Trades & contracts'],cover:'baseball',
    kind:'sports',goal:'Take over the worst club in a six-club league and manage it through a thirty-game season: the batting order, trades, free agents and the ballpark.',controls:'Press Play ball (or Space) to watch the next game · open the Front office (or F) to change the team · everything else by mouse or tap.'},
-  {id:'lantern-bowl',title:'Lantern Bowl',tcls:'t-lantern',status:['Test version','s-proto'],href:'games/lantern-bowl/index.html',
-   blurb:'Coach the Brackenport Lanterns for one game at Lamplight Field. Call the play, then throw, juke and dive against Millrace.',
-   tags:['Football','You play the snaps','Two-minute quarters'],cover:'lantern',
-   kind:'sports',goal:'Play your offence for a whole game. Drag to throw, swipe to juke, tap to dive, and hold Turbo until your wind gives out.',
-   controls:'Drag right to throw (a short pull is a bullet, a long pull is a lob). Swipe sideways to juke. Tap to dive. Turbo is the button. Keys 1–4 call a play.'},
+  {id:'keymaster',title:'Keymaster',tcls:'t-keymaster',status:['Test version','s-proto'],href:'games/keymaster/index.html',image:'images/lab/keymaster.jpg',
+   alt:'Keymaster: the deal worksheet for a duplex on Alder Street',
+   blurb:'Run the numbers on a duplex for sale: make an offer, pick a renovation for the empty unit, then live through its first year of rent, repairs and empty months. A property game built on a real deal analyzer.',
+   tags:['Real estate','Deal analyzer','Five-minute sessions'],cover:'keymaster',
+   kind:'build',goal:'Read the listing, run the numbers, and decide whether to buy 14 Alder Street, and at what price. A good deal pays you every month.',
+   controls:'Mouse or tap only: + and − change your offer, pick a down payment and a renovation, then Make this offer or Pass on it.'},
   {id:'otherworld',title:'Otherworld',tcls:'t-otherworld',status:['Prototype','s-proto'],href:'games/otherworld/index.html',
    blurb:'A story life sim, not idle management. Your old life ends, and in the Between you choose a new world and one gift with a cost. Every scene gives you real choices. Reach an ending, and the Memories carried ledger shows what your soul keeps and which new choices it opens in the next life.',
    tags:['Story life sim','Branching choices','Reincarnation'],cover:'otherworld',
@@ -74,6 +75,12 @@ window.ArcadeGames=[
 /* AR-SHELVE (Evan, 2026-10-13): off the site but kept. Their code, folders and save keys stay; old direct links still open.
    Primordial is hidden (AR-FRONT), not shelved. Nothing a visitor sees reads this list. */
 window.ArcadeOffShelf=[
+  /* Lantern Bowl shelved by Evan, 2026-10-18 (PRIORITIES log). */
+  {id:'lantern-bowl',title:'Lantern Bowl',tcls:'t-lantern',status:['Test version','s-proto'],href:'games/lantern-bowl/index.html',
+   blurb:'Coach the Brackenport Lanterns for one game at Lamplight Field. Call the play, then throw, juke and dive against Millrace.',
+   tags:['Football','You play the snaps','Two-minute quarters'],cover:'lantern',
+   kind:'sports',goal:'Play your offence for a whole game. Drag to throw, swipe to juke, tap to dive, and hold Turbo until your wind gives out.',
+   controls:'Drag right to throw (a short pull is a bullet, a long pull is a lob). Swipe sideways to juke. Tap to dive. Turbo is the button. Keys 1–4 call a play.'},
   {id:'wildbond',title:'Wildbond Classic',tcls:'t-wildbond',status:['Classic edition','s-classic'],edition:'classic',newer:'wildbond-preview',href:'games/wildbond/index.html',
    blurb:'Pick a partner, meet your rival Wren and walk from Larkhaven across eight regions, earning eight Warden badges on the way to the league and its Champion. Catch, raise and breed creatures, climb the Lighthouse Spire after the story, and watch a faded world grow from Game Boy greens into a 3D diorama.',
    tags:['Catch & raise','Evolving art','Full story'],cover:'wildbond',

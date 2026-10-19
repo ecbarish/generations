@@ -18,6 +18,7 @@ The homepage leads with Wildbond. Statuses match the cards in `launcher/games.js
 | [Realmbound](games/realmbound/) | Beta | Classic-MMO-inspired adventure: two factions, 5 classes including a pet-taming Hunter, levels 1–60, quests, loot and addons ([design](docs/realmbound-design.md)) |
 | [Little Ranch](games/little-ranch/) | Test version | A toy for ages 2 to 4: feed, bath, peekaboo and bedtime; no reading, nothing to lose |
 | [Diamond Manager](games/diamond-manager/) | Test version | Take over the worst baseball club in the league: lineups, trades, free agents and a ballpark that grows with the gate money |
+| [Keymaster](games/keymaster/) | Test version (launch game) | A property game built on a real deal analyzer: five homes for sale on Alder Street, $200,000, and a goal of three homes that pay |
 | [Otherworld](games/otherworld/) | Prototype | Three authored lives: Asterhold, Hearthmere and the Ashen Throne; costly gifts, choices, endings and knowledge carried between lives |
 | Arcade cabinets: [Storm Front](games/storm-front/), [Lighthouse Watch](games/lighthouse-watch/), [Brisket's Crossing](games/briskets-crossing/), [Ember Bricks](games/ember-bricks/) | Test versions | Quick arcade games with high scores and two-player turns |
 
@@ -27,7 +28,6 @@ The homepage leads with Wildbond. Statuses match the cards in `launcher/games.js
 |---|---|---|
 | [Lantern Bowl](games/lantern-bowl/) | Shelved by Evan, 2026-10-18 (Retro Bowl and Super Tiny Football already do this well) | One football game at Lamplight Field: you play the Lanterns' snaps against Millrace |
 | [Night Market](games/night-market/) | Launch game still being finished; its hall entry (NM-HUB) is not built yet | Work a lantern-lit stall yourself before anyone will run it |
-| [Keymaster](games/keymaster/) | Keep-alive slice only; more content is on the shelf | A property-portfolio game around Evan's deal analyzer |
 | [Primordial](games/primordial/) | Hidden from the hall (AR-FRONT) | Evolution idle game: cell to Leviathan, mutation drafts, niche fights, extinction resets |
 | [Diamond Career](games/diamond-career/) | Shelved (AR-SHELVE) | A baseball player's career: at-bats, a call-up, a contract and a life beyond the ballpark |
 | [Wildbond Classic](games/wildbond/) and [Starfall Guild Classic](games/starfall-guild/) | Shelved Classics (AR-SHELVE): the original browser editions, kept as they were | The finished first versions; all new work goes into the Godot editions |
