@@ -1,6 +1,7 @@
 /* Keymaster: a warm desk in an estate office. Plain CSS; no third-party assets. */
 :root{--paper:#f4eddc;--card:#fffaf0;--ink:#2a2420;--soft:#6a5e52;--line:#d8cbb2;--good:#2f6a4a;--bad:#a0402e;--accent:#8e342c;--gold:#f2d080}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
 .desk{max-width:1100px;margin:0 auto;padding:12px 16px 24px;display:grid;gap:14px;grid-template-columns:1fr}
 header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -40,9 +41,23 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .months b{display:block;font-size:.7rem;color:var(--soft);font-weight:400}
 .year{width:100%;border-collapse:collapse}.year th{text-align:left;font-weight:400;color:var(--soft);padding:3px 0}.year td{text-align:right;font-variant-numeric:tabular-nums}
 .verdict{font-size:1.25rem;font-weight:800;margin:10px 0 2px}
+/* KM-STREET: the goal, your cash and the five doors of Alder Street */
+.street{display:grid;gap:6px;grid-template-columns:1fr auto;align-items:center}
+.goal{margin:0;font-weight:700}.cash{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.doors{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.doors li{border:1px solid var(--line);border-radius:8px;padding:6px 4px;text-align:center;font-size:.78rem;color:var(--soft);line-height:1.2}
+.doors li b{display:block;font-size:.9rem;color:var(--ink)}
+.doors .now{border-color:var(--ink);background:#fff;box-shadow:0 0 0 2px var(--gold)}
+.doors .owned{background:#e4efe4;border-color:#a8c8ac}.doors .owned.costly{background:#fbe9df;border-color:#e0b8a8}
+.doors .gone{opacity:.6;text-decoration:line-through}
+.afford{margin:10px 0 0;color:var(--bad);font-weight:600}
+.house svg{width:100%;max-width:340px;height:auto;display:block;margin:0 auto}
+.yours{list-style:none;padding:0;margin:10px 0;display:grid;gap:6px}
+.yours li{border:1px solid var(--line);border-radius:8px;padding:8px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
+.yours li small{grid-column:1/-1;color:var(--soft)}.yours .pays{background:#eef6ee}.yours .lost{background:#fbe9df}
 @media (min-width:860px){
  .desk{grid-template-columns:minmax(300px,2fr) 3fr;align-items:start}
- header,.answer{grid-column:1/-1}
+ header,.street,.answer{grid-column:1/-1}
 }
 @media (max-width:420px){.choices,.measures{grid-template-columns:1fr}.months{grid-template-columns:repeat(4,1fr)}}
 @media (prefers-reduced-motion:no-preference){.answer{animation:rise .25s ease-out}@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1}}}

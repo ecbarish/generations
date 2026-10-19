@@ -44,7 +44,7 @@ Playable and fun, the same bar as the other launch games. Further improvements d
 ## Must-haves (these block finish)
 
 1. **KM-HUB:** a homepage card in `launcher/games.js`, with status, goal and controls, so a newcomer can open Keymaster from the hall (KML-1). One pull. `tests/keymaster.html` already runs in `tools/run-all-checks.cjs`, and `node tools/launcher-checks.cjs` must still pass.
-2. **KM-STREET:** a short run of listings in one five-minute session, so there is a second and third decision (KML-1, KML-5). This is the proposal's first progression step, "a few doors on one street". Requirements:
+2. **KM-STREET** (built: five listings on Alder Street, $200,000, own three that pay; design [keymaster-street.md](keymaster-street.md), approved 2026-10-19): a short run of listings in one five-minute session, so there is a second and third decision (KML-1, KML-5). This is the proposal's first progression step, "a few doors on one street". Requirements:
    - Each listing makes a different analyzer line matter, and at least one is a deal you should pass on.
    - A goal line names what the run is for.
    - The exact goal is a design choice for the owner and Evan; this checklist does not set it.

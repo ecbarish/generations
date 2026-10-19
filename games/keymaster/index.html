@@ -1,22 +1,13 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Keymaster · Generations</title><link rel="stylesheet" href="style.css"></head><body>
 <main class="desk">
-<header><a class="home" href="../../index.html" aria-label="Back to the arcade">← Arcade</a><h1>Keymaster</h1><span class="tag">One listing · a first test</span></header>
+<header><a class="home" href="../../index.html" aria-label="Back to the arcade">← Arcade</a><h1>Keymaster</h1><span class="tag">Alder Street, Millbrook</span></header>
+<section class="street" id="street" aria-label="Your street"><p class="goal" id="goal"></p><ol class="doors" id="doors" aria-label="The five homes for sale"></ol><p class="cash">Your cash: <b id="cash"></b></p></section>
 <section class="listing" aria-labelledby="addr">
- <svg class="house" viewBox="0 0 220 130" role="img" aria-label="A two-storey duplex with two front doors; the right half looks tired">
-  <rect x="0" y="112" width="220" height="18" fill="#7a9a5c"/>
-  <polygon points="18,58 110,14 202,58" fill="#5a4a5e"/><rect x="150" y="22" width="14" height="24" fill="#7b6a63"/>
-  <rect x="26" y="56" width="84" height="58" fill="#e6dcc6"/><rect x="110" y="56" width="84" height="58" fill="#cfc4ac"/>
-  <rect x="38" y="66" width="22" height="18" fill="#f2d080"/><rect x="72" y="66" width="22" height="18" fill="#f2d080"/>
-  <rect x="122" y="66" width="22" height="18" fill="#6a6a72"/><rect x="156" y="66" width="22" height="18" fill="#6a6a72"/>
-  <line x1="122" y1="66" x2="144" y2="84" stroke="#4a4a52" stroke-width="2"/>
-  <rect x="58" y="90" width="16" height="24" fill="#6a4a32"/><rect x="142" y="90" width="16" height="24" fill="#8a6444"/>
-  <rect x="110" y="56" width="2" height="58" fill="#8a7a6a"/>
-  <rect x="160" y="99" width="34" height="13" fill="#f4eddc" stroke="#6a4a32"/><text x="177" y="108" font-size="7" text-anchor="middle" fill="#6a4a32" font-family="system-ui">FOR SALE</text>
- </svg>
+ <div class="house" id="house"></div>
  <div class="facts">
   <h2 id="addr"></h2><p class="kind" id="kind"></p><p class="ask">Asking <b id="ask"></b></p>
   <p id="blurb"></p>
-  <ul class="units"><li id="unitA"></li><li>Unit B: empty, needs work</li></ul>
+  <ul class="units" id="units"></ul>
  </div>
 </section>
 <section class="sheet" aria-labelledby="sheetTitle">
@@ -26,11 +17,11 @@
    <div class="stepper" role="group" aria-labelledby="offerLabel"><button type="button" data-offer="-2000" aria-label="Offer $2,000 less">−</button><output id="offer" aria-live="polite"></output><button type="button" data-offer="2000" aria-label="Offer $2,000 more">+</button></div></div>
   <div class="choice"><span class="label" id="downLabel">Down payment</span>
    <div class="toggle" role="radiogroup" aria-labelledby="downLabel"><button type="button" role="radio" data-down="0.2">20%</button><button type="button" role="radio" data-down="0.25">25%</button></div></div>
-  <div class="choice wide"><span class="label" id="rehabLabel">Unit B before you let it</span>
+  <div class="choice wide"><span class="label" id="rehabLabel"></span>
    <div class="toggle rehab" role="radiogroup" aria-labelledby="rehabLabel"></div></div>
  </div>
  <table class="month" aria-label="One month of the deal">
-  <tr><th>Rent, both units</th><td id="rent"></td></tr>
+  <tr><th id="rentLabel"></th><td id="rent"></td></tr>
   <tr><th>Set aside for empty months and repairs (10%)</th><td id="aside"></td></tr>
   <tr><th>Taxes and insurance</th><td id="fixed"></td></tr>
   <tr><th id="loanLabel">Mortgage</th><td id="mortgage"></td></tr>
@@ -42,6 +33,7 @@
   <li data-m="one"><b>The 1% rule</b> <span class="v"></span><small>A quick screen: monthly rent at least 1% of the price.</small></li>
   <li data-m="arv"><b>After-repair value</b> <span class="v"></span><small></small></li>
  </ul>
+ <p class="afford" id="afford" hidden></p>
  <div class="actions"><button type="button" class="primary" id="offerBtn">Make this offer</button><button type="button" id="passBtn">Pass on it</button></div>
 </section>
 <section class="answer" id="answer" hidden aria-live="polite"></section>
