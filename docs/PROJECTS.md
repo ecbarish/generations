@@ -479,4 +479,4 @@ T43 claimed by Codex, 2026-10-08, on codex/catalogue-realmbound: zone and dungeo
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| WB-DELIVERY-PLAN | Deliver the current chapter and coordinate AI work | S | Claimed: Codex / root for Evan | User-requested development sequence, ownership and usage-saving handoffs; docs only |
+| WB-DELIVERY-PLAN | Deliver the current chapter and coordinate AI work | S | Review: Codex / root for Evan, PR #595 | User-requested development sequence, ownership and usage-saving handoffs; docs only |
