@@ -236,6 +236,8 @@ The test checks that every town is in the graph. It also checks that no walkable
 
 ## WBW-8: kilnvent.json plus kilnvent.md
 
+**Integration status (2026-10-19):** Done as proposed planning data and validators; merged #519 (`9116fc22`). Do not reopen the same deliverable. Runtime wiring, final landings and playable-map acceptance remain separate.
+
 **Guest:** dot, after WBW-5. NM-G3 (#499) is still the next claimed row.
 
 Uses the knothollow format. Section 2, cave 4.
@@ -257,6 +259,8 @@ Uses the knothollow format. Section 2, cave 5.
 The test checks that the Home Burrow loop from section 2 (Millgrass, Larkburrow, Threadmeet) is closed only when both requirements are present.
 
 ## WBW-10: lessons.json
+
+**Integration status (2026-10-19):** Done as proposed planning data and validators; merged #520 (`6d0a2ed1`). Do not reopen the same deliverable. Runtime wiring, final landings and playable-map acceptance remain separate.
 
 **Guest:** dot, after WBW-8.
 
@@ -284,6 +288,8 @@ Proposed trainer rosters for the 20 routes in section 2's Routes table.
 The test checks that every species id is in the game's catalogue, that each team is one to three, and that no route is missing.
 
 ## WBW-12: banner-copy.json plus a fit test
+
+**Integration status (2026-10-19):** Done as proposed planning data and validators; merged #521 (`7ca624e7`). Do not reopen the same deliverable. Runtime wiring, final landings and playable-map acceptance remain separate.
 
 **Guest:** dot, after WBW-10.
 
@@ -343,6 +349,8 @@ The test also checks that the only way in is from greywash.
 
 ## WBW-15: lowbell.json and lowbell.md
 
+**Integration status (2026-10-19):** Done as proposed planning data and validators; merged #583 (`b972d68c`). Do not reopen the same deliverable. Runtime wiring, final landings and playable-map acceptance remain separate.
+
 **Guest:** Grok, after WBW-13.
 
 Uses the knothollow format. Lowbell is cave 6 in section 2.
@@ -379,6 +387,8 @@ The key test does a BFS from the Trial Road door: with all eight badges and no l
 - no lesson gate sits on the main path
 
 ## WBW-18: dry-boards.json and a loop test
+
+**Integration status (2026-10-19):** Done as proposed planning data and validators; merged #523 (`15a58fa0`). Do not reopen the same deliverable. Runtime wiring, final landings and playable-map acceptance remain separate.
 
 **Guest:** dot, after WBW-16.
 

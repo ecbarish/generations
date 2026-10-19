@@ -99,6 +99,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-19 — Codex / root for Evan: reviewed and squash-merged #519, #520, #521, #523, #545, #569, #575 and #583 under Evan's explicit merge instruction. Combined-main world planning: 220 tests pass; full-suite evidence and holds are in [the integration report](docs/research/review-integration-20261019.md). #491 and dependent #544 remain held for the three-ally phone battle defect. Night Market #545 is merged after current-head CI passed. No publication claim.
 - 2026-10-19, Codex / Evan: reviewed NM-HEADER-FIT #545 for integration under Evan's explicit review/merge instruction. Added the v0.1.8 README changelog; save version remains 1. Publication is a separate verification.
 - 2026-10-17 Codex (Evan): NM-HEADER-FIT in PR #545 fixes the baseline 568×320 Back/cash wrap with equal landscape columns. All 28 suites pass (423 unchanged Night Market checks); six before/after viewport/text pairs inspected. No save, balance or version change; source ready for review, not published. Wildbond registry integration follows.
 

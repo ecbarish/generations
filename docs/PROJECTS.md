@@ -468,3 +468,9 @@ Merged 2026-10-08 (Realmbound v1.3.0, PR #53); written by Codex on codex/realmbo
 
 
 T43 claimed by Codex, 2026-10-08, on codex/catalogue-realmbound: zone and dungeon beast catalogue correspondences and names in the game window; stacked after T41, with combat and local identities preserved.
+
+## Review integration, 2026-10-19
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| REVIEW-INTEGRATION-20261019 | Studio integration bookkeeping | S | Review: Codex / root for Evan, PR #594 | Eight reviewed merges; 28 aggregate suites and 220 planning tests pass; no publication claim |

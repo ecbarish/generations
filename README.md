@@ -16,7 +16,7 @@ and the hub page shows where you left off in every one.
 | [Primordial](games/primordial/) | Playable (hidden from the hall) | Evolution idle game: cell to Leviathan, mutation drafts, niche fights, extinction resets |
 | [Realmbound](games/realmbound/) | Prototype | Classic-MMO-inspired adventure: two factions, 5 classes including a pet-taming Hunter, levels 1–40, quests, loot, Focus/Auto play, addons as automation ([design](docs/realmbound-design.md)) |
 | [Otherworld](games/otherworld/) | Prototype | Three authored lives: Asterhold, Hearthmere and the Ashen Throne; costly gifts, choices, endings and knowledge carried between lives |
-| [Lantern Bowl](games/lantern-bowl/) | Test version | One football game at Lamplight Field: you play the Lanterns' snaps against Millrace |
+| [Lantern Bowl](games/lantern-bowl/) | Shelved (direct link retained) | One football game at Lamplight Field: you play the Lanterns' snaps against Millrace |
 
 Design plans live in [docs/](docs/): [Realmbound](docs/realmbound-design.md), [idea backlog](docs/ideas.md).
 
@@ -42,6 +42,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Studio integration (2026-10-19, PRs #519, #520, #521, #523, #569, #575 and #583):** The accessibility checker now finds installed browsers and writes screenshots portably. Lantern Bowl is shelved from the catalogue while its direct link, code and saves remain. Wildbond gains proposed Kilnvent, Lowbell, lesson-slip, banner and Dry Boards planning data with validators; these are not playable-map additions. No game or save version changes in this batch. Publication is not verified.
 - **Night Market Stalls v0.1.8 — NM-HEADER-FIT (PR #545):** Back and the cash balance stay together on narrow sideways phones. Larger text can still wrap safely; existing saves keep their version and contents.
 
 - **Night Market Stalls v0.1.7 — NM-G3 (PR #499; version bumped on merge):** The Back and footer links are now 1rem and stay on one line. The header reflows when the text is larger, as Generations Director approved. Game Art Director approved the change at 9548a7bb. The save stays version 1.
