@@ -50,14 +50,23 @@ Runtime paths span current chapter/prototype directories and production entry/ex
 | Person/AI | Best use | Boundary |
 |---|---|---|
 | Evan | Creative direction, choosing between meaningful alternatives, short real play sessions | Do not make Evan relay routine status or inspect every technical detail |
-| This Codex chat | Preserve intent, choose the next milestone, dispatch bounded tasks, resolve dependencies, review risky changes and coordinate integration | Reduce routine implementation and repeated full-history reads |
+| This Codex chat | Preserve intent, choose milestones, direct art, create key sprite/image assets and reference sheets, dispatch bounded tasks, review risky changes and coordinate integration | Reserve usage for high-value visual creation and decisions; delegate routine implementation and repeated history reads |
 | Claude / existing Wildbond lead | Runtime ownership, scene integration, save/entry work and final production wiring | Keep one writer on the shared runtime scene |
-| Evan's Grok, returning around October 21 per Evan | Substantial ready implementation with explicit ownership; visual/environment work, content implementation or a self-contained tooling repair | High available usage does not increase scope or permit parallel edits to shared files |
+| Evan's Grok, returning around October 21 per Evan | Substantial ready implementation: animation setup, asset preparation/import, placement, environment implementation, content or a bounded tool repair | Build against approved references and owned paths; available usage does not increase scope or permit parallel edits to shared files |
 | Dad's dot | Validators, test fixtures, data contracts and bounded tools; first finish #593 | Report unsupported execution honestly and hand off only the missing host checks |
 | Dad's Grok | Finish the assigned fence repair, then another named independent task | Distinct from Evan's returning Grok; do not duplicate their claims |
 | Fresh reviewer/player | Independently exercise the current build and report what a newcomer experiences | The exact build matters more than the age or volume of old screenshots |
 
 This is a proposed coordination arrangement shared with Generations PM, not a silent reassignment of other chats. Keep the studio-wide ceiling of four building threads plus a reviewer. Inside Wildbond, default to one runtime writer; only independent owned tools/assets/data run alongside it within that ceiling.
+
+## Art ownership and the asset handoff
+Evan clarified that this Codex chat should retain a visual-creation role as well as direction. Codex handles creature concepts, evolution/Mega designs, reference sheets, important sprite corrections and environment concepts that establish the target look. This is a workflow choice, not a claim about comparative model capabilities.
+
+Approved starter artwork remains the foundation. Generate or revise art for a named current milestone; reuse approved designs instead of repeatedly redesigning them. Each handoff identifies approved source/reference files, intended scale/palette/facing, frame needs, runtime use and acceptance images. A new candidate is not automatically approved production art.
+
+Builders handle deterministic sheet slicing, animation/frame wiring, asset validation/import, collision/placement and tests against those references. They may flag defects and propose alternatives; coordinate before replacing approved designs or changing creature identity. Pixel-critical cleanup is inspected at native size. Outside assets retain their licence/credit requirements; private art stays private.
+
+Claude and Dad's AIs are actively working: their current claimed paths and assignments continue. This plan does not stop, duplicate or transfer an active task. Codex creates key art outside those owned runtime paths and hands off finished assets through an explicit PR/reference revision.
 
 ## Before and after Grok returns
 **Until the return:** close #593's fixture defect, obtain the fence handoff, pin the chosen chapter and resolve the integration inventory. Prepare a single ready work order for Grok; do not spend the two days inventing more far-future content.
@@ -69,7 +78,7 @@ This is a proposed coordination arrangement shared with Generations PM, not a si
 2. Every work order fits in: goal, exact base, owned paths, done-when/checks, and handoff target. The worker reads those and the necessary source, not the entire history.
 3. Ready means the dependency exists and can be tested, paths have one owner, acceptance is concrete and there is a supported verification route. Otherwise resolve the blocker before dispatching.
 4. Builder provides one concise self-check and evidence on the final head. Use CI and existing runners. Repeat checks when source, environment or a demonstrated risk warrants it; preserve mandatory final gates. Do not rerun identical suites just to produce another report.
-5. Codex reviews decisions, integration and high-risk changes. Routine logs/formatting/fixture work stay with builders. Escalate failed checks, ownership conflicts, save changes, unclear creative decisions or publication discrepancies.
+5. Codex handles art direction, key visual creation, decisions, integration and high-risk reviews. Routine sheet processing, wiring, logs, formatting and fixture work stay with builders. Escalate failed checks, ownership conflicts, save changes, unclear creative decisions or publication discrepancies.
 6. At most two READY tasks wait behind the active Wildbond work. Do not keep stacking dependent feature PRs when their parent has not landed. A larger existing stack is reconciled; it is not grounds for starting another chain.
 7. A cycle ends with a playable link and a short play session. The next work comes from what confused, bored or delighted the player. Reserve part of Codex's remaining usage for review and handoffs rather than spending it all on code.
 
