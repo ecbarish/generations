@@ -1,5 +1,6 @@
 """Measure alpha and source geometry only; PNG bytes remain unchanged."""
-import importlib.util, json
+import importlib.util, json, sys
+sys.dont_write_bytecode=True
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent
 REPO=ROOT.parents[2]
