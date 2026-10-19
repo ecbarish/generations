@@ -215,7 +215,11 @@ func load_draft(path: String) -> bool:
         if parts[1]!=str(index) or index<0 or index>=test.entries[parts[0]].frames.size() or not data.pixels[key] is Dictionary or data.pixels[key].size()>512*512:return fail("Invalid draft pixel edits.")
         for pixel in data.pixels[key]:
             var xy: PackedStringArray=str(pixel).split(",");var color: Variant=data.pixels[key][pixel]
-            if xy.size()!=2 or not xy[0].is_valid_int() or not xy[1].is_valid_int() or xy[0]!=str(int(xy[0])) or xy[1]!=str(int(xy[1])) or absi(int(xy[0]))>512 or absi(int(xy[1]))>512 or not number(color) or color!=floorf(color) or color < -1 or color>15:return fail("Invalid draft pixel.")
+            # Canonical -512..512 needs at most four characters; reject huge raw values before conversion.
+            if xy.size()!=2 or xy[0].length()>4 or xy[1].length()>4 or not xy[0].is_valid_int() or not xy[1].is_valid_int():return fail("Invalid draft pixel.")
+            var x := int(xy[0]);var y := int(xy[1])
+            # Compare signed bounds directly: absi(INT64_MIN) would overflow.
+            if x < -512 or x>512 or y < -512 or y>512 or xy[0]!=str(x) or xy[1]!=str(y) or not number(color) or color!=floorf(color) or color < -1 or color>15:return fail("Invalid draft pixel.")
     entries=test.entries.duplicate(true);original=test.original;images=test.images;source_path=test.source_path;manifest_hash=test.manifest_hash
     for name in entries:
         for i in entries[name].frames.size():entries[name].frames[i].anchor=data.entries[name].frames[i].anchor.duplicate()
