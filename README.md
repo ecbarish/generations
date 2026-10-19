@@ -9,14 +9,28 @@ and the hub page shows where you left off in every one.
 
 ## Games
 
+The homepage leads with Wildbond. Statuses match the cards in `launcher/games.js`.
+
 | Game | Status | What it is |
 |---|---|---|
 | [Wildbond](play/wildbond/) | Early preview (Godot) | The headline game: bond with creatures and bring colour back to a faded world, eight regions and the league |
+| [Starfall Guild](play/starfall/) | Early preview (Godot) | Build a frontier guild town: post jobs for adventurers, serve meals at the inn, work the forge, grow the town |
+| [Realmbound](games/realmbound/) | Beta | Classic-MMO-inspired adventure: two factions, 5 classes including a pet-taming Hunter, levels 1–60, quests, loot and addons ([design](docs/realmbound-design.md)) |
 | [Little Ranch](games/little-ranch/) | Test version | A toy for ages 2 to 4: feed, bath, peekaboo and bedtime; no reading, nothing to lose |
-| [Primordial](games/primordial/) | Playable (hidden from the hall) | Evolution idle game: cell to Leviathan, mutation drafts, niche fights, extinction resets |
-| [Realmbound](games/realmbound/) | Prototype | Classic-MMO-inspired adventure: two factions, 5 classes including a pet-taming Hunter, levels 1–40, quests, loot, Focus/Auto play, addons as automation ([design](docs/realmbound-design.md)) |
+| [Diamond Manager](games/diamond-manager/) | Test version | Take over the worst baseball club in the league: lineups, trades, free agents and a ballpark that grows with the gate money |
+| [Keymaster](games/keymaster/) | Test version (launch game) | A property game built on a real deal analyzer: five homes for sale on Alder Street, $200,000, and a goal of three homes that pay |
 | [Otherworld](games/otherworld/) | Prototype | Three authored lives: Asterhold, Hearthmere and the Ashen Throne; costly gifts, choices, endings and knowledge carried between lives |
-| [Lantern Bowl](games/lantern-bowl/) | Shelved (direct link retained) | One football game at Lamplight Field: you play the Lanterns' snaps against Millrace |
+| Arcade cabinets: [Storm Front](games/storm-front/), [Lighthouse Watch](games/lighthouse-watch/), [Brisket's Crossing](games/briskets-crossing/), [Ember Bricks](games/ember-bricks/) | Test versions | Quick arcade games with high scores and two-player turns |
+
+**Not on the homepage on purpose** (each still opens by its direct link, and its saves are kept):
+
+| Game | Why it is hidden | What it is |
+|---|---|---|
+| [Lantern Bowl](games/lantern-bowl/) | Shelved by Evan, 2026-10-18 (Retro Bowl and Super Tiny Football already do this well) | One football game at Lamplight Field: you play the Lanterns' snaps against Millrace |
+| [Night Market](games/night-market/) | Launch game still being finished; its hall entry (NM-HUB) is not built yet | Work a lantern-lit stall yourself before anyone will run it |
+| [Primordial](games/primordial/) | Hidden from the hall (AR-FRONT) | Evolution idle game: cell to Leviathan, mutation drafts, niche fights, extinction resets |
+| [Diamond Career](games/diamond-career/) | Shelved (AR-SHELVE) | A baseball player's career: at-bats, a call-up, a contract and a life beyond the ballpark |
+| [Wildbond Classic](games/wildbond/) and [Starfall Guild Classic](games/starfall-guild/) | Shelved Classics (AR-SHELVE): the original browser editions, kept as they were | The finished first versions; all new work goes into the Godot editions |
 
 Design plans live in [docs/](docs/): [Realmbound](docs/realmbound-design.md), [idea backlog](docs/ideas.md).
 
@@ -26,24 +40,27 @@ Design plans live in [docs/](docs/): [Realmbound](docs/realmbound-design.md), [i
 index.html            the hub (the "stable")
 shared/engine.js      saves, export/import, number formatting, hub progress cards
 games/<name>/         one folder per game, plain HTML + JS, no build step
-serve.ps1             local test server: http://localhost:8765/
+serve.ps1             local test server on Windows: http://localhost:8765/
+play/                 web builds of the Godot games (Wildbond, Starfall Guild)
 ```
 
 ## Run locally
 
+Windows:
 ```
 powershell -NoProfile -ExecutionPolicy Bypass -File serve.ps1
 ```
-then open http://localhost:8765/
+macOS or Linux (any static server works; this one comes with Python 3):
+```
+python3 -m http.server 8765
+```
+then open http://localhost:8765/ (use the name localhost: some games only switch on their test hooks there).
 
 ## Picking up the work
 
 Anyone continuing this project (any AI assistant or person): open [START-HERE.md](START-HERE.md).
 
 ## Changelog
-
-- **Studio integration (2026-10-19, PRs #519, #520, #521, #523, #569, #575 and #583):** The accessibility checker now finds installed browsers and writes screenshots portably. Lantern Bowl is shelved from the catalogue while its direct link, code and saves remain. Wildbond gains proposed Kilnvent, Lowbell, lesson-slip, banner and Dry Boards planning data with validators; these are not playable-map additions. No game or save version changes in this batch. Publication is not verified.
-- **Night Market Stalls v0.1.8 — NM-HEADER-FIT (PR #545):** Back and the cash balance stay together on narrow sideways phones. Larger text can still wrap safely; existing saves keep their version and contents.
 
 - **Night Market Stalls v0.1.7 — NM-G3 (PR #499; version bumped on merge):** The Back and footer links are now 1rem and stay on one line. The header reflows when the text is larger, as Generations Director approved. Game Art Director approved the change at 9548a7bb. The save stays version 1.
 - **Lantern Bowl v0.1.8 — crowd bed loop (PRs #489 and #494; version bumped once for both):** When the crowd bed plays, it holds its peak until it is stopped, then fades out over 0.25 seconds. The live play page may still not wire these cues; the listening page is what exercises the loop. Season standings and playoff pairings are in `standings.js`, and the live game does not load that module yet. LB-SEASON stays open. The save stays version 2.
