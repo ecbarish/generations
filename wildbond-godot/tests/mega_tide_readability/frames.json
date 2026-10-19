@@ -1,0 +1,142 @@
+{
+  "mega_tidewyrm_simple": {
+    "file": "assets/mega_tidewyrm_simple/atlas.png",
+    "frames": [
+      {
+        "anchor": [
+          43.0,
+          67.0
+        ],
+        "ink": [
+          2.0,
+          2.0,
+          85.0,
+          68.0
+        ],
+        "region": [
+          0.0,
+          0.0,
+          89.0,
+          72.0
+        ],
+        "sample_step": 1.0
+      },
+      {
+        "anchor": [
+          43.0,
+          67.0
+        ],
+        "ink": [
+          2.0,
+          2.0,
+          85.0,
+          68.0
+        ],
+        "region": [
+          89.0,
+          0.0,
+          89.0,
+          72.0
+        ],
+        "sample_step": 1.0
+      }
+    ],
+    "height_m": 1.1,
+    "mega": true,
+    "palette": [
+      "102238",
+      "104574",
+      "176eab",
+      "2db6d4",
+      "77d3e6",
+      "b9ebf2",
+      "f4fbff",
+      "fff0b7",
+      "d5c494",
+      "a4935a",
+      "edb943",
+      "ab702d",
+      "172f53",
+      "3b8fbd",
+      "fffdf3",
+      "ddcb8b"
+    ],
+    "sha256": "c42582355109eef29f5d482c85495194e6ddc0e131b516b41926127dae19c51e",
+    "size": [
+      178.0,
+      72.0
+    ],
+    "source_sha256": "c7732b3044d25db1c16baa57082237e2c5bae84eebea5ed9e0819a6af98b7f4f",
+    "stride_m": 0.18
+  },
+  "mega_tidewyrm_clean": {
+    "file": "assets/mega_tidewyrm_clean/atlas.png",
+    "frames": [
+      {
+        "anchor": [
+          43.0,
+          73.0
+        ],
+        "ink": [
+          2.0,
+          2.0,
+          83.0,
+          78.0
+        ],
+        "region": [
+          0.0,
+          0.0,
+          87.0,
+          82.0
+        ],
+        "sample_step": 1.0
+      },
+      {
+        "anchor": [
+          43.0,
+          73.0
+        ],
+        "ink": [
+          2.0,
+          2.0,
+          83.0,
+          78.0
+        ],
+        "region": [
+          87.0,
+          0.0,
+          87.0,
+          82.0
+        ],
+        "sample_step": 1.0
+      }
+    ],
+    "height_m": 1.1,
+    "mega": true,
+    "palette": [
+      "102238",
+      "104574",
+      "176eab",
+      "188fc4",
+      "2db6d4",
+      "77d3e6",
+      "b9ebf2",
+      "f4fbff",
+      "a4935a",
+      "ddcb8b",
+      "fff0b7",
+      "ab702d",
+      "edb943",
+      "fffdf3",
+      "70323f",
+      "da8075"
+    ],
+    "sha256": "a6c4265ba421eb8a4418990334c424aff48503fb5d5182081c5ab96df012f1c5",
+    "size": [
+      174.0,
+      82.0
+    ],
+    "source_sha256": "94771fe6def315631a0d908f12ef67d4f35c7f2b1594f452c5d8b6223039715f",
+    "stride_m": 0.18
+  }
+}

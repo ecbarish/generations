@@ -1,3 +1,9 @@
+## Mega Tidewyrm readability
+
+| ID | Project | Status | Scope |
+|---|---|---|---|
+| WB-MEGA-TIDE-READABILITY | Wildbond art | Codex / Evan, PR #584 | Original/cleaned winged Mega and a simpler family-board-derived alternative, editable native sprites and unsaved comparison. |
+
 ## Wildbond Tide and Ember production
 
 | ID | Project | Status | Scope |

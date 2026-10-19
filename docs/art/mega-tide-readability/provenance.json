@@ -1,0 +1,43 @@
+{
+  "task": "WB-MEGA-TIDE-READABILITY",
+  "date": "2026-10-19",
+  "generator": "built-in image_gen",
+  "generation_calls": 1,
+  "reference": {
+    "file": "docs/art/starter-families/ripplet-family-v2.png",
+    "sha256": "eebbdad70e0a8e2bde965f11fecb24c7a4d60c1fe09ff0fff64e9e86bb6a7c34",
+    "role": "Original family-board bottom-right Mega identity reference"
+  },
+  "source": {
+    "file": "wildbond-godot/tests/mega_tide_readability/source/family-mega-v1.png",
+    "sha256": "8ea0b8d0fddf0d58935f5fd5d4ec314b770d8bd652d0d38aa267a00b8762c76f",
+    "source_output": "exec-41ffa9d4-bf57-446e-8b95-e44e7f97a011.png",
+    "preserved_exactly": true
+  },
+  "wing_input": {
+    "file": "wildbond-godot/tests/tide_ember_family/assets/mega_tidewyrm/atlas.png",
+    "sha256": "915b19fbbd97ddffa3c9270f6c271d2aed6a307980934a087c130213a13bc91a",
+    "base_commit": "b17b5dc5f8540ae2889e9847a429bf99143cc0a4",
+    "copied_exactly": true
+  },
+  "native_edits": "Workbench Session API; one-pixel outline plus bounded interior smoothing; no source raster rewriting",
+  "recipe_sha256_lf": "8887fafcd8aa93242888259c646b8288bc98363ea63ba74934b4f3e31c082952",
+  "artifact_sha256": {
+    "wildbond-godot/tests/mega_tide_readability/frames.json": "bdd6197f3c72317dc7fd24a072ed1f689a7c3f814c558d72739778879b7d37b7",
+    "wildbond-godot/tests/mega_tide_readability/baseline/mega_tidewyrm_clean/edit-session.json": "ccc3866629114d842e6dfd87fc60f754286cc0bfa5c0ae55f2ffe8f473e43f58",
+    "wildbond-godot/tests/mega_tide_readability/baseline/mega_tidewyrm_clean/frames.json": "99794e80bbae16bbf947abccef0adbd030dc13546d8e7b99bf2b3bfcfb47b061",
+    "wildbond-godot/tests/mega_tide_readability/baseline/mega_tidewyrm_simple/edit-session.json": "ccc3866629114d842e6dfd87fc60f754286cc0bfa5c0ae55f2ffe8f473e43f58",
+    "wildbond-godot/tests/mega_tide_readability/baseline/mega_tidewyrm_simple/frames.json": "1e20cff4093004f7f3c1945497d25d23c760183df0b989704e880a862c25ff8f",
+    "wildbond-godot/tests/mega_tide_readability/baseline/mega_tidewyrm_clean/atlas.png": "94771fe6def315631a0d908f12ef67d4f35c7f2b1594f452c5d8b6223039715f",
+    "wildbond-godot/tests/mega_tide_readability/baseline/mega_tidewyrm_simple/atlas.png": "c7732b3044d25db1c16baa57082237e2c5bae84eebea5ed9e0819a6af98b7f4f",
+    "wildbond-godot/tests/mega_tide_readability/assets/mega_tidewyrm_clean/edit-session.json": "49c3a1e7795cffb3b06dcd76a9901d693e18c33c86769c614e713210da9f0f52",
+    "wildbond-godot/tests/mega_tide_readability/assets/mega_tidewyrm_clean/frames.json": "dbf28034bbba454bbcb7936d711aae55a4d58160073c14cb2271eff14d0f5eca",
+    "wildbond-godot/tests/mega_tide_readability/assets/mega_tidewyrm_simple/edit-session.json": "ef8fbf35d44385d23b52a9097f473e677b6b7556c9e283aa836127fc0ab7ac90",
+    "wildbond-godot/tests/mega_tide_readability/assets/mega_tidewyrm_simple/frames.json": "fa5c1900f9e9eb768f560f75022ee10702018fbdbfd38fcacdd5c910549d4cbd",
+    "wildbond-godot/tests/mega_tide_readability/assets/mega_tidewyrm_clean/atlas.png": "a6c4265ba421eb8a4418990334c424aff48503fb5d5182081c5ab96df012f1c5",
+    "wildbond-godot/tests/mega_tide_readability/assets/mega_tidewyrm_simple/atlas.png": "c42582355109eef29f5d482c85495194e6ddc0e131b516b41926127dae19c51e"
+  },
+  "reproduced_artifact_count": 13,
+  "artifact_fingerprint": "5cc308a9507ad3ffc1d50958de92a5180240f07177de178efd82941adf22243b",
+  "acceptance": "Two alternatives for human review, not selected canon or runtime species"
+}
