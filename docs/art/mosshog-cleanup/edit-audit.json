@@ -1,0 +1,280 @@
+{
+  "mega_thornback": {
+    "editable_roundtrip": "passed",
+    "foliage_pixels": 1510,
+    "foot_specks_removed": 0,
+    "neutral_battle_pixels": 0,
+    "root_offsets": [],
+    "stabilized_pixels": 0
+  },
+  "mosshog": {
+    "blink_status": "Eyelid-only Mosshog front; other fronts/rears remain neutral.",
+    "editable_roundtrip": "passed",
+    "foliage_pixels": 4559,
+    "foot_specks_removed": 0,
+    "neutral_battle_pixels": 2805,
+    "root_offsets": [
+      {
+        "frame": 4,
+        "x_native": 3
+      },
+      {
+        "frame": 5,
+        "x_native": 0
+      },
+      {
+        "frame": 6,
+        "x_native": -5
+      },
+      {
+        "frame": 7,
+        "x_native": 3
+      },
+      {
+        "frame": 8,
+        "x_native": -2
+      },
+      {
+        "frame": 9,
+        "x_native": -3
+      },
+      {
+        "frame": 10,
+        "x_native": -5
+      },
+      {
+        "frame": 11,
+        "x_native": -1
+      },
+      {
+        "frame": 12,
+        "x_native": 1
+      },
+      {
+        "frame": 13,
+        "x_native": 2
+      },
+      {
+        "frame": 14,
+        "x_native": 1
+      },
+      {
+        "frame": 15,
+        "x_native": 1
+      },
+      {
+        "frame": 16,
+        "x_native": -2
+      },
+      {
+        "frame": 17,
+        "x_native": 2
+      },
+      {
+        "frame": 18,
+        "x_native": 1
+      },
+      {
+        "frame": 19,
+        "x_native": 2
+      },
+      {
+        "frame": 20,
+        "x_native": 3
+      },
+      {
+        "frame": 21,
+        "x_native": -4
+      },
+      {
+        "frame": 22,
+        "x_native": 3
+      },
+      {
+        "frame": 23,
+        "x_native": -4
+      }
+    ],
+    "stabilized_pixels": 7043
+  },
+  "thicketboar": {
+    "blink_status": "Eyelid-only Mosshog front; other fronts/rears remain neutral.",
+    "editable_roundtrip": "passed",
+    "foliage_pixels": 7992,
+    "foot_specks_removed": 3,
+    "neutral_battle_pixels": 2739,
+    "root_offsets": [
+      {
+        "frame": 4,
+        "x_native": 0
+      },
+      {
+        "frame": 5,
+        "x_native": 0
+      },
+      {
+        "frame": 6,
+        "x_native": 0
+      },
+      {
+        "frame": 7,
+        "x_native": 0
+      },
+      {
+        "frame": 8,
+        "x_native": 0
+      },
+      {
+        "frame": 9,
+        "x_native": -1
+      },
+      {
+        "frame": 10,
+        "x_native": 0
+      },
+      {
+        "frame": 11,
+        "x_native": -1
+      },
+      {
+        "frame": 12,
+        "x_native": 0
+      },
+      {
+        "frame": 13,
+        "x_native": 0
+      },
+      {
+        "frame": 14,
+        "x_native": -1
+      },
+      {
+        "frame": 15,
+        "x_native": 0
+      },
+      {
+        "frame": 16,
+        "x_native": 0
+      },
+      {
+        "frame": 17,
+        "x_native": 0
+      },
+      {
+        "frame": 18,
+        "x_native": 0
+      },
+      {
+        "frame": 19,
+        "x_native": 0
+      },
+      {
+        "frame": 20,
+        "x_native": -1
+      },
+      {
+        "frame": 21,
+        "x_native": -1
+      },
+      {
+        "frame": 22,
+        "x_native": 0
+      },
+      {
+        "frame": 23,
+        "x_native": 0
+      }
+    ],
+    "stabilized_pixels": 8217
+  },
+  "thornback": {
+    "blink_status": "Eyelid-only Mosshog front; other fronts/rears remain neutral.",
+    "editable_roundtrip": "passed",
+    "foliage_pixels": 9882,
+    "foot_specks_removed": 0,
+    "neutral_battle_pixels": 2316,
+    "root_offsets": [
+      {
+        "frame": 4,
+        "x_native": 0
+      },
+      {
+        "frame": 5,
+        "x_native": 0
+      },
+      {
+        "frame": 6,
+        "x_native": 0
+      },
+      {
+        "frame": 7,
+        "x_native": 0
+      },
+      {
+        "frame": 8,
+        "x_native": 0
+      },
+      {
+        "frame": 9,
+        "x_native": 0
+      },
+      {
+        "frame": 10,
+        "x_native": 0
+      },
+      {
+        "frame": 11,
+        "x_native": 0
+      },
+      {
+        "frame": 12,
+        "x_native": -1
+      },
+      {
+        "frame": 13,
+        "x_native": -1
+      },
+      {
+        "frame": 14,
+        "x_native": -1
+      },
+      {
+        "frame": 15,
+        "x_native": -1
+      },
+      {
+        "frame": 16,
+        "x_native": -1
+      },
+      {
+        "frame": 17,
+        "x_native": -1
+      },
+      {
+        "frame": 18,
+        "x_native": -1
+      },
+      {
+        "frame": 19,
+        "x_native": -1
+      },
+      {
+        "frame": 20,
+        "x_native": -1
+      },
+      {
+        "frame": 21,
+        "x_native": -1
+      },
+      {
+        "frame": 22,
+        "x_native": 0
+      },
+      {
+        "frame": 23,
+        "x_native": -1
+      }
+    ],
+    "stabilized_pixels": 7626
+  }
+}
