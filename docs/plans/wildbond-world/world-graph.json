@@ -720,6 +720,15 @@
    "id": "hollowecho--flintcut"
   },
   {
+   "a": "hollowecho",
+   "b": "answering",
+   "gate": [],
+   "phase": 3,
+   "extraToFlowchart": true,
+   "note": "Section 2, cave 1: the lit hamlet mouth opens before Lantern. WBW-18 ruling in #373 comment 6186013258; not the reveal's tile (19, 8).",
+   "id": "hollowecho--answering"
+  },
+  {
    "a": "flintcut",
    "b": "answering",
    "gate": [],
