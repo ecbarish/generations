@@ -101,6 +101,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-18, Codex / Evan: WB-SPRITE-WORKBENCH, PR #574 stacked on #573, adds the standalone local Godot sprite editor in tools/sprite-workbench: overlays/playback, anchor/pixel cleanup, backed-up drafts and versioned native atlas export. Original assets, game saves and public build unchanged; launch/evidence in docs/art/sprite-workbench/.
+
 - 2026-10-18, Codex / Evan: WB-MOSSHOG-PRODUCTION, PR #573 stacked on #571, adds a save-free measured family-art pilot (50 new source poses) and separate Mega battle views after concept approval. Base art/saves/runtime species/public build unchanged; report, prompts and provenance in docs/art/mosshog-production/.
 
 - 2026-10-18, Codex / Evan: WB-STARTER-FAMILIES, PR #571, adds three complete original starter family concept boards (12 stage/forms), existing evolution-name audit and Mega candidates. Built-in imagegen; runtime sprites/data/saves unchanged. Briefs, prompts and provenance live in docs/art/starter-families/.
