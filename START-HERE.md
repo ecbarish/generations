@@ -101,6 +101,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-18, Codex / Evan: WB-MOSSHOG-PRODUCTION, PR #573 stacked on #571, adds a save-free measured family-art pilot (50 new source poses) and separate Mega battle views after concept approval. Base art/saves/runtime species/public build unchanged; report, prompts and provenance in docs/art/mosshog-production/.
+
 - 2026-10-18, Codex / Evan: WB-STARTER-FAMILIES, PR #571, adds three complete original starter family concept boards (12 stage/forms), existing evolution-name audit and Mega candidates. Built-in imagegen; runtime sprites/data/saves unchanged. Briefs, prompts and provenance live in docs/art/starter-families/.
 
 - 2026-10-18, Codex / Evan: WB-MEGA-BOND-DIRECTION, PR #570, records Mega-style Stand with it and reliable story triggers, with old near-defeat rules flagged as superseded. Direction/tuning and legacy/native readiness are separated; no runtime/save/art/story event changes.
