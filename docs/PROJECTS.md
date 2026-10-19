@@ -1,3 +1,9 @@
+## Wildbond Tide and Ember production
+
+| ID | Project | Status | Scope |
+|---|---|---|---|
+| WB-TIDE-EMBER-PRODUCTION | Wildbond starter art | Codex / Evan, PR #582 | Remaining approved families: measured source sheets, editable native atlases, local blink/motion cleanup and unsaved family audition. |
+
 ## Wildbond workbench safety repairs
 
 | ID | Project | Status | Scope |

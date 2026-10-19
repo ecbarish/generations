@@ -1,0 +1,580 @@
+{
+  "blazefang": {
+    "blink_rect": [
+      20,
+      -42,
+      4,
+      4
+    ],
+    "editable_roundtrip": "passed",
+    "foot_specks_removed": 0,
+    "neutral_battle_pixels": 3360,
+    "root_offsets": [
+      {
+        "frame": 4,
+        "x_native": 0
+      },
+      {
+        "frame": 5,
+        "x_native": 0
+      },
+      {
+        "frame": 6,
+        "x_native": -1
+      },
+      {
+        "frame": 7,
+        "x_native": 0
+      },
+      {
+        "frame": 8,
+        "x_native": 0
+      },
+      {
+        "frame": 9,
+        "x_native": 0
+      },
+      {
+        "frame": 10,
+        "x_native": -1
+      },
+      {
+        "frame": 11,
+        "x_native": 0
+      },
+      {
+        "frame": 12,
+        "x_native": 0
+      },
+      {
+        "frame": 13,
+        "x_native": 0
+      },
+      {
+        "frame": 14,
+        "x_native": 0
+      },
+      {
+        "frame": 15,
+        "x_native": 0
+      },
+      {
+        "frame": 16,
+        "x_native": 0
+      },
+      {
+        "frame": 17,
+        "x_native": 0
+      },
+      {
+        "frame": 18,
+        "x_native": 0
+      },
+      {
+        "frame": 19,
+        "x_native": 0
+      },
+      {
+        "frame": 20,
+        "x_native": -1
+      },
+      {
+        "frame": 21,
+        "x_native": -1
+      },
+      {
+        "frame": 22,
+        "x_native": -1
+      },
+      {
+        "frame": 23,
+        "x_native": -1
+      }
+    ],
+    "stabilized_pixels": 7596
+  },
+  "cindercub": {
+    "blink_rect": [
+      5,
+      -33,
+      4,
+      5
+    ],
+    "editable_roundtrip": "passed",
+    "foot_specks_removed": 0,
+    "neutral_battle_pixels": 3038,
+    "root_offsets": [
+      {
+        "frame": 4,
+        "x_native": -2
+      },
+      {
+        "frame": 5,
+        "x_native": 1
+      },
+      {
+        "frame": 6,
+        "x_native": 1
+      },
+      {
+        "frame": 7,
+        "x_native": -2
+      },
+      {
+        "frame": 8,
+        "x_native": -3
+      },
+      {
+        "frame": 9,
+        "x_native": -2
+      },
+      {
+        "frame": 10,
+        "x_native": -2
+      },
+      {
+        "frame": 11,
+        "x_native": -2
+      },
+      {
+        "frame": 12,
+        "x_native": -1
+      },
+      {
+        "frame": 13,
+        "x_native": 0
+      },
+      {
+        "frame": 14,
+        "x_native": -6
+      },
+      {
+        "frame": 15,
+        "x_native": 3
+      },
+      {
+        "frame": 16,
+        "x_native": 1
+      },
+      {
+        "frame": 17,
+        "x_native": 0
+      },
+      {
+        "frame": 18,
+        "x_native": -1
+      },
+      {
+        "frame": 19,
+        "x_native": 0
+      },
+      {
+        "frame": 20,
+        "x_native": 0
+      },
+      {
+        "frame": 21,
+        "x_native": -1
+      },
+      {
+        "frame": 22,
+        "x_native": -1
+      },
+      {
+        "frame": 23,
+        "x_native": -1
+      }
+    ],
+    "stabilized_pixels": 5197
+  },
+  "mega_blazefang": {
+    "editable_roundtrip": "passed",
+    "foot_specks_removed": 0,
+    "neutral_battle_pixels": 0,
+    "root_offsets": [],
+    "stabilized_pixels": 0
+  },
+  "mega_tidewyrm": {
+    "editable_roundtrip": "passed",
+    "foot_specks_removed": 0,
+    "neutral_battle_pixels": 0,
+    "root_offsets": [],
+    "stabilized_pixels": 0
+  },
+  "ripplet": {
+    "blink_rect": [
+      -2,
+      -36,
+      5,
+      4
+    ],
+    "editable_roundtrip": "passed",
+    "foot_specks_removed": 0,
+    "neutral_battle_pixels": 1732,
+    "root_offsets": [
+      {
+        "frame": 4,
+        "x_native": 1
+      },
+      {
+        "frame": 5,
+        "x_native": -2
+      },
+      {
+        "frame": 6,
+        "x_native": -1
+      },
+      {
+        "frame": 7,
+        "x_native": 1
+      },
+      {
+        "frame": 8,
+        "x_native": -7
+      },
+      {
+        "frame": 9,
+        "x_native": -3
+      },
+      {
+        "frame": 10,
+        "x_native": -2
+      },
+      {
+        "frame": 11,
+        "x_native": 1
+      },
+      {
+        "frame": 12,
+        "x_native": -6
+      },
+      {
+        "frame": 13,
+        "x_native": -2
+      },
+      {
+        "frame": 14,
+        "x_native": -2
+      },
+      {
+        "frame": 15,
+        "x_native": -1
+      },
+      {
+        "frame": 16,
+        "x_native": -6
+      },
+      {
+        "frame": 17,
+        "x_native": -3
+      },
+      {
+        "frame": 18,
+        "x_native": -3
+      },
+      {
+        "frame": 19,
+        "x_native": -5
+      },
+      {
+        "frame": 20,
+        "x_native": -3
+      },
+      {
+        "frame": 21,
+        "x_native": -1
+      },
+      {
+        "frame": 22,
+        "x_native": 2
+      },
+      {
+        "frame": 23,
+        "x_native": 0
+      }
+    ],
+    "stabilized_pixels": 5396
+  },
+  "riverwisp": {
+    "blink_rect": [
+      17,
+      -49,
+      5,
+      5
+    ],
+    "editable_roundtrip": "passed",
+    "foot_specks_removed": 0,
+    "neutral_battle_pixels": 567,
+    "root_offsets": [
+      {
+        "frame": 4,
+        "x_native": -1
+      },
+      {
+        "frame": 5,
+        "x_native": -1
+      },
+      {
+        "frame": 6,
+        "x_native": -1
+      },
+      {
+        "frame": 7,
+        "x_native": -1
+      },
+      {
+        "frame": 8,
+        "x_native": 0
+      },
+      {
+        "frame": 9,
+        "x_native": 0
+      },
+      {
+        "frame": 10,
+        "x_native": 0
+      },
+      {
+        "frame": 11,
+        "x_native": 0
+      },
+      {
+        "frame": 12,
+        "x_native": 0
+      },
+      {
+        "frame": 13,
+        "x_native": 0
+      },
+      {
+        "frame": 14,
+        "x_native": 0
+      },
+      {
+        "frame": 15,
+        "x_native": 0
+      },
+      {
+        "frame": 16,
+        "x_native": 0
+      },
+      {
+        "frame": 17,
+        "x_native": 0
+      },
+      {
+        "frame": 18,
+        "x_native": 0
+      },
+      {
+        "frame": 19,
+        "x_native": 0
+      },
+      {
+        "frame": 20,
+        "x_native": -1
+      },
+      {
+        "frame": 21,
+        "x_native": -1
+      },
+      {
+        "frame": 22,
+        "x_native": -1
+      },
+      {
+        "frame": 23,
+        "x_native": -1
+      }
+    ],
+    "stabilized_pixels": 6174
+  },
+  "smoulderpup": {
+    "blink_rect": [
+      22,
+      -42,
+      4,
+      4
+    ],
+    "editable_roundtrip": "passed",
+    "foot_specks_removed": 0,
+    "neutral_battle_pixels": 3139,
+    "root_offsets": [
+      {
+        "frame": 4,
+        "x_native": -1
+      },
+      {
+        "frame": 5,
+        "x_native": 0
+      },
+      {
+        "frame": 6,
+        "x_native": 0
+      },
+      {
+        "frame": 7,
+        "x_native": 0
+      },
+      {
+        "frame": 8,
+        "x_native": -1
+      },
+      {
+        "frame": 9,
+        "x_native": -1
+      },
+      {
+        "frame": 10,
+        "x_native": -1
+      },
+      {
+        "frame": 11,
+        "x_native": -1
+      },
+      {
+        "frame": 12,
+        "x_native": 0
+      },
+      {
+        "frame": 13,
+        "x_native": 0
+      },
+      {
+        "frame": 14,
+        "x_native": 0
+      },
+      {
+        "frame": 15,
+        "x_native": 0
+      },
+      {
+        "frame": 16,
+        "x_native": 0
+      },
+      {
+        "frame": 17,
+        "x_native": 0
+      },
+      {
+        "frame": 18,
+        "x_native": 0
+      },
+      {
+        "frame": 19,
+        "x_native": 0
+      },
+      {
+        "frame": 20,
+        "x_native": -1
+      },
+      {
+        "frame": 21,
+        "x_native": 0
+      },
+      {
+        "frame": 22,
+        "x_native": 0
+      },
+      {
+        "frame": 23,
+        "x_native": 0
+      }
+    ],
+    "stabilized_pixels": 6810
+  },
+  "tidewyrm": {
+    "blink_rect": [
+      22,
+      -50,
+      5,
+      3
+    ],
+    "editable_roundtrip": "passed",
+    "foot_specks_removed": 0,
+    "neutral_battle_pixels": 3890,
+    "root_offsets": [
+      {
+        "frame": 4,
+        "x_native": 0
+      },
+      {
+        "frame": 5,
+        "x_native": 0
+      },
+      {
+        "frame": 6,
+        "x_native": -1
+      },
+      {
+        "frame": 7,
+        "x_native": 0
+      },
+      {
+        "frame": 8,
+        "x_native": 0
+      },
+      {
+        "frame": 9,
+        "x_native": -1
+      },
+      {
+        "frame": 10,
+        "x_native": -1
+      },
+      {
+        "frame": 11,
+        "x_native": -1
+      },
+      {
+        "frame": 12,
+        "x_native": 0
+      },
+      {
+        "frame": 13,
+        "x_native": 0
+      },
+      {
+        "frame": 14,
+        "x_native": 0
+      },
+      {
+        "frame": 15,
+        "x_native": 0
+      },
+      {
+        "frame": 16,
+        "x_native": 0
+      },
+      {
+        "frame": 17,
+        "x_native": 0
+      },
+      {
+        "frame": 18,
+        "x_native": 0
+      },
+      {
+        "frame": 19,
+        "x_native": 0
+      },
+      {
+        "frame": 20,
+        "x_native": 0
+      },
+      {
+        "frame": 21,
+        "x_native": 0
+      },
+      {
+        "frame": 22,
+        "x_native": 0
+      },
+      {
+        "frame": 23,
+        "x_native": 0
+      }
+    ],
+    "stabilized_pixels": 9099
+  }
+}

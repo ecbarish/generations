@@ -1,0 +1,72 @@
+{
+  "mega_tidewyrm": {
+    "file": "atlas.png",
+    "frames": [
+      {
+        "anchor": [
+          39,
+          69
+        ],
+        "ink": [
+          2,
+          2,
+          75,
+          70
+        ],
+        "region": [
+          0,
+          0,
+          79,
+          74
+        ],
+        "sample_step": 1.0
+      },
+      {
+        "anchor": [
+          39,
+          69
+        ],
+        "ink": [
+          2,
+          2,
+          75,
+          70
+        ],
+        "region": [
+          79,
+          0,
+          79,
+          74
+        ],
+        "sample_step": 1.0
+      }
+    ],
+    "height_m": 1.1,
+    "mega": true,
+    "palette": [
+      "102238",
+      "104574",
+      "176eab",
+      "188fc4",
+      "2db6d4",
+      "77d3e6",
+      "b9ebf2",
+      "f4fbff",
+      "a4935a",
+      "ddcb8b",
+      "fff0b7",
+      "ab702d",
+      "edb943",
+      "fffdf3",
+      "70323f",
+      "da8075"
+    ],
+    "sha256": "915b19fbbd97ddffa3c9270f6c271d2aed6a307980934a087c130213a13bc91a",
+    "size": [
+      158,
+      74
+    ],
+    "source_sha256": "7236814ecf4af72ec8db6ee77eeb53fbd778695087e1b158862e54cbdc054203",
+    "stride_m": 0.18
+  }
+}

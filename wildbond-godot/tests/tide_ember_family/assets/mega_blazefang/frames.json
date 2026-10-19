@@ -1,0 +1,72 @@
+{
+  "mega_blazefang": {
+    "file": "atlas.png",
+    "frames": [
+      {
+        "anchor": [
+          39,
+          69
+        ],
+        "ink": [
+          2,
+          2,
+          77,
+          70
+        ],
+        "region": [
+          0,
+          0,
+          81,
+          74
+        ],
+        "sample_step": 1.0
+      },
+      {
+        "anchor": [
+          39,
+          69
+        ],
+        "ink": [
+          2,
+          2,
+          77,
+          70
+        ],
+        "region": [
+          81,
+          0,
+          81,
+          74
+        ],
+        "sample_step": 1.0
+      }
+    ],
+    "height_m": 1.1,
+    "mega": true,
+    "palette": [
+      "101522",
+      "1b2944",
+      "163b7a",
+      "1855b9",
+      "287be1",
+      "38acef",
+      "6cd7fa",
+      "c0f6ff",
+      "454b59",
+      "727b89",
+      "a7afbb",
+      "d2d6df",
+      "eef1f5",
+      "fffdf0",
+      "9b8e89",
+      "d3c2ae"
+    ],
+    "sha256": "1a9c42323d91734d24944a8e2ce98de1b1f92125ce300955af9d03c0964a1071",
+    "size": [
+      162,
+      74
+    ],
+    "source_sha256": "632ae1b4b2e73906aa737c89a50e421b4e42c9c1b68d104c4847abdf37d26f2f",
+    "stride_m": 0.18
+  }
+}
