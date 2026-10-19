@@ -74,5 +74,3 @@ func run() -> void:
     for path in source_hashes:check(FileAccess.get_sha256(path)==source_hashes[path],"immutable source unchanged")
     print("Workbench repair boundaries: %d passed, %d failed." % [passed,failed])
     quit(1 if failed else 0)
-
-
