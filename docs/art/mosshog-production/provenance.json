@@ -1,0 +1,70 @@
+{
+  "task": "WB-MOSSHOG-PRODUCTION",
+  "generator": "built-in image_gen",
+  "date": "2026-10-18",
+  "reference": {
+    "file": "docs/art/starter-families/mosshog-family-v2.png",
+    "sha256": "35265133a32fe1155a19fc134df41284c94c01acf5929d0fdc591dda97713d94",
+    "role": "Approved concept identity reference, not an edit target"
+  },
+  "outputs": [
+    {
+      "file": "wildbond-godot/tests/mosshog_family/assets/mega-thornback-v1.png",
+      "sha256": "d33f157f876dd4c08d538a8f0a58a5dae6e5e3cf151421ef34360df14eab603e",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "selected": true,
+      "runtime_ready": false,
+      "status": "Production sprite candidate; animation/native cleanup acceptance separate",
+      "source_output": "exec-0e3149cc-c315-4321-b26c-508621378d88.png"
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_family/assets/thicketboar-v1.png",
+      "sha256": "2a4d45408b20d64f78c483613494bdab7560ebecb4d9d12302466516db055316",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "selected": true,
+      "runtime_ready": false,
+      "status": "Production sprite candidate; animation/native cleanup acceptance separate",
+      "source_output": "exec-2e426ecb-6a88-45fe-bf56-afa192cc29aa.png"
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_family/assets/thornback-v1.png",
+      "sha256": "ed09bcf7f0678cf5123d00069634cb49f284bcba5abceaf848b4dc2295ca284d",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "selected": false,
+      "runtime_ready": false,
+      "status": "Rejected: source right edge clipped and canopy too small",
+      "source_output": "exec-846ce0af-0f5f-496f-a90f-d8495b2239c3.png"
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_family/assets/thornback-v2.png",
+      "sha256": "eedf56df186b82e9a276f622b91edaaa79c988b1c71166c29851e30eabde07d3",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "selected": true,
+      "runtime_ready": false,
+      "status": "Production sprite candidate; animation/native cleanup acceptance separate",
+      "source_output": "exec-530de272-b63a-4da5-a872-9f75b83575ee.png"
+    }
+  ],
+  "processing": "Generated PNG bytes copied unchanged. Python measures alpha and roots only; Godot renders selected measured regions on a root-aligned grid. No source raster editing, no concept-poster slicing.",
+  "limits": [
+    "Not runtime species/evolution/Mega combat",
+    "No baked native atlas or final animation acceptance",
+    "Base source sprites and all saves unchanged"
+  ]
+}

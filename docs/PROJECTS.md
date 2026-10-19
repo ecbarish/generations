@@ -1,3 +1,9 @@
+## Wildbond Mosshog family production pilot
+
+| ID | Project | Status | Scope |
+|---|---|---|---|
+| WB-MOSSHOG-PRODUCTION | Wildbond original starters | Codex / Evan, PR #573 | Measured middle/final walking and battle sprites plus separate Mega battle appearance; unsaved preview, no evolved runtime records or save changes. |
+
 ## Wildbond starter family concepts
 
 | ID | Project | Size | Status | Scope |
