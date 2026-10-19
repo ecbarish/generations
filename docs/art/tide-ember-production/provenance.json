@@ -1,0 +1,189 @@
+{
+  "task": "WB-TIDE-EMBER-PRODUCTION",
+  "date": "2026-10-19",
+  "generator": "built-in image_gen",
+  "calls": 8,
+  "outputs": [
+    {
+      "file": "wildbond-godot/tests/tide_ember_family/source/riverwisp-v1.png",
+      "sha256": "5c38806f1a225f09fe961ece91e5ee881b25780c4a5230c1cec94246f300ae00",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "source_output": "exec-f0d8f7dc-a10b-4461-995a-d50681371c47.png",
+      "selected": true,
+      "reason": "Selected production candidate"
+    },
+    {
+      "file": "wildbond-godot/tests/tide_ember_family/source/tidewyrm-v1.png",
+      "sha256": "30ac17ca5bbe440d49b83e5b5d0af9241365deec2cdd1b8028979ed0cf438ffa",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "source_output": "exec-1d7094a5-d8b2-4275-a545-e8b238ef0391.png",
+      "selected": true,
+      "reason": "Selected production candidate"
+    },
+    {
+      "file": "wildbond-godot/tests/tide_ember_family/source/mega-tidewyrm-v1.png",
+      "sha256": "7e96839e1a9c8c7f9b7a93bf3d3e906995944ac0c390e4a8f8a5e5f44866d3ff",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "source_output": "exec-4d0cda4e-a1bd-4f82-a749-bb51907302f9.png",
+      "selected": false,
+      "reason": "Rejected at native size: wave detail too busy"
+    },
+    {
+      "file": "wildbond-godot/tests/tide_ember_family/source/smoulderpup-v1.png",
+      "sha256": "c048c4e1cd14927492bfa79d4bae79eeeb58b085c4ca15b3c00cc21dbd7ab7d9",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "source_output": "exec-b6b6e0c8-788a-41ff-b520-6d0c84ef9619.png",
+      "selected": true,
+      "reason": "Selected production candidate"
+    },
+    {
+      "file": "wildbond-godot/tests/tide_ember_family/source/blazefang-v1.png",
+      "sha256": "143df6cb2a53640bb19b4955cb0b78dfe29d2bc6e5327a668fb7310764cf67d7",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "source_output": "exec-606783f8-61d9-4ad1-8916-cecc1b5a7d04.png",
+      "selected": true,
+      "reason": "Selected production candidate"
+    },
+    {
+      "file": "wildbond-godot/tests/tide_ember_family/source/mega-blazefang-v1.png",
+      "sha256": "491ae421a881f7864c6efe4bfaa7c09a313e07b5067fdf375ed933ab7077125d",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "source_output": "exec-719c862c-0af4-402b-b4be-91510e11a913.png",
+      "selected": true,
+      "reason": "Selected production candidate"
+    },
+    {
+      "file": "wildbond-godot/tests/tide_ember_family/source/mega-tidewyrm-v2.png",
+      "sha256": "596f82f7b96ba7e959a24e3879d5231ae2149051cb34e49173bca79ed9f1ca0c",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "source_output": "exec-02a71c81-2803-4347-8801-7ac20af84e57.png",
+      "selected": false,
+      "reason": "Cleaner style, rejected layout: silhouettes overlap horizontally; v3 separates them"
+    },
+    {
+      "file": "wildbond-godot/tests/tide_ember_family/source/mega-tidewyrm-v3.png",
+      "sha256": "f24adb821702127828b4200b08e88a712a446b177e96e0dd31c7b7c8c06ccae5",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "source_output": "exec-3fb43b4f-e0ba-45bf-aea3-d6c870e1a277.png",
+      "selected": true,
+      "reason": "Selected production candidate"
+    }
+  ],
+  "references": [
+    {
+      "file": "docs/art/starter-families/ripplet-family-v2.png",
+      "sha256": "eebbdad70e0a8e2bde965f11fecb24c7a4d60c1fe09ff0fff64e9e86bb6a7c34",
+      "role": "Approved concept identity reference, not edit target"
+    },
+    {
+      "file": "docs/art/starter-families/mega-tidewyrm-wings-v1.png",
+      "sha256": "ee407904792fa81b967d5a31358d099445972486b49af9fea6fca2682378190f",
+      "role": "Approved concept identity reference, not edit target"
+    },
+    {
+      "file": "docs/art/starter-families/cindercub-family-v3.png",
+      "sha256": "23039ef5a120cd452c4b005478bc024beeea50a682c2dadaadbe90563d6beec3",
+      "role": "Approved concept identity reference, not edit target"
+    },
+    {
+      "file": "docs/art/starter-families/mega-blazefang-blue-v1.png",
+      "sha256": "47a93cf96b05245232b7492f9591d52be33234a13bdaa233469ba7bace1cb610",
+      "role": "Approved concept identity reference, not edit target"
+    }
+  ],
+  "native_edits": "Workbench Session API, deterministic recipe; no source PNG rewrite",
+  "art_approval": "Concept designs approved; production/motion acceptance pending",
+  "source_pose_selection": {
+    "riverwisp_battle_rear": "Source passing true-rear walk pose21 replaces too-side-on generated slots2/3; source PNG unchanged."
+  },
+  "workbench_commit": "288e07486a79ee2c5813ef7bdab652ba31d03272",
+  "source_manifest_sha256": "54fabae36abe886abc94fb276a0acc2f752e8e3fc23319c7200816db6f4b50c6",
+  "new_source_pose_slots": 100,
+  "native_pose_slots": 148,
+  "selected_artifact_sha256": {
+    "wildbond-godot/tests/tide_ember_family/frames.json": "bdb67b1e3e4047e0d1b2e3ce315b9de3d8ed74f96c607e47136d50588bd8fcdd",
+    "wildbond-godot/tests/tide_ember_family/assets/blazefang/atlas.png": "84151dedcd2b2384636d2d00386a8e9ccc7da8755ebf961aa8057e69e9c1ddd4",
+    "wildbond-godot/tests/tide_ember_family/assets/cindercub/atlas.png": "cec9dbc555455b00660e1332ea047614675fb58a59658598f5f97f81a122f5f6",
+    "wildbond-godot/tests/tide_ember_family/assets/mega_blazefang/atlas.png": "1a9c42323d91734d24944a8e2ce98de1b1f92125ce300955af9d03c0964a1071",
+    "wildbond-godot/tests/tide_ember_family/assets/mega_tidewyrm/atlas.png": "915b19fbbd97ddffa3c9270f6c271d2aed6a307980934a087c130213a13bc91a",
+    "wildbond-godot/tests/tide_ember_family/assets/ripplet/atlas.png": "fa2cbe335e609936235e68e3c20b853a2ac0a89a003c7e41d18342b78f4c75ac",
+    "wildbond-godot/tests/tide_ember_family/assets/riverwisp/atlas.png": "a7f2bf6ba48956bdcb26efe7e0b30b607767c9f90754b6a5869b775cc2f4a631",
+    "wildbond-godot/tests/tide_ember_family/assets/smoulderpup/atlas.png": "8179a1cc1b846660307ddf5471a62864f0ffdbbf76b20ef586c99cb338c56b82",
+    "wildbond-godot/tests/tide_ember_family/assets/tidewyrm/atlas.png": "c0b608cd22774c83a3416abf935455998aa162b47116303a14d1075335f5a472",
+    "wildbond-godot/tests/tide_ember_family/assets/blazefang/edit-session.json": "a3232c7f53f582ff05560f7729e91d7be5a9939a0a92f73b9610706646bc444d",
+    "wildbond-godot/tests/tide_ember_family/assets/blazefang/frames.json": "5ffbc5d0c76d2a369bd7970cc14fdffdaede20f44dff0e464811624d42c8461d",
+    "wildbond-godot/tests/tide_ember_family/assets/cindercub/edit-session.json": "0da34494e3caa3ebd826fdd0108982aeef7ab2aab2dffad43c226f20dd72cb8f",
+    "wildbond-godot/tests/tide_ember_family/assets/cindercub/frames.json": "7a36aedd65e2e19f7fb1450cb36ec1e5386c635bd2726b59157395a820cd2db1",
+    "wildbond-godot/tests/tide_ember_family/assets/mega_blazefang/edit-session.json": "550ce4260e9b41b8b857d5e316f6014163813f43d3b583558fa09d5692853ab4",
+    "wildbond-godot/tests/tide_ember_family/assets/mega_blazefang/frames.json": "cd5eff2cbcd53919ad961f274ecd36bbb217c6e3abe9b285f2bfc8d0e423c2d6",
+    "wildbond-godot/tests/tide_ember_family/assets/mega_tidewyrm/edit-session.json": "7c084c5f633528fd90c0d7b565291de45128d7644c71a456758c7645c9f066a3",
+    "wildbond-godot/tests/tide_ember_family/assets/mega_tidewyrm/frames.json": "d182b8f40ba4eec833751e82c994b70b1d0560b78ac6550dd22e7e3becdc1919",
+    "wildbond-godot/tests/tide_ember_family/assets/ripplet/edit-session.json": "b26b53bfac71614907b3c5f38a99398b0d454bd826ee9465eaf3e9e7490710f2",
+    "wildbond-godot/tests/tide_ember_family/assets/ripplet/frames.json": "db6c5c6a8202873632c86693b9291fad1640114304fe33aba855dc919df12bed",
+    "wildbond-godot/tests/tide_ember_family/assets/riverwisp/edit-session.json": "1481c9364121a86750af565aa4896f73469081bc05dee86d3b67f153f7ea5edb",
+    "wildbond-godot/tests/tide_ember_family/assets/riverwisp/frames.json": "0122c1e9d47807ed4122b0b9934658952a0a0e3185ed9b503abdb35584d61ae0",
+    "wildbond-godot/tests/tide_ember_family/assets/smoulderpup/edit-session.json": "e30ec50fcb383f289fce7c5e6dc10d9a1e649f21b3db9eb5469b84a38eb00777",
+    "wildbond-godot/tests/tide_ember_family/assets/smoulderpup/frames.json": "a327b51a08ca965de778bfd1d3eb27c993ff53fc7580417ed5c85b820de3dda9",
+    "wildbond-godot/tests/tide_ember_family/assets/tidewyrm/edit-session.json": "38573c626d7807c3314ce06c177095e2b716a6d8eca35e91eefa35aabbe5b1b4",
+    "wildbond-godot/tests/tide_ember_family/assets/tidewyrm/frames.json": "cd10d0083e2dcb588414713c7acdcf5d0ff7a1fc941d9063a7ad3a415435c25a",
+    "wildbond-godot/tests/tide_ember_family/baseline/blazefang/atlas.png": "d38d1fd9b650c8875069022810e0dbed3da881ce9fa058640b965abc581af4f3",
+    "wildbond-godot/tests/tide_ember_family/baseline/cindercub/atlas.png": "531b819f8d1661a4a40619574ef9c875731d0a27d9726b1a35c1685b87e8313e",
+    "wildbond-godot/tests/tide_ember_family/baseline/mega_blazefang/atlas.png": "632ae1b4b2e73906aa737c89a50e421b4e42c9c1b68d104c4847abdf37d26f2f",
+    "wildbond-godot/tests/tide_ember_family/baseline/mega_tidewyrm/atlas.png": "7236814ecf4af72ec8db6ee77eeb53fbd778695087e1b158862e54cbdc054203",
+    "wildbond-godot/tests/tide_ember_family/baseline/ripplet/atlas.png": "1037ea184baf56579cd5299a3d0ef7eb5d13cbd9e6fc41f8a73c774226cba54e",
+    "wildbond-godot/tests/tide_ember_family/baseline/riverwisp/atlas.png": "f4facc298376ab702dc804a2280ed8888b4d66c144d95f0f8e324d1aaa23679e",
+    "wildbond-godot/tests/tide_ember_family/baseline/smoulderpup/atlas.png": "1591dcee4e0047f4121f592b1b9b6f8e91d37d4b09cabc1ee680bc41175b2aa3",
+    "wildbond-godot/tests/tide_ember_family/baseline/tidewyrm/atlas.png": "91fe45047d0f956e9adb85880a79c560be032be9ad8fae78f6b4bd434d64cb4c",
+    "wildbond-godot/tests/tide_ember_family/baseline/blazefang/edit-session.json": "a66f57a0a05995e0ec3e46c28b1f51cd71da8d72fd80f3c55e6b910106bac97b",
+    "wildbond-godot/tests/tide_ember_family/baseline/blazefang/frames.json": "6b293f2da167f5d5ddce25b1b7ae71a8d8774f14887dfda436461342ca987e79",
+    "wildbond-godot/tests/tide_ember_family/baseline/cindercub/edit-session.json": "8895fc4366ccac5997acd2af61c617c041f8402ebdabcb7915b419d1275c3e41",
+    "wildbond-godot/tests/tide_ember_family/baseline/cindercub/frames.json": "7606422a46146e6afa3904d8987c00f0485a2b2d29bf5d75e02c022863ca83be",
+    "wildbond-godot/tests/tide_ember_family/baseline/mega_blazefang/edit-session.json": "a66f57a0a05995e0ec3e46c28b1f51cd71da8d72fd80f3c55e6b910106bac97b",
+    "wildbond-godot/tests/tide_ember_family/baseline/mega_blazefang/frames.json": "3686c733bee48989454649aa9cf7af1c1348fac36792f0499803dec5fe0a5100",
+    "wildbond-godot/tests/tide_ember_family/baseline/mega_tidewyrm/edit-session.json": "a66f57a0a05995e0ec3e46c28b1f51cd71da8d72fd80f3c55e6b910106bac97b",
+    "wildbond-godot/tests/tide_ember_family/baseline/mega_tidewyrm/frames.json": "dd862460ead17099568d0f23b56b646359e24cd946d186a434ad0d0fd188c853",
+    "wildbond-godot/tests/tide_ember_family/baseline/ripplet/edit-session.json": "8895fc4366ccac5997acd2af61c617c041f8402ebdabcb7915b419d1275c3e41",
+    "wildbond-godot/tests/tide_ember_family/baseline/ripplet/frames.json": "6036b9d9b39a7dda363605f183ead2da2123db52a1e4eacf7429fba6c56f0a44",
+    "wildbond-godot/tests/tide_ember_family/baseline/riverwisp/edit-session.json": "a66f57a0a05995e0ec3e46c28b1f51cd71da8d72fd80f3c55e6b910106bac97b",
+    "wildbond-godot/tests/tide_ember_family/baseline/riverwisp/frames.json": "c493022abb5424998be36cd5ac7bef4f10f6fdfbf23e855d407aacd8982dedc4",
+    "wildbond-godot/tests/tide_ember_family/baseline/smoulderpup/edit-session.json": "a66f57a0a05995e0ec3e46c28b1f51cd71da8d72fd80f3c55e6b910106bac97b",
+    "wildbond-godot/tests/tide_ember_family/baseline/smoulderpup/frames.json": "ff1255c26b298dbf24561d14255d48afdd55272aae1603629fb0ce512d64f58a",
+    "wildbond-godot/tests/tide_ember_family/baseline/tidewyrm/edit-session.json": "a66f57a0a05995e0ec3e46c28b1f51cd71da8d72fd80f3c55e6b910106bac97b",
+    "wildbond-godot/tests/tide_ember_family/baseline/tidewyrm/frames.json": "99a3e1dafa95768962c46373312b4495673d435e79e5ef06bc40afa370907926"
+  },
+  "repeated_recipe_exact_files": 49,
+  "artifact_fingerprint": "27440dbd14d9a6d1d3e47e4d0db53a42d78340cfb8f30556b5eb3a00eba439f4",
+  "recipe_sha256_lf": "1a0e494214f54324f6476dcb99331dd08d5f4e93157484031144833ec77727b3"
+}

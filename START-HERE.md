@@ -100,6 +100,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-19 Codex / Evan: PR #582 adds Ripplet and Cindercub family production/cleanup previews, including winged Mega Tidewyrm and blue-fire Mega Blazefang. Editable native atlases, source/prompt history and an unsaved comparison; permanent evolution and publication remain separate.
 - 2026-10-19 Codex / Evan: PR #581 repairs the seven independently reproduced sprite-workbench safety defects from #579; original sources, live games and player saves unchanged. Evidence: docs/art/sprite-workbench/safety-fixes/. No merge/publication.
 
 - 2026-10-18, Codex / Evan: WB-MOSSHOG-NATIVE-CLEANUP, PR #576 stacked on #574, uses the workbench to bake/edit 74 Mosshog-family source-pose slots with fixed walking bodies, simpler foliage, front tusks and eyelid-only base blink. Separate unsaved Original/Clean comparison; source art, saved species and public build unchanged.

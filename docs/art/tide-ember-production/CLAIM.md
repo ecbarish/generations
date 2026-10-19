@@ -1,0 +1,3 @@
+# WB-TIDE-EMBER-PRODUCTION
+
+Codex / root for Evan, 2026-10-19. Complete the remaining two approved starter families production workflow: Riverwisp, Tidewyrm, winged Mega Tidewyrm; Smoulderpup, Blazefang, blue-fire Mega Blazefang; preserve and clean existing base Ripplet/Cindercub sprites. Own tests/tide_ember_family/, this art report, and a dedicated workbench recipe, plus project/session entries. Measured source sheets, editable native atlases and unsaved family/motion preview. Preserve approved concepts, Mosshog art, active chapter, identities, saves and public exports. Stack on safety fixes #581; no merge/publication.

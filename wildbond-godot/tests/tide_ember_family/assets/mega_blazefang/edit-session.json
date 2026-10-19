@@ -1,0 +1,78 @@
+{
+  "entries": {
+    "mega_blazefang": {
+      "file": "atlas.png",
+      "frames": [
+        {
+          "anchor": [
+            37.0,
+            67.0
+          ],
+          "ink": [
+            2.0,
+            2.0,
+            73.0,
+            66.0
+          ],
+          "region": [
+            0.0,
+            0.0,
+            77.0,
+            70.0
+          ],
+          "sample_step": 1.0
+        },
+        {
+          "anchor": [
+            37.0,
+            67.0
+          ],
+          "ink": [
+            2.0,
+            2.0,
+            73.0,
+            66.0
+          ],
+          "region": [
+            77.0,
+            0.0,
+            77.0,
+            70.0
+          ],
+          "sample_step": 1.0
+        }
+      ],
+      "height_m": 1.1,
+      "mega": true,
+      "palette": [
+        "101522",
+        "1b2944",
+        "163b7a",
+        "1855b9",
+        "287be1",
+        "38acef",
+        "6cd7fa",
+        "c0f6ff",
+        "454b59",
+        "727b89",
+        "a7afbb",
+        "d2d6df",
+        "eef1f5",
+        "fffdf0",
+        "9b8e89",
+        "d3c2ae"
+      ],
+      "sha256": "632ae1b4b2e73906aa737c89a50e421b4e42c9c1b68d104c4847abdf37d26f2f",
+      "size": [
+        154.0,
+        70.0
+      ],
+      "source_sha256": "491ae421a881f7864c6efe4bfaa7c09a313e07b5067fdf375ed933ab7077125d",
+      "stride_m": 0.18
+    }
+  },
+  "manifest_sha256": "3686c733bee48989454649aa9cf7af1c1348fac36792f0499803dec5fe0a5100",
+  "pixels": {},
+  "schema": 1,
+  "source_manifest": "wildbond-godot/tests/tide_ember_family/baseline/mega_blazefang/frames.json"
+}
