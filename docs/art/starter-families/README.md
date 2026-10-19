@@ -2,9 +2,9 @@
 
 WB-STARTER-FAMILIES, Codex / root for Evan, 2026-10-18. PR #571, stacked on #570. Three complete family concept boards, **12 stage/form designs**: base, middle, final and temporary Mega for each approved original starter. Mosshog's complete concept line and Ripplet's normal line are now approved; the two standalone Mega revisions and other unapproved appearances remain candidates. The approved base identities remain the authority; no saved creature, live evolution, combat stat, sprite atlas or public build changes.
 
-## Concept approval complete (2026-10-18)
+## Selected starter concepts approved (2026-10-18)
 
-Evan approved the two standalone Mega revisions and declared the starter concept artwork complete: "These megas are perfect and we've completed the starters artwork." This later approval supersedes candidate/pending language below for the selected designs. Preserve every selected design. Production sprites, animation acceptance, permanent evolution and temporary Mega combat remain separate work.
+Evan approved both standalone Mega revisions and declared the starter concept artwork complete: "These megas are perfect and we've completed the starters artwork." This supersedes earlier candidate/pending language for the selected family designs. Preserve the selected normal designs and standalone Mega overrides. Production sprites, animation acceptance, evolution and temporary Mega combat remain separate work. Next: measured Mosshog-family production pilot, accounting for the base-sprite review in #561.
 
 ## Current approved direction and focused Mega revisions
 
