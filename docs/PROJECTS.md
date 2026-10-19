@@ -1,3 +1,9 @@
+## Wildbond soft ground transitions
+
+| Task | Project | Owner | Scope |
+| --- | --- | --- | --- |
+| WB-SOFT-GROUND | Wildbond opening | Codex / Evan, claimed 2026-10-19 | Feather dirt into grass in the expanded unsaved village, keeping geometry/gameplay intact; verify native views and checks. |
+
 ## Wildbond village breathing room
 
 | Task | Project | Owner | Scope |
