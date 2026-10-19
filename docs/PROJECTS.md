@@ -1,3 +1,9 @@
+## Wildbond Mosshog native cleanup
+
+| ID | Project | Status | Scope |
+|---|---|---|---|
+| WB-MOSSHOG-NATIVE-CLEANUP | Wildbond starter production | Codex / Evan, PR #576 | Editable native atlas cleanup and unsaved Original/Clean comparison. Source sheets, approved concepts, live species and saves unchanged. |
+
 ## Wildbond sprite workbench
 
 | ID | Project | Status | Scope |

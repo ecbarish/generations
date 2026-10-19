@@ -1,0 +1,197 @@
+{
+  "task": "WB-MOSSHOG-NATIVE-CLEANUP",
+  "date": "2026-10-18",
+  "method": "Sprite Workbench measured rendering and explicit palette-index edits; no image regeneration",
+  "workbench_commit": "8685c1650c95e34c22fafdd9319a2ce2ff3fd458",
+  "recipe": "tools/sprite-workbench/recipes/mosshog-cleanup.gd",
+  "recipe_sha256": "4cfd8c561e0ea962de280c5e37dd0e2910ac7bf0c4df9f1862fc7b1da8088c44",
+  "source_inputs": [
+    {
+      "file": "wildbond-godot/tests/starter_sprites/frames.json",
+      "sha256": "f56230fe17bfaca7c151ddebb2bf3e5fbf8d2d760c19af63e4a2109a87bedb4a"
+    },
+    {
+      "file": "wildbond-godot/tests/starter_sprites/assets/mosshog-v1.png",
+      "sha256": "a318ade3b49dc2c36a81448be0ca7a03a184d494ff04abe447f865cfc9740ef3"
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_family/frames.json",
+      "sha256": "3aff98564476e9f6c50381f172083660ed8fb0fa306899223a88490e6cd9f7ef"
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_family/assets/thicketboar-v1.png",
+      "sha256": "2a4d45408b20d64f78c483613494bdab7560ebecb4d9d12302466516db055316"
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_family/assets/thornback-v2.png",
+      "sha256": "eedf56df186b82e9a276f622b91edaaa79c988b1c71166c29851e30eabde07d3"
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_family/assets/mega-thornback-v1.png",
+      "sha256": "d33f157f876dd4c08d538a8f0a58a5dae6e5e3cf151421ef34360df14eab603e"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/mega_thornback/atlas.png",
+      "sha256": "e0dd71778a562febdbd0d420957efadbb438e36553590860fd987af89a9a7eef",
+      "bytes": 9834,
+      "size": [
+        180,
+        74
+      ]
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/mega_thornback/edit-session.json",
+      "sha256": "4a691d3f46ee3ed355e216a8afbda3f962ced7237e06ad5162cbce298b4dfcae",
+      "bytes": 30557
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/mega_thornback/frames.json",
+      "sha256": "770fdeed98a81dbef12bf87e4446b995c0ae69100b91bfc1fa000e89bc0e946b",
+      "bytes": 1163
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/mosshog/atlas.png",
+      "sha256": "ae1f25cdaecf2c927628d8f4f2c83f65517724b019cc48a68bb80f6f6aab70ba",
+      "bytes": 13896,
+      "size": [
+        288,
+        402
+      ]
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/mosshog/edit-session.json",
+      "sha256": "9a080343e166e6825a743f546d6108f49ee452559c3d5ccd74d5234f540daf73",
+      "bytes": 258298
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/mosshog/frames.json",
+      "sha256": "28b92662f4a547550d4c5afa7e623ef751ce5f44b0c16daf9c31f4ab47185ee0",
+      "bytes": 7056
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/thicketboar/atlas.png",
+      "sha256": "84c4e1a052bb2bd5a5c793528f475b7c57d2c4ea8187170dbddb6dd5b08e9ea1",
+      "bytes": 19563,
+      "size": [
+        328,
+        444
+      ]
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/thicketboar/edit-session.json",
+      "sha256": "93076a5506c1b754d909e354537d09d10fe2009cd0fa6e62441309a3914b2727",
+      "bytes": 322763
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/thicketboar/frames.json",
+      "sha256": "7cc325d154f3b61c06a0554d12d5bcd803181651036f60c5c9e2d35328fbc936",
+      "bytes": 7101
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/thornback/atlas.png",
+      "sha256": "fc3ee7875bab50080e73365ebba1e355c862f21335da6f3f9f3ec0bad65c4642",
+      "bytes": 21571,
+      "size": [
+        360,
+        444
+      ]
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/thornback/edit-session.json",
+      "sha256": "0eba3b61794269095d451effac4a2597544060d1d2ff6b059e16c888bd33f489",
+      "bytes": 345753
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/assets/thornback/frames.json",
+      "sha256": "f3a969836410ef82481c4ddd90d12259dd901913237116a9b59f8795d9f4f28f",
+      "bytes": 7099
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/mega_thornback/atlas.png",
+      "sha256": "f11d0e752d8167e6482d9ad3f1ad32290e5f7706c699c04103e211242006e461",
+      "bytes": 12412,
+      "size": [
+        172,
+        70
+      ]
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/mega_thornback/edit-session.json",
+      "sha256": "792db59e1a7dec3bf1c23ab934e1302a5ba34cef876af208938f538513e492b7",
+      "bytes": 18044
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/mega_thornback/frames.json",
+      "sha256": "735d84f9a96d164844fefb95ca3802f3786bb565b6270a5d9105ee8a4d133275",
+      "bytes": 1163
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/mosshog/atlas.png",
+      "sha256": "dc64170876305a0b3468bb272cd3eaa40f2ae494641620e80ad34068fd3a0d8e",
+      "bytes": 31403,
+      "size": [
+        240,
+        378
+      ]
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/mosshog/edit-session.json",
+      "sha256": "8895fc4366ccac5997acd2af61c617c041f8402ebdabcb7915b419d1275c3e41",
+      "bytes": 25364
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/mosshog/frames.json",
+      "sha256": "f73429850d47eba949be4a213bdd6d03d530e1c2eaf5ee182c9b8f19365c9e7c",
+      "bytes": 7056
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/thicketboar/atlas.png",
+      "sha256": "41f346052149bc096fd948a2ede366af86973b5a7b5cc1b90a45f3ba645ad8d0",
+      "bytes": 45130,
+      "size": [
+        308,
+        420
+      ]
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/thicketboar/edit-session.json",
+      "sha256": "792db59e1a7dec3bf1c23ab934e1302a5ba34cef876af208938f538513e492b7",
+      "bytes": 18044
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/thicketboar/frames.json",
+      "sha256": "2fea70f8deb1a6455dd36fd4abbddf7222099fd22e45dce9e2baea0534f1d6c7",
+      "bytes": 7101
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/thornback/atlas.png",
+      "sha256": "a41cba0f664d70657a6623c2b97b2955f21c3f5710af133b8e66b023368020ef",
+      "bytes": 52059,
+      "size": [
+        340,
+        420
+      ]
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/thornback/edit-session.json",
+      "sha256": "792db59e1a7dec3bf1c23ab934e1302a5ba34cef876af208938f538513e492b7",
+      "bytes": 18044
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/baseline/thornback/frames.json",
+      "sha256": "d197ce86ab6504bac55facef916fa2013514ce7678d77eae5823d76221667d54",
+      "bytes": 7099
+    },
+    {
+      "file": "wildbond-godot/tests/mosshog_clean/frames.json",
+      "sha256": "345ec389f7f7f440e74ce088816c9c52e3ff9ec411c8541a3f383b63e9e642d0",
+      "bytes": 23982
+    }
+  ],
+  "repeat_fingerprint": "7621493800103edb8d9ed5ef4f70f9779e4dc2fdbe3d96ca9b973cde56b4f6be",
+  "approval": "Approved concepts preserved. New native cleanup awaits visual/animation acceptance.",
+  "runtime_ready": false,
+  "saves_changed": false
+}
