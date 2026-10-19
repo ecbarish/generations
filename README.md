@@ -43,6 +43,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 ## Changelog
 
 - **Studio integration (2026-10-19, PRs #519, #520, #521, #523, #569, #575 and #583):** The accessibility checker now finds installed browsers and writes screenshots portably. Lantern Bowl is shelved from the catalogue while its direct link, code and saves remain. Wildbond gains proposed Kilnvent, Lowbell, lesson-slip, banner and Dry Boards planning data with validators; these are not playable-map additions. No game or save version changes in this batch. Publication is not verified.
+- **Night Market Stalls v0.1.8 — NM-HEADER-FIT (PR #545):** Back and the cash balance stay together on narrow sideways phones. Larger text can still wrap safely; existing saves keep their version and contents.
 
 - **Night Market Stalls v0.1.7 — NM-G3 (PR #499; version bumped on merge):** The Back and footer links are now 1rem and stay on one line. The header reflows when the text is larger, as Generations Director approved. Game Art Director approved the change at 9548a7bb. The save stays version 1.
 - **Lantern Bowl v0.1.8 — crowd bed loop (PRs #489 and #494; version bumped once for both):** When the crowd bed plays, it holds its peak until it is stopped, then fades out over 0.25 seconds. The live play page may still not wire these cues; the listening page is what exercises the loop. Season standings and playoff pairings are in `standings.js`, and the live game does not load that module yet. LB-SEASON stays open. The save stays version 2.
