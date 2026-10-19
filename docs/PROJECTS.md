@@ -1,3 +1,9 @@
+## Wildbond workbench safety repairs
+
+| ID | Project | Status | Scope |
+|---|---|---|---|
+| WB-WORKBENCH-SAFETY-FIXES | Wildbond tooling | Codex / Evan, PR #581 | Repair independently reproduced draft source collisions, stale-input saves, validation and export/reimport defects. |
+
 ## Wildbond Mosshog native cleanup
 
 | ID | Project | Status | Scope |
