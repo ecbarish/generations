@@ -23,7 +23,7 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 
 | Slot | What it means | Now (2026-10-14) |
 |---|---|---|
-| **Launch** (three games, the strong push) | Only work that ticks a checklist item. No new content until that game's checklist is done. Finished means it is playable and fun, not merely merged. | **Little Ranch** ([launch-little-ranch.md](plans/launch-little-ranch.md)), **Lantern Bowl** ([launch-lantern-bowl.md](plans/launch-lantern-bowl.md)), **Night Market** ([launch-night-market.md](plans/launch-night-market.md)). Night Market includes IDLE-CORE, merged in #393. #403 is IDLE-NM1 and a launch task |
+| **Launch** (four games, the strong push; Evan, 2026-10-18) | Only work that ticks a checklist item. No new content until that game's checklist is done. Finished means it is playable and fun, not merely merged. | **Little Ranch** ([launch-little-ranch.md](plans/launch-little-ranch.md)), **Night Market** ([launch-night-market.md](plans/launch-night-market.md)), **Wildbond** ([launch-wildbond.md](plans/launch-wildbond.md)), **Keymaster** (checklist to be written from [keymaster.md](proposals/keymaster.md)). Lantern Bowl is shelved (2026-10-18). Night Market includes IDLE-CORE, merged in #393. #403 is IDLE-NM1 and a launch task |
 | **Wildbond** (steady background) | Checklist fixes, steadily. The long project, not the first to ship. New creatures, areas and features wait until its checklist is done. | [launch-wildbond.md](plans/launch-wildbond.md). Partial newcomer run, 2026-10-14: about 6 minutes on an existing save, Fun 5/10. Phone not yet tested |
 | **Keep-alive** | Bug fixes only. No new content. Pull requests already open or claimed may finish. | Starfall, Keymaster, Diamond Manager, the cabinets, Realmbound, Otherworld. #341 (Starfall taps) is already merged. The Starfall exact-build preview for #323 and #325 is not now |
 | **Shelved** (Evan, 2026-10-13, AR-SHELVE) | Off the site; code, folders and saves kept, old links still open. No work. | **Diamond Career** (Diamond Manager replaced it), Classic Wildbond, Classic Starfall Guild |
@@ -34,7 +34,7 @@ every game moves a little and none of them gets finished. Ideas arrive faster th
 **First in each lane** after Playtester's 2026-10-14 scores (Night Market 5/10, Lantern Bowl 6/10, Little Ranch 7/10). These sit ahead of the older gaps in [QUEUE.md](QUEUE.md).
 
 - **Night Market:** Guest lane (#373). NM-PLAY first (pour, save controls, the 22.0s trailing zero). Then NM-VIS, both pictures in one pull. Then the phone layout and the hall entry. Payback and the offline label are done.
-- **Lantern Bowl:** Side Games Dev Lead. LB-GAMEFLOW first. It is in progress, and its pull request is pending. The play screen is done (#432, `0bf5f0d`). Then LB-FEEL, LB-PLAYBOOK-DATA (dot, data only, feeding LB-MANAGER), LB-MANAGER, and LB-SEASON. The season changes the save, and that design needs Evan's sign-off via the Director before merge. On a phone it is landscape-only. Held upright, it shows "Turn your phone sideways", the way ALL-22 does. Portrait will not get its own layout. Launch is 20 October likely and 30 October slower. One bundle on its own is 16 October and 22 October. Describe Retro Bowl's and ALL-22's techniques only, and never copy their code or assets.
+- **Lantern Bowl: shelved by Evan, 2026-10-18 (see the Log). No new work.** History: Side Games Dev Lead. LB-GAMEFLOW first. It is in progress, and its pull request is pending. The play screen is done (#432, `0bf5f0d`). Then LB-FEEL, LB-PLAYBOOK-DATA (dot, data only, feeding LB-MANAGER), LB-MANAGER, and LB-SEASON. The season changes the save, and that design needs Evan's sign-off via the Director before merge. On a phone it is landscape-only. Held upright, it shows "Turn your phone sideways", the way ALL-22 does. Portrait will not get its own layout. Launch is 20 October likely and 30 October slower. One bundle on its own is 16 October and 22 October. Describe Retro Bowl's and ALL-22's techniques only, and never copy their code or assets.
 - **Little Ranch:** Side Games Dev Lead. LR-POLISH first. The layout row is done (#424). LRL-1 is done (#417, `e352a7b`). Dough dots, the fox and the sign wiggle remain, plus three non-blocking notes from the #417 pass: bigger, longer bedtime cues, a slower dusk fade, and feedback for leaving the paint shed early. The sound preference is still open.
 - **Wildbond:** Wildbond & Starfall Dev Lead. The open bundle is #429: the Larkhaven menu, the catch and the objective. WBL-2 is done (#418). WBL-6 is done (#406, `440e4d6`). WB-PHONE builds the upright layout and removes the rotate gate.
 - **Phone:** LRL-11 and NM-FIX-7. Owner: Playtester. Not build pulls. Lantern Bowl on a phone is landscape-only, and that landed in LB-PLAYSCREEN (#432). Portrait shows "Turn your phone sideways" and will not get its own layout. Wildbond's phone work is WB-PHONE.
@@ -84,7 +84,7 @@ of what we have). Anyone, Evan included, can add to either. The flow:
 
 | Idea | Score | Pitch | Note |
 |---|---|---|---|
-| Lantern Bowl, our Retro Bowl-style football game (LB0-LB5) | 15/18 | docs/plans/sports-management.md | **Launch game.** The approved scope, a season, real blocking, ratings from 35 to 90, a breaking-route playbook, progression and a defence choice, is on [launch-lantern-bowl.md](plans/launch-lantern-bowl.md). Describe techniques only. Never copy Retro Bowl's or ALL-22's code or assets |
+| Lantern Bowl, our Retro Bowl-style football game (LB0-LB5) | 15/18 | docs/plans/sports-management.md | **Shelved (Evan, 2026-10-18).** Retro Bowl and Super Tiny Football already do this well. Was a launch game: The approved scope, a season, real blocking, ratings from 35 to 90, a breaking-route playbook, progression and a defence choice, is on [launch-lantern-bowl.md](plans/launch-lantern-bowl.md). Describe techniques only. Never copy Retro Bowl's or ALL-22's code or assets |
 | "The Crossing", sailing between the worlds | 12/18 | docs/proposals/new-game-ideas.md | On the shelf |
 | Card shop, absorbing Main Street (CS1 + MS1) | 17/18 | docs/proposals/new-game-ideas.md | **Card Shop lite (IDLE-CS1) is approved**, and the Wildbond gate on that lite slice is lifted, but it waits until Night Market (IDLE-NM1) has been playtested. The full roster tie-in stays behind Wildbond |
 | Keymaster, a property-portfolio game around Evan's deal analyzer (KM0) | 18-19/21 | docs/proposals/keymaster.md | The smallest slice is merged (#379). Further Keymaster content is on the shelf. Bug fixes only |
@@ -93,7 +93,7 @@ of what we have). Anyone, Evan included, can add to either. The flow:
 
 ## 4. The flagship goal, in order
 
-**Launch mode overrides this section** (Evan, 2026-10-14). The strong push is the Little Ranch, Lantern Bowl and Night Market checklists. Wildbond's long list below waits until its own checklist is done. This section is what the games are for after they are playable and fun.
+**Launch mode overrides this section** (Evan, 2026-10-14). The strong push is the Little Ranch, Night Market, Wildbond and Keymaster checklists (Evan, 2026-10-18; Lantern Bowl shelved). Wildbond's long list below waits until its own checklist is done. This section is what the games are for after they are playable and fun.
 
 **Wildbond 2.0** = the whole journey, finished and pleasant, playable on the web and on a phone, ready for friends and
 then everyone (START-HERE question 1, default (a)). The game is already playable start to finish, so what is left is
@@ -143,6 +143,8 @@ live list is QUEUE.md "The road ahead".
 - Each re-rank is one dated line in the log below.
 
 ## Log
+
+- 2026-10-18 Evan (via Claude): **Lantern Bowl is shelved.** Evan, 2026-10-18: "Lantern Bowl sucks in its current state and likely should be shelved. Retro Bowl and Super Tiny Football are better and almost free ... it doesn't feel like it makes sense to waste any more development time." It leaves the homepage (moved to `ArcadeOffShelf` like the Classics); its code, folder, save key and direct link stay. The launch list becomes Little Ranch, Night Market, Wildbond and Keymaster ("Wildbond and Keymaster also make the list"). The open Lantern Bowl pulls (#513, #533, #534, #536) are closed unmerged, and the guest rows are marked shelved.
 
 - 2026-10-13 Claude (lane P): cycle 1 revised on Evan's word ("the playtests are a waste until we update beyond Flint's notes"): every game's tasks come from Flint's three rounds; new playtests and Lantern Bowl wait for cycle 2.
 - 2026-10-13 Claude (lane P): the studio plan's weekly cycle now runs the order. Cycle 1 (QUEUE.md "This cycle"): Wildbond, Little Ranch, Starfall in the rotating slot (lowest newcomer score, 10/18), Lantern Bowl in the Incubator, plus the Phase 0 front door. Cycle 2's rotating game is Realmbound.
