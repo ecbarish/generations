@@ -59,6 +59,7 @@ document.querySelector('#run').onclick=async()=>{
   check('try again goes back to the start',text('#offer')==='$240,000'&&d.querySelector('#answer').hidden&&!d.querySelector('#offerBtn').disabled);
   for(let i=0;i<25;i++)click('[data-offer="-2000"]');
   click('#offerBtn');await wait();check('a lowball gets a no, with one more try',/They say no/.test(text('#answer'))&&!d.querySelector('#offerBtn').disabled);
+  check('a no offers a way back to the offer',!!d.querySelector('[data-act="change"]'));click('[data-act="change"]');check('Change your offer moves focus to Offer more',d.activeElement===d.querySelector('[data-offer="2000"]'));
   click('#offerBtn');await wait();check('a second no and they sell to someone else',/another buyer/.test(text('#answer'))&&d.querySelector('#offerBtn').disabled);
   click('[data-act="again"]');await wait();click('#passBtn');await wait();
   check('passing shows what the next buyer made',/Another investor bought it for \$216,000/.test(text('#answer')));

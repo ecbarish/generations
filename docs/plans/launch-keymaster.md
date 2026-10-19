@@ -16,7 +16,7 @@ Claude played KM0 on 2026-10-18 at desktop width and at 375x812.
   - There is one listing and then "Try the deal again". There is no second decision and no goal.
   - It saves nothing (no storage keys at all).
   - It isn't on the homepage.
-  - On a phone the page is about two screens tall, and the year's result appears below the offer button without scrolling into view.
+  - On a phone the page is about two screens tall. Measured on 2026-10-19 at 375x812, 390x844 and 812x375: every answer already scrolls into view. The gap was the "They say no" answer, whose offer controls are a screen above it (fixed by KM-PHONE).
 
 ## Finished means
 
@@ -37,7 +37,7 @@ Playable and fun, the same bar as the other launch games. Further improvements d
 | A newcomer gets through the first five minutes without help | **KML-1** | The analyzer explains itself. The newcomer still has to find the game (it's hidden) and has nothing to do after one deal |
 | Playtester rates the first session as fun | **KML-2** | Not scored yet. The proposal's test: "If running the numbers isn't fun, the game is wrong" |
 | No crashes and no broken saves | **KML-3** | No save exists yet, so the first save is a new format and needs Evan's yes |
-| Plays well on a phone | **KML-4** | Fits at 375 px with large targets. The result needs to come into view, and #527 (KM-MONTH) keeps the month amounts readable |
+| Plays well on a phone | **KML-4** | Fits at 375 px with large targets. Every answer scrolls into view. KM-PHONE adds a way back to the offer after a no. #527 (KM-MONTH) keeps the month amounts readable |
 | One clear goal | **KML-5** | None yet: the session ends after one deal |
 | Known bugs are fixed | **KML-6** | None found on 2026-10-18 beyond KML-4 |
 
@@ -53,7 +53,7 @@ Playable and fun, the same bar as the other launch games. Further improvements d
    - New key `keymaster-save-v1`, versioned, and added to `tools/save-names-check.cjs`.
    - It must not touch other games' saves.
    - **Needs Evan's yes before merge** (new save format).
-4. **KM-PHONE:** after "Make this offer", the result scrolls into view on a phone, and #527's month amounts stay readable (KML-4). Screenshots at 375x812 and 812x375.
+4. **KM-PHONE:** after "They say no", a "Change your offer" button takes you back to the offer controls, and #527's month amounts stay readable (KML-4). Screenshots at 375x812 and 812x375. The other answers already scroll into view (measured 2026-10-19).
 5. **KM-PLAYTEST:** Playtester plays a newcomer session on desktop and on a phone and scores fun at least 7/10 (KML-2). It is not a build pull. The lowest-scoring part becomes the next task, as for the other launch games.
 6. **Evan's open questions** from the proposal, answered or defaulted before KM-STREET is built: the title (default: Keymaster) and the tone (default: straight simulation; a named tenant like Mrs Okafor already adds warmth).
 
