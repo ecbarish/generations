@@ -1,0 +1,14 @@
+{
+  "mega_tidewyrm_clean": {
+    "detached_pixels_removed": 0,
+    "draft_roundtrip": "exact RGBA and roots",
+    "interior_edits": 173,
+    "outline_pixels_added": 1346
+  },
+  "mega_tidewyrm_simple": {
+    "detached_pixels_removed": 0,
+    "draft_roundtrip": "exact RGBA and roots",
+    "interior_edits": 226,
+    "outline_pixels_added": 1108
+  }
+}

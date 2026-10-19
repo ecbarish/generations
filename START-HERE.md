@@ -100,6 +100,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 3. If you added a design decision, put it in the relevant design doc too.
 
 ## Session log (newest first; one or two lines each)
+- 2026-10-19 Codex / Evan: PR #584 compares the original winged Mega Tidewyrm, a native-outline cleanup and a simpler family-board Mega. Both alternatives stay local to an unsaved art preview; no canon/game/save/export change.
 - 2026-10-19 Codex / Evan: PR #582 adds Ripplet and Cindercub family production/cleanup previews, including winged Mega Tidewyrm and blue-fire Mega Blazefang. Editable native atlases, source/prompt history and an unsaved comparison; permanent evolution and publication remain separate.
 - 2026-10-19 Codex / Evan: PR #581 repairs the seven independently reproduced sprite-workbench safety defects from #579; original sources, live games and player saves unchanged. Evidence: docs/art/sprite-workbench/safety-fixes/. No merge/publication.
 

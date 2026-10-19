@@ -1,0 +1,141 @@
+{
+  "mega_tidewyrm_simple": {
+    "file": "source/family-mega-v1.png",
+    "sha256": "8ea0b8d0fddf0d58935f5fd5d4ec314b770d8bd652d0d38aa267a00b8762c76f",
+    "size": [
+      1536,
+      1024
+    ],
+    "height_m": 1.1,
+    "mega": true,
+    "stride_m": 0.18,
+    "frames": [
+      {
+        "region": [
+          9,
+          266,
+          830,
+          645
+        ],
+        "anchor": [
+          399.911,
+          644
+        ],
+        "ink": [
+          1,
+          1,
+          828,
+          643
+        ],
+        "sample_step": 10.35
+      },
+      {
+        "region": [
+          862,
+          293,
+          671,
+          607
+        ],
+        "anchor": [
+          319.001,
+          606
+        ],
+        "ink": [
+          1,
+          1,
+          669,
+          605
+        ],
+        "sample_step": 10.35
+      }
+    ],
+    "palette": [
+      "102238",
+      "104574",
+      "176eab",
+      "2db6d4",
+      "77d3e6",
+      "b9ebf2",
+      "f4fbff",
+      "fff0b7",
+      "d5c494",
+      "a4935a",
+      "edb943",
+      "ab702d",
+      "172f53",
+      "3b8fbd",
+      "fffdf3",
+      "ddcb8b"
+    ]
+  },
+  "mega_tidewyrm_clean": {
+    "file": "source/wing-native.png",
+    "frames": [
+      {
+        "anchor": [
+          39,
+          69
+        ],
+        "ink": [
+          2,
+          2,
+          75,
+          70
+        ],
+        "region": [
+          0,
+          0,
+          79,
+          74
+        ],
+        "sample_step": 1.0
+      },
+      {
+        "anchor": [
+          39,
+          69
+        ],
+        "ink": [
+          2,
+          2,
+          75,
+          70
+        ],
+        "region": [
+          79,
+          0,
+          79,
+          74
+        ],
+        "sample_step": 1.0
+      }
+    ],
+    "height_m": 1.1,
+    "mega": true,
+    "palette": [
+      "102238",
+      "104574",
+      "176eab",
+      "188fc4",
+      "2db6d4",
+      "77d3e6",
+      "b9ebf2",
+      "f4fbff",
+      "a4935a",
+      "ddcb8b",
+      "fff0b7",
+      "ab702d",
+      "edb943",
+      "fffdf3",
+      "70323f",
+      "da8075"
+    ],
+    "sha256": "915b19fbbd97ddffa3c9270f6c271d2aed6a307980934a087c130213a13bc91a",
+    "size": [
+      158,
+      74
+    ],
+    "source_sha256": "7236814ecf4af72ec8db6ee77eeb53fbd778695087e1b158862e54cbdc054203",
+    "stride_m": 0.18
+  }
+}
