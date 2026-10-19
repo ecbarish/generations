@@ -1,3 +1,9 @@
+## Wildbond environment sample
+
+| Task | Project | Owner | Scope |
+| --- | --- | --- | --- |
+| WB-ENVIRONMENT-SAMPLE | Wildbond opening environment | Codex / Evan, PR #587 | Playable ranch/trail/discovery environment sample over the existing chapter, coherent trees/materials, composed light and native performance/visual evidence. |
+
 ## Wildbond opening through the first Warden
 
 | Task | Project | Owner | Scope |

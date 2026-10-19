@@ -101,6 +101,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-19, Codex / Evan: WB-ENVIRONMENT-SAMPLE, PR #587, adds an unsaved actual-chapter visual benchmark: coherent broadleaf trees, red ranch/slate roofs, warmer materials/light and the existing trail pickup rest spot. F6 reviews three positions, F7 hides UI; source/report/captures and matched baseline measurements are in tests/environment_sample and docs/research/wildbond-environment-sample. No save/export/release change.
+
 - 2026-10-19, Codex / Evan: WB-FIRST-WARDEN-PLAN, PR #586, prioritizes a cohesive starter-to-Isolde opening: mentor/tutorial, early sprint proposal, measured exploration loops, sightlines and coherent trees before broad polish. Guest #585/#583 handoffs reconciled; documentation only, no runtime or release change.
 - 2026-10-19 Codex / Evan: PR #584 compares the original winged Mega Tidewyrm, a native-outline cleanup and a simpler family-board Mega. Both alternatives stay local to an unsaved art preview; no canon/game/save/export change.
 - 2026-10-19 Codex / Evan: PR #582 adds Ripplet and Cindercub family production/cleanup previews, including winged Mega Tidewyrm and blue-fire Mega Blazefang. Editable native atlases, source/prompt history and an unsaved comparison; permanent evolution and publication remain separate.
