@@ -1,0 +1,28 @@
+{
+  "kind": "candidate-data-arithmetic-and-structure-only",
+  "checks_passed": 97,
+  "checks_failed": 0,
+  "battle_matchups_run": false,
+  "runtime_implemented": false,
+  "final_normal_totals": {
+    "Stillmaw": 530,
+    "Thornback": 530,
+    "Tidewyrm": 530,
+    "Blazefang": 530
+  },
+  "starter_base_totals": {
+    "Mosshog": 306,
+    "Ripplet": 313,
+    "Cindercub": 307
+  },
+  "mega_hp_deltas": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "notes": [
+    "Equal totals do not establish equal competitive strength.",
+    "No move, ability, damage, save or live catalogue was changed."
+  ]
+}

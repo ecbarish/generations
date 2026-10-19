@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "status": "design-study-not-runtime",
+  "runtime_ready": false,
+  "source_audit_head": "7c535ffa896abfc00bf01a96a12df2d7ad308d09",
+  "rules_target": "Existing Gen IV-style chapter subset, with explicitly scoped later ability/Mega extensions; not full cartridge parity.",
+  "species": [
+    {
+      "candidate_id": "wildbond:boglet",
+      "name": "Boglet",
+      "family": "bogsnap",
+      "stage": 1,
+      "types": [
+        "water",
+        "grass"
+      ],
+      "base_stats": {
+        "hp": 55,
+        "attack": 55,
+        "defense": 65,
+        "special-attack": 35,
+        "special-defense": 60,
+        "speed": 40
+      },
+      "base_stat_total": 310,
+      "ability_candidate": "shell-armor"
+    },
+    {
+      "candidate_id": "wildbond:bogsnap",
+      "name": "Bogsnap",
+      "family": "bogsnap",
+      "stage": 2,
+      "types": [
+        "water",
+        "grass"
+      ],
+      "base_stats": {
+        "hp": 75,
+        "attack": 85,
+        "defense": 85,
+        "special-attack": 40,
+        "special-defense": 70,
+        "speed": 50
+      },
+      "base_stat_total": 405,
+      "ability_candidate": "shell-armor"
+    },
+    {
+      "candidate_id": "wildbond:stillmaw",
+      "name": "Stillmaw",
+      "family": "bogsnap",
+      "stage": 3,
+      "types": [
+        "water",
+        "grass"
+      ],
+      "base_stats": {
+        "hp": 95,
+        "attack": 110,
+        "defense": 115,
+        "special-attack": 55,
+        "special-defense": 100,
+        "speed": 55
+      },
+      "base_stat_total": 530,
+      "ability_candidate": "shell-armor"
+    },
+    {
+      "candidate_id": "wildbond:stillmaw-mega",
+      "name": "Mega Stillmaw",
+      "family": "bogsnap",
+      "stage": "mega",
+      "types": [
+        "water",
+        "grass"
+      ],
+      "base_stats": {
+        "hp": 95,
+        "attack": 140,
+        "defense": 145,
+        "special-attack": 65,
+        "special-defense": 125,
+        "speed": 60
+      },
+      "base_stat_total": 630,
+      "ability_candidate": "thick-fat",
+      "temporary_form_of": "wildbond:stillmaw"
+    },
+    {
+      "candidate_id": "wildbond:mosshog",
+      "name": "Mosshog",
+      "family": "mosshog",
+      "stage": 1,
+      "types": [
+        "grass"
+      ],
+      "base_stats": {
+        "hp": 60,
+        "attack": 58,
+        "defense": 58,
+        "special-attack": 42,
+        "special-defense": 50,
+        "speed": 38
+      },
+      "base_stat_total": 306,
+      "ability_candidate": "overgrow"
+    },
+    {
+      "candidate_id": "wildbond:thicketboar",
+      "name": "Thicketboar",
+      "family": "mosshog",
+      "stage": 2,
+      "types": [
+        "grass"
+      ],
+      "base_stats": {
+        "hp": 78,
+        "attack": 80,
+        "defense": 80,
+        "special-attack": 50,
+        "special-defense": 67,
+        "speed": 50
+      },
+      "base_stat_total": 405,
+      "ability_candidate": "overgrow"
+    },
+    {
+      "candidate_id": "wildbond:thornback",
+      "name": "Thornback",
+      "family": "mosshog",
+      "stage": 3,
+      "types": [
+        "grass"
+      ],
+      "base_stats": {
+        "hp": 100,
+        "attack": 110,
+        "defense": 105,
+        "special-attack": 65,
+        "special-defense": 85,
+        "speed": 65
+      },
+      "base_stat_total": 530,
+      "ability_candidate": "overgrow"
+    },
+    {
+      "candidate_id": "wildbond:thornback-mega",
+      "name": "Mega Thornback",
+      "family": "mosshog",
+      "stage": "mega",
+      "types": [
+        "grass"
+      ],
+      "base_stats": {
+        "hp": 100,
+        "attack": 135,
+        "defense": 140,
+        "special-attack": 70,
+        "special-defense": 115,
+        "speed": 70
+      },
+      "base_stat_total": 630,
+      "ability_candidate": null,
+      "temporary_form_of": "wildbond:thornback"
+    },
+    {
+      "candidate_id": "wildbond:ripplet",
+      "name": "Ripplet",
+      "family": "ripplet",
+      "stage": 1,
+      "types": [
+        "water"
+      ],
+      "base_stats": {
+        "hp": 50,
+        "attack": 48,
+        "defense": 55,
+        "special-attack": 60,
+        "special-defense": 55,
+        "speed": 45
+      },
+      "base_stat_total": 313,
+      "ability_candidate": "torrent"
+    },
+    {
+      "candidate_id": "wildbond:riverwisp",
+      "name": "Riverwisp",
+      "family": "ripplet",
+      "stage": 2,
+      "types": [
+        "water"
+      ],
+      "base_stats": {
+        "hp": 65,
+        "attack": 55,
+        "defense": 65,
+        "special-attack": 85,
+        "special-defense": 75,
+        "speed": 60
+      },
+      "base_stat_total": 405,
+      "ability_candidate": "torrent"
+    },
+    {
+      "candidate_id": "wildbond:tidewyrm",
+      "name": "Tidewyrm",
+      "family": "ripplet",
+      "stage": 3,
+      "types": [
+        "water"
+      ],
+      "base_stats": {
+        "hp": 85,
+        "attack": 75,
+        "defense": 90,
+        "special-attack": 115,
+        "special-defense": 95,
+        "speed": 70
+      },
+      "base_stat_total": 530,
+      "ability_candidate": "torrent"
+    },
+    {
+      "candidate_id": "wildbond:tidewyrm-mega",
+      "name": "Mega Tidewyrm",
+      "family": "ripplet",
+      "stage": "mega",
+      "types": [
+        "water"
+      ],
+      "base_stats": {
+        "hp": 85,
+        "attack": 85,
+        "defense": 115,
+        "special-attack": 150,
+        "special-defense": 115,
+        "speed": 80
+      },
+      "base_stat_total": 630,
+      "ability_candidate": null,
+      "temporary_form_of": "wildbond:tidewyrm"
+    },
+    {
+      "candidate_id": "wildbond:cindercub",
+      "name": "Cindercub",
+      "family": "cindercub",
+      "stage": 1,
+      "types": [
+        "fire"
+      ],
+      "base_stats": {
+        "hp": 45,
+        "attack": 60,
+        "defense": 40,
+        "special-attack": 55,
+        "special-defense": 45,
+        "speed": 62
+      },
+      "base_stat_total": 307,
+      "ability_candidate": "blaze"
+    },
+    {
+      "candidate_id": "wildbond:smoulderpup",
+      "name": "Smoulderpup",
+      "family": "cindercub",
+      "stage": 2,
+      "types": [
+        "fire"
+      ],
+      "base_stats": {
+        "hp": 60,
+        "attack": 80,
+        "defense": 50,
+        "special-attack": 70,
+        "special-defense": 55,
+        "speed": 90
+      },
+      "base_stat_total": 405,
+      "ability_candidate": "blaze"
+    },
+    {
+      "candidate_id": "wildbond:blazefang",
+      "name": "Blazefang",
+      "family": "cindercub",
+      "stage": 3,
+      "types": [
+        "fire"
+      ],
+      "base_stats": {
+        "hp": 78,
+        "attack": 105,
+        "defense": 70,
+        "special-attack": 92,
+        "special-defense": 75,
+        "speed": 110
+      },
+      "base_stat_total": 530,
+      "ability_candidate": "blaze"
+    },
+    {
+      "candidate_id": "wildbond:blazefang-mega",
+      "name": "Mega Blazefang",
+      "family": "cindercub",
+      "stage": "mega",
+      "types": [
+        "fire"
+      ],
+      "base_stats": {
+        "hp": 78,
+        "attack": 140,
+        "defense": 85,
+        "special-attack": 112,
+        "special-defense": 90,
+        "speed": 125
+      },
+      "base_stat_total": 630,
+      "ability_candidate": null,
+      "temporary_form_of": "wildbond:blazefang"
+    }
+  ],
+  "evolution_candidate": [
+    {
+      "from": "wildbond:boglet",
+      "to": "wildbond:bogsnap",
+      "level": 16
+    },
+    {
+      "from": "wildbond:bogsnap",
+      "to": "wildbond:stillmaw",
+      "level": 36
+    }
+  ],
+  "mega_contract": {
+    "temporary": true,
+    "once_per_team_per_battle": true,
+    "base_stat_delta": 100,
+    "hp_base_stat_delta": 0,
+    "replaces_normal_ability": true,
+    "unlock_and_item": null,
+    "persistent_save_form": false
+  },
+  "ability_contracts": {
+    "overgrow": {
+      "effect": "multiply corresponding attacking stat for grass moves by1.5 when hp*3<=max_hp"
+    },
+    "torrent": {
+      "effect": "multiply corresponding attacking stat for water moves by1.5 when hp*3<=max_hp"
+    },
+    "blaze": {
+      "effect": "multiply corresponding attacking stat for fire moves by1.5 when hp*3<=max_hp"
+    },
+    "shell-armor": {
+      "effect": "prevent critical hits; does not reduce ordinary damage",
+      "requires": [
+        "critical-hit engine"
+      ]
+    },
+    "thick-fat": {
+      "effect": "multiply incoming fire/ice move corresponding attacking stat by0.5",
+      "type_effectiveness_unchanged": true
+    }
+  },
+  "legacy_stat_mapping": {
+    "hp": "hp",
+    "pow": "attack",
+    "grd": "defense",
+    "wit": "special-attack",
+    "spi": "special-defense",
+    "spd": "speed"
+  },
+  "unresolved": [
+    "Final art/shape/name acceptance",
+    "Starter Mega abilities remain unchosen, not inherited automatically",
+    "Custom abilities only after same-power-budget evaluation",
+    "Mega unlock/item and exact suppression/critical-hit semantics",
+    "Move pools/coverage/learn timing and measured matchups",
+    "Explicit existing-save/evolution/Isolde-roster integration contract"
+  ],
+  "reference_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/master/data/pokedex.ts",
+      "accessed": "2026-10-19"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/master/data/abilities.ts",
+      "accessed": "2026-10-19"
+    }
+  ]
+}

@@ -479,4 +479,4 @@ T43 claimed by Codex, 2026-10-08, on codex/catalogue-realmbound: zone and dungeo
 
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
-| WB-BOGSNAP-FAMILY | Three-stage family, Mega concept and starter parity | S | Claimed: Codex / root for Evan | Explicit user request; versioned concept board, candidate balance data and runtime handoff only |
+| WB-BOGSNAP-FAMILY | Three-stage family, Mega concept and starter parity | S | Review: Codex / root for Evan, PR #600 | Explicit user request; versioned concept board, candidate balance data and runtime handoff only |
