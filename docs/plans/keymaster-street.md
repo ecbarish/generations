@@ -1,6 +1,6 @@
 # KM-STREET design: one street, five listings, one goal
 
-**Status: proposal, waiting for Evan's yes.** This is a sketch for must-have 2 on [launch-keymaster.md](launch-keymaster.md). Nothing here is built.
+**Status: approved by Evan, 2026-10-19 ("Yes, build it"; name and tone keep the defaults).** This is a sketch for must-have 2 on [launch-keymaster.md](launch-keymaster.md). Nothing here is built.
 Written by Claude, 2026-10-19, from [the Keymaster proposal](../proposals/keymaster.md) and the current build (KM0, `games/keymaster/model.js`). Every number below comes from the game's own formulas, run on these listings.
 
 ## The idea in one paragraph
