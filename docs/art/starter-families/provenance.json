@@ -1,0 +1,62 @@
+{
+  "task": "WB-STARTER-FAMILIES",
+  "generator": "built-in image_gen",
+  "date": "2026-10-18",
+  "reference": {
+    "file": "references/approved-starters.png",
+    "branch": "codex/wildbond-creature-vision",
+    "commit": "9905917e8186e1424b2b0c0af7397d28e8488099",
+    "sha256": "19de641538cdb3a21f154016472e5af634dd564755b7c5ed8c803536cc646d5a",
+    "approval": "Evan: That generation is perfect for the starters. (2026-10-17)"
+  },
+  "outputs": [
+    {
+      "file": "mosshog-family-v1.png",
+      "sha256": "32a12425317eb6ff9608287b12e5c9ed308a0b93375444680f7486a5226509e4",
+      "bytes": 2602128,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-494962d6-4872-4074-8298-6942dc6731c8.png",
+      "runtime_ready": false,
+      "status": "concept candidate"
+    },
+    {
+      "file": "ripplet-family-v1.png",
+      "sha256": "bf957070ab51de25f86cf62b7fa1a93f6928746432ba5b74ff3565c215dfc7d2",
+      "bytes": 2336298,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-12ed8db8-a24e-4030-abb0-2c694af2bcbd.png",
+      "runtime_ready": false,
+      "status": "concept candidate"
+    },
+    {
+      "file": "cindercub-family-v2.png",
+      "sha256": "af802605fac0128a3ed3dafac7bd0c17987e3d2ed05630d9ab3901ddde7600be",
+      "bytes": 2277595,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-9abe243d-bcb1-405a-a94d-6c31019369bc.png",
+      "runtime_ready": false,
+      "status": "concept candidate"
+    }
+  ],
+  "processing": "Generated PNG bytes copied unchanged. No cropping, resampling, pixel rewriting or runtime atlas generation.",
+  "iteration": "First Cindercub board had an insufficiently distinct Mega; final v2 revises its crescent mantle, brace and forked tail. Earlier output remains at the built-in generated-image location, not selected for this delivery.",
+  "limits": [
+    "Concept boards, not sprite atlases or animation sheets.",
+    "New middle/final/Mega appearances are review candidates; only base identities were previously approved.",
+    "No live evolution, Mega combat, saved species or stats changed.",
+    "Simplify foliage, flowing fins and flame clusters during native sprite production.",
+    "The Cindercub Mega-focused edit re-rendered the board; other panels are visually consistent, not byte/pixel-identical to the discarded v1."
+  ]
+}
