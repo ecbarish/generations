@@ -1,0 +1,180 @@
+{
+  "task": "WB-STARTER-FAMILIES",
+  "generator": "built-in image_gen",
+  "date": "2026-10-18",
+  "reference": {
+    "file": "references/approved-starters.png",
+    "branch": "codex/wildbond-creature-vision",
+    "commit": "9905917e8186e1424b2b0c0af7397d28e8488099",
+    "sha256": "19de641538cdb3a21f154016472e5af634dd564755b7c5ed8c803536cc646d5a",
+    "approval": "Evan: That generation is perfect for the starters. (2026-10-17)"
+  },
+  "outputs": [
+    {
+      "file": "mosshog-family-v1.png",
+      "sha256": "32a12425317eb6ff9608287b12e5c9ed308a0b93375444680f7486a5226509e4",
+      "bytes": 2602128,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-494962d6-4872-4074-8298-6942dc6731c8.png",
+      "runtime_ready": false,
+      "status": "retained earlier concept; superseded after Evan facial/Mega feedback",
+      "selected": false
+    },
+    {
+      "file": "ripplet-family-v1.png",
+      "sha256": "bf957070ab51de25f86cf62b7fa1a93f6928746432ba5b74ff3565c215dfc7d2",
+      "bytes": 2336298,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-12ed8db8-a24e-4030-abb0-2c694af2bcbd.png",
+      "runtime_ready": false,
+      "status": "retained earlier concept; superseded after Evan facial/Mega feedback",
+      "selected": false
+    },
+    {
+      "file": "cindercub-family-v2.png",
+      "sha256": "af802605fac0128a3ed3dafac7bd0c17987e3d2ed05630d9ab3901ddde7600be",
+      "bytes": 2277595,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-9abe243d-bcb1-405a-a94d-6c31019369bc.png",
+      "runtime_ready": false,
+      "status": "retained earlier concept; superseded after Evan facial/Mega feedback",
+      "selected": false
+    },
+    {
+      "file": "mosshog-family-v2.png",
+      "sha256": "35265133a32fe1155a19fc134df41284c94c01acf5929d0fdc591dda97713d94",
+      "bytes": 2577510,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-cbc9b1aa-6c08-4a09-9173-852fe5359fbb.png",
+      "runtime_ready": false,
+      "selected": true,
+      "status": "Concept approved by Evan, 2026-10-18; production acceptance separate.",
+      "approval": "Evan: Mosshog line honestly is perfect; entire family retained."
+    },
+    {
+      "file": "ripplet-family-v2.png",
+      "sha256": "eebbdad70e0a8e2bde965f11fecb24c7a4d60c1fe09ff0fff64e9e86bb6a7c34",
+      "bytes": 2369707,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-12a712e8-f231-4d16-94d1-5446222cbbf5.png",
+      "runtime_ready": false,
+      "selected": true,
+      "status": "Concept approved by Evan, 2026-10-18; production acceptance separate.",
+      "selected_for": [
+        "base",
+        "middle",
+        "final"
+      ],
+      "mega_panel_status": "Prior Mega panel retained in board for history; standalone current candidate overrides it."
+    },
+    {
+      "file": "cindercub-family-v3.png",
+      "sha256": "23039ef5a120cd452c4b005478bc024beeea50a682c2dadaadbe90563d6beec3",
+      "bytes": 2362574,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-b28a9aea-c07f-4c91-9bb9-6045c6fdfbda.png",
+      "runtime_ready": false,
+      "selected": true,
+      "status": "Concept approved by Evan, 2026-10-18; production acceptance separate.",
+      "selected_for": [
+        "base",
+        "middle",
+        "final"
+      ],
+      "mega_panel_status": "Prior Mega panel retained in board for history; standalone current candidate overrides it."
+    },
+    {
+      "file": "mega-blazefang-blue-v1.png",
+      "sha256": "47a93cf96b05245232b7492f9591d52be33234a13bdaa233469ba7bace1cb610",
+      "bytes": 2340917,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-a223d936-ca28-44b1-9026-5f2061d35fc3.png",
+      "runtime_ready": false,
+      "selected": true,
+      "selected_for": [
+        "temporary_mega"
+      ],
+      "base_species": "wildbond:blazefang",
+      "status": "Concept approved by Evan, 2026-10-18; production acceptance separate."
+    },
+    {
+      "file": "mega-tidewyrm-wings-v1.png",
+      "sha256": "ee407904792fa81b967d5a31358d099445972486b49af9fea6fca2682378190f",
+      "bytes": 2370745,
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source_output": "exec-7effdc2d-71e1-447c-9198-f18260f27e22.png",
+      "runtime_ready": false,
+      "selected": true,
+      "selected_for": [
+        "temporary_mega"
+      ],
+      "base_species": "wildbond:tidewyrm",
+      "status": "Concept approved by Evan, 2026-10-18; production acceptance separate."
+    }
+  ],
+  "processing": "Generated PNG bytes copied unchanged. No cropping, resampling, pixel rewriting or runtime atlas generation.",
+  "iteration": "First Cindercub board had an insufficiently distinct Mega; final v2 revises its crescent mantle, brace and forked tail. Earlier output remains at the built-in generated-image location, not selected for this delivery. Subsequent user-feedback revision selects Mosshog v2, Ripplet v2 and Cindercub v3. Prior project boards are retained. Whole-board regeneration may alter pixels beyond the intended regions; no byte-identical base-panel claim.",
+  "limits": [
+    "Concept boards, not sprite atlases or animation sheets.",
+    "New middle/final/Mega appearances are review candidates; only base identities were previously approved.",
+    "No live evolution, Mega combat, saved species or stats changed.",
+    "Simplify foliage, flowing fins and flame clusters during native sprite production.",
+    "The Cindercub Mega-focused edit re-rendered the board; other panels are visually consistent, not byte/pixel-identical to the discarded v1."
+  ],
+  "revision_feedback": "Evan requested real facial maturation analogous in degree to Charmander evolving, plus much more dramatic Mega forms. Base identities retained; later skull/muzzle/jaw/eye proportions and Mega silhouette revised.",
+  "selection": {
+    "family_boards": [
+      "mosshog-family-v2.png",
+      "ripplet-family-v2.png",
+      "cindercub-family-v3.png"
+    ],
+    "mega_overrides": {
+      "wildbond:blazefang": "mega-blazefang-blue-v1.png",
+      "wildbond:tidewyrm": "mega-tidewyrm-wings-v1.png"
+    }
+  },
+  "approval_scope": {
+    "mosshog_family": "Explicitly approved complete line by Evan; unchanged.",
+    "ripplet_normal_line": "Explicitly approved by Evan; unchanged. Mega water-wing revision is a candidate.",
+    "blazefang_mega": "Evan requested Mega Charizard X-like color transformation; new standalone candidate is unapproved.",
+    "completion": "Evan, 2026-10-18: Both standalone Megas and selected family concepts approved; production acceptance separate."
+  },
+  "external_reference": {
+    "role": "User-provided Mega Charizard X palette/ultimate-transformation reference only; anatomy remains original wolf.",
+    "file": "codex-clipboard-6e214df8-fba9-45ed-9685-b7fed20b3141.png",
+    "committed": false,
+    "sha256": "d7650ad47e44981447de3f558e5b4a102d1b378559b33608352287a824c1d68d"
+  }
+}

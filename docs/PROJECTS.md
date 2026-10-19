@@ -1,3 +1,9 @@
+## Wildbond starter family concepts
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| WB-STARTER-FAMILIES | Wildbond original starters | Art/design | Codex / Evan, PR #571 | Three reference-guided base/middle/final/Mega boards; existing names and approved base identities retained. Concepts only, no runtime/save changes; #561 retains existing sprite review. |
+
 ## Wildbond Mega-style bond direction
 
 | ID | Project | Size | Status | Scope |
