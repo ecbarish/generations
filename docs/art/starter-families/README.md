@@ -1,10 +1,30 @@
 # Wildbond starter families: evolution and Mega concepts
 
-WB-STARTER-FAMILIES, Codex / root for Evan, 2026-10-18. PR #571, stacked on #570. Three complete family concept boards, **12 stage/form designs**: base, middle, final and temporary Mega for each approved original starter. All new middle/final/Mega appearances are review candidates. The approved base identities remain the authority; no saved creature, live evolution, combat stat, sprite atlas or public build changes.
+WB-STARTER-FAMILIES, Codex / root for Evan, 2026-10-18. PR #571, stacked on #570. Three complete family concept boards, **12 stage/form designs**: base, middle, final and temporary Mega for each approved original starter. Mosshog's complete concept line and Ripplet's normal line are now approved; the two standalone Mega revisions and other unapproved appearances remain candidates. The approved base identities remain the authority; no saved creature, live evolution, combat stat, sprite atlas or public build changes.
+
+## Current approved direction and focused Mega revisions
+
+Evan explicitly approved **the entire Mosshog line** and **Ripplet's normal line**. Their current boards and normal designs remain byte-for-byte unchanged. He requested a more ultimate Mega Blazefang with a dramatic color change, supplying Mega Charizard X as the reference, and suggested water wings for Mega Tidewyrm.
+
+The two new standalone images below are **candidates pending visual approval**, overriding only the old Mega panels on the retained family boards. They do not replace or redraw approved normal forms.
+
+### Mega Blazefang: obsidian and blue fire
+
+Charcoal-black/deep-cobalt coat, silver-white chest/muzzle, an icy-cyan blaze and blue-white fire mantle/tail create a substantial contrast to normal orange Blazefang. Mature wolf face and four-legged anatomy stay intact. The user reference guides the color transformation, not Charizard anatomy. Blue flame is an art choice: no Ice/Water typing or new abilities are assigned.
+
+![Mega Blazefang blue-fire candidate](mega-blazefang-blue-v1.png)
+
+### Mega Tidewyrm: tidal wings
+
+Two sweeping, connected wave-fin wings grow from its shoulders, with translucent blue membranes and white foam edges. The mature river-dragon face, four legs, fin crest and hydrofoil tail remain recognizable. Wings are a Mega-only art concept; they do not grant Flying type, flight traversal or a new field move.
+
+![Mega Tidewyrm water-wing candidate](mega-tidewyrm-wings-v1.png)
+
+The original supplied Charizard reference remains external; it is not copied into the repository. [Exact focused prompts](ultimate-prompts.json) and provenance record the source roles. The earlier family boards below retain their prior Mega panels for comparison; **the standalone portraits above are the latest Blazefang/Tidewyrm Mega candidates**.
 
 ## Revised after Evan's feedback
 
-The selected boards below are Mosshog v2, Ripplet v2 and Cindercub v3. Evan pointed out that the first set kept baby faces while bodies grew, and that the Megas needed a much stronger transformation. The revisions change skull, muzzle, jaw, eye size and brow structure across ordinary evolutions; the reference is the degree of maturation in Charmander's line, not copying its designs. Megas now change silhouette and structure substantially. Base identities remain cute and familiar. Earlier boards remain alongside these for comparison; no new later-stage design is yet approved or runtime-ready.
+The selected boards below are Mosshog v2, Ripplet v2 and Cindercub v3. Evan pointed out that the first set kept baby faces while bodies grew, and that the Megas needed a much stronger transformation. The revisions change skull, muzzle, jaw, eye size and brow structure across ordinary evolutions; the reference is the degree of maturation in Charmander's line, not copying its designs. Megas now change silhouette and structure substantially. Base identities remain cute and familiar. Earlier boards remain alongside these for comparison. The approval update above governs concept selection; none of these posters is a runtime sprite.
 
 ## Mosshog family
 
@@ -45,3 +65,5 @@ Next: choose one family as the complete production pilot; derive the middle and 
 Technical verification: all three selected PNG hashes/dimensions and the approved-reference hash match provenance; all 12 stage/form IDs are distinct; the nine ordinary names and six line links match legacy data/overlay; eight local links resolve; all 21 agent-context checks pass; whitespace is clean. The Mega-focused Cindercub edit re-rendered the whole board, so the other panels retain their visible identity but are not pixel-identical to v1. No production gameplay tests were rerun for concept art/documentation outside runtime; committed export freshness is checked before handoff. Evan/Game Art Director visual acceptance is still pending.
 
 Revision verification: current Mosshog v2 / Ripplet v2 / Cindercub v3 are generated with built-in imagegen, copied unchanged, and selected explicitly in provenance/family metadata. Earlier boards remain retained, not silently overwritten. Exact follow-up prompts are in [maturation-prompts.json](maturation-prompts.json). This is still visual concept work; live starter records, sprites, evolution rules, Mega activation and saves are unchanged.
+
+Focused revision verification: all earlier selected family-board hashes remain unchanged; both new standalone portraits are copied without pixel rewriting. Approval scope and two Mega overrides are explicit in family/provenance data. New portraits remain candidates; concept approval of the Mosshog/Ripplet normal lines does not imply production animation or battle readiness.
