@@ -1,0 +1,56 @@
+{
+  "baseline": false,
+  "compact": false,
+  "engine": "4.7.2-stable (official)",
+  "failed": 0,
+  "limits": "Local fixed-camera rendering sample with warmed caches. Wall times include frame pacing; no mobile/low-end/GPU memory or human navigation guarantee.",
+  "metrics": [
+    {
+      "draw_calls": 282,
+      "primitives": 86808,
+      "process_median_ms": 0.828,
+      "process_p95_ms": 0.974,
+      "rendered_objects": 336,
+      "view": "ranch",
+      "wall_frame_median_ms": 4.163,
+      "wall_frame_p95_ms": 4.201
+    },
+    {
+      "draw_calls": 166,
+      "primitives": 108876,
+      "process_median_ms": 0.869,
+      "process_p95_ms": 1.068,
+      "rendered_objects": 266,
+      "view": "village",
+      "wall_frame_median_ms": 4.161,
+      "wall_frame_p95_ms": 4.217
+    },
+    {
+      "draw_calls": 128,
+      "primitives": 115602,
+      "process_median_ms": 0.829,
+      "process_p95_ms": 1.041,
+      "rendered_objects": 239,
+      "view": "shop",
+      "wall_frame_median_ms": 4.168,
+      "wall_frame_p95_ms": 4.214
+    },
+    {
+      "draw_calls": 259,
+      "primitives": 153922,
+      "process_median_ms": 0.834,
+      "process_p95_ms": 1.084,
+      "rendered_objects": 430,
+      "view": "trail",
+      "wall_frame_median_ms": 4.165,
+      "wall_frame_p95_ms": 4.215
+    }
+  ],
+  "passed": 51,
+  "renderer": "forward_plus",
+  "tree_mesh_instances": 555,
+  "window_pixels": [
+    1536,
+    864
+  ]
+}
