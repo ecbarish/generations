@@ -48,7 +48,8 @@
   }
   S.noes++;
   if(S.noes>=2){S.phase='done';render();showPassed('They stop answering your offers, and sell to another buyer.');return;}
-  show('<h2>They say no</h2><p>"That is well below what we are asking." They are keen to sell, but not at '+money(S.price)+'. You can make one more offer.</p>');
+  show('<h2>They say no</h2><p>"That is well below what we are asking." They are keen to sell, but not at '+money(S.price)+'. You can make one more offer.</p>'+
+   '<div class="actions"><button type="button" class="primary" data-act="change">Change your offer</button></div>');
  }
 
  function buy(price,line){
@@ -75,6 +76,9 @@
    '<div class="actions"><button type="button" class="primary" data-act="again">Try the deal again</button></div>');
  }
 
+ // On a phone the offer controls are a screen above the answer: take the player back to them.
+ function backToOffer(){$('#sheetTitle').scrollIntoView&&$('#sheetTitle').scrollIntoView({block:'start'});$('[data-offer="2000"]').focus({preventScroll:true});}
+
  function again(){Object.assign(S,START,{phase:'run',noes:0,counter:null});$('#answer').hidden=true;render();$('#offerBtn').focus();}
 
  document.addEventListener('click',e=>{
@@ -87,6 +91,7 @@
   else if(b.dataset.act==='take')buy(S.counter,'You take their '+money(S.counter)+'.');
   else if(b.dataset.act==='walk'){S.phase='done';render();showPassed('You walk away.');}
   else if(b.dataset.act==='again')again();
+  else if(b.dataset.act==='change')backToOffer();
  });
 
  fill();render();
