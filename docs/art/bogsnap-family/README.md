@@ -3,13 +3,26 @@ WB-BOGSNAP-FAMILY · Codex / root for Evan · 2026-10-19 · PR #600.
 
 Evan explicitly requested a three-stage test of the approved Bogsnap direction, a Mega concept, dual Water/Grass identity and Pokemon-aligned starter stats/abilities. This is an independent art/balance study. It does not replace runtime art, change saves or edit Claude's active gameplay paths.
 
+## Current Mega concept, v6: opened marsh reservoir
+![Mega Stillmaw reservoir transformation](mega-reservoir-study-v6.png)
+
+Evan found v5's Mega too similar to normal Stillmaw: it looked like the creature lost weight. Keep the normal Stillmaw direction and early forms intact. V6 replaces only that Mega proposal with a new transformation hook: its natural dorsal scutes open into large concave reed-like structures that collect/channel water, and its tail becomes a broad swimming paddle. The body and haunches retain the normal form's mass instead of becoming slender.
+
+The three design priorities are **heavy crocodilian body, opened reservoir scutes, broad swimming tail**. Water/Grass identity becomes more visible through functioning-looking anatomy rather than wearable armour. Opening plates, filling channels and a short water release are possible future animation ideas, not an implemented move, weather effect or ability.
+
+The [v5 board](selected-final-mega-reference-v5.png) remains the normal-form reference; its slender Mega is superseded. V6's small normal silhouette is a comparison illustration, not a replacement normal asset. No exact scale ratio should be inferred from the board layout. Boglet/Bogsnap source art and the normal v5 image are unchanged. V6 remains a concept candidate awaiting visual acceptance, not production animation.
+
+Built-in image_gen used the inspected v5 board; [exact v6 prompt](generation-prompt-v6.txt). Visually inspected for preserved bulk, broad jaw, connected natural scutes, changed dorsal/tail silhouette, full limbs and a secondary rear-angle view. Exact reservoir/scute count and matching projections must be fixed during production; the generated sheet is not a technical anatomy guarantee. Avoid adding gauntlets, crowns, boots, trees, water rings or decorative clutter.
+
+The530/630 candidate budgets and existing candidate ability data remain unchanged. Reservoir imagery alone does not approve a new custom passive, healing, water immunity, rain or extra battle power. Choose any eventual mechanic through the existing balance/runtime handoff.
+
 ## Selected direction, refined reference v5
 ![Matched Stillmaw and Mega Stillmaw reference](selected-final-mega-reference-v5.png)
 
 **Evan selected the direction:** normal third stage combines v4 C's broad jaw, strong haunches and stocky build with A's overlapping scales; Mega uses B's taller kaiju silhouette. Evan reported that voters liked B, but he preferred reserving its imposing appearance for Mega. This is his creative choice, not an independently measured public poll. V5 refines that chosen brief; the new drawing is not automatically a production sprite approval.
 
 - **Stillmaw:** compact, strong, bipedal swamp alligator. Low-set head, broad jaw, thick hindquarters, natural scale-armoured forearms and heavy balancing tail. Avoid costume-like separate armour and goofy rounded proportions.
-- **Mega Stillmaw:** taller upright transformation of the same animal, bold widely spaced reed-like dorsal scutes, stronger swimming tail and a more imposing profile. Keep the recognisable jaw, eyes and family colour language. The Mega is temporary, not a fourth permanent evolutionary stage.
+- **Mega Stillmaw, v5 historical:** the initial taller B-derived proposal was judged too slender/similar. Use the current v6 Mega concept above for review; preserve the normal-form choice. Mega remains temporary, not a fourth permanent evolutionary stage.
 - **Water/Grass theming:** olive/moss scales, sparse moss in seams, reed-shaped dorsal scutes and a swimming-tail shape. Hind-toe webbing is a requested production detail but not clearly resolved by the illustration; do not claim it is already delivered. No obligatory cannons, giant plant attachments, water ribbons or decorative armour.
 
 The [v4 alternatives](final-form-directions-v4.png) remain the selection source. They are alternatives for one final form, not additional species or three stages. Use C+A for normal and B for Mega; do not switch back to a different direction without a design discussion.
