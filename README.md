@@ -18,7 +18,6 @@ The homepage leads with Wildbond. Statuses match the cards in `launcher/games.js
 | [Realmbound](games/realmbound/) | Beta | Classic-MMO-inspired adventure: two factions, 5 classes including a pet-taming Hunter, levels 1–60, quests, loot and addons ([design](docs/realmbound-design.md)) |
 | [Little Ranch](games/little-ranch/) | Test version | A toy for ages 2 to 4: feed, bath, peekaboo and bedtime; no reading, nothing to lose |
 | [Diamond Manager](games/diamond-manager/) | Test version | Take over the worst baseball club in the league: lineups, trades, free agents and a ballpark that grows with the gate money |
-| [Lantern Bowl](games/lantern-bowl/) | Test version | One football game at Lamplight Field: you play the Lanterns' snaps against Millrace |
 | [Otherworld](games/otherworld/) | Prototype | Three authored lives: Asterhold, Hearthmere and the Ashen Throne; costly gifts, choices, endings and knowledge carried between lives |
 | Arcade cabinets: [Storm Front](games/storm-front/), [Lighthouse Watch](games/lighthouse-watch/), [Brisket's Crossing](games/briskets-crossing/), [Ember Bricks](games/ember-bricks/) | Test versions | Quick arcade games with high scores and two-player turns |
 
@@ -26,6 +25,7 @@ The homepage leads with Wildbond. Statuses match the cards in `launcher/games.js
 
 | Game | Why it is hidden | What it is |
 |---|---|---|
+| [Lantern Bowl](games/lantern-bowl/) | Shelved by Evan, 2026-10-18 (Retro Bowl and Super Tiny Football already do this well) | One football game at Lamplight Field: you play the Lanterns' snaps against Millrace |
 | [Night Market](games/night-market/) | Launch game still being finished; its hall entry (NM-HUB) is not built yet | Work a lantern-lit stall yourself before anyone will run it |
 | [Keymaster](games/keymaster/) | Keep-alive slice only; more content is on the shelf | A property-portfolio game around Evan's deal analyzer |
 | [Primordial](games/primordial/) | Hidden from the hall (AR-FRONT) | Evolution idle game: cell to Leviathan, mutation drafts, niche fights, extinction resets |
