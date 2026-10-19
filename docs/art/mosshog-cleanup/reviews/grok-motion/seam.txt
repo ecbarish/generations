@@ -1,0 +1,13 @@
+mosshog seam breaks per frame orig 6 clean 31
+thicketboar seam breaks per frame orig 3 clean 38
+thornback seam breaks per frame orig 33 clean 54
+(9, 'thicketboar', 'side', 3, 6, 3)
+(8, 'thicketboar', 'down-side', 3, 7, 1)
+(7, 'thicketboar', 'side', 0, 6, 1)
+(7, 'mosshog', 'up-side', 3, 0, 7)
+(7, 'mosshog', 'up-side', 2, 0, 7)
+(7, 'mosshog', 'up-side', 0, 0, 7)
+(6, 'thornback', 'up-side', 3, 0, 6)
+(6, 'thornback', 'side', 1, 0, 6)
+(6, 'thornback', 'down-side', 0, 0, 6)
+(5, 'thornback', 'up-side', 2, 0, 5)
