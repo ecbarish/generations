@@ -1,3 +1,9 @@
+## Wildbond village breathing room
+
+| Task | Project | Owner | Scope |
+| --- | --- | --- | --- |
+| WB-OPENING-SPACE | Wildbond opening | Codex / Evan, claimed 2026-10-19 | Expand the unsaved village sample with separated buildings/yards, wider approaches and camera composition; retain existing regional connections and verify navigation/resources. |
+
 ## Wildbond environment sample
 
 | Task | Project | Owner | Scope |
