@@ -44,8 +44,8 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 /* KM-STREET: the goal, your cash and the five doors of Alder Street */
 .street{display:grid;gap:6px;grid-template-columns:1fr auto;align-items:center}
 .goal{margin:0;font-weight:700}.cash{margin:0;text-align:right;font-variant-numeric:tabular-nums}
-.doors{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.doors li{border:1px solid var(--line);border-radius:8px;padding:6px 4px;text-align:center;font-size:.78rem;color:var(--soft);line-height:1.2}
+.doors{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.doors li{border:1px solid var(--line);border-radius:8px;padding:6px 2px;text-align:center;font-size:.78rem;color:var(--soft);line-height:1.2;overflow-wrap:anywhere;min-width:0}
 .doors li b{display:block;font-size:.9rem;color:var(--ink)}
 .doors .now{border-color:var(--ink);background:#fff;box-shadow:0 0 0 2px var(--gold)}
 .doors .owned{background:#e4efe4;border-color:#a8c8ac}.doors .owned.costly{background:#fbe9df;border-color:#e0b8a8}
