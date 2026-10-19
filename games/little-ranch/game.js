@@ -136,6 +136,7 @@
     if (forceFriend !== null ? forceFriend : Math.random() < FRIEND_ODDS) st.friend = { x: 1.1, tx: null, then: null, act: null, at: 0, soap: 0, dir: -1 };
     layout(); st.baby.x = L.home.x; if (st.friend) fgo(L.fhome.x, null); // it wanders in from the right
   }
+  const placeCache = {}; // LR-G2: the chosen spots for each screen size, so a size seen before costs nothing
   function layout() {
     const r = cv.getBoundingClientRect(), cssW = Math.max(1, r.width || innerWidth), cssH = Math.max(1, r.height || innerHeight);
     const old = L, oldW = W, oldH = H;
@@ -144,7 +145,10 @@
     const U = Math.min(W, H * 1.15), wide = W > H * 1.3, sp = wide ? Math.min(W * .3, U * 1.1) : W * .28; // big screens: things spread out
     L = { U, R: U * .14, ground: H * .56, size: U * .17,
       home: { x: W / 2, y: H * .76 }, bowl: { x: W / 2 - sp, y: H * .84 }, sponge: { x: W / 2 + sp, y: H * .86 }, bush: { x: W / 2 + sp * .8, y: H * .6 }, sun: { x: W * .22, y: H * .17 }, sign: { x: Math.max(W * .11, U * .14 * 1.3), y: H * .5 } };
-    L.wsign = { x: W - Math.max(W * .12, U * .14 * 1.3), y: L.ground - U * .14 * 1.7 }; // LR10: the wagon-wheel sign, on the hill
+    // LR-G2: on a tall phone the five signs stand in three rows (paint and wagon low, snack in the middle, dough and barn door
+    // high), so no two tap circles overlap. Wide and squat screens keep their old places.
+    const stack = !wide && H >= W * 1.25; L.stack = stack;
+    L.wsign = { x: W - Math.max(W * .12, U * .14 * 1.3), y: stack ? L.sign.y : L.ground - U * .14 * 1.7 }; // LR10: the wagon-wheel sign, on the hill
     { // LR10: the wagon place. The wagon stays put in the middle while the valley rolls by
       const z = Math.min(W * .11, H * .15), gy = H * .7;
       L.wagon = { z, gy, cars: [0, 1].map(i => ({ x: W * .12 + i * z * 2.35, y: gy - z * .5 })), puller: { x: W * .12 + z * 4.9, y: gy - z * .8 },
@@ -172,17 +176,56 @@
     L.basket = wide ? { x: Math.max(U * .14 * .62, L.sign.x - U * .14 * (.1 + .6 * .95)), y: H * .69, r: U * .14 * .6 } : { x: Math.max(W * .09, U * .14 * .95), y: H * .7, r: U * .14 * .9 }; // wide: left of the paint sign's post (LR-POLISH-1) // LR6: the hat basket, at the field's left edge
     L.item = wide ? { x: L.bowl.x + U * .14 * .6, y: L.bowl.y - U * .14 * .6, r: U * .14 * 1.1 } : { x: Math.max(U * .14 * 1.3, L.home.x - L.size * 2.1), y: L.home.y - L.size * .8, r: U * .14 * 1.2 }; /* LR-POLISH: bigger cue */ // LR7: where the toothbrush and the cup wait
     L.fhome = { x: L.home.x + (L.sponge.x - L.home.x) * .9, y: L.home.y }; L.fz = L.size * .95; // LR4: the friend's spot, between the baby and the sponge
-    L.ksign = { x: W * .45, y: L.ground - U * .14 * 1.7 }; // LR11: the snack-bowl sign, on the hilltop
+    L.ksign = stack ? { x: W / 2, y: L.sign.y - U * .14 * 1.3 } : { x: W * .45, y: L.ground - U * .14 * 1.7 }; // LR11: the snack-bowl sign, on the hilltop
     { const fr = Math.min(W * .108, H * .1), ty = H * .64, z = Math.min(W * .22, H * .24);
       L.kitchen = { fr, ty, z, baby: { x: W * .5, y: ty }, bowl: { x: W * .5, y: ty + z * .12, r: Math.max(fr * 1.1, z * .5) }, foods: FOODS.map((f, i) => ({ x: W * (.125 + i * .25), y: H * .87 })), barn: L.shed.barn }; }
-    L.dsign = wide ? { x: W - U * .14 * 1.1, y: H * .72 } : { x: W * .64, y: L.ground - U * .14 * 3.4 }; // LR17: the barn-door sign: wide screens at the meadow's right edge, tall ones behind and between the hill signs
+    L.dsign = wide ? { x: W - U * .14 * 1.1, y: H * .72 } : stack ? { x: L.wsign.x, y: L.sign.y - U * .14 * 2.6 } : { x: W * .64, y: L.ground - U * .14 * 3.4 }; // LR17: the barn-door sign: wide screens at the meadow's right edge, tall ones behind and between the hill signs
     { const dh = Math.min(H * .56, W * .62), dw = dh * .78, gr = Math.min(W * .1, H * .1), cx0 = W / 2, bot = H * .8, top = bot - dh, side = dw / 2 + gr * 1.35; // LR17
       L.door = { dw, dh, gr, x: cx0, top, bot, barn: L.shed.barn, lamp: { x: cx0, y: top - gr * .55 }, mill: { x: cx0 - side, y: top + gr * .9 },
         g: { bell: { x: cx0 + side, y: top + gr * .9 }, switch: { x: cx0 + side, y: top + dh * .62 }, latch: { x: cx0 + dw * .24, y: top + dh * .45 }, bolt: { x: cx0 - dw * .2, y: top + dh * .82 }, crank: { x: cx0 - side, y: top + dh * .66 } } }; }
-    L.tsign = wide ? { x: (L.sign.x + L.ksign.x) / 2, y: H * .48 } : { x: W * .3, y: L.ground - U * .14 * 3.4 }; // LR18: the dough sign, between the paint and snack signs
+    L.tsign = wide ? { x: (L.sign.x + L.ksign.x) / 2, y: H * .48 } : stack ? { x: L.sign.x, y: L.sign.y - U * .14 * 2.6 } : { x: W * .3, y: L.ground - U * .14 * 3.4 }; // LR18: the dough sign, between the paint and snack signs
     { const lr = Math.min(W * .17, H * .17), cr = Math.min(W * .1, H * .1); // LR18
       L.dough = { lr, cr, ty: H * .5, lump: { x: W * .42, y: H * .66 }, cutter: { x: W * .8, y: H * .64 }, barn: L.shed.barn,
         dr: Math.min(W * .09, H * .1), dots: (wide ? [.27, .47, .67, .87] : [.2, .4, .6, .8]).map(f => ({ x: W * f, y: H * .5 * .55 })) }; } // LR-POLISH: the four colour dots are pots now
+    const placeKey = W + 'x' + H + 'x' + S, placed = placeCache[placeKey];
+    if (placed) { L.item = { ...placed.item }; L.puddles = placed.puddles.map(q => ({ ...q })); } else { // LR-G2: two spots chosen on the grid: the bedtime bubble (clear of the hat basket and the bowl) and the two puddles
+      // (clear of the ball, the bush, the basket, the bowl and the sponge). The old spot is the preferred one and is kept
+      // when it is already clear. Nothing here is saved; the chosen spots are only remembered in memory, per screen size.
+      const sw = L.R * .8, B = L.basket, bb = L.bush, kids = [-1, 1].map(k => ballSpot(k)), bodyY = L.home.y - L.size * .9;
+      const clash = (e, c) => { // does the ellipse e meet the circle c = [x, y, r]?
+        const d = Math.hypot(e.x - c[0], e.y - c[1]); if (d > e.rx + c[2]) return false; // too far to touch
+        if (d <= c[2] || ((c[0] - e.x) / e.rx) ** 2 + ((c[1] - e.y) / e.ry) ** 2 <= 1) return true;
+        for (let k = 0; k < 24; k++) { const a = k * Math.PI / 12; if (Math.hypot(e.x + Math.cos(a) * e.rx - c[0], e.y + Math.sin(a) * e.ry - c[1]) <= c[2]) return true; }
+        return false; };
+      const still = [[B.x, B.y, B.r * 1.1], ...[-.55, 0, .55].map(k => [L.bowl.x + k * L.R, L.bowl.y - L.R * .25, L.R * .5]), ...[-.6, 0, .6].map(k => [L.sponge.x + k * sw, L.sponge.y, sw * .62]), ...[[-.55, .4, .6], [.55, .4, .6], [0, .65, .75]].map(([kx, ky, kr]) => [bb.x + kx * L.R * 1.25, bb.y - ky * L.R * 1.25, kr * L.R * 1.25]), ...[-.7, 0, .7].map(k => [bb.x + k * L.R * 1.25, bb.y + L.R * .25, L.R * .4]), ...kids.map(q => [q.x, q.y, q.r + 2])]; // (the bush's own shadow too)
+      const spot = (want, box, rx, ry, hard, soft, need) => { let best = null, bestCost = Infinity;
+        for (let y = box.y0; y <= box.y1; y += 2) for (let x = box.x0; x <= box.x1; x += 2) {
+          const e = { x, y, rx, ry }; if (hard.some(c => clash(e, c)) || (need && !need(x, y))) continue;
+          let cost = Math.hypot(x - want.x, y - want.y) * .02; for (const [cx0, cy0, cr, w] of soft) cost += w * Math.max(0, rx + cr - Math.hypot(x - cx0, y - cy0));
+          if (cost < bestCost) { bestCost = cost; best = { x, y }; } }
+        return best; };
+      const fCircle = [L.fhome.x, L.fhome.y - L.fz * .7, L.fz * .9], babyC = [L.home.x, bodyY, L.size * .95];
+      { // the bubble: its soft glow counts as part of it, and the existing rule (clear of the baby) stays
+        const I = L.item, gr = I.r * 1.27, tr = I.r * 1.1;
+        const hard = [[B.x, B.y, B.r * 1.1 + gr + 2], [L.bowl.x, L.bowl.y - L.R * .25, L.R * 1.05 + gr + 2]], core = [[B.x, B.y, B.r * 1.1 + I.r + 2], [L.bowl.x, L.bowl.y - L.R * .25, L.R * 1.05 + I.r + 2]], box = { x0: gr, x1: W - gr, y0: L.ground, y1: H - gr };
+        const rs = L.R * .95, boards = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'].map(n => L[n]); // the bubble's core must stay off every sign board (each is a box, post excluded)
+        const onBoard = (x, y) => boards.some(b => Math.hypot(Math.max(b.x - rs * .95 - x, 0, x - b.x - rs * .95), Math.max(b.y - rs * 1.17 - y, 0, y - b.y - rs * .27)) <= I.r);
+        // Three tries, strictest first: the whole glow clear of the basket and the bowl and the core off every sign; then only the core clear of all of them
+        // (the soft glow may touch, on a crowded wide screen); then the core clear of the basket and the bowl alone.
+        const bubbleClash = tier => (x, y) => (tier ? core : hard).every(c => Math.hypot(x - c[0], y - c[1]) > c[2]) && (tier > 1 || !onBoard(x, y)) && Math.hypot(x - L.home.x, y - bodyY) > I.r + L.size * .8 + 1 && Math.hypot(x - L.home.x, y - bodyY) <= (wide ? W : L.size * 3.4);
+        const soft = [fCircle.concat(.8), babyC.concat(wide ? 2.5 : 1.2), ...kids.map(q => [q.x, q.y, q.r, 4]), [L.sponge.x, L.sponge.y, sw, .8], [bb.x, bb.y - L.R * .6, L.R * 1.4, .4], ...L.flowers.map(f => [f.x, f.y, f.r, .9]),
+          ...['sign', 'wsign', 'ksign', 'tsign', 'dsign'].map(n => [L[n].x, L[n].y - L.R * .45, L.R * 1.25, .25])];
+        const best = [0, 1, 2].reduce((got, t) => got || spot(I, box, tr, tr, [], soft, bubbleClash(t)), null); if (best) { L.item = { ...I, x: best.x, y: best.y }; } }
+      { // the puddles: the full size when it fits, a little smaller on a crowded screen (never under 66 px across on a phone, 84 on a tablet)
+        const left = L.puddles[0], right = L.puddles[1], f0 = L.flowers[0];
+        const hard = still.concat(['sign', 'wsign', 'ksign', 'tsign', 'dsign'].map(n => [L[n].x, L[n].y - L.R * .45, L.R * 1.0])), soft = [babyC.concat(2), fCircle.concat(.5), ...L.flowers.map(f => [f.x, f.y, f.r * 1.15, 1.5])];
+        const got = [null, null], ks = [1, .88, .76, .64].filter(k => k === 1 || left.r * k * 2 * S >= (Math.min(W, H) * S >= 768 ? 84 : 66)), yy = ry => [L.ground + U * .04 + ry, f0.y - f0.r * .5 - ry];
+        for (const k of ks) { const rx = left.r * k, [y0, y1] = yy(rx * .36), a = spot(left, { x0: rx + 2, x1: L.home.x - L.size * .4, y0, y1 }, rx, rx * .36, hard, soft, null); if (a) { got[0] = { ...left, ...a, r: rx }; break; } }
+        for (const k of ks) { const rx = left.r * k, [y0, y1] = yy(rx * .36), x0 = Math.max(wide ? L.home.x + L.size * 1.014 + rx * .5 + 1 : L.home.x + L.size * .4, got[0] ? got[0].x + got[0].r + rx + 2 : 0);
+          const b = spot(right, { x0, x1: W - rx - 2, y0, y1 }, rx, rx * .36, hard, soft, null); if (b) { got[1] = { ...right, ...b, r: rx }; break; } }
+        L.puddles = [got[0] || left, got[1] || right]; }
+      if (Object.keys(placeCache).length > 120) for (const k in placeCache) delete placeCache[k];
+      placeCache[placeKey] = { item: { ...L.item }, puddles: L.puddles.map(q => ({ ...q })) }; }
     if (st && old.U && (W !== oldW || H !== oldH)) {
       // Keep progress between the same places, rather than keeping obsolete canvas pixels.
       // The eating spot includes the baby's size, so a plain width ratio is not enough.
@@ -211,6 +254,8 @@
   function fx(kind, x, y) { st.fx.push({ kind, x, y, at: st.t, vx: (Math.random() - .5) * L.U * .2, vy: -L.U * (.15 + Math.random() * .2) }); }
   function home() { go(L.home.x, null); }
   const fCentre = () => ({ x: st.friend.x * W, y: L.home.y - L.fz * .75 });
+  // LR-G2: Pebblit eats to the left of the bowl, but on wide screens it stops short of the hat basket instead of standing on it.
+  function friendEatX() { const x = Math.max(L.size * .9, L.bowl.x - L.size * .9); return W > H * 1.3 ? Math.max(x, L.basket.x + L.basket.r + L.fz * .8 + 2) : x; }
   function fgo(x, then) { const f = st.friend; f.tx = x / W; f.then = then; f.dir = x < f.x * W ? -1 : 1; }
   function friendTap() { const f = st.friend, b = st.baby; // LR4: run together and nuzzle (one happy thing); if anyone's busy, just a giggle
     speak('Pebblit');
@@ -243,7 +288,7 @@
       if (st.baby.act === 'eat' || st.bowl.food > 0) { fx('spark', L.bowl.x, L.bowl.y - L.R * .5); sfx('plink'); return; }
       st.bowl.food = 1; sfx('plink'); st.baby.happy = 1; st.baby.perk = st.t; sfx('giggle'); const c = babyCentre(); for (let i = 0; i < 2; i++) fx('heart', c.x + (i - .5) * L.size * .6, c.y - L.size * 1.1); /* the fox answers at once: a hop and hearts */ if (st.baby.act === 'hide' || st.baby.act === 'peek') st.baby.act = null;
       go(L.bowl.x + L.size * 1.3, () => { st.baby.dir = -1; st.baby.act = 'eat'; st.baby.at = st.t; });
-      const f = st.friend; if (f && !f.act && f.tx === null) fgo(Math.max(L.size * .9, L.bowl.x - L.size * .9), () => { f.act = 'eat'; f.at = st.t; f.dir = 1; }); }, // LR4: the friend eats too
+      const f = st.friend; if (f && !f.act && f.tx === null) fgo(friendEatX(), () => { f.act = 'eat'; f.at = st.t; f.dir = 1; }); }, // LR4: the friend eats too
     scrub(p) { // the sponge is on the baby: bubbles
       const b = st.baby; if (b.act === 'hide' || b.act === 'peek' || b.act === 'sleep') return;
       b.soap = Math.min(1, b.soap + .05); if (!(st.t - (st.sponge.lastBubble || -1) < .08)) { st.sponge.lastBubble = st.t; st.bubbles.push({ x: p.x + (Math.random() - .5) * L.size, y: p.y, r: L.U * (.025 + Math.random() * .03), at: st.t, seed: Math.random() * 6 }); if (Math.random() < .4) sfx('bloop'); }
@@ -364,15 +409,18 @@
   const BALL_ROLL = .7, BALL_KICKS = 3;
   function ballSpot(side) { const ballR = L.R * .88, wide = W > H * 1.3, span = Math.min(L.size * 1.15, W * .18);
     let y = L.ground + L.R * 1.35, x = clamp(L.home.x + side * span, W * .24, W * .76);
-    if (wide && L.flowers && L.flowers.length) { const f = L.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); } // wide: rest above the petals
+    if (!wide) y = L.home.y - L.size * .62 + ballR; // LR-G2: tall: rest below the fox's face, on the line of its feet, so it sorts in front of the fox and never hides the face
+    if (L.flowers && L.flowers.length) { const f = L.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); } // rest above the petals
     if (!wide && L.basket) x = Math.max(x, L.basket.x + L.basket.r + ballR + 3); // tall: keep the ball off the hat basket
     return { x: R(x), y: R(y), r: ballR }; }
+  // LR-G2: the baby kicks from beside the ball, on the side nearest the middle, facing it, so neither hides the other.
+  function kickStand(side) { const q = ballSpot(side); return clamp(q.x - side * (q.r + L.size * 1.05), L.size * .9, W - L.size * .9); }
   function ballNow() { const b = st.ball, A = ballSpot(b.from), B = ballSpot(b.to), k = b.at < 0 ? 1 : clamp((st.t - b.at) / BALL_ROLL, 0, 1), e = k * k * (3 - 2 * k);
     return { x: lerp(A.x, B.x, e), y: A.y, r: A.r, rolling: b.at >= 0 && k < 1 }; }
   function kickBall() { const b = st.ball; if (b.at >= 0 && st.t - b.at < BALL_ROLL) { sfx('boing'); return; }
     b.from = b.to; b.to = -b.from; b.at = st.t; sfx('boing'); if (st.mode === 'play') speak('ball');
     if (st.mode !== 'play' || busy() || st.sponge.drag || st.sponge.auto) return;
-    go(ballSpot(b.to).x, () => { if (st.mode !== 'play') return; st.baby.act = 'giggle'; st.baby.at = st.t; sfx('giggle'); if (++b.kicks % BALL_KICKS === 0) done(); }); }
+    go(kickStand(b.to), () => { if (st.mode !== 'play') return; st.baby.dir = b.to; st.baby.act = 'giggle'; st.baby.at = st.t; sfx('giggle'); if (++b.kicks % BALL_KICKS === 0) done(); }); }
   function drawBall() { const q = ballNow(), g = st.dusk, bob = hintBob('ball'), squash = q.rolling ? 1.12 : 1;
     shadow(q.x, q.y + q.r * .15, q.r); ell(q.x, q.y - bob, q.r * squash, q.r / squash, pick3('#ff5b6e', '#e23b4e', '#6a3040', g));
     ell(q.x - q.r * .28, q.y - bob - q.r * .22, q.r * .28, q.r * .2, 'rgba(255,255,255,.7)'); }
@@ -826,7 +874,7 @@
     ell(0, -r * .05, r * .65, r * .1, dk('#7cc0f4')); cx.restore(); }
   function drawDSign(g) { // LR17: a picture-sign with a red barn door
     const s = L.dsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.dsign.shake * r * .06, bob = hintBob('dsign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(Math.max(r * 1.4, L.ground + L.U * .04 - s.y + r * .2) + bob));
+    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(Math.max(r * 1.4, L.stack ? 0 : L.ground + L.U * .04 - s.y + r * .2) + bob));
     cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
     cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
     cx.fillStyle = dk('#c8453a'); cx.fillRect(R(-r * .45), R(-r * .5), R(r * .9), R(r * 1.04)); cx.strokeStyle = dk('#fff4e0'); cx.lineWidth = Math.max(1.5, r * .09);
@@ -874,7 +922,7 @@
     drawFx(U); }
   function drawTSign(g) { // LR18: a picture-sign with a round lump of dough and a rolling pin
     const s = L.tsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.tsign.shake * r * .06, bob = hintBob('tsign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(Math.max(r * 1.4, L.ground + L.U * .04 - s.y + r * .2) + bob));
+    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(Math.max(r * 1.4, L.stack ? 0 : L.ground + L.U * .04 - s.y + r * .2) + bob));
     cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
     cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
     ell(-r * .2, r * .05, r * .42, r * .36, dk('#f0a070')); ell(-r * .3, -r * .08, r * .12, r * .08, dk('#ffd0b0'));
@@ -1042,13 +1090,16 @@
     // the bowl
     const bw = L.R, bb = hintBob('bowl') + Math.sin(Math.min(1, 1 - st.bowl.pop) * Math.PI) * st.bowl.pop * L.R * .25; shadow(L.bowl.x, L.bowl.y, bw); cx.save(); cx.translate(0, -R(bb)); ell(L.bowl.x, L.bowl.y - bw * .25, bw, bw * .45, pick3('#4a90d8', '#5a7ab8', '#2a3a68', g)); ell(L.bowl.x, L.bowl.y - bw * .45, bw * .82, bw * .2, '#2a4a7a');
     if (st.bowl.food > 0) for (let i = 0; i < 9 * st.bowl.food; i++) ell(L.bowl.x + (i % 5 - 2) * bw * .3, L.bowl.y - bw * (.5 + (i % 2) * .12), bw * .14, bw * .11, '#c8823a'); cx.restore();
-    drawBall();
     drawFlowers(g);
+    const bq0 = ballNow(), faces = [[st.baby.x + st.baby.dir * L.size * .4, L.size], st.friend ? [st.friend.x * W + st.friend.dir * L.fz * .4, L.fz] : null].filter(Boolean), // each head sits a little ahead of its body
+      ballInFront = bq0.y >= L.home.y || faces.every(([fx0, z]) => Math.hypot((bq0.x - fx0) / (z * .5 + bq0.r), (bq0.y - (L.home.y - z * 1.2)) / (z * .4 + bq0.r)) >= 1);
+    if (!ballInFront) drawBall(); // LR-G2: the ball is drawn after the fox, except where it would cover a face (a ball resting behind the fox's feet): then the fox stands in front
     if (hidden) { // peekaboo: behind the bush, then up comes the head
       const k = st.baby.act === 'peek' ? Math.sin(clamp((st.t - st.baby.at) / 1.4, 0, 1) * Math.PI) : 0, save = st.baby.x;
       const base = L.bush.y + L.R * .3; cx.save(); cx.beginPath(); cx.rect(0, 0, W, R(base)); cx.clip(); // only what rises above the bush's foot shows
       cx.translate(0, L.bush.y - L.home.y + L.size * .9 - k * L.size * 1.4); st.baby.x = L.bush.x; drawBaby(); st.baby.x = save; cx.restore(); drawBush(true); }
     else { drawFriend(); drawBaby(); }
+    if (ballInFront) drawBall(); // LR-G2: in front of the fox, unless it would cover a face
     drawHatFly(); if (st.mode === 'dusk') drawRoutine(g);
     // the sponge
     const s = st.sponge, sw = L.R * .8; if (!s.drag && !s.auto) shadow(s.x, s.y + sw * .3, sw);
@@ -1073,7 +1124,10 @@
     for (const q of st.puddles) c.push(['puddle' + q.i, L.puddles[q.i], L.puddles[q.i].r]); c.push(['basket', { x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05]);
     L.flowers.forEach((q, i) => c.push(['flower' + i, { x: q.x, y: q.y }, q.r * 1.15]));
     { const q = ballNow(); c.push(['ball', q, q.r * 1.2]); }
-    let best = null, bk = 1; for (const [n, q, r] of c) { const k = Math.hypot(p.x - q.x, p.y - q.y) / r; if (k <= bk) { bk = k; best = n; } } return best; }
+    let best = null, bk = 1, rs = L.R * .95;
+    for (const [n, q, r] of c) { let k = Math.hypot(p.x - q.x, p.y - q.y) / r;
+      if (/^[wktd]?sign$/.test(n)) { const b = L[n]; if (Math.abs(p.x - b.x) <= rs * .95 && p.y >= b.y - rs * 1.17 && p.y <= b.y + rs * .27) k *= .4; } // LR-G2: a tap anywhere on a drawn board is that sign's (its lower edge used to fall to the bush)
+      if (k <= bk) { bk = k; best = n; } } return best; }
   const onDown = e => {
     e.preventDefault(); audio(); const p = at(e), s = st.sponge; st.idleAt = st.t;
     // LR9: the shed and the sign act when the finger lifts (like the grown-up panel, LR15); a drag over the outline paints
