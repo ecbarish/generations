@@ -687,7 +687,7 @@ line or two, with the page that holds the detail.
 
 ## Review integration, 2026-10-19
 
-- [ ] REVIEW-INTEGRATION-20261019 [ChatGPT] Record Evan-authorized merge batch, completed scoped tasks, exact checks and holds. Own README changelog, START-HERE Session log, task records and docs/research/review-integration-20261019.md. (claimed: Codex / root for Evan, 2026-10-19, codex/review-integration-20261019). No runtime, save or publication changes.
+- [ ] REVIEW-INTEGRATION-20261019 [ChatGPT] Record Evan-authorized merge batch, completed scoped tasks, exact checks and holds. Own README changelog, START-HERE Session log, task records and docs/research/review-integration-20261019.md. (review: Codex / root for Evan, PR #594, 2026-10-19, codex/review-integration-20261019). No runtime, save or publication changes.
 
 Completed in this review batch (implementation already merged; proposed data remains proposed):
 - [x] WBW-8: reviewed and merged #519 on 2026-10-19; exact revisions and checks in the integration report.

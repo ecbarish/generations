@@ -15,7 +15,7 @@ Codex / root for Evan, under his explicit instruction to review and merge as man
 
 ## Integration checks
 
-At f447edf97f1aa37bbd1675b5cf55e533acc43da1, all 220 world-planning tests pass. A sandbox-only temporary-file permission error was resolved by rerunning outside that sandbox, with unchanged tests. The required full runner passed 27 suites and reproduced Night Market's known 568×320 header overlap. No merged batch file changed that game's runtime or tests. #545 then merged the reviewed repair after current-head Checks job success and phone/export workflow success. A fresh combined run is in progress with the repaired source.
+At f447edf97f1aa37bbd1675b5cf55e533acc43da1, all 220 world-planning tests pass. A sandbox-only temporary-file permission error was resolved by rerunning outside that sandbox, with unchanged tests. The required full runner passed 27 suites and reproduced Night Market's known 568×320 header overlap. No merged batch file changed that game's runtime or tests. #545 then merged the reviewed repair after current-head Checks job success and phone/export workflow success. Fresh combined source at d21b37077a9739284bb385f0b70b03c4523d1c61 passes all 28 required suites, including 423 Night Market checks, 552 launcher checks, 19,717 native Wildbond checks, 488 Starfall checks and 23 unchanged save names. That revision contains current main plus the three documentation-only Keymaster checklist files.
 
 ## Holds and next actions
 
