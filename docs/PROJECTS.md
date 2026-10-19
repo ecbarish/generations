@@ -1,3 +1,9 @@
+## Wildbond opening through the first Warden
+
+| Task | Project | Owner | Scope |
+| --- | --- | --- | --- |
+| WB-FIRST-WARDEN-PLAN | Wildbond opening | Codex / Evan, PR #586 | Reconcile guest work and define the opening map, mentor/tutorial, early unlocks and exploration acceptance criteria. Documentation only; current user request supersedes the older next-region priority. |
+
 ## Mega Tidewyrm readability
 
 | ID | Project | Status | Scope |
