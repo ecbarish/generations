@@ -24,7 +24,7 @@ The new suite is byte-identical between baseline and repaired runs. Baseline fai
 
 [Boundary coverage](https://github.com/ecbarish/generations/blob/9303c81df758dba92c9fac299c37bcc4556a5d09/tools/sprite-workbench/reviews/dot-coordinate-guard.gd#L31-L67) includes both 64-bit extrema and their neighbors, values beyond 64-bit, 32-bit narrowing/wrap magnitudes, ±513, malformed and noncanonical keys, and paint/erase. Repeated failed loads preserve entries, original data, pixel overrides, source path/hash, source image identity/bytes, both undo and redo stacks, dirty state, and cached image/texture identity/bytes. Candidate data contains valid edits before and after the bad coordinate, plus a changed anchor, to expose partial adoption.
 
-[Positive controls](https://github.com/ecbarish/generations/blob/9303c81df758dba92c9fac299c37bcc4556a5d09/tools/sprite-workbench/reviews/dot-coordinate-guard.gd#L69-L101) accept the 49-point signed boundary grid including all ±512 corners. Ordinary negative paint and erase render correctly in both frames and survive save/reopen with exact keys, image bytes and anchors. Source hashes remain unchanged.
+[Positive controls](https://github.com/ecbarish/generations/blob/9303c81df758dba92c9fac299c37bcc4556a5d09/tools/sprite-workbench/reviews/dot-coordinate-guard.gd#L69-L101) accept the 49-point signed boundary grid including all ±512 corners. Ordinary negative paint renders in both frames, and negative erase renders in the first. All override keys survive save/reopen; first-frame image bytes, root and bounds also match exactly. Source hashes remain unchanged.
 
 SHA-256 integrity:
 - `dot-safety.gd`: `8be25ebd3e4fd4bdea3e538306fe10e4ea56b3a0b038979e33b0e498e5dd3e34`
