@@ -474,3 +474,9 @@ T43 claimed by Codex, 2026-10-08, on codex/catalogue-realmbound: zone and dungeo
 | ID | Project | Size | Status | Scope |
 |---|---|---|---|---|
 | REVIEW-INTEGRATION-20261019 | Studio integration bookkeeping | S | Review: Codex / root for Evan, PR #594 | Eight reviewed merges; 28 aggregate suites and 220 planning tests pass; no publication claim |
+
+## Bogsnap family and Pokemon parity study
+
+| ID | Project | Size | Status | Scope |
+|---|---|---|---|---|
+| WB-BOGSNAP-FAMILY | Three-stage family, Mega concept and starter parity | S | Claimed: Codex / root for Evan | Explicit user request; versioned concept board, candidate balance data and runtime handoff only |
