@@ -24,6 +24,7 @@ const NAMES={
   'games/ember-bricks/game.js':['ember-bricks-save-v1'],
   'games/lantern-bowl/game.js':['lantern-bowl-save-v1'],
   'games/little-ranch/game.js':['little-ranch-settings-v1'],
+  'games/keymaster/model.js':['keymaster-save-v1'],
   'wildbond-godot/project.godot':['config/name="Wildbond (Godot trial)"'],
   'starfall-godot/project.godot':['config/name="Starfall (Godot)"'],
 };
