@@ -2,7 +2,7 @@
 
 | Task | Project | Owner | Scope |
 | --- | --- | --- | --- |
-| WB-ENVIRONMENT-SAMPLE | Wildbond opening environment | Codex / Evan, claimed 2026-10-19 | Playable ranch/trail/discovery environment sample over the existing chapter, coherent trees/materials, composed light and native performance/visual evidence. |
+| WB-ENVIRONMENT-SAMPLE | Wildbond opening environment | Codex / Evan, PR #587 | Playable ranch/trail/discovery environment sample over the existing chapter, coherent trees/materials, composed light and native performance/visual evidence. |
 
 ## Wildbond opening through the first Warden
 

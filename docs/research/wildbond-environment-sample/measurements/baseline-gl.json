@@ -1,0 +1,45 @@
+{
+  "baseline": true,
+  "engine": "4.7.2-stable (official)",
+  "failed": 0,
+  "limits": "Local fixed-camera rendering sample with warmed caches. Wall times include frame pacing; no mobile/low-end/GPU memory or human navigation guarantee.",
+  "metrics": [
+    {
+      "draw_calls": 2090,
+      "primitives": 101286,
+      "process_median_ms": 0.998,
+      "process_p95_ms": 1.189,
+      "rendered_objects": 2090,
+      "view": "ranch",
+      "wall_frame_median_ms": 4.163,
+      "wall_frame_p95_ms": 4.202
+    },
+    {
+      "draw_calls": 2045,
+      "primitives": 89478,
+      "process_median_ms": 0.957,
+      "process_p95_ms": 1.274,
+      "rendered_objects": 2045,
+      "view": "trail",
+      "wall_frame_median_ms": 4.167,
+      "wall_frame_p95_ms": 4.193
+    },
+    {
+      "draw_calls": 1984,
+      "primitives": 84848,
+      "process_median_ms": 0.98,
+      "process_p95_ms": 1.365,
+      "rendered_objects": 1984,
+      "view": "discovery",
+      "wall_frame_median_ms": 4.165,
+      "wall_frame_p95_ms": 4.196
+    }
+  ],
+  "passed": 31,
+  "renderer": "gl_compatibility",
+  "tree_mesh_instances": 0,
+  "window_pixels": [
+    1536,
+    864
+  ]
+}
