@@ -456,10 +456,10 @@ document.querySelector('#run').onclick = async function () {
     // ---- ART-NM-1: the lane strip (effects 0-5)
     var NL = w.NightLane, lc = d.getElementById('lane'), hk = w.__nightMarket;
     var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
-    check('the lane strip is a 384x72 canvas, scaled by a whole number from 384 px up', NL && lc.width === 384 && lc.height === 72 && (+lc.dataset.scale < 1 ? lc.style.width === Math.floor(384 * +lc.dataset.scale) + 'px' : (+lc.dataset.scale === Math.floor(+lc.dataset.scale) && lc.style.width === (384 * +lc.dataset.scale) + 'px')));
+    check('the lane strip is a 384x88 canvas (stalls above, a walking lane below), scaled by a whole number from 384 px up', NL && lc.width === 384 && lc.height === 88 && NL.H === 88 && (+lc.dataset.scale < 1 ? lc.style.width === Math.floor(384 * +lc.dataset.scale) + 'px' : (+lc.dataset.scale === Math.floor(+lc.dataset.scale) && lc.style.width === (384 * +lc.dataset.scale) + 'px')));
     NL.step(1);
     var pal = Object.keys(NL.PALETTE).map(function (k) { return NL.PALETTE[k]; });
-    var colours = function () { var px = lc.getContext('2d').getImageData(0, 0, 384, 72).data, seen = {};
+    var colours = function () { var px = lc.getContext('2d').getImageData(0, 0, 384, 88).data, seen = {};
       for (var q = 0; q < px.length; q += 4) seen['#' + [px[q], px[q + 1], px[q + 2]].map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('') + (px[q + 3] === 255 ? '' : '/a')] = 1; return Object.keys(seen); };
     check('palette check: every pixel is one of the 12 colours, fully opaque', pal.length === 9 && colours().every(function (c) { return pal.indexOf(c) >= 0; }));
     var slotPx = function (i) { var v = lc.getContext('2d').getImageData(i * 64 + 20, 33, 1, 1).data; return '#' + [v[0], v[1], v[2]].map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); };
@@ -480,7 +480,7 @@ document.querySelector('#run').onclick = async function () {
     check('...Buy max fires one flash, not one per stall bought', NL.flashes().length === 1);
     NL.step(4); check('...and it clears', NL.flashes().length === 0);
     NL.step(300); var ws = NL.walkers();
-    check('effect 5: people stroll by, at most two, on whole pixels', ws.length >= 1 && ws.length <= 2 && ws.every(function (P) { return P.x === Math.floor(P.x); }));
+    check('effect 5: people stroll by, at most as many as the lane allows (NM-G8: two at first, more as the market grows), on whole pixels', ws.length >= 1 && ws.length <= NL.walkerCap() && ws.every(function (P) { return P.x === Math.floor(P.x); }));
     var x0 = ws[0].x; NL.step(1); check('...and never stand still mid-walk', NL.walkers()[0] && NL.walkers()[0].x !== x0);
     var t0 = NL.ticks, f0 = NL.frames; await wait(450);
     check('the strip runs on its own at about 8 ticks a second', NL.live && NL.ticks - t0 >= 2 && NL.ticks - t0 <= 6 && NL.frames > f0);
@@ -544,6 +544,100 @@ document.querySelector('#run').onclick = async function () {
         return b.offsetParent === null || b.getBoundingClientRect().height >= 44;
       }));
     }
+
+    // ---- NM-G8: the Playtester's Night Market fixes (dumpling hold, sideways scroll, walkers and counters, page icon, busier lane)
+    frame.remove(); frame = null;
+    Object.keys(localStorage).forEach(function (k) {
+      if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
+    });
+    frame = document.createElement('iframe');
+    frame.title = 'Night Market NM-G8';
+    frame.src = '../games/night-market/index.html';
+    await new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () { reject(Error('NM-G8 load timed out')); }, 20000);
+      frame.onload = function () { clearTimeout(timer); resolve(); };
+      document.querySelector('#game').appendChild(frame);
+    });
+    w = frame.contentWindow; d = w.document; hk = w.__nightMarket; NL = w.NightLane; lc = d.getElementById('lane');
+    hk.idle.stop();
+    frame.style.width = '390px'; frame.style.height = '800px'; await wait(120);
+    var press = function (btn) { btn.dispatchEvent(new w.PointerEvent('pointerdown', { bubbles: true, button: 0 })); };
+    var release = function (btn) { d.dispatchEvent(new w.PointerEvent('pointerup', { bubbles: true })); btn.dispatchEvent(new w.MouseEvent('click', { bubbles: true })); };
+    var row = function (i) { return d.querySelector('#stalls [data-i="' + i + '"]'); };
+    var STALL = w.NightMarket.STALLS;
+    hk.state.stalls[0].hired = true; hk.state.stalls[0].owned = w.NightMarket.UNLOCK_AT; hk.state.stalls[1].serves = 9; hk.state.stalls[1].hired = false; hk.render();
+    var cart = row(1), cartServe = cart.querySelector('[data-act="serve"]'), cash0 = hk.state.cash;
+    check('NM-G8: a stall before its hire says to keep holding while the count is short', /9 of 12 dumplings · press and hold to keep going/.test(cart.querySelector('.count').textContent) && !/Ask Bo/.test(cart.querySelector('.count').textContent));
+    press(cartServe); await wait(hk.HOLD_DELAY + hk.HOLD_EVERY * 8 + 100); var heldAt = hk.state.stalls[1].serves; await wait(hk.HOLD_EVERY * 6);
+    check('NM-G8: holding Fold a dumpling stops at 12 of 12 before Bo is hired (it was 9, so three more), and stays there while still held', heldAt === 12 && hk.state.stalls[1].serves === 12 && hk.state.cash - cash0 === 3 * STALL[1].hand);
+    release(cartServe);
+    check('NM-G8: letting go of that hold is not one more serve', hk.state.stalls[1].serves === 12);
+    check('NM-G8: the line under the bar then names the Ask button, which is on screen and says the same words', cart.querySelector('.count').textContent === '12 of 12 dumplings · now press “' + STALL[1].hire + '”' && !cart.querySelector('[data-act="hire"]').hidden && cart.querySelector('[data-act="hire"]').textContent === STALL[1].hire);
+    cash0 = hk.state.cash; cartServe.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    check('NM-G8: a plain click at 12 of 12 still serves once and pays the hand amount, by design (#434)', hk.state.stalls[1].serves === 13 && hk.state.cash - cash0 === STALL[1].hand && !cartServe.disabled);
+    cash0 = hk.state.cash; press(cartServe); await wait(hk.HOLD_DELAY + hk.HOLD_EVERY * 5); var still13 = hk.state.stalls[1].serves; release(cartServe);
+    check('NM-G8: a hold that starts at the count does not repeat, and its release is the one plain click', still13 === 13 && hk.state.stalls[1].serves === 14 && hk.state.cash - cash0 === STALL[1].hand);
+    d.querySelector('#stalls [data-i="1"] [data-act="hire"]').click();
+    cash0 = hk.state.cash; var s0 = hk.state.stalls[1].serves; press(cartServe); await wait(hk.HOLD_DELAY + hk.HOLD_EVERY * 6 + 60); var mid = hk.state.stalls[1].serves; await wait(hk.HOLD_EVERY * 4); var late = hk.state.stalls[1].serves; release(cartServe);
+    check('NM-G8: after the hire a hold keeps going for as long as it is held (unchanged)', hk.state.stalls[1].hired && mid - s0 >= 5 && late > mid);
+
+    // the page never scrolls sideways: at five widths, and with a classic scrollbar taking 15px after the lane was sized
+    for (var sw = 0, widthsNM = [[320, 700], [390, 844], [844, 390], [1366, 768], [1920, 1000]]; sw < widthsNM.length; sw++) {
+      var wn = widthsNM[sw][0];
+      frame.style.width = wn + 'px'; frame.style.height = widthsNM[sw][1] + 'px'; await wait(150);
+      var bodyW = function () { return d.body.getBoundingClientRect(); };
+      check(wn + ' wide: scrollWidth ' + d.documentElement.scrollWidth + ' is no wider than clientWidth ' + d.documentElement.clientWidth + ', and the strip sits inside the page column',
+        d.documentElement.scrollWidth <= d.documentElement.clientWidth && lc.getBoundingClientRect().left >= bodyW().left - 0.5 && lc.getBoundingClientRect().right <= bodyW().right + 0.5);
+      d.body.style.marginRight = '15px'; await wait(150);
+      var lr = lc.getBoundingClientRect(), br = bodyW();
+      check(wn + ' wide, 15px of scrollbar appears with no window resize: the strip is refitted to the narrower page (' + Math.round(lr.width) + ' of ' + Math.round(br.width) + 'px) and nothing spills',
+        lr.left >= br.left - 0.5 && lr.right <= br.right + 0.5 && d.documentElement.scrollWidth <= d.documentElement.clientWidth && lc.parentNode.style.width === d.body.clientWidth + 'px');
+      d.body.style.marginRight = ''; await wait(150);
+      check(wn + ' wide: and the strip grows back when it goes', lc.parentNode.style.width === d.body.clientWidth + 'px' && lc.getBoundingClientRect().right <= bodyW().right + 0.5);
+    }
+
+    // walkers walk below the stalls, never across a counter
+    frame.style.width = '1280px'; frame.style.height = '800px'; await wait(150);
+    hk.state.stalls.forEach(function (t) { t.hired = true; t.owned = 0; t.serves = 0; });
+    hk.state.stalls[0].owned = 1; hk.state.stalls[0].hired = false; hk.state.stalls[1].hired = false; hk.state.stalls[0].serves = 0; hk.render();
+    check('NM-G8: the strip is ' + NL.H + ' tall: the stalls end at row ' + NL.STALL_BOTTOM + ' and a walker\'s ' + NL.WALK.w + 'x' + NL.WALK.h + ' box starts at row ' + NL.WALK.y + ' and ends inside the canvas', NL.STALL_BOTTOM === 66 && NL.WALK.y >= NL.STALL_BOTTOM && NL.WALK.y + NL.WALK.h <= NL.H);
+    var counters = [0, 1, 2, 3, 4, 5].map(function (i) { return { x: i * NL.SLOT + 4, y: 12 + 36, w: 56, h: 14 }; });
+    var crossed = 0, hits = 0, seenWalkers = 0, belowCounters = true;
+    NL.step(40);
+    for (var t = 0; t < 700; t++) {
+      NL.step(1);
+      NL.walkers().forEach(function (P) {
+        seenWalkers++;
+        var box = { x: P.x, y: NL.WALK.y, w: NL.WALK.w, h: NL.WALK.h };
+        counters.forEach(function (c) { if (box.x < c.x + c.w && box.x + box.w > c.x && box.y < c.y + c.h && box.y + box.h > c.y) crossed++; });
+      });
+      if (t % 7 === 0) { // pixels: rows 40 to 65 of the picture are the still background whenever the lane has nothing but walkers in it
+        var ctx = lc.getContext('2d'), now = ctx.getImageData(0, 40, NL.W, 26).data, still = NL.background().data, off = 40 * NL.W * 4;
+        for (var q = 0; q < now.length; q++) if (now[q] !== still[off + q]) { belowCounters = false; break; }
+        NL.walkers().forEach(function (P) { if (P.x >= 0 && P.x <= NL.W - 16) { var row = ctx.getImageData(P.x, NL.WALK.y, 16, NL.WALK.h).data, bg = NL.background().data, diff = 0; for (var yy = 0; yy < NL.WALK.h; yy++) for (var xx = 0; xx < 16; xx++) { var a = (yy * 16 + xx) * 4, b = ((NL.WALK.y + yy) * NL.W + P.x + xx) * 4; if (row[a] !== bg[b] || row[a + 1] !== bg[b + 1] || row[a + 2] !== bg[b + 2]) diff++; } if (diff > 20) hits++; } });
+      }
+    }
+    check('NM-G8: over 700 steps with walkers about (' + seenWalkers + ' sightings) no walker box meets a counter box', seenWalkers > 100 && crossed === 0);
+    check('NM-G8: rows 40 to 65 of the drawn lane (the counters) are never touched by a walker, and each walker is really drawn on the lane below', belowCounters && hits > 5);
+    var pal2 = Object.keys(NL.PALETTE).map(function (k) { return NL.PALETTE[k]; });
+    check('NM-G8: the taller strip still uses only the 12 palette colours, fully opaque', colours().every(function (c) { return pal2.indexOf(c) >= 0; }));
+
+    // the lane gets busier as the market grows
+    var shape = function (list) { hk.state.stalls.forEach(function (t, i) { t.hired = true; t.owned = list[i] || 0; }); return NL.walkerCap(); };
+    check('NM-G8: walkerCap is 0 with nothing owned, 1 for the first stalls, and 2 from 20 owned in all',
+      shape([0, 0, 0, 0, 0, 0]) === 0 && shape([1]) === 1 && shape([10, 5]) === 1 && shape([10, 9]) === 1 && shape([10, 10]) === 2 && shape([10, 10, 9]) === 2);
+    check('NM-G8: ...3 from 30 owned in all, 4 from 50, 5 from 66 (the three the row names)', shape([10, 10, 10]) === 3 && shape([10, 10, 10, 10, 9]) === 3 && shape([10, 10, 10, 10, 10]) === 4 && shape([20, 10, 10, 10, 10, 5]) === 4 && shape([20, 10, 10, 10, 10, 6]) === 5 && shape([40, 10, 10, 10, 10, 10]) === 5);
+    var peak = 0; hk.state.stalls.forEach(function (t, i) { t.hired = true; t.owned = [20, 10, 10, 10, 10, 6][i]; hk.render(); });
+    NL.step(40); for (var t2 = 0; t2 < 3000; t2++) { NL.step(1); peak = Math.max(peak, NL.walkers().length); if (NL.walkers().length > NL.walkerCap()) break; }
+    check('NM-G8: with 66 owned up to 5 people are on the lane at once, and never more than the cap (peak ' + peak + ')', peak >= 4 && peak <= 5);
+    NL.setReduce(true);
+    check('NM-G8: ...and under reduced motion walkerCap is 0 whatever is owned', NL.walkerCap() === 0 && shape([66]) === 0);
+    NL.setReduce(false);
+
+    // the page icon
+    var iconLink = d.querySelector('link[rel~="icon"]'), iconRes = iconLink ? await fetch(iconLink.href) : null;
+    check('NM-G8: the page names its own icon (../../icons/arcade.svg, which loads), so the browser does not ask for /favicon.ico', iconLink && /\/icons\/arcade\.svg$/.test(iconLink.href) && iconRes.ok && /svg/.test(iconRes.headers.get('content-type') || '') && !/favicon\.ico/.test(d.documentElement.outerHTML));
+    frame.remove(); frame = null;
 
     Object.keys(localStorage).forEach(function (k) {
       if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
