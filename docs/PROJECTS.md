@@ -1,3 +1,9 @@
+## Wildbond sprite workbench
+
+| ID | Project | Status | Scope |
+|---|---|---|---|
+| WB-SPRITE-WORKBENCH | Wildbond production tooling | Codex / Evan, PR #574 | Standalone local sprite playback/onion overlays, anchor and native-pixel edits, drafts and atlas export. Source images and player saves untouched. |
+
 ## Wildbond Mosshog family production pilot
 
 | ID | Project | Status | Scope |
