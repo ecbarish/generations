@@ -23,6 +23,16 @@ $pwsh = (Get-Process -Id $PID).Path
 $fakeScript = Join-Path $homeDir 'fake-engine.ps1'
 @'
 $ErrorActionPreference = 'Stop'
+# Model a native engine's argv, not pwsh -File's script-parameter binding.
+# That binding splits '--pack=C:\temp\optional pack' at the drive colon.
+# Read the process arguments after our fixed -File prefix, without joining,
+# reparsing or repairing payload tokens. Normalize only the script-path boundary.
+$processArgs = [Environment]::GetCommandLineArgs()
+$fileIndex = [Array]::IndexOf($processArgs, '-File')
+if ($fileIndex -lt 0 -or $fileIndex + 1 -ge $processArgs.Length -or [IO.Path]::GetFullPath($processArgs[$fileIndex + 1]) -ne [IO.Path]::GetFullPath($PSCommandPath)) {
+    throw 'Unexpected disposable engine launcher prefix.'
+}
+$args = @($processArgs | Select-Object -Skip ($fileIndex + 2))
 if ($env:WB_COMMAND_FIXTURE_TRACE) { [IO.File]::AppendAllText($env:WB_COMMAND_FIXTURE_TRACE, 'invoked' + [Environment]::NewLine) }
 if ($args[0] -eq '--version') {
     if ($env:WB_COMMAND_FIXTURE -eq 'version-error') { exit 23 }
