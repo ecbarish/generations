@@ -12,7 +12,7 @@
   };
   const LAB_ART = { 'storm-front': 1, 'lighthouse-watch': 1, 'briskets-crossing': 1, 'ember-bricks': 1, baseball: 'diamond-manager', 'lantern-bowl': 1, otherworld: 1, 'little-ranch': 1 };
   const GODOT_SAVES = { 'wildbond-preview': '/app_userdata/Wildbond (Godot trial)/journey.json' };
-  const SAVE_KEYS = { baseball: 'diamond-manager-save-v1', otherworld: 'otherworld-save-v1', realmbound: 'realmbound-save-v1', 'lantern-bowl': 'lantern-bowl-save-v1' };
+  const SAVE_KEYS = { baseball: 'diamond-manager-save-v1', otherworld: 'otherworld-save-v1', realmbound: 'realmbound-save-v1', 'lantern-bowl': 'lantern-bowl-save-v1', keymaster: 'keymaster-save-v1' };
   const all = (window.ArcadeGames || []).filter(g => g.edition !== 'classic' && g.kind !== 'classic' && !g.classic && !g.newer);
   let idx = {};
   try { idx = window.ArcadeSportsProgress ? ArcadeSportsProgress.forHall(Arcade.readIndex()) : Arcade.readIndex(); } catch (_) { idx = {}; }

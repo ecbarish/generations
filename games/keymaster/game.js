@@ -6,7 +6,13 @@
  const money=n=>(n<0?'−$':'$')+Math.abs(Math.round(n)).toLocaleString('en-US');
  const pct=(n,d=1)=>(n*100).toFixed(d)+'%';
  const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
- let R=M.newRun(), L=M.current(R);
+ // KM-SAVE: shared/engine.js keeps backups and refuses to overwrite a save from a newer version. A damaged save is
+ // left alone (protect) rather than replaced by a fresh run.
+ const KEY=M.SAVE_KEY, A=window.Arcade;
+ if(A){A.versions[KEY]=M.SAVE_VERSION;A.validators[KEY]=M.valid;}
+ const raw=A?A.load(KEY):null, protect=!!(raw&&!M.valid(raw));
+ let R=raw&&M.valid(raw)?M.restore(raw):M.newRun(), L=M.current(R);
+ function persist(){if(!A||protect||A.held[KEY])return false;const ok=A.save(KEY,M.serialize(R));if(ok)A.report('keymaster',M.summary(R));return ok;}
  const S={price:0,down:0.25,rehab:'refresh',phase:'run',noes:0,counter:null};
  const MIN=()=>L.ask-60000, MAX=()=>L.ask+20000;
 
@@ -90,7 +96,7 @@
 
  function buy(price,line){
   S.price=price;S.phase='done';
-  const y=M.buyHome(R,S),v=M.verdict(y.onCash);render();
+  const y=M.buyHome(R,S),v=M.verdict(y.onCash);persist();render();
   const months=y.months.map(m=>'<li class="'+(m.notes.length?'event':'')+'" title="'+m.notes.join('; ')+'"><b>'+MONTHS[m.m-1]+
    '</b>'+money(m.net)+(m.notes.length?'<b>'+m.notes[0]+'</b>':'')+'</li>').join('');
   show('<h2>'+line+' You own '+L.address+'.</h2><p>The work: '+y.rehab.name.toLowerCase()+'. Here is its first year, after the mortgage, taxes and insurance:</p>'+
@@ -107,7 +113,7 @@
 
  // Pass, walk away, or lose it to another buyer: the home is gone for this run.
  function lose(line){
-  S.phase='done';const p=M.passHome(R);render();
+  S.phase='done';const p=M.passHome(R);persist();render();
   show('<h2>'+line+'</h2><p>Another investor bought it for '+money(p.price)+', did the full work, and '+
    (p.onCash>=0?'made '+pct(p.onCash):'lost '+pct(-p.onCash))+' on their cash in the first year. '+L.lesson+'</p>'+nextButton());
  }
@@ -137,7 +143,7 @@
    '<div class="actions"><button type="button" class="primary" data-act="again">Walk Alder Street again</button></div>');
  }
 
- function again(){R=M.newRun();startListing();scrollTo&&scrollTo(0,0);$('#offerBtn').focus({preventScroll:true});}
+ function again(){R=M.newRun();persist();startListing();scrollTo&&scrollTo(0,0);$('#offerBtn').focus({preventScroll:true});}
 
  // On a phone the offer controls are a screen above the answer: take the player back to them.
  function backToOffer(){$('#sheetTitle').scrollIntoView&&$('#sheetTitle').scrollIntoView({block:'start'});$('[data-offer="2000"]').focus({preventScroll:true});}
@@ -156,6 +162,6 @@
   else if(b.dataset.act==='change')backToOffer();
  });
 
- startListing();
- window.__keymaster={M,S,run:()=>R,listing:()=>L,render,offer,next,again};   // the checks page drives the real buttons
+ if(M.finished(R))showStreet();else startListing();
+ window.__keymaster={M,S,run:()=>R,listing:()=>L,render,offer,next,again,protect};   // the checks page drives the real buttons
 })();

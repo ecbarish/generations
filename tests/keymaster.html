@@ -5,7 +5,15 @@
 document.querySelector('#run').onclick=async()=>{
  const sum=document.querySelector('#summary'),list=document.querySelector('#results'),button=document.querySelector('#run');
  button.disabled=true;list.replaceChildren();sum.textContent='Running…';let frame,n=0;
- const keys=Object.keys(localStorage).slice().sort().join('|');
+ const OWN=k=>k==='keymaster-save-v1'||k.startsWith('arcade-backup:keymaster-save-v1');
+ const HUB=k=>k==='arcade-index-v1'||k.startsWith('arcade-backup:arcade-index-v1');   // the hub's list; every game's report backs it up
+ const kept={},hubKept={};
+ for(const k of Object.keys(localStorage))if(HUB(k))hubKept[k]=localStorage.getItem(k);
+ for(const k of Object.keys(localStorage))if(OWN(k)){kept[k]=localStorage.getItem(k);localStorage.removeItem(k);}
+ const others=()=>Object.keys(localStorage).filter(k=>!OWN(k)&&!HUB(k)).sort().map(k=>k+'='+localStorage.getItem(k)).join('|');
+ const keys=others();
+ const open=async()=>{const f=document.createElement('iframe');f.title='Keymaster test instance';f.src='../games/keymaster/index.html';
+  await new Promise((r,j)=>{const t=setTimeout(()=>j(Error('load timed out')),20000);f.onload=()=>{clearTimeout(t);r();};document.querySelector('#game').appendChild(f);});return f;};
  const check=(name,ok)=>{n++;const li=document.createElement('li');li.className=ok?'pass':'fail';li.textContent=(ok?'PASS — ':'FAIL — ')+name;list.appendChild(li);if(!ok)throw Error(name);};
  const near=(a,b,e=0.01)=>Math.abs(a-b)<=e;const wait=(ms=60)=>new Promise(r=>setTimeout(r,ms));
  try{
@@ -98,8 +106,36 @@ document.querySelector('#run').onclick=async()=>{
    check(width+'×'+height+': nothing spills sideways',d.documentElement.scrollWidth<=width);
    check(width+'×'+height+': every button is at least 44px tall',Array.from(d.querySelectorAll('button')).filter(b=>b.offsetParent!==null).every(b=>b.getBoundingClientRect().height>=44));
   }
-  check('nothing is saved',Object.keys(localStorage).slice().sort().join('|')===keys);
+  // ---- KM-SAVE: the run is kept under keymaster-save-v1, resumes after a reload, and a damaged save is left alone
+  const run0=M.newRun();M.buyHome(run0,{price:216000,down:0.25,rehab:'refresh'});M.passHome(run0);
+  check('a saved run is valid and restores exactly',M.valid(M.serialize(run0))&&JSON.stringify(M.restore(M.serialize(run0)))===JSON.stringify(run0));
+  const bad=o=>!M.valid(Object.assign(M.serialize(run0),o));
+  check('a save with the wrong game, version, cash or listing count is refused',bad({game:'other'})&&bad({v:2})&&bad({cash:-1})&&bad({cash:'lots'})&&bad({at:3})&&bad({homes:[{id:'alder3',bought:false},{id:'alder14',bought:false}]}));
+  const stored=()=>JSON.parse(localStorage.getItem('keymaster-save-v1')||'null');
+  check('walking the street again saved a fresh run',stored()&&stored().at===0&&stored().cash===200000&&stored().homes.length===0);
+  frame.style.width='375px';frame.style.height='812px';await wait(60);
+  click('[data-act="again"]');await wait();
+  for(let i=0;i<12;i++)click('[data-offer="-2000"]');click('#offerBtn');await wait();
+  check('buying saves the run: one home, $131,520 left',stored().at===1&&stored().homes[0].bought===true&&stored().cash===131520);
+  const hub=JSON.parse(localStorage.getItem('arcade-index-v1')||'{}').keymaster;
+  check('the hub card hears how the street is going',!!hub&&hub.summary==='1 of 3 homes paying'&&/Listing 2 of 5/.test(hub.detail));
+  const f2=await open(),d2=f2.contentWindow.document;
+  check('closing and reopening resumes at 3 Alder with the same cash and doors',/^3 Alder Street/.test(d2.querySelector('#addr').textContent)&&d2.querySelector('#cash').textContent==='$131,520'&&d2.querySelector('#doors li').className==='owned');
+  f2.remove();
+  const damaged='{"v":1,"game":"keymaster","cash":-5,"at":0,"homes":[]}';localStorage.setItem('keymaster-save-v1',damaged);
+  const f3=await open(),d3=f3.contentWindow.document;
+  check('a damaged save starts a fresh street on screen',/^14 Alder Street/.test(d3.querySelector('#addr').textContent)&&f3.contentWindow.__keymaster.protect===true);
+  d3.querySelector('#passBtn').click();await wait();
+  check('…and is never written over, so it can still be recovered',localStorage.getItem('keymaster-save-v1')===damaged);
+  f3.remove();
+  check('no other game\'s save is touched',others()===keys);
+
   sum.textContent='PASS — '+n+' checks.';
- }catch(e){sum.textContent='FAIL — '+e.message;}finally{if(frame)frame.remove();button.disabled=false;}
+ }catch(e){sum.textContent='FAIL — '+e.message;}finally{if(frame)frame.remove();document.querySelectorAll('#game iframe').forEach(f=>f.remove());
+  for(const k of Object.keys(localStorage))if(OWN(k))localStorage.removeItem(k);
+  for(const [k,v] of Object.entries(kept))localStorage.setItem(k,v);
+  for(const k of Object.keys(localStorage))if(HUB(k))localStorage.removeItem(k);
+  for(const [k,v] of Object.entries(hubKept))localStorage.setItem(k,v);
+  button.disabled=false;}
 };
 </script></html>

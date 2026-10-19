@@ -49,7 +49,7 @@ Playable and fun, the same bar as the other launch games. Further improvements d
    - A goal line names what the run is for.
    - The exact goal is a design choice for the owner and Evan; this checklist does not set it.
    - No new decision types beyond offer, down payment, renovation, and buy or pass. Later tiers wait.
-3. **KM-SAVE:** keep what you own and your cash between visits (KML-3).
+3. **KM-SAVE** (built; Evan approved the new save on 2026-10-19): keep what you own and your cash between visits (KML-3).
    - New key `keymaster-save-v1`, versioned, and added to `tools/save-names-check.cjs`.
    - It must not touch other games' saves.
    - **Needs Evan's yes before merge** (new save format).

@@ -175,7 +175,23 @@
  const finished=run=>run.at>=STREET.length;
  const won=run=>paying(run)>=GOAL;
 
+ // ---- KM-SAVE (approved by Evan, 2026-10-19): the run is kept between visits under its own key. The listing you
+ // were looking at starts fresh when you come back; homes bought or passed, and your cash, stay as they were.
+ const SAVE_KEY='keymaster-save-v1', SAVE_VERSION=1;
+ const isNum=n=>typeof n==='number'&&isFinite(n);
+ function valid(o){
+  if(!o||o.v!==SAVE_VERSION||o.game!=='keymaster'||!isNum(o.cash)||o.cash<0||o.cash>START_CASH)return false;
+  if(!Number.isInteger(o.at)||o.at<0||o.at>STREET.length||!Array.isArray(o.homes)||o.homes.length!==o.at)return false;
+  return o.homes.every((h,i)=>h&&h.id===STREET[i].id&&typeof h.bought==='boolean'&&
+   (!h.bought||(isNum(h.onCash)&&isNum(h.cashFlow)&&h.choice&&isNum(h.choice.price)&&isNum(h.choice.down)&&!!STREET[i].plans[h.choice.rehab])));
+ }
+ const serialize=run=>({v:SAVE_VERSION,game:'keymaster',cash:run.cash,at:run.at,homes:run.homes.map(h=>JSON.parse(JSON.stringify(h)))});
+ const restore=o=>({cash:o.cash,at:o.at,homes:o.homes.map(h=>JSON.parse(JSON.stringify(h)))});
+ // One line for the hub's card: how the street is going.
+ const summary=run=>({summary:paying(run)+' of '+GOAL+' homes paying',detail:finished(run)?(won(run)?'Alder Street built':'Alder Street sold'):
+  'Listing '+(run.at+1)+' of '+STREET.length+' · $'+Math.round(run.cash).toLocaleString('en-US')+' cash'});
+
  const api={TERMS,LISTING,REHABS,STREET,START_CASH,GOAL,payment,principalYearOne,analyze,respond,firstYear,verdict,passed,
-  newRun,current,canAfford,buyHome,passHome,paying,finished,won,lowestOf};
+  newRun,current,canAfford,buyHome,passHome,paying,finished,won,lowestOf,SAVE_KEY,SAVE_VERSION,valid,serialize,restore,summary};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.KeymasterModel=api;
 })(typeof window!=='undefined'?window:globalThis);
