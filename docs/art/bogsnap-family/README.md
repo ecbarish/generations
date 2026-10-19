@@ -3,18 +3,20 @@ WB-BOGSNAP-FAMILY · Codex / root for Evan · 2026-10-19 · PR #600.
 
 Evan explicitly requested a three-stage test of the approved Bogsnap direction, a Mega concept, dual Water/Grass identity and Pokemon-aligned starter stats/abilities. This is an independent art/balance study. It does not replace runtime art, change saves or edit Claude's active gameplay paths.
 
-## Visual candidate
-![Family study v1](family-study-v1.png)
+## Visual candidate, v2
+![Upright final and Mega study v2](final-forms-study-v2.png)
 
-- **Boglet** (provisional name): the small marsh hatchling, new stage one.
+Evan's feedback: Boglet is approved; preserve Bogsnap. The low quadrupedal v1 Stillmaw and barely differentiated Mega were rejected. The [v1 board](family-study-v1.png) is retained as history and the approved early-form reference; its final/Mega panels are not production candidates. V2 tests taller bipedal forms with the upright armoured presence Evan referenced in Tyranitar/Aggron, while keeping an original Water/Grass marsh identity. V2 itself awaits visual acceptance.
+
+- **Boglet**: Evan approved the v1 small marsh hatchling design. Its source pixels and file remain unchanged; no regeneration of the early form was needed.
 - **Bogsnap**: the approved broad-jawed, leaf-armoured creature stays the identity anchor and becomes stage two.
-- **Stillmaw**: stage three reuses the existing evolution's name/ID rather than inventing a duplicate final species; the low, longer muzzle and heavier mature stance distinguish it.
-- **Mega Stillmaw**: a temporary form of the final stage, not a fourth permanent evolution. Larger leaf mantle, reinforced limbs and paddle tail keep the original family visible.
+- **Stillmaw**: stage three reuses the existing evolution's name/ID. V2 has a tall upright bipedal body, powerful hind legs, raised armoured forearms, broad crocodilian jaw, cream segmented belly and a heavy counterbalancing tail. This replaces v1's low crocodile silhouette.
+- **Mega Stillmaw**: a temporary form, not a fourth permanent evolution. V2 changes the silhouette through a branching root crown, expanded shoulder mantle, shield-like forearms, root greaves, a broad reed tail and water channels. It remains a two-legged Water/Grass creature, with no new typing or extra stat buff implied by the art.
 
-All four candidate forms are Water/Grass (Tide/Grove in older Wildbond vocabulary). Proposed normal evolutions are level16 and36, subject to progression/move testing. The names, exact shapes, evolution timing and Mega unlock remain candidates; generating this board does not approve every detail.
+All four candidate forms are Water/Grass (Tide/Grove in older Wildbond vocabulary). Proposed normal evolutions are level16 and36, subject to progression/move testing. Boglet's v1 shape is accepted; new final/Mega shapes, names, evolution timing and Mega unlock remain candidates. Generating v2 does not approve those new details.
 
 Reference: Evan's selected model sheet, SHA256 f7bfee867a10c3bc2bb5cdafc4af0a898e0548a998c3ba828a8a87ad4767111b, pinned in [the current chapter source](https://github.com/ecbarish/generations/blob/7c535ffa896abfc00bf01a96a12df2d7ad308d09/wildbond-godot/tests/battle_slice/approved_bogsnap/approved-model-sheet.jpg).
-Built-in image_gen was used with that inspected reference; [exact prompt](generation-prompt.txt). The board was visually inspected: four complete silhouettes, readable labels and clear family continuity. It is concept illustration, not a sliced/pixel-clean animation atlas. Mega's dense leaf detail should be simplified at native sprite size before production. Preserve existing approved assets.
+Built-in image_gen produced v1 from the inspected original reference ([v1 prompt](generation-prompt.txt)) and v2 from the inspected family board ([v2 prompt](generation-prompt-v2.txt)). V2 was visually inspected for two complete upright bipedal silhouettes, clear final/Mega differences and family continuity. Boglet/Bogsnap source assets were not edited. These are concept illustrations, not sliced/pixel-clean animation atlases. Simplify fine roots/water detail at native sprite size before production. The 530/630 candidate budgets and ability contracts below are unchanged by this visual revision.
 
 ## Pokemon parity: actual audit and proposed budgets
 At source7c535ffa, the playable chapter uses six canonical stats, neutral nature, fixed IV15 and zero EVs. Its original starters total306 (Mosshog),313 (Ripplet),307 (Cindercub). Those are already in an ordinary early-starter range; retain their exact base spreads.
