@@ -57,7 +57,7 @@ window.ArcadeGames=[
    kind:'sports',goal:'Take over the worst club in a six-club league and manage it through a thirty-game season: the batting order, trades, free agents and the ballpark.',controls:'Press Play ball (or Space) to watch the next game · open the Front office (or F) to change the team · everything else by mouse or tap.'},
   {id:'keymaster',title:'Keymaster',tcls:'t-keymaster',status:['Test version','s-proto'],href:'games/keymaster/index.html',image:'images/lab/keymaster.jpg',
    alt:'Keymaster: the deal worksheet for a duplex on Alder Street',
-   blurb:'Five homes come up for sale on Alder Street and you have $200,000. Run the numbers on each, make an offer or pass, and live through each home's first year of rent, repairs and empty months. A property game built on a real deal analyzer.',
+   blurb:'Five homes come up for sale on Alder Street and you have $200,000. Run the numbers on each, make an offer or pass, and live through each home’s first year of rent, repairs and empty months. A property game built on a real deal analyzer.',
    tags:['Real estate','Deal analyzer','Five-minute sessions'],cover:'keymaster',
    kind:'build',goal:'Own three homes on Alder Street that each pay you in their first year. Two of the five look fine and are not, and your cash runs out if you are careless.',
    controls:'Mouse or tap only: + and − change your offer, pick a down payment and the work, then Make this offer or Pass on it. Your street is saved on this device.'},
