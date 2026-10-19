@@ -2,7 +2,8 @@
 
 | Task | Project | Owner | Scope |
 | --- | --- | --- | --- |
-| WB-FIRST-WARDEN-PLAN | Wildbond opening | Codex / Evan, claimed 2026-10-19 | Reconcile guest work and define the opening map, mentor/tutorial, early unlocks and exploration acceptance criteria. Documentation only; current user request supersedes the older next-region priority. |
+| WB-FIRST-WARDEN-PLAN | Wildbond opening | Codex / Evan, PR #586 | Reconcile guest work and define the opening map, mentor/tutorial, early unlocks and exploration acceptance criteria. Documentation only; current user request supersedes the older next-region priority. |
+
 ## Mega Tidewyrm readability
 
 | ID | Project | Status | Scope |

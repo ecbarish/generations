@@ -158,10 +158,9 @@ The quiet helper invokes the unchanged full repository runner while muting its t
 
 ## The next useful increment
 
-1. Play the current catch → inn → Maren loop and Wren/Bram battles from the latest feature head. Fix any confusing controls, pacing or broken return/save behavior first; automated checks are not a fun score.
-2. Inspect the existing graph, Thornwood/Rootwater/Knothollow briefs and gates. Choose one bounded extension with a reachable destination, discovery or meaningful encounter and a coherent return to Larkhaven. Draft the local measured grid and confirm actual connections/landing cells before dressing it. The exact new quest/reward is a design task, not already approved canon in this handoff.
-3. Reuse the installed trainer/NPC/creature pipeline and supported battle rules. Add species/mechanics only when the expedition needs them. Preserve original lore and the later shortcut requirements.
-4. Test collision/reachability, encounter → return, one-time rewards, old save/reopen, private/fallback presentation and required repository suites. Inspect the real screen, push the scoped PR and update this handoff only when its facts change.
+**Evan's current priority (2026-10-19):** make the starter experience through the first Warden cohesive before extending Rootwater/Knothollow or producing a large environment art library. Follow [the opening plan](plans/wildbond-first-warden.md), PR #586: measured map/PoIs and sightlines first, then Maren's proposed professor-like mentor/tutorial role and early sprint unlock, route/town composition, a fresh-player run to Isolde, and targeted polish. Sprint is currently available immediately; the proposed earned unlock is not built. Maren's title and canon are unchanged. The safari-style reserve remains a later proposal.
+
+The connected Thornwood/Isolde destination already works in the unmerged chapter stack; improve that journey rather than rebuild it or imply the wider region is playable. Reuse the existing community interiors and sightline handling. Keep later graph gates, lore and save contracts intact. Dad's current guest results and open integration issues are reconciled in the plan; their completed reports are not merged runtime features. No new guest build is assigned by this update.
 
 ## Paste into a new AI chat
 
