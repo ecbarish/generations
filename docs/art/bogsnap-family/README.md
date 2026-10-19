@@ -3,22 +3,31 @@ WB-BOGSNAP-FAMILY · Codex / root for Evan · 2026-10-19 · PR #600.
 
 Evan explicitly requested a three-stage test of the approved Bogsnap direction, a Mega concept, dual Water/Grass identity and Pokemon-aligned starter stats/abilities. This is an independent art/balance study. It does not replace runtime art, change saves or edit Claude's active gameplay paths.
 
-## Visual candidates, v4: choose the final silhouette first
-![Three scale-armoured final-form alternatives](final-form-directions-v4.png)
+## Selected direction, refined reference v5
+![Matched Stillmaw and Mega Stillmaw reference](selected-final-mega-reference-v5.png)
 
-Evan found v3 goofy and requested a strong, cool, Pokemon-like swamp alligator with natural scale armour, drawing on the broad appeal of Godzilla, Tyranitar, Aggron and Nidoking/Nidoqueen. V4 compares **three alternatives for the same third stage**, not three evolution stages. Mega design is held until the final form's base silhouette is accepted.
+**Evan selected the direction:** normal third stage combines v4 C's broad jaw, strong haunches and stocky build with A's overlapping scales; Mega uses B's taller kaiju silhouette. Evan reported that voters liked B, but he preferred reserving its imposing appearance for Mega. This is his creative choice, not an independently measured public poll. V5 refines that chosen brief; the new drawing is not automatically a production sprite approval.
 
-- **A / Scaleback:** compact biped, overlapping natural plates and a low heavy tail.
-- **B / Marsh Kaiju:** taller forward-leaning biped, longer tail and large reed-like dorsal scutes.
-- **C / Swamp Juggernaut:** broad low-set crocodilian head, thick haunches and powerful forearms; a heavier final-stage silhouette.
+- **Stillmaw:** compact, strong, bipedal swamp alligator. Low-set head, broad jaw, thick hindquarters, natural scale-armoured forearms and heavy balancing tail. Avoid costume-like separate armour and goofy rounded proportions.
+- **Mega Stillmaw:** taller upright transformation of the same animal, bold widely spaced reed-like dorsal scutes, stronger swimming tail and a more imposing profile. Keep the recognisable jaw, eyes and family colour language. The Mega is temporary, not a fourth permanent evolutionary stage.
+- **Water/Grass theming:** olive/moss scales, sparse moss in seams, reed-shaped dorsal scutes and a swimming-tail shape. Hind-toe webbing is a requested production detail but not clearly resolved by the illustration; do not claim it is already delivered. No obligatory cannons, giant plant attachments, water ribbons or decorative armour.
 
-The direction labels are not new species names. Stillmaw remains the provisional existing final species ID/name. Water/Grass identity, proposed16/36 evolution timing,530/630 final/Mega budgets and ability contracts are unchanged. No v4 alternative or new Mega is approved merely by generation. Final sprite production needs a selected shape and simplification of scale texture at native size.
+The [v4 alternatives](final-form-directions-v4.png) remain the selection source. They are alternatives for one final form, not additional species or three stages. Use C+A for normal and B for Mega; do not switch back to a different direction without a design discussion.
 
-**Accepted anchors:** Boglet's v1 design and the established Bogsnap identity remain unchanged. Their source files/pixels were not edited. The authoritative Bogsnap model sheet is [pinned here](https://github.com/ecbarish/generations/blob/7c535ffa896abfc00bf01a96a12df2d7ad308d09/wildbond-godot/tests/battle_slice/approved_bogsnap/approved-model-sheet.jpg), SHA256 f7bfee867a10c3bc2bb5cdafc4af0a898e0548a998c3ba828a8a87ad4767111b.
+## Production handoff
+V5 includes front-three-quarter and smaller rear-angle references for both forms. These communicate the chosen massing, scale coverage, colour family, posture and tail/dorsal structure. They are illustrated concept references, not transparent cutouts, orthographic turnarounds or pixel-perfect animation frames. The rear views are angled/flank views, not finished battle-back sprites. Lock exact scute layout and simplify scale/moss texture at native sprite size before producing atlases; maintain the same anatomy between views rather than inventing extra plates per frame.
 
-**Rejected/historical:** [v1](family-study-v1.png) final/Mega were too low and insufficiently distinct; [v2](final-forms-study-v2.png) was too costume-like/Power Rangers; [v3](final-forms-study-v3.png) was too goofy. Keep the accepted early forms from v1; do not integrate its rejected final/Mega panels. No earlier Mega should be treated as accepted.
+1. Preserve Boglet's accepted v1 design and the established Bogsnap identity. Neither early form's source file/pixels was edited.
+2. Build Stillmaw and Mega from the selected brief above, with separate explicit front/back/overworld output specs when the asset task is claimed. Do not slice this decorative board and call it production animation.
+3. Keep silhouettes recognisable at native size: C-like stocky normal, B-like taller Mega. Preserve feet and full tail, establish logical dimensions and common contact anchors, and use true alpha for actual sprites.
+4. Animation should convey weight and wetland behaviour: restrained breathing/jaw/eye reactions, planted steps, swimming-tail motion and a modest shake-off after water. These are ideas for the future owned asset task, not an existing frame set.
+5. The530 normal /630 Mega candidate stat budgets, unchanged Mega HP and ability contracts below stay intact. Visual size does not grant extra battle power. No gameplay/save/art integration occurs in this study.
 
-Built-in image_gen produced each version from inspected references; exact prompts are saved as generation-prompt.txt and generation-prompt-v2/v3/v4.txt. V4 used the original Bogsnap model sheet as reference. It was visually inspected for three distinct bipedal scale-armoured animal silhouettes, full bodies, readable direction labels and family continuity. These are illustrated concept studies, not sliced animation atlases or runtime replacements.
+**Accepted early anchors:** [v1 board](family-study-v1.png) Boglet/Bogsnap only. Authoritative Bogsnap model sheet: [pinned source](https://github.com/ecbarish/generations/blob/7c535ffa896abfc00bf01a96a12df2d7ad308d09/wildbond-godot/tests/battle_slice/approved_bogsnap/approved-model-sheet.jpg), SHA256 f7bfee867a10c3bc2bb5cdafc4af0a898e0548a998c3ba828a8a87ad4767111b.
+
+**Rejected/historical final/Mega passes:** v1 too low/subtle; [v2](final-forms-study-v2.png) costume-like/Power Rangers; [v3](final-forms-study-v3.png) goofy. Do not integrate those final/Mega panels. Keep their files as decision history.
+
+Built-in image_gen produced v5 from the inspected v4 source; [exact v5 prompt](generation-prompt-v5.txt). Earlier prompts remain alongside their versions. V5 visually inspected for complete bodies, front/rear-angle references, stocky-vs-tall silhouettes and original family continuity. No source, runtime, stats or approved starter art changed in this revision.
 
 ## Pokemon parity: actual audit and proposed budgets
 At source7c535ffa, the playable chapter uses six canonical stats, neutral nature, fixed IV15 and zero EVs. Its original starters total306 (Mosshog),313 (Ripplet),307 (Cindercub). Those are already in an ordinary early-starter range; retain their exact base spreads.
