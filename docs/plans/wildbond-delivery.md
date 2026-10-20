@@ -26,11 +26,29 @@ Current prototypes already implement parts of this. Inspect and improve them; do
 
 The studio's existing newcomer target (17/18, with full marks for objective, controls and phone) and launch fun floor (7/10) remain. A higher score is a goal, not a substitute for watching Evan actually play. No schedule is inferred from PR throughput.
 
-## Immediate unblockers
-- **#593:** the fixture repair at 7c535ffa now passes all 40 Windows checks and actual Godot 4.7.2 fallback capture 53/0; all six final-head images inspected. Current-head CI Checks (all 28 suites) and export freshness pass. Owner blockers cleared; ready for deliberate integration with parent #591. Earlier fixture/native-access blockers are historical.
-- **Fence:** Dad's Grok owns WB-GUEST-FENCE-CONNECTIONS. Obtain its status and deliver the existing bounded repair; do not start a second fence implementation.
-- **Integration:** current chapter reference is #591 / c94e856b, pending the two bounded follow-ups above. It is a reference, not a claim that it is the published game. List each earlier relevant PR as retain, replace or defer, with source evidence. Consolidate deliberately and retire duplicates when their work is preserved.
-- **Legacy screenshot:** #491 is already in that chapter's ancestry. Its old scripts/battle.gd issue is not evidence against tests/opening/battle.gd. Review retained legacy entry paths separately. Older branches and web exports overlap; never apply an old pack over the chosen chapter accidentally.
+## Current promotion work order (2026-10-20)
+Verified chapter reference: `codex/wildbond-soft-ground` at `4c0b1277dbb417d928472f24f227ed347815ba0b`, tree `c3785ffc47894c3cfe885a072de2213b433e7a31`. Fence #602 and chapter-check command #593 are integrated. The combined tree passed40Windows fixtures,53/0native Forward+ chapter capture with six inspected images and all28repository suites. It remains an unsaved preview, not the default game.
+
+Source-backed constraints at that revision:
+- `tests/environment_sample/scene.gd:16–26` deliberately sets `no_save=true`, selects a process-specific path, starts Mosshog, clears dialogue and teleports to a review camera. `opening_space/scene.gd` and `soft_ground/scene.gd` inherit it. Changing the main scene to that audition would bypass partner choice and Continue.
+- `project.godot` still launches `res://scenes/main.tscn`; the production adventure uses `user://journey.json`. The separate chapter uses `user://wildbond_pokemon_chapter_v1.json` via `tests/journey/profile.gd`. Those are distinct profiles; never copy one over the other.
+- The chapter profile's nested opening checkpoint currently accepts versions1–2 with x at most26 and z at most17. Expanded Larkhaven includes walkable cells whose world coordinates exceed those bounds. The existing blocked-position fallback in `tests/opening/scene.gd` handles collision, not a geometry-version migration.
+- Both Web and Windows presets exclude `tests/*`. Starter adapters, chapter UI/battle, map and presentation dependencies currently live there. An editor play or native test pass cannot prove the exported default chapter includes them.
+
+**WB-DELIVERY-01 remains the next integration bundle, with Claude as sole runtime writer.** Dad's Grok owns the separately assigned source inventory under `docs/research/wildbond-chapter-promotion-review/`; do not duplicate that report. Codex owns this work order and review. One reconciled branch must preserve the already-tested fence, ground treatment, startup, input and profile behavior.
+
+The smallest safe runtime pass separates reusable appearance from audition startup, retains existing partner choice/profile load and removes review-only Mosshog/reset behavior from the selected playable path. Propose exact owned production destinations for the scene/map/presentation/battle/profile dependencies before moving them; keep independent tests and the reversible audition. Do not globally remove `tests/*` export exclusions or replace an old exported pack with an unreviewed one.
+
+**Proposed save policy for that owner to make concrete:** keep the legacy adventure untouched; back up the old chapter checkpoint before its first geometry upgrade; preserve party/storage IDs, levels, XP, condition, current HP/PP, bag, wallet, items and progression. Keep unchanged-region positions, deliberately relocate old village/interior return positions onto verified safe approaches, and reject future checkpoint versions without writes. A nested opening-version update with an older-reader hold and a pre-upgrade backup is a candidate mechanism, not an approved schema change. The owner must obtain the repository-required explicit save-design approval before merging persistence changes.
+
+Done-when evidence must include:
+1. Fresh entry actually presents all three original starters; the selected partner, tutorial and first-Warden path survive normal play.
+2. Damaged/fainted parties, spent PP, storage, collected pickups, defeated trainers and badge/healing flags survive quit/Continue. No save silently heals, rerolls, duplicates rewards or selects a new starter.
+3. Old chapter checkpoints in village, moved-door approaches and unchanged regions load under the approved policy; future/corrupt primary/spare/backup cases hold writes. Legacy adventure bytes remain unchanged.
+4. The default exported entry runs from a clean pack, with fallback art and no editor/import cache or private pack. Required assets/scripts/data are included; actual touch/keyboard paths and first-Warden Return flow work.
+5. Full aggregate and scoped native entry/save checks pass on the final source. One desktop/phone player session decides usability; publishing gets a separate exact-pack check.
+
+This work order authorizes preparation within the existing delivery goal. It does not claim runtime implementation, schema approval, final art approval or publication. New evolution/Mega mechanics and the600/700family are not dependencies of chapter promotion.
 
 ## Next Wildbond cycle: six bounded bundles
 These are proposed delivery bundles, not six new simultaneous claims. Generations PM puts the selected rows into QUEUE's next cycle and preserves the existing quotas for other games. Split risky work across cycles rather than exceeding the six-task Wildbond quota.
@@ -69,7 +87,7 @@ Builders handle deterministic sheet slicing, animation/frame wiring, asset valid
 Claude and Dad's AIs are actively working: their current claimed paths and assignments continue. This plan does not stop, duplicate or transfer an active task. Codex creates key art outside those owned runtime paths and hands off finished assets through an explicit PR/reference revision.
 
 ## Before and after Grok returns
-**Until the return:** retain #593's validated handoff, obtain the fence handoff, pin the chosen chapter and resolve the integration inventory. Prepare a single ready work order for Grok; do not spend the two days inventing more far-future content.
+**Until the return:** retain the integrated #593/#602 handoffs, use pinned chapter4c0b1277, and resolve the promotion inventory and startup/save/export contract above. Prepare a single ready work order for Grok; do not spend the two days inventing more far-future content.
 
 **On return:** Grok takes the highest-priority READY bundle with disjoint owned paths. Environment/presentation work is a good default only if integration has established its base and fence ownership is clear. If it would collide with Claude, use a scoped asset/motion deliverable outside the shared scene instead. Finish, review and land the first bundle before claiming another. No deadline or guaranteed output is inferred from the subscription.
 
