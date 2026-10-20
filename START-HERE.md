@@ -101,6 +101,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 ## Session log (newest first; one or two lines each)
 
+- 2026-10-19, Codex / Evan: WB-SOFT-GROUND, PR #591, adds a shared path-mask material to feather dirt/grass and soften colour boundaries in the expanded unsaved preview. Geometry/collision/gameplay and sprites stay intact; native53/0 both renderers with fallback/private art. Report/captures in docs/research/wildbond-soft-ground; no pack/release change.
+
 - 2026-10-19, Codex / Evan: WB-OPENING-SPACE, PR #589, expands the unsaved village from24×14 to38×26cells, separates buildings/yards and moves interactions/paddock/pickup consistently. Regional cells/landings remain intact; 51/0 native checks on both renderers, with compact comparisons and resource observations. No saved-profile/export/release change.
 
 - 2026-10-19, Codex / Evan: WB-ENVIRONMENT-SAMPLE, PR #587, adds an unsaved actual-chapter visual benchmark: coherent broadleaf trees, red ranch/slate roofs, warmer materials/light and the existing trail pickup rest spot. F6 reviews three positions, F7 hides UI; source/report/captures and matched baseline measurements are in tests/environment_sample and docs/research/wildbond-environment-sample. No save/export/release change.
