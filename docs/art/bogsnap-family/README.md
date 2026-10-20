@@ -51,6 +51,11 @@ V5 includes front-three-quarter and smaller rear-angle references for both forms
 
 Built-in image_gen produced v5 from the inspected v4 source; [exact v5 prompt](generation-prompt-v5.txt). Earlier prompts remain alongside their versions. V5 visually inspected for complete bodies, front/rear-angle references, stocky-vs-tall silhouettes and original family continuity. No source, runtime, stats or approved starter art changed in this revision.
 
+## Repeatable handoff, 2026-10-20
+The [production brief](PRODUCTION.md) bounds the next batch to four static front/back views, with contact anchors, source provenance, native-size review and a separate gameplay task. The [machine-readable contract](production-contract.json) pins the approved early/normal/Mega references and all four family tiers.
+
+Run `node docs/art/bogsnap-family/check-study.cjs` for the read-only study check and `node docs/art/bogsnap-family/check-study.test.cjs` for regression checks. `--require-runtime` deliberately exits2 and lists unimplemented production/gameplay gates. A valid study is not a ready game. Existing101 arithmetic checks remain recorded separately; the new checker adds source hashes, preserved early spreads, typing/stage/ID contracts and explicit approval/readiness checks. No new image generation, paid service or runtime wiring occurs in this tooling pass.
+
 ## Pokemon parity: actual audit and proposed budgets
 At source7c535ffa, the playable chapter uses six canonical stats, neutral nature, fixed IV15 and zero EVs. Its original starters total306 (Mosshog),313 (Ripplet),307 (Cindercub). Those are already in an ordinary early-starter range; retain their exact base spreads.
 

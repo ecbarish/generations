@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "task_id": "WB-BOGSNAP-FAMILY",
+  "scope": "Approved study contract, not runtime data",
+  "references": {
+    "early": {
+      "file": "family-study-v1.png",
+      "sha256": "320c3232c8a22ea579dcbf2be865d6b6335c38841880e635137ab3de27414b71",
+      "approved_scope": "Boglet/Bogsnap panels only"
+    },
+    "normal": {
+      "file": "selected-final-mega-reference-v5.png",
+      "sha256": "2876f9df4060fcc31e14490297591a9e82cd161df7b02389fc923d3aa0f96fdc",
+      "approved_scope": "normal Stillmaw only"
+    },
+    "mega": {
+      "file": "mega-living-wetland-study-v7.png",
+      "sha256": "1fc3c7206c468aea9854d182ee602e28e12c61c29df6ad39351d0bcb1c93938d",
+      "approved_scope": "Mega direction only; left comparison is not a normal replacement"
+    }
+  },
+  "species": {
+    "wildbond:boglet": {
+      "family": "bogsnap",
+      "stage": 1,
+      "total": 310,
+      "types": [
+        "water",
+        "grass"
+      ],
+      "preserve_spread": [
+        55,
+        55,
+        65,
+        35,
+        60,
+        40
+      ],
+      "ability_candidate": "shell-armor"
+    },
+    "wildbond:bogsnap": {
+      "family": "bogsnap",
+      "stage": 2,
+      "total": 405,
+      "types": [
+        "water",
+        "grass"
+      ],
+      "preserve_spread": [
+        75,
+        85,
+        85,
+        40,
+        70,
+        50
+      ],
+      "ability_candidate": "shell-armor"
+    },
+    "wildbond:stillmaw": {
+      "family": "bogsnap",
+      "stage": 3,
+      "total": 600,
+      "types": [
+        "water",
+        "grass"
+      ],
+      "ability_candidate": "shell-armor"
+    },
+    "wildbond:stillmaw-mega": {
+      "family": "bogsnap",
+      "stage": "mega",
+      "total": 700,
+      "types": [
+        "water",
+        "grass"
+      ],
+      "ability_candidate": "thick-fat"
+    },
+    "wildbond:mosshog": {
+      "family": "mosshog",
+      "stage": 1,
+      "total": 306,
+      "types": [
+        "grass"
+      ],
+      "preserve_spread": [
+        60,
+        58,
+        58,
+        42,
+        50,
+        38
+      ],
+      "ability_candidate": "overgrow"
+    },
+    "wildbond:thicketboar": {
+      "family": "mosshog",
+      "stage": 2,
+      "total": 405,
+      "types": [
+        "grass"
+      ],
+      "preserve_spread": [
+        78,
+        80,
+        80,
+        50,
+        67,
+        50
+      ],
+      "ability_candidate": "overgrow"
+    },
+    "wildbond:thornback": {
+      "family": "mosshog",
+      "stage": 3,
+      "total": 530,
+      "types": [
+        "grass"
+      ],
+      "ability_candidate": "overgrow"
+    },
+    "wildbond:thornback-mega": {
+      "family": "mosshog",
+      "stage": "mega",
+      "total": 630,
+      "types": [
+        "grass"
+      ],
+      "ability_candidate": null
+    },
+    "wildbond:ripplet": {
+      "family": "ripplet",
+      "stage": 1,
+      "total": 313,
+      "types": [
+        "water"
+      ],
+      "preserve_spread": [
+        50,
+        48,
+        55,
+        60,
+        55,
+        45
+      ],
+      "ability_candidate": "torrent"
+    },
+    "wildbond:riverwisp": {
+      "family": "ripplet",
+      "stage": 2,
+      "total": 405,
+      "types": [
+        "water"
+      ],
+      "preserve_spread": [
+        65,
+        55,
+        65,
+        85,
+        75,
+        60
+      ],
+      "ability_candidate": "torrent"
+    },
+    "wildbond:tidewyrm": {
+      "family": "ripplet",
+      "stage": 3,
+      "total": 530,
+      "types": [
+        "water"
+      ],
+      "ability_candidate": "torrent"
+    },
+    "wildbond:tidewyrm-mega": {
+      "family": "ripplet",
+      "stage": "mega",
+      "total": 630,
+      "types": [
+        "water"
+      ],
+      "ability_candidate": null
+    },
+    "wildbond:cindercub": {
+      "family": "cindercub",
+      "stage": 1,
+      "total": 307,
+      "types": [
+        "fire"
+      ],
+      "preserve_spread": [
+        45,
+        60,
+        40,
+        55,
+        45,
+        62
+      ],
+      "ability_candidate": "blaze"
+    },
+    "wildbond:smoulderpup": {
+      "family": "cindercub",
+      "stage": 2,
+      "total": 405,
+      "types": [
+        "fire"
+      ],
+      "preserve_spread": [
+        60,
+        80,
+        50,
+        70,
+        55,
+        90
+      ],
+      "ability_candidate": "blaze"
+    },
+    "wildbond:blazefang": {
+      "family": "cindercub",
+      "stage": 3,
+      "total": 530,
+      "types": [
+        "fire"
+      ],
+      "ability_candidate": "blaze"
+    },
+    "wildbond:blazefang-mega": {
+      "family": "cindercub",
+      "stage": "mega",
+      "total": 630,
+      "types": [
+        "fire"
+      ],
+      "ability_candidate": null
+    }
+  },
+  "progression": {
+    "status": "unresolved-for-600-tier",
+    "existing_proposal_levels": [
+      16,
+      36
+    ],
+    "final_level_approved": false,
+    "required_review": [
+      "late maturation appropriate to 600-tier",
+      "trust/bond rule reconciliation",
+      "encounter availability",
+      "learn timing and move coverage",
+      "Isolde roster difficulty",
+      "saved Bogsnap and Stillmaw identity preservation"
+    ]
+  },
+  "production": {
+    "status": "not-built",
+    "runtime_integration": false,
+    "next_batch": [
+      "Stillmaw front static",
+      "Stillmaw rear static",
+      "Mega Stillmaw front static",
+      "Mega Stillmaw rear static"
+    ],
+    "later_batch": [
+      "Boglet missing views if runtime requires them",
+      "overworld and minimal idle after static approval"
+    ],
+    "output_spec": "PRODUCTION.md",
+    "automatic_generation_or_import": false
+  },
+  "ability_contracts": {
+    "overgrow": {
+      "effect": "multiply corresponding attacking stat for grass moves by1.5 when hp*3<=max_hp"
+    },
+    "torrent": {
+      "effect": "multiply corresponding attacking stat for water moves by1.5 when hp*3<=max_hp"
+    },
+    "blaze": {
+      "effect": "multiply corresponding attacking stat for fire moves by1.5 when hp*3<=max_hp"
+    },
+    "shell-armor": {
+      "effect": "prevent critical hits; does not reduce ordinary damage",
+      "requires": [
+        "critical-hit engine"
+      ]
+    },
+    "thick-fat": {
+      "effect": "multiply incoming fire/ice move corresponding attacking stat by0.5",
+      "type_effectiveness_unchanged": true
+    }
+  }
+}
