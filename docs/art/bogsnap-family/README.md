@@ -56,6 +56,11 @@ The [production brief](PRODUCTION.md) bounds the next batch to four static front
 
 Run `node docs/art/bogsnap-family/check-study.cjs` for the read-only study check and `node docs/art/bogsnap-family/check-study.test.cjs` for regression checks. `--require-runtime` deliberately exits2 and lists unimplemented production/gameplay gates. A valid study is not a ready game. Existing101 arithmetic checks remain recorded separately; the new checker adds source hashes, preserved early spreads, typing/stage/ID contracts and explicit approval/readiness checks. No new image generation, paid service or runtime wiring occurs in this tooling pass.
 
+## Independent balance review and follow-through
+[Dad's dot review](review/README.md), integrated from PR #603, distinguishes the current adapted chapter roster from canonical production data. The current chapter's Isolde team has no Bogsnap; adopting stronger Bogsnap/Thornback data would affect two members of the separate production team. Stillmaw's tank-role overlap with Thornback and the ability/progression concerns remain owner decisions, not measured balance results.
+
+The report is pinned to the prior study head. Its provisional-metadata checker finding is now fixed: edge levels must match the stage-ordered proposal list, increase across stages, and retain an explicit false final-level-approval marker. Six additional regression cases cover those failures. Proposed16/36 levels, actual stat spreads and art remain unchanged; fixing the check does not approve progression.
+
 ## Pokemon parity: actual audit and proposed budgets
 At source7c535ffa, the playable chapter uses six canonical stats, neutral nature, fixed IV15 and zero EVs. Its original starters total306 (Mosshog),313 (Ripplet),307 (Cindercub). Those are already in an ordinary early-starter range; retain their exact base spreads.
 

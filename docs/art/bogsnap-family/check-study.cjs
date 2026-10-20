@@ -70,6 +70,15 @@ function validateStudy(data, contract, readReference) {
     need(matches.length === 1 && Number.isInteger(matches[0]?.level) && matches[0].level >= 1 && matches[0].level <= 100,
       'Invalid evolution edge ' + from + ' -> ' + to);
   }
+  const levels = edges.map(([from,to]) => evolution.find(e => e.from === from && e.to === to)?.level);
+  const provisional = contract?.progression?.existing_proposal_levels;
+  need(Array.isArray(provisional) && provisional.length === 2 &&
+    provisional.every(level => Number.isInteger(level) && level >= 1 && level <= 100) &&
+    JSON.stringify(levels) === JSON.stringify(provisional), 'Provisional level metadata must match the two evolution edges in stage order.');
+  need(Number.isInteger(levels[0]) && Number.isInteger(levels[1]) && levels[0] < levels[1],
+    'Evolution levels must increase from stage1 to stage3.');
+  need(contract?.progression?.final_level_approved === false,
+    'Final evolution level remains unapproved; the study cannot silently finalize progression.');
   need(contract?.production?.status === 'not-built' && contract.production.runtime_integration === false,
     'Study checker cannot certify production assets or runtime integration.');
   need(contract?.progression?.status === 'unresolved-for-600-tier', 'Higher-tier maturation remains an explicit balance decision.');
