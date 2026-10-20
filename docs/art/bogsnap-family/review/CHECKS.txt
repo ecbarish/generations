@@ -1,0 +1,73 @@
+2026-10-20T04:39:35Z
+v24.19.0
+Linux 6.18.55 x86_64 GNU/Linux
+
+$ node docs/art/bogsnap-family/check-study.cjs
+{
+  "kind": "study-contract-only",
+  "ok": true,
+  "errors": [],
+  "runtime_ready": false,
+  "blockers": [
+    "Production front/back/overworld assets are not built or accepted.",
+    "Evolution levels, availability, learnsets and first-Warden roster need balance review.",
+    "Current chapter lacks abilities/critical hits/evolution/Mega support; no implementation is certified.",
+    "Existing individuals, HP/PP and save migration need an explicit runtime-owner contract."
+  ],
+  "species_checked": 16,
+  "battle_simulations_run": 0,
+  "production_assets_checked": 0
+}
+exit=0
+
+$ node docs/art/bogsnap-family/check-study.test.cjs
+PASS valid approved study remains blocked for runtime
+PASS reject duplicate IDs
+PASS reject misspelled stat key
+PASS reject invalid integer stat
+PASS reject total/spread mismatch
+PASS reject starter tier inflation
+PASS reject old Stillmaw530 budget
+PASS reject Mega HP refill loophole
+PASS reject wrong Mega parent
+PASS reject duplicate permanent stage
+PASS reject typing drift
+PASS preserve original early starter spread
+PASS preserve early Bogsnap spread
+PASS reject permanent Mega save
+PASS reject stacking normal and Mega ability
+PASS reject false production approval
+PASS reject false runtime readiness
+PASS reject alternate Mega reference
+PASS reject changed source bytes
+PASS reject traversing reference path
+PASS reject incomplete reference set
+PASS reject evolution to unrelated starter
+PASS reject invalid evolution level
+PASS reject falsely finalized progression
+PASS reject unreviewed ability change
+PASS reject passive semantics drift
+PASS missing reference fails with useful error
+PASS CLI works from another directory without writing files
+PASS strict runtime gate refuses unimplemented study with exit2
+PASS unknown CLI flag fails
+30 study-checker regression cases passed; no gameplay simulation.
+exit=0
+
+$ node docs/art/bogsnap-family/check-study.cjs --require-runtime
+{
+  "kind": "study-contract-only",
+  "ok": true,
+  "errors": [],
+  "runtime_ready": false,
+  "blockers": [
+    "Production front/back/overworld assets are not built or accepted.",
+    "Evolution levels, availability, learnsets and first-Warden roster need balance review.",
+    "Current chapter lacks abilities/critical hits/evolution/Mega support; no implementation is certified.",
+    "Existing individuals, HP/PP and save migration need an explicit runtime-owner contract."
+  ],
+  "species_checked": 16,
+  "battle_simulations_run": 0,
+  "production_assets_checked": 0
+}
+exit=2
