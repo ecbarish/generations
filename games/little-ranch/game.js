@@ -253,37 +253,39 @@
   }
   // One pack sign, placed after the five signs, the bubble and the puddles so those spots stay put.
   function packSignSpot() {
-    const R = L.R, rs = R * .95, five = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'];
-    const faceOf = q => ({ x: q.x, y: q.y - R * .45 });
-    const boardOf = q => ({ x0: q.x - rs * .95, x1: q.x + rs * .95, y0: q.y - rs * 1.17, y1: q.y + rs * .27 });
-    const postOf = q => ({ x0: q.x - rs * .08, x1: q.x + rs * .08, y0: q.y - rs * .2, y1: q.y + rs * 1.2 });
+    const R = L.R, five = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'];
+    const box = (q, s, kind) => { const rs = R * s * .95, hx = kind === 'post' ? .08 : .95, y0 = kind === 'post' ? -.2 : -1.17, y1 = kind === 'post' ? 1.2 : .27; return { x0: q.x - rs * hx, x1: q.x + rs * hx, y0: q.y + rs * y0, y1: q.y + rs * y1 }; };
+    const faceOf = (q, s) => ({ x: q.x, y: q.y - R * s * .45 });
     const overlap = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
     const bubble = L.item, sun = { x: W * .22, y: H * .17, r: Math.max(L.U * .16, R) };
     const head = { x: L.home.x + L.size * .55, y: L.home.y - L.size * 1.3 };
     const babyC = { x: L.home.x, y: L.home.y - L.size * .9 };
     const kBaby = Math.hypot(head.x - babyC.x, head.y - babyC.y) / (L.size * 1.2);
-    const coreGap = q => { const b = boardOf(q); return Math.hypot(Math.max(b.x0 - bubble.x, 0, bubble.x - b.x1), Math.max(b.y0 - bubble.y, 0, bubble.y - b.y1)) - bubble.r; };
-    const clear = q => {
-      const f = faceOf(q), b = boardOf(q), post = postOf(q);
-      if (b.x0 < 1 || b.x1 > W - 1 || b.y0 < 1 || b.y1 > H - 1) return false;
-      if (five.some(n => Math.hypot(faceOf(L[n]).x - f.x, faceOf(L[n]).y - f.y) < R * 2.5 - 1e-6)) return false;
-      if (five.some(n => overlap(b, boardOf(L[n])) || overlap(b, postOf(L[n])) || overlap(boardOf(L[n]), post) || overlap(postOf(L[n]), post))) return false;
-      if (coreGap(q) < 0) return false;
-      if (L.puddles.some(p => Math.hypot(f.x - p.x, f.y - p.y) < p.r + R)) return false;
-      const inside = head.x >= b.x0 && head.x <= b.x1 && head.y >= b.y0 && head.y <= b.y1;
-      if (Math.hypot(head.x - f.x, head.y - f.y) / (R * 1.25) * (inside ? .4 : 1) <= kBaby) return false;
-      return true;
+    const body = { x0: L.home.x - L.size * 1.05, x1: L.home.x + L.size * 1.15, y0: L.home.y - L.size * 1.7, y1: L.home.y };
+    const bushBox = { x0: L.bush.x - R, x1: L.bush.x + R, y0: L.bush.y - R * 1.4, y1: L.bush.y + R * .2 };
+    const basket = { x0: L.basket.x - L.basket.r, x1: L.basket.x + L.basket.r, y0: L.basket.y - L.basket.r, y1: L.basket.y + L.basket.r };
+    // A short wide meadow has no full-size gap that stays off the baby, so a slightly smaller sign may sit in the sky.
+    const search = (s, minMul) => {
+      const rs = R * s * .95; let best = null, cost = Infinity;
+      for (let y = rs * 1.2; y < H - 4; y += 3) for (let x = rs * .7; x < W - rs * .7; x += 3) {
+        const q = { x, y }, f = faceOf(q, s), b = box(q, s, 'board'), post = box(q, s, 'post');
+        if (b.x0 < 1 || b.x1 > W - 1 || b.y0 < 1 || b.y1 > H - 1) continue;
+        const gap = Math.min(...five.map(n => Math.hypot(faceOf(L[n], 1).x - f.x, faceOf(L[n], 1).y - f.y)));
+        if (gap < R * minMul - 1e-6) continue;
+        if (five.some(n => overlap(b, box(L[n], 1, 'board')) || overlap(b, box(L[n], 1, 'post')) || overlap(box(L[n], 1, 'board'), post) || overlap(box(L[n], 1, 'post'), post))) continue;
+        const core = Math.hypot(Math.max(b.x0 - bubble.x, 0, bubble.x - b.x1), Math.max(b.y0 - bubble.y, 0, bubble.y - b.y1)) - bubble.r;
+        if (core < 0) continue;
+        if (L.puddles.some(p => Math.hypot(f.x - p.x, f.y - p.y) < p.r + R * s)) continue;
+        const inside = head.x >= b.x0 && head.x <= b.x1 && head.y >= b.y0 && head.y <= b.y1;
+        if (Math.hypot(head.x - f.x, head.y - f.y) / (R * s * 1.25) * (inside ? .4 : 1) <= kBaby) continue;
+        if (overlap(b, body) || overlap(b, bushBox) || overlap(b, basket) || L.flowers.some(fl => Math.hypot(f.x - fl.x, f.y - fl.y) < fl.r + R * s * .55)) continue;
+        const weather = Math.hypot(f.x - sun.x, f.y - sun.y) < sun.r + R * s * .35 || Math.hypot(f.x - L.cloud.x, f.y - L.cloud.y) < L.cloud.r + R * s * .35;
+        const c = (y > L.ground ? 70 : 0) + (weather ? 24 : 0) + (s < 1 ? 8 : 0) + Math.abs(x - W * .58) * .15 + y * .04;
+        if (c < cost) { cost = c; best = { x, y, s }; }
+      }
+      return best;
     };
-    let best = null, cost = Infinity;
-    const consider = strict => { for (let y = rs * 1.2; y < H - 4; y += 3) for (let x = rs; x < W - rs; x += 3) {
-      const q = { x, y }; if (!clear(q)) continue;
-      const f = faceOf(q), weather = Math.hypot(f.x - sun.x, f.y - sun.y) < sun.r + R * .35 || Math.hypot(f.x - L.cloud.x, f.y - L.cloud.y) < L.cloud.r + R * .35;
-      if (strict && weather) continue;
-      const c = (y > L.ground ? 80 : 0) + Math.abs(x - W * .5) * .2 + y * .08;
-      if (c < cost) { cost = c; best = q; }
-    }; };
-    consider(true); if (!best) consider(false);
-    return best || { x: Math.min(W - rs * 1.3, W * .62), y: Math.max(rs * 1.4, 8) };
+    return search(1, 2.5) || search(1, 1.5) || search(.72, 1.5) || search(.6, 1.4) || { x: Math.min(W - R, W * .62), y: Math.max(R * 1.2, 8), s: 1 };
   }
   function layToys() {
     const barn = L.shed.barn, tall = H >= W * 1.05;
@@ -1185,7 +1187,7 @@
     cx.strokeStyle = '#2a1a18'; cx.lineWidth = Math.max(1, s * .05); cx.beginPath(); cx.arc(0, R(h * .15), R(s * .12), .3, Math.PI - .3); cx.stroke(); cx.restore();
   }
   function drawPSign(g) {
-    const s = L.psign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.psign.shake * r * .06, bob = hintBob('psign');
+    const s = L.psign, r = L.R * .95 * (s.s || 1), sh = Math.sin(st.t * 30) * st.psign.shake * r * .06, bob = hintBob('psign');
     cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(r * 1.4 + bob));
     cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
     cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24)); cx.restore();
@@ -1305,18 +1307,18 @@
   /* ---------------- touch and mouse ---------------- */
   // A finger's position lives on the touch. The click that follows is synthetic and can sit at 0,0, so it is ignored.
   const at = e => { const r = cv.getBoundingClientRect(); const src = (e.changedTouches && e.changedTouches[0]) || (e.touches && e.touches[0]) || e; return { x: (src.clientX - r.left) / r.width * W, y: (src.clientY - r.top) / r.height * H }; };
-  const signFace = q => ({ x: q.x, y: q.y - L.R * .45 }); // the painted board, not the post underneath it
+  const signFace = q => ({ x: q.x, y: q.y - L.R * .45 * (q.s || 1) }); // the painted board, not the post underneath it
   // LR-C1: where tap zones overlap (big zones on a tablet), the thing whose middle is nearest wins, so a tap on the
   // baby's head beside the bush tickles the baby rather than starting peekaboo.
   function ranchTarget(p) { const s = st.sponge, c = [];
-    if (!s.auto) c.push(['sponge', s, L.R * 1.1]); c.push(['sign', signFace(L.sign), L.R * 1.25], ['wsign', signFace(L.wsign), L.R * 1.25], ['ksign', signFace(L.ksign), L.R * 1.25], ['tsign', signFace(L.tsign), L.R * 1.25], ['dsign', signFace(L.dsign), L.R * 1.25], ['psign', signFace(L.psign), L.R * 1.25], ['bowl', L.bowl, L.R * 1.2], ['bush', { x: L.bush.x, y: L.bush.y - L.R * .4 }, L.R * 1.4]);
+    if (!s.auto) c.push(['sponge', s, L.R * 1.1]); c.push(['sign', signFace(L.sign), L.R * 1.25], ['wsign', signFace(L.wsign), L.R * 1.25], ['ksign', signFace(L.ksign), L.R * 1.25], ['tsign', signFace(L.tsign), L.R * 1.25], ['dsign', signFace(L.dsign), L.R * 1.25], ['psign', signFace(L.psign), L.R * 1.25 * (L.psign.s || 1)], ['bowl', L.bowl, L.R * 1.2], ['bush', { x: L.bush.x, y: L.bush.y - L.R * .4 }, L.R * 1.4]);
     if (st.baby.act !== 'hide') c.push(['baby', babyCentre(), L.size * 1.2]); if (st.friend) c.push(['friend', fCentre(), L.fz * 1.25]); if (daytime()) c.push(['sun', sunAt(), Math.max(L.U * .16, L.R)], ['cloud', L.cloud, L.cloud.r * 1.35]);
     for (const q of st.puddles) c.push(['puddle' + q.i, L.puddles[q.i], L.puddles[q.i].r]); c.push(['basket', { x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05]);
     L.flowers.forEach((q, i) => c.push(['flower' + i, { x: q.x, y: q.y }, q.r * 1.15]));
     { const q = ballNow(); c.push(['ball', q, q.r * 1.2]); }
     let best = null, bk = 1, rs = L.R * .95;
     for (const [n, q, r] of c) { let k = Math.hypot(p.x - q.x, p.y - q.y) / r;
-      if (/^[wktdp]?sign$/.test(n)) { const b = L[n]; if (Math.abs(p.x - b.x) <= rs * .95 && p.y >= b.y - rs * 1.17 && p.y <= b.y + rs * .27) k *= .4; } // LR-G2: a tap anywhere on a drawn board is that sign's (its lower edge used to fall to the bush)
+      if (/^[wktdp]?sign$/.test(n)) { const b = L[n], br = rs * (b.s || 1); if (Math.abs(p.x - b.x) <= br * .95 && p.y >= b.y - br * 1.17 && p.y <= b.y + br * .27) k *= .4; } // LR-G2: a tap anywhere on a drawn board is that sign's (its lower edge used to fall to the bush)
       if (k <= bk) { bk = k; best = n; } } return best; }
   const onDown = e => {
     e.preventDefault(); audio(); const p = at(e), s = st.sponge; st.idleAt = st.t;
@@ -1361,7 +1363,7 @@
       if (!d.drag && Math.hypot(p.x - d.p.x, p.y - d.p.y) > L.shed.z * .15) { d.drag = true; paintPart(partAt(d.p), d.p); } if (d.drag) paintPart(partAt(p), p); return; }
     const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return; const p = at(e);
     s.drag.moved += Math.hypot(p.x - s.x, p.y - s.y); s.x = p.x; s.y = p.y; if (near(p, babyCentre(), L.size * 1.3)) act.scrub(p); else if (st.friend && near(p, fCentre(), L.fz * 1.2)) scrubFriend(p); };
-  const onSign = (p, q) => near(p, q, L.R * 1.35) || near(p, signFace(q), L.R * 1.35);
+  const onSign = (p, q) => { const reach = L.R * 1.35 * (q.s || 1); return near(p, q, reach) || near(p, signFace(q), reach); };
   const release = e => { const d = st.down; if (d && d.id === e.pointerId) { st.down = null; if (e.type === 'pointercancel' || e.type === 'touchcancel') return; const p = at(e);
       if (d.sign === 'paint') { if (onSign(p, L.sign)) enterShed(); return; } if (d.sign === 'wagon') { if (onSign(p, L.wsign)) enterWagon(); return; } if (d.sign === 'kitchen') { if (onSign(p, L.ksign)) enterKitchen(); return; } if (d.sign === 'dough') { if (onSign(p, L.tsign)) enterDough(); return; } if (st.place === 'dough') { if (d.moved <= L.dough.lr * .3) doughTap(p); return; } if (d.sign === 'door') { if (onSign(p, L.dsign)) enterDoor(); return; } if (d.sign === 'pack') { if (onSign(p, L.psign)) enterPack(); return; } if (d.flower !== undefined) return; const room = st.place; if (!d.drag && room === 'shed') shedTap(p); if (room === 'wagon') wagonTap(p); if (room === 'kitchen') kitchenTap(p); if (room === 'door') doorTap(p); if (room === 'pack') packTap(p); if (room === 'tower') towerTap(p); if (room === 'band') bandTap(p); return; }
     const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return;
