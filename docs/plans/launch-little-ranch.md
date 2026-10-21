@@ -53,7 +53,7 @@ These are bundles. Side Games Dev Lead owns them. Toy polish comes before the fi
 **Does not block finish:**
 
 - **LR18 Dough Table** (#400) and **LR17 Busy Barn Door** (#381) are merged. The checklist does not wait on another toy.
-- **LR19 Block Tower, LR20 Little Garden, LR21 Barn Band, LR22 Feel-Better Corner.** On the shelf in [ideas.md](../ideas.md) until this checklist calls for them.
+- **LR19 Block Tower** and **LR21 Barn Band** are done in #604 (`b0963156`), Little Ranch v0.19.0. #404 and #411 were closed as superseded by #604. **LR20 Little Garden** and **LR22 Feel-Better Corner** stay on the shelf in [ideas.md](../ideas.md) until this checklist calls for them.
 - More spoken lines, more places, a saved visit beyond the sound choice.
 - **LRL-13, LRL-14 and LRL-15** do not block finish on their own. They ride inside LR-POLISH, from Playtester's #417 pass: bigger, longer bedtime cues (the cup timed out before the player saw it), a slower dusk fade, and feedback when the player leaves the paint shed early.
 
@@ -61,7 +61,7 @@ These are bundles. Side Games Dev Lead owns them. Toy polish comes before the fi
 
 Measured on 2026-10-14. The count, the split into build, playtest and buffer, and both dates are in [launch-summary.md](launch-summary.md). Little Ranch's feature rate is 21 pulls in 7 days (3.00 a day) and the same 21 in 14 days (1.50 a day).
 
-**Bundles left that block finish:** 2. The layout row is done (#424, `e66ddbc`). LRL-1 is done in #417 (`e352a7b`), Little Ranch v0.18.2. The sound preference is still open, so LR-VISIT still counts. The three #417 notes are non-blocking and ride inside LR-POLISH, so they do not add a bundle. The dates stay. The per-pull rate is applied to bundles, so these dates are estimates. LRL-11 is not a bundle. LR17 and LR18 are merged. #404 and #409 are on hold.
+**Bundles left that block finish:** 2. The layout row is done (#424, `e66ddbc`). LRL-1 is done in #417 (`e352a7b`), Little Ranch v0.18.2. The sound preference is still open, so LR-VISIT still counts. The three #417 notes are non-blocking and ride inside LR-POLISH, so they do not add a bundle. The dates stay. The per-pull rate is applied to bundles, so these dates are estimates. LRL-11 is not a bundle. LR17 and LR18 are merged. #404 LR19 and #411 LR21 were closed as superseded by #604. #409 LR20 is still open.
 
 | ID | What is inside |
 |---|---|
