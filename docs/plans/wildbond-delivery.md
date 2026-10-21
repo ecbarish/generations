@@ -35,7 +35,7 @@ Source-backed constraints at that revision:
 - The chapter profile's nested opening checkpoint currently accepts versions1–2 with x at most26 and z at most17. Expanded Larkhaven includes walkable cells whose world coordinates exceed those bounds. The existing blocked-position fallback in `tests/opening/scene.gd` handles collision, not a geometry-version migration.
 - Both Web and Windows presets exclude `tests/*`. Starter adapters, chapter UI/battle, map and presentation dependencies currently live there. An editor play or native test pass cannot prove the exported default chapter includes them.
 
-**WB-DELIVERY-01 remains the next integration bundle, with Claude as sole runtime writer.** Dad's Grok owns the separately assigned source inventory under `docs/research/wildbond-chapter-promotion-review/`; do not duplicate that report. Codex owns this work order and review. One reconciled branch must preserve the already-tested fence, ground treatment, startup, input and profile behavior.
+**Current owner (Evan, 2026-10-20 at9:02PM ET): Evan's Grok is the sole runtime writer for WB-DELIVERY-01 / the #595 promotion pass. Claude must not start this pass; any existing uncommitted work is handed off on #373.** Dad's Grok owns the separately assigned source inventory under `docs/research/wildbond-chapter-promotion-review/`; do not duplicate that report. Codex owns this work order and review. One reconciled branch must preserve the already-tested fence, ground treatment, startup, input and profile behavior.
 
 The smallest safe runtime pass separates reusable appearance from audition startup, retains existing partner choice/profile load and removes review-only Mosshog/reset behavior from the selected playable path. Propose exact owned production destinations for the scene/map/presentation/battle/profile dependencies before moving them; keep independent tests and the reversible audition. Do not globally remove `tests/*` export exclusions or replace an old exported pack with an unreviewed one.
 
@@ -50,14 +50,16 @@ Done-when evidence must include:
 
 This work order authorizes preparation within the existing delivery goal. It does not claim runtime implementation, schema approval, final art approval or publication. New evolution/Mega mechanics and the600/700family are not dependencies of chapter promotion.
 
+**Private-repository migration hold:** Evan has created the destination, but the Wildbond Dev Lead is copying history. Do not push to that repository, change working remotes or delete old branches until Evan says it is ready. Imported artwork and real-art screenshots remain external/private.
+
 ## Next Wildbond cycle: six bounded bundles
 These are proposed delivery bundles, not six new simultaneous claims. Generations PM puts the selected rows into QUEUE's next cycle and preserves the existing quotas for other games. Split risky work across cycles rather than exceeding the six-task Wildbond quota.
 
 | Order / ID | Result and acceptance | Ownership and scope |
 |---|---|---|
-| 1 / WB-DELIVERY-01 | Retain/replace/defer inventory, followed by one reconciled chapter branch. Exact entry, source revision, inherited fixes and outstanding choices are explicit | Codex directs/reviews; Claude integrates runtime. Existing PRs count toward work, not reasons to rewrite it |
-| 2 / WB-DELIVERY-02 | Chosen chapter starts through its intended entry and safely survives quit/Continue; existing saves remain intact | Claude owns runtime/profile/entry. Reuse current profile work; any new save schema or migration needs Evan's explicit approval before merge |
-| 3 / WB-DELIVERY-03 | Partner choice, first battle/bond, field-book purpose and early sprint are understandable through play; no repeated tutorial trap | Claude owns the shared opening scene; review existing dialogue/profile/round-battle work first. Record clues in the lore ledger |
+| 1 / WB-DELIVERY-01 | Retain/replace/defer inventory, followed by one reconciled chapter branch. Exact entry, source revision, inherited fixes and outstanding choices are explicit | Codex directs/reviews; Evan's Grok integrates this runtime pass. Existing PRs count toward work, not reasons to rewrite it |
+| 2 / WB-DELIVERY-02 | Chosen chapter starts through its intended entry and safely survives quit/Continue; existing saves remain intact | Proposed later owner: Claude; current promotion entry/profile changes belong to Evan's Grok under WB-DELIVERY-01, with no concurrent writer. Reuse current profile work; any new save schema or migration needs Evan's explicit approval before merge |
+| 3 / WB-DELIVERY-03 | Partner choice, first battle/bond, field-book purpose and early sprint are understandable through play; no repeated tutorial trap | Proposed later owner: Claude after activation; do not overlap Grok's current promotion pass. Review existing dialogue/profile/round-battle work first. Record clues in the lore ledger |
 | 4 / WB-DELIVERY-04 | Larkhaven and Thornwood invite exploration: connected fence, readable route, one optional discovery, coherent foliage/light and adequate breathing room | One assigned environment builder; owned map/presentation paths fixed before work. Preserve approved interactions, collision and entrances |
 | 5 / WB-DELIVERY-05 | All three starters support a fair first-Warden run; healing, move resources, rewards and the next objective make sense | One assigned gameplay builder. Test the chosen battle flow, not screenshots of an obsolete flow |
 | 6 / WB-DELIVERY-06 | Fresh desktop/phone play, measured rendering/load checks, a useful feedback path and one identified release candidate | Builder supplies evidence; Codex checks integration risks; Evan plays. Fix blockers before publication; verify release URL against source |
@@ -69,10 +71,10 @@ Runtime paths span current chapter/prototype directories and production entry/ex
 |---|---|---|
 | Evan | Creative direction, choosing between meaningful alternatives, short real play sessions | Do not make Evan relay routine status or inspect every technical detail |
 | This Codex chat | Preserve intent, choose milestones, direct art, create key sprite/image assets and reference sheets, dispatch bounded tasks, review risky changes and coordinate integration | Reserve usage for high-value visual creation and decisions; delegate routine implementation and repeated history reads |
-| Claude / existing Wildbond lead | Runtime ownership, scene integration, save/entry work and final production wiring | Keep one writer on the shared runtime scene |
-| Evan's Grok, returning around October 21 per Evan | Substantial ready implementation: animation setup, asset preparation/import, placement, environment implementation, content or a bounded tool repair | Build against approved references and owned paths; available usage does not increase scope or permit parallel edits to shared files |
+| Claude / existing Wildbond lead | Existing claims outside WB-DELIVERY-01; coordinate any promotion work already started for handoff | Do not start the #595 runtime pass; Evan's Grok owns it |
+| Evan's Grok | WB-DELIVERY-01 / #595 runtime promotion, from chapter4c0b1277 into the chapter branch | One runtime writer; open a PR and hand its exact head to Codex for real-art first-Warden/Continue review; no author merge |
 | Dad's dot | Validators, test fixtures, data contracts and bounded tools; first finish #593 | Report unsupported execution honestly and hand off only the missing host checks |
-| Dad's Grok | Finish the assigned fence repair, then another named independent task | Distinct from Evan's returning Grok; do not duplicate their claims |
+| Dad's Grok | Fence #602 completed; retain the assigned promotion source inventory | Distinct from Evan's returning Grok; do not duplicate their claims |
 | Fresh reviewer/player | Independently exercise the current build and report what a newcomer experiences | The exact build matters more than the age or volume of old screenshots |
 
 This is a proposed coordination arrangement shared with Generations PM, not a silent reassignment of other chats. Keep the studio-wide ceiling of four building threads plus a reviewer. Inside Wildbond, default to one runtime writer; only independent owned tools/assets/data run alongside it within that ceiling.
@@ -84,12 +86,12 @@ Approved starter artwork remains the foundation. Generate or revise art for a na
 
 Builders handle deterministic sheet slicing, animation/frame wiring, asset validation/import, collision/placement and tests against those references. They may flag defects and propose alternatives; coordinate before replacing approved designs or changing creature identity. Pixel-critical cleanup is inspected at native size. Outside assets retain their licence/credit requirements; private art stays private.
 
-Claude and Dad's AIs are actively working: their current claimed paths and assignments continue. This plan does not stop, duplicate or transfer an active task. Codex creates key art outside those owned runtime paths and hands off finished assets through an explicit PR/reference revision.
+Claude and Dad's AIs are actively working: their current claimed paths and assignments continue. The explicit WB-DELIVERY-01 ownership transfer above supersedes the earlier Claude assignment; other active claims continue without duplication. Codex creates key art outside those owned runtime paths and hands off finished assets through an explicit PR/reference revision.
 
 ## Before and after Grok returns
-**Until the return:** retain the integrated #593/#602 handoffs, use pinned chapter4c0b1277, and resolve the promotion inventory and startup/save/export contract above. Prepare a single ready work order for Grok; do not spend the two days inventing more far-future content.
+**Preparation completed:** #593/#602 are integrated, chapter4c0b1277 is pinned and the promotion work order is ready. Resolve the assigned inventory and startup/save/export contract rather than inventing far-future content.
 
-**On return:** Grok takes the highest-priority READY bundle with disjoint owned paths. Environment/presentation work is a good default only if integration has established its base and fence ownership is clear. If it would collide with Claude, use a scoped asset/motion deliverable outside the shared scene instead. Finish, review and land the first bundle before claiming another. No deadline or guaranteed output is inferred from the subscription.
+**Current assignment:** Evan's Grok takes WB-DELIVERY-01 under the ownership change above, rather than selecting a second feature. After that pass, use the highest-priority READY bundle with disjoint owned paths. Environment/presentation work is a good default only if integration has established its base and fence ownership is clear. If a later bundle would collide with another owner, use a scoped asset/motion deliverable outside the shared scene instead. Finish, review and land the first bundle before claiming another. No deadline or guaranteed output is inferred from the subscription.
 
 ## Traffic rules that save usage
 1. Existing QUEUE is the task list; #373 is dispatch; each PR's Tower block carries status, paths, dependencies and evidence. This document holds direction. Do not build another dashboard or duplicate ledger.
