@@ -56,6 +56,9 @@ The [production brief](PRODUCTION.md) bounds the next batch to four static front
 
 Run `node docs/art/bogsnap-family/check-study.cjs` for the read-only study check and `node docs/art/bogsnap-family/check-study.test.cjs` for regression checks. `--require-runtime` deliberately exits2 and lists unimplemented production/gameplay gates. A valid study is not a ready game. Existing101 arithmetic checks remain recorded separately; the new checker adds source hashes, preserved early spreads, typing/stage/ID contracts and explicit approval/readiness checks. No new image generation, paid service or runtime wiring occurs in this tooling pass.
 
+## Static source batch, v1
+[Four individual front/back candidates and measured intake](static-candidates-v1/README.md) are saved with exact built-in image_gen prompts. All retain a diffuse halo after one unsuccessful cleanup attempt; direct import is blocked. They are new source candidates, not production sprite approvals. Approved references, runtime, stats and saves remain unchanged.
+
 ## Independent balance review and follow-through
 [Dad's dot review](review/README.md), integrated from PR #603, distinguishes the current adapted chapter roster from canonical production data. The current chapter's Isolde team has no Bogsnap; adopting stronger Bogsnap/Thornback data would affect two members of the separate production team. Stillmaw's tank-role overlap with Thornback and the ability/progression concerns remain owner decisions, not measured balance results.
 

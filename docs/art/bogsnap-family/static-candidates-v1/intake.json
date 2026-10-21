@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "status": "candidate-blocked-for-import",
+  "production_approved": false,
+  "tool": "built-in image_gen",
+  "date": "2026-10-20",
+  "images_edited_by_inspector": false,
+  "runtime_integration": false,
+  "assets": [
+    {
+      "file": "stillmaw-front-v1.png",
+      "form": "stillmaw",
+      "view": "front-three-quarter",
+      "facing": "left",
+      "ref": "selected-final-mega-reference-v5.png",
+      "sha256": "778bcaba50794f5c316ec8f44c1134b0093f2c75d2d5264d42e5225455583d67",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        0,
+        35,
+        1508,
+        1024
+      ],
+      "transparent_pixels": 901347,
+      "fully_opaque_pixels": 0,
+      "partially_transparent_pixels": 671517,
+      "max_alpha": 254,
+      "foot_anchor": null,
+      "body_ink_rectangle": null,
+      "runtime_flip": null,
+      "production_approved": false,
+      "blockers": [
+        "Visible diffuse halo outside the body silhouette",
+        "Opaque-body alpha and clean contour not certified",
+        "Body rectangle/contact anchor and runtime facing need finalized metadata",
+        "Front/back anatomical consistency and native-size acceptance pending"
+      ],
+      "generation_inputs": [
+        {
+          "file": "../selected-final-mega-reference-v5.png",
+          "sha256": "2876f9df4060fcc31e14490297591a9e82cd161df7b02389fc923d3aa0f96fdc"
+        }
+      ]
+    },
+    {
+      "file": "stillmaw-back-v1.png",
+      "form": "stillmaw",
+      "view": "rear-three-quarter",
+      "facing": "right",
+      "ref": "selected-final-mega-reference-v5.png",
+      "sha256": "a2834614c133a8bbf059013a9611f7ab5c33b94bfba6ff0fe1530198ec2977f7",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        0,
+        16,
+        1528,
+        1024
+      ],
+      "transparent_pixels": 865152,
+      "fully_opaque_pixels": 0,
+      "partially_transparent_pixels": 707712,
+      "max_alpha": 254,
+      "foot_anchor": null,
+      "body_ink_rectangle": null,
+      "runtime_flip": null,
+      "production_approved": false,
+      "blockers": [
+        "Visible diffuse halo outside the body silhouette",
+        "Opaque-body alpha and clean contour not certified",
+        "Body rectangle/contact anchor and runtime facing need finalized metadata",
+        "Front/back anatomical consistency and native-size acceptance pending"
+      ],
+      "generation_inputs": [
+        {
+          "file": "../selected-final-mega-reference-v5.png",
+          "sha256": "2876f9df4060fcc31e14490297591a9e82cd161df7b02389fc923d3aa0f96fdc"
+        },
+        {
+          "file": "stillmaw-front-v1.png",
+          "sha256": "778bcaba50794f5c316ec8f44c1134b0093f2c75d2d5264d42e5225455583d67"
+        }
+      ]
+    },
+    {
+      "file": "mega-stillmaw-front-v1.png",
+      "form": "mega-stillmaw",
+      "view": "front-three-quarter",
+      "facing": "left",
+      "ref": "mega-living-wetland-study-v7.png",
+      "sha256": "fddcbce415d2ed06aa6ca69992e97f95835eec0d24871835002cf44f618caf8b",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        0,
+        0,
+        1533,
+        1024
+      ],
+      "transparent_pixels": 894518,
+      "fully_opaque_pixels": 0,
+      "partially_transparent_pixels": 678346,
+      "max_alpha": 254,
+      "foot_anchor": null,
+      "body_ink_rectangle": null,
+      "runtime_flip": null,
+      "production_approved": false,
+      "blockers": [
+        "Visible diffuse halo outside the body silhouette",
+        "Opaque-body alpha and clean contour not certified",
+        "Body rectangle/contact anchor and runtime facing need finalized metadata",
+        "Front/back anatomical consistency and native-size acceptance pending"
+      ],
+      "generation_inputs": [
+        {
+          "file": "../mega-living-wetland-study-v7.png",
+          "sha256": "1fc3c7206c468aea9854d182ee602e28e12c61c29df6ad39351d0bcb1c93938d"
+        }
+      ]
+    },
+    {
+      "file": "mega-stillmaw-back-v1.png",
+      "form": "mega-stillmaw",
+      "view": "rear-three-quarter",
+      "facing": "right",
+      "ref": "mega-living-wetland-study-v7.png",
+      "sha256": "25c343e38b60b009129dbaaf37564abf3958bd9fb916a9f39d795c01f25df6b2",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        0,
+        13,
+        1510,
+        1011
+      ],
+      "transparent_pixels": 962312,
+      "fully_opaque_pixels": 0,
+      "partially_transparent_pixels": 610552,
+      "max_alpha": 254,
+      "foot_anchor": null,
+      "body_ink_rectangle": null,
+      "runtime_flip": null,
+      "production_approved": false,
+      "blockers": [
+        "Visible diffuse halo outside the body silhouette",
+        "Opaque-body alpha and clean contour not certified",
+        "Body rectangle/contact anchor and runtime facing need finalized metadata",
+        "Front/back anatomical consistency and native-size acceptance pending"
+      ],
+      "generation_inputs": [
+        {
+          "file": "../mega-living-wetland-study-v7.png",
+          "sha256": "1fc3c7206c468aea9854d182ee602e28e12c61c29df6ad39351d0bcb1c93938d"
+        },
+        {
+          "file": "mega-stillmaw-front-v1.png",
+          "sha256": "fddcbce415d2ed06aa6ca69992e97f95835eec0d24871835002cf44f618caf8b"
+        }
+      ]
+    }
+  ],
+  "cleanup_attempt": {
+    "target": "stillmaw-front-v1.png",
+    "result": "Not adopted: generated cleanup still visibly retains a halo; no repeated paid/CLI fallback",
+    "prompt_file": "stillmaw-front-cleanup-attempt.prompt.txt"
+  }
+}
