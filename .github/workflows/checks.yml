@@ -1,5 +1,5 @@
 # Runs every check in the arcade on GitHub's computers whenever anyone pushes to main or opens a pull request:
-# the eight browser test pages and both Godot suites (tools/run-all-checks.cjs). A red cross on a pull request means
+# the browser test pages and the Starfall Godot suite (tools/run-all-checks.cjs). A red cross on a pull request means
 # something broke; open the run to see which suite and which check. Free for this repository; nothing to install.
 # More: docs/learning/saves-and-testing.md.
 name: Checks
