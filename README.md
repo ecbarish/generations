@@ -61,6 +61,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Little Ranch v0.19.1 — tablet crispness (PR #611; version bumped on merge):** On a high-pixel-density tablet, the art now renders at exactly 2 CSS pixels per art pixel, so the pixel blocks look crisper and smaller. Phones and desktops are unchanged. The save format is unchanged.
 - **Little Ranch v0.19.0 — Block Tower and Barn Band (PR #604; version bumped on merge):** The pack sign opens a toy pack chooser with Block Tower and Barn Band. Bedtime works from each new room. The save format is unchanged.
 - **Night Market Stalls v0.1.7 — NM-G3 (PR #499; version bumped on merge):** The Back and footer links are now 1rem and stay on one line. The header reflows when the text is larger, as Generations Director approved. Game Art Director approved the change at 9548a7bb. The save stays version 1.
 - **Lantern Bowl v0.1.8 — crowd bed loop (PRs #489 and #494; version bumped once for both):** When the crowd bed plays, it holds its peak until it is stopped, then fades out over 0.25 seconds. The live play page may still not wire these cues; the listening page is what exercises the loop. Season standings and playoff pairings are in `standings.js`, and the live game does not load that module yet. LB-SEASON stays open. The save stays version 2.
