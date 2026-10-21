@@ -140,10 +140,11 @@
     layout(); st.baby.x = L.home.x; if (st.friend) fgo(L.fhome.x, null); // it wanders in from the right
   }
   const placeCache = {}; // LR-G2: the chosen spots for each screen size, so a size seen before costs nothing
+  function artScale(cssMin, dpr) { const fitted = Math.max(2, Math.round(cssMin / 190)); return dpr > 1 ? Math.min(fitted, 2) : fitted; }
   function layout() {
     const r = cv.getBoundingClientRect(), cssW = Math.max(1, r.width || innerWidth), cssH = Math.max(1, r.height || innerHeight);
     const old = L, oldW = W, oldH = H;
-    S = Math.max(2, Math.round(Math.min(cssW, cssH) / 190)); W = Math.ceil(cssW / S); H = Math.ceil(cssH / S);
+    S = artScale(Math.min(cssW, cssH), window.devicePixelRatio || 1); W = Math.ceil(cssW / S); H = Math.ceil(cssH / S);
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     const U = Math.min(W, H * 1.15), wide = W > H * 1.3, sp = wide ? Math.min(W * .3, U * 1.1) : W * .28; // big screens: things spread out
     L = { U, R: U * .14, ground: H * .56, size: U * .17,

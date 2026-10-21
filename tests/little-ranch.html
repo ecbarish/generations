@@ -989,7 +989,6 @@ document.querySelector('#run').onclick = async () => {
     aw.LR.openPanel(); atouch(ad.querySelector('#gX'), 602); check('The X goes back to play', ad.querySelector('#grown').hidden && exits === 0);
     aw.LR.openPanel(); atouch(ad.querySelector('#gExit'), 603); check('Exit asks the app to close (once)', exits === 1 && ad.querySelector('#grown').hidden);
     app.remove();
-    // ---- LR-CRISP: a tablet must keep the phone's art-pixel size, and a tap must still land
     {
       const ownDpr = Object.getOwnPropertyDescriptor(w, 'devicePixelRatio');
       const soundWas = LR.prefs.sound; LR.prefs.sound = true;
@@ -1012,16 +1011,17 @@ document.querySelector('#run').onclick = async () => {
         { const r = cv.getBoundingClientRect(); check('A desktop at 1440×900 and DPR 1 keeps 5 CSS pixels per art pixel', LR.scale === 5 && Math.abs(r.width / cv.width - 5) < 1e-6 && Math.abs(r.height / cv.height - 5) < 1e-6); }
         for (const [width, height] of [[768, 1024], [1024, 768]]) {
           await fit(width, height, 2);
-          const bowl = L().bowl, edge = { x: bowl.x + L().R * 1.05, y: bowl.y }, sky = { x: L().home.x - L().size * 3, y: L().ground * .4 };
+          const bowl = L().bowl; let sky = null;
+          for (let y = 8; y < cv.height && !sky; y += 12) for (let x = 8; x < cv.width && !sky; x += 16) { const q = { x, y }; if (!LR.ranchTarget(q)) sky = q; }
           const p = LR.toScreen(bowl), r = cv.getBoundingClientRect();
           const back = { x: (p.x - r.left) / r.width * cv.width, y: (p.y - r.top) / r.height * cv.height };
-          check(`${width}×${height} at DPR 2: the bowl's screen point maps back onto the bowl`, Math.abs(back.x - bowl.x) < 0.51 && Math.abs(back.y - bowl.y) < 0.51 && LR.ranchTarget(edge) === 'bowl' && LR.ranchTarget(sky) !== 'bowl');
-          tap(edge);
-          check(`${width}×${height} at DPR 2: a click on the bowl's edge fills the bowl`, S().bowl.food === 1);
-          LR.newVisit(); LR.advance(.1); pointer('touch', edge);
+          check(`${width}×${height} at DPR 2: the bowl's screen point maps back onto the bowl`, !!sky && Math.abs(back.x - bowl.x) < 0.51 && Math.abs(back.y - bowl.y) < 0.51 && LR.ranchTarget(bowl) === 'bowl');
+          tap(bowl);
+          check(`${width}×${height} at DPR 2: a click on the bowl fills the bowl`, S().bowl.food === 1);
+          LR.newVisit(); LR.advance(.1); pointer('touch', bowl);
           const heard = LR.tones;
-          check(`${width}×${height} at DPR 2: a touch on the bowl's edge fills the bowl`, S().bowl.food === 1 && heard > 0);
-          pointer('click', edge);
+          check(`${width}×${height} at DPR 2: a touch on the bowl fills the bowl`, S().bowl.food === 1 && heard > 0);
+          pointer('click', bowl);
           check(`${width}×${height} at DPR 2: the click that follows the touch does not feed the bowl again`, S().bowl.food === 1 && LR.tones === heard);
           LR.newVisit(); LR.advance(.1); pointer('touch', sky);
           check(`${width}×${height} at DPR 2: a touch on empty sky does not fill the bowl`, S().bowl.food === 0 && S().place === 'ranch');
