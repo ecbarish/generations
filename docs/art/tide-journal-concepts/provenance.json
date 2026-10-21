@@ -1,0 +1,153 @@
+{
+  "task": "ART-JOURNAL-CONCEPTS",
+  "date": "2026-10-13",
+  "generator": {
+    "provider": "OpenAI",
+    "tool": "built-in image_gen.imagegen",
+    "model": null,
+    "modelNote": "Exact model/version and provider job ID are not exposed by this runtime; not inferred.",
+    "mode": "reference-guided generation; final one targeted anatomy refinement",
+    "transparentBackgroundRequested": true
+  },
+  "status": "AI-generated concept candidates; not approved game art",
+  "rights": {
+    "state": "unverified",
+    "license": null
+  },
+  "originalArchive": "Unmodified generated PNGs preserved in Adam\u2019s ChatGPT Library, including the rejected upright Tidewyrm intermediate. Library access is not implied for repository readers. Ask Adam for originals. Compact WebP representations are shared in this repository.",
+  "sourceBaseCommit": "e7953573f412ebc8d3a1ab2229a0f57334b87342",
+  "briefSources": [
+    "docs/art/portfolio/history.json",
+    "docs/art/wildbond-higgsfield-pilot/STARTER-STAGES.md",
+    "docs/art/wildbond-evolution.md",
+    "docs/art/wildbond-art-direction.md"
+  ],
+  "inputs": [
+    {
+      "path": "docs/art/wildbond-higgsfield-pilot/originals/ripplet.png",
+      "sha256": "7fe536898d322e2d256479f8990cd94dbe185d5fb8cc35d013a3ef502e5cf699",
+      "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839",
+      "role": "Inspected original reference pixels before generation"
+    },
+    {
+      "path": "docs/art/wildbond-higgsfield-pilot/starter-stages/assets/riverwisp.png",
+      "sha256": "24e1a3514298394ea1f98d127f78d8720ccc5132a9b0441039e43b780f7d9f38",
+      "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839",
+      "role": "Inspected original reference pixels before generation"
+    },
+    {
+      "path": "docs/art/wildbond-higgsfield-pilot/starter-stages/assets/tidewyrm-payoff.png",
+      "sha256": "05983ca9aeccad2ee7d178a1710b38217cd459aa438667bac50fadd97e004963",
+      "sourceCommit": "b14553ee60cb7207998e625a771809d4a90b7839",
+      "role": "Inspected original reference pixels before generation"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "Ripplet",
+      "stage": "Base promise",
+      "originalFilename": "ripplet-folded-promise.png",
+      "originalSha256": "c48339c3e4f426b16c042afd4a9efe6820bd6d925cdbcdee75bc4ad34abd7750",
+      "originalBytes": 1913538,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "transparentPixels": 1099890,
+      "partialAlphaPixels": 472974,
+      "preview": "docs/art/tide-journal-concepts/ripplet-folded-promise.webp",
+      "previewSha256": "1a728428b5f9e4a4332b3e3da5d4c09110f769575f4002a6cc3e7e4f901f005c",
+      "previewBytes": 59086,
+      "previewDimensions": [
+        768,
+        512
+      ],
+      "prompt": "ripplet-prompt.txt",
+      "refinementPrompt": null,
+      "referenceInputOrder": [
+        "existing Ripplet",
+        "existing Riverwisp",
+        "existing Tidewyrm payoff"
+      ],
+      "generationArtifact": "exec-a92ab6b6-cf4c-449d-961b-66ef361053f8.png"
+    },
+    {
+      "name": "Riverwisp",
+      "stage": "Middle transition (working name)",
+      "originalFilename": "riverwisp-folded-mantle.png",
+      "originalSha256": "f045ddbd8a963e7fcd93eecca365c0805e59b25e9e2ca4bb97c85b371b654d44",
+      "originalBytes": 1843767,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "transparentPixels": 1113217,
+      "partialAlphaPixels": 459647,
+      "preview": "docs/art/tide-journal-concepts/riverwisp-folded-mantle.webp",
+      "previewSha256": "d3f9bdb1d3581d0ecd7b27af83f98817a13c3b00b2ce3a798f342f48ef001076",
+      "previewBytes": 56726,
+      "previewDimensions": [
+        768,
+        512
+      ],
+      "prompt": "riverwisp-prompt.txt",
+      "refinementPrompt": null,
+      "referenceInputOrder": [
+        "new Ripplet",
+        "existing Riverwisp"
+      ],
+      "generationArtifact": "exec-735980c3-fcdf-4727-81f6-66cc97126be0.png"
+    },
+    {
+      "name": "Tidewyrm",
+      "stage": "Final payoff candidate",
+      "originalFilename": "tidewyrm-wave-crown.png",
+      "originalSha256": "9fd355ab7409e87edf98a709d288005ccc68f5994491b650c3a6d78d30b45f02",
+      "originalBytes": 2015039,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "transparentPixels": 998726,
+      "partialAlphaPixels": 574138,
+      "preview": "docs/art/tide-journal-concepts/tidewyrm-wave-crown.webp",
+      "previewSha256": "3df090428b414cd037ec40b3cce9eaa0243a4862c496c416246e027c54fbf647",
+      "previewBytes": 68440,
+      "previewDimensions": [
+        768,
+        512
+      ],
+      "prompt": "tidewyrm-prompt.txt",
+      "refinementPrompt": "tidewyrm-refinement-prompt.txt",
+      "referenceInputOrder": [
+        "new Ripplet",
+        "existing Tidewyrm payoff"
+      ],
+      "generationArtifact": "exec-fe6b4bc9-36bf-4990-b20f-a574cd5d7595.png"
+    }
+  ],
+  "rejectedIntermediate": {
+    "filename": "tidewyrm-upright-intermediate.png",
+    "sha256": "24608875c74a3507885627fa3aff4d01850d7008714f5b54768357baf6eb6634",
+    "bytes": 2257599,
+    "generationArtifact": "exec-5348b884-9dd8-4118-8257-40ae4d1dc615.png",
+    "reason": "Too upright and too close to young body proportions. Retained unchanged outside Git; selected refinement shortens neck and broadens low crocodilian muzzle.",
+    "prompt": "tidewyrm-prompt.txt",
+    "usedAsInputFor": "tidewyrm-refinement-prompt.txt"
+  }
+}
