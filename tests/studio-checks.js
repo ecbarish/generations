@@ -48,7 +48,8 @@ async function studioChecks() {
   await check('The sealed reading frames are gone afterwards', () => !document.querySelector('iframe[sandbox]'));
   await check('Search needs every word, in the text or the path, and filters by game and kind', () => {
     const a = T.search(index.entries, 'hollow throne'), b = T.search(index.entries, 'Seraveth', 'realmbound'), c = T.search(index.entries, '', 'starfall-godot', 'In code');
-    return a.length && a.every(e => /hollow/i.test(e.text) && /throne/i.test(e.text)) && b.some(e => /Seraveth/.test(e.text)) && c.length && c.every(e => e.games.includes('starfall-godot') && e.kinds.includes('In code'));
+    const hay = e => (e.text + ' ' + e.places.map(p => p.path + ' ' + p.file).join(' ')).toLowerCase();
+    return a.length && a.every(e => hay(e).includes('hollow') && hay(e).includes('throne')) && b.some(e => /Seraveth/.test(e.text)) && c.length && c.every(e => e.games.includes('starfall-godot') && e.kinds.includes('In code'));
   });
 
   // ---- creature and quest viewers (E5): the rules flag broken data, and the real data reads clean
