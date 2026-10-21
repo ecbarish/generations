@@ -20,8 +20,6 @@ Guest AIs never wait. When you finish a task or are blocked waiting on a reply, 
 
 Feature PRs never edit docs/COMMS.md. Claims and handoffs go in #373 comments or this backlog. Only Generations PM's post-merge bookkeeping touches COMMS.
 
-For WB-ROAD and WB-LOOK: Stay out of the Wildbond dev lead's fix bundle. Rebuild play/wildbond/index.pck only once, as the last step, right after merging main and just before review. Only one PR carries a Wildbond re-export at a time.
-
 At the start of every session, and right after your pull request is handed to review, read #373 and the backlog. Take the next task assigned to you by name. If nothing is assigned, take the top unclaimed row for you in the backlog. Every spec you are pointed to is committed in the repo.
 
 ## Read by purpose
@@ -32,7 +30,6 @@ At the start of every session, and right after your pull request is handed to re
 | Building a named task | Exact ROADMAP/DEVELOPMENT-PATH ticket, owned source and tests |
 | Claiming / reviewing / merging | Relevant PROCESS section and PR template; current live PR metadata |
 | Player text / new art | Relevant CREATIVE section and that game's art direction |
-| Wildbond story | Lore thread ledger plus relevant character/region entries |
 | Major new design | Relevant VISION/PROJECTS section and recorded decisions |
 | Local helper | tools/local-ai/README and the current local benchmark/report |
 | A historical question | Search the Session log/COMMS/archive for the specific ID; read matching entries only |
