@@ -5,6 +5,9 @@
 .hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;z-index:6;pointer-events:none}
 .hud>*{pointer-events:auto}.hud-left,.hud-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .home,.hbtn,.arc-set-btn{font:inherit;font-size:13px;font-weight:700;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;text-decoration:none;cursor:pointer}
+/* OW-TAP: local targets stay finger-sized after the shared settings rules load. */
+.hud .home,.hbtn,.arc-set-btn,.chip,.swatch{min-width:44px;min-height:44px}
+.hud .home{display:inline-flex;align-items:center;justify-content:center}
 .where{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--gold);text-shadow:0 2px 6px #000}
 .version-label{font-size:11px;color:var(--muted)}
 /* choosing a world, a gift, yourself */
@@ -20,7 +23,7 @@
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}.row.end{justify-content:flex-end}.lbl{min-width:44px;color:var(--muted)}
 .row input{font:inherit;font-size:16px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:#0c0b22;color:var(--ink);flex:1 1 180px;min-width:0}
 .chip{font:inherit;font-size:14px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
-.swatch{width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.3);cursor:pointer}.swatch.on{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,210,122,.35)}
+.swatch{width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,.3);cursor:pointer}.swatch.on{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,210,122,.35)}
 .go{font:inherit;font-weight:700;font-size:16px;padding:10px 20px;border-radius:999px;border:0;background:var(--gold);color:#2a1a08;cursor:pointer}
 /* the status window of isekai stories */
 .status{position:absolute;right:16px;top:60px;z-index:8;width:min(320px,90vw);padding:14px 16px;border-radius:6px;
