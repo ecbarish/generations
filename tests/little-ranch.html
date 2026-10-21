@@ -989,6 +989,50 @@ document.querySelector('#run').onclick = async () => {
     aw.LR.openPanel(); atouch(ad.querySelector('#gX'), 602); check('The X goes back to play', ad.querySelector('#grown').hidden && exits === 0);
     aw.LR.openPanel(); atouch(ad.querySelector('#gExit'), 603); check('Exit asks the app to close (once)', exits === 1 && ad.querySelector('#grown').hidden);
     app.remove();
+    // ---- LR-CRISP: a tablet must keep the phone's art-pixel size, and a tap must still land
+    {
+      const ownDpr = Object.getOwnPropertyDescriptor(w, 'devicePixelRatio');
+      const soundWas = LR.prefs.sound; LR.prefs.sound = true;
+      const setDpr = n => Object.defineProperty(w, 'devicePixelRatio', { configurable: true, get: () => n });
+      const fit = async (width, height, dpr) => { setDpr(dpr); frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.setFriend(false); LR.newVisit(); LR.advance(.1); };
+      const pointer = (type, world) => { const p = LR.toScreen(world); if (type === 'touch') { const t = new w.Touch({ identifier: 77, target: cv, clientX: p.x, clientY: p.y, pageX: p.x, pageY: p.y });
+        cv.dispatchEvent(new w.TouchEvent('touchstart', { bubbles: true, cancelable: true, touches: [t], changedTouches: [t] }));
+        cv.dispatchEvent(new w.TouchEvent('touchend', { bubbles: true, cancelable: true, touches: [], changedTouches: [t] })); }
+        else cv.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true, clientX: p.x, clientY: p.y })); };
+      try {
+        const sharp = [[768, 1024, 2], [1024, 768, 2], [820, 1180, 2], [1180, 820, 2], [800, 1280, 1.5], [1280, 800, 1.5], [800, 1280, 2], [1280, 800, 2]];
+        for (const [width, height, dpr] of sharp) {
+          await fit(width, height, dpr);
+          const r = cv.getBoundingClientRect(), cssX = r.width / cv.width, cssY = r.height / cv.height;
+          check(`${width}×${height} at DPR ${dpr}: each art pixel is 2 CSS pixels, on a whole number, and the bowl stays at least 80 px across`, LR.scale === 2 && Math.abs(cssX - 2) < 1e-6 && Math.abs(cssY - 2) < 1e-6 && L().R * 2 * LR.scale >= 80);
+        }
+        await fit(390, 844, 3);
+        { const r = cv.getBoundingClientRect(); check('A phone at 390×844 and DPR 3 keeps 2 CSS pixels per art pixel', LR.scale === 2 && Math.abs(r.width / cv.width - 2) < 1e-6 && Math.abs(r.height / cv.height - 2) < 1e-6); }
+        await fit(1440, 900, 1);
+        { const r = cv.getBoundingClientRect(); check('A desktop at 1440×900 and DPR 1 keeps 5 CSS pixels per art pixel', LR.scale === 5 && Math.abs(r.width / cv.width - 5) < 1e-6 && Math.abs(r.height / cv.height - 5) < 1e-6); }
+        for (const [width, height] of [[768, 1024], [1024, 768]]) {
+          await fit(width, height, 2);
+          const bowl = L().bowl, edge = { x: bowl.x + L().R * 1.05, y: bowl.y }, sky = { x: L().home.x - L().size * 3, y: L().ground * .4 };
+          const p = LR.toScreen(bowl), r = cv.getBoundingClientRect();
+          const back = { x: (p.x - r.left) / r.width * cv.width, y: (p.y - r.top) / r.height * cv.height };
+          check(`${width}×${height} at DPR 2: the bowl's screen point maps back onto the bowl`, Math.abs(back.x - bowl.x) < 0.51 && Math.abs(back.y - bowl.y) < 0.51 && LR.ranchTarget(edge) === 'bowl' && LR.ranchTarget(sky) !== 'bowl');
+          tap(edge);
+          check(`${width}×${height} at DPR 2: a click on the bowl's edge fills the bowl`, S().bowl.food === 1);
+          LR.newVisit(); LR.advance(.1); pointer('touch', edge);
+          const heard = LR.tones;
+          check(`${width}×${height} at DPR 2: a touch on the bowl's edge fills the bowl`, S().bowl.food === 1 && heard > 0);
+          pointer('click', edge);
+          check(`${width}×${height} at DPR 2: the click that follows the touch does not feed the bowl again`, S().bowl.food === 1 && LR.tones === heard);
+          LR.newVisit(); LR.advance(.1); pointer('touch', sky);
+          check(`${width}×${height} at DPR 2: a touch on empty sky does not fill the bowl`, S().bowl.food === 0 && S().place === 'ranch');
+        }
+      } finally {
+        if (ownDpr) Object.defineProperty(w, 'devicePixelRatio', ownDpr); else delete w.devicePixelRatio;
+        LR.prefs.sound = soundWas;
+        frame.style.width = '375px'; frame.style.height = '812px';
+      }
+      await sleep(150); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    }
     // ---- LRL-4: reload the real document, not only its stored JSON or in-memory preferences.
     // These run last because every reload replaces the LR/document handles used above.
     for (const sound of [false, true]) {
