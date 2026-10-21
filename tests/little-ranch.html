@@ -955,6 +955,13 @@ document.querySelector('#run').onclick = async () => {
         check(`Bedtime from the ${room} returns to the ranch routine`, S().place === 'ranch' && S().mode === 'dusk' && S().routine && S().routine.step === 0);
       }
       LR.setRoutine(false);
+      for (const [width, height] of [[1280, 800], [375, 812]]) {
+        frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+        tap(face('psign')); tap(card('tower'));
+        for (let i = 0; i < 12; i++) { tap(V().tray[i % 3]); LR.advance(LR.DROP_SECS + .05); }
+        const Tv = V(), feet = Tv.baby.y, floor = Tv.fy + LR.towerCam(), room = Tv.fy - cv.height * .3;
+        check(`${width}×${height}: at 12 blocks the baby's feet stay on the floor`, Tw().stack.length === 12 && Tw().stack.every(b => b.landed) && Math.abs(feet - floor) < 1 && floor > 0 && floor <= cv.height && Tw().stack.length * LR.stackBlock() <= room + 1e-6);
+      }
       const legacy = localStorage.getItem(PREF), extra = 'other-game-save-v1';
       localStorage.setItem(PREF, '{"sound":false}'); localStorage.setItem(extra, '{"coins":4}');
       const old = document.createElement('iframe'); old.style.cssText = 'width:375px;height:812px'; old.src = '../games/little-ranch/index.html';
