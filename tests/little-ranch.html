@@ -888,7 +888,89 @@ document.querySelector('#run').onclick = async () => {
         check(`${label}: every tap on the top half of a sign board is that sign (${topOk} of ${top}), and ${allOk} of ${all} points on the boards are`, topOk === top && allOk / all >= .9);
       }
       frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1); }
-    LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    // ---- Toy pack: one sign opens Block Tower and Barn Band. The five signs, the bubble and the puddles stay where #514 put them.
+    LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false);
+    { const face = n => { const q = L()[n]; return { x: q.x, y: q.y - L().R * .45 * (q.s || 1) }; };
+      const board = n => { const Ls = L(), q = Ls[n], rs = Ls.R * .95 * (q.s || 1); return { x0: q.x - rs * .95, x1: q.x + rs * .95, y0: q.y - rs * 1.17, y1: q.y + rs * .27 }; };
+      const boxesHit = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
+      const five = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'];
+      for (const [width, height] of [[375, 812], [390, 844], [360, 780], [430, 932], [820, 1180], [844, 390], [1024, 768], [1920, 1080]]) {
+        frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+        const Ls = L(), r = Ls.R;
+        const post = n => { const q = Ls[n], rs = r * .95 * (q.s || 1); return { x0: q.x - rs * .08, x1: q.x + rs * .08, y0: q.y - rs * .2, y1: q.y + rs * 1.2 }; };
+        const min = Math.min(...five.map(n => Math.hypot(face('psign').x - face(n).x, face('psign').y - face(n).y)));
+        const drawn = five.some(n => boxesHit(board('psign'), board(n)) || boxesHit(board('psign'), post(n)) || boxesHit(board(n), post('psign')) || boxesHit(post('psign'), post(n)));
+        const bubble = Ls.item, pb = board('psign');
+        const bubbleGap = Math.hypot(Math.max(pb.x0 - bubble.x, 0, bubble.x - pb.x1), Math.max(pb.y0 - bubble.y, 0, bubble.y - pb.y1)) - bubble.r;
+        const puddleGap = Math.min(...Ls.puddles.map(q => Math.hypot(face('psign').x - q.x, face('psign').y - q.y) - q.r - r * (Ls.psign.s || 1)));
+        const fiveSame = five.every(n => LR.ranchTarget(face(n)) === n && LR.ranchTarget(Ls[n]) === n);
+        const tall = height >= width * 1.25;
+        const body = { x0: Ls.home.x - Ls.size * 1.05, x1: Ls.home.x + Ls.size * 1.15, y0: Ls.home.y - Ls.size * 1.7, y1: Ls.home.y };
+        const head = { x: Ls.home.x + Ls.size * .55, y: Ls.home.y - Ls.size * 1.3 };
+        const gapOk = tall ? min >= r * 2.5 - 1e-6 : min >= r * 1.4 - 1e-6;
+        check(`${width}×${height}: the toy-pack sign keeps its distance from the five signs, misses their boards, the baby, the bedtime bubble and the puddles, and each sign is still its own tap`, Ls.psign && gapOk && !drawn && !boxesHit(board('psign'), body) && bubbleGap >= 0 && puddleGap >= 0 && LR.ranchTarget(face('psign')) === 'psign' && LR.ranchTarget(head) === 'baby' && fiveSame);
+      }
+      frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      const card = id => L().pack.cards.find(c => c.id === id);
+      const onCard = id => card(id);
+      tap(face('psign')); check('Tapping the toy-pack sign opens one room with Block Tower and Barn Band', S().place === 'pack' && L().pack.cards.map(c => c.id).join() === 'tower,band');
+      const sc = LR.scale, rect = cv.getBoundingClientRect();
+      const onScreen = q => { const p = LR.toScreen(q); return p.x > rect.left + 8 && p.x < rect.right - 8 && p.y > rect.top + 8 && p.y < rect.bottom - 8; };
+      check('375×812: both pack pictures are big, apart, and on the screen, clear of the barn', card('tower').w * sc >= 64 && card('band').h * sc >= 64 && Math.hypot(card('tower').x - card('band').x, card('tower').y - card('band').y) * sc >= 64 && onScreen(card('tower')) && onScreen(card('band')) && Math.hypot(card('tower').x - L().pack.barn.x, card('tower').y - L().pack.barn.y) > card('tower').h * .5 + L().pack.barn.r);
+      tap(card('tower')); check('Tapping the tower picture opens Block Tower', S().place === 'tower' && S().tower.stack.length === 0);
+      const V = () => L().tower, Tw = () => S().tower;
+      for (let i = 0; i < 5; i++) { tap(V().tray[i % 3]); LR.advance(LR.DROP_SECS + .05); }
+      check('Five blocks snap onto the tower and each one lands', Tw().stack.length === 5 && Tw().stack.every(b => b.landed));
+      LR.advance(60); check('Left alone, the tower never falls', Tw().stack.length === 5 && !Tw().tumble);
+      tap({ x: V().x, y: V().fy - V().bs * 2 }); check('Tapping the tower only wiggles it', Tw().stack.length === 5 && Tw().wig > .9);
+      const a19 = S().acts; tap({ x: V().baby.x, y: V().baby.y - V().baby.z });
+      check('Tapping the baby knocks the tower down with a giggle, and three or more blocks are one happy thing', Tw().stack.length === 0 && Tw().tumble && S().acts === a19 + 1 && S().fx.some(f => f.kind === 'heart'));
+      LR.advance(LR.TUMBLE_SECS + .1); tap(V().barn); check('The barn picture in Block Tower returns to the toy pack', S().place === 'pack' && S().tower === null);
+      tap(card('band')); check('Tapping the band picture opens Barn Band', S().place === 'band' && S().band.played.every(x => !x) && !S().band.song);
+      const Vb = () => L().band, Bd = () => S().band, on = i => ({ x: Vb().babies[i].x, y: Vb().babies[i].y - Vb().z * .6 });
+      for (let i = 0; i < 3; i++) { const t0 = LR.tones; tap(on(i)); check(`Tapping the ${LR.BAND[i]} plays it`, LR.tones > t0 && Bd().played[i]); }
+      const a21 = S().acts, tSong = LR.tones; tap(Vb().stick); LR.advance(.05);
+      check('The conductor stick starts Twinkle together', Bd().song && LR.tones > tSong && LR.TWINKLE.length > 20);
+      LR.advance(LR.BAND_BEAT * (LR.SONG_BEATS + 2));
+      check('The whole song is one happy thing', !Bd().song && Bd().songs === 1 && S().acts === a21 + 1);
+      check('No Barn Band note is louder than 0.2', LR.bandLoud > 0 && LR.bandLoud <= LR.BAND_VOL && LR.BAND_VOL === 0.2);
+      const mute = LR.prefs.sound; LR.prefs.sound = false; const t9 = LR.tones; tap(on(0)); tap(Vb().stick); LR.advance(1);
+      check('With the sound off Barn Band stays silent and the players still move', LR.tones === t9 && Bd().hit[0] > 0 && Bd().song); LR.prefs.sound = mute;
+      tap(Vb().barn); check('The barn picture in Barn Band returns to the toy pack', S().place === 'pack' && S().band === null);
+      tap(L().pack.barn); check('The barn picture in the toy pack returns to the ranch', S().place === 'ranch');
+      const finger = world => { const p = LR.toScreen(world);
+        const bad = type => cv.dispatchEvent(new w.PointerEvent(type, { pointerId: 77, clientX: 0, clientY: 0, pointerType: 'touch', bubbles: true, cancelable: true, isPrimary: true }));
+        const touch = new w.Touch({ identifier: 77, target: cv, clientX: p.x, clientY: p.y, pageX: p.x, pageY: p.y });
+        bad('pointerdown'); cv.dispatchEvent(new w.TouchEvent('touchstart', { bubbles: true, cancelable: true, touches: [touch], changedTouches: [touch] }));
+        bad('pointerup'); cv.dispatchEvent(new w.TouchEvent('touchend', { bubbles: true, cancelable: true, touches: [], changedTouches: [touch] }));
+        cv.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true, clientX: 0, clientY: 0 })); };
+      LR.newVisit(); LR.advance(.1); finger(face('psign'));
+      check('A touch on the pack sign reads the touch, and the synthetic click does not open a toy', S().place === 'pack');
+      finger(card('tower')); check('A touch on the tower picture opens Block Tower, and the synthetic click does not add a block', S().place === 'tower' && S().tower.stack.length === 0);
+      for (const room of ['pack', 'tower', 'band']) {
+        LR.setRoutine(true); LR.newVisit(); LR.advance(.1); tap(face('psign'));
+        if (room === 'tower') tap(card('tower')); if (room === 'band') tap(card('band'));
+        check(`Bedtime can start from the ${room}`, S().place === room && S().mode === 'play');
+        S().acts = LR.BEDTIME_ACTS; LR.advance(LR.BEDTIME_GRACE + .3);
+        check(`Bedtime from the ${room} returns to the ranch routine`, S().place === 'ranch' && S().mode === 'dusk' && S().routine && S().routine.step === 0);
+      }
+      LR.setRoutine(false);
+      for (const [width, height] of [[1280, 800], [375, 812]]) {
+        frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+        tap(face('psign')); tap(card('tower'));
+        for (let i = 0; i < 12; i++) { tap(V().tray[i % 3]); LR.advance(LR.DROP_SECS + .05); }
+        const Tv = V(), feet = Tv.baby.y, floor = Tv.fy + LR.towerCam(), room = Tv.fy - cv.height * .3;
+        check(`${width}×${height}: at 12 blocks the baby's feet stay on the floor`, Tw().stack.length === 12 && Tw().stack.every(b => b.landed) && Math.abs(feet - floor) < 1 && floor > 0 && floor <= cv.height && Tw().stack.length * LR.stackBlock() <= room + 1e-6);
+      }
+      const legacy = localStorage.getItem(PREF), extra = 'other-game-save-v1';
+      localStorage.setItem(PREF, '{"sound":false}'); localStorage.setItem(extra, '{"coins":4}');
+      const old = document.createElement('iframe'); old.style.cssText = 'width:375px;height:812px'; old.src = '../games/little-ranch/index.html';
+      await new Promise((ok, no) => { const t = setTimeout(() => no(Error('old save load timed out')), 20000); old.onload = () => { clearTimeout(t); ok(); }; document.querySelector('#game').appendChild(old); });
+      const ow = old.contentWindow; for (let i = 0; i < 50 && !ow.LR; i++) await sleep(100);
+      check('An old sound save still loads, and another game save is left untouched', ow.LR && ow.LR.prefs.sound === false && ow.LR.state.mode === 'play' && ow.LR.state.place === 'ranch' && localStorage.getItem(extra) === '{"coins":4}' && JSON.parse(localStorage.getItem(PREF)).sound === false);
+      old.remove(); localStorage.removeItem(extra); if (legacy === null) localStorage.removeItem(PREF); else localStorage.setItem(PREF, legacy);
+    }
+    frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
     check('No errors on the page', errors.length === 0);
     // ---- LR15: app mode (inside the standalone app): Replay, Sound and Exit
