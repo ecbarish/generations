@@ -174,7 +174,7 @@ const MAPS = {
     items: [{ id: 'ef1', at: [12, 3], give: { meat: 5 } }, { id: 'ef2', at: [27, 6], give: { lures: 5 } }, { id: 'ef3', at: [26, 11], give: { coins: 250 } }],
     npcs: [
       { who: 'orsk', at: [10, 7], dir: 'down',
-        trainer: { sight: 1, team: [['ashskip', 24], ['ventwhisk', 25]],
+        trainer: { sight: 1, team: [['emberling', 24], ['ventwhisk', 25]],
           win: [['orsk', 'Good. Good! My legs are tired anyway. I\'ll blame them.']],
           after: [['orsk', 'From the top of the ridge you can see all the way back to Larkhaven. Tiny little windmill.']] },
         lines: [['orsk', 'The ridge path is narrow, friend. Only one of us gets to keep walking. Battle for it?']] },
@@ -461,7 +461,7 @@ const MAPS = {
             65
           ],
           [
-            "hearthrunner",
+            "blazefang",
             66
           ],
           [
@@ -478,7 +478,7 @@ const MAPS = {
         "after": [
           [
             "aldren",
-            "Ribbonstride collects loose ribbons after the gusts. Hearthrunner dries them under the bench. I mostly untangle them."
+            "Ribbonstride collects loose ribbons after the gusts. Blazefang dries them under the bench. I mostly untangle them."
           ]
         ]
       },
@@ -900,11 +900,11 @@ for (const area of ['larkhaven','thornwood','saltmarsh','emberfall','cloudglass'
 const SEASONAL_SHIFTS = {
  thornwood: {spring:{glimmerwing:2,emberling:-2},summer:{emberling:2,duskweaver:-2},autumn:{gnawhound:2,glimmerwing:-2},winter:{duskweaver:2,bogsnap:-2}},
  saltmarsh: {spring:{reedtusk:2,dunepounce:-2},summer:{kiteskirl:2,wrackjaw:-2},autumn:{wrackjaw:2,kiteskirl:-2},winter:{brineskit:2,reedtusk:-2}},
- emberfall: {spring:{ashskip:2,slaglet:-2},summer:{thermwing:2,cragskein:-2},autumn:{cragskein:2,ashskip:-2},winter:{ventwhisk:2,thermwing:-2}},
+ emberfall: {spring:{slaglet:-2},summer:{thermwing:2,cragskein:-2},autumn:{cragskein:2},winter:{ventwhisk:2,thermwing:-2}},
  cloudglass: {spring:{mistfinch:2,shalecat:-2},summer:{cirrusmane:2,pallweaver:-2},autumn:{gritbeak:2,mistfinch:-2},winter:{fogtail:2,cirrusmane:-2}},
  stillreed: {spring:{reedlet:2,duskcord:-2},summer:{gustreed:2,siltjaw:-2},autumn:{orchardroot:2,gustreed:-2},winter:{rillwhisk:2,reedlet:-2}},
  hollowecho: {spring:{dripdart:2,flintroot:-2},summer:{ledgewhisk:2,hushpup:-2},autumn:{flintroot:2,dripdart:-2},winter:{umbrelace:2,ledgewhisk:-2}},
- sunthread: {spring:{clovercolt:2,hearthrunner:-2},summer:{pennantlark:2,hemglow:-2},autumn:{tilthtusk:2,pennantlark:-2},winter:{hearthrunner:2,ribbonstride:-2}},
+ sunthread: {spring:{clovercolt:2},summer:{pennantlark:2,hemglow:-2},autumn:{tilthtusk:2,pennantlark:-2},winter:{ribbonstride:-2}},
  farwatch: {spring:{shoalpup:2,moorweft:-2},summer:{chartwing:2,inkwhisk:-2},autumn:{moorweft:2,chartwing:-2},winter:{buoyglint:2,shoalpup:-2}}
 };
 for (const [area,shifts] of Object.entries(SEASONAL_SHIFTS)) {

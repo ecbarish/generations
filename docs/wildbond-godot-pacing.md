@@ -22,7 +22,7 @@ Species and levels are from the actual exported teams. Route trainers also use t
 | leagueWren | chartwing 72, inkwhisk 73, $rival 73 |
 | league1 | hushmane 70, dripdart 71, bloomcourser 72 |
 | league2 | keeljaw 71, flintroot 72, ferrycrest 73 |
-| league3 | hearthrunner 72, ribbonstride 73, tilthtusk 74 |
+| league3 | blazefang 72, ribbonstride 73, tilthtusk 74 |
 | league4 | buoyglint 72, moorweft 73, pennantlark 74 |
 | leagueChampion | bloomcourser 74, hushmane 75, soundhowl 76 |
 
