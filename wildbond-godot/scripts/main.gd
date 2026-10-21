@@ -837,7 +837,7 @@ func _process(dt: float) -> void:
 	fade_in = min(1.0, fade_in + dt * 0.7)
 	var door_dark := 0.0
 	if trans_t >= 0.0:
-		Input.flush_buffered_events()
+		_flush_presses()
 		var before := trans_t
 		trans_t += dt
 		if before < 0.3 and trans_t >= 0.3:
@@ -845,7 +845,7 @@ func _process(dt: float) -> void:
 		door_dark = 1.0 - absf(trans_t - 0.3) / 0.3
 		if trans_t >= 0.6:
 			trans_t = -1.0
-			Input.flush_buffered_events()
+			_flush_presses()
 	fade_rect.color.a = maxf(1.0 - fade_in, clampf(door_dark, 0.0, 1.0))
 	if paint_t >= 0.0:
 		paint_t += dt
@@ -902,9 +902,12 @@ func _process(dt: float) -> void:
 				meet_after = null
 				_step(tap)
 		elif not walk_to.is_empty():
-			var nxt: Vector2i = walk_to.pop_front()
-			if (nxt - me.tile).length() == 1 and (walkable(nxt) or _gentle_at(nxt) != null or DOORS.has(nxt)):
+			var nxt: Vector2i = walk_to[0]
+			if (nxt - me.tile).length() == 1 and (walkable(nxt) or _gentle_at(nxt) != null or DOORS.has(nxt) or nxt == BARN_DOOR or nxt == BARN_EXIT):
+				walk_to.pop_front()
 				_step(nxt - me.tile)
+			elif (nxt - me.tile).length() == 1 and _walker_crossing(nxt):
+				pass                                 # someone is walking through: wait, don't throw the path away
 			else:
 				walk_to.clear()                      # something stepped in the way: stop here
 		elif meet_after:
@@ -1075,8 +1078,14 @@ func _menu_allowed() -> bool:
 	# Every area, including Larkhaven before the story sets you free. A conversation or a page still keeps it shut.
 	return menu != null and not menu.visible and lines.is_empty() and trans_t < 0.0 and not _covering()
 
+## Drop queued presses from a fade or a menu toggle. The release still arrives, and the bag is not left held down.
+func _flush_presses() -> void:
+	Controls.flush_buffered_events()
+	bag_press = false
+	bag_landed = false
+
 func _toggle_menu() -> void:
-	Input.flush_buffered_events()
+	_flush_presses()
 	if menu.visible:
 		menu.close()
 		return
@@ -1213,7 +1222,7 @@ func _on_chosen(id: String) -> void:
 			partner = s
 	partner.home = Rect2i()
 	team = [R.make(id, 5, { "rar": 1 }, rng)]           # level 5, like the browser game's first partner
-	rival_c = R.make(DATA.COUNTER[id], 4, { "rar": 1 }, rng)   # Wren takes the one that beats yours
+	rival_c = R.make(DATA.COUNTER[id], 3, { "rar": 1 }, rng)   # Wren's first partner is a step below your level 5, so the fight is winnable
 	stage = "bonded"
 	caption.text = ""
 	_stop(partner)
@@ -1460,10 +1469,26 @@ func _draw_outdoor() -> void:
 func _is_painted(m: Mover) -> bool:
 	return (m == me and painted) or (m == partner)
 
+## Sideways, so a follower on your column is beside you instead of over your head.
+func _follower_nudge(m: Mover) -> float:
+	if m != partner or absf(m.pos.x - me.pos.x) >= 6.0:
+		return 0.0
+	return 10.0 if m.pos.x >= me.pos.x else -10.0
+
+## The player is painted after a follower that shares their column, so the follower does not cover the head.
+func _paint_order(list: Array) -> Array:
+	var ordered := list.duplicate()
+	ordered.sort_custom(func(a, b):
+		if a == partner and b == me and absf(a.pos.x - b.pos.x) < 14.0:
+			return true
+		if b == partner and a == me and absf(a.pos.x - b.pos.x) < 14.0:
+			return false
+		return a.pos.y < b.pos.y)
+	return ordered
+
 func _draw_painted() -> void:
 	# the colour layer sits above the faded world, so whatever is drawn here keeps its colour everywhere
-	var list := actors().filter(func(m): return _is_painted(m))
-	list.sort_custom(func(a, b): return a.pos.y < b.pos.y)
+	var list := _paint_order(actors().filter(func(m): return _is_painted(m)))
 	for m in list:
 		_draw_actor(colour_layer, m, 0)
 	# true depth: anyone standing in front of you (lower on the screen, overlapping) is drawn again on top, faded just
@@ -1559,7 +1584,7 @@ func _draw_actor(ci: CanvasItem, m: Mover, i: int, fade_amt := 0.0) -> void:
 		}
 		var wiggle := (1.0 if int(t * 16.0) % 2 == 0 else -1.0) if m.act == "pounce" and m.act_t > 0.4 and m.act_t < 0.8 else 0.0
 		var sid := _creature_species(m)
-		var foot := m.pos + Vector2(8.0 + wiggle, 16.0 + m.hop)
+		var foot := m.pos + Vector2(8.0 + wiggle + _follower_nudge(m), 16.0 + m.hop)
 		# Painted art is already the world size (12.35px per metre). Species without a PNG keep the procedural figure.
 		if Sprites.try_draw(ci, sid, foot, m.right, "walk" if walking else "idle", int(m.step_t * 10.0), 1.0, fade_amt, str(m.look.get("gear", ""))):
 			return
@@ -1835,7 +1860,8 @@ func _update_ui() -> void:
 		status.visible = not (book.visible or battle.visible or card.visible or shop.visible or lessons.visible or register.visible or title.visible or howto.visible or turn_card.visible)
 		status.setup(place.text, lead, cur, mx, int(bag.get("coins", 0)))
 	# the place's name, large on arrival: it holds for a few seconds, then fades (hidden while you talk or fight)
-	place.modulate.a = 0.0 if battle.visible or book.visible else clampf(3.5 - place_t, 0.0, 1.0)
+	var place_hold := 1.3 if map_name == "barn" else 3.5
+	place.modulate.a = 0.0 if battle.visible or book.visible else clampf(place_hold - place_t, 0.0, 1.0)
 	# the faded world: pass each restored circle on this map to the shader, in real screen pixels
 	var final := get_viewport().get_final_transform()
 	var pts := PackedVector4Array()
@@ -3616,20 +3642,36 @@ func _gentle_at(p: Vector2i) -> Mover:
 			return m
 	return null
 
+## Someone with a path of their own is on this tile, or about to step onto it. A click waits instead of giving up.
+func _walker_crossing(p: Vector2i) -> bool:
+	for m in actors():
+		if m == me or m.path.is_empty():
+			continue
+		if m.tile == p or m.path[0] == p:
+			return true
+	return false
+
 # ---------------------------------------------------------------- saving your journey (user://journey.json)
 ## Saved automatically every few seconds while you're free to walk (not mid-battle or mid-conversation) and when the
 ## window closes. The opening isn't saved part-way: a journey is saved from the moment you're free in Larkhaven.
 var save_t := 0.0
+var saved_map := ""                           # the map the last save was written on; not stored in the file
 
 func _autosave(dt: float) -> void:
 	save_t += dt
-	if save_t >= 5.0:
+	# Arriving somewhere new is saved within half a second, so a quit right after a road leaves you on that road.
+	var arrived := map_name != saved_map and trans_t < 0.0 and stage == "free"
+	if save_t >= 5.0 or (arrived and save_t >= 0.5):
 		save_t = 0.0
-		save_game()
+		if save_game():
+			saved_map = map_name
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		save_game()
+	# A closed window, and, because a browser tab or a phone app never gets a close request, the moment the game loses
+	# the screen (tab hidden, app switched away or paused). All of them write the same save.
+	if what in [NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED]:
+		if save_game():
+			saved_map = map_name
 
 func save_game() -> bool:
 	if no_save or hold_save or _newer_save(_peek_save()):
@@ -3844,6 +3886,7 @@ func _load_game() -> bool:
 	maren.tile = BARN_DOOR + Vector2i(1, 1)
 	maren.pos = Vector2(maren.tile) * TILE
 	fade_in = 1.0
+	saved_map = str(d.map)
 	_go(d.map, _off_new_homes(str(d.map), Vector2i(int(d.x), int(d.y))), Vector2i.DOWN)
 	trans_t = 0.29
 	say("", "Welcome back, %s." % my_look.get("name", "tamer"))
@@ -4640,6 +4683,8 @@ func _has_caught_wild() -> bool:
 func _guide_first_catch() -> bool:
 	return not _has_caught_wild()
 
+const ROAD_OBJECTIVE := "Take the north road to Thornwood, then meet someone wild in the tall grass."
+
 ## One line for the tracker. Empty when a full-screen page is up, or once the first towns are behind you.
 func next_objective() -> String:
 	if objective == null:
@@ -4659,6 +4704,8 @@ func next_objective() -> String:
 			return "Walk out into Larkhaven."
 		"free":
 			if not _has_caught_wild():
+				if map_name == "larkhaven" and not badges.has("thorn"):
+					return ROAD_OBJECTIVE
 				return "Meet someone wild in the tall grass."
 			if map_name == "larkhaven" and not badges.has("thorn"):
 				return "The north road leads to Thornwood."
@@ -4691,14 +4738,15 @@ func _layout_objective() -> void:
 		objective.size = Vector2(328, h)
 		_place_name_at(14.0)
 		return
-	if _covers_stall_signs(Rect2(objective.position, objective.size)):
-		var y := 216.0 - caption_lift - h - 4.0
-		objective.position = Vector2(4, clampf(y, 52.0, 216.0 - h - 2.0))
-		var guard := 0
-		while _covers_stall_signs(Rect2(objective.position, objective.size)) and guard < 6:
-			objective.position.y = maxf(52.0, objective.position.y - h - 2.0)
-			guard += 1
-	_place_name_at(14.0 + h + 2.0)
+	var ob := Rect2(objective.position, objective.size)
+	var blocks := _hud_blocks()
+	if not _clear_of_blocks(ob, blocks):
+		var moved := _shift_clear(ob, blocks)
+		objective.position = moved.position
+		objective.modulate.a = 1.0 if _clear_of_blocks(Rect2(objective.position, objective.size), blocks) else 0.2
+	else:
+		objective.modulate.a = 1.0
+	_place_name_at(objective.position.y + objective.size.y + 2.0)
 
 ## Under the status strip, and under the objective when that banner sits at the top.
 func _speech_floor() -> float:
@@ -4710,18 +4758,140 @@ func _speech_floor() -> float:
 	return y
 
 func _clear_of_objective() -> void:
-	if objective == null or not objective.visible or not bubble.visible:
+	if not bubble.visible:
 		return
-	var ob := Rect2(objective.position, objective.size)
+	var blocks: Array = []
+	if objective != null and objective.visible:
+		blocks.append(Rect2(objective.position, objective.size))
+	blocks.append_array(_hud_blocks())
 	var bub := Rect2(bubble.position, bubble.size)
-	if not bub.intersects(ob):
+	if _clear_of_blocks(bub, blocks):
 		return
-	var below := ob.end.y + 2.0
-	var above := ob.position.y - bubble.size.y - 2.0
-	if below + bubble.size.y <= 214.0:
-		bubble.position.y = below
-	elif above >= 14.0:
-		bubble.position.y = above
+	bubble.position.y = _bubble_clear_y(bub, blocks)
+
+## A spot that misses every block at once. Above the highest block in the stack first
+## (the player standing over the door, not the door alone), then the top of the view.
+func _bubble_clear_y(bub: Rect2, blocks: Array) -> float:
+	var stack: Array = []
+	for i in blocks.size():
+		var ob: Rect2 = blocks[i]
+		if bub.intersects(ob):
+			stack.append(i)
+	var grew := true
+	while grew:
+		grew = false
+		var top := bub.position.y
+		var bot := bub.end.y
+		for i in stack:
+			var stacked: Rect2 = blocks[i]
+			top = minf(top, stacked.position.y)
+			bot = maxf(bot, stacked.end.y)
+		for i in blocks.size():
+			if i in stack:
+				continue
+			var ob: Rect2 = blocks[i]
+			if ob.position.x >= bub.end.x or ob.end.x <= bub.position.x:
+				continue
+			if ob.end.y < top - 24.0 or ob.position.y > bot + 24.0:
+				continue
+			stack.append(i)
+			grew = true
+	var highest := bub.position.y
+	for i in stack:
+		var stacked: Rect2 = blocks[i]
+		highest = minf(highest, stacked.position.y)
+	var candidates: Array = [highest - bub.size.y - 2.0, _speech_floor()]
+	for candidate in candidates:
+		var y := float(candidate)
+		var moved := Rect2(bub.position.x, y, bub.size.x, bub.size.y)
+		if moved.position.y < 0.0 or moved.end.y > 214.0:
+			continue
+		if _clear_of_blocks(moved, blocks):
+			return y
+	return _speech_floor()
+
+func _world_screen(r: Rect2) -> Rect2:
+	var xf := get_viewport().get_canvas_transform()
+	# Headless frames keep an identity canvas until something draws. The camera already knows where the view sits.
+	if xf == Transform2D.IDENTITY and cam != null:
+		var view := get_viewport().get_visible_rect().size
+		if view.x < 2.0 or view.y < 2.0:
+			view = Vector2(384, 216)
+		var center := cam.get_screen_center_position()
+		var zoom := cam.zoom
+		xf = Transform2D(Vector2(zoom.x, 0.0), Vector2(0.0, zoom.y), Vector2(view.x * 0.5 - center.x * zoom.x, view.y * 0.5 - center.y * zoom.y))
+	var a: Vector2 = xf * r.position
+	var b: Vector2 = xf * r.end
+	return Rect2(Vector2(minf(a.x, b.x), minf(a.y, b.y)), (b - a).abs())
+
+var _hud_block_cache: Array = []
+var _hud_block_key := ""
+
+## The player, a sign, a door or a pen: the tracker and the hint move when one of these is underneath.
+## The same map, place and camera are asked for several times a frame, so the scan is kept until one of those changes.
+func _hud_blocks() -> Array:
+	var xf := get_viewport().get_canvas_transform()
+	var cam_at := Vector2.ZERO
+	var cam_zoom := Vector2.ONE
+	if cam != null:
+		cam_at = cam.get_screen_center_position()
+		cam_zoom = cam.zoom
+	var key := "%s|%s|%s|%s|%s|%d" % [map_name, me.pos, xf, cam_at, cam_zoom, starters.size()]
+	if key == _hud_block_key:
+		return _hud_block_cache
+	var out: Array = []
+	out.append(_world_screen(Rect2(me.pos + Vector2(1, -12), Vector2(14, 28))))
+	if map_name == "larkhaven":
+		var rows: Array = cur_map()
+		for y in rows.size():
+			var row: String = rows[y]
+			for ch in ["P", "q"]:
+				var x := row.find(ch)
+				while x >= 0:
+					out.append(_world_screen(Rect2(Vector2(x, y) * float(TILE) + Vector2(1, 1), Vector2(14, 15))))
+					x = row.find(ch, x + 1)
+	if map_name == "barn":
+		out.append(_world_screen(Rect2(Vector2(BARN_EXIT) * float(TILE), Vector2(TILE, TILE))))
+		for pen in _pen_world_rects():
+			out.append(_world_screen(pen))
+		for s in _pen_sign_rects():
+			out.append(s)
+	_hud_block_key = key
+	_hud_block_cache = out
+	return out
+
+func _pen_world_rects() -> Array:
+	var out: Array = []
+	if map_name != "barn":
+		return out
+	for i in starters.size():
+		out.append(Rect2(Vector2(6 + i * 4, 2) * float(TILE), Vector2(TILE * 3, TILE * 3)))
+	return out
+
+func _pen_sign_rects() -> Array:
+	return _stall_sign_rects()
+
+func _clear_of_blocks(r: Rect2, blocks: Array) -> bool:
+	for b in blocks:
+		if r.intersects(b):
+			return false
+	return true
+
+func _shift_clear(rect: Rect2, blocks: Array) -> Rect2:
+	if _clear_of_blocks(rect, blocks):
+		return rect
+	var spots: Array = [
+		Vector2(rect.position.x, 216.0 - caption_lift - rect.size.y - 6.0),
+		Vector2(rect.position.x, 52.0),
+		Vector2(4.0, 78.0),
+		Vector2(384.0 - rect.size.x - 4.0, 78.0),
+		Vector2(4.0, 120.0),
+	]
+	for p in spots:
+		var moved := Rect2(Vector2(clampf(p.x, 0.0, maxf(0.0, 384.0 - rect.size.x)), clampf(p.y, 0.0, maxf(0.0, 216.0 - rect.size.y))), rect.size)
+		if _clear_of_blocks(moved, blocks):
+			return moved
+	return rect
 
 func _stall_sign_rects() -> Array:
 	if map_name != "barn":
@@ -4743,6 +4913,9 @@ func _covers_stall_signs(r: Rect2) -> bool:
 	return false
 
 func _place_name_at(top: float) -> void:
+	var rect := Rect2(8, top, 220, 26)
+	var moved := _shift_clear(rect, _hud_blocks())
+	top = moved.position.y
 	if place.offset_top == top and place.offset_bottom == top + 26.0:
 		return
 	place.offset_top = top
@@ -4774,6 +4947,30 @@ func _fit_caption() -> void:
 		caption_plate.visible = true
 		caption_plate.position = Vector2(0, band_top)
 		caption_plate.size = Vector2(384, maxf(1.0, band_bottom - band_top))
+	var band := Rect2(caption.offset_left, band_top, maxf(1.0, 384.0 + caption.offset_right - caption.offset_left), maxf(1.0, band_bottom - band_top))
+	var covering := false
+	for block in _hud_blocks():
+		if band.intersects(block):
+			covering = true
+			var above: float = (block as Rect2).position.y - 4.0
+			var h := caption.offset_bottom - caption.offset_top
+			if above > 48.0:
+				caption.offset_bottom = above - 216.0
+				caption.offset_top = caption.offset_bottom - h
+				# The same three pixels the resting bar keeps, so the outline stays inside the plate,
+				# and the plate stops at the words instead of running on down over the thing we moved off.
+				band_top = 216.0 + float(caption.offset_top) - 3.0
+				var band_end := 216.0 + float(caption.offset_bottom) + 3.0
+				caption_lift = maxf(caption_lift, 216.0 - band_top)
+				if caption_plate != null:
+					caption_plate.position = Vector2(0, band_top)
+					caption_plate.size = Vector2(384, maxf(1.0, band_end - band_top))
+				caption.modulate.a = 1.0
+			else:
+				caption.modulate.a = 0.15
+			break
+	if not covering:
+		caption.modulate.a = 1.0
 
 # ---------------------------------------------------------------- the phone pad and the settings (WB6.1-6.2)
 ## An upright phone grows the Game Boy frame. A phone held sideways keeps the 384×216 view, an ink

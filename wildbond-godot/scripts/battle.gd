@@ -107,6 +107,12 @@ var sure_catch := false                       # the first wild meeting: the lure
 var line_queue: Array = []                     # battle lines still waiting to be read, one click each
 var shown_line := ""                           # the line on screen during a beat
 var line_frame := -100                         # the frame that line appeared; input on that frame does not skip it
+var line_id := 0                               # which line is up; a press records the id it began on
+var down_line := -1                            # the line id a pointer press began on, or -1
+var pointer_held := false                      # the mouse or finger is still down
+var end_next_frame := false                    # the line was dismissed; the next actor waits one frame
+var resume_menu := false                       # a bag note returns to the command menu instead of the next turn
+var bag_note := ""                             # shown on the command menu when Bag cannot be used yet
 var catch_note := ""                           # "hit" or "miss", drawn over the bar after you press
 var catch_note_t := 0.0
 var caught: Array = []                        # creatures that chose you in this battle
@@ -167,6 +173,12 @@ func open(battle_kind: String, team: Array, foe_team: Array, who: String) -> voi
 	line_queue.clear()
 	shown_line = ""
 	line_frame = -100
+	line_id = 0
+	down_line = -1
+	pointer_held = false
+	end_next_frame = false
+	resume_menu = false
+	bag_note = ""
 	catch_note = ""
 	catch_note_t = 0.0
 	var names := ", ".join(foes.map(func(u): return "%s (Lv %d)" % [u.c.name, u.c.lvl]))
@@ -199,7 +211,9 @@ func _process(dt: float) -> void:
 	if not visible:
 		return
 	t += dt
-	state_t += dt
+	# A held pointer pauses the line timer. Time spent on the previous line is not part of this one.
+	if not (state == "beat" and pointer_held and not end_next_frame):
+		state_t += dt
 	catch_note_t = maxf(0.0, catch_note_t - dt)
 	for u in allies + foes:
 		u.shown = move_toward(u.shown, float(u.c.hp), dt * maxf(8.0, u.st.hp * 0.8))   # health bars drain smoothly
@@ -225,7 +239,11 @@ func _process(dt: float) -> void:
 			if cap.pos > 1.0: cap.pos = 1.0; cap.dir = -1.0
 			if cap.pos < 0.0: cap.pos = 0.0; cap.dir = 1.0
 		"beat":
-			if state_t * pace > beat_t:
+			if end_next_frame:
+				end_next_frame = false
+			elif pointer_held and down_line != line_id:
+				pass
+			elif state_t * pace > beat_t:
 				if not line_queue.is_empty():
 					_show_next_line()
 				else:
@@ -329,16 +347,32 @@ func _beat(seconds: float) -> void:
 	_go_to("beat")
 	_show_next_line()
 
-## Put the next waiting line on screen and ignore the click that arrived with it.
+## Put the next waiting line on screen and start its timer now. Time already spent on the previous line does not count.
 func _show_next_line() -> void:
 	if not line_queue.is_empty():
 		shown_line = str(line_queue.pop_front())
 	elif not log_lines.is_empty():
 		shown_line = str(log_lines[-1])
+	line_id += 1
 	line_frame = Engine.get_process_frames()
 	state_t = 0.0
+	end_next_frame = false
+
+func _dismiss_line() -> void:
+	if not line_queue.is_empty():
+		_show_next_line()
+	else:
+		state_t = beat_t
+		end_next_frame = true
 
 func _after_beat() -> void:
+	if resume_menu:
+		resume_menu = false
+		if wait_u.is_empty() and not living("a").is_empty():
+			wait_u = living("a")[0]
+		menu_i = 0
+		_go_to("choose")
+		return
 	if not _check_end():
 		_go_to("run")
 
@@ -445,6 +479,7 @@ func _hurt(u: Dictionary, d: int, crit: bool, el) -> void:
 # ---------------------------------------------------------------- your choices
 func _choose(i: int) -> void:
 	_sfx("pick", -6.0)
+	bag_note = ""
 	match menu_word(i):
 		"Stand with it":
 			_join(wait_u)
@@ -485,10 +520,11 @@ func _choose(i: int) -> void:
 				_go_to("capture")
 		"Bag":
 			if int(bag.get("berries", 0)) <= 0 and int(bag.get("lures", 0)) <= 0:
-				say("Your bag has nothing to use in battle yet. Berries heal; you find them in the grass.")
+				bag_note = "Your bag is empty."
+				say(bag_note)
 			elif int(bag.get("berries", 0)) <= 0:
-				say("The lures in your bag are for Catch. A berry would heal.")
-				return
+				bag_note = "The lures in your bag are for Catch. A berry would heal."
+				say(bag_note)
 			else:
 				var low: Dictionary = living("a")[0]
 				for a in living("a"):
@@ -701,8 +737,17 @@ func _input(e: InputEvent) -> void:
 		press_here = state == "choose"
 	if up:
 		var missed := press_here and not tap_landed
+		var beat_up := state == "beat"
 		press_here = false
 		tap_landed = false
+		pointer_held = false
+		# A battle line lifts only if the press began while that same line was already up.
+		if beat_up:
+			if down_line == line_id and Engine.get_process_frames() != line_frame:
+				_dismiss_line()
+			down_line = -1
+			get_viewport().set_input_as_handled()
+			return
 		# A press that already chose is swallowed. A press that began on this menu and missed still counts if the finger comes up on Fight.
 		# The lift that opened the menu is not a choice.
 		if missed and state == "choose":
@@ -765,14 +810,15 @@ func _input(e: InputEvent) -> void:
 			elif back: _go_to("choose")
 			else: order_i = _grid_move(order_i, key, ol.size(), 2)
 		"beat":
-			if ok or click:
-				# The press that made this line appear must not also dismiss it.
-				if Engine.get_process_frames() == line_frame:
-					pass
-				elif not line_queue.is_empty():
-					_show_next_line()
-				else:
-					state_t = beat_t                 # the last line: skip ahead
+			if click:
+				pointer_held = true
+				# The press is remembered. It confirms on the lift, and only for the line already showing.
+				down_line = line_id if Engine.get_process_frames() != line_frame else -1
+			elif ok:
+				# A key press begins and ends together. It must not dismiss a line that was not up yet,
+				# and a pointer that is still down from an older line does not count as that key.
+				if Engine.get_process_frames() != line_frame and not pointer_held:
+					_dismiss_line()
 		"results":
 			if (ok or click) and state_t > 0.5: _go_to("fog_out")
 
@@ -864,11 +910,10 @@ func _ally_line_rect(i: int, n: int) -> Rect2:
 
 ## Where the "Next:" names sit. They shrink, then wrap, and stay inside the top of the screen.
 ## A chip is the word plus 8px (4px of padding on each side). The word is drawn from that padding, with no clip.
+## A landscape phone (scale under 2) keeps the chips and the Next: label off the health panels and the creatures.
 func _chip_boxes(labels: PackedStringArray) -> Dictionary:
 	if _view_scale() < 2.0:
-		var room := 376.0 - 8.0
-		var fitted := PhoneShell.chip_font_size(labels, font, room, 14)
-		return PhoneShell.place_chips(labels, font, 8.0, 4.0, 376.0, fitted, 28.0)
+		return _landscape_chips(labels)
 	var size := 7
 	var limit := 376.0
 	var x0 := 192.0
@@ -887,6 +932,95 @@ func _chip_boxes(labels: PackedStringArray) -> Dictionary:
 		rects.append(Rect2(x, y, w, size + 3.0))
 		x += w + 3.0
 	return {"font": size, "rects": rects}
+
+## Beside the foe panels, in the strip above the sprites (x162–376, y8–27).
+## A row that does not fit there, or that would cover a creature, goes inside the command box.
+func _landscape_chips(labels: PackedStringArray) -> Dictionary:
+	var strip := Rect2(162, 8, 214, 19)
+	var on_strip := _fit_chip_row(labels, strip, 1)
+	if not on_strip.is_empty() and _chips_clear(on_strip):
+		return on_strip
+	var box := _command_box()
+	var room := Rect2(box.position.x + 4.0, box.position.y + 4.0, 220.0, box.size.y - 8.0)
+	var in_box := _fit_chip_row(labels, room, 2)
+	if not in_box.is_empty() and _chips_clear(in_box):
+		return in_box
+	if not on_strip.is_empty():
+		return on_strip
+	return in_box
+
+## One font size whose chips and Next: label stay inside `area`. Empty when none of 8, 7 or 6 fit.
+func _fit_chip_row(labels: PackedStringArray, area: Rect2, max_rows: int) -> Dictionary:
+	for size in range(8, 5, -1):
+		var label_w := 24.0
+		if font != null:
+			label_w = font.get_string_size("Next:", HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		var chip_h := minf(16.0, area.size.y)
+		if max_rows > 1:
+			chip_h = minf(16.0, floor((area.size.y - 3.0) / 2.0))
+		if chip_h < float(size) + 2.0:
+			continue
+		var x0 := area.position.x + label_w + 4.0
+		var placed := _place_chip_rows(labels, x0, area.position.y, area.end.x, size, chip_h, max_rows)
+		if placed.is_empty():
+			continue
+		var bottom := area.position.y
+		for r in placed["rects"]:
+			bottom = maxf(bottom, (r as Rect2).end.y)
+		if bottom > area.end.y + 0.01:
+			continue
+		placed["next"] = Rect2(area.position.x, area.position.y, label_w, chip_h)
+		return placed
+	return {}
+
+func _place_chip_rows(labels: PackedStringArray, x0: float, y0: float, limit: float, size: int, chip_h: float, max_rows: int) -> Dictionary:
+	var rects: Array = []
+	var x := x0
+	var y := y0
+	var row := 1
+	for lab in labels:
+		var word := float(lab.length() * size) * 0.6
+		if font != null:
+			word = font.get_string_size(lab, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		var w := word + 8.0
+		if w > limit - x0 + 0.01:
+			return {}
+		if x > x0 + 0.5 and x + w > limit + 0.01:
+			row += 1
+			if row > max_rows:
+				return {}
+			x = x0
+			y += chip_h + 3.0
+		rects.append(Rect2(x, y, w, chip_h))
+		x += w + 3.0
+	return {"font": size, "rects": rects, "labels": labels}
+
+## True when the chips and the Next: label miss every health panel and every creature.
+func _chips_clear(placed: Dictionary) -> bool:
+	var obstacles: Array = []
+	for i in foes.size():
+		obstacles.append(Rect2(10, 8 + i * 30, 150, 26))
+	if allies.size() <= 1:
+		obstacles.append(_ally_panel())
+	else:
+		for i in allies.size():
+			obstacles.append(_ally_line_rect(i, allies.size()))
+	for u in foes + allies:
+		var body: Rect2 = sprite_rect(u)
+		if body.size.x > 1.0 and body.size.y > 1.0:
+			obstacles.append(body)
+	var rects: Array = []
+	for r in placed.get("rects", []):
+		rects.append(r)
+	if placed.has("next"):
+		rects.append(placed["next"])
+	for r in rects:
+		var box: Rect2 = r
+		for ob in obstacles:
+			var block: Rect2 = ob
+			if box.intersects(block):
+				return false
+	return true
 
 func _chips_fit(labels: PackedStringArray, size: int, x0: float, limit: float) -> bool:
 	var x := x0
@@ -963,6 +1097,12 @@ func _draw_creature(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictiona
 	var facing_right: bool = str(u.side) == "a"
 	var gear := str(u.c.get("gear", ""))
 	var stand := Vector2(round(at.x), round(at.y))
+	if facing_right and Sprites.has_battle_back(species_id):
+		var scale := Sprites.BATTLE_FRONT_SCALE
+		var sz := Sprites.battle_back_size(species_id)
+		var foot := _battle_sprite_foot(stand + Vector2(0, 6), sz, scale)
+		Sprites.try_draw_battle_back(self, species_id, foot, scale, gear)
+		return
 	if Sprites.has_battle_front(species_id):
 		var scale := Sprites.BATTLE_FRONT_SCALE
 		var foot := _battle_front_foot(stand + Vector2(0, 6), species_id, scale)
@@ -976,7 +1116,9 @@ func _draw_creature(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictiona
 	_draw_figure(stand, species_id, R.sp(u.c), facing_right, pose, look)
 
 func _battle_front_foot(spot: Vector2, species_id: String, scale: float) -> Vector2:
-	var sz := Sprites.battle_size(species_id)
+	return _battle_sprite_foot(spot, Sprites.battle_size(species_id), scale)
+
+func _battle_sprite_foot(spot: Vector2, sz: Vector2i, scale: float) -> Vector2:
 	if sz == Vector2i.ZERO:
 		return spot
 	var foot := Sprites.foot_clear_of(spot, sz, scale, _clearance_boxes(), PANEL_CLEARANCE)
@@ -987,6 +1129,11 @@ func sprite_rect(u: Dictionary) -> Rect2:
 	var at := _drawn_at(u)
 	var species_id := str(u.c.sp)
 	var stand := Vector2(round(at.x), round(at.y))
+	if str(u.side) == "a" and Sprites.has_battle_back(species_id):
+		var scale := Sprites.BATTLE_FRONT_SCALE
+		var sz := Sprites.battle_back_size(species_id)
+		var foot := _battle_sprite_foot(stand + Vector2(0, 6), sz, scale)
+		return Sprites.dest_rect(foot, sz, Sprites.whole_scale(scale))
 	if Sprites.has_battle_front(species_id):
 		var scale := Sprites.BATTLE_FRONT_SCALE
 		var foot := _battle_front_foot(stand + Vector2(0, 6), species_id, scale)
@@ -1106,6 +1253,8 @@ func _figure_fit(species_id: String, facing_right: bool, look: Dictionary = {}) 
 	var species: Dictionary = R.sp({ "sp": species_id })
 	var max_w := 1
 	var max_h := 1
+	var union_min_x := 999
+	var union_max_x := -999
 	for pose in _battle_poses():
 		var posed: Array = Figures.sized_parts(species, facing_right, pose, look)
 		if posed.is_empty():
@@ -1113,9 +1262,12 @@ func _figure_fit(species_id: String, facing_right: bool, look: Dictionary = {}) 
 		var posed_span := Figures.pixel_span(posed)
 		max_w = maxi(max_w, posed_span.x)
 		max_h = maxi(max_h, posed_span.y)
+		var bounds: Dictionary = Figures._bounds(posed)
+		union_min_x = mini(union_min_x, int(bounds.min_x))
+		union_max_x = maxi(union_max_x, int(bounds.max_x))
 	var span := Vector2i(max_w, max_h)
 	var stage := _battle_stage(species_id)
-	var fit := { "span": span, "scale": _figure_scale(span, stage), "stage": stage }
+	var fit := { "span": span, "scale": _figure_scale(span, stage), "stage": stage, "min_x": union_min_x, "max_x": union_max_x }
 	_fit_memo[key] = fit
 	return fit
 
@@ -1133,8 +1285,10 @@ func _figure_place(at: Vector2, species_id: String, parts: Array, facing_right: 
 		foot = _slide_foot(foot, span, float(k), phone_view)
 	foot = Vector2(round(foot.x), round(foot.y))
 	var bounds: Dictionary = Figures._bounds(parts)
+	var min_x := int(fit.get("min_x", bounds.min_x))
+	var max_x := int(fit.get("max_x", bounds.max_x))
 	var origin := Vector2(
-		foot.x - float(bounds.min_x + bounds.max_x) * float(k) / 2.0,
+		foot.x - float(min_x + max_x) * float(k) / 2.0,
 		foot.y - float(int(bounds.max_y) + 1) * float(k)
 	)
 	origin = Vector2(round(origin.x), round(origin.y))
@@ -1377,7 +1531,9 @@ func _draw_commands(box: Rect2) -> void:
 	match state:
 		"choose":
 			_text("What will %s do?" % wait_u.c.name, Vector2(16, box.position.y + 14), 8, INK, 216)
-			if not sure_catch:
+			if bag_note != "":
+				draw_multiline_string(font, Vector2(16, box.position.y + 28), bag_note, HORIZONTAL_ALIGNMENT_LEFT, 210, 7, -1, INK)
+			elif not sure_catch:
 				_text("Orders ready: %d of 3" % int(orders), Vector2(16, box.position.y + 32), 7, Color("6a5a4a"), 216)
 			for i in MENU.size():
 				var r := _menu_rect(i)
@@ -1469,17 +1625,33 @@ func _draw_joined(u: Dictionary, at: Vector2, pose: Dictionary, look: Dictionary
 		_ellipse(at + Vector2(0, -30), 58.0 - k * 14.0 + glow * 3.0, 50.0 - k * 12.0 + glow * 3.0, Color(1.0, 0.86, 0.52, 0.16 + k * 0.08))
 	var species_id := str(u.c.sp)
 	var stand := Vector2(round(at.x), round(at.y))
-	if Sprites.has_battle_front(species_id):
+	var tamer_at := at + Vector2(-26, -70)
+	var gear := str(u.c.get("gear", ""))
+	if Sprites.has_battle_back(species_id):
 		var scale := Sprites.BATTLE_FRONT_SCALE
+		var sz := Sprites.battle_back_size(species_id)
+		var foot := _battle_sprite_foot(stand + Vector2(0, 8), sz, scale)
+		Sprites.try_draw_battle_back(self, species_id, foot, scale, gear)
+		tamer_at = Sprites.tamer_anchor(foot, sz, scale, Sprites.battle_back_texture(species_id), false)
+	elif Sprites.has_battle_front(species_id):
+		var scale := Sprites.BATTLE_FRONT_SCALE
+		var sz := Sprites.battle_size(species_id)
 		var foot := _battle_front_foot(stand + Vector2(0, 8), species_id, scale)
-		Sprites.try_draw_battle(self, species_id, foot, true, scale, str(u.c.get("gear", "")))
+		Sprites.try_draw_battle(self, species_id, foot, true, scale, gear)
+		tamer_at = Sprites.tamer_anchor(foot, sz, scale, Sprites.battle_texture(species_id), true)
 	else:
 		var sc := 5.0
 		var foot := _painted_foot(stand + Vector2(0, 8), species_id, "idle", sc)
-		if not Sprites.try_draw(self, species_id, foot, true, "idle", 0, sc, 0.0, str(u.c.get("gear", ""))):
+		if Sprites.try_draw(self, species_id, foot, true, "idle", 0, sc, 0.0, gear):
+			var sz := Sprites.frame_size(species_id, "idle")
+			tamer_at = Sprites.tamer_anchor(foot, sz, sc, Sprites.texture(species_id, "idle"), true)
+		else:
+			var parts := Figures.sized_parts(R.sp(u.c), true, pose, look)
+			var place := _figure_place(stand, species_id, parts, true, look)
 			_draw_figure(stand, species_id, R.sp(u.c), true, pose, look)
+			tamer_at = (place.rect as Rect2).position + Vector2(6, -12)
 	if not tamer_look.is_empty():
-		draw_set_transform(at + Vector2(-26, -70), 0, Vector2(2.4, 2.4))   # you, within its shape, facing the foe with it
+		draw_set_transform(tamer_at, 0, Vector2(Sprites.TAMER_SCALE, Sprites.TAMER_SCALE))   # you, seated on the back, facing the foe with it
 		Figures.person(self, Vector2.ZERO, Vector2i.RIGHT, false, 0, false, tamer_look)
 		draw_set_transform(Vector2.ZERO)
 	for k in 9:
@@ -1577,7 +1749,8 @@ func deck_press(i: int) -> void:
 		"capture":
 			_calm()
 		"beat":
-			state_t = beat_t
+			if Engine.get_process_frames() != line_frame:
+				_dismiss_line()
 		"results":
 			if state_t > 0.5:
 				_go_to("fog_out")
@@ -1593,7 +1766,10 @@ func _queue() -> void:
 	var chip_size: int = int(chips["font"])
 	var rects: Array = chips["rects"]
 	var shown: PackedStringArray = chips["labels"] if chips.has("labels") else labels
-	if _view_scale() >= 2.0:
+	if chips.has("next"):
+		var nr: Rect2 = chips["next"]
+		_text("Next:", Vector2(nr.position.x, nr.position.y + nr.size.y * 0.5 + float(chip_size) * 0.45), chip_size, INK)
+	elif _view_scale() >= 2.0:
 		_text("Next:", Vector2(166, 7.0 + chip_size + 1.0), chip_size, INK)
 	for i in rects.size():
 		var r: Rect2 = rects[i]
