@@ -50,13 +50,13 @@ opening and the first walk, not a whole battle or day. Pass 2 should finish one 
 - **Controls are never shown inside the game.** They are on the launcher card ("Arrows or WASD to walk, Enter or E
   to talk, J for the field book") and nowhere after that. A newcomer who skipped the card has to guess.
 - **The village is the same as Starfall's.** Same thatched cottages, same barn, same layout and paths
-  ([wildbond-village.png](screenshots/playtest-2026-10-09/wildbond-village.png) next to
+  (wildbond-village.png next to
   [starfall-village.png](screenshots/playtest-2026-10-09/starfall-village.png)). Evan noticed this. It makes both
   games feel like one game reskinned.
 - **See-through roofs** (Evan's report; not caught in this short run): roofs that fade when you walk near read as
   glitches when the player isn't actually behind the building.
 - **Phone portrait:** the game is a small strip in the middle of the screen, the text is tiny and there is no touch
-  pad in this preview ([wildbond-phone-portrait.png](screenshots/playtest-2026-10-09/wildbond-phone-portrait.png)).
+  pad in this preview (wildbond-phone-portrait.png).
   The launcher says "best on a computer", so this is allowed for now, but a "turn your phone sideways" card would help.
 
 **Starfall village (Godot).** Same engine and art as Wildbond. After the opening talk the screen shows only "Day 1,

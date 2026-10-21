@@ -1,17 +1,15 @@
 'use strict';
 /* Studio lighting and music tuner (E7, Lane C task C4). Preview-only.
-   Reads each zone's air straight from the games' own files (Realmbound ZONE_LIGHT in js/23-light.js, Wildbond
-   AREA_AIR in js/06-scene.js) and their tunes (TRACKS in each game's sound file), and keeps Evan's tweaks in one
+   Reads each zone's air straight from the games' own files (Realmbound ZONE_LIGHT in js/23-light.js)
+   and their tunes (TRACKS in each game's sound file), and keeps Evan's tweaks in one
    localStorage key, StudioTuner.KEY. The games don't read that key yet, so playing is never affected; nothing here
    writes a save. The preview (studio/tuner-preview.html) draws a small scene with the real light engine,
    shared/light.js, and tunes play on the real sound engine, shared/sound.js. Checks: tests/studio.html. */
 (function () {
   const KEY = 'studio-tuner-v1';
   const LIGHT = [ // where each game keeps its zones' air, and the light engine's defaults when a zone leaves a value out
-    { game: 'realmbound', name: 'Realmbound', file: 'games/realmbound/js/23-light.js', table: 'ZONE_LIGHT', grade: 1 },
-    { game: 'wildbond', name: 'Wildbond', file: 'games/wildbond/js/06-scene.js', table: 'AREA_AIR', grade: .9 }];
+    { game: 'realmbound', name: 'Realmbound', file: 'games/realmbound/js/23-light.js', table: 'ZONE_LIGHT', grade: 1 }];
   const MUSIC = [
-    { game: 'wildbond', name: 'Wildbond', file: 'games/wildbond/js/10-sound.js' },
     { game: 'realmbound', name: 'Realmbound', file: 'games/realmbound/js/17-sound.js' },
     { game: 'starfall-guild', name: 'Starfall Guild', file: 'games/starfall-guild/js/08-sound.js' }];
   const SLIDERS = { fog: [0, 1, .01], shadow: [0, 2, .05], grade: [0, 2, .05] }, TUNE = { bpm: [40, 220, 1], shift: [-12, 12, 1] };

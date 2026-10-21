@@ -6,7 +6,7 @@ name: Checks
 
 on:
   push:
-    branches: [main, guest/wildbond-wbc2-preview]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -38,7 +38,7 @@ jobs:
 
       - name: Import Godot projects and exit the editor
         run: |
-          for project in wildbond-godot starfall-godot; do
+          for project in starfall-godot; do
             timeout 120 "$GODOT" --headless --path "$project" --editor --import --quit
           done
 

@@ -1,7 +1,6 @@
 /* Build fresh, bounded startup context. Read-only; no network, writes, model calls or task claiming. */
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),{execFileSync}=require('node:child_process');
 const routes={
- wildbond:['docs/wildbond-plan.md','docs/art/wildbond-art-direction.md'],
  realmbound:['docs/realmbound-40-60.md'],
  starfall:['docs/plans/starfall-village.md','docs/plans/starfall-guild.md'],
  'diamond-manager':['docs/diamond-manager-balance.md'],
@@ -47,7 +46,7 @@ function build({root,agent='Codex',task=null,project=null,maxChars=16000,now=new
  '## Current cycle\n'+cycleHeading+'\nOnly This cycle (or an explicit current user request) authorizes work. The full cycle, dates, owners and done-when lines remain in docs/QUEUE.md. Read docs/STUDIO-PLAN.md sections 4 and your game when selecting/replanning; no full portfolio sweep for a scoped fix.',
  '## Named task rows\n'+(selected.length?selected.join('\n'):'No matching rows. Do not invent a next task.'),
  '## Recent and task-specific coordination\n'+(messageContext||'No message headings found. Read docs/COMMS.md before acting.'),
- '## Read on demand\n'+(references.length?references.map(f=>'- '+f).join('\n'):'- Select --project for scoped design pointers.')+'\n- The exact ticket in docs/ROADMAP.md or docs/DEVELOPMENT-PATH.md; find the task ID with rg, then read that section.\n- docs/PROCESS.md for claim/review/merge procedures, .github/PULL_REQUEST_TEMPLATE.md for Tower metadata.\n- docs/CREATIVE.md only the relevant writing/art/design rules. Wildbond story requires docs/lore/wildbond-threads.md.\n- Source files and tests owned by this task. Follow their local AGENTS.md instructions.\n- docs/AI-START.md for route details; archives only for unresolved historical questions.',
+ '## Read on demand\n'+(references.length?references.map(f=>'- '+f).join('\n'):'- Select --project for scoped design pointers.')+'\n- The exact ticket in docs/ROADMAP.md or docs/DEVELOPMENT-PATH.md; find the task ID with rg, then read that section.\n- docs/PROCESS.md for claim/review/merge procedures, .github/PULL_REQUEST_TEMPLATE.md for Tower metadata.\n- docs/CREATIVE.md only the relevant writing/art/design rules.\n- Source files and tests owned by this task. Follow their local AGENTS.md instructions.\n- docs/AI-START.md for route details; archives only for unresolved historical questions.',
  '## Warnings\n'+(warnings.length?warnings.map(w=>'- '+w).join('\n'):'None.'),
  '## Source fingerprints\n'+sources.map(s=>s.path+' '+s.sha256).join('\n')
  ].join('\n\n')+'\n';

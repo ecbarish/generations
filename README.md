@@ -9,14 +9,13 @@ and the hub page shows where you left off in every one.
 
 ## Games
 
-The homepage leads with Wildbond. Statuses match the cards in `launcher/games.js`.
+The homepage leads with Little Ranch. Statuses match the cards in `launcher/games.js`.
 
 | Game | Status | What it is |
 |---|---|---|
-| [Wildbond](play/wildbond/) | Early preview (Godot) | The headline game: bond with creatures and bring colour back to a faded world, eight regions and the league |
+| [Little Ranch](games/little-ranch/) | Test version | A toy for ages 2 to 4: feed, bath, peekaboo and bedtime; no reading, nothing to lose |
 | [Starfall Guild](play/starfall/) | Early preview (Godot) | Build a frontier guild town: post jobs for adventurers, serve meals at the inn, work the forge, grow the town |
 | [Realmbound](games/realmbound/) | Beta | Classic-MMO-inspired adventure: two factions, 5 classes including a pet-taming Hunter, levels 1–60, quests, loot and addons ([design](docs/realmbound-design.md)) |
-| [Little Ranch](games/little-ranch/) | Test version | A toy for ages 2 to 4: feed, bath, peekaboo and bedtime; no reading, nothing to lose |
 | [Diamond Manager](games/diamond-manager/) | Test version | Take over the worst baseball club in the league: lineups, trades, free agents and a ballpark that grows with the gate money |
 | [Keymaster](games/keymaster/) | Test version (launch game) | A property game built on a real deal analyzer: five homes for sale on Alder Street, $200,000, and a goal of three homes that pay |
 | [Otherworld](games/otherworld/) | Prototype | Three authored lives: Asterhold, Hearthmere and the Ashen Throne; costly gifts, choices, endings and knowledge carried between lives |
@@ -30,7 +29,7 @@ The homepage leads with Wildbond. Statuses match the cards in `launcher/games.js
 | [Night Market](games/night-market/) | Launch game still being finished; its hall entry (NM-HUB) is not built yet | Work a lantern-lit stall yourself before anyone will run it |
 | [Primordial](games/primordial/) | Hidden from the hall (AR-FRONT) | Evolution idle game: cell to Leviathan, mutation drafts, niche fights, extinction resets |
 | [Diamond Career](games/diamond-career/) | Shelved (AR-SHELVE) | A baseball player's career: at-bats, a call-up, a contract and a life beyond the ballpark |
-| [Wildbond Classic](games/wildbond/) and [Starfall Guild Classic](games/starfall-guild/) | Shelved Classics (AR-SHELVE): the original browser editions, kept as they were | The finished first versions; all new work goes into the Godot editions |
+| [Starfall Guild Classic](games/starfall-guild/) | Shelved Classic (AR-SHELVE): the original browser edition, kept as it was | The finished first version; new Starfall work goes into the Godot edition |
 
 Design plans live in [docs/](docs/): [Realmbound](docs/realmbound-design.md), [idea backlog](docs/ideas.md).
 
@@ -41,7 +40,7 @@ index.html            the hub (the "stable")
 shared/engine.js      saves, export/import, number formatting, hub progress cards
 games/<name>/         one folder per game, plain HTML + JS, no build step
 serve.ps1             local test server on Windows: http://localhost:8765/
-play/                 web builds of the Godot games (Wildbond, Starfall Guild)
+play/                 web build of the Godot game (Starfall Guild)
 ```
 
 ## Run locally
@@ -209,7 +208,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 - Tell us (2026-10-10, AR2.11): every browser game's ⚙ Settings now has a "Tell us" row (Share feedback, Report a bug, Suggest an idea) that opens a GitHub issue with the game and version filled in, plus a ten-minute playtest script on [Come Play](playtest.html#script). Little Ranch stays without links on purpose.
 - Lighthouse Watch (2026-10-10, AC2): the second arcade cabinet, in the missile-defence shape. Storm sparks fall on four harbour boats; tap the sky (or aim and fire) to burst them with the lighthouse beam. Nights speed up, sparks split from night 3, a lost boat comes back every third night, three initials on a local high-score board, two-player turns. [games/lighthouse-watch/](games/lighthouse-watch/)
-- Godot Wildbond (2026-10-10, WB-PREVIEW): refreshed playable web pack with battle practice, the Thornwood trail, Lighthouse Spire and Champion rematches; updated guide and verified old journeys, browser reloads and phone-to-ultrawide screens. [Build notes](play/wildbond/BUILD.md).
+- Godot Wildbond (2026-10-10, WB-PREVIEW): refreshed playable web pack with battle practice, the Thornwood trail, Lighthouse Spire and Champion rematches; updated guide and verified old journeys, browser reloads and phone-to-ultrawide screens. Build notes.
 
 - Godot Wildbond (2026-10-10, WB2.4 / H8, guest): the last two homes in Larkhaven. Two new cottages you can walk into, like the inn and the shop: Pip's home, where his mum is (and something Pip left by the window for you), and his gran's cottage by Juniper's, where she hums the harvest tune (and a jar of berries she picked too many of). Old saves standing where a cottage now is step out in front of its door.
 - 2026-10-10: ART-SF-6 — original frontier props (barrel, crate, firewood, lantern, cart, bunting, empty plot) on one indexed sheet, with footprint metadata and a scale contact scene; assets only.
@@ -243,7 +242,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 - Arcade (2026-10-09, playtest pass 1): [docs/PLAYTEST.md](docs/PLAYTEST.md) scores every game on six newcomer questions (what to do, controls, the core loop, readability, fun, phone) and sets the bar a game must pass before it ships; `tools/playtest/first-look.cjs` takes the screenshots.
 - Wildbond (2026-10-09, WD2 part 1): four new body shapes, so whole families stop sharing one outline. Tidewyrm, Deeptide and Rillwhisk are serpents that ripple along the ground; Bogbough, Cairnclasp and Siltjaw are turtles with plated shells; Veilmote, Fogsail and Dawntassel are moths drifting on slow wings; Orchardroot, Flintroot and Meadowmantle are tree-folk on root feet. Picture: docs/screenshots/wildbond-wd2/new-shapes.png.
 - Realmbound (2026-10-09, RB1.5): opened conversations wait for their reader; Focus fallback waits for the first victory, then gives the existing fifteen seconds. QuestHelper and background hunting respect dialogue. The sun and clouds sit below the title and health frames.
-- Wildbond writing handoff (2026-10-09, T58): three inspectable late observations, Toren and Isolde's final-truth conversation, four depth-return lines and eight Warden responses. [Placement contract](docs/lore/wildbond-reveal.md); no playable behavior changes.
+- Wildbond writing handoff (2026-10-09, T58): three inspectable late observations, Toren and Isolde's final-truth conversation, four depth-return lines and eight Warden responses. Placement contract; no playable behavior changes.
 
 - Studio (2026-10-09, E5 part 1): creature and quest viewers. The Studio lists Wildbond's creatures, moves, evolutions and wild tables (browser and Godot) and Realmbound's quests, and marks in red anything the game checks would reject, with the reason. Today's data has no problems. Read-only; 8 new Studio checks.
 - Studio (2026-10-09, E4 part 1): a text browser. The Studio now lists every line of dialogue, quest text, creature and item name and description in all eight games (browser and Godot), about 4,700 pieces, read straight from the games' own files, with a search box, game and kind filters, and where each line lives (file, line and data path). Read-only. 26 new checks in tests/studio.html.
@@ -256,33 +255,33 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 - Godot Starfall (2026-10-09): feelings over heads. A heart for a fine pour or fine gear, a smile after a meal you served, "..." when someone has waited too long at the counter, "!" when they want a word, a broken heart when someone leaves, and now and then very low or very high spirits. Wildbond's trainers show the same "!" bubble when they spot you. 127 Starfall and 282 Wildbond checks pass.
 - Arcade housekeeping (2026-10-09): both Godot games now save safely (a spare file first and the last good save kept as a backup, so a crash or a closed tab can never cost a journey or a town); the Wildbond web preview is a fifth smaller (its place sounds are stored as OGG and places that share a tune share one file); one command runs every check (`node tools/run-all-checks.cjs`) and GitHub now runs them on every push and pull request. Wildbond 277 and Starfall 119 Godot checks pass, and all eight browser pages.
 - Starfall planning (2026-10-09, T57): [four seasonal village chapters](docs/plans/starfall-village.md#sf33--t57-four-chapters-in-the-same-village), each with a threat, festival and newcomer. Design handoff only; essential story never waits for a calendar date.
-- Wildbond pacing (2026-10-09, T56): [actual Godot late-area and league diagnostic](docs/wildbond-godot-pacing.md), reproducible without player saves. Reports progression deficits and late move cooldown stalls; no gameplay tuning.
-- Wildbond writing audit (2026-10-09, T55): [final-truth clue fit and three proposed late observations](docs/lore/wildbond-final-truth-audit.md) for Claude's review. No new playable dialogue or behavior.
+- Wildbond pacing (2026-10-09, T56): actual Godot late-area and league diagnostic, reproducible without player saves. Reports progression deficits and late move cooldown stalls; no gameplay tuning.
+- Wildbond writing audit (2026-10-09, T55): final-truth clue fit and three proposed late observations for Claude's review. No new playable dialogue or behavior.
 - Godot Starfall (2026-10-09): the Tavern. Build it on a plot and adventurers with savings drop in each evening; you pour, and a well-judged pour earns a tip and lifts their spirits. Pour enough and Tamsin asks to run the tap. Leave it unserved two evenings and it shuts its shutters until you open it again. Where you build matters a little: near the inn the room is livelier, and a smithy beside the training yard makes practice count double. 116 checks pass.
 - Godot Wildbond (2026-10-09): the homecoming. After you beat the Champion, Maren and Isolde are waiting at the league gate with Wren, Avenne walks down to join them, and everyone quiets for water and rest. Every Warden now welcomes you back as Champion. Written by ChatGPT. 273 checks pass.
-- Wildbond content (2026-10-09, T54): exported post-Champion gate scene and eight Warden return conversations. [Staging/dispatch contract](docs/lore/wildbond-champion-returns.md). New fields only; Godot integration remains with Claude.
+- Wildbond content (2026-10-09, T54): exported post-Champion gate scene and eight Warden return conversations. Staging/dispatch contract. New fields only; Godot integration remains with Claude.
 
-- Wildbond finale handoff (2026-10-09, T53): existing league script, an optional homecoming and a thread payoff map for Claude's Godot build. [Writing contract](docs/lore/wildbond-finale-brief.md). Unresolved mystery truths remain open; no playable behavior changed.
+- Wildbond finale handoff (2026-10-09, T53): existing league script, an optional homecoming and a thread payoff map for Claude's Godot build. Writing contract. Unresolved mystery truths remain open; no playable behavior changed.
 
 - Godot Wildbond (2026-10-09): the Returning Light League. With all eight badges the road north from Farwatch opens: Wren waits at the gate, then four courts in order (listening, shelter, shared work, an honest record) and Champion Avenne on the terrace. Nelva heals your team between rooms; lose a court and the courts begin again. Win, and everyone you met is waiting at the gate. The new Wildbond can now be played from start to finish. 269 checks pass.
 - Godot Starfall (2026-10-09): every adventurer now has a three-part story. Kaito, Hana and Sora, who arrive as the town grows, each have their own (a bow that sings, a knight learning to listen, a monk learning from real people), and Aki, Ren and Yuna each get a closing chapter. Written by ChatGPT. 106 checks pass.
 - Godot Wildbond (2026-10-09): the seasons come alive. Wild creatures shift with the season (a few visitors favour one season and are rare in the others), everyone has a word about the time of year, and on festival days Maren invites you to join in: plant a flower that stays at the ranch, run a lap with your partner, fill the trough for the harvest supper, or make a gift at the workbench and give it to someone in town. Each festival gives a keepsake, kept in your field book. 260 checks pass.
 - Starfall writing handoff (2026-10-09, T52): three-beat arcs for Kaito, Hana and Sora and closing beats for Aki, Ren and Yuna. [Additive JSON and integration contract](docs/lore/starfall-member-stories.md); not playable until Claude wires it in.
 
-- Wildbond festival writing (2026-10-09, T51): four traditions, Maren and Pip conversations, activity invitations/completions and cosmetic keepsake names. [Integration contract](docs/lore/wildbond-festivals.md). Exported writing only; the calendar and activities remain Claude's Godot work.
+- Wildbond festival writing (2026-10-09, T51): four traditions, Maren and Pip conversations, activity invitations/completions and cosmetic keepsake names. Integration contract. Exported writing only; the calendar and activities remain Claude's Godot work.
 
-- Wildbond content handoff (2026-10-09, T50): four seasonal encounter tables per region, four existing visitors rare year-round, and 96 seasonal observations for route residents. [Schema and canon boundaries](docs/lore/wildbond-seasons.md). Export-only; Classic's encounters and conversations stay unchanged, with no release bump.
+- Wildbond content handoff (2026-10-09, T50): four seasonal encounter tables per region, four existing visitors rare year-round, and 96 seasonal observations for route residents. Schema and canon boundaries. Export-only; Classic's encounters and conversations stay unchanged, with no release bump.
 
 - Godot Wildbond (2026-10-09): festival decorations in Larkhaven. Planting Day ties ribbons on the fences and sets out a seed table; the Long Light strings lanterns over the street; the Harvest Lanterns puts carved lanterns by every door and a supper table on the green; the Midwinter Hearth hangs garlands of coloured lights on every house and raises a big tree with a star and gifts. On the real calendar, the Midwinter Hearth falls on 20 to 31 December.
 - Godot Wildbond (2026-10-09): the four seasons. The world keeps its own calendar (a season is about two and a half hours of play): blossom and petals in spring, orange trees and fallen leaves in autumn, snow on the roofs and fields, frozen ponds and falling snow in winter. The date is in the field book; press C there to follow the real calendar (winter in December) or keep one season. Festivals come next. 254 checks pass.
 - Godot Wildbond (2026-10-09): Farwatch Reach, the eighth and last area before the league: a stone lookout with a lamp room, the harbor house with nets drying, a pier with shore lanterns, Rysa's open ledger and the sound of waves. All eight areas are now in the new Wildbond. 245 checks pass.
 - Godot Wildbond (2026-10-09): Sunthread Commons, the seventh area: a timber meeting hall with pennants on its turf roof, a sunny forecourt where Pell, Nesla and Warden Halen wait, Mirel's mending frame, the weaver's bench with four braided ties, nursery beds with green ribbons, and a bright tune. 239 checks pass.
-- Wildbond build handoff (2026-10-09, T49): [Sunthread](docs/lore/wildbond-sunthread-brief.md) and [Farwatch](docs/lore/wildbond-farwatch-brief.md) briefs gather current exported routes, people, creatures, clues and badge payoffs. Proposed staging is explicit; stale Warden levels and the historical future-finale paragraph are flagged. No gameplay or version change.
+- Wildbond build handoff (2026-10-09, T49): Sunthread and Farwatch briefs gather current exported routes, people, creatures, clues and badge payoffs. Proposed staging is explicit; stale Warden levels and the historical future-finale paragraph are flagged. No gameplay or version change.
 - Realmbound v1.8.0 (2026-10-09, T48): Walk the road opens an optional town approach, the Lantern Rest inn and a courier's camp. Talk by the hearth, rest at the usual pace or buy a potion; connected paths preserve existing travel and combat. All eight test pages pass. No release version change.
 - Godot Wildbond (2026-10-09): trees stand at their true height. Walk behind one and its crown passes in front of you, see-through so you never lose yourself, and washed out like the world around it until the colour comes back. Signs and things on the ground are never hidden. 234 checks pass.
 - Godot Starfall (2026-10-09): good and hard days show in the street. Each evening says how the day went; a run of good days hangs bunting, brings more work to the board and draws travelling adventurers (Mirelle and Tobin); hard days quieten the board, and someone who loses heart walks out the gate, but may come back when things improve. 104 checks pass.
 - Godot Wildbond (2026-10-09): Hollowecho Hills, the sixth area: the bell keeper's stone house with two bells swaying under the eaves, the surveyor's cord and chalk arrows, cave mouths, resting stones by Warden Senna's cave, low mist and a quiet tune. 232 checks pass.
-- Wildbond build handoff (2026-10-09): [Hollowecho area brief](docs/lore/wildbond-hollowecho-brief.md) gathers the existing route, people, teams, creatures and woven clues for the Godot build. It separates proposed staging from canon and flags Senna's stale documented team levels; gameplay is unchanged.
+- Wildbond build handoff (2026-10-09): Hollowecho area brief gathers the existing route, people, teams, creatures and woven clues for the Godot build. It separates proposed staging from canon and flags Senna's stale documented team levels; gameplay is unchanged.
 - Arcade (2026-10-09): the current Wildbond and Starfall previews have screenshot cards and direct doors on the launcher. Classic games and progress remain separate; first-load and save guidance is explicit. Keyboard road panning keeps focused doors visible. [Checks and scope](docs/launcher-previews.md).
 - Godot Wildbond (2026-10-09): Stillreed Basin, the fifth area, is open: wooden footbridges over the river, its trainers and Warden, the sound of running water and its own tune, the ferry skiff moored at the landing with a sign you can read, the current running down the river, cattails, windfall under the orchard and dragonflies. 225 checks pass.
 - Local helper (2026-10-08): preserve the runtime tool-permission order in both task modes; 19 runner checks pass.
@@ -357,7 +356,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 - Realmbound (2026-10-07): a lore-first field guide, first fifteen minutes, systems, earned addons and tips, with late discoveries folded away. [Read the booklet](guides/realmbound.html); reference tables follow current game data.
 
-- Wildbond (2026-10-07): cosmetic Gleaming colours, tiny/huge sizes and individual markings, with inherited egg looks and seen/bonded Wilddex notes. Old creatures stay ordinary; stats are unchanged. [Design and checks](docs/wildbond-variants.md).
+- Wildbond (2026-10-07): cosmetic Gleaming colours, tiny/huge sizes and individual markings, with inherited egg looks and seen/bonded Wilddex notes. Old creatures stay ordinary; stats are unchanged. Design and checks.
 
 - **Wildbond v1.5.2, Realmbound v1.0.3 (2026-10-07)** — Wildbond: a day (and the ranch day) now lasts an hour
   instead of five minutes; autopilot and Auto-explore are switched off for now; the late areas' levels are smoothed
@@ -370,7 +369,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
   docs/wildbond-immersive.md.
 - **Realmbound (2026-10-07):** launch pacing audit across five classes and three journeys; late-zone XP aligned with the 40–60 budget, reproducible browser simulations and 23 save/bonus regressions. Details: [audit](docs/realmbound-launch-balance.md).
 
-- Wildbond (2026-10-07): smoother Stillreed entry and late Wardens within incoming badge caps; a reproducible full-run pacing audit across three journeys and four challenges, with failed challenge attempts recorded separately. [Measurements](docs/wildbond-launch-balance.md).
+- Wildbond (2026-10-07): smoother Stillreed entry and late Wardens within incoming badge caps; a reproducible full-run pacing audit across three journeys and four challenges, with failed challenge attempts recorded separately. Measurements.
 
 
 - **Wildbond v1.5.0 (2026-10-07)** — From Evan's second play: **turn-based battles** for new journeys (the battle

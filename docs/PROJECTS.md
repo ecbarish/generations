@@ -373,7 +373,7 @@ New Wildbond work goes to **Wildbond in Godot** above. Browser data (species, ma
 | W11 | **A larger roster**: batches of 10-12 new species per element, filling every family and element pairing (target about 150 to start), each with a dex line; ChatGPT-friendly data work | L (batches) | Data | W9 | batch 1 merged 2026-10-08 (v1.7.0, PR #51); batch 2 is T37 (ChatGPT, A11) | T6 rules in creature-game-design.md; one batch per PR |
 | W12 | **New creature families** (body shapes beyond the current ones: serpents, golems, insects, jellyfish...) with their own art | L | Art | — | moved to Godot (WG9) | shared/creatures.js and 01-art.js |
 | W13 | **Character creator**: your tamer's body type (male, female, other), skin, hair style and colour, outfit; shown in the world, in scenes and in battle | M | Art+System | — | done in Godot 2026-10-08 (Maren's ranch register, with heritage) | Evan, 2026-10-07; part of the opening (B3b); later shared with Realmbound's heroes |
-| W14 | **Creature variants**: rare looks within a species (a shimmering colour like shinies, tiny and huge sizes, unique pattern markings like Spinda), shown in the Wilddex; cosmetic, never stronger | M | Art+Data | — | done, merged 2026-10-08 (v1.6.0, PR #43) | Evan, 2026-10-07 |
+| W14 | **Creature variants**: rare looks within a species (a shimmering colour like shinies, tiny and huge sizes, unique pattern markings like a creature with random spot patterns), shown in the Wilddex; cosmetic, never stronger | M | Art+Data | — | done, merged 2026-10-08 (v1.6.0, PR #43) | Evan, 2026-10-07 |
 
 ## Realmbound (classic-MMO idle, flagship)
 

@@ -1,10 +1,8 @@
 'use strict';
 /* Studio creature and quest viewers (E5, Lane C task C2). Read-only.
-   Lists Wildbond's species, moves, evolutions and wild tables (the browser game and the Godot game's data) and
-   Realmbound's quests, and flags anything the game checks would reject. The rules are the data rules from
-   tests/wildbond-checks.js (story/species/biome loop and the "valid family, element, moves and dex" checks),
-   wildbond-godot/tests/run_tests.gd (evolution conditions) and tests/realmbound-scenarios.cjs (quest targets and
-   prerequisites). Change those tests and this page together. Checks: tests/studio.html. */
+   Lists Realmbound's quests, and can still flag a creature roster passed in by a check.
+   Realmbound's rules match tests/realmbound-scenarios.cjs (quest targets and prerequisites).
+   Checks: tests/studio.html. */
 (function () {
   const FAMILIES = ['wolf', 'cat', 'boar', 'lizard', 'croc', 'bird', 'spider', 'horse', 'sprite', 'hyena'];
   const STATS = ['grd', 'hp', 'pow', 'spd', 'spi', 'wit'];
@@ -82,14 +80,9 @@
     quests: ['Zone', 'Quest', 'Giver', 'Type', 'Target', 'Level', 'After'] };
 
   async function load(root) {
-    const T = window.StudioText, base = new URL(root || './', location.href);
-    const json = async f => (await fetch(new URL(f, base), { cache: 'no-store' })).json();
-    const wbNames = ['SPECIES', 'MOVES', 'ELEMENTS', 'BIOMES', 'BADGES', 'STORY'];
-    const [wb, rb, g, evo] = await Promise.all([T.loadGameData(root, 'games/wildbond/', wbNames), T.loadGameData(root, 'games/realmbound/', ['QUESTS', 'ZONES']),
-      json('wildbond-godot/data/wildbond.json'), json('wildbond-godot/data/evolution.json')]);
-    // the Godot game merges evolution.json at start: new species are added, and evos replace a species' single evolution
-    const gd = Object.assign({}, g, { SPECIES: Object.assign({}, g.SPECIES, evo.species), EVOS: evo.evos });
-    return { 'wildbond': wildbond(wb), 'wildbond-godot': wildbond(gd), 'realmbound': realmbound(rb) };
+    const T = window.StudioText;
+    const rb = await T.loadGameData(root, 'games/realmbound/', ['QUESTS', 'ZONES']);
+    return { realmbound: realmbound(rb) };
   }
   window.StudioViewers = { FAMILIES, COLUMNS, wildbond, realmbound, load };
 })();

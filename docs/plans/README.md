@@ -23,7 +23,7 @@ Prepared 2026-10-06 for Evan. These documents turn comparable-game research and 
 | Project | Distinct experience | First next milestone | Plan |
 |---|---|---|---|
 | Realmbound | Inhabit a hero supported by an adventuring account | Publish/review Winter Road (lore is merged), then specify a two-hero supply proof alongside the remaining T1 progression plan | [Realmbound](realmbound.md) |
-| Wildbond | Travel with creatures, raise individuals and develop bloodlines | Connect current badge/area progression and complete one walkable route before widening content | [Wildbond](wildbond.md) |
+| Wildbond | Travel with creatures, raise individuals and develop bloodlines | Connect current badge/area progression and complete one walkable route before widening content | Wildbond |
 | Primordial | Adapt a lineage to environments with different survival questions | Source split and a two-habitat/two-strategy proof when unparked | [Primordial](primordial.md) |
 | Starfall Guild | Direct a growing guild whose members have careers | Source split and two classes with meaningful specialization/history when unparked | [Starfall Guild](starfall-guild.md) |
 | Sports / Diamond Career | Play a career, enjoy its earnings and later manage teams | Baseball's first contract, match moments, home/garage purchase and transparent evaluation when unparked | [Sports framework](sports-careers.md), [baseball module](diamond-career.md) |

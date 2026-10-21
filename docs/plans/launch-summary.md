@@ -54,4 +54,4 @@ Merged since the last draft: Night Market **#403** (`d9cde61`), payback and the 
 | Night Market | Guest lane (#373) | Fun is 5/10. Playtest fixes, visuals, phone layout, hall entry. Payback and offline are done | NM-PLAY, NM-VIS, NM-PHONE, NM-HUB. NM-RETUNE and NM-CLAMP stay off this count. Dates are placeholders | 4 | 2026-10-29 | 2026-11-22 | NM-PLAY, playtest fixes |
 | Wildbond | Wildbond & Starfall Dev Lead | The open bundle is #429: the menu, the catch and the objective. Then the upright phone layout, the early pace and the road. Fun is 5/10. WBL-2 and WBL-6 are done | WB-OPEN, WB-PHONE, WB-CATCH, WB-LOOK, WB-ROAD. #429 covers the menu and the catch | 5 | 2026-10-17 | 2026-10-21 | #429, the menu and the catch |
 
-Full lists: [launch-little-ranch.md](launch-little-ranch.md), [launch-lantern-bowl.md](launch-lantern-bowl.md), [launch-night-market.md](launch-night-market.md), [launch-wildbond.md](launch-wildbond.md).
+Full lists: [launch-little-ranch.md](launch-little-ranch.md), [launch-lantern-bowl.md](launch-lantern-bowl.md), [launch-night-market.md](launch-night-market.md), launch-wildbond.md.

@@ -7,19 +7,16 @@
    - Browser games (games/<game>/): each game's own index.html says which scripts it loads. Those scripts (all but
      99-boot.js, so the game never starts) run inside a sealed frame with no access to saves, and the data they build
      is walked key by key. The same files are also scanned for sentences written straight into the code.
-   - Godot games: the data files (wildbond-godot/data/*.json, starfall-godot/data/*.json) are read as JSON, and the
+   - Godot games: the data files (starfall-godot/data/*.json) are read as JSON, and the
      main scripts (*.gd) are scanned for sentences. Add new files to SOURCES below.
    Nothing here writes to localStorage, and nothing is linked from player pages. Checks: tests/studio.html. */
 (function () {
   const SOURCES = [
-    { id: 'wildbond', name: 'Wildbond (browser)', dir: 'games/wildbond/' },
     { id: 'realmbound', name: 'Realmbound', dir: 'games/realmbound/' },
     { id: 'starfall-guild', name: 'Starfall Guild (browser)', dir: 'games/starfall-guild/' },
     { id: 'otherworld', name: 'Otherworld', dir: 'games/otherworld/' },
     { id: 'diamond-career', name: 'Diamond Career', dir: 'games/diamond-career/' },
     { id: 'primordial', name: 'Primordial', dir: 'games/primordial/', inline: true },
-    { id: 'wildbond-godot', name: 'Wildbond (Godot)', json: ['wildbond-godot/data/wildbond.json', 'wildbond-godot/data/evolution.json'],
-      gd: ['battle', 'book', 'calendar', 'card', 'figures', 'main', 'register', 'rules', 'shop', 'title'].map(n => `wildbond-godot/scripts/${n}.gd`) },
     { id: 'starfall-godot', name: 'Starfall village (Godot)', json: ['starfall-godot/data/stories.json'],
       gd: ['figures', 'main'].map(n => `starfall-godot/scripts/${n}.gd`) },
   ];

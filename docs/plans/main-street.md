@@ -98,8 +98,8 @@ Do not build this shop now. Do not import the catalogue into Main Street now. Th
 
 Creature identity lives in the Godot data, not in a handwritten list inside Main Street:
 
-- [`wildbond-godot/data/wildbond.json`](../../wildbond-godot/data/wildbond.json), object `SPECIES`, keyed by species id (`cindercub`, not a row number).
-- [`wildbond-godot/data/evolution.json`](../../wildbond-godot/data/evolution.json), object `species` for creatures added or replaced there, and object `evos` for how a species changes.
+- `wildbond-godot/data/wildbond.json`, object `SPECIES`, keyed by species id (`cindercub`, not a row number).
+- `wildbond-godot/data/evolution.json`, object `species` for creatures added or replaced there, and object `evos` for how a species changes.
 
 The merged set is those two objects combined, species from the evolution file winning when an id is in both. That merge is what the generated catalogue counts. On 2026-10-14 it is **116 species**. The studio's aim is to grow it to **151**. Both numbers will go stale. The Binder must not store either number, and must not care what the count was on the day a save was made.
 
@@ -107,7 +107,7 @@ The merged set is those two objects combined, species from the evolution file wi
 
 A card stores the species id string. It never stores "card 12", "the 12th row of the catalogue", or "the next creature in the file."
 
-- The generated table in [`docs/wildbond-creatures/catalog.md`](../wildbond-creatures/catalog.md) is a view. Row order there is not an id. Adding a species will move rows. Ids do not move.
+- The generated table in `docs/wildbond-creatures/catalog.md` is a view. Row order there is not an id. Adding a species will move rows. Ids do not move.
 - Evolution targets are ids too. A species may have `evo.to` (a string such as `blazefang`). Richer changes live in `evolution.json` under `evos[speciesId]`, each with a `to` id. Branching lines have several `to` ids (Poolkit can become Mistlynx, Sunlynx, or Rilllynx). None of those are "the next entry."
 - A pack, a price, a grade, and a trend all key off the species id. Shuffling the file or inserting a creature must not change which card is which.
 - A save stores the id and the creature's name as it was when the card was pulled. If an id later disappears from the data, the sleeve still shows that saved name and does not crash. If a new id appears, the shop can stock it without renumbering the binder.

@@ -40,7 +40,7 @@ details{margin:2px 0}summary{cursor:pointer;padding:2px 0}.kids{margin-left:16px
       set levels and badges, teleport, change the time of day and weather, heal, hand out creatures, and more. Before your first change in a
       visit, the game backs up your save (listed below), and every change is written to the log at the bottom.</p>
     <div class="row">GM mode is <span id="gmState"></span> <button id="gmToggle"></button></div>
-    <div class="row"><a class="btn" href="games/wildbond/index.html?gm">Open Wildbond</a><a class="btn" href="games/realmbound/index.html?gm">Open Realmbound</a>
+    <div class="row"><a class="btn" href="games/realmbound/index.html?gm">Open Realmbound</a>
       <a class="btn" href="games/starfall-guild/index.html?gm">Open Starfall Guild</a></div>
   </section>
 
@@ -84,13 +84,8 @@ details{margin:2px 0}summary{cursor:pointer;padding:2px 0}.kids{margin-left:16px
 
   <section class="card" id="viewers">
     <h2>Creatures and quests</h2>
-    <p class="meta">Wildbond's creatures, moves, evolutions and wild tables (the browser game and the Godot game), and Realmbound's quests,
-      with anything the game checks would reject marked in red with the reason. Read-only.</p>
+    <p class="meta">Realmbound's quests, with anything the game checks would reject marked in red with the reason. Read-only.</p>
     <div class="row"><select id="vwView" aria-label="What to show">
-        <option value="wildbond:species">Wildbond (browser): creatures</option><option value="wildbond:moves">Wildbond (browser): moves</option>
-        <option value="wildbond:evolutions">Wildbond (browser): evolutions</option><option value="wildbond:wild">Wildbond (browser): wild tables</option>
-        <option value="wildbond-godot:species">Wildbond (Godot): creatures</option><option value="wildbond-godot:moves">Wildbond (Godot): moves</option>
-        <option value="wildbond-godot:evolutions">Wildbond (Godot): evolutions</option><option value="wildbond-godot:wild">Wildbond (Godot): wild tables</option>
         <option value="realmbound:quests">Realmbound: quests</option></select>
       <input id="vwFind" type="search" placeholder="Filter (e.g. Ember, thornwood)" style="flex:1;min-width:160px" aria-label="Filter the rows">
       <label class="meta"><input type="checkbox" id="vwBad"> Only problems</label></div>
