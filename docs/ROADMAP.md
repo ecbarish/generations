@@ -455,7 +455,7 @@ they apply to every game) and docs/CREATIVE.md. You have creative freedom (names
 
 ### T33: Wildbond creature variants (W14)
 Evan (2026-10-07): "it would be cool for some creatures, even though they're the same creature, to have some unique
-looks, like Pokémon has shiny, huge, tiny, Spinda... a little variety in some cases could be cool and intriguing."
+looks, like Pokémon has shiny, huge, tiny, and a creature with random spot patterns... a little variety in some cases could be cool and intriguing."
 Read docs/wildbond-plan.md (the principles) and docs/CREATIVE.md; you have creative freedom on names, rates and looks.
 Put a short "Design" section at the top of the PR.
 - **Three kinds of variety, all cosmetic (never stronger or weaker):**
@@ -465,7 +465,7 @@ Put a short "Design" section at the top of the PR.
   2. **Sizes**: *tiny* and *huge*, each about 1 in 25, drawn smaller or larger (and shown in the Wilddex with a
      size note).
   3. **Markings**: for a few families with patterns (cats, hyenas, spiders, birds...), each creature gets its own
-     seeded pattern of spots or stripes, so no two look quite alike (like Spinda).
+     seeded pattern of spots or stripes, so no two look quite alike (like a creature with random spot patterns).
 - **Where it lives:** an optional `c.variant` field (missing = ordinary, so old saves are unchanged), rolled in
   `newCreature` for wild creatures and eggs; breeding can pass a variant on at a small chance. Starters and story
   guardians are ordinary unless you have a reason. Drawn in every art era (Pocket, Pixel, 16-bit, HD-2D, Diorama):

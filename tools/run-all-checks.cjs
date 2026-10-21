@@ -1,10 +1,10 @@
 /* Every check in the arcade with one command (docs/learning/saves-and-testing.md).
    Opens the browser test pages (nine game pages and the Studio) in a hidden browser, presses "Run checks" on each and reads the result,
    runs the hall's launcher checks (tools/launcher-checks.cjs; two widths on CI), then
-   (when Godot is found) runs both Godot suites. Prints one line per suite and exits 1 if anything failed.
+   (when Godot is found) runs the Starfall Godot suite. Prints one line per suite and exits 1 if anything failed.
 
      node tools/run-all-checks.cjs                  every suite
-     node tools/run-all-checks.cjs wildbond starfall  only the suites whose names contain these words
+     node tools/run-all-checks.cjs starfall little-ranch  only the suites whose names contain these words
      GODOT=C:\Users\evanb\Godot\Godot_v4.7.2-stable_win64_console.exe node tools/run-all-checks.cjs
 
    Needs Node and the playwright package (npm i -g playwright). It uses any Chrome, Chromium or Edge already
@@ -12,11 +12,11 @@
    request (.github/workflows/checks.yml). No game saves are touched: every page runs in a fresh browser context. */
 const http=require('http'),fs=require('fs'),path=require('path'),{spawnSync}=require('child_process');
 const ROOT=path.resolve(__dirname,'..');
-const PAGES=['run','wildbond','starfall','sound','offline','diamond','diamond-manager','otherworld','runner-safety','studio','storm-front','lighthouse-watch','briskets-crossing','ember-bricks','little-ranch','tell-us','lantern-bowl','keymaster','engine-save','idle-core','night-market'];
-const GODOT_SUITES=['wildbond-godot','starfall-godot'];
+const PAGES=['run','starfall','sound','offline','diamond','diamond-manager','otherworld','runner-safety','studio','storm-front','lighthouse-watch','briskets-crossing','ember-bricks','little-ranch','tell-us','lantern-bowl','keymaster','engine-save','idle-core','night-market'];
+const GODOT_SUITES=['starfall-godot'];
 const only=process.argv.slice(2);
 const wanted=name=>!only.length||only.some(w=>name.includes(w));
-if(only.length&&!PAGES.concat(GODOT_SUITES,['launcher','wildbond-catalog','save-names','asset-library','agent-context']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['wildbond-catalog','save-names','asset-library','agent-context']).join(', '));process.exit(2);}
+if(only.length&&!PAGES.concat(GODOT_SUITES,['launcher','save-names','asset-library','agent-context']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['save-names','asset-library','agent-context']).join(', '));process.exit(2);}
 const TYPES={'.html':'text/html','.js':'text/javascript','.cjs':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.ogg':'audio/ogg','.wav':'audio/wav','.mp3':'audio/mpeg','.mp4':'video/mp4','.wasm':'application/wasm','.pck':'application/octet-stream','.webmanifest':'application/manifest+json','.ico':'image/x-icon','.txt':'text/plain','.md':'text/plain'};
 
 function serve(){return new Promise(ok=>{const server=http.createServer((req,res)=>{
@@ -93,12 +93,6 @@ function findGodot(){
       results.push({name:project,ok,line:total});
       console.log((ok?'ok  ':'FAIL')+'  '+project+'  '+total);
     }
-  }
-  if(wanted('wildbond-catalog')){                 // the generated creature catalogue matches the game data
-    const run=spawnSync(process.execPath,[path.join(ROOT,'tools/wildbond-catalog.cjs'),'--check'],{encoding:'utf8'});
-    const line=((run.stdout||'')+(run.stderr||'')).trim().split('\n').pop();
-    results.push({name:'wildbond-catalog',ok:run.status===0,line});
-    console.log((run.status===0?'ok  ':'FAIL')+'  wildbond-catalog  '+line);
   }
   if(wanted('save-names')){                       // save key names and Godot save folders never change (rename-checklist.md)
     const run=spawnSync(process.execPath,[path.join(ROOT,'tools/save-names-check.cjs')],{encoding:'utf8'});

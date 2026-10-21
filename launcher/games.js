@@ -3,7 +3,7 @@
 (function(){'use strict';
 /* Sections (Evan, 2026-10-09: say what each game is like and which are similar). Order is the page order. */
 window.ArcadeKinds=[
-  {id:'adventure',name:'Adventures',like:'Explore a world on foot, meet people, fight and grow stronger. Wildbond, the headline game, is about bonding with creatures and bringing colour back to the world; Realmbound is a classic MMO with quests and a guild.'},
+  {id:'adventure',name:'Adventures',like:'Explore a world on foot, meet people, fight and grow stronger. Realmbound is a classic MMO with quests and a guild.'},
   {id:'kids',name:'For little ones',like:'Gentle toys for ages 2 to 4: no reading, nothing to lose, and big things to tap. Sit with them and play together.'},
   {id:'build',name:'Build and manage',like:'Run a place and the people in it: post jobs, earn coin, upgrade buildings and hire helpers who take work off your hands.'},
   {id:'sports',name:'Sports',like:'Run a baseball club: set the lineup, make trades and grow the ballpark. Hockey is still to come.'},
@@ -11,14 +11,6 @@ window.ArcadeKinds=[
   {id:'different',name:'Arcade cabinets',like:'Quick arcade cabinets with high scores and two-player turns: aim, dodge and beat your best. Pure action, nothing runs itself.'},
 ];
 window.ArcadeGames=[
-  {id:'wildbond-preview',title:'Wildbond',tcls:'t-wildbond',status:['The headline game · Early preview','s-proto'],href:'play/wildbond/',
-   blurb:'Walk into faded Larkhaven, choose a partner and bring colour back with your first bond. Explore all eight regions and take on the league: four courts and the Champion, meet their Wardens, and care for creatures at the ranch.',
-   tags:['On foot','Eight regions and the league','Ranch & nursery'],cover:'wildbond',preview:true,image:'images/play/wb-barn.png',
-   alt:'Wildbond preview: the barn, with creatures, a feeding trough and the nursery',
-   goal:'Walk into faded Larkhaven, choose a partner and bond with creatures to bring the colour back.',
-   controls:'Arrows or WASD to walk · Enter or E to talk · J for the field book · M for music.',
-   load:'Best on a computer. The first load needs internet and may take a moment.',
-   kind:'adventure'},
   {id:'storm-front',title:'Storm Front',tcls:'t-mmo',status:['Test version','s-proto'],href:'games/storm-front/index.html',
    blurb:'Light Saltmarsh harbour through a marching storm. Clear cloud formations, shelter behind a crumbling sea wall and catch the passing gull for a bonus.',
    tags:['Arcade cabinet','High scores','Two-player turns'],cover:'storm',kind:'different',
@@ -81,10 +73,6 @@ window.ArcadeOffShelf=[
    tags:['Football','You play the snaps','Two-minute quarters'],cover:'lantern',
    kind:'sports',goal:'Play your offence for a whole game. Drag to throw, swipe to juke, tap to dive, and hold Turbo until your wind gives out.',
    controls:'Drag right to throw (a short pull is a bullet, a long pull is a lob). Swipe sideways to juke. Tap to dive. Turbo is the button. Keys 1–4 call a play.'},
-  {id:'wildbond',title:'Wildbond Classic',tcls:'t-wildbond',status:['Classic edition','s-classic'],edition:'classic',newer:'wildbond-preview',href:'games/wildbond/index.html',
-   blurb:'Pick a partner, meet your rival Wren and walk from Larkhaven across eight regions, earning eight Warden badges on the way to the league and its Champion. Catch, raise and breed creatures, climb the Lighthouse Spire after the story, and watch a faded world grow from Game Boy greens into a 3D diorama.',
-   tags:['Catch & raise','Evolving art','Full story'],cover:'wildbond',
-   kind:'classic',goal:'Choose a partner creature, catch and raise more, and beat the eight Wardens.',controls:'Arrows or WASD (or tap) to walk · Shift to run once you have shoes · menus by mouse or tap.'},
   {id:'starfall-guild',title:'Starfall Guild Classic',tcls:'t-starfall',status:['Classic edition','s-classic'],edition:'classic',newer:'starfall-preview',href:'games/starfall-guild/index.html',
    blurb:'Run an adventurer guild. Recruit heroes, find class combos, push the dungeon, build up the town, and hire staff who manage it for you.',
    tags:['Guild sim','Autobattler','Pixel art'],cover:'starfall',

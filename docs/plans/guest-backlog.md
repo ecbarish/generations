@@ -22,7 +22,7 @@ Every row below avoids a save-format change, edits under shared/, edits to sw.js
 
 Take these before any row under "Unclaimed rows". The nine bug-fix rows for each guest stay below as the fallback.
 
-Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" mean Side Games Dev Lead. Wildbond & Starfall Dev Lead scoped three world-build rows from [wildbond-world-design.md](wildbond-world-design.md) (#455) and will review each Wildbond pull. Side Games Dev Lead will review each launch-game pull. That review is not a wait. There is no dependency on another bot's approval.
+Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" mean Side Games Dev Lead. Wildbond & Starfall Dev Lead scoped three world-build rows from wildbond-world-design.md (#455) and will review each Wildbond pull. Side Games Dev Lead will review each launch-game pull. That review is not a wait. There is no dependency on another bot's approval.
 
 Checked against the merged pulls and the latest #373 comments on 2026-10-15.
 

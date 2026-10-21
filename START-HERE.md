@@ -21,13 +21,13 @@ Add one START-HERE Session log line; planning owns Where we are/Up next. No full
 - **Commit email:** only `206636510+ecbarish@users.noreply.github.com` (set it as the repo's `user.email`). Never a
   personal email.
 - **Browser games: plain HTML/JS, no build step.** Run `powershell -ExecutionPolicy Bypass -File serve.ps1` (or
-  `python -m http.server 8765`) in the repo folder and open http://localhost:8765/. **Godot games** (`wildbond-godot/`,
-  `starfall-godot/`, Claude's): Godot 4.7.2 in `C:\Users\evanb\Godot`; their web previews live in `play/` (see play/README.md).
-- **Tests must stay all-pass:** run `node tools/run-all-checks.cjs` for every browser test page and both Godot
-  suites (install Godot or set `GODOT` to its console executable). The current suite list is in
+  `python -m http.server 8765`) in the repo folder and open http://localhost:8765/. **Godot games** (`starfall-godot/`,
+  Claude's): Godot 4.7.2 in `C:\Users\evanb\Godot`; the web preview lives in `play/starfall/` (see play/README.md).
+- **Tests must stay all-pass:** run `node tools/run-all-checks.cjs` for every browser test page and the Starfall Godot
+  suite (install Godot or set `GODOT` to its console executable). The current suite list is in
   [tools/run-all-checks.cjs](tools/run-all-checks.cjs); GitHub runs it on every push and pull request. Never merge
   a failing check. Add checks for what you build. How we build: [docs/learning/](docs/learning/).
-- **Old saves must keep loading.** New save fields need defaults (Wildbond `fresh()`/`load()`, Realmbound `migrate()`).
+- **Old saves must keep loading.** New save fields need defaults (Realmbound `migrate()`).
 - **Small playable steps,** each with a line in README.md's changelog.
 - **Save your work to GitHub at the end of every step** (commit and push). Never leave finished work only on one
   computer or only in one assistant's sandbox.
@@ -50,24 +50,18 @@ Add one START-HERE Session log line; planning owns Where we are/Up next. No full
 **Read `docs/PROJECTS.md` "Read first" before anything else:** it lists every decision and lesson since 2026-10-07
 (Godot, the game window, depth, woven stories, player text, variety, friends' testing, the process). In short:
 
-- **The new Wildbond, in Godot** (`wildbond-godot/`, Claude): the opening (Maren's register with heritages, the barn,
-  the bond that brings back colour, Wren), Thornwood, Saltmarsh, Emberfall and Cloudglass with wild creatures,
-  bonding, trainers and Wardens; the ranch as a place (paddock, barn, nursery and eggs, trough, Maren's workbench and
-  creature gear you can see); evolution with branches and conditions; music per place; saving. 198 checks
-  (`tests/run_tests.gd`). Plays on the web at `play/wildbond/`.
+- **Wildbond** has moved to the private repository ecbarish/wildbond-project. This public checkout no longer has its Godot project, browser game, or plans.
 - **The Starfall village, in Godot** (`starfall-godot/`, Claude): a frontier guild town: the guild board,
   adventurers who choose their own jobs, the inn's counter by hand then Bryn, Hob's plots, the Healer's Hut, a Training
   Yard, the Smithy worked by hand then Garrick, the Apothecary with prices, ranks and newcomers, music. 85 checks.
   Plays on the web at `play/starfall/`.
-- **Browser games** (all playable, linked from the arcade): Wildbond v1.8.0 (the full journey: eight areas, the league,
-  the Spire; content complete, fixes only), Realmbound v1.6.0 (1-60, dungeons, guild with stories and commissions, a
+- **Browser games** (all playable, linked from the arcade): Realmbound v1.6.0 (1-60, dungeons, guild with stories and commissions, a
   raid), Diamond Career v0.4.0 (a baseball career, now in the game window, with a road trip), Otherworld v0.3.0
   (the Between and three worlds: Asterhold with a living Lanthorn, Hearthmere, the Ashen Throne), Starfall Guild (the old browser version), Primordial.
 - **Friends are testing:** the Come Play page (`playtest.html`) with a one-minute trailer, first steps and "if you're
-  lost" per game, and Wildbond's element chart. Windows builds in `Desktop\Game builds`.
+  lost" per game. Windows builds in `Desktop\Game builds`.
 - **Lore and design decided** (Evan, 2026-10-08): the wild bond, the Unbound, heritages, reputation, the creature
-  catalogue and evolution, depth and first person one day (the fading took depth as well as colour). Ledger:
-  `docs/lore/wildbond-threads.md`.
+  catalogue and evolution, depth and first person one day (the fading took depth as well as colour). The lore ledger moved with the private Wildbond project.
 
 ## Up next (2026-10-13: the cycle decides)
 
@@ -151,7 +145,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 - **2026-10-15, Grok (Cursor cloud), LR-POLISH:** Little Ranch stays at v0.18.2. The coloured dots on the Dough Table tint the dough, and feeding the fox gets an answer at once. Bedtime cues are bigger and last longer, dusk takes longer to fade, and leaving the Paint Shed early sends her home with a puff of the colours so far. The idle sign wiggle is gentler, with one small wiggle every 9 seconds and none when reduced motion is on, and the selected-pot ring is slimmer, as the Game Art Director asked. Recorded for [#449](https://github.com/ecbarish/generations/pull/449) (44f49c2). DEVELOPMENT-PATH has no row that names this pull request, so nothing is ticked.
 - **2026-10-15, Grok (Cursor cloud), Night Market visuals:** Night Market Stalls v0.1.4. A picture of the lane now sits under the header, with the six stalls in order. An open stall shows a striped awning, a counter and its own wares, and a shuttered stall stays dark. Each sale pops a coin up from that stall. Lanterns flicker along the top of the lane and on the awnings. The tea stall, the dumpling cart and the mooncake table steam, and the incense tray smokes, once that stall is open and has been served or hired. Buying or hiring outlines that stall for a moment, and reaching 25, 50 or 100 plays a brighter flash. The awning's light stripe changes colour at those same counts. Once a stall is staffed, people stroll along the lane. When reduced motion is on, the lane holds still, and a sale or a flash shows as one still picture. Recorded for [#438](https://github.com/ecbarish/generations/pull/438) (4e92d87). The save stays version 1. DEVELOPMENT-PATH has no row that names this pull request, so nothing is ticked.
 - **2026-10-14, dot (Adam), NM-RETUNE:** Night Market Stalls v0.1.3. The first million now takes a longer evening, about 48 to 66 minutes of active play. Later stalls cost more and earn less. The dumpling cart earns 0.5/s like the tea stall. Old saves keep their coins and stalls. Recorded for [#445](https://github.com/ecbarish/generations/pull/445) (61846a1). The save stays version 1. Nothing is ticked.
-- **2026-10-14, docs, #453:** a Wildbond vs Pokémon benchmark, with fan-game ideas, in docs/research/wildbond-vs-pokemon-benchmark.md, in [#453](https://github.com/ecbarish/generations/pull/453) (09dc55d). Docs only. No version bump, no changelog, and no DEVELOPMENT-PATH tick.
+- **2026-10-14, docs, #453:** a creature-collecting RPG benchmark, with fan-game ideas, in [#453](https://github.com/ecbarish/generations/pull/453) (09dc55d). The note moved with the private Wildbond project. Docs only. No version bump, no changelog, and no DEVELOPMENT-PATH tick.
 - **2026-10-14, docs, #452:** research on how classic overworlds are woven together, with a full-world skeleton for Wildbond, in docs/research/wildbond-world-references.md, in [#452](https://github.com/ecbarish/generations/pull/452) (964f83a). No version bump, no changelog, and no DEVELOPMENT-PATH tick.
 - **2026-10-14, Claude, WBL-7:** wildbond-godot/tests/north_roads.gd walks every built road north and fails if the title screen shows, in [#416](https://github.com/ecbarish/generations/pull/416) (b681a00). The north-exit bug did not reproduce, so WBL-7 stays open. No game code changed. Godot Wildbond has no version number, so nothing is bumped. Nothing is ticked.
 - **2026-10-14, docs, #448:** Lantern Bowl's launch plan records Evan's approved team-manager scope, in [#448](https://github.com/ecbarish/generations/pull/448) (c4dbfb1). Docs only. No version bump, changelog, or DEVELOPMENT-PATH tick.
@@ -231,13 +225,13 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 - **2026-10-13, Grok (Adam), LR10:** Little Ranch v0.9.0, the Little Wagon (load two babies, windmill/pond/woolies, a colour gate where any car cheers), in [#290](https://github.com/ecbarish/generations/pull/290).
 - **2026-10-13, Grok (Adam), LR3:** Little Ranch v0.8.0, the singing flowers (five notes, the baby dances, drag for a song), in [#289](https://github.com/ecbarish/generations/pull/289).
 
-- **2026-10-13, dot (Adam), WB-C2:** source #279 and preview #286 published at f81ef50; all 22 suites, full exact-pack save/phone gate and [93 live browser assertions](https://github.com/ecbarish/generations/actions/runs/38435221402) pass. First partner 118.50–119.60 simulated seconds, full encounter 173.90–175.82. [Final evidence](docs/releases/wildbond-wbc2-handoff.md).
+- **2026-10-13, dot (Adam), WB-C2:** source #279 and preview #286 published at f81ef50; all 22 suites, full exact-pack save/phone gate and [93 live browser assertions](https://github.com/ecbarish/generations/actions/runs/38435221402) pass. First partner 118.50–119.60 simulated seconds, full encounter 173.90–175.82. Final evidence.
 
 
 - **2026-10-13, Grok (Adam), LR-C1:** Little Ranch v0.7.0, the first five minutes alone on a tablet: idle hint glow, nearest-target taps, roomier paint pots; parent's checklist and tablet screenshots in [#281](https://github.com/ecbarish/generations/pull/281).
 - 2026-10-13 Codex: ART-WB-SPRITE-EVAL saved as a future candidate in docs/art/wildbond-art-direction.md section 8; note-only, no trial started or credits spent.
 
-- **2026-10-13, dot (Adam), WB-C2:** shorter arrival/barn dialogue and unchanged family tales immediately after the first bond, in draft [#279](https://github.com/ecbarish/generations/pull/279). All 20 aggregate suites pass on the implementation, including 1,612 integrated Wildbond checks and frozen pre-change save compatibility. Input-only before/after timing and full-resolution desktop/phone evidence: [record](docs/playtests/wildbond-wb-c2/README.md). Adam approved merge and preview publication at 13:32 UTC; reconciling current main and rerunning exact-head checks before the scoped release.
+- **2026-10-13, dot (Adam), WB-C2:** shorter arrival/barn dialogue and unchanged family tales immediately after the first bond, in draft [#279](https://github.com/ecbarish/generations/pull/279). All 20 aggregate suites pass on the implementation, including 1,612 integrated Wildbond checks and frozen pre-change save compatibility. Input-only before/after timing and full-resolution desktop/phone evidence: record. Adam approved merge and preview publication at 13:32 UTC; reconciling current main and rerunning exact-head checks before the scoped release.
 
 - 2026-10-13 Codex: PR #278 final asset push adds a male/female 3D fitting bench and paired role sheets; pause handoff in docs/art/starfall-higgsfield/FINAL-PUSH.md. Next bounded step is one fitted kit on both bodies.
 
@@ -324,7 +318,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 
 - 2026-10-11 Claude (website thread): arcade v1.6.0, AR2.14. Classic editions in their own section with ribbons; guides labelled by edition; site and guide refreshes tied to milestones (docs/SITE-AND-GUIDES.md); hall upgrade ticket AR2.13 on the QUEUE road (#13).
 
-- 2026-10-11 Claude (Priorities and direction): docs/GOALS.md, short, medium and long-term goals for the arcade and each game (Evan asked). Wildbond's long term: the creature game people wish Pokémon was, six pillars drawn from the best fan games (Radical Red, Reborn, Cassette Beasts, Temtem, Coromon, Infinite Fusion, Insurgence) plus our own idea, the bond as the game.
+- 2026-10-11 Claude (Priorities and direction): docs/GOALS.md, short, medium and long-term goals for the arcade and each game (Evan asked). Wildbond's long term: the creature game people wish a creature-collecting RPG was, six pillars drawn from the best fan games (Radical Red, Reborn, Cassette Beasts, Temtem, Coromon, Infinite Fusion, Insurgence) plus our own idea, the bond as the game.
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request ("do your suggestions"), merged SF2.18 no mandatory chores (#187, `a0e4787`) and SF2.20 Tamsin easier to reach (#190, `fa44b3a`). Adam dropped SF2.19 (extra board pins measured worse; #189 closed). The pacing re-measure is in docs/measurements/starfall-day-pacing.md. Then rebuilt play/starfall/ from `fa44b3a` (pack only, 3,252,424 bytes) in the PR that carries this line.
 - 2026-10-11 Claude (Priorities and direction): refreshed the shared docs after Evan heard they were stale. QUEUE's Heavy lifting (12 builds) and road ahead (12 tasks) rebuilt from what is really open; 11 merged path lines ticked; new WB-KEYS, LR3, AC-x; PRIORITIES section 4 and this Up next rewritten.
 - 2026-10-11 Grok (Adam / abarish-dev, guest): COMMS catch-up only. Ember Bricks is claimed in ready #185 (not free, not merged; hub stays v1.5.1; #180 untouched). #177 merged (`480dfc4`); its preview is draft #183. #181 and #182 are merged.
@@ -333,7 +327,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request, Starfall planning docs (#181): the darkness proposal updated with Adam's decision (one visible creature, at most one incident a night), the progression audit with his priority order, tickets SF2.9 to SF2.17 in DEVELOPMENT-PATH, and the SF2.17 day-pacing measurement (docs/measurements/starfall-day-pacing.md; no game numbers changed).
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request merged SF2.8 "Something by hand every day" (#179, `76f73aa`: lantern round then Odo, sparring then Ilse; Starfall Godot 199/0, all 17 suites pass), then rebuilt play/starfall/ from `76f73aa` (pack only, 3,251,192 bytes) in the PR that carries this line.
 - 2026-10-11 — Grok (Adam / abarish-dev, guest): at Adam's request merged #160 (AC3 Brisket's Crossing, `a7fac81`). Cabinet v0.1.0, no hub bump. Ember Bricks stays open. The hit-pause follow-up stays draft #180.
-- 2026-10-11 Codex (Adam / abarish-dev): WB-DOOR-TAP [PR #177](https://github.com/ecbarish/idle-arcade/pull/177) fixes four rejected door targets and clears Nora's entrance from the unchanged-size phone pad. All 17 suites pass (Wildbond 1503/0); 150 rendered input transitions and 256 captures pass, including visible-pad entry/exit/re-entry at four sizes. [Evidence](docs/screenshots/wildbond-door-taps/README.md). Merged as `480dfc4`; exact preview release #183 passes 353 browser checks and 119 captures, with final CI/live-hash gates before publication. No save-format changes.
+- 2026-10-11 Codex (Adam / abarish-dev): WB-DOOR-TAP [PR #177](https://github.com/ecbarish/idle-arcade/pull/177) fixes four rejected door targets and clears Nora's entrance from the unchanged-size phone pad. All 17 suites pass (Wildbond 1503/0); 150 rendered input transitions and 256 captures pass, including visible-pad entry/exit/re-entry at four sizes. Evidence. Merged as `480dfc4`; exact preview release #183 passes 353 browser checks and 119 captures, with final CI/live-hash gates before publication. No save-format changes.
 
 - 2026-10-11 Grok (Adam / abarish-dev, guest): at Adam's request built and merged SF2.7 "See the wilds sooner" (#174, `9c48e64`): a short stretch outside Starfall's west gate (trail, creek, Tull's field, North Road, waymarkers; adventurers on those jobs seen at work). Starfall Godot 167/0, all 17 suites pass. Then rebuilt play/starfall/ from `9c48e64` (pack only, 3,241,944 bytes) in the PR that carries this line.
 - 2026-10-11 Claude (Playtester thread): playtest pass 2 (docs/PLAYTEST.md). The four new games pass (Storm Front, Lighthouse Watch and Little Ranch 17, Brisket's Crossing 15, with a no-pause-after-a-hit fix wanted). The Starfall village is still below the bar (no goal line or controls). Wildbond is better (its own village, tap to walk) but still shows no keys in game.
@@ -627,8 +621,8 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
   were cut off (they are 4 tiles wide), register values now centred. Next: choosing your partner in Maren's barn.
 - 2026-10-08 Claude: Godot trial environment now uses the Ninja Adventure CC0 tilesets (grass, dirt paths with edges,
   flowers, garden bushes, cottages, a staggered woods border; scripts/main.gd _draw_ground and _draw_structures; files in
-  wildbond-godot/assets/env/). Our figures, fences and sign stay code-drawn. Fan-made Pokemon sprites ruled out
-  (Nintendo's characters; docs/wildbond-plan.md). Next: the cub's animation, the character creator, the partner choice.
+  wildbond-godot/assets/env/). Our figures, fences and sign stay code-drawn. Fan-made creature-collecting RPG sprites ruled out
+  (Nintendo's characters). Next: the cub's animation, the character creator, the partner choice.
 - 2026-10-08 Claude: Godot trial figures rebuilt from parts (draw_person, LOOKS in scripts/main.gd): head, hair style,  body, apron, swinging arms, legs or a skirt, 4-frame walk in four directions, blinking, idle glances, a dark  outline; the parts system is the basis for the character creator and a later 3D rig. Next: the environment  (Evan liked the pack's structures; pieces kept as separate objects with footprints so they can stand up in 3D).
 - 2026-10-08 Claude: Evan rejected the Ninja Adventure look (chibi, no visible legs; preferred our code-drawn figures).  Reverted the Godot trial to the code-drawn tamer, Maren and cub; removed the pack's files from the project. Art  direction recorded in docs/wildbond-plan.md: real proportions with legs, our own art. (The test window that raced  through the opening was the sped-up recording, not the game's real pace.)
 - 2026-10-08 Claude: downloaded Ninja Adventure (CC0, 94 MB zip in Evan's Downloads; unzipped to  C:UsersevanbGodotNinjaAdventure; only used files copied into wildbond-godot/assets/ninja). The Godot trial's  tamer, Maren and the cub are now real 4-way animated sprites. Next: the map from the pack's tilesets. Own original  art is the long-term goal (Evan).
@@ -638,7 +632,7 @@ section 4). Take your named task, then the block's spare-effort order. How to wo
 - 2026-10-07 Codex: preserved Evan's Gemini Realmbound report and three source panels in docs/research/; realmbound-first-hour-review.md separates useful companion/UX lessons from incorrect Godot/creature-game/full-Auto assumptions and proposes current-game onboarding tests. Integrated main a2ddc69, preserving Claude's trial fixes. Research only; no gameplay/installs/merges into main, PR #44.
 
 - 2026-10-08 Claude: merged ChatGPT's branch: Wildbond creature variants (T33: Gleaming, tiny/huge, markings; cosmetic;  js/19-variants.js) -> Wildbond v1.6.0, the Realmbound field guide (guides/realmbound.html), and research: its careful  review of Gemini's Godot report (docs/research/godot-production-slice-review.md: keep/try/defer/reject) and Evan's  direction (docs/research/owner-direction-2026-10-07.md: ~US$200 cash ceiling, platforms open, automation serves play).  Godot trial: vertex snapping off (transform snapping only, per Godot docs). Wildbond 1254, Realmbound 4173, offline 15.
-- 2026-10-08 Claude: Evan played the Godot trial: "this feels much better". Fixed his notes (Maren off the gate,  fences join vertically, four-way facing with walk frames and idle breathing, cub tail wag and trot). His animation  bar ("better than the first Pokémon") needs real sprite art: docs/wildbond-plan.md "Art and animation".
+- 2026-10-08 Claude: Evan played the Godot trial: "this feels much better". Fixed his notes (Maren off the gate,  fences join vertically, four-way facing with walk frames and idle breathing, cub tail wag and trot). His animation  bar ("better than the first creature-collecting RPG") needs real sprite art.
 - 2026-10-07 Codex: saved Evan's supplied Gemini Godot report verbatim as docs/research/godot-production-slice.md; review beside it fact-checks snapping, MSDF, saves and web constraints, rejects invented stamina/chemistry requirements and unsupported schedule. Research only, PR #44; no trial edits, installs or plan adoption.
 
 - 2026-10-07 Codex: recorded Evan's clarified direction in docs/research/owner-direction-2026-10-07.md: open platform choice, approximate US$200 total cash budget, earned help for tedium rather than universal full Auto; Otherworld/Diamond remain in design discussions. Updated the old control contract in docs/plans/README.md to prevent conflicting instructions. Documentation only, PR #44.
