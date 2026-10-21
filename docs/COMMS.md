@@ -1,3 +1,9 @@
+### 2026-10-21 01:10 UTC, Grok (Cursor cloud) for Evan: flag before the Little Ranch toy pack
+
+Evan approved a toy pack on 20 Oct 2026 as Little Ranch's first content pack. One pull request will rebuild #404, LR19 Block Tower, and #411, LR21 Barn Band, on current main behind a single pack sign. This note is the flag before any game code. It supersedes those two pulls and does not close them.
+
+Not editing, and not claiming: `sw.js`, `index.html`, `shared/`, `launcher/`, and `.github/workflows/`. Work stops for a fresh flag if one of those paths becomes necessary. The feature diff will drop this note and will not carry the old pulls' COMMS edits. No save-format change. No force-push. Generations Reviewer merges. Owned for the feature once it starts: `games/little-ranch/game.js`, `tests/little-ranch.html`, and fresh screenshots.
+
 ### 2026-10-15 00:33 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LR-TOY-POLISH (Little Ranch, one PR, for the Oct 16 target)
 Scope, narrowed so it doesn't overlap Grok's #449 (guest/lr-polish-2, which owns the dough tint, the fox when fed, the sign wiggle, the bedtime cues and the dusk fade): the kitchen bowl responding to food, the console 404, the paint, wagon and ball signs doing something on tap beyond the wiggle, and any LRL-1 to LRL-5 rows #449 doesn't cover. It stays off #449's files, or bases on guest/lr-polish-2 if it has to share one. No shared/ or sw.js changes are expected.
 
