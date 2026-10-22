@@ -32,7 +32,7 @@
   // LR7: the bedtime routine. At dusk, before the lullaby: tap the toothbrush (the baby brushes, foamy), then the cup (a big
   // drink), then say goodnight to each friend (the flowers, and the Pebblit when it's visiting): tap them and they wave and
   // yawn. Then the lullaby and sleep. Nothing to fail and never stuck: a step left alone for a few seconds does itself.
-  const ROUTINE = ['teeth', 'water', 'night'], ROUTINE_WAIT = 18, BRUSH_SECS = 1.8, DRINK_SECS = 1.4, DUSK_SECS = 16; let useRoutine = true;
+  const ROUTINE = ['teeth', 'water', 'night'], ROUTINE_WAIT = 9, BRUSH_SECS = 1.8, DRINK_SECS = 1.4, DUSK_SECS = 16; let useRoutine = true;
   const HATS = ['straw', 'party', 'crown', 'flowers', 'cowboy'], HAT_FLY = .6, HAT_TRIES = 3;
   const RAIN_SECS = 5, PUDDLE_SECS = 60, SPLASH_SECS = 1.3;
   // LR16: the meadow ball. Tap it and it rolls to the other side of the grass; the baby runs over and kicks. Every third kick is one happy thing. Nothing to miss. At night a tap only boings.
@@ -48,6 +48,9 @@
   const DOUGH_BABIES = 3, STAMP_SECS = .9, DOUGH_END_SECS = 2.6;
   // Toy pack. Block Tower never falls by itself. Barn Band notes stay at or under BAND_VOL.
   const BLOCKS = ['#ff6fa8', '#4fa6ff', '#ffd03a', '#5fd06a', '#b07aff'], DROP_SECS = .4, TUMBLE_SECS = 1.3, TUMBLE_MIN = 3;
+  // Shade and shine are fixed cousins of the block colours. Mixing them at draw time made colours the palette never listed.
+  const BLOCK_SHADE = ['#e84a5a', '#3f8ae8', '#f2b632', '#5fb34a', '#5a3fa8'];
+  const BLOCK_SHINE = ['#ff9a8a', '#9ad6f4', '#fff3a0', '#8acb6a', '#b8a8f0'];
   const BAND = ['drum', 'bells', 'horn'], BAND_BEAT = .36, BAND_VOL = .2;
   // LR10: the Little Wagon. Two cars (red and blue), two babies to load, three things along the valley and one colour gate
   const CARS = ['#e8483c', '#3f8ae8'], RIDE = { windmill: 1.05, pond: 1.75, woolies: 2.45, gate: 3.2, end: 4.1 }, RIDE_SPEED = .24, WAGON_END_SECS = 2.4;
@@ -280,13 +283,23 @@
         const inside = head.x >= b.x0 && head.x <= b.x1 && head.y >= b.y0 && head.y <= b.y1;
         if (Math.hypot(head.x - f.x, head.y - f.y) / (R * s * 1.25) * (inside ? .4 : 1) <= kBaby) continue;
         if (overlap(b, body) || overlap(b, bushBox) || overlap(b, basket) || L.flowers.some(fl => Math.hypot(f.x - fl.x, f.y - fl.y) < fl.r + R * s * .55)) continue;
+        const gapBox = (a, b2) => { const dx = Math.max(a.x0 - b2.x1, b2.x0 - a.x1), dy = Math.max(a.y0 - b2.y1, b2.y0 - a.y1); if (dx < 0 && dy < 0) return Math.max(dx, dy); if (dx < 0) return dy; if (dy < 0) return dx; return Math.hypot(dx, dy); };
+        if (five.some(n => gapBox(b, box(L[n], 1, 'board')) < 6)) continue;
+        const cloud = L.cloud, cr = cloud.r;
+        const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
+        const bodyBox = { x0: cloud.x - cr * 1.35, x1: cloud.x + cr * 1.35, y0: cloud.y - cr * 1.05, y1: cloud.y + cr * .95 };
+        const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: L.ground + 2 };
+        const br = rs * .42, balloon = { x0: q.x - br, x1: q.x + br, y0: b.y0 - br * 2.5, y1: b.y0 };
+        if (balloon.y0 < 1 || balloon.x0 < 1 || balloon.x1 > W - 1) continue;
+        if ([b, balloon].some(box2 => overlap(box2, faceBox) || overlap(box2, bodyBox) || overlap(box2, rainBox))) continue;
+        if (five.some(n => overlap(balloon, box(L[n], 1, 'board')) || overlap(balloon, box(L[n], 1, 'post')))) continue;
         const weather = Math.hypot(f.x - sun.x, f.y - sun.y) < sun.r + R * s * .35 || Math.hypot(f.x - L.cloud.x, f.y - L.cloud.y) < L.cloud.r + R * s * .35;
-        const c = (y > L.ground ? 70 : 0) + (weather ? 24 : 0) + (s < 1 ? 8 : 0) + Math.abs(x - W * .58) * .15 + y * .04;
+        const c = (y > L.ground ? 70 : 0) + (weather ? 80 : 0) + (s < 1 ? 8 : 0) + Math.abs(x - W * .58) * .15 + y * .04;
         if (c < cost) { cost = c; best = { x, y, s }; }
       }
       return best;
     };
-    return search(1, 2.5) || search(1, 1.5) || search(.72, 1.5) || search(.6, 1.4) || { x: Math.min(W - R, W * .62), y: Math.max(R * 1.2, 8), s: 1 };
+    return search(1, 2.5) || search(1, 1.5) || search(.72, 1.5) || search(.6, 1.4) || search(.6, 1.2) || { x: Math.max(R * 1.4, L.cloud.x - L.cloud.r * 3.2), y: Math.max(R * 2.2, L.ground * .55), s: .72 };
   }
   function layToys() {
     const barn = L.shed.barn, tall = H >= W * 1.05;
@@ -298,8 +311,8 @@
       : [{ id: 'tower', x: W * .3, y: H * .56, w: bw, h: bh }, { id: 'band', x: W * .72, y: H * .56, w: bw, h: bh }] };
     const bs = Math.min(W * .15, H * .13), fy = H * .84;
     L.tower = { bs, fy, x: W * .46, baby: { x: W * .18, y: fy, z: Math.min(W * .11, H * .09) }, tray: [0, 1, 2].map(i => ({ x: W * .82, y: fy - bs * (.55 + i * 1.25) })), barn };
-    const z = Math.min(W * .13, H * .15), by = H * .72, br = Math.min(W * .12, H * .11);
-    L.band = { z, by, br, babies: [.22, .5, .78].map(f => ({ x: W * f, y: by })), stick: { x: W * .5, y: Math.min(H * .9, by + z * 1.15) }, barn };
+    const z = Math.min(W * .14, H * .16), feet = H * .88, br = Math.min(W * .12, H * .11);
+    L.band = { z, by: feet, floor: Math.max(H * .58, feet - z * 1.95), br, babies: [.22, .5, .78].map(f => ({ x: W * f, y: feet })), stick: { x: W * .36, y: Math.min(H - 4, feet + z * .45) }, barn };
   }
   const busy = () => !!(st.baby.act || st.baby.tx !== null);
   const near = (p, q, r) => Math.hypot(p.x - q.x, p.y - q.y) <= r;
@@ -444,10 +457,11 @@
     if (st.place === 'dough') { const D = st.dough, V = L.dough; if (D.phase !== 'play' || D.stamp) return null;
       return D.flat < .5 && !D.stamps ? { name: 'lump', ...V.lump, r: V.lr * 1.2 } : { name: 'cutter', ...V.cutter, r: V.cr * 1.3 }; }
     if (st.place === 'pack') { const i = L.pack.cards.findIndex(c => !st.used[c.id]); const c = L.pack.cards[i < 0 ? 0 : i]; return { name: c.id, x: c.x, y: c.y, r: Math.min(c.w, c.h) * .35 }; }
-    if (st.place === 'tower') { const T2 = st.tower, V = L.tower; if (T2.tumble) return null;
-      return T2.stack.length >= 5 ? { name: 'tbaby', x: V.baby.x, y: V.baby.y - V.baby.z * 1.2, r: V.baby.z * 1.3 } : { name: 'tray0', ...V.tray[0], r: V.bs * .75 }; }
+    if (st.place === 'tower') { const T2 = st.tower, V = L.tower, cam = towerCam(); if (T2.tumble) return null;
+      return T2.stack.length >= 5 ? { name: 'tbaby', x: V.baby.x, y: V.baby.y + cam - V.baby.z * 1.2, r: V.baby.z * 1.3 } : { name: 'tray0', x: V.tray[0].x, y: V.tray[0].y + cam, r: V.bs * .75 }; }
     if (st.place === 'band') { const B = st.band, V = L.band; if (B.song) return null; const i = BAND.findIndex((k, j) => !B.played[j]);
-      return i >= 0 ? { name: BAND[i], x: V.babies[i].x, y: V.babies[i].y - V.z * .6, r: V.z * 1.3 } : { name: 'stick', ...V.stick, r: V.br * 1.2 }; }
+      if (i < 0) return { name: 'stick', x: V.stick.x, y: V.babies[0].y - V.z * 2.35, r: Math.min(V.br * .4, V.z * .3) };
+      const q = V.babies[i], ear = q.y - V.z * 1.9; return { name: BAND[i], x: q.x, y: ear - V.z * .5, r: V.z * .32 }; }
     if (st.place === 'kitchen') return st.kitchen.phase === 'idle' ? { name: 'food0', x: L.kitchen.foods[0].x, y: L.kitchen.foods[0].y, r: L.kitchen.fr * 1.25 } : null;
     if (st.place === 'shed') { if (st.shed.doneAt !== null) return null; const k = PARTS.find(q => !(q in st.shed.parts)); const z = L.shed.z;
       return k ? { name: k, ...partPoint(k), r: z * .55 } : null; }
@@ -602,22 +616,26 @@
   function enterTower() { if (st.mode !== 'play' || st.place !== 'pack') return; st.place = 'tower'; st.used.tower = 1; st.sponge.drag = null;
     st.tower = { stack: [], next: 0, tumble: null, wig: 0, giggle: -9, tumbles: 0 }; sfx('door'); }
   function leaveTower(home) { st.tower = null; st.place = home ? 'ranch' : 'pack'; sfx('door'); }
-  function stackBlock() { const V = L.tower, n = st.tower ? st.tower.stack.length : 0, room = V.fy - H * .3; return n < 1 || n * V.bs <= room ? V.bs : room / n; }
-  const towerCam = () => { const V = L.tower, T2 = st.tower; if (!T2 || !T2.stack.length) return 0; const over = T2.stack.length * stackBlock() - (V.fy - H * .3); return over > 1e-4 ? over : 0; };
-  function addBlock(i) { const T2 = st.tower, V = L.tower; if (T2.tumble) { sfx('note'); return; }
-    const c = (T2.next + i) % BLOCKS.length; T2.next = (T2.next + 1) % BLOCKS.length; T2.stack.push({ c, at: st.t, from: V.tray[i], dx: (Math.random() - .5) * V.bs * .12, landed: false }); sfx('pick', c % 4); }
+  function stackBlock() { const V = L.tower, n = st.tower ? st.tower.stack.length : 0; if (n < 1) return V.bs; const room = V.fy - H * .3; return Math.max(V.bs / 2, Math.min(V.bs, room / n)); }
+  const towerCam = () => { const V = L.tower, T2 = st.tower; if (!T2) return 0; if (T2.tumble) return T2.tumble.cam || 0; if (!T2.stack.length) return 0;
+    const over = T2.stack.length * stackBlock() - (V.fy - H * .3); return over > 1e-4 ? Math.min(over, Math.max(0, H - V.fy - 1)) : 0; };
+  function tumbleReact(p) { const T2 = st.tower; T2.wig = 1; fx('spark', p.x, p.y); fx('note', p.x, p.y - 6); sfx('note'); }
+  function addBlock(i) { const T2 = st.tower, V = L.tower; if (T2.tumble) return tumbleReact(V.tray[i] || { x: V.x, y: V.fy });
+    const c = (T2.next + i) % BLOCKS.length; T2.next = (T2.next + 1) % BLOCKS.length;
+    const block = { c, at: st.t, from: { x: V.tray[i].x, y: V.tray[i].y }, dx: (Math.random() - .5) * V.bs * .12, landed: false };
+    T2.stack.push(block); block.from.y += towerCam(); sfx('pick', c % 4); }
   function knock() { const T2 = st.tower, V = L.tower; T2.giggle = st.t; sfx('giggle'); if (T2.tumble || !T2.stack.length) return;
-    const bs = stackBlock(), cam = towerCam(); T2.tumble = { at: st.t, bs, blocks: T2.stack.map((b, k) => ({ c: b.c, x: V.x + b.dx, y: V.fy - (k + .5) * bs + cam, vx: (Math.random() * .8 + .3) * bs * 3 * (k % 2 ? 1 : -.4) + bs, vy: -bs * (2 + Math.random() * 2), a: 0, va: (Math.random() - .5) * 8 })) };
-    if (T2.stack.length >= TUMBLE_MIN) { st.acts++; T2.tumbles++; } T2.stack = []; sfx('rainbow'); for (let j = 0; j < 5; j++) fx('heart', V.baby.x + (j - 2) * V.baby.z * .4, V.baby.y - V.baby.z * 2); }
-  function towerTap(p) { const T2 = st.tower, V = L.tower, bs = stackBlock(), cam = towerCam();
+    const bs = stackBlock(), cam = towerCam(); T2.tumble = { at: st.t, bs, cam, blocks: T2.stack.map((b, k) => ({ c: b.c, x: V.x + b.dx, y: V.fy + cam - (k + .5) * bs, vx: (Math.random() * .8 + .3) * bs * 3 * (k % 2 ? 1 : -.4) + bs, vy: -bs * (2 + Math.random() * 2), a: 0, va: (Math.random() - .5) * 8 })) };
+    if (T2.stack.length >= TUMBLE_MIN) { st.acts++; T2.tumbles++; } T2.stack = []; sfx('rainbow'); for (let j = 0; j < 5; j++) fx('heart', V.baby.x + (j - 2) * V.baby.z * .4, V.baby.y + cam - V.baby.z * 2); }
+  function towerTap(p) { const T2 = st.tower, V = L.tower, cam = towerCam();
     if (near(p, V.barn, V.barn.r * 1.15)) return leaveTower(false);
-    const i = V.tray.findIndex(q => near(p, q, V.bs * .75)); if (i >= 0) return addBlock(i);
-    if (Math.hypot(p.x - V.baby.x, p.y - (V.baby.y - V.baby.z * 1.1)) <= V.baby.z * 1.6) return knock();
-    if (T2.stack.length && Math.abs(p.x - V.x) <= bs * .8 && p.y <= V.fy + cam && p.y >= V.fy - (T2.stack.length + .5) * bs + cam) { T2.wig = 1; sfx('clop'); return; }
-    fx('spark', p.x, p.y); sfx('note'); }
+    if (Math.hypot(p.x - V.baby.x, p.y - (V.baby.y + cam - V.baby.z * 1.1)) <= V.baby.z * 1.6) return knock();
+    if (T2.tumble) return tumbleReact(p);
+    let best = 0, bd = Infinity; V.tray.forEach((q, i) => { const d = Math.hypot(p.x - q.x, p.y - (q.y + cam)); if (d < bd) { bd = d; best = i; } });
+    addBlock(best); }
   function towerUpdate(dt) { const T2 = st.tower, V = L.tower; T2.wig = Math.max(0, T2.wig - dt * 2.5);
     for (const b of T2.stack) if (!b.landed && st.t - b.at >= DROP_SECS) { b.landed = true; sfx('clop'); sfx('boing'); }
-    const tb = T2.tumble; if (tb) { for (const b of tb.blocks) { b.vy += tb.bs * 9 * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.a += b.va * dt; if (b.y > V.fy - tb.bs * .5) { b.y = V.fy - tb.bs * .5; b.vy *= -.35; b.vx *= .7; b.va *= .6; } }
+    const tb = T2.tumble; if (tb) { const floor = V.fy + (tb.cam || 0) - tb.bs * .5; for (const b of tb.blocks) { b.vy += tb.bs * 9 * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.a += b.va * dt; if (b.y > floor) { b.y = floor; b.vy *= -.35; b.vx *= .7; b.va *= .6; } }
       if (st.t - tb.at >= TUMBLE_SECS) T2.tumble = null; } }
   let bandLoud = 0;
   function btone(f, dur, at, vol, type, slide) { const v = Math.min(vol, BAND_VOL); bandLoud = Math.max(bandLoud, v); tone(f, dur, at, v, type, slide); }
@@ -951,12 +969,12 @@
       ell(gx, V.gy - z * 1.8, z * .26, z * .26, col); ell(gx + z * 1.4, V.gy - z * 1.8, z * .26, z * .26, col); }
     q = { x: (RIDE.end - w.x) * W + V.puller.x + z * 2 }; if (q.x < W + z * 3) { cx.fillStyle = '#c8453a'; cx.fillRect(R(q.x), R(V.gy - z * 1.6), R(z * 1.8), R(z * 1.5)); cx.beginPath(); cx.moveTo(R(q.x - z * .2), R(V.gy - z * 1.55)); cx.lineTo(R(q.x + z * .9), R(V.gy - z * 2.4)); cx.lineTo(R(q.x + z * 2), R(V.gy - z * 1.55)); cx.fillStyle = '#8a2a24'; cx.fill(); cx.fillStyle = '#fff4e0'; cx.fillRect(R(q.x + z * .6), R(V.gy - z * .9), R(z * .6), R(z * .8)); } // the barn at the end of the road
     // the puller: a big gentle creature, then the two cars with their babies
-    const P = V.puller, bounce = w.phase === 'ride' ? Math.abs(Math.sin(st.t * 6)) * z * .08 * m : 0, wig = Math.sin(st.t * 30) * w.wiggle * z * .05;
-    shadow(P.x, V.gy + z * .1, z * .9); cx.fillStyle = '#6a4a36'; for (const lx of [-.5, -.2, .25, .55]) cx.fillRect(R(P.x + lx * z), R(P.y + z * .3 - bounce), R(z * .18), R(z * .55 + bounce));
-    ell(P.x + wig, P.y - bounce, z * .85, z * .55, '#a87a54'); ell(P.x + z * .75 + wig, P.y - z * .45 - bounce, z * .42, z * .38, '#a87a54'); ell(P.x + z * .95 + wig, P.y - z * .32 - bounce, z * .2, z * .14, '#e8c8a8');
-    ell(P.x + z * .78 + wig, P.y - z * .55 - bounce, z * .06, z * .07, '#2a1a18'); ell(P.x + z * .55 + wig, P.y - z * .82 - bounce, z * .14, z * .08, '#8a6a4a');
-    cx.fillStyle = '#5a3a24'; cx.fillRect(R(V.cars[1].x + z * .9), R(P.y - z * .05), R(P.x - z * .8 - V.cars[1].x - z * .9), Math.max(1, R(z * .08)));
-    const hint2 = hint();
+    const hint2 = hint(), pullBob = hint2 && hint2.name === 'wagon' && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * z * .1 : 0;
+    const P = V.puller, bounce = w.phase === 'ride' ? Math.abs(Math.sin(st.t * 6)) * z * .08 * m : 0, wig = Math.sin(st.t * 30) * w.wiggle * z * .05, py = P.y - pullBob;
+    shadow(P.x, V.gy + z * .1, z * .9); cx.fillStyle = '#6a4a36'; for (const lx of [-.5, -.2, .25, .55]) cx.fillRect(R(P.x + lx * z), R(py + z * .3 - bounce), R(z * .18), R(z * .55 + bounce));
+    ell(P.x + wig, py - bounce, z * .85, z * .55, '#a87a54'); ell(P.x + z * .75 + wig, py - z * .45 - bounce, z * .42, z * .38, '#a87a54'); ell(P.x + z * .95 + wig, py - z * .32 - bounce, z * .2, z * .14, '#e8c8a8');
+    ell(P.x + z * .78 + wig, py - z * .55 - bounce, z * .06, z * .07, '#2a1a18'); ell(P.x + z * .55 + wig, py - z * .82 - bounce, z * .14, z * .08, '#8a6a4a');
+    cx.fillStyle = '#5a3a24'; cx.fillRect(R(V.cars[1].x + z * .9), R(py - z * .05), R(P.x - z * .8 - V.cars[1].x - z * .9), Math.max(1, R(z * .08)));
     V.cars.forEach((c, i) => { const cw = wig * (i ? -1 : 1), cheer = st.t - w.cheer < 1.4 && (w.gate.big ? true : i === w.gate.col) ? Math.abs(Math.sin((st.t - w.cheer) * 9)) * z * .2 * m : 0, hb = hint2 && hint2.name === 'car' + i && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * z * .08 : 0;
       if (i) cx.fillRect(R(V.cars[0].x + z * .9), R(c.y), R(c.x - V.cars[0].x - z * 1.8), Math.max(1, R(z * .08)));
       const k = st.t - w.hop[i], ride = w.aboard[i] && k > .45, by = c.y - z * .55 - bounce - cheer - hb;
@@ -1058,10 +1076,7 @@
     ell(q.x, q.y + V.lr * .22, rx * 1.05, V.lr * .16, 'rgba(90,50,20,.25)'); ell(q.x, cy, rx, ry, col); ell(q.x - rx * .35, cy - ry * .45, rx * .22, Math.max(1, ry * .22), mixHex(col, '#ffffff', .5));
     for (let i = 0; i < 3; i++) { const a = D.spin + i * 2.1; ell(q.x + Math.cos(a) * rx * .55, cy + Math.sin(a) * ry * .4, rx * .06, Math.max(1, ry * .06), mixHex(col, '#000000', .12)); }
     const zCookie = R(V.cr * .9), base = cy + ry * .2;
-    // mixHex only parses #rrggbb. col is already rgb(), so mix the dough hex with white twice (0.35, then 0.15).
-    const doughHex = st.paint && st.paint.body !== undefined ? PAINT[st.paint.body] : '#e06a32';
-    const doughBaby = mixHex(doughHex, '#ffffff', 1 - .65 * .85);
-    if (D.stamp && D.stamp.hit && st.t - D.stamp.at < STAMP_SECS) drawDoughBaby(R(q.x), R(base), zCookie, doughBaby, 0);
+    if (D.stamp && D.stamp.hit && st.t - D.stamp.at < STAMP_SECS) drawDoughBaby(R(q.x), R(base), zCookie, col, 0);
     // the cutter: a blue baby-shaped cutter with a red knob; it hops over, presses, and hops back
     // pressed, its ring centre sits on the cookie's body centre
     let cxp = V.cutter.x, cyp = V.cutter.y - bob('cutter'), pressed = false;
@@ -1076,7 +1091,7 @@
     const hopAt = [];
     for (const h of D.hops) { const e = st.t - h.at, k = e / 3, lane = h.front ? R(V.lr * .35) : 0;
       const x = R(q.x + h.dir * k * W * .7), y = R(base + lane - Math.abs(Math.sin(e * 6)) * V.lr * .6 * m);
-      hopAt.push({ dir: h.dir, x, y }); drawDoughBaby(x, y, zCookie, doughBaby, Math.abs(Math.cos(e * 6)) < .3 ? .6 : 0); }
+      hopAt.push({ dir: h.dir, x, y }); drawDoughBaby(x, y, zCookie, col, Math.abs(Math.cos(e * 6)) < .3 ? .6 : 0); }
     D.pose = { z: zCookie, pressed, cxp, cyp, line: Math.max(2, R(V.cr * .16)), ringY: R(cyp - V.cr * .25), bodyY: R(R(base) - .4 * zCookie), hops: hopAt };
     if (D.phase === 'done') for (let i = 0; i < 6; i++) { const a = st.t * 1.5 + i; ell(q.x + Math.cos(a) * V.lr * 1.6, q.y - V.lr * .6 + Math.sin(a) * V.lr * .6, U * .01, U * .01, '#fff3a0'); }
     drawHint();
@@ -1158,7 +1173,8 @@
     for (const part of PARTS) { const col = part in sh.parts ? PAINT[sh.parts[part]] : '#fffaf0';
       for (const q of shedPrims(part)) { cx.beginPath(); if (q.k === 'e') cx.ellipse(R(q.x), R(q.y), R(q.rx), R(q.ry), 0, 0, 7); else if (q.k === 'r') cx.rect(R(q.x), R(q.y), R(q.w), R(q.h)); else { cx.moveTo(R(q.pts[0][0]), R(q.pts[0][1])); cx.lineTo(R(q.pts[1][0]), R(q.pts[1][1])); cx.lineTo(R(q.pts[2][0]), R(q.pts[2][1])); cx.closePath(); }
         cx.fillStyle = col; cx.fill(); cx.strokeStyle = '#3a2420'; cx.lineWidth = Math.max(2, z * .05); cx.stroke(); } }
-    const hx = S2.x + .42 * z, hy = S2.y - 1.25 * z, hr = .66 * z; // the face, always friendly
+    const hx = S2.x + .42 * z, hy = S2.y - 1.25 * z, hr = .66 * z; // the face, always friendly, with the yard fox's pink inner ears
+    for (const s of [-1, 1]) { cx.fillStyle = '#ff9a8a'; cx.beginPath(); cx.moveTo(R(hx + s * hr * .6), R(hy - hr * .45)); cx.lineTo(R(hx + s * hr * .52), R(hy - hr * .95)); cx.lineTo(R(hx + s * hr * .28), R(hy - hr * .65)); cx.fill(); }
     ell(S2.x + .15 * z, S2.y - .45 * z, .42 * z, .24 * z, 'rgba(255,240,215,.75)'); ell(hx + hr * .2, hy + hr * .35, hr * .5, hr * .36, 'rgba(255,240,215,.85)');
     for (const s of [-1, 1]) { const ex = hx + s * hr * .38 + hr * .1, ey = hy - hr * .05; if (done) { cx.fillStyle = '#2a1a18'; cx.fillRect(R(ex - hr * .15), R(ey), R(hr * .3), Math.max(2, R(hr * .07))); } else { ell(ex, ey, hr * .15, hr * .19, '#2a1a18'); ell(ex - hr * .05, ey - hr * .07, hr * .05, hr * .05, '#fff'); } }
     ell(hx + hr * .25, hy + hr * .22, hr * .1, hr * .07, '#3a2420'); ell(hx + hr * .22, hy + hr * .5, hr * .13 * (done ? 1.2 : .8), hr * .1 * (done ? 1.3 : .6), '#8a2a2a');
@@ -1181,20 +1197,24 @@
     cx.fillStyle = '#fff4e0'; cx.fillRect(R(b.x - b.r * .2), R(b.y + b.r * .12), R(b.r * .4), R(b.r * .43)); cx.fillStyle = '#5fb34a'; cx.fillRect(R(b.x - b.r * .7), R(b.y + b.r * .55), R(b.r * 1.4), Math.max(2, R(b.r * .1)));
   }
   function drawBlock(x, y, s, c, a, g) {
-    const raw = BLOCKS[c % BLOCKS.length], dye = col => g > .6 ? mixHex(col, '#20203a', .6) : col, col = dye(raw), cheek = g > .6 ? dye('#ff9a8a') : 'rgba(255,154,138,.6)';
+    const i = c % BLOCKS.length, raw = BLOCKS[i], dye = col => g > .6 ? mixHex(col, '#20203a', .6) : col, col = dye(raw), cheek = g > .6 ? dye('#ff9a8a') : 'rgba(255,154,138,.6)';
     cx.save(); cx.translate(R(x), R(y)); cx.rotate(a || 0); const h = s / 2;
     for (const s2 of [-1, 1]) { cx.fillStyle = col; cx.beginPath(); cx.moveTo(R(s2 * h * .8), R(-h * .7)); cx.lineTo(R(s2 * h * .65), R(-h * 1.25)); cx.lineTo(R(s2 * h * .25), R(-h * .85)); cx.fill(); }
-    cx.fillStyle = dye(mixHex(raw, '#000000', .18)); cx.fillRect(R(-h), R(-h), R(s), R(s)); cx.fillStyle = col; cx.fillRect(R(-h), R(-h), R(s), R(s * .9));
-    cx.fillStyle = dye(mixHex(raw, '#ffffff', .4)); cx.fillRect(R(-h * .8), R(-h * .8), R(s * .25), R(s * .1));
+    cx.fillStyle = dye(BLOCK_SHADE[i]); cx.fillRect(R(-h), R(-h), R(s), R(s)); cx.fillStyle = col; cx.fillRect(R(-h), R(-h), R(s), R(s * .9));
+    cx.fillStyle = dye(BLOCK_SHINE[i]); cx.fillRect(R(-h * .8), R(-h * .8), R(s * .25), R(s * .1));
     for (const s2 of [-1, 1]) ell(s2 * h * .38, -h * .1, s * .07, s * .08, '#2a1a18'); ell(-h * .55, h * .2, s * .08, s * .05, cheek); ell(h * .55, h * .2, s * .08, s * .05, cheek);
     cx.strokeStyle = '#2a1a18'; cx.lineWidth = Math.max(1, s * .05); cx.beginPath(); cx.arc(0, R(h * .15), R(s * .12), .3, Math.PI - .3); cx.stroke(); cx.restore();
   }
   function drawPSign(g) {
     const s = L.psign, r = L.R * .95 * (s.s || 1), sh = Math.sin(st.t * 30) * st.psign.shake * r * .06, bob = hintBob('psign');
-    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(r * 1.4 + bob));
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
+    const bx = s.x + sh, by = s.y - r * .45 - bob, boardTop = by - r * .72, br = r * .42, balloonY = boardTop - br * 1.25;
+    const string = g > .6 ? mixHex('#8a5a34', '#20203a', .6) : '#8a5a34', balloon = g > .6 ? mixHex('#ff6fa8', '#20203a', .6) : '#ff6fa8', shine = g > .6 ? mixHex('#fff4e0', '#20203a', .6) : '#fff4e0';
+    cx.strokeStyle = string; cx.lineWidth = Math.max(1.5, r * .06); cx.beginPath(); cx.moveTo(R(bx), R(boardTop)); cx.lineTo(R(bx), R(balloonY + br * .85)); cx.stroke();
+    ell(bx, balloonY, br * .86, br * 1.05, balloon); ell(bx - br * .28, balloonY - br * .32, br * .22, br * .16, shine);
+    cx.fillStyle = g > .6 ? mixHex('#e8483c', '#20203a', .6) : '#e8483c'; cx.beginPath(); cx.moveTo(R(bx - r * .08), R(balloonY + br * .9)); cx.lineTo(R(bx + r * .08), R(balloonY + br * .9)); cx.lineTo(R(bx), R(balloonY + br * 1.15)); cx.fill();
+    cx.save(); cx.translate(R(bx), R(by)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
     cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24)); cx.restore();
-    drawBlock(s.x + sh - r * .28, s.y - r * .2 - bob, r * .48, 0, 0, g);
+    drawBlock(bx - r * .28, s.y - r * .2 - bob, r * .48, 0, 0, g);
     cx.fillStyle = g > .6 ? mixHex('#e8483c', '#20203a', .6) : '#e8483c'; cx.fillRect(R(s.x + sh + r * .02), R(s.y - r * .15 - bob), R(r * .55), R(r * .32));
     ell(s.x + sh + r * .3, s.y - r * .15 - bob, r * .28, r * .1, g > .6 ? mixHex('#fff4e0', '#20203a', .6) : '#fff4e0');
   }
@@ -1217,14 +1237,17 @@
     const wall = cx.createLinearGradient(0, 0, 0, V.fy); wall.addColorStop(0, '#f4e2c0'); wall.addColorStop(1, '#e8c8a8'); cx.fillStyle = wall; cx.fillRect(0, 0, W, H);
     for (let i = 0; i < 6; i++) ell(W * (.1 + i * .17), H * .08 + ((i * 37) % 20) / 200 * H, U * .02, U * .02, BLOCKS[i % 5]);
     const bs = stackBlock(), fy = V.fy + cam; cx.fillStyle = '#9ad6f4'; cx.fillRect(0, R(fy), W, H - R(fy)); cx.fillStyle = '#6cbcec'; for (let x = 0; x < W; x += U * .08) cx.fillRect(R(x), R(fy), Math.max(1, R(U * .04)), H - R(fy));
+    const shelfX = V.tray[0].x, shelfW = V.bs * 1.45, ys = V.tray.map(q => q.y + cam);
+    cx.fillStyle = '#8a5a34'; cx.fillRect(R(shelfX - shelfW * .55), R(Math.min(...ys) - V.bs * .85), R(shelfW * 1.1), R(Math.max(...ys) - Math.min(...ys) + V.bs * 1.6));
+    cx.fillStyle = '#c8955a'; V.tray.forEach(q => cx.fillRect(R(shelfX - shelfW * .62), R(q.y + cam + V.bs * .46), R(shelfW * 1.24), Math.max(2, R(V.bs * .14))));
     const wig = Math.sin(st.t * 30) * T2.wig * bs * .05 * m;
     T2.stack.forEach((b, k) => { const ty = fy - (k + .5) * bs, tx = V.x + b.dx + wig * (k / 4);
       if (b.landed) return drawBlock(tx, ty, bs, b.c, 0);
       const e = clamp((st.t - b.at) / DROP_SECS, 0, 1), ee = e * e; drawBlock(lerp(b.from.x, tx, e), lerp(b.from.y, ty, ee) - Math.sin(e * Math.PI) * bs * 1.2 * m, bs, b.c, (1 - e) * .5); });
-    if (T2.tumble) for (const b of T2.tumble.blocks) drawBlock(b.x, b.y, T2.tumble.bs, b.c, b.a);
-    V.tray.forEach((q, i) => { const bob = hb && hb.name === 'tray' + i && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.bs * .15 : 0; drawBlock(q.x, q.y - bob, V.bs, (T2.next + i) % BLOCKS.length, 0); });
+    if (T2.tumble) for (const b of T2.tumble.blocks) drawBlock(b.x + wig * 4, b.y, T2.tumble.bs, b.c, b.a);
+    V.tray.forEach((q, i) => { const bob = hb && hb.name === 'tray' + i && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.bs * .15 : 0; drawBlock(q.x, q.y + cam - bob, V.bs, (T2.next + i) % BLOCKS.length, 0); });
     const bz = V.baby.z, gb = hb && hb.name === 'tbaby' && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * bz * .12 : 0;
-    drawKBaby(V.baby.x, V.baby.y - gb, bz, st.t - T2.giggle < 1 ? 'yum' : null, st.t - T2.giggle, st.t - T2.giggle < 1);
+    drawKBaby(V.baby.x, V.baby.y + cam - gb, bz, st.t - T2.giggle < 1 ? 'yum' : null, st.t - T2.giggle, st.t - T2.giggle < 1);
     drawHint(); drawBarnHome(V.barn); drawFx(U);
   }
   function drawInstrument(i, x, y, z, k) {
@@ -1235,22 +1258,39 @@
     if (i === 2) { const g2 = 1 + k * .2; cx.fillStyle = '#f2b632'; cx.fillRect(R(x - z * .5), R(y - z * .08), R(z * .6), R(z * .14)); cx.beginPath(); cx.moveTo(R(x + z * .1), R(y - z * .06)); cx.lineTo(R(x + z * .55), R(y - z * .3 * g2)); cx.lineTo(R(x + z * .55), R(y + z * .36 * g2)); cx.lineTo(R(x + z * .1), R(y + z * .12)); cx.fill();
       ell(x + z * .55, y + z * .03, z * .08, z * .33 * g2, '#c8902a'); }
   }
+  function lockCanvas() {
+    const el = document.getElementById('lock'), cr = cv.getBoundingClientRect(); if (!el || !cr.width || !cr.height) return null;
+    const r = el.getBoundingClientRect();
+    return { x0: (r.left - cr.left) / cr.width * W - 3, y0: (r.top - cr.top) / cr.height * H - 3, x1: (r.right - cr.left) / cr.width * W + 3, y1: (r.bottom - cr.top) / cr.height * H + 3 };
+  }
+  function buntingFlags() {
+    const U = L.U, barn = (L.band && L.band.barn) || L.shed.barn, lock = lockCanvas(), flags = [], cols = ['#ff6fa8', '#ffd03a', '#5fd06a', '#4fa6ff'];
+    const hit = (a, b2) => b2 && a.x0 < b2.x1 && b2.x0 < a.x1 && a.y0 < b2.y1 && b2.y0 < a.y1;
+    const barnBox = { x0: barn.x - barn.r - 4, x1: barn.x + barn.r + 4, y0: barn.y - barn.r - 4, y1: barn.y + barn.r + 4 };
+    for (let i = 0; i < 9; i++) { const x = W * (i + .5) / 9, half = W / 22, y0 = U * .03, y1 = U * .1, flag = { x0: x - half, x1: x + half, y0, y1 };
+      if (hit(flag, barnBox) || hit(flag, lock)) continue; flags.push({ x, half, y0, y1, c: cols[i % 4] }); }
+    return flags;
+  }
   function drawBand() {
-    const U = L.U, V = L.band, B = st.band, m = reduce() ? .3 : 1, hb = hint();
-    const wall = cx.createLinearGradient(0, 0, 0, V.by); wall.addColorStop(0, '#f0d8a0'); wall.addColorStop(1, '#d8b878'); cx.fillStyle = wall; cx.fillRect(0, 0, W, V.by);
-    cx.fillStyle = '#c8955a'; for (let x = 0; x < W; x += U * .12) cx.fillRect(R(x), 0, Math.max(1, R(U * .008)), R(V.by));
-    for (let i = 0; i < 9; i++) { const x = W * (i + .5) / 9; cx.fillStyle = ['#ff6fa8', '#ffd03a', '#5fd06a', '#4fa6ff'][i % 4]; cx.beginPath(); cx.moveTo(R(x - W / 22), R(U * .03)); cx.lineTo(R(x + W / 22), R(U * .03)); cx.lineTo(R(x), R(U * .1)); cx.fill(); }
-    cx.fillStyle = '#a8703e'; cx.fillRect(0, R(V.by), W, H - R(V.by));
-    const cols = ['#f0a070', '#ff9ac0', '#7cc0f4'];
+    const U = L.U, V = L.band, B = st.band, m = reduce() ? .3 : 1, hb = hint(), stage = V.floor;
+    const wall = cx.createLinearGradient(0, 0, 0, stage); wall.addColorStop(0, '#f0d8a0'); wall.addColorStop(1, '#d8b878'); cx.fillStyle = wall; cx.fillRect(0, 0, W, stage);
+    cx.fillStyle = '#c8955a'; for (let x = 0; x < W; x += U * .12) cx.fillRect(R(x), 0, Math.max(1, R(U * .008)), R(stage));
+    const flags = buntingFlags(); V.flags = flags;
+    for (const f of flags) { cx.fillStyle = f.c; cx.beginPath(); cx.moveTo(R(f.x - f.half), R(f.y0)); cx.lineTo(R(f.x + f.half), R(f.y0)); cx.lineTo(R(f.x), R(f.y1)); cx.fill(); }
+    cx.fillStyle = '#a8703e'; cx.fillRect(0, R(stage), W, H - R(stage));
+    const cols = ['#f0a070', '#ff6fa8', '#7cc0f4'];
     V.babies.forEach((q, i) => { const e = st.t - B.hit[i], k = clamp(1 - e / .35, 0, 1), hop = k * V.z * .25 * m + (B.song ? Math.abs(Math.sin(st.t * Math.PI / BAND_BEAT)) * V.z * .08 * m : 0);
-      const bb = hb && hb.name === BAND[i] && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.z * .1 : 0;
+      const bb = hb && hb.name === BAND[i] && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.z * .06 : 0;
       ell(q.x, q.y + V.z * .05, V.z * .7, V.z * .14, 'rgba(90,50,20,.25)'); drawDoughBaby(q.x, q.y - hop - bb, V.z * 1.1, cols[i], k * .3);
       drawInstrument(i, q.x + (i === 1 ? V.z * .55 : i === 2 ? V.z * .35 : 0), q.y - V.z * (i === 2 ? .9 : i === 1 ? .2 : .3) - hop - bb, V.z, k * m); });
     for (const n of B.notes) { const e = st.t - n.at, q = V.babies[n.i], x = q.x + Math.sin(e * 5 + n.i) * V.z * .4, y = q.y - V.z * 1.6 - e * V.z * 1.2, a = clamp(1 - e / 1.2, 0, 1);
       cx.globalAlpha = a; ell(x, y, V.z * .12, V.z * .09, ['#e23b4e', '#c8902a', '#3f8ae8'][n.i]); cx.globalAlpha = 1; }
-    { const s0 = { x: V.stick.x, y: V.stick.y - V.br * .2 }, ek = clamp(1 - (st.t - B.stick) / .4, 0, 1), wave = B.song ? Math.sin(st.t * Math.PI / BAND_BEAT) * .5 * m : ek * .6 * m, bb = hb && hb.name === 'stick' && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.br * .12 : 0;
-      ell(s0.x, s0.y + V.br * .1, V.br * .9, V.br * .2, 'rgba(90,50,20,.3)'); ell(s0.x, s0.y - bb, V.br * .75, V.br * .4, '#5a3a24');
-      cx.save(); cx.translate(R(s0.x - V.br * .4), R(s0.y - V.br * .1 - bb)); cx.rotate(-.5 + wave); cx.fillStyle = '#fff4e0'; cx.fillRect(0, R(-V.br * .05), R(V.br * 1.3), Math.max(2, R(V.br * .1))); ell(0, 0, V.br * .14, V.br * .14, '#e8483c'); cx.restore(); }
+    { const s0 = { x: V.stick.x, y: V.stick.y - V.br * .15 }, ek = clamp(1 - (st.t - B.stick) / .4, 0, 1), wave = B.song ? Math.sin(st.t * Math.PI / BAND_BEAT) * .5 * m : ek * .6 * m, bb = hb && hb.name === 'stick' && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.br * .08 : 0;
+      ell(s0.x, s0.y + V.br * .42, V.br * .55, V.br * .1, 'rgba(90,50,20,.3)');
+      cx.fillStyle = '#8a5a34'; cx.fillRect(R(s0.x - V.br * .06), R(s0.y - V.br * .02 - bb), Math.max(2, R(V.br * .12)), R(V.br * .46));
+      cx.save(); cx.translate(R(s0.x), R(s0.y - V.br * .18 - bb)); cx.rotate(-.18); cx.fillStyle = '#c8955a'; cx.fillRect(R(-V.br * .72), R(-V.br * .22), R(V.br * 1.44), R(V.br * .4));
+      cx.fillStyle = '#fff4e0'; cx.fillRect(R(-V.br * .5), R(-V.br * .08), R(V.br), Math.max(1, R(V.br * .07))); cx.restore();
+      cx.save(); cx.translate(R(s0.x - V.br * .1), R(s0.y - V.br * .42 - bb)); cx.rotate(-.55 + wave); cx.fillStyle = '#fff4e0'; cx.fillRect(0, R(-V.br * .05), R(V.br * 1.1), Math.max(2, R(V.br * .1))); ell(0, 0, V.br * .14, V.br * .14, '#e8483c'); cx.restore(); }
     drawHint(); drawBarnHome(V.barn); drawFx(U);
   }
   function draw() {

@@ -665,9 +665,10 @@ document.querySelector('#run').onclick = async () => {
     }
     // ---- LR-LAYOUT-1: cookies hop clear of the cutter; the sponge, ball and flowers keep their gaps
     LR.prefs.sound = false; LR.setRoutine(false); LR.setFriend(false);
-    const round = Math.round, cookieRgb = [238, 173, 142], cutterRgb = [63, 138, 232], knobRgb = [232, 72, 60];
+    const round = Math.round, cutterRgb = [63, 138, 232], knobRgb = [232, 72, 60];
     const shade = (r, g, b, q) => { const dr = r - q[0], dg = g - q[1], db = b - q[2]; return dr * dr + dg * dg + db * db; };
     const watchCookies = async label => {
+      const cookieRgb = LR.doughCol().match(/\d+/g).map(Number);
       tap(L().tsign);
       let frames = 0, touch = 0, left = true, aligned = true, whole = true, zOk = true, sawPress = false, height = 0, earlyHop = false;
       const t0 = S().t; let next = 0;
@@ -707,7 +708,10 @@ document.querySelector('#run').onclick = async () => {
             if ((x && cut[p - 1]) || (x + 1 < w && cut[p + 1]) || (y && cut[p - w]) || (y + 1 < h && cut[p + w])) { touch++; break; }
           }
         }
-        if (pose.pressed && D.stamps === 1 && bare.nCook && !height) height = bare.maxY - bare.minY + 1;
+        if (pose.pressed && D.stamps === 1 && !height) {
+          const headY = pose.bodyY - round(pose.z * .6), px = cv.getContext('2d').getImageData(Math.max(0, round(L().dough.lump.x)), Math.max(0, headY), 1, 1).data;
+          if (shade(px[0], px[1], px[2], cookieRgb) <= 12) height = round(pose.z * 1.62);
+        }
       }
       check(`${label}: three cookies hop left on whole pixels and never cross the lump`, frames > 90 && next === 3 && left && whole && !earlyHop);
       check(`${label}: the cookie is cutter-sized, and the ring sits on its body when pressed`, zOk && sawPress && aligned && height >= 25 && height <= 32);
@@ -769,8 +773,9 @@ document.querySelector('#run').onclick = async () => {
       LR.newVisit(); LR.advance(.1); tap(L().tsign); LR.advance(.1); let in2 = true; for (let i = 0; i < 30; i++) { LR.advance(1); if (S().sign.shake > .5 || S().wsign.shake > .5) in2 = false; }
       check('LR-POLISH: inside a toy room the ranch signs do not wiggle', in2); tap(L().dough.barn); }
     // bedtime cues last, and the dusk fade is slow
-    { LR.setRoutine(true); LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(LR.ROUTINE_WAIT - 3);
-      check('LR-POLISH: the toothbrush waits at least 15 seconds before it does itself', LR.ROUTINE_WAIT >= 15 && S().routine.step === 0 && !S().routine.doing);
+    { LR.setRoutine(true); LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(8);
+      check('LR-TOYS-POLISH: the toothbrush waits nine seconds before it does itself', LR.ROUTINE_WAIT === 9 && S().routine.step === 0 && !S().routine.doing);
+      LR.advance(1.2); check('LR-TOYS-POLISH: after nine seconds the toothbrush does itself', !!(S().routine.doing) || S().routine.step >= 1);
       LR.setRoutine(false); LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(LR.DUSK_SECS * .6);
       check('LR-POLISH: the dusk fade takes at least 15 seconds (not asleep and not dark at 60%)', LR.DUSK_SECS >= 15 && S().mode === 'dusk' && S().dusk < .7);
       LR.advance(LR.DUSK_SECS * .5 + 1); check('LR-POLISH: ...and then she is asleep as before', S().mode === 'sleep' && S().dusk === 1); }
@@ -922,7 +927,7 @@ document.querySelector('#run').onclick = async () => {
       for (let i = 0; i < 5; i++) { tap(V().tray[i % 3]); LR.advance(LR.DROP_SECS + .05); }
       check('Five blocks snap onto the tower and each one lands', Tw().stack.length === 5 && Tw().stack.every(b => b.landed));
       LR.advance(60); check('Left alone, the tower never falls', Tw().stack.length === 5 && !Tw().tumble);
-      tap({ x: V().x, y: V().fy - V().bs * 2 }); check('Tapping the tower only wiggles it', Tw().stack.length === 5 && Tw().wig > .9);
+      tap({ x: V().x, y: V().fy - V().bs * 2 }); check('Tapping the tower adds a block', Tw().stack.length === 6);
       const a19 = S().acts; tap({ x: V().baby.x, y: V().baby.y - V().baby.z });
       check('Tapping the baby knocks the tower down with a giggle, and three or more blocks are one happy thing', Tw().stack.length === 0 && Tw().tumble && S().acts === a19 + 1 && S().fx.some(f => f.kind === 'heart'));
       LR.advance(LR.TUMBLE_SECS + .1); tap(V().barn); check('The barn picture in Block Tower returns to the toy pack', S().place === 'pack' && S().tower === null);
@@ -959,8 +964,8 @@ document.querySelector('#run').onclick = async () => {
         frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
         tap(face('psign')); tap(card('tower'));
         for (let i = 0; i < 12; i++) { tap(V().tray[i % 3]); LR.advance(LR.DROP_SECS + .05); }
-        const Tv = V(), feet = Tv.baby.y, floor = Tv.fy + LR.towerCam(), room = Tv.fy - cv.height * .3;
-        check(`${width}×${height}: at 12 blocks the baby's feet stay on the floor`, Tw().stack.length === 12 && Tw().stack.every(b => b.landed) && Math.abs(feet - floor) < 1 && floor > 0 && floor <= cv.height && Tw().stack.length * LR.stackBlock() <= room + 1e-6);
+        const Tv = V(), cam = LR.towerCam(), feet = Tv.baby.y + cam, floor = Tv.fy + cam;
+        check(`${width}×${height}: at 12 blocks the baby, the tray and the floor share one camera, and a block stays at least half size`, Tw().stack.length === 12 && Tw().stack.every(b => b.landed) && Math.abs(feet - floor) < 1e-6 && floor > 0 && floor <= cv.height && LR.stackBlock() + 1e-6 >= Tv.bs / 2 && Tv.tray.every(q => q.y + cam <= cv.height));
       }
       const legacy = localStorage.getItem(PREF), extra = 'other-game-save-v1';
       localStorage.setItem(PREF, '{"sound":false}'); localStorage.setItem(extra, '{"coins":4}');
@@ -971,7 +976,93 @@ document.querySelector('#run').onclick = async () => {
       old.remove(); localStorage.removeItem(extra); if (legacy === null) localStorage.removeItem(PREF); else localStorage.setItem(PREF, legacy);
     }
     frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    // ---- LR-TOYS-POLISH: toy pack follow-ups, LR-G3 and LR-G4
+    { const readme = await (await fetch('../games/little-ranch/README.md')).text();
+      check('LR-TOYS-POLISH: the README bedtime line says about nine seconds', /about nine seconds/.test(readme) && !/about eight seconds/.test(readme.split('Changelog')[0]));
+      const pix = q => { const p = LR.toScreen(q), rect = cv.getBoundingClientRect(); const x = Math.max(0, Math.min(cv.width - 1, Math.round((p.x - rect.left) / rect.width * cv.width))), y = Math.max(0, Math.min(cv.height - 1, Math.round((p.y - rect.top) / rect.height * cv.height))); return [...cv.getContext('2d').getImageData(x, y, 1, 1).data]; };
+      const closeRgb = (px, hex, tol) => { const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)); return Math.abs(px[0] - rgb[0]) + Math.abs(px[1] - rgb[1]) + Math.abs(px[2] - rgb[2]) <= tol; };
+      const parseRgb = s => s.match(/\d+/g).map(Number);
+      const boardOf = n => { const Ls = L(), q = Ls[n], rs = Ls.R * .95 * (q.s || 1); return { x0: q.x - rs * .95, x1: q.x + rs * .95, y0: q.y - rs * 1.17, y1: q.y + rs * .27 }; };
+      const rectGap = (a, b2) => { const dx = Math.max(a.x0 - b2.x1, b2.x0 - a.x1), dy = Math.max(a.y0 - b2.y1, b2.y0 - a.y1); if (dx < 0 && dy < 0) return Math.max(dx, dy); if (dx < 0) return dy; if (dy < 0) return dx; return Math.hypot(dx, dy); };
+      const overlap = (a, b2) => a.x0 < b2.x1 && b2.x0 < a.x1 && a.y0 < b2.y1 && b2.y0 < a.y1;
+      const faceOf = n => { const q = L()[n]; return { x: q.x, y: q.y - L().R * .45 * (q.s || 1) }; };
+      for (const [width, height] of [[1280, 800], [844, 390], [390, 844], [375, 812]]) {
+        frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1); LR.redraw();
+        const Ls = L(), cloud = Ls.cloud, pb = boardOf('psign'), cr = cloud.r;
+        const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
+        const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: Ls.ground };
+        const br = Ls.R * .95 * (Ls.psign.s || 1) * .42, balloon = { x0: Ls.psign.x - br, x1: Ls.psign.x + br, y0: pb.y0 - br * 2.3, y1: pb.y0 };
+        check(`${width}×${height}: the pack sign stays 6 px clear of the wagon sign, off the cloud's face and out of the rain, and hangs from a balloon`, rectGap(pb, boardOf('wsign')) >= 6 && !overlap(pb, faceBox) && !overlap(pb, rainBox) && !overlap(balloon, faceBox) && !overlap(balloon, rainBox) && balloon.y0 >= 0 && LR.ranchTarget(faceOf('psign')) === 'psign');
+      }
+      frame.style.width = '844px'; frame.style.height = '390px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      tap(faceOf('psign')); tap(L().pack.cards.find(c => c.id === 'tower'));
+      for (let i = 0; i < 12; i++) { tap(L().tower.tray[i % 3]); LR.advance(LR.DROP_SECS + .05); }
+      const half = 22 / LR.scale, beforeLen = S().tower.stack.length, cam = LR.towerCam();
+      tap({ x: L().tower.x - half, y: L().tower.fy + cam - LR.stackBlock() });
+      check('844×390: with 12 blocks a tap 22 CSS px from the tower adds a block, and the block is at least half size', S().tower.stack.length === beforeLen + 1 && LR.stackBlock() + 1e-6 >= L().tower.bs / 2 && cam > 0 && L().tower.fy + cam <= cv.height);
+      const sky = { x: cv.width * .55, y: cv.height * .12 }; tap(sky);
+      check('844×390: a tap that is not the baby or the barn adds a block', S().tower.stack.length === beforeLen + 2 && S().place === 'tower');
+      const babyAt = { x: L().tower.baby.x, y: L().tower.baby.y + LR.towerCam() - L().tower.baby.z };
+      tap(babyAt); check('844×390: tapping the shifted baby knocks the tower', S().tower.tumble && S().tower.stack.length === 0);
+      const notes = S().fx.length; tap(sky);
+      check('844×390: a tap during a tumble shows a note or a spark and does not add a block', !S().tower.stack.length && S().tower.tumble && S().tower.wig > .5 && S().fx.length > notes);
+      tap(L().tower.barn);
+      tap(L().pack.cards.find(c => c.id === 'band')); LR.redraw();
+      const Vb = L().band, flags = Vb.flags || [], barn = Vb.barn, lock = d.querySelector('#lock').getBoundingClientRect(), cr = cv.getBoundingClientRect();
+      const lockBox = { x0: (lock.left - cr.left) / cr.width * cv.width - 3, y0: (lock.top - cr.top) / cr.height * cv.height - 3, x1: (lock.right - cr.left) / cr.width * cv.width + 3, y1: (lock.bottom - cr.top) / cr.height * cv.height + 3 };
+      const barnBox = { x0: barn.x - barn.r - 4, x1: barn.x + barn.r + 4, y0: barn.y - barn.r - 4, y1: barn.y + barn.r + 4 };
+      const flagBox = f => ({ x0: f.x - f.half, x1: f.x + f.half, y0: f.y0, y1: f.y1 });
+      check('844×390: bunting is cut back clear of the barn button and the lock, and the players stand in the lower stage', flags.length > 0 && flags.every(f => !overlap(flagBox(f), barnBox) && !overlap(flagBox(f), lockBox)) && Vb.babies.every(q => q.y > cv.height * .75) && (cv.height - Vb.babies[0].y) / cv.height < .2);
+      S().idleAt = S().t - LR.HINT_SECS - 1; LR.advance(.05); const bh = LR.hint(), bi = LR.BAND.indexOf(bh.name), bq = Vb.babies[bi];
+      check('844×390: the idle hint sits above the player, not on the body', bh && bi >= 0 && bh.y + bh.r < bq.y - Vb.z * 1.5);
+      for (const [width, height] of [[1280, 800], [390, 844]]) {
+        frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+        tap(faceOf('psign')); tap(L().pack.cards.find(c => c.id === 'band')); LR.redraw();
+        const B2 = L().band, fl = B2.flags || [], bn = B2.barn;
+        const bb = { x0: bn.x - bn.r - 4, x1: bn.x + bn.r + 4, y0: bn.y - bn.r - 4, y1: bn.y + bn.r + 4 };
+        const lk = d.querySelector('#lock').getBoundingClientRect(), rr = cv.getBoundingClientRect();
+        const lb = { x0: (lk.left - rr.left) / rr.width * cv.width - 3, y0: (lk.top - rr.top) / rr.height * cv.height - 3, x1: (lk.right - rr.left) / rr.width * cv.width + 3, y1: (lk.bottom - rr.top) / rr.height * cv.height + 3 };
+        check(`${width}×${height}: bunting clears the barn and the lock, and the lower floor is not empty`, fl.length > 0 && fl.every(f => !overlap(flagBox(f), bb) && !overlap(flagBox(f), lb)) && B2.babies.every(q => q.y > cv.height * .75) && (cv.height - B2.babies[0].y) / cv.height < .2);
+      }
+      frame.style.width = '390px'; frame.style.height = '844px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+      tap(L().tsign); tap(L().dough.dots[1]); const tint = parseRgb(LR.doughCol()); tap(L().dough.cutter); LR.advance(LR.STAMP_SECS + .25); LR.redraw();
+      const hop = S().dough.pose && S().dough.pose.hops[0], cookie = hop && pix({ x: hop.x, y: hop.y - S().dough.pose.z * .4 });
+      check('Portrait: the stamped dough baby uses the tint, not a peach bunny', hop && cookie && Math.abs(cookie[0] - tint[0]) + Math.abs(cookie[1] - tint[1]) + Math.abs(cookie[2] - tint[2]) < 80 && cookie[2] > cookie[0]);
+      tap(L().dough.barn);
+      frame.style.width = '844px'; frame.style.height = '390px'; await sleep(150); LR.newVisit(); LR.advance(.1); tap(L().sign); tap(L().shed.pots[1]); tap(LR.partPoint('head')); LR.redraw();
+      const z = L().shed.z, hx = L().shed.x + .42 * z, hy = L().shed.y - 1.25 * z, hr = .66 * z;
+      const eyes = [-1, 1].map(s => pix({ x: hx + s * hr * .38 + hr * .1, y: hy - hr * .05 }));
+      check('844×390: painting the head leaves both eyes their own dark colour', eyes.every(px => closeRgb(px, '#2a1a18', 30) && !closeRgb(px, '#4fa6ff', 40)));
+      const head = LR.partPoint('head'), body = LR.partPoint('body'), tail = LR.partPoint('tail');
+      check('844×390: the shed outline keeps the yard fox anchors (tail left, ears above the head)', tail.x < body.x - z * .4 && head.y < body.y - z * .4 && Math.abs((head.x - L().shed.x) / z - .42) < .08 && Math.abs((head.y - L().shed.y) / z + 1.25) < .08);
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      for (let x = L().shed.x - z * 2; x < L().shed.x + z * 2; x += 3) for (let y = L().shed.y - z * 2.5; y < L().shed.y + z * .3; y += 3) if (LR.partAt({ x, y })) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
+      check('844×390: the shed baby outline is at least 44 CSS px across', (maxX - minX) * LR.scale >= 44 && (maxY - minY) * LR.scale >= 44);
+      for (const part of LR.PARTS) { tap(L().shed.pots[LR.PARTS.indexOf(part) % 4]); tap(LR.partPoint(part)); }
+      LR.advance(3); check('A painted pet keeps its colours in the yard until bedtime', S().place === 'ranch' && S().paint && LR.PARTS.every(k => k in S().paint));
+      const stored = others(); LR.setRoutine(false); LR.bedtime(); LR.advance(LR.DUSK_SECS + 2);
+      check('Bedtime washes the paint off and writes no new stored key', S().paint === null && others() === stored && others() === before);
+      LR.newVisit(); LR.advance(.1);
+      ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'ball', 'sign', 'wsign', 'ksign'].forEach(k => { S().used[k] = 1; });
+      S().idleAt = S().t - LR.HINT_SECS - 1; LR.advance(.05);
+      check('The idle glow reaches the barn-door sign once earlier things are used', LR.hint() && LR.hint().name === 'dsign');
+      tap(L().wsign); tap(L().wagon.cars[0]); tap(L().wagon.cars[1]); S().idleAt = S().t - LR.HINT_SECS - 1; LR.advance(.05); const wh = LR.hint();
+      check('Inside the wagon, once both babies are aboard, the idle glow covers the puller', wh && wh.name === 'wagon' && Math.hypot(wh.x - L().wagon.puller.x, wh.y - L().wagon.puller.y) < 1);
+      tap(L().wagon.barn);
+      for (const [width, height] of [[1280, 800], [844, 390], [390, 844], [820, 1180]]) {
+        frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.openPanel();
+        await Promise.all([...d.querySelector('#grown .card').getAnimations()].map(a => a.finished.catch(() => {})));
+        const x = d.querySelector('#gX').getBoundingClientRect();
+        const hit = (a, b2) => a.left < b2.right && b2.left < a.right && a.top < b2.bottom && b2.top < a.bottom;
+        const acts = [...d.querySelectorAll('#grown .act')].filter(visible).map(el => el.getBoundingClientRect());
+        check(`${width}×${height}: the grown-ups close button is at least 44 px and misses every action`, Math.min(x.width, x.height) >= 44 && acts.length > 0 && acts.every(a => !hit(x, a)));
+        d.querySelector('#gX').dispatchEvent(new w.PointerEvent('pointerdown', { pointerId: 880, bubbles: true, cancelable: true }));
+        d.querySelector('#gX').dispatchEvent(new w.PointerEvent('pointerup', { pointerId: 880, bubbles: true, cancelable: true }));
+      }
+    }
+    frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
     check('No other storage was touched', others() === before);
+    check('LR-TOYS-POLISH: little-ranch-settings-v1 stays the only stored key', Object.keys(localStorage).filter(k => k !== PREF).sort().join() === JSON.parse(before).map(row => row[0]).join() && sessionBefore === JSON.stringify(Object.keys(sessionStorage).sort().map(k => [k, sessionStorage.getItem(k)])));
     check('No errors on the page', errors.length === 0);
     // ---- LR15: app mode (inside the standalone app): Replay, Sound and Exit
     const app = document.createElement('iframe'); app.style.cssText = 'width:667px;height:375px'; app.src = '../games/little-ranch/index.html?app=1';
