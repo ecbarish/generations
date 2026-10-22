@@ -277,8 +277,21 @@
     const search = (s, minMul) => {
       const rs = R * s * .95, yMax = fence - rs * .27 - 1; let best = null, cost = Infinity;
       const ellHits = (p, rect) => { const nx = Math.max(rect.x0, Math.min(p.x, rect.x1)), ny = Math.max(rect.y0, Math.min(p.y, rect.y1)); return ((nx - p.x) / p.rx) ** 2 + ((ny - p.y) / p.ry) ** 2 <= 1; };
+      const sunPaint = { x: L.sun.x, y: L.sun.y, r: L.U * .09 };
+      const ellOnDisc = (ex, ey, rx, ry) => {
+        const rad = sunPaint.r + 2;
+        if (ex + rx < sunPaint.x - rad || ex - rx > sunPaint.x + rad || ey + ry < sunPaint.y - rad || ey - ry > sunPaint.y + rad) return false;
+        for (let yy = Math.floor(sunPaint.y - rad); yy <= Math.ceil(sunPaint.y + rad); yy++) for (let xx = Math.floor(sunPaint.x - rad); xx <= Math.ceil(sunPaint.x + rad); xx++) {
+          if ((xx + .5 - sunPaint.x) ** 2 + (yy + .5 - sunPaint.y) ** 2 > rad * rad) continue;
+          if (((xx + .5 - ex) / rx) ** 2 + ((yy + .5 - ey) / ry) ** 2 <= 1) return true;
+        }
+        return false;
+      };
       const puffs = (x, y, cr) => [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]].map(([dx, dy, k]) => ({ x: x + dx * cr, y: y + dy * cr, rx: cr * k, ry: cr * k }));
-      for (let y = rs * 1.2; y <= yMax; y += 3) for (let x = rs * .7; x < W - rs * .7; x += 3) {
+      const xTry = [];
+      for (let x = rs * .7; x < W - rs * .7; x += 3) xTry.push(x);
+      xTry.push(rs * .95 + 1); // the board's left edge, a step the 3 px grid can skip
+      for (let y = rs * 1.2; y <= yMax; y += 3) for (const x of xTry) {
         const q = { x, y }, f = faceOf(q, s), b = box(q, s, 'board'), post = box(q, s, 'post');
         if (b.x0 < 1 || b.x1 > W - 1 || b.y0 < 1 || b.y1 > H - 1) continue;
         const gap = Math.min(...five.map(n => Math.hypot(faceOf(L[n], 1).x - f.x, faceOf(L[n], 1).y - f.y)));
@@ -296,8 +309,13 @@
         const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
         const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: L.ground + 2 };
         const br = rs * .42, pad = Math.max(2, rs * .08);
-        const balloonX = q.x + side * (rs * .95 + br), balloonY = side ? b.y0 + br : 0;
-        const balloon = side ? { x0: balloonX - br * .9, x1: balloonX + br * .9, y0: balloonY - br * 1.05, y1: balloonY + br * 1.05 } : { x0: q.x - br, x1: q.x + br, y0: b.y0 - br * 2.5, y1: b.y0 };
+        const balloonX = side ? q.x + side * (rs * .95 + br) : q.x;
+        let balloonY = side ? b.y0 + br : b.y0 - br * 1.25, dropped = false;
+        // Only when a side balloon would sit on the sun: drop an overhead balloon onto the screen so the sign can stay large.
+        if (!side && (ellOnDisc(q.x + rs * .95 + br, b.y0 + br, br * .95, br * 1.25) || ellOnDisc(q.x - rs * .95 - br, b.y0 + br, br * .95, br * 1.25))) {
+          const rise = 1 - (balloonY - br * 1.05); if (rise > 0) { balloonY += rise; dropped = true; }
+        }
+        const balloon = side || dropped ? { x0: balloonX - br * .9, x1: balloonX + br * .9, y0: balloonY - br * 1.05, y1: balloonY + br * (dropped ? 1.15 : 1.05) } : { x0: q.x - br, x1: q.x + br, y0: b.y0 - br * 2.5, y1: b.y0 };
         const stringHits = rect => {
           if (!side) return overlap({ x0: q.x - pad, x1: q.x + pad, y0: balloon.y0, y1: b.y1 }, rect);
           for (let t = 0; t <= 1; t += .12) { const px = q.x + (balloonX - q.x) * t, py = b.y0 + (balloonY - b.y0) * t; if (px >= rect.x0 - pad && px <= rect.x1 + pad && py >= rect.y0 - pad && py <= rect.y1 + pad) return true; }
@@ -308,6 +326,8 @@
         const onCloud = rect => overlap(rect, faceBox) || overlap(rect, rainBox) || puffs(cloud.x, cloud.y, cr).some(puff => ellHits(puff, rect));
         if (onCloud(b) || onCloud(balloon) || stringHits(faceBox) || stringHits(rainBox) || puffs(cloud.x, cloud.y, cr).some(puff => stringHits({ x0: puff.x - puff.rx, x1: puff.x + puff.rx, y0: puff.y - puff.ry, y1: puff.y + puff.ry }))) continue;
         if (five.some(n => overlap(balloon, box(L[n], 1, 'board')) || overlap(balloon, box(L[n], 1, 'post')) || stringHits(box(L[n], 1, 'board')))) continue;
+        // The painted balloon, including its knot, stays off the sun's disc. A spot that only misses the sun's middle still steals taps.
+        if (ellOnDisc(balloonX, balloonY, br * .95, br * 1.25)) continue;
         if (!ownsBoard(q, s)) continue;
         const weather = Math.hypot(f.x - sun.x, f.y - sun.y) < sun.r + R * s * .35 || Math.hypot(f.x - L.cloud.x, f.y - L.cloud.y) < L.cloud.r + R * s * .35;
         const c = (y > L.ground ? 70 : 0) + (weather ? 80 : 0) + (s < 1 ? 8 : 0) + (side ? 2 : 0) + Math.abs(x - W * .58) * .15 + y * .04;
@@ -339,7 +359,13 @@
       for (let i = 0; i <= 18; i++) for (let j = 0; j <= 14; j++) {
         if (winner(q.x - rs * .95 + i * rs * 1.9 / 18, q.y - rs * 1.17 + j * rs * 1.44 / 14) !== 'psign') return false;
       }
-      return winner(L.cloud.x, L.cloud.y) === 'cloud' && winner(sun.x, sun.y) === 'sun';
+      if (winner(L.cloud.x, L.cloud.y) !== 'cloud' || winner(sun.x, sun.y) !== 'sun') return false;
+      const paintR = L.U * .09;
+      for (let yy = Math.floor(L.sun.y - paintR); yy <= Math.ceil(L.sun.y + paintR); yy++) for (let xx = Math.floor(L.sun.x - paintR); xx <= Math.ceil(L.sun.x + paintR); xx++) {
+        if ((xx + .5 - L.sun.x) ** 2 + (yy + .5 - L.sun.y) ** 2 > paintR * paintR) continue;
+        if (winner(xx + .5, yy + .5) === 'psign') return false;
+      }
+      return true;
     }
     // One sky step. The cloud never drops below its home height or below the top sign row. It may slide sideways. The pack sign hangs beside the cloud only when no overhead balloon fits at that size.
     const tall = H >= W * 1.25, homeX = L.cloud.x, homeY = L.cloud.y, cr0 = L.cloud.r;
@@ -833,10 +859,15 @@
   function drawSignPosts(g) { // the five picture-signs: each post runs down behind the fence, and the pack sign has none
     const foot = L.ground + L.U * .13;
     cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g);
+    const drawn = [];
     for (const name of ['sign', 'wsign', 'ksign', 'tsign', 'dsign']) {
       const s = L[name], r = L.R * .95, bob = hintBob(name), top = s.y - r * .2 - bob, bot = Math.max(s.y + r * 1.2, foot);
-      cx.fillRect(R(s.x - r * .08), R(top), Math.max(2, R(r * .16)), R(bot - top));
-    } }
+      const rect = { name, x: R(s.x - r * .08), y: R(top), w: Math.max(2, R(r * .16)), h: R(bot - top) };
+      drawn.push(rect);
+      cx.fillRect(rect.x, rect.y, rect.w, rect.h);
+    }
+    L.postRects = drawn;
+  }
   function drawPuddles() { for (const q of st.puddles) { const P = L.puddles[q.i], dry = clamp(1 - (st.t - q.at - (PUDDLE_SECS - 6)) / 6, 0, 1), grow = clamp((st.t - q.at) / .6, 0, 1), k = dry * grow, sp2 = st.t - q.splash, bob = hintBob('puddle') && q.i === 0 ? hintBob('puddle') * .5 : 0;
     ell(P.x, P.y, P.r * k, P.r * .36 * k, '#5aa8e0'); ell(P.x - P.r * .2, P.y - P.r * .06, P.r * .5 * k, P.r * .1 * k, '#a8dcf8');
     if (bob) { cx.strokeStyle = 'rgba(255,255,255,.7)'; cx.lineWidth = 2; cx.beginPath(); cx.ellipse(R(P.x), R(P.y), R(P.r * k + bob), R(P.r * .36 * k + bob * .4), 0, 0, 7); cx.stroke(); }
@@ -1337,9 +1368,21 @@
   function drawPSign(g) {
     const s = L.psign, r = L.R * .95 * (s.s || 1), sh = Math.sin(st.t * 30) * st.psign.shake * r * .06, bob = hintBob('psign');
     const bx = s.x + sh, by = s.y - r * .45 - bob, boardTop = by - r * .72, br = r * .42, side = s.side || 0;
-    const balloonX = side ? bx + side * (r * .95 + br) : bx, balloonY = side ? boardTop + br : boardTop - br * 1.25;
+    const balloonX = side ? bx + side * (r * .95 + br) : bx;
+    let balloonY = side ? boardTop + br : boardTop - br * 1.25;
+    if (!side) { const rise = 1 - (balloonY - br * 1.05); if (rise > 0) balloonY += rise; }
     const string = g > .6 ? mixHex('#8a5a34', '#20203a', .6) : '#8a5a34', balloon = g > .6 ? mixHex('#ff6fa8', '#20203a', .6) : '#ff6fa8', shine = g > .6 ? mixHex('#fff4e0', '#20203a', .6) : '#fff4e0';
-    cx.strokeStyle = string; cx.lineWidth = Math.max(1.5, r * .06); cx.beginPath(); cx.moveTo(R(bx), R(boardTop)); cx.lineTo(R(balloonX), R(side ? balloonY : balloonY + br * .85)); cx.stroke();
+    const topPx = R(by) + R(-r * .72), lw = Math.max(1.5, r * .06);
+    const x0 = R(bx), x1 = R(balloonX), y1 = R(side ? balloonY : balloonY + br * .85);
+    const y0 = side ? Math.max(R(boardTop), topPx) : R(boardTop);
+    const clipTop = side ? topPx : null; // a side string stays on the board; an overhead string is meant to rise
+    cx.save();
+    if (clipTop !== null) { cx.beginPath(); cx.rect(0, clipTop, W, Math.max(1, H - clipTop)); cx.clip(); }
+    cx.strokeStyle = string; cx.lineWidth = lw; cx.beginPath(); cx.moveTo(x0, y0); cx.lineTo(x1, y1); cx.stroke();
+    cx.restore();
+    L.packString = { x0, y0, x1, y1, width: lw, boardTop: topPx, clipTop };
+    const ballRx = Math.max(1, R(br * .86)), ballRy = Math.max(1, R(br * 1.05));
+    L.packBalloon = { x: R(balloonX), y: R(balloonY), rx: ballRx, ry: ballRy, knotY: R(balloonY + br * 1.15) };
     ell(balloonX, balloonY, br * .86, br * 1.05, balloon); ell(balloonX - br * .28, balloonY - br * .32, br * .22, br * .16, shine);
     cx.fillStyle = g > .6 ? mixHex('#e8483c', '#20203a', .6) : '#e8483c'; cx.beginPath(); cx.moveTo(R(balloonX - r * .08), R(balloonY + br * .9)); cx.lineTo(R(balloonX + r * .08), R(balloonY + br * .9)); cx.lineTo(R(balloonX), R(balloonY + br * 1.15)); cx.fill();
     cx.save(); cx.translate(R(bx), R(by)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
