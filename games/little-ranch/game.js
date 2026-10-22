@@ -262,16 +262,20 @@
     const faceOf = (q, s) => ({ x: q.x, y: q.y - R * s * .45 });
     const overlap = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
     const bubble = L.item, sun = { x: W * .22, y: H * .17, r: Math.max(L.U * .16, R) };
+    const fence = L.ground + L.U * .02;
+    const circ = (x, y, r) => ({ x0: x - r, x1: x + r, y0: y - r, y1: y + r });
     const head = { x: L.home.x + L.size * .55, y: L.home.y - L.size * 1.3 };
     const babyC = { x: L.home.x, y: L.home.y - L.size * .9 };
     const kBaby = Math.hypot(head.x - babyC.x, head.y - babyC.y) / (L.size * 1.2);
     const body = { x0: L.home.x - L.size * 1.05, x1: L.home.x + L.size * 1.15, y0: L.home.y - L.size * 1.7, y1: L.home.y };
     const bushBox = { x0: L.bush.x - R, x1: L.bush.x + R, y0: L.bush.y - R * 1.4, y1: L.bush.y + R * .2 };
     const basket = { x0: L.basket.x - L.basket.r, x1: L.basket.x + L.basket.r, y0: L.basket.y - L.basket.r, y1: L.basket.y + L.basket.r };
+    const meadow = [circ(L.bowl.x, L.bowl.y - R * .25, R * 1.15), circ(L.sponge.x, L.sponge.y, R * .8 * .75), circ(L.fhome.x, L.fhome.y - L.fz * .7, L.fz), basket, bushBox, body,
+      ...[-1, 1].map(k => { const q = ballSpot(k); return circ(q.x, q.y, q.r); }), ...L.flowers.map(fl => circ(fl.x, fl.y, fl.r))];
     // A short wide meadow has no full-size gap that stays off the baby, so a slightly smaller sign may sit in the sky.
     const search = (s, minMul) => {
-      const rs = R * s * .95; let best = null, cost = Infinity;
-      for (let y = rs * 1.2; y < H - 4; y += 3) for (let x = rs * .7; x < W - rs * .7; x += 3) {
+      const rs = R * s * .95, yMax = fence - rs * .27 - 1; let best = null, cost = Infinity;
+      for (let y = rs * 1.2; y <= yMax; y += 3) for (let x = rs * .7; x < W - rs * .7; x += 3) {
         const q = { x, y }, f = faceOf(q, s), b = box(q, s, 'board'), post = box(q, s, 'post');
         if (b.x0 < 1 || b.x1 > W - 1 || b.y0 < 1 || b.y1 > H - 1) continue;
         const gap = Math.min(...five.map(n => Math.hypot(faceOf(L[n], 1).x - f.x, faceOf(L[n], 1).y - f.y)));
@@ -290,16 +294,34 @@
         const bodyBox = { x0: cloud.x - cr * 1.35, x1: cloud.x + cr * 1.35, y0: cloud.y - cr * 1.05, y1: cloud.y + cr * .95 };
         const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: L.ground + 2 };
         const br = rs * .42, balloon = { x0: q.x - br, x1: q.x + br, y0: b.y0 - br * 2.5, y1: b.y0 };
-        if (balloon.y0 < 1 || balloon.x0 < 1 || balloon.x1 > W - 1) continue;
-        if ([b, balloon].some(box2 => overlap(box2, faceBox) || overlap(box2, bodyBox) || overlap(box2, rainBox))) continue;
-        if (five.some(n => overlap(balloon, box(L[n], 1, 'board')) || overlap(balloon, box(L[n], 1, 'post')))) continue;
+        const string = { x0: q.x - Math.max(2, rs * .08), x1: q.x + Math.max(2, rs * .08), y0: balloon.y0, y1: b.y1 };
+        if (b.y1 > fence - 1 || balloon.y0 < 1 || balloon.x0 < 1 || balloon.x1 > W - 1) continue;
+        if (meadow.some(p => overlap(b, p) || overlap(balloon, p) || overlap(string, p))) continue;
+        if ([b, balloon, string].some(box2 => overlap(box2, faceBox) || overlap(box2, bodyBox) || overlap(box2, rainBox))) continue;
+        if (five.some(n => overlap(balloon, box(L[n], 1, 'board')) || overlap(balloon, box(L[n], 1, 'post')) || overlap(string, box(L[n], 1, 'board')))) continue;
         const weather = Math.hypot(f.x - sun.x, f.y - sun.y) < sun.r + R * s * .35 || Math.hypot(f.x - L.cloud.x, f.y - L.cloud.y) < L.cloud.r + R * s * .35;
         const c = (y > L.ground ? 70 : 0) + (weather ? 80 : 0) + (s < 1 ? 8 : 0) + Math.abs(x - W * .58) * .15 + y * .04;
         if (c < cost) { cost = c; best = { x, y, s }; }
       }
       return best;
     };
-    return search(1, 2.5) || search(1, 1.5) || search(.72, 1.5) || search(.6, 1.4) || search(.6, 1.2) || { x: Math.max(R * 1.4, L.cloud.x - L.cloud.r * 3.2), y: Math.max(R * 2.2, L.ground * .55), s: .72 };
+    return search(1, 2.5) || search(1, 1.5) || search(.72, 1.5) || search(.6, 1.4) || search(.6, 1.2) || search(.48, 1.05) || search(.4, .9) || search(.34, .75) || skySign();
+    function skySign() {
+      const s = .32, rs = R * s * .95, br = rs * .42, y = fence - rs * .27 - 2;
+      const cloud = L.cloud, cr = cloud.r;
+      const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
+      const bodyBox = { x0: cloud.x - cr * 1.35, x1: cloud.x + cr * 1.35, y0: cloud.y - cr * 1.05, y1: cloud.y + cr * .95 };
+      const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: fence };
+      for (const xf of [.14, .22, .3, .78, .88]) {
+        const x = Math.max(rs * 1.2, Math.min(W - rs * 1.2, W * xf)), b = box({ x, y }, s, 'board');
+        const balloon = { x0: x - br, x1: x + br, y0: b.y0 - br * 2.5, y1: b.y0 };
+        if (balloon.y0 < 1 || b.y1 > fence - 1) continue;
+        if ([b, balloon].some(box2 => overlap(box2, faceBox) || overlap(box2, bodyBox) || overlap(box2, rainBox))) continue;
+        if (meadow.some(p => overlap(b, p) || overlap(balloon, p))) continue;
+        return { x, y, s };
+      }
+      return { x: Math.max(rs * 1.4, 8), y: Math.min(y, fence - rs), s };
+    }
   }
   function layToys() {
     const barn = L.shed.barn, tall = H >= W * 1.05;
@@ -460,7 +482,7 @@
     if (st.place === 'tower') { const T2 = st.tower, V = L.tower, cam = towerCam(); if (T2.tumble) return null;
       return T2.stack.length >= 5 ? { name: 'tbaby', x: V.baby.x, y: V.baby.y + cam - V.baby.z * 1.2, r: V.baby.z * 1.3 } : { name: 'tray0', x: V.tray[0].x, y: V.tray[0].y + cam, r: V.bs * .75 }; }
     if (st.place === 'band') { const B = st.band, V = L.band; if (B.song) return null; const i = BAND.findIndex((k, j) => !B.played[j]);
-      if (i < 0) return { name: 'stick', x: V.stick.x, y: V.babies[0].y - V.z * 2.35, r: Math.min(V.br * .4, V.z * .3) };
+      if (i < 0) return { name: 'stick', x: V.stick.x, y: V.stick.y - V.br * .55, r: Math.min(V.br * .45, V.z * .35) };
       const q = V.babies[i], ear = q.y - V.z * 1.9; return { name: BAND[i], x: q.x, y: ear - V.z * .5, r: V.z * .32 }; }
     if (st.place === 'kitchen') return st.kitchen.phase === 'idle' ? { name: 'food0', x: L.kitchen.foods[0].x, y: L.kitchen.foods[0].y, r: L.kitchen.fr * 1.25 } : null;
     if (st.place === 'shed') { if (st.shed.doneAt !== null) return null; const k = PARTS.find(q => !(q in st.shed.parts)); const z = L.shed.z;
@@ -617,10 +639,12 @@
     st.tower = { stack: [], next: 0, tumble: null, wig: 0, giggle: -9, tumbles: 0 }; sfx('door'); }
   function leaveTower(home) { st.tower = null; st.place = home ? 'ranch' : 'pack'; sfx('door'); }
   function stackBlock() { const V = L.tower, n = st.tower ? st.tower.stack.length : 0; if (n < 1) return V.bs; const room = V.fy - H * .3; return Math.max(V.bs / 2, Math.min(V.bs, room / n)); }
+  const camMax = () => Math.max(0, H - L.tower.fy - L.tower.bs / 2);
+  function stackCap() { return Math.max(1, Math.floor((L.tower.fy + camMax() - 1) / (L.tower.bs / 2))); }
   const towerCam = () => { const V = L.tower, T2 = st.tower; if (!T2) return 0; if (T2.tumble) return T2.tumble.cam || 0; if (!T2.stack.length) return 0;
-    const over = T2.stack.length * stackBlock() - (V.fy - H * .3); return over > 1e-4 ? Math.min(over, Math.max(0, H - V.fy - 1)) : 0; };
+    const over = T2.stack.length * stackBlock() - (V.fy - H * .3); return over > 1e-4 ? Math.min(over, camMax()) : 0; };
   function tumbleReact(p) { const T2 = st.tower; T2.wig = 1; fx('spark', p.x, p.y); fx('note', p.x, p.y - 6); sfx('note'); }
-  function addBlock(i) { const T2 = st.tower, V = L.tower; if (T2.tumble) return tumbleReact(V.tray[i] || { x: V.x, y: V.fy });
+  function addBlock(i) { const T2 = st.tower, V = L.tower; if (T2.tumble || T2.stack.length >= stackCap()) return tumbleReact(V.tray[i] || { x: V.x, y: V.fy });
     const c = (T2.next + i) % BLOCKS.length; T2.next = (T2.next + 1) % BLOCKS.length;
     const block = { c, at: st.t, from: { x: V.tray[i].x, y: V.tray[i].y }, dx: (Math.random() - .5) * V.bs * .12, landed: false };
     T2.stack.push(block); block.from.y += towerCam(); sfx('pick', c % 4); }

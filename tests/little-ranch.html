@@ -986,14 +986,33 @@ document.querySelector('#run').onclick = async () => {
       const rectGap = (a, b2) => { const dx = Math.max(a.x0 - b2.x1, b2.x0 - a.x1), dy = Math.max(a.y0 - b2.y1, b2.y0 - a.y1); if (dx < 0 && dy < 0) return Math.max(dx, dy); if (dx < 0) return dy; if (dy < 0) return dx; return Math.hypot(dx, dy); };
       const overlap = (a, b2) => a.x0 < b2.x1 && b2.x0 < a.x1 && a.y0 < b2.y1 && b2.y0 < a.y1;
       const faceOf = n => { const q = L()[n]; return { x: q.x, y: q.y - L().R * .45 * (q.s || 1) }; };
-      for (const [width, height] of [[1280, 800], [844, 390], [390, 844], [375, 812]]) {
-        frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1); LR.redraw();
-        const Ls = L(), cloud = Ls.cloud, pb = boardOf('psign'), cr = cloud.r;
-        const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
-        const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: Ls.ground };
-        const br = Ls.R * .95 * (Ls.psign.s || 1) * .42, balloon = { x0: Ls.psign.x - br, x1: Ls.psign.x + br, y0: pb.y0 - br * 2.3, y1: pb.y0 };
-        check(`${width}×${height}: the pack sign stays 6 px clear of the wagon sign, off the cloud's face and out of the rain, and hangs from a balloon`, rectGap(pb, boardOf('wsign')) >= 6 && !overlap(pb, faceBox) && !overlap(pb, rainBox) && !overlap(balloon, faceBox) && !overlap(balloon, rainBox) && balloon.y0 >= 0 && LR.ranchTarget(faceOf('psign')) === 'psign');
-      }
+      const savedDpr = Object.getOwnPropertyDescriptor(w, 'devicePixelRatio');
+      const useDpr = n => Object.defineProperty(w, 'devicePixelRatio', { configurable: true, get: () => n });
+      const restoreDpr = () => { if (savedDpr) Object.defineProperty(w, 'devicePixelRatio', savedDpr); else delete w.devicePixelRatio; };
+      const circ = (x, y, r) => ({ x0: x - r, x1: x + r, y0: y - r, y1: y + r });
+      const ballRest = Ls => {
+        const ballR = Ls.R * .88, wide = cv.width > cv.height * 1.3, span = Math.min(Ls.size * 1.15, cv.width * .18);
+        return [-1, 1].map(side => {
+          let y = Ls.ground + Ls.R * 1.35, x = Math.max(cv.width * .24, Math.min(cv.width * .76, Ls.home.x + side * span));
+          if (!wide) y = Ls.home.y - Ls.size * .62 + ballR;
+          if (Ls.flowers.length) { const f = Ls.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); }
+          if (!wide && Ls.basket) x = Math.max(x, Ls.basket.x + Ls.basket.r + ballR + 3);
+          return circ(Math.round(x), Math.round(y), ballR);
+        });
+      };
+      try {
+        for (const [width, height, dpr] of [[1280, 800, 1], [844, 390, 1], [390, 844, 1], [375, 812, 1], [820, 1180, 2]]) {
+          useDpr(dpr); frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1); LR.redraw();
+          const Ls = L(), cloud = Ls.cloud, pb = boardOf('psign'), cr = cloud.r, fence = Ls.ground + Ls.U * .02;
+          const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
+          const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: Ls.ground };
+          const br = Ls.R * .95 * (Ls.psign.s || 1) * .42, balloon = { x0: Ls.psign.x - br, x1: Ls.psign.x + br, y0: pb.y0 - br * 2.3, y1: pb.y0 };
+          const meadow = [circ(Ls.bowl.x, Ls.bowl.y - Ls.R * .25, Ls.R * 1.15), circ(Ls.sponge.x, Ls.sponge.y, Ls.R * .8 * .75), circ(Ls.fhome.x, Ls.fhome.y - Ls.fz * .7, Ls.fz),
+            { x0: Ls.basket.x - Ls.basket.r, x1: Ls.basket.x + Ls.basket.r, y0: Ls.basket.y - Ls.basket.r, y1: Ls.basket.y + Ls.basket.r }, ...ballRest(Ls), ...Ls.flowers.map(fl => circ(fl.x, fl.y, fl.r))];
+          const label = `${width}×${height}${dpr > 1 ? ' at DPR ' + dpr : ''}`;
+          check(`${label}: the pack sign stays 6 px clear of the wagon sign, off the cloud's face and out of the rain, and the board and balloon stay above the fence and off the meadow`, rectGap(pb, boardOf('wsign')) >= 6 && !overlap(pb, faceBox) && !overlap(pb, rainBox) && !overlap(balloon, faceBox) && !overlap(balloon, rainBox) && balloon.y0 >= 0 && balloon.x0 >= 0 && balloon.x1 <= cv.width && pb.y1 <= fence - 1 && balloon.y1 <= fence && meadow.every(p => !overlap(pb, p) && !overlap(balloon, p)) && LR.ranchTarget(faceOf('psign')) === 'psign');
+        }
+      } finally { restoreDpr(); }
       frame.style.width = '844px'; frame.style.height = '390px'; await sleep(150); LR.newVisit(); LR.advance(.1);
       tap(faceOf('psign')); tap(L().pack.cards.find(c => c.id === 'tower'));
       for (let i = 0; i < 12; i++) { tap(L().tower.tray[i % 3]); LR.advance(LR.DROP_SECS + .05); }
@@ -1024,6 +1043,33 @@ document.querySelector('#run').onclick = async () => {
         const lb = { x0: (lk.left - rr.left) / rr.width * cv.width - 3, y0: (lk.top - rr.top) / rr.height * cv.height - 3, x1: (lk.right - rr.left) / rr.width * cv.width + 3, y1: (lk.bottom - rr.top) / rr.height * cv.height + 3 };
         check(`${width}×${height}: bunting clears the barn and the lock, and the lower floor is not empty`, fl.length > 0 && fl.every(f => !overlap(flagBox(f), bb) && !overlap(flagBox(f), lb)) && B2.babies.every(q => q.y > cv.height * .75) && (cv.height - B2.babies[0].y) / cv.height < .2);
       }
+      try {
+        for (const [width, height, dpr] of [[1280, 800, 1], [844, 390, 1], [820, 1180, 2], [390, 844, 1]]) {
+          useDpr(dpr); frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+          tap(faceOf('psign')); tap(L().pack.cards.find(c => c.id === 'tower'));
+          let attempts = 0, stopped = false;
+          while (attempts < 40) {
+            const beforeN = S().tower.stack.length;
+            tap(L().tower.tray[attempts % 3]); LR.advance(LR.DROP_SECS + .05); attempts++;
+            if (S().tower.stack.length === beforeN) stopped = true;
+            if (stopped && attempts >= 20) break;
+          }
+          const Vw = L().tower, n = S().tower.stack.length, cam = LR.towerCam(), block = LR.stackBlock();
+          const top = Vw.fy + cam - n * block, floor = cv.height - (Vw.fy + cam), half = Vw.bs / 2;
+          const fit = Math.max(1, Math.floor((cv.height - half - 1) / half));
+          const notes = S().fx.length;
+          tap({ x: Vw.x, y: Vw.fy + cam - block });
+          const label = `${width}×${height}${dpr > 1 ? ' at DPR ' + dpr : ''}`;
+          check(`${label}: after twenty block taps the tower top stays on screen and about half a block of floor stays visible, and a further tap wiggles`, attempts >= 20 && n >= fit && top >= 0 && floor + 1e-3 >= half && S().tower.stack.length === n && S().tower.wig > .5 && S().fx.length > notes && S().place === 'tower');
+          tap(Vw.barn); tap(L().pack.cards.find(c => c.id === 'band'));
+          const Bw = L().band;
+          Bw.babies.forEach(q => tap({ x: q.x, y: q.y - Bw.z * .6 }));
+          S().idleAt = S().t - LR.HINT_SECS - 1; LR.advance(.05);
+          const sh = LR.hint(), standY = Bw.stick.y - Bw.br * .33, dist = sh ? Math.hypot(sh.x - Bw.stick.x, sh.y - standY) : 99;
+          const earY = Bw.babies[0].y - Bw.z * 1.9, distEar = sh ? Math.hypot(sh.x - Bw.babies[0].x, sh.y - earY) : 0;
+          check(`${label}: the stick hint is anchored to the music stand`, sh && sh.name === 'stick' && !S().band.song && S().band.played.every(Boolean) && Math.abs(sh.x - Bw.stick.x) < 1 && dist < Bw.br * .6 && dist + 40 < distEar);
+        }
+      } finally { restoreDpr(); }
       frame.style.width = '390px'; frame.style.height = '844px'; await sleep(150); LR.newVisit(); LR.advance(.1);
       tap(L().tsign); tap(L().dough.dots[1]); const tint = parseRgb(LR.doughCol()); tap(L().dough.cutter); LR.advance(LR.STAMP_SECS + .25); LR.redraw();
       const hop = S().dough.pose && S().dough.pose.hops[0], cookie = hop && pix({ x: hop.x, y: hop.y - S().dough.pose.z * .4 });
