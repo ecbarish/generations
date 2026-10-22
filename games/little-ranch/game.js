@@ -195,7 +195,7 @@
       L.dough = { lr, cr, ty: H * .5, lump: { x: W * .42, y: H * .66 }, cutter: { x: W * .8, y: H * .64 }, barn: L.shed.barn,
         dr: Math.min(W * .09, H * .1), dots: (wide ? [.27, .47, .67, .87] : [.2, .4, .6, .8]).map(f => ({ x: W * f, y: H * .5 * .55 })) }; } // LR-POLISH: the four colour dots are pots now
     const placeKey = W + 'x' + H + 'x' + S, placed = placeCache[placeKey];
-      if (placed) { L.item = { ...placed.item }; L.puddles = placed.puddles.map(q => ({ ...q })); L.psign = { ...placed.psign }; } else { // LR-G2: two spots chosen on the grid: the bedtime bubble (clear of the hat basket and the bowl) and the two puddles
+      if (placed) { L.item = { ...placed.item }; L.puddles = placed.puddles.map(q => ({ ...q })); L.psign = { ...placed.psign }; if (placed.cloud) { L.cloud.x = placed.cloud.x; L.cloud.y = placed.cloud.y; } } else { // LR-G2: two spots chosen on the grid: the bedtime bubble (clear of the hat basket and the bowl) and the two puddles
       // (clear of the ball, the bush, the basket, the bowl and the sponge). The old spot is the preferred one and is kept
       // when it is already clear. Nothing here is saved; the chosen spots are only remembered in memory, per screen size.
       const sw = L.R * .8, B = L.basket, bb = L.bush, kids = [-1, 1].map(k => ballSpot(k)), bodyY = L.home.y - L.size * .9;
@@ -233,7 +233,7 @@
         L.puddles = [got[0] || left, got[1] || right]; }
       L.psign = packSignSpot();
       if (Object.keys(placeCache).length > 120) for (const k in placeCache) delete placeCache[k];
-      placeCache[placeKey] = { item: { ...L.item }, puddles: L.puddles.map(q => ({ ...q })), psign: { ...L.psign } }; }
+      placeCache[placeKey] = { item: { ...L.item }, puddles: L.puddles.map(q => ({ ...q })), psign: { ...L.psign }, cloud: { x: L.cloud.x, y: L.cloud.y } }; }
     layToys();
     if (st && old.U && (W !== oldW || H !== oldH)) {
       // Keep progress between the same places, rather than keeping obsolete canvas pixels.
@@ -299,18 +299,55 @@
         if (meadow.some(p => overlap(b, p) || overlap(balloon, p) || overlap(string, p))) continue;
         if ([b, balloon, string].some(box2 => overlap(box2, faceBox) || overlap(box2, bodyBox) || overlap(box2, rainBox))) continue;
         if (five.some(n => overlap(balloon, box(L[n], 1, 'board')) || overlap(balloon, box(L[n], 1, 'post')) || overlap(string, box(L[n], 1, 'board')))) continue;
+        if (!ownsBoard(q, s)) continue;
         const weather = Math.hypot(f.x - sun.x, f.y - sun.y) < sun.r + R * s * .35 || Math.hypot(f.x - L.cloud.x, f.y - L.cloud.y) < L.cloud.r + R * s * .35;
         const c = (y > L.ground ? 70 : 0) + (weather ? 80 : 0) + (s < 1 ? 8 : 0) + Math.abs(x - W * .58) * .15 + y * .04;
         if (c < cost) { cost = c; best = { x, y, s }; }
       }
       return best;
     };
-    // A tall screen's older check wants the full face gap even when the sign itself is smaller, so try that gap at each size before a wide screen is allowed closer.
-    const tall = H >= W * 1.25;
-    const placed = tall
-      ? search(1, 2.5) || search(.72, 2.5) || search(.6, 2.5) || search(.48, 2.5) || search(.4, 2.5) || search(.34, 2.5) || search(.28, 2.5)
-      : search(1, 2.5) || search(1, 1.5) || search(.72, 1.5) || search(.6, 1.4) || search(.6, 1.2) || search(.48, 1.05) || search(.4, .9) || search(.34, .75);
-    return placed || skySign(tall ? 2.5 : 1.4);
+    // Every painted point of the board has to open the pack, and the sun and the cloud keep their own middles.
+    function ownsBoard(q, s) {
+      const rs = R * s * .95, reach = R * 1.25 * s, br = R * .95;
+      const spots = [['psign', q.x, q.y - R * s * .45, reach, q.x, q.y, rs],
+        ...five.map(n => { const b = L[n]; return [n, b.x, b.y - R * .45, R * 1.25, b.x, b.y, br]; }),
+        ['sun', sun.x, sun.y, sun.r], ['cloud', L.cloud.x, L.cloud.y, L.cloud.r * 1.35],
+        ['bush', L.bush.x, L.bush.y - R * .4, R * 1.4], ['bowl', L.bowl.x, L.bowl.y, R * 1.2],
+        ['basket', L.basket.x, L.basket.y - R * .15, R * 1.05], ['baby', L.home.x, L.home.y - L.size * .9, L.size * 1.2],
+        ['sponge', L.sponge.x, L.sponge.y, R * 1.1],
+        ...L.flowers.map((fl, i) => ['flower' + i, fl.x, fl.y, fl.r * 1.15]),
+        ...L.puddles.map((p, i) => ['puddle' + i, p.x, p.y, p.r]),
+        ...[-1, 1].map(k => { const b = ballSpot(k); return ['ball', b.x, b.y, b.r * 1.2]; })];
+      const winner = (x, y) => {
+        let best = null, bk = 1;
+        for (const row of spots) {
+          let k = Math.hypot(x - row[1], y - row[2]) / row[3];
+          if (row.length > 4 && Math.abs(x - row[4]) <= row[6] * .95 && y >= row[5] - row[6] * 1.17 && y <= row[5] + row[6] * .27) k *= .4;
+          if (k <= bk) { bk = k; best = row[0]; }
+        }
+        return best;
+      };
+      for (let i = 0; i <= 18; i++) for (let j = 0; j <= 14; j++) {
+        if (winner(q.x - rs * .95 + i * rs * 1.9 / 18, q.y - rs * 1.17 + j * rs * 1.44 / 14) !== 'psign') return false;
+      }
+      return winner(L.cloud.x, L.cloud.y) === 'cloud' && winner(sun.x, sun.y) === 'sun';
+    }
+    // Full size first. Slide the cloud aside (still clear of the sun) before easing the face gap. Shrink only when a large sign will not fit, and not below 0.72 while any large spot remains.
+    const tall = H >= W * 1.25, homeX = L.cloud.x, homeY = L.cloud.y, cr0 = L.cloud.r;
+    const cloudOk = x => x - cr0 * 1.3 >= 1 && x + cr0 * 1.3 <= W - 1 && Math.hypot(x - sun.x, homeY - sun.y) >= cr0 * 1.3 + L.U * .13;
+    const cloudXs = [homeX, W * .78, W * .88, W * .5, W * .42, W * .3, W * .2, W * .12].filter((x, i, all) => cloudOk(x) && all.findIndex(v => Math.abs(v - x) < .5) === i);
+    const placeAt = scales => {
+      const muls = tall ? [2.5, 2, 1.8] : [2.5, 1.5, 1.4];
+      for (const s of scales) for (const mul of muls) for (const x of cloudXs) {
+        L.cloud.x = x; L.cloud.y = homeY;
+        const hit = search(s, mul);
+        if (hit) return hit;
+      }
+      return null;
+    };
+    const placed = placeAt([1, .9, .85, .8, .78, .75, .72]) || placeAt([.6, .55, .48, .4, .34, .28]);
+    if (!placed) { L.cloud.x = homeX; L.cloud.y = homeY; }
+    return placed || skySign(tall ? 1.8 : 1.4);
     function skySign(minMul) {
       const s = .28, rs = R * s * .95, br = rs * .42, y = fence - rs * .27 - 2;
       const cloud = L.cloud, cr = cloud.r;

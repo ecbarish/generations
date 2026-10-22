@@ -1,6 +1,6 @@
 # After LR-TOYS-POLISH
 
-Captured in headless Chrome from the follow-up that answers the art director's three notes. Each picture is the whole game window. The pack sign hangs in the sky, balloon included, above the fence and clear of the bowl, the ball, the sponge and the other meadow toys. Block Tower's 12-block picture still shares one camera. The 20-tap picture keeps tapping until the stack will not take another block: 14 blocks at 1280×800 and 844×390, 18 on the iPad, and 27 on the phone. The top stays on screen and about half a block of blue floor stays visible. Barn Band has all three players warmed up, so the idle glow sits on the music stand. The shed is the unpainted fox outline.
+Captured in headless Chrome from the follow-up that answers the art director's three notes. Each picture is the whole game window. The pack sign hangs in the sky, large again, balloon included, above the fence and clear of the bowl, the ball, the sponge and the other meadow toys. The cloud has moved aside to leave that room. Block Tower's 12-block picture still shares one camera. The 20-tap picture keeps tapping until the stack will not take another block: 14 blocks at 1280×800 and 844×390, 18 on the iPad, and 27 on the phone. The top stays on screen and about half a block of blue floor stays visible. Barn Band has all three players warmed up, so the idle glow sits on the music stand. The shed is the unpainted fox outline.
 
 | Size | Pack sign | Block Tower, 12 blocks | Block Tower, 20 taps | Barn Band | Paint shed |
 |---|---|---|---|---|---|
