@@ -305,17 +305,26 @@
       }
       return best;
     };
-    return search(1, 2.5) || search(1, 1.5) || search(.72, 1.5) || search(.6, 1.4) || search(.6, 1.2) || search(.48, 1.05) || search(.4, .9) || search(.34, .75) || skySign();
-    function skySign() {
-      const s = .32, rs = R * s * .95, br = rs * .42, y = fence - rs * .27 - 2;
+    // A tall screen's older check wants the full face gap even when the sign itself is smaller, so try that gap at each size before a wide screen is allowed closer.
+    const tall = H >= W * 1.25;
+    const placed = tall
+      ? search(1, 2.5) || search(.72, 2.5) || search(.6, 2.5) || search(.48, 2.5) || search(.4, 2.5) || search(.34, 2.5) || search(.28, 2.5)
+      : search(1, 2.5) || search(1, 1.5) || search(.72, 1.5) || search(.6, 1.4) || search(.6, 1.2) || search(.48, 1.05) || search(.4, .9) || search(.34, .75);
+    return placed || skySign(tall ? 2.5 : 1.4);
+    function skySign(minMul) {
+      const s = .28, rs = R * s * .95, br = rs * .42, y = fence - rs * .27 - 2;
       const cloud = L.cloud, cr = cloud.r;
       const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
       const bodyBox = { x0: cloud.x - cr * 1.35, x1: cloud.x + cr * 1.35, y0: cloud.y - cr * 1.05, y1: cloud.y + cr * .95 };
       const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: fence };
-      for (const xf of [.14, .22, .3, .78, .88]) {
-        const x = Math.max(rs * 1.2, Math.min(W - rs * 1.2, W * xf)), b = box({ x, y }, s, 'board');
+      for (const xf of [.08, .14, .22, .3, .5, .7, .78, .88, .94]) {
+        const x = Math.max(rs * 1.2, Math.min(W - rs * 1.2, W * xf)), q = { x, y }, b = box(q, s, 'board');
         const balloon = { x0: x - br, x1: x + br, y0: b.y0 - br * 2.5, y1: b.y0 };
+        const f = faceOf(q, s);
+        const gap = Math.min(...five.map(n => Math.hypot(faceOf(L[n], 1).x - f.x, faceOf(L[n], 1).y - f.y)));
+        if (gap < R * minMul - 1e-6) continue;
         if (balloon.y0 < 1 || b.y1 > fence - 1) continue;
+        if (five.some(n => overlap(b, box(L[n], 1, 'board')) || overlap(b, box(L[n], 1, 'post')) || overlap(balloon, box(L[n], 1, 'board')))) continue;
         if ([b, balloon].some(box2 => overlap(box2, faceBox) || overlap(box2, bodyBox) || overlap(box2, rainBox))) continue;
         if (meadow.some(p => overlap(b, p) || overlap(balloon, p))) continue;
         return { x, y, s };
