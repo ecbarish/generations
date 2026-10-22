@@ -333,20 +333,60 @@
       return winner(L.cloud.x, L.cloud.y) === 'cloud' && winner(sun.x, sun.y) === 'sun';
     }
     // Full size first. Slide the cloud aside (still clear of the sun) before easing the face gap. Shrink only when a large sign will not fit, and not below 0.72 while any large spot remains.
+    // A cloud spot is refused when its body, eyes or mouth meet a sign board (the pack sign included) or the grown-up lock. The face stays on screen.
     const tall = H >= W * 1.25, homeX = L.cloud.x, homeY = L.cloud.y, cr0 = L.cloud.r;
-    const cloudOk = x => x - cr0 * 1.3 >= 1 && x + cr0 * 1.3 <= W - 1 && Math.hypot(x - sun.x, homeY - sun.y) >= cr0 * 1.3 + L.U * .13;
-    const cloudXs = [homeX, W * .78, W * .88, W * .5, W * .42, W * .3, W * .2, W * .12].filter((x, i, all) => cloudOk(x) && all.findIndex(v => Math.abs(v - x) < .5) === i);
+    const cloudParts = (x, y) => [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]].map(([dx, dy, k]) => ({ x: x + dx * cr0, y: y + dy * cr0, rx: cr0 * k, ry: cr0 * k })).concat([{ x: x - cr0 * .3, y: y + cr0 * .1, rx: cr0 * .07, ry: cr0 * .09 }, { x: x + cr0 * .3, y: y + cr0 * .1, rx: cr0 * .07, ry: cr0 * .09 }, { x, y: y + cr0 * .35, rx: cr0 * .12, ry: cr0 * .05 }]);
+    const partHits = (p, rect) => { const nx = Math.max(rect.x0, Math.min(p.x, rect.x1)), ny = Math.max(rect.y0, Math.min(p.y, rect.y1)); return ((nx - p.x) / p.rx) ** 2 + ((ny - p.y) / p.ry) ** 2 <= 1; };
+    const cloudHits = (x, y, extra) => {
+      const rects = five.map(n => box(L[n], 1, 'board')).concat(extra || []);
+      const lk = lockCanvas(); if (lk) rects.push(lk);
+      return cloudParts(x, y).some(p => rects.some(rect => partHits(p, rect)));
+    };
+    const faceOnScreen = (x, y) => cloudParts(x, y).slice(-3).every(p => p.x - p.rx >= 0 && p.x + p.rx <= W && p.y - p.ry >= 0 && p.y + p.ry <= H);
+    const cloudOk = (x, y) => x - cr0 * 1.3 >= 1 && x + cr0 * 1.3 <= W - 1 && Math.hypot(x - sun.x, y - sun.y) >= cr0 * 1.3 + L.U * .13 && faceOnScreen(x, y) && !cloudHits(x, y);
+    const z = L.size, hx0 = L.home.x + z * .42, hy0 = L.home.y - z * 1.25, hr = z * .66;
+    const headBox = { x0: hx0 - hr, x1: hx0 + hr, y0: hy0 - hr * 1.25, y1: hy0 + hr };
+    const br = L.R * 1.25, bx = L.bush.x, by = L.bush.y;
+    const bushE = [{ x: bx - br * .55, y: by - br * .3, rx: br * .6, ry: br * .55 }, { x: bx + br * .55, y: by - br * .3, rx: br * .6, ry: br * .55 }, { x: bx, y: by - br * .6, rx: br * .75, ry: br * .65 }];
+    const onBush = p => bushE.some(e => {
+      if (((p.x - e.x) / e.rx) ** 2 + ((p.y - e.y) / e.ry) ** 2 <= 1) return true;
+      for (let k = 0; k < 10; k++) { const a = k / 10 * 6.2832; if (((p.x + Math.cos(a) * p.rx - e.x) / e.rx) ** 2 + ((p.y + Math.sin(a) * p.ry - e.y) / e.ry) ** 2 <= 1) return true; }
+      return false;
+    });
+    const postsOf = () => five.map(n => box(L[n], 1, 'post'));
+    // The eyes and mouth have to stay off the posts, the bush and the baby's head, or the face is painted over.
+    const faceOpen = (x, y) => {
+      const posts = postsOf();
+      return cloudParts(x, y).slice(-3).every(p => !posts.some(rect => partHits(p, rect)) && !onBush(p) && !partHits(p, headBox));
+    };
+    const xSeeds = [homeX, W * .78, W * .88, W * .72, W * .68, W * .6, W * .5, W * .42, W * .3, W * .2, W * .12];
+    for (let x = W - cr0 * 1.3 - 1; x >= cr0 * 1.3 + 1; x -= Math.max(4, cr0 * .2)) xSeeds.push(x);
+    const ySeeds = [homeY];
+    for (let dy = cr0 * .35; homeY + dy < L.ground - cr0 * .2; dy += cr0 * .35) ySeeds.push(homeY + dy);
+    const spotsAt = y => { const xs = []; return xSeeds.filter(x => { if (xs.some(v => Math.abs(v - x) < .5) || !cloudOk(x, y)) return false; xs.push(x); return true; }); };
     const placeAt = scales => {
       const muls = tall ? [2.5, 2, 1.8] : [2.5, 1.5, 1.4];
-      for (const s of scales) for (const mul of muls) for (const x of cloudXs) {
-        L.cloud.x = x; L.cloud.y = homeY;
+      for (const s of scales) for (const mul of muls) for (const y of ySeeds) for (const x of spotsAt(y)) {
+        L.cloud.x = x; L.cloud.y = y;
         const hit = search(s, mul);
-        if (hit) return hit;
+        if (!(hit && !cloudHits(x, y, [box(hit, s, 'board')]))) continue;
+        let chosen = { x, y, hit };
+        if (!faceOpen(x, y)) {
+          for (let dx = cr0; dx >= -cr0; dx -= Math.max(2, cr0 * .08)) {
+            const nx = x + dx;
+            if (Math.abs(dx) < .5 || !cloudOk(nx, y) || !faceOpen(nx, y)) continue;
+            L.cloud.x = nx; L.cloud.y = y;
+            const h2 = search(s, mul);
+            if (h2 && !cloudHits(nx, y, [box(h2, s, 'board')])) { chosen = { x: nx, y, hit: h2 }; break; }
+          }
+        }
+        L.cloud.x = chosen.x; L.cloud.y = chosen.y;
+        return chosen.hit;
       }
       return null;
     };
     const placed = placeAt([1, .9, .85, .8, .78, .75, .72]) || placeAt([.6, .55, .48, .4, .34, .28]);
-    if (!placed) { L.cloud.x = homeX; L.cloud.y = homeY; }
+    if (!placed) { const y = ySeeds.find(y2 => spotsAt(y2).length) || homeY; L.cloud.x = (spotsAt(y)[0]) || homeX; L.cloud.y = y; }
     return placed || skySign(tall ? 1.8 : 1.4);
     function skySign(minMul) {
       const s = .28, rs = R * s * .95, br = rs * .42, y = fence - rs * .27 - 2;
@@ -1379,7 +1419,6 @@
     const sunY = lerp(L.sun.y, L.ground + U * .1, clamp(g * 1.6, 0, 1)); const glow = st.sun.glow;
     ell(L.sun.x, sunY, U * (.13 + glow * .07), U * (.13 + glow * .07), `rgba(255,240,180,${(.25 + glow * .35) * (1 - g)})`); ell(L.sun.x, sunY, U * (.09 + glow * .025), U * (.09 + glow * .025), glow > 0 ? mixHex('#fff4b0', '#ffffff', glow) : pick3('#fff4b0', '#ffb050', '#ff8040', g));
     if (st.sun.bow) drawRainbow(st.t - st.sun.bow.at);
-    drawCloud(g);
     if (g > .6) { const k = clamp((g - .6) / .4, 0, 1), mg = st.moon.song ? 1 : st.moon.glow, pulse = st.moon.song ? clamp(1 - (st.t - st.moon.song.beat) / BEAT, 0, 1) * .25 : 0;
       if (mg > 0) { ell(W * .8, lerp(L.ground, H * .16, k), U * (.11 + mg * .05 + pulse * .03), U * (.11 + mg * .05 + pulse * .03), `rgba(240,240,200,${.12 + mg * .2 + pulse * .2})`); }
       ell(W * .8, lerp(L.ground, H * .16, k), U * .07, U * .07, '#f4f0d8'); ell(W * .8 + U * .03, lerp(L.ground, H * .16, k) - U * .02, U * .06, U * .06, (mg > 0 ? mixHex('#121a44', '#5a5e6e', clamp((.12 + mg * .2 + pulse * .2) / .37, 0, 1)) : '#121a44')); }
@@ -1388,6 +1427,7 @@
     cx.fillStyle = pick3('#a87a4a', '#a06a3a', '#3a2e38', g); const fy = L.ground + U * .02; cx.fillRect(0, R(fy), W, Math.max(1, R(U * .025))); cx.fillRect(0, R(fy + U * .07), W, Math.max(1, R(U * .025)));
     for (let x = W * .05; x < W; x += U * .3) cx.fillRect(R(x), R(fy - U * .03), Math.max(2, R(U * .03)), R(U * .14));
     for (let i = 0; i < 30; i++) { const x = (i * 61.7) % W, y = L.ground + U * .2 + (i * 37.1) % (H - L.ground - U * .2); cx.fillStyle = pick3('#5aa848', '#8a8a40', '#1e3a36', g); cx.fillRect(R(x), R(y), 1, 2); }
+    drawCloud(g);
     drawHint();
     drawPuddles(); drawBasket(g); drawDSign(g); drawTSign(g); drawPSign(g); drawSign(g); drawWheelSign(g); drawKSign(g);
     const hidden = st.baby.act === 'hide' || st.baby.act === 'peek';
