@@ -61,6 +61,7 @@ Anyone continuing this project (any AI assistant or person): open [START-HERE.md
 
 ## Changelog
 
+- **Night Market Stalls v0.1.8 — NM-LAUNCH-POLISH (PR #614; version bumped on merge):** On phone layouts, the stall count line under the pour bar is 16px. A wider window still uses 0.92rem. Switching to reduced motion mid-session clears a passer-by from the lane instead of leaving that person frozen mid-step. Game Art Director approved the shots in comment 6349925816. The save stays version 1.
 - **Little Ranch v0.19.1 — tablet crispness (PR #611; version bumped on merge):** On a high-pixel-density tablet, the art now renders at exactly 2 CSS pixels per art pixel, so the pixel blocks look crisper and smaller. Phones and desktops are unchanged. The save format is unchanged.
 - **Little Ranch v0.19.0 — Block Tower and Barn Band (PR #604; version bumped on merge):** The pack sign opens a toy pack chooser with Block Tower and Barn Band. Bedtime works from each new room. The save format is unchanged.
 - **Night Market Stalls v0.1.7 — NM-G3 (PR #499; version bumped on merge):** The Back and footer links are now 1rem and stay on one line. The header reflows when the text is larger, as Generations Director approved. Game Art Director approved the change at 9548a7bb. The save stays version 1.
