@@ -1006,7 +1006,8 @@ document.querySelector('#run').onclick = async () => {
           const Ls = L(), cloud = Ls.cloud, pb = boardOf('psign'), cr = cloud.r, fence = Ls.ground + Ls.U * .02;
           const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
           const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: Ls.ground };
-          const br = Ls.R * .95 * (Ls.psign.s || 1) * .42, balloon = { x0: Ls.psign.x - br, x1: Ls.psign.x + br, y0: pb.y0 - br * 2.3, y1: pb.y0 };
+          const signS = Ls.psign.s || 1, rsSign = Ls.R * .95 * signS, br = rsSign * .42, side = Ls.psign.side || 0;
+          const balloon = side ? { x0: Ls.psign.x + side * (rsSign * .95 + br) - br * .9, x1: Ls.psign.x + side * (rsSign * .95 + br) + br * .9, y0: pb.y0 + br - br * 1.05, y1: pb.y0 + br + br * 1.05 } : { x0: Ls.psign.x - br, x1: Ls.psign.x + br, y0: pb.y0 - br * 2.3, y1: pb.y0 };
           const meadow = [circ(Ls.bowl.x, Ls.bowl.y - Ls.R * .25, Ls.R * 1.15), circ(Ls.sponge.x, Ls.sponge.y, Ls.R * .8 * .75), circ(Ls.fhome.x, Ls.fhome.y - Ls.fz * .7, Ls.fz),
             { x0: Ls.basket.x - Ls.basket.r, x1: Ls.basket.x + Ls.basket.r, y0: Ls.basket.y - Ls.basket.r, y1: Ls.basket.y + Ls.basket.r }, ...ballRest(Ls), ...Ls.flowers.map(fl => circ(fl.x, fl.y, fl.r))];
           const label = `${width}×${height}${dpr > 1 ? ' at DPR ' + dpr : ''}`;
@@ -1017,22 +1018,36 @@ document.querySelector('#run').onclick = async () => {
           let boardTaps = 0, boardOk = 0;
           for (let i = 0; i <= 18; i++) for (let j = 0; j <= 14; j++) { boardTaps++; if (LR.ranchTarget({ x: Ls.psign.x - rsNow * .95 + i * rsNow * 1.9 / 18, y: Ls.psign.y - rsNow * 1.17 + j * rsNow * 1.44 / 14 }) === 'psign') boardOk++; }
           check(`${label}: the pack sign stays at least 0.72 scale (${signScale}) and its tap is ${Math.round(cssW)}×${Math.round(cssH)} CSS px, with no big drop from a full-size sign (${Math.round(areaDrop * 100)}% smaller) and ${boardOk} of ${boardTaps} board taps`, signScale >= .72 && Math.min(cssW, cssH) >= 44 && areaDrop <= 1 - .72 * .72 + 1e-9 && boardOk === boardTaps);
-          const puffs = [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]].map(([dx, dy, k]) => ({ x: cloud.x + dx * cr, y: cloud.y + dy * cr, rx: cr * k, ry: cr * k }));
-          const eyes = [{ x: cloud.x - cr * .3, y: cloud.y + cr * .1, rx: cr * .07, ry: cr * .09 }, { x: cloud.x + cr * .3, y: cloud.y + cr * .1, rx: cr * .07, ry: cr * .09 }];
-          const mouth = { x: cloud.x, y: cloud.y + cr * .35, rx: cr * .12, ry: cr * .05 };
-          const inEll = (p, x, y) => ((x - p.x) / p.rx) ** 2 + ((y - p.y) / p.ry) ** 2 <= 1;
-          const inBox = (r, x, y) => x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1;
+          const postOf = n => { const q = Ls[n], rs = Ls.R * .95 * (q.s || 1); return { x0: q.x - rs * .08, x1: q.x + rs * .08, y0: q.y - rs * .2, y1: q.y + rs * 1.2 }; };
+          const names = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'];
+          const rowY = Math.min(...names.map(n => Ls[n].y)), homeY = Math.max(cv.height * .08, Ls.U * .08);
+          const skyFloor = Math.max(...names.filter(n => Ls[n].y <= rowY + Ls.R * .35).map(n => boardOf(n).y1));
+          const face = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
           const lkEl = d.querySelector('#lock').getBoundingClientRect(), cvR = cv.getBoundingClientRect();
           const lockR = { x0: (lkEl.left - cvR.left) / cvR.width * cv.width - 3, y0: (lkEl.top - cvR.top) / cvR.height * cv.height - 3, x1: (lkEl.right - cvR.left) / cvR.width * cv.width + 3, y1: (lkEl.bottom - cvR.top) / cvR.height * cv.height + 3 };
-          const blockers = ['sign', 'wsign', 'ksign', 'tsign', 'dsign', 'psign'].map(boardOf).concat([lockR]);
+          const babyBox = { x0: Ls.home.x - Ls.size * 1.05, x1: Ls.home.x + Ls.size * 1.15, y0: Ls.home.y - Ls.size * 1.7, y1: Ls.home.y };
+          const bushBox = { x0: Ls.bush.x - Ls.R, x1: Ls.bush.x + Ls.R, y0: Ls.bush.y - Ls.R * 1.4, y1: Ls.bush.y + Ls.R * .2 };
+          const puddleRects = Ls.puddles.map(p => ({ x0: p.x - p.r, x1: p.x + p.r, y0: p.y - p.r, y1: p.y + p.r }));
+          const faceBlock = names.flatMap(n => [boardOf(n), postOf(n)]).concat([pb, balloon, bushBox, babyBox, lockR], meadow, puddleRects);
+          const sunHit = (() => { const c = { x: Ls.sun.x, y: Ls.sun.y, r: Ls.U * .09 }, nx = Math.max(face.x0, Math.min(c.x, face.x1)), ny = Math.max(face.y0, Math.min(c.y, face.y1)); return (nx - c.x) ** 2 + (ny - c.y) ** 2 <= c.r * c.r; })();
+          const faceIn = face.x0 >= 0 && face.x1 <= cv.width && face.y0 >= 0 && face.y1 <= cv.height;
+          const faceClear = faceIn && !sunHit && faceBlock.every(r => !overlap(face, r));
+          const sky = cloud.y <= skyFloor + .01 && cloud.y <= homeY + .01;
+          const puffs = [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]].map(([dx, dy, k]) => ({ x: cloud.x + dx * cr, y: cloud.y + dy * cr, rx: cr * k, ry: cr * k }));
+          const inEll = (p, x, y) => ((x - p.x) / p.rx) ** 2 + ((y - p.y) / p.ry) ** 2 <= 1;
+          const inBox = (r, x, y) => x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1;
+          const boards = names.concat(['psign']).map(boardOf).concat([lockR]);
           let bodyN = 0, bodyHit = 0;
           for (let y = cloud.y - cr * 1.4; y <= cloud.y + cr * 1.2; y += .5) for (let x = cloud.x - cr * 1.4; x <= cloud.x + cr * 1.4; x += .5) {
             if (!puffs.some(p => inEll(p, x, y))) continue;
-            bodyN++; if (blockers.some(r => inBox(r, x, y))) bodyHit++;
+            bodyN++; if (boards.some(r => inBox(r, x, y))) bodyHit++;
           }
-          const open = part => { let n = 0, ok = 0; for (let y = part.y - part.ry; y <= part.y + part.ry; y += .25) for (let x = part.x - part.rx; x <= part.x + part.rx; x += .25) { if (!inEll(part, x, y)) continue; n++; if (x >= 0 && x <= cv.width && y >= 0 && y <= cv.height && blockers.every(r => !inBox(r, x, y))) ok++; } return n > 0 && ok === n; };
           const covered = bodyN ? bodyHit / bodyN : 0;
-          check(`${label}: the cloud at ${cloud.x.toFixed(1)}, ${cloud.y.toFixed(1)} has 0% of its body on a sign board or the lock (${(covered * 100).toFixed(1)}%) and its face and mouth are fully visible`, bodyHit === 0 && eyes.every(open) && open(mouth));
+          const wagonGap = rectGap(pb, boardOf('wsign'));
+          const rainClear = !overlap(pb, rainBox) && !overlap(balloon, rainBox);
+          const meadowClear = meadow.every(p => !overlap(pb, p) && !overlap(balloon, p));
+          const balloonIn = balloon.y0 >= 0 && balloon.x0 >= 0 && balloon.x1 <= cv.width && balloon.y1 <= cv.height;
+          check(`${label}: cloud ${cloud.x.toFixed(1)}, ${cloud.y.toFixed(1)} stays in the sky (${sky ? 'yes' : 'no'}, floor ${skyFloor.toFixed(1)}), its face is clear (${faceClear ? 'yes' : 'no'}), body overlap is ${(covered * 100).toFixed(1)}%, sign scale ${signScale} with ${boardOk}/${boardTaps} taps, balloon on screen (${balloonIn ? 'yes' : 'no'}), wagon gap ${wagonGap.toFixed(1)}, rain clear (${rainClear ? 'yes' : 'no'}), meadow and fence clear (${meadowClear && pb.y1 <= fence - 1 && balloon.y1 <= fence ? 'yes' : 'no'})`, sky && faceClear && bodyHit === 0 && signScale >= .72 && boardOk === boardTaps && balloonIn && wagonGap >= 6 && rainClear && meadowClear && pb.y1 <= fence - 1 && balloon.y1 <= fence);
         }
       } finally { restoreDpr(); }
       frame.style.width = '844px'; frame.style.height = '390px'; await sleep(150); LR.newVisit(); LR.advance(.1);
