@@ -1,0 +1,77 @@
+[
+  {
+    "width": 320,
+    "height": 640,
+    "dpr": 1,
+    "fontSize": "16px",
+    "text": "0 of 25 cups · press and hold to keep going"
+  },
+  {
+    "width": 375,
+    "height": 700,
+    "dpr": 1,
+    "fontSize": "16px",
+    "text": "0 of 25 cups · press and hold to keep going"
+  },
+  {
+    "width": 390,
+    "height": 700,
+    "dpr": 1,
+    "fontSize": "16px",
+    "text": "0 of 25 cups · press and hold to keep going"
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "dpr": 1,
+    "fontSize": "16px",
+    "text": "0 of 25 cups · press and hold to keep going"
+  },
+  {
+    "width": 768,
+    "height": 800,
+    "dpr": 1,
+    "fontSize": "16px",
+    "text": "0 of 25 cups · press and hold to keep going"
+  },
+  {
+    "width": 820,
+    "height": 800,
+    "dpr": 1,
+    "fontSize": "16px",
+    "text": "0 of 25 cups · press and hold to keep going"
+  },
+  {
+    "width": 820,
+    "height": 1180,
+    "dpr": 2,
+    "fontSize": "16px",
+    "text": "0 of 25 cups · press and hold to keep going"
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "dpr": 1,
+    "fontSize": "16px",
+    "text": "0 of 25 cups · press and hold to keep going"
+  },
+  {
+    "width": 1280,
+    "height": 800,
+    "dpr": 1,
+    "fontSize": "14.72px",
+    "text": "0 of 25 cups · press and hold to keep going"
+  },
+  {
+    "width": 1920,
+    "height": 900,
+    "dpr": 1,
+    "fontSize": "14.72px",
+    "text": "0 of 25 cups · press and hold to keep going"
+  },
+  {
+    "lane": "1280x800",
+    "walkersBeforeReduce": 1,
+    "walkersAfterReduce": 0
+  }
+]
