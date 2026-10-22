@@ -21,6 +21,13 @@ What already held, so this change locks it and does not redraw it:
 - The yard pet already keeps `st.paint` until bedtime, and bedtime already clears it. No extra stored key.
 - The shed outline already uses the yard fox's ears, tail, body and legs. It is filled white until it is painted.
 
-The nine-second wait is recorded again after the code change, from the check in `tests/little-ranch.html`: a step does not run before 9 seconds and does run after 9 seconds.
+The nine-second wait, measured after the code change by `node tools/run-all-checks.cjs little-ranch` (702 checks, PASS, on game code `7e9f6c06`):
 
-Before pictures for Game Art Director are in [../lr-toys-polish/before](../lr-toys-polish/before).
+- `ROUTINE_WAIT` is 9.
+- After bedtime, 8 seconds leaves the toothbrush step at 0 and not doing itself. The code starts a step only when the wait is strictly longer than 9 seconds.
+- 1.2 seconds more (9.2 seconds in all) starts the toothbrush.
+- The README bedtime line says "about nine seconds", and the changelog section is not the place that line was checked.
+
+Palette after the same code, from `python3 tools/palette-inventory.py --game little-ranch --max 32`: 195 colours. The tool still exits 1 because 195 is over the cap of 32. The count went down by one. `#ff9ac0` is gone. No new hex was added.
+
+Before pictures for Game Art Director are in [../lr-toys-polish/before](../lr-toys-polish/before). After pictures are in [../lr-toys-polish/after](../lr-toys-polish/after).
