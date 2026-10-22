@@ -9,6 +9,6 @@ Captured in headless Chrome from the follow-up that answers the art director's t
 | iPad 820×1180, DPR 2 | [ipad-820x1180-sign.png](ipad-820x1180-sign.png) | [ipad-820x1180-tower.png](ipad-820x1180-tower.png) | [ipad-820x1180-tower-20.png](ipad-820x1180-tower-20.png) | [ipad-820x1180-band.png](ipad-820x1180-band.png) | [ipad-820x1180-shed.png](ipad-820x1180-shed.png) |
 | Phone 390×844, DPR 2 | [phone-390x844-sign.png](phone-390x844-sign.png) | [phone-390x844-tower.png](phone-390x844-tower.png) | [phone-390x844-tower-20.png](phone-390x844-tower-20.png) | [phone-390x844-band.png](phone-390x844-band.png) | [phone-390x844-shed.png](phone-390x844-shed.png) |
 
-The pack sign at 375×812 is [375x812-sign.png](375x812-sign.png).
+The pack sign at 375×812 is [375x812-sign.png](375x812-sign.png). Each of the five picture-sign posts runs down behind the fence. The pack sign has no post.
 
 Before pictures, from main, are in [../before](../before).

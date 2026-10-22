@@ -1018,7 +1018,7 @@ document.querySelector('#run').onclick = async () => {
           let boardTaps = 0, boardOk = 0;
           for (let i = 0; i <= 18; i++) for (let j = 0; j <= 14; j++) { boardTaps++; if (LR.ranchTarget({ x: Ls.psign.x - rsNow * .95 + i * rsNow * 1.9 / 18, y: Ls.psign.y - rsNow * 1.17 + j * rsNow * 1.44 / 14 }) === 'psign') boardOk++; }
           check(`${label}: the pack sign stays at least 0.72 scale (${signScale}) and its tap is ${Math.round(cssW)}×${Math.round(cssH)} CSS px, with no big drop from a full-size sign (${Math.round(areaDrop * 100)}% smaller) and ${boardOk} of ${boardTaps} board taps`, signScale >= .72 && Math.min(cssW, cssH) >= 44 && areaDrop <= 1 - .72 * .72 + 1e-9 && boardOk === boardTaps);
-          const postOf = n => { const q = Ls[n], rs = Ls.R * .95 * (q.s || 1); return { x0: q.x - rs * .08, x1: q.x + rs * .08, y0: q.y - rs * .2, y1: q.y + rs * 1.2 }; };
+          const postOf = n => { const q = Ls[n], rs = Ls.R * .95 * (q.s || 1); return { x0: q.x - rs * .08, x1: q.x + rs * .08, y0: q.y - rs * .2, y1: Math.max(q.y + rs * 1.2, Ls.ground + Ls.U * .13) }; };
           const names = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'];
           const rowY = Math.min(...names.map(n => Ls[n].y)), homeY = Math.max(cv.height * .08, Ls.U * .08);
           const skyFloor = Math.max(...names.filter(n => Ls[n].y <= rowY + Ls.R * .35).map(n => boardOf(n).y1));
@@ -1047,7 +1047,8 @@ document.querySelector('#run').onclick = async () => {
           const rainClear = !overlap(pb, rainBox) && !overlap(balloon, rainBox);
           const meadowClear = meadow.every(p => !overlap(pb, p) && !overlap(balloon, p));
           const balloonIn = balloon.y0 >= 0 && balloon.x0 >= 0 && balloon.x1 <= cv.width && balloon.y1 <= cv.height;
-          check(`${label}: cloud ${cloud.x.toFixed(1)}, ${cloud.y.toFixed(1)} stays in the sky (${sky ? 'yes' : 'no'}, floor ${skyFloor.toFixed(1)}), its face is clear (${faceClear ? 'yes' : 'no'}), body overlap is ${(covered * 100).toFixed(1)}%, sign scale ${signScale} with ${boardOk}/${boardTaps} taps, balloon on screen (${balloonIn ? 'yes' : 'no'}), wagon gap ${wagonGap.toFixed(1)}, rain clear (${rainClear ? 'yes' : 'no'}), meadow and fence clear (${meadowClear && pb.y1 <= fence - 1 && balloon.y1 <= fence ? 'yes' : 'no'})`, sky && faceClear && bodyHit === 0 && signScale >= .72 && boardOk === boardTaps && balloonIn && wagonGap >= 6 && rainClear && meadowClear && pb.y1 <= fence - 1 && balloon.y1 <= fence);
+          const postsGrounded = names.every(n => postOf(n).y1 >= fence - .01);
+          check(`${label}: cloud ${cloud.x.toFixed(1)}, ${cloud.y.toFixed(1)} stays in the sky (${sky ? 'yes' : 'no'}, floor ${skyFloor.toFixed(1)}), its face is clear (${faceClear ? 'yes' : 'no'}), body overlap is ${(covered * 100).toFixed(1)}%, sign scale ${signScale} with ${boardOk}/${boardTaps} taps, balloon on screen (${balloonIn ? 'yes' : 'no'}), wagon gap ${wagonGap.toFixed(1)}, rain clear (${rainClear ? 'yes' : 'no'}), meadow and fence clear (${meadowClear && pb.y1 <= fence - 1 && balloon.y1 <= fence ? 'yes' : 'no'}), posts grounded (${postsGrounded ? 'yes' : 'no'})`, sky && faceClear && bodyHit === 0 && signScale >= .72 && boardOk === boardTaps && balloonIn && wagonGap >= 6 && rainClear && meadowClear && pb.y1 <= fence - 1 && balloon.y1 <= fence && postsGrounded);
         }
       } finally { restoreDpr(); }
       frame.style.width = '844px'; frame.style.height = '390px'; await sleep(150); LR.newVisit(); LR.advance(.1);
