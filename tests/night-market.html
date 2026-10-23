@@ -864,7 +864,29 @@ document.querySelector('#run').onclick = async function () {
     await wait(450);
     hk.render();
     check('reduced motion: Old Wen\'s panel follows that still frame', !d.querySelector('#finale').hidden && d.querySelector('#finale-title').textContent === "Old Wen's last chapter");
+    frame.style.width = '844px'; frame.style.height = '390px';
+    w.scrollTo(0, 0);
+    await wait(80);
+    hk.render();
+    var finEl = d.querySelector('#finale');
+    var finBox = finEl.getBoundingClientRect();
+    var stallTop = d.querySelector('#stalls [data-i="0"]').getBoundingClientRect().top;
+    var laneGoalBox = d.querySelector('#lane-goal').getBoundingClientRect();
+    var viewH = d.documentElement.clientHeight, viewW = d.documentElement.clientWidth;
+    check('844x390: the finale is above the first stall and fully inside the first screen (card ' + Math.round(finBox.top) + '-' + Math.round(finBox.bottom) + ' of ' + viewH + ', stall ' + Math.round(stallTop) + ', lane-bonus ' + Math.round(laneGoalBox.top) + '-' + Math.round(laneGoalBox.bottom) + ')',
+      !finEl.hidden && finBox.height > 44 &&
+      finBox.top >= 0 && finBox.bottom <= viewH + 0.5 &&
+      finBox.left >= -0.5 && finBox.right <= viewW + 0.5 &&
+      finBox.bottom <= stallTop + 0.5 &&
+      laneGoalBox.height > 0 && laneGoalBox.top >= 0 && laneGoalBox.bottom <= finBox.top + 1 &&
+      d.documentElement.scrollWidth <= viewW + 1);
     d.querySelector('#finale [data-act="finale"]').click();
+    var noteEl = d.querySelector('#finale-note');
+    var noteBox = noteEl.getBoundingClientRect();
+    var stallAfter = d.querySelector('#stalls [data-i="0"]').getBoundingClientRect().top;
+    check('844x390: Keep the lane open leaves focus on the note, still inside the first screen (note ' + Math.round(noteBox.top) + '-' + Math.round(noteBox.bottom) + ')',
+      finEl.hidden && !noteEl.hidden && d.activeElement === noteEl &&
+      noteBox.top >= 0 && noteBox.bottom <= viewH + 0.5 && noteBox.bottom <= stallAfter + 0.5);
     hk.state.stalls.forEach(function (s, i) { s.owned = ownedFinale[i]; });
     hk.render();
     d.querySelector('#stalls [data-act="serve"]').click(); check('...but a sale still shows one still coin', NL.coinsOn() >= 1);

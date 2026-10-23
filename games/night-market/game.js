@@ -351,6 +351,8 @@
     if (b.dataset.act === 'finale') {
       finaleDismissed = true;
       render();
+      var note = $('#finale-note');
+      if (note && !note.hidden) note.focus({ preventScroll: true });
       return;
     }
     if (b.dataset.act === 'away') {
