@@ -901,14 +901,19 @@ document.querySelector('#run').onclick = async function () {
     var finEl = d.querySelector('#finale');
     var finBox = finEl.getBoundingClientRect();
     var stallTop = d.querySelector('#stalls [data-i="0"]').getBoundingClientRect().top;
-    var laneGoalBox = d.querySelector('#lane-goal').getBoundingClientRect();
+    var goalEl = d.querySelector('#goal');
+    var goalBox = goalEl.getBoundingClientRect();
+    var laneGoalEl = d.querySelector('#lane-goal');
+    var laneGoalBox = laneGoalEl.getBoundingClientRect();
     var viewH = d.documentElement.clientHeight, viewW = d.documentElement.clientWidth;
-    check('844x390: the finale is above the first stall and fully inside the first screen (card ' + Math.round(finBox.top) + '-' + Math.round(finBox.bottom) + ' of ' + viewH + ', stall ' + Math.round(stallTop) + ', lane-bonus ' + Math.round(laneGoalBox.top) + '-' + Math.round(laneGoalBox.bottom) + ')',
+    var laneShown = laneGoalEl.textContent.trim().length > 0 && laneGoalBox.height > 0;
+    check('844x390: the finale is above the first stall and fully inside the first screen (card ' + Math.round(finBox.top) + '-' + Math.round(finBox.bottom) + ' of ' + viewH + ', stall ' + Math.round(stallTop) + ', goal ' + Math.round(goalBox.top) + '-' + Math.round(goalBox.bottom) + ')',
       !finEl.hidden && finBox.height > 44 &&
       finBox.top >= 0 && finBox.bottom <= viewH + 0.5 &&
       finBox.left >= -0.5 && finBox.right <= viewW + 0.5 &&
       finBox.bottom <= stallTop + 0.5 &&
-      laneGoalBox.height > 0 && laneGoalBox.top >= 0 && laneGoalBox.bottom <= finBox.top + 1 &&
+      goalBox.height > 0 && goalBox.top >= 0 && goalBox.bottom <= finBox.top + 1 &&
+      (!laneShown || laneGoalBox.bottom <= finBox.top + 1) &&
       d.documentElement.scrollWidth <= viewW + 1);
     d.querySelector('#finale [data-act="finale"]').click();
     var noteEl = d.querySelector('#finale-note');
@@ -1494,6 +1499,60 @@ document.querySelector('#run').onclick = async function () {
       });
     });
     check(phoneFit.length ? 'phone buy labels overflow: ' + phoneFit.slice(0, 4).join(' | ') : 'buy labels fit at 320, 360, 375 and 390, and Next names coins', phoneFit.length === 0);
+
+    function statusSentences(text) {
+      return String(text || '').split(/[.!?]+/).map(function (s) { return s.replace(/\s+/g, ' ').trim(); }).filter(Boolean);
+    }
+    function repeatedStatus(doc, win) {
+      var sels = ['#away-rule', '#rate', '#goal', '#lane-goal', '#goal-pin', '#coin-pin', '#finale-lead', '#finale-note', '#finale-title', '.next-goal'];
+      var height = doc.documentElement.clientHeight, width = doc.documentElement.clientWidth;
+      var lines = [];
+      sels.forEach(function (sel) {
+        Array.prototype.forEach.call(doc.querySelectorAll(sel), function (el) {
+          if (!el || el.hidden) return;
+          var cs = win.getComputedStyle(el);
+          if (cs.display === 'none' || cs.visibility === 'hidden') return;
+          var box = el.getBoundingClientRect();
+          if (box.width < 1 || box.height < 1 || box.bottom <= 0 || box.top >= height || box.right <= 0 || box.left >= width) return;
+          var text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+          if (text) lines.push({ sel: sel, text: text });
+        });
+      });
+      var hits = [];
+      for (var a = 0; a < lines.length; a++) {
+        var left = statusSentences(lines[a].text);
+        for (var b = a + 1; b < lines.length; b++) {
+          statusSentences(lines[b].text).forEach(function (sentence) {
+            if (left.indexOf(sentence) >= 0) hits.push('"' + sentence + '" in ' + lines[a].sel + ' and ' + lines[b].sel);
+          });
+        }
+      }
+      return hits;
+    }
+    var repeatProblems = [];
+    [[1280, 800], [1024, 800], [390, 844], [360, 780], [375, 812]].forEach(function (size) {
+      layout.style.width = size[0] + 'px';
+      layout.style.height = size[1] + 'px';
+      var label = size[0] + 'x' + size[1];
+      lw.scrollTo(0, 0);
+      lm.state.stalls.forEach(function (s, i) { s.hired = true; s.serves = 30; s.owned = i < 5 ? 12 : 12; });
+      lm.state.cash = 1e12; lm.state.bulk = 1;
+      lm.render();
+      var goalText = ld.querySelector('#goal').textContent;
+      var laneText = ld.querySelector('#lane-goal').textContent.trim();
+      if (goalText.indexOf('Lane goal: 12/25 on tea through incense') < 0 || goalText.indexOf('The next light raises what the whole lane earns') < 0) {
+        repeatProblems.push(label + ' goal lost the next target: ' + goalText);
+      }
+      if (laneText) repeatProblems.push(label + ' lane counter still repeats: ' + laneText);
+      repeatedStatus(ld, lw).forEach(function (hit) { repeatProblems.push(label + ' finale ' + hit); });
+      lm.state.stalls.forEach(function (s, i) { s.hired = i === 0; s.owned = 0; s.serves = 0; });
+      lm.state.cash = 0;
+      lm.render();
+      var earlyLane = ld.querySelector('#lane-goal').textContent;
+      if (earlyLane.indexOf('Lane goal: 0/10 on tea through incense') < 0) repeatProblems.push(label + ' early lane counter: ' + earlyLane);
+      repeatedStatus(ld, lw).forEach(function (hit) { repeatProblems.push(label + ' early ' + hit); });
+    });
+    check(repeatProblems.length ? 'status lines repeat: ' + repeatProblems.slice(0, 4).join(' | ') : 'no two visible status lines repeat a sentence at desktop and phone sizes', repeatProblems.length === 0);
 
     var hintProblems = [];
     var hintDuring = {};

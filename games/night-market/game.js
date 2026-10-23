@@ -89,6 +89,19 @@
     return ' · holding adds ' + money(M.holdRate());
   }
 
+  function statusSentences(text) {
+    return String(text || '').split(/[.!?]+/).map(function (s) { return s.replace(/\s+/g, ' ').trim(); }).filter(Boolean);
+  }
+
+  /* The green goal already names the lane and the next light. The amber counter
+     stays quiet rather than say those sentences again. */
+  function laneCounterText(goalText) {
+    var laneText = M.laneLine(state);
+    var goalParts = statusSentences(goalText);
+    var repeated = statusSentences(laneText).some(function (s) { return goalParts.indexOf(s) >= 0; });
+    return repeated ? '' : laneText;
+  }
+
   function fillRow(li, i) {
     var stall = M.STALLS[i];
     var st = state.stalls[i];
@@ -189,9 +202,10 @@
     var rate = M.income(state);
     var rateLine = (rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.') + holdSuffix();
     $('#rate').textContent = rateLine;
-    $('#goal').textContent = M.goal(state);
+    var goalText = M.goal(state);
+    $('#goal').textContent = goalText;
     var laneGoal = $('#lane-goal');
-    if (laneGoal) laneGoal.textContent = M.laneLine(state);
+    if (laneGoal) laneGoal.textContent = laneCounterText(goalText);
     var finale = $('#finale');
     var finaleNote = $('#finale-note');
     var laneReady = !window.NightLane || typeof window.NightLane.finaleReady !== 'function' || window.NightLane.finaleReady();
