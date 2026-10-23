@@ -28,6 +28,7 @@
   var paybackHintUntil = 0;
   var paybackHintStall = -1;
   var paybackHintDone = false;
+  var finaleDismissed = false;
 
   // ART-NM-1: the lane strip only hears about sales, hires and buys; it reads state and never changes it
   function lane(what, i, a, b) { var L = window.NightLane; if (L && L[what]) L[what](i, a, b); }
@@ -36,6 +37,11 @@
   function buyLabel(i, q) {
     q = q || M.quote(state, i, state.bulk);
     if (q.blocked === 'hire' || q.blocked === 'closed') return 'Buy 1';
+    if (state.bulk === 'next') {
+      var need = M.countToNext(state.stalls[i].owned);
+      if (!(need > 0)) return 'Next · lit';
+      return 'Next · ' + need + ' · ' + money(q.cost);
+    }
     if (state.bulk === 'max' && q.count > 0) return 'Max · ' + q.count + ' · ' + money(q.cost);
     var n = state.bulk === 10 ? 10 : 1;
     return 'Buy ' + n + ' · ' + money(q.cost) + ' coins';
@@ -56,7 +62,9 @@
     var best = -1, score = Infinity, i, n, sec;
     for (i = 0; i < M.STALLS.length; i++) {
       if (!state.stalls[i].hired || !M.unlocked(state, i)) continue;
-      n = state.bulk === 'max' ? M.quote(state, i, 'max').count : (state.bulk === 10 ? 10 : 1);
+      if (state.bulk === 'max') n = M.quote(state, i, 'max').count;
+      else if (state.bulk === 'next') n = M.countToNext(state.stalls[i].owned);
+      else n = state.bulk === 10 ? 10 : 1;
       if (!(n > 0)) continue;
       sec = M.paybackSeconds(state, i, n);
       if (sec < score) { score = sec; best = i; }
@@ -77,12 +85,14 @@
     li.querySelector('.habit').textContent = open ? stall.habit : 'Still shuttered.';
     var facts = li.querySelector('.facts');
     var wait = li.querySelector('.wait');
+    var nextGoal = li.querySelector('.next-goal');
     var serve = li.querySelector('[data-act="serve"]');
     var ask = li.querySelector('[data-act="hire"]');
     var buy = li.querySelector('[data-act="buy"]');
     if (!open) {
       li.querySelector('.pour').hidden = li.querySelector('.count').hidden = true;
       facts.textContent = '';
+      if (nextGoal) nextGoal.textContent = '';
       wait.textContent = i > 0 ? M.STALLS[i - 1].next : '';
       serve.hidden = ask.hidden = buy.hidden = true;
       serve.classList.remove('best');
@@ -101,6 +111,7 @@
     li.querySelector('.count').hidden = !!st.hired;
     if (!st.hired) {
       facts.textContent = '';
+      if (nextGoal) nextGoal.textContent = '';
       var need = stall.serves - st.serves;
       wait.textContent = need > 0
         ? need + ' more ' + (need === 1 ? stall.left : stall.lefts) + ' to do yourself.'
@@ -113,6 +124,10 @@
     }
     var rate = M.production(state, i);
     facts.textContent = st.owned + ' open · ' + money(rate) + ' coins a second. ' + M.lookLine(state, i);
+    if (nextGoal) {
+      var chapter = i === M.STALLS.length - 1 ? M.chapterLine(state) : '';
+      nextGoal.textContent = chapter ? chapter + ' ' + M.nextGoalLine(state, i) : M.nextGoalLine(state, i);
+    }
     wait.textContent = M.paybackLine(state, i);
     var hint = li.querySelector('.payback-hint');
     var showHint = false;
@@ -142,6 +157,25 @@
     var rate = M.income(state);
     $('#rate').textContent = rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.';
     $('#goal').textContent = M.goal(state);
+    var laneGoal = $('#lane-goal');
+    if (laneGoal) laneGoal.textContent = state.stalls.some(function (s) { return s.owned > 0; }) ? M.laneLine(state) : '';
+    var finale = $('#finale');
+    var finaleNote = $('#finale-note');
+    var finaleOn = M.finaleReached(state) && !finaleDismissed;
+    if (finale) {
+      finale.hidden = !finaleOn;
+      if (finaleOn) {
+        var copy = M.finaleCopy();
+        $('#finale-title').textContent = copy.title;
+        $('#finale-lead').textContent = copy.lead;
+        var choice = finale.querySelector('[data-act="finale"]');
+        if (choice) choice.textContent = copy.choice;
+      }
+    }
+    if (finaleNote) {
+      finaleNote.hidden = !(M.finaleReached(state) && finaleDismissed);
+      finaleNote.textContent = "Old Wen's last chapter is told. The lane stays open.";
+    }
     var hiring = state.stalls.some(function (s) { return s.hired; });
     $('#bulk').hidden = !hiring;
     document.querySelectorAll('[data-bulk]').forEach(function (b) {
@@ -158,6 +192,7 @@
           '<div class="actions"><button type="button" data-act="serve"></button>' +
           '<button type="button" class="ask" data-act="hire"></button>' +
           '<button type="button" data-act="buy"></button></div>' +
+          '<p class="next-goal"></p>' +
           '<p class="payback-hint" hidden></p>';
         list.appendChild(li);
       });
@@ -263,6 +298,11 @@
     if (b.dataset.bulk) {
       M.setBulk(state, b.dataset.bulk);
       persist();
+      render();
+      return;
+    }
+    if (b.dataset.act === 'finale') {
+      finaleDismissed = true;
       render();
       return;
     }

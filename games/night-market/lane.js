@@ -13,6 +13,7 @@
   var STEAM = ['rule', 'rule', null, 'rule', 'mute', null];         // tea, dumpling, lantern, mooncake, incense, story mat
   var STRIPE = ['wash', 'lamp', 'rule', 'good'];                     // the awning's light stripe, by look (0, 25, 50, 100 owned)
   var MILESTONES = [25, 50, 100];
+  var FLASHES = [25, 50, 100, 150, 200, 300, 400];
 
   var cv, cx, bg, bx, watch, getState, unlockedFn, seed = 7, sig = '', raf = 0, last = 0, acc = 0, live = false;
   var ticks = 0, frames = 0, coins = [], flashes = [], walkers = [], lanterns = [], nextWalker = 0, coinAt = [], reduce = false;
@@ -65,8 +66,10 @@
     for (var k = 0; k < 12; k++) lanterns.push({ x: 14 + k * 32, y: 2, w: 3, h: 4, stall: -1, f: 1, hold: 3 + Math.floor(rnd() * 6) });
     for (var i = 0; i < 6; i++) lanterns.push({ x: i * SLOT + 1, y: TOP + 4, w: 6, h: 8, stall: i, f: 1, hold: 3 + Math.floor(rnd() * 6) });
   }
+  function nightEnded() { var s = st(); return !!(s && s.stalls[5] && s.stalls[5].owned >= 10); }
   function drawLantern(L) {
-    var lit = L.stall < 0 || open(L.stall), f = lit ? (reduce ? 1 : L.f) : 1;
+    var ended = nightEnded();
+    var lit = !ended && (L.stall < 0 || open(L.stall)), f = lit ? (reduce ? 1 : L.f) : 1;
     if (f === 0) { rect(cx, L.x - 1, L.y - 1, L.w + 2, L.h + 2, 'wash'); }
     box(cx, L.x, L.y, L.w, L.h, 'amber');
     var core = lit ? 'lamp' : 'mute', d = f === 2 ? 1 : 0;
@@ -213,7 +216,7 @@
     },
     serve: function (i) { pop(i); if (reduce) { coins.forEach(function (c) { if (c.on) c.f = 0; }); stillFor(500); } },
     buy: function (i, before, after) {
-      var m = MILESTONES.some(function (x) { return before < x && after >= x; });
+      var m = FLASHES.some(function (x) { return before < x && after >= x; });
       flash(i, m); if (reduce) stillFor(500);
     },
     hire: function (i) { flash(i, false); if (reduce) stillFor(500); },

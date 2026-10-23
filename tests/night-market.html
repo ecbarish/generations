@@ -171,6 +171,44 @@ document.querySelector('#run').onclick = async function () {
     check('25 stalls change the lane', /Two lanterns/.test(M.lookLine(dressed, 0)) && /twice as much/.test(M.lookLine(dressed, 0)));
     dressed.stalls[0].owned = 100;
     check('100 stalls bring the crowd', /crowd at the cups/.test(M.lookLine(dressed, 0)) && /eight times as much/.test(M.lookLine(dressed, 0)));
+    check('later doublings stay on this lane and the shared list is unchanged',
+      Idle.milestoneMult(150) === 8 && Idle.milestoneMult(400) === 8 &&
+      M.stallMult(150) === 16 && M.stallMult(200) === 32 && M.stallMult(300) === 64 && M.stallMult(400) === 128);
+    var lane = M.fresh();
+    lane.stalls.forEach(function (s) { s.hired = true; s.owned = 9; });
+    check('nine of every stall leaves the lane dark', M.laneMult(lane) === 1 && M.laneLine(lane) === 'Lowest stall: 9/10.');
+    lane.stalls.forEach(function (s) { s.owned = 10; });
+    check('ten of every stall lights the whole lane once', M.laneMult(lane) === 2 && M.laneLine(lane) === 'The whole lane is lit. Lowest stall: 10/25.');
+    lane.stalls.forEach(function (s) { s.owned = 25; });
+    check('twenty-five of every stall lights the lane again', M.laneMult(lane) === 4);
+    lane.stalls.forEach(function (s) { s.owned = 50; });
+    check('fifty of every stall is the last lane light', M.laneMult(lane) === 8 && M.laneLine(lane) === 'Lowest stall: 50. The whole lane is lit.');
+    var litTea = M.fresh();
+    litTea.stalls.forEach(function (s) { s.hired = true; s.owned = 10; });
+    litTea.stalls[0].owned = 150;
+    check('a 150th stall stacks its own doubling on the lane light',
+      M.production(litTea, 0) === M.STALLS[0].rate * 150 * 16 * 2);
+    var toward = M.fresh();
+    toward.stalls[0].hired = true;
+    toward.stalls[0].owned = 20;
+    toward.bulk = 'next';
+    toward.cash = Idle.bulkCost(M.STALLS[0].base, M.STALLS[0].growth, 20, 5);
+    check('Next buys exactly the copies to the following doubling',
+      M.countToNext(20) === 5 && M.quote(toward, 0, 'next').count === 5 && M.buy(toward, 0, 'next').ok && toward.stalls[0].owned === 25 && toward.cash === 0);
+    check('every hired stall names its next doubling',
+      M.nextGoalLine(toward, 0) === 'Next goal: 50 Tea Stalls, x2.');
+    var mats = M.fresh();
+    mats.stalls[5].hired = true;
+    mats.stalls[5].owned = 9;
+    check('nine Story Mats name Old Wen\'s last chapter as the next goal',
+      M.CHAPTERS.length === 10 && M.CHAPTERS[9].title === "Old Wen's last chapter" &&
+      M.nextGoalLine(mats, 5) === 'Next goal: 10 Story Mats. Old Wen\'s last chapter.' &&
+      M.chapterLine(mats) === 'Chapter 9 of 10: The crowd holds still.' && !M.finaleReached(mats));
+    mats.stalls[5].owned = 10;
+    check('the tenth Story Mat is Old Wen\'s last chapter',
+      M.finaleReached(mats) && M.finaleCopy().title === "Old Wen's last chapter" &&
+      M.finaleCopy().choice === 'Keep the lane open' && /lanterns over the lane go out/.test(M.finaleCopy().lead) &&
+      M.chapterLine(mats) === "Old Wen's last chapter is told.");
 
     var active = play(1800, 1);
     var a600 = active.snap[600];
@@ -209,8 +247,8 @@ document.querySelector('#run').onclick = async function () {
       spender.marks[100000] < 15 * 60 && spender.marks[1000000] > 15 * 60 && spender.marks[1000000] <= 40 * 60);
     check('that buyer\'s longest purchase from minute 6 to 15 stays under 45 minutes (' + Math.round(spendPay) + 's)',
       spender.paybacks.length > 10 && spendPay <= 45 * 60);
-    var fastBuyer = NightMarketPacing.playMeasured(M, 1500);
-    var humanBuyer = NightMarketPacing.playHuman(M, 1500);
+    var fastBuyer = NightMarketPacing.playMeasured(M, 3600);
+    var humanBuyer = NightMarketPacing.playHuman(M, 3600);
     check('from minute 8 to 15 the fast buyer\'s best payback stays under 5 minutes (' + Math.round(fastBuyer.maxBestPayback8to15) + 's)',
       fastBuyer.maxBestPayback8to15 > 0 && fastBuyer.maxBestPayback8to15 <= 5 * 60);
     check('from minute 8 to 15 the human buyer\'s best payback stays under 5 minutes (' + Math.round(humanBuyer.maxBestPayback8to15) + 's)',
@@ -222,6 +260,28 @@ document.querySelector('#run').onclick = async function () {
     check('the human buyer still reaches a 25 doubling and a 50 awning',
       humanBuyer.bonuses.some(function (b) { return b.mark === 25 && b.at >= 360 && b.at <= 900; }) &&
       humanBuyer.bonuses.some(function (b) { return b.mark === 50 && b.at >= 360 && b.at <= 900; }));
+    function lateTargets(label, run) {
+      var cov = NightMarketPacing.beatCoverage(run.beats, 900, 3600);
+      var s30 = run.snaps[1800], s40 = run.snaps[2400], s60 = run.snaps[3600];
+      check(label + ' best payback from minute 15 to 60 stays under 5 minutes (' + Math.round(run.maxBestPayback15to60) + 's)',
+        run.maxBestPayback15to60 > 0 && run.maxBestPayback15to60 <= 5 * 60);
+      check(label + ' purchase gap from minute 15 to 60 stays within two minutes (' + Math.round(run.purchaseGap15to60) + 's)',
+        run.purchaseGap15to60 <= 120);
+      check(label + ' has a named beat at least every 5 minutes from minute 15 to 60 (' + Math.round(cov.max) + 's)',
+        cov.max > 0 && cov.max <= 5 * 60);
+      check(label + ' top stall is at most 70% of income at minute 30 (' + (s30 ? Math.round(s30.topShare * 100) : 'none') + '%)',
+        s30 && s30.topShare <= 0.70);
+      check(label + ' top stall is at most 60% of income at minute 60 (' + (s60 ? Math.round(s60.topShare * 100) : 'none') + '%)',
+        s60 && s60.topShare <= 0.60);
+      check(label + ' income at least triples from minute 40 to 60 (' + (s40 ? Math.round(s40.income) : 0) + ' to ' + (s60 ? Math.round(s60.income) : 0) + ')',
+        s40 && s60 && s60.income >= s40.income * 3);
+    }
+    lateTargets('the fast buyer', fastBuyer);
+    lateTargets('the human buyer', humanBuyer);
+    check('the fast buyer buys the first Story Mat between minute 25 and 32 (' + Math.round(fastBuyer.story1) + 's)',
+      fastBuyer.story1 >= 25 * 60 && fastBuyer.story1 <= 32 * 60);
+    check('the human buyer reaches Old Wen\'s last chapter between minute 50 and 60 (' + Math.round(humanBuyer.story10) + 's)',
+      humanBuyer.story10 >= 50 * 60 && humanBuyer.story10 <= 60 * 60);
     var opened = M.fresh();
     opened.stalls[0].hired = true;
     opened.cash = 25;
@@ -230,17 +290,21 @@ document.querySelector('#run').onclick = async function () {
     check('with no coins the goal asks for the first tea stall', M.goal(opened) === 'Buy the first Tea Stall. Mei will run it.');
     ['active', 'saver', 'milestone-saver', 'hold-saver', 'hold-milestone'].forEach(function (profile) {
       var measured = NightMarketPacing.simulate(M, profile);
+      var gap = NightMarketPacing.purchaseGap(measured.purchases, 0, 3600).max;
       check(profile + ': no million-coin rush in the first ten minutes', measured.snapshots[600].lifetime < 1000000);
       check(profile + ': the first tea milestone still lands within ten minutes', measured.tea25 > 0 && measured.tea25 <= 600);
+      check(profile + ': no purchase gap over two minutes through minute 60 (' + Math.round(gap) + 's)', gap <= 120);
     });
     var teaOnly = NightMarketPacing.simulate(M, 'tea-only');
     check('tea alone still takes most of an hour (' + teaOnly.million + 's)', teaOnly.million >= 40 * 60);
     var glance = NightMarketPacing.simulate(M, 'minute-glance');
+    var glanceGap = NightMarketPacing.purchaseGap(glance.purchases, 0, 3600).max;
     check('minute-glance background buying still progresses to a million within two hours (' + glance.million + 's)', glance.million > 15 * 60 && glance.million <= 7200);
+    check('minute-glance stays within two minutes between purchases (' + Math.round(glanceGap) + 's)', glanceGap <= 120);
     check('later stalls keep the measured rates and growth inside 1.05 to 1.15',
       M.STALLS[3].base === 6400 && M.STALLS[3].rate === 40 && M.STALLS[3].growth === 1.05 &&
-      M.STALLS[4].base === 52380 && M.STALLS[4].rate === 540 && M.STALLS[4].growth === 1.05 && M.STALLS[4].unlockAt === 12 &&
-      M.STALLS[5].base === 2500000 && M.STALLS[5].rate === 220 && M.STALLS[5].growth === 1.15 &&
+      M.STALLS[4].base === 52380 && M.STALLS[4].rate === 540 && M.STALLS[4].growth === 1.08 && M.STALLS[4].unlockAt === 12 &&
+      M.STALLS[5].base === 2000000 && M.STALLS[5].rate === 2500 && M.STALLS[5].growth === 1.15 &&
       M.STALLS[0].base === 6 && M.STALLS[0].growth === 1.07 && M.STALLS[0].rate === 0.45 &&
       M.STALLS[1].base === 80 && M.STALLS[1].growth === 1.06 && M.STALLS[1].rate === 0.9 &&
       M.STALLS[2].base === 700 && M.STALLS[2].growth === 1.07 && M.STALLS[2].rate === 5);
@@ -299,6 +363,24 @@ document.querySelector('#run').onclick = async function () {
     var legacyRoundTrip = M.serialize(M.restore(legacy), legacy.seen);
     check('every earned coin, lifetime coin, stall, hire, serve, mode and timestamp survives the old-save round trip', JSON.stringify(legacyRoundTrip) === JSON.stringify(legacy));
     check('save identity and six-stall order remain stable', M.SAVE_KEY === 'night-market-save-v1' && M.SAVE_VERSION === 1 && M.STALLS.map(function (stall) { return stall.id; }).join(',') === 'tea,dumpling,lantern,mooncake,incense,stories');
+    var oldShape = {
+      v: 1, game: 'night-market', cash: 480000, lifetime: 9000000, seen: 1700000000000, bulk: 10,
+      stalls: [
+        { owned: 40, serves: 25, hired: true },
+        { owned: 20, serves: 12, hired: true },
+        { owned: 12, serves: 10, hired: true },
+        { owned: 12, serves: 8, hired: true },
+        { owned: 8, serves: 8, hired: true },
+        { owned: 0, serves: 0, hired: false }
+      ]
+    };
+    var oldRestored = M.restore(oldShape);
+    var oldSaved = M.serialize(oldRestored, oldShape.seen);
+    check('an older night-market-save-v1 still loads its coins, stalls and buy mode',
+      M.valid(oldShape) && oldRestored.cash === 480000 && oldRestored.lifetime === 9000000 && oldRestored.bulk === 10 &&
+      oldRestored.stalls[4].owned === 8 && oldRestored.stalls[4].hired === true && oldRestored.stalls[5].hired === false &&
+      JSON.stringify(oldSaved) === JSON.stringify(oldShape) &&
+      M.production(oldRestored, 4) === M.STALLS[4].rate * 8);
 
     var wall = 1700000000000;
     var realNow = Date.now;

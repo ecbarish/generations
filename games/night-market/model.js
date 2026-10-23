@@ -1,7 +1,9 @@
 /* Night Market Stalls (IDLE-NM1). NM-PACING claimed by Grok on 2026-10-23.
    Rules only: no page, no storage.
    Load shared/engine.js and shared/idle-core.js first.
-   Shared milestones double at 25, 50 and 100. That doubling is the beat a player feels.
+   A stall doubles at 25, 50, 100, 150, 200, 300 and 400. That doubling is the beat a player feels.
+   The whole lane doubles again when the lowest stall reaches 10, then 25, then 50.
+   That lane light is the only extra multiplier, and it does not stack with a pairing.
    Hiring is a person who runs stalls you have already worked. It is not a bonus. */
 (function () {
   'use strict';
@@ -11,13 +13,33 @@
   var OFFLINE_CAP = 4 * 3600;
   var OFFLINE_RATE = 0.5;
   var UNLOCK_AT = 10;
+  var STALL_MILESTONES = [25, 50, 100, 150, 200, 300, 400];
+  var LANE_MILESTONES = [10, 25, 50];
+  var NEXT_MARKS = [10, 25, 50, 100, 150, 200, 300, 400];
+  var FINALE_AT = 10;
+
+  /* Old Wen tells one chapter of the tortoise's climb for each mat. The tenth is the ending.
+     These lines are the game's own tale. The unused tale files stay unloaded. */
+  var CHAPTERS = [
+    { title: 'The tortoise takes the lantern', text: 'Old Wen sits on the mat. A tortoise finds a lantern at the foot of the hill and picks it up.' },
+    { title: 'The first step', text: 'The hill is steep and the lantern is warm. The tortoise takes one step, and the crowd leans in.' },
+    { title: 'Tea at the foot', text: 'Mei pours for the listeners. The tortoise rests, and Old Wen leaves the hill still ahead.' },
+    { title: 'Steam on the path', text: 'Bo folds dumplings while he listens. The tortoise climbs past the steam, and Old Wen will not say what waits at the top.' },
+    { title: 'A light on the path', text: 'An lights a wick so the children can see. The tortoise is very small on the hill, and very brave.' },
+    { title: 'A tin for the climb', text: 'Qiao sets one tin aside for the ending. Old Wen smiles and keeps the tortoise on the steep middle.' },
+    { title: 'Smoke in the alley', text: 'Ren lights a stick for the alley. The smoke drifts up the hill, and the tortoise follows it.' },
+    { title: 'The paper screen', text: 'Old Wen paints the hill on a paper screen. Just before the top, he sets the brush down.' },
+    { title: 'The crowd holds still', text: 'Nobody speaks. The tortoise is one step from the top, and Old Wen looks along the lane.' },
+    { title: "Old Wen's last chapter", text: 'The tortoise sets the lantern on the hill. The lanterns over the lane go out, one by one. The night ends, and the story is whole.' }
+  ];
 
   /* Hand work pays 1 coin. Growth stays between 1.05 and 1.15.
      Tea grows at 1.07 so the cup after the fifty-stall awning is still a short wait.
      Dumplings grow at 1.06 so the cart does not climb from a minute and a half toward nine.
      From minute 8 to 25 the soonest payback stays under about five minutes.
-     The Incense Tray opens at twelve mooncake tables and pays for itself in about a minute and a half,
-     so coins saved past the quarter hour have somewhere to go. */
+     The Incense Tray opens at twelve mooncake tables. The first tray still pays for itself
+     in about a minute and a half. Later trays grow at 1.08, so the tray stops being the only buy.
+     The Story Mat costs 2,000,000 and earns 2,500 a second, so the ending is a real stall. */
   var STALLS = [
     {
       id: 'tea', name: 'Tea Stall', vendor: 'Mei',
@@ -59,7 +81,7 @@
       id: 'incense', name: 'Incense Tray', vendor: 'Ren',
       habit: 'Ren lights one stick for the stall and one for the alley.',
       serve: 'Light a stick', left: 'stick', lefts: 'sticks', hire: 'Ask Ren to take the tray',
-      base: 52380, growth: 1.05, rate: 540, serves: 8, hand: 1, unlockAt: 12,
+      base: 52380, growth: 1.08, rate: 540, serves: 8, hand: 1, unlockAt: 12,
       looks: ['One tray', 'Two trays', 'A bronze stand', 'Smoke you can see from the gate'],
       gossip: 'Ren says the alley smelled of smoke before anyone arrived.',
       next: 'Old Wen unrolls the Story Mat once ten trays are burning.'
@@ -68,7 +90,7 @@
       id: 'stories', name: 'Story Mat', vendor: 'Old Wen',
       habit: 'Old Wen stops just before the ending. The crowd pays to hear the rest.',
       serve: 'Tell a piece of the story', left: 'piece of the story', lefts: 'pieces of the story', hire: 'Ask Old Wen to take the mat',
-      base: 2500000, growth: 1.15, rate: 220, serves: 6, hand: 1,
+      base: 2000000, growth: 1.15, rate: 2500, serves: 6, hand: 1,
       looks: ['One cushion', 'Two cushions', 'A paper screen', 'Listeners sitting in the lane'],
       gossip: 'Old Wen says he reached the ending, then started again.',
       next: ''
@@ -106,13 +128,31 @@
     return 0;
   }
 
-  /* 25, 50 and 100 each double the row again. That doubling is the beat a player feels. */
+  /* 25, 50, 100, 150, 200, 300 and 400 each double the row again. */
   function stallMult(owned) {
-    return Idle.milestoneMult(owned);
+    return Idle.milestoneMult(owned, STALL_MILESTONES);
+  }
+
+  /* The lowest count on the lane. A shuttered stall still counts as zero, so the
+     first light waits until every stall, including the Story Mat, has kept up. */
+  function lowestOwned(state) {
+    var n = Infinity, i, owned;
+    for (i = 0; i < STALLS.length; i++) {
+      owned = state.stalls[i] ? state.stalls[i].owned : 0;
+      if (owned < n) n = owned;
+    }
+    return n === Infinity ? 0 : n;
+  }
+
+  function laneMult(state) {
+    return Idle.milestoneMult(lowestOwned(state), LANE_MILESTONES);
   }
 
   function timesWord(owned) {
     var m = stallMult(owned);
+    if (m >= 128) return 'a hundred and twenty-eight times as much';
+    if (m >= 64) return 'sixty-four times as much';
+    if (m >= 32) return 'thirty-two times as much';
     if (m >= 16) return 'sixteen times as much';
     if (m >= 8) return 'eight times as much';
     if (m >= 4) return 'four times as much';
@@ -123,7 +163,7 @@
   function production(state, i) {
     var st = state.stalls[i];
     if (!st || !st.hired || !(st.owned > 0)) return 0;
-    return spec(i).rate * st.owned * stallMult(st.owned);
+    return spec(i).rate * st.owned * stallMult(st.owned) * laneMult(state);
   }
 
   function income(state) {
@@ -165,6 +205,16 @@
     return { ok: true };
   }
 
+  function nextMark(owned) {
+    for (var k = 0; k < NEXT_MARKS.length; k++) if (owned < NEXT_MARKS[k]) return NEXT_MARKS[k];
+    return 0;
+  }
+
+  function countToNext(owned) {
+    var at = nextMark(owned);
+    return at > owned ? at - owned : 0;
+  }
+
   function quote(state, i, mode) {
     if (!spec(i)) return { count: 0, cost: 0, blocked: 'closed' };
     var stall = spec(i);
@@ -177,6 +227,13 @@
       n = Idle.maxAffordable(stall.base, stall.growth, owned, state.cash);
       cost = n > 0 ? Idle.bulkCost(stall.base, stall.growth, owned, n) : one;
       return { count: n, cost: cost, blocked: n > 0 ? null : 'cost' };
+    }
+    if (mode === 'next') {
+      n = countToNext(owned);
+      if (!(n > 0)) return { count: 0, cost: one, blocked: 'done' };
+      cost = Idle.bulkCost(stall.base, stall.growth, owned, n);
+      if (!(cost >= 0) || cost > state.cash) return { count: 0, cost: cost, blocked: 'cost' };
+      return { count: n, cost: cost, blocked: null };
     }
     n = mode === 10 || mode === '10' ? 10 : 1;
     cost = Idle.bulkCost(stall.base, stall.growth, owned, n);
@@ -213,10 +270,11 @@
     if (!stall || !st || !st.hired) return Infinity;
     var n = count > 0 ? Math.floor(count) : 1;
     var cost = Idle.bulkCost(stall.base, stall.growth, st.owned, n);
-    var owned = st.owned > 0 ? st.owned : 0;
-    var before = stall.rate * owned * stallMult(owned);
-    var afterOwned = owned + n;
-    var added = stall.rate * afterOwned * stallMult(afterOwned) - before;
+    var before = income(state);
+    st.owned += n;
+    var after = income(state);
+    st.owned -= n;
+    var added = after - before;
     if (!(cost > 0) || !(added > 0) || !isFinite(cost) || !isFinite(added)) return Infinity;
     return cost / added;
   }
@@ -226,6 +284,10 @@
     if (mode === 'max') {
       var q = quote(state, i, 'max');
       return q.count > 0 ? q.count : 1;
+    }
+    if (mode === 'next') {
+      var toward = countToNext(state.stalls[i] ? state.stalls[i].owned : 0);
+      return toward > 0 ? toward : 1;
     }
     if (mode === 10 || mode === '10') return 10;
     return 1;
@@ -271,7 +333,7 @@
     var best = null, i, k, marks, left;
     for (i = 0; i < STALLS.length; i++) {
       if (!state.stalls[i].hired) continue;
-      marks = [10, 25, 50, 100];
+      marks = NEXT_MARKS;
       for (k = 0; k < marks.length; k++) {
         if (state.stalls[i].owned >= marks[k]) continue;
         if (i === skipI && marks[k] === skipAt) continue;
@@ -324,14 +386,58 @@
     return 'Every stall has a crowd. The lane is as bright as it gets tonight.';
   }
 
+  function nextGoalLine(state, i) {
+    var stall = spec(i);
+    var owned = state.stalls[i] ? state.stalls[i].owned : 0;
+    var at = nextMark(owned);
+    if (!stall) return '';
+    if (!at) return 'Every doubling on this stall is lit.';
+    if (i === STALLS.length - 1 && at === FINALE_AT) return 'Next goal: 10 Story Mats. Old Wen\'s last chapter.';
+    if (at === 10) return 'Next goal: 10 ' + pluralStall(stall.name, 10) + '.';
+    return 'Next goal: ' + at + ' ' + pluralStall(stall.name, at) + ', x2.';
+  }
+
+  function laneLine(state) {
+    var low = lowestOwned(state);
+    var next = 0, k;
+    for (k = 0; k < LANE_MILESTONES.length; k++) {
+      if (low < LANE_MILESTONES[k]) { next = LANE_MILESTONES[k]; break; }
+    }
+    if (!next) return 'Lowest stall: ' + low + '. The whole lane is lit.';
+    return (laneMult(state) >= 2 ? 'The whole lane is lit. ' : '') + 'Lowest stall: ' + low + '/' + next + '.';
+  }
+
+  function chapterTitle(n) {
+    var ch = CHAPTERS[n - 1];
+    return ch ? ch.title : '';
+  }
+
+  function chapterLine(state) {
+    var owned = state.stalls[STALLS.length - 1] ? state.stalls[STALLS.length - 1].owned : 0;
+    var n = owned > FINALE_AT ? FINALE_AT : owned;
+    if (!(n > 0)) return '';
+    if (n >= FINALE_AT) return "Old Wen's last chapter is told.";
+    return 'Chapter ' + n + ' of ' + FINALE_AT + ': ' + chapterTitle(n) + '.';
+  }
+
+  function finaleReached(state) {
+    return !!(state.stalls[STALLS.length - 1] && state.stalls[STALLS.length - 1].owned >= FINALE_AT);
+  }
+
+  function finaleCopy() {
+    var ch = CHAPTERS[FINALE_AT - 1];
+    return { title: ch.title, lead: ch.text, choice: 'Keep the lane open' };
+  }
+
   function lookLine(state, i) {
     var owned = state.stalls[i].owned;
     var stall = spec(i);
     if (!state.stalls[i].hired) return '';
     if (owned <= 0) return stall.vendor + ' is here, waiting for the first one.';
     var look = stall.looks[lookIndex(owned)];
-    if (stallMult(owned) <= 1) return look + '.';
-    return look + '. It earns ' + timesWord(owned) + '.';
+    var line = stallMult(owned) <= 1 ? look + '.' : look + '. It earns ' + timesWord(owned) + '.';
+    if (laneMult(state) >= 2) line += ' The whole lane is lit.';
+    return line;
   }
 
   function gossipLine(state) {
@@ -353,7 +459,10 @@
   }
 
   function setBulk(state, mode) {
-    state.bulk = mode === 'max' ? 'max' : mode === 10 || mode === '10' ? 10 : 1;
+    if (mode === 'max') state.bulk = 'max';
+    else if (mode === 'next') state.bulk = 'next';
+    else if (mode === 10 || mode === '10') state.bulk = 10;
+    else state.bulk = 1;
     return state.bulk;
   }
 
@@ -418,7 +527,22 @@
     OFFLINE_CAP: OFFLINE_CAP,
     OFFLINE_RATE: OFFLINE_RATE,
     UNLOCK_AT: UNLOCK_AT,
+    STALL_MILESTONES: STALL_MILESTONES,
+    LANE_MILESTONES: LANE_MILESTONES,
+    NEXT_MARKS: NEXT_MARKS,
+    FINALE_AT: FINALE_AT,
+    CHAPTERS: CHAPTERS,
     fresh: fresh,
+    lowestOwned: lowestOwned,
+    laneMult: laneMult,
+    nextMark: nextMark,
+    countToNext: countToNext,
+    nextGoalLine: nextGoalLine,
+    laneLine: laneLine,
+    chapterTitle: chapterTitle,
+    chapterLine: chapterLine,
+    finaleReached: finaleReached,
+    finaleCopy: finaleCopy,
     unlocked: unlocked,
     income: income,
     production: production,
