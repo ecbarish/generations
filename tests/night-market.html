@@ -291,6 +291,9 @@ document.querySelector('#run').onclick = async function () {
       JSON.stringify(legacyHook.state.stalls) === JSON.stringify(legacy.stalls) &&
       legacyHook.state.cash >= legacy.cash && legacyHook.state.lifetime >= legacy.lifetime && legacyHook.state.bulk === 'max');
     var firstSaved = JSON.parse(localStorage.getItem(KEY));
+    check('an existing v1 save still loads as version 1 under night-market-save-v1',
+      firstSaved && firstSaved.v === 1 && firstSaved.game === 'night-market' && KEY === 'night-market-save-v1' &&
+      M.SAVE_VERSION === 1 && firstSaved.stalls.length === legacy.stalls.length);
     frame.remove(); frame = null;
     legacyHook = await loadLegacyFrame();
     check('reloading keeps legacy ownership, hires, serves and previously saved balances',
@@ -304,6 +307,13 @@ document.querySelector('#run').onclick = async function () {
     back.cash = 100;
     back.lifetime = 100;
     localStorage.setItem(KEY, JSON.stringify(M.serialize(back, Date.now() - 2 * 3600 * 1000)));
+    var sentinels = {
+      'little-ranch-settings-v1': '{"sound":false}',
+      'wildbond-save-v1': '{"v":1,"game":"wildbond","party":["keep"]}',
+      'starfall-save-v1': '{"v":1,"note":"starfall"}',
+      'unrelated-save': 'keep'
+    };
+    Object.keys(sentinels).forEach(function (k) { localStorage.setItem(k, sentinels[k]); });
 
     frame = document.createElement('iframe');
     frame.title = 'Night Market test instance';
@@ -321,8 +331,29 @@ document.querySelector('#run').onclick = async function () {
     check('the cash box says away earnings are half', d.querySelector('#away-rule').textContent === 'While away: earns 50%, up to 4h');
     d.querySelector('[data-act="away"]').click();
     check('putting the box away clears the note', d.querySelector('#away').hidden);
+    var keptStalls = JSON.stringify(hook.state.stalls), keptCash = hook.state.cash;
     frame.remove();
     frame = null;
+    frame = document.createElement('iframe');
+    frame.title = 'Night Market second reload';
+    frame.src = '../games/night-market/index.html';
+    await new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () { reject(Error('second reload timed out')); }, 20000);
+      frame.onload = function () { clearTimeout(timer); resolve(); };
+      document.querySelector('#game').appendChild(frame);
+    });
+    w = frame.contentWindow;
+    d = w.document;
+    hook = w.__nightMarket;
+    await new Promise(function (r) { setTimeout(r, 50); });
+    check('NML-3: the next reload keeps the stall and the v1 save',
+      hook && JSON.stringify(hook.state.stalls) === keptStalls && hook.state.cash >= keptCash &&
+      JSON.parse(localStorage.getItem(KEY)).v === 1 && JSON.parse(localStorage.getItem(KEY)).game === 'night-market');
+    check('NML-3: a reload leaves every other game\'s save byte for byte unchanged',
+      Object.keys(sentinels).every(function (k) { return localStorage.getItem(k) === sentinels[k]; }));
+    frame.remove();
+    frame = null;
+    Object.keys(sentinels).forEach(function (k) { localStorage.removeItem(k); });
     Object.keys(localStorage).forEach(function (k) {
       if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
     });
@@ -338,6 +369,18 @@ document.querySelector('#run').onclick = async function () {
     d = w.document;
     await new Promise(function (r) { setTimeout(r, 40); });
     check('a new market has no welcome back', d.querySelector('#away').hidden && /25 more cups/.test(d.querySelector('#goal').textContent));
+    async function countPx(width, height) {
+      frame.style.width = width + 'px'; frame.style.height = height + 'px';
+      await new Promise(function (r) { setTimeout(r, 80); });
+      var line = d.querySelector('#stalls .count');
+      return { px: parseFloat(w.getComputedStyle(line).fontSize), text: line.textContent, hidden: line.hidden };
+    }
+    var phoneCount = await countPx(390, 844);
+    check('NM-G10: at 390 wide the stall count is 16px and still readable', phoneCount.px === 16 && phoneCount.hidden === false && /of 25 cups/.test(phoneCount.text));
+    var landCount = await countPx(844, 390);
+    check('NM-G10: at 844 wide the stall count is 16px', landCount.px === 16 && /of 25 cups/.test(landCount.text));
+    var deskCount = await countPx(1280, 800);
+    check('NM-G10: on a wide window the stall count stays 0.92rem', Math.abs(deskCount.px - 14.72) < 0.05);
     // NM-PHONE: the first real control, not merely a row heading, fits above the fold.
     async function checkPhoneLayout(label) {
       for (var dims of [[320,568], [390,844], [568,320], [844,390], [932,430], [390,844]]) {
@@ -516,9 +559,12 @@ document.querySelector('#run').onclick = async function () {
     var dlBtn = d.querySelector('[data-arcsave="download"]'), fileLbl = d.querySelector('.arc-file'), bkSum = d.querySelector('.arc-bk summary');
     check('Your save shows Download and Load a save file as real 44px buttons', dlBtn && fileLbl && dlBtn.getBoundingClientRect().height >= 44 && fileLbl.getBoundingClientRect().height >= 44 && w.getComputedStyle(fileLbl).borderTopStyle === 'solid');
     check('...the backups list is up to date when the box opens (the game has saved by now)', (function () { var m = /Automatic backups \((\d+)\)/.exec(bkSum.textContent); return m && +m[1] === w.Arcade.backups(KEY).length && +m[1] >= 1; })());
-    var realCreate = w.URL.createObjectURL, made = 0; w.URL.createObjectURL = function (b) { made++; return 'blob:x'; };
-    dlBtn.click(); w.URL.createObjectURL = realCreate;
-    check('Download my save makes a file and says so', made === 1 && /Downloaded/.test(d.querySelector('.arc-save-msg').textContent));
+    var realCreate = w.URL.createObjectURL, made = 0, downloaded = null;
+    w.URL.createObjectURL = function (b) { made++; downloaded = b; return 'blob:x'; };
+    dlBtn.click();
+    var downloadedSave = JSON.parse(await downloaded.text());
+    w.URL.createObjectURL = realCreate;
+    check('Your save downloads this game\'s v1 file and says so', made === 1 && downloadedSave.game === 'night-market' && downloadedSave.v === 1 && downloadedSave.stalls.length === 6 && /Downloaded/.test(d.querySelector('.arc-save-msg').textContent));
     check('Load a save file opens a real file picker', !!fileLbl.querySelector('input[type=file][data-arcsave="file"]'));
     // a wrong file is refused before any "Replace your save?" question, and the save is not touched
     var fin = fileLbl.querySelector('input[type=file]'), asked = 0, realConfirm = w.confirm; w.confirm = function () { asked++; return false; };
@@ -630,9 +676,27 @@ document.querySelector('#run').onclick = async function () {
     var peak = 0; hk.state.stalls.forEach(function (t, i) { t.hired = true; t.owned = [20, 10, 10, 10, 10, 6][i]; hk.render(); });
     NL.step(40); for (var t2 = 0; t2 < 3000; t2++) { NL.step(1); peak = Math.max(peak, NL.walkers().length); if (NL.walkers().length > NL.walkerCap()) break; }
     check('NM-G8: with 66 owned up to 5 people are on the lane at once, and never more than the cap (peak ' + peak + ')', peak >= 4 && peak <= 5);
+    var onLane = function (P) { return P.x >= 0 && P.x <= NL.W - 16; };
+    var walkerBand = function () {
+      var ctx = lc.getContext('2d'), now = ctx.getImageData(0, NL.WALK.y, NL.W, NL.WALK.h).data, bg = NL.background().data, off = NL.WALK.y * NL.W * 4, diff = 0;
+      for (var bi = 0; bi < now.length; bi++) if (now[bi] !== bg[off + bi]) diff++;
+      return diff;
+    };
+    for (var wr = 0; wr < 80 && !NL.walkers().some(onLane); wr++) NL.step(1);
+    var inkBefore = walkerBand();
     NL.setReduce(true);
     check('NM-G8: ...and under reduced motion walkerCap is 0 whatever is owned', NL.walkerCap() === 0 && shape([66]) === 0);
+    check('switching to reduced motion takes the passer-by off the lane instead of freezing one mid-step', NL.walkers().length === 0 && walkerBand() === 0 && inkBefore > 0);
     NL.setReduce(false);
+    frame.style.width = '390px'; frame.style.height = '844px'; await wait(80);
+    var teaServe = row(0).querySelector('[data-act="serve"]'), teaBefore = hk.state.stalls[0].serves;
+    teaServe.dispatchEvent(new w.PointerEvent('pointerdown', { bubbles: true, button: 0, pointerId: 7, pointerType: 'touch', isPrimary: true }));
+    await wait(hk.HOLD_DELAY + hk.HOLD_EVERY * 8 + 80);
+    var teaHeld = hk.state.stalls[0].serves;
+    d.dispatchEvent(new w.PointerEvent('pointerup', { bubbles: true, pointerId: 7, pointerType: 'touch', isPrimary: true }));
+    teaServe.dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
+    await wait(hk.HOLD_EVERY * 4);
+    check('a touch hold on a phone-width stall pours several cups and stops when the finger lifts', teaHeld - teaBefore >= 4 && hk.state.stalls[0].serves === teaHeld);
 
     // the page icon
     var iconLink = d.querySelector('link[rel~="icon"]'), iconRes = iconLink ? await fetch(iconLink.href) : null;

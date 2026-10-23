@@ -177,6 +177,11 @@
     if (document.hidden) { stop(); walkers = []; coins.forEach(function (c) { c.on = false; }); flashes = []; coinAt = []; return; } // gone, not frozen
     nextWalker = ticks + 8; start();
   }
+  function applyReduce(on) {
+    reduce = !!on;
+    if (reduce) { stop(); walkers = []; still(); return; }
+    start();
+  }
   function still() { draw(); }                                                                  // reduced motion: one still frame
   function stillFor(ms) { draw(); setTimeout(function () { coins.forEach(function (c) { c.on = false; }); flashes = []; draw(); }, ms); }
 
@@ -200,7 +205,7 @@
       for (var k = 0; k < MAX_COINS; k++) coins.push({ on: false, i: 0, f: 0 });
       makeLanterns();
       var mq = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null; reduce = !!(mq && mq.matches);
-      if (mq && mq.addEventListener) mq.addEventListener('change', function () { reduce = mq.matches; if (reduce) { stop(); still(); } else start(); });
+      if (mq && mq.addEventListener) mq.addEventListener('change', function () { applyReduce(mq.matches); });
       document.addEventListener('visibilitychange', onVis);
       window.addEventListener('resize', fit); fit();
       if (window.ResizeObserver && document.body) { watch = new ResizeObserver(function () { fit(); }); watch.observe(document.body); }
@@ -220,6 +225,6 @@
     coinsOn: function () { return coins.filter(function (c) { return c.on; }).length; },
     flashes: function () { return flashes.slice(); }, walkers: function () { return walkers.slice(); },
     lanterns: function () { return lanterns; }, step: function (n) { for (var k = 0; k < (n || 1); k++) tick(); draw(); },
-    setReduce: function (v) { reduce = v; if (v) { stop(); still(); } else start(); }
+    setReduce: function (v) { applyReduce(v); }
   };
 })();

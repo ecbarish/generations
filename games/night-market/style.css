@@ -140,6 +140,7 @@ button[aria-pressed="true"], button.ask {
   .stall { padding-top: 0.6rem; display: flex; flex-direction: column; }
   .stall h2 { order: -2; }
   .stall .actions { order: -1; margin-bottom: 0.3rem; }
+  .count { font-size: 16px; }
 }
 /* A short, wide phone has room beside the ledger. Keep controls in normal flow.
    The decorative strip keeps its full-page pixel scale, above the two columns. */

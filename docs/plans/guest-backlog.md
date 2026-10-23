@@ -27,7 +27,7 @@ Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" 
 Checked against the merged pulls and the latest #373 comments on 2026-10-15.
 
 - **Grok:** WBW-4 (now, already in progress), then LR-G2, LB-G13, LB-G14, LR-G3, LR-G4, NM-G8, LB-PAL (seventh, after NM-G8), then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15, WBW-17. Open priority rows left: 15.
-- **dot:** WBW-5 (now, #501) and NM-G3 (#499) are already in progress. Then NM-G6, LB-G12, NM-G7, NM-G10, then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16, WBW-18. Open priority rows left: 12. LB-G11 and NM-G9 are merged. Do not start a second copy.
+- **dot:** WBW-5 (now, #501) and NM-G3 (#499) are already in progress. Then NM-G6, LB-G12, NM-G7, then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16, WBW-18. Open priority rows left: 11. LB-G11, NM-G9 and NM-G10 are merged. Do not start a second copy.
 - There is no LB-G4b row. A row that is merged, or already in review, is done for this queue. Do not start a second copy.
 ### Batch 3
 
@@ -194,7 +194,7 @@ The held toy pulls #404 to #412 will conflict with LR-G2, LR-G3 and LR-G4, and t
 
 ### NM-G10. Stall count at 16px on a phone
 
-**Status:** dot, at the end of the priority launch rows, after NM-G7. Starts after NM-G8 merges, because both touch `games/night-market/style.css`. #499 has already merged.
+**Status:** Done for the phone half. Merged as #614 (c34a8b42). The stall count is 16px on a phone layout. Game Art Director approved the shots in [comment 6349925816](https://github.com/ecbarish/generations/pull/614#issuecomment-6349925816). Do not reopen the phone count.
 
 - **Guest:** dot.
 - **Scope:** The stall's `.count` line goes from 14.72px to 16px on a phone. Today `.count` in `games/night-market/style.css` is `font-size: 0.92rem`.
@@ -839,11 +839,11 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, now
 
-Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499). The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. After that in-progress work, launch games come first: NM-G6, LB-G12, NM-G7 and NM-G10 (after NM-G8 merges). Then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16 and WBW-18. Open priority rows left: 12. LB-G11 and NM-G9 are merged. Do not start a second copy.
+Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499). The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. After that in-progress work, launch games come first: NM-G6, LB-G12 and NM-G7. Then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16 and WBW-18. Open priority rows left: 11. LB-G11, NM-G9 and NM-G10 are merged. Do not start a second copy.
 
 In review, counted done for this queue, and not a wait: LB-G10 is #496.
 
-Done. Do not reopen these. LB-G11 is #511. NM-G9 is #515. WBW-2 is #490. NM-G2 is #483. LB-G8 is #494. WBW-1 is #485. LB-G3 is #480. LB-G1 is #472. LB-G2 is #478.
+Done. Do not reopen these. NM-G10's phone half is #614 (c34a8b42). LB-G11 is #511. NM-G9 is #515. WBW-2 is #490. NM-G2 is #483. LB-G8 is #494. WBW-1 is #485. LB-G3 is #480. LB-G1 is #472. LB-G2 is #478.
 
 **LB-PLAYBOOK-DATA.** Done. Merged as #451. Do not reopen it. The sentences below are the record of that row. #444 has also merged.
 

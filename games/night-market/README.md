@@ -1,6 +1,6 @@
 # Night Market Stalls (IDLE-NM1)
 
-v0.1.7.
+v0.1.8.
 
 A small night market you can leave open. Six stalls stand on one lane. You work each stall yourself, then ask its vendor to run it. After that you buy more of that stall, one, ten, or as many as you can afford. At 25, 50 and 100 the stall changes look and earns twice as much each time.
 
@@ -12,18 +12,19 @@ It is not in the hall. Open `games/night-market/index.html`. Nothing here is tak
 
 Checks: `node tools/run-all-checks.cjs night-market`
 
-Willow Quay vendor tales from #515 are in `district-tales.json`: 24 tales, four for each of the six vendors, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.7.
+Willow Quay vendor tales from #515 are in `district-tales.json`: 24 tales, four for each of the six vendors, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.8.
 
-Vendor tales from #482 are in `vendor-tales.json`: 24 tales, four for each of the six vendors, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.7.
+Vendor tales from #482 are in `vendor-tales.json`: 24 tales, four for each of the six vendors, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.8.
 
-District data is in `districts.json`. #483 adds Willow Quay and six stalls, opening at 1,000,000 lifetime, plus a pacing checker. #507 adds Cedar Steps, a third district with six new stall types, opening at 4,000,000 lifetime, and the district checker now checks each district. The game does not load the new districts into play yet, so the lane stays as it is and Night Market Stalls stays at v0.1.7. The save stays version 1.
+District data is in `districts.json`. #483 adds Willow Quay and six stalls, opening at 1,000,000 lifetime, plus a pacing checker. #507 adds Cedar Steps, a third district with six new stall types, opening at 4,000,000 lifetime, and the district checker now checks each district. The game does not load the new districts into play yet, so the lane stays as it is and Night Market Stalls stays at v0.1.8. The save stays version 1.
 
-Away gossip from #500 is in `gossip.json`: 72 away-summary lines for the six vendors, across three away-time bands, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.7.
+Away gossip from #500 is in `gossip.json`: 72 away-summary lines for the six vendors, across three away-time bands, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.8.
 
-Portrait prompts from #498 are in `docs/art/night-market-vendor-prompts.md`: text-only briefs for the six vendors. No game file reads that page, so the lane stays as it is and Night Market Stalls stays at v0.1.7.
+Portrait prompts from #498 are in `docs/art/night-market-vendor-prompts.md`: text-only briefs for the six vendors. No game file reads that page, so the lane stays as it is and Night Market Stalls stays at v0.1.8.
 
 ## Changelog
 
+- v0.1.8 (2026-10-22, NM-LAUNCH-POLISH, PR #614): On phone layouts, the stall count line under the pour bar is 16px. A wider window still uses 0.92rem. Switching to reduced motion mid-session clears a passer-by from the lane instead of leaving that person frozen mid-step. Game Art Director approved the shots in comment 6349925816. The save stays version 1.
 - v0.1.7 (2026-10-15, NM-G3, PR #499): The Back and footer links are now 1rem and stay on one line. The header reflows when the text is larger, as Generations Director approved. Game Art Director approved the change at 9548a7bb. The save stays version 1.
 - v0.1.6 (2026-10-15, NM-PHONE, PR #456): On phones, Night Market keeps its Back control and first stall within reach. Every touch target is at least 44px at all seven tested sizes. Contrast is at least 5.16:1. The Pour button now sits above the fold on sideways phones. The save stays version 1.
 - v0.1.5 (2026-10-15, NM-FIX-6, PR #461): Choosing Load a save file with another game's save is refused straight away. The box says that file isn't a save for this game, and it does not ask to replace the save. A real Night Market save still asks first. The save stays version 1.
