@@ -213,15 +213,18 @@
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     const U = Math.min(W, H * 1.15), wide = W > H * 1.3, stack = !wide && H >= W * 1.25;
     L = { U, R: U * .14, ground: H * .56, size: U * .17, wide, stack, world: U * 6.2 };
-    const homes = [.45, .38, .55, .45].map((t, i) => ({ x: coreX(i, t), y: H * .76 }));
-    const pals = [.7, .72, .42, .68].map((t, i) => ({ x: fitX(i, coreX(i, t), U * .17 * .95 * .6, true), y: H * .76 }));
+    const homes = (wide ? [.45, .4, .55, .45] : [.45, .42, .55, .45]).map((t, i) => ({ x: coreX(i, t), y: H * .76 }));
+    const pals = (wide ? [.7, .78, .13, .68] : [.7, .78, .2, .68]).map((t, i) => {
+      const x = coreX(i, t), z = U * .17 * .95, half = z * .55, top = z * 1.35, stop = stopFor(i);
+      let y = H * .76; const sx0 = x - half - stop, sx1 = x + half - stop, laneBottom = L.ground + U * .095;
+      if (((i > 0 && sx0 < U * .2) || (i < 3 && sx1 > W - U * .2)) && y - top < laneBottom + 1) y = Math.min(H - 2, laneBottom + top + 1);
+      return { x, y }; });
     L.homes = homes; L.fhomes = pals; L.home = homes[cam.area]; L.fhome = pals[cam.area]; L.fz = L.size * .95;
     const garden = spreadSigns(0, [.22, .6]), toy = spreadSigns(2, [.34, .66]), barn = spreadSigns(3, [.32, .58, .84]);
     L.ksign = garden[0]; L.tsign = garden[1]; L.stage = toy[0]; L.shelf = toy[1]; L.dsign = barn[0]; L.sign = barn[1]; L.wsign = barn[2];
-    { const half = L.R * .9, stop = stopFor(1);
-      const lo = Math.max(stopFor(0) + W + 2, stop + half + 1), hi = stop + W - half - 1;
-      L.bowl = { x: clamp(coreX(1, .02), lo, Math.max(lo, hi)), y: H * .84 }; }
-    L.sponge = { x: fitX(1, coreX(1, .88), L.R * .8 + 2, false), y: H * .86 };
+    { const stop = stopFor(1), R = L.R, lo = Math.max(stopFor(0) + W + R + 1, stop + R + 2), hi = Math.max(lo, stop + W - R - 2);
+      L.bowl = { x: clamp(coreX(1, wide ? .02 : .12), lo, hi), y: H * .84 }; }
+    L.sponge = { x: Math.min(fitX(1, coreX(1, .88), L.R * .8 + 2, false), stopFor(2) - L.R * .8 - 3), y: H * .86 };
     L.bush = { x: fitX(1, coreX(1, .62), L.R * 1.25 * .9, true), y: H * .6 };
     { const sw = L.R * .8; let x0, step, fr, y;
       if (wide) { const lo0 = L.bowl.x + L.R, hi0 = L.sponge.x - sw, step0 = (hi0 - lo0) / FLOWERS.length;
@@ -238,11 +241,7 @@
     { const cr = Math.min(U * .1, H * .11); L.cloud = { x: fitX(0, coreX(0, .62), cr, false), y: Math.max(cr + 1, H * .08, U * .08), r: cr }; }
     { const pr = U * .12, py = Math.min(H - pr - 1, Math.max(pr + 1, H * .9));
       L.puddles = [.3, .72].map(t => ({ x: fitX(0, coreX(0, t), pr, false), y: py, r: pr })); }
-    { const ballR = L.R * .88, baskR = L.R * (wide ? .6 : .9), baskY = H * (wide ? .69 : .7);
-      let ballY = wide ? L.ground + L.R * 1.35 : H * .76 - L.size * .62 + ballR;
-      if (L.flowers.length) ballY = Math.min(ballY, L.flowers[0].y - L.flowers[0].r - ballR - 3);
-      const span = safeSpan(2, ballY, ballR), innerLo = span.lo + ballR + baskR + 3, innerHi = span.hi - ballR - baskR - 3;
-      L.basket = { x: clamp(coreX(2, .42), Math.min(innerLo, innerHi), Math.max(innerLo, innerHi)), y: baskY, r: baskR }; }
+    L.basket = { x: coreX(2, wide ? .86 : .87), y: wide ? H * .885 : H * .7, r: L.R * (wide ? .6 : .9) };
     { const potR = Math.min(W * .108, H * .1), z = Math.min(W * .82 / 2.4, H * .5 / 2.1);
       L.shed = { z, x: W / 2 - z * .08, y: H * .7, potR, pots: PAINT.map((c, i) => ({ x: W * (.125 + i * .25), y: H * .88 - potR * .4 })), barn: { x: Math.max(potR * 1.15, W * .1), y: Math.max(potR * 1.15, H * .09), r: potR * .95 } }; }
     { const z = Math.min(W * .11, H * .15), gy = H * .7;
@@ -309,7 +308,7 @@
   function done() { st.acts++; st.baby.happy = 1; for (let i = 0; i < 3; i++) fx('heart', babyCentre().x + (i - 1) * L.size * .5, babyCentre().y - L.size); }
   function fx(kind, x, y) { st.fx.push({ kind, x, y, at: st.t, vx: (Math.random() - .5) * L.U * .2, vy: -L.U * (.15 + Math.random() * .2) }); }
   function home() { go(L.home.x, null); }
-  const fCentre = () => ({ x: st.friend.x, y: L.home.y - L.fz * .75 });
+  const fCentre = () => ({ x: st.friend.x, y: L.fhome.y - L.fz * .75 });
   function friendEatX() { return Math.max(L.homes[1].x - L.size * 2, L.bowl.x - L.size * .9); }
   function fgo(x, then) { const f = st.friend; f.tx = x; f.then = then; f.dir = x < f.x ? -1 : 1; }
   function friendTap() { const f = st.friend, b = st.baby; // LR4: run together and nuzzle (one happy thing); if anyone's busy, just a giggle
@@ -331,7 +330,7 @@
     if (f.act === 'wait' && st.baby.tx === null && st.baby.act !== 'nuzzle') f.act = null;
     if (st.mode === 'sleep' && f.tx === null && f.act !== 'sleep') { f.act = 'sleep'; f.x = Math.max(L.fhomes[1].x, L.homes[1].x + L.size * 1.32 + L.fz * .82); } // curled up clear of the sleeping baby (LR-POLISH-1)
     f.soap = Math.max(0, f.soap - dt * .08); }
-  function drawFriend() { const f = st.friend; if (!f) return; const z = L.fz, x = f.x, y = L.home.y, since = st.t - f.at, m = reduce() ? .3 : 1;
+  function drawFriend() { const f = st.friend; if (!f) return; const z = L.fz, x = f.x, y = L.fhome.y, since = st.t - f.at, m = reduce() ? .3 : 1;
     if (f.act === 'sleep') { shadow(x, y, z * .9); ell(x, y - z * .4, z * .8, z * .45, '#8fa0b8'); ell(x - z * .3, y - z * .55, z * .1, z * .08, '#6a7a94'); ell(x + z * .45, y - z * .45, z * .38, z * .34, '#8fa0b8');
       cx.fillStyle = '#2a1a18'; for (const dx of [.33, .58]) cx.fillRect(R(x + dx * z - z * .07), R(y - z * .5), R(z * .14), Math.max(1, R(z * .04))); return; }
     let hop = 0; if (f.tx !== null) hop = Math.abs(Math.sin(st.t * 12)) * z * .15 * m; if (f.act === 'giggle') hop = Math.abs(Math.sin(since * 16)) * z * .2 * m;
@@ -480,8 +479,8 @@
   const BALL_ROLL = .7, BALL_KICKS = 3;
   function ballSpot(side) { const ballR = L.R * .88, wide = W > H * 1.3;
     let y = L.ground + L.R * 1.35;
-    if (!wide) y = L.homes[2].y - L.size * .62 + ballR; // LR-G2: tall: rest below the fox's face, on the line of its feet, so it sorts in front of the fox and never hides the face
-    if (L.flowers && L.flowers.length) { const f = L.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); } // rest above the petals
+    if (!wide) y = Math.min(H * .935, H - ballR - 3); // tall: the front row, fully on the screen, in front of the pup
+    if (wide && L.flowers && L.flowers.length) { const f = L.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); } // wide: rest above the petals
     const span = safeSpan(2, y, ballR), lo = span.lo, hi = span.hi;
     let x = clamp(coreX(2, side < 0 ? .35 : .75), lo, hi);
     if (L.basket) { const need = L.basket.r + ballR + 3, clear = px => Math.hypot(px - L.basket.x, y - L.basket.y) >= need;

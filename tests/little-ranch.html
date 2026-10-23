@@ -1163,12 +1163,13 @@ document.querySelector('#run').onclick = async () => {
       const ownDpr8 = Object.getOwnPropertyDescriptor(w, 'devicePixelRatio');
       const setDpr8 = n => Object.defineProperty(w, 'devicePixelRatio', { configurable: true, get: () => n });
       const screenOf = b => ({ x0: b.x0 - LR.camera.x, x1: b.x1 - LR.camera.x, y0: b.y0, y1: b.y1 });
-      const onScreen = b => { const s = screenOf(b); return s.x0 >= -1 && s.x1 <= cv.width + 1 && s.y0 >= -1 && s.y1 <= cv.height + 1; };
-      const centreOn = p => p.x - LR.camera.x >= -1 && p.x - LR.camera.x <= cv.width + 1 && p.y >= -1 && p.y <= cv.height + 1;
+      // Drawn art, not the smaller tap disc. A fraction of a pixel of sky (the cloud) may kiss the edge.
+      const onScreen = b => { const s = screenOf(b); return s.x0 >= -.5 && s.x1 <= cv.width + .5 && s.y0 >= -.5 && s.y1 <= cv.height + .5; };
+      const seenHere = box => { const s = screenOf(box); return s.x1 > .5 && s.x0 < cv.width - .5; };
       const inLane = (box, area) => {
         const U = L().U, ay = L().ground - U * .08, s = screenOf(box);
-        if (s.y1 < ay - U * .175 || s.y0 > ay + U * .175) return false;
-        return (area > 0 && s.x0 < U * .2) || (area < 3 && s.x1 > cv.width - U * .2);
+        if (s.y1 < ay - U * .175 + 1 || s.y0 > ay + U * .175 - 1) return false;
+        return (area > 0 && s.x0 < U * .2 - 1) || (area < 3 && s.x1 > cv.width - U * .2 + 1);
       };
       const discHits = (which, a) => {
         const rad = L().U * .09; let n = 0, hits = 0;
@@ -1184,23 +1185,29 @@ document.querySelector('#run').onclick = async () => {
           check(`${key}: the strip is 6.2U with the four camera stops`, world.areas.map(a => a.name).join(', ') === 'Kitchen Garden, Meadow, Toy Yard, Barn Yard' && stops.every((s, i) => Math.abs(world.areas[i].stop - s) < 1) && Math.abs(world.width - L().U * 6.2) < 1 && world.areas.every((a, i) => a.core1 - a.core0 > L().U * .9) && LR.camera.area === 1);
           const door = n => { const q = L()[n], rs = L().R * .95; return { name: n, c: { x: q.x, y: q.y - L().R * .45 }, box: { x0: q.x - rs * .95, y0: q.y - rs * 1.17, x1: q.x + rs * .95, y1: q.y + rs * .27 } }; };
           const disc = (name, p, r) => ({ name, c: p, box: { x0: p.x - r, y0: p.y - r, x1: p.x + r, y1: p.y + r } });
+          const babyAt = k => { const Ls = L(), x = Ls.homes[k].x, y = Ls.homes[k].y, z = Ls.size; return { name: 'baby', c: { x, y: y - z * .9 }, box: { x0: x - z * 1.27, y0: y - z * 2.042, x1: x + z * 1.08, y1: y } }; };
+          const friendAt = k => { const Ls = L(), p = Ls.fhomes[k], z = Ls.fz; return { name: 'friend', c: { x: p.x, y: p.y - z * .75 }, box: { x0: p.x - z * .55, y0: p.y - z * 1.35, x1: p.x + z * .55, y1: p.y } }; };
+          const bowlAt = () => { const b = L().bowl, R = L().R; return { name: 'bowl', c: b, box: { x0: b.x - R, y0: b.y - R * .7, x1: b.x + R, y1: b.y + R * .2 } }; };
+          const spongeAt = () => { const s = L().sponge, sw = L().R * .8; return { name: 'sponge', c: s, box: { x0: s.x - sw, y0: s.y - sw * .55, x1: s.x + sw, y1: s.y + sw * .55 } }; };
+          const bushAt = () => { const b = L().bush, r = L().R * 1.25 * .88; return { name: 'bush', c: { x: b.x, y: b.y - r * .4 }, box: { x0: b.x - r * 1.15, y0: b.y - r * 1.25, x1: b.x + r * 1.15, y1: b.y + r * .25 } }; };
+          const basketAt = () => { const b = L().basket, r = b.r; return { name: 'basket', c: { x: b.x, y: b.y }, box: { x0: b.x - r * .85, y0: b.y - r * .85, x1: b.x + r * .85, y1: b.y + r * .55 } }; };
           const areaThings = i => {
-            const Ls = L(), babyAt = k => disc('baby', { x: Ls.homes[k].x, y: Ls.homes[k].y - Ls.size * .9 }, Ls.size * .55);
-            if (i === 0) return [door('ksign'), door('tsign'), disc('cloud', Ls.cloud, Ls.cloud.r), ...Ls.puddles.map((q, k) => disc('puddle' + k, q, q.r)), babyAt(0)];
-            if (i === 1) return [disc('bowl', Ls.bowl, Ls.R * .9), disc('sponge', { x: Ls.sponge.x, y: Ls.sponge.y }, Ls.R * .8), disc('bush', { x: Ls.bush.x, y: Ls.bush.y - Ls.R * .2 }, Ls.R * 1.25 * .88), ...Ls.flowers.map((f, k) => disc('flower' + k, f, f.r)), babyAt(1), disc('friend', { x: Ls.fhomes[1].x, y: Ls.fhomes[1].y - Ls.fz * .7 }, Ls.fz * .55)];
+            const Ls = L();
+            if (i === 0) return [door('ksign'), door('tsign'), disc('cloud', Ls.cloud, Ls.cloud.r), ...Ls.puddles.map((q, k) => disc('puddle' + k, q, q.r)), babyAt(0), friendAt(0)];
+            if (i === 1) return [bowlAt(), spongeAt(), bushAt(), ...Ls.flowers.map((f, k) => disc('flower' + k, f, f.r)), babyAt(1), friendAt(1)];
             if (i === 2) {
               const balls = [-1, 1].map(side => { const b = S().ball, was = { from: b.from, to: b.to, at: b.at }; b.from = side; b.to = side; b.at = -9; const q = LR.ballNow(); b.from = was.from; b.to = was.to; b.at = was.at; return disc('ball', q, q.r); });
-              return [door('stage'), door('shelf'), disc('basket', { x: Ls.basket.x, y: Ls.basket.y }, Ls.basket.r), ...balls, babyAt(2)];
+              return [door('stage'), door('shelf'), basketAt(), ...balls, babyAt(2), friendAt(2)];
             }
-            return [door('dsign'), door('sign'), door('wsign'), babyAt(3)];
+            return [door('dsign'), door('sign'), door('wsign'), babyAt(3), friendAt(3)];
           };
           let viewOk = true, laneOk = true, stray = '';
           for (let i = 0; i < 4; i++) {
             LR.go(i); LR.advance(.85);
             const here = areaThings(i), others = [0, 1, 2, 3].filter(j => j !== i).flatMap(areaThings);
-            for (const t of here) if (!onScreen(t.box) || !centreOn(t.c)) { viewOk = false; stray += ' off ' + t.name; }
-            for (const t of others) if (centreOn(t.c)) { viewOk = false; stray += ' leak ' + t.name; }
-            for (const t of here) if (inLane(t.box, i) || inLane({ x0: t.c.x, y0: t.c.y, x1: t.c.x, y1: t.c.y }, i)) { laneOk = false; stray += ' lane ' + t.name; }
+            for (const t of here) if (!onScreen(t.box)) { viewOk = false; stray += ' off ' + t.name; }
+            for (const t of others) if (seenHere(t.box)) { viewOk = false; stray += ' leak ' + t.name; }
+            for (const t of here) if (inLane(t.box, i)) { laneOk = false; stray += ' lane ' + t.name; }
             const arrows = L().arrows;
             if ((i === 0 && arrows.left) || (i === 3 && arrows.right)) laneOk = false;
             if (i > 0 && !discHits('left', arrows.left)) laneOk = false;
@@ -1208,6 +1215,8 @@ document.querySelector('#run').onclick = async () => {
           }
           check(`${key} A: one area fills the view (${stray || 'clear'})`, viewOk);
           check(`${key} C: arrow lane, arrow disc and the end caps`, laneOk && !stray.includes('lane'));
+          const toyFigs = areaThings(2), fig = n => toyFigs.find(t => t.name === n).box, piles = (a, b) => a.x0 < b.x1 - 1 && b.x0 < a.x1 - 1 && a.y0 < b.y1 - 1 && b.y0 < a.y1 - 1;
+          check(`${key} K: the Toy Yard pup, Pebblit and the basket stand clear of each other`, !piles(fig('baby'), fig('friend')) && !piles(fig('baby'), fig('basket')) && !piles(fig('friend'), fig('basket')));
           const Ls = L(), sc = LR.scale, radii = { baby: Ls.size * 1.2, bowl: Ls.R * 1.2, sponge: Ls.R * 1.1, bush: Ls.R * 1.4, basket: Ls.R * 1.05, sun: Math.max(Ls.U * .16, Ls.R), cloud: Ls.cloud.r * 1.35, sign: Ls.R * 1.25 };
           const floorOk = Object.entries(floors).every(([k, px]) => radii[k] * sc + .6 >= px) && Ls.arrows.tap * sc + .6 >= Ls.U * .175 * sc;
           let grid = 0, gridOk = 0;

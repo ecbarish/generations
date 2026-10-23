@@ -184,6 +184,10 @@ async function reviewBedtime(page, shot) {
     raf(() => raf(resolve));
   }));
   const rooms = { shed: 'sign', wagon: 'wsign', kitchen: 'ksign', door: 'dsign', dough: 'tsign' };
+  const roomArea = { sign: 3, wsign: 3, ksign: 0, dsign: 3, tsign: 0 };
+  // newVisit leaves the camera on the Meadow. A room sign lives in the Garden or the Barn Yard,
+  // so the camera has to arrive before the tap. rAF is stopped, so LR.go does not move until LR.advance.
+  const showSign = sign => page.evaluate(area => { LR.go(area); LR.advance(.7); }, roomArea[sign]);
   const sizes = [[375, 812], [667, 375], [1024, 768], [1366, 768], [3440, 1440]];
   const limits = await page.evaluate(() => ({ acts: LR.BEDTIME_ACTS, seconds: LR.BEDTIME_SECS ?? 360, grace: LR.BEDTIME_GRACE ?? 6 }));
   check('LRL-1 keeps twelve activities / six minutes and bounded grace', limits.acts === 12 && limits.seconds === 360 && limits.grace === 6, limits);
@@ -249,7 +253,7 @@ async function reviewBedtime(page, shot) {
     await viewport(width, height);
     for (const [room, sign] of Object.entries(rooms)) {
       const label = `LRL-1 ${room} ${width}x${height}`, name = `lrl1-${room}-${width}x${height}`;
-      await fresh(true); await tap(sign);
+      await fresh(true); await showSign(sign); await tap(sign);
       check(label + ': the picture sign opens the room', (await snapshot()).place === room, await snapshot());
       if (room === 'shed') { await tap('pot'); await drag('body', 'tail'); }
       if (room === 'wagon') await tap('passenger');
@@ -284,7 +288,13 @@ async function reviewBedtime(page, shot) {
   const holds = { shed: 'body', wagon: 'passenger', kitchen: 'food', door: 'switch', dough: 'lump' };
   for (const [room, sign] of Object.entries(rooms)) {
     const label = 'LRL-1 held/rotated ' + room;
-    await viewport(375, 812); await fresh(true); await tap('peek'); await tap(sign);
+    await viewport(375, 812); await fresh(true); await tap('peek');
+    // The peek starts a walk. Moving the camera would drop that walk, so put it back before the sign tap.
+    await page.evaluate(area => {
+      const b = LR.state.baby, kept = { x: b.x, tx: b.tx, then: b.then, act: b.act, dir: b.dir, at: b.at };
+      LR.go(area); LR.advance(.7); Object.assign(LR.state.baby, kept);
+    }, roomArea[sign]);
+    await tap(sign);
     let s = await snapshot();
     check(label + ': entry interrupts a real ranch activity', s.place === room && (s.callback || s.tx !== null || s.act === 'hide'), s);
     await advanceTo(limits.seconds - 2);
