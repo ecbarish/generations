@@ -1,4 +1,5 @@
-/* Night Market Stalls (IDLE-NM1). Rules only: no page, no storage.
+/* Night Market Stalls (IDLE-NM1). NM-PACING claimed by Grok on 2026-10-23.
+   Rules only: no page, no storage.
    Load shared/engine.js and shared/idle-core.js first.
    Shared milestones double at 25, 50 and 100. That doubling is the beat a player feels.
    Hiring is a person who runs stalls you have already worked. It is not a bonus. */
