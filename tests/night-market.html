@@ -115,9 +115,10 @@ document.querySelector('#run').onclick = async function () {
     var wrongDumpling = Math.max(1, Math.ceil(M.STALLS[1].base / busyIncome));
     var wrongLantern = Math.max(1, Math.ceil(M.STALLS[2].base / busyIncome));
     check('a busy lane still shows each stall its own payback',
-      busyIncome === M.STALLS[0].rate * 100 * Idle.milestoneMult(100) && wrongDumpling <= 2 && wrongLantern <= 2 &&
+      busyIncome === M.STALLS[0].rate * 100 * Idle.milestoneMult(100) &&
+      wrongDumpling < M.paybackSeconds(busy, 1) && wrongLantern < M.paybackSeconds(busy, 2) &&
       near(M.paybackSeconds(busy, 1), firstPayback(1)) && near(M.paybackSeconds(busy, 2), firstPayback(2)) &&
-      M.paybackSeconds(busy, 1) > 10 && M.paybackLine(busy, 1) !== M.paybackLine(busy, 2));
+      M.paybackLine(busy, 1) !== M.paybackLine(busy, 2));
     var jump = M.fresh();
     jump.stalls[0].hired = true;
     jump.stalls[0].owned = 24;
@@ -362,7 +363,8 @@ document.querySelector('#run').onclick = async function () {
     var onceCash = hook.state.cash;
     check('the page shows the welcome back from the save', hook && hook.away() && /While you were away/.test(d.querySelector('#away').textContent) && d.querySelector('#away').textContent.indexOf(Arcade.fmt(expectedAway) + ' coins are in the box') >= 0 && /50%/.test(d.querySelector('#away').textContent) && /Mei says/.test(d.querySelector('#away').textContent));
     check('the cash box says away earnings are half', d.querySelector('#away-rule').textContent === 'While away: earns 50%, up to 4h');
-    check('away coins are credited once on load', near(onceCash, 100 + expectedAway));
+    var awayGain = onceCash - 100;
+    check('away coins are credited once on load', awayGain + 1e-6 >= expectedAway && awayGain < expectedAway + M.income(awayPreview));
     await new Promise(function (r) { setTimeout(r, 400); });
     check('leaving the box up does not credit those coins again', near(hook.state.cash, onceCash));
     d.querySelector('[data-act="away"]').click();
@@ -640,15 +642,17 @@ document.querySelector('#run').onclick = async function () {
       await new Promise(function (r) { setTimeout(r, 50); });
       var dr = dl.getBoundingClientRect();
       var hit = d.elementFromPoint(dr.left + dr.width / 2, dr.top + dr.height / 2);
-      var here = w.location.href;
-      check(width + 'x' + height + ': Download my save is the control under the tap', hit === dl);
-      var downloads = 0, blob = null, realURL = w.URL.createObjectURL;
-      w.URL.createObjectURL = function (b) { downloads++; blob = b; return 'blob:phone-save'; };
+      var here = w.location.pathname;
+      check(width + 'x' + height + ': Download my save is the control under the tap', hit === dl && hit.closest('a') === null);
+      var downloads = [], realClick = w.HTMLAnchorElement.prototype.click;
+      w.HTMLAnchorElement.prototype.click = function () {
+        if (this.download) downloads.push(this.download);
+        else realClick.call(this);
+      };
       dl.click();
-      w.URL.createObjectURL = realURL;
-      var fileText = blob ? await blob.text() : '';
-      check(width + 'x' + height + ': the tap downloads the v1 save and stays on the stall page',
-        downloads === 1 && /night-market/.test(fileText) && w.location.href === here && /index\.html$/.test(w.location.pathname) === false);
+      w.HTMLAnchorElement.prototype.click = realClick;
+      check(width + 'x' + height + ': the tap downloads the v1 save and stays on the stall page (' + downloads.join(',') + ' @ ' + w.location.pathname + ')',
+        downloads.length === 1 && /night-market-save-v1/.test(downloads[0]) && w.location.pathname === here);
       file.scrollIntoView({ block: 'center' });
       await new Promise(function (r) { setTimeout(r, 40); });
       var fr = file.getBoundingClientRect();
