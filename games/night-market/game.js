@@ -143,6 +143,7 @@
     buy.dataset.count = String(offer.count);
     buy.textContent = buyLabel(i, offer);
     buy.disabled = !(offer.count > 0);
+    buy.classList.toggle('refused', state.bulk === 'max' && offer.blocked === 'payback');
   }
 
   function render() {

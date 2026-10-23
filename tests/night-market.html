@@ -801,6 +801,32 @@ document.querySelector('#run').onclick = async function () {
     var longBtn = d.querySelector('#stalls [data-i="0"] [data-act="buy"]');
     check('Max tells you to use 1, 10 or Next when the payback is too long',
       longBtn.disabled && longBtn.textContent === 'Max stops at long paybacks, use 1, 10 or Next');
+    var refusedStyle = w.getComputedStyle(longBtn);
+    function refusedByte(color, n) {
+      var m = String(color).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      return m ? +m[n] : 0;
+    }
+    function refusedLinear(v) {
+      v = v / 255;
+      return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    }
+    function refusedLum(rgb) {
+      return 0.2126 * refusedLinear(rgb[0]) + 0.7152 * refusedLinear(rgb[1]) + 0.0722 * refusedLinear(rgb[2]);
+    }
+    var refusedInk = [1, 2, 3].map(function (n) { return refusedByte(refusedStyle.color, n); });
+    var refusedPaper = [1, 2, 3].map(function (n) { return refusedByte(refusedStyle.backgroundColor, n); });
+    var refusedFade = parseFloat(refusedStyle.opacity);
+    if (refusedFade < 1) {
+      var refusedBehind = w.getComputedStyle(d.querySelector('.window')).backgroundColor;
+      var refusedBack = [1, 2, 3].map(function (n) { return refusedByte(refusedBehind, n); });
+      refusedInk = refusedInk.map(function (v, i) { return v * refusedFade + refusedBack[i] * (1 - refusedFade); });
+      refusedPaper = refusedPaper.map(function (v, i) { return v * refusedFade + refusedBack[i] * (1 - refusedFade); });
+    }
+    var refusedHi = Math.max(refusedLum(refusedInk), refusedLum(refusedPaper));
+    var refusedLo = Math.min(refusedLum(refusedInk), refusedLum(refusedPaper));
+    var refusedRatio = (refusedHi + 0.05) / (refusedLo + 0.05);
+    check('the refused Max button stays disabled and keeps at least 4.5:1 contrast (' + refusedRatio.toFixed(2) + ':1)',
+      longBtn.disabled && longBtn.classList.contains('refused') && refusedRatio >= 4.5);
     var matRow = d.querySelector('#stalls [data-i="5"] .wait');
     check('the Story Mat shows its price while it is still shuttered',
       matRow && matRow.textContent.indexOf(w.Arcade.fmt(w.NightMarket.STALLS[5].base)) >= 0);

@@ -103,6 +103,8 @@ button {
 }
 button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 button:disabled { opacity: 0.45; cursor: default; }
+/* Max's refusal is an instruction, so it stays readable: full opacity, muted text, dashed edge. */
+.actions [data-act="buy"].refused:disabled { opacity: 1; color: var(--mute); border-style: dashed; }
 button[aria-pressed="true"], button.ask, button.best {
   background: var(--amber-wash);
   border-color: var(--amber);
