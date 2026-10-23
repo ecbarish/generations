@@ -1274,7 +1274,7 @@ document.querySelector('#run').onclick = async () => {
             const ratio = (p, q) => { const A = lum(p), B = lum(q); return (Math.max(A, B) + 0.05) / (Math.min(A, B) + 0.05); };
             let rim = sample(sx + r * .92, sy), best = lum(rim);
             for (let k = 0; k < 8; k++) { const th = k / 8 * Math.PI * 2, pix = sample(sx + Math.cos(th) * r * .92, sy + Math.sin(th) * r * .92); if (lum(pix) < best) { best = lum(pix); rim = pix; } }
-            const grass = sample(sx + r * 2.4, L().ground + L().U * .24), fence = sample(W * .5, L().ground + L().U * .02);
+            const grass = sample(sx + r * 2.4, L().ground + L().U * .24), fence = sample(cv.width * .5, L().ground + L().U * .02);
             check(`${key}: the arrow rim contrasts with the grass and the fence`, ratio(rim, grass) >= 3 && ratio(rim, fence) >= 3);
             check(`${key}: four place marks, with home on the Meadow`, L().here && L().here.length === 4 && L().here[1].home && L().here[1].on && L().here.filter(d => d.on).length === 1);
           }
