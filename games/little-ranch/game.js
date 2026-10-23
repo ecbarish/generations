@@ -467,11 +467,13 @@
   const hintBob = name => { const h = hint(); if (!h || h.name !== name || reduce()) return 0; return Math.abs(Math.sin((st.t - st.idleAt) * 3.2)) * L.U * .025; };
   const BALL_ROLL = .7, BALL_KICKS = 3;
   function ballSpot(side) { const ballR = L.R * .88, wide = W > H * 1.3;
-    let y = L.ground + L.R * 1.35, x = coreX(2, side < 0 ? .35 : .75);
+    let y = L.ground + L.R * 1.35;
     if (!wide) y = L.homes[2].y - L.size * .62 + ballR; // LR-G2: tall: rest below the fox's face, on the line of its feet, so it sorts in front of the fox and never hides the face
     if (L.flowers && L.flowers.length) { const f = L.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); } // rest above the petals
-    if (L.basket && Math.hypot(x - L.basket.x, y - L.basket.y) < L.basket.r + ballR + 3) x = side < 0 ? L.basket.x - L.basket.r - ballR - 3 : L.basket.x + L.basket.r + ballR + 3;
-    const stop = stopFor(2); x = clamp(x, stop + ballR + 2, stop + W - ballR - 2);
+    const stop = stopFor(2), lo = stop + ballR + 2, hi = stop + W - ballR - 2;
+    let x = clamp(coreX(2, side < 0 ? .35 : .75), lo, hi);
+    if (L.basket) { const need = L.basket.r + ballR + 3, clear = px => Math.hypot(px - L.basket.x, y - L.basket.y) >= need;
+      if (!clear(x)) { const left = clamp(L.basket.x - need, lo, hi), right = clamp(L.basket.x + need, lo, hi); x = [side < 0 ? left : right, side < 0 ? right : left].find(clear) || x; } }
     return { x: Math.round(x), y: Math.round(y), r: ballR }; }
   // LR-G2: the baby kicks from beside the ball, on the side nearest the middle, facing it, so neither hides the other.
   function kickStand(side) { const q = ballSpot(side), stop = stopFor(2); return clamp(q.x - side * (q.r + L.size * 1.05), stop + L.size * .9, stop + W - L.size * .9); }
