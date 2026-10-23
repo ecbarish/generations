@@ -152,16 +152,30 @@
         var label = n + ' ' + word;
         ctx.font = '14px Georgia, Palatino, serif';
         ctx.textAlign = 'left';
+        ctx.fillStyle = WATER;
+        ctx.fillRect(4, y - 12, ctx.measureText(label).width + 12, 19);
         ctx.lineWidth = 3;
         ctx.strokeStyle = WATER;
         ctx.strokeText(label, 10, y + 4);
         ctx.fillStyle = MIST;
         ctx.fillText(label, 10, y + 4);
         var start = Math.max(w * 0.34, 10 + ctx.measureText(label).width + 12);
+        /* Pier flags stand on the left of the dock. The last triangle ends ten pixels past its pole, and the hull is centred, so the first rowboat starts a hull-half and a gap past that. */
+        if (kind === 'rowboat' && best >= 25) start = Math.max(start, w * 0.24 + 3 * 28 + 10 + 11 + 8);
         var room = Math.max(spread, w - 16 - start);
         var step = show > 1 ? Math.min(spread, room / (show - 1)) : spread;
         for (var i = 0; i < show; i++) drawBoat(ctx, kind, start + i * step, y + bob(i + index));
       }
+      if (state.captains && state.captains[0] && state.captains[0].hired) {
+        var px = w * 0.40, py = h * 0.78 - 18;
+        ctx.fillStyle = SAND;
+        ctx.fillRect(px, py, 8, 14);
+        ctx.fillRect(px - 4, py + 4, 16, 3);
+        ctx.beginPath();
+        ctx.arc(px + 4, py - 4, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
       var lanes = [
         ['rowboat', 0, 24],
         ['sloop', 1, 32],
@@ -174,16 +188,6 @@
       lanes.forEach(function (lane, index) {
         fleet(lane[0], lane[1], waterBottom - index * laneGap, lane[2]);
       });
-
-      if (state.captains && state.captains[0] && state.captains[0].hired) {
-        var px = w * 0.40, py = h * 0.78 - 18;
-        ctx.fillStyle = WATER;
-        ctx.fillRect(px, py, 8, 14);
-        ctx.fillRect(px - 4, py + 4, 16, 3);
-        ctx.beginPath();
-        ctx.arc(px + 4, py - 4, 4, 0, Math.PI * 2);
-        ctx.fill();
-      }
 
       if (!reduce) {
         var gx = ((now / 40) % (w + 40)) - 20;
