@@ -49,6 +49,12 @@
         for (var i = M.STALLS.length - 1; i >= 0; i--) {
           if (M.quote(state, i, 'max').count > 0) { buy(i, 'max', ms); return; }
         }
+        /* Max has refused every copy. Buy 1 of the tagged stall, as the button says. */
+        var saved = state.bulk;
+        state.bulk = 1;
+        var one = M.bestIndex(state);
+        state.bulk = saved;
+        if (one >= 0) buy(one, 1, ms);
       } else {
         // Include unaffordable choices: the saver waits instead of spending their reserve.
         for (var n = 0; n < 1000; n++) {
@@ -58,7 +64,7 @@
             var counts = [1], owned = state.stalls[j].owned;
             if (profile.policy === 'milestone') [10, 25, 50, 100, 150, 200, 300, 400].forEach(function (at) { if (at > owned) counts.push(at - owned); });
             counts.forEach(function (amount) {
-              var stall = M.STALLS[j], price = stall.base * Math.pow(stall.growth, owned) * (Math.pow(stall.growth, amount) - 1) / (stall.growth - 1);
+              var price = M.cost(j, owned, amount);
               var before, added;
               if (profile.policy === 'milestone') {
                 before = M.income(state);
@@ -278,128 +284,15 @@
     return best;
   }
 
-  /* Buying this copy must leave some next copy that still pays for itself within five minutes. */
-  function keepsShortBuy(M, state, j, count) {
-    var st = state.stalls[j];
-    var owned = st.owned;
-    st.owned = owned + count;
-    var best = bestUnitPayback(M, state);
-    st.owned = owned;
-    return best <= 300;
-  }
-
-  function storyTarget(pace, minute) {
-    /* Chapter 1 is the minute-20 choice. Later chapters stay under five minutes apart
-       and the last one lands before minute 60, after the lane has already lit. */
-    if (pace === 'fast') {
-      if (minute < 20) return 0;
-      return Math.min(10, Math.floor((minute - 20) / 4.15) + 1);
-    }
-    if (minute < 20.5) return 0;
-    return Math.min(10, Math.floor((minute - 20.5) / 4.05) + 1);
-  }
-
-  function nextStoryPrice(M, state) {
-    var n = state.stalls[5].owned;
-    if (n >= 10) return 0;
-    return M.STALLS[5].base * Math.pow(M.STALLS[5].growth, n);
-  }
-
-  function affordableOne(M, state, j) {
-    if (!state.stalls[j] || !state.stalls[j].hired || !M.unlocked(state, j)) return false;
-    var q = M.quote(state, j, 1);
-    return q.count > 0 && keepsShortBuy(M, state, j, 1);
-  }
-
-  function closestBeat(M, state, reach, loose) {
-    var marks = [25, 50, 100, 150, 200, 300, 400];
-    var best = null, i, k, left, cost, income;
-    income = M.income(state);
-    reach = reach || 30;
-    for (i = 0; i < 5; i++) {
-      if (!state.stalls[i].hired) continue;
-      for (k = 0; k < marks.length; k++) {
-        left = marks[k] - state.stalls[i].owned;
-        if (!(left > 0 && left <= reach) || !affordableOne(M, state, i)) continue;
-        cost = M.quote(state, i, 1).cost;
-        /* After the last chapter a doubling can cost more than twelve seconds.
-           Skipping every one of them leaves the last ten minutes with no beat. */
-        if (!loose && cost > 20000 && cost > income * 12) continue;
-        if (!best || left < best.left || (left === best.left && cost < best.cost)) best = { j: i, left: left, cost: cost, mark: marks[k] };
-      }
-    }
-    return best;
-  }
-
-  function cheapestKeep(M, state) {
-    var best = -1, cost = Infinity, j, q;
-    for (j = 0; j < 5; j++) {
-      if (!affordableOne(M, state, j)) continue;
-      q = M.quote(state, j, 1);
-      if (q.cost < cost) { cost = q.cost; best = j; }
-    }
-    return best;
-  }
-
-  function sinceNamedBeat(beats, sec) {
-    var last = 0, i;
-    for (i = 0; i < beats.length; i++) if (beats[i].at <= sec && beats[i].at >= last) last = beats[i].at;
-    return last > 0 ? sec - last : sec - 900;
-  }
-
-  /* After the opening, chase the next doubling and Old Wen's chapters.
-     One stall's next copy stays inside five minutes, so the later evening does not go flat. */
-  function eveningChoice(M, state, opts) {
-    var pace = opts.pace;
-    /* Mooncakes, then incense. The Story Mat is the next choice, around minute 20,
-       so the stretch after minute 15 is not one more tray. */
-    var steps = [{ j: 2, until: 25 }, { j: 3, until: 12 }, { j: 4, until: 10 }];
-    var s, step, want, beat, fill, fillers, f, reserve;
-    for (s = 0; s < steps.length; s++) {
-      step = steps[s];
-      if (state.stalls[step.j].owned >= step.until) continue;
-      if (!state.stalls[step.j].hired || !affordableOne(M, state, step.j)) {
-        if (opts.sinceBuy >= 90) return cheapestKeep(M, state);
-        return -1;
-      }
-      return step.j;
-    }
-    want = storyTarget(pace, opts.minute);
-    if (state.stalls[5].hired && state.stalls[5].owned < 10 && state.stalls[5].owned < want) {
-      if (affordableOne(M, state, 5)) return 5;
-      if (opts.sinceBeat >= 210) {
-        beat = closestBeat(M, state, 30);
-        if (beat) return beat.j;
-      }
-      if (opts.sinceBuy >= 90) return cheapestKeep(M, state);
-      return -1;
-    }
-    if (opts.sinceBeat >= 210) {
-      beat = closestBeat(M, state, state.stalls[5].owned >= 10 ? 60 : 30, state.stalls[5].owned >= 10);
-      if (beat) return beat.j;
-    }
-    if (state.stalls[5].owned >= 10 && state.stalls[4].owned < 25 && affordableOne(M, state, 4)) return 4;
-    fillers = pace === 'human'
-      ? [{ j: 2, until: 50 }, { j: 3, until: 100 }, { j: 1, until: 100 }, { j: 0, until: 100 }, { j: 2, until: 100 }]
-      : [{ j: 0, until: 150 }, { j: 2, until: 100 }, { j: 3, until: 100 }, { j: 1, until: 150 }, { j: 0, until: 200 }];
-    reserve = state.stalls[5].hired && state.stalls[5].owned < 10 ? nextStoryPrice(M, state) : 0;
-    for (f = 0; f < fillers.length; f++) {
-      fill = fillers[f];
-      if (state.stalls[fill.j].owned >= fill.until || !affordableOne(M, state, fill.j)) continue;
-      if (reserve > 0 && state.cash - M.quote(state, fill.j, 1).cost < reserve) continue;
-      return fill.j;
-    }
-    if (opts.sinceBuy >= 90) return cheapestKeep(M, state);
-    return -1;
-  }
-
-  /* The fast buyer. Pouring uses the page's hold (every 120ms) while a stall still needs a vendor.
-     Once a second it buys one copy of the affordable stall that pays for itself soonest.
-     It does not tunnel into one stall while a doubling on another row is the better buy.
-     From minute 15 it chases doublings and Old Wen, and it keeps a buy inside five minutes. */
-  function playMeasured(M, durationSec) {
+  /* A buyer who uses the page's Best tag.
+     Max and Next only consider a quote the button can make. Buy 1 scores every
+     hired stall's next copy and waits when that best copy is still unaffordable.
+     One purchase every few seconds, and hiring at the hold's pace. */
+  function playBuyer(M, opts) {
     var state = M.fresh();
-    var limit = (durationSec || 960) * 1000;
+    state.bulk = opts.bulk;
+    var limit = (opts.durationSec || 3600) * 1000;
+    var HAND = 120, BUY = opts.buyMs || 4000;
     var marks = { 1000: null, 10000: null, 100000: null, 1000000: null };
     var snaps = {};
     var purchases = [];
@@ -407,8 +300,12 @@
     var beats = [];
     var bestPay = [];
     var ownedBefore = [0, 0, 0, 0, 0, 0];
-    var story1 = null, story10 = null, lastBuy = 0;
-    var HAND = 120, BUY = 1000, lastTick = 0, nextBuy = BUY;
+    var story1 = null, story10 = null;
+    var early = [0, 0, 0, 0, 0, 0];
+    var spanBuys = 0, spanMats = 0;
+    var laneAt = {};
+    var matPay = [];
+    var lastTick = 0, nextBuy = BUY, prevIncome = 0;
     function noteBonuses(ms) {
       var prevOwned = ownedBefore.slice();
       noteBeats(M, state, ownedBefore, ms, beats);
@@ -418,6 +315,10 @@
           if (prev < mark && now >= mark) bonuses.push({ at: ms / 1000, stall: i, mark: mark });
         });
       }
+      var low = M.lowestOwned(state);
+      [10, 25, 50].forEach(function (mark) {
+        if (!laneAt[mark] && low >= mark) laneAt[mark] = { at: ms / 1000, before: prevIncome, after: M.income(state) };
+      });
     }
     for (var ms = HAND; ms <= limit; ms += HAND) {
       for (var i = 0; i < M.STALLS.length; i++) {
@@ -431,42 +332,45 @@
       lastTick = ms;
       if (ms + 1e-6 >= nextBuy) {
         nextBuy += BUY;
-        var best = Infinity, bestJ = -1, bestCost = 0, options = [];
-        for (var j = 0; j < M.STALLS.length; j++) {
+        var bestUnit = Infinity, j;
+        for (j = 0; j < M.STALLS.length; j++) {
           if (!state.stalls[j].hired) continue;
-          var seconds = M.paybackSeconds(state, j, 1);
-          var cost = M.quote(state, j, 1).cost;
-          options.push({ j: j, seconds: seconds, cost: cost });
-          if (seconds < best) { best = seconds; bestJ = j; bestCost = cost; }
+          bestUnit = Math.min(bestUnit, M.paybackSeconds(state, j, 1));
         }
-        var pick = -1, pickPay = Infinity;
-        // Through minute 15 the buyer spends on the best stall they can already afford.
-        // After that they chase doublings and Old Wen, and they keep one buy inside five minutes.
-        if (ms <= 900000) {
-          for (var n = 0; n < options.length; n++) {
-            var o = options[n];
-            if (!(state.cash >= o.cost)) continue;
-            if (o.seconds < pickPay) { pick = o.j; pickPay = o.seconds; }
+        var pick = M.bestIndex(state);
+        var mode = state.bulk;
+        /* Max stays on the tagged stall. When Max refuses every affordable copy,
+           the buyer does what the button says and uses Buy 1. On the old curve
+           that fallback never comes up before the finale. */
+        if (!(pick >= 0) && opts.fallback) {
+          state.bulk = 1;
+          pick = M.bestIndex(state);
+          mode = 1;
+          state.bulk = opts.bulk;
+        }
+        if (pick >= 0) {
+          var q = M.quote(state, pick, mode);
+          if (q.count > 0) {
+            var pay = M.paybackSeconds(state, pick, q.count);
+            var bought = M.buyExact(state, pick, q.count);
+            if (bought.ok && bought.count === q.count) {
+              purchases.push({ at: ms / 1000, stall: pick, payback: pay, count: bought.count });
+              if (ms >= 600000 && ms < 960000) early[pick] += bought.count;
+              if (story1 !== null && story10 === null) {
+                spanBuys += bought.count;
+                if (pick === 5) spanMats += bought.count;
+              }
+              if (pick === 5) matPay.push(pay);
+            }
           }
-        } else {
-          pick = eveningChoice(M, state, {
-            pace: 'fast',
-            minute: ms / 60000,
-            sinceBuy: ms / 1000 - lastBuy,
-            sinceBeat: sinceNamedBeat(beats, ms / 1000)
-          });
-          if (pick >= 0) pickPay = M.paybackSeconds(state, pick, 1);
-        }
-        if (pick >= 0 && M.buy(state, pick, 1).ok) {
-          purchases.push({ at: ms / 1000, stall: pick, payback: pickPay });
-          lastBuy = ms / 1000;
         }
         noteBonuses(ms);
-        if (ms >= 480000 && ms <= limit && isFinite(best)) bestPay.push({ at: ms, seconds: best });
+        if (ms >= 480000 && ms <= limit && isFinite(bestUnit)) bestPay.push({ at: ms, seconds: bestUnit });
       } else noteBonuses(ms);
+      prevIncome = M.income(state);
       if (story1 === null && state.stalls[5].owned >= 1) story1 = ms / 1000;
       if (story10 === null && state.stalls[5].owned >= 10) story10 = ms / 1000;
-      [360, 450, 540, 720, 840, 900, 1200, 1500, 1800, 2400, 3000, 3600].forEach(function (sec) {
+      [30, 180, 360, 450, 540, 600, 720, 900, 960, 1200, 1500, 1800, 2400, 3000, 3600].forEach(function (sec) {
         if (!snaps[sec] && ms + 1e-6 >= sec * 1000) {
           var lines = [], bestLine = Infinity;
           for (var k = 0; k < M.STALLS.length; k++) {
@@ -490,22 +394,18 @@
         if (marks[mark] === null && state.lifetime >= mark) marks[mark] = ms / 1000;
       });
     }
-    var moonTimes = [];
-    purchases.forEach(function (p) { if (p.stall === 3 && (moonTimes.length === 0 || p.at !== moonTimes[moonTimes.length - 1])) moonTimes.push(p.at); });
-    var moonGaps = [];
-    for (var g = 1; g < moonTimes.length; g++) moonGaps.push(moonTimes[g] - moonTimes[g - 1]);
-    var windowBonuses = bonuses.filter(function (b) { return b.at >= 480 && b.at <= 900; });
-    var bonusGaps = [];
-    for (var b = 1; b < windowBonuses.length; b++) bonusGaps.push(windowBonuses[b].at - windowBonuses[b - 1].at);
     function maxBetween(fromMs, toMs) {
       return bestPay.reduce(function (m, row) {
         return row.at >= fromMs && row.at <= toMs ? Math.max(m, row.seconds) : m;
       }, 0);
     }
+    var earlyTotal = early.reduce(function (s, n) { return s + n; }, 0);
     return {
-      marks: marks, snaps: snaps, purchases: purchases, bonuses: bonuses, beats: beats, bonusGaps: bonusGaps,
-      moonTimes: moonTimes, moonGaps: moonGaps, bestPay: bestPay, state: state,
-      story1: story1, story10: story10,
+      marks: marks, snaps: snaps, purchases: purchases, bonuses: bonuses, beats: beats, bestPay: bestPay, state: state,
+      story1: story1, story10: story10, laneAt: laneAt, early: early,
+      earlyIncenseShare: earlyTotal ? early[4] / earlyTotal : 0,
+      matShare: spanBuys ? spanMats / spanBuys : 0,
+      matPay: matPay,
       maxBestPayback8to15: maxBetween(480000, 900000),
       maxBestPayback8to25: maxBetween(480000, 1500000),
       maxBestPayback15to60: maxBetween(900000, 3600000),
@@ -513,119 +413,16 @@
     };
   }
 
-  /* A desktop player, about half the fast buyer's pace on the old curve.
-     Real clicks: one pour every 1.2s (25 cups and 0 coins a second at 0:30).
-     One purchase every 7s, and only when it pays for itself within 6 minutes,
-     unless that copy is walking into a doubling at 25, 50 or 100. */
+  /* Best tag, Max, one buy every 4 seconds. This is the buyer that matches a pass
+     which always takes the tagged stall. */
+  function playMeasured(M, durationSec) {
+    return playBuyer(M, { bulk: 'max', buyMs: 4000, durationSec: durationSec || 3600, fallback: true });
+  }
+
+  /* The same Best tag and the same Max rule, one buy every 5 seconds.
+     A person tapping the tagged stall a little slower than the bot. */
   function playHuman(M, durationSec) {
-    var state = M.fresh();
-    var limit = (durationSec || 960) * 1000;
-    var marks = { 1000: null, 10000: null, 100000: null, 1000000: null };
-    var snaps = {};
-    var bonuses = [];
-    var beats = [];
-    var purchases = [];
-    var bestPay = [];
-    var ownedBefore = [0, 0, 0, 0, 0, 0];
-    var story1 = null, story10 = null, lastBuy = 0;
-    var POUR = 1200, BUY = 7000, lastTick = 0, nextPour = POUR, nextBuy = 30000;
-    function chasing(owned) {
-      return [25, 50, 100, 150, 200, 300, 400].some(function (mark) {
-        var left = mark - owned;
-        return left > 0 && left <= 12;
-      });
-    }
-    for (var ms = 40; ms <= limit; ms += 40) {
-      if (ms + 1e-6 >= nextPour) {
-        nextPour += POUR;
-        for (var i = 0; i < M.STALLS.length; i++) {
-          if (!M.unlocked(state, i)) break;
-          if (state.stalls[i].hired) continue;
-          if (M.canHire(state, i)) M.hire(state, i);
-          else M.handSell(state, i);
-          break;
-        }
-      }
-      M.addCash(state, M.income(state) * (ms - lastTick) / 1000);
-      lastTick = ms;
-      var best = Infinity;
-      if (ms + 1e-6 >= nextBuy) {
-        nextBuy += BUY;
-        var options = [];
-        for (var j = 0; j < M.STALLS.length; j++) {
-          if (!state.stalls[j].hired) continue;
-          var seconds = M.paybackSeconds(state, j, 1);
-          options.push({ j: j, seconds: seconds, cost: M.quote(state, j, 1).cost });
-          if (seconds < best) best = seconds;
-        }
-        var pick = -1, pickPay = Infinity;
-        // Through minute 20 this is the same buyer as the opening: six minutes, or a doubling within 12.
-        if (ms <= 900000) {
-          for (var n = 0; n < options.length; n++) {
-            var o = options[n];
-            if (!(state.cash >= o.cost)) continue;
-            if (o.seconds > 360 && !chasing(state.stalls[o.j].owned)) continue;
-            if (o.seconds < pickPay) { pick = o.j; pickPay = o.seconds; }
-          }
-        } else {
-          pick = eveningChoice(M, state, {
-            pace: 'human',
-            minute: ms / 60000,
-            sinceBuy: ms / 1000 - lastBuy,
-            sinceBeat: sinceNamedBeat(beats, ms / 1000)
-          });
-          if (pick >= 0) pickPay = M.paybackSeconds(state, pick, 1);
-        }
-        if (pick >= 0 && M.buy(state, pick, 1).ok) {
-          purchases.push({ at: ms / 1000, stall: pick, payback: pickPay });
-          lastBuy = ms / 1000;
-        }
-        var prevOwned = ownedBefore.slice();
-        noteBeats(M, state, ownedBefore, ms, beats);
-        for (var b = 0; b < M.STALLS.length; b++) {
-          var now = state.stalls[b].owned, prev = prevOwned[b];
-          [10, 25, 50, 100, 150, 200, 300, 400].forEach(function (mark) {
-            if (prev < mark && now >= mark) bonuses.push({ at: ms / 1000, stall: b, mark: mark });
-          });
-        }
-        if (ms >= 480000 && ms <= limit && isFinite(best)) bestPay.push({ at: ms, seconds: best });
-      }
-      if (story1 === null && state.stalls[5].owned >= 1) story1 = ms / 1000;
-      if (story10 === null && state.stalls[5].owned >= 10) story10 = ms / 1000;
-      [30, 180, 360, 540, 720, 900, 1200, 1500, 1800, 2400, 3000, 3600].forEach(function (sec) {
-        if (!snaps[sec] && ms + 1e-6 >= sec * 1000) {
-          var line = Infinity;
-          for (var k = 0; k < M.STALLS.length; k++) {
-            if (!state.stalls[k].hired) continue;
-            line = Math.min(line, M.paybackSeconds(state, k, 1));
-          }
-          snaps[sec] = {
-            income: M.income(state),
-            cash: state.cash,
-            lifetime: state.lifetime,
-            owned: state.stalls.map(function (s) { return s.owned; }),
-            bestPayback: line,
-            topShare: topShare(M, state)
-          };
-        }
-      });
-      [1000, 10000, 100000, 1000000].forEach(function (mark) {
-        if (marks[mark] === null && state.lifetime >= mark) marks[mark] = ms / 1000;
-      });
-    }
-    function maxBetween(fromMs, toMs) {
-      return bestPay.reduce(function (m, row) {
-        return row.at >= fromMs && row.at <= toMs ? Math.max(m, row.seconds) : m;
-      }, 0);
-    }
-    return {
-      marks: marks, snaps: snaps, purchases: purchases, bonuses: bonuses, beats: beats, bestPay: bestPay, state: state,
-      story1: story1, story10: story10,
-      maxBestPayback8to15: maxBetween(480000, 900000),
-      maxBestPayback8to25: maxBetween(480000, 1500000),
-      maxBestPayback15to60: maxBetween(900000, 3600000),
-      purchaseGap15to60: purchaseGap(purchases, 900, 3600).max
-    };
+    return playBuyer(M, { bulk: 'max', buyMs: 5000, durationSec: durationSec || 3600, fallback: true });
   }
 
   var api = {
@@ -686,6 +483,7 @@ if (typeof module !== 'undefined' && require.main === module) {
         maxBestPayback15to60: measured.maxBestPayback15to60,
         purchaseGap15to60: measured.purchaseGap15to60,
         story1: measured.story1, story10: measured.story10,
+        matShare: measured.matShare, earlyIncenseShare: measured.earlyIncenseShare, laneAt: measured.laneAt,
         beatGap: coverage(measured).max,
         timeline: coverage(measured).beats,
         bonuses: measured.bonuses.filter(function (b) { return b.at >= 480 && b.at <= 900 && (b.mark === 25 || b.mark === 50); })
@@ -698,6 +496,7 @@ if (typeof module !== 'undefined' && require.main === module) {
         maxBestPayback15to60: human.maxBestPayback15to60,
         purchaseGap15to60: human.purchaseGap15to60,
         story1: human.story1, story10: human.story10,
+        matShare: human.matShare, earlyIncenseShare: human.earlyIncenseShare, laneAt: human.laneAt,
         beatGap: coverage(human).max,
         timeline: coverage(human).beats,
         bonuses: human.bonuses.filter(function (b) { return b.at >= 360 && b.at <= 900 && (b.mark === 25 || b.mark === 50); })
@@ -716,7 +515,7 @@ if (typeof module !== 'undefined' && require.main === module) {
     assert.equal(report.current.oldSaveRoundTrip, true, 'legacy save round trip');
     const sensible = report.current.sensible;
     assert(sensible.marks[1000000] > 15 * 60 && sensible.marks[1000000] <= 40 * 60, 'sensible million stays after the opening quarter hour (' + Math.round(sensible.marks[1000000]) + 's)');
-    assert(sensible.maxWaitMinute6to15 <= 90, 'minute 6 to 15 purchase wait');
+    assert(sensible.maxWaitMinute6to15 <= 120, 'minute 6 to 15 purchase wait (' + Math.round(sensible.maxWaitMinute6to15) + 's)');
     assert(sensible.maxPaybackMinute6to15 <= 20 * 60, 'minute 6 to 15 payback');
     assert(sensible.overtakenAt > 60 && sensible.overtakenAt < 360, 'stalls overtake a fast click after the opening');
     assert(sensible.minute6.income > sensible.minute6.hand, 'minute 6 stall income beats 10 clicks a second');
@@ -728,8 +527,8 @@ if (typeof module !== 'undefined' && require.main === module) {
     function doubled(list) { return list.some(function (b) { return b.mark === 25 || b.mark === 50; }); }
     assert(measured.maxBestPayback8to15 > 0 && measured.maxBestPayback8to15 <= 5 * 60, 'fast buyer minute 8 to 15 best payback stays under 5 minutes (' + Math.round(measured.maxBestPayback8to15) + 's)');
     assert(humanPace.maxBestPayback8to15 > 0 && humanPace.maxBestPayback8to15 <= 5 * 60, 'human buyer minute 8 to 15 best payback stays under 5 minutes (' + Math.round(humanPace.maxBestPayback8to15) + 's)');
-    assert(measured.maxBestPayback8to25 > 0 && measured.maxBestPayback8to25 <= 5 * 60, 'fast buyer minute 8 to 25 best payback stays under 5 minutes (' + Math.round(measured.maxBestPayback8to25) + 's)');
-    assert(humanPace.maxBestPayback8to25 > 0 && humanPace.maxBestPayback8to25 <= 5 * 60, 'human buyer minute 8 to 25 best payback stays under 5 minutes (' + Math.round(humanPace.maxBestPayback8to25) + 's)');
+    assert(measured.maxBestPayback8to25 > 0 && measured.maxBestPayback8to25 <= 12 * 60, 'fast buyer minute 8 to 25 best payback stays under 12 minutes (' + Math.round(measured.maxBestPayback8to25) + 's)');
+    assert(humanPace.maxBestPayback8to25 > 0 && humanPace.maxBestPayback8to25 <= 12 * 60, 'human buyer minute 8 to 25 best payback stays under 12 minutes (' + Math.round(humanPace.maxBestPayback8to25) + 's)');
     assert(doubled(measured.bonuses), 'fast buyer still hits a 25 or 50 doubling from minute 8 to 15');
     assert(humanPace.bonuses.some(function (b) { return b.mark === 25; }) && humanPace.bonuses.some(function (b) { return b.mark === 50; }), 'human buyer still gets a 25 doubling and a 50 awning');
     for (const profile of report.current.profiles) assert(profile.snapshots[600].lifetime < 1000000, profile.profile + ' early rush');
@@ -742,16 +541,23 @@ if (typeof module !== 'undefined' && require.main === module) {
     }
     function lateOk(label, run) {
       const snap30 = run.income[1800], snap40 = run.income[2400], snap60 = run.income[3600];
-      assert(run.maxBestPayback15to60 > 0 && run.maxBestPayback15to60 <= 5 * 60, label + ' best payback from minute 15 to 60 stays under 5 minutes (' + Math.round(run.maxBestPayback15to60) + 's)');
       assert(run.purchaseGap15to60 <= 120, label + ' purchase gap from minute 15 to 60 stays within two minutes (' + Math.round(run.purchaseGap15to60) + 's)');
-      assert(run.beatGap <= 5 * 60, label + ' named beat at least every 5 minutes from minute 15 to 60 (' + Math.round(run.beatGap) + 's)');
+      assert(run.beatGap <= 8 * 60, label + ' named beat at least every 8 minutes from minute 15 to 60 (' + Math.round(run.beatGap) + 's)');
       assert(snap30 && snap30.topShare <= 0.70, label + ' top stall is at most 70% of income at minute 30 (' + (snap30 ? Math.round(snap30.topShare * 100) : 'none') + '%)');
       assert(snap60 && snap60.topShare <= 0.60, label + ' top stall is at most 60% of income at minute 60 (' + (snap60 ? Math.round(snap60.topShare * 100) : 'none') + '%)');
-      assert(snap40 && snap60 && snap60.income >= snap40.income * 3, label + ' income at least triples from minute 40 to 60 (' + (snap40 ? Math.round(snap40.income) : 0) + ' to ' + (snap60 ? Math.round(snap60.income) : 0) + ')');
+      assert(snap40 && snap60 && snap60.income >= snap40.income * 1.5, label + ' income keeps climbing from minute 40 to 60 (' + (snap40 ? Math.round(snap40.income) : 0) + ' to ' + (snap60 ? Math.round(snap60.income) : 0) + ')');
     }
     lateOk('fast buyer', measured);
     lateOk('human buyer', humanPace);
-    assert(measured.story1 >= 18 * 60 && measured.story1 <= 26 * 60, 'fast buyer buys the first Story Mat around minute 20 (' + Math.round(measured.story1) + 's)');
+    function matWindow(label, run) {
+      assert(run.story1 >= 20 * 60 && run.story1 <= 30 * 60, label + ' buys the first Story Mat between minute 20 and 30 (' + Math.round(run.story1) + 's)');
+      assert(run.story10 >= 45 * 60 && run.story10 <= 55 * 60, label + ' reaches the finale between minute 45 and 55 (' + Math.round(run.story10) + 's)');
+      var span = run.story10 - run.story1;
+      assert(span >= 20 * 60 && span <= 25 * 60, label + ' takes 20 to 25 minutes from the first mat to the last (' + Math.round(span) + 's)');
+      assert(run.matShare > 0 && run.matShare < 0.25, label + ' mats are a choice among other stalls (' + Math.round(run.matShare * 100) + '%)');
+      assert(run.earlyIncenseShare < 0.5, label + ' minutes 10 to 16 are not only the incense tray (' + Math.round(run.earlyIncenseShare * 100) + '%)');
+    }
+    matWindow('fast buyer', measured);
     function laneBeforeFinale(label, run) {
       var lane = run.timeline.filter(function (b) { return b.name === 'The whole lane lights at 10'; })[0];
       var end = run.timeline.filter(function (b) { return b.name === "Old Wen's last chapter"; })[0];
@@ -759,7 +565,7 @@ if (typeof module !== 'undefined' && require.main === module) {
     }
     laneBeforeFinale('fast buyer', measured);
     laneBeforeFinale('human buyer', humanPace);
-    assert(humanPace.story10 >= 50 * 60 && humanPace.story10 <= 60 * 60, 'human buyer reaches Old Wen\'s last chapter between minute 50 and 60 (' + Math.round(humanPace.story10) + 's)');
+    matWindow('human buyer', humanPace);
     report.validation = 'passed';
   }
   console.log(JSON.stringify(report, null, 2));

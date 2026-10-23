@@ -51,9 +51,9 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   font-variant-numeric: tabular-nums;
   font-size: 1.7rem;
 }
-.rate, .goal, .finale-note { margin: 0.15rem 0; }
+.rate, .goal, .finale-note { margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
 .goal, .next-goal, .finale-note { color: var(--good); }
-.lane-goal { color: var(--amber); margin: 0; line-height: 1.2; }
+.lane-goal { color: var(--amber); margin: 0; line-height: 1.2; font-variant-numeric: tabular-nums; }
 .lane-goal:empty, .next-goal:empty { display: none; }
 .finale {
   background: var(--night);
@@ -86,7 +86,7 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   margin: 0.9rem 0 0.3rem;
 }
 .bulk-name { color: var(--mute); min-height: 44px; display: inline-flex; align-items: center; }
-.bulk [data-bulk] { min-width: 44px; min-height: 44px; }
+.bulk [data-bulk] { min-width: 44px; min-height: 44px; font-variant-numeric: tabular-nums; touch-action: manipulation; }
 @media (max-width: 420px) {
   .bulk { flex-wrap: nowrap; gap: 0.25rem; }
   .bulk [data-bulk] { padding-left: 0.4rem; padding-right: 0.4rem; }
@@ -125,14 +125,14 @@ button[aria-pressed="true"], button.ask, button.best {
   pointer-events: none;
 }
 .best-tag[hidden] { display: none !important; }
-.habit, .facts, .wait, .next-goal, .payback-hint { margin: 0.2rem 0; }
+.habit, .facts, .wait, .next-goal, .payback-hint { margin: 0.2rem 0; font-variant-numeric: tabular-nums; }
 .facts:empty, .wait:empty { display: none; }
 .habit { color: var(--mute); }
 .wait, .payback-hint { color: var(--mute); }
 .payback-hint { height: 1.45em; line-height: 1.45; overflow: hidden; }
 .payback-hint[hidden] { display: block !important; visibility: hidden; }
-.actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.45rem; }
-.actions button { flex: 1 1 9rem; }
+.actions { display: flex; flex-wrap: nowrap; gap: 0.4rem; margin-top: 0.45rem; }
+.actions button { flex: 1 1 0; min-width: 0; font-variant-numeric: tabular-nums; touch-action: manipulation; }
 .actions [data-act="buy"] {
   min-width: 0;
   height: 44px;
@@ -188,6 +188,7 @@ button[aria-pressed="true"], button.ask, button.best {
   h1 { margin-top: 0.4rem; }
   .scene { margin-bottom: 0.35rem; }
   .stall { padding-top: 0.6rem; display: flex; flex-direction: column; }
+  .actions { flex-wrap: wrap; }
   .stall h2 { order: -2; }
   .stall .actions { order: -1; margin-bottom: 0.3rem; }
   .actions [data-act="buy"] { flex: 1 1 100%; }
@@ -247,6 +248,9 @@ button[aria-pressed="true"], button.ask, button.best {
   .lane { margin-top: 0.2rem; }
   .bulk { margin: 0.25rem 0 0; }
   .stalls { margin-top: 0.1rem; }
+  .actions { flex-wrap: nowrap; }
+  .actions [data-act="serve"] { flex: 1 1 0; }
+  .actions [data-act="buy"] { flex: 1.7 1 0; }
   .coin-pin:not([hidden]) {
     display: block;
     position: fixed;

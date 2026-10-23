@@ -37,11 +37,12 @@
   function buyLabel(i, q) {
     q = q || M.quote(state, i, state.bulk);
     if (q.blocked === 'hire' || q.blocked === 'closed') return 'Buy 1';
+    if (state.bulk === 'max' && q.blocked === 'payback') return 'Max stops at long paybacks, use 1, 10 or Next';
     if (state.bulk === 'next') {
       var need = M.countToNext(state.stalls[i].owned);
       if (!(need > 0)) return 'Next · lit';
       if (q.count > 0) return 'Next · ' + q.count + ' · ' + money(q.cost);
-      return 'Next · ' + need + ' · ' + money(q.cost);
+      return 'Next · 1 · ' + money(q.cost);
     }
     if (state.bulk === 'max' && q.count > 0) return 'Max · ' + q.count + ' · ' + money(q.cost);
     var n = state.bulk === 10 ? 10 : 1;
@@ -60,16 +61,7 @@
   }
 
   function bestBuyIndex() {
-    var best = -1, score = Infinity, i, n, sec;
-    for (i = 0; i < M.STALLS.length; i++) {
-      if (!state.stalls[i].hired || !M.unlocked(state, i)) continue;
-      if (state.bulk === 'max' || state.bulk === 'next') n = M.quote(state, i, state.bulk).count;
-      else n = state.bulk === 10 ? 10 : 1;
-      if (!(n > 0)) continue;
-      sec = M.paybackSeconds(state, i, n);
-      if (sec < score) { score = sec; best = i; }
-    }
-    return best;
+    return M.bestIndex(state);
   }
 
   function fillRow(li, i) {
@@ -94,6 +86,7 @@
       facts.textContent = '';
       if (nextGoal) nextGoal.textContent = '';
       wait.textContent = i > 0 ? M.STALLS[i - 1].next : '';
+      if (i === M.STALLS.length - 1) wait.textContent += (wait.textContent ? ' ' : '') + 'The first Story Mat costs ' + money(stall.base) + ' coins.';
       serve.hidden = ask.hidden = buy.hidden = true;
       serve.classList.remove('best');
       return;
@@ -116,6 +109,7 @@
       wait.textContent = need > 0
         ? need + ' more ' + (need === 1 ? stall.left : stall.lefts) + ' to do yourself.'
         : stall.vendor + ' will take it whenever you ask.';
+      if (i === M.STALLS.length - 1 && st.owned === 0) wait.textContent += ' The first Story Mat costs ' + money(M.quote(state, i, 1).cost) + ' coins.';
       ask.hidden = !M.canHire(state, i);
       ask.textContent = stall.hire;
       ask.disabled = false;
@@ -155,7 +149,9 @@
     $('#coins').textContent = money(state.cash);
     $('#away-rule').textContent = M.awayRule();
     var rate = M.income(state);
-    $('#rate').textContent = rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.';
+    var rateLine = rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.';
+    if (hold && hold.live) rateLine += ' · holding adds ' + money(M.holdRate());
+    $('#rate').textContent = rateLine;
     $('#goal').textContent = M.goal(state);
     var laneGoal = $('#lane-goal');
     if (laneGoal) laneGoal.textContent = M.laneLine(state);
@@ -250,7 +246,10 @@
     var goalBox = goal.getBoundingClientRect();
     var laneGone = !!laneBox && laneBox.bottom <= 0;
     var coinsGone = !!coinBox && coinBox.bottom <= 0;
-    var showGoal = phone && goalBox.bottom <= 0.5;
+    /* The pin used to wait until the whole goal box had left. On a phone that left
+       about 40px where "Next bonus" was already gone and the pin was not up yet.
+       It appears as the goal starts to leave, and only once the lane has gone. */
+    var showGoal = phone && (!laneBox || laneBox.bottom <= 0.5) && goalBox.top <= 0.5;
     pin.hidden = !showGoal;
     if (coinPin) {
       var rate = M.income(state);
