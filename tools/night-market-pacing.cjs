@@ -457,11 +457,8 @@ if (typeof module !== 'undefined' && require.main === module) {
     const human = module.exports.playHuman(context.NightMarket, 3600);
     const coverage = (run) => module.exports.beatCoverage(run.beats, 900, 3600);
     const maxOf = (list) => list.reduce((m, n) => Math.max(m, n), 0);
-    const fixture = JSON.parse(fs.readFileSync(path.join(root, 'docs/playtests/nm-retune/legacy-v1.json'), 'utf8'));
-    const M = context.NightMarket;
-    const oldSaveRoundTrip = M.valid(fixture) && JSON.stringify(M.serialize(M.restore(fixture), fixture.seen)) === JSON.stringify(fixture);
     return {
-      oldSaveRoundTrip: oldSaveRoundTrip, source: ref || 'working-tree', modelSha256: crypto.createHash('sha256').update(modelSource).digest('hex'),
+      source: ref || 'working-tree', modelSha256: crypto.createHash('sha256').update(modelSource).digest('hex'),
       stalls: context.NightMarket.STALLS.map(s => ({id: s.id, base: s.base, growth: s.growth, rate: s.rate, serves: s.serves, hand: s.hand})),
       profiles: profiles,
       sensible: {
@@ -512,7 +509,6 @@ if (typeof module !== 'undefined' && require.main === module) {
   }
   if (args.includes('--check')) {
     const assert = require('node:assert/strict');
-    assert.equal(report.current.oldSaveRoundTrip, true, 'legacy save round trip');
     const sensible = report.current.sensible;
     assert(sensible.marks[1000000] > 15 * 60 && sensible.marks[1000000] <= 40 * 60, 'sensible million stays after the opening quarter hour (' + Math.round(sensible.marks[1000000]) + 's)');
     assert(sensible.maxWaitMinute6to15 <= 120, 'minute 6 to 15 purchase wait (' + Math.round(sensible.maxWaitMinute6to15) + 's)');

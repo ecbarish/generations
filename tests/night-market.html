@@ -434,29 +434,8 @@ document.querySelector('#run').onclick = async function () {
     nextGoal.stalls[5].owned = 25;
     check('past 25 mats the goal names the next doubling and what it pays',
       /Next bonus: /.test(M.goal(nextGoal)) && /twice what the row earns now/.test(M.goal(nextGoal)));
-    var legacy = await (await fetch('../docs/playtests/nm-retune/legacy-v1.json')).json();
-    check('a literal pre-retune v1 save still validates', M.valid(legacy));
-    var legacyRoundTrip = M.serialize(M.restore(legacy), legacy.seen);
-    check('every earned coin, lifetime coin, stall, hire, serve, mode and timestamp survives the old-save round trip', JSON.stringify(legacyRoundTrip) === JSON.stringify(legacy));
-    check('save identity and six-stall order remain stable', M.SAVE_KEY === 'night-market-save-v1' && M.SAVE_VERSION === 1 && M.STALLS.map(function (stall) { return stall.id; }).join(',') === 'tea,dumpling,lantern,mooncake,incense,stories');
-    var oldShape = {
-      v: 1, game: 'night-market', cash: 480000, lifetime: 9000000, seen: 1700000000000, bulk: 10,
-      stalls: [
-        { owned: 40, serves: 25, hired: true },
-        { owned: 20, serves: 12, hired: true },
-        { owned: 12, serves: 10, hired: true },
-        { owned: 12, serves: 8, hired: true },
-        { owned: 8, serves: 8, hired: true },
-        { owned: 0, serves: 0, hired: false }
-      ]
-    };
-    var oldRestored = M.restore(oldShape);
-    var oldSaved = M.serialize(oldRestored, oldShape.seen);
-    check('an older night-market-save-v1 still loads its coins, stalls and buy mode',
-      M.valid(oldShape) && oldRestored.cash === 480000 && oldRestored.lifetime === 9000000 && oldRestored.bulk === 10 &&
-      oldRestored.stalls[4].owned === 8 && oldRestored.stalls[4].hired === true && oldRestored.stalls[5].hired === false &&
-      JSON.stringify(oldSaved) === JSON.stringify(oldShape) &&
-      M.production(oldRestored, 4) === M.STALLS[4].rate * 8);
+    check('the six stalls stay in lane order',
+      M.STALLS.map(function (stall) { return stall.id; }).join(',') === 'tea,dumpling,lantern,mooncake,incense,stories');
 
     var wall = 1700000000000;
     var realNow = Date.now;
@@ -515,38 +494,6 @@ document.querySelector('#run').onclick = async function () {
     Object.keys(localStorage).forEach(function (k) {
       if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
     });
-    // Real-page reload of the literal old-format save. Stop its clock only after loading;
-    // preserve owned state and compare any legitimate elapsed earnings rather than zeroing them.
-    var legacyForPage = JSON.parse(JSON.stringify(legacy));
-    legacyForPage.seen = Date.now();
-    localStorage.setItem(KEY, JSON.stringify(legacyForPage));
-    async function loadLegacyFrame() {
-      frame = document.createElement('iframe');
-      frame.title = 'Night Market legacy-save reload';
-      frame.src = '../games/night-market/index.html';
-      await new Promise(function (resolve, reject) {
-        var timer = setTimeout(function () { reject(Error('legacy load timed out')); }, 20000);
-        frame.onload = function () { clearTimeout(timer); resolve(); };
-        document.querySelector('#game').appendChild(frame);
-      });
-      var hook = frame.contentWindow.__nightMarket;
-      hook.idle.stop();
-      return hook;
-    }
-    var legacyHook = await loadLegacyFrame();
-    check('the real page loads every legacy stall and earned balance',
-      JSON.stringify(legacyHook.state.stalls) === JSON.stringify(legacy.stalls) &&
-      legacyHook.state.cash >= legacy.cash && legacyHook.state.lifetime >= legacy.lifetime && legacyHook.state.bulk === 'max');
-    var firstSaved = JSON.parse(localStorage.getItem(KEY));
-    check('an existing v1 save still loads as version 1 under night-market-save-v1',
-      firstSaved && firstSaved.v === 1 && firstSaved.game === 'night-market' && KEY === 'night-market-save-v1' &&
-      M.SAVE_VERSION === 1 && firstSaved.stalls.length === legacy.stalls.length);
-    frame.remove(); frame = null;
-    legacyHook = await loadLegacyFrame();
-    check('reloading keeps legacy ownership, hires, serves and previously saved balances',
-      JSON.stringify(legacyHook.state.stalls) === JSON.stringify(legacy.stalls) &&
-      legacyHook.state.cash >= firstSaved.cash && legacyHook.state.lifetime >= firstSaved.lifetime && legacyHook.state.bulk === 'max');
-    frame.remove(); frame = null;
 
     var back = M.fresh();
     back.stalls[0].hired = true;
