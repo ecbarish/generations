@@ -32,7 +32,7 @@
   // LR7: the bedtime routine. At dusk, before the lullaby: tap the toothbrush (the baby brushes, foamy), then the cup (a big
   // drink), then say goodnight to each friend (the flowers, and the Pebblit when it's visiting): tap them and they wave and
   // yawn. Then the lullaby and sleep. Nothing to fail and never stuck: a step left alone for a few seconds does itself.
-  const ROUTINE = ['teeth', 'water', 'night'], ROUTINE_WAIT = 18, BRUSH_SECS = 1.8, DRINK_SECS = 1.4, DUSK_SECS = 16; let useRoutine = true;
+  const ROUTINE = ['teeth', 'water', 'night'], ROUTINE_WAIT = 9, BRUSH_SECS = 1.8, DRINK_SECS = 1.4, DUSK_SECS = 16; let useRoutine = true;
   const HATS = ['straw', 'party', 'crown', 'flowers', 'cowboy'], HAT_FLY = .6, HAT_TRIES = 3;
   const RAIN_SECS = 5, PUDDLE_SECS = 60, SPLASH_SECS = 1.3;
   // LR16: the meadow ball. Tap it and it rolls to the other side of the grass; the baby runs over and kicks. Every third kick is one happy thing. Nothing to miss. At night a tap only boings.
@@ -48,6 +48,9 @@
   const DOUGH_BABIES = 3, STAMP_SECS = .9, DOUGH_END_SECS = 2.6;
   // Toy pack. Block Tower never falls by itself. Barn Band notes stay at or under BAND_VOL.
   const BLOCKS = ['#ff6fa8', '#4fa6ff', '#ffd03a', '#5fd06a', '#b07aff'], DROP_SECS = .4, TUMBLE_SECS = 1.3, TUMBLE_MIN = 3;
+  // Shade and shine are fixed cousins of the block colours. Mixing them at draw time made colours the palette never listed.
+  const BLOCK_SHADE = ['#e84a5a', '#3f8ae8', '#f2b632', '#5fb34a', '#5a3fa8'];
+  const BLOCK_SHINE = ['#ff9a8a', '#9ad6f4', '#fff3a0', '#8acb6a', '#b8a8f0'];
   const BAND = ['drum', 'bells', 'horn'], BAND_BEAT = .36, BAND_VOL = .2;
   // LR10: the Little Wagon. Two cars (red and blue), two babies to load, three things along the valley and one colour gate
   const CARS = ['#e8483c', '#3f8ae8'], RIDE = { windmill: 1.05, pond: 1.75, woolies: 2.45, gate: 3.2, end: 4.1 }, RIDE_SPEED = .24, WAGON_END_SECS = 2.4;
@@ -192,7 +195,7 @@
       L.dough = { lr, cr, ty: H * .5, lump: { x: W * .42, y: H * .66 }, cutter: { x: W * .8, y: H * .64 }, barn: L.shed.barn,
         dr: Math.min(W * .09, H * .1), dots: (wide ? [.27, .47, .67, .87] : [.2, .4, .6, .8]).map(f => ({ x: W * f, y: H * .5 * .55 })) }; } // LR-POLISH: the four colour dots are pots now
     const placeKey = W + 'x' + H + 'x' + S, placed = placeCache[placeKey];
-      if (placed) { L.item = { ...placed.item }; L.puddles = placed.puddles.map(q => ({ ...q })); L.psign = { ...placed.psign }; } else { // LR-G2: two spots chosen on the grid: the bedtime bubble (clear of the hat basket and the bowl) and the two puddles
+      if (placed) { L.item = { ...placed.item }; L.puddles = placed.puddles.map(q => ({ ...q })); L.psign = { ...placed.psign }; if (placed.cloud) { L.cloud.x = placed.cloud.x; L.cloud.y = placed.cloud.y; } } else { // LR-G2: two spots chosen on the grid: the bedtime bubble (clear of the hat basket and the bowl) and the two puddles
       // (clear of the ball, the bush, the basket, the bowl and the sponge). The old spot is the preferred one and is kept
       // when it is already clear. Nothing here is saved; the chosen spots are only remembered in memory, per screen size.
       const sw = L.R * .8, B = L.basket, bb = L.bush, kids = [-1, 1].map(k => ballSpot(k)), bodyY = L.home.y - L.size * .9;
@@ -230,7 +233,7 @@
         L.puddles = [got[0] || left, got[1] || right]; }
       L.psign = packSignSpot();
       if (Object.keys(placeCache).length > 120) for (const k in placeCache) delete placeCache[k];
-      placeCache[placeKey] = { item: { ...L.item }, puddles: L.puddles.map(q => ({ ...q })), psign: { ...L.psign } }; }
+      placeCache[placeKey] = { item: { ...L.item }, puddles: L.puddles.map(q => ({ ...q })), psign: { ...L.psign }, cloud: { x: L.cloud.x, y: L.cloud.y } }; }
     layToys();
     if (st && old.U && (W !== oldW || H !== oldH)) {
       // Keep progress between the same places, rather than keeping obsolete canvas pixels.
@@ -255,20 +258,40 @@
   // One pack sign, placed after the five signs, the bubble and the puddles so those spots stay put.
   function packSignSpot() {
     const R = L.R, five = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'];
-    const box = (q, s, kind) => { const rs = R * s * .95, hx = kind === 'post' ? .08 : .95, y0 = kind === 'post' ? -.2 : -1.17, y1 = kind === 'post' ? 1.2 : .27; return { x0: q.x - rs * hx, x1: q.x + rs * hx, y0: q.y + rs * y0, y1: q.y + rs * y1 }; };
+    const box = (q, s, kind) => { const rs = R * s * .95, hx = kind === 'post' ? .08 : .95, y0 = kind === 'post' ? -.2 : -1.17, planted = kind === 'post' && five.some(n => L[n] === q), y1 = kind === 'post' ? (planted ? Math.max(1.2, (L.ground + L.U * .13 - q.y) / rs) : 1.2) : .27; return { x0: q.x - rs * hx, x1: q.x + rs * hx, y0: q.y + rs * y0, y1: q.y + rs * y1 }; };
     const faceOf = (q, s) => ({ x: q.x, y: q.y - R * s * .45 });
     const overlap = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
     const bubble = L.item, sun = { x: W * .22, y: H * .17, r: Math.max(L.U * .16, R) };
+    const fence = L.ground + L.U * .02;
+    const circ = (x, y, r) => ({ x0: x - r, x1: x + r, y0: y - r, y1: y + r });
     const head = { x: L.home.x + L.size * .55, y: L.home.y - L.size * 1.3 };
     const babyC = { x: L.home.x, y: L.home.y - L.size * .9 };
     const kBaby = Math.hypot(head.x - babyC.x, head.y - babyC.y) / (L.size * 1.2);
     const body = { x0: L.home.x - L.size * 1.05, x1: L.home.x + L.size * 1.15, y0: L.home.y - L.size * 1.7, y1: L.home.y };
     const bushBox = { x0: L.bush.x - R, x1: L.bush.x + R, y0: L.bush.y - R * 1.4, y1: L.bush.y + R * .2 };
     const basket = { x0: L.basket.x - L.basket.r, x1: L.basket.x + L.basket.r, y0: L.basket.y - L.basket.r, y1: L.basket.y + L.basket.r };
-    // A short wide meadow has no full-size gap that stays off the baby, so a slightly smaller sign may sit in the sky.
+    const meadow = [circ(L.bowl.x, L.bowl.y - R * .25, R * 1.15), circ(L.sponge.x, L.sponge.y, R * .8 * .75), circ(L.fhome.x, L.fhome.y - L.fz * .7, L.fz), basket, bushBox, body,
+      ...[-1, 1].map(k => { const q = ballSpot(k); return circ(q.x, q.y, q.r); }), ...L.flowers.map(fl => circ(fl.x, fl.y, fl.r))];
+    // The cloud and the pack sign are chosen together. The cloud stays in the sky and only slides sideways. A balloon overhead is tried before one that hangs beside the board.
+    const anchor = { side: 0 };
     const search = (s, minMul) => {
-      const rs = R * s * .95; let best = null, cost = Infinity;
-      for (let y = rs * 1.2; y < H - 4; y += 3) for (let x = rs * .7; x < W - rs * .7; x += 3) {
+      const rs = R * s * .95, yMax = fence - rs * .27 - 1; let best = null, cost = Infinity;
+      const ellHits = (p, rect) => { const nx = Math.max(rect.x0, Math.min(p.x, rect.x1)), ny = Math.max(rect.y0, Math.min(p.y, rect.y1)); return ((nx - p.x) / p.rx) ** 2 + ((ny - p.y) / p.ry) ** 2 <= 1; };
+      const sunPaint = { x: L.sun.x, y: L.sun.y, r: L.U * .09 };
+      const ellOnDisc = (ex, ey, rx, ry) => {
+        const rad = sunPaint.r + 2;
+        if (ex + rx < sunPaint.x - rad || ex - rx > sunPaint.x + rad || ey + ry < sunPaint.y - rad || ey - ry > sunPaint.y + rad) return false;
+        for (let yy = Math.floor(sunPaint.y - rad); yy <= Math.ceil(sunPaint.y + rad); yy++) for (let xx = Math.floor(sunPaint.x - rad); xx <= Math.ceil(sunPaint.x + rad); xx++) {
+          if ((xx + .5 - sunPaint.x) ** 2 + (yy + .5 - sunPaint.y) ** 2 > rad * rad) continue;
+          if (((xx + .5 - ex) / rx) ** 2 + ((yy + .5 - ey) / ry) ** 2 <= 1) return true;
+        }
+        return false;
+      };
+      const puffs = (x, y, cr) => [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]].map(([dx, dy, k]) => ({ x: x + dx * cr, y: y + dy * cr, rx: cr * k, ry: cr * k }));
+      const xTry = [];
+      for (let x = rs * .7; x < W - rs * .7; x += 3) xTry.push(x);
+      xTry.push(rs * .95 + 1); // the board's left edge, a step the 3 px grid can skip
+      for (let y = rs * 1.2; y <= yMax; y += 3) for (const x of xTry) {
         const q = { x, y }, f = faceOf(q, s), b = box(q, s, 'board'), post = box(q, s, 'post');
         if (b.x0 < 1 || b.x1 > W - 1 || b.y0 < 1 || b.y1 > H - 1) continue;
         const gap = Math.min(...five.map(n => Math.hypot(faceOf(L[n], 1).x - f.x, faceOf(L[n], 1).y - f.y)));
@@ -280,13 +303,154 @@
         const inside = head.x >= b.x0 && head.x <= b.x1 && head.y >= b.y0 && head.y <= b.y1;
         if (Math.hypot(head.x - f.x, head.y - f.y) / (R * s * 1.25) * (inside ? .4 : 1) <= kBaby) continue;
         if (overlap(b, body) || overlap(b, bushBox) || overlap(b, basket) || L.flowers.some(fl => Math.hypot(f.x - fl.x, f.y - fl.y) < fl.r + R * s * .55)) continue;
+        const gapBox = (a, b2) => { const dx = Math.max(a.x0 - b2.x1, b2.x0 - a.x1), dy = Math.max(a.y0 - b2.y1, b2.y0 - a.y1); if (dx < 0 && dy < 0) return Math.max(dx, dy); if (dx < 0) return dy; if (dy < 0) return dx; return Math.hypot(dx, dy); };
+        if (five.some(n => gapBox(b, box(L[n], 1, 'board')) < 6)) continue;
+        const cloud = L.cloud, cr = cloud.r, side = anchor.side;
+        const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
+        const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: L.ground + 2 };
+        const br = rs * .42, pad = Math.max(2, rs * .08);
+        const balloonX = side ? q.x + side * (rs * .95 + br) : q.x;
+        let balloonY = side ? b.y0 + br : b.y0 - br * 1.25, dropped = false;
+        // Only when a side balloon would sit on the sun: drop an overhead balloon onto the screen so the sign can stay large.
+        if (!side && (ellOnDisc(q.x + rs * .95 + br, b.y0 + br, br * .95, br * 1.25) || ellOnDisc(q.x - rs * .95 - br, b.y0 + br, br * .95, br * 1.25))) {
+          const rise = 1 - (balloonY - br * 1.05); if (rise > 0) { balloonY += rise; dropped = true; }
+        }
+        const balloon = side || dropped ? { x0: balloonX - br * .9, x1: balloonX + br * .9, y0: balloonY - br * 1.05, y1: balloonY + br * (dropped ? 1.15 : 1.05) } : { x0: q.x - br, x1: q.x + br, y0: b.y0 - br * 2.5, y1: b.y0 };
+        const stringHits = rect => {
+          if (!side) return overlap({ x0: q.x - pad, x1: q.x + pad, y0: balloon.y0, y1: b.y1 }, rect);
+          for (let t = 0; t <= 1; t += .12) { const px = q.x + (balloonX - q.x) * t, py = b.y0 + (balloonY - b.y0) * t; if (px >= rect.x0 - pad && px <= rect.x1 + pad && py >= rect.y0 - pad && py <= rect.y1 + pad) return true; }
+          return false;
+        };
+        if (b.y1 > fence - 1 || balloon.y0 < 1 || balloon.x0 < 1 || balloon.x1 > W - 1 || balloon.y1 > H - 1) continue;
+        if (meadow.some(p => overlap(b, p) || overlap(balloon, p) || stringHits(p))) continue;
+        const onCloud = rect => overlap(rect, faceBox) || overlap(rect, rainBox) || puffs(cloud.x, cloud.y, cr).some(puff => ellHits(puff, rect));
+        if (onCloud(b) || onCloud(balloon) || stringHits(faceBox) || stringHits(rainBox) || puffs(cloud.x, cloud.y, cr).some(puff => stringHits({ x0: puff.x - puff.rx, x1: puff.x + puff.rx, y0: puff.y - puff.ry, y1: puff.y + puff.ry }))) continue;
+        if (five.some(n => overlap(balloon, box(L[n], 1, 'board')) || overlap(balloon, box(L[n], 1, 'post')) || stringHits(box(L[n], 1, 'board')))) continue;
+        // The painted balloon, including its knot, stays off the sun's disc. A spot that only misses the sun's middle still steals taps.
+        if (ellOnDisc(balloonX, balloonY, br * .95, br * 1.25)) continue;
+        if (!ownsBoard(q, s)) continue;
         const weather = Math.hypot(f.x - sun.x, f.y - sun.y) < sun.r + R * s * .35 || Math.hypot(f.x - L.cloud.x, f.y - L.cloud.y) < L.cloud.r + R * s * .35;
-        const c = (y > L.ground ? 70 : 0) + (weather ? 24 : 0) + (s < 1 ? 8 : 0) + Math.abs(x - W * .58) * .15 + y * .04;
-        if (c < cost) { cost = c; best = { x, y, s }; }
+        const c = (y > L.ground ? 70 : 0) + (weather ? 80 : 0) + (s < 1 ? 8 : 0) + (side ? 2 : 0) + Math.abs(x - W * .58) * .15 + y * .04;
+        if (c < cost) { cost = c; best = { x, y, s, side }; }
       }
       return best;
     };
-    return search(1, 2.5) || search(1, 1.5) || search(.72, 1.5) || search(.6, 1.4) || { x: Math.min(W - R, W * .62), y: Math.max(R * 1.2, 8), s: 1 };
+    // Every painted point of the board has to open the pack, and the sun and the cloud keep their own middles.
+    function ownsBoard(q, s) {
+      const rs = R * s * .95, reach = R * 1.25 * s, br = R * .95;
+      const spots = [['psign', q.x, q.y - R * s * .45, reach, q.x, q.y, rs],
+        ...five.map(n => { const b = L[n]; return [n, b.x, b.y - R * .45, R * 1.25, b.x, b.y, br]; }),
+        ['sun', sun.x, sun.y, sun.r], ['cloud', L.cloud.x, L.cloud.y, L.cloud.r * 1.35],
+        ['bush', L.bush.x, L.bush.y - R * .4, R * 1.4], ['bowl', L.bowl.x, L.bowl.y, R * 1.2],
+        ['basket', L.basket.x, L.basket.y - R * .15, R * 1.05], ['baby', L.home.x, L.home.y - L.size * .9, L.size * 1.2],
+        ['sponge', L.sponge.x, L.sponge.y, R * 1.1],
+        ...L.flowers.map((fl, i) => ['flower' + i, fl.x, fl.y, fl.r * 1.15]),
+        ...L.puddles.map((p, i) => ['puddle' + i, p.x, p.y, p.r]),
+        ...[-1, 1].map(k => { const b = ballSpot(k); return ['ball', b.x, b.y, b.r * 1.2]; })];
+      const winner = (x, y) => {
+        let best = null, bk = 1;
+        for (const row of spots) {
+          let k = Math.hypot(x - row[1], y - row[2]) / row[3];
+          if (row.length > 4 && Math.abs(x - row[4]) <= row[6] * .95 && y >= row[5] - row[6] * 1.17 && y <= row[5] + row[6] * .27) k *= .4;
+          if (k <= bk) { bk = k; best = row[0]; }
+        }
+        return best;
+      };
+      for (let i = 0; i <= 18; i++) for (let j = 0; j <= 14; j++) {
+        if (winner(q.x - rs * .95 + i * rs * 1.9 / 18, q.y - rs * 1.17 + j * rs * 1.44 / 14) !== 'psign') return false;
+      }
+      if (winner(L.cloud.x, L.cloud.y) !== 'cloud' || winner(sun.x, sun.y) !== 'sun') return false;
+      const paintR = L.U * .09;
+      for (let yy = Math.floor(L.sun.y - paintR); yy <= Math.ceil(L.sun.y + paintR); yy++) for (let xx = Math.floor(L.sun.x - paintR); xx <= Math.ceil(L.sun.x + paintR); xx++) {
+        if ((xx + .5 - L.sun.x) ** 2 + (yy + .5 - L.sun.y) ** 2 > paintR * paintR) continue;
+        if (winner(xx + .5, yy + .5) === 'psign') return false;
+      }
+      return true;
+    }
+    // One sky step. The cloud never drops below its home height or below the top sign row. It may slide sideways. The pack sign hangs beside the cloud only when no overhead balloon fits at that size.
+    const tall = H >= W * 1.25, homeX = L.cloud.x, homeY = L.cloud.y, cr0 = L.cloud.r;
+    const rowY = Math.min(...five.map(n => L[n].y));
+    const skyFloor = Math.max(...five.filter(n => L[n].y <= rowY + R * .35).map(n => box(L[n], 1, 'board').y1));
+    const yCloud = Math.min(homeY, skyFloor);
+    const faceRect = (x, y) => ({ x0: x - cr0 * .55, x1: x + cr0 * .55, y0: y - cr0 * .25, y1: y + cr0 * .65 });
+    const hitCirc = (rect, c) => { const nx = Math.max(rect.x0, Math.min(c.x, rect.x1)), ny = Math.max(rect.y0, Math.min(c.y, rect.y1)); return (nx - c.x) ** 2 + (ny - c.y) ** 2 <= c.r * c.r; };
+    const ellHits = (p, rect) => { const nx = Math.max(rect.x0, Math.min(p.x, rect.x1)), ny = Math.max(rect.y0, Math.min(p.y, rect.y1)); return ((nx - p.x) / p.rx) ** 2 + ((ny - p.y) / p.ry) ** 2 <= 1; };
+    const puffsAt = (x, y) => [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]].map(([dx, dy, k]) => ({ x: x + dx * cr0, y: y + dy * cr0, rx: cr0 * k, ry: cr0 * k }));
+    const boards = () => five.map(n => box(L[n], 1, 'board'));
+    const posts = () => five.map(n => box(L[n], 1, 'post'));
+    const puddleRects = L.puddles.map(p => ({ x0: p.x - p.r, x1: p.x + p.r, y0: p.y - p.r, y1: p.y + p.r }));
+    const faceOpen = (x, y) => {
+      const face = faceRect(x, y), lk = lockCanvas();
+      if (face.x0 < 0 || face.x1 > W || face.y0 < 0 || face.y1 > H) return false;
+      const blockers = boards().concat(posts(), meadow, puddleRects, lk ? [lk] : []);
+      return !blockers.some(r => overlap(face, r)) && !hitCirc(face, { x: sun.x, y: sun.y, r: L.U * .09 });
+    };
+    const bodyClear = (x, y, extra) => {
+      const rects = boards().concat(extra || []); const lk = lockCanvas(); if (lk) rects.push(lk);
+      return !puffsAt(x, y).some(puff => rects.some(rect => ellHits(puff, rect)));
+    };
+    const skyClear = (x, y) => y <= skyFloor + .01 && y <= homeY + .01 && x - cr0 * 1.3 >= 1 && x + cr0 * 1.3 <= W - 1 && Math.hypot(x - sun.x, y - sun.y) >= cr0 * 1.3 + L.U * .13 && faceOpen(x, y);
+    const cloudOk = (x, y) => skyClear(x, y) && bodyClear(x, y);
+    const xs = [];
+    const pushX = (x, ok) => { if (!xs.some(v => Math.abs(v - x) < .5) && ok(x, yCloud)) xs.push(x); };
+    const fillX = ok => { pushX(homeX, ok); for (let x = cr0 * 1.3 + 1; x <= W - cr0 * 1.3 - 1; x += Math.max(4, cr0 * .2)) pushX(x, ok); };
+    fillX(cloudOk);
+    // A short screen can have sign boards across the whole sky. The face still has to stay clear. The body stays off the boards wherever that is possible.
+    if (!xs.length) fillX(skyClear);
+    xs.sort((a, b) => Math.abs(a - homeX) - Math.abs(b - homeX));
+    const kiteOf = (q, s, side) => {
+      if (!side) return null;
+      const rs = R * s * .95, br = rs * .42, top = q.y - rs * 1.17, bx = q.x + side * (rs * .95 + br), by = top + br;
+      return { x0: bx - br * .9, x1: bx + br * .9, y0: by - br * 1.05, y1: by + br * 1.05 };
+    };
+    let placed = null;
+    const muls = tall ? [2.5, 2, 1.8] : [2.5, 1.5, 1.4];
+    const scales = [1, .9, .85, .8, .78, .75, .72, .6, .55, .48, .4, .34, .28];
+    const accept = (x, y, hit, s, side) => {
+      const kite = kiteOf(hit, s, side), face = faceRect(x, y);
+      return bodyClear(x, y, [box(hit, s, 'board')].concat(kite ? [kite] : [])) && !overlap(face, box(hit, s, 'board')) && !(kite && overlap(face, kite));
+    };
+    const tryAt = (xList, y) => {
+      for (const s of scales) for (const mul of muls) for (const x of xList) for (const side of [0, 1, -1]) {
+        L.cloud.x = x; L.cloud.y = y; anchor.side = side;
+        const hit = search(s, mul);
+        if (hit && accept(x, y, hit, s, side)) return hit;
+      }
+      return null;
+    };
+    placed = tryAt(xs, yCloud);
+    // The reviewed sizes all have a clear sky slot. A shorter screen can have none: slide further, still at sky height, before giving up.
+    if (!placed) {
+      const wide = [];
+      const pushWide = x => { if (x - cr0 * 1.3 >= 1 && x + cr0 * 1.3 <= W - 1 && !wide.some(v => Math.abs(v - x) < .5)) wide.push(x); };
+      pushWide(homeX);
+      for (let x = cr0 * 1.3 + 1; x <= W - cr0 * 1.3 - 1; x += Math.max(4, cr0 * .2)) pushWide(x);
+      wide.sort((a, b) => Math.abs(a - homeX) - Math.abs(b - homeX));
+      placed = tryAt(wide, yCloud);
+    }
+    anchor.side = 0;
+    if (!placed) { L.cloud.x = xs[0] || homeX; L.cloud.y = yCloud; }
+    return placed || skySign(tall ? 1.8 : 1.4);
+    function skySign(minMul) {
+      const s = .28, rs = R * s * .95, br = rs * .42, y = fence - rs * .27 - 2;
+      const cloud = L.cloud, cr = cloud.r;
+      const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
+      const bodyBox = { x0: cloud.x - cr * 1.35, x1: cloud.x + cr * 1.35, y0: cloud.y - cr * 1.05, y1: cloud.y + cr * .95 };
+      const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: fence };
+      for (const xf of [.08, .14, .22, .3, .5, .7, .78, .88, .94]) {
+        const x = Math.max(rs * 1.2, Math.min(W - rs * 1.2, W * xf)), q = { x, y }, b = box(q, s, 'board');
+        const balloon = { x0: x - br, x1: x + br, y0: b.y0 - br * 2.5, y1: b.y0 };
+        const f = faceOf(q, s);
+        const gap = Math.min(...five.map(n => Math.hypot(faceOf(L[n], 1).x - f.x, faceOf(L[n], 1).y - f.y)));
+        if (gap < R * minMul - 1e-6) continue;
+        if (balloon.y0 < 1 || b.y1 > fence - 1) continue;
+        if (five.some(n => overlap(b, box(L[n], 1, 'board')) || overlap(b, box(L[n], 1, 'post')) || overlap(balloon, box(L[n], 1, 'board')))) continue;
+        if ([b, balloon].some(box2 => overlap(box2, faceBox) || overlap(box2, bodyBox) || overlap(box2, rainBox))) continue;
+        if (meadow.some(p => overlap(b, p) || overlap(balloon, p))) continue;
+        return { x, y, s };
+      }
+      return { x: Math.max(rs * 1.4, 8), y: Math.min(y, fence - rs), s };
+    }
   }
   function layToys() {
     const barn = L.shed.barn, tall = H >= W * 1.05;
@@ -298,8 +462,8 @@
       : [{ id: 'tower', x: W * .3, y: H * .56, w: bw, h: bh }, { id: 'band', x: W * .72, y: H * .56, w: bw, h: bh }] };
     const bs = Math.min(W * .15, H * .13), fy = H * .84;
     L.tower = { bs, fy, x: W * .46, baby: { x: W * .18, y: fy, z: Math.min(W * .11, H * .09) }, tray: [0, 1, 2].map(i => ({ x: W * .82, y: fy - bs * (.55 + i * 1.25) })), barn };
-    const z = Math.min(W * .13, H * .15), by = H * .72, br = Math.min(W * .12, H * .11);
-    L.band = { z, by, br, babies: [.22, .5, .78].map(f => ({ x: W * f, y: by })), stick: { x: W * .5, y: Math.min(H * .9, by + z * 1.15) }, barn };
+    const z = Math.min(W * .14, H * .16), feet = H * .88, br = Math.min(W * .12, H * .11);
+    L.band = { z, by: feet, floor: Math.max(H * .58, feet - z * 1.95), br, babies: [.22, .5, .78].map(f => ({ x: W * f, y: feet })), stick: { x: W * .36, y: Math.min(H - 4, feet + z * .45) }, barn };
   }
   const busy = () => !!(st.baby.act || st.baby.tx !== null);
   const near = (p, q, r) => Math.hypot(p.x - q.x, p.y - q.y) <= r;
@@ -444,10 +608,11 @@
     if (st.place === 'dough') { const D = st.dough, V = L.dough; if (D.phase !== 'play' || D.stamp) return null;
       return D.flat < .5 && !D.stamps ? { name: 'lump', ...V.lump, r: V.lr * 1.2 } : { name: 'cutter', ...V.cutter, r: V.cr * 1.3 }; }
     if (st.place === 'pack') { const i = L.pack.cards.findIndex(c => !st.used[c.id]); const c = L.pack.cards[i < 0 ? 0 : i]; return { name: c.id, x: c.x, y: c.y, r: Math.min(c.w, c.h) * .35 }; }
-    if (st.place === 'tower') { const T2 = st.tower, V = L.tower; if (T2.tumble) return null;
-      return T2.stack.length >= 5 ? { name: 'tbaby', x: V.baby.x, y: V.baby.y - V.baby.z * 1.2, r: V.baby.z * 1.3 } : { name: 'tray0', ...V.tray[0], r: V.bs * .75 }; }
+    if (st.place === 'tower') { const T2 = st.tower, V = L.tower, cam = towerCam(); if (T2.tumble) return null;
+      return T2.stack.length >= 5 ? { name: 'tbaby', x: V.baby.x, y: V.baby.y + cam - V.baby.z * 1.2, r: V.baby.z * 1.3 } : { name: 'tray0', x: V.tray[0].x, y: V.tray[0].y + cam, r: V.bs * .75 }; }
     if (st.place === 'band') { const B = st.band, V = L.band; if (B.song) return null; const i = BAND.findIndex((k, j) => !B.played[j]);
-      return i >= 0 ? { name: BAND[i], x: V.babies[i].x, y: V.babies[i].y - V.z * .6, r: V.z * 1.3 } : { name: 'stick', ...V.stick, r: V.br * 1.2 }; }
+      if (i < 0) return { name: 'stick', x: V.stick.x, y: V.stick.y - V.br * .55, r: Math.min(V.br * .45, V.z * .35) };
+      const q = V.babies[i], ear = q.y - V.z * 1.9; return { name: BAND[i], x: q.x, y: ear - V.z * .5, r: V.z * .32 }; }
     if (st.place === 'kitchen') return st.kitchen.phase === 'idle' ? { name: 'food0', x: L.kitchen.foods[0].x, y: L.kitchen.foods[0].y, r: L.kitchen.fr * 1.25 } : null;
     if (st.place === 'shed') { if (st.shed.doneAt !== null) return null; const k = PARTS.find(q => !(q in st.shed.parts)); const z = L.shed.z;
       return k ? { name: k, ...partPoint(k), r: z * .55 } : null; }
@@ -602,22 +767,28 @@
   function enterTower() { if (st.mode !== 'play' || st.place !== 'pack') return; st.place = 'tower'; st.used.tower = 1; st.sponge.drag = null;
     st.tower = { stack: [], next: 0, tumble: null, wig: 0, giggle: -9, tumbles: 0 }; sfx('door'); }
   function leaveTower(home) { st.tower = null; st.place = home ? 'ranch' : 'pack'; sfx('door'); }
-  function stackBlock() { const V = L.tower, n = st.tower ? st.tower.stack.length : 0, room = V.fy - H * .3; return n < 1 || n * V.bs <= room ? V.bs : room / n; }
-  const towerCam = () => { const V = L.tower, T2 = st.tower; if (!T2 || !T2.stack.length) return 0; const over = T2.stack.length * stackBlock() - (V.fy - H * .3); return over > 1e-4 ? over : 0; };
-  function addBlock(i) { const T2 = st.tower, V = L.tower; if (T2.tumble) { sfx('note'); return; }
-    const c = (T2.next + i) % BLOCKS.length; T2.next = (T2.next + 1) % BLOCKS.length; T2.stack.push({ c, at: st.t, from: V.tray[i], dx: (Math.random() - .5) * V.bs * .12, landed: false }); sfx('pick', c % 4); }
+  function stackBlock() { const V = L.tower, n = st.tower ? st.tower.stack.length : 0; if (n < 1) return V.bs; const room = V.fy - H * .3; return Math.max(V.bs / 2, Math.min(V.bs, room / n)); }
+  const camMax = () => Math.max(0, H - L.tower.fy - L.tower.bs / 2);
+  function stackCap() { return Math.max(1, Math.floor((L.tower.fy + camMax() - 1) / (L.tower.bs / 2))); }
+  const towerCam = () => { const V = L.tower, T2 = st.tower; if (!T2) return 0; if (T2.tumble) return T2.tumble.cam || 0; if (!T2.stack.length) return 0;
+    const over = T2.stack.length * stackBlock() - (V.fy - H * .3); return over > 1e-4 ? Math.min(over, camMax()) : 0; };
+  function tumbleReact(p) { const T2 = st.tower; T2.wig = 1; fx('spark', p.x, p.y); fx('note', p.x, p.y - 6); sfx('note'); }
+  function addBlock(i) { const T2 = st.tower, V = L.tower; if (T2.tumble || T2.stack.length >= stackCap()) return tumbleReact(V.tray[i] || { x: V.x, y: V.fy });
+    const c = (T2.next + i) % BLOCKS.length; T2.next = (T2.next + 1) % BLOCKS.length;
+    const block = { c, at: st.t, from: { x: V.tray[i].x, y: V.tray[i].y }, dx: (Math.random() - .5) * V.bs * .12, landed: false };
+    T2.stack.push(block); block.from.y += towerCam(); sfx('pick', c % 4); }
   function knock() { const T2 = st.tower, V = L.tower; T2.giggle = st.t; sfx('giggle'); if (T2.tumble || !T2.stack.length) return;
-    const bs = stackBlock(), cam = towerCam(); T2.tumble = { at: st.t, bs, blocks: T2.stack.map((b, k) => ({ c: b.c, x: V.x + b.dx, y: V.fy - (k + .5) * bs + cam, vx: (Math.random() * .8 + .3) * bs * 3 * (k % 2 ? 1 : -.4) + bs, vy: -bs * (2 + Math.random() * 2), a: 0, va: (Math.random() - .5) * 8 })) };
-    if (T2.stack.length >= TUMBLE_MIN) { st.acts++; T2.tumbles++; } T2.stack = []; sfx('rainbow'); for (let j = 0; j < 5; j++) fx('heart', V.baby.x + (j - 2) * V.baby.z * .4, V.baby.y - V.baby.z * 2); }
-  function towerTap(p) { const T2 = st.tower, V = L.tower, bs = stackBlock(), cam = towerCam();
+    const bs = stackBlock(), cam = towerCam(); T2.tumble = { at: st.t, bs, cam, blocks: T2.stack.map((b, k) => ({ c: b.c, x: V.x + b.dx, y: V.fy + cam - (k + .5) * bs, vx: (Math.random() * .8 + .3) * bs * 3 * (k % 2 ? 1 : -.4) + bs, vy: -bs * (2 + Math.random() * 2), a: 0, va: (Math.random() - .5) * 8 })) };
+    if (T2.stack.length >= TUMBLE_MIN) { st.acts++; T2.tumbles++; } T2.stack = []; sfx('rainbow'); for (let j = 0; j < 5; j++) fx('heart', V.baby.x + (j - 2) * V.baby.z * .4, V.baby.y + cam - V.baby.z * 2); }
+  function towerTap(p) { const T2 = st.tower, V = L.tower, cam = towerCam();
     if (near(p, V.barn, V.barn.r * 1.15)) return leaveTower(false);
-    const i = V.tray.findIndex(q => near(p, q, V.bs * .75)); if (i >= 0) return addBlock(i);
-    if (Math.hypot(p.x - V.baby.x, p.y - (V.baby.y - V.baby.z * 1.1)) <= V.baby.z * 1.6) return knock();
-    if (T2.stack.length && Math.abs(p.x - V.x) <= bs * .8 && p.y <= V.fy + cam && p.y >= V.fy - (T2.stack.length + .5) * bs + cam) { T2.wig = 1; sfx('clop'); return; }
-    fx('spark', p.x, p.y); sfx('note'); }
+    if (Math.hypot(p.x - V.baby.x, p.y - (V.baby.y + cam - V.baby.z * 1.1)) <= V.baby.z * 1.6) return knock();
+    if (T2.tumble) return tumbleReact(p);
+    let best = 0, bd = Infinity; V.tray.forEach((q, i) => { const d = Math.hypot(p.x - q.x, p.y - (q.y + cam)); if (d < bd) { bd = d; best = i; } });
+    addBlock(best); }
   function towerUpdate(dt) { const T2 = st.tower, V = L.tower; T2.wig = Math.max(0, T2.wig - dt * 2.5);
     for (const b of T2.stack) if (!b.landed && st.t - b.at >= DROP_SECS) { b.landed = true; sfx('clop'); sfx('boing'); }
-    const tb = T2.tumble; if (tb) { for (const b of tb.blocks) { b.vy += tb.bs * 9 * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.a += b.va * dt; if (b.y > V.fy - tb.bs * .5) { b.y = V.fy - tb.bs * .5; b.vy *= -.35; b.vx *= .7; b.va *= .6; } }
+    const tb = T2.tumble; if (tb) { const floor = V.fy + (tb.cam || 0) - tb.bs * .5; for (const b of tb.blocks) { b.vy += tb.bs * 9 * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.a += b.va * dt; if (b.y > floor) { b.y = floor; b.vy *= -.35; b.vx *= .7; b.va *= .6; } }
       if (st.t - tb.at >= TUMBLE_SECS) T2.tumble = null; } }
   let bandLoud = 0;
   function btone(f, dur, at, vol, type, slide) { const v = Math.min(vol, BAND_VOL); bandLoud = Math.max(bandLoud, v); tone(f, dur, at, v, type, slide); }
@@ -685,6 +856,18 @@
     ell(c.x - r * .3, y + r * .1, r * .07, r * .09, '#5a6a80'); ell(c.x + r * .3, y + r * .1, r * .07, r * .09, '#5a6a80'); ell(c.x, y + r * .35, r * .12, r * (rain ? .1 : .05), '#8a8aa0'); cx.globalAlpha = 1;
     if (rain) { cx.strokeStyle = 'rgba(120,170,230,.8)'; cx.lineWidth = Math.max(1.5, L.U * .006); const top = y + r * .5, bot = L.ground + L.U * .25, span = r * 2.4, m = reduce() ? .4 : 1;
       cx.beginPath(); for (let i = 0; i < 26; i++) { const x = c.x - span / 2 + (i * 37.7 % span), k = ((st.t * 1.6 * m + i * .137) % 1), yy = top + k * (bot - top); cx.moveTo(R(x), R(yy)); cx.lineTo(R(x - L.U * .006), R(yy + L.U * .03)); } cx.stroke(); } }
+  function drawSignPosts(g) { // the five picture-signs: each post runs down behind the fence, and the pack sign has none
+    const foot = L.ground + L.U * .13;
+    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g);
+    const drawn = [];
+    for (const name of ['sign', 'wsign', 'ksign', 'tsign', 'dsign']) {
+      const s = L[name], r = L.R * .95, bob = hintBob(name), top = s.y - r * .2 - bob, bot = Math.max(s.y + r * 1.2, foot);
+      const rect = { name, x: R(s.x - r * .08), y: R(top), w: Math.max(2, R(r * .16)), h: R(bot - top) };
+      drawn.push(rect);
+      cx.fillRect(rect.x, rect.y, rect.w, rect.h);
+    }
+    L.postRects = drawn;
+  }
   function drawPuddles() { for (const q of st.puddles) { const P = L.puddles[q.i], dry = clamp(1 - (st.t - q.at - (PUDDLE_SECS - 6)) / 6, 0, 1), grow = clamp((st.t - q.at) / .6, 0, 1), k = dry * grow, sp2 = st.t - q.splash, bob = hintBob('puddle') && q.i === 0 ? hintBob('puddle') * .5 : 0;
     ell(P.x, P.y, P.r * k, P.r * .36 * k, '#5aa8e0'); ell(P.x - P.r * .2, P.y - P.r * .06, P.r * .5 * k, P.r * .1 * k, '#a8dcf8');
     if (bob) { cx.strokeStyle = 'rgba(255,255,255,.7)'; cx.lineWidth = 2; cx.beginPath(); cx.ellipse(R(P.x), R(P.y), R(P.r * k + bob), R(P.r * .36 * k + bob * .4), 0, 0, 7); cx.stroke(); }
@@ -900,7 +1083,6 @@
     for (const [dx, h] of [[-.5, .5], [.1, .75], [.55, .4]]) { cx.fillStyle = col; cx.fillRect(R(x + dx * r), R(y - r * .3), Math.max(2, R(r * .16)), R(r * h)); ell(x + dx * r + r * .08, y - r * .3 + r * h, r * .1, r * .1, col); } }
   function drawSign(g) {
     const s = L.sign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.sign.shake * r * .06;
-    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2), Math.max(2, R(r * .16)), R(r * 1.4)); // the post
     cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - hintBob('sign'))); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
     cx.fillStyle = pick3('#f4e2c0', '#e8c890', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
     PAINT.forEach((c, i) => { cx.fillStyle = g > .6 ? mixHex(c, '#20203a', .6) : c; const x = -r * .66 + i * r * .44; cx.fillRect(R(x - r * .17), R(-r * .62), R(r * .34), R(r * (.35 + (i % 2) * .25))); ell(x, -r * .62 + r * (.35 + (i % 2) * .25), r * .17, r * .14, cx.fillStyle); });
@@ -911,7 +1093,6 @@
     ell(x, y, r * .22, r * .22, '#f2c14e'); }
   function drawWheelSign(g) { // LR10: a picture-sign with a wagon wheel and a red car
     const s = L.wsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.wsign.shake * r * .06, bob = hintBob('wsign');
-    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(r * 1.4 + bob));
     cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
     cx.fillStyle = pick3('#d8f0c8', '#e8d890', '#3a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
     cx.fillStyle = g > .6 ? mixHex(CARS[0], '#20203a', .6) : CARS[0]; cx.fillRect(R(-r * .7), R(-r * .3), R(r * 1.1), R(r * .45));
@@ -951,12 +1132,12 @@
       ell(gx, V.gy - z * 1.8, z * .26, z * .26, col); ell(gx + z * 1.4, V.gy - z * 1.8, z * .26, z * .26, col); }
     q = { x: (RIDE.end - w.x) * W + V.puller.x + z * 2 }; if (q.x < W + z * 3) { cx.fillStyle = '#c8453a'; cx.fillRect(R(q.x), R(V.gy - z * 1.6), R(z * 1.8), R(z * 1.5)); cx.beginPath(); cx.moveTo(R(q.x - z * .2), R(V.gy - z * 1.55)); cx.lineTo(R(q.x + z * .9), R(V.gy - z * 2.4)); cx.lineTo(R(q.x + z * 2), R(V.gy - z * 1.55)); cx.fillStyle = '#8a2a24'; cx.fill(); cx.fillStyle = '#fff4e0'; cx.fillRect(R(q.x + z * .6), R(V.gy - z * .9), R(z * .6), R(z * .8)); } // the barn at the end of the road
     // the puller: a big gentle creature, then the two cars with their babies
-    const P = V.puller, bounce = w.phase === 'ride' ? Math.abs(Math.sin(st.t * 6)) * z * .08 * m : 0, wig = Math.sin(st.t * 30) * w.wiggle * z * .05;
-    shadow(P.x, V.gy + z * .1, z * .9); cx.fillStyle = '#6a4a36'; for (const lx of [-.5, -.2, .25, .55]) cx.fillRect(R(P.x + lx * z), R(P.y + z * .3 - bounce), R(z * .18), R(z * .55 + bounce));
-    ell(P.x + wig, P.y - bounce, z * .85, z * .55, '#a87a54'); ell(P.x + z * .75 + wig, P.y - z * .45 - bounce, z * .42, z * .38, '#a87a54'); ell(P.x + z * .95 + wig, P.y - z * .32 - bounce, z * .2, z * .14, '#e8c8a8');
-    ell(P.x + z * .78 + wig, P.y - z * .55 - bounce, z * .06, z * .07, '#2a1a18'); ell(P.x + z * .55 + wig, P.y - z * .82 - bounce, z * .14, z * .08, '#8a6a4a');
-    cx.fillStyle = '#5a3a24'; cx.fillRect(R(V.cars[1].x + z * .9), R(P.y - z * .05), R(P.x - z * .8 - V.cars[1].x - z * .9), Math.max(1, R(z * .08)));
-    const hint2 = hint();
+    const hint2 = hint(), pullBob = hint2 && hint2.name === 'wagon' && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * z * .1 : 0;
+    const P = V.puller, bounce = w.phase === 'ride' ? Math.abs(Math.sin(st.t * 6)) * z * .08 * m : 0, wig = Math.sin(st.t * 30) * w.wiggle * z * .05, py = P.y - pullBob;
+    shadow(P.x, V.gy + z * .1, z * .9); cx.fillStyle = '#6a4a36'; for (const lx of [-.5, -.2, .25, .55]) cx.fillRect(R(P.x + lx * z), R(py + z * .3 - bounce), R(z * .18), R(z * .55 + bounce));
+    ell(P.x + wig, py - bounce, z * .85, z * .55, '#a87a54'); ell(P.x + z * .75 + wig, py - z * .45 - bounce, z * .42, z * .38, '#a87a54'); ell(P.x + z * .95 + wig, py - z * .32 - bounce, z * .2, z * .14, '#e8c8a8');
+    ell(P.x + z * .78 + wig, py - z * .55 - bounce, z * .06, z * .07, '#2a1a18'); ell(P.x + z * .55 + wig, py - z * .82 - bounce, z * .14, z * .08, '#8a6a4a');
+    cx.fillStyle = '#5a3a24'; cx.fillRect(R(V.cars[1].x + z * .9), R(py - z * .05), R(P.x - z * .8 - V.cars[1].x - z * .9), Math.max(1, R(z * .08)));
     V.cars.forEach((c, i) => { const cw = wig * (i ? -1 : 1), cheer = st.t - w.cheer < 1.4 && (w.gate.big ? true : i === w.gate.col) ? Math.abs(Math.sin((st.t - w.cheer) * 9)) * z * .2 * m : 0, hb = hint2 && hint2.name === 'car' + i && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * z * .08 : 0;
       if (i) cx.fillRect(R(V.cars[0].x + z * .9), R(c.y), R(c.x - V.cars[0].x - z * 1.8), Math.max(1, R(z * .08)));
       const k = st.t - w.hop[i], ride = w.aboard[i] && k > .45, by = c.y - z * .55 - bounce - cheer - hb;
@@ -980,7 +1161,6 @@
       for (const [dx, dy] of [[-.3, -.3], [.2, -.45], [.4, -.1]]) ell(x + dx * r, y + dy * r, r * .08, r * .08, '#6cc070'); } }
   function drawKSign(g) { // LR11: a picture-sign with a bowl of berries
     const s = L.ksign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.ksign.shake * r * .06, bob = hintBob('ksign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(r * 1.4 + bob));
     cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
     cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
     for (const [dx, dy] of [[-.3, -.08], [0, -.18], [.3, -.08], [-.15, -.3], [.15, -.3]]) ell(dx * r, dy * r, r * .17, r * .17, dk('#5a3fa8'));
@@ -988,7 +1168,6 @@
     ell(0, -r * .05, r * .65, r * .1, dk('#7cc0f4')); cx.restore(); }
   function drawDSign(g) { // LR17: a picture-sign with a red barn door
     const s = L.dsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.dsign.shake * r * .06, bob = hintBob('dsign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(Math.max(r * 1.4, L.stack ? 0 : L.ground + L.U * .04 - s.y + r * .2) + bob));
     cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
     cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
     cx.fillStyle = dk('#c8453a'); cx.fillRect(R(-r * .45), R(-r * .5), R(r * .9), R(r * 1.04)); cx.strokeStyle = dk('#fff4e0'); cx.lineWidth = Math.max(1.5, r * .09);
@@ -1036,7 +1215,6 @@
     drawFx(U); }
   function drawTSign(g) { // LR18: a picture-sign with a round lump of dough and a rolling pin
     const s = L.tsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.tsign.shake * r * .06, bob = hintBob('tsign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
-    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(Math.max(r * 1.4, L.stack ? 0 : L.ground + L.U * .04 - s.y + r * .2) + bob));
     cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
     cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
     ell(-r * .2, r * .05, r * .42, r * .36, dk('#f0a070')); ell(-r * .3, -r * .08, r * .12, r * .08, dk('#ffd0b0'));
@@ -1058,10 +1236,7 @@
     ell(q.x, q.y + V.lr * .22, rx * 1.05, V.lr * .16, 'rgba(90,50,20,.25)'); ell(q.x, cy, rx, ry, col); ell(q.x - rx * .35, cy - ry * .45, rx * .22, Math.max(1, ry * .22), mixHex(col, '#ffffff', .5));
     for (let i = 0; i < 3; i++) { const a = D.spin + i * 2.1; ell(q.x + Math.cos(a) * rx * .55, cy + Math.sin(a) * ry * .4, rx * .06, Math.max(1, ry * .06), mixHex(col, '#000000', .12)); }
     const zCookie = R(V.cr * .9), base = cy + ry * .2;
-    // mixHex only parses #rrggbb. col is already rgb(), so mix the dough hex with white twice (0.35, then 0.15).
-    const doughHex = st.paint && st.paint.body !== undefined ? PAINT[st.paint.body] : '#e06a32';
-    const doughBaby = mixHex(doughHex, '#ffffff', 1 - .65 * .85);
-    if (D.stamp && D.stamp.hit && st.t - D.stamp.at < STAMP_SECS) drawDoughBaby(R(q.x), R(base), zCookie, doughBaby, 0);
+    if (D.stamp && D.stamp.hit && st.t - D.stamp.at < STAMP_SECS) drawDoughBaby(R(q.x), R(base), zCookie, col, 0);
     // the cutter: a blue baby-shaped cutter with a red knob; it hops over, presses, and hops back
     // pressed, its ring centre sits on the cookie's body centre
     let cxp = V.cutter.x, cyp = V.cutter.y - bob('cutter'), pressed = false;
@@ -1076,7 +1251,7 @@
     const hopAt = [];
     for (const h of D.hops) { const e = st.t - h.at, k = e / 3, lane = h.front ? R(V.lr * .35) : 0;
       const x = R(q.x + h.dir * k * W * .7), y = R(base + lane - Math.abs(Math.sin(e * 6)) * V.lr * .6 * m);
-      hopAt.push({ dir: h.dir, x, y }); drawDoughBaby(x, y, zCookie, doughBaby, Math.abs(Math.cos(e * 6)) < .3 ? .6 : 0); }
+      hopAt.push({ dir: h.dir, x, y }); drawDoughBaby(x, y, zCookie, col, Math.abs(Math.cos(e * 6)) < .3 ? .6 : 0); }
     D.pose = { z: zCookie, pressed, cxp, cyp, line: Math.max(2, R(V.cr * .16)), ringY: R(cyp - V.cr * .25), bodyY: R(R(base) - .4 * zCookie), hops: hopAt };
     if (D.phase === 'done') for (let i = 0; i < 6; i++) { const a = st.t * 1.5 + i; ell(q.x + Math.cos(a) * V.lr * 1.6, q.y - V.lr * .6 + Math.sin(a) * V.lr * .6, U * .01, U * .01, '#fff3a0'); }
     drawHint();
@@ -1158,7 +1333,8 @@
     for (const part of PARTS) { const col = part in sh.parts ? PAINT[sh.parts[part]] : '#fffaf0';
       for (const q of shedPrims(part)) { cx.beginPath(); if (q.k === 'e') cx.ellipse(R(q.x), R(q.y), R(q.rx), R(q.ry), 0, 0, 7); else if (q.k === 'r') cx.rect(R(q.x), R(q.y), R(q.w), R(q.h)); else { cx.moveTo(R(q.pts[0][0]), R(q.pts[0][1])); cx.lineTo(R(q.pts[1][0]), R(q.pts[1][1])); cx.lineTo(R(q.pts[2][0]), R(q.pts[2][1])); cx.closePath(); }
         cx.fillStyle = col; cx.fill(); cx.strokeStyle = '#3a2420'; cx.lineWidth = Math.max(2, z * .05); cx.stroke(); } }
-    const hx = S2.x + .42 * z, hy = S2.y - 1.25 * z, hr = .66 * z; // the face, always friendly
+    const hx = S2.x + .42 * z, hy = S2.y - 1.25 * z, hr = .66 * z; // the face, always friendly, with the yard fox's pink inner ears
+    for (const s of [-1, 1]) { cx.fillStyle = '#ff9a8a'; cx.beginPath(); cx.moveTo(R(hx + s * hr * .6), R(hy - hr * .45)); cx.lineTo(R(hx + s * hr * .52), R(hy - hr * .95)); cx.lineTo(R(hx + s * hr * .28), R(hy - hr * .65)); cx.fill(); }
     ell(S2.x + .15 * z, S2.y - .45 * z, .42 * z, .24 * z, 'rgba(255,240,215,.75)'); ell(hx + hr * .2, hy + hr * .35, hr * .5, hr * .36, 'rgba(255,240,215,.85)');
     for (const s of [-1, 1]) { const ex = hx + s * hr * .38 + hr * .1, ey = hy - hr * .05; if (done) { cx.fillStyle = '#2a1a18'; cx.fillRect(R(ex - hr * .15), R(ey), R(hr * .3), Math.max(2, R(hr * .07))); } else { ell(ex, ey, hr * .15, hr * .19, '#2a1a18'); ell(ex - hr * .05, ey - hr * .07, hr * .05, hr * .05, '#fff'); } }
     ell(hx + hr * .25, hy + hr * .22, hr * .1, hr * .07, '#3a2420'); ell(hx + hr * .22, hy + hr * .5, hr * .13 * (done ? 1.2 : .8), hr * .1 * (done ? 1.3 : .6), '#8a2a2a');
@@ -1181,20 +1357,37 @@
     cx.fillStyle = '#fff4e0'; cx.fillRect(R(b.x - b.r * .2), R(b.y + b.r * .12), R(b.r * .4), R(b.r * .43)); cx.fillStyle = '#5fb34a'; cx.fillRect(R(b.x - b.r * .7), R(b.y + b.r * .55), R(b.r * 1.4), Math.max(2, R(b.r * .1)));
   }
   function drawBlock(x, y, s, c, a, g) {
-    const raw = BLOCKS[c % BLOCKS.length], dye = col => g > .6 ? mixHex(col, '#20203a', .6) : col, col = dye(raw), cheek = g > .6 ? dye('#ff9a8a') : 'rgba(255,154,138,.6)';
+    const i = c % BLOCKS.length, raw = BLOCKS[i], dye = col => g > .6 ? mixHex(col, '#20203a', .6) : col, col = dye(raw), cheek = g > .6 ? dye('#ff9a8a') : 'rgba(255,154,138,.6)';
     cx.save(); cx.translate(R(x), R(y)); cx.rotate(a || 0); const h = s / 2;
     for (const s2 of [-1, 1]) { cx.fillStyle = col; cx.beginPath(); cx.moveTo(R(s2 * h * .8), R(-h * .7)); cx.lineTo(R(s2 * h * .65), R(-h * 1.25)); cx.lineTo(R(s2 * h * .25), R(-h * .85)); cx.fill(); }
-    cx.fillStyle = dye(mixHex(raw, '#000000', .18)); cx.fillRect(R(-h), R(-h), R(s), R(s)); cx.fillStyle = col; cx.fillRect(R(-h), R(-h), R(s), R(s * .9));
-    cx.fillStyle = dye(mixHex(raw, '#ffffff', .4)); cx.fillRect(R(-h * .8), R(-h * .8), R(s * .25), R(s * .1));
+    cx.fillStyle = dye(BLOCK_SHADE[i]); cx.fillRect(R(-h), R(-h), R(s), R(s)); cx.fillStyle = col; cx.fillRect(R(-h), R(-h), R(s), R(s * .9));
+    cx.fillStyle = dye(BLOCK_SHINE[i]); cx.fillRect(R(-h * .8), R(-h * .8), R(s * .25), R(s * .1));
     for (const s2 of [-1, 1]) ell(s2 * h * .38, -h * .1, s * .07, s * .08, '#2a1a18'); ell(-h * .55, h * .2, s * .08, s * .05, cheek); ell(h * .55, h * .2, s * .08, s * .05, cheek);
     cx.strokeStyle = '#2a1a18'; cx.lineWidth = Math.max(1, s * .05); cx.beginPath(); cx.arc(0, R(h * .15), R(s * .12), .3, Math.PI - .3); cx.stroke(); cx.restore();
   }
   function drawPSign(g) {
     const s = L.psign, r = L.R * .95 * (s.s || 1), sh = Math.sin(st.t * 30) * st.psign.shake * r * .06, bob = hintBob('psign');
-    cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g); cx.fillRect(R(s.x - r * .08), R(s.y - r * .2 - bob), Math.max(2, R(r * .16)), R(r * 1.4 + bob));
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
+    const bx = s.x + sh, by = s.y - r * .45 - bob, boardTop = by - r * .72, br = r * .42, side = s.side || 0;
+    const balloonX = side ? bx + side * (r * .95 + br) : bx;
+    let balloonY = side ? boardTop + br : boardTop - br * 1.25;
+    if (!side) { const rise = 1 - (balloonY - br * 1.05); if (rise > 0) balloonY += rise; }
+    const string = g > .6 ? mixHex('#8a5a34', '#20203a', .6) : '#8a5a34', balloon = g > .6 ? mixHex('#ff6fa8', '#20203a', .6) : '#ff6fa8', shine = g > .6 ? mixHex('#fff4e0', '#20203a', .6) : '#fff4e0';
+    const topPx = R(by) + R(-r * .72), lw = Math.max(1.5, r * .06);
+    const x0 = R(bx), x1 = R(balloonX), y1 = R(side ? balloonY : balloonY + br * .85);
+    const y0 = side ? Math.max(R(boardTop), topPx) : R(boardTop);
+    const clipTop = side ? topPx : null; // a side string stays on the board; an overhead string is meant to rise
+    cx.save();
+    if (clipTop !== null) { cx.beginPath(); cx.rect(0, clipTop, W, Math.max(1, H - clipTop)); cx.clip(); }
+    cx.strokeStyle = string; cx.lineWidth = lw; cx.beginPath(); cx.moveTo(x0, y0); cx.lineTo(x1, y1); cx.stroke();
+    cx.restore();
+    L.packString = { x0, y0, x1, y1, width: lw, boardTop: topPx, clipTop };
+    const ballRx = Math.max(1, R(br * .86)), ballRy = Math.max(1, R(br * 1.05));
+    L.packBalloon = { x: R(balloonX), y: R(balloonY), rx: ballRx, ry: ballRy, knotY: R(balloonY + br * 1.15) };
+    ell(balloonX, balloonY, br * .86, br * 1.05, balloon); ell(balloonX - br * .28, balloonY - br * .32, br * .22, br * .16, shine);
+    cx.fillStyle = g > .6 ? mixHex('#e8483c', '#20203a', .6) : '#e8483c'; cx.beginPath(); cx.moveTo(R(balloonX - r * .08), R(balloonY + br * .9)); cx.lineTo(R(balloonX + r * .08), R(balloonY + br * .9)); cx.lineTo(R(balloonX), R(balloonY + br * 1.15)); cx.fill();
+    cx.save(); cx.translate(R(bx), R(by)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
     cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24)); cx.restore();
-    drawBlock(s.x + sh - r * .28, s.y - r * .2 - bob, r * .48, 0, 0, g);
+    drawBlock(bx - r * .28, s.y - r * .2 - bob, r * .48, 0, 0, g);
     cx.fillStyle = g > .6 ? mixHex('#e8483c', '#20203a', .6) : '#e8483c'; cx.fillRect(R(s.x + sh + r * .02), R(s.y - r * .15 - bob), R(r * .55), R(r * .32));
     ell(s.x + sh + r * .3, s.y - r * .15 - bob, r * .28, r * .1, g > .6 ? mixHex('#fff4e0', '#20203a', .6) : '#fff4e0');
   }
@@ -1217,14 +1410,17 @@
     const wall = cx.createLinearGradient(0, 0, 0, V.fy); wall.addColorStop(0, '#f4e2c0'); wall.addColorStop(1, '#e8c8a8'); cx.fillStyle = wall; cx.fillRect(0, 0, W, H);
     for (let i = 0; i < 6; i++) ell(W * (.1 + i * .17), H * .08 + ((i * 37) % 20) / 200 * H, U * .02, U * .02, BLOCKS[i % 5]);
     const bs = stackBlock(), fy = V.fy + cam; cx.fillStyle = '#9ad6f4'; cx.fillRect(0, R(fy), W, H - R(fy)); cx.fillStyle = '#6cbcec'; for (let x = 0; x < W; x += U * .08) cx.fillRect(R(x), R(fy), Math.max(1, R(U * .04)), H - R(fy));
+    const shelfX = V.tray[0].x, shelfW = V.bs * 1.45, ys = V.tray.map(q => q.y + cam);
+    cx.fillStyle = '#8a5a34'; cx.fillRect(R(shelfX - shelfW * .55), R(Math.min(...ys) - V.bs * .85), R(shelfW * 1.1), R(Math.max(...ys) - Math.min(...ys) + V.bs * 1.6));
+    cx.fillStyle = '#c8955a'; V.tray.forEach(q => cx.fillRect(R(shelfX - shelfW * .62), R(q.y + cam + V.bs * .46), R(shelfW * 1.24), Math.max(2, R(V.bs * .14))));
     const wig = Math.sin(st.t * 30) * T2.wig * bs * .05 * m;
     T2.stack.forEach((b, k) => { const ty = fy - (k + .5) * bs, tx = V.x + b.dx + wig * (k / 4);
       if (b.landed) return drawBlock(tx, ty, bs, b.c, 0);
       const e = clamp((st.t - b.at) / DROP_SECS, 0, 1), ee = e * e; drawBlock(lerp(b.from.x, tx, e), lerp(b.from.y, ty, ee) - Math.sin(e * Math.PI) * bs * 1.2 * m, bs, b.c, (1 - e) * .5); });
-    if (T2.tumble) for (const b of T2.tumble.blocks) drawBlock(b.x, b.y, T2.tumble.bs, b.c, b.a);
-    V.tray.forEach((q, i) => { const bob = hb && hb.name === 'tray' + i && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.bs * .15 : 0; drawBlock(q.x, q.y - bob, V.bs, (T2.next + i) % BLOCKS.length, 0); });
+    if (T2.tumble) for (const b of T2.tumble.blocks) drawBlock(b.x + wig * 4, b.y, T2.tumble.bs, b.c, b.a);
+    V.tray.forEach((q, i) => { const bob = hb && hb.name === 'tray' + i && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.bs * .15 : 0; drawBlock(q.x, q.y + cam - bob, V.bs, (T2.next + i) % BLOCKS.length, 0); });
     const bz = V.baby.z, gb = hb && hb.name === 'tbaby' && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * bz * .12 : 0;
-    drawKBaby(V.baby.x, V.baby.y - gb, bz, st.t - T2.giggle < 1 ? 'yum' : null, st.t - T2.giggle, st.t - T2.giggle < 1);
+    drawKBaby(V.baby.x, V.baby.y + cam - gb, bz, st.t - T2.giggle < 1 ? 'yum' : null, st.t - T2.giggle, st.t - T2.giggle < 1);
     drawHint(); drawBarnHome(V.barn); drawFx(U);
   }
   function drawInstrument(i, x, y, z, k) {
@@ -1235,22 +1431,39 @@
     if (i === 2) { const g2 = 1 + k * .2; cx.fillStyle = '#f2b632'; cx.fillRect(R(x - z * .5), R(y - z * .08), R(z * .6), R(z * .14)); cx.beginPath(); cx.moveTo(R(x + z * .1), R(y - z * .06)); cx.lineTo(R(x + z * .55), R(y - z * .3 * g2)); cx.lineTo(R(x + z * .55), R(y + z * .36 * g2)); cx.lineTo(R(x + z * .1), R(y + z * .12)); cx.fill();
       ell(x + z * .55, y + z * .03, z * .08, z * .33 * g2, '#c8902a'); }
   }
+  function lockCanvas() {
+    const el = document.getElementById('lock'), cr = cv.getBoundingClientRect(); if (!el || !cr.width || !cr.height) return null;
+    const r = el.getBoundingClientRect();
+    return { x0: (r.left - cr.left) / cr.width * W - 3, y0: (r.top - cr.top) / cr.height * H - 3, x1: (r.right - cr.left) / cr.width * W + 3, y1: (r.bottom - cr.top) / cr.height * H + 3 };
+  }
+  function buntingFlags() {
+    const U = L.U, barn = (L.band && L.band.barn) || L.shed.barn, lock = lockCanvas(), flags = [], cols = ['#ff6fa8', '#ffd03a', '#5fd06a', '#4fa6ff'];
+    const hit = (a, b2) => b2 && a.x0 < b2.x1 && b2.x0 < a.x1 && a.y0 < b2.y1 && b2.y0 < a.y1;
+    const barnBox = { x0: barn.x - barn.r - 4, x1: barn.x + barn.r + 4, y0: barn.y - barn.r - 4, y1: barn.y + barn.r + 4 };
+    for (let i = 0; i < 9; i++) { const x = W * (i + .5) / 9, half = W / 22, y0 = U * .03, y1 = U * .1, flag = { x0: x - half, x1: x + half, y0, y1 };
+      if (hit(flag, barnBox) || hit(flag, lock)) continue; flags.push({ x, half, y0, y1, c: cols[i % 4] }); }
+    return flags;
+  }
   function drawBand() {
-    const U = L.U, V = L.band, B = st.band, m = reduce() ? .3 : 1, hb = hint();
-    const wall = cx.createLinearGradient(0, 0, 0, V.by); wall.addColorStop(0, '#f0d8a0'); wall.addColorStop(1, '#d8b878'); cx.fillStyle = wall; cx.fillRect(0, 0, W, V.by);
-    cx.fillStyle = '#c8955a'; for (let x = 0; x < W; x += U * .12) cx.fillRect(R(x), 0, Math.max(1, R(U * .008)), R(V.by));
-    for (let i = 0; i < 9; i++) { const x = W * (i + .5) / 9; cx.fillStyle = ['#ff6fa8', '#ffd03a', '#5fd06a', '#4fa6ff'][i % 4]; cx.beginPath(); cx.moveTo(R(x - W / 22), R(U * .03)); cx.lineTo(R(x + W / 22), R(U * .03)); cx.lineTo(R(x), R(U * .1)); cx.fill(); }
-    cx.fillStyle = '#a8703e'; cx.fillRect(0, R(V.by), W, H - R(V.by));
-    const cols = ['#f0a070', '#ff9ac0', '#7cc0f4'];
+    const U = L.U, V = L.band, B = st.band, m = reduce() ? .3 : 1, hb = hint(), stage = V.floor;
+    const wall = cx.createLinearGradient(0, 0, 0, stage); wall.addColorStop(0, '#f0d8a0'); wall.addColorStop(1, '#d8b878'); cx.fillStyle = wall; cx.fillRect(0, 0, W, stage);
+    cx.fillStyle = '#c8955a'; for (let x = 0; x < W; x += U * .12) cx.fillRect(R(x), 0, Math.max(1, R(U * .008)), R(stage));
+    const flags = buntingFlags(); V.flags = flags;
+    for (const f of flags) { cx.fillStyle = f.c; cx.beginPath(); cx.moveTo(R(f.x - f.half), R(f.y0)); cx.lineTo(R(f.x + f.half), R(f.y0)); cx.lineTo(R(f.x), R(f.y1)); cx.fill(); }
+    cx.fillStyle = '#a8703e'; cx.fillRect(0, R(stage), W, H - R(stage));
+    const cols = ['#f0a070', '#ff6fa8', '#7cc0f4'];
     V.babies.forEach((q, i) => { const e = st.t - B.hit[i], k = clamp(1 - e / .35, 0, 1), hop = k * V.z * .25 * m + (B.song ? Math.abs(Math.sin(st.t * Math.PI / BAND_BEAT)) * V.z * .08 * m : 0);
-      const bb = hb && hb.name === BAND[i] && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.z * .1 : 0;
+      const bb = hb && hb.name === BAND[i] && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.z * .06 : 0;
       ell(q.x, q.y + V.z * .05, V.z * .7, V.z * .14, 'rgba(90,50,20,.25)'); drawDoughBaby(q.x, q.y - hop - bb, V.z * 1.1, cols[i], k * .3);
       drawInstrument(i, q.x + (i === 1 ? V.z * .55 : i === 2 ? V.z * .35 : 0), q.y - V.z * (i === 2 ? .9 : i === 1 ? .2 : .3) - hop - bb, V.z, k * m); });
     for (const n of B.notes) { const e = st.t - n.at, q = V.babies[n.i], x = q.x + Math.sin(e * 5 + n.i) * V.z * .4, y = q.y - V.z * 1.6 - e * V.z * 1.2, a = clamp(1 - e / 1.2, 0, 1);
       cx.globalAlpha = a; ell(x, y, V.z * .12, V.z * .09, ['#e23b4e', '#c8902a', '#3f8ae8'][n.i]); cx.globalAlpha = 1; }
-    { const s0 = { x: V.stick.x, y: V.stick.y - V.br * .2 }, ek = clamp(1 - (st.t - B.stick) / .4, 0, 1), wave = B.song ? Math.sin(st.t * Math.PI / BAND_BEAT) * .5 * m : ek * .6 * m, bb = hb && hb.name === 'stick' && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.br * .12 : 0;
-      ell(s0.x, s0.y + V.br * .1, V.br * .9, V.br * .2, 'rgba(90,50,20,.3)'); ell(s0.x, s0.y - bb, V.br * .75, V.br * .4, '#5a3a24');
-      cx.save(); cx.translate(R(s0.x - V.br * .4), R(s0.y - V.br * .1 - bb)); cx.rotate(-.5 + wave); cx.fillStyle = '#fff4e0'; cx.fillRect(0, R(-V.br * .05), R(V.br * 1.3), Math.max(2, R(V.br * .1))); ell(0, 0, V.br * .14, V.br * .14, '#e8483c'); cx.restore(); }
+    { const s0 = { x: V.stick.x, y: V.stick.y - V.br * .15 }, ek = clamp(1 - (st.t - B.stick) / .4, 0, 1), wave = B.song ? Math.sin(st.t * Math.PI / BAND_BEAT) * .5 * m : ek * .6 * m, bb = hb && hb.name === 'stick' && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * V.br * .08 : 0;
+      ell(s0.x, s0.y + V.br * .42, V.br * .55, V.br * .1, 'rgba(90,50,20,.3)');
+      cx.fillStyle = '#8a5a34'; cx.fillRect(R(s0.x - V.br * .06), R(s0.y - V.br * .02 - bb), Math.max(2, R(V.br * .12)), R(V.br * .46));
+      cx.save(); cx.translate(R(s0.x), R(s0.y - V.br * .18 - bb)); cx.rotate(-.18); cx.fillStyle = '#c8955a'; cx.fillRect(R(-V.br * .72), R(-V.br * .22), R(V.br * 1.44), R(V.br * .4));
+      cx.fillStyle = '#fff4e0'; cx.fillRect(R(-V.br * .5), R(-V.br * .08), R(V.br), Math.max(1, R(V.br * .07))); cx.restore();
+      cx.save(); cx.translate(R(s0.x - V.br * .1), R(s0.y - V.br * .42 - bb)); cx.rotate(-.55 + wave); cx.fillStyle = '#fff4e0'; cx.fillRect(0, R(-V.br * .05), R(V.br * 1.1), Math.max(2, R(V.br * .1))); ell(0, 0, V.br * .14, V.br * .14, '#e8483c'); cx.restore(); }
     drawHint(); drawBarnHome(V.barn); drawFx(U);
   }
   function draw() {
@@ -1269,12 +1482,13 @@
     const sunY = lerp(L.sun.y, L.ground + U * .1, clamp(g * 1.6, 0, 1)); const glow = st.sun.glow;
     ell(L.sun.x, sunY, U * (.13 + glow * .07), U * (.13 + glow * .07), `rgba(255,240,180,${(.25 + glow * .35) * (1 - g)})`); ell(L.sun.x, sunY, U * (.09 + glow * .025), U * (.09 + glow * .025), glow > 0 ? mixHex('#fff4b0', '#ffffff', glow) : pick3('#fff4b0', '#ffb050', '#ff8040', g));
     if (st.sun.bow) drawRainbow(st.t - st.sun.bow.at);
-    drawCloud(g);
     if (g > .6) { const k = clamp((g - .6) / .4, 0, 1), mg = st.moon.song ? 1 : st.moon.glow, pulse = st.moon.song ? clamp(1 - (st.t - st.moon.song.beat) / BEAT, 0, 1) * .25 : 0;
       if (mg > 0) { ell(W * .8, lerp(L.ground, H * .16, k), U * (.11 + mg * .05 + pulse * .03), U * (.11 + mg * .05 + pulse * .03), `rgba(240,240,200,${.12 + mg * .2 + pulse * .2})`); }
       ell(W * .8, lerp(L.ground, H * .16, k), U * .07, U * .07, '#f4f0d8'); ell(W * .8 + U * .03, lerp(L.ground, H * .16, k) - U * .02, U * .06, U * .06, (mg > 0 ? mixHex('#121a44', '#5a5e6e', clamp((.12 + mg * .2 + pulse * .2) / .37, 0, 1)) : '#121a44')); }
+    drawCloud(g);
     ell(W * .25, L.ground + U * .05, W * .45, U * .22, pick3('#8acb6a', '#a0a050', '#2a4a48', g)); ell(W * .8, L.ground + U * .07, W * .4, U * .18, pick3('#7abf5c', '#909848', '#24423f', g));
     cx.fillStyle = pick3('#7cc85a', '#b0a050', '#2a4a40', g); cx.fillRect(0, R(L.ground), W, H - R(L.ground));
+    drawSignPosts(g);
     cx.fillStyle = pick3('#a87a4a', '#a06a3a', '#3a2e38', g); const fy = L.ground + U * .02; cx.fillRect(0, R(fy), W, Math.max(1, R(U * .025))); cx.fillRect(0, R(fy + U * .07), W, Math.max(1, R(U * .025)));
     for (let x = W * .05; x < W; x += U * .3) cx.fillRect(R(x), R(fy - U * .03), Math.max(2, R(U * .03)), R(U * .14));
     for (let i = 0; i < 30; i++) { const x = (i * 61.7) % W, y = L.ground + U * .2 + (i * 37.1) % (H - L.ground - U * .2); cx.fillStyle = pick3('#5aa848', '#8a8a40', '#1e3a36', g); cx.fillRect(R(x), R(y), 1, 2); }
