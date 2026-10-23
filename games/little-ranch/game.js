@@ -280,7 +280,7 @@
       const babyBox = (x, y) => ({ x0: x - z * 1.27, y0: y - z * 2.042, x1: x + z * 1.08, y1: y });
       const palBox = (x, y) => ({ x0: x - fz * .55, y0: y - fz * 1.35, x1: x + fz * .55, y1: y });
       if (wide) for (const i of [0, 2, 3]) { shiftClear(i, homes[i], babyBox); shiftClear(i, pals[i], palBox); }
-      for (const i of [0, 2, 3]) { grazeDrop(i, homes[i], babyBox); grazeDrop(i, pals[i], palBox); }
+      else for (const i of [0, 2, 3]) { grazeDrop(i, homes[i], babyBox); grazeDrop(i, pals[i], palBox); }
     }
     { const stop = stopFor(1), R = L.R, lo = Math.max(stopFor(0) + W + R + 1, stop + R + 2), hi = Math.max(lo, stop + W - R - 2);
       L.bowl = { x: clamp(coreX(1, wide ? .02 : .12), lo, hi), y: H * .84 }; }
