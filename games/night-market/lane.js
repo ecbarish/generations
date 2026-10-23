@@ -16,6 +16,7 @@
   var FLASHES = [25, 50, 100, 150, 200, 300, 400];
 
   var cv, cx, bg, bx, watch, getState, unlockedFn, seed = 7, sig = '', raf = 0, last = 0, acc = 0, live = false;
+  var finaleStart = 0, FINALE_STEP = 140, FINALE_MOMENT = 900;
   var ticks = 0, frames = 0, coins = [], flashes = [], walkers = [], lanterns = [], nextWalker = 0, coinAt = [], reduce = false;
 
   function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
@@ -67,15 +68,55 @@
     for (var i = 0; i < 6; i++) lanterns.push({ x: i * SLOT + 1, y: TOP + 4, w: 6, h: 8, stall: i, f: 1, hold: 3 + Math.floor(rnd() * 6) });
   }
   function nightEnded() { var s = st(); return !!(s && s.stalls[5] && s.stalls[5].owned >= 10); }
-  function drawLantern(L) {
-    var ended = nightEnded();
-    var lit = !ended && (L.stall < 0 || open(L.stall)), f = lit ? (reduce ? 1 : L.f) : 1;
+  function finaleClock(now) {
+    if (!nightEnded()) { finaleStart = 0; return null; }
+    if (!finaleStart) finaleStart = now || (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    if (reduce) return 1e9;
+    return (now || (typeof performance !== 'undefined' ? performance.now() : Date.now())) - finaleStart;
+  }
+  function dimCount(now) {
+    var t = finaleClock(now);
+    if (t === null) return 0;
+    return Math.min(lanterns.length, Math.floor(t / FINALE_STEP));
+  }
+  function momentOn(now) { return nightEnded() && lanterns.length > 0 && dimCount(now) >= lanterns.length; }
+  var finaleShown = 0;
+  function finaleReady() {
+    var t = finaleClock();
+    if (t === null) { finaleShown = 0; return false; }
+    if (reduce) {
+      draw(1e9);
+      if (!finaleShown) finaleShown = Date.now();
+      return Date.now() - finaleShown >= 400;
+    }
+    return t >= lanterns.length * FINALE_STEP + FINALE_MOMENT;
+  }
+  function drawLantern(L, index, now) {
+    var dimmed = nightEnded() && index < dimCount(now);
+    var lit = !dimmed && (L.stall < 0 || open(L.stall)), f = lit ? (reduce ? 1 : L.f) : 1;
     if (f === 0) { rect(cx, L.x - 1, L.y - 1, L.w + 2, L.h + 2, 'wash'); }
     box(cx, L.x, L.y, L.w, L.h, 'amber');
     var core = lit ? 'lamp' : 'mute', d = f === 2 ? 1 : 0;
     if (L.w > 3) rect(cx, L.x + 2, L.y + 2 + d, L.w - 4, L.h - 4 - d, core); else rect(cx, L.x + 1, L.y + 1 + d, 1, L.h - 2 - d, core);
   }
+  /* Old Wen sits, and the tortoise sets its lantern on the cobbles. Palette colours only. */
+  function drawMoment() {
+    var x = 168, y = 68;
+    box(cx, x, y + 6, 16, 8, 'timber');
+    rect(cx, x + 2, y + 8, 10, 3, 'amber');
+    rect(cx, x + 14, y + 7, 4, 3, 'timber');
+    rect(cx, x + 16, y + 6, 2, 2, 'ink');
+    box(cx, x + 22, y + 10, 5, 6, 'lamp');
+    rect(cx, x + 24, y + 16, 1, 3, 'timber');
+    var wx = x + 36;
+    rect(cx, wx + 4, y, 6, 6, 'ink');
+    rect(cx, wx + 3, y + 6, 8, 8, 'ink');
+    rect(cx, wx + 4, y + 14, 3, 3, 'ink');
+    rect(cx, wx + 8, y + 14, 3, 3, 'ink');
+    rect(cx, wx + 11, y + 7, 1, 6, 'timber');
+  }
   function stepLanterns() {
+    if (nightEnded()) return;
     var changed = 0;
     for (var k = 0; k < lanterns.length && changed < 2; k++) {
       var L = lanterns[(k + ticks) % lanterns.length]; if (--L.hold > 0) continue;
@@ -156,14 +197,16 @@
     stepLanterns();
     walkers.forEach(function (P) { P.x += P.dir; P.f = (P.f + 1) % 4; });
     walkers = walkers.filter(function (P) { return P.x > -17 && P.x < W + 1; });
-    var cap = walkerCap(); if (walkers.length < cap && ticks >= nextWalker) spawn();
+    var cap = walkerCap(); if (!nightEnded() && walkers.length < cap && ticks >= nextWalker) spawn();
+    if (momentOn()) walkers = [];
   }
-  function draw() {
+  function draw(now) {
     var g = signature(); if (g !== sig) { sig = g; paintStatic(); }
     cx.drawImage(bg, 0, 0);
-    lanterns.forEach(drawLantern);
+    lanterns.forEach(function (L, index) { drawLantern(L, index, now); });
     for (var i = 0; i < 6; i++) drawSteam(i);
     walkers.forEach(drawWalker);
+    if (momentOn(now)) drawMoment();
     coins.forEach(function (c) { if (c.on) drawCoin(c); });
     flashes.forEach(drawFlash);
   }
@@ -171,7 +214,7 @@
     raf = 0; if (!live) return; frames++;
     if (!last) last = now; acc += Math.min(now - last, 250); last = now;                       // no catch-up after a stall
     var n = 0; while (acc >= TICK && n < 2) { acc -= TICK; tick(); n++; } if (acc >= TICK) acc = 0;
-    if (n) draw();
+    if (n || nightEnded()) draw(now);
     raf = requestAnimationFrame(loop);
   }
   function start() { if (live || reduce || document.hidden) return; live = true; last = 0; acc = 0; raf = requestAnimationFrame(loop); }
@@ -228,6 +271,7 @@
     coinsOn: function () { return coins.filter(function (c) { return c.on; }).length; },
     flashes: function () { return flashes.slice(); }, walkers: function () { return walkers.slice(); },
     lanterns: function () { return lanterns; }, step: function (n) { for (var k = 0; k < (n || 1); k++) tick(); draw(); },
+    finaleReady: finaleReady, dimCount: function () { return dimCount(); },
     setReduce: function (v) { applyReduce(v); }
   };
 })();

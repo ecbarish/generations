@@ -40,6 +40,7 @@
     if (state.bulk === 'next') {
       var need = M.countToNext(state.stalls[i].owned);
       if (!(need > 0)) return 'Next · lit';
+      if (q.count > 0) return 'Next · ' + q.count + ' · ' + money(q.cost);
       return 'Next · ' + need + ' · ' + money(q.cost);
     }
     if (state.bulk === 'max' && q.count > 0) return 'Max · ' + q.count + ' · ' + money(q.cost);
@@ -62,8 +63,7 @@
     var best = -1, score = Infinity, i, n, sec;
     for (i = 0; i < M.STALLS.length; i++) {
       if (!state.stalls[i].hired || !M.unlocked(state, i)) continue;
-      if (state.bulk === 'max') n = M.quote(state, i, 'max').count;
-      else if (state.bulk === 'next') n = M.countToNext(state.stalls[i].owned);
+      if (state.bulk === 'max' || state.bulk === 'next') n = M.quote(state, i, state.bulk).count;
       else n = state.bulk === 10 ? 10 : 1;
       if (!(n > 0)) continue;
       sec = M.paybackSeconds(state, i, n);
@@ -158,10 +158,11 @@
     $('#rate').textContent = rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.';
     $('#goal').textContent = M.goal(state);
     var laneGoal = $('#lane-goal');
-    if (laneGoal) laneGoal.textContent = state.stalls.some(function (s) { return s.owned > 0; }) ? M.laneLine(state) : '';
+    if (laneGoal) laneGoal.textContent = M.laneLine(state);
     var finale = $('#finale');
     var finaleNote = $('#finale-note');
-    var finaleOn = M.finaleReached(state) && !finaleDismissed;
+    var laneReady = !window.NightLane || typeof window.NightLane.finaleReady !== 'function' || window.NightLane.finaleReady();
+    var finaleOn = M.finaleReached(state) && !finaleDismissed && laneReady;
     if (finale) {
       finale.hidden = !finaleOn;
       if (finaleOn) {
@@ -215,13 +216,31 @@
     return h;
   }
 
+  function pinLineCount(el) {
+    var range = document.createRange();
+    range.selectNodeContents(el);
+    var tops = [], rects = range.getClientRects(), r, t;
+    for (r = 0; r < rects.length; r++) {
+      t = Math.round(rects[r].top);
+      if (tops.indexOf(t) < 0) tops.push(t);
+    }
+    return tops.length || 1;
+  }
+
   function syncPins() {
     var pin = $('#goal-pin');
     var goal = $('#goal');
     var laneEl = document.getElementById('lane');
     if (!pin || !goal) return;
+    pin.hidden = false;
     pin.textContent = goal.textContent;
     pin.title = goal.textContent;
+    /* A long goal wraps under the lane. On a phone the pin keeps the bonus,
+       on one line, instead of cutting off the words "Next bonus". */
+    if (pinLineCount(pin) > 1) {
+      var bonusAt = goal.textContent.indexOf('Next bonus:');
+      if (bonusAt > 0) pin.textContent = goal.textContent.slice(bonusAt);
+    }
     var coinPin = $('#coin-pin');
     var coins = document.querySelector('.coins');
     var phone = window.matchMedia('(max-width: 1000px)').matches;
@@ -258,22 +277,50 @@
       M.gossipLine(state) + '</p><button type="button" data-act="away">Put the box away</button>';
   }
 
-  // Hold to pour: press and hold a serve button and it keeps serving, a few a second, until you let go
-  // (playtest: 25 single clicks was a chore). A plain click still serves once.
+  // Hold to pour. The pour uses the same Date.now() seconds as stall income, about eight a second
+  // on a desktop and on a phone. A stalled timer pays at most one second, so a hold cannot run ahead
+  // of the clock, and once the stalls earn more than that the hold is only a top-up.
+  // A plain click still serves once.
   // NM-G8: before the hire, a hold stops at the vendor's count (12 of 12 dumplings). A plain click still serves, and still pays.
-  var HOLD_DELAY = 350, HOLD_EVERY = 120, hold = null;
-  function serveOnce(i) { if (M.handSell(state, i).ok) lane('serve', i); persist(); render(); }
+  var HOLD_DELAY = 350, HOLD_EVERY = 120, HOLD_PUMP = 50, hold = null;
   function atCount(i) { return !state.stalls[i].hired && state.stalls[i].serves >= M.STALLS[i].serves; }
-  function stopHold() { if (!hold) return; clearTimeout(hold.t); clearInterval(hold.iv); hold.done = true; }
+  function pumpHold() {
+    if (!hold || !hold.live) return;
+    var now = Date.now();
+    var step = M.holdCredit((now - hold.since) / 1000, hold.acc);
+    hold.since = now;
+    hold.acc = step.acc;
+    var n = step.pours;
+    if (!state.stalls[hold.i].hired) n = Math.min(n, Math.max(0, M.STALLS[hold.i].serves - state.stalls[hold.i].serves));
+    var k;
+    for (k = 0; k < n; k++) {
+      if (atCount(hold.i)) break;
+      if (!M.handSell(state, hold.i).ok) break;
+      hold.n++;
+      lane('serve', hold.i);
+    }
+    if (hold.n > 0 && atCount(hold.i)) stopHold();
+  }
+  function stopHold() {
+    if (!hold) return;
+    clearTimeout(hold.t);
+    clearInterval(hold.iv);
+    var poured = hold.n > 0;
+    hold.live = false;
+    hold.done = true;
+    if (poured) persist();
+    render();
+  }
   document.addEventListener('pointerdown', function (e) {
     var b = e.target.closest && e.target.closest('[data-act="serve"]');
     if (!b || b.disabled || e.button > 0) return;
     stopHold();
-    var i = +b.closest('[data-i]').dataset.i, h = { b: b, i: i, n: 0, done: false };
+    var i = +b.closest('[data-i]').dataset.i, h = { b: b, i: i, n: 0, acc: 0, live: false, done: false, since: 0 };
     h.t = setTimeout(function () {
       if (atCount(i)) return;                                                   // already at the count: the release is a plain click
-      h.iv = setInterval(function () { if (atCount(i)) { stopHold(); return; } h.n++; serveOnce(i); if (atCount(i)) stopHold(); }, HOLD_EVERY);
-      h.n++; serveOnce(i); if (atCount(i)) stopHold();
+      h.live = true;
+      h.since = Date.now();
+      h.iv = setInterval(pumpHold, HOLD_PUMP);
     }, HOLD_DELAY);
     hold = h;
   });

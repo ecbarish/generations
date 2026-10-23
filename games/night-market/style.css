@@ -51,9 +51,9 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   font-variant-numeric: tabular-nums;
   font-size: 1.7rem;
 }
-.rate, .goal, .lane-goal, .finale-note { margin: 0.15rem 0; }
+.rate, .goal, .finale-note { margin: 0.15rem 0; }
 .goal, .next-goal, .finale-note { color: var(--good); }
-.lane-goal { color: var(--amber); }
+.lane-goal { color: var(--amber); margin: 0; line-height: 1.2; }
 .lane-goal:empty, .next-goal:empty { display: none; }
 .finale {
   background: var(--night);
@@ -116,7 +116,7 @@ button[aria-pressed="true"], button.ask, button.best {
   right: 0;
   margin: 0;
   padding: 0.05rem 0.4rem;
-  font-size: 0.78rem;
+  font-size: 16px;
   line-height: 1.3;
   color: var(--amber);
   background: var(--amber-wash);
@@ -208,9 +208,8 @@ button[aria-pressed="true"], button.ask, button.best {
     box-shadow: 0 1px 0 var(--rule);
     pointer-events: auto;
     cursor: pointer;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: visible;
   }
   .best-tag { top: 0.55rem; }
 }
@@ -218,13 +217,21 @@ button[aria-pressed="true"], button.ask, button.best {
    The decorative strip keeps its full-page pixel scale, above the two columns. */
 @media (min-width: 568px) and (max-width: 1000px) and (max-height: 500px) {
   .window { max-width: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 1rem; align-items: start; align-content: start; }
-  header { grid-column: 1; grid-row: 3; min-width: 0; }
-  .market-work { grid-column: 2; grid-row: 3; }
-  .lane { grid-column: 1 / -1; grid-row: 1; margin-top: 0.15rem; margin-bottom: 0.25rem; }
-  #goal { grid-column: 1 / -1; grid-row: 2; margin: 0.1rem 0 0; }
-  .save { grid-column: 1 / -1; grid-row: 4; }
-  .bulk { margin-top: 0; flex-wrap: nowrap; gap: 0.25rem; }
-  .bulk-name { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  header { grid-column: 1; grid-row: 5; min-width: 0; }
+  .market-work { grid-column: 2; grid-row: 5; }
+  .lane { grid-column: 1 / -1; grid-row: 1; margin-top: 0.2rem; margin-bottom: 0; }
+  #goal { grid-column: 1 / -1; grid-row: 2; margin: 0; line-height: 1.2; }
+  #lane-goal { grid-column: 1 / -1; grid-row: 3; margin: 0; line-height: 1.2; }
+  /* The ending card sits under the lane goal, not under Your save. An empty row takes no space before the night ends. */
+  #finale:not([hidden]), #finale-note:not([hidden]) { grid-column: 1 / -1; grid-row: 4; margin: 0.1rem 0 0; }
+  #finale:not([hidden]) { padding: 0.55rem 0.8rem 0.65rem; }
+  #finale:not([hidden]) h2 { margin-bottom: 0.2rem; font-size: 1.35rem; }
+  #finale:not([hidden]) p { margin-bottom: 0.4rem; }
+  .save { grid-column: 1 / -1; grid-row: 6; }
+  .scene { margin-bottom: 0.25rem; }
+  .bulk { margin-top: 0; flex-wrap: nowrap; gap: 0.15rem; }
+  .bulk-name { position: static; width: auto; height: auto; min-height: 0; padding: 0 0.15rem 0 0; margin: 0; overflow: visible; clip: auto; font-size: 16px; line-height: 1; white-space: nowrap; border: 0; }
+  .bulk [data-bulk] { padding-left: 0.35rem; padding-right: 0.35rem; }
   .stalls { margin-top: 0; }
   .actions button { flex-basis: 8rem; }
 }

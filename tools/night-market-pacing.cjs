@@ -230,11 +230,11 @@
   /* Named beats for the quarter hour after minute 15: a doubling, a lane light, or a chapter. */
   function noteBeats(M, state, ownedBefore, ms, beats) {
     var sec = ms / 1000, low = Infinity, prevLow = Infinity, i, now, prev, c, from;
-    for (i = 0; i < ownedBefore.length; i++) prevLow = Math.min(prevLow, ownedBefore[i]);
+    for (i = 0; i < 5; i++) prevLow = Math.min(prevLow, ownedBefore[i]);
     for (i = 0; i < M.STALLS.length; i++) {
       now = state.stalls[i].owned;
       prev = ownedBefore[i];
-      if (now < low) low = now;
+      if (i < 5 && now < low) low = now;
       [25, 50, 100, 150, 200, 300, 400].forEach(function (mark) {
         if (prev < mark && now >= mark) beats.push({ at: sec, name: mark + ' ' + M.STALLS[i].name + 's, x2' });
       });
@@ -289,12 +289,14 @@
   }
 
   function storyTarget(pace, minute) {
+    /* Chapter 1 is the minute-20 choice. Later chapters stay under five minutes apart
+       and the last one lands before minute 60, after the lane has already lit. */
     if (pace === 'fast') {
-      if (minute < 27) return 0;
-      return Math.min(10, Math.floor((minute - 27) / 2.7) + 1);
+      if (minute < 20) return 0;
+      return Math.min(10, Math.floor((minute - 20) / 4.15) + 1);
     }
-    if (minute < 26.5) return 0;
-    return Math.min(10, Math.floor((minute - 26.5) / 3.05) + 1);
+    if (minute < 20.5) return 0;
+    return Math.min(10, Math.floor((minute - 20.5) / 4.05) + 1);
   }
 
   function nextStoryPrice(M, state) {
@@ -309,18 +311,21 @@
     return q.count > 0 && keepsShortBuy(M, state, j, 1);
   }
 
-  function closestBeat(M, state) {
+  function closestBeat(M, state, reach, loose) {
     var marks = [25, 50, 100, 150, 200, 300, 400];
     var best = null, i, k, left, cost, income;
     income = M.income(state);
+    reach = reach || 30;
     for (i = 0; i < 5; i++) {
       if (!state.stalls[i].hired) continue;
       for (k = 0; k < marks.length; k++) {
         left = marks[k] - state.stalls[i].owned;
-        if (!(left > 0 && left <= 30) || !affordableOne(M, state, i)) continue;
+        if (!(left > 0 && left <= reach) || !affordableOne(M, state, i)) continue;
         cost = M.quote(state, i, 1).cost;
-        if (cost > 20000 && cost > income * 12) continue;
-        if (!best || left < best.left || (left === best.left && cost < best.cost)) best = { j: i, left: left, cost: cost };
+        /* After the last chapter a doubling can cost more than twelve seconds.
+           Skipping every one of them leaves the last ten minutes with no beat. */
+        if (!loose && cost > 20000 && cost > income * 12) continue;
+        if (!best || left < best.left || (left === best.left && cost < best.cost)) best = { j: i, left: left, cost: cost, mark: marks[k] };
       }
     }
     return best;
@@ -346,9 +351,9 @@
      One stall's next copy stays inside five minutes, so the later evening does not go flat. */
   function eveningChoice(M, state, opts) {
     var pace = opts.pace;
-    var steps = pace === 'human'
-      ? [{ j: 1, until: 50 }, { j: 3, until: 50 }, { j: 4, until: 10 }]
-      : [{ j: 2, until: 50 }, { j: 1, until: 100 }, { j: 3, until: 12 }, { j: 4, until: 1 }, { j: 3, until: 50 }, { j: 4, until: 10 }];
+    /* Mooncakes, then incense. The Story Mat is the next choice, around minute 20,
+       so the stretch after minute 15 is not one more tray. */
+    var steps = [{ j: 2, until: 25 }, { j: 3, until: 12 }, { j: 4, until: 10 }];
     var s, step, want, beat, fill, fillers, f, reserve;
     for (s = 0; s < steps.length; s++) {
       step = steps[s];
@@ -363,14 +368,14 @@
     if (state.stalls[5].hired && state.stalls[5].owned < 10 && state.stalls[5].owned < want) {
       if (affordableOne(M, state, 5)) return 5;
       if (opts.sinceBeat >= 210) {
-        beat = closestBeat(M, state);
+        beat = closestBeat(M, state, 30);
         if (beat) return beat.j;
       }
       if (opts.sinceBuy >= 90) return cheapestKeep(M, state);
       return -1;
     }
     if (opts.sinceBeat >= 210) {
-      beat = closestBeat(M, state);
+      beat = closestBeat(M, state, state.stalls[5].owned >= 10 ? 60 : 30, state.stalls[5].owned >= 10);
       if (beat) return beat.j;
     }
     if (state.stalls[5].owned >= 10 && state.stalls[4].owned < 25 && affordableOne(M, state, 4)) return 4;
@@ -555,7 +560,7 @@
         }
         var pick = -1, pickPay = Infinity;
         // Through minute 20 this is the same buyer as the opening: six minutes, or a doubling within 12.
-        if (ms <= 1200000) {
+        if (ms <= 900000) {
           for (var n = 0; n < options.length; n++) {
             var o = options[n];
             if (!(state.cash >= o.cost)) continue;
@@ -746,7 +751,14 @@ if (typeof module !== 'undefined' && require.main === module) {
     }
     lateOk('fast buyer', measured);
     lateOk('human buyer', humanPace);
-    assert(measured.story1 >= 25 * 60 && measured.story1 <= 32 * 60, 'fast buyer buys the first Story Mat between minute 25 and 32 (' + Math.round(measured.story1) + 's)');
+    assert(measured.story1 >= 18 * 60 && measured.story1 <= 26 * 60, 'fast buyer buys the first Story Mat around minute 20 (' + Math.round(measured.story1) + 's)');
+    function laneBeforeFinale(label, run) {
+      var lane = run.timeline.filter(function (b) { return b.name === 'The whole lane lights at 10'; })[0];
+      var end = run.timeline.filter(function (b) { return b.name === "Old Wen's last chapter"; })[0];
+      assert(lane && end && end.at - lane.at >= 60, label + ' lights the lane and only later tells the last chapter (' + (lane ? Math.round(lane.at) : 'none') + 's, ' + (end ? Math.round(end.at) : 'none') + 's)');
+    }
+    laneBeforeFinale('fast buyer', measured);
+    laneBeforeFinale('human buyer', humanPace);
     assert(humanPace.story10 >= 50 * 60 && humanPace.story10 <= 60 * 60, 'human buyer reaches Old Wen\'s last chapter between minute 50 and 60 (' + Math.round(humanPace.story10) + 's)');
     report.validation = 'passed';
   }

@@ -2,8 +2,10 @@
    Rules only: no page, no storage.
    Load shared/engine.js and shared/idle-core.js first.
    A stall doubles at 25, 50, 100, 150, 200, 300 and 400. That doubling is the beat a player feels.
-   The whole lane doubles again when the lowest stall reaches 10, then 25, then 50.
-   That lane light is the only extra multiplier, and it does not stack with a pairing.
+   The whole lane doubles again when the lowest of the five original stalls reaches 10, then 25, then 50.
+   The Story Mat does not pull that count back to zero. The lane light is the only extra multiplier,
+   and it does not stack with a pairing.
+   Holding pours on the same Date.now() seconds as stall income, about eight a second, and never faster.
    Hiring is a person who runs stalls you have already worked. It is not a bonus. */
 (function () {
   'use strict';
@@ -17,6 +19,13 @@
   var LANE_MILESTONES = [10, 25, 50];
   var NEXT_MARKS = [10, 25, 50, 100, 150, 200, 300, 400];
   var FINALE_AT = 10;
+  /* One pour every 120ms of the stall clock. A late timer cannot pay more than one second. */
+  var HOLD_PER_SEC = 1000 / 120;
+  var HOLD_SLICE = 1;
+  /* Max stops at the next doubling, and also when that buy would take longer than
+     seven and a half minutes to pay for itself. A run from 25 lanterns therefore
+     stops at 50 instead of climbing into a multi-hour payback. */
+  var PAYBACK_CAP = 450;
 
   /* Old Wen tells one chapter of the tortoise's climb for each mat. The tenth is the ending.
      These lines are the game's own tale. The unused tale files stay unloaded. */
@@ -133,11 +142,12 @@
     return Idle.milestoneMult(owned, STALL_MILESTONES);
   }
 
-  /* The lowest count on the lane. A shuttered stall still counts as zero, so the
-     first light waits until every stall, including the Story Mat, has kept up. */
+  /* Lowest of the five original stalls. A shuttered one still counts as zero, so the
+     first light waits until tea, dumplings, lanterns, mooncakes and incense have kept up.
+     The Story Mat is not in this count: opening it must not put the lane back to 0/10. */
   function lowestOwned(state) {
-    var n = Infinity, i, owned;
-    for (i = 0; i < STALLS.length; i++) {
+    var n = Infinity, i, owned, last = Math.min(5, STALLS.length);
+    for (i = 0; i < last; i++) {
       owned = state.stalls[i] ? state.stalls[i].owned : 0;
       if (owned < n) n = owned;
     }
@@ -190,6 +200,23 @@
     };
   }
 
+  /* Coins a second from holding. Before the stalls earn this much, holding is the work.
+     Once they do, which is well before minute 10, holding stays at this rate and cannot pass them. */
+  function holdRate() {
+    return HOLD_PER_SEC;
+  }
+
+  /* Turn a gap on the stall clock into whole pours. `acc` keeps the fraction between calls.
+     A gap longer than one second pays one second, so a stalled timer cannot run ahead. */
+  function holdCredit(elapsedSec, acc) {
+    var carried = acc > 0 && isFinite(acc) ? acc : 0;
+    if (!(elapsedSec > 0) || !isFinite(elapsedSec)) return { pours: 0, acc: carried, seconds: 0 };
+    var seconds = Math.min(elapsedSec, HOLD_SLICE);
+    var next = carried + seconds * HOLD_PER_SEC;
+    var pours = Math.floor(next + 1e-9);
+    return { pours: pours, acc: next - pours, seconds: seconds };
+  }
+
   function canHire(state, i) {
     if (!unlocked(state, i) || state.stalls[i].hired) return false;
     return state.stalls[i].serves >= spec(i).serves;
@@ -224,16 +251,19 @@
     if (!unlocked(state, i)) return { count: 0, cost: one, blocked: 'closed' };
     var n, cost;
     if (mode === 'max') {
-      n = Idle.maxAffordable(stall.base, stall.growth, owned, state.cash);
+      var afford = Idle.maxAffordable(stall.base, stall.growth, owned, state.cash);
+      var room = countToNext(owned);
+      n = room > 0 ? Math.min(afford, room) : Math.min(afford, 20);
+      while (n > 0 && paybackSeconds(state, i, n) > PAYBACK_CAP) n--;
       cost = n > 0 ? Idle.bulkCost(stall.base, stall.growth, owned, n) : one;
       return { count: n, cost: cost, blocked: n > 0 ? null : 'cost' };
     }
     if (mode === 'next') {
       n = countToNext(owned);
       if (!(n > 0)) return { count: 0, cost: one, blocked: 'done' };
-      cost = Idle.bulkCost(stall.base, stall.growth, owned, n);
-      if (!(cost >= 0) || cost > state.cash) return { count: 0, cost: cost, blocked: 'cost' };
-      return { count: n, cost: cost, blocked: null };
+      var toward = Math.min(n, Idle.maxAffordable(stall.base, stall.growth, owned, state.cash));
+      if (!(toward > 0)) return { count: 0, cost: Idle.bulkCost(stall.base, stall.growth, owned, n), blocked: 'cost' };
+      return { count: toward, cost: Idle.bulkCost(stall.base, stall.growth, owned, toward), blocked: null };
     }
     n = mode === 10 || mode === '10' ? 10 : 1;
     cost = Idle.bulkCost(stall.base, stall.growth, owned, n);
@@ -281,13 +311,9 @@
 
   function buyCount(state, i) {
     var mode = state && state.bulk;
-    if (mode === 'max') {
-      var q = quote(state, i, 'max');
+    if (mode === 'max' || mode === 'next') {
+      var q = quote(state, i, mode);
       return q.count > 0 ? q.count : 1;
-    }
-    if (mode === 'next') {
-      var toward = countToNext(state.stalls[i] ? state.stalls[i].owned : 0);
-      return toward > 0 ? toward : 1;
     }
     if (mode === 10 || mode === '10') return 10;
     return 1;
@@ -403,8 +429,8 @@
     for (k = 0; k < LANE_MILESTONES.length; k++) {
       if (low < LANE_MILESTONES[k]) { next = LANE_MILESTONES[k]; break; }
     }
-    if (!next) return 'Lowest stall: ' + low + '. The whole lane is lit.';
-    return (laneMult(state) >= 2 ? 'The whole lane is lit. ' : '') + 'Lowest stall: ' + low + '/' + next + '.';
+    if (!next) return 'Lane goal: ' + low + '. The whole lane is lit.';
+    return (laneMult(state) >= 2 ? 'The whole lane is lit. ' : '') + 'Lane goal: ' + low + '/' + next + '.';
   }
 
   function chapterTitle(n) {
@@ -531,6 +557,8 @@
     LANE_MILESTONES: LANE_MILESTONES,
     NEXT_MARKS: NEXT_MARKS,
     FINALE_AT: FINALE_AT,
+    HOLD_PER_SEC: HOLD_PER_SEC,
+    PAYBACK_CAP: PAYBACK_CAP,
     CHAPTERS: CHAPTERS,
     fresh: fresh,
     lowestOwned: lowestOwned,
@@ -548,6 +576,8 @@
     production: production,
     addCash: addCash,
     handSell: handSell,
+    holdRate: holdRate,
+    holdCredit: holdCredit,
     canHire: canHire,
     hire: hire,
     quote: quote,
