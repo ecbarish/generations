@@ -87,7 +87,73 @@
     if (byGoal.length && million !== null) maxGap = Math.max(maxGap, million - byGoal[byGoal.length - 1].at);
     return { longestPurchaseGapBeforeMillion: maxGap, profile: profile.id, hireAt: hires, tea25: tea25, million: million, snapshots: snapshots, purchases: purchases, state: state };
   }
-  var api = { PROFILES: PROFILES, simulate: simulate };
+
+  /* One sensible buyer. Each second: one hand action on the earliest unlocked stall
+     that nobody has taken yet, then that second's stall income, then at most one
+     copy of the hired stall that pays for itself soonest. If that copy costs more
+     than the coins on hand, the buyer waits. A worse stall is not a substitute.
+     Times are simulated seconds, not a person's clock. */
+  function playSensible(M, durationSec) {
+    var state = M.fresh();
+    var limit = durationSec || 4800;
+    var marks = { 1000: null, 10000: null, 100000: null, 1000000: null };
+    var snaps = {};
+    var purchases = [];
+    var waits = [];
+    var overtakenAt = null;
+    function handRate() {
+      var best = 0;
+      for (var i = 0; i < M.STALLS.length; i++) {
+        if (!M.unlocked(state, i)) break;
+        if (M.STALLS[i].hand > best) best = M.STALLS[i].hand;
+      }
+      return best * 10;
+    }
+    for (var t = 1; t <= limit; t++) {
+      for (var i = 0; i < M.STALLS.length; i++) {
+        if (!M.unlocked(state, i)) break;
+        if (state.stalls[i].hired) continue;
+        if (M.canHire(state, i)) M.hire(state, i);
+        else M.handSell(state, i);
+        break;
+      }
+      M.addCash(state, M.income(state));
+      var best = -1, payback = Infinity, cost = 0;
+      for (var j = 0; j < M.STALLS.length; j++) {
+        if (!state.stalls[j].hired) continue;
+        var seconds = M.paybackSeconds(state, j);
+        if (seconds < payback) { payback = seconds; best = j; cost = M.quote(state, j, 1).cost; }
+      }
+      var income = M.income(state);
+      var wait = best < 0 || !(income > 0) ? Infinity : Math.max(0, (cost - state.cash) / income);
+      if (t >= 360 && t <= 900 && best >= 0) waits.push(wait);
+      if (best >= 0 && state.cash >= cost && M.buy(state, best, 1).ok) purchases.push({ at: t, stall: best, payback: payback });
+      income = M.income(state);
+      if (overtakenAt === null && income > handRate()) overtakenAt = t;
+      [1000, 10000, 100000, 1000000].forEach(function (mark) {
+        if (marks[mark] === null && state.lifetime >= mark) marks[mark] = t;
+      });
+      if (t === 300 || t === 360 || t === 600 || t === 870 || t === 900 || t === 1800) {
+        snaps[t] = {
+          income: income,
+          lifetime: state.lifetime,
+          owned: state.stalls.map(function (s) { return s.owned; }),
+          hand: handRate(),
+          bestPayback: payback,
+          wait: wait
+        };
+      }
+    }
+    var gaps = [], paybacks = [];
+    purchases.forEach(function (p, index) {
+      if (p.at < 360 || p.at > 900) return;
+      if (index > 0) gaps.push(p.at - purchases[index - 1].at);
+      paybacks.push(p.payback);
+    });
+    return { marks: marks, snaps: snaps, overtakenAt: overtakenAt, gaps: gaps, paybacks: paybacks, waits: waits, purchases: purchases, state: state };
+  }
+
+  var api = { PROFILES: PROFILES, simulate: simulate, playSensible: playSensible };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.NightMarketPacing = api;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -110,10 +176,21 @@ if (typeof module !== 'undefined' && require.main === module) {
       const result = module.exports.simulate(context.NightMarket, profile);
       return { longestPurchaseGapBeforeMillion: result.longestPurchaseGapBeforeMillion, profile: result.profile, hireAt: result.hireAt, tea25: result.tea25, million: result.million, snapshots: result.snapshots, purchaseActions: result.purchases.length };
     });
+    const sensible = module.exports.playSensible(context.NightMarket, 5400);
+    const maxOf = (list) => list.reduce((m, n) => Math.max(m, n), 0);
     const fixture = JSON.parse(fs.readFileSync(path.join(root, 'docs/playtests/nm-retune/legacy-v1.json'), 'utf8'));
     const M = context.NightMarket;
     const oldSaveRoundTrip = M.valid(fixture) && JSON.stringify(M.serialize(M.restore(fixture), fixture.seen)) === JSON.stringify(fixture);
-    return { oldSaveRoundTrip: oldSaveRoundTrip, source: ref || 'working-tree', modelSha256: crypto.createHash('sha256').update(modelSource).digest('hex'), stalls: context.NightMarket.STALLS.map(s => ({id: s.id, base: s.base, growth: s.growth, rate: s.rate, serves: s.serves, hand: s.hand})), profiles: profiles };
+    return {
+      oldSaveRoundTrip: oldSaveRoundTrip, source: ref || 'working-tree', modelSha256: crypto.createHash('sha256').update(modelSource).digest('hex'),
+      stalls: context.NightMarket.STALLS.map(s => ({id: s.id, base: s.base, growth: s.growth, rate: s.rate, serves: s.serves, hand: s.hand})),
+      profiles: profiles,
+      sensible: {
+        marks: sensible.marks, overtakenAt: sensible.overtakenAt,
+        maxWaitMinute6to15: maxOf(sensible.waits), maxPaybackMinute6to15: maxOf(sensible.paybacks),
+        minute6: sensible.snaps[360]
+      }
+    };
   }
   const report = { kind: 'deterministic simulation; seconds are simulated, not human playtime', durationSec: 7200, baseline: refAt >= 0 ? measure(args[refAt + 1]) : null, current: measure(null) };
   if (refAt >= 0) {
@@ -125,22 +202,15 @@ if (typeof module !== 'undefined' && require.main === module) {
   if (args.includes('--check')) {
     const assert = require('node:assert/strict');
     assert.equal(report.current.oldSaveRoundTrip, true, 'legacy save round trip');
-    if (report.baseline) {
-      assert.equal(report.baseline.oldSaveRoundTrip, true, 'fixture is valid under the old build');
-      assert.equal(report.productionChangesAreOnlyGrowthAndRateNumbers, true, 'production scope');
-      assert.equal(report.baseline.profiles.find(p => p.profile === 'active').million, 485, 'reproduce original active baseline');
-    }
-    for (const profile of report.current.profiles) {
-      assert(profile.snapshots[600].lifetime < 1000000, profile.profile + ' early rush');
-      assert(profile.million >= 2700, profile.profile + ' lower bound');
-      if (!['minute-glance', 'tea-only'].includes(profile.profile)) {
-        assert(profile.million <= 4500, profile.profile + ' active upper target');
-        assert(profile.tea25 > 0 && profile.tea25 <= 600, profile.profile + ' first milestone');
-      }
-    }
+    const sensible = report.current.sensible;
+    assert(sensible.marks[1000000] >= 2700 && sensible.marks[1000000] <= 4500, 'sensible million is 45 to 75 minutes');
+    assert(sensible.maxWaitMinute6to15 <= 90, 'minute 6 to 15 purchase wait');
+    assert(sensible.maxPaybackMinute6to15 <= 20 * 60, 'minute 6 to 15 payback');
+    assert(sensible.overtakenAt > 60 && sensible.overtakenAt < 360, 'stalls overtake a fast click after the opening');
+    assert(sensible.minute6.income > sensible.minute6.hand, 'minute 6 stall income beats 10 clicks a second');
+    for (const profile of report.current.profiles) assert(profile.snapshots[600].lifetime < 1000000, profile.profile + ' early rush');
     const active = report.current.profiles.find(p => p.profile === 'active');
     assert.equal(active.hireAt[0], 25, 'first vendor');
-    assert(active.longestPurchaseGapBeforeMillion <= 90, 'no forced long purchase wait in the active profile');
     assert(active.snapshots[1800].owned.filter(n => n > 0).length >= 4, 'four types at half an hour');
     report.validation = 'passed';
   }

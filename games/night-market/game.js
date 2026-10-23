@@ -30,19 +30,29 @@
   function lane(what, i, a, b) { var L = window.NightLane; if (L && L[what]) L[what](i, a, b); }
   if (window.NightLane && document.getElementById('lane')) window.NightLane.init(document.getElementById('lane'), function () { return state; }, M.unlocked);
 
-  function bulkLabel(mode) {
-    if (mode === 'max') return 'Buy max';
-    if (mode === 10) return 'Buy 10';
-    return 'Buy 1';
-  }
-
   function buyLabel(i) {
     var q = M.quote(state, i, state.bulk);
-    var word = bulkLabel(state.bulk);
-    if (q.blocked === 'hire') return word;
-    if (!(q.count > 0)) return word + ' · ' + money(q.cost) + ' coins';
-    if (state.bulk === 'max') return 'Buy ' + q.count + ' · ' + money(q.cost) + ' coins';
-    return word + ' · ' + money(q.cost) + ' coins';
+    var stall = M.STALLS[i];
+    if (q.blocked === 'hire' || q.blocked === 'closed') return 'Buy 1';
+    if (state.bulk === 'max') {
+      if (!(q.count > 0)) return 'Need ' + money(q.cost) + ' coins for one';
+      return 'Buy max · ' + q.count + ' ' + stall.name.toLowerCase() + (q.count === 1 ? '' : 's') + ' · ' + money(q.cost) + ' coins';
+    }
+    var n = state.bulk === 10 ? 10 : 1;
+    if (!(q.count > 0)) return n + (n === 1 ? ' costs ' : ' cost ') + money(q.cost) + ' coins';
+    return 'Buy ' + n + ' · ' + money(q.cost) + ' coins';
+  }
+
+  /* The stall you should work. An unhired open stall comes first.
+     Once everyone is hired, the newest open stall is the best click. */
+  function handJobIndex() {
+    var i, lastHired = -1;
+    for (i = 0; i < M.STALLS.length; i++) {
+      if (!M.unlocked(state, i)) continue;
+      if (!state.stalls[i].hired) return i;
+      lastHired = i;
+    }
+    return lastHired;
   }
 
   function fillRow(li, i) {
@@ -64,10 +74,15 @@
       facts.textContent = '';
       wait.textContent = i > 0 ? M.STALLS[i - 1].next : '';
       serve.hidden = ask.hidden = buy.hidden = true;
+      serve.classList.remove('best');
       return;
     }
     serve.hidden = false; // the pour button never vanishes: after the hire you can still pour by hand
-    serve.textContent = st.hired ? stall.serve + ' yourself · +' + stall.hand : stall.serve;
+    var best = i === handJobIndex();
+    serve.classList.toggle('best', best);
+    serve.textContent = !st.hired
+      ? (best && i > 0 ? 'This stall · ' + stall.serve : stall.serve)
+      : (best ? 'Best · ' + stall.serve + ' · +' + stall.hand : stall.serve + ' yourself · +' + stall.hand);
     var bar = li.querySelector('.pour');
     bar.hidden = !!st.hired;
     if (!st.hired) { var k = Math.min(st.serves, stall.serves); bar.value = k; bar.max = stall.serves; bar.textContent = k + ' of ' + stall.serves;
@@ -120,6 +135,19 @@
       });
     }
     Array.prototype.forEach.call(list.children, function (li) { fillRow(li, +li.dataset.i); });
+    syncGoalPin();
+  }
+
+  /* On a phone the green goal stays on screen after the header has scrolled away.
+     It does not take taps. The header goal is the one that stays in the page. */
+  function syncGoalPin() {
+    var pin = $('#goal-pin');
+    var goal = $('#goal');
+    if (!pin || !goal) return;
+    pin.textContent = goal.textContent;
+    var phone = window.matchMedia('(max-width: 1000px)').matches;
+    var box = goal.getBoundingClientRect();
+    pin.hidden = !phone || box.bottom >= 8;
   }
 
   function showAway(summary) {
@@ -190,6 +218,8 @@
   if (summary && (summary.gained > 0 || summary.capped)) showAway(summary);
   render();
   setInterval(render, 250);
+  window.addEventListener('scroll', syncGoalPin, true);
+  window.addEventListener('resize', syncGoalPin);
 
   window.__nightMarket = { state: state, render: render, idle: idle, HOLD_DELAY: HOLD_DELAY, HOLD_EVERY: HOLD_EVERY, drawTools: drawTools, away: function () { return awayOn; } };
 })();

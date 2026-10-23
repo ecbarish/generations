@@ -11,14 +11,16 @@
   var OFFLINE_RATE = 0.5;
   var UNLOCK_AT = 10;
 
-  /* First three stalls are the §8.2 starting points. The next three keep the
-     same gentle growth so a half hour of play still has a stall to open. */
+  /* A sensible buyer should still afford a next stall through the first
+     quarter hour, and a million coins should land in about 45 to 75 minutes.
+     Hand work pays 1 coin. Open stalls overtake a fast click after the opening.
+     Growth stays between 1.05 and 1.15. No multiplier besides the milestones. */
   var STALLS = [
     {
       id: 'tea', name: 'Tea Stall', vendor: 'Mei',
       habit: 'Mei opens before the lanterns are lit.',
       serve: 'Pour a cup', left: 'cup', lefts: 'cups', hire: 'Ask Mei to take the stall',
-      base: 5, growth: 1.11, rate: 0.5, serves: 25, hand: 1,
+      base: 6, growth: 1.10, rate: 0.45, serves: 25, hand: 1,
       looks: ['One lantern', 'Two lanterns', 'A striped awning', 'A crowd at the cups'],
       gossip: 'Mei says the regulars were waiting in the dark.',
       next: 'Bo brings the Dumpling Cart once ten tea stalls are pouring.'
@@ -27,7 +29,7 @@
       id: 'dumpling', name: 'Dumpling Cart', vendor: 'Bo',
       habit: 'Bo talks while he folds, and regulars stay to listen.',
       serve: 'Fold a dumpling', left: 'dumpling', lefts: 'dumplings', hire: 'Ask Bo to take the cart',
-      base: 60, growth: 1.15, rate: 0.5, serves: 12, hand: 2,
+      base: 80, growth: 1.11, rate: 0.9, serves: 12, hand: 1,
       looks: ['One steamer', 'Two steamers', 'A cloth awning', 'A queue down the lane'],
       gossip: 'Bo says he talked the whole time, and the dumplings still sold.',
       next: 'An brings the Lantern Stand once ten carts are folding.'
@@ -36,7 +38,7 @@
       id: 'lantern', name: 'Lantern Stand', vendor: 'An',
       habit: 'An trims each wick until the flame sits still.',
       serve: 'Light a lantern', left: 'lantern', lefts: 'lanterns', hire: 'Ask An to take the stand',
-      base: 720, growth: 1.15, rate: 2.5, serves: 10, hand: 4,
+      base: 900, growth: 1.12, rate: 4, serves: 10, hand: 1,
       looks: ['One pole', 'A pair of poles', 'A string of lamps', 'The alley lit'],
       gossip: 'An says the wicks burned clean the whole time.',
       next: 'Qiao brings the Mooncake Table once ten stands are lit.'
@@ -45,7 +47,7 @@
       id: 'mooncake', name: 'Mooncake Table', vendor: 'Qiao',
       habit: 'Qiao counts the tins twice, then parts with the one she likes least.',
       serve: 'Wrap a mooncake', left: 'mooncake', lefts: 'mooncakes', hire: 'Ask Qiao to take the table',
-      base: 9000, growth: 1.15, rate: 5, serves: 8, hand: 8,
+      base: 11000, growth: 1.13, rate: 16, serves: 8, hand: 1,
       looks: ['One stack of tins', 'Two stacks of tins', 'A painted sign', 'Tins along the table'],
       gossip: 'Qiao says she counted the tins twice, and they still sold.',
       next: 'Ren brings the Incense Tray once ten tables are wrapping.'
@@ -54,7 +56,7 @@
       id: 'incense', name: 'Incense Tray', vendor: 'Ren',
       habit: 'Ren lights one stick for the stall and one for the alley.',
       serve: 'Light a stick', left: 'stick', lefts: 'sticks', hire: 'Ask Ren to take the tray',
-      base: 130000, growth: 1.15, rate: 50, serves: 8, hand: 16,
+      base: 150000, growth: 1.14, rate: 55, serves: 8, hand: 1,
       looks: ['One tray', 'Two trays', 'A bronze stand', 'Smoke you can see from the gate'],
       gossip: 'Ren says the alley smelled of smoke before anyone arrived.',
       next: 'Old Wen unrolls the Story Mat once ten trays are burning.'
@@ -63,7 +65,7 @@
       id: 'stories', name: 'Story Mat', vendor: 'Old Wen',
       habit: 'Old Wen stops just before the ending. The crowd pays to hear the rest.',
       serve: 'Tell a piece of the story', left: 'piece of the story', lefts: 'pieces of the story', hire: 'Ask Old Wen to take the mat',
-      base: 2200000, growth: 1.15, rate: 500, serves: 6, hand: 40,
+      base: 2500000, growth: 1.15, rate: 220, serves: 6, hand: 1,
       looks: ['One cushion', 'Two cushions', 'A paper screen', 'Listeners sitting in the lane'],
       gossip: 'Old Wen says he reached the ending, then started again.',
       next: ''
@@ -228,6 +230,7 @@
       stall = spec(i);
       if (state.stalls[i].serves >= stall.serves) return stall.vendor + ' will take the ' + stall.name + ' whenever you ask.';
       left = stall.serves - state.stalls[i].serves;
+      if (i === 0 && state.stalls[i].serves === 0) return 'Hold to pour. ' + left + ' more ' + stall.lefts + ', then ' + stall.vendor + ' will take the stall.';
       return left + ' more ' + (left === 1 ? stall.left : stall.lefts) + ' to do yourself. Then ' + stall.vendor + ' will take it.';
     }
     for (i = 0; i < STALLS.length; i++) {
@@ -240,13 +243,15 @@
       left = UNLOCK_AT - state.stalls[i].owned;
       return (left === 1 ? 'One more ' : left + ' more ') + spec(i).name.toLowerCase() + (left === 1 ? '' : 's') + '. ' + spec(i).next;
     }
-    for (i = STALLS.length - 1; i >= 0; i--) {
+    var bestI = -1, bestLeft = Infinity, bestAt = 0;
+    for (i = 0; i < STALLS.length; i++) {
       st = state.stalls[i];
       if (!st.hired || st.owned <= 0 || st.owned >= 100) continue;
       var nextAt = st.owned < 25 ? 25 : st.owned < 50 ? 50 : 100;
       left = nextAt - st.owned;
-      return left + ' more ' + spec(i).name.toLowerCase() + (left === 1 ? '' : 's') + ', and the lane changes: ' + spec(i).looks[lookIndex(nextAt)] + '.';
+      if (left < bestLeft) { bestLeft = left; bestI = i; bestAt = nextAt; }
     }
+    if (bestI >= 0) return bestLeft + ' more ' + spec(bestI).name.toLowerCase() + (bestLeft === 1 ? '' : 's') + ', and the lane changes: ' + spec(bestI).looks[lookIndex(bestAt)] + '.';
     return 'Every stall has a crowd. The lane is as bright as it gets tonight.';
   }
 

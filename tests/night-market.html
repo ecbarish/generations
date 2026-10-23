@@ -91,45 +91,46 @@ document.querySelector('#run').onclick = async function () {
     M.STALLS.forEach(function (s) {
       check(s.name + ' grows gently', s.growth >= 1.05 && s.growth <= 1.15 && s.base > 0 && s.rate > 0 && s.serves > 0);
     });
-    check('tea, dumpling and lantern use the measured NM-RETUNE balance',
-      M.STALLS[0].base === 5 && M.STALLS[0].growth === 1.11 && M.STALLS[0].rate === 0.5 && M.STALLS[0].serves === 25 && M.STALLS[0].hand === 1 &&
-      M.STALLS[1].base === 60 && M.STALLS[1].growth === 1.15 && M.STALLS[1].rate === 0.5 &&
-      M.STALLS[2].base === 720 && M.STALLS[2].growth === 1.15 && M.STALLS[2].rate === 2.5);
+    check('tea, dumpling and lantern use the measured NM-FUN-PASS balance',
+      M.STALLS[0].base === 6 && M.STALLS[0].growth === 1.10 && M.STALLS[0].rate === 0.45 && M.STALLS[0].serves === 25 && M.STALLS[0].hand === 1 &&
+      M.STALLS[1].base === 80 && M.STALLS[1].growth === 1.11 && M.STALLS[1].rate === 0.9 &&
+      M.STALLS[2].base === 900 && M.STALLS[2].growth === 1.12 && M.STALLS[2].rate === 4);
     check('offline is four hours at half pay', M.OFFLINE_CAP === 4 * 3600 && M.OFFLINE_RATE === 0.5);
     check('the cash-box line states half pay and the cap', M.awayRule() === 'While away: earns 50%, up to 4h');
 
     var alone = M.fresh();
     [0, 1, 2].forEach(function (i) { alone.stalls[i].hired = true; });
-    check('the first tea, dumpling and lantern pay back in 10s, 2m and 4m48s',
-      near(M.paybackSeconds(alone, 0), 10) && near(M.paybackSeconds(alone, 1), 120) && near(M.paybackSeconds(alone, 2), 288) &&
-      M.paybackLine(alone, 0) === 'The next one pays for itself in 10s.' &&
-      M.paybackLine(alone, 1) === 'The next one pays for itself in ' + Arcade.fmtTime(120) + '.' &&
-      M.paybackLine(alone, 2) === 'The next one pays for itself in ' + Arcade.fmtTime(288) + '.');
+    function firstPayback(i) { return M.STALLS[i].base / M.STALLS[i].rate; }
+    check('the first tea, dumpling and lantern name their own payback',
+      near(M.paybackSeconds(alone, 0), firstPayback(0)) && near(M.paybackSeconds(alone, 1), firstPayback(1)) && near(M.paybackSeconds(alone, 2), firstPayback(2)) &&
+      M.paybackLine(alone, 0) === 'The next one pays for itself in ' + M.paybackLabel(firstPayback(0)) + '.' &&
+      M.paybackLine(alone, 1) === 'The next one pays for itself in ' + M.paybackLabel(firstPayback(1)) + '.' &&
+      M.paybackLine(alone, 2) === 'The next one pays for itself in ' + M.paybackLabel(firstPayback(2)) + '.');
     var busy = M.fresh();
     busy.stalls[0].hired = true;
     busy.stalls[0].owned = 100;
     busy.stalls[1].hired = true;
     busy.stalls[2].hired = true;
     var busyIncome = M.income(busy);
-    var oldDumpling = Math.max(1, Math.ceil(60 / busyIncome));
-    var oldLantern = Math.max(1, Math.ceil(720 / busyIncome));
+    var wrongDumpling = Math.max(1, Math.ceil(M.STALLS[1].base / busyIncome));
+    var wrongLantern = Math.max(1, Math.ceil(M.STALLS[2].base / busyIncome));
     check('a busy lane still shows each stall its own payback',
-      busyIncome === 400 && oldDumpling <= 2 && oldLantern <= 2 &&
-      near(M.paybackSeconds(busy, 1), 120) && near(M.paybackSeconds(busy, 2), 288) &&
-      M.paybackLine(busy, 1) !== M.paybackLine(busy, 2));
+      busyIncome === M.STALLS[0].rate * 100 * Idle.milestoneMult(100) && wrongDumpling <= 2 && wrongLantern <= 2 &&
+      near(M.paybackSeconds(busy, 1), firstPayback(1)) && near(M.paybackSeconds(busy, 2), firstPayback(2)) &&
+      M.paybackSeconds(busy, 1) > 10 && M.paybackLine(busy, 1) !== M.paybackLine(busy, 2));
     var jump = M.fresh();
     jump.stalls[0].hired = true;
     jump.stalls[0].owned = 24;
-    var jumpCost = Idle.bulkCost(5, 1.11, 24, 1);
-    var jumpAdded = 0.5 * 25 * Idle.milestoneMult(25) - 0.5 * 24 * Idle.milestoneMult(24);
-    check('the 25th tea stall counts the income that purchase adds', jumpAdded > 0.5 && near(M.paybackSeconds(jump, 0), jumpCost / jumpAdded));
+    var jumpCost = Idle.bulkCost(M.STALLS[0].base, M.STALLS[0].growth, 24, 1);
+    var jumpAdded = M.STALLS[0].rate * 25 * Idle.milestoneMult(25) - M.STALLS[0].rate * 24 * Idle.milestoneMult(24);
+    check('the 25th tea stall counts the income that purchase adds', jumpAdded > M.STALLS[0].rate && near(M.paybackSeconds(jump, 0), jumpCost / jumpAdded));
     check('times show whole seconds: 22.04 reads "22s", never "22.0s"', M.paybackLabel(22.04) === '22s' && M.paybackLabel(21.96) === '22s' && M.paybackLabel(9.6) === '10s' && M.paybackLabel(0.3) === '1s' && !/\.0s/.test(M.paybackLabel(22.0)) && M.paybackLabel(59.4) === '59s' && M.paybackLabel(100) === Arcade.fmtTime(100));
     var mat = M.fresh();
     mat.stalls[5].hired = true;
-    check('a long payback uses Arcade.fmtTime', near(M.paybackSeconds(mat, 5), 4400) && M.paybackLine(mat, 5) === 'The next one pays for itself in ' + Arcade.fmtTime(4400) + '.' && Arcade.fmtTime(100) === '1m 40s');
+    check('a long payback uses Arcade.fmtTime', near(M.paybackSeconds(mat, 5), firstPayback(5)) && M.paybackLine(mat, 5) === 'The next one pays for itself in ' + M.paybackLabel(firstPayback(5)) + '.' && Arcade.fmtTime(100) === '1m 40s');
 
     var fresh = M.fresh();
-    check('a new lane starts with you pouring, not with a hire', fresh.stalls.every(function (s) { return s.owned === 0 && !s.hired && s.serves === 0; }) && /Mei/.test(M.goal(fresh)) && /25 more cups/.test(M.goal(fresh)));
+    check('a new lane starts with you pouring, not with a hire', fresh.stalls.every(function (s) { return s.owned === 0 && !s.hired && s.serves === 0; }) && /Hold to pour/.test(M.goal(fresh)) && /Mei/.test(M.goal(fresh)) && /25 more cups/.test(M.goal(fresh)));
     check('the dumpling cart is shuttered', M.handSell(fresh, 1).ok === false && M.hire(fresh, 1).ok === false);
     fresh.cash = 1e9;
     check('coins cannot buy a stall before someone is hired', M.buy(fresh, 0, 'max').ok === false && fresh.stalls[0].owned === 0 && M.income(fresh) === 0);
@@ -138,15 +139,15 @@ document.querySelector('#run').onclick = async function () {
     check('24 cups are not a hire', fresh.stalls[0].serves === 24 && fresh.cash === 24 && M.canHire(fresh, 0) === false && M.hire(fresh, 0).reason === 'serves');
     M.handSell(fresh, 0);
     check('the 25th cup lets Mei take the stall', M.canHire(fresh, 0) && M.hire(fresh, 0).ok && fresh.stalls[0].hired && fresh.stalls[0].owned === 0 && M.income(fresh) === 0);
-    check('the first tea stall costs 5', near(M.quote(fresh, 0, 1).cost, 5) && M.buy(fresh, 0, 1).ok && fresh.stalls[0].owned === 1 && fresh.cash === 20);
-    check('one tea stall earns half a coin a second, with no extra bonus', M.production(fresh, 0) === 0.5 && M.income(fresh) === 0.5);
+    check('the first tea stall costs its base price', near(M.quote(fresh, 0, 1).cost, M.STALLS[0].base) && M.buy(fresh, 0, 1).ok && fresh.stalls[0].owned === 1 && fresh.cash === 25 - M.STALLS[0].base);
+    check('one tea stall earns its rate, with no extra bonus', M.production(fresh, 0) === M.STALLS[0].rate && M.income(fresh) === M.STALLS[0].rate);
 
     var bulk = M.fresh();
     bulk.stalls[0].hired = true;
     bulk.cash = 1000;
-    var ten = Idle.bulkCost(5, 1.11, 0, 10);
+    var ten = Idle.bulkCost(M.STALLS[0].base, M.STALLS[0].growth, 0, 10);
     check('buy 10 uses the shared bulk price', M.buy(bulk, 0, 10).ok && bulk.stalls[0].owned === 10 && near(1000 - bulk.cash, ten));
-    var room = Idle.bulkCost(5, 1.11, 10, 6);
+    var room = Idle.bulkCost(M.STALLS[0].base, M.STALLS[0].growth, 10, 6);
     bulk.cash = room;
     var bought = M.buy(bulk, 0, 'max');
     check('buy max spends only what the next stalls cost', bought.ok && bought.count === 6 && bulk.stalls[0].owned === 16 && bulk.cash === 0);
@@ -188,23 +189,49 @@ document.querySelector('#run').onclick = async function () {
     check('a tab left open still hires within a minute', office.hireAt === 25);
     check('glancing once a minute still upgrades through half an hour (' + o1800.owned.join(',') + ')', oOwned >= 3 && o1800.income > o600.income && o1800.owned.some(function (n) { return n < 100; }));
 
-    // Stronger than the old >1,000/s-at-30m assertion: the actual goal now takes an evening.
+    var sensible = NightMarketPacing.playSensible(M, 5400);
+    var maxWait = sensible.waits.reduce(function (m, n) { return Math.max(m, n); }, 0);
+    var maxPay = sensible.paybacks.reduce(function (m, n) { return Math.max(m, n); }, 0);
+    check('a sensible buyer reaches one million between 45 and 75 minutes (' + sensible.marks[1000000] + 's)',
+      sensible.marks[1000] < sensible.marks[10000] && sensible.marks[10000] < sensible.marks[100000] &&
+      sensible.marks[100000] < sensible.marks[1000000] && sensible.marks[1000000] >= 2700 && sensible.marks[1000000] <= 4500);
+    check('from minute 6 to 15 the best stall is never more than 90 seconds away (' + maxWait.toFixed(0) + 's)',
+      sensible.waits.length > 10 && maxWait <= 90);
+    check('purchases in that window pay back within 20 minutes (' + maxPay.toFixed(0) + 's)',
+      sensible.paybacks.length > 5 && maxPay <= 20 * 60);
+    check('doing it yourself leads past the first minute, and stalls pass a 10-click pace before minute 6 (' + sensible.overtakenAt + 's)',
+      sensible.overtakenAt > 60 && sensible.overtakenAt < 360 && sensible.snaps[360].income > sensible.snaps[360].hand);
     ['active', 'saver', 'milestone-saver', 'hold-saver', 'hold-milestone'].forEach(function (profile) {
       var measured = NightMarketPacing.simulate(M, profile);
-      check(profile + ': one million arrives in the 45–75 minute active-play target (' + measured.million + 's)', measured.million >= 2700 && measured.million <= 4500);
-      check(profile + ': the first tea milestone still lands within ten minutes', measured.tea25 > 0 && measured.tea25 <= 600);
       check(profile + ': no million-coin rush in the first ten minutes', measured.snapshots[600].lifetime < 1000000);
+      check(profile + ': the first tea milestone still lands within ten minutes', measured.tea25 > 0 && measured.tea25 <= 600);
     });
     var teaOnly = NightMarketPacing.simulate(M, 'tea-only');
     check('tea alone cannot bypass the 45-minute lower bound', teaOnly.million >= 2700);
     var glance = NightMarketPacing.simulate(M, 'minute-glance');
     check('minute-glance background buying still progresses to a million within two hours', glance.million >= 2700 && glance.million <= 7200);
-    check('all later tiers use the measured rates and bounded growth',
-      M.STALLS[3].rate === 5 && M.STALLS[4].rate === 50 && M.STALLS[5].rate === 500 &&
-      M.STALLS.slice(1).every(function (stall) { return stall.growth === 1.15; }));
-    check('hand payouts and work before hiring stay unchanged',
-      M.STALLS.map(function (stall) { return stall.hand; }).join(',') === '1,2,4,8,16,40' &&
+    check('later stalls keep the measured rates and growth inside 1.05 to 1.15',
+      M.STALLS[3].rate === 16 && M.STALLS[3].growth === 1.13 &&
+      M.STALLS[4].rate === 55 && M.STALLS[4].growth === 1.14 &&
+      M.STALLS[5].rate === 220 && M.STALLS[5].growth === 1.15);
+    check('every stall pays one coin by hand, and the work before hiring is unchanged',
+      M.STALLS.every(function (stall) { return stall.hand === 1; }) &&
       M.STALLS.map(function (stall) { return stall.serves; }).join(',') === '25,12,10,8,8,6');
+    var short = M.fresh();
+    short.stalls[0].hired = true; short.stalls[0].owned = 10;
+    short.stalls[1].hired = true; short.stalls[1].owned = 10;
+    short.stalls[2].hired = true;
+    var lanternPrice = Idle.bulkCost(M.STALLS[2].base, M.STALLS[2].growth, 0, 1);
+    short.cash = lanternPrice - 1;
+    check('a lantern priced above the coins on hand cannot be bought',
+      M.quote(short, 2, 1).count === 0 && M.quote(short, 2, 'max').count === 0 &&
+      M.buy(short, 2, 'max').ok === false && short.cash === lanternPrice - 1 && short.stalls[2].owned === 0);
+    var nextGoal = M.fresh();
+    for (var g = 0; g < M.STALLS.length; g++) { nextGoal.stalls[g].hired = true; nextGoal.stalls[g].owned = 12; }
+    nextGoal.stalls[0].owned = 24;
+    nextGoal.stalls[5].owned = 12;
+    check('past the last unlock the goal is the nearest 25, 50 or 100 bonus',
+      M.goal(nextGoal) === '1 more tea stall, and the lane changes: Two lanterns.');
     var legacy = await (await fetch('../docs/playtests/nm-retune/legacy-v1.json')).json();
     check('a literal pre-retune v1 save still validates', M.valid(legacy));
     var legacyRoundTrip = M.serialize(M.restore(legacy), legacy.seen);
@@ -228,9 +255,9 @@ document.querySelector('#run').onclick = async function () {
       var idle = M.createIdle(market, function (obj) { saved = obj; });
       var away = idle.start(wall - 30 * 3600 * 1000);
       var copy = M.awayCopy(away);
-      check('thirty hours away pays four hours at half rate', away && away.capped && away.credited === 4 * 3600 && near(away.gained, 10 * 4 * 3600 * 0.5) && near(market.cash, away.gained));
+      check('thirty hours away pays four hours at half rate', away && away.capped && away.credited === 4 * 3600 && near(away.gained, M.income(market) * 4 * 3600 * 0.5) && near(market.cash, away.gained));
       check('the welcome back names the four hour box and the 50% rate', copy.title === 'While you were away' && /four hours/.test(copy.lead) && /50%/.test(copy.lead) && copy.box.indexOf(Arcade.fmt(away.gained)) === 0);
-      check('the tab title uses Arcade.fmt', document.title === '+' + Arcade.fmt(10) + '/s · Night Market');
+      check('the tab title uses Arcade.fmt', document.title === '+' + Arcade.fmt(M.income(market)) + '/s · Night Market');
       idle.stop();
       check('stopping the market restores the tab', document.title === title);
 
@@ -239,11 +266,11 @@ document.querySelector('#run').onclick = async function () {
       market.stalls[0].owned = 20;
       idle = M.createIdle(market, function (obj) { saved = obj; Arcade.save(KEY, obj); });
       var hour = idle.start(wall - 3600 * 1000);
-      check('one hour away is not capped and pays half', hour && hour.capped === false && hour.credited === 3600 && near(hour.gained, 10 * 3600 * 0.5));
+      check('one hour away is not capped and pays half', hour && hour.capped === false && hour.credited === 3600 && near(hour.gained, M.income(market) * 3600 * 0.5));
       check('an hour reads as kept time, not the cap, and still states 50%', /four hours/.test(M.awayCopy(hour).lead) === false && /kept/.test(M.awayCopy(hour).lead) && /50%/.test(M.awayCopy(hour).lead));
       wall += 30000;
       tick();
-      check('the save callback stamps the clock and the coins', saved && saved.seen === wall && saved.v === 1 && saved.game === 'night-market' && near(saved.cash, hour.gained + 300));
+      check('the save callback stamps the clock and the coins', saved && saved.seen === wall && saved.v === 1 && saved.game === 'night-market' && near(saved.cash, hour.gained + M.income(market) * 30));
       Arcade.versions[KEY] = M.SAVE_VERSION;
       Arcade.validators[KEY] = M.valid;
       var loaded = M.restore(Arcade.load(KEY));
@@ -327,10 +354,19 @@ document.querySelector('#run').onclick = async function () {
     var d = w.document;
     var hook = w.__nightMarket;
     await new Promise(function (r) { setTimeout(r, 50); });
-    check('the page shows the welcome back from the save', hook && hook.away() && /While you were away/.test(d.querySelector('#away').textContent) && /36\.0K coins are in the box/.test(d.querySelector('#away').textContent) && /50%/.test(d.querySelector('#away').textContent) && /Mei says/.test(d.querySelector('#away').textContent));
+    hook.idle.stop();
+    var awayPreview = M.fresh();
+    awayPreview.stalls[0].hired = true;
+    awayPreview.stalls[0].owned = 20;
+    var expectedAway = M.income(awayPreview) * 2 * 3600 * M.OFFLINE_RATE;
+    var onceCash = hook.state.cash;
+    check('the page shows the welcome back from the save', hook && hook.away() && /While you were away/.test(d.querySelector('#away').textContent) && d.querySelector('#away').textContent.indexOf(Arcade.fmt(expectedAway) + ' coins are in the box') >= 0 && /50%/.test(d.querySelector('#away').textContent) && /Mei says/.test(d.querySelector('#away').textContent));
     check('the cash box says away earnings are half', d.querySelector('#away-rule').textContent === 'While away: earns 50%, up to 4h');
+    check('away coins are credited once on load', near(onceCash, 100 + expectedAway));
+    await new Promise(function (r) { setTimeout(r, 400); });
+    check('leaving the box up does not credit those coins again', near(hook.state.cash, onceCash));
     d.querySelector('[data-act="away"]').click();
-    check('putting the box away clears the note', d.querySelector('#away').hidden);
+    check('putting the box away clears the note and does not pay again', d.querySelector('#away').hidden && near(hook.state.cash, onceCash));
     var keptStalls = JSON.stringify(hook.state.stalls), keptCash = hook.state.cash;
     frame.remove();
     frame = null;
@@ -368,7 +404,7 @@ document.querySelector('#run').onclick = async function () {
     w = frame.contentWindow;
     d = w.document;
     await new Promise(function (r) { setTimeout(r, 40); });
-    check('a new market has no welcome back', d.querySelector('#away').hidden && /25 more cups/.test(d.querySelector('#goal').textContent));
+    check('a new market has no welcome back', d.querySelector('#away').hidden && /Hold to pour/.test(d.querySelector('#goal').textContent) && /25 more cups/.test(d.querySelector('#goal').textContent));
     async function countPx(width, height) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px';
       await new Promise(function (r) { setTimeout(r, 80); });
@@ -391,26 +427,23 @@ document.querySelector('#run').onclick = async function () {
         var hr = home.getBoundingClientRect(), sr = serve.getBoundingClientRect();
         function inside(r) { return r.x >= 0 && r.y >= 0 && r.right <= dims[0] + 1 && r.bottom <= dims[1] + 1; }
         function onTop(el, r) { var hit = d.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return hit === el || el.contains(hit); }
-        // NM-G3: inspect actual type and text geometry, including the off-screen footer.
-        var links = d.querySelectorAll('.home, .foot a');
-        check(label + ' ' + dims.join('x') + ': both arcade links are present', links.length === 2);
-        links.forEach(function (link, i) {
-          var prefix = label + ' ' + dims.join('x') + (i === 0 ? ': Back' : ': footer');
-          var style = w.getComputedStyle(link), box = link.getBoundingClientRect();
-          var range = d.createRange(); range.selectNodeContents(link);
-          var lines = Array.from(range.getClientRects()).filter(function (r) { return r.width > 0 && r.height > 0; });
-          var lineHeight = parseFloat(style.lineHeight);
-          check(prefix + ' computes to at least 16px', parseFloat(style.fontSize) >= 16);
-          check(prefix + ' prevents wrapping', style.whiteSpace === 'nowrap');
-          check(prefix + ' keeps its 44px target', box.height >= 44);
-          check(prefix + ' is one text line in a box shorter than two lines',
-            lines.length === 1 && lines[0].height < 2 * lineHeight && box.height < 2 * lineHeight);
-          check(prefix + ' text fits the target and the viewport horizontally',
-            lines.length === 1 && lines[0].left >= box.left && lines[0].right <= box.right &&
-            box.left >= 0 && box.right <= dims[0] + 1 && link.scrollWidth <= link.clientWidth + 1);
-        });
-        check(label + ' ' + dims.join('x') + ': footer type computes to at least 16px',
-          parseFloat(w.getComputedStyle(d.querySelector('.foot')).fontSize) >= 16);
+        var links = d.querySelectorAll('a.home');
+        check(label + ' ' + dims.join('x') + ': one Back to the arcade link, and no second link over the save row',
+          links.length === 1 && !d.querySelector('.foot') && d.querySelectorAll('a[href$="index.html"]').length === 1);
+        var link = links[0];
+        var prefix = label + ' ' + dims.join('x') + ': Back';
+        var style = w.getComputedStyle(link), box = link.getBoundingClientRect();
+        var range = d.createRange(); range.selectNodeContents(link);
+        var lines = Array.from(range.getClientRects()).filter(function (r) { return r.width > 0 && r.height > 0; });
+        var lineHeight = parseFloat(style.lineHeight);
+        check(prefix + ' computes to at least 16px', parseFloat(style.fontSize) >= 16);
+        check(prefix + ' prevents wrapping', style.whiteSpace === 'nowrap');
+        check(prefix + ' keeps its 44px target', box.height >= 44);
+        check(prefix + ' is one text line in a box shorter than two lines',
+          lines.length === 1 && lines[0].height < 2 * lineHeight && box.height < 2 * lineHeight);
+        check(prefix + ' text fits the target and the viewport horizontally',
+          lines.length === 1 && lines[0].left >= box.left && lines[0].right <= box.right &&
+          box.left >= 0 && box.right <= dims[0] + 1 && link.scrollWidth <= link.clientWidth + 1);
         var cashRect = d.querySelector('.coins').getBoundingClientRect();
         check(label + ' ' + dims.join('x') + ': Back and cash fit beside each other without overlap',
           hr.right <= cashRect.left && Math.abs((hr.top + hr.bottom) / 2 - (cashRect.top + cashRect.bottom) / 2) < 1 &&
@@ -472,11 +505,11 @@ document.querySelector('#run').onclick = async function () {
     await checkPhoneLayout('Ready to hire');
     ask.click();
     var sv = d.querySelector('#stalls [data-act="serve"]');
-    check('after the hire the pour button stays (it never vanishes) and the price shows', !sv.hidden && sv.offsetParent !== null && /Pour a cup yourself · \+1/.test(sv.textContent) && d.querySelector('#stalls .count').hidden && d.querySelector('#stalls .pour').hidden && /Buy 1 · 5 coins/.test(d.querySelector('#stalls [data-act="buy"]').textContent));
+    check('after the hire the pour button stays (it never vanishes) and the price shows', !sv.hidden && sv.offsetParent !== null && sv.classList.contains('best') && /Best · Pour a cup · \+1/.test(sv.textContent) && d.querySelector('#stalls .count').hidden && d.querySelector('#stalls .pour').hidden && d.querySelector('#stalls [data-act="buy"]').textContent === 'Buy 1 · ' + w.Arcade.fmt(w.NightMarket.STALLS[0].base) + ' coins' && d.querySelector('.bulk-name').textContent === 'Buying' && d.querySelector('[data-bulk="1"]').textContent === '1');
     await checkPhoneLayout('Mei hired');
     var c0 = w.__nightMarket.state.cash; sv.click(); check('...and pouring by hand still earns', w.__nightMarket.state.cash === c0 + 1); w.__nightMarket.state.cash = c0; w.__nightMarket.render();
     d.querySelector('#stalls [data-act="buy"]').click();
-    check('the first stall is open and earning', /Tea Stall · 1/.test(d.querySelector('#stalls h2').textContent) && /0\.50 coins a second/.test(d.querySelector('#rate').textContent));
+    check('the first stall is open and earning', /Tea Stall · 1/.test(d.querySelector('#stalls h2').textContent) && d.querySelector('#rate').textContent === w.Arcade.fmt(w.NightMarket.STALLS[0].rate) + ' coins a second');
     var freshHook = w.__nightMarket;
     freshHook.state.stalls[0].owned = 10;
     freshHook.state.stalls[1].hired = true;
@@ -485,16 +518,37 @@ document.querySelector('#run').onclick = async function () {
     freshHook.render();
     var teaWait = d.querySelectorAll('#stalls .stall')[0].querySelector('.wait').textContent;
     var dumplingWait = d.querySelectorAll('#stalls .stall')[1].querySelector('.wait').textContent;
+    var teaSpec = w.NightMarket.STALLS[0], dumSpec = w.NightMarket.STALLS[1];
     check('the lane shows different paybacks for the tea stall and the dumpling cart',
       teaWait === w.NightMarket.paybackLine(freshHook.state, 0) &&
-      dumplingWait === 'The next one pays for itself in ' + Arcade.fmtTime(120) + '.' &&
+      dumplingWait === w.NightMarket.paybackLine(freshHook.state, 1) &&
       teaWait !== dumplingWait &&
-      near(w.NightMarket.paybackSeconds(freshHook.state, 0), Idle.bulkCost(5, 1.11, 10, 1) / 0.5) &&
-      near(w.NightMarket.paybackSeconds(freshHook.state, 1), 120));
+      near(w.NightMarket.paybackSeconds(freshHook.state, 0), Idle.bulkCost(teaSpec.base, teaSpec.growth, 10, 1) / teaSpec.rate) &&
+      near(w.NightMarket.paybackSeconds(freshHook.state, 1), dumSpec.base / dumSpec.rate));
     d.querySelector('[data-bulk="10"]').click();
     check('buy 10 stays selected', d.querySelector('[data-bulk="10"]').getAttribute('aria-pressed') === 'true' && d.querySelector('[data-bulk="1"]').getAttribute('aria-pressed') === 'false');
     d.querySelector('[data-bulk="max"]').click();
-    check('buy max is a real control', d.querySelector('[data-bulk="max"]').getAttribute('aria-pressed') === 'true');
+    check('buy max is a mode, not a purchase', d.querySelector('[data-bulk="max"]').getAttribute('aria-pressed') === 'true' && d.querySelector('[data-bulk="max"]').textContent === 'Max');
+    var laneBefore = JSON.stringify(freshHook.state.stalls);
+    var cashBefore = freshHook.state.cash;
+    var lanternPrice = w.NightMarket.STALLS[2].base;
+    freshHook.state.stalls[1].owned = 10;
+    freshHook.state.stalls[2].hired = true;
+    freshHook.state.stalls[2].owned = 0;
+    freshHook.state.cash = lanternPrice - 1;
+    freshHook.state.bulk = 'max';
+    freshHook.render();
+    var lanternBtn = d.querySelector('#stalls [data-i="2"] [data-act="buy"]');
+    check('a lantern you cannot afford is not labelled as a purchase', lanternBtn.disabled && lanternBtn.textContent === 'Need ' + w.Arcade.fmt(lanternPrice) + ' coins for one');
+    lanternBtn.click();
+    check('that click does not spend the coins or add a lantern', freshHook.state.cash === lanternPrice - 1 && freshHook.state.stalls[2].owned === 0);
+    freshHook.state.cash = lanternPrice;
+    freshHook.render();
+    check('buy max still says max when one stall is all the coins cover', !lanternBtn.disabled && /Buy max · 1 lantern stand · /.test(lanternBtn.textContent));
+    freshHook.state.stalls = JSON.parse(laneBefore);
+    freshHook.state.cash = cashBefore;
+    freshHook.state.bulk = 'max';
+    freshHook.render();
 
     // ---- ART-NM-1: the lane strip (effects 0-5)
     var NL = w.NightLane, lc = d.getElementById('lane'), hk = w.__nightMarket;
@@ -566,6 +620,47 @@ document.querySelector('#run').onclick = async function () {
     w.URL.createObjectURL = realCreate;
     check('Your save downloads this game\'s v1 file and says so', made === 1 && downloadedSave.game === 'night-market' && downloadedSave.v === 1 && downloadedSave.stalls.length === 6 && /Downloaded/.test(d.querySelector('.arc-save-msg').textContent));
     check('Load a save file opens a real file picker', !!fileLbl.querySelector('input[type=file][data-arcsave="file"]'));
+    async function phoneSave(width, height) {
+      frame.style.width = width + 'px';
+      frame.style.height = height + 'px';
+      saveBox.open = true;
+      w.scrollTo(0, 0);
+      await new Promise(function (r) { setTimeout(r, 80); });
+      var goal = d.querySelector('#goal');
+      var pin = d.querySelector('#goal-pin');
+      d.querySelector('#stalls [data-i="5"]').scrollIntoView({ block: 'center' });
+      await new Promise(function (r) { setTimeout(r, 80); });
+      var pinBox = pin.getBoundingClientRect();
+      check(width + 'x' + height + ': the green goal stays on screen after scrolling to the stalls',
+        !pin.hidden && pin.textContent === goal.textContent && pinBox.top < 8 && pinBox.bottom > 0 && pinBox.bottom < height);
+      var dl = d.querySelector('[data-arcsave="download"]');
+      var file = d.querySelector('.arc-file');
+      var input = file.querySelector('input[type=file]');
+      dl.scrollIntoView({ block: 'center' });
+      await new Promise(function (r) { setTimeout(r, 50); });
+      var dr = dl.getBoundingClientRect();
+      var hit = d.elementFromPoint(dr.left + dr.width / 2, dr.top + dr.height / 2);
+      var here = w.location.href;
+      check(width + 'x' + height + ': Download my save is the control under the tap', hit === dl);
+      var downloads = 0, blob = null, realURL = w.URL.createObjectURL;
+      w.URL.createObjectURL = function (b) { downloads++; blob = b; return 'blob:phone-save'; };
+      dl.click();
+      w.URL.createObjectURL = realURL;
+      var fileText = blob ? await blob.text() : '';
+      check(width + 'x' + height + ': the tap downloads the v1 save and stays on the stall page',
+        downloads === 1 && /night-market/.test(fileText) && w.location.href === here && /index\.html$/.test(w.location.pathname) === false);
+      file.scrollIntoView({ block: 'center' });
+      await new Promise(function (r) { setTimeout(r, 40); });
+      var fr = file.getBoundingClientRect();
+      var fileHit = d.elementFromPoint(fr.left + fr.width / 2, fr.top + fr.height / 2);
+      var opened = 0;
+      input.addEventListener('click', function () { opened++; });
+      file.click();
+      check(width + 'x' + height + ': Load a save file is the control under the tap and it opens the picker',
+        (fileHit === file || file.contains(fileHit)) && opened >= 1);
+    }
+    await phoneSave(390, 844);
+    await phoneSave(844, 390);
     // a wrong file is refused before any "Replace your save?" question, and the save is not touched
     var fin = fileLbl.querySelector('input[type=file]'), asked = 0, realConfirm = w.confirm; w.confirm = function () { asked++; return false; };
     var storedBefore = w.localStorage.getItem(KEY);

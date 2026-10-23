@@ -27,7 +27,7 @@ button, summary { font: inherit; }
   overflow-wrap: break-word;
 }
 a { color: var(--amber); }
-.home, .foot a {
+.home {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -53,6 +53,7 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
 }
 .rate, .goal { margin: 0.15rem 0; }
 .goal { color: var(--good); }
+.goal-pin[hidden] { display: none !important; }
 .lane { /* ART-NM-1: the lane strip breaks out of the 42rem column to the page width (set by lane.js), whole-number scale */
   position: relative;
   left: 50%;
@@ -68,9 +69,11 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
 .bulk {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.4rem;
   margin: 0.9rem 0 0.3rem;
 }
+.bulk-name { color: var(--mute); min-height: 44px; display: inline-flex; align-items: center; }
 button {
   min-height: 44px;
   padding: 0.35rem 0.75rem;
@@ -83,7 +86,7 @@ button {
 }
 button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 button:disabled { opacity: 0.45; cursor: default; }
-button[aria-pressed="true"], button.ask {
+button[aria-pressed="true"], button.ask, button.best {
   background: var(--amber-wash);
   border-color: var(--amber);
 }
@@ -111,13 +114,12 @@ button[aria-pressed="true"], button.ask {
   border: 1px solid var(--ink); background: #fffdf8; color: var(--ink); border-radius: 2px; cursor: pointer; font: inherit; }
 .save .btn.alt { border-color: var(--amber); background: var(--amber-wash); }
 .save .arc-file:focus-within { outline: 2px solid var(--amber); outline-offset: 2px; }
-.save .arc-bk summary { min-height: 44px; display: flex; align-items: center; }
+.save .arc-bk summary { min-height: 44px; display: block; padding: 0.6rem 0; }
 .save .arc-save-msg { color: var(--good); }
 .pour { display: block; width: 100%; height: 10px; margin: 0.35rem 0 0; accent-color: var(--amber); }
 .count { margin: 0.15rem 0 0; color: var(--mute); font-size: 0.92rem; font-variant-numeric: tabular-nums; }
 .actions [data-act="serve"] { touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-.save summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
-.foot { margin: 1rem 0 0; font-size: 1rem; }
+.save summary { cursor: pointer; min-height: 44px; display: block; padding: 0.6rem 0; }
 @media (max-width: 380px) {
   .window { padding-left: 0.8rem; padding-right: 0.8rem; }
   h1 { font-size: 1.45rem; }
@@ -141,6 +143,21 @@ button[aria-pressed="true"], button.ask {
   .stall h2 { order: -2; }
   .stall .actions { order: -1; margin-bottom: 0.3rem; }
   .count { font-size: 16px; }
+  .goal-pin:not([hidden]) {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    margin: 0;
+    padding: 0.35rem max(1.1rem, env(safe-area-inset-right)) 0.35rem max(1.1rem, env(safe-area-inset-left));
+    padding-top: max(0.35rem, env(safe-area-inset-top));
+    background: var(--paper);
+    color: var(--good);
+    box-shadow: 0 1px 0 var(--rule);
+    pointer-events: none;
+  }
 }
 /* A short, wide phone has room beside the ledger. Keep controls in normal flow.
    The decorative strip keeps its full-page pixel scale, above the two columns. */
@@ -150,7 +167,6 @@ button[aria-pressed="true"], button.ask {
   .market-work { grid-column: 2; grid-row: 2; }
   .lane { grid-column: 1 / -1; grid-row: 1; margin-top: 0; margin-bottom: 0.5rem; }
   .save { grid-column: 1 / -1; grid-row: 3; }
-  .foot { grid-column: 1 / -1; grid-row: 4; }
   .bulk { margin-top: 0; }
   .stalls { margin-top: 0; }
   .actions button { flex-basis: 8rem; }
