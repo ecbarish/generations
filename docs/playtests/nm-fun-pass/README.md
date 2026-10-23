@@ -2,7 +2,7 @@
 
 Fresh-session findings on main `b17ae6be` (that commit already includes #614), and the measurements for this pull. Seconds below are simulated, not a person's clock.
 
-Reproduce the curve with `node tools/night-market-pacing.cjs --check`. The buyer does one hand action each second on the earliest stall nobody has taken, adds that second of stall income, then buys one copy of the hired stall that pays for itself soonest. If that copy costs more than the coins on hand, the buyer waits. A worse stall is not a substitute.
+Reproduce both buyers with `node tools/night-market-pacing.cjs --check`. The sensible buyer does one hand action each second on the earliest stall nobody has taken, adds that second of stall income, then buys one copy of the hired stall that pays for itself soonest. If that copy costs more than the coins on hand, the buyer waits. A worse stall is not a substitute. The other buyer is the same minute, except they buy the affordable stall that pays for itself soonest.
 
 ## Why the checklist says 8 minutes and the playtest did not
 
@@ -30,13 +30,26 @@ From minute 6 to 15 the best line ran as long as 34 minutes. The longest wait fo
 
 From minute 6 to 15 the longest wait for the best stall is 68 seconds. Purchases in that window pay back between 14 seconds and 16.3 minutes, and the median is about 10 minutes. Many of those buys are only a few seconds apart, because a cheap best deal is often affordable immediately. The 30 to 90 second band is the ceiling on the wait, not the gap between every purchase. Pushing every gap into that band brought the long payback lines back.
 
-Doing it yourself still leads for the first minute and a half. Stalls pass ten clicks a second at 103 seconds. At minute 6 the stalls earn 71/s and the hand earns 10/s. Every stall pays 1 coin a click. The 25 cups at the tea stall are unchanged. The opening line says to hold the pour.
+Doing it yourself still leads for the first minute and a half. Stalls pass ten clicks a second at 103 seconds. At minute 6 the stalls earn 71/s and the hand earns 10/s. Every stall pays 1 coin a click. The 25 cups stay at 25. The spec asks for exactly 25 serves before Mei takes the stall, and holding the pour already finishes them. Only the opening sentence changed. It now says to hold.
+
+## The buyer who spends whatever is affordable
+
+Same minute as the sensible buyer, except this one buys the affordable stall that pays for itself soonest. They do not save for a better stall. This is the playtest buyer.
+
+| | 100K | 1M | Longest purchase, minute 6 to 15 | Longest line on screen |
+| --- | --- | --- | --- | --- |
+| Before, `b17ae6be` | 15:20 | 65:18 | 66 min | 76 min |
+| After | 13:52 | 45:47 | 36 min | 40 min |
+
+Before, 24 of 42 purchases in that window ran longer than 15 minutes. After, 22 of 53 do. The longest of those is 2176 seconds. 100K arrives inside the 15 minute session, at 832 seconds, and the million arrives at 2747 seconds.
+
+A curve that held every one of those purchases under 15 minutes was not shipped. The ones that did it pushed the 25th tea stall past 10 minutes, or left the fourth stall closed at half an hour, or brought the million forward of 45 minutes. This curve keeps those gates. The long lines are shorter than the 66 minute lines on `b17ae6be`. They are not gone.
 
 ## What was ruled out
 
-A Lantern Stand at 720 coins with 575 on hand was not a purchase the model would make. The quote count was 0 and the button was disabled. The label "Buy max · 720 coins" looked like an offer. The button now says what one stall costs, and it stays disabled. A test sets the cash to one coin under the live price.
+A Lantern Stand priced at 720 coins with 575 on hand is not a purchase. The quote count is 0, Buy and Buy max both fail, and the coins and the stall count stay put. The old label "Buy max · 720 coins" looked like an offer. The button now says "Need 720 coins for one" and stays disabled. The test sets the price to 720 and the cash to 575, then puts the live price back.
 
-The away box credits its coins once, when the page loads. "Put the box away" only hides the note. Leaving the note up does not pay them again. The test stops the clock, waits, then presses the button.
+The away box credits its coins once, when the page loads. The test stops the clock, waits without pressing "Put the box away", and the coins stay. It then presses the button. The note hides and the coins stay.
 
 ## Shots
 

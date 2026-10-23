@@ -153,7 +153,56 @@
     return { marks: marks, snaps: snaps, overtakenAt: overtakenAt, gaps: gaps, paybacks: paybacks, waits: waits, purchases: purchases, state: state };
   }
 
-  var api = { PROFILES: PROFILES, simulate: simulate, playSensible: playSensible };
+  /* The playtest buyer. Same minute as playSensible, except they buy the affordable
+     stall that pays for itself soonest. They do not save up for a better one.
+     visiblePaybacks are the longest line on any hired stall during minutes 6 to 15. */
+  function playAffordable(M, durationSec) {
+    var state = M.fresh();
+    var limit = durationSec || 5400;
+    var marks = { 1000: null, 10000: null, 100000: null, 1000000: null };
+    var snaps = {};
+    var purchases = [];
+    var visible = [];
+    for (var t = 1; t <= limit; t++) {
+      for (var i = 0; i < M.STALLS.length; i++) {
+        if (!M.unlocked(state, i)) break;
+        if (state.stalls[i].hired) continue;
+        if (M.canHire(state, i)) M.hire(state, i);
+        else M.handSell(state, i);
+        break;
+      }
+      M.addCash(state, M.income(state));
+      var best = -1, payback = Infinity, worst = 0;
+      for (var j = 0; j < M.STALLS.length; j++) {
+        if (!state.stalls[j].hired) continue;
+        var seconds = M.paybackSeconds(state, j);
+        if (seconds > worst) worst = seconds;
+        var quote = M.quote(state, j, 1);
+        if (quote.count > 0 && seconds < payback) { payback = seconds; best = j; }
+      }
+      if (t >= 360 && t <= 900 && worst > 0) visible.push(worst);
+      if (best >= 0 && M.buy(state, best, 1).ok) purchases.push({ at: t, stall: best, payback: payback });
+      [1000, 10000, 100000, 1000000].forEach(function (mark) {
+        if (marks[mark] === null && state.lifetime >= mark) marks[mark] = t;
+      });
+      if (t === 360 || t === 600 || t === 870 || t === 900 || t === 1800) {
+        snaps[t] = {
+          income: M.income(state),
+          lifetime: state.lifetime,
+          owned: state.stalls.map(function (s) { return s.owned; }),
+          boughtPayback: best >= 0 ? payback : null,
+          worstLine: worst
+        };
+      }
+    }
+    var paybacks = [];
+    purchases.forEach(function (p) {
+      if (p.at >= 360 && p.at <= 900) paybacks.push(p.payback);
+    });
+    return { marks: marks, snaps: snaps, paybacks: paybacks, visible: visible, purchases: purchases, state: state };
+  }
+
+  var api = { PROFILES: PROFILES, simulate: simulate, playSensible: playSensible, playAffordable: playAffordable };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.NightMarketPacing = api;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -177,6 +226,7 @@ if (typeof module !== 'undefined' && require.main === module) {
       return { longestPurchaseGapBeforeMillion: result.longestPurchaseGapBeforeMillion, profile: result.profile, hireAt: result.hireAt, tea25: result.tea25, million: result.million, snapshots: result.snapshots, purchaseActions: result.purchases.length };
     });
     const sensible = module.exports.playSensible(context.NightMarket, 5400);
+    const affordable = module.exports.playAffordable(context.NightMarket, 5400);
     const maxOf = (list) => list.reduce((m, n) => Math.max(m, n), 0);
     const fixture = JSON.parse(fs.readFileSync(path.join(root, 'docs/playtests/nm-retune/legacy-v1.json'), 'utf8'));
     const M = context.NightMarket;
@@ -189,6 +239,12 @@ if (typeof module !== 'undefined' && require.main === module) {
         marks: sensible.marks, overtakenAt: sensible.overtakenAt,
         maxWaitMinute6to15: maxOf(sensible.waits), maxPaybackMinute6to15: maxOf(sensible.paybacks),
         minute6: sensible.snaps[360]
+      },
+      affordable: {
+        marks: affordable.marks,
+        maxPaybackMinute6to15: maxOf(affordable.paybacks),
+        purchasesMinute6to15: affordable.paybacks.length,
+        purchasesOver15Min: affordable.paybacks.filter(n => n > 15 * 60).length
       }
     };
   }
@@ -208,6 +264,9 @@ if (typeof module !== 'undefined' && require.main === module) {
     assert(sensible.maxPaybackMinute6to15 <= 20 * 60, 'minute 6 to 15 payback');
     assert(sensible.overtakenAt > 60 && sensible.overtakenAt < 360, 'stalls overtake a fast click after the opening');
     assert(sensible.minute6.income > sensible.minute6.hand, 'minute 6 stall income beats 10 clicks a second');
+    const spend = report.current.affordable;
+    assert(spend.marks[100000] < 15 * 60 && spend.marks[1000000] >= 2700 && spend.marks[1000000] <= 4500, 'affordable buyer reaches 100K inside 15 minutes and a million in 45 to 75');
+    assert(spend.purchasesMinute6to15 > 10 && spend.maxPaybackMinute6to15 <= 38 * 60, 'affordable buyer minute 6 to 15 purchase');
     for (const profile of report.current.profiles) assert(profile.snapshots[600].lifetime < 1000000, profile.profile + ' early rush');
     const active = report.current.profiles.find(p => p.profile === 'active');
     assert.equal(active.hireAt[0], 25, 'first vendor');

@@ -202,6 +202,13 @@ document.querySelector('#run').onclick = async function () {
       sensible.paybacks.length > 5 && maxPay <= 20 * 60);
     check('doing it yourself leads past the first minute, and stalls pass a 10-click pace before minute 6 (' + sensible.overtakenAt + 's)',
       sensible.overtakenAt > 60 && sensible.overtakenAt < 360 && sensible.snaps[360].income > sensible.snaps[360].hand);
+    var spender = NightMarketPacing.playAffordable(M, 5400);
+    var spendPay = spender.paybacks.reduce(function (m, n) { return Math.max(m, n); }, 0);
+    check('a buyer who buys any affordable stall reaches 100K inside 15 minutes and a million between 45 and 75 (' + spender.marks[100000] + 's, ' + spender.marks[1000000] + 's)',
+      spender.marks[1000] < spender.marks[10000] && spender.marks[10000] < spender.marks[100000] &&
+      spender.marks[100000] < 15 * 60 && spender.marks[1000000] >= 2700 && spender.marks[1000000] <= 4500);
+    check('that buyer\'s longest purchase from minute 6 to 15 stays under 40 minutes (' + Math.round(spendPay) + 's)',
+      spender.paybacks.length > 10 && spendPay <= 38 * 60);
     ['active', 'saver', 'milestone-saver', 'hold-saver', 'hold-milestone'].forEach(function (profile) {
       var measured = NightMarketPacing.simulate(M, profile);
       check(profile + ': no million-coin rush in the first ten minutes', measured.snapshots[600].lifetime < 1000000);
@@ -227,6 +234,17 @@ document.querySelector('#run').onclick = async function () {
     check('a lantern priced above the coins on hand cannot be bought',
       M.quote(short, 2, 1).count === 0 && M.quote(short, 2, 'max').count === 0 &&
       M.buy(short, 2, 'max').ok === false && short.cash === lanternPrice - 1 && short.stalls[2].owned === 0);
+    var lanternBase = M.STALLS[2].base;
+    M.STALLS[2].base = 720;
+    var priced = M.fresh();
+    priced.stalls[1].owned = 10;
+    priced.stalls[2].hired = true;
+    priced.cash = 575;
+    check('a Lantern Stand priced at 720 is not buyable with 575 coins',
+      M.quote(priced, 2, 1).cost === 720 && M.quote(priced, 2, 1).count === 0 && M.quote(priced, 2, 'max').count === 0 &&
+      M.buy(priced, 2, 1).ok === false && M.buy(priced, 2, 'max').ok === false &&
+      priced.cash === 575 && priced.stalls[2].owned === 0);
+    M.STALLS[2].base = lanternBase;
     var nextGoal = M.fresh();
     for (var g = 0; g < M.STALLS.length; g++) { nextGoal.stalls[g].hired = true; nextGoal.stalls[g].owned = 12; }
     nextGoal.stalls[0].owned = 24;
@@ -364,11 +382,11 @@ document.querySelector('#run').onclick = async function () {
     check('the page shows the welcome back from the save', hook && hook.away() && /While you were away/.test(d.querySelector('#away').textContent) && d.querySelector('#away').textContent.indexOf(Arcade.fmt(expectedAway) + ' coins are in the box') >= 0 && /50%/.test(d.querySelector('#away').textContent) && /Mei says/.test(d.querySelector('#away').textContent));
     check('the cash box says away earnings are half', d.querySelector('#away-rule').textContent === 'While away: earns 50%, up to 4h');
     var awayGain = onceCash - 100;
-    check('away coins are credited once on load', awayGain + 1e-6 >= expectedAway && awayGain < expectedAway + M.income(awayPreview));
+    check('away earnings are credited once on load, before Put the box away is pressed', awayGain + 1e-6 >= expectedAway && awayGain < expectedAway + M.income(awayPreview));
     await new Promise(function (r) { setTimeout(r, 400); });
-    check('leaving the box up does not credit those coins again', near(hook.state.cash, onceCash));
+    check('leaving the box up, without pressing Put the box away, does not credit those coins again', near(hook.state.cash, onceCash));
     d.querySelector('[data-act="away"]').click();
-    check('putting the box away clears the note and does not pay again', d.querySelector('#away').hidden && near(hook.state.cash, onceCash));
+    check('pressing Put the box away does not credit the away earnings a second time', d.querySelector('#away').hidden && near(hook.state.cash, onceCash));
     var keptStalls = JSON.stringify(hook.state.stalls), keptCash = hook.state.cash;
     frame.remove();
     frame = null;
@@ -547,6 +565,16 @@ document.querySelector('#run').onclick = async function () {
     freshHook.state.cash = lanternPrice;
     freshHook.render();
     check('buy max still says max when one stall is all the coins cover', !lanternBtn.disabled && /Buy max · 1 lantern stand · /.test(lanternBtn.textContent));
+    var pricedBase = w.NightMarket.STALLS[2].base;
+    w.NightMarket.STALLS[2].base = 720;
+    freshHook.state.stalls[2].owned = 0;
+    freshHook.state.cash = 575;
+    freshHook.state.bulk = 'max';
+    freshHook.render();
+    check('a Lantern Stand priced at 720 with 575 coins is not offered as a purchase', lanternBtn.disabled && lanternBtn.textContent === 'Need ' + w.Arcade.fmt(720) + ' coins for one');
+    lanternBtn.click();
+    check('that 720-coin click does not spend the 575 or add a lantern', freshHook.state.cash === 575 && freshHook.state.stalls[2].owned === 0);
+    w.NightMarket.STALLS[2].base = pricedBase;
     freshHook.state.stalls = JSON.parse(laneBefore);
     freshHook.state.cash = cashBefore;
     freshHook.state.bulk = 'max';
