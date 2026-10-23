@@ -1,4 +1,5 @@
 'use strict';
+/* LR-WORLD-1 (claimed: Grok, 2026-10-23) the ranch strip and camera. */
 /* Little Ranch (LR1, the smallest test): a tap-and-play toy for ages 2 to 4 (docs/proposals/games-for-everyone.md).
    One baby Cindercub in a sunny corner of the ranch. Tap the bowl and it eats; drag (or tap) the sponge and it gets
    bubbly; tap the bush for peekaboo; tap the baby and it giggles. After a dozen or so things (or six minutes) it yawns,
