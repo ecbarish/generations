@@ -206,7 +206,7 @@
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     const U = Math.min(W, H * 1.15), wide = W > H * 1.3, stack = !wide && H >= W * 1.25;
     L = { U, R: U * .14, ground: H * .56, size: U * .17, wide, stack, world: U * 6.2 };
-    const homes = [.45, .5, .55, .45].map((t, i) => ({ x: coreX(i, t), y: H * .76 }));
+    const homes = [.45, .38, .55, .45].map((t, i) => ({ x: coreX(i, t), y: H * .76 }));
     const pals = [.7, .72, .42, .68].map((t, i) => ({ x: fitX(i, coreX(i, t), U * .17 * .95 * .6, true), y: H * .76 }));
     L.homes = homes; L.fhomes = pals; L.home = homes[cam.area]; L.fhome = pals[cam.area]; L.fz = L.size * .95;
     const garden = spreadSigns(0, [.22, .6]), toy = spreadSigns(2, [.34, .66]), barn = spreadSigns(3, [.32, .58, .84]);
@@ -256,6 +256,16 @@
     pinSky(); syncHome(); refreshArrows();
     if (st && old.U && (W !== oldW || H !== oldH)) {
       const sz = L.U / old.U, sy = H / oldH;
+      const eatX = old.bowl.x + old.size * 1.3;
+      const spots = [['eat', eatX], ['bush', old.bush.x], ['home', old.home.x]];
+      const nearest = (x) => {
+        if (x === null || x === undefined) return null;
+        let name = null, best = Infinity;
+        for (const [n, sx] of spots) { const d = Math.abs(x - sx); if (d < best) { best = d; name = n; } }
+        return best <= 1.5 ? name : null;
+      };
+      // Home and the bowl sit under a pixel apart on a phone, so the closer spot wins.
+      const dest = st.baby.act === 'eat' ? 'eat' : (st.baby.act === 'hide' || st.baby.act === 'peek') ? 'bush' : (nearest(st.baby.tx) || nearest(st.baby.x));
       snapCamera();
       st.baby.x *= sz; if (st.baby.tx !== null) st.baby.tx *= sz; st.baby.hurry = false;
       if (st.friend) { st.friend.x *= sz; if (st.friend.tx !== null) st.friend.tx *= sz; st.friend.hurry = false; }
@@ -263,7 +273,10 @@
       if (s.drag) { s.drag.x *= sz; s.drag.y *= sy; s.drag.moved *= sz; }
       for (const u of st.bubbles) { u.x *= sz; u.y *= sy; u.r *= sz; }
       for (const f of st.fx) { f.x *= sz; f.y *= sy; f.vx *= sz; f.vy *= sy; }
-      st.baby.x = clamp(st.baby.x, cam.x + L.size, cam.x + W - L.size);
+      if (dest === 'eat') { st.baby.x = L.bowl.x + L.size * 1.3; if (st.baby.tx !== null) st.baby.tx = st.baby.x; }
+      else if (dest === 'bush') { st.baby.x = L.bush.x; if (st.baby.tx !== null) st.baby.tx = L.bush.x; }
+      else if (dest === 'home') { if (st.baby.tx !== null) st.baby.tx = L.home.x; else st.baby.x = L.home.x; }
+      else st.baby.x = clamp(st.baby.x, cam.x + L.size, cam.x + W - L.size);
     }
     if (st && !st.sponge.drag && !st.sponge.auto) { st.sponge.x = L.sponge.x; st.sponge.y = L.sponge.y; }
   }
