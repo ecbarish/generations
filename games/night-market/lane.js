@@ -102,10 +102,13 @@
   /* Old Wen sits, and the tortoise sets its lantern on the cobbles. Palette colours only. */
   function drawMoment() {
     var x = 168, y = 68;
-    box(cx, x, y + 6, 16, 8, 'timber');
-    rect(cx, x + 2, y + 8, 10, 3, 'amber');
-    rect(cx, x + 14, y + 7, 4, 3, 'timber');
-    rect(cx, x + 16, y + 6, 2, 2, 'ink');
+    box(cx, x + 3, y + 5, 10, 3, 'timber');                                                  // tortoise: shell dome
+    box(cx, x + 1, y + 7, 14, 6, 'timber');
+    rect(cx, x + 4, y + 7, 8, 1, 'timber');
+    rect(cx, x + 4, y + 6, 3, 1, 'amber');                                                     // lamplight from the upper left
+    rect(cx, x + 4, y + 8, 3, 2, 'amber'); rect(cx, x + 9, y + 8, 3, 2, 'amber');              // shell plates
+    rect(cx, x + 2, y + 13, 3, 2, 'ink'); rect(cx, x + 11, y + 13, 3, 2, 'ink');                // legs
+    box(cx, x + 15, y + 8, 4, 4, 'timber'); rect(cx, x + 17, y + 9, 1, 1, 'ink');               // outlined head, eye
     box(cx, x + 22, y + 10, 5, 6, 'lamp');
     rect(cx, x + 24, y + 16, 1, 3, 'timber');
     var wx = x + 36;
