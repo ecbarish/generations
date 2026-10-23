@@ -103,8 +103,10 @@ document.querySelector('#run').onclick = async () => {
     }
 
     LR.newVisit(); LR.act.peek(); LR.advance(2); LR.act.peek(); LR.advance(1.3);
-    tap(L().bowl); LR.advance(5); tap(L().bowl); LR.advance(5);
-    check('Switching from the end of peekaboo to feeding never replaces the meal with a trip home', S().acts === 2 && S().bowl.food === 0 && S().baby.act === null);
+    tap(L().bowl); LR.advance(5);
+    const firstMeal = S().acts === 1 && S().bowl.food === 0 && S().baby.act === null && S().baby.tx === null;
+    tap(L().bowl); LR.advance(5);
+    check('Switching from the end of peekaboo to feeding never replaces the meal with a trip home', firstMeal && S().acts === 1 && S().bowl.food === 0 && S().baby.act === null && S().baby.tx === null);
 
     // ---- changing canvas size preserves the baby, its destination and active toys
     const sizes = [[3440,1440],[375,812],[667,375],[1920,1080],[320,568],[1366,768],[375,812]];
