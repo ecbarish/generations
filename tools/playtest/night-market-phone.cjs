@@ -120,6 +120,36 @@ async function shot(page,name){await page.screenshot({path:path.join(out,name+'.
       check(label+': no page errors',errors.length===0,errors);
       await context.close();
     }
+    const fitContext = await browser.newContext({viewport:{width:360,height:780},hasTouch:true,isMobile:true,deviceScaleFactor:1,serviceWorkers:'block'});
+    const fitPage = await fitContext.newPage();
+    await fitPage.goto(origin+'/games/night-market/');
+    await fitPage.waitForFunction(()=>window.__nightMarket&&document.querySelector('[data-act="buy"]'));
+    await fitPage.evaluate(()=>__nightMarket.idle.stop());
+    for (const [width, height] of [[320, 568], [360, 780], [375, 812], [390, 844]]) {
+      await fitPage.setViewportSize({width, height});
+      const overflow = await fitPage.evaluate(() => {
+        const s = __nightMarket.state;
+        s.stalls.forEach((st, i) => { st.hired = true; st.owned = i === 0 ? 200 : 8; st.serves = 30; });
+        s.cash = 1e15;
+        const bad = [];
+        for (const mode of ['max', 'next', 1, 10]) {
+          s.bulk = mode;
+          __nightMarket.render();
+          document.querySelectorAll('#stalls [data-act="buy"]').forEach((btn) => {
+            if (btn.hidden || !btn.offsetParent) return;
+            const range = document.createRange();
+            range.selectNodeContents(btn);
+            const rect = range.getBoundingClientRect();
+            const box = btn.getBoundingClientRect();
+            const cut = rect.width > 0 && (rect.right > box.right + 1.5 || rect.left < box.left - 1);
+            if (btn.scrollWidth > btn.clientWidth + 1 || cut) bad.push(mode + ' "' + btn.textContent + '" ' + btn.scrollWidth + '/' + btn.clientWidth);
+          });
+        }
+        return bad;
+      });
+      check(width + 'x' + height + ': no buy label overflows', overflow.length === 0, overflow);
+    }
+    await fitContext.close();
   }catch(e){report.error=e.stack;process.exitCode=1;}
   finally{if(browser)await browser.close();server.close();if(report.checks.some(c=>!c.pass))process.exitCode=1;fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));}
 })();

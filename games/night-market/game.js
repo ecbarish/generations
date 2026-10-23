@@ -37,12 +37,12 @@
   function buyLabel(i, q) {
     q = q || M.quote(state, i, state.bulk);
     if (q.blocked === 'hire' || q.blocked === 'closed') return 'Buy 1';
-    if (state.bulk === 'max' && q.blocked === 'payback') return 'Max stops at long paybacks, use 1, 10 or Next';
+    if (state.bulk === 'max' && q.blocked === 'payback') return 'Long payback: use 1, 10 or Next';
     if (state.bulk === 'next') {
       var need = M.countToNext(state.stalls[i].owned);
       if (!(need > 0)) return 'Next · lit';
-      if (q.count > 0) return 'Next · ' + q.count + ' · ' + money(q.cost);
-      return 'Next · 1 · ' + money(q.cost);
+      if (q.count > 0) return 'Next · ' + q.count + ' · ' + money(q.cost) + ' coins';
+      return 'Next · 1 · ' + money(q.cost) + ' coins';
     }
     if (state.bulk === 'max' && q.count > 0) return 'Max · ' + q.count + ' · ' + money(q.cost);
     var n = state.bulk === 10 ? 10 : 1;
@@ -62,6 +62,31 @@
 
   function bestBuyIndex() {
     return M.bestIndex(state);
+  }
+
+  /* The stall a player would save for. bestIndex stays the purchase rule, so a
+     stall you cannot afford yet is named here and never bought by the sim. */
+  function bestUnitIndex() {
+    var best = -1, score = Infinity, i, sec;
+    for (i = 0; i < M.STALLS.length; i++) {
+      if (!state.stalls[i].hired || !M.unlocked(state, i)) continue;
+      sec = M.paybackSeconds(state, i, 1);
+      if (!(sec < score)) continue;
+      score = sec;
+      best = i;
+    }
+    return best;
+  }
+
+  function showTag(tag, saveUp) {
+    if (!tag) return;
+    tag.hidden = false;
+    tag.textContent = saveUp ? 'Best · save up' : 'Best';
+  }
+
+  function holdSuffix() {
+    if (!(hold && hold.live)) return '';
+    return ' · holding adds ' + money(M.holdRate());
   }
 
   function fillRow(li, i) {
@@ -88,6 +113,7 @@
       wait.textContent = i > 0 ? M.STALLS[i - 1].next : '';
       if (i === M.STALLS.length - 1) wait.textContent += (wait.textContent ? ' ' : '') + 'The first Story Mat costs ' + money(stall.base) + ' coins.';
       serve.hidden = ask.hidden = buy.hidden = true;
+      ask.classList.remove('reserved');
       serve.classList.remove('best');
       return;
     }
@@ -110,9 +136,14 @@
         ? need + ' more ' + (need === 1 ? stall.left : stall.lefts) + ' to do yourself.'
         : stall.vendor + ' will take it whenever you ask.';
       if (i === M.STALLS.length - 1 && st.owned === 0) wait.textContent += ' The first Story Mat costs ' + money(M.quote(state, i, 1).cost) + ' coins.';
-      ask.hidden = !M.canHire(state, i);
+      /* The Ask button keeps its place before it can be used, so the pour
+         does not shrink or drop when the words appear. */
+      var ready = M.canHire(state, i);
+      ask.hidden = false;
+      ask.classList.toggle('reserved', !ready);
+      ask.setAttribute('aria-hidden', ready ? 'false' : 'true');
       ask.textContent = stall.hire;
-      ask.disabled = false;
+      ask.disabled = !ready;
       buy.hidden = true;
       return;
     }
@@ -135,10 +166,16 @@
       hint.textContent = showHint ? 'A lower time is a better buy.' : '';
     }
     ask.hidden = true;
+    ask.classList.remove('reserved');
     buy.hidden = false;
     var offer = M.quote(state, i, state.bulk);
-    var deal = offer.count > 0 && i === bestBuyIndex();
-    if (tag) tag.hidden = !deal;
+    var affordable = bestBuyIndex();
+    var saveUp = affordable < 0 && i === bestUnitIndex();
+    var deal = offer.count > 0 && i === affordable;
+    if (tag) {
+      if (deal || saveUp) showTag(tag, saveUp);
+      else tag.hidden = true;
+    }
     buy.classList.remove('best');
     buy.dataset.count = String(offer.count);
     buy.textContent = buyLabel(i, offer);
@@ -150,8 +187,7 @@
     $('#coins').textContent = money(state.cash);
     $('#away-rule').textContent = M.awayRule();
     var rate = M.income(state);
-    var rateLine = rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.';
-    if (hold && hold.live) rateLine += ' · holding adds ' + money(M.holdRate());
+    var rateLine = (rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.') + holdSuffix();
     $('#rate').textContent = rateLine;
     $('#goal').textContent = M.goal(state);
     var laneGoal = $('#lane-goal');
@@ -168,6 +204,11 @@
         $('#finale-lead').textContent = copy.lead;
         var choice = finale.querySelector('[data-act="finale"]');
         if (choice) choice.textContent = copy.choice;
+        if (finaleScroll && !finaleFocused) {
+          finaleFocused = true;
+          finale.setAttribute('tabindex', '-1');
+          finale.focus({ preventScroll: true });
+        }
       }
     }
     if (finaleNote) {
@@ -254,7 +295,8 @@
     pin.hidden = !showGoal;
     if (coinPin) {
       var rate = M.income(state);
-      coinPin.textContent = money(state.cash) + ' coins · ' + (rate > 0 ? money(rate) + ' a second' : 'nothing earning yet');
+      var per = rate > 0 ? money(rate) + ' a second' : 'nothing earning yet';
+      coinPin.textContent = money(state.cash) + ' coins · ' + per + holdSuffix();
       coinPin.hidden = !(wide && laneGone && coinsGone);
     }
     var reserve = phone ? pinHeight(pin) : pinHeight(coinPin);
@@ -283,6 +325,14 @@
   // A plain click still serves once.
   // NM-G8: before the hire, a hold stops at the vendor's count (12 of 12 dumplings). A plain click still serves, and still pays.
   var HOLD_DELAY = 350, HOLD_EVERY = 120, HOLD_PUMP = 50, hold = null;
+  var finaleScroll = false, finaleFocused = false;
+  function revealFinale() {
+    if (finaleScroll || finaleDismissed) return;
+    finaleScroll = true;
+    var laneEl = document.getElementById('lane');
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (laneEl && laneEl.scrollIntoView) laneEl.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
   function atCount(i) { return !state.stalls[i].hired && state.stalls[i].serves >= M.STALLS[i].serves; }
   function pumpHold() {
     if (!hold || !hold.live) return;
@@ -321,6 +371,7 @@
       h.live = true;
       h.since = Date.now();
       h.iv = setInterval(pumpHold, HOLD_PUMP);
+      render();
     }, HOLD_DELAY);
     hold = h;
   });
@@ -369,7 +420,10 @@
     else if (b.dataset.act === 'buy') {
       var had = state.stalls[i].owned;
       var quoted = parseInt(b.dataset.count, 10);
-      if (M.buyExact(state, i, quoted).ok) lane('buy', i, had, state.stalls[i].owned);
+      if (M.buyExact(state, i, quoted).ok) {
+        lane('buy', i, had, state.stalls[i].owned);
+        if (i === M.STALLS.length - 1 && had < M.FINALE_AT && state.stalls[i].owned >= M.FINALE_AT) revealFinale();
+      }
     }
     else return;
     persist();

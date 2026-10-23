@@ -185,9 +185,13 @@ document.querySelector('#run').onclick = async function () {
     lane.stalls.forEach(function (s) { s.owned = 25; });
     check('twenty-five of every stall lights the lane again', M.laneMult(lane) === 2.5);
     lane.stalls.forEach(function (s) { s.owned = 50; });
-    check('fifty of every stall is the last lane light', M.laneMult(lane) === 3.2 && M.laneLine(lane) === 'Lane goal: 50 on tea through incense. The whole lane is lit.');
+    check('fifty of every stall is the last lane light, and the goal names the next doubling', M.laneMult(lane) === 3.2 && M.laneLine(lane) === 'The whole lane is lit. Lane goal: 50/100 on tea through incense.');
+    check('a lit lane says so once, on the lane goal', M.laneLine(lane).split('The whole lane is lit').length === 2 && M.lookLine(lane, 0).indexOf('The whole lane is lit') < 0);
+    lane.stalls.forEach(function (s) { s.owned = 100; });
+    check('past 100 the lane names 150 and does not multiply again', M.laneMult(lane) === 3.2 && M.laneLine(lane) === 'The whole lane is lit. Lane goal: 100/150 on tea through incense.');
+    lane.stalls.forEach(function (s) { s.owned = 50; });
     lane.stalls[5].owned = 0;
-    check('a new Story Mat does not put the lane back to 0/10', M.lowestOwned(lane) === 50 && M.laneMult(lane) === 3.2 && M.laneLine(lane) === 'Lane goal: 50 on tea through incense. The whole lane is lit.');
+    check('a new Story Mat does not put the lane back to 0/10', M.lowestOwned(lane) === 50 && M.laneMult(lane) === 3.2 && M.laneLine(lane) === 'The whole lane is lit. Lane goal: 50/100 on tea through incense.');
     var freshLane = M.fresh();
     check('the lane goal is on screen from the first minute', M.laneLine(freshLane) === 'Lane goal: 0/10 on tea through incense.');
     var litTea = M.fresh();
@@ -254,11 +258,19 @@ document.querySelector('#run').onclick = async function () {
       M.CHAPTERS.length === 10 && M.CHAPTERS[9].title === "Old Wen's last chapter" &&
       M.nextGoalLine(mats, 5) === 'Next goal: 10 Story Mats. Old Wen\'s last chapter.' &&
       M.chapterLine(mats) === 'Chapter 9 of 10: The crowd holds still.' && !M.finaleReached(mats));
+    mats.stalls[5].owned = 5;
+    check('chapter 5 names its own line', M.chapterLine(mats) === 'Chapter 5 of 10: A light on the path.');
+    mats.stalls[5].owned = 8;
+    check('chapter 8 names its own line', M.chapterLine(mats) === 'Chapter 8 of 10: The paper screen.');
     mats.stalls[5].owned = 10;
     check('the tenth Story Mat is Old Wen\'s last chapter',
       M.finaleReached(mats) && M.finaleCopy().title === "Old Wen's last chapter" &&
       M.finaleCopy().choice === 'Keep the lane open' && /lanterns over the lane go out/.test(M.finaleCopy().lead) &&
       M.chapterLine(mats) === "Old Wen's last chapter is told.");
+    mats.stalls[5].owned = 11;
+    check('the eleventh Story Mat keeps a short line', M.chapterLine(mats) === 'Old Wen tells it again.');
+    mats.stalls[5].owned = 14;
+    check('later Story Mats repeat that line', M.chapterLine(mats) === 'Old Wen tells it again.');
 
     var active = play(1800, 1);
     var a600 = active.snap[600];
@@ -800,7 +812,7 @@ document.querySelector('#run').onclick = async function () {
     freshHook.render();
     var longBtn = d.querySelector('#stalls [data-i="0"] [data-act="buy"]');
     check('Max tells you to use 1, 10 or Next when the payback is too long',
-      longBtn.disabled && longBtn.textContent === 'Max stops at long paybacks, use 1, 10 or Next');
+      longBtn.disabled && longBtn.textContent === 'Long payback: use 1, 10 or Next');
     var refusedStyle = w.getComputedStyle(longBtn);
     function refusedByte(color, n) {
       var m = String(color).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
@@ -1416,10 +1428,13 @@ document.querySelector('#run').onclick = async function () {
             var row = ld.querySelector('#stalls [data-i="' + i + '"]');
             var tag = row.querySelector('.best-tag');
             var tagged = ld.querySelectorAll('#stalls .best-tag:not([hidden])');
-            var offer = lw.NightMarket.quote(lm.state, i, mode === 10 ? 10 : mode);
-            var expectTag = offer.count > 0;
-            if (expectTag && (!tag || tag.hidden || tagged.length !== 1 || tag.textContent !== 'Best')) tagProblems.push(label + ' stall ' + i + ' ' + mode + ' tags ' + tagged.length);
-            if (!expectTag && tagged.length !== 0) tagProblems.push(label + ' stall ' + i + ' ' + mode + ' tags ' + tagged.length);
+            var bestPick = lw.NightMarket.bestIndex(lm.state);
+            if (bestPick >= 0) {
+              var bestTag = ld.querySelector('#stalls [data-i="' + bestPick + '"] .best-tag');
+              if (tagged.length !== 1 || !bestTag || bestTag.hidden || bestTag.textContent !== 'Best') tagProblems.push(label + ' stall ' + i + ' ' + mode + ' tags ' + tagged.length + ' "' + (bestTag ? bestTag.textContent : '') + '"');
+            } else if (tagged.length !== 1 || tagged[0].textContent !== 'Best · save up') {
+              tagProblems.push(label + ' stall ' + i + ' ' + mode + ' save-up ' + tagged.length + ' "' + (tagged[0] ? tagged[0].textContent : '') + '"');
+            }
             var tagBox = tag.getBoundingClientRect();
             Array.prototype.forEach.call(ld.querySelectorAll('#stalls [data-act="serve"]'), function (serve) {
               if (serve.classList.contains('best') || /^Best/.test(serve.textContent)) handProblems.push(label + ' ' + serve.textContent);
@@ -1445,11 +1460,40 @@ document.querySelector('#run').onclick = async function () {
         var fit = buttonFits(btn);
         if (!fit.ok) buyProblems.push(label + ' unaffordable fit "' + fit.text + '"');
       });
-      if (ld.querySelector('#stalls .best-tag:not([hidden])')) tagProblems.push(label + ' unaffordable still tagged');
+      var saveTags = ld.querySelectorAll('#stalls .best-tag:not([hidden])');
+      if (saveTags.length !== 1 || saveTags[0].textContent !== 'Best · save up') tagProblems.push(label + ' save-up tags ' + saveTags.length + ' "' + (saveTags[0] ? saveTags[0].textContent : '') + '"');
     });
     check(buyProblems.length ? 'buy prices stay fully visible: ' + buyProblems.slice(0, 4).join(' | ') : 'buy prices stay fully visible at five sizes, with Best off the button', buyProblems.length === 0);
     check(handProblems.length ? 'Best stays off the hand button: ' + handProblems.slice(0, 3).join(' | ') : 'the Best marker never lands on the hand button', handProblems.length === 0);
     check(tagProblems.length ? 'Best tag: ' + tagProblems.slice(0, 3).join(' | ') : 'the Best marker is a tag on the one best stall', tagProblems.length === 0);
+
+    var phoneFit = [];
+    function labelFits(btn) {
+      if (!btn || btn.hidden || btn.offsetParent === null) return { ok: true, text: '' };
+      var range = btn.ownerDocument.createRange();
+      range.selectNodeContents(btn);
+      var rect = range.getBoundingClientRect();
+      var box = btn.getBoundingClientRect();
+      var cut = rect.width > 0 && (rect.right > box.right + 1.5 || rect.left < box.left - 1);
+      return { ok: btn.scrollWidth <= btn.clientWidth + 1 && !cut, text: btn.textContent, sw: btn.scrollWidth, cw: btn.clientWidth };
+    }
+    [[320, 568], [360, 780], [375, 812], [390, 844]].forEach(function (size) {
+      layout.style.width = size[0] + 'px';
+      layout.style.height = size[1] + 'px';
+      var label = size[0] + 'x' + size[1];
+      lm.state.stalls.forEach(function (s, i) { s.hired = true; s.serves = 30; s.owned = i === 0 ? 200 : 8; });
+      lm.state.cash = 1e15;
+      ['max', 'next', 1, 10].forEach(function (mode) {
+        lm.state.bulk = mode;
+        lm.render();
+        Array.prototype.forEach.call(ld.querySelectorAll('#stalls [data-act="buy"]'), function (btn) {
+          var fit = labelFits(btn);
+          if (!fit.ok) phoneFit.push(label + ' ' + mode + ' "' + fit.text + '" ' + fit.sw + '/' + fit.cw);
+          if (mode === 'next' && fit.text && fit.text !== 'Next · lit' && !/coins$/.test(fit.text)) phoneFit.push(label + ' next missing coins "' + fit.text + '"');
+        });
+      });
+    });
+    check(phoneFit.length ? 'phone buy labels overflow: ' + phoneFit.slice(0, 4).join(' | ') : 'buy labels fit at 320, 360, 375 and 390, and Next names coins', phoneFit.length === 0);
 
     var hintProblems = [];
     var hintDuring = {};
@@ -1460,7 +1504,8 @@ document.querySelector('#run').onclick = async function () {
     hw.Date.now = function () { return fixedNow; };
     hm.state.stalls[0].hired = true; hm.state.stalls[0].serves = 25; hm.state.cash = 30; hm.state.bulk = 1;
     hm.render();
-    sizes.forEach(function (size) {
+    var shiftSizes = sizes.concat([[1024, 800]]);
+    shiftSizes.forEach(function (size) {
       hintFrame.style.width = size[0] + 'px';
       hintFrame.style.height = size[1] + 'px';
       var label = size[0] + 'x' + size[1];
@@ -1483,7 +1528,7 @@ document.querySelector('#run').onclick = async function () {
     });
     fixedNow = 5000000 + 20000;
     hm.render();
-    sizes.forEach(function (size) {
+    shiftSizes.forEach(function (size) {
       hintFrame.style.width = size[0] + 'px';
       hintFrame.style.height = size[1] + 'px';
       var label = size[0] + 'x' + size[1];
@@ -1496,8 +1541,102 @@ document.querySelector('#run').onclick = async function () {
       var during = hintDuring[label];
       if (Math.abs(after.h - during.h) > 0.6 || Math.abs(after.top - during.top) > 0.6) hintProblems.push(label + ' after ' + after.h + '/' + after.top + ' during ' + during.h + '/' + during.top);
     });
-    hintFrame.remove();
     check(hintProblems.length ? 'payback hint keeps its slot: ' + hintProblems.join(' | ') : 'the payback hint keeps the row and the next stall still, before, during and after', hintProblems.length === 0);
+
+    var askShift = [];
+    [[1280, 800], [1024, 800]].forEach(function (size) {
+      hintFrame.style.width = size[0] + 'px';
+      hintFrame.style.height = size[1] + 'px';
+      var label = size[0] + 'x' + size[1];
+      hm.state.stalls.forEach(function (s, i) { s.hired = i === 0; s.owned = i === 0 ? 10 : 0; s.serves = i === 1 ? 11 : 30; });
+      hm.state.cash = 1e9; hm.state.bulk = 1;
+      hm.render();
+      var teaBuy = hd.querySelector('#stalls [data-i="0"] [data-act="buy"]');
+      var pour = hd.querySelector('#stalls [data-i="1"] [data-act="serve"]');
+      var beforeBuy = teaBuy.getBoundingClientRect();
+      var beforePour = pour.getBoundingClientRect();
+      hm.state.stalls[1].serves = 12;
+      hm.render();
+      var afterBuy = teaBuy.getBoundingClientRect();
+      var afterPour = pour.getBoundingClientRect();
+      var ask = hd.querySelector('#stalls [data-i="1"] [data-act="hire"]');
+      if (ask.hidden || ask.disabled || Math.abs(beforePour.width - afterPour.width) > 1 || Math.abs(beforePour.top - afterPour.top) > 1 || Math.abs(beforeBuy.top - afterBuy.top) > 1 || Math.abs(beforeBuy.width - afterBuy.width) > 1) {
+        askShift.push(label + ' pour ' + beforePour.width.toFixed(1) + '→' + afterPour.width.toFixed(1) + ' y ' + beforePour.top.toFixed(1) + '→' + afterPour.top.toFixed(1) + ' buy y ' + beforeBuy.top.toFixed(1) + '→' + afterBuy.top.toFixed(1));
+      }
+    });
+    check(askShift.length ? 'Ask shifts the row: ' + askShift.join(' | ') : 'Ask Mei and Ask Bo keep the pour and the buy button still at 1280 and 1024', askShift.length === 0);
+
+    var holdProblems = [];
+    for (var hs = 0; hs < 2; hs++) {
+      var holdSize = hs === 0 ? [1280, 800] : [1024, 768];
+      hintFrame.style.width = holdSize[0] + 'px';
+      hintFrame.style.height = holdSize[1] + 'px';
+      hm.state.stalls.forEach(function (s) { s.hired = true; s.owned = 20; s.serves = 30; });
+      hm.state.cash = 1e6; hm.state.bulk = 1;
+      hm.render();
+      var holdServe = hd.querySelector('#stalls [data-i="0"] [data-act="serve"]');
+      holdServe.dispatchEvent(new hw.PointerEvent('pointerdown', { bubbles: true, button: 0, pointerId: 9 }));
+      await wait(hm.HOLD_DELAY + 500);
+      hd.querySelector('.save').scrollIntoView();
+      hm.render();
+      var holdRate = hd.querySelector('#rate').textContent;
+      var holdPin = hd.querySelector('#coin-pin');
+      var holdLabel = holdSize[0] + 'x' + holdSize[1];
+      if (holdRate.indexOf('holding adds') < 0 || holdPin.hidden || holdPin.textContent.indexOf('holding adds') < 0) {
+        holdProblems.push(holdLabel + ' rate "' + holdRate + '" pin "' + holdPin.textContent + '" hidden ' + holdPin.hidden);
+      }
+      hd.dispatchEvent(new hw.PointerEvent('pointerup', { bubbles: true, pointerId: 9 }));
+      await wait(50);
+    }
+    check(holdProblems.length ? 'desktop hold rate: ' + holdProblems.join(' | ') : 'a desktop hold names the top-up on the rate line and on the coin pin at 1280 and 1024', holdProblems.length === 0);
+
+    hintFrame.style.width = '1280px';
+    hintFrame.style.height = '800px';
+    hm.state.stalls.forEach(function (s, i) { s.hired = true; s.serves = 30; s.owned = i < 5 ? 12 : 9; });
+    hm.state.cash = 1e15; hm.state.bulk = 1;
+    hm.render();
+    hw.scrollTo(0, 0);
+    hd.querySelector('#stalls [data-i="5"]').scrollIntoView({ block: 'start' });
+    var laneOff = hd.getElementById('lane').getBoundingClientRect();
+    hd.querySelector('#stalls [data-i="5"] [data-act="buy"]').click();
+    var finaleSeen = false;
+    for (var fw = 0; fw < 60 && !finaleSeen; fw++) {
+      await wait(100);
+      var laneBoxNow = hd.getElementById('lane').getBoundingClientRect();
+      var finaleEl = hd.querySelector('#finale');
+      finaleSeen = laneBoxNow.top >= -2 && laneBoxNow.bottom > 80 && laneBoxNow.top < 800 && finaleEl && !finaleEl.hidden && hd.activeElement === finaleEl;
+    }
+    var laneAfter = hd.getElementById('lane').getBoundingClientRect();
+    var finaleNow = hd.querySelector('#finale');
+    check('1280x800: buying the tenth mat brings the lane back and focuses the card (lane was ' + Math.round(laneOff.top) + ', now ' + Math.round(laneAfter.top) + '-' + Math.round(laneAfter.bottom) + ')',
+      laneOff.bottom < 40 && finaleSeen && finaleNow && !finaleNow.hidden && hd.activeElement === finaleNow);
+    var laneApi = hw.NightLane;
+    laneApi.setReduce(true);
+    hm.state.stalls[5].owned = 4;
+    hm.render();
+    laneApi.still();
+    function lanePx(x, y) {
+      var v = hd.getElementById('lane').getContext('2d').getImageData(x, y, 1, 1).data;
+      return '#' + [v[0], v[1], v[2]].map(function (n) { return ('0' + n.toString(16)).slice(-2); }).join('');
+    }
+    var beforeChapter = lanePx(13, 1);
+    hm.state.stalls[5].owned = 5;
+    hm.render();
+    laneApi.still();
+    var chapter5 = lanePx(13, 1);
+    var chapterLine5 = hd.querySelector('#stalls [data-i="5"] .next-goal').textContent;
+    hm.state.stalls[5].owned = 6;
+    hm.render();
+    laneApi.still();
+    var chapter6 = lanePx(45, 1);
+    hm.state.stalls[5].owned = 11;
+    hm.render();
+    var again = hd.querySelector('#stalls [data-i="5"] .next-goal').textContent;
+    check('chapters 5 and 6 each light another lantern, and later mats repeat a short line',
+      beforeChapter !== chapter5 && chapter5 === laneApi.PALETTE.wash && chapter6 === laneApi.PALETTE.wash &&
+      chapterLine5.indexOf('Chapter 5 of 10') === 0 && again.indexOf('Old Wen tells it again.') === 0);
+    laneApi.setReduce(false);
+    hintFrame.remove();
 
     var anchorProblems = [];
     lm.state.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 0 ? 20 : 12; s.serves = 25; });

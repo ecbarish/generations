@@ -91,9 +91,18 @@
     }
     return t >= lanterns.length * FINALE_STEP + FINALE_MOMENT;
   }
+  /* Chapters 5 to 9 each light one more overhead lantern with the existing halo,
+     so a Story Mat that barely changes income still changes the lane. */
+  function chapterGlow() {
+    var s = st();
+    var owned = s && s.stalls[5] ? s.stalls[5].owned : 0;
+    if (owned < 5 || owned >= 10) return 0;
+    return owned - 4;
+  }
   function drawLantern(L, index, now) {
     var dimmed = nightEnded() && index < dimCount(now);
     var lit = !dimmed && (L.stall < 0 || open(L.stall)), f = lit ? (reduce ? 1 : L.f) : 1;
+    if (lit && L.stall < 0 && index < chapterGlow()) f = 0;
     if (f === 0) { rect(cx, L.x - 1, L.y - 1, L.w + 2, L.h + 2, 'wash'); }
     box(cx, L.x, L.y, L.w, L.h, 'amber');
     var core = lit ? 'lamp' : 'mute', d = f === 2 ? 1 : 0;

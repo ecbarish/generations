@@ -517,11 +517,21 @@
     return 0;
   }
 
+  /* Past the last lane light, the next stall doubling is the named target.
+     It does not add another lane multiplier. */
+  function laneTarget(low) {
+    var k;
+    for (k = 0; k < LANE_MILESTONES.length; k++) if (low < LANE_MILESTONES[k]) return LANE_MILESTONES[k];
+    for (k = 0; k < STALL_MILESTONES.length; k++) if (low < STALL_MILESTONES[k]) return STALL_MILESTONES[k];
+    return 0;
+  }
+
   function laneLine(state) {
     var low = lowestOwned(state);
-    var next = laneAhead(state);
-    if (!next) return 'Lane goal: ' + low + ' on ' + LANE_WHO + '. The whole lane is lit.';
-    return (laneMult(state) >= 2 ? 'The whole lane is lit. ' : '') + 'Lane goal: ' + low + '/' + next + ' on ' + LANE_WHO + '.';
+    var next = laneTarget(low);
+    var lit = laneMult(state) >= 2 ? 'The whole lane is lit. ' : '';
+    if (!next) return lit + 'Lane goal: ' + low + ' on ' + LANE_WHO + '.';
+    return lit + 'Lane goal: ' + low + '/' + next + ' on ' + LANE_WHO + '.';
   }
 
   function chapterTitle(n) {
@@ -531,10 +541,10 @@
 
   function chapterLine(state) {
     var owned = state.stalls[STALLS.length - 1] ? state.stalls[STALLS.length - 1].owned : 0;
-    var n = owned > FINALE_AT ? FINALE_AT : owned;
-    if (!(n > 0)) return '';
-    if (n >= FINALE_AT) return "Old Wen's last chapter is told.";
-    return 'Chapter ' + n + ' of ' + FINALE_AT + ': ' + chapterTitle(n) + '.';
+    if (!(owned > 0)) return '';
+    if (owned > FINALE_AT) return 'Old Wen tells it again.';
+    if (owned === FINALE_AT) return "Old Wen's last chapter is told.";
+    return 'Chapter ' + owned + ' of ' + FINALE_AT + ': ' + chapterTitle(owned) + '.';
   }
 
   function finaleReached(state) {
@@ -552,9 +562,7 @@
     if (!state.stalls[i].hired) return '';
     if (owned <= 0) return stall.vendor + ' is here, waiting for the first one.';
     var look = stall.looks[lookIndex(owned)];
-    var line = stallMult(owned) <= 1 ? look + '.' : look + '. It earns ' + timesWord(owned) + '.';
-    if (laneMult(state) >= 2) line += ' The whole lane is lit.';
-    return line;
+    return stallMult(owned) <= 1 ? look + '.' : look + '. It earns ' + timesWord(owned) + '.';
   }
 
   function gossipLine(state) {
