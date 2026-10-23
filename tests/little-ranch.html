@@ -211,7 +211,7 @@ document.querySelector('#run').onclick = async () => {
       await sleep(800);
       const mid = parseFloat(ring.getAttribute('stroke-dashoffset'));
       check('A touch hold fills the ring before the panel opens', panel.hidden && mid < 105 && mid > 15);
-      await sleep(LR.HOLD_MS);
+      await sleep(LR.HOLD_MS - 700);
       check('The finished touch hold opens the grown-up panel', !panel.hidden);
       panel.dispatchEvent(new w.PointerEvent('pointerup', { pointerId: 77, bubbles: true, cancelable: true, pointerType: 'touch', isPrimary: true }));
       panel.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true, clientX: 8, clientY: 8 }));
