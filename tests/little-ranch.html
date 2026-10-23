@@ -208,9 +208,9 @@ document.querySelector('#run').onclick = async () => {
     {
       const ring = d.querySelector('#lockRing');
       lock.dispatchEvent(new w.PointerEvent('pointerdown', { pointerId: 77, bubbles: true, cancelable: true, pointerType: 'touch', isPrimary: true }));
-      await sleep(500);
+      await sleep(800);
       const mid = parseFloat(ring.getAttribute('stroke-dashoffset'));
-      check('A touch hold fills the ring before the panel opens', mid < 100 && mid > 15);
+      check('A touch hold fills the ring before the panel opens', panel.hidden && mid < 105 && mid > 15);
       await sleep(LR.HOLD_MS);
       check('The finished touch hold opens the grown-up panel', !panel.hidden);
       panel.dispatchEvent(new w.PointerEvent('pointerup', { pointerId: 77, bubbles: true, cancelable: true, pointerType: 'touch', isPrimary: true }));
