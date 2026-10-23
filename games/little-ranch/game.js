@@ -177,6 +177,7 @@
     if (lo > hi) { const mid = stop + W / 2; return { lo: mid, hi: mid }; }
     return { lo, hi };
   }
+  function discRim(side) { const r = L.U * .09; let pad = L.U * .1; if (!L.wide && side < 0) pad = Math.max(pad, 16 / S + r); return pad + r; }
   function signSpot(area, frac) {
     const r = L.R * .95, half = r * .95, bottom = L.ground - L.U * .055;
     return { x: fitX(area, coreX(area, frac), half, true), y: bottom - r * .27 };
@@ -185,7 +186,8 @@
     const half = L.R * .95 * .95, gap = half * 2 + 3, spots = fracs.map(t => signSpot(area, t));
     spots.sort((a, b) => a.x - b.x);
     for (let i = 1; i < spots.length; i++) if (spots[i].x < spots[i - 1].x + gap) spots[i].x = spots[i - 1].x + gap;
-    const stop = stopFor(area), maxX = stop + W - (area < 3 ? L.U * .2 : 0) - half - 1, minX = stop + (area > 0 ? L.U * .2 : 0) + half + 1;
+    const stop = stopFor(area), leftIn = area > 0 ? Math.max(L.U * .2, discRim(-1) + 1) : 0, rightIn = area < 3 ? Math.max(L.U * .2, discRim(1) + 1) : 0;
+    const maxX = stop + W - rightIn - half - 1, minX = stop + leftIn + half + 1;
     if (spots[spots.length - 1].x > maxX) { const d = spots[spots.length - 1].x - maxX; spots.forEach(s => { s.x -= d; }); }
     if (spots[0].x < minX) { const d = minX - spots[0].x; spots.forEach(s => { s.x += d; }); }
     spots.forEach(s => { s.x = fitX(area, s.x, half, true); });
