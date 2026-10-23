@@ -38,3 +38,16 @@ Visual checks used a frozen ranch clock and seeded creature generation for consi
 ## Review coordination
 
 Shipped as Wildbond 1.3.1, merged by Claude in PR #38 while Codex was verifying the integration. This branch also contains main b9d526b and preserves the T32 ticket. The worker, offline adapter, offline documentation and release instructions match main exactly: online-first fetches, immediate takeover, no cache-version bump. Updated validation notes, refreshed screenshots and a v1.3.1 tester route are in the follow-up PR.
+
+## Saltmarsh Shipping Office placeholder palette
+
+The shipping office (`games/saltmarsh-shipping/`) uses the four coast colours from the profile above: sky `#9cbecb`, mist `#d4e5e4`, night water `#23394c`, and sand `#c8c5a0`. The lamp is the house lamplight `#f2d080`. These extra colours are flat placeholders until the final art, and they are the whole extra set:
+
+| Role | Hex | Where it shows |
+| --- | --- | --- |
+| Timber | `#8d7a52` | Sheds, the pier, and the pressed edge of a buy button |
+| Hull | `#6e5840` | Boat hulls, the quieter sentences, and the name of a boat you cannot buy yet |
+| Paper | `#e7f0ef` | The page behind the harbour |
+| Panel | `#f4faf8` | The away log, the harbour log, the fleet card, and the shed card |
+
+Two deliberate differences from the house art notes: the ink is the night water `#23394c`, and the shapes are flat, with no outline and no light from the upper left, until the final drawing. `#e6c56a` and `#1d5c45` are not used.

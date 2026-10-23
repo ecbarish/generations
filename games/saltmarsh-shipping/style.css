@@ -1,17 +1,18 @@
-/* Saltmarsh Shipping Office. The coast colours are the lighting pass:
-   sky #9cbecb, mist #d4e5e4, night water #23394c, sand #c8c5a0.
-   Timber, hull and the warm lamp are flat shapes so the boats read. */
+/* Saltmarsh Shipping Office. Coast colours from docs/saltmarsh-lighting.md:
+   sky #9cbecb, mist #d4e5e4, night water and ink #23394c, sand #c8c5a0.
+   House lamplight #f2d080. Placeholder timber, hull, paper and panel are
+   recorded in that same note. */
 :root {
   --ink: #23394c;
   --sky: #9cbecb;
   --mist: #d4e5e4;
   --sand: #c8c5a0;
   --water: #23394c;
-  --lamp: #e6c56a;
+  --lamp: #f2d080;
   --timber: #8d7a52;
   --hull: #6e5840;
   --paper: #e7f0ef;
-  --good: #1d5c45;
+  --panel: #f4faf8;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -64,7 +65,7 @@ h1 { font-size: 1.55rem; line-height: 1.15; margin: 0.45rem 0 0.3rem; font-weigh
 .harbour-wrap { position: relative; margin: 0.75rem -1rem 0.4rem; background: var(--sky); }
 .harbour-wrap canvas { display: block; width: 100%; height: 210px; touch-action: manipulation; }
 .window[data-phase="captain"] .harbour-wrap canvas { height: 240px; }
-.window[data-phase="fleet"] .harbour-wrap canvas { height: 280px; }
+.window[data-phase="fleet"] .harbour-wrap canvas { height: 320px; }
 .float {
   position: absolute;
   margin: 0;
@@ -110,10 +111,10 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .facts:empty, .wait:empty { display: none; }
 .actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
 .actions button { flex: 1 1 9rem; }
-.closed h2, .closed .habit { color: var(--timber); }
+.closed h2, .closed .habit { color: var(--hull); font-style: italic; }
 .away, .log, .fleet, .sheds {
   border: 1px solid var(--sky);
-  background: #f4faf8;
+  background: var(--panel);
   padding: 0.8rem 0.85rem;
   margin: 0.7rem 0;
 }
@@ -122,9 +123,9 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .chart {
   min-height: 92px;
   margin: 0.4rem 0 0.8rem;
-  padding: 0.7rem;
+  padding: 0.7rem 0.7rem 1.6rem;
   background:
-    linear-gradient(var(--mist), var(--mist)) 8% 70% / 84% 8px no-repeat,
+    linear-gradient(var(--mist), var(--mist)) 8% calc(100% - 0.6rem) / 84% 8px no-repeat,
     linear-gradient(var(--water), var(--water));
   color: var(--mist);
 }
@@ -143,6 +144,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
 }
 .save { margin-top: 0.8rem; color: var(--hull); }
+.save .arc-note { opacity: 1; }
 .save summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
 .save .btn {
   display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
@@ -154,6 +156,11 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 @media (max-width: 380px) {
   h1 { font-size: 1.35rem; }
   .window { padding-left: 0.8rem; padding-right: 0.8rem; }
+  .harbour-wrap { margin-left: -0.8rem; margin-right: -0.8rem; }
+}
+@media (max-width: 720px), (pointer: coarse) {
+  .window button, .window .home, .window .foot a, .window .btn { min-height: 44px; }
+  .window .row, .window .ask { min-height: 64px; }
 }
 @media (min-width: 900px) {
   .window { max-width: 60rem; padding-bottom: 8.5rem; }

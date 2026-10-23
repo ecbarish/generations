@@ -1,6 +1,6 @@
 /* The harbour outside the office window. CSS pixels, flat shapes, no images.
-   Colours are the Saltmarsh coast: sky #9cbecb, mist #d4e5e4, night water #23394c,
-   sand #c8c5a0, plus a warm lamp and timber so the boats read on the water. */
+   Coast colours and the placeholder timber, hull and panel are in
+   docs/saltmarsh-lighting.md. The lamp is the house lamplight #f2d080. */
 (function () {
   'use strict';
 
@@ -8,7 +8,7 @@
   var MIST = '#d4e5e4';
   var WATER = '#23394c';
   var SAND = '#c8c5a0';
-  var LAMP = '#e6c56a';
+  var LAMP = '#f2d080';
   var TIMBER = '#8d7a52';
   var HULL = '#6e5840';
 
@@ -144,19 +144,23 @@
       var skiffX = w * 0.22 + (rowing ? Math.sin(trip * Math.PI) * w * 0.45 : 0);
       drawBoat(ctx, 'rowboat', skiffX, h * 0.62 + bob(1));
 
-      /* Owned fleets stack up the water, one lane each, so the counts stay readable. */
+      /* Every owned fleet stays on the water, between the waterline and the pier. */
       function fleet(kind, index, y, spread) {
         var n = boatCount(state, index);
         var show = Math.min(n, 5);
         var word = n === 1 ? kind : kind + 's';
-        for (var i = 0; i < show; i++) drawBoat(ctx, kind, w * 0.32 + i * spread, y + bob(i + index));
+        var label = n + ' ' + word;
         ctx.font = '14px Georgia, Palatino, serif';
         ctx.textAlign = 'left';
         ctx.lineWidth = 3;
         ctx.strokeStyle = WATER;
-        ctx.strokeText(n + ' ' + word, 12, y - 16);
+        ctx.strokeText(label, 10, y + 4);
         ctx.fillStyle = MIST;
-        ctx.fillText(n + ' ' + word, 12, y - 16);
+        ctx.fillText(label, 10, y + 4);
+        var start = Math.max(w * 0.34, 10 + ctx.measureText(label).width + 12);
+        var room = Math.max(spread, w - 16 - start);
+        var step = show > 1 ? Math.min(spread, room / (show - 1)) : spread;
+        for (var i = 0; i < show; i++) drawBoat(ctx, kind, start + i * step, y + bob(i + index));
       }
       var lanes = [
         ['rowboat', 0, 24],
@@ -164,10 +168,11 @@
         ['schooner', 2, 40],
         ['bark', 3, 50]
       ].filter(function (lane) { return boatCount(state, lane[1]) > 0; });
-      var laneGap = Math.min(52, Math.max(36, (h * 0.42) / Math.max(1, lanes.length)));
-      var baseY = h * 0.76;
+      var waterTop = h * 0.52;
+      var waterBottom = h * 0.74;
+      var laneGap = lanes.length > 1 ? Math.min(52, (waterBottom - waterTop) / (lanes.length - 1)) : 0;
       lanes.forEach(function (lane, index) {
-        fleet(lane[0], lane[1], baseY - index * laneGap, lane[2]);
+        fleet(lane[0], lane[1], waterBottom - index * laneGap, lane[2]);
       });
 
       if (state.captains && state.captains[0] && state.captains[0].hired) {
