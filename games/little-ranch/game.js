@@ -760,7 +760,10 @@
     st.sponge.drag = null; st.sponge.auto = null; st.sponge.scrubbed = false;
     st.routine = useRoutine ? { step: 0, at: st.t, doing: null, said: {}, doneAt: null } : null; st.shut = 0;
     goArea(1);
-    st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; if (st.friend) st.friend.act = null; sfx('yawn');
+    // The view glides home. The pup is already there, yawning, with no leftover walk.
+    st.baby.x = L.homes[1].x; st.baby.tx = null; st.baby.then = null; st.baby.hurry = false;
+    if (st.friend) { st.friend.x = L.fhomes[1].x; st.friend.tx = null; st.friend.then = null; st.friend.hurry = false; st.friend.lag = 0; st.friend.act = null; }
+    st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn');
     refreshArrows();
   }
 
