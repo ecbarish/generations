@@ -165,6 +165,13 @@
     const lo = stop + half + 1 + (left ? L.U * .2 : 0), hi = stop + W - half - 1 - (right ? L.U * .2 : 0);
     return clamp(x, Math.min(lo, hi), Math.max(lo, hi));
   }
+  function safeSpan(area, y, rad) {
+    const stop = stopFor(area), ay = L.ground - L.U * .08, overlap = y + rad > ay - L.U * .175 && y - rad < ay + L.U * .175;
+    let lo = stop + rad + 1, hi = stop + W - rad - 1;
+    if (overlap) { if (area > 0) lo = Math.max(lo, stop + L.U * .2 + rad); if (area < 3) hi = Math.min(hi, stop + W - L.U * .2 - rad); }
+    if (lo > hi) { const mid = stop + W / 2; return { lo: mid, hi: mid }; }
+    return { lo, hi };
+  }
   function signSpot(area, frac) {
     const r = L.R * .95, half = r * .95, bottom = L.ground - L.U * .055;
     return { x: fitX(area, coreX(area, frac), half, true), y: bottom - r * .27 };
@@ -228,9 +235,14 @@
         if (fr * 2 * S < 64) fr = Math.min(U * .1, Math.max(fr, 32 / S));
         x0 = xL; y = H * .935; L.sponge.y = Math.round(y - fr * 1.1 - sw * .55 - 4); }
       L.flowers = FLOWERS.map((c, i) => ({ x: x0 + i * step, y, r: fr, stem: H * .985 })); }
-    L.cloud = { x: fitX(0, coreX(0, .62), Math.min(U * .1, H * .11), false), y: Math.max(H * .08, U * .08), r: Math.min(U * .1, H * .11) };
-    L.puddles = [.15, .85].map(t => ({ x: fitX(0, coreX(0, t), U * .12, false), y: H * .7, r: U * .12 }));
-    L.basket = { x: fitX(2, coreX(2, .3), L.R * (wide ? .6 : .9), false), y: H * (wide ? .69 : .7), r: L.R * (wide ? .6 : .9) };
+    { const cr = Math.min(U * .1, H * .11); L.cloud = { x: fitX(0, coreX(0, .62), cr, false), y: Math.max(cr + 1, H * .08, U * .08), r: cr }; }
+    { const pr = U * .12, py = Math.min(H - pr - 1, Math.max(pr + 1, H * .9));
+      L.puddles = [.3, .72].map(t => ({ x: fitX(0, coreX(0, t), pr, false), y: py, r: pr })); }
+    { const ballR = L.R * .88, baskR = L.R * (wide ? .6 : .9), baskY = H * (wide ? .69 : .7);
+      let ballY = wide ? L.ground + L.R * 1.35 : H * .76 - L.size * .62 + ballR;
+      if (L.flowers.length) ballY = Math.min(ballY, L.flowers[0].y - L.flowers[0].r - ballR - 3);
+      const span = safeSpan(2, ballY, ballR), innerLo = span.lo + ballR + baskR + 3, innerHi = span.hi - ballR - baskR - 3;
+      L.basket = { x: clamp(coreX(2, .42), Math.min(innerLo, innerHi), Math.max(innerLo, innerHi)), y: baskY, r: baskR }; }
     { const potR = Math.min(W * .108, H * .1), z = Math.min(W * .82 / 2.4, H * .5 / 2.1);
       L.shed = { z, x: W / 2 - z * .08, y: H * .7, potR, pots: PAINT.map((c, i) => ({ x: W * (.125 + i * .25), y: H * .88 - potR * .4 })), barn: { x: Math.max(potR * 1.15, W * .1), y: Math.max(potR * 1.15, H * .09), r: potR * .95 } }; }
     { const z = Math.min(W * .11, H * .15), gy = H * .7;
@@ -470,7 +482,7 @@
     let y = L.ground + L.R * 1.35;
     if (!wide) y = L.homes[2].y - L.size * .62 + ballR; // LR-G2: tall: rest below the fox's face, on the line of its feet, so it sorts in front of the fox and never hides the face
     if (L.flowers && L.flowers.length) { const f = L.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); } // rest above the petals
-    const stop = stopFor(2), lo = stop + ballR + 2, hi = stop + W - ballR - 2;
+    const span = safeSpan(2, y, ballR), lo = span.lo, hi = span.hi;
     let x = clamp(coreX(2, side < 0 ? .35 : .75), lo, hi);
     if (L.basket) { const need = L.basket.r + ballR + 3, clear = px => Math.hypot(px - L.basket.x, y - L.basket.y) >= need;
       if (!clear(x)) { const left = clamp(L.basket.x - need, lo, hi), right = clamp(L.basket.x + need, lo, hi); x = [side < 0 ? left : right, side < 0 ? right : left].find(clear) || x; } }
