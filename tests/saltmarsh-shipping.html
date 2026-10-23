@@ -272,6 +272,97 @@ document.querySelector('#run').onclick = async function () {
     var awayText = awayFrame.contentDocument.querySelector('#away').textContent;
     check('the away log shows after a closed page', awayFrame.contentWindow.__saltmarsh.away() && /While you were away/.test(awayText) && /50%/.test(awayText));
 
+    function readHarbour(canvas, width) {
+      var rect = canvas.getBoundingClientRect();
+      var w = rect.width, h = rect.height;
+      if (Math.abs(w - width) > 2) return { ok: false, why: 'canvas is ' + Math.round(w) + ' wide' };
+      var dpr = canvas.width / w;
+      var img = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+      function px(x, y) {
+        var ix = Math.round(x * dpr), iy = Math.round(y * dpr);
+        var i = (iy * canvas.width + ix) * 4;
+        return [img.data[i], img.data[i + 1], img.data[i + 2]];
+      }
+      function near(c, r, g, b, tol) {
+        return c && Math.abs(c[0] - r) <= tol && Math.abs(c[1] - g) <= tol && Math.abs(c[2] - b) <= tol;
+      }
+      var y0 = h * 0.78 - 18, y1 = h * 0.78, lamp = [], sand = [], hull = [], y, x, c;
+      for (y = y0; y <= y1; y += 1) {
+        for (x = 0; x < w; x += 1) {
+          c = px(x, y);
+          if (near(c, 242, 208, 128, 18)) lamp.push([x, y]);
+          if (near(c, 200, 197, 160, 16) && y < h * 0.78 - 2 && x > w * 0.28) sand.push([x, y]);
+        }
+      }
+      var rowY = h * 0.74;
+      for (y = rowY; y <= rowY + 8; y += 1) {
+        for (x = 0; x < w; x += 1) if (near(px(x, y), 110, 88, 64, 18)) hull.push(x);
+      }
+      lamp.sort(function (a, b) { return a[0] - b[0]; });
+      var flags = [];
+      lamp.forEach(function (p) {
+        var last = flags[flags.length - 1];
+        if (!last || p[0] - last.maxX > 8) flags.push({ minX: p[0], maxX: p[0], minY: p[1], maxY: p[1] });
+        else {
+          last.maxX = Math.max(last.maxX, p[0]);
+          last.minY = Math.min(last.minY, p[1]);
+          last.maxY = Math.max(last.maxY, p[1]);
+        }
+      });
+      if (flags.length !== 4) return { ok: false, why: flags.length + ' flags' };
+      var cap = null;
+      sand.forEach(function (p) {
+        if (!cap) cap = { minX: p[0], maxX: p[0], minY: p[1], maxY: p[1] };
+        else {
+          cap.minX = Math.min(cap.minX, p[0]); cap.maxX = Math.max(cap.maxX, p[0]);
+          cap.minY = Math.min(cap.minY, p[1]); cap.maxY = Math.max(cap.maxY, p[1]);
+        }
+      });
+      if (!cap) return { ok: false, why: 'no captain' };
+      var hit = flags.some(function (flag) {
+        return cap.minX <= flag.maxX && cap.maxX >= flag.minX && cap.minY <= flag.maxY && cap.maxY >= flag.minY;
+      });
+      if (hit) return { ok: false, why: 'captain covers a flag' };
+      if (cap.maxX > w * 0.60 + 1) return { ok: false, why: 'captain is past the pier' };
+      var textRight = 0;
+      for (y = rowY - 12; y <= rowY + 6; y += 1) {
+        for (x = 0; x < w * 0.7; x += 1) if (near(px(x, y), 212, 229, 228, 28)) textRight = Math.max(textRight, x);
+      }
+      if (!(textRight + 4 < flags[0].minX)) return { ok: false, why: 'count meets the first flag' };
+      var span = flags.every(function (flag) {
+        var best = 0;
+        for (x = flag.minX; x <= flag.minX + 2; x += 1) {
+          var n = 0;
+          for (y = y0; y <= y1; y += 1) if (near(px(x, y), 242, 208, 128, 18)) n += 1;
+          best = Math.max(best, n);
+        }
+        return best >= 14;
+      });
+      if (!span) return { ok: false, why: 'a count plate cuts a flag' };
+      var hullLeft = Math.min.apply(null, hull);
+      if (!(hullLeft - flags[3].maxX >= 7)) return { ok: false, why: 'a flag meets a rowboat' };
+      return { ok: true };
+    }
+    async function harbourAt(width) {
+      wipe();
+      var state = ready(12);
+      state.cash = 1000000;
+      state.lifetime = 1000000;
+      state.boats[0].owned = 99999;
+      state.boats[1].owned = 10;
+      state.captains[0].hired = true;
+      localStorage.setItem(KEY, JSON.stringify(M.serialize(state, Date.now())));
+      var box = await loadFrame('harbour ' + width);
+      box.style.width = width + 'px';
+      var win = box.contentWindow;
+      await new Promise(function (resolve) { win.requestAnimationFrame(function () { win.requestAnimationFrame(resolve); }); });
+      return readHarbour(win.document.querySelector('#harbour'), width);
+    }
+    var phone375 = await harbourAt(375);
+    check(phone375.ok ? 'at 375 a five-digit count leaves the flags, the captain and the plates apart' : 'at 375 harbour: ' + phone375.why, phone375.ok);
+    var phone390 = await harbourAt(390);
+    check(phone390.ok ? 'at 390 a five-digit count leaves the flags, the captain and the plates apart' : 'at 390 harbour: ' + phone390.why, phone390.ok);
+
     wipe();
     var touchFrame = await loadFrame('touch');
     var touchDoc = touchFrame.contentDocument;

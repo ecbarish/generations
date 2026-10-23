@@ -115,10 +115,21 @@
 
       var best = 0;
       for (var b = 0; b < 4; b++) best = Math.max(best, boatCount(state, b));
+      ctx.font = '14px Georgia, Palatino, serif';
+      var rows = boatCount(state, 0);
+      var rowLabel = rows + ' ' + (rows === 1 ? 'rowboat' : 'rowboats');
+      /* The flags start after the rowboat count. On a wide harbour the count already ends first, so they stay a quarter of the way along. */
+      var flagX = Math.max(w * 0.24, 16 + ctx.measureText(rowLabel).width + 8);
+      var flagEnd = flagX + 3 * 28 + 10;
+      var pierEnd = w * 0.60;
+      var px = w * 0.40;
+      /* After the last flag when he would cover one. A wide harbour already clears them, so that layout stays. A long count cannot walk him off the pier. */
+      if (best >= 25 && px - 4 < flagEnd) px = flagEnd + 12;
+      if (px + 12 > pierEnd) px = pierEnd - 12;
       if (best >= 25) {
         ctx.fillStyle = LAMP;
         for (var f = 0; f < 4; f++) {
-          var fx = w * 0.24 + f * 28;
+          var fx = flagX + f * 28;
           ctx.fillRect(fx, h * 0.78 - 16, 2, 16);
           ctx.beginPath();
           ctx.moveTo(fx + 2, h * 0.78 - 16);
@@ -153,21 +164,21 @@
         ctx.font = '14px Georgia, Palatino, serif';
         ctx.textAlign = 'left';
         ctx.fillStyle = WATER;
-        ctx.fillRect(4, y - 12, ctx.measureText(label).width + 12, 19);
+        ctx.fillRect(0, y - 12, ctx.measureText(label).width + 16, 19);
         ctx.lineWidth = 3;
         ctx.strokeStyle = WATER;
         ctx.strokeText(label, 10, y + 4);
         ctx.fillStyle = MIST;
         ctx.fillText(label, 10, y + 4);
         var start = Math.max(w * 0.34, 10 + ctx.measureText(label).width + 12);
-        /* Pier flags stand on the left of the dock. The last triangle ends ten pixels past its pole, and the hull is centred, so the first rowboat starts a hull-half and a gap past that. */
-        if (kind === 'rowboat' && best >= 25) start = Math.max(start, w * 0.24 + 3 * 28 + 10 + 11 + 8);
+        /* The hull is centred, so the first rowboat starts a hull-half and a gap past the last flag. */
+        if (kind === 'rowboat' && best >= 25) start = Math.max(start, flagEnd + 11 + 8);
         var room = Math.max(spread, w - 16 - start);
         var step = show > 1 ? Math.min(spread, room / (show - 1)) : spread;
         for (var i = 0; i < show; i++) drawBoat(ctx, kind, start + i * step, y + bob(i + index));
       }
       if (state.captains && state.captains[0] && state.captains[0].hired) {
-        var px = w * 0.40, py = h * 0.78 - 18;
+        var py = h * 0.78 - 18;
         ctx.fillStyle = SAND;
         ctx.fillRect(px, py, 8, 14);
         ctx.fillRect(px - 4, py + 4, 16, 3);
