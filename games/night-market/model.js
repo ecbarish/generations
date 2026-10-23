@@ -14,7 +14,9 @@
   /* Hand work pays 1 coin. Growth stays between 1.05 and 1.15.
      Tea grows at 1.07 so the cup after the fifty-stall awning is still a short wait.
      Dumplings grow at 1.06 so the cart does not climb from a minute and a half toward nine.
-     From minute 8 to 15 the soonest payback stays under about five minutes. */
+     From minute 8 to 25 the soonest payback stays under about five minutes.
+     The Incense Tray opens at twelve mooncake tables and pays for itself in about a minute and a half,
+     so coins saved past the quarter hour have somewhere to go. */
   var STALLS = [
     {
       id: 'tea', name: 'Tea Stall', vendor: 'Mei',
@@ -50,13 +52,13 @@
       base: 6400, growth: 1.05, rate: 40, serves: 8, hand: 1,
       looks: ['One stack of tins', 'Two stacks of tins', 'A painted sign', 'Tins along the table'],
       gossip: 'Qiao says she counted the tins twice, and they still sold.',
-      next: 'Ren brings the Incense Tray once ten tables are wrapping.'
+      next: 'Ren brings the Incense Tray once twelve tables are wrapping.'
     },
     {
       id: 'incense', name: 'Incense Tray', vendor: 'Ren',
       habit: 'Ren lights one stick for the stall and one for the alley.',
       serve: 'Light a stick', left: 'stick', lefts: 'sticks', hire: 'Ask Ren to take the tray',
-      base: 150000, growth: 1.14, rate: 55, serves: 8, hand: 1,
+      base: 52380, growth: 1.05, rate: 540, serves: 8, hand: 1, unlockAt: 12,
       looks: ['One tray', 'Two trays', 'A bronze stand', 'Smoke you can see from the gate'],
       gossip: 'Ren says the alley smelled of smoke before anyone arrived.',
       next: 'Old Wen unrolls the Story Mat once ten trays are burning.'
@@ -84,10 +86,16 @@
 
   function spec(i) { return STALLS[i] || null; }
 
+  /* A stall can ask for more than the usual ten of the one before it. Incense waits for twelve tables. */
+  function unlockNeed(i) {
+    var stall = spec(i);
+    return stall && stall.unlockAt ? stall.unlockAt : UNLOCK_AT;
+  }
+
   function unlocked(state, i) {
     if (!spec(i)) return false;
     if (i === 0) return true;
-    return state.stalls[i - 1].owned >= UNLOCK_AT;
+    return state.stalls[i - 1].owned >= unlockNeed(i);
   }
 
   function lookIndex(owned) {
@@ -301,9 +309,10 @@
     }
     for (i = 0; i < STALLS.length - 1; i++) {
       if (!state.stalls[i].hired) continue;
-      if (state.stalls[i].owned >= UNLOCK_AT) continue;
-      left = UNLOCK_AT - state.stalls[i].owned;
-      bonus = nextBonus(state, i, UNLOCK_AT);
+      var need = unlockNeed(i + 1);
+      if (state.stalls[i].owned >= need) continue;
+      left = need - state.stalls[i].owned;
+      bonus = nextBonus(state, i, need);
       return withBonus((left === 1 ? 'One more ' : left + ' more ') + spec(i).name.toLowerCase() + (left === 1 ? '' : 's') + '. ' + spec(i).next, bonus);
     }
     bonus = nextBonus(state);

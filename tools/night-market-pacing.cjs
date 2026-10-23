@@ -252,9 +252,9 @@
         }
         if (pick >= 0 && M.buy(state, pick, 1).ok) purchases.push({ at: ms / 1000, stall: pick, payback: pickPay });
         noteBonuses(ms);
-        if (ms >= 480000 && ms <= 900000 && isFinite(best)) bestPay.push(best);
+        if (ms >= 480000 && ms <= 1500000 && isFinite(best)) bestPay.push({ at: ms, seconds: best });
       } else noteBonuses(ms);
-      [360, 450, 540, 720, 840, 900].forEach(function (sec) {
+      [360, 450, 540, 720, 840, 900, 1200, 1500].forEach(function (sec) {
         if (!snaps[sec] && ms + 1e-6 >= sec * 1000) {
           var lines = [], bestLine = Infinity;
           for (var k = 0; k < M.STALLS.length; k++) {
@@ -284,10 +284,16 @@
     var windowBonuses = bonuses.filter(function (b) { return b.at >= 480 && b.at <= 900; });
     var bonusGaps = [];
     for (var b = 1; b < windowBonuses.length; b++) bonusGaps.push(windowBonuses[b].at - windowBonuses[b - 1].at);
+    function maxBetween(fromMs, toMs) {
+      return bestPay.reduce(function (m, row) {
+        return row.at >= fromMs && row.at <= toMs ? Math.max(m, row.seconds) : m;
+      }, 0);
+    }
     return {
       marks: marks, snaps: snaps, purchases: purchases, bonuses: bonuses, bonusGaps: bonusGaps,
       moonTimes: moonTimes, moonGaps: moonGaps, bestPay: bestPay, state: state,
-      maxBestPayback8to15: bestPay.reduce(function (m, n) { return Math.max(m, n); }, 0)
+      maxBestPayback8to15: maxBetween(480000, 900000),
+      maxBestPayback8to25: maxBetween(480000, 1500000)
     };
   }
 
@@ -348,9 +354,9 @@
           });
           ownedBefore[b] = now;
         }
-        if (ms >= 480000 && ms <= 900000 && isFinite(best)) bestPay.push(best);
+        if (ms >= 480000 && ms <= 1500000 && isFinite(best)) bestPay.push({ at: ms, seconds: best });
       }
-      [30, 180, 360, 540, 720, 900].forEach(function (sec) {
+      [30, 180, 360, 540, 720, 900, 1200, 1500].forEach(function (sec) {
         if (!snaps[sec] && ms + 1e-6 >= sec * 1000) {
           var line = Infinity;
           for (var k = 0; k < M.STALLS.length; k++) {
@@ -370,9 +376,15 @@
         if (marks[mark] === null && state.lifetime >= mark) marks[mark] = ms / 1000;
       });
     }
+    function maxBetween(fromMs, toMs) {
+      return bestPay.reduce(function (m, row) {
+        return row.at >= fromMs && row.at <= toMs ? Math.max(m, row.seconds) : m;
+      }, 0);
+    }
     return {
       marks: marks, snaps: snaps, bonuses: bonuses, bestPay: bestPay, state: state,
-      maxBestPayback8to15: bestPay.reduce(function (m, n) { return Math.max(m, n); }, 0)
+      maxBestPayback8to15: maxBetween(480000, 900000),
+      maxBestPayback8to25: maxBetween(480000, 1500000)
     };
   }
 
@@ -401,8 +413,8 @@ if (typeof module !== 'undefined' && require.main === module) {
     });
     const sensible = module.exports.playSensible(context.NightMarket, 5400);
     const affordable = module.exports.playAffordable(context.NightMarket, 5400);
-    const measured = module.exports.playMeasured(context.NightMarket, 960);
-    const human = module.exports.playHuman(context.NightMarket, 960);
+    const measured = module.exports.playMeasured(context.NightMarket, 1500);
+    const human = module.exports.playHuman(context.NightMarket, 1500);
     const maxOf = (list) => list.reduce((m, n) => Math.max(m, n), 0);
     const fixture = JSON.parse(fs.readFileSync(path.join(root, 'docs/playtests/nm-retune/legacy-v1.json'), 'utf8'));
     const M = context.NightMarket;
@@ -424,14 +436,16 @@ if (typeof module !== 'undefined' && require.main === module) {
       },
       measured: {
         marks: measured.marks,
-        income: { 360: measured.snaps[360], 540: measured.snaps[540], 720: measured.snaps[720], 900: measured.snaps[900] },
+        income: { 360: measured.snaps[360], 540: measured.snaps[540], 720: measured.snaps[720], 900: measured.snaps[900], 1200: measured.snaps[1200], 1500: measured.snaps[1500] },
         maxBestPayback8to15: measured.maxBestPayback8to15,
+        maxBestPayback8to25: measured.maxBestPayback8to25,
         bonuses: measured.bonuses.filter(function (b) { return b.at >= 480 && b.at <= 900 && (b.mark === 25 || b.mark === 50); })
       },
       human: {
         marks: human.marks,
-        income: { 30: human.snaps[30], 180: human.snaps[180], 360: human.snaps[360], 540: human.snaps[540], 720: human.snaps[720], 900: human.snaps[900] },
+        income: { 30: human.snaps[30], 180: human.snaps[180], 360: human.snaps[360], 540: human.snaps[540], 720: human.snaps[720], 900: human.snaps[900], 1200: human.snaps[1200], 1500: human.snaps[1500] },
         maxBestPayback8to15: human.maxBestPayback8to15,
+        maxBestPayback8to25: human.maxBestPayback8to25,
         bonuses: human.bonuses.filter(function (b) { return b.at >= 360 && b.at <= 900 && (b.mark === 25 || b.mark === 50); })
       }
     };
@@ -460,6 +474,8 @@ if (typeof module !== 'undefined' && require.main === module) {
     function doubled(list) { return list.some(function (b) { return b.mark === 25 || b.mark === 50; }); }
     assert(measured.maxBestPayback8to15 > 0 && measured.maxBestPayback8to15 <= 5 * 60, 'fast buyer minute 8 to 15 best payback stays under 5 minutes (' + Math.round(measured.maxBestPayback8to15) + 's)');
     assert(humanPace.maxBestPayback8to15 > 0 && humanPace.maxBestPayback8to15 <= 5 * 60, 'human buyer minute 8 to 15 best payback stays under 5 minutes (' + Math.round(humanPace.maxBestPayback8to15) + 's)');
+    assert(measured.maxBestPayback8to25 > 0 && measured.maxBestPayback8to25 <= 5 * 60, 'fast buyer minute 8 to 25 best payback stays under 5 minutes (' + Math.round(measured.maxBestPayback8to25) + 's)');
+    assert(humanPace.maxBestPayback8to25 > 0 && humanPace.maxBestPayback8to25 <= 5 * 60, 'human buyer minute 8 to 25 best payback stays under 5 minutes (' + Math.round(humanPace.maxBestPayback8to25) + 's)');
     assert(doubled(measured.bonuses), 'fast buyer still hits a 25 or 50 doubling from minute 8 to 15');
     assert(humanPace.bonuses.some(function (b) { return b.mark === 25; }) && humanPace.bonuses.some(function (b) { return b.mark === 50; }), 'human buyer still gets a 25 doubling and a 50 awning');
     for (const profile of report.current.profiles) assert(profile.snapshots[600].lifetime < 1000000, profile.profile + ' early rush');

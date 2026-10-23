@@ -116,7 +116,7 @@
   }
 
   /* ---- effect 5: passers-by ---- */
-  /* The lane gets busier as the market grows, by stalls owned in all (a stall opens at 10 owned in the one before it): 1 walker
+  /* The lane gets busier as the market grows, by stalls owned in all (a stall opens at 10 of the one before it, and the incense tray at 12 mooncake tables): 1 walker
      from the first stall, 2 from 20 owned, 3 from 30, 4 from 50 and 5 from 66. None under reduced motion, where the strip
      is a still picture. (It was 1 for up to three running stalls and 2 from four, which only happens past 30 owned.) */
   var BUSY = [[66, 5], [50, 4], [30, 3], [20, 2], [1, 1]];

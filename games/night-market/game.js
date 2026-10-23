@@ -56,7 +56,8 @@
     var best = -1, score = Infinity, i, n, sec;
     for (i = 0; i < M.STALLS.length; i++) {
       if (!state.stalls[i].hired || !M.unlocked(state, i)) continue;
-      n = state.bulk === 'max' ? Math.max(1, M.quote(state, i, 'max').count) : (state.bulk === 10 ? 10 : 1);
+      n = state.bulk === 'max' ? M.quote(state, i, 'max').count : (state.bulk === 10 ? 10 : 1);
+      if (!(n > 0)) continue;
       sec = M.paybackSeconds(state, i, n);
       if (sec < score) { score = sec; best = i; }
     }
@@ -68,6 +69,8 @@
     var st = state.stalls[i];
     var open = M.unlocked(state, i);
     li.className = 'stall' + (open ? '' : ' closed');
+    var tag = li.querySelector('.best-tag');
+    if (tag) tag.hidden = true;
     li.querySelector('h2').textContent = open
       ? stall.name + (st.owned > 0 ? ' · ' + st.owned : '')
       : stall.name;
@@ -125,10 +128,11 @@
     ask.hidden = true;
     buy.hidden = false;
     var offer = M.quote(state, i, state.bulk);
-    var deal = i === bestBuyIndex();
-    buy.classList.toggle('best', deal);
+    var deal = offer.count > 0 && i === bestBuyIndex();
+    if (tag) tag.hidden = !deal;
+    buy.classList.remove('best');
     buy.dataset.count = String(offer.count);
-    buy.textContent = (deal ? 'Best · ' : '') + buyLabel(i, offer);
+    buy.textContent = buyLabel(i, offer);
     buy.disabled = !(offer.count > 0);
   }
 
@@ -149,7 +153,7 @@
       M.STALLS.forEach(function (stall, i) {
         var li = document.createElement('li');
         li.dataset.i = String(i);
-        li.innerHTML = '<h2></h2><p class="habit"></p><p class="facts"></p><p class="wait"></p>' +
+        li.innerHTML = '<h2></h2><p class="best-tag" hidden>Best</p><p class="habit"></p><p class="facts"></p><p class="wait"></p>' +
           '<progress class="pour" hidden></progress><p class="count" hidden></p>' +
           '<div class="actions"><button type="button" data-act="serve"></button>' +
           '<button type="button" class="ask" data-act="hire"></button>' +
@@ -162,32 +166,52 @@
     syncPins();
   }
 
-  /* On a phone the green goal returns only after the lane has left the screen,
-     so the strip does not sit on the pour. A tap on it jumps back to the goal.
-     On a desktop the coin total does the same once the coins and the lane have scrolled away. */
+  /* On a phone the green line sits under the lane, and its pin returns the moment that line
+     leaves. The lane is already gone by then, so the pin never covers the pour.
+     On a desktop the coin total returns once the coins and the lane have scrolled away.
+     Scroll padding stays at that pin's height even while the pin is hidden, so a jump
+     to the stalls clears it from the top of the page as well as from the bottom. */
+  function pinHeight(el) {
+    if (!el) return 0;
+    var was = el.hidden;
+    el.hidden = false;
+    var h = el.getBoundingClientRect().height;
+    el.hidden = was;
+    return h;
+  }
+
   function syncPins() {
     var pin = $('#goal-pin');
     var goal = $('#goal');
     var laneEl = document.getElementById('lane');
     if (!pin || !goal) return;
     pin.textContent = goal.textContent;
+    pin.title = goal.textContent;
     var coinPin = $('#coin-pin');
     var coins = document.querySelector('.coins');
     var phone = window.matchMedia('(max-width: 1000px)').matches;
     var wide = window.matchMedia('(min-width: 1001px)').matches;
     var laneBox = laneEl ? laneEl.getBoundingClientRect() : null;
     var coinBox = coins ? coins.getBoundingClientRect() : null;
+    var goalBox = goal.getBoundingClientRect();
     var laneGone = !!laneBox && laneBox.bottom <= 0;
     var coinsGone = !!coinBox && coinBox.bottom <= 0;
-    var showGoal = phone && laneGone;
+    var showGoal = phone && goalBox.bottom <= 0.5;
     pin.hidden = !showGoal;
     if (coinPin) {
       var rate = M.income(state);
       coinPin.textContent = money(state.cash) + ' coins · ' + (rate > 0 ? money(rate) + ' a second' : 'nothing earning yet');
       coinPin.hidden = !(wide && laneGone && coinsGone);
     }
-    var shown = showGoal ? pin : (coinPin && !coinPin.hidden ? coinPin : null);
-    document.documentElement.style.scrollPaddingTop = shown ? Math.ceil(shown.getBoundingClientRect().height) + 'px' : '';
+    var reserve = phone ? pinHeight(pin) : pinHeight(coinPin);
+    document.documentElement.style.scrollPaddingTop = reserve > 0 ? Math.ceil(reserve) + 'px' : '';
+  }
+
+  function settleHash() {
+    var hash = location.hash;
+    if (!hash || hash.length < 2) return;
+    var target = document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (target && target.scrollIntoView) target.scrollIntoView({ block: 'start' });
   }
 
   function showAway(summary) {
@@ -271,9 +295,11 @@
   persist(M.serialize(state, state.seen));
   if (summary && (summary.gained > 0 || summary.capped)) showAway(summary);
   render();
+  settleHash();
   setInterval(render, 250);
   window.addEventListener('scroll', syncPins, true);
   window.addEventListener('resize', syncPins);
+  window.addEventListener('hashchange', function () { syncPins(); settleHash(); });
 
   window.__nightMarket = { state: state, render: render, idle: idle, HOLD_DELAY: HOLD_DELAY, HOLD_EVERY: HOLD_EVERY, drawTools: drawTools, away: function () { return awayOn; } };
 })();

@@ -36,20 +36,31 @@ A fast buyer pours every 120ms until someone is hired, then once a second buys o
 
 On the old curve the human-pace income sits next to the desktop (about 0, 12, 6 and 2 percent off through minute 9, then 2 percent high at minute 12). Cash at minute 12 is higher in the sim because a line longer than 6 minutes is skipped, while the desktop session kept saving toward the 11K Mooncake Table. The best line from minute 8 to 15 ran to 6m 37s. The fast buyer on that same curve ran to 11m 28s. Playtester's scripted pace was 91, 183, 226 and 291 coins a second at minutes 6, 9, 12 and 15.
 
-On this curve both buyers stay under 5 minutes from minute 8 to 15. The fast buyer's longest best line in that window is 225 seconds. The human-pace buyer's is 269 seconds. The human buyer reaches 50 Tea Stalls at 8:12 (the awning) and 25 Dumpling Carts at 14:09. The fast buyer reaches 25 Lantern Stands at 10:08.
+On this curve both buyers stay under 5 minutes from minute 8 to 25. Through minute 15 the fast buyer's longest best line is 225 seconds and the human-pace buyer's is 269 seconds. The human buyer reaches 50 Tea Stalls at 8:12 (the awning) and 25 Dumpling Carts at 14:09. The fast buyer reaches 25 Lantern Stands at 10:08. Minutes 0 to 15 are the approved curve: same income, same stalls owned, same best line.
+
+The Incense Tray is the one stall that changes. It used to cost 150K, earn 55 a second, and show a 45 minute payback, so coins saved after the quarter hour had nowhere useful to go. The first tray now costs 52.4K and earns 540 a second, so it pays for itself in 1 minute 37 seconds. The next one takes 1 minute 42 seconds. It opens once twelve mooncake tables are wrapping. Ten trays still open the Story Mat. Tea, dumplings, lanterns, mooncakes and the story mat are unchanged.
+
+| | Human pace, minute 15 | Human pace, minute 20 | Human pace, minute 25 | Fast buyer, minute 15 | Fast buyer, minute 20 | Fast buyer, minute 25 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Income | 650/s | 2.92K/s | 33.2K/s | 1.32K/s | 2.02K/s | 5.06K/s |
+| Coins on hand | 26.8K | 34.2K | 153K | 5.79K | 10.7K | 18.6K |
+| Best line | 4m 21s | 1m 37s | 3m 10s | 3m 45s | 1m 37s | 1m 37s |
+| Stalls owned | 69, 31, 14, 10, 0, 0 | 70, 36, 25, 31, 0, 0 | 70, 36, 25, 31, 28, 0 | 107, 80, 37, 7, 0, 0 | 116, 91, 47, 20, 0, 0 | 127, 103, 57, 34, 0, 0 |
+
+The longest best line from minute 8 to 25 is 287 seconds for the fast buyer and 298 seconds for the human-pace buyer. By minute 25 the human-pace buyer has bought 28 incense trays. The fast buyer is still saving toward the first one, and that tray is already the short line on the table.
 
 The sensible buyer, who waits for the single best copy:
 
 | Mark | Time | Income at 5, 10, 15 and 30 min |
 | --- | --- | --- |
-| 1K | 1:49 | 179 / 720 / 2.94K / 15.7K coins a second |
+| 1K | 1:49 | 179 / 673 / 7.15K / 214K coins a second |
 | 10K | 4:04 | |
 | 100K | 8:59 | |
-| 1M | 17:10 | |
+| 1M | 15:02 | |
 
-From minute 6 to 15 the longest wait for that next stall is 25 seconds, and the longest of those lines is 8.2 minutes. Doing it yourself still leads for the first minute and a bit. Stalls pass ten clicks a second at 81 seconds. At minute 6 the stalls earn 227/s and the hand earns 10/s. Every stall pays 1 coin a click. The 25 cups stay at 25.
+Minute 5 is the same 179 coins a second. From minute 6 to 15 the longest wait for the next stall is 71 seconds, and the longest of those lines is 4 minutes 45 seconds. The longer wait is the first Incense Tray: once twelve mooncake tables are wrapping, that tray is the line worth saving for. Doing it yourself still leads for the first minute and a bit. Stalls pass ten clicks a second at 81 seconds. At minute 6 the stalls earn 227/s and the hand earns 10/s. Every stall pays 1 coin a click. The 25 cups stay at 25.
 
-The first Dumpling Cart still pays for itself in 1m 29s. The 18th, which had grown to 8m 44s, now pays for itself in about 4 minutes. Tea, dumplings, lanterns and mooncakes all grow more gently. Incense and the story mat are unchanged. A doubling still arrives at 25, and the awning still arrives at 50. Nothing else stacks on top of those.
+The first Dumpling Cart still pays for itself in 1m 29s. The 18th, which had grown to 8m 44s, now pays for itself in about 4 minutes. Tea, dumplings, lanterns and mooncakes all grow more gently. A doubling still arrives at 25, and the awning still arrives at 50. Nothing else stacks on top of those.
 
 ## The buyer who spends whatever is affordable
 
