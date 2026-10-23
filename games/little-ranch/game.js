@@ -148,7 +148,7 @@
   const AREAS = ['Kitchen Garden', 'Meadow', 'Toy Yard', 'Barn Yard'];
   const cam = { area: 1, x: 0, from: 0, to: 0, t0: -9, dur: 0, parallax: { far: 0, near: 0 } };
   function areaCentre(i) { return L.U * (1 + 1.4 * i); }
-  function stopFor(i) { return Math.round(clamp(areaCentre(i) - W / 2, 0, Math.max(0, L.U * 6.2 - W))); }
+  function stopFor(i) { const x = clamp(areaCentre(i) - W / 2, 0, Math.max(0, L.U * 6.2 - W)); const f = Math.floor(x), d = x - f; return d > .5 || (d === .5 && f % 2) ? f + 1 : f; }
   function coreX(i, t) { return areaCentre(i) + L.U * (t - .5); }
   function pinSky() { if (!L || !L.U) return; L.sun = { x: cam.x + W * .22, y: H * .17 }; L.moon = { x: cam.x + W * .8, y: H * .16 }; }
   function camGliding() { return !!(st && cam.dur > 0 && st.t - cam.t0 < cam.dur - 1e-6); }
@@ -211,7 +211,9 @@
     L.homes = homes; L.fhomes = pals; L.home = homes[cam.area]; L.fhome = pals[cam.area]; L.fz = L.size * .95;
     const garden = spreadSigns(0, [.22, .6]), toy = spreadSigns(2, [.34, .66]), barn = spreadSigns(3, [.32, .58, .84]);
     L.ksign = garden[0]; L.tsign = garden[1]; L.stage = toy[0]; L.shelf = toy[1]; L.dsign = barn[0]; L.sign = barn[1]; L.wsign = barn[2];
-    L.bowl = { x: fitX(1, coreX(1, .12), L.R + 2, false), y: H * .84 };
+    { const half = L.R * .9, stop = stopFor(1);
+      const lo = Math.max(stopFor(0) + W + 2, stop + half + 1), hi = stop + W - half - 1;
+      L.bowl = { x: clamp(coreX(1, .02), lo, Math.max(lo, hi)), y: H * .84 }; }
     L.sponge = { x: fitX(1, coreX(1, .88), L.R * .8 + 2, false), y: H * .86 };
     L.bush = { x: fitX(1, coreX(1, .62), L.R * 1.25 * .9, true), y: H * .6 };
     { const sw = L.R * .8; let x0, step, fr, y;
