@@ -1,5 +1,5 @@
 'use strict';
-/* LR-WORLD-1 (claimed: Grok, 2026-10-23) the ranch strip and camera. */
+/* LR-WORLD-1: the ranch is a strip of four places. Big wooden arrows glide the camera one place at a time. */
 /* Little Ranch (LR1, the smallest test): a tap-and-play toy for ages 2 to 4 (docs/proposals/games-for-everyone.md).
    One baby Cindercub in a sunny corner of the ranch. Tap the bowl and it eats; drag (or tap) the sponge and it gets
    bubbly; tap the bush for peekaboo; tap the baby and it giggles. After a dozen or so things (or six minutes) it yawns,
@@ -17,11 +17,12 @@
    Pebblit friend wanders in (LR4): it eats and gets bubbly too, and a tap on it makes the two nuzzle. Tap the cloud for soft rain (LR5); afterwards
    puddles shine on the grass and a rainbow comes out; tap a puddle and the baby jumps in. The hat basket (LR6): each tap puts the next hat on the baby's head. At bedtime (LR7) the
    toothbrush, a cup of water and goodnight to each friend come before the lullaby. The device's own voice says the
-   creatures' names, the colours and "night night" (LR8). No microphone, and nothing is saved. A big soft ball sits in the grass (LR16): tap it and it rolls, and the baby runs over and kicks it. One toy-pack sign opens a little room with Block Tower and Barn Band. Checks: tests/little-ranch.html. */
+   creatures' names, the colours and "night night" (LR8). No microphone, and nothing is saved. A big soft ball sits in the grass (LR16): tap it and it rolls, and the baby runs over and kicks it. The Toy Yard has its own stage (Barn Band) and block shelf (Block Tower). Checks: tests/little-ranch.html. */
 (function () {
   const VERSION = '0.19.1', PREF = 'little-ranch-settings-v1', BEDTIME_ACTS = 12, BEDTIME_SECS = 360, BEDTIME_GRACE = 6, HOLD_MS = 3000, WAKE_TAPS = 6, SUN_TAPS = 5, BOW_SECS = 5, MOON_TAPS = 3, BEAT = .45, SHED_WALK_SECS = 2.6, HINT_SECS = 6;
   // LR-C1: things on the ranch, in the order an idle hint offers them (the first one not yet played with)
-  const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'ball', 'sign', 'wsign', 'ksign', 'dsign', 'tsign', 'psign'];
+  const HINTS = ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'ball', 'sign', 'wsign', 'ksign', 'dsign', 'tsign', 'stage', 'shelf'];
+  const AREA_TOYS = [['ksign', 'tsign', 'cloud', 'puddle'], ['bowl', 'sponge', 'bush', 'flowers', 'baby', 'friend', 'sun'], ['stage', 'shelf', 'basket', 'ball', 'baby'], ['dsign', 'sign', 'wsign', 'baby']];
   // LR11: the Snack Kitchen. Four foods (berries, carrot, lemon, broccoli), one bowl, one baby who loves berries and pulls a
   // funny face at the rest (puffed cheeks, a sour squeeze, a tongue out). Three bowls of berries and it's full and happy.
   // LR4: a second friend. On some visits (about half) a baby Pebblit wanders in and settles beside the baby. Tap the bowl
@@ -58,7 +59,7 @@
   // LR3: the singing flowers, a row of five along the front of the meadow, each with its own note (C D E G A: any order sounds sweet)
   const FLOWERS = ['#ff6f91', '#ffa040', '#b07aff', '#4fb4ff', '#ff5a5a'], FLOWER_NOTES = [72, 74, 76, 79, 81], SONG_TAPS = 5;
   // LR9: the Paint Shed's four fat pots and the four parts of the baby's outline (in the order they're drawn)
-  const SIGN_WIGGLE_GAP = 9, SIGNS = ['sign', 'wsign', 'ksign', 'tsign', 'dsign', 'psign'], PAINT = ['#ff6fa8', '#4fa6ff', '#ffd03a', '#5fd06a'], PARTS = ['tail', 'legs', 'body', 'head'];
+  const SIGN_WIGGLE_GAP = 9, SIGNS = ['sign', 'wsign', 'ksign', 'tsign', 'dsign', 'stage', 'shelf'], DOORS = { sign: 1, wsign: 1, ksign: 1, tsign: 1, dsign: 1, stage: 1, shelf: 1 }, PAINT = ['#ff6fa8', '#4fa6ff', '#ffd03a', '#5fd06a'], PARTS = ['tail', 'legs', 'body', 'head'];
   // LR8: spoken words, the browser's own voice. Names, colours and "night night". No microphone, nothing saved.
   // Sound off means silence. A real parent's recording still needs Evan's yes.
   const POT_WORDS = ['pink', 'blue', 'yellow', 'green'], FLOWER_WORDS = ['pink', 'orange', 'purple', 'blue', 'red'], CAR_WORDS = ['red', 'blue'], FOOD_WORDS = ['berries', 'carrot', 'lemon', 'broccoli'];
@@ -139,328 +140,135 @@
   function newVisit() {
     st = { t: 0, mode: 'play', dusk: 0, acts: 0, bedtimeAt: null, baby: { x: 0, tx: null, then: null, dir: 1, act: null, at: 0, soap: 0, happy: 0, perk: -9 },
       bowl: { food: 0, pop: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null },
-      place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, nextWig: 4, wigI: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, tsign: { shake: 0 }, dough: null, dsign: { shake: 0 }, door: null, psign: { shake: 0 }, pack: null, tower: null, band: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 }, ball: { from: -1, to: -1, at: -9, kicks: 0 }, routine: null, shut: 0 };
-    if (forceFriend !== null ? forceFriend : Math.random() < FRIEND_ODDS) st.friend = { x: 1.1, tx: null, then: null, act: null, at: 0, soap: 0, dir: -1 };
-    layout(); st.baby.x = L.home.x; if (st.friend) fgo(L.fhome.x, null); // it wanders in from the right
+      place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, nextWig: 4, wigI: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, tsign: { shake: 0 }, dough: null, dsign: { shake: 0 }, door: null, stage: { shake: 0 }, shelf: { shake: 0 }, tower: null, band: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 }, ball: { from: -1, to: -1, at: -9, kicks: 0 }, routine: null, shut: 0 };
+    if (forceFriend !== null ? forceFriend : Math.random() < FRIEND_ODDS) st.friend = { x: 0, tx: null, then: null, act: null, at: 0, soap: 0, dir: -1, hurry: false, lag: 0 };
+    cam.area = 1; cam.dur = 0; layout(); snapCamera(); st.baby.x = L.home.x; st.baby.tx = null; st.baby.hurry = false;
+    if (st.friend) { st.friend.x = cam.x + W + L.fz; fgo(L.fhome.x, null); } // wanders in from just off the meadow
   }
-  const placeCache = {}; // LR-G2: the chosen spots for each screen size, so a size seen before costs nothing
+  const AREAS = ['Kitchen Garden', 'Meadow', 'Toy Yard', 'Barn Yard'];
+  const cam = { area: 1, x: 0, from: 0, to: 0, t0: -9, dur: 0, parallax: { far: 0, near: 0 } };
+  function areaCentre(i) { return L.U * (1 + 1.4 * i); }
+  function stopFor(i) { return Math.round(clamp(areaCentre(i) - W / 2, 0, Math.max(0, L.U * 6.2 - W))); }
+  function coreX(i, t) { return areaCentre(i) + L.U * (t - .5); }
+  function pinSky() { if (!L || !L.U) return; L.sun = { x: cam.x + W * .22, y: H * .17 }; L.moon = { x: cam.x + W * .8, y: H * .16 }; }
+  function camGliding() { return !!(st && cam.dur > 0 && st.t - cam.t0 < cam.dur - 1e-6); }
+  function snapCamera() { cam.x = cam.from = cam.to = stopFor(cam.area); cam.dur = 0; cam.t0 = -9; pinSky(); syncHome(); refreshArrows(); }
+  function syncHome() { if (!L || !L.homes) return; L.home = L.homes[cam.area]; L.fhome = L.fhomes[cam.area]; }
+  function refreshArrows() {
+    if (!L || !L.U) return;
+    const ay = L.ground - L.U * .08, show = st && st.mode === 'play' && st.place === 'ranch';
+    L.arrows = { y: ay, r: L.U * .09, tap: L.U * .175, left: show && cam.area > 0 ? { x: cam.x + L.U * .1, y: ay } : null, right: show && cam.area < 3 ? { x: cam.x + W - L.U * .1, y: ay } : null };
+  }
+  // A drawn half-width that crosses an arrow lane is slid until it is clear, and until it sits fully in this area's view.
+  function fitX(area, x, half, lane) {
+    const stop = stopFor(area), left = lane && area > 0, right = lane && area < 3;
+    const lo = stop + half + 1 + (left ? L.U * .2 : 0), hi = stop + W - half - 1 - (right ? L.U * .2 : 0);
+    return clamp(x, Math.min(lo, hi), Math.max(lo, hi));
+  }
+  function signSpot(area, frac) {
+    const r = L.R * .95, half = r * .95, bottom = L.ground - L.U * .055;
+    return { x: fitX(area, coreX(area, frac), half, true), y: bottom - r * .27 };
+  }
+  function spreadSigns(area, fracs) {
+    const half = L.R * .95 * .95, gap = half * 2 + 3, spots = fracs.map(t => signSpot(area, t));
+    spots.sort((a, b) => a.x - b.x);
+    for (let i = 1; i < spots.length; i++) if (spots[i].x < spots[i - 1].x + gap) spots[i].x = spots[i - 1].x + gap;
+    const stop = stopFor(area), maxX = stop + W - (area < 3 ? L.U * .2 : 0) - half - 1, minX = stop + (area > 0 ? L.U * .2 : 0) + half + 1;
+    if (spots[spots.length - 1].x > maxX) { const d = spots[spots.length - 1].x - maxX; spots.forEach(s => { s.x -= d; }); }
+    if (spots[0].x < minX) { const d = minX - spots[0].x; spots.forEach(s => { s.x += d; }); }
+    spots.forEach(s => { s.x = fitX(area, s.x, half, true); });
+    return spots;
+  }
+  function dropForTravel() {
+    const b = st.baby; b.act = null; b.then = null; b.tx = null; st.bowl.food = 0; st.bubbles.length = 0;
+    st.sponge.drag = null; st.sponge.auto = null; st.sponge.scrubbed = false; st.down = null;
+    if (st.friend) { st.friend.act = null; st.friend.then = null; st.friend.tx = null; }
+  }
+  function sendFollowers(instant) {
+    const spot = L.homes[cam.area], pal = L.fhomes[cam.area];
+    dropForTravel();
+    if (instant || reduce()) { st.baby.x = spot.x; st.baby.hurry = false; if (st.friend) { st.friend.x = pal.x; st.friend.hurry = false; st.friend.lag = 0; } return; }
+    st.baby.hurry = true; go(spot.x, () => { st.baby.hurry = false; });
+    if (st.friend) { st.friend.lag = .4; st.friend.hurry = false; }
+  }
+  function goArea(i, instant) {
+    i = clamp(i | 0, 0, 3); const dest = stopFor(i), cut = !st || instant || reduce() || Math.abs(dest - cam.x) < .5;
+    cam.area = i; cam.to = dest;
+    if (cut) { cam.x = cam.from = dest; cam.dur = 0; cam.t0 = -9; pinSky(); syncHome(); refreshArrows(); if (st) sendFollowers(true); return; }
+    cam.from = cam.x; cam.t0 = st.t; cam.dur = .65; syncHome(); refreshArrows(); sendFollowers(false);
+  }
+  function parkAtDoor(area) { cam.area = area; cam.x = cam.from = cam.to = stopFor(area); cam.dur = 0; cam.t0 = -9; pinSky(); syncHome(); refreshArrows(); }
   function artScale(cssMin, dpr) { const fitted = Math.max(2, Math.round(cssMin / 190)); return dpr > 1 ? Math.min(fitted, 2) : fitted; }
   function layout() {
     const r = cv.getBoundingClientRect(), cssW = Math.max(1, r.width || innerWidth), cssH = Math.max(1, r.height || innerHeight);
     const old = L, oldW = W, oldH = H;
     S = artScale(Math.min(cssW, cssH), window.devicePixelRatio || 1); W = Math.ceil(cssW / S); H = Math.ceil(cssH / S);
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
-    const U = Math.min(W, H * 1.15), wide = W > H * 1.3, sp = wide ? Math.min(W * .3, U * 1.1) : W * .28; // big screens: things spread out
-    L = { U, R: U * .14, ground: H * .56, size: U * .17,
-      home: { x: W / 2, y: H * .76 }, bowl: { x: W / 2 - sp, y: H * .84 }, sponge: { x: W / 2 + sp, y: H * .86 }, bush: { x: W / 2 + sp * .8, y: H * .6 }, sun: { x: W * .22, y: H * .17 }, sign: { x: Math.max(W * .11, U * .14 * 1.3), y: H * .5 } };
-    // LR-G2: on a tall phone the five signs stand in three rows (paint and wagon low, snack in the middle, dough and barn door
-    // high), so no two tap circles overlap. Wide and squat screens keep their old places.
-    const stack = !wide && H >= W * 1.25; L.stack = stack;
-    L.wsign = { x: W - Math.max(W * .12, U * .14 * 1.3), y: stack ? L.sign.y : L.ground - U * .14 * 1.7 }; // LR10: the wagon-wheel sign, on the hill
-    { // LR10: the wagon place. The wagon stays put in the middle while the valley rolls by
-      const z = Math.min(W * .11, H * .15), gy = H * .7;
-      L.wagon = { z, gy, cars: [0, 1].map(i => ({ x: W * .12 + i * z * 2.35, y: gy - z * .5 })), puller: { x: W * .12 + z * 4.9, y: gy - z * .8 },
-        wait: [0, 1].map(i => ({ x: W * (.22 + i * .28), y: H * .9 })), barn: null }; }
-    { // LR3: on wide screens between the bowl and the sponge, in front; on tall ones a row across the bottom of the meadow
-      // LR-LAYOUT-1: size the blossoms first. On a wide screen the row then stays clear of the bowl and the sponge.
-      const sw = L.R * .8;
-      let x0, step, r, y;
-      if (wide) {
-        const lo0 = L.bowl.x + L.R, hi0 = L.sponge.x - sw, step0 = (hi0 - lo0) / FLOWERS.length;
-        r = Math.min(step0 * .56, U * .12);
-        const lo = L.bowl.x + L.R + r + 3, hi = L.sponge.x - sw - r - 3;
-        x0 = lo; step = (hi - lo) / (FLOWERS.length - 1); y = H * .9;
-      } else {
-        x0 = W * .1; step = W * .8 / (FLOWERS.length - 1); r = Math.min(step * .5, U * .1); y = H * .935;
-        L.sponge.y = R(y - r * 1.1 - sw * .55 - 4); // tall phones: the sponge sits above the flower row
-      }
-      L.flowers = FLOWERS.map((c, i) => ({ x: x0 + i * step, y, r, stem: H * .985 })); }
-    { // the Paint Shed (LR9): the outline in the middle, four pots along the bottom, the barn picture top left
-      const potR = Math.min(W * .108, H * .1), z = Math.min(W * .82 / 2.4, H * .5 / 2.1);
+    const U = Math.min(W, H * 1.15), wide = W > H * 1.3, stack = !wide && H >= W * 1.25;
+    L = { U, R: U * .14, ground: H * .56, size: U * .17, wide, stack, world: U * 6.2 };
+    const homes = [.45, .5, .55, .45].map((t, i) => ({ x: coreX(i, t), y: H * .76 }));
+    const pals = [.7, .72, .42, .68].map((t, i) => ({ x: fitX(i, coreX(i, t), U * .17 * .95 * .6, true), y: H * .76 }));
+    L.homes = homes; L.fhomes = pals; L.home = homes[cam.area]; L.fhome = pals[cam.area]; L.fz = L.size * .95;
+    const garden = spreadSigns(0, [.22, .6]), toy = spreadSigns(2, [.34, .66]), barn = spreadSigns(3, [.32, .58, .84]);
+    L.ksign = garden[0]; L.tsign = garden[1]; L.stage = toy[0]; L.shelf = toy[1]; L.dsign = barn[0]; L.sign = barn[1]; L.wsign = barn[2];
+    L.bowl = { x: fitX(1, coreX(1, .12), L.R + 2, false), y: H * .84 };
+    L.sponge = { x: fitX(1, coreX(1, .88), L.R * .8 + 2, false), y: H * .86 };
+    L.bush = { x: fitX(1, coreX(1, .62), L.R * 1.25 * .9, true), y: H * .6 };
+    { const sw = L.R * .8; let x0, step, fr, y;
+      if (wide) { const lo0 = L.bowl.x + L.R, hi0 = L.sponge.x - sw, step0 = (hi0 - lo0) / FLOWERS.length;
+        const maxFr = Math.max(6, (L.sponge.x - L.bowl.x - L.R - sw - 8) / 2);
+        fr = Math.min(step0 * .56, U * .12); if (fr < Math.min(U * .1, maxFr)) fr = Math.floor(Math.min(U * .1, maxFr));
+        if (fr * 2 * S < 64) fr = Math.min(maxFr, 32 / S);
+        const petal = H * .9 - fr; if (petal + fr * 2 > H - 1) fr = (H - 1 - petal) / 2; y = petal + fr;
+        const lo = L.bowl.x + L.R + fr + 3, hi = L.sponge.x - sw - fr - 3; x0 = lo; step = (hi - lo) / (FLOWERS.length - 1);
+      } else { const xL = fitX(1, coreX(1, .16), U * .1, false), xR = fitX(1, coreX(1, .84), U * .1, false);
+        step = (xR - xL) / (FLOWERS.length - 1); fr = Math.min(step * .5, U * .1);
+        if (fr * 2 * S < 64) fr = Math.min(U * .1, Math.max(fr, 32 / S));
+        x0 = xL; y = H * .935; L.sponge.y = Math.round(y - fr * 1.1 - sw * .55 - 4); }
+      L.flowers = FLOWERS.map((c, i) => ({ x: x0 + i * step, y, r: fr, stem: H * .985 })); }
+    L.cloud = { x: fitX(0, coreX(0, .62), Math.min(U * .1, H * .11), false), y: Math.max(H * .08, U * .08), r: Math.min(U * .1, H * .11) };
+    L.puddles = [.3, .72].map(t => ({ x: fitX(0, coreX(0, t), U * .12, false), y: H * .7, r: U * .12 }));
+    L.basket = { x: fitX(2, coreX(2, .3), L.R * (wide ? .6 : .9), false), y: H * (wide ? .69 : .7), r: L.R * (wide ? .6 : .9) };
+    { const potR = Math.min(W * .108, H * .1), z = Math.min(W * .82 / 2.4, H * .5 / 2.1);
       L.shed = { z, x: W / 2 - z * .08, y: H * .7, potR, pots: PAINT.map((c, i) => ({ x: W * (.125 + i * .25), y: H * .88 - potR * .4 })), barn: { x: Math.max(potR * 1.15, W * .1), y: Math.max(potR * 1.15, H * .09), r: potR * .95 } }; }
-    L.wagon.barn = L.shed.barn;
-    L.cloud = { x: W * .64, y: Math.max(H * .08, U * .08), r: Math.min(U * .1, H * .11) }; // LR5
-    L.puddles = [{ x: W / 2 - sp * .62, y: H * .69 }, { x: W / 2 + sp * (wide ? .7 : .5), y: H * (wide ? .67 : .7) }].map(q => ({ ...q, r: U * .12 }));
-    L.basket = wide ? { x: Math.max(U * .14 * .62, L.sign.x - U * .14 * (.1 + .6 * .95)), y: H * .69, r: U * .14 * .6 } : { x: Math.max(W * .09, U * .14 * .95), y: H * .7, r: U * .14 * .9 }; // wide: left of the paint sign's post (LR-POLISH-1) // LR6: the hat basket, at the field's left edge
-    L.item = wide ? { x: L.bowl.x + U * .14 * .6, y: L.bowl.y - U * .14 * .6, r: U * .14 * 1.1 } : { x: Math.max(U * .14 * 1.3, L.home.x - L.size * 2.1), y: L.home.y - L.size * .8, r: U * .14 * 1.2 }; /* LR-POLISH: bigger cue */ // LR7: where the toothbrush and the cup wait
-    L.fhome = { x: L.home.x + (L.sponge.x - L.home.x) * .9, y: L.home.y }; L.fz = L.size * .95; // LR4: the friend's spot, between the baby and the sponge
-    L.ksign = stack ? { x: W / 2, y: L.sign.y - U * .14 * 1.3 } : { x: W * .45, y: L.ground - U * .14 * 1.7 }; // LR11: the snack-bowl sign, on the hilltop
+    { const z = Math.min(W * .11, H * .15), gy = H * .7;
+      L.wagon = { z, gy, cars: [0, 1].map(i => ({ x: W * .12 + i * z * 2.35, y: gy - z * .5 })), puller: { x: W * .12 + z * 4.9, y: gy - z * .8 },
+        wait: [0, 1].map(i => ({ x: W * (.22 + i * .28), y: H * .9 })), barn: L.shed.barn }; }
     { const fr = Math.min(W * .108, H * .1), ty = H * .64, z = Math.min(W * .22, H * .24);
       L.kitchen = { fr, ty, z, baby: { x: W * .5, y: ty }, bowl: { x: W * .5, y: ty + z * .12, r: Math.max(fr * 1.1, z * .5) }, foods: FOODS.map((f, i) => ({ x: W * (.125 + i * .25), y: H * .87 })), barn: L.shed.barn }; }
-    L.dsign = wide ? { x: W - U * .14 * 1.1, y: H * .72 } : stack ? { x: L.wsign.x, y: L.sign.y - U * .14 * 2.6 } : { x: W * .64, y: L.ground - U * .14 * 3.4 }; // LR17: the barn-door sign: wide screens at the meadow's right edge, tall ones behind and between the hill signs
-    { const dh = Math.min(H * .56, W * .62), dw = dh * .78, gr = Math.min(W * .1, H * .1), cx0 = W / 2, bot = H * .8, top = bot - dh, side = dw / 2 + gr * 1.35; // LR17
+    { const dh = Math.min(H * .56, W * .62), dw = dh * .78, gr = Math.min(W * .1, H * .1), cx0 = W / 2, bot = H * .8, top = bot - dh, side = dw / 2 + gr * 1.35;
       L.door = { dw, dh, gr, x: cx0, top, bot, barn: L.shed.barn, lamp: { x: cx0, y: top - gr * .55 }, mill: { x: cx0 - side, y: top + gr * .9 },
         g: { bell: { x: cx0 + side, y: top + gr * .9 }, switch: { x: cx0 + side, y: top + dh * .62 }, latch: { x: cx0 + dw * .24, y: top + dh * .45 }, bolt: { x: cx0 - dw * .2, y: top + dh * .82 }, crank: { x: cx0 - side, y: top + dh * .66 } } }; }
-    L.tsign = wide ? { x: (L.sign.x + L.ksign.x) / 2, y: H * .48 } : stack ? { x: L.sign.x, y: L.sign.y - U * .14 * 2.6 } : { x: W * .3, y: L.ground - U * .14 * 3.4 }; // LR18: the dough sign, between the paint and snack signs
-    { const lr = Math.min(W * .17, H * .17), cr = Math.min(W * .1, H * .1); // LR18
+    { const lr = Math.min(W * .17, H * .17), cr = Math.min(W * .1, H * .1);
       L.dough = { lr, cr, ty: H * .5, lump: { x: W * .42, y: H * .66 }, cutter: { x: W * .8, y: H * .64 }, barn: L.shed.barn,
-        dr: Math.min(W * .09, H * .1), dots: (wide ? [.27, .47, .67, .87] : [.2, .4, .6, .8]).map(f => ({ x: W * f, y: H * .5 * .55 })) }; } // LR-POLISH: the four colour dots are pots now
-    const placeKey = W + 'x' + H + 'x' + S, placed = placeCache[placeKey];
-      if (placed) { L.item = { ...placed.item }; L.puddles = placed.puddles.map(q => ({ ...q })); L.psign = { ...placed.psign }; if (placed.cloud) { L.cloud.x = placed.cloud.x; L.cloud.y = placed.cloud.y; } } else { // LR-G2: two spots chosen on the grid: the bedtime bubble (clear of the hat basket and the bowl) and the two puddles
-      // (clear of the ball, the bush, the basket, the bowl and the sponge). The old spot is the preferred one and is kept
-      // when it is already clear. Nothing here is saved; the chosen spots are only remembered in memory, per screen size.
-      const sw = L.R * .8, B = L.basket, bb = L.bush, kids = [-1, 1].map(k => ballSpot(k)), bodyY = L.home.y - L.size * .9;
-      const clash = (e, c) => { // does the ellipse e meet the circle c = [x, y, r]?
-        const d = Math.hypot(e.x - c[0], e.y - c[1]); if (d > e.rx + c[2]) return false; // too far to touch
-        if (d <= c[2] || ((c[0] - e.x) / e.rx) ** 2 + ((c[1] - e.y) / e.ry) ** 2 <= 1) return true;
-        for (let k = 0; k < 24; k++) { const a = k * Math.PI / 12; if (Math.hypot(e.x + Math.cos(a) * e.rx - c[0], e.y + Math.sin(a) * e.ry - c[1]) <= c[2]) return true; }
-        return false; };
-      const still = [[B.x, B.y, B.r * 1.1], ...[-.55, 0, .55].map(k => [L.bowl.x + k * L.R, L.bowl.y - L.R * .25, L.R * .5]), ...[-.6, 0, .6].map(k => [L.sponge.x + k * sw, L.sponge.y, sw * .62]), ...[[-.55, .4, .6], [.55, .4, .6], [0, .65, .75]].map(([kx, ky, kr]) => [bb.x + kx * L.R * 1.25, bb.y - ky * L.R * 1.25, kr * L.R * 1.25]), ...[-.7, 0, .7].map(k => [bb.x + k * L.R * 1.25, bb.y + L.R * .25, L.R * .4]), ...kids.map(q => [q.x, q.y, q.r + 2])]; // (the bush's own shadow too)
-      const spot = (want, box, rx, ry, hard, soft, need) => { let best = null, bestCost = Infinity;
-        for (let y = box.y0; y <= box.y1; y += 2) for (let x = box.x0; x <= box.x1; x += 2) {
-          const e = { x, y, rx, ry }; if (hard.some(c => clash(e, c)) || (need && !need(x, y))) continue;
-          let cost = Math.hypot(x - want.x, y - want.y) * .02; for (const [cx0, cy0, cr, w] of soft) cost += w * Math.max(0, rx + cr - Math.hypot(x - cx0, y - cy0));
-          if (cost < bestCost) { bestCost = cost; best = { x, y }; } }
-        return best; };
-      const fCircle = [L.fhome.x, L.fhome.y - L.fz * .7, L.fz * .9], babyC = [L.home.x, bodyY, L.size * .95];
-      { // the bubble: its soft glow counts as part of it, and the existing rule (clear of the baby) stays
-        const I = L.item, gr = I.r * 1.27, tr = I.r * 1.1;
-        const hard = [[B.x, B.y, B.r * 1.1 + gr + 2], [L.bowl.x, L.bowl.y - L.R * .25, L.R * 1.05 + gr + 2]], core = [[B.x, B.y, B.r * 1.1 + I.r + 2], [L.bowl.x, L.bowl.y - L.R * .25, L.R * 1.05 + I.r + 2]], box = { x0: gr, x1: W - gr, y0: L.ground, y1: H - gr };
-        const rs = L.R * .95, boards = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'].map(n => L[n]); // the bubble's core must stay off every sign board (each is a box, post excluded)
-        const onBoard = (x, y) => boards.some(b => Math.hypot(Math.max(b.x - rs * .95 - x, 0, x - b.x - rs * .95), Math.max(b.y - rs * 1.17 - y, 0, y - b.y - rs * .27)) <= I.r);
-        // Three tries, strictest first: the whole glow clear of the basket and the bowl and the core off every sign; then only the core clear of all of them
-        // (the soft glow may touch, on a crowded wide screen); then the core clear of the basket and the bowl alone.
-        const bubbleClash = tier => (x, y) => (tier ? core : hard).every(c => Math.hypot(x - c[0], y - c[1]) > c[2]) && (tier > 1 || !onBoard(x, y)) && Math.hypot(x - L.home.x, y - bodyY) > I.r + L.size * .8 + 1 && Math.hypot(x - L.home.x, y - bodyY) <= (wide ? W : L.size * 3.4);
-        const soft = [fCircle.concat(.8), babyC.concat(wide ? 2.5 : 1.2), ...kids.map(q => [q.x, q.y, q.r, 4]), [L.sponge.x, L.sponge.y, sw, .8], [bb.x, bb.y - L.R * .6, L.R * 1.4, .4], ...L.flowers.map(f => [f.x, f.y, f.r, .9]),
-          ...['sign', 'wsign', 'ksign', 'tsign', 'dsign'].map(n => [L[n].x, L[n].y - L.R * .45, L.R * 1.25, .25])];
-        const best = [0, 1, 2].reduce((got, t) => got || spot(I, box, tr, tr, [], soft, bubbleClash(t)), null); if (best) { L.item = { ...I, x: best.x, y: best.y }; } }
-      { // the puddles: the full size when it fits, a little smaller on a crowded screen (never under 66 px across on a phone, 84 on a tablet)
-        const left = L.puddles[0], right = L.puddles[1], f0 = L.flowers[0];
-        const hard = still.concat(['sign', 'wsign', 'ksign', 'tsign', 'dsign'].map(n => [L[n].x, L[n].y - L.R * .45, L.R * 1.0])), soft = [babyC.concat(2), fCircle.concat(.5), ...L.flowers.map(f => [f.x, f.y, f.r * 1.15, 1.5])];
-        const got = [null, null], ks = [1, .88, .76, .64].filter(k => k === 1 || left.r * k * 2 * S >= (Math.min(W, H) * S >= 768 ? 84 : 66)), yy = ry => [L.ground + U * .04 + ry, f0.y - f0.r * .5 - ry];
-        for (const k of ks) { const rx = left.r * k, [y0, y1] = yy(rx * .36), a = spot(left, { x0: rx + 2, x1: L.home.x - L.size * .4, y0, y1 }, rx, rx * .36, hard, soft, null); if (a) { got[0] = { ...left, ...a, r: rx }; break; } }
-        for (const k of ks) { const rx = left.r * k, [y0, y1] = yy(rx * .36), x0 = Math.max(wide ? L.home.x + L.size * 1.014 + rx * .5 + 1 : L.home.x + L.size * .4, got[0] ? got[0].x + got[0].r + rx + 2 : 0);
-          const b = spot(right, { x0, x1: W - rx - 2, y0, y1 }, rx, rx * .36, hard, soft, null); if (b) { got[1] = { ...right, ...b, r: rx }; break; } }
-        L.puddles = [got[0] || left, got[1] || right]; }
-      L.psign = packSignSpot();
-      if (Object.keys(placeCache).length > 120) for (const k in placeCache) delete placeCache[k];
-      placeCache[placeKey] = { item: { ...L.item }, puddles: L.puddles.map(q => ({ ...q })), psign: { ...L.psign }, cloud: { x: L.cloud.x, y: L.cloud.y } }; }
+        dr: Math.min(W * .09, H * .1), dots: (wide ? [.27, .47, .67, .87] : [.2, .4, .6, .8]).map(f => ({ x: W * f, y: H * .5 * .55 })) }; }
     layToys();
+    { const stop = stopFor(1), rad = L.R * (wide ? 1.1 : 1.2), bodyY = homes[1].y - L.size * .9, babyX = homes[1].x; let best = null, bestD = Infinity;
+      for (let y = L.ground + rad; y <= H - rad; y += 6) for (let x = stop + rad + 2; x <= stop + W - rad - 2; x += 6) {
+        const clear = (px, py, pr) => Math.hypot(x - px, y - py) > pr + rad * 1.27 + 2;
+        if (!clear(L.bowl.x, L.bowl.y - L.R * .25, L.R * 1.05)) continue;
+        if (!clear(babyX, bodyY, L.size * .8)) continue;
+        if (!clear(L.sponge.x, L.sponge.y, L.R)) continue;
+        if (!clear(L.bush.x, L.bush.y - L.R * .4, L.R * 1.4)) continue;
+        if (L.flowers.some(f => !clear(f.x, f.y, f.r))) continue;
+        const d = Math.hypot(x - (L.bowl.x + L.R), y - L.bowl.y); if (d < bestD) { bestD = d; best = { x, y }; } }
+      L.item = { x: best ? best.x : L.bowl.x + L.R * 2, y: best ? best.y : L.ground + rad, r: rad }; }
+    pinSky(); syncHome(); refreshArrows();
     if (st && old.U && (W !== oldW || H !== oldH)) {
-      // Keep progress between the same places, rather than keeping obsolete canvas pixels.
-      // The eating spot includes the baby's size, so a plain width ratio is not enough.
-      const moveX = x => {
-        const left = x < old.home.x;
-        const from = left ? old.bowl.x + old.size * 1.3 : old.bush.x;
-        const to = left ? L.bowl.x + L.size * 1.3 : L.bush.x;
-        return L.home.x + (x - old.home.x) * (to - L.home.x) / (from - old.home.x);
-      };
-      st.baby.x = moveX(st.baby.x);
-      if (st.baby.tx !== null) st.baby.tx = moveX(st.baby.tx);
-      const sx = W / oldW, sy = H / oldH, sz = L.U / old.U;
-      const s = st.sponge;
-      if (s.drag || s.auto) { s.x *= sx; s.y *= sy; }
-      if (s.drag) { s.drag.x *= sx; s.drag.y *= sy; s.drag.moved *= sz; }
-      for (const u of st.bubbles) { u.x *= sx; u.y *= sy; u.r *= sz; }
-      for (const f of st.fx) { f.x *= sx; f.y *= sy; f.vx *= sx; f.vy *= sy; }
+      const sz = L.U / old.U, sy = H / oldH;
+      snapCamera();
+      st.baby.x *= sz; if (st.baby.tx !== null) st.baby.tx *= sz; st.baby.hurry = false;
+      if (st.friend) { st.friend.x *= sz; if (st.friend.tx !== null) st.friend.tx *= sz; st.friend.hurry = false; }
+      const s = st.sponge; if (s.drag || s.auto) { s.x *= sz; s.y *= sy; }
+      if (s.drag) { s.drag.x *= sz; s.drag.y *= sy; s.drag.moved *= sz; }
+      for (const u of st.bubbles) { u.x *= sz; u.y *= sy; u.r *= sz; }
+      for (const f of st.fx) { f.x *= sz; f.y *= sy; f.vx *= sz; f.vy *= sy; }
+      st.baby.x = clamp(st.baby.x, cam.x + L.size, cam.x + W - L.size);
     }
     if (st && !st.sponge.drag && !st.sponge.auto) { st.sponge.x = L.sponge.x; st.sponge.y = L.sponge.y; }
   }
-  // One pack sign, placed after the five signs, the bubble and the puddles so those spots stay put.
-  function packSignSpot() {
-    const R = L.R, five = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'];
-    const box = (q, s, kind) => { const rs = R * s * .95, hx = kind === 'post' ? .08 : .95, y0 = kind === 'post' ? -.2 : -1.17, planted = kind === 'post' && five.some(n => L[n] === q), y1 = kind === 'post' ? (planted ? Math.max(1.2, (L.ground + L.U * .13 - q.y) / rs) : 1.2) : .27; return { x0: q.x - rs * hx, x1: q.x + rs * hx, y0: q.y + rs * y0, y1: q.y + rs * y1 }; };
-    const faceOf = (q, s) => ({ x: q.x, y: q.y - R * s * .45 });
-    const overlap = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
-    const bubble = L.item, sun = { x: W * .22, y: H * .17, r: Math.max(L.U * .16, R) };
-    const fence = L.ground + L.U * .02;
-    const circ = (x, y, r) => ({ x0: x - r, x1: x + r, y0: y - r, y1: y + r });
-    const head = { x: L.home.x + L.size * .55, y: L.home.y - L.size * 1.3 };
-    const babyC = { x: L.home.x, y: L.home.y - L.size * .9 };
-    const kBaby = Math.hypot(head.x - babyC.x, head.y - babyC.y) / (L.size * 1.2);
-    const body = { x0: L.home.x - L.size * 1.05, x1: L.home.x + L.size * 1.15, y0: L.home.y - L.size * 1.7, y1: L.home.y };
-    const bushBox = { x0: L.bush.x - R, x1: L.bush.x + R, y0: L.bush.y - R * 1.4, y1: L.bush.y + R * .2 };
-    const basket = { x0: L.basket.x - L.basket.r, x1: L.basket.x + L.basket.r, y0: L.basket.y - L.basket.r, y1: L.basket.y + L.basket.r };
-    const meadow = [circ(L.bowl.x, L.bowl.y - R * .25, R * 1.15), circ(L.sponge.x, L.sponge.y, R * .8 * .75), circ(L.fhome.x, L.fhome.y - L.fz * .7, L.fz), basket, bushBox, body,
-      ...[-1, 1].map(k => { const q = ballSpot(k); return circ(q.x, q.y, q.r); }), ...L.flowers.map(fl => circ(fl.x, fl.y, fl.r))];
-    // The cloud and the pack sign are chosen together. The cloud stays in the sky and only slides sideways. A balloon overhead is tried before one that hangs beside the board.
-    const anchor = { side: 0 };
-    const search = (s, minMul) => {
-      const rs = R * s * .95, yMax = fence - rs * .27 - 1; let best = null, cost = Infinity;
-      const ellHits = (p, rect) => { const nx = Math.max(rect.x0, Math.min(p.x, rect.x1)), ny = Math.max(rect.y0, Math.min(p.y, rect.y1)); return ((nx - p.x) / p.rx) ** 2 + ((ny - p.y) / p.ry) ** 2 <= 1; };
-      const sunPaint = { x: L.sun.x, y: L.sun.y, r: L.U * .09 };
-      const ellOnDisc = (ex, ey, rx, ry) => {
-        const rad = sunPaint.r + 2;
-        if (ex + rx < sunPaint.x - rad || ex - rx > sunPaint.x + rad || ey + ry < sunPaint.y - rad || ey - ry > sunPaint.y + rad) return false;
-        for (let yy = Math.floor(sunPaint.y - rad); yy <= Math.ceil(sunPaint.y + rad); yy++) for (let xx = Math.floor(sunPaint.x - rad); xx <= Math.ceil(sunPaint.x + rad); xx++) {
-          if ((xx + .5 - sunPaint.x) ** 2 + (yy + .5 - sunPaint.y) ** 2 > rad * rad) continue;
-          if (((xx + .5 - ex) / rx) ** 2 + ((yy + .5 - ey) / ry) ** 2 <= 1) return true;
-        }
-        return false;
-      };
-      const puffs = (x, y, cr) => [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]].map(([dx, dy, k]) => ({ x: x + dx * cr, y: y + dy * cr, rx: cr * k, ry: cr * k }));
-      const xTry = [];
-      for (let x = rs * .7; x < W - rs * .7; x += 3) xTry.push(x);
-      xTry.push(rs * .95 + 1); // the board's left edge, a step the 3 px grid can skip
-      for (let y = rs * 1.2; y <= yMax; y += 3) for (const x of xTry) {
-        const q = { x, y }, f = faceOf(q, s), b = box(q, s, 'board'), post = box(q, s, 'post');
-        if (b.x0 < 1 || b.x1 > W - 1 || b.y0 < 1 || b.y1 > H - 1) continue;
-        const gap = Math.min(...five.map(n => Math.hypot(faceOf(L[n], 1).x - f.x, faceOf(L[n], 1).y - f.y)));
-        if (gap < R * minMul - 1e-6) continue;
-        if (five.some(n => overlap(b, box(L[n], 1, 'board')) || overlap(b, box(L[n], 1, 'post')) || overlap(box(L[n], 1, 'board'), post) || overlap(box(L[n], 1, 'post'), post))) continue;
-        const core = Math.hypot(Math.max(b.x0 - bubble.x, 0, bubble.x - b.x1), Math.max(b.y0 - bubble.y, 0, bubble.y - b.y1)) - bubble.r;
-        if (core < 0) continue;
-        if (L.puddles.some(p => Math.hypot(f.x - p.x, f.y - p.y) < p.r + R * s)) continue;
-        const inside = head.x >= b.x0 && head.x <= b.x1 && head.y >= b.y0 && head.y <= b.y1;
-        if (Math.hypot(head.x - f.x, head.y - f.y) / (R * s * 1.25) * (inside ? .4 : 1) <= kBaby) continue;
-        if (overlap(b, body) || overlap(b, bushBox) || overlap(b, basket) || L.flowers.some(fl => Math.hypot(f.x - fl.x, f.y - fl.y) < fl.r + R * s * .55)) continue;
-        const gapBox = (a, b2) => { const dx = Math.max(a.x0 - b2.x1, b2.x0 - a.x1), dy = Math.max(a.y0 - b2.y1, b2.y0 - a.y1); if (dx < 0 && dy < 0) return Math.max(dx, dy); if (dx < 0) return dy; if (dy < 0) return dx; return Math.hypot(dx, dy); };
-        if (five.some(n => gapBox(b, box(L[n], 1, 'board')) < 6)) continue;
-        const cloud = L.cloud, cr = cloud.r, side = anchor.side;
-        const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
-        const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: L.ground + 2 };
-        const br = rs * .42, pad = Math.max(2, rs * .08);
-        const balloonX = side ? q.x + side * (rs * .95 + br) : q.x;
-        let balloonY = side ? b.y0 + br : b.y0 - br * 1.25, dropped = false;
-        // Only when a side balloon would sit on the sun: drop an overhead balloon onto the screen so the sign can stay large.
-        if (!side && (ellOnDisc(q.x + rs * .95 + br, b.y0 + br, br * .95, br * 1.25) || ellOnDisc(q.x - rs * .95 - br, b.y0 + br, br * .95, br * 1.25))) {
-          const rise = 1 - (balloonY - br * 1.05); if (rise > 0) { balloonY += rise; dropped = true; }
-        }
-        const balloon = side || dropped ? { x0: balloonX - br * .9, x1: balloonX + br * .9, y0: balloonY - br * 1.05, y1: balloonY + br * (dropped ? 1.15 : 1.05) } : { x0: q.x - br, x1: q.x + br, y0: b.y0 - br * 2.5, y1: b.y0 };
-        const stringHits = rect => {
-          if (!side) return overlap({ x0: q.x - pad, x1: q.x + pad, y0: balloon.y0, y1: b.y1 }, rect);
-          for (let t = 0; t <= 1; t += .12) { const px = q.x + (balloonX - q.x) * t, py = b.y0 + (balloonY - b.y0) * t; if (px >= rect.x0 - pad && px <= rect.x1 + pad && py >= rect.y0 - pad && py <= rect.y1 + pad) return true; }
-          return false;
-        };
-        if (b.y1 > fence - 1 || balloon.y0 < 1 || balloon.x0 < 1 || balloon.x1 > W - 1 || balloon.y1 > H - 1) continue;
-        if (meadow.some(p => overlap(b, p) || overlap(balloon, p) || stringHits(p))) continue;
-        const onCloud = rect => overlap(rect, faceBox) || overlap(rect, rainBox) || puffs(cloud.x, cloud.y, cr).some(puff => ellHits(puff, rect));
-        if (onCloud(b) || onCloud(balloon) || stringHits(faceBox) || stringHits(rainBox) || puffs(cloud.x, cloud.y, cr).some(puff => stringHits({ x0: puff.x - puff.rx, x1: puff.x + puff.rx, y0: puff.y - puff.ry, y1: puff.y + puff.ry }))) continue;
-        if (five.some(n => overlap(balloon, box(L[n], 1, 'board')) || overlap(balloon, box(L[n], 1, 'post')) || stringHits(box(L[n], 1, 'board')))) continue;
-        // The painted balloon, including its knot, stays off the sun's disc. A spot that only misses the sun's middle still steals taps.
-        if (ellOnDisc(balloonX, balloonY, br * .95, br * 1.25)) continue;
-        if (!ownsBoard(q, s)) continue;
-        const weather = Math.hypot(f.x - sun.x, f.y - sun.y) < sun.r + R * s * .35 || Math.hypot(f.x - L.cloud.x, f.y - L.cloud.y) < L.cloud.r + R * s * .35;
-        const c = (y > L.ground ? 70 : 0) + (weather ? 80 : 0) + (s < 1 ? 8 : 0) + (side ? 2 : 0) + Math.abs(x - W * .58) * .15 + y * .04;
-        if (c < cost) { cost = c; best = { x, y, s, side }; }
-      }
-      return best;
-    };
-    // Every painted point of the board has to open the pack, and the sun and the cloud keep their own middles.
-    function ownsBoard(q, s) {
-      const rs = R * s * .95, reach = R * 1.25 * s, br = R * .95;
-      const spots = [['psign', q.x, q.y - R * s * .45, reach, q.x, q.y, rs],
-        ...five.map(n => { const b = L[n]; return [n, b.x, b.y - R * .45, R * 1.25, b.x, b.y, br]; }),
-        ['sun', sun.x, sun.y, sun.r], ['cloud', L.cloud.x, L.cloud.y, L.cloud.r * 1.35],
-        ['bush', L.bush.x, L.bush.y - R * .4, R * 1.4], ['bowl', L.bowl.x, L.bowl.y, R * 1.2],
-        ['basket', L.basket.x, L.basket.y - R * .15, R * 1.05], ['baby', L.home.x, L.home.y - L.size * .9, L.size * 1.2],
-        ['sponge', L.sponge.x, L.sponge.y, R * 1.1],
-        ...L.flowers.map((fl, i) => ['flower' + i, fl.x, fl.y, fl.r * 1.15]),
-        ...L.puddles.map((p, i) => ['puddle' + i, p.x, p.y, p.r]),
-        ...[-1, 1].map(k => { const b = ballSpot(k); return ['ball', b.x, b.y, b.r * 1.2]; })];
-      const winner = (x, y) => {
-        let best = null, bk = 1;
-        for (const row of spots) {
-          let k = Math.hypot(x - row[1], y - row[2]) / row[3];
-          if (row.length > 4 && Math.abs(x - row[4]) <= row[6] * .95 && y >= row[5] - row[6] * 1.17 && y <= row[5] + row[6] * .27) k *= .4;
-          if (k <= bk) { bk = k; best = row[0]; }
-        }
-        return best;
-      };
-      for (let i = 0; i <= 18; i++) for (let j = 0; j <= 14; j++) {
-        if (winner(q.x - rs * .95 + i * rs * 1.9 / 18, q.y - rs * 1.17 + j * rs * 1.44 / 14) !== 'psign') return false;
-      }
-      if (winner(L.cloud.x, L.cloud.y) !== 'cloud' || winner(sun.x, sun.y) !== 'sun') return false;
-      const paintR = L.U * .09;
-      for (let yy = Math.floor(L.sun.y - paintR); yy <= Math.ceil(L.sun.y + paintR); yy++) for (let xx = Math.floor(L.sun.x - paintR); xx <= Math.ceil(L.sun.x + paintR); xx++) {
-        if ((xx + .5 - L.sun.x) ** 2 + (yy + .5 - L.sun.y) ** 2 > paintR * paintR) continue;
-        if (winner(xx + .5, yy + .5) === 'psign') return false;
-      }
-      return true;
-    }
-    // One sky step. The cloud never drops below its home height or below the top sign row. It may slide sideways. The pack sign hangs beside the cloud only when no overhead balloon fits at that size.
-    const tall = H >= W * 1.25, homeX = L.cloud.x, homeY = L.cloud.y, cr0 = L.cloud.r;
-    const rowY = Math.min(...five.map(n => L[n].y));
-    const skyFloor = Math.max(...five.filter(n => L[n].y <= rowY + R * .35).map(n => box(L[n], 1, 'board').y1));
-    const yCloud = Math.min(homeY, skyFloor);
-    const faceRect = (x, y) => ({ x0: x - cr0 * .55, x1: x + cr0 * .55, y0: y - cr0 * .25, y1: y + cr0 * .65 });
-    const hitCirc = (rect, c) => { const nx = Math.max(rect.x0, Math.min(c.x, rect.x1)), ny = Math.max(rect.y0, Math.min(c.y, rect.y1)); return (nx - c.x) ** 2 + (ny - c.y) ** 2 <= c.r * c.r; };
-    const ellHits = (p, rect) => { const nx = Math.max(rect.x0, Math.min(p.x, rect.x1)), ny = Math.max(rect.y0, Math.min(p.y, rect.y1)); return ((nx - p.x) / p.rx) ** 2 + ((ny - p.y) / p.ry) ** 2 <= 1; };
-    const puffsAt = (x, y) => [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]].map(([dx, dy, k]) => ({ x: x + dx * cr0, y: y + dy * cr0, rx: cr0 * k, ry: cr0 * k }));
-    const boards = () => five.map(n => box(L[n], 1, 'board'));
-    const posts = () => five.map(n => box(L[n], 1, 'post'));
-    const puddleRects = L.puddles.map(p => ({ x0: p.x - p.r, x1: p.x + p.r, y0: p.y - p.r, y1: p.y + p.r }));
-    const faceOpen = (x, y) => {
-      const face = faceRect(x, y), lk = lockCanvas();
-      if (face.x0 < 0 || face.x1 > W || face.y0 < 0 || face.y1 > H) return false;
-      const blockers = boards().concat(posts(), meadow, puddleRects, lk ? [lk] : []);
-      return !blockers.some(r => overlap(face, r)) && !hitCirc(face, { x: sun.x, y: sun.y, r: L.U * .09 });
-    };
-    const bodyClear = (x, y, extra) => {
-      const rects = boards().concat(extra || []); const lk = lockCanvas(); if (lk) rects.push(lk);
-      return !puffsAt(x, y).some(puff => rects.some(rect => ellHits(puff, rect)));
-    };
-    const skyClear = (x, y) => y <= skyFloor + .01 && y <= homeY + .01 && x - cr0 * 1.3 >= 1 && x + cr0 * 1.3 <= W - 1 && Math.hypot(x - sun.x, y - sun.y) >= cr0 * 1.3 + L.U * .13 && faceOpen(x, y);
-    const cloudOk = (x, y) => skyClear(x, y) && bodyClear(x, y);
-    const xs = [];
-    const pushX = (x, ok) => { if (!xs.some(v => Math.abs(v - x) < .5) && ok(x, yCloud)) xs.push(x); };
-    const fillX = ok => { pushX(homeX, ok); for (let x = cr0 * 1.3 + 1; x <= W - cr0 * 1.3 - 1; x += Math.max(4, cr0 * .2)) pushX(x, ok); };
-    fillX(cloudOk);
-    // A short screen can have sign boards across the whole sky. The face still has to stay clear. The body stays off the boards wherever that is possible.
-    if (!xs.length) fillX(skyClear);
-    xs.sort((a, b) => Math.abs(a - homeX) - Math.abs(b - homeX));
-    const kiteOf = (q, s, side) => {
-      if (!side) return null;
-      const rs = R * s * .95, br = rs * .42, top = q.y - rs * 1.17, bx = q.x + side * (rs * .95 + br), by = top + br;
-      return { x0: bx - br * .9, x1: bx + br * .9, y0: by - br * 1.05, y1: by + br * 1.05 };
-    };
-    let placed = null;
-    const muls = tall ? [2.5, 2, 1.8] : [2.5, 1.5, 1.4];
-    const scales = [1, .9, .85, .8, .78, .75, .72, .6, .55, .48, .4, .34, .28];
-    const accept = (x, y, hit, s, side) => {
-      const kite = kiteOf(hit, s, side), face = faceRect(x, y);
-      return bodyClear(x, y, [box(hit, s, 'board')].concat(kite ? [kite] : [])) && !overlap(face, box(hit, s, 'board')) && !(kite && overlap(face, kite));
-    };
-    const tryAt = (xList, y) => {
-      for (const s of scales) for (const mul of muls) for (const x of xList) for (const side of [0, 1, -1]) {
-        L.cloud.x = x; L.cloud.y = y; anchor.side = side;
-        const hit = search(s, mul);
-        if (hit && accept(x, y, hit, s, side)) return hit;
-      }
-      return null;
-    };
-    placed = tryAt(xs, yCloud);
-    // The reviewed sizes all have a clear sky slot. A shorter screen can have none: slide further, still at sky height, before giving up.
-    if (!placed) {
-      const wide = [];
-      const pushWide = x => { if (x - cr0 * 1.3 >= 1 && x + cr0 * 1.3 <= W - 1 && !wide.some(v => Math.abs(v - x) < .5)) wide.push(x); };
-      pushWide(homeX);
-      for (let x = cr0 * 1.3 + 1; x <= W - cr0 * 1.3 - 1; x += Math.max(4, cr0 * .2)) pushWide(x);
-      wide.sort((a, b) => Math.abs(a - homeX) - Math.abs(b - homeX));
-      placed = tryAt(wide, yCloud);
-    }
-    anchor.side = 0;
-    if (!placed) { L.cloud.x = xs[0] || homeX; L.cloud.y = yCloud; }
-    return placed || skySign(tall ? 1.8 : 1.4);
-    function skySign(minMul) {
-      const s = .28, rs = R * s * .95, br = rs * .42, y = fence - rs * .27 - 2;
-      const cloud = L.cloud, cr = cloud.r;
-      const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
-      const bodyBox = { x0: cloud.x - cr * 1.35, x1: cloud.x + cr * 1.35, y0: cloud.y - cr * 1.05, y1: cloud.y + cr * .95 };
-      const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: fence };
-      for (const xf of [.08, .14, .22, .3, .5, .7, .78, .88, .94]) {
-        const x = Math.max(rs * 1.2, Math.min(W - rs * 1.2, W * xf)), q = { x, y }, b = box(q, s, 'board');
-        const balloon = { x0: x - br, x1: x + br, y0: b.y0 - br * 2.5, y1: b.y0 };
-        const f = faceOf(q, s);
-        const gap = Math.min(...five.map(n => Math.hypot(faceOf(L[n], 1).x - f.x, faceOf(L[n], 1).y - f.y)));
-        if (gap < R * minMul - 1e-6) continue;
-        if (balloon.y0 < 1 || b.y1 > fence - 1) continue;
-        if (five.some(n => overlap(b, box(L[n], 1, 'board')) || overlap(b, box(L[n], 1, 'post')) || overlap(balloon, box(L[n], 1, 'board')))) continue;
-        if ([b, balloon].some(box2 => overlap(box2, faceBox) || overlap(box2, bodyBox) || overlap(box2, rainBox))) continue;
-        if (meadow.some(p => overlap(b, p) || overlap(balloon, p))) continue;
-        return { x, y, s };
-      }
-      return { x: Math.max(rs * 1.4, 8), y: Math.min(y, fence - rs), s };
-    }
-  }
   function layToys() {
-    const barn = L.shed.barn, tall = H >= W * 1.05;
-    const bw = tall ? Math.min(W * .78, H * .62) : Math.min(W * .36, H * .62);
-    const bh = tall ? Math.min(H * .26, W * .7) : Math.min(H * .42, W * .28);
-    const y0 = Math.max(barn.y + barn.r * 1.8, H * .34), y1 = Math.min(H * .72, H - bh * .55);
-    L.pack = { barn, cards: tall
-      ? [{ id: 'tower', x: W * .5, y: y0, w: bw, h: bh }, { id: 'band', x: W * .5, y: y1, w: bw, h: bh }]
-      : [{ id: 'tower', x: W * .3, y: H * .56, w: bw, h: bh }, { id: 'band', x: W * .72, y: H * .56, w: bw, h: bh }] };
+    const barn = L.shed.barn;
     const bs = Math.min(W * .15, H * .13), fy = H * .84;
     L.tower = { bs, fy, x: W * .46, baby: { x: W * .18, y: fy, z: Math.min(W * .11, H * .09) }, tray: [0, 1, 2].map(i => ({ x: W * .82, y: fy - bs * (.55 + i * 1.25) })), barn };
     const z = Math.min(W * .14, H * .16), feet = H * .88, br = Math.min(W * .12, H * .11);
@@ -473,28 +281,29 @@
   function done() { st.acts++; st.baby.happy = 1; for (let i = 0; i < 3; i++) fx('heart', babyCentre().x + (i - 1) * L.size * .5, babyCentre().y - L.size); }
   function fx(kind, x, y) { st.fx.push({ kind, x, y, at: st.t, vx: (Math.random() - .5) * L.U * .2, vy: -L.U * (.15 + Math.random() * .2) }); }
   function home() { go(L.home.x, null); }
-  const fCentre = () => ({ x: st.friend.x * W, y: L.home.y - L.fz * .75 });
-  // LR-G2: Pebblit eats to the left of the bowl, but on wide screens it stops short of the hat basket instead of standing on it.
-  function friendEatX() { const x = Math.max(L.size * .9, L.bowl.x - L.size * .9); return W > H * 1.3 ? Math.max(x, L.basket.x + L.basket.r + L.fz * .8 + 2) : x; }
-  function fgo(x, then) { const f = st.friend; f.tx = x / W; f.then = then; f.dir = x < f.x * W ? -1 : 1; }
+  const fCentre = () => ({ x: st.friend.x, y: L.home.y - L.fz * .75 });
+  function friendEatX() { return Math.max(L.homes[1].x - L.size * 2, L.bowl.x - L.size * .9); }
+  function fgo(x, then) { const f = st.friend; f.tx = x; f.then = then; f.dir = x < f.x ? -1 : 1; }
   function friendTap() { const f = st.friend, b = st.baby; // LR4: run together and nuzzle (one happy thing); if anyone's busy, just a giggle
     speak('Pebblit');
     if (busy() || f.act || f.tx !== null || st.sponge.auto) { if (!f.act && f.tx === null) { f.act = 'giggle'; f.at = st.t; } sfx('giggle'); return; }
-    f.act = 'wait'; go(f.x * W - L.size * 1.15, () => { b.dir = 1; b.act = 'nuzzle'; b.at = st.t; f.act = 'nuzzle'; f.at = st.t; f.dir = -1; sfx('giggle'); sfx('wake');
-      for (let i = 0; i < 4; i++) fx('heart', f.x * W - L.size * .6 + (i - 1.5) * L.size * .35, L.home.y - L.size * 1.9); }); }
+    f.act = 'wait'; go(f.x - L.size * 1.15, () => { b.dir = 1; b.act = 'nuzzle'; b.at = st.t; f.act = 'nuzzle'; f.at = st.t; f.dir = -1; sfx('giggle'); sfx('wake');
+      for (let i = 0; i < 4; i++) fx('heart', f.x - L.size * .6 + (i - 1.5) * L.size * .35, L.home.y - L.size * 1.9); }); }
   function scrubFriend(p) { const f = st.friend; if (!f || f.act === 'sleep') return; f.soap = Math.min(1, f.soap + .05);
     if (!(st.t - (st.sponge.lastFBubble || -1) < .08)) { st.sponge.lastFBubble = st.t; st.bubbles.push({ x: p.x + (Math.random() - .5) * L.fz, y: p.y, r: L.U * (.025 + Math.random() * .03), at: st.t, seed: Math.random() * 6 }); if (Math.random() < .4) sfx('bloop'); }
     if (!f.act && f.tx === null) { f.act = 'giggle'; f.at = st.t; } st.sponge.scrubbed = true; }
-  function friendUpdate(dt) { const f = st.friend; if (!f) return; const sp = L.U * .9 / W;
-    if (f.tx !== null) { const d = f.tx - f.x; if (Math.abs(d) <= sp * dt) { f.x = f.tx; f.tx = null; const g = f.then; f.then = null; if (g) g(); } else f.x += Math.sign(d) * sp * dt; }
+  function friendUpdate(dt) { const f = st.friend; if (!f) return;
+    if (f.lag > 0) { f.lag -= dt; if (f.lag <= 0) { f.hurry = true; fgo(L.fhomes[cam.area].x, null); } }
+    const sp = f.hurry && f.tx !== null ? Math.max(L.U * 2.4, Math.abs(f.tx - f.x) / 1.1) : L.U * .9;
+    if (f.tx !== null) { const d = f.tx - f.x; if (Math.abs(d) <= sp * dt) { f.x = f.tx; f.tx = null; f.hurry = false; const g = f.then; f.then = null; if (g) g(); } else f.x += Math.sign(d) * sp * dt; }
     const since = st.t - f.at;
-    if (f.act === 'eat') { if (Math.floor(since / .4) !== Math.floor((since - dt) / .4)) fx('crumb', L.bowl.x + (Math.random() - .5) * L.R, L.bowl.y - L.R * .3); if (since > FRIEND_EAT_SECS) { f.act = null; fgo(L.fhome.x, null); } }
+    if (f.act === 'eat') { if (Math.floor(since / .4) !== Math.floor((since - dt) / .4)) fx('crumb', L.bowl.x + (Math.random() - .5) * L.R, L.bowl.y - L.R * .3); if (since > FRIEND_EAT_SECS) { f.act = null; fgo(L.fhomes[1].x, null); } }
     if (f.act === 'giggle' && since > .8) f.act = null;
     if (f.act === 'nuzzle' && since > NUZZLE_SECS) f.act = null;
     if (f.act === 'wait' && st.baby.tx === null && st.baby.act !== 'nuzzle') f.act = null;
-    if (st.mode === 'sleep' && f.tx === null && f.act !== 'sleep') { f.act = 'sleep'; f.x = Math.min(W - L.fz * .85, Math.max(L.fhome.x, L.home.x + L.size * 1.32 + L.fz * .82)) / W; } // curled up clear of the sleeping baby (LR-POLISH-1)
+    if (st.mode === 'sleep' && f.tx === null && f.act !== 'sleep') { f.act = 'sleep'; f.x = Math.max(L.fhomes[1].x, L.homes[1].x + L.size * 1.32 + L.fz * .82); } // curled up clear of the sleeping baby (LR-POLISH-1)
     f.soap = Math.max(0, f.soap - dt * .08); }
-  function drawFriend() { const f = st.friend; if (!f) return; const z = L.fz, x = f.x * W, y = L.home.y, since = st.t - f.at, m = reduce() ? .3 : 1;
+  function drawFriend() { const f = st.friend; if (!f) return; const z = L.fz, x = f.x, y = L.home.y, since = st.t - f.at, m = reduce() ? .3 : 1;
     if (f.act === 'sleep') { shadow(x, y, z * .9); ell(x, y - z * .4, z * .8, z * .45, '#8fa0b8'); ell(x - z * .3, y - z * .55, z * .1, z * .08, '#6a7a94'); ell(x + z * .45, y - z * .45, z * .38, z * .34, '#8fa0b8');
       cx.fillStyle = '#2a1a18'; for (const dx of [.33, .58]) cx.fillRect(R(x + dx * z - z * .07), R(y - z * .5), R(z * .14), Math.max(1, R(z * .04))); return; }
     let hop = 0; if (f.tx !== null) hop = Math.abs(Math.sin(st.t * 12)) * z * .15 * m; if (f.act === 'giggle') hop = Math.abs(Math.sin(since * 16)) * z * .2 * m;
@@ -532,7 +341,7 @@
   }
   // LR13: the sun surprise. Daytime only (no sun at night). Each tap brightens it; the fifth brings a rainbow over the
   // field and the baby looks up and cheers; after a few seconds the rainbow fades and the count starts again.
-  const sunAt = () => ({ x: L.sun.x, y: lerp(L.sun.y, L.ground + L.U * .1, clamp(st.dusk * 1.6, 0, 1)) });
+  const sunAt = () => ({ x: cam.x + W * .22, y: lerp(H * .17, L.ground + L.U * .1, clamp(st.dusk * 1.6, 0, 1)) });
   const daytime = () => st.mode === 'play' && st.dusk < .3;
   function shine() {
     const u = st.sun; if (u.bow) { fx('spark', sunAt().x, sunAt().y); sfx('twinkle'); return; }
@@ -543,7 +352,7 @@
   }
   // LR14: the moon's song. At night, while the baby sleeps (and the bedtime lullaby is over), each tap on the moon makes it
   // glow a little more; the third plays Twinkle Twinkle Little Star while the stars twinkle in time. The baby sleeps on.
-  const moonAt = () => ({ x: W * .8, y: lerp(L.ground, H * .16, clamp((st.dusk - .6) / .4, 0, 1)) });
+  const moonAt = () => ({ x: cam.x + W * .8, y: lerp(L.ground, H * .16, clamp((st.dusk - .6) / .4, 0, 1)) });
   const moonUp = () => st.mode === 'sleep' && st.baby.act === 'sleep' && !st.dawn && st.lullabyAt !== null && st.t - st.lullabyAt > LULLABY_SECS;
   function hum() {
     const u = st.moon, m = moonAt(); fx('spark', m.x, m.y - L.U * .1);
@@ -562,7 +371,7 @@
   // LR9: the Paint Shed. Through the paint-drip sign; four pots and a big outline of the baby. Tap a pot (the first is
   // ready in the brush), then tap or drag over a part: it fills. When all four parts have colour: sparkles and a cheer,
   // and a moment later the painted baby walks back out of the sign into the ranch, in its colours until bedtime.
-  function enterShed() { if (st.mode !== 'play' || st.place !== 'ranch') return; st.place = 'shed'; st.sign.shake = 1; st.sponge.drag = null; st.shed.doneAt = null; sfx('door'); }
+  function enterShed() { if (st.mode !== 'play' || st.place !== 'ranch') return; parkAtDoor(3); st.place = 'shed'; st.sign.shake = 1; st.sponge.drag = null; st.shed.doneAt = null; sfx('door'); }
   function leaveShed(painted, early) {
     st.place = 'ranch'; sfx('door');
     if (painted) { st.paint = { ...st.shed.parts }; st.shed.parts = {}; st.shed.doneAt = null; const b = st.baby;
@@ -608,7 +417,6 @@
     if (st.place === 'door') { const D = st.door, k = GADGETS.find(q => !D.touched[q]); return D.phase === 'shut' && k ? { name: 'g' + k, ...L.door.g[k], r: L.door.gr * 1.25 } : null; }
     if (st.place === 'dough') { const D = st.dough, V = L.dough; if (D.phase !== 'play' || D.stamp) return null;
       return D.flat < .5 && !D.stamps ? { name: 'lump', ...V.lump, r: V.lr * 1.2 } : { name: 'cutter', ...V.cutter, r: V.cr * 1.3 }; }
-    if (st.place === 'pack') { const i = L.pack.cards.findIndex(c => !st.used[c.id]); const c = L.pack.cards[i < 0 ? 0 : i]; return { name: c.id, x: c.x, y: c.y, r: Math.min(c.w, c.h) * .35 }; }
     if (st.place === 'tower') { const T2 = st.tower, V = L.tower, cam = towerCam(); if (T2.tumble) return null;
       return T2.stack.length >= 5 ? { name: 'tbaby', x: V.baby.x, y: V.baby.y + cam - V.baby.z * 1.2, r: V.baby.z * 1.3 } : { name: 'tray0', x: V.tray[0].x, y: V.tray[0].y + cam, r: V.bs * .75 }; }
     if (st.place === 'band') { const B = st.band, V = L.band; if (B.song) return null; const i = BAND.findIndex((k, j) => !B.played[j]);
@@ -622,9 +430,18 @@
       return r.said.flowers ? { name: 'friend', ...fCentre(), r: L.fz * 1.1 } : { name: 'flowers', x: L.flowers[2].x, y: L.flowers[2].y, r: L.flowers[2].r * 1.4 }; }
     if (st.mode === 'sleep') return st.baby.act === 'sleep' && !st.moon.song ? { name: 'baby', ...babyCentre(), r: L.size * 1.1 } : null;
     if (st.mode !== 'play' || busy() || st.sponge.drag || st.sponge.auto || st.sun.bow) return null;
-    const ok = k => (!['sun', 'cloud'].includes(k) || daytime()) && (k !== 'puddle' || st.puddles.some(q => q.i === 0)) && (k !== 'friend' || (st.friend && st.friend.tx === null)), left = HINTS.filter(k => !st.used[k] && ok(k)), all = HINTS.filter(ok);
-    const name = left.length ? left[0] : all[Math.floor((st.t - st.idleAt - HINT_SECS) / 8) % all.length];
-    const at = { bowl: [L.bowl, L.R * 1.1], sponge: [L.sponge, L.R * 1.05], bush: [{ x: L.bush.x, y: L.bush.y - L.R * .5 }, L.R * 1.35], baby: [babyCentre(), L.size * 1.1], sun: [sunAt(), L.U * .15], sign: [{ x: L.sign.x, y: L.sign.y - L.R * .45 }, L.R * 1.05], flowers: [L.flowers[2], L.flowers[2].r * 1.4], wsign: [{ x: L.wsign.x, y: L.wsign.y - L.R * .45 }, L.R * 1.05], ksign: [{ x: L.ksign.x, y: L.ksign.y - L.R * .45 }, L.R * 1.05], tsign: [{ x: L.tsign.x, y: L.tsign.y - L.R * .45 }, L.R * 1.05], dsign: [{ x: L.dsign.x, y: L.dsign.y - L.R * .45 }, L.R * 1.05], psign: [{ x: L.psign.x, y: L.psign.y - L.R * .45 }, L.R * 1.05], friend: [st.friend ? fCentre() : L.home, L.fz * 1.1], cloud: [L.cloud, L.cloud.r * 1.3], basket: [{ x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05], puddle: [L.puddles[0], L.puddles[0].r], ball: [ballNow(), ballNow().r * 1.2] }[name];
+    const ok = k => (!['sun', 'cloud'].includes(k) || daytime()) && (k !== 'puddle' || st.puddles.some(q => q.i === 0)) && (k !== 'friend' || !!st.friend);
+    const open = i => AREA_TOYS[i].filter(k => !st.used[k] && ok(k));
+    const here = open(cam.area);
+    let name = here.length ? HINTS.find(k => here.includes(k)) || here[0] : null;
+    if (!name) {
+      let best = null, bd = 9;
+      for (let i = 0; i < 4; i++) if (i !== cam.area && open(i).length) { const d = Math.abs(i - cam.area); if (d < bd || (d === bd && i < best)) { bd = d; best = i; } }
+      if (best !== null) { const dir = best < cam.area ? 'left' : 'right', ay = L.ground - L.U * .08; return { name: dir, x: cam.x + (dir === 'left' ? L.U * .1 : W - L.U * .1), y: ay, r: L.U * .12 }; }
+      const all = HINTS.filter(ok); name = all[Math.floor((st.t - st.idleAt - HINT_SECS) / 8) % all.length];
+    }
+    const face = n => ({ x: L[n].x, y: L[n].y - L.R * .45 });
+    const at = { bowl: [L.bowl, L.R * 1.1], sponge: [L.sponge, L.R * 1.05], bush: [{ x: L.bush.x, y: L.bush.y - L.R * .5 }, L.R * 1.35], baby: [babyCentre(), L.size * 1.1], sun: [sunAt(), L.U * .15], sign: [face('sign'), L.R * 1.05], flowers: [L.flowers[2], L.flowers[2].r * 1.4], wsign: [face('wsign'), L.R * 1.05], ksign: [face('ksign'), L.R * 1.05], tsign: [face('tsign'), L.R * 1.05], dsign: [face('dsign'), L.R * 1.05], stage: [face('stage'), L.R * 1.05], shelf: [face('shelf'), L.R * 1.05], friend: [st.friend ? fCentre() : L.home, L.fz * 1.1], cloud: [L.cloud, L.cloud.r * 1.3], basket: [{ x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05], puddle: [L.puddles[0], L.puddles[0].r], ball: [ballNow(), ballNow().r * 1.2] }[name];
     return { name, x: at[0].x, y: at[0].y, r: at[1] };
   }
   function drawHint() { const h = hint(); if (!h) return; const k = st.t - st.idleAt - HINT_SECS, m = reduce() ? 0 : 1, pulse = .5 + .5 * Math.sin(k * 3.2);
@@ -633,14 +450,15 @@
     if (m && Math.floor(k / 1.4) !== Math.floor((k - 1 / 30) / 1.4)) fx('spark', h.x + (Math.random() - .5) * h.r, h.y - h.r * .6); }
   const hintBob = name => { const h = hint(); if (!h || h.name !== name || reduce()) return 0; return Math.abs(Math.sin((st.t - st.idleAt) * 3.2)) * L.U * .025; };
   const BALL_ROLL = .7, BALL_KICKS = 3;
-  function ballSpot(side) { const ballR = L.R * .88, wide = W > H * 1.3, span = Math.min(L.size * 1.15, W * .18);
-    let y = L.ground + L.R * 1.35, x = clamp(L.home.x + side * span, W * .24, W * .76);
-    if (!wide) y = L.home.y - L.size * .62 + ballR; // LR-G2: tall: rest below the fox's face, on the line of its feet, so it sorts in front of the fox and never hides the face
+  function ballSpot(side) { const ballR = L.R * .88, wide = W > H * 1.3;
+    let y = L.ground + L.R * 1.35, x = coreX(2, side < 0 ? .35 : .75);
+    if (!wide) y = L.homes[2].y - L.size * .62 + ballR; // LR-G2: tall: rest below the fox's face, on the line of its feet, so it sorts in front of the fox and never hides the face
     if (L.flowers && L.flowers.length) { const f = L.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); } // rest above the petals
-    if (!wide && L.basket) x = Math.max(x, L.basket.x + L.basket.r + ballR + 3); // tall: keep the ball off the hat basket
-    return { x: R(x), y: R(y), r: ballR }; }
+    if (L.basket && Math.hypot(x - L.basket.x, y - L.basket.y) < L.basket.r + ballR + 3) x = side < 0 ? L.basket.x - L.basket.r - ballR - 3 : L.basket.x + L.basket.r + ballR + 3;
+    const stop = stopFor(2); x = clamp(x, stop + ballR + 2, stop + W - ballR - 2);
+    return { x: Math.round(x), y: Math.round(y), r: ballR }; }
   // LR-G2: the baby kicks from beside the ball, on the side nearest the middle, facing it, so neither hides the other.
-  function kickStand(side) { const q = ballSpot(side); return clamp(q.x - side * (q.r + L.size * 1.05), L.size * .9, W - L.size * .9); }
+  function kickStand(side) { const q = ballSpot(side), stop = stopFor(2); return clamp(q.x - side * (q.r + L.size * 1.05), stop + L.size * .9, stop + W - L.size * .9); }
   function ballNow() { const b = st.ball, A = ballSpot(b.from), B = ballSpot(b.to), k = b.at < 0 ? 1 : clamp((st.t - b.at) / BALL_ROLL, 0, 1), e = k * k * (3 - 2 * k);
     return { x: lerp(A.x, B.x, e), y: A.y, r: A.r, rolling: b.at >= 0 && k < 1 }; }
   function kickBall() { const b = st.ball; if (b.at >= 0 && st.t - b.at < BALL_ROLL) { sfx('boing'); return; }
@@ -662,7 +480,7 @@
   // tap the wagon and it rolls. The valley goes by: a windmill (tap: it spins), a pond (tap: splash), woolies (tap: baa).
   // A coloured gate stops it: tap any car and the gate swings open with a cheer; the car of the gate's colour gets the
   // bigger cheer, so nothing is ever wrong. At the end the babies hop off and walk home to the ranch (one happy thing).
-  function enterWagon() { if (st.mode !== 'play' || st.place !== 'ranch') return; st.place = 'wagon'; st.wsign.shake = 1; st.sponge.drag = null;
+  function enterWagon() { if (st.mode !== 'play' || st.place !== 'ranch') return; parkAtDoor(3); st.place = 'wagon'; st.wsign.shake = 1; st.sponge.drag = null;
     st.wagon = { phase: 'load', aboard: [false, false], hop: [-9, -9], x: 0, t0: st.t, things: { windmill: { at: -9, spin: 0, a: 0 }, pond: { at: -9 }, woolies: { at: -9 } }, gate: { col: Math.random() < .5 ? 0 : 1, at: null, big: false }, endAt: null, wiggle: 0, cheer: -9 };
     sfx('door'); }
   function leaveWagon(rode) { st.place = 'ranch'; sfx('door'); st.wagon = null;
@@ -694,7 +512,7 @@
   // LR11: the Snack Kitchen. Through the snack-bowl sign. Tap a food and it hops into the bowl; the baby eats it. Berries:
   // a happy yum and hearts. The rest: a funny face (carrot: puffed cheeks; lemon: a sour squeeze; broccoli: tongue out) and
   // a giggly sound, never a wrong answer. After three bowls of berries it's full: a cheer, then home to the ranch (one happy thing).
-  function enterKitchen() { if (st.mode !== 'play' || st.place !== 'ranch') return; st.place = 'kitchen'; st.ksign.shake = 1; st.sponge.drag = null;
+  function enterKitchen() { if (st.mode !== 'play' || st.place !== 'ranch') return; parkAtDoor(0); st.place = 'kitchen'; st.ksign.shake = 1; st.sponge.drag = null;
     st.kitchen = { phase: 'idle', food: null, at: st.t, berries: 0, face: null, wig: FOODS.map(() => 0), giggle: -9, bowlPop: 0 }; sfx('door'); }
   function leaveKitchen(fed) { st.place = 'ranch'; sfx('door'); st.kitchen = null;
     if (fed) { const b = st.baby; b.act = null; b.then = null; b.x = L.ksign.x; go(L.home.x, () => { b.act = 'cheer'; b.at = st.t; }); done(); } }
@@ -715,7 +533,7 @@
       if (k.berries >= KITCHEN_BERRIES) { k.phase = 'full'; sfx('rainbow'); for (let j = 0; j < 10; j++) fx(j % 2 ? 'spark' : 'heart', V.baby.x + (Math.random() - .5) * V.z * 2.4, V.baby.y - V.z * (1 + Math.random() * 1.2)); } else k.phase = 'idle'; }
     else if (k.phase === 'full' && e >= KITCHEN_END_SECS) leaveKitchen(true); }
   // LR17: the Busy Barn Door
-  function enterDoor() { if (st.mode !== 'play' || st.place !== 'ranch') return; st.place = 'door'; st.dsign.shake = 1; st.sponge.drag = null;
+  function enterDoor() { if (st.mode !== 'play' || st.place !== 'ranch') return; parkAtDoor(3); st.place = 'door'; st.dsign.shake = 1; st.sponge.drag = null;
     st.door = { phase: 'shut', at: st.t, touched: {}, hit: Object.fromEntries(GADGETS.map(k => [k, -9])), light: false, latch: false, bolt: false, spin: 0, mill: 0, crank: 0, knock: -9, giggle: -9 }; sfx('door'); }
   function leaveDoor(peeked) { st.place = 'ranch'; sfx('door'); st.door = null;
     if (peeked) { const b = st.baby; b.act = null; b.then = null; b.x = L.dsign.x; go(L.home.x, () => { b.act = 'cheer'; b.at = st.t; }); done(); } }
@@ -737,7 +555,7 @@
     if (D.phase === 'open' && st.t - D.at >= DOOR_END_SECS) leaveDoor(true); }
   // LR18: the Dough Table
   const doughCol = () => mixHex(st.dough && st.dough.col >= 0 ? PAINT[st.dough.col] : st.paint && st.paint.body !== undefined ? PAINT[st.paint.body] : '#e06a32', '#ffffff', .35);
-  function enterDough() { if (st.mode !== 'play' || st.place !== 'ranch') return; st.place = 'dough'; st.tsign.shake = 1; st.sponge.drag = null;
+  function enterDough() { if (st.mode !== 'play' || st.place !== 'ranch') return; parkAtDoor(0); st.place = 'dough'; st.tsign.shake = 1; st.sponge.drag = null;
     st.dough = { phase: 'play', at: st.t, flat: 0, goal: 0, roll: 0, spin: 0, poke: -9, stamp: null, stamps: 0, hops: [], col: -1, dotAt: -9 }; sfx('door'); }
   function leaveDough(made) { st.place = 'ranch'; sfx('door'); st.dough = null;
     if (made) { const b = st.baby; b.act = null; b.then = null; b.x = L.tsign.x; go(L.home.x, () => { b.act = 'cheer'; b.at = st.t; }); done(); } }
@@ -763,11 +581,9 @@
       if (e >= STAMP_SECS) { D.hops.push({ at: D.stamp.at + STAMP_SECS * .8, dir: -1, front: D.stamps % 2 === 0 }); D.stamp = null; if (D.stamps >= DOUGH_BABIES && D.phase === 'play') { D.phase = 'done'; D.at = st.t; sfx('rainbow'); } } }
     D.hops = D.hops.filter(h => st.t - h.at < 3);
     if (D.phase === 'done' && st.t - D.at >= DOUGH_END_SECS) leaveDough(true); }
-  function enterPack() { if (st.mode !== 'play' || st.place !== 'ranch') return; st.place = 'pack'; st.psign.shake = 1; st.sponge.drag = null; sfx('door'); }
-  function leavePack() { st.place = 'ranch'; sfx('door'); }
-  function enterTower() { if (st.mode !== 'play' || st.place !== 'pack') return; st.place = 'tower'; st.used.tower = 1; st.sponge.drag = null;
+  function enterTower() { if (st.mode !== 'play' || st.place !== 'ranch') return; parkAtDoor(2); st.place = 'tower'; st.used.shelf = 1; st.used.tower = 1; st.shelf.shake = 1; st.sponge.drag = null;
     st.tower = { stack: [], next: 0, tumble: null, wig: 0, giggle: -9, tumbles: 0 }; sfx('door'); }
-  function leaveTower(home) { st.tower = null; st.place = home ? 'ranch' : 'pack'; sfx('door'); }
+  function leaveTower() { st.tower = null; st.place = 'ranch'; sfx('door'); }
   function stackBlock() { const V = L.tower, n = st.tower ? st.tower.stack.length : 0; if (n < 1) return V.bs; const room = V.fy - H * .3; return Math.max(V.bs / 2, Math.min(V.bs, room / n)); }
   const camMax = () => Math.max(0, H - L.tower.fy - L.tower.bs / 2);
   function stackCap() { return Math.max(1, Math.floor((L.tower.fy + camMax() - 1) / (L.tower.bs / 2))); }
@@ -798,9 +614,9 @@
     if (i === 0) { btone(150, .3, 0, .2, 'sine', 70); btone(320, .05, 0, .05, 'triangle'); }
     if (i === 1) { btone(hz(n + 12), .7, 0, .1, 'sine'); btone(hz(n + 24) * 1.01, .35, 0, .03, 'sine'); }
     if (i === 2) { btone(hz(n), .32, 0, .12, 'triangle'); btone(hz(n) * 1.005, .32, 0, .04, 'sawtooth'); } }
-  function enterBand() { if (st.mode !== 'play' || st.place !== 'pack') return; st.place = 'band'; st.used.band = 1; st.sponge.drag = null;
+  function enterBand() { if (st.mode !== 'play' || st.place !== 'ranch') return; parkAtDoor(2); st.place = 'band'; st.used.stage = 1; st.used.band = 1; st.stage.shake = 1; st.sponge.drag = null;
     st.band = { played: [false, false, false], hit: [-9, -9, -9], notes: [], song: null, songs: 0, stick: -9, k: [0, 0, 0] }; sfx('door'); }
-  function leaveBand(home) { st.band = null; st.place = home ? 'ranch' : 'pack'; sfx('door'); }
+  function leaveBand() { st.band = null; st.place = 'ranch'; sfx('door'); }
   const BAND_TUNES = [[48, 43], [72, 76, 79, 84], [67, 72, 64, 67]];
   function bandPlay(i) { const B = st.band; if (!B) return; B.played[i] = true; if (B.song) { fx('spark', L.band.babies[i].x, L.band.babies[i].y - L.band.z); return; }
     const t = BAND_TUNES[i]; bandNote(i, t[B.k[i]++ % t.length]); if (i === 2) bandNote(2, t[B.k[2]++ % t.length]); }
@@ -816,8 +632,6 @@
     for (let j = 0; j < TWINKLE.length; j++) { if (j >= B.song.i && k >= start) { B.song.i = j + 1; const n = TWINKLE[j][0];
         bandNote(1, n); if (j % 2 === 0) bandNote(0, 0); if (TWINKLE[j][1] > 1 || j % 4 === 0) bandNote(2, n - 12); } start += TWINKLE[j][1]; }
     if (k > SONG_BEATS + 1) { B.song = null; B.songs++; sfx('rainbow'); for (let j = 0; j < 3; j++) fx('heart', V.babies[j].x, V.babies[j].y - V.z * 1.8); st.acts++; } }
-  function cardAt(p) { for (let i = L.pack.cards.length - 1; i >= 0; i--) { const c = L.pack.cards[i]; if (Math.abs(p.x - c.x) <= c.w * .5 && Math.abs(p.y - c.y) <= c.h * .5) return c; } return null; }
-  function packTap(p) { if (near(p, L.pack.barn, L.pack.barn.r * 1.15)) return leavePack(); const c = cardAt(p); if (c && c.id === 'tower') return enterTower(); if (c && c.id === 'band') return enterBand(); fx('spark', p.x, p.y); sfx('note'); }
   function hatTap() { const h = st.hat; h.shake = 1; if (h.fly) { sfx('note'); return; } // LR6
     const next = h.wear + 1 >= HATS.length ? -1 : h.wear + 1; h.fly = { from: h.wear, to: next, at: st.t }; sfx('pick', 2); }
   function hatUpdate(dt) { const h = st.hat; h.shake = Math.max(0, h.shake - dt * 2.5);
@@ -857,11 +671,11 @@
     ell(c.x - r * .3, y + r * .1, r * .07, r * .09, '#5a6a80'); ell(c.x + r * .3, y + r * .1, r * .07, r * .09, '#5a6a80'); ell(c.x, y + r * .35, r * .12, r * (rain ? .1 : .05), '#8a8aa0'); cx.globalAlpha = 1;
     if (rain) { cx.strokeStyle = 'rgba(120,170,230,.8)'; cx.lineWidth = Math.max(1.5, L.U * .006); const top = y + r * .5, bot = L.ground + L.U * .25, span = r * 2.4, m = reduce() ? .4 : 1;
       cx.beginPath(); for (let i = 0; i < 26; i++) { const x = c.x - span / 2 + (i * 37.7 % span), k = ((st.t * 1.6 * m + i * .137) % 1), yy = top + k * (bot - top); cx.moveTo(R(x), R(yy)); cx.lineTo(R(x - L.U * .006), R(yy + L.U * .03)); } cx.stroke(); } }
-  function drawSignPosts(g) { // the five picture-signs: each post runs down behind the fence, and the pack sign has none
+  function drawSignPosts(g) { // each picture-sign's post runs down to the back line, behind the fence
     const foot = L.ground + L.U * .13;
     cx.fillStyle = pick3('#8a5a34', '#7a5030', '#2e2430', g);
     const drawn = [];
-    for (const name of ['sign', 'wsign', 'ksign', 'tsign', 'dsign']) {
+    for (const name of SIGNS) {
       const s = L[name], r = L.R * .95, bob = hintBob(name), top = s.y - r * .2 - bob, bot = Math.max(s.y + r * 1.2, foot);
       const rect = { name, x: R(s.x - r * .08), y: R(top), w: Math.max(2, R(r * .16)), h: R(bot - top) };
       drawn.push(rect);
@@ -922,19 +736,21 @@
   function bedtime() {
     if (st.mode !== 'play') return;
     // Unfinished toys do not earn completion. Their normal finish still counts once.
-    const leave = { shed: leaveShed, wagon: leaveWagon, kitchen: leaveKitchen, door: leaveDoor, dough: leaveDough, pack: leavePack, tower: () => leaveTower(true), band: () => leaveBand(true) }[st.place];
+    const leave = { shed: leaveShed, wagon: leaveWagon, kitchen: leaveKitchen, door: leaveDoor, dough: leaveDough, tower: leaveTower, band: leaveBand }[st.place];
     if (leave) leave(false);
     // A ranch walk may have been frozen while visiting a place. It must not replace
     // the yawn with an old meal/peek callback; a lifted finger must not act on that place.
     st.baby.tx = null; st.baby.then = null; st.down = null;
     st.sponge.drag = null; st.sponge.auto = null; st.sponge.scrubbed = false;
     st.routine = useRoutine ? { step: 0, at: st.t, doing: null, said: {}, doneAt: null } : null; st.shut = 0;
-    if (st.friend) { st.friend.act = null; fgo(L.fhome.x, null); }
-    st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; sfx('yawn');
+    goArea(1);
+    st.mode = 'dusk'; st.baby.act = 'yawn'; st.baby.at = st.t; st.bowl.food = 0; if (st.friend) st.friend.act = null; sfx('yawn');
+    refreshArrows();
   }
 
   function update(dt) {
-    st.t += dt; const b = st.baby, sp = L.U * .9;
+    st.t += dt; const b = st.baby;
+    if (L.homes) { L.home = L.homes[cam.area]; L.fhome = L.fhomes[cam.area]; }
     // Before the place-specific returns: the first visit ends wherever she is playing.
     if (st.mode === 'play' && (st.acts >= BEDTIME_ACTS || st.t > BEDTIME_SECS)) {
       if (st.bedtimeAt === null) st.bedtimeAt = st.t;
@@ -944,18 +760,20 @@
     if (st.place === 'kitchen') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); kitchenUpdate(dt); return; }
     if (st.place === 'dough') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); doughUpdate(dt); return; }
     if (st.place === 'door') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); doorUpdate(dt); return; }
-    if (st.place === 'pack') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); return; }
     if (st.place === 'tower') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); towerUpdate(dt); return; }
     if (st.place === 'band') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); bandUpdate(dt); return; }
     if (st.place === 'shed') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); if (st.shed.doneAt !== null && st.t - st.shed.doneAt > SHED_WALK_SECS) leaveShed(true); return; }
-    st.sign.shake = Math.max(0, st.sign.shake - dt * 1.5); st.wsign.shake = Math.max(0, st.wsign.shake - dt * 1.5); st.ksign.shake = Math.max(0, st.ksign.shake - dt * 1.5); st.tsign.shake = Math.max(0, st.tsign.shake - dt * 1.5); st.dsign.shake = Math.max(0, st.dsign.shake - dt * 1.5); st.psign.shake = Math.max(0, st.psign.shake - dt * 1.5);
+    if (cam.dur > 0) { const k = clamp((st.t - cam.t0) / cam.dur, 0, 1), e = k * k * (3 - 2 * k); cam.x = Math.round(lerp(cam.from, cam.to, e)); if (k >= 1) { cam.x = cam.to; cam.from = cam.to; cam.dur = 0; } }
+    pinSky(); refreshArrows();
+    st.sign.shake = Math.max(0, st.sign.shake - dt * 1.5); st.wsign.shake = Math.max(0, st.wsign.shake - dt * 1.5); st.ksign.shake = Math.max(0, st.ksign.shake - dt * 1.5); st.tsign.shake = Math.max(0, st.tsign.shake - dt * 1.5); st.dsign.shake = Math.max(0, st.dsign.shake - dt * 1.5); st.stage.shake = Math.max(0, st.stage.shake - dt * 1.5); st.shelf.shake = Math.max(0, st.shelf.shake - dt * 1.5);
     // LR-POLISH: when nobody is touching anything the signs take turns to give one small wiggle (the same size as a tap's), so they say "tap me".
     // One every 9 seconds, and none at all with reduced motion.
     if (st.place === 'ranch' && st.t - st.idleAt > 2 && st.t >= st.nextWig) { const k = SIGNS[st.wigI++ % SIGNS.length]; if (!reduce()) st[k].shake = Math.max(st[k].shake, 1); st.nextWig = st.t + SIGN_WIGGLE_GAP; }
     st.stir = Math.max(0, st.stir - dt * 2.5); song(dt);
     { const u = st.sun; if (u.bow && st.t - u.bow.at > BOW_SECS) { u.bow = null; u.taps = 0; } // the rainbow fades, the count starts again
       if (!u.bow) { if (u.taps && st.t - u.last > 10) u.taps = 0; u.glow = Math.max(u.taps / SUN_TAPS, u.glow - dt * .5); } } if (st.dawn) { st.dusk = Math.max(0, st.dusk - dt / 2.5); if (st.dusk === 0) st.dawn = false; }
-    if (b.tx !== null) { const d = b.tx - b.x; if (Math.abs(d) <= sp * dt) { b.x = b.tx; b.tx = null; const f = b.then; b.then = null; if (f) f(); } else b.x += Math.sign(d) * sp * dt; }
+    if (b.tx !== null) { const sp = b.hurry ? Math.max(L.U * 2.4, Math.abs(b.tx - b.x) / 1.1) : L.U * .9, d = b.tx - b.x; if (Math.abs(d) <= sp * dt) { b.x = b.tx; b.tx = null; b.hurry = false; const f = b.then; b.then = null; if (f) f(); } else b.x += Math.sign(d) * sp * dt; }
+    if (b.hurry) { const pad = Math.max(L.size * .55, L.U * .08); b.x = clamp(b.x, cam.x + pad, cam.x + W - pad); }
     const since = st.t - b.at;
     if (b.act === 'eat') { if (Math.floor(since / .35) !== Math.floor((since - dt) / .35)) { sfx('crunch'); fx('crumb', L.bowl.x + (Math.random() - .5) * L.R, L.bowl.y - L.R * .3); }
       st.bowl.food = clamp(1 - since / 2.4, 0, 1); if (since > 2.4) { b.act = null; st.bowl.food = 0; done(); home(); } }
@@ -1043,7 +861,7 @@
     if (b.soap > .05) for (let i = 0; i < 6; i++) ell(x + Math.cos(i * 2.1) * z * .6, by - z * (.7 + .5 * Math.sin(i * 1.7)), z * .12 * b.soap + 1, z * .1 * b.soap + 1, 'rgba(255,255,255,.85)');
   }
   function drawBush(front) {
-    const b = L.bush, r = L.R * 1.25, sh = Math.sin(st.t * 30) * st.bush.shake * r * .08 * (reduce() ? .3 : 1), g = st.dusk;
+    const b = L.bush, r = L.R * 1.25 * .88, sh = Math.sin(st.t * 30) * st.bush.shake * r * .08 * (reduce() ? .3 : 1), g = st.dusk;
     if (!front) shadow(b.x, b.y + r * .2, r);
     const c1 = pick3('#3f9a48', '#4a7a3a', '#1e3a34', g), c2 = pick3('#5cba5a', '#6a9a48', '#2a4a40', g);
     ell(b.x + sh - r * .55, b.y - r * .3, r * .6, r * .55, c1); ell(b.x + sh + r * .55, b.y - r * .3, r * .6, r * .55, c1); ell(b.x + sh, b.y - r * .6, r * .75, r * .65, c2);
@@ -1366,45 +1184,25 @@
     for (const s2 of [-1, 1]) ell(s2 * h * .38, -h * .1, s * .07, s * .08, '#2a1a18'); ell(-h * .55, h * .2, s * .08, s * .05, cheek); ell(h * .55, h * .2, s * .08, s * .05, cheek);
     cx.strokeStyle = '#2a1a18'; cx.lineWidth = Math.max(1, s * .05); cx.beginPath(); cx.arc(0, R(h * .15), R(s * .12), .3, Math.PI - .3); cx.stroke(); cx.restore();
   }
-  function drawPSign(g) {
-    const s = L.psign, r = L.R * .95 * (s.s || 1), sh = Math.sin(st.t * 30) * st.psign.shake * r * .06, bob = hintBob('psign');
-    const bx = s.x + sh, by = s.y - r * .45 - bob, boardTop = by - r * .72, br = r * .42, side = s.side || 0;
-    const balloonX = side ? bx + side * (r * .95 + br) : bx;
-    let balloonY = side ? boardTop + br : boardTop - br * 1.25;
-    if (!side) { const rise = 1 - (balloonY - br * 1.05); if (rise > 0) balloonY += rise; }
-    const string = g > .6 ? mixHex('#8a5a34', '#20203a', .6) : '#8a5a34', balloon = g > .6 ? mixHex('#ff6fa8', '#20203a', .6) : '#ff6fa8', shine = g > .6 ? mixHex('#fff4e0', '#20203a', .6) : '#fff4e0';
-    const topPx = R(by) + R(-r * .72), lw = Math.max(1.5, r * .06);
-    const x0 = R(bx), x1 = R(balloonX), y1 = R(side ? balloonY : balloonY + br * .85);
-    const y0 = side ? Math.max(R(boardTop), topPx) : R(boardTop);
-    const clipTop = side ? topPx : null; // a side string stays on the board; an overhead string is meant to rise
-    cx.save();
-    if (clipTop !== null) { cx.beginPath(); cx.rect(0, clipTop, W, Math.max(1, H - clipTop)); cx.clip(); }
-    cx.strokeStyle = string; cx.lineWidth = lw; cx.beginPath(); cx.moveTo(x0, y0); cx.lineTo(x1, y1); cx.stroke();
-    cx.restore();
-    L.packString = { x0, y0, x1, y1, width: lw, boardTop: topPx, clipTop };
-    const ballRx = Math.max(1, R(br * .86)), ballRy = Math.max(1, R(br * 1.05));
-    L.packBalloon = { x: R(balloonX), y: R(balloonY), rx: ballRx, ry: ballRy, knotY: R(balloonY + br * 1.15) };
-    ell(balloonX, balloonY, br * .86, br * 1.05, balloon); ell(balloonX - br * .28, balloonY - br * .32, br * .22, br * .16, shine);
-    cx.fillStyle = g > .6 ? mixHex('#e8483c', '#20203a', .6) : '#e8483c'; cx.beginPath(); cx.moveTo(R(balloonX - r * .08), R(balloonY + br * .9)); cx.lineTo(R(balloonX + r * .08), R(balloonY + br * .9)); cx.lineTo(R(balloonX), R(balloonY + br * 1.15)); cx.fill();
-    cx.save(); cx.translate(R(bx), R(by)); cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
-    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24)); cx.restore();
-    drawBlock(bx - r * .28, s.y - r * .2 - bob, r * .48, 0, 0, g);
-    cx.fillStyle = g > .6 ? mixHex('#e8483c', '#20203a', .6) : '#e8483c'; cx.fillRect(R(s.x + sh + r * .02), R(s.y - r * .15 - bob), R(r * .55), R(r * .32));
-    ell(s.x + sh + r * .3, s.y - r * .15 - bob, r * .28, r * .1, g > .6 ? mixHex('#fff4e0', '#20203a', .6) : '#fff4e0');
+  function drawBoard(s, shake, name, g) {
+    const r = L.R * .95, sh = Math.sin(st.t * 30) * shake * r * .06, bob = hintBob(name);
+    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob));
+    cx.fillStyle = pick3('#5a3a24', '#5a3a24', '#1e1a24', g); cx.fillRect(R(-r * .95), R(-r * .72), R(r * 1.9), R(r * 1.44));
+    cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
+    return r;
   }
-  function drawPack() {
-    const U = L.U, V = L.pack, hb = hint();
-    const wall = cx.createLinearGradient(0, 0, 0, H); wall.addColorStop(0, '#f0d8a0'); wall.addColorStop(1, '#e8c890'); cx.fillStyle = wall; cx.fillRect(0, 0, W, H);
-    cx.fillStyle = '#c8955a'; for (let x = 0; x < W; x += U * .16) cx.fillRect(R(x), 0, Math.max(1, R(U * .012)), H);
-    for (const c of V.cards) {
-      const bob = hb && hb.name === c.id && !reduce() ? Math.abs(Math.sin(st.t * 3.2)) * U * .02 : 0;
-      cx.fillStyle = '#5a3a24'; cx.fillRect(R(c.x - c.w * .5), R(c.y - c.h * .5 - bob), R(c.w), R(c.h));
-      cx.fillStyle = c.id === 'tower' ? '#fff8e8' : '#f4e2c0'; cx.fillRect(R(c.x - c.w * .5 + U * .02), R(c.y - c.h * .5 + U * .02 - bob), R(c.w - U * .04), R(c.h - U * .04));
-      if (c.id === 'tower') { drawBlock(c.x - c.w * .12, c.y + c.h * .08 - bob, Math.min(c.w, c.h) * .34, 1, 0); drawBlock(c.x + c.w * .08, c.y - c.h * .12 - bob, Math.min(c.w, c.h) * .34, 0, .08); }
-      else { const z = Math.min(c.w, c.h) * .22; cx.fillStyle = '#e8483c'; cx.fillRect(R(c.x - z), R(c.y - z * .2 - bob), R(z * 1.6), R(z)); ell(c.x - z * .2, c.y - z * .2 - bob, z * .8, z * .28, '#fff4e0');
-        ell(c.x + z * .9, c.y + z * .55 - bob, z * .28, z * .2, '#3f8ae8'); cx.fillStyle = '#3f8ae8'; cx.fillRect(R(c.x + z * 1.12), R(c.y - z * .7 - bob), Math.max(2, R(z * .12)), R(z * 1.25)); }
-    }
-    drawHint(); drawBarnHome(V.barn); drawFx(U);
+  function drawStageSign(g) {
+    const r = drawBoard(L.stage, st.stage.shake, 'stage', g), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
+    cx.fillStyle = dk('#c8955a'); cx.fillRect(R(-r * .7), R(r * .28), R(r * 1.4), R(r * .22));
+    cx.fillStyle = dk('#e8483c'); cx.fillRect(R(-r * .28), R(-r * .05), R(r * .56), R(r * .28));
+    ell(0, -r * .05, r * .28, r * .1, dk('#fff4e0')); cx.restore();
+  }
+  function drawShelfSign(g) {
+    const r = drawBoard(L.shelf, st.shelf.shake, 'shelf', g);
+    cx.restore();
+    const s = L.shelf, bob = hintBob('shelf');
+    drawBlock(s.x - r * .22, s.y - r * .15 - bob, r * .55, 1, 0, g);
+    drawBlock(s.x + r * .22, s.y - r * .42 - bob, r * .55, 0, 0, g);
   }
   function drawTower() {
     const U = L.U, V = L.tower, T2 = st.tower, m = reduce() ? .3 : 1, cam = towerCam(), hb = hint();
@@ -1467,46 +1265,63 @@
       cx.save(); cx.translate(R(s0.x - V.br * .1), R(s0.y - V.br * .42 - bb)); cx.rotate(-.55 + wave); cx.fillStyle = '#fff4e0'; cx.fillRect(0, R(-V.br * .05), R(V.br * 1.1), Math.max(2, R(V.br * .1))); ell(0, 0, V.br * .14, V.br * .14, '#e8483c'); cx.restore(); }
     drawHint(); drawBarnHome(V.barn); drawFx(U);
   }
+  function drawArrowIcon(kind, x, y, s) {
+    if (kind === 'carrot') { cx.fillStyle = '#ff8a2a'; cx.beginPath(); cx.moveTo(R(x - s * .35), R(y - s * .2)); cx.lineTo(R(x + s * .35), R(y - s * .2)); cx.lineTo(R(x), R(y + s * .55)); cx.fill(); ell(x, y - s * .35, s * .22, s * .16, '#4fae4a'); }
+    else if (kind === 'flower') { for (let j = 0; j < 5; j++) { const a = j / 5 * Math.PI * 2; ell(x + Math.cos(a) * s * .28, y + Math.sin(a) * s * .28, s * .22, s * .22, '#ff6f91'); } ell(x, y, s * .16, s * .16, '#ffd84a'); }
+    else if (kind === 'block') drawBlock(x, y, s * 1.1, 0, 0, 0);
+    else { cx.fillStyle = '#c8453a'; cx.fillRect(R(x - s * .4), R(y - s * .05), R(s * .8), R(s * .5)); cx.beginPath(); cx.moveTo(R(x - s * .5), R(y - s * .05)); cx.lineTo(R(x), R(y - s * .45)); cx.lineTo(R(x + s * .5), R(y - s * .05)); cx.fillStyle = '#8a2a24'; cx.fill(); }
+  }
+  function drawArrows() {
+    if (!L.arrows || st.mode !== 'play' || st.place !== 'ranch') return;
+    const pics = ['carrot', 'flower', 'block', 'barn'];
+    const one = (a, dir) => { if (!a) return; const x = a.x - cam.x, y = a.y, r = L.arrows.r;
+      ell(x, y + r * .08, r * .92, r * .28, 'rgba(90,50,20,.25)');
+      ell(x, y, r, r, '#a87a4a'); ell(x, y, r * .82, r * .82, '#e8c890'); ell(x - r * .2, y - r * .22, r * .28, r * .16, 'rgba(255,255,255,.45)');
+      cx.fillStyle = '#8a5a34'; cx.beginPath(); cx.moveTo(R(x + dir * r * .62), R(y)); cx.lineTo(R(x + dir * r * .05), R(y - r * .42)); cx.lineTo(R(x + dir * r * .05), R(y - r * .14)); cx.lineTo(R(x - dir * r * .28), R(y - r * .14)); cx.lineTo(R(x - dir * r * .28), R(y + r * .14)); cx.lineTo(R(x + dir * r * .05), R(y + r * .14)); cx.lineTo(R(x + dir * r * .05), R(y + r * .42)); cx.fill();
+      drawArrowIcon(pics[cam.area + dir], x - dir * r * .42, y, r * .55); };
+    one(L.arrows.left, -1); one(L.arrows.right, 1);
+  }
   function draw() {
     if (st.place === 'shed') return drawShed();
     if (st.place === 'wagon') return drawWagon();
     if (st.place === 'kitchen') return drawKitchen();
     if (st.place === 'dough') return drawDough();
     if (st.place === 'door') return drawDoor();
-    if (st.place === 'pack') return drawPack();
     if (st.place === 'tower') return drawTower();
     if (st.place === 'band') return drawBand();
-    const g = st.dusk, U = L.U;
+    pinSky(); refreshArrows();
+    const g = st.dusk, U = L.U, worldW = L.U * 6.2, sun = sunAt(), moon = moonAt();
     const sky = cx.createLinearGradient(0, 0, 0, L.ground); sky.addColorStop(0, pick3('#6cbcec', '#e8805a', '#121a44', g)); sky.addColorStop(1, pick3('#d4eef8', '#ffd08a', '#3a3a70', g));
     cx.fillStyle = sky; cx.fillRect(0, 0, W, L.ground + 1);
     if (g > .55) { cx.fillStyle = `rgba(255,255,230,${clamp((g - .55) * 2.2, 0, 1)})`; for (let i = 0; i < 40; i++) { const x = (i * 97.3) % W, y = (i * 53.7) % (L.ground * .8), tw = .6 + .4 * Math.sin(st.t * 2 + i); if (tw > .5 || st.moon.song) { const sz = st.moon.song && (i % 3 === (st.moon.song.i % 3)) ? 2 : 1; cx.fillRect(R(x), R(y), sz, sz); } } }
-    const sunY = lerp(L.sun.y, L.ground + U * .1, clamp(g * 1.6, 0, 1)); const glow = st.sun.glow;
-    ell(L.sun.x, sunY, U * (.13 + glow * .07), U * (.13 + glow * .07), `rgba(255,240,180,${(.25 + glow * .35) * (1 - g)})`); ell(L.sun.x, sunY, U * (.09 + glow * .025), U * (.09 + glow * .025), glow > 0 ? mixHex('#fff4b0', '#ffffff', glow) : pick3('#fff4b0', '#ffb050', '#ff8040', g));
+    const glow = st.sun.glow, sx = sun.x - cam.x;
+    ell(sx, sun.y, U * (.13 + glow * .07), U * (.13 + glow * .07), `rgba(255,240,180,${(.25 + glow * .35) * (1 - g)})`); ell(sx, sun.y, U * (.09 + glow * .025), U * (.09 + glow * .025), glow > 0 ? mixHex('#fff4b0', '#ffffff', glow) : pick3('#fff4b0', '#ffb050', '#ff8040', g));
     if (st.sun.bow) drawRainbow(st.t - st.sun.bow.at);
-    if (g > .6) { const k = clamp((g - .6) / .4, 0, 1), mg = st.moon.song ? 1 : st.moon.glow, pulse = st.moon.song ? clamp(1 - (st.t - st.moon.song.beat) / BEAT, 0, 1) * .25 : 0;
-      if (mg > 0) { ell(W * .8, lerp(L.ground, H * .16, k), U * (.11 + mg * .05 + pulse * .03), U * (.11 + mg * .05 + pulse * .03), `rgba(240,240,200,${.12 + mg * .2 + pulse * .2})`); }
-      ell(W * .8, lerp(L.ground, H * .16, k), U * .07, U * .07, '#f4f0d8'); ell(W * .8 + U * .03, lerp(L.ground, H * .16, k) - U * .02, U * .06, U * .06, (mg > 0 ? mixHex('#121a44', '#5a5e6e', clamp((.12 + mg * .2 + pulse * .2) / .37, 0, 1)) : '#121a44')); }
-    drawCloud(g);
+    if (g > .6) { const k = clamp((g - .6) / .4, 0, 1), mg = st.moon.song ? 1 : st.moon.glow, pulse = st.moon.song ? clamp(1 - (st.t - st.moon.song.beat) / BEAT, 0, 1) * .25 : 0, mx = moon.x - cam.x;
+      if (mg > 0) { ell(mx, moon.y, U * (.11 + mg * .05 + pulse * .03), U * (.11 + mg * .05 + pulse * .03), `rgba(240,240,200,${.12 + mg * .2 + pulse * .2})`); }
+      ell(mx, moon.y, U * .07, U * .07, '#f4f0d8'); ell(mx + U * .03, moon.y - U * .02, U * .06, U * .06, (mg > 0 ? mixHex('#121a44', '#5a5e6e', clamp((.12 + mg * .2 + pulse * .2) / .37, 0, 1)) : '#121a44')); }
     ell(W * .25, L.ground + U * .05, W * .45, U * .22, pick3('#8acb6a', '#a0a050', '#2a4a48', g)); ell(W * .8, L.ground + U * .07, W * .4, U * .18, pick3('#7abf5c', '#909848', '#24423f', g));
-    cx.fillStyle = pick3('#7cc85a', '#b0a050', '#2a4a40', g); cx.fillRect(0, R(L.ground), W, H - R(L.ground));
+    cx.save(); cx.translate(-cam.x, 0);
+    drawCloud(g);
+    cx.fillStyle = pick3('#7cc85a', '#b0a050', '#2a4a40', g); cx.fillRect(0, R(L.ground), R(worldW), H - R(L.ground));
     drawSignPosts(g);
-    cx.fillStyle = pick3('#a87a4a', '#a06a3a', '#3a2e38', g); const fy = L.ground + U * .02; cx.fillRect(0, R(fy), W, Math.max(1, R(U * .025))); cx.fillRect(0, R(fy + U * .07), W, Math.max(1, R(U * .025)));
-    for (let x = W * .05; x < W; x += U * .3) cx.fillRect(R(x), R(fy - U * .03), Math.max(2, R(U * .03)), R(U * .14));
-    for (let i = 0; i < 30; i++) { const x = (i * 61.7) % W, y = L.ground + U * .2 + (i * 37.1) % (H - L.ground - U * .2); cx.fillStyle = pick3('#5aa848', '#8a8a40', '#1e3a36', g); cx.fillRect(R(x), R(y), 1, 2); }
+    cx.fillStyle = pick3('#a87a4a', '#a06a3a', '#3a2e38', g); const fy = L.ground + U * .02; cx.fillRect(0, R(fy), R(worldW), Math.max(1, R(U * .025))); cx.fillRect(0, R(fy + U * .07), R(worldW), Math.max(1, R(U * .025)));
+    for (let x = U * .15; x < worldW; x += U * .3) cx.fillRect(R(x), R(fy - U * .03), Math.max(2, R(U * .03)), R(U * .14));
+    for (let i = 0; i < 80; i++) { const x = (i * 61.7) % worldW, y = L.ground + U * .2 + (i * 37.1) % (H - L.ground - U * .2); cx.fillStyle = pick3('#5aa848', '#8a8a40', '#1e3a36', g); cx.fillRect(R(x), R(y), 1, 2); }
     drawHint();
-    drawPuddles(); drawBasket(g); drawDSign(g); drawTSign(g); drawPSign(g); drawSign(g); drawWheelSign(g); drawKSign(g);
+    drawPuddles(); drawBasket(g); drawDSign(g); drawTSign(g); drawSign(g); drawWheelSign(g); drawKSign(g); drawStageSign(g); drawShelfSign(g);
     const hidden = st.baby.act === 'hide' || st.baby.act === 'peek';
     if (!hidden) drawBush(false);
     // the bowl
     const bw = L.R, bb = hintBob('bowl') + Math.sin(Math.min(1, 1 - st.bowl.pop) * Math.PI) * st.bowl.pop * L.R * .25; shadow(L.bowl.x, L.bowl.y, bw); cx.save(); cx.translate(0, -R(bb)); ell(L.bowl.x, L.bowl.y - bw * .25, bw, bw * .45, pick3('#4a90d8', '#5a7ab8', '#2a3a68', g)); ell(L.bowl.x, L.bowl.y - bw * .45, bw * .82, bw * .2, '#2a4a7a');
     if (st.bowl.food > 0) for (let i = 0; i < 9 * st.bowl.food; i++) ell(L.bowl.x + (i % 5 - 2) * bw * .3, L.bowl.y - bw * (.5 + (i % 2) * .12), bw * .14, bw * .11, '#c8823a'); cx.restore();
     drawFlowers(g);
-    const bq0 = ballNow(), faces = [[st.baby.x + st.baby.dir * L.size * .4, L.size], st.friend ? [st.friend.x * W + st.friend.dir * L.fz * .4, L.fz] : null].filter(Boolean), // each head sits a little ahead of its body
+    const bq0 = ballNow(), faces = [[st.baby.x + st.baby.dir * L.size * .4, L.size], st.friend ? [st.friend.x + st.friend.dir * L.fz * .4, L.fz] : null].filter(Boolean), // each head sits a little ahead of its body
       ballInFront = bq0.y >= L.home.y || faces.every(([fx0, z]) => Math.hypot((bq0.x - fx0) / (z * .5 + bq0.r), (bq0.y - (L.home.y - z * 1.2)) / (z * .4 + bq0.r)) >= 1);
     if (!ballInFront) drawBall(); // LR-G2: the ball is drawn after the fox, except where it would cover a face (a ball resting behind the fox's feet): then the fox stands in front
     if (hidden) { // peekaboo: behind the bush, then up comes the head
       const k = st.baby.act === 'peek' ? Math.sin(clamp((st.t - st.baby.at) / 1.4, 0, 1) * Math.PI) : 0, save = st.baby.x;
-      const base = L.bush.y + L.R * .3; cx.save(); cx.beginPath(); cx.rect(0, 0, W, R(base)); cx.clip(); // only what rises above the bush's foot shows
+      const base = L.bush.y + L.R * .3; cx.save(); cx.beginPath(); cx.rect(cam.x, 0, W, R(base)); cx.clip(); // only what rises above the bush's foot shows
       cx.translate(0, L.bush.y - L.home.y + L.size * .9 - k * L.size * 1.4); st.baby.x = L.bush.x; drawBaby(); st.baby.x = save; cx.restore(); drawBush(true); }
     else { drawFriend(); drawBaby(); }
     if (ballInFront) drawBall(); // LR-G2: in front of the fox, unless it would cover a face
@@ -1519,30 +1334,34 @@
     for (const u of st.bubbles) { const x = u.x + Math.sin(st.t * 2 + u.seed) * u.r * .8; cx.strokeStyle = 'rgba(255,255,255,.9)'; cx.lineWidth = 1; cx.beginPath(); cx.arc(R(x), R(u.y), Math.max(2, R(u.r)), 0, 7); cx.stroke();
       ell(x, u.y, u.r, u.r, 'rgba(200,230,255,.25)'); ell(x - u.r * .35, u.y - u.r * .35, u.r * .2 + .5, u.r * .2 + .5, '#fff'); }
     drawFx(U);
+    cx.restore();
     if (g > 0) { cx.fillStyle = `rgba(20,20,60,${g * .25})`; cx.fillRect(0, 0, W, H); }
+    drawArrows();
   }
 
   /* ---------------- touch and mouse ---------------- */
   // A finger's position lives on the touch. The click that follows is synthetic and can sit at 0,0, so it is ignored.
-  const at = e => { const r = cv.getBoundingClientRect(); const src = (e.changedTouches && e.changedTouches[0]) || (e.touches && e.touches[0]) || e; return { x: (src.clientX - r.left) / r.width * W, y: (src.clientY - r.top) / r.height * H }; };
+  const at = e => { const r = cv.getBoundingClientRect(); const src = (e.changedTouches && e.changedTouches[0]) || (e.touches && e.touches[0]) || e; let x = (src.clientX - r.left) / r.width * W, y = (src.clientY - r.top) / r.height * H; if (st.place === 'ranch') x += cam.x; return { x, y }; };
   const signFace = q => ({ x: q.x, y: q.y - L.R * .45 * (q.s || 1) }); // the painted board, not the post underneath it
   // LR-C1: where tap zones overlap (big zones on a tablet), the thing whose middle is nearest wins, so a tap on the
   // baby's head beside the bush tickles the baby rather than starting peekaboo.
   function ranchTarget(p) { const s = st.sponge, c = [];
-    if (!s.auto) c.push(['sponge', s, L.R * 1.1]); c.push(['sign', signFace(L.sign), L.R * 1.25], ['wsign', signFace(L.wsign), L.R * 1.25], ['ksign', signFace(L.ksign), L.R * 1.25], ['tsign', signFace(L.tsign), L.R * 1.25], ['dsign', signFace(L.dsign), L.R * 1.25], ['psign', signFace(L.psign), L.R * 1.25 * (L.psign.s || 1)], ['bowl', L.bowl, L.R * 1.2], ['bush', { x: L.bush.x, y: L.bush.y - L.R * .4 }, L.R * 1.4]);
+    if (st.place === 'ranch' && st.mode === 'play') { const ay = L.ground - L.U * .08, tap = L.U * .175; if (cam.area > 0) c.push(['left', { x: cam.x + L.U * .1, y: ay }, tap]); if (cam.area < 3) c.push(['right', { x: cam.x + W - L.U * .1, y: ay }, tap]); }
+    if (!s.auto) c.push(['sponge', s, L.R * 1.1]); c.push(['sign', signFace(L.sign), L.R * 1.25], ['wsign', signFace(L.wsign), L.R * 1.25], ['ksign', signFace(L.ksign), L.R * 1.25], ['tsign', signFace(L.tsign), L.R * 1.25], ['dsign', signFace(L.dsign), L.R * 1.25], ['stage', signFace(L.stage), L.R * 1.25], ['shelf', signFace(L.shelf), L.R * 1.25], ['bowl', L.bowl, L.R * 1.2], ['bush', { x: L.bush.x, y: L.bush.y - L.R * .4 }, L.R * 1.4]);
     if (st.baby.act !== 'hide') c.push(['baby', babyCentre(), L.size * 1.2]); if (st.friend) c.push(['friend', fCentre(), L.fz * 1.25]); if (daytime()) c.push(['sun', sunAt(), Math.max(L.U * .16, L.R)], ['cloud', L.cloud, L.cloud.r * 1.35]);
     for (const q of st.puddles) c.push(['puddle' + q.i, L.puddles[q.i], L.puddles[q.i].r]); c.push(['basket', { x: L.basket.x, y: L.basket.y - L.R * .15 }, L.R * 1.05]);
     L.flowers.forEach((q, i) => c.push(['flower' + i, { x: q.x, y: q.y }, q.r * 1.15]));
     { const q = ballNow(); c.push(['ball', q, q.r * 1.2]); }
     let best = null, bk = 1, rs = L.R * .95;
     for (const [n, q, r] of c) { let k = Math.hypot(p.x - q.x, p.y - q.y) / r;
-      if (/^[wktdp]?sign$/.test(n)) { const b = L[n], br = rs * (b.s || 1); if (Math.abs(p.x - b.x) <= br * .95 && p.y >= b.y - br * 1.17 && p.y <= b.y + br * .27) k *= .4; } // LR-G2: a tap anywhere on a drawn board is that sign's (its lower edge used to fall to the bush)
+      if (n === 'left' || n === 'right') { if (Math.hypot(p.x - q.x, p.y - q.y) <= L.U * .09) k *= .35; }
+      if (DOORS[n]) { const b = L[n], br = rs * (b.s || 1); if (Math.abs(p.x - b.x) <= br * .95 && p.y >= b.y - br * 1.17 && p.y <= b.y + br * .27) k *= .4; } // LR-G2: a tap anywhere on a drawn board is that sign's (its lower edge used to fall to the bush)
       if (k <= bk) { bk = k; best = n; } } return best; }
   const onDown = e => {
-    e.preventDefault(); audio(); const p = at(e), s = st.sponge; st.idleAt = st.t;
+    e.preventDefault(); audio(); if (st.place === 'ranch' && camGliding()) return; const p = at(e), s = st.sponge; st.idleAt = st.t;
     // LR9: the shed and the sign act when the finger lifts (like the grown-up panel, LR15); a drag over the outline paints
     if (st.place === 'dough') { st.down = { id: e.pointerId, p, last: p, moved: 0 }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; } // LR18: a tap or a rub
-    if (st.place === 'wagon' || st.place === 'kitchen' || st.place === 'door' || st.place === 'pack' || st.place === 'tower' || st.place === 'band') { st.down = { id: e.pointerId, p }; return; }
+    if (st.place === 'wagon' || st.place === 'kitchen' || st.place === 'door' || st.place === 'tower' || st.place === 'band') { st.down = { id: e.pointerId, p }; return; }
     if (st.place === 'shed') { st.down = { id: e.pointerId, p, drag: false }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; }
     if (st.mode === 'dusk' && routineTap(p)) return; // LR7
     if (st.mode !== 'play') { // bedtime: taps twinkle; six taps on the sleeping baby wake it for a new day (LR12)
@@ -1562,7 +1381,9 @@
     if (pick === 'dsign') { st.down = { id: e.pointerId, p, sign: 'door' }; st.dsign.shake = .5; return; }
     if (pick === 'tsign') { st.down = { id: e.pointerId, p, sign: 'dough' }; st.tsign.shake = .5; return; }
     if (pick === 'ksign') { st.down = { id: e.pointerId, p, sign: 'kitchen' }; st.ksign.shake = .5; return; }
-    if (pick === 'psign') { st.down = { id: e.pointerId, p, sign: 'pack' }; st.psign.shake = .5; return; }
+    if (pick === 'stage') { st.down = { id: e.pointerId, p, sign: 'stage' }; st.stage.shake = .5; return; }
+    if (pick === 'shelf') { st.down = { id: e.pointerId, p, sign: 'shelf' }; st.shelf.shake = .5; return; }
+    if (pick === 'left' || pick === 'right') { st.down = { id: e.pointerId, p, arrow: pick }; return; }
     if (/^flower/.test(pick)) { const i = +pick.slice(6); st.down = { id: e.pointerId, p, flower: i }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return sing(i); }
     if (pick === 'bowl') return act.feed();
     if (pick === 'bush') return act.peek();
@@ -1583,7 +1404,8 @@
     s.drag.moved += Math.hypot(p.x - s.x, p.y - s.y); s.x = p.x; s.y = p.y; if (near(p, babyCentre(), L.size * 1.3)) act.scrub(p); else if (st.friend && near(p, fCentre(), L.fz * 1.2)) scrubFriend(p); };
   const onSign = (p, q) => { const reach = L.R * 1.35 * (q.s || 1); return near(p, q, reach) || near(p, signFace(q), reach); };
   const release = e => { const d = st.down; if (d && d.id === e.pointerId) { st.down = null; if (e.type === 'pointercancel' || e.type === 'touchcancel') return; const p = at(e);
-      if (d.sign === 'paint') { if (onSign(p, L.sign)) enterShed(); return; } if (d.sign === 'wagon') { if (onSign(p, L.wsign)) enterWagon(); return; } if (d.sign === 'kitchen') { if (onSign(p, L.ksign)) enterKitchen(); return; } if (d.sign === 'dough') { if (onSign(p, L.tsign)) enterDough(); return; } if (st.place === 'dough') { if (d.moved <= L.dough.lr * .3) doughTap(p); return; } if (d.sign === 'door') { if (onSign(p, L.dsign)) enterDoor(); return; } if (d.sign === 'pack') { if (onSign(p, L.psign)) enterPack(); return; } if (d.flower !== undefined) return; const room = st.place; if (!d.drag && room === 'shed') shedTap(p); if (room === 'wagon') wagonTap(p); if (room === 'kitchen') kitchenTap(p); if (room === 'door') doorTap(p); if (room === 'pack') packTap(p); if (room === 'tower') towerTap(p); if (room === 'band') bandTap(p); return; }
+      if (d.arrow) { if (!camGliding() && ranchTarget(p) === d.arrow) goArea(cam.area + (d.arrow === 'left' ? -1 : 1)); return; }
+      if (d.sign === 'paint') { if (onSign(p, L.sign)) enterShed(); return; } if (d.sign === 'wagon') { if (onSign(p, L.wsign)) enterWagon(); return; } if (d.sign === 'kitchen') { if (onSign(p, L.ksign)) enterKitchen(); return; } if (d.sign === 'dough') { if (onSign(p, L.tsign)) enterDough(); return; } if (st.place === 'dough') { if (d.moved <= L.dough.lr * .3) doughTap(p); return; } if (d.sign === 'door') { if (onSign(p, L.dsign)) enterDoor(); return; } if (d.sign === 'stage') { if (onSign(p, L.stage)) enterBand(); return; } if (d.sign === 'shelf') { if (onSign(p, L.shelf)) enterTower(); return; } if (d.flower !== undefined) return; const room = st.place; if (!d.drag && room === 'shed') shedTap(p); if (room === 'wagon') wagonTap(p); if (room === 'kitchen') kitchenTap(p); if (room === 'door') doorTap(p); if (room === 'tower') towerTap(p); if (room === 'band') bandTap(p); return; }
     const s = st.sponge; if (!s.drag || s.drag.id !== e.pointerId) return;
     const tap = s.drag.moved < L.R * .5 && performance.now() - s.drag.at < 500; s.drag = null;
     if (tap) act.bath(); else if (s.scrubbed) { s.scrubbed = false; done(); } };
@@ -1640,9 +1462,12 @@
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);
   // for the checks (tests/little-ranch.html): the state, the places, and a way to move time on
-  window.LR = { VERSION, PREF, DUSK_SECS, SIGN_WIGGLE_GAP, doughCol: () => doughCol(), BEDTIME_ACTS, BEDTIME_SECS, BEDTIME_GRACE, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, FLY_SECS, DOUGH_BABIES, STAMP_SECS, DOUGH_END_SECS, enterDough, leaveDough, GADGETS, DOOR_OPEN_SECS, DOOR_END_SECS, enterDoor, leaveDoor, BLOCKS, DROP_SECS, TUMBLE_SECS, TUMBLE_MIN, enterPack, leavePack, enterTower, leaveTower, towerCam: () => towerCam(), stackBlock: () => stackBlock(), BAND, BAND_BEAT, BAND_VOL, enterBand, leaveBand, get bandLoud() { return bandLoud; }, doorPoke: k => doorPoke(k), thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
+  window.LR = { VERSION, PREF, DUSK_SECS, SIGN_WIGGLE_GAP, doughCol: () => doughCol(), BEDTIME_ACTS, BEDTIME_SECS, BEDTIME_GRACE, HOLD_MS, WAKE_TAPS, SUN_TAPS, BOW_SECS, MOON_TAPS, BEAT, SONG_BEATS, TWINKLE, get tones() { return tones; }, get words() { return words; }, get prefs() { return prefs; }, moonAt: () => moonAt(), PAINT, PARTS, POT_WORDS, FLOWER_WORDS, CAR_WORDS, FOOD_WORDS, HINT_SECS, FLOWERS, FLOWER_NOTES, SONG_TAPS, sing: i => sing(i), CARS, RIDE, enterWagon, leaveWagon, FOODS, FOOD_FACES, KITCHEN_BERRIES, FRIEND_ODDS, NUZZLE_SECS, RAIN_SECS, PUDDLE_SECS, HATS, HAT_TRIES, BALL_KICKS, ballNow, ROUTINE, ROUTINE_WAIT, setRoutine: v => { useRoutine = v; }, hatTop: () => hatTop(), setFriend: v => { forceFriend = v; }, fCentre: () => fCentre(), enterKitchen, leaveKitchen, FLY_SECS, DOUGH_BABIES, STAMP_SECS, DOUGH_END_SECS, enterDough, leaveDough, GADGETS, DOOR_OPEN_SECS, DOOR_END_SECS, enterDoor, leaveDoor, BLOCKS, DROP_SECS, TUMBLE_SECS, TUMBLE_MIN, enterTower, leaveTower, towerCam: () => towerCam(), stackBlock: () => stackBlock(), BAND, BAND_BEAT, BAND_VOL, enterBand, leaveBand, get bandLoud() { return bandLoud; }, doorPoke: k => doorPoke(k), thingAt: k => thingAt(k), hint: () => hint(), ranchTarget: p => ranchTarget(p), enterShed, leaveShed, partPoint: k => partPoint(k), partAt: p => partAt(p), get state() { return st; }, get layout() { return L; }, get scale() { return S; }, act, bedtime, newVisit, openPanel, APP,
+    get world() { return { width: L.U * 6.2, areas: AREAS.map((name, i) => ({ name, index: i, center: areaCentre(i), core0: areaCentre(i) - L.U * .5, core1: areaCentre(i) + L.U * .5, stop: stopFor(i) })) }; },
+    get camera() { return { area: cam.area, x: cam.x, target: cam.to, parallax: cam.parallax }; },
+    go: i => goArea(i),
     advance(secs) { for (let k = 0; k < secs; k += 1 / 30) update(1 / 30); draw(); },
     redraw() { draw(); },
-    toScreen(p) { const r = cv.getBoundingClientRect(); return { x: r.left + p.x / W * r.width, y: r.top + p.y / H * r.height }; } };
+    toScreen(p) { const r = cv.getBoundingClientRect(); const x = st.place === 'ranch' ? p.x - cam.x : p.x; return { x: r.left + x / W * r.width, y: r.top + p.y / H * r.height }; } };
 })();
 

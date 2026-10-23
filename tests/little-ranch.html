@@ -29,6 +29,7 @@ document.querySelector('#run').onclick = async () => {
     const DUSK_FULL = LR.DUSK_SECS + 1;
     const NIGHT_FULL = LR.ROUTINE_WAIT * 3 + LR.DUSK_SECS + 25;
     const tap = q => { const p = LR.toScreen(q); pid++; ev(cv, 'pointerdown', p); ev(cv, 'pointerup', p); };
+    const roomPt = q => { const box = cv.getBoundingClientRect(); return { x: box.left + q.x / cv.width * box.width, y: box.top + q.y / cv.height * box.height }; };
     const drag = (a, b, steps) => { pid++; ev(cv, 'pointerdown', LR.toScreen(a)); for (let i = 1; i <= steps; i++) { ev(cv, 'pointermove', LR.toScreen({ x: a.x + (b.x - a.x) * i / steps, y: a.y + (b.y - a.y) * i / steps })); LR.advance(.05); } ev(cv, 'pointerup', LR.toScreen(b)); };
     const S = () => LR.state, L = () => LR.layout, baby = () => ({ x: S().baby.x, y: L().home.y - L().size * .9 });
     const visible = el => { const s = w.getComputedStyle(el); return !el.closest('[hidden]') && s.display !== 'none' && s.visibility !== 'hidden'; };
@@ -283,7 +284,7 @@ document.querySelector('#run').onclick = async () => {
     // ---- LR11: the Snack Kitchen
     for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180]]) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
-      const K = L().kitchen, sc = LR.scale, r = cv.getBoundingClientRect(), fs = K.foods.map(q => LR.toScreen(q));
+      const K = L().kitchen, sc = LR.scale, r = cv.getBoundingClientRect(), fs = K.foods.map(q => roomPt(q));
       check(`${width}×${height}: the snack-bowl sign is big and its own tap; the foods are 64 px+, apart and on screen`, LR.ranchTarget(L().ksign) === 'ksign' && LR.ranchTarget(L().wsign) === 'wsign' && LR.ranchTarget(L().sign) === 'sign' && K.fr * 2 * sc >= 64 && K.bowl.r * 2 * sc >= 64 && fs.every((q, i) => q.x > r.left && q.x < r.right && q.y < r.bottom && (!i || Math.hypot(q.x - fs[i - 1].x, q.y - fs[i - 1].y) >= K.fr * 2 * sc)));
     }
     frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.newVisit(); LR.advance(.1);
@@ -365,7 +366,7 @@ document.querySelector('#run').onclick = async () => {
       frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
       S().puddles = [0, 1].map(i => ({ i, at: S().t, splash: -9 })); const sc = LR.scale, r = cv.getBoundingClientRect(), bq = LR.toScreen(L().basket), B = { x: L().basket.x, y: L().basket.y - L().R * .15 };
       check(`${width}×${height}: the hat basket is 64 px+, on screen and its own tap (puddles, bowl, sign and baby keep theirs)`, L().R * 1.05 * 2 * sc >= 64 && bq.x > r.left && bq.y < r.bottom && LR.ranchTarget(B) === 'basket' && LR.ranchTarget(L().puddles[0]) === 'puddle0' && LR.ranchTarget(L().puddles[1]) === 'puddle1' && LR.ranchTarget(L().bowl) === 'bowl' && LR.ranchTarget(L().sign) === 'sign' && LR.ranchTarget(baby()) === 'baby');
-      if (width > height * 1.3) { const P = L().puddles[1], z = L().size; check(`${width}×${height}: the right-hand puddle sits clear of the baby at home`, P.x - P.r * .5 > L().home.x + z * .42 + z * .66 * .9); }
+      if (width > height * 1.3) { const P = L().puddles[1], z = L().size, home = L().homes[1]; check(`${width}×${height}: a puddle does not overlap the baby`, Math.hypot(P.x - home.x, P.y - home.y) > P.r + z * .5); }
     }
     frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.newVisit(); LR.advance(.1);
     { const H = () => S().hat, B = { x: L().basket.x, y: L().basket.y - L().R * .15 };
@@ -448,11 +449,11 @@ document.querySelector('#run').onclick = async () => {
     // ---- LR16: the meadow ball. Tap it and it rolls; the baby runs over and kicks. Nothing to miss, nothing saved.
     const ballAt = () => LR.ballNow();
     for (const [width, height] of [[820, 1180], [1366, 768]]) {
-      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.advance(.1);
+      frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.go(2); LR.advance(.8);
       const q = ballAt(), sc = LR.scale, r = cv.getBoundingClientRect(), spot = LR.toScreen(q);
       check(`${width}×${height}: the ball is 80 px+, on the grass, and its own tap`, q.r * 1.2 * 2 * sc >= 80 && spot.x > r.left + width * .08 && spot.x < r.left + width * .92 && LR.ranchTarget(q) === 'ball' && LR.ranchTarget(L().bowl) === 'bowl' && LR.ranchTarget(baby()) === 'baby');
     }
-    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.newVisit(); LR.advance(.1);
+    frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.newVisit(); LR.go(2); LR.advance(1.4);
     const side0 = ballAt().x; tap(ballAt()); LR.advance(.2);
     check('Tapping the ball rolls it and says ball', S().ball.to === 1 && ballAt().x !== side0 && LR.words[LR.words.length - 1] === 'ball');
     LR.advance(2); check('The baby runs over and kicks, and one kick is not yet a happy thing', S().ball.kicks === 1 && S().acts === 0 && S().baby.act === null);
@@ -468,7 +469,7 @@ document.querySelector('#run').onclick = async () => {
     LR.prefs.sound = true;
     for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180], [1920, 1080]]) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
-      const sc = LR.scale, r = cv.getBoundingClientRect(), D = L().door, gs = LR.GADGETS.map(k => D.g[k]), sp = gs.map(q => LR.toScreen(q));
+      const sc = LR.scale, r = cv.getBoundingClientRect(), D = L().door, gs = LR.GADGETS.map(k => D.g[k]), sp = gs.map(q => roomPt(q));
       check(`${width}×${height}: the barn-door sign is its own tap and the other signs still are; the door's five things are 64 px+, apart and on screen`, LR.ranchTarget(L().dsign) === 'dsign' && ['sign', 'wsign', 'ksign'].every(k => LR.ranchTarget(L()[k]) === k) && D.gr * 2 * sc >= 64 && sp.every((q, i) => q.x - D.gr * sc > r.left && q.x + D.gr * sc < r.right && q.y > r.top && q.y < r.bottom && sp.every((o, j) => i === j || Math.hypot(q.x - o.x, q.y - o.y) >= D.gr * 1.6 * sc)) && Math.hypot(D.barn.x - D.g.bell.x, D.barn.y - D.g.bell.y) > D.barn.r * 1.15 + D.gr * 1.25);
     }
     frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
@@ -499,7 +500,7 @@ document.querySelector('#run').onclick = async () => {
     LR.prefs.sound = true;
     for (const [width, height] of [[375, 812], [667, 375], [1024, 768], [820, 1180], [1920, 1080]]) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
-      const sc = LR.scale, r = cv.getBoundingClientRect(), V = L().dough, lp = LR.toScreen(V.lump), cp = LR.toScreen(V.cutter);
+      const sc = LR.scale, r = cv.getBoundingClientRect(), V = L().dough, lp = roomPt(V.lump), cp = roomPt(V.cutter);
       check(`${width}×${height}: the dough sign is its own tap and the other signs still are; the lump and the cutter are 64 px+, apart and on screen`, LR.ranchTarget(L().tsign) === 'tsign' && ['sign', 'wsign', 'ksign', 'dsign'].every(k => LR.ranchTarget(L()[k]) === k) && V.lr * 2 * sc >= 64 && V.cr * 2 * sc >= 64 && [lp, cp].every(q => q.x > r.left && q.x < r.right && q.y < r.bottom) && cp.x - lp.x >= (V.lr * 1.5 + V.cr) * sc * .9);
       // a forgiving drag on phone and tablet: a short wobbly rub that starts off the lump still rolls it
       tap(L().tsign); LR.state.dough.goal = 1; LR.advance(.5); const a = { x: V.lump.x - V.lr * 1.9, y: V.lump.y + V.lr * .9 };
@@ -745,7 +746,7 @@ document.querySelector('#run').onclick = async () => {
     for (const [width, height] of [[375, 812], [1280, 800], [820, 1180]]) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
       const V = L().dough, sc = LR.scale, r = cv.getBoundingClientRect(), dists = (a, b2) => Math.hypot(a.x - b2.x, a.y - b2.y);
-      check(`LR-POLISH ${width}×${height}: four colour dots, each 64 px+, on screen, on the wall and clear of the barn picture`, V.dots.length === 4 && V.dots.every(q => V.dr * 2 * sc >= 64 && LR.toScreen(q).x - V.dr * sc > r.left && LR.toScreen(q).x + V.dr * sc < r.right && q.y + V.dr < V.ty && dists(q, V.barn) > V.dr + V.barn.r) && V.dots.every((q, i) => i === 0 || q.x - V.dots[i - 1].x >= V.dr * 2));
+      check(`LR-POLISH ${width}×${height}: four colour dots, each 64 px+, on screen, on the wall and clear of the barn picture`, V.dots.length === 4 && V.dots.every(q => V.dr * 2 * sc >= 64 && roomPt(q).x - V.dr * sc > r.left && roomPt(q).x + V.dr * sc < r.right && q.y + V.dr < V.ty && dists(q, V.barn) > V.dr + V.barn.r) && V.dots.every((q, i) => i === 0 || q.x - V.dots[i - 1].x >= V.dr * 2));
       tap(L().tsign); const acts0 = S().acts, base = LR.doughCol(), cols = []; let tonesOk = true;
       for (let i = 0; i < 4; i++) { const t0 = LR.tones; tap(V.dots[i]); cols.push(LR.doughCol()); tonesOk = tonesOk && LR.tones > t0 && S().dough.col === i; }
       check(`LR-POLISH ${width}×${height}: tapping a colour dot tints the dough at once, each dot a different colour, with a sound and no count`, new Set(cols).size === 4 && !cols.includes(base) && tonesOk && S().acts === acts0 && S().dough.phase === 'play');
@@ -823,31 +824,32 @@ document.querySelector('#run').onclick = async () => {
           const i = (y * cv.width + x) * 4; if (rgbs.some(c => Math.abs(img[i] - c[0]) <= tol && Math.abs(img[i + 1] - c[1]) <= tol && Math.abs(img[i + 2] - c[2]) <= tol)) n++; }
         return tot ? n / tot : 0; };
       const ballRed = [[255, 91, 110]], puddleBlue = [[90, 168, 224], [168, 220, 248]];
-      const ballShows = () => { LR.redraw(); const q = LR.ballNow(); return fits({ x: q.x, y: q.y, rx: q.r * .8, ry: q.r * .8 }, ballRed, 14); };
-      const settle = async (w, h) => { frame.style.width = w + 'px'; frame.style.height = h + 'px'; await sleep(150); LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.3); };
+      const ballShows = () => { LR.redraw(); const q = LR.ballNow(); return fits({ x: q.x - LR.camera.x, y: q.y, rx: q.r * .8, ry: q.r * .8 }, ballRed, 14); };
+      const settle = async (w, h, area) => { frame.style.width = w + 'px'; frame.style.height = h + 'px'; await sleep(150); LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); if (area) { LR.go(area); LR.advance(.8); } else LR.advance(.3); };
       for (const [label, width, height] of G2) {
-        await settle(width, height);
+        await settle(width, height, 2);
         // 1. the ball is in front of the fox: at the start, on both sides, and after every roll
         const start = ballShows(), sides = [-1, 1].map(side => { const b = S().ball; b.from = side; b.to = side; b.at = -9; return ballShows(); });
         check(`${label}: the ball is in front of the fox at the start, on both sides (${[start, ...sides].map(v => Math.round(v * 100)).join('%, ')}% of its disc shows)`, [start, ...sides].every(v => v >= (width > height * 1.3 ? .7 : .85))); // wide: where the fox looks straight at the ball it stands in front, so a little of the ball is behind it
-        await settle(width, height); const rolls = [];
+        await settle(width, height, 2); const rolls = [];
         for (let k = 0; k < 4; k++) { tap(LR.ballNow()); LR.advance(2.2); rolls.push(ballShows()); const q = LR.ballNow(); rolls.push(Math.abs(S().baby.x - q.x) >= q.r + L().size * .9 ? 1 : 0); }
         check(`${label}: after every roll the whole ball shows, and the baby kicks from beside it, not on top of it`, rolls.every((v, i) => i % 2 ? v === 1 : v >= .85));
       }
       for (const [label, width, height] of [['390×844', 390, 844], ['360×780', 360, 780], ['375×812', 375, 812], ['430×932', 430, 932], ['820×1180', 820, 1180]]) {
-        await settle(width, height); const Ls = L(), r = Ls.R, names = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'], face = n => ({ x: Ls[n].x, y: Ls[n].y - r * .45 });
-        let min = Infinity; for (let a = 0; a < 5; a++) for (let b = a + 1; b < 5; b++) min = Math.min(min, Math.hypot(face(names[a]).x - face(names[b]).x, face(names[a]).y - face(names[b]).y));
-        const rs = r * .95, board = n => ({ x0: Ls[n].x - rs * .95, x1: Ls[n].x + rs * .95, y0: Ls[n].y - rs * 1.17, y1: Ls[n].y + rs * .27 }), post = n => ({ x0: Ls[n].x - rs * .08, x1: Ls[n].x + rs * .08, y0: Ls[n].y - rs * .2, y1: Ls[n].y + rs * 1.2 });
-        const hit = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1; let drawn = 0;
-        for (const a of names) for (const b of names) if (a !== b && (hit(board(a), board(b)) || hit(board(a), post(b)))) drawn++;
-        check(`${label}: no two of the five signs' tap circles overlap (nearest are ${(min / r).toFixed(2)} R apart, 2.5 R needed)`, min >= r * 2.5 - 1e-6);
-        check(`${label}: no sign's board or post is drawn over another sign`, drawn === 0);
-        check(`${label}: each sign is its own tap, at its post foot and at its board`, names.every(n => LR.ranchTarget(face(n)) === n));
-        check(`${label}: every sign board is on the screen`, names.every(n => board(n).x0 >= 0 && board(n).x1 <= cv.width && board(n).y0 >= 0));
+        await settle(width, height);
+        const groups = [[0, ['ksign', 'tsign']], [2, ['stage', 'shelf']], [3, ['dsign', 'sign', 'wsign']]];
+        let overlap = 0, off = 0, missed = 0, seen = 0;
+        for (const [area, names] of groups) {
+          LR.go(area); LR.advance(.8); const Ls = L(), rs = Ls.R * .95, camX = LR.camera.x;
+          const board = n => ({ x0: Ls[n].x - rs * .95, x1: Ls[n].x + rs * .95, y0: Ls[n].y - rs * 1.17, y1: Ls[n].y + rs * .27 });
+          const hit = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
+          for (let a = 0; a < names.length; a++) for (let b = a + 1; b < names.length; b++) if (hit(board(names[a]), board(names[b]))) overlap++;
+          for (const n of names) { seen++; const b = board(n); if (b.x0 - camX < -0.5 || b.x1 - camX > cv.width + 0.5 || b.y0 < 0) off++; if (LR.ranchTarget({ x: Ls[n].x, y: Ls[n].y - Ls.R * .45 }) !== n) missed++; }
+        }
+        check(`${label}: doorway boards in one area do not overlap, each is on screen at its stop, and each face is its own tap`, overlap === 0 && off === 0 && missed === 0 && seen === 7);
       }
-      { await settle(844, 390); const Ls = L(), U = Ls.U, r = U * .14, W2 = cv.width, H2 = cv.height, sx = Math.max(W2 * .11, r * 1.3), kx = W2 * .45;
-        const same = (q, x, y) => Math.abs(q.x - x) < 1e-6 && Math.abs(q.y - y) < 1e-6;
-        check('844×390: the wide layout keeps the five signs where they were', same(Ls.sign, sx, H2 * .5) && same(Ls.wsign, W2 - Math.max(W2 * .12, r * 1.3), Ls.ground - r * 1.7) && same(Ls.ksign, kx, Ls.ground - r * 1.7) && same(Ls.dsign, W2 - r * 1.1, H2 * .72) && same(Ls.tsign, (sx + kx) / 2, H2 * .48) && !Ls.stack); }
+      { await settle(844, 390); const world = LR.world;
+        check('844×390: four areas, and a new visit rests on the Meadow stop', world.areas.length === 4 && world.width > 0 && LR.camera.area === 1 && Math.abs(LR.camera.x - world.areas[1].stop) < 1); }
       // 3. the bedtime bubble clears the basket and the bowl (its soft glow counts), and the existing rule about the baby holds
       for (const [label, width, height] of G2.concat([['375×812', 375, 812], ['667×375', 667, 375], ['1024×768', 1024, 768], ['820×1180', 820, 1180]])) {
         await settle(width, height); LR.setRoutine(true); LR.newVisit(); LR.advance(5); LR.bedtime(); LR.advance(4);
@@ -866,17 +868,17 @@ document.querySelector('#run').onclick = async () => {
       // 5. both puddles show in full, with the ball on either side and the bush in place, and each is its own tap
       for (const [label, width, height] of G2.concat([['375×812', 375, 812], ['667×375', 667, 375], ['820×1180', 820, 1180]])) {
         const shown = [];
-        for (const side of [-1, 1]) { await settle(width, height); const b = S().ball; b.from = side; b.to = side; b.at = -9; S().puddles = [0, 1].map(i => ({ i, at: S().t - 1, splash: -9 })); LR.redraw();
-          for (const P of L().puddles) shown.push(fits({ x: P.x, y: P.y, rx: P.r * .9, ry: P.r * .36 * .9 }, puddleBlue, 6)); }
+        for (const side of [-1, 1]) { await settle(width, height, 0); const b = S().ball; b.from = side; b.to = side; b.at = -9; S().puddles = [0, 1].map(i => ({ i, at: S().t - 1, splash: -9 })); LR.redraw();
+          for (const P of L().puddles) shown.push(fits({ x: P.x - LR.camera.x, y: P.y, rx: P.r * .9, ry: P.r * .36 * .9 }, puddleBlue, 6)); }
         check(`${label}: both puddles show whole (${shown.map(v => Math.round(v * 100)).join('%, ')}% of each), with the ball on either side`, shown.every(v => v >= .85));
         check(`${label}: each puddle is its own tap across its middle`, [0, 1].every(i => { const P = L().puddles[i]; return [-.5, 0, .5].every(k => LR.ranchTarget({ x: P.x + P.r * k, y: P.y }) === 'puddle' + i); }));
       }
       // 6. (review fixes) the ball never covers the fox's face, wherever the fox stands, with the ball on either side
       for (const [label, width, height] of G2.concat([['375×812', 375, 812], ['1920×1080', 1920, 1080]])) {
         let worst = 0, n = 0;
-        for (const side of [-1, 1]) { await settle(width, height); const b = S().ball; b.from = side; b.to = side; b.at = -9;
-          for (const dir of [-1, 1]) for (let k = 0; k <= 12; k++) { S().baby.x = cv.width * (.08 + k * .07); S().baby.dir = dir; LR.redraw(); const z = L().size; n++;
-            worst = Math.max(worst, fits({ x: S().baby.x + dir * z * .4, y: L().home.y - z * 1.2, rx: z * .5, ry: z * .4 }, ballRed, 14)); } }
+        for (const side of [-1, 1]) { await settle(width, height, 2); const b = S().ball; b.from = side; b.to = side; b.at = -9;
+          for (const dir of [-1, 1]) for (let k = 0; k <= 12; k++) { S().baby.x = LR.camera.x + cv.width * (.08 + k * .07); S().baby.dir = dir; LR.redraw(); const z = L().size; n++;
+            worst = Math.max(worst, fits({ x: S().baby.x - LR.camera.x + dir * z * .4, y: L().home.y - z * 1.2, rx: z * .5, ry: z * .4 }, ballRed, 14)); } }
         check(`${label}: the ball never covers the fox's face, at ${n} places the fox can stand and with the ball on either side (most ball colour on a face: ${Math.round(worst * 100)}%)`, worst <= .02);
       }
       // 7. (review fixes) the bedtime bubble's core stays off every sign board, as well as the basket and the bowl
@@ -893,36 +895,16 @@ document.querySelector('#run').onclick = async () => {
         check(`${label}: every tap on the top half of a sign board is that sign (${topOk} of ${top}), and ${allOk} of ${all} points on the boards are`, topOk === top && allOk / all >= .9);
       }
       frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1); }
-    // ---- Toy pack: one sign opens Block Tower and Barn Band. The five signs, the bubble and the puddles stay where #514 put them.
+    // ---- Toy Yard doorways. The shelf opens Block Tower and the stage opens Barn Band. There is no pack screen.
     LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false);
     { const face = n => { const q = L()[n]; return { x: q.x, y: q.y - L().R * .45 * (q.s || 1) }; };
-      const board = n => { const Ls = L(), q = Ls[n], rs = Ls.R * .95 * (q.s || 1); return { x0: q.x - rs * .95, x1: q.x + rs * .95, y0: q.y - rs * 1.17, y1: q.y + rs * .27 }; };
-      const boxesHit = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
-      const five = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'];
       for (const [width, height] of [[375, 812], [390, 844], [360, 780], [430, 932], [820, 1180], [844, 390], [1024, 768], [1920, 1080]]) {
         frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
-        const Ls = L(), r = Ls.R;
-        const post = n => { const q = Ls[n], rs = r * .95 * (q.s || 1); return { x0: q.x - rs * .08, x1: q.x + rs * .08, y0: q.y - rs * .2, y1: q.y + rs * 1.2 }; };
-        const min = Math.min(...five.map(n => Math.hypot(face('psign').x - face(n).x, face('psign').y - face(n).y)));
-        const drawn = five.some(n => boxesHit(board('psign'), board(n)) || boxesHit(board('psign'), post(n)) || boxesHit(board(n), post('psign')) || boxesHit(post('psign'), post(n)));
-        const bubble = Ls.item, pb = board('psign');
-        const bubbleGap = Math.hypot(Math.max(pb.x0 - bubble.x, 0, bubble.x - pb.x1), Math.max(pb.y0 - bubble.y, 0, bubble.y - pb.y1)) - bubble.r;
-        const puddleGap = Math.min(...Ls.puddles.map(q => Math.hypot(face('psign').x - q.x, face('psign').y - q.y) - q.r - r * (Ls.psign.s || 1)));
-        const fiveSame = five.every(n => LR.ranchTarget(face(n)) === n && LR.ranchTarget(Ls[n]) === n);
-        const tall = height >= width * 1.25;
-        const body = { x0: Ls.home.x - Ls.size * 1.05, x1: Ls.home.x + Ls.size * 1.15, y0: Ls.home.y - Ls.size * 1.7, y1: Ls.home.y };
-        const head = { x: Ls.home.x + Ls.size * .55, y: Ls.home.y - Ls.size * 1.3 };
-        const gapOk = tall ? min >= r * 1.8 - 1e-6 : min >= r * 1.4 - 1e-6;
-        check(`${width}×${height}: the toy-pack sign keeps its distance from the five signs (${(min / r).toFixed(2)} R), misses their boards, the baby, the bedtime bubble and the puddles, and each sign is still its own tap`, Ls.psign && gapOk && !drawn && !boxesHit(board('psign'), body) && bubbleGap >= 0 && puddleGap >= 0 && LR.ranchTarget(face('psign')) === 'psign' && LR.ranchTarget(head) === 'baby' && fiveSame);
+        const Ls = L(), five = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'];
+        check(`${width}×${height}: the stage and the shelf are their own doorways, the five signs still answer, and the pack sign is gone`, !Ls.psign && !Ls.pack && LR.ranchTarget(face('stage')) === 'stage' && LR.ranchTarget(face('shelf')) === 'shelf' && five.every(n => LR.ranchTarget(face(n)) === n));
       }
       frame.style.width = '375px'; frame.style.height = '812px'; await sleep(150); LR.newVisit(); LR.advance(.1);
-      const card = id => L().pack.cards.find(c => c.id === id);
-      const onCard = id => card(id);
-      tap(face('psign')); check('Tapping the toy-pack sign opens one room with Block Tower and Barn Band', S().place === 'pack' && L().pack.cards.map(c => c.id).join() === 'tower,band');
-      const sc = LR.scale, rect = cv.getBoundingClientRect();
-      const onScreen = q => { const p = LR.toScreen(q); return p.x > rect.left + 8 && p.x < rect.right - 8 && p.y > rect.top + 8 && p.y < rect.bottom - 8; };
-      check('375×812: both pack pictures are big, apart, and on the screen, clear of the barn', card('tower').w * sc >= 64 && card('band').h * sc >= 64 && Math.hypot(card('tower').x - card('band').x, card('tower').y - card('band').y) * sc >= 64 && onScreen(card('tower')) && onScreen(card('band')) && Math.hypot(card('tower').x - L().pack.barn.x, card('tower').y - L().pack.barn.y) > card('tower').h * .5 + L().pack.barn.r);
-      tap(card('tower')); check('Tapping the tower picture opens Block Tower', S().place === 'tower' && S().tower.stack.length === 0);
+      tap(face('shelf')); check('Tapping the block shelf opens Block Tower', S().place === 'tower' && S().tower.stack.length === 0 && LR.camera.area === 2);
       const V = () => L().tower, Tw = () => S().tower;
       for (let i = 0; i < 5; i++) { tap(V().tray[i % 3]); LR.advance(LR.DROP_SECS + .05); }
       check('Five blocks snap onto the tower and each one lands', Tw().stack.length === 5 && Tw().stack.every(b => b.landed));
@@ -930,8 +912,8 @@ document.querySelector('#run').onclick = async () => {
       tap({ x: V().x, y: V().fy - V().bs * 2 }); check('Tapping the tower adds a block', Tw().stack.length === 6);
       const a19 = S().acts; tap({ x: V().baby.x, y: V().baby.y - V().baby.z });
       check('Tapping the baby knocks the tower down with a giggle, and three or more blocks are one happy thing', Tw().stack.length === 0 && Tw().tumble && S().acts === a19 + 1 && S().fx.some(f => f.kind === 'heart'));
-      LR.advance(LR.TUMBLE_SECS + .1); tap(V().barn); check('The barn picture in Block Tower returns to the toy pack', S().place === 'pack' && S().tower === null);
-      tap(card('band')); check('Tapping the band picture opens Barn Band', S().place === 'band' && S().band.played.every(x => !x) && !S().band.song);
+      LR.advance(LR.TUMBLE_SECS + .1); tap(V().barn); check('The barn picture in Block Tower returns to the Toy Yard', S().place === 'ranch' && S().tower === null && LR.camera.area === 2);
+      tap(face('stage')); check('Tapping the stage opens Barn Band', S().place === 'band' && S().band.played.every(x => !x) && !S().band.song && LR.camera.area === 2);
       const Vb = () => L().band, Bd = () => S().band, on = i => ({ x: Vb().babies[i].x, y: Vb().babies[i].y - Vb().z * .6 });
       for (let i = 0; i < 3; i++) { const t0 = LR.tones; tap(on(i)); check(`Tapping the ${LR.BAND[i]} plays it`, LR.tones > t0 && Bd().played[i]); }
       const a21 = S().acts, tSong = LR.tones; tap(Vb().stick); LR.advance(.05);
@@ -941,38 +923,35 @@ document.querySelector('#run').onclick = async () => {
       check('No Barn Band note is louder than 0.2', LR.bandLoud > 0 && LR.bandLoud <= LR.BAND_VOL && LR.BAND_VOL === 0.2);
       const mute = LR.prefs.sound; LR.prefs.sound = false; const t9 = LR.tones; tap(on(0)); tap(Vb().stick); LR.advance(1);
       check('With the sound off Barn Band stays silent and the players still move', LR.tones === t9 && Bd().hit[0] > 0 && Bd().song); LR.prefs.sound = mute;
-      tap(Vb().barn); check('The barn picture in Barn Band returns to the toy pack', S().place === 'pack' && S().band === null);
-      tap(L().pack.barn); check('The barn picture in the toy pack returns to the ranch', S().place === 'ranch');
+      tap(Vb().barn); check('The barn picture in Barn Band returns to the Toy Yard', S().place === 'ranch' && S().band === null && LR.camera.area === 2);
       const finger = world => { const p = LR.toScreen(world);
         const bad = type => cv.dispatchEvent(new w.PointerEvent(type, { pointerId: 77, clientX: 0, clientY: 0, pointerType: 'touch', bubbles: true, cancelable: true, isPrimary: true }));
         const touch = new w.Touch({ identifier: 77, target: cv, clientX: p.x, clientY: p.y, pageX: p.x, pageY: p.y });
         bad('pointerdown'); cv.dispatchEvent(new w.TouchEvent('touchstart', { bubbles: true, cancelable: true, touches: [touch], changedTouches: [touch] }));
         bad('pointerup'); cv.dispatchEvent(new w.TouchEvent('touchend', { bubbles: true, cancelable: true, touches: [], changedTouches: [touch] }));
         cv.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true, clientX: 0, clientY: 0 })); };
-      LR.newVisit(); LR.advance(.1); finger(face('psign'));
-      check('A touch on the pack sign reads the touch, and the synthetic click does not open a toy', S().place === 'pack');
-      finger(card('tower')); check('A touch on the tower picture opens Block Tower, and the synthetic click does not add a block', S().place === 'tower' && S().tower.stack.length === 0);
-      for (const room of ['pack', 'tower', 'band']) {
-        LR.setRoutine(true); LR.newVisit(); LR.advance(.1); tap(face('psign'));
-        if (room === 'tower') tap(card('tower')); if (room === 'band') tap(card('band'));
+      LR.newVisit(); LR.advance(.1); finger(face('shelf'));
+      check('A touch on the shelf reads the touch, and the synthetic click does not add a block', S().place === 'tower' && S().tower.stack.length === 0);
+      for (const room of ['tower', 'band']) {
+        LR.setRoutine(true); LR.newVisit(); LR.advance(.1); tap(room === 'band' ? face('stage') : face('shelf'));
         check(`Bedtime can start from the ${room}`, S().place === room && S().mode === 'play');
         S().acts = LR.BEDTIME_ACTS; LR.advance(LR.BEDTIME_GRACE + .3);
-        check(`Bedtime from the ${room} returns to the ranch routine`, S().place === 'ranch' && S().mode === 'dusk' && S().routine && S().routine.step === 0);
+        check(`Bedtime from the ${room} returns to the meadow`, S().place === 'ranch' && S().mode === 'dusk' && S().routine && S().routine.step === 0 && LR.camera.area === 1);
       }
       LR.setRoutine(false);
       for (const [width, height] of [[1280, 800], [375, 812]]) {
         frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
-        tap(face('psign')); tap(card('tower'));
+        tap(face('shelf'));
         for (let i = 0; i < 12; i++) { tap(V().tray[i % 3]); LR.advance(LR.DROP_SECS + .05); }
         const Tv = V(), cam = LR.towerCam(), feet = Tv.baby.y + cam, floor = Tv.fy + cam;
         check(`${width}×${height}: at 12 blocks the baby, the tray and the floor share one camera, and a block stays at least half size`, Tw().stack.length === 12 && Tw().stack.every(b => b.landed) && Math.abs(feet - floor) < 1e-6 && floor > 0 && floor <= cv.height && LR.stackBlock() + 1e-6 >= Tv.bs / 2 && Tv.tray.every(q => q.y + cam <= cv.height));
       }
       const legacy = localStorage.getItem(PREF), extra = 'other-game-save-v1';
-      localStorage.setItem(PREF, '{"sound":false}'); localStorage.setItem(extra, '{"coins":4}');
+      localStorage.setItem(PREF, '{"sound":false,"visit":4,"coins":9}'); localStorage.setItem(extra, '{"coins":4}');
       const old = document.createElement('iframe'); old.style.cssText = 'width:375px;height:812px'; old.src = '../games/little-ranch/index.html';
       await new Promise((ok, no) => { const t = setTimeout(() => no(Error('old save load timed out')), 20000); old.onload = () => { clearTimeout(t); ok(); }; document.querySelector('#game').appendChild(old); });
       const ow = old.contentWindow; for (let i = 0; i < 50 && !ow.LR; i++) await sleep(100);
-      check('An old sound save still loads, and another game save is left untouched', ow.LR && ow.LR.prefs.sound === false && ow.LR.state.mode === 'play' && ow.LR.state.place === 'ranch' && localStorage.getItem(extra) === '{"coins":4}' && JSON.parse(localStorage.getItem(PREF)).sound === false);
+      check('An old sound save still loads, a new visit starts in the Meadow, and another game save is left untouched', ow.LR && ow.LR.prefs.sound === false && ow.LR.camera.area === 1 && ow.LR.state.mode === 'play' && ow.LR.state.place === 'ranch' && localStorage.getItem(extra) === '{"coins":4}' && JSON.parse(localStorage.getItem(PREF)).sound === false);
       old.remove(); localStorage.removeItem(extra); if (legacy === null) localStorage.removeItem(PREF); else localStorage.setItem(PREF, legacy);
     }
     frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
@@ -1002,83 +981,19 @@ document.querySelector('#run').onclick = async () => {
       };
       try {
         for (const [width, height, dpr] of [[1280, 800, 1], [844, 390, 1], [390, 844, 1], [375, 812, 1], [820, 1180, 2]]) {
-          useDpr(dpr); frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1); LR.redraw();
-          const Ls = L(), cloud = Ls.cloud, pb = boardOf('psign'), cr = cloud.r, fence = Ls.ground + Ls.U * .02;
-          const faceBox = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
-          const rainBox = { x0: cloud.x - cr * 1.25, x1: cloud.x + cr * 1.25, y0: cloud.y + cr * .3, y1: Ls.ground };
-          const signS = Ls.psign.s || 1, rsSign = Ls.R * .95 * signS, br = rsSign * .42, side = Ls.psign.side || 0, drawn = Ls.packBalloon;
-          const balloon = drawn ? { x0: drawn.x - drawn.rx, x1: drawn.x + drawn.rx, y0: drawn.y - drawn.ry, y1: Math.max(drawn.y + drawn.ry, drawn.knotY) } : side ? { x0: Ls.psign.x + side * (rsSign * .95 + br) - br * .9, x1: Ls.psign.x + side * (rsSign * .95 + br) + br * .9, y0: pb.y0 + br - br * 1.05, y1: pb.y0 + br + br * 1.05 } : { x0: Ls.psign.x - br, x1: Ls.psign.x + br, y0: pb.y0 - br * 2.3, y1: pb.y0 };
-          const meadow = [circ(Ls.bowl.x, Ls.bowl.y - Ls.R * .25, Ls.R * 1.15), circ(Ls.sponge.x, Ls.sponge.y, Ls.R * .8 * .75), circ(Ls.fhome.x, Ls.fhome.y - Ls.fz * .7, Ls.fz),
-            { x0: Ls.basket.x - Ls.basket.r, x1: Ls.basket.x + Ls.basket.r, y0: Ls.basket.y - Ls.basket.r, y1: Ls.basket.y + Ls.basket.r }, ...ballRest(Ls), ...Ls.flowers.map(fl => circ(fl.x, fl.y, fl.r))];
+          useDpr(dpr); frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.go(0); LR.advance(.8); LR.redraw();
+          const Ls = L(), cloud = Ls.cloud, cr = cloud.r, fence = Ls.ground + Ls.U * .02;
           const label = `${width}×${height}${dpr > 1 ? ' at DPR ' + dpr : ''}`;
-          check(`${label}: the pack sign stays 6 px clear of the wagon sign, off the cloud's face and out of the rain, and the board and balloon stay above the fence and off the meadow`, rectGap(pb, boardOf('wsign')) >= 6 && !overlap(pb, faceBox) && !overlap(pb, rainBox) && !overlap(balloon, faceBox) && !overlap(balloon, rainBox) && balloon.y0 >= 0 && balloon.x0 >= 0 && balloon.x1 <= cv.width && pb.y1 <= fence - 1 && balloon.y1 <= fence && meadow.every(p => !overlap(pb, p) && !overlap(balloon, p)) && LR.ranchTarget(faceOf('psign')) === 'psign');
-          const signScale = Ls.psign.s || 1, rsNow = Ls.R * .95 * signScale, rsFull = Ls.R * .95;
-          const cssW = rsNow * 1.9 * LR.scale, cssH = rsNow * 1.44 * LR.scale, fullArea = rsFull * 1.9 * LR.scale * rsFull * 1.44 * LR.scale;
-          const areaDrop = 1 - (cssW * cssH) / fullArea;
-          let boardTaps = 0, boardOk = 0;
-          for (let i = 0; i <= 18; i++) for (let j = 0; j <= 14; j++) { boardTaps++; if (LR.ranchTarget({ x: Ls.psign.x - rsNow * .95 + i * rsNow * 1.9 / 18, y: Ls.psign.y - rsNow * 1.17 + j * rsNow * 1.44 / 14 }) === 'psign') boardOk++; }
-          check(`${label}: the pack sign stays at least 0.72 scale (${signScale}) and its tap is ${Math.round(cssW)}×${Math.round(cssH)} CSS px, with no big drop from a full-size sign (${Math.round(areaDrop * 100)}% smaller) and ${boardOk} of ${boardTaps} board taps`, signScale >= .72 && Math.min(cssW, cssH) >= 44 && areaDrop <= 1 - .72 * .72 + 1e-9 && boardOk === boardTaps);
-          const names = ['sign', 'wsign', 'ksign', 'tsign', 'dsign'];
-          const drawnPosts = (Ls.postRects || []).map(q => ({ name: q.name, x0: q.x, x1: q.x + q.w, y0: q.y, y1: q.y + q.h }));
-          const rowY = Math.min(...names.map(n => Ls[n].y)), homeY = Math.max(cv.height * .08, Ls.U * .08);
-          const skyFloor = Math.max(...names.filter(n => Ls[n].y <= rowY + Ls.R * .35).map(n => boardOf(n).y1));
+          const names = ['sign', 'wsign', 'ksign', 'tsign', 'dsign', 'stage', 'shelf'];
+          const drawnPosts = (Ls.postRects || []).map(q => ({ name: q.name, y1: q.y + q.h }));
+          const postsGrounded = drawnPosts.length === names.length && drawnPosts.every(q => q.y1 >= fence - 1);
           const face = { x0: cloud.x - cr * .55, x1: cloud.x + cr * .55, y0: cloud.y - cr * .25, y1: cloud.y + cr * .65 };
-          const lkEl = d.querySelector('#lock').getBoundingClientRect(), cvR = cv.getBoundingClientRect();
-          const lockR = { x0: (lkEl.left - cvR.left) / cvR.width * cv.width - 3, y0: (lkEl.top - cvR.top) / cvR.height * cv.height - 3, x1: (lkEl.right - cvR.left) / cvR.width * cv.width + 3, y1: (lkEl.bottom - cvR.top) / cvR.height * cv.height + 3 };
-          const babyBox = { x0: Ls.home.x - Ls.size * 1.05, x1: Ls.home.x + Ls.size * 1.15, y0: Ls.home.y - Ls.size * 1.7, y1: Ls.home.y };
-          const bushBox = { x0: Ls.bush.x - Ls.R, x1: Ls.bush.x + Ls.R, y0: Ls.bush.y - Ls.R * 1.4, y1: Ls.bush.y + Ls.R * .2 };
-          const puddleRects = Ls.puddles.map(p => ({ x0: p.x - p.r, x1: p.x + p.r, y0: p.y - p.r, y1: p.y + p.r }));
-          const faceBlock = names.map(boardOf).concat(drawnPosts, [pb, balloon, bushBox, babyBox, lockR], meadow, puddleRects);
-          const sunHit = (() => { const c = { x: Ls.sun.x, y: Ls.sun.y, r: Ls.U * .09 }, nx = Math.max(face.x0, Math.min(c.x, face.x1)), ny = Math.max(face.y0, Math.min(c.y, face.y1)); return (nx - c.x) ** 2 + (ny - c.y) ** 2 <= c.r * c.r; })();
-          const faceIn = face.x0 >= 0 && face.x1 <= cv.width && face.y0 >= 0 && face.y1 <= cv.height;
-          const faceClear = faceIn && !sunHit && faceBlock.every(r => !overlap(face, r));
-          const sky = cloud.y <= skyFloor + .01 && cloud.y <= homeY + .01;
-          const puffs = [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]].map(([dx, dy, k]) => ({ x: cloud.x + dx * cr, y: cloud.y + dy * cr, rx: cr * k, ry: cr * k }));
-          const inEll = (p, x, y) => ((x - p.x) / p.rx) ** 2 + ((y - p.y) / p.ry) ** 2 <= 1;
-          const inBox = (r, x, y) => x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1;
-          const boards = names.concat(['psign']).map(boardOf).concat([lockR]);
-          let bodyN = 0, bodyHit = 0;
-          for (let y = cloud.y - cr * 1.4; y <= cloud.y + cr * 1.2; y += .5) for (let x = cloud.x - cr * 1.4; x <= cloud.x + cr * 1.4; x += .5) {
-            if (!puffs.some(p => inEll(p, x, y))) continue;
-            bodyN++; if (boards.some(r => inBox(r, x, y))) bodyHit++;
-          }
-          const covered = bodyN ? bodyHit / bodyN : 0;
-          const wagonGap = rectGap(pb, boardOf('wsign'));
-          const rainClear = !overlap(pb, rainBox) && !overlap(balloon, rainBox);
-          const meadowClear = meadow.every(p => !overlap(pb, p) && !overlap(balloon, p));
-          const balloonIn = balloon.y0 >= 0 && balloon.x0 >= 0 && balloon.x1 <= cv.width && balloon.y1 <= cv.height;
-          const postShort = drawnPosts.filter(q => q.y1 < fence - 1);
-          const postsGrounded = drawnPosts.length === names.length && postShort.length === 0;
-          const postNote = postsGrounded ? 'yes' : `no, ${drawnPosts.length} drawn` + (postShort.length ? ', ' + postShort.map(q => `${q.name} ends ${(fence - q.y1).toFixed(1)} above the fence`).join(', ') : '');
-          const sunDisc = { x: Ls.sun.x, y: Ls.sun.y, r: Ls.U * .09 }, ball = Ls.packBalloon;
-          const inBalloon = (x, y) => ball && (((x - ball.x) / ball.rx) ** 2 + ((y - ball.y) / ball.ry) ** 2 <= 1 || (Math.abs(x - ball.x) <= ball.rx * .2 && y >= ball.y + ball.ry * .8 && y <= ball.knotY));
-          let sunN = 0, sunCover = 0, sunPack = 0;
-          for (let y = Math.floor(sunDisc.y - sunDisc.r); y <= Math.ceil(sunDisc.y + sunDisc.r); y++) for (let x = Math.floor(sunDisc.x - sunDisc.r); x <= Math.ceil(sunDisc.x + sunDisc.r); x++) {
-            if ((x + .5 - sunDisc.x) ** 2 + (y + .5 - sunDisc.y) ** 2 > sunDisc.r * sunDisc.r) continue;
-            sunN++;
-            if (inBalloon(x + .5, y + .5)) sunCover++;
-            if (LR.ranchTarget({ x: x + .5, y: y + .5 }) === 'psign') sunPack++;
-          }
-          const sunClear = sunN > 0 && sunCover === 0 && sunPack === 0;
-          const str = Ls.packString, sideBalloon = (Ls.psign.side || 0) !== 0;
-          let stringStub = 0;
-          if (sideBalloon && str) {
-            const pix = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data;
-            const xLo = Math.max(0, Math.min(str.x0, str.x1)), xHi = Math.min(cv.width - 1, Math.max(str.x0, str.x1));
-            const brown = (r, g, b) => Math.abs(r - 138) + Math.abs(g - 90) + Math.abs(b - 52) < 70;
-            const onPost = (x, y) => drawnPosts.some(q => x >= q.x0 && x < q.x1 && y >= q.y0 && y < q.y1);
-            for (let y = str.boardTop - 4; y < str.boardTop; y++) for (let x = xLo; x <= xHi; x++) {
-              if (y < 0 || onPost(x, y)) continue;
-              const i = (y * cv.width + x) * 4;
-              if (brown(pix[i], pix[i + 1], pix[i + 2])) stringStub++;
-            }
-          }
-          const stringOk = !sideBalloon || (!!str && str.clipTop === str.boardTop && stringStub === 0);
-          check(`${label}: cloud ${cloud.x.toFixed(1)}, ${cloud.y.toFixed(1)} stays in the sky (${sky ? 'yes' : 'no'}, floor ${skyFloor.toFixed(1)}), its face is clear (${faceClear ? 'yes' : 'no'}), body overlap is ${(covered * 100).toFixed(1)}%, sign scale ${signScale} with ${boardOk}/${boardTaps} taps, balloon on screen (${balloonIn ? 'yes' : 'no'}), wagon gap ${wagonGap.toFixed(1)}, rain clear (${rainClear ? 'yes' : 'no'}), meadow and fence clear (${meadowClear && pb.y1 <= fence - 1 && balloon.y1 <= fence ? 'yes' : 'no'}), posts grounded (${postNote}), sun covered ${(sunN ? sunCover / sunN * 100 : 0).toFixed(1)}% with ${(sunN ? sunPack / sunN * 100 : 0).toFixed(1)}% pack taps, string stub ${stringStub}`, sky && faceClear && bodyHit === 0 && signScale >= .72 && boardOk === boardTaps && balloonIn && wagonGap >= 6 && rainClear && meadowClear && pb.y1 <= fence - 1 && balloon.y1 <= fence && postsGrounded && sunClear && stringOk);
+          const faceClear = ['ksign', 'tsign'].every(n => !overlap(face, boardOf(n)));
+          check(`${label}: in the Kitchen Garden the cloud's face misses the doorway boards, every post reaches the fence, the sun is still the sun, and there is no pack`, faceClear && postsGrounded && LR.ranchTarget(Ls.sun) === 'sun' && !Ls.psign && !Ls.pack && !Ls.packBalloon && LR.camera.area === 0 && LR.camera.parallax.far === 0 && LR.camera.parallax.near === 0);
         }
       } finally { restoreDpr(); }
       frame.style.width = '844px'; frame.style.height = '390px'; await sleep(150); LR.newVisit(); LR.advance(.1);
-      tap(faceOf('psign')); tap(L().pack.cards.find(c => c.id === 'tower'));
+      tap(faceOf('shelf'));
       for (let i = 0; i < 12; i++) { tap(L().tower.tray[i % 3]); LR.advance(LR.DROP_SECS + .05); }
       const half = 22 / LR.scale, beforeLen = S().tower.stack.length, cam = LR.towerCam();
       tap({ x: L().tower.x - half, y: L().tower.fy + cam - LR.stackBlock() });
@@ -1090,7 +1005,7 @@ document.querySelector('#run').onclick = async () => {
       const notes = S().fx.length; tap(sky);
       check('844×390: a tap during a tumble shows a note or a spark and does not add a block', !S().tower.stack.length && S().tower.tumble && S().tower.wig > .5 && S().fx.length > notes);
       tap(L().tower.barn);
-      tap(L().pack.cards.find(c => c.id === 'band')); LR.redraw();
+      tap(faceOf('stage')); LR.redraw();
       const Vb = L().band, flags = Vb.flags || [], barn = Vb.barn, lock = d.querySelector('#lock').getBoundingClientRect(), cr = cv.getBoundingClientRect();
       const lockBox = { x0: (lock.left - cr.left) / cr.width * cv.width - 3, y0: (lock.top - cr.top) / cr.height * cv.height - 3, x1: (lock.right - cr.left) / cr.width * cv.width + 3, y1: (lock.bottom - cr.top) / cr.height * cv.height + 3 };
       const barnBox = { x0: barn.x - barn.r - 4, x1: barn.x + barn.r + 4, y0: barn.y - barn.r - 4, y1: barn.y + barn.r + 4 };
@@ -1100,7 +1015,7 @@ document.querySelector('#run').onclick = async () => {
       check('844×390: the idle hint sits above the player, not on the body', bh && bi >= 0 && bh.y + bh.r < bq.y - Vb.z * 1.5);
       for (const [width, height] of [[1280, 800], [390, 844]]) {
         frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
-        tap(faceOf('psign')); tap(L().pack.cards.find(c => c.id === 'band')); LR.redraw();
+        tap(faceOf('stage')); LR.redraw();
         const B2 = L().band, fl = B2.flags || [], bn = B2.barn;
         const bb = { x0: bn.x - bn.r - 4, x1: bn.x + bn.r + 4, y0: bn.y - bn.r - 4, y1: bn.y + bn.r + 4 };
         const lk = d.querySelector('#lock').getBoundingClientRect(), rr = cv.getBoundingClientRect();
@@ -1110,7 +1025,7 @@ document.querySelector('#run').onclick = async () => {
       try {
         for (const [width, height, dpr] of [[1280, 800, 1], [844, 390, 1], [820, 1180, 2], [390, 844, 1]]) {
           useDpr(dpr); frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(150); LR.newVisit(); LR.advance(.1);
-          tap(faceOf('psign')); tap(L().pack.cards.find(c => c.id === 'tower'));
+          tap(faceOf('shelf'));
           let attempts = 0, stopped = false;
           while (attempts < 40) {
             const beforeN = S().tower.stack.length;
@@ -1125,7 +1040,7 @@ document.querySelector('#run').onclick = async () => {
           tap({ x: Vw.x, y: Vw.fy + cam - block });
           const label = `${width}×${height}${dpr > 1 ? ' at DPR ' + dpr : ''}`;
           check(`${label}: after twenty block taps the tower top stays on screen and about half a block of floor stays visible, and a further tap wiggles`, attempts >= 20 && n >= fit && top >= 0 && floor + 1e-3 >= half && S().tower.stack.length === n && S().tower.wig > .5 && S().fx.length > notes && S().place === 'tower');
-          tap(Vw.barn); tap(L().pack.cards.find(c => c.id === 'band'));
+          tap(Vw.barn); tap(faceOf('stage'));
           const Bw = L().band;
           Bw.babies.forEach(q => tap({ x: q.x, y: q.y - Bw.z * .6 }));
           S().idleAt = S().t - LR.HINT_SECS - 1; LR.advance(.05);
@@ -1155,7 +1070,7 @@ document.querySelector('#run').onclick = async () => {
       LR.newVisit(); LR.advance(.1);
       ['bowl', 'sponge', 'bush', 'baby', 'friend', 'flowers', 'sun', 'cloud', 'puddle', 'basket', 'ball', 'sign', 'wsign', 'ksign'].forEach(k => { S().used[k] = 1; });
       S().idleAt = S().t - LR.HINT_SECS - 1; LR.advance(.05);
-      check('The idle glow reaches the barn-door sign once earlier things are used', LR.hint() && LR.hint().name === 'dsign');
+      check('The idle glow moves to the arrow toward the nearest area that still has something to try', LR.hint() && LR.hint().name === 'left');
       tap(L().wsign); tap(L().wagon.cars[0]); tap(L().wagon.cars[1]); S().idleAt = S().t - LR.HINT_SECS - 1; LR.advance(.05); const wh = LR.hint();
       check('Inside the wagon, once both babies are aboard, the idle glow covers the puller', wh && wh.name === 'wagon' && Math.hypot(wh.x - L().wagon.puller.x, wh.y - L().wagon.puller.y) < 1);
       tap(L().wagon.barn);
@@ -1213,10 +1128,10 @@ document.querySelector('#run').onclick = async () => {
         for (const [width, height] of [[768, 1024], [1024, 768]]) {
           await fit(width, height, 2);
           const bowl = L().bowl; let sky = null;
-          for (let y = 8; y < cv.height && !sky; y += 12) for (let x = 8; x < cv.width && !sky; x += 16) { const q = { x, y }; if (!LR.ranchTarget(q)) sky = q; }
+          for (let y = 8; y < cv.height && !sky; y += 12) for (let x = 8; x < cv.width && !sky; x += 16) { const q = { x: x + LR.camera.x, y }; if (!LR.ranchTarget(q)) sky = q; }
           const p = LR.toScreen(bowl), r = cv.getBoundingClientRect();
           const back = { x: (p.x - r.left) / r.width * cv.width, y: (p.y - r.top) / r.height * cv.height };
-          check(`${width}×${height} at DPR 2: the bowl's screen point maps back onto the bowl`, !!sky && Math.abs(back.x - bowl.x) < 0.51 && Math.abs(back.y - bowl.y) < 0.51 && LR.ranchTarget(bowl) === 'bowl');
+          check(`${width}×${height} at DPR 2: the bowl's screen point maps back onto the bowl`, !!sky && Math.abs(back.x + LR.camera.x - bowl.x) < 0.51 && Math.abs(back.y - bowl.y) < 0.51 && LR.ranchTarget(bowl) === 'bowl');
           tap(bowl);
           check(`${width}×${height} at DPR 2: a click on the bowl fills the bowl`, S().bowl.food === 1);
           LR.newVisit(); LR.advance(.1); pointer('touch', bowl);
@@ -1233,6 +1148,114 @@ document.querySelector('#run').onclick = async () => {
         frame.style.width = '375px'; frame.style.height = '812px';
       }
       await sleep(150); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
+    }
+    // ---- LR-WORLD-1 section 8, A to F, at the five review sizes
+    {
+      const SIZES = [[1280, 800, 1], [844, 390, 1], [820, 1180, 2], [390, 844, 2], [375, 812, 1]];
+      const STOPS = { '1280x800': [70, 392, 714, 1036], '844x390': [13, 327, 641, 955], '820x1180': [205, 779, 1353, 1927], '390x844': [98, 370, 644, 916], '375x812': [94, 357, 620, 884] };
+      const FLOORS = {
+        '1280x800': { baby: 188, bowl: 154, sponge: 142, bush: 180, basket: 135, sun: 147, cloud: 119, sign: 161 },
+        '844x390': { baby: 91, bowl: 75, sponge: 69, bush: 88, basket: 66, sun: 72, cloud: 58, sign: 78 },
+        '820x1180': { baby: 167, bowl: 138, sponge: 126, bush: 161, basket: 121, sun: 131, cloud: 111, sign: 144 },
+        '390x844': { baby: 80, bowl: 66, sponge: 60, bush: 76, basket: 57, sun: 62, cloud: 53, sign: 68 },
+        '375x812': { baby: 77, bowl: 63, sponge: 58, bush: 74, basket: 55, sun: 60, cloud: 51, sign: 66 }
+      };
+      const ownDpr8 = Object.getOwnPropertyDescriptor(w, 'devicePixelRatio');
+      const setDpr8 = n => Object.defineProperty(w, 'devicePixelRatio', { configurable: true, get: () => n });
+      const screenOf = b => ({ x0: b.x0 - LR.camera.x, x1: b.x1 - LR.camera.x, y0: b.y0, y1: b.y1 });
+      const onScreen = b => { const s = screenOf(b); return s.x0 >= -1 && s.x1 <= cv.width + 1 && s.y0 >= -1 && s.y1 <= cv.height + 1; };
+      const centreOn = p => p.x - LR.camera.x >= -1 && p.x - LR.camera.x <= cv.width + 1 && p.y >= -1 && p.y <= cv.height + 1;
+      const inLane = (box, area) => {
+        const U = L().U, ay = L().ground - U * .08, s = screenOf(box);
+        if (s.y1 < ay - U * .175 || s.y0 > ay + U * .175) return false;
+        return (area > 0 && s.x0 < U * .2) || (area < 3 && s.x1 > cv.width - U * .2);
+      };
+      const discHits = (which, a) => {
+        const rad = L().U * .09; let n = 0, hits = 0;
+        for (let i = 0; i < 16; i++) for (let k = 0; k <= 4; k++) { const rr = rad * k / 4, th = i / 16 * Math.PI * 2; n++; if (LR.ranchTarget({ x: a.x + Math.cos(th) * rr, y: a.y + Math.sin(th) * rr }) === which) hits++; }
+        return hits === n;
+      };
+      try {
+        for (const [width, height, dpr] of SIZES) {
+          const key = width + 'x' + height;
+          setDpr8(dpr); frame.style.width = width + 'px'; frame.style.height = height + 'px'; await sleep(160);
+          LR.setRoutine(false); LR.setFriend(true); LR.newVisit(); LR.advance(.3);
+          const stops = STOPS[key], floors = FLOORS[key], world = LR.world;
+          check(`${key}: the strip is 6.2U with the four camera stops`, world.areas.map(a => a.name).join(', ') === 'Kitchen Garden, Meadow, Toy Yard, Barn Yard' && stops.every((s, i) => Math.abs(world.areas[i].stop - s) < 1) && Math.abs(world.width - L().U * 6.2) < 1 && world.areas.every((a, i) => a.core1 - a.core0 > L().U * .9) && LR.camera.area === 1);
+          const door = n => { const q = L()[n], rs = L().R * .95; return { name: n, c: { x: q.x, y: q.y - L().R * .45 }, box: { x0: q.x - rs * .95, y0: q.y - rs * 1.17, x1: q.x + rs * .95, y1: q.y + rs * .27 } }; };
+          const disc = (name, p, r) => ({ name, c: p, box: { x0: p.x - r, y0: p.y - r, x1: p.x + r, y1: p.y + r } });
+          const areaThings = i => {
+            const Ls = L(), babyAt = k => disc('baby', { x: Ls.homes[k].x, y: Ls.homes[k].y - Ls.size * .9 }, Ls.size * .55);
+            if (i === 0) return [door('ksign'), door('tsign'), disc('cloud', Ls.cloud, Ls.cloud.r), ...Ls.puddles.map((q, k) => disc('puddle' + k, q, q.r)), babyAt(0)];
+            if (i === 1) return [disc('bowl', Ls.bowl, Ls.R * .9), disc('sponge', { x: Ls.sponge.x, y: Ls.sponge.y }, Ls.R * .8), disc('bush', { x: Ls.bush.x, y: Ls.bush.y - Ls.R * .2 }, Ls.R * 1.25 * .88), ...Ls.flowers.map((f, k) => disc('flower' + k, f, f.r)), babyAt(1), disc('friend', { x: Ls.fhomes[1].x, y: Ls.fhomes[1].y - Ls.fz * .7 }, Ls.fz * .55)];
+            if (i === 2) {
+              const balls = [-1, 1].map(side => { const b = S().ball, was = { from: b.from, to: b.to, at: b.at }; b.from = side; b.to = side; b.at = -9; const q = LR.ballNow(); b.from = was.from; b.to = was.to; b.at = was.at; return disc('ball', q, q.r); });
+              return [door('stage'), door('shelf'), disc('basket', { x: Ls.basket.x, y: Ls.basket.y }, Ls.basket.r), ...balls, babyAt(2)];
+            }
+            return [door('dsign'), door('sign'), door('wsign'), babyAt(3)];
+          };
+          let viewOk = true, laneOk = true, stray = '';
+          for (let i = 0; i < 4; i++) {
+            LR.go(i); LR.advance(.85);
+            const here = areaThings(i), others = [0, 1, 2, 3].filter(j => j !== i).flatMap(areaThings);
+            for (const t of here) if (!onScreen(t.box) || !centreOn(t.c)) { viewOk = false; stray += ' off ' + t.name; }
+            for (const t of others) if (centreOn(t.c)) { viewOk = false; stray += ' leak ' + t.name; }
+            for (const t of here) if (inLane(t.box, i) || inLane({ x0: t.c.x, y0: t.c.y, x1: t.c.x, y1: t.c.y }, i)) { laneOk = false; stray += ' lane ' + t.name; }
+            const arrows = L().arrows;
+            if ((i === 0 && arrows.left) || (i === 3 && arrows.right)) laneOk = false;
+            if (i > 0 && !discHits('left', arrows.left)) laneOk = false;
+            if (i < 3 && !discHits('right', arrows.right)) laneOk = false;
+          }
+          check(`${key} A: one area fills the view (${stray || 'clear'})`, viewOk);
+          check(`${key} C: arrow lane, arrow disc and the end caps`, laneOk && !stray.includes('lane'));
+          const Ls = L(), sc = LR.scale, radii = { baby: Ls.size * 1.2, bowl: Ls.R * 1.2, sponge: Ls.R * 1.1, bush: Ls.R * 1.4, basket: Ls.R * 1.05, sun: Math.max(Ls.U * .16, Ls.R), cloud: Ls.cloud.r * 1.35, sign: Ls.R * 1.25 };
+          const floorOk = Object.entries(floors).every(([k, px]) => radii[k] * sc + .6 >= px) && Ls.arrows.tap * sc + .6 >= Ls.U * .175 * sc;
+          let grid = 0, gridOk = 0;
+          for (const n of ['sign', 'wsign', 'ksign', 'tsign', 'dsign', 'stage', 'shelf']) {
+            const q = Ls[n], rs = Ls.R * .95;
+            for (let i = 0; i <= 18; i++) for (let j = 0; j <= 14; j++) { grid++; if (LR.ranchTarget({ x: q.x - rs * .95 + i * rs * 1.9 / 18, y: q.y - rs * 1.17 + j * rs * 1.44 / 14 }) === n) gridOk++; }
+          }
+          check(`${key} B: tap radii hold their floors and doorway boards answer (${gridOk} of ${grid})`, floorOk && gridOk / grid >= .9);
+          LR.newVisit(); LR.setFriend(true); LR.advance(.2); tap(L().arrows.right); LR.advance(.7);
+          const camOk = LR.camera.area === 2 && Math.abs(LR.camera.x - stops[2]) < 1;
+          LR.advance(.6); const babyOk = Math.abs(S().baby.x - L().homes[2].x) < 2;
+          LR.advance(1); const friendOk = Math.abs(S().friend.x - L().fhomes[2].x) < 2;
+          LR.newVisit(); LR.advance(.1); tap(L().arrows.right); const food = S().bowl.food; tap(L().bowl); LR.advance(.05);
+          const inert = food === 0 && S().bowl.food === 0 && Math.abs(LR.camera.x - stops[2]) > 2;
+          LR.advance(1);
+          const camDrag = LR.camera.x; drag(L().sponge, { x: L().sponge.x - 30, y: L().sponge.y }, 6); drag(L().flowers[0], L().flowers[4], 8);
+          const dragOk = Math.abs(LR.camera.x - camDrag) < 1 && LR.camera.area === 2;
+          const keptArea = LR.camera.area; frame.style.width = (width - 30) + 'px'; await sleep(160);
+          const resizeOk = LR.camera.area === keptArea && Math.abs(LR.camera.x - LR.world.areas[keptArea].stop) < 1;
+          frame.style.width = width + 'px'; await sleep(160);
+          const mm = w.matchMedia; w.matchMedia = q => ({ matches: /reduce/.test(String(q)), addEventListener() {}, addListener() {} });
+          const far = LR.camera.parallax.far, near = LR.camera.parallax.near; LR.go(0);
+          const cut = LR.camera.area === 0 && Math.abs(LR.camera.x - LR.world.areas[0].stop) < 1 && LR.camera.parallax.far === far && LR.camera.parallax.near === near && far === 0 && near === 0;
+          w.matchMedia = mm;
+          check(`${key} D: glide, follow, inert taps, drags, resize and a reduced-motion cut`, camOk && babyOk && friendOk && inert && dragOk && resizeOk && cut);
+          LR.setFriend(false); LR.setRoutine(false); LR.newVisit(); LR.go(3); LR.advance(.85); LR.bedtime();
+          const hid = LR.camera.area === 1 && !L().arrows.left && !L().arrows.right;
+          LR.advance(LR.DUSK_SECS + 2);
+          const night = S().mode === 'sleep' && !L().arrows.left && !L().arrows.right && Math.abs(LR.camera.x - LR.world.areas[1].stop) < 1;
+          for (let i = 0; i < LR.WAKE_TAPS; i++) { tap({ x: S().baby.x, y: L().homes[1].y - L().size * .9 }); LR.advance(.2); }
+          const woke = S().mode === 'play' && L().arrows.left && L().arrows.right && LR.camera.area === 1;
+          LR.newVisit();
+          check(`${key} E: bedtime goes home and hides the arrows until morning`, hid && night && woke && LR.camera.area === 1);
+          const rooms = [['kitchen', 'ksign', 'kitchen', 0], ['dough', 'tsign', 'dough', 0], ['band', 'stage', 'band', 2], ['tower', 'shelf', 'tower', 2], ['shed', 'sign', 'shed', 3], ['wagon', 'wsign', 'wagon', 3], ['door', 'dsign', 'door', 3]];
+          let back = !L().pack;
+          for (const [place, sign, room, area] of rooms) {
+            tap({ x: L()[sign].x, y: L()[sign].y - L().R * .45 });
+            if (S().place !== place || LR.camera.area !== area) back = false;
+            tap(L()[room].barn); LR.advance(.05);
+            if (S().place !== 'ranch' || LR.camera.area !== area) back = false;
+          }
+          check(`${key} F: the seven rooms return to their own areas and the pack screen is gone`, back);
+        }
+      } finally {
+        if (ownDpr8) Object.defineProperty(w, 'devicePixelRatio', ownDpr8); else delete w.devicePixelRatio;
+        LR.setFriend(false); LR.setRoutine(false); frame.style.width = '375px'; frame.style.height = '812px';
+      }
+      await sleep(160); LR.newVisit(); LR.advance(.1);
     }
     // ---- LRL-4: reload the real document, not only its stored JSON or in-memory preferences.
     // These run last because every reload replaces the LR/document handles used above.
