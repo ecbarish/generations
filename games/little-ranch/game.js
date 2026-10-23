@@ -1527,7 +1527,7 @@
 
   /* ---------------- the grown-up lock: hold three seconds ---------------- */
   const lock = document.getElementById('lock'), ring = document.getElementById('lockRing'), panel = document.getElementById('grown');
-  let hold = null, idle = null, openedAt = -1e9;
+  let hold = null, idle = null, openedAt = -1e9, backdropDown = false;
   function holdStart(e) { if (e) e.preventDefault(); if (hold) return; hold = { at: performance.now() }; (function tick() { if (!hold) return; const k = Math.min(1, (performance.now() - hold.at) / HOLD_MS);
     ring.setAttribute('stroke-dashoffset', String(119.4 * (1 - k))); if (k >= 1) { hold = null; ring.setAttribute('stroke-dashoffset', '119.4'); openPanel(); } else requestAnimationFrame(tick); })(); }
   function holdEnd() { hold = null; ring.setAttribute('stroke-dashoffset', '119.4'); }
@@ -1541,14 +1541,14 @@
   if (APP) panel.classList.add('app');
   function press(el, fn) {
     let down = null, fired = -1e9;
-    el.addEventListener('pointerdown', e => { down = e.pointerId; });
+    el.addEventListener('pointerdown', e => { down = e.pointerId; if (el === panel) backdropDown = true; });
     el.addEventListener('pointercancel', () => { down = null; });
-    el.addEventListener('pointerup', e => { if (down !== e.pointerId) return; down = null; if (el === panel && (e.target !== panel || performance.now() - openedAt < 700)) return; e.preventDefault(); fired = performance.now(); fn(); });
-    el.addEventListener('click', e => { e.preventDefault(); if (performance.now() - fired < 700) return; if (el === panel && (e.target !== panel || performance.now() - openedAt < 700)) return; fn(); });
+    el.addEventListener('pointerup', e => { if (down !== e.pointerId) return; down = null; if (el === panel && e.target !== panel) return; e.preventDefault(); fired = performance.now(); fn(); });
+    el.addEventListener('click', e => { e.preventDefault(); if (performance.now() - fired < 700) return; if (el === panel && (e.target !== panel || (!backdropDown && performance.now() - openedAt < 700))) return; fn(); });
   }
   function soundLabel() { const b = document.getElementById('gSound'); document.getElementById('gSoundLabel').textContent = prefs.sound ? 'Sound on' : 'Sound off';
     b.classList.toggle('off', !prefs.sound); b.setAttribute('aria-pressed', String(prefs.sound)); document.getElementById('gWaves').style.display = prefs.sound ? '' : 'none'; document.getElementById('gMute').style.display = prefs.sound ? 'none' : ''; }
-  function openPanel() { openedAt = performance.now(); panel.hidden = false; soundLabel(); clearTimeout(idle); idle = setTimeout(closePanel, 20000); }
+  function openPanel() { openedAt = performance.now(); backdropDown = false; panel.hidden = false; soundLabel(); clearTimeout(idle); idle = setTimeout(closePanel, 20000); }
   function closePanel() { panel.hidden = true; clearTimeout(idle); }
   if (APP) document.getElementById('gNewLabel').textContent = 'Replay';
   press(panel, closePanel); // a tap on the dimmed backdrop, outside the card
