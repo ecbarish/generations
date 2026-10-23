@@ -229,7 +229,7 @@
         x0 = xL; y = H * .935; L.sponge.y = Math.round(y - fr * 1.1 - sw * .55 - 4); }
       L.flowers = FLOWERS.map((c, i) => ({ x: x0 + i * step, y, r: fr, stem: H * .985 })); }
     L.cloud = { x: fitX(0, coreX(0, .62), Math.min(U * .1, H * .11), false), y: Math.max(H * .08, U * .08), r: Math.min(U * .1, H * .11) };
-    L.puddles = [.3, .72].map(t => ({ x: fitX(0, coreX(0, t), U * .12, false), y: H * .7, r: U * .12 }));
+    L.puddles = [.15, .85].map(t => ({ x: fitX(0, coreX(0, t), U * .12, false), y: H * .7, r: U * .12 }));
     L.basket = { x: fitX(2, coreX(2, .3), L.R * (wide ? .6 : .9), false), y: H * (wide ? .69 : .7), r: L.R * (wide ? .6 : .9) };
     { const potR = Math.min(W * .108, H * .1), z = Math.min(W * .82 / 2.4, H * .5 / 2.1);
       L.shed = { z, x: W / 2 - z * .08, y: H * .7, potR, pots: PAINT.map((c, i) => ({ x: W * (.125 + i * .25), y: H * .88 - potR * .4 })), barn: { x: Math.max(potR * 1.15, W * .1), y: Math.max(potR * 1.15, H * .09), r: potR * .95 } }; }
