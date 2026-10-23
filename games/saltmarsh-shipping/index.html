@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saltmarsh Shipping Office</title>
+<link rel="icon" href="../../icons/arcade.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="window" id="office" data-phase="dock">
+  <header>
+    <div class="top">
+      <a class="home" href="../../index.html">Back to the arcade</a>
+      <p class="coins"><span id="coins">0</span> coins</p>
+    </div>
+    <h1>Saltmarsh Shipping Office</h1>
+    <p class="scene">The Saltmarsh coast, from the office window. You row the first cargoes yourself.</p>
+    <p class="rate" id="rate">Nothing is earning yet.</p>
+    <p class="rate" id="away-rule"></p>
+    <div class="tools-row">
+      <button type="button" id="sound">Sound: off</button>
+      <span id="settingsMount"></span>
+      <div class="feedback-container"><button type="button" aria-haspopup="true" aria-expanded="false">Feedback</button></div>
+    </div>
+  </header>
+  <div class="harbour-wrap">
+    <canvas id="harbour" aria-hidden="true"></canvas>
+    <p class="float" id="float" hidden></p>
+  </div>
+  <section id="away" class="away" hidden></section>
+  <div class="work">
+    <button type="button" id="row" class="row">Row this cargo</button>
+    <button type="button" id="ask" class="ask" hidden>Ask the captain</button>
+    <p id="crew" class="ask crew" hidden>The pier stays clear for Capt. Wren.</p>
+    <div class="bulk" id="bulk" hidden role="group" aria-label="How many boats to buy at once">
+      <button type="button" data-bulk="1" aria-pressed="true">1 at a time</button>
+      <button type="button" data-bulk="10" aria-pressed="false">10 at a time</button>
+      <button type="button" data-bulk="max" aria-pressed="false">Max</button>
+    </div>
+    <ol class="boats" id="boats"></ol>
+    <section id="choice" class="choice" hidden>
+      <h2>A choice on the desk</h2>
+      <div id="choice-cards"></div>
+    </section>
+    <section id="sheds" hidden></section>
+    <section id="log" class="log" hidden>
+      <h2>Harbour log</h2>
+      <ol id="log-lines" aria-live="polite"></ol>
+    </section>
+    <section id="fleet" class="fleet" hidden>
+      <h2>The fleet</h2>
+      <div class="chart" id="chart"></div>
+      <ol class="captains" id="captains"></ol>
+    </section>
+  </div>
+  <details class="save">
+    <summary>Your save</summary>
+    <div id="tools"></div>
+  </details>
+  <p class="foot"><a href="../../index.html">Back to the arcade</a></p>
+  <p class="goalbar" id="goal" aria-live="polite"></p>
+</main>
+<script src="../../shared/engine.js"></script>
+<script src="../../shared/idle-core.js"></script>
+<script src="../../shared/roster.js"></script>
+<script src="../../shared/settings.js"></script>
+<script src="../../shared/sound.js"></script>
+<script src="../../shared/feedback.js"></script>
+<script src="model.js"></script>
+<script src="phase.js"></script>
+<script src="harbour.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
