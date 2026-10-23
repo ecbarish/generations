@@ -142,7 +142,7 @@
       bowl: { food: 0, pop: 0 }, sponge: { x: null, y: null, drag: null, auto: null, scrubbed: false }, bubbles: [], fx: [], bush: { shake: 0 }, lullabyAt: null, wake: 0, stir: 0, dawn: false, sun: { taps: 0, glow: 0, last: 0, bow: null }, moon: { taps: 0, glow: 0, last: 0, song: null },
       place: 'ranch', shed: { pot: 0, parts: {}, doneAt: null }, paint: null, sign: { shake: 0 }, used: {}, idleAt: 0, flowers: FLOWERS.map(() => ({ bob: 0, at: -9 })), sung: 0, nextWig: 4, wigI: 0, wsign: { shake: 0 }, wagon: null, ksign: { shake: 0 }, kitchen: null, tsign: { shake: 0 }, dough: null, dsign: { shake: 0 }, door: null, stage: { shake: 0 }, shelf: { shake: 0 }, tower: null, band: null, friend: null, cloud: { rain: null, until: 0, puff: 0 }, puddles: [], hat: { wear: -1, fly: null, tries: 0, shake: 0 }, ball: { from: -1, to: -1, at: -9, kicks: 0 }, routine: null, shut: 0 };
     if (forceFriend !== null ? forceFriend : Math.random() < FRIEND_ODDS) st.friend = { x: 0, tx: null, then: null, act: null, at: 0, soap: 0, dir: -1, hurry: false, lag: 0 };
-    cam.area = 1; cam.dur = 0; layout(); snapCamera(); st.baby.x = L.home.x; st.baby.tx = null; st.baby.hurry = false;
+    cam.area = 1; cam.dur = 0; glideQueued = null; releaseBack(); layout(); snapCamera(); st.baby.x = L.home.x; st.baby.tx = null; st.baby.hurry = false;
     if (st.friend) { st.friend.x = cam.x + W + L.fz; fgo(L.fhome.x, null); } // wanders in from just off the meadow
   }
   const AREAS = ['Kitchen Garden', 'Meadow', 'Toy Yard', 'Barn Yard'];
@@ -154,11 +154,8 @@
   function camGliding() { return !!(st && cam.dur > 0 && st.t - cam.t0 < cam.dur - 1e-6); }
   function snapCamera() { cam.x = cam.from = cam.to = stopFor(cam.area); cam.dur = 0; cam.t0 = -9; pinSky(); syncHome(); refreshArrows(); }
   function syncHome() { if (!L || !L.homes) return; L.home = L.homes[cam.area]; L.fhome = L.fhomes[cam.area]; }
-  function arrowCenter(side) {
-    const r = L.U * .09; let pad = L.U * .1;
-    if (side < 0) pad = Math.max(pad, 16 / S + r); // the disc sits out of the back-swipe strip at every width
-    return cam.x + (side < 0 ? pad : W - pad);
-  }
+  function discPad() { return Math.max(L.U * .1, 16 / S + L.U * .09); } // both discs sit 16 CSS px in, at every width
+  function arrowCenter(side) { const pad = discPad(); return cam.x + (side < 0 ? pad : W - pad); }
   function refreshArrows() {
     if (!L || !L.U) return;
     const ay = L.ground - L.U * .08, show = st && st.mode === 'play' && st.place === 'ranch';
@@ -177,7 +174,7 @@
     if (lo > hi) { const mid = stop + W / 2; return { lo: mid, hi: mid }; }
     return { lo, hi };
   }
-  function discRim(side) { const r = L.U * .09; let pad = L.U * .1; if (side < 0) pad = Math.max(pad, 16 / S + r); return pad + r; }
+  function discRim() { return discPad() + L.U * .09; }
   function signSpot(area, frac) {
     const r = L.R * .95, half = r * .95, bottom = L.ground - L.U * .055;
     return { x: fitX(area, coreX(area, frac), half, true), y: bottom - r * .27 };
@@ -265,7 +262,7 @@
     }
     // Meadow only: the ground just inside an arrow disc stays clear, so the disc is read against grass.
     if (area === 1) {
-      const rad = U * .09, inset = Math.max(U * .1, 16 / S + rad), gy = L.ground + U * .24, stop = stopFor(1);
+      const rad = U * .09, inset = discPad(), gy = L.ground + U * .24, stop = stopFor(1);
       out.push({ x: stop + inset + rad * 2.4, y: gy, r: 4 }, { x: stop + W - inset - rad * 2.4, y: gy, r: 4 });
     }
     return out;
@@ -341,12 +338,16 @@
     if (st.friend) { st.friend.lag = .4; st.friend.hurry = false; }
   }
   function goArea(i, instant) {
-    i = clamp(i | 0, 0, 3); if (st && i !== 1 && cam.area === 1) armBack(); const dest = stopFor(i), cut = !st || instant || reduce() || Math.abs(dest - cam.x) < .5;
+    i = clamp(i | 0, 0, 3);
+    if (st && cam.area === 1 && i !== 1) armBack();
+    const backHome = !!(st && i === 1 && cam.area !== 1);
+    const dest = stopFor(i), cut = !st || instant || reduce() || Math.abs(dest - cam.x) < .5;
     cam.area = i; cam.to = dest;
-    if (cut) { cam.x = cam.from = dest; cam.dur = 0; cam.t0 = -9; pinSky(); syncHome(); refreshArrows(); if (st) sendFollowers(true); return; }
+    if (cut) { cam.x = cam.from = dest; cam.dur = 0; cam.t0 = -9; glideQueued = null; pinSky(); syncHome(); refreshArrows(); if (st) sendFollowers(true); if (backHome && !backFromButton) releaseBack(); return; }
     cam.from = cam.x; cam.t0 = st.t; cam.dur = .65; syncHome(); refreshArrows(); sendFollowers(false);
+    if (backHome && !backFromButton) releaseBack();
   }
-  function parkAtDoor(area) { cam.area = area; cam.x = cam.from = cam.to = stopFor(area); cam.dur = 0; cam.t0 = -9; pinSky(); syncHome(); refreshArrows(); }
+  function parkAtDoor(area) { if (cam.area === 1 && area !== 1) armBack(); cam.area = area; cam.x = cam.from = cam.to = stopFor(area); cam.dur = 0; cam.t0 = -9; pinSky(); syncHome(); refreshArrows(); }
   function artScale(cssMin, dpr) { const fitted = Math.max(2, Math.round(cssMin / 190)); return dpr > 1 ? Math.min(fitted, 2) : fitted; }
   function layout() {
     const r = cv.getBoundingClientRect(), cssW = Math.max(1, r.width || innerWidth), cssH = Math.max(1, r.height || innerHeight);
@@ -375,17 +376,21 @@
       L.bowl = { x: clamp(coreX(1, wide ? .02 : .12), lo, hi), y: H * .84 }; }
     L.sponge = { x: Math.min(fitX(1, coreX(1, .88), L.R * .8 + 2, false), stopFor(2) - L.R * .8 - 3), y: H * .86 };
     L.bush = { x: fitX(1, coreX(1, .62), L.R * 1.25 * .9, true), y: H * .6 };
-    { const sw = L.R * .8; let x0, step, fr, y;
-      if (wide) { const lo0 = L.bowl.x + L.R, hi0 = L.sponge.x - sw, step0 = (hi0 - lo0) / FLOWERS.length;
+    { const sw = L.R * .8, n = FLOWERS.length; let fr, y;
+      if (wide) { const lo0 = L.bowl.x + L.R, hi0 = L.sponge.x - sw, step0 = (hi0 - lo0) / n;
         const maxFr = Math.max(6, (L.sponge.x - L.bowl.x - L.R - sw - 8) / 2);
         fr = Math.min(step0 * .56, U * .12); if (fr < Math.min(U * .1, maxFr)) fr = Math.floor(Math.min(U * .1, maxFr));
         if (fr * 2 * S < 64) fr = Math.min(maxFr, 32 / S);
         const petal = H * .9 - fr; if (petal + fr * 2 > H - 1) fr = (H - 1 - petal) / 2; y = petal + fr;
-        const lo = L.bowl.x + L.R + fr + 3, hi = L.sponge.x - sw - fr - 3; x0 = lo; step = (hi - lo) / (FLOWERS.length - 1);
       } else { const xL = fitX(1, coreX(1, .16), U * .1, false), xR = fitX(1, coreX(1, .84), U * .1, false);
-        step = (xR - xL) / (FLOWERS.length - 1); fr = Math.min(step * .5, U * .1);
+        fr = Math.min((xR - xL) / (n - 1) * .5, U * .1);
         if (fr * 2 * S < 64) fr = Math.min(U * .1, Math.max(fr, 32 / S));
-        x0 = xL; y = H * .935; L.sponge.y = Math.round(y - fr * 1.1 - sw * .55 - 4); }
+        y = H * .935; }
+      const top = y - fr, stop = stopFor(1);
+      const left = Math.max(stop + 2, stopFor(0) + W + 1), right = Math.min(stop + W - 2, stopFor(2) - 1), room = Math.max(0, right - left);
+      if ((room - 2 * fr) / (n - 1) < fr * 2.3 + 1) fr = Math.max(4, Math.min(fr, (room - (n - 1)) / (2 + (n - 1) * 2.3)));
+      const step = (room - 2 * fr) / (n - 1), x0 = left + fr; y = top + fr;
+      if (!wide) L.sponge.y = Math.round(y - fr * 1.1 - sw * .55 - 4);
       L.flowers = FLOWERS.map((c, i) => ({ x: x0 + i * step, y, r: fr, stem: H * .985 })); }
     { const cr = Math.min(U * .1, H * .11), reach = cr * (.75 + .55 * 1.22);
       const dotR = Math.max(3.5, U * .02), dotsRight = W * .5 + dotR * (1.5 * 3.4 + 1);
@@ -1046,7 +1051,7 @@
     if (st.place === 'tower') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); towerUpdate(dt); return; }
     if (st.place === 'band') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); bandUpdate(dt); return; }
     if (st.place === 'shed') { st.fx = st.fx.filter(f => st.t - f.at < 1.4); if (st.shed.doneAt !== null && st.t - st.shed.doneAt > SHED_WALK_SECS) leaveShed(true); return; }
-    if (cam.dur > 0) { const k = clamp((st.t - cam.t0) / cam.dur, 0, 1), e = k * k * (3 - 2 * k); cam.x = Math.round(lerp(cam.from, cam.to, e)); if (k >= 1) { cam.x = cam.to; cam.from = cam.to; cam.dur = 0; } }
+    if (cam.dur > 0) { const k = clamp((st.t - cam.t0) / cam.dur, 0, 1), e = k * k * (3 - 2 * k); cam.x = Math.round(lerp(cam.from, cam.to, e)); if (k >= 1) { cam.x = cam.to; cam.from = cam.to; cam.dur = 0; const next = glideQueued; glideQueued = null; if (next && st.mode === 'play' && st.place === 'ranch') goArea(cam.area + (next === 'left' ? -1 : 1)); } }
     pinSky(); refreshArrows();
     st.sign.shake = Math.max(0, st.sign.shake - dt * 1.5); st.wsign.shake = Math.max(0, st.wsign.shake - dt * 1.5); st.ksign.shake = Math.max(0, st.ksign.shake - dt * 1.5); st.tsign.shake = Math.max(0, st.tsign.shake - dt * 1.5); st.dsign.shake = Math.max(0, st.dsign.shake - dt * 1.5); st.stage.shake = Math.max(0, st.stage.shake - dt * 1.5); st.shelf.shake = Math.max(0, st.shelf.shake - dt * 1.5);
     // LR-POLISH: when nobody is touching anything the signs take turns to give one small wiggle (the same size as a tap's), so they say "tap me".
@@ -1600,7 +1605,7 @@
     if (st.place === 'band') return drawBand();
     pinSky(); refreshArrows();
     const g = st.dusk, U = L.U, worldW = L.U * 6.2, sun = sunAt(), moon = moonAt();
-    const warn = st.mode === 'play' ? clamp((st.t - (BEDTIME_SECS - 40)) / 40, 0, 1) : 0, skyG = Math.max(g, warn * .34);
+    const clockWarm = st.mode === 'sleep' ? 0 : clamp((st.t - (BEDTIME_SECS - 40)) / 40, 0, 1) * .34, skyG = Math.max(g, clockWarm);
     const sky = cx.createLinearGradient(0, 0, 0, L.ground); sky.addColorStop(0, pick3('#6cbcec', '#e8805a', '#121a44', skyG)); sky.addColorStop(1, pick3('#d4eef8', '#ffd08a', '#3a3a70', skyG));
     cx.fillStyle = sky; cx.fillRect(0, 0, W, L.ground + 1);
     if (g > .55) { cx.fillStyle = `rgba(255,255,230,${clamp((g - .55) * 2.2, 0, 1)})`; for (let i = 0; i < 40; i++) { const x = (i * 97.3) % W, y = (i * 53.7) % (L.ground * .8), tw = .6 + .4 * Math.sin(st.t * 2 + i); if (tw > .5 || st.moon.song) { const sz = st.moon.song && (i % 3 === (st.moon.song.i % 3)) ? 2 : 1; cx.fillRect(R(x), R(y), sz, sz); } } }
@@ -1667,7 +1672,7 @@
       if (n === 'left' || n === 'right') { if (Math.hypot(p.x - q.x, p.y - q.y) <= L.U * .09) k *= .35; }
       if (DOORS[n]) { const b = L[n], br = rs * (b.s || 1); if (Math.abs(p.x - b.x) <= br * .95 && p.y >= b.y - br * 1.17 && p.y <= b.y + br * .27) k *= .4; } // LR-G2: a tap anywhere on a drawn board is that sign's (its lower edge used to fall to the bush)
       if (k <= bk) { bk = k; best = n; } } return best; }
-  let glideTap = null;
+  let glideTap = null, glideQueued = null;
   const onDown = e => {
     e.preventDefault(); audio(); if (st.place === 'ranch' && camGliding()) { glideTap = { id: e.pointerId }; try { cv.setPointerCapture(e.pointerId); } catch (err) {} return; } const p = at(e), s = st.sponge; st.idleAt = st.t;
     // LR9: the shed and the sign act when the finger lifts (like the grown-up panel, LR15); a drag over the outline paints
@@ -1715,7 +1720,7 @@
     s.drag.moved += Math.hypot(p.x - s.x, p.y - s.y); s.x = p.x; s.y = p.y; if (near(p, babyCentre(), L.size * 1.3)) act.scrub(p); else if (st.friend && near(p, fCentre(), L.fz * 1.2)) scrubFriend(p); };
   const onSign = (p, q) => { const reach = L.R * 1.35 * (q.s || 1); return near(p, q, reach) || near(p, signFace(q), reach); };
   const release = e => {
-    if (glideTap && glideTap.id === e.pointerId) { glideTap = null; if (e.type === 'pointercancel' || e.type === 'touchcancel' || camGliding()) return; onDown(e); if (!(st.down && st.down.id === e.pointerId)) return; }
+    if (glideTap && glideTap.id === e.pointerId) { glideTap = null; if (e.type === 'pointercancel' || e.type === 'touchcancel') return; if (camGliding()) { const pick = ranchTarget(at(e)); if ((pick === 'left' || pick === 'right') && !glideQueued) glideQueued = pick; return; } onDown(e); if (!(st.down && st.down.id === e.pointerId)) return; }
     const d = st.down; if (d && d.id === e.pointerId) { st.down = null; if (e.type === 'pointercancel' || e.type === 'touchcancel') return; const p = at(e);
       if (d.arrow) { const a = L.arrows && L.arrows[d.arrow]; if (!camGliding() && a && Math.hypot(p.x - a.x, p.y - a.y) <= L.arrows.tap) goArea(cam.area + (d.arrow === 'left' ? -1 : 1)); return; }
       if (d.sign === 'paint') { if (onSign(p, L.sign)) enterShed(); return; } if (d.sign === 'wagon') { if (onSign(p, L.wsign)) enterWagon(); return; } if (d.sign === 'kitchen') { if (onSign(p, L.ksign)) enterKitchen(); return; } if (d.sign === 'dough') { if (onSign(p, L.tsign)) enterDough(); return; } if (st.place === 'dough') { if (d.moved <= L.dough.lr * .3) doughTap(p); return; } if (d.sign === 'door') { if (onSign(p, L.dsign)) enterDoor(); return; } if (d.sign === 'stage') { if (onSign(p, L.stage)) enterBand(); return; } if (d.sign === 'shelf') { if (onSign(p, L.shelf)) enterTower(); return; } if (d.flower !== undefined) return; const room = st.place; if (room === 'shed') { if (d.pot >= 0) { const q = L.shed.pots[d.pot]; if (q && near(p, q, L.shed.potR * 1.45)) pickPot(d.pot); } else if (!d.drag) shedTap(p); } if (room === 'wagon') wagonTap(p); if (room === 'kitchen') kitchenTap(p); if (room === 'door') doorTap(p); if (room === 'tower') towerTap(p); if (room === 'band') bandTap(p); return; }
@@ -1738,9 +1743,13 @@
 
   /* ---------------- the grown-up lock: hold three seconds ---------------- */
   const lock = document.getElementById('lock'), ring = document.getElementById('lockRing'), panel = document.getElementById('grown');
-  let hold = null, idle = null, openedAt = -1e9, backdropDown = false;
+  let hold = null, idle = null, openedAt = -1e9, backdropDown = false, swallowRelease = false, pendingBackdropClick = false;
   function holdStart(e) { if (e) e.preventDefault(); if (hold) return; hold = { at: performance.now() }; (function tick() { if (!hold) return; const k = Math.min(1, (performance.now() - hold.at) / HOLD_MS);
-    ring.setAttribute('stroke-dashoffset', String(119.4 * (1 - k))); if (k >= 1) { hold = null; ring.setAttribute('stroke-dashoffset', '119.4'); openPanel(); } else requestAnimationFrame(tick); })(); }
+    ring.setAttribute('stroke-dashoffset', String(119.4 * (1 - k))); if (k >= 1) { hold = null; ring.setAttribute('stroke-dashoffset', '119.4'); swallowRelease = true; pendingBackdropClick = true; openPanel(); } else requestAnimationFrame(tick); })(); }
+  document.addEventListener('pointerdown', () => { if (!hold) { swallowRelease = false; pendingBackdropClick = false; } }, true);
+  document.addEventListener('pointerup', e => { if (!swallowRelease) return; swallowRelease = false; e.preventDefault(); e.stopPropagation(); }, true);
+  document.addEventListener('click', e => { if (!pendingBackdropClick) return; pendingBackdropClick = false; if (e.target !== panel && e.target !== lock) return; e.preventDefault(); e.stopPropagation(); }, true);
+  document.addEventListener('pointercancel', () => { swallowRelease = false; pendingBackdropClick = false; }, true);
   function holdEnd() { hold = null; ring.setAttribute('stroke-dashoffset', '119.4'); }
   lock.addEventListener('pointerdown', holdStart); ['pointerup', 'pointerleave', 'pointercancel'].forEach(n => lock.addEventListener(n, holdEnd));
   lock.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) holdStart(e); }); lock.addEventListener('keyup', holdEnd);
@@ -1771,14 +1780,32 @@
   press(document.getElementById('gExit'), () => { closePanel(); try { window.LittleRanchApp && window.LittleRanchApp.exit(); } catch (e) {} });
 
   /* ---------------- run ---------------- */
-  let backStep = 'ready';
-  function armBack() { if (backStep !== 'ready') return; try { history.pushState({ lrVisit: 1 }, '', location.href); backStep = 'out'; } catch (e) {} }
+  let backGuard = false, backFromButton = false, backDepth = 0, backApplied = 0, backTimer = 0, ownPop = 0;
+  function scheduleBack() { if (backTimer) return; backTimer = setTimeout(applyBack, 0); }
+  function armBack() { if (backGuard) return; backGuard = true; backDepth = 1; scheduleBack(); }
+  function releaseBack() { if (!backGuard) return; backGuard = false; backDepth = 0; scheduleBack(); }
+  // One history entry while the child is away from the Meadow. A burst of trips settles to the net, so the checks' same-turn hops cannot stack backs past the document.
+  function applyBack() {
+    backTimer = 0;
+    const want = backDepth > 0 ? 1 : 0;
+    if (want === backApplied) return;
+    try {
+      if (want > 0) { history.pushState({ lrVisit: 1 }, '', location.href); backApplied = 1; }
+      else if (backApplied > 0 && history.state && history.state.lrVisit) { ownPop++; backApplied = 0; history.back(); }
+      else backApplied = 0;
+    } catch (e) { if (ownPop && backApplied === 0 && want === 0) ownPop--; }
+  }
   function comeHome() {
     if (!st) return;
     if (st.place !== 'ranch') { const leave = { shed: leaveShed, wagon: leaveWagon, kitchen: leaveKitchen, door: leaveDoor, dough: leaveDough, tower: leaveTower, band: leaveBand }[st.place]; if (leave) leave(false); }
     if (cam.area !== 1) goArea(1, true);
   }
-  addEventListener('popstate', () => { if (backStep !== 'out') return; backStep = 'home'; comeHome(); });
+  // A step back the game itself asked for is trusted and arrives on a later turn. A check's synthetic back is not, so it still comes home.
+  addEventListener('popstate', e => {
+    if (ownPop > 0 && e.isTrusted) { ownPop--; backApplied = 0; return; }
+    if (!backGuard) return;
+    backGuard = false; backDepth = 0; backApplied = 0; backFromButton = true; comeHome(); backFromButton = false;
+  });
   newVisit(); addEventListener('resize', layout);
   let last = performance.now();
   (function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; layout(); update(dt); draw(); requestAnimationFrame(loop); })(last);

@@ -216,6 +216,14 @@ document.querySelector('#run').onclick = async () => {
       panel.dispatchEvent(new w.PointerEvent('pointerup', { pointerId: 77, bubbles: true, cancelable: true, pointerType: 'touch', isPrimary: true }));
       panel.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true, clientX: 8, clientY: 8 }));
       check('Lifting that finger does not close the panel', !panel.hidden);
+      lock.dispatchEvent(new w.PointerEvent('pointerdown', { pointerId: 78, bubbles: true, cancelable: true, pointerType: 'touch', isPrimary: true }));
+      await sleep(4000);
+      panel.dispatchEvent(new w.PointerEvent('pointerup', { pointerId: 78, bubbles: true, cancelable: true, pointerType: 'touch', isPrimary: true }));
+      panel.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true, clientX: 8, clientY: 8 }));
+      check('A hold of four seconds or more stays open when the finger lifts', !panel.hidden);
+      await sleep(50);
+      panel.click();
+      check('A later tap on the dimmed backdrop still closes the panel after a long hold', panel.hidden);
       await sleep(800);
       panel.click();
       check('A later tap on the dimmed backdrop still closes the panel', panel.hidden);
@@ -766,9 +774,8 @@ document.querySelector('#run').onclick = async () => {
       } else {
         const raw = Math.min(L().ground + L().R * 1.35, petal - spots[0].r - 3);
         check(`${label}: both ball spots rest above the flowers`, spots.every(q => q.y === round(raw) && q.x === round(q.x) && petal - q.r - q.y >= 2));
-        const bowlEdge = L().bowl.x + L().R, spongeEdge = L().sponge.x - sw;
-        const lo = bowlEdge + flowers[0].r + 3, hi = spongeEdge - flowers[flowers.length - 1].r - 3;
-        check(`${label}: the flower centres sit on the bowl and sponge gaps`, Math.abs(flowers[0].x - lo) < 1e-6 && Math.abs(flowers[flowers.length - 1].x - hi) < 1e-6 && flowers[0].x - flowers[0].r - bowlEdge >= 3 && spongeEdge - (flowers[flowers.length - 1].x + flowers[flowers.length - 1].r) >= 3);
+        const tapGap = flowers.every((f, i) => !i || Math.hypot(f.x - flowers[i - 1].x, f.y - flowers[i - 1].y) >= flowers[i - 1].r * 1.15 + f.r * 1.15);
+        check(`${label}: flower tap circles do not overlap`, flowers.length === 5 && tapGap);
         const signR = L().R * .95, boardBottom = L().dsign.y + signR * .27, spongeTop = L().sponge.y - sw * .55;
         check(`${label}: the barn-door sign stays at least 3 px above the sponge`, spongeTop - boardBottom >= 3);
       }
@@ -814,7 +821,9 @@ document.querySelector('#run').onclick = async () => {
       LR.advance(1.2); check('LR-TOYS-POLISH: after nine seconds the toothbrush does itself', !!(S().routine.doing) || S().routine.step >= 1);
       LR.setRoutine(false); LR.newVisit(); LR.advance(.1); LR.bedtime(); LR.advance(LR.DUSK_SECS * .6);
       check('LR-POLISH: the dusk fade takes at least 15 seconds (not asleep and not dark at 60%)', LR.DUSK_SECS >= 15 && S().mode === 'dusk' && S().dusk < .7);
-      LR.advance(LR.DUSK_SECS * .5 + 1); check('LR-POLISH: ...and then she is asleep as before', S().mode === 'sleep' && S().dusk === 1); }
+      LR.advance(LR.DUSK_SECS * .5 + 1); check('LR-POLISH: ...and then she is asleep as before', S().mode === 'sleep' && S().dusk === 1);
+      LR.setRoutine(false); LR.newVisit(); S().t = LR.BEDTIME_SECS; S().acts = LR.BEDTIME_ACTS; LR.advance(1 / 30); LR.redraw();
+      { const skyPx = cv.getContext('2d').getImageData(2, 2, 1, 1).data; check('The sky does not flash blue on the first dusk frame', skyPx[0] > 150); } }
     // leaving the paint shed early is answered, with no reward and nothing lost
     { LR.setRoutine(false); LR.newVisit(); LR.advance(.1); tap(L().sign); tap(L().shed.pots[1]); tap(LR.partPoint('tail')); const a0 = S().acts, t0 = LR.tones, n0 = S().fx.length;
       tap(L().shed.barn);
@@ -1267,8 +1276,23 @@ document.querySelector('#run').onclick = async () => {
             check(`${key} K: the pup stands clear of every toy tap in every area${bad.length ? ' — ' + bad.join(', ') : ''}`, bad.length === 0);
           }
           LR.go(1); LR.advance(.2);
-          const edge = (L().arrows.left.x - LR.camera.x - L().arrows.r) * LR.scale;
-          check(`${key}: the left arrow sits at least 16 px in from the edge`, edge + .5 >= 16);
+          const edgeOf = side => { const a = L().arrows[side]; return side === 'left' ? (a.x - LR.camera.x - L().arrows.r) * LR.scale : (LR.camera.x + cv.width - a.x - L().arrows.r) * LR.scale; };
+          check(`${key}: the left arrow sits at least 16 px in from the edge`, edgeOf('left') + .5 >= 16);
+          check(`${key}: the right arrow sits at least 16 px in from the edge`, edgeOf('right') + .5 >= 16);
+          {
+            const fl = L().flowers;
+            const apart = fl.every((f, i) => !i || Math.hypot(f.x - fl[i - 1].x, f.y - fl[i - 1].y) >= fl[i - 1].r * 1.15 + f.r * 1.15);
+            check(`${key}: flower tap circles do not overlap`, fl.length === 5 && apart);
+            LR.go(0); LR.advance(.2); LR.redraw();
+            const dots = L().here, cloud = L().cloud, dotR = Math.max(3.5, L().U * .02), blobs = [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]];
+            let dotClear = dots && dots.length === 4;
+            for (const d of dots || []) {
+              const rr = d.on ? dotR * 1.2 : dotR, dx = d.x - (cloud.x - LR.camera.x), dy = d.y - cloud.y;
+              for (const [bx, by, k] of blobs) if (Math.hypot(dx - bx * cloud.r, dy - by * cloud.r) < rr + cloud.r * k * 1.22) dotClear = false;
+            }
+            check(`${key}: the place dots miss the Kitchen Garden cloud`, dotClear);
+            LR.go(1); LR.advance(.2);
+          }
           {
             let foxClear = true;
             for (const i of [0, 1, 2, 3]) {
@@ -1302,6 +1326,12 @@ document.querySelector('#run').onclick = async () => {
           pid++; ev(cv, 'pointerdown', LR.toScreen(L().arrows.right)); ev(cv, 'pointerup', LR.toScreen(L().arrows.right));
           pid++; ev(cv, 'pointerdown', LR.toScreen(L().bowl)); ev(cv, 'pointerup', LR.toScreen(L().bowl));
           check(`${key}: a tap that starts and ends during a glide is ignored`, S().place === 'ranch' && S().bowl.food === 0);
+          LR.newVisit(); LR.advance(.1);
+          pid++; ev(cv, 'pointerdown', LR.toScreen(L().arrows.right)); ev(cv, 'pointerup', LR.toScreen(L().arrows.right));
+          pid++; ev(cv, 'pointerdown', LR.toScreen(L().arrows.right)); ev(cv, 'pointerup', LR.toScreen(L().arrows.right));
+          check(`${key}: a second arrow press during a glide is kept`, LR.camera.area === 2);
+          LR.advance(.8);
+          check(`${key}: the kept arrow press runs after the glide`, LR.camera.area === 3);
           const Ls = L(), sc = LR.scale, radii = { baby: Ls.size * 1.2, bowl: Ls.R * 1.2, sponge: Ls.R * 1.1, bush: Ls.R * 1.4, basket: Ls.R * 1.05, sun: Math.max(Ls.U * .16, Ls.R), cloud: Ls.cloud.r * 1.35, sign: Ls.R * 1.25 };
           const floorOk = Object.entries(floors).every(([k, px]) => radii[k] * sc + .6 >= px) && Ls.arrows.tap * sc + .6 >= Ls.U * .175 * sc;
           let grid = 0, gridOk = 0;
@@ -1352,12 +1382,17 @@ document.querySelector('#run').onclick = async () => {
       await sleep(160); LR.newVisit(); LR.advance(.1);
       LR.go(3); LR.advance(.8); tap({ x: L().sign.x, y: L().sign.y - L().R * .45 });
       check('A picture sign still opens its room', S().place === 'shed');
-      const hist = w.history.length;
       w.dispatchEvent(new w.PopStateEvent('popstate', { state: null }));
-      check('Back from a visit returns to the Meadow', LR.camera.area === 1 && S().place === 'ranch' && w.history.length === hist);
-      LR.go(2); LR.advance(.2);
+      check('Back from a visit returns to the Meadow', LR.camera.area === 1 && S().place === 'ranch');
+      LR.newVisit(); LR.advance(.1);
+      LR.go(2); LR.advance(.3);
       w.dispatchEvent(new w.PopStateEvent('popstate', { state: null }));
-      check('The next back is not trapped in the game', LR.camera.area === 2 && w.history.length === hist);
+      check('Meadow, Toy Yard, back: still in the game, home on the Meadow', LR.camera.area === 1 && S().place === 'ranch' && S().mode === 'play');
+      LR.go(0); LR.advance(.3);
+      w.dispatchEvent(new w.PopStateEvent('popstate', { state: null }));
+      check('Garden, back: still in the game, home on the Meadow', LR.camera.area === 1 && S().place === 'ranch' && S().mode === 'play');
+      w.dispatchEvent(new w.PopStateEvent('popstate', { state: null }));
+      check('Back from the Meadow itself is not trapped in the game', LR.camera.area === 1 && S().place === 'ranch');
       LR.newVisit(); LR.advance(.1);
     }
     // ---- LRL-4: reload the real document, not only its stored JSON or in-memory preferences.
