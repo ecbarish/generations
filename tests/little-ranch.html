@@ -1252,6 +1252,20 @@ document.querySelector('#run').onclick = async () => {
           check(`${key} C: arrow lane, arrow disc and the end caps`, laneOk && !stray.includes('lane'));
           const toyFigs = areaThings(2), fig = n => toyFigs.find(t => t.name === n).box, piles = (a, b) => a.x0 < b.x1 - 1 && b.x0 < a.x1 - 1 && a.y0 < b.y1 - 1 && b.y0 < a.y1 - 1;
           check(`${key} K: the Toy Yard pup, Pebblit and the basket stand clear of each other`, !piles(fig('baby'), fig('friend')) && !piles(fig('baby'), fig('basket')) && !piles(fig('friend'), fig('basket')));
+          {
+            const cover = (box, c, r) => { const x = Math.max(box.x0, Math.min(c.x, box.x1)), y = Math.max(box.y0, Math.min(c.y, box.y1)); return Math.hypot(c.x - x, c.y - y) < r - 1; };
+            const ballOf = side => { const b = S().ball, was = { from: b.from, to: b.to, at: b.at }; b.from = side; b.to = side; b.at = -9; const q = LR.ballNow(); b.from = was.from; b.to = was.to; b.at = was.at; return q; };
+            const toyTaps = i => {
+              const Ls = L(), R = Ls.R, U = Ls.U, stops = LR.world.areas.map(a => a.stop);
+              if (i === 0) return [{ name: 'cloud', x: Ls.cloud.x, y: Ls.cloud.y, r: Ls.cloud.r * 1.35 }, ...Ls.puddles.map((p, k) => ({ name: 'puddle' + k, x: p.x, y: p.y, r: p.r }))];
+              if (i === 1) return [{ name: 'bowl', x: Ls.bowl.x, y: Ls.bowl.y, r: R * 1.2 }, { name: 'sponge', x: Ls.sponge.x, y: Ls.sponge.y, r: R * 1.1 }, { name: 'bush', x: Ls.bush.x, y: Ls.bush.y - R * .4, r: R * 1.4 }, ...Ls.flowers.map((f, k) => ({ name: 'flower' + k, x: f.x, y: f.y, r: f.r * 1.15 })), { name: 'sun', x: stops[1] + cv.width * .22, y: cv.height * .17, r: Math.max(U * .16, R) }];
+              if (i === 2) return [-1, 1].map(side => { const q = ballOf(side); return { name: 'ball', x: q.x, y: q.y, r: q.r * 1.2 }; });
+              return [];
+            };
+            const where = ['garden', 'meadow', 'toy yard', 'barn'], bad = [];
+            for (let i = 0; i < 4; i++) for (const t of toyTaps(i)) if (cover(babyAt(i).box, t, t.r)) bad.push(where[i] + ' ' + t.name);
+            check(`${key} K: the pup stands clear of every toy tap in every area${bad.length ? ' — ' + bad.join(', ') : ''}`, bad.length === 0);
+          }
           LR.go(1); LR.advance(.2);
           const edge = (L().arrows.left.x - LR.camera.x - L().arrows.r) * LR.scale;
           check(`${key}: the left arrow sits at least 16 px in from the edge`, edge + .5 >= 16);

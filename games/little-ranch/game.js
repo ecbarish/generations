@@ -239,6 +239,95 @@
     const dy = Math.max(...crossed.map(b => b.y1)) + 1 - sample.y0;
     if (dy > 0 && pt.y + dy <= H - 2) pt.y += dy;
   }
+  function circleHits(box, c, r) {
+    const x = Math.max(box.x0, Math.min(c.x, box.x1)), y = Math.max(box.y0, Math.min(c.y, box.y1));
+    return Math.hypot(c.x - x, c.y - y) < r - 1;
+  }
+  function boxHits(a, b) { return a.x0 < b.x1 - 1 && b.x0 < a.x1 - 1 && a.y0 < b.y1 - 1 && b.y0 < a.y1 - 1; }
+  function signBoards(area) {
+    const names = area === 0 ? ['ksign', 'tsign'] : area === 2 ? ['stage', 'shelf'] : area === 3 ? ['dsign', 'sign', 'wsign'] : [];
+    const rs = L.R * .95;
+    return names.filter(n => L[n]).map(n => { const s = L[n]; return { x0: s.x - rs * .95, x1: s.x + rs * .95, y0: s.y - rs * 1.17, y1: s.y + rs * .27 }; });
+  }
+  // Tap circles of the toys a toddler plays with. Signs stay on their boards; the pup, Pebblit and the basket have their own boxes.
+  function playCircles(area) {
+    const R = L.R, U = L.U, out = [];
+    if (area === 0 && L.cloud) {
+      out.push({ x: L.cloud.x, y: L.cloud.y, r: L.cloud.r * 1.35 });
+      L.puddles.forEach(p => out.push({ x: p.x, y: p.y, r: p.r }));
+    } else if (area === 1 && L.bowl) {
+      out.push({ x: L.bowl.x, y: L.bowl.y, r: R * 1.2 }, { x: L.sponge.x, y: L.sponge.y, r: R * 1.1 }, { x: L.bush.x, y: L.bush.y - R * .4, r: R * 1.4 });
+      L.flowers.forEach(f => out.push({ x: f.x, y: f.y, r: f.r * 1.15 }));
+      out.push({ x: stopFor(1) + W * .22, y: H * .17, r: Math.max(U * .16, R) });
+    } else if (area === 2 && L.basket) {
+      [-1, 1].forEach(side => { const q = ballSpot(side); out.push({ x: q.x, y: q.y, r: q.r * 1.2 }); });
+      out.push({ x: L.basket.x, y: L.basket.y - R * .15, r: R * 1.05 });
+    }
+    // Meadow only: the ground just inside an arrow disc stays clear, so the disc is read against grass.
+    if (area === 1) {
+      const rad = U * .09, inset = Math.max(U * .1, 16 / S + rad), gy = L.ground + U * .24, stop = stopFor(1);
+      out.push({ x: stop + inset + rad * 2.4, y: gy, r: 4 }, { x: stop + W - inset - rad * 2.4, y: gy, r: 4 });
+    }
+    return out;
+  }
+  function bodyInLane(box, area) {
+    const ay = L.ground - L.U * .08;
+    if (box.y1 < ay - L.U * .175 + 1 || box.y0 > ay + L.U * .175 - 1) return false;
+    const stop = stopFor(area);
+    return (area > 0 && box.x0 < stop + L.U * .2 - 1) || (area < 3 && box.x1 > stop + W - L.U * .2 + 1);
+  }
+  function bodyLeaks(box, area) {
+    for (let j = 0; j < 4; j++) if (j !== area) { const a = stopFor(j); if (box.x1 > a + .5 && box.x0 < a + W - .5) return true; }
+    return false;
+  }
+  function standCache(area) { return { stop: stopFor(area), boards: signBoards(area), circles: playCircles(area) }; }
+  function standOk(area, x, y, boxAt, extras, cache) {
+    const box = boxAt(x, y), stop = cache.stop;
+    if (box.y0 < -.5 || box.y1 > H + .5 || box.x0 < stop - .5 || box.x1 > stop + W + .5) return false;
+    if (bodyInLane(box, area) || bodyLeaks(box, area)) return false;
+    if (cache.boards.some(b => boxHits(box, b))) return false;
+    if (cache.circles.some(c => circleHits(box, c, c.r))) return false;
+    if (extras.some(b => boxHits(box, b))) return false;
+    return true;
+  }
+  // Nearest feet to the authored spot whose body misses every toy tap, sign board and arrow disc.
+  function nearestStand(area, pt, boxAt, extras) {
+    const cache = standCache(area);
+    if (standOk(area, pt.x, pt.y, boxAt, extras, cache)) return true;
+    let best = null, bestD = Infinity;
+    for (let y = Math.ceil(L.ground); y <= H - 2; y++) for (let x = Math.ceil(cache.stop + 1); x <= cache.stop + W - 1; x++) {
+      if (!standOk(area, x, y, boxAt, extras, cache)) continue;
+      const d = Math.abs(x - pt.x) + Math.abs(y - pt.y) * 2;
+      if (d < bestD) { bestD = d; best = { x, y }; }
+    }
+    if (!best) return false;
+    pt.x = best.x; pt.y = best.y;
+    return true;
+  }
+  // When the pup's nearest spot leaves Pebblit nowhere to stand, move both. The closest pair to the authored spots wins.
+  function pairSettle(area, baby, pal, babyBox, palBox) {
+    const cache = standCache(area);
+    if (standOk(area, baby.x, baby.y, babyBox, [], cache) && standOk(area, pal.x, pal.y, palBox, [babyBox(baby.x, baby.y)], cache)) return true;
+    const step = 4, pups = [];
+    for (let y = Math.ceil(L.ground); y <= H - 2; y += step) for (let x = Math.ceil(cache.stop + 1); x <= cache.stop + W - 1; x += step) {
+      if (!standOk(area, x, y, babyBox, [], cache)) continue;
+      pups.push({ x, y, d: Math.abs(x - baby.x) + Math.abs(y - baby.y) * 2 });
+    }
+    pups.sort((a, b) => a.d - b.d);
+    for (const p of pups) {
+      const extra = [babyBox(p.x, p.y)];
+      let best = null, bestD = Infinity;
+      for (let y = Math.ceil(L.ground); y <= H - 2; y += step) for (let x = Math.ceil(cache.stop + 1); x <= cache.stop + W - 1; x += step) {
+        if (!standOk(area, x, y, palBox, extra, cache)) continue;
+        const d = Math.abs(x - pal.x) + Math.abs(y - pal.y) * 2;
+        if (d < bestD) { bestD = d; best = { x, y }; }
+      }
+      if (!best) continue;
+      baby.x = p.x; baby.y = p.y; pal.x = best.x; pal.y = best.y;
+      return true;
+    }
+    return false;
+  }
   function dropForTravel() {
     const b = st.baby; b.act = null; b.then = null; b.tx = null; st.bowl.food = 0; st.bubbles.length = 0;
     st.sponge.drag = null; st.sponge.auto = null; st.sponge.scrubbed = false; st.down = null;
@@ -321,6 +410,85 @@
       L.dough = { lr, cr, ty: H * .5, lump: { x: W * .42, y: H * .66 }, cutter: { x: W * .8, y: H * .64 }, barn: L.shed.barn,
         dr: Math.min(W * .09, H * .1), dots: (wide ? [.27, .47, .67, .87] : [.2, .4, .6, .8]).map(f => ({ x: W * f, y: H * .5 * .55 })) }; }
     layToys();
+    { // The authored spots clear the signs. This pass also clears every toy tap and every arrow disc.
+      const z = L.size, fz = L.fz;
+      const babyBox = (x, y) => ({ x0: x - z * 1.27, y0: y - z * 2.042, x1: x + z * 1.08, y1: y });
+      const palBox = (x, y) => ({ x0: x - fz * .55, y0: y - fz * 1.35, x1: x + fz * .55, y1: y });
+      const sinkBowl = () => { const feet = homes[1].y, sunk = feet + L.R * 1.2 - 1, limit = H - L.R * .2 - 1; if (sunk <= limit) L.bowl.y = Math.max(L.bowl.y, sunk); };
+      const parkBush = () => {
+        const tap = L.R * 1.4, stop = stopFor(1), laneR = stop + W - L.U * .2, artHalf = L.R * 1.25 * .88 * 1.15;
+        const pupRight = homes[1].x + z * 1.08;
+        L.bush.x = Math.min(laneR - artHalf - 2, Math.max(L.bush.x, pupRight + tap - 1));
+        const spongeR = L.R * 1.1, top = L.R * 1.25 * .88 * 1.25;
+        for (let i = 0; i < 30 && Math.hypot(L.bush.x - L.sponge.x, (L.bush.y - L.R * .4) - L.sponge.y) < tap + spongeR - 1; i++) L.bush.y -= 2;
+        if (L.bush.y - top < 1) L.bush.y = top + 1;
+      };
+      const liftBush = () => {
+        const tap = L.R * 1.4, head = L.ground - L.size * 2.042, tapY = head - tap - 1;
+        L.bush.y = tapY + L.R * .4;
+        const sunX = stopFor(1) + W * .22, sunR = Math.max(L.U * .16, L.R);
+        if (Math.hypot(L.bush.x - sunX, tapY - H * .17) < tap + sunR - 1) L.bush.x = Math.min(stopFor(1) + W - tap - 2, sunX + sunR + tap + 2);
+      };
+      const nudgePuddles = () => {
+        const box = babyBox(homes[0].x, homes[0].y), stop = stopFor(0);
+        for (const p of L.puddles) {
+          if (!circleHits(box, p, p.r)) continue;
+          const lo = stop + p.r + 1, hi = stop + W - p.r - 1;
+          const left = clamp(box.x0 - p.r - 1, lo, hi), right = clamp(box.x1 + p.r + 1, lo, hi);
+          const dist = x => Math.abs(x - p.x);
+          const pick = [left, right].filter(x => !circleHits(box, { x, y: p.y }, p.r)).sort((a, b) => dist(a) - dist(b))[0];
+          if (pick !== undefined) p.x = pick;
+        }
+      };
+      const raiseBush = () => {
+        const top = L.R * 1.25 * .88 * 1.25;
+        L.bush.y = top + 1;
+        const tap = L.R * 1.4, tapY = L.bush.y - L.R * .4, sunX = stopFor(1) + W * .22, sunR = Math.max(L.U * .16, L.R);
+        if (Math.hypot(L.bush.x - sunX, tapY - H * .17) < tap + sunR - 1) L.bush.x = Math.min(stopFor(1) + W - tap - 2, sunX + sunR + tap + 2);
+      };
+      const basketBox = (x, y) => { const r = L.basket.r; return { x0: x - r * .88, y0: y - r * .9 - Math.max(1, r * .05), x1: x + r * .88, y1: y + r * .55 }; };
+      const settleBasket = () => {
+        const balls = [-1, 1].map(ballSpot), stop = stopFor(2);
+        const clear = (x, y) => {
+          const box = basketBox(x, y);
+          if (box.y0 < -.5 || box.y1 > H + .5 || box.x0 < stop - .5 || box.x1 > stop + W + .5) return false;
+          if (bodyInLane(box, 2) || bodyLeaks(box, 2)) return false;
+          if (signBoards(2).some(b => boxHits(box, b))) return false;
+          if (balls.some(q => circleHits(box, q, q.r * 1.2) || Math.hypot(q.x - x, q.y - y) < q.r + L.basket.r)) return false;
+          if ([babyBox(homes[2].x, homes[2].y), palBox(pals[2].x, pals[2].y)].some(b => boxHits(box, b))) return false;
+          return true;
+        };
+        if (clear(L.basket.x, L.basket.y)) return;
+        for (let y = Math.ceil(L.basket.y); y <= H - 2; y++) if (clear(L.basket.x, y)) { L.basket.y = y; return; }
+        let best = null, bestD = Infinity;
+        for (let y = Math.ceil(L.ground); y <= H - 2; y += 2) for (let x = Math.ceil(stop + 1); x <= stop + W - 1; x += 2) {
+          if (!clear(x, y)) continue;
+          const d = Math.abs(x - L.basket.x) + Math.abs(y - L.basket.y) * 2;
+          if (d < bestD) { bestD = d; best = { x, y }; }
+        }
+        if (best) { L.basket.x = best.x; L.basket.y = best.y; }
+      };
+      { const saved = L.puddles; L.puddles = []; nearestStand(0, homes[0], babyBox, []); L.puddles = saved; }
+      if (!nearestStand(1, homes[1], babyBox, [])) { if (wide) { sinkBowl(); parkBush(); } else liftBush(); }
+      nudgePuddles();
+      settleBasket();
+      for (const i of [0, 1, 2, 3]) nearestStand(i, homes[i], babyBox, []);
+      for (const i of [0, 1, 2, 3]) nearestStand(i, pals[i], palBox, [babyBox(homes[i].x, homes[i].y)]);
+      const palClear = i => standOk(i, pals[i].x, pals[i].y, palBox, [babyBox(homes[i].x, homes[i].y)], standCache(i));
+      if (wide && !palClear(1)) { raiseBush(); nearestStand(1, homes[1], babyBox, []); nearestStand(1, pals[1], palBox, [babyBox(homes[1].x, homes[1].y)]); }
+      for (const i of [0, 1, 2, 3]) if (!palClear(i)) pairSettle(i, homes[i], pals[i], babyBox, palBox);
+      const onBall = box => [-1, 1].some(side => { const q = ballSpot(side); return circleHits(box, q, q.r * 1.2); });
+      if (!L.ballPack && (onBall(babyBox(homes[2].x, homes[2].y)) || onBall(palBox(pals[2].x, pals[2].y)))) {
+        L.ballPack = true;
+        nearestStand(2, homes[2], babyBox, []);
+        nearestStand(2, pals[2], palBox, [babyBox(homes[2].x, homes[2].y)]);
+        if (!standOk(2, pals[2].x, pals[2].y, palBox, [babyBox(homes[2].x, homes[2].y)], standCache(2))) pairSettle(2, homes[2], pals[2], babyBox, palBox);
+        settleBasket();
+      }
+      nudgePuddles();
+      if (!standOk(0, pals[0].x, pals[0].y, palBox, [babyBox(homes[0].x, homes[0].y)], standCache(0))) nearestStand(0, pals[0], palBox, [babyBox(homes[0].x, homes[0].y)]);
+      settleBasket();
+    }
     { const stop = stopFor(1), rad = L.R * (wide ? 1.1 : 1.2), bodyY = homes[1].y - L.size * .9, babyX = homes[1].x;
       const babyNeed = rad + L.size * .8 + 2, bowlNeed = rad * 1.27 + L.R + 2;
       const crowded = [[L.sponge.x, L.sponge.y, L.R], [L.bush.x, L.bush.y - L.R * .4, L.R * 1.4], ...L.flowers.map(f => [f.x, f.y, f.r])];
@@ -548,11 +716,19 @@
     let y = L.ground + L.R * 1.35;
     if (!wide) y = Math.min(H * .935, H - ballR - 3); // tall: the front row, fully on the screen, in front of the pup
     if (wide && L.flowers && L.flowers.length) { const f = L.flowers[0]; y = Math.min(y, f.y - f.r - ballR - 3); } // wide: rest above the petals
-    const span = safeSpan(2, y, ballR), lo = span.lo, hi = span.hi;
-    let x = clamp(coreX(2, side < 0 ? .35 : .75), lo, hi);
-    if (L.basket) { const need = L.basket.r + ballR + 3, clear = px => Math.hypot(px - L.basket.x, y - L.basket.y) >= need;
-      if (!clear(x)) { const left = clamp(L.basket.x - need, lo, hi), right = clamp(L.basket.x + need, lo, hi); x = [side < 0 ? left : right, side < 0 ? right : left].find(clear) || x; } }
-    return { x: Math.round(x), y: Math.round(y), r: ballR }; }
+    const span = safeSpan(2, y, ballR);
+    // Integer centres whose drawn ball stays out of the neighbouring view. The views overlap on a short wide screen.
+    const leakLo = Math.ceil(stopFor(1) + W - .5 + ballR - 1e-6), leakHi = Math.floor(stopFor(3) + .5 - ballR + 1e-6);
+    let lo = Math.max(Math.round(span.lo), leakLo), hi = Math.min(Math.round(span.hi), leakHi);
+    if (lo > hi) { lo = Math.round(span.lo); hi = Math.round(span.hi); }
+    const tap = ballR * 1.2, pupW = L.size * 2.35, palW = L.fz * 1.1, open = (hi - tap) - (lo + tap);
+    // Opposite rims when the pup fits between them. Otherwise, or when the caller asks, both rests sit on the right
+    // and a corridor on the left stays wide enough for the pup and Pebblit side by side.
+    const slack = 6, pack = L.ballPack || open + 2 < pupW;
+    const leftEdge = Math.max(stopFor(2), stopFor(1) + W - .5);
+    const minCenter = Math.ceil(leftEdge + pupW + palW + slack + tap - 1);
+    const pair = pack ? [Math.max(lo, Math.min(hi, minCenter)), hi] : [lo, hi];
+    return { x: pair[side < 0 ? 0 : 1], y: Math.round(y), r: ballR }; }
   // LR-G2: the baby kicks from beside the ball, on the side nearest the middle, facing it, so neither hides the other.
   function kickStand(side) { const q = ballSpot(side), stop = stopFor(2); return clamp(q.x - side * (q.r + L.size * 1.05), stop + L.size * .9, stop + W - L.size * .9); }
   function ballNow() { const b = st.ball, A = ballSpot(b.from), B = ballSpot(b.to), k = b.at < 0 ? 1 : clamp((st.t - b.at) / BALL_ROLL, 0, 1), e = k * k * (3 - 2 * k);
