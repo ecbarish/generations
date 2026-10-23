@@ -195,20 +195,30 @@
     const names = area === 0 ? ['ksign', 'tsign'] : area === 2 ? ['stage', 'shelf'] : area === 3 ? ['dsign', 'sign', 'wsign'] : [];
     if (!names.length || !L[names[0]]) return;
     const rs = L.R * .95, boards = names.map(n => { const s = L[n]; return { x0: s.x - rs * .95, x1: s.x + rs * .95, y0: s.y - rs * 1.17, y1: s.y + rs * .27 }; });
-    const hit = (a, b) => a.x0 < b.x1 - .5 && b.x0 < a.x1 - .5 && a.y0 < b.y1 - .5 && b.y0 < a.y1 - .5;
+    const hit = (a, b) => a.x0 < b.x1 - 1 && b.x0 < a.x1 - 1 && a.y0 < b.y1 - 1 && b.y0 < a.y1 - 1;
     const leaks = x => { const b = boxAt(x, pt.y);
       if (area > 0) { const a = stopFor(area - 1); if (b.x1 > a + .5 && b.x0 < a + W - .5) return true; }
       if (area < 3) { const a = stopFor(area + 1); if (b.x1 > a + .5 && b.x0 < a + W - .5) return true; }
       return false; };
-    if (!boards.some(b => hit(boxAt(pt.x, pt.y), b))) return;
+    const clearOf = (x, y) => !boards.some(b => hit(boxAt(x, y), b));
+    if (clearOf(pt.x, pt.y)) return;
     const sample = boxAt(pt.x, pt.y), leftPad = pt.x - sample.x0, rightPad = sample.x1 - pt.x, stop = stopFor(area);
     const lo = stop + (area > 0 ? L.U * .2 : 0) + leftPad + 2, hi = stop + W - (area < 3 ? L.U * .2 : 0) - rightPad - 2;
     let best = null, bestD = Infinity;
     for (let x = Math.ceil(lo); x <= hi; x++) {
-      if (leaks(x) || boards.some(b => hit(boxAt(x, pt.y), b))) continue;
+      if (leaks(x) || !clearOf(x, pt.y)) continue;
       const d = Math.abs(x - pt.x); if (d < bestD) { bestD = d; best = x; }
     }
-    if (best !== null) pt.x = best;
+    if (best !== null) { pt.x = best; return; }
+    // The signs fill the width, so a sideways step would show in the next place. Drop below the boards instead.
+    const crossed = boards.filter(b => sample.x0 < b.x1 - 1 && b.x0 < sample.x1 - 1);
+    const floor = Math.max(...crossed.map(b => b.y1));
+    const dy = floor + 1 - sample.y0;
+    if (area === 2 && dy > 0 && pt.y + dy <= H - 2) {
+      pt.y += dy; // only the Toy Yard pup: the other places can step aside, and dropping there would stand on a puddle
+      const x = clamp(pt.x - (sample.x1 - sample.x0) * .22, lo, hi);
+      if (!leaks(Math.round(x))) pt.x = Math.round(x);
+    }
   }
   function dropForTravel() {
     const b = st.baby; b.act = null; b.then = null; b.tx = null; st.bowl.food = 0; st.bubbles.length = 0;
