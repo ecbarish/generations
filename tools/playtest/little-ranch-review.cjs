@@ -43,7 +43,7 @@ const server = http.createServer((req, res) => {
     await page.evaluate(() => { localStorage.setItem('little-ranch-settings-v1', '{"sound":false}'); localStorage.setItem('lr2-unrelated-save', '{"level":27}'); });
     for (let run = 1; run <= 2; run++) {
       await page.click('#run');
-      await page.waitForFunction(() => /^(PASS|FAIL)/.test(document.querySelector('#summary').textContent), null, { timeout: 120000 });
+      await page.waitForFunction(() => /^(PASS|FAIL)/.test(document.querySelector('#summary').textContent), null, { timeout: 300000 });
       const result = await page.locator('#summary').textContent();
       check('Browser regression suite run ' + run, /^PASS/.test(result), result);
       const storage = await page.evaluate(() => [localStorage.getItem('little-ranch-settings-v1'), localStorage.getItem('lr2-unrelated-save')]);

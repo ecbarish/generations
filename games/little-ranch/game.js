@@ -271,7 +271,7 @@
     { const cr = Math.min(U * .1, H * .11); L.cloud = { x: fitX(0, coreX(0, .62), cr, false), y: Math.max(cr + 1, H * .08, U * .08), r: cr }; }
     { const pr = U * .12, py = Math.min(H - pr - 1, Math.max(pr + 1, H * .9));
       L.puddles = [.3, .72].map(t => ({ x: fitX(0, coreX(0, t), pr, false), y: py, r: pr })); }
-    L.basket = { x: coreX(2, wide ? .86 : .87), y: wide ? H * .885 : H * .7, r: L.R * (wide ? .6 : .9) };
+    L.basket = { x: coreX(2, wide ? .86 : .87), y: wide ? H * .885 : Math.max(H * .7, H * .56 - U * .08 + U * .175 + L.R * .9 * .95 + 2), r: L.R * (wide ? .6 : .9) };
     { const potR = Math.min(W * .108, H * .1), z = Math.min(W * .82 / 2.4, H * .5 / 2.1);
       L.shed = { z, x: W / 2 - z * .08, y: H * .7, potR, pots: PAINT.map((c, i) => ({ x: W * (.125 + i * .25), y: H * .88 - potR * .4 })), barn: { x: Math.max(potR * 1.15, W * .1), y: Math.max(potR * 1.15, H * .09), r: potR * .95 } }; }
     { const z = Math.min(W * .11, H * .15), gy = H * .7;

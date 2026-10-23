@@ -1223,7 +1223,7 @@ document.querySelector('#run').onclick = async () => {
           const bowlAt = () => { const b = L().bowl, R = L().R; return { name: 'bowl', c: b, box: { x0: b.x - R, y0: b.y - R * .7, x1: b.x + R, y1: b.y + R * .2 } }; };
           const spongeAt = () => { const s = L().sponge, sw = L().R * .8; return { name: 'sponge', c: s, box: { x0: s.x - sw, y0: s.y - sw * .55, x1: s.x + sw, y1: s.y + sw * .55 } }; };
           const bushAt = () => { const b = L().bush, r = L().R * 1.25 * .88; return { name: 'bush', c: { x: b.x, y: b.y - r * .4 }, box: { x0: b.x - r * 1.15, y0: b.y - r * 1.25, x1: b.x + r * 1.15, y1: b.y + r * .25 } }; };
-          const basketAt = () => { const b = L().basket, r = b.r; return { name: 'basket', c: { x: b.x, y: b.y }, box: { x0: b.x - r * .85, y0: b.y - r * .85, x1: b.x + r * .85, y1: b.y + r * .55 } }; };
+          const basketAt = () => { const b = L().basket, r = b.r; return { name: 'basket', c: { x: b.x, y: b.y }, box: { x0: b.x - r * .88, y0: b.y - r * .9 - Math.max(1, r * .05), x1: b.x + r * .88, y1: b.y + r * .55 } }; };
           const areaThings = i => {
             const Ls = L();
             if (i === 0) return [door('ksign'), door('tsign'), disc('cloud', Ls.cloud, Ls.cloud.r), ...Ls.puddles.map((q, k) => disc('puddle' + k, q, q.r)), babyAt(0), friendAt(0)];
