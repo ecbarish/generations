@@ -825,7 +825,7 @@ document.querySelector('#run').onclick = async () => {
         return tot ? n / tot : 0; };
       const ballRed = [[255, 91, 110]], puddleBlue = [[90, 168, 224], [168, 220, 248]];
       const ballShows = () => { LR.redraw(); const q = LR.ballNow(); return fits({ x: q.x - LR.camera.x, y: q.y, rx: q.r * .8, ry: q.r * .8 }, ballRed, 14); };
-      const settle = async (w, h, area) => { frame.style.width = w + 'px'; frame.style.height = h + 'px'; await sleep(150); LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); if (area) { LR.go(area); LR.advance(.8); } else LR.advance(.3); };
+      const settle = async (w, h, area) => { frame.style.width = w + 'px'; frame.style.height = h + 'px'; await sleep(150); LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); if (area !== undefined) { LR.go(area); LR.advance(.8); } else LR.advance(.3); };
       for (const [label, width, height] of G2) {
         await settle(width, height, 2);
         // 1. the ball is in front of the fox: at the start, on both sides, and after every roll
