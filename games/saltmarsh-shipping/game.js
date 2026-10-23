@@ -222,7 +222,7 @@
     var rate = M.income(state);
     $('#rate').textContent = rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.';
     $('#goal').textContent = P.goal(state);
-    var rowing = performance.now() - view.rowing < 650;
+    var rowing = view.rowing > 0 && performance.now() - view.rowing < 650;
     var row = $('#row');
     row.disabled = rowing;
     row.textContent = rowing ? 'Rowing…' : (state.trips < M.HAND_TRIPS ? 'Row this cargo · ' + M.HAND_PAY + ' coins' : 'Row a cargo yourself · ' + M.HAND_PAY + ' coins');
@@ -301,7 +301,7 @@
 
   function rowAt(x, y, source) {
     taps.push({ x: x, y: y, source: source });
-    if (performance.now() - view.rowing < 650) return;
+    if (view.rowing > 0 && performance.now() - view.rowing < 650) return;
     if (!M.handSell(state, 0).ok) return;
     view.rowing = performance.now();
     view.ripple = { x: x, y: y, at: view.rowing };

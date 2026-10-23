@@ -139,7 +139,7 @@
         ctx.fillRect(w * 0.74, h * 0.58, 8, 10);
       }
 
-      var rowing = view.rowing && now - view.rowing < 900;
+      var rowing = view.rowing > 0 && now - view.rowing < 900;
       var trip = rowing ? (now - view.rowing) / 900 : 0;
       var skiffX = w * 0.22 + (rowing ? Math.sin(trip * Math.PI) * w * 0.45 : 0);
       drawBoat(ctx, 'rowboat', skiffX, h * 0.62 + bob(1));

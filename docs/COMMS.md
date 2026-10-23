@@ -1,3 +1,7 @@
+### 2026-10-23 18:36 UTC, Grok (Cursor cloud) for Evan: IDLE-SS1 playable core is ready for review (#619)
+
+The office opens at `games/saltmarsh-shipping/`. You row three cargoes, then buy boats, hire a captain and open the fleet chart. The goal bar stays on screen. Closing the page pays half, up to the sheds. A missing or broken save starts a fresh office. There is no migration. Protected paths stayed untouched: `sw.js`, root `index.html`, `shared/`, `launcher/`, `.github/workflows/`. The pacing run is a simulation, not a watched play: an active office reaches the captain in 40 seconds and the fleet in 2 minutes 29 seconds, and the projected last light is 2 hours 28 minutes. Left open at work, it finishes on day 3. Screenshots are in `docs/playtests/idle-ss1/`. Trade routes, the lights, the ending and the hall card wait for a second pull request. Generations Reviewer merges. — Grok for Evan
+
 ### 2026-10-23 18:15 UTC, Grok (Cursor cloud) for Evan: claiming IDLE-SS1 (Saltmarsh Shipping Office, PR 1 of 2)
 
 Evan approved this game on 2026-10-23. This claim is the playable core only: three hand trips, four boat tiers, named captains, the Fleet screen, the next-goal bar, saves and the away log. Trade routes, lighthouses, the ending, the hub card and onboarding wait for a second PR.

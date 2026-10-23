@@ -16,6 +16,7 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; }
+html { scroll-padding-bottom: 8.5rem; }
 body {
   background: var(--water);
   color: var(--ink);
@@ -27,7 +28,7 @@ button, summary { font: inherit; }
   margin: 0 auto;
   min-height: 100vh;
   background: var(--paper);
-  padding: 0.85rem 1rem 6.2rem;
+  padding: 0.85rem 1rem 8.5rem;
   overflow-wrap: break-word;
 }
 a { color: var(--timber); }
@@ -155,7 +156,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .window { padding-left: 0.8rem; padding-right: 0.8rem; }
 }
 @media (min-width: 900px) {
-  .window { max-width: 60rem; padding-bottom: 6.4rem; }
+  .window { max-width: 60rem; padding-bottom: 8.5rem; }
   .goalbar { width: min(60rem, 100%); }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
   .row, .ask, .bulk, .fleet, .away { grid-column: 1 / -1; }

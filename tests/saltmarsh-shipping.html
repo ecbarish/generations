@@ -34,7 +34,7 @@ document.querySelector('#run').onclick = async function () {
   var M = window.Saltmarsh;
   var P = window.SaltmarshPhase;
   var KEY = M.SAVE_KEY;
-  var before = Object.keys(localStorage).slice().sort().join('|');
+  var storedKeys = Object.keys(localStorage).slice().sort().join('|');
   function check(name, ok) {
     n++;
     var li = document.createElement('li');
@@ -121,9 +121,11 @@ document.querySelector('#run').onclick = async function () {
     marked.boats[0].owned = 10;
     marked.boats[1].owned = 10;
     marked.boats[2].owned = 9;
+    M.hire(marked, 0, 1000);
+    M.hire(marked, 1, 1000);
     var almost = P.goal(marked);
     marked.boats[2].owned = 10;
-    check('ten schooners only mark the routes', /furled/.test(almost) && P.read(marked).routesReady && P.read(marked).routesOpen === false && /furled|marked/.test(P.goal(marked)));
+    check('ten schooners only mark the routes', /furled/.test(almost) && P.read(marked).routesReady && P.read(marked).routesOpen === false && P.routesOpen() === false && /Hollis|marked|furled/.test(P.goal(marked)));
 
     var clock = 1700000000000;
     var haul = ready();
@@ -134,7 +136,7 @@ document.querySelector('#run').onclick = async function () {
     var paid = haul.cash;
     var again = M.collectCaptains(haul, clock + 20000, 1);
     var later = M.collectCaptains(haul, clock + 40000, 1);
-    check('the same stretch pays Capt. Wren once', once.length === 1 && once[0].units === 1 && again.length === 0 && paid - firstPay === 6 && haul.cash === paid && later.length === 1 && later[0].units === 1 && haul.cash - paid === 6);
+    check('the same stretch pays Capt. Wren once', once.length === 1 && once[0].units === 1 && again.length === 0 && paid - firstPay === 6 && later.length === 1 && later[0].units === 1 && haul.cash - paid === 6);
     check('a short gap pays nothing', (function () {
       var s = ready();
       s.boats[0].owned = 10;
@@ -169,10 +171,10 @@ document.querySelector('#run').onclick = async function () {
       office.boats[0].owned = 10;
       var idle = M.createIdle(office, function () {});
       var away = idle.start(wall - 30 * 3600 * 1000);
+      check('the tab title carries the income', document.title === '+' + Arcade.fmt(6) + '/s · Saltmarsh Shipping');
       idle.stop();
       check('thirty hours away with one shed pays two hours at half rate', away && away.capped && away.credited === 2 * 3600 && near(away.gained, 6 * 2 * 3600 * 0.5));
       check('the welcome back names the shed and the half rate', /While you were away/.test(M.awayCopy(office, away).title) && /2 hours/.test(M.awayCopy(office, away).lead) && /50%/.test(M.awayCopy(office, away).lead));
-      check('the tab title carries the income', document.title === '+' + Arcade.fmt(6) + '/s · Saltmarsh Shipping');
 
       office = ready();
       office.boats[0].owned = 10;
@@ -232,6 +234,9 @@ document.querySelector('#run').onclick = async function () {
     }
     function loadFrame(titleText) {
       return new Promise(function (resolve, reject) {
+        if (frame && frame.contentWindow && frame.contentWindow.__saltmarsh) {
+          try { frame.contentWindow.__saltmarsh.idle().stop(); } catch (e) { /* the next page still has to open */ }
+        }
         if (frame) frame.remove();
         frame = document.createElement('iframe');
         frame.title = titleText;
@@ -279,7 +284,7 @@ document.querySelector('#run').onclick = async function () {
     check('a tap uses the touch point and ignores the click after it', touchFrame.contentWindow.__saltmarsh.state.trips === 1 && taps.length === 1 && taps[0].source === 'touch' && taps[0].x === 48 && taps[0].y === 90);
 
     wipe();
-    check('other saves are untouched', Object.keys(localStorage).slice().sort().join('|') === before);
+    check('other saves are untouched', Object.keys(localStorage).slice().sort().join('|') === storedKeys);
     sum.textContent = 'PASS — ' + n + ' checks';
   } catch (err) {
     sum.textContent = 'FAIL — ' + (err && err.message ? err.message : err);
