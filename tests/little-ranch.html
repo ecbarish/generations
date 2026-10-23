@@ -1336,7 +1336,7 @@ document.querySelector('#run').onclick = async () => {
         LR.setFriend(false); LR.setRoutine(false); frame.style.width = '375px'; frame.style.height = '812px';
       }
       await sleep(160); LR.newVisit(); LR.advance(.1);
-      LR.go(3); LR.advance(.3); tap({ x: L().sign.x, y: L().sign.y - L().R * .45 });
+      LR.go(3); LR.advance(.8); tap({ x: L().sign.x, y: L().sign.y - L().R * .45 });
       check('A picture sign still opens its room', S().place === 'shed');
       const hist = w.history.length;
       w.dispatchEvent(new w.PopStateEvent('popstate', { state: null }));
