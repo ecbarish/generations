@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Saltmarsh Shipping checks</title>
+<style>
+  body{font:16px system-ui,sans-serif;background:#23394c;color:#d4e5e4;max-width:900px;margin:32px auto;padding:0 20px}
+  button{font:inherit;padding:10px 18px;cursor:pointer}
+  li{padding:5px 0;overflow-wrap:anywhere}
+  .pass{color:#9ee7ba}.fail{color:#ff9a9a}#summary{font-weight:bold}
+  iframe{width:375px;height:700px;border:0;background:#e7f0ef}
+</style>
+<h1>Saltmarsh Shipping checks</h1>
+<p>Boats, phases, captains, the shed cap and a save that fails safe. No hall entry.</p>
+<button id="run">Run checks</button>
+<p id="summary">Ready.</p>
+<ol id="results"></ol>
+<div id="game"></div>
+<script src="../shared/engine.js"></script>
+<script src="../shared/idle-core.js"></script>
+<script src="../shared/roster.js"></script>
+<script src="../games/saltmarsh-shipping/model.js"></script>
+<script src="../games/saltmarsh-shipping/phase.js"></script>
+<script src="../tools/saltmarsh-pacing.cjs"></script>
+<script>
+'use strict';
+document.querySelector('#run').onclick = async function () {
+  var sum = document.querySelector('#summary');
+  var list = document.querySelector('#results');
+  var button = document.querySelector('#run');
+  button.disabled = true;
+  list.replaceChildren();
+  sum.textContent = 'Running…';
+  var n = 0;
+  var M = window.Saltmarsh;
+  var P = window.SaltmarshPhase;
+  var KEY = M.SAVE_KEY;
+  var before = Object.keys(localStorage).slice().sort().join('|');
+  function check(name, ok) {
+    n++;
+    var li = document.createElement('li');
+    li.className = ok ? 'pass' : 'fail';
+    li.textContent = (ok ? 'PASS — ' : 'FAIL — ') + name;
+    list.appendChild(li);
+    if (!ok) throw Error(name);
+  }
+  function near(a, b) {
+    var d = Math.abs(a - b);
+    return d <= 1e-6 || d <= 1e-8 * Math.max(1, Math.abs(a), Math.abs(b));
+  }
+  function ready(trips) {
+    var state = M.fresh();
+    state.trips = trips == null ? M.HAND_TRIPS : trips;
+    return state;
+  }
+  var frame = null;
+  try {
+    check('four boats, and the first three match the spec',
+      M.BOATS.length === 4 &&
+      M.BOATS[0].base === 8 && M.BOATS[0].growth === 1.07 && M.BOATS[0].rate === 0.6 &&
+      M.BOATS[1].base === 120 && M.BOATS[1].growth === 1.08 && M.BOATS[1].rate === 5 &&
+      M.BOATS[2].base === 1800 && M.BOATS[2].growth === 1.10 && M.BOATS[2].rate === 40);
+    check('the bark stays inside the gentle growth band', M.BOATS[3].id === 'bark' && M.BOATS[3].base === 28000 && M.BOATS[3].growth === 1.12 && M.BOATS[3].rate === 420 && M.BOATS[3].growth >= 1.05 && M.BOATS[3].growth <= 1.15);
+    check('milestones are the shared doubles', Idle.milestoneMult(24) === 1 && Idle.milestoneMult(25) === 2 && Idle.milestoneMult(50) === 4 && Idle.milestoneMult(100) === 8);
+    check('a hand cargo pays 5', (function () { var s = M.fresh(); return M.handSell(s, 0).ok && s.cash === 5 && s.trips === 1; })());
+
+    var early = M.fresh();
+    early.cash = 1000;
+    check('two cargoes are not enough to buy a boat', M.handSell(early).ok && M.handSell(early).ok && M.buy(early, 0, 1).ok === false && early.boats[0].owned === 0 && M.quote(early, 0, 1).blocked === 'trips');
+    M.handSell(early);
+    check('the third cargo lets you buy, and the first rowboat costs 8', M.unlocked(early, 0) && near(M.quote(early, 0, 1).cost, 8) && M.buy(early, 0, 1).ok && early.boats[0].owned === 1 && early.cash === 1007);
+    check('one rowboat earns 0.6 a second, with no extra bonus', M.production(early, 0) === 0.6 && M.income(early) === 0.6);
+    check('a sloop stays shut until ten rowboats', M.unlocked(early, 1) === false && M.buy(early, 1, 'max').ok === false);
+
+    var bulk = ready();
+    bulk.cash = 1000;
+    var ten = Idle.bulkCost(8, 1.07, 0, 10);
+    check('buy 10 uses the shared bulk price', M.buy(bulk, 0, 10).ok && bulk.boats[0].owned === 10 && near(1000 - bulk.cash, ten));
+    var room = bulk.cash;
+    var afford = Idle.maxAffordable(8, 1.07, 10, room);
+    var spent = Idle.bulkCost(8, 1.07, 10, afford);
+    check('buy max never overspends and leaves the next one out of reach', M.buy(bulk, 0, 'max').ok && bulk.boats[0].owned === 10 + afford && near(room - bulk.cash, spent) && bulk.cash >= 0 && M.quote(bulk, 0, 1).count === 0);
+
+    var mile = ready();
+    mile.boats[0].owned = 24;
+    mile.cash = 1000;
+    var before = M.production(mile, 0);
+    check('the 25th rowboat doubles the row', before === 0.6 * 24 && M.buy(mile, 0, 1).ok && M.production(mile, 0) === 0.6 * 25 * 2 && M.production(mile, 0) > before + 0.6);
+    check('the first rowboat pays for itself in about 13 seconds', near(M.paybackSeconds(ready(), 0), 8 / 0.6));
+    var pays = ready();
+    pays.boats[0].owned = 10;
+    check('the sloop pays for itself in 24s once ten rowboats are tied up', M.unlocked(pays, 1) && near(M.paybackSeconds(pays, 1), 24) && M.paybackSeconds(pays, 2) === Infinity);
+    var schoon = ready();
+    schoon.boats[0].owned = 10;
+    schoon.boats[1].owned = 10;
+    check('the first schooner pays for itself in 45s', M.unlocked(schoon, 2) && near(M.paybackSeconds(schoon, 2), 45));
+
+    var fresh = M.fresh();
+    check('a new office starts on the water, with one shed and the sound off', fresh.trips === 0 && fresh.warehouses === 1 && fresh.sound === 0 && fresh.boats.every(function (b) { return b.owned === 0; }) && fresh.captains.every(function (c) { return !c.hired; }) && P.goal(fresh) === 'Row 3 cargoes yourself. Then a second boat can tie up.');
+    check('hiring waits until the boats are real', M.canHire(fresh, 0) === false && M.hire(fresh, 0).ok === false);
+    var phase = P.read(fresh);
+    check('trade routes stay shut on a new office', phase.boats === false && phase.captain === false && phase.fleet === false && phase.routesReady === false && phase.routesOpen === false && P.routesOpen() === false);
+
+    var pier = ready();
+    pier.boats[0].owned = 10;
+    check('ten rowboats open the captain, not the fleet', P.read(pier).captain && P.read(pier).fleet === false && M.canHire(pier, 0) && M.hire(pier, 0).ok && pier.captains[0].hired && /Wren/.test(pier.log[0].text));
+    check('the goal names Capt. Wren before the hire and the fleet after', (function () {
+      var s = ready();
+      s.boats[0].owned = 9;
+      var before = P.goal(s);
+      s.boats[0].owned = 10;
+      var ask = P.goal(s);
+      M.hire(s, 0, 1000);
+      s.boats[1].owned = 0;
+      return /rowboat/.test(before) && /Wren/.test(ask) && /sloop/.test(P.goal(s));
+    })());
+    var fleet = ready();
+    fleet.boats[0].owned = 10;
+    fleet.boats[1].owned = 10;
+    check('ten sloops unroll the fleet', P.read(fleet).fleet && P.name(fleet) === 'fleet' && /fleet chart/.test(P.goal(fleet)) === false);
+    var marked = ready();
+    marked.boats[0].owned = 10;
+    marked.boats[1].owned = 10;
+    marked.boats[2].owned = 9;
+    var almost = P.goal(marked);
+    marked.boats[2].owned = 10;
+    check('ten schooners only mark the routes', /furled/.test(almost) && P.read(marked).routesReady && P.read(marked).routesOpen === false && /furled|marked/.test(P.goal(marked)));
+
+    var clock = 1700000000000;
+    var haul = ready();
+    haul.boats[0].owned = 10;
+    check('a captain is hired onto a clock', M.hire(haul, 0, clock).ok && haul.jobs.wren && haul.jobs.wren.since === clock);
+    var firstPay = haul.cash;
+    var once = M.collectCaptains(haul, clock + 20000, 1);
+    var paid = haul.cash;
+    var again = M.collectCaptains(haul, clock + 20000, 1);
+    var later = M.collectCaptains(haul, clock + 40000, 1);
+    check('the same stretch pays Capt. Wren once', once.length === 1 && once[0].units === 1 && again.length === 0 && paid - firstPay === 6 && haul.cash === paid && later.length === 1 && later[0].units === 1 && haul.cash - paid === 6);
+    check('a short gap pays nothing', (function () {
+      var s = ready();
+      s.boats[0].owned = 10;
+      M.hire(s, 0, clock);
+      var beforeCash = s.cash;
+      var none = M.collectCaptains(s, clock + 19999, 1);
+      return none.length === 0 && s.cash === beforeCash;
+    })());
+    check('away hauls pay half, and only from the clock', (function () {
+      var s = ready();
+      s.boats[0].owned = 10;
+      M.hire(s, 0, clock);
+      var beforeCash = s.cash;
+      var rows = M.collectCaptains(s, clock + 20000, 0.5);
+      var replay = M.collectCaptains(s, clock + 20000, 0.5);
+      return rows.length === 1 && near(s.cash - beforeCash, 3) && replay.length === 0;
+    })());
+
+    check('one shed holds 2h and four sheds hold 8h, at half pay', M.offlineCap(ready()) === 2 * 3600 && M.OFFLINE_RATE === 0.5 && (function () { var s = ready(); s.warehouses = 4; return M.offlineCap(s) === 8 * 3600; })());
+    check('the away line names the half rate and the sheds', M.awayRule(ready()) === 'While away: earns 50%, up to 2h (1 shed)');
+
+    var wall = 1700000000000;
+    var realNow = Date.now;
+    var realSet = window.setInterval;
+    var realClear = window.clearInterval;
+    var title = document.title;
+    Date.now = function () { return wall; };
+    window.setInterval = function () { return 1; };
+    window.clearInterval = function () {};
+    try {
+      var office = ready();
+      office.boats[0].owned = 10;
+      var idle = M.createIdle(office, function () {});
+      var away = idle.start(wall - 30 * 3600 * 1000);
+      idle.stop();
+      check('thirty hours away with one shed pays two hours at half rate', away && away.capped && away.credited === 2 * 3600 && near(away.gained, 6 * 2 * 3600 * 0.5));
+      check('the welcome back names the shed and the half rate', /While you were away/.test(M.awayCopy(office, away).title) && /2 hours/.test(M.awayCopy(office, away).lead) && /50%/.test(M.awayCopy(office, away).lead));
+      check('the tab title carries the income', document.title === '+' + Arcade.fmt(6) + '/s · Saltmarsh Shipping');
+
+      office = ready();
+      office.boats[0].owned = 10;
+      office.warehouses = 4;
+      idle = M.createIdle(office, function () {});
+      var long = idle.start(wall - 30 * 3600 * 1000);
+      idle.stop();
+      check('four sheds raise the cap to eight hours', long && long.capped && long.credited === 8 * 3600 && near(long.gained, 6 * 8 * 3600 * 0.5));
+
+      office = ready();
+      office.boats[0].owned = 10;
+      idle = M.createIdle(office, function () {});
+      var hour = idle.start(wall - 3600 * 1000);
+      idle.stop();
+      check('one hour away is inside the shed and still half', hour && hour.capped === false && hour.credited === 3600 && near(hour.gained, 6 * 3600 * 0.5));
+    } finally {
+      Date.now = realNow;
+      window.setInterval = realSet;
+      window.clearInterval = realClear;
+      if (document.title !== title) document.title = title;
+    }
+
+    var round = ready();
+    round.cash = 42.5;
+    round.lifetime = 80;
+    round.sound = 1;
+    round.boats[0].owned = 4;
+    round.boats[1].owned = 10;
+    M.hire(round, 1, 12345);
+    round.log.push({ t: 50, text: 'A gull on the ledger.' });
+    var raw = M.serialize(round, 999);
+    var back = M.restore(raw);
+    check('a save round-trip keeps the office', M.valid(raw) && JSON.stringify(M.serialize(back, 999)) === JSON.stringify(raw) && back.jobs.bramble.since === 12345 && back.captains[1].hired && back.sound === 1);
+
+    var threw = false;
+    var broken = null;
+    try { broken = M.openSave(null); } catch (e) { threw = true; }
+    try { broken = M.openSave({ game: 'other' }); } catch (e) { threw = true; }
+    try { broken = M.restore('not-a-save'); } catch (e) { threw = true; }
+    try { JSON.parse('{'); } catch (e) { /* the engine meets this; the office must not */ }
+    var junk = M.openSave('{');
+    check('a missing or corrupt save starts fresh and does not throw', threw === false && broken.trips === 0 && broken.cash === 0 && broken.boats[0].owned === 0 && junk.trips === 0 && junk.cash === 0);
+
+    var active = SaltmarshPacing.simulate(M, 'active');
+    var days = SaltmarshPacing.workdays(M);
+    check('an active office reaches a captain within 10 minutes', active.captainAt > 0 && active.captainAt <= 600);
+    check('the fleet opens within 30 minutes', active.fleetAt > active.captainAt && active.fleetAt <= 1800);
+    check('the curve is heading for an ending in 2 to 3 hours', active.endingAt >= 7200 && active.endingAt <= 10800);
+    check('left open at work, the same curve finishes in 1 to 3 days', days.days >= 1 && days.days <= 3);
+
+    localStorage.removeItem(KEY);
+    function wipe() {
+      Object.keys(localStorage).forEach(function (k) {
+        if (k === KEY || k.indexOf('arcade-backup:' + KEY) === 0) localStorage.removeItem(k);
+      });
+      delete Arcade.held[KEY];
+    }
+    function loadFrame(titleText) {
+      return new Promise(function (resolve, reject) {
+        if (frame) frame.remove();
+        frame = document.createElement('iframe');
+        frame.title = titleText;
+        frame.src = '../games/saltmarsh-shipping/index.html?t=' + Date.now();
+        frame.onload = function () { resolve(frame); };
+        frame.onerror = function () { reject(Error('frame')); };
+        document.querySelector('#game').appendChild(frame);
+      });
+    }
+    wipe();
+    localStorage.setItem(KEY, '{');
+    var corrupt = await loadFrame('corrupt save');
+    var corruptWin = corrupt.contentWindow;
+    check('a broken file opens a fresh office on the page', corruptWin.__saltmarsh && corruptWin.__saltmarsh.state.trips === 0 && /Row 3 cargoes/.test(corrupt.contentDocument.querySelector('#goal').textContent));
+
+    wipe();
+    var missing = await loadFrame('missing save');
+    check('a missing save opens a fresh office', missing.contentWindow.__saltmarsh.state.cash === 0 && missing.contentDocument.querySelector('#away').hidden);
+
+    var saved = ready();
+    saved.cash = 42;
+    saved.trips = 3;
+    wipe();
+    localStorage.setItem(KEY, JSON.stringify(M.serialize(saved, Date.now())));
+    var againFrame = await loadFrame('round trip');
+    check('the page loads the saved office', againFrame.contentWindow.__saltmarsh.state.cash === 42 && againFrame.contentWindow.__saltmarsh.state.trips === 3 && /rowboat/i.test(againFrame.contentDocument.querySelector('#goal').textContent));
+
+    var awayState = ready();
+    awayState.boats[0].owned = 10;
+    wipe();
+    localStorage.setItem(KEY, JSON.stringify(M.serialize(awayState, Date.now() - 3 * 3600 * 1000)));
+    var awayFrame = await loadFrame('away log');
+    var awayText = awayFrame.contentDocument.querySelector('#away').textContent;
+    check('the away log shows after a closed page', awayFrame.contentWindow.__saltmarsh.away() && /While you were away/.test(awayText) && /50%/.test(awayText));
+
+    wipe();
+    var touchFrame = await loadFrame('touch');
+    var touchDoc = touchFrame.contentDocument;
+    var row = touchDoc.querySelector('#row');
+    var touch = new Touch({ identifier: 7, target: row, clientX: 48, clientY: 90 });
+    row.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, cancelable: true, touches: [touch], targetTouches: [touch], changedTouches: [touch] }));
+    row.dispatchEvent(new TouchEvent('touchend', { bubbles: true, cancelable: true, changedTouches: [touch] }));
+    row.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, clientX: 3, clientY: 4 }));
+    var taps = touchFrame.contentWindow.__saltmarsh.taps;
+    check('a tap uses the touch point and ignores the click after it', touchFrame.contentWindow.__saltmarsh.state.trips === 1 && taps.length === 1 && taps[0].source === 'touch' && taps[0].x === 48 && taps[0].y === 90);
+
+    wipe();
+    check('other saves are untouched', Object.keys(localStorage).slice().sort().join('|') === before);
+    sum.textContent = 'PASS — ' + n + ' checks';
+  } catch (err) {
+    sum.textContent = 'FAIL — ' + (err && err.message ? err.message : err);
+  } finally {
+    button.disabled = false;
+  }
+};
+</script>
+</body>
+</html>
