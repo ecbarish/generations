@@ -1,6 +1,11 @@
-/* Night Market Stalls (IDLE-NM1). Rules only: no page, no storage.
+/* Night Market Stalls (IDLE-NM1). NM-PACING claimed by Grok on 2026-10-23.
+   Rules only: no page, no storage.
    Load shared/engine.js and shared/idle-core.js first.
-   Shared milestones double at 25, 50 and 100. That doubling is the beat a player feels.
+   A stall doubles at 25, 50, 100, 150, 200, 300 and 400. That doubling is the beat a player feels.
+   The lane lights at 10, then again at 25 and 50. The first light doubles it. The later lights are smaller.
+   The Story Mat does not pull that count back to zero. The lane light is the only extra multiplier,
+   and it does not stack with a pairing.
+   Holding pours on the same Date.now() seconds as stall income, about eight a second, and never faster.
    Hiring is a person who runs stalls you have already worked. It is not a bonus. */
 (function () {
   'use strict';
@@ -10,13 +15,43 @@
   var OFFLINE_CAP = 4 * 3600;
   var OFFLINE_RATE = 0.5;
   var UNLOCK_AT = 10;
+  var STALL_MILESTONES = [25, 50, 100, 150, 200, 300, 400];
+  var LANE_MILESTONES = [10, 25, 50];
+  /* 10 doubles the lane. 25 and 50 raise it again, by less than another double, so the
+     evening from minute 15 to 45 is a run of choices instead of two income cliffs. */
+  var LANE_FACTORS = [1, 2, 2.5, 3.2];
+  var NEXT_MARKS = [10, 25, 50, 100, 150, 200, 300, 400];
+  var FINALE_AT = 10;
+  /* One pour every 120ms of the stall clock. A late timer cannot pay more than one second. */
+  var HOLD_PER_SEC = 1000 / 120;
+  var HOLD_SLICE = 1;
+  /* Max stops at the next doubling, and also when that buy would take longer than
+     seven and a half minutes to pay for itself. A run from 25 lanterns therefore
+     stops at 50 instead of climbing into a multi-hour payback. */
+  var PAYBACK_CAP = 450;
 
-  /* Hand work pays 1 coin. Growth stays between 1.05 and 1.15.
+  /* Old Wen tells one chapter of the tortoise's climb for each mat. The tenth is the ending.
+     These lines are the game's own tale. The unused tale files stay unloaded. */
+  var CHAPTERS = [
+    { title: 'The tortoise takes the lantern', text: 'Old Wen sits on the mat. A tortoise finds a lantern at the foot of the hill and picks it up.' },
+    { title: 'The first step', text: 'The hill is steep and the lantern is warm. The tortoise takes one step, and the crowd leans in.' },
+    { title: 'Tea at the foot', text: 'Mei pours for the listeners. The tortoise rests, and Old Wen leaves the hill still ahead.' },
+    { title: 'Steam on the path', text: 'Bo folds dumplings while he listens. The tortoise climbs past the steam, and Old Wen will not say what waits at the top.' },
+    { title: 'A light on the path', text: 'An lights a wick so the children can see. The tortoise is very small on the hill, and very brave.' },
+    { title: 'A tin for the climb', text: 'Qiao sets one tin aside for the ending. Old Wen smiles and keeps the tortoise on the steep middle.' },
+    { title: 'Smoke in the alley', text: 'Ren lights a stick for the alley. The smoke drifts up the hill, and the tortoise follows it.' },
+    { title: 'The paper screen', text: 'Old Wen paints the hill on a paper screen. Just before the top, he sets the brush down.' },
+    { title: 'The crowd holds still', text: 'Nobody speaks. The tortoise is one step from the top, and Old Wen looks along the lane.' },
+    { title: "Old Wen's last chapter", text: 'The tortoise sets the lantern on the hill. The lanterns over the lane go out, one by one. The night ends, and the story is whole.' }
+  ];
+
+  /* Hand work pays 1 coin. The five original stalls grow between 1.05 and 1.15.
      Tea grows at 1.07 so the cup after the fifty-stall awning is still a short wait.
      Dumplings grow at 1.06 so the cart does not climb from a minute and a half toward nine.
-     From minute 8 to 25 the soonest payback stays under about five minutes.
-     The Incense Tray opens at twelve mooncake tables and pays for itself in about a minute and a half,
-     so coins saved past the quarter hour have somewhere to go. */
+     The Incense Tray opens at twelve mooncake tables. The first tray pays for itself
+     in about two minutes, and the second stays inside four, so a buyer still has other stalls.
+     The Story Mat starts at 2,200,000 and grows at 1.36, faster than the lane, so each
+     chapter falls behind the other stalls until the evening earns its way there. */
   var STALLS = [
     {
       id: 'tea', name: 'Tea Stall', vendor: 'Mei',
@@ -58,7 +93,7 @@
       id: 'incense', name: 'Incense Tray', vendor: 'Ren',
       habit: 'Ren lights one stick for the stall and one for the alley.',
       serve: 'Light a stick', left: 'stick', lefts: 'sticks', hire: 'Ask Ren to take the tray',
-      base: 52380, growth: 1.05, rate: 540, serves: 8, hand: 1, unlockAt: 12,
+      base: 70000, growth: 1.1, rate: 540, serves: 8, hand: 1, unlockAt: 12,
       looks: ['One tray', 'Two trays', 'A bronze stand', 'Smoke you can see from the gate'],
       gossip: 'Ren says the alley smelled of smoke before anyone arrived.',
       next: 'Old Wen unrolls the Story Mat once ten trays are burning.'
@@ -67,7 +102,7 @@
       id: 'stories', name: 'Story Mat', vendor: 'Old Wen',
       habit: 'Old Wen stops just before the ending. The crowd pays to hear the rest.',
       serve: 'Tell a piece of the story', left: 'piece of the story', lefts: 'pieces of the story', hire: 'Ask Old Wen to take the mat',
-      base: 2500000, growth: 1.15, rate: 220, serves: 6, hand: 1,
+      base: 2200000, growth: 1.36, rate: 2200, serves: 6, hand: 1,
       looks: ['One cushion', 'Two cushions', 'A paper screen', 'Listeners sitting in the lane'],
       gossip: 'Old Wen says he reached the ending, then started again.',
       next: ''
@@ -105,13 +140,34 @@
     return 0;
   }
 
-  /* 25, 50 and 100 each double the row again. That doubling is the beat a player feels. */
+  /* 25, 50, 100, 150, 200, 300 and 400 each double the row again. */
   function stallMult(owned) {
-    return Idle.milestoneMult(owned);
+    return Idle.milestoneMult(owned, STALL_MILESTONES);
+  }
+
+  /* Lowest of the five original stalls. A shuttered one still counts as zero, so the
+     first light waits until tea, dumplings, lanterns, mooncakes and incense have kept up.
+     The Story Mat is not in this count: opening it must not put the lane back to 0/10. */
+  function lowestOwned(state) {
+    var n = Infinity, i, owned, last = Math.min(5, STALLS.length);
+    for (i = 0; i < last; i++) {
+      owned = state.stalls[i] ? state.stalls[i].owned : 0;
+      if (owned < n) n = owned;
+    }
+    return n === Infinity ? 0 : n;
+  }
+
+  function laneMult(state) {
+    var low = lowestOwned(state), mult = LANE_FACTORS[0], k;
+    for (k = 0; k < LANE_MILESTONES.length; k++) if (low >= LANE_MILESTONES[k]) mult = LANE_FACTORS[k + 1];
+    return mult;
   }
 
   function timesWord(owned) {
     var m = stallMult(owned);
+    if (m >= 128) return 'a hundred and twenty-eight times as much';
+    if (m >= 64) return 'sixty-four times as much';
+    if (m >= 32) return 'thirty-two times as much';
     if (m >= 16) return 'sixteen times as much';
     if (m >= 8) return 'eight times as much';
     if (m >= 4) return 'four times as much';
@@ -122,7 +178,7 @@
   function production(state, i) {
     var st = state.stalls[i];
     if (!st || !st.hired || !(st.owned > 0)) return 0;
-    return spec(i).rate * st.owned * stallMult(st.owned);
+    return spec(i).rate * st.owned * stallMult(st.owned) * laneMult(state);
   }
 
   function income(state) {
@@ -149,6 +205,23 @@
     };
   }
 
+  /* Coins a second from holding. Before the stalls earn this much, holding is the work.
+     Once they do, which is well before minute 10, holding stays at this rate and cannot pass them. */
+  function holdRate() {
+    return HOLD_PER_SEC;
+  }
+
+  /* Turn a gap on the stall clock into whole pours. `acc` keeps the fraction between calls.
+     A gap longer than one second pays one second, so a stalled timer cannot run ahead. */
+  function holdCredit(elapsedSec, acc) {
+    var carried = acc > 0 && isFinite(acc) ? acc : 0;
+    if (!(elapsedSec > 0) || !isFinite(elapsedSec)) return { pours: 0, acc: carried, seconds: 0 };
+    var seconds = Math.min(elapsedSec, HOLD_SLICE);
+    var next = carried + seconds * HOLD_PER_SEC;
+    var pours = Math.floor(next + 1e-9);
+    return { pours: pours, acc: next - pours, seconds: seconds };
+  }
+
   function canHire(state, i) {
     if (!unlocked(state, i) || state.stalls[i].hired) return false;
     return state.stalls[i].serves >= spec(i).serves;
@@ -164,23 +237,104 @@
     return { ok: true };
   }
 
+  function nextMark(owned) {
+    for (var k = 0; k < NEXT_MARKS.length; k++) if (owned < NEXT_MARKS[k]) return NEXT_MARKS[k];
+    return 0;
+  }
+
+  function countToNext(owned) {
+    var at = nextMark(owned);
+    return at > owned ? at - owned : 0;
+  }
+
+  /* Largest n, at most `limit`, whose price fits in cash. The shared helper already
+     nudges for rounding; this still refuses a count the button could not actually buy. */
+  /* From 100 onward the price sheds the growth already climbed, down to a fixed
+     premium. The doubling itself stays on the old price, so x2 is still the short
+     wait. The copies after it are a longer wait a player can still choose.
+     Nothing before 100 changes, and minute 10 never reaches 100. */
+  function priceOrigin(owned) {
+    /* Prices stay on one curve. A reset after 100 made cheap stalls the only buy
+       and then a wall, so the long wait after x2 is explained in words instead. */
+    return 0;
+  }
+
+  function unitCost(stall, owned) {
+    var origin = priceOrigin(owned);
+    if (!origin) return stall.base * Math.pow(stall.growth, owned);
+    return stall.base * Math.pow(stall.growth, 52 + owned - origin);
+  }
+
+  function cost(i, owned, n) {
+    var stall = spec(i);
+    n = Math.floor(n);
+    if (!stall || !(n > 0)) return 0;
+    if (!isFinite(owned) || owned < 0) owned = 0;
+    else owned = Math.floor(owned);
+    if (priceOrigin(owned + n - 1) === 0) return Idle.bulkCost(stall.base, stall.growth, owned, n);
+    var total = 0, k;
+    for (k = 0; k < n; k++) total += unitCost(stall, owned + k);
+    return total;
+  }
+
+  function maxFit(i, owned, cash, limit) {
+    var cap = limit > 0 ? limit : 80;
+    if (!(cash > 0) || cost(i, owned, 1) > cash) return 0;
+    var lo = 1, hi = 1;
+    while (hi < cap && cost(i, owned, hi) <= cash) {
+      lo = hi;
+      hi = Math.min(cap, hi * 2);
+    }
+    if (cost(i, owned, hi) <= cash) return hi;
+    while (lo < hi) {
+      var mid = Math.ceil((lo + hi) / 2);
+      if (cost(i, owned, mid) <= cash) lo = mid;
+      else hi = mid - 1;
+    }
+    return lo;
+  }
+
+  function affordableCopies(stall, owned, cash, limit) {
+    var n = Idle.maxAffordable(stall.base, stall.growth, owned, cash);
+    if (!(n > 0)) return 0;
+    if (limit > 0 && n > limit) n = limit;
+    while (n > 0 && Idle.bulkCost(stall.base, stall.growth, owned, n) > cash) n--;
+    return n > 0 ? n : 0;
+  }
+
   function quote(state, i, mode) {
     if (!spec(i)) return { count: 0, cost: 0, blocked: 'closed' };
     var stall = spec(i);
     var owned = state.stalls[i].owned;
-    var one = Idle.bulkCost(stall.base, stall.growth, owned, 1);
+    var one = cost(i, owned, 1);
     if (!state.stalls[i].hired) return { count: 0, cost: one, blocked: 'hire' };
     if (!unlocked(state, i)) return { count: 0, cost: one, blocked: 'closed' };
-    var n, cost;
+    var n, priced, afford;
     if (mode === 'max') {
-      n = Idle.maxAffordable(stall.base, stall.growth, owned, state.cash);
-      cost = n > 0 ? Idle.bulkCost(stall.base, stall.growth, owned, n) : one;
-      return { count: n, cost: cost, blocked: n > 0 ? null : 'cost' };
+      var room = countToNext(owned);
+      var capN = room > 0 ? room : 20;
+      afford = maxFit(i, owned, state.cash, capN);
+      n = afford;
+      while (n > 0 && paybackSeconds(state, i, n) > PAYBACK_CAP) n--;
+      if (!(n > 0)) {
+        /* Coins can cover a copy that Max still refuses. Say so, instead of a dead Buy 1. */
+        return { count: 0, cost: one, blocked: afford > 0 ? 'payback' : 'cost' };
+      }
+      priced = cost(i, owned, n);
+      return { count: n, cost: priced, blocked: null };
+    }
+    if (mode === 'next') {
+      n = countToNext(owned);
+      if (!(n > 0)) return { count: 0, cost: one, blocked: 'done' };
+      var toward = maxFit(i, owned, state.cash, n);
+      /* Greyed Next prices the next single step. A batch price does not match the one copy you are short. */
+      if (!(toward > 0)) return { count: 0, cost: one, blocked: 'cost' };
+      return { count: toward, cost: cost(i, owned, toward), blocked: null };
     }
     n = mode === 10 || mode === '10' ? 10 : 1;
-    cost = Idle.bulkCost(stall.base, stall.growth, owned, n);
-    if (!(cost >= 0) || cost > state.cash) return { count: 0, cost: cost, blocked: 'cost' };
-    return { count: n, cost: cost, blocked: null };
+    priced = cost(i, owned, n);
+    if (!(priced >= 0) || priced > state.cash) return { count: 0, cost: priced, blocked: 'cost' };
+    return { count: n, cost: priced, blocked: null };
   }
 
   function buy(state, i, mode) {
@@ -195,13 +349,12 @@
       return { ok: false, reason: 'closed', count: 0, cost: 0 };
     }
     count = Math.floor(count);
-    var stall = spec(i);
-    var cost = count > 0 ? Idle.bulkCost(stall.base, stall.growth, state.stalls[i].owned, count) : 0;
-    if (!(count > 0) || !(cost >= 0) || cost > state.cash) return { ok: false, reason: 'cost', count: 0, cost: cost };
-    state.cash -= cost;
+    var priced = count > 0 ? cost(i, state.stalls[i].owned, count) : 0;
+    if (!(count > 0) || !(priced >= 0) || priced > state.cash) return { ok: false, reason: 'cost', count: 0, cost: priced };
+    state.cash -= priced;
     if (state.cash < 1e-6) state.cash = 0;
     state.stalls[i].owned += count;
-    return { ok: true, count: count, cost: cost };
+    return { ok: true, count: count, cost: priced };
   }
 
   /* Payback is the price of the selected quantity divided by the income those stalls add.
@@ -211,19 +364,20 @@
     var st = state.stalls && state.stalls[i];
     if (!stall || !st || !st.hired) return Infinity;
     var n = count > 0 ? Math.floor(count) : 1;
-    var cost = Idle.bulkCost(stall.base, stall.growth, st.owned, n);
-    var owned = st.owned > 0 ? st.owned : 0;
-    var before = stall.rate * owned * stallMult(owned);
-    var afterOwned = owned + n;
-    var added = stall.rate * afterOwned * stallMult(afterOwned) - before;
-    if (!(cost > 0) || !(added > 0) || !isFinite(cost) || !isFinite(added)) return Infinity;
-    return cost / added;
+    var priced = cost(i, st.owned, n);
+    var before = income(state);
+    st.owned += n;
+    var after = income(state);
+    st.owned -= n;
+    var added = after - before;
+    if (!(priced > 0) || !(added > 0) || !isFinite(priced) || !isFinite(added)) return Infinity;
+    return priced / added;
   }
 
   function buyCount(state, i) {
     var mode = state && state.bulk;
-    if (mode === 'max') {
-      var q = quote(state, i, 'max');
+    if (mode === 'max' || mode === 'next') {
+      var q = quote(state, i, mode);
       return q.count > 0 ? q.count : 1;
     }
     if (mode === 10 || mode === '10') return 10;
@@ -239,11 +393,18 @@
   function paybackLine(state, i) {
     var stall = spec(i);
     if (!stall) return '';
+    var owned = state.stalls[i] ? state.stalls[i].owned : 0;
     var n = buyCount(state, i);
-    var label = paybackLabel(paybackSeconds(state, i, n));
+    var seconds = paybackSeconds(state, i, n);
+    var label = paybackLabel(seconds);
     if (!label) return stall.vendor + ' is running this stall.';
-    if (n === 1) return 'The next one pays for itself in ' + label + '.';
-    return n + ' more pay for themselves in ' + label + '.';
+    var line = n === 1 ? 'The next one pays for itself in ' + label + '.' : n + ' more pay for themselves in ' + label + '.';
+    /* The copy after a doubling adds one stall. The doubling added the whole row.
+       Name that, so a jump from about an hour to many hours does not look like a broken price. */
+    if (STALL_MILESTONES.indexOf(owned) >= 0 && seconds >= 30 * 60) {
+      return 'The x2 is already lit, so this one is the long wait: ' + label + '.';
+    }
+    return line;
   }
 
   function awayRule() {
@@ -256,7 +417,7 @@
     var best = Infinity;
     for (var i = 0; i < STALLS.length; i++) {
       if (!state.stalls[i].hired) continue;
-      var one = Idle.bulkCost(spec(i).base, spec(i).growth, state.stalls[i].owned, 1);
+      var one = cost(i, state.stalls[i].owned, 1);
       if (one > 0 && isFinite(one)) best = Math.min(best, one / rate);
     }
     return best;
@@ -270,7 +431,7 @@
     var best = null, i, k, marks, left;
     for (i = 0; i < STALLS.length; i++) {
       if (!state.stalls[i].hired) continue;
-      marks = [10, 25, 50, 100];
+      marks = NEXT_MARKS;
       for (k = 0; k < marks.length; k++) {
         if (state.stalls[i].owned >= marks[k]) continue;
         if (i === skipI && marks[k] === skipAt) continue;
@@ -316,11 +477,83 @@
       return withBonus((left === 1 ? 'One more ' : left + ' more ') + spec(i).name.toLowerCase() + (left === 1 ? '' : 's') + '. ' + spec(i).next, bonus);
     }
     bonus = nextBonus(state);
-    if (bonus) {
+    if (finaleReached(state)) {
+      var ahead = laneAhead(state);
+      if (ahead) return laneLine(state) + ' The next light raises what the whole lane earns.';
+      var matsOwned = state.stalls[STALLS.length - 1].owned;
+      if (matsOwned < 25) {
+        var matsLeft = 25 - matsOwned;
+        return (matsLeft === 1 ? 'One more Story Mat reaches 25, and that mat doubles.' : matsLeft + ' more Story Mats reach 25, and that mat doubles.');
+      }
+      if (bonus) {
+        stall = spec(bonus.i);
+        var payoff = stallMult(bonus.at) > stallMult(bonus.at - 1) ? ' That doubling pays about twice what the row earns now.' : '';
+        return withBonus((bonus.left === 1 ? 'One more ' : bonus.left + ' more ') + stall.name.toLowerCase() + (bonus.left === 1 ? '' : 's') + '.', bonus) + payoff;
+      }
+    } else if (bonus) {
       stall = spec(bonus.i);
       return withBonus((bonus.left === 1 ? 'One more ' : bonus.left + ' more ') + stall.name.toLowerCase() + (bonus.left === 1 ? '' : 's') + '.', bonus);
     }
     return 'Every stall has a crowd. The lane is as bright as it gets tonight.';
+  }
+
+  function nextGoalLine(state, i) {
+    var stall = spec(i);
+    var owned = state.stalls[i] ? state.stalls[i].owned : 0;
+    var at = nextMark(owned);
+    if (!stall) return '';
+    if (!at) return 'Every doubling on this stall is lit.';
+    if (i === STALLS.length - 1 && at === FINALE_AT) return 'Next goal: 10 Story Mats. Old Wen\'s last chapter.';
+    if (at === 10) return 'Next goal: 10 ' + pluralStall(stall.name, 10) + '.';
+    return 'Next goal: ' + at + ' ' + pluralStall(stall.name, at) + ', x2.';
+  }
+
+  /* Tea, dumplings, lanterns, mooncakes and incense. The Story Mat is not one of them. */
+  var LANE_WHO = 'tea through incense';
+
+  function laneAhead(state) {
+    var low = lowestOwned(state), k;
+    for (k = 0; k < LANE_MILESTONES.length; k++) if (low < LANE_MILESTONES[k]) return LANE_MILESTONES[k];
+    return 0;
+  }
+
+  /* Past the last lane light, the next stall doubling is the named target.
+     It does not add another lane multiplier. */
+  function laneTarget(low) {
+    var k;
+    for (k = 0; k < LANE_MILESTONES.length; k++) if (low < LANE_MILESTONES[k]) return LANE_MILESTONES[k];
+    for (k = 0; k < STALL_MILESTONES.length; k++) if (low < STALL_MILESTONES[k]) return STALL_MILESTONES[k];
+    return 0;
+  }
+
+  function laneLine(state) {
+    var low = lowestOwned(state);
+    var next = laneTarget(low);
+    var lit = laneMult(state) >= 2 ? 'The whole lane is lit. ' : '';
+    if (!next) return lit + 'Lane goal: ' + low + ' on ' + LANE_WHO + '.';
+    return lit + 'Lane goal: ' + low + '/' + next + ' on ' + LANE_WHO + '.';
+  }
+
+  function chapterTitle(n) {
+    var ch = CHAPTERS[n - 1];
+    return ch ? ch.title : '';
+  }
+
+  function chapterLine(state) {
+    var owned = state.stalls[STALLS.length - 1] ? state.stalls[STALLS.length - 1].owned : 0;
+    if (!(owned > 0)) return '';
+    if (owned > FINALE_AT) return 'Old Wen tells it again.';
+    if (owned === FINALE_AT) return "Old Wen's last chapter is told.";
+    return 'Chapter ' + owned + ' of ' + FINALE_AT + ': ' + chapterTitle(owned) + '.';
+  }
+
+  function finaleReached(state) {
+    return !!(state.stalls[STALLS.length - 1] && state.stalls[STALLS.length - 1].owned >= FINALE_AT);
+  }
+
+  function finaleCopy() {
+    var ch = CHAPTERS[FINALE_AT - 1];
+    return { title: ch.title, lead: ch.text, choice: 'Keep the lane open' };
   }
 
   function lookLine(state, i) {
@@ -329,8 +562,7 @@
     if (!state.stalls[i].hired) return '';
     if (owned <= 0) return stall.vendor + ' is here, waiting for the first one.';
     var look = stall.looks[lookIndex(owned)];
-    if (stallMult(owned) <= 1) return look + '.';
-    return look + '. It earns ' + timesWord(owned) + '.';
+    return stallMult(owned) <= 1 ? look + '.' : look + '. It earns ' + timesWord(owned) + '.';
   }
 
   function gossipLine(state) {
@@ -351,8 +583,27 @@
     return { title: 'While you were away', lead: lead, box: box };
   }
 
+  /* Same rule as the Best tag. Max and Next only count a buy the button can make.
+     Buy 1 and Buy 10 score one step or ten even when the coins are short, and the
+     tag stays off until that stall can actually be bought. */
+  function bestIndex(state) {
+    var best = -1, score = Infinity, i, n, sec, mode = state.bulk;
+    for (i = 0; i < STALLS.length; i++) {
+      if (!state.stalls[i].hired || !unlocked(state, i)) continue;
+      if (mode === 'max' || mode === 'next') n = quote(state, i, mode).count;
+      else n = mode === 10 || mode === '10' ? 10 : 1;
+      if (!(n > 0)) continue;
+      sec = paybackSeconds(state, i, n);
+      if (sec < score) { score = sec; best = i; }
+    }
+    return best;
+  }
+
   function setBulk(state, mode) {
-    state.bulk = mode === 'max' ? 'max' : mode === 10 || mode === '10' ? 10 : 1;
+    if (mode === 'max') state.bulk = 'max';
+    else if (mode === 'next') state.bulk = 'next';
+    else if (mode === 10 || mode === '10') state.bulk = 10;
+    else state.bulk = 1;
     return state.bulk;
   }
 
@@ -417,15 +668,37 @@
     OFFLINE_CAP: OFFLINE_CAP,
     OFFLINE_RATE: OFFLINE_RATE,
     UNLOCK_AT: UNLOCK_AT,
+    STALL_MILESTONES: STALL_MILESTONES,
+    LANE_MILESTONES: LANE_MILESTONES,
+    LANE_FACTORS: LANE_FACTORS,
+    NEXT_MARKS: NEXT_MARKS,
+    FINALE_AT: FINALE_AT,
+    HOLD_PER_SEC: HOLD_PER_SEC,
+    PAYBACK_CAP: PAYBACK_CAP,
+    CHAPTERS: CHAPTERS,
     fresh: fresh,
+    lowestOwned: lowestOwned,
+    laneMult: laneMult,
+    nextMark: nextMark,
+    countToNext: countToNext,
+    nextGoalLine: nextGoalLine,
+    laneLine: laneLine,
+    chapterTitle: chapterTitle,
+    chapterLine: chapterLine,
+    finaleReached: finaleReached,
+    finaleCopy: finaleCopy,
     unlocked: unlocked,
     income: income,
     production: production,
     addCash: addCash,
     handSell: handSell,
+    holdRate: holdRate,
+    holdCredit: holdCredit,
     canHire: canHire,
     hire: hire,
     quote: quote,
+    cost: cost,
+    bestIndex: bestIndex,
     buy: buy,
     buyExact: buyExact,
     secondsToNext: secondsToNext,

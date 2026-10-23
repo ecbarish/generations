@@ -21,12 +21,20 @@
   </header>
   <div class="lane" aria-hidden="true"><canvas id="lane" width="384" height="88"></canvas></div>
   <p class="goal" id="goal"></p>
+  <p class="lane-goal" id="lane-goal"></p>
+  <section class="finale" id="finale" hidden tabindex="-1">
+    <h2 id="finale-title"></h2>
+    <p id="finale-lead"></p>
+    <button type="button" data-act="finale">Keep the lane open</button>
+  </section>
+  <p class="finale-note" id="finale-note" hidden tabindex="-1"></p>
   <div class="market-work">
   <div class="bulk" id="bulk" hidden role="group" aria-label="How many to buy at once">
     <span class="bulk-name">Buying</span>
     <button type="button" data-bulk="1" aria-pressed="true">1</button>
     <button type="button" data-bulk="10" aria-pressed="false">10</button>
     <button type="button" data-bulk="max" aria-pressed="false">Max</button>
+    <button type="button" data-bulk="next" aria-pressed="false">Next</button>
   </div>
   <section id="away" hidden></section>
   <ol class="stalls" id="stalls"></ol>
