@@ -148,7 +148,7 @@
   const AREAS = ['Kitchen Garden', 'Meadow', 'Toy Yard', 'Barn Yard'];
   const cam = { area: 1, x: 0, from: 0, to: 0, t0: -9, dur: 0, parallax: { far: 0, near: 0 } };
   function areaCentre(i) { return L.U * (1 + 1.4 * i); }
-  function stopFor(i) { const x = clamp(areaCentre(i) - W / 2, 0, Math.max(0, L.U * 6.2 - W)); const f = Math.floor(x), d = x - f; return d > .5 || (d === .5 && f % 2) ? f + 1 : f; }
+  function stopFor(i) { const x = clamp(areaCentre(i) - W / 2, 0, Math.max(0, L.U * 6.2 - W)); const f = Math.floor(x), d = x - f; return d > .5 || (d === .5 && f % 2) ? f + 1 : f; } // halves land on even pixels, matching the published stops
   function coreX(i, t) { return areaCentre(i) + L.U * (t - .5); }
   function pinSky() { if (!L || !L.U) return; L.sun = { x: cam.x + W * .22, y: H * .17 }; L.moon = { x: cam.x + W * .8, y: H * .16 }; }
   function camGliding() { return !!(st && cam.dur > 0 && st.t - cam.t0 < cam.dur - 1e-6); }
@@ -245,16 +245,17 @@
       L.dough = { lr, cr, ty: H * .5, lump: { x: W * .42, y: H * .66 }, cutter: { x: W * .8, y: H * .64 }, barn: L.shed.barn,
         dr: Math.min(W * .09, H * .1), dots: (wide ? [.27, .47, .67, .87] : [.2, .4, .6, .8]).map(f => ({ x: W * f, y: H * .5 * .55 })) }; }
     layToys();
-    { const stop = stopFor(1), rad = L.R * (wide ? 1.1 : 1.2), bodyY = homes[1].y - L.size * .9, babyX = homes[1].x; let best = null, bestD = Infinity;
+    { const stop = stopFor(1), rad = L.R * (wide ? 1.1 : 1.2), bodyY = homes[1].y - L.size * .9, babyX = homes[1].x;
+      const babyNeed = rad + L.size * .8 + 2, bowlNeed = rad * 1.27 + L.R + 2;
+      const crowded = [[L.sponge.x, L.sponge.y, L.R], [L.bush.x, L.bush.y - L.R * .4, L.R * 1.4], ...L.flowers.map(f => [f.x, f.y, f.r])];
+      let best = null, bestD = Infinity, loose = null, looseD = Infinity;
       for (let y = L.ground + rad; y <= H - rad; y += 6) for (let x = stop + rad + 2; x <= stop + W - rad - 2; x += 6) {
-        const clear = (px, py, pr) => Math.hypot(x - px, y - py) > pr + rad * 1.27 + 2;
-        if (!clear(L.bowl.x, L.bowl.y - L.R * .25, L.R * 1.05)) continue;
-        if (!clear(babyX, bodyY, L.size * .8)) continue;
-        if (!clear(L.sponge.x, L.sponge.y, L.R)) continue;
-        if (!clear(L.bush.x, L.bush.y - L.R * .4, L.R * 1.4)) continue;
-        if (L.flowers.some(f => !clear(f.x, f.y, f.r))) continue;
-        const d = Math.hypot(x - (L.bowl.x + L.R), y - L.bowl.y); if (d < bestD) { bestD = d; best = { x, y }; } }
-      L.item = { x: best ? best.x : L.bowl.x + L.R * 2, y: best ? best.y : L.ground + rad, r: rad }; }
+        if (Math.hypot(x - babyX, y - bodyY) <= babyNeed || Math.hypot(x - L.bowl.x, y - L.bowl.y) <= bowlNeed) continue;
+        const d = Math.hypot(x - (L.bowl.x + L.R), y - L.bowl.y);
+        if (d < looseD) { looseD = d; loose = { x, y }; }
+        if (crowded.every(([px, py, pr]) => Math.hypot(x - px, y - py) > pr + rad * 1.27 + 2) && d < bestD) { bestD = d; best = { x, y }; } }
+      const pick = best || loose;
+      L.item = { x: pick ? pick.x : stop + W * .5, y: pick ? pick.y : L.ground + rad, r: rad }; }
     pinSky(); syncHome(); refreshArrows();
     if (st && old.U && (W !== oldW || H !== oldH)) {
       const sz = L.U / old.U, sy = H / oldH;
