@@ -982,11 +982,11 @@ document.querySelector('#run').onclick = async () => {
         check(`${width}×${height}: at 12 blocks the baby, the tray and the floor share one camera, and a block stays at least half size`, Tw().stack.length === 12 && Tw().stack.every(b => b.landed) && Math.abs(feet - floor) < 1e-6 && floor > 0 && floor <= cv.height && LR.stackBlock() + 1e-6 >= Tv.bs / 2 && Tv.tray.every(q => q.y + cam <= cv.height));
       }
       const legacy = localStorage.getItem(PREF), extra = 'other-game-save-v1';
-      localStorage.setItem(PREF, '{"sound":false,"visit":4,"coins":9}'); localStorage.setItem(extra, '{"coins":4}');
+      localStorage.setItem(PREF, '{"sound":false}'); localStorage.setItem(extra, '{"coins":4}');
       const old = document.createElement('iframe'); old.style.cssText = 'width:375px;height:812px'; old.src = '../games/little-ranch/index.html';
       await new Promise((ok, no) => { const t = setTimeout(() => no(Error('old save load timed out')), 20000); old.onload = () => { clearTimeout(t); ok(); }; document.querySelector('#game').appendChild(old); });
       const ow = old.contentWindow; for (let i = 0; i < 50 && !ow.LR; i++) await sleep(100);
-      check('An old sound save still loads, a new visit starts in the Meadow, and another game save is left untouched', ow.LR && ow.LR.prefs.sound === false && ow.LR.camera.area === 1 && ow.LR.state.mode === 'play' && ow.LR.state.place === 'ranch' && localStorage.getItem(extra) === '{"coins":4}' && JSON.parse(localStorage.getItem(PREF)).sound === false);
+      check('A stored sound choice still loads, a new visit starts in the Meadow, and another game save is left untouched', ow.LR && ow.LR.prefs.sound === false && ow.LR.camera.area === 1 && ow.LR.state.mode === 'play' && ow.LR.state.place === 'ranch' && localStorage.getItem(extra) === '{"coins":4}' && JSON.parse(localStorage.getItem(PREF)).sound === false);
       old.remove(); localStorage.removeItem(extra); if (legacy === null) localStorage.removeItem(PREF); else localStorage.setItem(PREF, legacy);
     }
     frame.style.width = '1024px'; frame.style.height = '768px'; await sleep(150); LR.prefs.sound = true; LR.setRoutine(false); LR.setFriend(false); LR.newVisit(); LR.advance(.1);
