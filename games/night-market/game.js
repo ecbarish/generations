@@ -25,26 +25,23 @@
   }
 
   var idle = M.createIdle(state, persist);
+  var paybackHintUntil = 0;
+  var paybackHintStall = -1;
+  var paybackHintDone = false;
 
   // ART-NM-1: the lane strip only hears about sales, hires and buys; it reads state and never changes it
   function lane(what, i, a, b) { var L = window.NightLane; if (L && L[what]) L[what](i, a, b); }
   if (window.NightLane && document.getElementById('lane')) window.NightLane.init(document.getElementById('lane'), function () { return state; }, M.unlocked);
 
-  function buyLabel(i) {
-    var q = M.quote(state, i, state.bulk);
-    var stall = M.STALLS[i];
+  function buyLabel(i, q) {
+    q = q || M.quote(state, i, state.bulk);
     if (q.blocked === 'hire' || q.blocked === 'closed') return 'Buy 1';
-    if (state.bulk === 'max') {
-      if (!(q.count > 0)) return 'Need ' + money(q.cost) + ' coins for one';
-      return 'Buy max · ' + q.count + ' ' + stall.name.toLowerCase() + (q.count === 1 ? '' : 's') + ' · ' + money(q.cost) + ' coins';
-    }
+    if (state.bulk === 'max' && q.count > 0) return 'Max · ' + q.count + ' · ' + money(q.cost);
     var n = state.bulk === 10 ? 10 : 1;
-    if (!(q.count > 0)) return n + (n === 1 ? ' costs ' : ' cost ') + money(q.cost) + ' coins';
     return 'Buy ' + n + ' · ' + money(q.cost) + ' coins';
   }
 
-  /* The stall you should work. An unhired open stall comes first.
-     Once everyone is hired, the newest open stall is the best click. */
+  /* Which pour still has to be done by hand. The Best tag belongs on a purchase, never here. */
   function handJobIndex() {
     var i, lastHired = -1;
     for (i = 0; i < M.STALLS.length; i++) {
@@ -53,6 +50,17 @@
       lastHired = i;
     }
     return lastHired;
+  }
+
+  function bestBuyIndex() {
+    var best = -1, score = Infinity, i, n, sec;
+    for (i = 0; i < M.STALLS.length; i++) {
+      if (!state.stalls[i].hired || !M.unlocked(state, i)) continue;
+      n = state.bulk === 'max' ? Math.max(1, M.quote(state, i, 'max').count) : (state.bulk === 10 ? 10 : 1);
+      sec = M.paybackSeconds(state, i, n);
+      if (sec < score) { score = sec; best = i; }
+    }
+    return best;
   }
 
   function fillRow(li, i) {
@@ -78,11 +86,11 @@
       return;
     }
     serve.hidden = false; // the pour button never vanishes: after the hire you can still pour by hand
-    var best = i === handJobIndex();
-    serve.classList.toggle('best', best);
+    var pouring = i === handJobIndex();
+    serve.classList.remove('best');
     serve.textContent = !st.hired
-      ? (best && i > 0 ? 'This stall · ' + stall.serve : stall.serve)
-      : (best ? 'Best · ' + stall.serve + ' · +' + stall.hand : stall.serve + ' yourself · +' + stall.hand);
+      ? (pouring && i > 0 ? 'This stall · ' + stall.serve : stall.serve)
+      : (stall.serve + ' yourself · +' + stall.hand);
     var bar = li.querySelector('.pour');
     bar.hidden = !!st.hired;
     if (!st.hired) { var k = Math.min(st.serves, stall.serves); bar.value = k; bar.max = stall.serves; bar.textContent = k + ' of ' + stall.serves;
@@ -103,10 +111,25 @@
     var rate = M.production(state, i);
     facts.textContent = st.owned + ' open · ' + money(rate) + ' coins a second. ' + M.lookLine(state, i);
     wait.textContent = M.paybackLine(state, i);
+    var hint = li.querySelector('.payback-hint');
+    var showHint = false;
+    if (!paybackHintDone && /pay(?:s)? for (?:itself|themselves)/i.test(wait.textContent)) {
+      if (!paybackHintUntil) { paybackHintUntil = Date.now() + 8000; paybackHintStall = i; }
+      if (i === paybackHintStall && Date.now() < paybackHintUntil) showHint = true;
+      else if (i === paybackHintStall && Date.now() >= paybackHintUntil) paybackHintDone = true;
+    }
+    if (hint) {
+      hint.hidden = !showHint;
+      hint.textContent = showHint ? 'A lower time is a better buy.' : '';
+    }
     ask.hidden = true;
     buy.hidden = false;
-    buy.textContent = buyLabel(i);
-    buy.disabled = !(M.quote(state, i, state.bulk).count > 0);
+    var offer = M.quote(state, i, state.bulk);
+    var deal = i === bestBuyIndex();
+    buy.classList.toggle('best', deal);
+    buy.dataset.count = String(offer.count);
+    buy.textContent = (deal ? 'Best · ' : '') + buyLabel(i, offer);
+    buy.disabled = !(offer.count > 0);
   }
 
   function render() {
@@ -130,24 +153,41 @@
           '<progress class="pour" hidden></progress><p class="count" hidden></p>' +
           '<div class="actions"><button type="button" data-act="serve"></button>' +
           '<button type="button" class="ask" data-act="hire"></button>' +
-          '<button type="button" data-act="buy"></button></div>';
+          '<button type="button" data-act="buy"></button></div>' +
+          '<p class="payback-hint" hidden></p>';
         list.appendChild(li);
       });
     }
     Array.prototype.forEach.call(list.children, function (li) { fillRow(li, +li.dataset.i); });
-    syncGoalPin();
+    syncPins();
   }
 
-  /* On a phone the green goal stays on screen after the header has scrolled away.
-     It does not take taps. The header goal is the one that stays in the page. */
-  function syncGoalPin() {
+  /* On a phone the green goal returns only after the lane has left the screen,
+     so the strip does not sit on the pour. A tap on it jumps back to the goal.
+     On a desktop the coin total does the same once the coins and the lane have scrolled away. */
+  function syncPins() {
     var pin = $('#goal-pin');
     var goal = $('#goal');
+    var laneEl = document.getElementById('lane');
     if (!pin || !goal) return;
     pin.textContent = goal.textContent;
+    var coinPin = $('#coin-pin');
+    var coins = document.querySelector('.coins');
     var phone = window.matchMedia('(max-width: 1000px)').matches;
-    var box = goal.getBoundingClientRect();
-    pin.hidden = !phone || box.bottom >= 8;
+    var wide = window.matchMedia('(min-width: 1001px)').matches;
+    var laneBox = laneEl ? laneEl.getBoundingClientRect() : null;
+    var coinBox = coins ? coins.getBoundingClientRect() : null;
+    var laneGone = !!laneBox && laneBox.bottom <= 0;
+    var coinsGone = !!coinBox && coinBox.bottom <= 0;
+    var showGoal = phone && laneGone;
+    pin.hidden = !showGoal;
+    if (coinPin) {
+      var rate = M.income(state);
+      coinPin.textContent = money(state.cash) + ' coins · ' + (rate > 0 ? money(rate) + ' a second' : 'nothing earning yet');
+      coinPin.hidden = !(wide && laneGone && coinsGone);
+    }
+    var shown = showGoal ? pin : (coinPin && !coinPin.hidden ? coinPin : null);
+    document.documentElement.style.scrollPaddingTop = shown ? Math.ceil(shown.getBoundingClientRect().height) + 'px' : '';
   }
 
   function showAway(summary) {
@@ -183,6 +223,16 @@
   document.addEventListener('contextmenu', function (e) { if (e.target.closest && e.target.closest('[data-act="serve"]')) e.preventDefault(); });
 
   document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#goal-pin')) {
+      var goal = $('#goal');
+      if (goal) goal.scrollIntoView({ block: 'start' });
+      return;
+    }
+    if (e.target.closest && e.target.closest('#coin-pin')) {
+      var coins = document.querySelector('.coins');
+      if (coins) coins.scrollIntoView({ block: 'start' });
+      return;
+    }
     var b = e.target.closest('button');
     if (!b || b.disabled) return;
     if (b.dataset.act === 'serve' && hold && hold.b === b && hold.n > 0) { hold = null; return; } // a hold already poured; the release isn't one more
@@ -203,7 +253,11 @@
     var i = +li.dataset.i;
     if (b.dataset.act === 'serve') { if (M.handSell(state, i).ok) lane('serve', i); }
     else if (b.dataset.act === 'hire') { if (M.hire(state, i).ok) lane('hire', i); }
-    else if (b.dataset.act === 'buy') { var had = state.stalls[i].owned; if (M.buy(state, i, state.bulk).ok) lane('buy', i, had, state.stalls[i].owned); }
+    else if (b.dataset.act === 'buy') {
+      var had = state.stalls[i].owned;
+      var quoted = parseInt(b.dataset.count, 10);
+      if (M.buyExact(state, i, quoted).ok) lane('buy', i, had, state.stalls[i].owned);
+    }
     else return;
     persist();
     render();
@@ -218,8 +272,8 @@
   if (summary && (summary.gained > 0 || summary.capped)) showAway(summary);
   render();
   setInterval(render, 250);
-  window.addEventListener('scroll', syncGoalPin, true);
-  window.addEventListener('resize', syncGoalPin);
+  window.addEventListener('scroll', syncPins, true);
+  window.addEventListener('resize', syncPins);
 
   window.__nightMarket = { state: state, render: render, idle: idle, HOLD_DELAY: HOLD_DELAY, HOLD_EVERY: HOLD_EVERY, drawTools: drawTools, away: function () { return awayOn; } };
 })();

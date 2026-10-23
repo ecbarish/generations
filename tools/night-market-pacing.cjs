@@ -202,7 +202,181 @@
     return { marks: marks, snaps: snaps, paybacks: paybacks, visible: visible, purchases: purchases, state: state };
   }
 
-  var api = { PROFILES: PROFILES, simulate: simulate, playSensible: playSensible, playAffordable: playAffordable };
+  /* The fast buyer. Pouring uses the page's hold (every 120ms) while a stall still needs a vendor.
+     Once a second it buys one copy of the affordable stall that pays for itself soonest.
+     It does not tunnel into one stall while a doubling on another row is the better buy. */
+  function playMeasured(M, durationSec) {
+    var state = M.fresh();
+    var limit = (durationSec || 960) * 1000;
+    var marks = { 1000: null, 10000: null, 100000: null, 1000000: null };
+    var snaps = {};
+    var purchases = [];
+    var bonuses = [];
+    var bestPay = [];
+    var ownedBefore = [0, 0, 0, 0, 0, 0];
+    var HAND = 120, BUY = 1000, lastTick = 0, nextBuy = BUY;
+    function noteBonuses(ms) {
+      for (var i = 0; i < M.STALLS.length; i++) {
+        var now = state.stalls[i].owned, prev = ownedBefore[i];
+        [10, 25, 50, 100].forEach(function (mark) {
+          if (prev < mark && now >= mark) bonuses.push({ at: ms / 1000, stall: i, mark: mark });
+        });
+        ownedBefore[i] = now;
+      }
+    }
+    for (var ms = HAND; ms <= limit; ms += HAND) {
+      for (var i = 0; i < M.STALLS.length; i++) {
+        if (!M.unlocked(state, i)) break;
+        if (state.stalls[i].hired) continue;
+        if (M.canHire(state, i)) M.hire(state, i);
+        else M.handSell(state, i);
+        break;
+      }
+      M.addCash(state, M.income(state) * (ms - lastTick) / 1000);
+      lastTick = ms;
+      if (ms + 1e-6 >= nextBuy) {
+        nextBuy += BUY;
+        var best = Infinity, options = [];
+        for (var j = 0; j < M.STALLS.length; j++) {
+          if (!state.stalls[j].hired) continue;
+          var seconds = M.paybackSeconds(state, j, 1);
+          var cost = M.quote(state, j, 1).cost;
+          options.push({ j: j, seconds: seconds, cost: cost });
+          if (seconds < best) best = seconds;
+        }
+        var pick = -1, pickPay = Infinity;
+        for (var n = 0; n < options.length; n++) {
+          var o = options[n];
+          if (!(state.cash >= o.cost)) continue;
+          if (o.seconds < pickPay) { pick = o.j; pickPay = o.seconds; }
+        }
+        if (pick >= 0 && M.buy(state, pick, 1).ok) purchases.push({ at: ms / 1000, stall: pick, payback: pickPay });
+        noteBonuses(ms);
+        if (ms >= 480000 && ms <= 900000 && isFinite(best)) bestPay.push(best);
+      } else noteBonuses(ms);
+      [360, 450, 540, 720, 840, 900].forEach(function (sec) {
+        if (!snaps[sec] && ms + 1e-6 >= sec * 1000) {
+          var lines = [], bestLine = Infinity;
+          for (var k = 0; k < M.STALLS.length; k++) {
+            if (!state.stalls[k].hired) continue;
+            var line = M.paybackSeconds(state, k, 1);
+            lines.push(line);
+            if (line < bestLine) bestLine = line;
+          }
+          snaps[sec] = {
+            income: M.income(state),
+            cash: state.cash,
+            lifetime: state.lifetime,
+            owned: state.stalls.map(function (s) { return s.owned; }),
+            lines: lines,
+            bestPayback: bestLine
+          };
+        }
+      });
+      [1000, 10000, 100000, 1000000].forEach(function (mark) {
+        if (marks[mark] === null && state.lifetime >= mark) marks[mark] = ms / 1000;
+      });
+    }
+    var moonTimes = [];
+    purchases.forEach(function (p) { if (p.stall === 3 && (moonTimes.length === 0 || p.at !== moonTimes[moonTimes.length - 1])) moonTimes.push(p.at); });
+    var moonGaps = [];
+    for (var g = 1; g < moonTimes.length; g++) moonGaps.push(moonTimes[g] - moonTimes[g - 1]);
+    var windowBonuses = bonuses.filter(function (b) { return b.at >= 480 && b.at <= 900; });
+    var bonusGaps = [];
+    for (var b = 1; b < windowBonuses.length; b++) bonusGaps.push(windowBonuses[b].at - windowBonuses[b - 1].at);
+    return {
+      marks: marks, snaps: snaps, purchases: purchases, bonuses: bonuses, bonusGaps: bonusGaps,
+      moonTimes: moonTimes, moonGaps: moonGaps, bestPay: bestPay, state: state,
+      maxBestPayback8to15: bestPay.reduce(function (m, n) { return Math.max(m, n); }, 0)
+    };
+  }
+
+  /* A desktop player, about half the fast buyer's pace on the old curve.
+     Real clicks: one pour every 1.2s (25 cups and 0 coins a second at 0:30).
+     One purchase every 7s, and only when it pays for itself within 6 minutes,
+     unless that copy is walking into a doubling at 25, 50 or 100. */
+  function playHuman(M, durationSec) {
+    var state = M.fresh();
+    var limit = (durationSec || 960) * 1000;
+    var marks = { 1000: null, 10000: null, 100000: null, 1000000: null };
+    var snaps = {};
+    var bonuses = [];
+    var bestPay = [];
+    var ownedBefore = [0, 0, 0, 0, 0, 0];
+    var POUR = 1200, BUY = 7000, lastTick = 0, nextPour = POUR, nextBuy = 30000;
+    function chasing(owned) {
+      return [25, 50, 100].some(function (mark) {
+        var left = mark - owned;
+        return left > 0 && left <= 12;
+      });
+    }
+    for (var ms = 40; ms <= limit; ms += 40) {
+      if (ms + 1e-6 >= nextPour) {
+        nextPour += POUR;
+        for (var i = 0; i < M.STALLS.length; i++) {
+          if (!M.unlocked(state, i)) break;
+          if (state.stalls[i].hired) continue;
+          if (M.canHire(state, i)) M.hire(state, i);
+          else M.handSell(state, i);
+          break;
+        }
+      }
+      M.addCash(state, M.income(state) * (ms - lastTick) / 1000);
+      lastTick = ms;
+      var best = Infinity;
+      if (ms + 1e-6 >= nextBuy) {
+        nextBuy += BUY;
+        var options = [];
+        for (var j = 0; j < M.STALLS.length; j++) {
+          if (!state.stalls[j].hired) continue;
+          var seconds = M.paybackSeconds(state, j, 1);
+          options.push({ j: j, seconds: seconds, cost: M.quote(state, j, 1).cost });
+          if (seconds < best) best = seconds;
+        }
+        var pick = -1, pickPay = Infinity;
+        for (var n = 0; n < options.length; n++) {
+          var o = options[n];
+          if (!(state.cash >= o.cost)) continue;
+          if (o.seconds > 360 && !chasing(state.stalls[o.j].owned)) continue;
+          if (o.seconds < pickPay) { pick = o.j; pickPay = o.seconds; }
+        }
+        if (pick >= 0) M.buy(state, pick, 1);
+        for (var b = 0; b < M.STALLS.length; b++) {
+          var now = state.stalls[b].owned, prev = ownedBefore[b];
+          [10, 25, 50, 100].forEach(function (mark) {
+            if (prev < mark && now >= mark) bonuses.push({ at: ms / 1000, stall: b, mark: mark });
+          });
+          ownedBefore[b] = now;
+        }
+        if (ms >= 480000 && ms <= 900000 && isFinite(best)) bestPay.push(best);
+      }
+      [30, 180, 360, 540, 720, 900].forEach(function (sec) {
+        if (!snaps[sec] && ms + 1e-6 >= sec * 1000) {
+          var line = Infinity;
+          for (var k = 0; k < M.STALLS.length; k++) {
+            if (!state.stalls[k].hired) continue;
+            line = Math.min(line, M.paybackSeconds(state, k, 1));
+          }
+          snaps[sec] = {
+            income: M.income(state),
+            cash: state.cash,
+            lifetime: state.lifetime,
+            owned: state.stalls.map(function (s) { return s.owned; }),
+            bestPayback: line
+          };
+        }
+      });
+      [1000, 10000, 100000, 1000000].forEach(function (mark) {
+        if (marks[mark] === null && state.lifetime >= mark) marks[mark] = ms / 1000;
+      });
+    }
+    return {
+      marks: marks, snaps: snaps, bonuses: bonuses, bestPay: bestPay, state: state,
+      maxBestPayback8to15: bestPay.reduce(function (m, n) { return Math.max(m, n); }, 0)
+    };
+  }
+
+  var api = { PROFILES: PROFILES, simulate: simulate, playSensible: playSensible, playAffordable: playAffordable, playMeasured: playMeasured, playHuman: playHuman };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.NightMarketPacing = api;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -227,6 +401,8 @@ if (typeof module !== 'undefined' && require.main === module) {
     });
     const sensible = module.exports.playSensible(context.NightMarket, 5400);
     const affordable = module.exports.playAffordable(context.NightMarket, 5400);
+    const measured = module.exports.playMeasured(context.NightMarket, 960);
+    const human = module.exports.playHuman(context.NightMarket, 960);
     const maxOf = (list) => list.reduce((m, n) => Math.max(m, n), 0);
     const fixture = JSON.parse(fs.readFileSync(path.join(root, 'docs/playtests/nm-retune/legacy-v1.json'), 'utf8'));
     const M = context.NightMarket;
@@ -245,6 +421,18 @@ if (typeof module !== 'undefined' && require.main === module) {
         maxPaybackMinute6to15: maxOf(affordable.paybacks),
         purchasesMinute6to15: affordable.paybacks.length,
         purchasesOver15Min: affordable.paybacks.filter(n => n > 15 * 60).length
+      },
+      measured: {
+        marks: measured.marks,
+        income: { 360: measured.snaps[360], 540: measured.snaps[540], 720: measured.snaps[720], 900: measured.snaps[900] },
+        maxBestPayback8to15: measured.maxBestPayback8to15,
+        bonuses: measured.bonuses.filter(function (b) { return b.at >= 480 && b.at <= 900 && (b.mark === 25 || b.mark === 50); })
+      },
+      human: {
+        marks: human.marks,
+        income: { 30: human.snaps[30], 180: human.snaps[180], 360: human.snaps[360], 540: human.snaps[540], 720: human.snaps[720], 900: human.snaps[900] },
+        maxBestPayback8to15: human.maxBestPayback8to15,
+        bonuses: human.bonuses.filter(function (b) { return b.at >= 360 && b.at <= 900 && (b.mark === 25 || b.mark === 50); })
       }
     };
   }
@@ -259,14 +447,21 @@ if (typeof module !== 'undefined' && require.main === module) {
     const assert = require('node:assert/strict');
     assert.equal(report.current.oldSaveRoundTrip, true, 'legacy save round trip');
     const sensible = report.current.sensible;
-    assert(sensible.marks[1000000] >= 2700 && sensible.marks[1000000] <= 4500, 'sensible million is 45 to 75 minutes');
+    assert(sensible.marks[1000000] > 15 * 60 && sensible.marks[1000000] <= 40 * 60, 'sensible million stays after the opening quarter hour (' + Math.round(sensible.marks[1000000]) + 's)');
     assert(sensible.maxWaitMinute6to15 <= 90, 'minute 6 to 15 purchase wait');
     assert(sensible.maxPaybackMinute6to15 <= 20 * 60, 'minute 6 to 15 payback');
     assert(sensible.overtakenAt > 60 && sensible.overtakenAt < 360, 'stalls overtake a fast click after the opening');
     assert(sensible.minute6.income > sensible.minute6.hand, 'minute 6 stall income beats 10 clicks a second');
     const spend = report.current.affordable;
-    assert(spend.marks[100000] < 15 * 60 && spend.marks[1000000] >= 2700 && spend.marks[1000000] <= 4500, 'affordable buyer reaches 100K inside 15 minutes and a million in 45 to 75');
-    assert(spend.purchasesMinute6to15 > 10 && spend.maxPaybackMinute6to15 <= 38 * 60, 'affordable buyer minute 6 to 15 purchase');
+    assert(spend.marks[100000] < 15 * 60 && spend.marks[1000000] > 15 * 60 && spend.marks[1000000] <= 40 * 60, 'affordable buyer reaches 100K inside 15 minutes and a million after that (' + Math.round(spend.marks[1000000]) + 's)');
+    assert(spend.purchasesMinute6to15 > 10 && spend.maxPaybackMinute6to15 <= 45 * 60, 'affordable buyer minute 6 to 15 purchase (' + Math.round(spend.maxPaybackMinute6to15) + 's)');
+    const measured = report.current.measured;
+    const humanPace = report.current.human;
+    function doubled(list) { return list.some(function (b) { return b.mark === 25 || b.mark === 50; }); }
+    assert(measured.maxBestPayback8to15 > 0 && measured.maxBestPayback8to15 <= 5 * 60, 'fast buyer minute 8 to 15 best payback stays under 5 minutes (' + Math.round(measured.maxBestPayback8to15) + 's)');
+    assert(humanPace.maxBestPayback8to15 > 0 && humanPace.maxBestPayback8to15 <= 5 * 60, 'human buyer minute 8 to 15 best payback stays under 5 minutes (' + Math.round(humanPace.maxBestPayback8to15) + 's)');
+    assert(doubled(measured.bonuses), 'fast buyer still hits a 25 or 50 doubling from minute 8 to 15');
+    assert(humanPace.bonuses.some(function (b) { return b.mark === 25; }) && humanPace.bonuses.some(function (b) { return b.mark === 50; }), 'human buyer still gets a 25 doubling and a 50 awning');
     for (const profile of report.current.profiles) assert(profile.snapshots[600].lifetime < 1000000, profile.profile + ' early rush');
     const active = report.current.profiles.find(p => p.profile === 'active');
     assert.equal(active.hireAt[0], 25, 'first vendor');

@@ -1,6 +1,6 @@
 /* Night Market Stalls (IDLE-NM1). Rules only: no page, no storage.
    Load shared/engine.js and shared/idle-core.js first.
-   The only production change is the shared milestone (×2 at 25, 50 and 100 owned).
+   Shared milestones double at 25, 50 and 100. That doubling is the beat a player feels.
    Hiring is a person who runs stalls you have already worked. It is not a bonus. */
 (function () {
   'use strict';
@@ -11,16 +11,16 @@
   var OFFLINE_RATE = 0.5;
   var UNLOCK_AT = 10;
 
-  /* A sensible buyer should still afford a next stall through the first
-     quarter hour, and a million coins should land in about 45 to 75 minutes.
-     Hand work pays 1 coin. Open stalls overtake a fast click after the opening.
-     Growth stays between 1.05 and 1.15. No multiplier besides the milestones. */
+  /* Hand work pays 1 coin. Growth stays between 1.05 and 1.15.
+     Tea grows at 1.07 so the cup after the fifty-stall awning is still a short wait.
+     Dumplings grow at 1.06 so the cart does not climb from a minute and a half toward nine.
+     From minute 8 to 15 the soonest payback stays under about five minutes. */
   var STALLS = [
     {
       id: 'tea', name: 'Tea Stall', vendor: 'Mei',
       habit: 'Mei opens before the lanterns are lit.',
       serve: 'Pour a cup', left: 'cup', lefts: 'cups', hire: 'Ask Mei to take the stall',
-      base: 6, growth: 1.10, rate: 0.45, serves: 25, hand: 1,
+      base: 6, growth: 1.07, rate: 0.45, serves: 25, hand: 1,
       looks: ['One lantern', 'Two lanterns', 'A striped awning', 'A crowd at the cups'],
       gossip: 'Mei says the regulars were waiting in the dark.',
       next: 'Bo brings the Dumpling Cart once ten tea stalls are pouring.'
@@ -29,7 +29,7 @@
       id: 'dumpling', name: 'Dumpling Cart', vendor: 'Bo',
       habit: 'Bo talks while he folds, and regulars stay to listen.',
       serve: 'Fold a dumpling', left: 'dumpling', lefts: 'dumplings', hire: 'Ask Bo to take the cart',
-      base: 80, growth: 1.11, rate: 0.9, serves: 12, hand: 1,
+      base: 80, growth: 1.06, rate: 0.9, serves: 12, hand: 1,
       looks: ['One steamer', 'Two steamers', 'A cloth awning', 'A queue down the lane'],
       gossip: 'Bo says he talked the whole time, and the dumplings still sold.',
       next: 'An brings the Lantern Stand once ten carts are folding.'
@@ -38,7 +38,7 @@
       id: 'lantern', name: 'Lantern Stand', vendor: 'An',
       habit: 'An trims each wick until the flame sits still.',
       serve: 'Light a lantern', left: 'lantern', lefts: 'lanterns', hire: 'Ask An to take the stand',
-      base: 900, growth: 1.12, rate: 4, serves: 10, hand: 1,
+      base: 700, growth: 1.07, rate: 5, serves: 10, hand: 1,
       looks: ['One pole', 'A pair of poles', 'A string of lamps', 'The alley lit'],
       gossip: 'An says the wicks burned clean the whole time.',
       next: 'Qiao brings the Mooncake Table once ten stands are lit.'
@@ -47,7 +47,7 @@
       id: 'mooncake', name: 'Mooncake Table', vendor: 'Qiao',
       habit: 'Qiao counts the tins twice, then parts with the one she likes least.',
       serve: 'Wrap a mooncake', left: 'mooncake', lefts: 'mooncakes', hire: 'Ask Qiao to take the table',
-      base: 11000, growth: 1.13, rate: 16, serves: 8, hand: 1,
+      base: 6400, growth: 1.05, rate: 40, serves: 8, hand: 1,
       looks: ['One stack of tins', 'Two stacks of tins', 'A painted sign', 'Tins along the table'],
       gossip: 'Qiao says she counted the tins twice, and they still sold.',
       next: 'Ren brings the Incense Tray once ten tables are wrapping.'
@@ -97,8 +97,14 @@
     return 0;
   }
 
+  /* 25, 50 and 100 each double the row again. That doubling is the beat a player feels. */
+  function stallMult(owned) {
+    return Idle.milestoneMult(owned);
+  }
+
   function timesWord(owned) {
-    var m = Idle.milestoneMult(owned);
+    var m = stallMult(owned);
+    if (m >= 16) return 'sixteen times as much';
     if (m >= 8) return 'eight times as much';
     if (m >= 4) return 'four times as much';
     if (m >= 2) return 'twice as much';
@@ -108,7 +114,7 @@
   function production(state, i) {
     var st = state.stalls[i];
     if (!st || !st.hired || !(st.owned > 0)) return 0;
-    return spec(i).rate * st.owned * Idle.milestoneMult(st.owned);
+    return spec(i).rate * st.owned * stallMult(st.owned);
   }
 
   function income(state) {
@@ -171,26 +177,49 @@
 
   function buy(state, i, mode) {
     var q = quote(state, i, mode);
-    if (!(q.count > 0)) return { ok: false, reason: q.blocked || 'cost', count: 0, cost: q.cost };
-    state.cash -= q.cost;
-    if (state.cash < 1e-6) state.cash = 0;
-    state.stalls[i].owned += q.count;
-    return { ok: true, count: q.count, cost: q.cost };
+    return buyExact(state, i, q.count);
   }
 
-  /* Payback is the next stall's price divided by the income that one stall adds.
-     A milestone can add more than one stall's rate, because the whole row doubles. */
-  function paybackSeconds(state, i) {
+  /* Spends exactly `count`, priced the same way quote() priced that many.
+     The button stores that count at render; a later income tick must not buy a different number. */
+  function buyExact(state, i, count) {
+    if (!spec(i) || !state.stalls[i] || !state.stalls[i].hired || !unlocked(state, i)) {
+      return { ok: false, reason: 'closed', count: 0, cost: 0 };
+    }
+    count = Math.floor(count);
+    var stall = spec(i);
+    var cost = count > 0 ? Idle.bulkCost(stall.base, stall.growth, state.stalls[i].owned, count) : 0;
+    if (!(count > 0) || !(cost >= 0) || cost > state.cash) return { ok: false, reason: 'cost', count: 0, cost: cost };
+    state.cash -= cost;
+    if (state.cash < 1e-6) state.cash = 0;
+    state.stalls[i].owned += count;
+    return { ok: true, count: count, cost: cost };
+  }
+
+  /* Payback is the price of the selected quantity divided by the income those stalls add.
+     A tenth or a twenty-fifth can add more than one stall's rate, because the whole row doubles. */
+  function paybackSeconds(state, i, count) {
     var stall = spec(i);
     var st = state.stalls && state.stalls[i];
     if (!stall || !st || !st.hired) return Infinity;
-    var cost = Idle.bulkCost(stall.base, stall.growth, st.owned, 1);
+    var n = count > 0 ? Math.floor(count) : 1;
+    var cost = Idle.bulkCost(stall.base, stall.growth, st.owned, n);
     var owned = st.owned > 0 ? st.owned : 0;
-    var before = stall.rate * owned * Idle.milestoneMult(owned);
-    var afterOwned = owned + 1;
-    var added = stall.rate * afterOwned * Idle.milestoneMult(afterOwned) - before;
+    var before = stall.rate * owned * stallMult(owned);
+    var afterOwned = owned + n;
+    var added = stall.rate * afterOwned * stallMult(afterOwned) - before;
     if (!(cost > 0) || !(added > 0) || !isFinite(cost) || !isFinite(added)) return Infinity;
     return cost / added;
+  }
+
+  function buyCount(state, i) {
+    var mode = state && state.bulk;
+    if (mode === 'max') {
+      var q = quote(state, i, 'max');
+      return q.count > 0 ? q.count : 1;
+    }
+    if (mode === 10 || mode === '10') return 10;
+    return 1;
   }
 
   function paybackLabel(seconds) {
@@ -202,9 +231,11 @@
   function paybackLine(state, i) {
     var stall = spec(i);
     if (!stall) return '';
-    var label = paybackLabel(paybackSeconds(state, i));
+    var n = buyCount(state, i);
+    var label = paybackLabel(paybackSeconds(state, i, n));
     if (!label) return stall.vendor + ' is running this stall.';
-    return 'The next one pays for itself in ' + label + '.';
+    if (n === 1) return 'The next one pays for itself in ' + label + '.';
+    return n + ' more pay for themselves in ' + label + '.';
   }
 
   function awayRule() {
@@ -223,8 +254,39 @@
     return best;
   }
 
+  function pluralStall(name, n) { return n === 1 ? name : name + 's'; }
+
+  /* The soonest tenth, twenty-fifth, fiftieth or hundredth still ahead.
+     skipAt lets an unlock line point at a different, larger bonus. */
+  function nextBonus(state, skipI, skipAt) {
+    var best = null, i, k, marks, left;
+    for (i = 0; i < STALLS.length; i++) {
+      if (!state.stalls[i].hired) continue;
+      marks = [10, 25, 50, 100];
+      for (k = 0; k < marks.length; k++) {
+        if (state.stalls[i].owned >= marks[k]) continue;
+        if (i === skipI && marks[k] === skipAt) continue;
+        left = marks[k] - state.stalls[i].owned;
+        if (!best || left < best.left) best = { i: i, at: marks[k], left: left };
+        break;
+      }
+    }
+    return best;
+  }
+
+  function bonusSentence(bonus) {
+    if (!bonus) return '';
+    var name = spec(bonus.i).name;
+    return 'Next bonus: ' + bonus.at + ' ' + pluralStall(name, bonus.at) + ', x2.';
+  }
+
+  function withBonus(sentence, bonus) {
+    var extra = bonusSentence(bonus);
+    return extra ? sentence + ' ' + extra : sentence;
+  }
+
   function goal(state) {
-    var i, stall, st, left;
+    var i, stall, left, bonus;
     for (i = 0; i < STALLS.length; i++) {
       if (!unlocked(state, i) || state.stalls[i].hired) continue;
       stall = spec(i);
@@ -235,23 +297,20 @@
     }
     for (i = 0; i < STALLS.length; i++) {
       if (!state.stalls[i].hired || state.stalls[i].owned > 0) continue;
-      return 'Buy the first ' + spec(i).name + '. ' + spec(i).vendor + ' will run it.';
+      if (!(quote(state, i, 1).count > 0)) return 'Buy the first ' + spec(i).name + '. ' + spec(i).vendor + ' will run it.';
     }
     for (i = 0; i < STALLS.length - 1; i++) {
       if (!state.stalls[i].hired) continue;
       if (state.stalls[i].owned >= UNLOCK_AT) continue;
       left = UNLOCK_AT - state.stalls[i].owned;
-      return (left === 1 ? 'One more ' : left + ' more ') + spec(i).name.toLowerCase() + (left === 1 ? '' : 's') + '. ' + spec(i).next;
+      bonus = nextBonus(state, i, UNLOCK_AT);
+      return withBonus((left === 1 ? 'One more ' : left + ' more ') + spec(i).name.toLowerCase() + (left === 1 ? '' : 's') + '. ' + spec(i).next, bonus);
     }
-    var bestI = -1, bestLeft = Infinity, bestAt = 0;
-    for (i = 0; i < STALLS.length; i++) {
-      st = state.stalls[i];
-      if (!st.hired || st.owned <= 0 || st.owned >= 100) continue;
-      var nextAt = st.owned < 25 ? 25 : st.owned < 50 ? 50 : 100;
-      left = nextAt - st.owned;
-      if (left < bestLeft) { bestLeft = left; bestI = i; bestAt = nextAt; }
+    bonus = nextBonus(state);
+    if (bonus) {
+      stall = spec(bonus.i);
+      return withBonus((bonus.left === 1 ? 'One more ' : bonus.left + ' more ') + stall.name.toLowerCase() + (bonus.left === 1 ? '' : 's') + '.', bonus);
     }
-    if (bestI >= 0) return bestLeft + ' more ' + spec(bestI).name.toLowerCase() + (bestLeft === 1 ? '' : 's') + ', and the lane changes: ' + spec(bestI).looks[lookIndex(bestAt)] + '.';
     return 'Every stall has a crowd. The lane is as bright as it gets tonight.';
   }
 
@@ -261,7 +320,7 @@
     if (!state.stalls[i].hired) return '';
     if (owned <= 0) return stall.vendor + ' is here, waiting for the first one.';
     var look = stall.looks[lookIndex(owned)];
-    if (Idle.milestoneMult(owned) <= 1) return look + '.';
+    if (stallMult(owned) <= 1) return look + '.';
     return look + '. It earns ' + timesWord(owned) + '.';
   }
 
@@ -359,7 +418,9 @@
     hire: hire,
     quote: quote,
     buy: buy,
+    buyExact: buyExact,
     secondsToNext: secondsToNext,
+    stallMult: stallMult,
     paybackSeconds: paybackSeconds,
     paybackLine: paybackLine,
     paybackLabel: paybackLabel,

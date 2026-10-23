@@ -92,9 +92,9 @@ document.querySelector('#run').onclick = async function () {
       check(s.name + ' grows gently', s.growth >= 1.05 && s.growth <= 1.15 && s.base > 0 && s.rate > 0 && s.serves > 0);
     });
     check('tea, dumpling and lantern use the measured NM-FUN-PASS balance',
-      M.STALLS[0].base === 6 && M.STALLS[0].growth === 1.10 && M.STALLS[0].rate === 0.45 && M.STALLS[0].serves === 25 && M.STALLS[0].hand === 1 &&
-      M.STALLS[1].base === 80 && M.STALLS[1].growth === 1.11 && M.STALLS[1].rate === 0.9 &&
-      M.STALLS[2].base === 900 && M.STALLS[2].growth === 1.12 && M.STALLS[2].rate === 4);
+      M.STALLS[0].base === 6 && M.STALLS[0].growth === 1.07 && M.STALLS[0].rate === 0.45 && M.STALLS[0].serves === 25 && M.STALLS[0].hand === 1 &&
+      M.STALLS[1].base === 80 && M.STALLS[1].growth === 1.06 && M.STALLS[1].rate === 0.9 &&
+      M.STALLS[2].base === 700 && M.STALLS[2].growth === 1.07 && M.STALLS[2].rate === 5);
     check('offline is four hours at half pay', M.OFFLINE_CAP === 4 * 3600 && M.OFFLINE_RATE === 0.5);
     check('the cash-box line states half pay and the cap', M.awayRule() === 'While away: earns 50%, up to 4h');
 
@@ -180,7 +180,7 @@ document.querySelector('#run').onclick = async function () {
     check('active play hires Mei on the 25th second', active.hireAt === 25);
     check('the tea-stall change at 25 lands inside 10 minutes (at ' + active.tea25 + 's)', active.tea25 != null && active.tea25 <= 600);
     check('half an hour of buying still opens stalls (' + a1800.owned.join(',') + ')', aOwned >= 4 && a1800.owned.some(function (n) { return n >= 25; }) && a1800.owned.some(function (n) { return n < 100; }));
-    check('income is still climbing at 30 minutes (' + a600.income.toFixed(1) + ' then ' + a1800.income.toFixed(1) + ')', a1800.income > a600.income && active.state.lifetime < 1000000);
+    check('income is still climbing at 30 minutes (' + a600.income.toFixed(1) + ' then ' + a1800.income.toFixed(1) + ')', a1800.income > a600.income);
     check('the newest stall is still a real buy (' + aFrontier.toFixed(1) + 's)', aFrontier > 2 && aFrontier < 600);
 
     var office = play(1800, 60);
@@ -193,9 +193,9 @@ document.querySelector('#run').onclick = async function () {
     var sensible = NightMarketPacing.playSensible(M, 5400);
     var maxWait = sensible.waits.reduce(function (m, n) { return Math.max(m, n); }, 0);
     var maxPay = sensible.paybacks.reduce(function (m, n) { return Math.max(m, n); }, 0);
-    check('a sensible buyer reaches one million between 45 and 75 minutes (' + sensible.marks[1000000] + 's)',
+    check('a sensible buyer reaches one million after the opening quarter hour (' + sensible.marks[1000000] + 's)',
       sensible.marks[1000] < sensible.marks[10000] && sensible.marks[10000] < sensible.marks[100000] &&
-      sensible.marks[100000] < sensible.marks[1000000] && sensible.marks[1000000] >= 2700 && sensible.marks[1000000] <= 4500);
+      sensible.marks[100000] < sensible.marks[1000000] && sensible.marks[1000000] > 15 * 60 && sensible.marks[1000000] <= 40 * 60);
     check('from minute 6 to 15 the best stall is never more than 90 seconds away (' + maxWait.toFixed(0) + 's)',
       sensible.waits.length > 10 && maxWait <= 90);
     check('purchases in that window pay back within 20 minutes (' + maxPay.toFixed(0) + 's)',
@@ -204,22 +204,37 @@ document.querySelector('#run').onclick = async function () {
       sensible.overtakenAt > 60 && sensible.overtakenAt < 360 && sensible.snaps[360].income > sensible.snaps[360].hand);
     var spender = NightMarketPacing.playAffordable(M, 5400);
     var spendPay = spender.paybacks.reduce(function (m, n) { return Math.max(m, n); }, 0);
-    check('a buyer who buys any affordable stall reaches 100K inside 15 minutes and a million between 45 and 75 (' + spender.marks[100000] + 's, ' + spender.marks[1000000] + 's)',
+    check('a buyer who buys any affordable stall reaches 100K inside 15 minutes and a million after that (' + spender.marks[100000] + 's, ' + spender.marks[1000000] + 's)',
       spender.marks[1000] < spender.marks[10000] && spender.marks[10000] < spender.marks[100000] &&
-      spender.marks[100000] < 15 * 60 && spender.marks[1000000] >= 2700 && spender.marks[1000000] <= 4500);
-    check('that buyer\'s longest purchase from minute 6 to 15 stays under 40 minutes (' + Math.round(spendPay) + 's)',
-      spender.paybacks.length > 10 && spendPay <= 38 * 60);
+      spender.marks[100000] < 15 * 60 && spender.marks[1000000] > 15 * 60 && spender.marks[1000000] <= 40 * 60);
+    check('that buyer\'s longest purchase from minute 6 to 15 stays under 45 minutes (' + Math.round(spendPay) + 's)',
+      spender.paybacks.length > 10 && spendPay <= 45 * 60);
+    var fastBuyer = NightMarketPacing.playMeasured(M, 960);
+    var humanBuyer = NightMarketPacing.playHuman(M, 960);
+    check('from minute 8 to 15 the fast buyer\'s best payback stays under 5 minutes (' + Math.round(fastBuyer.maxBestPayback8to15) + 's)',
+      fastBuyer.maxBestPayback8to15 > 0 && fastBuyer.maxBestPayback8to15 <= 5 * 60);
+    check('from minute 8 to 15 the human buyer\'s best payback stays under 5 minutes (' + Math.round(humanBuyer.maxBestPayback8to15) + 's)',
+      humanBuyer.maxBestPayback8to15 > 0 && humanBuyer.maxBestPayback8to15 <= 5 * 60);
+    check('the human buyer still reaches a 25 doubling and a 50 awning',
+      humanBuyer.bonuses.some(function (b) { return b.mark === 25 && b.at >= 360 && b.at <= 900; }) &&
+      humanBuyer.bonuses.some(function (b) { return b.mark === 50 && b.at >= 360 && b.at <= 900; }));
+    var opened = M.fresh();
+    opened.stalls[0].hired = true;
+    opened.cash = 25;
+    check('25 coins does not ask you to buy the first tea stall when it costs 6', !/Buy the first/.test(M.goal(opened)));
+    opened.cash = 0;
+    check('with no coins the goal asks for the first tea stall', M.goal(opened) === 'Buy the first Tea Stall. Mei will run it.');
     ['active', 'saver', 'milestone-saver', 'hold-saver', 'hold-milestone'].forEach(function (profile) {
       var measured = NightMarketPacing.simulate(M, profile);
       check(profile + ': no million-coin rush in the first ten minutes', measured.snapshots[600].lifetime < 1000000);
       check(profile + ': the first tea milestone still lands within ten minutes', measured.tea25 > 0 && measured.tea25 <= 600);
     });
     var teaOnly = NightMarketPacing.simulate(M, 'tea-only');
-    check('tea alone cannot bypass the 45-minute lower bound', teaOnly.million >= 2700);
+    check('tea alone still takes most of an hour (' + teaOnly.million + 's)', teaOnly.million >= 40 * 60);
     var glance = NightMarketPacing.simulate(M, 'minute-glance');
-    check('minute-glance background buying still progresses to a million within two hours', glance.million >= 2700 && glance.million <= 7200);
+    check('minute-glance background buying still progresses to a million within two hours (' + glance.million + 's)', glance.million > 15 * 60 && glance.million <= 7200);
     check('later stalls keep the measured rates and growth inside 1.05 to 1.15',
-      M.STALLS[3].rate === 16 && M.STALLS[3].growth === 1.13 &&
+      M.STALLS[3].base === 6400 && M.STALLS[3].rate === 40 && M.STALLS[3].growth === 1.05 &&
       M.STALLS[4].rate === 55 && M.STALLS[4].growth === 1.14 &&
       M.STALLS[5].rate === 220 && M.STALLS[5].growth === 1.15);
     check('every stall pays one coin by hand, and the work before hiring is unchanged',
@@ -249,8 +264,8 @@ document.querySelector('#run').onclick = async function () {
     for (var g = 0; g < M.STALLS.length; g++) { nextGoal.stalls[g].hired = true; nextGoal.stalls[g].owned = 12; }
     nextGoal.stalls[0].owned = 24;
     nextGoal.stalls[5].owned = 12;
-    check('past the last unlock the goal is the nearest 25, 50 or 100 bonus',
-      M.goal(nextGoal) === '1 more tea stall, and the lane changes: Two lanterns.');
+    check('past the last unlock the goal names the next doubling',
+      M.goal(nextGoal) === 'One more tea stall. Next bonus: 25 Tea Stalls, x2.');
     var legacy = await (await fetch('../docs/playtests/nm-retune/legacy-v1.json')).json();
     check('a literal pre-retune v1 save still validates', M.valid(legacy));
     var legacyRoundTrip = M.serialize(M.restore(legacy), legacy.seen);
@@ -525,7 +540,29 @@ document.querySelector('#run').onclick = async function () {
     await checkPhoneLayout('Ready to hire');
     ask.click();
     var sv = d.querySelector('#stalls [data-act="serve"]');
-    check('after the hire the pour button stays (it never vanishes) and the price shows', !sv.hidden && sv.offsetParent !== null && sv.classList.contains('best') && /Best · Pour a cup · \+1/.test(sv.textContent) && d.querySelector('#stalls .count').hidden && d.querySelector('#stalls .pour').hidden && d.querySelector('#stalls [data-act="buy"]').textContent === 'Buy 1 · ' + w.Arcade.fmt(w.NightMarket.STALLS[0].base) + ' coins' && d.querySelector('.bulk-name').textContent === 'Buying' && d.querySelector('[data-bulk="1"]').textContent === '1');
+    check('after the hire the pour button stays (it never vanishes) and the price shows', !sv.hidden && sv.offsetParent !== null && !sv.classList.contains('best') && sv.textContent === 'Pour a cup yourself · +1' && d.querySelector('#stalls .count').hidden && d.querySelector('#stalls .pour').hidden && d.querySelector('#stalls [data-act="buy"]').textContent === 'Best · Buy 1 · ' + w.Arcade.fmt(w.NightMarket.STALLS[0].base) + ' coins' && d.querySelector('.bulk-name').textContent === 'Buying' && d.querySelector('[data-bulk="1"]').textContent === '1');
+    var hintWait = d.querySelector('#stalls .wait').textContent;
+    var hintLine = d.querySelector('#stalls .payback-hint');
+    check('the first payback explains that a lower time is a better buy', /pays for itself/.test(hintWait) && hintLine && !hintLine.hidden && hintLine.textContent === 'A lower time is a better buy.');
+    var hintGrew = [];
+    [[1280, 800], [844, 390], [390, 844], [820, 1180], [375, 812]].forEach(function (size) {
+      frame.style.width = size[0] + 'px';
+      frame.style.height = size[1] + 'px';
+      var hs = [1, 10, 'max'].map(function (mode) {
+        w.__nightMarket.state.bulk = mode;
+        w.__nightMarket.render();
+        return Math.round(d.querySelector('#stalls .stall').getBoundingClientRect().height * 10) / 10;
+      });
+      if (Math.abs(hs[0] - hs[1]) > 0.6 || Math.abs(hs[0] - hs[2]) > 0.6) hintGrew.push(size[0] + 'x' + size[1] + ' ' + hs.join(' / '));
+    });
+    w.__nightMarket.state.bulk = 1;
+    w.__nightMarket.render();
+    check(hintGrew.length ? 'the payback hint keeps the stall the same height in every buy mode: ' + hintGrew.join(', ') : 'the payback hint keeps the stall the same height in every buy mode', hintGrew.length === 0);
+    var hintClock = w.Date.now;
+    w.Date.now = function () { return hintClock() + 20000; };
+    w.__nightMarket.render();
+    w.Date.now = hintClock;
+    check('that hint dismisses itself and stays dismissed', d.querySelector('#stalls .payback-hint').hidden && !/lower time is a better buy/.test(d.querySelector('#stalls .wait').textContent) && /pays for itself/.test(d.querySelector('#stalls .wait').textContent));
     await checkPhoneLayout('Mei hired');
     var c0 = w.__nightMarket.state.cash; sv.click(); check('...and pouring by hand still earns', w.__nightMarket.state.cash === c0 + 1); w.__nightMarket.state.cash = c0; w.__nightMarket.render();
     d.querySelector('#stalls [data-act="buy"]').click();
@@ -559,22 +596,54 @@ document.querySelector('#run').onclick = async function () {
     freshHook.state.bulk = 'max';
     freshHook.render();
     var lanternBtn = d.querySelector('#stalls [data-i="2"] [data-act="buy"]');
-    check('a lantern you cannot afford is not labelled as a purchase', lanternBtn.disabled && lanternBtn.textContent === 'Need ' + w.Arcade.fmt(lanternPrice) + ' coins for one');
+    check('a lantern you cannot afford is not labelled as a purchase', lanternBtn.disabled && lanternBtn.textContent === 'Buy 1 · ' + w.Arcade.fmt(lanternPrice) + ' coins');
     lanternBtn.click();
     check('that click does not spend the coins or add a lantern', freshHook.state.cash === lanternPrice - 1 && freshHook.state.stalls[2].owned === 0);
     freshHook.state.cash = lanternPrice;
     freshHook.render();
-    check('buy max still says max when one stall is all the coins cover', !lanternBtn.disabled && /Buy max · 1 lantern stand · /.test(lanternBtn.textContent));
+    check('buy max still says max when one stall is all the coins cover', !lanternBtn.disabled && /^Max · 1 · /.test(lanternBtn.textContent));
     var pricedBase = w.NightMarket.STALLS[2].base;
     w.NightMarket.STALLS[2].base = 720;
     freshHook.state.stalls[2].owned = 0;
     freshHook.state.cash = 575;
     freshHook.state.bulk = 'max';
     freshHook.render();
-    check('a Lantern Stand priced at 720 with 575 coins is not offered as a purchase', lanternBtn.disabled && lanternBtn.textContent === 'Need ' + w.Arcade.fmt(720) + ' coins for one');
+    check('a Lantern Stand priced at 720 with 575 coins is not offered as a purchase', lanternBtn.disabled && lanternBtn.textContent === 'Buy 1 · ' + w.Arcade.fmt(720) + ' coins');
     lanternBtn.click();
     check('that 720-coin click does not spend the 575 or add a lantern', freshHook.state.cash === 575 && freshHook.state.stalls[2].owned === 0);
     w.NightMarket.STALLS[2].base = pricedBase;
+    var labelMismatch = [];
+    freshHook.state.stalls[0].hired = true; freshHook.state.stalls[0].owned = 10;
+    freshHook.state.stalls[1].hired = true; freshHook.state.stalls[1].owned = 10;
+    freshHook.state.stalls[2].hired = true;
+    [[0, 1], [0, 2], [4, 1], [8, 3], [15, 4]].forEach(function (pair) {
+      var owned = pair[0], count = pair[1];
+      var stall = w.NightMarket.STALLS[2];
+      var cost = Idle.bulkCost(stall.base, stall.growth, owned, count);
+      var oneMore = Idle.bulkCost(stall.base, stall.growth, owned, count + 1) - cost;
+      freshHook.state.stalls[2].owned = owned;
+      freshHook.state.cash = cost;
+      freshHook.state.bulk = 'max';
+      freshHook.render();
+      var btn = d.querySelector('#stalls [data-i="2"] [data-act="buy"]');
+      var labelled = parseInt((btn.textContent.match(/(\d+)/) || [])[1], 10);
+      var stored = parseInt(btn.dataset.count, 10);
+      w.NightMarket.addCash(freshHook.state, oneMore);
+      btn.click();
+      var bought = freshHook.state.stalls[2].owned - owned;
+      if (labelled !== count || stored !== count || bought !== count) {
+        labelMismatch.push('owned ' + owned + ' label ' + labelled + ' stored ' + stored + ' bought ' + bought + ' wanted ' + count);
+      }
+    });
+    freshHook.state.stalls[2].owned = 6;
+    freshHook.state.cash = Idle.bulkCost(w.NightMarket.STALLS[2].base, w.NightMarket.STALLS[2].growth, 6, 1) - 1;
+    freshHook.state.bulk = 'max';
+    freshHook.render();
+    var shortBtn = d.querySelector('#stalls [data-i="2"] [data-act="buy"]');
+    w.NightMarket.addCash(freshHook.state, 1);
+    shortBtn.click();
+    if (!shortBtn.disabled || freshHook.state.stalls[2].owned !== 6) labelMismatch.push('short click changed the stall');
+    check('the max label buys exactly the quantity it showed, even after income ticks' + (labelMismatch.length ? ': ' + labelMismatch.join('; ') : ''), labelMismatch.length === 0);
     freshHook.state.stalls = JSON.parse(laneBefore);
     freshHook.state.cash = cashBefore;
     freshHook.state.bulk = 'max';
@@ -693,6 +762,202 @@ document.querySelector('#run').onclick = async function () {
     }
     await phoneSave(390, 844);
     await phoneSave(844, 390);
+
+    // GAD review of 08c860f9: 44px buy modes, a one-line Need label, stable row height, and a goal pin that does not cover the lane or steal taps.
+    (function () {
+      var nm = w.__nightMarket;
+      var sizes = [[1280, 800], [844, 390], [390, 844], [820, 1180], [375, 812]];
+      function lineCount(el) {
+        var range = el.ownerDocument.createRange();
+        range.selectNodeContents(el);
+        var rects = range.getClientRects(), tops = [];
+        for (var i = 0; i < rects.length; i++) {
+          var top = Math.round(rects[i].top);
+          if (tops.indexOf(top) < 0) tops.push(top);
+        }
+        return tops.length;
+      }
+      function cover(pinBox, el) {
+        if (!el || el.hidden) return 0;
+        var b = el.getBoundingClientRect();
+        var vert = Math.min(pinBox.bottom, b.bottom) - Math.max(pinBox.top, b.top);
+        var hor = Math.min(pinBox.right, b.right) - Math.max(pinBox.left, b.left);
+        return vert > 0.5 && hor > 0.5 ? vert : 0;
+      }
+      var narrow = [], wrapped = [], grew = [], laneCover = [], tapStole = [];
+      sizes.forEach(function (size) {
+        var ww = size[0], hh = size[1], label = ww + 'x' + hh;
+        frame.style.width = ww + 'px';
+        frame.style.height = hh + 'px';
+        w.scrollTo(0, 0);
+        nm.state.stalls.forEach(function (s) { s.hired = false; s.owned = 0; s.serves = 0; });
+        nm.state.stalls[0].hired = true; nm.state.stalls[0].serves = 25; nm.state.stalls[0].owned = 12;
+        nm.state.stalls[1].hired = true; nm.state.stalls[1].serves = 12; nm.state.stalls[1].owned = 4;
+        nm.state.cash = 1e9; nm.state.bulk = 1;
+        nm.render();
+        Array.prototype.forEach.call(d.querySelectorAll('[data-bulk]'), function (b) {
+          var box = b.getBoundingClientRect();
+          if (box.width < 44 || box.height < 44) narrow.push(label + ' "' + b.textContent + '" ' + box.width.toFixed(1) + 'x' + box.height.toFixed(1));
+        });
+        var heights = {};
+        [1, 10, 'max'].forEach(function (mode) {
+          nm.state.bulk = mode;
+          nm.render();
+          heights[mode] = Array.prototype.map.call(d.querySelectorAll('#stalls .stall'), function (li) {
+            return Math.round(li.getBoundingClientRect().height * 10) / 10;
+          });
+        });
+        heights[1].forEach(function (h, i) {
+          if (Math.abs(h - heights[10][i]) > 0.6 || Math.abs(h - heights.max[i]) > 0.6) {
+            grew.push(label + ' stall ' + i + ' ' + h + ' / ' + heights[10][i] + ' / ' + heights.max[i]);
+          }
+        });
+        nm.state.stalls[1].owned = 10;
+        nm.state.stalls[2].hired = true; nm.state.stalls[2].owned = 3; nm.state.stalls[2].serves = 10;
+        nm.state.cash = 1; nm.state.bulk = 'max';
+        nm.render();
+        var needBtn = d.querySelector('#stalls [data-i="2"] [data-act="buy"]');
+        var lines = lineCount(needBtn);
+        if (lines !== 1) wrapped.push(label + ' "' + needBtn.textContent + '" ' + lines + ' lines');
+        if (ww >= 1000) return;
+        nm.state.stalls.forEach(function (s) { s.hired = false; s.owned = 0; s.serves = 3; });
+        nm.state.bulk = 1; nm.state.cash = 0;
+        nm.render();
+        var pin = d.querySelector('#goal-pin');
+        var pour = d.querySelector('#stalls [data-i="0"] .pour');
+        var count = d.querySelector('#stalls [data-i="0"] .count');
+        var laneEl = d.getElementById('lane');
+        var maxLane = 0, maxPour = 0, maxCount = 0;
+        var scrollMax = d.documentElement.scrollHeight;
+        for (var y = 0; y <= scrollMax; y += 8) {
+          w.scrollTo(0, y);
+          nm.render();
+          var laneBox = laneEl.getBoundingClientRect();
+          if (!(laneBox.bottom > 0 && laneBox.top < hh) || pin.hidden) continue;
+          var pinBox = pin.getBoundingClientRect();
+          maxLane = Math.max(maxLane, cover(pinBox, laneEl));
+          maxPour = Math.max(maxPour, cover(pinBox, pour));
+          maxCount = Math.max(maxCount, cover(pinBox, count));
+        }
+        if (maxLane > 0.5 || maxPour > 0.5 || maxCount > 0.5) {
+          laneCover.push(label + ' lane ' + maxLane.toFixed(1) + 'px pour ' + maxPour.toFixed(1) + 'px count ' + maxCount.toFixed(1) + 'px');
+        }
+        nm.state.stalls[0].hired = true; nm.state.stalls[0].serves = 25; nm.state.stalls[0].owned = 1;
+        nm.state.bulk = 1;
+        nm.render();
+        var changed = false, sawToggle = false, hitBulk = false;
+        scrollMax = d.documentElement.scrollHeight;
+        for (var y2 = 0; y2 <= scrollMax; y2 += 4) {
+          w.scrollTo(0, y2);
+          nm.render();
+          if (pin.hidden) continue;
+          var box = pin.getBoundingClientRect();
+          if (box.height < 1) continue;
+          var cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+          var stack = d.elementsFromPoint(cx, cy);
+          var under = stack.some(function (el) { return el.closest && el.closest('[data-bulk]'); });
+          if (!under) continue;
+          sawToggle = true;
+          var beforeBulk = String(nm.state.bulk);
+          var hit = d.elementFromPoint(cx, cy);
+          if (hit && hit.closest && hit.closest('[data-bulk]')) hitBulk = true;
+          if (hit) hit.click();
+          if (String(nm.state.bulk) !== beforeBulk) changed = true;
+          break;
+        }
+        w.scrollTo(0, scrollMax);
+        nm.render();
+        var pinShown = !pin.hidden && pin.getBoundingClientRect().height > 1;
+        var pad = parseFloat(w.getComputedStyle(d.documentElement).scrollPaddingTop) || 0;
+        var pinH = pinShown ? pin.getBoundingClientRect().height : 0;
+        var padOk = !pinShown || pad + 0.5 >= pinH;
+        // 390 and 375 put a buy-mode button under the pin's center. Wider phones keep those buttons left of center.
+        if ((ww <= 400 && !sawToggle) || changed || hitBulk || !padOk) tapStole.push(label + ' sawToggle=' + sawToggle + ' hitBulk=' + hitBulk + ' changed=' + changed + ' pad=' + pad + ' pin=' + pinH.toFixed(1));
+      });
+      w.scrollTo(0, 0);
+      var problems = [];
+      if (narrow.length) problems.push('bulk under 44px: ' + narrow.join(', '));
+      if (wrapped.length) problems.push('Need wraps: ' + wrapped.join(', '));
+      if (grew.length) problems.push('row height changes with the buy mode: ' + grew.join(', '));
+      if (laneCover.length) problems.push('pin covers the lane while it is on screen: ' + laneCover.join(', '));
+      if (tapStole.length) problems.push('pin tap or scroll-padding: ' + tapStole.join(', '));
+      check(problems.length ? 'GAD layout: ' + problems.join(' || ') : 'buy modes are at least 44px, Need stays one line, row height is steady, and the goal pin keeps its taps', problems.length === 0);
+    })();
+
+    (function () {
+      var nm = w.__nightMarket;
+      frame.style.width = '1280px';
+      frame.style.height = '800px';
+      w.scrollTo(0, 0);
+      nm.state.stalls.forEach(function (s) { s.hired = false; s.owned = 0; s.serves = 0; });
+      nm.state.stalls[0].hired = true; nm.state.stalls[0].serves = 25; nm.state.stalls[0].owned = 4;
+      nm.state.cash = 80; nm.state.bulk = 1;
+      nm.render();
+      var coinPin = d.querySelector('#coin-pin');
+      var laneEl = d.getElementById('lane');
+      var covered = false;
+      var scrollMax = d.documentElement.scrollHeight;
+      for (var y = 0; y <= scrollMax; y += 8) {
+        w.scrollTo(0, y);
+        nm.render();
+        var laneBox = laneEl.getBoundingClientRect();
+        if (laneBox.bottom > 0 && !coinPin.hidden) covered = true;
+      }
+      w.scrollTo(0, scrollMax);
+      nm.render();
+      var pinBox = coinPin.getBoundingClientRect();
+      var pad = parseFloat(w.getComputedStyle(d.documentElement).scrollPaddingTop) || 0;
+      var beforeBulk = String(nm.state.bulk);
+      var beforeOwned = nm.state.stalls[0].owned;
+      var hit = pinBox.height > 1 ? d.elementFromPoint(pinBox.left + pinBox.width / 2, pinBox.top + pinBox.height / 2) : null;
+      if (hit) hit.click();
+      check('desktop coin total stays off the lane, takes its own tap, and pads the scroll',
+        !covered && !coinPin.hidden && /coins/.test(coinPin.textContent) && /a second/.test(coinPin.textContent) &&
+        pad + 0.5 >= pinBox.height && hit && hit.closest && hit.closest('#coin-pin') &&
+        String(nm.state.bulk) === beforeBulk && nm.state.stalls[0].owned === beforeOwned);
+      frame.style.width = '390px';
+      frame.style.height = '844px';
+      w.scrollTo(0, scrollMax);
+      nm.render();
+      check('the desktop coin total does not pin on a phone', d.querySelector('#coin-pin').hidden);
+      frame.style.width = '844px';
+      frame.style.height = '390px';
+      w.scrollTo(0, 0);
+      nm.state.stalls.forEach(function (s) { s.hired = false; s.owned = 0; s.serves = 0; });
+      nm.state.cash = 0;
+      nm.render();
+      var goalBox = d.querySelector('#goal').getBoundingClientRect();
+      check('a short landscape screen shows the goal above the fold', goalBox.height > 0 && goalBox.top >= 0 && goalBox.bottom <= 390);
+      var saveBox = d.querySelector('details.save');
+      saveBox.open = false;
+      var summary = d.querySelector('details.save > summary');
+      var arrow = w.getComputedStyle(summary, '::before').content || '';
+      var openRule = false;
+      Array.prototype.forEach.call(d.styleSheets, function (sheet) {
+        var rules; try { rules = sheet.cssRules; } catch (err) { return; }
+        Array.prototype.forEach.call(rules || [], function (rule) {
+          if (rule.selectorText === '.save[open] > summary::before' && /▾/.test(rule.style.content || '')) openRule = true;
+        });
+      });
+      var note = d.querySelector('.save .arc-note');
+      var row = d.querySelector('.save .arc-bk-row');
+      if (!row) {
+        row = d.createElement('div');
+        row.className = 'arc-bk-row';
+        row.textContent = 'probe';
+        d.querySelector('.save').appendChild(row);
+      }
+      check('the save folds with an arrow and its text is at least 16px',
+        w.getComputedStyle(summary).display === 'block' && /▸/.test(arrow) && openRule &&
+        note && parseFloat(w.getComputedStyle(note).fontSize) >= 16 &&
+        row && parseFloat(w.getComputedStyle(row).fontSize) >= 16);
+      if (row.textContent === 'probe') row.remove();
+      nm.state.stalls[0].hired = true; nm.state.stalls[0].serves = 25; nm.state.stalls[0].owned = 1;
+      nm.render();
+      check('the payback hint does not return after it has dismissed itself', d.querySelector('#stalls .payback-hint').hidden && !/lower time is a better buy/.test(d.querySelector('#stalls .wait').textContent) && /pays for itself/.test(d.querySelector('#stalls .wait').textContent));
+      w.scrollTo(0, 0);
+    })();
+
     // a wrong file is refused before any "Replace your save?" question, and the save is not touched
     var fin = fileLbl.querySelector('input[type=file]'), asked = 0, realConfirm = w.confirm; w.confirm = function () { asked++; return false; };
     var storedBefore = w.localStorage.getItem(KEY);

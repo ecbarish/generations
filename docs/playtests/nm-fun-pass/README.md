@@ -19,40 +19,60 @@ The NM-RETUNE note, "1M lifetime arrives in about 8 minutes", is the pre-retune 
 
 From minute 6 to 15 the best line ran as long as 34 minutes. The longest wait for that next stall was 52 seconds. At minute 6 the stalls earned 64.5/s. Ten clicks a second on the best open stall earned 40/s, because the lantern paid 4 a click. The mooncake button paid 8. The reported 430/s is not ten clicks a second, and it is not the press-and-hold (about eight pours a second).
 
-## After
+## After, on this pull
+
+The curve Playtester scored (`08c860f9`) is the middle column. This pull is the last column. Seconds are simulated.
+
+A fast buyer pours every 120ms until someone is hired, then once a second buys one copy of the affordable stall that pays for itself soonest. A human-pace buyer pours every 1.2 seconds and, from 30 seconds on, considers a buy every 7 seconds. They take it when it pays for itself within 6 minutes, or when that stall is within 12 of a 25, 50 or 100 doubling.
+
+| | Desktop, real clicks | Human pace on `08c860f9` | Human pace now | Fast buyer on `08c860f9` | Fast buyer now |
+| --- | --- | --- | --- | --- | --- |
+| 0:30 | 25 coins, 0/s | 25 coins, 0/s | 25 coins, 0/s | | |
+| 3:00 | 375 coins, 11.3/s | 305 coins, 9.9/s | 458 coins, 9.5/s | | |
+| 6:00 | 2.23K, 45/s | 2.43K, 42.3/s | 4.11K, 42.3/s | 112/s, best 3m 45s | 271/s, best 2m 40s |
+| 9:00 | 1.78K, 82/s | 1.25K, 80.3/s | 11.1K, 132/s | 186/s, best 7m 24s | 487/s, best 2m 40s |
+| 12:00 | 8.29K, 152/s | 21.3K, 155/s | 9.89K, 305/s | 226/s, best 11m 28s | 919/s, best 2m 40s |
+| 15:00 | | 49.2K, 155/s | 26.8K, 650/s | 252/s, best 11m 28s | 1.32K/s, best 3m 45s |
+
+On the old curve the human-pace income sits next to the desktop (about 0, 12, 6 and 2 percent off through minute 9, then 2 percent high at minute 12). Cash at minute 12 is higher in the sim because a line longer than 6 minutes is skipped, while the desktop session kept saving toward the 11K Mooncake Table. The best line from minute 8 to 15 ran to 6m 37s. The fast buyer on that same curve ran to 11m 28s. Playtester's scripted pace was 91, 183, 226 and 291 coins a second at minutes 6, 9, 12 and 15.
+
+On this curve both buyers stay under 5 minutes from minute 8 to 15. The fast buyer's longest best line in that window is 225 seconds. The human-pace buyer's is 269 seconds. The human buyer reaches 50 Tea Stalls at 8:12 (the awning) and 25 Dumpling Carts at 14:09. The fast buyer reaches 25 Lantern Stands at 10:08.
+
+The sensible buyer, who waits for the single best copy:
 
 | Mark | Time | Income at 5, 10, 15 and 30 min |
 | --- | --- | --- |
-| 1K | 2:22 | 59.7 / 158.8 / 258.4 / 462 coins a second |
-| 10K | 5:35 | |
-| 100K | 15:23 | |
-| 1M | 46:35 | |
+| 1K | 1:49 | 179 / 720 / 2.94K / 15.7K coins a second |
+| 10K | 4:04 | |
+| 100K | 8:59 | |
+| 1M | 17:10 | |
 
-From minute 6 to 15 the longest wait for the best stall is 68 seconds. Purchases in that window pay back between 14 seconds and 16.3 minutes, and the median is about 10 minutes. Many of those buys are only a few seconds apart, because a cheap best deal is often affordable immediately. The 30 to 90 second band is the ceiling on the wait, not the gap between every purchase. Pushing every gap into that band brought the long payback lines back.
+From minute 6 to 15 the longest wait for that next stall is 25 seconds, and the longest of those lines is 8.2 minutes. Doing it yourself still leads for the first minute and a bit. Stalls pass ten clicks a second at 81 seconds. At minute 6 the stalls earn 227/s and the hand earns 10/s. Every stall pays 1 coin a click. The 25 cups stay at 25.
 
-Doing it yourself still leads for the first minute and a half. Stalls pass ten clicks a second at 103 seconds. At minute 6 the stalls earn 71/s and the hand earns 10/s. Every stall pays 1 coin a click. The 25 cups stay at 25. The spec asks for exactly 25 serves before Mei takes the stall, and holding the pour already finishes them. Only the opening sentence changed. It now says to hold.
+The first Dumpling Cart still pays for itself in 1m 29s. The 18th, which had grown to 8m 44s, now pays for itself in about 4 minutes. Tea, dumplings, lanterns and mooncakes all grow more gently. Incense and the story mat are unchanged. A doubling still arrives at 25, and the awning still arrives at 50. Nothing else stacks on top of those.
 
 ## The buyer who spends whatever is affordable
 
 Same minute as the sensible buyer, except this one buys the affordable stall that pays for itself soonest. They do not save for a better stall. This is the playtest buyer.
 
-| | 100K | 1M | Longest purchase, minute 6 to 15 | Longest line on screen |
-| --- | --- | --- | --- | --- |
-| Before, `b17ae6be` | 15:20 | 65:18 | 66 min | 76 min |
-| After | 13:52 | 45:47 | 36 min | 40 min |
+| | 100K | 1M | Longest purchase, minute 6 to 15 |
+| --- | --- | --- | --- |
+| Before, `b17ae6be` | 15:20 | 65:18 | 66 min |
+| `08c860f9` | 13:52 | 45:47 | 36 min (2176s, 22 of 53 over 15 min) |
+| This pull | 8:47 | 20:51 | 42 min (2526s, 37 of 100 over 15 min) |
 
-Before, 24 of 42 purchases in that window ran longer than 15 minutes. After, 22 of 53 do. The longest of those is 2176 seconds. 100K arrives inside the 15 minute session, at 832 seconds, and the million arrives at 2747 seconds.
-
-A curve that held every one of those purchases under 15 minutes was not shipped. The ones that did it pushed the 25th tea stall past 10 minutes, or left the fourth stall closed at half an hour, or brought the million forward of 45 minutes. This curve keeps those gates. The long lines are shorter than the 66 minute lines on `b17ae6be`. They are not gone.
+100K still arrives inside 15 minutes. The million arrives after that, at 1251 seconds. Holding every one of those purchases under 5 minutes, and also holding the million back past 45 minutes, did not fit in one curve. The 5 minute bar is the one this pull keeps, for both the fast buyer and the human-pace buyer. The buyer who spends whatever is affordable still sees some long lines. They are no longer the only thing on the table from minute 8 to 15.
 
 ## What was ruled out
 
-A Lantern Stand priced at 720 coins with 575 on hand is not a purchase. The quote count is 0, Buy and Buy max both fail, and the coins and the stall count stay put. The old label "Buy max · 720 coins" looked like an offer. The button now says "Need 720 coins for one" and stays disabled. The test sets the price to 720 and the cash to 575, then puts the live price back.
+A Lantern Stand priced at 720 coins with 575 on hand is not a purchase. The quote count is 0, Buy and Buy max both fail, and the coins and the stall count stay put. The button reads "Buy 1 · 720 coins" and stays disabled, the same shape as a button you can afford. Max, when you can afford it, stays one short line ("Max · 14 · 526") so the row does not grow. The test sets the price to 720 and the cash to 575, then puts the live price back.
+
+The number on a Max button is the number that tap buys. The button stores that count when it is drawn, and the tap spends exactly that count. Coins that arrive between the draw and the tap do not raise it. A test checks the label against the stall count that was actually bought, including a coin tick between the two.
 
 The away box credits its coins once, when the page loads. The test stops the clock, waits without pressing "Put the box away", and the coins stay. It then presses the button. The note hides and the coins stay.
 
 ## Shots
 
-`before-*.png` is the old screen. `after-*.png` is this pull. Each set is 1280×800, 390×844 and 844×390, for a fresh lane, a buying lane, and the open save row. `after-390x844-goal.png` and `after-844x390-goal.png` show the green goal still on screen after a scroll.
+`before-*.png` is the old screen. `after-*.png` is this pull. Each set is 1280×800, 390×844 and 844×390, for a fresh lane, a buying lane, and the open save row. `after-390x844-goal.png` is the phone goal pin after the lane has scrolled away. `after-844x390-goal.png` is the short landscape screen with the goal in the header, not pinned over the lane. `after-1280x800-coins.png` is the desktop coin total, pinned only after the coins and the lane have scrolled away.
 
 The save key is still `night-market-save-v1`. The old v1 fixture in `docs/playtests/nm-retune/legacy-v1.json` loads on the real page.
