@@ -190,7 +190,9 @@
     const maxX = stop + W - rightIn - half - 1, minX = stop + leftIn + half + 1;
     if (spots[spots.length - 1].x > maxX) { const d = spots[spots.length - 1].x - maxX; spots.forEach(s => { s.x -= d; }); }
     if (spots[0].x < minX) { const d = minX - spots[0].x; spots.forEach(s => { s.x += d; }); }
-    spots.forEach(s => { s.x = fitX(area, s.x, half, true); });
+    const crowded = spots.length > 1 && (spots[0].x < minX - .01 || spots[spots.length - 1].x > maxX + .01 || spots.some((s, i) => i && s.x < spots[i - 1].x + half * 2));
+    if (crowded) { const n = spots.length, span = Math.max(half * 2, maxX - minX); for (let i = 0; i < n; i++) spots[i].x = minX + span * i / (n - 1); }
+    else spots.forEach(s => { s.x = clamp(s.x, minX, maxX); });
     return spots;
   }
   function shiftClear(area, pt, boxAt) {
