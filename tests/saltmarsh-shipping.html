@@ -69,7 +69,13 @@ document.querySelector('#run').onclick = async function () {
     M.handSell(early);
     check('the third cargo lets you buy, and the first rowboat costs 8', M.unlocked(early, 0) && near(M.quote(early, 0, 1).cost, 8) && M.buy(early, 0, 1).ok && early.boats[0].owned === 1 && early.cash === 1007);
     check('one rowboat earns 0.6 a second, with no extra bonus', M.production(early, 0) === 0.6 && M.income(early) === 0.6);
-    check('a sloop stays shut until ten rowboats', M.unlocked(early, 1) === false && M.buy(early, 1, 'max').ok === false);
+    check('a sloop stays shut until the rowboats are ready', M.unlocked(early, 1) === false && M.buy(early, 1, 'max').ok === false && (function () {
+      var shut = ready();
+      shut.boats[0].owned = M.SLOOP_AT - 1;
+      var open = ready();
+      open.boats[0].owned = M.SLOOP_AT;
+      return M.unlocked(shut, 1) === false && M.unlocked(open, 1) === true;
+    })());
 
     var bulk = ready();
     bulk.cash = 1000;
@@ -87,8 +93,8 @@ document.querySelector('#run').onclick = async function () {
     check('the 25th rowboat doubles the row', before === 0.6 * 24 && M.buy(mile, 0, 1).ok && M.production(mile, 0) === 0.6 * 25 * 2 && M.production(mile, 0) > before + 0.6);
     check('the first rowboat pays for itself in about 13 seconds', near(M.paybackSeconds(ready(), 0), 8 / 0.6));
     var pays = ready();
-    pays.boats[0].owned = 10;
-    check('the sloop pays for itself in 24s once ten rowboats are tied up', M.unlocked(pays, 1) && near(M.paybackSeconds(pays, 1), 24) && M.paybackSeconds(pays, 2) === Infinity);
+    pays.boats[0].owned = M.SLOOP_AT;
+    check('the sloop pays for itself in 24s once the rowboats are tied up', M.unlocked(pays, 1) && near(M.paybackSeconds(pays, 1), 24) && M.paybackSeconds(pays, 2) === Infinity);
     var schoon = ready();
     schoon.boats[0].owned = 10;
     schoon.boats[1].owned = 10;
@@ -101,45 +107,47 @@ document.querySelector('#run').onclick = async function () {
     check('trade routes stay shut on a new office', phase.boats === false && phase.captain === false && phase.fleet === false && phase.routesReady === false && phase.routesOpen === false && P.routesOpen() === false);
 
     var pier = ready();
-    pier.boats[0].owned = 10;
-    check('ten rowboats open the captain, not the fleet', P.read(pier).captain && P.read(pier).fleet === false && M.canHire(pier, 0) && M.hire(pier, 0).ok && pier.captains[0].hired && /Wren/.test(pier.log[0].text));
-    check('the goal names Capt. Wren before the hire and the fleet after', (function () {
+    pier.boats[0].owned = M.WREN_AT - 1;
+    check('the captain waits one boat early', M.canHire(pier, 0) === false && P.read(pier).captain === false);
+    pier.boats[0].owned = M.WREN_AT;
+    check('enough rowboats open the captain, not the fleet', P.read(pier).captain && P.read(pier).fleet === false && M.canHire(pier, 0) && M.hire(pier, 0).ok && pier.captains[0].hired && /59 coins/.test(pier.log[0].text));
+    check('the goal names Capt. Wren before the hire and a sloop after', (function () {
       var s = ready();
-      s.boats[0].owned = 9;
+      s.boats[0].owned = M.WREN_AT - 1;
       var before = P.goal(s);
-      s.boats[0].owned = 10;
+      s.boats[0].owned = M.WREN_AT;
       var ask = P.goal(s);
       M.hire(s, 0, 1000);
-      s.boats[1].owned = 0;
-      return /rowboat/.test(before) && /Wren/.test(ask) && /sloop/.test(P.goal(s));
+      return /rowboat/.test(before) && ask === M.askLine(0) && /sloop/.test(P.goal(s));
     })());
     var fleet = ready();
-    fleet.boats[0].owned = 10;
+    fleet.boats[0].owned = M.SLOOP_AT;
     fleet.boats[1].owned = 10;
-    check('ten sloops unroll the fleet', P.read(fleet).fleet && P.name(fleet) === 'fleet' && /fleet chart/.test(P.goal(fleet)) === false);
+    M.hire(fleet, 0, 1000);
+    check('ten sloops unroll the fleet', P.read(fleet).fleet && P.name(fleet) === 'fleet' && /fleet chart/.test(P.goal(fleet)) === false && M.noteFleet(fleet) && /unrolls on the desk/.test(fleet.log[0].text) && P.goal(fleet) === M.askLine(1));
     var marked = ready();
-    marked.boats[0].owned = 10;
+    marked.boats[0].owned = M.SLOOP_AT;
     marked.boats[1].owned = 10;
     marked.boats[2].owned = 9;
     M.hire(marked, 0, 1000);
     M.hire(marked, 1, 1000);
     var almost = P.goal(marked);
     marked.boats[2].owned = 10;
-    check('ten schooners only mark the routes', /furled/.test(almost) && P.read(marked).routesReady && P.read(marked).routesOpen === false && P.routesOpen() === false && /Hollis|marked|furled/.test(P.goal(marked)));
+    check('ten schooners only mark the routes', /next tide/.test(almost) && /furled/.test(almost) === false && P.read(marked).routesReady && P.read(marked).routesOpen === false && P.routesOpen() === false && P.goal(marked) === M.askLine(2));
 
     var clock = 1700000000000;
     var haul = ready();
-    haul.boats[0].owned = 10;
+    haul.boats[0].owned = M.WREN_AT;
     check('a captain is hired onto a clock', M.hire(haul, 0, clock).ok && haul.jobs.wren && haul.jobs.wren.since === clock);
     var firstPay = haul.cash;
     var once = M.collectCaptains(haul, clock + 20000, 1);
     var paid = haul.cash;
     var again = M.collectCaptains(haul, clock + 20000, 1);
     var later = M.collectCaptains(haul, clock + 40000, 1);
-    check('the same stretch pays Capt. Wren once', once.length === 1 && once[0].units === 1 && again.length === 0 && paid - firstPay === 6 && later.length === 1 && later[0].units === 1 && haul.cash - paid === 6);
+    check('the same stretch pays Capt. Wren once, one coin short', once.length === 1 && once[0].units === 1 && again.length === 0 && paid - firstPay === 59 && later.length === 1 && later[0].units === 1 && haul.cash - paid === 59 && haul.log.some(function (line) { return /gull/i.test(line.text); }));
     check('a short gap pays nothing', (function () {
       var s = ready();
-      s.boats[0].owned = 10;
+      s.boats[0].owned = M.WREN_AT;
       M.hire(s, 0, clock);
       var beforeCash = s.cash;
       var none = M.collectCaptains(s, clock + 19999, 1);
@@ -147,16 +155,83 @@ document.querySelector('#run').onclick = async function () {
     })());
     check('away hauls pay half, and only from the clock', (function () {
       var s = ready();
-      s.boats[0].owned = 10;
+      s.boats[0].owned = M.WREN_AT;
       M.hire(s, 0, clock);
       var beforeCash = s.cash;
       var rows = M.collectCaptains(s, clock + 20000, 0.5);
       var replay = M.collectCaptains(s, clock + 20000, 0.5);
-      return rows.length === 1 && near(s.cash - beforeCash, 3) && replay.length === 0;
+      return rows.length === 1 && near(s.cash - beforeCash, 29) && replay.length === 0;
     })());
 
     check('one shed holds 2h and four sheds hold 8h, at half pay', M.offlineCap(ready()) === 2 * 3600 && M.OFFLINE_RATE === 0.5 && (function () { var s = ready(); s.warehouses = 4; return M.offlineCap(s) === 8 * 3600; })());
-    check('the away line names the half rate and the sheds', M.awayRule(ready()) === 'While away: earns 50%, up to 2h (1 shed)');
+    check('the away line names the half rate and the sheds', M.awayRule(ready()) === 'A closed game earns 50%, up to 2h (1 shed). A page left open keeps the full rate.');
+    check('the mooring line pluralises', (function () {
+      var s = ready();
+      s.boats[0].owned = 2;
+      s.boats[1].owned = 2;
+      s.boats[2].owned = 2;
+      s.boats[3].owned = 2;
+      return M.lookLine(s, 0) === '2 boats tied at the dock.' && M.lookLine(s, 1) === '2 sloops on the mooring.' && M.lookLine(s, 2) === '2 schooners outside the bar.' && M.lookLine(s, 3) === '2 barks on the deep mooring.';
+    })());
+    check('rowing scales with the boats, then Wren takes the oars', (function () {
+      var s = ready();
+      s.boats[0].owned = 10;
+      var pay = M.handPay(s);
+      var sold = M.handSell(s, 0);
+      var hired = ready();
+      hired.boats[0].owned = M.WREN_AT;
+      M.hire(hired, 0, 1000);
+      return pay === 18 && sold.ok && sold.pay === 18 && M.handSell(hired, 0).ok === false;
+    })());
+    check('a lighter hull is a one-off and each sloop earns one more coin', (function () {
+      var s = ready();
+      s.boats[0].owned = M.SLOOP_AT;
+      s.boats[1].owned = 10;
+      s.cash = 50;
+      if (M.buyFitting(s, 'sloop-hull').ok) return false;
+      s.cash = 700;
+      var before = M.production(s, 1);
+      if (!M.buyFitting(s, 'sloop-hull').ok) return false;
+      return before === 50 && M.production(s, 1) === 60 && M.buyFitting(s, 'sloop-hull').ok === false;
+    })());
+    check('the hull bonus stays flat when the row doubles', (function () {
+      var s = ready();
+      s.boats[1].owned = 25;
+      s.fittings['sloop-hull'] = true;
+      return M.production(s, 1) === 5 * 25 * 2 + 25;
+    })());
+    check('each captain\'s habit shows on the log', (function () {
+      var s = ready();
+      s.boats[0].owned = M.WREN_AT;
+      s.boats[1].owned = 10;
+      s.boats[2].owned = 10;
+      s.boats[3].owned = 10;
+      var t = 1700000000000;
+      M.hire(s, 0, t);
+      M.hire(s, 1, t);
+      M.hire(s, 2, t);
+      M.hire(s, 3, t);
+      M.collectCaptains(s, t + 36000, 1);
+      var log = s.log.map(function (line) { return line.text; }).join(' ');
+      return s.marks >= 1 && /gull/i.test(log) && /kettle/i.test(log) && /chart/.test(log) && /Grey Lark|Kettle|Bar Light|Reed/.test(log);
+    })());
+    check('the away log shows the coins you left and the coins you came back to', (function () {
+      var s = ready();
+      s.boats[0].owned = M.WREN_AT;
+      M.hire(s, 0, 1000);
+      var books = M.captainBooks(s);
+      var copy = M.awayCopy(s, { away: 188, credited: 188, gained: 771000, capped: false }, {
+        before: 219000, after: 990000, boatGain: 771000,
+        captains: M.captainAwayLines(s, books), openPage: false
+      });
+      var open = M.awayCopy(s, { away: 188, credited: 188, gained: 1540000, capped: false }, {
+        before: 219000, after: 1759000, boatGain: 1540000,
+        captains: ['Capt. Wren added 0 coins.'], openPage: true
+      });
+      var text = copy.lead + ' ' + copy.box;
+      var openText = open.lead + ' ' + open.box;
+      return /closed/.test(text) && /50%/.test(text) && /219K/.test(text) && /771K/.test(text) && /990K/.test(text) && /Wren was out/.test(text) && /stayed open/.test(openText) && /full rate/.test(openText) && /shed/.test(text) === false;
+    })());
 
     var wall = 1700000000000;
     var realNow = Date.now;
@@ -224,6 +299,9 @@ document.querySelector('#run').onclick = async function () {
     check('the fleet opens within 30 minutes', active.fleetAt > active.captainAt && active.fleetAt <= 1800);
     check('the curve is heading for an ending in 2 to 3 hours', active.endingAt >= 7200 && active.endingAt <= 10800);
     check('left open at work, the same curve finishes in 1 to 3 days', days.days >= 1 && days.days <= 3);
+    var newbie = SaltmarshPacing.simulate(M, 'newcomer');
+    check('a newcomer meets Capt. Wren between one and a half and three minutes', newbie.captainAt >= 90 && newbie.captainAt <= 180);
+    check('a newcomer sees the fleet chart within half an hour', newbie.fleetAt > newbie.captainAt && newbie.fleetAt <= 1800);
 
     localStorage.removeItem(KEY);
     function wipe() {
@@ -362,6 +440,49 @@ document.querySelector('#run').onclick = async function () {
     check(phone375.ok ? 'at 375 a five-digit count leaves the flags, the captain and the plates apart' : 'at 375 harbour: ' + phone375.why, phone375.ok);
     var phone390 = await harbourAt(390);
     check(phone390.ok ? 'at 390 a five-digit count leaves the flags, the captain and the plates apart' : 'at 390 harbour: ' + phone390.why, phone390.ok);
+
+    wipe();
+    var slotState = ready();
+    slotState.boats[0].owned = 4;
+    localStorage.setItem(KEY, JSON.stringify(M.serialize(slotState, Date.now())));
+    var slotFrame = await loadFrame('captain slot');
+    slotFrame.style.width = '375px';
+    slotFrame.style.height = '812px';
+    var slotWin = slotFrame.contentWindow;
+    await new Promise(function (resolve) { slotWin.requestAnimationFrame(function () { slotWin.requestAnimationFrame(resolve); }); });
+    var slotDoc = slotFrame.contentDocument;
+    var boatsTop = slotDoc.querySelector('#boats').getBoundingClientRect().top;
+    var crew = slotDoc.querySelector('#crew');
+    check('the pier keeps a place for the captain before she arrives', !!crew && crew.hidden === false && crew.offsetHeight >= 60);
+    slotWin.__saltmarsh.state.bulk = 'max';
+    slotWin.__saltmarsh.state.cash = 0;
+    slotWin.__saltmarsh.render();
+    var maxMode = slotDoc.querySelector('[data-bulk="max"]').textContent;
+    var buyText = slotDoc.querySelector('[data-act="buy"]').textContent;
+    check('Max stays a mode while the boat card states the price', maxMode === 'Max' && /Max ·/.test(buyText) && /Buy max/.test(buyText) === false);
+    slotWin.__saltmarsh.state.boats[0].owned = M.WREN_AT;
+    slotWin.__saltmarsh.state.cash = 0;
+    slotWin.__saltmarsh.render();
+    var boatsTopAfter = slotDoc.querySelector('#boats').getBoundingClientRect().top;
+    var ask = slotDoc.querySelector('#ask');
+    check('the captain button does not push the shop down', ask.hidden === false && ask.textContent === M.askLine(0) && Math.abs(boatsTopAfter - boatsTop) < 2);
+    slotWin.__saltmarsh.state.captains[0].hired = true;
+    slotWin.__saltmarsh.state.boats[0].owned = M.SLOOP_AT;
+    slotWin.__saltmarsh.state.boats[1].owned = 10;
+    slotWin.__saltmarsh.render();
+    check('the goal and the captain button use the same words', slotDoc.querySelector('#goal').textContent === slotDoc.querySelector('#ask').textContent && slotDoc.querySelector('#ask').textContent === M.askLine(1));
+
+    wipe();
+    var wideState = ready();
+    localStorage.setItem(KEY, JSON.stringify(M.serialize(wideState, Date.now())));
+    var wide = await loadFrame('landscape row');
+    wide.style.width = '844px';
+    wide.style.height = '390px';
+    var wideWin = wide.contentWindow;
+    await new Promise(function (resolve) { wideWin.requestAnimationFrame(function () { wideWin.requestAnimationFrame(resolve); }); });
+    var rowBox = wideWin.document.querySelector('#row').getBoundingClientRect();
+    var goalBox = wideWin.document.querySelector('#goal').getBoundingClientRect();
+    check('at 844 by 390 the Row button is on screen', rowBox.top >= 0 && rowBox.bottom <= goalBox.top + 1 && rowBox.height >= 44);
 
     wipe();
     var touchFrame = await loadFrame('touch');

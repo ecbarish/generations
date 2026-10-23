@@ -60,10 +60,28 @@
     var purchases = [], maxGap = 0, lastBuyAt = null;
     var snapshots = {};
 
-    function rate() { return M.income(state) + extra; }
+    function rate() { return M.income(state) + (M.captainRate ? M.captainRate(state) : 0) + extra; }
     function markBuy(ms) {
       if (lastBuyAt != null) maxGap = Math.max(maxGap, ms / 1000 - lastBuyAt);
       lastBuyAt = ms / 1000;
+    }
+    function maybeFit(ms) {
+      if (!M.fittingOffers || !M.buyFitting) return false;
+      var offers = M.fittingOffers(state);
+      if (!offers.length || !(state.cash >= offers[0].cost)) return false;
+      var fit = offers[0];
+      var added = fit.bonus * (state.boats[fit.tier] ? state.boats[fit.tier].owned : 0);
+      if (!(added > 0)) return false;
+      var fitPay = fit.cost / added;
+      var bestBoat = Infinity;
+      for (var i = 0; i < M.BOATS.length; i++) {
+        if (!(M.quote(state, i, 1).count > 0)) continue;
+        bestBoat = Math.min(bestBoat, M.paybackSeconds(state, i));
+      }
+      if (!(fitPay <= bestBoat)) return false;
+      if (!M.buyFitting(state, fit.id, ms).ok) return false;
+      markBuy(ms);
+      return true;
     }
     function openChapter(ms) {
       if (chapter || planAt >= PLAN.length || !barksAt) return;
@@ -80,6 +98,7 @@
     function spend(ms) {
       var c;
       for (c = 0; c < M.CAPTAINS.length; c++) if (M.canHire(state, c)) M.hire(state, c, ms);
+      if (maybeFit(ms)) return;
       openChapter(ms);
       if (chapter && state.cash >= chapter.cost) {
         state.cash -= chapter.cost;
@@ -120,7 +139,7 @@
         nextTick += profile.tickMs;
       }
       if (ms === nextBuy) { spend(ms); nextBuy += profile.buyMs; }
-      if (captainAt == null && state.boats[0].owned >= M.UNLOCK_AT) captainAt = ms / 1000;
+      if (captainAt == null && state.boats[0].owned >= (M.WREN_AT || M.UNLOCK_AT)) captainAt = ms / 1000;
       if (fleetAt == null && state.boats[1].owned >= M.UNLOCK_AT) fleetAt = ms / 1000;
       if (schoonersAt == null && state.boats[2].owned >= M.UNLOCK_AT) schoonersAt = ms / 1000;
       if (barksAt == null && state.boats[3].owned >= M.UNLOCK_AT) barksAt = ms / 1000;
@@ -162,7 +181,7 @@
   function workdays(M) {
     var state = M.fresh();
     var extra = 0, planAt = 0, chapter = null, day = 0, second = 0;
-    function rate() { return M.income(state) + extra; }
+    function rate() { return M.income(state) + (M.captainRate ? M.captainRate(state) : 0) + extra; }
     function activeBurst(seconds) {
       for (var t = 0; t < seconds; t++) {
         if (state.trips < M.HAND_TRIPS) M.handSell(state, 0);
@@ -210,7 +229,7 @@
       return planAt >= PLAN.length;
     }
     activeBurst(1200);
-    var captainAt = state.boats[0].owned >= 10 ? second : null;
+    var captainAt = state.boats[0].owned >= (M.WREN_AT || 10) ? second : null;
     var fleetAt = state.boats[1].owned >= 10 ? second : null;
     for (day = 0; day < 14 && planAt < PLAN.length; day++) {
       for (var check = 0; check < 3 && planAt < PLAN.length; check++) {
@@ -235,7 +254,7 @@
     function at(label, sec) { return '  ' + label + ': ' + (sec == null ? 'not reached' : result.clock(sec)); }
     return [
       result.profile + ' (simulated, not a watched play)',
-      at('first captain (10 rowboats)', result.captainAt),
+      at('first captain (Wren can take the pier)', result.captainAt),
       at('fleet (10 sloops)', result.fleetAt),
       at('routes marked (10 schooners)', result.schoonersAt),
       at('ten barks', result.barksAt),
@@ -284,6 +303,9 @@ if (typeof module !== 'undefined' && require.main === module) {
     assert(active.longestGap <= 300, 'no chapter longer than 5 min, was ' + active.longestGap);
     const office = pacing.workdays(M);
     assert(office.days >= 1 && office.days <= 3, 'left open 1–3 days, was ' + office.days);
+    const newbie = pacing.simulate(M, 'newcomer');
+    assert(newbie.captainAt >= 90 && newbie.captainAt <= 180, 'newcomer captain 1.5–3 min, was ' + newbie.captainAt);
+    assert(newbie.fleetAt > newbie.captainAt && newbie.fleetAt <= 1800, 'newcomer fleet within 30 min, was ' + newbie.fleetAt);
     console.log('validation: passed');
   }
 }

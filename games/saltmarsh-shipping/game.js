@@ -53,18 +53,14 @@
     }
   });
 
-  function bulkLabel(mode) {
-    if (mode === 'max') return 'Buy max';
-    if (mode === 10) return 'Buy 10';
-    return 'Buy 1';
-  }
-
   function buyLabel(i) {
     var q = M.quote(state, i, state.bulk);
-    var word = bulkLabel(state.bulk);
-    if (!(q.count > 0)) return word + ' · ' + money(q.cost) + ' coins';
-    if (state.bulk === 'max') return 'Buy ' + q.count + ' · ' + money(q.cost) + ' coins';
-    return word + ' · ' + money(q.cost) + ' coins';
+    if (state.bulk === 'max') {
+      if (!(q.count > 0)) return 'Max · ' + money(q.cost) + ' coins for one';
+      return 'Buy up to ' + q.count + ' · ' + money(q.cost) + ' coins';
+    }
+    var n = state.bulk === 10 ? 10 : 1;
+    return 'Buy ' + n + ' · ' + money(q.cost) + ' coins';
   }
 
   function visibleBoats() {
@@ -104,11 +100,11 @@
   function fillSheds() {
     var box = $('#sheds');
     var phase = P.read(state);
-    box.hidden = !phase.captain;
+    box.hidden = !phase.sheds;
     if (box.hidden) return;
     var price = M.warehousePrice(state);
     var sheds = state.warehouses;
-    var body = sheds + (sheds === 1 ? ' shed' : ' sheds') + ' on the sand. Each one keeps two hours while you are away, up to four sheds. Away pay is half of being here.';
+    var body = sheds + (sheds === 1 ? ' shed' : ' sheds') + ' on the sand. Each one keeps two hours when the game is closed, up to four sheds. A closed game pays half. A page left open keeps the full rate.';
     var copy = box.querySelector('p');
     if (!copy) {
       box.replaceChildren();
@@ -138,7 +134,7 @@
   function fillLog() {
     var phase = P.read(state);
     var box = $('#log');
-    box.hidden = !phase.captain;
+    box.hidden = !phase.log;
     if (box.hidden) return;
     var list = $('#log-lines');
     var lines = state.log && state.log.length ? state.log : [{ text: 'The log is open. Nothing has come in yet.' }];
@@ -157,7 +153,8 @@
     var list = $('#captains');
     var shown = [];
     M.CAPTAINS.forEach(function (cap, i) {
-      if (state.boats[cap.tier].owned < M.UNLOCK_AT && !state.captains[i].hired) return;
+      var need = i === 0 ? M.WREN_AT : M.UNLOCK_AT;
+      if (state.boats[cap.tier].owned < need && !state.captains[i].hired) return;
       shown.push(i);
     });
     var sig = shown.join(',') + ':' + state.captains.map(function (c) { return c.hired ? 1 : 0; }).join('');
@@ -185,7 +182,7 @@
           var ask = document.createElement('button');
           ask.type = 'button';
           ask.dataset.act = 'hire';
-          ask.textContent = 'Ask ' + cap.name + ' to take the pier';
+          ask.textContent = M.askLine(i);
           actions.appendChild(ask);
           li.appendChild(actions);
         }
@@ -197,10 +194,15 @@
       var status = li.querySelector('.wait');
       var ask = li.querySelector('[data-act="hire"]');
       if (ask) ask.disabled = !M.canHire(state, i);
-      if (!state.captains[i].hired) status.textContent = 'Waiting on the harbour road.';
+      var each = M.haulCoins(M.CAPTAINS[i], 1, 1);
+      var title = li.querySelector('h3');
+      if (title) title.textContent = M.CAPTAINS[i].name + ' · ' + each + ' coins';
+      if (!state.captains[i].hired) status.textContent = each + ' coins a haul, once they take a boat.';
       else {
         var next = M.nextIn(state, i, Date.now());
-        status.textContent = next === Infinity ? 'The haul is waiting on shed room.' : 'Out on the water. Back in ' + (next > 0 ? next + 's' : 'a moment') + '.';
+        var brought = state.captains[i].brought || 0;
+        var back = next === Infinity ? 'The haul is waiting on shed room.' : 'Back in ' + (next > 0 ? next + 's' : 'a moment') + '.';
+        status.textContent = each + ' coins each haul. Brought ' + money(brought) + ' so far. ' + back;
       }
     });
   }
@@ -209,9 +211,70 @@
     var phase = P.read(state);
     var chart = $('#chart');
     var note = chart.querySelector('p') || chart.appendChild(document.createElement('p'));
-    if (!phase.routesReady) note.textContent = 'Ten schooners will mark the trade routes. The chart is here for the fleet you already have.';
-    else if (!phase.routesOpen) note.textContent = 'The trade routes are marked. They stay furled until the office opens them.';
+    if (!phase.routesReady) note.textContent = 'The fleet is on the chart. Ten schooners will mark the trade routes, and the next tide is when they sail.';
+    else if (!phase.routesOpen) note.textContent = 'The routes are marked along the coast. They sail on the next tide, with the lights after them.';
     else note.textContent = 'The routes are open.';
+    var ticks = chart.querySelector('.mark-row');
+    if (!ticks) {
+      ticks = document.createElement('div');
+      ticks.className = 'mark-row';
+      ticks.setAttribute('aria-hidden', 'true');
+      chart.appendChild(ticks);
+    }
+    var count = Math.min(12, state.marks || 0);
+    if (ticks.childElementCount !== count) {
+      ticks.replaceChildren();
+      for (var m = 0; m < count; m++) ticks.appendChild(document.createElement('i'));
+    }
+    var markNote = chart.querySelector('.marks');
+    if (!markNote) {
+      markNote = document.createElement('p');
+      markNote.className = 'marks';
+      chart.appendChild(markNote);
+    }
+    markNote.hidden = !(count > 0);
+    markNote.textContent = count === 1 ? 'Hollis has marked the chart once.' : 'Hollis has marked the chart ' + count + ' times.';
+  }
+
+  function fillChoice() {
+    var box = $('#choice');
+    if (!box) return;
+    var offers = M.fittingOffers(state);
+    box.hidden = !offers.length;
+    if (box.hidden) return;
+    var host = $('#choice-cards');
+    var sig = offers.map(function (fit) { return fit.id; }).join(',');
+    if (host.dataset.sig !== sig) {
+      host.dataset.sig = sig;
+      host.replaceChildren();
+      offers.forEach(function (fit) {
+        var card = document.createElement('div');
+        card.className = 'choice-card';
+        var title = document.createElement('h3');
+        title.textContent = fit.name;
+        var line = document.createElement('p');
+        line.className = 'habit';
+        line.textContent = fit.line + ' A shed keeps more while the game is closed, and does not raise the boats.';
+        var actions = document.createElement('div');
+        actions.className = 'actions';
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.act = 'fit';
+        button.dataset.fit = fit.id;
+        actions.appendChild(button);
+        card.appendChild(title);
+        card.appendChild(line);
+        card.appendChild(actions);
+        host.appendChild(card);
+      });
+    }
+    Array.prototype.forEach.call(host.querySelectorAll('[data-act="fit"]'), function (button) {
+      var fit = null;
+      offers.forEach(function (row) { if (row.id === button.dataset.fit) fit = row; });
+      if (!fit) return;
+      button.disabled = !(state.cash >= fit.cost);
+      button.textContent = fit.name + ' · ' + money(fit.cost) + ' coins';
+    });
   }
 
   function render() {
@@ -219,20 +282,41 @@
     $('#office').dataset.phase = P.name(state);
     $('#coins').textContent = money(state.cash);
     $('#away-rule').textContent = M.awayRule(state);
-    var rate = M.income(state);
-    $('#rate').textContent = rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.';
+    var boatsRate = M.income(state);
+    var captainsRate = M.captainRate(state);
+    var rateLine = $('#rate');
+    if (!(boatsRate > 0) && !(captainsRate > 0)) rateLine.textContent = 'Nothing is earning yet.';
+    else if (captainsRate > 0) rateLine.textContent = money(boatsRate + captainsRate) + ' coins a second. The captains add ' + money(captainsRate) + '.';
+    else rateLine.textContent = money(boatsRate) + ' coins a second';
     $('#goal').textContent = P.goal(state);
     var rowing = view.rowing > 0 && performance.now() - view.rowing < 650;
+    var retired = state.captains[0] && state.captains[0].hired;
     var row = $('#row');
-    row.disabled = rowing;
-    row.textContent = rowing ? 'Rowing…' : (state.trips < M.HAND_TRIPS ? 'Row this cargo · ' + M.HAND_PAY + ' coins' : 'Row a cargo yourself · ' + M.HAND_PAY + ' coins');
+    row.disabled = rowing || retired;
+    if (rowing) row.textContent = 'Rowing…';
+    else if (retired) row.textContent = 'Capt. Wren has the oars';
+    else if (state.trips < M.HAND_TRIPS) row.textContent = 'Row this cargo · ' + M.handPay(state) + ' coins';
+    else row.textContent = 'Row a cargo yourself · ' + M.handPay(state) + ' coins';
     var ask = $('#ask');
+    var crew = $('#crew');
     var askIndex = -1;
     for (var c = 0; c < M.CAPTAINS.length; c++) if (M.canHire(state, c)) { askIndex = c; break; }
     ask.hidden = askIndex < 0;
     if (askIndex >= 0) {
       ask.dataset.captain = String(askIndex);
-      ask.textContent = 'Ask ' + M.CAPTAINS[askIndex].name + ' to take the pier';
+      ask.textContent = M.askLine(askIndex);
+      if (crew) crew.hidden = true;
+    } else if (crew) {
+      var hired = -1;
+      for (var h = 0; h < M.CAPTAINS.length; h++) if (state.captains[h].hired) hired = h;
+      if (hired >= 0) {
+        var onPier = M.CAPTAINS[hired];
+        crew.hidden = !phase.boats;
+        crew.textContent = onPier.name + ' · ' + M.haulCoins(onPier, 1, 1) + ' coins every ' + onPier.every + 's';
+      } else if (phase.boats) {
+        crew.hidden = false;
+        crew.textContent = 'The pier stays clear for Capt. Wren.';
+      } else crew.hidden = true;
     }
     $('#bulk').hidden = !phase.boats;
     document.querySelectorAll('[data-bulk]').forEach(function (b) {
@@ -251,16 +335,30 @@
       });
     }
     Array.prototype.forEach.call(list.children, function (li) { fillBoat(li, +li.dataset.i); });
+    fillChoice();
     fillSheds();
     fillLog();
     var fleet = $('#fleet');
+    var openedFleet = fleet.hidden && phase.fleet;
     fleet.hidden = !phase.fleet;
-    if (!fleet.hidden) { fillChart(); fillCaptains(); }
+    if (!fleet.hidden) {
+      fillChart();
+      fillCaptains();
+      if (M.noteFleet(state)) {
+        openedFleet = true;
+        fleet.classList.add('reveal');
+        persist();
+        var motion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var reduced = motion || (window.Settings && Settings.reduced());
+        if (fleet.scrollIntoView) fleet.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+      }
+    }
+    if (openedFleet) fleet.classList.add('reveal');
     if (audio && audio.render) audio.render();
   }
 
-  function showAway(summary) {
-    var copy = M.awayCopy(state, summary);
+  function showAway(summary, detail) {
+    var copy = M.awayCopy(state, summary, detail);
     var box = $('#away');
     box.hidden = false;
     awayOn = true;
@@ -269,14 +367,11 @@
     h.textContent = copy.title;
     var lead = document.createElement('p');
     lead.textContent = copy.lead;
-    var coins = document.createElement('p');
-    coins.textContent = copy.box;
     box.appendChild(h);
     box.appendChild(lead);
-    box.appendChild(coins);
-    (state.log || []).slice(0, 3).forEach(function (line) {
+    (copy.lines || []).forEach(function (text) {
       var p = document.createElement('p');
-      p.textContent = line.text;
+      p.textContent = text;
       box.appendChild(p);
     });
     var btn = document.createElement('button');
@@ -302,10 +397,11 @@
   function rowAt(x, y, source) {
     taps.push({ x: x, y: y, source: source });
     if (view.rowing > 0 && performance.now() - view.rowing < 650) return;
-    if (!M.handSell(state, 0).ok) return;
+    var sold = M.handSell(state, 0);
+    if (!sold.ok) return;
     view.rowing = performance.now();
     view.ripple = { x: x, y: y, at: view.rowing };
-    pop(x, y, '+' + M.HAND_PAY);
+    pop(x, y, '+' + sold.pay);
     if (state.sound) audio.sfx('blip');
     persist();
     render();
@@ -377,6 +473,14 @@
       $('#away').replaceChildren();
       return;
     }
+    if (b.dataset.act === 'fit') {
+      if (M.buyFitting(state, b.dataset.fit).ok) {
+        if (state.sound) audio.sfx('quest');
+        persist();
+        render();
+      }
+      return;
+    }
     if (b.dataset.act === 'shed') {
       if (M.buyWarehouse(state).ok) {
         if (state.sound) audio.sfx('select');
@@ -423,15 +527,87 @@
   drawTools();
   $('details.save').addEventListener('toggle', function () { if (this.open) drawTools(); });
 
+  var cashBeforeAway = state.cash;
+  var booksBeforeAway = M.captainBooks(state);
   var summary = bootIdle(typeof state.seen === 'number' ? state.seen : null);
+  var cashAfterBoats = state.cash;
   if (summary) M.collectCaptains(state, Date.now(), M.OFFLINE_RATE);
   state.seen = Date.now();
   persist();
-  if (summary && (summary.gained > 0 || summary.capped)) showAway(summary);
+  if (summary && (summary.gained > 0 || summary.capped || state.cash !== cashBeforeAway)) {
+    showAway(summary, {
+      before: cashBeforeAway,
+      after: state.cash,
+      boatGain: cashAfterBoats - cashBeforeAway,
+      captains: M.captainAwayLines(state, booksBeforeAway),
+      openPage: false
+    });
+  }
   render();
+
+  /* A hidden tab stays loaded, so the boats keep the full rate. The log says so.
+     A closed game is the other path: half rate, applied above when the page loads. */
+  var hiddenAt = null;
+  var cashAtHide = null;
+  var booksAtHide = null;
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') {
+      hiddenAt = Date.now();
+      cashAtHide = state.cash;
+      booksAtHide = M.captainBooks(state);
+      return;
+    }
+    if (hiddenAt == null) return;
+    var awaySec = (Date.now() - hiddenAt) / 1000;
+    var before = cashAtHide;
+    var books = booksAtHide;
+    hiddenAt = null;
+    cashAtHide = null;
+    booksAtHide = null;
+    if (!(awaySec >= 60)) return;
+    var tries = 0;
+    function settle() {
+      tries += 1;
+      var moved = state.cash !== before;
+      if (!moved && tries < 10 && M.income(state) > 0) {
+        setTimeout(settle, 100);
+        return;
+      }
+      var capSeconds = M.offlineCap(state);
+      showAway({
+        away: awaySec,
+        credited: Math.min(awaySec, capSeconds),
+        gained: Math.max(0, state.cash - before),
+        capped: awaySec > capSeconds
+      }, {
+        before: before,
+        after: state.cash,
+        boatGain: Math.max(0, state.cash - before - captainGain(books)),
+        captains: M.captainAwayLines(state, books),
+        openPage: true
+      });
+      render();
+    }
+    setTimeout(settle, 50);
+  });
+  function captainGain(books) {
+    var nowBooks = M.captainBooks(state);
+    var n = 0;
+    for (var i = 0; i < nowBooks.length; i++) n += nowBooks[i] - (books && books[i] ? books[i] : 0);
+    return n;
+  }
+
   setInterval(function () {
+    var before = state.cash;
     var paid = M.collectCaptains(state, Date.now(), 1);
-    if (paid.length) persist();
+    if (paid.length) {
+      persist();
+      var wrap = $('.harbour-wrap');
+      if (wrap) {
+        var rect = wrap.getBoundingClientRect();
+        pop(rect.left + rect.width * 0.5, rect.top + 36, '+' + money(state.cash - before));
+      }
+    }
     render();
   }, 250);
 

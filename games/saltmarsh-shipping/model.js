@@ -11,6 +11,9 @@
   var HAND_PAY = 5;
   var HAND_TRIPS = 3;
   var UNLOCK_AT = 10;
+  /* Wren arrives on her own, then the sloop shop a little later, so the pier does not open all at once. */
+  var WREN_AT = 18;
+  var SLOOP_AT = 32;
   var OFFLINE_RATE = 0.5;
   var WAREHOUSE_HOURS = 2;
   var MAX_WAREHOUSES = 4;
@@ -25,7 +28,7 @@
       id: 'rowboat', name: 'Rowboat',
       base: 8, growth: 1.07, rate: 0.6,
       looks: ['One boat tied at the dock', 'Flags along the pier', 'A longer dock', 'A crane over the crates'],
-      next: 'Ten rowboats, and Capt. Wren will take the pier.'
+      next: 'Capt. Wren takes the pier once enough rowboats are tied up.'
     },
     {
       id: 'sloop', name: 'Sloop',
@@ -37,7 +40,7 @@
       id: 'schooner', name: 'Schooner',
       base: 1800, growth: 1.10, rate: 40,
       looks: ['One schooner outside the bar', 'Signal flags', 'A deeper berth', 'A crane on the outer pier'],
-      next: 'Ten schooners mark the trade routes. The routes themselves stay furled.'
+      next: 'Ten schooners mark the trade routes. They sail on the next tide.'
     },
     {
       id: 'bark', name: 'Bark',
@@ -47,27 +50,49 @@
     }
   ];
 
+  var BOAT_NAMES = ['Grey Lark', 'Kettle', 'Bar Light', 'Reed'];
   var CAPTAINS = [
     {
-      id: 'wren', name: 'Capt. Wren', tier: 0, every: 20, pay: 6,
-      habit: 'Wren counts every crate aloud, and always finds one short.',
-      line: function (n) { return 'Capt. Wren is back with ' + n + (n === 1 ? ' crate' : ' crates') + '. A gull stole one.'; }
+      id: 'wren', name: 'Capt. Wren', tier: 0, every: 20, pay: 60,
+      habit: 'Wren counts every coin aloud, and a gull always takes one.',
+      lines: [
+        function (coins) { return 'Capt. Wren is back with ' + coins + ' coins. A gull took one off the pile.'; },
+        function (coins) { return 'Capt. Wren counts the coins twice and lands ' + coins + '. One is gone.'; },
+        function (coins) { return 'The gull left Capt. Wren ' + coins + ' coins. She is already counting the next pile.'; }
+      ]
     },
     {
-      id: 'bramble', name: 'Capt. Bramble', tier: 1, every: 24, pay: 36,
-      habit: 'Bramble will not cast off until the kettle has boiled.',
-      line: function (n) { return 'Capt. Bramble is back with ' + n + (n === 1 ? ' crate' : ' crates') + '. The tea was finished before the pier.'; }
+      id: 'bramble', name: 'Capt. Bramble', tier: 1, every: 24, pay: 200,
+      habit: 'Bramble waits for the kettle, then brings the tea money with the haul.',
+      lines: [
+        function (coins) { return 'Capt. Bramble is back with ' + coins + ' coins. The kettle money is in the pile.'; },
+        function (coins) { return 'The kettle boiled, and Capt. Bramble landed ' + coins + ' coins.'; },
+        function (coins) { return 'Capt. Bramble would not cast off until the tea was poured. ' + coins + ' coins came in.'; }
+      ]
     },
     {
-      id: 'hollis', name: 'Capt. Hollis', tier: 2, every: 30, pay: 180,
-      habit: 'Hollis draws the headland on the back of every manifest.',
-      line: function (n) { return 'Capt. Hollis is back with ' + n + (n === 1 ? ' crate' : ' crates') + ' and a new line on the chart.'; }
+      id: 'hollis', name: 'Capt. Hollis', tier: 2, every: 30, pay: 2000,
+      habit: 'Each return, Hollis adds a mark to the fleet chart.',
+      lines: [
+        function (coins) { return 'Capt. Hollis is back with ' + coins + ' coins and a new mark on the chart.'; },
+        function (coins) { return 'Capt. Hollis drew the headland and landed ' + coins + ' coins.'; },
+        function (coins) { return 'A fresh mark on the chart, and ' + coins + ' coins from Capt. Hollis.'; }
+      ]
     },
     {
-      id: 'pell', name: 'Capt. Pell', tier: 3, every: 36, pay: 700,
-      habit: 'Pell names every boat, and will not say which is the favourite.',
-      line: function (n) { return 'Capt. Pell is back from deep water with ' + n + (n === 1 ? ' crate' : ' crates') + '.'; }
+      id: 'pell', name: 'Capt. Pell', tier: 3, every: 36, pay: 18000,
+      habit: 'Pell names the boat she sailed, and the log says which one.',
+      lines: [
+        function (coins, boat) { return 'Capt. Pell is back aboard the ' + boat + ' with ' + coins + ' coins.'; },
+        function (coins, boat) { return 'The ' + boat + ' made the pier. Capt. Pell landed ' + coins + ' coins.'; },
+        function (coins, boat) { return 'Capt. Pell will not say the ' + boat + ' is the favourite. ' + coins + ' coins came ashore.'; }
+      ]
     }
+  ];
+  /* One-off fittings. A flat extra per boat, not a multiplier on the whole office. */
+  var FITTINGS = [
+    { id: 'sloop-hull', tier: 1, need: 10, bonus: 1, cost: 700, name: 'Lighter sloop hulls', line: 'Each sloop earns 1 more coin a second, from now on.' },
+    { id: 'schooner-hold', tier: 2, need: 10, bonus: 8, cost: 6000, name: 'Deeper schooner holds', line: 'Each schooner earns 8 more coins a second, from now on.' }
   ];
 
   function fresh() {
@@ -80,7 +105,10 @@
       warehouses: 1,
       sound: 0,
       boats: BOATS.map(function () { return { owned: 0 }; }),
-      captains: CAPTAINS.map(function () { return { hired: false }; }),
+      captains: CAPTAINS.map(function () { return { hired: false, brought: 0, hauls: 0 }; }),
+      fittings: {},
+      marks: 0,
+      fleetSeen: false,
       jobs: {},
       log: []
     };
@@ -93,6 +121,7 @@
     if (!spec(i) || !state.boats[i]) return false;
     if (!(state.trips >= HAND_TRIPS)) return false;
     if (i === 0) return true;
+    if (i === 1) return state.boats[0].owned >= SLOOP_AT;
     return state.boats[i - 1].owned >= UNLOCK_AT;
   }
 
@@ -111,15 +140,46 @@
     return 'what one boat earns';
   }
 
+  function fittingBonus(state, i) {
+    if (!state.fittings) return 0;
+    var extra = 0;
+    FITTINGS.forEach(function (fit) {
+      if (fit.tier === i && state.fittings[fit.id]) extra += fit.bonus;
+    });
+    return extra;
+  }
+
   function production(state, i) {
     var boat = state.boats[i];
     if (!boat || !(boat.owned > 0) || !spec(i)) return 0;
-    return spec(i).rate * boat.owned * Idle.milestoneMult(boat.owned);
+    /* The fitting is a flat extra on each boat. Milestones still double only the boat's own rate. */
+    return spec(i).rate * boat.owned * Idle.milestoneMult(boat.owned) + fittingBonus(state, i) * boat.owned;
+  }
+
+  /* One haul, in coins. Wren's gull takes one per landing. Bramble's kettle adds the tea money. */
+  function haulCoins(cap, units, rate) {
+    if (!cap || !(units > 0)) return 0;
+    var scale = typeof rate === 'number' && rate >= 0 ? rate : 1;
+    var gross = cap.pay * units * scale;
+    var tea = cap.id === 'bramble' ? 10 * units * scale : 0;
+    var gull = cap.id === 'wren' ? units : 0;
+    var coins = Math.round(gross + tea - gull);
+    return coins > 0 ? coins : 1;
   }
 
   function income(state) {
     var n = 0;
     for (var i = 0; i < BOATS.length; i++) n += production(state, i);
+    return n;
+  }
+
+  /* What the captains add between hauls, so the rate line moves when one is hired. */
+  function captainRate(state) {
+    var n = 0;
+    for (var i = 0; i < CAPTAINS.length; i++) {
+      if (!state.captains[i] || !state.captains[i].hired) continue;
+      n += haulCoins(CAPTAINS[i], 1, 1) / CAPTAINS[i].every;
+    }
     return n;
   }
 
@@ -130,19 +190,45 @@
     return amount;
   }
 
+  function wrenHired(state) {
+    return !!(state.captains[0] && state.captains[0].hired);
+  }
+
+  /* The first three cargoes are a flat 5, so the shop still opens on the same coins.
+     After that, a trip is worth about three seconds of the boats. Wren retires the oars. */
+  function handPay(state) {
+    if (!state || state.trips < HAND_TRIPS) return HAND_PAY;
+    var scaled = Math.round(income(state) * 3);
+    return Math.max(HAND_PAY, scaled);
+  }
+
   function handSell(state, i) {
     if (i === undefined || i === null) i = 0;
     if (i !== 0) return { ok: false, reason: 'closed' };
+    if (wrenHired(state)) return { ok: false, reason: 'captain' };
+    var pay = handPay(state);
     state.trips += 1;
-    addCash(state, HAND_PAY);
-    return { ok: true, ready: state.trips >= HAND_TRIPS };
+    addCash(state, pay);
+    return { ok: true, ready: state.trips >= HAND_TRIPS, pay: pay };
+  }
+
+  function boatsForCaptain(i) {
+    return i === 0 ? WREN_AT : UNLOCK_AT;
   }
 
   function canHire(state, i) {
     var cap = captainSpec(i);
     if (!cap || !state.captains[i] || state.captains[i].hired) return false;
     if (!(state.trips >= HAND_TRIPS)) return false;
-    return state.boats[cap.tier].owned >= UNLOCK_AT;
+    return state.boats[cap.tier].owned >= boatsForCaptain(i);
+  }
+
+  function askLine(i) {
+    var cap = captainSpec(i);
+    if (!cap) return '';
+    if (cap.tier === 0) return 'Ask ' + cap.name + ' to take the pier.';
+    var boat = spec(cap.tier);
+    return 'Ask ' + cap.name + ' to take a ' + boat.name.toLowerCase() + '.';
   }
 
   function hire(state, i, now) {
@@ -155,8 +241,13 @@
     state.captains[i].hired = true;
     if (!state.jobs || typeof state.jobs !== 'object') state.jobs = {};
     state.jobs[captainSpec(i).id] = { job: 'haul', since: when };
-    pushLog(state, captainSpec(i).name + ' takes the pier. ' + captainSpec(i).habit, when);
-    return { ok: true, id: captainSpec(i).id };
+    var cap = captainSpec(i);
+    var coins = haulCoins(cap, 1, 1);
+    var welcome = cap.tier === 0
+      ? cap.name + ' takes the pier. '
+      : cap.name + ' takes a ' + spec(cap.tier).name.toLowerCase() + '. ';
+    pushLog(state, welcome + cap.habit + ' That is ' + coins + ' coins every ' + cap.every + ' seconds.', when);
+    return { ok: true, id: cap.id };
   }
 
   function quote(state, i, mode) {
@@ -209,6 +300,37 @@
     return { ok: true, warehouses: state.warehouses, cost: price };
   }
 
+  function fittingById(id) {
+    for (var i = 0; i < FITTINGS.length; i++) if (FITTINGS[i].id === id) return FITTINGS[i];
+    return null;
+  }
+
+  function fittingOffers(state) {
+    return FITTINGS.filter(function (fit) {
+      if (state.fittings && state.fittings[fit.id]) return false;
+      return !!(state.boats[fit.tier] && state.boats[fit.tier].owned >= fit.need);
+    }).map(function (fit) {
+      return {
+        id: fit.id, tier: fit.tier, cost: fit.cost, name: fit.name, line: fit.line, bonus: fit.bonus,
+        affordable: state.cash >= fit.cost
+      };
+    });
+  }
+
+  function buyFitting(state, id, now) {
+    var fit = fittingById(id);
+    if (!fit) return { ok: false, reason: 'closed' };
+    if (state.fittings && state.fittings[fit.id]) return { ok: false, reason: 'owned' };
+    if (!state.boats[fit.tier] || state.boats[fit.tier].owned < fit.need) return { ok: false, reason: 'boats' };
+    if (!(state.cash >= fit.cost)) return { ok: false, reason: 'cost', cost: fit.cost };
+    state.cash -= fit.cost;
+    if (state.cash < 1e-6) state.cash = 0;
+    if (!state.fittings || typeof state.fittings !== 'object') state.fittings = {};
+    state.fittings[fit.id] = true;
+    pushLog(state, fit.name + '. ' + fit.line, now);
+    return { ok: true, id: fit.id, cost: fit.cost };
+  }
+
   function pushLog(state, text, now) {
     if (!state.log) state.log = [];
     state.log.unshift({ t: typeof now === 'number' ? now : Date.now(), text: text });
@@ -229,11 +351,19 @@
           },
           give: function (who, units) {
             var cap = null;
-            for (var i = 0; i < CAPTAINS.length; i++) if (CAPTAINS[i].id === who) cap = CAPTAINS[i];
-            if (!cap || !(units > 0)) return;
+            var index = -1;
+            for (var i = 0; i < CAPTAINS.length; i++) if (CAPTAINS[i].id === who) { cap = CAPTAINS[i]; index = i; }
+            if (!cap || !(units > 0) || !state.captains[index]) return;
             var rate = state._awayRate > 0 ? state._awayRate : 1;
-            addCash(state, cap.pay * units * rate);
-            pushLog(state, cap.line(units), state._logNow);
+            var coins = haulCoins(cap, units, rate);
+            addCash(state, coins);
+            var row = state.captains[index];
+            row.brought = (row.brought || 0) + coins;
+            row.hauls = (row.hauls || 0) + units;
+            if (cap.id === 'hollis') state.marks = Math.min(12, (state.marks || 0) + units);
+            var boat = BOAT_NAMES[(row.hauls - 1) % BOAT_NAMES.length];
+            var line = cap.lines[(row.hauls - 1) % cap.lines.length];
+            pushLog(state, line(coins, boat, units), state._logNow);
           }
         }
       }
@@ -283,11 +413,20 @@
     return 'The next ' + boat.name.toLowerCase() + ' pays for itself in ' + label + '.';
   }
 
+  function pluralLook(look, owned) {
+    if (owned === 1) return look;
+    if (look === 'One boat tied at the dock') return owned + ' boats tied at the dock';
+    if (look === 'One sloop on the mooring') return owned + ' sloops on the mooring';
+    if (look === 'One schooner outside the bar') return owned + ' schooners outside the bar';
+    if (look === 'One bark on the deep mooring') return owned + ' barks on the deep mooring';
+    return look;
+  }
+
   function lookLine(state, i) {
     var owned = state.boats[i].owned;
     var boat = spec(i);
     if (!(owned > 0)) return boat.name + 's wait on the price list.';
-    var look = boat.looks[lookIndex(owned)];
+    var look = pluralLook(boat.looks[lookIndex(owned)], owned);
     if (Idle.milestoneMult(owned) <= 1) return look + '.';
     return look + '. Each one earns ' + timesWord(owned) + '.';
   }
@@ -295,21 +434,61 @@
   function awayRule(state) {
     var hours = offlineCap(state) / 3600;
     var sheds = (state && state.warehouses) || 1;
-    return 'While away: earns ' + Math.round(OFFLINE_RATE * 100) + '%, up to ' + hours + 'h (' + sheds + (sheds === 1 ? ' shed' : ' sheds') + ')';
+    return 'A closed game earns ' + Math.round(OFFLINE_RATE * 100) + '%, up to ' + hours + 'h (' + sheds + (sheds === 1 ? ' shed' : ' sheds') + '). A page left open keeps the full rate.';
   }
 
-  function awayCopy(state, summary) {
+  /* `detail` is the cash the page actually moved: before, boat coins, captain lines, after.
+     A closed game uses the half rate. A page that stayed open uses the full rate. */
+  function awayCopy(state, summary, detail) {
+    detail = detail || {};
+    var openPage = !!detail.openPage;
     var sheds = state.warehouses || 1;
     var hours = offlineCap(state) / 3600;
     var hold = sheds === 1 ? 'The shed holds ' + hours + ' hours' : 'The sheds hold ' + hours + ' hours';
     var lead = 'You were gone ' + Arcade.fmtTime(summary.away) + '.';
-    if (summary.capped) lead += ' ' + hold + ', so ' + Arcade.fmtTime(summary.credited) + ' counted.';
-    else lead += ' The office kept ' + Arcade.fmtTime(summary.credited) + ' of it.';
-    lead += ' While away, the boats earn ' + Math.round(OFFLINE_RATE * 100) + '%.';
-    var box = summary.gained > 0
-      ? Arcade.fmt(summary.gained) + ' coins are in the shed.'
-      : 'The shed is empty. Nothing was earning while you were gone.';
-    return { title: 'While you were away', lead: lead, box: box };
+    if (openPage) {
+      lead += ' The page stayed open, so the boats kept the full rate.';
+      if (summary.capped) lead += ' One catch-up is held to ' + hours + ' hours.';
+    } else {
+      lead += ' The game was closed, so the boats earned ' + Math.round(OFFLINE_RATE * 100) + '%.';
+      if (summary.capped) lead += ' ' + hold + ', so ' + hours + ' hours counted.';
+    }
+    var lines = [];
+    if (typeof detail.before === 'number') lines.push('You left with ' + Arcade.fmt(detail.before) + ' coins.');
+    var boatGain = typeof detail.boatGain === 'number' ? detail.boatGain : (summary.gained || 0);
+    lines.push('The boats added ' + Arcade.fmt(boatGain) + ' coins.');
+    var captains = detail.captains || [];
+    if (!captains.length) lines.push('No captain was at the pier.');
+    captains.forEach(function (row) { lines.push(row); });
+    if (typeof detail.after === 'number') lines.push('You came back to ' + Arcade.fmt(detail.after) + ' coins.');
+    return { title: 'While you were away', lead: lead, lines: lines, box: lines.join(' ') };
+  }
+
+  function captainBooks(state) {
+    return state.captains.map(function (c) { return c && c.brought ? c.brought : 0; });
+  }
+
+  function captainAwayLines(state, beforeBrought) {
+    var lines = [];
+    var any = false;
+    for (var i = 0; i < CAPTAINS.length; i++) {
+      var row = state.captains[i];
+      if (!row || !row.hired) continue;
+      any = true;
+      var before = beforeBrought && typeof beforeBrought[i] === 'number' ? beforeBrought[i] : 0;
+      var added = (row.brought || 0) - before;
+      if (added > 0) lines.push(CAPTAINS[i].name + ' added ' + Arcade.fmt(added) + ' coins.');
+      else lines.push(CAPTAINS[i].name + ' was out, and no haul landed in this stretch.');
+    }
+    if (!any) lines.push('No captain was at the pier.');
+    return lines;
+  }
+
+  function noteFleet(state, now) {
+    if (state.fleetSeen) return false;
+    state.fleetSeen = true;
+    pushLog(state, 'The fleet chart unrolls on the desk.', now);
+    return true;
   }
 
   function setBulk(state, mode) {
@@ -333,7 +512,12 @@
     }
     for (i = 0; i < o.captains.length; i++) {
       if (!o.captains[i] || typeof o.captains[i].hired !== 'boolean') return false;
+      if (o.captains[i].brought != null && (!finiteNum(o.captains[i].brought) || o.captains[i].brought < 0)) return false;
+      if (o.captains[i].hauls != null && (!finiteNum(o.captains[i].hauls) || o.captains[i].hauls < 0)) return false;
     }
+    if (o.fittings != null && typeof o.fittings !== 'object') return false;
+    if (o.marks != null && (!finiteNum(o.marks) || o.marks < 0)) return false;
+    if (o.fleetSeen != null && typeof o.fleetSeen !== 'boolean') return false;
     if (o.jobs != null && typeof o.jobs !== 'object') return false;
     if (o.log != null && !Array.isArray(o.log)) return false;
     return true;
@@ -351,7 +535,12 @@
       warehouses: state.warehouses,
       sound: state.sound === 1 || state.sound === 2 ? state.sound : 0,
       boats: state.boats.map(function (b) { return { owned: b.owned }; }),
-      captains: state.captains.map(function (c) { return { hired: !!c.hired }; }),
+      captains: state.captains.map(function (c) {
+        return { hired: !!c.hired, brought: c.brought || 0, hauls: c.hauls || 0 };
+      }),
+      fittings: state.fittings && typeof state.fittings === 'object' ? state.fittings : {},
+      marks: state.marks || 0,
+      fleetSeen: !!state.fleetSeen,
       jobs: state.jobs || {},
       log: (state.log || []).slice(0, 12)
     };
@@ -368,7 +557,17 @@
     state.warehouses = Math.floor(o.warehouses);
     state.sound = o.sound;
     o.boats.forEach(function (b, i) { state.boats[i].owned = Math.floor(b.owned); });
-    o.captains.forEach(function (c, i) { state.captains[i].hired = c.hired; });
+    o.captains.forEach(function (c, i) {
+      state.captains[i].hired = c.hired;
+      state.captains[i].brought = finiteNum(c.brought) ? c.brought : 0;
+      state.captains[i].hauls = finiteNum(c.hauls) ? Math.floor(c.hauls) : 0;
+    });
+    state.fittings = {};
+    if (o.fittings && typeof o.fittings === 'object') {
+      FITTINGS.forEach(function (fit) { if (o.fittings[fit.id]) state.fittings[fit.id] = true; });
+    }
+    state.marks = finiteNum(o.marks) ? Math.min(12, Math.floor(o.marks)) : 0;
+    state.fleetSeen = !!o.fleetSeen;
     state.jobs = {};
     if (o.jobs) {
       Object.keys(o.jobs).forEach(function (id) {
@@ -419,19 +618,28 @@
     HAND_PAY: HAND_PAY,
     HAND_TRIPS: HAND_TRIPS,
     UNLOCK_AT: UNLOCK_AT,
+    WREN_AT: WREN_AT,
+    SLOOP_AT: SLOOP_AT,
+    FITTINGS: FITTINGS,
     OFFLINE_RATE: OFFLINE_RATE,
     WAREHOUSE_HOURS: WAREHOUSE_HOURS,
     MAX_WAREHOUSES: MAX_WAREHOUSES,
     fresh: fresh,
     unlocked: unlocked,
     income: income,
+    captainRate: captainRate,
+    haulCoins: haulCoins,
     production: production,
     addCash: addCash,
+    handPay: handPay,
     handSell: handSell,
     canHire: canHire,
+    askLine: askLine,
     hire: hire,
     quote: quote,
     buy: buy,
+    fittingOffers: fittingOffers,
+    buyFitting: buyFitting,
     offlineCap: offlineCap,
     warehousePrice: warehousePrice,
     buyWarehouse: buyWarehouse,
@@ -443,6 +651,9 @@
     lookLine: lookLine,
     awayRule: awayRule,
     awayCopy: awayCopy,
+    captainBooks: captainBooks,
+    captainAwayLines: captainAwayLines,
+    noteFleet: noteFleet,
     setBulk: setBulk,
     valid: valid,
     serialize: serialize,

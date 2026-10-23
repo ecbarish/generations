@@ -32,12 +32,17 @@
   <div class="work">
     <button type="button" id="row" class="row">Row this cargo</button>
     <button type="button" id="ask" class="ask" hidden>Ask the captain</button>
+    <p id="crew" class="ask crew" hidden>The pier stays clear for Capt. Wren.</p>
     <div class="bulk" id="bulk" hidden role="group" aria-label="How many boats to buy at once">
-      <button type="button" data-bulk="1" aria-pressed="true">Buy 1</button>
-      <button type="button" data-bulk="10" aria-pressed="false">Buy 10</button>
-      <button type="button" data-bulk="max" aria-pressed="false">Buy max</button>
+      <button type="button" data-bulk="1" aria-pressed="true">1 at a time</button>
+      <button type="button" data-bulk="10" aria-pressed="false">10 at a time</button>
+      <button type="button" data-bulk="max" aria-pressed="false">Max</button>
     </div>
     <ol class="boats" id="boats"></ol>
+    <section id="choice" class="choice" hidden>
+      <h2>A choice on the desk</h2>
+      <div id="choice-cards"></div>
+    </section>
     <section id="sheds" hidden></section>
     <section id="log" class="log" hidden>
       <h2>Harbour log</h2>

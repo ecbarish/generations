@@ -64,7 +64,6 @@ h1 { font-size: 1.55rem; line-height: 1.15; margin: 0.45rem 0 0.3rem; font-weigh
 }
 .harbour-wrap { position: relative; margin: 0.75rem -1rem 0.4rem; background: var(--sky); }
 .harbour-wrap canvas { display: block; width: 100%; height: 210px; touch-action: manipulation; }
-.window[data-phase="captain"] .harbour-wrap canvas { height: 240px; }
 .window[data-phase="fleet"] .harbour-wrap canvas { height: 320px; }
 .float {
   position: absolute;
@@ -101,18 +100,34 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   border-color: var(--timber);
 }
 .ask { background: var(--lamp); }
+.crew {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 0.35rem 0 0.7rem;
+  background: var(--mist);
+  color: var(--ink);
+}
+/* The captain's place is kept from the first boat, so the button does not shove the shop down. */
+.window:not([data-phase="dock"]) #ask[hidden] {
+  display: block !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+.window:not([data-phase="dock"]):has(#crew:not([hidden])) #ask[hidden] { display: none !important; }
 .bulk { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.6rem; }
 .bulk button { flex: 1 1 6rem; }
 .boats, .captains, .log ol { list-style: none; margin: 0; padding: 0; }
 .boat, .captain { border-top: 1px solid var(--sky); padding: 0.75rem 0; }
-.boat h2, .captain h3, .log h2, .fleet h2, .sheds h2 { margin: 0 0 0.2rem; font-size: 1.15rem; font-weight: 600; }
+.boat h2, .captain h3, .log h2, .fleet h2, .sheds h2, .choice h2, .choice h3 { margin: 0 0 0.2rem; font-size: 1.15rem; font-weight: 600; }
 .habit, .facts, .wait { margin: 0.15rem 0; }
 .habit, .wait { color: var(--hull); }
 .facts:empty, .wait:empty { display: none; }
 .actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
 .actions button { flex: 1 1 9rem; }
 .closed h2, .closed .habit { color: var(--hull); font-style: italic; }
-.away, .log, .fleet, .sheds {
+.away, .log, .fleet, .sheds, .choice {
   border: 1px solid var(--sky);
   background: var(--panel);
   padding: 0.8rem 0.85rem;
@@ -130,6 +145,15 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   color: var(--mist);
 }
 .chart p { color: var(--mist); }
+.chart .marks { color: var(--sand); }
+.mark-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 0.45rem; }
+.mark-row:empty { display: none; }
+.mark-row i { display: block; width: 8px; height: 16px; background: var(--sand); }
+.fleet.reveal { animation: unroll 0.8s ease-out; }
+@keyframes unroll {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
 .goalbar {
   position: fixed;
   left: 50%;
@@ -166,10 +190,22 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .window { max-width: 60rem; padding-bottom: 8.5rem; }
   .goalbar { width: min(60rem, 100%); }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
-  .row, .ask, .bulk, .fleet, .away { grid-column: 1 / -1; }
+  .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .log { grid-column: 1 / -1; }
   .harbour-wrap canvas { height: 300px; }
   .window[data-phase="fleet"] .harbour-wrap canvas { height: 340px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .float { animation: none; }
+  .float, .fleet.reveal { animation: none; }
+}
+@media (max-height: 430px) {
+  .window { padding: 0.3rem 0.75rem 4.2rem; }
+  h1 { font-size: 1.15rem; margin: 0.1rem 0; }
+  .scene, #away-rule { display: none; }
+  .coins { font-size: 1.1rem; }
+  .tools-row { margin-top: 0.15rem; }
+  .harbour-wrap { margin-top: 0.2rem; margin-bottom: 0.1rem; }
+  .harbour-wrap canvas,
+  .window[data-phase="fleet"] .harbour-wrap canvas { height: 64px; }
+  .goalbar { padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom)); }
+  html { scroll-padding-bottom: 3.2rem; }
 }
