@@ -240,6 +240,13 @@ button[aria-pressed="true"], button.ask, button.best {
   .actions button { flex-basis: 8rem; }
 }
 @media (min-width: 1001px) {
+  /* The lane goal is one more line under the picture. Pull the air above the
+     lane, under the scene, and around Buying so the first pour still clears
+     an 800px-tall window after Mei is hired. */
+  .scene { margin-bottom: 0.35rem; }
+  .lane { margin-top: 0.2rem; }
+  .bulk { margin: 0.25rem 0 0; }
+  .stalls { margin-top: 0.1rem; }
   .coin-pin:not([hidden]) {
     display: block;
     position: fixed;
