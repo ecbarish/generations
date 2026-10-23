@@ -1252,18 +1252,16 @@ document.querySelector('#run').onclick = async () => {
           check(`${key} C: arrow lane, arrow disc and the end caps`, laneOk && !stray.includes('lane'));
           const toyFigs = areaThings(2), fig = n => toyFigs.find(t => t.name === n).box, piles = (a, b) => a.x0 < b.x1 - 1 && b.x0 < a.x1 - 1 && a.y0 < b.y1 - 1 && b.y0 < a.y1 - 1;
           check(`${key} K: the Toy Yard pup, Pebblit and the basket stand clear of each other`, !piles(fig('baby'), fig('friend')) && !piles(fig('baby'), fig('basket')) && !piles(fig('friend'), fig('basket')));
-          if (height > width) {
-            LR.go(1); LR.advance(.2);
-            const edge = (L().arrows.left.x - LR.camera.x - L().arrows.r) * LR.scale;
-            check(`${key}: the left arrow sits at least 16 px in from the edge`, edge + .5 >= 16);
-          }
-          if (width > height * 1.7) {
+          LR.go(1); LR.advance(.2);
+          const edge = (L().arrows.left.x - LR.camera.x - L().arrows.r) * LR.scale;
+          check(`${key}: the left arrow sits at least 16 px in from the edge`, edge + .5 >= 16);
+          {
             let foxClear = true;
-            for (const i of [0, 2, 3]) {
-              const signs = i === 0 ? ['ksign', 'tsign'] : i === 2 ? ['stage', 'shelf'] : ['dsign', 'sign', 'wsign'];
+            for (const i of [0, 1, 2, 3]) {
+              const signs = i === 0 ? ['ksign', 'tsign'] : i === 2 ? ['stage', 'shelf'] : i === 3 ? ['dsign', 'sign', 'wsign'] : [];
               for (const figBox of [babyAt(i).box, friendAt(i).box]) for (const n of signs) if (piles(figBox, door(n).box)) foxClear = false;
             }
-            check(`${key}: on a sideways phone the foxes stand clear of the signs`, foxClear);
+            check(`${key}: the pup and the friend stand clear of the signs in every area`, foxClear);
           }
           LR.go(1); LR.advance(.05); LR.redraw();
           {

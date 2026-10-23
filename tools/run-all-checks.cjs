@@ -16,7 +16,7 @@ const PAGES=['run','starfall','sound','offline','diamond','diamond-manager','oth
 const GODOT_SUITES=['starfall-godot'];
 const only=process.argv.slice(2);
 const wanted=name=>!only.length||only.some(w=>name.includes(w));
-if(only.length&&!PAGES.concat(GODOT_SUITES,['launcher','save-names','asset-library','agent-context']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['save-names','asset-library','agent-context']).join(', '));process.exit(2);}
+if(only.length&&!PAGES.concat(GODOT_SUITES,['launcher','save-names','asset-library','agent-context','little-ranch-palette']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['save-names','asset-library','agent-context','little-ranch-palette']).join(', '));process.exit(2);}
 const TYPES={'.html':'text/html','.js':'text/javascript','.cjs':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.ogg':'audio/ogg','.wav':'audio/wav','.mp3':'audio/mpeg','.mp4':'video/mp4','.wasm':'application/wasm','.pck':'application/octet-stream','.webmanifest':'application/manifest+json','.ico':'image/x-icon','.txt':'text/plain','.md':'text/plain'};
 
 function serve(){return new Promise(ok=>{const server=http.createServer((req,res)=>{
@@ -111,6 +111,14 @@ function findGodot(){
     const line=((run.stdout||'')+(run.stderr||'')).trim().split('\n').pop();
     results.push({name:'agent-context',ok:run.status===0,line});
     console.log((run.status===0?'ok  ':'FAIL')+'  agent-context  '+line);
+  }
+  if(wanted('little-ranch-palette')){           // section 8 K: Little Ranch stays at or under 195 colours
+    const run=spawnSync('python3',[path.join(ROOT,'tools/palette-inventory.py'),'--game','little-ranch','--max','195'],{encoding:'utf8'});
+    const text=((run.stdout||'')+(run.stderr||'')).trim();
+    const line=(text.split('\n').find(l=>/palette:/.test(l))||text.split('\n').pop()||'no palette line');
+    if(run.status!==0)text.split('\n').slice(-6).forEach(l=>console.log('    '+l));
+    results.push({name:'little-ranch-palette',ok:run.status===0,line});
+    console.log((run.status===0?'ok  ':'FAIL')+'  little-ranch-palette  '+line);
   }
   const failed=results.filter(r=>!r.ok);
   console.log(failed.length?'\n'+failed.length+' of '+results.length+' suites FAILED.':'\nAll '+results.length+' suites pass.');

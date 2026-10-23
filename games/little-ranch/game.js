@@ -156,7 +156,7 @@
   function syncHome() { if (!L || !L.homes) return; L.home = L.homes[cam.area]; L.fhome = L.fhomes[cam.area]; }
   function arrowCenter(side) {
     const r = L.U * .09; let pad = L.U * .1;
-    if (!L.wide && side < 0) pad = Math.max(pad, 16 / S + r); // upright phones: the disc sits out of the back-swipe strip
+    if (side < 0) pad = Math.max(pad, 16 / S + r); // the disc sits out of the back-swipe strip at every width
     return cam.x + (side < 0 ? pad : W - pad);
   }
   function refreshArrows() {
@@ -177,7 +177,7 @@
     if (lo > hi) { const mid = stop + W / 2; return { lo: mid, hi: mid }; }
     return { lo, hi };
   }
-  function discRim(side) { const r = L.U * .09; let pad = L.U * .1; if (!L.wide && side < 0) pad = Math.max(pad, 16 / S + r); return pad + r; }
+  function discRim(side) { const r = L.U * .09; let pad = L.U * .1; if (side < 0) pad = Math.max(pad, 16 / S + r); return pad + r; }
   function signSpot(area, frac) {
     const r = L.R * .95, half = r * .95, bottom = L.ground - L.U * .055;
     return { x: fitX(area, coreX(area, frac), half, true), y: bottom - r * .27 };
@@ -193,6 +193,10 @@
     const crowded = spots.length > 1 && (spots[0].x < minX - .01 || spots[spots.length - 1].x > maxX + .01 || spots.some((s, i) => i && s.x < spots[i - 1].x + half * 2));
     if (crowded) { const n = spots.length, span = Math.max(half * 2, maxX - minX); for (let i = 0; i < n; i++) spots[i].x = minX + span * i / (n - 1); }
     else spots.forEach(s => { s.x = clamp(s.x, minX, maxX); });
+    if (area > 0 && spots.length) { // a few px of grass between the left disc and the first board, when the row has room
+      const shift = stop + discRim(-1) + 4 + half - spots[0].x;
+      if (shift > .25 && spots[spots.length - 1].x + shift <= maxX + .01) spots.forEach(s => { s.x += shift; });
+    }
     return spots;
   }
   function shiftClear(area, pt, boxAt) {
@@ -218,11 +222,22 @@
     const crossed = boards.filter(b => sample.x0 < b.x1 - 1 && b.x0 < sample.x1 - 1);
     const floor = Math.max(...crossed.map(b => b.y1));
     const dy = floor + 1 - sample.y0;
-    if (area === 2 && dy > 0 && pt.y + dy <= H - 2) {
-      pt.y += dy; // only the Toy Yard pup: the other places can step aside, and dropping there would stand on a puddle
+    if ((area === 2 || W <= H * 1.7) && dy > 0 && pt.y + dy <= H - 2) {
+      pt.y += dy; // Toy Yard at every wide size, and every place on a desktop-wide screen: a sideways step would show in the next area
       const x = clamp(pt.x - (sample.x1 - sample.x0) * .22, lo, hi);
       if (!leaks(Math.round(x))) pt.x = Math.round(x);
     }
+  }
+  function grazeDrop(area, pt, boxAt) {
+    const names = area === 0 ? ['ksign', 'tsign'] : area === 2 ? ['stage', 'shelf'] : area === 3 ? ['dsign', 'sign', 'wsign'] : [];
+    if (!names.length || !L[names[0]]) return;
+    const rs = L.R * .95, boards = names.map(n => { const s = L[n]; return { x0: s.x - rs * .95, x1: s.x + rs * .95, y0: s.y - rs * 1.17, y1: s.y + rs * .27 }; });
+    const hit = (a, b) => a.x0 < b.x1 - 1 && b.x0 < a.x1 - 1 && a.y0 < b.y1 - 1 && b.y0 < a.y1 - 1;
+    const sample = boxAt(pt.x, pt.y);
+    const crossed = boards.filter(b => hit(sample, b));
+    if (!crossed.length) return;
+    const dy = Math.max(...crossed.map(b => b.y1)) + 1 - sample.y0;
+    if (dy > 0 && pt.y + dy <= H - 2) pt.y += dy;
   }
   function dropForTravel() {
     const b = st.baby; b.act = null; b.then = null; b.tx = null; st.bowl.food = 0; st.bubbles.length = 0;
@@ -260,11 +275,12 @@
     L.homes = homes; L.fhomes = pals; L.home = homes[cam.area]; L.fhome = pals[cam.area]; L.fz = L.size * .95;
     const garden = spreadSigns(0, [.22, .6]), toy = spreadSigns(2, [.34, .66]), barn = spreadSigns(3, [.32, .58, .84]);
     L.ksign = garden[0]; L.tsign = garden[1]; L.stage = toy[0]; L.shelf = toy[1]; L.dsign = barn[0]; L.sign = barn[1]; L.wsign = barn[2];
-    if (wide && W > H * 1.7) { // a sideways phone: slide the foxes just clear of the picture signs, and leave the desktop spots alone
+    { // wide screens slide clear of the signs; a tall screen only drops a head that still grazes a board
       const z = L.size, fz = L.size * .95;
       const babyBox = (x, y) => ({ x0: x - z * 1.27, y0: y - z * 2.042, x1: x + z * 1.08, y1: y });
       const palBox = (x, y) => ({ x0: x - fz * .55, y0: y - fz * 1.35, x1: x + fz * .55, y1: y });
-      for (const i of [0, 2, 3]) { shiftClear(i, homes[i], babyBox); shiftClear(i, pals[i], palBox); }
+      if (wide) for (const i of [0, 2, 3]) { shiftClear(i, homes[i], babyBox); shiftClear(i, pals[i], palBox); }
+      for (const i of [0, 2, 3]) { grazeDrop(i, homes[i], babyBox); grazeDrop(i, pals[i], palBox); }
     }
     { const stop = stopFor(1), R = L.R, lo = Math.max(stopFor(0) + W + R + 1, stop + R + 2), hi = Math.max(lo, stop + W - R - 2);
       L.bowl = { x: clamp(coreX(1, wide ? .02 : .12), lo, hi), y: H * .84 }; }
@@ -282,7 +298,12 @@
         if (fr * 2 * S < 64) fr = Math.min(U * .1, Math.max(fr, 32 / S));
         x0 = xL; y = H * .935; L.sponge.y = Math.round(y - fr * 1.1 - sw * .55 - 4); }
       L.flowers = FLOWERS.map((c, i) => ({ x: x0 + i * step, y, r: fr, stem: H * .985 })); }
-    { const cr = Math.min(U * .1, H * .11); L.cloud = { x: fitX(0, coreX(0, .62), cr, false), y: Math.max(cr + 1, H * .08, U * .08), r: cr }; }
+    { const cr = Math.min(U * .1, H * .11), reach = cr * (.75 + .55 * 1.22);
+      const dotR = Math.max(3.5, U * .02), dotsRight = W * .5 + dotR * (1.5 * 3.4 + 1);
+      const stop = stopFor(0), meadow = stopFor(1);
+      let x = Math.max(coreX(0, .62), stop + dotsRight + 4 + reach);
+      x = Math.min(x, meadow - reach - 1);
+      L.cloud = { x: fitX(0, x, cr, false), y: Math.max(cr + 1, H * .08, U * .08), r: cr }; }
     { const pr = U * .12, py = Math.min(H - pr - 1, Math.max(pr + 1, H * .9));
       L.puddles = [.3, .72].map(t => ({ x: fitX(0, coreX(0, t), pr, false), y: py, r: pr })); }
     L.basket = { x: coreX(2, wide ? .86 : .87), y: wide ? H * .885 : Math.max(H * .7, H * .56 - U * .08 + U * .175 + L.R * .9 * .95 + 2), r: L.R * (wide ? .6 : .9) };
@@ -510,7 +531,7 @@
     if (!name) {
       let best = null, bd = 9;
       for (let i = 0; i < 4; i++) if (i !== cam.area && open(i).length) { const d = Math.abs(i - cam.area); if (d < bd || (d === bd && i < best)) { bd = d; best = i; } }
-      if (best !== null) { const dir = best < cam.area ? 'left' : 'right', ay = L.ground - L.U * .08; return { name: dir, x: cam.x + (dir === 'left' ? L.U * .1 : W - L.U * .1), y: ay, r: L.U * .12 }; }
+      if (best !== null) { const dir = best < cam.area ? 'left' : 'right'; return { name: dir, x: arrowCenter(dir === 'left' ? -1 : 1), y: L.ground - L.U * .08, r: L.U * .12 }; }
       const all = HINTS.filter(ok); name = all[Math.floor((st.t - st.idleAt - HINT_SECS) / 8) % all.length];
     }
     const face = n => ({ x: L[n].x, y: L[n].y - L.R * .45 });
@@ -744,7 +765,7 @@
     go(P.x, () => { b.act = 'splash'; b.at = st.t; q.splash = st.t; sfx('splash'); sfx('giggle'); for (let k = 0; k < 10; k++) { fx('blob', P.x + (Math.random() - .5) * P.r, P.y); st.fx[st.fx.length - 1].col = '#9ad6f4'; } }); }
   const puddleAt = p => { let best = -1, bd = 1; for (const q of st.puddles) { const P = L.puddles[q.i], k = Math.hypot(p.x - P.x, (p.y - P.y) * 1.6) / P.r; if (k <= bd) { bd = k; best = q.i; } } return best; };
   function drawCloud(g) { if (g > .5) return; const c = L.cloud, r = c.r * (1 + st.cloud.puff * .12), rain = !!st.cloud.rain, col = rain ? '#c8d4e4' : '#ffffff', a = 1 - g * 2, bob = hintBob('cloud'), y = c.y - bob, blobs = [[-.75, .15, .55], [.75, .15, .55], [-.3, -.15, .7], [.3, -.2, .65], [0, .2, .7]];
-    cx.globalAlpha = a; for (const [dx, dy, k] of blobs) ell(c.x + dx * r, y + dy * r, r * k * 1.22, r * k * 1.22, '#4e6278');
+    cx.globalAlpha = a; for (const [dx, dy, k] of blobs) ell(c.x + dx * r, y + dy * r, r * k * 1.22, r * k * 1.22, '#5a6a80');
     for (const [dx, dy, k] of blobs) ell(c.x + dx * r, y + dy * r, r * k, r * k, col);
     ell(c.x - r * .3, y + r * .1, r * .07, r * .09, '#5a6a80'); ell(c.x + r * .3, y + r * .1, r * .07, r * .09, '#5a6a80'); ell(c.x, y + r * .35, r * .12, r * (rain ? .1 : .05), '#8a8aa0'); cx.globalAlpha = 1;
     if (rain) { cx.strokeStyle = 'rgba(120,170,230,.8)'; cx.lineWidth = Math.max(1.5, L.U * .006); const top = y + r * .5, bot = L.ground + L.U * .25, span = r * 2.4, m = reduce() ? .4 : 1;
@@ -991,7 +1012,7 @@
   function drawSign(g) {
     const s = L.sign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.sign.shake * r * .06;
     shadow(s.x, s.y + r * .2, r * 1.2);
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - hintBob('sign'))); cx.fillStyle = pick3('#3a2416', '#3a2416', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
+    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - hintBob('sign'))); cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
     cx.fillStyle = pick3('#f4e2c0', '#e8c890', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
     PAINT.forEach((c, i) => { cx.fillStyle = g > .6 ? mixHex(c, '#20203a', .6) : c; const x = -r * .66 + i * r * .44; cx.fillRect(R(x - r * .17), R(-r * .62), R(r * .34), R(r * (.35 + (i % 2) * .25))); ell(x, -r * .62 + r * (.35 + (i % 2) * .25), r * .17, r * .14, cx.fillStyle); });
     cx.fillStyle = '#8a5a34'; cx.save(); cx.rotate(-.5); cx.fillRect(R(-r * .1), R(r * .02), R(r * .2), R(r * .7)); cx.restore(); // a little brush
@@ -1002,8 +1023,8 @@
   function drawWheelSign(g) { // LR10: a picture-sign with a wagon wheel and a red car
     const s = L.wsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.wsign.shake * r * .06, bob = hintBob('wsign');
     shadow(s.x, s.y + r * .2, r * 1.2);
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#3a2416', '#3a2416', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
-    cx.fillStyle = pick3('#fff6e4', '#e8d890', '#3a4458', g); cx.fillRect(R(-r * .78), R(-r * .56), R(r * 1.56), R(r * 1.12));
+    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
+    cx.fillStyle = pick3('#fff4e0', '#e8d890', '#3a4458', g); cx.fillRect(R(-r * .78), R(-r * .56), R(r * 1.56), R(r * 1.12));
     cx.fillStyle = g > .6 ? mixHex(CARS[0], '#20203a', .6) : CARS[0]; cx.fillRect(R(-r * .7), R(-r * .3), R(r * 1.1), R(r * .45));
     drawWheel(-r * .4, r * .25, r * .26, st.t * 2, '#3a2420'); drawWheel(r * .2, r * .25, r * .26, st.t * 2, '#3a2420'); cx.restore(); }
   function drawMini(x, y, z, kind, wave, hop) { // a small baby riding or waiting: 0 the Cindercub, 1 its friend, a round baby Pebblit
@@ -1078,7 +1099,7 @@
   function drawDSign(g) { // LR17: a picture-sign with a red barn door
     const s = L.dsign, r = L.R * .95, sh = Math.sin(st.t * 30) * st.dsign.shake * r * .06, bob = hintBob('dsign'), dk = c => g > .6 ? mixHex(c, '#20203a', .6) : c;
     shadow(s.x, s.y + r * .2, r * 1.2);
-    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#3a2416', '#3a2416', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
+    cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob)); cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
     cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
     cx.fillStyle = dk('#c8453a'); cx.fillRect(R(-r * .45), R(-r * .5), R(r * .9), R(r * 1.04)); cx.strokeStyle = dk('#fff4e0'); cx.lineWidth = Math.max(1.5, r * .09);
     cx.strokeRect(R(-r * .45), R(-r * .5), R(r * .9), R(r * 1.04)); cx.beginPath(); cx.moveTo(R(-r * .45), R(-r * .5)); cx.lineTo(R(r * .45), R(r * .54)); cx.moveTo(R(r * .45), R(-r * .5)); cx.lineTo(R(-r * .45), R(r * .54)); cx.stroke();
@@ -1279,7 +1300,7 @@
     const r = L.R * .95, sh = Math.sin(st.t * 30) * shake * r * .06, bob = hintBob(name);
     shadow(s.x, s.y + r * .2, r * 1.2);
     cx.save(); cx.translate(R(s.x + sh), R(s.y - r * .45 - bob));
-    cx.fillStyle = pick3('#3a2416', '#3a2416', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
+    cx.fillStyle = pick3('#3a2420', '#3a2420', '#1e1a24', g); cx.fillRect(R(-r * .98), R(-r * .76), R(r * 1.96), R(r * 1.52));
     cx.fillStyle = pick3('#fff0d8', '#f0d8a0', '#4a4458', g); cx.fillRect(R(-r * .85), R(-r * .62), R(r * 1.7), R(r * 1.24));
     return r;
   }
@@ -1367,9 +1388,9 @@
     if (!L.arrows || st.mode !== 'play' || st.place !== 'ranch') return;
     const pics = ['carrot', 'flower', 'block', 'barn'];
     const one = (a, dir) => { if (!a) return; const x = a.x - cam.x, y = a.y, r = L.arrows.r;
-      ell(x + r * .08, y + r * .22, r * 1.05, r * .42, 'rgba(30,18,10,.38)');
-      ell(x, y, r, r, '#3a2416'); ell(x, y, r * .74, r * .74, '#e8c890'); ell(x - r * .16, y - r * .18, r * .22, r * .12, 'rgba(255,255,255,.5)');
-      cx.strokeStyle = '#3a2416'; cx.lineWidth = Math.max(4, r * .28); cx.beginPath(); cx.arc(R(x), R(y), R(r * .9), 0, 7); cx.stroke();
+      ell(x + r * .08, y + r * .22, r * 1.05, r * .42, 'rgba(42,26,24,.38)');
+      ell(x, y, r, r, '#3a2420'); ell(x, y, r * .74, r * .74, '#e8c890'); ell(x - r * .16, y - r * .18, r * .22, r * .12, 'rgba(255,255,255,.5)');
+      cx.strokeStyle = '#3a2420'; cx.lineWidth = Math.max(4, r * .28); cx.beginPath(); cx.arc(R(x), R(y), R(r * .9), 0, 7); cx.stroke();
       cx.fillStyle = '#8a5a34'; cx.beginPath(); cx.moveTo(R(x + dir * r * .55), R(y)); cx.lineTo(R(x + dir * r * .02), R(y - r * .36)); cx.lineTo(R(x + dir * r * .02), R(y - r * .12)); cx.lineTo(R(x - dir * r * .22), R(y - r * .12)); cx.lineTo(R(x - dir * r * .22), R(y + r * .12)); cx.lineTo(R(x + dir * r * .02), R(y + r * .12)); cx.lineTo(R(x + dir * r * .02), R(y + r * .36)); cx.fill();
       drawArrowIcon(pics[cam.area + dir], x - dir * r * .38, y, r * .48); };
     one(L.arrows.left, -1); one(L.arrows.right, 1);
@@ -1382,16 +1403,16 @@
     for (let i = 0; i < n; i++) {
       const x = x0 + i * gap, on = i === cam.area, home = i === 1, rr = on ? r * 1.2 : r;
       L.here.push({ x, y, on, home });
-      ell(x + rr * .15, y + rr * .35, rr * .9, rr * .35, 'rgba(30,18,10,.28)');
+      ell(x + rr * .15, y + rr * .35, rr * .9, rr * .35, 'rgba(42,26,24,.28)');
       ell(x, y, rr, rr, on ? '#fff8e8' : 'rgba(255,248,232,.72)');
-      cx.strokeStyle = '#3a2416'; cx.lineWidth = Math.max(1.5, rr * .28); cx.beginPath(); cx.arc(R(x), R(y), R(rr), 0, 7); cx.stroke();
+      cx.strokeStyle = '#3a2420'; cx.lineWidth = Math.max(1.5, rr * .28); cx.beginPath(); cx.arc(R(x), R(y), R(rr), 0, 7); cx.stroke();
       if (home) { cx.fillStyle = '#c8453a'; cx.beginPath(); cx.moveTo(R(x - rr * .45), R(y + rr * .05)); cx.lineTo(R(x), R(y - rr * .42)); cx.lineTo(R(x + rr * .45), R(y + rr * .05)); cx.fill(); cx.fillRect(R(x - rr * .28), R(y + rr * .02), R(rr * .56), R(rr * .38)); }
     }
   }
   function drawMiss() {
     if (!st.miss) return; const k = st.t - st.miss.at; if (k > .9) { st.miss = null; return; }
     const a = 1 - k / .9, x = st.miss.x, y = st.miss.y, r = L.U * (.05 + k * .14);
-    cx.strokeStyle = `rgba(58,36,22,${a})`; cx.lineWidth = Math.max(3, L.U * .018); cx.beginPath(); cx.arc(R(x), R(y), R(r), 0, 7); cx.stroke();
+    cx.strokeStyle = `rgba(58,36,32,${a})`; cx.lineWidth = Math.max(3, L.U * .018); cx.beginPath(); cx.arc(R(x), R(y), R(r), 0, 7); cx.stroke();
   }
   function draw() {
     if (st.place === 'shed') return drawShed();
