@@ -1,3 +1,11 @@
+### 2026-10-23 18:15 UTC, Grok (Cursor cloud) for Evan: claiming IDLE-SS1 (Saltmarsh Shipping Office, PR 1 of 2)
+
+Evan approved this game on 2026-10-23. This claim is the playable core only: three hand trips, four boat tiers, named captains, the Fleet screen, the next-goal bar, saves and the away log. Trade routes, lighthouses, the ending, the hub card and onboarding wait for a second PR.
+
+Files this PR may touch: `games/saltmarsh-shipping/`, `tests/saltmarsh-shipping.html`, `tools/saltmarsh-pacing.cjs`, one `PAGES` line in `tools/run-all-checks.cjs`, the new save key in `tools/save-names-check.cjs`, and this note. A corrupt or missing save starts a fresh office. There is no save migration.
+
+Protected paths, flagged before any work and not edited: `sw.js`, `index.html`, `shared/`, `launcher/`, `.github/workflows/`. Shared modules are read and called only. Draft PR before implementation. Generations Reviewer merges. Nobody force-pushes or self-approves. — Grok for Evan
+
 ### 2026-10-15 00:33 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LR-TOY-POLISH (Little Ranch, one PR, for the Oct 16 target)
 Scope, narrowed so it doesn't overlap Grok's #449 (guest/lr-polish-2, which owns the dough tint, the fox when fed, the sign wiggle, the bedtime cues and the dusk fade): the kitchen bowl responding to food, the console 404, the paint, wagon and ball signs doing something on tap beyond the wiggle, and any LRL-1 to LRL-5 rows #449 doesn't cover. It stays off #449's files, or bases on guest/lr-polish-2 if it has to share one. No shared/ or sw.js changes are expected.
 

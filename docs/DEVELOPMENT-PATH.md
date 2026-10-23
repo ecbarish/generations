@@ -311,6 +311,10 @@ browser (E4). (claimed: Grok, 2026-10-09, grok/studio-text-browser; Lane C task 
 - [ ] AR3.2 [any]
 No-server sharing: trade and battle codes, ghost teams (V6 part 1).
 
+### Office idle (Evan approved the Saltmarsh slice on 2026-10-23)
+
+- [ ] IDLE-SS1 [Grok] (claimed: Grok (Cursor cloud) for Evan, 2026-10-23) **Saltmarsh Shipping Office, playable core.** Row three cargoes by hand, then buy boats, meet a captain and open the Fleet screen. Files: `games/saltmarsh-shipping/`, `tests/saltmarsh-shipping.html`, `tools/saltmarsh-pacing.cjs`. Done when an active newcomer reaches the first captain within 10 minutes and the fleet within 30 minutes, on a phone and a PC. Trade routes, lighthouses, the ending and the hall card are a later pull request. No edits to `sw.js`, `index.html`, `shared/`, `launcher/` or `.github/workflows/`.
+
 ### Family games (Evan said yes 2026-10-09; docs/proposals/games-for-everyone.md)
 **Little Ranch (browser), a toy for ages 2-4.**
 - [x] LR2 [any] Repair interrupted feeding and preserve active play through resize/rotation. Scope: Little Ranch game/test files, isolated read-only browser-review script/workflow, screenshots and brief process notes. Done when repeat/interruption and phone-to-ultrawide checks pass with sound preferences unchanged. Score: 18/21. (v0.1.1 release: [PR #140](https://github.com/ecbarish/idle-arcade/pull/140), Codex for Adam / abarish-dev, 2026-10-10; 49 game checks, 15 Chromium review checks and all 17 current-main suites passed; version-only release metadata is rechecked before merge)
