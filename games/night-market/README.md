@@ -4,7 +4,7 @@ v0.1.8.
 
 A small night market you can leave open. Six stalls stand on one lane. You work each stall yourself, then ask its vendor to run it. After that you buy more of that stall, one, ten, or as many as you can afford. At 25, 50 and 100 the stall changes look and earns twice as much each time.
 
-The Tea Stall, the Dumpling Cart and the Lantern Stand open first. Later stalls cost more and earn less. The dumpling cart earns 0.5/s like the tea stall. The first million takes a longer evening, about 48 to 66 minutes of active play. The next stall appears when you have ten of the one before it.
+The Tea Stall, the Dumpling Cart and the Lantern Stand open first. A sensible buyer still has a next stall within about a minute and a half through the first quarter hour, and a million coins lands in about 45 to 75 minutes. The next stall appears when you have ten of the one before it.
 
 While this page is open, income uses the full rate, including a hidden tab. Closing the page and coming back pays at half rate, and only four hours count. The cash box says so. Saves go through the idle core's save callback into the arcade save, version 1 (`night-market-save-v1`). Numbers use `Arcade.fmt`.
 

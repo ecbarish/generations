@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<p class="goal goal-pin" id="goal-pin" hidden></p>
+<p class="coin-pin" id="coin-pin" hidden></p>
 <main class="window">
   <header>
     <a class="home" href="../../index.html">Back to the arcade</a>
@@ -16,14 +18,15 @@
     <p class="coins"><span id="coins">0</span> coins</p>
     <p class="rate" id="away-rule"></p>
     <p class="rate" id="rate"></p>
-    <p class="goal" id="goal"></p>
   </header>
   <div class="lane" aria-hidden="true"><canvas id="lane" width="384" height="88"></canvas></div>
+  <p class="goal" id="goal"></p>
   <div class="market-work">
   <div class="bulk" id="bulk" hidden role="group" aria-label="How many to buy at once">
-    <button type="button" data-bulk="1" aria-pressed="true">Buy 1</button>
-    <button type="button" data-bulk="10" aria-pressed="false">Buy 10</button>
-    <button type="button" data-bulk="max" aria-pressed="false">Buy max</button>
+    <span class="bulk-name">Buying</span>
+    <button type="button" data-bulk="1" aria-pressed="true">1</button>
+    <button type="button" data-bulk="10" aria-pressed="false">10</button>
+    <button type="button" data-bulk="max" aria-pressed="false">Max</button>
   </div>
   <section id="away" hidden></section>
   <ol class="stalls" id="stalls"></ol>
@@ -32,7 +35,6 @@
     <summary>Your save</summary>
     <div id="tools"></div>
   </details>
-  <p class="foot"><a href="../../index.html">Back to the arcade</a></p>
 </main>
 <script src="../../shared/engine.js"></script>
 <script src="../../shared/idle-core.js"></script>
