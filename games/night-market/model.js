@@ -324,9 +324,22 @@
     if (patch.rate != null) {
       var stall = spec(i);
       var now = stallField(state, charm.stall, 'rate', stall ? stall.rate : patch.rate);
-      return Math.abs(now - patch.rate) > 1e-9;
+      var local = ratePercent(now, patch.rate);
+      if (local === 0) return false;
+      /* A shut stall still changes the night once it opens. An open stall whose
+         night-wide total rounds to 0% does not, so it is not offered. */
+      if (income(state) > 0 && production(state, i) > 0 && nightPercent(state, charm.stall, now, patch.rate) === 0) return false;
+      return true;
     }
     return true;
+  }
+  function ratePercent(now, next) {
+    if (!(now > 0) || !(next > 0)) return 0;
+    return Math.round((next / now - 1) * 100);
+  }
+  function nightPercent(state, stallId, now, next) {
+    if (!(now > 0) || !(income(state) > 0)) return 0;
+    return Math.round(stallShare(state, stallId) * (next / now - 1) * 100);
   }
   function stallShare(state, stallId) {
     var total = income(state);
@@ -1120,8 +1133,13 @@
     }
     if (patch && patch.rate != null) {
       var now = stallField(state, charm.stall, 'rate', stall ? stall.rate : patch.rate);
-      var bump = now > 0 ? share * (patch.rate / now - 1) : 0;
-      return charm.name + '. ' + name + ': ' + shareWords + ', total +' + Math.round(bump * 100) + '%. ' + moneyText(now) + ' to ' + moneyText(patch.rate) + ' coins a second.';
+      var local = ratePercent(now, patch.rate);
+      var perSecond = moneyText(now) + ' to ' + moneyText(patch.rate) + ' coins a second.';
+      if (!earning) {
+        return charm.name + '. ' + name + ': not open yet. +' + local + '% on ' + name + ' once it opens. ' + perSecond;
+      }
+      var total = nightPercent(state, charm.stall, now, patch.rate);
+      return charm.name + '. ' + name + ': ' + shareWords + ', total +' + total + '%. ' + perSecond;
     }
     return charm.line;
   }

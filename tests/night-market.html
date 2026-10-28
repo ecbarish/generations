@@ -366,6 +366,33 @@ document.querySelector('#run').onclick = async function () {
     teaOnly.stalls[0].owned = 10;
     var quickLine = M.offerLine(teaOnly, M.charmById('mei-quick'));
     check('a rate charm names the stall\'s share of income and the total change', /100% of your income, total \+20%/.test(quickLine));
+    var shutLane = M.fresh();
+    shutLane.stalls[0].hired = true;
+    shutLane.stalls[0].owned = 8;
+    var paperLine = M.offerLine(shutLane, M.charmById('an-paper'));
+    check('a shut stall\'s income charm says what it will do once it opens, and does not say +0%',
+      paperLine.indexOf('+0%') < 0 && paperLine.indexOf('+20% on Lantern Stand once it opens') >= 0 && M.charmUseful(shutLane, M.charmById('an-paper')));
+    var deadRates = [];
+    M.CHARMS.forEach(function (charm) {
+      var patch = charm.set && charm.set[charm.stall];
+      if (!patch || patch.rate == null) return;
+      [M.fresh(), shutLane, teaOnly].forEach(function (sample) {
+        if (!M.charmUseful(sample, charm)) return;
+        var line = M.offerLine(sample, charm);
+        var stallAt = 0;
+        while (stallAt < M.STALLS.length && M.STALLS[stallAt].id !== charm.stall) stallAt++;
+        var earning = M.income(sample) > 0 && M.production(sample, stallAt) > 0;
+        if (line.indexOf('+0%') >= 0) deadRates.push(charm.id + ' ' + line);
+        if (!earning && line.indexOf('once it opens') < 0) deadRates.push(charm.id + ' missing once-open ' + line);
+      });
+    });
+    check(deadRates.length ? 'income charm shows +0%: ' + deadRates.slice(0, 3).join(' | ') : 'no offered income charm shows +0%, and a shut stall says what it will do once it opens', deadRates.length === 0);
+    var crowded = M.fresh();
+    crowded.stalls[0].hired = true;
+    crowded.stalls[0].owned = 1;
+    crowded.stalls[1].hired = true;
+    crowded.stalls[1].owned = 200;
+    check('an income charm whose total effect rounds to 0% is not offered', !M.charmUseful(crowded, M.charmById('mei-quick')));
     var seedsSeen = {};
     for (var ns = 0; ns < 12; ns++) seedsSeen[M.newSeed()] = 1;
     var stamped = M.fresh();
@@ -1874,6 +1901,8 @@ document.querySelector('#run').onclick = async function () {
     check(heightJumps.length ? 'pour height jumps when the label wraps: ' + heightJumps.join(' | ') : 'the pour button keeps its height when the hired label wraps', heightJumps.length === 0);
 
     var offerShift = [];
+    var headerMoves = [];
+    var omenPickMoves = [];
     [[320, 568], [390, 844], [844, 390], [820, 1180], [1280, 800]].forEach(function (size) {
       layout.style.width = size[0] + 'px';
       layout.style.height = size[1] + 'px';
@@ -1888,7 +1917,7 @@ document.querySelector('#run').onclick = async function () {
       lm.render();
       lw.scrollTo(0, 0);
       var afterOmen = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
-      if (Math.abs(afterOmen - beforeOmen) > 2) offerShift.push(label + ' header ' + beforeOmen.toFixed(1) + '→' + afterOmen.toFixed(1));
+      if (Math.abs(afterOmen - beforeOmen) > 2) headerMoves.push(label + ' ' + beforeOmen.toFixed(1) + '→' + afterOmen.toFixed(1));
       lm.state.night.omen = 'rain';
       lm.state.night.charms = ['mei-regulars'];
       lm.state.night.offer = null;
@@ -1905,7 +1934,7 @@ document.querySelector('#run').onclick = async function () {
       lm.render();
       lw.scrollTo(0, 0);
       var omenTop = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
-      if (Math.abs(omenTop - quietTop) > 2) offerShift.push(label + ' omen ' + quietTop.toFixed(1) + '→' + omenTop.toFixed(1));
+      if (Math.abs(omenTop - quietTop) > 2) omenPickMoves.push(label + ' ' + quietTop.toFixed(1) + '→' + omenTop.toFixed(1));
       lm.state.night.offer = { kind: 'charm', stall: 'stories', options: ['wen-discount', 'ren-sticks', 'an-offcuts'] };
       lm.state.night.rerollUsed = false;
       lm.render();
@@ -1924,6 +1953,8 @@ document.querySelector('#run').onclick = async function () {
     });
     lm.state.night.offer = null;
     lm.render();
+    check(headerMoves.length ? 'the omen header moves the next stall: ' + headerMoves.join(' | ') : 'the omen header is reserved from the start of the night, so the next stall moves by 2px or less when the omen appears', headerMoves.length === 0);
+    check(omenPickMoves.length ? 'the omen pick moves the next stall: ' + omenPickMoves.join(' | ') : 'opening the omen pick moves the next stall by 2px or less', omenPickMoves.length === 0);
     check(offerShift.length ? 'a charm offer moves the next stall: ' + offerShift.join(' | ') : 'a three-option offer leaves the next stall within 2px of the quiet pick', offerShift.length === 0);
 
     function statusSentences(text) {
