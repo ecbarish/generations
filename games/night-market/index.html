@@ -22,7 +22,7 @@
   <div class="lane" aria-hidden="true"><canvas id="lane" width="384" height="88"></canvas></div>
   <p class="goal" id="goal"></p>
   <p class="lane-goal" id="lane-goal"></p>
-  <section class="finale" id="finale" hidden tabindex="-1">
+  <section class="finale" id="finale" hidden tabindex="-1" role="region" aria-labelledby="finale-title">
     <h2 id="finale-title"></h2>
     <p id="finale-lead"></p>
     <div class="finale-actions">
@@ -42,9 +42,9 @@
   <section id="away" hidden></section>
   <ol class="stalls" id="stalls">
   <li class="pick" id="pick" hidden>
-    <p id="pick-lead"></p>
+    <p id="pick-lead" tabindex="-1"></p>
     <div class="choices" id="pick-choices"></div>
-    <div class="choices pick-tools">
+    <div class="choices">
       <button type="button" data-act="skip" hidden>Skip</button>
       <button type="button" data-act="reroll">Reroll once</button>
     </div>
@@ -54,10 +54,10 @@
   <details class="save">
     <summary>Your save</summary>
     <div id="tools"></div>
-  </details>
-  <details class="codex">
-    <summary>Lantern Book</summary>
-    <div id="codex"></div>
+    <details class="codex">
+      <summary>Lantern Book</summary>
+      <div id="codex"></div>
+    </details>
   </details>
 </main>
 <script src="../../shared/engine.js"></script>

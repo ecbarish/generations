@@ -113,43 +113,43 @@
   /* One night, one seed. Omens and charms replace a price, a rate, an unlock, a hire
      count, a milestone list, or the away box. They do not add a multiplier. */
   var OMENS = [
-    { id: 'rain', name: 'Rain', line: 'Rain. Lanterns cost 770 coins, and tea earns half a coin a second.',
+    { id: 'rain', name: 'Rain', line: 'Rain. The first lantern stand costs 770 coins instead of 700, and each tea stall earns 0.5 coins a second instead of 0.45.',
       set: { lantern: { base: 770 }, tea: { rate: 0.5 } } },
-    { id: 'ferry', name: 'Ferry crowd', line: 'Ferry crowd. Away from the lane, stalls earn 75%, and the box holds two hours.',
+    { id: 'ferry', name: 'Ferry crowd', line: 'Ferry crowd. While you\'re away, stalls earn 75% instead of half, but the box fills in 2 hours instead of 4.',
       set: { offlineRate: 0.75, offlineCap: 2 * 3600 } },
-    { id: 'wick', name: 'Short wick', line: 'Short wick. The Story Mat costs 1,760,000 coins.',
+    { id: 'wick', name: 'Short wick', line: 'Short wick. The first Story Mat costs 1,760,000 coins instead of 2,200,000.',
       set: { stories: { base: 1760000 } } },
-    { id: 'mooncake', name: 'Mooncake festival', line: 'Mooncake festival. Qiao opens once six lantern stands are lit.',
+    { id: 'mooncake', name: 'Mooncake festival', line: 'Mooncake festival. Qiao opens at 6 lantern stands instead of 10.',
       set: { mooncake: { unlockAt: 6 } } },
-    { id: 'alley', name: 'Quiet alley', line: 'Quiet alley. Ren waits for fourteen mooncake tables, and the first tray costs 77,000 coins.',
+    { id: 'alley', name: 'Quiet alley', line: 'Quiet alley. Ren opens at 14 mooncake tables instead of 12, and the first tray costs 77,000 coins instead of 70,000.',
       set: { incense: { unlockAt: 14, base: 77000 } } },
-    { id: 'pour', name: 'Long pour', line: 'Long pour. Mei asks for thirty cups, and the first tea stall costs 5 coins.',
+    { id: 'pour', name: 'Long pour', line: 'Long pour. Mei wants 30 cups instead of 25 before she takes over, and the first tea stall costs 5 coins instead of 6.',
       set: { tea: { serves: 30, base: 5 } } }
   ];
   var CHARMS = [
-    { id: 'mei-regulars', name: "Mei's regulars", stall: 'tea', line: "Mei's regulars. Tea stalls start at 5 coins.",
+    { id: 'mei-regulars', name: "Mei's regulars", stall: 'tea', line: "Mei's regulars. The first tea stall costs 5 coins instead of 6.",
       set: { tea: { base: 5 } } },
-    { id: 'bo-queue', name: "Bo's queue", stall: 'dumpling', line: "Bo's queue. Dumplings double at 22, then at the usual later marks.",
+    { id: 'bo-queue', name: "Bo's queue", stall: 'dumpling', line: "Bo's queue. Dumplings first double at 22 carts instead of 25.",
       set: { dumpling: { milestones: [22, 50, 100, 150, 200, 300, 400] } } },
-    { id: 'an-paper', name: "An's paper", stall: 'lantern', line: "An's paper. Lanterns grow at 1.065.",
+    { id: 'an-paper', name: "An's paper", stall: 'lantern', line: "An's paper. Each lantern stand costs 6.5% more than the last, instead of 7%.",
       set: { lantern: { growth: 1.065 } } },
-    { id: 'qiao-moulds', name: "Qiao's moulds", stall: 'mooncake', line: "Qiao's moulds. Mooncakes grow at 1.04.",
+    { id: 'qiao-moulds', name: "Qiao's moulds", stall: 'mooncake', line: "Qiao's moulds. Each mooncake table costs 4% more than the last, instead of 5%.",
       set: { mooncake: { growth: 1.04 } } },
-    { id: 'ren-sticks', name: "Ren's sticks", stall: 'incense', line: "Ren's sticks. The first tray costs 63,000 coins.",
+    { id: 'ren-sticks', name: "Ren's sticks", stall: 'incense', line: "Ren's sticks. The first tray costs 63,000 coins instead of 70,000.",
       set: { incense: { base: 63000 } } },
-    { id: 'wen-discount', name: "Wen's discount", stall: 'stories', line: "Wen's discount. The Story Mat starts at 2,000,000 coins.",
+    { id: 'wen-discount', name: "Wen's discount", stall: 'stories', line: "Wen's discount. The first Story Mat costs 2,000,000 coins instead of 2,200,000.",
       set: { stories: { base: 2000000 } } },
-    { id: 'mei-quick', name: "Mei's quick pour", stall: 'tea', line: "Mei's quick pour. Tea earns half a coin a second.",
+    { id: 'mei-quick', name: "Mei's quick pour", stall: 'tea', line: "Mei's quick pour. Each tea stall earns 0.5 coins a second instead of 0.45, before bonuses.",
       set: { tea: { rate: 0.5 } } },
-    { id: 'bo-steam', name: "Bo's steam", stall: 'dumpling', line: "Bo's steam. A dumpling earns 1 coin a second.",
+    { id: 'bo-steam', name: "Bo's steam", stall: 'dumpling', line: "Bo's steam. Each dumpling cart earns 1 coin a second instead of 0.9, before bonuses.",
       set: { dumpling: { rate: 1 } } },
-    { id: 'an-offcuts', name: "An's offcuts", stall: 'lantern', line: "An's offcuts. The first lantern costs 640 coins.",
+    { id: 'an-offcuts', name: "An's offcuts", stall: 'lantern', line: "An's offcuts. The first lantern stand costs 640 coins instead of 700.",
       set: { lantern: { base: 640 } } },
-    { id: 'qiao-early', name: 'Qiao comes early', stall: 'mooncake', line: 'Qiao comes early. She opens at eight lantern stands.',
+    { id: 'qiao-early', name: 'Qiao comes early', stall: 'mooncake', line: 'Qiao comes early. Qiao opens at 8 lantern stands instead of 10.',
       set: { mooncake: { unlockAt: 8 } } },
-    { id: 'ren-early', name: 'Ren comes early', stall: 'incense', line: 'Ren comes early. The tray opens at ten mooncake tables.',
+    { id: 'ren-early', name: 'Ren comes early', stall: 'incense', line: 'Ren comes early. Ren opens at 10 mooncake tables instead of 12.',
       set: { incense: { unlockAt: 10 } } },
-    { id: 'wen-patient', name: "Wen's patience", stall: 'stories', line: "Wen's patience. Later mats grow at 1.32.",
+    { id: 'wen-patient', name: "Wen's patience", stall: 'stories', line: "Wen's patience. Each Story Mat after the first costs 32% more than the last, instead of 36%.",
       set: { stories: { growth: 1.32 } } }
   ];
   var CHARM_GATES = ['dumpling', 'lantern', 'mooncake', 'incense', 'stories'];
@@ -182,10 +182,6 @@
     var bag = [], i;
     for (i = 0; i < rows.length; i++) {
       if (!avoid || avoid.indexOf(rows[i].id) < 0) bag.push(rows[i].id);
-    }
-    if (bag.length < count) {
-      bag = [];
-      for (i = 0; i < rows.length; i++) bag.push(rows[i].id);
     }
     var out = [];
     while (out.length < count && bag.length) out.push(bag.splice(rand() % bag.length, 1)[0]);
@@ -265,8 +261,17 @@
     if (!good) {
       for (i = 0; i < rows.length; i++) if (rows[i].stall === stallId) { good = rows[i]; break; }
     }
-    if (good && options.indexOf(good.id) < 0 && options.length) options[options.length - 1] = good.id;
-    return options;
+    if (good && options.indexOf(good.id) < 0) {
+      if (options.length < 3) options.push(good.id);
+      else options[options.length - 1] = good.id;
+    }
+    var seen = {}, clean = [], n;
+    for (n = 0; n < options.length; n++) {
+      if (seen[options[n]] || state.night.charms.indexOf(options[n]) >= 0) continue;
+      seen[options[n]] = true;
+      clean.push(options[n]);
+    }
+    return clean;
   }
   function remember(list, id) {
     if (id && list.indexOf(id) < 0) list.push(id);
@@ -684,9 +689,7 @@
   }
 
   function goal(state) {
-    var line = goalBody(state);
-    var omen = state && state.night ? omenById(state.night.omen) : null;
-    return omen ? omen.line + ' ' + line : line;
+    return goalBody(state);
   }
 
   function nextGoalLine(state, i) {
@@ -910,8 +913,8 @@
     return Idle.create({
       getRate: function () { return income(state); },
       apply: function (amount) { addCash(state, amount); },
-      maxOfflineSec: function () { return offlineOf(state).cap; },
-      offlineRate: function () { return offlineOf(state).rate; },
+      maxOfflineSec: offlineOf(state).cap,
+      offlineRate: offlineOf(state).rate,
       title: { label: 'Night Market', unit: '' },
       save: function (seen) {
         state.seen = seen;
@@ -931,7 +934,7 @@
     if (offer.kind === 'omen' && omenById(id)) {
       state.night.omen = id;
       remember(state.meta.omens, id);
-    } else if (offer.kind === 'charm' && charmById(id)) {
+    } else if (offer.kind === 'charm' && charmById(id) && state.night.charms.indexOf(id) < 0) {
       state.night.charms.push(id);
       remember(state.meta.charms, id);
     } else return null;
@@ -983,7 +986,13 @@
   }
   function dawnDue(state) {
     var mat = state && state.stalls && state.stalls[STALLS.length - 1];
-    return !!(mat && mat.owned >= 1 && state.night && !state.night.kept);
+    var i;
+    if (!mat || !(mat.owned >= 1) || !state.night || state.night.kept) return false;
+    if (!unlocked(state, STALLS.length - 1)) return false;
+    for (i = 0; i < STALLS.length - 1; i++) {
+      if (!state.stalls[i] || !(state.stalls[i].owned >= 1)) return false;
+    }
+    return true;
   }
   function noteDawn(state) {
     if (!dawnDue(state)) return false;

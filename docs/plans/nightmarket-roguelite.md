@@ -37,12 +37,12 @@ The book starts with six charms in the pool. Each night that ends adds two, up t
 
 | Name | What changes |
 |---|---|
-| Rain | Lanterns start at 770 coins. Tea earns 0.5 a second. |
-| Ferry crowd | Away earnings are 75%. The box holds two hours. |
-| Short wick | The Story Mat starts at 1,760,000 coins. |
-| Mooncake festival | Qiao opens at six lantern stands. |
-| Quiet alley | Ren waits for fourteen mooncake tables. The first tray costs 77,000 coins. |
-| Long pour | Mei asks for thirty cups. The first tea stall costs 5 coins. |
+| Rain | The first lantern stand costs 770 coins instead of 700, and each tea stall earns 0.5 coins a second instead of 0.45. |
+| Ferry crowd | While you're away, stalls earn 75% instead of half, but the box fills in 2 hours instead of 4. |
+| Short wick | The first Story Mat costs 1,760,000 coins instead of 2,200,000. |
+| Mooncake festival | Qiao opens at 6 lantern stands instead of 10. |
+| Quiet alley | Ren opens at 14 mooncake tables instead of 12, and the first tray costs 77,000 coins instead of 70,000. |
+| Long pour | Mei wants 30 cups instead of 25 before she takes over, and the first tea stall costs 5 coins instead of 6. |
 
 ### Charms
 
@@ -50,18 +50,18 @@ The first six are in the pool on night 1. The last six join two at a time.
 
 | Name | What changes |
 |---|---|
-| Mei's regulars | Tea stalls start at 5 coins. |
-| Bo's queue | Dumplings double at 22, then at the usual later marks. |
-| An's paper | Lanterns grow at 1.065. |
-| Qiao's moulds | Mooncakes grow at 1.04. |
-| Ren's sticks | The first tray costs 63,000 coins. |
-| Wen's discount | The Story Mat starts at 2,000,000 coins. |
-| Mei's quick pour | Tea earns 0.5 a second. |
-| Bo's steam | A dumpling earns 1 coin a second. |
-| An's offcuts | The first lantern costs 640 coins. |
-| Qiao comes early | Qiao opens at eight lantern stands. |
-| Ren comes early | The tray opens at ten mooncake tables. |
-| Wen's patience | Later mats grow at 1.32. |
+| Mei's regulars | The first tea stall costs 5 coins instead of 6. |
+| Bo's queue | Dumplings first double at 22 carts instead of 25. |
+| An's paper | Each lantern stand costs 6.5% more than the last, instead of 7%. |
+| Qiao's moulds | Each mooncake table costs 4% more than the last, instead of 5%. |
+| Ren's sticks | The first tray costs 63,000 coins instead of 70,000. |
+| Wen's discount | The first Story Mat costs 2,000,000 coins instead of 2,200,000. |
+| Mei's quick pour | Each tea stall earns 0.5 coins a second instead of 0.45, before the row's doublings and the lane light. |
+| Bo's steam | Each dumpling cart earns 1 coin a second instead of 0.9, before the row's doublings and the lane light. |
+| An's offcuts | The first lantern stand costs 640 coins instead of 700. |
+| Qiao comes early | Qiao opens at 8 lantern stands instead of 10. |
+| Ren comes early | Ren opens at 10 mooncake tables instead of 12. |
+| Wen's patience | Each Story Mat after the first costs 32% more than the last, instead of 36%. |
 
 ## Pacing
 

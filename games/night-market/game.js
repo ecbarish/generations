@@ -204,8 +204,11 @@
     var rate = M.income(state);
     var rateLine = (rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.') + holdSuffix();
     $('#rate').textContent = rateLine;
-    var goalText = M.goal(state);
-    $('#goal').textContent = goalText;
+    var dawn = M.dawnDue(state);
+    var goalText = dawn ? '' : M.goal(state);
+    var goalEl = $('#goal');
+    goalEl.textContent = goalText;
+    goalEl.hidden = dawn;
     var laneGoal = $('#lane-goal');
     if (laneGoal) laneGoal.textContent = laneCounterText(goalText);
     var finale = $('#finale');
@@ -294,9 +297,10 @@
     var goal = $('#goal');
     var laneEl = document.getElementById('lane');
     if (!pin || !goal) return;
-    pin.hidden = false;
-    pin.textContent = goal.textContent;
-    pin.title = goal.textContent;
+    pin.hidden = !!goal.hidden;
+    pin.textContent = goal.hidden ? '' : goal.textContent;
+    pin.title = pin.textContent;
+    if (goal.hidden) pin.hidden = true;
     /* A long goal wraps under the lane. On a phone the pin keeps the bonus,
        on one line, instead of cutting off the words "Next bonus". */
     if (pinLineCount(pin) > 1) {
@@ -315,7 +319,7 @@
     /* The pin used to wait until the whole goal box had left. On a phone that left
        about 40px where "Next bonus" was already gone and the pin was not up yet.
        It appears as the goal starts to leave, and only once the lane has gone. */
-    var showGoal = phone && (!laneBox || laneBox.bottom <= 0.5) && goalBox.top <= 0.5;
+    var showGoal = !goal.hidden && phone && (!laneBox || laneBox.bottom <= 0.5) && goalBox.top <= 0.5;
     pin.hidden = !showGoal;
     if (coinPin) {
       var rate = M.income(state);
@@ -350,7 +354,7 @@
     var show = !!(offer && offer.options && offer.options.length && !M.dawnDue(state));
     box.hidden = !show;
     if (!show) return;
-    $('#pick-lead').textContent = offer.kind === 'omen' ? 'Choose an omen for tonight.' : 'Choose a charm for ' + offerLabel(offer.stall) + ', or skip it.';
+    $('#pick-lead').textContent = offer.kind === 'omen' ? 'Choose an omen for tonight.' : choiceLead(offer.options, M.charmById);
     var choices = $('#pick-choices');
     choices.replaceChildren();
     offer.options.forEach(function (id, index) {
@@ -371,10 +375,24 @@
     }
   }
 
-  function offerLabel(id) {
-    var i = 0;
-    for (; i < M.STALLS.length; i++) if (M.STALLS[i].id === id) return M.STALLS[i].name;
-    return 'this stall';
+  function choiceLead(ids, lookup) {
+    var names = ids.map(function (id) {
+      var row = lookup(id);
+      return row ? row.name : id;
+    });
+    if (names.length <= 1) return (names[0] || 'Choose one') + '.';
+    if (names.length === 2) return names[0] + ' or ' + names[1] + '.';
+    return names.slice(0, -1).join(', ') + ', or ' + names[names.length - 1] + '.';
+  }
+
+  function focusOffer() {
+    var pick = $('#pick');
+    var choice = pick && !pick.hidden && pick.querySelector('#pick-choices button');
+    var lead = $('#pick-lead');
+    if (choice) { choice.focus({ preventScroll: true }); return; }
+    if (pick && !pick.hidden && lead) { lead.focus({ preventScroll: true }); return; }
+    var pour = document.querySelector('#stalls [data-i="0"] [data-act="serve"]');
+    if (pour && !pour.hidden) pour.focus({ preventScroll: true });
   }
 
   function renderCodex() {
@@ -495,15 +513,15 @@
       return;
     }
     if (b.dataset.act === 'omen' || b.dataset.act === 'charm') {
-      if (M.choose(state, +b.dataset.choice)) { persist(); render(); }
+      if (M.choose(state, +b.dataset.choice)) { persist(); render(); focusOffer(); }
       return;
     }
     if (b.dataset.act === 'skip') {
-      if (M.skipOffer(state)) { persist(); render(); }
+      if (M.skipOffer(state)) { persist(); render(); focusOffer(); }
       return;
     }
     if (b.dataset.act === 'reroll') {
-      if (M.reroll(state)) { persist(); render(); }
+      if (M.reroll(state)) { persist(); render(); focusOffer(); }
       return;
     }
     if (b.dataset.act === 'next-night') {
@@ -513,7 +531,7 @@
       finaleFocused = false;
       persist();
       render();
-      window.scrollTo(0, 0);
+      focusOffer();
       return;
     }
     if (b.dataset.act === 'finale') {

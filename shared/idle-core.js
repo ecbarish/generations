@@ -148,25 +148,10 @@
       var rate = +getRate();
       return isFinite(rate) && rate > 0 ? rate : 0;
     }
-    /* A number is fixed for the idle. A function is read when the away box is paid,
-       so a night can change the cap or the rate without building a second clock. */
-    function offlineCap() {
-      if (typeof opts.maxOfflineSec !== 'function') return maxOfflineSec;
-      var cap = +opts.maxOfflineSec();
-      return isFinite(cap) && cap >= 0 ? cap : DEFAULT_CAP;
-    }
-    function offlineFrac() {
-      if (typeof opts.offlineRate !== 'function') return offlineRate;
-      var frac = +opts.offlineRate();
-      if (!isFinite(frac) || frac < 0) frac = 1;
-      if (frac > 1) frac = 1;
-      return frac;
-    }
     function addOffline(awaySec) {
-      var cap = offlineCap();
-      var capped = awaySec > cap;
-      var credited = awaySec > 0 ? (capped ? cap : awaySec) : 0;
-      var gained = credited > 0 ? rateNow() * credited * offlineFrac() : 0;
+      var capped = awaySec > maxOfflineSec;
+      var credited = awaySec > 0 ? (capped ? maxOfflineSec : awaySec) : 0;
+      var gained = credited > 0 ? rateNow() * credited * offlineRate : 0;
       if (gained) apply(gained);
       if (!summary) summary = { away: 0, credited: 0, gained: 0, capped: false };
       if (awaySec > 0) summary.away += awaySec;
