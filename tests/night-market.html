@@ -317,6 +317,57 @@ document.querySelector('#run').onclick = async function () {
     var charm = M.fresh();
     charm.night.charms = ['wen-discount'];
     check('a charm changes the mat price and not the catalogue', near(M.cost(5, 0, 1, charm), 1870000) && M.STALLS[5].base === 2200000);
+    var tray = M.fresh();
+    tray.stalls[4].hired = true;
+    tray.stalls[4].owned = 10;
+    var trayBefore = M.cost(4, 10, 1, tray);
+    var renLine = M.offerLine(tray, M.charmById('ren-sticks'));
+    tray.night.charms = ['ren-sticks'];
+    var trayAfter = M.cost(4, 10, 1, tray);
+    check('Ren\'s sticks cuts the live tray price by 15% and the line says both prices',
+      near(trayAfter, trayBefore * 0.85) && renLine.indexOf(Arcade.fmt(trayBefore)) >= 0 && renLine.indexOf(Arcade.fmt(trayAfter)) >= 0 && /15% less/.test(renLine));
+    var teaOnly = M.fresh();
+    teaOnly.stalls[0].hired = true;
+    teaOnly.stalls[0].owned = 10;
+    var quickLine = M.offerLine(teaOnly, M.charmById('mei-quick'));
+    check('a rate charm names the stall\'s share of income and the total change', /100% of your income, total \+20%/.test(quickLine));
+    var seedsSeen = {};
+    for (var ns = 0; ns < 12; ns++) seedsSeen[M.newSeed()] = 1;
+    var stamped = M.fresh();
+    M.armNight(stamped, 1, 4242);
+    check('each new save can keep its own night seed, and a blank night still starts at seed 1',
+      Object.keys(seedsSeen).length > 1 && M.restore(M.serialize(stamped, 3)).night.seed === 4242 && M.fresh().night.seed === 1);
+    check('two seeds do not share the same charm beats and mid-night count',
+      M.charmPlan(1).join(',') !== M.charmPlan(2).join(',') || M.midAt(1) !== M.midAt(2));
+    function omenShapeOf(id) {
+      var o = M.omenById(id);
+      if (o.set.tea && o.set.tea.rate != null) return 'tea';
+      if (o.set.dumpling) return 'dumpling';
+      if (o.set.mooncake && o.set.mooncake.unlockAt != null) return 'mooncake';
+      return 'incense';
+    }
+    var shaped = M.fresh();
+    M.armNight(shaped, 1, 5);
+    var wantShape = M.nightShape(5);
+    var shapeBefore = shaped.night.offer.options.slice();
+    check('the omen offer includes the night\'s shape', shapeBefore.some(function (id) { return omenShapeOf(id) === wantShape; }));
+    M.reroll(shaped);
+    check('a reroll changes the omens and keeps one of that shape',
+      shaped.night.offer.options.some(function (id) { return omenShapeOf(id) === wantShape; }) &&
+      shaped.night.offer.options.slice().sort().join(',') !== shapeBefore.slice().sort().join(','));
+    var unroll = M.fresh();
+    unroll.stalls.forEach(function (s, i) { s.hired = true; s.owned = 12; });
+    unroll.stalls[5].owned = 0;
+    check('the goal says the first mat ends the night',
+      M.goal(unroll) === 'Unroll the Story Mat. That ends the night.' && M.nextGoalLine(unroll, 5) === 'Unrolling the Story Mat ends the night.');
+    var waiting = M.fresh();
+    waiting.stalls.forEach(function (s, i) { s.hired = true; s.owned = 12; });
+    waiting.stalls[5].owned = 0;
+    waiting.cash = 0;
+    waiting.night.offer = null;
+    M.syncOffers(waiting);
+    check('saving for the Story Mat offers a choice',
+      waiting.night.offered.indexOf('mat-wait') >= 0 && waiting.night.offer && waiting.night.offer.options.length >= 2);
     var bo = M.fresh();
     bo.night.charms = ['bo-queue'];
     bo.stalls[1].hired = true;
@@ -380,6 +431,9 @@ document.querySelector('#run').onclick = async function () {
     check('six mooncakes offer a charm before incense opens',
       mid.night.offer && mid.night.offer.kind === 'charm' && mid.night.offered.indexOf('mid-mooncake') >= 0 && !M.unlocked(mid, 4));
     var skipped = M.fresh();
+    var skipSeed = 1;
+    while (M.charmPlan(skipSeed).indexOf('mooncake') < 0 && skipSeed < 30) skipSeed++;
+    M.armNight(skipped, 1, skipSeed);
     M.choose(skipped, 0);
     skipped.stalls[2].hired = true;
     skipped.stalls[2].owned = 10;
@@ -406,7 +460,10 @@ document.querySelector('#run').onclick = async function () {
     thin.stalls[4].owned = 1;
     thin.night.charms = ['mei-regulars', 'mei-quick', 'bo-steam', 'an-paper', 'qiao-moulds', 'ren-sticks', 'wen-discount'];
     var thinOptions = M.charmOptions(thin, 'stories', false);
-    check('a late offer can show fewer than three charms', thinOptions.length === 1 && thinOptions[0] === 'an-offcuts');
+    check('an offer is not shown when only one charm can still change the night', thinOptions.length === 0);
+    thin.night.charms = ['mei-quick', 'bo-steam', 'an-paper', 'qiao-moulds', 'ren-sticks', 'wen-discount'];
+    var twoOptions = M.charmOptions(thin, 'lantern', false);
+    check('a late offer can show two charms and not three', twoOptions.length === 2 && twoOptions.indexOf('mei-regulars') >= 0 && twoOptions.indexOf('an-offcuts') >= 0);
     var matBuy = M.fresh();
     matBuy.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 4 ? 12 : 2; });
     matBuy.stalls[5].owned = 0;
@@ -1030,34 +1087,9 @@ document.querySelector('#run').onclick = async function () {
     freshHook.state.bulk = 'max';
     freshHook.render();
     var longBtn = d.querySelector('#stalls [data-i="0"] [data-act="buy"]');
+    var longWait = d.querySelector('#stalls [data-i="0"] .wait');
     check('Max tells you to use 1, 10 or Next when the payback is too long',
-      longBtn.disabled && longBtn.textContent === 'Long payback: use 1, 10 or Next');
-    var refusedStyle = w.getComputedStyle(longBtn);
-    function refusedByte(color, n) {
-      var m = String(color).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-      return m ? +m[n] : 0;
-    }
-    function refusedLinear(v) {
-      v = v / 255;
-      return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-    }
-    function refusedLum(rgb) {
-      return 0.2126 * refusedLinear(rgb[0]) + 0.7152 * refusedLinear(rgb[1]) + 0.0722 * refusedLinear(rgb[2]);
-    }
-    var refusedInk = [1, 2, 3].map(function (n) { return refusedByte(refusedStyle.color, n); });
-    var refusedPaper = [1, 2, 3].map(function (n) { return refusedByte(refusedStyle.backgroundColor, n); });
-    var refusedFade = parseFloat(refusedStyle.opacity);
-    if (refusedFade < 1) {
-      var refusedBehind = w.getComputedStyle(d.querySelector('.window')).backgroundColor;
-      var refusedBack = [1, 2, 3].map(function (n) { return refusedByte(refusedBehind, n); });
-      refusedInk = refusedInk.map(function (v, i) { return v * refusedFade + refusedBack[i] * (1 - refusedFade); });
-      refusedPaper = refusedPaper.map(function (v, i) { return v * refusedFade + refusedBack[i] * (1 - refusedFade); });
-    }
-    var refusedHi = Math.max(refusedLum(refusedInk), refusedLum(refusedPaper));
-    var refusedLo = Math.min(refusedLum(refusedInk), refusedLum(refusedPaper));
-    var refusedRatio = (refusedHi + 0.05) / (refusedLo + 0.05);
-    check('the refused Max button stays disabled and keeps at least 4.5:1 contrast (' + refusedRatio.toFixed(2) + ':1)',
-      longBtn.disabled && longBtn.classList.contains('refused') && refusedRatio >= 4.5);
+      longBtn.hidden && longWait && !longWait.hidden && /Max will not buy this/.test(longWait.textContent) && /Use 1, 10 or Next/.test(longWait.textContent));
     var matRow = d.querySelector('#stalls [data-i="5"] .wait');
     check('the Story Mat shows its price while it is still shuttered',
       matRow && matRow.textContent.indexOf(w.Arcade.fmt(w.NightMarket.STALLS[5].base)) >= 0);
@@ -1798,21 +1830,43 @@ document.querySelector('#run').onclick = async function () {
     check(heightJumps.length ? 'pour height jumps when the label wraps: ' + heightJumps.join(' | ') : 'the pour button keeps its height when the hired label wraps', heightJumps.length === 0);
 
     var offerShift = [];
-    [[320, 568], [375, 812], [390, 844], [1024, 768], [1280, 800]].forEach(function (size) {
+    [[320, 568], [390, 844], [844, 390], [820, 1180], [1280, 800]].forEach(function (size) {
       layout.style.width = size[0] + 'px';
       layout.style.height = size[1] + 'px';
       var label = size[0] + 'x' + size[1];
       lm.state.night.kept = true;
+      lm.state.night.omen = 'rain';
+      lm.state.night.charms = ['mei-regulars'];
       lm.state.night.offer = null;
       lm.render();
       lw.scrollTo(0, 0);
-      var quietTop = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+      var stall0 = ld.querySelector('#stalls [data-i="0"]').getBoundingClientRect();
+      var stall1 = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect();
+      var quietTop = stall1.top;
+      var gap = stall1.top - stall0.bottom;
+      if (gap > 160) offerShift.push(label + ' quiet gap ' + Math.round(gap));
+      var quietLead = ld.querySelector('#pick-lead').textContent;
+      if (quietLead.indexOf('Rain') < 0 || quietLead.indexOf("Mei's regulars") < 0) offerShift.push(label + ' quiet "' + quietLead + '"');
+      lm.state.night.offer = { kind: 'omen', stall: null, options: ['rain', 'ferry', 'alley'] };
+      lm.render();
+      lw.scrollTo(0, 0);
+      var omenTop = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+      if (Math.abs(omenTop - quietTop) > 2) offerShift.push(label + ' omen ' + quietTop.toFixed(1) + '→' + omenTop.toFixed(1));
       lm.state.night.offer = { kind: 'charm', stall: 'stories', options: ['wen-discount', 'ren-sticks', 'an-offcuts'] };
       lm.state.night.rerollUsed = false;
       lm.render();
       lw.scrollTo(0, 0);
       var offerTop = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
-      if (Math.abs(offerTop - quietTop) > 2) offerShift.push(label + ' ' + quietTop.toFixed(1) + '→' + offerTop.toFixed(1));
+      if (Math.abs(offerTop - quietTop) > 2) offerShift.push(label + ' charm ' + quietTop.toFixed(1) + '→' + offerTop.toFixed(1));
+      var goalEl = ld.querySelector('#goal');
+      var laneEl = ld.querySelector('#lane-goal');
+      goalEl.textContent = 'One line.';
+      laneEl.textContent = '';
+      var toggled = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+      goalEl.textContent = 'Unroll the Story Mat. That ends the night.';
+      laneEl.textContent = 'Lane goal: 12/25 on tea through incense.';
+      var toggledAfter = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+      if (Math.abs(toggledAfter - toggled) > 2) offerShift.push(label + ' goal ' + toggled.toFixed(1) + '→' + toggledAfter.toFixed(1));
     });
     lm.state.night.offer = null;
     lm.render();
@@ -2203,9 +2257,38 @@ document.querySelector('#run').onclick = async function () {
     var dawnCash = dawnWindow.__nightMarket.state.cash;
     var oneAway = dawnIncome * 3600 * 0.5;
     check('reloading at dawn shows the card at once', !dawnFrame.contentDocument.querySelector('#finale').hidden);
+    dawnWindow.scrollTo(0, 4000);
+    dawnWindow.__nightMarket.render();
+    var reloadedCard = dawnFrame.contentDocument.querySelector('#finale').getBoundingClientRect();
+    check('reloading at dawn brings the card back after you have scrolled down',
+      reloadedCard.top >= -2 && reloadedCard.bottom <= 702);
     check('reloading at dawn credits the away box once (' + Math.round(dawnCash - 84800) + ' coins)',
       dawnCash > 84800 && dawnCash < 84800 + oneAway + dawnIncome * 3 && dawnCash > 84800 + oneAway * 0.9);
     dawnFrame.remove();
+
+    var dawnScrollProblems = [];
+    var dawnSizes = [[360, 780], [390, 844], [844, 390], [1280, 800]];
+    for (var ds = 0; ds < dawnSizes.length; ds++) {
+      var dw = dawnSizes[ds][0], dh = dawnSizes[ds][1];
+      var dFrame = await openLane('../games/night-market/index.html', dw, dh);
+      var dWin = dFrame.contentWindow, dDoc = dWin.document, dGame = dWin.__nightMarket;
+      dGame.idle.stop();
+      dGame.state.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 4 ? 12 : 2; s.serves = 30; });
+      dGame.state.stalls[5].owned = 1;
+      dGame.state.night.kept = false;
+      dWin.NightLane.setReduce(true);
+      dGame.render();
+      await wait(480);
+      dWin.scrollTo(0, 5000);
+      dGame.render();
+      var dCard = dDoc.querySelector('#finale');
+      var dBox = dCard.getBoundingClientRect();
+      if (dCard.hidden || dBox.top < -2 || dBox.bottom > dh + 2) {
+        dawnScrollProblems.push(dw + 'x' + dh + ' top ' + Math.round(dBox.top) + ' bottom ' + Math.round(dBox.bottom));
+      }
+      dFrame.remove();
+    }
+    check(dawnScrollProblems.length ? 'the dawn card stays off screen: ' + dawnScrollProblems.join(' | ') : 'the dawn card scrolls into view from the bottom at 360, 390, 844×390 and desktop', dawnScrollProblems.length === 0);
 
     var saveFrame = await openLane('../games/night-market/index.html', 390, 844);
     var swin = saveFrame.contentWindow, sdoc = swin.document, sm = swin.__nightMarket;

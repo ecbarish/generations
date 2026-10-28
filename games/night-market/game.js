@@ -13,7 +13,9 @@
   var raw = Arcade.load(KEY);
   /* A version this game no longer reads is replaced. A damaged current file, or a newer one, is left on disk. */
   var protect = !!(raw && !M.valid(raw) && !(typeof raw.v === 'number' && raw.v < M.SAVE_VERSION));
-  var state = raw && M.valid(raw) ? M.restore(raw) : M.fresh();
+  var loaded = raw && M.valid(raw);
+  var state = loaded ? M.restore(raw) : M.fresh();
+  if (!loaded) M.armNight(state, 1, M.newSeed());
   var awayOn = false;
 
   function persist(obj) {
@@ -41,7 +43,7 @@
   function buyLabel(i, q) {
     q = q || M.quote(state, i, state.bulk);
     if (q.blocked === 'hire' || q.blocked === 'closed') return 'Buy 1';
-    if (state.bulk === 'max' && q.blocked === 'payback') return 'Long payback: use 1, 10 or Next';
+    if (state.bulk === 'max' && q.blocked === 'payback') return '';
     if (state.bulk === 'next') {
       var need = M.countToNext(state.stalls[i].owned);
       if (!(need > 0)) return 'Next · lit';
@@ -198,11 +200,17 @@
     }
     buy.classList.remove('best');
     buy.dataset.count = String(offer.count);
-    buy.textContent = (i === M.STALLS.length - 1 && st.owned === 0 && offer.count === 1)
-      ? ('Unroll the Story Mat · ' + money(offer.cost))
+    var firstMat = i === M.STALLS.length - 1 && st.owned === 0 && !(state.night && state.night.kept);
+    if (state.bulk === 'max' && offer.blocked === 'payback' && !firstMat) {
+      buy.hidden = true;
+      wait.textContent = 'Max will not buy this. It pays for itself too slowly. Use 1, 10 or Next.';
+    }
+    buy.classList.toggle('unroll', firstMat);
+    buy.textContent = firstMat
+      ? ('Unroll the Story Mat · ends the night · ' + money(offer.cost) + ' coins')
       : buyLabel(i, offer);
     buy.disabled = !(offer.count > 0);
-    buy.classList.toggle('refused', state.bulk === 'max' && offer.blocked === 'payback');
+    buy.classList.toggle('refused', false);
   }
 
   function rebindIdle() {
@@ -221,6 +229,14 @@
     var rateEl = $('#rate');
     rateEl.textContent = rateLine;
     rateEl.classList.toggle('flash', Date.now() < rateFlashUntil);
+    var omenNow = $('#omen-now');
+    var omenRow = state.night && M.omenById(state.night.omen);
+    if (omenNow) {
+      omenNow.hidden = !omenRow;
+      omenNow.textContent = omenRow ? omenRow.brief : '';
+    }
+    var bookNote = $('#book-note');
+    if (bookNote) bookNote.hidden = !(state.meta && state.meta.nights && state.meta.nights.length);
     var dawn = M.dawnDue(state);
     var goalText = dawn ? '' : M.goal(state);
     var goalEl = $('#goal');
@@ -240,10 +256,13 @@
         $('#finale-lead').textContent = copy.lead;
         var summaryEl = $('#finale-summary');
         if (summaryEl) summaryEl.textContent = copy.summary;
+        var box = finale.getBoundingClientRect();
+        var viewH = window.innerHeight || document.documentElement.clientHeight;
+        if (!dawnCardSeen || box.top < 4 || box.bottom > viewH - 4) {
+          finale.scrollIntoView({ block: 'center', behavior: 'auto' });
+        }
         if (!dawnCardSeen) {
           dawnCardSeen = true;
-          var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          finale.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
           finale.focus({ preventScroll: true });
         }
         var nextNight = finale.querySelector('[data-act="next-night"]');
@@ -382,12 +401,23 @@
     box.classList.toggle('quiet', !show);
     if (M.noteOffer(state)) persist();
     if (!show) {
-      $('#pick-lead').textContent = 'The next choice waits here.';
+      var omenQuiet = state.night && M.omenById(state.night.omen);
+      var taken = ((state.night && state.night.charms) || []).map(function (id) {
+        var row = M.charmById(id);
+        return row ? row.name : id;
+      });
+      $('#pick-lead').textContent = (omenQuiet ? omenQuiet.brief : 'No omen yet.') +
+        (taken.length ? ' Charms tonight: ' + taken.join(', ') + '.' : ' No charm yet.') +
+        ' ' + M.nextOfferLine(state);
       var idleChoices = $('#pick-choices');
       if (idleChoices && idleChoices.dataset.sig) {
         idleChoices.dataset.sig = '';
         idleChoices.replaceChildren();
       }
+      var idleSkip = box.querySelector('[data-act="skip"]');
+      var idleReroll = box.querySelector('[data-act="reroll"]');
+      if (idleSkip) idleSkip.hidden = true;
+      if (idleReroll) idleReroll.hidden = true;
       return;
     }
     $('#pick-lead').textContent = offer.kind === 'omen'
@@ -413,7 +443,7 @@
       button.type = 'button';
       button.dataset.act = offer.kind;
       button.dataset.choice = String(index);
-      button.textContent = row ? row.line : id;
+      button.textContent = row ? (offer.kind === 'charm' ? M.offerLine(state, row) : row.line) : id;
       choices.appendChild(button);
     });
     var skip = box.querySelector('[data-act="skip"]');
@@ -546,6 +576,14 @@
   document.addEventListener('contextmenu', function (e) { if (e.target.closest && e.target.closest('[data-act="serve"]')) e.preventDefault(); });
 
   document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#open-book')) {
+      var saveBox = $('details.save');
+      var book = $('details.codex');
+      if (saveBox) saveBox.open = true;
+      if (book) book.open = true;
+      if (book && book.scrollIntoView) book.scrollIntoView({ block: 'start', behavior: 'auto' });
+      return;
+    }
     if (e.target.closest && e.target.closest('#goal-pin')) {
       var goal = $('#goal');
       if (goal) goal.scrollIntoView({ block: 'start' });
