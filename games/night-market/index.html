@@ -25,7 +25,8 @@
   <div class="lane" aria-hidden="true"><canvas id="lane" width="384" height="88"></canvas></div>
   <p class="goal" id="goal"></p>
   <p class="lane-goal" id="lane-goal"></p>
-  <section class="finale" id="finale" hidden tabindex="-1" role="region" aria-labelledby="finale-title">
+  <div id="finale-backdrop" hidden></div>
+  <section class="finale" id="finale" hidden role="dialog" aria-modal="true" aria-labelledby="finale-title" tabindex="-1">
     <h2 id="finale-title"></h2>
     <p id="finale-lead"></p>
     <p id="finale-summary"></p>
@@ -34,7 +35,7 @@
       <button type="button" data-act="finale">Keep the lane open</button>
     </div>
   </section>
-  <p class="finale-note" id="finale-note" hidden tabindex="-1"><span id="finale-note-text"></span> <button type="button" data-act="next-night">Next night</button></p>
+  <p class="finale-note" id="finale-note" hidden tabindex="-1"><span id="finale-note-text"></span> <button type="button" data-act="dismiss-note">Put this note away</button> <button type="button" data-act="next-night">Next night</button></p>
   <div class="market-work">
   <div class="bulk" id="bulk" hidden role="group" aria-label="How many to buy at once">
     <span class="bulk-name">Buying</span>

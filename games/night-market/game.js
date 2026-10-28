@@ -43,7 +43,7 @@
   function buyLabel(i, q) {
     q = q || M.quote(state, i, state.bulk);
     if (q.blocked === 'hire' || q.blocked === 'closed') return 'Buy 1';
-    if (state.bulk === 'max' && q.blocked === 'payback') return '';
+    if (state.bulk === 'max' && q.blocked === 'payback') return 'Max skips a slow payback';
     if (state.bulk === 'next') {
       var need = M.countToNext(state, i);
       if (!(need > 0)) return 'Next · lit';
@@ -138,8 +138,8 @@
       ask.hidden = false;
       serve.classList.add('reserved', 'keep-slot');
       buy.classList.add('reserved', 'keep-slot');
-      ask.classList.add('reserved');
-      ask.classList.remove('keep-slot');
+      ask.classList.add('reserved', 'keep-slot');
+      ask.textContent = stall.hire;
       serve.textContent = i > 0 ? ('This stall · ' + stall.serve) : stall.serve;
       buy.textContent = 'Buy 1';
       serve.classList.remove('best');
@@ -147,7 +147,7 @@
     }
     serve.classList.remove('keep-slot', 'reserved');
     buy.classList.remove('keep-slot', 'reserved');
-    ask.classList.remove('keep-slot');
+    ask.classList.remove('keep-slot', 'reserved');
     serve.hidden = false;
     if (i === M.STALLS.length - 1) {
       serve.classList.add('reserved', 'keep-slot');
@@ -179,6 +179,7 @@
       var ready = M.canHire(state, i);
       ask.hidden = false;
       ask.classList.toggle('reserved', !ready);
+      ask.classList.toggle('keep-slot', !ready);
       ask.setAttribute('aria-hidden', ready ? 'false' : 'true');
       ask.textContent = stall.hire;
       ask.disabled = !ready;
@@ -207,9 +208,14 @@
       hint.textContent = showHint ? 'A lower time is a better buy.' : '';
     }
     ask.hidden = false;
-    ask.classList.add('reserved');
+    ask.classList.add('reserved', 'keep-slot');
+    ask.textContent = stall.hire;
     ask.disabled = true;
-    if (i === M.STALLS.length - 1) ask.hidden = true;
+    if (i === M.STALLS.length - 1) {
+      ask.hidden = false;
+      ask.classList.add('reserved', 'keep-slot');
+      ask.textContent = stall.hire;
+    }
     buy.hidden = false;
     buy.classList.remove('reserved', 'keep-slot');
     var offer = M.quote(state, i, state.bulk);
@@ -223,16 +229,23 @@
     buy.classList.remove('best');
     buy.dataset.count = String(offer.count);
     var firstMat = i === M.STALLS.length - 1 && st.owned === 0 && !(state.night && state.night.kept);
-    if (state.bulk === 'max' && offer.blocked === 'payback' && !firstMat) {
-      buy.classList.add('reserved', 'keep-slot');
-      wait.textContent = 'Max will not buy this. It pays for itself too slowly. Use 1, 10 or Next.';
-    }
+    var slowMax = state.bulk === 'max' && offer.blocked === 'payback' && !firstMat;
     buy.classList.toggle('unroll', firstMat);
-    buy.textContent = firstMat
-      ? ('Unroll the Story Mat · ends the night · ' + money(offer.cost) + ' coins')
-      : buyLabel(i, offer);
-    buy.disabled = !(offer.count > 0);
-    buy.classList.toggle('refused', false);
+    buy.classList.toggle('refused', slowMax);
+    if (slowMax) {
+      buy.classList.remove('reserved', 'keep-slot');
+      buy.disabled = false;
+      buy.dataset.count = '1';
+      buy.title = 'A bigger batch pays for itself too slowly. Max buys one.';
+      buy.textContent = 'Max · 1 · ' + money(offer.cost);
+      wait.textContent = 'Max will not buy a slow batch. It buys one. Use 1, 10 or Next for the rest.';
+    } else {
+      buy.title = '';
+      buy.textContent = firstMat
+        ? ('Unroll the Story Mat · ends the night · ' + money(offer.cost) + ' coins')
+        : buyLabel(i, offer);
+      buy.disabled = !(offer.count > 0);
+    }
     var needLine = li.querySelector('.need');
     if (needLine) {
       var asking = state.bulk === 10 || state.bulk === '10' ? 10 : 1;
@@ -283,7 +296,7 @@
     if (bookNote) bookNote.hidden = false;
     var openKey = '';
     for (var oi = 0; oi < M.STALLS.length; oi++) openKey += M.unlocked(state, oi) ? '1' : '0';
-    if (openKey !== seenOpen) { seenOpen = openKey; M.touchQuiet(state); }
+    if (openKey !== seenOpen) seenOpen = openKey;
     var nowMs = Date.now();
     var quietDt = (nowMs - lastElapse) / 1000;
     lastElapse = nowMs;
@@ -297,36 +310,30 @@
     if (laneGoal) laneGoal.textContent = laneCounterText(goalText);
     var finale = $('#finale');
     var finaleNote = $('#finale-note');
-    var laneReady = dawnAtLoad || !window.NightLane || typeof window.NightLane.finaleReady !== 'function' || window.NightLane.finaleReady();
-    var finaleOn = M.dawnDue(state) && !finaleDismissed && laneReady;
+    var finaleOn = M.dawnDue(state) && !finaleDismissed;
+    var finaleBackdrop = $('#finale-backdrop');
     if (finale) {
       finale.hidden = !finaleOn;
+      if (finaleBackdrop) finaleBackdrop.hidden = !finaleOn;
       if (finaleOn) {
         var copy = M.dawnCopy(state);
         $('#finale-title').textContent = copy.title;
         $('#finale-lead').textContent = copy.lead;
         var summaryEl = $('#finale-summary');
         if (summaryEl) summaryEl.textContent = copy.summary;
-        if (!dawnCardSeen) {
-          dawnCardSeen = true;
-          finale.focus({ preventScroll: true });
-        }
         var nextNight = finale.querySelector('[data-act="next-night"]');
         var choice = finale.querySelector('[data-act="finale"]');
         if (nextNight) nextNight.textContent = copy.next;
         if (choice) choice.textContent = copy.choice;
-        if (finaleScroll && !finaleFocused) {
-          finaleFocused = true;
-          finale.setAttribute('tabindex', '-1');
-          finale.focus({ preventScroll: true });
-        }
+        if (!dawnCardSeen) dawnCardSeen = true;
       }
     }
     if (!finaleOn) dawnCardSeen = false;
     if (finaleNote) {
-      finaleNote.hidden = !(state.night && state.night.kept && state.stalls[M.STALLS.length - 1].owned >= 1);
+      var showNote = !!(state.night && state.night.kept && state.stalls[M.STALLS.length - 1].owned >= 1 && !noteDismissed && Date.now() < noteUntil);
+      finaleNote.hidden = !showNote;
       var noteText = $('#finale-note-text');
-      if (noteText) noteText.textContent = 'The mat is unrolled. The lane stays open.';
+      if (noteText && showNote) noteText.textContent = 'The mat is unrolled. The lane stays open.';
     }
     if (M.syncOffers(state) || M.noteDawn(state)) persist();
     var hiring = state.stalls.some(function (s) { return s.hired; });
@@ -359,6 +366,13 @@
     var firstStall = list.querySelector(':scope > [data-i="0"]');
     if (pick && firstStall && !pick.contains(firstStall) && firstStall.nextElementSibling !== pick) firstStall.after(pick);
     renderPick();
+    if (finaleOn) {
+      setDawnInert(true);
+      if (finale && !finale.contains(document.activeElement)) {
+        var dawnButton = finale.querySelector('button');
+        if (dawnButton) dawnButton.focus({ preventScroll: true });
+      }
+    }
     renderCodex();
     syncPins();
     var laneNow = window.NightLane;
@@ -461,13 +475,13 @@
     if (M.noteOffer(state)) persist();
     var panel = $('#pick-panel');
     var backdrop = $('#pick-backdrop');
-    if (!show) {
+      if (!show) {
       if (panel) {
         panel.removeAttribute('role');
         panel.removeAttribute('aria-modal');
       }
       if (backdrop) backdrop.hidden = true;
-      setBehindInert(false);
+      if (!M.dawnDue(state) || (state.night && state.night.kept)) setBehindInert(false);
       if (offerModalSig) {
         offerModalSig = '';
         resumeOffer();
@@ -506,12 +520,13 @@
       panel.setAttribute('aria-labelledby', 'pick-lead');
     }
     if (backdrop) backdrop.hidden = false;
+    box.inert = false;
     setBehindInert(true);
     pauseOffer();
     if (choices.dataset.sig === sig) {
       var skipSame = box.querySelector('[data-act="skip"]');
       var againSame = box.querySelector('[data-act="reroll"]');
-      if (skipSame) skipSame.hidden = offer.kind !== 'charm';
+      if (skipSame) skipSame.hidden = offer.kind === 'omen';
       if (againSame) {
         againSame.hidden = !!(state.night && state.night.rerollUsed);
         againSame.disabled = !!(state.night && state.night.rerollUsed);
@@ -531,7 +546,7 @@
     });
     var skip = box.querySelector('[data-act="skip"]');
     var again = box.querySelector('[data-act="reroll"]');
-    if (skip) skip.hidden = offer.kind !== 'charm';
+    if (skip) skip.hidden = offer.kind === 'omen';
     if (again) {
       again.hidden = !!(state.night && state.night.rerollUsed);
       again.disabled = !!(state.night && state.night.rerollUsed);
@@ -547,7 +562,41 @@
       if (firstChoice) firstChoice.focus({ preventScroll: true });
     }
   }
+  function trapTab(panel, e) {
+    if (!panel || e.key !== 'Tab') return false;
+    var keys = [];
+    panel.querySelectorAll('button').forEach(function (b) {
+      if (!b.hidden && !b.disabled) keys.push(b);
+    });
+    if (!keys.length) return false;
+    var firstKey = keys[0], lastKey = keys[keys.length - 1];
+    if (e.shiftKey && document.activeElement === firstKey) { e.preventDefault(); lastKey.focus(); return true; }
+    if (!e.shiftKey && (document.activeElement === lastKey || !panel.contains(document.activeElement))) {
+      e.preventDefault();
+      firstKey.focus();
+      return true;
+    }
+    return false;
+  }
   document.addEventListener('keydown', function (e) {
+    var finaleOn = $('#finale') && !$('#finale').hidden;
+    if (finaleOn) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        var nextDefault = $('#finale [data-act="next-night"]');
+        if (nextDefault) nextDefault.click();
+        return;
+      }
+      trapTab($('#finale'), e);
+      return;
+    }
+    var note = $('#finale-note');
+    if (note && !note.hidden && e.key === 'Escape') {
+      e.preventDefault();
+      noteDismissed = true;
+      render();
+      return;
+    }
     var pick = $('#pick');
     if (!pick || pick.classList.contains('quiet') || pick.hidden) return;
     if (e.key === 'Escape') {
@@ -560,20 +609,7 @@
       }
       return;
     }
-    if (e.key !== 'Tab') return;
-    var panelNow = $('#pick-panel');
-    if (!panelNow) return;
-    var keys = [];
-    panelNow.querySelectorAll('button').forEach(function (b) {
-      if (!b.hidden && !b.disabled) keys.push(b);
-    });
-    if (!keys.length) return;
-    var firstKey = keys[0], lastKey = keys[keys.length - 1];
-    if (e.shiftKey && document.activeElement === firstKey) { e.preventDefault(); lastKey.focus(); }
-    else if (!e.shiftKey && (document.activeElement === lastKey || !panelNow.contains(document.activeElement))) {
-      e.preventDefault();
-      firstKey.focus();
-    }
+    trapTab($('#pick-panel'), e);
   });
 
   function choiceLead(ids, lookup) {
@@ -642,7 +678,7 @@
   // A plain click still serves once.
   // NM-G8: before the hire, a hold stops at the vendor's count (12 of 12 dumplings). A plain click still serves, and still pays.
   var HOLD_DELAY = 350, HOLD_EVERY = 120, HOLD_PUMP = 50, hold = null;
-  var finaleScroll = false, finaleFocused = false;
+  var finaleScroll = false, finaleFocused = false, noteDismissed = false, noteUntil = 0;
   var lastElapse = Date.now();
   var seenOpen = '';
   var offerModalSig = '', offerReturn = null, offerPaused = false, offerOpenedAt = 0;
@@ -651,6 +687,12 @@
   function setBehindInert(on) {
     var nodes = document.querySelectorAll('.stall, .lane, #bulk, #goal, #lane-goal, header, details.save, #finale, .goal-pin, .coin-pin');
     for (var n = 0; n < nodes.length; n++) nodes[n].inert = !!on;
+    if (!on && $('#pick')) $('#pick').inert = false;
+  }
+  function setDawnInert(on) {
+    var nodes = document.querySelectorAll('.stall, .lane, #bulk, #goal, #lane-goal, header, details.save, #pick, .goal-pin, .coin-pin');
+    for (var n = 0; n < nodes.length; n++) nodes[n].inert = !!on;
+    if ($('#finale')) $('#finale').inert = false;
   }
   function pauseOffer() {
     if (idle && idle.stop) idle.stop();
@@ -666,8 +708,7 @@
     if (finaleScroll || finaleDismissed) return;
     finaleScroll = true;
     var laneEl = document.getElementById('lane');
-    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (laneEl && laneEl.scrollIntoView) laneEl.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+    if (laneEl && laneEl.scrollIntoView) laneEl.scrollIntoView({ block: 'start', behavior: 'auto' });
   }
   function atCount(i) { return !state.stalls[i].hired && state.stalls[i].serves >= M.STALLS[i].serves; }
   function pumpHold() {
@@ -715,6 +756,24 @@
   document.addEventListener('pointerleave', stopHold);
   document.addEventListener('contextmenu', function (e) { if (e.target.closest && e.target.closest('[data-act="serve"]')) e.preventDefault(); });
 
+  /* A render between press and release moves the button, and the click never lands.
+     If the press was on Buy or a buy-mode button and the release missed it, count the press. */
+  var pressedBuy = null;
+  document.addEventListener('pointerdown', function (e) {
+    var b = e.target.closest && e.target.closest('button');
+    if (!b || b.disabled || e.button > 0) return;
+    if (b.dataset.act !== 'buy' && !b.dataset.bulk) return;
+    pressedBuy = { el: b, t: Date.now() };
+  }, true);
+  document.addEventListener('pointerup', function (e) {
+    var held = pressedBuy;
+    pressedBuy = null;
+    if (!held || !held.el || !document.contains(held.el)) return;
+    if (held.el.disabled || Date.now() - held.t > 2000) return;
+    var up = e.target && e.target.closest && e.target.closest('button');
+    if (up === held.el) return;
+    held.el.click();
+  }, true);
   document.addEventListener('click', function (e) {
     if (e.target.closest && e.target.closest('#open-book')) {
       var saveBox = $('details.save');
@@ -743,7 +802,7 @@
       render();
       return;
     }
-    if (b.dataset.act === 'omen' || b.dataset.act === 'charm' || b.dataset.act === 'twist' || b.dataset.act === 'early' || b.dataset.act === 'boost' || b.dataset.act === 'priced') {
+    if (b.dataset.act === 'omen' || b.dataset.act === 'charm' || b.dataset.act === 'twist' || b.dataset.act === 'early' || b.dataset.act === 'boost' || b.dataset.act === 'priced' || b.dataset.act === 'half' || b.dataset.act === 'late') {
       if (Date.now() - offerOpenedAt < 300) return;
       var pickedId = M.choose(state, +b.dataset.choice);
       if (pickedId) {
@@ -775,6 +834,8 @@
       var stayed = window.scrollY;
       M.nextNight(state);
       finaleDismissed = false;
+      noteDismissed = false;
+      noteUntil = 0;
       finaleScroll = false;
       finaleFocused = false;
       persist();
@@ -784,9 +845,17 @@
       if (window.scrollY !== stayed) window.scrollTo(0, stayed);
       return;
     }
+    if (b.dataset.act === 'dismiss-note') {
+      noteDismissed = true;
+      render();
+      return;
+    }
+    if ((b.dataset.act === 'buy' || b.dataset.act === 'serve' || b.dataset.act === 'hire') && M.dawnDue(state) && !(state.night && state.night.kept)) return;
     if (b.dataset.act === 'finale') {
       M.keepLane(state);
       finaleDismissed = true;
+      noteDismissed = false;
+      noteUntil = Date.now() + 8000;
       nightFrozen = true;
       persist();
       rebindIdle();

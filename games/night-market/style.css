@@ -12,6 +12,14 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; }
+/* The buy-mode row stays on screen while the stalls scroll. It sits under the
+   goal pin (the pin is the control a tap there reaches). */
+.bulk {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: var(--paper);
+}
 body {
   background: var(--night);
   color: var(--ink);
@@ -71,9 +79,11 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   margin: 0 auto;
   max-height: calc(100vh - 2.4rem);
   overflow: auto;
-  z-index: 35;
-  padding-top: 1.35rem;
+  z-index: 36;
+  padding: 1.35rem 1rem 1.25rem;
 }
+#finale-backdrop { position: fixed; inset: 0; background: rgba(22, 19, 38, 0.5); z-index: 34; }
+#finale-backdrop[hidden] { display: none !important; }
 .finale-note:not([hidden]) {
   position: fixed;
   left: 0.75rem;
@@ -82,10 +92,19 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   width: auto;
   max-width: 40rem;
   margin: 0 auto;
-  z-index: 35;
+  z-index: 36;
   background: var(--paper);
   border: 1px solid var(--rule);
   padding: 0.85rem 1rem 1rem;
+}
+@media (max-width: 420px) and (max-height: 640px) {
+  .finale:not([hidden]) {
+    top: 0.35rem;
+    max-height: 13.5rem;
+    padding: 0.55rem 0.7rem 0.6rem;
+  }
+  .finale:not([hidden]) h2 { font-size: 1.15rem; margin-bottom: 0.15rem; }
+  .finale:not([hidden]) p { margin-bottom: 0.3rem; }
 }
 .finale h2 { color: var(--paper); font-size: 1.55rem; line-height: 1.2; margin: 0 0 0.45rem; font-weight: 600; }
 .finale p { margin: 0 0 0.85rem; }
