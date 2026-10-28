@@ -625,76 +625,112 @@ document.querySelector('#run').onclick = async function () {
     var tradeLine = M.choiceLine(wickNight, 'twist', 'loud-carts');
     if (tradeLine.indexOf('Your income') < 0 || tradeLine.indexOf(' to ') < 0 || tradeLine.indexOf('a second') < 0) wickLines.push(tradeLine);
     check(wickLines.length ? 'a repeated omen or a trade without income: ' + wickLines.slice(0, 3).join(' | ') : 'an omen already picked is not offered again, and a trade shows income before and after', wickLines.length === 0);
-    function promisedChoices(seed) {
+    function offerMatchesLine(line, offer) {
+      if (!line || !offer) return false;
+      if (/double at 20/.test(line)) return offer.kind === 'early';
+      if (/raises what a stall earns/.test(line)) return offer.kind === 'boost' || offer.kind === 'sustain';
+      if (/cheaper/.test(line)) return offer.kind === 'priced' || offer.kind === 'half';
+      if (/small trade/.test(line)) return offer.kind === 'twist';
+      if (/Incense Tray/.test(line)) return offer.kind === 'charm' && offer.stall === 'incense';
+      if (/while you save for the Story Mat/.test(line)) return offer.kind === 'late' || offer.kind === 'stories' || (offer.kind === 'charm' && offer.stall === 'stories');
+      var opens = /when the (.+) opens/.exec(line);
+      if (opens) {
+        var named = null, ni;
+        for (ni = 0; ni < M.STALLS.length; ni++) if (M.STALLS[ni].name === opens[1]) named = M.STALLS[ni];
+        return !!(named && offer.kind === 'charm' && offer.stall === named.id);
+      }
+      if (/quiet for long/.test(line)) return offer.kind === 'charm';
+      return false;
+    }
+    function lineLive(line) { return /The next choice|A choice is waiting/.test(line || ''); }
+    function pressPlayedBuy(s, i) {
+      if (i < 0 || !M.unlocked(s, i) || !s.stalls[i].hired) return false;
+      var q = M.quote(s, i, s.bulk);
+      var firstMat = i === M.STALLS.length - 1 && s.stalls[i].owned === 0 && !(s.night && s.night.kept);
+      var slowMax = s.bulk === 'max' && q.blocked === 'payback' && !firstMat;
+      if (slowMax) return M.buyExact(s, i, 1).ok;
+      if (!(q.count > 0)) return false;
+      return M.buyExact(s, i, q.count).ok;
+    }
+    function playPolicy(s) {
+      var i;
+      for (i = 0; i < s.stalls.length; i++) {
+        if (!M.unlocked(s, i) || s.stalls[i].hired) continue;
+        if (M.canHire(s, i)) M.hire(s, i);
+        else { var pours = 0; while (pours++ < 8) M.handSell(s, i); }
+        return;
+      }
+      var frontier = -1;
+      for (i = 0; i < s.stalls.length; i++) if (M.unlocked(s, i)) frontier = i;
+      if (frontier >= 0 && pressPlayedBuy(s, frontier)) return;
+      var tagged = M.bestIndex(s);
+      if (tagged >= 0 && pressPlayedBuy(s, tagged)) return;
+      for (i = 0; i < s.stalls.length; i++) if (pressPlayedBuy(s, i)) return;
+    }
+    function playedModelNight(seed) {
       var s = M.fresh();
       M.armNight(s, 1, seed);
-      if (s.night.offer && s.night.offer.kind === 'omen') M.choose(s, 0);
-      s.bulk = 'max';
-      var t = 0, pending = [], problems = [];
-      function satisfy(now) {
-        var offer = s.night.offer;
-        pending.forEach(function (p) {
-          if (p.done) return;
-          if (/quiet for long/.test(p.line) && offer && now - p.at <= 120) p.done = true;
-          if (offer && offer.kind === 'charm') {
-            var stall = null, si;
-            for (si = 0; si < M.STALLS.length; si++) if (M.STALLS[si].id === offer.stall) stall = M.STALLS[si];
-            if (stall && p.line.indexOf(stall.name) >= 0) p.done = true;
-            if (/mooncake tables/.test(p.line) && (offer.stall === 'mooncake' || s.night.offered.indexOf('mid-mooncake') >= 0)) p.done = true;
+      s.cash = 0;
+      s.lifetime = 0;
+      s.stalls.forEach(function (st) { st.owned = 0; st.serves = 0; st.hired = false; });
+      function runOne() {
+        s.bulk = 'max';
+        if (s.night.offer && s.night.offer.kind === 'omen') M.choose(s, 0);
+        var t = 0, last = 0, worst = 0, from = 0, mismatches = [], blanks = 0, pendingBlank = false;
+        while (t < 2200 && !M.dawnDue(s)) {
+          if (s.night.offer) {
+            if (s.night.offer.kind === 'omen') M.choose(s, 0);
+            else M.skipOffer(s);
           }
-          if (offer && /opens/.test(p.line)) {
-            var named = null, ni;
-            for (ni = 0; ni < M.STALLS.length; ni++) if (p.line.indexOf(M.STALLS[ni].name) >= 0) named = ni;
-            if (named != null && M.unlocked(s, named)) p.done = true;
+          var line = M.nextOfferLine(s);
+          if (!lineLive(line)) pendingBlank = true;
+          playPolicy(s);
+          if (M.dawnDue(s) && !(s.night && s.night.kept)) { t += 1; break; }
+          if (!(M.dawnDue(s) && !(s.night && s.night.kept))) {
+            var gained = M.income(s);
+            s.cash += gained;
+            s.lifetime += gained;
           }
-          if (offer && offer.kind === 'early' && /double at 20/.test(p.line)) p.done = true;
-          if (offer && offer.kind === 'twist' && /small trade/.test(p.line)) p.done = true;
-          if (offer && offer.kind === 'boost' && /raises what a stall earns/.test(p.line)) p.done = true;
-          if (offer && (offer.kind === 'priced' || offer.kind === 'half') && /makes a stall cheaper/.test(p.line)) p.done = true;
-          if (offer && offer.stall === 'incense' && /Incense Tray/.test(p.line)) p.done = true;
-          if (offer && /Story Mat/.test(p.line) && (offer.stall === 'stories' || (M.unlocked(s, M.STALLS.length - 1) && offer.kind !== 'omen'))) p.done = true;
-        });
-      }
-      function see(now) {
-        satisfy(now);
-        if (s.night.offer) return;
-        var line = M.nextOfferLine(s);
-        if (line === 'No more choices tonight.' || line === 'A choice is waiting.') return;
-        if (!pending.some(function (p) { return p.line === line; })) pending.push({ line: line, at: now, done: false });
-        pending.forEach(function (p) {
-          if (!p.done && /quiet for long/.test(p.line) && now - p.at > 120) problems.push('seed ' + seed + ' quiet for ' + (now - p.at) + 's');
-        });
-      }
-      while (t < 1700 && !M.dawnDue(s)) {
-        M.elapse(s, 5);
-        if (s.night.offer && s.night.offer.kind !== 'omen') { satisfy(t); M.skipOffer(s); }
-        var i;
-        for (i = 0; i < s.stalls.length; i++) {
-          if (!M.unlocked(s, i) || s.stalls[i].hired) continue;
-          if (M.canHire(s, i)) M.hire(s, i);
-          else M.handSell(s, i);
-          break;
+          var before = s.night.offer;
+          M.elapse(s, 1);
+          M.syncOffers(s);
+          if (s.night.offer && s.night.offer !== before) {
+            var at = t + 1;
+            var gap = at - last;
+            if (gap > worst) { worst = gap; from = last; }
+            if (pendingBlank) blanks++;
+            if (!offerMatchesLine(line, s.night.offer)) mismatches.push(at + 's "' + line + '" -> ' + s.night.offer.kind);
+            pendingBlank = false;
+            last = at;
+          }
+          t += 1;
         }
-        s.cash += M.income(s) * 5;
-        s.lifetime += M.income(s) * 5;
-        var pick = M.bestIndex(s);
-        if (!(pick >= 0)) { s.bulk = 1; pick = M.bestIndex(s); s.bulk = 'max'; }
-        if (pick >= 0) {
-          var q = M.quote(s, pick, 'max');
-          if (q.count > 0) M.buyExact(s, pick, q.count);
-        }
-        M.syncOffers(s);
-        if (s.night.offer) satisfy(t);
-        see(t);
-        if (s.night.offer && s.night.offer.kind !== 'omen') M.skipOffer(s);
-        t += 5;
+        var tail = t - last;
+        if (tail > worst) { worst = tail; from = last; }
+        return { worst: worst, from: from, mismatches: mismatches, blanks: blanks };
       }
-      pending.forEach(function (p) { if (!p.done) problems.push('seed ' + seed + ' never got "' + p.line + '"'); });
-      return problems;
+      var first = runOne();
+      M.nextNight(s);
+      s.night.kept = false;
+      var second = runOne();
+      return [first, second];
     }
-    var promiseProblems = [];
-    for (var promiseSeed = 1; promiseSeed <= 5; promiseSeed++) promiseProblems = promiseProblems.concat(promisedChoices(promiseSeed));
-    check(promiseProblems.length ? 'a promised choice never came: ' + promiseProblems.slice(0, 4).join(' | ') : 'on seeds 1 to 5 every promised next choice arrives, or the line says there are none', promiseProblems.length === 0);
+    var sweepSeeds = [];
+    for (var sweepN = 1; sweepN <= 50; sweepN++) sweepSeeds.push(sweepN);
+    if (sweepSeeds.indexOf(437724497) < 0) sweepSeeds.push(437724497);
+    var sweepWorst = 0, sweepSeed = sweepSeeds[0], sweepNight = 1, sweepFrom = 0, sweepMismatch = 0, sweepBlank = 0, sweepSample = [];
+    sweepSeeds.forEach(function (seed) {
+      playedModelNight(seed).forEach(function (night, idx) {
+        if (night.worst > sweepWorst) { sweepWorst = night.worst; sweepSeed = seed; sweepNight = idx + 1; sweepFrom = night.from; }
+        sweepMismatch += night.mismatches.length;
+        sweepBlank += night.blanks;
+        if (night.mismatches.length && sweepSample.length < 3) sweepSample.push('seed ' + seed + ' ' + night.mismatches[0]);
+      });
+    });
+    check(sweepMismatch || sweepBlank || sweepWorst > 120
+      ? 'played line or gap: worst ' + sweepWorst + 's seed ' + sweepSeed + ' night ' + sweepNight + ' from ' + sweepFrom + 's, mismatches ' + sweepMismatch + ', blanks ' + sweepBlank + (sweepSample.length ? ' ' + sweepSample.join(' | ') : '')
+      : 'played nights 1 and 2 across seeds 1 to 50 and 437724497 stay within 120s and the offer matches the line (worst ' + sweepWorst + 's seed ' + sweepSeed + ', mismatches 0)',
+      sweepMismatch === 0 && sweepBlank === 0 && sweepWorst <= 120);
     var teaOnly = M.fresh();
     teaOnly.stalls[0].hired = true;
     teaOnly.stalls[0].owned = 10;
@@ -1776,6 +1812,7 @@ document.querySelector('#run').onclick = async function () {
         var lines = lineCount(needBtn);
         if (lines !== 1) wrapped.push(label + ' "' + needBtn.textContent + '" ' + lines + ' lines');
         if (ww >= 1000) return;
+        if (nm.state.night) { nm.state.night.offer = null; nm.state.night.queue = []; }
         nm.state.stalls.forEach(function (s) { s.hired = false; s.owned = 0; s.serves = 3; });
         nm.state.bulk = 1; nm.state.cash = 0;
         nm.render();
@@ -2570,91 +2607,6 @@ document.querySelector('#run').onclick = async function () {
     ld.dispatchEvent(new lw.PointerEvent('pointerup', { bubbles: true, button: 0, cancelable: true }));
     check('two buys within 2s both purchase, and a buy-mode press still lands if the button was redrawn (' + ownedBeforeClick + '→' + afterMovedRelease + '→' + lm.state.stalls[0].owned + ', moved ' + buyMoved.toFixed(1) + 'px)',
       afterMovedRelease === ownedBeforeClick + 1 && lm.state.stalls[0].owned === ownedBeforeClick + 2 && buyMoved <= 0.5 && ld.querySelector('[data-bulk="max"]').getAttribute('aria-pressed') === 'true');
-    function playedNight(seed) {
-      var s = lm.state;
-      lw.NightMarket.armNight(s, 1, seed);
-      s.cash = 0;
-      s.lifetime = 0;
-      s.bulk = 'max';
-      s.stalls.forEach(function (st) { st.owned = 0; st.serves = 0; st.hired = false; });
-      var clock = 5000000, orig = lw.Date.now;
-      lw.Date.now = function () { return clock; };
-      if (lm.idle && lm.idle.stop) lm.idle.stop();
-      function runNight(nightN) {
-        s.bulk = 'max';
-        var t = 0, lastChoice = 0, choiceGap = 0, gaps = [], frontierNote = '';
-        function noteChoice(now) {
-          var gap = now - lastChoice;
-          if (gap > choiceGap) choiceGap = gap;
-          gaps.push(gap);
-          lastChoice = now;
-        }
-        lm.render();
-        while (t < 2200 && !lw.NightMarket.dawnDue(s)) {
-          var pick = ld.querySelector('#pick');
-          if (pick && !pick.classList.contains('quiet')) {
-            noteChoice(t);
-            clock += 400;
-            var skip = ld.querySelector('#pick [data-act="skip"]');
-            var choice = ld.querySelector('#pick-choices button');
-            if (skip && !skip.hidden) skip.click();
-            else if (choice) choice.click();
-          }
-          var pouring = null;
-          ld.querySelectorAll('#stalls [data-i]').forEach(function (li) {
-            if (pouring || li.classList.contains('closed')) return;
-            var count = li.querySelector('.count');
-            if (count && !count.hidden) pouring = li;
-          });
-          if (pouring) {
-            var hire = pouring.querySelector('[data-act="hire"]');
-            var serve = pouring.querySelector('[data-act="serve"]');
-            if (hire && !hire.disabled && lw.getComputedStyle(hire).visibility !== 'hidden') hire.click();
-            else if (serve) { for (var n = 0; n < 8; n++) serve.click(); }
-          } else {
-            var tagged = ld.querySelector('#stalls .best-tag:not([hidden])');
-            var buy = tagged ? tagged.closest('[data-i]').querySelector('[data-act="buy"]') : ld.querySelector('#stalls [data-act="buy"]:not([disabled])');
-            var frontier = null;
-            ld.querySelectorAll('#stalls [data-i]').forEach(function (li) {
-              if (!li.classList.contains('closed')) frontier = li;
-            });
-            var frontierBuy = frontier && frontier.querySelector('[data-act="buy"]');
-            frontierNote = frontier ? (frontier.dataset.i + ' ' + (frontierBuy ? frontierBuy.textContent : 'no-buy') + (frontierBuy && frontierBuy.disabled ? ' disabled' : '')) : 'none';
-            if (frontierBuy && !frontierBuy.disabled && lw.getComputedStyle(frontierBuy).visibility !== 'hidden') frontierBuy.click();
-            else if (buy && !buy.disabled && lw.getComputedStyle(buy).visibility !== 'hidden') buy.click();
-          }
-          clock += 1000;
-          if (!(lw.NightMarket.dawnDue(s) && !(s.night && s.night.kept))) {
-            var gained = lw.NightMarket.income(s);
-            s.cash += gained;
-            s.lifetime += gained;
-          }
-          lm.render();
-          t += 1;
-        }
-        noteChoice(t);
-        return { night: nightN, seed: s.night.seed, choiceGap: choiceGap, gaps: gaps, dawn: t, owned: s.stalls.map(function (st) { return st.owned; }).join('/'), frontier: frontierNote };
-      }
-      var first = runNight(1);
-      var nextBtn = ld.querySelector('#finale [data-act="next-night"]');
-      if (nextBtn) nextBtn.click();
-      else lw.NightMarket.nextNight(s);
-      s.night.kept = false;
-      lm.render();
-      var second = runNight(2);
-      lw.Date.now = orig;
-      return { seed: seed, nights: [first, second] };
-    }
-    var played = [1, 2, 5].map(playedNight);
-    var gapProblems = [];
-    var gapReport = [];
-    played.forEach(function (run) {
-      run.nights.forEach(function (night) {
-        gapReport.push('seed ' + run.seed + ' night ' + night.night + ' ' + night.choiceGap + 's');
-        if (night.choiceGap > 120) gapProblems.push('seed ' + run.seed + ' night ' + night.night + ' ' + night.choiceGap + 's own ' + (night.owned || '') + ' front ' + night.frontier);
-      });
-    });
-    check(gapProblems.length ? 'a played night went quiet too long: ' + gapProblems.join(', ') : 'played nights 1 and 2 on seeds 1, 2 and 5 stay within 120 seconds (' + gapReport.join('; ') + ')', gapProblems.length === 0);
     layout.style.width = '320px';
     layout.style.height = '568px';
     lm.state.stalls.forEach(function (st, i) { st.hired = true; st.owned = i === 5 ? 1 : 20; st.serves = 30; });
@@ -2683,12 +2635,18 @@ document.querySelector('#run').onclick = async function () {
       nextOnCard && !backdrop.hidden && backBox.top <= 1 && backBox.bottom >= viewH - 1 &&
       (laneHit === backdrop || backdrop.contains(laneHit)) && dawnCardEl.scrollHeight + 1 >= dawnCardEl.clientHeight);
     var keepDawn = dawnCardEl.querySelector('[data-act="finale"]');
-    nextDawn.focus();
+    var dawnSummary = dawnCardEl.querySelector('#finale-summary');
+    dawnSummary.focus();
+    ld.dispatchEvent(new lw.KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    var summaryToNext = ld.activeElement === nextDawn;
+    dawnSummary.focus();
     ld.dispatchEvent(new lw.KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }));
-    var wrappedBack = ld.activeElement === keepDawn;
+    var summaryWraps = ld.activeElement === keepDawn;
     keepDawn.focus();
     ld.dispatchEvent(new lw.KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
-    check('tab stays inside the dawn card at 320 by 568', wrappedBack && ld.activeElement === nextDawn);
+    check('tab stays inside the dawn card at 320 by 568, and the earned-coins text is in that loop',
+      dawnSummary.tabIndex === 0 && !!dawnSummary.getAttribute('aria-label') && dawnCardEl.contains(dawnSummary) &&
+      summaryToNext && summaryWraps && ld.activeElement === dawnSummary);
     var nightBefore = lm.state.night.n;
     var cartOwned = lm.state.stalls[1].owned;
     ld.querySelector('#stalls [data-i="1"] [data-act="buy"]').click();

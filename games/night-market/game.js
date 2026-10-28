@@ -297,6 +297,9 @@
     var openKey = '';
     for (var oi = 0; oi < M.STALLS.length; oi++) openKey += M.unlocked(state, oi) ? '1' : '0';
     if (openKey !== seenOpen) seenOpen = openKey;
+    /* Name the next offer before this frame can place it, so the line and the
+       card are the same peek. */
+    if (M.nextOfferLine) M.nextOfferLine(state);
     var nowMs = Date.now();
     var quietDt = (nowMs - lastElapse) / 1000;
     lastElapse = nowMs;
@@ -565,18 +568,17 @@
   function trapTab(panel, e) {
     if (!panel || e.key !== 'Tab') return false;
     var keys = [];
-    panel.querySelectorAll('button').forEach(function (b) {
-      if (!b.hidden && !b.disabled) keys.push(b);
+    panel.querySelectorAll('button, [tabindex="0"]').forEach(function (b) {
+      if (b.hidden || b.disabled || b.tabIndex < 0) return;
+      keys.push(b);
     });
     if (!keys.length) return false;
-    var firstKey = keys[0], lastKey = keys[keys.length - 1];
-    if (e.shiftKey && document.activeElement === firstKey) { e.preventDefault(); lastKey.focus(); return true; }
-    if (!e.shiftKey && (document.activeElement === lastKey || !panel.contains(document.activeElement))) {
-      e.preventDefault();
-      firstKey.focus();
-      return true;
-    }
-    return false;
+    var index = keys.indexOf(document.activeElement);
+    if (index < 0) index = e.shiftKey ? 0 : keys.length - 1;
+    var next = e.shiftKey ? (index - 1 + keys.length) % keys.length : (index + 1) % keys.length;
+    e.preventDefault();
+    keys[next].focus();
+    return true;
   }
   document.addEventListener('keydown', function (e) {
     var finaleOn = $('#finale') && !$('#finale').hidden;
@@ -802,12 +804,12 @@
       render();
       return;
     }
-    if (b.dataset.act === 'omen' || b.dataset.act === 'charm' || b.dataset.act === 'twist' || b.dataset.act === 'early' || b.dataset.act === 'boost' || b.dataset.act === 'priced' || b.dataset.act === 'half' || b.dataset.act === 'late') {
+    if (b.dataset.act === 'omen' || b.dataset.act === 'charm' || b.dataset.act === 'twist' || b.dataset.act === 'early' || b.dataset.act === 'boost' || b.dataset.act === 'priced' || b.dataset.act === 'half' || b.dataset.act === 'late' || b.dataset.act === 'sustain') {
       if (Date.now() - offerOpenedAt < 300) return;
       var pickedId = M.choose(state, +b.dataset.choice);
       if (pickedId) {
         var pickedRow = b.dataset.act === 'omen' ? M.omenById(pickedId) : M.charmById(pickedId);
-        if (M.changesRate(pickedRow) || b.dataset.act === 'boost' || b.dataset.act === 'twist') rateFlashUntil = Date.now() + 2500;
+        if (M.changesRate(pickedRow) || b.dataset.act === 'boost' || b.dataset.act === 'twist' || b.dataset.act === 'sustain') rateFlashUntil = Date.now() + 2500;
         if (b.dataset.act === 'omen') rebindIdle();
         persist();
         render();
