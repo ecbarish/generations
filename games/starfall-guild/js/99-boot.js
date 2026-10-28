@@ -1,5 +1,5 @@
 'use strict';
-const VERSION = '1.0.1'; // the game's version (L9): bump it on release, see HANDOFF.md "Releasing a version"
+const VERSION = '1.0.2'; // the game's version (L9): bump it on release, see HANDOFF.md "Releasing a version"
 
 /* ================= boot ================= */
 function boot0(){D=derive();if(!S.party.length&&S.stats.recruits===0&&!S.regionOffer){S.party.push(makeAdv(1,'swordsman'));S.party[0].name='Ren';log('The Starfall Guild opens its doors. <b>Ren</b> signs up first.');}
