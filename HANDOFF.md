@@ -12,7 +12,7 @@ https://ecbarish.github.io/generations/ (GitHub Pages serves the `main` branch).
 - Read docs/ROADMAP.md and do only the ticket you were given.
 - Depth and gameplay come first. Automation (addons, staff, instincts) is earned by playing, never sold.
 - Active play must always be worth at least as much as Auto mode.
-- Original names and art only. Inspired by classic WoW, Pokemon and Kairosoft; never copied.
+- Original names and art only. Inspired by classic WoW, creature-collecting RPGs and Kairosoft; never copied.
 - Game state saves through `shared/engine.js` (`Arcade.save/load/report`). Keep old saves loading:
   Realmbound has a `migrate()` function for exactly this.
 

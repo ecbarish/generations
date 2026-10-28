@@ -32,7 +32,7 @@ AUDIT_OUTPUT="$PWD/docs/research/map-audit/wildbond.json" "$GODOT" --headless --
 AUDIT_OUTPUT="$PWD/docs/research/map-audit/starfall.json" "$GODOT" --headless --path starfall-godot --script "$PWD/tools/audit/starfall_maps.gd"
 ```
 
-For #137, use a separate worktree at its exact revision; point `--path` to that worktree's Wildbond project while retaining this audit script and an absolute output path. Evidence: [main Wildbond](map-audit/wildbond.json), [homes](map-audit/wildbond-homes-pr137.json), [Starfall](map-audit/starfall.json). Starfall JSON shares target coordinates and deduplicates identical grids; every tested assignment records its grid index and any unreachable target IDs.
+For #137, use a separate worktree at its exact revision; point `--path` to that worktree's Wildbond project while retaining this audit script and an absolute output path. Evidence: main Wildbond, homes, [Starfall](map-audit/starfall.json). Starfall JSON shares target coordinates and deduplicates identical grids; every tested assignment records its grid index and any unreachable target IDs.
 
 Wildbond movement flood includes base solidity and `_under_roof()`, excluding closed doors. Actors are moved off-map for static geometry checks. Route witnesses search legal starts within three tiles of roof-on-open cells against reachable goals, then call actual `route()` and `_tap()`. This is a targeted roof check, not an exhaustive all-pairs path proof. The two door interiors use keeper fronts two tiles below the counter; home residents also need rendered/manual interaction confirmation.
 

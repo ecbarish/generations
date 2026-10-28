@@ -1,8 +1,8 @@
 # One creature catalogue, richer evolution, gear and tamer abilities
 
 Evan, 2026-10-08: build a larger creature catalogue and use the creatures as enemies in Realmbound too, "so no asset
-goes wasted"; evolution with different types and conditions (Eevee's branches, single and triple lines, creatures that
-never evolve like Hitmonlee); armour for creatures; abilities on the tamer that enhance or interact with the creature.
+goes wasted"; evolution with different types and conditions (a branching-evolution creature's branches, single and triple lines, creatures that
+never evolve, like a creature that never evolves); armour for creatures; abilities on the tamer that enhance or interact with the creature.
 Claude's plan below; Evan can change any of it.
 
 ## Where we are (checked 2026-10-08)
@@ -30,7 +30,7 @@ evolve, all the same way** (one step at a level: Cindercub becomes Blazefang at 
 **Shapes** (each line is one of these):
 - **Stays itself:** never evolves, and is stronger or stranger for it (higher base stats or a signature move).
 - **Two stages** (today's kind) and **three stages** (a long journey with a creature).
-- **Branching:** one young creature, several possible adults, chosen by how you raise it (the Eevee kind).
+- **Branching:** one young creature, several possible adults, chosen by how you raise it (the branching-evolution kind).
 - **Late bloomer:** looks plain for a long time, then changes dramatically under one rare condition.
 
 **Conditions** (a line can use any, and several can combine):

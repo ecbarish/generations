@@ -1,5 +1,7 @@
 # Guest backlog
 
+**Lantern Bowl is shelved (Evan, 2026-10-18).** Skip every LB row (LB-G12, LB-G13, LB-G14, LB-PAL and the rest) and take the next non-Lantern Bowl row in your order.
+
 Standing work for the guest AIs, Grok and dot (Adam's). This page is the list they take from. Issue #373 is where a guest claims the next row. [QUEUE.md](../QUEUE.md) "This cycle" still says what the launch is. A row here is ready to start. It does not wait on another bot's approval.
 
 Generations PM keeps at least 8 priority rows per guest and tops up whenever either guest drops below 4.
@@ -20,12 +22,12 @@ Every row below avoids a save-format change, edits under shared/, edits to sw.js
 
 Take these before any row under "Unclaimed rows". The nine bug-fix rows for each guest stay below as the fallback.
 
-Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" mean Side Games Dev Lead. Wildbond & Starfall Dev Lead scoped three world-build rows from [wildbond-world-design.md](wildbond-world-design.md) (#455) and will review each Wildbond pull. Side Games Dev Lead will review each launch-game pull. That review is not a wait. There is no dependency on another bot's approval.
+Side Games Dev Lead scoped nine launch-game rows. In those rows, "I" and "mine" mean Side Games Dev Lead. Wildbond & Starfall Dev Lead scoped three world-build rows from wildbond-world-design.md (#455) and will review each Wildbond pull. Side Games Dev Lead will review each launch-game pull. That review is not a wait. There is no dependency on another bot's approval.
 
 Checked against the merged pulls and the latest #373 comments on 2026-10-15.
 
 - **Grok:** WBW-4 (now, already in progress), then LR-G2, LB-G13, LB-G14, LR-G3, LR-G4, NM-G8, LB-PAL (seventh, after NM-G8), then LR-G1, WBW-7, WBW-9, WBW-11, WBW-13, WBW-15, WBW-17. Open priority rows left: 15.
-- **dot:** WBW-5 (now, #501) and NM-G3 (#499) are already in progress. Then NM-G6, LB-G12, NM-G7, NM-G10, then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16, WBW-18. Open priority rows left: 12. LB-G11 and NM-G9 are merged. Do not start a second copy.
+- **dot:** WBW-5 (now, #501) and NM-G3 (#499) are already in progress. Then NM-G6, LB-G12, NM-G7, then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16, WBW-18. Open priority rows left: 11. LB-G11, NM-G9 and NM-G10 are merged. Do not start a second copy.
 - There is no LB-G4b row. A row that is merged, or already in review, is done for this queue. Do not start a second copy.
 ### Batch 3
 
@@ -61,7 +63,7 @@ The held toy pulls #404 to #412 will conflict with LR-G2, LR-G3 and LR-G4, and t
 - **What I wire later:** nothing. Playtester re-checks the layout on a phone.
 - **Dependencies:** none.
 
-### LB-G13. Headless full-season simulation test (LB-SEASON)
+### LB-G13. Headless full-season simulation test (LB-SEASON) (shelved 2026-10-18, do not start)
 
 **Status:** Grok, ready now, after LR-G2.
 
@@ -73,7 +75,7 @@ The held toy pulls #404 to #412 will conflict with LR-G2, LR-G3 and LR-G4, and t
 - **What I wire later:** I use the results to tune LB-SEASON, and I add this check to `tests/lantern-bowl.html` when the season is wired.
 - **Dependencies:** none.
 
-### LB-G14. Dilemma picker, headless (LB-SEASON)
+### LB-G14. Dilemma picker, headless (LB-SEASON) (shelved 2026-10-18, do not start)
 
 **Status:** Grok, ready now, after LB-G13.
 
@@ -142,7 +144,7 @@ The held toy pulls #404 to #412 will conflict with LR-G2, LR-G3 and LR-G4, and t
 - **What I wire later:** the district move, which changes the save and goes to Evan through Director.
 - **Dependencies:** none.
 
-### LB-G11. Weekly training focus data, on #480's progression.json
+### LB-G11. Weekly training focus data, on #480's progression.json (shelved 2026-10-18, do not start)
 
 **Status:** Done. Merged as #511 (292b121d). Do not reopen it.
 
@@ -154,7 +156,7 @@ The held toy pulls #404 to #412 will conflict with LR-G2, LR-G3 and LR-G4, and t
 - **What I wire later:** the training card between games, and storing the choice in the season save, which goes to Evan through Director.
 - **Dependencies:** none.
 
-### LB-G12. Depth chart and auto-lineup, headless (LB-MANAGER)
+### LB-G12. Depth chart and auto-lineup, headless (LB-MANAGER) (shelved 2026-10-18, do not start)
 
 **Status:** dot, ready now, after LB-G11.
 
@@ -192,7 +194,7 @@ The held toy pulls #404 to #412 will conflict with LR-G2, LR-G3 and LR-G4, and t
 
 ### NM-G10. Stall count at 16px on a phone
 
-**Status:** dot, at the end of the priority launch rows, after NM-G7. Starts after NM-G8 merges, because both touch `games/night-market/style.css`. #499 has already merged.
+**Status:** Done for the phone half. Merged as #614 (c34a8b42). The stall count is 16px on a phone layout. Game Art Director approved the shots in [comment 6349925816](https://github.com/ecbarish/generations/pull/614#issuecomment-6349925816). Do not reopen the phone count.
 
 - **Guest:** dot.
 - **Scope:** The stall's `.count` line goes from 14.72px to 16px on a phone. Today `.count` in `games/night-market/style.css` is `font-size: 0.92rem`.
@@ -234,6 +236,8 @@ The test checks that every town is in the graph. It also checks that no walkable
 
 ## WBW-8: kilnvent.json plus kilnvent.md
 
+**Integration status (2026-10-19):** Done as proposed planning data and validators; merged #519 (`9116fc22`). Do not reopen the same deliverable. Runtime wiring, final landings and playable-map acceptance remain separate.
+
 **Guest:** dot, after WBW-5. NM-G3 (#499) is still the next claimed row.
 
 Uses the knothollow format. Section 2, cave 4.
@@ -255,6 +259,8 @@ Uses the knothollow format. Section 2, cave 5.
 The test checks that the Home Burrow loop from section 2 (Millgrass, Larkburrow, Threadmeet) is closed only when both requirements are present.
 
 ## WBW-10: lessons.json
+
+**Integration status (2026-10-19):** Done as proposed planning data and validators; merged #520 (`6d0a2ed1`). Do not reopen the same deliverable. Runtime wiring, final landings and playable-map acceptance remain separate.
 
 **Guest:** dot, after WBW-8.
 
@@ -282,6 +288,8 @@ Proposed trainer rosters for the 20 routes in section 2's Routes table.
 The test checks that every species id is in the game's catalogue, that each team is one to three, and that no route is missing.
 
 ## WBW-12: banner-copy.json plus a fit test
+
+**Integration status (2026-10-19):** Done as proposed planning data and validators; merged #521 (`7ca624e7`). Do not reopen the same deliverable. Runtime wiring, final landings and playable-map acceptance remain separate.
 
 **Guest:** dot, after WBW-10.
 
@@ -341,6 +349,8 @@ The test also checks that the only way in is from greywash.
 
 ## WBW-15: lowbell.json and lowbell.md
 
+**Integration status (2026-10-19):** Done as proposed planning data and validators; merged #583 (`b972d68c`). Do not reopen the same deliverable. Runtime wiring, final landings and playable-map acceptance remain separate.
+
 **Guest:** Grok, after WBW-13.
 
 Uses the knothollow format. Lowbell is cave 6 in section 2.
@@ -378,6 +388,8 @@ The key test does a BFS from the Trial Road door: with all eight badges and no l
 
 ## WBW-18: dry-boards.json and a loop test
 
+**Integration status (2026-10-19):** Done as proposed planning data and validators; merged #523 (`15a58fa0`). Do not reopen the same deliverable. Runtime wiring, final landings and playable-map acceptance remain separate.
+
 **Guest:** dot, after WBW-16.
 
 The Dry Boards are a passage inside the Long Boards maps that links Pass Foot to the west end of the boards (see section 2, below the Routes table).
@@ -397,7 +409,7 @@ add the edge `hollowecho--answering` to world-graph.json. The cave's mouth is in
 
 The Answering Ways depth layout follow-ups, and the Lampcrown and Greymill maps.
 
-### LB-PAL. Bring Lantern Bowl's palette from 36 colours to 30
+### LB-PAL. Bring Lantern Bowl's palette from 36 colours to 30 (shelved 2026-10-18, do not start)
 
 **Status:** Starts after #505 merges. #505 is Game Art Director's spec pull.
 
@@ -414,7 +426,7 @@ This is the Lantern Bowl launch checklist's palette cap. [launch-lantern-bowl.md
 
 Side Games Dev Lead drafted these on 2026-10-14. Batch 1's rules still apply. #444 has merged, but `games/lantern-bowl/game.js`, `model.js`, `view.js`, `style.css` and `index.html` are still off limits: the wiring is Side Games Dev Lead's. Two rows edit an existing file. LB-G9 edits `sound-cues.js` and its test, and no open pull has them. NM-G3 edits `games/night-market/style.css` and `tests/night-market.html`, and no open pull has those since #456 and #461 merged.
 
-### LB-G9. Crowd bed holds its volume until stop() (LB-FEEL fix, from Reviewer's comment 6183447752 on #474)
+### LB-G9. Crowd bed holds its volume until stop() (LB-FEEL fix, from Reviewer's comment 6183447752 on #474) (shelved 2026-10-18, do not start)
 
 **Status:** Done. Merged as #489. This is the crowd-loop fix. There is no separate LB-G4b row. Do not reopen it.
 
@@ -425,7 +437,7 @@ Side Games Dev Lead drafted these on 2026-10-14. Batch 1's rules still apply. #4
 - **What I wire later:** the crowd bed under each drive in LB-FEEL, started at the snap and stopped at the whistle or on pause.
 - **Dependencies:** none.
 
-### LB-G7. Roster view as a standalone module (LB-MANAGER)
+### LB-G7. Roster view as a standalone module (LB-MANAGER) (shelved 2026-10-18, do not start)
 
 **Status:** Done. Merged as #495. Do not reopen it.
 
@@ -462,7 +474,7 @@ Side Games Dev Lead drafted these on 2026-10-14. Batch 1's rules still apply. #4
 - **What I wire later:** the welcome-back box picks one line from the right band for the stall that earned the most while the player was away. That goes in a Night Market PR of mine.
 - **Dependencies:** none.
 
-### LB-G8. Standings, tiebreakers and the playoff bracket, headless (LB-SEASON)
+### LB-G8. Standings, tiebreakers and the playoff bracket, headless (LB-SEASON) (shelved 2026-10-18, do not start)
 
 **Status:** Done. Merged as #494. Do not reopen it.
 
@@ -475,7 +487,7 @@ Side Games Dev Lead drafted these on 2026-10-14. Batch 1's rules still apply. #4
 - **What I wire later:** the standings board and the playoffs in LB-SEASON. The season save holds the results list, and that save design goes to Evan through Director.
 - **Dependencies:** none. `season.json` is on main.
 
-### LB-G10. Opponent scouting data (LB-SEASON, comparison fix 9 and the "opponents of varied strength" gap)
+### LB-G10. Opponent scouting data (LB-SEASON, comparison fix 9 and the "opponents of varied strength" gap) (shelved 2026-10-18, do not start)
 
 **Status:** Done for this queue. In review as #496. Do not start a second copy.
 
@@ -650,7 +662,7 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 
 ### Grok
 
-### LB-G4. Touchdown fanfare and game-feel sound cues (LB-FEEL)
+### LB-G4. Touchdown fanfare and game-feel sound cues (LB-FEEL) (shelved 2026-10-18, do not start)
 
 **Status:** Done. Merged as #474.
 
@@ -664,7 +676,7 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 - **What I wire later:** in LB-FEEL I turn sound on by default and call these cues on a touchdown, a catch, a tackle, a kick and a first down. Hooking them into the arcade's sound setting may need a small change to `shared/sound.js`. That goes in Side Games Dev Lead's own shared PR, under SSA's rule.
 - **Dependencies:** none.
 
-### LB-G5. Two-tap kick model, headless (LB-FEEL)
+### LB-G5. Two-tap kick model, headless (LB-FEEL) (shelved 2026-10-18, do not start)
 
 **Status:** Done. Merged as #479.
 
@@ -676,7 +688,7 @@ Little Ranch has almost no build row left. #449 merged (`44f49c2c`) and covered 
 - **What I wire later:** after #444 merges, I draw the needle in `game.js` and use `resolve` for field goals and extra points, with touch read from the touch event and the follow-up synthetic click ignored.
 - **Dependencies:** none.
 
-### LB-G6. Between-games dilemma cards (LB-SEASON)
+### LB-G6. Between-games dilemma cards (LB-SEASON) (shelved 2026-10-18, do not start)
 
 **Status:** Done. Merged as #481. Do not reopen it.
 
@@ -729,7 +741,7 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 
 ### dot
 
-### LB-G1. Roster and ratings data for six clubs (LB-MANAGER)
+### LB-G1. Roster and ratings data for six clubs (LB-MANAGER) (shelved 2026-10-18, do not start)
 
 **Status:** Done. Merged as #472.
 
@@ -743,7 +755,7 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 - **What I wire later:** in LB-MANAGER I load the file in place of `baseRoster()`, turn the named line and rushers into real blocking pairs, and show the ratings on the cards. Old saves keep their match, because the save stores the roster it started with.
 - **Dependencies:** none.
 
-### LB-G2. Season schedule and club data, data only (LB-SEASON)
+### LB-G2. Season schedule and club data, data only (LB-SEASON) (shelved 2026-10-18, do not start)
 
 **Status:** Done. Merged as #478.
 
@@ -756,7 +768,7 @@ The 15 current map ids that must be present are `larkhaven`, `thornwood_route`, 
 - **What I wire later:** LB-SEASON builds the league on `shared/sports-office.js`, with standings and playoffs, from this file. That PR changes the save, and its save design goes to Evan through Director first. This row does not.
 - **Dependencies:** none. It shares only the club IDs in this page with LB-G1.
 
-### LB-G3. Player progression table and five-season simulation (LB-SEASON)
+### LB-G3. Player progression table and five-season simulation (LB-SEASON) (shelved 2026-10-18, do not start)
 
 **Status:** Done. Merged as #480. Do not reopen it.
 
@@ -827,11 +839,11 @@ The map data already connects Larkhaven north to the Thornwood route, and that r
 
 ## dot, now
 
-Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499). The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. After that in-progress work, launch games come first: NM-G6, LB-G12, NM-G7 and NM-G10 (after NM-G8 merges). Then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16 and WBW-18. Open priority rows left: 12. LB-G11 and NM-G9 are merged. Do not start a second copy.
+Dot's current task is WBW-5. The draft is #501. Then NM-G3 (#499). The header-grid ruling is https://github.com/ecbarish/generations/issues/373#issuecomment-6184708856. Finish WBW-5 first. After that in-progress work, launch games come first: NM-G6, LB-G12 and NM-G7. Then WBW-8, WBW-10, WBW-12, WBW-14, WBW-16 and WBW-18. Open priority rows left: 11. LB-G11, NM-G9 and NM-G10 are merged. Do not start a second copy.
 
 In review, counted done for this queue, and not a wait: LB-G10 is #496.
 
-Done. Do not reopen these. LB-G11 is #511. NM-G9 is #515. WBW-2 is #490. NM-G2 is #483. LB-G8 is #494. WBW-1 is #485. LB-G3 is #480. LB-G1 is #472. LB-G2 is #478.
+Done. Do not reopen these. NM-G10's phone half is #614 (c34a8b42). LB-G11 is #511. NM-G9 is #515. WBW-2 is #490. NM-G2 is #483. LB-G8 is #494. WBW-1 is #485. LB-G3 is #480. LB-G1 is #472. LB-G2 is #478.
 
 **LB-PLAYBOOK-DATA.** Done. Merged as #451. Do not reopen it. The sentences below are the record of that row. #444 has also merged.
 

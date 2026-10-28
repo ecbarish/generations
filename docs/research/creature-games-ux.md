@@ -1,7 +1,7 @@
 # Creature games: onboarding, battle screens, immersive menus, variants, world ranching (Gemini deep research)
 
 Gemini deep research for Evan, 2026-10-07 (prompt in gemini-prompts.md). Summarised and organised by Claude; the
-lessons we adopt and how they map to Wildbond's phases are in [../wildbond-plan.md](../wildbond-plan.md) ("Lessons
+lessons we adopt and how they map to Wildbond's phases are in ../wildbond-plan.md ("Lessons
 from the research"). Game facts below are as the report states them; treat specific numbers as approximate.
 
 ## 1. The first hour: teach through the world
@@ -47,8 +47,8 @@ from the research"). Game facts below are as the report states them; treat speci
   a document: a licence with your portrait, badges pinned to it.
 
 ## 5. Variants
-- Pokémon shinies (about 1/4096 now) are a palette swap plus a sparkle, yet the ultimate status symbol; Spinda's
-  spots are generated per creature (billions of patterns); sizes (tiny, huge) and regional forms add collecting depth.
+- Pokémon shinies (about 1/4096 now) are a palette swap plus a sparkle, yet the ultimate status symbol; a creature with random spot patterns has
+  spots generated per creature (billions of patterns); sizes (tiny, huge) and regional forms add collecting depth.
 - Temtem **Lumas** glow and announce themselves, and are guaranteed strong stats; breeding two Lumas greatly raises
   the odds. Coromon's Standard/Potent/Perfect tiers come with a scanner to hunt them actively.
 - Cassette Beasts **Bootlegs** change the creature's element entirely, so they play differently.

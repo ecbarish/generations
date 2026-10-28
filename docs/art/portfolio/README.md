@@ -12,7 +12,7 @@ Open [the visual journal](index.html). It starts with the three Wildbond starter
 4. Preview images are derived WebP at up to 768px, each below 300 KB. Original source images are linked, not duplicated. Keep full-size future originals outside Git as the art intake policy requests.
 5. Review history, comparison and life-stage views on phone, desktop and ultrawide. Confirm all original/provenance links, image hashes and approval scope.
 
-The current fire-crown approval is recorded in ../wildbond-higgsfield-pilot/STARTER-STAGES.md. Other family payoffs await approval. Generated rights remain unverified, as in their source packets; these are design references.
+The original approval note moved with the private Wildbond project. Other family payoffs await approval. Generated rights remain unverified, as in their source packets; these are design references.
 
 ## The next chapters
 

@@ -1,5 +1,7 @@
 # Launch checklist: Lantern Bowl
 
+**Shelved (Evan, 2026-10-18).** No new work: Retro Bowl and Super Tiny Football already do this well. This checklist is kept as history. See the PRIORITIES log.
+
 **Owner:** Side Games Dev Lead.
 **Build on main:** v0.1.6. One match at Lamplight Field. The save is `lantern-bowl-save-v1`, file version 2.
 **Ruling:** Evan, 2026-10-14, via the Director. Lantern Bowl is a team manager like Retro Bowl, and better. The approved scope is a franchise season on `shared/sports-office.js`, real blocking set by the line versus the pass rush, per-player ratings from 35 to 90, an expanded playbook with breaking routes, player progression, and a defence choice for each opponent drive. Round 5 still counts: #371, and #383 (5a). #432, the play screen, is merged. On a phone it is landscape-only. Held upright, it shows "Turn your phone sideways", the way ALL-22 does. Portrait shows that prompt and will not get its own layout.

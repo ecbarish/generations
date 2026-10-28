@@ -1,6 +1,0 @@
-# Godot 4: the .godot/ cache is rebuilt on every computer and never committed. The *.import files next to each
-# asset ARE committed (Godot's own advice): they hold the import settings, so every computer and assistant builds
-# the same game. See docs/learning/godot-practices.md.
-.godot/
-export/
-frames/

@@ -39,7 +39,7 @@ Before adding an outside asset or library, record its name, author/copyright, ex
 
 ## Wildbond reference pilot: Higgsfield images (docs only, not in any game)
 
-`docs/art/wildbond-higgsfield-pilot/` holds AI-generated concept references made with Higgsfield in Evan's authorised trial (ART-WB-HF1, PR #274, October 2026): starter turnarounds, prop concepts, evolution portraits and Tidewyrm explorations. Prompts, generation IDs and hashes are recorded beside them. The provider's usage rights have not been verified, so these images are design references only: none ships in a game, and none may be copied into a game until the rights are checked and recorded here.
+The Higgsfield concept references from Evan's authorised trial (ART-WB-HF1, PR #274, October 2026) moved with the private Wildbond project. They are not in this repository. None of those images shipped in a game here.
 
 ## Wildbond (Godot trial): Ninja Adventure asset pack
 
