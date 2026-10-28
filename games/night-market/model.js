@@ -1224,28 +1224,52 @@
     var growth = stallField(state, stallId, 'growth', stall.growth);
     return Idle.bulkCost(base, growth, owned, 1);
   }
+  function ownedSnapshot(state) {
+    return state.stalls.map(function (s) { return s.owned; });
+  }
+  function restoreOwned(state, saved) {
+    saved.forEach(function (n, i) { state.stalls[i].owned = n; });
+  }
+  /* Pretend every stall before i has enough copies to open i, then put the counts back. */
+  function withOpenThrough(state, i, fn) {
+    var saved = ownedSnapshot(state), k, need;
+    for (k = 0; k < i; k++) {
+      need = unlockNeed(state, k + 1);
+      if (state.stalls[k].owned < need) state.stalls[k].owned = need;
+    }
+    var result = fn();
+    restoreOwned(state, saved);
+    return result;
+  }
+  function gateViable(state, stallId) {
+    if (!state.night || !offerRoom(state)) return false;
+    var i = stallIndex(stallId);
+    if (i < 0) return false;
+    return withOpenThrough(state, i, function () {
+      return charmOptions(state, stallId, false).length >= 2;
+    });
+  }
   function nextOfferLine(state) {
     if (!state.night) return 'The next choice waits.';
     if (state.night.offer) return 'A choice is waiting.';
+    if (!offerRoom(state)) return 'No more choices tonight.';
     var moon = stallIndex('mooncake');
     var incense = stallIndex('incense');
-    var plan = charmPlan(state.night.seed), g, id, i, stall, soonest = null, soonestAt = 99, earlierClosed = false;
+    var plan = charmPlan(state.night.seed), g, id, i, soonest = null, soonestAt = 99;
     for (g = 0; g < plan.length; g++) {
       id = plan[g];
       if (state.night.offered.indexOf(id) >= 0) continue;
       i = stallIndex(id);
-      stall = spec(i);
-      if (stall && !unlocked(state, i)) {
-        if (i < moon) earlierClosed = true;
-        if (i < soonestAt) { soonest = stall; soonestAt = i; }
-      }
+      if (i < 0 || unlocked(state, i) || !gateViable(state, id)) continue;
+      if (i < soonestAt) { soonest = spec(i); soonestAt = i; }
     }
-    if (earlierClosed && soonest && soonestAt < moon) return 'The next choice comes when the ' + soonest.name + ' opens, or before the lane is quiet for long.';
-    if (unlocked(state, moon) && state.night.offered.indexOf('mid-mooncake') < 0 && state.stalls[moon].owned < unlockNeed(state, incense)) {
+    if (soonest && soonestAt < moon) return 'The next choice comes when the ' + soonest.name + ' opens.';
+    if (unlocked(state, moon) && state.night.offered.indexOf('mid-mooncake') < 0 && state.stalls[moon].owned < unlockNeed(state, incense) && gateViable(state, 'mooncake')) {
       return 'The next choice comes at ' + midAt(state.night.seed) + ' mooncake tables.';
     }
-    if (soonest) return 'The next choice comes when the ' + soonest.name + ' opens, or before the lane is quiet for long.';
-    return 'The next choice comes before the lane is quiet for long.';
+    if (soonest) return 'The next choice comes when the ' + soonest.name + ' opens.';
+    if (charmOptions(state, lowestStallId(state), false).length >= 2) return 'The next choice comes before the lane is quiet for long.';
+    return 'No more choices tonight.';
   }
   function offerLine(state, charm) {
     if (!charm || !charm.stall) return charm && charm.line ? charm.line : '';
@@ -1316,23 +1340,22 @@
       id = plan[g];
       i = stallIndex(id);
       if (i < 0 || !unlocked(state, i) || state.night.offered.indexOf(id) >= 0) continue;
-      state.night.offered.push(id);
       offer = { kind: 'charm', stall: id, options: charmOptions(state, id, false) };
-      if (pushOffer(state, offer)) added = true;
+      if (!pushOffer(state, offer)) continue;
+      state.night.offered.push(id);
+      added = true;
     }
     var moon = stallIndex('mooncake');
     var incense = stallIndex('incense');
     var at = midAt(state.night.seed);
     if (offerRoom(state) && moon >= 0 && state.stalls[moon].owned >= at && state.stalls[moon].owned < unlockNeed(state, incense) && state.night.offered.indexOf('mid-mooncake') < 0) {
-      state.night.offered.push('mid-mooncake');
       offer = { kind: 'charm', stall: 'mooncake', options: charmOptions(state, 'mooncake', false) };
-      if (pushOffer(state, offer)) added = true;
+      if (pushOffer(state, offer)) { state.night.offered.push('mid-mooncake'); added = true; }
     }
     var mat = STALLS.length - 1;
     if (offerRoom(state) && unlocked(state, mat) && state.stalls[mat].owned === 0 && !(state.night.kept) && state.night.offered.indexOf('mat-wait') < 0 && oneCost(state, 'stories', null) > state.cash) {
-      state.night.offered.push('mat-wait');
       offer = { kind: 'charm', stall: 'stories', options: charmOptions(state, 'stories', false) };
-      if (pushOffer(state, offer)) added = true;
+      if (pushOffer(state, offer)) { state.night.offered.push('mat-wait'); added = true; }
     }
     /* Story Mat growth only changes later mats, so that charm waits until the lane stays open. */
     if (state.night.kept && state.night.offered.indexOf('kept-lane') < 0) {

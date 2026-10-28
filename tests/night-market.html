@@ -462,6 +462,69 @@ document.querySelector('#run').onclick = async function () {
       }
     }
     check('two seeds differ by at least 60 seconds in two stall-open, doubling, or choice times', shapeHits > 0);
+    var capped = M.fresh();
+    capped.night.offer = null;
+    capped.night.offered = ['dumpling', 'lantern', 'mooncake', 'incense'];
+    check('a full night of charm beats says there are no more choices', M.nextOfferLine(capped) === 'No more choices tonight.');
+    function promisedChoices(seed) {
+      var s = M.fresh();
+      M.armNight(s, 1, seed);
+      if (s.night.offer && s.night.offer.kind === 'omen') M.choose(s, 0);
+      s.bulk = 'max';
+      var t = 0, pending = [], problems = [];
+      function satisfy(now) {
+        var offer = s.night.offer;
+        pending.forEach(function (p) {
+          if (p.done) return;
+          if (/quiet for long/.test(p.line) && offer && now - p.at <= 120) p.done = true;
+          if (offer && offer.kind === 'charm') {
+            var stall = null, si;
+            for (si = 0; si < M.STALLS.length; si++) if (M.STALLS[si].id === offer.stall) stall = M.STALLS[si];
+            if (stall && p.line.indexOf(stall.name) >= 0) p.done = true;
+            if (/mooncake tables/.test(p.line) && (offer.stall === 'mooncake' || s.night.offered.indexOf('mid-mooncake') >= 0)) p.done = true;
+          }
+        });
+      }
+      function see(now) {
+        satisfy(now);
+        if (s.night.offer) return;
+        var line = M.nextOfferLine(s);
+        if (line === 'No more choices tonight.' || line === 'A choice is waiting.') return;
+        if (!pending.some(function (p) { return p.line === line; })) pending.push({ line: line, at: now, done: false });
+        pending.forEach(function (p) {
+          if (!p.done && /quiet for long/.test(p.line) && now - p.at > 120) problems.push('seed ' + seed + ' quiet for ' + (now - p.at) + 's');
+        });
+      }
+      while (t < 1700 && !M.dawnDue(s)) {
+        M.elapse(s, 5);
+        if (s.night.offer && s.night.offer.kind === 'charm') { satisfy(t); M.skipOffer(s); }
+        var i;
+        for (i = 0; i < s.stalls.length; i++) {
+          if (!M.unlocked(s, i) || s.stalls[i].hired) continue;
+          if (M.canHire(s, i)) M.hire(s, i);
+          else M.handSell(s, i);
+          break;
+        }
+        s.cash += M.income(s) * 5;
+        s.lifetime += M.income(s) * 5;
+        var pick = M.bestIndex(s);
+        if (!(pick >= 0)) { s.bulk = 1; pick = M.bestIndex(s); s.bulk = 'max'; }
+        if (pick >= 0) {
+          var q = M.quote(s, pick, 'max');
+          if (q.count > 0) M.buyExact(s, pick, q.count);
+        }
+        M.syncOffers(s);
+        if (s.night.offer) satisfy(t);
+        see(t);
+        if (s.night.offer && s.night.offer.kind === 'charm') M.skipOffer(s);
+        t += 5;
+      }
+      pending.forEach(function (p) { if (!p.done) problems.push('seed ' + seed + ' never got "' + p.line + '"'); });
+      return problems;
+    }
+    var promiseProblems = [];
+    for (var promiseSeed = 1; promiseSeed <= 5; promiseSeed++) promiseProblems = promiseProblems.concat(promisedChoices(promiseSeed));
+    check(promiseProblems.length ? 'a promised choice never came: ' + promiseProblems.slice(0, 4).join(' | ') : 'on seeds 1 to 5 every promised next choice arrives, or the line says there are none', promiseProblems.length === 0);
     var teaOnly = M.fresh();
     teaOnly.stalls[0].hired = true;
     teaOnly.stalls[0].owned = 10;
@@ -530,7 +593,7 @@ document.querySelector('#run').onclick = async function () {
     waiting.night.offer = null;
     M.syncOffers(waiting);
     check('saving for the Story Mat offers a choice',
-      waiting.night.offered.indexOf('mat-wait') >= 0 && waiting.night.offer && waiting.night.offer.options.length >= 2);
+      waiting.night.offer && waiting.night.offer.kind === 'charm' && waiting.night.offer.options.length >= 2);
     var bo = M.fresh();
     bo.night.charms = ['bo-queue'];
     bo.stalls[1].hired = true;
@@ -1033,6 +1096,15 @@ document.querySelector('#run').onclick = async function () {
     w.NightMarket.armNight(w.__nightMarket.state, 1, 1);
     w.__nightMarket.render();
     check('a new market has no welcome back', d.querySelector('#away').hidden && /Hold to pour/.test(d.querySelector('#goal').textContent) && /25 more cups/.test(d.querySelector('#goal').textContent));
+    var bookBtn = d.querySelector('#open-book');
+    var bookBox = bookBtn.getBoundingClientRect();
+    check('the Lantern Book is a visible button on the night, not only inside Your save',
+      bookBtn && bookBtn.textContent === 'Lantern Book' && !bookBtn.hidden && bookBtn.offsetParent &&
+      bookBox.width > 20 && bookBox.height >= 32 && !bookBtn.closest('details.save') && d.querySelector('#finale').hidden);
+    var buyHelp = d.querySelector('#bulk-help');
+    check('the buying row explains 1, 10, Max and Next',
+      buyHelp && !buyHelp.hidden && /1 is one copy/.test(buyHelp.textContent) && /10 is ten/.test(buyHelp.textContent) &&
+      /Max avoids a slow copy/.test(buyHelp.textContent) && /Next stops at the next doubling/.test(buyHelp.textContent));
     async function countPx(width, height) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px';
       await new Promise(function (r) { setTimeout(r, 80); });
@@ -1210,6 +1282,8 @@ document.querySelector('#run').onclick = async function () {
     freshHook.render();
     var lanternBtn = d.querySelector('#stalls [data-i="2"] [data-act="buy"]');
     check('a lantern you cannot afford is not labelled as a purchase', lanternBtn.disabled && lanternBtn.textContent === 'Buy 1 · ' + w.Arcade.fmt(lanternPrice) + ' coins');
+    check('a buy you cannot afford says how many coins are still needed',
+      /Need /.test(d.querySelector('#stalls [data-i="2"] .need').textContent) && /more\./.test(d.querySelector('#stalls [data-i="2"] .need').textContent));
     lanternBtn.click();
     check('that click does not spend the coins or add a lantern', freshHook.state.cash === lanternPrice - 1 && freshHook.state.stalls[2].owned === 0);
     freshHook.state.cash = lanternPrice;
