@@ -16,7 +16,7 @@ Playtester scores every week. The lowest-scoring part becomes the next task. Fin
 | No crashes and no broken saves | **LRL-4** | Pass 2 had no page error. The visit itself is not saved. Only the sound preference is stored (`little-ranch-settings-v1`). A reload check is still missing. 2026-10-14: the automated reload check passed on desktop and on an iPhone 12 held upright and sideways. Waiting for Playtester or Evan to confirm |
 | Plays well on a phone | **LRL-3** | **LRL-11.** The phone layout still needs a playtest. Owner: Playtester |
 | One clear goal | **LRL-1** | Done in #417 (`e352a7b`). The visit shows one day and then bedtime |
-| Known bugs are fixed | **LRL-5** | The layout row is done (#424, `e66ddbc`). **LR-POLISH** still has the dough dots, the fox, and the sign wiggle, plus three non-blocking notes from the #417 pass |
+| Known bugs are fixed | **LRL-5** | Done in #613 (`98ee40f6`), Little Ranch v0.19.2. This is the fix for the known bugs on the toy pack. The layout row was already done (#424, `e66ddbc`). LRL-2, LRL-3 and LRL-4 still need Playtester |
 
 ## Finished means
 
