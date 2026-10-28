@@ -1,0 +1,709 @@
+{
+  "schemaVersion": 1,
+  "source": "docs/plans/wildbond-world-design.md (section 2, \"Towns (10)\"; the doors and pads in section 5; the interior count in section 5)",
+  "status": "Everything marked proposed is a proposal in the design. It is not canon until the town phase (WB-WORLD-1) is accepted and the lines are recorded.",
+  "rule": {
+    "maxRouteStepsToHealer": 3,
+    "steps": "A step is one link in world-graph.json. A route node one link from a town is 1 step. A place is walkable when it can be reached from a town without a link gated by Tide Ride; places that need Tide Ride are counted only when Tide Ride is learned."
+  },
+  "shelfGoods": {
+    "lures": {
+      "bundle": 5,
+      "cost": 50,
+      "source": "wildbond-godot/scripts/main.gd, Juniper's shop: 5 lures for 50 coins"
+    },
+    "berries": {
+      "bundle": 5,
+      "unitCost": 3,
+      "cost": 15,
+      "source": "wildbond.json FOODS.berries.cost (3) times 5, as Juniper's shop prices it"
+    }
+  },
+  "shelfKinds": {
+    "existing": "Juniper's shop today.",
+    "short": "A new keeper's short shelf of lures and berries only. The design does not say how many bundles it holds or how it differs from the full shop; the dev lead decides.",
+    "full": "Colm's shop. The design calls it the only new full shop and does not list its goods; this file records the same two goods as Juniper's and nothing else."
+  },
+  "towns": [
+    {
+      "id": "larkhaven",
+      "name": "Larkhaven",
+      "graphNode": "larkhaven",
+      "status": "exists",
+      "currentMap": "larkhaven",
+      "where": "Exists. Unchanged.",
+      "healer": {
+        "id": "ned",
+        "name": "Old Ned",
+        "status": "exists",
+        "room": "inn",
+        "restsTeam": true,
+        "cost": 0
+      },
+      "rooms": [
+        {
+          "id": "inn",
+          "name": "The Larkhaven Inn",
+          "kind": "healer",
+          "status": "exists",
+          "door": {
+            "size": null
+          },
+          "designMention": "Larkhaven",
+          "mapDoor": [
+            4,
+            4
+          ],
+          "pad": "2x2",
+          "keeper": "ned"
+        },
+        {
+          "id": "shop",
+          "name": "Juniper's Shop",
+          "kind": "shop",
+          "status": "exists",
+          "door": {
+            "size": null
+          },
+          "designMention": "Juniper",
+          "mapDoor": [
+            18,
+            4
+          ],
+          "keeper": "juniper"
+        },
+        {
+          "id": "pip_home",
+          "name": "Pip's home",
+          "kind": "home",
+          "status": "exists",
+          "door": {
+            "size": null
+          },
+          "designMention": "Mira",
+          "keeper": "pip_mum",
+          "note": "Mira, Pip's mum. No counter."
+        },
+        {
+          "id": "gran_home",
+          "name": "Nora's cottage",
+          "kind": "home",
+          "status": "exists",
+          "door": {
+            "size": null
+          },
+          "designMention": "Nora",
+          "keeper": "pip_gran",
+          "note": "Nora, Pip's gran. No counter."
+        },
+        {
+          "id": "barn",
+          "name": "Maren's barn",
+          "kind": "barn",
+          "status": "exists",
+          "door": {
+            "size": "16x26"
+          },
+          "designMention": "Maren's barn",
+          "mapDoor": [
+            7,
+            10
+          ],
+          "keeper": "maren",
+          "note": "Already the tall doors. Not a new building."
+        }
+      ],
+      "outdoor": [
+        {
+          "id": "maren",
+          "name": "Maren",
+          "status": "exists",
+          "where": "larkhaven",
+          "source": "game",
+          "note": "Outside her barn today (wildbond.json MAPS larkhaven npcs). The design does not name outdoor people for Larkhaven."
+        },
+        {
+          "id": "pip",
+          "name": "Pip",
+          "status": "exists",
+          "where": "larkhaven",
+          "source": "game",
+          "note": "On the lane today (wildbond.json MAPS larkhaven npcs)."
+        }
+      ],
+      "shelf": {
+        "keeper": "juniper",
+        "kind": "existing",
+        "status": "exists",
+        "room": "shop",
+        "goods": [
+          "lures",
+          "berries"
+        ]
+      },
+      "source": "Towns (10), Larkhaven row"
+    },
+    {
+      "id": "thornwood",
+      "name": "Thornwood",
+      "graphNode": "thornwood",
+      "status": "exists",
+      "currentMap": "thornwood",
+      "where": "The existing settlement gains the Gate Loft.",
+      "healer": {
+        "id": "hedda",
+        "name": "Hedda",
+        "status": "proposed",
+        "room": "gate_loft",
+        "restsTeam": true,
+        "cost": 0
+      },
+      "rooms": [
+        {
+          "id": "gate_loft",
+          "name": "The Gate Loft",
+          "kind": "healer",
+          "status": "proposed",
+          "door": {
+            "size": "12x24"
+          },
+          "designMention": "Gate Loft",
+          "pad": "2x2",
+          "keeper": "hedda",
+          "note": "A loft over the gate path."
+        }
+      ],
+      "outdoor": [
+        {
+          "id": "isolde",
+          "name": "Isolde",
+          "status": "exists",
+          "where": "thornwood",
+          "note": "Stays at the hawthorn gate."
+        }
+      ],
+      "shelf": {
+        "keeper": "hedda",
+        "kind": "short",
+        "status": "proposed",
+        "room": "gate_loft",
+        "goods": [
+          "lures",
+          "berries"
+        ]
+      },
+      "source": "Towns (10), Thornwood row"
+    },
+    {
+      "id": "lanternquay",
+      "name": "Lantern Quay",
+      "graphNode": "lanternquay",
+      "status": "new",
+      "currentMap": null,
+      "where": "New, at the end of Wrackline.",
+      "healer": {
+        "id": "perrin",
+        "name": "Perrin",
+        "status": "proposed",
+        "room": "quay_inn",
+        "restsTeam": true,
+        "cost": 0
+      },
+      "rooms": [
+        {
+          "id": "quay_inn",
+          "name": "The quay inn",
+          "kind": "healer",
+          "status": "proposed",
+          "door": {
+            "size": "12x24"
+          },
+          "designMention": "quay inn",
+          "pad": "2x2",
+          "keeper": "perrin",
+          "note": "Under the lighthouse. A cottage with a blue door (the Water light #8cc0d4), so it is not Juniper's shop and not the barn. Perrin's counter faces the door."
+        },
+        {
+          "id": "net_loft",
+          "name": "The net loft",
+          "kind": "other",
+          "status": "proposed",
+          "door": {
+            "size": "12x24"
+          },
+          "designMention": "net loft",
+          "note": "No keeper or person is named for it in the design."
+        }
+      ],
+      "outdoor": [
+        {
+          "id": "marit",
+          "name": "Marit",
+          "status": "exists",
+          "where": "lanternquay",
+          "note": "Stays outside. Her map today is the coast (saltmarsh)."
+        },
+        {
+          "id": "cato",
+          "name": "Cato",
+          "status": "exists",
+          "where": "lanternquay",
+          "note": "Stays outside. His map today is the coast (saltmarsh)."
+        },
+        {
+          "id": "tobin",
+          "name": "Tobin",
+          "status": "exists",
+          "where": "saltmarsh_route",
+          "note": "Stays on Saltmarsh Road."
+        }
+      ],
+      "shelf": {
+        "keeper": "perrin",
+        "kind": "short",
+        "status": "proposed",
+        "room": "quay_inn",
+        "goods": [
+          "lures",
+          "berries"
+        ]
+      },
+      "source": "Towns (10), Lantern Quay row"
+    },
+    {
+      "id": "emberfall",
+      "name": "Warmstep",
+      "graphNode": "emberfall",
+      "status": "exists",
+      "currentMap": "emberfall",
+      "where": "The existing highland screen, at the springs. It keeps the map id emberfall.",
+      "healer": {
+        "id": "hest",
+        "name": "Hest",
+        "status": "proposed",
+        "room": "spring_house",
+        "restsTeam": true,
+        "cost": 0
+      },
+      "rooms": [
+        {
+          "id": "spring_house",
+          "name": "The spring-house",
+          "kind": "healer",
+          "status": "proposed",
+          "door": {
+            "size": "12x24"
+          },
+          "designMention": "spring-house",
+          "pad": "3x2",
+          "keeper": "hest",
+          "note": "Hearthcrown's pad is 3x2 tiles on the terrace."
+        }
+      ],
+      "outdoor": [
+        {
+          "id": "sela",
+          "name": "Sela",
+          "status": "exists",
+          "where": "emberfall",
+          "note": "Stays on the path outside."
+        },
+        {
+          "id": "toren",
+          "name": "Toren",
+          "status": "exists",
+          "where": "emberfall",
+          "note": "Stays above the springs."
+        }
+      ],
+      "shelf": {
+        "keeper": "hest",
+        "kind": "short",
+        "status": "proposed",
+        "room": "spring_house",
+        "goods": [
+          "lures",
+          "berries"
+        ]
+      },
+      "source": "Towns (10), Warmstep row"
+    },
+    {
+      "id": "cloudglass",
+      "name": "Highlatch",
+      "graphNode": "cloudglass",
+      "status": "exists",
+      "currentMap": "cloudglass",
+      "where": "The existing pass, at Vessa's shelter. It keeps the map id cloudglass.",
+      "healer": {
+        "id": "yarrow",
+        "name": "Yarrow",
+        "status": "proposed",
+        "room": "lodge",
+        "restsTeam": true,
+        "cost": 0
+      },
+      "rooms": [
+        {
+          "id": "lodge",
+          "name": "The lodge",
+          "kind": "healer",
+          "status": "proposed",
+          "door": {
+            "size": "12x24"
+          },
+          "designMention": "lodge",
+          "pad": "2x2",
+          "keeper": "yarrow",
+          "note": "The lodge kitchen."
+        }
+      ],
+      "outdoor": [
+        {
+          "id": "vessa",
+          "name": "Vessa",
+          "status": "exists",
+          "where": "cloudglass",
+          "note": "Stays on the rope."
+        },
+        {
+          "id": "ilka",
+          "name": "Ilka",
+          "status": "exists",
+          "where": "cloudglass",
+          "note": "Stays at the door."
+        }
+      ],
+      "shelf": {
+        "keeper": "yarrow",
+        "kind": "short",
+        "status": "proposed",
+        "room": "lodge",
+        "goods": [
+          "lures",
+          "berries"
+        ]
+      },
+      "source": "Towns (10), Highlatch row"
+    },
+    {
+      "id": "stillreed",
+      "name": "Reedhold",
+      "graphNode": "stillreed",
+      "status": "exists",
+      "currentMap": "stillreed",
+      "where": "The existing basin landing. This is the hub. It keeps the map id stillreed.",
+      "healer": {
+        "id": "juna",
+        "name": "Juna",
+        "status": "proposed",
+        "room": "boathouse_inn",
+        "restsTeam": true,
+        "cost": 0
+      },
+      "rooms": [
+        {
+          "id": "boathouse_inn",
+          "name": "Juna's boathouse inn",
+          "kind": "healer",
+          "status": "proposed",
+          "door": {
+            "size": "20x24"
+          },
+          "designMention": "Juna",
+          "pad": "2x2",
+          "keeper": "juna",
+          "note": "Wider than a cottage, still 24px tall. Stillwake's pad is on the jetty."
+        },
+        {
+          "id": "colms_shop",
+          "name": "Colm's dry-goods shop",
+          "kind": "shop",
+          "status": "proposed",
+          "door": {
+            "size": "12x24"
+          },
+          "designMention": "Colm's dry-goods shop",
+          "keeper": "colm",
+          "note": "Proposed. The only new full shop."
+        },
+        {
+          "id": "ferry_house",
+          "name": "The ferry house",
+          "kind": "other",
+          "status": "proposed",
+          "door": {
+            "size": "12x24"
+          },
+          "designMention": "ferry house",
+          "note": "No keeper or person is named for it in the design."
+        }
+      ],
+      "outdoor": [
+        {
+          "id": "olan",
+          "name": "Olan",
+          "status": "exists",
+          "where": "stillreed",
+          "note": "Stays at the landing."
+        },
+        {
+          "id": "tavil",
+          "name": "Tavil",
+          "status": "exists",
+          "where": "stillreed",
+          "note": "Stays with the ropes."
+        },
+        {
+          "id": "evren",
+          "name": "Evren",
+          "status": "exists",
+          "where": "stillreed",
+          "note": "Stays in the orchard."
+        }
+      ],
+      "features": [
+        {
+          "id": "skiff",
+          "kind": "scenery",
+          "note": "The skiff stays scenery."
+        }
+      ],
+      "shelf": {
+        "keeper": "colm",
+        "kind": "full",
+        "status": "proposed",
+        "room": "colms_shop",
+        "goods": [
+          "lures",
+          "berries"
+        ]
+      },
+      "extraKeepers": [
+        {
+          "id": "colm",
+          "name": "Colm",
+          "status": "proposed",
+          "room": "colms_shop"
+        }
+      ],
+      "source": "Towns (10), Reedhold row"
+    },
+    {
+      "id": "hollowecho",
+      "name": "Bellstep",
+      "graphNode": "hollowecho",
+      "status": "exists",
+      "currentMap": "hollowecho",
+      "where": "The existing hamlet. It keeps the map id hollowecho.",
+      "healer": {
+        "id": "iren",
+        "name": "Iren",
+        "status": "proposed",
+        "room": "bell_house",
+        "restsTeam": true,
+        "cost": 0
+      },
+      "rooms": [
+        {
+          "id": "bell_house",
+          "name": "The bell house",
+          "kind": "healer",
+          "status": "proposed",
+          "door": {
+            "size": "12x24"
+          },
+          "designMention": "bell house",
+          "pad": "2x2",
+          "keeper": "iren",
+          "note": "Inside the bell house that is already drawn, on the footprint main.gd buildings() already has."
+        }
+      ],
+      "outdoor": [
+        {
+          "id": "veslin",
+          "name": "Veslin",
+          "status": "exists",
+          "where": "hollowecho",
+          "note": "Stays with the bell rope outside."
+        },
+        {
+          "id": "senna",
+          "name": "Senna",
+          "status": "exists",
+          "where": "hollowecho",
+          "note": "Stays by the resting stones."
+        }
+      ],
+      "shelf": {
+        "keeper": "iren",
+        "kind": "short",
+        "status": "proposed",
+        "room": "bell_house",
+        "goods": [
+          "lures",
+          "berries"
+        ]
+      },
+      "source": "Towns (10), Bellstep row"
+    },
+    {
+      "id": "sunthread",
+      "name": "Threadmeet",
+      "graphNode": "sunthread",
+      "status": "exists",
+      "currentMap": "sunthread",
+      "where": "The existing commons, at the hall that is already drawn. It keeps the map id sunthread.",
+      "healer": {
+        "id": "solla",
+        "name": "Solla",
+        "status": "proposed",
+        "room": "meeting_hall",
+        "restsTeam": true,
+        "cost": 0
+      },
+      "rooms": [
+        {
+          "id": "meeting_hall",
+          "name": "The meeting hall",
+          "kind": "healer",
+          "status": "proposed",
+          "door": {
+            "size": "24x24"
+          },
+          "designMention": "hall",
+          "pad": "2x2",
+          "keeper": "solla",
+          "note": "A pair of doors, the wide opening, on the hall footprint."
+        }
+      ],
+      "outdoor": [
+        {
+          "id": "halen",
+          "name": "Halen",
+          "status": "exists",
+          "where": "sunthread",
+          "note": "Stays on the forecourt."
+        }
+      ],
+      "features": [
+        {
+          "id": "pell_counter",
+          "kind": "counter",
+          "inRoom": "meeting_hall",
+          "person": "pell",
+          "note": "Pell's stall becomes a counter you walk up to. Still Pell, still not a coin shop."
+        }
+      ],
+      "shelf": {
+        "keeper": "solla",
+        "kind": "short",
+        "status": "proposed",
+        "room": "meeting_hall",
+        "goods": [
+          "lures",
+          "berries"
+        ]
+      },
+      "source": "Towns (10), Threadmeet row"
+    },
+    {
+      "id": "farwatch",
+      "name": "The High Watch",
+      "graphNode": "farwatch",
+      "status": "exists",
+      "currentMap": "farwatch",
+      "where": "The existing reach, at the ledger house. It keeps the map id farwatch.",
+      "healer": {
+        "id": "quen",
+        "name": "Quen",
+        "status": "proposed",
+        "room": "ledger_house",
+        "restsTeam": true,
+        "cost": 0
+      },
+      "rooms": [
+        {
+          "id": "ledger_house",
+          "name": "The ledger house",
+          "kind": "healer",
+          "status": "proposed",
+          "door": {
+            "size": "12x24"
+          },
+          "designMention": "ledger house",
+          "pad": "2x2",
+          "keeper": "quen"
+        }
+      ],
+      "outdoor": [
+        {
+          "id": "sivren",
+          "name": "Sivren",
+          "status": "exists",
+          "where": "farwatch",
+          "note": "Stays on the harbor path."
+        },
+        {
+          "id": "rysa",
+          "name": "Rysa",
+          "status": "exists",
+          "where": "farwatch",
+          "note": "Stays at the lookout."
+        },
+        {
+          "id": "delka",
+          "name": "Delka",
+          "status": "exists",
+          "where": "farwatch",
+          "note": "Stays on the trail."
+        }
+      ],
+      "shelf": {
+        "keeper": "quen",
+        "kind": "short",
+        "status": "proposed",
+        "room": "ledger_house",
+        "goods": [
+          "lures",
+          "berries"
+        ]
+      },
+      "source": "Towns (10), The High Watch row"
+    },
+    {
+      "id": "league",
+      "name": "Returning Light League",
+      "graphNode": "league",
+      "status": "exists",
+      "currentMap": "league",
+      "where": "Exists.",
+      "healer": {
+        "id": "nelva",
+        "name": "Nelva",
+        "status": "exists",
+        "room": "league_rest",
+        "restsTeam": true,
+        "cost": 0
+      },
+      "rooms": [
+        {
+          "id": "league_rest",
+          "name": "Nelva's league rest",
+          "kind": "healer",
+          "status": "exists",
+          "door": {
+            "size": null
+          },
+          "designMention": "Nelva",
+          "pad": "2x2",
+          "keeper": "nelva",
+          "note": "Nelva is already the league keeper. The courts stay the courts."
+        }
+      ],
+      "outdoor": [],
+      "shelf": null,
+      "source": "Towns (10), Returning Light League row"
+    }
+  ]
+}
