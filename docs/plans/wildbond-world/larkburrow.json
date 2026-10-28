@@ -1,0 +1,188 @@
+{
+  "id": "larkburrow",
+  "map": {
+    "name": "Larkburrow",
+    "biome": "thornwood",
+    "start": [
+      2,
+      5,
+      "right"
+    ],
+    "rows": [
+      "############################",
+      "############################",
+      "#..........######........###",
+      "#....#.....######...#....###",
+      "W..........................E",
+      "W..........................E",
+      "W..........................E",
+      "#.....#....######....#...###",
+      "#..........######........###",
+      "############################",
+      "############################"
+    ],
+    "exits": {
+      "W": {
+        "to": "millgrass",
+        "x": null,
+        "y": null,
+        "dir": null,
+        "landing": "planned"
+      },
+      "E": {
+        "to": "sunthread",
+        "x": null,
+        "y": null,
+        "dir": null,
+        "landing": "planned"
+      }
+    },
+    "signs": {},
+    "items": [],
+    "wild": []
+  },
+  "gates": [
+    {
+      "id": "far-door-stone",
+      "gate": "larkburrow--sunthread:field:stone",
+      "kind": "field",
+      "key": "field:stone",
+      "at": [
+        [
+          14,
+          4
+        ],
+        [
+          14,
+          5
+        ],
+        [
+          14,
+          6
+        ]
+      ],
+      "beyond": [
+        18,
+        5
+      ]
+    },
+    {
+      "id": "far-door-loom",
+      "gate": "larkburrow--sunthread:loom",
+      "kind": "badge",
+      "key": "loom",
+      "at": [
+        [
+          14,
+          4
+        ],
+        [
+          14,
+          5
+        ],
+        [
+          14,
+          6
+        ]
+      ],
+      "beyond": [
+        18,
+        5
+      ]
+    }
+  ],
+  "zones": [
+    {
+      "id": "first-room",
+      "kind": "open",
+      "rects": [
+        [
+          1,
+          2,
+          10,
+          7
+        ],
+        [
+          11,
+          4,
+          3,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "through-path",
+      "kind": "late",
+      "rects": [
+        [
+          15,
+          4,
+          2,
+          3
+        ],
+        [
+          17,
+          2,
+          8,
+          7
+        ],
+        [
+          25,
+          4,
+          2,
+          3
+        ]
+      ]
+    }
+  ],
+  "markers": [
+    {
+      "id": "wooden-bird",
+      "kind": "prop",
+      "quest": "sq-nora-bird",
+      "object": "wooden bird",
+      "at": [
+        9,
+        2
+      ]
+    }
+  ],
+  "layout": {
+    "mouth_px": [
+      48,
+      48
+    ],
+    "ceiling_px": 48,
+    "mounts_allowed": true,
+    "mouths": {
+      "W": [
+        0,
+        4
+      ],
+      "E": [
+        27,
+        4
+      ]
+    }
+  },
+  "integration": {
+    "status": "unresolved_landings",
+    "destinations": [
+      "millgrass",
+      "sunthread"
+    ],
+    "visible_from_phase": 1,
+    "opens_phase": 6,
+    "incoming_requirements": {
+      "millgrass": {},
+      "sunthread": {
+        "fields": [
+          "field:stone"
+        ],
+        "badges": [
+          "loom"
+        ]
+      }
+    }
+  }
+}
