@@ -113,44 +113,44 @@
   /* One night, one seed. Omens and charms replace a price, a rate, an unlock, a hire
      count, a milestone list, or the away box. They do not add a multiplier. */
   var OMENS = [
-    { id: 'rain', name: 'Rain', line: 'Rain. The first lantern stand costs 770 coins instead of 700, and each tea stall earns 0.5 coins a second instead of 0.45.',
-      set: { lantern: { base: 770 }, tea: { rate: 0.5 } } },
-    { id: 'ferry', name: 'Ferry crowd', line: 'Ferry crowd. While you\'re away, stalls earn 75% instead of half, but the box fills in 2 hours instead of 4.',
-      set: { offlineRate: 0.75, offlineCap: 2 * 3600 } },
-    { id: 'wick', name: 'Short wick', line: 'Short wick. The first Story Mat costs 1,760,000 coins instead of 2,200,000.',
-      set: { stories: { base: 1760000 } } },
-    { id: 'mooncake', name: 'Mooncake festival', line: 'Mooncake festival. Qiao opens at 6 lantern stands instead of 10.',
-      set: { mooncake: { unlockAt: 6 } } },
-    { id: 'alley', name: 'Quiet alley', line: 'Quiet alley. Ren opens at 14 mooncake tables instead of 12, and the first tray costs 77,000 coins instead of 70,000.',
-      set: { incense: { unlockAt: 14, base: 77000 } } },
-    { id: 'pour', name: 'Long pour', line: 'Long pour. Mei wants 30 cups instead of 25 before she takes over, and the first tea stall costs 5 coins instead of 6.',
-      set: { tea: { serves: 30, base: 5 } } }
+    { id: 'rain', name: 'Rain', line: 'Rain. Tea 0.45 to 0.52 a second. Lanterns cost 10% more, 700 to 770.',
+      set: { tea: { rate: 0.52 }, lantern: { base: 770 } } },
+    { id: 'ferry', name: 'Ferry crowd', line: 'Ferry crowd. Dumplings 0.9 to 1.05 a second. Mooncakes cost 15% more. Away pay is 75% for 2 hours instead of half for 4.',
+      set: { dumpling: { rate: 1.05 }, mooncake: { base: 7360 }, offlineRate: 0.75, offlineCap: 2 * 3600 } },
+    { id: 'wick', name: 'Short wick', line: 'Short wick. The Story Mat costs 20% less, 2,200,000 to 1,760,000. Incense 540 to 460 a second.',
+      set: { stories: { base: 1760000 }, incense: { rate: 460 } } },
+    { id: 'mooncake', name: 'Mooncake festival', line: 'Mooncake festival. Qiao opens at 6 lantern stands instead of 10. Mooncakes 40 to 34 a second.',
+      set: { mooncake: { unlockAt: 6, rate: 34 } } },
+    { id: 'alley', name: 'Quiet alley', line: 'Quiet alley. Trays cost 10% more, 70,000 to 77,000, and wait for 14 tables instead of 12. Tea stalls cost 6 to 5.',
+      set: { incense: { unlockAt: 14, base: 77000 }, tea: { base: 5 } } },
+    { id: 'pour', name: 'Long pour', line: 'Long pour. Mei wants 30 cups instead of 25. Tea 0.45 to 0.52 a second once she has the stall.',
+      set: { tea: { serves: 30, rate: 0.52 } } }
   ];
   var CHARMS = [
-    { id: 'mei-regulars', name: "Mei's regulars", stall: 'tea', line: "Mei's regulars. The first tea stall costs 5 coins instead of 6.",
+    { id: 'mei-regulars', name: "Mei's regulars", stall: 'tea', line: "Mei's regulars. Tea stalls cost about 17% less from now on. 6 to 5 coins.",
       set: { tea: { base: 5 } } },
-    { id: 'bo-queue', name: "Bo's queue", stall: 'dumpling', line: "Bo's queue. Dumplings first double at 22 carts instead of 25.",
+    { id: 'bo-queue', name: "Bo's queue", stall: 'dumpling', line: "Bo's queue. Dumplings double at 22 carts instead of 25.",
       set: { dumpling: { milestones: [22, 50, 100, 150, 200, 300, 400] } } },
-    { id: 'an-paper', name: "An's paper", stall: 'lantern', line: "An's paper. Each lantern stand costs 6.5% more than the last, instead of 7%.",
-      set: { lantern: { growth: 1.065 } } },
-    { id: 'qiao-moulds', name: "Qiao's moulds", stall: 'mooncake', line: "Qiao's moulds. Each mooncake table costs 4% more than the last, instead of 5%.",
-      set: { mooncake: { growth: 1.04 } } },
-    { id: 'ren-sticks', name: "Ren's sticks", stall: 'incense', line: "Ren's sticks. The first tray costs 63,000 coins instead of 70,000.",
+    { id: 'an-paper', name: "An's paper", stall: 'lantern', line: "An's paper. Lanterns 5 to 6 a second.",
+      set: { lantern: { rate: 6 } } },
+    { id: 'qiao-moulds', name: "Qiao's moulds", stall: 'mooncake', line: "Qiao's moulds. Mooncakes 40 to 48 a second.",
+      set: { mooncake: { rate: 48 } } },
+    { id: 'ren-sticks', name: "Ren's sticks", stall: 'incense', line: "Ren's sticks. Incense trays cost about 10% less from now on. 70,000 to 63,000.",
       set: { incense: { base: 63000 } } },
-    { id: 'wen-discount', name: "Wen's discount", stall: 'stories', line: "Wen's discount. The first Story Mat costs 2,000,000 coins instead of 2,200,000.",
+    { id: 'wen-discount', name: "Wen's discount", stall: 'stories', line: "Wen's discount. Story Mats cost about 9% less from now on. 2,200,000 to 2,000,000.",
       set: { stories: { base: 2000000 } } },
-    { id: 'mei-quick', name: "Mei's quick pour", stall: 'tea', line: "Mei's quick pour. Each tea stall earns 0.5 coins a second instead of 0.45, before bonuses.",
-      set: { tea: { rate: 0.5 } } },
-    { id: 'bo-steam', name: "Bo's steam", stall: 'dumpling', line: "Bo's steam. Each dumpling cart earns 1 coin a second instead of 0.9, before bonuses.",
-      set: { dumpling: { rate: 1 } } },
-    { id: 'an-offcuts', name: "An's offcuts", stall: 'lantern', line: "An's offcuts. The first lantern stand costs 640 coins instead of 700.",
+    { id: 'mei-quick', name: "Mei's quick pour", stall: 'tea', line: "Mei's quick pour. Tea 0.45 to 0.54 a second, before bonuses.",
+      set: { tea: { rate: 0.54 } } },
+    { id: 'bo-steam', name: "Bo's steam", stall: 'dumpling', line: "Bo's steam. Dumplings 0.9 to 1.08 a second, before bonuses.",
+      set: { dumpling: { rate: 1.08 } } },
+    { id: 'an-offcuts', name: "An's offcuts", stall: 'lantern', line: "An's offcuts. Lantern stands cost about 9% less from now on. 700 to 640.",
       set: { lantern: { base: 640 } } },
-    { id: 'qiao-early', name: 'Qiao comes early', stall: 'mooncake', line: 'Qiao comes early. Qiao opens at 8 lantern stands instead of 10.',
+    { id: 'qiao-early', name: 'Qiao comes early', stall: 'mooncake', line: 'Qiao comes early. Mooncakes open at 8 lantern stands instead of 10.',
       set: { mooncake: { unlockAt: 8 } } },
-    { id: 'ren-early', name: 'Ren comes early', stall: 'incense', line: 'Ren comes early. Ren opens at 10 mooncake tables instead of 12.',
+    { id: 'ren-early', name: 'Ren comes early', stall: 'incense', line: 'Ren comes early. Incense opens at 10 mooncake tables instead of 12.',
       set: { incense: { unlockAt: 10 } } },
-    { id: 'wen-patient', name: "Wen's patience", stall: 'stories', line: "Wen's patience. Each Story Mat after the first costs 32% more than the last, instead of 36%.",
-      set: { stories: { growth: 1.32 } } }
+    { id: 'wen-patient', name: "Wen's patience", stall: 'stories', line: "Wen's patience. Later Story Mats cost 20% more each, instead of 36%.",
+      set: { stories: { growth: 1.2 } } }
   ];
   var CHARM_GATES = ['dumpling', 'lantern', 'mooncake', 'incense', 'stories'];
   var POOL_START = 6;
@@ -249,27 +249,40 @@
     }
     return STALLS[best].id;
   }
+  function charmUseful(state, charm) {
+    if (!charm || !charm.set || !charm.stall) return false;
+    var patch = charm.set[charm.stall];
+    if (!patch) return false;
+    var i = stallIndex(charm.stall);
+    var owned = state.stalls[i] ? state.stalls[i].owned : 0;
+    if (patch.unlockAt != null) return owned === 0 && !unlocked(state, i);
+    /* Bo's queue moves the first doubling from 25 to 22. It still changes the row until 25. */
+    if (patch.milestones) return owned < STALL_MILESTONES[0];
+    if (patch.growth != null && charm.stall === 'stories') return !!(state.night && state.night.kept);
+    return true;
+  }
   function charmOptions(state, stallId, reroll) {
     var salt = (stallIndex(stallId) + 1) + (reroll ? 17 : 0) + state.night.charms.length * 31;
-    var options = drawIds(poolRows(state), 3, lcg((state.night.seed + salt * 997) >>> 0), state.night.charms);
-    var low = lowestStallId(state);
-    var rows = poolRows(state);
-    var good = null, i;
-    for (i = 0; i < rows.length; i++) {
-      if (rows[i].stall === low && state.night.charms.indexOf(rows[i].id) < 0) { good = rows[i]; break; }
+    var rows = poolRows(state).filter(function (c) {
+      return charmUseful(state, c) && state.night.charms.indexOf(c.id) < 0;
+    });
+    var n = Math.min(3, rows.length);
+    if (!n) return [];
+    var options = drawIds(rows, n, lcg((state.night.seed + salt * 997) >>> 0), null);
+    var local = null, i;
+    for (i = 0; i < rows.length; i++) if (rows[i].stall === stallId) { local = rows[i]; break; }
+    if (local && options.indexOf(local.id) < 0) options[options.length - 1] = local.id;
+    if (state.night.kept && stallId === 'stories') {
+      var patient = charmById('wen-patient');
+      if (patient && rows.some(function (c) { return c.id === patient.id; }) && options.indexOf(patient.id) < 0) {
+        options[options.length - 1] = patient.id;
+      }
     }
-    if (!good) {
-      for (i = 0; i < rows.length; i++) if (rows[i].stall === stallId) { good = rows[i]; break; }
-    }
-    if (good && options.indexOf(good.id) < 0) {
-      if (options.length < 3) options.push(good.id);
-      else options[options.length - 1] = good.id;
-    }
-    var seen = {}, clean = [], n;
-    for (n = 0; n < options.length; n++) {
-      if (seen[options[n]] || state.night.charms.indexOf(options[n]) >= 0) continue;
-      seen[options[n]] = true;
-      clean.push(options[n]);
+    var seen = {}, clean = [];
+    for (i = 0; i < options.length; i++) {
+      if (seen[options[i]]) continue;
+      seen[options[i]] = true;
+      clean.push(options[i]);
     }
     return clean;
   }
@@ -492,13 +505,23 @@
     return n > 0 ? n : 0;
   }
 
+  function prepareMat(state) {
+    var i = STALLS.length - 1;
+    if (!state.stalls || !state.stalls[i]) return;
+    if (unlocked(state, i) && !state.stalls[i].hired) state.stalls[i].hired = true;
+  }
   function quote(state, i, mode) {
     if (!spec(i)) return { count: 0, cost: 0, blocked: 'closed' };
+    prepareMat(state);
     var stall = spec(i);
     var owned = state.stalls[i].owned;
     var one = cost(i, owned, 1, state);
     if (!state.stalls[i].hired) return { count: 0, cost: one, blocked: 'hire' };
     if (!unlocked(state, i)) return { count: 0, cost: one, blocked: 'closed' };
+    if (i === STALLS.length - 1 && owned === 0) {
+      if (one > state.cash) return { count: 0, cost: one, blocked: 'cost' };
+      return { count: 1, cost: one, blocked: null };
+    }
     var n, priced, afford;
     if (mode === 'max') {
       var room = countToNext(owned);
@@ -969,6 +992,27 @@
       else state.night.queue.push(offer);
       added = true;
     }
+    var moon = stallIndex('mooncake');
+    var incense = stallIndex('incense');
+    if (moon >= 0 && state.stalls[moon].owned >= 6 && state.stalls[moon].owned < unlockNeed(state, incense) && state.night.offered.indexOf('mid-mooncake') < 0) {
+      state.night.offered.push('mid-mooncake');
+      offer = { kind: 'charm', stall: 'mooncake', options: charmOptions(state, 'mooncake', false) };
+      if (offer.options.length) {
+        if (!state.night.offer) state.night.offer = offer;
+        else state.night.queue.push(offer);
+        added = true;
+      }
+    }
+    /* Story Mat growth only changes later mats, so that charm waits until the lane stays open. */
+    if (state.night.kept && state.night.offered.indexOf('kept-lane') < 0) {
+      state.night.offered.push('kept-lane');
+      offer = { kind: 'charm', stall: 'stories', options: charmOptions(state, 'stories', false) };
+      if (offer.options.length) {
+        if (!state.night.offer) state.night.offer = offer;
+        else state.night.queue.push(offer);
+        added = true;
+      }
+    }
     return added;
   }
   function recordNight(state) {
@@ -1001,7 +1045,37 @@
   function dawnCopy(state) {
     var n = state.night && state.night.n > 0 ? state.night.n : 1;
     var ch = CHAPTERS[(n - 1) % CHAPTERS.length];
-    return { title: ch.title, lead: ch.text, next: 'Next night', choice: 'Keep the lane open' };
+    var names = state.stalls.map(function (s, i) { return spec(i).name + ' ' + s.owned; }).join(', ');
+    var omen = state.night && omenById(state.night.omen);
+    var charms = ((state.night && state.night.charms) || []).map(function (id) {
+      var c = charmById(id);
+      return c ? c.name : id;
+    });
+    var summary = names + '. ' + (omen ? omen.name : 'No omen') + '. ' +
+      (charms.length ? charms.join(', ') : 'No charm') + '. ' +
+      (typeof Arcade !== 'undefined' && Arcade.fmt ? Arcade.fmt(state.lifetime) : String(Math.round(state.lifetime))) + ' coins earned tonight.';
+    return { title: ch.title, lead: ch.text, summary: summary, next: 'Next night', choice: 'Keep the lane open' };
+  }
+  function noteOffer(state) {
+    var offer = state.night && state.night.offer;
+    if (!offer || !state.meta) return false;
+    var list = offer.kind === 'omen' ? state.meta.omens : state.meta.charms;
+    var changed = false, i, id;
+    for (i = 0; i < offer.options.length; i++) {
+      id = offer.options[i];
+      if (list.indexOf(id) < 0) { list.push(id); changed = true; }
+    }
+    return changed;
+  }
+  function changesRate(row) {
+    var key, patch;
+    if (!row || !row.set) return false;
+    for (key in row.set) {
+      if (!Object.prototype.hasOwnProperty.call(row.set, key)) continue;
+      patch = row.set[key];
+      if (patch && patch.rate != null) return true;
+    }
+    return false;
   }
   function keepLane(state) {
     if (!state.night) return state;
@@ -1097,6 +1171,11 @@
     charmById: charmById,
     servesNeed: servesNeed,
     choose: choose,
+    prepareMat: prepareMat,
+    charmUseful: charmUseful,
+    charmOptions: charmOptions,
+    noteOffer: noteOffer,
+    changesRate: changesRate,
     skipOffer: skipOffer,
     reroll: reroll,
     syncOffers: syncOffers,

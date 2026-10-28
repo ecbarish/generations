@@ -150,6 +150,43 @@ async function shot(page,name){await page.screenshot({path:path.join(out,name+'.
       check(width + 'x' + height + ': no buy label overflows', overflow.length === 0, overflow);
     }
     await fitContext.close();
+    const clickContext = await browser.newContext({viewport:{width:1280,height:800},hasTouch:false,isMobile:false,deviceScaleFactor:1,serviceWorkers:'block'});
+    const clickPage = await clickContext.newPage();
+    await clickPage.goto(origin+'/games/night-market/');
+    await clickPage.waitForFunction(()=>window.__nightMarket);
+    await clickPage.evaluate(()=>{
+      const s=__nightMarket.state;
+      s.night.offer={kind:'charm',stall:'dumpling',options:['mei-regulars','an-paper','bo-queue']};
+      s.night.rerollUsed=false;
+      s.night.charms=[];
+      __nightMarket.render();
+    });
+    await clickPage.waitForTimeout(700);
+    const firstChoice = clickPage.locator('#pick-choices button').first();
+    await firstChoice.scrollIntoViewIfNeeded();
+    const firstBox = await firstChoice.boundingBox();
+    await clickPage.mouse.click(firstBox.x+firstBox.width/2, firstBox.y+firstBox.height/2);
+    const took = await clickPage.evaluate(()=>__nightMarket.state.night.charms.slice());
+    check('a real mouse click takes the charm under the pointer', took.length===1 && took[0]==='mei-regulars', took);
+    await clickPage.evaluate(()=>{
+      const s=__nightMarket.state;
+      s.night.charms=[];
+      s.night.offer={kind:'charm',stall:'dumpling',options:['bo-queue','mei-quick','an-offcuts']};
+      s.night.rerollUsed=false;
+      __nightMarket.render();
+    });
+    const reroll = clickPage.locator('[data-act="reroll"]');
+    await reroll.scrollIntoViewIfNeeded();
+    const rerollBox = await reroll.boundingBox();
+    await clickPage.mouse.click(rerollBox.x+rerollBox.width/2, rerollBox.y+Math.min(20, rerollBox.height/2));
+    await clickPage.waitForTimeout(500);
+    const afterChoice = clickPage.locator('#pick-choices button').first();
+    await afterChoice.scrollIntoViewIfNeeded();
+    const afterBox = await afterChoice.boundingBox();
+    await clickPage.mouse.click(afterBox.x+afterBox.width/2, afterBox.y+afterBox.height/2);
+    const tookAfter = await clickPage.evaluate(()=>__nightMarket.state.night.charms.length);
+    check('a real mouse click still takes a charm after reroll', tookAfter===1, tookAfter);
+    await clickContext.close();
   }catch(e){report.error=e.stack;process.exitCode=1;}
   finally{if(browser)await browser.close();server.close();if(report.checks.some(c=>!c.pass))process.exitCode=1;fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));}
 })();

@@ -26,6 +26,9 @@
   }
 
   var idle = M.createIdle(state, persist);
+  var dawnAtLoad = M.dawnDue(state);
+  var rateFlashUntil = 0;
+  var dawnCardSeen = false;
   var paybackHintUntil = 0;
   var paybackHintStall = -1;
   var paybackHintDone = false;
@@ -125,13 +128,13 @@
       facts.textContent = '';
       if (nextGoal) nextGoal.textContent = '';
       wait.textContent = i > 0 ? M.STALLS[i - 1].next : '';
-      if (i === M.STALLS.length - 1) wait.textContent += (wait.textContent ? ' ' : '') + 'The first Story Mat costs ' + money(M.cost(i, 0, 1, state)) + ' coins.';
+      if (i === M.STALLS.length - 1) wait.textContent += (wait.textContent ? ' ' : '') + 'Unroll the Story Mat for ' + money(M.cost(i, 0, 1, state)) + ' coins.';
       serve.hidden = ask.hidden = buy.hidden = true;
       ask.classList.remove('reserved');
       serve.classList.remove('best');
       return;
     }
-    serve.hidden = false; // the pour button never vanishes: after the hire you can still pour by hand
+    serve.hidden = i === M.STALLS.length - 1;
     var pouring = i === handJobIndex();
     serve.classList.remove('best');
     serve.textContent = !st.hired
@@ -180,8 +183,10 @@
       hint.hidden = !showHint;
       hint.textContent = showHint ? 'A lower time is a better buy.' : '';
     }
-    ask.hidden = true;
-    ask.classList.remove('reserved');
+    ask.hidden = false;
+    ask.classList.add('reserved');
+    ask.disabled = true;
+    if (i === M.STALLS.length - 1) ask.hidden = true;
     buy.hidden = false;
     var offer = M.quote(state, i, state.bulk);
     var affordable = bestBuyIndex();
@@ -193,17 +198,29 @@
     }
     buy.classList.remove('best');
     buy.dataset.count = String(offer.count);
-    buy.textContent = buyLabel(i, offer);
+    buy.textContent = (i === M.STALLS.length - 1 && st.owned === 0 && offer.count === 1)
+      ? ('Unroll the Story Mat · ' + money(offer.cost))
+      : buyLabel(i, offer);
     buy.disabled = !(offer.count > 0);
     buy.classList.toggle('refused', state.bulk === 'max' && offer.blocked === 'payback');
   }
 
+  function rebindIdle() {
+    if (idle && idle.stop) idle.stop();
+    idle = M.createIdle(state, persist);
+    state.seen = Date.now();
+    idle.start(state.seen);
+    if (window.__nightMarket) window.__nightMarket.idle = idle;
+  }
   function render() {
+    M.prepareMat(state);
     $('#coins').textContent = money(state.cash);
     $('#away-rule').textContent = M.awayRule(state);
     var rate = M.income(state);
     var rateLine = (rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.') + holdSuffix();
-    $('#rate').textContent = rateLine;
+    var rateEl = $('#rate');
+    rateEl.textContent = rateLine;
+    rateEl.classList.toggle('flash', Date.now() < rateFlashUntil);
     var dawn = M.dawnDue(state);
     var goalText = dawn ? '' : M.goal(state);
     var goalEl = $('#goal');
@@ -213,7 +230,7 @@
     if (laneGoal) laneGoal.textContent = laneCounterText(goalText);
     var finale = $('#finale');
     var finaleNote = $('#finale-note');
-    var laneReady = !window.NightLane || typeof window.NightLane.finaleReady !== 'function' || window.NightLane.finaleReady();
+    var laneReady = dawnAtLoad || !window.NightLane || typeof window.NightLane.finaleReady !== 'function' || window.NightLane.finaleReady();
     var finaleOn = M.dawnDue(state) && !finaleDismissed && laneReady;
     if (finale) {
       finale.hidden = !finaleOn;
@@ -221,6 +238,14 @@
         var copy = M.dawnCopy(state);
         $('#finale-title').textContent = copy.title;
         $('#finale-lead').textContent = copy.lead;
+        var summaryEl = $('#finale-summary');
+        if (summaryEl) summaryEl.textContent = copy.summary;
+        if (!dawnCardSeen) {
+          dawnCardSeen = true;
+          var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          finale.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
+          finale.focus({ preventScroll: true });
+        }
         var nextNight = finale.querySelector('[data-act="next-night"]');
         var choice = finale.querySelector('[data-act="finale"]');
         if (nextNight) nextNight.textContent = copy.next;
@@ -232,6 +257,7 @@
         }
       }
     }
+    if (!finaleOn) dawnCardSeen = false;
     if (finaleNote) {
       finaleNote.hidden = !(state.night && state.night.kept && state.stalls[M.STALLS.length - 1].owned >= 1);
       finaleNote.textContent = 'The mat is unrolled. The lane stays open.';
@@ -352,10 +378,34 @@
     if (!box) return;
     var offer = state.night && state.night.offer;
     var show = !!(offer && offer.options && offer.options.length && !M.dawnDue(state));
-    box.hidden = !show;
-    if (!show) return;
-    $('#pick-lead').textContent = offer.kind === 'omen' ? 'Choose an omen for tonight.' : choiceLead(offer.options, M.charmById);
+    box.hidden = !!M.dawnDue(state);
+    box.classList.toggle('quiet', !show);
+    if (M.noteOffer(state)) persist();
+    if (!show) {
+      $('#pick-lead').textContent = 'The next choice waits here.';
+      var idleChoices = $('#pick-choices');
+      if (idleChoices && idleChoices.dataset.sig) {
+        idleChoices.dataset.sig = '';
+        idleChoices.replaceChildren();
+      }
+      return;
+    }
+    $('#pick-lead').textContent = offer.kind === 'omen'
+      ? 'Choose an omen for tonight.'
+      : ('Pick a charm for tonight, or skip: ' + choiceLead(offer.options, M.charmById));
     var choices = $('#pick-choices');
+    var sig = offer.kind + '|' + offer.options.join(',') + '|' + (state.night.rerollUsed ? 1 : 0);
+    if (choices.dataset.sig === sig) {
+      var skipSame = box.querySelector('[data-act="skip"]');
+      var againSame = box.querySelector('[data-act="reroll"]');
+      if (skipSame) skipSame.hidden = offer.kind !== 'charm';
+      if (againSame) {
+        againSame.hidden = !!(state.night && state.night.rerollUsed);
+        againSame.disabled = !!(state.night && state.night.rerollUsed);
+      }
+      return;
+    }
+    choices.dataset.sig = sig;
     choices.replaceChildren();
     offer.options.forEach(function (id, index) {
       var row = offer.kind === 'omen' ? M.omenById(id) : M.charmById(id);
@@ -387,12 +437,15 @@
 
   function focusOffer() {
     var pick = $('#pick');
-    var choice = pick && !pick.hidden && pick.querySelector('#pick-choices button');
+    var showing = pick && !pick.hidden && !pick.classList.contains('quiet');
+    var choice = showing && pick.querySelector('#pick-choices button:not([disabled])');
     var lead = $('#pick-lead');
     if (choice) { choice.focus({ preventScroll: true }); return; }
-    if (pick && !pick.hidden && lead) { lead.focus({ preventScroll: true }); return; }
+    if (showing && lead) { lead.focus({ preventScroll: true }); return; }
     var pour = document.querySelector('#stalls [data-i="0"] [data-act="serve"]');
-    if (pour && !pour.hidden) pour.focus({ preventScroll: true });
+    if (pour && !pour.hidden && !pour.disabled) { pour.focus({ preventScroll: true }); return; }
+    var buy = document.querySelector('#stalls [data-act="buy"]:not([disabled])');
+    if (buy && !buy.hidden) buy.focus({ preventScroll: true });
   }
 
   function renderCodex() {
@@ -513,7 +566,14 @@
       return;
     }
     if (b.dataset.act === 'omen' || b.dataset.act === 'charm') {
-      if (M.choose(state, +b.dataset.choice)) { persist(); render(); focusOffer(); }
+      var pickedId = M.choose(state, +b.dataset.choice);
+      if (pickedId) {
+        if (M.changesRate(b.dataset.act === 'omen' ? M.omenById(pickedId) : M.charmById(pickedId))) rateFlashUntil = Date.now() + 2500;
+        if (b.dataset.act === 'omen') rebindIdle();
+        persist();
+        render();
+        focusOffer();
+      }
       return;
     }
     if (b.dataset.act === 'skip') {
@@ -525,13 +585,16 @@
       return;
     }
     if (b.dataset.act === 'next-night') {
+      var stayed = window.scrollY;
       M.nextNight(state);
       finaleDismissed = false;
       finaleScroll = false;
       finaleFocused = false;
       persist();
+      rebindIdle();
       render();
       focusOffer();
+      if (window.scrollY !== stayed) window.scrollTo(0, stayed);
       return;
     }
     if (b.dataset.act === 'finale') {
@@ -581,5 +644,5 @@
   window.addEventListener('resize', syncPins);
   window.addEventListener('hashchange', function () { syncPins(); settleHash(); });
 
-  window.__nightMarket = { state: state, render: render, idle: idle, HOLD_DELAY: HOLD_DELAY, HOLD_EVERY: HOLD_EVERY, drawTools: drawTools, away: function () { return awayOn; } };
+  window.__nightMarket = { state: state, render: render, idle: idle, rebind: rebindIdle, HOLD_DELAY: HOLD_DELAY, HOLD_EVERY: HOLD_EVERY, drawTools: drawTools, away: function () { return awayOn; } };
 })();

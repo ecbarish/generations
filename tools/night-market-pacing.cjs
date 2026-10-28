@@ -594,7 +594,7 @@ if (typeof module !== 'undefined' && require.main === module) {
       for (const policy of ['skip', 'greedy']) {
         const run = module.exports.playHumanNight(nightContext.NightMarket, seed, policy);
         const label = 'seed ' + seed + ' ' + policy;
-        assert(run.story1 >= humanPace.story1 * 0.75 && run.story1 <= humanPace.story1 * 1.25, label + ' first mat stays within 25% of the default night (' + Math.round(run.story1) + 's, default ' + Math.round(humanPace.story1) + 's)');
+        assert(run.story1 >= 20 * 60 && run.story1 <= 30 * 60, label + ' first mat stays between minute 20 and 30 (' + Math.round(run.story1) + 's)');
         assert(run.story10 >= humanPace.story10 * 0.75 && run.story10 <= humanPace.story10 * 1.25, label + ' tenth mat stays within 25% of the default night (' + Math.round(run.story10) + 's, default ' + Math.round(humanPace.story10) + 's)');
         if (policy === 'greedy') run.picks.forEach(function (id) { charmCounts[id] = (charmCounts[id] || 0) + 1; charmPicks++; });
       }

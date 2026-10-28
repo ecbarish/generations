@@ -292,12 +292,14 @@ document.querySelector('#run').onclick = async function () {
     rain.night.omen = 'rain';
     rain.stalls[0].hired = true;
     rain.stalls[0].owned = 1;
-    check('rain changes the lantern price and the tea rate', near(M.cost(2, 0, 1, rain), 770) && near(M.production(rain, 0), 0.5) && M.cost(2, 0, 1, plain) === 700);
+    check('rain changes the lantern price and the tea rate', near(M.cost(2, 0, 1, rain), 770) && near(M.production(rain, 0), 0.52) && M.cost(2, 0, 1, plain) === 700);
     var ferry = M.fresh();
     ferry.night.omen = 'ferry';
-    ferry.stalls[0].hired = true;
-    ferry.stalls[0].owned = 1;
-    check('the ferry crowd changes only the away box', M.awayRule(ferry) === 'While away: earns 75%, up to 2h' && M.awayRule(plain) === 'While away: earns 50%, up to 4h' && M.cost(0, 0, 1, ferry) === M.STALLS[0].base);
+    ferry.stalls[1].hired = true;
+    ferry.stalls[1].owned = 1;
+    check('the ferry crowd speeds dumplings, raises mooncakes, and shortens the away box',
+      M.awayRule(ferry) === 'While away: earns 75%, up to 2h' && M.awayRule(plain) === 'While away: earns 50%, up to 4h' &&
+      near(M.production(ferry, 1), 1.05) && near(M.cost(3, 0, 1, ferry), 7360) && M.cost(0, 0, 1, ferry) === M.STALLS[0].base);
     var wick = M.fresh();
     wick.night.omen = 'wick';
     check('a short wick lowers the Story Mat price', near(M.cost(5, 0, 1, wick), 1760000) && M.STALLS[5].base === 2200000);
@@ -309,7 +311,9 @@ document.querySelector('#run').onclick = async function () {
     check('six lantern stands stay closed on the default night', !M.unlocked(plain, 3));
     var pour = M.fresh();
     pour.night.omen = 'pour';
-    check('a long pour asks for thirty cups and a cheaper first stall', M.servesNeed(pour, 0) === 30 && near(M.cost(0, 0, 1, pour), 5) && M.servesNeed(plain, 0) === 25);
+    pour.stalls[0].hired = true;
+    pour.stalls[0].owned = 1;
+    check('a long pour asks for thirty cups and a faster tea stall', M.servesNeed(pour, 0) === 30 && M.cost(0, 0, 1, pour) === 6 && near(M.production(pour, 0), 0.52) && M.servesNeed(plain, 0) === 25);
     var charm = M.fresh();
     charm.night.charms = ['wen-discount'];
     check('a charm changes the mat price and not the catalogue', near(M.cost(5, 0, 1, charm), 2000000) && M.STALLS[5].base === 2200000);
@@ -327,8 +331,8 @@ document.querySelector('#run').onclick = async function () {
     steam.stalls[1].hired = true;
     steam.stalls[1].owned = 1;
     check('Mei\'s quick pour and Bo\'s steam name the rate before doublings and the lane light',
-      near(M.production(pourRate, 0), 0.5) && M.laneMult(pourRate) === 1 && M.stallMult(1) === 1 &&
-      near(M.production(steam, 1), 1) && M.laneMult(steam) === 1);
+      near(M.production(pourRate, 0), 0.54) && M.laneMult(pourRate) === 1 && M.stallMult(1) === 1 &&
+      near(M.production(steam, 1), 1.08) && M.laneMult(steam) === 1);
     var dusk = M.fresh();
     var firstOffer = dusk.night.offer.options.slice();
     var picked = M.choose(dusk, 0);
@@ -352,6 +356,60 @@ document.querySelector('#run').onclick = async function () {
     closedLane.stalls[5].hired = true;
     closedLane.stalls[5].owned = 1;
     check('a mat on a lane that has not opened is not dawn', !M.dawnDue(closedLane));
+    var late = M.fresh();
+    late.stalls[1].owned = 25;
+    late.stalls[2].owned = 10;
+    late.stalls[3].owned = 1;
+    late.stalls[4].owned = 1;
+    late.night.kept = false;
+    check('a passed doubling, an open stall, and a mat growth are not offered as if they still mattered',
+      !M.charmUseful(late, M.charmById('bo-queue')) &&
+      !M.charmUseful(late, M.charmById('qiao-early')) &&
+      !M.charmUseful(late, M.charmById('ren-early')) &&
+      !M.charmUseful(late, M.charmById('wen-patient')) &&
+      M.charmUseful(late, M.charmById('mei-regulars')));
+    var early = M.fresh();
+    early.stalls[1].owned = 10;
+    var almost = M.fresh();
+    almost.stalls[1].owned = 23;
+    check('Bo\'s queue still matters before 25 dumplings', M.charmUseful(early, M.charmById('bo-queue')) && M.charmUseful(almost, M.charmById('bo-queue')));
+    var mid = M.fresh();
+    M.choose(mid, 0);
+    mid.stalls[3].owned = 6;
+    M.syncOffers(mid);
+    check('six mooncakes offer a charm before incense opens',
+      mid.night.offer && mid.night.offer.kind === 'charm' && mid.night.offered.indexOf('mid-mooncake') >= 0 && !M.unlocked(mid, 4));
+    var keptOpen = M.fresh();
+    keptOpen.night.kept = true;
+    check('Wen\'s patience matters only after the lane stays open', M.charmUseful(keptOpen, M.charmById('wen-patient')));
+    var patientNight = M.fresh();
+    patientNight.meta.pool = 12;
+    patientNight.night.kept = true;
+    check('keeping the lane open can offer Wen\'s patience', M.charmOptions(patientNight, 'stories', false).indexOf('wen-patient') >= 0);
+    var thin = M.fresh();
+    thin.meta.pool = 12;
+    thin.stalls[1].owned = 25;
+    thin.stalls[2].owned = 10;
+    thin.stalls[3].owned = 1;
+    thin.stalls[4].owned = 1;
+    thin.night.charms = ['mei-regulars', 'mei-quick', 'bo-steam', 'an-paper', 'qiao-moulds', 'ren-sticks', 'wen-discount'];
+    var thinOptions = M.charmOptions(thin, 'stories', false);
+    check('a late offer can show fewer than three charms', thinOptions.length === 1 && thinOptions[0] === 'an-offcuts');
+    var matBuy = M.fresh();
+    matBuy.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 4 ? 12 : 2; });
+    matBuy.stalls[5].owned = 0;
+    matBuy.cash = 1e9;
+    var matQuote = M.quote(matBuy, 5, 'max');
+    check('the first Story Mat is one buy and Max does not refuse it', matQuote.count === 1 && matQuote.blocked === null);
+    var ferryNight = M.fresh();
+    ferryNight.night.omen = 'ferry';
+    ferryNight.stalls[0].hired = true;
+    ferryNight.stalls[0].owned = 10;
+    var ferryIdle = M.createIdle(ferryNight, function () {});
+    var ferryAway = ferryIdle.start(Date.now() - 5 * 3600 * 1000);
+    ferryIdle.stop();
+    check('Ferry crowd caps this session\'s away box at two hours and 75%',
+      ferryAway && ferryAway.capped && ferryAway.credited === 2 * 3600 && near(ferryAway.gained, M.income(ferryNight) * 2 * 3600 * 0.75));
     check('the first Story Mat is dawn once every stall is open', M.dawnDue(ended) && M.dawnCopy(ended).title === 'The tortoise takes the lantern' && M.dawnCopy(ended).next === 'Next night');
     check('nine mats are still not the last chapter', (function () { var nine = M.fresh(); nine.stalls[5].owned = 9; nine.night.kept = true; return !M.finaleReached(nine) && M.chapterLine(nine) === 'Chapter 9 of 10: The crowd holds still.'; })());
     var book = M.codexView(ended);
@@ -481,6 +539,7 @@ document.querySelector('#run').onclick = async function () {
           var seen = {};
           ids.forEach(function (id) {
             if (seen[id] || state.night.charms.indexOf(id) >= 0) throw Error('duplicate charm ' + id + ' on seed ' + seed);
+            if (!M.charmUseful(state, M.charmById(id))) throw Error('dead charm ' + id + ' on seed ' + seed);
             seen[id] = true;
           });
           M.choose(state, 0);
@@ -500,8 +559,8 @@ document.querySelector('#run').onclick = async function () {
       ['skip', 'greedy'].forEach(function (policy) {
         var seeded = NightMarketPacing.playHumanNight(M, seed, policy);
         var label = 'seed ' + seed + ' ' + policy;
-        check(label + ' buys the first Story Mat within 25% of the default night (' + Math.round(seeded.story1) + 's, default ' + Math.round(humanBuyer.story1) + 's)',
-          seeded.story1 >= humanBuyer.story1 * 0.75 && seeded.story1 <= humanBuyer.story1 * 1.25);
+        check(label + ' buys the first Story Mat between minute 20 and 30 (' + Math.round(seeded.story1) + 's)',
+          seeded.story1 >= 20 * 60 && seeded.story1 <= 30 * 60);
         check(label + ' reaches the tenth mat within 25% of the default night (' + Math.round(seeded.story10) + 's, default ' + Math.round(humanBuyer.story10) + 's)',
           seeded.story10 >= humanBuyer.story10 * 0.75 && seeded.story10 <= humanBuyer.story10 * 1.25);
         var takenOnce = {};
@@ -1804,6 +1863,7 @@ document.querySelector('#run').onclick = async function () {
 
     hintFrame.style.width = '1280px';
     hintFrame.style.height = '800px';
+    hm.state.night.kept = false;
     hm.state.stalls.forEach(function (s, i) { s.hired = true; s.serves = 30; s.owned = i < 5 ? 12 : 0; });
     hm.state.cash = 1e15; hm.state.bulk = 1;
     hm.render();
@@ -1982,7 +2042,7 @@ document.querySelector('#run').onclick = async function () {
     fm.state.night.rerollUsed = false;
     fm.render();
     check('the charm lead names the charms on offer',
-      fd.querySelector('#pick-lead').textContent === "Mei's regulars, An's paper, or Bo's queue.");
+      fd.querySelector('#pick-lead').textContent === "Pick a charm for tonight, or skip: Mei's regulars, An's paper, or Bo's queue.");
     fd.querySelector('[data-act="skip"]').click();
     check('skip moves focus to a control', fd.activeElement && fd.activeElement !== fd.body && fd.activeElement !== fd.documentElement);
     fm.state.night.offer = { kind: 'charm', stall: 'lantern', options: ['an-paper', 'wen-discount', 'bo-queue'] };
@@ -2006,7 +2066,39 @@ document.querySelector('#run').onclick = async function () {
     fd.querySelector('#finale [data-act="next-night"]').click();
     check('next night does not jump to the top', scrollBefore > 20 && Math.abs(fw.scrollY - scrollBefore) < 2);
     check('next night focuses the new omen', fd.activeElement && (fd.activeElement.dataset.act === 'omen' || fd.activeElement.id === 'pick-lead'));
+    fm.idle.stop();
+    var clearedAway = fm.idle.start(Date.now() - 5 * 3600 * 1000);
+    check('next night restores the four hour away box', clearedAway && clearedAway.credited === 4 * 3600);
+    fm.idle.stop();
+    fm.state.night.omen = 'ferry';
+    fm.state.stalls[0].hired = true;
+    fm.state.stalls[0].owned = 10;
+    var cashBeforeRebind = fm.state.cash;
+    fm.rebind();
+    check('rebuilding the away box does not pay it twice', Math.abs(fm.state.cash - cashBeforeRebind) < 1);
+    fm.idle.stop();
+    var ferryAwayLive = fm.idle.start(Date.now() - 5 * 3600 * 1000);
+    check('picking Ferry crowd rebuilds this session\'s away box at two hours',
+      ferryAwayLive && ferryAwayLive.capped && ferryAwayLive.credited === 2 * 3600 &&
+      near(ferryAwayLive.gained, fw.NightMarket.income(fm.state) * 2 * 3600 * 0.75));
     focusFrame.remove();
+
+    var dawnSave = M.fresh();
+    dawnSave.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 4 ? 12 : 4; });
+    dawnSave.stalls[5].owned = 1;
+    dawnSave.cash = 84800;
+    dawnSave.lifetime = 84800;
+    var dawnIncome = M.income(dawnSave);
+    localStorage.setItem(KEY, JSON.stringify(M.serialize(dawnSave, Date.now() - 3600 * 1000)));
+    var dawnFrame = await openLane('../games/night-market/index.html', 390, 700);
+    await new Promise(function (r) { setTimeout(r, 250); });
+    var dawnWindow = dawnFrame.contentWindow;
+    var dawnCash = dawnWindow.__nightMarket.state.cash;
+    var oneAway = dawnIncome * 3600 * 0.5;
+    check('reloading at dawn shows the card at once', !dawnFrame.contentDocument.querySelector('#finale').hidden);
+    check('reloading at dawn credits the away box once (' + Math.round(dawnCash - 84800) + ' coins)',
+      dawnCash > 84800 && dawnCash < 84800 + oneAway + dawnIncome * 3 && dawnCash > 84800 + oneAway * 0.9);
+    dawnFrame.remove();
 
     var saveFrame = await openLane('../games/night-market/index.html', 390, 844);
     var swin = saveFrame.contentWindow, sdoc = swin.document, sm = swin.__nightMarket;
