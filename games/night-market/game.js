@@ -371,10 +371,12 @@
     renderPick();
     if (finaleOn) {
       setDawnInert(true);
+      var stayedForDawn = window.scrollY;
       if (finale && !finale.contains(document.activeElement)) {
         var dawnButton = finale.querySelector('button');
         if (dawnButton) dawnButton.focus({ preventScroll: true });
       }
+      if (window.scrollY !== stayedForDawn) window.scrollTo(0, stayedForDawn);
     }
     renderCodex();
     syncPins();
@@ -709,18 +711,16 @@
   function revealFinale() {
     if (finaleScroll || finaleDismissed) return;
     finaleScroll = true;
-    var laneEl = document.getElementById('lane');
-    if (laneEl && laneEl.scrollIntoView) laneEl.scrollIntoView({ block: 'start', behavior: 'auto' });
   }
-  function atCount(i) { return !state.stalls[i].hired && state.stalls[i].serves >= M.STALLS[i].serves; }
+  function atCount(i) { return !state.stalls[i].hired && state.stalls[i].serves >= M.servesNeed(state, i); }
   function pumpHold() {
-    if (!hold || !hold.live) return;
+    if (!hold || !hold.live || hold.settled) return;
     var now = Date.now();
     var step = M.holdCredit((now - hold.since) / 1000, hold.acc);
     hold.since = now;
     hold.acc = step.acc;
     var n = step.pours;
-    if (!state.stalls[hold.i].hired) n = Math.min(n, Math.max(0, M.STALLS[hold.i].serves - state.stalls[hold.i].serves));
+    if (!state.stalls[hold.i].hired) n = Math.min(n, Math.max(0, M.servesNeed(state, hold.i) - state.stalls[hold.i].serves));
     var k;
     for (k = 0; k < n; k++) {
       if (atCount(hold.i)) break;
@@ -728,27 +728,44 @@
       hold.n++;
       lane('serve', hold.i);
     }
-    if (hold.n > 0 && atCount(hold.i)) stopHold();
+    if (hold.n > 0 && atCount(hold.i)) settleHold(true);
   }
-  function stopHold() {
-    if (!hold) return;
+  /* A later hold pays for the whole press. Settling the previous one does not
+     render under the new press, or the second hold collapses to a single click. */
+  function settleHold(doRender) {
+    if (!hold || hold.settled) return;
     clearTimeout(hold.t);
     clearInterval(hold.iv);
+    if (hold.live && hold.began) {
+      var elapsed = (Date.now() - hold.began) / 1000;
+      if (elapsed > 30) elapsed = 30;
+      var due = M.holdCredit(elapsed, 0).pours;
+      var i = hold.i;
+      while (hold.n < due) {
+        if (!state.stalls[i].hired && state.stalls[i].serves >= M.servesNeed(state, i)) break;
+        if (!M.handSell(state, i).ok) break;
+        hold.n++;
+        lane('serve', i);
+      }
+    }
     var poured = hold.n > 0;
     hold.live = false;
-    hold.done = true;
+    hold.settled = true;
     if (poured) persist();
-    render();
+    if (doRender) render();
   }
+  function stopHold() { settleHold(true); }
   document.addEventListener('pointerdown', function (e) {
     var b = e.target.closest && e.target.closest('[data-act="serve"]');
     if (!b || b.disabled || e.button > 0) return;
-    stopHold();
-    var i = +b.closest('[data-i]').dataset.i, h = { b: b, i: i, n: 0, acc: 0, live: false, done: false, since: 0 };
+    settleHold(false);
+    var i = +b.closest('[data-i]').dataset.i, h = { b: b, i: i, n: 0, acc: 0, live: false, settled: false, since: 0, began: 0 };
     h.t = setTimeout(function () {
-      if (atCount(i)) return;                                                   // already at the count: the release is a plain click
+      if (!hold || hold !== h || h.settled) return;
+      if (atCount(i)) return;
       h.live = true;
-      h.since = Date.now();
+      h.began = Date.now();
+      h.since = h.began;
       h.iv = setInterval(pumpHold, HOLD_PUMP);
       render();
     }, HOLD_DELAY);
@@ -761,20 +778,34 @@
   /* A render between press and release moves the button, and the click never lands.
      If the press was on Buy or a buy-mode button and the release missed it, count the press. */
   var pressedBuy = null;
+  var buyDown = null;
   document.addEventListener('pointerdown', function (e) {
     var b = e.target.closest && e.target.closest('button');
     if (!b || b.disabled || e.button > 0) return;
     if (b.dataset.act !== 'buy' && !b.dataset.bulk) return;
     pressedBuy = { el: b, t: Date.now() };
+    if (b.dataset.act === 'buy') {
+      var stall = b.closest('[data-i]');
+      buyDown = { i: stall ? +stall.dataset.i : -1, t: Date.now(), used: false };
+    }
   }, true);
   document.addEventListener('pointerup', function (e) {
     var held = pressedBuy;
     pressedBuy = null;
-    if (!held || !held.el || !document.contains(held.el)) return;
-    if (held.el.disabled || Date.now() - held.t > 2000) return;
+    if (!held || !held.el) return;
+    if (Date.now() - held.t > 2000) return;
+    var el = document.contains(held.el) ? held.el : null;
+    if (!el) {
+      var stall = held.el.closest && held.el.closest('[data-i]');
+      var act = held.el.dataset.act || '';
+      var bulk = held.el.dataset.bulk || '';
+      var sel = stall && act ? '[data-i="' + stall.dataset.i + '"] [data-act="' + act + '"]' : (bulk ? '[data-bulk="' + bulk + '"]' : '');
+      el = sel ? document.querySelector(sel) : null;
+    }
+    if (!el || el.disabled) return;
     var up = e.target && e.target.closest && e.target.closest('button');
-    if (up === held.el) return;
-    held.el.click();
+    if (up === el || up === held.el) return;
+    el.click();
   }, true);
   document.addEventListener('click', function (e) {
     if (e.target.closest && e.target.closest('#open-book')) {
@@ -804,12 +835,12 @@
       render();
       return;
     }
-    if (b.dataset.act === 'omen' || b.dataset.act === 'charm' || b.dataset.act === 'twist' || b.dataset.act === 'early' || b.dataset.act === 'boost' || b.dataset.act === 'priced' || b.dataset.act === 'half' || b.dataset.act === 'late' || b.dataset.act === 'sustain') {
+    if (b.dataset.act === 'omen' || b.dataset.act === 'charm' || b.dataset.act === 'twist' || b.dataset.act === 'early' || b.dataset.act === 'boost' || b.dataset.act === 'priced' || b.dataset.act === 'half' || b.dataset.act === 'late' || b.dataset.act === 'sustain' || b.dataset.act === 'pick') {
       if (Date.now() - offerOpenedAt < 300) return;
       var pickedId = M.choose(state, +b.dataset.choice);
       if (pickedId) {
         var pickedRow = b.dataset.act === 'omen' ? M.omenById(pickedId) : M.charmById(pickedId);
-        if (M.changesRate(pickedRow) || b.dataset.act === 'boost' || b.dataset.act === 'twist' || b.dataset.act === 'sustain') rateFlashUntil = Date.now() + 2500;
+        if (M.changesRate(pickedRow) || b.dataset.act === 'boost' || b.dataset.act === 'twist' || b.dataset.act === 'sustain' || b.dataset.act === 'pick') rateFlashUntil = Date.now() + 2500;
         if (b.dataset.act === 'omen') rebindIdle();
         persist();
         render();
@@ -876,12 +907,15 @@
     var li = b.closest('[data-i]');
     if (!li) return;
     var i = +li.dataset.i;
+    var scrollY = window.scrollY;
     if (b.dataset.act === 'serve') { if (M.handSell(state, i).ok) lane('serve', i); }
     else if (b.dataset.act === 'hire') { if (M.hire(state, i).ok) lane('hire', i); }
     else if (b.dataset.act === 'buy') {
+      if (buyDown && buyDown.i === i && buyDown.used && Date.now() - buyDown.t < 40) return;
       var had = state.stalls[i].owned;
       var quoted = parseInt(b.dataset.count, 10);
       if (M.buyExact(state, i, quoted).ok) {
+        if (buyDown && buyDown.i === i) buyDown.used = true;
         lane('buy', i, had, state.stalls[i].owned);
         if (i === M.STALLS.length - 1 && had < 1 && state.stalls[i].owned >= 1) revealFinale();
       }
@@ -889,6 +923,7 @@
     else return;
     persist();
     render();
+    if (window.scrollY !== scrollY) window.scrollTo(0, scrollY);
   });
 
   function drawTools() { $('#tools').innerHTML = Arcade.saveToolsHTML(KEY, 'btn'); }

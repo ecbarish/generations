@@ -172,7 +172,7 @@
     return -1;
   }
   function emptyMeta() {
-    return { nights: [], omens: [], charms: [], pool: POOL_START };
+    return { nights: [], omens: [], charms: [], pool: POOL_START, pairs: [] };
   }
   function lcg(seed) {
     var s = (seed >>> 0) || 1;
@@ -234,9 +234,14 @@
   }
   function seedUnlock(seed, i) {
     if (i <= 0) return catalogueUnlock(i);
+    seed = seed >>> 0;
+    /* Seed 1 keeps every catalogue count, including the tray at 12 and the mat at 10. */
+    if (seed === 1) return catalogueUnlock(i);
     var lead = seedLead(seed);
     if (lead < 0) return catalogueUnlock(i);
     if (i === lead) return 6;
+    /* The tray is not stuck at 12. 10, 12 and 14 are counts the night already uses. */
+    if (i === 4) return [10, 12, 14][seed % 3];
     if (i === seedLag(seed)) return 12;
     return catalogueUnlock(i);
   }
@@ -308,6 +313,9 @@
       offered: [],
       queue: [],
       shown: omenOptions.map(function (id) { return 'omen:' + id; }),
+      recent: [],
+      costCuts: 0,
+      pairs: [],
       offer: { kind: 'omen', stall: null, options: omenOptions }
     };
   }
@@ -892,7 +900,8 @@
     var best = null, i, k, marks, left;
     for (i = 0; i < STALLS.length; i++) {
       if (!state.stalls[i].hired) continue;
-      marks = state.stalls[i].owned < 10 ? [10].concat(marksFor(state, i)) : marksFor(state, i);
+      /* 10 opens the next stall. It does not double the row. The hint names only a real x2. */
+      marks = marksFor(state, i);
       for (k = 0; k < marks.length; k++) {
         if (state.stalls[i].owned >= marks[k]) continue;
         if (i === skipI && marks[k] === skipAt) continue;
@@ -1102,7 +1111,7 @@
     return typeof id === 'string' && !!byId(table, id);
   }
   function choiceKind(kind) {
-    return kind === 'early' || kind === 'boost' || kind === 'priced' || kind === 'twist' || kind === 'half' || kind === 'late' || kind === 'sustain';
+    return kind === 'early' || kind === 'boost' || kind === 'priced' || kind === 'twist' || kind === 'half' || kind === 'late' || kind === 'sustain' || kind === 'pick';
   }
   function cleanOffer(offer) {
     if (!offer || !Array.isArray(offer.options)) return null;
@@ -1113,6 +1122,10 @@
       if (offer.kind === 'twist') return !!twistById(id);
       if (offer.kind === 'late') return !!(charmById(id) || (id.indexOf('omen-') === 0 && omenById(id.slice(5))));
       if (offer.kind === 'sustain') return stallIndex(String(id).split('@')[0]) >= 0;
+      if (offer.kind === 'pick') {
+        var pickBits = String(id).split(':');
+        return pickBits.length > 1 && (pickBits[0] === 'charm' ? !!charmById(pickBits[1]) : pickBits[0] === 'twist' ? !!twistById(pickBits[1]) : pickBits[0] === 'again' ? stallIndex(String(pickBits[1]).split('@')[0]) >= 0 : stallIndex(pickBits[1]) >= 0);
+      }
       return stallIndex(id) >= 0;
     });
     if (options.length < (offer.kind === 'omen' ? 1 : 2)) return null;
@@ -1173,7 +1186,8 @@
         }),
         omens: meta.omens.slice(),
         charms: meta.charms.slice(),
-        pool: meta.pool > 0 ? meta.pool : POOL_START
+        pool: meta.pool > 0 ? meta.pool : POOL_START,
+        pairs: (meta.pairs || []).slice()
       }
     };
   }
@@ -1213,7 +1227,7 @@
     state.night.fillerOpen = o.night.fillerOpen > 0 ? Math.floor(o.night.fillerOpen) : 0;
     state.night.fillerUsed = o.night.fillerUsed > 0 ? Math.floor(o.night.fillerUsed) : 0;
     state.night.offered = keepIds(o.night.offered, function (id) {
-      return stallIndex(id) >= 0 || id === 'mid-mooncake' || id === 'mat-wait' || id === 'kept-lane' || id === 'mid-omen' || id.indexOf('late-') === 0 || id.indexOf('early-') === 0 || id.indexOf('boost-') === 0 || id.indexOf('priced-') === 0 || id.indexOf('twist-') === 0 || id.indexOf('half-') === 0 || id.indexOf('sustain-') === 0;
+      return stallIndex(id) >= 0 || id === 'mid-mooncake' || id === 'mat-wait' || id === 'kept-lane' || id === 'mid-omen' || id.indexOf('late-') === 0 || id.indexOf('early-') === 0 || id.indexOf('boost-') === 0 || id.indexOf('priced-') === 0 || id.indexOf('twist-') === 0 || id.indexOf('half-') === 0 || id.indexOf('sustain-') === 0 || id.indexOf('pick-') === 0;
     });
     state.night.queue = Array.isArray(o.night.queue) ? o.night.queue.map(cleanOffer).filter(Boolean) : [];
     state.night.offer = cleanOffer(o.night.offer);
@@ -1228,7 +1242,8 @@
       }),
       omens: o.meta.omens.filter(function (id) { return knownId(OMENS, id); }),
       charms: o.meta.charms.filter(function (id) { return knownId(CHARMS, id); }),
-      pool: Math.max(POOL_START, Math.min(CHARMS.length, Math.floor(o.meta.pool) || POOL_START))
+      pool: Math.max(POOL_START, Math.min(CHARMS.length, Math.floor(o.meta.pool) || POOL_START)),
+      pairs: Array.isArray(o.meta.pairs) ? o.meta.pairs.filter(function (id) { return typeof id === 'string'; }) : []
     };
     return state;
   }
@@ -1273,6 +1288,27 @@
     return state.night.offered.indexOf(id) >= 0;
   }
   function placeOffer(state, offer) {
+    if (offer && offer.generated) {
+      var kept = (offer.options || []).filter(function (id) { return offerGate(state, offer.kind, id, false); });
+      if (kept.length < 2) return false;
+      offer.options = kept.slice(0, 2);
+      var key = pairKey(offer.kind, offer.options);
+      state.night.pairs = state.night.pairs || [];
+      state.meta.pairs = state.meta.pairs || [];
+      if (state.night.pairs.indexOf(key) < 0) state.night.pairs.push(key);
+      if (state.meta.pairs.indexOf(key) < 0) state.meta.pairs.push(key);
+      state.night.recent = offer.options.map(function (id) { return offer.kind + ':' + id; });
+      if (offer.kind === 'priced' || offer.kind === 'half') state.night.costCuts = (state.night.costCuts || 0) + 1;
+      if (offer.kind === 'pick') {
+        offer.options.forEach(function (pid) {
+          var bits = String(pid).split(':');
+          var inner = bits[0] + ':' + bits.slice(1).join(':');
+          if (state.night.shown.indexOf(inner) < 0) state.night.shown.push(inner);
+          state.night.recent.push(inner);
+          if (bits[0] === 'priced' || bits[0] === 'half') state.night.costCuts = (state.night.costCuts || 0) + 1;
+        });
+      }
+    }
     touchQuiet(state);
     rememberCards(state, offer);
     if (!state.night.offer) state.night.offer = offer;
@@ -1473,13 +1509,272 @@
   function canSpendFiller(state) {
     return fillerOffersLeft(state) >= 1;
   }
+  function pairKey(kind, options) {
+    return kind + ':' + options.slice().sort().join('|');
+  }
+  function cardStall(kind, id) {
+    if (kind === 'charm' || kind === 'late') {
+      var charm = charmById(id);
+      if (charm) return charm.stall;
+      return '';
+    }
+    if (kind === 'sustain') return String(id).split('@')[0];
+    if (stallIndex(id) >= 0) return id;
+    return '';
+  }
+  function goalBuy(state) {
+    var i, need, mat = STALLS.length - 1;
+    for (i = 0; i < mat; i++) {
+      if (!state.stalls[i].hired) continue;
+      need = unlockNeed(state, i + 1);
+      if (state.stalls[i].owned < need) return i;
+    }
+    if (unlocked(state, mat) && state.stalls[mat].owned === 0 && !(state.night && state.night.kept)) return mat;
+    return -1;
+  }
+  function timeToGoal(state) {
+    var i = goalBuy(state);
+    var rate = income(state);
+    if (i < 0 || !(rate > 0)) return Infinity;
+    var price = cost(i, state.stalls[i].owned, 1, state);
+    return Math.max(0, price - state.cash) / rate;
+  }
+  function withCard(state, kind, id, fn) {
+    var night = state.night;
+    var listName = kind === 'charm' || (kind === 'late' && charmById(id)) ? 'charms'
+      : kind === 'boost' ? 'boosts'
+      : kind === 'early' ? 'early'
+      : kind === 'priced' ? 'priced'
+      : kind === 'half' ? 'half'
+      : kind === 'twist' ? 'twists'
+      : kind === 'late' ? 'lates'
+      : kind === 'sustain' || kind === 'again' ? 'sustain'
+      : '';
+    if (!listName) return fn();
+    var list = night[listName] = night[listName] || [];
+    var stored = kind === 'sustain' || kind === 'again' ? String(id).split('@')[0] : id;
+    var added = list.indexOf(stored) < 0 || kind === 'sustain' || kind === 'again';
+    if (kind === 'sustain' || kind === 'again' || list.indexOf(stored) < 0) list.push(stored);
+    var result = fn();
+    if (added) list.pop();
+    return result;
+  }
+  /* Judged when the card is shown, not when it was queued. Both sides of a pair
+     must pass. A cost cut has to move the goal, not a stall you are not buying. */
+  function offerGate(state, kind, id, onTable) {
+    if (kind === 'pick') {
+      var pickBits = String(id).split(':');
+      return offerGate(state, pickBits[0], pickBits.slice(1).join(':'), onTable);
+    }
+    if (!state || !state.night || kind === 'omen' || !id) return false;
+    if (!onTable && (seenCard(state, kind, id) || takenCard(state, kind, id))) return false;
+    if (!onTable && (state.night.recent || []).indexOf(kind + ':' + id) >= 0) return false;
+    var stallId = cardStall(kind, id);
+    var goalAt = goalBuy(state);
+    var buyingFirst = goalAt >= 0 && stallId && spec(goalAt).id === stallId && ownedOf(state, stallId) < 1;
+    if (stallId && ownedOf(state, stallId) < 1 && !buyingFirst) return false;
+    if (kind === 'again') {
+      var againStall = String(id).split('@')[0];
+      if (ownedOf(state, againStall) < 1) return false;
+      var againNeed = parseInt(String(id).split('@')[2], 10);
+      if (!(againNeed > 0) || againNeed > 8) return false;
+      var againText = moneyText(income(state));
+      state.night.sustain = state.night.sustain || [];
+      var againPushes = 0;
+      while (againPushes < againNeed) {
+        state.night.sustain.push(againStall);
+        againPushes++;
+      }
+      var againMoved = moneyText(income(state)) !== againText;
+      while (againPushes > 0) {
+        state.night.sustain.pop();
+        againPushes--;
+      }
+      return againMoved;
+    }
+    if (kind === 'early' && ownedOf(state, id) >= 20) return false;
+    if (kind === 'charm') {
+      var charm = charmById(id);
+      if (!charm || !charmUseful(state, charm)) return false;
+      var mile = charm.set && charm.set[charm.stall] && charm.set[charm.stall].milestones;
+      if (mile && ownedOf(state, charm.stall) >= mile[0]) return false;
+      if (mile && ownedOf(state, charm.stall) >= 1 && ownedOf(state, charm.stall) < mile[0]) {
+        var mileI = stallIndex(charm.stall);
+        var wasOwned = state.stalls[mileI].owned;
+        state.stalls[mileI].owned = mile[0];
+        var plainMile = income(state);
+        var withMile = withCard(state, 'charm', id, function () { return income(state); });
+        state.stalls[mileI].owned = wasOwned;
+        return moneyText(plainMile) !== moneyText(withMile);
+      }
+    }
+    if ((kind === 'priced' || kind === 'half') && (state.night.costCuts || 0) >= 1 && !onTable) return false;
+    if (kind === 'early' && stallId && ownedOf(state, stallId) >= 1 && ownedOf(state, stallId) < 20) {
+      var earlyI = stallIndex(stallId);
+      var earlyOwned = state.stalls[earlyI].owned;
+      state.stalls[earlyI].owned = 20;
+      var plainAt = production(state, earlyI);
+      var doubledAt = withCard(state, 'early', id, function () { return production(state, earlyI); });
+      state.stalls[earlyI].owned = earlyOwned;
+      if (plainAt > 0 && moneyText(plainAt) !== moneyText(doubledAt)) return true;
+    }
+    var before = income(state);
+    var timeBefore = timeToGoal(state);
+    var after = withCard(state, kind, id, function () { return income(state); });
+    var timeAfter = withCard(state, kind, id, function () { return timeToGoal(state); });
+    if (moneyText(before) === moneyText(after) && !(timeBefore > 0 && timeAfter < timeBefore)) return false;
+    if (kind === 'twist' && moneyText(before) !== moneyText(after)) return true;
+    var incomeMove = before > 0 ? Math.abs(after - before) / before : (after > before ? 1 : 0);
+    var localBefore = stallId ? production(state, stallIndex(stallId)) : 0;
+    var localAfter = stallId ? withCard(state, kind, id, function () { return production(state, stallIndex(stallId)); }) : 0;
+    var localMove = localBefore > 0 ? Math.abs(localAfter - localBefore) / localBefore : 0;
+    /* The night's income line has to move. A +0 on the big number is not an offer.
+       Five percent of the row, or of the whole night, is the floor when the line does move. */
+    if (moneyText(before) !== moneyText(after) && (incomeMove >= 0.05 || localMove >= 0.05 || kind === 'early' || kind === 'boost' || kind === 'charm')) return true;
+    if ((kind === 'priced' || kind === 'half' || (kind === 'charm' && charmById(id) && charmById(id).set && charmById(id).set[charmById(id).stall] && charmById(id).set[charmById(id).stall].base != null)) && timeBefore > 0 && isFinite(timeBefore)) {
+      if ((timeBefore - timeAfter) / timeBefore >= 0.10) return true;
+    }
+    return false;
+  }
+  function passingPair(state, kind, pool) {
+    var pairs = [], i, j, key, used;
+    for (i = 0; i < pool.length; i++) {
+      if (!offerGate(state, kind, pool[i], false)) continue;
+      for (j = i + 1; j < pool.length; j++) {
+        if (!offerGate(state, kind, pool[j], false)) continue;
+        key = pairKey(kind, [pool[i], pool[j]]);
+        used = ((state.meta && state.meta.pairs) || []).indexOf(key) >= 0 || ((state.night.pairs) || []).indexOf(key) >= 0;
+        pairs.push({ options: [pool[i], pool[j]], key: key, used: used });
+      }
+    }
+    var fresh = pairs.filter(function (row) { return !row.used; });
+    var pick = fresh.length ? fresh[0] : (pairs.length === 1 ? pairs[0] : null);
+    if (!pick && pairs.length) pick = pairs[0];
+    if (pairs.length > 1 && pick && pick.used) {
+      pick = fresh[0] || null;
+    }
+    if (!pick) return null;
+    return { mark: kind + '-' + pick.options[0], kind: kind, offer: { kind: kind, stall: null, options: pick.options.slice(), generated: true } };
+  }
   function pairOffer(kind, pool) {
+    return null;
+  }
+  function buildingFirst(state, pool) {
+    var built = -1, i;
+    for (i = 0; i < STALLS.length; i++) {
+      if (state.stalls[i].hired && state.stalls[i].owned > 0) built = i;
+    }
+    var id = built >= 0 ? STALLS[built].id : '';
+    return pool.slice().sort(function (a, b) {
+      if (a === id) return -1;
+      if (b === id) return 1;
+      return 0;
+    });
+  }
+  function passingCards(state) {
+    var built = -1, i, buckets = { boost: [], early: [], twist: [], charm: [], priced: [], again: [] };
+    var order = ['boost', 'twist', 'early', 'charm', 'priced', 'again'];
+    for (i = 0; i < STALLS.length; i++) if (state.stalls[i].hired && state.stalls[i].owned > 0) built = i;
+    var builtId = built >= 0 ? STALLS[built].id : '';
+    function add(kind, id) {
+      if (offerGate(state, kind, id, false)) buckets[kind].push(kind + ':' + id);
+    }
+    var rows = buildingFirst(state, boostPool(state));
+    for (i = 0; i < rows.length; i++) add('boost', rows[i]);
+    rows = earlyPool(state);
+    if (builtId && rows.indexOf(builtId) >= 0) add('early', builtId);
+    for (i = 0; i < rows.length; i++) if (rows[i] !== builtId) add('early', rows[i]);
+    rows = twistPool(state);
+    for (i = 0; i < rows.length; i++) add('twist', rows[i].id);
+    for (i = 0; i < CHARMS.length; i++) add('charm', CHARMS[i].id);
+    if ((state.night.costCuts || 0) < 1) {
+      rows = pricedPool(state);
+      for (i = 0; i < rows.length; i++) add('priced', rows[i]);
+    }
+    var queued = 0;
+    for (i = 0; i < order.length; i++) queued += buckets[order[i]].length;
+    /* A raise is a new card. Serials already shown this night are skipped, and a
+       pair that already came up (this night or the one before) steps forward
+       while another pair still changes the income line. */
+    if (queued < 2) {
+      var raiseTargets = [];
+      if (builtId) raiseTargets.push(builtId);
+      for (i = 0; i < STALLS.length; i++) {
+        if (STALLS[i].id === 'stories' || !state.stalls[i].hired || state.stalls[i].owned < 1) continue;
+        if (raiseTargets.indexOf(STALLS[i].id) < 0) raiseTargets.push(STALLS[i].id);
+      }
+      var raiseId = function (stallId, serial) {
+        var text = moneyText(income(state));
+        var n = 0;
+        state.night.sustain = state.night.sustain || [];
+        while (n < 8 && moneyText(income(state)) === text) {
+          state.night.sustain.push(stallId);
+          n++;
+        }
+        var moved = moneyText(income(state)) !== text;
+        var pops = n;
+        while (pops > 0) { state.night.sustain.pop(); pops--; }
+        var raised = moved ? stallId + '@' + serial + '@' + n : '';
+        return raised && offerGate(state, 'again', raised, false) ? raised : '';
+      };
+      var ti, maxSerial, shownList, sk, num, serial, guard, sideA, sideB, raisedKey, raisedUsed, raisedPick;
+      for (ti = 0; ti < raiseTargets.length && buckets.again.length < 2; ti++) {
+        maxSerial = 0;
+        shownList = state.night.shown || [];
+        for (sk = 0; sk < shownList.length; sk++) {
+          if (shownList[sk].indexOf('again:' + raiseTargets[ti] + '@') !== 0) continue;
+          num = parseInt(shownList[sk].split('@')[1], 10);
+          if (num > maxSerial) maxSerial = num;
+        }
+        serial = maxSerial;
+        raisedPick = null;
+        for (guard = 0; guard < 8; guard++) {
+          sideA = raiseId(raiseTargets[ti], serial + 1);
+          sideB = raiseId(raiseTargets[ti], serial + 2);
+          if (!sideA || !sideB) break;
+          raisedKey = pairKey('pick', ['again:' + sideA, 'again:' + sideB]);
+          raisedUsed = ((state.meta && state.meta.pairs) || []).indexOf(raisedKey) >= 0 || ((state.night.pairs) || []).indexOf(raisedKey) >= 0;
+          raisedPick = [sideA, sideB];
+          if (!raisedUsed) break;
+          serial += 2;
+        }
+        if (raisedPick) {
+          buckets.again.push('again:' + raisedPick[0]);
+          buckets.again.push('again:' + raisedPick[1]);
+        }
+      }
+    }
+    var pool = [], n = 0, more = true;
+    while (more) {
+      more = false;
+      for (i = 0; i < order.length; i++) {
+        if (buckets[order[i]][n]) { pool.push(buckets[order[i]][n]); more = true; }
+      }
+      n++;
+    }
+    return pool;
+  }
+  function mixedOffer(state) {
+    var pool = passingCards(state), i, j, key, fresh = null, any = null, used;
     if (pool.length < 2) return null;
-    return { mark: kind + '-' + pool[0], kind: kind, offer: { kind: kind, stall: null, options: pool.slice(0, 2) } };
+    for (i = 0; i < pool.length && !fresh; i++) {
+      for (j = i + 1; j < pool.length; j++) {
+        key = pairKey('pick', [pool[i], pool[j]]);
+        used = ((state.meta && state.meta.pairs) || []).indexOf(key) >= 0 || (state.night.pairs || []).indexOf(key) >= 0;
+        if (!any) any = [pool[i], pool[j]];
+        if (!used) { fresh = [pool[i], pool[j]]; break; }
+      }
+    }
+    var options = fresh || (pool.length === 2 ? any : null);
+    if (!options) return null;
+    return { mark: 'pick-' + options[0], kind: 'pick', offer: { kind: 'pick', stall: null, options: options, generated: true } };
   }
   function fillerOffer(state) {
-    return pairOffer('early', earlyPool(state)) || pairOffer('boost', boostPool(state)) ||
-      pairOffer('priced', pricedPool(state)) || pairOffer('twist', twistPool(state).map(function (row) { return row.id; }));
+    return passingPair(state, 'early', earlyPool(state)) ||
+      passingPair(state, 'boost', buildingFirst(state, boostPool(state))) ||
+      passingPair(state, 'twist', twistPool(state).map(function (row) { return row.id; })) ||
+      passingPair(state, 'priced', pricedPool(state)) ||
+      passingPair(state, 'half', halfPool(state));
   }
   function cardDead(state, kind, id) {
     if (takenCard(state, kind, id)) return true;
@@ -1512,11 +1807,35 @@
   function pruneOffer(state) {
     var offer = state.night && state.night.offer;
     if (!offer || offer.kind === 'omen') return false;
-    var keep = offer.options.filter(function (id) { return !cardDead(state, offer.kind, id); });
+    var keep = offer.options.filter(function (id) {
+      if (cardDead(state, offer.kind, id)) return false;
+      if (offer.generated && !offerGate(state, offer.kind, id, true)) return false;
+      return true;
+    });
     if (keep.length === offer.options.length) return false;
     if (keep.length >= 2) { offer.options = keep; return true; }
     advanceOffer(state);
     return true;
+  }
+  /* Charms that change the night right now. One per stall, and the stall this
+     beat is about comes first, so a dead card cannot take the pair's seat. */
+  function gatedCharms(state, preferStall) {
+    var rows = poolRows(state).filter(function (c) {
+      if (seenCard(state, 'charm', c.id) || takenCard(state, 'charm', c.id)) return false;
+      return offerGate(state, 'charm', c.id, false);
+    });
+    var seenStall = {}, unique = [], i;
+    for (i = 0; i < rows.length; i++) {
+      if (seenStall[rows[i].stall]) continue;
+      seenStall[rows[i].stall] = true;
+      unique.push(rows[i].id);
+    }
+    unique.sort(function (a, b) {
+      var as = charmById(a).stall === preferStall ? 0 : 1;
+      var bs = charmById(b).stall === preferStall ? 0 : 1;
+      return as - bs;
+    });
+    return unique.length >= 2 ? unique.slice(0, 2) : [];
   }
   /* The next offer. elapse, syncOffers and the next-choice line all read this.
      No mutation. A gate that is already open comes before a quiet filler, so the
@@ -1531,8 +1850,8 @@
         if (offeredHas(state, id)) continue;
         i = stallIndex(id);
         if (i < 0 || !unlocked(state, i)) continue;
-        opts = charmOptions(state, id, false);
-        if (opts.length >= 2) return { why: 'now', fire: { mark: id, kind: 'charm', offer: { kind: 'charm', stall: id, options: opts } } };
+        opts = gatedCharms(state, id);
+        if (opts.length >= 2) return { why: 'now', fire: { mark: id, kind: 'charm', offer: { kind: 'charm', stall: id, options: opts, generated: true } } };
       }
     }
     var moon = stallIndex('mooncake');
@@ -1540,39 +1859,42 @@
     var mat = STALLS.length - 1;
     var at = midAt(state.night.seed);
     if (offerRoom(state) && moon >= 0 && state.stalls[moon].owned >= at && state.stalls[moon].owned < unlockNeed(state, incense) && !offeredHas(state, 'mid-mooncake')) {
-      opts = charmOptions(state, 'mooncake', false);
-      if (opts.length >= 2) return { why: 'now', fire: { mark: 'mid-mooncake', kind: 'charm', offer: { kind: 'charm', stall: 'mooncake', options: opts } } };
+      opts = gatedCharms(state, 'mooncake');
+      if (opts.length >= 2) return { why: 'now', fire: { mark: 'mid-mooncake', kind: 'charm', offer: { kind: 'charm', stall: 'mooncake', options: opts, generated: true } } };
+      /* The mooncake charm does nothing until the table is hired. Offer another
+         real pair now, instead of repeating the charms the player just skipped. */
+      var midMixed = mixedOffer(state);
+      if (midMixed) return { why: 'now', fire: { mark: 'mid-mooncake', kind: midMixed.kind, offer: midMixed.offer } };
     }
     if (offerRoom(state) && unlocked(state, mat) && state.stalls[mat].owned === 0 && !state.night.kept && !offeredHas(state, 'mat-wait') && oneCost(state, 'stories', null) > state.cash) {
-      opts = charmOptions(state, 'stories', false);
-      if (opts.length >= 2) return { why: 'now', fire: { mark: 'mat-wait', kind: 'charm', offer: { kind: 'charm', stall: 'stories', options: opts } } };
+      opts = gatedCharms(state, 'stories');
+      if (opts.length >= 2) return { why: 'now', fire: { mark: 'mat-wait', kind: 'charm', offer: { kind: 'charm', stall: 'stories', options: opts, generated: true } } };
     }
     /* Quiet beats stop once the night has ended. A gate that is already open
        still uses the same peek, including the one that arrives with the mat. */
     if (atDawn) return { why: 'none', fire: null };
     if (!offeredHas(state, 'mid-omen') && moon >= 0 && state.stalls[moon].owned >= at) {
-      var twists = twistPool(state);
-      if (twists.length >= 2) return { why: 'quiet', fire: { mark: 'mid-omen', kind: 'twist', offer: { kind: 'twist', stall: 'mooncake', options: [twists[0].id, twists[1].id] } } };
+      var twists = twistPool(state).map(function (row) { return row.id; }).filter(function (cid) { return offerGate(state, 'twist', cid, false); });
+      if (twists.length >= 2) return { why: 'quiet', fire: { mark: 'mid-omen', kind: 'twist', offer: { kind: 'twist', stall: 'mooncake', options: twists.slice(0, 2), generated: true } } };
     }
     if (!offeredHas(state, 'late-incense') && unlocked(state, incense) && ownedOf(state, 'incense') > 0 && !stallTaken(state, 'incense')) {
-      var incenseOpts = charmOptions(state, 'incense', false, 3);
-      if (incenseOpts.length >= 2) return { why: 'quiet', fire: { mark: 'late-incense', kind: 'incense', offer: { kind: 'charm', stall: 'incense', options: incenseOpts } } };
+      var incenseOpts = gatedCharms(state, 'incense');
+      if (incenseOpts.length >= 2) return { why: 'now', fire: { mark: 'late-incense', kind: 'incense', offer: { kind: 'charm', stall: 'incense', options: incenseOpts, generated: true } } };
     }
     if (!offeredHas(state, 'late-stories') && unlocked(state, mat) && state.stalls[mat].owned === 0 && !stallTaken(state, 'stories')) {
-      var storyOpts = charmOptions(state, 'stories', false, 4);
-      if (storyOpts.length >= 2) return { why: 'quiet', fire: { mark: 'late-stories', kind: 'stories', offer: { kind: 'charm', stall: 'stories', options: storyOpts } } };
+      var storyOpts = gatedCharms(state, 'stories');
+      if (storyOpts.length >= 2) return { why: 'now', fire: { mark: 'late-stories', kind: 'stories', offer: { kind: 'charm', stall: 'stories', options: storyOpts, generated: true } } };
     }
     var stall = lowestStallId(state);
-    var options = charmOptions(state, stall, false, 5);
-    if (options.length >= 2) return { why: 'quiet', fire: { mark: null, kind: 'charm', offer: { kind: 'charm', stall: stall, options: options } } };
+    var options = gatedCharms(state, stall);
+    if (options.length >= 2) return { why: 'quiet', fire: { mark: null, kind: 'charm', offer: { kind: 'charm', stall: stall, options: options, generated: true } } };
     var filler = fillerOffer(state);
-    if (filler && canSpendFiller(state)) return { why: 'quiet', fire: filler };
-    var half = halfPool(state);
-    if (half.length >= 2) return { why: 'quiet', fire: pairOffer('half', half) };
+    if (filler) return { why: 'quiet', fire: filler };
+    var mixed = mixedOffer(state);
+    if (mixed) return { why: 'quiet', fire: mixed };
     var rescue = rescuePool(state);
-    if (rescue.length >= 2) return { why: 'quiet', fire: pairOffer('late', rescue) };
-    var sustain = sustainPool(state);
-    if (sustain.length >= 2) return { why: 'quiet', fire: pairOffer('sustain', sustain) };
+    var late = passingPair(state, 'late', rescue);
+    if (late) return { why: 'quiet', fire: late };
     return { why: 'none', fire: null };
   }
   /* Cards that were not on the table yet. The mat save spends these two at a
@@ -1639,8 +1961,9 @@
     if (state.night.predictOn) {
       if (state.night.predictKey !== predictKey(peek.fire) || !state.night.predictReady) return false;
     }
+    if (!placeOffer(state, peek.fire.offer)) return false;
     if (peek.fire.mark) state.night.offered.push(peek.fire.mark);
-    return placeOffer(state, peek.fire.offer);
+    return true;
   }
   function elapse(state, dt) {
     if (!state || !state.night || !(dt > 0)) return false;
@@ -1690,6 +2013,28 @@
         if (state.night.charms.indexOf(id) < 0) state.night.charms.push(id);
       } else if (id.indexOf('omen-') === 0 && omenById(id.slice(5))) {
         if (state.night.lates.indexOf(id) < 0) state.night.lates.push(id);
+      } else return null;
+    } else if (offer.kind === 'pick') {
+      var pickBits = String(id).split(':');
+      var pickKind = pickBits[0];
+      var pickId = pickBits.slice(1).join(':');
+      if (pickKind === 'charm' && charmById(pickId)) {
+        if (state.night.charms.indexOf(pickId) < 0) state.night.charms.push(pickId);
+      } else if (pickKind === 'boost' && BOOST_RATE[pickId] != null) {
+        if (state.night.boosts.indexOf(pickId) < 0) state.night.boosts.push(pickId);
+      } else if (pickKind === 'early' && stallIndex(pickId) >= 0) {
+        if (state.night.early.indexOf(pickId) < 0) state.night.early.push(pickId);
+      } else if (pickKind === 'priced' && stallIndex(pickId) >= 0) {
+        if (state.night.priced.indexOf(pickId) < 0) state.night.priced.push(pickId);
+      } else if (pickKind === 'half' && stallIndex(pickId) >= 0) {
+        if (state.night.half.indexOf(pickId) < 0) state.night.half.push(pickId);
+      } else if (pickKind === 'twist' && twistById(pickId)) {
+        if (state.night.twists.indexOf(pickId) < 0) state.night.twists.push(pickId);
+      } else if (pickKind === 'again') {
+        var againBits = String(pickId).split('@');
+        var againTimes = parseInt(againBits[2], 10) || 1;
+        state.night.sustain = state.night.sustain || [];
+        while (againTimes--) state.night.sustain.push(againBits[0]);
       } else return null;
     } else if (offer.kind === 'sustain') {
       var sustainId = String(id).split('@')[0];
@@ -1782,6 +2127,7 @@
     if (next.kind === 'stories' || next.kind === 'late') return 'The next choice comes while you save for the Story Mat.';
     if (next.kind === 'early') return 'The next choice lets a stall double at 20.';
     if (next.kind === 'boost' || next.kind === 'sustain') return 'The next choice raises what a stall earns.';
+    if (next.kind === 'pick') return 'The next choice changes the lane.';
     if (next.kind === 'priced' || next.kind === 'half') return 'The next choice makes a stall cheaper.';
     if (next.kind === 'twist') return 'The next choice is a small trade.';
     return 'The next choice comes before the lane is quiet for long.';
@@ -1805,6 +2151,9 @@
       i = stallIndex(id);
       if (i < 0 || unlocked(state, i) || !gateViable(state, id)) continue;
       if (i < soonestAt) { soonest = spec(i); soonestAt = i; }
+    }
+    if (!soonest) {
+      for (i = 1; i < STALLS.length - 1; i++) if (!unlocked(state, i)) { soonest = spec(i); break; }
     }
     if (soonest) return 'The next choice comes when the ' + soonest.name + ' opens.';
     var mat = STALLS.length - 1;
@@ -1844,7 +2193,11 @@
       if (charmById(id)) return charmById(id).name;
       if (id.indexOf('omen-') === 0) { var lateOmen = omenById(id.slice(5)); return lateOmen ? lateOmen.name : id; }
     }
-    if (kind === 'sustain') {
+    if (kind === 'pick') {
+      var pickBits = String(id).split(':');
+      return choiceName(pickBits[0], pickBits.slice(1).join(':'));
+    }
+    if (kind === 'again' || kind === 'sustain') {
       var sustainStall = spec(stallIndex(String(id).split('@')[0]));
       return sustainStall ? sustainStall.name : id;
     }
@@ -1878,6 +2231,24 @@
     return 'Your income ' + moneyText(before) + ' to ' + moneyText(after) + ' a second. ' + omen.line;
   }
   function choiceLine(state, kind, id) {
+    if (kind === 'pick' || kind === 'again') {
+      if (kind === 'again') {
+        var againStallId = String(id).split('@')[0];
+        var againName = spec(stallIndex(againStallId));
+        var againTimes = parseInt(String(id).split('@')[2], 10);
+        if (!(againTimes > 0)) againTimes = 1;
+        var againBefore = income(state);
+        state.night.sustain = state.night.sustain || [];
+        var againLeft = againTimes;
+        while (againLeft--) state.night.sustain.push(againStallId);
+        var againAfter = income(state);
+        againLeft = againTimes;
+        while (againLeft--) state.night.sustain.pop();
+        return 'Your income ' + moneyText(againBefore) + ' to ' + moneyText(againAfter) + ' a second. ' + (againName ? againName.name : againStallId) + ' earns more.';
+      }
+      var pickLine = String(id).split(':');
+      return choiceLine(state, pickLine[0], pickLine.slice(1).join(':'));
+    }
     if (kind === 'charm') return offerLine(state, charmById(id));
     if (kind === 'omen') {
       var omen = omenById(id);
@@ -1933,9 +2304,18 @@
       if (next.length >= 2 && !sameSet(next, before)) break;
       attempt++;
     }
+    if (offer.generated) next = next.filter(function (id) { return offerGate(state, offer.kind, id, false); });
     if (next.length < 2 || sameSet(next, before)) return false;
     state.night.rerollUsed = true;
-    offer.options = next;
+    /* The opening omen is three choices, and the night's shape sits in that draw.
+       A stall pair stays two. */
+    offer.options = offer.kind === 'omen' ? next : next.slice(0, 2);
+    var rerollKey = pairKey(offer.kind, offer.options);
+    state.night.pairs = state.night.pairs || [];
+    state.meta.pairs = state.meta.pairs || [];
+    if (state.night.pairs.indexOf(rerollKey) < 0) state.night.pairs.push(rerollKey);
+    if (state.meta.pairs.indexOf(rerollKey) < 0) state.meta.pairs.push(rerollKey);
+    state.night.recent = offer.options.map(function (id) { return offer.kind + ':' + id; });
     rememberCards(state, offer);
     return true;
   }
@@ -2147,6 +2527,8 @@
     choiceLine: choiceLine,
     choiceName: choiceName,
     nextOfferLine: nextOfferLine,
+    offerGate: offerGate,
+    pairKey: pairKey,
     elapse: elapse,
     touchQuiet: touchQuiet,
     seedLead: seedLead,

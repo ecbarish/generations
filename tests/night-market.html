@@ -371,7 +371,7 @@ document.querySelector('#run').onclick = async function () {
     earlyNamed.stalls[0].owned = 10;
     earlyNamed.stalls[1].hired = true;
     earlyNamed.stalls[1].owned = 1;
-    earlyNamed.night.charms = M.CHARMS.map(function (c) { return c.id; });
+    earlyNamed.night.charms = M.CHARMS.map(function (c) { return c.id; }).filter(function (id) { return id !== 'bo-queue'; });
     earlyNamed.night.offer = null;
     earlyNamed.night.offered = [];
     check('the next line names the doubling beat when that is what will fire',
@@ -640,6 +640,7 @@ document.querySelector('#run').onclick = async function () {
         return !!(named && offer.kind === 'charm' && offer.stall === named.id);
       }
       if (/quiet for long/.test(line)) return offer.kind === 'charm';
+      if (/changes the lane/.test(line)) return offer.kind === 'pick';
       return false;
     }
     function lineLive(line) { return /The next choice|A choice is waiting/.test(line || ''); }
@@ -650,7 +651,8 @@ document.querySelector('#run').onclick = async function () {
       var slowMax = s.bulk === 'max' && q.blocked === 'payback' && !firstMat;
       if (slowMax) return M.buyExact(s, i, 1).ok;
       if (!(q.count > 0)) return false;
-      return M.buyExact(s, i, q.count).ok;
+      var count = s.bulk === 1 || s.bulk === '1' ? 1 : q.count;
+      return M.buyExact(s, i, count).ok;
     }
     function playPolicy(s) {
       var i;
@@ -662,21 +664,25 @@ document.querySelector('#run').onclick = async function () {
       }
       var frontier = -1;
       for (i = 0; i < s.stalls.length; i++) if (M.unlocked(s, i)) frontier = i;
-      if (frontier >= 0 && pressPlayedBuy(s, frontier)) return;
+      if (frontier >= 0 && s.stalls[frontier].hired) {
+        if (pressPlayedBuy(s, frontier)) return;
+        /* Save for the stall that opens the next one. Side buys were the dead middle. */
+        return;
+      }
       var tagged = M.bestIndex(s);
       if (tagged >= 0 && pressPlayedBuy(s, tagged)) return;
       for (i = 0; i < s.stalls.length; i++) if (pressPlayedBuy(s, i)) return;
     }
-    function playedModelNight(seed) {
+    function playedModelNight(seed, bulkMode) {
       var s = M.fresh();
       M.armNight(s, 1, seed);
       s.cash = 0;
       s.lifetime = 0;
       s.stalls.forEach(function (st) { st.owned = 0; st.serves = 0; st.hired = false; });
       function runOne() {
-        s.bulk = 'max';
+        s.bulk = bulkMode;
         if (s.night.offer && s.night.offer.kind === 'omen') M.choose(s, 0);
-        var t = 0, last = 0, worst = 0, from = 0, mismatches = [], blanks = 0, pendingBlank = false;
+        var t = 0, last = 0, worst = 0, from = 0, mismatches = [], blanks = 0, pendingBlank = false, zero = 0, repeats = 0, seenCard = {};
         while (t < 2200 && !M.dawnDue(s)) {
           if (s.night.offer) {
             if (s.night.offer.kind === 'omen') M.choose(s, 0);
@@ -700,6 +706,14 @@ document.querySelector('#run').onclick = async function () {
             if (gap > worst) { worst = gap; from = last; }
             if (pendingBlank) blanks++;
             if (!offerMatchesLine(line, s.night.offer)) mismatches.push(at + 's "' + line + '" -> ' + s.night.offer.kind);
+            s.night.offer.options.forEach(function (id) {
+              var realKind = s.night.offer.kind === 'pick' ? String(id).split(':')[0] : s.night.offer.kind;
+              var realId = s.night.offer.kind === 'pick' ? String(id).split(':').slice(1).join(':') : id;
+              var key = realKind + ':' + realId;
+              if (seenCard[key]) repeats++;
+              seenCard[key] = 1;
+              if (!M.offerGate(s, realKind, realId, true)) zero++;
+            });
             pendingBlank = false;
             last = at;
           }
@@ -707,7 +721,7 @@ document.querySelector('#run').onclick = async function () {
         }
         var tail = t - last;
         if (tail > worst) { worst = tail; from = last; }
-        return { worst: worst, from: from, mismatches: mismatches, blanks: blanks };
+        return { worst: worst, from: from, mismatches: mismatches, blanks: blanks, zero: zero, repeats: repeats };
       }
       var first = runOne();
       M.nextNight(s);
@@ -718,21 +732,26 @@ document.querySelector('#run').onclick = async function () {
     var sweepSeeds = [];
     for (var sweepN = 1; sweepN <= 50; sweepN++) sweepSeeds.push(sweepN);
     if (sweepSeeds.indexOf(437724497) < 0) sweepSeeds.push(437724497);
-    var sweepWorst = 0, sweepSeed = sweepSeeds[0], sweepNight = 1, sweepFrom = 0, sweepMismatch = 0, sweepBlank = 0, sweepSample = [];
+    var sweepWorst = { max: 0, hand: 0 }, sweepSeed = { max: sweepSeeds[0], hand: sweepSeeds[0] }, sweepMismatch = 0, sweepBlank = 0, sweepZero = 0, sweepRepeat = 0, sweepSample = [];
     for (var sweepI = 0; sweepI < sweepSeeds.length; sweepI++) {
       await new Promise(function (r) { setTimeout(r, 0); });
       var sweepSeedNow = sweepSeeds[sweepI];
-      playedModelNight(sweepSeedNow).forEach(function (night, idx) {
-        if (night.worst > sweepWorst) { sweepWorst = night.worst; sweepSeed = sweepSeedNow; sweepNight = idx + 1; sweepFrom = night.from; }
-        sweepMismatch += night.mismatches.length;
-        sweepBlank += night.blanks;
-        if (night.mismatches.length && sweepSample.length < 3) sweepSample.push('seed ' + sweepSeedNow + ' ' + night.mismatches[0]);
+      ['max', 1].forEach(function (mode) {
+        var label = mode === 'max' ? 'max' : 'hand';
+        playedModelNight(sweepSeedNow, mode).forEach(function (night) {
+          if (night.worst > sweepWorst[label]) { sweepWorst[label] = night.worst; sweepSeed[label] = sweepSeedNow; }
+          sweepMismatch += night.mismatches.length;
+          sweepBlank += night.blanks;
+          sweepZero += night.zero;
+          sweepRepeat += night.repeats;
+          if (night.mismatches.length && sweepSample.length < 3) sweepSample.push(label + ' seed ' + sweepSeedNow + ' ' + night.mismatches[0]);
+        });
       });
     }
-    check(sweepMismatch || sweepBlank || sweepWorst > 120
-      ? 'played line or gap: worst ' + sweepWorst + 's seed ' + sweepSeed + ' night ' + sweepNight + ' from ' + sweepFrom + 's, mismatches ' + sweepMismatch + ', blanks ' + sweepBlank + (sweepSample.length ? ' ' + sweepSample.join(' | ') : '')
-      : 'played nights 1 and 2 across seeds 1 to 50 and 437724497 stay within 120s and the offer matches the line (worst ' + sweepWorst + 's seed ' + sweepSeed + ', mismatches 0)',
-      sweepMismatch === 0 && sweepBlank === 0 && sweepWorst <= 120);
+    check(sweepMismatch || sweepBlank || sweepZero || sweepRepeat || sweepWorst.max > 120 || sweepWorst.hand > 120
+      ? 'played line, gap, or dead card: max ' + sweepWorst.max + 's seed ' + sweepSeed.max + ', buy-1 ' + sweepWorst.hand + 's seed ' + sweepSeed.hand + ', mismatches ' + sweepMismatch + ', blanks ' + sweepBlank + ', zero ' + sweepZero + ', repeats ' + sweepRepeat + (sweepSample.length ? ' ' + sweepSample.join(' | ') : '')
+      : 'played nights 1 and 2 on Max and on buy-1 stay within 120s, and every shown card is a real new effect (Max worst ' + sweepWorst.max + 's seed ' + sweepSeed.max + ', buy-1 worst ' + sweepWorst.hand + 's seed ' + sweepSeed.hand + ', mismatches 0, zero 0, repeats 0)',
+      sweepMismatch === 0 && sweepBlank === 0 && sweepZero === 0 && sweepRepeat === 0 && sweepWorst.max <= 120 && sweepWorst.hand <= 120);
     var teaOnly = M.fresh();
     teaOnly.stalls[0].hired = true;
     teaOnly.stalls[0].owned = 10;
@@ -1141,6 +1160,26 @@ document.querySelector('#run').onclick = async function () {
     var twelve = M.fresh();
     [0, 1, 2].forEach(function (i) { twelve.stalls[i].hired = true; twelve.stalls[i].owned = 10; });
     twelve.stalls[3].hired = true; twelve.stalls[3].owned = 10;
+    var incenseOpens = {};
+    [2, 3, 5, 9, 17, 41].forEach(function (seed) {
+      var probe = M.fresh();
+      M.armNight(probe, 1, seed);
+      incenseOpens[M.unlockNeed(probe, 4)] = 1;
+    });
+    var seedOne = M.fresh();
+    check('seed 1 keeps the tray at 12 and the mat at 10, and other seeds do not all open the tray at 12',
+      M.unlockNeed(seedOne, 4) === 12 && M.unlockNeed(seedOne, 5) === 10 && Object.keys(incenseOpens).length > 1);
+    var bonusNight = M.fresh();
+    bonusNight.stalls[0].hired = true;
+    bonusNight.stalls[0].owned = 9;
+    var hintAt9 = M.goal(bonusNight);
+    var incomeAt9 = M.income(bonusNight);
+    bonusNight.stalls[0].owned = 10;
+    var incomeAt10 = M.income(bonusNight);
+    bonusNight.stalls[0].owned = 25;
+    var incomeAt25 = M.income(bonusNight);
+    check('the next bonus names the doubling that actually happens',
+      /Next bonus: 25 Tea Stalls, x2/.test(hintAt9) && hintAt9.indexOf('10 Tea Stalls, x2') < 0 && incomeAt10 < incomeAt9 * 2 && incomeAt25 > incomeAt10 * 2);
     check('the goal counts twelve mooncake tables before the incense tray',
       /2 more mooncake tables/.test(M.goal(twelve)) && /Incense Tray at 12/.test(M.goal(twelve)));
     tray.stalls[4].owned = 9;
@@ -1428,8 +1467,15 @@ document.querySelector('#run').onclick = async function () {
     d.dispatchEvent(new PE('pointerup', { bubbles: true, button: 0, pointerId: 7 })); pourBtn.click();
     check('pressing and holding keeps pouring (several cups from one press)', held >= 4);
     check('...and letting go stops it, with no extra cup from the release', w.__nightMarket.state.stalls[0].serves === held);
+    var afterFirst = w.__nightMarket.state.stalls[0].serves;
+    pourBtn.dispatchEvent(new PE('pointerdown', { bubbles: true, button: 0, pointerId: 8 }));
+    await new Promise(function (r) { setTimeout(r, w.__nightMarket.HOLD_DELAY + w.__nightMarket.HOLD_EVERY * 4 + 60); });
+    var secondHeld = w.__nightMarket.state.stalls[0].serves - afterFirst;
+    d.dispatchEvent(new PE('pointerup', { bubbles: true, button: 0, pointerId: 8 }));
+    pourBtn.click();
+    check('a second hold on the Tea Stall pours more than one cup', secondHeld > 1);
     await new Promise(function (r) { setTimeout(r, w.__nightMarket.HOLD_EVERY * 3); });
-    check('...nothing pours after you let go', w.__nightMarket.state.stalls[0].serves === held);
+    check('...nothing pours after you let go', w.__nightMarket.state.stalls[0].serves === afterFirst + secondHeld);
     w.__nightMarket.state.stalls[0].serves = 0; w.__nightMarket.state.cash = 0; w.__nightMarket.render();
     for (var c = 0; c < 25; c++) d.querySelector('#stalls [data-act="serve"]').click();
     var ask = d.querySelector('#stalls [data-act="hire"]');
@@ -2602,13 +2648,89 @@ document.querySelector('#run').onclick = async function () {
     ld.dispatchEvent(new lw.PointerEvent('pointerup', { bubbles: true, button: 0, cancelable: true }));
     var afterMovedRelease = lm.state.stalls[0].owned;
     buyAfterRender = ld.querySelector('#stalls [data-i="0"] [data-act="buy"]');
+    var buyClock = lw.Date.now;
+    lw.Date.now = function () { return buyClock() + 500; };
     buyAfterRender.click();
+    lw.Date.now = buyClock;
     var maxMode = ld.querySelector('[data-bulk="max"]');
     maxMode.dispatchEvent(new lw.PointerEvent('pointerdown', { bubbles: true, button: 0, cancelable: true }));
     lm.render();
     ld.dispatchEvent(new lw.PointerEvent('pointerup', { bubbles: true, button: 0, cancelable: true }));
     check('two buys within 2s both purchase, and a buy-mode press still lands if the button was redrawn (' + ownedBeforeClick + '→' + afterMovedRelease + '→' + lm.state.stalls[0].owned + ', moved ' + buyMoved.toFixed(1) + 'px)',
       afterMovedRelease === ownedBeforeClick + 1 && lm.state.stalls[0].owned === ownedBeforeClick + 2 && buyMoved <= 0.5 && ld.querySelector('[data-bulk="max"]').getAttribute('aria-pressed') === 'true');
+    layout.style.width = '1280px';
+    layout.style.height = '800px';
+    lm.state.night.offer = null;
+    lm.state.night.kept = false;
+    lm.state.stalls.forEach(function (st, i) { st.hired = i === 0; st.owned = i === 0 ? 200 : 0; st.serves = 30; });
+    lm.state.cash = 1e12;
+    lm.state.bulk = 'max';
+    lm.render();
+    var slowBtn = ld.querySelector('#stalls [data-i="0"] [data-act="buy"]');
+    var slowBefore = lm.state.stalls[0].owned;
+    slowBtn.dispatchEvent(new lw.PointerEvent('pointerdown', { bubbles: true, button: 0, cancelable: true }));
+    slowBtn.click();
+    slowBtn.click();
+    check('Max · 1 buys one stall', /Max · 1 ·/.test(slowBtn.textContent) && lm.state.stalls[0].owned === slowBefore + 1);
+    lw.scrollTo(0, 900);
+    lm.render();
+    var deskBulk = ld.querySelector('#bulk').getBoundingClientRect();
+    var deskPin = ld.querySelector('#coin-pin').getBoundingClientRect();
+    check('the buy row stays on screen while scrolling at desktop width',
+      deskBulk.top >= -1 && deskBulk.bottom <= ld.documentElement.clientHeight + 1 && deskBulk.height >= 40 &&
+      (deskPin.height < 1 || deskBulk.top + 1 >= deskPin.bottom - 1));
+    lm.state.stalls[0].owned = 10;
+    lm.state.stalls[0].hired = true;
+    lm.state.stalls[1].hired = false;
+    lm.state.stalls[1].serves = 12;
+    lm.state.stalls[1].owned = 0;
+    lm.state.night.offer = null;
+    lm.render();
+    lw.scrollTo(0, 420);
+    var hireScroll = lw.scrollY;
+    ld.querySelector('#stalls [data-i="1"] [data-act="hire"]').click();
+    check('hiring Bo does not scroll the page', Math.abs(lw.scrollY - hireScroll) < 2);
+    lm.state.stalls.forEach(function (st, i) { st.hired = true; st.owned = i === 5 ? 0 : 20; });
+    lm.state.cash = 1e12;
+    lm.state.night.kept = false;
+    lm.state.night.offer = null;
+    lm.render();
+    lw.scrollTo(0, 640);
+    var dawnScroll = lw.scrollY;
+    ld.querySelector('#stalls [data-i="5"] [data-act="buy"]').click();
+    check('the dawn card does not scroll the page', Math.abs(lw.scrollY - dawnScroll) < 2 && !ld.querySelector('#finale').hidden);
+    lm.state.night.kept = true;
+    lm.state.night.offer = null;
+    lm.state.night.charms = [];
+    lm.state.night.boosts = [];
+    lm.state.night.early = [];
+    lm.state.night.priced = [];
+    lm.state.night.half = [];
+    lm.state.night.twists = [];
+    lm.state.night.omen = null;
+    lm.state.stalls.forEach(function (st, i) { st.hired = i === 0; st.owned = i === 0 ? 8 : 0; st.serves = 0; });
+    lm.render();
+    var rateBeforePick = ld.querySelector('#rate').textContent;
+    lm.state.night.offer = { kind: 'charm', stall: 'tea', options: ['mei-quick', 'mei-regulars'] };
+    lm.state.night.charms = [];
+    lm.render();
+    var rateNow = lw.Date.now;
+    lw.Date.now = function () { return rateNow() + 500; };
+    var rateCharm = ld.querySelector('#pick-choices button');
+    if (rateCharm) rateCharm.click();
+    lw.Date.now = rateNow;
+    check('picking a rate charm updates the income line', ld.querySelector('#rate').textContent !== rateBeforePick && lm.state.night.charms.indexOf('mei-quick') >= 0);
+    layout.style.width = '390px';
+    layout.style.height = '844px';
+    lm.state.night.offer = null;
+    lm.state.night.kept = false;
+    lm.state.stalls.forEach(function (st, i) { st.hired = true; st.owned = i < 4 ? 12 : 0; });
+    lm.state.stalls[3].owned = 11;
+    lm.render();
+    var teaBeforeMat = ld.querySelector('#stalls [data-i="0"]').getBoundingClientRect().top;
+    lm.state.stalls[3].owned = 12;
+    lm.render();
+    check('opening the Story Mat does not move the other stalls', Math.abs(ld.querySelector('#stalls [data-i="0"]').getBoundingClientRect().top - teaBeforeMat) < 1);
     layout.style.width = '320px';
     layout.style.height = '568px';
     lm.state.stalls.forEach(function (st, i) { st.hired = true; st.owned = i === 5 ? 1 : 20; st.serves = 30; });
@@ -2855,16 +2977,15 @@ document.querySelector('#run').onclick = async function () {
     var laneOff = hd.getElementById('lane').getBoundingClientRect();
     hd.querySelector('#stalls [data-i="5"] [data-act="buy"]').click();
     var finaleSeen = false;
-    for (var fw = 0; fw < 60 && !finaleSeen; fw++) {
+    for (var fw = 0; fw < 20 && !finaleSeen; fw++) {
       await wait(100);
-      var laneBoxNow = hd.getElementById('lane').getBoundingClientRect();
       var finaleEl = hd.querySelector('#finale');
-      finaleSeen = laneBoxNow.top >= -2 && laneBoxNow.bottom > 80 && laneBoxNow.top < 800 && finaleEl && !finaleEl.hidden && finaleEl.contains(hd.activeElement);
+      finaleSeen = finaleEl && !finaleEl.hidden && finaleEl.contains(hd.activeElement);
     }
     var laneAfter = hd.getElementById('lane').getBoundingClientRect();
     var finaleNow = hd.querySelector('#finale');
-    check('1280x800: buying the first Story Mat brings the lane back and focuses the card (lane was ' + Math.round(laneOff.top) + ', now ' + Math.round(laneAfter.top) + '-' + Math.round(laneAfter.bottom) + ')',
-      laneOff.bottom < 40 && finaleSeen && finaleNow && !finaleNow.hidden && finaleNow.contains(hd.activeElement));
+    check('1280x800: buying the first Story Mat keeps the scroll and focuses the dawn card (lane was ' + Math.round(laneOff.top) + ', now ' + Math.round(laneAfter.top) + '-' + Math.round(laneAfter.bottom) + ')',
+      Math.abs(laneAfter.top - laneOff.top) < 2 && finaleSeen && finaleNow && !finaleNow.hidden && finaleNow.contains(hd.activeElement));
     var laneApi = hw.NightLane;
     laneApi.setReduce(true);
     hm.state.night.kept = true;
