@@ -45,9 +45,11 @@ The shipping office (`games/saltmarsh-shipping/`) uses the four coast colours fr
 
 | Role | Hex | Where it shows |
 | --- | --- | --- |
-| Timber | `#8d7a52` | Sheds, the pier, and the pressed edge of a buy button |
+| Timber | `#8d7a52` | Sheds, the pier, the longer quay at twelve barks, and the pressed edge of a buy button |
 | Hull | `#6e5840` | Boat hulls, the quieter sentences, and the name of a boat you cannot buy yet |
 | Paper | `#e7f0ef` | The page behind the harbour |
 | Panel | `#f4faf8` | The away log, the harbour log, the fleet card, and the shed card |
+| House lamplight | `#f2d080` | The office lamp, the house flags, the bark stern light, and the bar lamp at sixteen barks |
+| Sand | `#c8c5a0` | The beach, and Hollis's marks on the fleet chart |
 
 Two deliberate differences from the house art notes: the ink is the night water `#23394c`, and the shapes are flat, with no outline and no light from the upper left, until the final drawing. `#e6c56a` and `#1d5c45` are not used.

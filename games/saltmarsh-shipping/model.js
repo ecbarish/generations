@@ -205,6 +205,11 @@
   }
 
   /* Whole coins under a thousand, then the same short scale as the rest of the arcade. */
+  function shedChoiceText(cost) {
+    if (cost == null) return 'The sheds are full';
+    return 'Another shed · ' + coins(cost) + ' coins';
+  }
+
   function coins(n) {
     n = Math.round(n);
     if (!isFinite(n)) return '0';
@@ -774,6 +779,7 @@
     quote: quote,
     buy: buy,
     coins: coins,
+    shedChoiceText: shedChoiceText,
     fittingOffers: fittingOffers,
     buyFitting: buyFitting,
     choiceOffer: choiceOffer,

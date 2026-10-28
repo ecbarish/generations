@@ -266,7 +266,7 @@
     }
     if (shedBtn) {
       shedBtn.disabled = !offer.shed.affordable;
-      shedBtn.textContent = 'Another shed · ' + money(offer.shed.cost || 0) + ' coins';
+      shedBtn.textContent = M.shedChoiceText(offer.shed.cost);
     }
   }
 

@@ -222,6 +222,7 @@ document.querySelector('#run').onclick = async function () {
       var bought = M.buy(s, 3, 1);
       return bought.ok && s.boats[3].owned === 12 && bought.notes.length === 1 && /quay grows longer/.test(s.log[0].text);
     })());
+    check('a full shed yard does not pretend to cost nothing', M.shedChoiceText(null) === 'The sheds are full' && M.shedChoiceText(480) === 'Another shed · 480 coins');
     check('a closed-game captain line gives the haul total', (function () {
       var s = ready();
       s.captains[0].hired = true;
@@ -525,6 +526,10 @@ document.querySelector('#run').onclick = async function () {
     var rowBox = wideWin.document.querySelector('#row').getBoundingClientRect();
     var goalBox = wideWin.document.querySelector('#goal').getBoundingClientRect();
     check('at 844 by 390 the Row button is on screen', rowBox.top >= 0 && rowBox.bottom <= goalBox.top + 1 && rowBox.height >= 44);
+    var soundH = wideWin.document.querySelector('#sound').getBoundingClientRect().height;
+    var settingsH = wideWin.document.querySelector('.arc-set-btn').getBoundingClientRect().height;
+    var feedbackH = wideWin.document.querySelector('.feedback-container button').getBoundingClientRect().height;
+    check('at 844 by 390 Sound, Settings and Feedback are at least 44px', soundH >= 44 && settingsH >= 44 && feedbackH >= 44);
     var labelState = ready();
     labelState.boats[0].owned = 40;
     labelState.boats[1].owned = 20;
@@ -540,11 +545,14 @@ document.querySelector('#run').onclick = async function () {
     var labelCanvas = labelWin.document.querySelector('#harbour');
     var labelH = labelCanvas.getBoundingClientRect().height;
     var labelYs = labelWin.SaltmarshHarbour.laneYs(labelH, 4);
+    var waterLine = labelWin.SaltmarshHarbour.waterTop(labelH, 4);
     var labelsClear = labelYs.length === 4 && labelYs[3] - 12 >= 0;
-    for (var li = 0; li < labelYs.length - 1; li++) {
-      if (labelYs[li] - labelYs[li + 1] < 20) labelsClear = false;
+    var hullsOnWater = true;
+    for (var li = 0; li < labelYs.length; li++) {
+      if (li < labelYs.length - 1 && labelYs[li] - labelYs[li + 1] < 20) labelsClear = false;
+      if (labelYs[li] < waterLine - 0.5 || labelYs[li] + 8 > labelH * 0.86 + 0.5) hullsOnWater = false;
     }
-    check(labelsClear ? 'at 844 by 390 the boat labels do not overlap' : 'at 844 by 390 labels overlap, height ' + Math.round(labelH) + ' ys ' + labelYs.join(','), labelsClear);
+    check(labelsClear && hullsOnWater ? 'at 844 by 390 the boat labels do not overlap and every boat sits on the water' : 'at 844 by 390 harbour, height ' + Math.round(labelH) + ', water ' + waterLine.toFixed(1) + ', ys ' + labelYs.join(','), labelsClear && hullsOnWater);
 
     wipe();
     var touchFrame = await loadFrame('touch');

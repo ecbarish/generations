@@ -202,7 +202,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .coins { font-size: 1.1rem; }
   .tools-row { margin-top: 0.15rem; }
   .harbour-wrap { margin-top: 0.2rem; margin-bottom: 0.1rem; }
-  .tools-row button, .arc-set-btn, .home { min-height: 36px; padding: 0.1rem 0.45rem; }
+  .tools-row button, .arc-set-btn, .home { min-height: 44px; padding: 0.1rem 0.45rem; }
   .harbour-wrap canvas,
   .window[data-phase="fleet"] .harbour-wrap canvas { height: 128px; }
   .goalbar { padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom)); }

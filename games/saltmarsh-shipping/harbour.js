@@ -26,6 +26,13 @@
     return ys;
   }
 
+  /* On a short canvas the top row sits above the usual waterline, so the water rises to meet it. */
+  function waterTop(h, n) {
+    var ys = laneYs(h, n);
+    var topLane = n ? ys[n - 1] : h * 0.74;
+    return Math.min(h * 0.46, topLane - 4);
+  }
+
   function boatCount(state, i) {
     return state.boats && state.boats[i] ? state.boats[i].owned : 0;
   }
@@ -88,10 +95,14 @@
 
       ctx.fillStyle = SKY;
       ctx.fillRect(0, 0, w, h);
+      var laneN = 0;
+      for (var ln = 0; ln < 4; ln++) if (boatCount(state, ln) > 0) laneN++;
+      var topLane = laneN ? laneYs(h, laneN)[laneN - 1] : h * 0.74;
+      var waterLine = waterTop(h, laneN);
       ctx.fillStyle = MIST;
-      ctx.fillRect(0, h * 0.34, w, h * 0.16);
+      ctx.fillRect(0, waterLine - h * 0.12, w, h * 0.16);
       ctx.fillStyle = WATER;
-      ctx.fillRect(0, h * 0.46, w, h * 0.4);
+      ctx.fillRect(0, waterLine, w, h * 0.86 - waterLine);
       ctx.globalAlpha = 0.35;
       ctx.fillStyle = SKY;
       for (var wave = 0; wave < 4; wave++) {
@@ -128,12 +139,15 @@
       for (var b = 0; b < 4; b++) best = Math.max(best, boatCount(state, b));
       var barks = boatCount(state, 3);
       var flagsOn = best >= 25 || barks >= 12;
+      var quayEnd = Math.min(w * (barks >= 12 ? 0.74 : 0.60), w - 36 - (sheds - 1) * 28 - 8);
       ctx.fillStyle = TIMBER;
-      ctx.fillRect(w * 0.18, h * 0.78, w * (barks >= 12 ? 0.56 : 0.42), 8);
-      if (barks >= 16) {
+      ctx.fillRect(w * 0.18, h * 0.78, Math.max(0, quayEnd - w * 0.18), 8);
+      var lampR = Math.max(3, h * 0.03);
+      var lampY = Math.min(h * 0.40, topLane - 22 - lampR - 6);
+      if (barks >= 16 && lampY - lampR >= 2) {
         ctx.fillStyle = LAMP;
         ctx.beginPath();
-        ctx.arc(w * 0.72, h * 0.56, Math.max(3, h * 0.03), 0, Math.PI * 2);
+        ctx.arc(w * 0.72, lampY, lampR, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.font = '14px Georgia, Palatino, serif';
@@ -250,5 +264,5 @@
     return { stop: function () { running = false; } };
   }
 
-  window.SaltmarshHarbour = { init: init, laneYs: laneYs };
+  window.SaltmarshHarbour = { init: init, laneYs: laneYs, waterTop: waterTop };
 })();
