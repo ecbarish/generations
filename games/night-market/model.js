@@ -1751,7 +1751,7 @@
       var earning = income(state) > 0 && production(state, stallIndex(charm.stall)) > 0;
       if (!earning) return name + ' +' + local + '%.';
       var total = nightPercent(state, charm.stall, now, patch.rate);
-      return 'your income +' + total + '%, ' + name + ' +' + local + '%.';
+      return 'Your income +' + total + '%, ' + name + ' +' + local + '%.';
     }
     if (patch && patch.unlockAt != null) return name + ' opens at ' + patch.unlockAt + '.';
     return charm.line;
@@ -1780,7 +1780,7 @@
     if (!twist) return id;
     var before = income(state);
     var after = withListed(state, 'twists', id, function () { return income(state); });
-    var incomeBit = 'your income ' + moneyText(before) + ' to ' + moneyText(after) + ' a second. ';
+    var incomeBit = 'Your income ' + moneyText(before) + ' to ' + moneyText(after) + ' a second. ';
     return incomeBit + twist.line;
   }
   function lateChoiceLine(state, id) {
@@ -1791,7 +1791,7 @@
     state.night.lates.push(id);
     var after = income(state);
     state.night.lates.pop();
-    return 'your income ' + moneyText(before) + ' to ' + moneyText(after) + ' a second. ' + omen.line;
+    return 'Your income ' + moneyText(before) + ' to ' + moneyText(after) + ' a second. ' + omen.line;
   }
   function choiceLine(state, kind, id) {
     if (kind === 'charm') return offerLine(state, charmById(id));
@@ -1811,7 +1811,7 @@
       var local = ratePercent(now, BOOST_RATE[id]);
       var total = nightPercent(state, id, now, BOOST_RATE[id]);
       if (!(income(state) > 0)) return name + ' +' + local + '%.';
-      return 'your income +' + total + '%, ' + name + ' +' + local + '%.';
+      return 'Your income +' + total + '%, ' + name + ' +' + local + '%.';
     }
     return id;
   }

@@ -82,7 +82,7 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   z-index: 36;
   padding: 1.35rem 1rem 1.25rem;
 }
-#finale-backdrop { position: fixed; inset: 0; background: rgba(22, 19, 38, 0.5); z-index: 34; }
+#finale-backdrop { position: fixed; inset: 0; background: rgba(22, 19, 38, 0.62); z-index: 34; }
 #finale-backdrop[hidden] { display: none !important; }
 .finale-note:not([hidden]) {
   position: fixed;
@@ -98,13 +98,25 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   padding: 0.85rem 1rem 1rem;
 }
 @media (max-width: 420px) and (max-height: 640px) {
+  /* The story can scroll. Next night stays on the card, and the Tea Stall stays clear of it. */
   .finale:not([hidden]) {
     top: 0.35rem;
     max-height: 13.5rem;
-    padding: 0.55rem 0.7rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0.45rem 0.65rem 0.45rem;
   }
-  .finale:not([hidden]) h2 { font-size: 1.15rem; margin-bottom: 0.15rem; }
-  .finale:not([hidden]) p { margin-bottom: 0.3rem; }
+  .finale:not([hidden]) h2 { font-size: 1.15rem; margin-bottom: 0.15rem; flex: 0 0 auto; }
+  .finale:not([hidden]) p { margin-bottom: 0.25rem; }
+  .finale:not([hidden]) #finale-lead { flex: 0 0 auto; }
+  .finale:not([hidden]) #finale-summary {
+    flex: 1 1 auto;
+    min-height: 1.2rem;
+    overflow: auto;
+    margin-bottom: 0.35rem;
+  }
+  .finale:not([hidden]) .finale-actions { flex: 0 0 auto; }
 }
 .finale h2 { color: var(--paper); font-size: 1.55rem; line-height: 1.2; margin: 0 0 0.45rem; font-weight: 600; }
 .finale p { margin: 0 0 0.85rem; }

@@ -616,14 +616,14 @@ document.querySelector('#run').onclick = async function () {
       wickOffer.options.forEach(function (id) {
         if (wickOffer.kind !== 'twist' && wickOffer.kind !== 'half') return;
         var line = M.choiceLine(wickNight, wickOffer.kind, id);
-        if (wickOffer.kind === 'twist' && line.indexOf('your income') < 0) wickLines.push(line);
+        if (wickOffer.kind === 'twist' && line.indexOf('Your income') < 0) wickLines.push(line);
       });
     }
     wickNight.night.offer = { kind: 'twist', stall: null, options: ['short-wick', 'loud-carts'] };
     M.syncOffers(wickNight);
     if (wickNight.night.offer && wickNight.night.offer.options.indexOf('short-wick') >= 0) wickLines.push('kept short-wick');
     var tradeLine = M.choiceLine(wickNight, 'twist', 'loud-carts');
-    if (tradeLine.indexOf('your income') < 0 || tradeLine.indexOf(' to ') < 0 || tradeLine.indexOf('a second') < 0) wickLines.push(tradeLine);
+    if (tradeLine.indexOf('Your income') < 0 || tradeLine.indexOf(' to ') < 0 || tradeLine.indexOf('a second') < 0) wickLines.push(tradeLine);
     check(wickLines.length ? 'a repeated omen or a trade without income: ' + wickLines.slice(0, 3).join(' | ') : 'an omen already picked is not offered again, and a trade shows income before and after', wickLines.length === 0);
     function promisedChoices(seed) {
       var s = M.fresh();
@@ -699,7 +699,7 @@ document.querySelector('#run').onclick = async function () {
     teaOnly.stalls[0].hired = true;
     teaOnly.stalls[0].owned = 10;
     var quickLine = M.offerLine(teaOnly, M.charmById('mei-quick'));
-    check('a rate charm leads with the income total', /your income \+20%, Tea Stall \+20%/.test(quickLine) && quickLine.indexOf('a second') < 0);
+    check('a rate charm leads with the income total', /Your income \+20%, Tea Stall \+20%/.test(quickLine) && quickLine.indexOf('a second') < 0);
     var shutLane = M.fresh();
     shutLane.stalls[0].hired = true;
     shutLane.stalls[0].owned = 8;
@@ -2411,6 +2411,8 @@ document.querySelector('#run').onclick = async function () {
     });
     lw.NightLane.setReduce(false);
     check(shiftLog.length ? 'a stall button moved: ' + shiftLog.slice(0, 6).join(' | ') : 'played changes to counts, payback, hints, the hire moment and the dawn card do not move a stall by more than 0px', shiftLog.length === 0);
+    layout.style.width = '390px';
+    layout.style.height = '844px';
     var countRow = ld.querySelector('#stalls [data-i="1"]');
     var countEl = countRow.querySelector('.count');
     var countNext = function () { return ld.querySelector('#stalls [data-i="2"]').getBoundingClientRect().top; };
@@ -2466,8 +2468,40 @@ document.querySelector('#run').onclick = async function () {
       var cartHire = ld.querySelector('#stalls [data-i="1"] [data-act="hire"]');
       if (cartHire) cartHire.click();
       if (Math.abs(under() - beforeSnap) > 0.5) playedHire.push(label + ' snap ' + beforeSnap.toFixed(1) + '→' + under().toFixed(1));
+      function openByBuy(stall, belowSel, name) {
+        var prev = stall - 1;
+        lm.state.stalls[prev].hired = true;
+        lm.state.stalls[prev].owned = lw.NightMarket.unlockNeed(lm.state, stall) - 1;
+        lm.state.stalls[stall].hired = false;
+        lm.state.stalls[stall].owned = 0;
+        lm.state.cash = 1e9;
+        lm.state.bulk = 1;
+        lm.state.night.offer = null;
+        lm.render();
+        var row = function () { return ld.querySelector(belowSel).getBoundingClientRect().top; };
+        var before = row();
+        ld.querySelector('#stalls [data-i="' + prev + '"] [data-act="buy"]').click();
+        if (Math.abs(row() - before) > 0.5) playedHire.push(label + ' ' + name + ' ' + before.toFixed(1) + '→' + row().toFixed(1));
+      }
+      if (size[0] !== 1280) {
+        openByBuy(2, '#stalls [data-i="3"]', 'open-lantern');
+        openByBuy(3, '#stalls [data-i="4"]', 'open-mooncake');
+        openByBuy(4, '#stalls [data-i="5"]', 'open-incense');
+        var pickRow = function () { return ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top; };
+        lm.state.night.offer = null;
+        lm.render();
+        var quietPick = pickRow();
+        lm.state.night.offer = { kind: 'charm', stall: 'tea', options: ['mei-regulars', 'mei-quick'] };
+        lm.state.night.rerollUsed = false;
+        lm.render();
+        if (Math.abs(pickRow() - quietPick) > 0.5) playedHire.push(label + ' pick-open ' + quietPick.toFixed(1) + '→' + pickRow().toFixed(1));
+        lm.state.night.offer = null;
+        lm.render();
+        if (Math.abs(pickRow() - quietPick) > 0.5) playedHire.push(label + ' pick-close ' + quietPick.toFixed(1) + '→' + pickRow().toFixed(1));
+      }
     });
-    check(playedHire.length ? 'the hire moment moves the next stall: ' + playedHire.join(' | ') : 'a played pour that reveals Ask, and the hire itself, move the next stall by 0px at 390x844 and 844x390', playedHire.length === 0);
+    var phoneShift = playedHire.filter(function (line) { return line.indexOf('1280x800') !== 0; });
+    check(phoneShift.length ? 'the hire moment moves the next stall: ' + phoneShift.join(' | ') : 'at 390x844 and 844x390, asking Mei, hiring the Dumpling Cart, opening each stall, and opening and closing a choice move nothing by 0px', phoneShift.length === 0);
     lm.state.bulk = 10;
     lm.state.stalls[0].hired = true;
     lm.state.stalls[0].owned = 0;
@@ -2630,10 +2664,31 @@ document.querySelector('#run').onclick = async function () {
     lm.render();
     await new Promise(function (r) { setTimeout(r, 500); });
     lm.render();
-    var dawnCard = ld.querySelector('#finale').getBoundingClientRect();
+    var dawnCardEl = ld.querySelector('#finale');
+    var dawnCard = dawnCardEl.getBoundingClientRect();
     var teaServe = ld.querySelector('#stalls [data-i="0"] [data-act="serve"]').getBoundingClientRect();
     var coversServe = teaServe.top < dawnCard.bottom - 1 && teaServe.bottom > dawnCard.top + 1 && teaServe.left < dawnCard.right && teaServe.right > dawnCard.left;
-    check('at 320 by 568 the dawn card does not cover the Tea Stall button', !ld.querySelector('#finale').hidden && !coversServe && ld.querySelector('.stall').inert);
+    var nextDawn = dawnCardEl.querySelector('[data-act="next-night"]');
+    var nextBox = nextDawn.getBoundingClientRect();
+    var viewH = ld.documentElement.clientHeight;
+    var nextOnCard = nextBox.height >= 40 && nextBox.top >= dawnCard.top - 1 && nextBox.bottom <= dawnCard.bottom + 1 && nextBox.bottom <= viewH + 1;
+    var backdrop = ld.querySelector('#finale-backdrop');
+    var backBox = backdrop.getBoundingClientRect();
+    var laneBox = ld.querySelector('.lane').getBoundingClientRect();
+    var laneX = Math.min(Math.max(laneBox.left + 12, 4), ld.documentElement.clientWidth - 4);
+    var laneY = Math.min(laneBox.bottom - 6, viewH - 4);
+    var laneHit = laneY > dawnCard.bottom ? ld.elementFromPoint(laneX, laneY) : backdrop;
+    check('at 320 by 568 the dawn card does not cover the Tea Stall button', !dawnCardEl.hidden && !coversServe && ld.querySelector('.stall').inert);
+    check('at 320 by 568 Next night is on the dawn card and the lane is dimmed',
+      nextOnCard && !backdrop.hidden && backBox.top <= 1 && backBox.bottom >= viewH - 1 &&
+      (laneHit === backdrop || backdrop.contains(laneHit)) && dawnCardEl.scrollHeight + 1 >= dawnCardEl.clientHeight);
+    var keepDawn = dawnCardEl.querySelector('[data-act="finale"]');
+    nextDawn.focus();
+    ld.dispatchEvent(new lw.KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }));
+    var wrappedBack = ld.activeElement === keepDawn;
+    keepDawn.focus();
+    ld.dispatchEvent(new lw.KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    check('tab stays inside the dawn card at 320 by 568', wrappedBack && ld.activeElement === nextDawn);
     var nightBefore = lm.state.night.n;
     var cartOwned = lm.state.stalls[1].owned;
     ld.querySelector('#stalls [data-i="1"] [data-act="buy"]').click();
