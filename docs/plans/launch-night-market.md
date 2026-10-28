@@ -3,7 +3,7 @@
 **Owner:** Guest lane (#373) for the Night Market bundles. Side Games Dev Lead keeps Little Ranch and Lantern Bowl.
 **Core:** IDLE-CORE is merged (#393, `shared/idle-core.js`). Games keep their own saves. The core is not rebuilt for this checklist.
 **The build:** IDLE-NM1, Night Market Stalls. **#403** is merged (`d9cde61`). The hub entry was not in that pull.
-**Ruling:** Evan, 2026-10-14. Night Market is a launch game. IDLE-NM1 is the build that fills this checklist. IDLE-SS1, IDLE-CS1 and IDLE-DP1 wait until Night Market has been playtested.
+**Ruling:** Evan, 2026-10-14. Night Market is a launch game. IDLE-NM1 is the build that fills this checklist. IDLE-CS1 and IDLE-DP1 stay on the shelf until Night Market has been playtested. IDLE-SS1 does not. Evan approved the Saltmarsh Shipping Office on 2026-10-23 and reconfirmed it on 2026-10-27. It is active. #619 is first, then IDLE-SS1b. Finish that office before polishing Otherworld, Keymaster or Diamond Manager into finished games.
 **Dates:** measured 2026-10-14, then counted as bundles. See [launch-summary.md](launch-summary.md). The 29 October and 22 November dates are placeholders.
 **Chunks** (Evan, 2026-10-14): one pull request per fix list or feature area, and one game per pull request. Split only when one area gets genuinely risky. Guardrails stay: tests green, old saves load, screenshots, Game Art Director reviews any art, and no save-format change without Evan.
 
@@ -66,7 +66,7 @@ These are bundles, not one pull each. Guest lane (#373) owns them. Payback hint 
 - **NM-RETUNE.** 1M lifetime coins arrives in about 8 minutes. [office-idle-progression.md](../research/office-idle-progression.md) §8 wants the district move at about 45–75 minutes. Retune before that slice.
 - **NM-CLAMP.** The idle-core per-tick clamp under-credits a hidden tab that has been asleep more than 4 hours. Section 8 says there is no clamp while the page is loaded. Shared Systems Architect rules on this. It is off the blocking path.
 - Moving to a new district, permits, and a collection of vendor stories, once NM-RETUNE has landed.
-- IDLE-SS1, IDLE-CS1 and IDLE-DP1. They wait on the shelf until Night Market has been playtested.
+- IDLE-CS1 and IDLE-DP1. They stay on the shelf until Night Market has been playtested. IDLE-SS1 left that shelf. Evan approved it on 2026-10-23 and reconfirmed it on 2026-10-27. It is active. #619 is first, then IDLE-SS1b. Finish that office before polishing Otherworld, Keymaster or Diamond Manager into finished games.
 - More stall types beyond the first sitting.
 
 ## Timeline
