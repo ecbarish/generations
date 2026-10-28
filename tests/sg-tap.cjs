@@ -34,11 +34,16 @@ function declarations(selector, expectedRules = 1) {
   }));
 }
 function sourceChecks() {
-  for (const selector of ['.app .home', '.tabs button', '.seg button']) {
+  for (const selector of ['.app .home', '.tabs button', '.seg button', '#rerollBtn']) {
     const rule = declarations(selector);
     check(/^\d+(?:\.\d+)?px$/.test(rule['min-height']), selector + ' has a pixel minimum');
     check(parseFloat(rule['min-height']) >= 44, selector + ' is at least 44px tall');
     check(!rule.height && !rule['max-height'], selector + ' may grow with larger text');
+    if (selector === '.seg button') {
+      check(/^\d+(?:\.\d+)?px$/.test(rule['min-width']), selector + ' has a pixel minimum width');
+      check(parseFloat(rule['min-width']) >= 44, selector + ' is at least 44px wide');
+      check(!rule.width && !rule['max-width'], selector + ' may grow wider with its label');
+    }
   }
   const home = declarations('.app .home');
   // .app .home (0,2,0) outranks shared settings' coarse-pointer a.home (0,1,1).
@@ -55,6 +60,7 @@ function sourceChecks() {
   check(/class="recovery" hidden/.test(html), 'recovery starts hidden');
   const ui = read('games/starfall-guild/js/05-ui.js');
   check(/const MODES=\[1,10,'max'\]/.test(ui) && /class="seg" role="group"/.test(ui), 'the three buy amounts use the scoped segment controls');
+  check(/id="rerollBtn"/.test(ui), 'Call new faces is the tavern reroll button');
 }
 function oldSave() {
   const source = read('tests/starfall-checks.js');
@@ -103,7 +109,8 @@ async function renderedChecks() {
   const hash = file => require('node:crypto').createHash('sha256').update(fs.readFileSync(file)).digest('hex');
   let checkoutHead = null;
   try { checkoutHead = require('node:child_process').execFileSync('git',['rev-parse','HEAD'],{cwd:ROOT,encoding:'utf8'}).trim(); } catch {}
-  const report={checkoutHead,cssSha256:hash(cssFile),testSha256:hash(__filename),css: path.relative(ROOT,cssFile), viewports:[], fontPolicy:'External requests are blocked; system fallback fonts are tested.', screenshots:[]};
+  const measured=[];
+  const report={checkoutHead,cssSha256:hash(cssFile),testSha256:hash(__filename),css: path.relative(ROOT,cssFile), viewports:[], measured, fontPolicy:'External requests are blocked; system fallback fonts are tested.', screenshots:[]};
   try {
     browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||undefined});
     const origin='http://localhost:'+server.address().port;
@@ -117,14 +124,21 @@ async function renderedChecks() {
         await page.goto(origin+'/games/starfall-guild/');
         await page.waitForFunction(()=>window.__sg&&document.querySelector('#mode-1'));
         const dimensions=[];
-        async function measure(selector,label) {
+        async function measure(selector,label,opts={}) {
           const data=await page.locator(selector).evaluateAll(els=>els.filter(e=>e.getClientRects().length).map(e=>{
-            const r=e.getBoundingClientRect();return {text:e.textContent.trim(),height:r.height,width:r.width,minHeight:parseFloat(getComputedStyle(e).minHeight)};
+            const r=e.getBoundingClientRect();
+            const style=getComputedStyle(e);
+            return {text:e.textContent.trim(),height:r.height,width:r.width,minHeight:parseFloat(style.minHeight),minWidth:parseFloat(style.minWidth)};
           }));
           check(data.length>0, label+' exists at '+width);
           data.forEach(d=>{
-            check(d.height>=43.99,label+' '+d.text+' is at least 44px at '+width);
-            check(d.minHeight>=44,label+' '+d.text+' keeps a computed 44px minimum before zoom');
+            check(d.height>=43.99,label+' '+d.text+' is at least 44px tall at '+width);
+            check(d.minHeight>=44,label+' '+d.text+' keeps a computed 44px minimum height before zoom');
+            if(opts.width){
+              check(d.width>=43.99,label+' '+d.text+' is at least 44px wide at '+width);
+              check(d.minWidth>=44,label+' '+d.text+' keeps a computed 44px minimum width before zoom');
+            }
+            if(d.text==='Max'||d.text.startsWith('Call new faces')) measured.push({label,text:d.text,width:d.width,height:d.height,viewport:width+'x'+height});
           });
           dimensions.push({label,controls:data});
         }
@@ -135,8 +149,12 @@ async function renderedChecks() {
           await control.tap();
           equal(await page.evaluate(()=>window.__sg.S.tab),tab,'touch selects '+tab+' at '+width);
           equal(await control.getAttribute('aria-selected'),'true','selected state follows '+tab);
+          if(tab==='tavern'){
+            await page.waitForFunction(()=>(document.querySelector('#rerollBtn')?.textContent||'').includes('Call new faces'));
+            await measure('#rerollBtn','call new faces');
+          }
           if(tab==='party'||tab==='town') {
-            await measure('.seg button',tab+' amounts');
+            await measure('.seg button',tab+' amounts',{width:true});
             for(const amount of ['10','max','1']) {
               await page.locator('#mode-'+amount).tap();
               equal(await page.evaluate(()=>window.__sg.S.buy),amount==='max'?'max':Number(amount),'touch selects amount '+amount);
@@ -178,9 +196,13 @@ async function renderedChecks() {
         // Text-size settings should expand controls rather than clip them.
         for(const scale of [1.15,1.3]) {
           await page.evaluate(s=>document.documentElement.style.setProperty('--arc-text',s),String(scale));
+          await page.locator('.tabs button[data-arg="party"]').tap();
           await measure('.home','Arcade at text scale '+scale);
           await measure('.tabs button','tabs at text scale '+scale);
-          await measure('.seg button','amounts at text scale '+scale);
+          await measure('.seg button','amounts at text scale '+scale,{width:true});
+          await page.locator('.tabs button[data-arg="tavern"]').tap();
+          await page.waitForFunction(()=>(document.querySelector('#rerollBtn')?.textContent||'').includes('Call new faces'));
+          await measure('#rerollBtn','call new faces at text scale '+scale);
         }
         // Load the existing old-save fixture through the game's real storage API.
         const fixture=oldSave();fixture.last=Date.now();
@@ -198,7 +220,38 @@ async function renderedChecks() {
         report.viewports.push({width,height,dimensions});
       } finally {await context.close();}
     }
+    const desktop=await browser.newContext({viewport:{width:1280,height:800},hasTouch:false,serviceWorkers:'block'});
+    try {
+      await desktop.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
+      await desktop.addInitScript(()=>{window.setInterval=()=>0;});
+      const page=await desktop.newPage();
+      const width=1280;
+      await page.goto(origin+'/games/starfall-guild/');
+      await page.waitForFunction(()=>window.__sg&&document.querySelector('#mode-max'));
+      async function measureDesktop(selector,label,opts={}) {
+        const data=await page.locator(selector).evaluateAll(els=>els.filter(e=>e.getClientRects().length).map(e=>{
+          const r=e.getBoundingClientRect();
+          const style=getComputedStyle(e);
+          return {text:e.textContent.trim(),height:r.height,width:r.width,minHeight:parseFloat(style.minHeight),minWidth:parseFloat(style.minWidth)};
+        }));
+        check(data.length>0, label+' exists on desktop');
+        data.forEach(d=>{
+          check(d.height>=43.99,label+' '+d.text+' is at least 44px tall on desktop');
+          check(d.minHeight>=44,label+' '+d.text+' keeps a 44px minimum height on desktop');
+          if(opts.width){
+            check(d.width>=43.99,label+' '+d.text+' is at least 44px wide on desktop');
+            check(d.minWidth>=44,label+' '+d.text+' keeps a 44px minimum width on desktop');
+          }
+          if(d.text==='Max'||d.text.startsWith('Call new faces')) measured.push({label,text:d.text,width:d.width,height:d.height,viewport:'1280x800 desktop'});
+        });
+      }
+      await measureDesktop('#mode-max','Max on desktop',{width:true});
+      await page.locator('.tabs button[data-arg="tavern"]').click();
+      await page.waitForFunction(()=>(document.querySelector('#rerollBtn')?.textContent||'').includes('Call new faces'));
+      await measureDesktop('#rerollBtn','call new faces on desktop');
+    } finally {await desktop.close();}
     fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2)+'\n');
+    console.log('MEASURED '+JSON.stringify(measured));
     console.log('Rendered checks and screenshots: '+output);
   } finally {if(browser)await browser.close();await new Promise(resolve=>server.close(resolve));}
 }

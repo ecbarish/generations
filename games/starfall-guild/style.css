@@ -50,6 +50,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
 .status{font-size:13px;font-weight:700;margin-top:10px;min-height:1.4em}
 
 .btn{border:2px solid var(--frame);border-radius:6px;background:var(--paper2);padding:6px 12px;font-weight:800;box-shadow:0 3px 0 var(--frame);transition:transform .05s}
+/* The tavern reroll spends gold. Its own padding is 36px, and the shared touch rule stops at 40px. */
+#rerollBtn{min-height:44px}
 .btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--frame)}
 .btn:disabled{opacity:.45;cursor:default}
 .btn.gold{background:var(--gold);}
@@ -73,7 +75,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
 .thead h2{font-family:var(--f-pixel);font-weight:400;font-size:22px;margin:0;line-height:1.1}
 .sub{color:var(--muted);margin:3px 0 0;font-size:13px;max-width:62ch}
 .seg{display:inline-flex;border:2px solid var(--frame);border-radius:6px;overflow:hidden}
-.seg button{min-height:44px;border:0;background:var(--paper);padding:4px 10px;font-family:var(--f-pixel);font-size:13px}
+.seg button{min-width:44px;min-height:44px;border:0;background:var(--paper);padding:4px 10px;font-family:var(--f-pixel);font-size:13px}
 .seg button.on{background:var(--frame);color:#fff}
 h4{margin:16px 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
 
