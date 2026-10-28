@@ -19,7 +19,7 @@ async function studioChecks() {
 
   // ---- what counts as player text, and what kind it is
   const yes = [['A wolf pup with smoldering fur.', 'dex', false], ['Cindercub', 'name', false], ['Thorn Badge', 'name', false], ['Is this the guild? I heard there is work.', '', true]];
-  const no = [['#d8642e', 'col', false], ['flameRush', 'move', false], ['wild_bond', 'id', false], ['color: #fff; padding: 4px', '', true], ['games/wildbond/js/00-data.js', '', false],
+  const no = [['#d8642e', 'col', false], ['flameRush', 'move', false], ['wild_bond', 'id', false], ['color: #fff; padding: 4px', '', true], ['games/realmbound/js/00-core.js', '', false],
     ['..##..TT..', 'row', false], ['ember', 'el', false], ['Ok', '', true], ['(a, b) => a + b', '', true], ['res://assets/music/thornwood.ogg', '', true]];
   await check('Sentences, names and titles count as player text', () => yes.every(([s, k, c]) => T.isPlayerText(s, k, c)));
   await check('Colours, ids, file paths, map rows and code do not', () => no.every(([s, k, c]) => !T.isPlayerText(s, k, c)));
@@ -33,14 +33,13 @@ async function studioChecks() {
   const before = snapshot(), started = Date.now();
   const index = await T.build('../');
   const secs = (Date.now() - started) / 1000;
-  await check(`Reads every game (${T.SOURCES.length} sources, ${index.total} pieces of text, ${secs.toFixed(1)}s)`, () => T.SOURCES.every(g => index.perGame[g.id] > 0) && index.total > 2000);
-  const least = { wildbond: 800, realmbound: 1000, 'starfall-guild': 100, otherworld: 300, 'diamond-career': 80, primordial: 40, 'wildbond-godot': 800, 'starfall-godot': 150 };
+  await check(`Reads every game (${T.SOURCES.length} sources, ${index.total} pieces of text, ${secs.toFixed(1)}s)`, () => T.SOURCES.every(g => index.perGame[g.id] > 0) && index.total > 1500);
+  const least = { realmbound: 1000, 'starfall-guild': 100, otherworld: 300, 'diamond-career': 80, primordial: 40, 'starfall-godot': 150 };
   await check('Each game gives at least the text it had on 2026-10-09 (a big drop means the reader broke)', () => Object.entries(least).every(([g, n]) => index.perGame[g] >= n) || (() => { throw Error(JSON.stringify(index.perGame)); })());
-  const dex = index.entries.find(e => e.text === 'Its feathers catch the light like glass.');
-  await check('A creature description shows both games, the file, the line and the data path', () => dex && dex.kinds.includes('Description') &&
-    dex.places.some(p => p.game === 'wildbond' && p.file === 'games/wildbond/js/00-data.js' && p.line > 0 && p.path === 'SPECIES.glimmerwing.dex') &&
-    dex.places.some(p => p.game === 'wildbond-godot' && p.file === 'wildbond-godot/data/wildbond.json' && p.path === 'SPECIES.glimmerwing.dex'));
-  await check('A creature name is found as a creature name', () => { const e = index.entries.find(x => x.text === 'Cindercub'); return e && e.kinds.includes('Creature name'); });
+  const throne = index.entries.find(e => e.text.includes('The Hollow Throne is sealed'));
+  await check('A Realmbound line shows the game, the file and the line', () => throne &&
+    throne.places.some(p => p.game === 'realmbound' && p.file === 'games/realmbound/js/19-raid.js' && p.line > 0));
+  await check('Realmbound names the Hollow Throne', () => index.entries.some(e => /Hollow Throne/.test(e.text) && e.games.includes('realmbound')));
   await check('Starfall village stories are read from stories.json with their paths', () => index.entries.some(e => e.places.some(p => p.file === 'starfall-godot/data/stories.json' && /^(Aki|Ren|Yuna|Kaito|Hana|Sora)\b/.test(p.path))));
   await check('Text written straight into Godot scripts is found with its line', () => index.entries.some(e => e.places.some(p => p.game === 'starfall-godot' && /\.gd$/.test(p.file) && p.line > 0)));
   await check('Realmbound item and quest text is found', () => index.entries.some(e => e.games.includes('realmbound') && e.kinds.includes('Item name')) && index.entries.some(e => e.games.includes('realmbound') && e.kinds.includes('Quest')));
@@ -48,8 +47,9 @@ async function studioChecks() {
   await check('No game save or setting was changed while reading', () => snapshot() === before);
   await check('The sealed reading frames are gone afterwards', () => !document.querySelector('iframe[sandbox]'));
   await check('Search needs every word, in the text or the path, and filters by game and kind', () => {
-    const a = T.search(index.entries, 'elderhorn guardian'), b = T.search(index.entries, 'SPECIES cindercub', 'wildbond-godot'), c = T.search(index.entries, '', 'starfall-godot', 'In code');
-    return a.length && a.every(e => /elderhorn/i.test(e.text + e.places.map(p => p.path).join()) && /guardian/i.test(e.text)) && b.some(e => e.text === 'Cindercub') && c.length && c.every(e => e.games.includes('starfall-godot') && e.kinds.includes('In code'));
+    const a = T.search(index.entries, 'hollow throne'), b = T.search(index.entries, 'Seraveth', 'realmbound'), c = T.search(index.entries, '', 'starfall-godot', 'In code');
+    const hay = e => (e.text + ' ' + e.places.map(p => p.path + ' ' + p.file).join(' ')).toLowerCase();
+    return a.length && a.every(e => hay(e).includes('hollow') && hay(e).includes('throne')) && b.some(e => /Seraveth/.test(e.text)) && c.length && c.every(e => e.games.includes('starfall-godot') && e.kinds.includes('In code'));
   });
 
   // ---- creature and quest viewers (E5): the rules flag broken data, and the real data reads clean
@@ -67,18 +67,7 @@ async function studioChecks() {
   const rbFlags = flagged(V.realmbound({ ZONES: { vale: { name: 'Vale', mobs: [{ id: 'wolf' }] } }, QUESTS: { vale: [{ id: 'q1', name: 'A', text: 'B', mob: 'wolf' }, { id: 'q2', name: 'C', text: 'D', mob: 'bear', req: 'q9' }, { id: 'q1', name: 'E', text: 'F' }] } })).join(' | ');
   await check('Viewers: the Realmbound quest rules flag a missing target, a missing earlier quest and a repeated id', () => /"bear" doesn't live in Vale/.test(rbFlags) && /"q9", which doesn't exist/.test(rbFlags) && /used twice/.test(rbFlags) && !/^q1: .*bear/.test(rbFlags));
   const real = await V.load('../');
-  await check(`Viewers: the real data loads (Wildbond ${real.wildbond.species.length} and ${real['wildbond-godot'].species.length} creatures, ${real.realmbound.quests.length} Realmbound quests)`, () =>
-    real.wildbond.species.length >= 100 && real['wildbond-godot'].species.length >= real.wildbond.species.length && real.wildbond.wild.length > 50 && real['wildbond-godot'].evolutions.length > real.wildbond.evolutions.length && real.realmbound.quests.length >= 60 && real.wildbond.moves.length >= 20);
-  await check('Viewers: the Godot evolutions include the starter lines and three Poolkit branches', () => {
-    const ev = real['wildbond-godot'].evolutions;
-    const row = (id) => ev.find(r => r.id === id);
-    const mid = ['cindercub>smoulderpup', 'ripplet>riverwisp', 'mosshog>thicketboar'];
-    const fin = ['smoulderpup>blazefang', 'riverwisp>tidewyrm', 'thicketboar>thornback'];
-    return mid.every(id => row(id) && row(id).cells[2] === 16 && row(id).cells[3] === 'level only')
-      && fin.every(id => row(id) && row(id).cells[2] === 36 && row(id).cells[3] === 'trust 3')
-      && !ev.some(r => /pyremane|deeptide|elderthorn/.test(r.id))
-      && ev.filter(r => r.id.startsWith('poolkit>')).length === 3;
-  });
+  await check(`Viewers: the real data loads (${real.realmbound.quests.length} Realmbound quests)`, () => real.realmbound.quests.length >= 60);
   await check('Viewers: the games\' current data has no problems (the same rules as the game checks)', () => { const f = Object.values(real).map(flagged).flat(); if (f.length) throw Error(f.slice(0, 5).join(' | ')); return true; });
   await check('No game save or setting was changed by the viewers', () => snapshot() === before);
 
@@ -94,9 +83,9 @@ async function studioChecks() {
   const tn = await TN.load('../');
   const z = k => tn.zones.find(x => x.key === k);
   await check(`Tuner: reads every zone's air and every tune (${tn.zones.length} zones, ${tn.tunes.length} tunes)`, () =>
-    tn.zones.filter(x => x.game === 'realmbound').length >= 8 && tn.zones.filter(x => x.game === 'wildbond').length >= 6 && TN.MUSIC.every(m => tn.tunes.some(t => t.game === m.game)) && tn.tunes.every(t => t.base.bpm > 0 && t.track.mel));
-  await check('Tuner: starts at what the game uses today (Fens fog .55 grade .8; Thornvale grade 1; Thornwood grade .9)', () =>
-    z('realmbound:fens').base.fog === .55 && z('realmbound:fens').base.grade === .8 && z('realmbound:thornvale').base.grade === 1 && z('wildbond:thornwood').base.grade === .9 && z('wildbond:thornwood').base.shadow === 1);
+    tn.zones.filter(x => x.game === 'realmbound').length >= 8 && TN.MUSIC.every(m => tn.tunes.some(t => t.game === m.game)) && tn.tunes.every(t => t.base.bpm > 0 && t.track.mel));
+  await check('Tuner: starts at what the game uses today (Fens fog .55 grade .8; Thornvale grade 1)', () =>
+    z('realmbound:fens').base.fog === .55 && z('realmbound:fens').base.grade === .8 && z('realmbound:thornvale').base.grade === 1);
   await check('No game save or setting was changed by reading the tuner tables', () => snapshot() === before);
 
   // ---- the Studio page itself
@@ -105,13 +94,13 @@ async function studioChecks() {
   const w = frame.contentWindow, d = frame.contentDocument;
   for (let i = 0; i < 600 && !(w.__studioTextIndex && w.__studioViewers); i++) await new Promise(ok => setTimeout(ok, 100));
   await check('The Studio shows the text browser with a count for every game', () => w.__studioTextIndex && d.querySelectorAll('#tbStats span').length === T.SOURCES.length && /pieces of text/.test(d.querySelector('#tbStatus').textContent));
-  const find = d.querySelector('#tbFind'); find.value = 'Elderhorn'; find.dispatchEvent(new w.Event('input'));
+  const find = d.querySelector('#tbFind'); find.value = 'Seraveth'; find.dispatchEvent(new w.Event('input'));
   await new Promise(ok => setTimeout(ok, 400));
   await check('Searching the Studio lists matches with highlighted words and where they live', () => { const items = [...d.querySelectorAll('#tbList .tb-item')];
-    return items.length > 0 && items.every(x => /elderhorn/i.test(x.textContent)) && d.querySelector('#tbList mark') && /00-data\.js/.test(d.querySelector('#tbList').textContent) && d.querySelector('#tbMore').hidden; });
-  const kind = d.querySelector('#tbKind'); kind.value = 'Creature name'; kind.dispatchEvent(new w.Event('change'));
-  await check('The kind filter narrows the list', () => [...d.querySelectorAll('#tbList .tb-kind')].every(x => x.textContent === 'Creature name') && d.querySelectorAll('#tbList .tb-item').length >= 1);
-  await check('The Studio shows the creature and quest viewers with a row per creature', () => w.__studioViewers && d.querySelectorAll('#vwTable tr').length === w.__studioViewers.wildbond.species.length + 1 && /no problems|with problems/.test(d.querySelector('#vwStatus').textContent));
+    return items.length > 0 && items.every(x => /seraveth/i.test(x.textContent)) && d.querySelector('#tbList mark') && /19-raid\.js|01-world\.js/.test(d.querySelector('#tbList').textContent) && d.querySelector('#tbMore').hidden; });
+  const kind = d.querySelector('#tbKind'); kind.value = 'Quest'; kind.dispatchEvent(new w.Event('change'));
+  await check('The kind filter narrows the list', () => [...d.querySelectorAll('#tbList .tb-kind')].every(x => x.textContent === 'Quest') && d.querySelectorAll('#tbList .tb-item').length >= 1);
+  await check('The Studio shows the creature and quest viewers with a row per creature', () => w.__studioViewers && d.querySelectorAll('#vwTable tr').length === w.__studioViewers.realmbound.quests.length + 1 && /no problems|with problems/.test(d.querySelector('#vwStatus').textContent));
   // the tuner on the page: a slider writes its own key and nothing else, the preview follows, reset clears it
   for (let i = 0; i < 100 && !w.__studioTuner; i++) await new Promise(ok => setTimeout(ok, 100));
   const keep = localStorage.getItem(TN.KEY), others = () => { const o = JSON.parse(snapshot()).filter(([k]) => k !== TN.KEY); return JSON.stringify(o); }, othersBefore = others();

@@ -1,7 +1,7 @@
 /* Save names never change (rename to Generations, docs/proposals/rename-checklist.md items 9, 14, 15).
    Browser saves live under these localStorage key names, and the Godot games save into a folder named from
    config/name in project.godot. Renaming any of them leaves players' saves behind, so this check fails if one
-   disappears from the file that uses it. To add a new save name, add it here; never edit or remove one.
+   disappears from the file that uses it. To add a new save name, add it here. Never rename a key players already have. Wildbond left this repository, so its keys are no longer listed.
      node tools/save-names-check.cjs */
 const fs=require('fs'),path=require('path');
 const ROOT=path.resolve(__dirname,'..');
@@ -11,8 +11,6 @@ const NAMES={
   'shared/votes.js':['arcade-votes-v1','arcade-tester-id'],
   'shared/gm.js':['arcade-gm','arcade-gm-log'],
   'games/realmbound/js/00-core.js':['realmbound-save-v1'],
-  'games/wildbond/js/02-state.js':['wildbond-save-v1'],
-  'games/wildbond/js/05-ui.js':['wildbond-modes-unlocked'],
   'games/otherworld/js/00-data.js':['otherworld-save-v1'],
   'games/diamond-career/js/00-data.js':['diamond-career-save-v1'],
   'games/diamond-manager/js/league.js':['diamond-manager-save-v1'],
@@ -24,7 +22,7 @@ const NAMES={
   'games/ember-bricks/game.js':['ember-bricks-save-v1'],
   'games/lantern-bowl/game.js':['lantern-bowl-save-v1'],
   'games/little-ranch/game.js':['little-ranch-settings-v1'],
-  'wildbond-godot/project.godot':['config/name="Wildbond (Godot trial)"'],
+  'games/keymaster/model.js':['keymaster-save-v1'],
   'starfall-godot/project.godot':['config/name="Starfall (Godot)"'],
 };
 const missing=[];let n=0;

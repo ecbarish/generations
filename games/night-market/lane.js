@@ -1,17 +1,22 @@
-/* Night Market lane strip (ART-NM-1, docs/plans/night-market-visuals.md). A 384x72 pixel band over the ledger:
+/* Night Market lane strip (ART-NM-1, docs/plans/night-market-visuals.md). A 384x88 pixel band over the ledger:
    six stalls (effect 0), coin pops (1), lantern flicker (2), steam and smoke (3), upgrade flashes (4) and
    passers-by (5). Read-only: it looks at state.stalls and never touches the model, the idle core or the save.
+   NM-G8: the stalls fill the top 66 rows and the passers-by walk on their own cobbled lane below them (rows 67 to 86),
+   so a walker never crosses a counter. The strip was 72 high with the walkers drawn over the counters.
    Palette: only the 12 colours below. No alpha, no gradients; whole pixels at whole-number scale. */
 (function () {
   'use strict';
   var C = { night: '#161326', ink: '#1e1a22', timber: '#241c16', amber: '#8a4e1d', mute: '#6e6258', rule: '#ddd4c6',
     wash: '#f6e6cf', lamp: '#f2d080', good: '#1d5c3e' };
-  var W = 384, H = 72, SLOT = 64, TOP = 12, TICK = 125, MAX_COINS = 12;
+  var W = 384, H = 88, SLOT = 64, TOP = 12, TICK = 125, MAX_COINS = 12;
+  var STALL_BOTTOM = 66, WALK_Y = 67, WALK_W = 16, WALK_H = 20;      // stalls end at row 66; a walker's box is 16x20 from row 67
   var STEAM = ['rule', 'rule', null, 'rule', 'mute', null];         // tea, dumpling, lantern, mooncake, incense, story mat
   var STRIPE = ['wash', 'lamp', 'rule', 'good'];                     // the awning's light stripe, by look (0, 25, 50, 100 owned)
   var MILESTONES = [25, 50, 100];
+  var FLASHES = [25, 50, 100, 150, 200, 300, 400];
 
-  var cv, cx, bg, bx, getState, unlockedFn, seed = 7, sig = '', raf = 0, last = 0, acc = 0, live = false;
+  var cv, cx, bg, bx, watch, getState, unlockedFn, seed = 7, sig = '', raf = 0, last = 0, acc = 0, live = false;
+  var finaleStart = 0, FINALE_STEP = 140, FINALE_MOMENT = 900;
   var ticks = 0, frames = 0, coins = [], flashes = [], walkers = [], lanterns = [], nextWalker = 0, coinAt = [], reduce = false;
 
   function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
@@ -27,8 +32,10 @@
   function paintStatic() {
     var c = bx; rect(c, 0, 0, W, H, 'night');
     rect(c, 0, 1, W, 1, 'ink');                                      // the lantern string
-    rect(c, 0, 66, W, 6, 'timber'); rect(c, 0, 66, W, 1, 'ink');     // the lane's cobbles edge
-    for (var x = 4; x < W; x += 12) rect(c, x, 69, 4, 1, 'mute');
+    rect(c, 0, STALL_BOTTOM, W, H - STALL_BOTTOM, 'mute'); rect(c, 0, STALL_BOTTOM, W, 1, 'ink');   // the lane's cobbles, where people walk (light enough for a dark silhouette)
+    for (var x = 4; x < W; x += 12) rect(c, x, 70, 4, 1, 'timber');
+    for (var x2 = 10; x2 < W; x2 += 12) rect(c, x2, 78, 4, 1, 'timber');
+    rect(c, 0, H - 1, W, 1, 'ink');
     for (var i = 0; i < 6; i++) { var x0 = i * SLOT, y0 = TOP; if (open(i)) stallOpen(c, i, x0, y0); else stallShut(c, x0, y0); }
   }
   function stallShut(c, x0, y0) {
@@ -60,14 +67,68 @@
     for (var k = 0; k < 12; k++) lanterns.push({ x: 14 + k * 32, y: 2, w: 3, h: 4, stall: -1, f: 1, hold: 3 + Math.floor(rnd() * 6) });
     for (var i = 0; i < 6; i++) lanterns.push({ x: i * SLOT + 1, y: TOP + 4, w: 6, h: 8, stall: i, f: 1, hold: 3 + Math.floor(rnd() * 6) });
   }
-  function drawLantern(L) {
-    var lit = L.stall < 0 || open(L.stall), f = lit ? (reduce ? 1 : L.f) : 1;
+  function nightEnded() { var s = st(); return !!(s && s.stalls[5] && s.stalls[5].owned >= 10); }
+  function finaleClock(now) {
+    if (!nightEnded()) { finaleStart = 0; return null; }
+    if (!finaleStart) finaleStart = now || (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    if (reduce) return 1e9;
+    return (now || (typeof performance !== 'undefined' ? performance.now() : Date.now())) - finaleStart;
+  }
+  function dimCount(now) {
+    var t = finaleClock(now);
+    if (t === null) return 0;
+    return Math.min(lanterns.length, Math.floor(t / FINALE_STEP));
+  }
+  function momentOn(now) { return nightEnded() && lanterns.length > 0 && dimCount(now) >= lanterns.length; }
+  var finaleShown = 0;
+  function finaleReady() {
+    var t = finaleClock();
+    if (t === null) { finaleShown = 0; return false; }
+    if (reduce) {
+      draw(1e9);
+      if (!finaleShown) finaleShown = Date.now();
+      return Date.now() - finaleShown >= 400;
+    }
+    return t >= lanterns.length * FINALE_STEP + FINALE_MOMENT;
+  }
+  /* Chapters 5 to 9 each light one more overhead lantern with the existing halo,
+     so a Story Mat that barely changes income still changes the lane. */
+  function chapterGlow() {
+    var s = st();
+    var owned = s && s.stalls[5] ? s.stalls[5].owned : 0;
+    if (owned < 5 || owned >= 10) return 0;
+    return owned - 4;
+  }
+  function drawLantern(L, index, now) {
+    var dimmed = nightEnded() && index < dimCount(now);
+    var lit = !dimmed && (L.stall < 0 || open(L.stall)), f = lit ? (reduce ? 1 : L.f) : 1;
+    if (lit && L.stall < 0 && index < chapterGlow()) f = 0;
     if (f === 0) { rect(cx, L.x - 1, L.y - 1, L.w + 2, L.h + 2, 'wash'); }
     box(cx, L.x, L.y, L.w, L.h, 'amber');
     var core = lit ? 'lamp' : 'mute', d = f === 2 ? 1 : 0;
     if (L.w > 3) rect(cx, L.x + 2, L.y + 2 + d, L.w - 4, L.h - 4 - d, core); else rect(cx, L.x + 1, L.y + 1 + d, 1, L.h - 2 - d, core);
   }
+  /* Old Wen sits, and the tortoise sets its lantern on the cobbles. Palette colours only. */
+  function drawMoment() {
+    var x = 168, y = 68;
+    box(cx, x + 3, y + 5, 10, 3, 'timber');                                                  // tortoise: shell dome
+    box(cx, x + 1, y + 7, 14, 6, 'timber');
+    rect(cx, x + 4, y + 7, 8, 1, 'timber');
+    rect(cx, x + 4, y + 6, 3, 1, 'amber');                                                     // lamplight from the upper left
+    rect(cx, x + 4, y + 8, 3, 2, 'amber'); rect(cx, x + 9, y + 8, 3, 2, 'amber');              // shell plates
+    rect(cx, x + 2, y + 13, 3, 2, 'ink'); rect(cx, x + 11, y + 13, 3, 2, 'ink');                // legs
+    box(cx, x + 15, y + 8, 4, 4, 'timber'); rect(cx, x + 17, y + 9, 1, 1, 'ink');               // outlined head, eye
+    box(cx, x + 22, y + 10, 5, 6, 'lamp');
+    rect(cx, x + 24, y + 16, 1, 3, 'timber');
+    var wx = x + 36;
+    rect(cx, wx + 4, y, 6, 6, 'ink');
+    rect(cx, wx + 3, y + 6, 8, 8, 'ink');
+    rect(cx, wx + 4, y + 14, 3, 3, 'ink');
+    rect(cx, wx + 8, y + 14, 3, 3, 'ink');
+    rect(cx, wx + 11, y + 7, 1, 6, 'timber');
+  }
   function stepLanterns() {
+    if (nightEnded()) return;
     var changed = 0;
     for (var k = 0; k < lanterns.length && changed < 2; k++) {
       var L = lanterns[(k + ticks) % lanterns.length]; if (--L.hold > 0) continue;
@@ -111,13 +172,23 @@
   }
 
   /* ---- effect 5: passers-by ---- */
-  function walkerCap() { var n = 0; for (var i = 0; i < 6; i++) if (open(i) && st().stalls[i].owned > 0) n++; return n === 0 ? 0 : n < 4 ? 1 : 2; }
+  /* The lane gets busier as the market grows, by stalls owned in all (a stall opens at 10 of the one before it, and the incense tray at 12 mooncake tables): 1 walker
+     from the first stall, 2 from 20 owned, 3 from 30, 4 from 50 and 5 from 66. None under reduced motion, where the strip
+     is a still picture. (It was 1 for up to three running stalls and 2 from four, which only happens past 30 owned.) */
+  var BUSY = [[66, 5], [50, 4], [30, 3], [20, 2], [1, 1]];
+  function walkerCap() {
+    if (reduce) return 0;
+    var owned = 0;
+    for (var i = 0; i < 6; i++) if (open(i)) owned += st().stalls[i].owned;
+    for (var k = 0; k < BUSY.length; k++) if (owned >= BUSY[k][0]) return BUSY[k][1];
+    return 0;
+  }
   function spawn() {
     var left = rnd() < .5; walkers.push({ x: left ? -16 : W, dir: left ? 1 : -1, f: 0, lamp: rnd() < .35 });
     nextWalker = ticks + 96 + Math.floor(rnd() * 145);                                         // 12-30 s
   }
   function drawWalker(P) {
-    var x = P.x, y = 52, leg = [0, 1, 0, -1][P.f];                                              // cropped to the top 20 of 24 px
+    var x = P.x, y = WALK_Y, leg = [0, 1, 0, -1][P.f];                                         // the top 20 of 24 px, on the cobbles below the stalls
     rect(cx, x + 5, y, 6, 6, 'ink'); rect(cx, x + 4, y + 6, 8, 10, 'ink'); rect(cx, x + 11, y + 7, 1, 9, 'timber');
     rect(cx, x + 5 + leg, y + 16, 2, 4, 'ink'); rect(cx, x + 9 - leg, y + 16, 2, 4, 'ink');
     rect(cx, x + (P.dir > 0 ? 12 : 2), y + 8 + (P.f % 2), 2, 6, 'ink');                        // the swinging arm
@@ -138,14 +209,16 @@
     stepLanterns();
     walkers.forEach(function (P) { P.x += P.dir; P.f = (P.f + 1) % 4; });
     walkers = walkers.filter(function (P) { return P.x > -17 && P.x < W + 1; });
-    var cap = walkerCap(); if (walkers.length < cap && ticks >= nextWalker) spawn();
+    var cap = walkerCap(); if (!nightEnded() && walkers.length < cap && ticks >= nextWalker) spawn();
+    if (momentOn()) walkers = [];
   }
-  function draw() {
+  function draw(now) {
     var g = signature(); if (g !== sig) { sig = g; paintStatic(); }
     cx.drawImage(bg, 0, 0);
-    lanterns.forEach(drawLantern);
+    lanterns.forEach(function (L, index) { drawLantern(L, index, now); });
     for (var i = 0; i < 6; i++) drawSteam(i);
     walkers.forEach(drawWalker);
+    if (momentOn(now)) drawMoment();
     coins.forEach(function (c) { if (c.on) drawCoin(c); });
     flashes.forEach(drawFlash);
   }
@@ -153,7 +226,7 @@
     raf = 0; if (!live) return; frames++;
     if (!last) last = now; acc += Math.min(now - last, 250); last = now;                       // no catch-up after a stall
     var n = 0; while (acc >= TICK && n < 2) { acc -= TICK; tick(); n++; } if (acc >= TICK) acc = 0;
-    if (n) draw();
+    if (n || nightEnded()) draw(now);
     raf = requestAnimationFrame(loop);
   }
   function start() { if (live || reduce || document.hidden) return; live = true; last = 0; acc = 0; raf = requestAnimationFrame(loop); }
@@ -162,6 +235,11 @@
     if (document.hidden) { stop(); walkers = []; coins.forEach(function (c) { c.on = false; }); flashes = []; coinAt = []; return; } // gone, not frozen
     nextWalker = ticks + 8; start();
   }
+  function applyReduce(on) {
+    reduce = !!on;
+    if (reduce) { stop(); walkers = []; still(); return; }
+    start();
+  }
   function still() { draw(); }                                                                  // reduced motion: one still frame
   function stillFor(ms) { draw(); setTimeout(function () { coins.forEach(function (c) { c.on = false; }); flashes = []; draw(); }, ms); }
 
@@ -169,7 +247,10 @@
     // The lane breaks out of the page column to the full page width. Whole-number scale from 384 px up (2x from 768, 3x from
     // 1152, never more than 3x). Below 384 px a 1x strip can't fit, so it shrinks to the page width with every stall whole
     // (the one place the scale isn't a whole number, so the Tea Stall is never cut off).
-    var vw = document.documentElement.clientWidth || W, wrap = cv.parentNode, k = vw < W ? vw / W : Math.min(3, Math.floor(vw / W));
+    // NM-G8: the width is the page body's, which is the viewport minus a classic scrollbar. A scrollbar that appears once the
+    // stalls have filled in shrinks it with no window resize, so a ResizeObserver on the body refits the strip as well.
+    var vw = (document.body && document.body.clientWidth) || document.documentElement.clientWidth || W, wrap = cv.parentNode, k = vw < W ? vw / W : Math.min(3, Math.floor(vw / W));
+    if (wrap.style.width === vw + 'px' && cv.dataset.scale === String(+k.toFixed(3))) return;
     wrap.style.width = vw + 'px';
     cv.style.width = Math.floor(W * k) + 'px'; cv.style.height = Math.floor(H * k) + 'px'; cv.dataset.scale = String(+k.toFixed(3));
   }
@@ -182,24 +263,27 @@
       for (var k = 0; k < MAX_COINS; k++) coins.push({ on: false, i: 0, f: 0 });
       makeLanterns();
       var mq = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null; reduce = !!(mq && mq.matches);
-      if (mq && mq.addEventListener) mq.addEventListener('change', function () { reduce = mq.matches; if (reduce) { stop(); still(); } else start(); });
+      if (mq && mq.addEventListener) mq.addEventListener('change', function () { applyReduce(mq.matches); });
       document.addEventListener('visibilitychange', onVis);
       window.addEventListener('resize', fit); fit();
+      if (window.ResizeObserver && document.body) { watch = new ResizeObserver(function () { fit(); }); watch.observe(document.body); }
       nextWalker = 16; draw(); start();
     },
     serve: function (i) { pop(i); if (reduce) { coins.forEach(function (c) { if (c.on) c.f = 0; }); stillFor(500); } },
     buy: function (i, before, after) {
-      var m = MILESTONES.some(function (x) { return before < x && after >= x; });
+      var m = FLASHES.some(function (x) { return before < x && after >= x; });
       flash(i, m); if (reduce) stillFor(500);
     },
     hire: function (i) { flash(i, false); if (reduce) stillFor(500); },
     refresh: function () { if (!live) draw(); },
     // for the checks
-    W: W, H: H, PALETTE: C, MAX_COINS: MAX_COINS,
+    W: W, H: H, PALETTE: C, MAX_COINS: MAX_COINS, SLOT: SLOT, STALL_BOTTOM: STALL_BOTTOM, WALK: { y: WALK_Y, w: WALK_W, h: WALK_H },
+    walkerCap: walkerCap, fit: fit, still: function () { draw(); }, background: function () { return bx.getImageData(0, 0, W, H); },
     get ticks() { return ticks; }, get frames() { return frames; }, get live() { return live; },
     coinsOn: function () { return coins.filter(function (c) { return c.on; }).length; },
     flashes: function () { return flashes.slice(); }, walkers: function () { return walkers.slice(); },
     lanterns: function () { return lanterns; }, step: function (n) { for (var k = 0; k < (n || 1); k++) tick(); draw(); },
-    setReduce: function (v) { reduce = v; if (v) { stop(); still(); } else start(); }
+    finaleReady: finaleReady, dimCount: function () { return dimCount(); },
+    setReduce: function (v) { applyReduce(v); }
   };
 })();

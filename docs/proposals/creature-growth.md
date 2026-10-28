@@ -15,7 +15,7 @@ punishes: care only ever adds.
 
 ## The key choice: a *life stage*, not new species
 
-Pokémon makes babies separate species (Pichu before Pikachu). That would triple the roster's art and data. Instead,
+Pokémon makes babies separate species (a baby form before the grown form). That would triple the roster's art and data. Instead,
 **every creature has a life stage of its own** (`c.stage`: baby, young, adult, elder), drawn from its species' normal
 art with different proportions. Every current and future species gets babies for free, and W11's bigger roster
 doesn't need baby entries. Species evolution (Cindercub → Blazefang at 14) stays exactly as it is.
@@ -58,7 +58,7 @@ breed two creatures, raise the baby for three ranch days, and see it grow, with 
 Part 2 adds care-shaped potential and elders; part 3 adds lost hatchlings.
 
 ## Open questions for Evan
-1. **Life stages (recommended) or separate baby species** like Pichu? Stages give every creature a baby at once;
+1. **Life stages (recommended) or separate baby species** like a separate baby species? Stages give every creature a baby at once;
    species give each baby its own name and design but need far more art.
 2. **Can babies battle?** Recommended: no (they stay on the ranch, which makes raising feel different from training).
    The alternative is letting them fight at reduced strength.

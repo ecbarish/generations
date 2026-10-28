@@ -1,10 +1,10 @@
 /* Every check in the arcade with one command (docs/learning/saves-and-testing.md).
    Opens the browser test pages (nine game pages and the Studio) in a hidden browser, presses "Run checks" on each and reads the result,
    runs the hall's launcher checks (tools/launcher-checks.cjs; two widths on CI), then
-   (when Godot is found) runs both Godot suites. Prints one line per suite and exits 1 if anything failed.
+   (when Godot is found) runs the Starfall Godot suite. Prints one line per suite and exits 1 if anything failed.
 
      node tools/run-all-checks.cjs                  every suite
-     node tools/run-all-checks.cjs wildbond starfall  only the suites whose names contain these words
+     node tools/run-all-checks.cjs starfall little-ranch  only the suites whose names contain these words
      GODOT=C:\Users\evanb\Godot\Godot_v4.7.2-stable_win64_console.exe node tools/run-all-checks.cjs
 
    Needs Node and the playwright package (npm i -g playwright). It uses any Chrome, Chromium or Edge already
@@ -12,11 +12,11 @@
    request (.github/workflows/checks.yml). No game saves are touched: every page runs in a fresh browser context. */
 const http=require('http'),fs=require('fs'),path=require('path'),{spawnSync}=require('child_process');
 const ROOT=path.resolve(__dirname,'..');
-const PAGES=['run','wildbond','starfall','sound','offline','diamond','diamond-manager','otherworld','runner-safety','studio','storm-front','lighthouse-watch','briskets-crossing','ember-bricks','little-ranch','tell-us','lantern-bowl','keymaster','engine-save','idle-core','night-market'];
-const GODOT_SUITES=['wildbond-godot','starfall-godot'];
+const PAGES=['run','starfall','sound','offline','diamond','diamond-manager','otherworld','runner-safety','studio','storm-front','lighthouse-watch','briskets-crossing','ember-bricks','little-ranch','tell-us','lantern-bowl','keymaster','engine-save','idle-core','night-market'];
+const GODOT_SUITES=['starfall-godot'];
 const only=process.argv.slice(2);
 const wanted=name=>!only.length||only.some(w=>name.includes(w));
-if(only.length&&!PAGES.concat(GODOT_SUITES,['launcher','wildbond-catalog','save-names','asset-library','agent-context']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['wildbond-catalog','save-names','asset-library','agent-context']).join(', '));process.exit(2);}
+if(only.length&&!PAGES.concat(GODOT_SUITES,['launcher','save-names','asset-library','agent-context','little-ranch-palette']).some(wanted)){console.error('No suite matches: '+only.join(' ')+'. Suites: '+PAGES.concat(GODOT_SUITES,['save-names','asset-library','agent-context','little-ranch-palette']).join(', '));process.exit(2);}
 const TYPES={'.html':'text/html','.js':'text/javascript','.cjs':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.ogg':'audio/ogg','.wav':'audio/wav','.mp3':'audio/mpeg','.mp4':'video/mp4','.wasm':'application/wasm','.pck':'application/octet-stream','.webmanifest':'application/manifest+json','.ico':'image/x-icon','.txt':'text/plain','.md':'text/plain'};
 
 function serve(){return new Promise(ok=>{const server=http.createServer((req,res)=>{
@@ -28,19 +28,7 @@ function serve(){return new Promise(ok=>{const server=http.createServer((req,res
 /* Any browser already on the computer, before Playwright's own Chromium (which needs a download that some machines
    and sandboxes can't make). Chrome or Edge on Windows (every Windows 10/11 PC has Edge), Chrome, Chromium or Edge on
    macOS and Linux. CHROME_PATH still wins. Returns undefined to let Playwright use its own browser. */
-function browserPath(){
-  if(process.env.CHROME_PATH)return process.env.CHROME_PATH;
-  const local=process.env.LOCALAPPDATA||'',pf=process.env.ProgramFiles||'C:/Program Files',pf86=process.env['ProgramFiles(x86)']||'C:/Program Files (x86)';
-  const candidates={
-    win32:[pf+'/Google/Chrome/Application/chrome.exe',pf86+'/Google/Chrome/Application/chrome.exe',local+'/Google/Chrome/Application/chrome.exe',
-      pf86+'/Microsoft/Edge/Application/msedge.exe',pf+'/Microsoft/Edge/Application/msedge.exe'],
-    darwin:['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome','/Applications/Chromium.app/Contents/MacOS/Chromium',
-      '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge'],
-    linux:['/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser',
-      '/snap/bin/chromium','/usr/bin/microsoft-edge','/opt/pw-browsers/chromium'],
-  }[process.platform]||[];
-  return candidates.find(p=>{try{return fs.statSync(p).isFile();}catch(e){return false;}});
-}
+const browserPath=require('./find-browser.cjs');
 
 function findGodot(){
   if(process.env.GODOT)return process.env.GODOT;
@@ -106,12 +94,6 @@ function findGodot(){
       console.log((ok?'ok  ':'FAIL')+'  '+project+'  '+total);
     }
   }
-  if(wanted('wildbond-catalog')){                 // the generated creature catalogue matches the game data
-    const run=spawnSync(process.execPath,[path.join(ROOT,'tools/wildbond-catalog.cjs'),'--check'],{encoding:'utf8'});
-    const line=((run.stdout||'')+(run.stderr||'')).trim().split('\n').pop();
-    results.push({name:'wildbond-catalog',ok:run.status===0,line});
-    console.log((run.status===0?'ok  ':'FAIL')+'  wildbond-catalog  '+line);
-  }
   if(wanted('save-names')){                       // save key names and Godot save folders never change (rename-checklist.md)
     const run=spawnSync(process.execPath,[path.join(ROOT,'tools/save-names-check.cjs')],{encoding:'utf8'});
     const line=((run.stdout||'')+(run.stderr||'')).trim().split('\n').pop();
@@ -129,6 +111,14 @@ function findGodot(){
     const line=((run.stdout||'')+(run.stderr||'')).trim().split('\n').pop();
     results.push({name:'agent-context',ok:run.status===0,line});
     console.log((run.status===0?'ok  ':'FAIL')+'  agent-context  '+line);
+  }
+  if(wanted('little-ranch-palette')){           // section 8 K: Little Ranch stays at or under 195 colours
+    const run=spawnSync('python3',[path.join(ROOT,'tools/palette-inventory.py'),'--game','little-ranch','--max','195'],{encoding:'utf8'});
+    const text=((run.stdout||'')+(run.stderr||'')).trim();
+    const line=(text.split('\n').find(l=>/palette:/.test(l))||text.split('\n').pop()||'no palette line');
+    if(run.status!==0)text.split('\n').slice(-6).forEach(l=>console.log('    '+l));
+    results.push({name:'little-ranch-palette',ok:run.status===0,line});
+    console.log((run.status===0?'ok  ':'FAIL')+'  little-ranch-palette  '+line);
   }
   const failed=results.filter(r=>!r.ok);
   console.log(failed.length?'\n'+failed.length+' of '+results.length+' suites FAILED.':'\nAll '+results.length+' suites pass.');

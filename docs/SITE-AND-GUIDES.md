@@ -21,10 +21,11 @@ the same pull request, or opens a follow-up the same day.
 4. **Arcade version** in `index.html` (VERSION and the label) and a README changelog line.
 5. Look at the real page at 375 px and at desktop width before shipping (CREATIVE.md, "Writing for players").
 
-## Two editions: Classic and the new version
-Wildbond and Starfall Guild each have a **Classic** edition (the original browser game, finished and kept as it was)
-and a **new version** (built in Godot, where all new work goes). The homepage keeps them apart: new versions sit in
-their kind's section with a green "New version" ribbon; Classics sit together in the last section, "Classic editions",
-with a tan "Classic" ribbon and a link to their new version. Guides name the edition they cover. Saves never cross.
-Realmbound, Otherworld, Diamond Manager, Primordial and the cabinets are browser games with one edition: they are not
-"Classic", so never call them that.
+## Classic editions: shelved, by direct link only
+Wildbond and Starfall Guild each have a **Classic** edition: the original browser game, finished and kept as it was.
+All new work goes into the **new version** built in Godot. Since AR-SHELVE (Evan, 2026-10-13) the Classics are **off
+the homepage**: they live in `window.ArcadeOffShelf` in `launcher/games.js`, which nothing a visitor sees reads. Their
+code, folders and save keys stay, and old direct links (`games/wildbond/`, `games/starfall-guild/`) still open them.
+There is no "Classic editions" section or ribbon on the homepage any more. Guides name the edition they cover, and
+saves never cross between editions. Realmbound, Otherworld, Diamond Manager, Primordial and the cabinets are browser
+games with one edition: they are not "Classic", so never call them that.

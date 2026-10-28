@@ -20,7 +20,7 @@ covers sources, licences and sound.
    rejected big-headed figures on 2026-10-08). Everything is sized against a person: a door 12 by 24, a window 6 to 8
    square, a cottage 3 to 4 tiles wide, a hall 5 to 6, a tree 2 to 3 tiles tall, a cart 2 tiles long. Wildbond's
    locked sizes, including the 12×21 tamer and that 12×24 door, are Scale (locked v3) in
-   [wildbond-art-direction.md](wildbond-art-direction.md).
+   wildbond-art-direction.md.
 3. **The footprint is the picture.** What you bump into is exactly the base drawn on the ground (a stone footing, a
    trunk, a fence line), and each object's footprint and height in tiles is written down in data beside the picture.
    That is what lets a 3D or first-person version rebuild the same place (VISION.md V10, Wildbond's WB-M7).
@@ -62,7 +62,7 @@ Done when: a contact sheet beside a 16x24 person and the neighbouring pieces; re
 ## Look sheets (one per game)
 | Game | Sheet | In a line |
 |---|---|---|
-| Wildbond (Godot) | [wildbond-art-direction.md](wildbond-art-direction.md) (by the Wildbond builder; its palette lives in `wildbond-godot/tools/paint_tiles.gd`, keep the two in step) | A storybook valley that lost its colour and is getting it back: deep cool greens, whitewashed cottages, slate-blue roofs, a red barn |
+| Wildbond (Godot) | wildbond-art-direction.md (by the Wildbond builder; its palette lives in `wildbond-godot/tools/paint_tiles.gd`, keep the two in step) | A storybook valley that lost its colour and is getting it back: deep cool greens, whitewashed cottages, slate-blue roofs, a red barn |
 | Starfall village (Godot) | [starfall.md](starfall.md) | A log-walled frontier town in pine forest: cooler and darker, timber and stone, lamplight at night |
 | Realmbound (browser) | not yet | Classic high-fantasy roads and towns; its own sheet comes when it moves into the game window |
 | Diamond Career (browser) | not yet | Ballparks under lights; its own sheet with the sports framework |

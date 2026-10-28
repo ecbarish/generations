@@ -4,9 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Night Market Stalls</title>
+<link rel="icon" href="../../icons/arcade.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<p class="goal goal-pin" id="goal-pin" hidden></p>
+<p class="coin-pin" id="coin-pin" hidden></p>
 <main class="window">
   <header>
     <a class="home" href="../../index.html">Back to the arcade</a>
@@ -15,14 +18,23 @@
     <p class="coins"><span id="coins">0</span> coins</p>
     <p class="rate" id="away-rule"></p>
     <p class="rate" id="rate"></p>
-    <p class="goal" id="goal"></p>
   </header>
-  <div class="lane" aria-hidden="true"><canvas id="lane" width="384" height="72"></canvas></div>
+  <div class="lane" aria-hidden="true"><canvas id="lane" width="384" height="88"></canvas></div>
+  <p class="goal" id="goal"></p>
+  <p class="lane-goal" id="lane-goal"></p>
+  <section class="finale" id="finale" hidden tabindex="-1">
+    <h2 id="finale-title"></h2>
+    <p id="finale-lead"></p>
+    <button type="button" data-act="finale">Keep the lane open</button>
+  </section>
+  <p class="finale-note" id="finale-note" hidden tabindex="-1"></p>
   <div class="market-work">
   <div class="bulk" id="bulk" hidden role="group" aria-label="How many to buy at once">
-    <button type="button" data-bulk="1" aria-pressed="true">Buy 1</button>
-    <button type="button" data-bulk="10" aria-pressed="false">Buy 10</button>
-    <button type="button" data-bulk="max" aria-pressed="false">Buy max</button>
+    <span class="bulk-name">Buying</span>
+    <button type="button" data-bulk="1" aria-pressed="true">1</button>
+    <button type="button" data-bulk="10" aria-pressed="false">10</button>
+    <button type="button" data-bulk="max" aria-pressed="false">Max</button>
+    <button type="button" data-bulk="next" aria-pressed="false">Next</button>
   </div>
   <section id="away" hidden></section>
   <ol class="stalls" id="stalls"></ol>
@@ -31,7 +43,6 @@
     <summary>Your save</summary>
     <div id="tools"></div>
   </details>
-  <p class="foot"><a href="../../index.html">Back to the arcade</a></p>
 </main>
 <script src="../../shared/engine.js"></script>
 <script src="../../shared/idle-core.js"></script>

@@ -95,7 +95,7 @@ A studio launches a **line-up**, not a catalogue. Proposed:
 | **Headline** | **Wildbond** | The game we're known for. Most of the work |
 | **For kids** | **Little Ranch** (web and app) | A fun, safe kids' world; ideas come in through COMMS from Evan, his dad and his daughter |
 | **Line-up** | **Starfall**, **Realmbound** (early game), **Diamond Manager**, **the Arcade row** | Real games on the front page, improved in rotation (section 4) |
-| **The Workshop** | Otherworld, Diamond Career, Lantern Bowl until it passes its gate | Playable, labelled honestly, lower on the page; small fixes only |
+| **The Workshop** | Otherworld, Diamond Career (Lantern Bowl shelved by Evan, 2026-10-18) | Playable, labelled honestly, lower on the page; small fixes only |
 | **Hidden** | Wildbond Classic, Starfall Guild Classic, Primordial | Off the front page (Evan: we don't know they're still playable). The files stay; their best ideas feed the new games |
 | **The Incubator** | Lantern Bowl (football), Keymaster (real estate), the card shop, The Crossing, Main Street | The gold mine. Each earns its way in with a ten-minute prototype (section 7) |
 

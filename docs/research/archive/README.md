@@ -4,8 +4,8 @@ Archived 2026-10-08 at Evan's request. These prompts have answers; do not send t
 
 | Completed research | Original brief | Answer and review |
 |---|---|---|
-| Wildbond creature-game UX | Original prompt was in Evan's Gemini history; its entry is retained in [original index](original-gemini-prompts.md) | [Claude's organized findings](../creature-games-ux.md), [Codex assessment](../codex-godot-assessment.md) |
-| Wildbond / Godot production slice | [Archived prompt](gemini-godot-production-prompt.md) | [Supplied report](../godot-production-slice.md), [review/corrections](../godot-production-slice-review.md) |
+| Wildbond creature-game UX | Original prompt was in Evan's Gemini history; its entry is retained in [original index](original-gemini-prompts.md) | [Claude's organized findings](../creature-games-ux.md), Codex assessment |
+| Wildbond / Godot production slice | [Archived prompt](gemini-godot-production-prompt.md) | Supplied report, [review/corrections](../godot-production-slice-review.md) |
 | Realmbound first hour and single-player MMO design | [Archived prompt](gemini-realmbound-first-hour-prompt.md); broad older prompt in [original index](original-gemini-prompts.md) | [Supplied report](../realmbound-first-hour-research.md), [review](../realmbound-first-hour-review.md) |
 | Starfall first expedition and season | [Archived prompt](gemini-starfall-first-season-prompt.md) | [Supplied report](../starfall-first-season-research.md), [review against the working game](../starfall-first-season-review.md) |
 

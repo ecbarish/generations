@@ -3,16 +3,16 @@
 (function () {
   'use strict';
   const VERSION = '1.8.0';
-  const CURRENT = ['wildbond-preview', 'starfall-preview', 'realmbound']; // the headline games on the hub
-  const PAGES = { 'wildbond-preview': 'game/wildbond.html', 'starfall-preview': 'game/starfall.html', realmbound: 'game/realmbound.html' };
+  const CURRENT = ['little-ranch', 'starfall-preview', 'realmbound']; // the headline games on the hub
+  const PAGES = { 'starfall-preview': 'game/starfall.html', realmbound: 'game/realmbound.html' };
   const SHORT = {
-    'wildbond-preview': 'Bond with creatures, explore eight regions and bring colour back to a faded valley.',
+    'little-ranch': 'A toy for ages 2 to 4. Feed, bath, peekaboo and bedtime. No reading, nothing to lose.',
     'starfall-preview': 'Build a frontier guild town: post jobs, cook at the inn, work the forge, then hire help.',
     realmbound: 'A classic-MMO adventure from level 1 to 60. Quest, dungeon, raid, or let Auto play.'
   };
   const LAB_ART = { 'storm-front': 1, 'lighthouse-watch': 1, 'briskets-crossing': 1, 'ember-bricks': 1, baseball: 'diamond-manager', 'lantern-bowl': 1, otherworld: 1, 'little-ranch': 1 };
-  const GODOT_SAVES = { 'wildbond-preview': '/app_userdata/Wildbond (Godot trial)/journey.json' };
-  const SAVE_KEYS = { baseball: 'diamond-manager-save-v1', otherworld: 'otherworld-save-v1', realmbound: 'realmbound-save-v1', 'lantern-bowl': 'lantern-bowl-save-v1' };
+  const GODOT_SAVES = {};
+  const SAVE_KEYS = { baseball: 'diamond-manager-save-v1', otherworld: 'otherworld-save-v1', realmbound: 'realmbound-save-v1', 'lantern-bowl': 'lantern-bowl-save-v1', keymaster: 'keymaster-save-v1' };
   const all = (window.ArcadeGames || []).filter(g => g.edition !== 'classic' && g.kind !== 'classic' && !g.classic && !g.newer);
   let idx = {};
   try { idx = window.ArcadeSportsProgress ? ArcadeSportsProgress.forHall(Arcade.readIndex()) : Arcade.readIndex(); } catch (_) { idx = {}; }
@@ -55,7 +55,7 @@
     redirectOldHash() {
       const h = location.hash.slice(1); if (!h) return;
       const labKinds = this.lab().map(g => 'kind-' + g.kind);
-      if (h === 'more-games' || h === 'kindsNav' || (labKinds.includes(h) && !['kind-adventure', 'kind-build'].includes(h))) { location.replace('lab.html' + (h.startsWith('kind-') ? '#' + h : '')); return; }
+      if (h === 'more-games' || h === 'kindsNav' || (labKinds.includes(h) && !['kind-adventure', 'kind-build', 'kind-kids'].includes(h))) { location.replace('lab.html' + (h.startsWith('kind-') ? '#' + h : '')); return; }
       if (/^(kind-|launch)/.test(h)) { const t = document.getElementById('games'); if (t) t.scrollIntoView(); }
     },
     jump() { const t = location.hash && document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); },

@@ -70,7 +70,7 @@ Six pillars, each with the games that proved it (our research notes: docs/resear
 docs/plans/wildbond.md "Learn from the references"):
 
 1. **Respect the player's time.** *Radical Red, Pokémon Unbound*: no chore moves, moves you can always relearn, items
-   that never run out, every number explained in plain words, fast battles, level caps per badge. *Legends: Arceus*:
+   that never run out, every number explained in plain words, fast battles, level caps per badge. *an open-region game*:
    catching in the overworld. **For us:** no grinding walls, field skills are creatures helping in the world, and our
    rule stays: active play always worth at least as much as idle, automation earned.
 2. **Battles that are puzzles, not luck.** *Pokémon Reborn and Rejuvenation*: field effects that change every fight.

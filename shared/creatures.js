@@ -59,7 +59,7 @@
       bond: 0, hp: null, born: opts.born || ''
     };
   }
-  /* Pokemon-style stat curve. base = species base stats (roughly 30-120). */
+  /* A stat curve in the style of creature-collecting RPGs. base = species base stats (roughly 30-120). */
   function stats(c, base) {
     var t = TEMPERAMENTS[c.temp] || TEMPERAMENTS.steady, rm = RARITY[c.rar].m, bl = bondLvl(c), out = {};
     STATS.forEach(function (s) {

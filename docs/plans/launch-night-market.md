@@ -3,7 +3,8 @@
 **Owner:** Guest lane (#373) for the Night Market bundles. Side Games Dev Lead keeps Little Ranch and Lantern Bowl.
 **Core:** IDLE-CORE is merged (#393, `shared/idle-core.js`). Games keep their own saves. The core is not rebuilt for this checklist.
 **The build:** IDLE-NM1, Night Market Stalls. **#403** is merged (`d9cde61`). The hub entry was not in that pull.
-**Ruling:** Evan, 2026-10-14. Night Market is a launch game. IDLE-NM1 is the build that fills this checklist. IDLE-SS1, IDLE-CS1 and IDLE-DP1 wait until Night Market has been playtested.
+**Ruling:** Evan, 2026-10-14. Night Market is a launch game. IDLE-NM1 is the build that fills this checklist. IDLE-CS1 and IDLE-DP1 stay on the shelf until Night Market has been playtested. IDLE-SS1 does not. Evan approved the Saltmarsh Shipping Office on 2026-10-23 and reconfirmed it on 2026-10-27. It is active. #619 is first, then IDLE-SS1b. Finish that office before polishing Otherworld, Keymaster or Diamond Manager into finished games.
+**Roguelite:** NM-ROGUELITE-1 is [#625](https://github.com/ecbarish/generations/pull/625) and is in review. Do not start a second copy. NM-ROGUELITE-2 follows #625. Evan approved the roguelite design with its defaults on 2026-10-23, recorded in #625 at [docs/plans/nightmarket-roguelite.md line 3](https://github.com/ecbarish/generations/blob/304cff582534de66f1a7e791311462a81432daf7/docs/plans/nightmarket-roguelite.md#L3). The two-pull order is Evan's approval, relayed by Generations Director (Oct 27, 2026) and included in Evan's go-ahead for this PR on Oct 27.
 **Dates:** measured 2026-10-14, then counted as bundles. See [launch-summary.md](launch-summary.md). The 29 October and 22 November dates are placeholders.
 **Chunks** (Evan, 2026-10-14): one pull request per fix list or feature area, and one game per pull request. Split only when one area gets genuinely risky. Guardrails stay: tests green, old saves load, screenshots, Game Art Director reviews any art, and no save-format change without Evan.
 
@@ -17,7 +18,7 @@ Playtester scores the first session once the stall exists, then every week. Fini
 |---|---|---|
 | A newcomer gets through the first 10 minutes without help | **NML-1** | #403 is merged. A newcomer still cannot find the stall from the hall. **NM-HUB** needs its own claim. 2026-10-14: on the live build (#434, `9195865`), Playtester confirmed the pour button stays after hiring and the cups bar works, and Generations Reviewer confirmed hold-to-pour on a fresh save at the pre-hire stall. The hall entry is still open |
 | Playtester rates the first session as fun | **NML-2** | **5/10** on 2026-10-14. The bar is at least 7/10. This does not pass |
-| No crashes and no broken saves | **NML-3** | #403 keeps the stall on the idle core. **NM-FIX-6:** "Your save" should do something. A reload must show the away summary and leave every other game's save alone. 2026-10-14: Playtester confirmed on the live build (#434, `9195865`) that the welcome-back box works. The reload check is still open |
+| No crashes and no broken saves | **NML-3** | #403 keeps the stall on the idle core. **NM-FIX-6:** "Your save" is proved on item 11 (#614, `c34a8b42`). A reload must show the away summary and leave every other game's save alone. 2026-10-14: Playtester confirmed on the live build (#434, `9195865`) that the welcome-back box works. 2026-10-22: #614 (`c34a8b42`) proves the reload. A reload shows the away summary, a second reload keeps the stall, and other games' saves are unchanged. |
 | Plays well on a phone | **NML-4** | **NM-FIX-7.** The phone layout still needs a playtest. Owner: Playtester. 2026-10-14: Generations Reviewer confirmed hold-to-pour on the live build (#434, `9195865`), on a fresh save, on the pre-hire stall, using an iPhone 12 held upright (390x844) and sideways (844x390). A single tap poured 1 cup. A roughly 2-second touch hold poured 16 cups, about 8 a second. A played phone session is still open |
 | One clear goal | **NML-5** | One stall you work yourself. Payback hint and the time-to-afford line are done (#421). 2026-10-14: on the live build (#434, `9195865`), Playtester confirmed the pour button stays after hiring, payback times show whole seconds, the welcome-back box works and the cups bar works. Generations Reviewer confirmed hold-to-pour on a fresh save, on the pre-hire stall: a single tap poured 1 cup, a roughly 2-second touch hold poured 16 cups (about 8 a second), and a mouse hold poured until the 25-cup cap, and the counter and bar rose with it |
 | Known bugs are fixed | **NML-6** | The offline label is done (#421). **NM-VIS** is visual life, one pull. **NM-PHONE** is done (#456, `f2f8a261`): the back control and the fold. **NM-RETUNE** still waits for the district slice. **NM-CLAMP** is below |
@@ -38,7 +39,7 @@ Playable and fun. Further improvements do not hold the release.
 
 1. One stall you work yourself before any hire (NML-1, NML-5). The spec's first sitting: serve by hand, a named vendor after enough serves, and a second stall type only if it still fits that first sitting.
 2. Capped offline earnings and an away summary, using the merged idle core (NML-3).
-3. A reload keeps the stall and does not touch other games' saves (NML-3).
+3. Done (#614, `c34a8b42`): a reload keeps the stall and does not touch other games' saves (NML-3). A second reload keeps the stall, and other games' saves stay unchanged.
 4. The stall plays on a phone (NML-4).
 5. Playtester's fun score is at least 7/10 (NML-2).
 6. A hub and launcher entry, so a newcomer can open the stall (**NM-HUB**). One pull. Not part of #403.
@@ -46,7 +47,7 @@ Playable and fun. Further improvements do not hold the release.
 8. Done (#421, `1459413`): offline earnings stay at 50% and the screen says so (**NM-FIX-2**).
 9. Visual life, one pull (**NM-VIS**), spec from Game Art Director. Lane-strip canvas, coin pop and flicker (**NM-FIX-3**), plus steam, flash and passers-by (**NM-FIX-4**).
 10. Done (#456, `f2f8a261`): "Back to the arcade" is large enough and does not cover another button, and a stall is on screen on a phone (**NM-PHONE**, **NM-FIX-8**).
-11. The pour keeps a button after 25 clicks, "Your save" does something, and a time hint does not print a trailing zero (**NM-PLAY**: **NM-FIX-5**, **NM-FIX-6**). 2026-10-14, live build (#434, `9195865`): Playtester confirmed the pour button stays after hiring and that payback times show whole seconds. Generations Reviewer confirmed hold-to-pour on a fresh save at the pre-hire stall: a single tap poured 1 cup, a roughly 2-second touch hold poured 16 cups (about 8 a second), and a mouse hold poured until the 25-cup cap, and the counter and bar rose with it. "Your save" is not in this confirmation, so this line stays open.
+11. Done (#614, `c34a8b42`): The pour keeps a button after 25 clicks, "Your save" does something, and a time hint does not print a trailing zero (**NM-PLAY**: **NM-FIX-5**, **NM-FIX-6**). 2026-10-14, live build (#434, `9195865`): Playtester confirmed the pour button stays after hiring and that payback times show whole seconds. Generations Reviewer confirmed hold-to-pour on a fresh save at the pre-hire stall: a single tap poured 1 cup, a roughly 2-second touch hold poured 16 cups (about 8 a second), and a mouse hold poured until the 25-cup cap, and the counter and bar rose with it. Your save is proved in that pull. The download is this game's version 1 file, a file from another game is refused, and the checks cover a touch hold.
 12. A phone layout playtest (**NM-FIX-7**). Owner: Playtester. 2026-10-14: Generations Reviewer confirmed hold-to-pour on an iPhone 12 held upright (390x844) and sideways (844x390). A played phone session is still open.
 
 ## Playtest gaps (2026-10-14, fun 5/10)
@@ -55,7 +56,7 @@ These are bundles, not one pull each. Guest lane (#373) owns them. Payback hint 
 
 | ID | Owner | What |
 |---|---|---|
-| NM-PLAY | Guest lane (#373) | First bundle. Pour flow (NM-FIX-5), save controls (NM-FIX-6), and the 22.0s trailing-zero fix. 2026-10-14, live build (#434, `9195865`): Playtester confirmed the pour button stays after hiring, payback times show whole seconds, the welcome-back box works and the cups bar works. Generations Reviewer confirmed hold-to-pour on a fresh save, on the pre-hire stall, on an iPhone 12 held upright (390x844) and sideways (844x390): a single tap poured 1 cup, a roughly 2-second touch hold poured 16 cups (about 8 a second), and a mouse hold poured until the 25-cup cap, and the counter and bar rose with it. "Your save" is still open |
+| NM-PLAY | Guest lane (#373) | First bundle. Pour flow (NM-FIX-5), save controls (NM-FIX-6), and the 22.0s trailing-zero fix. 2026-10-14, live build (#434, `9195865`): Playtester confirmed the pour button stays after hiring, payback times show whole seconds, the welcome-back box works and the cups bar works. Generations Reviewer confirmed hold-to-pour on a fresh save, on the pre-hire stall, on an iPhone 12 held upright (390x844) and sideways (844x390): a single tap poured 1 cup, a roughly 2-second touch hold poured 16 cups (about 8 a second), and a mouse hold poured until the 25-cup cap, and the counter and bar rose with it. Your save is proved (#614, `c34a8b42`): the download is this game's version 1 file, and a file from another game is refused |
 | NM-VIS | Guest lane (#373) | Visuals, one pull: lane-strip canvas, coin pop and flicker (NM-FIX-3), plus steam, flash and passers-by (NM-FIX-4). Spec from Game Art Director, who reviews the art |
 | NM-PHONE | Guest lane (#373) | Done (#456, `f2f8a261`). "Back to the arcade" is large enough and does not cover another button, and a stall is on screen on a phone (NM-FIX-8) |
 | NM-HUB | Guest lane (#373) | Hall and launcher entry. #403 did not add this |
@@ -66,7 +67,7 @@ These are bundles, not one pull each. Guest lane (#373) owns them. Payback hint 
 - **NM-RETUNE.** 1M lifetime coins arrives in about 8 minutes. [office-idle-progression.md](../research/office-idle-progression.md) §8 wants the district move at about 45–75 minutes. Retune before that slice.
 - **NM-CLAMP.** The idle-core per-tick clamp under-credits a hidden tab that has been asleep more than 4 hours. Section 8 says there is no clamp while the page is loaded. Shared Systems Architect rules on this. It is off the blocking path.
 - Moving to a new district, permits, and a collection of vendor stories, once NM-RETUNE has landed.
-- IDLE-SS1, IDLE-CS1 and IDLE-DP1. They wait on the shelf until Night Market has been playtested.
+- IDLE-CS1 and IDLE-DP1. They stay on the shelf until Night Market has been playtested. IDLE-SS1 left that shelf. Evan approved it on 2026-10-23 and reconfirmed it on 2026-10-27. It is active. #619 is first, then IDLE-SS1b. Finish that office before polishing Otherworld, Keymaster or Diamond Manager into finished games.
 - More stall types beyond the first sitting.
 
 ## Timeline
@@ -77,7 +78,7 @@ Measured 2026-10-14. Night Market's feature rate is 2 pulls in 7 days (0.29 a da
 
 | ID | What is inside |
 |---|---|
-| NM-PLAY | Pour flow, save controls, and the 22.0s trailing-zero fix. 2026-10-14: the pour, whole-second times, the welcome-back box and the cups bar were confirmed on the live build (#434, `9195865`). "Your save" is still open |
+| NM-PLAY | Pour flow, save controls, and the 22.0s trailing-zero fix. 2026-10-14: the pour, whole-second times, the welcome-back box and the cups bar were confirmed on the live build (#434, `9195865`). Your save is proved (#614, `c34a8b42`): the download is this game's version 1 file, and a file from another game is refused |
 | NM-VIS | Lane strip, coin pop, flicker, steam, flash, and passers-by. One pull. Game Art Director reviews the art |
 | NM-PHONE | Done (#456, `f2f8a261`): the back control and the stalls below the fold |
 | NM-HUB | Hall and launcher entry |
@@ -89,4 +90,4 @@ Measured 2026-10-14. Night Market's feature rate is 2 pulls in 7 days (0.29 a da
 
 **Owner:** Guest lane (#373).
 
-1. **NM-PLAY.** Pour flow, save controls, and the trailing-zero fix, in one pull. 2026-10-14: the pour, whole-second times, the welcome-back box and the cups bar were confirmed on the live build (#434, `9195865`). "Your save" is still open.
+1. **NM-PLAY.** Pour flow, save controls, and the trailing-zero fix, in one pull. 2026-10-14: the pour, whole-second times, the welcome-back box and the cups bar were confirmed on the live build (#434, `9195865`). Your save is proved (#614, `c34a8b42`): the download is this game's version 1 file, and a file from another game is refused.

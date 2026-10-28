@@ -30,7 +30,7 @@ starts as a modest home with sleeping space, a fireplace and furniture, then gro
 Our design interpretation: arrange a few recognizable activities in a compact space. A table belongs with seating;
 a hearth belongs with a place to sit or cook; a bed belongs with personal storage. Keep a clear route through them.
 These games are layout references, not asset sources. Do not copy sprites, screenshots into game textures, exact
-floor plans, dialogue or characters. Wildbond follows [its own art direction](../art/wildbond-art-direction.md).
+floor plans, dialogue or characters. Wildbond follows its own art direction.
 
 ## Quality rules for every room and route
 
