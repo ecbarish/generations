@@ -1,6 +1,6 @@
 # Night Market Stalls (IDLE-NM1)
 
-v0.1.8.
+v0.1.9.
 
 A small night market you can leave open. Six stalls stand on one lane. You work each stall yourself, then ask its vendor to run it. After that you buy more of that stall, one, ten, up to the next doubling, or as many as you can afford. At 25, 50 and 100 the stall changes look. It also earns twice as much at each of those counts, and again at 150, 200, 300 and 400. The whole lane doubles when your lowest stall reaches 10, then 25, then 50. Every stall shows the next of those goals. Ten Story Mats tell Old Wen's last chapter, the lanterns go out, and you can keep the lane open.
 
@@ -12,19 +12,20 @@ It is not in the hall. Open `games/night-market/index.html`. Nothing here is tak
 
 Checks: `node tools/run-all-checks.cjs night-market`
 
-Willow Quay vendor tales from #515 are in `district-tales.json`: 24 tales, four for each of the six vendors, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.8.
+Willow Quay vendor tales from #515 are in `district-tales.json`: 24 tales, four for each of the six vendors, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.9.
 
-Vendor tales from #482 are in `vendor-tales.json`: 24 tales, four for each of the six vendors, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.8.
+Vendor tales from #482 are in `vendor-tales.json`: 24 tales, four for each of the six vendors, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.9.
 
-District data is in `districts.json`. #483 adds Willow Quay and six stalls, opening at 1,000,000 lifetime, plus a pacing checker. #507 adds Cedar Steps, a third district with six new stall types, opening at 4,000,000 lifetime, and the district checker now checks each district. The game does not load the new districts into play yet, so the lane stays as it is and Night Market Stalls stays at v0.1.8. The save stays version 1.
+District data is in `districts.json`. #483 adds Willow Quay and six stalls, opening at 1,000,000 lifetime, plus a pacing checker. #507 adds Cedar Steps, a third district with six new stall types, opening at 4,000,000 lifetime, and the district checker now checks each district. The game does not load the new districts into play yet, so the lane stays as it is and Night Market Stalls stays at v0.1.9. The save stays version 1.
 
-Away gossip from #500 is in `gossip.json`: 72 away-summary lines for the six vendors, across three away-time bands, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.8.
+Away gossip from #500 is in `gossip.json`: 72 away-summary lines for the six vendors, across three away-time bands, plus a checker. The game does not load that file yet, so the lane stays as it is and Night Market Stalls stays at v0.1.9.
 
-Portrait prompts from #498 are in `docs/art/night-market-vendor-prompts.md`: text-only briefs for the six vendors. No game file reads that page, so the lane stays as it is and Night Market Stalls stays at v0.1.8.
+Portrait prompts from #498 are in `docs/art/night-market-vendor-prompts.md`: text-only briefs for the six vendors. No game file reads that page, so the lane stays as it is and Night Market Stalls stays at v0.1.9.
 
 ## Changelog
 
 - Unreleased (NM-PACING): The Story Mat is a real stall at 2,000,000 coins and 2,500 a second. Later Incense Trays grow at 1.08, so the tray stops being the only good buy. Stalls double again at 150, 200, 300 and 400. The lane doubles when the lowest stall reaches 10, 25 and 50. Ten Story Mats end the night with Old Wen's last chapter. Next buys up to the following goal, and that goal is written on every stall. The first quarter hour is unchanged. The save stays version 1.
+- v0.1.9 (2026-10-28, NM-FUN-PASS, PR #616): A phone has one Back to the arcade link, in the header, so Download my save and Load a save file stay on the page. The save summary and Automatic backups open with a disclosure arrow, and the note, the timestamp and Restore are at least 16px. From minute 8 to 25 the best stall pays for itself in under five minutes. The first Incense Tray costs 52.4K and earns 540 coins a second, so it pays for itself in about a minute and a half, and it opens once twelve mooncake tables are wrapping. Best is a small tag on the stall, and the price on the buy button stays whole. The first time a payback appears, one line says that a lower time is a better buy. On a phone the goal sits under the lane, and its pin appears on one line as soon as that goal leaves the screen. The save stays version 1.
 - v0.1.8 (2026-10-22, NM-LAUNCH-POLISH, PR #614): On phone layouts, the stall count line under the pour bar is 16px. A wider window still uses 0.92rem. Switching to reduced motion mid-session clears a passer-by from the lane instead of leaving that person frozen mid-step. Game Art Director approved the shots in comment 6349925816. The save stays version 1.
 - v0.1.7 (2026-10-15, NM-G3, PR #499): The Back and footer links are now 1rem and stay on one line. The header reflows when the text is larger, as Generations Director approved. Game Art Director approved the change at 9548a7bb. The save stays version 1.
 - v0.1.6 (2026-10-15, NM-PHONE, PR #456): On phones, Night Market keeps its Back control and first stall within reach. Every touch target is at least 44px at all seven tested sizes. Contrast is at least 5.16:1. The Pour button now sits above the fold on sideways phones. The save stays version 1.
