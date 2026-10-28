@@ -18,7 +18,7 @@
     <p class="coins"><span id="coins">0</span> coins</p>
     <p class="rate" id="away-rule"></p>
     <p class="rate" id="rate"></p>
-    <p class="rate" id="omen-now" hidden></p>
+    <p class="rate" id="omen-now">Tonight's omen</p>
     <p class="book-note" id="book-note" hidden>This night is written in the Lantern Book. <button type="button" id="open-book">Open the Lantern Book</button></p>
   </header>
   <div class="lane" aria-hidden="true"><canvas id="lane" width="384" height="88"></canvas></div>
@@ -45,6 +45,7 @@
   <section id="away" hidden></section>
   <ol class="stalls" id="stalls">
   <li class="pick quiet" id="pick" hidden>
+    <div id="pick-backdrop" hidden></div>
     <div class="pick-panel" id="pick-panel">
       <p id="pick-lead" tabindex="-1">Tonight's omen and charms wait here.</p>
       <div class="choices" id="pick-choices"></div>

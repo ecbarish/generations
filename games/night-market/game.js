@@ -231,10 +231,7 @@
     rateEl.classList.toggle('flash', Date.now() < rateFlashUntil);
     var omenNow = $('#omen-now');
     var omenRow = state.night && M.omenById(state.night.omen);
-    if (omenNow) {
-      omenNow.hidden = !omenRow;
-      omenNow.textContent = omenRow ? omenRow.brief : '';
-    }
+    if (omenNow) omenNow.textContent = omenRow ? omenRow.brief : "Tonight's omen";
     var bookNote = $('#book-note');
     if (bookNote) bookNote.hidden = !(state.meta && state.meta.nights && state.meta.nights.length);
     var dawn = M.dawnDue(state);
@@ -256,13 +253,9 @@
         $('#finale-lead').textContent = copy.lead;
         var summaryEl = $('#finale-summary');
         if (summaryEl) summaryEl.textContent = copy.summary;
-        var box = finale.getBoundingClientRect();
-        var viewH = window.innerHeight || document.documentElement.clientHeight;
-        if (!dawnCardSeen || box.top < 4 || box.bottom > viewH - 4) {
-          finale.scrollIntoView({ block: 'center', behavior: 'auto' });
-        }
         if (!dawnCardSeen) {
           dawnCardSeen = true;
+          finale.scrollIntoView({ block: 'center', behavior: 'auto' });
           finale.focus({ preventScroll: true });
         }
         var nextNight = finale.querySelector('[data-act="next-night"]');
@@ -400,7 +393,22 @@
     box.hidden = !!M.dawnDue(state);
     box.classList.toggle('quiet', !show);
     if (M.noteOffer(state)) persist();
+    var panel = $('#pick-panel');
+    var backdrop = $('#pick-backdrop');
     if (!show) {
+      if (panel) {
+        panel.removeAttribute('role');
+        panel.removeAttribute('aria-modal');
+      }
+      if (backdrop) backdrop.hidden = true;
+      setBehindInert(false);
+      if (offerModalSig) {
+        offerModalSig = '';
+        resumeOffer();
+        var back = offerReturn;
+        offerReturn = null;
+        if (back && back.focus && document.contains(back)) back.focus({ preventScroll: true });
+      }
       var omenQuiet = state.night && M.omenById(state.night.omen);
       var taken = ((state.night && state.night.charms) || []).map(function (id) {
         var row = M.charmById(id);
@@ -425,6 +433,14 @@
       : ('Pick a charm for tonight, or skip: ' + choiceLead(offer.options, M.charmById));
     var choices = $('#pick-choices');
     var sig = offer.kind + '|' + offer.options.join(',') + '|' + (state.night.rerollUsed ? 1 : 0);
+    if (panel) {
+      panel.setAttribute('role', 'dialog');
+      panel.setAttribute('aria-modal', 'true');
+      panel.setAttribute('aria-labelledby', 'pick-lead');
+    }
+    if (backdrop) backdrop.hidden = false;
+    setBehindInert(true);
+    pauseOffer();
     if (choices.dataset.sig === sig) {
       var skipSame = box.querySelector('[data-act="skip"]');
       var againSame = box.querySelector('[data-act="reroll"]');
@@ -453,7 +469,44 @@
       again.hidden = !!(state.night && state.night.rerollUsed);
       again.disabled = !!(state.night && state.night.rerollUsed);
     }
+    if (offerModalSig !== sig) {
+      if (!offerReturn) {
+        var current = document.activeElement;
+        offerReturn = current && current !== document.body && panel && !panel.contains(current) ? current : document.querySelector('#stalls [data-act="serve"]');
+      }
+      offerModalSig = sig;
+      var firstChoice = choices.querySelector('button');
+      if (firstChoice) firstChoice.focus({ preventScroll: true });
+    }
   }
+  document.addEventListener('keydown', function (e) {
+    var pick = $('#pick');
+    if (!pick || pick.classList.contains('quiet') || pick.hidden) return;
+    if (e.key === 'Escape') {
+      var skipping = state.night && state.night.offer && state.night.offer.kind === 'charm';
+      if (skipping && M.skipOffer(state)) {
+        e.preventDefault();
+        persist();
+        render();
+        if (!$('#pick').classList.contains('quiet')) focusOffer();
+      }
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    var panelNow = $('#pick-panel');
+    if (!panelNow) return;
+    var keys = [];
+    panelNow.querySelectorAll('button').forEach(function (b) {
+      if (!b.hidden && !b.disabled) keys.push(b);
+    });
+    if (!keys.length) return;
+    var firstKey = keys[0], lastKey = keys[keys.length - 1];
+    if (e.shiftKey && document.activeElement === firstKey) { e.preventDefault(); lastKey.focus(); }
+    else if (!e.shiftKey && (document.activeElement === lastKey || !panelNow.contains(document.activeElement))) {
+      e.preventDefault();
+      firstKey.focus();
+    }
+  });
 
   function choiceLead(ids, lookup) {
     var names = ids.map(function (id) {
@@ -522,6 +575,21 @@
   // NM-G8: before the hire, a hold stops at the vendor's count (12 of 12 dumplings). A plain click still serves, and still pays.
   var HOLD_DELAY = 350, HOLD_EVERY = 120, HOLD_PUMP = 50, hold = null;
   var finaleScroll = false, finaleFocused = false;
+  var offerModalSig = '', offerReturn = null, offerPaused = false;
+  function setBehindInert(on) {
+    var nodes = document.querySelectorAll('.stall, .lane, #bulk, #goal, #lane-goal, header, details.save, #finale, .goal-pin, .coin-pin');
+    for (var n = 0; n < nodes.length; n++) nodes[n].inert = !!on;
+  }
+  function pauseOffer() {
+    if (idle && idle.stop) idle.stop();
+    offerPaused = true;
+  }
+  function resumeOffer() {
+    if (!offerPaused) return;
+    offerPaused = false;
+    state.seen = Date.now();
+    if (idle && idle.start) idle.start(state.seen);
+  }
   function revealFinale() {
     if (finaleScroll || finaleDismissed) return;
     finaleScroll = true;
@@ -615,7 +683,11 @@
       return;
     }
     if (b.dataset.act === 'skip') {
-      if (M.skipOffer(state)) { persist(); render(); focusOffer(); }
+      if (M.skipOffer(state)) {
+        persist();
+        render();
+        if (!$('#pick').classList.contains('quiet')) focusOffer();
+      }
       return;
     }
     if (b.dataset.act === 'reroll') {

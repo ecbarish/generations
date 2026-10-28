@@ -56,6 +56,13 @@ async function shot(page,name){await page.screenshot({path:path.join(out,name+'.
       page.on('pageerror',e=>errors.push(e.message));
       await page.goto(origin+'/games/night-market/');
       await page.waitForFunction(()=>window.__nightMarket&&document.querySelector('[data-act="serve"]'));
+      await page.evaluate(() => {
+        const s = __nightMarket.state;
+        if (s.night && s.night.offer) {
+          s.night.offer = null;
+          __nightMarket.render();
+        }
+      });
       await page.evaluate(()=>localStorage.setItem('nm-phone-unrelated-save','{"level":27}'));
       const label=width+'x'+height;
       await measure(page,label+' fresh'); await shot(page,'fresh-'+label);

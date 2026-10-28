@@ -326,6 +326,41 @@ document.querySelector('#run').onclick = async function () {
     var trayAfter = M.cost(4, 10, 1, tray);
     check('Ren\'s sticks cuts the live tray price by 15% and the line says both prices',
       near(trayAfter, trayBefore * 0.85) && renLine.indexOf(Arcade.fmt(trayBefore)) >= 0 && renLine.indexOf(Arcade.fmt(trayAfter)) >= 0 && /15% less/.test(renLine));
+    var alleyNight = M.fresh();
+    alleyNight.night.omen = 'alley';
+    check('Quiet alley does not treat Mei\'s regulars as a new discount', !M.charmUseful(alleyNight, M.charmById('mei-regulars')));
+    var omenPriceProblems = [];
+    M.OMENS.forEach(function (omen) {
+      M.CHARMS.forEach(function (charm) {
+        var patch = charm.set && charm.set[charm.stall];
+        if (!patch || patch.base == null) return;
+        var sample = M.fresh();
+        sample.night.omen = omen.id;
+        if (!M.charmUseful(sample, charm)) return;
+        var ix = 0;
+        while (M.STALLS[ix].id !== charm.stall) ix++;
+        var beforePrice = M.cost(ix, 0, 1, sample);
+        var priced = M.fresh();
+        priced.night.omen = omen.id;
+        priced.night.charms = [charm.id];
+        var afterPrice = M.cost(ix, 0, 1, priced);
+        var shown = M.offerLine(sample, charm);
+        var pct = beforePrice > 0 ? Math.round((1 - afterPrice / beforePrice) * 100) : 0;
+        var said = shown.match(/(\d+)% less/);
+        if (!(Math.abs(beforePrice - afterPrice) > 0.01) || !said || +said[1] !== pct) {
+          omenPriceProblems.push(omen.id + ' ' + charm.id + ' ' + beforePrice + '→' + afterPrice + ' line ' + shown);
+        }
+      });
+    });
+    check(omenPriceProblems.length ? 'omen price charms: ' + omenPriceProblems.slice(0, 4).join(' | ') : 'under every omen a price charm changes tonight\'s price and the line\'s percent matches', omenPriceProblems.length === 0);
+    var midNamed = M.fresh();
+    M.armNight(midNamed, 1, 1);
+    midNamed.stalls[2].owned = 10;
+    midNamed.stalls[3].owned = 2;
+    midNamed.night.offer = null;
+    midNamed.night.offered = M.charmPlan(1).slice();
+    check('the quiet strip names the mid-night beat once mooncakes are open',
+      M.nextOfferLine(midNamed) === 'The next choice comes at ' + M.midAt(1) + ' mooncake tables.');
     var teaOnly = M.fresh();
     teaOnly.stalls[0].hired = true;
     teaOnly.stalls[0].owned = 10;
@@ -874,6 +909,10 @@ document.querySelector('#run').onclick = async function () {
     var deskCount = await countPx(1280, 800);
     check('NM-G10: on a wide window the stall count stays 0.92rem', Math.abs(deskCount.px - 14.72) < 0.05);
     // NM-PHONE: the first real control, not merely a row heading, fits above the fold.
+    if (w.__nightMarket.state.night.offer) {
+      w.__nightMarket.state.night.offer = null;
+      w.__nightMarket.render();
+    }
     async function checkPhoneLayout(label) {
       for (var dims of [[320,568], [390,844], [568,320], [844,390], [932,430], [390,844]]) {
         frame.style.width = dims[0] + 'px'; frame.style.height = dims[1] + 'px';
@@ -1211,6 +1250,11 @@ document.querySelector('#run').onclick = async function () {
     check('Your save downloads this game\'s v2 file and says so', made === 1 && downloadedSave.game === 'night-market' && downloadedSave.v === 2 && downloadedSave.stalls.length === 6 && downloadedSave.night && downloadedSave.meta && /Downloaded/.test(d.querySelector('.arc-save-msg').textContent));
     check('Load a save file opens a real file picker', !!fileLbl.querySelector('input[type=file][data-arcsave="file"]'));
     async function phoneSave(width, height) {
+      if (hk.state.night && hk.state.night.offer) {
+        hk.state.night.offer = null;
+        hk.state.night.queue = [];
+        hk.render();
+      }
       frame.style.width = width + 'px';
       frame.style.height = height + 'px';
       saveBox.open = true;
@@ -1835,6 +1879,16 @@ document.querySelector('#run').onclick = async function () {
       layout.style.height = size[1] + 'px';
       var label = size[0] + 'x' + size[1];
       lm.state.night.kept = true;
+      lm.state.night.omen = null;
+      lm.state.night.offer = null;
+      lm.render();
+      lw.scrollTo(0, 0);
+      var beforeOmen = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+      lm.state.night.omen = 'rain';
+      lm.render();
+      lw.scrollTo(0, 0);
+      var afterOmen = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+      if (Math.abs(afterOmen - beforeOmen) > 2) offerShift.push(label + ' header ' + beforeOmen.toFixed(1) + '→' + afterOmen.toFixed(1));
       lm.state.night.omen = 'rain';
       lm.state.night.charms = ['mei-regulars'];
       lm.state.night.offer = null;
@@ -2194,7 +2248,11 @@ document.querySelector('#run').onclick = async function () {
     await new Promise(function (r) { setTimeout(r, 50); });
     fm.idle.stop();
     var omenButton = fd.querySelector('#pick-choices button');
+    var omenPanel = fd.querySelector('#pick-panel');
     check('an omen choice is on screen', !!omenButton);
+    check('the omen pick is a labelled modal',
+      omenPanel.getAttribute('role') === 'dialog' && omenPanel.getAttribute('aria-modal') === 'true' && omenPanel.getAttribute('aria-labelledby') === 'pick-lead');
+    check('the omen pick focuses its first option', fd.activeElement === omenButton);
     omenButton.click();
     check('choosing an omen moves focus to the pour or the next offer',
       fd.activeElement && fd.activeElement !== fd.body &&
@@ -2211,6 +2269,61 @@ document.querySelector('#run').onclick = async function () {
     fm.render();
     fd.querySelector('[data-act="reroll"]').click();
     check('reroll focuses the new first choice', fd.activeElement && fd.activeElement.dataset.act === 'charm');
+    var pourFocus = fd.querySelector('#stalls [data-i="0"] [data-act="serve"]');
+    pourFocus.focus();
+    fm.state.stalls[0].hired = true;
+    fm.state.stalls[0].owned = 8;
+    fm.state.night.offer = { kind: 'charm', stall: 'incense', options: ['ren-sticks', 'wen-discount', 'an-offcuts'] };
+    fm.state.night.rerollUsed = false;
+    fm.render();
+    var modalPanel = fd.querySelector('#pick-panel');
+    var modalFirst = fd.querySelector('#pick-choices button');
+    check('a charm offer is a labelled modal',
+      modalPanel.getAttribute('role') === 'dialog' && modalPanel.getAttribute('aria-modal') === 'true' && modalPanel.getAttribute('aria-labelledby') === 'pick-lead' && !fd.querySelector('#pick-backdrop').hidden);
+    check('opening a charm offer focuses the first option', fd.activeElement === modalFirst);
+    check('the lane behind an offer is inert',
+      pourFocus.closest('.stall').inert === true && fd.querySelector('.lane').inert === true && fd.querySelector('#bulk').inert === true && fd.querySelector('header').inert === true);
+    var frozenCoins = fm.state.cash;
+    await wait(800);
+    check('coins stay still while an offer is open', fm.state.cash === frozenCoins);
+    var modalLast = modalPanel.querySelector('[data-act="reroll"]');
+    modalLast.focus();
+    fd.dispatchEvent(new fw.KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    var tabWrapped = fd.activeElement === modalFirst;
+    modalFirst.focus();
+    fd.dispatchEvent(new fw.KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }));
+    check('tab stays inside the offer', tabWrapped && fd.activeElement === modalLast);
+    fd.dispatchEvent(new fw.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    check('escape skips the offer', !fm.state.night.offer && fm.state.night.charms.indexOf('ren-sticks') < 0);
+    check('escape returns focus to the control that opened it', fd.activeElement === pourFocus);
+    check('the lane accepts play again once the offer closes', pourFocus.closest('.stall').inert === false && fd.querySelector('.lane').inert === false && fd.querySelector('#pick-backdrop').hidden);
+    var resumedCoins = fm.state.cash;
+    var resumedAt = Date.now();
+    await wait(700);
+    var resumedFor = (Date.now() - resumedAt) / 1000;
+    var resumedGain = fm.state.cash - resumedCoins;
+    check('income resumes after the offer with no catch-up for the pause',
+      resumedGain > 0 && resumedGain < fw.NightMarket.income(fm.state) * (resumedFor + 0.35));
+    var modalFit = [];
+    [[320, 568], [390, 844], [844, 390], [1280, 800]].forEach(function (size) {
+      focusFrame.style.width = size[0] + 'px';
+      focusFrame.style.height = size[1] + 'px';
+      ['charm', 'omen'].forEach(function (kind) {
+        fm.state.night.offer = kind === 'omen'
+          ? { kind: 'omen', stall: null, options: ['rain', 'ferry', 'alley'] }
+          : { kind: 'charm', stall: 'dumpling', options: ['mei-regulars', 'an-paper', 'bo-queue'] };
+        fm.state.night.rerollUsed = false;
+        fm.render();
+        var box = fd.querySelector('#pick-panel').getBoundingClientRect();
+        var viewW = fd.documentElement.clientWidth, viewH = fd.documentElement.clientHeight;
+        if (box.top < -1 || box.left < -1 || box.bottom > viewH + 1 || box.right > viewW + 1 || box.height < 44 || box.width < 44) {
+          modalFit.push(size[0] + 'x' + size[1] + ' ' + kind + ' ' + Math.round(box.left) + ',' + Math.round(box.top) + ' ' + Math.round(box.right) + 'x' + Math.round(box.bottom) + ' view ' + viewW + 'x' + viewH);
+        }
+      });
+    });
+    fm.state.night.offer = null;
+    fm.render();
+    check(modalFit.length ? 'offer sits off screen: ' + modalFit.join(' | ') : 'the offer opens fully on screen at 320, 390×844, 844×390 and desktop', modalFit.length === 0);
     fm.state.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 4 ? 12 : 2; });
     fm.state.stalls[5].owned = 1;
     fm.state.night.kept = false;
@@ -2257,11 +2370,12 @@ document.querySelector('#run').onclick = async function () {
     var dawnCash = dawnWindow.__nightMarket.state.cash;
     var oneAway = dawnIncome * 3600 * 0.5;
     check('reloading at dawn shows the card at once', !dawnFrame.contentDocument.querySelector('#finale').hidden);
+    var dawnFirst = dawnFrame.contentDocument.querySelector('#finale').getBoundingClientRect();
+    check('reloading at dawn scrolls the card into view once', dawnFirst.top >= -2 && dawnFirst.bottom <= 702);
     dawnWindow.scrollTo(0, 4000);
-    dawnWindow.__nightMarket.render();
-    var reloadedCard = dawnFrame.contentDocument.querySelector('#finale').getBoundingClientRect();
-    check('reloading at dawn brings the card back after you have scrolled down',
-      reloadedCard.top >= -2 && reloadedCard.bottom <= 702);
+    var dawnHeld = dawnWindow.scrollY;
+    await wait(900);
+    check('scrolling away at dawn stays put', Math.abs(dawnWindow.scrollY - dawnHeld) < 4);
     check('reloading at dawn credits the away box once (' + Math.round(dawnCash - 84800) + ' coins)',
       dawnCash > 84800 && dawnCash < 84800 + oneAway + dawnIncome * 3 && dawnCash > 84800 + oneAway * 0.9);
     dawnFrame.remove();
@@ -2279,13 +2393,15 @@ document.querySelector('#run').onclick = async function () {
       dWin.NightLane.setReduce(true);
       dGame.render();
       await wait(480);
-      dWin.scrollTo(0, 5000);
-      dGame.render();
       var dCard = dDoc.querySelector('#finale');
       var dBox = dCard.getBoundingClientRect();
       if (dCard.hidden || dBox.top < -2 || dBox.bottom > dh + 2) {
-        dawnScrollProblems.push(dw + 'x' + dh + ' top ' + Math.round(dBox.top) + ' bottom ' + Math.round(dBox.bottom));
+        dawnScrollProblems.push(dw + 'x' + dh + ' first top ' + Math.round(dBox.top));
       }
+      dWin.scrollTo(0, 2500);
+      var heldY = dWin.scrollY;
+      await wait(800);
+      if (Math.abs(dWin.scrollY - heldY) > 4) dawnScrollProblems.push(dw + 'x' + dh + ' jumped ' + Math.round(dWin.scrollY - heldY));
       dFrame.remove();
     }
     check(dawnScrollProblems.length ? 'the dawn card stays off screen: ' + dawnScrollProblems.join(' | ') : 'the dawn card scrolls into view from the bottom at 360, 390, 844×390 and desktop', dawnScrollProblems.length === 0);

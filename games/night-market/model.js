@@ -315,6 +315,17 @@
     /* Bo's queue moves the first doubling from 25 to 22. It still changes the row until 25. */
     if (patch.milestones) return owned < STALL_MILESTONES[0];
     if (patch.growth != null && charm.stall === 'stories') return !!(state.night && state.night.kept);
+    if (patch.base != null) {
+      var before = oneCost(state, charm.stall, null);
+      var after = oneCost(state, charm.stall, patch.base);
+      var cut = before > 0 ? Math.round((1 - after / before) * 100) : 0;
+      return cut > 0;
+    }
+    if (patch.rate != null) {
+      var stall = spec(i);
+      var now = stallField(state, charm.stall, 'rate', stall ? stall.rate : patch.rate);
+      return Math.abs(now - patch.rate) > 1e-9;
+    }
     return true;
   }
   function stallShare(state, stallId) {
@@ -1066,13 +1077,22 @@
   function nextOfferLine(state) {
     if (!state.night) return 'The next choice waits.';
     if (state.night.offer) return 'A choice is waiting.';
-    var plan = charmPlan(state.night.seed), g, id, i, stall, soonest = null, soonestAt = 99;
+    var moon = stallIndex('mooncake');
+    var incense = stallIndex('incense');
+    var plan = charmPlan(state.night.seed), g, id, i, stall, soonest = null, soonestAt = 99, earlierClosed = false;
     for (g = 0; g < plan.length; g++) {
       id = plan[g];
       if (state.night.offered.indexOf(id) >= 0) continue;
       i = stallIndex(id);
       stall = spec(i);
-      if (stall && !unlocked(state, i) && i < soonestAt) { soonest = stall; soonestAt = i; }
+      if (stall && !unlocked(state, i)) {
+        if (i < moon) earlierClosed = true;
+        if (i < soonestAt) { soonest = stall; soonestAt = i; }
+      }
+    }
+    if (earlierClosed && soonest && soonestAt < moon) return 'The next choice comes when the ' + soonest.name + ' opens.';
+    if (unlocked(state, moon) && state.night.offered.indexOf('mid-mooncake') < 0 && state.stalls[moon].owned < unlockNeed(state, incense)) {
+      return 'The next choice comes at ' + midAt(state.night.seed) + ' mooncake tables.';
     }
     if (soonest) return 'The next choice comes when the ' + soonest.name + ' opens.';
     if (state.night.offered.indexOf('mid-mooncake') < 0) return 'The next choice comes after a few mooncake tables.';
@@ -1083,22 +1103,25 @@
     if (!charm || !charm.stall) return charm && charm.line ? charm.line : '';
     var patch = charm.set && charm.set[charm.stall];
     var share = stallShare(state, charm.stall);
+    var earning = income(state) > 0 && production(state, stallIndex(charm.stall)) > 0;
     var sharePct = Math.round(share * 100);
+    var shareWords = earning ? (sharePct + '% of your income') : 'not open yet';
     var stall = spec(stallIndex(charm.stall));
     var name = stall ? stall.name : charm.stall;
     if (patch && patch.base != null) {
       var before = oneCost(state, charm.stall, null);
       var after = oneCost(state, charm.stall, patch.base);
       var cut = before > 0 ? Math.round((1 - after / before) * 100) : 0;
-      return charm.name + '. ' + name + ': ' + sharePct + '% of your income. Next one ' + moneyText(before) + ' to ' + moneyText(after) + ' coins, ' + cut + '% less.';
+      var change = cut > 0 ? (cut + '% less') : (cut < 0 ? (Math.abs(cut) + '% more') : 'the same');
+      return charm.name + '. ' + name + ': ' + shareWords + '. Next one ' + moneyText(before) + ' to ' + moneyText(after) + ' coins, ' + change + '.';
     }
     if (patch && patch.milestones) {
-      return charm.name + '. ' + name + ': ' + sharePct + '% of your income. Doubles at ' + patch.milestones[0] + ' instead of 25.';
+      return charm.name + '. ' + name + ': ' + shareWords + '. Doubles at ' + patch.milestones[0] + ' instead of 25.';
     }
     if (patch && patch.rate != null) {
       var now = stallField(state, charm.stall, 'rate', stall ? stall.rate : patch.rate);
       var bump = now > 0 ? share * (patch.rate / now - 1) : 0;
-      return charm.name + '. ' + name + ': ' + sharePct + '% of your income, total +' + Math.round(bump * 100) + '%. ' + moneyText(now) + ' to ' + moneyText(patch.rate) + ' coins a second.';
+      return charm.name + '. ' + name + ': ' + shareWords + ', total +' + Math.round(bump * 100) + '%. ' + moneyText(now) + ' to ' + moneyText(patch.rate) + ' coins a second.';
     }
     return charm.line;
   }
