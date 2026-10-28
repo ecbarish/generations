@@ -13,7 +13,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
   background-image:linear-gradient(var(--bg-deep) 2px,transparent 2px),linear-gradient(90deg,var(--bg-deep) 2px,transparent 2px);background-size:32px 32px}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-.home{display:inline-block;color:var(--blue-d);text-decoration:none;border:2px solid var(--blue-d);border-radius:999px;padding:4px 11px;font-size:13px;letter-spacing:0;text-transform:none;margin-right:6px;background:var(--paper)}
+/* Keep the 44px target above the shared coarse-pointer a.home minimum. */
+.app .home{display:inline-flex;align-items:center;min-height:44px;color:var(--blue-d);text-decoration:none;border:2px solid var(--blue-d);border-radius:999px;padding:4px 11px;font-size:13px;letter-spacing:0;text-transform:none;margin-right:6px;background:var(--paper)}
 .home:hover{text-decoration:underline}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
@@ -49,6 +50,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
 .status{font-size:13px;font-weight:700;margin-top:10px;min-height:1.4em}
 
 .btn{border:2px solid var(--frame);border-radius:6px;background:var(--paper2);padding:6px 12px;font-weight:800;box-shadow:0 3px 0 var(--frame);transition:transform .05s}
+/* The tavern reroll spends gold. Its own padding is 36px, and the shared touch rule stops at 40px. */
+#rerollBtn{min-height:44px}
 .btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--frame)}
 .btn:disabled{opacity:.45;cursor:default}
 .btn.gold{background:var(--gold);}
@@ -64,7 +67,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
 
 /* tabs */
 .tabs{display:flex;gap:4px;flex-wrap:wrap;padding:8px 8px 0;background:var(--paper2);border-bottom:3px solid var(--frame)}
-.tabs button{border:2px solid var(--frame);border-bottom:0;border-radius:6px 6px 0 0;background:var(--paper);padding:6px 11px;font-weight:800;font-size:13px;display:flex;gap:5px;align-items:center;color:var(--muted)}
+.tabs button{min-height:44px;border:2px solid var(--frame);border-bottom:0;border-radius:6px 6px 0 0;background:var(--paper);padding:6px 11px;font-weight:800;font-size:13px;display:flex;gap:5px;align-items:center;color:var(--muted)}
 .tabs button[aria-selected="true"]{background:var(--blue);color:#fff}
 .badge{font-family:var(--f-pixel);font-size:11px;background:var(--red);color:#fff;border-radius:999px;padding:0 6px}
 .tabbody{padding:14px}
@@ -72,7 +75,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
 .thead h2{font-family:var(--f-pixel);font-weight:400;font-size:22px;margin:0;line-height:1.1}
 .sub{color:var(--muted);margin:3px 0 0;font-size:13px;max-width:62ch}
 .seg{display:inline-flex;border:2px solid var(--frame);border-radius:6px;overflow:hidden}
-.seg button{border:0;background:var(--paper);padding:4px 10px;font-family:var(--f-pixel);font-size:13px}
+.seg button{min-width:44px;min-height:44px;border:0;background:var(--paper);padding:4px 10px;font-family:var(--f-pixel);font-size:13px}
 .seg button.on{background:var(--frame);color:#fff}
 h4{margin:16px 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
 
