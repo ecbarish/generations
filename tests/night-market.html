@@ -719,14 +719,16 @@ document.querySelector('#run').onclick = async function () {
     for (var sweepN = 1; sweepN <= 50; sweepN++) sweepSeeds.push(sweepN);
     if (sweepSeeds.indexOf(437724497) < 0) sweepSeeds.push(437724497);
     var sweepWorst = 0, sweepSeed = sweepSeeds[0], sweepNight = 1, sweepFrom = 0, sweepMismatch = 0, sweepBlank = 0, sweepSample = [];
-    sweepSeeds.forEach(function (seed) {
-      playedModelNight(seed).forEach(function (night, idx) {
-        if (night.worst > sweepWorst) { sweepWorst = night.worst; sweepSeed = seed; sweepNight = idx + 1; sweepFrom = night.from; }
+    for (var sweepI = 0; sweepI < sweepSeeds.length; sweepI++) {
+      await new Promise(function (r) { setTimeout(r, 0); });
+      var sweepSeedNow = sweepSeeds[sweepI];
+      playedModelNight(sweepSeedNow).forEach(function (night, idx) {
+        if (night.worst > sweepWorst) { sweepWorst = night.worst; sweepSeed = sweepSeedNow; sweepNight = idx + 1; sweepFrom = night.from; }
         sweepMismatch += night.mismatches.length;
         sweepBlank += night.blanks;
-        if (night.mismatches.length && sweepSample.length < 3) sweepSample.push('seed ' + seed + ' ' + night.mismatches[0]);
+        if (night.mismatches.length && sweepSample.length < 3) sweepSample.push('seed ' + sweepSeedNow + ' ' + night.mismatches[0]);
       });
-    });
+    }
     check(sweepMismatch || sweepBlank || sweepWorst > 120
       ? 'played line or gap: worst ' + sweepWorst + 's seed ' + sweepSeed + ' night ' + sweepNight + ' from ' + sweepFrom + 's, mismatches ' + sweepMismatch + ', blanks ' + sweepBlank + (sweepSample.length ? ' ' + sweepSample.join(' | ') : '')
       : 'played nights 1 and 2 across seeds 1 to 50 and 437724497 stay within 120s and the offer matches the line (worst ' + sweepWorst + 's seed ' + sweepSeed + ', mismatches 0)',
