@@ -63,8 +63,7 @@ h1 { font-size: 1.55rem; line-height: 1.15; margin: 0.45rem 0 0.3rem; font-weigh
   cursor: pointer;
 }
 .harbour-wrap { position: relative; margin: 0.75rem -1rem 0.4rem; background: var(--sky); }
-.harbour-wrap canvas { display: block; width: 100%; height: 210px; touch-action: manipulation; }
-.window[data-phase="fleet"] .harbour-wrap canvas { height: 320px; }
+.harbour-wrap canvas { display: block; width: 100%; height: 320px; touch-action: manipulation; }
 .float {
   position: absolute;
   margin: 0;
@@ -191,8 +190,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .goalbar { width: min(60rem, 100%); }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
   .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .log { grid-column: 1 / -1; }
-  .harbour-wrap canvas { height: 300px; }
-  .window[data-phase="fleet"] .harbour-wrap canvas { height: 340px; }
+  .harbour-wrap canvas { height: 340px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .float, .fleet.reveal { animation: none; }
@@ -204,8 +202,9 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .coins { font-size: 1.1rem; }
   .tools-row { margin-top: 0.15rem; }
   .harbour-wrap { margin-top: 0.2rem; margin-bottom: 0.1rem; }
+  .tools-row button, .arc-set-btn, .home { min-height: 36px; padding: 0.1rem 0.45rem; }
   .harbour-wrap canvas,
-  .window[data-phase="fleet"] .harbour-wrap canvas { height: 64px; }
+  .window[data-phase="fleet"] .harbour-wrap canvas { height: 128px; }
   .goalbar { padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom)); }
   html { scroll-padding-bottom: 3.2rem; }
 }

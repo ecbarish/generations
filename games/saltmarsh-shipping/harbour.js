@@ -12,6 +12,20 @@
   var TIMBER = '#8d7a52';
   var HULL = '#6e5840';
 
+  /* Label rows stay a plate apart, including on a short sideways harbour. */
+  function laneYs(h, n) {
+    if (!(n > 0)) return [];
+    var bottom = h * 0.74;
+    var gap = 0;
+    if (n > 1) {
+      gap = Math.min(52, (h * 0.74 - h * 0.52) / (n - 1));
+      if (gap < 22) gap = 22;
+    }
+    var ys = [];
+    for (var i = 0; i < n; i++) ys.push(bottom - i * gap);
+    return ys;
+  }
+
   function boatCount(state, i) {
     return state.boats && state.boats[i] ? state.boats[i].owned : 0;
   }
@@ -110,11 +124,18 @@
         ctx.fill();
       }
 
-      ctx.fillStyle = TIMBER;
-      ctx.fillRect(w * 0.18, h * 0.78, w * 0.42, 8);
-
       var best = 0;
       for (var b = 0; b < 4; b++) best = Math.max(best, boatCount(state, b));
+      var barks = boatCount(state, 3);
+      var flagsOn = best >= 25 || barks >= 12;
+      ctx.fillStyle = TIMBER;
+      ctx.fillRect(w * 0.18, h * 0.78, w * (barks >= 12 ? 0.56 : 0.42), 8);
+      if (barks >= 16) {
+        ctx.fillStyle = LAMP;
+        ctx.beginPath();
+        ctx.arc(w * 0.72, h * 0.56, Math.max(3, h * 0.03), 0, Math.PI * 2);
+        ctx.fill();
+      }
       ctx.font = '14px Georgia, Palatino, serif';
       var rows = boatCount(state, 0);
       var rowLabel = rows + ' ' + (rows === 1 ? 'rowboat' : 'rowboats');
@@ -124,9 +145,9 @@
       var pierEnd = w * 0.60;
       var px = w * 0.40;
       /* After the last flag when he would cover one. A wide harbour already clears them, so that layout stays. A long count cannot walk him off the pier. */
-      if (best >= 25 && px - 4 < flagEnd) px = flagEnd + 12;
+      if (flagsOn && px - 4 < flagEnd) px = flagEnd + 12;
       if (px + 12 > pierEnd) px = pierEnd - 12;
-      if (best >= 25) {
+      if (flagsOn) {
         ctx.fillStyle = LAMP;
         for (var f = 0; f < 4; f++) {
           var fx = flagX + f * 28;
@@ -172,7 +193,7 @@
         ctx.fillText(label, 10, y + 4);
         var start = Math.max(w * 0.34, 10 + ctx.measureText(label).width + 12);
         /* The hull is centred, so the first rowboat starts a hull-half and a gap past the last flag. */
-        if (kind === 'rowboat' && best >= 25) start = Math.max(start, flagEnd + 11 + 8);
+        if (kind === 'rowboat' && flagsOn) start = Math.max(start, flagEnd + 11 + 8);
         var room = Math.max(spread, w - 16 - start);
         var step = show > 1 ? Math.min(spread, room / (show - 1)) : spread;
         for (var i = 0; i < show; i++) drawBoat(ctx, kind, start + i * step, y + bob(i + index));
@@ -193,11 +214,9 @@
         ['schooner', 2, 40],
         ['bark', 3, 50]
       ].filter(function (lane) { return boatCount(state, lane[1]) > 0; });
-      var waterTop = h * 0.52;
-      var waterBottom = h * 0.74;
-      var laneGap = lanes.length > 1 ? Math.min(52, (waterBottom - waterTop) / (lanes.length - 1)) : 0;
+      var ys = laneYs(h, lanes.length);
       lanes.forEach(function (lane, index) {
-        fleet(lane[0], lane[1], waterBottom - index * laneGap, lane[2]);
+        fleet(lane[0], lane[1], ys[index], lane[2]);
       });
 
       if (!reduce) {
@@ -231,5 +250,5 @@
     return { stop: function () { running = false; } };
   }
 
-  window.SaltmarshHarbour = { init: init };
+  window.SaltmarshHarbour = { init: init, laneYs: laneYs };
 })();

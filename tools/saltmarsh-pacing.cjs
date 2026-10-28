@@ -59,6 +59,10 @@
     var extra = 0, planAt = 0, chapter = null, bought = [];
     var purchases = [], maxGap = 0, lastBuyAt = null;
     var snapshots = {};
+    var news = [0];
+    function markNew(ms) {
+      if (ms / 1000 <= 1200) news.push(ms / 1000);
+    }
 
     function rate() { return M.income(state) + (M.captainRate ? M.captainRate(state) : 0) + extra; }
     function markBuy(ms) {
@@ -79,8 +83,11 @@
         bestBoat = Math.min(bestBoat, M.paybackSeconds(state, i));
       }
       if (!(fitPay <= bestBoat)) return false;
-      if (!M.buyFitting(state, fit.id, ms).ok) return false;
+      if (M.chooseFork) {
+        if (!M.chooseFork(state, fit.id === 'sloop-hull' ? 'sloop' : 'schooner', 'fit', ms).ok) return false;
+      } else if (!M.buyFitting(state, fit.id, ms).ok) return false;
       markBuy(ms);
+      markNew(ms);
       return true;
     }
     function openChapter(ms) {
@@ -97,14 +104,19 @@
     }
     function spend(ms) {
       var c;
-      for (c = 0; c < M.CAPTAINS.length; c++) if (M.canHire(state, c)) M.hire(state, c, ms);
+      for (c = 0; c < M.CAPTAINS.length; c++) {
+        if (M.canHire(state, c)) { M.hire(state, c, ms); markNew(ms); }
+      }
       if (maybeFit(ms)) return;
-      openChapter(ms);
+      if (profile.chapters === false) {
+        /* The route chapters are not in the game yet. This pass only buys boats. */
+      } else openChapter(ms);
       if (chapter && state.cash >= chapter.cost) {
         state.cash -= chapter.cost;
         extra += chapter.rate;
         bought.push({ id: chapter.id, at: ms / 1000, cost: chapter.cost, rate: chapter.rate });
         markBuy(ms);
+        markNew(ms);
         chapter = null;
         planAt += 1;
         if (planAt >= PLAN.length) endingAt = ms / 1000;
@@ -138,7 +150,18 @@
         lastTick = ms;
         nextTick += profile.tickMs;
       }
-      if (ms === nextBuy) { spend(ms); nextBuy += profile.buyMs; }
+      if (ms === nextBuy) {
+        var ownedBefore = state.boats.map(function (b) { return b.owned; });
+        spend(ms);
+        nextBuy += profile.buyMs;
+        for (var t = 0; t < state.boats.length; t++) {
+          [1, 10, 25, 50, 100].forEach(function (at) {
+            if (ownedBefore[t] < at && state.boats[t].owned >= at) markNew(ms);
+          });
+          if (t === 3 && ownedBefore[t] < (M.BARK_QUAY || 12) && state.boats[t].owned >= (M.BARK_QUAY || 12)) markNew(ms);
+          if (t === 3 && ownedBefore[t] < (M.BARK_LAMP || 16) && state.boats[t].owned >= (M.BARK_LAMP || 16)) markNew(ms);
+        }
+      }
       if (captainAt == null && state.boats[0].owned >= (M.WREN_AT || M.UNLOCK_AT)) captainAt = ms / 1000;
       if (fleetAt == null && state.boats[1].owned >= M.UNLOCK_AT) fleetAt = ms / 1000;
       if (schoonersAt == null && state.boats[2].owned >= M.UNLOCK_AT) schoonersAt = ms / 1000;
@@ -172,7 +195,15 @@
       /* One closed-page collection a day, at the shed the office has now. */
       daysAtOneShed: endingAt == null ? null : endingAt / (M.WAREHOUSE_HOURS * 3600 * M.OFFLINE_RATE),
       daysAtFullSheds: endingAt == null ? null : endingAt / (M.MAX_WAREHOUSES * M.WAREHOUSE_HOURS * 3600 * M.OFFLINE_RATE),
-      offlineCap: cap
+      offlineCap: cap,
+      quietGap: (function () {
+        var times = news.filter(function (t, i, all) { return all.indexOf(t) === i; }).sort(function (a, b) { return a - b; });
+        var gap = 0;
+        for (var g = 1; g < times.length; g++) gap = Math.max(gap, times[g] - times[g - 1]);
+        if (times.length && times[times.length - 1] < 1200) gap = Math.max(gap, 1200 - times[times.length - 1]);
+        return gap;
+      })(),
+      newsTimes: news.filter(function (t, i, all) { return all.indexOf(t) === i; }).sort(function (a, b) { return a - b; })
     };
   }
 
@@ -206,6 +237,11 @@
       while (guard++ < 40 && planAt < PLAN.length) {
         var c, bought = false;
         for (c = 0; c < M.CAPTAINS.length; c++) if (M.canHire(state, c)) M.hire(state, c, second * 1000);
+        if (M.choiceOffer && M.chooseFork) {
+          var offer = M.choiceOffer(state);
+          if (offer && offer.shed.affordable) M.chooseFork(state, offer.id, 'shed', second * 1000);
+          else if (offer && offer.fit.affordable) M.chooseFork(state, offer.id, 'fit', second * 1000);
+        }
         openChapter();
         if (chapter && state.cash >= chapter.cost) {
           state.cash -= chapter.cost;
@@ -260,6 +296,7 @@
       at('ten barks', result.barksAt),
       at('projected ending (last light)', result.endingAt),
       '  longest stretch between buys: ' + result.clock(result.longestGap || 0),
+      '  longest stretch with nothing new, first 20 minutes: ' + result.clock(result.quietGap || 0),
       '  boats owned: ' + result.owned.join(', '),
       '  one shed, one collection a day: ' + (result.daysAtOneShed == null ? 'n/a' : result.daysAtOneShed.toFixed(1) + ' days of that active curve'),
       '  four sheds, one collection a day: ' + (result.daysAtFullSheds == null ? 'n/a' : result.daysAtFullSheds.toFixed(1) + ' days of that active curve')
@@ -288,6 +325,11 @@ if (typeof module !== 'undefined' && require.main === module) {
     lines.push(pacing.report(result));
     lines.push('');
   }
+  const office = pacing.simulate(M, { id: 'newcomer', buyMs: 5000, handMs: 2500, tickMs: 1000, policy: 'one', chapters: false }, 1200);
+  lines.push('Hand player, first 20 minutes, boats only (the route chapters are not for sale yet)');
+  lines.push('  longest stretch with nothing new: ' + pacing.clock(office.quietGap || 0));
+  lines.push('  boats owned: ' + office.owned.join(', '));
+  lines.push('');
   const days = pacing.workdays(M);
   lines.push('Left open at work (20 min to learn the office, then three closed-page check-ins a day, half pay, shed cap)');
   lines.push('  finishes on day: ' + (days.days == null ? 'not within 14 days (' + days.still + ' chapters)' : days.days));
@@ -306,6 +348,9 @@ if (typeof module !== 'undefined' && require.main === module) {
     const newbie = pacing.simulate(M, 'newcomer');
     assert(newbie.captainAt >= 90 && newbie.captainAt <= 180, 'newcomer captain 1.5–3 min, was ' + newbie.captainAt);
     assert(newbie.fleetAt > newbie.captainAt && newbie.fleetAt <= 1800, 'newcomer fleet within 30 min, was ' + newbie.fleetAt);
+    const hand = pacing.simulate(M, { id: 'newcomer', buyMs: 5000, handMs: 2500, tickMs: 1000, policy: 'one', chapters: false }, 1200);
+    assert(hand.quietGap <= 300, 'something new at least every 5 min in the first 20, gap was ' + hand.quietGap);
+    assert(hand.owned[3] >= (M.BARK_QUAY || 12), 'the quay is reached inside 20 min, barks ' + hand.owned[3]);
     console.log('validation: passed');
   }
 }

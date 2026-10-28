@@ -110,7 +110,7 @@ document.querySelector('#run').onclick = async function () {
     pier.boats[0].owned = M.WREN_AT - 1;
     check('the captain waits one boat early', M.canHire(pier, 0) === false && P.read(pier).captain === false);
     pier.boats[0].owned = M.WREN_AT;
-    check('enough rowboats open the captain, not the fleet', P.read(pier).captain && P.read(pier).fleet === false && M.canHire(pier, 0) && M.hire(pier, 0).ok && pier.captains[0].hired && /59 coins/.test(pier.log[0].text));
+    check('enough rowboats open the captain, not the fleet', P.read(pier).captain && P.read(pier).fleet === false && M.canHire(pier, 0) && M.hire(pier, 0).ok && pier.captains[0].hired && /179 coins every 20 seconds/.test(pier.log[0].text));
     check('the goal names Capt. Wren before the hire and a sloop after', (function () {
       var s = ready();
       s.boats[0].owned = M.WREN_AT - 1;
@@ -144,7 +144,7 @@ document.querySelector('#run').onclick = async function () {
     var paid = haul.cash;
     var again = M.collectCaptains(haul, clock + 20000, 1);
     var later = M.collectCaptains(haul, clock + 40000, 1);
-    check('the same stretch pays Capt. Wren once, one coin short', once.length === 1 && once[0].units === 1 && again.length === 0 && paid - firstPay === 59 && later.length === 1 && later[0].units === 1 && haul.cash - paid === 59 && haul.log.some(function (line) { return /gull/i.test(line.text); }));
+    check('the same stretch pays Capt. Wren once, one coin short', once.length === 1 && once[0].units === 1 && again.length === 0 && paid - firstPay === 179 && later.length === 1 && later[0].units === 1 && haul.cash - paid === 179 && haul.log.some(function (line) { return /gull/i.test(line.text); }));
     check('a short gap pays nothing', (function () {
       var s = ready();
       s.boats[0].owned = M.WREN_AT;
@@ -160,7 +160,7 @@ document.querySelector('#run').onclick = async function () {
       var beforeCash = s.cash;
       var rows = M.collectCaptains(s, clock + 20000, 0.5);
       var replay = M.collectCaptains(s, clock + 20000, 0.5);
-      return rows.length === 1 && near(s.cash - beforeCash, 29) && replay.length === 0;
+      return rows.length === 1 && near(s.cash - beforeCash, 89) && replay.length === 0;
     })());
 
     check('one shed holds 2h and four sheds hold 8h, at half pay', M.offlineCap(ready()) === 2 * 3600 && M.OFFLINE_RATE === 0.5 && (function () { var s = ready(); s.warehouses = 4; return M.offlineCap(s) === 8 * 3600; })());
@@ -173,7 +173,7 @@ document.querySelector('#run').onclick = async function () {
       s.boats[3].owned = 2;
       return M.lookLine(s, 0) === '2 boats tied at the dock.' && M.lookLine(s, 1) === '2 sloops on the mooring.' && M.lookLine(s, 2) === '2 schooners outside the bar.' && M.lookLine(s, 3) === '2 barks on the deep mooring.';
     })());
-    check('rowing scales with the boats, then Wren takes the oars', (function () {
+    check('the skiff keeps paying after Wren arrives', (function () {
       var s = ready();
       s.boats[0].owned = 10;
       var pay = M.handPay(s);
@@ -181,7 +181,9 @@ document.querySelector('#run').onclick = async function () {
       var hired = ready();
       hired.boats[0].owned = M.WREN_AT;
       M.hire(hired, 0, 1000);
-      return pay === 18 && sold.ok && sold.pay === 18 && M.handSell(hired, 0).ok === false;
+      var again = M.handSell(hired, 0);
+      var expected = Math.max(5, Math.round((M.income(hired) + M.captainRate(hired)) * 3));
+      return pay === 18 && sold.ok && sold.pay === 18 && again.ok && again.pay === expected;
     })());
     check('a lighter hull is a one-off and each sloop earns one more coin', (function () {
       var s = ready();
@@ -192,7 +194,40 @@ document.querySelector('#run').onclick = async function () {
       s.cash = 700;
       var before = M.production(s, 1);
       if (!M.buyFitting(s, 'sloop-hull').ok) return false;
-      return before === 50 && M.production(s, 1) === 60 && M.buyFitting(s, 'sloop-hull').ok === false;
+      return before === 50 && M.production(s, 1) === 60 && M.buyFitting(s, 'sloop-hull').ok === false && s.forks.sloop === 'fit';
+    })());
+    check('the hull and the shed lock each other', (function () {
+      var hull = ready();
+      hull.boats[0].owned = M.SLOOP_AT;
+      hull.boats[1].owned = 10;
+      hull.cash = 700;
+      var offer = M.choiceOffer(hull);
+      if (!offer || offer.goal !== 'Choose a lighter sloop hull, or another shed.') return false;
+      if (!M.chooseFork(hull, 'sloop', 'fit').ok) return false;
+      if (M.chooseFork(hull, 'sloop', 'shed').ok) return false;
+      var shed = ready();
+      shed.boats[0].owned = M.SLOOP_AT;
+      shed.boats[1].owned = 10;
+      shed.cash = 480;
+      if (!M.chooseFork(shed, 'sloop', 'shed').ok) return false;
+      return shed.warehouses === 2 && M.buyFitting(shed, 'sloop-hull').ok === false && M.choiceOffer(shed) == null;
+    })());
+    check('twelve barks grow the quay, and the log says so', (function () {
+      var s = ready();
+      s.boats[0].owned = M.SLOOP_AT;
+      s.boats[1].owned = 10;
+      s.boats[2].owned = 10;
+      s.boats[3].owned = 11;
+      s.cash = 1000000;
+      var bought = M.buy(s, 3, 1);
+      return bought.ok && s.boats[3].owned === 12 && bought.notes.length === 1 && /quay grows longer/.test(s.log[0].text);
+    })());
+    check('a closed-game captain line gives the haul total', (function () {
+      var s = ready();
+      s.captains[0].hired = true;
+      s.captains[0].hauls = 4;
+      s.captains[0].brought = 696;
+      return M.captainAwayLines(s, [0, 0, 0, 0], [0, 0, 0, 0])[0] === 'Capt. Wren: 4 hauls, 696 coins.';
     })());
     check('the hull bonus stays flat when the row doubles', (function () {
       var s = ready();
@@ -471,6 +506,13 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.state.boats[1].owned = 10;
     slotWin.__saltmarsh.render();
     check('the goal and the captain button use the same words', slotDoc.querySelector('#goal').textContent === slotDoc.querySelector('#ask').textContent && slotDoc.querySelector('#ask').textContent === M.askLine(1));
+    var askButtons = Array.prototype.filter.call(slotDoc.querySelectorAll('button'), function (b) { return /Ask Capt\./.test(b.textContent) && !b.hidden; });
+    check('only one Ask Capt. button is on the page', askButtons.length === 1);
+    var tallHarbour = slotDoc.querySelector('#harbour').getBoundingClientRect().height;
+    slotWin.__saltmarsh.state.boats[1].owned = 9;
+    slotWin.__saltmarsh.render();
+    var shortHarbour = slotDoc.querySelector('#harbour').getBoundingClientRect().height;
+    check('the harbour stays the same height when the fleet chart opens', Math.abs(tallHarbour - shortHarbour) < 2 && tallHarbour >= 300);
 
     wipe();
     var wideState = ready();
@@ -483,6 +525,26 @@ document.querySelector('#run').onclick = async function () {
     var rowBox = wideWin.document.querySelector('#row').getBoundingClientRect();
     var goalBox = wideWin.document.querySelector('#goal').getBoundingClientRect();
     check('at 844 by 390 the Row button is on screen', rowBox.top >= 0 && rowBox.bottom <= goalBox.top + 1 && rowBox.height >= 44);
+    var labelState = ready();
+    labelState.boats[0].owned = 40;
+    labelState.boats[1].owned = 20;
+    labelState.boats[2].owned = 12;
+    labelState.boats[3].owned = 8;
+    wipe();
+    localStorage.setItem(KEY, JSON.stringify(M.serialize(labelState, Date.now())));
+    var labelFrame = await loadFrame('short harbour labels');
+    labelFrame.style.width = '844px';
+    labelFrame.style.height = '390px';
+    var labelWin = labelFrame.contentWindow;
+    await new Promise(function (resolve) { labelWin.requestAnimationFrame(function () { labelWin.requestAnimationFrame(resolve); }); });
+    var labelCanvas = labelWin.document.querySelector('#harbour');
+    var labelH = labelCanvas.getBoundingClientRect().height;
+    var labelYs = labelWin.SaltmarshHarbour.laneYs(labelH, 4);
+    var labelsClear = labelYs.length === 4 && labelYs[3] - 12 >= 0;
+    for (var li = 0; li < labelYs.length - 1; li++) {
+      if (labelYs[li] - labelYs[li + 1] < 20) labelsClear = false;
+    }
+    check(labelsClear ? 'at 844 by 390 the boat labels do not overlap' : 'at 844 by 390 labels overlap, height ' + Math.round(labelH) + ' ys ' + labelYs.join(','), labelsClear);
 
     wipe();
     var touchFrame = await loadFrame('touch');

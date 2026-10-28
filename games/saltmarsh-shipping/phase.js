@@ -38,18 +38,12 @@
     return n + ' more ' + plural;
   }
 
-  /* A fitting and the next shed, once the player can pay for one of them. */
+  /* The open either/or, once the player can pay for one side of it. */
   function choiceLine(state) {
-    var M = window.Saltmarsh;
-    var offers = M.fittingOffers(state);
-    if (!offers.length) return '';
-    var price = M.warehousePrice(state);
-    if (price == null) return '';
-    var fit = offers[0];
-    if (!(state.cash >= fit.cost) && !(state.cash >= price)) return '';
-    if (fit.id === 'sloop-hull') return 'Choose a lighter sloop hull, or another shed.';
-    if (fit.id === 'schooner-hold') return 'Choose a deeper schooner hold, or another shed.';
-    return 'Choose ' + fit.name.toLowerCase() + ', or another shed.';
+    var offer = window.Saltmarsh.choiceOffer(state);
+    if (!offer) return '';
+    if (!(offer.fit.affordable || offer.shed.affordable)) return '';
+    return offer.goal;
   }
 
   /* One sentence, always. The player should be able to read it and know what to do. */
@@ -94,12 +88,21 @@
     if (M.canHire(state, 3)) return M.askLine(3);
     choice = choiceLine(state);
     if (choice) return choice;
+    if (state.boats[3].owned < M.BARK_QUAY) {
+      left = M.BARK_QUAY - state.boats[3].owned;
+      return 'Buy ' + more(left, 'bark', 'barks') + '. Then the quay grows longer.';
+    }
+    if (state.boats[3].owned < M.BARK_LAMP) {
+      left = M.BARK_LAMP - state.boats[3].owned;
+      return 'Buy ' + more(left, 'bark', 'barks') + '. Then the bar lamp is lit.';
+    }
     for (i = M.BOATS.length - 1; i >= 0; i--) {
       owned = state.boats[i].owned;
       if (owned < M.UNLOCK_AT || owned >= 100) continue;
       nextAt = owned < 25 ? 25 : owned < 50 ? 50 : 100;
       left = nextAt - owned;
-      return 'Buy ' + more(left, M.BOATS[i].name.toLowerCase(), M.BOATS[i].name.toLowerCase() + 's') + ', and the dock changes.';
+      var change = nextAt === 25 ? 'each one earns twice as much' : nextAt === 50 ? 'each one earns four times as much' : 'a crane rises over them';
+      return 'Buy ' + more(left, M.BOATS[i].name.toLowerCase(), M.BOATS[i].name.toLowerCase() + 's') + ', and ' + change + '.';
     }
     if (state.warehouses < M.MAX_WAREHOUSES) return 'Raise another shed if you want the office to keep more while the game is closed.';
     if (!phase.routesOpen) return 'The routes are marked along the coast. They sail on the next tide, with the lights after them.';

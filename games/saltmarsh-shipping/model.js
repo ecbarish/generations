@@ -14,6 +14,9 @@
   /* Wren arrives on her own, then the sloop shop a little later, so the pier does not open all at once. */
   var WREN_AT = 18;
   var SLOOP_AT = 32;
+  /* A hand player with about eighteen barks at minute 15 meets these before then. */
+  var BARK_QUAY = 12;
+  var BARK_LAMP = 16;
   var OFFLINE_RATE = 0.5;
   var WAREHOUSE_HOURS = 2;
   var MAX_WAREHOUSES = 4;
@@ -53,7 +56,7 @@
   var BOAT_NAMES = ['Grey Lark', 'Kettle', 'Bar Light', 'Reed'];
   var CAPTAINS = [
     {
-      id: 'wren', name: 'Capt. Wren', tier: 0, every: 20, pay: 60,
+      id: 'wren', name: 'Capt. Wren', tier: 0, every: 20, pay: 180,
       habit: 'Wren counts every coin aloud, and a gull always takes one.',
       lines: [
         function (coins) { return 'Capt. Wren is back with ' + coins + ' coins. A gull took one off the pile.'; },
@@ -62,7 +65,7 @@
       ]
     },
     {
-      id: 'bramble', name: 'Capt. Bramble', tier: 1, every: 24, pay: 200,
+      id: 'bramble', name: 'Capt. Bramble', tier: 1, every: 24, pay: 700,
       habit: 'Bramble waits for the kettle, then brings the tea money with the haul.',
       lines: [
         function (coins) { return 'Capt. Bramble is back with ' + coins + ' coins. The kettle money is in the pile.'; },
@@ -71,7 +74,7 @@
       ]
     },
     {
-      id: 'hollis', name: 'Capt. Hollis', tier: 2, every: 30, pay: 2000,
+      id: 'hollis', name: 'Capt. Hollis', tier: 2, every: 30, pay: 9000,
       habit: 'Each return, Hollis adds a mark to the fleet chart.',
       lines: [
         function (coins) { return 'Capt. Hollis is back with ' + coins + ' coins and a new mark on the chart.'; },
@@ -80,7 +83,7 @@
       ]
     },
     {
-      id: 'pell', name: 'Capt. Pell', tier: 3, every: 36, pay: 18000,
+      id: 'pell', name: 'Capt. Pell', tier: 3, every: 36, pay: 54000,
       habit: 'Pell names the boat she sailed, and the log says which one.',
       lines: [
         function (coins, boat) { return 'Capt. Pell is back aboard the ' + boat + ' with ' + coins + ' coins.'; },
@@ -89,10 +92,15 @@
       ]
     }
   ];
-  /* One-off fittings. A flat extra per boat, not a multiplier on the whole office. */
+  /* One-off fittings. A flat extra per boat, not a multiplier on the whole office.
+     Each one is paired with a shed. Taking one locks the other. */
   var FITTINGS = [
     { id: 'sloop-hull', tier: 1, need: 10, bonus: 1, cost: 700, name: 'Lighter sloop hulls', line: 'Each sloop earns 1 more coin a second, from now on.' },
     { id: 'schooner-hold', tier: 2, need: 10, bonus: 8, cost: 6000, name: 'Deeper schooner holds', line: 'Each schooner earns 8 more coins a second, from now on.' }
+  ];
+  var FORKS = [
+    { id: 'sloop', fit: 'sloop-hull', goal: 'Choose a lighter sloop hull, or another shed.' },
+    { id: 'schooner', fit: 'schooner-hold', goal: 'Choose a deeper schooner hold, or another shed.' }
   ];
 
   function fresh() {
@@ -107,6 +115,8 @@
       boats: BOATS.map(function () { return { owned: 0 }; }),
       captains: CAPTAINS.map(function () { return { hired: false, brought: 0, hauls: 0 }; }),
       fittings: {},
+      forks: { sloop: null, schooner: null },
+      waivedSheds: 0,
       marks: 0,
       fleetSeen: false,
       jobs: {},
@@ -194,18 +204,26 @@
     return !!(state.captains[0] && state.captains[0].hired);
   }
 
+  /* Whole coins under a thousand, then the same short scale as the rest of the arcade. */
+  function coins(n) {
+    n = Math.round(n);
+    if (!isFinite(n)) return '0';
+    if (n < 0) return '-' + coins(-n);
+    if (n < 1000) return String(n);
+    return Arcade.fmt(n);
+  }
+
   /* The first three cargoes are a flat 5, so the shop still opens on the same coins.
-     After that, a trip is worth about three seconds of the boats. Wren retires the oars. */
+     After that, the skiff pays about three seconds of what the office earns, and it stays yours. */
   function handPay(state) {
     if (!state || state.trips < HAND_TRIPS) return HAND_PAY;
-    var scaled = Math.round(income(state) * 3);
+    var scaled = Math.round((income(state) + captainRate(state)) * 3);
     return Math.max(HAND_PAY, scaled);
   }
 
   function handSell(state, i) {
     if (i === undefined || i === null) i = 0;
     if (i !== 0) return { ok: false, reason: 'closed' };
-    if (wrenHired(state)) return { ok: false, reason: 'captain' };
     var pay = handPay(state);
     state.trips += 1;
     addCash(state, pay);
@@ -242,11 +260,11 @@
     if (!state.jobs || typeof state.jobs !== 'object') state.jobs = {};
     state.jobs[captainSpec(i).id] = { job: 'haul', since: when };
     var cap = captainSpec(i);
-    var coins = haulCoins(cap, 1, 1);
+    var haul = haulCoins(cap, 1, 1);
     var welcome = cap.tier === 0
       ? cap.name + ' takes the pier. '
       : cap.name + ' takes a ' + spec(cap.tier).name.toLowerCase() + '. ';
-    pushLog(state, welcome + cap.habit + ' That is ' + coins + ' coins every ' + cap.every + ' seconds.', when);
+    pushLog(state, welcome + cap.habit + ' That is ' + coins(haul) + ' coins every ' + cap.every + ' seconds.', when);
     return { ok: true, id: cap.id };
   }
 
@@ -273,8 +291,28 @@
     if (!(q.count > 0)) return { ok: false, reason: q.blocked || 'cost', count: 0, cost: q.cost };
     state.cash -= q.cost;
     if (state.cash < 1e-6) state.cash = 0;
+    var beforeOwned = state.boats[i].owned;
     state.boats[i].owned += q.count;
-    return { ok: true, count: q.count, cost: q.cost };
+    var notes = growthNotes(state, i, beforeOwned);
+    return { ok: true, count: q.count, cost: q.cost, notes: notes };
+  }
+
+  function growthNotes(state, i, before) {
+    var after = state.boats[i].owned;
+    var boat = spec(i);
+    var notes = [];
+    function cross(at, text) {
+      if (before < at && after >= at) notes.push(text);
+    }
+    if (i === 3) {
+      cross(BARK_QUAY, 'Twelve barks, and the quay grows longer. House flags go up.');
+      cross(BARK_LAMP, 'The bar lamp is lit. You can see it from the office window.');
+    }
+    cross(25, boat.name + 's reach 25. Flags go up, and each one earns twice as much.');
+    cross(50, boat.name + 's reach 50. The dock grows longer, and each one earns four times as much.');
+    cross(100, boat.name + 's reach 100. A crane rises over them.');
+    notes.forEach(function (text) { pushLog(state, text); });
+    return notes;
   }
 
   function offlineCap(state) {
@@ -284,19 +322,26 @@
     return n * WAREHOUSE_HOURS * 3600;
   }
 
-  function warehousePrice(state) {
-    var n = state.warehouses || 1;
-    if (n >= MAX_WAREHOUSES) return null;
-    return WAREHOUSE_COST[n];
+  /* Skipped sheds (the player took the fitting instead) move the price up a step. */
+  function shedIndex(state) {
+    return (state.warehouses || 1) + (state.waivedSheds || 0);
   }
 
-  function buyWarehouse(state) {
-    var price = warehousePrice(state);
-    if (price == null) return { ok: false, reason: 'full' };
+  function warehousePrice(state) {
+    var idx = shedIndex(state);
+    if (idx >= MAX_WAREHOUSES) return null;
+    return WAREHOUSE_COST[idx];
+  }
+
+  function buyWarehouse(state, fromChoice) {
+    if (!fromChoice && openFork(state)) return { ok: false, reason: 'choice', cost: warehousePrice(state) };
+    var idx = shedIndex(state);
+    if (idx >= MAX_WAREHOUSES) return { ok: false, reason: 'full' };
+    var price = WAREHOUSE_COST[idx];
     if (!(state.cash >= price)) return { ok: false, reason: 'cost', cost: price };
     state.cash -= price;
     if (state.cash < 1e-6) state.cash = 0;
-    state.warehouses += 1;
+    state.warehouses = idx + 1;
     return { ok: true, warehouses: state.warehouses, cost: price };
   }
 
@@ -317,18 +362,85 @@
     });
   }
 
+  function forkById(id) {
+    for (var i = 0; i < FORKS.length; i++) if (FORKS[i].id === id) return FORKS[i];
+    return null;
+  }
+
+  function forkForFit(fitId) {
+    for (var i = 0; i < FORKS.length; i++) if (FORKS[i].fit === fitId) return FORKS[i];
+    return null;
+  }
+
+  function forkTaken(state, id) {
+    return !!(state.forks && state.forks[id]);
+  }
+
+  /* The first open pair. Taking either side locks the other. */
+  function openFork(state) {
+    if (!state.forks) state.forks = { sloop: null, schooner: null };
+    for (var i = 0; i < FORKS.length; i++) {
+      var fork = FORKS[i];
+      if (forkTaken(state, fork.id)) continue;
+      var fit = fittingById(fork.fit);
+      if (fit && state.boats[fit.tier] && state.boats[fit.tier].owned >= fit.need) return fork;
+    }
+    return null;
+  }
+
+  function choiceOffer(state) {
+    var fork = openFork(state);
+    if (!fork) return null;
+    var fit = fittingById(fork.fit);
+    var price = warehousePrice(state);
+    return {
+      id: fork.id,
+      goal: fork.goal,
+      fit: {
+        id: fit.id, name: fit.name, cost: fit.cost, line: fit.line,
+        affordable: state.cash >= fit.cost
+      },
+      shed: {
+        name: 'Another shed',
+        cost: price,
+        line: 'Two more hours kept when the game is closed. The boats are not changed.',
+        affordable: price != null && state.cash >= price
+      }
+    };
+  }
+
+  function chooseFork(state, forkId, which, now) {
+    var fork = forkById(forkId);
+    if (!fork) return { ok: false, reason: 'closed' };
+    if (forkTaken(state, fork.id)) return { ok: false, reason: 'locked' };
+    var open = openFork(state);
+    if (!open || open.id !== fork.id) return { ok: false, reason: 'closed' };
+    var fit = fittingById(fork.fit);
+    if (which === 'fit') {
+      if (!(state.cash >= fit.cost)) return { ok: false, reason: 'cost', cost: fit.cost };
+      state.cash -= fit.cost;
+      if (state.cash < 1e-6) state.cash = 0;
+      if (!state.fittings) state.fittings = {};
+      state.fittings[fit.id] = true;
+      state.forks[fork.id] = 'fit';
+      state.waivedSheds = (state.waivedSheds || 0) + 1;
+      pushLog(state, fit.name + '. ' + fit.line + ' The shed stays unbuilt.', now);
+      return { ok: true, which: 'fit', id: fit.id };
+    }
+    if (which === 'shed') {
+      var bought = buyWarehouse(state, true);
+      if (!bought.ok) return bought;
+      state.forks[fork.id] = 'shed';
+      pushLog(state, 'Another shed, instead of the ' + fit.name.toLowerCase() + '. The office keeps two more hours when the game is closed.', now);
+      return { ok: true, which: 'shed', warehouses: state.warehouses, cost: bought.cost };
+    }
+    return { ok: false, reason: 'closed' };
+  }
+
   function buyFitting(state, id, now) {
-    var fit = fittingById(id);
-    if (!fit) return { ok: false, reason: 'closed' };
-    if (state.fittings && state.fittings[fit.id]) return { ok: false, reason: 'owned' };
-    if (!state.boats[fit.tier] || state.boats[fit.tier].owned < fit.need) return { ok: false, reason: 'boats' };
-    if (!(state.cash >= fit.cost)) return { ok: false, reason: 'cost', cost: fit.cost };
-    state.cash -= fit.cost;
-    if (state.cash < 1e-6) state.cash = 0;
-    if (!state.fittings || typeof state.fittings !== 'object') state.fittings = {};
-    state.fittings[fit.id] = true;
-    pushLog(state, fit.name + '. ' + fit.line, now);
-    return { ok: true, id: fit.id, cost: fit.cost };
+    var fork = forkForFit(id);
+    if (!fork) return { ok: false, reason: 'closed' };
+    return chooseFork(state, fork.id, 'fit', now);
   }
 
   function pushLog(state, text, now) {
@@ -355,15 +467,15 @@
             for (var i = 0; i < CAPTAINS.length; i++) if (CAPTAINS[i].id === who) { cap = CAPTAINS[i]; index = i; }
             if (!cap || !(units > 0) || !state.captains[index]) return;
             var rate = state._awayRate > 0 ? state._awayRate : 1;
-            var coins = haulCoins(cap, units, rate);
-            addCash(state, coins);
+            var paid = haulCoins(cap, units, rate);
+            addCash(state, paid);
             var row = state.captains[index];
-            row.brought = (row.brought || 0) + coins;
+            row.brought = (row.brought || 0) + paid;
             row.hauls = (row.hauls || 0) + units;
             if (cap.id === 'hollis') state.marks = Math.min(12, (state.marks || 0) + units);
             var boat = BOAT_NAMES[(row.hauls - 1) % BOAT_NAMES.length];
             var line = cap.lines[(row.hauls - 1) % cap.lines.length];
-            pushLog(state, line(coins, boat, units), state._logNow);
+            pushLog(state, line(coins(paid), boat, units), state._logNow);
           }
         }
       }
@@ -454,13 +566,13 @@
       if (summary.capped) lead += ' ' + hold + ', so ' + hours + ' hours counted.';
     }
     var lines = [];
-    if (typeof detail.before === 'number') lines.push('You left with ' + Arcade.fmt(detail.before) + ' coins.');
+    if (typeof detail.before === 'number') lines.push('You left with ' + coins(detail.before) + ' coins.');
     var boatGain = typeof detail.boatGain === 'number' ? detail.boatGain : (summary.gained || 0);
-    lines.push('The boats added ' + Arcade.fmt(boatGain) + ' coins.');
+    lines.push('The boats added ' + coins(boatGain) + ' coins.');
     var captains = detail.captains || [];
     if (!captains.length) lines.push('No captain was at the pier.');
     captains.forEach(function (row) { lines.push(row); });
-    if (typeof detail.after === 'number') lines.push('You came back to ' + Arcade.fmt(detail.after) + ' coins.');
+    if (typeof detail.after === 'number') lines.push('You came back to ' + coins(detail.after) + ' coins.');
     return { title: 'While you were away', lead: lead, lines: lines, box: lines.join(' ') };
   }
 
@@ -468,7 +580,11 @@
     return state.captains.map(function (c) { return c && c.brought ? c.brought : 0; });
   }
 
-  function captainAwayLines(state, beforeBrought) {
+  function captainHauls(state) {
+    return state.captains.map(function (c) { return c && c.hauls ? c.hauls : 0; });
+  }
+
+  function captainAwayLines(state, beforeBrought, beforeHauls) {
     var lines = [];
     var any = false;
     for (var i = 0; i < CAPTAINS.length; i++) {
@@ -477,8 +593,12 @@
       any = true;
       var before = beforeBrought && typeof beforeBrought[i] === 'number' ? beforeBrought[i] : 0;
       var added = (row.brought || 0) - before;
-      if (added > 0) lines.push(CAPTAINS[i].name + ' added ' + Arcade.fmt(added) + ' coins.');
-      else lines.push(CAPTAINS[i].name + ' was out, and no haul landed in this stretch.');
+      var haulsBefore = beforeHauls && typeof beforeHauls[i] === 'number' ? beforeHauls[i] : 0;
+      var hauls = (row.hauls || 0) - haulsBefore;
+      if (added > 0) {
+        var word = hauls === 1 ? 'haul' : 'hauls';
+        lines.push(CAPTAINS[i].name + ': ' + hauls + ' ' + word + ', ' + coins(added) + ' coins.');
+      } else lines.push(CAPTAINS[i].name + ' was out, and no haul landed in this stretch.');
     }
     if (!any) lines.push('No captain was at the pier.');
     return lines;
@@ -516,6 +636,8 @@
       if (o.captains[i].hauls != null && (!finiteNum(o.captains[i].hauls) || o.captains[i].hauls < 0)) return false;
     }
     if (o.fittings != null && typeof o.fittings !== 'object') return false;
+    if (o.forks != null && typeof o.forks !== 'object') return false;
+    if (o.waivedSheds != null && (!finiteNum(o.waivedSheds) || o.waivedSheds < 0)) return false;
     if (o.marks != null && (!finiteNum(o.marks) || o.marks < 0)) return false;
     if (o.fleetSeen != null && typeof o.fleetSeen !== 'boolean') return false;
     if (o.jobs != null && typeof o.jobs !== 'object') return false;
@@ -539,6 +661,11 @@
         return { hired: !!c.hired, brought: c.brought || 0, hauls: c.hauls || 0 };
       }),
       fittings: state.fittings && typeof state.fittings === 'object' ? state.fittings : {},
+      forks: {
+        sloop: state.forks && (state.forks.sloop === 'fit' || state.forks.sloop === 'shed') ? state.forks.sloop : null,
+        schooner: state.forks && (state.forks.schooner === 'fit' || state.forks.schooner === 'shed') ? state.forks.schooner : null
+      },
+      waivedSheds: state.waivedSheds || 0,
       marks: state.marks || 0,
       fleetSeen: !!state.fleetSeen,
       jobs: state.jobs || {},
@@ -566,6 +693,12 @@
     if (o.fittings && typeof o.fittings === 'object') {
       FITTINGS.forEach(function (fit) { if (o.fittings[fit.id]) state.fittings[fit.id] = true; });
     }
+    state.forks = { sloop: null, schooner: null };
+    if (o.forks) {
+      if (o.forks.sloop === 'fit' || o.forks.sloop === 'shed') state.forks.sloop = o.forks.sloop;
+      if (o.forks.schooner === 'fit' || o.forks.schooner === 'shed') state.forks.schooner = o.forks.schooner;
+    }
+    state.waivedSheds = finiteNum(o.waivedSheds) ? Math.floor(o.waivedSheds) : 0;
     state.marks = finiteNum(o.marks) ? Math.min(12, Math.floor(o.marks)) : 0;
     state.fleetSeen = !!o.fleetSeen;
     state.jobs = {};
@@ -620,6 +753,8 @@
     UNLOCK_AT: UNLOCK_AT,
     WREN_AT: WREN_AT,
     SLOOP_AT: SLOOP_AT,
+    BARK_QUAY: BARK_QUAY,
+    BARK_LAMP: BARK_LAMP,
     FITTINGS: FITTINGS,
     OFFLINE_RATE: OFFLINE_RATE,
     WAREHOUSE_HOURS: WAREHOUSE_HOURS,
@@ -638,8 +773,12 @@
     hire: hire,
     quote: quote,
     buy: buy,
+    coins: coins,
     fittingOffers: fittingOffers,
     buyFitting: buyFitting,
+    choiceOffer: choiceOffer,
+    chooseFork: chooseFork,
+    openFork: openFork,
     offlineCap: offlineCap,
     warehousePrice: warehousePrice,
     buyWarehouse: buyWarehouse,
@@ -652,6 +791,7 @@
     awayRule: awayRule,
     awayCopy: awayCopy,
     captainBooks: captainBooks,
+    captainHauls: captainHauls,
     captainAwayLines: captainAwayLines,
     noteFleet: noteFleet,
     setBulk: setBulk,
