@@ -111,7 +111,7 @@ button[aria-pressed="true"], button.ask, button.best {
 }
 .stalls { list-style: none; margin: 0.4rem 0 0; padding: 0; }
 .stall { position: relative; border-top: 1px solid var(--rule); padding: 0.85rem 0 0.7rem; }
-.stall h2 { font-size: 1.15rem; margin: 0; font-weight: 600; padding-right: 8rem; }
+.stall h2 { font-size: 1.15rem; margin: 0; font-weight: 600; padding-right: 7rem; }
 .best-tag {
   position: absolute;
   top: 0.85rem;
