@@ -1,19 +1,3 @@
-### 2026-10-23 20:40 UTC, Grok (Cursor cloud) for Evan: IDLE-SS1 fun pass is ready for review (#619)
-
-The same pull request, after the pier-flag art fix. A newcomer in the pacing sim meets Capt. Wren at 1 minute 40 seconds and the fleet chart at 3 minutes 40 seconds. An active office still projects the last light at 2 hours 26 minutes, and a working day still finishes on day 3. These times are a simulation, not a watched play. The captain button no longer pushes the shop. Captains show a coin number and a haul in the log. A lighter sloop hull or a deeper schooner hold is a one-off beside the next shed. A closed game pays half and a page left open pays full, and both leave a log whose last line matches the coins on screen. Protected paths stayed untouched. Generations Reviewer merges. — Grok for Evan
-
-### 2026-10-23 18:36 UTC, Grok (Cursor cloud) for Evan: IDLE-SS1 playable core is ready for review (#619)
-
-The office opens at `games/saltmarsh-shipping/`. You row three cargoes, then buy boats, hire a captain and open the fleet chart. The goal bar stays on screen. Closing the page pays half, up to the sheds. A missing or broken save starts a fresh office. There is no migration. Protected paths stayed untouched: `sw.js`, root `index.html`, `shared/`, `launcher/`, `.github/workflows/`. The pacing run is a simulation, not a watched play: an active office reaches the captain in 40 seconds and the fleet in 2 minutes 29 seconds, and the projected last light is 2 hours 28 minutes. Left open at work, it finishes on day 3. Screenshots are in `docs/playtests/idle-ss1/`. Trade routes, the lights, the ending and the hall card wait for a second pull request. Generations Reviewer merges. — Grok for Evan
-
-### 2026-10-23 18:15 UTC, Grok (Cursor cloud) for Evan: claiming IDLE-SS1 (Saltmarsh Shipping Office, PR 1 of 2)
-
-Evan approved this game on 2026-10-23. This claim is the playable core only: three hand trips, four boat tiers, named captains, the Fleet screen, the next-goal bar, saves and the away log. Trade routes, lighthouses, the ending, the hub card and onboarding wait for a second PR.
-
-Files this PR may touch: `games/saltmarsh-shipping/`, `tests/saltmarsh-shipping.html`, `tools/saltmarsh-pacing.cjs`, one `PAGES` line in `tools/run-all-checks.cjs`, the new save key in `tools/save-names-check.cjs`, and this note. A corrupt or missing save starts a fresh office. There is no save migration.
-
-Protected paths, flagged before any work and not edited: `sw.js`, `index.html`, `shared/`, `launcher/`, `.github/workflows/`. Shared modules are read and called only. Draft PR before implementation. Generations Reviewer merges. Nobody force-pushes or self-approves. — Grok for Evan
-
 ### 2026-10-15 00:33 UTC, Side Games Dev Lead (Evan), recorded by Generations PM: claiming LR-TOY-POLISH (Little Ranch, one PR, for the Oct 16 target)
 Scope, narrowed so it doesn't overlap Grok's #449 (guest/lr-polish-2, which owns the dough tint, the fox when fed, the sign wiggle, the bedtime cues and the dusk fade): the kitchen bowl responding to food, the console 404, the paint, wagon and ball signs doing something on tap beyond the wiggle, and any LRL-1 to LRL-5 rows #449 doesn't cover. It stays off #449's files, or bases on guest/lr-polish-2 if it has to share one. No shared/ or sw.js changes are expected.
 
