@@ -18,16 +18,24 @@
     <p class="coins"><span id="coins">0</span> coins</p>
     <p class="rate" id="away-rule"></p>
     <p class="rate" id="rate"></p>
+    <p class="rate" id="omen-now">Tonight's omen</p>
+    <button type="button" id="open-book">Lantern Book</button>
+    <p class="book-note" id="book-note" hidden></p>
   </header>
   <div class="lane" aria-hidden="true"><canvas id="lane" width="384" height="88"></canvas></div>
   <p class="goal" id="goal"></p>
   <p class="lane-goal" id="lane-goal"></p>
-  <section class="finale" id="finale" hidden tabindex="-1">
+  <div id="finale-backdrop" hidden></div>
+  <section class="finale" id="finale" hidden role="dialog" aria-modal="true" aria-labelledby="finale-title" tabindex="-1">
     <h2 id="finale-title"></h2>
     <p id="finale-lead"></p>
-    <button type="button" data-act="finale">Keep the lane open</button>
+    <p id="finale-summary" tabindex="0" aria-label="What you earned tonight"></p>
+    <div class="finale-actions">
+      <button type="button" data-act="next-night">Next night</button>
+      <button type="button" data-act="finale">Keep the lane open</button>
+    </div>
   </section>
-  <p class="finale-note" id="finale-note" hidden tabindex="-1"></p>
+  <p class="finale-note" id="finale-note" hidden tabindex="-1"><span id="finale-note-text"></span> <button type="button" data-act="dismiss-note">Put this note away</button> <button type="button" data-act="next-night">Next night</button></p>
   <div class="market-work">
   <div class="bulk" id="bulk" hidden role="group" aria-label="How many to buy at once">
     <span class="bulk-name">Buying</span>
@@ -36,12 +44,29 @@
     <button type="button" data-bulk="max" aria-pressed="false">Max</button>
     <button type="button" data-bulk="next" aria-pressed="false">Next</button>
   </div>
+  <p class="bulk-help" id="bulk-help">1 is one copy. 10 is ten. Max avoids a slow copy. Next stops at the next doubling.</p>
   <section id="away" hidden></section>
-  <ol class="stalls" id="stalls"></ol>
+  <ol class="stalls" id="stalls">
+  <li class="pick quiet" id="pick" hidden>
+    <div id="pick-backdrop" hidden></div>
+    <div class="pick-panel" id="pick-panel">
+      <p id="pick-lead" tabindex="-1">Tonight's omen and charms wait here.</p>
+      <div class="choices" id="pick-choices"></div>
+      <div class="choices">
+        <button type="button" data-act="skip" hidden>Skip</button>
+        <button type="button" data-act="reroll">Reroll once</button>
+      </div>
+    </div>
+  </li>
+  </ol>
   </div>
   <details class="save">
-    <summary>Your save</summary>
+    <summary>Your save and Lantern Book</summary>
     <div id="tools"></div>
+    <details class="codex">
+      <summary>Lantern Book</summary>
+      <div id="codex"></div>
+    </details>
   </details>
 </main>
 <script src="../../shared/engine.js"></script>
