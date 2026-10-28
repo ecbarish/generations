@@ -211,6 +211,11 @@
       : buyLabel(i, offer);
     buy.disabled = !(offer.count > 0);
     buy.classList.toggle('refused', false);
+    var needLine = li.querySelector('.need');
+    if (needLine) {
+      var shortfall = !(offer.count > 0) && offer.cost > state.cash + 0.001 && !(state.bulk === 'max' && offer.blocked === 'payback' && !firstMat);
+      needLine.textContent = shortfall ? ('Need ' + money(Math.max(0, offer.cost - state.cash)) + ' more.') : '';
+    }
   }
 
   function rebindIdle() {
@@ -233,12 +238,19 @@
     var omenRow = state.night && M.omenById(state.night.omen);
     if (omenNow) omenNow.textContent = omenRow ? omenRow.brief : "Tonight's omen";
     var bookNote = $('#book-note');
-    if (bookNote) bookNote.hidden = !(state.meta && state.meta.nights && state.meta.nights.length);
+    if (bookNote) bookNote.hidden = false;
+    var openKey = '';
+    for (var oi = 0; oi < M.STALLS.length; oi++) openKey += M.unlocked(state, oi) ? '1' : '0';
+    if (openKey !== seenOpen) { seenOpen = openKey; M.touchQuiet(state); }
+    var nowMs = Date.now();
+    var quietDt = (nowMs - lastElapse) / 1000;
+    lastElapse = nowMs;
+    if (quietDt > 0) M.elapse(state, Math.min(quietDt, 120));
     var dawn = M.dawnDue(state);
-    var goalText = dawn ? '' : M.goal(state);
+    var goalText = dawn && !(state.night && state.night.kept) ? M.dawnGoal() : M.goal(state);
     var goalEl = $('#goal');
     goalEl.textContent = goalText;
-    goalEl.hidden = dawn;
+    goalEl.hidden = false;
     var laneGoal = $('#lane-goal');
     if (laneGoal) laneGoal.textContent = laneCounterText(goalText);
     var finale = $('#finale');
@@ -255,7 +267,6 @@
         if (summaryEl) summaryEl.textContent = copy.summary;
         if (!dawnCardSeen) {
           dawnCardSeen = true;
-          finale.scrollIntoView({ block: 'center', behavior: 'auto' });
           finale.focus({ preventScroll: true });
         }
         var nextNight = finale.querySelector('[data-act="next-night"]');
@@ -272,11 +283,15 @@
     if (!finaleOn) dawnCardSeen = false;
     if (finaleNote) {
       finaleNote.hidden = !(state.night && state.night.kept && state.stalls[M.STALLS.length - 1].owned >= 1);
-      finaleNote.textContent = 'The mat is unrolled. The lane stays open.';
+      var noteText = $('#finale-note-text');
+      if (noteText) noteText.textContent = 'The mat is unrolled. The lane stays open.';
     }
     if (M.syncOffers(state) || M.noteDawn(state)) persist();
     var hiring = state.stalls.some(function (s) { return s.hired; });
-    $('#bulk').hidden = !hiring;
+    $('#bulk').hidden = false;
+    document.querySelectorAll('#bulk [data-bulk]').forEach(function (b) {
+      b.disabled = !hiring;
+    });
     document.querySelectorAll('[data-bulk]').forEach(function (b) {
       var on = String(state.bulk) === b.dataset.bulk;
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -292,6 +307,7 @@
           '<button type="button" class="ask" data-act="hire"></button>' +
           '<button type="button" data-act="buy"></button></div>' +
           '<p class="next-goal"></p>' +
+          '<p class="need"></p>' +
           '<p class="payback-hint" hidden></p>';
         list.appendChild(li);
       });
@@ -575,6 +591,8 @@
   // NM-G8: before the hire, a hold stops at the vendor's count (12 of 12 dumplings). A plain click still serves, and still pays.
   var HOLD_DELAY = 350, HOLD_EVERY = 120, HOLD_PUMP = 50, hold = null;
   var finaleScroll = false, finaleFocused = false;
+  var lastElapse = Date.now();
+  var seenOpen = '';
   var offerModalSig = '', offerReturn = null, offerPaused = false;
   function setBehindInert(on) {
     var nodes = document.querySelectorAll('.stall, .lane, #bulk, #goal, #lane-goal, header, details.save, #finale, .goal-pin, .coin-pin');

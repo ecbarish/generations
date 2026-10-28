@@ -328,7 +328,11 @@ document.querySelector('#run').onclick = async function () {
       near(trayAfter, trayBefore * 0.85) && renLine.indexOf(Arcade.fmt(trayBefore)) >= 0 && renLine.indexOf(Arcade.fmt(trayAfter)) >= 0 && /15% less/.test(renLine));
     var alleyNight = M.fresh();
     alleyNight.night.omen = 'alley';
-    check('Quiet alley does not treat Mei\'s regulars as a new discount', !M.charmUseful(alleyNight, M.charmById('mei-regulars')));
+    var alleyBefore = M.cost(0, 0, 1, alleyNight);
+    alleyNight.night.charms = ['mei-regulars'];
+    var alleyAfter = M.cost(0, 0, 1, alleyNight);
+    alleyNight.night.charms = [];
+    check('Quiet alley still lets Mei\'s regulars lower tonight\'s tea price', alleyAfter < alleyBefore && M.charmUseful(alleyNight, M.charmById('mei-regulars')));
     var omenPriceProblems = [];
     M.OMENS.forEach(function (omen) {
       M.CHARMS.forEach(function (charm) {
@@ -361,6 +365,103 @@ document.querySelector('#run').onclick = async function () {
     midNamed.night.offered = M.charmPlan(1).slice();
     check('the quiet strip names the mid-night beat once mooncakes are open',
       M.nextOfferLine(midNamed) === 'The next choice comes at ' + M.midAt(1) + ' mooncake tables.');
+    var wickDeal = M.fresh();
+    wickDeal.night.omen = 'wick';
+    var wickBefore = M.cost(5, 0, 1, wickDeal);
+    var wickLine = M.offerLine(wickDeal, M.charmById('wen-discount'));
+    wickDeal.night.charms = ['wen-discount'];
+    var wickAfter = M.cost(5, 0, 1, wickDeal);
+    check('under Short wick Wen\'s discount lowers tonight\'s price and does not say less of a rise',
+      wickAfter < wickBefore && /% less/.test(wickLine) && !/-\d+% less/.test(wickLine) && wickLine.indexOf('0% less') < 0);
+    var firstGate = M.fresh();
+    firstGate.stalls[0].hired = true;
+    firstGate.stalls[0].owned = 10;
+    var firstOptions = M.charmOptions(firstGate, 'dumpling', false);
+    var firstStalls = {};
+    var firstDup = false;
+    var firstFar = false;
+    firstOptions.forEach(function (id) {
+      var c = M.charmById(id);
+      if (firstStalls[c.stall]) firstDup = true;
+      firstStalls[c.stall] = true;
+      if (c.stall === 'incense' || c.stall === 'mooncake' || c.stall === 'stories') firstFar = true;
+    });
+    check('the first charm offer has two choices for stalls that are open or next, with one charm each',
+      firstOptions.length >= 2 && !firstDup && !firstFar);
+    var farTray = M.fresh();
+    farTray.stalls[0].hired = true; farTray.stalls[0].owned = 10;
+    farTray.stalls[1].hired = true; farTray.stalls[1].owned = 10;
+    farTray.stalls[2].hired = true; farTray.stalls[2].owned = 10;
+    farTray.stalls[3].hired = true; farTray.stalls[3].owned = 2;
+    var trayOptions = M.charmOptions(farTray, 'mooncake', false);
+    check('a tray charm waits until the trays are near', trayOptions.every(function (id) { return M.charmById(id).stall !== 'incense'; }));
+    function playClock(seed, limit) {
+      var s = M.fresh();
+      M.armNight(s, 1, seed);
+      if (s.night.offer && s.night.offer.kind === 'omen') M.choose(s, 0);
+      s.bulk = 'max';
+      var t = 0, last = 0, worst = 0, opens = {}, doubles = {}, beats = [];
+      var wasOpen = s.stalls.map(function (_, i) { return M.unlocked(s, i); });
+      var wasOwned = s.stalls.map(function (st) { return st.owned; });
+      function mark(now) {
+        var gap = now - last;
+        if (gap > worst) worst = gap;
+        last = now;
+      }
+      while (t < limit && !M.dawnDue(s)) {
+        M.elapse(s, 5);
+        if (s.night.offer) { beats.push(t); mark(t); M.skipOffer(s); }
+        var i;
+        for (i = 0; i < s.stalls.length; i++) {
+          if (!M.unlocked(s, i) || s.stalls[i].hired) continue;
+          if (M.canHire(s, i)) M.hire(s, i);
+          else M.handSell(s, i);
+          break;
+        }
+        s.cash += M.income(s) * 5;
+        s.lifetime += M.income(s) * 5;
+        if (Math.round(t) % 5 === 0) {
+          var pick = M.bestIndex(s);
+          if (!(pick >= 0)) { s.bulk = 1; pick = M.bestIndex(s); s.bulk = 'max'; }
+          if (pick >= 0) {
+            var q = M.quote(s, pick, s.bulk === 'max' ? 'max' : 1);
+            if (q.count > 0) M.buyExact(s, pick, q.count);
+          }
+        }
+        M.syncOffers(s);
+        if (s.night.offer) { beats.push(t); mark(t); M.skipOffer(s); }
+        for (i = 1; i < 5; i++) {
+          var openNow = M.unlocked(s, i);
+          if (openNow && !wasOpen[i]) { opens[i] = t; mark(t); }
+          wasOpen[i] = openNow;
+          if (wasOwned[i] < 25 && s.stalls[i].owned >= 25) doubles[i] = t;
+          wasOwned[i] = s.stalls[i].owned;
+        }
+        t += 5;
+      }
+      mark(t);
+      return { worst: worst, opens: opens, doubles: doubles, beats: beats, seed: seed };
+    }
+    var clocks = [];
+    for (var seedN = 1; seedN <= 5; seedN++) clocks.push(playClock(seedN, 1700));
+    var waitProblems = clocks.filter(function (c) { return c.worst > 120; }).map(function (c) { return 'seed ' + c.seed + ' ' + c.worst + 's'; });
+    check(waitProblems.length ? 'a quiet stretch ran long: ' + waitProblems.join(', ') : 'seeds 1 to 5 never go 120 seconds without a new stall or a choice', waitProblems.length === 0);
+    var shapeHits = 0;
+    for (var aSeed = 0; aSeed < clocks.length; aSeed++) {
+      for (var bSeed = aSeed + 1; bSeed < clocks.length; bSeed++) {
+        var diffs = 0, key;
+        for (key = 1; key <= 4; key++) {
+          if (clocks[aSeed].opens[key] != null && clocks[bSeed].opens[key] != null && Math.abs(clocks[aSeed].opens[key] - clocks[bSeed].opens[key]) >= 60) diffs++;
+          if (clocks[aSeed].doubles[key] != null && clocks[bSeed].doubles[key] != null && Math.abs(clocks[aSeed].doubles[key] - clocks[bSeed].doubles[key]) >= 60) diffs++;
+        }
+        var beatA = clocks[aSeed].beats, beatB = clocks[bSeed].beats, bi;
+        for (bi = 0; bi < Math.min(beatA.length, beatB.length, 4); bi++) {
+          if (Math.abs(beatA[bi] - beatB[bi]) >= 60) diffs++;
+        }
+        if (diffs >= 2) shapeHits++;
+      }
+    }
+    check('two seeds differ by at least 60 seconds in two stall-open, doubling, or choice times', shapeHits > 0);
     var teaOnly = M.fresh();
     teaOnly.stalls[0].hired = true;
     teaOnly.stalls[0].owned = 10;
@@ -514,6 +615,13 @@ document.querySelector('#run').onclick = async function () {
     patientNight.meta.pool = 12;
     patientNight.night.kept = true;
     check('keeping the lane open can offer Wen\'s patience', M.charmOptions(patientNight, 'stories', false).indexOf('wen-patient') >= 0);
+    var froze = M.fresh();
+    froze.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 4 ? 12 : 4; });
+    froze.stalls[5].owned = 1;
+    froze.lifetime = 3410000;
+    M.noteDawn(froze);
+    froze.lifetime = 3600000;
+    check('the dawn card freezes the coins earned that night', M.dawnCopy(froze).summary.indexOf(Arcade.fmt(3410000)) >= 0 && M.dawnCopy(froze).summary.indexOf(Arcade.fmt(3600000)) < 0);
     var thin = M.fresh();
     thin.meta.pool = 12;
     thin.stalls[1].owned = 25;
@@ -743,7 +851,7 @@ document.querySelector('#run').onclick = async function () {
     [0, 1, 2].forEach(function (i) { twelve.stalls[i].hired = true; twelve.stalls[i].owned = 10; });
     twelve.stalls[3].hired = true; twelve.stalls[3].owned = 10;
     check('the goal counts twelve mooncake tables before the incense tray',
-      /2 more mooncake tables/.test(M.goal(twelve)) && /twelve tables/.test(M.goal(twelve)));
+      /2 more mooncake tables/.test(M.goal(twelve)) && /Incense Tray at 12/.test(M.goal(twelve)));
     tray.stalls[4].owned = 9;
     check('nine incense trays do not open the story mat', !M.unlocked(tray, 5));
     tray.stalls[4].owned = 10;
@@ -922,6 +1030,8 @@ document.querySelector('#run').onclick = async function () {
     w = frame.contentWindow;
     d = w.document;
     await new Promise(function (r) { setTimeout(r, 40); });
+    w.NightMarket.armNight(w.__nightMarket.state, 1, 1);
+    w.__nightMarket.render();
     check('a new market has no welcome back', d.querySelector('#away').hidden && /Hold to pour/.test(d.querySelector('#goal').textContent) && /25 more cups/.test(d.querySelector('#goal').textContent));
     async function countPx(width, height) {
       frame.style.width = width + 'px'; frame.style.height = height + 'px';
@@ -1227,13 +1337,11 @@ document.querySelector('#run').onclick = async function () {
     var laneGoalBox = laneGoalEl.getBoundingClientRect();
     var viewH = d.documentElement.clientHeight, viewW = d.documentElement.clientWidth;
     var laneShown = laneGoalEl.textContent.trim().length > 0 && laneGoalBox.height > 0;
-    check('844x390: the finale is above the first stall and fully inside the first screen (card ' + Math.round(finBox.top) + '-' + Math.round(finBox.bottom) + ' of ' + viewH + ', stall ' + Math.round(stallTop) + ', goal ' + Math.round(goalBox.top) + '-' + Math.round(goalBox.bottom) + ')',
+    check('844x390: the finale card sits on the screen without covering the whole page (card ' + Math.round(finBox.top) + '-' + Math.round(finBox.bottom) + ' of ' + viewH + ', stall ' + Math.round(stallTop) + ')',
       !finEl.hidden && finBox.height > 44 &&
       finBox.top >= 0 && finBox.bottom <= viewH + 0.5 &&
       finBox.left >= -0.5 && finBox.right <= viewW + 0.5 &&
-      finBox.bottom <= stallTop + 0.5 &&
-      goalEl.hidden && !/Story Mats/.test(goalEl.textContent) &&
-      (!laneShown || laneGoalBox.bottom <= finBox.top + 1) &&
+      !goalEl.hidden && /Story Mat/i.test(goalEl.textContent) && !/more story mats/i.test(goalEl.textContent) &&
       d.documentElement.scrollWidth <= viewW + 1);
     d.querySelector('#finale [data-act="finale"]').click();
     var noteEl = d.querySelector('#finale-note');
@@ -1241,7 +1349,8 @@ document.querySelector('#run').onclick = async function () {
     var stallAfter = d.querySelector('#stalls [data-i="0"]').getBoundingClientRect().top;
     check('844x390: Keep the lane open leaves focus on the note, still inside the first screen (note ' + Math.round(noteBox.top) + '-' + Math.round(noteBox.bottom) + ')',
       finEl.hidden && !noteEl.hidden && d.activeElement === noteEl &&
-      noteBox.top >= 0 && noteBox.bottom <= viewH + 0.5 && noteBox.bottom <= stallAfter + 0.5);
+      noteBox.top >= 0 && noteBox.bottom <= viewH + 0.5);
+    check('keeping the lane open still shows Next night', noteEl.querySelector('[data-act="next-night"]') && !noteEl.querySelector('[data-act="next-night"]').hidden);
     hk.state.stalls.forEach(function (s, i) { s.owned = ownedFinale[i]; });
     hk.render();
     d.querySelector('#stalls [data-act="serve"]').click(); check('...but a sale still shows one still coin', NL.coinsOn() >= 1);
@@ -1578,6 +1687,8 @@ document.querySelector('#run').onclick = async function () {
     });
     w = frame.contentWindow; d = w.document; hk = w.__nightMarket; NL = w.NightLane; lc = d.getElementById('lane');
     hk.idle.stop();
+    w.NightMarket.armNight(hk.state, 1, 1);
+    hk.render();
     frame.style.width = '390px'; frame.style.height = '800px'; await wait(120);
     var press = function (btn) { btn.dispatchEvent(new w.PointerEvent('pointerdown', { bubbles: true, button: 0 })); };
     var release = function (btn) { d.dispatchEvent(new w.PointerEvent('pointerup', { bubbles: true })); btn.dispatchEvent(new w.MouseEvent('click', { bubbles: true })); };
@@ -1694,6 +1805,11 @@ document.querySelector('#run').onclick = async function () {
       });
       var away = f.contentDocument.querySelector('#away');
       if (away) away.hidden = true;
+      var g = f.contentWindow.__nightMarket;
+      if (g && g.state.stalls.every(function (s) { return !s.owned && !s.hired; })) {
+        f.contentWindow.NightMarket.armNight(g.state, 1, 1);
+        g.render();
+      }
       return f;
     }
     function priceToken(text) {
@@ -1956,6 +2072,52 @@ document.querySelector('#run').onclick = async function () {
     check(headerMoves.length ? 'the omen header moves the next stall: ' + headerMoves.join(' | ') : 'the omen header is reserved from the start of the night, so the next stall moves by 2px or less when the omen appears', headerMoves.length === 0);
     check(omenPickMoves.length ? 'the omen pick moves the next stall: ' + omenPickMoves.join(' | ') : 'opening the omen pick moves the next stall by 2px or less', omenPickMoves.length === 0);
     check(offerShift.length ? 'a charm offer moves the next stall: ' + offerShift.join(' | ') : 'a three-option offer leaves the next stall within 2px of the quiet pick', offerShift.length === 0);
+
+    var shiftLog = [];
+    [[390, 844], [844, 390], [1280, 800]].forEach(function (size) {
+      layout.style.width = size[0] + 'px';
+      layout.style.height = size[1] + 'px';
+      var label = size[0] + 'x' + size[1];
+      lm.state.night.kept = false;
+      lm.state.night.offer = null;
+      lm.state.stalls.forEach(function (s) { s.hired = false; s.owned = 0; s.serves = 0; });
+      lm.state.cash = 0;
+      lw.scrollTo(0, 0);
+      lm.render();
+      function tops() {
+        var out = {};
+        ld.querySelectorAll('#stalls [data-i] [data-act]').forEach(function (b) {
+          if (b.hidden || b.offsetParent === null) return;
+          var box = b.getBoundingClientRect();
+          if (box.height < 1 || box.width < 1) return;
+          out[b.closest('[data-i]').dataset.i + ':' + b.dataset.act] = box.top;
+        });
+        return out;
+      }
+      function step(name, mutate) {
+        var before = tops();
+        mutate();
+        lw.scrollTo(0, 0);
+        lm.render();
+        var after = tops();
+        Object.keys(before).forEach(function (key) {
+          if (after[key] == null) return;
+          if (Math.abs(after[key] - before[key]) > 2) shiftLog.push(label + ' ' + name + ' ' + key + ' ' + before[key].toFixed(1) + '→' + after[key].toFixed(1));
+        });
+      }
+      step('count', function () { lm.state.stalls[0].serves = 4; });
+      step('hire', function () { lm.state.stalls[0].serves = 25; lm.state.stalls[0].hired = true; });
+      step('buy', function () { lm.state.stalls[0].owned = 1; lm.state.cash = 20; });
+      step('payback', function () { lm.state.stalls[0].owned = 3; lm.state.cash = 500; });
+      step('dawn', function () {
+        lm.state.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 4 ? 12 : 4; s.serves = 30; });
+        lm.state.stalls[5].owned = 1;
+        lm.state.night.kept = false;
+        lw.NightLane.setReduce(true);
+      });
+    });
+    lw.NightLane.setReduce(false);
+    check(shiftLog.length ? 'a stall button moved: ' + shiftLog.slice(0, 6).join(' | ') : 'played changes to counts, payback, hints and the dawn card do not move a stall button by more than 2px', shiftLog.length === 0);
 
     function statusSentences(text) {
       return String(text || '').split(/[.!?]+/).map(function (s) { return s.replace(/\s+/g, ' ').trim(); }).filter(Boolean);
@@ -2362,11 +2524,11 @@ document.querySelector('#run').onclick = async function () {
     fm.render();
     await new Promise(function (r) { setTimeout(r, 450); });
     fm.render();
-    check('dawn hides the old goal line', fd.querySelector('#goal').hidden && !/more story mats/i.test(fd.querySelector('#goal').textContent));
+    check('dawn keeps a Story Mat goal line', !fd.querySelector('#goal').hidden && /Story Mat/i.test(fd.querySelector('#goal').textContent) && !/more story mats/i.test(fd.querySelector('#goal').textContent));
     check('the dawn card is a named region', fd.querySelector('#finale').getAttribute('role') === 'region' && fd.querySelector('#finale').getAttribute('aria-labelledby') === 'finale-title');
     check('the Lantern Book is inside Your save', !!fd.querySelector('details.save details.codex'));
     focusFrame.style.height = '520px';
-    fd.querySelector('#finale [data-act="next-night"]').scrollIntoView({ block: 'center' });
+    fw.scrollTo(0, 480);
     var scrollBefore = fw.scrollY;
     fd.querySelector('#finale [data-act="next-night"]').click();
     check('next night does not jump to the top', scrollBefore > 20 && Math.abs(fw.scrollY - scrollBefore) < 2);

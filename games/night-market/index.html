@@ -19,7 +19,8 @@
     <p class="rate" id="away-rule"></p>
     <p class="rate" id="rate"></p>
     <p class="rate" id="omen-now">Tonight's omen</p>
-    <p class="book-note" id="book-note" hidden>This night is written in the Lantern Book. <button type="button" id="open-book">Open the Lantern Book</button></p>
+    <button type="button" id="open-book">Lantern Book</button>
+    <p class="book-note" id="book-note" hidden></p>
   </header>
   <div class="lane" aria-hidden="true"><canvas id="lane" width="384" height="88"></canvas></div>
   <p class="goal" id="goal"></p>
@@ -33,7 +34,7 @@
       <button type="button" data-act="finale">Keep the lane open</button>
     </div>
   </section>
-  <p class="finale-note" id="finale-note" hidden tabindex="-1"></p>
+  <p class="finale-note" id="finale-note" hidden tabindex="-1"><span id="finale-note-text"></span> <button type="button" data-act="next-night">Next night</button></p>
   <div class="market-work">
   <div class="bulk" id="bulk" hidden role="group" aria-label="How many to buy at once">
     <span class="bulk-name">Buying</span>
@@ -42,6 +43,7 @@
     <button type="button" data-bulk="max" aria-pressed="false">Max</button>
     <button type="button" data-bulk="next" aria-pressed="false">Next</button>
   </div>
+  <p class="bulk-help" id="bulk-help">1 is one copy. 10 is ten. Max avoids a slow copy. Next stops at the next doubling.</p>
   <section id="away" hidden></section>
   <ol class="stalls" id="stalls">
   <li class="pick quiet" id="pick" hidden>

@@ -103,8 +103,12 @@ async function shot(page,name){await page.screenshot({path:path.join(out,name+'.
         await page.reload();await page.keyboard.press('Tab');
         check('Keyboard first stops at Back with visible focus',await page.evaluate(()=>document.activeElement.matches('.home')&&getComputedStyle(document.activeElement).outlineStyle!=='none'));
         await page.keyboard.press('Tab');
+        check('Keyboard reaches the Lantern Book',await page.evaluate(()=>document.activeElement.matches('#open-book')));
+        await page.keyboard.press('Tab');
         check('Keyboard then reaches the first bulk control',await page.evaluate(()=>document.activeElement.matches('[data-bulk="1"]')));
-        await page.keyboard.press('Shift+Tab');await Promise.all([page.waitForURL('**/index.html'),page.keyboard.press('Enter')]);
+        await page.keyboard.press('Shift+Tab');
+        await page.keyboard.press('Shift+Tab');
+        await Promise.all([page.waitForURL('**/index.html'),page.keyboard.press('Enter')]);
         check('Keyboard Back reaches the arcade',new URL(page.url()).pathname==='/index.html',page.url());
         await page.goBack();await page.waitForFunction(()=>window.__nightMarket);
         check('Browser Back returns with the first stall intact',await page.evaluate(()=>__nightMarket.state.stalls[0].owned===1));
