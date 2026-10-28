@@ -1711,6 +1711,80 @@ document.querySelector('#run').onclick = async function () {
     });
     check(phoneFit.length ? 'phone buy labels overflow: ' + phoneFit.slice(0, 4).join(' | ') : 'buy labels fit at 320, 360, 375 and 390, and Next names coins', phoneFit.length === 0);
 
+    function textSpills(btn) {
+      if (!btn || btn.hidden || btn.offsetParent === null) return null;
+      var view = btn.ownerDocument.defaultView;
+      var cs = view.getComputedStyle(btn);
+      if (cs.display === 'none' || cs.visibility === 'hidden') return null;
+      var range = btn.ownerDocument.createRange();
+      range.selectNodeContents(btn);
+      var rect = range.getBoundingClientRect();
+      var box = btn.getBoundingClientRect();
+      var outside = rect.width > 0 && (rect.bottom > box.bottom + 1.5 || rect.top < box.top - 1 || rect.right > box.right + 1.5 || rect.left < box.left - 1);
+      var tall = btn.scrollHeight > btn.clientHeight + 1;
+      if (!outside && !tall) return null;
+      return (btn.dataset.act || 'button') + ' "' + (btn.textContent || '').trim() + '" ' + btn.scrollHeight + '/' + btn.clientHeight;
+    }
+    var spillSizes = [[320, 568], [360, 640], [375, 812], [390, 844], [844, 390], [1024, 768], [1280, 800]];
+    var spillProblems = [];
+    var heightJumps = [];
+    spillSizes.forEach(function (size) {
+      layout.style.width = size[0] + 'px';
+      layout.style.height = size[1] + 'px';
+      var label = size[0] + 'x' + size[1];
+      function spill(sel) {
+        Array.prototype.forEach.call(ld.querySelectorAll(sel), function (btn) {
+          var hit = textSpills(btn);
+          if (hit) spillProblems.push(label + ' ' + hit);
+        });
+      }
+      lm.state.stalls.forEach(function (s) { s.hired = false; s.owned = 0; s.serves = 0; });
+      lm.state.cash = 0;
+      lm.state.night.kept = false;
+      lm.state.night.offer = { kind: 'omen', stall: null, options: ['rain', 'ferry', 'alley'] };
+      lm.render();
+      var pour = ld.querySelector('#stalls [data-i="0"] [data-act="serve"]');
+      var shortH = pour.getBoundingClientRect().height;
+      spill('#stalls [data-act="serve"], #pick button');
+      lm.state.stalls[0].hired = true;
+      lm.state.stalls[0].owned = 10;
+      lm.state.stalls[0].serves = 30;
+      lm.state.stalls[1].serves = 12;
+      lm.state.night.offer = { kind: 'charm', stall: 'dumpling', options: ['mei-regulars', 'an-paper', 'bo-queue'] };
+      lm.state.night.rerollUsed = false;
+      lm.render();
+      var hiredH = pour.getBoundingClientRect().height;
+      if (Math.abs(hiredH - shortH) > 1) heightJumps.push(label + ' pour ' + shortH.toFixed(1) + '→' + hiredH.toFixed(1));
+      var hireBtn = ld.querySelector('#stalls [data-i="1"] [data-act="hire"]');
+      var charmBtn = ld.querySelector('#pick [data-act="charm"]');
+      if (!hireBtn || hireBtn.hidden || hireBtn.classList.contains('reserved')) spillProblems.push(label + ' hire was not on the dumpling cart');
+      if (!charmBtn) spillProblems.push(label + ' charm button was missing');
+      spill('#stalls [data-act="serve"], #stalls [data-act="hire"], #pick button');
+    });
+    lm.state.stalls.forEach(function (s, i) { s.hired = true; s.serves = 30; s.owned = i === 4 ? 12 : 2; });
+    lm.state.stalls[5].owned = 1;
+    lm.state.night.kept = false;
+    lw.NightLane.setReduce(true);
+    lm.render();
+    await wait(450);
+    spillSizes.forEach(function (size) {
+      layout.style.width = size[0] + 'px';
+      layout.style.height = size[1] + 'px';
+      var label = size[0] + 'x' + size[1];
+      lm.render();
+      var dawnBtn = ld.querySelector('#finale [data-act="next-night"]');
+      if (!dawnBtn || ld.querySelector('#finale').hidden) spillProblems.push(label + ' dawn buttons were hidden');
+      Array.prototype.forEach.call(ld.querySelectorAll('#stalls [data-act="serve"], #finale button'), function (btn) {
+        var hit = textSpills(btn);
+        if (hit) spillProblems.push(label + ' dawn ' + hit);
+      });
+    });
+    lw.NightLane.setReduce(false);
+    lm.state.night.kept = true;
+    lm.render();
+    check(spillProblems.length ? 'button text spills: ' + spillProblems.slice(0, 6).join(' | ') : 'work, hire, charm and dawn buttons keep their text inside the box at 320, 360, 375, 390, 844×390, 1024 and 1280', spillProblems.length === 0);
+    check(heightJumps.length ? 'pour height jumps when the label wraps: ' + heightJumps.join(' | ') : 'the pour button keeps its height when the hired label wraps', heightJumps.length === 0);
+
     function statusSentences(text) {
       return String(text || '').split(/[.!?]+/).map(function (s) { return s.replace(/\s+/g, ' ').trim(); }).filter(Boolean);
     }

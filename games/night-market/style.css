@@ -157,10 +157,20 @@ button[aria-pressed="true"], button.ask, button.best {
 .wait, .payback-hint { color: var(--mute); }
 .payback-hint { height: 1.45em; line-height: 1.45; overflow: hidden; }
 .payback-hint[hidden] { display: block !important; visibility: hidden; }
-.actions { display: flex; flex-wrap: nowrap; gap: 0.4rem; margin-top: 0.45rem; }
-.actions button { flex: 1 1 0; min-width: 0; height: 44px; min-height: 44px; max-height: 44px; font-variant-numeric: tabular-nums; touch-action: manipulation; }
+.actions { display: flex; flex-wrap: nowrap; gap: 0.4rem; margin-top: 0.45rem; align-items: flex-start; }
+/* Work and hire grow if a label wraps. A fixed 44px height was clipping the second line. */
+.actions button {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  height: auto;
+  white-space: normal;
+  font-variant-numeric: tabular-nums;
+  touch-action: manipulation;
+}
 .actions button.reserved { visibility: hidden; }
 .actions [data-act="buy"] {
+  flex: 1.4 1 0;
   min-width: 0;
   height: 44px;
   min-height: 44px;
@@ -218,7 +228,12 @@ button[aria-pressed="true"], button.ask, button.best {
   .actions { flex-wrap: wrap; }
   .stall h2 { order: -2; }
   .stall .actions { order: -1; margin-bottom: 0.3rem; }
+  /* Full width, so the work label stays on one line. A reserved Ask does not
+     leave a blank row, and the pour keeps this width when Ask appears. */
+  .actions [data-act="serve"],
+  .actions [data-act="hire"],
   .actions [data-act="buy"] { flex: 1 1 100%; }
+  .actions button.reserved { display: none; }
   .count { font-size: 16px; }
   .coin-pin { display: none !important; }
   .goal-pin:not([hidden]) {
@@ -265,7 +280,9 @@ button[aria-pressed="true"], button.ask, button.best {
   .bulk-name { position: static; width: auto; height: auto; min-height: 0; padding: 0 0.15rem 0 0; margin: 0; overflow: visible; clip: auto; font-size: 16px; line-height: 1; white-space: nowrap; border: 0; }
   .bulk [data-bulk] { padding-left: 0.35rem; padding-right: 0.35rem; }
   .stalls { margin-top: 0; }
-  .actions button { flex-basis: 8rem; }
+  .actions [data-act="serve"],
+  .actions [data-act="hire"],
+  .actions [data-act="buy"] { flex: 1 1 100%; }
 }
 @media (min-width: 1001px) {
   /* The lane goal is one more line under the picture. Pull the air above the
@@ -276,9 +293,10 @@ button[aria-pressed="true"], button.ask, button.best {
   .bulk { margin: 0.25rem 0 0; }
   .stalls { margin-top: 0.1rem; }
   .actions { flex-wrap: nowrap; }
-  .actions [data-act="serve"] { flex: 1 1 0; }
-  .actions [data-act="hire"],
-  .actions [data-act="buy"] { flex: 1.7 1 0; }
+  /* The pour is the wider control so "yourself · +1" stays on one line and the row does not grow. */
+  .actions [data-act="serve"] { flex: 1.45 1 0; }
+  .actions [data-act="hire"] { flex: 1.25 1 0; }
+  .actions [data-act="buy"] { flex: 1.55 1 0; }
   .coin-pin:not([hidden]) {
     display: block;
     position: fixed;
