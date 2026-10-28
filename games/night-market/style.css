@@ -271,7 +271,7 @@ button[aria-pressed="true"], button.ask, button.best {
   #finale { grid-column: 1 / -1; grid-row: 4; }
   #finale-note { grid-column: 1 / -1; grid-row: 5; }
   #finale:not([hidden]), #finale-note:not([hidden]) { margin: 0.1rem 0 0; }
-  #finale:not([hidden]) { padding: 0.55rem 0.8rem 0.65rem; }
+  #finale:not([hidden]) { padding: 0.45rem 0.8rem 0.4rem; }
   #finale:not([hidden]) h2 { margin-bottom: 0.2rem; font-size: 1.35rem; }
   #finale:not([hidden]) p { margin-bottom: 0.4rem; }
   .save { grid-column: 1 / -1; grid-row: 7; }
