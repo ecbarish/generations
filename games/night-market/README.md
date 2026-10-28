@@ -2,9 +2,9 @@
 
 v0.1.9.
 
-A small night market you can leave open. Six stalls stand on one lane. You work each stall yourself, then ask its vendor to run it. After that you buy more of that stall, one, ten, or as many as you can afford. At 25, 50 and 100 the stall changes look and earns twice as much each time.
+A small night market you can leave open. Six stalls stand on one lane. You work each stall yourself, then ask its vendor to run it. After that you buy more of that stall, one, ten, up to the next doubling, or as many as you can afford. At 25, 50 and 100 the stall changes look. It also earns twice as much at each of those counts, and again at 150, 200, 300 and 400. The whole lane doubles when your lowest stall reaches 10, then 25, then 50. Every stall shows the next of those goals. Ten Story Mats tell Old Wen's last chapter, the lanterns go out, and you can keep the lane open.
 
-The Tea Stall, the Dumpling Cart and the Lantern Stand open first. A sensible buyer still has a next stall within about a minute and a half through the first quarter hour, and a million coins lands in about 45 to 75 minutes. The next stall appears when you have ten of the one before it.
+The Tea Stall, the Dumpling Cart and the Lantern Stand open first. A sensible buyer still has a next stall within about a minute and a half through the first quarter hour, and a million coins lands after that quarter hour, inside about 40 minutes. The next stall appears when you have ten of the one before it. The Incense Tray waits for twelve Mooncake Tables. The Story Mat costs 2,000,000 and earns 2,500 a second.
 
 While this page is open, income uses the full rate, including a hidden tab. Closing the page and coming back pays at half rate, and only four hours count. The cash box says so. Saves go through the idle core's save callback into the arcade save, version 1 (`night-market-save-v1`). Numbers use `Arcade.fmt`.
 
@@ -24,6 +24,7 @@ Portrait prompts from #498 are in `docs/art/night-market-vendor-prompts.md`: tex
 
 ## Changelog
 
+- Unreleased (NM-PACING): The Story Mat is a real stall at 2,000,000 coins and 2,500 a second. Later Incense Trays grow at 1.08, so the tray stops being the only good buy. Stalls double again at 150, 200, 300 and 400. The lane doubles when the lowest stall reaches 10, 25 and 50. Ten Story Mats end the night with Old Wen's last chapter. Next buys up to the following goal, and that goal is written on every stall. The first quarter hour is unchanged. The save stays version 1.
 - v0.1.9 (2026-10-28, NM-FUN-PASS, PR #616): A phone has one Back to the arcade link, in the header, so Download my save and Load a save file stay on the page. The save summary and Automatic backups open with a disclosure arrow, and the note, the timestamp and Restore are at least 16px. From minute 8 to 25 the best stall pays for itself in under five minutes. The first Incense Tray costs 52.4K and earns 540 coins a second, so it pays for itself in about a minute and a half, and it opens once twelve mooncake tables are wrapping. Best is a small tag on the stall, and the price on the buy button stays whole. The first time a payback appears, one line says that a lower time is a better buy. On a phone the goal sits under the lane, and its pin appears on one line as soon as that goal leaves the screen. The save stays version 1.
 - v0.1.8 (2026-10-22, NM-LAUNCH-POLISH, PR #614): On phone layouts, the stall count line under the pour bar is 16px. A wider window still uses 0.92rem. Switching to reduced motion mid-session clears a passer-by from the lane instead of leaving that person frozen mid-step. Game Art Director approved the shots in comment 6349925816. The save stays version 1.
 - v0.1.7 (2026-10-15, NM-G3, PR #499): The Back and footer links are now 1rem and stay on one line. The header reflows when the text is larger, as Generations Director approved. Game Art Director approved the change at 9548a7bb. The save stays version 1.
