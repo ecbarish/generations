@@ -1,6 +1,6 @@
 # Ten nights of the lantern festival
 
-Evan approved the roguelite design with its defaults on 23 October 2026 and waived save migration. Ending a night at the first Story Mat in default play is awaiting his confirmation. The game keeps `night-market-save-v1` and changes the file in place.
+Evan approved the roguelite design with its defaults on 23 October 2026 and waived save migration. On 28 October 2026 he confirmed that every night ends at the first Story Mat in default play. The game keeps `night-market-save-v1` and changes the file in place.
 
 A night is one run of the lane. It ends when Old Wen unrolls the Story Mat and tells tonight's chapter. That is the first Story Mat, not the tenth. The lanterns dim and the tortoise moment plays then. Ten nights make the festival. Night *n* tells chapter *n*. This pull request builds the loop. The tenth-night ending, and the longer tale that goes with it, wait.
 

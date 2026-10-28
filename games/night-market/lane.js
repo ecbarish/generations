@@ -279,7 +279,12 @@
       flash(i, m); if (reduce) stillFor(500);
     },
     hire: function (i) { flash(i, false); if (reduce) stillFor(500); },
-    refresh: function () { if (!live) draw(); },
+    refresh: function () {
+      if (!getState) return;
+      var g = signature();
+      if (!live || g !== sig) draw();
+    },
+    signature: function () { return getState ? signature() : ''; },
     // for the checks
     W: W, H: H, PALETTE: C, MAX_COINS: MAX_COINS, SLOT: SLOT, STALL_BOTTOM: STALL_BOTTOM, WALK: { y: WALK_Y, w: WALK_W, h: WALK_H },
     walkerCap: walkerCap, fit: fit, still: function () { draw(); }, background: function () { return bx.getImageData(0, 0, W, H); },

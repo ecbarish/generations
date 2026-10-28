@@ -325,7 +325,7 @@ document.querySelector('#run').onclick = async function () {
     tray.night.charms = ['ren-sticks'];
     var trayAfter = M.cost(4, 10, 1, tray);
     check('Ren\'s sticks cuts the live tray price by 15% and the line says both prices',
-      near(trayAfter, trayBefore * 0.85) && renLine.indexOf(Arcade.fmt(trayBefore)) >= 0 && renLine.indexOf(Arcade.fmt(trayAfter)) >= 0 && /15% less/.test(renLine));
+      near(trayAfter, trayBefore * 0.85) && renLine.indexOf(Arcade.fmt(trayBefore)) >= 0 && renLine.indexOf(Arcade.fmt(trayAfter)) >= 0 && /15% cheaper/.test(renLine));
     var alleyNight = M.fresh();
     alleyNight.night.omen = 'alley';
     var alleyBefore = M.cost(0, 0, 1, alleyNight);
@@ -350,7 +350,7 @@ document.querySelector('#run').onclick = async function () {
         var afterPrice = M.cost(ix, 0, 1, priced);
         var shown = M.offerLine(sample, charm);
         var pct = beforePrice > 0 ? Math.round((1 - afterPrice / beforePrice) * 100) : 0;
-        var said = shown.match(/(\d+)% less/);
+        var said = shown.match(/(\d+)% (?:less|cheaper)/);
         if (!(Math.abs(beforePrice - afterPrice) > 0.01) || !said || +said[1] !== pct) {
           omenPriceProblems.push(omen.id + ' ' + charm.id + ' ' + beforePrice + '→' + afterPrice + ' line ' + shown);
         }
@@ -372,10 +372,10 @@ document.querySelector('#run').onclick = async function () {
     wickDeal.night.charms = ['wen-discount'];
     var wickAfter = M.cost(5, 0, 1, wickDeal);
     check('under Short wick Wen\'s discount lowers tonight\'s price and does not say less of a rise',
-      wickAfter < wickBefore && /% less/.test(wickLine) && !/-\d+% less/.test(wickLine) && wickLine.indexOf('0% less') < 0);
+      wickAfter < wickBefore && /% cheaper/.test(wickLine) && !/-\d+%/.test(wickLine) && wickLine.indexOf('0% cheaper') < 0);
     var firstGate = M.fresh();
     firstGate.stalls[0].hired = true;
-    firstGate.stalls[0].owned = 10;
+    firstGate.stalls[0].owned = 8;
     var firstOptions = M.charmOptions(firstGate, 'dumpling', false);
     var firstStalls = {};
     var firstDup = false;
@@ -386,7 +386,21 @@ document.querySelector('#run').onclick = async function () {
       firstStalls[c.stall] = true;
       if (c.stall === 'incense' || c.stall === 'mooncake' || c.stall === 'stories') firstFar = true;
     });
-    check('the first charm offer has two choices for stalls that are open or next, with one charm each',
+    check('a shut stall is not offered a charm', firstOptions.length === 0 && !firstFar);
+    firstGate.stalls[0].owned = 10;
+    firstGate.stalls[1].hired = true;
+    firstGate.stalls[1].owned = 1;
+    firstOptions = M.charmOptions(firstGate, 'dumpling', false);
+    firstStalls = {};
+    firstDup = false;
+    firstFar = false;
+    firstOptions.forEach(function (id) {
+      var c = M.charmById(id);
+      if (firstStalls[c.stall]) firstDup = true;
+      firstStalls[c.stall] = true;
+      if (!M.unlocked(firstGate, M.STALLS.map(function (s) { return s.id; }).indexOf(c.stall))) firstFar = true;
+    });
+    check('once two stalls are open the offer uses those stalls, one charm each',
       firstOptions.length >= 2 && !firstDup && !firstFar);
     var farTray = M.fresh();
     farTray.stalls[0].hired = true; farTray.stalls[0].owned = 10;
@@ -465,7 +479,28 @@ document.querySelector('#run').onclick = async function () {
     var capped = M.fresh();
     capped.night.offer = null;
     capped.night.offered = ['dumpling', 'lantern', 'mooncake', 'incense'];
-    check('a full night of charm beats says there are no more choices', M.nextOfferLine(capped) === 'No more choices tonight.');
+    check('a full night of charm beats still leaves a later choice', M.nextOfferLine(capped) !== 'No more choices tonight.' && /choice/.test(M.nextOfferLine(capped)));
+    var deadGate = M.fresh();
+    M.armNight(deadGate, 1, 1);
+    deadGate.stalls[0].hired = true;
+    deadGate.stalls[0].owned = 10;
+    deadGate.night.charms = M.CHARMS.map(function (c) { return c.id; });
+    deadGate.night.offer = null;
+    deadGate.night.offered = [];
+    var deadLine = M.nextOfferLine(deadGate);
+    deadGate.stalls[1].hired = true;
+    deadGate.stalls[1].owned = 10;
+    deadGate.stalls[2].hired = true;
+    deadGate.stalls[2].owned = 1;
+    M.syncOffers(deadGate);
+    check('a gate with fewer than two choices is skipped',
+      deadLine.indexOf('Lantern Stand') < 0 &&
+      deadGate.night.offered.indexOf('lantern') < 0 &&
+      (!deadGate.night.offer || deadGate.night.offer.options.length >= 2));
+    var queued = M.fresh();
+    queued.stalls[1].hired = true;
+    queued.stalls[1].owned = 23;
+    check('Bo\'s queue is not offered once the cart is past 22', !M.charmUseful(queued, M.charmById('bo-queue')));
     function promisedChoices(seed) {
       var s = M.fresh();
       M.armNight(s, 1, seed);
@@ -497,7 +532,7 @@ document.querySelector('#run').onclick = async function () {
       }
       while (t < 1700 && !M.dawnDue(s)) {
         M.elapse(s, 5);
-        if (s.night.offer && s.night.offer.kind === 'charm') { satisfy(t); M.skipOffer(s); }
+        if (s.night.offer && s.night.offer.kind !== 'omen') { satisfy(t); M.skipOffer(s); }
         var i;
         for (i = 0; i < s.stalls.length; i++) {
           if (!M.unlocked(s, i) || s.stalls[i].hired) continue;
@@ -516,7 +551,7 @@ document.querySelector('#run').onclick = async function () {
         M.syncOffers(s);
         if (s.night.offer) satisfy(t);
         see(t);
-        if (s.night.offer && s.night.offer.kind === 'charm') M.skipOffer(s);
+        if (s.night.offer && s.night.offer.kind !== 'omen') M.skipOffer(s);
         t += 5;
       }
       pending.forEach(function (p) { if (!p.done) problems.push('seed ' + seed + ' never got "' + p.line + '"'); });
@@ -529,13 +564,13 @@ document.querySelector('#run').onclick = async function () {
     teaOnly.stalls[0].hired = true;
     teaOnly.stalls[0].owned = 10;
     var quickLine = M.offerLine(teaOnly, M.charmById('mei-quick'));
-    check('a rate charm names the stall\'s share of income and the total change', /100% of your income, total \+20%/.test(quickLine));
+    check('a rate charm names the stall and the total change', /Tea Stall \+20%, your income \+20%/.test(quickLine) && quickLine.indexOf('a second') < 0);
     var shutLane = M.fresh();
     shutLane.stalls[0].hired = true;
     shutLane.stalls[0].owned = 8;
     var paperLine = M.offerLine(shutLane, M.charmById('an-paper'));
-    check('a shut stall\'s income charm says what it will do once it opens, and does not say +0%',
-      paperLine.indexOf('+0%') < 0 && paperLine.indexOf('+20% on Lantern Stand once it opens') >= 0 && M.charmUseful(shutLane, M.charmById('an-paper')));
+    check('a shut stall is not offered an income charm',
+      paperLine.indexOf('+0%') < 0 && paperLine.indexOf('not open yet') < 0 && M.charmOptions(shutLane, 'lantern', false).length === 0);
     var deadRates = [];
     M.CHARMS.forEach(function (charm) {
       var patch = charm.set && charm.set[charm.stall];
@@ -547,10 +582,10 @@ document.querySelector('#run').onclick = async function () {
         while (stallAt < M.STALLS.length && M.STALLS[stallAt].id !== charm.stall) stallAt++;
         var earning = M.income(sample) > 0 && M.production(sample, stallAt) > 0;
         if (line.indexOf('+0%') >= 0) deadRates.push(charm.id + ' ' + line);
-        if (!earning && line.indexOf('once it opens') < 0) deadRates.push(charm.id + ' missing once-open ' + line);
+        if (!earning && line.indexOf('not open yet') >= 0) deadRates.push(charm.id + ' still says not open ' + line);
       });
     });
-    check(deadRates.length ? 'income charm shows +0%: ' + deadRates.slice(0, 3).join(' | ') : 'no offered income charm shows +0%, and a shut stall says what it will do once it opens', deadRates.length === 0);
+    check(deadRates.length ? 'income charm shows +0%: ' + deadRates.slice(0, 3).join(' | ') : 'no offered income charm shows +0% or a shut-stall offer', deadRates.length === 0);
     var crowded = M.fresh();
     crowded.stalls[0].hired = true;
     crowded.stalls[0].owned = 1;
@@ -648,8 +683,11 @@ document.querySelector('#run').onclick = async function () {
     var early = M.fresh();
     early.stalls[1].owned = 10;
     var almost = M.fresh();
-    almost.stalls[1].owned = 23;
-    check('Bo\'s queue still matters before 25 dumplings', M.charmUseful(early, M.charmById('bo-queue')) && M.charmUseful(almost, M.charmById('bo-queue')));
+    almost.stalls[1].owned = 21;
+    var pastQueue = M.fresh();
+    pastQueue.stalls[1].owned = 23;
+    check('Bo\'s queue still matters before 22 dumplings and not once the cart is past it',
+      M.charmUseful(early, M.charmById('bo-queue')) && M.charmUseful(almost, M.charmById('bo-queue')) && !M.charmUseful(pastQueue, M.charmById('bo-queue')));
     var mid = M.fresh();
     M.choose(mid, 0);
     mid.stalls[3].owned = 6;
@@ -694,9 +732,13 @@ document.querySelector('#run').onclick = async function () {
     thin.night.charms = ['mei-regulars', 'mei-quick', 'bo-steam', 'an-paper', 'qiao-moulds', 'ren-sticks', 'wen-discount'];
     var thinOptions = M.charmOptions(thin, 'stories', false);
     check('an offer is not shown when only one charm can still change the night', thinOptions.length === 0);
-    thin.night.charms = ['mei-quick', 'bo-steam', 'an-paper', 'qiao-moulds', 'ren-sticks', 'wen-discount'];
+    thin.night.charms = ['bo-steam', 'qiao-moulds', 'ren-sticks', 'wen-discount'];
     var twoOptions = M.charmOptions(thin, 'lantern', false);
-    check('a late offer can show two charms and not three', twoOptions.length === 2 && twoOptions.indexOf('mei-regulars') >= 0 && twoOptions.indexOf('an-offcuts') >= 0);
+    var twoStalls = {};
+    twoOptions.forEach(function (id) { twoStalls[M.charmById(id).stall] = true; });
+    check('a late offer can show two charms and not three', twoOptions.length === 2 && twoStalls.tea && twoStalls.lantern && !twoStalls.dumpling);
+    thin.night.charms.push('an-paper');
+    check('a stall that already has a charm is not offered another', M.charmOptions(thin, 'lantern', false).indexOf('an-offcuts') < 0);
     var matBuy = M.fresh();
     matBuy.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 4 ? 12 : 2; });
     matBuy.stalls[5].owned = 0;
@@ -1339,7 +1381,8 @@ document.querySelector('#run').onclick = async function () {
     var longBtn = d.querySelector('#stalls [data-i="0"] [data-act="buy"]');
     var longWait = d.querySelector('#stalls [data-i="0"] .wait');
     check('Max tells you to use 1, 10 or Next when the payback is too long',
-      longBtn.hidden && longWait && !longWait.hidden && /Max will not buy this/.test(longWait.textContent) && /Use 1, 10 or Next/.test(longWait.textContent));
+      longWait && !longWait.hidden && /Max will not buy this/.test(longWait.textContent) && /Use 1, 10 or Next/.test(longWait.textContent) &&
+      (longBtn.hidden || w.getComputedStyle(longBtn).visibility === 'hidden'));
     var matRow = d.querySelector('#stalls [data-i="5"] .wait');
     check('the Story Mat shows its price while it is still shuttered',
       matRow && matRow.textContent.indexOf(w.Arcade.fmt(w.NightMarket.STALLS[5].base)) >= 0);
@@ -1942,7 +1985,7 @@ document.querySelector('#run').onclick = async function () {
             lm.state.bulk = mode;
             lm.render();
             Array.prototype.forEach.call(ld.querySelectorAll('#stalls [data-act="buy"]'), function (btn, bi) {
-              if (btn.hidden || btn.offsetParent === null) return;
+              if (btn.hidden || btn.offsetParent === null || lw.getComputedStyle(btn).visibility === 'hidden') return;
               var fit = buttonFits(btn);
               if (!fit.ok) buyProblems.push(label + ' stall ' + bi + ' focus ' + i + ' owned ' + owned + ' ' + mode + ' "' + fit.text + '" ' + fit.sw + '/' + fit.cw);
             });
@@ -1976,7 +2019,7 @@ document.querySelector('#run').onclick = async function () {
       lm.state.bulk = 'max';
       lm.render();
       Array.prototype.forEach.call(ld.querySelectorAll('#stalls [data-act="buy"]'), function (btn) {
-        if (btn.hidden || btn.offsetParent === null) return;
+        if (btn.hidden || btn.offsetParent === null || lw.getComputedStyle(btn).visibility === 'hidden') return;
         if (/Best · Buy 1/.test(btn.textContent) || (btn.textContent || '').indexOf('Best') >= 0) buyProblems.push(label + ' unaffordable "' + btn.textContent + '"');
         var fit = buttonFits(btn);
         if (!fit.ok) buyProblems.push(label + ' unaffordable fit "' + fit.text + '"');
@@ -1991,6 +2034,7 @@ document.querySelector('#run').onclick = async function () {
     var phoneFit = [];
     function labelFits(btn) {
       if (!btn || btn.hidden || btn.offsetParent === null) return { ok: true, text: '' };
+      if (btn.ownerDocument.defaultView.getComputedStyle(btn).visibility === 'hidden') return { ok: true, text: '' };
       var range = btn.ownerDocument.createRange();
       range.selectNodeContents(btn);
       var rect = range.getBoundingClientRect();
@@ -2015,6 +2059,11 @@ document.querySelector('#run').onclick = async function () {
       });
     });
     check(phoneFit.length ? 'phone buy labels overflow: ' + phoneFit.slice(0, 4).join(' | ') : 'buy labels fit at 320, 360, 375 and 390, and Next names coins', phoneFit.length === 0);
+    layout.style.width = '320px';
+    layout.style.height = '568px';
+    lm.render();
+    var book320 = ld.querySelector('#open-book').getBoundingClientRect();
+    check('the Lantern Book is 44px tall at 320 by 568', book320.height >= 44 && book320.height < 56);
 
     function textSpills(btn) {
       if (!btn || btn.hidden || btn.offsetParent === null) return null;
@@ -2160,6 +2209,11 @@ document.querySelector('#run').onclick = async function () {
       lm.render();
       function tops() {
         var out = {};
+        ld.querySelectorAll('#stalls [data-i]').forEach(function (row) {
+          var box = row.getBoundingClientRect();
+          if (box.height < 1) return;
+          out['row' + row.dataset.i] = box.top;
+        });
         ld.querySelectorAll('#stalls [data-i] [data-act]').forEach(function (b) {
           if (b.hidden || b.offsetParent === null) return;
           var box = b.getBoundingClientRect();
@@ -2183,15 +2237,53 @@ document.querySelector('#run').onclick = async function () {
       step('hire', function () { lm.state.stalls[0].serves = 25; lm.state.stalls[0].hired = true; });
       step('buy', function () { lm.state.stalls[0].owned = 1; lm.state.cash = 20; });
       step('payback', function () { lm.state.stalls[0].owned = 3; lm.state.cash = 500; });
+      step('open-dumpling', function () { lm.state.stalls[0].owned = 20; });
+      step('open-lantern', function () { lm.state.stalls[1].hired = true; lm.state.stalls[1].owned = 20; lm.state.stalls[1].serves = 12; });
+      step('open-mooncake', function () { lm.state.stalls[2].hired = true; lm.state.stalls[2].owned = 20; lm.state.stalls[2].serves = 10; });
+      step('max-line', function () { lm.state.bulk = 'max'; lm.state.cash = 1; lm.state.stalls[0].owned = 200; });
       step('dawn', function () {
+        lm.state.bulk = 1;
         lm.state.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 4 ? 12 : 4; s.serves = 30; });
         lm.state.stalls[5].owned = 1;
         lm.state.night.kept = false;
+        lm.state.night.offer = null;
         lw.NightLane.setReduce(true);
       });
+      step('keep', function () { lm.state.night.kept = true; });
     });
     lw.NightLane.setReduce(false);
     check(shiftLog.length ? 'a stall button moved: ' + shiftLog.slice(0, 6).join(' | ') : 'played changes to counts, payback, hints and the dawn card do not move a stall button by more than 2px', shiftLog.length === 0);
+    layout.style.width = '390px';
+    layout.style.height = '844px';
+    lm.state.night.kept = false;
+    lm.state.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 5 ? 1 : 20; s.serves = 30; });
+    lm.state.cash = 12345;
+    lm.state.lifetime = 67890;
+    lm.state.night.earned = null;
+    lm.state.night.offer = null;
+    lw.NightLane.setReduce(true);
+    lm.render();
+    await new Promise(function (r) { setTimeout(r, 500); });
+    lm.render();
+    var frozenCash = lm.state.cash;
+    var frozenLife = lm.state.lifetime;
+    var frozenSummary = ld.querySelector('#finale-summary').textContent;
+    var frozenCoins = ld.querySelector('#coins').textContent;
+    await new Promise(function (r) { setTimeout(r, 700); });
+    lm.render();
+    check('cash stops at dawn and the card total stays on that figure',
+      !ld.querySelector('#finale').hidden &&
+      lm.state.cash === frozenCash && lm.state.lifetime === frozenLife &&
+      ld.querySelector('#coins').textContent === frozenCoins &&
+      ld.querySelector('#finale-summary').textContent === frozenSummary &&
+      frozenSummary.indexOf(lw.Arcade.fmt(frozenLife)) >= 0 &&
+      /night has ended/.test(ld.querySelector('#rate').textContent));
+    lm.state.night.kept = true;
+    lm.render();
+    var keptCash = lm.state.cash;
+    await new Promise(function (r) { setTimeout(r, 700); });
+    lm.render();
+    check('keeping the lane open lets cash move again', lm.state.cash > keptCash);
 
     function statusSentences(text) {
       return String(text || '').split(/[.!?]+/).map(function (s) { return s.replace(/\s+/g, ' ').trim(); }).filter(Boolean);
@@ -2324,7 +2416,8 @@ document.querySelector('#run').onclick = async function () {
       var holdSize = hs === 0 ? [1280, 800] : [1024, 768];
       hintFrame.style.width = holdSize[0] + 'px';
       hintFrame.style.height = holdSize[1] + 'px';
-      hm.state.stalls.forEach(function (s) { s.hired = true; s.owned = 20; s.serves = 30; });
+      hm.state.stalls.forEach(function (s, i) { s.hired = true; s.owned = i === 5 ? 0 : 20; s.serves = 30; });
+      if (hm.state.night) hm.state.night.kept = false;
       hm.state.cash = 1e6; hm.state.bulk = 1;
       hm.render();
       var holdServe = hd.querySelector('#stalls [data-i="0"] [data-act="serve"]');
@@ -2643,8 +2736,8 @@ document.querySelector('#run').onclick = async function () {
     var dawnHeld = dawnWindow.scrollY;
     await wait(900);
     check('scrolling away at dawn stays put', Math.abs(dawnWindow.scrollY - dawnHeld) < 4);
-    check('reloading at dawn credits the away box once (' + Math.round(dawnCash - 84800) + ' coins)',
-      dawnCash > 84800 && dawnCash < 84800 + oneAway + dawnIncome * 3 && dawnCash > 84800 + oneAway * 0.9);
+    check('reloading at dawn does not add coins after the night has ended (' + Math.round(dawnCash - 84800) + ' coins)',
+      Math.abs(dawnCash - 84800) < 1);
     dawnFrame.remove();
 
     var dawnScrollProblems = [];

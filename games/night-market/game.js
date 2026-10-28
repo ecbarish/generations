@@ -45,14 +45,15 @@
     if (q.blocked === 'hire' || q.blocked === 'closed') return 'Buy 1';
     if (state.bulk === 'max' && q.blocked === 'payback') return '';
     if (state.bulk === 'next') {
-      var need = M.countToNext(state.stalls[i].owned);
+      var need = M.countToNext(state, i);
       if (!(need > 0)) return 'Next · lit';
       if (q.count > 0) return 'Next · ' + q.count + ' · ' + money(q.cost) + ' coins';
       return 'Next · 1 · ' + money(q.cost) + ' coins';
     }
     if (state.bulk === 'max' && q.count > 0) return 'Max · ' + q.count + ' · ' + money(q.cost);
-    var n = state.bulk === 10 ? 10 : 1;
-    return 'Buy ' + n + ' · ' + money(q.cost) + ' coins';
+    var n = state.bulk === 10 || state.bulk === '10' ? 10 : 1;
+    var priced = M.cost(i, state.stalls[i].owned, n, state);
+    return 'Buy ' + n + ' · ' + money(priced) + ' coins';
   }
 
   /* Which pour still has to be done by hand. The Best tag belongs on a purchase, never here. */
@@ -127,21 +128,38 @@
     var buy = li.querySelector('[data-act="buy"]');
     if (!open) {
       li.querySelector('.pour').hidden = li.querySelector('.count').hidden = true;
+      li.querySelector('.count').textContent = '0 of ' + M.servesNeed(state, i) + ' ' + stall.lefts + ' · press and hold to keep going';
       facts.textContent = '';
       if (nextGoal) nextGoal.textContent = '';
-      wait.textContent = i > 0 ? M.STALLS[i - 1].next : '';
+      wait.textContent = i > 0 ? shutterLine(i) : '';
       if (i === M.STALLS.length - 1) wait.textContent += (wait.textContent ? ' ' : '') + 'Unroll the Story Mat for ' + money(M.cost(i, 0, 1, state)) + ' coins.';
-      serve.hidden = ask.hidden = buy.hidden = true;
-      ask.classList.remove('reserved');
+      serve.hidden = false;
+      buy.hidden = false;
+      ask.hidden = false;
+      serve.classList.add('reserved', 'keep-slot');
+      buy.classList.add('reserved', 'keep-slot');
+      ask.classList.add('reserved');
+      ask.classList.remove('keep-slot');
+      serve.textContent = i > 0 ? ('This stall · ' + stall.serve) : stall.serve;
+      buy.textContent = 'Buy 1';
       serve.classList.remove('best');
       return;
     }
-    serve.hidden = i === M.STALLS.length - 1;
+    serve.classList.remove('keep-slot', 'reserved');
+    buy.classList.remove('keep-slot', 'reserved');
+    ask.classList.remove('keep-slot');
+    serve.hidden = false;
+    if (i === M.STALLS.length - 1) {
+      serve.classList.add('reserved', 'keep-slot');
+      serve.textContent = 'This stall · ' + stall.serve;
+    }
     var pouring = i === handJobIndex();
     serve.classList.remove('best');
-    serve.textContent = !st.hired
-      ? (pouring && i > 0 ? 'This stall · ' + stall.serve : stall.serve)
-      : (stall.serve + ' yourself · +' + stall.hand);
+    if (i !== M.STALLS.length - 1) {
+      serve.textContent = !st.hired
+        ? (pouring && i > 0 ? 'This stall · ' + stall.serve : stall.serve)
+        : (stall.serve + ' yourself · +' + stall.hand);
+    }
     var bar = li.querySelector('.pour');
     bar.hidden = !!st.hired;
     var serves = M.servesNeed(state, i);
@@ -164,7 +182,10 @@
       ask.setAttribute('aria-hidden', ready ? 'false' : 'true');
       ask.textContent = stall.hire;
       ask.disabled = !ready;
-      buy.hidden = true;
+      buy.hidden = false;
+      buy.classList.add('reserved', 'keep-slot');
+      buy.disabled = true;
+      buy.textContent = 'Buy 1';
       return;
     }
     var rate = M.production(state, i);
@@ -190,6 +211,7 @@
     ask.disabled = true;
     if (i === M.STALLS.length - 1) ask.hidden = true;
     buy.hidden = false;
+    buy.classList.remove('reserved', 'keep-slot');
     var offer = M.quote(state, i, state.bulk);
     var affordable = bestBuyIndex();
     var saveUp = affordable < 0 && i === bestUnitIndex();
@@ -202,7 +224,7 @@
     buy.dataset.count = String(offer.count);
     var firstMat = i === M.STALLS.length - 1 && st.owned === 0 && !(state.night && state.night.kept);
     if (state.bulk === 'max' && offer.blocked === 'payback' && !firstMat) {
-      buy.hidden = true;
+      buy.classList.add('reserved', 'keep-slot');
       wait.textContent = 'Max will not buy this. It pays for itself too slowly. Use 1, 10 or Next.';
     }
     buy.classList.toggle('unroll', firstMat);
@@ -213,9 +235,21 @@
     buy.classList.toggle('refused', false);
     var needLine = li.querySelector('.need');
     if (needLine) {
-      var shortfall = !(offer.count > 0) && offer.cost > state.cash + 0.001 && !(state.bulk === 'max' && offer.blocked === 'payback' && !firstMat);
-      needLine.textContent = shortfall ? ('Need ' + money(Math.max(0, offer.cost - state.cash)) + ' more.') : '';
+      var asking = state.bulk === 10 || state.bulk === '10' ? 10 : 1;
+      if ((state.bulk === 'max' || state.bulk === 'next') && offer.count > 0) asking = offer.count;
+      var livePrice = M.cost(i, st.owned, asking, state);
+      var shortfall = !(offer.count > 0) && livePrice > state.cash + 0.001 && !(state.bulk === 'max' && offer.blocked === 'payback' && !firstMat);
+      var gap = Math.ceil(livePrice - state.cash - 1e-9);
+      if (!(gap > 0)) gap = 0;
+      needLine.textContent = shortfall ? ('Need ' + money(gap) + ' more.') : '';
     }
+  }
+  function shutterLine(i) {
+    var prev = M.STALLS[i - 1];
+    var stall = M.STALLS[i];
+    var need = M.unlockNeed(state, i);
+    var unit = { tea: 'tea stalls', dumpling: 'carts', lantern: 'stands', mooncake: 'tables', incense: 'trays' };
+    return stall.vendor + ' opens the ' + stall.name + ' at ' + need + ' ' + (unit[prev.id] || prev.name) + '.';
   }
 
   function rebindIdle() {
@@ -227,10 +261,18 @@
   }
   function render() {
     M.prepareMat(state);
+    var freeze = M.dawnDue(state) && !(state.night && state.night.kept);
+    if (freeze && !nightFrozen) {
+      nightFrozen = true;
+      if (idle && idle.stop) idle.stop();
+    } else if (!freeze && nightFrozen) {
+      nightFrozen = false;
+      rebindIdle();
+    }
     $('#coins').textContent = money(state.cash);
     $('#away-rule').textContent = M.awayRule(state);
     var rate = M.income(state);
-    var rateLine = (rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.') + holdSuffix();
+    var rateLine = (freeze ? 'The night has ended.' : (rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.')) + (freeze ? '' : holdSuffix());
     var rateEl = $('#rate');
     rateEl.textContent = rateLine;
     rateEl.classList.toggle('flash', Date.now() < rateFlashUntil);
@@ -319,6 +361,14 @@
     renderPick();
     renderCodex();
     syncPins();
+    var laneNow = window.NightLane;
+    if (laneNow && laneNow.signature && laneNow.refresh) {
+      var nextSig = laneNow.signature();
+      if (nextSig !== laneSig) {
+        laneSig = nextSig;
+        laneNow.refresh();
+      }
+    }
   }
 
   /* On a phone the green line sits under the lane, and its pin returns the moment that line
@@ -406,7 +456,7 @@
     if (!box) return;
     var offer = state.night && state.night.offer;
     var show = !!(offer && offer.options && offer.options.length && !M.dawnDue(state));
-    box.hidden = !!M.dawnDue(state);
+    box.hidden = false;
     box.classList.toggle('quiet', !show);
     if (M.noteOffer(state)) persist();
     var panel = $('#pick-panel');
@@ -446,7 +496,8 @@
     }
     $('#pick-lead').textContent = offer.kind === 'omen'
       ? 'Choose an omen for tonight.'
-      : ('Pick a charm for tonight, or skip: ' + choiceLead(offer.options, M.charmById));
+      : ((offer.kind === 'charm' ? 'Pick a charm for tonight, or skip: ' : 'Pick one for tonight, or skip: ') +
+        choiceLead(offer.options, function (id) { return { name: M.choiceName(offer.kind, id) }; }));
     var choices = $('#pick-choices');
     var sig = offer.kind + '|' + offer.options.join(',') + '|' + (state.night.rerollUsed ? 1 : 0);
     if (panel) {
@@ -475,7 +526,7 @@
       button.type = 'button';
       button.dataset.act = offer.kind;
       button.dataset.choice = String(index);
-      button.textContent = row ? (offer.kind === 'charm' ? M.offerLine(state, row) : row.line) : id;
+      button.textContent = M.choiceLine ? M.choiceLine(state, offer.kind, id) : (row ? (offer.kind === 'charm' ? M.offerLine(state, row) : row.line) : id);
       choices.appendChild(button);
     });
     var skip = box.querySelector('[data-act="skip"]');
@@ -486,6 +537,7 @@
       again.disabled = !!(state.night && state.night.rerollUsed);
     }
     if (offerModalSig !== sig) {
+      offerOpenedAt = Date.now();
       if (!offerReturn) {
         var current = document.activeElement;
         offerReturn = current && current !== document.body && panel && !panel.contains(current) ? current : document.querySelector('#stalls [data-act="serve"]');
@@ -499,7 +551,7 @@
     var pick = $('#pick');
     if (!pick || pick.classList.contains('quiet') || pick.hidden) return;
     if (e.key === 'Escape') {
-      var skipping = state.night && state.night.offer && state.night.offer.kind === 'charm';
+      var skipping = state.night && state.night.offer && state.night.offer.kind !== 'omen';
       if (skipping && M.skipOffer(state)) {
         e.preventDefault();
         persist();
@@ -593,7 +645,9 @@
   var finaleScroll = false, finaleFocused = false;
   var lastElapse = Date.now();
   var seenOpen = '';
-  var offerModalSig = '', offerReturn = null, offerPaused = false;
+  var offerModalSig = '', offerReturn = null, offerPaused = false, offerOpenedAt = 0;
+  var laneSig = '';
+  var nightFrozen = false;
   function setBehindInert(on) {
     var nodes = document.querySelectorAll('.stall, .lane, #bulk, #goal, #lane-goal, header, details.save, #finale, .goal-pin, .coin-pin');
     for (var n = 0; n < nodes.length; n++) nodes[n].inert = !!on;
@@ -689,16 +743,21 @@
       render();
       return;
     }
-    if (b.dataset.act === 'omen' || b.dataset.act === 'charm') {
+    if (b.dataset.act === 'omen' || b.dataset.act === 'charm' || b.dataset.act === 'twist' || b.dataset.act === 'early' || b.dataset.act === 'boost' || b.dataset.act === 'priced') {
+      if (Date.now() - offerOpenedAt < 300) return;
       var pickedId = M.choose(state, +b.dataset.choice);
       if (pickedId) {
-        if (M.changesRate(b.dataset.act === 'omen' ? M.omenById(pickedId) : M.charmById(pickedId))) rateFlashUntil = Date.now() + 2500;
+        var pickedRow = b.dataset.act === 'omen' ? M.omenById(pickedId) : M.charmById(pickedId);
+        if (M.changesRate(pickedRow) || b.dataset.act === 'boost' || b.dataset.act === 'twist') rateFlashUntil = Date.now() + 2500;
         if (b.dataset.act === 'omen') rebindIdle();
         persist();
         render();
         focusOffer();
       }
       return;
+    }
+    if (b.dataset.act === 'skip' || b.dataset.act === 'reroll') {
+      if (Date.now() - offerOpenedAt < 300) return;
     }
     if (b.dataset.act === 'skip') {
       if (M.skipOffer(state)) {
@@ -728,7 +787,10 @@
     if (b.dataset.act === 'finale') {
       M.keepLane(state);
       finaleDismissed = true;
+      nightFrozen = true;
       persist();
+      rebindIdle();
+      nightFrozen = false;
       render();
       var note = $('#finale-note');
       if (note && !note.hidden) note.focus({ preventScroll: true });

@@ -65,13 +65,27 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   position: fixed;
   left: 0.75rem;
   right: 0.75rem;
-  top: 0.75rem;
+  top: 1.35rem;
   width: auto;
   max-width: 40rem;
   margin: 0 auto;
-  max-height: calc(100vh - 1.5rem);
+  max-height: calc(100vh - 2.4rem);
   overflow: auto;
   z-index: 35;
+  padding-top: 1.35rem;
+}
+.finale-note:not([hidden]) {
+  position: fixed;
+  left: 0.75rem;
+  right: 0.75rem;
+  top: 1.35rem;
+  width: auto;
+  max-width: 40rem;
+  margin: 0 auto;
+  z-index: 35;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 0.85rem 1rem 1rem;
 }
 .finale h2 { color: var(--paper); font-size: 1.55rem; line-height: 1.2; margin: 0 0 0.45rem; font-weight: 600; }
 .finale p { margin: 0 0 0.85rem; }
@@ -194,11 +208,12 @@ button[aria-pressed="true"], button.ask, button.best {
 .best-tag[hidden] { display: none !important; }
 .habit, .facts, .wait, .next-goal, .payback-hint { margin: 0.2rem 0; font-variant-numeric: tabular-nums; }
 .stall h2 { min-height: 2.5rem; }
-.habit { min-height: 2.5rem; }
-.facts, .wait, .next-goal, .need { min-height: 2.5rem; display: block; }
+.habit { min-height: 3.8rem; }
+.facts, .wait, .next-goal, .need { min-height: 4.2rem; display: block; }
 .need { color: var(--mute); margin: 0; min-height: 2.4rem; line-height: 1.2; }
 .facts:empty, .wait:empty, .next-goal:empty { display: block; }
-.pour, .count { min-height: 1.35rem; }
+.pour { min-height: 1.35rem; }
+.count { min-height: 2.9rem; }
 .pour[hidden], .count[hidden] { display: block !important; visibility: hidden; }
 .habit { color: var(--mute); }
 .wait, .payback-hint { color: var(--mute); }
@@ -288,6 +303,7 @@ button[aria-pressed="true"], button.ask, button.best {
   .actions [data-act="hire"],
   .actions [data-act="buy"] { flex: 1 1 100%; }
   .actions button.reserved { display: none; }
+  .actions button.keep-slot { display: flex; visibility: hidden; flex: 1 1 100%; min-height: 44px; }
   .count { font-size: 16px; }
   .coin-pin { display: none !important; }
   .goal-pin:not([hidden]) {
@@ -317,9 +333,8 @@ button[aria-pressed="true"], button.ask, button.best {
   .stall { padding-top: 0; }
   .stall h2 { min-height: 1.6rem; }
   #bulk { flex-wrap: wrap; }
-  #open-book { flex: 1 0 100%; height: 32px; min-height: 32px; margin-top: 0; }
+  #open-book { flex: 1 0 100%; height: 44px; min-height: 44px; margin-top: 0; font-size: 0.85rem; padding: 0.1rem 0.4rem; }
   .window { padding-top: 0; }
-  #open-book { min-height: 36px; font-size: 0.85rem; padding: 0.1rem 0.4rem; }
   #omen-now { margin: 0; min-height: 2.2rem; font-size: 0.85rem; }
   #goal { min-height: 2.6rem; line-height: 1.15; font-size: 0.9rem; }
   #bulk-help { min-height: 1.3rem; margin: 0; font-size: 0.8rem; }
