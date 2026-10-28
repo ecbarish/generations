@@ -8,7 +8,7 @@ Evan, 2026-10-14. These are not in the build. A launch checklist can call one ba
 
 - **Little Ranch LR19–LR22** (Block Tower, Little Garden, Barn Band, Feel-Better Corner) wait until [launch-little-ranch.md](plans/launch-little-ranch.md) calls for them. **#404 LR19** and **#409 LR20** are on hold. LR17 (#381) and LR18 (#400) are merged.
 - **Wildbond new content** waits until launch-wildbond.md is done: WB-NOSTALGIA (NOS-1a through NOS-1e), roster growth, and WB2.2.
-- **Office idle after Night Market:** IDLE-SS1 Saltmarsh Shipping Office, IDLE-CS1 Card Shop lite, and IDLE-DP1 Desk Plant Lab wait until Night Market has been playtested. IDLE-CORE is merged (#393). IDLE-NM1 is merged (#403), not shelved.
+- **Office idle after Night Market:** IDLE-CS1 Card Shop lite and IDLE-DP1 Desk Plant Lab stay on this shelf until Night Market has been playtested. IDLE-CORE is merged (#393). IDLE-NM1 is merged (#403), not shelved. IDLE-SS1 Saltmarsh Shipping Office left this shelf. Evan approved it on 2026-10-23 and reconfirmed it on 2026-10-27. It is active in [QUEUE.md](QUEUE.md). #619 is first, then IDLE-SS1b. Finish that office before polishing Otherworld, Keymaster or Diamond Manager into finished games.
 - **Starfall exact-build preview** for the merged source in #323 (square and roads) and #325 (trust per adventurer) is **not now**. The source stays merged. The live preview stays as it is until Evan asks for that release. SF-GUILD2 and any other new Starfall content wait with it. Bug fixes only until then.
 - **Also waiting:** Keymaster beyond the merged smallest slice (#379), Main Street new content, Primordial, and the walk-in arcade.
 
