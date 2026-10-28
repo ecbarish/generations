@@ -11,7 +11,8 @@
   Arcade.validators[KEY] = M.valid;
 
   var raw = Arcade.load(KEY);
-  var protect = !!(raw && !M.valid(raw));
+  /* A version this game no longer reads is replaced. A damaged current file, or a newer one, is left on disk. */
+  var protect = !!(raw && !M.valid(raw) && !(typeof raw.v === 'number' && raw.v < M.SAVE_VERSION));
   var state = raw && M.valid(raw) ? M.restore(raw) : M.fresh();
   var awayOn = false;
 
@@ -124,7 +125,7 @@
       facts.textContent = '';
       if (nextGoal) nextGoal.textContent = '';
       wait.textContent = i > 0 ? M.STALLS[i - 1].next : '';
-      if (i === M.STALLS.length - 1) wait.textContent += (wait.textContent ? ' ' : '') + 'The first Story Mat costs ' + money(stall.base) + ' coins.';
+      if (i === M.STALLS.length - 1) wait.textContent += (wait.textContent ? ' ' : '') + 'The first Story Mat costs ' + money(M.cost(i, 0, 1, state)) + ' coins.';
       serve.hidden = ask.hidden = buy.hidden = true;
       ask.classList.remove('reserved');
       serve.classList.remove('best');
@@ -138,13 +139,14 @@
       : (stall.serve + ' yourself · +' + stall.hand);
     var bar = li.querySelector('.pour');
     bar.hidden = !!st.hired;
-    if (!st.hired) { var k = Math.min(st.serves, stall.serves); bar.value = k; bar.max = stall.serves; bar.textContent = k + ' of ' + stall.serves;
-      li.querySelector('.count').textContent = k + ' of ' + stall.serves + ' ' + stall.lefts + (k < stall.serves ? ' · press and hold to keep going' : ' · now press “' + stall.hire + '”'); }
+    var serves = M.servesNeed(state, i);
+    if (!st.hired) { var k = Math.min(st.serves, serves); bar.value = k; bar.max = serves; bar.textContent = k + ' of ' + serves;
+      li.querySelector('.count').textContent = k + ' of ' + serves + ' ' + stall.lefts + (k < serves ? ' · press and hold to keep going' : ' · now press “' + stall.hire + '”'); }
     li.querySelector('.count').hidden = !!st.hired;
     if (!st.hired) {
       facts.textContent = '';
       if (nextGoal) nextGoal.textContent = '';
-      var need = stall.serves - st.serves;
+      var need = serves - st.serves;
       wait.textContent = need > 0
         ? need + ' more ' + (need === 1 ? stall.left : stall.lefts) + ' to do yourself.'
         : stall.vendor + ' will take it whenever you ask.';
@@ -198,7 +200,7 @@
 
   function render() {
     $('#coins').textContent = money(state.cash);
-    $('#away-rule').textContent = M.awayRule();
+    $('#away-rule').textContent = M.awayRule(state);
     var rate = M.income(state);
     var rateLine = (rate > 0 ? money(rate) + ' coins a second' : 'Nothing is earning yet.') + holdSuffix();
     $('#rate').textContent = rateLine;
@@ -209,14 +211,16 @@
     var finale = $('#finale');
     var finaleNote = $('#finale-note');
     var laneReady = !window.NightLane || typeof window.NightLane.finaleReady !== 'function' || window.NightLane.finaleReady();
-    var finaleOn = M.finaleReached(state) && !finaleDismissed && laneReady;
+    var finaleOn = M.dawnDue(state) && !finaleDismissed && laneReady;
     if (finale) {
       finale.hidden = !finaleOn;
       if (finaleOn) {
-        var copy = M.finaleCopy();
+        var copy = M.dawnCopy(state);
         $('#finale-title').textContent = copy.title;
         $('#finale-lead').textContent = copy.lead;
+        var nextNight = finale.querySelector('[data-act="next-night"]');
         var choice = finale.querySelector('[data-act="finale"]');
+        if (nextNight) nextNight.textContent = copy.next;
         if (choice) choice.textContent = copy.choice;
         if (finaleScroll && !finaleFocused) {
           finaleFocused = true;
@@ -226,9 +230,10 @@
       }
     }
     if (finaleNote) {
-      finaleNote.hidden = !(M.finaleReached(state) && finaleDismissed);
-      finaleNote.textContent = "Old Wen's last chapter is told. The lane stays open.";
+      finaleNote.hidden = !(state.night && state.night.kept && state.stalls[M.STALLS.length - 1].owned >= 1);
+      finaleNote.textContent = 'The mat is unrolled. The lane stays open.';
     }
+    if (M.syncOffers(state) || M.noteDawn(state)) persist();
     var hiring = state.stalls.some(function (s) { return s.hired; });
     $('#bulk').hidden = !hiring;
     document.querySelectorAll('[data-bulk]').forEach(function (b) {
@@ -236,7 +241,7 @@
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
     var list = $('#stalls');
-    if (!list.children.length) {
+    if (!list.querySelector(':scope > [data-i]')) {
       M.STALLS.forEach(function (stall, i) {
         var li = document.createElement('li');
         li.dataset.i = String(i);
@@ -250,7 +255,12 @@
         list.appendChild(li);
       });
     }
-    Array.prototype.forEach.call(list.children, function (li) { fillRow(li, +li.dataset.i); });
+    Array.prototype.forEach.call(list.children, function (li) { if (li.dataset.i) fillRow(li, +li.dataset.i); });
+    var pick = $('#pick');
+    var firstStall = list.querySelector(':scope > [data-i="0"]');
+    if (pick && firstStall && !pick.contains(firstStall) && firstStall.nextElementSibling !== pick) firstStall.after(pick);
+    renderPick();
+    renderCodex();
     syncPins();
   }
 
@@ -325,12 +335,83 @@
   }
 
   function showAway(summary) {
-    var copy = M.awayCopy(summary);
+    var copy = M.awayCopy(summary, state);
     var box = $('#away');
     box.hidden = false;
     awayOn = true;
     box.innerHTML = '<h2>' + copy.title + '</h2><p>' + copy.lead + '</p><p>' + copy.box + '</p><p>' +
       M.gossipLine(state) + '</p><button type="button" data-act="away">Put the box away</button>';
+  }
+
+  function renderPick() {
+    var box = $('#pick');
+    if (!box) return;
+    var offer = state.night && state.night.offer;
+    var show = !!(offer && offer.options && offer.options.length && !M.dawnDue(state));
+    box.hidden = !show;
+    if (!show) return;
+    $('#pick-lead').textContent = offer.kind === 'omen' ? 'Choose an omen for tonight.' : 'Choose a charm for ' + offerLabel(offer.stall) + ', or skip it.';
+    var choices = $('#pick-choices');
+    choices.replaceChildren();
+    offer.options.forEach(function (id, index) {
+      var row = offer.kind === 'omen' ? M.omenById(id) : M.charmById(id);
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.act = offer.kind;
+      button.dataset.choice = String(index);
+      button.textContent = row ? row.line : id;
+      choices.appendChild(button);
+    });
+    var skip = box.querySelector('[data-act="skip"]');
+    var again = box.querySelector('[data-act="reroll"]');
+    if (skip) skip.hidden = offer.kind !== 'charm';
+    if (again) {
+      again.hidden = !!(state.night && state.night.rerollUsed);
+      again.disabled = !!(state.night && state.night.rerollUsed);
+    }
+  }
+
+  function offerLabel(id) {
+    var i = 0;
+    for (; i < M.STALLS.length; i++) if (M.STALLS[i].id === id) return M.STALLS[i].name;
+    return 'this stall';
+  }
+
+  function renderCodex() {
+    var box = $('#codex');
+    if (!box) return;
+    var book = M.codexView(state);
+    box.replaceChildren();
+    var nights = document.createElement('p');
+    nights.textContent = 'Nights seen: ' + book.nights.length + '.';
+    box.appendChild(nights);
+    if (!book.nights.length) {
+      var empty = document.createElement('p');
+      empty.textContent = 'No night has ended yet.';
+      box.appendChild(empty);
+    }
+    book.nights.forEach(function (night) {
+      var line = document.createElement('p');
+      var charms = night.charms.length ? night.charms.join(', ') : 'no charm';
+      line.textContent = 'Night ' + night.n + '. ' + (night.omen || 'No omen') + '. ' + charms + '.';
+      box.appendChild(line);
+    });
+    var omens = document.createElement('p');
+    omens.textContent = 'Omens seen: ' + book.omens.length + ' of ' + book.omenCount + '.';
+    box.appendChild(omens);
+    book.omens.forEach(function (omen) {
+      var line = document.createElement('p');
+      line.textContent = omen.line;
+      box.appendChild(line);
+    });
+    var charms = document.createElement('p');
+    charms.textContent = 'Charms seen: ' + book.charms.length + ' of ' + book.charmCount + '.';
+    box.appendChild(charms);
+    book.charms.forEach(function (charm) {
+      var line = document.createElement('p');
+      line.textContent = charm.line;
+      box.appendChild(line);
+    });
   }
 
   // Hold to pour. The pour uses the same Date.now() seconds as stall income, about eight a second
@@ -413,8 +494,32 @@
       render();
       return;
     }
+    if (b.dataset.act === 'omen' || b.dataset.act === 'charm') {
+      if (M.choose(state, +b.dataset.choice)) { persist(); render(); }
+      return;
+    }
+    if (b.dataset.act === 'skip') {
+      if (M.skipOffer(state)) { persist(); render(); }
+      return;
+    }
+    if (b.dataset.act === 'reroll') {
+      if (M.reroll(state)) { persist(); render(); }
+      return;
+    }
+    if (b.dataset.act === 'next-night') {
+      M.nextNight(state);
+      finaleDismissed = false;
+      finaleScroll = false;
+      finaleFocused = false;
+      persist();
+      render();
+      window.scrollTo(0, 0);
+      return;
+    }
     if (b.dataset.act === 'finale') {
+      M.keepLane(state);
       finaleDismissed = true;
+      persist();
       render();
       var note = $('#finale-note');
       if (note && !note.hidden) note.focus({ preventScroll: true });
@@ -436,7 +541,7 @@
       var quoted = parseInt(b.dataset.count, 10);
       if (M.buyExact(state, i, quoted).ok) {
         lane('buy', i, had, state.stalls[i].owned);
-        if (i === M.STALLS.length - 1 && had < M.FINALE_AT && state.stalls[i].owned >= M.FINALE_AT) revealFinale();
+        if (i === M.STALLS.length - 1 && had < 1 && state.stalls[i].owned >= 1) revealFinale();
       }
     }
     else return;

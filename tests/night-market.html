@@ -272,6 +272,94 @@ document.querySelector('#run').onclick = async function () {
     mats.stalls[5].owned = 14;
     check('later Story Mats repeat that line', M.chapterLine(mats) === 'Old Wen tells it again.');
 
+    var plain = M.fresh();
+    check('a waiting omen leaves the approved prices alone',
+      plain.night.offer && plain.night.offer.options.length === 3 && plain.night.omen === null &&
+      M.cost(0, 0, 1, plain) === M.STALLS[0].base && M.cost(5, 0, 1, plain) === 2200000 &&
+      M.STALLS[5].base === 2200000 && M.STALLS[5].growth === 1.36 && M.STALLS[5].rate === 2200);
+    var again = M.fresh();
+    M.armNight(again, 1, 4);
+    var twin = M.fresh();
+    M.armNight(twin, 1, 4);
+    check('the same seed offers the same three omens', again.night.offer.options.join(',') === twin.night.offer.options.join(','));
+    var otherOffers = [2, 3, 5, 8].map(function (seed) {
+      var sample = M.fresh();
+      M.armNight(sample, 1, seed);
+      return sample.night.offer.options.join(',');
+    });
+    check('another seed can offer a different omen', otherOffers.some(function (row) { return row !== again.night.offer.options.join(','); }));
+    var rain = M.fresh();
+    rain.night.omen = 'rain';
+    rain.stalls[0].hired = true;
+    rain.stalls[0].owned = 1;
+    check('rain changes the lantern price and the tea rate', near(M.cost(2, 0, 1, rain), 770) && near(M.production(rain, 0), 0.5) && M.cost(2, 0, 1, plain) === 700);
+    var ferry = M.fresh();
+    ferry.night.omen = 'ferry';
+    ferry.stalls[0].hired = true;
+    ferry.stalls[0].owned = 1;
+    check('the ferry crowd changes only the away box', M.awayRule(ferry) === 'While away: earns 75%, up to 2h' && M.awayRule(plain) === 'While away: earns 50%, up to 4h' && M.cost(0, 0, 1, ferry) === M.STALLS[0].base);
+    var wick = M.fresh();
+    wick.night.omen = 'wick';
+    check('a short wick lowers the Story Mat price', near(M.cost(5, 0, 1, wick), 1760000) && M.STALLS[5].base === 2200000);
+    var festival = M.fresh();
+    festival.night.omen = 'mooncake';
+    festival.stalls[2].owned = 6;
+    check('the mooncake festival opens Qiao at six lantern stands', M.unlocked(festival, 3) && !M.unlocked(plain, 3));
+    plain.stalls[2].owned = 6;
+    check('six lantern stands stay closed on the default night', !M.unlocked(plain, 3));
+    var pour = M.fresh();
+    pour.night.omen = 'pour';
+    check('a long pour asks for thirty cups and a cheaper first stall', M.servesNeed(pour, 0) === 30 && near(M.cost(0, 0, 1, pour), 5) && M.servesNeed(plain, 0) === 25);
+    var charm = M.fresh();
+    charm.night.charms = ['wen-discount'];
+    check('a charm changes the mat price and not the catalogue', near(M.cost(5, 0, 1, charm), 2000000) && M.STALLS[5].base === 2200000);
+    var bo = M.fresh();
+    bo.night.charms = ['bo-queue'];
+    bo.stalls[1].hired = true;
+    bo.stalls[1].owned = 22;
+    check('Bo\'s queue doubles dumplings at 22', near(M.production(bo, 1), M.STALLS[1].rate * 22 * 2));
+    var dusk = M.fresh();
+    var firstOffer = dusk.night.offer.options.slice();
+    var picked = M.choose(dusk, 0);
+    check('choosing an omen keeps it and writes it in the book', picked === firstOffer[0] && dusk.night.omen === picked && dusk.meta.omens[0] === picked && dusk.night.offer === null);
+    M.reroll(dusk);
+    check('an omen already chosen is not rerolled', dusk.night.rerollUsed === false);
+    var offered = M.fresh();
+    var beforeReroll = offered.night.offer.options.slice();
+    check('the free reroll replaces the three omens once', M.reroll(offered) && offered.night.rerollUsed && offered.night.offer.options.join(',') !== beforeReroll.join(',') && M.reroll(offered) === false);
+    var skip = M.fresh();
+    skip.night.offer = { kind: 'charm', stall: 'dumpling', options: ['bo-queue', 'mei-regulars', 'an-paper'] };
+    check('skipping a charm keeps the lane and takes nothing', M.skipOffer(skip) && skip.night.charms.length === 0 && skip.night.offer === null);
+    var ended = M.fresh();
+    M.choose(ended, 0);
+    ended.cash = 80;
+    ended.stalls[0].owned = 4;
+    ended.stalls[0].hired = true;
+    ended.stalls[5].owned = 1;
+    check('the first Story Mat is dawn', M.dawnDue(ended) && M.dawnCopy(ended).title === 'The tortoise takes the lantern' && M.dawnCopy(ended).next === 'Next night');
+    check('nine mats are still not the last chapter', (function () { var nine = M.fresh(); nine.stalls[5].owned = 9; nine.night.kept = true; return !M.finaleReached(nine) && M.chapterLine(nine) === 'Chapter 9 of 10: The crowd holds still.'; })());
+    var book = M.codexView(ended);
+    check('dawn writes the night before the lane is cleared', M.noteDawn(ended) && book.nights.length === 0 && M.codexView(ended).nights.length === 1 && M.codexView(ended).nights[0].omen.length > 0);
+    M.keepLane(ended);
+    check('keeping the lane open leaves the coins and hides dawn', !M.dawnDue(ended) && ended.cash === 80 && ended.stalls[0].owned === 4);
+    var reset = M.fresh();
+    M.choose(reset, 0);
+    reset.cash = 40;
+    reset.stalls[0].owned = 2;
+    reset.stalls[5].owned = 1;
+    M.nextNight(reset);
+    check('next night clears the run and keeps the book',
+      reset.cash === 0 && reset.lifetime === 0 && reset.stalls.every(function (s) { return s.owned === 0 && !s.hired; }) &&
+      reset.night.n === 2 && reset.meta.nights.length === 1 && reset.meta.pool === 8 && reset.meta.omens.length === 1 && !M.dawnDue(reset));
+    var round = M.serialize(reset, 42);
+    var loaded = M.restore(round);
+    check('a night save round-trips the seed and the book', loaded.night.n === 2 && loaded.night.seed === reset.night.seed && loaded.meta.nights.length === 1 && loaded.seen === 42);
+    var oldFile = M.serialize(M.fresh(), 1);
+    oldFile.v = 1;
+    delete oldFile.night;
+    delete oldFile.meta;
+    check('a version 1 file is not a current save', M.valid(oldFile) === false);
+
     var active = play(1800, 1);
     var a600 = active.snap[600];
     var a1800 = active.snap[1800];
@@ -363,6 +451,16 @@ document.querySelector('#run').onclick = async function () {
     laneBeforeFinale('the fast buyer', fastBuyer);
     laneBeforeFinale('the human buyer', humanBuyer);
     matWindow('the human buyer', humanBuyer);
+    [1, 2, 3, 5].forEach(function (seed) {
+      ['skip', 'greedy'].forEach(function (policy) {
+        var seeded = NightMarketPacing.playHumanNight(M, seed, policy);
+        var label = 'seed ' + seed + ' ' + policy;
+        check(label + ' buys the first Story Mat within 25% of the default night (' + Math.round(seeded.story1) + 's, default ' + Math.round(humanBuyer.story1) + 's)',
+          seeded.story1 >= humanBuyer.story1 * 0.75 && seeded.story1 <= humanBuyer.story1 * 1.25);
+        check(label + ' reaches the tenth mat within 25% of the default night (' + Math.round(seeded.story10) + 's, default ' + Math.round(humanBuyer.story10) + 's)',
+          seeded.story10 >= humanBuyer.story10 * 0.75 && seeded.story10 <= humanBuyer.story10 * 1.25);
+      });
+    });
     var opened = M.fresh();
     opened.stalls[0].hired = true;
     opened.cash = 25;
@@ -481,7 +579,7 @@ document.querySelector('#run').onclick = async function () {
       check('an hour reads as kept time, not the cap, and still states 50%', /four hours/.test(M.awayCopy(hour).lead) === false && /kept/.test(M.awayCopy(hour).lead) && /50%/.test(M.awayCopy(hour).lead));
       wall += 30000;
       tick();
-      check('the save callback stamps the clock and the coins', saved && saved.seen === wall && saved.v === 1 && saved.game === 'night-market' && near(saved.cash, hour.gained + M.income(market) * 30));
+      check('the save callback stamps the clock and the coins', saved && saved.seen === wall && saved.v === 2 && saved.game === 'night-market' && near(saved.cash, hour.gained + M.income(market) * 30));
       Arcade.versions[KEY] = M.SAVE_VERSION;
       Arcade.validators[KEY] = M.valid;
       var loaded = M.restore(Arcade.load(KEY));
@@ -489,12 +587,12 @@ document.querySelector('#run').onclick = async function () {
       idle.stop();
 
       var ahead = M.serialize(M.fresh(), wall);
-      ahead.v = 2;
+      ahead.v = 3;
       ahead.cash = 9;
       localStorage.setItem(KEY, JSON.stringify(ahead));
       var refused = Arcade.load(KEY);
-      check('a newer save is refused and left as it was', refused === null && JSON.parse(localStorage.getItem(KEY)).v === 2 && JSON.parse(localStorage.getItem(KEY)).cash === 9);
-      check('a refused save is not overwritten', Arcade.save(KEY, M.serialize(M.fresh(), wall)) === false && JSON.parse(localStorage.getItem(KEY)).v === 2);
+      check('a newer save is refused and left as it was', refused === null && JSON.parse(localStorage.getItem(KEY)).v === 3 && JSON.parse(localStorage.getItem(KEY)).cash === 9);
+      check('a refused save is not overwritten', Arcade.save(KEY, M.serialize(M.fresh(), wall)) === false && JSON.parse(localStorage.getItem(KEY)).v === 3);
     } finally {
       Date.now = realNow;
       window.setInterval = realSet;
@@ -562,9 +660,9 @@ document.querySelector('#run').onclick = async function () {
     d = w.document;
     hook = w.__nightMarket;
     await new Promise(function (r) { setTimeout(r, 50); });
-    check('NML-3: the next reload keeps the stall and the v1 save',
+    check('NML-3: the next reload keeps the stall and the v2 save',
       hook && JSON.stringify(hook.state.stalls) === keptStalls && hook.state.cash >= keptCash &&
-      JSON.parse(localStorage.getItem(KEY)).v === 1 && JSON.parse(localStorage.getItem(KEY)).game === 'night-market');
+      JSON.parse(localStorage.getItem(KEY)).v === 2 && JSON.parse(localStorage.getItem(KEY)).game === 'night-market');
     check('NML-3: a reload leaves every other game\'s save byte for byte unchanged',
       Object.keys(sentinels).every(function (k) { return localStorage.getItem(k) === sentinels[k]; }));
     frame.remove();
@@ -893,7 +991,7 @@ document.querySelector('#run').onclick = async function () {
     check('reduced motion: the ending is one still frame, with the lanterns out', !NL.live && NL.frames === framesBeforeFinale && NL.dimCount() === NL.lanterns().length);
     await wait(450);
     hk.render();
-    check('reduced motion: Old Wen\'s panel follows that still frame', !d.querySelector('#finale').hidden && d.querySelector('#finale-title').textContent === "Old Wen's last chapter");
+    check('reduced motion: tonight\'s chapter follows that still frame', !d.querySelector('#finale').hidden && d.querySelector('#finale-title').textContent === 'The tortoise takes the lantern' && d.querySelector('#finale [data-act="next-night"]').textContent === 'Next night');
     frame.style.width = '844px'; frame.style.height = '390px';
     w.scrollTo(0, 0);
     await wait(80);
@@ -954,7 +1052,7 @@ document.querySelector('#run').onclick = async function () {
     dlBtn.click();
     var downloadedSave = JSON.parse(await downloaded.text());
     w.URL.createObjectURL = realCreate;
-    check('Your save downloads this game\'s v1 file and says so', made === 1 && downloadedSave.game === 'night-market' && downloadedSave.v === 1 && downloadedSave.stalls.length === 6 && /Downloaded/.test(d.querySelector('.arc-save-msg').textContent));
+    check('Your save downloads this game\'s v2 file and says so', made === 1 && downloadedSave.game === 'night-market' && downloadedSave.v === 2 && downloadedSave.stalls.length === 6 && downloadedSave.night && downloadedSave.meta && /Downloaded/.test(d.querySelector('.arc-save-msg').textContent));
     check('Load a save file opens a real file picker', !!fileLbl.querySelector('input[type=file][data-arcsave="file"]'));
     async function phoneSave(width, height) {
       frame.style.width = width + 'px';
@@ -1320,6 +1418,7 @@ document.querySelector('#run').onclick = async function () {
     check('NM-G8: walkerCap is 0 with nothing owned, 1 for the first stalls, and 2 from 20 owned in all',
       shape([0, 0, 0, 0, 0, 0]) === 0 && shape([1]) === 1 && shape([10, 5]) === 1 && shape([10, 9]) === 1 && shape([10, 10]) === 2 && shape([10, 10, 9]) === 2);
     check('NM-G8: ...3 from 30 owned in all, 4 from 50, 5 from 66 (the three the row names)', shape([10, 10, 10]) === 3 && shape([10, 10, 10, 12, 7]) === 3 && shape([10, 10, 10, 12, 8]) === 4 && shape([20, 10, 10, 12, 10, 3]) === 4 && shape([20, 10, 10, 12, 10, 4]) === 5 && shape([40, 10, 10, 12, 10, 10]) === 5);
+    hk.state.night.kept = true;
     var peak = 0; hk.state.stalls.forEach(function (t, i) { t.hired = true; t.owned = [20, 10, 10, 12, 10, 4][i]; hk.render(); });
     NL.step(40); for (var t2 = 0; t2 < 3000; t2++) { NL.step(1); peak = Math.max(peak, NL.walkers().length); if (NL.walkers().length > NL.walkerCap()) break; }
     check('NM-G8: with 66 owned up to 5 people are on the lane at once, and never more than the cap (peak ' + peak + ')', peak >= 4 && peak <= 5);
@@ -1651,7 +1750,7 @@ document.querySelector('#run').onclick = async function () {
 
     hintFrame.style.width = '1280px';
     hintFrame.style.height = '800px';
-    hm.state.stalls.forEach(function (s, i) { s.hired = true; s.serves = 30; s.owned = i < 5 ? 12 : 9; });
+    hm.state.stalls.forEach(function (s, i) { s.hired = true; s.serves = 30; s.owned = i < 5 ? 12 : 0; });
     hm.state.cash = 1e15; hm.state.bulk = 1;
     hm.render();
     hw.scrollTo(0, 0);
@@ -1667,10 +1766,11 @@ document.querySelector('#run').onclick = async function () {
     }
     var laneAfter = hd.getElementById('lane').getBoundingClientRect();
     var finaleNow = hd.querySelector('#finale');
-    check('1280x800: buying the tenth mat brings the lane back and focuses the card (lane was ' + Math.round(laneOff.top) + ', now ' + Math.round(laneAfter.top) + '-' + Math.round(laneAfter.bottom) + ')',
+    check('1280x800: buying the first Story Mat brings the lane back and focuses the card (lane was ' + Math.round(laneOff.top) + ', now ' + Math.round(laneAfter.top) + '-' + Math.round(laneAfter.bottom) + ')',
       laneOff.bottom < 40 && finaleSeen && finaleNow && !finaleNow.hidden && hd.activeElement === finaleNow);
     var laneApi = hw.NightLane;
     laneApi.setReduce(true);
+    hm.state.night.kept = true;
     hm.state.stalls[5].owned = 4;
     hm.render();
     laneApi.still();

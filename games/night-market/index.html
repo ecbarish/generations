@@ -25,7 +25,10 @@
   <section class="finale" id="finale" hidden tabindex="-1">
     <h2 id="finale-title"></h2>
     <p id="finale-lead"></p>
-    <button type="button" data-act="finale">Keep the lane open</button>
+    <div class="finale-actions">
+      <button type="button" data-act="next-night">Next night</button>
+      <button type="button" data-act="finale">Keep the lane open</button>
+    </div>
   </section>
   <p class="finale-note" id="finale-note" hidden tabindex="-1"></p>
   <div class="market-work">
@@ -37,11 +40,24 @@
     <button type="button" data-bulk="next" aria-pressed="false">Next</button>
   </div>
   <section id="away" hidden></section>
-  <ol class="stalls" id="stalls"></ol>
+  <ol class="stalls" id="stalls">
+  <li class="pick" id="pick" hidden>
+    <p id="pick-lead"></p>
+    <div class="choices" id="pick-choices"></div>
+    <div class="choices pick-tools">
+      <button type="button" data-act="skip" hidden>Skip</button>
+      <button type="button" data-act="reroll">Reroll once</button>
+    </div>
+  </li>
+  </ol>
   </div>
   <details class="save">
     <summary>Your save</summary>
     <div id="tools"></div>
+  </details>
+  <details class="codex">
+    <summary>Lantern Book</summary>
+    <div id="codex"></div>
   </details>
 </main>
 <script src="../../shared/engine.js"></script>

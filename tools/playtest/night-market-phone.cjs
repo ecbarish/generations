@@ -49,7 +49,7 @@ async function shot(page,name){await page.screenshot({path:path.join(out,name+'.
     await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
     const origin='http://127.0.0.1:'+server.address().port;
     browser=await chromium.launch({executablePath:process.env.CHROME_PATH});
-    for(const [width,height] of [[320,568],[360,640],[390,844],[568,320],[667,375],[844,390],[932,430],[1280,800]]){
+    for(const [width,height] of [[320,568],[360,640],[375,812],[390,844],[568,320],[667,375],[844,390],[932,430],[1024,768],[1280,800]]){
       const phone=width<1000;
       const context=await browser.newContext({viewport:{width,height},hasTouch:phone,isMobile:phone,deviceScaleFactor:1,serviceWorkers:'block'});
       const page=await context.newPage(),errors=[];

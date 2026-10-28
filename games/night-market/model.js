@@ -11,7 +11,7 @@
   'use strict';
 
   var SAVE_KEY = 'night-market-save-v1';
-  var SAVE_VERSION = 1;
+  var SAVE_VERSION = 2;
   var OFFLINE_CAP = 4 * 3600;
   var OFFLINE_RATE = 0.5;
   var UNLOCK_AT = 10;
@@ -30,8 +30,9 @@
      stops at 50 instead of climbing into a multi-hour payback. */
   var PAYBACK_CAP = 450;
 
-  /* Old Wen tells one chapter of the tortoise's climb for each mat. The tenth is the ending.
-     These lines are the game's own tale. The unused tale files stay unloaded. */
+  /* Old Wen tells one chapter of the tortoise's climb for each mat. The first mat ends the night.
+     The tenth is his last chapter if the lane stays open. These lines are the game's own tale.
+     The unused tale files stay unloaded. */
   var CHAPTERS = [
     { title: 'The tortoise takes the lantern', text: 'Old Wen sits on the mat. A tortoise finds a lantern at the foot of the hill and picks it up.' },
     { title: 'The first step', text: 'The hill is steep and the lantern is warm. The tortoise takes one step, and the crowd leans in.' },
@@ -109,28 +110,204 @@
     }
   ];
 
+  /* One night, one seed. Omens and charms replace a price, a rate, an unlock, a hire
+     count, a milestone list, or the away box. They do not add a multiplier. */
+  var OMENS = [
+    { id: 'rain', name: 'Rain', line: 'Rain. Lanterns cost 770 coins, and tea earns half a coin a second.',
+      set: { lantern: { base: 770 }, tea: { rate: 0.5 } } },
+    { id: 'ferry', name: 'Ferry crowd', line: 'Ferry crowd. Away from the lane, stalls earn 75%, and the box holds two hours.',
+      set: { offlineRate: 0.75, offlineCap: 2 * 3600 } },
+    { id: 'wick', name: 'Short wick', line: 'Short wick. The Story Mat costs 1,760,000 coins.',
+      set: { stories: { base: 1760000 } } },
+    { id: 'mooncake', name: 'Mooncake festival', line: 'Mooncake festival. Qiao opens once six lantern stands are lit.',
+      set: { mooncake: { unlockAt: 6 } } },
+    { id: 'alley', name: 'Quiet alley', line: 'Quiet alley. Ren waits for fourteen mooncake tables, and the first tray costs 77,000 coins.',
+      set: { incense: { unlockAt: 14, base: 77000 } } },
+    { id: 'pour', name: 'Long pour', line: 'Long pour. Mei asks for thirty cups, and the first tea stall costs 5 coins.',
+      set: { tea: { serves: 30, base: 5 } } }
+  ];
+  var CHARMS = [
+    { id: 'mei-regulars', name: "Mei's regulars", stall: 'tea', line: "Mei's regulars. Tea stalls start at 5 coins.",
+      set: { tea: { base: 5 } } },
+    { id: 'bo-queue', name: "Bo's queue", stall: 'dumpling', line: "Bo's queue. Dumplings double at 22, then at the usual later marks.",
+      set: { dumpling: { milestones: [22, 50, 100, 150, 200, 300, 400] } } },
+    { id: 'an-paper', name: "An's paper", stall: 'lantern', line: "An's paper. Lanterns grow at 1.065.",
+      set: { lantern: { growth: 1.065 } } },
+    { id: 'qiao-moulds', name: "Qiao's moulds", stall: 'mooncake', line: "Qiao's moulds. Mooncakes grow at 1.04.",
+      set: { mooncake: { growth: 1.04 } } },
+    { id: 'ren-sticks', name: "Ren's sticks", stall: 'incense', line: "Ren's sticks. The first tray costs 63,000 coins.",
+      set: { incense: { base: 63000 } } },
+    { id: 'wen-discount', name: "Wen's discount", stall: 'stories', line: "Wen's discount. The Story Mat starts at 2,000,000 coins.",
+      set: { stories: { base: 2000000 } } },
+    { id: 'mei-quick', name: "Mei's quick pour", stall: 'tea', line: "Mei's quick pour. Tea earns half a coin a second.",
+      set: { tea: { rate: 0.5 } } },
+    { id: 'bo-steam', name: "Bo's steam", stall: 'dumpling', line: "Bo's steam. A dumpling earns 1 coin a second.",
+      set: { dumpling: { rate: 1 } } },
+    { id: 'an-offcuts', name: "An's offcuts", stall: 'lantern', line: "An's offcuts. The first lantern costs 640 coins.",
+      set: { lantern: { base: 640 } } },
+    { id: 'qiao-early', name: 'Qiao comes early', stall: 'mooncake', line: 'Qiao comes early. She opens at eight lantern stands.',
+      set: { mooncake: { unlockAt: 8 } } },
+    { id: 'ren-early', name: 'Ren comes early', stall: 'incense', line: 'Ren comes early. The tray opens at ten mooncake tables.',
+      set: { incense: { unlockAt: 10 } } },
+    { id: 'wen-patient', name: "Wen's patience", stall: 'stories', line: "Wen's patience. Later mats grow at 1.32.",
+      set: { stories: { growth: 1.32 } } }
+  ];
+  var CHARM_GATES = ['dumpling', 'lantern', 'mooncake', 'incense', 'stories'];
+  var POOL_START = 6;
+
+  function byId(table, id) {
+    for (var i = 0; i < table.length; i++) if (table[i].id === id) return table[i];
+    return null;
+  }
+  function omenById(id) { return byId(OMENS, id); }
+  function charmById(id) { return byId(CHARMS, id); }
+  function stallIndex(id) {
+    for (var i = 0; i < STALLS.length; i++) if (STALLS[i].id === id) return i;
+    return -1;
+  }
+  function emptyMeta() {
+    return { nights: [], omens: [], charms: [], pool: POOL_START };
+  }
+  function lcg(seed) {
+    var s = (seed >>> 0) || 1;
+    return function () {
+      s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+      return s;
+    };
+  }
+  function stepSeed(seed) {
+    return lcg(seed)() || 1;
+  }
+  function drawIds(rows, count, rand, avoid) {
+    var bag = [], i;
+    for (i = 0; i < rows.length; i++) {
+      if (!avoid || avoid.indexOf(rows[i].id) < 0) bag.push(rows[i].id);
+    }
+    if (bag.length < count) {
+      bag = [];
+      for (i = 0; i < rows.length; i++) bag.push(rows[i].id);
+    }
+    var out = [];
+    while (out.length < count && bag.length) out.push(bag.splice(rand() % bag.length, 1)[0]);
+    return out;
+  }
+  function copyOffer(offer) {
+    if (!offer) return null;
+    return { kind: offer.kind, stall: offer.stall || null, options: offer.options.slice() };
+  }
+  function beginNight(n, seed) {
+    seed = (seed >>> 0) || 1;
+    return {
+      n: n > 0 ? Math.floor(n) : 1,
+      seed: seed,
+      omen: null,
+      charms: [],
+      rerollUsed: false,
+      kept: false,
+      recorded: false,
+      offered: [],
+      queue: [],
+      offer: { kind: 'omen', stall: null, options: drawIds(OMENS, 3, lcg(seed), null) }
+    };
+  }
+  function patches(state) {
+    var list = [], i, charm;
+    if (!state || !state.night) return list;
+    if (omenById(state.night.omen)) list.push(omenById(state.night.omen));
+    var charms = state.night.charms || [];
+    for (i = 0; i < charms.length; i++) {
+      charm = charmById(charms[i]);
+      if (charm) list.push(charm);
+    }
+    return list;
+  }
+  function stallField(state, stallId, field, fallback) {
+    var value = fallback, i, row;
+    var list = patches(state);
+    for (i = 0; i < list.length; i++) {
+      row = list[i].set && list[i].set[stallId];
+      if (row && row[field] != null) value = row[field];
+    }
+    return value;
+  }
+  function offlineOf(state) {
+    var rate = OFFLINE_RATE, cap = OFFLINE_CAP, i, set, list = patches(state);
+    for (i = 0; i < list.length; i++) {
+      set = list[i].set;
+      if (!set) continue;
+      if (set.offlineRate != null) rate = set.offlineRate;
+      if (set.offlineCap != null) cap = set.offlineCap;
+    }
+    return { rate: rate, cap: cap };
+  }
+  function poolRows(state) {
+    var n = state && state.meta && state.meta.pool > 0 ? state.meta.pool : POOL_START;
+    if (n > CHARMS.length) n = CHARMS.length;
+    return CHARMS.slice(0, n);
+  }
+  function lowestStallId(state) {
+    var best = 0, n = Infinity, i, owned, last = Math.min(5, STALLS.length);
+    for (i = 0; i < last; i++) {
+      owned = state.stalls[i] ? state.stalls[i].owned : 0;
+      if (owned < n) { n = owned; best = i; }
+    }
+    return STALLS[best].id;
+  }
+  function charmOptions(state, stallId, reroll) {
+    var salt = (stallIndex(stallId) + 1) + (reroll ? 17 : 0) + state.night.charms.length * 31;
+    var options = drawIds(poolRows(state), 3, lcg((state.night.seed + salt * 997) >>> 0), state.night.charms);
+    var low = lowestStallId(state);
+    var rows = poolRows(state);
+    var good = null, i;
+    for (i = 0; i < rows.length; i++) {
+      if (rows[i].stall === low && state.night.charms.indexOf(rows[i].id) < 0) { good = rows[i]; break; }
+    }
+    if (!good) {
+      for (i = 0; i < rows.length; i++) if (rows[i].stall === stallId) { good = rows[i]; break; }
+    }
+    if (good && options.indexOf(good.id) < 0 && options.length) options[options.length - 1] = good.id;
+    return options;
+  }
+  function remember(list, id) {
+    if (id && list.indexOf(id) < 0) list.push(id);
+  }
   function fresh() {
+    var meta = emptyMeta();
     return {
       cash: 0,
       lifetime: 0,
       seen: null,
       bulk: 1,
-      stalls: STALLS.map(function () { return { owned: 0, serves: 0, hired: false }; })
+      stalls: STALLS.map(function () { return { owned: 0, serves: 0, hired: false }; }),
+      night: beginNight(1, 1),
+      meta: meta
     };
+  }
+  function armNight(state, n, seed) {
+    state.night = beginNight(n || 1, seed);
+    return state.night;
   }
 
   function spec(i) { return STALLS[i] || null; }
 
   /* A stall can ask for more than the usual ten of the one before it. Incense waits for twelve tables. */
-  function unlockNeed(i) {
+  function unlockNeed(state, i) {
     var stall = spec(i);
-    return stall && stall.unlockAt ? stall.unlockAt : UNLOCK_AT;
+    var fallback = stall && stall.unlockAt ? stall.unlockAt : UNLOCK_AT;
+    if (!stall) return UNLOCK_AT;
+    return stallField(state, stall.id, 'unlockAt', fallback);
+  }
+
+  function servesNeed(state, i) {
+    var stall = spec(i);
+    if (!stall) return 0;
+    return stallField(state, stall.id, 'serves', stall.serves);
   }
 
   function unlocked(state, i) {
     if (!spec(i)) return false;
     if (i === 0) return true;
-    return state.stalls[i - 1].owned >= unlockNeed(i);
+    return state.stalls[i - 1].owned >= unlockNeed(state, i);
   }
 
   function lookIndex(owned) {
@@ -143,6 +320,11 @@
   /* 25, 50, 100, 150, 200, 300 and 400 each double the row again. */
   function stallMult(owned) {
     return Idle.milestoneMult(owned, STALL_MILESTONES);
+  }
+
+  function stallMultOwned(state, i, owned) {
+    var marks = stallField(state, spec(i).id, 'milestones', null);
+    return Idle.milestoneMult(owned, marks || STALL_MILESTONES);
   }
 
   /* Lowest of the five original stalls. A shuttered one still counts as zero, so the
@@ -163,8 +345,8 @@
     return mult;
   }
 
-  function timesWord(owned) {
-    var m = stallMult(owned);
+  function timesWord(owned, mult) {
+    var m = mult == null ? stallMult(owned) : mult;
     if (m >= 128) return 'a hundred and twenty-eight times as much';
     if (m >= 64) return 'sixty-four times as much';
     if (m >= 32) return 'thirty-two times as much';
@@ -178,7 +360,7 @@
   function production(state, i) {
     var st = state.stalls[i];
     if (!st || !st.hired || !(st.owned > 0)) return 0;
-    return spec(i).rate * st.owned * stallMult(st.owned) * laneMult(state);
+    return stallField(state, spec(i).id, 'rate', spec(i).rate) * st.owned * stallMultOwned(state, i, st.owned) * laneMult(state);
   }
 
   function income(state) {
@@ -201,7 +383,7 @@
     addCash(state, stall.hand);
     return {
       ok: true,
-      ready: !state.stalls[i].hired && state.stalls[i].serves >= stall.serves
+      ready: !state.stalls[i].hired && state.stalls[i].serves >= servesNeed(state, i)
     };
   }
 
@@ -224,14 +406,14 @@
 
   function canHire(state, i) {
     if (!unlocked(state, i) || state.stalls[i].hired) return false;
-    return state.stalls[i].serves >= spec(i).serves;
+    return state.stalls[i].serves >= servesNeed(state, i);
   }
 
   function hire(state, i) {
     if (!unlocked(state, i)) return { ok: false, reason: 'closed' };
     if (state.stalls[i].hired) return { ok: false, reason: 'hired' };
-    if (state.stalls[i].serves < spec(i).serves) {
-      return { ok: false, reason: 'serves', need: spec(i).serves - state.stalls[i].serves };
+    if (state.stalls[i].serves < servesNeed(state, i)) {
+      return { ok: false, reason: 'serves', need: servesNeed(state, i) - state.stalls[i].serves };
     }
     state.stalls[i].hired = true;
     return { ok: true };
@@ -265,30 +447,33 @@
     return stall.base * Math.pow(stall.growth, 52 + owned - origin);
   }
 
-  function cost(i, owned, n) {
+  function cost(i, owned, n, state) {
     var stall = spec(i);
     n = Math.floor(n);
     if (!stall || !(n > 0)) return 0;
     if (!isFinite(owned) || owned < 0) owned = 0;
     else owned = Math.floor(owned);
-    if (priceOrigin(owned + n - 1) === 0) return Idle.bulkCost(stall.base, stall.growth, owned, n);
+    var base = stallField(state, stall.id, 'base', stall.base);
+    var growth = stallField(state, stall.id, 'growth', stall.growth);
+    if (priceOrigin(owned + n - 1) === 0) return Idle.bulkCost(base, growth, owned, n);
+    var priced = { base: base, growth: growth };
     var total = 0, k;
-    for (k = 0; k < n; k++) total += unitCost(stall, owned + k);
+    for (k = 0; k < n; k++) total += unitCost(priced, owned + k);
     return total;
   }
 
-  function maxFit(i, owned, cash, limit) {
+  function maxFit(i, owned, cash, limit, state) {
     var cap = limit > 0 ? limit : 80;
-    if (!(cash > 0) || cost(i, owned, 1) > cash) return 0;
+    if (!(cash > 0) || cost(i, owned, 1, state) > cash) return 0;
     var lo = 1, hi = 1;
-    while (hi < cap && cost(i, owned, hi) <= cash) {
+    while (hi < cap && cost(i, owned, hi, state) <= cash) {
       lo = hi;
       hi = Math.min(cap, hi * 2);
     }
-    if (cost(i, owned, hi) <= cash) return hi;
+    if (cost(i, owned, hi, state) <= cash) return hi;
     while (lo < hi) {
       var mid = Math.ceil((lo + hi) / 2);
-      if (cost(i, owned, mid) <= cash) lo = mid;
+      if (cost(i, owned, mid, state) <= cash) lo = mid;
       else hi = mid - 1;
     }
     return lo;
@@ -306,33 +491,33 @@
     if (!spec(i)) return { count: 0, cost: 0, blocked: 'closed' };
     var stall = spec(i);
     var owned = state.stalls[i].owned;
-    var one = cost(i, owned, 1);
+    var one = cost(i, owned, 1, state);
     if (!state.stalls[i].hired) return { count: 0, cost: one, blocked: 'hire' };
     if (!unlocked(state, i)) return { count: 0, cost: one, blocked: 'closed' };
     var n, priced, afford;
     if (mode === 'max') {
       var room = countToNext(owned);
       var capN = room > 0 ? room : 20;
-      afford = maxFit(i, owned, state.cash, capN);
+      afford = maxFit(i, owned, state.cash, capN, state);
       n = afford;
       while (n > 0 && paybackSeconds(state, i, n) > PAYBACK_CAP) n--;
       if (!(n > 0)) {
         /* Coins can cover a copy that Max still refuses. Say so, instead of a dead Buy 1. */
         return { count: 0, cost: one, blocked: afford > 0 ? 'payback' : 'cost' };
       }
-      priced = cost(i, owned, n);
+      priced = cost(i, owned, n, state);
       return { count: n, cost: priced, blocked: null };
     }
     if (mode === 'next') {
       n = countToNext(owned);
       if (!(n > 0)) return { count: 0, cost: one, blocked: 'done' };
-      var toward = maxFit(i, owned, state.cash, n);
+      var toward = maxFit(i, owned, state.cash, n, state);
       /* Greyed Next prices the next single step. A batch price does not match the one copy you are short. */
       if (!(toward > 0)) return { count: 0, cost: one, blocked: 'cost' };
-      return { count: toward, cost: cost(i, owned, toward), blocked: null };
+      return { count: toward, cost: cost(i, owned, toward, state), blocked: null };
     }
     n = mode === 10 || mode === '10' ? 10 : 1;
-    priced = cost(i, owned, n);
+    priced = cost(i, owned, n, state);
     if (!(priced >= 0) || priced > state.cash) return { count: 0, cost: priced, blocked: 'cost' };
     return { count: n, cost: priced, blocked: null };
   }
@@ -349,7 +534,7 @@
       return { ok: false, reason: 'closed', count: 0, cost: 0 };
     }
     count = Math.floor(count);
-    var priced = count > 0 ? cost(i, state.stalls[i].owned, count) : 0;
+    var priced = count > 0 ? cost(i, state.stalls[i].owned, count, state) : 0;
     if (!(count > 0) || !(priced >= 0) || priced > state.cash) return { ok: false, reason: 'cost', count: 0, cost: priced };
     state.cash -= priced;
     if (state.cash < 1e-6) state.cash = 0;
@@ -364,7 +549,7 @@
     var st = state.stalls && state.stalls[i];
     if (!stall || !st || !st.hired) return Infinity;
     var n = count > 0 ? Math.floor(count) : 1;
-    var priced = cost(i, st.owned, n);
+    var priced = cost(i, st.owned, n, state);
     var before = income(state);
     st.owned += n;
     var after = income(state);
@@ -407,8 +592,9 @@
     return line;
   }
 
-  function awayRule() {
-    return 'While away: earns ' + Math.round(OFFLINE_RATE * 100) + '%, up to ' + (OFFLINE_CAP / 3600) + 'h';
+  function awayRule(state) {
+    var off = offlineOf(state);
+    return 'While away: earns ' + Math.round(off.rate * 100) + '%, up to ' + (off.cap / 3600) + 'h';
   }
 
   function secondsToNext(state) {
@@ -417,7 +603,7 @@
     var best = Infinity;
     for (var i = 0; i < STALLS.length; i++) {
       if (!state.stalls[i].hired) continue;
-      var one = cost(i, state.stalls[i].owned, 1);
+      var one = cost(i, state.stalls[i].owned, 1, state);
       if (one > 0 && isFinite(one)) best = Math.min(best, one / rate);
     }
     return best;
@@ -454,13 +640,13 @@
     return extra ? sentence + ' ' + extra : sentence;
   }
 
-  function goal(state) {
+  function goalBody(state) {
     var i, stall, left, bonus;
     for (i = 0; i < STALLS.length; i++) {
       if (!unlocked(state, i) || state.stalls[i].hired) continue;
       stall = spec(i);
-      if (state.stalls[i].serves >= stall.serves) return stall.vendor + ' will take the ' + stall.name + ' whenever you ask.';
-      left = stall.serves - state.stalls[i].serves;
+      if (state.stalls[i].serves >= servesNeed(state, i)) return stall.vendor + ' will take the ' + stall.name + ' whenever you ask.';
+      left = servesNeed(state, i) - state.stalls[i].serves;
       if (i === 0 && state.stalls[i].serves === 0) return 'Hold to pour. ' + left + ' more ' + stall.lefts + ', then ' + stall.vendor + ' will take the stall.';
       return left + ' more ' + (left === 1 ? stall.left : stall.lefts) + ' to do yourself. Then ' + stall.vendor + ' will take it.';
     }
@@ -470,7 +656,7 @@
     }
     for (i = 0; i < STALLS.length - 1; i++) {
       if (!state.stalls[i].hired) continue;
-      var need = unlockNeed(i + 1);
+      var need = unlockNeed(state, i + 1);
       if (state.stalls[i].owned >= need) continue;
       left = need - state.stalls[i].owned;
       bonus = nextBonus(state, i, need);
@@ -495,6 +681,12 @@
       return withBonus((bonus.left === 1 ? 'One more ' : bonus.left + ' more ') + stall.name.toLowerCase() + (bonus.left === 1 ? '' : 's') + '.', bonus);
     }
     return 'Every stall has a crowd. The lane is as bright as it gets tonight.';
+  }
+
+  function goal(state) {
+    var line = goalBody(state);
+    var omen = state && state.night ? omenById(state.night.omen) : null;
+    return omen ? omen.line + ' ' + line : line;
   }
 
   function nextGoalLine(state, i) {
@@ -562,7 +754,8 @@
     if (!state.stalls[i].hired) return '';
     if (owned <= 0) return stall.vendor + ' is here, waiting for the first one.';
     var look = stall.looks[lookIndex(owned)];
-    return stallMult(owned) <= 1 ? look + '.' : look + '. It earns ' + timesWord(owned) + '.';
+    var mult = stallMultOwned(state, i, owned);
+    return mult <= 1 ? look + '.' : look + '. It earns ' + timesWord(owned, mult) + '.';
   }
 
   function gossipLine(state) {
@@ -572,11 +765,20 @@
     return 'The lane was quiet.';
   }
 
-  function awayCopy(summary) {
+  function awayHours(cap) {
+    var hours = cap / 3600;
+    if (hours === 1) return 'one hour';
+    if (hours === 2) return 'two hours';
+    if (hours === 4) return 'four hours';
+    return hours + ' hours';
+  }
+
+  function awayCopy(summary, state) {
+    var off = offlineOf(state);
     var lead = 'You were gone ' + Arcade.fmtTime(summary.away) + '.';
-    if (summary.capped) lead += ' The box only holds four hours, so ' + Arcade.fmtTime(summary.credited) + ' counted.';
+    if (summary.capped) lead += ' The box only holds ' + awayHours(off.cap) + ', so ' + Arcade.fmtTime(summary.credited) + ' counted.';
     else lead += ' The stalls kept ' + Arcade.fmtTime(summary.credited) + ' of it.';
-    lead += ' While away, stalls earn ' + Math.round(OFFLINE_RATE * 100) + '%.';
+    lead += ' While away, stalls earn ' + Math.round(off.rate * 100) + '%.';
     var box = summary.gained > 0
       ? Arcade.fmt(summary.gained) + ' coins are in the box.'
       : 'The box is empty. Nothing was earning while you were gone.';
@@ -607,6 +809,16 @@
     return state.bulk;
   }
 
+  function knownId(table, id) {
+    return typeof id === 'string' && !!byId(table, id);
+  }
+  function cleanOffer(offer) {
+    if (!offer || (offer.kind !== 'omen' && offer.kind !== 'charm') || !Array.isArray(offer.options)) return null;
+    var table = offer.kind === 'omen' ? OMENS : CHARMS;
+    var options = offer.options.filter(function (id) { return knownId(table, id); });
+    if (!options.length) return null;
+    return { kind: offer.kind, stall: typeof offer.stall === 'string' ? offer.stall : null, options: options };
+  }
   function valid(o) {
     if (!o || o.v !== SAVE_VERSION || o.game !== 'night-market' || !Array.isArray(o.stalls) || o.stalls.length !== STALLS.length) return false;
     if (!isFinite(o.cash) || o.cash < 0 || !isFinite(o.lifetime) || o.lifetime < 0) return false;
@@ -614,10 +826,15 @@
       var s = o.stalls[i];
       if (!s || !isFinite(s.owned) || !isFinite(s.serves) || s.owned < 0 || s.serves < 0) return false;
     }
+    if (!o.night || !isFinite(o.night.n) || o.night.n < 1 || !isFinite(o.night.seed)) return false;
+    if (!o.meta || !Array.isArray(o.meta.nights) || !Array.isArray(o.meta.omens) || !Array.isArray(o.meta.charms)) return false;
+    if (o.night.omen != null && !knownId(OMENS, o.night.omen)) return false;
     return true;
   }
 
   function serialize(state, seen) {
+    var night = state.night || beginNight(1, 1);
+    var meta = state.meta || emptyMeta();
     return {
       v: SAVE_VERSION,
       game: 'night-market',
@@ -627,7 +844,27 @@
       bulk: state.bulk,
       stalls: state.stalls.map(function (s) {
         return { owned: s.owned, serves: s.serves, hired: !!s.hired };
-      })
+      }),
+      night: {
+        n: night.n,
+        seed: night.seed,
+        omen: night.omen || null,
+        charms: (night.charms || []).slice(),
+        rerollUsed: !!night.rerollUsed,
+        kept: !!night.kept,
+        recorded: !!night.recorded,
+        offered: (night.offered || []).slice(),
+        queue: (night.queue || []).map(copyOffer),
+        offer: copyOffer(night.offer)
+      },
+      meta: {
+        nights: (meta.nights || []).map(function (n) {
+          return { n: n.n, seed: n.seed, omen: n.omen || null, charms: (n.charms || []).slice() };
+        }),
+        omens: meta.omens.slice(),
+        charms: meta.charms.slice(),
+        pool: meta.pool > 0 ? meta.pool : POOL_START
+      }
     };
   }
 
@@ -643,22 +880,189 @@
       state.stalls[i].serves = Math.floor(s.serves);
       state.stalls[i].hired = !!s.hired;
     });
+    state.night = beginNight(Math.floor(o.night.n), o.night.seed >>> 0);
+    state.night.omen = knownId(OMENS, o.night.omen) ? o.night.omen : null;
+    state.night.charms = (o.night.charms || []).filter(function (id) { return knownId(CHARMS, id); });
+    state.night.rerollUsed = !!o.night.rerollUsed;
+    state.night.kept = !!o.night.kept;
+    state.night.recorded = !!o.night.recorded;
+    state.night.offered = Array.isArray(o.night.offered) ? o.night.offered.filter(function (id) { return stallIndex(id) >= 0; }) : [];
+    state.night.queue = Array.isArray(o.night.queue) ? o.night.queue.map(cleanOffer).filter(Boolean) : [];
+    state.night.offer = cleanOffer(o.night.offer);
+    state.meta = {
+      nights: o.meta.nights.map(function (n) {
+        return {
+          n: Math.floor(n.n) || 1,
+          seed: (n.seed >>> 0) || 1,
+          omen: knownId(OMENS, n.omen) ? n.omen : null,
+          charms: (n.charms || []).filter(function (id) { return knownId(CHARMS, id); })
+        };
+      }),
+      omens: o.meta.omens.filter(function (id) { return knownId(OMENS, id); }),
+      charms: o.meta.charms.filter(function (id) { return knownId(CHARMS, id); }),
+      pool: Math.max(POOL_START, Math.min(CHARMS.length, Math.floor(o.meta.pool) || POOL_START))
+    };
     return state;
   }
 
-  /* The game and the checks share this, so the cap and the half rate cannot drift. */
+  /* The game and the checks share this. The away cap and rate follow the night. */
   function createIdle(state, save) {
     return Idle.create({
       getRate: function () { return income(state); },
       apply: function (amount) { addCash(state, amount); },
-      maxOfflineSec: OFFLINE_CAP,
-      offlineRate: OFFLINE_RATE,
+      maxOfflineSec: function () { return offlineOf(state).cap; },
+      offlineRate: function () { return offlineOf(state).rate; },
       title: { label: 'Night Market', unit: '' },
       save: function (seen) {
         state.seen = seen;
         if (typeof save === 'function') save(serialize(state, seen));
       }
     });
+  }
+
+  function advanceOffer(state) {
+    state.night.offer = state.night.queue.length ? state.night.queue.shift() : null;
+  }
+  function choose(state, index) {
+    var offer = state.night && state.night.offer;
+    if (!offer || !(index >= 0)) return null;
+    var id = offer.options[index];
+    if (!id) return null;
+    if (offer.kind === 'omen' && omenById(id)) {
+      state.night.omen = id;
+      remember(state.meta.omens, id);
+    } else if (offer.kind === 'charm' && charmById(id)) {
+      state.night.charms.push(id);
+      remember(state.meta.charms, id);
+    } else return null;
+    advanceOffer(state);
+    return id;
+  }
+  function skipOffer(state) {
+    var offer = state.night && state.night.offer;
+    if (!offer || offer.kind !== 'charm') return false;
+    advanceOffer(state);
+    return true;
+  }
+  function reroll(state) {
+    var offer = state.night && state.night.offer;
+    if (!offer || state.night.rerollUsed) return false;
+    state.night.rerollUsed = true;
+    if (offer.kind === 'omen') offer.options = drawIds(OMENS, 3, lcg(stepSeed(state.night.seed ^ 0x5a5a)), offer.options);
+    else offer.options = charmOptions(state, offer.stall, true);
+    return true;
+  }
+  function syncOffers(state) {
+    if (!state.night) return false;
+    var added = false, g, i, id, offer;
+    for (g = 0; g < CHARM_GATES.length; g++) {
+      id = CHARM_GATES[g];
+      i = stallIndex(id);
+      if (i < 0 || !unlocked(state, i) || state.night.offered.indexOf(id) >= 0) continue;
+      state.night.offered.push(id);
+      offer = { kind: 'charm', stall: id, options: charmOptions(state, id, false) };
+      if (!offer.options.length) continue;
+      if (!state.night.offer) state.night.offer = offer;
+      else state.night.queue.push(offer);
+      added = true;
+    }
+    return added;
+  }
+  function recordNight(state) {
+    if (!state.night || state.night.recorded) return false;
+    state.night.recorded = true;
+    state.meta.nights.push({
+      n: state.night.n,
+      seed: state.night.seed,
+      omen: state.night.omen || null,
+      charms: state.night.charms.slice()
+    });
+    var pool = POOL_START + state.meta.nights.length * 2;
+    state.meta.pool = pool > CHARMS.length ? CHARMS.length : pool;
+    return true;
+  }
+  function dawnDue(state) {
+    var mat = state && state.stalls && state.stalls[STALLS.length - 1];
+    return !!(mat && mat.owned >= 1 && state.night && !state.night.kept);
+  }
+  function noteDawn(state) {
+    if (!dawnDue(state)) return false;
+    return recordNight(state);
+  }
+  function dawnCopy(state) {
+    var n = state.night && state.night.n > 0 ? state.night.n : 1;
+    var ch = CHAPTERS[(n - 1) % CHAPTERS.length];
+    return { title: ch.title, lead: ch.text, next: 'Next night', choice: 'Keep the lane open' };
+  }
+  function keepLane(state) {
+    if (!state.night) return state;
+    noteDawn(state);
+    state.night.kept = true;
+    return state;
+  }
+  function nextNight(state) {
+    var meta = state.meta || emptyMeta();
+    state.meta = meta;
+    recordNight(state);
+    var n = (state.night && state.night.n > 0 ? state.night.n : 1) + 1;
+    var seed = stepSeed(state.night ? state.night.seed : 1);
+    state.cash = 0;
+    state.lifetime = 0;
+    state.bulk = 1;
+    state.stalls = STALLS.map(function () { return { owned: 0, serves: 0, hired: false }; });
+    state.night = beginNight(n, seed);
+    return state;
+  }
+  function codexView(state) {
+    var meta = state.meta || emptyMeta();
+    return {
+      nights: meta.nights.map(function (n) {
+        var omen = omenById(n.omen);
+        return {
+          n: n.n,
+          seed: n.seed,
+          omen: omen ? omen.name : '',
+          charms: (n.charms || []).map(function (id) { var c = charmById(id); return c ? c.name : ''; }).filter(Boolean)
+        };
+      }),
+      omens: meta.omens.map(function (id) { return omenById(id); }).filter(Boolean).map(function (o) { return { name: o.name, line: o.line }; }),
+      charms: meta.charms.map(function (id) { return charmById(id); }).filter(Boolean).map(function (c) { return { name: c.name, line: c.line }; }),
+      omenCount: OMENS.length,
+      charmCount: CHARMS.length
+    };
+  }
+  function charmPickScore(state, offer, id) {
+    var charm = charmById(id);
+    if (!charm) return -1;
+    var local = charm.stall === offer.stall ? 10 : 0;
+    var i = stallIndex(charm.stall);
+    var stall = spec(i);
+    if (!stall) return local;
+    var rate = charm.set && charm.set[stall.id] && charm.set[stall.id].rate != null ? charm.set[stall.id].rate : stallField(state, stall.id, 'rate', stall.rate);
+    var base = charm.set && charm.set[stall.id] && charm.set[stall.id].base != null ? charm.set[stall.id].base : stallField(state, stall.id, 'base', stall.base);
+    var growth = charm.set && charm.set[stall.id] && charm.set[stall.id].growth != null ? charm.set[stall.id].growth : stallField(state, stall.id, 'growth', stall.growth);
+    return local + rate / (base * growth);
+  }
+  function autoPick(state, policy) {
+    var taken = [], guard = 0, offer, best, score, i, s, id;
+    syncOffers(state);
+    while (state.night && state.night.offer && guard++ < 12) {
+      offer = state.night.offer;
+      if (offer.kind === 'omen') choose(state, 0);
+      else if (policy === 'skip') skipOffer(state);
+      else {
+        best = 0;
+        score = -Infinity;
+        for (i = 0; i < offer.options.length; i++) {
+          s = charmPickScore(state, offer, offer.options[i]);
+          if (s > score) { score = s; best = i; }
+        }
+        id = choose(state, best);
+        if (id) taken.push(id);
+      }
+      syncOffers(state);
+    }
+    return taken;
   }
 
   window.NightMarket = {
@@ -676,7 +1080,24 @@
     HOLD_PER_SEC: HOLD_PER_SEC,
     PAYBACK_CAP: PAYBACK_CAP,
     CHAPTERS: CHAPTERS,
+    OMENS: OMENS,
+    CHARMS: CHARMS,
     fresh: fresh,
+    armNight: armNight,
+    omenById: omenById,
+    charmById: charmById,
+    servesNeed: servesNeed,
+    choose: choose,
+    skipOffer: skipOffer,
+    reroll: reroll,
+    syncOffers: syncOffers,
+    dawnDue: dawnDue,
+    noteDawn: noteDawn,
+    dawnCopy: dawnCopy,
+    keepLane: keepLane,
+    nextNight: nextNight,
+    codexView: codexView,
+    autoPick: autoPick,
     lowestOwned: lowestOwned,
     laneMult: laneMult,
     nextMark: nextMark,

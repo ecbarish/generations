@@ -67,7 +67,11 @@
     for (var k = 0; k < 12; k++) lanterns.push({ x: 14 + k * 32, y: 2, w: 3, h: 4, stall: -1, f: 1, hold: 3 + Math.floor(rnd() * 6) });
     for (var i = 0; i < 6; i++) lanterns.push({ x: i * SLOT + 1, y: TOP + 4, w: 6, h: 8, stall: i, f: 1, hold: 3 + Math.floor(rnd() * 6) });
   }
-  function nightEnded() { var s = st(); return !!(s && s.stalls[5] && s.stalls[5].owned >= 10); }
+  function nightEnded() {
+    var s = st();
+    if (window.NightMarket && typeof NightMarket.dawnDue === 'function') return NightMarket.dawnDue(s);
+    return !!(s && s.stalls[5] && s.stalls[5].owned >= 10);
+  }
   function finaleClock(now) {
     if (!nightEnded()) { finaleStart = 0; return null; }
     if (!finaleStart) finaleStart = now || (typeof performance !== 'undefined' ? performance.now() : Date.now());

@@ -289,7 +289,7 @@
      hired stall's next copy and waits when that best copy is still unaffordable.
      One purchase every few seconds, and hiring at the hold's pace. */
   function playBuyer(M, opts) {
-    var state = M.fresh();
+    var state = opts.state || M.fresh();
     state.bulk = opts.bulk;
     var limit = (opts.durationSec || 3600) * 1000;
     var HAND = 120, BUY = opts.buyMs || 4000;
@@ -320,7 +320,9 @@
         if (!laneAt[mark] && low >= mark) laneAt[mark] = { at: ms / 1000, before: prevIncome, after: M.income(state) };
       });
     }
+    if (opts.before) opts.before(state, 0);
     for (var ms = HAND; ms <= limit; ms += HAND) {
+      if (opts.before) opts.before(state, ms);
       for (var i = 0; i < M.STALLS.length; i++) {
         if (!M.unlocked(state, i)) break;
         if (state.stalls[i].hired) continue;
@@ -425,9 +427,26 @@
     return playBuyer(M, { bulk: 'max', buyMs: 5000, durationSec: durationSec || 3600, fallback: true });
   }
 
+  /* A seeded night. The buyer takes the first omen. Charms are skipped, or the one for the stall that just opened. */
+  function playHumanNight(M, seed, policy) {
+    var state = M.fresh();
+    M.armNight(state, 1, seed);
+    var picks = [];
+    var run = playBuyer(M, {
+      bulk: 'max', buyMs: 5000, durationSec: 3600, fallback: true, state: state,
+      before: function () {
+        var chosen = M.autoPick(state, policy);
+        if (chosen) chosen.forEach(function (id) { picks.push(id); });
+      }
+    });
+    run.picks = picks;
+    run.omen = state.night.omen;
+    return run;
+  }
+
   var api = {
     PROFILES: PROFILES, simulate: simulate, playSensible: playSensible, playAffordable: playAffordable,
-    playMeasured: playMeasured, playHuman: playHuman, topShare: topShare, purchaseGap: purchaseGap, beatCoverage: beatCoverage
+    playMeasured: playMeasured, playHuman: playHuman, playHumanNight: playHumanNight, topShare: topShare, purchaseGap: purchaseGap, beatCoverage: beatCoverage
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.NightMarketPacing = api;
@@ -562,6 +581,27 @@ if (typeof module !== 'undefined' && require.main === module) {
     laneBeforeFinale('fast buyer', measured);
     laneBeforeFinale('human buyer', humanPace);
     matWindow('human buyer', humanPace);
+    const seeds = [1, 2, 3, 5];
+    const charmCounts = {};
+    let charmPicks = 0;
+    const nightContext = { console: console, window: null, Arcade: {} };
+    nightContext.window = nightContext;
+    vm.createContext(nightContext);
+    for (const file of ['shared/idle-core.js', 'games/night-market/model.js']) {
+      vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), nightContext, { filename: file });
+    }
+    for (const seed of seeds) {
+      for (const policy of ['skip', 'greedy']) {
+        const run = module.exports.playHumanNight(nightContext.NightMarket, seed, policy);
+        const label = 'seed ' + seed + ' ' + policy;
+        assert(run.story1 >= humanPace.story1 * 0.75 && run.story1 <= humanPace.story1 * 1.25, label + ' first mat stays within 25% of the default night (' + Math.round(run.story1) + 's, default ' + Math.round(humanPace.story1) + 's)');
+        assert(run.story10 >= humanPace.story10 * 0.75 && run.story10 <= humanPace.story10 * 1.25, label + ' tenth mat stays within 25% of the default night (' + Math.round(run.story10) + 's, default ' + Math.round(humanPace.story10) + 's)');
+        if (policy === 'greedy') run.picks.forEach(function (id) { charmCounts[id] = (charmCounts[id] || 0) + 1; charmPicks++; });
+      }
+    }
+    Object.keys(charmCounts).forEach(function (id) {
+      assert(charmCounts[id] / charmPicks <= 0.4, id + ' is the pick in ' + Math.round(100 * charmCounts[id] / charmPicks) + '% of greedy offers');
+    });
     report.validation = 'passed';
   }
   console.log(JSON.stringify(report, null, 2));
