@@ -316,7 +316,7 @@ document.querySelector('#run').onclick = async function () {
     check('a long pour asks for thirty cups and a faster tea stall', M.servesNeed(pour, 0) === 30 && M.cost(0, 0, 1, pour) === 6 && near(M.production(pour, 0), 0.52) && M.servesNeed(plain, 0) === 25);
     var charm = M.fresh();
     charm.night.charms = ['wen-discount'];
-    check('a charm changes the mat price and not the catalogue', near(M.cost(5, 0, 1, charm), 2000000) && M.STALLS[5].base === 2200000);
+    check('a charm changes the mat price and not the catalogue', near(M.cost(5, 0, 1, charm), 1870000) && M.STALLS[5].base === 2200000);
     var bo = M.fresh();
     bo.night.charms = ['bo-queue'];
     bo.stalls[1].hired = true;
@@ -379,6 +379,18 @@ document.querySelector('#run').onclick = async function () {
     M.syncOffers(mid);
     check('six mooncakes offer a charm before incense opens',
       mid.night.offer && mid.night.offer.kind === 'charm' && mid.night.offered.indexOf('mid-mooncake') >= 0 && !M.unlocked(mid, 4));
+    var skipped = M.fresh();
+    M.choose(skipped, 0);
+    skipped.stalls[2].hired = true;
+    skipped.stalls[2].owned = 10;
+    M.syncOffers(skipped);
+    var gateOffer = skipped.night.offer && skipped.night.offer.options.slice();
+    M.skipOffer(skipped);
+    skipped.stalls[3].owned = 6;
+    M.syncOffers(skipped);
+    var midOffer = skipped.night.offer && skipped.night.offer.options.slice();
+    check('skipping the mooncake offer does not repeat those charms at six tables',
+      gateOffer && midOffer && gateOffer.join(',') !== midOffer.join(','));
     var keptOpen = M.fresh();
     keptOpen.night.kept = true;
     check('Wen\'s patience matters only after the lane stays open', M.charmUseful(keptOpen, M.charmById('wen-patient')));
@@ -1784,6 +1796,27 @@ document.querySelector('#run').onclick = async function () {
     lm.render();
     check(spillProblems.length ? 'button text spills: ' + spillProblems.slice(0, 6).join(' | ') : 'work, hire, charm and dawn buttons keep their text inside the box at 320, 360, 375, 390, 844×390, 1024 and 1280', spillProblems.length === 0);
     check(heightJumps.length ? 'pour height jumps when the label wraps: ' + heightJumps.join(' | ') : 'the pour button keeps its height when the hired label wraps', heightJumps.length === 0);
+
+    var offerShift = [];
+    [[320, 568], [375, 812], [390, 844], [1024, 768], [1280, 800]].forEach(function (size) {
+      layout.style.width = size[0] + 'px';
+      layout.style.height = size[1] + 'px';
+      var label = size[0] + 'x' + size[1];
+      lm.state.night.kept = true;
+      lm.state.night.offer = null;
+      lm.render();
+      lw.scrollTo(0, 0);
+      var quietTop = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+      lm.state.night.offer = { kind: 'charm', stall: 'stories', options: ['wen-discount', 'ren-sticks', 'an-offcuts'] };
+      lm.state.night.rerollUsed = false;
+      lm.render();
+      lw.scrollTo(0, 0);
+      var offerTop = ld.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+      if (Math.abs(offerTop - quietTop) > 2) offerShift.push(label + ' ' + quietTop.toFixed(1) + '→' + offerTop.toFixed(1));
+    });
+    lm.state.night.offer = null;
+    lm.render();
+    check(offerShift.length ? 'a charm offer moves the next stall: ' + offerShift.join(' | ') : 'a three-option offer leaves the next stall within 2px of the quiet pick', offerShift.length === 0);
 
     function statusSentences(text) {
       return String(text || '').split(/[.!?]+/).map(function (s) { return s.replace(/\s+/g, ' ').trim(); }).filter(Boolean);

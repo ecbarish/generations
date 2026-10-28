@@ -1,6 +1,6 @@
 # Ten nights of the lantern festival
 
-Evan approved this roguelite on 23 October 2026, relayed by the Generations Director. That approval includes the night ending at the first Story Mat, with Keep the lane open left for endless play. He also ruled that nothing has shipped, so there is no separate save and no migration. The game keeps `night-market-save-v1` and changes the file in place.
+Evan approved the roguelite design with its defaults on 23 October 2026 and waived save migration. Ending a night at the first Story Mat in default play is awaiting his confirmation. The game keeps `night-market-save-v1` and changes the file in place.
 
 A night is one run of the lane. It ends when Old Wen unrolls the Story Mat and tells tonight's chapter. That is the first Story Mat, not the tenth. The lanterns dim and the tortoise moment plays then. Ten nights make the festival. Night *n* tells chapter *n*. This pull request builds the loop. The tenth-night ending, and the longer tale that goes with it, wait.
 
@@ -56,11 +56,11 @@ The first six are in the pool on night 1. The last six join two at a time.
 | Bo's queue | Dumplings first double at 22 carts instead of 25. Offered only while the row is still under 25. |
 | An's paper | Lanterns earn 6 coins a second instead of 5. |
 | Qiao's moulds | Mooncakes earn 48 coins a second instead of 40. |
-| Ren's sticks | Incense trays cost about 10% less from then on, 70,000 to 63,000. |
-| Wen's discount | Story Mats cost about 9% less from then on, 2,200,000 to 2,000,000. |
+| Ren's sticks | Incense trays cost 15% less from then on, 70,000 to 59,500. |
+| Wen's discount | Story Mats cost 15% less from then on, 2,200,000 to 1,870,000. |
 | Mei's quick pour | Tea earns 0.54 coins a second instead of 0.45, before the row's doublings and the lane light. |
 | Bo's steam | Dumplings earn 1.08 coins a second instead of 0.9, before the row's doublings and the lane light. |
-| An's offcuts | Lantern stands cost about 9% less from then on, 700 to 640. |
+| An's offcuts | Lantern stands cost 15% less from then on, 700 to 595. |
 | Qiao comes early | Mooncakes open at 8 lantern stands instead of 10. Offered only while that stall is still shuttered. |
 | Ren comes early | Incense opens at 10 mooncake tables instead of 12. Offered only while that stall is still shuttered. |
 | Wen's patience | Later Story Mats cost 20% more each, instead of 36%. Offered only after Keep the lane open. |

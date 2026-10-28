@@ -73,7 +73,9 @@ h1 { font-size: 1.7rem; line-height: 1.15; margin: 0.15rem 0 0.35rem; font-weigh
   border-top: 1px solid var(--rule);
   background: var(--paper);
   color: var(--ink);
-  min-height: 11rem;
+  /* Quiet and offered states share this height, so the stalls below do not jump.
+     The longest three charm lines need 25rem at 320. Wider windows need less. */
+  min-height: 25rem;
   position: relative;
   z-index: 2;
 }
@@ -211,6 +213,12 @@ button[aria-pressed="true"], button.ask, button.best {
 }
 
 /* NM-PHONE: navigation and cash share a line when they fit; enlarged text can reflow. */
+@media (min-width: 375px) {
+  .pick { min-height: 23.25rem; }
+}
+@media (min-width: 391px) {
+  .pick { min-height: 18.5rem; }
+}
 @media (max-width: 1000px) {
   .window {
     padding-top: max(0.6rem, env(safe-area-inset-top));

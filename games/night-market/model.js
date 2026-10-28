@@ -113,7 +113,7 @@
   /* One night, one seed. Omens and charms replace a price, a rate, an unlock, a hire
      count, a milestone list, or the away box. They do not add a multiplier. */
   var OMENS = [
-    { id: 'rain', name: 'Rain', line: 'Rain. Tea 0.45 to 0.52 a second. Lanterns cost 10% more, 700 to 770.',
+    { id: 'rain', name: 'Rain', line: 'Rain. Tea 0.45 to 0.52 coins a second. Lanterns cost 10% more, 700 to 770.',
       set: { tea: { rate: 0.52 }, lantern: { base: 770 } } },
     { id: 'ferry', name: 'Ferry crowd', line: 'Ferry crowd. Dumplings 0.9 to 1.05 a second. Mooncakes cost 15% more. Away pay is 75% for 2 hours instead of half for 4.',
       set: { dumpling: { rate: 1.05 }, mooncake: { base: 7360 }, offlineRate: 0.75, offlineCap: 2 * 3600 } },
@@ -121,7 +121,7 @@
       set: { stories: { base: 1760000 }, incense: { rate: 460 } } },
     { id: 'mooncake', name: 'Mooncake festival', line: 'Mooncake festival. Qiao opens at 6 lantern stands instead of 10. Mooncakes 40 to 34 a second.',
       set: { mooncake: { unlockAt: 6, rate: 34 } } },
-    { id: 'alley', name: 'Quiet alley', line: 'Quiet alley. Trays cost 10% more, 70,000 to 77,000, and wait for 14 tables instead of 12. Tea stalls cost 6 to 5.',
+    { id: 'alley', name: 'Quiet alley', line: 'Quiet alley. Trays cost 10% more, 70,000 to 77,000, and wait for 14 tables instead of 12. Tea stalls cost 6 to 5 coins.',
       set: { incense: { unlockAt: 14, base: 77000 }, tea: { base: 5 } } },
     { id: 'pour', name: 'Long pour', line: 'Long pour. Mei wants 30 cups instead of 25. Tea 0.45 to 0.52 a second once she has the stall.',
       set: { tea: { serves: 30, rate: 0.52 } } }
@@ -135,16 +135,16 @@
       set: { lantern: { rate: 6 } } },
     { id: 'qiao-moulds', name: "Qiao's moulds", stall: 'mooncake', line: "Qiao's moulds. Mooncakes 40 to 48 a second.",
       set: { mooncake: { rate: 48 } } },
-    { id: 'ren-sticks', name: "Ren's sticks", stall: 'incense', line: "Ren's sticks. Incense trays cost about 10% less from now on. 70,000 to 63,000.",
-      set: { incense: { base: 63000 } } },
-    { id: 'wen-discount', name: "Wen's discount", stall: 'stories', line: "Wen's discount. Story Mats cost about 9% less from now on. 2,200,000 to 2,000,000.",
-      set: { stories: { base: 2000000 } } },
+    { id: 'ren-sticks', name: "Ren's sticks", stall: 'incense', line: "Ren's sticks. Incense trays cost 15% less from now on. 70,000 to 59,500.",
+      set: { incense: { base: 59500 } } },
+    { id: 'wen-discount', name: "Wen's discount", stall: 'stories', line: "Wen's discount. Story Mats cost 15% less from now on. 2,200,000 to 1,870,000.",
+      set: { stories: { base: 1870000 } } },
     { id: 'mei-quick', name: "Mei's quick pour", stall: 'tea', line: "Mei's quick pour. Tea 0.45 to 0.54 a second, before bonuses.",
       set: { tea: { rate: 0.54 } } },
     { id: 'bo-steam', name: "Bo's steam", stall: 'dumpling', line: "Bo's steam. Dumplings 0.9 to 1.08 a second, before bonuses.",
       set: { dumpling: { rate: 1.08 } } },
-    { id: 'an-offcuts', name: "An's offcuts", stall: 'lantern', line: "An's offcuts. Lantern stands cost about 9% less from now on. 700 to 640.",
-      set: { lantern: { base: 640 } } },
+    { id: 'an-offcuts', name: "An's offcuts", stall: 'lantern', line: "An's offcuts. Lantern stands cost 15% less from now on. 700 to 595.",
+      set: { lantern: { base: 595 } } },
     { id: 'qiao-early', name: 'Qiao comes early', stall: 'mooncake', line: 'Qiao comes early. Mooncakes open at 8 lantern stands instead of 10.',
       set: { mooncake: { unlockAt: 8 } } },
     { id: 'ren-early', name: 'Ren comes early', stall: 'incense', line: 'Ren comes early. Incense opens at 10 mooncake tables instead of 12.',
@@ -262,7 +262,8 @@
     return true;
   }
   function charmOptions(state, stallId, reroll) {
-    var salt = (stallIndex(stallId) + 1) + (reroll ? 17 : 0) + state.night.charms.length * 31;
+    var offered = state.night.offered ? state.night.offered.length : 0;
+    var salt = (stallIndex(stallId) + 1) + (reroll ? 17 : 0) + state.night.charms.length * 31 + offered * 13;
     var rows = poolRows(state).filter(function (c) {
       return charmUseful(state, c) && state.night.charms.indexOf(c.id) < 0;
     });
