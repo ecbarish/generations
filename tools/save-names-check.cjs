@@ -23,6 +23,7 @@ const NAMES={
   'games/lantern-bowl/game.js':['lantern-bowl-save-v1'],
   'games/little-ranch/game.js':['little-ranch-settings-v1'],
   'games/keymaster/model.js':['keymaster-save-v1'],
+  'games/saltmarsh-shipping/model.js':['saltmarsh-shipping-save-v1'],
   'starfall-godot/project.godot':['config/name="Starfall (Godot)"'],
 };
 const missing=[];let n=0;
