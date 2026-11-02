@@ -307,7 +307,7 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
   .goalbar { width: min(60rem, 100%); }
   #choice.choice { width: min(60rem, calc(100% - 2rem)); bottom: 9.25rem; }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
-  .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .log, .settled, .routes, .lights, .finale, .ending { grid-column: 1 / -1; }
+  .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .finale, .ending { grid-column: 1 / -1; }
   .harbour-wrap canvas { height: 340px; }
 }
 @media (prefers-reduced-motion: reduce) {

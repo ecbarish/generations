@@ -1134,6 +1134,70 @@ document.querySelector('#run').onclick = async function () {
       await holdLayout('fleet', layoutSizes[layoutAt][0], layoutSizes[layoutAt][1], 1);
       await holdLayout('lamps', layoutSizes[layoutAt][0], layoutSizes[layoutAt][1], 3);
     }
+    async function logStaysBelow(width, height) {
+      var box = await loadFrame('log below ' + width, '&state=lamps');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 150); });
+      var st = win.__saltmarsh.state;
+      ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { st.lights[id] = 2; });
+      st.cash = 1e15;
+      st.provisionQuote = null;
+      win.__saltmarsh.render();
+      var btn = doc.querySelector('#provision-go');
+      var prev = btn.getBoundingClientRect().top;
+      var tapMove = 0;
+      var tap;
+      for (tap = 0; tap < 5; tap++) {
+        btn.click();
+        var next = btn.getBoundingClientRect().top;
+        tapMove = Math.max(tapMove, Math.abs(next - prev));
+        prev = next;
+      }
+      check('at ' + width + ' by ' + height + ' five provision taps leave the button (' + tapMove.toFixed(1) + 'px)', tapMove < 2);
+      function places() {
+        var nodes = doc.querySelectorAll('a, button');
+        var out = [];
+        var n;
+        for (n = 0; n < nodes.length; n++) {
+          var el = nodes[n];
+          if (el.closest('[hidden]')) continue;
+          if (!el.getClientRects().length) continue;
+          var rect = el.getBoundingClientRect();
+          if (rect.width < 1 || rect.height < 1) continue;
+          out.push({ top: rect.top, left: rect.left, name: (el.id || el.textContent || 'control').replace(/\s+/g, ' ').slice(0, 32) });
+        }
+        return out;
+      }
+      var before = places();
+      var lines = [
+        'Another shed, instead of the lighter sloop hulls. The office keeps two more hours when the game is closed.',
+        'Capt. Wren is back from 6 hauls, 240K coins in all.',
+        'The Pier Lighthouse\'s tower is up. Lighting it keeps Gull Rock and the Night Cut whole.',
+        'Every lighthouse on the coast is burning. Sign every route, and provision the last voyage.',
+        'A spare sail for Kelp Road. That route pays a little more.'
+      ];
+      var lineAt;
+      for (lineAt = 0; lineAt < lines.length; lineAt++) st.log.unshift({ t: lineAt, text: lines[lineAt] });
+      if (st.log.length > 12) st.log.length = 12;
+      win.__saltmarsh.render();
+      var after = places();
+      var worst = 0;
+      var where = '';
+      var i;
+      var count = Math.min(before.length, after.length);
+      if (before.length !== after.length) worst = 999;
+      for (i = 0; i < count; i++) {
+        var delta = Math.max(Math.abs(before[i].top - after[i].top), Math.abs(before[i].left - after[i].left));
+        if (delta > worst) { worst = delta; where = before[i].name; }
+      }
+      check('at ' + width + ' by ' + height + ' five long log lines move no button or link (' + where + ' ' + worst.toFixed(1) + 'px)', worst < 2);
+    }
+    for (layoutAt = 0; layoutAt < layoutSizes.length; layoutAt++) {
+      await logStaysBelow(layoutSizes[layoutAt][0], layoutSizes[layoutAt][1]);
+    }
     /* Classic scrollbars take real width. Overlay scrollbars hide a 100vw harbour,
        so this check forces a 15px bar and then tries to scroll sideways. */
     async function sideways(preset, width, height) {
