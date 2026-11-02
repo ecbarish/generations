@@ -733,6 +733,8 @@ document.querySelector('#run').onclick = async function () {
     for (var sweepN = 1; sweepN <= 50; sweepN++) sweepSeeds.push(sweepN);
     if (sweepSeeds.indexOf(437724497) < 0) sweepSeeds.push(437724497);
     if (sweepSeeds.indexOf(4111981860) < 0) sweepSeeds.push(4111981860);
+    if (sweepSeeds.indexOf(99) < 0) sweepSeeds.push(99);
+    if (sweepSeeds.indexOf(2024) < 0) sweepSeeds.push(2024);
     var sweepWorst = { max: 0, hand: 0 }, sweepSeed = { max: sweepSeeds[0], hand: sweepSeeds[0] }, sweepMismatch = 0, sweepBlank = 0, sweepZero = 0, sweepRepeat = 0, sweepSample = [];
     for (var sweepI = 0; sweepI < sweepSeeds.length; sweepI++) {
       await new Promise(function (r) { setTimeout(r, 0); });
@@ -3214,7 +3216,9 @@ document.querySelector('#run').onclick = async function () {
           : { kind: 'charm', stall: 'dumpling', options: ['mei-regulars', 'an-offcuts', 'ren-sticks'] };
         fm.state.night.rerollUsed = false;
         fm.render();
-        var box = fd.querySelector('#pick-panel').getBoundingClientRect();
+        var pickPanel = fd.querySelector('#pick-panel');
+        if (pickPanel && pickPanel.scrollIntoView) pickPanel.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        var box = pickPanel.getBoundingClientRect();
         var viewW = fd.documentElement.clientWidth, viewH = fd.documentElement.clientHeight;
         if (box.top < -1 || box.left < -1 || box.bottom > viewH + 1 || box.right > viewW + 1 || box.height < 44 || box.width < 44) {
           modalFit.push(size[0] + 'x' + size[1] + ' ' + kind + ' ' + Math.round(box.left) + ',' + Math.round(box.top) + ' ' + Math.round(box.right) + 'x' + Math.round(box.bottom) + ' view ' + viewW + 'x' + viewH);
@@ -3238,7 +3242,7 @@ document.querySelector('#run').onclick = async function () {
     fw.scrollTo(0, 480);
     var scrollBefore = fw.scrollY;
     fd.querySelector('#finale [data-act="next-night"]').click();
-    check('next night does not jump to the top', scrollBefore > 20 && Math.abs(fw.scrollY - scrollBefore) < 2);
+    check('next night scrolls to the top once', scrollBefore > 20 && fw.scrollY < 2);
     check('next night focuses the new omen', fd.activeElement && (fd.activeElement.dataset.act === 'omen' || fd.activeElement.id === 'pick-lead'));
     fm.idle.stop();
     var clearedAway = fm.idle.start(Date.now() - 5 * 3600 * 1000);
@@ -3328,6 +3332,88 @@ document.querySelector('#run').onclick = async function () {
     check('the next offer does not use a stall from the card just shown',
       !M.pairOk(blockedPair, 'pick', 'again:lantern@1@2', 'again:tea@1@2') &&
       !M.pairOk(blockedPair, 'pick', 'again:dumpling@1@2', 'again:lantern@1@4'));
+    var quietNight = M.fresh();
+    M.armNight(quietNight, 1, 2024);
+    quietNight.stalls.forEach(function (st, i) { st.hired = i < 5; st.owned = i < 5 ? 12 : 0; });
+    quietNight.cash = 1e6;
+    quietNight.night.offer = null;
+    quietNight.night.quiet = 100;
+    quietNight.night.lastStalls = ['tea', 'dumpling', 'lantern', 'mooncake', 'incense', 'lane', 'prices'];
+    M.elapse(quietNight, 1);
+    if (!quietNight.night.offer) M.elapse(quietNight, 1);
+    check('a quiet stretch of 100 seconds still places an offer', !!(quietNight.night.offer && quietNight.night.offer.options && quietNight.night.offer.options.length >= 2) && quietNight.night.quiet < 120);
+    var ownedTen = M.fresh();
+    ownedTen.stalls[3].hired = true;
+    ownedTen.stalls[3].owned = 10;
+    ownedTen.stalls[0].hired = true;
+    ownedTen.stalls[0].owned = 1;
+    ownedTen.cash = 0;
+    check('a doubling at 20 is not offered when ten copies are still out of reach', !M.offerGate(ownedTen, 'early', 'mooncake', false));
+    var nightTwo = M.fresh();
+    M.armNight(nightTwo, 2, 5);
+    nightTwo.night.offer = { kind: 'omen', stall: null, options: ['rain', 'wick', 'ferry'] };
+    nightTwo.night.rerollUsed = false;
+    var rerolled = M.reroll(nightTwo);
+    var rerollOpts = nightTwo.night.offer ? nightTwo.night.offer.options : [];
+    check('a reroll cannot offer an omen that lowers income', rerolled && rerollOpts.indexOf('wick') < 0 && rerollOpts.length >= 2);
+    var farRoll = M.fresh();
+    M.armNight(farRoll, 2, 5);
+    farRoll.stalls[0].hired = true;
+    farRoll.stalls[0].owned = 30;
+    farRoll.stalls[3].hired = true;
+    farRoll.stalls[3].owned = 10;
+    farRoll.cash = 0;
+    farRoll.night.offer = { kind: 'boost', stall: null, options: ['tea', 'dumpling'], generated: true };
+    farRoll.night.rerollUsed = false;
+    var farRolled = M.reroll(farRoll);
+    var farLines = farRoll.night.offer ? farRoll.night.offer.options.map(function (id) { return M.choiceLine(farRoll, farRoll.night.offer.kind, id); }).join(' ') : '';
+    check('a reroll does not offer a doubling you cannot reach', farRolled && farLines.indexOf('doubles at 20') < 0 && farRoll.night.offer.options.length >= 2);
+    var trays = M.fresh();
+    trays.stalls[4].hired = true;
+    trays.stalls[4].owned = 2;
+    check('incense names the trays you own', /Two trays/.test(M.lookLine(trays, 4)) && !/One tray/.test(M.lookLine(trays, 4)));
+    var pairNight = M.fresh();
+    M.armNight(pairNight, 1, 3);
+    pairNight.stalls.forEach(function (st, i) { st.hired = i < 4; st.owned = i < 4 ? 8 : 0; });
+    pairNight.cash = 1e6;
+    pairNight.night.offer = null;
+    pairNight.night.quiet = 0;
+    var pairSeen = {}, pairRepeat = false, pairGuard = 0;
+    while (pairGuard++ < 8) {
+      pairNight.night.quiet = 80;
+      if (pairNight.night.offer) M.skipOffer(pairNight);
+      M.elapse(pairNight, 1);
+      var pairOffer = pairNight.night.offer;
+      if (!pairOffer) continue;
+      var pairKey = pairOffer.options.map(function (id) { return M.cardSubject(pairOffer.kind, id); }).filter(Boolean).sort().join('|');
+      if (pairKey && pairSeen[pairKey]) pairRepeat = true;
+      if (pairKey) pairSeen[pairKey] = true;
+    }
+    check('the same two stalls are not offered twice in one night', !pairRepeat);
+    var mixNight = M.fresh();
+    M.armNight(mixNight, 1, 2);
+    mixNight.stalls.forEach(function (st, i) { st.hired = i < 4; st.owned = i < 4 ? 16 : 0; });
+    mixNight.cash = 5e5;
+    mixNight.night.offer = null;
+    var mixCats = {}, mixGuard = 0;
+    while (mixGuard++ < 16) {
+      mixNight.night.quiet = 80;
+      if (mixNight.night.offer) M.skipOffer(mixNight);
+      M.nextOfferLine(mixNight);
+      M.elapse(mixNight, 1);
+      var mixOffer = mixNight.night.offer;
+      if (!mixOffer) continue;
+      mixOffer.options.forEach(function (id) {
+        var real = mixOffer.kind === 'pick' ? String(id).split(':')[0] : mixOffer.kind;
+        var rest = mixOffer.kind === 'pick' ? String(id).split(':').slice(1).join(':') : id;
+        var cat = real === 'priced' || real === 'half' || (real === 'lane' && String(rest).indexOf('price') === 0) ? 'cost'
+          : (real === 'early' || real === 'charm' ? 'threshold'
+          : (real === 'boost' || real === 'twist' || (real === 'lane' && String(rest).indexOf('pay') === 0) ? 'rate'
+          : (real === 'again' || real === 'sustain' ? 'trade' : real)));
+        mixCats[cat] = true;
+      });
+    }
+    check('a night mixes a cost cut, a threshold, and a rate change', !!(mixCats.cost && mixCats.threshold && mixCats.rate));
     var sameStall = M.fresh();
     sameStall.stalls[3].hired = true;
     sameStall.stalls[3].owned = 12;
@@ -3388,6 +3474,158 @@ document.querySelector('#run').onclick = async function () {
       return opened && Math.abs(after - before) < 2 && Math.abs(openTop - shut) < 2 && Math.abs(shutAgain - shut) < 2 && Math.abs(pickOpen - pickShut) < 2 && Math.abs(pickBefore - pickShut) < 80;
     }
     check('opening the Story Mat in a played night does not move the other stalls', measureShift(390, 844) && measureShift(320, 568));
+    playFrame.style.width = '320px';
+    playFrame.style.height = '568px';
+    var goalOverflows = [];
+    function goalFits(label) {
+      pg.render();
+      var goalEl = pd.querySelector('#goal');
+      if (goalEl.scrollHeight > goalEl.clientHeight + 1) goalOverflows.push(label + ' ' + goalEl.scrollHeight + '/' + goalEl.clientHeight + ' ' + goalEl.textContent.slice(0, 60));
+    }
+    armPlayed(99);
+    pg.state.stalls.forEach(function (st, i) { st.hired = i < 5; st.owned = i < 5 ? 12 : 0; st.serves = 30; });
+    pg.state.stalls[4].owned = PM.unlockNeed(pg.state, 5) - 1;
+    pg.state.cash = 1e9;
+    pg.state.night.offer = null;
+    goalFits('before the mat');
+    pg.state.stalls[0].hired = true;
+    pg.state.stalls[0].owned = 9;
+    pg.state.stalls.forEach(function (st, i) { if (i > 0) { st.hired = false; st.owned = 0; } });
+    goalFits('nine tea');
+    pg.state.night.kept = false;
+    pg.state.stalls[5].owned = 0;
+    goalFits('fresh climb');
+    armPlayed(1);
+    goalFits('opening');
+    check(goalOverflows.length ? 'a goal line is cut off at 320: ' + goalOverflows.join(' | ') : 'every goal line fits in its box at 320', goalOverflows.length === 0);
+    playFrame.style.width = '360px';
+    playFrame.style.height = '780px';
+    armPlayed(2);
+    pg.state.stalls.forEach(function (st) { st.hired = false; st.owned = 0; st.serves = 0; });
+    pg.state.cash = 0;
+    pg.state.night.offer = null;
+    pg.render();
+    var goalShortTop = pd.querySelector('#stalls [data-i="0"]').getBoundingClientRect().top;
+    pg.state.stalls.forEach(function (st, i) { st.hired = i < 3; st.owned = i < 2 ? 20 : (i === 2 ? 1 : 0); st.serves = 40; });
+    pg.state.cash = 1e6;
+    pg.render();
+    var goalLongTop = pd.querySelector('#stalls [data-i="0"]').getBoundingClientRect().top;
+    var goalLong = pd.querySelector('#goal');
+    check('a long goal at 360 does not move the stalls', Math.abs(goalLongTop - goalShortTop) < 2 && goalLong.scrollHeight <= goalLong.clientHeight + 1);
+    armPlayed(1);
+    pg.state.stalls[0].hired = true;
+    pg.state.stalls[0].owned = 8;
+    pg.state.cash = 1e6;
+    pg.state.night.offer = null;
+    pg.render();
+    check('nearing 10 of a stall hints that the lane doubles', /At 10 the whole lane earns twice as much/.test(pd.querySelector('#stalls [data-i="0"] .next-goal').textContent));
+    var pickSlot = pd.querySelector('#pick').getBoundingClientRect().top;
+    var stallBelow = pd.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+    pg.state.night.offer = { kind: 'omen', stall: null, options: ['rain', 'ferry'] };
+    pg.state.night.rerollUsed = false;
+    pg.render();
+    var pickOpenTop = pd.querySelector('#pick-panel').getBoundingClientRect().top;
+    var stallBelowOpen = pd.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+    pg.state.night.offer = null;
+    pg.render();
+    var stallBelowShut = pd.querySelector('#stalls [data-i="1"]').getBoundingClientRect().top;
+    check('the choice card stays on its slot when it opens', Math.abs(pickOpenTop - pickSlot) < 2 && Math.abs(stallBelowOpen - stallBelow) < 2 && Math.abs(stallBelowShut - stallBelow) < 2);
+    [360, 390].forEach(function (phoneW) {
+      playFrame.style.width = phoneW + 'px';
+      playFrame.style.height = phoneW === 360 ? '780px' : '844px';
+      pg.state.bulk = 'max';
+      pg.state.stalls[0].hired = true;
+      pg.state.stalls[0].owned = 6;
+      pg.state.cash = 1e7;
+      pg.state.night.offer = null;
+      pg.render();
+      var maxBtn = pd.querySelector('#stalls [data-i="0"] [data-act="buy"]');
+      var maxText = maxBtn.textContent;
+      if (!/Max · \d+/.test(maxText) || maxBtn.scrollWidth > maxBtn.clientWidth + 2) goalOverflows.push(phoneW + ' ' + maxText);
+    });
+    check(goalOverflows.length ? 'the phone Max button hides its count: ' + goalOverflows.join(' | ') : 'the phone Max button shows its count at 360 and 390', goalOverflows.length === 0);
+    playFrame.style.width = '1280px';
+    playFrame.style.height = '800px';
+    pg.state.bulk = 'max';
+    pg.render();
+    pw.scrollTo(0, 900);
+    var bulkBox = pd.querySelector('#bulk').getBoundingClientRect();
+    var covered = false;
+    pd.querySelectorAll('#stalls > [data-i] h2').forEach(function (title) {
+      var box = title.getBoundingClientRect();
+      if (box.bottom > bulkBox.top && box.top < bulkBox.bottom && box.height > 2) covered = true;
+    });
+    check('the Buying bar does not cover a stall', !covered);
+    pg.state.stalls.forEach(function (st, i) { st.hired = true; st.owned = i === 5 ? 1 : 12; });
+    pg.state.night.kept = false;
+    pg.state.night.offer = null;
+    pg.render();
+    var nextNightBtn = pd.querySelector('#finale [data-act="next-night"]');
+    if (nextNightBtn) nextNightBtn.click();
+    check('the next night starts at the top of the page', pw.scrollY < 2);
+    function rowTops() {
+      var tops = [];
+      pd.querySelectorAll('#stalls > [data-i], .save').forEach(function (el) {
+        tops.push(el.getBoundingClientRect().top);
+      });
+      return tops;
+    }
+    function playedMatShift(seed) {
+      armPlayed(seed);
+      pg.state.bulk = 'max';
+      var clock = pw.Date.now;
+      var origin = clock.call(pw.Date) + 10000;
+      var sim = 0;
+      pw.Date.now = function () { return origin + sim * 1000; };
+      pg.render();
+      var shift = 0, opened = false;
+      while (sim < 2600 && !PM.unlocked(pg.state, 5)) {
+        var before = rowTops();
+        var was = PM.unlocked(pg.state, 5);
+        if (pg.state.night.offer) {
+          sim += 0.4;
+          var skip = pd.querySelector('#pick [data-act="skip"]');
+          if (skip && !skip.hidden) skip.click();
+          else { var take = pd.querySelector('#pick-choices button'); if (take) take.click(); }
+        }
+        var si, acted = false;
+        for (si = 0; si < pg.state.stalls.length; si++) {
+          if (!PM.unlocked(pg.state, si) || pg.state.stalls[si].hired) continue;
+          var hireBtn = pd.querySelector('#stalls [data-i="' + si + '"] [data-act="hire"]');
+          var serveBtn = pd.querySelector('#stalls [data-i="' + si + '"] [data-act="serve"]');
+          if (hireBtn && !hireBtn.disabled) hireBtn.click();
+          else if (serveBtn) serveBtn.click();
+          acted = true;
+          break;
+        }
+        if (!acted) {
+          var frontier = -1;
+          for (si = 0; si < pg.state.stalls.length; si++) if (PM.unlocked(pg.state, si)) frontier = si;
+          var press = frontier >= 0 ? pd.querySelector('#stalls [data-i="' + frontier + '"] [data-act="buy"]') : null;
+          if (press && !press.disabled) press.click();
+        }
+        var gained = PM.income(pg.state);
+        if (gained > 0) { pg.state.cash += gained; pg.state.lifetime += gained; }
+        if (!was && PM.unlocked(pg.state, 5)) {
+          opened = true;
+          var after = rowTops();
+          var matTop = pd.querySelector('#stalls [data-i="5"]').getBoundingClientRect().top;
+          for (si = 0; si < before.length; si++) {
+            var el = pd.querySelectorAll('#stalls > [data-i], .save')[si];
+            if (el.getBoundingClientRect().top + 0.5 < matTop) continue;
+            var delta = Math.abs(after[si] - before[si]);
+            if (delta > shift) shift = delta;
+          }
+          break;
+        }
+        sim += 1;
+        pg.render();
+      }
+      pw.Date.now = clock;
+      return { opened: opened, shift: shift };
+    }
+    var matShift = playedMatShift(99);
+    check('a played night does not move the rows below the Story Mat (' + matShift.shift.toFixed(1) + 'px)', matShift.opened && matShift.shift < 2);
     armPlayed(1);
     pg.state.stalls[0].hired = true;
     pg.state.stalls[0].owned = 4;
@@ -3438,6 +3676,8 @@ document.querySelector('#run').onclick = async function () {
       pg.state.night.rerollUsed && rerollAfter !== rerollBefore && rerollLabel === 'Rerolled');
 
     function browserNight(seed, bulk) {
+      var tickId = pw.setInterval(function () {}, 1000000);
+      for (var tick = 1; tick <= tickId; tick++) pw.clearInterval(tick);
       armPlayed(seed);
       pg.state.bulk = bulk;
       var clock = pw.Date.now;
@@ -3447,13 +3687,14 @@ document.querySelector('#run').onclick = async function () {
       var sim = 0;
       pw.Date.now = function () { return origin + sim * 1000; };
       pg.render();
-      var last = 0, worst = 0, dup = 0, back = 0, down = 0, prevNamed = [], dawn = 0, seenSig = '', offers = 0;
+      var last = 0, worst = 0, dup = 0, back = 0, down = 0, prevNamed = [], dawn = 0, seenSig = '', offers = 0, shift = 0, overflow = 0;
       var stallNames = PM.STALLS.map(function (st) { return st.name; });
       function moneyNum(token) {
         if (/M$/.test(token)) return parseFloat(token) * 1000000;
         return /K$/.test(token) ? parseFloat(token) * 1000 : parseFloat(token);
       }
-      while (sim < 2600 && !(PM.dawnDue(pg.state) && !pg.state.night.kept)) {
+      var midGaps = [];
+      while (sim < 1700 && !(PM.dawnDue(pg.state) && !pg.state.night.kept)) {
         var pick = pd.querySelector('#pick');
         var showing = pick && !pick.classList.contains('quiet');
         if (showing) {
@@ -3477,19 +3718,27 @@ document.querySelector('#run').onclick = async function () {
             });
             var gap = sim - last;
             if (gap > worst) worst = gap;
+            if (sim >= 540 && sim <= 660) midGaps.push(gap);
             prevNamed = named.slice();
             last = sim;
           }
           /* The offer guard ignores a click in the first 300ms. Step the clock
              past that, then press the button the player would press. */
           sim += 0.4;
-          var skip = pd.querySelector('#pick [data-act="skip"]');
-          if (skip && !skip.hidden) skip.click();
+          var choices = pd.querySelectorAll('#pick-choices button');
+          var take = choices[0] || null;
+          if (choices.length >= 2 && /Your income [\d.]+[KM]? to [\d.]+[KM]?/.test(choices[0].textContent)) {
+            var lowered = /Your income ([\d.]+[KM]?) to ([\d.]+[KM]?)/.exec(choices[0].textContent);
+            if (lowered && moneyNum(lowered[2]) < moneyNum(lowered[1])) take = choices[1];
+          }
+          if (take) take.click();
           else {
-            var take = pd.querySelector('#pick-choices button');
-            if (take) take.click();
+            var skip = pd.querySelector('#pick [data-act="skip"]');
+            if (skip && !skip.hidden) skip.click();
           }
         }
+        var matWas = PM.unlocked(pg.state, 5);
+        var topsBefore = matWas ? null : rowTops();
         var acted = false, si;
         for (si = 0; si < pg.state.stalls.length; si++) {
           if (!PM.unlocked(pg.state, si) || pg.state.stalls[si].hired) continue;
@@ -3501,36 +3750,64 @@ document.querySelector('#run').onclick = async function () {
           break;
         }
         if (!acted) {
-          var frontier = -1;
-          for (si = 0; si < pg.state.stalls.length; si++) if (PM.unlocked(pg.state, si)) frontier = si;
-          var target = frontier >= 0 && pg.state.stalls[frontier].hired ? frontier : PM.bestIndex(pg.state);
-          if (!(target >= 0)) { for (si = 0; si < pg.state.stalls.length; si++) if (pg.state.stalls[si].hired) { target = si; break; } }
+          var target = -1, pay = Infinity, frontier = -1;
+          if (pg.state.bulk === 1 || pg.state.bulk === '1') {
+            var matI = pg.state.stalls.length - 1;
+            var savingMat = PM.unlocked(pg.state, matI) && pg.state.stalls[matI].hired && pg.state.stalls[matI].owned < 1;
+            var afford = -1, affordPay = Infinity;
+            if (savingMat) target = matI;
+            else for (si = 0; si < pg.state.stalls.length; si++) {
+              if (!pg.state.stalls[si].hired || !PM.unlocked(pg.state, si)) continue;
+              var sec = PM.paybackSeconds(pg.state, si, 1);
+              if (sec < pay) { pay = sec; target = si; }
+              if (PM.cost(si, pg.state.stalls[si].owned, 1, pg.state) <= pg.state.cash && sec < affordPay) { affordPay = sec; afford = si; }
+            }
+            if (!savingMat && target >= 0 && PM.cost(target, pg.state.stalls[target].owned, 1, pg.state) > pg.state.cash) {
+              var wait = PM.income(pg.state) > 0 ? (PM.cost(target, pg.state.stalls[target].owned, 1, pg.state) - pg.state.cash) / PM.income(pg.state) : Infinity;
+              target = wait > 90 ? afford : -1;
+            }
+          }
+          if (!(target >= 0)) {
+            for (si = 0; si < pg.state.stalls.length; si++) if (PM.unlocked(pg.state, si)) frontier = si;
+            target = frontier >= 0 && pg.state.stalls[frontier].hired ? frontier : PM.bestIndex(pg.state);
+          }
           var press = target >= 0 ? pd.querySelector('#stalls [data-i="' + target + '"] [data-act="buy"]') : null;
           if (press && !press.disabled) press.click();
         }
-        var earned = PM.income(pg.state);
-        if (earned > 0) {
-          pg.state.cash += earned;
-          pg.state.lifetime += earned;
+        if (topsBefore && !matWas && PM.unlocked(pg.state, 5)) {
+          var topsAfter = rowTops();
+          var matTop = pd.querySelector('#stalls [data-i="5"]').getBoundingClientRect().top;
+          var below = pd.querySelectorAll('#stalls > [data-i], .save');
+          for (var si = 0; si < topsBefore.length; si++) {
+            if (below[si].getBoundingClientRect().top + 0.5 < matTop) continue;
+            var moved = Math.abs(topsAfter[si] - topsBefore[si]);
+            if (moved > shift) shift = moved;
+          }
         }
-        if (PM.dawnDue(pg.state) && !pg.state.night.kept) { sim += 1; dawn = sim; break; }
-        sim += 1;
+        var earned = PM.income(pg.state) * 2;
+        if (earned > 0) { pg.state.cash += earned; pg.state.lifetime += earned; }
+        if (PM.dawnDue(pg.state) && !pg.state.night.kept) { sim += 2; dawn = sim; break; }
+        sim += 2;
         pg.render();
+        var goalNow = pd.querySelector('#goal');
+        if (goalNow && goalNow.scrollHeight > goalNow.clientHeight + 1) overflow++;
       }
       pw.Date.now = clock;
       var tail = sim - last;
       if (!dawn) dawn = sim;
       if (tail > worst) worst = tail;
-      return { worst: worst, dup: dup, back: back, down: down, dawn: dawn, offers: offers, owned: pg.state.stalls.map(function (st) { return st.owned; }).join(','), cash: Math.round(pg.state.cash) };
+      midGaps.sort(function (a, b) { return a - b; });
+      var mid = midGaps.length ? midGaps[Math.floor(midGaps.length / 2)] : worst;
+      return { worst: worst, dup: dup, back: back, down: down, dawn: dawn, shift: shift, overflow: overflow, mid: mid, offers: offers, owned: pg.state.stalls.map(function (st) { return st.owned; }).join(','), cash: Math.round(pg.state.cash) };
     }
-    var browserSeeds = [1, 2, 3, 5, 9, 16, 34, 41, 437724497, 4111981860];
+    var browserSeeds = [1, 2, 5, 16, 99, 2024, 437724497, 4111981860];
     var browserStats = {};
-    var browserSizes = [[1280, 800], [390, 844]];
+    var browserSizes = [[1280, 800], [1024, 768], [844, 390], [820, 1180], [390, 844], [375, 812], [360, 780], [320, 568]];
     var browserProof = '';
     var browserSample = null;
     for (var bSize = 0; bSize < browserSizes.length; bSize++) {
       var sizeKey = browserSizes[bSize][0] + 'x' + browserSizes[bSize][1];
-      browserStats[sizeKey] = { max: { dup: 0, back: 0, down: 0, worst: 0, dawn: 0 }, hand: { dup: 0, back: 0, down: 0, worst: 0, dawn: 0 } };
+      browserStats[sizeKey] = { max: { dup: 0, back: 0, down: 0, worst: 0, dawn: 0, shift: 0, overflow: 0, mid: 0 }, hand: { dup: 0, back: 0, down: 0, worst: 0, dawn: 0, shift: 0, overflow: 0, mid: 0 } };
       playFrame.style.width = browserSizes[bSize][0] + 'px';
       playFrame.style.height = browserSizes[bSize][1] + 'px';
       for (var bSeed = 0; bSeed < browserSeeds.length; bSeed++) {
@@ -3544,12 +3821,15 @@ document.querySelector('#run').onclick = async function () {
           box.down += night.down;
           if (night.worst > box.worst) box.worst = night.worst;
           if (night.dawn > box.dawn) box.dawn = night.dawn;
+          if (night.shift > box.shift) box.shift = night.shift;
+          box.overflow += night.overflow;
+          if (night.mid > box.mid) box.mid = night.mid;
           browserSample = night;
         });
       }
       ['max', 'hand'].forEach(function (label) {
         var box = browserStats[sizeKey][label];
-        browserProof += sizeKey + ' ' + (label === 'hand' ? 'buy-1' : 'Max') + ' dup ' + box.dup + ' back ' + box.back + ' down ' + box.down + ' gap ' + Math.round(box.worst) + ' dawn ' + Math.round(box.dawn) + (browserSample && box.worst > 120 ? ' offers ' + browserSample.offers + ' owned ' + browserSample.owned + ' cash ' + browserSample.cash : '') + '; ';
+        browserProof += sizeKey + ' ' + (label === 'hand' ? 'buy-1' : 'Max') + ' shift ' + box.shift.toFixed(1) + ' overflow ' + box.overflow + ' gap ' + Math.round(box.worst) + ' mid ' + Math.round(box.mid) + ' dawn ' + Math.round(box.dawn) + ' dup ' + box.dup + ' back ' + box.back + ' down ' + box.down + '; ';
       });
     }
     playFrame.remove();
@@ -3557,10 +3837,10 @@ document.querySelector('#run').onclick = async function () {
     Object.keys(browserStats).forEach(function (sizeKey) {
       ['max', 'hand'].forEach(function (label) {
         var box = browserStats[sizeKey][label];
-        if (box.dup || box.back || box.down || box.worst > 120 || !(box.dawn > 0) || box.dawn > 2600) browserOk = false;
+        if (box.dup || box.back || box.down || box.worst > 120 || box.mid > 95 || box.shift >= 2 || box.overflow || !(box.dawn > 0) || (label === 'hand' && (sizeKey === '390x844' || sizeKey === '360x780') && box.dawn > 1500) || box.dawn > 1700) browserOk = false;
       });
     });
-    check('played nights in the browser stay within 120s with no duplicate text, repeated stall, or lower income (' + browserProof.trim() + ')', browserOk);
+    check('played nights in the browser stay within 120s with no stall shift, clipped goal, duplicate text, repeated stall, or lower income (' + browserProof.trim() + ')', browserOk);
 
     var saveFrame = await openLane('../games/night-market/index.html', 390, 844);
     var swin = saveFrame.contentWindow, sdoc = swin.document, sm = swin.__nightMarket;

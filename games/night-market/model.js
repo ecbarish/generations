@@ -315,6 +315,8 @@
       shown: omenOptions.map(function (id) { return 'omen:' + id; }),
       recent: [],
       lastStalls: [],
+      subjectPairs: [],
+      lastKind: '',
       lanePay: 0,
       priceEase: 0,
       costCuts: 0,
@@ -990,7 +992,13 @@
     if (state && unlocked(state, mat) && state.stalls[mat].owned === 0 && !(state.night && state.night.kept)) {
       if (!body || !/Story Mat/i.test(body)) return 'Unroll the Story Mat. That ends the night.';
     }
-    if (body && lowestOwned(state) < 10 && /opens the /.test(body) && body.indexOf('twice as much') < 0) {
+    var nearingTen = false, ni;
+    if (state && state.stalls) {
+      for (ni = 0; ni < 5 && ni < state.stalls.length; ni++) {
+        if (state.stalls[ni].hired && state.stalls[ni].owned >= 7 && state.stalls[ni].owned < 10) nearingTen = true;
+      }
+    }
+    if (body && lowestOwned(state) < 10 && body.indexOf('twice as much') < 0 && (nearingTen || /opens the /.test(body))) {
       body += ' At 10 the whole lane earns twice as much.';
     }
     return body || 'The Story Mat is what the lane is working toward.';
@@ -1065,6 +1073,10 @@
     if (!state.stalls[i].hired) return '';
     if (owned <= 0) return stall.vendor + ' is here, waiting for the first one.';
     var look = stall.looks[lookIndex(owned)];
+    if (lookIndex(owned) === 0 && owned > 1) {
+      var trayWord = String(stall.looks[1] || '').split(' ').pop();
+      look = owned === 2 && stall.looks[1] ? stall.looks[1] : (owned + ' ' + trayWord);
+    }
     var mult = stallMultOwned(state, i, owned);
     return mult <= 1 ? look + '.' : look + '. It earns ' + timesWord(owned, mult) + '.';
   }
@@ -1336,6 +1348,10 @@
         stallList.push(subject);
       });
       state.night.lastStalls = stallList;
+      var pairName = stallList.slice().sort().join('|');
+      state.night.subjectPairs = state.night.subjectPairs || [];
+      if (pairName && state.night.subjectPairs.indexOf(pairName) < 0) state.night.subjectPairs.push(pairName);
+      state.night.lastKind = offer.kind;
       if (offer.kind === 'priced' || offer.kind === 'half') state.night.costCuts = (state.night.costCuts || 0) + 1;
       if (offer.kind === 'pick') {
         offer.options.forEach(function (pid) {
@@ -1518,10 +1534,12 @@
      is the seed's own price, used once, on a stall the seed did not already
      cheapen. It waits until the ordinary beats are used up. */
   function halfPool(state) {
-    if (!state.night || openStallCount(state) < 4) return [];
+    if (!state.night) return [];
+    var young = openStallCount(state) < 4;
     var pool = [], i, id, before;
     for (i = 0; i < STALLS.length; i++) {
       if (!unlocked(state, i)) continue;
+      if (young && !(unlocked(state, i) && state.stalls[i].owned < 1)) continue;
       id = STALLS[i].id;
       if (takenCard(state, 'half', id) || seenCard(state, 'half', id)) continue;
       if (seedPriceFactor(state.night.seed, i) === 0.75) continue;
@@ -1693,6 +1711,9 @@
        Checked before the button text, which is the expensive part. */
     var blocked = (state.night && state.night.lastStalls) || [];
     if (blocked.length && ((sa && blocked.indexOf(sa) >= 0) || (sb && blocked.indexOf(sb) >= 0))) return false;
+    var pairName = [sa, sb].filter(Boolean).sort().join('|');
+    var seenPairs = (state.night && state.night.subjectPairs) || [];
+    if (!(state.night && state.night.allowRepeat) && pairName && seenPairs.indexOf(pairName) >= 0) return false;
     return pairDistinct(state, kind, a, b);
   }
   /* A price the lower-prices choice can show. Never the Story Mat: that price stays put. */
@@ -1715,7 +1736,12 @@
     var stallId = cardStall(kind, id);
     var goalAt = goalBuy(state);
     var buyingFirst = goalAt >= 0 && stallId && spec(goalAt).id === stallId && ownedOf(state, stallId) < 1;
-    if (stallId && ownedOf(state, stallId) < 1 && !buyingFirst) return false;
+    var waitingHire = false;
+    if (stallId && ownedOf(state, stallId) < 1) {
+      var waitI = stallIndex(stallId);
+      waitingHire = waitI >= 0 && unlocked(state, waitI) && (kind === 'priced' || kind === 'half');
+      if (!buyingFirst && !waitingHire) return false;
+    }
     if (kind === 'charm') {
       var firstMatCharm = charmById(id);
       var firstMatBase = firstMatCharm && firstMatCharm.set && firstMatCharm.set[firstMatCharm.stall] && firstMatCharm.set[firstMatCharm.stall].base;
@@ -1733,11 +1759,12 @@
       var laneWhich = String(id).split('@')[0];
       if (laneWhich === 'pay') {
         if ((state.night.lanePay || 0) >= AGAIN_CAP) return false;
+        var paySteps = laneSteps(id);
         var payBefore = income(state);
         if (!(payBefore > 0)) return false;
-        state.night.lanePay = (state.night.lanePay || 0) + 1;
+        state.night.lanePay = (state.night.lanePay || 0) + paySteps;
         var payAfter = income(state);
-        state.night.lanePay -= 1;
+        state.night.lanePay -= paySteps;
         return meetsFloor(shownShare(payBefore, payAfter));
       }
       if (laneWhich === 'price') {
@@ -1769,16 +1796,24 @@
         return moneyText(plainMile) !== moneyText(withMile);
       }
     }
-    if ((kind === 'priced' || kind === 'half') && (state.night.costCuts || 0) >= 1 && !onTable) return false;
     if ((kind === 'priced' || kind === 'half') && id === 'stories' && ownedOf(state, 'stories') < 1) return false;
+    if ((kind === 'priced' || kind === 'half') && (state.night.costCuts || 0) >= 1 && !onTable && !waitingHire) return false;
+    if (waitingHire) {
+      var waitFactor = kind === 'half' ? 0.75 : (59500 / 70000);
+      var waitPrice = oneCost(state, stallId, null);
+      var waitAfter = waitPrice * waitFactor;
+      return waitPrice > waitAfter && moneyText(waitPrice) !== moneyText(waitAfter) && meetsFloor((waitPrice - waitAfter) / waitPrice);
+    }
     if (kind === 'early' && stallId && ownedOf(state, stallId) >= 1 && ownedOf(state, stallId) < 20) {
       var earlyI = stallIndex(stallId);
+      if (secondsToOwn(state, earlyI, 20) > 120) return false;
       var earlyOwned = state.stalls[earlyI].owned;
       state.stalls[earlyI].owned = 20;
       var plainAt = production(state, earlyI);
       var doubledAt = withCard(state, 'early', id, function () { return production(state, earlyI); });
       state.stalls[earlyI].owned = earlyOwned;
-      if (plainAt > 0 && moneyText(plainAt) !== moneyText(doubledAt) && secondsToOwn(state, earlyI, 20) <= 120) return true;
+      if (plainAt > 0 && moneyText(plainAt) !== moneyText(doubledAt)) return true;
+      return false;
     }
     var before = income(state);
     var timeBefore = timeToGoal(state);
@@ -1832,8 +1867,10 @@
     });
   }
   function passingCards(state) {
-    var built = -1, i, buckets = { boost: [], early: [], twist: [], charm: [], priced: [], again: [] };
-    var order = ['boost', 'twist', 'early', 'charm', 'priced', 'again'];
+    var built = -1, i, buckets = { boost: [], early: [], twist: [], charm: [], priced: [], again: [], lane: [] };
+    var order = ['boost', 'twist', 'early', 'charm', 'priced', 'lane', 'again'];
+    var spin = ((state.night.subjectPairs || []).length + (state.night.lastKind === 'again' || state.night.lastKind === 'pick' ? 1 : 0)) % order.length;
+    if (spin) order = order.slice(spin).concat(order.slice(0, spin));
     for (i = 0; i < STALLS.length; i++) if (state.stalls[i].hired && state.stalls[i].owned > 0) built = i;
     var builtId = built >= 0 ? STALLS[built].id : '';
     function add(kind, id) {
@@ -1847,10 +1884,13 @@
     rows = twistPool(state);
     for (i = 0; i < rows.length; i++) add('twist', rows[i].id);
     for (i = 0; i < CHARMS.length; i++) add('charm', CHARMS[i].id);
-    if ((state.night.costCuts || 0) < 1) {
-      rows = pricedPool(state);
-      for (i = 0; i < rows.length; i++) add('priced', rows[i]);
+    rows = pricedPool(state);
+    for (i = 0; i < rows.length; i++) {
+      if ((state.night.costCuts || 0) >= 1 && ownedOf(state, rows[i]) >= 1) continue;
+      add('priced', rows[i]);
     }
+    rows = halfPool(state);
+    for (i = 0; i < rows.length; i++) if (offerGate(state, 'half', rows[i], false)) buckets.priced.push('half:' + rows[i]);
     /* A raise is a new card on a stall the last offer did not lead with.
        Enough stacks are applied that the income line moves by at least five percent. */
     {
@@ -1881,6 +1921,22 @@
         if (raised) buckets.again.push('again:' + raised);
       }
     }
+    var paySerial = laneSerial(state, 'pay');
+    var paySteps = 1;
+    var payBefore = income(state);
+    if (payBefore > 0) {
+      var payN, payAfter, payText = moneyText(payBefore);
+      for (payN = 1; payN <= 6; payN++) {
+        state.night.lanePay = (state.night.lanePay || 0) + payN;
+        payAfter = income(state);
+        state.night.lanePay -= payN;
+        if (moneyText(payAfter) !== payText && meetsFloor((payAfter - payBefore) / payBefore)) { paySteps = payN; break; }
+      }
+    }
+    var payToken = 'pay@' + paySerial + '@' + paySteps;
+    if (offerGate(state, 'lane', payToken, false)) buckets.lane.push('lane:' + payToken);
+    var priceToken = 'price@' + laneSerial(state, 'price');
+    if (offerGate(state, 'lane', priceToken, false)) buckets.lane.push('lane:' + priceToken);
     var pool = [], n = 0, more = true;
     while (more) {
       more = false;
@@ -1892,20 +1948,21 @@
     return pool;
   }
   function mixedOffer(state) {
-    var pool = passingCards(state), i, j, key, fresh = null, any = null, used, anyOverlap = true;
+    var pool = passingCards(state), i, j, key, fresh = null, varied = null, any = null, used, anyOverlap = true;
     if (pool.length < 2) return null;
-    for (i = 0; i < pool.length && !fresh; i++) {
+    for (i = 0; i < pool.length; i++) {
       for (j = i + 1; j < pool.length; j++) {
         if (!pairOk(state, 'pick', pool[i], pool[j])) continue;
         key = pairKey('pick', [pool[i], pool[j]]);
         used = ((state.meta && state.meta.pairs) || []).indexOf(key) >= 0 || (state.night.pairs || []).indexOf(key) >= 0;
         var overlapped = pairOverlaps(state, 'pick', pool[i], pool[j]);
         if (!any || (overlapped && anyOverlap)) { any = [pool[i], pool[j]]; anyOverlap = overlapped; }
-        if (!used && !overlapped) { fresh = [pool[i], pool[j]]; break; }
-        if (!used && !fresh) fresh = [pool[i], pool[j]];
+        if (used || overlapped) continue;
+        if (!fresh) fresh = [pool[i], pool[j]];
+        if (!varied && String(pool[i]).split(':')[0] !== String(pool[j]).split(':')[0]) varied = [pool[i], pool[j]];
       }
     }
-    var options = fresh || (pool.length === 2 ? any : null);
+    var options = varied || fresh || (pool.length === 2 ? any : null);
     if (!options) return null;
     return { mark: 'pick-' + options[0], kind: 'pick', offer: { kind: 'pick', stall: null, options: options, generated: true } };
   }
@@ -1918,6 +1975,10 @@
   }
   /* When every hired stall was just on the card, a lane choice keeps the gap
      under two minutes without naming those stalls again. */
+  function laneSteps(id) {
+    var steps = parseInt(String(id).split('@')[2], 10);
+    return steps > 0 ? steps : 1;
+  }
   function laneSerial(state, which) {
     var list = (state.night && state.night.shown) || [];
     var n = 0, i;
@@ -2167,6 +2228,62 @@
     if (!fire) return '';
     return fire.kind + ':' + (fire.offer && fire.offer.stall ? fire.offer.stall : '');
   }
+  function placeForced(state) {
+    var fallback = state.night.pendingFallback || forceOffer(state);
+    state.night.pendingFallback = null;
+    if (!fallback) return false;
+    var savedRepeat = !!state.night.allowRepeat;
+    state.night.allowRepeat = true;
+    var placed = placeOffer(state, fallback.offer);
+    state.night.allowRepeat = savedRepeat;
+    if (!placed) return false;
+    if (fallback.mark) state.night.offered.push(fallback.mark);
+    return true;
+  }
+  /* A card that still passes. The stalls just shown stay blocked until nothing
+     else will, so a quiet night does not put the same stall on two cards. */
+  function forceOffer(state) {
+    var found = bridgeOffer(state) || mixedOffer(state) || fillerOffer(state);
+    if (found) return found;
+    var steps = 1, before = income(state), text = moneyText(before), n;
+    if (before > 0) {
+      for (n = 1; n <= 6; n++) {
+        state.night.lanePay = (state.night.lanePay || 0) + n;
+        var after = income(state);
+        state.night.lanePay -= n;
+        if (moneyText(after) !== text && meetsFloor((after - before) / (before || 1))) { steps = n; break; }
+      }
+    }
+    var serial = laneSerial(state, 'pay');
+    var payId = 'lane:pay@' + serial + '@' + steps;
+    var priceId = 'lane:price@' + laneSerial(state, 'price');
+    if (offerGate(state, 'lane', 'pay@' + serial + '@' + steps, false) && offerGate(state, 'lane', 'price@' + laneSerial(state, 'price'), false) && pairOk(state, 'pick', payId, priceId)) {
+      return { mark: 'pick-' + payId, kind: 'pick', offer: { kind: 'pick', stall: null, options: [payId, priceId], generated: true } };
+    }
+    /* A pair already used, but not the stalls on the card just shown. */
+    var savedRepeat = !!state.night.allowRepeat;
+    state.night.allowRepeat = true;
+    found = bridgeOffer(state) || mixedOffer(state) || fillerOffer(state);
+    state.night.allowRepeat = savedRepeat;
+    if (found) return found;
+    /* Every subject is blocked, which is a stuck night, not a normal card.
+       Forgetting that block is what lets the next second still have a choice. */
+    var blockedAll = (state.night.lastStalls || []).slice();
+    var stuck = blockedAll.indexOf('lane') >= 0 && blockedAll.indexOf('prices') >= 0, bi;
+    if (stuck) {
+      for (bi = 0; bi < STALLS.length; bi++) {
+        if (!state.stalls[bi].hired || state.stalls[bi].owned < 1) continue;
+        if (blockedAll.indexOf(STALLS[bi].id) < 0) { stuck = false; break; }
+      }
+    }
+    if (!stuck) return null;
+    state.night.lastStalls = [];
+    state.night.allowRepeat = true;
+    found = bridgeOffer(state) || mixedOffer(state) || fillerOffer(state);
+    state.night.allowRepeat = savedRepeat;
+    if (!found) state.night.lastStalls = blockedAll;
+    return found;
+  }
   function pushGap(state) {
     var peek = peekGap(state);
     if (!peek.fire) return false;
@@ -2190,7 +2307,7 @@
     /* A doubling at 20 goes stale if Max buys past it first. Offer it as soon
        as a stall is close, instead of waiting out the quiet. */
     var earlySoon = false;
-    if (state.night.quiet < 100) {
+    if (state.night.quiet < 70) {
       var soon = earlyPool(state), si, soonOwned;
       for (si = 0; si < soon.length; si++) {
         soonOwned = ownedOf(state, soon[si]);
@@ -2201,8 +2318,18 @@
       if (!peeked.fire || peeked.fire.kind !== 'early') return false;
     }
     if (pushGap(state)) {
+      state.night.pendingFallback = null;
       state.night.rested = false;
       return true;
+    }
+    /* The line names this fallback on the next read, and the following second places it.
+       A night therefore cannot sit quiet past the gap limit. */
+    if (state.night.quiet >= 70 && !state.night.offer) {
+      if (!state.night.pendingFallback) {
+        state.night.pendingFallback = forceOffer(state);
+        return false;
+      }
+      if (placeForced(state)) return true;
     }
     return false;
   }
@@ -2255,7 +2382,7 @@
         state.night.sustain = state.night.sustain || [];
         while (againTimes--) state.night.sustain.push(againBits[0]);
       } else if (pickKind === 'lane' && String(pickId).indexOf('pay') === 0) {
-        state.night.lanePay = (state.night.lanePay || 0) + 1;
+        state.night.lanePay = (state.night.lanePay || 0) + laneSteps(pickId);
       } else if (pickKind === 'lane' && String(pickId).indexOf('price') === 0) {
         state.night.priceEase = (state.night.priceEase || 0) + 1;
       } else return null;
@@ -2361,6 +2488,7 @@
     if (!state.night) return 'The next choice waits.';
     if (state.night.offer) return 'A choice is waiting.';
     if (dawnDue(state)) return 'No more choices tonight.';
+    if (state.night.pendingFallback) return describeOffer(state.night.pendingFallback);
     var next = gapOffer(state);
     var key = predictKey(next);
     if (!state.night.predictOn || state.night.predictKey !== key) {
@@ -2473,10 +2601,11 @@
     if (kind === 'lane') {
       var laneWhich = String(id).split('@')[0];
       if (laneWhich === 'pay') {
+        var paySteps = laneSteps(id);
         var payBefore = income(state);
-        state.night.lanePay = (state.night.lanePay || 0) + 1;
+        state.night.lanePay = (state.night.lanePay || 0) + paySteps;
         var payAfter = income(state);
-        state.night.lanePay -= 1;
+        state.night.lanePay -= paySteps;
         return 'Your income ' + moneyText(payBefore) + ' to ' + moneyText(payAfter) + ' a second.';
       }
       var easeAt = easeStall(state);
@@ -2530,6 +2659,26 @@
   function sameSet(a, b) {
     return (a || []).slice().sort().join(',') === (b || []).slice().sort().join(',');
   }
+  /* A rerolled omen still has to be a choice you can take. A rate cut is not. */
+  function omenLowers(state, id) {
+    var omen = omenById(id);
+    if (!omen || !omen.set) return true;
+    var key, row, stall, now;
+    for (key in omen.set) {
+      if (!Object.prototype.hasOwnProperty.call(omen.set, key)) continue;
+      row = omen.set[key];
+      if (!row || row.rate == null) continue;
+      stall = spec(stallIndex(key));
+      now = stall ? stallField(state, key, 'rate', stall.rate) : row.rate;
+      if (row.rate + 1e-9 < now) return true;
+    }
+    var before = income(state);
+    var prev = state.night.omen;
+    state.night.omen = id;
+    var after = income(state);
+    state.night.omen = prev;
+    return before > 0 && after + 1e-9 < before && moneyText(before) !== moneyText(after);
+  }
   function reroll(state) {
     var offer = state.night && state.night.offer;
     if (!offer || state.night.rerollUsed) return false;
@@ -2537,10 +2686,12 @@
     var beforeKind = offer.kind;
     var nextKind = beforeKind, next = null, attempt;
     if (beforeKind === 'omen') {
-      var drawn = before;
-      for (attempt = 1; attempt < 8; attempt++) {
+      var drawn = before, kept, oi;
+      for (attempt = 1; attempt < 12 && !next; attempt++) {
         drawn = drawOmens(state.night.seed, before, attempt);
-        if (drawn.length >= 2 && !sameSet(drawn, before)) { next = drawn; break; }
+        kept = [];
+        for (oi = 0; oi < drawn.length; oi++) if (!omenLowers(state, drawn[oi])) kept.push(drawn[oi]);
+        if (kept.length >= 2 && !sameSet(kept, before)) next = kept;
       }
     } else {
       /* The replacement has to be a different card, and it still cannot put the
@@ -2554,7 +2705,7 @@
         rowKind = row.offer.kind;
         rowOpts = row.offer.options.slice();
         if (rowKind === beforeKind && sameSet(rowOpts, before)) continue;
-        if (rowKind !== 'omen' && !pairDistinct(state, rowKind, rowOpts[0], rowOpts[1])) continue;
+        if (rowKind !== 'omen' && (!pairOk(state, rowKind, rowOpts[0], rowOpts[1]) || !offerGate(state, rowKind, rowOpts[0], false) || !offerGate(state, rowKind, rowOpts[1], false))) continue;
         var rowLines = rowOpts.map(function (rid) { return choiceLine(state, rowKind, rid); }).sort().join('|');
         var heldLines = before.map(function (hid) { return choiceLine(state, beforeKind, hid); }).sort().join('|');
         if (rowLines === heldLines) continue;
@@ -2563,7 +2714,9 @@
       }
     }
     if (!next || next.length < 2 || (nextKind === beforeKind && sameSet(next, before))) return false;
-    if (nextKind !== 'omen' && !pairDistinct(state, nextKind, next[0], next[1])) return false;
+    if (nextKind === 'omen') {
+      if (omenLowers(state, next[0]) || omenLowers(state, next[1])) return false;
+    } else if (!pairOk(state, nextKind, next[0], next[1]) || !offerGate(state, nextKind, next[0], false) || !offerGate(state, nextKind, next[1], false)) return false;
     var beforeLines = before.map(function (id) { return choiceLine(state, beforeKind, id); }).sort().join('|');
     var nextLines = next.map(function (id) { return choiceLine(state, nextKind, id); }).sort().join('|');
     if (beforeLines === nextLines) return false;
@@ -2585,6 +2738,10 @@
       stallList.push(subject);
     });
     state.night.lastStalls = stallList;
+    var rerollPair = stallList.slice().sort().join('|');
+    state.night.subjectPairs = state.night.subjectPairs || [];
+    if (rerollPair && state.night.subjectPairs.indexOf(rerollPair) < 0) state.night.subjectPairs.push(rerollPair);
+    state.night.lastKind = offer.kind;
     rememberCards(state, offer);
     return true;
   }

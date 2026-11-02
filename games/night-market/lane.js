@@ -251,9 +251,11 @@
     // The lane breaks out of the page column to the full page width. Whole-number scale from 384 px up (2x from 768, 3x from
     // 1152, never more than 3x). Below 384 px a 1x strip can't fit, so it shrinks to the page width with every stall whole
     // (the one place the scale isn't a whole number, so the Tea Stall is never cut off).
-    // NM-G8: the width is the page body's, which is the viewport minus a classic scrollbar. A scrollbar that appears once the
-    // stalls have filled in shrinks it with no window resize, so a ResizeObserver on the body refits the strip as well.
-    var vw = (document.body && document.body.clientWidth) || document.documentElement.clientWidth || W, wrap = cv.parentNode, k = vw < W ? vw / W : Math.min(3, Math.floor(vw / W));
+    // NM-G8: the width is the viewport, minus a classic scrollbar. A scrollbar that appears once the
+    // stalls have filled in shrinks it with no window resize, so a ResizeObserver on the document refits the strip as well.
+    var viewW = (document.documentElement && document.documentElement.clientWidth) || W;
+    var bodyW = (document.body && document.body.clientWidth) || viewW;
+    var vw = Math.min(viewW, bodyW), wrap = cv.parentNode, k = vw < W ? vw / W : Math.min(3, Math.floor(vw / W));
     if (wrap.style.width === vw + 'px' && cv.dataset.scale === String(+k.toFixed(3))) return;
     wrap.style.width = vw + 'px';
     cv.style.width = Math.floor(W * k) + 'px'; cv.style.height = Math.floor(H * k) + 'px'; cv.dataset.scale = String(+k.toFixed(3));

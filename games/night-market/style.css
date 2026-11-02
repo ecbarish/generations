@@ -278,6 +278,16 @@ button[aria-pressed="true"], button.ask, button.best {
   overflow: visible;
   text-overflow: clip;
 }
+/* The Unroll label wraps onto a second line. The button is that tall from the
+   first paint, so the rows under the Story Mat do not drop when it opens. */
+#stalls [data-i="5"] [data-act="buy"] {
+  white-space: normal;
+  height: auto;
+  max-height: none;
+  min-height: 4rem;
+  overflow: visible;
+  text-overflow: clip;
+}
 .closed h2, .closed .habit { color: var(--mute); }
 .away {
   border: 1px solid var(--amber);
@@ -366,7 +376,10 @@ button[aria-pressed="true"], button.ask, button.best {
   #open-book { flex: 1 0 100%; height: 44px; min-height: 44px; margin-top: 0; font-size: 0.85rem; padding: 0.1rem 0.4rem; }
   .window { padding-top: 0; }
   #omen-now { margin: 0; min-height: 1.05rem; font-size: 0.85rem; }
-  #goal { min-height: 2.2rem; max-height: 2.2rem; overflow: hidden; line-height: 1.15; font-size: 0.9rem; }
+  #away-rule, #rate { margin: 0; line-height: 1.15; font-size: 0.85rem; }
+  .bulk { margin-top: 0.35rem; }
+  /* The longest goal is three lines here. The box keeps that height, and the words are not cut off. */
+  #goal { min-height: 3.2rem; max-height: none; overflow: visible; line-height: 1.15; font-size: 0.9rem; }
   #lane-goal { min-height: 2.8rem; max-height: 2.8rem; overflow: hidden; }
   #bulk-help { min-height: 1.3rem; margin: 0; font-size: 0.8rem; }
 }
@@ -404,11 +417,26 @@ button[aria-pressed="true"], button.ask, button.best {
   .actions [data-act="buy"] { flex: 1 1 100%; }
 }
 @media (max-width: 420px) and (min-height: 700px) {
+  #goal { min-height: 6.4rem; max-height: none; overflow: visible; }
   #lane-goal { min-height: 2.8rem; max-height: 2.8rem; overflow: hidden; }
+  .actions button[data-act="buy"],
+  .actions button.keep-slot[data-act="buy"] {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    height: auto;
+    max-height: none;
+    min-height: 4rem;
+  }
 }
 @media (max-width: 1000px) and (min-height: 700px) {
   /* The Story Mat line is one row taller than the climb. Reserve it so the stalls do not jump. */
   #goal { min-height: 4.8rem; }
+}
+@media (max-width: 420px) and (min-height: 700px) {
+  /* At 360 the long goal wraps onto one more line (about 22px) and then shortens.
+     This rule follows the 4.8rem reserve so it wins, and the stalls stay put. */
+  #goal { min-height: 6.4rem; max-height: none; overflow: visible; }
 }
 @media (min-width: 1001px) {
   /* The omen line and the lane goal sit under the picture. Pull the air above
@@ -418,8 +446,9 @@ button[aria-pressed="true"], button.ask, button.best {
   h1 { margin-top: 0; margin-bottom: 0; }
   .scene { margin-bottom: 0; }
   .lane { margin-top: 0; }
-  .bulk { margin: 0.2rem 0 0; position: sticky; top: 3.4rem; z-index: 5; background: var(--paper); }
-  .stalls { margin-top: 0.1rem; }
+  .market-work { display: flex; flex-direction: column; max-height: calc(100vh - 6.4rem); position: sticky; top: 3.2rem; }
+  .bulk { margin: 0.2rem 0 0; position: relative; top: auto; flex: 0 0 auto; z-index: 5; background: var(--paper); }
+  .stalls { margin-top: 0.1rem; overflow: auto; flex: 1 1 auto; min-height: 0; }
   #omen-now { margin: 0; min-height: 1.4rem; }
   #goal { min-height: 3.4rem; }
   #lane-goal { min-height: 1.35rem; }

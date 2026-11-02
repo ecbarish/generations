@@ -193,7 +193,9 @@
     facts.textContent = st.owned + ' open · ' + money(rate) + ' coins a second. ' + M.lookLine(state, i);
     if (nextGoal) {
       var chapter = i === M.STALLS.length - 1 ? M.chapterLine(state) : '';
-      nextGoal.textContent = chapter ? chapter + ' ' + M.nextGoalLine(state, i) : M.nextGoalLine(state, i);
+      var goalBit = chapter ? chapter + ' ' + M.nextGoalLine(state, i) : M.nextGoalLine(state, i);
+      if (i < 5 && st.owned >= 7 && st.owned < 10 && M.lowestOwned(state) < 10) goalBit += ' At 10 the whole lane earns twice as much.';
+      nextGoal.textContent = goalBit;
     }
     wait.textContent = M.paybackLine(state, i);
     var hint = li.querySelector('.payback-hint');
@@ -363,6 +365,8 @@
           '<p class="payback-hint" hidden></p>';
         list.appendChild(li);
       });
+      var saveBox = list.querySelector('details.save');
+      if (saveBox) list.appendChild(saveBox);
     }
     Array.prototype.forEach.call(list.children, function (li) { if (li.dataset.i) fillRow(li, +li.dataset.i); });
     /* A press is in progress. Rebuilding the offer would destroy the button
@@ -383,7 +387,6 @@
       if (window.scrollY !== stayedForDawn) window.scrollTo(0, stayedForDawn);
     }
     renderCodex();
-    syncPins();
     var laneNow = window.NightLane;
     if (laneNow && laneNow.signature && laneNow.refresh) {
       var nextSig = laneNow.signature();
@@ -392,6 +395,7 @@
         laneNow.refresh();
       }
     }
+    syncPins();
   }
 
   /* On a phone the green line sits under the lane, and its pin returns the moment that line
@@ -456,6 +460,13 @@
     }
     var reserve = phone ? pinHeight(pin) : pinHeight(coinPin);
     document.documentElement.style.scrollPaddingTop = reserve > 0 ? Math.ceil(reserve) + 'px' : '';
+    /* Reserving the pin can pull the lane the rest of the way off the screen.
+       Judge the coin total against that final place. */
+    if (coinPin && wide) {
+      var laneFinal = laneEl ? laneEl.getBoundingClientRect().bottom : 1;
+      var coinsFinal = coins ? coins.getBoundingClientRect().bottom : 1;
+      coinPin.hidden = !(laneFinal <= 0 && coinsFinal <= 0);
+    }
   }
 
   function settleHash() {
@@ -476,36 +487,17 @@
 
   /* The open card stays on the slot when that slot is on screen, and slides
      only as far as it must to stay inside the window. The slot itself does not grow. */
-  function placeOfferPanel(show) {
-    var pick = $('#pick');
+  function placeOfferPanel() {
     var panel = $('#pick-panel');
     if (!panel) return;
-    if (!show || !pick) {
-      panel.style.position = '';
-      panel.style.top = '';
-      panel.style.left = '';
-      panel.style.right = '';
-      panel.style.width = '';
-      panel.style.maxHeight = '';
-      return;
-    }
-    var slot = pick.getBoundingClientRect();
-    var margin = 8;
-    var viewH = document.documentElement.clientHeight;
-    var viewW = document.documentElement.clientWidth;
-    var maxH = Math.max(44, Math.min(viewH - margin * 2, 288));
-    var top = slot.top;
-    if (top < margin) top = margin;
-    if (top + maxH > viewH - margin) top = Math.max(margin, viewH - margin - maxH);
-    var left = Math.max(margin, slot.left);
-    var rightGap = viewW - slot.right;
-    if (!(rightGap >= margin)) rightGap = margin;
-    panel.style.position = 'fixed';
-    panel.style.top = Math.round(top) + 'px';
-    panel.style.left = Math.round(left) + 'px';
-    panel.style.right = Math.round(rightGap) + 'px';
-    panel.style.width = 'auto';
-    panel.style.maxHeight = Math.round(maxH) + 'px';
+    /* The card is an overlay on its slot. Inline coordinates would lift it
+       off that slot, so the slot's own place is the whole rule. */
+    panel.style.position = '';
+    panel.style.top = '';
+    panel.style.left = '';
+    panel.style.right = '';
+    panel.style.width = '';
+    panel.style.maxHeight = '';
   }
   function renderPick() {
     var box = $('#pick');
@@ -548,7 +540,7 @@
       var idleReroll = box.querySelector('[data-act="reroll"]');
       if (idleSkip) idleSkip.hidden = true;
       if (idleReroll) idleReroll.hidden = true;
-      placeOfferPanel(false);
+      placeOfferPanel();
       return;
     }
     $('#pick-lead').textContent = offer.kind === 'omen'
@@ -575,7 +567,7 @@
         againSame.disabled = !!(state.night && state.night.rerollUsed);
         againSame.textContent = state.night && state.night.rerollUsed ? 'Rerolled' : 'Reroll once';
       }
-      placeOfferPanel(true);
+      placeOfferPanel();
       return;
     }
     choices.dataset.sig = sig;
@@ -608,7 +600,7 @@
       var firstChoice = choices.querySelector('button');
       if (firstChoice) firstChoice.focus({ preventScroll: true });
     }
-    placeOfferPanel(true);
+    placeOfferPanel();
   }
   function trapTab(panel, e) {
     if (!panel || e.key !== 'Tab') return false;
@@ -822,7 +814,6 @@
     hold = h;
   });
   ['pointerup', 'pointercancel', 'blur'].forEach(function (ev) { (ev === 'blur' ? window : document).addEventListener(ev, stopHold); });
-  document.addEventListener('pointerleave', stopHold);
   document.addEventListener('contextmenu', function (e) { if (e.target.closest && e.target.closest('[data-act="serve"]')) e.preventDefault(); });
 
   /* A render between press and release moves the button, and the click never lands.
@@ -930,7 +921,7 @@
       rebindIdle();
       render();
       focusOffer();
-      if (window.scrollY !== stayed) window.scrollTo(0, stayed);
+      window.scrollTo(0, 0);
       return;
     }
     if (b.dataset.act === 'dismiss-note') {
