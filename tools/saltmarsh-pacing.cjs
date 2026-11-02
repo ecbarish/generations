@@ -151,7 +151,7 @@
         }
       }
       if (sailing >= 5 && (state.voyages || 0) >= (M.CHART_FULL || 24) && !M.allLightsLit(state)) {
-        var lights = M.lightOffers(state, true);
+        var lights = M.lightOffers(state, false);
         if (lights.length) {
           var light = lights.slice().sort(function (a, b) { return a.cost - b.cost; })[0];
           if (light.affordable) {
@@ -283,7 +283,7 @@
           if (route && state.cash >= route.cost) M.signRoute(state, route.id, second * 1000);
           else break;
         } else if ((state.voyages || 0) >= (M.CHART_FULL || 24) && !M.allLightsLit(state)) {
-          var light = M.lightOffers(state, true)[0];
+          var light = M.lightOffers(state, false)[0];
           if (light && state.cash >= light.cost) M.buildLight(state, light.id, second * 1000);
           else break;
         } else if (M.allLightsLit(state) && (state.voyages || 0) >= (M.CHART_FULL || 24)) {
@@ -389,8 +389,7 @@
       var route = null;
       offers.forEach(function (offer) { if (!route || offer.cost < route.cost) route = offer; });
       var gear = M.gearOffer ? M.gearOffer(state) : null;
-      var lightsDue = M.routesSailing(state) >= 5 && !M.allLightsLit(state) && (state.voyages || 0) >= (M.CHART_FULL || 24);
-      if (!lightsDue && route) {
+      if (route) {
         if (gear && state.cash < route.cost && gear.cost <= route.cost) {
           return {
             id: 'gear:' + gear.id,
@@ -414,7 +413,7 @@
           };
         }
       }
-      if (lightsDue) {
+      if (M.routesSailing(state) >= 5 && !M.allLightsLit(state)) {
         var lights = M.lightOffers(state, true);
         if (lights.length) {
           var light = lights.slice().sort(function (a, b) { return a.cost - b.cost; })[0];
@@ -439,6 +438,7 @@
       if (state.trips < M.HAND_TRIPS) M.handSell(state, 0);
       state.played = ms / 1000;
       M.addCash(state, M.officeRate(state));
+      if (M.routesSailing(state) >= 5) M.lightOffers(state, true);
       var want = desired();
       if (!want) continue;
       if (want.id !== seen) { seen = want.id; since = ms; readyAt = null; }

@@ -103,8 +103,8 @@
       return 'Buy ' + more(left, 'bark', 'barks') + '. Then a house lamp shows in the office window.';
     }
     if (M.allLightsLit(state) && M.finaleOffer(state, false)) return 'Send the last voyage.';
-    if (sailing < 5) return routeOrBoat(state, 'Choose the next route. Five different routes wake the four coast lights.');
-    if ((state.voyages || 0) < M.CHART_FULL) return routeOrBoat(state, 'Sign the next route. The last voyage waits until the chart is full.');
+    if (sailing < 5) return routeOrBoat(state, 'Choose the next route. Five different routes wake the four lighthouses.');
+    if ((state.voyages || 0) < M.CHART_FULL && M.routeOffers(state, false).length) return routeOrBoat(state, 'Sign the next route. The last voyage waits until the chart is full.');
     if (!M.allLightsLit(state)) {
       lit = M.lightsLit(state);
       if (lit <= 0) return 'Raise a lighthouse. Each one changes the routes.';
@@ -112,6 +112,7 @@
       if (lit === 2) return 'Two lighthouses are burning. Raise the next.';
       return 'Three lighthouses are burning. Raise the next.';
     }
+    if (M.towersUp(state) && !M.allLightsLit(state) && (state.played || 0) < 1300) return 'The towers are up. Lighting them waits until this watch is longer.';
     if (M.finaleOffer(state, false)) return 'Send the last voyage.';
     for (i = M.BOATS.length - 1; i >= 0; i--) {
       owned = state.boats[i].owned;
@@ -161,10 +162,10 @@
     if (!state || state.trips < M.HAND_TRIPS || state.boats[1].owned < M.UNLOCK_AT) return '';
     if (state.ended) return '';
     var lit = M.lightsLit(state);
-    if (lit >= 4) return 'The lamps are burning. The last voyage is the end of the office.';
-    if (lit === 1) return 'Four lamps along the coast, then the last voyage home. One is burning.';
-    if (lit > 1) return 'Four lamps along the coast, then the last voyage home. ' + ['', '', 'Two', 'Three'][lit] + ' are burning.';
-    return 'Four lamps along the coast, then the last voyage home.';
+    if (lit >= 4) return 'The lighthouses are burning. The last voyage is the end of the office.';
+    if (lit === 1) return 'Four lighthouses along the coast, then the last voyage home. One is burning.';
+    if (lit > 1) return 'Four lighthouses along the coast, then the last voyage home. ' + ['', '', 'Two', 'Three'][lit] + ' are burning.';
+    return 'Four lighthouses along the coast, then the last voyage home.';
   }
 
   function boatTarget(state) {

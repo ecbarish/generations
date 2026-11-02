@@ -127,19 +127,31 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .boat, .captain { border-top: 1px solid var(--sky); padding: 0.75rem 0; }
 .boat h2, .captain h3, .log h2, .fleet h2, .sheds h2, .choice h2, .choice h3 { margin: 0 0 0.2rem; font-size: 1.15rem; font-weight: 600; }
 .habit, .facts, .wait { margin: 0.15rem 0; }
-/* Status lines stay on one row, so a longer sentence does not push the Buy button or the routes.
-   min-width: 0 lets the line shrink inside a grid column instead of stretching it. */
+/* Numbers stay whole. Buttons use a short label on one line. Status lines that can
+   grow from one line to two keep a two-line slot, so a longer figure cannot push
+   the Buy button or the routes. min-width: 0 lets a line shrink inside a grid column. */
 .boat .habit,
 .boat .facts,
 .wait,
 .rate,
+#away-rule,
 .actions button {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   min-width: 0;
   max-width: 100%;
 }
+.actions button { white-space: nowrap; }
+#ending .actions button,
+#choice .actions button { white-space: normal; }
+/* Status lines stay one row when the short copy fits, so a longer figure cannot
+   push the Buy button or the routes. */
+.boat .habit,
+.boat .facts,
+.boat .wait,
+.captain .wait,
+.rate {
+  white-space: nowrap;
+}
+#away-rule { white-space: normal; }
 .boats,
 .boat,
 .captain { min-width: 0; }
@@ -154,7 +166,15 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   padding: 0.8rem 0.85rem;
   margin: 0.7rem 0;
 }
-.choice-card, .route-card, .light-card, .settled li {
+.choice-card, #routes-note { min-height: 2.9em; }
+.route-card h3,
+.route-card .facts,
+.light-card h3 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+.route-card, .light-card, .settled li {
   border-top: 1px solid var(--sky);
   padding: 0.65rem 0 0.2rem;
 }
@@ -224,10 +244,14 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   width: min(40rem, calc(100% - 1.2rem));
   bottom: 4.6rem;
   margin: 0;
-  max-height: min(42vh, 16rem);
-  overflow: auto;
+  max-height: none;
+  overflow: visible;
+  padding: 0.45rem 0.6rem;
   box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
 }
+#choice-cards { display: flex; gap: 0.45rem; align-items: stretch; }
+#choice .choice-card { flex: 1 1 0; min-width: 0; border-top: 0; padding-top: 0.15rem; }
+#choice .choice-card .habit { white-space: normal; }
 .goalbar .aim {
   margin: 0;
   padding: 0.55rem 1rem 0;
@@ -277,7 +301,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
     padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom));
     min-height: 44px;
   }
-  #choice.choice { bottom: 3.2rem; max-height: 8.5rem; }
+  #choice.choice { bottom: 3.2rem; }
   .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }
 }

@@ -173,7 +173,7 @@ document.querySelector('#run').onclick = async function () {
     })());
 
     check('one shed holds 2h and four sheds hold 8h, at half pay', M.offlineCap(ready()) === 2 * 3600 && M.OFFLINE_RATE === 0.5 && (function () { var s = ready(); s.warehouses = 4; return M.offlineCap(s) === 8 * 3600; })());
-    check('the away line names the half rate and the sheds', M.awayRule(ready()) === 'A closed game earns 50%, up to 2h (1 shed). A page left open keeps the full rate.');
+    check('the away line names the half rate and the sheds', M.awayRule(ready()) === 'Closed: 50% up to 2h (1 shed). Open page: full rate.');
     check('the mooring line pluralises', (function () {
       var s = ready();
       s.boats[0].owned = 2;
@@ -346,7 +346,7 @@ document.querySelector('#run').onclick = async function () {
     var fifty = ready();
     fifty.boats[0].owned = M.SLOOP_AT;
     fifty.boats[1].owned = 50;
-    check('sloop payback follows the four-times milestone', near(M.paybackSeconds(fifty, 1), Idle.bulkCost(120, 1.08, 50, 1) / 20) && /four times/.test(M.paybackLine(fifty, 1)) && /20 coins a second/.test(M.paybackLine(fifty, 1)));
+    check('sloop payback follows the four-times milestone', near(M.paybackSeconds(fifty, 1), Idle.bulkCost(120, 1.08, 50, 1) / 20) && /four times/.test(M.paybackLine(fifty, 1)) && /Adds 20\/s/.test(M.paybackLine(fifty, 1)));
     var waived = ready();
     waived.boats[0].owned = M.SLOOP_AT;
     waived.boats[1].owned = 10;
@@ -390,19 +390,62 @@ document.querySelector('#run').onclick = async function () {
     var teaWas = M.routeOffers(priced, true).filter(function (o) { return o.id === 'tea'; })[0].cost;
     M.signRoute(priced, 'kelp', 1);
     var teaNow = M.routeOffers(priced, true).filter(function (o) { return o.id === 'tea'; })[0].cost;
-    check('each route keeps its own contract count, and signing one does not raise the others', M.routeContract(priced, 'kelp').label === '2 of 4' && M.routeContract(priced, 'gull').label === '1 of 4' && M.routeContract(priced, 'tea').label === '1 of 4' && teaNow === teaWas);
+    check('each route keeps its own contract count, and signing one does not raise the others', M.routeContract(priced, 'kelp').label === '1 signed · contract 2 of 4' && M.routeContract(priced, 'gull').label === '0 signed · contract 1 of 4' && M.routeContract(priced, 'tea').label === '0 signed · contract 1 of 4' && teaNow === teaWas);
     M.signRoute(priced, 'gull', 1);
-    check('Gull Rock moves to contract 2 when Gull Rock is signed', M.routeContract(priced, 'gull').label === '2 of 4' && M.routeContract(priced, 'tea').label === '1 of 4');
+    check('Gull Rock moves to contract 2 when Gull Rock is signed', M.routeContract(priced, 'gull').label === '1 signed · contract 2 of 4' && M.routeContract(priced, 'tea').label === '0 signed · contract 1 of 4');
     var lampDesk = M.preset('lamps');
     lampDesk.cash = 1e18;
+    lampDesk.played = 2000;
     var guard = 0;
     while (M.lightOffers(lampDesk, false).length && guard++ < 8) M.buildLight(lampDesk, M.lightOffers(lampDesk, false)[0].id, 1);
     check('once every coast light is burning the last voyage is on the desk', M.allLightsLit(lampDesk) && !!M.finaleOffer(lampDesk, false) && M.deskChoice(lampDesk) == null);
     var fleetPreset = M.preset('fleet');
     var lampsPreset = M.preset('lamps');
     var finalPreset = M.preset('final');
-    check('preset states open the routes, three lamps, and the last voyage', fleetPreset.boats[2].owned >= 10 && P.read(fleetPreset).routesOpen && fleetPreset.routes.kelp === 0 && M.lightsLit(lampsPreset) === 3 && lampsPreset.ended === false && finalPreset.ended === false && finalPreset.voyages >= M.CHART_FULL && M.allLightsLit(finalPreset) && !!M.finaleOffer(finalPreset, false));
-    check('a short purse says how many coins are still needed', M.needMore({ cash: 80000 }, 500000) === 'Need 420K more.');
+    check('preset states open the routes, three lighthouses, and the last voyage', fleetPreset.boats[2].owned >= 10 && P.read(fleetPreset).routesOpen && fleetPreset.routes.kelp === 0 && M.lightsLit(lampsPreset) === 3 && lampsPreset.ended === false && finalPreset.ended === false && finalPreset.voyages >= M.CHART_FULL && M.allLightsLit(finalPreset) && !!M.finaleOffer(finalPreset, false));
+    var coast = ready();
+    coast.trips = 3;
+    coast.boats[0].owned = M.SLOOP_AT;
+    coast.boats[1].owned = 10;
+    coast.boats[2].owned = 10;
+    coast.boats[3].owned = 16;
+    coast.captains[0].hired = true;
+    coast.captains[1].hired = true;
+    coast.captains[2].hired = true;
+    coast.captains[3].hired = true;
+    coast.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+    coast.played = 100;
+    ['kelp', 'gull', 'tea', 'headland', 'reed'].forEach(function (id) { coast.routes[id] = 1; });
+    coast.voyages = 5;
+    coast.cash = 1e15;
+    var locked = M.lightOffers(coast, true);
+    var quayWas = locked.filter(function (o) { return o.id === 'quay'; })[0].cost;
+    var headWas = locked.filter(function (o) { return o.id === 'headland'; })[0].cost;
+    M.buildLight(coast, 'pier', 1);
+    coast.boats[3].owned = 80;
+    var quayNow = M.lightOffers(coast, true).filter(function (o) { return o.id === 'quay'; })[0].cost;
+    var headNow = M.lightOffers(coast, true).filter(function (o) { return o.id === 'headland'; })[0].cost;
+    check('raising one lighthouse does not reprice the others', quayNow === quayWas && headNow === headWas && (coast.lights.pier || 0) === 1);
+    coast.forks.quay = null;
+    coast.lights.pier = 0;
+    var blockedLight = M.buildLight(coast, 'quay', 1);
+    check('a lighthouse stays dark while the quay choice is open', blockedLight.ok === false && blockedLight.reason === 'choice' && (coast.lights.quay || 0) === 0);
+    var gated = ready();
+    gated.trips = 3;
+    gated.boats[0].owned = M.SLOOP_AT;
+    gated.boats[1].owned = 10;
+    gated.boats[2].owned = 10;
+    gated.boats[3].owned = 16;
+    gated.captains[0].hired = true;
+    gated.captains[1].hired = true;
+    gated.captains[2].hired = true;
+    gated.captains[3].hired = true;
+    gated.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
+    gated.played = 100;
+    ['kelp', 'gull', 'tea', 'headland', 'reed', 'night'].forEach(function (id) { gated.routes[id] = 2; });
+    gated.voyages = 12;
+    check('the goal stops saying sign the next route once no contract is on the desk', M.routeOffers(gated, false).length === 0 && /Sign the next route/.test(P.goal(gated)) === false && M.routesComplete(gated) === false);
+    check('a short purse says how many coins are still needed', M.needMore({ cash: 80000 }, 500000) === 'Need 420K');
     var piled = ready();
     piled.boats[0].owned = M.WREN_AT;
     M.hire(piled, 0, 1700000000000);
@@ -417,6 +460,7 @@ document.querySelector('#run').onclick = async function () {
     sea.cash = 1e18;
     sea.captains[3].hired = true;
     sea.played = 2000;
+    sea.forks = { sloop: 'fit', schooner: 'fit', quay: 'lamp' };
     var signed = 0;
     while (sea.voyages < M.CHART_FULL && signed < 80) {
       var offer = M.routeOffers(sea, true)[0];
@@ -668,7 +712,7 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.state.cash = 0;
     slotWin.__saltmarsh.render();
     var dearRoute = slotDoc.querySelector('[data-act="route"]');
-    check('a route you cannot afford says how many coins are still needed', !!dearRoute && /Need .+ more\./.test(dearRoute.textContent));
+    check('a route you cannot afford says how many coins are still needed', !!dearRoute && /Need \S+/.test(dearRoute.textContent) && /…/.test(dearRoute.textContent) === false);
     ['kelp', 'gull', 'tea', 'headland', 'night', 'reed'].forEach(function (id) { slotWin.__saltmarsh.state.routes[id] = 1; });
     slotWin.__saltmarsh.state.cash = 1e15;
     slotWin.__saltmarsh.render();
@@ -691,6 +735,17 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.state.cash += 1e9;
     goalBuy.click();
     check('Max buys the count it showed, not one more', slotWin.__saltmarsh.state.boats[1].owned === 10);
+    slotWin.__saltmarsh.state.bulk = 'max';
+    slotWin.__saltmarsh.state.boats[0].owned = 5;
+    slotWin.__saltmarsh.state.cash = 50000;
+    slotWin.__saltmarsh.render();
+    var rowBuy = slotDoc.querySelector('#boats [data-i="0"] [data-act="buy"]');
+    var rowMatch = /(?:Buy up to|To the goal ·|Buy)\s+(\d+)/.exec(rowBuy ? rowBuy.textContent : '');
+    var rowLabel = rowMatch ? +rowMatch[1] : 0;
+    var rowBefore = slotWin.__saltmarsh.state.boats[0].owned;
+    slotWin.__saltmarsh.state.cash += 1e9;
+    rowBuy.click();
+    check('Max buys the labelled count while income is unpainted', rowLabel > 0 && slotWin.__saltmarsh.state.boats[0].owned - rowBefore === rowLabel);
 
     wipe();
     var wideState = ready();
@@ -881,13 +936,14 @@ document.querySelector('#run').onclick = async function () {
     var lampWin = lampsBox.contentWindow;
     var lampState = lampWin.__saltmarsh.state;
     lampState.cash = 1e18;
+    lampState.played = 2000;
     var lampGuard = 0;
     while (lampWin.Saltmarsh.lightOffers(lampState, false).length && lampGuard++ < 8) {
       lampWin.Saltmarsh.buildLight(lampState, lampWin.Saltmarsh.lightOffers(lampState, false)[0].id, 1);
     }
     lampWin.__saltmarsh.view.freshPrices = true;
     lampWin.__saltmarsh.render();
-    check('lighting every lamp on the lamps preset shows the last voyage and no open choice', lampWin.Saltmarsh.allLightsLit(lampState) && lampsBox.contentDocument.querySelector('#finale').hidden === false && /Send the last voyage/.test(lampsBox.contentDocument.querySelector('#finale-go').textContent) && lampsBox.contentDocument.querySelector('#choice').hidden === true);
+    check('lighting every lighthouse on the lamps preset shows the last voyage and no open choice', lampWin.Saltmarsh.allLightsLit(lampState) && lampsBox.contentDocument.querySelector('#finale').hidden === false && /Send ·/.test(lampsBox.contentDocument.querySelector('#finale-go').textContent) && lampsBox.contentDocument.querySelector('#choice').hidden === true);
     var finalBox = await presetFrame('final');
     var finalState = finalBox.contentWindow.__saltmarsh.state;
     check('?state=final stops before the last voyage and leaves the real save alone', localStorage.getItem(KEY) === keptRaw && finalState.ended === false && finalBox.contentDocument.querySelector('#finale').hidden === false);
@@ -929,6 +985,16 @@ document.querySelector('#run').onclick = async function () {
         }
         check('at 1280 by 800 the fleet page stays under about 5,100px, near the old 4,636px layout, and action buttons stay under 60px (' + pageH + 'px, button ' + Math.round(maxBtn) + 'px)', pageH <= 4636 * 1.10 && pageH >= 3200 && tooTall === false);
       }
+      if (preset === 'lamps' && width === 1280 && height === 800) {
+        win.__saltmarsh.render();
+        var lampsWide = doc.documentElement.scrollHeight;
+        check('at 1280 by 800 the lamps page stays within about 10% of 4,438px (' + lampsWide + 'px)', lampsWide <= 4438 * 1.10 && lampsWide >= 4438 * 0.90);
+      }
+      if (preset === 'lamps' && width === 390 && height === 844) {
+        win.__saltmarsh.render();
+        var lampsPhone = doc.documentElement.scrollHeight;
+        check('at 390 by 844 the lamps page stays within about 10% of 5,280px (' + lampsPhone + 'px)', lampsPhone <= 5280 * 1.10 && lampsPhone >= 5280 * 0.90);
+      }
       var st = win.__saltmarsh.state;
       st.boats[boatIndex].owned = 10;
       st.cash = 0;
@@ -941,6 +1007,43 @@ document.querySelector('#run').onclick = async function () {
       var buyShift = shortLine.buyTop == null || longLine.buyTop == null ? 999 : Math.abs(longLine.buyTop - shortLine.buyTop);
       var routeShift = shortLine.routesBottom == null || longLine.routesBottom == null ? 999 : Math.abs(longLine.routesBottom - shortLine.routesBottom);
       check('at ' + width + ' by ' + height + ' the ' + preset + ' routes panel and Buy button stay put when the lines wrap (routes ' + routeShift.toFixed(1) + 'px, buy ' + buyShift.toFixed(1) + 'px)', buyShift < 2 && routeShift < 2);
+      var signBtn = doc.querySelector('#route-cards [data-act="route"]');
+      if (signBtn) {
+        st.cash = 1e18;
+        win.__saltmarsh.render();
+        var hostBox = doc.querySelector('#route-cards').getBoundingClientRect().top;
+        var beforeTops = {};
+        var beforeOrder = [];
+        Array.prototype.forEach.call(doc.querySelectorAll('#route-cards .route-card'), function (card) {
+          beforeTops[card.dataset.route] = card.getBoundingClientRect().top - hostBox;
+          beforeOrder.push(card.dataset.route);
+        });
+        signBtn = doc.querySelector('#route-cards [data-act="route"]');
+        if (signBtn) signBtn.click();
+        var afterHost = doc.querySelector('#route-cards').getBoundingClientRect().top;
+        var cardMove = 0;
+        var cardWhere = '';
+        var afterOrder = [];
+        Array.prototype.forEach.call(doc.querySelectorAll('#route-cards .route-card'), function (card) {
+          afterOrder.push(card.dataset.route);
+          if (!(card.dataset.route in beforeTops)) return;
+          var delta = Math.abs((card.getBoundingClientRect().top - afterHost) - beforeTops[card.dataset.route]);
+          if (delta > cardMove) { cardMove = delta; cardWhere = card.dataset.route; }
+        });
+        var sameOrder = beforeOrder.join('|') === afterOrder.filter(function (id) { return beforeOrder.indexOf(id) >= 0; }).join('|');
+        check('at ' + width + ' by ' + height + ' signing a ' + preset + ' route keeps each card in place (' + cardWhere + ' ' + cardMove.toFixed(1) + 'px)', cardMove < 2 && sameOrder);
+      }
+      var gearCard = doc.querySelector('#route-gear');
+      var lightsPanel = doc.querySelector('#lights');
+      if (gearCard && gearCard.hidden === false && lightsPanel && lightsPanel.hidden === false) {
+        var lightsBefore = lightsPanel.getBoundingClientRect().top;
+        M.ROUTES.forEach(function (spec) { st.routeGear[spec.id] = true; });
+        st.gearQuote = null;
+        win.__saltmarsh.render();
+        var lightsAfter = lightsPanel.getBoundingClientRect().top;
+        var sailShift = Math.abs(lightsAfter - lightsBefore);
+        check('at ' + width + ' by ' + height + ' removing the ' + preset + ' spare sail does not jump the lighthouses (' + sailShift.toFixed(1) + 'px)', sailShift < 2);
+      }
     }
     var layoutSizes = [[1280, 800], [390, 844], [375, 812], [320, 568]];
     var layoutAt;
@@ -948,6 +1051,93 @@ document.querySelector('#run').onclick = async function () {
       await holdLayout('fleet', layoutSizes[layoutAt][0], layoutSizes[layoutAt][1], 1);
       await holdLayout('lamps', layoutSizes[layoutAt][0], layoutSizes[layoutAt][1], 3);
     }
+    function hiddenOverflow(doc) {
+      var nodes = doc.querySelectorAll('button, .wait, .habit, .facts, #rate, #away-rule, #goal');
+      var bad = [];
+      var i;
+      for (i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        if (el.closest('[hidden]')) continue;
+        if (!el.getClientRects().length) continue;
+        if (el.scrollWidth > el.clientWidth + 1) bad.push((el.id || el.className || el.tagName) + ' ' + el.scrollWidth + '>' + el.clientWidth + ' "' + (el.textContent || '').slice(0, 48) + '"');
+      }
+      return bad;
+    }
+    async function overflowAt(preset, width, height) {
+      var box = await loadFrame(preset + ' overflow ' + width, '&state=' + preset);
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 150); });
+      win.__saltmarsh.render();
+      var bad = hiddenOverflow(doc);
+      win.__saltmarsh.state.ended = true;
+      win.__saltmarsh.state.ending = win.Saltmarsh.statsOf(win.__saltmarsh.state, Date.now());
+      win.__saltmarsh.render();
+      var endingButtons = doc.querySelectorAll('#ending button');
+      var bi;
+      for (bi = 0; bi < endingButtons.length; bi++) {
+        var endBtn = endingButtons[bi];
+        if (endBtn.scrollWidth > endBtn.clientWidth + 1) bad.push('ending ' + endBtn.scrollWidth + '>' + endBtn.clientWidth + ' "' + (endBtn.textContent || '').slice(0, 48) + '"');
+      }
+      check('at ' + width + ' by ' + height + ' ' + preset + ' buttons and status lines hide no overflow' + (bad.length ? ' (' + bad.slice(0, 3).join('; ') + ')' : ''), bad.length === 0 && endingButtons.length >= 4);
+    }
+    var overflowSizes = [[320, 568], [375, 812], [390, 844]];
+    var overflowPresets = ['fleet', 'lamps', 'final'];
+    var overflowAtSize;
+    var overflowPresetAt;
+    for (overflowAtSize = 0; overflowAtSize < overflowSizes.length; overflowAtSize++) {
+      for (overflowPresetAt = 0; overflowPresetAt < overflowPresets.length; overflowPresetAt++) {
+        await overflowAt(overflowPresets[overflowPresetAt], overflowSizes[overflowAtSize][0], overflowSizes[overflowAtSize][1]);
+      }
+    }
+    async function choiceFits(width, height) {
+      var box = await loadFrame('choice fit ' + width, '&state=fleet');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 150); });
+      var st = win.__saltmarsh.state;
+      st.boats[1].owned = 10;
+      st.forks.sloop = null;
+      delete st.fittings['sloop-hull'];
+      st.cash = 1e9;
+      win.__saltmarsh.render();
+      var choice = doc.querySelector('#choice');
+      var buttons = choice.querySelectorAll('button');
+      var viewH = box.clientHeight;
+      var bothIn = buttons.length === 2;
+      var b;
+      for (b = 0; b < buttons.length; b++) {
+        var rect = buttons[b].getBoundingClientRect();
+        if (rect.top < 0 || rect.bottom > viewH + 1) bothIn = false;
+      }
+      var clipped = choice.scrollHeight > choice.clientHeight + 2;
+      check('at ' + width + ' by ' + height + ' both desk choices are on screen without scrolling', choice.hidden === false && bothIn && clipped === false);
+    }
+    await choiceFits(1280, 800);
+    await choiceFits(390, 844);
+    await choiceFits(320, 568);
+    var quayBox = await loadFrame('quay block', '&state=fleet');
+    quayBox.style.width = '390px';
+    quayBox.style.height = '844px';
+    var quayWin = quayBox.contentWindow;
+    var quayDoc = quayBox.contentDocument;
+    await new Promise(function (resolve) { setTimeout(resolve, 150); });
+    var quayState = quayWin.__saltmarsh.state;
+    quayState.boats[3].owned = 16;
+    quayState.captains[3].hired = true;
+    ['kelp', 'gull', 'tea', 'headland', 'reed'].forEach(function (id) { quayState.routes[id] = 1; });
+    quayState.voyages = 5;
+    quayState.forks.quay = null;
+    quayState.cash = 1e18;
+    quayWin.__saltmarsh.render();
+    var quayLight = quayDoc.querySelector('[data-act="light"][data-light="quay"]');
+    var lightsBeforeClick = quayState.lights.quay || 0;
+    if (quayLight) quayLight.click();
+    check('the quay lighthouse says to choose the quay first and does not raise', !!quayLight && quayLight.disabled === true && /Choose the quay first/.test(quayLight.textContent) && (quayState.lights.quay || 0) === lightsBeforeClick);
     wipe();
     check('other saves are untouched', Object.keys(localStorage).slice().sort().join('|') === storedKeys);
     sum.textContent = 'PASS — ' + n + ' checks';
