@@ -1101,29 +1101,31 @@ document.querySelector('#run').onclick = async function () {
         st.lightQuotes = {};
         st.log = [];
         var logAt;
-        for (logAt = 0; logAt < 12; logAt++) st.log.push({ t: 1, text: 'A short line ' + logAt });
+        for (logAt = 0; logAt < 10; logAt++) st.log.push({ t: 1, text: 'The tide is quiet.' });
         win.__saltmarsh.render();
         function cardTop(id) {
           var card = lightHost.querySelector('.light-card[data-light="' + id + '"]');
           if (!card) return null;
           return card.getBoundingClientRect().top - lightHost.getBoundingClientRect().top;
         }
+        var oneLine = doc.querySelector('.log li');
+        var oneH = oneLine ? oneLine.getBoundingClientRect().height : 999;
+        var textH = oneLine ? parseFloat(win.getComputedStyle(oneLine).lineHeight) : 1;
         var headBefore = cardTop('headland');
         var reedBefore = cardTop('reed');
         var panelBefore = lightsPanel.getBoundingClientRect().top;
         st.lights.pier = 1;
         st.lights.headland = 2;
-        st.log.unshift({ t: 2, text: 'The Pier Lighthouse\'s tower is up. Lighting it keeps Gull Rock and the Night Cut whole.' });
+        st.log.unshift({ t: 2, who: 'wren', text: 'Capt. Wren is back from 6 hauls, 240K coins in all.' });
+        st.log.unshift({ t: 3, text: 'Another shed, instead of the lighter sloop hulls. The office keeps two more hours when the game is closed.' });
+        st.log.unshift({ t: 4, text: 'The Pier Lighthouse\'s tower is up. Lighting it keeps Gull Rock and the Night Cut whole.' });
         if (st.log.length > 12) st.log.length = 12;
         win.__saltmarsh.render();
         var headMove = headBefore == null ? 999 : Math.abs(cardTop('headland') - headBefore);
         var reedMove = reedBefore == null ? 999 : Math.abs(cardTop('reed') - reedBefore);
         var panelMove = Math.abs(lightsPanel.getBoundingClientRect().top - panelBefore);
-        check('at ' + width + ' by ' + height + ' lighting Pier and Headland does not jump the lighthouse list (headland ' + headMove.toFixed(1) + 'px, reed ' + reedMove.toFixed(1) + 'px, panel ' + panelMove.toFixed(1) + 'px)', headMove < 2 && reedMove < 2 && panelMove < 2);
-        var logLine = doc.querySelector('.log li');
-        var logH = logLine ? logLine.getBoundingClientRect().height : 0;
-        var logCap = width >= 900 ? 32 : width > 350 ? 58 : 80;
-        check('at ' + width + ' by ' + height + ' a log line is the height of its words (' + logH.toFixed(0) + 'px)', logH >= 16 && logH <= logCap);
+        check('at ' + width + ' by ' + height + ' the shed line and a long captain line do not jump the lighthouse list (headland ' + headMove.toFixed(1) + 'px, reed ' + reedMove.toFixed(1) + 'px, panel ' + panelMove.toFixed(1) + 'px)', headMove < 2 && reedMove < 2 && panelMove < 2);
+        check('at ' + width + ' by ' + height + ' a one-line log entry is about as tall as its words (' + oneH.toFixed(0) + 'px, text ' + textH.toFixed(0) + 'px)', oneH <= textH * 1.3 + 1);
       }
     }
     var layoutSizes = [[1280, 800], [390, 844], [375, 812], [320, 568]];

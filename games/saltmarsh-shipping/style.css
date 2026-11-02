@@ -176,16 +176,6 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .light-card { min-height: 12.6rem; }
 .light-card .habit { min-height: 4.8em; }
 .light-card .actions { min-height: 2.75rem; }
-/* A log line keeps the height of the words at this width, so lighting a tower
-   does not push the lighthouse list. One line on a wide screen, two below
-   900px, three at 350px and under. */
-.log li { min-height: 1.5em; }
-@media (max-width: 899px) {
-  .log li { min-height: 3em; }
-}
-@media (max-width: 350px) {
-  .log li { min-height: 4.45em; }
-}
 .route-card h3,
 .light-card h3 { white-space: normal; }
 @media (max-width: 800px) {
