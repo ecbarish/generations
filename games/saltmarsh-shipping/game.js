@@ -384,7 +384,10 @@
         p.textContent = spec.line + ' It is ' + spec.time + '.' + risk + (spec.perk ? ' ' + spec.perk : '');
         var gain = document.createElement('p');
         gain.className = 'facts';
-        gain.textContent = offer ? 'Adds about ' + M.rateWords(offer.gain) + '.' : 'Sign the contract on the desk first.';
+        var peek = !offer && row.signed > 0 && row.signed < spec.depths ? M.peekRoute(state, spec) : null;
+        if (offer) gain.textContent = 'Adds about ' + M.rateWords(offer.gain) + '.';
+        else if (peek) gain.textContent = 'Next: ' + money(peek.cost) + ', after the current one.';
+        else gain.textContent = 'Signed.';
         wrap.appendChild(h);
         wrap.appendChild(p);
         wrap.appendChild(gain);
@@ -396,7 +399,7 @@
         if (offer) button.dataset.act = 'route';
         else {
           button.disabled = true;
-          button.textContent = row.signed >= spec.depths ? 'Signed' : 'Sign the one on the desk';
+          button.textContent = peek ? (money(peek.cost) + ' · after the current one') : 'Signed';
         }
         actions.appendChild(button);
         wrap.appendChild(actions);
@@ -417,6 +420,18 @@
       button.disabled = !offer.affordable;
       var label = 'Sign · ' + money(offer.cost);
       button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
+    });
+    Array.prototype.forEach.call(host.querySelectorAll('button[disabled][data-route]'), function (button) {
+      var spec = null;
+      M.ROUTES.forEach(function (row) { if (row.id === button.dataset.route) spec = row; });
+      if (!spec) return;
+      var peek = M.peekRoute(state, spec);
+      var card = button.parentNode && button.parentNode.parentNode;
+      var facts = card ? card.querySelector('.facts') : null;
+      if (!peek) return;
+      var contractNow = M.routeContract(state, spec.id);
+      button.textContent = money(peek.cost) + ' · after the current one';
+      if (facts) facts.textContent = 'Next: ' + money(peek.cost) + ', after the current one.';
     });
     var gear = M.gearOffer(state);
     var gearHost = $('#route-gear');
@@ -510,6 +525,7 @@
         for (var i = 0; i < offers.length; i++) if (offers[i].id === spec.id) offer = offers[i];
         var wrap = document.createElement('div');
         wrap.className = 'light-card';
+        wrap.dataset.light = spec.id;
         var h = document.createElement('h3');
         h.textContent = spec.name + (stage >= 2 ? ' · burning' : stage === 1 ? ' · tower up' : ' · dark');
         var p = document.createElement('p');
@@ -518,16 +534,18 @@
         p.textContent = spec.lines[lineAt] || spec.lines[0];
         wrap.appendChild(h);
         wrap.appendChild(p);
-        if (offer) {
-          var actions = document.createElement('div');
-          actions.className = 'actions';
-          var button = document.createElement('button');
-          button.type = 'button';
-          button.dataset.act = 'light';
-          button.dataset.light = spec.id;
-          actions.appendChild(button);
-          wrap.appendChild(actions);
+        var actions = document.createElement('div');
+        actions.className = 'actions';
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.light = spec.id;
+        if (offer) button.dataset.act = 'light';
+        else {
+          button.disabled = true;
+          button.textContent = 'Burning';
         }
+        actions.appendChild(button);
+        wrap.appendChild(actions);
         host.appendChild(wrap);
       });
     }
@@ -546,6 +564,21 @@
       var label = verb + ' · ' + money(offer.cost);
       button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
     });
+  }
+
+  function fillProvision() {
+    var box = $('#provision');
+    if (!box) return;
+    var offer = M.provisionOffer(state, true);
+    box.hidden = !offer;
+    if (box.hidden) return;
+    var title = $('#provision-title');
+    if (title) title.textContent = 'Provision the last voyage: ' + offer.index + ' / ' + offer.total;
+    $('#provision-note').textContent = offer.name + '. The last voyage waits until the hold is full.';
+    var button = $('#provision-go');
+    button.disabled = !offer.affordable;
+    var label = offer.name + ' · ' + money(offer.cost);
+    button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
   }
 
   function fillFinale() {
@@ -718,6 +751,7 @@
     fillSettled();
     fillRoutes();
     fillLights();
+    fillProvision();
     fillFinale();
     fillEnding();
     fillSheds();
@@ -839,8 +873,12 @@
     });
   }
 
+  function actNow() {
+    return typeof window.__saltmarshTime === 'number' ? window.__saltmarshTime : Date.now();
+  }
+
   function hireAt(index) {
-    if (!M.hire(state, index).ok) return;
+    if (!M.hire(state, index, actNow()).ok) return;
     if (state.sound) audio.sfx('level');
     persist();
     render();
@@ -899,6 +937,14 @@
     }
     if (b.dataset.act === 'light') {
       if (M.buildLight(state, b.dataset.light).ok) {
+        if (state.sound) audio.sfx('quest');
+        persist();
+        render();
+      }
+      return;
+    }
+    if (b.dataset.act === 'provision' || b.id === 'provision-go') {
+      if (M.buyProvision(state, actNow()).ok) {
         if (state.sound) audio.sfx('quest');
         persist();
         render();
@@ -1093,6 +1139,67 @@
     });
   }
 
+  function usableControl(b) {
+    return !!(b && !b.disabled && !b.hidden && !b.closest('[hidden]'));
+  }
+
+  /* One click of whatever the goal bar is asking for. The pacing run uses this,
+     so a measured wait is a wait on the step the player can see. */
+  function followGoal() {
+    var goal = ($('#goal') && $('#goal').textContent) || '';
+    if (/^Choose a route/.test(goal)) {
+      var routeAct = P.nextAct(state);
+      var routeBtn = routeAct && routeAct.kind === 'route'
+        ? document.querySelector('#route-cards [data-route="' + routeAct.id + '"] [data-act="route"]')
+        : null;
+      if (usableControl(routeBtn)) { routeBtn.click(); return true; }
+      return false;
+    }
+    if (/^Choose /.test(goal)) {
+      var choice = document.querySelector('#choice button');
+      if (usableControl(choice)) { choice.click(); return true; }
+      return false;
+    }
+    if (/^Ask /.test(goal)) {
+      var ask = $('#ask');
+      if (usableControl(ask)) { ask.click(); return true; }
+      return false;
+    }
+    if (/^Row /.test(goal)) {
+      var row = $('#row');
+      if (usableControl(row)) { row.click(); return true; }
+      return false;
+    }
+    if (/^Provision /.test(goal)) {
+      var provision = $('#provision-go');
+      if (usableControl(provision)) { provision.click(); return true; }
+      return false;
+    }
+    if (/^Send /.test(goal)) {
+      var send = $('#finale-go');
+      if (usableControl(send)) { send.click(); return true; }
+      return false;
+    }
+    var act = P.nextAct(state);
+    if (/^Sign /.test(goal) && act && act.kind === 'route') {
+      var routeBtn = document.querySelector('#route-cards [data-route="' + act.id + '"] [data-act="route"]');
+      if (usableControl(routeBtn)) { routeBtn.click(); return true; }
+      return false;
+    }
+    if (/^(Raise|Light) the /.test(goal) && act && act.kind === 'light') {
+      var lightBtn = document.querySelector('#light-cards [data-light="' + act.id + '"] [data-act="light"]');
+      if (usableControl(lightBtn)) { lightBtn.click(); return true; }
+      return false;
+    }
+    if (/^Buy |^Tie up /.test(goal)) {
+      var need = P.boatNeed(state);
+      var buy = need ? document.querySelector('#boats [data-i="' + need.tier + '"] [data-act="buy"]') : null;
+      if (usableControl(buy)) { buy.click(); return true; }
+      return false;
+    }
+    return false;
+  }
+
   window.__saltmarsh = {
     state: state,
     render: render,
@@ -1101,6 +1208,7 @@
     taps: taps,
     view: view,
     preview: preview,
+    followGoal: followGoal,
     M: M,
     P: P
   };

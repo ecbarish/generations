@@ -149,6 +149,8 @@
       keptCaptain: null,
       pilot: null,
       pilotQuote: null,
+      provisions: 0,
+      provisionQuote: null,
       jobs: {},
       log: []
     };
@@ -635,11 +637,7 @@
     if (price == null) {
       return ' ' + bits.join(' ') + ' ' + sheds + (sheds === 1 ? ' shed is' : ' sheds are') + ' standing. There is no third shed: those cheaper prices were passed, and the yard stops there.';
     }
-    var base = WAREHOUSE_COST[1];
-    var times = price / base;
-    var shown = Math.round(times * 10) / 10;
-    var timesText = Math.abs(shown - Math.round(shown)) < 0.05 ? String(Math.round(shown)) : shown.toFixed(1);
-    return ' ' + bits.join(' ') + ' This one is further down the list. The base price is ' + coins(base) + ' coins, and this shed costs ' + coins(price) + ', which is ' + timesText + ' times that base.';
+    return ' ' + bits.join(' ') + ' This shed is further down the list, at ' + coins(price) + ' coins. Each fitting took a cheaper shed\'s place, so this is the next price on the list.';
   }
 
   function needMore(state, cost) {
@@ -765,18 +763,18 @@
   function finiteNum(n) { return typeof n === 'number' && isFinite(n); }
 
   var ROUTES = [
-    { id: 'kelp', name: 'Kelp Road', order: 1, depths: 4, risk: 0, first: 26, mid: 28, later: 290, payback: 74, time: 'a short run inside the bar', line: 'Safe and close. The pay is sure.', perk: '' },
-    { id: 'gull', name: 'Gull Rock', order: 2, depths: 4, risk: 0.28, wren: true, first: 26, mid: 28, later: 290, payback: 60, time: 'a longer beat', line: 'More coin, if the gulls leave the pile alone.', perk: 'Wren\'s count keeps more of it.' },
-    { id: 'tea', name: 'Tea Reach', order: 3, depths: 4, risk: 0, bramble: true, first: 28, mid: 28, later: 290, payback: 66, time: 'a kettle stop', line: 'Bramble knows this water. The run pays better once the kettle has been boiling.', perk: 'Bramble\'s kettle quickens it.' },
-    { id: 'headland', name: 'Hollis Headland', order: 4, depths: 4, risk: 0, first: 28, mid: 28, later: 290, payback: 78, time: 'a long leg', line: 'The headland shows once Hollis has marked the chart, or once two other routes are sailing.', perk: 'Hollis drew this one.' },
-    { id: 'reed', name: 'Reed Channel', order: 5, depths: 4, risk: 0, first: 28, mid: 28, later: 290, payback: 84, time: 'the deep water', line: 'Pell takes it slow, and it pays.', perk: 'Pell names the boat that goes.' },
-    { id: 'night', name: 'Night Cut', order: 6, depths: 4, risk: 0.36, night: true, first: 26, mid: 28, later: 290, payback: 56, time: 'a fast dark run', line: 'Fast, and part of the cargo can vanish before a lighthouse is burning.', perk: 'A lighthouse on the coast keeps more of it.' }
+    { id: 'kelp', name: 'Kelp Road', order: 1, depths: 4, risk: 0, first: 26, mid: 28, later: 32, payback: 74, time: 'a short run inside the bar', line: 'Safe and close. The pay is sure.', perk: '' },
+    { id: 'gull', name: 'Gull Rock', order: 2, depths: 4, risk: 0.28, wren: true, first: 26, mid: 28, later: 32, payback: 60, time: 'a longer beat', line: 'More coin, if the gulls leave the pile alone.', perk: 'Wren\'s count keeps more of it.' },
+    { id: 'tea', name: 'Tea Reach', order: 3, depths: 4, risk: 0, bramble: true, first: 28, mid: 28, later: 32, payback: 66, time: 'a kettle stop', line: 'Bramble knows this water. The run pays better once the kettle has been boiling.', perk: 'Bramble\'s kettle quickens it.' },
+    { id: 'headland', name: 'Hollis Headland', order: 4, depths: 4, risk: 0, first: 28, mid: 28, later: 32, payback: 78, time: 'a long leg', line: 'The headland shows once Hollis has marked the chart, or once two other routes are sailing.', perk: 'Hollis drew this one.' },
+    { id: 'reed', name: 'Reed Channel', order: 5, depths: 4, risk: 0, first: 28, mid: 28, later: 32, payback: 84, time: 'the deep water', line: 'Pell takes it slow, and it pays.', perk: 'Pell names the boat that goes.' },
+    { id: 'night', name: 'Night Cut', order: 6, depths: 4, risk: 0.36, night: true, first: 26, mid: 28, later: 32, payback: 56, time: 'a fast dark run', line: 'Fast, and part of the cargo can vanish before a lighthouse is burning.', perk: 'A lighthouse on the coast keeps more of it.' }
   ];
   var LIGHTS = [
-    { id: 'pier', name: 'Pier Lighthouse', wait: 300, lines: ['Still dark. Raising the Pier Lighthouse makes nights safer.', 'The Pier Lighthouse\'s tower is up. Lighting it keeps Gull Rock and the Night Cut whole.', 'The Pier Lighthouse is burning. Gull Rock and the Night Cut keep their cargo.'] },
-    { id: 'headland', name: 'Headland Lighthouse', wait: 300, lines: ['Still dark. Raising the Headland Lighthouse makes the runs quicker.', 'The Headland Lighthouse\'s tower is up. Lighting it makes every route pay sooner.', 'The Headland Lighthouse is burning. Every route pays sooner.'] },
-    { id: 'reed', name: 'Reed Lighthouse', wait: 300, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The Reed Lighthouse\'s tower is up. Lighting it shows the road for the last voyage.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
-    { id: 'quay', name: 'Quay Lighthouse', wait: 300, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The Quay Lighthouse\'s tower is up. Lighting it pulls harder on Wren\'s and Bramble\'s routes.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
+    { id: 'pier', name: 'Pier Lighthouse', wait: 26, lines: ['Still dark. Raising the Pier Lighthouse makes nights safer.', 'The Pier Lighthouse\'s tower is up. Lighting it keeps Gull Rock and the Night Cut whole.', 'The Pier Lighthouse is burning. Gull Rock and the Night Cut keep their cargo.'] },
+    { id: 'headland', name: 'Headland Lighthouse', wait: 26, lines: ['Still dark. Raising the Headland Lighthouse makes the runs quicker.', 'The Headland Lighthouse\'s tower is up. Lighting it makes every route pay sooner.', 'The Headland Lighthouse is burning. Every route pays sooner.'] },
+    { id: 'reed', name: 'Reed Lighthouse', wait: 26, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The Reed Lighthouse\'s tower is up. Lighting it shows the road for the last voyage.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
+    { id: 'quay', name: 'Quay Lighthouse', wait: 26, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The Quay Lighthouse\'s tower is up. Lighting it pulls harder on Wren\'s and Bramble\'s routes.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
   ];
   var ROUTE_IDS = ROUTES.map(function (r) { return r.id; });
   var LIGHT_IDS = LIGHTS.map(function (r) { return r.id; });
@@ -874,7 +872,8 @@
   function computeRoute(state, spec) {
     var depth = (state.routes && state.routes[spec.id]) || 0;
     var rate = Math.max(1, officeRate(state));
-    /* The first two contracts on a route stay near half a minute. The later ones are the long watch, and they are not offered until the office has been open a while. */
+    /* Every contract on the desk is a short step, about half a minute of the office.
+       The long arc is the provisions after the lights, not a hidden wait on a later contract. */
     var stake = depth <= 0 ? spec.first : depth === 1 ? spec.mid : spec.later;
     var risk = spec.risk || 0;
     if (spec.wren) risk = Math.max(0, risk - wrenKeep(state));
@@ -951,6 +950,18 @@
     var label = signed >= depths ? signed + ' signed' : signed + ' signed · contract ' + next + ' of ' + depths;
     return { signed: signed, next: next, depths: depths, label: label };
   }
+  /* A contract that is signed but not on the desk yet. The price is a live look, not a locked quote,
+     so putting it on the card does not freeze a cheap price for later. */
+  function peekRoute(state, spec) {
+    if (!spec || !state) return null;
+    var signed = (state.routes && state.routes[spec.id]) || 0;
+    if (signed <= 0 || signed >= spec.depths) return null;
+    var offers = routeOffers(state, false);
+    var i;
+    for (i = 0; i < offers.length; i++) if (offers[i].id === spec.id) return null;
+    var built = computeRoute(state, spec);
+    return { id: spec.id, depth: built.depth, depths: spec.depths, cost: built.cost, name: spec.name };
+  }
   function routesComplete(state) {
     var i;
     for (i = 0; i < ROUTES.length; i++) {
@@ -1011,14 +1022,9 @@
     var key = spec.id + ':' + stage;
     if (!state.lightQuotes) state.lightQuotes = {};
     if (state.lightQuotes[key]) return state.lightQuotes[key];
-    /* Before the long watch, a lighthouse is a short step. Pier and Headland were
-       the slow pair by hand, so their first raise is the cheaper of the two.
-       A quote taken after the office has been open a while stays a long watch,
-       which is what carries an active office out to the last voyage. */
-    var early = (state.played || 0) < 1300;
-    var span = spec.wait;
-    if (early) span = stage === 0 && (spec.id === 'pier' || spec.id === 'headland') ? 22 : 26;
-    var cost = Math.max(1, officeRate(state)) * span;
+    /* Raising and lighting are the same short step whenever they appear.
+       There is no clock that makes a lighthouse dearer after a hidden minute. */
+    var cost = Math.max(1, officeRate(state)) * spec.wait;
     /* A price already on the desk caps a new raise. Raising one lighthouse
        must not reprice the others by the income that raise just added.
        Lighting a tower is a separate watch, so it keeps its own price. */
@@ -1063,14 +1069,61 @@
     state.lights[id] = prevStage + 1;
     if (state.lightQuotes) delete state.lightQuotes[id + ':' + prevStage];
     pushLog(state, quote.line, now);
-    if (allLightsLit(state)) pushLog(state, 'Every lighthouse on the coast is burning. The last voyage can leave.', now);
+    if (allLightsLit(state)) pushLog(state, 'Every lighthouse on the coast is burning. Sign every route, and provision the last voyage.', now);
     return { ok: true, stage: state.lights[id] };
   }
+  /* After the four lights, the hold is filled one purchase at a time.
+     Lighting the coast opens this stretch. It does not send the last voyage. */
+  var PROVISION_TOTAL = 210;
+  var PROVISION_SPAN = 32;
+  var PROVISION_NAMES = [
+    'Victuals for the crew',
+    'Canvas for the sails',
+    'Coal for the lamps',
+    'A pilot for the bar',
+    'Charts for the last run'
+  ];
+  function provisionOffer(state, lock) {
+    if (!allLightsLit(state) || !state || state.ended) return null;
+    var done = state.provisions || 0;
+    if (done >= PROVISION_TOTAL) return null;
+    var name = PROVISION_NAMES[done % PROVISION_NAMES.length];
+    var cost;
+    if (state.provisionQuote && finiteNum(state.provisionQuote.cost)) {
+      name = state.provisionQuote.name || name;
+      cost = state.provisionQuote.cost;
+    } else {
+      cost = Math.max(1, officeRate(state)) * PROVISION_SPAN;
+      if (lock) state.provisionQuote = { name: name, cost: cost };
+    }
+    return {
+      index: done,
+      total: PROVISION_TOTAL,
+      name: name,
+      cost: cost,
+      affordable: state.cash >= cost,
+      line: 'Provision the last voyage: ' + done + ' / ' + PROVISION_TOTAL
+    };
+  }
+  function buyProvision(state, now) {
+    var offer = provisionOffer(state, true);
+    if (!offer) return { ok: false, reason: 'closed' };
+    if (!(state.cash >= offer.cost)) return { ok: false, reason: 'cost', cost: offer.cost };
+    state.cash -= offer.cost;
+    if (state.cash < 1e-6) state.cash = 0;
+    state.provisions = (state.provisions || 0) + 1;
+    state.provisionQuote = null;
+    var left = PROVISION_TOTAL - state.provisions;
+    var sentence = offer.name + '. Provision the last voyage: ' + state.provisions + ' / ' + PROVISION_TOTAL + '.';
+    if (left === 0) sentence += ' The hold is full.';
+    pushLog(state, sentence, now);
+    return { ok: true, provisions: state.provisions };
+  }
   function finaleOffer(state, lock) {
-    if (!allLightsLit(state) || state.ended) return null;
-    if (state.finaleCost == null && lock) state.finaleCost = Math.max(1, officeRate(state)) * 290;
-    var cost = state.finaleCost != null ? state.finaleCost : Math.max(1, officeRate(state)) * 290;
-    return { cost: cost, affordable: state.cash >= cost, line: 'One last run, past the lights, and the office is finished.' };
+    if (!allLightsLit(state) || !routesComplete(state) || (state.provisions || 0) < PROVISION_TOTAL || state.ended) return null;
+    if (state.finaleCost == null && lock) state.finaleCost = Math.max(1, officeRate(state)) * 32;
+    var cost = state.finaleCost != null ? state.finaleCost : Math.max(1, officeRate(state)) * 32;
+    return { cost: cost, affordable: state.cash >= cost, line: 'Every route is signed and the hold is full. One last run, past the lights, and the office is finished.' };
   }
   function chartCount(lifetime) {
     if (!(lifetime > 0)) return 0;
@@ -1344,6 +1397,8 @@
     if (o.finaleCost != null && (!finiteNum(o.finaleCost) || o.finaleCost < 0)) return false;
     if (o.pilot != null && o.pilot !== 'bell' && o.pilot !== 'coal') return false;
     if (o.pilotQuote != null && (!finiteNum(o.pilotQuote) || o.pilotQuote < 0)) return false;
+    if (o.provisions != null && (!finiteNum(o.provisions) || o.provisions < 0)) return false;
+    if (o.provisionQuote != null && (typeof o.provisionQuote !== 'object' || !finiteNum(o.provisionQuote.cost) || o.provisionQuote.cost < 0)) return false;
     if (o.played != null && (!finiteNum(o.played) || o.played < 0)) return false;
     if (o.routeGear != null && typeof o.routeGear !== 'object') return false;
     if (o.gearQuote != null && typeof o.gearQuote !== 'object') return false;
@@ -1395,6 +1450,8 @@
       keptCaptain: state.keptCaptain || null,
       pilot: state.pilot === 'bell' || state.pilot === 'coal' ? state.pilot : null,
       pilotQuote: finiteNum(state.pilotQuote) ? state.pilotQuote : null,
+      provisions: state.provisions || 0,
+      provisionQuote: state.provisionQuote && finiteNum(state.provisionQuote.cost) ? { name: state.provisionQuote.name || '', cost: state.provisionQuote.cost } : null,
       jobs: state.jobs || {},
       log: (state.log || []).slice(0, 12)
     };
@@ -1449,6 +1506,8 @@
     state.keptCaptain = typeof o.keptCaptain === 'string' ? o.keptCaptain : null;
     state.pilot = o.pilot === 'bell' || o.pilot === 'coal' ? o.pilot : null;
     state.pilotQuote = finiteNum(o.pilotQuote) ? o.pilotQuote : null;
+    state.provisions = finiteNum(o.provisions) ? Math.max(0, Math.floor(o.provisions)) : 0;
+    state.provisionQuote = o.provisionQuote && finiteNum(o.provisionQuote.cost) ? { name: typeof o.provisionQuote.name === 'string' ? o.provisionQuote.name : '', cost: o.provisionQuote.cost } : null;
     state.waivedSheds = finiteNum(o.waivedSheds) ? Math.floor(o.waivedSheds) : 0;
     state.marks = finiteNum(o.marks) ? Math.min(12, Math.floor(o.marks)) : 0;
     state.fleetSeen = !!o.fleetSeen;
@@ -1528,6 +1587,7 @@
     s.routeGross.night = 100;
     s.voyages = CHART_FULL;
     s.lights.quay = 2;
+    s.provisions = PROVISION_TOTAL;
     s.ended = false;
     s.finaleCost = null;
     s.cash = 0;
@@ -1565,6 +1625,8 @@
     BARK_QUAY: BARK_QUAY,
     BARK_LAMP: BARK_LAMP,
     CHART_FULL: CHART_FULL,
+    PROVISION_TOTAL: PROVISION_TOTAL,
+    PROVISION_SPAN: PROVISION_SPAN,
     FITTINGS: FITTINGS,
     OFFLINE_RATE: OFFLINE_RATE,
     WAREHOUSE_HOURS: WAREHOUSE_HOURS,
@@ -1619,12 +1681,15 @@
     routeOffers: routeOffers,
     signRoute: signRoute,
     routeContract: routeContract,
+    peekRoute: peekRoute,
     routesComplete: routesComplete,
     routeLedger: routeLedger,
     gearOffer: gearOffer,
     buyGear: buyGear,
     lightOffers: lightOffers,
     buildLight: buildLight,
+    provisionOffer: provisionOffer,
+    buyProvision: buyProvision,
     finaleOffer: finaleOffer,
     launchFinale: launchFinale,
     quayOffer: quayOffer,

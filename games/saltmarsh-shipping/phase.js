@@ -62,12 +62,13 @@
     return base + '. ' + need + ' more.';
   }
 
-  /* The next thing on the desk that can actually be signed, raised, lit or sent. */
+  /* The cheapest required step that is actually on the desk.
+     Quotes lock here, so the same step's price cannot climb while coins come in. */
   function nextAct(state) {
     var M = window.Saltmarsh;
     if (!state || state.ended || !M.routesUnlocked(state)) return null;
-    var routes = M.routeOffers(state, false);
-    var lights = M.routesSailing(state) >= 5 ? M.lightOffers(state, false) : [];
+    var routes = M.routeOffers(state, true);
+    var lights = M.routesSailing(state) >= 5 ? M.lightOffers(state, true) : [];
     var route = null;
     var light = null;
     var i;
@@ -76,29 +77,47 @@
       if (lights[i].blocked) continue;
       if (!light || lights[i].cost < light.cost) light = lights[i];
     }
-    var rate = Math.max(1, M.officeRate(state));
-    function soon(cost) { return cost <= rate * 35; }
-    var routeAct = route ? {
+    var options = [];
+    if (route) options.push({
       kind: 'route',
+      id: route.id,
+      rank: 1,
       selector: '#route-cards [data-route="' + route.id + '"]',
-      sentence: withNeed(state, 'Sign ' + route.name, route.cost),
-      soon: soon(route.cost),
+      sentence: withNeed(state, 'Sign ' + route.name + ', ' + M.coins(route.cost), route.cost),
       cost: route.cost
-    } : null;
-    var lightAct = light ? {
+    });
+    if (light) options.push({
       kind: 'light',
+      id: light.id,
+      rank: 0,
       selector: '#light-cards [data-light="' + light.id + '"]',
-      sentence: withNeed(state, (light.stage === 0 ? 'Raise the ' : 'Light the ') + light.name, light.cost),
-      soon: soon(light.cost),
+      sentence: withNeed(state, (light.stage === 0 ? 'Raise the ' : 'Light the ') + light.name + ', ' + M.coins(light.cost), light.cost),
       cost: light.cost
-    } : null;
-    if (routeAct && routeAct.soon && (!lightAct || light.cost >= route.cost)) return routeAct;
-    if (lightAct && lightAct.soon) return lightAct;
-    if (routeAct && (!lightAct || route.cost <= light.cost)) return routeAct;
-    if (lightAct) return lightAct;
-    var finale = M.finaleOffer(state, false);
-    if (finale) return { kind: 'finale', selector: '#finale', sentence: withNeed(state, 'Send the last voyage', finale.cost), soon: true, cost: finale.cost };
-    return null;
+    });
+    var provision = M.provisionOffer ? M.provisionOffer(state, true) : null;
+    if (provision) options.push({
+      kind: 'provision',
+      id: 'provision',
+      rank: 2,
+      selector: '#provision',
+      sentence: withNeed(state, 'Provision the last voyage: ' + provision.index + ' / ' + provision.total + '. ' + provision.name + ', ' + M.coins(provision.cost), provision.cost),
+      cost: provision.cost
+    });
+    var finale = M.finaleOffer(state, true);
+    if (finale) options.push({
+      kind: 'finale',
+      id: 'finale',
+      rank: 3,
+      selector: '#finale',
+      sentence: withNeed(state, 'Send the last voyage, ' + M.coins(finale.cost), finale.cost),
+      cost: finale.cost
+    });
+    if (!options.length) return null;
+    options.sort(function (a, b) {
+      if (a.cost !== b.cost) return a.cost - b.cost;
+      return a.rank - b.rank;
+    });
+    return options[0];
   }
 
   /* One sentence, always. The player should be able to read it and know what to do. */
@@ -200,7 +219,12 @@
     if (!state || state.trips < M.HAND_TRIPS || state.boats[1].owned < M.UNLOCK_AT) return '';
     if (state.ended) return '';
     var lit = M.lightsLit(state);
-    if (lit >= 4) return 'The lighthouses are burning. The last voyage is the end of the office.';
+    if (lit >= 4 && M.finaleOffer(state, false)) return 'The lighthouses are burning. The last voyage is the end of the office.';
+    if (lit >= 4) {
+      var held = state.provisions || 0;
+      var total = M.PROVISION_TOTAL || 0;
+      return 'The lighthouses are burning. Provision the last voyage: ' + held + ' / ' + total + '.';
+    }
     if (lit === 1) return 'Four lighthouses along the coast, then the last voyage home. One is burning.';
     if (lit > 1) return 'Four lighthouses along the coast, then the last voyage home. ' + ['', '', 'Two', 'Three'][lit] + ' are burning.';
     return 'Four lighthouses along the coast, then the last voyage home.';

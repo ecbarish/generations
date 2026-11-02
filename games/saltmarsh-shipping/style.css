@@ -172,6 +172,10 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   overflow: hidden;
   text-overflow: clip;
 }
+.light-card { min-height: 12.6rem; }
+.light-card .habit { min-height: 4.8em; }
+.light-card .actions { min-height: 2.75rem; }
+.log li { min-height: 4.8em; }
 .route-card h3,
 .light-card h3 { white-space: normal; }
 @media (max-width: 800px) {
