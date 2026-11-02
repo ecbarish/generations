@@ -11,4 +11,4 @@ Simulated times from `node tools/saltmarsh-pacing.cjs`. These are not a watched 
 
 A hand player in the first 20 minutes, buying boats and taking the desk choices, has 1m 40s as the longest stretch with nothing new between minute 4 and minute 20, and reaches the longer quay.
 
-Screenshots: a fresh office at 1280×800, 390×844, 375×812 and 844×390; a route choice; lighthouses lit in the harbour, including the short sideways window; and the ending with the credits and a new harbour.
+Screenshots: a fresh office at 1280×800, 390×844, 375×812 and 844×390; a route choice; lighthouses lit in the harbour, including the short sideways window; the ending with the credits and a new harbour; and the Lab card, with its harbour cover, at 1280×800 and 390×844. The hall at those same widths still leads with Little Ranch, Starfall Guild and Realmbound. The office card is in the Lab.
