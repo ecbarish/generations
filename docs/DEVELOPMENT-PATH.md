@@ -313,7 +313,7 @@ No-server sharing: trade and battle codes, ghost teams (V6 part 1).
 
 ### Office idle (Evan approved the Saltmarsh slice on 2026-10-23)
 
-- [ ] IDLE-SS1 [Grok] (claimed: Grok (Cursor cloud) for Evan, 2026-10-23) **Saltmarsh Shipping Office, playable core.** Row three cargoes by hand, then buy boats, meet a captain and open the Fleet screen. Files: `games/saltmarsh-shipping/`, `tests/saltmarsh-shipping.html`, `tools/saltmarsh-pacing.cjs`. Done when an active newcomer reaches the first captain within 10 minutes and the fleet within 30 minutes, on a phone and a PC. Trade routes, lighthouses, the ending and the hall card are a later pull request. No edits to `sw.js`, `index.html`, `shared/`, `launcher/` or `.github/workflows/`.
+- [x] IDLE-SS1 [Grok] (done 2026-11-02, Grok (Cursor cloud) for Evan, PR #619, a60b76ab, v0.1.1; claimed 2026-10-23) **Saltmarsh Shipping Office, playable core.** Row three cargoes by hand, then buy boats, meet a captain and open the Fleet screen. Files: `games/saltmarsh-shipping/`, `tests/saltmarsh-shipping.html`, `tools/saltmarsh-pacing.cjs`. Done when an active newcomer reaches the first captain within 10 minutes and the fleet within 30 minutes, on a phone and a PC. Trade routes, lighthouses, the ending and the hall card are a later pull request. No edits to `sw.js`, `index.html`, `shared/`, `launcher/` or `.github/workflows/`.
 
 ### Family games (Evan said yes 2026-10-09; docs/proposals/games-for-everyone.md)
 **Little Ranch (browser), a toy for ages 2-4.**
