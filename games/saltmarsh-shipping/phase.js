@@ -55,6 +55,52 @@
     return 'Buy ' + count + '. The next route is dear, and this boat pays for itself sooner.';
   }
 
+  function withNeed(state, sentence, cost) {
+    var need = window.Saltmarsh.needMore(state, cost);
+    var base = sentence.replace(/\.$/, '');
+    if (!need) return base + '.';
+    return base + '. ' + need + ' more.';
+  }
+
+  /* The next thing on the desk that can actually be signed, raised, lit or sent. */
+  function nextAct(state) {
+    var M = window.Saltmarsh;
+    if (!state || state.ended || !M.routesUnlocked(state)) return null;
+    var routes = M.routeOffers(state, false);
+    var lights = M.routesSailing(state) >= 5 ? M.lightOffers(state, false) : [];
+    var route = null;
+    var light = null;
+    var i;
+    for (i = 0; i < routes.length; i++) if (!route || routes[i].cost < route.cost) route = routes[i];
+    for (i = 0; i < lights.length; i++) {
+      if (lights[i].blocked) continue;
+      if (!light || lights[i].cost < light.cost) light = lights[i];
+    }
+    var rate = Math.max(1, M.officeRate(state));
+    function soon(cost) { return cost <= rate * 35; }
+    var routeAct = route ? {
+      kind: 'route',
+      selector: '#route-cards [data-route="' + route.id + '"]',
+      sentence: withNeed(state, 'Sign ' + route.name, route.cost),
+      soon: soon(route.cost),
+      cost: route.cost
+    } : null;
+    var lightAct = light ? {
+      kind: 'light',
+      selector: '#light-cards [data-light="' + light.id + '"]',
+      sentence: withNeed(state, (light.stage === 0 ? 'Raise the ' : 'Light the ') + light.name, light.cost),
+      soon: soon(light.cost),
+      cost: light.cost
+    } : null;
+    if (routeAct && routeAct.soon && (!lightAct || light.cost >= route.cost)) return routeAct;
+    if (lightAct && lightAct.soon) return lightAct;
+    if (routeAct && (!lightAct || route.cost <= light.cost)) return routeAct;
+    if (lightAct) return lightAct;
+    var finale = M.finaleOffer(state, false);
+    if (finale) return { kind: 'finale', selector: '#finale', sentence: withNeed(state, 'Send the last voyage', finale.cost), soon: true, cost: finale.cost };
+    return null;
+  }
+
   /* One sentence, always. The player should be able to read it and know what to do. */
   function goal(state) {
     var M = window.Saltmarsh;
@@ -102,17 +148,8 @@
       left = M.BARK_LAMP - state.boats[3].owned;
       return 'Buy ' + more(left, 'bark', 'barks') + '. Then a house lamp shows in the office window.';
     }
-    if (M.allLightsLit(state) && M.finaleOffer(state, false)) return 'Send the last voyage.';
-    if (sailing < 5) return routeOrBoat(state, 'Choose the next route. Five different routes wake the four lighthouses.');
-    if ((state.voyages || 0) < M.CHART_FULL && M.routeOffers(state, false).length) return routeOrBoat(state, 'Sign the next route. The last voyage waits until the chart is full.');
-    if (!M.allLightsLit(state)) {
-      lit = M.lightsLit(state);
-      if (lit <= 0) return 'Raise a lighthouse. Each one changes the routes.';
-      if (lit === 1) return 'One lighthouse is burning. Raise the next.';
-      if (lit === 2) return 'Two lighthouses are burning. Raise the next.';
-      return 'Three lighthouses are burning. Raise the next.';
-    }
-    if (M.towersUp(state) && !M.allLightsLit(state) && (state.played || 0) < 1300) return 'The towers are up. Lighting them waits until this watch is longer.';
+    var act = nextAct(state);
+    if (act) return act.sentence;
     if (M.finaleOffer(state, false)) return 'Send the last voyage.';
     for (i = M.BOATS.length - 1; i >= 0; i--) {
       owned = state.boats[i].owned;
@@ -120,7 +157,8 @@
       nextAt = owned < 25 ? 25 : owned < 50 ? 50 : 100;
       left = nextAt - owned;
       var change = nextAt === 25 ? 'each one earns twice as much' : nextAt === 50 ? 'each one earns four times as much' : 'a crane rises over them';
-      return 'Buy ' + more(left, M.BOATS[i].name.toLowerCase(), M.BOATS[i].name.toLowerCase() + 's') + ', and ' + change + '.';
+      var boatCost = M.quote(state, i, left).cost;
+      return withNeed(state, 'Buy ' + more(left, M.BOATS[i].name.toLowerCase(), M.BOATS[i].name.toLowerCase() + 's') + ', and ' + change, boatCost);
     }
     if (state.warehouses < M.MAX_WAREHOUSES) return 'Raise another shed if you want the office to keep more while the game is closed.';
     return 'The coast is ready for its lights.';
@@ -196,9 +234,8 @@
     if (M.canHire(state, 3)) return '#ask';
     if (state.boats[3].owned < M.BARK_QUAY) return '#boats [data-i="3"]';
     if (state.boats[3].owned < M.BARK_LAMP) return '#boats [data-i="3"]';
-    if (M.allLightsLit(state) && M.finaleOffer(state, false)) return '#finale';
-    if (sailing < 5 || (state.voyages || 0) < M.CHART_FULL) return boatTarget(state) || '#routes';
-    if (!M.allLightsLit(state)) return '#lights';
+    var act = nextAct(state);
+    if (act) return act.selector;
     if (M.finaleOffer(state, false)) return '#finale';
     var i, owned, nextAt;
     for (i = M.BOATS.length - 1; i >= 0; i--) {
@@ -222,5 +259,5 @@
     return 'dock';
   }
 
-  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, target: target, boatNeed: boatNeed, routesOpen: routesOpen };
+  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, target: target, boatNeed: boatNeed, routesOpen: routesOpen, nextAct: nextAct };
 })();

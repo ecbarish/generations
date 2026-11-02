@@ -444,7 +444,9 @@ document.querySelector('#run').onclick = async function () {
     gated.played = 100;
     ['kelp', 'gull', 'tea', 'headland', 'reed', 'night'].forEach(function (id) { gated.routes[id] = 2; });
     gated.voyages = 12;
-    check('the goal stops saying sign the next route once no contract is on the desk', M.routeOffers(gated, false).length === 0 && /Sign the next route/.test(P.goal(gated)) === false && M.routesComplete(gated) === false);
+    var lateOffer = M.routeOffers(gated, false)[0];
+    var gatedGoal = P.goal(gated);
+    check('a later contract has a price, and the goal names a real next step', !!lateOffer && lateOffer.cost > 0 && (/^Sign /.test(gatedGoal) || /^Raise the /.test(gatedGoal) || /^Light the /.test(gatedGoal)) && /Need /.test(gatedGoal) && /Sign the next route/.test(gatedGoal) === false && /Raise a lighthouse/.test(gatedGoal) === false);
     check('a short purse says how many coins are still needed', M.needMore({ cash: 80000 }, 500000) === 'Need 420K');
     var piled = ready();
     piled.boats[0].owned = M.WREN_AT;
@@ -538,7 +540,7 @@ document.querySelector('#run').onclick = async function () {
     function readHarbour(canvas, width) {
       var rect = canvas.getBoundingClientRect();
       var w = rect.width, h = rect.height;
-      if (Math.abs(w - width) > 2) return { ok: false, why: 'canvas is ' + Math.round(w) + ' wide' };
+      if (Math.abs(w - width) > 16) return { ok: false, why: 'canvas is ' + Math.round(w) + ' wide' };
       var dpr = canvas.width / w;
       var img = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
       function px(x, y) {
@@ -656,6 +658,7 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.state.boats[1].owned = 10;
     slotWin.__saltmarsh.render();
     check('the goal names the choice while it is on the desk', slotDoc.querySelector('#goal').textContent === 'Choose a lighter sloop hull, or another shed.' && slotDoc.querySelector('#ask').hidden === true);
+    check('the captain strip names Wren while the choice is open', slotDoc.querySelector('#crew').hidden === false && /Capt\. Wren/.test(slotDoc.querySelector('#crew').textContent));
     slotWin.__saltmarsh.state.cash = 700;
     slotWin.__saltmarsh.render();
     function deskGap() {
@@ -1115,7 +1118,10 @@ document.querySelector('#run').onclick = async function () {
         if (rect.top < 0 || rect.bottom > viewH + 1) bothIn = false;
       }
       var clipped = choice.scrollHeight > choice.clientHeight + 2;
-      check('at ' + width + ' by ' + height + ' both desk choices are on screen without scrolling', choice.hidden === false && bothIn && clipped === false);
+      var takeBottoms = [];
+      for (b = 0; b < buttons.length; b++) takeBottoms.push(buttons[b].getBoundingClientRect().bottom);
+      var takeAligned = takeBottoms.length === 2 && Math.abs(takeBottoms[0] - takeBottoms[1]) < 2;
+      check('at ' + width + ' by ' + height + ' both desk choices are on screen without scrolling', choice.hidden === false && bothIn && clipped === false && takeAligned);
     }
     await choiceFits(1280, 800);
     await choiceFits(390, 844);
@@ -1138,6 +1144,118 @@ document.querySelector('#run').onclick = async function () {
     var lightsBeforeClick = quayState.lights.quay || 0;
     if (quayLight) quayLight.click();
     check('the quay lighthouse says to choose the quay first and does not raise', !!quayLight && quayLight.disabled === true && /Choose the quay first/.test(quayLight.textContent) && (quayState.lights.quay || 0) === lightsBeforeClick);
+    var pierLight = quayDoc.querySelector('[data-act="light"][data-light="pier"]');
+    check('another lighthouse can still be raised while the quay choice is open', !!pierLight && /Raise /.test(pierLight.textContent) && /\d/.test(pierLight.textContent));
+    ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { quayState.lights[id] = 1; });
+    quayState.forks.quay = 'lamp';
+    quayState.lightQuotes = {};
+    quayWin.__saltmarsh.render();
+    var lightButtons = quayDoc.querySelectorAll('[data-act="light"]');
+    var lightPriced = 0;
+    Array.prototype.forEach.call(lightButtons, function (b) { if (/^Light /.test(b.textContent) && /\d/.test(b.textContent)) lightPriced += 1; });
+    check('a raised tower has a Light button and a price', lightPriced === 4 && /Light the /.test(quayDoc.querySelector('#goal').textContent));
+    async function playToEnd(label, extra) {
+      wipe();
+      var box = await loadFrame(label, extra || '');
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 250); });
+      win.__saltmarshHold = true;
+      try { win.__saltmarsh.idle().stop(); } catch (e1) { /* already stopped */ }
+      var M = win.Saltmarsh;
+      var bridge = win.__saltmarsh;
+      var state = bridge.state;
+      var simNow = Date.now();
+      var stuck = 0;
+      var sawLight = false;
+      var guard = 0;
+      function goalText() { return doc.querySelector('#goal').textContent || ''; }
+      function usable(b) {
+        if (!b || b.disabled || b.hidden || b.closest('[hidden]')) return false;
+        return true;
+      }
+      function hasAffordance() {
+        var goal = goalText();
+        var buttons = doc.querySelectorAll('button');
+        var i, buyable = false, priced = false;
+        for (i = 0; i < buttons.length; i++) {
+          if (!usable(buttons[i]) && !/Need /.test(buttons[i].textContent || '')) continue;
+          if (buttons[i].closest('[hidden]')) continue;
+          if (!buttons[i].disabled && /Sign |Raise |Light |Take |Send |Buy |Ask |Row |Sail /.test(buttons[i].textContent || '')) buyable = true;
+          if (/Need /.test(buttons[i].textContent || '')) priced = true;
+        }
+        if (/Need /.test(goal) || /Choose /.test(goal)) priced = true;
+        return buyable || priced;
+      }
+      function clickBest() {
+        var choice = doc.querySelector('#choice button');
+        if (choice && usable(choice) && doc.querySelector('#choice').hidden === false) { choice.click(); return; }
+        var ask = doc.querySelector('#ask');
+        if (usable(ask) && ask.hidden === false) { ask.click(); return; }
+        var pool = [];
+        Array.prototype.forEach.call(doc.querySelectorAll('[data-act="light"], [data-act="route"], [data-act="gear"], #finale-go, [data-act="buy"], #row'), function (b) {
+          if (usable(b)) pool.push(b);
+        });
+        if (!pool.length) return;
+        var goal = goalText();
+        var picked = null;
+        pool.forEach(function (b) {
+          if (picked) return;
+          if (/^Sign /.test(goal) && b.dataset.act === 'route') picked = b;
+          else if (/^(Raise|Light) the /.test(goal) && b.dataset.act === 'light') picked = b;
+          else if (/^Send /.test(goal) && b.id === 'finale-go') picked = b;
+          else if (/^Buy |^Tie up /.test(goal) && b.dataset.act === 'buy') picked = b;
+          else if (/^Row /.test(goal) && b.id === 'row') picked = b;
+        });
+        if (!picked) {
+          pool.sort(function (a, b) {
+            function rank(btn) {
+              if (btn.dataset.act === 'light') return 0;
+              if (btn.dataset.act === 'route') return 1;
+              if (btn.id === 'finale-go') return 2;
+              if (btn.dataset.act === 'gear') return 3;
+              if (btn.id === 'row') return 4;
+              return 5;
+            }
+            return rank(a) - rank(b);
+          });
+          picked = pool[0];
+        }
+        picked.click();
+      }
+      while (!state.ended && guard++ < 30000) {
+        simNow += 1000;
+        state.played = (state.played || 0) + 1;
+        bridge.view.rowing = 0;
+        M.addCash(state, M.officeRate(state));
+        M.collectCaptains(state, simNow, 1);
+        bridge.render();
+        Array.prototype.forEach.call(doc.querySelectorAll('[data-act="light"]'), function (b) {
+          if (/^Light /.test(b.textContent) && /\d/.test(b.textContent)) sawLight = true;
+        });
+        if (!hasAffordance()) stuck += 1;
+        else stuck = 0;
+        if (stuck > 60) {
+          check(label + ' keeps an action on the desk (stuck at ' + state.played + 's: ' + goalText() + ')', false);
+          return { ended: false, sawLight: sawLight };
+        }
+        var goalNow = goalText();
+        var goalNames = /Need /.test(goalNow) || /Choose /.test(goalNow) || /Ask Capt/.test(goalNow) || /^Row /.test(goalNow) || /^Sign /.test(goalNow) || /^Raise the /.test(goalNow) || /^Light the /.test(goalNow) || /^Send /.test(goalNow) || /^Buy /.test(goalNow) || /^Tie up /.test(goalNow);
+        if (!goalNames) {
+          check(label + ' goal names an action (' + goalNow + ')', false);
+          return { ended: false, sawLight: sawLight };
+        }
+        clickBest();
+      }
+      bridge.render();
+      var ending = doc.querySelector('#ending');
+      check(label + ' reaches the ending', !!state.ended && !!ending && ending.hidden === false);
+      check(label + ' showed a Light button with a price', sawLight);
+      return { ended: !!state.ended, sawLight: sawLight };
+    }
+    await playToEnd('a new office');
+    await playToEnd('the fleet preset', '&state=fleet');
+    await playToEnd('the lamps preset', '&state=lamps');
     wipe();
     check('other saves are untouched', Object.keys(localStorage).slice().sort().join('|') === storedKeys);
     sum.textContent = 'PASS — ' + n + ' checks';

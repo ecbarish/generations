@@ -900,16 +900,21 @@
   }
   function routeOffers(state, lock) {
     if (!routesUnlocked(state)) return [];
-    var list = [];
+    var early = [];
+    var late = [];
     ROUTES.forEach(function (spec) {
-      if ((state.routes[spec.id] || 0) >= spec.depths) return;
-      if ((state.routes[spec.id] || 0) >= 2 && (state.played || 0) < 1300) return;
+      var signed = (state.routes[spec.id] || 0);
+      if (signed >= spec.depths) return;
       if (!routeVisible(state, spec)) return;
-      list.push(spec);
+      if (signed >= 2) late.push(spec);
+      else early.push(spec);
     });
-    list.sort(function (a, b) { return a.order - b.order; });
-    var shown = (state.played || 0) >= 1300 ? 1 : 3;
-    return list.slice(0, shown).map(function (spec) {
+    early.sort(function (a, b) { return a.order - b.order; });
+    late.sort(function (a, b) { return a.order - b.order; });
+    /* Later contracts are offered one at a time, so each one is a full step.
+       While an earlier contract is still on the desk, the later ones wait for it. */
+    var list = early.length ? early.slice(0, 3) : late.slice(0, 1);
+    return list.map(function (spec) {
       var quote = quoteRoute(state, spec, !!lock);
       return {
         id: spec.id, name: spec.name, depth: quote.depth, depths: spec.depths,
@@ -1006,11 +1011,13 @@
     var key = spec.id + ':' + stage;
     if (!state.lightQuotes) state.lightQuotes = {};
     if (state.lightQuotes[key]) return state.lightQuotes[key];
-    /* Early lights are a short step, like a route. Once the chart is full, a new
-       light is a long watch, which is what carries the office out to the last voyage. */
-    /* Raising a tower is a short step. Lighting it is a long watch, and it is not
-       offered until the office has been open a while, so the early desk stays quick. */
-    var span = stage > 0 || (state.played || 0) >= 1300 ? spec.wait : 80;
+    /* Before the long watch, a lighthouse is a short step. Pier and Headland were
+       the slow pair by hand, so their first raise is the cheaper of the two.
+       A quote taken after the office has been open a while stays a long watch,
+       which is what carries an active office out to the last voyage. */
+    var early = (state.played || 0) < 1300;
+    var span = spec.wait;
+    if (early) span = stage === 0 && (spec.id === 'pier' || spec.id === 'headland') ? 22 : 26;
     var cost = Math.max(1, officeRate(state)) * span;
     /* A price already on the desk caps a new raise. Raising one lighthouse
        must not reprice the others by the income that raise just added.
@@ -1031,13 +1038,15 @@
     if (!routesUnlocked(state) || routesSailing(state) < 5) return [];
     var out = [];
     LIGHTS.forEach(function (spec) {
-      if (((state.lights && state.lights[spec.id]) || 0) > 0 && (state.played || 0) < 1300) return;
       var quote = quoteLight(state, spec, !!lock);
       if (!quote) return;
+      var blocked = '';
+      if (spec.id === 'quay' && (!state.forks || !state.forks.quay)) blocked = 'Choose the quay first.';
       out.push({
         id: spec.id, name: spec.name, stage: quote.stage, cost: quote.cost, line: quote.line,
         verb: quote.stage === 0 ? 'Raise the' : 'Light the',
-        affordable: state.cash >= quote.cost
+        blocked: blocked,
+        affordable: !blocked && state.cash >= quote.cost
       });
     });
     return out;
@@ -1045,7 +1054,7 @@
   function buildLight(state, id, now) {
     var spec = lightById(id);
     if (!spec || routesSailing(state) < 5 || state.ended) return { ok: false, reason: 'closed' };
-    if (deskChoice(state)) return { ok: false, reason: 'choice' };
+    if (id === 'quay' && (!state.forks || !state.forks.quay)) return { ok: false, reason: 'choice' };
     var quote = quoteLight(state, spec, true);
     if (!quote || !(state.cash >= quote.cost)) return { ok: false, reason: 'cost', cost: quote && quote.cost };
     state.cash -= quote.cost;

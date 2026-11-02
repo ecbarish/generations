@@ -384,7 +384,7 @@
         p.textContent = spec.line + ' It is ' + spec.time + '.' + risk + (spec.perk ? ' ' + spec.perk : '');
         var gain = document.createElement('p');
         gain.className = 'facts';
-        gain.textContent = offer ? 'Adds about ' + M.rateWords(offer.gain) + '.' : 'Price waits.';
+        gain.textContent = offer ? 'Adds about ' + M.rateWords(offer.gain) + '.' : 'Sign the contract on the desk first.';
         wrap.appendChild(h);
         wrap.appendChild(p);
         wrap.appendChild(gain);
@@ -396,7 +396,7 @@
         if (offer) button.dataset.act = 'route';
         else {
           button.disabled = true;
-          button.textContent = row.signed >= spec.depths ? 'Signed' : 'Waits';
+          button.textContent = row.signed >= spec.depths ? 'Signed' : 'Sign the one on the desk';
         }
         actions.appendChild(button);
         wrap.appendChild(actions);
@@ -537,9 +537,9 @@
       if (!offer) return;
       var desk = M.deskChoice(state);
       var verb = offer.stage === 0 ? 'Raise' : offer.stage === 1 ? 'Light' : 'Keep';
-      if (desk) {
+      if (offer.blocked) {
         button.disabled = true;
-        button.textContent = desk.id === 'quay' ? 'Choose the quay first.' : 'Finish the desk choice first.';
+        button.textContent = offer.blocked;
         return;
       }
       button.disabled = !offer.affordable;
@@ -680,7 +680,7 @@
     for (var c = 0; c < M.CAPTAINS.length; c++) if (M.canHire(state, c)) { askIndex = c; break; }
     var deskOpen = !!M.deskChoice(state);
     ask.hidden = askIndex < 0 || deskOpen;
-    if (askIndex >= 0) {
+    if (askIndex >= 0 && !deskOpen) {
       ask.dataset.captain = String(askIndex);
       ask.textContent = M.askLine(askIndex);
       if (crew) crew.hidden = true;
@@ -940,8 +940,7 @@
     if (!li || b.dataset.act !== 'buy') return;
     var i = +li.dataset.i;
     var had = state.boats[i].owned;
-    var labelled = /(?:Buy up to|To the goal ·|Buy)\s+(\d+)/.exec(b.textContent || '');
-    var shown = labelled ? +labelled[1] : +b.dataset.count;
+    var shown = +b.getAttribute('data-count');
     if (!(shown > 0)) return;
     var result = M.buy(state, i, shown);
     if (!result.ok) return;
@@ -1057,6 +1056,7 @@
   }
 
   setInterval(function () {
+    if (window.__saltmarshHold) return;
     var before = state.cash;
     if (document.visibilityState !== 'hidden') state.played = (state.played || 0) + 0.25;
     var paid = M.collectCaptains(state, Date.now(), 1);

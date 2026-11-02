@@ -389,6 +389,20 @@
       var route = null;
       offers.forEach(function (offer) { if (!route || offer.cost < route.cost) route = offer; });
       var gear = M.gearOffer ? M.gearOffer(state) : null;
+      var rateNow = Math.max(1, M.officeRate(state));
+      var lightPick = null;
+      if (M.routesSailing(state) >= 5 && !M.allLightsLit(state)) {
+        var earlyLights = M.lightOffers(state, true).filter(function (row) { return !row.blocked; });
+        earlyLights.forEach(function (row) { if (!lightPick || row.cost < lightPick.cost) lightPick = row; });
+      }
+      function soon(cost) { return cost <= rateNow * 35; }
+      if (lightPick && soon(lightPick.cost) && (!route || !soon(route.cost) || lightPick.cost <= route.cost)) {
+        return {
+          id: 'light:' + lightPick.id + ':' + lightPick.stage,
+          affordable: state.cash >= lightPick.cost,
+          buy: function () { M.buildLight(state, lightPick.id, 0); }
+        };
+      }
       if (route) {
         if (gear && state.cash < route.cost && gear.cost <= route.cost) {
           return {
