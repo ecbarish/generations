@@ -1095,15 +1095,15 @@
      Buying boats raises income, so these prices arrive sooner. They never get dearer. */
   var VOYAGE_AT = 2400;
   var PREPARATIONS = [
-    { id: 'victuals', name: 'Victuals for the crew', cost: 3600000000, choice: [
-      { id: 'fresh', name: 'Fresh victuals', line: 'The crew eats well. Every route pays a little more.' },
-      { id: 'pork', name: 'Salt pork', line: 'A chest of coins is stowed aboard.' }
+    { id: 'victuals', name: 'Food for the crew', cost: 3600000000, choice: [
+      { id: 'fresh', name: 'Fresh food', line: 'Fresh food makes every route pay a little more.' },
+      { id: 'pork', name: 'Salt pork', line: 'Salt pork puts 100 million coins back in the chest.' }
     ]},
     { id: 'canvas', name: 'Canvas for the sails', cost: 4300000000, line: 'New canvas. Every route pays a little more.' },
     { id: 'coal', name: 'Coal for the lamps', cost: 5100000000, line: 'The lamps are coaled. Every route pays a little more.' },
     { id: 'pilot', name: 'A pilot for the bar', cost: 6000000000, choice: [
-      { id: 'pilot', name: 'A pilot for the bar', line: 'The last voyage takes the deep channel.' },
-      { id: 'chart', name: 'A bought chart', line: 'The last voyage follows the bought chart.' }
+      { id: 'pilot', name: 'A pilot for the bar', line: 'A pilot makes every route pay a little more.' },
+      { id: 'chart', name: 'A bought chart', line: 'A bought chart makes the boats earn a little more.' }
     ]},
     { id: 'casks', name: 'Water casks', cost: 6400000000, line: 'The hold rides lower. The boats earn a little more.' },
     { id: 'cable', name: 'A new anchor cable', cost: 6800000000, line: 'The mooring holds. The boats earn a little more.' },
@@ -1126,6 +1126,7 @@
     if (done.flag) m *= 1.02;
     if (done.tide) m *= 1.02;
     if (done.victuals === 'fresh') m *= 1.03;
+    if (done.pilot === 'pilot') m *= 1.02;
     return m;
   }
   function boatPrepFactor(state) {
@@ -1133,6 +1134,7 @@
     var m = 1;
     if (done.casks) m *= 1.02;
     if (done.cable) m *= 1.02;
+    if (done.pilot === 'chart') m *= 1.02;
     return m;
   }
   function voyageOpen(state) {

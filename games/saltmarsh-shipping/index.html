@@ -9,8 +9,9 @@
 </head>
 <body>
 <main class="window" id="office" data-phase="dock">
-  <section id="choice" class="choice" hidden>
-    <h2>A choice on the desk</h2>
+  <div id="choice-back" class="choice-back" hidden></div>
+  <section id="choice" class="choice" hidden role="dialog" aria-modal="true" aria-labelledby="choice-title">
+    <h2 id="choice-title">A choice on the desk</h2>
     <div id="choice-cards"></div>
   </section>
   <header>

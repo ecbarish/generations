@@ -509,6 +509,31 @@ document.querySelector('#run').onclick = async function () {
     pricedGoal.boats[3].owned += 80;
     var fixedAfter = M.nextPreparation(pricedGoal).cost;
     check('buying boats does not raise a preparation price', fixedBefore === fixedAfter && fixedBefore === M.PREPARATIONS[0].cost);
+    var foodItem = M.PREPARATIONS.filter(function (item) { return item.id === 'victuals'; })[0];
+    var pilotItem = M.PREPARATIONS.filter(function (item) { return item.id === 'pilot'; })[0];
+    var foodCard = foodItem.choice[0].line.replace(/\.$/, '') + ', or ' + foodItem.choice[1].line.charAt(0).toLowerCase() + foodItem.choice[1].line.slice(1);
+    var pilotCard = pilotItem.choice[0].line.replace(/\.$/, '') + ', or ' + pilotItem.choice[1].line.charAt(0).toLowerCase() + pilotItem.choice[1].line.slice(1);
+    check('the voyage cards say what each choice does, in plain words', /100 million/.test(foodCard) && /fresh food/i.test(foodCard) && /every route pay a little more/i.test(pilotCard) && /boats earn a little more/i.test(pilotCard) && !/or A /.test(pilotCard) && !/Victuals/.test(foodItem.name));
+    function payOffice(which) {
+      var s = M.preset('lamps');
+      s.played = 3000;
+      s.prepDone = { pilot: which };
+      return s;
+    }
+    var pilotRoutes = M.routeIncome(payOffice('pilot'));
+    var chartRoutes = M.routeIncome(payOffice('chart'));
+    var pilotBoats = M.income(payOffice('pilot'));
+    var chartBoats = M.income(payOffice('chart'));
+    check('a pilot pays the routes and a bought chart pays the boats', pilotRoutes > chartRoutes && chartBoats > pilotBoats);
+    var jobs = M.preset('lamps');
+    jobs.played = 1000;
+    jobs.cash = 1e15;
+    check('harbour work and errands stay shut before twenty minutes', M.workOffer(jobs) == null && M.errandOffer(jobs) == null);
+    jobs.played = 1300;
+    var firstWork = M.workOffer(jobs);
+    var firstErrand = M.errandOffer(jobs);
+    check('harbour work and an errand are on the desk after twenty minutes', !!firstWork && firstWork.cost > 0 && firstWork.name.length > 0 && !!firstErrand && firstErrand.name === 'Sound the channel' && firstErrand.cost > 0);
+    check('doing the work and the errand moves the desk on to the next job', M.buyWork(jobs, 1).ok && jobs.works === 1 && M.workOffer(jobs).name !== firstWork.name && M.buyErrand(jobs, 1).ok && jobs.errands === 1 && M.errandOffer(jobs).name === 'Count the casks');
     check('a short purse says how many coins are still needed', M.needMore({ cash: 80000 }, 500000) === 'Need 420K');
     var piled = ready();
     piled.boats[0].owned = M.WREN_AT;
@@ -1015,7 +1040,8 @@ document.querySelector('#run').onclick = async function () {
     check('lighting every lighthouse before 40 minutes keeps the voyage list shut', lampWin.Saltmarsh.allLightsLit(lampState) && lampsBox.contentDocument.querySelector('#provision').hidden === true && lampsBox.contentDocument.querySelector('#finale').hidden === true);
     lampState.played = 2500;
     lampWin.__saltmarsh.render();
-    check('after 40 minutes the voyage list is on the desk', lampsBox.contentDocument.querySelector('#provision').hidden === false && /For the last voyage/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && lampsBox.contentDocument.querySelector('#finale').hidden === true);
+    check('after 40 minutes the voyage list is on the desk', lampsBox.contentDocument.querySelector('#provision').hidden === false && /For the last voyage/.test(lampsBox.contentDocument.querySelector('#provision-title').textContent) && lampsBox.contentDocument.querySelector('#finale').hidden === true && /don't go up as your fleet grows/.test(lampsBox.contentDocument.querySelector('#provision-note').textContent) && /100 million/.test(lampsBox.contentDocument.querySelector('#provision-cards').textContent) && !/or A /.test(lampsBox.contentDocument.querySelector('#provision-cards').textContent));
+    check('harbour work and an errand have their own buttons', lampsBox.contentDocument.querySelector('#harbour-work').hidden === false && lampsBox.contentDocument.querySelector('#errand').hidden === false && /the pilings|the winch|the nets/.test(lampsBox.contentDocument.querySelector('#work-go').textContent) && /Sound the channel/.test(lampsBox.contentDocument.querySelector('#errand-go').textContent));
     var waiting = lampsBox.contentDocument.querySelectorAll('#route-cards button:disabled');
     var pricedWait = 0;
     var deskLine = 0;
@@ -1027,6 +1053,7 @@ document.querySelector('#run').onclick = async function () {
     var finalBox = await presetFrame('final');
     var finalState = finalBox.contentWindow.__saltmarsh.state;
     check('?state=final stops before the last voyage and leaves the real save alone', localStorage.getItem(KEY) === keptRaw && finalState.ended === false && finalBox.contentDocument.querySelector('#finale').hidden === false);
+    check('Set sail is the only action once the list is packed', finalBox.contentDocument.querySelector('#finale-go').textContent === 'Set sail' && finalBox.contentDocument.querySelector('#provision-go').hidden === true && /The list is packed/.test(finalBox.contentDocument.querySelector('#provision').textContent) === false && finalBox.contentDocument.querySelector('#harbour-work').hidden === true && finalBox.contentDocument.querySelector('#errand').hidden === true);
     async function holdLayout(preset, width, height, boatIndex) {
       var box = await loadFrame(preset + ' layout ' + width, '&state=' + preset);
       box.style.width = width + 'px';
@@ -1179,6 +1206,27 @@ document.querySelector('#run').onclick = async function () {
       st.prepDone = {};
       win.__saltmarsh.render();
       var btn = doc.querySelector('#provision-go');
+      var btnH = btn.getBoundingClientRect().height;
+      check('at ' + width + ' by ' + height + ' a one-line voyage button stays between 44 and 56px (' + Math.round(btnH) + 'px)', btnH >= 44 && btnH <= 56);
+      st.cash = 8000;
+      win.__saltmarsh.render();
+      btn = doc.querySelector('#provision-go');
+      var altNeed = doc.querySelector('#provision-alt');
+      var needH = btn.getBoundingClientRect().height;
+      var altH = altNeed ? altNeed.getBoundingClientRect().height : 0;
+      check('at ' + width + ' by ' + height + ' a voyage button that still needs coins stays between 44 and 56px (' + Math.round(needH) + 'px, alt ' + Math.round(altH) + 'px)', needH >= 44 && needH <= 56 && altH >= 44 && altH <= 56 && /Need /.test(btn.textContent));
+      st.cash = 1e15;
+      win.__saltmarsh.render();
+      btn = doc.querySelector('#provision-go');
+      var cardHost = doc.querySelector('#provision-cards');
+      var reservedTop = btn.getBoundingClientRect().top;
+      Array.prototype.forEach.call(cardHost.querySelectorAll('.habit, h3'), function (el) {
+        el.textContent = 'Packed.';
+      });
+      var reservedMove = Math.abs(btn.getBoundingClientRect().top - reservedTop);
+      check('at ' + width + ' by ' + height + ' shortening the voyage list leaves the button (' + reservedMove.toFixed(1) + 'px)', reservedMove < 2 && parseFloat(cardHost.style.minHeight || '0') > 0);
+      win.__saltmarsh.render();
+      btn = doc.querySelector('#provision-go');
       var prev = btn.getBoundingClientRect().top;
       var tapMove = 0;
       var tap;
@@ -1308,7 +1356,7 @@ document.querySelector('#run').onclick = async function () {
         win.__saltmarsh.render();
         var pBtn = doc.querySelector('#provision-go');
         var altBtn = doc.querySelector('#provision-alt');
-        provisionTall = !!pBtn && pBtn.getBoundingClientRect().height >= 44 && /Fresh victuals/.test(pBtn.textContent) && /Need /.test(pBtn.textContent) && !!altBtn && !altBtn.hidden && altBtn.getBoundingClientRect().height >= 44 && /Salt pork/.test(altBtn.textContent);
+        provisionTall = !!pBtn && pBtn.getBoundingClientRect().height >= 44 && pBtn.getBoundingClientRect().height <= 56 && /Fresh food/.test(pBtn.textContent) && /Need /.test(pBtn.textContent) && !!altBtn && !altBtn.hidden && altBtn.getBoundingClientRect().height >= 44 && altBtn.getBoundingClientRect().height <= 56 && /Salt pork/.test(altBtn.textContent);
       }
       var bad = hiddenOverflow(doc);
       win.__saltmarsh.state.ended = true;
@@ -1415,6 +1463,74 @@ document.querySelector('#run').onclick = async function () {
     await choiceFits(390, 844);
     await choiceFits(375, 812);
     await choiceFits(320, 568);
+    async function choiceSheet(width, height) {
+      var box = await loadFrame('choice sheet ' + width, '&state=fleet');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 150); });
+      var st = win.__saltmarsh.state;
+      st.cash = 1e9;
+      st.boats[1].owned = 10;
+      st.forks.sloop = 'fit';
+      st.fittings['sloop-hull'] = true;
+      win.__saltmarsh.render();
+      function docTop(sel) {
+        var el = doc.querySelector(sel);
+        if (!el) return null;
+        return el.getBoundingClientRect().top + (win.scrollY || 0);
+      }
+      var marks = ['h1', '.harbour-wrap', '#boats'];
+      var closed = marks.map(docTop);
+      st.forks.sloop = null;
+      delete st.fittings['sloop-hull'];
+      win.__saltmarsh.render();
+      var opened = marks.map(docTop);
+      st.forks.sloop = 'fit';
+      st.fittings['sloop-hull'] = true;
+      win.__saltmarsh.render();
+      var shut = marks.map(docTop);
+      var flow = 0;
+      var mi;
+      for (mi = 0; mi < marks.length; mi++) {
+        if (closed[mi] == null || opened[mi] == null || shut[mi] == null) flow = 999;
+        else flow = Math.max(flow, Math.abs(opened[mi] - closed[mi]), Math.abs(shut[mi] - closed[mi]));
+      }
+      check('at ' + width + ' by ' + height + ' opening and closing the choice moves no page content (' + flow.toFixed(1) + 'px)', flow < 2);
+      st.forks.sloop = null;
+      delete st.fittings['sloop-hull'];
+      win.__saltmarsh.render();
+      var trigger = doc.querySelector('#boats [data-i="1"] [data-act="buy"]');
+      trigger.scrollIntoView({ block: 'center', inline: 'nearest' });
+      var viewH = box.clientHeight;
+      var viewW = box.clientWidth;
+      var choice = doc.querySelector('#choice');
+      var sheet = choice.getBoundingClientRect();
+      var buttons = choice.querySelectorAll('button');
+      var sheetIn = choice.hidden === false && sheet.top >= -1 && sheet.bottom <= viewH + 1 && sheet.left >= -1 && sheet.right <= viewW + 1 && sheet.height > 40;
+      var takesIn = buttons.length === 2;
+      var bi;
+      var goalBar = doc.querySelector('.goalbar').getBoundingClientRect();
+      for (bi = 0; bi < buttons.length; bi++) {
+        var rect = buttons[bi].getBoundingClientRect();
+        if (rect.top < -1 || rect.bottom > viewH + 1 || rect.bottom > goalBar.top + 0.5) takesIn = false;
+      }
+      var before = trigger.getBoundingClientRect();
+      var scrollBefore = win.scrollY || 0;
+      var take = choice.querySelector('[data-which="fit"]');
+      take.click();
+      var after = trigger.getBoundingClientRect();
+      var moved = Math.max(Math.abs(after.top - before.top), Math.abs(after.left - before.left));
+      var triggerIn = after.top >= -1 && after.bottom <= viewH + 1 && after.height >= 44;
+      var scrollHeld = Math.abs((win.scrollY || 0) - scrollBefore) <= 2;
+      var focused = doc.activeElement === trigger;
+      check('at ' + width + ' by ' + height + ' the choice sheet and both Take buttons are in view, and the trigger stays (' + moved.toFixed(1) + 'px, sheet ' + Math.round(sheet.top) + '..' + Math.round(sheet.bottom) + ')', sheetIn && takesIn && triggerIn && scrollHeld && focused && moved < 2 && st.forks.sloop === 'fit');
+    }
+    await choiceSheet(1280, 800);
+    await choiceSheet(390, 844);
+    await choiceSheet(375, 812);
+    await choiceSheet(320, 568);
     var quayBox = await loadFrame('quay block', '&state=fleet');
     quayBox.style.width = '390px';
     quayBox.style.height = '844px';

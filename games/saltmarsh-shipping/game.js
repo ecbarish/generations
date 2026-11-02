@@ -291,12 +291,28 @@
     return wrap;
   }
 
+  function choiceTrigger(offer) {
+    if (!offer) return null;
+    if (offer.id === 'sloop') return document.querySelector('#boats [data-i="1"] [data-act="buy"]');
+    if (offer.id === 'schooner') return document.querySelector('#boats [data-i="2"] [data-act="buy"]');
+    if (offer.id === 'quay') return document.querySelector('#light-cards [data-light="quay"] button');
+    if (offer.id === 'pilot') return document.querySelector('#routes');
+    return null;
+  }
+
   function fillChoice() {
     var box = $('#choice');
     if (!box) return;
+    var back = $('#choice-back');
     var offer = M.deskChoice(state);
     box.hidden = !offer;
+    if (back) back.hidden = !offer;
     if (box.hidden) return;
+    var bar = $('#goalbar');
+    if (bar) {
+      box.style.bottom = bar.offsetHeight + 'px';
+      box.style.maxHeight = 'calc(100vh - ' + (bar.offsetHeight + 8) + 'px)';
+    }
     var host = $('#choice-cards');
     var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
     if (host.dataset.sig !== sig) {
@@ -356,6 +372,15 @@
         ? 'A price stays while that card is on the desk. Signing one does not raise the others.'
         : 'The next contract is not on the desk yet.';
     var host = $('#route-cards');
+    if (done && M.finaleOffer && M.finaleOffer(state)) {
+      if (host.dataset.sig !== 'folded') {
+        host.dataset.sig = 'folded';
+        host.replaceChildren();
+      }
+      var gearFold = $('#route-gear');
+      if (gearFold) gearFold.hidden = true;
+      return;
+    }
     var offerById = {};
     offers.forEach(function (offer) { offerById[offer.id] = offer; });
     var rows = [];
@@ -520,6 +545,13 @@
       ? 'Every lighthouse on the coast is burning.'
       : 'Four lighthouses. Each one changes the routes. Pick which one to raise next.';
     var host = $('#light-cards');
+    if (M.allLightsLit(state) && M.finaleOffer && M.finaleOffer(state)) {
+      if (host.dataset.sig !== 'folded') {
+        host.dataset.sig = 'folded';
+        host.replaceChildren();
+      }
+      return;
+    }
     var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + (offers.length ? '' : ':done');
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
@@ -574,7 +606,7 @@
   function fillWork() {
     var box = $('#harbour-work');
     if (!box) return;
-    var offer = M.workOffer ? M.workOffer(state) : null;
+    var offer = M.finaleOffer && M.finaleOffer(state) ? null : (M.workOffer ? M.workOffer(state) : null);
     box.hidden = !offer;
     if (box.hidden) return;
     $('#work-note').textContent = offer.name + '. ' + offer.line;
@@ -587,7 +619,7 @@
   function fillErrand() {
     var box = $('#errand');
     if (!box) return;
-    var offer = M.errandOffer ? M.errandOffer(state) : null;
+    var offer = M.finaleOffer && M.finaleOffer(state) ? null : (M.errandOffer ? M.errandOffer(state) : null);
     box.hidden = !offer;
     if (box.hidden) return;
     $('#errand-note').textContent = offer.name + '. ' + offer.line;
@@ -608,36 +640,61 @@
     var done = M.PREPARATIONS.length - offers.length;
     if (title) title.textContent = 'For the last voyage: ' + done + ' / ' + M.PREPARATIONS.length;
     $('#provision-note').textContent = offers.length
-      ? 'Each price is a number of coins. It does not rise when the fleet grows.'
-      : 'The list is complete.';
+      ? 'These prices don\'t go up as your fleet grows.'
+      : 'All eight are packed.';
     var host = $('#provision-cards');
+    var actions = $('#provision-actions');
     var doneMap = state.prepDone || {};
-    var sig = M.PREPARATIONS.map(function (item) { return item.id + (doneMap[item.id] ? ':1' : ':0'); }).join('|');
+    var sig = M.PREPARATIONS.map(function (item) { return item.id + (doneMap[item.id] ? ':' + doneMap[item.id] : ':0'); }).join('|');
     if (host.dataset.sig !== sig) {
       host.dataset.sig = sig;
       host.replaceChildren();
-      M.PREPARATIONS.forEach(function (item) {
-        var card = document.createElement('div');
-        card.className = 'route-card';
-        var h = document.createElement('h3');
-        h.textContent = doneMap[item.id] ? item.name + ' · packed' : item.name;
-        var p = document.createElement('p');
-        p.className = 'habit';
-        p.textContent = item.choice ? item.choice[0].name + ', or ' + item.choice[1].name + '.' : (item.line || '');
-        card.appendChild(h);
-        card.appendChild(p);
-        host.appendChild(card);
-      });
+      if (!offers.length) {
+        host.style.minHeight = '';
+        host.dataset.heldHeight = '';
+        var packed = document.createElement('p');
+        packed.className = 'habit';
+        packed.textContent = 'All eight are packed.';
+        host.appendChild(packed);
+      } else {
+        M.PREPARATIONS.forEach(function (item) {
+          var card = document.createElement('div');
+          card.className = 'route-card';
+          var h = document.createElement('h3');
+          var picked = doneMap[item.id];
+          var chosen = null;
+          if (item.choice && picked) item.choice.forEach(function (opt) { if (opt.id === picked) chosen = opt; });
+          h.textContent = chosen ? item.name + ' · ' + chosen.name : (picked ? item.name + ' · packed' : item.name);
+          var p = document.createElement('p');
+          p.className = 'habit';
+          if (chosen) p.textContent = chosen.line;
+          else if (item.choice) p.textContent = item.choice[0].line.replace(/\.$/, '') + ', or ' + item.choice[1].line.charAt(0).toLowerCase() + item.choice[1].line.slice(1);
+          else p.textContent = item.line || '';
+          card.appendChild(h);
+          card.appendChild(p);
+          host.appendChild(card);
+        });
+      }
+    }
+    if (offers.length) {
+      var held = parseFloat(host.dataset.heldHeight || '0');
+      var nowH = host.offsetHeight;
+      if (nowH > held) {
+        host.dataset.heldHeight = String(nowH);
+        host.style.minHeight = nowH + 'px';
+      }
     }
     var current = offers[0];
     var button = $('#provision-go');
     var alt = $('#provision-alt');
     if (!current) {
-      button.disabled = true;
-      button.textContent = 'The list is packed';
+      button.hidden = true;
+      if (actions) actions.hidden = true;
       if (alt) alt.hidden = true;
       return;
     }
+    button.hidden = false;
+    if (actions) actions.hidden = false;
     button.dataset.prep = current.id;
     button.dataset.which = current.choice ? current.choice[0].id : '';
     var mainName = current.choice ? current.choice[0].name : current.name;
@@ -679,7 +736,10 @@
     box.hidden = !state.ended;
     if (box.hidden) return;
     var stats = state.ending || M.statsOf(state, Date.now());
-    $('#ending-lead').textContent = 'The last voyage is home. The lighthouses stay lit along the Saltmarsh coast.';
+    var voyageHow = '';
+    if (state.prepDone && state.prepDone.pilot === 'pilot') voyageHow = ' A pilot took the deep channel, and every route paid a little more.';
+    if (state.prepDone && state.prepDone.pilot === 'chart') voyageHow = ' The bought chart stayed in the cabin, and the boats earned a little more.';
+    $('#ending-lead').textContent = 'The last voyage is home. The lighthouses stay lit along the Saltmarsh coast.' + voyageHow;
     var list = $('#ending-stats');
     var watch = stats.elapsed > 0 ? Arcade.fmtTime(Math.round(stats.elapsed)) : 'a short watch';
     var chartLine = stats.charts > 0
@@ -992,11 +1052,15 @@
     }
     if (b.dataset.act === 'fork') {
       var offer = M.deskChoice(state);
+      var trigger = choiceTrigger(offer);
+      var keptScroll = window.scrollY;
       if (offer && M.chooseDesk(state, offer.id, b.dataset.which).ok) {
         if (b.dataset.which === 'shed') bootIdle(null);
         if (state.sound) audio.sfx('quest');
         persist();
         render();
+        if (trigger && trigger.focus) trigger.focus({ preventScroll: true });
+        if (Math.abs(window.scrollY - keptScroll) > 1) window.scrollTo(window.scrollX, keptScroll);
       }
       return;
     }

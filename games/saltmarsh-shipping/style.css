@@ -144,8 +144,11 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 #choice .actions button,
 #provision-go, #provision .actions button,
 #work-go, #errand-go, #finale-go { white-space: normal; min-height: 44px; }
-#provision-actions { min-height: 6.5rem; }
-#provision-cards .route-card { min-height: 4.6rem; }
+/* The voyage list keeps its height on the card stack, so packing one item
+   does not pull the button up. The button itself stays one line, full width,
+   so a price and a Need line do not wrap into a second row. */
+#provision-actions { flex-direction: column; align-items: stretch; }
+#provision-actions button { flex: 0 0 auto; width: 100%; }
 /* Status lines stay one row when the short copy fits, so a longer figure cannot
    push the Buy button or the routes. */
 .boat .habit,
@@ -193,7 +196,6 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .route-card h3,
   .light-card h3 { min-height: 2.9em; }
 }
-.route-card { min-height: 11rem; }
 .route-card, .light-card, .settled li {
   border-top: 1px solid var(--sky);
   padding: 0.65rem 0 0.2rem;
@@ -256,18 +258,24 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .goalbar #goal::after { content: '  \203A'; }
 .goalbar #goal:focus { outline: 2px solid var(--lamp); outline-offset: -4px; }
 .goal-target { outline: 3px solid var(--lamp); outline-offset: 3px; }
+#choice-back.choice-back {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  background: rgba(35, 57, 76, 0.45);
+}
 #choice.choice {
-  position: static;
-  z-index: auto;
-  left: auto;
-  transform: none;
-  width: auto;
-  bottom: auto;
-  margin: 0.7rem 0;
-  max-height: none;
-  overflow: visible;
+  position: fixed;
+  z-index: 7;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(40rem, 100%);
+  bottom: 4.6rem;
+  max-height: calc(100vh - 5.4rem);
+  margin: 0;
+  overflow: auto;
   padding: 0.8rem 0.85rem;
-  box-shadow: none;
+  box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
 }
 /* The aim line makes the goal bar tall enough to cover the Take buttons. */
 body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
@@ -309,7 +317,7 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
 @media (min-width: 900px) {
   .window { max-width: 60rem; padding-bottom: 8.5rem; }
   .goalbar { width: min(60rem, 100%); }
-  #choice.choice { width: auto; bottom: auto; }
+  #choice.choice { width: min(60rem, 100%); }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
   .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .harbour-work, #errand, .finale, .ending { grid-column: 1 / -1; }
   .harbour-wrap canvas { height: 340px; }
@@ -331,7 +339,7 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
     padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom));
     min-height: 44px;
   }
-  #choice.choice { bottom: auto; }
+  #choice.choice { max-height: calc(100vh - 3.6rem); }
   .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }
 }
