@@ -100,9 +100,10 @@
     }
     if (state.boats[3].owned < M.BARK_LAMP) {
       left = M.BARK_LAMP - state.boats[3].owned;
-      return 'Buy ' + more(left, 'bark', 'barks') + '. Then the bar lamp is lit.';
+      return 'Buy ' + more(left, 'bark', 'barks') + '. Then a house lamp shows in the office window.';
     }
-    if (sailing < 5) return routeOrBoat(state, 'Choose the next route. Five different routes wake the lighthouses.');
+    if (M.allLightsLit(state) && M.finaleOffer(state, false)) return 'Send the last voyage.';
+    if (sailing < 5) return routeOrBoat(state, 'Choose the next route. Five different routes wake the four coast lights.');
     if ((state.voyages || 0) < M.CHART_FULL) return routeOrBoat(state, 'Sign the next route. The last voyage waits until the chart is full.');
     if (!M.allLightsLit(state)) {
       lit = M.lightsLit(state);
@@ -122,6 +123,36 @@
     }
     if (state.warehouses < M.MAX_WAREHOUSES) return 'Raise another shed if you want the office to keep more while the game is closed.';
     return 'The coast is ready for its lights.';
+  }
+
+  /* How many of one boat the sentence on the bar is asking for. Null when the next step is not a boat. */
+  function boatNeed(state) {
+    var M = window.Saltmarsh;
+    var phase = read(state);
+    if (!state || state.ended || !phase.boats) return null;
+    if (M.deskChoice(state)) return null;
+    if (state.boats[0].owned < M.WREN_AT) return { tier: 0, at: M.WREN_AT };
+    if (M.canHire(state, 0)) return null;
+    if (state.boats[0].owned < M.SLOOP_AT) return { tier: 0, at: M.SLOOP_AT };
+    if (!phase.fleet) return { tier: 1, at: M.UNLOCK_AT };
+    if (M.canHire(state, 1)) return null;
+    if (!phase.routesReady) return { tier: 2, at: M.UNLOCK_AT };
+    if (M.canHire(state, 2)) return null;
+    var sailing = M.routesSailing(state);
+    if (sailing < 1) return null;
+    if (state.boats[3].owned < M.UNLOCK_AT) return { tier: 3, at: M.UNLOCK_AT };
+    if (M.canHire(state, 3)) return null;
+    if (state.boats[3].owned < M.BARK_QUAY) return { tier: 3, at: M.BARK_QUAY };
+    if (state.boats[3].owned < M.BARK_LAMP) return { tier: 3, at: M.BARK_LAMP };
+    if (!M.allLightsLit(state)) return null;
+    var i, owned, nextAt;
+    for (i = M.BOATS.length - 1; i >= 0; i--) {
+      owned = state.boats[i].owned;
+      if (owned < M.UNLOCK_AT || owned >= 100) continue;
+      nextAt = owned < 25 ? 25 : owned < 50 ? 50 : 100;
+      if (owned < nextAt) return { tier: i, at: nextAt };
+    }
+    return null;
   }
 
   /* Shown from the fleet onward, beside the one next step. */
@@ -164,6 +195,7 @@
     if (M.canHire(state, 3)) return '#ask';
     if (state.boats[3].owned < M.BARK_QUAY) return '#boats [data-i="3"]';
     if (state.boats[3].owned < M.BARK_LAMP) return '#boats [data-i="3"]';
+    if (M.allLightsLit(state) && M.finaleOffer(state, false)) return '#finale';
     if (sailing < 5 || (state.voyages || 0) < M.CHART_FULL) return boatTarget(state) || '#routes';
     if (!M.allLightsLit(state)) return '#lights';
     if (M.finaleOffer(state, false)) return '#finale';
@@ -189,5 +221,5 @@
     return 'dock';
   }
 
-  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, target: target, routesOpen: routesOpen };
+  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, target: target, boatNeed: boatNeed, routesOpen: routesOpen };
 })();

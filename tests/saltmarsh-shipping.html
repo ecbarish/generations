@@ -258,7 +258,7 @@ document.querySelector('#run').onclick = async function () {
       M.hire(s, 3, t);
       M.collectCaptains(s, t + 36000, 1);
       var log = s.log.map(function (line) { return line.text; }).join(' ');
-      return s.marks >= 1 && /gull/i.test(log) && /kettle/i.test(log) && /chart/.test(log) && /Grey Lark|Kettle|Bar Light|Reed/.test(log);
+      return s.marks >= 1 && /gull/i.test(log) && /kettle/i.test(log) && /chart/.test(log) && /Grey Lark|Kettle|Whelk|Reed/.test(log);
     })());
     check('the away log shows the coins you left and the coins you came back to', (function () {
       var s = ready();
@@ -367,8 +367,37 @@ document.querySelector('#run').onclick = async function () {
     step.trips = 3;
     step.boats[0].owned = M.SLOOP_AT;
     step.boats[1].owned = 8;
+    step.captains[0].hired = true;
     step.cash = 1e15;
     check('the goal cap stops at ten sloops while an uncapped max does not', M.goalCap(step, 1) === 10 && M.quote(step, 1, 'max').count > 2);
+    var eight = ready();
+    eight.trips = 3;
+    eight.boats[0].owned = M.SLOOP_AT;
+    eight.boats[1].owned = 2;
+    eight.captains[0].hired = true;
+    eight.cash = 1e9;
+    check('eight sloops to the goal are eight boats, not one', P.boatNeed(eight).tier === 1 && P.boatNeed(eight).at === 10 && M.quote(eight, 1, 8).count === 8);
+    var priced = ready();
+    priced.trips = 3;
+    priced.boats[0].owned = M.SLOOP_AT;
+    priced.boats[1].owned = 10;
+    priced.boats[2].owned = 10;
+    priced.captains[0].hired = true;
+    priced.captains[1].hired = true;
+    priced.captains[2].hired = true;
+    priced.forks = { sloop: 'fit', schooner: 'fit', quay: null };
+    priced.cash = 1e15;
+    var teaWas = M.routeOffers(priced, true).filter(function (o) { return o.id === 'tea'; })[0].cost;
+    M.signRoute(priced, 'kelp', 1);
+    var teaNow = M.routeOffers(priced, true).filter(function (o) { return o.id === 'tea'; })[0].cost;
+    check('each route keeps its own contract count, and signing one does not raise the others', M.routeContract(priced, 'kelp').label === '2 of 4' && M.routeContract(priced, 'gull').label === '1 of 4' && M.routeContract(priced, 'tea').label === '1 of 4' && teaNow === teaWas);
+    M.signRoute(priced, 'gull', 1);
+    check('Gull Rock moves to contract 2 when Gull Rock is signed', M.routeContract(priced, 'gull').label === '2 of 4' && M.routeContract(priced, 'tea').label === '1 of 4');
+    var lampDesk = M.preset('lamps');
+    lampDesk.cash = 1e18;
+    var guard = 0;
+    while (M.lightOffers(lampDesk, false).length && guard++ < 8) M.buildLight(lampDesk, M.lightOffers(lampDesk, false)[0].id, 1);
+    check('once every coast light is burning the last voyage is on the desk', M.allLightsLit(lampDesk) && !!M.finaleOffer(lampDesk, false) && M.deskChoice(lampDesk) == null);
     var fleetPreset = M.preset('fleet');
     var lampsPreset = M.preset('lamps');
     var finalPreset = M.preset('final');
@@ -387,6 +416,7 @@ document.querySelector('#run').onclick = async function () {
     sea.boats[3].owned = 10;
     sea.cash = 1e18;
     sea.captains[3].hired = true;
+    sea.played = 2000;
     var signed = 0;
     while (sea.voyages < M.CHART_FULL && signed < 80) {
       var offer = M.routeOffers(sea, true)[0];
@@ -411,8 +441,8 @@ document.querySelector('#run').onclick = async function () {
     var newbie = SaltmarshPacing.simulate(M, 'newcomer');
     check('a newcomer meets Capt. Wren between one and a half and three minutes', newbie.captainAt >= 90 && newbie.captainAt <= 180);
     check('a newcomer sees the fleet chart within half an hour', newbie.fleetAt > newbie.captainAt && newbie.fleetAt <= 1800);
-    var human = SaltmarshPacing.simulate(M, { id: 'human', buyMs: 4000, handMs: 2000, tickMs: 1000, policy: 'human' }, 1300);
-    check('a player who buys the cheapest useful boat waits no more than about 75 seconds from minute 4 to 20', human.quietGap <= 75);
+    var deskPlay = SaltmarshPacing.handPlay(M, P, 1200);
+    check('from minute 10 to 20 a hand waiting on the next route waits no more than about 30 seconds', deskPlay.max <= 30);
 
     localStorage.removeItem(KEY);
     function wipe() {
@@ -644,6 +674,23 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.render();
     var contracts = slotDoc.querySelectorAll('#route-cards h3');
     check('a signed route shows the next contract, not a stuck 1 of 4', contracts.length > 0 && Array.prototype.every.call(contracts, function (h) { return /2 of 4/.test(h.textContent); }));
+    slotWin.__saltmarsh.state.boats[0].owned = M.SLOOP_AT;
+    slotWin.__saltmarsh.state.boats[1].owned = 2;
+    slotWin.__saltmarsh.state.boats[2].owned = 0;
+    slotWin.__saltmarsh.state.boats[3].owned = 0;
+    slotWin.__saltmarsh.state.routes = { kelp: 0, gull: 0, tea: 0, headland: 0, reed: 0, night: 0 };
+    slotWin.__saltmarsh.state.forks = { sloop: null, schooner: null, quay: null };
+    slotWin.__saltmarsh.state.captains[0].hired = true;
+    slotWin.__saltmarsh.state.cash = 1e9;
+    slotWin.__saltmarsh.state.bulk = 'max';
+    slotWin.__saltmarsh.view.freshPrices = true;
+    slotWin.__saltmarsh.render();
+    var goalBuy = slotDoc.querySelector('#boats [data-i="1"] [data-act="buy"]');
+    var goalShown = goalBuy ? +goalBuy.dataset.count : 0;
+    check('Max shows the eight sloops the goal still needs', !!goalBuy && /To the goal · 8 ·/.test(goalBuy.textContent) && goalShown === 8);
+    slotWin.__saltmarsh.state.cash += 1e9;
+    goalBuy.click();
+    check('Max buys the count it showed, not one more', slotWin.__saltmarsh.state.boats[1].owned === 10);
 
     wipe();
     var wideState = ready();
@@ -831,6 +878,16 @@ document.querySelector('#run').onclick = async function () {
     check('?state=fleet opens the routes and does not write the real save', localStorage.getItem(KEY) === keptRaw && fleetBox.contentWindow.__saltmarsh.preview === 'fleet' && fleetState.boats[2].owned >= 10 && fleetBox.contentWindow.SaltmarshPhase.read(fleetState).routesOpen && fleetBox.contentDocument.querySelector('#routes').hidden === false);
     var lampsBox = await presetFrame('lamps');
     check('?state=lamps lights three lamps and leaves the real save alone', localStorage.getItem(KEY) === keptRaw && lampsBox.contentWindow.Saltmarsh.lightsLit(lampsBox.contentWindow.__saltmarsh.state) === 3);
+    var lampWin = lampsBox.contentWindow;
+    var lampState = lampWin.__saltmarsh.state;
+    lampState.cash = 1e18;
+    var lampGuard = 0;
+    while (lampWin.Saltmarsh.lightOffers(lampState, false).length && lampGuard++ < 8) {
+      lampWin.Saltmarsh.buildLight(lampState, lampWin.Saltmarsh.lightOffers(lampState, false)[0].id, 1);
+    }
+    lampWin.__saltmarsh.view.freshPrices = true;
+    lampWin.__saltmarsh.render();
+    check('lighting every lamp on the lamps preset shows the last voyage and no open choice', lampWin.Saltmarsh.allLightsLit(lampState) && lampsBox.contentDocument.querySelector('#finale').hidden === false && /Send the last voyage/.test(lampsBox.contentDocument.querySelector('#finale-go').textContent) && lampsBox.contentDocument.querySelector('#choice').hidden === true);
     var finalBox = await presetFrame('final');
     var finalState = finalBox.contentWindow.__saltmarsh.state;
     check('?state=final stops before the last voyage and leaves the real save alone', localStorage.getItem(KEY) === keptRaw && finalState.ended === false && finalBox.contentDocument.querySelector('#finale').hidden === false);

@@ -99,6 +99,12 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   border-color: var(--timber);
 }
 .ask { background: var(--lamp); }
+#ask.ask:not([hidden]) {
+  position: sticky;
+  top: 0.4rem;
+  z-index: 4;
+  box-shadow: 0 0 0 3px var(--ink);
+}
 .crew {
   display: flex;
   align-items: center;
@@ -121,6 +127,9 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .boat, .captain { border-top: 1px solid var(--sky); padding: 0.75rem 0; }
 .boat h2, .captain h3, .log h2, .fleet h2, .sheds h2, .choice h2, .choice h3 { margin: 0 0 0.2rem; font-size: 1.15rem; font-weight: 600; }
 .habit, .facts, .wait { margin: 0.15rem 0; }
+.wait { min-height: 2.9em; }
+.route-card { min-height: 9.5rem; }
+.work { overflow-anchor: none; }
 .habit, .wait { color: var(--hull); }
 .facts:empty, .wait:empty { display: none; }
 .actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
@@ -138,6 +147,18 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 }
 .locked { color: var(--hull); }
 .ending { background: var(--water); color: var(--mist); }
+#ending.ending:not([hidden]) {
+  position: fixed;
+  z-index: 8;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: 0;
+  max-height: none;
+  overflow: auto;
+  padding: 1.2rem 1rem 2.4rem;
+}
 .ending h2, .ending h3 { color: var(--lamp); }
 .ending li, .ending p { color: var(--mist); }
 .ending button { background: var(--sand); color: var(--ink); }

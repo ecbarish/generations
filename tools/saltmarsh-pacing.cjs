@@ -137,7 +137,7 @@
       var sailing = M.routesSailing(state);
       var barks = state.boats[3].owned;
       var lamp = M.BARK_LAMP || 16;
-      var chart = M.CHART_FULL || 22;
+      var chart = M.CHART_FULL || 24;
       var needRoutes = sailing < 1 || (barks >= lamp && (state.voyages || 0) < chart);
       if (needRoutes) {
         var offers = M.routeOffers(state, true);
@@ -150,7 +150,7 @@
           if (profile.policy !== 'human' && saveFor(route.cost)) return;
         }
       }
-      if (sailing >= 5 && (state.voyages || 0) >= (M.CHART_FULL || 22) && !M.allLightsLit(state)) {
+      if (sailing >= 5 && (state.voyages || 0) >= (M.CHART_FULL || 24) && !M.allLightsLit(state)) {
         var lights = M.lightOffers(state, true);
         if (lights.length) {
           var light = lights.slice().sort(function (a, b) { return a.cost - b.cost; })[0];
@@ -192,6 +192,7 @@
       }
       if (ms === nextTick) {
         M.addCash(state, rate() * (ms - lastTick) / 1000);
+        state.played = ms / 1000;
         lastTick = ms;
         nextTick += profile.tickMs;
       }
@@ -264,6 +265,7 @@
       var span = cap ? Math.min(sec, M.offlineCap(state)) : sec;
       M.addCash(state, M.officeRate(state) * span * mult);
       second += sec;
+      state.played = second;
     }
     function glance() {
       var guard = 0;
@@ -276,15 +278,15 @@
           var card = desk.cards.slice().sort(function (a, b) { return a.cost - b.cost; })[0];
           if (card && state.cash >= card.cost) M.chooseDesk(state, desk.id, card.which, second * 1000);
           else break;
-        } else if (state.boats[2].owned >= 10 && (state.voyages || 0) < (M.CHART_FULL || 22) && (M.routesSailing(state) < 1 || state.boats[3].owned >= (M.BARK_LAMP || 16))) {
+        } else if (state.boats[2].owned >= 10 && (state.voyages || 0) < (M.CHART_FULL || 24) && (M.routesSailing(state) < 1 || state.boats[3].owned >= (M.BARK_LAMP || 16))) {
           var route = M.routeOffers(state, true)[0];
           if (route && state.cash >= route.cost) M.signRoute(state, route.id, second * 1000);
           else break;
-        } else if ((state.voyages || 0) >= (M.CHART_FULL || 22) && !M.allLightsLit(state)) {
+        } else if ((state.voyages || 0) >= (M.CHART_FULL || 24) && !M.allLightsLit(state)) {
           var light = M.lightOffers(state, true)[0];
           if (light && state.cash >= light.cost) M.buildLight(state, light.id, second * 1000);
           else break;
-        } else if (M.allLightsLit(state) && (state.voyages || 0) >= (M.CHART_FULL || 22)) {
+        } else if (M.allLightsLit(state) && (state.voyages || 0) >= (M.CHART_FULL || 24)) {
           var finale = M.finaleOffer(state, true);
           if (finale && state.cash >= finale.cost) M.launchFinale(state, second * 1000);
           else break;
@@ -343,7 +345,120 @@
     ].join('\n');
   }
 
-  var api = { PROFILES: PROFILES, simulate: simulate, workdays: workdays, report: report, clock: clock, windowGap: windowGap };
+  /* A person at the desk. They wait for the next thing they mean to buy: the route,
+     the spare sail, the open choice, or the boats the bar names. They do not buy
+     a cheap boat just to fill the gap. Two seconds to reach for it once they can. */
+  function handPlay(M, P, durationSec) {
+    var state = M.fresh();
+    var limit = (durationSec || 1200) * 1000;
+    var waits = [];
+    var seen = '';
+    var since = 0;
+    var readyAt = null;
+    var REACT = 2000;
+    function boatDesired() {
+      if (!P || !P.boatNeed) return null;
+      var need = P.boatNeed(state);
+      if (!need) return null;
+      var one = M.quote(state, need.tier, 1);
+      return {
+        id: 'boat:' + need.tier + ':' + state.boats[need.tier].owned,
+        affordable: one.count > 0,
+        buy: function () { if (one.count > 0) M.buy(state, need.tier, 1); }
+      };
+    }
+    function desired() {
+      var desk = M.deskChoice(state);
+      if (desk) {
+        var card = desk.cards.slice().sort(function (a, b) { return a.cost - b.cost; })[0];
+        return {
+          id: 'desk:' + desk.id,
+          affordable: !!(card && state.cash >= card.cost),
+          buy: function () { if (card) M.chooseDesk(state, desk.id, card.which, 0); }
+        };
+      }
+      var c;
+      for (c = 0; c < M.CAPTAINS.length; c++) {
+        if (M.canHire(state, c)) {
+          return { id: 'hire:' + c, affordable: true, buy: function () { M.hire(state, c, 0); } };
+        }
+      }
+      var boats = boatDesired();
+      if (boats) return boats;
+      var offers = M.routesUnlocked(state) ? M.routeOffers(state, true) : [];
+      var route = null;
+      offers.forEach(function (offer) { if (!route || offer.cost < route.cost) route = offer; });
+      var gear = M.gearOffer ? M.gearOffer(state) : null;
+      var lightsDue = M.routesSailing(state) >= 5 && !M.allLightsLit(state) && (state.voyages || 0) >= (M.CHART_FULL || 24);
+      if (!lightsDue && route) {
+        if (gear && state.cash < route.cost && gear.cost <= route.cost) {
+          return {
+            id: 'gear:' + gear.id,
+            affordable: state.cash >= gear.cost,
+            buy: function () { M.buyGear(state, gear.id, 0); }
+          };
+        }
+        return {
+          id: 'route:' + route.id + ':' + ((state.routes && state.routes[route.id]) || 0),
+          affordable: state.cash >= route.cost,
+          buy: function () { M.signRoute(state, route.id, 0); }
+        };
+      }
+      if (M.allLightsLit(state)) {
+        var finale = M.finaleOffer(state, true);
+        if (finale) {
+          return {
+            id: 'finale',
+            affordable: finale.affordable,
+            buy: function () { M.launchFinale(state, 0); }
+          };
+        }
+      }
+      if (lightsDue) {
+        var lights = M.lightOffers(state, true);
+        if (lights.length) {
+          var light = lights.slice().sort(function (a, b) { return a.cost - b.cost; })[0];
+          return {
+            id: 'light:' + light.id + ':' + light.stage,
+            affordable: state.cash >= light.cost,
+            buy: function () { M.buildLight(state, light.id, 0); }
+          };
+        }
+      }
+      if (gear) {
+        return {
+          id: 'gear:' + gear.id,
+          affordable: state.cash >= gear.cost,
+          buy: function () { M.buyGear(state, gear.id, 0); }
+        };
+      }
+      return null;
+    }
+    var ms;
+    for (ms = 1000; ms <= limit && !state.ended; ms += 1000) {
+      if (state.trips < M.HAND_TRIPS) M.handSell(state, 0);
+      state.played = ms / 1000;
+      M.addCash(state, M.officeRate(state));
+      var want = desired();
+      if (!want) continue;
+      if (want.id !== seen) { seen = want.id; since = ms; readyAt = null; }
+      if (!want.affordable) { readyAt = null; continue; }
+      if (readyAt == null) readyAt = ms;
+      if (ms - readyAt < REACT) continue;
+      var wait = (ms - since) / 1000;
+      var before = state.cash + ':' + (state.voyages || 0) + ':' + state.boats.map(function (b) { return b.owned; }).join(',');
+      want.buy();
+      var after = state.cash + ':' + (state.voyages || 0) + ':' + state.boats.map(function (b) { return b.owned; }).join(',');
+      if (before !== after && since >= 600000 && since < 1200000) waits.push({ t: wait, id: seen });
+      seen = '';
+      readyAt = null;
+    }
+    var max = 0;
+    waits.forEach(function (w) { if (w.t > max) max = w.t; });
+    return { max: max, waits: waits, owned: state.boats.map(function (b) { return b.owned; }), routes: M.routesSailing(state) };
+  }
+
+  var api = { PROFILES: PROFILES, simulate: simulate, workdays: workdays, report: report, clock: clock, windowGap: windowGap, handPlay: handPlay };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.SaltmarshPacing = api;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -354,7 +469,7 @@ if (typeof module !== 'undefined' && require.main === module) {
   const context = { console: console, window: null, Arcade: {} };
   context.window = context;
   vm.createContext(context);
-  for (const file of ['shared/engine.js', 'shared/idle-core.js', 'shared/roster.js', 'games/saltmarsh-shipping/model.js']) {
+  for (const file of ['shared/engine.js', 'shared/idle-core.js', 'shared/roster.js', 'games/saltmarsh-shipping/model.js', 'games/saltmarsh-shipping/phase.js']) {
     vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, { filename: file });
   }
   const M = context.Saltmarsh;
@@ -370,10 +485,11 @@ if (typeof module !== 'undefined' && require.main === module) {
   lines.push('  longest stretch with nothing new, minutes 4 to 20: ' + pacing.clock(hand.quietGap || 0));
   lines.push('  boats owned: ' + hand.owned.join(', '));
   lines.push('');
-  const human = pacing.simulate(M, { id: 'human', buyMs: 4000, handMs: 2000, tickMs: 1000, policy: 'human' }, 1300);
-  lines.push('Human player, buys the cheapest useful boat, does not save up for one price');
-  lines.push('  longest stretch with nothing to buy, minutes 4 to 20: ' + pacing.clock(human.quietGap || 0));
-  lines.push('  boats owned: ' + human.owned.join(', ') + ', routes sailing: ' + human.routes);
+  const desk = pacing.handPlay(M, context.SaltmarshPhase, 1200);
+  lines.push('Hand at the desk, waits for the next route or the named boat, two seconds to reach');
+  lines.push('  longest wait for the next desired purchase, minutes 10 to 20: ' + pacing.clock(desk.max || 0));
+  lines.push('  those waits: ' + (desk.waits.length ? desk.waits.map(function (w) { return Math.round(w.t) + 's ' + w.id; }).join(', ') : 'none'));
+  lines.push('  boats owned: ' + desk.owned.join(', ') + ', routes sailing: ' + desk.routes);
   lines.push('');
   const days = pacing.workdays(M);
   lines.push('Left open at work (20 minutes to learn, then the page stays open through the workday)');
@@ -396,8 +512,8 @@ if (typeof module !== 'undefined' && require.main === module) {
     const early = pacing.simulate(M, { id: 'newcomer', buyMs: 5000, handMs: 2500, tickMs: 1000, policy: 'one', chapters: false }, 1200);
     assert(early.quietGap <= 150, 'something new at least every 2.5 min from minute 4 to 20, gap was ' + early.quietGap);
     assert(early.owned[3] >= (M.BARK_QUAY || 12), 'the quay is reached inside 20 min, barks ' + early.owned[3]);
-    const humanRun = pacing.simulate(M, { id: 'human', buyMs: 4000, handMs: 2000, tickMs: 1000, policy: 'human' }, 1300);
-    assert(humanRun.quietGap <= 75, 'human stretch in minutes 4 to 20 stays within about 75s, was ' + humanRun.quietGap);
+    const handRun = pacing.handPlay(M, context.SaltmarshPhase, 1200);
+    assert(handRun.max <= 30, 'hand waits in minutes 10 to 20 stay within about 30s, was ' + handRun.max + ' (' + handRun.waits.map(function (w) { return Math.round(w.t) + ' ' + w.id; }).join(', ') + ')');
     console.log('validation: passed');
   }
 }

@@ -7,7 +7,7 @@
   var M = window.Saltmarsh;
   var P = window.SaltmarshPhase;
   var KEY = M.SAVE_KEY;
-  var VERSION = '0.2.1';
+  var VERSION = '0.2.2';
   var $ = function (sel) { return document.querySelector(sel); };
   var money = function (n) { return M.coins(n); };
   var view = { rowing: 0, ripple: null, choice: '', routes: false, goalTimer: 0 };
@@ -69,10 +69,11 @@
     var cap = M.goalCap(state, i);
     if (!(open.count > 0) || cap == null) return open;
     var room = cap - state.boats[i].owned;
-    if (!(room > 0) || open.count <= room) return open;
-    var capped = M.quote(state, i, room);
-    capped.toGoal = true;
-    return capped;
+    if (!(room > 0)) return open;
+    var count = Math.min(open.count, room);
+    var q = M.quote(state, i, count);
+    q.toGoal = q.count === room;
+    return q;
   }
 
   function buyLabel(i) {
@@ -123,8 +124,12 @@
     facts.textContent = owned > 0 ? M.rateWords(rate) + ' from these.' : 'None tied up yet.';
     wait.textContent = M.paybackLine(state, i);
     buy.hidden = false;
-    buy.textContent = buyLabel(i);
-    buy.disabled = !(boatQuote(i).count > 0);
+    if (view.allowPrices) {
+      var priced = boatQuote(i);
+      buy.textContent = buyLabel(i);
+      buy.disabled = !(priced.count > 0);
+      buy.dataset.count = String(priced.count || 0);
+    }
   }
 
   function fillSheds() {
@@ -296,6 +301,7 @@
     offer.cards.forEach(function (card) {
       var button = host.querySelector('[data-which="' + card.which + '"]');
       if (!button) return;
+      if (!view.allowPrices) return;
       button.disabled = !card.affordable;
       var label = card.which === 'shed' ? M.shedChoiceText(card.cost) : card.name + ' · ' + money(card.cost) + ' coins';
       button.textContent = card.affordable || !(card.cost > 0) ? label : label + '. ' + M.needMore(state, card.cost);
@@ -336,9 +342,10 @@
     var note = $('#routes-note');
     var sailing = M.routesSailing(state);
     var lead = sailing === 0 ? 'No route is sailing yet. ' : sailing === 1 ? 'One route is sailing. ' : sailing + ' routes are sailing. ';
+    var ledger = M.routeLedger(state);
     note.textContent = offers.length
-      ? lead + 'Pick one run. The others wait, and the prices are set until you choose.'
-      : 'Every route on the chart has been signed.';
+      ? lead + 'A price stays while that card is on the desk. Signing one does not raise the others. ' + ledger
+      : 'Every route on the chart has been signed. ' + ledger;
     var host = $('#route-cards');
     var sig = offers.map(function (offer) { return offer.id + ':' + offer.depth + ':' + Math.round(offer.cost); }).join('|');
     if (host.dataset.sig !== sig) {
@@ -376,12 +383,50 @@
       for (var i = 0; i < offers.length; i++) if (offers[i].id === id) offer = offers[i];
       if (!offer) return;
       var heading = button.parentNode && button.parentNode.parentNode ? button.parentNode.parentNode.querySelector('h3') : null;
-      var live = (state.routes && state.routes[id] || 0) + 1;
-      if (heading) heading.textContent = offer.name + ' · ' + live + ' of ' + offer.depths;
-      button.disabled = !offer.affordable;
-      var label = 'Sign ' + offer.name + ' · ' + money(offer.cost) + ' coins';
-      button.textContent = offer.affordable ? label : label + '. ' + M.needMore(state, offer.cost);
+      if (heading) heading.textContent = offer.name + ' · contract ' + M.routeContract(state, id).label;
+      if (view.allowPrices) {
+        button.disabled = !offer.affordable;
+        var label = 'Sign ' + offer.name + ' · ' + money(offer.cost) + ' coins';
+        button.textContent = offer.affordable ? label : label + '. ' + M.needMore(state, offer.cost);
+      }
     });
+    var gear = M.gearOffer(state);
+    var gearHost = $('#route-gear');
+    if (!gearHost) {
+      gearHost = document.createElement('div');
+      gearHost.id = 'route-gear';
+      gearHost.className = 'route-card';
+      box.appendChild(gearHost);
+    }
+    if (!gear) gearHost.hidden = true;
+    else {
+      gearHost.hidden = false;
+      if (gearHost.dataset.id !== gear.id) {
+        gearHost.dataset.id = gear.id;
+        gearHost.replaceChildren();
+        var gh = document.createElement('h3');
+        gh.textContent = gear.name;
+        var gp = document.createElement('p');
+        gp.className = 'habit';
+        gp.textContent = gear.line;
+        var ga = document.createElement('div');
+        ga.className = 'actions';
+        var gb = document.createElement('button');
+        gb.type = 'button';
+        gb.dataset.act = 'gear';
+        gb.dataset.route = gear.id;
+        ga.appendChild(gb);
+        gearHost.appendChild(gh);
+        gearHost.appendChild(gp);
+        gearHost.appendChild(ga);
+      }
+      if (view.allowPrices) {
+        var gearBtn = gearHost.querySelector('button');
+        gearBtn.disabled = !gear.affordable;
+        var gearLabel = gear.name + ' · ' + money(gear.cost) + ' coins';
+        gearBtn.textContent = gear.affordable ? gearLabel : gearLabel + '. ' + M.needMore(state, gear.cost);
+      }
+    }
   }
 
   function fillLights() {
@@ -393,7 +438,7 @@
     var offers = M.lightOffers(state, true);
     $('#lights-note').textContent = M.allLightsLit(state)
       ? 'Every lamp on the coast is burning.'
-      : 'Each light changes the routes. Pick which one to raise next.';
+      : 'Four coast lights. Each one changes the routes. Pick which one to raise next.';
     var host = $('#light-cards');
     var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + (offers.length ? '' : ':done');
     if (host.dataset.sig !== sig) {
@@ -430,6 +475,7 @@
       var offer = null;
       for (var i = 0; i < offers.length; i++) if (offers[i].id === button.dataset.light) offer = offers[i];
       if (!offer) return;
+      if (!view.allowPrices) return;
       button.disabled = !offer.affordable;
       var label = offer.verb + ' ' + offer.name + ' · ' + money(offer.cost) + ' coins';
       button.textContent = offer.affordable ? label : label + '. ' + M.needMore(state, offer.cost);
@@ -457,14 +503,18 @@
     var stats = state.ending || M.statsOf(state, Date.now());
     $('#ending-lead').textContent = 'The last voyage is home. The lamps stay lit along the Saltmarsh coast.';
     var list = $('#ending-stats');
+    var watch = stats.elapsed > 0 ? Arcade.fmtTime(Math.round(stats.elapsed)) : 'a short watch';
+    var chartLine = stats.charts > 0
+      ? 'Charts for a new harbour: ' + stats.charts + '. Each chart shows a route before its season on the next harbour.'
+      : 'Charts for a new harbour: none yet. A long watch draws one, and it shows a route before its season.';
     var lines = [
-      'Time at the office: ' + (stats.elapsed > 0 ? Arcade.fmtTime(Math.round(stats.elapsed)) : 'a short watch'),
+      'Time at the office: ' + watch + '. This is the whole watch, across every visit, not only the page open now.',
       'Coins earned: ' + money(stats.lifetime),
       'Boats tied up: ' + stats.boats,
       'Routes signed: ' + stats.voyages,
       'Captain hauls: ' + stats.hauls,
-      'Lighthouses burning: ' + stats.lights,
-      'Charts for a new harbour: ' + stats.charts
+      'Lighthouses burning: ' + stats.lights + ' of the four coast lights',
+      chartLine
     ];
     if (list.dataset.sig !== lines.join('|')) {
       list.dataset.sig = lines.join('|');
@@ -503,7 +553,7 @@
         button.type = 'button';
         button.dataset.act = 'anew';
         button.dataset.captain = String(i);
-        button.textContent = 'Ask ' + cap.name + ' to come';
+        button.textContent = 'Ask ' + cap.name + ' to come. ' + cap.habit;
         actions.appendChild(button);
       });
       var empty = document.createElement('button');
@@ -523,7 +573,10 @@
     el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
   }
 
-  function render() {
+  function render(fromClock) {
+    var sec = Math.floor(Date.now() / 1000);
+    view.allowPrices = !fromClock || view.priceSec !== sec;
+    if (view.allowPrices) view.priceSec = sec;
     var phase = P.read(state);
     $('#office').dataset.phase = P.name(state);
     $('#coins').textContent = money(state.cash);
@@ -603,6 +656,15 @@
     fillEnding();
     fillSheds();
     fillLog();
+    if (state.ended && !view.endingOn) {
+      view.endingOn = true;
+      var endingBox = $('#ending');
+      if (endingBox) {
+        endingBox.tabIndex = -1;
+        scrollTo(endingBox);
+        if (endingBox.focus) endingBox.focus();
+      }
+    }
     var fleet = $('#fleet');
     var openedFleet = fleet.hidden && phase.fleet;
     fleet.hidden = !phase.fleet;
@@ -724,6 +786,7 @@
   });
 
   document.addEventListener('click', function (e) {
+    view.freshPrices = true;
     var b = e.target.closest('button');
     if (!b || b.disabled) return;
     if (b.id === 'row' || b.id === 'sound' || b.id === 'ask' || b.classList.contains('arc-set-btn')) return;
@@ -743,6 +806,14 @@
       var offer = M.deskChoice(state);
       if (offer && M.chooseDesk(state, offer.id, b.dataset.which).ok) {
         if (b.dataset.which === 'shed') bootIdle(null);
+        if (state.sound) audio.sfx('quest');
+        persist();
+        render();
+      }
+      return;
+    }
+    if (b.dataset.act === 'gear') {
+      if (M.buyGear(state, b.dataset.route).ok) {
         if (state.sound) audio.sfx('quest');
         persist();
         render();
@@ -778,6 +849,7 @@
       M.newHarbour(state, +b.dataset.captain, Date.now());
       view.choice = '';
       view.routes = false;
+      view.endingOn = false;
       bootIdle(null);
       persist();
       render();
@@ -799,8 +871,8 @@
     if (!li || b.dataset.act !== 'buy') return;
     var i = +li.dataset.i;
     var had = state.boats[i].owned;
-    var priced = boatQuote(i);
-    var result = M.buy(state, i, priced.toGoal ? priced.count : state.bulk);
+    var shown = +b.dataset.count;
+    var result = M.buy(state, i, shown > 0 ? shown : state.bulk);
     if (!result.ok) return;
     var nowOwned = state.boats[i].owned;
     if (result.notes && result.notes.length) {
@@ -845,6 +917,7 @@
   if (summary) M.collectCaptains(state, Date.now(), M.OFFLINE_RATE);
   state.seen = Date.now();
   persist();
+  if (summary && summary.credited) state.played = (state.played || 0) + summary.credited;
   if (summary && (summary.gained > 0 || summary.capped || state.cash !== cashBeforeAway)) {
     showAway(summary, {
       before: cashBeforeAway,
@@ -914,6 +987,7 @@
 
   setInterval(function () {
     var before = state.cash;
+    if (document.visibilityState !== 'hidden') state.played = (state.played || 0) + 0.25;
     var paid = M.collectCaptains(state, Date.now(), 1);
     if (paid.length) {
       persist();
@@ -923,7 +997,7 @@
         pop(rect.left + rect.width * 0.5, rect.top + 36, '+' + money(state.cash - before));
       }
     }
-    render();
+    render(!paid.length);
   }, 250);
 
   function showGoal() {
