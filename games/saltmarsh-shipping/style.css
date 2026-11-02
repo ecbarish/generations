@@ -126,12 +126,21 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
 .actions button { flex: 1 1 9rem; }
 .closed h2, .closed .habit { color: var(--hull); font-style: italic; }
-.away, .log, .fleet, .sheds, .choice {
+.away, .log, .fleet, .sheds, .choice, .settled, .routes, .lights, .finale, .ending {
   border: 1px solid var(--sky);
   background: var(--panel);
   padding: 0.8rem 0.85rem;
   margin: 0.7rem 0;
 }
+.choice-card, .route-card, .light-card, .settled li {
+  border-top: 1px solid var(--sky);
+  padding: 0.65rem 0 0.2rem;
+}
+.locked { color: var(--hull); }
+.ending { background: var(--water); color: var(--mist); }
+.ending h2, .ending h3 { color: var(--lamp); }
+.ending li, .ending p { color: var(--mist); }
+.ending button { background: var(--sand); color: var(--ink); }
 .away h2, .log h2, .fleet h2 { margin-top: 0; }
 .log li, .chart p, .captain p { margin: 0.25rem 0; }
 .chart {
@@ -161,10 +170,18 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   bottom: 0;
   z-index: 6;
   margin: 0;
-  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
   background: var(--water);
   color: var(--mist);
   box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
+}
+.goalbar #goal {
+  margin: 0;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+}
+.goalbar .aim {
+  margin: 0;
+  padding: 0.55rem 1rem 0;
+  color: var(--sand);
 }
 .save { margin-top: 0.8rem; color: var(--hull); }
 .save .arc-note { opacity: 1; }
@@ -189,7 +206,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .window { max-width: 60rem; padding-bottom: 8.5rem; }
   .goalbar { width: min(60rem, 100%); }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
-  .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .log { grid-column: 1 / -1; }
+  .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .log, .settled, .routes, .lights, .finale, .ending { grid-column: 1 / -1; }
   .harbour-wrap canvas { height: 340px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -205,6 +222,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .tools-row button, .arc-set-btn, .home { min-height: 44px; padding: 0.1rem 0.45rem; }
   .harbour-wrap canvas,
   .window[data-phase="fleet"] .harbour-wrap canvas { height: 128px; }
-  .goalbar { padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom)); }
+  .goalbar #goal { padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom)); }
+  .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }
 }

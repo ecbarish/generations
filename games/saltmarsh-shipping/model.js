@@ -2,7 +2,8 @@
    Load shared/engine.js, shared/idle-core.js and shared/roster.js first.
    Boat income is the boats you have bought. A captain is a person on a timed
    haul, paid from the job clock, never a multiplier on the boats.
-   The phase layer lives in phase.js. This file does not open trade routes. */
+   The phase layer lives in phase.js. Trade routes, lighthouses and the
+   last voyage live here too. Boat income is never a global multiplier. */
 (function () {
   'use strict';
 
@@ -47,7 +48,7 @@
     },
     {
       id: 'bark', name: 'Bark',
-      base: 28000, growth: 1.12, rate: 420,
+      base: 28000, growth: 1.08, rate: 800,
       looks: ['One bark on the deep mooring', 'House flags', 'A stone quay', 'A crane tall enough for the barks'],
       next: 'The deep-water boats carry the long cargoes.'
     }
@@ -79,7 +80,12 @@
       lines: [
         function (coins) { return 'Capt. Hollis is back with ' + coins + ' coins and a new mark on the chart.'; },
         function (coins) { return 'Capt. Hollis drew the headland and landed ' + coins + ' coins.'; },
-        function (coins) { return 'A fresh mark on the chart, and ' + coins + ' coins from Capt. Hollis.'; }
+        function (coins) { return 'A fresh mark on the chart, and ' + coins + ' coins from Capt. Hollis.'; },
+        function (coins) { return 'Capt. Hollis waited out a squall and still landed ' + coins + ' coins.'; },
+        function (coins) { return 'The chart gains a cove. Capt. Hollis brought ' + coins + ' coins.'; },
+        function (coins) { return 'Capt. Hollis names the tide, not the weather, and lands ' + coins + ' coins.'; },
+        function (coins) { return 'A gull tried Hollis\'s pencil. The chart is fine, and ' + coins + ' coins came in.'; },
+        function (coins) { return 'Capt. Hollis shaded the bar and added ' + coins + ' coins to the book.'; }
       ]
     },
     {
@@ -115,10 +121,23 @@
       boats: BOATS.map(function () { return { owned: 0 }; }),
       captains: CAPTAINS.map(function () { return { hired: false, brought: 0, hauls: 0 }; }),
       fittings: {},
-      forks: { sloop: null, schooner: null },
+      forks: { sloop: null, schooner: null, quay: null },
       waivedSheds: 0,
       marks: 0,
       fleetSeen: false,
+      routes: { kelp: 0, gull: 0, tea: 0, headland: 0, reed: 0, night: 0 },
+      lights: { pier: 0, headland: 0, reed: 0, quay: 0 },
+      routeGross: {},
+      routeCut: {},
+      quotes: {},
+      lightQuotes: {},
+      quayQuote: null,
+      finaleCost: null,
+      voyages: 0,
+      ended: false,
+      born: null,
+      charts: 0,
+      keptCaptain: null,
       jobs: {},
       log: []
     };
@@ -156,6 +175,7 @@
     FITTINGS.forEach(function (fit) {
       if (fit.tier === i && state.fittings[fit.id]) extra += fit.bonus;
     });
+    if (i === 3 && state.fittings['bark-hold']) extra += 80;
     return extra;
   }
 
@@ -222,7 +242,7 @@
      After that, the skiff pays about three seconds of what the office earns, and it stays yours. */
   function handPay(state) {
     if (!state || state.trips < HAND_TRIPS) return HAND_PAY;
-    var scaled = Math.round((income(state) + captainRate(state)) * 3);
+    var scaled = Math.round(officeRate(state) * 3);
     return Math.max(HAND_PAY, scaled);
   }
 
@@ -311,10 +331,15 @@
     }
     if (i === 3) {
       cross(BARK_QUAY, 'Twelve barks, and the quay grows longer. House flags go up.');
+      cross(14, 'Fourteen barks. The tide board goes up on the quay.');
+      cross(20, 'Twenty barks. A second line of bollards stands on the quay.');
       cross(BARK_LAMP, 'The bar lamp is lit. You can see it from the office window.');
     }
     cross(25, boat.name + 's reach 25. Flags go up, and each one earns twice as much.');
+    cross(30, boat.name + 's reach 30. Another lantern goes up along the pier.');
+    cross(40, boat.name + 's reach 40. The ropes are doubled on the pier.');
     cross(50, boat.name + 's reach 50. The dock grows longer, and each one earns four times as much.');
+    cross(75, boat.name + 's reach 75. A new gangway reaches them.');
     cross(100, boat.name + 's reach 100. A crane rises over them.');
     notes.forEach(function (text) { pushLog(state, text); });
     return notes;
@@ -346,7 +371,8 @@
     if (!(state.cash >= price)) return { ok: false, reason: 'cost', cost: price };
     state.cash -= price;
     if (state.cash < 1e-6) state.cash = 0;
-    state.warehouses = idx + 1;
+    state.warehouses += 1;
+    if (state.warehouses > MAX_WAREHOUSES) state.warehouses = MAX_WAREHOUSES;
     return { ok: true, warehouses: state.warehouses, cost: price };
   }
 
@@ -479,8 +505,12 @@
             row.hauls = (row.hauls || 0) + units;
             if (cap.id === 'hollis') state.marks = Math.min(12, (state.marks || 0) + units);
             var boat = BOAT_NAMES[(row.hauls - 1) % BOAT_NAMES.length];
-            var line = cap.lines[(row.hauls - 1) % cap.lines.length];
-            pushLog(state, line(coins(paid), boat, units), state._logNow);
+            if (units > 1) {
+              pushLog(state, cap.name + ' is back from ' + units + ' hauls, ' + coins(paid) + ' coins in all.', state._logNow);
+            } else {
+              var line = cap.lines[(row.hauls - 1) % cap.lines.length];
+              pushLog(state, line(coins(paid), boat, units), state._logNow);
+            }
           }
         }
       }
@@ -504,14 +534,21 @@
     return rosterFor(state).nextIn(cap.id, now);
   }
 
+  function marginalRate(state, i) {
+    var owned = state.boats[i] ? state.boats[i].owned : 0;
+    var before = production(state, i);
+    state.boats[i].owned = owned + 1;
+    var after = production(state, i);
+    state.boats[i].owned = owned;
+    return after - before;
+  }
+
   function paybackSeconds(state, i) {
     var boat = spec(i);
     var owned = state.boats[i] ? state.boats[i].owned : 0;
     if (!boat || !unlocked(state, i)) return Infinity;
     var cost = Idle.bulkCost(boat.base, boat.growth, owned, 1);
-    var before = boat.rate * owned * Idle.milestoneMult(owned);
-    var afterOwned = owned + 1;
-    var added = boat.rate * afterOwned * Idle.milestoneMult(afterOwned) - before;
+    var added = marginalRate(state, i);
     if (!(cost > 0) || !(added > 0) || !isFinite(cost) || !isFinite(added)) return Infinity;
     return cost / added;
   }
@@ -522,12 +559,35 @@
     return Math.max(1, Math.round(seconds)) + 's';
   }
 
+  function rateWords(n) {
+    var shown, text;
+    if (!(n > 0)) return '0 coins a second';
+    if (n < 10) {
+      shown = Math.round(n * 10) / 10;
+      text = Math.abs(shown - Math.round(shown)) < 0.001 ? String(Math.round(shown)) : shown.toFixed(1);
+    } else {
+      shown = Math.round(n);
+      text = coins(shown);
+    }
+    return text + (Math.abs(shown - 1) < 0.001 ? ' coin a second' : ' coins a second');
+  }
+
   function paybackLine(state, i) {
     var boat = spec(i);
     if (!boat) return '';
     var label = paybackLabel(paybackSeconds(state, i));
     if (!label) return '';
-    return 'The next ' + boat.name.toLowerCase() + ' pays for itself in ' + label + '.';
+    var added = marginalRate(state, i);
+    var mult = Idle.milestoneMult((state.boats[i] ? state.boats[i].owned : 0) + 1);
+    var times = mult >= 8 ? 'eight times' : mult >= 4 ? 'four times' : mult >= 2 ? 'twice' : '';
+    var line = 'The next ' + boat.name.toLowerCase() + ' adds ' + rateWords(added) + ' and pays for itself in ' + label + '.';
+    if (times) line += ' The milestone is in that figure: each one earns ' + times + ' as much.';
+    return line;
+  }
+
+  function shedNote(state) {
+    if (!(state && state.waivedSheds > 0)) return '';
+    return ' You left a shed unbuilt, so this one is further down the list and costs more.';
   }
 
   function pluralLook(look, owned) {
@@ -623,6 +683,380 @@
 
   function finiteNum(n) { return typeof n === 'number' && isFinite(n); }
 
+  var ROUTES = [
+    { id: 'kelp', name: 'Kelp Road', order: 1, depths: 4, risk: 0, first: 100, later: 290, payback: 74, time: 'a short run inside the bar', line: 'Safe and close. The pay is sure.', perk: '' },
+    { id: 'gull', name: 'Gull Rock', order: 2, depths: 4, risk: 0.28, wren: true, first: 110, later: 290, payback: 60, time: 'a longer beat', line: 'More coin, if the gulls leave the pile alone.', perk: 'Wren\'s count keeps more of it.' },
+    { id: 'tea', name: 'Tea Reach', order: 3, depths: 4, risk: 0, bramble: true, first: 110, later: 290, payback: 66, time: 'a kettle stop', line: 'Bramble knows this water. The run pays better once the kettle has been boiling.', perk: 'Bramble\'s kettle quickens it.' },
+    { id: 'headland', name: 'Hollis Headland', order: 4, depths: 4, risk: 0, first: 120, later: 290, payback: 78, time: 'a long leg', line: 'The headland shows once Hollis has marked the chart, or once two other routes are sailing.', perk: 'Hollis drew this one.' },
+    { id: 'reed', name: 'Reed Channel', order: 5, depths: 4, risk: 0, first: 130, later: 290, payback: 84, time: 'the deep water', line: 'Pell takes it slow, and it pays.', perk: 'Pell names the boat that goes.' },
+    { id: 'night', name: 'Night Cut', order: 6, depths: 4, risk: 0.36, night: true, first: 100, later: 290, payback: 56, time: 'a fast dark run', line: 'Fast, and part of the cargo can vanish before a light is burning.', perk: 'A lamp on the coast keeps more of it.' }
+  ];
+  var LIGHTS = [
+    { id: 'pier', name: 'Pier Light', wait: 280, lines: ['The Pier Light\'s tower is up. Nights get safer.', 'The Pier Light is burning. Gull Rock and the Night Cut keep their cargo.'] },
+    { id: 'headland', name: 'Headland Light', wait: 280, lines: ['The Headland Light\'s tower is up. Runs start to quicken.', 'The Headland Light is burning. Every route pays sooner.'] },
+    { id: 'reed', name: 'Reed Light', wait: 280, lines: ['The Reed Light\'s tower is up. The far water shows on the chart.', 'The Reed Light is burning. The last voyage can see its road.'] },
+    { id: 'quay', name: 'Quay Light', wait: 280, lines: ['The Quay Light\'s tower is up. The captains\' work counts for more.', 'The Quay Light is burning. Wren and Bramble pull harder on their routes.'] }
+  ];
+  var ROUTE_IDS = ROUTES.map(function (r) { return r.id; });
+  var LIGHT_IDS = LIGHTS.map(function (r) { return r.id; });
+
+  function routeById(id) {
+    for (var i = 0; i < ROUTES.length; i++) if (ROUTES[i].id === id) return ROUTES[i];
+    return null;
+  }
+  function lightById(id) {
+    for (var i = 0; i < LIGHTS.length; i++) if (LIGHTS[i].id === id) return LIGHTS[i];
+    return null;
+  }
+  function routesUnlocked(state) {
+    return !!(state && !state.ended && state.trips >= HAND_TRIPS && state.boats && state.boats[2] && state.boats[2].owned >= UNLOCK_AT);
+  }
+  function routesSailing(state) {
+    var n = 0;
+    if (!state || !state.routes) return 0;
+    ROUTE_IDS.forEach(function (id) { if (state.routes[id] > 0) n += 1; });
+    return n;
+  }
+  function lightsLit(state) {
+    var n = 0;
+    if (!state || !state.lights) return 0;
+    LIGHT_IDS.forEach(function (id) { if (state.lights[id] >= 2) n += 1; });
+    return n;
+  }
+  function allLightsLit(state) { return lightsLit(state) >= LIGHTS.length; }
+  function wrenKeep(state) {
+    var hauls = state.captains && state.captains[0] ? (state.captains[0].hauls || 0) : 0;
+    var keep = Math.min(0.2, hauls * 0.01);
+    if (state.lights && state.lights.quay >= 2) keep = Math.min(0.4, keep * 2);
+    return keep;
+  }
+  function brambleHaste(state) {
+    var hauls = state.captains && state.captains[1] ? (state.captains[1].hauls || 0) : 0;
+    var haste = Math.min(0.16, hauls * 0.008);
+    if (state.lights && state.lights.quay >= 2) haste = Math.min(0.32, haste * 2);
+    return haste;
+  }
+  function nightSafety(state) {
+    var safety = 0;
+    if (state.forks && state.forks.quay === 'lamp') safety += 0.5;
+    if (state.lights && state.lights.pier >= 1) safety += 0.5;
+    if (state.lights && state.lights.pier >= 2) safety += 0.5;
+    return safety > 1 ? 1 : safety;
+  }
+  function headMult(state) {
+    var stage = state.lights && state.lights.headland || 0;
+    var m = 1;
+    if (stage >= 1) m *= 1.12;
+    if (stage >= 2) m *= 1.12;
+    return m;
+  }
+  function routeIncome(state) {
+    if (!state || !state.routeGross) return 0;
+    var n = 0;
+    ROUTES.forEach(function (spec) {
+      var gross = state.routeGross[spec.id] || 0;
+      if (!(gross > 0)) return;
+      var cut = (state.routeCut && state.routeCut[spec.id]) || 0;
+      if (spec.wren || spec.night) cut *= (1 - nightSafety(state));
+      var g = gross - cut;
+      if (g < 0) g = 0;
+      if (spec.wren) g *= (1 + wrenKeep(state));
+      if (spec.bramble) g *= (1 + brambleHaste(state));
+      n += g;
+    });
+    return n * headMult(state);
+  }
+  function officeRate(state) {
+    return income(state) + captainRate(state) + routeIncome(state);
+  }
+  function routeVisible(state, spec) {
+    if (!routesUnlocked(state)) return false;
+    var charts = state.charts || 0;
+    if (spec.id === 'headland') return (state.marks || 0) >= 4 || routesSailing(state) >= 2 || charts >= 1;
+    if (spec.id === 'reed') {
+      var pell = state.captains && state.captains[3] && state.captains[3].hired;
+      var barks = state.boats[3] && state.boats[3].owned >= UNLOCK_AT;
+      return charts >= 2 || (pell && barks);
+    }
+    return true;
+  }
+  function computeRoute(state, spec) {
+    var depth = (state.routes && state.routes[spec.id]) || 0;
+    var rate = Math.max(1, officeRate(state));
+    var stake = depth === 0 ? spec.first : spec.later;
+    var risk = spec.risk || 0;
+    if (spec.wren) risk = Math.max(0, risk - wrenKeep(state));
+    return { id: spec.id, depth: depth, cost: rate * stake, gross: (rate * stake) / spec.payback, risk: risk };
+  }
+  function quoteRoute(state, spec, lock) {
+    var depth = (state.routes && state.routes[spec.id]) || 0;
+    var key = spec.id + ':' + depth;
+    if (!state.quotes) state.quotes = {};
+    if (state.quotes[key]) return state.quotes[key];
+    var built = computeRoute(state, spec);
+    if (lock) state.quotes[key] = built;
+    return built;
+  }
+  function offerGain(state, quote, spec) {
+    var cut = quote.gross * (quote.risk || 0);
+    if (spec.wren || spec.night) cut *= (1 - nightSafety(state));
+    var g = quote.gross - cut;
+    if (g < 0) g = 0;
+    if (spec.wren) g *= (1 + wrenKeep(state));
+    if (spec.bramble) g *= (1 + brambleHaste(state));
+    return g * headMult(state);
+  }
+  function routeOffers(state, lock) {
+    if (!routesUnlocked(state)) return [];
+    var list = [];
+    ROUTES.forEach(function (spec) {
+      if ((state.routes[spec.id] || 0) >= spec.depths) return;
+      if (!routeVisible(state, spec)) return;
+      list.push(spec);
+    });
+    list.sort(function (a, b) {
+      var ad = state.routes[a.id] || 0;
+      var bd = state.routes[b.id] || 0;
+      if ((ad === 0) !== (bd === 0)) return ad === 0 ? -1 : 1;
+      return a.order - b.order;
+    });
+    return list.slice(0, 3).map(function (spec) {
+      var quote = quoteRoute(state, spec, !!lock);
+      return {
+        id: spec.id, name: spec.name, depth: quote.depth, depths: spec.depths,
+        cost: quote.cost, gain: offerGain(state, quote, spec), risk: quote.risk,
+        time: spec.time, line: spec.line, perk: spec.perk,
+        affordable: state.cash >= quote.cost
+      };
+    });
+  }
+  function signRoute(state, id, now) {
+    var spec = routeById(id);
+    if (!spec || !routeVisible(state, spec) || (state.routes[id] || 0) >= spec.depths) return { ok: false, reason: 'closed' };
+    var quote = quoteRoute(state, spec, true);
+    if (!(state.cash >= quote.cost)) return { ok: false, reason: 'cost', cost: quote.cost };
+    state.cash -= quote.cost;
+    if (state.cash < 1e-6) state.cash = 0;
+    state.routes[id] = (state.routes[id] || 0) + 1;
+    if (!state.routeGross) state.routeGross = {};
+    if (!state.routeCut) state.routeCut = {};
+    state.routeGross[id] = (state.routeGross[id] || 0) + quote.gross;
+    state.routeCut[id] = (state.routeCut[id] || 0) + quote.gross * (quote.risk || 0);
+    state.voyages = (state.voyages || 0) + 1;
+    state.quotes = {};
+    var depth = state.routes[id];
+    pushLog(state, spec.name + ', contract ' + depth + '. ' + spec.line, now);
+    return { ok: true, id: id, depth: depth };
+  }
+  function quoteLight(state, spec, lock) {
+    var stage = (state.lights && state.lights[spec.id]) || 0;
+    if (stage >= 2) return null;
+    var key = spec.id + ':' + stage;
+    if (!state.lightQuotes) state.lightQuotes = {};
+    if (state.lightQuotes[key]) return state.lightQuotes[key];
+    var built = { id: spec.id, stage: stage, cost: Math.max(1, officeRate(state)) * spec.wait, line: spec.lines[stage] };
+    if (lock) state.lightQuotes[key] = built;
+    return built;
+  }
+  function lightOffers(state, lock) {
+    if (!routesUnlocked(state) || routesSailing(state) < 5) return [];
+    var out = [];
+    LIGHTS.forEach(function (spec) {
+      var quote = quoteLight(state, spec, !!lock);
+      if (!quote) return;
+      out.push({
+        id: spec.id, name: spec.name, stage: quote.stage, cost: quote.cost, line: quote.line,
+        verb: quote.stage === 0 ? 'Raise' : 'Light',
+        affordable: state.cash >= quote.cost
+      });
+    });
+    return out;
+  }
+  function buildLight(state, id, now) {
+    var spec = lightById(id);
+    if (!spec || routesSailing(state) < 5 || state.ended) return { ok: false, reason: 'closed' };
+    var quote = quoteLight(state, spec, true);
+    if (!quote || !(state.cash >= quote.cost)) return { ok: false, reason: 'cost', cost: quote && quote.cost };
+    state.cash -= quote.cost;
+    if (state.cash < 1e-6) state.cash = 0;
+    state.lights[id] = (state.lights[id] || 0) + 1;
+    state.lightQuotes = {};
+    pushLog(state, quote.line, now);
+    if (allLightsLit(state)) pushLog(state, 'Every lamp on the coast is burning. The last voyage can leave.', now);
+    return { ok: true, stage: state.lights[id] };
+  }
+  function finaleOffer(state, lock) {
+    if (!allLightsLit(state) || (state.voyages || 0) < 18 || state.ended) return null;
+    if (state.finaleCost == null && lock) state.finaleCost = Math.max(1, officeRate(state)) * 280;
+    var cost = state.finaleCost != null ? state.finaleCost : Math.max(1, officeRate(state)) * 280;
+    return { cost: cost, affordable: state.cash >= cost, line: 'One last run, past the lights, and the office is finished.' };
+  }
+  function chartCount(lifetime) {
+    if (!(lifetime > 0)) return 0;
+    return Math.floor(Math.sqrt(lifetime / 1e7));
+  }
+  function statsOf(state, now) {
+    var boats = 0, hauls = 0;
+    (state.boats || []).forEach(function (b) { boats += b.owned || 0; });
+    (state.captains || []).forEach(function (c) { hauls += c && c.hauls || 0; });
+    var elapsed = 0;
+    if (finiteNum(state.born) && finiteNum(now)) elapsed = Math.max(0, (now - state.born) / 1000);
+    return {
+      elapsed: elapsed, lifetime: state.lifetime || 0, boats: boats,
+      voyages: state.voyages || 0, hauls: hauls, lights: lightsLit(state),
+      charts: chartCount(state.lifetime || 0)
+    };
+  }
+  function launchFinale(state, now) {
+    var offer = finaleOffer(state, true);
+    if (!offer || !(state.cash >= offer.cost)) return { ok: false, reason: 'cost', cost: offer && offer.cost };
+    state.cash -= offer.cost;
+    if (state.cash < 1e-6) state.cash = 0;
+    state.ended = true;
+    state.ending = statsOf(state, finiteNum(now) ? now : Date.now());
+    pushLog(state, 'The last voyage goes out past the lights. The office grows quiet.', now);
+    return { ok: true, ending: state.ending };
+  }
+  function quayOffer(state) {
+    if (!state || state.ended || (state.forks && state.forks.quay)) return null;
+    if (!state.boats[3] || state.boats[3].owned < BARK_QUAY) return null;
+    if (!state.quayQuote) {
+      var cost = Math.round(Math.max(1, officeRate(state)) * 80);
+      state.quayQuote = { lamp: cost, hold: cost };
+    }
+    var q = state.quayQuote;
+    return {
+      id: 'quay',
+      goal: 'Choose a lamp on the quay, or deeper bark holds.',
+      lamp: { which: 'lamp', name: 'A lamp on the quay', cost: q.lamp, line: 'Nights are safer. Gull Rock and the Night Cut keep more cargo, and a lamp shows on the quay.', affordable: state.cash >= q.lamp },
+      hold: { which: 'hold', name: 'Deeper bark holds', cost: q.hold, line: 'Each bark earns 80 more coins a second. The night runs stay as they are.', affordable: state.cash >= q.hold }
+    };
+  }
+  function chooseQuay(state, which, now) {
+    var offer = quayOffer(state);
+    if (!offer) return { ok: false, reason: 'closed' };
+    var card = which === 'lamp' ? offer.lamp : which === 'hold' ? offer.hold : null;
+    if (!card) return { ok: false, reason: 'closed' };
+    if (!(state.cash >= card.cost)) return { ok: false, reason: 'cost', cost: card.cost };
+    state.cash -= card.cost;
+    if (state.cash < 1e-6) state.cash = 0;
+    if (!state.forks) state.forks = { sloop: null, schooner: null, quay: null };
+    state.forks.quay = which;
+    if (which === 'hold') {
+      if (!state.fittings) state.fittings = {};
+      state.fittings['bark-hold'] = true;
+      pushLog(state, 'Deeper bark holds. Each bark earns more. The quay lamp stays unbuilt.', now);
+    } else {
+      pushLog(state, 'A lamp on the quay. Nights are safer. The deeper holds stay unbuilt.', now);
+    }
+    return { ok: true, which: which };
+  }
+  function deskChoice(state) {
+    if (!state || state.ended) return null;
+    var fork = choiceOffer(state);
+    if (fork) {
+      return {
+        id: fork.id,
+        goal: fork.goal,
+        cards: [
+          { which: 'fit', name: fork.fit.name, cost: fork.fit.cost, line: fork.fit.line, affordable: fork.fit.affordable },
+          { which: 'shed', name: fork.shed.name, cost: fork.shed.cost, line: fork.shed.line, affordable: fork.shed.affordable }
+        ]
+      };
+    }
+    var quay = quayOffer(state);
+    if (!quay) return null;
+    return { id: 'quay', goal: quay.goal, cards: [quay.lamp, quay.hold] };
+  }
+  function chooseDesk(state, id, which, now) {
+    if (id === 'quay') return chooseQuay(state, which, now);
+    return chooseFork(state, id, which, now);
+  }
+  function settledForks(state) {
+    var out = [];
+    if (!state || !state.forks) return out;
+    FORKS.forEach(function (fork) {
+      if (!state.forks[fork.id]) return;
+      var fit = fittingById(fork.fit);
+      var tookFit = state.forks[fork.id] === 'fit';
+      out.push({
+        id: fork.id,
+        takenName: tookFit ? fit.name : 'Another shed',
+        lockedName: tookFit ? 'Another shed' : fit.name
+      });
+    });
+    if (state.forks.quay) {
+      var lamp = state.forks.quay === 'lamp';
+      out.push({
+        id: 'quay',
+        takenName: lamp ? 'A lamp on the quay' : 'Deeper bark holds',
+        lockedName: lamp ? 'Deeper bark holds' : 'A lamp on the quay'
+      });
+    }
+    return out;
+  }
+  function wrenPerkLine(state) {
+    if (!(state.captains && state.captains[0] && state.captains[0].hired)) return '';
+    var pct = Math.round(wrenKeep(state) * 100);
+    if (pct <= 0) return 'Wren\'s next hauls trim what the gulls take from Gull Rock.';
+    return 'Wren\'s count keeps ' + pct + '% more of Gull Rock.';
+  }
+  function bramblePerkLine(state) {
+    if (!(state.captains && state.captains[1] && state.captains[1].hired)) return '';
+    var pct = Math.round(brambleHaste(state) * 100);
+    if (pct <= 0) return 'Bramble\'s kettle will shorten the Tea Reach once it is sailing.';
+    return 'The kettle shortens the Tea Reach. It pays ' + pct + '% more.';
+  }
+  function copyOnto(state, next) {
+    Object.keys(state).forEach(function (key) { delete state[key]; });
+    Object.keys(next).forEach(function (key) { state[key] = next[key]; });
+  }
+  function newHarbour(state, captainIndex, now) {
+    var charts = chartCount(state && state.lifetime);
+    var when = finiteNum(now) ? now : Date.now();
+    copyOnto(state, fresh());
+    state.charts = charts;
+    state.born = when;
+    if (captainIndex >= 0 && captainIndex < CAPTAINS.length) {
+      state.captains[captainIndex].hired = true;
+      state.keptCaptain = CAPTAINS[captainIndex].id;
+      state.jobs[CAPTAINS[captainIndex].id] = { job: 'haul', since: when };
+      pushLog(state, CAPTAINS[captainIndex].name + ' comes across to the new harbour.', when);
+    } else {
+      pushLog(state, 'A new harbour. The desk is clear.', when);
+    }
+    if (charts === 1) pushLog(state, 'One chart shows a route before its season.', when);
+    else if (charts > 1) pushLog(state, charts + ' charts show routes before their season.', when);
+    return state;
+  }
+  function packCounts(src, ids, max) {
+    var out = {};
+    ids.forEach(function (id) {
+      var n = src && finiteNum(src[id]) ? Math.floor(src[id]) : 0;
+      if (n < 0) n = 0;
+      if (n > max) n = max;
+      out[id] = n;
+    });
+    return out;
+  }
+  function packMoneyMap(src) {
+    var out = {};
+    if (!src || typeof src !== 'object') return out;
+    Object.keys(src).sort().forEach(function (key) {
+      if (finiteNum(src[key]) && src[key] > 0) out[key] = src[key];
+    });
+    return out;
+  }
+  function countsOk(obj, ids, max) {
+    if (obj == null) return true;
+    if (typeof obj !== 'object') return false;
+    for (var i = 0; i < ids.length; i++) {
+      if (obj[ids[i]] == null) continue;
+      if (!finiteNum(obj[ids[i]]) || obj[ids[i]] < 0 || obj[ids[i]] > max) return false;
+    }
+    return true;
+  }
+
   function valid(o) {
     if (!o || o.v !== SAVE_VERSION || o.game !== 'saltmarsh-shipping') return false;
     if (!finiteNum(o.cash) || o.cash < 0 || !finiteNum(o.lifetime) || o.lifetime < 0) return false;
@@ -647,6 +1081,16 @@
     if (o.fleetSeen != null && typeof o.fleetSeen !== 'boolean') return false;
     if (o.jobs != null && typeof o.jobs !== 'object') return false;
     if (o.log != null && !Array.isArray(o.log)) return false;
+    if (!countsOk(o.routes, ROUTE_IDS, 4) || !countsOk(o.lights, LIGHT_IDS, 2)) return false;
+    if (o.ended != null && typeof o.ended !== 'boolean') return false;
+    if (o.quotes != null && typeof o.quotes !== 'object') return false;
+    if (o.quayQuote != null && typeof o.quayQuote !== 'object') return false;
+    if (o.voyages != null && (!finiteNum(o.voyages) || o.voyages < 0)) return false;
+    if (o.charts != null && (!finiteNum(o.charts) || o.charts < 0)) return false;
+    if (o.born != null && !finiteNum(o.born)) return false;
+    if (o.finaleCost != null && (!finiteNum(o.finaleCost) || o.finaleCost < 0)) return false;
+    if (o.routeGross != null && typeof o.routeGross !== 'object') return false;
+    if (o.routeCut != null && typeof o.routeCut !== 'object') return false;
     return true;
   }
 
@@ -668,11 +1112,26 @@
       fittings: state.fittings && typeof state.fittings === 'object' ? state.fittings : {},
       forks: {
         sloop: state.forks && (state.forks.sloop === 'fit' || state.forks.sloop === 'shed') ? state.forks.sloop : null,
-        schooner: state.forks && (state.forks.schooner === 'fit' || state.forks.schooner === 'shed') ? state.forks.schooner : null
+        schooner: state.forks && (state.forks.schooner === 'fit' || state.forks.schooner === 'shed') ? state.forks.schooner : null,
+        quay: state.forks && (state.forks.quay === 'lamp' || state.forks.quay === 'hold') ? state.forks.quay : null
       },
       waivedSheds: state.waivedSheds || 0,
       marks: state.marks || 0,
       fleetSeen: !!state.fleetSeen,
+      routes: packCounts(state.routes, ROUTE_IDS, 4),
+      lights: packCounts(state.lights, LIGHT_IDS, 2),
+      routeGross: packMoneyMap(state.routeGross),
+      routeCut: packMoneyMap(state.routeCut),
+      quotes: state.quotes && typeof state.quotes === 'object' ? state.quotes : {},
+      lightQuotes: state.lightQuotes && typeof state.lightQuotes === 'object' ? state.lightQuotes : {},
+      quayQuote: state.quayQuote && finiteNum(state.quayQuote.lamp) ? { lamp: state.quayQuote.lamp, hold: state.quayQuote.hold } : null,
+      finaleCost: finiteNum(state.finaleCost) ? state.finaleCost : null,
+      voyages: state.voyages || 0,
+      ended: !!state.ended,
+      ending: state.ending || null,
+      born: finiteNum(state.born) ? state.born : null,
+      charts: state.charts || 0,
+      keptCaptain: state.keptCaptain || null,
       jobs: state.jobs || {},
       log: (state.log || []).slice(0, 12)
     };
@@ -697,12 +1156,28 @@
     state.fittings = {};
     if (o.fittings && typeof o.fittings === 'object') {
       FITTINGS.forEach(function (fit) { if (o.fittings[fit.id]) state.fittings[fit.id] = true; });
+      if (o.fittings['bark-hold']) state.fittings['bark-hold'] = true;
     }
-    state.forks = { sloop: null, schooner: null };
+    state.forks = { sloop: null, schooner: null, quay: null };
     if (o.forks) {
       if (o.forks.sloop === 'fit' || o.forks.sloop === 'shed') state.forks.sloop = o.forks.sloop;
       if (o.forks.schooner === 'fit' || o.forks.schooner === 'shed') state.forks.schooner = o.forks.schooner;
+      if (o.forks.quay === 'lamp' || o.forks.quay === 'hold') state.forks.quay = o.forks.quay;
     }
+    state.routes = packCounts(o.routes, ROUTE_IDS, 4);
+    state.lights = packCounts(o.lights, LIGHT_IDS, 2);
+    state.routeGross = packMoneyMap(o.routeGross);
+    state.routeCut = packMoneyMap(o.routeCut);
+    state.quotes = o.quotes && typeof o.quotes === 'object' ? o.quotes : {};
+    state.lightQuotes = o.lightQuotes && typeof o.lightQuotes === 'object' ? o.lightQuotes : {};
+    state.quayQuote = o.quayQuote && finiteNum(o.quayQuote.lamp) ? { lamp: o.quayQuote.lamp, hold: finiteNum(o.quayQuote.hold) ? o.quayQuote.hold : o.quayQuote.lamp } : null;
+    state.finaleCost = finiteNum(o.finaleCost) ? o.finaleCost : null;
+    state.voyages = finiteNum(o.voyages) ? Math.floor(o.voyages) : 0;
+    state.ended = !!o.ended;
+    state.ending = o.ending || null;
+    state.born = finiteNum(o.born) ? o.born : null;
+    state.charts = finiteNum(o.charts) ? Math.floor(o.charts) : 0;
+    state.keptCaptain = typeof o.keptCaptain === 'string' ? o.keptCaptain : null;
     state.waivedSheds = finiteNum(o.waivedSheds) ? Math.floor(o.waivedSheds) : 0;
     state.marks = finiteNum(o.marks) ? Math.min(12, Math.floor(o.marks)) : 0;
     state.fleetSeen = !!o.fleetSeen;
@@ -736,11 +1211,15 @@
 
   function createIdle(state, save) {
     return Idle.create({
-      getRate: function () { return income(state); },
+      getRate: function () { return income(state) + routeIncome(state); },
       apply: function (amount) { addCash(state, amount); },
       maxOfflineSec: offlineCap(state),
       offlineRate: OFFLINE_RATE,
-      title: { label: 'Saltmarsh Shipping', unit: '' },
+      title: {
+        label: 'Saltmarsh Shipping',
+        unit: '',
+        rate: function () { return officeRate(state); }
+      },
       save: function (seen) {
         state.seen = seen;
         if (typeof save === 'function') save(serialize(state, seen));
@@ -793,6 +1272,35 @@
     paybackSeconds: paybackSeconds,
     paybackLine: paybackLine,
     paybackLabel: paybackLabel,
+    rateWords: rateWords,
+    shedNote: shedNote,
+    marginalRate: marginalRate,
+    officeRate: officeRate,
+    routeIncome: routeIncome,
+    ROUTES: ROUTES,
+    LIGHTS: LIGHTS,
+    routesUnlocked: routesUnlocked,
+    routesSailing: routesSailing,
+    lightsLit: lightsLit,
+    allLightsLit: allLightsLit,
+    routeOffers: routeOffers,
+    signRoute: signRoute,
+    lightOffers: lightOffers,
+    buildLight: buildLight,
+    finaleOffer: finaleOffer,
+    launchFinale: launchFinale,
+    quayOffer: quayOffer,
+    chooseQuay: chooseQuay,
+    deskChoice: deskChoice,
+    chooseDesk: chooseDesk,
+    settledForks: settledForks,
+    wrenKeep: wrenKeep,
+    brambleHaste: brambleHaste,
+    wrenPerkLine: wrenPerkLine,
+    bramblePerkLine: bramblePerkLine,
+    newHarbour: newHarbour,
+    statsOf: statsOf,
+    chartCount: chartCount,
     lookLine: lookLine,
     awayRule: awayRule,
     awayCopy: awayCopy,

@@ -7,10 +7,10 @@
   var M = window.Saltmarsh;
   var P = window.SaltmarshPhase;
   var KEY = M.SAVE_KEY;
-  var VERSION = '0.1.1';
+  var VERSION = '0.2.0';
   var $ = function (sel) { return document.querySelector(sel); };
   var money = function (n) { return M.coins(n); };
-  var view = { rowing: 0, ripple: null };
+  var view = { rowing: 0, ripple: null, choice: '', routes: false };
   var taps = [];
   var idle = null;
   var awayOn = false;
@@ -121,7 +121,7 @@
       box.appendChild(copy);
       box.appendChild(actions);
     }
-    copy.textContent = body;
+    copy.textContent = body + M.shedNote(state);
     var shedBtn = box.querySelector('[data-act="shed"]');
     if (price == null || M.openFork(state)) shedBtn.hidden = true;
     else {
@@ -187,11 +187,12 @@
       var title = li.querySelector('h3');
       if (title) title.textContent = M.CAPTAINS[i].name + ' · ' + eachText + ' coins';
       if (!state.captains[i].hired) status.textContent = eachText + ' coins a haul, once they take a boat.';
-      else {
+        else {
         var next = M.nextIn(state, i, Date.now());
         var brought = state.captains[i].brought || 0;
         var back = next === Infinity ? 'The haul is waiting on shed room.' : 'Back in ' + (next > 0 ? next + 's' : 'a moment') + '.';
-        status.textContent = each + ' coins each haul. Brought ' + money(brought) + ' so far. ' + back;
+        var perk = i === 0 ? M.wrenPerkLine(state) : i === 1 ? M.bramblePerkLine(state) : '';
+        status.textContent = each + ' coins each haul. Brought ' + money(brought) + ' so far. ' + back + (perk ? ' ' + perk : '');
       }
     });
   }
@@ -225,49 +226,255 @@
     markNote.textContent = count === 1 ? 'Hollis has marked the chart once.' : 'Hollis has marked the chart ' + count + ' times.';
   }
 
+  function cardButton(which, title, line) {
+    var wrap = document.createElement('div');
+    wrap.className = 'choice-card';
+    var h = document.createElement('h3');
+    h.textContent = title;
+    var p = document.createElement('p');
+    p.className = 'habit';
+    p.textContent = line;
+    var actions = document.createElement('div');
+    actions.className = 'actions';
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.which = which;
+    actions.appendChild(button);
+    wrap.appendChild(h);
+    wrap.appendChild(p);
+    wrap.appendChild(actions);
+    return wrap;
+  }
+
   function fillChoice() {
     var box = $('#choice');
     if (!box) return;
-    var offer = M.choiceOffer(state);
+    var offer = M.deskChoice(state);
     box.hidden = !offer;
     if (box.hidden) return;
     var host = $('#choice-cards');
-    if (host.dataset.sig !== offer.id) {
-      host.dataset.sig = offer.id;
+    var sig = offer.id + ':' + offer.cards.map(function (card) { return card.which; }).join(',');
+    if (host.dataset.sig !== sig) {
+      host.dataset.sig = sig;
       host.replaceChildren();
-      function card(which, title, line) {
+      offer.cards.forEach(function (card) {
+        var wrap = cardButton(card.which, card.name, card.line);
+        wrap.querySelector('button').dataset.act = 'fork';
+        host.appendChild(wrap);
+      });
+    }
+    offer.cards.forEach(function (card) {
+      var button = host.querySelector('[data-which="' + card.which + '"]');
+      if (!button) return;
+      button.disabled = !card.affordable;
+      button.textContent = card.which === 'shed' ? M.shedChoiceText(card.cost) : card.name + ' · ' + money(card.cost) + ' coins';
+    });
+  }
+
+  function fillSettled() {
+    var box = $('#settled');
+    if (!box) return;
+    var rows = M.settledForks(state);
+    box.hidden = !rows.length;
+    if (box.hidden) return;
+    var list = $('#settled-list');
+    var sig = rows.map(function (row) { return row.id + row.takenName; }).join('|');
+    if (list.dataset.sig === sig) return;
+    list.dataset.sig = sig;
+    list.replaceChildren();
+    rows.forEach(function (row) {
+      var li = document.createElement('li');
+      li.textContent = row.takenName + ' is taken. ' + row.lockedName + ' is locked.';
+      list.appendChild(li);
+    });
+  }
+
+  function fillRoutes() {
+    var box = $('#routes');
+    if (!box) return;
+    var phase = P.read(state);
+    box.hidden = !phase.routesOpen || state.ended;
+    if (box.hidden) return;
+    var offers = M.routeOffers(state, true);
+    var note = $('#routes-note');
+    note.textContent = offers.length
+      ? 'Pick one run. The others wait, and the prices are set until you choose.'
+      : 'Every route on the chart has been signed.';
+    var host = $('#route-cards');
+    var sig = offers.map(function (offer) { return offer.id + ':' + offer.depth + ':' + Math.round(offer.cost); }).join('|');
+    if (host.dataset.sig !== sig) {
+      host.dataset.sig = sig;
+      host.replaceChildren();
+      offers.forEach(function (offer) {
         var wrap = document.createElement('div');
-        wrap.className = 'choice-card';
+        wrap.className = 'route-card';
         var h = document.createElement('h3');
-        h.textContent = title;
+        h.textContent = offer.name + ' · ' + (offer.depth + 1) + ' of ' + offer.depths;
         var p = document.createElement('p');
         p.className = 'habit';
-        p.textContent = line;
+        var risk = offer.risk > 0 ? ' About ' + Math.round(offer.risk * 100) + '% can be lost.' : ' Nothing is risked.';
+        p.textContent = offer.line + ' It is ' + offer.time + '.' + risk + (offer.perk ? ' ' + offer.perk : '');
+        var gain = document.createElement('p');
+        gain.className = 'facts';
+        gain.textContent = 'Adds about ' + M.rateWords(offer.gain) + '.';
         var actions = document.createElement('div');
         actions.className = 'actions';
         var button = document.createElement('button');
         button.type = 'button';
-        button.dataset.act = 'fork';
-        button.dataset.which = which;
+        button.dataset.act = 'route';
+        button.dataset.route = offer.id;
         actions.appendChild(button);
         wrap.appendChild(h);
         wrap.appendChild(p);
+        wrap.appendChild(gain);
         wrap.appendChild(actions);
         host.appendChild(wrap);
-      }
-      card('fit', offer.fit.name, offer.fit.line);
-      card('shed', offer.shed.name, offer.shed.line);
+      });
     }
-    var fitBtn = host.querySelector('[data-which="fit"]');
-    var shedBtn = host.querySelector('[data-which="shed"]');
-    if (fitBtn) {
-      fitBtn.disabled = !offer.fit.affordable;
-      fitBtn.textContent = offer.fit.name + ' · ' + money(offer.fit.cost) + ' coins';
+    Array.prototype.forEach.call(host.querySelectorAll('[data-act="route"]'), function (button) {
+      var id = button.dataset.route;
+      var offer = null;
+      for (var i = 0; i < offers.length; i++) if (offers[i].id === id) offer = offers[i];
+      if (!offer) return;
+      button.disabled = !offer.affordable;
+      button.textContent = 'Sign ' + offer.name + ' · ' + money(offer.cost) + ' coins';
+    });
+  }
+
+  function fillLights() {
+    var box = $('#lights');
+    if (!box) return;
+    var phase = P.read(state);
+    box.hidden = !phase.lighthousesOpen || state.ended;
+    if (box.hidden) return;
+    var offers = M.lightOffers(state, true);
+    $('#lights-note').textContent = M.allLightsLit(state)
+      ? 'Every lamp on the coast is burning.'
+      : 'Each light changes the routes. Pick which one to raise next.';
+    var host = $('#light-cards');
+    var sig = offers.map(function (offer) { return offer.id + ':' + offer.stage + ':' + Math.round(offer.cost); }).join('|') + (offers.length ? '' : ':done');
+    if (host.dataset.sig !== sig) {
+      host.dataset.sig = sig;
+      host.replaceChildren();
+      M.LIGHTS.forEach(function (spec) {
+        var stage = state.lights[spec.id] || 0;
+        var offer = null;
+        for (var i = 0; i < offers.length; i++) if (offers[i].id === spec.id) offer = offers[i];
+        var wrap = document.createElement('div');
+        wrap.className = 'light-card';
+        var h = document.createElement('h3');
+        h.textContent = spec.name + (stage >= 2 ? ' · burning' : stage === 1 ? ' · tower up' : ' · dark');
+        var p = document.createElement('p');
+        p.className = 'habit';
+        p.textContent = stage >= 2 ? spec.lines[1] : (offer ? offer.line : spec.lines[0]);
+        wrap.appendChild(h);
+        wrap.appendChild(p);
+        if (offer) {
+          var actions = document.createElement('div');
+          actions.className = 'actions';
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.dataset.act = 'light';
+          button.dataset.light = spec.id;
+          actions.appendChild(button);
+          wrap.appendChild(actions);
+        }
+        host.appendChild(wrap);
+      });
     }
-    if (shedBtn) {
-      shedBtn.disabled = !offer.shed.affordable;
-      shedBtn.textContent = M.shedChoiceText(offer.shed.cost);
+    Array.prototype.forEach.call(host.querySelectorAll('[data-act="light"]'), function (button) {
+      var offer = null;
+      for (var i = 0; i < offers.length; i++) if (offers[i].id === button.dataset.light) offer = offers[i];
+      if (!offer) return;
+      button.disabled = !offer.affordable;
+      button.textContent = offer.verb + ' ' + offer.name + ' · ' + money(offer.cost) + ' coins';
+    });
+  }
+
+  function fillFinale() {
+    var box = $('#finale');
+    if (!box) return;
+    var offer = M.finaleOffer(state, true);
+    box.hidden = !offer;
+    if (box.hidden) return;
+    $('#finale-note').textContent = offer.line;
+    var button = $('#finale-go');
+    button.disabled = !offer.affordable;
+    button.textContent = 'Send the last voyage · ' + money(offer.cost) + ' coins';
+  }
+
+  function fillEnding() {
+    var box = $('#ending');
+    if (!box) return;
+    box.hidden = !state.ended;
+    if (box.hidden) return;
+    var stats = state.ending || M.statsOf(state, Date.now());
+    $('#ending-lead').textContent = 'The last voyage is home. The lamps stay lit along the Saltmarsh coast.';
+    var list = $('#ending-stats');
+    var lines = [
+      'Time at the office: ' + (stats.elapsed > 0 ? Arcade.fmtTime(Math.round(stats.elapsed)) : 'a short watch'),
+      'Coins earned: ' + money(stats.lifetime),
+      'Boats tied up: ' + stats.boats,
+      'Routes signed: ' + stats.voyages,
+      'Captain hauls: ' + stats.hauls,
+      'Lighthouses burning: ' + stats.lights,
+      'Charts for a new harbour: ' + stats.charts
+    ];
+    if (list.dataset.sig !== lines.join('|')) {
+      list.dataset.sig = lines.join('|');
+      list.replaceChildren();
+      lines.forEach(function (text) {
+        var li = document.createElement('li');
+        li.textContent = text;
+        list.appendChild(li);
+      });
     }
+    var credits = $('#credits');
+    if (!credits.childElementCount) {
+      [
+        'The Saltmarsh Shipping Office',
+        'Capt. Wren, who counted every coin',
+        'Capt. Bramble, who waited for the kettle',
+        'Capt. Hollis, who marked the chart',
+        'Capt. Pell, who named the boat',
+        'The gull, who took one',
+        'You, who rowed the first cargo'
+      ].forEach(function (text) {
+        var li = document.createElement('li');
+        li.textContent = text;
+        credits.appendChild(li);
+      });
+    }
+    var again = $('#new-harbour');
+    if (!again.childElementCount) {
+      var lead = document.createElement('p');
+      lead.textContent = 'Open a new harbour. You may ask one captain to come across.';
+      again.appendChild(lead);
+      var actions = document.createElement('div');
+      actions.className = 'actions';
+      M.CAPTAINS.forEach(function (cap, i) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.act = 'anew';
+        button.dataset.captain = String(i);
+        button.textContent = 'Ask ' + cap.name + ' to come';
+        actions.appendChild(button);
+      });
+      var empty = document.createElement('button');
+      empty.type = 'button';
+      empty.dataset.act = 'anew';
+      empty.dataset.captain = '-1';
+      empty.textContent = 'Open it with an empty pier';
+      actions.appendChild(empty);
+      again.appendChild(actions);
+    }
+  }
+
+  function scrollTo(el) {
+    if (!el || !el.scrollIntoView) return;
+    var motion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var reduced = motion || (window.Settings && Settings.reduced());
+    el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
   }
 
   function render() {
@@ -277,13 +484,25 @@
     $('#away-rule').textContent = M.awayRule(state);
     var boatsRate = M.income(state);
     var captainsRate = M.captainRate(state);
+    var routeRate = M.routeIncome(state);
     var rateLine = $('#rate');
-    var totalRate = boatsRate + captainsRate;
-    if (!(boatsRate > 0) && !(captainsRate > 0)) rateLine.textContent = 'Nothing is earning yet.';
-    else if (captainsRate > 0) rateLine.textContent = money(totalRate) + ' coins a second. The captains add ' + money(captainsRate) + '.';
-    else rateLine.textContent = money(boatsRate) + ' coins a second';
-    if (totalRate > 0) document.title = '+' + money(totalRate) + '/s · Saltmarsh Shipping';
+    var totalRate = boatsRate + captainsRate + routeRate;
+    if (!(totalRate > 0)) rateLine.textContent = 'Nothing is earning yet.';
+    else if (captainsRate > 0) rateLine.textContent = M.rateWords(totalRate) + '. The captains add ' + money(captainsRate) + '.';
+    else rateLine.textContent = M.rateWords(totalRate);
     $('#goal').textContent = P.goal(state);
+    var aim = $('#aim');
+    if (aim) {
+      var aimText = P.aim(state);
+      aim.hidden = !aimText || !!state.ended;
+      aim.textContent = aimText;
+    }
+    var scene = document.querySelector('.scene');
+    if (scene) {
+      if (state.ended) scene.textContent = 'Night on the Saltmarsh coast. The lamps are burning.';
+      else if (state.trips < M.HAND_TRIPS) scene.textContent = 'Row this cargo. Three trips, and a second boat can tie up.';
+      else scene.textContent = 'The Saltmarsh coast, from the office window.';
+    }
     var rowing = view.rowing > 0 && performance.now() - view.rowing < 650;
     var row = $('#row');
     row.disabled = rowing;
@@ -294,7 +513,8 @@
     var crew = $('#crew');
     var askIndex = -1;
     for (var c = 0; c < M.CAPTAINS.length; c++) if (M.canHire(state, c)) { askIndex = c; break; }
-    ask.hidden = askIndex < 0;
+    var deskOpen = !!M.deskChoice(state);
+    ask.hidden = askIndex < 0 || deskOpen;
     if (askIndex >= 0) {
       ask.dataset.captain = String(askIndex);
       ask.textContent = M.askLine(askIndex);
@@ -311,7 +531,8 @@
         crew.textContent = 'The pier stays clear for Capt. Wren.';
       } else crew.hidden = true;
     }
-    $('#bulk').hidden = !phase.boats;
+    $('#bulk').hidden = !phase.boats || state.ended;
+    $('#row').hidden = !!state.ended;
     document.querySelectorAll('[data-bulk]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(state.bulk) === b.dataset.bulk ? 'true' : 'false');
     });
@@ -329,6 +550,11 @@
     }
     Array.prototype.forEach.call(list.children, function (li) { fillBoat(li, +li.dataset.i); });
     fillChoice();
+    fillSettled();
+    fillRoutes();
+    fillLights();
+    fillFinale();
+    fillEnding();
     fillSheds();
     fillLog();
     var fleet = $('#fleet');
@@ -341,12 +567,17 @@
         openedFleet = true;
         fleet.classList.add('reveal');
         persist();
-        var motion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        var reduced = motion || (window.Settings && Settings.reduced());
-        var choice = $('#choice');
-        var target = choice && !choice.hidden ? choice : fleet;
-        if (target.scrollIntoView) target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
       }
+    }
+    var desk = M.deskChoice(state);
+    if (desk && view.choice !== desk.id) {
+      view.choice = desk.id;
+      scrollTo($('#choice'));
+    } else if (!desk) view.choice = '';
+    var routes = $('#routes');
+    if (routes && !routes.hidden && !view.routes && P.goal(state).indexOf('Choose a route') === 0) {
+      view.routes = true;
+      scrollTo(routes);
     }
     if (openedFleet) fleet.classList.add('reveal');
     if (audio && audio.render) audio.render();
@@ -469,13 +700,48 @@
       return;
     }
     if (b.dataset.act === 'fork') {
-      var offer = M.choiceOffer(state);
-      if (offer && M.chooseFork(state, offer.id, b.dataset.which).ok) {
+      var offer = M.deskChoice(state);
+      if (offer && M.chooseDesk(state, offer.id, b.dataset.which).ok) {
         if (b.dataset.which === 'shed') bootIdle(null);
         if (state.sound) audio.sfx('quest');
         persist();
         render();
       }
+      return;
+    }
+    if (b.dataset.act === 'route') {
+      if (M.signRoute(state, b.dataset.route).ok) {
+        if (state.sound) audio.sfx('quest');
+        persist();
+        render();
+      }
+      return;
+    }
+    if (b.dataset.act === 'light') {
+      if (M.buildLight(state, b.dataset.light).ok) {
+        if (state.sound) audio.sfx('quest');
+        persist();
+        render();
+      }
+      return;
+    }
+    if (b.id === 'finale-go') {
+      if (M.launchFinale(state, Date.now()).ok) {
+        if (state.sound) audio.sfx('level');
+        persist();
+        render();
+        scrollTo($('#ending'));
+      }
+      return;
+    }
+    if (b.dataset.act === 'anew') {
+      M.newHarbour(state, +b.dataset.captain, Date.now());
+      view.choice = '';
+      view.routes = false;
+      bootIdle(null);
+      persist();
+      render();
+      window.scrollTo(0, 0);
       return;
     }
     if (b.dataset.act === 'shed') {
@@ -529,6 +795,7 @@
   drawTools();
   $('details.save').addEventListener('toggle', function () { if (this.open) drawTools(); });
 
+  if (typeof state.born !== 'number') state.born = Date.now();
   var cashBeforeAway = state.cash;
   var booksBeforeAway = M.captainBooks(state);
   var haulsBeforeAway = M.captainHauls(state);

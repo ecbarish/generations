@@ -160,12 +160,19 @@
       if (capped) summary.capped = true;
       return summary;
     }
+    function titleRate() {
+      if (titleOpts && typeof titleOpts.rate === 'function') {
+        var custom = +titleOpts.rate();
+        return isFinite(custom) && custom > 0 ? custom : 0;
+      }
+      return rateNow();
+    }
     function writeTitle(now) {
       if (!titleOpts || typeof document === 'undefined') return;
       if (savedTitle === null) savedTitle = document.title;
       var unit = titleOpts.unit || '';
       var label = titleOpts.label || '';
-      document.title = '+' + unit + titleNumber(rateNow()) + '/s · ' + label;
+      document.title = '+' + unit + titleNumber(titleRate()) + '/s · ' + label;
       lastTitleAt = now;
     }
     function flushSave(now) {

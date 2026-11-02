@@ -10,7 +10,7 @@
   iframe{width:375px;height:700px;border:0;background:#e7f0ef}
 </style>
 <h1>Saltmarsh Shipping checks</h1>
-<p>Boats, phases, captains, the shed cap and a save that fails safe. No hall entry.</p>
+<p>Boats, routes, lighthouses, the ending, and a save that fails safe.</p>
 <button id="run">Run checks</button>
 <p id="summary">Ready.</p>
 <ol id="results"></ol>
@@ -59,7 +59,7 @@ document.querySelector('#run').onclick = async function () {
       M.BOATS[0].base === 8 && M.BOATS[0].growth === 1.07 && M.BOATS[0].rate === 0.6 &&
       M.BOATS[1].base === 120 && M.BOATS[1].growth === 1.08 && M.BOATS[1].rate === 5 &&
       M.BOATS[2].base === 1800 && M.BOATS[2].growth === 1.10 && M.BOATS[2].rate === 40);
-    check('the bark stays inside the gentle growth band', M.BOATS[3].id === 'bark' && M.BOATS[3].base === 28000 && M.BOATS[3].growth === 1.12 && M.BOATS[3].rate === 420 && M.BOATS[3].growth >= 1.05 && M.BOATS[3].growth <= 1.15);
+    check('the bark stays inside the gentle growth band', M.BOATS[3].id === 'bark' && M.BOATS[3].base === 28000 && M.BOATS[3].growth === 1.08 && M.BOATS[3].rate === 800 && M.BOATS[3].growth >= 1.05 && M.BOATS[3].growth <= 1.15);
     check('milestones are the shared doubles', Idle.milestoneMult(24) === 1 && Idle.milestoneMult(25) === 2 && Idle.milestoneMult(50) === 4 && Idle.milestoneMult(100) === 8);
     check('a hand cargo pays 5', (function () { var s = M.fresh(); return M.handSell(s, 0).ok && s.cash === 5 && s.trips === 1; })());
 
@@ -104,7 +104,7 @@ document.querySelector('#run').onclick = async function () {
     check('a new office starts on the water, with one shed and the sound off', fresh.trips === 0 && fresh.warehouses === 1 && fresh.sound === 0 && fresh.boats.every(function (b) { return b.owned === 0; }) && fresh.captains.every(function (c) { return !c.hired; }) && P.goal(fresh) === 'Row 3 cargoes yourself. Then a second boat can tie up.');
     check('hiring waits until the boats are real', M.canHire(fresh, 0) === false && M.hire(fresh, 0).ok === false);
     var phase = P.read(fresh);
-    check('trade routes stay shut on a new office', phase.boats === false && phase.captain === false && phase.fleet === false && phase.routesReady === false && phase.routesOpen === false && P.routesOpen() === false);
+    check('trade routes stay shut on a new office', phase.boats === false && phase.captain === false && phase.fleet === false && phase.routesReady === false && phase.routesOpen === false && P.routesOpen() === true);
 
     var pier = ready();
     pier.boats[0].owned = M.WREN_AT - 1;
@@ -124,16 +124,25 @@ document.querySelector('#run').onclick = async function () {
     fleet.boats[0].owned = M.SLOOP_AT;
     fleet.boats[1].owned = 10;
     M.hire(fleet, 0, 1000);
-    check('ten sloops unroll the fleet', P.read(fleet).fleet && P.name(fleet) === 'fleet' && /fleet chart/.test(P.goal(fleet)) === false && M.noteFleet(fleet) && /unrolls on the desk/.test(fleet.log[0].text) && P.goal(fleet) === M.askLine(1));
+    check('ten sloops unroll the fleet', (function () {
+      if (!(P.read(fleet).fleet && P.name(fleet) === 'fleet')) return false;
+      if (P.goal(fleet) !== 'Choose a lighter sloop hull, or another shed.') return false;
+      if (!M.noteFleet(fleet) || !/unrolls on the desk/.test(fleet.log[0].text)) return false;
+      fleet.cash = 700;
+      if (!M.chooseFork(fleet, 'sloop', 'fit').ok) return false;
+      return P.goal(fleet) === M.askLine(1) && M.settledForks(fleet).some(function (row) { return /locked/.test(row.lockedName) === false && row.lockedName === 'Another shed'; });
+    })());
     var marked = ready();
     marked.boats[0].owned = M.SLOOP_AT;
     marked.boats[1].owned = 10;
     marked.boats[2].owned = 9;
+    marked.cash = 700;
     M.hire(marked, 0, 1000);
     M.hire(marked, 1, 1000);
+    M.chooseFork(marked, 'sloop', 'shed');
     var almost = P.goal(marked);
     marked.boats[2].owned = 10;
-    check('ten schooners only mark the routes', /next tide/.test(almost) && /furled/.test(almost) === false && P.read(marked).routesReady && P.read(marked).routesOpen === false && P.routesOpen() === false && P.goal(marked) === M.askLine(2));
+    check('ten schooners open the routes', /next tide/.test(almost) && /furled/.test(almost) === false && P.read(marked).routesReady && P.read(marked).routesOpen === true && P.routesOpen() === true && P.goal(marked) === 'Choose a deeper schooner hold, or another shed.');
 
     var clock = 1700000000000;
     var haul = ready();
@@ -328,6 +337,51 @@ document.querySelector('#run').onclick = async function () {
     try { JSON.parse('{'); } catch (e) { /* the engine meets this; the office must not */ }
     var junk = M.openSave('{');
     check('a missing or corrupt save starts fresh and does not throw', threw === false && broken.trips === 0 && broken.cash === 0 && broken.boats[0].owned === 0 && junk.trips === 0 && junk.cash === 0);
+    var oldShape = { v: 1, game: 'saltmarsh-shipping', cash: 12, lifetime: 12, trips: 3, warehouses: 1, sound: 0, boats: [{ owned: 4 }, { owned: 0 }, { owned: 0 }, { owned: 0 }], captains: [{ hired: false }, { hired: false }, { hired: false }, { hired: false }] };
+    var kept = M.openSave(oldShape);
+    var rotten = Object.assign({}, M.serialize(M.fresh(), 1), { routes: 'nope' });
+    check('an older office save still loads, and a rotten routes field does not', kept.cash === 12 && kept.boats[0].owned === 4 && kept.routes.kelp === 0 && M.openSave(rotten).cash === 0);
+
+    check('one coin is singular and a fraction of a coin stays a fraction', M.rateWords(1) === '1 coin a second' && M.rateWords(0.6) === '0.6 coins a second' && M.rateWords(6) === '6 coins a second');
+    var fifty = ready();
+    fifty.boats[0].owned = M.SLOOP_AT;
+    fifty.boats[1].owned = 50;
+    check('sloop payback follows the four-times milestone', near(M.paybackSeconds(fifty, 1), Idle.bulkCost(120, 1.08, 50, 1) / 20) && /four times/.test(M.paybackLine(fifty, 1)) && /20 coins a second/.test(M.paybackLine(fifty, 1)));
+    var waived = ready();
+    waived.boats[0].owned = M.SLOOP_AT;
+    waived.boats[1].owned = 10;
+    waived.cash = 700;
+    M.chooseFork(waived, 'sloop', 'fit');
+    check('passing on a shed raises its price and does not build it', waived.warehouses === 1 && M.warehousePrice(waived) === 8400 && /further down the list/.test(M.shedNote(waived)));
+    waived.cash = 8400;
+    check('buying the dearer shed adds one shed', M.buyWarehouse(waived).ok && waived.warehouses === 2);
+    var piled = ready();
+    piled.boats[0].owned = M.WREN_AT;
+    M.hire(piled, 0, 1700000000000);
+    M.collectCaptains(piled, 1700000000000 + 60000, 0.5);
+    check('a closed stretch totals the hauls in the harbour log', piled.log.some(function (line) { return /3 hauls/.test(line.text) && /in all/.test(line.text); }));
+
+    var sea = ready();
+    sea.boats[0].owned = 40;
+    sea.boats[1].owned = 10;
+    sea.boats[2].owned = 10;
+    sea.boats[3].owned = 10;
+    sea.cash = 1e18;
+    sea.captains[3].hired = true;
+    var signed = 0;
+    while (sea.voyages < 18 && signed < 40) {
+      var offer = M.routeOffers(sea, true)[0];
+      if (!offer || !M.signRoute(sea, offer.id, 5).ok) break;
+      signed += 1;
+    }
+    check('five routes wake the lights, and the contracts pay', M.routesSailing(sea) >= 5 && sea.voyages >= 18 && M.routeIncome(sea) > 0 && M.lightOffers(sea, false).length === 4);
+    M.LIGHTS.forEach(function (spec) { M.buildLight(sea, spec.id, 6); M.buildLight(sea, spec.id, 7); });
+    sea.cash = 1e18;
+    check('every lamp can burn, and the last voyage ends the office', M.allLightsLit(sea) && M.launchFinale(sea, 9).ok && sea.ended && sea.ending && sea.ending.voyages >= 18);
+    var charts = M.chartCount(4e7);
+    sea.lifetime = 4e7;
+    M.newHarbour(sea, 0, 10);
+    check('a new harbour keeps one captain and the charts', sea.ended === false && sea.boats[0].owned === 0 && sea.captains[0].hired && sea.charts === 2 && charts === 2 && sea.cash === 0);
 
     var active = SaltmarshPacing.simulate(M, 'active');
     var days = SaltmarshPacing.workdays(M);
@@ -506,7 +560,11 @@ document.querySelector('#run').onclick = async function () {
     slotWin.__saltmarsh.state.boats[0].owned = M.SLOOP_AT;
     slotWin.__saltmarsh.state.boats[1].owned = 10;
     slotWin.__saltmarsh.render();
-    check('the goal and the captain button use the same words', slotDoc.querySelector('#goal').textContent === slotDoc.querySelector('#ask').textContent && slotDoc.querySelector('#ask').textContent === M.askLine(1));
+    check('the goal names the choice while it is on the desk', slotDoc.querySelector('#goal').textContent === 'Choose a lighter sloop hull, or another shed.' && slotDoc.querySelector('#ask').hidden === true);
+    slotWin.__saltmarsh.state.cash = 700;
+    slotWin.__saltmarsh.render();
+    slotDoc.querySelector('#choice [data-which="fit"]').click();
+    check('after the choice the goal and the Ask button use the same words', slotDoc.querySelector('#goal').textContent === slotDoc.querySelector('#ask').textContent && slotDoc.querySelector('#ask').textContent === M.askLine(1) && /locked/i.test(slotDoc.querySelector('#settled').textContent));
     var askButtons = Array.prototype.filter.call(slotDoc.querySelectorAll('button'), function (b) { return /Ask Capt\./.test(b.textContent) && !b.hidden; });
     check('only one Ask Capt. button is on the page', askButtons.length === 1);
     var tallHarbour = slotDoc.querySelector('#harbour').getBoundingClientRect().height;
@@ -552,7 +610,59 @@ document.querySelector('#run').onclick = async function () {
       if (li < labelYs.length - 1 && labelYs[li] - labelYs[li + 1] < 20) labelsClear = false;
       if (labelYs[li] < waterLine - 0.5 || labelYs[li] + 8 > labelH * 0.86 + 0.5) hullsOnWater = false;
     }
-    check(labelsClear && hullsOnWater ? 'at 844 by 390 the boat labels do not overlap and every boat sits on the water' : 'at 844 by 390 harbour, height ' + Math.round(labelH) + ', water ' + waterLine.toFixed(1) + ', ys ' + labelYs.join(','), labelsClear && hullsOnWater);
+    var painted = labelWin.document.querySelector('#harbour');
+    var paint = painted.getContext('2d').getImageData(0, 0, painted.width, painted.height);
+    var paintW = painted.getBoundingClientRect().width;
+    var paintH = painted.getBoundingClientRect().height;
+    var paintDpr = painted.width / paintW;
+    function paintAt(x, y) {
+      var ix = Math.max(0, Math.min(painted.width - 1, Math.round(x * paintDpr)));
+      var iy = Math.max(0, Math.min(painted.height - 1, Math.round(y * paintDpr)));
+      var i = (iy * painted.width + ix) * 4;
+      return [paint.data[i], paint.data[i + 1], paint.data[i + 2]];
+    }
+    function nearPaint(c, r, g, b, tol) {
+      return Math.abs(c[0] - r) <= tol && Math.abs(c[1] - g) <= tol && Math.abs(c[2] - b) <= tol;
+    }
+    var waterPx = paintAt(6, waterLine + 3);
+    var skyPx = paintAt(6, Math.max(0, waterLine - 18));
+    var hullPx = paintAt(paintW * 0.5, labelYs[0] + 2);
+    var drawnWater = nearPaint(waterPx, 35, 57, 76, 12) && !nearPaint(skyPx, 35, 57, 76, 8);
+    var drawnHull = nearPaint(hullPx, 110, 88, 64, 24) && labelYs[0] + 2 >= waterLine - 0.5;
+    check(labelsClear && hullsOnWater && drawnWater && drawnHull ? 'at 844 by 390 the boat labels do not overlap and every boat sits on the water' : 'at 844 by 390 harbour, height ' + Math.round(labelH) + ', water ' + waterLine.toFixed(1) + ', ys ' + labelYs.join(',') + ', px ' + waterPx + ' / ' + hullPx, labelsClear && hullsOnWater && drawnWater && drawnHull);
+
+    wipe();
+    var quayState = ready();
+    quayState.boats[0].owned = 20;
+    quayState.boats[1].owned = 12;
+    quayState.boats[2].owned = 8;
+    quayState.boats[3].owned = 16;
+    localStorage.setItem(KEY, JSON.stringify(M.serialize(quayState, Date.now())));
+    var quayFrame = await loadFrame('quay and lamp');
+    quayFrame.style.width = '844px';
+    quayFrame.style.height = '390px';
+    var quayWin = quayFrame.contentWindow;
+    await new Promise(function (resolve) { quayWin.requestAnimationFrame(function () { quayWin.requestAnimationFrame(resolve); }); });
+    var quayCanvas = quayWin.document.querySelector('#harbour');
+    var quayBox = quayCanvas.getBoundingClientRect();
+    var quayLay = quayWin.SaltmarshHarbour.sceneLayout(quayBox.height, 4);
+    var quayImg = quayCanvas.getContext('2d').getImageData(0, 0, quayCanvas.width, quayCanvas.height);
+    var quayDpr = quayCanvas.width / quayBox.width;
+    function quayPx(x, y) {
+      var ix = Math.max(0, Math.min(quayCanvas.width - 1, Math.round(x * quayDpr)));
+      var iy = Math.max(0, Math.min(quayCanvas.height - 1, Math.round(y * quayDpr)));
+      var i = (iy * quayCanvas.width + ix) * 4;
+      return [quayImg.data[i], quayImg.data[i + 1], quayImg.data[i + 2]];
+    }
+    var quayClear = true;
+    var lane;
+    for (lane = 0; lane < quayLay.ys.length; lane++) {
+      if (quayLay.ys[lane] + 8 > quayLay.quayY - 3) quayClear = false;
+    }
+    var lampClear = quayLay.lampY + quayLay.lampR < quayLay.topLane - 10;
+    var timber = quayPx(quayBox.width * 0.3, quayLay.quayY + 2);
+    var lampDot = quayPx(quayBox.width * 0.72, quayLay.lampY);
+    check(quayClear && lampClear && nearPaint(timber, 141, 122, 82, 20) && nearPaint(lampDot, 242, 208, 128, 20) ? 'the quay and the bar lamp stay clear of the boats' : 'quay ' + quayLay.quayY.toFixed(1) + ' lamp ' + quayLay.lampY.toFixed(1) + ' top ' + quayLay.topLane.toFixed(1) + ' timber ' + timber + ' lamp ' + lampDot, quayClear && lampClear && nearPaint(timber, 141, 122, 82, 20) && nearPaint(lampDot, 242, 208, 128, 20));
 
     wipe();
     var touchFrame = await loadFrame('touch');

@@ -33,6 +33,20 @@
     return Math.min(h * 0.46, topLane - 4);
   }
 
+  /* Quay and bar lamp sit clear of the hulls and the boat labels. */
+  function sceneLayout(h, n) {
+    var ys = laneYs(h, n);
+    var waterLine = waterTop(h, n);
+    var lowest = ys.length ? ys[0] + 8 : h * 0.74;
+    var topLane = ys.length ? ys[ys.length - 1] : h * 0.74;
+    var quayY = Math.max(h * 0.805, lowest + 5);
+    if (quayY > h - 8) quayY = h - 8;
+    var lampR = Math.max(3, h * 0.03);
+    var lampY = Math.min(h * 0.40, topLane - 22 - lampR - 8);
+    if (lampY < lampR + 2) lampY = lampR + 2;
+    return { ys: ys, waterLine: waterLine, quayY: quayY, lampR: lampR, lampY: lampY, topLane: topLane };
+  }
+
   function boatCount(state, i) {
     return state.boats && state.boats[i] ? state.boats[i].owned : 0;
   }
@@ -93,12 +107,14 @@
       var reduce = reduced();
       var bob = function (seed) { return reduce ? 0 : Math.sin(now / 700 + seed) * 1.6; };
 
-      ctx.fillStyle = SKY;
+      var night = !!(state && state.ended);
+      ctx.fillStyle = night ? WATER : SKY;
       ctx.fillRect(0, 0, w, h);
       var laneN = 0;
       for (var ln = 0; ln < 4; ln++) if (boatCount(state, ln) > 0) laneN++;
-      var topLane = laneN ? laneYs(h, laneN)[laneN - 1] : h * 0.74;
-      var waterLine = waterTop(h, laneN);
+      var lay = sceneLayout(h, laneN);
+      var topLane = lay.topLane;
+      var waterLine = lay.waterLine;
       ctx.fillStyle = MIST;
       ctx.fillRect(0, waterLine - h * 0.12, w, h * 0.16);
       ctx.fillStyle = WATER;
@@ -141,14 +157,35 @@
       var flagsOn = best >= 25 || barks >= 12;
       var quayEnd = Math.min(w * (barks >= 12 ? 0.74 : 0.60), w - 36 - (sheds - 1) * 28 - 8);
       ctx.fillStyle = TIMBER;
-      ctx.fillRect(w * 0.18, h * 0.78, Math.max(0, quayEnd - w * 0.18), 8);
-      var lampR = Math.max(3, h * 0.03);
-      var lampY = Math.min(h * 0.40, topLane - 22 - lampR - 6);
-      if (barks >= 16 && lampY - lampR >= 2) {
+      ctx.fillRect(w * 0.18, lay.quayY, Math.max(0, quayEnd - w * 0.18), 6);
+      var lampR = lay.lampR;
+      var lampY = lay.lampY;
+      if ((barks >= 16 || night) && lampY - lampR >= 2) {
         ctx.fillStyle = LAMP;
         ctx.beginPath();
         ctx.arc(w * 0.72, lampY, lampR, 0, Math.PI * 2);
         ctx.fill();
+      }
+      if (state.forks && state.forks.quay === 'lamp') {
+        ctx.fillStyle = LAMP;
+        ctx.beginPath();
+        ctx.arc(quayEnd - 8, lay.quayY - 8, Math.max(3, lampR * 0.7), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      var lightIds = ['pier', 'headland', 'reed', 'quay'];
+      for (var li = 0; li < lightIds.length; li++) {
+        var stage = state.lights && state.lights[lightIds[li]] || 0;
+        if (stage < 1 && !night) continue;
+        var lx = w * (0.42 + li * 0.1);
+        var top = Math.max(8, Math.min(h * 0.16, waterLine - 16));
+        ctx.fillStyle = TIMBER;
+        ctx.fillRect(lx, top + 6, 3, Math.max(8, waterLine - top - 6));
+        if (stage >= 2 || night) {
+          ctx.fillStyle = LAMP;
+          ctx.beginPath();
+          ctx.arc(lx + 1.5, top + 2, Math.max(5, h * 0.028), 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
       ctx.font = '14px Georgia, Palatino, serif';
       var rows = boatCount(state, 0);
@@ -264,5 +301,5 @@
     return { stop: function () { running = false; } };
   }
 
-  window.SaltmarshHarbour = { init: init, laneYs: laneYs, waterTop: waterTop };
+  window.SaltmarshHarbour = { init: init, laneYs: laneYs, waterTop: waterTop, sceneLayout: sceneLayout };
 })();

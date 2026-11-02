@@ -48,6 +48,33 @@
       <h2>Harbour log</h2>
       <ol id="log-lines" aria-live="polite"></ol>
     </section>
+    <section id="settled" class="settled" hidden>
+      <h2>Settled on the desk</h2>
+      <ul id="settled-list"></ul>
+    </section>
+    <section id="routes" class="routes" hidden>
+      <h2>Trade routes</h2>
+      <p id="routes-note"></p>
+      <div id="route-cards"></div>
+    </section>
+    <section id="lights" class="lights" hidden>
+      <h2>Lighthouses</h2>
+      <p id="lights-note"></p>
+      <div id="light-cards"></div>
+    </section>
+    <section id="finale" class="finale" hidden>
+      <h2>The last voyage</h2>
+      <p id="finale-note"></p>
+      <div class="actions"><button type="button" id="finale-go">Send the last voyage</button></div>
+    </section>
+    <section id="ending" class="ending" hidden>
+      <h2>Home past the lights</h2>
+      <p id="ending-lead"></p>
+      <ul id="ending-stats"></ul>
+      <h3>Credits</h3>
+      <ol id="credits"></ol>
+      <div id="new-harbour"></div>
+    </section>
     <section id="fleet" class="fleet" hidden>
       <h2>The fleet</h2>
       <div class="chart" id="chart"></div>
@@ -59,7 +86,10 @@
     <div id="tools"></div>
   </details>
   <p class="foot"><a href="../../index.html">Back to the arcade</a></p>
-  <p class="goalbar" id="goal" aria-live="polite"></p>
+  <div class="goalbar" id="goalbar">
+    <p class="aim" id="aim" hidden></p>
+    <p id="goal" aria-live="polite"></p>
+  </div>
 </main>
 <script src="../../shared/engine.js"></script>
 <script src="../../shared/idle-core.js"></script>
