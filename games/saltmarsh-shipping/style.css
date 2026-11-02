@@ -1,0 +1,210 @@
+/* Saltmarsh Shipping Office. Coast colours from docs/saltmarsh-lighting.md:
+   sky #9cbecb, mist #d4e5e4, night water and ink #23394c, sand #c8c5a0.
+   House lamplight #f2d080. Placeholder timber, hull, paper and panel are
+   recorded in that same note. */
+:root {
+  --ink: #23394c;
+  --sky: #9cbecb;
+  --mist: #d4e5e4;
+  --sand: #c8c5a0;
+  --water: #23394c;
+  --lamp: #f2d080;
+  --timber: #8d7a52;
+  --hull: #6e5840;
+  --paper: #e7f0ef;
+  --panel: #f4faf8;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+html { scroll-padding-bottom: 8.5rem; }
+body {
+  background: var(--water);
+  color: var(--ink);
+  font: 17px/1.45 Georgia, "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+}
+button, summary { font: inherit; }
+.window {
+  max-width: 40rem;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--paper);
+  padding: 0.85rem 1rem 8.5rem;
+  overflow-wrap: break-word;
+}
+a { color: var(--timber); }
+.home, .foot a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  color: var(--ink);
+  background: var(--mist);
+  text-decoration: none;
+  touch-action: manipulation;
+}
+a:focus-visible, button:focus-visible { outline: 2px solid var(--lamp); outline-offset: 2px; }
+.top { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; }
+h1 { font-size: 1.55rem; line-height: 1.15; margin: 0.45rem 0 0.3rem; font-weight: 600; }
+.scene { margin: 0 0 0.45rem; color: var(--hull); }
+.coins { margin: 0; font-variant-numeric: tabular-nums; font-size: 1.45rem; }
+.rate { margin: 0.1rem 0; color: var(--hull); }
+.tools-row { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.55rem; }
+.tools-row button, .arc-set-btn {
+  min-height: 44px;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--ink);
+  background: var(--mist);
+  color: var(--ink);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.harbour-wrap { position: relative; margin: 0.75rem -1rem 0.4rem; background: var(--sky); }
+.harbour-wrap canvas { display: block; width: 100%; height: 320px; touch-action: manipulation; }
+.float {
+  position: absolute;
+  margin: 0;
+  color: var(--lamp);
+  font-weight: 600;
+  text-shadow: 0 1px 0 var(--water);
+  pointer-events: none;
+  animation: rise 0.8s ease-out forwards;
+}
+@keyframes rise {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-28px); opacity: 0; }
+}
+button {
+  min-height: 44px;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--ink);
+  background: var(--mist);
+  color: var(--ink);
+  border-radius: 2px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+button:disabled { opacity: 0.55; cursor: default; }
+button[aria-pressed="true"] { background: var(--sand); border-color: var(--timber); }
+.row, .ask {
+  display: block;
+  width: 100%;
+  margin: 0.35rem 0 0.7rem;
+  min-height: 64px;
+  font-size: 1.15rem;
+  background: var(--sand);
+  border-color: var(--timber);
+}
+.ask { background: var(--lamp); }
+.crew {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 0.35rem 0 0.7rem;
+  background: var(--mist);
+  color: var(--ink);
+}
+/* The captain's place is kept from the first boat, so the button does not shove the shop down. */
+.window:not([data-phase="dock"]) #ask[hidden] {
+  display: block !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+.window:not([data-phase="dock"]):has(#crew:not([hidden])) #ask[hidden] { display: none !important; }
+.bulk { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.6rem; }
+.bulk button { flex: 1 1 6rem; }
+.boats, .captains, .log ol { list-style: none; margin: 0; padding: 0; }
+.boat, .captain { border-top: 1px solid var(--sky); padding: 0.75rem 0; }
+.boat h2, .captain h3, .log h2, .fleet h2, .sheds h2, .choice h2, .choice h3 { margin: 0 0 0.2rem; font-size: 1.15rem; font-weight: 600; }
+.habit, .facts, .wait { margin: 0.15rem 0; }
+.habit, .wait { color: var(--hull); }
+.facts:empty, .wait:empty { display: none; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+.actions button { flex: 1 1 9rem; }
+.closed h2, .closed .habit { color: var(--hull); font-style: italic; }
+.away, .log, .fleet, .sheds, .choice {
+  border: 1px solid var(--sky);
+  background: var(--panel);
+  padding: 0.8rem 0.85rem;
+  margin: 0.7rem 0;
+}
+.away h2, .log h2, .fleet h2 { margin-top: 0; }
+.log li, .chart p, .captain p { margin: 0.25rem 0; }
+.chart {
+  min-height: 92px;
+  margin: 0.4rem 0 0.8rem;
+  padding: 0.7rem 0.7rem 1.6rem;
+  background:
+    linear-gradient(var(--mist), var(--mist)) 8% calc(100% - 0.6rem) / 84% 8px no-repeat,
+    linear-gradient(var(--water), var(--water));
+  color: var(--mist);
+}
+.chart p { color: var(--mist); }
+.chart .marks { color: var(--sand); }
+.mark-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 0.45rem; }
+.mark-row:empty { display: none; }
+.mark-row i { display: block; width: 8px; height: 16px; background: var(--sand); }
+.fleet.reveal { animation: unroll 0.8s ease-out; }
+@keyframes unroll {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.goalbar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(40rem, 100%);
+  bottom: 0;
+  z-index: 6;
+  margin: 0;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background: var(--water);
+  color: var(--mist);
+  box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
+}
+.save { margin-top: 0.8rem; color: var(--hull); }
+.save .arc-note { opacity: 1; }
+.save summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.save .btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
+  padding: 0.35rem 0.75rem; border: 1px solid var(--ink); background: var(--mist); color: var(--ink);
+  border-radius: 2px; cursor: pointer; font: inherit;
+}
+.save .btn.alt { background: var(--sand); }
+.foot { margin: 0.8rem 0 0; }
+@media (max-width: 380px) {
+  h1 { font-size: 1.35rem; }
+  .window { padding-left: 0.8rem; padding-right: 0.8rem; }
+  .harbour-wrap { margin-left: -0.8rem; margin-right: -0.8rem; }
+}
+@media (max-width: 720px), (pointer: coarse) {
+  .window button, .window .home, .window .foot a, .window .btn { min-height: 44px; }
+  .window .row, .window .ask { min-height: 64px; }
+}
+@media (min-width: 900px) {
+  .window { max-width: 60rem; padding-bottom: 8.5rem; }
+  .goalbar { width: min(60rem, 100%); }
+  .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
+  .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .log { grid-column: 1 / -1; }
+  .harbour-wrap canvas { height: 340px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .float, .fleet.reveal { animation: none; }
+}
+@media (max-height: 430px) {
+  .window { padding: 0.3rem 0.75rem 4.2rem; }
+  h1 { font-size: 1.15rem; margin: 0.1rem 0; }
+  .scene, #away-rule { display: none; }
+  .coins { font-size: 1.1rem; }
+  .tools-row { margin-top: 0.15rem; }
+  .harbour-wrap { margin-top: 0.2rem; margin-bottom: 0.1rem; }
+  .tools-row button, .arc-set-btn, .home { min-height: 44px; padding: 0.1rem 0.45rem; }
+  .harbour-wrap canvas,
+  .window[data-phase="fleet"] .harbour-wrap canvas { height: 128px; }
+  .goalbar { padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom)); }
+  html { scroll-padding-bottom: 3.2rem; }
+}
