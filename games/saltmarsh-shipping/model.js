@@ -606,11 +606,9 @@
     if (!label) return '';
     var added = marginalRate(state, i);
     var mult = Idle.milestoneMult((state.boats[i] ? state.boats[i].owned : 0) + 1);
-    var times = mult >= 8 ? 'eight times' : mult >= 4 ? 'four times' : mult >= 2 ? 'twice' : '';
+    var times = mult >= 8 ? '×8' : mult >= 4 ? '×4' : mult >= 2 ? '×2' : '';
     var shown = added < 10 ? (Math.round(added * 10) / 10).toString() : coins(Math.round(added));
-    var line = 'Adds ' + shown + '/s. Back in ' + label + '.';
-    if (times) line += ' ' + times + '.';
-    return line;
+    return 'Adds ' + shown + '/s' + (times ? ' (' + times + ')' : '') + '. Pays back in ' + label + '.';
   }
 
   function shedPasses(state) {

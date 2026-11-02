@@ -167,12 +167,23 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   margin: 0.7rem 0;
 }
 .choice-card, #routes-note { min-height: 2.9em; }
-.route-card h3,
-.route-card .facts,
-.light-card h3 {
+.route-card .facts {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: clip;
+}
+.route-card h3,
+.light-card h3 { white-space: normal; }
+@media (max-width: 800px) {
+  .boat .wait,
+  .captain .wait {
+    white-space: normal;
+    min-height: 2.9em;
+  }
+}
+@media (max-width: 340px) {
+  .route-card h3,
+  .light-card h3 { min-height: 2.9em; }
 }
 .route-card, .light-card, .settled li {
   border-top: 1px solid var(--sky);

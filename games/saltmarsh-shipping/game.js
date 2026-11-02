@@ -230,9 +230,9 @@
       else {
         var next = M.nextIn(state, i, Date.now());
         var brought = state.captains[i].brought || 0;
-        var back = next === Infinity ? 'shed' : (next > 0 ? next + 's' : 'now');
+        var back = next === Infinity ? 'needs a shed' : (next > 0 ? 'back ' + next + 's' : 'back now');
         var perk = i === 0 ? M.wrenPerkLine(state) : i === 1 ? M.bramblePerkLine(state) : '';
-        showLine(status, eachText + '/h · ' + back + (perk ? ' · ' + perk : '') + ' · ' + money(brought));
+        showLine(status, eachText + '/haul · ' + back + (perk ? ' · ' + perk : '') + ' · ' + money(brought) + ' so far');
       }
     });
   }

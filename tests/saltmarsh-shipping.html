@@ -346,7 +346,7 @@ document.querySelector('#run').onclick = async function () {
     var fifty = ready();
     fifty.boats[0].owned = M.SLOOP_AT;
     fifty.boats[1].owned = 50;
-    check('sloop payback follows the four-times milestone', near(M.paybackSeconds(fifty, 1), Idle.bulkCost(120, 1.08, 50, 1) / 20) && /four times/.test(M.paybackLine(fifty, 1)) && /Adds 20\/s/.test(M.paybackLine(fifty, 1)));
+    check('sloop payback follows the four-times milestone', near(M.paybackSeconds(fifty, 1), Idle.bulkCost(120, 1.08, 50, 1) / 20) && /Adds 20\/s \(×4\)/.test(M.paybackLine(fifty, 1)) && /Pays back in/.test(M.paybackLine(fifty, 1)));
     var waived = ready();
     waived.boats[0].owned = M.SLOOP_AT;
     waived.boats[1].owned = 10;
@@ -988,12 +988,12 @@ document.querySelector('#run').onclick = async function () {
       if (preset === 'lamps' && width === 1280 && height === 800) {
         win.__saltmarsh.render();
         var lampsWide = doc.documentElement.scrollHeight;
-        check('at 1280 by 800 the lamps page stays within about 10% of 4,438px (' + lampsWide + 'px)', lampsWide <= 4438 * 1.10 && lampsWide >= 4438 * 0.90);
+        check('at 1280 by 800 the lamps page stays within about 10% of 4,834px (' + lampsWide + 'px)', lampsWide <= 4834 * 1.10 && lampsWide >= 4834 * 0.90);
       }
       if (preset === 'lamps' && width === 390 && height === 844) {
         win.__saltmarsh.render();
         var lampsPhone = doc.documentElement.scrollHeight;
-        check('at 390 by 844 the lamps page stays within about 10% of 5,280px (' + lampsPhone + 'px)', lampsPhone <= 5280 * 1.10 && lampsPhone >= 5280 * 0.90);
+        check('at 390 by 844 the lamps page stays within about 10% of 5,700px (' + lampsPhone + 'px)', lampsPhone <= 5700 * 1.10 && lampsPhone >= 5700 * 0.90);
       }
       var st = win.__saltmarsh.state;
       st.boats[boatIndex].owned = 10;
@@ -1052,7 +1052,7 @@ document.querySelector('#run').onclick = async function () {
       await holdLayout('lamps', layoutSizes[layoutAt][0], layoutSizes[layoutAt][1], 3);
     }
     function hiddenOverflow(doc) {
-      var nodes = doc.querySelectorAll('button, .wait, .habit, .facts, #rate, #away-rule, #goal');
+      var nodes = doc.querySelectorAll('button, .wait, .habit, .facts, .route-card h3, .light-card h3, #rate, #away-rule, #goal');
       var bad = [];
       var i;
       for (i = 0; i < nodes.length; i++) {
