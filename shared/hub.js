@@ -46,7 +46,11 @@
   window.Hub = {
     VERSION, CURRENT, idx, games: all,
     current: () => CURRENT.map(id => all.find(g => g.id === id)).filter(Boolean),
-    lab: () => all.filter(g => !CURRENT.includes(g.id)),
+    lab: () => {
+      const kinds = window.ArcadeKinds || [];
+      const rank = g => { const i = kinds.findIndex(k => k.id === g.kind); return i < 0 ? 99 : i; };
+      return all.filter(g => !CURRENT.includes(g.id)).slice().sort((a, b) => rank(a) - rank(b));
+    },
     render(el, list, opts) {
       if (!el) return;
       opts = Object.assign({ seen: {} }, opts);

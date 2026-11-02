@@ -52,6 +52,9 @@ h1 { font-size: 1.55rem; line-height: 1.15; margin: 0.45rem 0 0.3rem; font-weigh
 .scene { margin: 0 0 0.45rem; color: var(--hull); }
 .coins { margin: 0; font-variant-numeric: tabular-nums; font-size: 1.45rem; }
 .rate { margin: 0.1rem 0; color: var(--hull); }
+@media (max-width: 360px) {
+  .rate { min-height: 3.4em; }
+}
 .tools-row { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.55rem; }
 .tools-row button, .arc-set-btn {
   min-height: 44px;
@@ -127,8 +130,12 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .boat, .captain { border-top: 1px solid var(--sky); padding: 0.75rem 0; }
 .boat h2, .captain h3, .log h2, .fleet h2, .sheds h2, .choice h2, .choice h3 { margin: 0 0 0.2rem; font-size: 1.15rem; font-weight: 600; }
 .habit, .facts, .wait { margin: 0.15rem 0; }
-.wait { min-height: 2.9em; }
-.route-card { min-height: 9.5rem; }
+/* Phone payback and rate lines wrap. The gap is reserved so the Buy button and the routes panel do not move. */
+.boat .habit,
+.boat .facts,
+.boat .wait { min-height: 150px; }
+.route-card { min-height: 26rem; }
+.window .actions button { min-height: 7.2em; }
 .work { overflow-anchor: none; }
 .habit, .wait { color: var(--hull); }
 .facts:empty, .wait:empty { display: none; }

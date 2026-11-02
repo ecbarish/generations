@@ -44,8 +44,11 @@ const SHELVED=['starfall-guild','diamond-career','primordial'];
    await p.locator('[data-game="realmbound"] [data-reset]').click();await p.locator('[data-game="realmbound"] [data-keep]').click();check(await p.evaluate(()=>localStorage.getItem('realmbound-save-v1')==='realmbound-sentinel'),'cancel reset preserves save');}
   // --- lab ---
   await p.goto(origin+'/lab.html');await p.waitForFunction(()=>document.querySelector('#lab .cab'));
-  const lab=await p.locator('#lab .cab').evaluateAll(els=>els.map(e=>e.dataset.game));const expectLab=games.filter(g=>!['little-ranch','starfall-preview','realmbound'].includes(g.id)).map(g=>g.id);
+  const lab=await p.locator('#lab .cab').evaluateAll(els=>els.map(e=>e.dataset.game));
+  const expectLab=await p.evaluate(()=>{const kinds=window.ArcadeKinds||[];const rank=id=>{const i=kinds.findIndex(k=>k.id===id);return i<0?99:i;};return window.ArcadeGames.filter(g=>!['little-ranch','starfall-preview','realmbound'].includes(g.id)).slice().sort((a,b)=>rank(a.kind)-rank(b.kind)).map(g=>g.id);});
   check(JSON.stringify(lab)===JSON.stringify(expectLab),'Lab holds every other catalogue game');check(!lab.includes('little-ranch'),'Little Ranch is on the hub, not in the Lab');
+  const misplaced=await p.evaluate(()=>{const games=window.ArcadeGames||[];let heading='';const bad=[];for(const n of document.querySelectorAll('#lab .kind-head, #lab .cab')){if(n.classList.contains('kind-head')){heading=n.id;continue;}const g=games.find(x=>x.id===n.dataset.game);if(!g||heading!=='kind-'+g.kind)bad.push((g?g.id:n.dataset.game)+' under '+heading);}return bad;});
+  check(misplaced.length===0,'every Lab card sits under its kind heading'+(misplaced.length?': '+misplaced.join('; '):''));
   const bare=await p.evaluate(()=>Promise.all([...document.querySelectorAll('#lab .cab')].map(el=>new Promise(res=>{const img=el.querySelector('.card-art img');if(!img||!img.getAttribute('src'))return res(el.dataset.game);if(img.complete&&img.naturalWidth>0)return res(null);const probe=new Image();probe.onload=()=>res(probe.naturalWidth>0?null:el.dataset.game);probe.onerror=()=>res(el.dataset.game);probe.src=img.src;}))).then(rows=>rows.filter(Boolean)));
   check(bare.length===0,'every Lab card cover resolves'+(bare.length?': '+bare.join(', '):''));
   for(const id of SHELVED)check(!lab.includes(id),'not in the Lab: '+id);

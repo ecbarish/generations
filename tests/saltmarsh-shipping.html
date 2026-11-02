@@ -891,6 +891,48 @@ document.querySelector('#run').onclick = async function () {
     var finalBox = await presetFrame('final');
     var finalState = finalBox.contentWindow.__saltmarsh.state;
     check('?state=final stops before the last voyage and leaves the real save alone', localStorage.getItem(KEY) === keptRaw && finalState.ended === false && finalBox.contentDocument.querySelector('#finale').hidden === false);
+    async function holdLayout(preset, width, height, boatIndex) {
+      var box = await loadFrame(preset + ' layout ' + width, '&state=' + preset);
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 150); });
+      function pins() {
+        var boat = doc.querySelector('#boats [data-i="' + boatIndex + '"]');
+        var buy = boat && boat.querySelector('[data-act="buy"]');
+        var routes = doc.querySelector('#routes');
+        var buyTop = buy ? buy.getBoundingClientRect().top : null;
+        var routesBottom = routes && routes.hidden === false ? routes.getBoundingClientRect().bottom : null;
+        var routesH = routes && routes.hidden === false ? routes.offsetHeight : null;
+        function h(sel, root) {
+          var el = (root || doc).querySelector(sel);
+          return el ? Math.round(el.getBoundingClientRect().height) : 0;
+        }
+        return {
+          buyTop: buyTop, routesBottom: routesBottom, routesH: routesH,
+          rate: h('#rate'), coins: h('.coins'), habit: h('.habit', boat), facts: h('.facts', boat), wait: h('.wait', boat)
+        };
+      }
+      var st = win.__saltmarsh.state;
+      st.boats[boatIndex].owned = 10;
+      st.cash = 0;
+      win.__saltmarsh.render();
+      var shortLine = pins();
+      st.boats[boatIndex].owned = 50;
+      st.cash = 1e18;
+      win.__saltmarsh.render();
+      var longLine = pins();
+      var buyShift = shortLine.buyTop == null || longLine.buyTop == null ? 999 : Math.abs(longLine.buyTop - shortLine.buyTop);
+      var routeShift = shortLine.routesBottom == null || longLine.routesBottom == null ? 999 : Math.abs(longLine.routesBottom - shortLine.routesBottom);
+      check('at ' + width + ' by ' + height + ' the ' + preset + ' routes panel and Buy button stay put when the lines wrap (routes ' + routeShift.toFixed(1) + 'px, buy ' + buyShift.toFixed(1) + 'px)', buyShift < 2 && routeShift < 2);
+    }
+    var layoutSizes = [[1280, 800], [390, 844], [320, 568]];
+    var layoutAt;
+    for (layoutAt = 0; layoutAt < layoutSizes.length; layoutAt++) {
+      await holdLayout('fleet', layoutSizes[layoutAt][0], layoutSizes[layoutAt][1], 1);
+      await holdLayout('lamps', layoutSizes[layoutAt][0], layoutSizes[layoutAt][1], 3);
+    }
     wipe();
     check('other saves are untouched', Object.keys(localStorage).slice().sort().join('|') === storedKeys);
     sum.textContent = 'PASS — ' + n + ' checks';
