@@ -62,62 +62,109 @@
     return base + '. ' + need + ' more.';
   }
 
-  /* The cheapest required step that is actually on the desk.
-     Quotes lock here, so the same step's price cannot climb while coins come in. */
+  /* Pending Light beats a new Raise. Otherwise the desk rotates through
+     different kinds of work so the late watch is not one repeated button. */
   function nextAct(state) {
     var M = window.Saltmarsh;
     if (!state || state.ended || !M.routesUnlocked(state)) return null;
+    if (M.finaleOffer && M.finaleOffer(state)) {
+      return { kind: 'finale', id: 'finale', selector: '#finale', sentence: 'Set sail.', cost: 0, rank: 0 };
+    }
     var routes = M.routeOffers(state, true);
     var lights = M.routesSailing(state) >= 5 ? M.lightOffers(state, true) : [];
     var route = null;
-    var light = null;
+    var pending = null;
+    var raised = null;
     var i;
     for (i = 0; i < routes.length; i++) if (!route || routes[i].cost < route.cost) route = routes[i];
     for (i = 0; i < lights.length; i++) {
       if (lights[i].blocked) continue;
-      if (!light || lights[i].cost < light.cost) light = lights[i];
+      if (lights[i].stage === 1) {
+        if (!pending || lights[i].cost < pending.cost) pending = lights[i];
+      } else if (!raised || lights[i].cost < raised.cost) raised = lights[i];
     }
-    var options = [];
-    if (route) options.push({
-      kind: 'route',
-      id: route.id,
-      rank: 1,
-      selector: '#route-cards [data-route="' + route.id + '"]',
-      sentence: withNeed(state, 'Sign ' + route.name + ', ' + M.coins(route.cost), route.cost),
-      cost: route.cost
+    if (pending) {
+      return {
+        kind: 'light', id: pending.id, rank: 0,
+        selector: '#light-cards [data-light="' + pending.id + '"]',
+        sentence: withNeed(state, 'Light the ' + pending.name + ', ' + M.coins(pending.cost), pending.cost),
+        cost: pending.cost
+      };
+    }
+    function routeAct() {
+      if (!route) return null;
+      return {
+        kind: 'route', id: route.id, rank: 1, cost: route.cost,
+        selector: '#route-cards [data-route="' + route.id + '"]',
+        sentence: withNeed(state, 'Sign ' + route.name + ', ' + M.coins(route.cost), route.cost)
+      };
+    }
+    function lightAct() {
+      if (!raised) return null;
+      return {
+        kind: 'light', id: raised.id, rank: 0, cost: raised.cost,
+        selector: '#light-cards [data-light="' + raised.id + '"]',
+        sentence: withNeed(state, 'Raise the ' + raised.name + ', ' + M.coins(raised.cost), raised.cost)
+      };
+    }
+    function boatAct() {
+      var chunk = M.boatChunk ? M.boatChunk(state) : null;
+      if (!chunk) return null;
+      var noun = chunk.count === 1 ? chunk.name.toLowerCase() : chunk.name.toLowerCase() + 's';
+      return {
+        kind: 'boat', id: 'boat', tier: chunk.tier, count: chunk.count, rank: 2, cost: chunk.cost,
+        selector: '#boats [data-i="' + chunk.tier + '"]',
+        sentence: withNeed(state, 'Buy ' + chunk.count + ' ' + noun + ', ' + M.coins(chunk.cost), chunk.cost)
+      };
+    }
+    function workAct() {
+      var work = M.workOffer ? M.workOffer(state) : null;
+      if (!work) return null;
+      return {
+        kind: 'work', id: 'work', rank: 3, cost: work.cost,
+        selector: '#harbour-work',
+        sentence: withNeed(state, 'Do the harbour work: ' + work.name + ', ' + M.coins(work.cost), work.cost)
+      };
+    }
+    function errandAct() {
+      var errand = M.errandOffer ? M.errandOffer(state) : null;
+      if (!errand) return null;
+      return {
+        kind: 'errand', id: 'errand', rank: 5, cost: errand.cost,
+        selector: '#errand',
+        sentence: withNeed(state, 'Run the errand: ' + errand.name + ', ' + M.coins(errand.cost), errand.cost)
+      };
+    }
+    function prepAct() {
+      var prep = M.nextPreparation ? M.nextPreparation(state) : null;
+      if (!prep) return null;
+      var sentence;
+      if (prep.choice) sentence = 'Choose ' + prep.choice[0].name.toLowerCase() + ', or ' + prep.choice[1].name.toLowerCase() + ', ' + M.coins(prep.cost);
+      else sentence = 'Pack ' + prep.name + ', ' + M.coins(prep.cost);
+      return {
+        kind: 'prep', id: prep.id, which: prep.choice ? prep.choice[0].id : '', rank: 4, cost: prep.cost,
+        selector: '#provision',
+        sentence: withNeed(state, sentence, prep.cost)
+      };
+    }
+    var made = { route: routeAct, boat: boatAct, work: workAct, errand: errandAct, prep: prepAct, light: lightAct };
+    var order = ['light', 'route', 'boat', 'work', 'errand', 'prep'];
+    var rate = Math.max(1, M.officeRate(state));
+    var limit = rate * 38;
+    var cursor = state.goalCursor || 0;
+    var step, opt;
+    for (step = 0; step < order.length; step++) {
+      opt = made[order[(cursor + step) % order.length]]();
+      if (opt && opt.cost <= limit) return opt;
+    }
+    var rest = [];
+    order.concat(['light']).forEach(function (kind) {
+      var row = made[kind]();
+      if (row) rest.push(row);
     });
-    if (light) options.push({
-      kind: 'light',
-      id: light.id,
-      rank: 0,
-      selector: '#light-cards [data-light="' + light.id + '"]',
-      sentence: withNeed(state, (light.stage === 0 ? 'Raise the ' : 'Light the ') + light.name + ', ' + M.coins(light.cost), light.cost),
-      cost: light.cost
-    });
-    var provision = M.provisionOffer ? M.provisionOffer(state, true) : null;
-    if (provision) options.push({
-      kind: 'provision',
-      id: 'provision',
-      rank: 2,
-      selector: '#provision',
-      sentence: withNeed(state, 'Provision the last voyage: ' + provision.index + ' / ' + provision.total + '. ' + provision.name + ', ' + M.coins(provision.cost), provision.cost),
-      cost: provision.cost
-    });
-    var finale = M.finaleOffer(state, true);
-    if (finale) options.push({
-      kind: 'finale',
-      id: 'finale',
-      rank: 3,
-      selector: '#finale',
-      sentence: withNeed(state, 'Send the last voyage, ' + M.coins(finale.cost), finale.cost),
-      cost: finale.cost
-    });
-    if (!options.length) return null;
-    options.sort(function (a, b) {
-      if (a.cost !== b.cost) return a.cost - b.cost;
-      return a.rank - b.rank;
-    });
-    return options[0];
+    if (!rest.length) return null;
+    rest.sort(function (a, b) { return a.cost - b.cost; });
+    return rest[0];
   }
 
   /* One sentence, always. The player should be able to read it and know what to do. */
@@ -219,12 +266,12 @@
     if (!state || state.trips < M.HAND_TRIPS || state.boats[1].owned < M.UNLOCK_AT) return '';
     if (state.ended) return '';
     var lit = M.lightsLit(state);
-    if (lit >= 4 && M.finaleOffer(state, false)) return 'The lighthouses are burning. The last voyage is the end of the office.';
-    if (lit >= 4) {
-      var held = state.provisions || 0;
-      var total = M.PROVISION_TOTAL || 0;
-      return 'The lighthouses are burning. Provision the last voyage: ' + held + ' / ' + total + '.';
+    if (M.finaleOffer && M.finaleOffer(state)) return 'The list is complete. Set sail.';
+    if (lit >= 4 && (state.played || 0) < (M.VOYAGE_AT || 2400)) {
+      var leftMin = Math.max(1, Math.ceil(((M.VOYAGE_AT || 2400) - (state.played || 0)) / 60));
+      return 'The lighthouses are burning. The voyage list opens in ' + leftMin + ' minutes.';
     }
+    if (lit >= 4) return 'The lighthouses are burning. Pack the voyage list, then set sail.';
     if (lit === 1) return 'Four lighthouses along the coast, then the last voyage home. One is burning.';
     if (lit > 1) return 'Four lighthouses along the coast, then the last voyage home. ' + ['', '', 'Two', 'Three'][lit] + ' are burning.';
     return 'Four lighthouses along the coast, then the last voyage home.';

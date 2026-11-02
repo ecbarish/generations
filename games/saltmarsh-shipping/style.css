@@ -142,7 +142,10 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .actions button { white-space: nowrap; }
 #ending .actions button,
 #choice .actions button,
-#provision-go { white-space: normal; min-height: 44px; }
+#provision-go, #provision .actions button,
+#work-go, #errand-go, #finale-go { white-space: normal; min-height: 44px; }
+#provision-actions { min-height: 6.5rem; }
+#provision-cards .route-card { min-height: 4.6rem; }
 /* Status lines stay one row when the short copy fits, so a longer figure cannot
    push the Buy button or the routes. */
 .boat .habit,
@@ -190,6 +193,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .route-card h3,
   .light-card h3 { min-height: 2.9em; }
 }
+.route-card { min-height: 11rem; }
 .route-card, .light-card, .settled li {
   border-top: 1px solid var(--sky);
   padding: 0.65rem 0 0.2rem;
@@ -253,17 +257,17 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .goalbar #goal:focus { outline: 2px solid var(--lamp); outline-offset: -4px; }
 .goal-target { outline: 3px solid var(--lamp); outline-offset: 3px; }
 #choice.choice {
-  position: fixed;
-  z-index: 5;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(40rem, calc(100% - 1.2rem));
-  bottom: 9.25rem;
-  margin: 0;
+  position: static;
+  z-index: auto;
+  left: auto;
+  transform: none;
+  width: auto;
+  bottom: auto;
+  margin: 0.7rem 0;
   max-height: none;
   overflow: visible;
-  padding: 0.45rem 0.6rem;
-  box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
+  padding: 0.8rem 0.85rem;
+  box-shadow: none;
 }
 /* The aim line makes the goal bar tall enough to cover the Take buttons. */
 body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
@@ -305,9 +309,9 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
 @media (min-width: 900px) {
   .window { max-width: 60rem; padding-bottom: 8.5rem; }
   .goalbar { width: min(60rem, 100%); }
-  #choice.choice { width: min(60rem, calc(100% - 2rem)); bottom: 9.25rem; }
+  #choice.choice { width: auto; bottom: auto; }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
-  .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .finale, .ending { grid-column: 1 / -1; }
+  .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .settled, .routes, .lights, .harbour-work, #errand, .finale, .ending { grid-column: 1 / -1; }
   .harbour-wrap canvas { height: 340px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -327,7 +331,7 @@ body:has(#choice:not([hidden])) .goalbar .aim { display: none; }
     padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom));
     min-height: 44px;
   }
-  #choice.choice { bottom: 4.6rem; }
+  #choice.choice { bottom: auto; }
   .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }
 }

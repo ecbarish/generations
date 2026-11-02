@@ -132,9 +132,14 @@
     showLine(wait, M.paybackLine(state, i));
     buy.hidden = false;
     var priced = boatQuote(i);
-    buy.textContent = buyLabel(i);
-    buy.disabled = !(priced.count > 0);
+    var boatGoal = P.nextAct(state);
+    if (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i) {
+      priced = { count: boatGoal.count, cost: boatGoal.cost };
+      buy.textContent = 'Buy ' + boatGoal.count + ' · ' + money(boatGoal.cost) + (state.cash >= boatGoal.cost ? '' : ' · ' + M.needMore(state, boatGoal.cost));
+    } else buy.textContent = buyLabel(i);
+    buy.disabled = !(priced.count > 0) || (boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i && !(state.cash >= boatGoal.cost));
     buy.dataset.count = String(priced.count || 0);
+    buy.dataset.chunk = boatGoal && boatGoal.kind === 'boat' && boatGoal.tier === i ? '1' : '';
   }
 
   function fillSheds() {
@@ -566,32 +571,106 @@
     });
   }
 
+  function fillWork() {
+    var box = $('#harbour-work');
+    if (!box) return;
+    var offer = M.workOffer ? M.workOffer(state) : null;
+    box.hidden = !offer;
+    if (box.hidden) return;
+    $('#work-note').textContent = offer.name + '. ' + offer.line;
+    var button = $('#work-go');
+    button.disabled = !(state.cash >= offer.cost);
+    var label = offer.name + ' · ' + money(offer.cost);
+    button.textContent = state.cash >= offer.cost ? label : label + ' · ' + M.needMore(state, offer.cost);
+  }
+
+  function fillErrand() {
+    var box = $('#errand');
+    if (!box) return;
+    var offer = M.errandOffer ? M.errandOffer(state) : null;
+    box.hidden = !offer;
+    if (box.hidden) return;
+    $('#errand-note').textContent = offer.name + '. ' + offer.line;
+    var button = $('#errand-go');
+    button.disabled = !(state.cash >= offer.cost);
+    var label = offer.name + ' · ' + money(offer.cost);
+    button.textContent = state.cash >= offer.cost ? label : label + ' · ' + M.needMore(state, offer.cost);
+  }
+
   function fillProvision() {
     var box = $('#provision');
     if (!box) return;
-    var offer = M.provisionOffer(state, true);
-    box.hidden = !offer;
+    var open = M.voyageOpen && M.voyageOpen(state);
+    var offers = open && M.preparationOffers ? M.preparationOffers(state) : [];
+    box.hidden = !open;
     if (box.hidden) return;
     var title = $('#provision-title');
-    if (title) title.textContent = 'Provision the last voyage: ' + offer.index + ' / ' + offer.total;
-    $('#provision-note').textContent = offer.name + '. The last voyage waits until the hold is full.';
+    var done = M.PREPARATIONS.length - offers.length;
+    if (title) title.textContent = 'For the last voyage: ' + done + ' / ' + M.PREPARATIONS.length;
+    $('#provision-note').textContent = offers.length
+      ? 'Each price is a number of coins. It does not rise when the fleet grows.'
+      : 'The list is complete.';
+    var host = $('#provision-cards');
+    var doneMap = state.prepDone || {};
+    var sig = M.PREPARATIONS.map(function (item) { return item.id + (doneMap[item.id] ? ':1' : ':0'); }).join('|');
+    if (host.dataset.sig !== sig) {
+      host.dataset.sig = sig;
+      host.replaceChildren();
+      M.PREPARATIONS.forEach(function (item) {
+        var card = document.createElement('div');
+        card.className = 'route-card';
+        var h = document.createElement('h3');
+        h.textContent = doneMap[item.id] ? item.name + ' · packed' : item.name;
+        var p = document.createElement('p');
+        p.className = 'habit';
+        p.textContent = item.choice ? item.choice[0].name + ', or ' + item.choice[1].name + '.' : (item.line || '');
+        card.appendChild(h);
+        card.appendChild(p);
+        host.appendChild(card);
+      });
+    }
+    var current = offers[0];
     var button = $('#provision-go');
-    button.disabled = !offer.affordable;
-    var label = offer.name + ' · ' + money(offer.cost);
-    button.textContent = offer.affordable ? label : label + ' · ' + M.needMore(state, offer.cost);
+    var alt = $('#provision-alt');
+    if (!current) {
+      button.disabled = true;
+      button.textContent = 'The list is packed';
+      if (alt) alt.hidden = true;
+      return;
+    }
+    button.dataset.prep = current.id;
+    button.dataset.which = current.choice ? current.choice[0].id : '';
+    var mainName = current.choice ? current.choice[0].name : current.name;
+    var mainLabel = mainName + ' · ' + money(current.cost);
+    button.disabled = !(state.cash >= current.cost);
+    button.textContent = state.cash >= current.cost ? mainLabel : mainLabel + ' · ' + M.needMore(state, current.cost);
+    if (current.choice) {
+      if (!alt) {
+        alt = document.createElement('button');
+        alt.type = 'button';
+        alt.id = 'provision-alt';
+        alt.dataset.act = 'prep';
+        button.parentNode.appendChild(alt);
+      }
+      alt.hidden = false;
+      alt.dataset.prep = current.id;
+      alt.dataset.which = current.choice[1].id;
+      var altLabel = current.choice[1].name + ' · ' + money(current.cost);
+      alt.disabled = !(state.cash >= current.cost);
+      alt.textContent = state.cash >= current.cost ? altLabel : altLabel + ' · ' + M.needMore(state, current.cost);
+    } else if (alt) alt.hidden = true;
   }
 
   function fillFinale() {
     var box = $('#finale');
     if (!box) return;
-    var offer = M.finaleOffer(state, true);
+    var offer = M.finaleOffer(state);
     box.hidden = !offer;
     if (box.hidden) return;
     $('#finale-note').textContent = offer.line;
     var button = $('#finale-go');
-    button.disabled = !offer.affordable;
-    var finaleLabel = 'Send · ' + money(offer.cost);
-    button.textContent = offer.affordable ? finaleLabel : finaleLabel + ' · ' + M.needMore(state, offer.cost);
+    button.disabled = false;
+    button.textContent = 'Set sail';
   }
 
   function fillEnding() {
@@ -751,6 +830,8 @@
     fillSettled();
     fillRoutes();
     fillLights();
+    fillWork();
+    fillErrand();
     fillProvision();
     fillFinale();
     fillEnding();
@@ -943,8 +1024,24 @@
       }
       return;
     }
-    if (b.dataset.act === 'provision' || b.id === 'provision-go') {
-      if (M.buyProvision(state, actNow()).ok) {
+    if (b.dataset.act === 'prep' || b.id === 'provision-go') {
+      if (M.buyPreparation(state, b.dataset.prep, b.dataset.which || '', actNow()).ok) {
+        if (state.sound) audio.sfx('quest');
+        persist();
+        render();
+      }
+      return;
+    }
+    if (b.dataset.act === 'work' || b.id === 'work-go') {
+      if (M.buyWork(state, actNow()).ok) {
+        if (state.sound) audio.sfx('quest');
+        persist();
+        render();
+      }
+      return;
+    }
+    if (b.dataset.act === 'errand' || b.id === 'errand-go') {
+      if (M.buyErrand(state, actNow()).ok) {
         if (state.sound) audio.sfx('quest');
         persist();
         render();
@@ -990,6 +1087,7 @@
     if (!(shown > 0)) return;
     var result = M.buy(state, i, shown);
     if (!result.ok) return;
+    if (b.dataset.chunk === '1') M.commitGoal(state, 'boat');
     var nowOwned = state.boats[i].owned;
     if (result.notes && result.notes.length) {
       var wrap = $('.harbour-wrap');
@@ -1147,12 +1245,20 @@
      so a measured wait is a wait on the step the player can see. */
   function followGoal() {
     var goal = ($('#goal') && $('#goal').textContent) || '';
+    var act = P.nextAct(state);
     if (/^Choose a route/.test(goal)) {
       var routeAct = P.nextAct(state);
       var routeBtn = routeAct && routeAct.kind === 'route'
         ? document.querySelector('#route-cards [data-route="' + routeAct.id + '"] [data-act="route"]')
         : null;
       if (usableControl(routeBtn)) { routeBtn.click(); return true; }
+      return false;
+    }
+    if (/^Choose fresh|^Choose a pilot/.test(goal)) {
+      var prepBtn = act && act.kind === 'prep'
+        ? document.querySelector('#provision [data-prep="' + act.id + '"]' + (act.which ? '[data-which="' + act.which + '"]' : ''))
+        : $('#provision-go');
+      if (usableControl(prepBtn)) { prepBtn.click(); return true; }
       return false;
     }
     if (/^Choose /.test(goal)) {
@@ -1170,9 +1276,26 @@
       if (usableControl(row)) { row.click(); return true; }
       return false;
     }
-    if (/^Provision /.test(goal)) {
-      var provision = $('#provision-go');
-      if (usableControl(provision)) { provision.click(); return true; }
+    if (/^Set sail/.test(goal)) {
+      var sail = $('#finale-go');
+      if (usableControl(sail)) { sail.click(); return true; }
+      return false;
+    }
+    if (/^Pack /.test(goal)) {
+      var packBtn = act && act.kind === 'prep'
+        ? document.querySelector('#provision [data-prep="' + act.id + '"]')
+        : $('#provision-go');
+      if (usableControl(packBtn)) { packBtn.click(); return true; }
+      return false;
+    }
+    if (/^Do the harbour work/.test(goal)) {
+      var workBtn = $('#work-go');
+      if (usableControl(workBtn)) { workBtn.click(); return true; }
+      return false;
+    }
+    if (/^Run the errand/.test(goal)) {
+      var errandBtn = $('#errand-go');
+      if (usableControl(errandBtn)) { errandBtn.click(); return true; }
       return false;
     }
     if (/^Send /.test(goal)) {
@@ -1180,7 +1303,6 @@
       if (usableControl(send)) { send.click(); return true; }
       return false;
     }
-    var act = P.nextAct(state);
     if (/^Sign /.test(goal) && act && act.kind === 'route') {
       var routeBtn = document.querySelector('#route-cards [data-route="' + act.id + '"] [data-act="route"]');
       if (usableControl(routeBtn)) { routeBtn.click(); return true; }
@@ -1192,8 +1314,9 @@
       return false;
     }
     if (/^Buy |^Tie up /.test(goal)) {
-      var need = P.boatNeed(state);
-      var buy = need ? document.querySelector('#boats [data-i="' + need.tier + '"] [data-act="buy"]') : null;
+      var boatTier = act && act.kind === 'boat' ? act.tier : (P.boatNeed(state) && P.boatNeed(state).tier);
+      var buy = boatTier == null ? null : document.querySelector('#boats [data-i="' + boatTier + '"] [data-act="buy"]');
+      if (act && act.kind === 'boat' && buy) buy.dataset.count = String(act.count);
       if (usableControl(buy)) { buy.click(); return true; }
       return false;
     }

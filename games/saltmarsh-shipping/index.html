@@ -9,6 +9,10 @@
 </head>
 <body>
 <main class="window" id="office" data-phase="dock">
+  <section id="choice" class="choice" hidden>
+    <h2>A choice on the desk</h2>
+    <div id="choice-cards"></div>
+  </section>
   <header>
     <div class="top">
       <a class="home" href="../../index.html">Back to the arcade</a>
@@ -39,10 +43,6 @@
       <button type="button" data-bulk="max" aria-pressed="false">Max</button>
     </div>
     <ol class="boats" id="boats"></ol>
-    <section id="choice" class="choice" hidden>
-      <h2>A choice on the desk</h2>
-      <div id="choice-cards"></div>
-    </section>
     <section id="sheds" hidden></section>
     <section id="settled" class="settled" hidden>
       <h2>Settled on the desk</h2>
@@ -63,15 +63,26 @@
       <p id="lights-note"></p>
       <div id="light-cards"></div>
     </section>
+    <section id="harbour-work" class="finale" hidden>
+      <h2>Harbour work</h2>
+      <p id="work-note"></p>
+      <div class="actions"><button type="button" id="work-go" data-act="work">Do the harbour work</button></div>
+    </section>
+    <section id="errand" class="finale" hidden>
+      <h2>An errand</h2>
+      <p id="errand-note"></p>
+      <div class="actions"><button type="button" id="errand-go" data-act="errand">Run the errand</button></div>
+    </section>
     <section id="provision" class="finale" hidden>
-      <h2 id="provision-title">Provision the last voyage</h2>
+      <h2 id="provision-title">For the last voyage</h2>
       <p id="provision-note"></p>
-      <div class="actions"><button type="button" id="provision-go" data-act="provision">Provision the last voyage</button></div>
+      <div id="provision-cards"></div>
+      <div class="actions" id="provision-actions"><button type="button" id="provision-go" data-act="prep">Pack the next item</button></div>
     </section>
     <section id="finale" class="finale" hidden>
       <h2>The last voyage</h2>
       <p id="finale-note"></p>
-      <div class="actions"><button type="button" id="finale-go">Send the last voyage</button></div>
+      <div class="actions"><button type="button" id="finale-go">Set sail</button></div>
     </section>
     <section id="ending" class="ending" tabindex="-1" hidden>
       <h2>Home past the lights</h2>
