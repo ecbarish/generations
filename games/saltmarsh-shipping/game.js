@@ -7,10 +7,10 @@
   var M = window.Saltmarsh;
   var P = window.SaltmarshPhase;
   var KEY = M.SAVE_KEY;
-  var VERSION = '0.2.0';
+  var VERSION = '0.2.1';
   var $ = function (sel) { return document.querySelector(sel); };
   var money = function (n) { return M.coins(n); };
-  var view = { rowing: 0, ripple: null, choice: '', routes: false };
+  var view = { rowing: 0, ripple: null, choice: '', routes: false, goalTimer: 0 };
   var taps = [];
   var idle = null;
   var awayOn = false;
@@ -18,11 +18,21 @@
   Arcade.versions[KEY] = M.SAVE_VERSION;
   Arcade.validators[KEY] = M.valid;
 
+  function previewName() {
+    var search = '';
+    try { search = window.location && window.location.search || ''; } catch (e) { search = ''; }
+    var match = /(?:\?|&)state=(fleet|lamps|final)(?:&|$)/.exec(search);
+    return match ? match[1] : '';
+  }
+  var preview = previewName();
   var raw = null;
-  try { raw = Arcade.load(KEY); } catch (e) { raw = null; }
-  var state = M.openSave(raw);
+  if (!preview) {
+    try { raw = Arcade.load(KEY); } catch (e) { raw = null; }
+  }
+  var state = preview ? (M.preset(preview) || M.openSave(null)) : M.openSave(raw);
 
   function persist(obj) {
+    if (preview) return false;
     if (Arcade.held[KEY]) return false;
     if (!obj) {
       state.seen = Date.now();
@@ -53,14 +63,32 @@
     }
   });
 
+  function boatQuote(i) {
+    if (state.bulk !== 'max') return M.quote(state, i, state.bulk);
+    var open = M.quote(state, i, 'max');
+    var cap = M.goalCap(state, i);
+    if (!(open.count > 0) || cap == null) return open;
+    var room = cap - state.boats[i].owned;
+    if (!(room > 0) || open.count <= room) return open;
+    var capped = M.quote(state, i, room);
+    capped.toGoal = true;
+    return capped;
+  }
+
   function buyLabel(i) {
-    var q = M.quote(state, i, state.bulk);
+    var q = boatQuote(i);
     if (state.bulk === 'max') {
-      if (!(q.count > 0)) return 'Max · one costs ' + money(q.cost) + ' coins';
+      if (!(q.count > 0)) {
+        var one = M.quote(state, i, 1);
+        return 'Max · one costs ' + money(one.cost) + ' coins. ' + M.needMore(state, one.cost);
+      }
+      if (q.toGoal) return 'To the goal · ' + q.count + ' · ' + money(q.cost) + ' coins';
       return 'Buy up to ' + q.count + ' · ' + money(q.cost) + ' coins';
     }
     var n = state.bulk === 10 ? 10 : 1;
-    return 'Buy ' + n + ' · ' + money(q.cost) + ' coins';
+    var label = 'Buy ' + n + ' · ' + money(q.cost) + ' coins';
+    if (!(q.count > 0)) label += '. ' + M.needMore(state, q.cost);
+    return label;
   }
 
   function visibleBoats() {
@@ -77,7 +105,9 @@
     var boat = M.BOATS[i];
     var open = M.unlocked(state, i);
     var owned = state.boats[i].owned;
+    var marked = li.classList.contains('goal-target');
     li.className = 'boat' + (open ? '' : ' closed');
+    if (marked) li.classList.add('goal-target');
     li.querySelector('h2').textContent = boat.name + (owned > 0 ? ' · ' + owned : '');
     li.querySelector('.habit').textContent = open ? M.lookLine(state, i) : boat.next;
     var facts = li.querySelector('.facts');
@@ -90,11 +120,11 @@
       return;
     }
     var rate = M.production(state, i);
-    facts.textContent = owned > 0 ? money(rate) + ' coins a second from these.' : 'None tied up yet.';
+    facts.textContent = owned > 0 ? M.rateWords(rate) + ' from these.' : 'None tied up yet.';
     wait.textContent = M.paybackLine(state, i);
     buy.hidden = false;
     buy.textContent = buyLabel(i);
-    buy.disabled = !(M.quote(state, i, state.bulk).count > 0);
+    buy.disabled = !(boatQuote(i).count > 0);
   }
 
   function fillSheds() {
@@ -127,7 +157,7 @@
     else {
       shedBtn.hidden = false;
       shedBtn.disabled = !(state.cash >= price);
-      shedBtn.textContent = 'Raise another shed · ' + money(price) + ' coins';
+      shedBtn.textContent = 'Raise another shed · ' + money(price) + ' coins' + (state.cash >= price ? '' : '. ' + M.needMore(state, price));
     }
   }
 
@@ -267,7 +297,8 @@
       var button = host.querySelector('[data-which="' + card.which + '"]');
       if (!button) return;
       button.disabled = !card.affordable;
-      button.textContent = card.which === 'shed' ? M.shedChoiceText(card.cost) : card.name + ' · ' + money(card.cost) + ' coins';
+      var label = card.which === 'shed' ? M.shedChoiceText(card.cost) : card.name + ' · ' + money(card.cost) + ' coins';
+      button.textContent = card.affordable || !(card.cost > 0) ? label : label + '. ' + M.needMore(state, card.cost);
     });
   }
 
@@ -284,7 +315,13 @@
     list.replaceChildren();
     rows.forEach(function (row) {
       var li = document.createElement('li');
-      li.textContent = row.takenName + ' is taken. ' + row.lockedName + ' is locked.';
+      if (row.lockedName === 'Another shed' && M.warehousePrice(state) != null) {
+        li.textContent = row.takenName + ' is taken. The shed from that choice was not built. A dearer shed can still be raised from the list.';
+      } else if (row.lockedName === 'Another shed') {
+        li.textContent = row.takenName + ' is taken. The shed from that choice was not built. There is no third shed at that step.';
+      } else {
+        li.textContent = row.takenName + ' is taken. ' + row.lockedName + ' is locked.';
+      }
       list.appendChild(li);
     });
   }
@@ -297,8 +334,10 @@
     if (box.hidden) return;
     var offers = M.routeOffers(state, true);
     var note = $('#routes-note');
+    var sailing = M.routesSailing(state);
+    var lead = sailing === 0 ? 'No route is sailing yet. ' : sailing === 1 ? 'One route is sailing. ' : sailing + ' routes are sailing. ';
     note.textContent = offers.length
-      ? 'Pick one run. The others wait, and the prices are set until you choose.'
+      ? lead + 'Pick one run. The others wait, and the prices are set until you choose.'
       : 'Every route on the chart has been signed.';
     var host = $('#route-cards');
     var sig = offers.map(function (offer) { return offer.id + ':' + offer.depth + ':' + Math.round(offer.cost); }).join('|');
@@ -336,8 +375,12 @@
       var offer = null;
       for (var i = 0; i < offers.length; i++) if (offers[i].id === id) offer = offers[i];
       if (!offer) return;
+      var heading = button.parentNode && button.parentNode.parentNode ? button.parentNode.parentNode.querySelector('h3') : null;
+      var live = (state.routes && state.routes[id] || 0) + 1;
+      if (heading) heading.textContent = offer.name + ' · ' + live + ' of ' + offer.depths;
       button.disabled = !offer.affordable;
-      button.textContent = 'Sign ' + offer.name + ' · ' + money(offer.cost) + ' coins';
+      var label = 'Sign ' + offer.name + ' · ' + money(offer.cost) + ' coins';
+      button.textContent = offer.affordable ? label : label + '. ' + M.needMore(state, offer.cost);
     });
   }
 
@@ -366,7 +409,8 @@
         h.textContent = spec.name + (stage >= 2 ? ' · burning' : stage === 1 ? ' · tower up' : ' · dark');
         var p = document.createElement('p');
         p.className = 'habit';
-        p.textContent = stage >= 2 ? spec.lines[1] : (offer ? offer.line : spec.lines[0]);
+        var lineAt = stage >= 2 ? spec.lines.length - 1 : stage;
+        p.textContent = spec.lines[lineAt] || spec.lines[0];
         wrap.appendChild(h);
         wrap.appendChild(p);
         if (offer) {
@@ -387,7 +431,8 @@
       for (var i = 0; i < offers.length; i++) if (offers[i].id === button.dataset.light) offer = offers[i];
       if (!offer) return;
       button.disabled = !offer.affordable;
-      button.textContent = offer.verb + ' ' + offer.name + ' · ' + money(offer.cost) + ' coins';
+      var label = offer.verb + ' ' + offer.name + ' · ' + money(offer.cost) + ' coins';
+      button.textContent = offer.affordable ? label : label + '. ' + M.needMore(state, offer.cost);
     });
   }
 
@@ -400,7 +445,8 @@
     $('#finale-note').textContent = offer.line;
     var button = $('#finale-go');
     button.disabled = !offer.affordable;
-    button.textContent = 'Send the last voyage · ' + money(offer.cost) + ' coins';
+    var finaleLabel = 'Send the last voyage · ' + money(offer.cost) + ' coins';
+    button.textContent = offer.affordable ? finaleLabel : finaleLabel + '. ' + M.needMore(state, offer.cost);
   }
 
   function fillEnding() {
@@ -570,15 +616,9 @@
       }
     }
     var desk = M.deskChoice(state);
-    if (desk && view.choice !== desk.id) {
-      view.choice = desk.id;
-      scrollTo($('#choice'));
-    } else if (!desk) view.choice = '';
+    view.choice = desk ? desk.id : '';
     var routes = $('#routes');
-    if (routes && !routes.hidden && !view.routes && P.goal(state).indexOf('Choose a route') === 0) {
-      view.routes = true;
-      scrollTo(routes);
-    }
+    if (routes && !routes.hidden) view.routes = true;
     if (openedFleet) fleet.classList.add('reveal');
     if (audio && audio.render) audio.render();
   }
@@ -759,7 +799,8 @@
     if (!li || b.dataset.act !== 'buy') return;
     var i = +li.dataset.i;
     var had = state.boats[i].owned;
-    var result = M.buy(state, i, state.bulk);
+    var priced = boatQuote(i);
+    var result = M.buy(state, i, priced.toGoal ? priced.count : state.bulk);
     if (!result.ok) return;
     var nowOwned = state.boats[i].owned;
     if (result.notes && result.notes.length) {
@@ -885,6 +926,28 @@
     render();
   }, 250);
 
+  function showGoal() {
+    var sel = P.target(state);
+    var el = sel ? document.querySelector(sel) : null;
+    if (!el) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.goal-target'), function (node) {
+      node.classList.remove('goal-target');
+    });
+    el.classList.add('goal-target');
+    scrollTo(el);
+    if (view.goalTimer) clearTimeout(view.goalTimer);
+    view.goalTimer = setTimeout(function () { el.classList.remove('goal-target'); }, 2200);
+  }
+  var goalEl = $('#goal');
+  if (goalEl) {
+    goalEl.addEventListener('click', showGoal);
+    goalEl.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      showGoal();
+    });
+  }
+
   window.__saltmarsh = {
     state: state,
     render: render,
@@ -892,6 +955,7 @@
     away: function () { return awayOn; },
     taps: taps,
     view: view,
+    preview: preview,
     M: M,
     P: P
   };

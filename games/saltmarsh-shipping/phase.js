@@ -44,6 +44,17 @@
     return desk ? desk.goal : '';
   }
 
+  /* When the next contract is more than about a minute away, name a boat instead. */
+  function routeOrBoat(state, sentence) {
+    var M = window.Saltmarsh;
+    if (!M.routeWait || !M.routeWait(state) || !M.boatStep) return sentence;
+    var step = M.boatStep(state);
+    if (!step) return sentence;
+    var name = M.BOATS[step.tier].name.toLowerCase();
+    var count = step.left === 1 ? 'one more ' + name : step.left + ' more ' + name + 's';
+    return 'Buy ' + count + '. The next route is dear, and this boat pays for itself sooner.';
+  }
+
   /* One sentence, always. The player should be able to read it and know what to do. */
   function goal(state) {
     var M = window.Saltmarsh;
@@ -77,7 +88,7 @@
     }
     if (M.canHire(state, 2)) return M.askLine(2);
     sailing = M.routesSailing(state);
-    if (sailing < 1) return 'Choose a route on the desk. Each one is a different run.';
+    if (sailing < 1) return routeOrBoat(state, 'Choose a route on the desk. Each one is a different run.');
     if (state.boats[3].owned < M.UNLOCK_AT) {
       left = M.UNLOCK_AT - state.boats[3].owned;
       return 'Buy ' + more(left, 'bark', 'barks') + '. Ten barks, and Capt. Pell can take a deep boat.';
@@ -91,8 +102,8 @@
       left = M.BARK_LAMP - state.boats[3].owned;
       return 'Buy ' + more(left, 'bark', 'barks') + '. Then the bar lamp is lit.';
     }
-    if (sailing < 5) return 'Choose the next route. Five different routes wake the lighthouses.';
-    if ((state.voyages || 0) < 18) return 'Sign the next route. The last voyage waits until the chart is full.';
+    if (sailing < 5) return routeOrBoat(state, 'Choose the next route. Five different routes wake the lighthouses.');
+    if ((state.voyages || 0) < M.CHART_FULL) return routeOrBoat(state, 'Sign the next route. The last voyage waits until the chart is full.');
     if (!M.allLightsLit(state)) {
       lit = M.lightsLit(state);
       if (lit <= 0) return 'Raise a lighthouse. Each one changes the routes.';
@@ -125,6 +136,48 @@
     return 'Four lamps along the coast, then the last voyage home.';
   }
 
+  function boatTarget(state) {
+    var M = window.Saltmarsh;
+    if (!M.routeWait(state)) return '';
+    var step = M.boatStep(state);
+    return step ? '#boats [data-i="' + step.tier + '"]' : '';
+  }
+
+  /* The element the goal sentence is talking about. */
+  function target(state) {
+    var M = window.Saltmarsh;
+    var phase = read(state);
+    var step;
+    if (!state || state.ended) return '#new-harbour';
+    if (!phase.boats) return '#row';
+    if (state.boats[0].owned < M.WREN_AT) return '#boats [data-i="0"]';
+    if (M.canHire(state, 0)) return '#ask';
+    if (state.boats[0].owned < M.SLOOP_AT) return '#boats [data-i="0"]';
+    if (M.deskChoice(state)) return '#choice';
+    if (!phase.fleet) return '#boats [data-i="1"]';
+    if (M.canHire(state, 1)) return '#ask';
+    if (!phase.routesReady) return '#boats [data-i="2"]';
+    if (M.canHire(state, 2)) return '#ask';
+    var sailing = M.routesSailing(state);
+    if (sailing < 1) return boatTarget(state) || '#routes';
+    if (state.boats[3].owned < M.UNLOCK_AT) return '#boats [data-i="3"]';
+    if (M.canHire(state, 3)) return '#ask';
+    if (state.boats[3].owned < M.BARK_QUAY) return '#boats [data-i="3"]';
+    if (state.boats[3].owned < M.BARK_LAMP) return '#boats [data-i="3"]';
+    if (sailing < 5 || (state.voyages || 0) < M.CHART_FULL) return boatTarget(state) || '#routes';
+    if (!M.allLightsLit(state)) return '#lights';
+    if (M.finaleOffer(state, false)) return '#finale';
+    var i, owned, nextAt;
+    for (i = M.BOATS.length - 1; i >= 0; i--) {
+      owned = state.boats[i].owned;
+      if (owned < M.UNLOCK_AT || owned >= 100) continue;
+      nextAt = owned < 25 ? 25 : owned < 50 ? 50 : 100;
+      if (owned < nextAt) return '#boats [data-i="' + i + '"]';
+    }
+    if (state.warehouses < M.MAX_WAREHOUSES) return '#sheds';
+    return '#boats';
+  }
+
   function name(state) {
     var phase = read(state);
     if (phase.ending) return 'ending';
@@ -136,5 +189,5 @@
     return 'dock';
   }
 
-  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, routesOpen: routesOpen };
+  window.SaltmarshPhase = { read: read, goal: goal, aim: aim, name: name, target: target, routesOpen: routesOpen };
 })();

@@ -159,8 +159,8 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .mark-row i { display: block; width: 8px; height: 16px; background: var(--sand); }
 .fleet.reveal { animation: unroll 0.8s ease-out; }
 @keyframes unroll {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: none; }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .goalbar {
   position: fixed;
@@ -177,6 +177,22 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .goalbar #goal {
   margin: 0;
   padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  cursor: pointer;
+}
+.goalbar #goal::after { content: '  \203A'; }
+.goalbar #goal:focus { outline: 2px solid var(--lamp); outline-offset: -4px; }
+.goal-target { outline: 3px solid var(--lamp); outline-offset: 3px; }
+#choice.choice {
+  position: fixed;
+  z-index: 5;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(40rem, calc(100% - 1.2rem));
+  bottom: 4.6rem;
+  margin: 0;
+  max-height: min(42vh, 16rem);
+  overflow: auto;
+  box-shadow: 0 -8px 20px rgba(35, 57, 76, 0.18);
 }
 .goalbar .aim {
   margin: 0;
@@ -205,6 +221,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 @media (min-width: 900px) {
   .window { max-width: 60rem; padding-bottom: 8.5rem; }
   .goalbar { width: min(60rem, 100%); }
+  #choice.choice { width: min(60rem, calc(100% - 2rem)); bottom: 5.4rem; }
   .work { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; align-items: start; }
   .row, .ask, .bulk, .fleet, .away, .choice, .sheds, .log, .settled, .routes, .lights, .finale, .ending { grid-column: 1 / -1; }
   .harbour-wrap canvas { height: 340px; }
@@ -223,6 +240,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .harbour-wrap canvas,
   .window[data-phase="fleet"] .harbour-wrap canvas { height: 128px; }
   .goalbar #goal { padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom)); }
+  #choice.choice { bottom: 3.2rem; max-height: 8.5rem; }
   .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }
 }

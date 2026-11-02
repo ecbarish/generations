@@ -52,6 +52,11 @@
       <h2>Settled on the desk</h2>
       <ul id="settled-list"></ul>
     </section>
+    <section id="fleet" class="fleet" hidden>
+      <h2>The fleet</h2>
+      <div class="chart" id="chart"></div>
+      <ol class="captains" id="captains"></ol>
+    </section>
     <section id="routes" class="routes" hidden>
       <h2>Trade routes</h2>
       <p id="routes-note"></p>
@@ -75,11 +80,6 @@
       <ol id="credits"></ol>
       <div id="new-harbour"></div>
     </section>
-    <section id="fleet" class="fleet" hidden>
-      <h2>The fleet</h2>
-      <div class="chart" id="chart"></div>
-      <ol class="captains" id="captains"></ol>
-    </section>
   </div>
   <details class="save">
     <summary>Your save</summary>
@@ -88,7 +88,7 @@
   <p class="foot"><a href="../../index.html">Back to the arcade</a></p>
   <div class="goalbar" id="goalbar">
     <p class="aim" id="aim" hidden></p>
-    <p id="goal" aria-live="polite"></p>
+    <p id="goal" role="button" tabindex="0" aria-live="polite"></p>
   </div>
 </main>
 <script src="../../shared/engine.js"></script>
