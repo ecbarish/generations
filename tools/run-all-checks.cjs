@@ -12,7 +12,7 @@
    request (.github/workflows/checks.yml). No game saves are touched: every page runs in a fresh browser context. */
 const http=require('http'),fs=require('fs'),path=require('path'),{spawnSync}=require('child_process');
 const ROOT=path.resolve(__dirname,'..');
-const PAGES=['run','starfall','sound','offline','diamond','diamond-manager','otherworld','runner-safety','studio','storm-front','lighthouse-watch','briskets-crossing','ember-bricks','little-ranch','tell-us','lantern-bowl','keymaster','engine-save','idle-core','night-market'];
+const PAGES=['run','starfall','sound','offline','diamond','diamond-manager','otherworld','runner-safety','studio','storm-front','lighthouse-watch','briskets-crossing','ember-bricks','little-ranch','tell-us','lantern-bowl','keymaster','engine-save','idle-core','night-market','saltmarsh-shipping'];
 const GODOT_SUITES=['starfall-godot'];
 const only=process.argv.slice(2);
 const wanted=name=>!only.length||only.some(w=>name.includes(w));
