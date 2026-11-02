@@ -1010,8 +1010,6 @@ document.querySelector('#run').onclick = async function () {
       var buyShift = shortLine.buyTop == null || longLine.buyTop == null ? 999 : Math.abs(longLine.buyTop - shortLine.buyTop);
       var routeShift = shortLine.routesBottom == null || longLine.routesBottom == null ? 999 : Math.abs(longLine.routesBottom - shortLine.routesBottom);
       check('at ' + width + ' by ' + height + ' the ' + preset + ' routes panel and Buy button stay put when the lines wrap (routes ' + routeShift.toFixed(1) + 'px, buy ' + buyShift.toFixed(1) + 'px)', buyShift < 2 && routeShift < 2);
-      var scroller = doc.scrollingElement || doc.documentElement;
-      check('at ' + width + ' by ' + height + ' the ' + preset + ' page does not scroll sideways (' + scroller.scrollWidth + ' vs ' + scroller.clientWidth + ')', scroller.scrollWidth <= scroller.clientWidth + 1);
       var signBtn = doc.querySelector('#route-cards [data-act="route"]');
       if (signBtn) {
         st.cash = 1e18;
@@ -1055,6 +1053,37 @@ document.querySelector('#run').onclick = async function () {
     for (layoutAt = 0; layoutAt < layoutSizes.length; layoutAt++) {
       await holdLayout('fleet', layoutSizes[layoutAt][0], layoutSizes[layoutAt][1], 1);
       await holdLayout('lamps', layoutSizes[layoutAt][0], layoutSizes[layoutAt][1], 3);
+    }
+    /* Classic scrollbars take real width. Overlay scrollbars hide a 100vw harbour,
+       so this check forces a 15px bar and then tries to scroll sideways. */
+    async function sideways(preset, width, height) {
+      var box = await loadFrame(preset + ' sideways ' + width + 'x' + height, '&state=' + preset);
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 200); });
+      var style = doc.createElement('style');
+      style.setAttribute('data-test', 'classic-scrollbar');
+      style.textContent = '::-webkit-scrollbar{width:15px;height:15px}::-webkit-scrollbar-thumb{background:#6e5840} html{scrollbar-gutter:stable;overflow-x:auto}';
+      doc.head.appendChild(style);
+      win.__saltmarsh.render();
+      var scroller = doc.scrollingElement || doc.documentElement;
+      var y = win.scrollY || 0;
+      win.scrollTo(500, y);
+      var scrollX = win.scrollX || scroller.scrollLeft || 0;
+      var client = doc.documentElement.clientWidth;
+      var harbour = doc.querySelector('.harbour-wrap').getBoundingClientRect();
+      var inside = harbour.left >= -1 && harbour.right <= client + 1;
+      check('at ' + width + ' by ' + height + ' ' + preset + ' does not scroll sideways (scrollX ' + scrollX + ', harbour ' + Math.round(harbour.left) + '..' + Math.round(harbour.right) + ' of ' + client + ')', scrollX === 0 && inside);
+    }
+    var sideSizes = [[1280, 800], [844, 390], [320, 568]];
+    var sidePresets = ['fleet', 'lamps', 'final'];
+    var sideAt, sidePreset;
+    for (sideAt = 0; sideAt < sideSizes.length; sideAt++) {
+      for (sidePreset = 0; sidePreset < sidePresets.length; sidePreset++) {
+        await sideways(sidePresets[sidePreset], sideSizes[sideAt][0], sideSizes[sideAt][1]);
+      }
     }
     function hiddenOverflow(doc) {
       var nodes = doc.querySelectorAll('button, .wait, .habit, .facts, .route-card h3, .light-card h3, #rate, #away-rule, #goal');
