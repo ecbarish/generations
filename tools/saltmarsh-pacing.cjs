@@ -385,7 +385,9 @@
     }
     function glance(limitBuys) {
       var guard = 0;
-      var capBuys = limitBuys || 80;
+      /* Three short looks in a workday. A look does not empty the whole hold,
+         so a page left open still takes about three days. */
+      var capBuys = limitBuys || 25;
       while (guard++ < capBuys && !state.ended) {
         var act = goalAction(M, P, state, second * 1000);
         if (!act || !act.affordable) break;
