@@ -158,7 +158,7 @@
     if (i !== M.STALLS.length - 1) {
       serve.textContent = !st.hired
         ? (pouring && i > 0 ? 'This stall · ' + stall.serve : stall.serve)
-        : (stall.serve + ' yourself · +' + stall.hand);
+        : (stall.serve + ' yourself · +' + Math.max(1, Math.round(M.holdRate() * stall.hand)) + '/s');
     }
     var bar = li.querySelector('.pour');
     bar.hidden = !!st.hired;
@@ -365,10 +365,14 @@
       });
     }
     Array.prototype.forEach.call(list.children, function (li) { if (li.dataset.i) fillRow(li, +li.dataset.i); });
-    var pick = $('#pick');
-    var firstStall = list.querySelector(':scope > [data-i="0"]');
-    if (pick && firstStall && !pick.contains(firstStall) && firstStall.nextElementSibling !== pick) firstStall.after(pick);
-    renderPick();
+    /* A press is in progress. Rebuilding the offer would destroy the button
+       under the finger, so the card waits until the pointer comes up. */
+    if (!pointerDown) {
+      var pick = $('#pick');
+      var firstStall = list.querySelector(':scope > [data-i="0"]');
+      if (pick && firstStall && !pick.contains(firstStall) && firstStall.nextElementSibling !== pick) firstStall.after(pick);
+      renderPick();
+    }
     if (finaleOn) {
       setDawnInert(true);
       var stayedForDawn = window.scrollY;
@@ -470,6 +474,39 @@
       M.gossipLine(state) + '</p><button type="button" data-act="away">Put the box away</button>';
   }
 
+  /* The open card stays on the slot when that slot is on screen, and slides
+     only as far as it must to stay inside the window. The slot itself does not grow. */
+  function placeOfferPanel(show) {
+    var pick = $('#pick');
+    var panel = $('#pick-panel');
+    if (!panel) return;
+    if (!show || !pick) {
+      panel.style.position = '';
+      panel.style.top = '';
+      panel.style.left = '';
+      panel.style.right = '';
+      panel.style.width = '';
+      panel.style.maxHeight = '';
+      return;
+    }
+    var slot = pick.getBoundingClientRect();
+    var margin = 8;
+    var viewH = document.documentElement.clientHeight;
+    var viewW = document.documentElement.clientWidth;
+    var maxH = Math.max(44, Math.min(viewH - margin * 2, 288));
+    var top = slot.top;
+    if (top < margin) top = margin;
+    if (top + maxH > viewH - margin) top = Math.max(margin, viewH - margin - maxH);
+    var left = Math.max(margin, slot.left);
+    var rightGap = viewW - slot.right;
+    if (!(rightGap >= margin)) rightGap = margin;
+    panel.style.position = 'fixed';
+    panel.style.top = Math.round(top) + 'px';
+    panel.style.left = Math.round(left) + 'px';
+    panel.style.right = Math.round(rightGap) + 'px';
+    panel.style.width = 'auto';
+    panel.style.maxHeight = Math.round(maxH) + 'px';
+  }
   function renderPick() {
     var box = $('#pick');
     if (!box) return;
@@ -511,6 +548,7 @@
       var idleReroll = box.querySelector('[data-act="reroll"]');
       if (idleSkip) idleSkip.hidden = true;
       if (idleReroll) idleReroll.hidden = true;
+      placeOfferPanel(false);
       return;
     }
     $('#pick-lead').textContent = offer.kind === 'omen'
@@ -535,7 +573,9 @@
       if (againSame) {
         againSame.hidden = !!(state.night && state.night.rerollUsed);
         againSame.disabled = !!(state.night && state.night.rerollUsed);
+        againSame.textContent = state.night && state.night.rerollUsed ? 'Rerolled' : 'Reroll once';
       }
+      placeOfferPanel(true);
       return;
     }
     choices.dataset.sig = sig;
@@ -546,6 +586,7 @@
       button.type = 'button';
       button.dataset.act = offer.kind;
       button.dataset.choice = String(index);
+      button.dataset.stall = M.cardSubject ? (M.cardSubject(offer.kind, id) || '') : '';
       button.textContent = M.choiceLine ? M.choiceLine(state, offer.kind, id) : (row ? (offer.kind === 'charm' ? M.offerLine(state, row) : row.line) : id);
       choices.appendChild(button);
     });
@@ -555,6 +596,7 @@
     if (again) {
       again.hidden = !!(state.night && state.night.rerollUsed);
       again.disabled = !!(state.night && state.night.rerollUsed);
+      again.textContent = state.night && state.night.rerollUsed ? 'Rerolled' : 'Reroll once';
     }
     if (offerModalSig !== sig) {
       offerOpenedAt = Date.now();
@@ -566,6 +608,7 @@
       var firstChoice = choices.querySelector('button');
       if (firstChoice) firstChoice.focus({ preventScroll: true });
     }
+    placeOfferPanel(true);
   }
   function trapTab(panel, e) {
     if (!panel || e.key !== 'Tab') return false;
@@ -728,6 +771,13 @@
       hold.n++;
       lane('serve', hold.i);
     }
+    var holdRow = hold.b && hold.b.closest ? hold.b.closest('[data-i]') : null;
+    var holdCount = holdRow && holdRow.querySelector('.count');
+    if (holdCount && !state.stalls[hold.i].hired) {
+      var holdNeed = M.servesNeed(state, hold.i);
+      var holdHave = state.stalls[hold.i].serves;
+      holdCount.textContent = holdHave + ' of ' + holdNeed + ' ' + M.STALLS[hold.i].lefts + (holdHave < holdNeed ? ' · press and hold to keep going' : ' · now press “' + M.STALLS[hold.i].hire + '”');
+    }
     if (hold.n > 0 && atCount(hold.i)) settleHold(true);
   }
   /* A later hold pays for the whole press. Settling the previous one does not
@@ -777,6 +827,11 @@
 
   /* A render between press and release moves the button, and the click never lands.
      If the press was on Buy or a buy-mode button and the release missed it, count the press. */
+  var pointerDown = false;
+  document.addEventListener('pointerdown', function () { pointerDown = true; }, true);
+  document.addEventListener('pointerup', function () { pointerDown = false; }, true);
+  document.addEventListener('pointercancel', function () { pointerDown = false; }, true);
+  window.addEventListener('blur', function () { pointerDown = false; });
   var pressedBuy = null;
   var buyDown = null;
   document.addEventListener('pointerdown', function (e) {
