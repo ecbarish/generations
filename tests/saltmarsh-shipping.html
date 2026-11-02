@@ -540,7 +540,7 @@ document.querySelector('#run').onclick = async function () {
     function readHarbour(canvas, width) {
       var rect = canvas.getBoundingClientRect();
       var w = rect.width, h = rect.height;
-      if (Math.abs(w - width) > 16) return { ok: false, why: 'canvas is ' + Math.round(w) + ' wide' };
+      if (Math.abs(w - width) > 2) return { ok: false, why: 'canvas is ' + Math.round(w) + ' wide' };
       var dpr = canvas.width / w;
       var img = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
       function px(x, y) {
@@ -1010,6 +1010,8 @@ document.querySelector('#run').onclick = async function () {
       var buyShift = shortLine.buyTop == null || longLine.buyTop == null ? 999 : Math.abs(longLine.buyTop - shortLine.buyTop);
       var routeShift = shortLine.routesBottom == null || longLine.routesBottom == null ? 999 : Math.abs(longLine.routesBottom - shortLine.routesBottom);
       check('at ' + width + ' by ' + height + ' the ' + preset + ' routes panel and Buy button stay put when the lines wrap (routes ' + routeShift.toFixed(1) + 'px, buy ' + buyShift.toFixed(1) + 'px)', buyShift < 2 && routeShift < 2);
+      var scroller = doc.scrollingElement || doc.documentElement;
+      check('at ' + width + ' by ' + height + ' the ' + preset + ' page does not scroll sideways (' + scroller.scrollWidth + ' vs ' + scroller.clientWidth + ')', scroller.scrollWidth <= scroller.clientWidth + 1);
       var signBtn = doc.querySelector('#route-cards [data-act="route"]');
       if (signBtn) {
         st.cash = 1e18;
@@ -1121,10 +1123,63 @@ document.querySelector('#run').onclick = async function () {
       var takeBottoms = [];
       for (b = 0; b < buttons.length; b++) takeBottoms.push(buttons[b].getBoundingClientRect().bottom);
       var takeAligned = takeBottoms.length === 2 && Math.abs(takeBottoms[0] - takeBottoms[1]) < 2;
-      check('at ' + width + ' by ' + height + ' both desk choices are on screen without scrolling', choice.hidden === false && bothIn && clipped === false && takeAligned);
+      var goalBar = doc.querySelector('.goalbar').getBoundingClientRect();
+      var clearOfBar = true;
+      var hitOk = true;
+      function hitsButton(button, x, y) {
+        var el = doc.elementFromPoint(x, y);
+        return !!(el && (el === button || button.contains(el)));
+      }
+      for (b = 0; b < buttons.length; b++) {
+        var rect = buttons[b].getBoundingClientRect();
+        if (rect.bottom > goalBar.top + 0.5) clearOfBar = false;
+        var spots = [
+          [rect.left + rect.width / 2, rect.top + rect.height / 2],
+          [rect.left + 3, rect.top + 3],
+          [rect.right - 3, rect.top + 3],
+          [rect.left + 3, rect.bottom - 3],
+          [rect.right - 3, rect.bottom - 3]
+        ];
+        var s;
+        for (s = 0; s < spots.length; s++) {
+          if (!hitsButton(buttons[b], spots[s][0], spots[s][1])) hitOk = false;
+        }
+      }
+      check('at ' + width + ' by ' + height + ' both desk choices are on screen without scrolling', choice.hidden === false && bothIn && clipped === false && takeAligned && clearOfBar && hitOk);
+      function tapButton(button) {
+        var rect = button.getBoundingClientRect();
+        var x = rect.left + rect.width / 2;
+        var y = rect.top + rect.height / 2;
+        var target = doc.elementFromPoint(x, y);
+        if (!target || (target !== button && !button.contains(target))) return 'miss';
+        var touch = new win.Touch({ identifier: 1, target: target, clientX: x, clientY: y, pageX: x, pageY: y, radiusX: 1, radiusY: 1, force: 1 });
+        target.dispatchEvent(new win.TouchEvent('touchstart', { bubbles: true, cancelable: true, touches: [touch], targetTouches: [touch], changedTouches: [touch] }));
+        target.dispatchEvent(new win.PointerEvent('pointerdown', { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'touch' }));
+        target.dispatchEvent(new win.TouchEvent('touchend', { bubbles: true, cancelable: true, touches: [], targetTouches: [], changedTouches: [touch] }));
+        target.dispatchEvent(new win.PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'touch' }));
+        target.dispatchEvent(new win.MouseEvent('click', { bubbles: true, cancelable: true, clientX: x, clientY: y, view: win }));
+        return 'sent';
+      }
+      var whichOrder = ['fit', 'shed'];
+      var tapped = {};
+      var w;
+      for (w = 0; w < whichOrder.length; w++) {
+        var which = whichOrder[w];
+        st.forks.sloop = null;
+        st.waivedSheds = 0;
+        st.warehouses = 1;
+        delete st.fittings['sloop-hull'];
+        st.cash = 1e9;
+        win.__saltmarsh.render();
+        var live = choice.querySelector('[data-which="' + which + '"]');
+        var sent = tapButton(live);
+        tapped[which] = sent + ':' + st.forks.sloop;
+      }
+      check('at ' + width + ' by ' + height + ' a real tap on each Take button sets the fork (' + tapped.fit + ', ' + tapped.shed + ')', tapped.fit === 'sent:fit' && tapped.shed === 'sent:shed');
     }
     await choiceFits(1280, 800);
     await choiceFits(390, 844);
+    await choiceFits(375, 812);
     await choiceFits(320, 568);
     var quayBox = await loadFrame('quay block', '&state=fleet');
     quayBox.style.width = '390px';
