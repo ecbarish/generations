@@ -239,7 +239,10 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   .tools-row button, .arc-set-btn, .home { min-height: 44px; padding: 0.1rem 0.45rem; }
   .harbour-wrap canvas,
   .window[data-phase="fleet"] .harbour-wrap canvas { height: 128px; }
-  .goalbar #goal { padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom)); }
+  .goalbar #goal {
+    padding: 0.35rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom));
+    min-height: 44px;
+  }
   #choice.choice { bottom: 3.2rem; max-height: 8.5rem; }
   .goalbar .aim { display: none; }
   html { scroll-padding-bottom: 3.2rem; }

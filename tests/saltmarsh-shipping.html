@@ -584,11 +584,22 @@ document.querySelector('#run').onclick = async function () {
     check('the goal names the choice while it is on the desk', slotDoc.querySelector('#goal').textContent === 'Choose a lighter sloop hull, or another shed.' && slotDoc.querySelector('#ask').hidden === true);
     slotWin.__saltmarsh.state.cash = 700;
     slotWin.__saltmarsh.render();
-    var shopBeforeChoice = slotDoc.querySelector('#boats').getBoundingClientRect().top;
+    function deskGap() {
+      var boats = slotDoc.querySelector('#boats').getBoundingClientRect();
+      var sheds = slotDoc.querySelector('#sheds').getBoundingClientRect();
+      return sheds.top - boats.bottom;
+    }
+    var shedsOpen = slotDoc.querySelector('#sheds');
+    var gapWhileOpen = deskGap();
     slotDoc.querySelector('#choice [data-which="fit"]').click();
-    var shopAfterChoice = slotDoc.querySelector('#boats').getBoundingClientRect().top;
+    var gapOnceClosed = deskGap();
+    var choicePanel = slotDoc.querySelector('#choice');
+    choicePanel.hidden = false;
+    var gapWhenReopened = deskGap();
+    choicePanel.hidden = true;
+    var gapWhenShutAgain = deskGap();
     check('after the choice the goal and the Ask button use the same words', slotDoc.querySelector('#goal').textContent === slotDoc.querySelector('#ask').textContent && slotDoc.querySelector('#ask').textContent === M.askLine(1) && /not built/i.test(slotDoc.querySelector('#settled').textContent) && /locked/i.test(slotDoc.querySelector('#settled').textContent) === false);
-    check('the shop does not jump when the choice leaves the desk', Math.abs(shopBeforeChoice - shopAfterChoice) < 2);
+    check('the sheds stay put when the choice opens and closes', shedsOpen.hidden === false && Math.abs(gapOnceClosed - gapWhileOpen) < 2 && Math.abs(gapWhenReopened - gapWhileOpen) < 2 && Math.abs(gapWhenShutAgain - gapOnceClosed) < 2);
     var askButtons = Array.prototype.filter.call(slotDoc.querySelectorAll('button'), function (b) { return /Ask Capt\./.test(b.textContent) && !b.hidden; });
     check('only one Ask Capt. button is on the page', askButtons.length === 1);
     var tallHarbour = slotDoc.querySelector('#harbour').getBoundingClientRect().height;
@@ -645,6 +656,7 @@ document.querySelector('#run').onclick = async function () {
     var rowBox = wideWin.document.querySelector('#row').getBoundingClientRect();
     var goalBox = wideWin.document.querySelector('#goal').getBoundingClientRect();
     check('at 844 by 390 the Row button is on screen', rowBox.top >= 0 && rowBox.bottom <= goalBox.top + 1 && rowBox.height >= 44);
+    check('at 844 by 390 the goal is at least 44px tall', goalBox.height >= 44);
     var soundH = wideWin.document.querySelector('#sound').getBoundingClientRect().height;
     var settingsH = wideWin.document.querySelector('.arc-set-btn').getBoundingClientRect().height;
     var feedbackH = wideWin.document.querySelector('.feedback-container button').getBoundingClientRect().height;
@@ -748,6 +760,10 @@ document.querySelector('#run').onclick = async function () {
       var win = frame.contentWindow;
       await new Promise(function (resolve) { win.requestAnimationFrame(function () { win.requestAnimationFrame(resolve); }); });
       openWater(win, 'at ' + width + ' by ' + height);
+      if (width === 390 && height === 844) {
+        var portraitGoal = win.document.querySelector('#goal').getBoundingClientRect().height;
+        check('at 390 by 844 the goal is at least 44px tall', portraitGoal >= 44);
+      }
     }
     await openWaterAt(390, 844);
     await openWaterAt(375, 812);
