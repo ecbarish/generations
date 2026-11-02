@@ -914,6 +914,21 @@ document.querySelector('#run').onclick = async function () {
           rate: h('#rate'), coins: h('.coins'), habit: h('.habit', boat), facts: h('.facts', boat), wait: h('.wait', boat)
         };
       }
+      if (preset === 'fleet' && width === 1280 && height === 800) {
+        win.__saltmarsh.render();
+        var pageH = doc.documentElement.scrollHeight;
+        var maxBtn = 0;
+        var tooTall = false;
+        var actionButtons = doc.querySelectorAll('.actions button');
+        var bi;
+        for (bi = 0; bi < actionButtons.length; bi++) {
+          if (actionButtons[bi].hidden || actionButtons[bi].offsetParent === null) continue;
+          var bh = actionButtons[bi].getBoundingClientRect().height;
+          if (bh > maxBtn) maxBtn = bh;
+          if (bh > 60) tooTall = true;
+        }
+        check('at 1280 by 800 the fleet page stays under about 5,100px, near the old 4,636px layout, and action buttons stay under 60px (' + pageH + 'px, button ' + Math.round(maxBtn) + 'px)', pageH <= 4636 * 1.10 && pageH >= 3200 && tooTall === false);
+      }
       var st = win.__saltmarsh.state;
       st.boats[boatIndex].owned = 10;
       st.cash = 0;
@@ -927,7 +942,7 @@ document.querySelector('#run').onclick = async function () {
       var routeShift = shortLine.routesBottom == null || longLine.routesBottom == null ? 999 : Math.abs(longLine.routesBottom - shortLine.routesBottom);
       check('at ' + width + ' by ' + height + ' the ' + preset + ' routes panel and Buy button stay put when the lines wrap (routes ' + routeShift.toFixed(1) + 'px, buy ' + buyShift.toFixed(1) + 'px)', buyShift < 2 && routeShift < 2);
     }
-    var layoutSizes = [[1280, 800], [390, 844], [320, 568]];
+    var layoutSizes = [[1280, 800], [390, 844], [375, 812], [320, 568]];
     var layoutAt;
     for (layoutAt = 0; layoutAt < layoutSizes.length; layoutAt++) {
       await holdLayout('fleet', layoutSizes[layoutAt][0], layoutSizes[layoutAt][1], 1);

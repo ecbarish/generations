@@ -102,6 +102,13 @@
     return M.BOATS.slice(0, Math.min(M.BOATS.length, last + 1));
   }
 
+  function showLine(el, text) {
+    if (!el) return;
+    el.textContent = text || '';
+    if (text) el.setAttribute('title', text);
+    else el.removeAttribute('title');
+  }
+
   function fillBoat(li, i) {
     var boat = M.BOATS[i];
     var open = M.unlocked(state, i);
@@ -110,19 +117,19 @@
     li.className = 'boat' + (open ? '' : ' closed');
     if (marked) li.classList.add('goal-target');
     li.querySelector('h2').textContent = boat.name + (owned > 0 ? ' · ' + owned : '');
-    li.querySelector('.habit').textContent = open ? M.lookLine(state, i) : boat.next;
+    showLine(li.querySelector('.habit'), open ? M.lookLine(state, i) : boat.next);
     var facts = li.querySelector('.facts');
     var wait = li.querySelector('.wait');
     var buy = li.querySelector('[data-act="buy"]');
     if (!open) {
       facts.textContent = '';
-      wait.textContent = i === 0 ? 'Row three cargoes first.' : '';
+      showLine(wait, i === 0 ? 'Row three cargoes first.' : '');
       buy.hidden = true;
       return;
     }
     var rate = M.production(state, i);
-    facts.textContent = owned > 0 ? M.rateWords(rate) + ' from these.' : 'None tied up yet.';
-    wait.textContent = M.paybackLine(state, i);
+    showLine(facts, owned > 0 ? M.rateWords(rate) + ' from these.' : 'None tied up yet.');
+    showLine(wait, M.paybackLine(state, i));
     buy.hidden = false;
     if (view.allowPrices) {
       var priced = boatQuote(i);
@@ -221,13 +228,13 @@
       var eachText = money(each);
       var title = li.querySelector('h3');
       if (title) title.textContent = M.CAPTAINS[i].name + ' · ' + eachText + ' coins';
-      if (!state.captains[i].hired) status.textContent = eachText + ' coins a haul, once they take a boat.';
-        else {
+      if (!state.captains[i].hired) showLine(status, eachText + ' coins a haul, once they take a boat.');
+      else {
         var next = M.nextIn(state, i, Date.now());
         var brought = state.captains[i].brought || 0;
         var back = next === Infinity ? 'The haul is waiting on shed room.' : 'Back in ' + (next > 0 ? next + 's' : 'a moment') + '.';
         var perk = i === 0 ? M.wrenPerkLine(state) : i === 1 ? M.bramblePerkLine(state) : '';
-        status.textContent = each + ' coins each haul. Brought ' + money(brought) + ' so far. ' + back + (perk ? ' ' + perk : '');
+        showLine(status, each + ' coins each haul. Brought ' + money(brought) + ' so far. ' + back + (perk ? ' ' + perk : ''));
       }
     });
   }
@@ -580,15 +587,15 @@
     var phase = P.read(state);
     $('#office').dataset.phase = P.name(state);
     $('#coins').textContent = money(state.cash);
-    $('#away-rule').textContent = M.awayRule(state);
+    showLine($('#away-rule'), M.awayRule(state));
     var boatsRate = M.income(state);
     var captainsRate = M.captainRate(state);
     var routeRate = M.routeIncome(state);
     var rateLine = $('#rate');
     var totalRate = boatsRate + captainsRate + routeRate;
-    if (!(totalRate > 0)) rateLine.textContent = 'Nothing is earning yet.';
-    else if (captainsRate > 0) rateLine.textContent = M.rateWords(totalRate) + '. The captains add ' + money(captainsRate) + '.';
-    else rateLine.textContent = M.rateWords(totalRate);
+    if (!(totalRate > 0)) showLine(rateLine, 'Nothing is earning yet.');
+    else if (captainsRate > 0) showLine(rateLine, M.rateWords(totalRate) + '. The captains add ' + money(captainsRate) + '.');
+    else showLine(rateLine, M.rateWords(totalRate));
     $('#goal').textContent = P.goal(state);
     var aim = $('#aim');
     if (aim) {
@@ -682,6 +689,9 @@
     var routes = $('#routes');
     if (routes && !routes.hidden) view.routes = true;
     if (openedFleet) fleet.classList.add('reveal');
+    Array.prototype.forEach.call(document.querySelectorAll('.actions button'), function (el) {
+      if (el.textContent) el.setAttribute('title', el.textContent);
+    });
     if (audio && audio.render) audio.render();
   }
 
