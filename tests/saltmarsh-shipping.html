@@ -1120,6 +1120,10 @@ document.querySelector('#run').onclick = async function () {
         var reedMove = reedBefore == null ? 999 : Math.abs(cardTop('reed') - reedBefore);
         var panelMove = Math.abs(lightsPanel.getBoundingClientRect().top - panelBefore);
         check('at ' + width + ' by ' + height + ' lighting Pier and Headland does not jump the lighthouse list (headland ' + headMove.toFixed(1) + 'px, reed ' + reedMove.toFixed(1) + 'px, panel ' + panelMove.toFixed(1) + 'px)', headMove < 2 && reedMove < 2 && panelMove < 2);
+        var logLine = doc.querySelector('.log li');
+        var logH = logLine ? logLine.getBoundingClientRect().height : 0;
+        var logCap = width >= 900 ? 32 : width > 350 ? 58 : 80;
+        check('at ' + width + ' by ' + height + ' a log line is the height of its words (' + logH.toFixed(0) + 'px)', logH >= 16 && logH <= logCap);
       }
     }
     var layoutSizes = [[1280, 800], [390, 844], [375, 812], [320, 568]];
@@ -1142,6 +1146,13 @@ document.querySelector('#run').onclick = async function () {
       style.textContent = '::-webkit-scrollbar{width:15px;height:15px}::-webkit-scrollbar-thumb{background:#6e5840} html{scrollbar-gutter:stable;overflow-x:auto}';
       doc.head.appendChild(style);
       win.__saltmarsh.render();
+      if (preset === 'lamps' && width === 320) {
+        var pst = win.__saltmarsh.state;
+        ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { pst.lights[id] = 2; });
+        pst.cash = 8000;
+        pst.provisionQuote = { name: 'Victuals for the crew', cost: 508000 };
+        win.__saltmarsh.render();
+      }
       var scroller = doc.scrollingElement || doc.documentElement;
       var y = win.scrollY || 0;
       win.scrollTo(500, y);
@@ -1149,7 +1160,13 @@ document.querySelector('#run').onclick = async function () {
       var client = doc.documentElement.clientWidth;
       var harbour = doc.querySelector('.harbour-wrap').getBoundingClientRect();
       var inside = harbour.left >= -1 && harbour.right <= client + 1;
-      check('at ' + width + ' by ' + height + ' ' + preset + ' does not scroll sideways (scrollX ' + scrollX + ', harbour ' + Math.round(harbour.left) + '..' + Math.round(harbour.right) + ' of ' + client + ')', scrollX === 0 && inside);
+      var provisionBtn = doc.querySelector('#provision-go');
+      var provisionWide = false;
+      if (preset === 'lamps' && width === 320 && provisionBtn && provisionBtn.offsetParent) {
+        var pRect = provisionBtn.getBoundingClientRect();
+        provisionWide = provisionBtn.scrollWidth > provisionBtn.clientWidth + 1 || pRect.right > client + 1 || pRect.height < 44;
+      }
+      check('at ' + width + ' by ' + height + ' ' + preset + ' does not scroll sideways (scrollX ' + scrollX + ', harbour ' + Math.round(harbour.left) + '..' + Math.round(harbour.right) + ' of ' + client + (provisionBtn && preset === 'lamps' && width === 320 ? ', provision ' + provisionBtn.scrollWidth + 'x' + Math.round(provisionBtn.getBoundingClientRect().height) : '') + ')', scrollX === 0 && inside && provisionWide === false);
     }
     var sideSizes = [[1280, 800], [844, 390], [320, 568]];
     var sidePresets = ['fleet', 'lamps', 'final'];
@@ -1179,6 +1196,16 @@ document.querySelector('#run').onclick = async function () {
       var doc = box.contentDocument;
       await new Promise(function (resolve) { setTimeout(resolve, 150); });
       win.__saltmarsh.render();
+      var provisionTall = true;
+      if (preset === 'lamps' && width === 320) {
+        var ost = win.__saltmarsh.state;
+        ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { ost.lights[id] = 2; });
+        ost.cash = 8000;
+        ost.provisionQuote = { name: 'Victuals for the crew', cost: 508000 };
+        win.__saltmarsh.render();
+        var pBtn = doc.querySelector('#provision-go');
+        provisionTall = !!pBtn && pBtn.getBoundingClientRect().height >= 44 && /Victuals for the crew/.test(pBtn.textContent) && /Need /.test(pBtn.textContent);
+      }
       var bad = hiddenOverflow(doc);
       win.__saltmarsh.state.ended = true;
       win.__saltmarsh.state.ending = win.Saltmarsh.statsOf(win.__saltmarsh.state, Date.now());
@@ -1189,7 +1216,7 @@ document.querySelector('#run').onclick = async function () {
         var endBtn = endingButtons[bi];
         if (endBtn.scrollWidth > endBtn.clientWidth + 1) bad.push('ending ' + endBtn.scrollWidth + '>' + endBtn.clientWidth + ' "' + (endBtn.textContent || '').slice(0, 48) + '"');
       }
-      check('at ' + width + ' by ' + height + ' ' + preset + ' buttons and status lines hide no overflow' + (bad.length ? ' (' + bad.slice(0, 3).join('; ') + ')' : ''), bad.length === 0 && endingButtons.length >= 4);
+      check('at ' + width + ' by ' + height + ' ' + preset + ' buttons and status lines hide no overflow' + (bad.length ? ' (' + bad.slice(0, 3).join('; ') + ')' : ''), bad.length === 0 && endingButtons.length >= 4 && provisionTall);
     }
     var overflowSizes = [[320, 568], [375, 812], [390, 844]];
     var overflowPresets = ['fleet', 'lamps', 'final'];
