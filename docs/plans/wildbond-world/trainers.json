@@ -1,0 +1,957 @@
+{
+  "schemaVersion": 1,
+  "source": "docs/plans/wildbond-world-design.md: section 2 (Routes (20), and \"Wardens after the first two badges\" for WB-WORLD-ORDER) and section 8 (more trainers)",
+  "status": "proposed",
+  "levelPolicy": {
+    "unit": "A team member's level is CAP_TABLE[badges held when the battle starts] plus level_offset.",
+    "max_offset": 0,
+    "note": "The design picks the level when the battle starts, so only the offset is stored. Offsets are chosen so that at recommended_badges the levels fall inside the route's own band."
+  },
+  "routes": {
+    "thornwood_route": {
+      "name": "Thornwood Trail",
+      "badges_first_reachable": 0,
+      "recommended_badges": 0,
+      "trainers": [
+        {
+          "id": "thornwood_route-1",
+          "name": "Aubin",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "seedpip",
+              "level_offset": -11
+            },
+            {
+              "species": "glimmerwing",
+              "level_offset": -8
+            }
+          ]
+        },
+        {
+          "id": "thornwood_route-2",
+          "name": "Bessel",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "fernruff",
+              "level_offset": -6
+            },
+            {
+              "species": "bogsnap",
+              "level_offset": -5
+            },
+            {
+              "species": "pebblepaw",
+              "level_offset": -3
+            }
+          ]
+        }
+      ]
+    },
+    "millgrass": {
+      "name": "Millgrass Lane",
+      "badges_first_reachable": 0,
+      "recommended_badges": 0,
+      "trainers": [
+        {
+          "id": "millgrass-1",
+          "name": "Corrin",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "seedpip",
+              "level_offset": -11
+            }
+          ]
+        },
+        {
+          "id": "millgrass-2",
+          "name": "Dunna",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "glimmerwing",
+              "level_offset": -11
+            },
+            {
+              "species": "fernruff",
+              "level_offset": -10
+            }
+          ]
+        }
+      ]
+    },
+    "dewcut": {
+      "name": "Dewcut",
+      "badges_first_reachable": 0,
+      "recommended_badges": 0,
+      "trainers": [
+        {
+          "id": "dewcut-1",
+          "name": "Edda",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "pebblepaw",
+              "level_offset": -9
+            },
+            {
+              "species": "duskweaver",
+              "level_offset": -7
+            }
+          ]
+        }
+      ]
+    },
+    "rootwater": {
+      "name": "Rootwater Path",
+      "badges_first_reachable": 0,
+      "recommended_badges": 0,
+      "trainers": [
+        {
+          "id": "rootwater-1",
+          "name": "Fenn",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "bogsnap",
+              "level_offset": -6
+            }
+          ]
+        },
+        {
+          "id": "rootwater-2",
+          "name": "Garrick",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "duskweaver",
+              "level_offset": -6
+            },
+            {
+              "species": "seedpip",
+              "level_offset": -5
+            }
+          ]
+        },
+        {
+          "id": "rootwater-3",
+          "name": "Hollis",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "gnawhound",
+              "level_offset": -4
+            },
+            {
+              "species": "bogbough",
+              "level_offset": -4
+            },
+            {
+              "species": "pebblepaw",
+              "level_offset": -3
+            }
+          ]
+        }
+      ]
+    },
+    "saltmarsh_route": {
+      "name": "Saltmarsh Road",
+      "badges_first_reachable": 1,
+      "recommended_badges": 1,
+      "trainers": [
+        {
+          "id": "saltmarsh_route-1",
+          "name": "Imry",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "poolkit",
+              "level_offset": -11
+            },
+            {
+              "species": "brineskit",
+              "level_offset": -8
+            }
+          ]
+        },
+        {
+          "id": "saltmarsh_route-2",
+          "name": "Jory",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "reedtusk",
+              "level_offset": -5
+            },
+            {
+              "species": "kiteskirl",
+              "level_offset": -3
+            }
+          ]
+        }
+      ]
+    },
+    "wrackline": {
+      "name": "Wrackline",
+      "badges_first_reachable": 1,
+      "recommended_badges": 1,
+      "trainers": [
+        {
+          "id": "wrackline-1",
+          "name": "Kestrin",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "brineskit",
+              "level_offset": -11
+            },
+            {
+              "species": "saillet",
+              "level_offset": -10
+            }
+          ]
+        },
+        {
+          "id": "wrackline-2",
+          "name": "Lowen",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "dunepounce",
+              "level_offset": -6
+            }
+          ]
+        },
+        {
+          "id": "wrackline-3",
+          "name": "Maddox",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "wrackjaw",
+              "level_offset": -5
+            },
+            {
+              "species": "kiteskirl",
+              "level_offset": -4
+            },
+            {
+              "species": "foamglint",
+              "level_offset": -3
+            }
+          ]
+        }
+      ]
+    },
+    "ashstair": {
+      "name": "Ashstair",
+      "badges_first_reachable": 2,
+      "recommended_badges": 2,
+      "trainers": [
+        {
+          "id": "ashstair-1",
+          "name": "Orrin",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "flintpup",
+              "level_offset": -12
+            },
+            {
+              "species": "slaglet",
+              "level_offset": -11
+            }
+          ]
+        },
+        {
+          "id": "ashstair-2",
+          "name": "Quill",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "cragskein",
+              "level_offset": -10
+            },
+            {
+              "species": "ashskip",
+              "level_offset": -9
+            }
+          ]
+        },
+        {
+          "id": "ashstair-3",
+          "name": "Rennick",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "cairnclasp",
+              "level_offset": -8
+            },
+            {
+              "species": "glowmote",
+              "level_offset": -8
+            },
+            {
+              "species": "slaglet",
+              "level_offset": -7
+            }
+          ]
+        }
+      ]
+    },
+    "sootpath": {
+      "name": "Sootpath",
+      "badges_first_reachable": 2,
+      "recommended_badges": 3,
+      "trainers": [
+        {
+          "id": "sootpath-1",
+          "name": "Saffa",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "kilnchirp",
+              "level_offset": -18
+            },
+            {
+              "species": "ashskip",
+              "level_offset": -17
+            }
+          ]
+        },
+        {
+          "id": "sootpath-2",
+          "name": "Tamsin",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "ventwhisk",
+              "level_offset": -16
+            },
+            {
+              "species": "thermwing",
+              "level_offset": -15
+            }
+          ]
+        },
+        {
+          "id": "sootpath-3",
+          "name": "Ulva",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "cinderstitch",
+              "level_offset": -14
+            },
+            {
+              "species": "hearthlaugh",
+              "level_offset": -14
+            },
+            {
+              "species": "seedmoth",
+              "level_offset": -13
+            }
+          ]
+        }
+      ]
+    },
+    "passfoot": {
+      "name": "Pass Foot",
+      "badges_first_reachable": 2,
+      "recommended_badges": 4,
+      "trainers": [
+        {
+          "id": "passfoot-1",
+          "name": "Varric",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "mistfinch",
+              "level_offset": -21
+            },
+            {
+              "species": "fogtail",
+              "level_offset": -20
+            }
+          ]
+        },
+        {
+          "id": "passfoot-2",
+          "name": "Wynn",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "shalecat",
+              "level_offset": -18
+            },
+            {
+              "species": "gritbeak",
+              "level_offset": -16
+            }
+          ]
+        },
+        {
+          "id": "passfoot-3",
+          "name": "Yeva",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "slatehoof",
+              "level_offset": -15
+            },
+            {
+              "species": "lanternwisp",
+              "level_offset": -14
+            },
+            {
+              "species": "fogslip",
+              "level_offset": -13
+            }
+          ]
+        }
+      ]
+    },
+    "glassfall": {
+      "name": "Glassfall",
+      "badges_first_reachable": 3,
+      "recommended_badges": 4,
+      "trainers": [
+        {
+          "id": "glassfall-1",
+          "name": "Zora",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "cirrusmane",
+              "level_offset": -18
+            },
+            {
+              "species": "tumbletusk",
+              "level_offset": -13
+            }
+          ]
+        }
+      ]
+    },
+    "crestpath": {
+      "name": "Crest Path",
+      "badges_first_reachable": 2,
+      "recommended_badges": 3,
+      "trainers": [
+        {
+          "id": "crestpath-1",
+          "name": "Alcott",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "cairnhound",
+              "level_offset": -11
+            },
+            {
+              "species": "draftscale",
+              "level_offset": -8
+            }
+          ]
+        },
+        {
+          "id": "crestpath-2",
+          "name": "Brannoch",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "pallweaver",
+              "level_offset": -5
+            },
+            {
+              "species": "fogsail",
+              "level_offset": -3
+            }
+          ]
+        }
+      ]
+    },
+    "longboards": {
+      "name": "The Long Boards",
+      "badges_first_reachable": 2,
+      "recommended_badges": 4,
+      "trainers": [
+        {
+          "id": "longboards-1",
+          "name": "Cressa",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "reedlet",
+              "level_offset": -8
+            },
+            {
+              "species": "fordfoal",
+              "level_offset": -7
+            }
+          ]
+        },
+        {
+          "id": "longboards-2",
+          "name": "Dorrie",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "rillwhisk",
+              "level_offset": -6
+            },
+            {
+              "species": "glassbill",
+              "level_offset": -5
+            }
+          ]
+        },
+        {
+          "id": "longboards-3",
+          "name": "Elwin",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "gustreed",
+              "level_offset": -4
+            },
+            {
+              "species": "dawnfoal",
+              "level_offset": -4
+            },
+            {
+              "species": "shellsong",
+              "level_offset": -3
+            }
+          ]
+        }
+      ]
+    },
+    "orchardfen": {
+      "name": "Orchard Fen",
+      "badges_first_reachable": 2,
+      "recommended_badges": 4,
+      "trainers": [
+        {
+          "id": "orchardfen-1",
+          "name": "Farrow",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "duskcord",
+              "level_offset": -4
+            }
+          ]
+        },
+        {
+          "id": "orchardfen-2",
+          "name": "Gwen",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "orchardroot",
+              "level_offset": -3
+            },
+            {
+              "species": "laughrill",
+              "level_offset": -2
+            }
+          ]
+        },
+        {
+          "id": "orchardfen-3",
+          "name": "Harl",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "gustreed",
+              "level_offset": -1
+            },
+            {
+              "species": "seedshroud",
+              "level_offset": -1
+            },
+            {
+              "species": "orchardcrown",
+              "level_offset": 0
+            }
+          ]
+        }
+      ]
+    },
+    "latepath": {
+      "name": "The Late Path",
+      "badges_first_reachable": 2,
+      "recommended_badges": 5,
+      "trainers": [
+        {
+          "id": "latepath-1",
+          "name": "Jessup",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "hushpup",
+              "level_offset": -2
+            },
+            {
+              "species": "whisperpup",
+              "level_offset": -1
+            }
+          ]
+        },
+        {
+          "id": "latepath-2",
+          "name": "Kelda",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "umbrelace",
+              "level_offset": -1
+            },
+            {
+              "species": "dripdart",
+              "level_offset": -1
+            }
+          ]
+        },
+        {
+          "id": "latepath-3",
+          "name": "Lorn",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "ledgewhisk",
+              "level_offset": 0
+            },
+            {
+              "species": "murkcoil",
+              "level_offset": 0
+            },
+            {
+              "species": "chimespark",
+              "level_offset": 0
+            }
+          ]
+        }
+      ]
+    },
+    "flintcut": {
+      "name": "Flintcut",
+      "badges_first_reachable": 2,
+      "recommended_badges": 5,
+      "trainers": [
+        {
+          "id": "flintcut-1",
+          "name": "Marl",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "bellmote",
+              "level_offset": -2
+            },
+            {
+              "species": "hushpup",
+              "level_offset": -1
+            }
+          ]
+        },
+        {
+          "id": "flintcut-2",
+          "name": "Nell",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "flintroot",
+              "level_offset": -1
+            },
+            {
+              "species": "flintbole",
+              "level_offset": 0
+            },
+            {
+              "species": "hollowchime",
+              "level_offset": 0
+            }
+          ]
+        }
+      ]
+    },
+    "ribbonroad": {
+      "name": "Ribbon Road",
+      "badges_first_reachable": 2,
+      "recommended_badges": 6,
+      "trainers": [
+        {
+          "id": "ribbonroad-1",
+          "name": "Odric",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "pennantlark",
+              "level_offset": -3
+            },
+            {
+              "species": "hemglow",
+              "level_offset": -2
+            }
+          ]
+        },
+        {
+          "id": "ribbonroad-2",
+          "name": "Rook",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "clovercolt",
+              "level_offset": -1
+            },
+            {
+              "species": "dawntassel",
+              "level_offset": -1
+            }
+          ]
+        },
+        {
+          "id": "ribbonroad-3",
+          "name": "Silas",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "ribbonstride",
+              "level_offset": -1
+            },
+            {
+              "species": "raylet",
+              "level_offset": 0
+            },
+            {
+              "species": "goldknot",
+              "level_offset": 0
+            }
+          ]
+        }
+      ]
+    },
+    "sheltermile": {
+      "name": "Shelter Mile",
+      "badges_first_reachable": 2,
+      "recommended_badges": 7,
+      "trainers": [
+        {
+          "id": "sheltermile-1",
+          "name": "Tove",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "sunfrill",
+              "level_offset": -5
+            },
+            {
+              "species": "clovercolt",
+              "level_offset": -5
+            }
+          ]
+        },
+        {
+          "id": "sheltermile-2",
+          "name": "Xan",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "tilthtusk",
+              "level_offset": -4
+            },
+            {
+              "species": "boughchorus",
+              "level_offset": -3
+            }
+          ]
+        },
+        {
+          "id": "sheltermile-3",
+          "name": "Yarrick",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "hearthrunner",
+              "level_offset": -3
+            },
+            {
+              "species": "emberrunner",
+              "level_offset": -2
+            },
+            {
+              "species": "hearthbloom",
+              "level_offset": -2
+            }
+          ]
+        }
+      ]
+    },
+    "chartroad": {
+      "name": "Chart Road",
+      "badges_first_reachable": 2,
+      "recommended_badges": 7,
+      "trainers": [
+        {
+          "id": "chartroad-1",
+          "name": "Zeb",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "shoalpup",
+              "level_offset": -4
+            },
+            {
+              "species": "inkwhisk",
+              "level_offset": -3
+            }
+          ]
+        },
+        {
+          "id": "chartroad-2",
+          "name": "Bryn",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "chartwing",
+              "level_offset": -3
+            },
+            {
+              "species": "lookoutwing",
+              "level_offset": -2
+            },
+            {
+              "species": "inkwarden",
+              "level_offset": -2
+            }
+          ]
+        }
+      ]
+    },
+    "seaward": {
+      "name": "Seaward Ledge",
+      "badges_first_reachable": 2,
+      "recommended_badges": 7,
+      "trainers": [
+        {
+          "id": "seaward-1",
+          "name": "Cael",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "shoalpup",
+              "level_offset": -3
+            },
+            {
+              "species": "buoyglint",
+              "level_offset": -3
+            }
+          ]
+        },
+        {
+          "id": "seaward-2",
+          "name": "Dara",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "keeljaw",
+              "level_offset": -2
+            },
+            {
+              "species": "moorweft",
+              "level_offset": -1
+            }
+          ]
+        },
+        {
+          "id": "seaward-3",
+          "name": "Emer",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "isleglimmer",
+              "level_offset": -1
+            },
+            {
+              "species": "gloomtide",
+              "level_offset": 0
+            },
+            {
+              "species": "harborgleam",
+              "level_offset": 0
+            }
+          ]
+        }
+      ]
+    },
+    "trialroad": {
+      "name": "Trial Road",
+      "badges_first_reachable": 2,
+      "recommended_badges": 7,
+      "trainers": [
+        {
+          "id": "trialroad-1",
+          "name": "Finch",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "inkwhisk",
+              "level_offset": -2
+            }
+          ]
+        },
+        {
+          "id": "trialroad-2",
+          "name": "Greer",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "shoalpup",
+              "level_offset": -1
+            },
+            {
+              "species": "buoyglint",
+              "level_offset": -1
+            }
+          ]
+        },
+        {
+          "id": "trialroad-3",
+          "name": "Joss",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "moorweft",
+              "level_offset": -1
+            },
+            {
+              "species": "chartwing",
+              "level_offset": 0
+            }
+          ]
+        },
+        {
+          "id": "trialroad-4",
+          "name": "Kiri",
+          "status": "proposed",
+          "team": [
+            {
+              "species": "harborback",
+              "level_offset": 0
+            },
+            {
+              "species": "havenlight",
+              "level_offset": 0
+            },
+            {
+              "species": "chartwing",
+              "level_offset": 0
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
