@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Keymaster · Generations</title><link rel="stylesheet" href="style.css"></head><body>
 <main class="desk">
 <header><a class="home" href="../../index.html" aria-label="Back to the arcade">← Arcade</a><h1>Keymaster</h1><span class="tag">Alder Street, Millbrook</span></header>
-<section class="street" id="street" aria-label="Your street"><p class="goal" id="goal"></p><p class="budget" id="budget"></p><div class="actions" id="giveup" hidden><button type="button" data-act="end">End the street</button><button type="button" data-act="again">Walk Alder Street again</button></div><ol class="doors" id="doors" aria-label="The five homes for sale"></ol><p class="cash">Your cash: <b id="cash"></b></p></section>
+<section class="street" id="street" aria-label="Your street"><div class="goal-slot"><p class="goal goal-hold" aria-hidden="true">Own 3 homes on Alder Street that each pay you in their first year: 0 of 3 so far.</p><p class="goal" id="goal"></p></div><p class="cash">Your cash: <b id="cash"></b></p><div class="budget-slot"><p class="budget budget-hold" aria-hidden="true">You still need 3 homes that pay. Careful buys take about $154,470 of your $200,000.</p><p class="budget" id="budget"></p></div><div class="actions" id="giveup" hidden><button type="button" data-act="end">End the street</button><button type="button" data-act="again">Walk Alder Street again</button></div><ol class="doors" id="doors" aria-label="The five homes for sale"></ol><section class="finale" id="finale" hidden></section></section>
 <section class="listing" aria-labelledby="addr">
  <div class="house" id="house"></div>
  <div class="facts">
@@ -21,7 +21,7 @@
   <div class="choice wide"><span class="label" id="rehabLabel"></span>
    <div class="toggle rehab" role="radiogroup" aria-labelledby="rehabLabel"></div></div>
  </div>
- <div class="actions"><button type="button" class="primary" id="offerBtn">Make this offer</button><button type="button" id="passBtn">Pass on it</button></div>
+ <div class="actions" id="dealActions"><button type="button" class="primary" id="offerBtn">Make this offer</button><button type="button" id="passBtn">Pass on it</button></div>
  <section class="answer" id="answer" hidden aria-live="polite"></section>
  <table class="month" aria-label="One month of the deal">
   <tr><th id="rentLabel"></th><td id="rent"></td></tr>

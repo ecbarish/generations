@@ -16,11 +16,13 @@
 
  // The five homes, in the order they come up for sale. Numbers are round on purpose: the player should be able to
  // check them on paper. `baseRent` is rent already coming in; each plan's `rent` is what the worked part brings once let.
- // `lowest` is the sellers' lowest price; offers from `counterAt` of asking up to it get a counter at `lowest`.
+ // `lowest` is the sellers' floor: that price, or any offer at `meet` and above, is a yes.
+ // Between the floor and `meet` they counter at `meet` (the same price every run). Offers from
+ // `counterAt` of asking up to the floor get a counter at `lowest`. Below that, they refuse.
  // Each `events` entry is a month of the first year: a repair (`cost`), or rent lost (`loseRent` in dollars, `lose` a share).
  const STREET=[
   {id:'alder14', address:'14 Alder Street', kind:'Duplex, built 1962', picture:'duplex',
-   ask:240000, lowest:216000, floor:0.90, counterAt:0.84, taxes:3600, insurance:1500, baseRent:1100,
+   ask:240000, lowest:216000, meet:228000, floor:0.90, counterAt:0.84, taxes:3600, insurance:1500, baseRent:1100,
    blurb:'Two units side by side. Unit A is let to a long-time tenant. Unit B has been empty since spring and needs work. '+
          'The owners have already moved away for a new job and would like a quick, simple sale.',
    units:['Unit A: $1,100 a month. Let: Mrs Okafor, 6 years, pays on the 1st','Unit B: empty, needs work'],
@@ -37,7 +39,7 @@
    events:[{m:3,cost:1100,note:'The water heater: $1,100'},{m:8,lose:1,note:'Between tenants for a month'}],
    lesson:'A nice house is not always a good rental.'},
   {id:'alder22', address:'22 Alder Street', kind:'Triplex, built 1931', picture:'triplex',
-   ask:255000, lowest:235000, counterAt:0.85, taxes:5400, insurance:2400, baseRent:0,
+   ask:255000, lowest:235000, meet:246000, counterAt:0.85, taxes:5400, insurance:2400, baseRent:0,
    blurb:'Three flats, let cheaply for years. Worn kitchens, old carpet and a roof that leaks over the top flat. '+
          'The owner is retiring and wants it gone before winter.',
    units:['Three flats, each let for $750 a month','Each could let for $950 refreshed, or $1,150 fully renovated'],
@@ -57,7 +59,7 @@
    events:[{m:6,cost:1200,note:'The sewer line backs up: $1,200'},{m:11,lose:1,note:'Between tenants for a month'}],
    lesson:'The 1% rule is only a quick screen.'},
   {id:'alder31', address:'31 Alder Street', kind:'Cottage, built 1940', picture:'cottage',
-   ask:150000, lowest:138000, counterAt:0.85, taxes:2400, insurance:1100, baseRent:0,
+   ask:150000, lowest:138000, meet:146000, counterAt:0.85, taxes:2400, insurance:1100, baseRent:0,
    blurb:'Two bedrooms at the quiet end of the street. Small, plain and solid. The last tenant stayed nine years.',
    units:['Empty: two bedrooms, one bath','Homes like it nearby let for about $1,300 a month'],
    planLabel:'Before you let it', rentLabel:'Rent, once let',
@@ -109,10 +111,11 @@
   };
  }
 
- // The sellers' answer to an offer: yes, a counter at their lowest, or no.
+ // The sellers' answer to an offer: yes, a counter, or no. The same price always gets the same answer.
  function respond(price,L=LISTING){
-  const lowest=lowestOf(L);
-  if(price>=lowest)return {answer:'yes',price};
+  const lowest=lowestOf(L), meet=L.meet||lowest;
+  if(price>=meet||price===lowest)return {answer:'yes',price};
+  if(price>lowest)return {answer:'counter',price:meet};
   if(price>=L.ask*L.counterAt)return {answer:'counter',price:lowest};
   return {answer:'no',price:null};
  }
@@ -229,7 +232,7 @@
  }
 
  // ---- KM-STREET: one run along Alder Street. A run is plain data, so a later save (KM-SAVE) can keep it as it is.
- function newRun(){return {cash:START_CASH, at:0, homes:[]};}
+ function newRun(){return {cash:START_CASH, at:0, homes:[], offers:0};}
  const current=run=>STREET[run.at]||null;
  const canAfford=(run,choice,L=current(run))=>!!L&&analyze(choice,L).cashIn<=run.cash;
  // Buy the home that is up: the cash goes, the home and its first year are kept, and the next listing comes up.
@@ -258,8 +261,8 @@
   return o.homes.every((h,i)=>h&&h.id===STREET[i].id&&typeof h.bought==='boolean'&&
    (!h.bought||(isNum(h.onCash)&&isNum(h.cashFlow)&&h.choice&&isNum(h.choice.price)&&isNum(h.choice.down)&&!!STREET[i].plans[h.choice.rehab])));
  }
- const serialize=run=>({v:SAVE_VERSION,game:'keymaster',cash:run.cash,at:run.at,homes:run.homes.map(h=>JSON.parse(JSON.stringify(h)))});
- const restore=o=>({cash:o.cash,at:o.at,homes:o.homes.map(h=>JSON.parse(JSON.stringify(h)))});
+ const serialize=run=>({v:SAVE_VERSION,game:'keymaster',cash:run.cash,at:run.at,offers:run.offers||0,homes:run.homes.map(h=>JSON.parse(JSON.stringify(h)))});
+ const restore=o=>({cash:o.cash,at:o.at,homes:o.homes.map(h=>JSON.parse(JSON.stringify(h))),offers:isNum(o.offers)?o.offers:0});
  // One line for the hub's card: how the street is going.
  const summary=run=>({summary:paying(run)+' of '+GOAL+' homes paying',detail:finished(run)?(won(run)?'Alder Street built':'Alder Street sold'):
   'Listing '+(run.at+1)+' of '+STREET.length+' · $'+Math.round(run.cash).toLocaleString('en-US')+' cash'});

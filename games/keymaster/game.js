@@ -67,6 +67,9 @@
  }
  function outlookOf(choice){
   const o=M.yearOutlook(choice,L), r=M.respond(choice.price,L);
+  // A buy that spends the street's last chance is not praise, even when the year itself would count.
+  if(M.dooms(R,choice)&&o.counts)return {o:{word:'This ends the street',text:o.text,counts:false,onCash:o.onCash,cashIn:o.cashIn,cashFlow:o.cashFlow},
+   line:'After this you can\'t reach '+M.GOAL+' homes that pay. This buy spends the cash the rest of the street needs.'};
   let line=pct(o.onCash)+' on the cash you put in. '+(o.counts?'This first year would count toward your street.':'This first year would not count toward your street.');
   if(!o.counts&&r.answer==='yes')line+=' The sellers can say yes to this price.';
   else if(o.counts&&r.answer!=='yes')line+=' Only if they take this offer.';
@@ -75,8 +78,9 @@
    const other=choice.down===0.25?0.2:0.25;
    const pay=r.answer==='yes'?choice.price:r.answer==='counter'?r.price:choice.price;
    const alt=M.yearOutlook({price:pay,down:other,rehab:choice.rehab},L);
-   if(alt.word!==o.word)line+=' At '+(other*100)+'% down this is '+alt.word.toLowerCase()+'.';
+   if(alt.word!==o.word&&!(M.dooms(R,{price:pay,down:other,rehab:choice.rehab})&&alt.counts))line+=' At '+(other*100)+'% down this is '+alt.word.toLowerCase()+'.';
   }
+  if(M.dooms(R,choice))line+=' After this you can\'t reach '+M.GOAL+' homes that pay.';
   return {o,line};
  }
  function cashWarning(choice){
@@ -129,6 +133,7 @@
   reserveOutlook(live);
   const warn=choosing?cashWarning(choice):'';
   $('#afford').hidden=!warn;$('#afford').textContent=warn;
+  $('#dealActions').hidden=S.phase==='counter';
   document.querySelectorAll('.choices button,#offerBtn,#passBtn').forEach(b=>b.disabled=!choosing);
   $('[data-offer="-2000"]').disabled=!running||S.price<=MIN();$('[data-offer="2000"]').disabled=!running||S.price>=MAX();
   $('#passBtn').disabled=!running;$('#offerBtn').disabled=!running||!M.canAfford(R,choice,L);
@@ -172,8 +177,8 @@
 
  function paintCounter(){
   const choice=shownChoice(), view=outlookOf(choice), warn=cashWarning(choice), fits=!warn;
-  show('<div class="actions"><button type="button" class="primary" data-act="take"'+(fits?'':' disabled')+'>Take '+money(choice.price)+'</button><button type="button" data-act="walk">Walk away</button></div>'+
-   '<h2>They come back at '+money(choice.price)+'</h2><p>"We would like this done, but not at '+money(S.price)+'. We can do '+money(choice.price)+'."</p>'+
+  show('<h2>They come back at '+money(choice.price)+'</h2><p>"We would like this done, but not at '+money(S.price)+'. We can do '+money(choice.price)+'."</p>'+
+   '<div class="actions"><button type="button" class="primary" data-act="take"'+(fits?'':' disabled')+'>Take '+money(choice.price)+'</button><button type="button" data-act="walk">Walk away</button></div>'+
    outlookBlock(view)+
    (warn?'<p class="afford">'+warn+'</p>':'')+
    '<p><small>You can still change the down payment and the work.</small></p>');
@@ -188,8 +193,9 @@
    return;
   }
   S.sure=false;
+  R.offers=(R.offers||0)+1;
   const r=M.respond(S.price,L);
-  if(r.answer==='yes'){buy(S.price,'The sellers say yes to '+money(S.price)+'.');return;}
+  if(r.answer==='yes'){buy(S.price,'The sellers say yes to '+money(S.price)+'.',true);return;}
   if(r.answer==='counter'){S.phase='counter';S.counter=r.price;render();paintCounter();return;}
   S.noes++;
   if(S.noes>=2){lose('They stop answering your offers, and sell to another buyer.');return;}
@@ -197,7 +203,8 @@
    '<h2>They say no</h2><p>"That is well below what we are asking." This offer is '+ofAsk(S.price)+'. They will still talk if you come back closer to the asking price. One more offer this far below, and they sell to someone else.</p>');
  }
 
- function buy(price,line){
+ function buy(price,line,counted){
+  if(!counted)R.offers=(R.offers||0)+1;
   S.price=price;S.phase='done';
   const y=M.buyHome(R,S),v=M.verdict(y.onCash);persist();render();
   const months=y.months.map(m=>'<li class="'+(m.notes.length?'event':'')+'" title="'+m.notes.join('; ')+'"><b>'+MONTHS[m.m-1]+
@@ -222,7 +229,7 @@
 
  function startListing(){
   L=M.current(R);Object.assign(S,{price:L.ask,down:0.25,rehab:'refresh',phase:'run',noes:0,counter:null});
-  fill();render();$('#answer').hidden=true;$('.listing').hidden=false;$('.sheet').hidden=false;
+  fill();render();$('#answer').hidden=true;$('#finale').hidden=true;$('.listing').hidden=false;$('.sheet').hidden=false;
  }
 
  function next(){
@@ -233,16 +240,22 @@
  function showStreet(){
   $('.listing').hidden=true;$('.sheet').hidden=true;street();
   const flow=R.homes.filter(h=>h.bought).reduce((n,h)=>n+h.cashFlow,0);
+  const bought=R.homes.filter(h=>h.bought).length, offers=R.offers||0;
   const rows=M.STREET.map((h,i)=>{const got=R.homes[i];
    if(!got.bought){const p=M.passed(h);return '<li><b>'+h.address+'</b><span>Sold to someone else</span><small>They '+(p.onCash>=0?'made ':'lost ')+pct(Math.abs(p.onCash))+' in the first year. '+h.lesson+'</small></li>';}
    const v=M.verdict(got.onCash);
    return '<li class="'+(got.onCash>=0?'pays':'lost')+'"><b>'+h.address+'</b><span>'+v.word+'</span><small>Bought for '+money(got.choice.price)+
     ', '+money(got.cashFlow)+' a month on the worksheet. '+h.lesson+'</small></li>';}).join('');
-  show('<div class="actions"><button type="button" class="primary" data-act="again">Walk Alder Street again</button></div>'+
+  const html='<div class="actions"><button type="button" class="primary" data-act="again">Walk Alder Street again</button></div>'+
    '<h2>'+(M.won(R)?'You built a street that pays':'Your street')+'</h2>'+
    '<p>'+(M.won(R)?M.paying(R)+' homes on Alder Street pay you. ':'Only '+M.paying(R)+' of the '+M.GOAL+' homes you needed pay you. ')+
+   'You bought '+bought+(bought===1?' home':' homes')+' and made '+offers+(offers===1?' offer':' offers')+'. '+
    'Together they bring in '+money(flow)+' a month on the worksheet, and you still have '+money(R.cash)+' of your savings.</p>'+
-   '<ul class="yours" aria-label="The five homes on Alder Street">'+rows+'</ul>');
+   '<ul class="yours" aria-label="The five homes on Alder Street">'+rows+'</ul>';
+  show(html);
+  const fin=$('#finale');fin.innerHTML=html;fin.hidden=false;
+  const again=fin.querySelector('button');
+  if(again){const r=again.getBoundingClientRect();if(r.top<0||r.bottom>window.innerHeight)again.scrollIntoView({block:'nearest'});}
  }
 
  function endStreet(){while(!M.finished(R))M.passHome(R);persist();showStreet();}

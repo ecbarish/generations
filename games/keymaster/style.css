@@ -45,6 +45,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .of-ask{display:block;color:var(--soft);font-size:.85rem;margin-top:2px}
 .good .v::before{content:"✓ "}.bad .v::before{content:"✗ "}
 .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.actions button{flex:1 1 160px}
+.answer .actions{flex-wrap:nowrap}.answer .actions button{flex:1 1 0}
 .primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
 .answer h2{margin:0 0 6px}.answer p{margin:6px 0}
 .months{list-style:none;padding:0;margin:10px 0;display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
@@ -55,9 +56,12 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .verdict{font-size:1.25rem;font-weight:800;margin:10px 0 2px}
 /* KM-STREET: the goal, your cash and the five doors of Alder Street */
 .street{display:grid;gap:6px;grid-template-columns:1fr auto;align-items:center}
+.goal-slot,.budget-slot{display:grid}.goal-slot>*,.budget-slot>*{grid-area:1/1;margin:0}
+.goal-hold,.budget-hold{visibility:hidden}
 .goal{margin:0;font-weight:700}.cash{margin:0;text-align:right;font-variant-numeric:tabular-nums}
-.budget,#giveup{grid-column:1/-1}
-.budget{margin:4px 0 0}
+.budget-slot,#giveup,#finale{grid-column:1/-1}
+.budget-slot{margin:4px 0 0}
+.finale{background:transparent;border:0;padding:0}
 .doors{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .doors li{border:1px solid var(--line);border-radius:8px;padding:6px 1px;text-align:center;font-size:.72rem;color:var(--soft);line-height:1.2;overflow-wrap:normal;min-width:0}
 .doors li b{display:block;font-size:.9rem;color:var(--ink)}
