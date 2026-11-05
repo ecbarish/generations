@@ -17,6 +17,7 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; }
+html, body, .window, .work { overflow-anchor: none; }
 html { scroll-padding-bottom: 8.5rem; }
 body {
   background: var(--water);
@@ -121,8 +122,8 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   pointer-events: none;
 }
 .window:not([data-phase="dock"]):has(#crew:not([hidden])) #ask[hidden] { display: none !important; }
-.bulk { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.6rem; }
-.bulk button { flex: 1 1 6rem; }
+.bulk { display: flex; flex-wrap: nowrap; gap: 0.4rem; margin: 0 0 0.6rem; min-height: 44px; }
+.bulk button { flex: 1 1 0; width: 0; height: 44px; min-height: 44px; max-height: 44px; overflow: hidden; font-variant-numeric: tabular-nums; }
 .boats, .captains, .log ol { list-style: none; margin: 0; padding: 0; }
 .boat, .captain { border-top: 1px solid var(--sky); padding: 0.75rem 0; }
 .boat .habit, .boat .facts, .boat .wait { min-height: 1.45em; }
@@ -141,7 +142,12 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   max-width: 100%;
 }
 .actions button { white-space: nowrap; font-variant-numeric: tabular-nums; }
-#ending .actions button,
+#ending .actions button {
+  height: auto;
+  max-height: none;
+  white-space: normal;
+  min-height: 44px;
+}
 #choice .actions button,
 #provision-go, #provision .actions button,
 #work-go, #errand-go, #finale-go { white-space: normal; min-height: 44px; }
@@ -166,7 +172,15 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .habit, .wait { color: var(--hull); }
 .facts:empty, .wait:empty { display: none; }
 .actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
-.actions button { flex: 1 1 9rem; }
+.actions button {
+  flex: 1 1 9rem;
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
 .closed h2, .closed .habit { color: var(--hull); font-style: italic; }
 .away, .log, .fleet, .sheds, .choice, .settled, .routes, .lights, .finale, .ending {
   border: 1px solid var(--sky);
@@ -183,6 +197,8 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .light-card { min-height: 12.6rem; }
 .light-card .habit { min-height: 4.8em; }
 .light-card .actions { min-height: 2.75rem; }
+#sheds { min-height: 20rem; }
+#route-gear { min-height: 12.5rem; }
 .route-card h3,
 .light-card h3 { white-space: normal; }
 @media (max-width: 800px) {

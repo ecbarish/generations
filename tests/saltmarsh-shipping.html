@@ -1702,6 +1702,87 @@ document.querySelector('#run').onclick = async function () {
     await steadyControls(375, 812);
     await steadyControls(320, 568);
     await steadyControls(1280, 800);
+    async function organicSession(width, height) {
+      var box = await loadFrame('organic ' + width);
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 120); });
+      var bridge = win.__saltmarsh;
+      var M = win.Saltmarsh;
+      var st = bridge.state;
+      win.__saltmarshHold = true;
+      try { bridge.idle().stop(); } catch (e1) { /* already stopped */ }
+      var sim = 1700000000000;
+      var worst = 0;
+      var where = '';
+      function targets() {
+        var out = {};
+        doc.querySelectorAll('[data-bulk="max"], [data-act="buy"], [data-act="route"], [data-act="light"]').forEach(function (el) {
+          if (!el.offsetParent) return;
+          var li = el.closest('[data-i]');
+          var key = (el.dataset.bulk ? 'Max' : el.dataset.act) + (li ? li.dataset.i : '') + (el.dataset.route || el.dataset.light || '');
+          out[key] = el.getBoundingClientRect().top;
+        });
+        return out;
+      }
+      var sec;
+      for (sec = 1; sec <= 600; sec++) {
+        sim += 1000;
+        win.__saltmarshTime = sim;
+        st.played = sec;
+        bridge.view.rowing = 0;
+        M.addCash(st, M.income(st) + M.routeIncome(st));
+        M.collectCaptains(st, sim, 1);
+        bridge.render();
+        if (sec === 40) {
+          var maxBtn = doc.querySelector('[data-bulk="max"]');
+          if (maxBtn && maxBtn.offsetParent) maxBtn.click();
+        }
+        var before = targets();
+        var scrollBefore = win.scrollY || 0;
+        if (!bridge.followGoal()) continue;
+        var after = targets();
+        var scrollNow = win.scrollY || 0;
+        Object.keys(before).forEach(function (key) {
+          if (!(key in after)) return;
+          var delta = Math.abs(after[key] - before[key]);
+          var docDelta = Math.abs((after[key] + scrollNow) - (before[key] + scrollBefore));
+          var jump = Math.max(delta, docDelta);
+          if (jump > worst) { worst = jump; where = key + ' at ' + sec + 's'; }
+        });
+      }
+      check('at ' + width + ' by ' + height + ' ten minutes of play leaves Max, Buy, Sign, Raise and Light (' + where + ' ' + worst.toFixed(1) + 'px)', worst < 2);
+    }
+    await organicSession(390, 844);
+    await organicSession(375, 812);
+    await organicSession(320, 568);
+    var pressBox = await loadFrame('press remembers');
+    pressBox.style.width = '390px';
+    pressBox.style.height = '844px';
+    var pressWin = pressBox.contentWindow;
+    var pressDoc = pressBox.contentDocument;
+    await new Promise(function (resolve) { setTimeout(resolve, 80); });
+    var pressState = pressWin.__saltmarsh.state;
+    pressState.trips = 3;
+    pressState.cash = 1e6;
+    pressState.boats[0].owned = 4;
+    pressWin.__saltmarsh.render();
+    pressState.bulk = 1;
+    pressWin.__saltmarsh.render();
+    var pressBtn = pressDoc.querySelector('#boats [data-i="0"] [data-act="buy"]');
+    var ownedBefore = pressState.boats[0].owned;
+    var shown = +pressBtn.dataset.count;
+    var labelAtPress = pressBtn.textContent;
+    pressBtn.dispatchEvent(new pressWin.PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+    pressState.bulk = 'max';
+    pressState.cash = 1e15;
+    pressWin.__saltmarsh.render();
+    pressBtn = pressDoc.querySelector('#boats [data-i="0"] [data-act="buy"]');
+    var labelAfter = pressBtn.textContent;
+    pressBtn.dispatchEvent(new pressWin.MouseEvent('click', { bubbles: true, cancelable: true }));
+    check('a tap that starts on a price still buys after the label changes', shown === 1 && labelAfter !== labelAtPress && pressState.boats[0].owned === ownedBefore + shown);
     await packAll(1280, 800);
     await packAll(844, 390);
     await packAll(390, 844);

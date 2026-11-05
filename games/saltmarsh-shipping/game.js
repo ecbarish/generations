@@ -95,11 +95,9 @@
   function visibleBoats() {
     var phase = P.read(state);
     if (!phase.boats) return [];
-    var last = 0;
-    for (var i = 0; i < M.BOATS.length; i++) {
-      if (M.unlocked(state, i)) last = i + 1;
-    }
-    return M.BOATS.slice(0, Math.min(M.BOATS.length, last + 1));
+    /* All four hulls stay on the page once the shop is open, so a purchase
+       cannot insert a new row and shove the buttons underneath. */
+    return M.BOATS.slice();
   }
 
   function showLine(el, text) {
@@ -145,7 +143,7 @@
   function fillSheds() {
     var box = $('#sheds');
     var phase = P.read(state);
-    box.hidden = !phase.sheds;
+    box.hidden = !(phase.boats || phase.sheds);
     if (box.hidden) return;
     var price = M.warehousePrice(state);
     var sheds = state.warehouses;
@@ -197,11 +195,9 @@
   function fillCaptains() {
     var list = $('#captains');
     var shown = [];
-    M.CAPTAINS.forEach(function (cap, i) {
-      var need = i === 0 ? M.WREN_AT : M.UNLOCK_AT;
-      if (state.boats[cap.tier].owned < need && !state.captains[i].hired) return;
-      shown.push(i);
-    });
+    /* Every captain keeps a place once the fleet is open, so hiring one
+       does not push the routes and the lights down. */
+    M.CAPTAINS.forEach(function (cap, i) { shown.push(i); });
     var sig = shown.join(',') + ':' + state.captains.map(function (c) { return c.hired ? 1 : 0; }).join('');
     if (list.dataset.sig !== sig) {
       list.dataset.sig = sig;
@@ -356,26 +352,30 @@
     var box = $('#settled');
     if (!box) return;
     var rows = M.settledForks(state).slice();
-    var offer = M.deskChoice(state);
-    var pendingId = '';
-    if (offer && !rows.some(function (row) { return row.id === offer.id; })) {
-      var pending = pendingSettled(offer);
-      if (pending) {
-        rows.push(pending);
-        pendingId = pending.id;
-      }
+    var known = {};
+    rows.forEach(function (row) { known[row.id] = true; });
+    var phase = P.read(state);
+    if (phase.boats || rows.length) {
+      [
+        { id: 'sloop', takenName: 'Lighter sloop hulls', lockedName: 'Another shed' },
+        { id: 'schooner', takenName: 'Deeper schooner holds', lockedName: 'Another shed' },
+        { id: 'quay', takenName: 'A lamp on the quay', lockedName: 'Deeper bark holds', hold: 'A lamp on the quay is taken. Deeper bark holds stays unbuilt.' },
+        { id: 'pilot', takenName: 'A bell on the pier', lockedName: 'Coal for the night runs', hold: 'A bell on the pier is taken. Coal for the night runs stays unbuilt.' }
+      ].forEach(function (row) { if (!known[row.id]) rows.push(row); });
     }
+    var pendingId = {};
+    rows.forEach(function (row) { if (!known[row.id]) pendingId[row.id] = true; });
     box.hidden = !rows.length;
     if (box.hidden) return;
     var list = $('#settled-list');
-    var sig = rows.map(function (row) { return row.id + row.takenName; }).join('|') + (pendingId ? ':hold' : '');
+    var sig = rows.map(function (row) { return row.id + row.takenName + (pendingId[row.id] ? '?' : ''); }).join('|');
     if (list.dataset.sig === sig) return;
     list.dataset.sig = sig;
     list.replaceChildren();
     rows.forEach(function (row) {
       var li = document.createElement('li');
-      li.textContent = settledSentence(row);
-      if (row.id === pendingId) {
+      li.textContent = row.hold || settledSentence(row);
+      if (pendingId[row.id]) {
         li.style.visibility = 'hidden';
         li.setAttribute('aria-hidden', 'true');
       }
@@ -1089,15 +1089,66 @@
     hireAt(index);
   });
 
+  var armed = null;
+  document.addEventListener('pointerdown', function (e) {
+    var b = e.target.closest('button');
+    if (!b) { armed = null; return; }
+    var li = b.closest('[data-i]');
+    armed = {
+      t: performance.now(),
+      el: b,
+      act: b.dataset.act || '',
+      route: b.dataset.route || '',
+      light: b.dataset.light || '',
+      count: b.dataset.count || '',
+      chunk: b.dataset.chunk || '',
+      which: b.dataset.which || '',
+      prep: b.dataset.prep || '',
+      bulk: b.dataset.bulk || '',
+      id: b.id || '',
+      tier: li ? li.dataset.i : ''
+    };
+  }, true);
+  function remembered(b) {
+    if (!armed || !b) return null;
+    if (performance.now() - armed.t > 400) return null;
+    if (armed.el === b) return armed;
+    /* A render between press and click replaces the node. The same control
+       still counts: same action, same boat, route or light. */
+    var li = b.closest('[data-i]');
+    var tier = li ? li.dataset.i : '';
+    if ((b.dataset.act || '') === armed.act && tier === armed.tier && (b.dataset.route || '') === armed.route && (b.dataset.light || '') === armed.light && (b.dataset.bulk || '') === armed.bulk && (b.id || '') === armed.id) return armed;
+    return null;
+  }
+  function keepPlace(work) {
+    var x = window.scrollX;
+    var y = window.scrollY;
+    work();
+    if (window.scrollX !== x || Math.abs(window.scrollY - y) > 1) window.scrollTo(x, y);
+  }
+
   document.addEventListener('click', function (e) {
     view.freshPrices = true;
     var b = e.target.closest('button');
-    if (!b || b.disabled) return;
+    var held = remembered(b);
+    if (!b || (b.disabled && !held)) return;
+    if (held) {
+      b.dataset.act = held.act;
+      if (held.route) b.dataset.route = held.route;
+      if (held.light) b.dataset.light = held.light;
+      if (held.count) b.dataset.count = held.count;
+      if (held.chunk) b.dataset.chunk = held.chunk;
+      if (held.which) b.dataset.which = held.which;
+      if (held.prep) b.dataset.prep = held.prep;
+      if (held.bulk) b.dataset.bulk = held.bulk;
+    }
     if (b.id === 'row' || b.id === 'sound' || b.id === 'ask' || b.classList.contains('arc-set-btn')) return;
     if (b.dataset.bulk) {
-      M.setBulk(state, b.dataset.bulk);
-      persist();
-      render();
+      keepPlace(function () {
+        M.setBulk(state, b.dataset.bulk);
+        persist();
+        render();
+      });
       return;
     }
     if (b.dataset.act === 'away') {
@@ -1109,49 +1160,45 @@
     if (b.dataset.act === 'fork') {
       var offer = M.deskChoice(state);
       var trigger = choiceTrigger(offer);
-      var triggerTop = trigger ? trigger.getBoundingClientRect().top : 0;
       if (offer && M.chooseDesk(state, offer.id, b.dataset.which).ok) {
         if (b.dataset.which === 'shed') bootIdle(null);
         if (state.sound) audio.sfx('quest');
-        persist();
-        render();
-        if (trigger && trigger.isConnected) {
-          var drift = trigger.getBoundingClientRect().top - triggerTop;
-          if (Math.abs(drift) > 1) window.scrollBy(0, drift);
-          if (trigger.focus) trigger.focus({ preventScroll: true });
-        }
+        keepPlace(function () {
+          persist();
+          render();
+        });
+        if (trigger && trigger.isConnected && trigger.focus) trigger.focus({ preventScroll: true });
       }
       return;
     }
     if (b.dataset.act === 'gear') {
       if (M.buyGear(state, b.dataset.route).ok) {
         if (state.sound) audio.sfx('quest');
-        persist();
-        render();
+        keepPlace(function () { persist(); render(); });
       }
       return;
     }
     if (b.dataset.act === 'route') {
       if (M.signRoute(state, b.dataset.route).ok) {
         if (state.sound) audio.sfx('quest');
-        persist();
-        render();
+        keepPlace(function () { persist(); render(); });
       }
       return;
     }
     if (b.dataset.act === 'light') {
       if (M.buildLight(state, b.dataset.light).ok) {
         if (state.sound) audio.sfx('quest');
-        persist();
-        render();
+        keepPlace(function () { persist(); render(); });
       }
       return;
     }
     if (b.dataset.act === 'prep' || b.id === 'provision-go') {
       if (M.buyPreparation(state, b.dataset.prep, b.dataset.which || '', actNow()).ok) {
         if (state.sound) audio.sfx('quest');
-        persist();
-        render();
+        keepPlace(function () {
+          persist();
+          render();
+        });
         if (M.preparationsComplete(state)) {
           var sail = $('#finale-go');
           if (sail) {
@@ -1225,8 +1272,10 @@
       pop(rect.left + rect.width * 0.62, rect.top + 24, result.notes[0].split('.')[0]);
     }
     if (state.sound) audio.sfx(M.lookIndex(had) !== M.lookIndex(nowOwned) || (result.notes && result.notes.length) ? 'quest' : 'coin');
-    persist();
-    render();
+    keepPlace(function () {
+      persist();
+      render();
+    });
   });
 
   $('#sound').addEventListener('click', function () { audio.cycle(); persist(); });
