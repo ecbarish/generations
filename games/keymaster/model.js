@@ -158,19 +158,66 @@
 
  // Which levers would bring this choice inside the cash on hand. minPrice is the lowest offer the screen
  // will allow right now: a counter locks it to the sellers' price, so a lower offer is not offered as a way out.
+ // The price you would actually pay. A counter is not a finished buy until their price fits.
+ function payPrice(price,L=LISTING){
+  const r=respond(price,L);
+  if(r.answer==='yes')return price;
+  if(r.answer==='counter')return r.price;
+  return null;
+ }
+ const cheapCache=new Map();
+ // Cheapest seller-accepted buy on this home that still pays you. Null when none does.
+ function cheapestPaying(L=LISTING){
+  if(cheapCache.has(L.id))return cheapCache.get(L.id);
+  let best=null; const plans=plansOf(L), seen=new Set();
+  for(let price=L.ask-60000; price<=L.ask+20000; price+=2000){
+   const pay=payPrice(price,L); if(pay==null)continue;
+   for(const down of [0.2,0.25])for(const rehab of Object.keys(plans)){
+    const key=pay+'|'+down+'|'+rehab; if(seen.has(key))continue; seen.add(key);
+    const y=yearOutlook({price:pay,down,rehab},L);
+    if(y.counts&&(!best||y.cashIn<best.cashIn))best={cashIn:y.cashIn,price:pay,down,rehab};
+   }
+  }
+  cheapCache.set(L.id,best); return best;
+ }
+ // How many more paying homes the cash can still cover. Careful buys are the cheapest ones.
+ function streetBudget(run){
+  const need=Math.max(0,GOAL-paying(run)), costs=[];
+  for(let i=run.at;i<STREET.length;i++){const b=cheapestPaying(STREET[i]); if(b)costs.push(b.cashIn);}
+  costs.sort((a,b)=>a-b);
+  const careful=costs.slice(0,need).reduce((s,n)=>s+n,0);
+  let left=run.cash, covers=0; for(const c of costs)if(left>=c){left-=c; covers++;}
+  return {need, careful, covers, possible:need===0||(costs.length>=need&&careful<=run.cash)};
+ }
+ function projectBuy(run,choice){
+  const L=STREET[run.at], y=yearOutlook(choice,L);
+  return {cash:run.cash-y.cashIn, at:run.at+1, homes:run.homes.concat([{bought:true,onCash:y.counts?1:-1}])};
+ }
+ // This finished buy is what makes three paying homes impossible. A price the sellers reject spends nothing.
+ function dooms(run,choice){
+  const L=STREET[run.at]; if(!L)return false;
+  const pay=payPrice(choice.price,L); if(pay==null)return false;
+  return streetBudget(run).possible&&!streetBudget(projectBuy(run,Object.assign({},choice,{price:pay}))).possible;
+ }
+
  function affordHint(run,choice,L=current(run),minPrice=choice.price){
-  const a=analyze(choice,L);
-  if(a.cashIn<=run.cash)return {fits:true, any:true, price:false, down:false, work:false, cashIn:a.cashIn};
-  const plans=plansOf(L), prices=new Set([choice.price]);
-  for(let p=minPrice;p<=choice.price;p+=2000)prices.add(p);
-  let any=false, price=false, down=false, work=false;
+  const a=analyze(choice,L), plans=plansOf(L);
+  const payNow=payPrice(choice.price,L);
+  const fits=!!payNow&&analyze({price:payNow,down:choice.down,rehab:choice.rehab},L).cashIn<=run.cash&&a.cashIn<=run.cash;
+  if(fits)return {fits:true, any:true, price:false, down:false, work:false, cashIn:a.cashIn};
+  const seen=new Set(); let any=false, price=false, down=false, work=false;
   const curCost=(plans[choice.rehab]||plans.asis).cost;
-  for(const p of prices)for(const d of [0.2,0.25])for(const rehab of Object.keys(plans)){
-   if(analyze({price:p,down:d,rehab},L).cashIn>run.cash)continue;
-   any=true;
-   if(p<choice.price&&d===choice.down&&rehab===choice.rehab)price=true;
-   if(d<choice.down&&p===choice.price&&rehab===choice.rehab)down=true;
-   if(plans[rehab].cost<curCost&&p===choice.price&&d===choice.down)work=true;
+  const floor=Math.min(minPrice,choice.price);
+  for(let p=floor; p<=L.ask+20000; p+=2000){
+   const pay=payPrice(p,L); if(pay==null||pay<floor)continue;
+   for(const d of [0.2,0.25])for(const rehab of Object.keys(plans)){
+    const key=pay+'|'+d+'|'+rehab; if(seen.has(key))continue; seen.add(key);
+    if(analyze({price:pay,down:d,rehab},L).cashIn>run.cash)continue;
+    any=true;
+    if(pay<choice.price&&d===choice.down&&rehab===choice.rehab)price=true;
+    if(d<choice.down)down=true;
+    if(plans[rehab].cost<curCost&&pay===payNow&&d===choice.down)work=true;
+   }
   }
   return {fits:false, any, price, down, work, cashIn:a.cashIn};
  }
@@ -217,7 +264,7 @@
  const summary=run=>({summary:paying(run)+' of '+GOAL+' homes paying',detail:finished(run)?(won(run)?'Alder Street built':'Alder Street sold'):
   'Listing '+(run.at+1)+' of '+STREET.length+' · $'+Math.round(run.cash).toLocaleString('en-US')+' cash'});
 
- const api={TERMS,LISTING,REHABS,STREET,START_CASH,GOAL,payment,principalYearOne,analyze,respond,firstYear,verdict,yearOutlook,affordHint,passed,
+ const api={TERMS,LISTING,REHABS,STREET,START_CASH,GOAL,payment,principalYearOne,analyze,respond,firstYear,verdict,yearOutlook,affordHint,cheapestPaying,streetBudget,dooms,passed,
   newRun,current,canAfford,buyHome,passHome,paying,finished,won,lowestOf,SAVE_KEY,SAVE_VERSION,valid,serialize,restore,summary};
  if(typeof module==='object'&&module.exports)module.exports=api;else root.KeymasterModel=api;
 })(typeof window!=='undefined'?window:globalThis);

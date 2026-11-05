@@ -23,7 +23,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .stepper{display:flex;align-items:center;gap:8px}.stepper output{min-width:7.5em;text-align:center;font-weight:700;font-size:1.1rem}
 .toggle{display:flex;gap:6px;flex-wrap:wrap}.toggle button{flex:1 1 auto}
 .toggle button[aria-checked="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.rehab button{text-align:left;flex:1 1 220px}.rehab small{display:block;color:inherit;opacity:.8}
+.rehab button{text-align:left;flex:1 1 220px;min-height:76px}.rehab small{display:block;color:inherit;opacity:.8}
 .month{width:100%;border-collapse:collapse;margin:12px 0}
 .month th{text-align:left;font-weight:400;padding:4px 0;color:var(--soft)}.month td{text-align:right;padding:4px 0;font-variant-numeric:tabular-nums;white-space:nowrap}
 .month tr+tr{border-top:1px dashed var(--line)}.month .total th,.month .total td{font-weight:700;color:var(--ink);padding-top:8px}
@@ -55,6 +55,8 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 /* KM-STREET: the goal, your cash and the five doors of Alder Street */
 .street{display:grid;gap:6px;grid-template-columns:1fr auto;align-items:center}
 .goal{margin:0;font-weight:700}.cash{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.budget,#giveup{grid-column:1/-1}
+.budget{min-height:4.2em;margin:4px 0 0}
 .doors{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .doors li{border:1px solid var(--line);border-radius:8px;padding:6px 1px;text-align:center;font-size:.72rem;color:var(--soft);line-height:1.2;overflow-wrap:normal;min-width:0}
 .doors li b{display:block;font-size:.9rem;color:var(--ink)}
@@ -69,6 +71,10 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 @media (min-width:860px){
  .desk{grid-template-columns:minmax(300px,2fr) 3fr;align-items:start}
  header,.street,.answer{grid-column:1/-1}
+}
+@media (max-width:859px){
+ .desk{display:flex;flex-direction:column}
+ .street{order:1}.sheet{order:2}.listing{order:3}.answer{order:4}
 }
 @media (max-width:420px){.choices,.measures{grid-template-columns:1fr}.months{grid-template-columns:repeat(4,1fr)}}
 @media (prefers-reduced-motion:no-preference){.answer{animation:rise .25s ease-out}@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1}}}

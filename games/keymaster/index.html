@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Keymaster · Generations</title><link rel="stylesheet" href="style.css"></head><body>
 <main class="desk">
 <header><a class="home" href="../../index.html" aria-label="Back to the arcade">← Arcade</a><h1>Keymaster</h1><span class="tag">Alder Street, Millbrook</span></header>
-<section class="street" id="street" aria-label="Your street"><p class="goal" id="goal"></p><ol class="doors" id="doors" aria-label="The five homes for sale"></ol><p class="cash">Your cash: <b id="cash"></b></p></section>
+<section class="street" id="street" aria-label="Your street"><p class="goal" id="goal"></p><p class="budget" id="budget"></p><div class="actions" id="giveup" hidden><button type="button" data-act="end">End the street</button><button type="button" data-act="again">Walk Alder Street again</button></div><ol class="doors" id="doors" aria-label="The five homes for sale"></ol><p class="cash">Your cash: <b id="cash"></b></p></section>
 <section class="listing" aria-labelledby="addr">
  <div class="house" id="house"></div>
  <div class="facts">
@@ -21,6 +21,7 @@
   <div class="choice wide"><span class="label" id="rehabLabel"></span>
    <div class="toggle rehab" role="radiogroup" aria-labelledby="rehabLabel"></div></div>
  </div>
+ <div class="actions"><button type="button" class="primary" id="offerBtn">Make this offer</button><button type="button" id="passBtn">Pass on it</button></div>
  <table class="month" aria-label="One month of the deal">
   <tr><th id="rentLabel"></th><td id="rent"></td></tr>
   <tr><th>Set aside for empty months and repairs (10%)</th><td id="aside"></td></tr>
@@ -29,7 +30,7 @@
   <tr class="total"><th>Cash flow, each month</th><td id="flow"></td></tr>
  </table>
  <div class="outlook-slot" id="outlookSlot">
-  <p class="outlook outlook-hold" id="outlookHold" aria-hidden="true"><b>A costly buy.</b> This first year would not count toward your street. The sellers can say yes to this price.</p>
+  <p class="outlook outlook-hold" id="outlookHold" aria-hidden="true"><b>A costly buy.</b> 000.0% on the cash you put in. This first year would not count toward your street. The sellers can say yes to this price. No offer the sellers will take pays you in its first year. At 20% down this is a solid buy.</p>
   <p class="outlook" id="outlook"></p>
  </div>
  <ul class="measures" aria-label="How the deal measures up">
@@ -39,7 +40,6 @@
   <li data-m="arv"><b>After-repair value</b> <span class="v"></span><small><span class="note-stack"><span class="note-live"></span></span></small></li>
  </ul>
  <p class="afford" id="afford" hidden></p>
- <div class="actions"><button type="button" class="primary" id="offerBtn">Make this offer</button><button type="button" id="passBtn">Pass on it</button></div>
 </section>
 <section class="answer" id="answer" hidden aria-live="polite"></section>
 </main>

@@ -15,7 +15,8 @@
  const raw=A?A.load(KEY):null, protect=!!(raw&&!M.valid(raw));
  let R=raw&&M.valid(raw)?M.restore(raw):M.newRun(), L=M.current(R);
  function persist(){if(!A||protect||A.held[KEY])return false;const ok=A.save(KEY,M.serialize(R));if(ok)A.report('keymaster',M.summary(R));return ok;}
- const S={price:0,down:0.25,rehab:'refresh',phase:'run',noes:0,counter:null};
+ const S={price:0,down:0.25,rehab:'refresh',phase:'run',noes:0,counter:null,sure:false};
+ // $60,000 under asking is 75% on 14 Alder, so the stepper does not stop around 92.5%.
  const MIN=()=>L.ask-60000, MAX=()=>L.ask+20000;
 
  // A simple picture for each kind of home, drawn from the same shapes so the street looks like one street.
@@ -42,9 +43,13 @@
  }
 
  function street(){
-  const done=M.paying(R);
+  const done=M.paying(R), b=M.streetBudget(R);
   $('#goal').textContent=M.finished(R)?(M.won(R)?'You built a street that pays.':'The street is sold.'):
    'Own '+M.GOAL+' homes on Alder Street that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
+  $('#budget').hidden=!!M.finished(R);
+  $('#budget').textContent=!b.need?'':!b.possible?'You can\'t reach '+M.GOAL+' homes that pay from here.':
+   'You still need '+b.need+' homes that pay. Careful buys take about '+money(b.careful)+' of your '+money(R.cash)+'.';
+  $('#giveup').hidden=!!M.finished(R)||b.possible||!b.need;
   $('#cash').textContent=money(R.cash);
   $('#doors').innerHTML=M.STREET.map((h,i)=>{
    const got=R.homes[i];const cls=got?(got.bought?'owned'+(got.onCash<0?' costly':''):'gone'):(i===R.at?'now':'');
@@ -62,9 +67,16 @@
  }
  function outlookOf(choice){
   const o=M.yearOutlook(choice,L), r=M.respond(choice.price,L);
-  let line=o.counts?'This first year would count toward your street.':'This first year would not count toward your street.';
+  let line=pct(o.onCash)+' on the cash you put in. '+(o.counts?'This first year would count toward your street.':'This first year would not count toward your street.');
   if(!o.counts&&r.answer==='yes')line+=' The sellers can say yes to this price.';
   else if(o.counts&&r.answer!=='yes')line+=' Only if they take this offer.';
+  if(!M.cheapestPaying(L))line+=' No offer the sellers will take pays you in its first year.';
+  else{
+   const other=choice.down===0.25?0.2:0.25;
+   const pay=r.answer==='yes'?choice.price:r.answer==='counter'?r.price:choice.price;
+   const alt=M.yearOutlook({price:pay,down:other,rehab:choice.rehab},L);
+   if(alt.word!==o.word)line+=' At '+(other*100)+'% down this is '+alt.word.toLowerCase()+'.';
+  }
   return {o,line};
  }
  function cashWarning(choice){
@@ -76,10 +88,11 @@
    ?'Neither down payment nor a smaller plan for the work fits their price. Walk away, and keep your cash for a later door.'
    :'Nothing on this home fits, even with a lower offer, 20% down and less work. Pass, and keep your cash for a later door.');
   const bits=[];
-  if(hint.price)bits.push('a lower offer');
+  if(hint.price)bits.push('A lower offer');
   if(hint.down)bits.push('20% down');
-  if(hint.work)bits.push('less work');
-  return need+(bits.length?bits.join(' or ')+' would fit.':'A different mix of price, down payment and work would fit.');
+  if(hint.work)bits.push('Less work');
+  const how=bits.length?bits.join(' or '):'A different mix of price, down payment and work';
+  return need+how+' would fit.';
  }
 
  function render(){
@@ -124,7 +137,9 @@
  function show(html){
   const box=$('#answer');const reveal=box.hidden;
   box.innerHTML=html;box.hidden=false;
-  if(reveal)box.scrollIntoView&&box.scrollIntoView({block:'nearest'});
+  // On a phone the answer is below the fold. On a desktop the worksheet is already in view, and
+  // scrolling throws the offer controls by about 250px.
+  if(reveal&&window.innerWidth<860)box.scrollIntoView&&box.scrollIntoView({block:'nearest'});
  }
  const nextButton=()=>'<div class="actions"><button type="button" class="primary" data-act="next">'+(M.finished(R)?'See your street':'Next listing: '+M.STREET[R.at].address)+'</button></div>';
 
@@ -139,6 +154,13 @@
 
  function offer(){
   if(S.phase!=='run'||!M.canAfford(R,S,L))return;
+  if(!S.sure&&M.dooms(R,S)){
+   S.sure=true;
+   show('<h2>After this you can\'t reach '+M.GOAL+' homes that pay.</h2><p>This buy spends the cash the rest of the street needs.</p>'+
+    '<div class="actions"><button type="button" class="primary" data-act="anyway">Buy it anyway</button><button type="button" data-act="look">Keep looking</button></div>');
+   return;
+  }
+  S.sure=false;
   const r=M.respond(S.price,L);
   if(r.answer==='yes'){buy(S.price,'The sellers say yes to '+money(S.price)+'.');return;}
   if(r.answer==='counter'){S.phase='counter';S.counter=r.price;render();paintCounter();return;}
@@ -197,6 +219,7 @@
    '<div class="actions"><button type="button" class="primary" data-act="again">Walk Alder Street again</button></div>');
  }
 
+ function endStreet(){while(!M.finished(R))M.passHome(R);persist();showStreet();}
  function again(){R=M.newRun();persist();startListing();scrollTo&&scrollTo(0,0);$('#offerBtn').focus({preventScroll:true});}
 
  // On a phone the offer controls are a screen above the answer: take the player back to them.
@@ -204,13 +227,16 @@
 
  document.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b||b.disabled)return;
-  if(b.dataset.offer){S.price=Math.max(MIN(),Math.min(MAX(),S.price+ +b.dataset.offer));render();}
-  else if(b.dataset.down){S.down=+b.dataset.down;render();if(S.phase==='counter')paintCounter();}
-  else if(b.dataset.rehab){S.rehab=b.dataset.rehab;render();if(S.phase==='counter')paintCounter();}
+  if(b.dataset.offer){S.sure=false;S.price=Math.max(MIN(),Math.min(MAX(),S.price+ +b.dataset.offer));render();}
+  else if(b.dataset.down){S.sure=false;S.down=+b.dataset.down;render();if(S.phase==='counter')paintCounter();}
+  else if(b.dataset.rehab){S.sure=false;S.rehab=b.dataset.rehab;render();if(S.phase==='counter')paintCounter();}
   else if(b.id==='offerBtn')offer();
   else if(b.id==='passBtn')lose('You pass on '+L.address+'.');
   else if(b.dataset.act==='take')buy(S.counter,'You take their '+money(S.counter)+'.');
   else if(b.dataset.act==='walk')lose('You walk away.');
+  else if(b.dataset.act==='anyway')offer();
+  else if(b.dataset.act==='look'){S.sure=false;$('#answer').hidden=true;}
+  else if(b.dataset.act==='end')endStreet();
   else if(b.dataset.act==='next')next();
   else if(b.dataset.act==='again')again();
   else if(b.dataset.act==='change')backToOffer();
