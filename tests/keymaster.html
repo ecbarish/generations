@@ -203,11 +203,12 @@ document.querySelector('#run').onclick=async()=>{
   for(const [width,height] of [[1280,800],[1024,768],[820,1180],[390,844],[320,568]]){
    frame.style.width=width+'px';frame.style.height=height+'px';await wait(60);
    H.again();await wait(20);w.scrollTo(0,0);H.render();
-   const outlookGap=band(d.querySelector('#outlook'));
+   const live=d.querySelector('#outlook'), probeH=html=>{const p=d.createElement('div'); p.className='outlook'; p.style.cssText='position:absolute;left:-10000px;top:0;visibility:hidden;width:'+live.offsetWidth+'px'; p.innerHTML=html; d.body.appendChild(p); const h=p.offsetHeight; p.remove(); return h;};
+   let tallest=0; for(const html of H.outlookVariants()) tallest=Math.max(tallest,probeH(html));
+   const outlookGap=d.querySelector('#outlookSlot').offsetHeight-tallest;
    const budgetGap=band(d.querySelector('#budget'));
-   const line=parseFloat(w.getComputedStyle(d.querySelector('#outlook')).lineHeight)||22.4;
    blanks.push(width+' outlook '+outlookGap.toFixed(1)+' budget '+budgetGap.toFixed(1));
-   check(width+' outlook spare stays within one line ('+line.toFixed(1)+') and the cash note stays tight',outlookGap<=line+2&&budgetGap<8);
+   check(width+' outlook reserve is '+outlookGap.toFixed(1)+'px from the tallest real line, cash note spare '+budgetGap.toFixed(1)+'px',Math.abs(outlookGap)<=4&&budgetGap<8);
   }
   check('reserved boxes match their text ('+blanks.join('; ')+')',blanks.length===5);
   const cardTop=()=>d.querySelector('.measures').getBoundingClientRect().top+w.scrollY;
@@ -224,6 +225,24 @@ document.querySelector('#run').onclick=async()=>{
    check(width+' the card under the outlook moves 2px or less across the price sweep ('+worst.toFixed(1)+'px, '+steps+' steps)',worst<=2&&steps>=10);
   }
   check('the card under the outlook stays put ('+under.join('; ')+')',under.length===2);
+  const docTop=sel=>d.querySelector(sel).getBoundingClientRect().top+w.scrollY;
+  const replyShift=[];
+  for(const [width,height] of [[820,1180],[390,844]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(80);
+   H.again();await wait(30);w.scrollTo(0,0);
+   H.S.price=210000;H.S.down=0.25;H.S.rehab='refresh';H.S.phase='run';H.S.sure=false;
+   d.querySelector('#answer').hidden=true;H.render();click('#offerBtn');await wait(300);
+   let worst=0;
+   for(const rehab of ['full','asis']){
+    const before={month:docTop('.month'),outlook:docTop('#outlook'),card:docTop('.measures')};
+    click('[data-rehab="'+rehab+'"]');await wait(40);
+    const after={month:docTop('.month'),outlook:docTop('#outlook'),card:docTop('.measures')};
+    worst=Math.max(worst,Math.abs(after.month-before.month),Math.abs(after.outlook-before.outlook),Math.abs(after.card-before.card));
+   }
+   replyShift.push(width+' '+worst.toFixed(1));
+   check(width+' switching the work with the reply open moves the month table, outlook and card '+worst.toFixed(1)+'px',worst<=2);
+  }
+  check('the open reply keeps the worksheet still ('+replyShift.join('; ')+')',replyShift.length===2);
   H.again();await wait(20);
   H.S.price=216000;H.S.down=0.25;H.S.rehab='asis';H.render();
   const thin=text('#outlook');click('[data-down="0.2"]');const solid=text('#outlook');

@@ -134,6 +134,15 @@
   $('#passBtn').disabled=!running;$('#offerBtn').disabled=!running||!M.canAfford(R,choice,L);
  }
 
+ // Every outlook this home can show, one string each. Nothing here joins two sentences.
+ function outlookVariants(){
+  const out=[], seen=new Set(); if(!L)return out;
+  for(let price=MIN(); price<=MAX(); price+=2000) for(const down of [0.2,0.25]) for(const rehab of Object.keys(L.plans)){
+   const v=outlookOf({price,down,rehab}), html='<b>'+v.o.word+'.</b> '+v.line;
+   if(!seen.has(html)){seen.add(html); out.push(html);}
+  }
+  return out;
+ }
  // Tallest real outlook for this home at this width. Each variant is its own line, never two joined.
  function reserveOutlook(live){
   const slot=$('#outlookSlot'); if(!slot)return;
@@ -141,13 +150,11 @@
   const key=(L?L.id:'')+'|'+width;
   if(width>0&&key===outlookKey)return;
   const hold=$('#outlookHold'); hold.replaceChildren();
-  const seen=new Set();
-  const add=html=>{if(seen.has(html))return; seen.add(html); const s=document.createElement('span'); s.innerHTML=html; hold.appendChild(s);};
-  if(L)for(let price=MIN(); price<=MAX(); price+=2000) for(const down of [0.2,0.25]) for(const rehab of Object.keys(L.plans)){
-   const v=outlookOf({price,down,rehab}); add('<b>'+v.o.word+'.</b> '+v.line);
-  }
-  else add(live);
+  for(const html of (L?outlookVariants():[live])){const s=document.createElement('span'); s.innerHTML=html; hold.appendChild(s);}
   if(width>0)outlookKey=key;
+ }
+ function outlookBlock(view){
+  return '<div class="outlook-slot"><p class="outlook outlook-hold" aria-hidden="true">'+$('#outlookHold').innerHTML+'</p><p class="outlook '+(view.o.counts?'good':'bad')+'"><b>'+view.o.word+'.</b> '+view.line+'</p></div>';
  }
 
  // The reply sits under the choices. Bring its first action into view on every size, and only
@@ -167,7 +174,7 @@
   const choice=shownChoice(), view=outlookOf(choice), warn=cashWarning(choice), fits=!warn;
   show('<div class="actions"><button type="button" class="primary" data-act="take"'+(fits?'':' disabled')+'>Take '+money(choice.price)+'</button><button type="button" data-act="walk">Walk away</button></div>'+
    '<h2>They come back at '+money(choice.price)+'</h2><p>"We would like this done, but not at '+money(S.price)+'. We can do '+money(choice.price)+'."</p>'+
-   '<p class="outlook '+(view.o.counts?'good':'bad')+'"><b>'+view.o.word+'.</b> '+view.line+'</p>'+
+   outlookBlock(view)+
    (warn?'<p class="afford">'+warn+'</p>':'')+
    '<p><small>You can still change the down payment and the work.</small></p>');
  }
@@ -262,5 +269,5 @@
  });
 
  if(M.finished(R))showStreet();else startListing();
- window.__keymaster={M,S,run:()=>R,listing:()=>L,render,offer,next,again,arvNote,protect};   // the checks page drives the real buttons
+ window.__keymaster={M,S,run:()=>R,listing:()=>L,render,offer,next,again,arvNote,outlookVariants,protect};   // the checks page drives the real buttons
 })();
