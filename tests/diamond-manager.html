@@ -11,10 +11,72 @@ document.querySelector('#run').addEventListener('click',async()=>{
   try{
     backup=new Map(Object.keys(localStorage).filter(managed).map(k=>[k,localStorage.getItem(k)]));
     Object.keys(localStorage).filter(managed).forEach(k=>localStorage.removeItem(k));
-    frame=document.createElement('iframe');frame.title='Diamond Manager test instance';frame.src='../games/diamond-manager/index.html';
-    await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Game did not load within 20 seconds')),20000);frame.onload=()=>{clearTimeout(timer);resolve();};frame.onerror=()=>{clearTimeout(timer);reject(Error('Game load failed'));};document.querySelector('#game').appendChild(frame);});
-    if(!frame.contentWindow.__dm)throw Error('Run these checks on localhost, using serve.ps1.');
-    const list=frame.contentWindow.eval('('+diamondManagerChecks.toString()+')()');let fails=0;
+    document.querySelector('details').open=true;
+    frame=document.createElement('iframe');frame.title='Diamond Manager test instance';
+    document.querySelector('#game').appendChild(frame);
+    const loadAt=async(w,h)=>{
+      Object.keys(localStorage).filter(managed).forEach(k=>localStorage.removeItem(k));
+      frame.style.width=w+'px';frame.style.height=h+'px';
+      await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Game did not load within 20 seconds')),20000);frame.onload=()=>{clearTimeout(timer);resolve();};frame.onerror=()=>{clearTimeout(timer);reject(Error('Game load failed'));};frame.src='../games/diamond-manager/index.html?size='+w+'x'+h;});
+      const start=Date.now();
+      while(!frame.contentWindow.__dm&&Date.now()-start<5000) await new Promise(r=>setTimeout(r,40));
+      if(!frame.contentWindow.__dm)throw Error('Run these checks on localhost, using serve.ps1.');
+      frame.contentWindow.eval('introNote()');
+      await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r)));
+    };
+    const probe=(doc,win,selector)=>{
+      const el=doc.querySelector(selector); if(!el) return {ok:false,detail:'missing'};
+      const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+      const inView=r.width>0&&r.height>0&&r.top>=-0.5&&r.left>=-0.5&&r.bottom<=win.innerHeight+0.5&&r.right<=win.innerWidth+0.5;
+      let hit=false;
+      if(cx>=0&&cy>=0&&cx<win.innerWidth&&cy<win.innerHeight){ const top=doc.elementFromPoint(cx,cy); hit=!!(top&&(top===el||el.contains(top))); }
+      return {ok:inView&&hit,detail:'top '+r.top.toFixed(1)+'–'+r.bottom.toFixed(1)+' of '+win.innerHeight+' hit '+(hit?'true':'false')};
+    };
+    const layout=[];
+    for(const [w,h] of [[390,844],[375,667],[320,568],[844,390]]){
+      await loadAt(w,h);
+      const welcome=probe(frame.contentDocument,frame.contentWindow,'#n-ok');
+      layout.push({ok:welcome.ok,label:'DM-FINISH Let\'s play ball is on screen and receives a hit at '+w+'×'+h+' ('+welcome.detail+')'});
+      if(w===844&&h===390){
+        frame.contentDocument.querySelector('#n-ok').click();
+        frame.contentDocument.querySelector('#a-sim5').click();
+        const back=probe(frame.contentDocument,frame.contentWindow,'#n-ok');
+        const text=frame.contentDocument.querySelector('#n-ok')?.textContent||'';
+        layout.push({ok:back.ok&&text==='Back to the field',label:'DM-FINISH Back to the field after Sim 5 is on screen and receives a hit at 844×390 ('+back.detail+', "'+text+'")'});
+      }
+    }
+    const openRoster=async(w,h)=>{
+      await loadAt(w,h);
+      const doc=frame.contentDocument;
+      doc.querySelector('#n-ok').click();
+      doc.querySelector('#a-office').click();
+      await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r)));
+    };
+    const targetBox=(doc,selector,needWidth)=>{
+      const els=[...doc.querySelectorAll(selector)];
+      if(!els.length) return {ok:false,detail:'missing '+selector};
+      const boxes=els.map(el=>{const r=el.getBoundingClientRect(); return {w:r.width,h:r.height,t:(el.textContent||'').replace(/\s+/g,' ').trim().slice(0,16)};});
+      const bad=boxes.filter(b=>b.h<43.5||(needWidth&&b.w<43.5));
+      const s=boxes.find(b=>b.t==='▲')||boxes[0];
+      return {ok:!bad.length,detail:s.t+' '+s.w.toFixed(1)+'×'+s.h.toFixed(1)+(bad.length?' short '+bad.length:'')};
+    };
+    for(const [w,h] of [[1280,800],[1024,768],[390,844]]){
+      await openRoster(w,h);
+      const doc=frame.contentDocument;
+      const order=targetBox(doc,'[data-up],[data-down]',true);
+      layout.push({ok:order.ok,label:'DM-FINISH roster order buttons are at least 44×44 at '+w+'×'+h+' ('+order.detail+')'});
+      const tabs=targetBox(doc,'#tabs button',false);
+      layout.push({ok:tabs.ok,label:'DM-FINISH roster tabs are at least 44px tall at '+w+'×'+h+' ('+tabs.detail+')'});
+      const tbl=targetBox(doc,'.tbl button',false);
+      layout.push({ok:tbl.ok,label:'DM-FINISH roster table buttons are at least 44px tall at '+w+'×'+h+' ('+tbl.detail+')'});
+    }
+    await loadAt(320,568);
+    frame.contentDocument.querySelector('#n-ok').click();
+    await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r)));
+    const board=frame.contentDocument.querySelector('#scoreboard').getBoundingClientRect();
+    layout.push({ok:board.height<90,label:'DM-FINISH the 320px scoreboard stays a single record line (height '+board.height.toFixed(1)+')'});
+    await loadAt(800,600);
+    const list=frame.contentWindow.eval('('+diamondManagerChecks.toString()+')()').concat(layout);let fails=0;
     for(const c of list){const li=document.createElement('li');li.className=c.ok?'pass':'fail';li.textContent=(c.ok?'PASS — ':'FAIL — ')+c.label;res.appendChild(li);if(!c.ok)fails++;}
     sum.textContent=fails?`FAIL — ${fails} of ${list.length} checks.`:`PASS — ${list.length} checks.`;
   }catch(e){sum.textContent='FAIL — '+e.message;}
