@@ -460,7 +460,7 @@ button[aria-pressed="true"], button.ask, button.best {
   .lane { margin-top: 0; }
   .market-work { display: flex; flex-direction: column; max-height: calc(100vh - 6.4rem); position: sticky; top: 3.2rem; }
   .bulk { margin: 0.2rem 0 0; position: relative; top: auto; flex: 0 0 auto; z-index: 5; background: var(--paper); }
-  .stalls { margin-top: 0.1rem; overflow: auto; flex: 1 1 auto; min-height: 0; }
+  .stalls { margin-top: 0.1rem; overflow: auto; flex: 1 1 auto; min-height: 0; padding-top: 1rem; }
   #omen-now { margin: 0; min-height: 1.4rem; }
   #goal { min-height: 3.4rem; }
   #lane-goal { min-height: 1.35rem; }
