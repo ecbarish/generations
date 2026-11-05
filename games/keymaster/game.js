@@ -42,16 +42,31 @@
    '<small>'+money(r.cost)+' · then '+money((L.baseRent||0)+r.rent)+' a month in rent</small></button>').join('');
  }
 
+ // The cash note stays inside the reserved lines. A shorter win sentence picks up one true clause
+ // when a font wraps the reserve a line lower, and never grows the row.
+ function fitBudget(text){
+  const slot=$('.budget-slot'), live=$('#budget');
+  const base=slot.offsetHeight;
+  const spare=()=>{const box=slot.getBoundingClientRect(), range=document.createRange(); range.selectNodeContents(live); let ink=live.getBoundingClientRect().top;
+   for(const r of range.getClientRects()) if(r.width||r.height) ink=Math.max(ink,r.bottom); return box.bottom-ink;};
+  live.textContent=text;
+  // A font that wraps the reserve a line or two lower gets those lines as sentences, not a blank.
+  for(const sentence of ['The others were sold.','You can walk it again.']){
+   if(spare()<=8) return;
+   const line=document.createElement('span'); line.style.display='block'; line.textContent=sentence;
+   live.appendChild(line);
+   if(slot.offsetHeight>base+2) line.remove();
+  }
+ }
  function street(){
   const done=M.paying(R), b=M.streetBudget(R), offers=R.offers||0;
   const bought=R.homes.filter(h=>h.bought).length;
   // The goal keeps this sentence, including on a win, so the doors stay put and the title is not repeated.
   $('#goal').textContent='Own '+M.GOAL+' homes on Alder Street that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
   $('#budget').hidden=false;
-  $('#budget').textContent=M.finished(R)
-   ?'You bought '+bought+(bought===1?' home':' homes')+' and made '+offers+(offers===1?' offer':' offers')+'. You still have '+money(R.cash)+' of your savings.'
-   :!b.need?'You have the homes that pay.':!b.possible?'You can\'t reach '+M.GOAL+' homes that pay from here.'
-   :'You still need '+b.need+(b.need===1?' home':' homes')+' that pay. Careful buys take about '+money(b.careful)+' of your '+money(R.cash)+'.';
+  if(M.finished(R)) fitBudget('You bought '+bought+(bought===1?' home':' homes')+' and made '+offers+(offers===1?' offer':' offers')+'. You still have '+money(R.cash)+' of your savings.');
+  else $('#budget').textContent=!b.need?'You have the homes that pay.':!b.possible?'You can\'t reach '+M.GOAL+' homes that pay from here.':
+   'You still need '+b.need+(b.need===1?' home':' homes')+' that pay. Careful buys take about '+money(b.careful)+' of your '+money(R.cash)+'.';
   $('#giveup').hidden=!!M.finished(R)||b.possible||!b.need;
   $('#cash').textContent=money(R.cash);
   $('#doors').innerHTML=M.STREET.map((h,i)=>{
