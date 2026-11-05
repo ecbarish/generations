@@ -286,7 +286,7 @@
       }
       return null;
     }
-    if (/^Choose /.test(goal)) {
+    if (/^Pick bell or coal/.test(goal) || /^Choose /.test(goal)) {
       var desk = M.deskChoice(state);
       var card = desk && desk.cards[0];
       return {
@@ -667,7 +667,7 @@ function browserGreedy() {
                 M.collectCaptains(state, sim, 1);
                 bridge.render();
                 const goal = (document.querySelector('#goal') || {}).textContent || '';
-                const names = /Need /.test(goal) || /Choose /.test(goal) || /Ask Capt/.test(goal) || /^Row /.test(goal) || /^Sign /.test(goal) || /^Raise the /.test(goal) || /^Light the /.test(goal) || /^Pack /.test(goal) || /^Set sail/.test(goal) || /^Do the harbour work/.test(goal) || /^Run the errand/.test(goal) || /^Buy /.test(goal) || /^Tie up /.test(goal);
+                const names = /Need /.test(goal) || /Choose /.test(goal) || /^Pick bell/.test(goal) || /Ask Capt/.test(goal) || /^Row /.test(goal) || /^Sign /.test(goal) || /^Raise the /.test(goal) || /^Light the /.test(goal) || /^Pack /.test(goal) || /^Set sail/.test(goal) || /^Do the harbour work/.test(goal) || /^Run the errand/.test(goal) || /^Buy /.test(goal) || /^Tie up /.test(goal);
                 if (!names) return { ended: false, ending: state.played, maxGap: stuck, goal: goal, fail: 'goal' };
                 const clicked = bridge.followGoal();
                 if (clicked) { actions.push(state.played); stuck = 0; }

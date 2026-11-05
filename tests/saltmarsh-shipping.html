@@ -1719,7 +1719,7 @@ document.querySelector('#run').onclick = async function () {
       var where = '';
       function targets() {
         var out = {};
-        doc.querySelectorAll('[data-bulk="max"], [data-act="buy"], [data-act="route"], [data-act="light"]').forEach(function (el) {
+        doc.querySelectorAll('[data-bulk="max"], [data-act="buy"], [data-act="route"], [data-act="gear"], [data-act="light"]').forEach(function (el) {
           if (!el.offsetParent) return;
           var li = el.closest('[data-i]');
           var key = (el.dataset.bulk ? 'Max' : el.dataset.act) + (li ? li.dataset.i : '') + (el.dataset.route || el.dataset.light || '');
@@ -1753,11 +1753,73 @@ document.querySelector('#run').onclick = async function () {
           if (jump > worst) { worst = jump; where = key + ' at ' + sec + 's'; }
         });
       }
-      check('at ' + width + ' by ' + height + ' ten minutes of play leaves Max, Buy, Sign, Raise and Light (' + where + ' ' + worst.toFixed(1) + 'px)', worst < 2);
+      check('at ' + width + ' by ' + height + ' ten minutes of play leaves Max, Buy, Sign, Sail, Raise and Light (' + where + ' ' + worst.toFixed(1) + 'px)', worst < 2);
     }
     await organicSession(390, 844);
     await organicSession(375, 812);
     await organicSession(320, 568);
+    async function signClear(width, height) {
+      var box = await loadFrame('sign clear ' + width, '&state=fleet');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 80); });
+      var st = win.__saltmarsh.state;
+      st.cash = 1e15;
+      st.boats[2].owned = 10;
+      st.routes.kelp = 1;
+      st.routes.gull = 1;
+      st.forks.quay = 'lamp';
+      st.pilot = null;
+      win.__saltmarsh.render();
+      var goal = doc.querySelector('#goal').textContent || '';
+      check('at ' + width + ' by ' + height + ' the bell and coal choice is named on the goal (' + goal.slice(0, 70) + ')', /bell/i.test(goal) && /coal/i.test(goal) && /desk/i.test(goal));
+      var choice = doc.querySelector('#choice');
+      var sheetTop = choice.getBoundingClientRect().top;
+      var covered = '';
+      Array.prototype.forEach.call(doc.querySelectorAll('[data-act="route"], [data-act="gear"]'), function (el) {
+        var rect = el.getBoundingClientRect();
+        var center = rect.top + rect.height / 2;
+        var shift = center - (sheetTop - 36);
+        win.scrollBy(0, shift);
+        rect = el.getBoundingClientRect();
+        var x = rect.left + rect.width / 2;
+        var y = rect.top + rect.height / 2;
+        if (y < 0 || y > win.innerHeight) { covered = el.textContent.slice(0, 18) + ' off screen'; return; }
+        var hit = doc.elementFromPoint(x, y);
+        if (hit && hit.closest && hit.closest('#choice, #choice-back')) covered = el.textContent.slice(0, 18) + ' under ' + (hit.id || hit.className || 'choice');
+      });
+      var take = choice.querySelector('button');
+      var takeRect = take.getBoundingClientRect();
+      var takeHit = doc.elementFromPoint(takeRect.left + takeRect.width / 2, takeRect.top + takeRect.height / 2);
+      var takeOk = !!takeHit && (takeHit === take || take.contains(takeHit));
+      check('at ' + width + ' by ' + height + ' Sign and Sail stay clear of the desk choice (' + (covered || 'clear') + ')', covered === '' && takeOk && choice.hidden === false);
+    }
+    await signClear(320, 568);
+    var litBox = await loadFrame('first lit', '&state=fleet');
+    litBox.style.width = '390px';
+    litBox.style.height = '844px';
+    var litWin = litBox.contentWindow;
+    var litDoc = litBox.contentDocument;
+    await new Promise(function (resolve) { setTimeout(resolve, 80); });
+    var litState = litWin.__saltmarsh.state;
+    litState.cash = 1e15;
+    litState.boats[2].owned = 10;
+    litState.boats[3].owned = 16;
+    litState.captains[3].hired = true;
+    ['kelp', 'gull', 'tea', 'headland', 'reed'].forEach(function (id) { litState.routes[id] = 1; });
+    litState.voyages = 5;
+    litState.forks.quay = 'lamp';
+    litState.pilot = 'bell';
+    litState.lights.pier = 1;
+    litWin.__saltmarsh.render();
+    var beforeLit = litDoc.querySelector('#lights-note').textContent;
+    var lightBtn = litDoc.querySelector('[data-act="light"][data-light="pier"]');
+    if (lightBtn) lightBtn.click();
+    var afterLit = litDoc.querySelector('#lights-note').textContent;
+    var aimLit = litDoc.querySelector('#aim').textContent;
+    check('lighting the first tower shows 1 lit (' + beforeLit + ' -> ' + afterLit + ')', litState.lights.pier === 2 && litWin.Saltmarsh.lightsLit(litState) === 1 && /1 lit/.test(afterLit) && /One is burning/.test(aimLit) && /0 lit/.test(beforeLit));
     var pressBox = await loadFrame('press remembers');
     pressBox.style.width = '390px';
     pressBox.style.height = '844px';
@@ -2100,7 +2162,7 @@ document.querySelector('#run').onclick = async function () {
         if (/^(Raise|Light) the /.test(text)) return 'light';
         if (/^Buy |^Tie up /.test(text)) return 'boat';
         if (/^Ask /.test(text)) return 'hire';
-        if (/^Choose /.test(text)) return 'choice';
+        if (/^Choose /.test(text) || /^Pick bell/.test(text)) return 'choice';
         if (/^Row /.test(text)) return 'row';
         return 'other';
       }
@@ -2128,7 +2190,7 @@ document.querySelector('#run').onclick = async function () {
         });
         var goalNow = goalText();
         if (openAt == null && doc.querySelector('#provision') && doc.querySelector('#provision').hidden === false) openAt = state.played;
-        var goalNames = /Need /.test(goalNow) || /Choose /.test(goalNow) || /Ask Capt/.test(goalNow) || /^Row /.test(goalNow) || /^Sign /.test(goalNow) || /^Raise the /.test(goalNow) || /^Light the /.test(goalNow) || /^Pack /.test(goalNow) || /^Set sail/.test(goalNow) || /^Do the harbour work/.test(goalNow) || /^Run the errand/.test(goalNow) || /^Buy /.test(goalNow) || /^Tie up /.test(goalNow);
+        var goalNames = /Need /.test(goalNow) || /Choose /.test(goalNow) || /^Pick bell/.test(goalNow) || /Ask Capt/.test(goalNow) || /^Row /.test(goalNow) || /^Sign /.test(goalNow) || /^Raise the /.test(goalNow) || /^Light the /.test(goalNow) || /^Pack /.test(goalNow) || /^Set sail/.test(goalNow) || /^Do the harbour work/.test(goalNow) || /^Run the errand/.test(goalNow) || /^Buy /.test(goalNow) || /^Tie up /.test(goalNow);
         if (!goalNames) {
           check(label + ' goal names an action (' + goalNow + ')', false);
           return { ended: false, sawLight: sawLight, ending: state.played, maxGap: stuck };

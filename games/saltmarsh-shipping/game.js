@@ -527,6 +527,8 @@
       gearHost.className = 'route-card';
       box.appendChild(gearHost);
     }
+    /* Sail stays above the route cards, so a new Sign row cannot push it down. */
+    if (host && gearHost.compareDocumentPosition(host) & Node.DOCUMENT_POSITION_PRECEDING) box.insertBefore(gearHost, host);
     if (!gear) {
       if (gearHost.dataset.hold === '1' && gearHost.dataset.holdSig === sig) gearHost.hidden = false;
       else if (gearHost.dataset.id && gearHost.hidden === false && gearHost.offsetHeight > 0) {
@@ -615,9 +617,10 @@
     box.hidden = !phase.lighthousesOpen || state.ended;
     if (box.hidden) return;
     var offers = M.lightOffers(state, true);
-    $('#lights-note').textContent = M.allLightsLit(state)
-      ? 'Every lighthouse on the coast is burning.'
-      : 'Four lighthouses. Each one changes the routes. Pick which one to raise next.';
+    var burning = M.lightsLit(state);
+    $('#lights-note').textContent = burning >= 4
+      ? '4 lit. Every lighthouse on the coast is burning.'
+      : burning + ' lit. Four lighthouses. Each one changes the routes.';
     var host = $('#light-cards');
     if (M.allLightsLit(state) && M.finaleOffer && M.finaleOffer(state)) {
       if (host.dataset.sig !== 'folded') {
@@ -1463,6 +1466,11 @@
         ? document.querySelector('#route-cards [data-route="' + routeAct.id + '"] [data-act="route"]')
         : null;
       if (usableControl(routeBtn)) { routeBtn.click(); return true; }
+      return false;
+    }
+    if (/^Pick bell or coal/.test(goal)) {
+      var bellBtn = document.querySelector('#choice button');
+      if (usableControl(bellBtn)) { bellBtn.click(); return true; }
       return false;
     }
     if (/^Choose fresh|^Choose a pilot/.test(goal)) {

@@ -40,8 +40,16 @@
   }
 
   function choiceGoal(state) {
-    var desk = window.Saltmarsh.deskChoice(state);
-    return desk ? desk.goal : '';
+    var M = window.Saltmarsh;
+    var desk = M.deskChoice(state);
+    if (!desk) return '';
+    if (desk.id === 'pilot') {
+      var cost = desk.cards && desk.cards[0] ? desk.cards[0].cost : 0;
+      var need = M.needMore(state, cost);
+      var line = 'Pick bell or coal on the desk.';
+      return need ? line + ' ' + need + ' more.' : line;
+    }
+    return desk.goal;
   }
 
   /* When the next contract is more than about a minute away, name a boat instead. */

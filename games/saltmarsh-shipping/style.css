@@ -302,6 +302,8 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   inset: 0;
   z-index: 5;
   background: rgba(35, 57, 76, 0.45);
+  /* The dimmer shows the desk is waiting. It must not swallow a tap on Sign or Sail. */
+  pointer-events: none;
 }
 #choice.choice {
   position: fixed;
