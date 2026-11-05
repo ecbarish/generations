@@ -56,9 +56,11 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .verdict{font-size:1.25rem;font-weight:800;margin:10px 0 2px}
 /* KM-STREET: the goal, your cash and the five doors of Alder Street */
 .street{display:grid;gap:6px;grid-template-columns:1fr auto;align-items:center}
-.goal-slot,.budget-slot{display:grid}.goal-slot>*,.budget-slot>*{grid-area:1/1;margin:0}
+.goal-slot,.budget-slot{display:grid}.goal-slot>*,.budget-slot>*{grid-area:1/1;margin:0;align-self:start}
 .goal-hold,.budget-hold{visibility:hidden}
+.budget-hold{display:grid}.budget-hold>span{grid-area:1/1}
 .goal{margin:0;font-weight:700}.cash{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.cash b{display:inline-block;min-width:9ch;text-align:right}
 .budget-slot,#giveup,#finale{grid-column:1/-1}
 .budget-slot{margin:4px 0 0}
 .finale{background:transparent;border:0;padding:0}

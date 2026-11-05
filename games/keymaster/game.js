@@ -43,12 +43,15 @@
  }
 
  function street(){
-  const done=M.paying(R), b=M.streetBudget(R);
-  $('#goal').textContent=M.finished(R)?(M.won(R)?'You built a street that pays.':'The street is sold.'):
-   'Own '+M.GOAL+' homes on Alder Street that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
-  $('#budget').hidden=!!M.finished(R);
-  $('#budget').textContent=!b.need?'':!b.possible?'You can\'t reach '+M.GOAL+' homes that pay from here.':
-   'You still need '+b.need+' homes that pay. Careful buys take about '+money(b.careful)+' of your '+money(R.cash)+'.';
+  const done=M.paying(R), b=M.streetBudget(R), offers=R.offers||0;
+  const bought=R.homes.filter(h=>h.bought).length;
+  // The goal keeps this sentence, including on a win, so the doors stay put and the title is not repeated.
+  $('#goal').textContent='Own '+M.GOAL+' homes on Alder Street that each pay you in their first year: '+done+' of '+M.GOAL+' so far.';
+  $('#budget').hidden=false;
+  $('#budget').textContent=M.finished(R)
+   ?'You bought '+bought+(bought===1?' home':' homes')+' and made '+offers+(offers===1?' offer':' offers')+'. You still have '+money(R.cash)+' of your savings.'
+   :!b.need?'You have the homes that pay.':!b.possible?'You can\'t reach '+M.GOAL+' homes that pay from here.'
+   :'You still need '+b.need+(b.need===1?' home':' homes')+' that pay. Careful buys take about '+money(b.careful)+' of your '+money(R.cash)+'.';
   $('#giveup').hidden=!!M.finished(R)||b.possible||!b.need;
   $('#cash').textContent=money(R.cash);
   $('#doors').innerHTML=M.STREET.map((h,i)=>{
