@@ -79,10 +79,14 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
  .actions{flex-wrap:nowrap;margin-top:8px}
 }
 @media (max-width:859px) and (max-height:700px){
+ .desk{padding:4px 8px 8px}
  header .tag{display:none}
- header h1{font-size:1.15rem}
- section{padding:8px 10px}
- .street{gap:4px}
+ header h1{font-size:1.05rem}
+ .home{min-height:32px}
+ section{padding:4px 8px}
+ .street{gap:2px}
+ .goal{font-size:.9rem}
+ .budget{font-size:.8rem}
  .goal-slot,.cash{grid-column:1/-1}
  .cash{text-align:left}
  .doors li{padding:2px 1px}
