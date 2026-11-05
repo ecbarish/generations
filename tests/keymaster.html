@@ -63,6 +63,10 @@ document.querySelector('#run').onclick=async()=>{
   check('the year at the asking price with the refresh would not count',askYear.word==='A costly buy'&&askYear.counts===false);
   const lowYear=M.yearOutlook({price:216000,down:0.25,rehab:'refresh'},home('alder14'));
   check('the year at the sellers\' lowest with the refresh would count',lowYear.word==='A great buy'&&lowYear.counts===true);
+  const askDeal=M.analyze({price:240000,down:0.25,rehab:'refresh'},home('alder14'));
+  const lowDeal=M.analyze({price:216000,down:0.2,rehab:'full'},home('alder14'));
+  const askLine=H.arvNote(askDeal,8000),lowLine=H.arvNote(lowDeal,18000);
+  check('the after-repair note names that analysis\'s own price',/Paying \$240,000/.test(askLine)&&/Paying \$216,000/.test(lowLine)&&!/Paying \$240,000/.test(lowLine));
   const broke=M.newRun();broke.cash=20000;
   const none=M.affordHint(broke,{price:150000,down:0.25,rehab:'refresh'},home('alder31'),90000);
   check('twenty thousand dollars fits no cottage offer',none.fits===false&&none.any===false);

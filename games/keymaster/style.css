@@ -30,7 +30,6 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .month tr.total.good td{color:var(--good)}.month tr.total.bad td{color:var(--bad)}
 .measures{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:1fr 1fr}
 .measures li{border:1px solid var(--line);border-radius:8px;padding:8px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
-.measures li b,.measures .v{min-height:2.52em}
 .measures .v{white-space:nowrap}
 .measures small{grid-column:1/-1;color:var(--soft);font-size:.8rem}
 .note-stack{display:grid}.note-stack>span{grid-area:1/1}.note-hold{visibility:hidden}

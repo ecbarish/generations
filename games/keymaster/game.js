@@ -4,6 +4,8 @@
 (function(){'use strict';
  const M=window.KeymasterModel, $=s=>document.querySelector(s);
  const money=n=>(n<0?'−$':'$')+Math.abs(Math.round(n)).toLocaleString('en-US');
+ // The price in this sentence is the analysis's own price, not whatever offer is on the worksheet.
+ const arvNote=(x,cost)=>'What it is worth let, from its net income. Paying '+money(x.price)+' plus '+money(cost)+' of work leaves you '+(x.equity>=0?money(x.equity)+' of equity on day one.':money(-x.equity)+' under water on day one.');
  const pct=(n,d=1)=>(n*100).toFixed(d)+'%';
  const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
  // KM-SAVE: shared/engine.js keeps backups and refuses to overwrite a save from a newer version. A damaged save is
@@ -94,7 +96,6 @@
   $('#flow').textContent=money(a.cashFlow);
   $('#flow').closest('tr').className='total '+(view.o.counts?'good':a.cashFlow<0?'bad':'');
   const cocNote=x=>'Your yearly cash flow, '+money(x.cashFlow*12)+', on the '+money(x.cashIn)+' you put in (down payment, closing costs, the work).';
-  const arvNote=(x,cost)=>'What it is worth let, from its net income. Paying '+money(x.price)+' plus '+money(cost)+' of work leaves you '+(x.equity>=0?money(x.equity)+' of equity on day one.':money(-x.equity)+' under water on day one.');
   // Wide stand-ins, so a shorter price cannot unwrap the note onto fewer lines.
   const COC_HOLD='Your yearly cash flow, $88,888, on the $888,888 you put in (down payment, closing costs, the work).';
   const ARV_HOLD='What it is worth let, from its net income. Paying $888,888 plus $88,888 of work leaves you $888,888 under water on day one.';
@@ -216,5 +217,5 @@
  });
 
  if(M.finished(R))showStreet();else startListing();
- window.__keymaster={M,S,run:()=>R,listing:()=>L,render,offer,next,again,protect};   // the checks page drives the real buttons
+ window.__keymaster={M,S,run:()=>R,listing:()=>L,render,offer,next,again,arvNote,protect};   // the checks page drives the real buttons
 })();
