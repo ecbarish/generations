@@ -150,8 +150,9 @@ function showStatus() {
     <div class="st-note">${g.good} ${g.cost}</div>
     ${Object.keys(S.mem).length ? `<div class="st-note">Soul memories: ${Object.keys(S.mem).length}</div>` : ''}`;
   el.hidden = false; el.querySelector('button')?.focus({ preventScroll: true });
+  if (typeof syncReading === 'function') syncReading();
 }
-document.addEventListener('click', e => { if (e.target.closest('#status [data-close]')) { document.getElementById('status').hidden = true; if (sceneState) D.el.focus(); else document.getElementById('statusBtn').focus(); } if (e.target.closest('#statusBtn')) showStatus(); });
+document.addEventListener('click', e => { if (e.target.closest('#status [data-close]')) { document.getElementById('status').hidden = true; if (typeof syncReading === 'function') syncReading(); if (sceneState) D.el.focus(); else document.getElementById('statusBtn').focus(); } if (e.target.closest('#statusBtn')) showStatus(); });
 
 /* ---------------------------------------------------------------- the corner of the screen */
 function renderHUD() {

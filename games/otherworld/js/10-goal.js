@@ -92,3 +92,15 @@ finish = function (endId) { finishBeforeGoal(endId); refreshGoal(); };
 const beginBeforeGoal = begin;
 begin = function (world, gift) { beginBeforeGoal(world, gift); refreshGoal(); };
 addEventListener('resize', placeBelowHud);
+/* Short landscape docks the dialogue beside the crystal. That dock is only for an open reading window. */
+function syncReading() {
+  const stage = document.getElementById('stage');
+  if (!stage) return;
+  const status = document.getElementById('status'), ledger = document.getElementById('ledger');
+  stage.classList.toggle('reading', !!(status && !status.hidden) || !!(ledger && !ledger.hidden));
+}
+for (const id of ['status', 'ledger']) {
+  const el = document.getElementById(id);
+  if (el) new MutationObserver(syncReading).observe(el, { attributes: true, attributeFilter: ['hidden'] });
+}
+syncReading();

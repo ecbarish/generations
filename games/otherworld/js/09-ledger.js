@@ -52,8 +52,9 @@ function showLedger() {
   const status = document.getElementById('status'); if (status) status.hidden = true;
   const el = document.getElementById('ledger'); el.innerHTML = ledgerHTML(); el.hidden = false;
   el.querySelector('button')?.focus({ preventScroll: true }); el.scrollTop = 0;
+  if (typeof syncReading === 'function') syncReading();
 }
-function hideLedger() { document.getElementById('ledger').hidden = true; document.getElementById('ledgerBtn').focus(); }
+function hideLedger() { document.getElementById('ledger').hidden = true; if (typeof syncReading === 'function') syncReading(); document.getElementById('ledgerBtn').focus(); }
 (() => {
   const stage = document.getElementById('stage'), sec = document.createElement('section');
   sec.id = 'ledger'; sec.className = 'status ledger-panel'; sec.hidden = true;

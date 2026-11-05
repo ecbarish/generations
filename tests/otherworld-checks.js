@@ -632,6 +632,43 @@ function otherworldFinishFrame() {
       if (!first) throw Error(shown + ' of ' + memories.length + ' memories fully visible, window ' + Math.round(box(ledger).height) + 'px');
       return true;
     });
+    if (innerWidth === 844 && innerHeight === 390) {
+      const choiceHit = (label) => {
+        const buttons = [...ow.D.el.querySelectorAll('.dlg-choices button')].filter(el => el.getClientRects().length);
+        const last = buttons[buttons.length - 1];
+        if (!last) throw Error(label + ': no choice');
+        const r = last.getBoundingClientRect();
+        const dlg = ow.D.el.getBoundingClientRect();
+        if (r.top < -0.5 || r.bottom > innerHeight + 0.5 || r.left < -0.5 || r.right > innerWidth + 0.5) throw Error(label + ': choice ' + Math.round(r.left) + '-' + Math.round(r.right) + 'x' + Math.round(r.top) + '-' + Math.round(r.bottom) + ' of ' + innerWidth + 'x' + innerHeight);
+        const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        if (!hit || !last.contains(hit)) throw Error(label + ': hit ' + (hit ? (hit.id || hit.className || hit.tagName) : 'nothing') + ' at ' + Math.round(r.left + r.width / 2) + ',' + Math.round(r.top + r.height / 2));
+        if (label === 'closed' && dlg.width < innerWidth * 0.7) throw Error('closed: dialogue stayed docked at ' + Math.round(dlg.width) + 'px');
+        if (label !== 'closed') {
+          const panel = document.getElementById(label === 'crystal' ? 'status' : 'ledger').getBoundingClientRect();
+          if (dlg.right > panel.left + 1) throw Error(label + ': dialogue runs under the reading window');
+        }
+        return /Deepwood/.test(last.textContent);
+      };
+      const askMira = () => { ow.run('a_mira'); ow.D.skip(); if (typeof syncReading === 'function') syncReading(); };
+      check('844×390: the last choice is fully in view and tappable while the crystal and Memories are closed', () => {
+        document.getElementById('status').hidden = true; document.getElementById('ledger').hidden = true;
+        if (typeof syncReading === 'function') syncReading();
+        askMira();
+        return choiceHit('closed');
+      });
+      check('844×390: the last choice is fully in view and tappable while the crystal is open', () => {
+        document.getElementById('ledger').hidden = true; showStatus();
+        if (typeof syncReading === 'function') syncReading();
+        askMira();
+        return choiceHit('crystal') && !document.getElementById('status').hidden;
+      });
+      check('844×390: the last choice is fully in view and tappable while Memories are open', () => {
+        showLedger();
+        if (typeof syncReading === 'function') syncReading();
+        askMira();
+        return choiceHit('memories') && !document.getElementById('ledger').hidden && document.getElementById('status').hidden;
+      });
+    }
   } finally {
     document.getElementById('ledger').hidden = true; document.getElementById('status').hidden = true; panel().hidden = true; ow.S = old;
   }

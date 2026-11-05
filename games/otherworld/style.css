@@ -85,6 +85,6 @@ button.st-close{font:inherit;font-size:15px;margin:0 0 8px;padding:10px 14px;bor
   button.st-close{margin-bottom:2px}
 }
 @media(max-height:450px) and (min-width:700px){
-  .dlg-otherworld.dlg{left:8px;right:auto;width:calc(100vw - 348px);transform:none;bottom:8px}
+  .stage.reading .dlg-otherworld.dlg{left:8px;right:auto;width:calc(100vw - 348px);max-width:calc(100vw - 348px);transform:none;bottom:8px;max-height:calc(100dvh - var(--ow-below-hud,112px) - 8px)}
   .status{left:auto;right:8px;width:min(320px,40vw);max-height:calc(100dvh - var(--ow-below-hud,112px) - 8px)}
 }
