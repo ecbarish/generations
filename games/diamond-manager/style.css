@@ -16,6 +16,7 @@ header{flex:none;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding
 #note{position:absolute;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 24px));max-height:calc(100% - 140px);overflow:auto;background:#173e41f7;border:2px solid #86a28c;border-radius:10px;padding:18px 22px;box-shadow:0 10px 30px #0008}
 #note h2{font:700 24px Georgia,serif;margin:0 0 8px}#note .who{color:var(--gold);font-size:13px;letter-spacing:.1em;text-transform:uppercase}#note ul{padding-left:20px}#note .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}#note .row>*{flex:1}
 #actions{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:8px;width:min(260px,calc(100% - 24px))}
+#actions button{min-height:44px}
 #actions .money{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px}
 #office{position:fixed;z-index:10;inset:0;background:#06171cb0;display:flex;justify-content:center;padding:12px}
 .clip{color-scheme:light;width:min(980px,100%);height:100%;min-height:0;display:flex;flex-direction:column;background:#efe6cf;color:#1d2a2a;border-radius:10px;border:6px solid #7a5a36;box-shadow:0 10px 40px #000a}
@@ -30,6 +31,7 @@ header{flex:none;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}.pick{display:flex;align-items:center;gap:6px;font-size:14px;padding:3px 0}.pick input{width:20px;height:20px}
 .upg{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.upg>div{border:1px solid #c8b890;border-radius:8px;padding:10px;background:#fffdf4}.dots{letter-spacing:3px;color:#b08a3a}
 .scroll-x{overflow-x:auto}
+td.sign{position:sticky;right:0;z-index:1;background:#fff8e6}
 dialog{background:#173e41;color:var(--ink);border:2px solid #86a28c;border-radius:8px;padding:24px;width:min(600px,94vw);max-height:90dvh;overflow:auto}dialog::backdrop{background:#06171ccc}
 @media(max-width:700px){.brand{font-size:18px}#feed{max-height:30%;bottom:auto;top:auto;bottom:150px}#actions{left:12px;width:auto;flex-direction:row;flex-wrap:wrap}#actions>*{flex:1}#actions .money{flex-basis:100%}.cols{grid-template-columns:1fr}#scoreboard{font-size:12px}.hide-sm{display:none}}
 @media(max-width:360px){#scoreboard{font-size:11px;padding:6px 8px}.sb-line{font-size:11px;gap:6px}}

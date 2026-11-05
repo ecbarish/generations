@@ -8,22 +8,23 @@ document.querySelector('#run').addEventListener('click',async()=>{
   const button=document.querySelector('#run'),sum=document.querySelector('#summary'),res=document.querySelector('#results');
   button.disabled=true;sum.textContent='Running…';res.replaceChildren();let frame,backup;
   const managed=k=>k==='diamond-manager-save-v1'||k==='arcade-index-v1'||k.startsWith('arcade-backup:diamond-manager-save-v1:')||k.startsWith('arcade-backup:arcade-index-v1:');
+  const wipeManaged=()=>Object.keys(localStorage).filter(managed).forEach(k=>localStorage.removeItem(k));
   try{
     backup=new Map(Object.keys(localStorage).filter(managed).map(k=>[k,localStorage.getItem(k)]));
-    Object.keys(localStorage).filter(managed).forEach(k=>localStorage.removeItem(k));
+    wipeManaged();
     document.querySelector('details').open=true;
     frame=document.createElement('iframe');frame.title='Diamond Manager test instance';
     document.querySelector('#game').appendChild(frame);
-    const loadAt=async(w,h)=>{
-      Object.keys(localStorage).filter(managed).forEach(k=>localStorage.removeItem(k));
+    const loadGame=async(w,h)=>{
+      wipeManaged();
       frame.style.width=w+'px';frame.style.height=h+'px';
-      await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Game did not load within 20 seconds')),20000);frame.onload=()=>{clearTimeout(timer);resolve();};frame.onerror=()=>{clearTimeout(timer);reject(Error('Game load failed'));};frame.src='../games/diamond-manager/index.html?size='+w+'x'+h;});
+      await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Game did not load within 20 seconds')),20000);frame.onload=()=>{clearTimeout(timer);resolve();};frame.onerror=()=>{clearTimeout(timer);reject(Error('Game load failed'));};frame.src='../games/diamond-manager/index.html?size='+w+'x'+h+'&wipe='+Date.now();});
       const start=Date.now();
       while(!frame.contentWindow.__dm&&Date.now()-start<5000) await new Promise(r=>setTimeout(r,40));
       if(!frame.contentWindow.__dm)throw Error('Run these checks on localhost, using serve.ps1.');
-      frame.contentWindow.eval('introNote()');
       await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r)));
     };
+    const loadAt=async(w,h)=>{ await loadGame(w,h); frame.contentWindow.eval('introNote()'); await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r))); };
     const probe=(doc,win,selector)=>{
       const el=doc.querySelector(selector); if(!el) return {ok:false,detail:'missing'};
       const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
@@ -33,6 +34,9 @@ document.querySelector('#run').addEventListener('click',async()=>{
       return {ok:inView&&hit,detail:'top '+r.top.toFixed(1)+'–'+r.bottom.toFixed(1)+' of '+win.innerHeight+' hit '+(hit?'true':'false')};
     };
     const layout=[];
+    await loadGame(1280,800);
+    const wipedNote=frame.contentDocument.querySelector('#note'), wipedBtn=frame.contentDocument.querySelector('#n-ok');
+    layout.push({ok:!!(wipedNote&&!wipedNote.hidden&&wipedBtn&&wipedBtn.textContent==="Let's play ball"&&wipedNote.textContent.includes('Welcome to Lamplight Field')),label:'DM-FOLLOWUP Let\'s play ball shows on the first load after storage is wiped ('+(wipedBtn?wipedBtn.textContent:'missing')+', hidden '+(wipedNote?wipedNote.hidden:'yes')+')'});
     for(const [w,h] of [[390,844],[375,667],[320,568],[844,390]]){
       await loadAt(w,h);
       const welcome=probe(frame.contentDocument,frame.contentWindow,'#n-ok');
@@ -75,6 +79,33 @@ document.querySelector('#run').addEventListener('click',async()=>{
     await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r)));
     const board=frame.contentDocument.querySelector('#scoreboard').getBoundingClientRect();
     layout.push({ok:board.height<90,label:'DM-FINISH the 320px scoreboard stays a single record line (height '+board.height.toFixed(1)+')'});
+    for(const [w,h] of [[844,390],[812,375]]){
+      await loadAt(w,h);
+      const doc=frame.contentDocument;
+      const welcome=doc.querySelector('#n-ok');
+      if(welcome&&welcome.textContent==="Let's play ball") welcome.click();
+      const phone=doc.createElement('style');
+      phone.textContent='button{min-height:40px}';
+      doc.head.appendChild(phone);
+      await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r)));
+      for(const id of ['a-play','a-sim']){
+        const el=doc.querySelector('#'+id), box=el.getBoundingClientRect();
+        layout.push({ok:!!el&&box.height>=44,label:'DM-FOLLOWUP '+(el?el.textContent:id)+' is at least 44px tall at '+w+'×'+h+' ('+(el?box.height.toFixed(1):'missing')+')'});
+      }
+    }
+    for(const [w,h] of [[390,844],[1280,800]]){
+      await loadAt(w,h);
+      const doc=frame.contentDocument, win=frame.contentWindow;
+      doc.querySelector('#n-ok').click();
+      doc.querySelector('#a-office').click();
+      doc.querySelector('[data-tab="free"]').click();
+      await new Promise(r=>win.requestAnimationFrame(()=>win.requestAnimationFrame(r)));
+      const el=doc.querySelector('[data-sign]');
+      const box=el?el.getBoundingClientRect():null;
+      const top=box?doc.elementFromPoint(box.left+box.width/2, box.top+box.height/2):null;
+      const hit=!!(el&&top&&(top===el||el.contains(top)));
+      layout.push({ok:hit,label:'DM-FOLLOWUP Sign center hit at '+w+'×'+h+' is '+(top?top.tagName+(top.id?'#'+top.id:'')+(top.className?' .'+String(top.className).split(/\s+/).slice(0,2).join('.'):''):'nothing')});
+    }
     await loadAt(800,600);
     const list=frame.contentWindow.eval('('+diamondManagerChecks.toString()+')()').concat(layout);let fails=0;
     for(const c of list){const li=document.createElement('li');li.className=c.ok?'pass':'fail';li.textContent=(c.ok?'PASS — ':'FAIL — ')+c.label;res.appendChild(li);if(!c.ok)fails++;}
@@ -82,7 +113,7 @@ document.querySelector('#run').addEventListener('click',async()=>{
   }catch(e){sum.textContent='FAIL — '+e.message;}
   finally{
     if(frame)frame.remove();
-    if(backup){Object.keys(localStorage).filter(managed).forEach(k=>localStorage.removeItem(k));for(const [k,v]of backup)localStorage.setItem(k,v);}
+    if(backup){wipeManaged();for(const [k,v]of backup)localStorage.setItem(k,v);}
     button.disabled=false;
   }
 });
