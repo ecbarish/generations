@@ -124,40 +124,45 @@
   mark('arv',a.equity>=0,money(a.arv),arvNote(a,L.plans[S.rehab].cost));
   $('#outlookSlot').hidden=S.phase==='done';
   $('#outlook').className='outlook '+(view.o.counts?'good':'bad');
-  $('#outlook').innerHTML='<b>'+view.o.word+'.</b> '+view.line;
+  const live='<b>'+view.o.word+'.</b> '+view.line;
+  $('#outlook').innerHTML=live;
+  // One real outlook, the one on screen. A joined stand-in is taller than any line the game shows.
+  $('#outlookHold').innerHTML='<span>'+live+'</span>';
   const warn=choosing?cashWarning(choice):'';
   $('#afford').hidden=!warn;$('#afford').textContent=warn;
-  document.querySelectorAll('.sheet button').forEach(b=>b.disabled=!choosing);
+  document.querySelectorAll('.choices button,#offerBtn,#passBtn').forEach(b=>b.disabled=!choosing);
   $('[data-offer="-2000"]').disabled=!running||S.price<=MIN();$('[data-offer="2000"]').disabled=!running||S.price>=MAX();
   $('#passBtn').disabled=!running;$('#offerBtn').disabled=!running||!M.canAfford(R,choice,L);
  }
 
- // Scroll the answer into view only when it first opens. Updating a counter in place must not
- // throw the page: the down payment and the work stay under the player's finger.
+ // The reply sits under the choices. Bring its first action into view on every size, and only
+ // when it opens, so a later tap does not throw Make this offer or Pass.
  function show(html){
   const box=$('#answer');const reveal=box.hidden;
   box.innerHTML=html;box.hidden=false;
-  // On a phone the answer is below the fold. On a desktop the worksheet is already in view, and
-  // scrolling throws the offer controls by about 250px.
-  if(reveal&&window.innerWidth<860)box.scrollIntoView&&box.scrollIntoView({block:'nearest'});
+  if(!reveal)return;
+  const btn=box.querySelector('button'); if(!btn||!btn.scrollIntoView)return;
+  const r=btn.getBoundingClientRect();
+  if(r.top<0||r.bottom>window.innerHeight||r.left<0||r.right>window.innerWidth)
+   btn.scrollIntoView({block:'nearest',inline:'nearest'});
  }
  const nextButton=()=>'<div class="actions"><button type="button" class="primary" data-act="next">'+(M.finished(R)?'See your street':'Next listing: '+M.STREET[R.at].address)+'</button></div>';
 
  function paintCounter(){
   const choice=shownChoice(), view=outlookOf(choice), warn=cashWarning(choice), fits=!warn;
-  show('<h2>They come back at '+money(choice.price)+'</h2><p>"We would like this done, but not at '+money(S.price)+'. We can do '+money(choice.price)+'."</p>'+
+  show('<div class="actions"><button type="button" class="primary" data-act="take"'+(fits?'':' disabled')+'>Take '+money(choice.price)+'</button><button type="button" data-act="walk">Walk away</button></div>'+
+   '<h2>They come back at '+money(choice.price)+'</h2><p>"We would like this done, but not at '+money(S.price)+'. We can do '+money(choice.price)+'."</p>'+
    '<p class="outlook '+(view.o.counts?'good':'bad')+'"><b>'+view.o.word+'.</b> '+view.line+'</p>'+
    (warn?'<p class="afford">'+warn+'</p>':'')+
-   '<p><small>You can still change the down payment and the work.</small></p>'+
-   '<div class="actions"><button type="button" class="primary" data-act="take"'+(fits?'':' disabled')+'>Take '+money(choice.price)+'</button><button type="button" data-act="walk">Walk away</button></div>');
+   '<p><small>You can still change the down payment and the work.</small></p>');
  }
 
  function offer(){
   if(S.phase!=='run'||!M.canAfford(R,S,L))return;
   if(!S.sure&&M.dooms(R,S)){
    S.sure=true;
-   show('<h2>After this you can\'t reach '+M.GOAL+' homes that pay.</h2><p>This buy spends the cash the rest of the street needs.</p>'+
-    '<div class="actions"><button type="button" class="primary" data-act="anyway">Buy it anyway</button><button type="button" data-act="look">Keep looking</button></div>');
+   show('<div class="actions"><button type="button" class="primary" data-act="anyway">Buy it anyway</button><button type="button" data-act="look">Keep looking</button></div>'+
+    '<h2>After this you can\'t reach '+M.GOAL+' homes that pay.</h2><p>This buy spends the cash the rest of the street needs.</p>');
    return;
   }
   S.sure=false;
@@ -166,8 +171,8 @@
   if(r.answer==='counter'){S.phase='counter';S.counter=r.price;render();paintCounter();return;}
   S.noes++;
   if(S.noes>=2){lose('They stop answering your offers, and sell to another buyer.');return;}
-  show('<h2>They say no</h2><p>"That is well below what we are asking." This offer is '+ofAsk(S.price)+'. They will still talk if you come back closer to the asking price. One more offer this far below, and they sell to someone else.</p>'+
-   '<div class="actions"><button type="button" class="primary" data-act="change">Change your offer</button></div>');
+  show('<div class="actions"><button type="button" class="primary" data-act="change">Change your offer</button></div>'+
+   '<h2>They say no</h2><p>"That is well below what we are asking." This offer is '+ofAsk(S.price)+'. They will still talk if you come back closer to the asking price. One more offer this far below, and they sell to someone else.</p>');
  }
 
  function buy(price,line){
@@ -175,7 +180,7 @@
   const y=M.buyHome(R,S),v=M.verdict(y.onCash);persist();render();
   const months=y.months.map(m=>'<li class="'+(m.notes.length?'event':'')+'" title="'+m.notes.join('; ')+'"><b>'+MONTHS[m.m-1]+
    '</b>'+money(m.net)+(m.notes.length?'<b>'+m.notes[0]+'</b>':'')+'</li>').join('');
-  show('<h2>'+line+' You own '+L.address+'.</h2><p>The work: '+y.rehab.name.toLowerCase()+'. Here is its first year, after the mortgage, taxes and insurance:</p>'+
+  show(nextButton()+'<h2>'+line+' You own '+L.address+'.</h2><p>The work: '+y.rehab.name.toLowerCase()+'. Here is its first year, after the mortgage, taxes and insurance:</p>'+
    '<ul class="months" aria-label="Its first year, month by month">'+months+'</ul>'+
    '<p><small>A quiet month pays more than the worksheet\'s '+money(y.analysis.cashFlow)+': the '+money(y.analysis.setAside)+' set aside stays yours until something breaks or a unit sits empty.</small></p>'+
    '<table class="year"><tr><th>Cash in hand over the year</th><td>'+money(y.cash)+'</td></tr>'+
@@ -183,15 +188,14 @@
    '<tr><th>Equity on day one (worth let, less price and work)</th><td>'+money(y.equity)+'</td></tr>'+
    '<tr><th><b>Its year</b></th><td><b>'+money(y.total)+'</b>, '+pct(y.onCash)+' on the '+money(y.analysis.cashIn)+' you put in</td></tr></table>'+
    '<p class="verdict">'+v.word+'</p><p>'+v.text+(y.onCash>=0?' It counts toward your street.':' It does not count toward your street.')+'</p>'+
-   '<p><small>If prices keep rising '+pct(L.appreciation,0)+' a year, add about '+money(y.growth)+'. Nobody promises that, so it is not counted above.</small></p>'+
-   nextButton());
+   '<p><small>If prices keep rising '+pct(L.appreciation,0)+' a year, add about '+money(y.growth)+'. Nobody promises that, so it is not counted above.</small></p>');
  }
 
  // Pass, walk away, or lose it to another buyer: the home is gone for this run.
  function lose(line){
   S.phase='done';const p=M.passHome(R);persist();render();
-  show('<h2>'+line+'</h2><p>Another investor bought it for '+money(p.price)+', did the full work, and '+
-   (p.onCash>=0?'made '+pct(p.onCash):'lost '+pct(-p.onCash))+' on their cash in the first year. '+L.lesson+'</p>'+nextButton());
+  show(nextButton()+'<h2>'+line+'</h2><p>Another investor bought it for '+money(p.price)+', did the full work, and '+
+   (p.onCash>=0?'made '+pct(p.onCash):'lost '+pct(-p.onCash))+' on their cash in the first year. '+L.lesson+'</p>');
  }
 
  function startListing(){
@@ -212,11 +216,11 @@
    const v=M.verdict(got.onCash);
    return '<li class="'+(got.onCash>=0?'pays':'lost')+'"><b>'+h.address+'</b><span>'+v.word+'</span><small>Bought for '+money(got.choice.price)+
     ', '+money(got.cashFlow)+' a month on the worksheet. '+h.lesson+'</small></li>';}).join('');
-  show('<h2>'+(M.won(R)?'You built a street that pays':'Your street')+'</h2>'+
+  show('<div class="actions"><button type="button" class="primary" data-act="again">Walk Alder Street again</button></div>'+
+   '<h2>'+(M.won(R)?'You built a street that pays':'Your street')+'</h2>'+
    '<p>'+(M.won(R)?M.paying(R)+' homes on Alder Street pay you. ':'Only '+M.paying(R)+' of the '+M.GOAL+' homes you needed pay you. ')+
    'Together they bring in '+money(flow)+' a month on the worksheet, and you still have '+money(R.cash)+' of your savings.</p>'+
-   '<ul class="yours" aria-label="The five homes on Alder Street">'+rows+'</ul>'+
-   '<div class="actions"><button type="button" class="primary" data-act="again">Walk Alder Street again</button></div>');
+   '<ul class="yours" aria-label="The five homes on Alder Street">'+rows+'</ul>');
  }
 
  function endStreet(){while(!M.finished(R))M.passHome(R);persist();showStreet();}

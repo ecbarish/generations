@@ -180,9 +180,35 @@ document.querySelector('#run').onclick=async()=>{
   const rehabShift=Math.abs(place('#offerBtn')-beforeRehab);
   rehabBox.innerHTML=rehabHtml;H.render();
   check('a two-line plan label shifts Make this offer 2px or less ('+rehabShift.toFixed(1)+')',rehabShift<=2);
-  H.S.price=210000;H.S.down=0.25;H.S.rehab='refresh';H.S.phase='run';d.querySelector('#answer').hidden=true;H.render();
-  const scrollBefore=w.scrollY;click('#offerBtn');await wait(40);
-  check('a desktop counter does not autoscroll ('+Math.abs(w.scrollY-scrollBefore).toFixed(0)+'px)',Math.abs(w.scrollY-scrollBefore)<=2);
+  const replySeen=[];
+  for(const [width,height] of [[1280,800],[1024,768],[1920,1080],[390,844],[320,568]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(80);
+   H.again();await wait(30);w.scrollTo(0,0);
+   H.S.price=210000;H.S.down=0.25;H.S.rehab='refresh';H.S.phase='run';H.S.sure=false;
+   d.querySelector('#answer').hidden=true;H.render();
+   const offerAt=d.querySelector('#offerBtn').offsetTop,passAt=d.querySelector('#passBtn').offsetTop;
+   click('#offerBtn');await wait(300);
+   const btn=d.querySelector('#answer .actions button');
+   const r=btn.getBoundingClientRect();
+   const inView=r.top>=-1&&r.bottom<=w.innerHeight+1&&r.left>=-1&&r.right<=w.innerWidth+1;
+   const hit=d.elementFromPoint(r.left+r.width/2,r.top+Math.min(r.height/2,8));
+   const hits=!!hit&&(hit===btn||btn.contains(hit));
+   const still=Math.abs(d.querySelector('#offerBtn').offsetTop-offerAt)<=2&&Math.abs(d.querySelector('#passBtn').offsetTop-passAt)<=2;
+   replySeen.push(width+':'+(inView?'in':'out')+'/'+(hits?'hit':'miss')+'/'+(still?'still':'moved'));
+   check(width+' reply is on screen and its first action takes the click',inView&&hits&&still);
+  }
+  check('the reply stays in view at every size ('+replySeen.join(', ')+')',replySeen.every(s=>/in\/hit\/still$/.test(s)));
+  const band=el=>{const range=d.createRange();range.selectNodeContents(el);let bottom=0;for(const rect of range.getClientRects())if(rect.width||rect.height)bottom=Math.max(bottom,rect.bottom);const box=el.getBoundingClientRect();const pad=parseFloat(w.getComputedStyle(el).paddingBottom)||0;return Math.max(0,box.bottom-bottom-pad);};
+  const blanks=[];
+  for(const [width,height] of [[1280,800],[1024,768],[844,390],[820,1180],[320,568]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(60);
+   H.again();await wait(20);w.scrollTo(0,0);H.render();
+   const outlookGap=band(d.querySelector('#outlook'));
+   const budgetGap=band(d.querySelector('#budget'));
+   blanks.push(width+' outlook '+outlookGap.toFixed(1)+' budget '+budgetGap.toFixed(1));
+   check(width+' outlook and budget blanks stay under 8px',outlookGap<8&&budgetGap<8);
+  }
+  check('reserved boxes match their text ('+blanks.join('; ')+')',blanks.length===5);
   H.again();await wait(20);
   H.S.price=216000;H.S.down=0.25;H.S.rehab='asis';H.render();
   const thin=text('#outlook');click('[data-down="0.2"]');const solid=text('#outlook');

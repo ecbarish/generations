@@ -39,7 +39,8 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .outlook-slot>.outlook{grid-area:1/1;margin:0}
 .outlook{margin:12px 0 0;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:#fff}
 .outlook.good{background:#eef6ee;border-color:#a8c8ac}.outlook.bad{background:#fbe9df;border-color:#e0b8a8}
-.outlook-hold{visibility:hidden}
+.outlook-hold{display:grid;visibility:hidden}
+.outlook-hold>span{grid-area:1/1}
 .outlook b{font-size:1.05rem}
 .of-ask{display:block;color:var(--soft);font-size:.85rem;margin-top:2px}
 .good .v::before{content:"✓ "}.bad .v::before{content:"✗ "}
@@ -56,7 +57,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .street{display:grid;gap:6px;grid-template-columns:1fr auto;align-items:center}
 .goal{margin:0;font-weight:700}.cash{margin:0;text-align:right;font-variant-numeric:tabular-nums}
 .budget,#giveup{grid-column:1/-1}
-.budget{min-height:4.2em;margin:4px 0 0}
+.budget{margin:4px 0 0}
 .doors{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .doors li{border:1px solid var(--line);border-radius:8px;padding:6px 1px;text-align:center;font-size:.72rem;color:var(--soft);line-height:1.2;overflow-wrap:normal;min-width:0}
 .doors li b{display:block;font-size:.9rem;color:var(--ink)}
@@ -70,7 +71,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .yours li small{grid-column:1/-1;color:var(--soft)}.yours .pays{background:#eef6ee}.yours .lost{background:#fbe9df}
 @media (min-width:860px){
  .desk{grid-template-columns:minmax(300px,2fr) 3fr;align-items:start}
- header,.street,.answer{grid-column:1/-1}
+ header,.street{grid-column:1/-1}
 }
 @media (max-width:859px){
  .desk{display:flex;flex-direction:column}

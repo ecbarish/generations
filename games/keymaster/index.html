@@ -22,6 +22,7 @@
    <div class="toggle rehab" role="radiogroup" aria-labelledby="rehabLabel"></div></div>
  </div>
  <div class="actions"><button type="button" class="primary" id="offerBtn">Make this offer</button><button type="button" id="passBtn">Pass on it</button></div>
+ <section class="answer" id="answer" hidden aria-live="polite"></section>
  <table class="month" aria-label="One month of the deal">
   <tr><th id="rentLabel"></th><td id="rent"></td></tr>
   <tr><th>Set aside for empty months and repairs (10%)</th><td id="aside"></td></tr>
@@ -30,7 +31,7 @@
   <tr class="total"><th>Cash flow, each month</th><td id="flow"></td></tr>
  </table>
  <div class="outlook-slot" id="outlookSlot">
-  <p class="outlook outlook-hold" id="outlookHold" aria-hidden="true"><b>A costly buy.</b> 000.0% on the cash you put in. This first year would not count toward your street. The sellers can say yes to this price. No offer the sellers will take pays you in its first year. At 20% down this is a solid buy.</p>
+  <p class="outlook outlook-hold" id="outlookHold" aria-hidden="true"></p>
   <p class="outlook" id="outlook"></p>
  </div>
  <ul class="measures" aria-label="How the deal measures up">
@@ -41,6 +42,5 @@
  </ul>
  <p class="afford" id="afford" hidden></p>
 </section>
-<section class="answer" id="answer" hidden aria-live="polite"></section>
 </main>
 <script src="../../shared/engine.js"></script><script src="model.js"></script><script src="game.js"></script></body></html>
