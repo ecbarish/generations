@@ -45,6 +45,36 @@ document.querySelector('#run').addEventListener('click',async()=>{
         layout.push({ok:back.ok&&text==='Back to the field',label:'DM-FINISH Back to the field after Sim 5 is on screen and receives a hit at 844×390 ('+back.detail+', "'+text+'")'});
       }
     }
+    const openRoster=async(w,h)=>{
+      await loadAt(w,h);
+      const doc=frame.contentDocument;
+      doc.querySelector('#n-ok').click();
+      doc.querySelector('#a-office').click();
+      await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r)));
+    };
+    const targetBox=(doc,selector,needWidth)=>{
+      const els=[...doc.querySelectorAll(selector)];
+      if(!els.length) return {ok:false,detail:'missing '+selector};
+      const boxes=els.map(el=>{const r=el.getBoundingClientRect(); return {w:r.width,h:r.height,t:(el.textContent||'').replace(/\s+/g,' ').trim().slice(0,16)};});
+      const bad=boxes.filter(b=>b.h<43.5||(needWidth&&b.w<43.5));
+      const s=boxes.find(b=>b.t==='▲')||boxes[0];
+      return {ok:!bad.length,detail:s.t+' '+s.w.toFixed(1)+'×'+s.h.toFixed(1)+(bad.length?' short '+bad.length:'')};
+    };
+    for(const [w,h] of [[1280,800],[1024,768],[390,844]]){
+      await openRoster(w,h);
+      const doc=frame.contentDocument;
+      const order=targetBox(doc,'[data-up],[data-down]',true);
+      layout.push({ok:order.ok,label:'DM-FINISH roster order buttons are at least 44×44 at '+w+'×'+h+' ('+order.detail+')'});
+      const tabs=targetBox(doc,'#tabs button',false);
+      layout.push({ok:tabs.ok,label:'DM-FINISH roster tabs are at least 44px tall at '+w+'×'+h+' ('+tabs.detail+')'});
+      const tbl=targetBox(doc,'.tbl button',false);
+      layout.push({ok:tbl.ok,label:'DM-FINISH roster table buttons are at least 44px tall at '+w+'×'+h+' ('+tbl.detail+')'});
+    }
+    await loadAt(320,568);
+    frame.contentDocument.querySelector('#n-ok').click();
+    await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r)));
+    const board=frame.contentDocument.querySelector('#scoreboard').getBoundingClientRect();
+    layout.push({ok:board.height<90,label:'DM-FINISH the 320px scoreboard stays a single record line (height '+board.height.toFixed(1)+')'});
     await loadAt(800,600);
     const list=frame.contentWindow.eval('('+diamondManagerChecks.toString()+')()').concat(layout);let fails=0;
     for(const c of list){const li=document.createElement('li');li.className=c.ok?'pass':'fail';li.textContent=(c.ok?'PASS — ':'FAIL — ')+c.label;res.appendChild(li);if(!c.ok)fails++;}
