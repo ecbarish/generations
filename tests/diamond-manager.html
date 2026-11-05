@@ -7,14 +7,16 @@
 document.querySelector('#run').addEventListener('click',async()=>{
   const button=document.querySelector('#run'),sum=document.querySelector('#summary'),res=document.querySelector('#results');
   button.disabled=true;sum.textContent='Running…';res.replaceChildren();let frame,backup;
+  const managed=k=>k==='diamond-manager-save-v1'||k==='arcade-index-v1'||k.startsWith('arcade-backup:diamond-manager-save-v1:')||k.startsWith('arcade-backup:arcade-index-v1:');
+  const wipeManaged=()=>Object.keys(localStorage).filter(managed).forEach(k=>localStorage.removeItem(k));
   try{
-    backup=new Map(Object.keys(localStorage).map(k=>[k,localStorage.getItem(k)]));
-    localStorage.clear();
+    backup=new Map(Object.keys(localStorage).filter(managed).map(k=>[k,localStorage.getItem(k)]));
+    wipeManaged();
     document.querySelector('details').open=true;
     frame=document.createElement('iframe');frame.title='Diamond Manager test instance';
     document.querySelector('#game').appendChild(frame);
     const loadGame=async(w,h)=>{
-      localStorage.clear();
+      wipeManaged();
       frame.style.width=w+'px';frame.style.height=h+'px';
       await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Game did not load within 20 seconds')),20000);frame.onload=()=>{clearTimeout(timer);resolve();};frame.onerror=()=>{clearTimeout(timer);reject(Error('Game load failed'));};frame.src='../games/diamond-manager/index.html?size='+w+'x'+h+'&wipe='+Date.now();});
       const start=Date.now();
@@ -111,7 +113,7 @@ document.querySelector('#run').addEventListener('click',async()=>{
   }catch(e){sum.textContent='FAIL — '+e.message;}
   finally{
     if(frame)frame.remove();
-    if(backup){localStorage.clear();for(const [k,v]of backup)localStorage.setItem(k,v);}
+    if(backup){wipeManaged();for(const [k,v]of backup)localStorage.setItem(k,v);}
     button.disabled=false;
   }
 });
