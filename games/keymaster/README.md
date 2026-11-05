@@ -1,6 +1,6 @@
 # Keymaster
 
-v0.1.0.
+v0.1.1.
 
 Alder Street in Millbrook. You have $200,000 and five homes come up for sale, one at a time. The goal is to own three
 that each pay you in their first year (docs/plans/keymaster-street.md). The worksheet is the game (docs/proposals/keymaster.md).
@@ -30,5 +30,5 @@ street, the real buttons, and phone and desktop sizes). Launcher checks too, if 
 
 ## Changelog
 
-- KM-FINISH: before you offer, the worksheet says whether that first year would count. A counter still lets you change the down payment and the work. A home your cash cannot buy says so, instead of telling you to lower a price that still will not fit. The Lab card's picture text names the five homes. `keymaster-save-v1` is unchanged.
+- v0.1.1 (2026-11-05, KM-FINISH, PR #634): Before you spend any cash, the worksheet says whether the home in front of you would count toward owning three homes that each pay you in their first year. The sellers answer the same way on a desk and on a phone, and a higher offer is never a worse answer than a lower one. At or above the price they will take, they say yes. From their floor up to that price, they counter at the price they will take. Below the floor, they refuse. On the homes that can pay, that price sits above 92.5% of asking: $232,000 on 14 Alder, $247,000 on 22 Alder, and $146,000 on 31 Alder. A careful bid at that price can still win the street. Walking Alder Street again deals the five homes in a new order, and every save records that order. A save with no home order is refused, so an older file is left untouched and the screen starts fresh. When the cash will not cover the offer, Make this offer stays shut and the line under it says "Not enough cash for this offer." That line does not push the buttons. Make this offer and Pass stay on screen, and the Arcade link stays a full tap target. The cost and the rent of each work plan stay visible. When they counter, Take and Walk away sit with their words. A buy that would make three paying homes impossible does not read as a great buy. The win lists the homes, the offers, and the cash left, once, with Walk Alder Street again. One home still needed says "1 home that pays." The save key stays `keymaster-save-v1`, and the save stays version 1.
 - v0.1.0 (2026-10-14, KM0, PR #379): Keymaster KM0 prototype added.
