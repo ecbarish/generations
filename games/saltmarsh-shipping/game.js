@@ -333,25 +333,51 @@
     });
   }
 
+  function settledSentence(row) {
+    if (row.lockedName === 'Another shed' && M.warehousePrice(state) != null) {
+      return row.takenName + ' is taken. The shed from that choice was not built. A dearer shed can still be raised from the list.';
+    }
+    if (row.lockedName === 'Another shed') {
+      return row.takenName + ' is taken. The shed from that choice was not built. There is no third shed at that step.';
+    }
+    return row.takenName + ' is taken. ' + row.lockedName + ' is locked.';
+  }
+
+  /* The line the open choice will leave behind. It stays in the list, unseen,
+     so taking the choice does not push the button that opened it. */
+  function pendingSettled(offer) {
+    if (!offer) return null;
+    if (offer.id === 'quay') return { id: 'quay', takenName: 'A lamp on the quay', lockedName: 'Deeper bark holds' };
+    if (offer.id === 'pilot') return { id: 'pilot', takenName: 'A bell on the pier', lockedName: 'Coal for the night runs' };
+    return null;
+  }
+
   function fillSettled() {
     var box = $('#settled');
     if (!box) return;
-    var rows = M.settledForks(state);
+    var rows = M.settledForks(state).slice();
+    var offer = M.deskChoice(state);
+    var pendingId = '';
+    if (offer && !rows.some(function (row) { return row.id === offer.id; })) {
+      var pending = pendingSettled(offer);
+      if (pending) {
+        rows.push(pending);
+        pendingId = pending.id;
+      }
+    }
     box.hidden = !rows.length;
     if (box.hidden) return;
     var list = $('#settled-list');
-    var sig = rows.map(function (row) { return row.id + row.takenName; }).join('|');
+    var sig = rows.map(function (row) { return row.id + row.takenName; }).join('|') + (pendingId ? ':hold' : '');
     if (list.dataset.sig === sig) return;
     list.dataset.sig = sig;
     list.replaceChildren();
     rows.forEach(function (row) {
       var li = document.createElement('li');
-      if (row.lockedName === 'Another shed' && M.warehousePrice(state) != null) {
-        li.textContent = row.takenName + ' is taken. The shed from that choice was not built. A dearer shed can still be raised from the list.';
-      } else if (row.lockedName === 'Another shed') {
-        li.textContent = row.takenName + ' is taken. The shed from that choice was not built. There is no third shed at that step.';
-      } else {
-        li.textContent = row.takenName + ' is taken. ' + row.lockedName + ' is locked.';
+      li.textContent = settledSentence(row);
+      if (row.id === pendingId) {
+        li.style.visibility = 'hidden';
+        li.setAttribute('aria-hidden', 'true');
       }
       list.appendChild(li);
     });
@@ -689,7 +715,11 @@
     var alt = $('#provision-alt');
     if (!current) {
       button.hidden = true;
-      if (actions) actions.hidden = true;
+      if (actions) {
+        actions.hidden = true;
+        actions.style.minHeight = '';
+        actions.dataset.heldHeight = '';
+      }
       if (alt) alt.hidden = true;
       return;
     }
@@ -716,6 +746,14 @@
       alt.disabled = !(state.cash >= current.cost);
       alt.textContent = state.cash >= current.cost ? altLabel : altLabel + ' · ' + M.needMore(state, current.cost);
     } else if (alt) alt.hidden = true;
+    if (actions) {
+      var rowH = actions.offsetHeight;
+      var rowHeld = parseFloat(actions.dataset.heldHeight || '0');
+      if (rowH > rowHeld + 0.5) {
+        actions.dataset.heldHeight = String(rowH);
+        actions.style.minHeight = rowH + 'px';
+      }
+    }
   }
 
   function fillFinale() {
@@ -1053,14 +1091,17 @@
     if (b.dataset.act === 'fork') {
       var offer = M.deskChoice(state);
       var trigger = choiceTrigger(offer);
-      var keptScroll = window.scrollY;
+      var triggerTop = trigger ? trigger.getBoundingClientRect().top : 0;
       if (offer && M.chooseDesk(state, offer.id, b.dataset.which).ok) {
         if (b.dataset.which === 'shed') bootIdle(null);
         if (state.sound) audio.sfx('quest');
         persist();
         render();
-        if (trigger && trigger.focus) trigger.focus({ preventScroll: true });
-        if (Math.abs(window.scrollY - keptScroll) > 1) window.scrollTo(window.scrollX, keptScroll);
+        if (trigger && trigger.isConnected) {
+          var drift = trigger.getBoundingClientRect().top - triggerTop;
+          if (Math.abs(drift) > 1) window.scrollBy(0, drift);
+          if (trigger.focus) trigger.focus({ preventScroll: true });
+        }
       }
       return;
     }
@@ -1093,6 +1134,13 @@
         if (state.sound) audio.sfx('quest');
         persist();
         render();
+        if (M.preparationsComplete(state)) {
+          var sail = $('#finale-go');
+          if (sail) {
+            sail.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'nearest' });
+            if (sail.focus) sail.focus({ preventScroll: true });
+          }
+        }
       }
       return;
     }

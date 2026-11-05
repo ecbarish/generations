@@ -1527,10 +1527,88 @@ document.querySelector('#run').onclick = async function () {
       var focused = doc.activeElement === trigger;
       check('at ' + width + ' by ' + height + ' the choice sheet and both Take buttons are in view, and the trigger stays (' + moved.toFixed(1) + 'px, sheet ' + Math.round(sheet.top) + '..' + Math.round(sheet.bottom) + ')', sheetIn && takesIn && triggerIn && scrollHeld && focused && moved < 2 && st.forks.sloop === 'fit');
     }
+    async function quaySheet(width, height) {
+      var box = await loadFrame('quay sheet ' + width, '&state=lamps');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 150); });
+      var st = win.__saltmarsh.state;
+      st.cash = 1e12;
+      st.boats[3].owned = Math.max(st.boats[3].owned, 16);
+      st.forks.quay = 'lamp';
+      win.__saltmarsh.render();
+      var trigger = doc.querySelector('#light-cards [data-light="quay"] button');
+      trigger.scrollIntoView({ block: 'center', inline: 'nearest' });
+      var titleBefore = doc.querySelector('h1').getBoundingClientRect().top;
+      var scrollBeforeOpen = win.scrollY || 0;
+      var triggerBeforeOpen = trigger.getBoundingClientRect().top;
+      st.forks.quay = null;
+      win.__saltmarsh.render();
+      trigger = doc.querySelector('#light-cards [data-light="quay"] button');
+      var openShift = Math.max(
+        Math.abs(doc.querySelector('h1').getBoundingClientRect().top - titleBefore),
+        Math.abs((win.scrollY || 0) - scrollBeforeOpen),
+        Math.abs(trigger.getBoundingClientRect().top - triggerBeforeOpen)
+      );
+      var choice = doc.querySelector('#choice');
+      var viewH = box.clientHeight;
+      var sheet = choice.getBoundingClientRect();
+      var sheetIn = choice.hidden === false && sheet.top >= -1 && sheet.bottom <= viewH + 1;
+      var before = trigger.getBoundingClientRect();
+      var scrollBefore = win.scrollY || 0;
+      choice.querySelector('[data-which="lamp"]').click();
+      trigger = doc.querySelector('#light-cards [data-light="quay"] button');
+      var after = trigger.getBoundingClientRect();
+      var moved = Math.max(Math.abs(after.top - before.top), Math.abs(after.left - before.left));
+      var triggerIn = after.top >= -1 && after.bottom <= viewH + 1 && after.height >= 44;
+      var scrollHeld = Math.abs((win.scrollY || 0) - scrollBefore) <= 2;
+      check('at ' + width + ' by ' + height + ' the quay choice stays in view and Raise does not move (open ' + openShift.toFixed(1) + 'px, pick ' + moved.toFixed(1) + 'px)', sheetIn && openShift < 2 && moved < 2 && triggerIn && scrollHeld && doc.activeElement === trigger && st.forks.quay === 'lamp');
+    }
+    async function packAll(width, height) {
+      var box = await loadFrame('pack voyage ' + width, '&state=lamps');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 150); });
+      var st = win.__saltmarsh.state;
+      ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { st.lights[id] = 2; });
+      st.played = 2500;
+      st.cash = 1e15;
+      st.prepDone = {};
+      win.__saltmarsh.render();
+      var btn = doc.querySelector('#provision-go');
+      btn.scrollIntoView({ block: 'center', inline: 'nearest' });
+      var worst = 0;
+      var steps = 0;
+      while (steps < 8) {
+        btn = doc.querySelector('#provision-go');
+        if (!btn || btn.hidden) break;
+        var top = btn.getBoundingClientRect().top;
+        btn.click();
+        steps += 1;
+        var next = doc.querySelector('#provision-go');
+        if (next && next.hidden === false) worst = Math.max(worst, Math.abs(next.getBoundingClientRect().top - top));
+      }
+      var sail = doc.querySelector('#finale-go');
+      var sailRect = sail ? sail.getBoundingClientRect() : null;
+      var sailIn = !!sailRect && sail.hidden === false && sailRect.top >= -1 && sailRect.bottom <= box.clientHeight + 1 && sailRect.height >= 44;
+      check('at ' + width + ' by ' + height + ' packing all eight leaves the button and shows Set sail (move ' + worst.toFixed(1) + 'px, packs ' + steps + ')', steps === 8 && worst < 2 && sailIn && doc.activeElement === sail);
+    }
     await choiceSheet(1280, 800);
     await choiceSheet(390, 844);
     await choiceSheet(375, 812);
     await choiceSheet(320, 568);
+    await quaySheet(1280, 800);
+    await quaySheet(390, 844);
+    await quaySheet(375, 812);
+    await quaySheet(320, 568);
+    await packAll(1280, 800);
+    await packAll(844, 390);
+    await packAll(390, 844);
+    await packAll(320, 568);
     var quayBox = await loadFrame('quay block', '&state=fleet');
     quayBox.style.width = '390px';
     quayBox.style.height = '844px';
