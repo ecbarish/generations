@@ -20,14 +20,16 @@ const stopGoHold = () => { clearInterval(goTimer); goTimer = 0; };
 goOn.addEventListener('pointerdown', () => {
   goHold = performance.now();
   stopGoHold();
-  goTimer = setInterval(() => {
-    if (!goHold || performance.now() - goHold < 400 || !sceneState || D.el.classList.contains('asking')) return;
-    D.advance();
-  }, 80);
+  goTimer = setInterval(() => { goHoldTick(performance.now()); }, 80);
 });
 goOn.addEventListener('pointerup', stopGoHold);
 goOn.addEventListener('pointercancel', stopGoHold);
 goOn.addEventListener('pointerleave', stopGoHold);
+function goHoldTick(now) {
+  if (!goHold || now - goHold < 400 || !sceneState || D.el.classList.contains('asking')) return false;
+  D.advance();
+  return true;
+}
 const playBeforeRoom = D.play.bind(D);
 D.play = (...args) => { const result = playBeforeRoom(...args); placeBelowHud(); refreshGoal(); return result; };
 function parkGoOn() {
@@ -84,4 +86,4 @@ if (S.life && S.life.ending && ENDINGS[S.life.ending]) finish(S.life.ending);
 else if (S.life && NODES[S.life.at]) run(S.life.at); else { S.life = null; toBetween(null, []); }
 renderHUD();
 /* test hook, local dev server only */
-if (location.hostname === 'localhost') window.__ow = { get S() { return S; }, set S(v) { S = v; }, run, finish, begin, choicesOf, NODES, ENDINGS, WORLDS, GIFTS, D, choiceReady, linesOf, prepareLife, townDay, townShift, townView, breadPrice, archivistMemories, save, load };
+if (location.hostname === 'localhost') window.__ow = { get S() { return S; }, set S(v) { S = v; }, run, finish, begin, choicesOf, NODES, ENDINGS, WORLDS, GIFTS, D, choiceReady, linesOf, prepareLife, townDay, townShift, townView, breadPrice, archivistMemories, save, load, goHoldTick };

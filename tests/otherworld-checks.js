@@ -612,6 +612,39 @@ function otherworldChecks() {
     heroMarks.road=0;heroMarks.guild=0;SCENES.road(0);SCENES.guild(0);
     return heroMarks.road>=1&&heroMarks.guild>=1;
   });
+  check('OW-FINISH: the traveller is a 16 by 24 person with an ink outline and upper-left light',()=>{
+    const old=S.look;S.look={hair:'#4a5aa8',skin:'#d8a882'};heroCache.clear();
+    try{
+      const sheet=heroSheet();
+      if(sheet.width!==16||sheet.height!==24)throw Error('sheet '+sheet.width+'x'+sheet.height);
+      const img=sheet.getContext('2d').getImageData(0,0,16,24);
+      const pix=(x,y)=>{const i=(y*16+x)*4;return [img.data[i],img.data[i+1],img.data[i+2],img.data[i+3]];};
+      const hex=p=>'#'+p.slice(0,3).map(v=>v.toString(16).padStart(2,'0')).join('');
+      let ink=0,skin=0,hair=0;
+      for(let y=0;y<24;y++)for(let x=0;x<16;x++){const p=pix(x,y);if(!p[3])continue;const h=hex(p);if(h==='#1e1a22')ink++;else if(h==='#d8a882')skin++;else if(h==='#4a5aa8')hair++;}
+      if(ink<24)throw Error('outline pixels '+ink);
+      if(!skin||!hair)throw Error('missing skin or hair');
+      const lum=p=>p[0]*0.2126+p[1]*0.7152+p[2]*0.0722;
+      if(!(pix(4,5)[3]&&pix(7,8)[3]&&lum(pix(4,5))>lum(pix(7,8))))throw Error('face is not lighter on the upper left');
+      const oldW=W,oldH=H;W=1280;H=800;heroMarks.road=0;heroMarks.guild=0;
+      SCENES.road(0);SCENES.guild(0);W=oldW;H=oldH;
+      if(heroBlit.w!==16||heroBlit.h!==24)throw Error('drawn at '+heroBlit.w+'x'+heroBlit.h);
+      return heroMarks.road>=1&&heroMarks.guild>=1;
+    }finally{S.look=old;heroCache.clear();}
+  });
+  check('OW-FINISH: holding Go on fast-forwards the speech',()=>{
+    const old=ow.S;try{
+      const life=ow.prepareLife({world:'asterhold',gift:'pocket',name:'Ren',flags:{},at:'a_wake',silver:0,status:false,mem:{}});
+      ow.S={...fresh(),name:'Ren',life};panel().hidden=true;ow.run('a_wake');
+      sceneState.shown=0;
+      document.querySelector('.dlg-continue').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));
+      let steps=0;const start=performance.now();
+      for(let n=0;n<6;n++)if(ow.goHoldTick(start+500+n*80))steps++;
+      document.querySelector('.dlg-continue').dispatchEvent(new PointerEvent('pointerup',{bubbles:true}));
+      if(steps<3)throw Error('steps '+steps);
+      return sceneState.i>0||life.at!=='a_wake';
+    }finally{panel().hidden=true;ow.S=old;}
+  });
   check('OW-FINISH: Go on, Memories and the birth controls are at least 44px',()=>{
     if(innerWidth<200||innerHeight<200)return true;
     const old=ow.S;try{
