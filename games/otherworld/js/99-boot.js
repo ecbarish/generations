@@ -8,6 +8,7 @@ D = Dialogue.create({
   fill: t => String(t).replace(/\{name\}/g, (S.life && S.life.name) || S.name || 'traveller'),
   onEnd: () => save()
 });
+D.el.querySelector('.dlg-continue').textContent = 'Go on';
 Settings.create({ mount: '#hudRight', before: '.version-label', btnClass: 'hbtn', rows: [] });
 setupFeedback('Otherworld', VERSION, () => S.life ? `${WORLDS[S.life.world].name}, ${S.life.gift}, at ${S.life.at}` : 'The Between');
 /* Keep the shared portrait scene, with local locked-choice support. Neither clicks nor keys can select a lock. */
@@ -30,8 +31,11 @@ for (const method of ['skip', 'advance']) {
 }
 new MutationObserver(paintChoiceLocks).observe(D.el.querySelector('.dlg-choices'), { childList: true });
 document.addEventListener('keydown', e => {
-  if (e.target.closest('.arc-set-bg,button:not(.dlg-choices button):not(.dlg-continue)')) return;
-  if (!sceneState || e.target.matches?.('input,textarea,select') || !panel().hidden || !document.getElementById('status').hidden) return;
+  const hit = e.target && e.target.closest ? e.target : null;
+  if (hit?.closest('a, .arc-set-bg, button:not(.dlg-choices button):not(.dlg-continue)')) return;
+  if (!sceneState || e.target.matches?.('input,textarea,select') || !panel().hidden) return;
+  if (!document.getElementById('status').hidden && hit?.closest('#status')) return;
+  if (!document.getElementById('ledger').hidden && hit?.closest('#ledger')) return;
   const asking = D.el.classList.contains('asking');
   if (asking && /^[1-9]$/.test(e.key)) { e.preventDefault(); D.choose(Number(e.key) - 1); }
   else if (e.key === ' ' || e.key === 'Enter') {

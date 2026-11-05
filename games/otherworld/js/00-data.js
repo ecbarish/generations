@@ -73,7 +73,7 @@ const NODES = {
     ['hesta', 'Rank F. Welcome to the guild. With the tide coming, everyone\'s needed.']], go: 'a_mira' },
   a_mira: { bg: 'guild', lines: life => [
     ['mira', 'You! The new one. Are you any good? Never mind, it doesn\'t matter. I need a partner for my rank test and nobody will go with an apprentice.'],
-    ['mira', 'The test: find out why the beasts are moving before they get here. The guild master says they\'re just hungry. I don\'t believe him.'],
+    ['mira', 'The test: find out why the beasts are moving before they get here. The Guild Master says they\'re just hungry. I don\'t believe him.'],
     ...(life.mem.tide ? [['', 'Something stirs in you, a memory that isn\'t from this life: the beasts are running from something.'],
       ['mira', '...How do you know that? You only just got here.']] : []),
     ['corvin', 'Or you could take honest coin. I leave Lanthorn tonight with my wagons and I need a guard. Twenty silver.']],
@@ -93,7 +93,7 @@ const NODES = {
   a_corvin: { bg: 'road', night: true, lines: [
     ['', 'The wagons roll out at dusk. Corvin pays you half up front, as promised.'],
     ['', 'Past the walls, the outer farms are dark. One still has a light in the window.'],
-    ['corvin', 'Don\'t look at me like that. The guild master paid me to move the goods out. He\'ll let the farms fall, so the beasts glut themselves before they reach the walls.'],
+    ['corvin', 'Don\'t look at me like that. The Guild Master paid me to move the goods out. He\'ll let the farms fall, so the beasts glut themselves before they reach the walls.'],
     ['corvin', 'It\'s not my plan. I\'m just a merchant.'],
     ['', 'Far behind you, through the trees, the Deepwood glows a sick and sullen green.']],
     fx: life => { life.flags.betrayal = true; },

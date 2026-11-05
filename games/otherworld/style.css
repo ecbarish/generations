@@ -2,17 +2,17 @@
 :root{--ink:#f2eefc;--muted:#c8c0e0;--gold:#ffd27a;--panel:rgba(18,16,40,.88);--line:#7a6ac8;color-scheme:dark}
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#0c0b22;color:var(--ink);font-family:Nunito,system-ui,sans-serif}
 .stage{position:fixed;inset:0}#scene{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
-.hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;z-index:6;pointer-events:none}
-.hud>*{pointer-events:auto}.hud-left,.hud-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.home,.hbtn,.arc-set-btn{font:inherit;font-size:13px;font-weight:700;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;text-decoration:none;cursor:pointer}
-.where{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--gold);text-shadow:0 2px 6px #000}
+.hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;padding:10px 14px;z-index:6;pointer-events:none;max-width:100%}
+.hud>*{pointer-events:auto}.hud-left,.hud-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-width:0}
+.home,.hbtn,.arc-set-btn{font:inherit;font-size:13px;font-weight:700;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 12px;text-decoration:none;cursor:pointer}
+.where{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--gold);text-shadow:0 2px 6px #000;min-width:0;overflow-wrap:anywhere}
 .version-label{font-size:11px;color:var(--muted)}
 /* choosing a world, a gift, yourself */
-.choose{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(980px,94vw);max-height:84vh;overflow:auto;z-index:7;
-  background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:rise .4s ease-out}
-@keyframes rise{from{opacity:0;transform:translate(-50%,-46%)}to{opacity:1;transform:translate(-50%,-50%)}}
+.choose{position:absolute;left:50%;top:var(--ow-below-hud,112px);transform:translateX(-50%);width:min(980px,94vw);max-height:calc(100dvh - var(--ow-below-hud,112px) - 12px);overflow:auto;overflow-x:hidden;z-index:7;
+  background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:ow-fade .25s ease-out}
+@keyframes ow-fade{from{opacity:0}to{opacity:1}}
 .choose h2{font-family:'Cormorant Garamond',serif;font-size:30px;margin:0 0 4px;color:var(--gold)}.sub{color:var(--muted);margin:0 0 14px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:12px}
 .card{font:inherit;color:var(--ink);text-align:left;display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:12px;cursor:pointer;
   background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(0,0,0,.2));border:2px solid color-mix(in srgb,var(--c) 60%,transparent);transition:transform .15s,border-color .15s}
 .card:hover:not([disabled]),.card:focus-visible{transform:translateY(-3px);border-color:var(--c)}.card[disabled]{opacity:.55;cursor:default}
@@ -20,20 +20,24 @@
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}.row.end{justify-content:flex-end}.lbl{min-width:44px;color:var(--muted)}
 .row input{font:inherit;font-size:16px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:#0c0b22;color:var(--ink);flex:1 1 180px;min-width:0}
 .chip{font:inherit;font-size:14px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
-.swatch{width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.3);cursor:pointer}.swatch.on{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,210,122,.35)}
+.swatch{width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border-radius:50%;border:2px solid rgba(255,255,255,.3);cursor:pointer}.swatch.on{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,210,122,.35)}
 .go{font:inherit;font-weight:700;font-size:16px;padding:10px 20px;border-radius:999px;border:0;background:var(--gold);color:#2a1a08;cursor:pointer}
 /* the status window of isekai stories */
-.status{position:absolute;right:16px;top:60px;z-index:8;width:min(320px,90vw);padding:14px 16px;border-radius:6px;
+.status{position:absolute;right:16px;top:var(--ow-below-hud,112px);z-index:8;width:min(320px,90vw);padding:14px 16px;border-radius:6px;
   background:rgba(40,110,220,.55);border:1px solid #bfe9ff;box-shadow:0 0 24px rgba(120,200,255,.5),inset 0 0 20px rgba(160,220,255,.25);backdrop-filter:blur(3px);animation:rise2 .35s ease-out}
-@keyframes rise2{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+@keyframes rise2{from{opacity:0}to{opacity:1}}
 .st-title{letter-spacing:.3em;font-weight:700;color:#e8f7ff;border-bottom:1px solid #bfe9ff;margin-bottom:8px;padding-bottom:4px}
 .st-row{display:flex;justify-content:space-between;margin:3px 0;color:#e8f7ff}.st-row span{opacity:.8}.st-note{font-size:13px;color:#dff2ff;margin:8px 0}
-.st-close{font:inherit;font-size:13px;margin-top:6px;padding:4px 12px;border-radius:999px;border:1px solid #bfe9ff;background:transparent;color:#e8f7ff;cursor:pointer}
+button.st-close{font:inherit;font-size:15px;margin:0 0 8px;padding:10px 14px;border-radius:999px;border:1px solid #bfe9ff;background:#121028;color:#e8f7ff;cursor:pointer;position:sticky;top:0;z-index:1;height:44px;min-height:44px;min-width:44px;box-sizing:border-box}
 /* the shared dialogue box, in Otherworld's colours */
 .dlg.dlg-otherworld{--dlg-bg:rgba(18,16,40,.92);--dlg-bg-solid:#121028;--dlg-line:#7a6ac8;--dlg-shadow:rgba(0,0,0,.5);--dlg-radius:14px;--dlg-ink:#f2eefc;--dlg-name:#ffd27a;
   --dlg-muted:#c8c0e0;--dlg-name-font:'Cormorant Garamond',serif;--dlg-btn:#ffd27a;--dlg-btn-ink:#2a1a08}
 .dlg-otherworld.dlg{left:50%;right:auto;transform:translateX(-50%);width:min(860px,94vw);bottom:18px}
 @media (prefers-reduced-motion:reduce){.choose,.status{animation:none}}
+@media (max-width:560px){
+  .choose{left:8px;right:8px;width:auto;transform:none}
+  .status{left:8px;right:8px;width:auto;max-height:min(38dvh,calc(100dvh - var(--ow-below-hud,120px) - 210px))}
+}
 
 /* Locked decisions explain themselves in the same portrait scene, with no side panel. */
 .dlg-otherworld .choice-why{display:block;margin-top:5px;font-size:12px;line-height:1.4;font-weight:400;color:#d0c7de}
@@ -55,7 +59,7 @@
  .dlg.dlg-otherworld .choice-why{font-size:14px}
 }
 /* T44: opaque reading surfaces keep contrast independent of the moving world. */
-.choose,.status{background:#121028}.status{max-height:calc(100dvh - 100px);overflow:auto}
+.choose,.status{background:#121028}.status{max-height:calc(100dvh - var(--ow-below-hud,112px) - 16px);overflow:auto;overflow-x:hidden}
 .choose,.status{font-size:calc(16px * var(--arc-text,1))}
 .card,.chip,.go,.st-row,.row input{font-size:inherit}.card em,.card .cost,.st-note,.lbl,.st-close{font-size:calc(14px * var(--arc-text,1));opacity:1}
 .card b{color:#ffd27a}.swatch.on::after{content:'✓';color:#fff;background:#121028;border-radius:50%;padding:2px}
@@ -66,3 +70,16 @@
 .ledger-panel{z-index:9}.ledger{list-style:none;margin:8px 0;padding:0}.ledger li{margin:8px 0;color:#e8f7ff}
 .ledger li b{display:block;font-weight:700}.ledger li small{display:block;opacity:.85;font-size:calc(13px * var(--arc-text,1))}
 .ledger li.unknown b{opacity:.7;font-style:italic}.ledger-line .chip{margin-left:6px}
+.ledger-panel .st-title{letter-spacing:0}
+/* OW-FINISH: the goal, and tap targets that outrank the shared 40px coarse-pointer rule. */
+.goal{pointer-events:none;flex:1 0 100%;min-width:0;margin:6px 0 0;padding:8px 12px;background:#121028;border:1px solid var(--line);border-radius:12px;color:var(--gold);font-weight:700;font-size:calc(15px * var(--arc-text,1));line-height:1.35;overflow-wrap:anywhere}
+.stage a.home,.stage .hud button,.stage .chip,.stage .go,.stage .st-close,.stage .dlg.dlg-otherworld .dlg-continue,.stage .between-shortcut,.stage .row input,.arc-set .arc-set-x,.arc-set .arc-set-opts button,.arc-set .arc-set-opts a,.stage .feedback-menu a{min-height:44px;min-width:44px}
+.stage a.home,.stage .hud button,.stage .chip,.stage .go,.stage .st-close,.stage .dlg.dlg-otherworld .dlg-continue,.stage .between-shortcut{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
+.stage .feedback-menu{max-width:calc(100vw - 16px)}
+.stage .feedback-menu a{display:flex;align-items:center;white-space:normal;box-sizing:border-box;padding:8px 12px}
+.dlg-otherworld.dlg{max-height:calc(100dvh - var(--ow-below-hud,120px) - 12px)}
+@media(max-width:560px){
+  .choose{left:8px;right:8px;width:auto;transform:none}
+  .status{left:8px;right:8px;width:auto;max-height:min(34dvh,calc(100dvh - var(--ow-below-hud,120px) - 220px))}
+  .dlg-otherworld.dlg{max-height:min(42dvh,calc(100dvh - var(--ow-below-hud,120px) - 12px))}
+}
