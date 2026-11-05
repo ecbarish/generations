@@ -93,13 +93,19 @@
   $('#mortgage').textContent='−'+money(a.mortgage);
   $('#flow').textContent=money(a.cashFlow);
   $('#flow').closest('tr').className='total '+(view.o.counts?'good':a.cashFlow<0?'bad':'');
-  const mark=(m,ok,v,note)=>{const li=document.querySelector('[data-m="'+m+'"]');li.className=ok?'good':'bad';li.querySelector('.v').textContent=v;if(note!==undefined)li.querySelector('small').textContent=note;};
+  const cocNote=x=>'Your yearly cash flow, '+money(x.cashFlow*12)+', on the '+money(x.cashIn)+' you put in (down payment, closing costs, the work).';
+  const arvNote=(x,cost)=>'What it is worth let, from its net income. Paying '+money(choice.price)+' plus '+money(cost)+' of work leaves you '+(x.equity>=0?money(x.equity)+' of equity on day one.':money(-x.equity)+' under water on day one.');
+  // Every plan's note stays in the box, so switching the work cannot change its height.
+  const reserve=(m,lines)=>{const stack=document.querySelector('[data-m="'+m+'"] .note-stack');stack.replaceChildren();lines.forEach((t,i)=>{const s=document.createElement('span');s.className=i?'note-hold':'note-live';if(i)s.setAttribute('aria-hidden','true');s.textContent=t;stack.appendChild(s);});};
+  const alts=Object.entries(L.plans).map(([k,plan])=>{const x=M.analyze(Object.assign({},choice,{rehab:k}),L);return {k,x,plan};});
+  const mark=(m,ok,v,note)=>{const li=document.querySelector('[data-m="'+m+'"]');li.className=ok?'good':'bad';li.querySelector('.v').textContent=v;if(note!==undefined){const live=li.querySelector('.note-live');if(live)live.textContent=note;else li.querySelector('small').textContent=note;}};
   mark('cap',a.capRate>=L.marketCap,pct(a.capRate));
-  mark('coc',a.cashOnCash>=0.08,pct(a.cashOnCash),'Your yearly cash flow, '+money(a.cashFlow*12)+', on the '+money(a.cashIn)+' you put in (down payment, closing costs, the work).');
+  reserve('coc',[cocNote(a),...alts.filter(t=>t.k!==S.rehab).map(t=>cocNote(t.x))]);
+  mark('coc',a.cashOnCash>=0.08,pct(a.cashOnCash),cocNote(a));
   mark('one',a.onePercent>=0.01,pct(a.onePercent,2));
-  mark('arv',a.equity>=0,money(a.arv),'What it is worth let, from its net income. Paying '+money(choice.price)+' plus '+money(L.plans[S.rehab].cost)+
-   ' of work leaves you '+(a.equity>=0?money(a.equity)+' of equity on day one.':money(-a.equity)+' under water on day one.'));
-  $('#outlook').hidden=S.phase==='done';
+  reserve('arv',[arvNote(a,L.plans[S.rehab].cost),...alts.filter(t=>t.k!==S.rehab).map(t=>arvNote(t.x,t.plan.cost))]);
+  mark('arv',a.equity>=0,money(a.arv),arvNote(a,L.plans[S.rehab].cost));
+  $('#outlookSlot').hidden=S.phase==='done';
   $('#outlook').className='outlook '+(view.o.counts?'good':'bad');
   $('#outlook').innerHTML='<b>'+view.o.word+'.</b> '+view.line;
   const warn=choosing?cashWarning(choice):'';
@@ -109,7 +115,13 @@
   $('#passBtn').disabled=!running;$('#offerBtn').disabled=!running||!M.canAfford(R,choice,L);
  }
 
- function show(html){const box=$('#answer');box.innerHTML=html;box.hidden=false;box.scrollIntoView&&box.scrollIntoView({block:'nearest'});}
+ // Scroll the answer into view only when it first opens. Updating a counter in place must not
+ // throw the page: the down payment and the work stay under the player's finger.
+ function show(html){
+  const box=$('#answer');const reveal=box.hidden;
+  box.innerHTML=html;box.hidden=false;
+  if(reveal)box.scrollIntoView&&box.scrollIntoView({block:'nearest'});
+ }
  const nextButton=()=>'<div class="actions"><button type="button" class="primary" data-act="next">'+(M.finished(R)?'See your street':'Next listing: '+M.STREET[R.at].address)+'</button></div>';
 
  function paintCounter(){

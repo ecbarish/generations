@@ -106,7 +106,7 @@ document.querySelector('#run').onclick=async()=>{
   check('without the cash, the offer is shut and the page does not pretend a lower price would fit',d.querySelector('#offerBtn').disabled&&!d.querySelector('#afford').hidden&&/you have \$20,000/.test(text('#afford'))&&/Nothing on this home fits/.test(text('#afford')));
   H.run().cash=42000;H.S.price=130000;H.S.down=0.25;H.S.rehab='refresh';H.render();
   click('#offerBtn');await wait();
-  check('a counter that does not fit at 25% down starts with Take shut',d.querySelector('[data-act="take"]').disabled&&/20% down/.test(text('#answer')));
+  check('a counter that does not fit at 25% down starts with Take shut, and does not suggest a lower offer',d.querySelector('[data-act="take"]').disabled&&/20% down/.test(text('#answer'))&&!/a lower offer/.test(text('#answer'))&&!/a lower offer/.test(text('#afford')));
   click('[data-down="0.2"]');await wait();
   check('20% down lets you take their price',!d.querySelector('[data-act="take"]').disabled&&/They come back at/.test(text('#answer')));
   H.S.phase='run';H.S.counter=null;H.S.price=150000;H.S.down=0.25;H.S.rehab='refresh';H.run().cash=cash;
@@ -118,6 +118,55 @@ document.querySelector('#run').onclick=async()=>{
   click('[data-act="again"]');await wait();
   check('walking the street again starts over with $200,000',/^14 Alder Street/.test(text('#addr'))&&text('#cash')==='$200,000'&&text('#offer')==='$240,000'&&!d.querySelector('.sheet').hidden);
   for(let i=0;i<30;i++)click('[data-offer="2000"]');check('the offer has a ceiling',text('#offer')==='$260,000'&&d.querySelector('[data-offer="2000"]').disabled);
+  // ---- the offer buttons and a counter must stay under the finger (GAD on #634)
+  const place=sel=>d.querySelector(sel).getBoundingClientRect().top;
+  const outlookMoves=[],counterMoves=[];
+  for(const [width,height] of [[1280,800],[390,844],[320,568],[1024,768]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(120);
+   H.S.phase='run';H.S.counter=null;H.S.noes=0;H.S.price=216000;H.S.down=0.25;H.S.rehab='refresh';
+   d.querySelector('#answer').hidden=true;H.render();await wait(40);
+   const offerAt=place('#offerBtn'),passAt=place('#passBtn');
+   click('[data-offer="-2000"]');await wait(40);
+   const offerMove=Math.abs(place('#offerBtn')-offerAt),passMove=Math.abs(place('#passBtn')-passAt);
+   outlookMoves.push({label:width+' yes/counter',offer:offerMove,pass:passMove});
+   if(width===1024){
+    H.S.price=240000;H.S.rehab='refresh';H.render();await wait(40);
+    const workAt=place('#offerBtn'),workPass=place('#passBtn');
+    click('[data-rehab="full"]');await wait(40);
+    outlookMoves.push({label:'1024 work',offer:Math.abs(place('#offerBtn')-workAt),pass:Math.abs(place('#passBtn')-workPass)});
+   }
+  }
+  for(const [width,height] of [[1280,800],[390,844],[320,568]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(120);
+   H.S.phase='run';H.S.counter=null;H.S.noes=0;H.S.price=210000;H.S.down=0.25;H.S.rehab='refresh';
+   d.querySelector('#answer').hidden=true;H.render();click('#offerBtn');await wait(80);
+   for(const sel of ['[data-down="0.2"]','[data-down="0.25"]','[data-rehab="asis"]']){
+    const b=d.querySelector(sel);b.scrollIntoView({block:'center'});await wait(40);
+    const before=b.getBoundingClientRect().top;b.click();await wait(40);
+    const moved=Math.abs(d.querySelector(sel).getBoundingClientRect().top-before);
+    counterMoves.push(width+' '+sel+' '+moved.toFixed(1));
+   }
+  }
+  check('in a counter, 20%, 25% and a work plan move the button 2px or less ('+counterMoves.join('; ')+')',counterMoves.every(s=>+s.match(/(\d+\.\d+)$/)[1]<=2));
+  check('stepping across the yes/counter point moves Make this offer and Pass 2px or less ('+outlookMoves.map(m=>m.label+' offer '+m.offer.toFixed(1)+' pass '+m.pass.toFixed(1)).join('; ')+')',outlookMoves.every(m=>m.offer<=2&&m.pass<=2));
+  frame.style.width='320px';frame.style.height='568px';await wait(80);
+  const midWord=li=>{const node=[...li.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());if(!node)return false;const s=node.textContent,range=d.createRange();let last=null;for(let i=0;i<s.length;i++){range.setStart(node,i);range.setEnd(node,i+1);const rect=range.getClientRects()[0];if(!rect)continue;if(last!==null&&rect.top>last+1&&s[i-1]!==' ')return true;last=rect.top;}return false;};
+  check('door labels at 320 do not split a word',![...d.querySelectorAll('#doors li')].some(midWord));
+  const lum=c=>{const f=v=>v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);return 0.2126*f(c[0])+0.7152*f(c[1])+0.0722*f(c[2]);};
+  const rgb=s=>{const m=s.match(/\d+/g).map(Number);return [m[0]/255,m[1]/255,m[2]/255];};
+  const blend=(fg,bg,a)=>fg.map((v,i)=>v*a+bg[i]*(1-a));
+  const ratio=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05);};
+  const keptHomes=JSON.parse(JSON.stringify(H.run().homes)),keptAt=H.run().at;
+  H.run().at=1;H.run().homes=[{id:'alder14',bought:false}];H.render();
+  const sold=d.querySelector('#doors .gone'),soldStyle=w.getComputedStyle(sold);
+  const opaque=el=>{let n=el;while(n){const c=w.getComputedStyle(n).backgroundColor;if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)')return c;n=n.parentElement;}return 'rgb(255, 250, 240)';};
+  const card=opaque(sold);
+  const soldRatio=ratio(blend(rgb(soldStyle.color),rgb(card),+soldStyle.opacity||1),rgb(card));
+  H.run().at=keptAt;H.run().homes=keptHomes;H.render();
+  check('a sold door stays at least 4.5:1 ('+soldRatio.toFixed(2)+')',soldRatio>=4.5);
+  d.querySelector('#answer').innerHTML='<div class="actions"><button type="button" class="primary" data-act="again">Walk Alder Street again</button></div>';
+  d.querySelector('#answer').hidden=true;
+  H.S.phase='run';H.S.counter=null;H.S.noes=0;H.S.price=260000;H.S.down=0.25;H.S.rehab='refresh';H.render();
   // ---- phone and desktop
   for(const [width,height] of [[320,568],[375,812],[812,375],[1366,768],[1920,1080]]){
    frame.style.width=width+'px';frame.style.height=height+'px';await wait(120);

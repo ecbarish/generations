@@ -28,12 +28,15 @@
   <tr><th id="loanLabel">Mortgage</th><td id="mortgage"></td></tr>
   <tr class="total"><th>Cash flow, each month</th><td id="flow"></td></tr>
  </table>
- <p class="outlook" id="outlook"></p>
+ <div class="outlook-slot" id="outlookSlot">
+  <p class="outlook outlook-hold" id="outlookHold" aria-hidden="true"><b>A costly buy.</b> This first year would not count toward your street. The sellers can say yes to this price.</p>
+  <p class="outlook" id="outlook"></p>
+ </div>
  <ul class="measures" aria-label="How the deal measures up">
   <li data-m="cap"><b>Cap rate</b> <span class="v"></span><small>What it earns a year before the loan, on the price. Rentals nearby sell at 7.5%.</small></li>
-  <li data-m="coc"><b>Cash-on-cash</b> <span class="v"></span><small></small></li>
+  <li data-m="coc"><b>Cash-on-cash</b> <span class="v"></span><small><span class="note-stack"><span class="note-live"></span></span></small></li>
   <li data-m="one"><b>The 1% rule</b> <span class="v"></span><small>A quick screen: monthly rent at least 1% of the price.</small></li>
-  <li data-m="arv"><b>After-repair value</b> <span class="v"></span><small></small></li>
+  <li data-m="arv"><b>After-repair value</b> <span class="v"></span><small><span class="note-stack"><span class="note-live"></span></span></small></li>
  </ul>
  <p class="afford" id="afford" hidden></p>
  <div class="actions"><button type="button" class="primary" id="offerBtn">Make this offer</button><button type="button" id="passBtn">Pass on it</button></div>
