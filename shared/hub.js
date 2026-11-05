@@ -46,29 +46,8 @@
   window.Hub = {
     VERSION, CURRENT, idx, games: all,
     current: () => CURRENT.map(id => all.find(g => g.id === id)).filter(Boolean),
-    lab: () => {
-      const kinds = window.ArcadeKinds || [];
-      const rank = g => { const i = kinds.findIndex(k => k.id === g.kind); return i < 0 ? 99 : i; };
-      return all.filter(g => !CURRENT.includes(g.id)).slice().sort((a, b) => rank(a) - rank(b));
-    },
-    render(el, list, opts) {
-      if (!el) return;
-      opts = Object.assign({ seen: {} }, opts);
-      const kinds = window.ArcadeKinds || [];
-      let html = '';
-      list.forEach(g => {
-        if (opts.kindAnchors && g.kind && !opts.seen[g.kind]) {
-          const k = kinds.find(x => x.id === g.kind);
-          if (k) {
-            html += `<h2 class="kind-head" id="kind-${k.id}" style="grid-column:1 / -1;margin:1.1rem 0 0;font-size:1.45rem">${esc(k.name)}</h2>`;
-            opts.seen[g.kind] = 1;
-          }
-        }
-        html += card(g, opts);
-      });
-      el.innerHTML = html;
-      wireResets(el);
-    },
+    lab: () => all.filter(g => !CURRENT.includes(g.id)),
+    render(el, list, opts) { if (!el) return; opts = Object.assign({ seen: {} }, opts); el.innerHTML = list.map(g => card(g, opts)).join(''); wireResets(el); },
     // Previews are Godot games: their saves live in the browser's IndexedDB file system, never in the shared index.
     // Read-only: only look inside the database if it already exists (never create it), and only list keys.
     // Old hub links (v1.7 and the canvas hall) keep working: section anchors of current games land on Play now,
