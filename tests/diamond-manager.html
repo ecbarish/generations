@@ -11,10 +11,42 @@ document.querySelector('#run').addEventListener('click',async()=>{
   try{
     backup=new Map(Object.keys(localStorage).filter(managed).map(k=>[k,localStorage.getItem(k)]));
     Object.keys(localStorage).filter(managed).forEach(k=>localStorage.removeItem(k));
-    frame=document.createElement('iframe');frame.title='Diamond Manager test instance';frame.src='../games/diamond-manager/index.html';
-    await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Game did not load within 20 seconds')),20000);frame.onload=()=>{clearTimeout(timer);resolve();};frame.onerror=()=>{clearTimeout(timer);reject(Error('Game load failed'));};document.querySelector('#game').appendChild(frame);});
-    if(!frame.contentWindow.__dm)throw Error('Run these checks on localhost, using serve.ps1.');
-    const list=frame.contentWindow.eval('('+diamondManagerChecks.toString()+')()');let fails=0;
+    document.querySelector('details').open=true;
+    frame=document.createElement('iframe');frame.title='Diamond Manager test instance';
+    document.querySelector('#game').appendChild(frame);
+    const loadAt=async(w,h)=>{
+      Object.keys(localStorage).filter(managed).forEach(k=>localStorage.removeItem(k));
+      frame.style.width=w+'px';frame.style.height=h+'px';
+      await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Game did not load within 20 seconds')),20000);frame.onload=()=>{clearTimeout(timer);resolve();};frame.onerror=()=>{clearTimeout(timer);reject(Error('Game load failed'));};frame.src='../games/diamond-manager/index.html?size='+w+'x'+h;});
+      const start=Date.now();
+      while(!frame.contentWindow.__dm&&Date.now()-start<5000) await new Promise(r=>setTimeout(r,40));
+      if(!frame.contentWindow.__dm)throw Error('Run these checks on localhost, using serve.ps1.');
+      frame.contentWindow.eval('introNote()');
+      await new Promise(r=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(r)));
+    };
+    const probe=(doc,win,selector)=>{
+      const el=doc.querySelector(selector); if(!el) return {ok:false,detail:'missing'};
+      const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+      const inView=r.width>0&&r.height>0&&r.top>=-0.5&&r.left>=-0.5&&r.bottom<=win.innerHeight+0.5&&r.right<=win.innerWidth+0.5;
+      let hit=false;
+      if(cx>=0&&cy>=0&&cx<win.innerWidth&&cy<win.innerHeight){ const top=doc.elementFromPoint(cx,cy); hit=!!(top&&(top===el||el.contains(top))); }
+      return {ok:inView&&hit,detail:'top '+r.top.toFixed(1)+'–'+r.bottom.toFixed(1)+' of '+win.innerHeight+' hit '+(hit?'true':'false')};
+    };
+    const layout=[];
+    for(const [w,h] of [[390,844],[375,667],[320,568],[844,390]]){
+      await loadAt(w,h);
+      const welcome=probe(frame.contentDocument,frame.contentWindow,'#n-ok');
+      layout.push({ok:welcome.ok,label:'DM-FINISH Let\'s play ball is on screen and receives a hit at '+w+'×'+h+' ('+welcome.detail+')'});
+      if(w===844&&h===390){
+        frame.contentDocument.querySelector('#n-ok').click();
+        frame.contentDocument.querySelector('#a-sim5').click();
+        const back=probe(frame.contentDocument,frame.contentWindow,'#n-ok');
+        const text=frame.contentDocument.querySelector('#n-ok')?.textContent||'';
+        layout.push({ok:back.ok&&text==='Back to the field',label:'DM-FINISH Back to the field after Sim 5 is on screen and receives a hit at 844×390 ('+back.detail+', "'+text+'")'});
+      }
+    }
+    await loadAt(800,600);
+    const list=frame.contentWindow.eval('('+diamondManagerChecks.toString()+')()').concat(layout);let fails=0;
     for(const c of list){const li=document.createElement('li');li.className=c.ok?'pass':'fail';li.textContent=(c.ok?'PASS — ':'FAIL — ')+c.label;res.appendChild(li);if(!c.ok)fails++;}
     sum.textContent=fails?`FAIL — ${fails} of ${list.length} checks.`:`PASS — ${list.length} checks.`;
   }catch(e){sum.textContent='FAIL — '+e.message;}
