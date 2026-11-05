@@ -200,15 +200,30 @@ document.querySelector('#run').onclick=async()=>{
   check('the reply stays in view at every size ('+replySeen.join(', ')+')',replySeen.every(s=>/in\/hit\/still$/.test(s)));
   const band=el=>{const range=d.createRange();range.selectNodeContents(el);let bottom=0;for(const rect of range.getClientRects())if(rect.width||rect.height)bottom=Math.max(bottom,rect.bottom);const box=el.getBoundingClientRect();const pad=parseFloat(w.getComputedStyle(el).paddingBottom)||0;return Math.max(0,box.bottom-bottom-pad);};
   const blanks=[];
-  for(const [width,height] of [[1280,800],[1024,768],[844,390],[820,1180],[320,568]]){
+  for(const [width,height] of [[1280,800],[1024,768],[820,1180],[390,844],[320,568]]){
    frame.style.width=width+'px';frame.style.height=height+'px';await wait(60);
    H.again();await wait(20);w.scrollTo(0,0);H.render();
    const outlookGap=band(d.querySelector('#outlook'));
    const budgetGap=band(d.querySelector('#budget'));
+   const line=parseFloat(w.getComputedStyle(d.querySelector('#outlook')).lineHeight)||22.4;
    blanks.push(width+' outlook '+outlookGap.toFixed(1)+' budget '+budgetGap.toFixed(1));
-   check(width+' outlook and budget blanks stay under 8px',outlookGap<8&&budgetGap<8);
+   check(width+' outlook spare stays within one line ('+line.toFixed(1)+') and the cash note stays tight',outlookGap<=line+2&&budgetGap<8);
   }
   check('reserved boxes match their text ('+blanks.join('; ')+')',blanks.length===5);
+  const cardTop=()=>d.querySelector('.measures').getBoundingClientRect().top+w.scrollY;
+  const under=[];
+  for(const [width,height] of [[820,1180],[390,844]]){
+   frame.style.width=width+'px';frame.style.height=height+'px';await wait(80);
+   H.again();await wait(40);w.scrollTo(0,0);
+   let worst=0,steps=0;
+   while(!d.querySelector('[data-offer="-2000"]').disabled&&steps<40){
+    const before=cardTop(); click('[data-offer="-2000"]'); await wait(16);
+    worst=Math.max(worst,Math.abs(cardTop()-before)); steps++;
+   }
+   under.push(width+' '+worst.toFixed(1)+'px/'+steps);
+   check(width+' the card under the outlook moves 2px or less across the price sweep ('+worst.toFixed(1)+'px, '+steps+' steps)',worst<=2&&steps>=10);
+  }
+  check('the card under the outlook stays put ('+under.join('; ')+')',under.length===2);
   H.again();await wait(20);
   H.S.price=216000;H.S.down=0.25;H.S.rehab='asis';H.render();
   const thin=text('#outlook');click('[data-down="0.2"]');const solid=text('#outlook');

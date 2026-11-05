@@ -13,7 +13,7 @@
  const KEY=M.SAVE_KEY, A=window.Arcade;
  if(A){A.versions[KEY]=M.SAVE_VERSION;A.validators[KEY]=M.valid;}
  const raw=A?A.load(KEY):null, protect=!!(raw&&!M.valid(raw));
- let R=raw&&M.valid(raw)?M.restore(raw):M.newRun(), L=M.current(R);
+ let R=raw&&M.valid(raw)?M.restore(raw):M.newRun(), L=M.current(R), outlookKey='';
  function persist(){if(!A||protect||A.held[KEY])return false;const ok=A.save(KEY,M.serialize(R));if(ok)A.report('keymaster',M.summary(R));return ok;}
  const S={price:0,down:0.25,rehab:'refresh',phase:'run',noes:0,counter:null,sure:false};
  // $60,000 under asking is 75% on 14 Alder, so the stepper does not stop around 92.5%.
@@ -126,13 +126,28 @@
   $('#outlook').className='outlook '+(view.o.counts?'good':'bad');
   const live='<b>'+view.o.word+'.</b> '+view.line;
   $('#outlook').innerHTML=live;
-  // One real outlook, the one on screen. A joined stand-in is taller than any line the game shows.
-  $('#outlookHold').innerHTML='<span>'+live+'</span>';
+  reserveOutlook(live);
   const warn=choosing?cashWarning(choice):'';
   $('#afford').hidden=!warn;$('#afford').textContent=warn;
   document.querySelectorAll('.choices button,#offerBtn,#passBtn').forEach(b=>b.disabled=!choosing);
   $('[data-offer="-2000"]').disabled=!running||S.price<=MIN();$('[data-offer="2000"]').disabled=!running||S.price>=MAX();
   $('#passBtn').disabled=!running;$('#offerBtn').disabled=!running||!M.canAfford(R,choice,L);
+ }
+
+ // Tallest real outlook for this home at this width. Each variant is its own line, never two joined.
+ function reserveOutlook(live){
+  const slot=$('#outlookSlot'); if(!slot)return;
+  const width=Math.round(slot.getBoundingClientRect().width);
+  const key=(L?L.id:'')+'|'+width;
+  if(width>0&&key===outlookKey)return;
+  const hold=$('#outlookHold'); hold.replaceChildren();
+  const seen=new Set();
+  const add=html=>{if(seen.has(html))return; seen.add(html); const s=document.createElement('span'); s.innerHTML=html; hold.appendChild(s);};
+  if(L)for(let price=MIN(); price<=MAX(); price+=2000) for(const down of [0.2,0.25]) for(const rehab of Object.keys(L.plans)){
+   const v=outlookOf({price,down,rehab}); add('<b>'+v.o.word+'.</b> '+v.line);
+  }
+  else add(live);
+  if(width>0)outlookKey=key;
  }
 
  // The reply sits under the choices. Bring its first action into view on every size, and only
