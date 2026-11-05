@@ -102,14 +102,18 @@ function setLineup(club, order) {
   const rest=batters(club).filter(p=>!line.includes(p.id)).sort((a,b)=>overall(b)-overall(a)).map(p=>p.id);
   club.lineup=line.concat(rest).slice(0,9);
 }
-/* A better bat takes the weakest spot in the order. A weaker one stays on the bench. */
 function seatIfBetter(club,p) {
   if(!p||p.pitcher||!club.players.includes(p)||club.lineup.includes(p.id)) return;
   if(club.lineup.length<9){ setLineup(club); return; }
   let worstI=0;
   for(let i=1;i<club.lineup.length;i++){ const a=club.players.find(x=>x.id===club.lineup[i]), b=club.players.find(x=>x.id===club.lineup[worstI]); if(a&&b&&overall(a)<overall(b)) worstI=i; }
   const worst=club.players.find(x=>x.id===club.lineup[worstI]);
-  if(worst&&overall(p)>overall(worst)) club.lineup[worstI]=p.id;
+  if(!worst||overall(p)<=overall(worst)) return;
+  const line=club.lineup.filter((_,i)=>i!==worstI);
+  let slot=0;
+  for(;slot<line.length;slot++){ const other=club.players.find(x=>x.id===line[slot]); if(other&&overall(p)>=overall(other)) break; }
+  line.splice(slot,0,p.id);
+  club.lineup=line;
 }
 /* A bench start keeps the batting slot of the player whose natural position matches. */
 function starterSlot(club,id) {
