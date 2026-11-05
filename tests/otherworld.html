@@ -17,9 +17,14 @@ document.querySelector('#run').addEventListener('click',async()=>{
     frame=document.createElement('iframe');frame.title='Otherworld test instance';
     await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Game did not load within 20 seconds. Serve the repository root and try again.')),20000);frame.onload=()=>{clearTimeout(timer);resolve();};frame.onerror=()=>{clearTimeout(timer);reject(Error('Game load failed.'));};frame.src='../games/otherworld/';document.querySelector('#game').appendChild(frame);});
     const w=frame.contentWindow;if(!w.__ow)throw Error('Run these checks on localhost, using serve.ps1.');
-    const list=w.eval('('+otherworldChecks.toString()+')()');let failed=0;
-    for(const c of list){const li=document.createElement('li');li.className=c.ok?'pass':'fail';li.textContent=(c.ok?'PASS — ':'FAIL — ')+c.label;res.appendChild(li);if(!c.ok)failed++;}
-    sum.textContent=failed?'FAIL — '+failed+' of '+list.length+' failed.':'PASS — '+list.length+' checks.';
+    const list=w.eval('('+otherworldChecks.toString()+')()');
+    const look=async(width,height)=>{frame.style.width=width+'px';frame.style.height=height+'px';await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));w.dispatchEvent(new Event('resize'));await new Promise(r=>requestAnimationFrame(r));return w.eval('('+otherworldFinishFrame.toString()+')()');};
+    const frames=[];
+    for(const [width,height] of [[390,844],[320,568],[375,812],[844,390],[390,600],[375,600]]) frames.push(...await look(width,height));
+    const all=[...list,...frames];
+    let failed=0;
+    for(const c of all){const li=document.createElement('li');li.className=c.ok?'pass':'fail';li.textContent=(c.ok?'PASS — ':'FAIL — ')+c.label;res.appendChild(li);if(!c.ok)failed++;}
+    sum.textContent=failed?'FAIL — '+failed+' of '+all.length+' failed.':'PASS — '+all.length+' checks.';
   }catch(e){sum.textContent='FAIL — '+e.message;}
   finally{
     if(frame)frame.remove();

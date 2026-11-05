@@ -81,6 +81,10 @@ NODES.a_tower.fx = life => { townDay(life, 2); towerFx(life); };
 const aloneFx = NODES.a_alone.fx;
 NODES.a_alone.fx = life => { townDay(life, 2); aloneFx(life); };
 NODES.a_market = { bg: 'market', lines: life => [
+  ...(has(life, 'mira') ? [['mira', 'The tower can wait until this flour is off the cart. I will be at the gate.']]
+    : has(life, 'corvin') ? [['corvin', 'The wagons leave at dusk. Until then, a guard who can lift a sack is worth more than a speech.']]
+    : has(life, 'alone') ? [['', 'The Deepwood will keep until dark. The market will not. The road you chose still waits beyond Lanthorn.']]
+    : []),
   ['', 'Lanthorn\'s market smells of bread and damp rope. A woman is lifting sacks off Old Bren\'s cart, one by one.'],
   ['ressa', 'Ressa. Baker, when the flour comes. We have three days before the tide and more mouths every hour.'],
   ...(life.gift === 'appraisal' ? [

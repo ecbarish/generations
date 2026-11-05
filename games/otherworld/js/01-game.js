@@ -42,7 +42,6 @@ function run(id) {
   if (n.status) life.status = true;
   save(); renderHUD();
   const avail = choicesOf(n);
-  if (n.status) showStatus();
   D.play(linesOf(n), i => {
     if (S.life !== life || life.at !== id) return;
     if (avail.length) {
@@ -138,15 +137,21 @@ document.addEventListener('click', e => {
 /* ---------------------------------------------------------------- the status window (Asterhold shows it) */
 function showStatus() {
   const l = S.life; if (!l) return; const g = GIFTS[l.world][l.gift];
+  if (typeof placeBelowHud === 'function') placeBelowHud();
+  const ledger = document.getElementById('ledger'); if (ledger) ledger.hidden = true;
   const el = document.getElementById('status');
-  el.innerHTML = `<div class="st-title">STATUS</div><div class="st-row"><span>Name</span><b>${l.name}</b></div>
+  el.innerHTML = `<button class="st-close" data-close>Put the window away</button><div class="st-title">STATUS</div>
+    <div class="st-row"><span>Gift</span><b>${g.name}</b></div>
+    <div class="st-row"><span>Name</span><b>${l.name}</b></div>
     <div class="st-row"><span>Race</span><b>Human</b></div><div class="st-row"><span>Title</span><b>Otherworlder</b></div>
-    <div class="st-row"><span>Guild rank</span><b>F</b></div><div class="st-row"><span>Gift</span><b>${g.name}</b></div>
-    <div class="st-note">${g.good}<br><i>${g.cost}</i></div>${l.silver ? `<div class="st-row"><span>Silver</span><b>${l.silver}</b></div>` : ''}
-    ${Object.keys(S.mem).length ? `<div class="st-note">Soul memories: ${Object.keys(S.mem).length}</div>` : ''}<button class="st-close" data-close>Close</button>`;
-  el.hidden = false; el.querySelector('button')?.focus();
+    <div class="st-row"><span>Guild rank</span><b>F</b></div>
+    ${l.silver ? `<div class="st-row"><span>Silver</span><b>${l.silver}</b></div>` : ''}
+    <div class="st-note">${g.good} ${g.cost}</div>
+    ${Object.keys(S.mem).length ? `<div class="st-note">Soul memories: ${Object.keys(S.mem).length}</div>` : ''}`;
+  el.hidden = false; el.querySelector('button')?.focus({ preventScroll: true });
+  if (typeof syncReading === 'function') syncReading();
 }
-document.addEventListener('click', e => { if (e.target.closest('#status [data-close]')) { document.getElementById('status').hidden = true; if (sceneState) D.el.focus(); else document.getElementById('statusBtn').focus(); } if (e.target.closest('#statusBtn')) showStatus(); });
+document.addEventListener('click', e => { if (e.target.closest('#status [data-close]')) { document.getElementById('status').hidden = true; if (typeof syncReading === 'function') syncReading(); if (sceneState) D.el.focus(); else document.getElementById('statusBtn').focus(); } if (e.target.closest('#statusBtn')) showStatus(); });
 
 /* ---------------------------------------------------------------- the corner of the screen */
 function renderHUD() {

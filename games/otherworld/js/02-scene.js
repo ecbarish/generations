@@ -10,6 +10,83 @@ function setScene(b, n) { bg = b || 'between'; night = !!n; }
 function size() { const d = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); cx.imageSmoothingEnabled = false; }
 addEventListener('resize', size); size();
 const R = (x, y, w, h, c) => { cx.fillStyle = c; cx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+/* A traveller at the house people size: 16 by 24 pixels, the same chunky stance as the market people,
+   ink outline and light from the upper left. Drawn 1:1, never stretched. */
+const HERO_INK = '#1e1a22';
+const HERO_ROWS = [
+  '................',
+  '....oooooo......',
+  '...oHHHHHHo.....',
+  '...oHhhhhdHo....',
+  '..ooHhhhdoo.....',
+  '..oAAssssAo.....',
+  '..oAsesseAo.....',
+  '..osssssssso....',
+  '...oskkkkso.....',
+  '....oooooo......',
+  '...oBBBBBBo.....',
+  '..oBccccccno....',
+  '..occccccccno...',
+  '..occccccccno...',
+  '...occccccno....',
+  '....oooooooo....',
+  '...oLL....Lo....',
+  '...oll....lo....',
+  '...oll....lo....',
+  '...oll....lo....',
+  '...ogg....go....',
+  '..ooggggggoo....',
+  '..ooo....ooo....',
+  '................'
+];
+const heroMarks = { road: 0, guild: 0 };
+let heroBlit = { w: 0, h: 0 };
+const heroCache = new Map();
+function heroShade(hex, amt) {
+  const n = parseInt(String(hex).slice(1), 16);
+  const ch = s => {
+    const c = (n >> s) & 255;
+    const v = amt < 0 ? c * (1 + amt) : c + (255 - c) * amt;
+    return Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
+  };
+  return '#' + [16, 8, 0].map(ch).join('');
+}
+function heroSheet() {
+  const skin = (S.look && S.look.skin) || '#d8a882';
+  const hair = (S.look && S.look.hair) || '#2a1a12';
+  const key = skin + '|' + hair;
+  if (heroCache.has(key)) return heroCache.get(key);
+  const paint = {
+    o: HERO_INK,
+    H: heroShade(hair, 0.34), h: hair, d: heroShade(hair, -0.4),
+    A: heroShade(skin, 0.32), s: skin, k: heroShade(skin, -0.34),
+    e: HERO_INK,
+    B: '#8e8ec4', c: '#4a4a7a', n: '#2a2a4e',
+    L: '#7a6250', l: '#4a382e', g: '#2a201c'
+  };
+  const sheet = document.createElement('canvas');
+  sheet.width = 16; sheet.height = 24;
+  const g = sheet.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  HERO_ROWS.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) {
+      const col = paint[row[x]];
+      if (!col) continue;
+      g.fillStyle = col;
+      g.fillRect(x, y, 1, 1);
+    }
+  });
+  heroCache.set(key, sheet);
+  return sheet;
+}
+function drawHero(x, y, t, where) {
+  heroMarks[where] = (heroMarks[where] || 0) + 1;
+  const bob = reduce ? 0 : Math.round(Math.sin(t || 0));
+  const dx = Math.round(x), dy = Math.round(y) + bob;
+  cx.imageSmoothingEnabled = false;
+  cx.drawImage(heroSheet(), dx, dy);
+  heroBlit = { w: 16, h: 24, x: dx, y: dy };
+}
 const px = () => Math.max(3, Math.round(Math.min(W / 220, H / 130)));
 
 const SCENES = {
@@ -36,6 +113,7 @@ const SCENES = {
     const cxp = W * .2, bob = reduce ? 0 : Math.round(Math.sin(t * 3)) * p * .3;      // the hay cart
     R(cxp, gy + H * .06 + bob, p * 26, p * 8, '#7a5230'); R(cxp + p, gy + H * .06 - p * 4 + bob, p * 24, p * 5, '#d8b858');
     R(cxp + p * 3, gy + H * .06 + p * 7, p * 6, p * 6, '#4a3020'); R(cxp + p * 18, gy + H * .06 + p * 7, p * 6, p * 6, '#4a3020');
+    drawHero(cxp + p * 9, gy + H * .06 - 22, t, 'road');
     if (night) AMB.lights(cx, W, H, t, { dark: .8, lights: [{ x: W * .66, y: gy - p * 5, r: H * .25, col: '#ffcf70', flick: 1 }] });
   },
   guild(t) {
@@ -44,6 +122,7 @@ const SCENES = {
     R(0, fy, W, H - fy, '#5a3a22'); for (let y = fy; y < H; y += p * 4) R(0, y, W, p * .5, '#4a2e1a');
     for (let i = 0; i < 5; i++) { const bx = W * (.1 + i * .2); R(bx, H * .08, p * 10, p * 16, ['#2f5aa8', '#a83a3a', '#3a8a5a', '#a87a2a', '#6a3a8a'][i]); R(bx + p * 3, H * .08 + p * 5, p * 4, p * 4, '#f2d24a'); }
     R(W * .15, fy - p * 14, W * .4, p * 14, '#7a5030'); R(W * .15, fy - p * 15, W * .4, p * 2, '#9a6a40');   // the counter
+    drawHero(W * .38, fy - 24, t, 'guild');
     const cx0 = W * .72, cy0 = fy - p * 22, pulse = reduce ? .6 : .5 + .3 * Math.sin(t * 2);             // the crystal
     R(cx0 - p * 4, fy - p * 10, p * 8, p * 10, '#6a6a7a');
     cx.fillStyle = `rgba(120,220,255,${pulse})`; cx.beginPath(); cx.moveTo(cx0, cy0 - p * 8); cx.lineTo(cx0 + p * 5, cy0); cx.lineTo(cx0, cy0 + p * 10); cx.lineTo(cx0 - p * 5, cy0); cx.fill();
