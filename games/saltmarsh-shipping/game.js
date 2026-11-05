@@ -7,7 +7,7 @@
   var M = window.Saltmarsh;
   var P = window.SaltmarshPhase;
   var KEY = M.SAVE_KEY;
-  var VERSION = '0.2.3';
+  var VERSION = '0.3.0';
   var $ = function (sel) { return document.querySelector(sel); };
   var money = function (n) { return M.coins(n); };
   var view = { rowing: 0, ripple: null, choice: '', routes: false, goalTimer: 0 };
