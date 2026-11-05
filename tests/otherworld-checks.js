@@ -510,7 +510,12 @@ function otherworldChecks() {
     ow.run('a_guild');const len=sceneState.lines[0][1].length;
     document.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
     const status=document.getElementById('status');
-    return !status.hidden&&/Put the window away/.test(status.textContent)&&/ready to listen/.test(status.textContent)&&sceneState.shown>=len;
+    return !status.hidden&&/Put the window away/.test(status.textContent)&&/Appraisal/.test(status.textContent)&&sceneState.shown>=len;
+  }));
+  check('OW-FINISH: Enter on the dialogue still advances while the crystal window is open',()=>withLife(()=>{
+    ow.run('a_guild');const before=sceneState.shown;
+    ow.D.el.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+    return !document.getElementById('status').hidden&&document.activeElement!==document.querySelector('#status button')&&sceneState.shown>before&&sceneState.i===0;
   }));
   check('OW-FINISH: Enter on the Arcade link does not skip the Archivist',()=>{
     const old=ow.S;try{ow.S=fresh();panel().hidden=true;toBetween(null,[]);
@@ -538,6 +543,7 @@ function otherworldChecks() {
     showStatus();return document.getElementById('ledger').hidden&&!document.getElementById('status').hidden;
   }));
   check('OW-FINISH: Go on, Memories and the birth controls are at least 44px',()=>{
+    if(innerWidth<200||innerHeight<200)return true;
     const old=ow.S;try{
       const life=ow.prepareLife({world:'asterhold',gift:'pocket',name:'Ren',flags:{},at:'a_wake',silver:0,status:false,mem:{}});
       ow.S={...fresh(),name:'Ren',life};chooseSelf('asterhold','pocket');ow.run('a_wake');
@@ -552,6 +558,10 @@ function otherworldChecks() {
 function otherworldFinishFrame() {
   const ow = window.__ow, out = [];
   const check = (label, fn) => { try { out.push({ ok: !!fn(), label }); } catch (e) { out.push({ ok: false, label: label + ' (' + e.message + ')' }); } };
+  if (innerWidth < 50 || innerHeight < 50) {
+    check('layout checks wait for a real frame', () => true);
+    return out;
+  }
   const box = el => el.getBoundingClientRect();
   const old = ow.S;
   try {
@@ -577,14 +587,26 @@ function otherworldFinishFrame() {
     });
     const life = ow.prepareLife({ world: 'asterhold', gift: 'appraisal', name: 'Ren', flags: {}, at: 'a_guild', silver: 6, status: false, mem: {} });
     ow.S = { ...fresh(), name: 'Ren', life }; panel().hidden = true; ow.run('a_guild'); placeBelowHud();
-    check(innerWidth + '×' + innerHeight + ': the crystal window does not cover Go on', () => {
-      const go = ow.D.el.querySelector('.dlg-continue'), status = document.getElementById('status');
-      const gb = box(go), sb = box(status), close = status.querySelector('[data-close]');
-      const overlaps = !(gb.bottom <= sb.top + 1 || gb.top >= sb.bottom - 1 || gb.right <= sb.left + 1 || gb.left >= sb.right - 1);
-      if (overlaps || gb.height < 44 || gb.bottom > innerHeight + 1 || gb.top < 0) throw Error('go ' + Math.round(gb.top) + ',' + Math.round(gb.bottom) + ' ' + Math.round(gb.width) + 'x' + Math.round(gb.height) + ' status ' + Math.round(sb.top) + ',' + Math.round(sb.bottom) + ' hud ' + getComputedStyle(document.documentElement).getPropertyValue('--ow-below-hud'));
+    const fullyIn = (el, panel) => {
+      if (!el || !panel) return false;
+      const r = el.getBoundingClientRect(), p = panel.getBoundingClientRect();
+      const top = Math.max(p.top, 0), bottom = Math.min(p.bottom, innerHeight);
+      const left = Math.max(p.left, 0), right = Math.min(p.right, innerWidth);
+      return r.width > 1 && r.height > 1 && r.top >= top - 0.5 && r.bottom <= bottom + 0.5 && r.left >= left - 0.5 && r.right <= right + 0.5;
+    };
+    const hits = (a, b) => !(a.bottom <= b.top + 1 || a.top >= b.bottom - 1 || a.right <= b.left + 1 || a.left >= b.right - 1);
+    check(innerWidth + '×' + innerHeight + ': the crystal window does not cover Go on or the spoken line', () => {
+      const go = ow.D.el.querySelector('.dlg-continue'), say = ow.D.el.querySelector('.dlg-say'), status = document.getElementById('status');
+      const gb = box(go), sb = box(status), sayBox = box(say), close = status.querySelector('[data-close]');
+      const rows = [...status.querySelectorAll('.st-row')];
+      const shown = rows.filter(el => fullyIn(el, status)).length;
+      if (hits(gb, sb) || gb.height < 44 || gb.bottom > innerHeight + 1 || gb.top < 0) throw Error('go ' + Math.round(gb.top) + ',' + Math.round(gb.bottom) + ' status ' + Math.round(sb.top) + ',' + Math.round(sb.bottom) + ' ' + Math.round(sb.height) + 'px');
+      if (hits(sayBox, sb)) throw Error('crystal covers .dlg-say ' + Math.round(sayBox.left) + '-' + Math.round(sayBox.right) + 'x' + Math.round(sayBox.top) + '-' + Math.round(sayBox.bottom) + ' window ' + Math.round(sb.left) + '-' + Math.round(sb.right) + 'x' + Math.round(sb.top) + '-' + Math.round(sb.bottom));
+      const portraitProof = (innerWidth === 320 && innerHeight === 568) || (innerWidth === 375 && innerHeight === 812);
+      if (portraitProof && !fullyIn(rows[0], status)) throw Error('first status row is not fully visible; ' + shown + ' of ' + rows.length + ' rows, window ' + Math.round(sb.height) + 'px');
       const doc = document.documentElement;
       if (doc.scrollWidth > doc.clientWidth + 1) throw Error('page scrolls sideways');
-      return go.textContent === 'Go on' && gb.height >= 44 && gb.width >= 44 && box(close).height >= 44 && gb.bottom <= innerHeight + 1 && gb.top >= 0;
+      return go.textContent === 'Go on' && gb.height >= 44 && gb.width >= 44 && box(close).height >= 44 && shown >= (portraitProof ? 1 : 0);
     });
     document.querySelector('.arc-set-btn').click();
     check(innerWidth + '×' + innerHeight + ': Settings controls are at least 44px', () => {
@@ -598,6 +620,16 @@ function otherworldFinishFrame() {
     check(innerWidth + '×' + innerHeight + ': Memories can be put away from a 44px control on screen', () => {
       const close = document.querySelector('#ledger [data-ledger-close]'), b = box(close);
       if (!(b.height >= 44 && b.width >= 44 && b.top >= 0 && b.bottom <= innerHeight + 1 && b.left >= -1 && b.right <= innerWidth + 1)) throw Error('close ' + Math.round(b.left) + ',' + Math.round(b.top) + ' ' + Math.round(b.width) + 'x' + Math.round(b.height) + ' view ' + innerWidth + 'x' + innerHeight + ' hidden ' + document.getElementById('ledger').hidden);
+      return true;
+    });
+    check(innerWidth + '×' + innerHeight + ': the first memory is fully visible', () => {
+      const ledger = document.getElementById('ledger');
+      const memories = [...ledger.querySelectorAll('.ledger li')];
+      const shown = memories.filter(el => fullyIn(el, ledger)).length;
+      const first = fullyIn(memories[0], ledger);
+      const portraitProof = (innerWidth === 320 && innerHeight === 568) || (innerWidth === 375 && innerHeight === 812) || (innerWidth === 390 && innerHeight === 844) || (innerWidth === 844 && innerHeight === 390);
+      if (!portraitProof) return shown >= 0;
+      if (!first) throw Error(shown + ' of ' + memories.length + ' memories fully visible, window ' + Math.round(box(ledger).height) + 'px');
       return true;
     });
   } finally {

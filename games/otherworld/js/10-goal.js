@@ -71,6 +71,11 @@ function currentGoalText() {
 function placeBelowHud() {
   const hud = document.querySelector('.hud');
   if (hud) document.documentElement.style.setProperty('--ow-below-hud', (Math.ceil(hud.getBoundingClientRect().height) + 8) + 'px');
+  const dlg = document.querySelector('.dlg.dlg-otherworld');
+  const reserve = dlg && !dlg.hidden && dlg.getClientRects().length
+    ? Math.max(8, Math.ceil(innerHeight - dlg.getBoundingClientRect().top + 8))
+    : 12;
+  document.documentElement.style.setProperty('--ow-above-dlg', reserve + 'px');
 }
 function refreshGoal() {
   const el = document.getElementById('goal');

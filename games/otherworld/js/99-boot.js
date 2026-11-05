@@ -9,6 +9,8 @@ D = Dialogue.create({
   onEnd: () => save()
 });
 D.el.querySelector('.dlg-continue').textContent = 'Go on';
+const playBeforeRoom = D.play.bind(D);
+D.play = (...args) => { const result = playBeforeRoom(...args); placeBelowHud(); return result; };
 Settings.create({ mount: '#hudRight', before: '.version-label', btnClass: 'hbtn', rows: [] });
 setupFeedback('Otherworld', VERSION, () => S.life ? `${WORLDS[S.life.world].name}, ${S.life.gift}, at ${S.life.at}` : 'The Between');
 /* Keep the shared portrait scene, with local locked-choice support. Neither clicks nor keys can select a lock. */

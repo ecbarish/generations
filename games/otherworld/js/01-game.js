@@ -138,14 +138,16 @@ document.addEventListener('click', e => {
 /* ---------------------------------------------------------------- the status window (Asterhold shows it) */
 function showStatus() {
   const l = S.life; if (!l) return; const g = GIFTS[l.world][l.gift];
+  if (typeof placeBelowHud === 'function') placeBelowHud();
   const ledger = document.getElementById('ledger'); if (ledger) ledger.hidden = true;
   const el = document.getElementById('status');
   el.innerHTML = `<button class="st-close" data-close>Put the window away</button><div class="st-title">STATUS</div>
-    <div class="st-note">The crystal hangs this window in the air. Put it away when you are ready to listen.</div>
+    <div class="st-row"><span>Gift</span><b>${g.name}</b></div>
     <div class="st-row"><span>Name</span><b>${l.name}</b></div>
     <div class="st-row"><span>Race</span><b>Human</b></div><div class="st-row"><span>Title</span><b>Otherworlder</b></div>
-    <div class="st-row"><span>Guild rank</span><b>F</b></div><div class="st-row"><span>Gift</span><b>${g.name}</b></div>
-    <div class="st-note">${g.good}<br><i>${g.cost}</i></div>${l.silver ? `<div class="st-row"><span>Silver</span><b>${l.silver}</b></div>` : ''}
+    <div class="st-row"><span>Guild rank</span><b>F</b></div>
+    ${l.silver ? `<div class="st-row"><span>Silver</span><b>${l.silver}</b></div>` : ''}
+    <div class="st-note">${g.good} ${g.cost}</div>
     ${Object.keys(S.mem).length ? `<div class="st-note">Soul memories: ${Object.keys(S.mem).length}</div>` : ''}`;
   el.hidden = false; el.querySelector('button')?.focus({ preventScroll: true });
 }

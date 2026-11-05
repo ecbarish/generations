@@ -19,10 +19,12 @@ document.querySelector('#run').addEventListener('click',async()=>{
     const w=frame.contentWindow;if(!w.__ow)throw Error('Run these checks on localhost, using serve.ps1.');
     const list=w.eval('('+otherworldChecks.toString()+')()');
     const look=async(width,height)=>{frame.style.width=width+'px';frame.style.height=height+'px';await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));w.dispatchEvent(new Event('resize'));await new Promise(r=>requestAnimationFrame(r));return w.eval('('+otherworldFinishFrame.toString()+')()');};
-    const phone=await look(390,844),narrow=await look(320,568);
+    const frames=[];
+    for(const [width,height] of [[390,844],[320,568],[375,812],[844,390]]) frames.push(...await look(width,height));
+    const all=[...list,...frames];
     let failed=0;
-    for(const c of [...list,...phone,...narrow]){const li=document.createElement('li');li.className=c.ok?'pass':'fail';li.textContent=(c.ok?'PASS — ':'FAIL — ')+c.label;res.appendChild(li);if(!c.ok)failed++;}
-    sum.textContent=failed?'FAIL — '+failed+' of '+list.length+' failed.':'PASS — '+list.length+' checks.';
+    for(const c of all){const li=document.createElement('li');li.className=c.ok?'pass':'fail';li.textContent=(c.ok?'PASS — ':'FAIL — ')+c.label;res.appendChild(li);if(!c.ok)failed++;}
+    sum.textContent=failed?'FAIL — '+failed+' of '+all.length+' failed.':'PASS — '+all.length+' checks.';
   }catch(e){sum.textContent='FAIL — '+e.message;}
   finally{
     if(frame)frame.remove();

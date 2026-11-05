@@ -29,28 +29,26 @@ function ledgerRows(mem = S.mem, lives = S.lives) {
 }
 function learnSentence(r) {
   const worlds = [...new Set(r.keptBy.map(e => WORLDS[e.world].name))];
-  return worlds.length ? `A life in ${worlds.join(' or ')} can teach this, if you reach an ending you have not seen.` : 'A world still being woven can teach this.';
+  return worlds.length ? `Learn it by living ${worlds.join(' or ')}.` : 'A world still being woven can teach this.';
 }
 function useSentence(r) {
-  if (!r.plans.length) return r.opens ? 'Once you carry it, another life can attempt something new.' : '';
-  const by = new Map();
-  for (const p of r.plans) { if (!by.has(p.world)) by.set(p.world, []); by.get(p.world).push(p.title); }
-  return [...by.entries()].map(([w, titles]) => {
-    const more = titles.length > 1 ? `, and ${titles.length - 1} more like it` : '';
-    return `In ${WORLDS[w].name} you may try “${titles[0]}”${more}.`;
-  }).join(' ');
+  if (!r.plans.length) return r.opens ? 'Another life can use it.' : '';
+  const names = [...new Set(r.plans.map(p => WORLDS[p.world].name))];
+  return `You may try it in ${names.join(' and ')}.`;
 }
 function ledgerHTML() {
   const rows = ledgerRows(), have = rows.filter(r => r.carried).length;
+  const lives = `${S.lives.length} ${S.lives.length === 1 ? 'life' : 'lives'}`;
   const detail = r => escapeStory(`${r.carried ? '' : learnSentence(r) + ' '}${useSentence(r)}`.trim());
-  return `<button class="st-close" data-ledger-close>Put this away</button><div class="st-title">Memories carried</div><div class="st-row"><span>Carried</span><b data-ledger-count>${have} of ${rows.length}</b></div>
-    <div class="st-row"><span>Lives lived</span><b>${S.lives.length}</b></div>
+  return `<button class="st-close" data-ledger-close>Put this away</button>
+    <div class="st-row"><span>Carried · ${lives}</span><b data-ledger-count>${have} of ${rows.length}</b></div>
     <ul class="ledger">${rows.map(r => r.carried
       ? `<li class="carried" data-memory="${r.id}"><b>✦ ${escapeStory(r.text)}</b><small>${detail(r)}</small></li>`
       : `<li class="unknown" data-memory="${r.id}"><b>◇ Not yet remembered</b><small>${detail(r)}</small></li>`).join('')}</ul>
     <button class="st-close" data-ledger-close>Put this away</button>`;
 }
 function showLedger() {
+  if (typeof placeBelowHud === 'function') placeBelowHud();
   const status = document.getElementById('status'); if (status) status.hidden = true;
   const el = document.getElementById('ledger'); el.innerHTML = ledgerHTML(); el.hidden = false;
   el.querySelector('button')?.focus({ preventScroll: true }); el.scrollTop = 0;

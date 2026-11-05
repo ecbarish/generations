@@ -34,10 +34,6 @@ button.st-close{font:inherit;font-size:15px;margin:0 0 8px;padding:10px 14px;bor
   --dlg-muted:#c8c0e0;--dlg-name-font:'Cormorant Garamond',serif;--dlg-btn:#ffd27a;--dlg-btn-ink:#2a1a08}
 .dlg-otherworld.dlg{left:50%;right:auto;transform:translateX(-50%);width:min(860px,94vw);bottom:18px}
 @media (prefers-reduced-motion:reduce){.choose,.status{animation:none}}
-@media (max-width:560px){
-  .choose{left:8px;right:8px;width:auto;transform:none}
-  .status{left:8px;right:8px;width:auto;max-height:min(38dvh,calc(100dvh - var(--ow-below-hud,120px) - 210px))}
-}
 
 /* Locked decisions explain themselves in the same portrait scene, with no side panel. */
 .dlg-otherworld .choice-why{display:block;margin-top:5px;font-size:12px;line-height:1.4;font-weight:400;color:#d0c7de}
@@ -59,7 +55,7 @@ button.st-close{font:inherit;font-size:15px;margin:0 0 8px;padding:10px 14px;bor
  .dlg.dlg-otherworld .choice-why{font-size:14px}
 }
 /* T44: opaque reading surfaces keep contrast independent of the moving world. */
-.choose,.status{background:#121028}.status{max-height:calc(100dvh - var(--ow-below-hud,112px) - 16px);overflow:auto;overflow-x:hidden}
+.choose,.status{background:#121028}.status{max-height:calc(100dvh - var(--ow-below-hud,112px) - var(--ow-above-dlg,12px));overflow:auto;overflow-x:hidden}
 .choose,.status{font-size:calc(16px * var(--arc-text,1))}
 .card,.chip,.go,.st-row,.row input{font-size:inherit}.card em,.card .cost,.st-note,.lbl,.st-close{font-size:calc(14px * var(--arc-text,1));opacity:1}
 .card b{color:#ffd27a}.swatch.on::after{content:'✓';color:#fff;background:#121028;border-radius:50%;padding:2px}
@@ -80,6 +76,15 @@ button.st-close{font:inherit;font-size:15px;margin:0 0 8px;padding:10px 14px;bor
 .dlg-otherworld.dlg{max-height:calc(100dvh - var(--ow-below-hud,120px) - 12px)}
 @media(max-width:560px){
   .choose{left:8px;right:8px;width:auto;transform:none}
-  .status{left:8px;right:8px;width:auto;max-height:min(34dvh,calc(100dvh - var(--ow-below-hud,120px) - 220px))}
-  .dlg-otherworld.dlg{max-height:min(42dvh,calc(100dvh - var(--ow-below-hud,120px) - 12px))}
+  .status{left:8px;right:8px;width:auto;padding:8px 10px}
+  .ledger{margin:4px 0}
+  .ledger li{margin:2px 0}
+  .ledger li small{line-height:1.25}
+  .st-row{margin:0}
+  .st-title{margin-bottom:2px;padding-bottom:2px}
+  button.st-close{margin-bottom:2px}
+}
+@media(max-height:450px) and (min-width:700px){
+  .dlg-otherworld.dlg{left:8px;right:auto;width:calc(100vw - 348px);transform:none;bottom:8px}
+  .status{left:auto;right:8px;width:min(320px,40vw);max-height:calc(100dvh - var(--ow-below-hud,112px) - 8px)}
 }
