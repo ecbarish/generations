@@ -256,7 +256,7 @@ Plan: [plans/sports-management.md](plans/sports-management.md) "Game 3". Reuses 
 
 ### Otherworld (browser)
 - [x] OW-N1 [Grok / Adam] (merged: #378, 76017d5, 2026-10-14, Otherworld v0.4.1) Otherworld newcomer snags (Flint round 2): a visible "Memories carried" ledger so players can plan unlocks across runs; at least two choices open at every beat (no single-choice click-through); the hall blurb calls it a story life sim, not idle management. Files: games/otherworld/, index.html (claimed in COMMS first, per the touch rule).
-- [ ] OW-FINISH [Grok / Cursor] (claimed: Grok, 2026-11-05) One finish pass so a newcomer can play the first life without help. Files: games/otherworld/, tests/otherworld-checks.js, tests/otherworld.html. Evan authorised the start on 2026-11-05, in parallel with Saltmarsh. No old-save migration. Draft #530 (OW-TAP) can close if this pull includes the 44px targets.
+- [x] OW-FINISH [Grok / Cursor] (merged: #632, c808b362, 2026-11-05, Otherworld v0.4.2; claimed: Grok, 2026-11-05) One finish pass so a newcomer can play the first life without help. Files: games/otherworld/, tests/otherworld-checks.js, tests/otherworld.html. Evan authorised the start on 2026-11-05, in parallel with Saltmarsh. No old-save migration. Draft #530 (OW-TAP) can close as superseded, because this pull includes the 44px targets.
 **OW-M1: three lives (done through v0.3.0).**
 - [x] The Between, Asterhold with Lanthorn, Hearthmere, the Ashen Throne.
 **OW-M2: memories and a systemic world.**
