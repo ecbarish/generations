@@ -125,6 +125,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
 .bulk button { flex: 1 1 6rem; }
 .boats, .captains, .log ol { list-style: none; margin: 0; padding: 0; }
 .boat, .captain { border-top: 1px solid var(--sky); padding: 0.75rem 0; }
+.boat .habit, .boat .facts, .boat .wait { min-height: 1.45em; }
 .boat h2, .captain h3, .log h2, .fleet h2, .sheds h2, .choice h2, .choice h3 { margin: 0 0 0.2rem; font-size: 1.15rem; font-weight: 600; }
 .habit, .facts, .wait { margin: 0.15rem 0; }
 /* Numbers stay whole. Buttons use a short label on one line. Status lines that can
@@ -139,7 +140,7 @@ button[aria-pressed="true"] { background: var(--sand); border-color: var(--timbe
   min-width: 0;
   max-width: 100%;
 }
-.actions button { white-space: nowrap; }
+.actions button { white-space: nowrap; font-variant-numeric: tabular-nums; }
 #ending .actions button,
 #choice .actions button,
 #provision-go, #provision .actions button,

@@ -375,8 +375,10 @@
   }
 
   /* Skipped sheds (the player took the fitting instead) move the price up a step. */
+  /* A fitting does not spend a shed. The prices stay 480, then 8.40K, then 125K,
+     one for each shed you actually build. */
   function shedIndex(state) {
-    return (state.warehouses || 1) + (state.waivedSheds || 0);
+    return state.warehouses || 1;
   }
 
   function warehousePrice(state) {
@@ -450,13 +452,13 @@
       id: fork.id,
       goal: fork.goal,
       fit: {
-        id: fit.id, name: fit.name, cost: fit.cost, line: fit.line,
+        id: fit.id, name: fit.name, cost: fit.cost, line: fit.line + ' The shed price stays ' + (price == null ? 'where it is' : coins(price) + ' coins') + '.',
         affordable: state.cash >= fit.cost
       },
       shed: {
         name: 'Another shed',
         cost: price,
-        line: 'Two more hours kept when the game is closed. The boats are not changed.',
+        line: (price == null ? 'The yard is full.' : 'Pay ' + coins(price) + ' coins and one more shed stands. The office keeps two more hours when the game is closed.') + ' Taking the fitting instead leaves this price where it is.',
         affordable: price != null && state.cash >= price
       }
     };
@@ -627,24 +629,20 @@
     return passed;
   }
 
-  /* The price list is 480, then 8.40K, then 125K. Passing a shed for a fitting
-     spends that step, so the next shed is the following price. */
+  /* The price list is 480, then 8.40K, then 125K, and only a shed you build
+     moves you to the next price. A fitting leaves the list where it is. */
   function shedNote(state) {
     if (!state) return '';
     var passed = shedPasses(state);
     var price = warehousePrice(state);
     var sheds = state.warehouses || 1;
+    var next = price == null ? '' : ' The next shed is ' + coins(price) + ' coins.';
     if (!passed.length) {
       if (price == null && sheds >= MAX_WAREHOUSES) return ' The yard is full. Four sheds are standing.';
-      return '';
+      return next;
     }
-    var bits = passed.map(function (row) {
-      return 'The ' + coins(row.price) + ' coin price was passed for the ' + row.name + '.';
-    });
-    if (price == null) {
-      return ' ' + bits.join(' ') + ' ' + sheds + (sheds === 1 ? ' shed is' : ' sheds are') + ' standing. There is no third shed: those cheaper prices were passed, and the yard stops there.';
-    }
-    return ' ' + bits.join(' ') + ' This shed is further down the list, at ' + coins(price) + ' coins. Each fitting took a cheaper shed\'s place, so this is the next price on the list.';
+    var names = passed.map(function (row) { return row.name; }).join(' and ');
+    return ' You chose the ' + names + ' instead of a shed.' + next + ' Choosing a fitting does not raise this price.';
   }
 
   function needMore(state, cost) {
@@ -778,10 +776,10 @@
     { id: 'night', name: 'Night Cut', order: 6, depths: 4, risk: 0.36, night: true, first: 26, mid: 28, later: 32, payback: 56, time: 'a fast dark run', line: 'Fast, and part of the cargo can vanish before a lighthouse is burning.', perk: 'A lighthouse on the coast keeps more of it.' }
   ];
   var LIGHTS = [
-    { id: 'pier', name: 'Pier Lighthouse', wait: 26, lines: ['Still dark. Raising the Pier Lighthouse makes nights safer.', 'The Pier Lighthouse\'s tower is up. Lighting it keeps Gull Rock and the Night Cut whole.', 'The Pier Lighthouse is burning. Gull Rock and the Night Cut keep their cargo.'] },
-    { id: 'headland', name: 'Headland Lighthouse', wait: 26, lines: ['Still dark. Raising the Headland Lighthouse makes the runs quicker.', 'The Headland Lighthouse\'s tower is up. Lighting it makes every route pay sooner.', 'The Headland Lighthouse is burning. Every route pays sooner.'] },
-    { id: 'reed', name: 'Reed Lighthouse', wait: 26, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The Reed Lighthouse\'s tower is up. Lighting it shows the road for the last voyage.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
-    { id: 'quay', name: 'Quay Lighthouse', wait: 26, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The Quay Lighthouse\'s tower is up. Lighting it pulls harder on Wren\'s and Bramble\'s routes.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
+    { id: 'pier', name: 'Pier Lighthouse', wait: 12, lines: ['Still dark. Raising the Pier Lighthouse makes nights safer.', 'The Pier Lighthouse\'s tower is up. Lighting it keeps Gull Rock and the Night Cut whole.', 'The Pier Lighthouse is burning. Gull Rock and the Night Cut keep their cargo.'] },
+    { id: 'headland', name: 'Headland Lighthouse', wait: 12, lines: ['Still dark. Raising the Headland Lighthouse makes the runs quicker.', 'The Headland Lighthouse\'s tower is up. Lighting it makes every route pay sooner.', 'The Headland Lighthouse is burning. Every route pays sooner.'] },
+    { id: 'reed', name: 'Reed Lighthouse', wait: 12, lines: ['Still dark. Raising the Reed Lighthouse puts the far water on the chart.', 'The Reed Lighthouse\'s tower is up. Lighting it shows the road for the last voyage.', 'The Reed Lighthouse is burning. The last voyage can see its road.'] },
+    { id: 'quay', name: 'Quay Lighthouse', wait: 12, lines: ['Still dark. Raising the Quay Lighthouse makes the captains\' work count for more.', 'The Quay Lighthouse\'s tower is up. Lighting it pulls harder on Wren\'s and Bramble\'s routes.', 'The Quay Lighthouse is burning. Wren and Bramble pull harder on their routes.'] }
   ];
   var ROUTE_IDS = ROUTES.map(function (r) { return r.id; });
   var LIGHT_IDS = LIGHTS.map(function (r) { return r.id; });

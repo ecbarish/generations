@@ -351,10 +351,11 @@ document.querySelector('#run').onclick = async function () {
     waived.boats[0].owned = M.SLOOP_AT;
     waived.boats[1].owned = 10;
     waived.cash = 700;
+    var shedChoice = M.choiceOffer(waived);
     M.chooseFork(waived, 'sloop', 'fit');
-    check('passing on a shed raises its price and does not build it', waived.warehouses === 1 && M.warehousePrice(waived) === 8400 && /further down the list/.test(M.shedNote(waived)) && /480/.test(M.shedNote(waived)) && /8\.40K/.test(M.shedNote(waived)) && /times that base/.test(M.shedNote(waived)) === false && /lighter sloop hulls/.test(M.shedNote(waived)));
-    waived.cash = 8400;
-    check('buying the dearer shed adds one shed', M.buyWarehouse(waived).ok && waived.warehouses === 2);
+    check('the shed choice names its price before the pick, and taking the hulls leaves 480', !!shedChoice && waived.warehouses === 1 && M.warehousePrice(waived) === 480 && /480/.test(shedChoice.shed.line) && /leaves this price/.test(shedChoice.shed.line) && /480/.test(shedChoice.fit.line) && /lighter sloop hulls/.test(M.shedNote(waived)) && /does not raise/.test(M.shedNote(waived)));
+    waived.cash = 480;
+    check('buying the first shed still costs 480 after the fitting', M.buyWarehouse(waived).ok && waived.warehouses === 2 && M.warehousePrice(waived) === 8400);
     var yard = ready();
     yard.boats[0].owned = M.SLOOP_AT;
     yard.boats[1].owned = 10;
@@ -362,7 +363,7 @@ document.querySelector('#run').onclick = async function () {
     yard.cash = 1e9;
     M.chooseFork(yard, 'sloop', 'fit');
     M.chooseFork(yard, 'schooner', 'fit');
-    check('two passed sheds leave the 125K price, and buying it ends the list', M.warehousePrice(yard) === 125000 && (yard.cash = 125000) >= 0 && M.buyWarehouse(yard).ok && yard.warehouses === 2 && M.warehousePrice(yard) == null && /no third shed/.test(M.shedNote(yard)) && /locked/i.test(M.shedNote(yard)) === false);
+    check('both fittings still leave every shed on the list', M.warehousePrice(yard) === 480 && M.buyWarehouse(yard).ok && yard.warehouses === 2 && M.warehousePrice(yard) === 8400 && M.buyWarehouse(yard).ok && yard.warehouses === 3 && M.warehousePrice(yard) === 125000 && M.buyWarehouse(yard).ok && yard.warehouses === 4 && M.warehousePrice(yard) == null);
     var step = ready();
     step.trips = 3;
     step.boats[0].owned = M.SLOOP_AT;
@@ -534,6 +535,37 @@ document.querySelector('#run').onclick = async function () {
     var firstErrand = M.errandOffer(jobs);
     check('harbour work and an errand are on the desk after twenty minutes', !!firstWork && firstWork.cost > 0 && firstWork.name.length > 0 && !!firstErrand && firstErrand.name === 'Sound the channel' && firstErrand.cost > 0);
     check('doing the work and the errand moves the desk on to the next job', M.buyWork(jobs, 1).ok && jobs.works === 1 && M.workOffer(jobs).name !== firstWork.name && M.buyErrand(jobs, 1).ok && jobs.errands === 1 && M.errandOffer(jobs).name === 'Count the casks');
+    var litGoal = M.preset('lamps');
+    litGoal.boats[3].owned = 12;
+    litGoal.lights.pier = 1;
+    litGoal.cash = 0;
+    M.lightOffers(litGoal, true);
+    check('a raised tower is the goal before more boats', /^Light the Pier Lighthouse/.test(P.goal(litGoal)));
+    var haulOffice = M.fresh();
+    haulOffice.trips = 3;
+    haulOffice.boats[0].owned = 20;
+    var haulNow = 1700000000000;
+    M.hire(haulOffice, 0, haulNow);
+    M.collectCaptains(haulOffice, haulNow + 60000, 1);
+    haulOffice.played = 3000;
+    haulOffice.prepDone = {};
+    M.PREPARATIONS.forEach(function (item) { haulOffice.prepDone[item.id] = true; });
+    ['pier', 'headland', 'reed', 'quay'].forEach(function (id) { haulOffice.lights[id] = 2; });
+    var haulEnd = M.launchFinale(haulOffice, haulNow + 60000);
+    check('a captain who has landed is counted on the ending', haulEnd.ok && haulEnd.ending.hauls === 3);
+    var freshEnd = M.preset('final');
+    check('the final preset has no hauls until a captain lands', M.statsOf(freshEnd, Date.now()).hauls === 0);
+    var lightPrice = M.fresh();
+    lightPrice.trips = 3;
+    lightPrice.boats[0].owned = 32;
+    lightPrice.boats[1].owned = 10;
+    lightPrice.boats[2].owned = 10;
+    lightPrice.boats[3].owned = 16;
+    ['kelp', 'gull', 'tea', 'headland', 'reed'].forEach(function (id) { lightPrice.routes[id] = 1; lightPrice.routeGross[id] = 1000; });
+    var pierQuote = M.lightOffers(lightPrice, false).filter(function (row) { return row.id === 'pier'; })[0];
+    check('a lighthouse is a short step, not half a minute of the office', !!pierQuote && pierQuote.cost <= Math.max(1, M.officeRate(lightPrice)) * 14);
+    var organic = SaltmarshPacing.organicRun(M, P);
+    check('an organic office lights a tower by 20 minutes and reaches the ending in one session (' + organic.firstLight + 's light, ' + organic.endingAt + 's end)', organic.firstLight > 0 && organic.firstLight <= 1200 && organic.endingAt >= 2700 && organic.endingAt <= 9000);
     check('a short purse says how many coins are still needed', M.needMore({ cash: 80000 }, 500000) === 'Need 420K');
     var piled = ready();
     piled.boats[0].owned = M.WREN_AT;
@@ -1605,6 +1637,71 @@ document.querySelector('#run').onclick = async function () {
     await quaySheet(390, 844);
     await quaySheet(375, 812);
     await quaySheet(320, 568);
+    async function steadyControls(width, height) {
+      var box = await loadFrame('steady ' + width, '&state=lamps');
+      box.style.width = width + 'px';
+      box.style.height = height + 'px';
+      var win = box.contentWindow;
+      var doc = box.contentDocument;
+      await new Promise(function (resolve) { setTimeout(resolve, 120); });
+      var st = win.__saltmarsh.state;
+      var M = win.Saltmarsh;
+      st.cash = 1e15;
+      st.boats[3].owned = Math.max(st.boats[3].owned, 16);
+      st.forks.quay = 'lamp';
+      ['kelp', 'gull', 'tea', 'headland', 'reed'].forEach(function (id) { st.routes[id] = Math.max(st.routes[id] || 0, 1); });
+      win.__saltmarsh.render();
+      function tops() {
+        var out = {};
+        ['buy', 'route', 'light'].forEach(function (act) {
+          Array.prototype.forEach.call(doc.querySelectorAll('[data-act="' + act + '"]'), function (el) {
+            if (el.closest('[hidden]') || el.hidden) return;
+            var r = el.getBoundingClientRect();
+            var id = act + ':' + (el.dataset.route || el.dataset.light || (el.closest('[data-i]') ? el.closest('[data-i]').dataset.i : ''));
+            out[id] = r.top;
+          });
+        });
+        var maxBtn = doc.querySelector('[data-bulk="max"]');
+        if (maxBtn && !maxBtn.hidden) out['bulk:max'] = maxBtn.getBoundingClientRect().top;
+        return out;
+      }
+      function worst(before, after) {
+        var move = 0;
+        var where = '';
+        Object.keys(before).forEach(function (k) {
+          if (!(k in after)) return;
+          var d = Math.abs(before[k] - after[k]);
+          if (d > move) { move = d; where = k; }
+        });
+        return { move: move, where: where };
+      }
+      var beforeBuy = tops();
+      M.buy(st, 3, 1);
+      win.__saltmarsh.render();
+      var buyShift = worst(beforeBuy, tops());
+      var beforeSign = tops();
+      var offer = M.routeOffers(st, true)[0];
+      if (offer) M.signRoute(st, offer.id, 1);
+      win.__saltmarsh.render();
+      var signShift = worst(beforeSign, tops());
+      var beforeRaise = tops();
+      var raise = M.lightOffers(st, true).filter(function (row) { return !row.blocked && row.stage === 0; })[0];
+      if (raise) M.buildLight(st, raise.id, 1);
+      win.__saltmarsh.render();
+      var raiseShift = worst(beforeRaise, tops());
+      var beforeLit = tops();
+      var lit = M.lightOffers(st, true).filter(function (row) { return !row.blocked && row.stage === 1; })[0];
+      if (lit) M.buildLight(st, lit.id, 1);
+      win.__saltmarsh.render();
+      var lightShift = worst(beforeLit, tops());
+      var biggest = Math.max(buyShift.move, signShift.move, raiseShift.move, lightShift.move);
+      var which = buyShift.move === biggest ? 'buy ' + buyShift.where : signShift.move === biggest ? 'sign ' + signShift.where : raiseShift.move === biggest ? 'raise ' + raiseShift.where : 'light ' + lightShift.where;
+      check('at ' + width + ' by ' + height + ' buy, sign, raise and light leave each control (' + which + ' ' + biggest.toFixed(1) + 'px)', biggest < 2);
+    }
+    await steadyControls(390, 844);
+    await steadyControls(375, 812);
+    await steadyControls(320, 568);
+    await steadyControls(1280, 800);
     await packAll(1280, 800);
     await packAll(844, 390);
     await packAll(390, 844);

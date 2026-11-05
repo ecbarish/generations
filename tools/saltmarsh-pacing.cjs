@@ -504,7 +504,41 @@
     return { max: max, waits: waits, owned: state.boats.map(function (b) { return b.owned; }), routes: M.routesSailing(state) };
   }
 
-  var api = { PROFILES: PROFILES, simulate: simulate, workdays: workdays, report: report, clock: clock, windowGap: windowGap, handPlay: handPlay, greedyRun: greedyRun, goalAction: goalAction };
+  /* A person reading the goal bar: the same decisions, two seconds after the coins are there.
+     Starts from a new office. No preset. */
+  function organicRun(M, P) {
+    P = P || root.SaltmarshPhase;
+    var state = M.fresh();
+    var sim = 1700000000000;
+    var firstLight = null;
+    var ready = null;
+    var seen = '';
+    var sec;
+    for (sec = 1; sec <= 12000 && !state.ended; sec++) {
+      sim += 1000;
+      state.played = sec;
+      M.addCash(state, M.income(state) + M.routeIncome(state));
+      M.collectCaptains(state, sim, 1);
+      var act = goalAction(M, P, state, sim);
+      if (!act) continue;
+      if (act.id !== seen) { seen = act.id; ready = null; }
+      if (!act.affordable) { ready = null; continue; }
+      if (ready == null) ready = sec;
+      if (sec - ready < 2) continue;
+      act.buy();
+      if (firstLight == null && M.lightsLit(state) > 0) firstLight = sec;
+      seen = '';
+      ready = null;
+    }
+    return {
+      endingAt: state.ended ? state.played : null,
+      firstLight: firstLight,
+      played: state.played,
+      hauls: (state.captains || []).reduce(function (n, c) { return n + ((c && c.hauls) || 0); }, 0)
+    };
+  }
+
+  var api = { PROFILES: PROFILES, simulate: simulate, workdays: workdays, report: report, clock: clock, windowGap: windowGap, handPlay: handPlay, greedyRun: greedyRun, goalAction: goalAction, organicRun: organicRun };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.SaltmarshPacing = api;
 })(typeof window !== 'undefined' ? window : globalThis);

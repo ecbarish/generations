@@ -201,6 +201,15 @@
     if (M.canHire(state, 2)) return M.askLine(2);
     sailing = M.routesSailing(state);
     if (sailing < 1) return routeOrBoat(state, 'Choose a route on the desk. Each one is a different run.');
+    if (sailing >= 5) {
+      var pendingLight = null;
+      var lightRows = M.lightOffers(state, true) || [];
+      for (i = 0; i < lightRows.length; i++) {
+        if (lightRows[i].blocked || lightRows[i].stage !== 1) continue;
+        if (!pendingLight || lightRows[i].cost < pendingLight.cost) pendingLight = lightRows[i];
+      }
+      if (pendingLight) return withNeed(state, 'Light the ' + pendingLight.name + ', ' + M.coins(pendingLight.cost), pendingLight.cost);
+    }
     if (state.boats[3].owned < M.UNLOCK_AT) {
       left = M.UNLOCK_AT - state.boats[3].owned;
       return 'Buy ' + more(left, 'bark', 'barks') + '. Ten barks, and Capt. Pell can take a deep boat.';

@@ -519,9 +519,27 @@
         gearHost.appendChild(heldActions);
         gearHost.hidden = false;
       } else {
-        gearHost.hidden = true;
+        gearHost.hidden = false;
         gearHost.dataset.hold = '';
-        gearHost.style.minHeight = '';
+        if (gearHost.dataset.reserved !== '1') {
+          gearHost.dataset.reserved = '1';
+          gearHost.replaceChildren();
+          var waitH = document.createElement('h3');
+          waitH.textContent = 'Spare sail';
+          var waitP = document.createElement('p');
+          waitP.className = 'habit';
+          waitP.textContent = 'A spare sail waits for the first route you sign. It pays a little more, and the other prices stay.';
+          var waitA = document.createElement('div');
+          waitA.className = 'actions';
+          var waitB = document.createElement('button');
+          waitB.type = 'button';
+          waitB.disabled = true;
+          waitB.textContent = 'Sail';
+          waitA.appendChild(waitB);
+          gearHost.appendChild(waitH);
+          gearHost.appendChild(waitP);
+          gearHost.appendChild(waitA);
+        }
       }
     } else {
       if (gearHost.dataset.hold === '1' && gearHost.dataset.holdSig !== sig) {
@@ -788,7 +806,7 @@
       'Coins earned: ' + money(stats.lifetime),
       'Boats tied up: ' + stats.boats,
       'Routes signed: ' + stats.voyages,
-      'Captain hauls: ' + stats.hauls,
+      'Captain hauls: ' + (stats.hauls > 0 ? stats.hauls : 'none yet'),
       'Lighthouses burning: ' + stats.lights + ' of four',
       chartLine
     ];
