@@ -71,6 +71,32 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .doors .owned{background:#e4efe4;border-color:#a8c8ac}.doors .owned.costly{background:#fbe9df;border-color:#e0b8a8}
 .doors .gone{color:var(--soft);text-decoration:line-through}
 .afford{margin:10px 0 0;color:var(--bad);font-weight:600}
+.shortcash{margin:8px 0 0;color:var(--bad);font-weight:700}
+@media (max-width:859px) and (max-height:900px){
+ .rehab{flex-wrap:nowrap}
+ .rehab button{min-height:44px;flex:1 1 0;padding:4px;font-size:.72rem}
+ .rehab button small{display:none}
+ .actions{flex-wrap:nowrap;margin-top:8px}
+}
+@media (max-width:859px) and (max-height:700px){
+ header .tag{display:none}
+ header h1{font-size:1.15rem}
+ section{padding:8px 10px}
+ .street{gap:4px}
+ .goal-slot,.cash{grid-column:1/-1}
+ .cash{text-align:left}
+ .doors li{padding:2px 1px}
+ .doors li b{font-size:.8rem}
+ .rehab{flex-wrap:nowrap}
+ .rehab button{min-height:44px;flex:1 1 0;padding:4px 4px;font-size:.72rem}
+ .rehab button small{display:none}
+ .sheet h2{margin:0 0 4px;font-size:1rem}
+ .choices{gap:4px}
+ .label{font-size:.75rem}
+ .stepper output{min-width:5.5em;font-size:1rem}
+ .shortcash{margin:4px 0 0}
+ .actions{margin-top:6px}
+}
 .house svg{width:100%;max-width:340px;height:auto;display:block;margin:0 auto}
 .yours{list-style:none;padding:0;margin:10px 0;display:grid;gap:6px}
 .yours li{border:1px solid var(--line);border-radius:8px;padding:8px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}

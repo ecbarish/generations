@@ -70,7 +70,7 @@
    'You still need '+b.need+' '+(b.need===1?'home that pays.':'homes that pay.')+' Careful buys take about '+money(b.careful)+' of your '+money(R.cash)+'.';
   $('#giveup').hidden=!!M.finished(R)||b.possible||!b.need;
   $('#cash').textContent=money(R.cash);
-  $('#doors').innerHTML=M.STREET.map((h,i)=>{
+  $('#doors').innerHTML=M.orderOf(R).map((h,i)=>{
    const got=R.homes[i];const cls=got?(got.bought?'owned'+(got.onCash<0?' costly':''):'gone'):(i===R.at?'now':'');
    const what=got?(got.bought?(got.onCash>=0?'Pays you':'Costly'):'Sold'):(i===R.at?'For sale':'Coming up');
    return '<li class="'+cls+'"'+(i===R.at&&!M.finished(R)?' aria-current="step"':'')+'><b>'+h.address.split(' ')[0]+'</b>'+what+'</li>';}).join('');
@@ -152,6 +152,7 @@
   reserveOutlook(live);
   const warn=choosing?cashWarning(choice):'';
   $('#afford').hidden=!warn;$('#afford').textContent=warn;
+  $('#shortCash').hidden=!(running&&L&&!M.canAfford(R,choice,L));
   $('#dealActions').hidden=S.phase==='counter';
   document.querySelectorAll('.choices button,#offerBtn,#passBtn').forEach(b=>b.disabled=!choosing);
   $('[data-offer="-2000"]').disabled=!running||S.price<=MIN();$('[data-offer="2000"]').disabled=!running||S.price>=MAX();
@@ -192,7 +193,7 @@
   if(r.top<0||r.bottom>window.innerHeight||r.left<0||r.right>window.innerWidth)
    btn.scrollIntoView({block:'nearest',inline:'nearest'});
  }
- const nextButton=()=>'<div class="actions"><button type="button" class="primary" data-act="next">'+(M.finished(R)?'See your street':'Next listing: '+M.STREET[R.at].address)+'</button></div>';
+ const nextButton=()=>'<div class="actions"><button type="button" class="primary" data-act="next">'+(M.finished(R)?'See your street':'Next listing: '+M.orderOf(R)[R.at].address)+'</button></div>';
 
  function paintCounter(){
   const choice=shownChoice(), view=outlookOf(choice), warn=cashWarning(choice), fits=!warn;
@@ -260,7 +261,7 @@
   $('.listing').hidden=true;$('.sheet').hidden=true;street();
   const flow=R.homes.filter(h=>h.bought).reduce((n,h)=>n+h.cashFlow,0);
   const bought=R.homes.filter(h=>h.bought).length, offers=R.offers||0;
-  const rows=M.STREET.map((h,i)=>{const got=R.homes[i];
+  const rows=M.orderOf(R).map((h,i)=>{const got=R.homes[i];
    if(!got.bought){const p=M.passed(h);return '<li><b>'+h.address+'</b><span>Sold to someone else</span><small>They '+(p.onCash>=0?'made ':'lost ')+pct(Math.abs(p.onCash))+' in the first year. '+h.lesson+'</small></li>';}
    const v=M.verdict(got.onCash);
    return '<li class="'+(got.onCash>=0?'pays':'lost')+'"><b>'+h.address+'</b><span>'+v.word+'</span><small>Bought for '+money(got.choice.price)+
@@ -278,7 +279,13 @@
  }
 
  function endStreet(){while(!M.finished(R))M.passHome(R);persist();showStreet();}
- function again(){R=M.newRun();persist();startListing();scrollTo&&scrollTo(0,0);$('#offerBtn').focus({preventScroll:true});}
+ function begin(){R=M.newRun();persist();startListing();scrollTo&&scrollTo(0,0);$('#offerBtn').focus({preventScroll:true});}
+ function again(){
+  const prev=M.orderOf(R).map(h=>h.id).join('|');
+  let seed=(Date.now()>>>0)||1, run, n=0;
+  do{run=M.newRun(seed+n); n++;}while(run.order.join('|')===prev&&n<8);
+  R=run;persist();startListing();scrollTo&&scrollTo(0,0);$('#offerBtn').focus({preventScroll:true});
+ }
 
  // On a phone the offer controls are a screen above the answer: take the player back to them.
  function backToOffer(){$('#sheetTitle').scrollIntoView&&$('#sheetTitle').scrollIntoView({block:'start'});$('[data-offer="2000"]').focus({preventScroll:true});}
@@ -301,5 +308,5 @@
  });
 
  if(M.finished(R))showStreet();else startListing();
- window.__keymaster={M,S,run:()=>R,listing:()=>L,render,offer,next,again,arvNote,outlookVariants,protect};   // the checks page drives the real buttons
+ window.__keymaster={M,S,run:()=>R,listing:()=>L,render,offer,next,again,begin,arvNote,outlookVariants,protect};   // the checks page drives the real buttons
 })();
