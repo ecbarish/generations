@@ -20,7 +20,7 @@ document.querySelector('#run').addEventListener('click',async()=>{
     const list=w.eval('('+otherworldChecks.toString()+')()');
     const look=async(width,height)=>{frame.style.width=width+'px';frame.style.height=height+'px';await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));w.dispatchEvent(new Event('resize'));await new Promise(r=>requestAnimationFrame(r));return w.eval('('+otherworldFinishFrame.toString()+')()');};
     const frames=[];
-    for(const [width,height] of [[390,844],[320,568],[375,812],[844,390]]) frames.push(...await look(width,height));
+    for(const [width,height] of [[390,844],[320,568],[375,812],[844,390],[390,600],[375,600]]) frames.push(...await look(width,height));
     const all=[...list,...frames];
     let failed=0;
     for(const c of all){const li=document.createElement('li');li.className=c.ok?'pass':'fail';li.textContent=(c.ok?'PASS — ':'FAIL — ')+c.label;res.appendChild(li);if(!c.ok)failed++;}

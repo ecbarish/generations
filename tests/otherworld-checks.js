@@ -507,15 +507,15 @@ function otherworldChecks() {
     return /gate/.test(lines)&&/dusk/.test(corvin)&&/Deepwood/.test(alone)&&/Mira is waiting/.test(document.getElementById('goal').textContent);
   }));
   check('OW-FINISH: the crystal window does not swallow Go on',()=>withLife(()=>{
-    ow.run('a_guild');const len=sceneState.lines[0][1].length;
+    ow.run('a_guild');document.getElementById('statusBtn').click();D.el.focus();const len=sceneState.lines[0][1].length;
     document.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
     const status=document.getElementById('status');
     return !status.hidden&&/Put the window away/.test(status.textContent)&&/Appraisal/.test(status.textContent)&&sceneState.shown>=len;
   }));
   check('OW-FINISH: Enter on the dialogue still advances while the crystal window is open',()=>withLife(()=>{
-    ow.run('a_guild');const before=sceneState.shown;
+    ow.run('a_guild');document.getElementById('statusBtn').click();D.el.focus();const before=sceneState.shown;
     ow.D.el.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
-    return !document.getElementById('status').hidden&&document.activeElement!==document.querySelector('#status button')&&sceneState.shown>before&&sceneState.i===0;
+    return !document.getElementById('status').hidden&&sceneState.shown>before&&sceneState.i===0;
   }));
   check('OW-FINISH: Enter on the Arcade link does not skip the Archivist',()=>{
     const old=ow.S;try{ow.S=fresh();panel().hidden=true;toBetween(null,[]);
@@ -538,10 +538,80 @@ function otherworldChecks() {
     }finally{document.getElementById('ledger').hidden=true;ow.S=old;}
   });
   check('OW-FINISH: Memories and the crystal window do not cover each other',()=>withLife(()=>{
-    ow.run('a_guild');if(document.getElementById('status').hidden)return false;
+    ow.run('a_guild');document.getElementById('statusBtn').click();if(document.getElementById('status').hidden)return false;
     showLedger();if(!document.getElementById('status').hidden||document.getElementById('ledger').hidden)return false;
     showStatus();return document.getElementById('ledger').hidden&&!document.getElementById('status').hidden;
   }));
+  check('OW-FINISH: the crystal and Memories stay closed until they are tapped',()=>withLife(()=>{
+    document.getElementById('status').hidden=true;document.getElementById('ledger').hidden=true;
+    if(typeof syncReading==='function')syncReading();
+    ow.run('a_guild');
+    if(!document.getElementById('status').hidden||!document.getElementById('ledger').hidden)return false;
+    if(document.getElementById('statusBtn').hidden)return false;
+    document.getElementById('statusBtn').click();
+    return !document.getElementById('status').hidden&&document.getElementById('ledger').hidden;
+  }));
+  check('OW-FINISH: one Skip finishes a long line and a whole debrief',()=>{
+    const old=ow.S;try{
+      const life=ow.prepareLife({world:'asterhold',gift:'pocket',name:'Ren',flags:{},at:'a_wake',silver:0,status:false,mem:{}});
+      ow.S={...fresh(),name:'Ren',life};panel().hidden=true;ow.run('a_wake');
+      if(sceneState.lines[0][1].length<40)throw Error('line is short');
+      sceneState.shown=1;
+      const skip=document.querySelector('.dlg-skip');if(!skip)throw Error('no Skip');
+      skip.click();
+      if(life.at!=='a_guild')throw Error('still in '+life.at);
+      let done=false;
+      D.play(Array.from({length:8},(_,i)=>['archivist','Debrief line '+(i+1)+' is long enough that finishing the typing would take another tap.']),()=>{done=true;});
+      sceneState.shown=0;document.querySelector('.dlg-skip').click();
+      if(!done)throw Error('debrief still open');
+      return true;
+    }finally{panel().hidden=true;ow.S=old;}
+  });
+  check('OW-FINISH: Go on stays put between narration and a speaker',()=>{
+    const old=ow.S;try{
+      const life=ow.prepareLife({world:'asterhold',gift:'pocket',name:'Ren',flags:{},at:'a_wake',silver:0,status:false,mem:{}});
+      ow.S={...fresh(),name:'Ren',life};panel().hidden=true;ow.run('a_wake');
+      sceneState.shown=1e9;
+      if(!D.el.classList.contains('narr'))throw Error('expected narration');
+      const x=el=>{const r=el.getBoundingClientRect();return r.left+r.width/2;};
+      const go=document.querySelector('.dlg-continue'),x1=x(go);
+      D.advance();
+      if(D.el.classList.contains('narr'))throw Error('still narration');
+      const x2=x(go);
+      if(Math.abs(x1-x2)>2)throw Error('moved '+Math.round(x1)+' to '+Math.round(x2));
+      return true;
+    }finally{panel().hidden=true;ow.S=old;}
+  });
+  check('OW-FINISH: a four-choice menu does not focus or catch the last choice',()=>{
+    const old=ow.S;try{
+      const life=ow.prepareLife({world:'asterhold',gift:'pocket',name:'Ren',flags:{},at:'a_market',silver:6,status:false,mem:{}});
+      ow.S={...fresh(),name:'Ren',life};panel().hidden=true;ow.run('a_market');
+      const go=document.querySelector('.dlg-continue').getBoundingClientRect();
+      const px=go.left+go.width/2,py=go.top+go.height/2;
+      D.skip();
+      const buttons=[...document.querySelectorAll('.dlg-choices button')];
+      const last=buttons[buttons.length-1];
+      const hit=document.elementFromPoint(px,py);
+      if(!last||document.activeElement===last)throw Error('last choice has focus');
+      if(hit&&last.contains(hit))throw Error('old Go on spot hits the last choice');
+      return buttons.length>=4&&[...buttons].some(b=>/Keep your silver/.test(b.textContent));
+    }finally{panel().hidden=true;ow.S=old;}
+  });
+  check('OW-FINISH: the goal moves on once Hesta has your name',()=>withLife(()=>{
+    ow.run('a_guild');
+    const first=document.getElementById('goal').textContent;
+    if(!/Give Hesta your name/.test(first))return false;
+    sceneState.shown=1e9;D.advance();
+    return !/Give Hesta your name/.test(document.getElementById('goal').textContent);
+  }));
+  check('OW-FINISH: the place name keeps a dark ground on a bright sky',()=>{
+    const bg=getComputedStyle(document.querySelector('.where')).backgroundColor;
+    return bg&&bg!=='transparent'&&bg!=='rgba(0, 0, 0, 0)';
+  });
+  check('OW-FINISH: the cart and the guild show the traveller',()=>{
+    heroMarks.road=0;heroMarks.guild=0;SCENES.road(0);SCENES.guild(0);
+    return heroMarks.road>=1&&heroMarks.guild>=1;
+  });
   check('OW-FINISH: Go on, Memories and the birth controls are at least 44px',()=>{
     if(innerWidth<200||innerHeight<200)return true;
     const old=ow.S;try{
@@ -586,7 +656,7 @@ function otherworldFinishFrame() {
       return doc.scrollWidth <= doc.clientWidth + 1 && box(panel()).right <= innerWidth + 1 && box(panel()).left >= -1;
     });
     const life = ow.prepareLife({ world: 'asterhold', gift: 'appraisal', name: 'Ren', flags: {}, at: 'a_guild', silver: 6, status: false, mem: {} });
-    ow.S = { ...fresh(), name: 'Ren', life }; panel().hidden = true; ow.run('a_guild'); placeBelowHud();
+    ow.S = { ...fresh(), name: 'Ren', life }; panel().hidden = true; ow.run('a_guild'); document.getElementById('statusBtn').click(); placeBelowHud();
     const fullyIn = (el, panel) => {
       if (!el || !panel) return false;
       const r = el.getBoundingClientRect(), p = panel.getBoundingClientRect();
@@ -667,6 +737,43 @@ function otherworldFinishFrame() {
         if (typeof syncReading === 'function') syncReading();
         askMira();
         return choiceHit('memories') && !document.getElementById('ledger').hidden && document.getElementById('status').hidden;
+      });
+    }
+    if ((innerWidth === 390 && innerHeight === 600) || (innerWidth === 375 && innerHeight === 600)) {
+      const inView = el => {
+        const r = el.getBoundingClientRect();
+        return r.width > 1 && r.height > 1 && r.top >= -0.5 && r.bottom <= innerHeight + 0.5 && r.left >= -0.5 && r.right <= innerWidth + 0.5;
+      };
+      const hitsEl = el => {
+        const r = el.getBoundingClientRect();
+        const hit = document.elementFromPoint(Math.min(innerWidth - 1, r.left + Math.min(12, r.width / 2)), Math.min(innerHeight - 1, r.top + Math.min(12, r.height / 2)));
+        return !!(hit && el.contains(hit));
+      };
+      check(innerWidth + '×' + innerHeight + ': the first world and gift are in view without scrolling', () => {
+        document.getElementById('ledger').hidden = true; document.getElementById('status').hidden = true;
+        if (typeof syncReading === 'function') syncReading();
+        chooseWorld(); placeBelowHud();
+        const world = document.querySelector('[data-world]');
+        panel().scrollTop = 0;
+        if (!inView(world) || !hitsEl(world)) {
+          const r = world.getBoundingClientRect();
+          const hit = document.elementFromPoint(r.left + 12, r.top + 12);
+          throw Error('world card ' + Math.round(r.left) + '-' + Math.round(r.right) + 'x' + Math.round(r.top) + '-' + Math.round(r.bottom) + ' hit ' + (hit && (hit.className || hit.tagName)) + ' in ' + world.contains(hit));
+        }
+        chooseGift('asterhold'); placeBelowHud();
+        const gift = document.querySelector('[data-gift]');
+        panel().scrollTop = 0;
+        if (!inView(gift) || !hitsEl(gift)) throw Error('gift card ' + Math.round(gift.getBoundingClientRect().top) + '-' + Math.round(gift.getBoundingClientRect().bottom));
+        return true;
+      });
+      check(innerWidth + '×' + innerHeight + ': Put this away stays in view and can be tapped', () => {
+        showLedger();
+        const closes = [...document.querySelectorAll('#ledger [data-ledger-close]')];
+        if (!closes.length) throw Error('no close');
+        for (const b of closes) {
+          if (!inView(b) || !hitsEl(b)) throw Error('close ' + Math.round(b.getBoundingClientRect().top) + '-' + Math.round(b.getBoundingClientRect().bottom) + ' of ' + innerHeight);
+        }
+        return true;
       });
     }
   } finally {

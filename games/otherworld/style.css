@@ -5,7 +5,7 @@
 .hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;padding:10px 14px;z-index:6;pointer-events:none;max-width:100%}
 .hud>*{pointer-events:auto}.hud-left,.hud-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-width:0}
 .home,.hbtn,.arc-set-btn{font:inherit;font-size:13px;font-weight:700;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 12px;text-decoration:none;cursor:pointer}
-.where{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--gold);text-shadow:0 2px 6px #000;min-width:0;overflow-wrap:anywhere}
+.where{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--gold);background:#121028;border-radius:8px;padding:2px 8px;min-width:0;overflow-wrap:anywhere}
 .version-label{font-size:11px;color:var(--muted)}
 /* choosing a world, a gift, yourself */
 .choose{position:absolute;left:50%;top:var(--ow-below-hud,112px);transform:translateX(-50%);width:min(980px,94vw);max-height:calc(100dvh - var(--ow-below-hud,112px) - 12px);overflow:auto;overflow-x:hidden;z-index:7;
@@ -43,6 +43,13 @@ button.st-close{font:inherit;font-size:15px;margin:0 0 8px;padding:10px 14px;bor
 .dlg-otherworld .dlg-choices{display:none;flex-direction:column;align-items:stretch}
 .dlg-otherworld.asking .dlg-choices{display:flex}
 .dlg-otherworld .dlg-choices button:focus-visible{outline:3px solid #ffe3a0;outline-offset:2px}
+.dlg.dlg-otherworld.narr .dlg-face{display:block!important;visibility:hidden;width:64px;min-width:64px;height:64px}
+.dlg-otherworld .dlg-body{position:relative;padding-bottom:52px}
+.dlg-otherworld .dlg-continue,.dlg-otherworld .dlg-skip{position:absolute;bottom:4px;z-index:1}
+.dlg-otherworld .dlg-continue{left:0}
+.dlg-otherworld .dlg-skip{left:96px}
+.dlg-otherworld.asking .dlg-skip{display:none}
+.dlg-otherworld.asking .dlg-continue.go-slot{visibility:hidden;pointer-events:none}
 @media(max-width:560px){.dlg-otherworld.dlg{bottom:8px;max-height:calc(100dvh - 130px)}.dlg-otherworld .dlg-choices button{font-size:13px}.dlg-otherworld .choice-why{font-size:12px}}
 /* A wide world still needs readable people and choices. */
 @media(min-width:1600px){
@@ -69,11 +76,22 @@ button.st-close{font:inherit;font-size:15px;margin:0 0 8px;padding:10px 14px;bor
 .ledger-panel .st-title{letter-spacing:0}
 /* OW-FINISH: the goal, and tap targets that outrank the shared 40px coarse-pointer rule. */
 .goal{pointer-events:none;flex:1 0 100%;min-width:0;margin:6px 0 0;padding:8px 12px;background:#121028;border:1px solid var(--line);border-radius:12px;color:var(--gold);font-weight:700;font-size:calc(15px * var(--arc-text,1));line-height:1.35;overflow-wrap:anywhere}
-.stage a.home,.stage .hud button,.stage .chip,.stage .go,.stage .st-close,.stage .dlg.dlg-otherworld .dlg-continue,.stage .between-shortcut,.stage .row input,.arc-set .arc-set-x,.arc-set .arc-set-opts button,.arc-set .arc-set-opts a,.stage .feedback-menu a{min-height:44px;min-width:44px}
-.stage a.home,.stage .hud button,.stage .chip,.stage .go,.stage .st-close,.stage .dlg.dlg-otherworld .dlg-continue,.stage .between-shortcut{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
+.stage a.home,.stage .hud button,.stage .chip,.stage .go,.stage .st-close,.stage .dlg.dlg-otherworld .dlg-continue,.stage .dlg-skip,.stage .between-shortcut,.stage .row input,.arc-set .arc-set-x,.arc-set .arc-set-opts button,.arc-set .arc-set-opts a,.stage .feedback-menu a{min-height:44px;min-width:44px}
+.stage a.home,.stage .hud button,.stage .chip,.stage .go,.stage .st-close,.stage .dlg.dlg-otherworld .dlg-continue,.stage .dlg-skip,.stage .between-shortcut{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
 .stage .feedback-menu{max-width:calc(100vw - 16px)}
 .stage .feedback-menu a{display:flex;align-items:center;white-space:normal;box-sizing:border-box;padding:8px 12px}
 .dlg-otherworld.dlg{max-height:calc(100dvh - var(--ow-below-hud,120px) - 12px)}
+@media(max-width:560px) and (max-height:700px){
+  .hud{padding:4px 8px;gap:4px}
+  .where{font-size:16px;padding:1px 6px}
+  .goal{margin:2px 0 0;padding:4px 8px;font-size:14px;line-height:1.25;max-height:2.6em;overflow:hidden}
+  .version-label{display:none}
+  .choose{padding:10px 12px}
+  .choose h2{font-size:24px;margin-bottom:2px}
+  .sub{margin-bottom:8px}
+  .card{padding:10px;gap:4px}
+  .card b{font-size:20px}
+}
 @media(max-width:560px){
   .choose{left:8px;right:8px;width:auto;transform:none}
   .status{left:8px;right:8px;width:auto;padding:8px 10px}

@@ -2,7 +2,9 @@
 /* OW-FINISH: one goal stays on the screen, in the world's own words, for every beat of a life. */
 const LIFE_GOALS = {
   a_wake: 'The tide bell is ringing. Ride into Lanthorn and learn what it means.',
-  a_guild: 'Give Hesta your name. The crystal will show your gift.',
+  a_guild: (life, beat) => beat > 0
+    ? 'Hesta has your name. Hear the guild, then go on.'
+    : 'Give Hesta your name. The crystal will show your gift.',
   a_mira: 'Choose who faces the tide with you: Mira, Corvin, or the Deepwood alone.',
   a_market: 'Help the market, or keep your silver. The road you chose is still waiting.',
   a_pocket_job: 'Corvin wants your Pocket Space. Carry the crate, pay him off, or work until dusk.',
@@ -56,7 +58,9 @@ function currentGoalText() {
       : 'This life is ending. Listen, then return to the Between.';
   }
   if (life) {
-    let text = LIFE_GOALS[life.at] || (WORLDS[life.world] ? `Live this day in ${WORLDS[life.world].name}.` : 'Choose your next step.');
+    const raw = LIFE_GOALS[life.at];
+    const beat = sceneState && sceneState.lines ? sceneState.i || 0 : 0;
+    let text = typeof raw === 'function' ? raw(life, beat) : (raw || (WORLDS[life.world] ? `Live this day in ${WORLDS[life.world].name}.` : 'Choose your next step.'));
     if (life.at === 'a_market' || life.at === 'a_pocket_job' || life.at === 'a_departure') text += roadWaiting(life);
     return text;
   }

@@ -44,8 +44,7 @@ function ledgerHTML() {
     <div class="st-row"><span>Carried · ${lives}</span><b data-ledger-count>${have} of ${rows.length}</b></div>
     <ul class="ledger">${rows.map(r => r.carried
       ? `<li class="carried" data-memory="${r.id}"><b>✦ ${escapeStory(r.text)}</b><small>${detail(r)}</small></li>`
-      : `<li class="unknown" data-memory="${r.id}"><b>◇ Not yet remembered</b><small>${detail(r)}</small></li>`).join('')}</ul>
-    <button class="st-close" data-ledger-close>Put this away</button>`;
+      : `<li class="unknown" data-memory="${r.id}"><b>◇ Not yet remembered</b><small>${detail(r)}</small></li>`).join('')}</ul>`;
 }
 function showLedger() {
   if (typeof placeBelowHud === 'function') placeBelowHud();

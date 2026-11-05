@@ -42,7 +42,6 @@ function run(id) {
   if (n.status) life.status = true;
   save(); renderHUD();
   const avail = choicesOf(n);
-  if (n.status) showStatus();
   D.play(linesOf(n), i => {
     if (S.life !== life || life.at !== id) return;
     if (avail.length) {

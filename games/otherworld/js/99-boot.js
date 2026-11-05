@@ -9,8 +9,37 @@ D = Dialogue.create({
   onEnd: () => save()
 });
 D.el.querySelector('.dlg-continue').textContent = 'Go on';
+const skipSpeech = document.createElement('button');
+skipSpeech.type = 'button'; skipSpeech.className = 'dlg-skip'; skipSpeech.textContent = 'Skip';
+skipSpeech.setAttribute('aria-label', 'Skip the rest of this speech');
+skipSpeech.addEventListener('click', e => { e.stopPropagation(); D.skip(); });
+D.el.querySelector('.dlg-body').append(skipSpeech);
+const goOn = D.el.querySelector('.dlg-continue');
+let goHold = 0, goTimer = 0;
+const stopGoHold = () => { clearInterval(goTimer); goTimer = 0; };
+goOn.addEventListener('pointerdown', () => {
+  goHold = performance.now();
+  stopGoHold();
+  goTimer = setInterval(() => {
+    if (!goHold || performance.now() - goHold < 400 || !sceneState || D.el.classList.contains('asking')) return;
+    D.advance();
+  }, 80);
+});
+goOn.addEventListener('pointerup', stopGoHold);
+goOn.addEventListener('pointercancel', stopGoHold);
+goOn.addEventListener('pointerleave', stopGoHold);
 const playBeforeRoom = D.play.bind(D);
-D.play = (...args) => { const result = playBeforeRoom(...args); placeBelowHud(); return result; };
+D.play = (...args) => { const result = playBeforeRoom(...args); placeBelowHud(); refreshGoal(); return result; };
+function parkGoOn() {
+  const go = D.el.querySelector('.dlg-continue');
+  if (!go) return;
+  const asking = D.el.classList.contains('asking');
+  go.classList.toggle('go-slot', asking);
+  if (!asking) return;
+  go.hidden = false;
+  const choice = document.activeElement && document.activeElement.closest && document.activeElement.closest('.dlg-choices button');
+  if (choice) D.el.focus({ preventScroll: true });
+}
 Settings.create({ mount: '#hudRight', before: '.version-label', btnClass: 'hbtn', rows: [] });
 setupFeedback('Otherworld', VERSION, () => S.life ? `${WORLDS[S.life.world].name}, ${S.life.gift}, at ${S.life.at}` : 'The Between');
 /* Keep the shared portrait scene, with local locked-choice support. Neither clicks nor keys can select a lock. */
@@ -29,7 +58,7 @@ function paintChoiceLocks() {
 }
 for (const method of ['skip', 'advance']) {
   const original = D[method].bind(D);
-  D[method] = (...args) => { original(...args); paintChoiceLocks(); };
+  D[method] = (...args) => { const result = original(...args); paintChoiceLocks(); parkGoOn(); refreshGoal(); return result; };
 }
 new MutationObserver(paintChoiceLocks).observe(D.el.querySelector('.dlg-choices'), { childList: true });
 document.addEventListener('keydown', e => {
