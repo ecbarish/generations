@@ -232,15 +232,21 @@ document.querySelector('#run').onclick=async()=>{
    H.again();await wait(30);w.scrollTo(0,0);
    H.S.price=210000;H.S.down=0.25;H.S.rehab='refresh';H.S.phase='run';H.S.sure=false;
    d.querySelector('#answer').hidden=true;H.render();click('#offerBtn');await wait(300);
-   let worst=0;
-   for(const rehab of ['full','asis']){
+   const slot=d.querySelector('#answer .outlook-slot');
+   const probeW=slot?slot.querySelector('.outlook:not(.outlook-hold)').offsetWidth:0;
+   let worst=0, tallest=0;
+   for(const rehab of ['full','asis','refresh']){
     const before={month:docTop('.month'),outlook:docTop('#outlook'),card:docTop('.measures')};
     click('[data-rehab="'+rehab+'"]');await wait(40);
     const after={month:docTop('.month'),outlook:docTop('#outlook'),card:docTop('.measures')};
     worst=Math.max(worst,Math.abs(after.month-before.month),Math.abs(after.outlook-before.outlook),Math.abs(after.card-before.card));
+    const live=d.querySelector('#answer .outlook:not(.outlook-hold)');
+    if(live){const p=d.createElement('div'); p.className='outlook'; p.style.cssText='position:absolute;left:-9999px;top:0;visibility:hidden;width:'+probeW+'px'; p.innerHTML=live.innerHTML; d.body.appendChild(p); tallest=Math.max(tallest,p.offsetHeight); p.remove();}
    }
-   replyShift.push(width+' '+worst.toFixed(1));
-   check(width+' switching the work with the reply open moves the month table, outlook and card '+worst.toFixed(1)+'px',worst<=2);
+   const fitted=d.querySelector('#answer .outlook-slot');
+   const gap=fitted?fitted.offsetHeight-tallest:999;
+   replyShift.push(width+' move '+worst.toFixed(1)+' reserve '+(slot?gap.toFixed(1):'missing'));
+   check(width+' reply outlook reserve keeps the month table, outlook and card within '+worst.toFixed(1)+'px and is '+(fitted?gap.toFixed(1):'missing')+'px from the tallest work line',!!fitted&&worst<=2&&gap>=-4);
   }
   check('the open reply keeps the worksheet still ('+replyShift.join('; ')+')',replyShift.length===2);
   const tier=r=>r.answer==='no'?0:r.answer==='counter'?1:2;
@@ -291,10 +297,14 @@ document.querySelector('#run').onclick=async()=>{
    H.next();await wait(30);w.scrollTo(0,0);
    H.S.price=235000;H.S.down=0.2;H.S.rehab='refresh';H.S.phase='run';H.S.sure=false;
    d.querySelector('#answer').hidden=true;H.render();await wait(30);
+   const goalGap=()=>{const hold=d.querySelector('.goal-hold'),goalSlot=d.querySelector('.goal-slot'); if(!hold||!goalSlot) return null; return Math.abs(goalSlot.offsetHeight-hold.offsetHeight);};
+   const beforeGoal=goalGap();
    const beforeBuy=docTop('#doors');
    click('#offerBtn');await wait(40);
    const buyJump=Math.abs(docTop('#doors')-beforeBuy);
-   check(width+' the doors move '+buyJump.toFixed(1)+'px when 22 Alder is bought',buyJump<=2);
+   const afterGoal=goalGap();
+   check(width+' goal height matches its reserved line ('+(beforeGoal==null?'missing':beforeGoal.toFixed(1))+'/'+(afterGoal==null?'missing':afterGoal.toFixed(1))+'px) and the doors move '+buyJump.toFixed(1)+'px',beforeGoal!=null&&beforeGoal<=2&&afterGoal!=null&&afterGoal<=2&&buyJump<=2);
+   if(width===390) check('one home still needed says pays ('+text('#budget')+')',/You still need 1 home that pays/.test(text('#budget'))&&!/1 home that pay[^s]/.test(text('#budget')));
   }
   let replay;
   for(const [width,height] of [[1280,800],[390,844],[320,568]]){
@@ -311,6 +321,7 @@ document.querySelector('#run').onclick=async()=>{
    const winJump=Math.abs(docTop('#doors')-beforeWin);
    const goalSpare=slotSpare('.goal-slot'), budgetSpare=slotSpare('.budget-slot');
    const noteSpare=band(d.querySelector('#budget'));
+   const held=d.querySelector('.goal-hold'), goalMatch=held?Math.abs(d.querySelector('.goal-slot').offsetHeight-held.offsetHeight):null;
    const titles=[];
    const walker=d.createTreeWalker(d.body,NodeFilter.SHOW_TEXT);
    while(walker.nextNode()){
@@ -323,15 +334,33 @@ document.querySelector('#run').onclick=async()=>{
    const fin=d.querySelector('#finale');
    replay=fin.querySelector('[data-act="again"]');
    const replayBox=replay.getBoundingClientRect();
-   check(width+' win spare goal '+goalSpare.toFixed(1)+'px budget '+budgetSpare.toFixed(1)+'px, doors move '+winJump.toFixed(1)+'px, cash note '+noteSpare.toFixed(1)+'px',goalSpare<=24&&budgetSpare<=24&&winJump<=2&&noteSpare<8&&!d.querySelector('#budget').hidden);
+   const offerLine=fin.textContent.match(/made (\d+) offer/);
+   check(width+' win spare goal '+goalSpare.toFixed(1)+'px budget '+budgetSpare.toFixed(1)+'px, doors move '+winJump.toFixed(1)+'px, cash note '+noteSpare.toFixed(1)+'px, goal hold '+(goalMatch==null?'missing':goalMatch.toFixed(1))+'px',goalSpare<=24&&budgetSpare<=24&&winJump<=2&&noteSpare<8&&!d.querySelector('#budget').hidden&&goalMatch!=null&&goalMatch<=2);
    if(width===390){
     check('the win title is visible once ('+titles.join(', ')+')',titles.length===1);
-    check('the win summary counts the offers',/made \d+ offers?/.test(fin.textContent)&&/You bought/.test(fin.textContent)&&/\$[\d,]+/.test(fin.textContent));
+    check('the win summary counts the offers ('+(offerLine?offerLine[0]:'none')+')',!!offerLine&&+offerLine[1]===H.run().offers&&+offerLine[1]>=1&&!/made 0 offers/.test(fin.textContent));
+    check('the cash note does not repeat that offer summary',!/made \d+ offer/.test(text('#budget')));
     check('a win shows the homes and a replay',!fin.hidden&&fin.offsetParent&&d.querySelectorAll('#finale .yours li').length===5&&replayBox.height>=44&&replayBox.top>=-1&&replayBox.bottom<=w.innerHeight+1);
    }
   }
   replay.click();await wait(40);
   check('Walk Alder Street again starts a fresh run',/^14 Alder Street/.test(text('#addr'))&&text('#cash')==='$200,000'&&d.querySelector('#finale').hidden&&text('#offer')==='$240,000');
+  const reserved=[...d.querySelectorAll('.budget-hold>span')];
+  check('the cash note keeps a third reserved line ('+reserved.length+')',reserved.length>=3&&/88 offers/.test(reserved[2].textContent)&&d.querySelector('.budget-slot').offsetHeight+2>=reserved[2].offsetHeight);
+  frame.style.width='1280px';frame.style.height='800px';await wait(60);
+  H.again();await wait(20);
+  const offerYes=async(price,down,rehab)=>{H.S.price=price;H.S.down=down;H.S.rehab=rehab;H.S.phase='run';H.S.sure=false;d.querySelector('#answer').hidden=true;H.render();click('#offerBtn');await wait(30);};
+  await offerYes(216000,0.25,'refresh'); click('[data-act="next"]');await wait(20);
+  click('#passBtn');await wait(20); click('[data-act="next"]');await wait(20);
+  await offerYes(235000,0.2,'refresh'); click('[data-act="next"]');await wait(20);
+  click('#passBtn');await wait(20); click('[data-act="next"]');await wait(20);
+  await offerYes(138000,0.2,'refresh'); click('[data-act="next"]');await wait(20);
+  const three=text('#finale').match(/made (\d+) offer/);
+  check('a win that made three offers says made 3 offers ('+(three?three[0]:'none')+')',!!three&&+three[1]===3&&H.run().offers===3&&!/made 0 offers/.test(text('#finale')));
+  frame.style.width='375px';frame.style.height='812px';await wait(80);
+  H.render();await wait(40);
+  const spare375=slotSpare('.budget-slot');
+  check('at 375 the cash note stays within '+spare375.toFixed(1)+'px and says the others were sold',spare375<=24&&/The others were sold/.test(text('#budget'))&&!/made \d+ offer/.test(text('#budget')));
   frame.style.width='390px';frame.style.height='844px';await wait(80);
   H.again();await wait(30);w.scrollTo(0,0);
   H.S.price=210000;H.S.down=0.25;H.S.rehab='refresh';H.S.phase='run';H.S.sure=false;
@@ -342,7 +371,9 @@ document.querySelector('#run').onclick=async()=>{
   const disabledAbove=!!(make.disabled&&pass.disabled&&makeBox.height>1&&makeBox.bottom<=take.getBoundingClientRect().top+1);
   const head=d.querySelector('#answer h2').getBoundingClientRect();
   const buttonsAboveCopy=take.getBoundingClientRect().bottom<=head.top+1;
-  check('at 390 Take and Walk are in view, under the reply, and Make this offer and Pass are not disabled above them',seen(take)&&seen(walk)&&!disabledAbove&&!buttonsAboveCopy);
+  const replyOutlook=d.querySelector('#answer .outlook-slot');
+  const takeAboveOutlook=!!replyOutlook&&take.getBoundingClientRect().bottom<=replyOutlook.getBoundingClientRect().top+2;
+  check('at 390 Take and Walk sit above the reply outlook, and Make this offer and Pass are hidden',seen(take)&&seen(walk)&&!disabledAbove&&!buttonsAboveCopy&&d.querySelector('#dealActions').hidden&&takeAboveOutlook);
   H.again();await wait(20);
   H.S.price=216000;H.S.down=0.25;H.S.rehab='asis';H.render();
   const thin=text('#outlook');click('[data-down="0.2"]');const solid=text('#outlook');
